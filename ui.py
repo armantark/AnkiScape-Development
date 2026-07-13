@@ -243,9 +243,24 @@ except Exception:
     from logic_pure import combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure  # type: ignore
 
 try:
-    from .prayer_data import COMBAT_PRAYERS
+    from .prayer_data import COMBAT_PRAYERS, prayer_selection_from_target_pure
 except Exception:
-    from prayer_data import COMBAT_PRAYERS  # type: ignore
+    from prayer_data import COMBAT_PRAYERS, prayer_selection_from_target_pure  # type: ignore
+
+try:
+    from .logic_pure import (
+        effective_gilded_altar_multiplier_pure,
+        full_urn_teleport_info_pure,
+        owned_gilded_altar_effective_burners_pure,
+        prayer_selection_locked_reasons_pure,
+    )
+except Exception:
+    from logic_pure import (  # type: ignore
+        effective_gilded_altar_multiplier_pure,
+        full_urn_teleport_info_pure,
+        owned_gilded_altar_effective_burners_pure,
+        prayer_selection_locked_reasons_pure,
+    )
 
 try:
     from .logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure
@@ -2069,8 +2084,7 @@ def show_main_menu(
     on_set_cooking=None,
     on_set_runecrafting=None,
     on_set_herblore=None,
-    on_set_prayer=None,
-    on_set_prayer_gilded_mode=None,
+    on_set_prayer_selection=None,
     on_set_magic=None,
     on_set_construction=None,
     on_purchase_house=None,
@@ -2110,6 +2124,7 @@ def show_main_menu(
     on_unequip_slot=None,
     on_discard_item=None,
     on_consume_item=None,
+    on_teleport_training_urn=None,
     get_farming_projection=None,
     on_farming_action=None,
     initial_skill=None,
@@ -2288,6 +2303,15 @@ def show_main_menu(
         except Exception:
             return False
 
+    def _prayer_available() -> bool:
+        try:
+            rows = prayer_target_rows(player_data, PRAYER_DATA, PRAYER_ITEM_IMAGES, DEFAULT_PRAYER_TARGET)
+            current = str(player_data.get("current_prayer", DEFAULT_PRAYER_TARGET))
+            row = next((candidate for candidate in rows if candidate.target_id == current), None)
+            return bool(row and row.enabled)
+        except Exception:
+            return False
+
     def _combat_available() -> bool:
         try:
             return any(
@@ -2321,6 +2345,8 @@ def show_main_menu(
             return _runecrafting_available()
         if display_name == "Herblore":
             return _herblore_available()
+        if display_name == "Prayer":
+            return _prayer_available()
         # Utility / Activities is always trainable: gather_* activities need no
         # inputs, so there is always at least one runnable activity.
         return True
@@ -2357,6 +2383,9 @@ def show_main_menu(
             return
         if display_name == "Herblore" and not _herblore_available():
             warn.setText("You can't do any Herblore yet. Gather grimy herbs, vials, and secondaries, or level up first!")
+            return
+        if display_name == "Prayer" and not _prayer_available():
+            warn.setText("The selected Prayer method is not ready. Check its materials and altar requirements.")
             return
         if display_name == _COMBAT_HUB_NAME and not _combat_available():
             warn.setText("You can't fight any source-backed combat target yet.")
@@ -2589,32 +2618,73 @@ def show_main_menu(
 
     def _build_prayer_list() -> QWidget:
         panel = QWidget()
+        panel.setObjectName("prayerSkillPanel")
         panel_layout = QVBoxLayout(panel)
         panel_layout.setContentsMargins(0, 0, 0, 0)
-        flags = player_data.get("house_built_flags", {}) or {}
-        rooms = player_data.get("house_rooms_bought", {}) or {}
-        burners = min(2, sum(bool(flags.get(name)) for name in ("inscence_burner", "mahogany_burner", "marble_burner")))
-        owned_ready = bool(rooms.get("chapel") and flags.get("guilded_altar") and burners)
+
+        current_target = str(player_data.get("current_prayer", DEFAULT_PRAYER_TARGET))
+        saved_mode = str(player_data.get("prayer_gilded_mode", "hosted"))
+        current_selection = prayer_selection_from_target_pure(current_target, saved_mode)
+        default_selection = prayer_selection_from_target_pure(DEFAULT_PRAYER_TARGET, saved_mode)
+        material_id = (current_selection or default_selection or ("bones", "base"))[0]
+        altar_target = f"gilded_altar_{material_id}"
+        owned_burners = owned_gilded_altar_effective_burners_pure(player_data, altar_target)
+        owned_multiplier = effective_gilded_altar_multiplier_pure(player_data, "owned", altar_target)
+
         mode_row = QHBoxLayout()
-        mode_row.addWidget(QLabel("Gilded altar"))
+        mode_label = QLabel("Gilded altar mode")
+        mode_label.setObjectName("prayerGildedModeLabel")
+        mode_row.addWidget(mode_label)
         mode = QComboBox()
         mode.setObjectName("prayerGildedModeCombo")
-        mode.addItem("Hosted house", "hosted")
-        if owned_ready:
-            mode.addItem(f"Owned house ({burners} burner{'s' if burners != 1 else ''})", "owned")
-        selected = mode.findData(player_data.get("prayer_gilded_mode", "hosted"))
+        mode.addItem("Hosted - 350% XP", "hosted")
+        mode.addItem(f"Owned - {owned_multiplier * 100:g}% XP ({owned_burners}/2 burners)", "owned")
+        for index, ui_method_id in enumerate(("gilded_hosted", "gilded_owned")):
+            reasons = prayer_selection_locked_reasons_pure(player_data, material_id, ui_method_id, PRAYER_DATA)
+            item = mode.model().item(index)
+            if item is not None:
+                item.setEnabled(not reasons)
+                if reasons:
+                    item.setToolTip("Locked due to: " + ", ".join(reasons))
+        selected = mode.findData(saved_mode)
         mode.setCurrentIndex(max(0, selected))
-        if on_set_prayer_gilded_mode is not None:
-            mode.currentIndexChanged.connect(lambda _i: on_set_prayer_gilded_mode(mode.currentData()))
+
+        def _apply_prayer_selection(material: str, ui_method: str) -> bool:
+            if on_set_prayer_selection is None:
+                return False
+            if not on_set_prayer_selection(material, ui_method):
+                return False
+            _render_panel()
+            return True
+
+        def _on_mode_changed(_index: int) -> None:
+            selected_mode = str(mode.currentData() or "hosted")
+            ui_method = "gilded_owned" if selected_mode == "owned" else "gilded_hosted"
+            if not _apply_prayer_selection(material_id, ui_method):
+                mode.blockSignals(True)
+                mode.setCurrentIndex(max(0, mode.findData(str(player_data.get("prayer_gilded_mode", "hosted")))))
+                mode.blockSignals(False)
+
+        mode.currentIndexChanged.connect(_on_mode_changed)
         mode_row.addWidget(mode, 1)
         panel_layout.addLayout(mode_row)
+
+        def _select_prayer_target(target_id: str) -> None:
+            selection = prayer_selection_from_target_pure(
+                target_id,
+                str(player_data.get("prayer_gilded_mode", "hosted")),
+            )
+            if selection is not None:
+                _apply_prayer_selection(*selection)
+
         tree = _build_grouped_target_tree(
             prayer_target_rows(player_data, PRAYER_DATA, PRAYER_ITEM_IMAGES, DEFAULT_PRAYER_TARGET),
             {group: group for group in PRAYER_GROUP_ORDER},
             "__prayer_group__:",
-            on_set_prayer,
+            _select_prayer_target,
             group_order=list(PRAYER_GROUP_ORDER),
         )
+        tree.setObjectName("prayerTargetTree")
         panel_layout.addWidget(tree, 1)
         return panel
 
@@ -3534,6 +3604,8 @@ def show_main_menu(
         prayer_grid_layout.setContentsMargins(0, 0, 0, 0)
         selected_prayers = set(player_data.get("combat_selected_prayers", ()) or ())
         prayer_level = int(player_data.get("prayer_level", 1) or 1)
+        defence_level = int(player_data.get("defense_level", 1) or 1)
+        knight_waves_done = bool((player_data.get("knight_waves", {}) or {}).get("completed"))
         current_book = str(player_data.get("combat_prayer_book", "standard"))
         prayer_checks = []
 
@@ -3551,10 +3623,29 @@ def show_main_menu(
 
         visible_prayers = [prayer for prayer in COMBAT_PRAYERS if prayer.book == current_book]
         for index, prayer in enumerate(visible_prayers):
-            check = QCheckBox(f"{prayer.display_name} (Lv {prayer.level})")
+            level_copy = f"Lv {prayer.level} Prayer"
+            if prayer.defence_level > 1:
+                level_copy += f"; {prayer.defence_level} Defence"
+            check = QCheckBox(f"{prayer.display_name} ({level_copy})")
             check.setObjectName(f"combatPrayerCheck::{prayer.id}")
             check.setChecked(prayer.id in selected_prayers)
-            check.setEnabled(prayer.level <= prayer_level and (prayer.book != "curses" or temple_done))
+            gate_done = True
+            if prayer.quest_gate == "the_temple_at_senntisten":
+                gate_done = temple_done
+            elif prayer.quest_gate == "knight_waves":
+                gate_done = knight_waves_done
+            check.setEnabled(
+                prayer.level <= prayer_level
+                and prayer.defence_level <= defence_level
+                and gate_done
+            )
+            if prayer.quest_gate == "knight_waves":
+                requirements = [f"{prayer.level} Prayer"]
+                if prayer.defence_level > 1:
+                    requirements.append(f"{prayer.defence_level} Defence")
+                check.setToolTip(
+                    f"Requires {', '.join(requirements)}, and Knight Waves completion."
+                )
             check.setProperty("prayerLevel", prayer.level)
             check.setProperty("prayerId", prayer.id)
             check.toggled.connect(lambda checked, pid=prayer.id: _on_prayer_toggled(pid, checked))
@@ -4201,6 +4292,8 @@ def show_main_menu(
 
         if card.implemented and card.selectable_for_review:
             train_btn = QPushButton()
+            if name == "Prayer":
+                train_btn.setObjectName("prayerTrainButton")
             if state["active"] == name:
                 train_btn.setText("Currently active" if is_utility else "Currently training")
                 train_btn.setEnabled(False)
@@ -4237,6 +4330,8 @@ def show_main_menu(
                         train_btn.setToolTip("Gather raw food or prep ingredients before training Cooking.")
                     elif name == "Runecrafting":
                         train_btn.setToolTip("Complete Rune Mysteries and gather essence plus altar access.")
+                    elif name == "Prayer":
+                        train_btn.setToolTip("Check the selected Prayer method's materials and altar requirements.")
                     elif name == _COMBAT_HUB_NAME:
                         train_btn.setToolTip("Select an available enemy.")
             train_btn.clicked.connect(lambda _=False, n=name: _set_active(n))
@@ -6368,15 +6463,27 @@ def show_main_menu(
     # without rebuilding the whole dialog.
     _equipment_refreshers: list = []
 
-    def _refresh_equipment_views() -> None:
+    def _refresh_equipment_views(*, refresh_visible_skill: bool = False) -> None:
         _populate_bank_list()
         _populate_death_office()
         for refresher in _equipment_refreshers:
             refresher()
         for refresher in _combat_setup_refreshers:
             refresher()
-        if state.get("skill") == _COMBAT_HUB_NAME:
+        if refresh_visible_skill or state.get("skill") == _COMBAT_HUB_NAME:
             _render_panel()
+
+    def _full_urn_tooltip(info: dict) -> str:
+        skill = get_skill(str(info.get("skill_id", "")))
+        skill_name = skill.display_name if skill is not None else str(info.get("skill_id", "")).title()
+        xp = float(info.get("teleport_xp", 0.0) or 0.0)
+        if info.get("eligible"):
+            target_id = str(info.get("target_id", ""))
+            return f"Full urn — teleport for {xp:g} {skill_name} XP.\nReady in the carried pack for current target: {target_id}."
+        return (
+            f"Full urn — teleport for {xp:g} {skill_name} XP.\n"
+            f"Add it to the carried pack for the current {skill_name} target to enable Teleport urn."
+        )
 
     def _populate_bank_list() -> None:
         _refresh_carried_panel()
@@ -6398,7 +6505,11 @@ def show_main_menu(
                 # right-click handler can resolve equippability without parsing
                 # the "Name xN" label back apart.
                 li.setData(Qt.ItemDataRole.UserRole, item_name)
-                if is_equippable_item(item_name):
+                urn_info = full_urn_teleport_info_pure(player_data, item_name)
+                if urn_info is not None:
+                    li.setData(Qt.ItemDataRole.UserRole + 1, urn_info["urn_id"])
+                    li.setToolTip(_full_urn_tooltip(urn_info))
+                elif is_equippable_item(item_name):
                     ok, reason = can_equip_item_pure(item_name, EQUIPMENT_ITEM_DATA, player_data)
                     li.setToolTip(equipment_full_tooltip(item_name, "" if ok else reason))
                 bank_list.addItem(li)
@@ -6784,6 +6895,23 @@ def show_main_menu(
                         QMessageBox.information(bank_list, item_name, message)
 
             consume_action.triggered.connect(_do_consume)
+            menu.addSeparator()
+
+        urn_info = full_urn_teleport_info_pure(player_data, item_name)
+        if urn_info is not None:
+            teleport_action = menu.addAction("Teleport urn")
+            teleport_action.setObjectName("teleportTrainingUrnAction")
+            teleport_action.setData(urn_info["urn_id"])
+            teleport_action.setToolTip(_full_urn_tooltip(urn_info))
+            teleport_action.setEnabled(bool(urn_info["eligible"]) and on_teleport_training_urn is not None)
+
+            def _do_teleport(_checked: bool = False, urn_id=str(urn_info["urn_id"])) -> None:
+                if on_teleport_training_urn is None:
+                    return
+                if on_teleport_training_urn(urn_id):
+                    _refresh_equipment_views(refresh_visible_skill=True)
+
+            teleport_action.triggered.connect(_do_teleport)
             menu.addSeparator()
 
         if carried_mode_state["advanced"] and on_add_to_carried_layout is not None:

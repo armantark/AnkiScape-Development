@@ -35,6 +35,7 @@ class ItemDefinition:
     asset_path: Optional[str]
     source: str
     license_note: str
+    source_item_id: Optional[int] = None
     stackable: bool = True
     required_level: int = 1
     base_exp: float = 0.0
@@ -72,6 +73,13 @@ def _bool_value(spec: Mapping[str, object], key: str, default: bool) -> bool:
     return default
 
 
+def _source_item_id(spec: Mapping[str, object]) -> Optional[int]:
+    value = spec.get("source_item_id", spec.get("item_id"))
+    if isinstance(value, int) and not isinstance(value, bool):
+        return value
+    return None
+
+
 def _definition(
     name: str,
     category: ItemCategory,
@@ -88,6 +96,8 @@ def _definition(
         asset_path=images.get(name),
         source=source,
         license_note="private-fork asset; provenance not audited",
+        source_item_id=_source_item_id(spec),
+        stackable=_bool_value(spec, "stackable", True),
         required_level=_level_value(spec),
         base_exp=_number_value(spec, "exp", 0.0),
         tradeable=_bool_value(spec, "tradeable", True),
@@ -204,7 +214,10 @@ def build_item_definitions(
         if isinstance(output_name, str) and (
             extra_item_data is None or extra_item_data.get(output_name, {}).get("category") != "equipment"
         ):
-            add_definition(_definition(output_name, "crafted", "Crafting", {output_name: spec}, crafted_item_images))
+            output_spec = dict(spec)
+            if extra_item_data is not None and isinstance(extra_item_data.get(output_name), Mapping):
+                output_spec.update(extra_item_data[output_name])
+            add_definition(_definition(output_name, "crafted", "Crafting", {output_name: output_spec}, crafted_item_images))
     for spec in crafting_data.values():
         for requirement_name in spec.get("requirements", {}):
             if requirement_name not in seen_storage_keys and (extra_item_data is None or requirement_name not in extra_item_data):

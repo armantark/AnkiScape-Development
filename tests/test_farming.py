@@ -168,8 +168,7 @@ class TestFarmingStorageAndRegistry(unittest.TestCase):
             },
         }
         migrated = migrate_loaded_data(loaded, ORE_DATA, ITEM_DEFINITIONS)
-        self.assertEqual(migrated["config_version"], 32)
-        self.assertEqual(CURRENT_CONFIG_VERSION, 32)
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(migrated["farming_level"], 1)
         self.assertEqual(migrated["farming_exp"], 0)
         self.assertEqual(len([key for key in migrated["farm_patches"] if key in {row.id for row in FARMING_PATCHES}]), 51)

@@ -31,6 +31,10 @@ try:
         mining_target_locked_reasons_pure,
         magic_target_locked_reasons_pure,
         prayer_target_locked_reasons_pure,
+        owned_gilded_altar_access_reasons_pure,
+        owned_gilded_altar_effective_burners_pure,
+        owned_gilded_altar_marrentill_required_pure,
+        effective_gilded_altar_multiplier_pure,
         construction_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
         smithing_target_locked_reasons_pure,
@@ -61,6 +65,10 @@ except Exception:
         mining_target_locked_reasons_pure,
         magic_target_locked_reasons_pure,
         prayer_target_locked_reasons_pure,
+        owned_gilded_altar_access_reasons_pure,
+        owned_gilded_altar_effective_burners_pure,
+        owned_gilded_altar_marrentill_required_pure,
+        effective_gilded_altar_multiplier_pure,
         construction_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
         smithing_target_locked_reasons_pure,
@@ -194,25 +202,46 @@ def prayer_target_rows(
     for target_id, spec in prayer_data.items():
         material = str(spec.get("display_name", target_id))
         group = str(spec.get("group", "Prayer"))
-        requirements = spec.get("requirements", {}) or {}
-        reasons = prayer_target_locked_reasons_pure(player_data, target_id, prayer_data)
+        requirements = dict(spec.get("requirements", {}) or {})
+        reasons = list(prayer_target_locked_reasons_pure(player_data, target_id, prayer_data))
+        xp = float(spec.get("exp", 0) or 0)
+        method_copy = group
+        herb_copy = ""
+        if spec.get("method") == "gilded_altar":
+            mode = str(player_data.get("prayer_gilded_mode", "hosted"))
+            multiplier = effective_gilded_altar_multiplier_pure(player_data, mode, target_id)
+            xp = float(spec.get("base_exp", 0) or 0) * multiplier
+            if mode == "owned":
+                reasons.extend(owned_gilded_altar_access_reasons_pure(player_data, target_id))
+                burners = owned_gilded_altar_effective_burners_pure(player_data, target_id)
+                marrentill = owned_gilded_altar_marrentill_required_pure(player_data, target_id)
+                method_copy = f"Gilded altar · Owned · {multiplier * 100:g}% XP · {burners}/2 burners"
+                if marrentill > 0:
+                    requirements["Clean marrentill"] = marrentill
+                elif (player_data.get("prayer_owned_altar_stint", {}) or {}).get("target_id") == target_id:
+                    herb_copy = "\nClean marrentill: burners already lit for this stint"
+                else:
+                    herb_copy = "\nClean marrentill: none required (0 burners)"
+            else:
+                method_copy = "Gilded altar · Hosted · 350% XP"
+        locked_reasons = tuple(dict.fromkeys(reasons))
         tooltip = (
-            f"{group} · Prayer level {spec.get('level', 1)}\n"
-            f"Prayer XP: {spec.get('exp', 0)} per review\n"
-            f"Materials:\n{_indented_material_lines(requirements if isinstance(requirements, Mapping) else {}, inventory if isinstance(inventory, Mapping) else {})}"
+            f"{method_copy} · Prayer level {spec.get('level', 1)}\n"
+            f"Prayer XP: {xp:g} per review\n"
+            f"Materials:\n{_indented_material_lines(requirements, inventory if isinstance(inventory, Mapping) else {})}{herb_copy}"
         )
-        if reasons:
-            tooltip += "\nLocked due to: " + ", ".join(reasons)
+        if locked_reasons:
+            tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
         rows.append(TargetRowMetadata(
             target_id=target_id,
-            label=f"{material} — {spec.get('exp', 0):g} XP",
+            label=f"{material} — {xp:g} XP",
             tooltip=tooltip,
-            enabled=not reasons,
+            enabled=not locked_reasons,
             current=target_id == current,
             icon_path=prayer_item_images.get(material),
             group=group,
-            locked_reasons=reasons,
-            sort_key=(group_order.get(group, 99), float(spec.get("exp", 0) or 0), material),
+            locked_reasons=locked_reasons,
+            sort_key=(group_order.get(group, 99), xp, material),
         ))
     return tuple(rows)
 

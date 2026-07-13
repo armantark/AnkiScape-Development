@@ -10,6 +10,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, Optional, Tuple
 
+try:
+    from .urn_data import URN_POTTERY_SOURCE, URN_RUNE_SOURCE, URN_TIERS
+except ImportError:
+    from urn_data import URN_POTTERY_SOURCE, URN_RUNE_SOURCE, URN_TIERS
+
 CRAFTING_SOURCE_ROOT = "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/crafting"
 COMBINATION_SOURCE_PATH = "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/items/combine/CombinationData.kt"
 ITEMS_SOURCE_PATH = "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml"
@@ -55,9 +60,63 @@ def _req(*pairs: Tuple[str, int]) -> Tuple[Tuple[str, int], ...]:
     return tuple(pairs)
 
 
+def _urn_crafting_recipes() -> Tuple[CraftingRecipe, ...]:
+    recipes = []
+    for tier in URN_TIERS:
+        stable_item = tier.item_base.lower().replace(" ", "_")
+        unfired_id, non_runed_id, runed_id, _active_id, _full_id = tier.source_item_ids
+        recipes.extend(
+            (
+                CraftingRecipe(
+                    f"form_{stable_item}_unf",
+                    tier.item_unf,
+                    "pottery",
+                    "potters_wheel",
+                    tier.crafting_level,
+                    tier.forming_xp,
+                    _req(("Soft clay", 2)),
+                    tier.item_unf,
+                    source=URN_POTTERY_SOURCE,
+                    source_enum=tier.source_enum,
+                    source_item_id=unfired_id,
+                    notes="Urn forming uses 2 Soft clay in source.",
+                ),
+                CraftingRecipe(
+                    f"fire_{stable_item}_nr",
+                    tier.item_nr,
+                    "pottery",
+                    "pottery_oven",
+                    tier.crafting_level,
+                    tier.firing_xp,
+                    _req((tier.item_unf, 1)),
+                    tier.item_nr,
+                    source=URN_POTTERY_SOURCE,
+                    source_enum=tier.source_enum,
+                    source_item_id=non_runed_id,
+                ),
+                CraftingRecipe(
+                    f"add_rune_{stable_item}",
+                    tier.item_r,
+                    "pottery",
+                    "add_rune",
+                    tier.crafting_level,
+                    1.0,
+                    _req((tier.item_nr, 1), (tier.rune, 1)),
+                    tier.item_r,
+                    source=URN_RUNE_SOURCE,
+                    source_enum=tier.source_enum,
+                    source_item_id=runed_id,
+                    tradeable=False,
+                    notes="Runed urn recipe is live and material-gated.",
+                ),
+            )
+        )
+    return tuple(recipes)
+
+
 GEM_SOURCE = f"{CRAFTING_SOURCE_ROOT}/gems/GemData.kt"
-POTTERY_SOURCE = f"{CRAFTING_SOURCE_ROOT}/pottery/PotteryData.kt"
-POTTERY_RUNE_SOURCE = f"{CRAFTING_SOURCE_ROOT}/pottery/AddRuneAction.kt"
+POTTERY_SOURCE = URN_POTTERY_SOURCE
+POTTERY_RUNE_SOURCE = URN_RUNE_SOURCE
 SPINNING_SOURCE = f"{CRAFTING_SOURCE_ROOT}/spinning/SpinningData.kt"
 SILVER_SOURCE = f"{CRAFTING_SOURCE_ROOT}/silver/SilverData.kt"
 JEWELLERY_SOURCE = f"{CRAFTING_SOURCE_ROOT}/jewellery/JewelleryData.kt"
@@ -130,85 +189,9 @@ CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
     CraftingRecipe("form_pot_lid_unfired", "Pot lid (unfired)", "pottery", "potters_wheel", 25, 20.0, _req(("Soft clay", 1)), "Pot lid (unfired)", source=POTTERY_SOURCE, source_enum="POT_LID"),
     CraftingRecipe("fire_pot_lid", "Pot lid", "pottery", "pottery_oven", 25, 20.0, _req(("Pot lid (unfired)", 1)), "Pot lid", source=POTTERY_SOURCE, source_enum="POT_LID"),
 
-    # Urns. Each source tier is live and input-gated.
-    CraftingRecipe("form_cracked_mining_urn_unf", "Cracked mining urn (unf)", "pottery", "potters_wheel", 1, 11.8, _req(("Soft clay", 2)), "Cracked mining urn (unf)", source=POTTERY_SOURCE, source_enum="MINING_URNS", notes="Urn forming uses 2 Soft clay in source."),
-    CraftingRecipe("fire_cracked_mining_urn_nr", "Cracked mining urn (nr)", "pottery", "pottery_oven", 1, 16.8, _req(("Cracked mining urn (unf)", 1)), "Cracked mining urn (nr)", source=POTTERY_SOURCE, source_enum="MINING_URNS"),
-    CraftingRecipe("add_rune_cracked_mining_urn", "Cracked mining urn", "pottery", "add_rune", 1, 1.0, _req(("Cracked mining urn (nr)", 1), ("Earth rune", 1)), "Cracked mining urn", source=POTTERY_RUNE_SOURCE, source_enum="MINING_URNS", notes="Rune source/use belongs to future Runecrafting/urn behavior; recipe is live and material-gated."),
-    CraftingRecipe("form_cracked_cooking_urn_unf", "Cracked cooking urn (unf)", "pottery", "potters_wheel", 2, 12.0, _req(("Soft clay", 2)), "Cracked cooking urn (unf)", source=POTTERY_SOURCE, source_enum="COOKING_URNS"),
-    CraftingRecipe("fire_cracked_cooking_urn_nr", "Cracked cooking urn (nr)", "pottery", "pottery_oven", 2, 18.0, _req(("Cracked cooking urn (unf)", 1)), "Cracked cooking urn (nr)", source=POTTERY_SOURCE, source_enum="COOKING_URNS"),
-    CraftingRecipe("add_rune_cracked_cooking_urn", "Cracked cooking urn", "pottery", "add_rune", 2, 1.0, _req(("Cracked cooking urn (nr)", 1), ("Fire rune", 1)), "Cracked cooking urn", source=POTTERY_RUNE_SOURCE, source_enum="COOKING_URNS"),
-    CraftingRecipe("form_decorated_mining_urn_unf", "Decorated mining urn (unf)", "pottery", "potters_wheel", 59, 38.0, _req(("Soft clay", 2)), "Decorated mining urn (unf)", source=POTTERY_SOURCE, source_enum="MINING_URNS"),
-    CraftingRecipe("fire_decorated_mining_urn_nr", "Decorated mining urn (nr)", "pottery", "pottery_oven", 59, 57.0, _req(("Decorated mining urn (unf)", 1)), "Decorated mining urn (nr)", source=POTTERY_SOURCE, source_enum="MINING_URNS"),
-    CraftingRecipe("add_rune_decorated_mining_urn", "Decorated mining urn", "pottery", "add_rune", 59, 1.0, _req(("Decorated mining urn (nr)", 1), ("Earth rune", 1)), "Decorated mining urn", source=POTTERY_RUNE_SOURCE, source_enum="MINING_URNS"),
-    CraftingRecipe("form_fragile_mining_urn_unf", "Fragile mining urn (unf)", "pottery", "potters_wheel", 17, 21.2, _req(("Soft clay", 2)), "Fragile mining urn (unf)", source=POTTERY_SOURCE, source_enum="MINING_URNS"),
-    CraftingRecipe("fire_fragile_mining_urn_nr", "Fragile mining urn (nr)", "pottery", "pottery_oven", 17, 31.8, _req(("Fragile mining urn (unf)", 1)), "Fragile mining urn (nr)", source=POTTERY_SOURCE, source_enum="MINING_URNS"),
-    CraftingRecipe("add_rune_fragile_mining_urn", "Fragile mining urn", "pottery", "add_rune", 17, 1.0, _req(("Fragile mining urn (nr)", 1), ("Earth rune", 1)), "Fragile mining urn", source=POTTERY_RUNE_SOURCE, source_enum="MINING_URNS"),
-    CraftingRecipe("form_mining_urn_unf", "Mining urn (unf)", "pottery", "potters_wheel", 32, 27.2, _req(("Soft clay", 2)), "Mining urn (unf)", source=POTTERY_SOURCE, source_enum="MINING_URNS"),
-    CraftingRecipe("fire_mining_urn_nr", "Mining urn (nr)", "pottery", "pottery_oven", 32, 40.8, _req(("Mining urn (unf)", 1)), "Mining urn (nr)", source=POTTERY_SOURCE, source_enum="MINING_URNS"),
-    CraftingRecipe("add_rune_mining_urn", "Mining urn", "pottery", "add_rune", 32, 1.0, _req(("Mining urn (nr)", 1), ("Earth rune", 1)), "Mining urn", source=POTTERY_RUNE_SOURCE, source_enum="MINING_URNS"),
-    CraftingRecipe("form_strong_mining_urn_unf", "Strong mining urn (unf)", "pottery", "potters_wheel", 48, 30.8, _req(("Soft clay", 2)), "Strong mining urn (unf)", source=POTTERY_SOURCE, source_enum="MINING_URNS"),
-    CraftingRecipe("fire_strong_mining_urn_nr", "Strong mining urn (nr)", "pottery", "pottery_oven", 48, 49.2, _req(("Strong mining urn (unf)", 1)), "Strong mining urn (nr)", source=POTTERY_SOURCE, source_enum="MINING_URNS"),
-    CraftingRecipe("add_rune_strong_mining_urn", "Strong mining urn", "pottery", "add_rune", 48, 1.0, _req(("Strong mining urn (nr)", 1), ("Earth rune", 1)), "Strong mining urn", source=POTTERY_RUNE_SOURCE, source_enum="MINING_URNS"),
-    CraftingRecipe("form_fragile_cooking_urn_unf", "Fragile cooking urn (unf)", "pottery", "potters_wheel", 12, 16.0, _req(("Soft clay", 2)), "Fragile cooking urn (unf)", source=POTTERY_SOURCE, source_enum="COOKING_URNS"),
-    CraftingRecipe("fire_fragile_cooking_urn_nr", "Fragile cooking urn (nr)", "pottery", "pottery_oven", 12, 24.0, _req(("Fragile cooking urn (unf)", 1)), "Fragile cooking urn (nr)", source=POTTERY_SOURCE, source_enum="COOKING_URNS"),
-    CraftingRecipe("add_rune_fragile_cooking_urn", "Fragile cooking urn", "pottery", "add_rune", 12, 1.0, _req(("Fragile cooking urn (nr)", 1), ("Fire rune", 1)), "Fragile cooking urn", source=POTTERY_RUNE_SOURCE, source_enum="COOKING_URNS"),
-    CraftingRecipe("form_cooking_urn_unf", "Cooking urn (unf)", "pottery", "potters_wheel", 36, 28.6, _req(("Soft clay", 2)), "Cooking urn (unf)", source=POTTERY_SOURCE, source_enum="COOKING_URNS"),
-    CraftingRecipe("fire_cooking_urn_nr", "Cooking urn (nr)", "pottery", "pottery_oven", 36, 42.8, _req(("Cooking urn (unf)", 1)), "Cooking urn (nr)", source=POTTERY_SOURCE, source_enum="COOKING_URNS"),
-    CraftingRecipe("add_rune_cooking_urn", "Cooking urn", "pottery", "add_rune", 36, 1.0, _req(("Cooking urn (nr)", 1), ("Fire rune", 1)), "Cooking urn", source=POTTERY_RUNE_SOURCE, source_enum="COOKING_URNS"),
-    CraftingRecipe("form_strong_cooking_urn_unf", "Strong cooking urn (unf)", "pottery", "potters_wheel", 51, 35.0, _req(("Soft clay", 2)), "Strong cooking urn (unf)", source=POTTERY_SOURCE, source_enum="COOKING_URNS"),
-    CraftingRecipe("fire_strong_cooking_urn_nr", "Strong cooking urn (nr)", "pottery", "pottery_oven", 51, 52.5, _req(("Strong cooking urn (unf)", 1)), "Strong cooking urn (nr)", source=POTTERY_SOURCE, source_enum="COOKING_URNS"),
-    CraftingRecipe("add_rune_strong_cooking_urn", "Strong cooking urn", "pottery", "add_rune", 51, 1.0, _req(("Strong cooking urn (nr)", 1), ("Fire rune", 1)), "Strong cooking urn", source=POTTERY_RUNE_SOURCE, source_enum="COOKING_URNS"),
-    CraftingRecipe("form_decorated_cooking_urn_unf", "Decorated cooking urn (unf)", "pottery", "potters_wheel", 81, 52.0, _req(("Soft clay", 2)), "Decorated cooking urn (unf)", source=POTTERY_SOURCE, source_enum="COOKING_URNS"),
-    CraftingRecipe("fire_decorated_cooking_urn_nr", "Decorated cooking urn (nr)", "pottery", "pottery_oven", 81, 78.0, _req(("Decorated cooking urn (unf)", 1)), "Decorated cooking urn (nr)", source=POTTERY_SOURCE, source_enum="COOKING_URNS"),
-    CraftingRecipe("add_rune_decorated_cooking_urn", "Decorated cooking urn", "pottery", "add_rune", 81, 1.0, _req(("Decorated cooking urn (nr)", 1), ("Fire rune", 1)), "Decorated cooking urn", source=POTTERY_RUNE_SOURCE, source_enum="COOKING_URNS"),
-    CraftingRecipe("form_cracked_fishing_urn_unf", "Cracked fishing urn (unf)", "pottery", "potters_wheel", 2, 12.0, _req(("Soft clay", 2)), "Cracked fishing urn (unf)", source=POTTERY_SOURCE, source_enum="FISHING_URNS"),
-    CraftingRecipe("fire_cracked_fishing_urn_nr", "Cracked fishing urn (nr)", "pottery", "pottery_oven", 2, 18.0, _req(("Cracked fishing urn (unf)", 1)), "Cracked fishing urn (nr)", source=POTTERY_SOURCE, source_enum="FISHING_URNS"),
-    CraftingRecipe("add_rune_cracked_fishing_urn", "Cracked fishing urn", "pottery", "add_rune", 2, 1.0, _req(("Cracked fishing urn (nr)", 1), ("Water rune", 1)), "Cracked fishing urn", source=POTTERY_RUNE_SOURCE, source_enum="FISHING_URNS"),
-    CraftingRecipe("form_fragile_fishing_urn_unf", "Fragile fishing urn (unf)", "pottery", "potters_wheel", 15, 20.0, _req(("Soft clay", 2)), "Fragile fishing urn (unf)", source=POTTERY_SOURCE, source_enum="FISHING_URNS"),
-    CraftingRecipe("fire_fragile_fishing_urn_nr", "Fragile fishing urn (nr)", "pottery", "pottery_oven", 15, 30.0, _req(("Fragile fishing urn (unf)", 1)), "Fragile fishing urn (nr)", source=POTTERY_SOURCE, source_enum="FISHING_URNS"),
-    CraftingRecipe("add_rune_fragile_fishing_urn", "Fragile fishing urn", "pottery", "add_rune", 15, 1.0, _req(("Fragile fishing urn (nr)", 1), ("Water rune", 1)), "Fragile fishing urn", source=POTTERY_RUNE_SOURCE, source_enum="FISHING_URNS"),
-    CraftingRecipe("form_fishing_urn_unf", "Fishing urn (unf)", "pottery", "potters_wheel", 41, 31.2, _req(("Soft clay", 2)), "Fishing urn (unf)", source=POTTERY_SOURCE, source_enum="FISHING_URNS"),
-    CraftingRecipe("fire_fishing_urn_nr", "Fishing urn (nr)", "pottery", "pottery_oven", 41, 46.8, _req(("Fishing urn (unf)", 1)), "Fishing urn (nr)", source=POTTERY_SOURCE, source_enum="FISHING_URNS"),
-    CraftingRecipe("add_rune_fishing_urn", "Fishing urn", "pottery", "add_rune", 41, 1.0, _req(("Fishing urn (nr)", 1), ("Water rune", 1)), "Fishing urn", source=POTTERY_RUNE_SOURCE, source_enum="FISHING_URNS"),
-    CraftingRecipe("form_strong_fishing_urn_unf", "Strong fishing urn (unf)", "pottery", "potters_wheel", 53, 36.0, _req(("Soft clay", 2)), "Strong fishing urn (unf)", source=POTTERY_SOURCE, source_enum="FISHING_URNS"),
-    CraftingRecipe("fire_strong_fishing_urn_nr", "Strong fishing urn (nr)", "pottery", "pottery_oven", 53, 54.0, _req(("Strong fishing urn (unf)", 1)), "Strong fishing urn (nr)", source=POTTERY_SOURCE, source_enum="FISHING_URNS"),
-    CraftingRecipe("add_rune_strong_fishing_urn", "Strong fishing urn", "pottery", "add_rune", 53, 1.0, _req(("Strong fishing urn (nr)", 1), ("Water rune", 1)), "Strong fishing urn", source=POTTERY_RUNE_SOURCE, source_enum="FISHING_URNS"),
-    CraftingRecipe("form_decorated_fishing_urn_unf", "Decorated fishing urn (unf)", "pottery", "potters_wheel", 76, 48.0, _req(("Soft clay", 2)), "Decorated fishing urn (unf)", source=POTTERY_SOURCE, source_enum="FISHING_URNS"),
-    CraftingRecipe("fire_decorated_fishing_urn_nr", "Decorated fishing urn (nr)", "pottery", "pottery_oven", 76, 72.0, _req(("Decorated fishing urn (unf)", 1)), "Decorated fishing urn (nr)", source=POTTERY_SOURCE, source_enum="FISHING_URNS"),
-    CraftingRecipe("add_rune_decorated_fishing_urn", "Decorated fishing urn", "pottery", "add_rune", 76, 1.0, _req(("Decorated fishing urn (nr)", 1), ("Water rune", 1)), "Decorated fishing urn", source=POTTERY_RUNE_SOURCE, source_enum="FISHING_URNS"),
-    CraftingRecipe("form_cracked_woodcutting_urn_unf", "Cracked woodcutting urn (unf)", "pottery", "potters_wheel", 4, 15.4, _req(("Soft clay", 2)), "Cracked woodcutting urn (unf)", source=POTTERY_SOURCE, source_enum="WOODCUTTING_URNS"),
-    CraftingRecipe("fire_cracked_woodcutting_urn_nr", "Cracked woodcutting urn (nr)", "pottery", "pottery_oven", 4, 23.1, _req(("Cracked woodcutting urn (unf)", 1)), "Cracked woodcutting urn (nr)", source=POTTERY_SOURCE, source_enum="WOODCUTTING_URNS"),
-    CraftingRecipe("add_rune_cracked_woodcutting_urn", "Cracked woodcutting urn", "pottery", "add_rune", 4, 1.0, _req(("Cracked woodcutting urn (nr)", 1), ("Earth rune", 1)), "Cracked woodcutting urn", source=POTTERY_RUNE_SOURCE, source_enum="WOODCUTTING_URNS"),
-    CraftingRecipe("form_fragile_woodcutting_urn_unf", "Fragile woodcutting urn (unf)", "pottery", "potters_wheel", 15, 20.0, _req(("Soft clay", 2)), "Fragile woodcutting urn (unf)", source=POTTERY_SOURCE, source_enum="WOODCUTTING_URNS"),
-    CraftingRecipe("fire_fragile_woodcutting_urn_nr", "Fragile woodcutting urn (nr)", "pottery", "pottery_oven", 15, 30.0, _req(("Fragile woodcutting urn (unf)", 1)), "Fragile woodcutting urn (nr)", source=POTTERY_SOURCE, source_enum="WOODCUTTING_URNS"),
-    CraftingRecipe("add_rune_fragile_woodcutting_urn", "Fragile woodcutting urn", "pottery", "add_rune", 15, 1.0, _req(("Fragile woodcutting urn (nr)", 1), ("Earth rune", 1)), "Fragile woodcutting urn", source=POTTERY_RUNE_SOURCE, source_enum="WOODCUTTING_URNS"),
-    CraftingRecipe("form_woodcutting_urn_unf", "Woodcutting urn (unf)", "pottery", "potters_wheel", 44, 32.0, _req(("Soft clay", 2)), "Woodcutting urn (unf)", source=POTTERY_SOURCE, source_enum="WOODCUTTING_URNS"),
-    CraftingRecipe("fire_woodcutting_urn_nr", "Woodcutting urn (nr)", "pottery", "pottery_oven", 44, 48.0, _req(("Woodcutting urn (unf)", 1)), "Woodcutting urn (nr)", source=POTTERY_SOURCE, source_enum="WOODCUTTING_URNS"),
-    CraftingRecipe("add_rune_woodcutting_urn", "Woodcutting urn", "pottery", "add_rune", 44, 1.0, _req(("Woodcutting urn (nr)", 1), ("Earth rune", 1)), "Woodcutting urn", source=POTTERY_RUNE_SOURCE, source_enum="WOODCUTTING_URNS"),
-    CraftingRecipe("form_strong_woodcutting_urn_unf", "Strong woodcutting urn (unf)", "pottery", "potters_wheel", 61, 38.8, _req(("Soft clay", 2)), "Strong woodcutting urn (unf)", source=POTTERY_SOURCE, source_enum="WOODCUTTING_URNS"),
-    CraftingRecipe("fire_strong_woodcutting_urn_nr", "Strong woodcutting urn (nr)", "pottery", "pottery_oven", 61, 58.2, _req(("Strong woodcutting urn (unf)", 1)), "Strong woodcutting urn (nr)", source=POTTERY_SOURCE, source_enum="WOODCUTTING_URNS"),
-    CraftingRecipe("add_rune_strong_woodcutting_urn", "Strong woodcutting urn", "pottery", "add_rune", 61, 1.0, _req(("Strong woodcutting urn (nr)", 1), ("Earth rune", 1)), "Strong woodcutting urn", source=POTTERY_RUNE_SOURCE, source_enum="WOODCUTTING_URNS"),
-    CraftingRecipe("form_cracked_smelting_urn_unf", "Cracked smelting urn (unf)", "pottery", "potters_wheel", 4, 15.4, _req(("Soft clay", 2)), "Cracked smelting urn (unf)", source=POTTERY_SOURCE, source_enum="SMELTING_URNS"),
-    CraftingRecipe("fire_cracked_smelting_urn_nr", "Cracked smelting urn (nr)", "pottery", "pottery_oven", 4, 23.8, _req(("Cracked smelting urn (unf)", 1)), "Cracked smelting urn (nr)", source=POTTERY_SOURCE, source_enum="SMELTING_URNS"),
-    CraftingRecipe("add_rune_cracked_smelting_urn", "Cracked smelting urn", "pottery", "add_rune", 4, 1.0, _req(("Cracked smelting urn (nr)", 1), ("Fire rune", 1)), "Cracked smelting urn", source=POTTERY_RUNE_SOURCE, source_enum="SMELTING_URNS"),
-    CraftingRecipe("form_fragile_smelting_urn_unf", "Fragile smelting urn (unf)", "pottery", "potters_wheel", 17, 21.2, _req(("Soft clay", 2)), "Fragile smelting urn (unf)", source=POTTERY_SOURCE, source_enum="SMELTING_URNS"),
-    CraftingRecipe("fire_fragile_smelting_urn_nr", "Fragile smelting urn (nr)", "pottery", "pottery_oven", 17, 31.8, _req(("Fragile smelting urn (unf)", 1)), "Fragile smelting urn (nr)", source=POTTERY_SOURCE, source_enum="SMELTING_URNS"),
-    CraftingRecipe("add_rune_fragile_smelting_urn", "Fragile smelting urn", "pottery", "add_rune", 17, 1.0, _req(("Fragile smelting urn (nr)", 1), ("Fire rune", 1)), "Fragile smelting urn", source=POTTERY_RUNE_SOURCE, source_enum="SMELTING_URNS"),
-    CraftingRecipe("form_smelting_urn_unf", "Smelting urn (unf)", "pottery", "potters_wheel", 35, 28.0, _req(("Soft clay", 2)), "Smelting urn (unf)", source=POTTERY_SOURCE, source_enum="SMELTING_URNS"),
-    CraftingRecipe("fire_smelting_urn_nr", "Smelting urn (nr)", "pottery", "pottery_oven", 35, 42.0, _req(("Smelting urn (unf)", 1)), "Smelting urn (nr)", source=POTTERY_SOURCE, source_enum="SMELTING_URNS"),
-    CraftingRecipe("add_rune_smelting_urn", "Smelting urn", "pottery", "add_rune", 35, 1.0, _req(("Smelting urn (nr)", 1), ("Fire rune", 1)), "Smelting urn", source=POTTERY_RUNE_SOURCE, source_enum="SMELTING_URNS"),
-    CraftingRecipe("form_strong_smelting_urn_unf", "Strong smelting urn (unf)", "pottery", "potters_wheel", 49, 33.8, _req(("Soft clay", 2)), "Strong smelting urn (unf)", source=POTTERY_SOURCE, source_enum="SMELTING_URNS"),
-    CraftingRecipe("fire_strong_smelting_urn_nr", "Strong smelting urn (nr)", "pottery", "pottery_oven", 49, 50.8, _req(("Strong smelting urn (unf)", 1)), "Strong smelting urn (nr)", source=POTTERY_SOURCE, source_enum="SMELTING_URNS"),
-    CraftingRecipe("add_rune_strong_smelting_urn", "Strong smelting urn", "pottery", "add_rune", 49, 1.0, _req(("Strong smelting urn (nr)", 1), ("Fire rune", 1)), "Strong smelting urn", source=POTTERY_RUNE_SOURCE, source_enum="SMELTING_URNS"),
-    CraftingRecipe("form_impious_urn_unf", "Impious urn (unf)", "pottery", "potters_wheel", 2, 12.0, _req(("Soft clay", 2)), "Impious urn (unf)", source=POTTERY_SOURCE, source_enum="PRAYER_URNS"),
-    CraftingRecipe("fire_impious_urn_nr", "Impious urn (nr)", "pottery", "pottery_oven", 2, 18.0, _req(("Impious urn (unf)", 1)), "Impious urn (nr)", source=POTTERY_SOURCE, source_enum="PRAYER_URNS"),
-    CraftingRecipe("add_rune_impious_urn", "Impious urn", "pottery", "add_rune", 2, 1.0, _req(("Impious urn (nr)", 1), ("Air rune", 1)), "Impious urn", source=POTTERY_RUNE_SOURCE, source_enum="PRAYER_URNS"),
-    CraftingRecipe("form_accursed_urn_unf", "Accursed urn (unf)", "pottery", "potters_wheel", 26, 25.0, _req(("Soft clay", 2)), "Accursed urn (unf)", source=POTTERY_SOURCE, source_enum="PRAYER_URNS"),
-    CraftingRecipe("fire_accursed_urn_nr", "Accursed urn (nr)", "pottery", "pottery_oven", 26, 37.5, _req(("Accursed urn (unf)", 1)), "Accursed urn (nr)", source=POTTERY_SOURCE, source_enum="PRAYER_URNS"),
-    CraftingRecipe("add_rune_accursed_urn", "Accursed urn", "pottery", "add_rune", 26, 1.0, _req(("Accursed urn (nr)", 1), ("Air rune", 1)), "Accursed urn", source=POTTERY_RUNE_SOURCE, source_enum="PRAYER_URNS"),
-    CraftingRecipe("form_infernal_urn_unf", "Infernal urn (unf)", "pottery", "potters_wheel", 62, 40.0, _req(("Soft clay", 2)), "Infernal urn (unf)", source=POTTERY_SOURCE, source_enum="PRAYER_URNS"),
-    CraftingRecipe("fire_infernal_urn_nr", "Infernal urn (nr)", "pottery", "pottery_oven", 62, 60.0, _req(("Infernal urn (unf)", 1)), "Infernal urn (nr)", source=POTTERY_SOURCE, source_enum="PRAYER_URNS"),
-    CraftingRecipe("add_rune_infernal_urn", "Infernal urn", "pottery", "add_rune", 62, 1.0, _req(("Infernal urn (nr)", 1), ("Air rune", 1)), "Infernal urn", source=POTTERY_RUNE_SOURCE, source_enum="PRAYER_URNS"),
+    # Urns. The five physical states, source IDs, and Crafting metadata come
+    # from urn_data.py so runtime lifecycle and Crafting exports cannot drift.
+    *_urn_crafting_recipes(),
 
     # Spinning. No XP-bearing batching.
     CraftingRecipe("spin_wool_to_ball_of_wool", "Ball of wool", "spinning", "spinning_wheel", 1, 2.5, _req(("Wool", 1)), "Ball of wool", source=SPINNING_SOURCE, source_enum="WOOL"),

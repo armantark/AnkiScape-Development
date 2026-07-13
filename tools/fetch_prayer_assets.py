@@ -15,34 +15,44 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from prayer_data import prayer_extra_items_as_dict
-from tools.fetch_assets import AssetFetchError, AssetRequest, HttpWikiClient, fetch_asset
+from prayer_passive_data import prayer_passive_items_as_dict
+from tools.fetch_assets import AssetFetchError, AssetRequest, HttpWikiClient, RS3_WIKI, fetch_asset
 
 
 def _slug(name: str) -> str:
     return "_".join(part for part in "".join(ch.lower() if ch.isalnum() else " " for ch in name).split())
 
 
-def main() -> int:
-    client = HttpWikiClient(min_interval_seconds=1.1)
-    failures = []
-    requests = [
+def asset_manifest() -> tuple[AssetRequest, ...]:
+    item_names = tuple(dict.fromkeys((*prayer_extra_items_as_dict(), *prayer_passive_items_as_dict())))
+    requests = tuple(
         AssetRequest(
             item_name=name,
             wiki_title=f"{name}.png",
             output_path=ROOT / "prayeritems" / f"{_slug(name)}.png",
             provenance_path=ROOT / "assets_provenance.json",
         )
-        for name in prayer_extra_items_as_dict()
-    ]
-    requests.append(AssetRequest(
-        item_name="Prayer skill icon",
-        wiki_title="Prayer icon (detail).png",
-        output_path=ROOT / "icon" / "prayer_icon.png",
-        provenance_path=ROOT / "assets_provenance.json",
-    ))
+        for name in item_names
+    )
+    return requests + (
+        AssetRequest(
+            item_name="Prayer skill icon",
+            wiki_title="Prayer icon (detail).png",
+            output_path=ROOT / "icon" / "prayer_icon.png",
+            provenance_path=ROOT / "assets_provenance.json",
+        ),
+    )
+
+
+def main() -> int:
+    client = HttpWikiClient(min_interval_seconds=1.1)
+    failures = []
+    # Existing checked-in art is immutable for this closure. Skipping before the
+    # resolver also means the network run touches only newly added manifest rows.
+    requests = tuple(request for request in asset_manifest() if not request.output_path.exists())
     for request in requests:
         try:
-            outcome = fetch_asset(request, client, size=64)
+            outcome = fetch_asset(request, client, size=64, sources=(RS3_WIKI,))
             print(f"{outcome.item_name}: {outcome.source_wiki} -> {outcome.output_path}")
         except AssetFetchError as exc:
             failures.append(f"{request.item_name}: {exc}")

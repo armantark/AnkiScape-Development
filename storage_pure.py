@@ -12,6 +12,7 @@ try:
         LEGACY_CRAFTING_TARGETS,
     )
     from .item_registry import ItemDefinition
+    from .urn_data import URN_PLAIN_TO_RUNED_ITEM, default_urn_state_pure, sanitize_urn_state_pure
     from .constants import EXP_TABLE
     from .quest_data import DEFAULT_QUEST_TARGET, default_claim_states, default_quest_states
     from .runecrafting_data import DEFAULT_RUNECRAFTING_TARGET, RUNECRAFTING_TARGETS_BY_ID
@@ -57,6 +58,7 @@ except ImportError:
         LEGACY_CRAFTING_TARGETS,
     )
     from item_registry import ItemDefinition
+    from urn_data import URN_PLAIN_TO_RUNED_ITEM, default_urn_state_pure, sanitize_urn_state_pure
     from constants import EXP_TABLE
     from quest_data import DEFAULT_QUEST_TARGET, default_claim_states, default_quest_states
     from runecrafting_data import DEFAULT_RUNECRAFTING_TARGET, RUNECRAFTING_TARGETS_BY_ID
@@ -93,7 +95,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 32
+CURRENT_CONFIG_VERSION = 33
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -182,6 +184,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["house_style"] = "basic_wood"
     data["prayer_gilded_mode"] = "hosted"
     data["prayer_owned_altar_stint"] = {}
+    data.update(default_urn_state_pure())
     data["cooking_success_count"] = 0
     data["cooking_burn_count"] = 0
     data["hunter_success_count"] = 0
@@ -583,6 +586,85 @@ def _migrate_equipment(data: Dict[str, Any]) -> None:
     data.pop("owned_equipment", None)
 
 
+def _merge_renamed_item_quantity(store: Any, old_name: str, new_name: str) -> None:
+    if not isinstance(store, dict) or old_name not in store:
+        return
+    try:
+        amount = max(0, int(store.get(old_name, 0) or 0))
+    except (TypeError, ValueError):
+        amount = 0
+    try:
+        existing = max(0, int(store.get(new_name, 0) or 0))
+    except (TypeError, ValueError):
+        existing = 0
+    store[new_name] = existing + amount
+    store.pop(old_name, None)
+
+
+def _migrate_plain_urn_item_stores(data: Dict[str, Any]) -> None:
+    inventory = data.get("inventory")
+    for old_name, new_name in URN_PLAIN_TO_RUNED_ITEM.items():
+        _merge_renamed_item_quantity(inventory, old_name, new_name)
+
+    for collection_key in ("carried_inventory", "carried_layout"):
+        collection = data.get(collection_key)
+        if not isinstance(collection, dict):
+            continue
+        for item_store in collection.values():
+            for old_name, new_name in URN_PLAIN_TO_RUNED_ITEM.items():
+                _merge_renamed_item_quantity(item_store, old_name, new_name)
+
+    for state_key in ("combat_grave", "death_office"):
+        state = data.get(state_key)
+        if not isinstance(state, dict) or not isinstance(state.get("items"), list):
+            continue
+        state["items"] = [URN_PLAIN_TO_RUNED_ITEM.get(item_name, item_name) for item_name in state["items"]]
+
+
+def _merge_target_key(collection: Any, old_target: str, new_target: str) -> None:
+    if not isinstance(collection, dict) or old_target not in collection:
+        return
+    old_value = collection.pop(old_target)
+    if new_target not in collection:
+        collection[new_target] = old_value
+        return
+    current = collection[new_target]
+    if isinstance(current, dict) and isinstance(old_value, dict):
+        merged = dict(current)
+        for key, value in old_value.items():
+            if isinstance(value, int) and not isinstance(value, bool) and isinstance(merged.get(key), int) and not isinstance(merged.get(key), bool):
+                merged[key] += value
+            else:
+                merged.setdefault(key, value)
+        collection[new_target] = merged
+    elif isinstance(current, bool) and isinstance(old_value, bool):
+        collection[new_target] = current or old_value
+    elif isinstance(current, int) and isinstance(old_value, int):
+        collection[new_target] = current + old_value
+
+
+def _migrate_ancient_gilded_target(data: Dict[str, Any]) -> None:
+    old_target = "gilded_altar_ancient_bones"
+    new_target = "bury_ancient_bones"
+    if data.get("current_prayer") == old_target:
+        data["current_prayer"] = new_target
+    for state_key in ("prayer_owned_altar_stint", "prayer_gilded_house_search"):
+        state = data.get(state_key)
+        if isinstance(state, dict) and state.get("target_id") == old_target:
+            data[state_key] = {}
+    for collection_key in (
+        "carried_inventory",
+        "carried_churn",
+        "carried_layout",
+        "carried_advanced_targets",
+        "carried_primed_targets",
+    ):
+        _merge_target_key(data.get(collection_key), old_target, new_target)
+    bank_run = data.get("skilling_bank_run")
+    if isinstance(bank_run, dict) and bank_run.get("target_id") == old_target:
+        bank_run["target_id"] = new_target
+
+
 def migrate_loaded_data(
     loaded: Dict[str, Any],
     ORE_DATA: Dict[str, Any],
@@ -712,6 +794,13 @@ def migrate_loaded_data(
     if loaded_config_version < 32:
         for key, value in default_farming_state_pure().items():
             data.setdefault(key, value)
+    # v33: shared six-skill urn state, passive telemetry, authentic runed-item
+    # names, and retirement of the unsupported Ancient-bones altar target.
+    if loaded_config_version < 33:
+        for key, value in default_urn_state_pure().items():
+            data.setdefault(key, value)
+        _migrate_plain_urn_item_stores(data)
+        _migrate_ancient_gilded_target(data)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -731,8 +820,24 @@ def migrate_loaded_data(
     data.setdefault("house_style", "basic_wood")
     data.setdefault("prayer_gilded_mode", "hosted")
     data.setdefault("prayer_owned_altar_stint", {})
+    for key, value in default_urn_state_pure().items():
+        data.setdefault(key, value)
+    # Always repair invalid/dangling urn pointers and progress. This is a load
+    # invariant, not a schema migration; valid partial urns remain valid in bank.
+    data.update(sanitize_urn_state_pure(data))
     data.update(sanitize_farming_state_pure(data))
     data.update(sanitize_combat_state_pure(data))
+    combat_current_levels = data.get("combat_current_levels")
+    if isinstance(combat_current_levels, dict) and "prayer" in combat_current_levels:
+        try:
+            stale_prayer_level = int(combat_current_levels["prayer"])
+            base_prayer_level = max(1, int(data.get("prayer_level", 1) or 1))
+        except (TypeError, ValueError, OverflowError):
+            stale_prayer_level = base_prayer_level = 1
+        if stale_prayer_level > base_prayer_level:
+            combat_current_levels = dict(combat_current_levels)
+            combat_current_levels.pop("prayer", None)
+            data["combat_current_levels"] = combat_current_levels
 
     # Progress key retained (not critical)
     data.setdefault("progress_to_next", 0)

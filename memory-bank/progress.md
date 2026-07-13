@@ -1,112 +1,74 @@
 # Progress
 
-## Current Baseline — 2026-07-11
+## Current Baseline — 2026-07-13
 
-AnkiScape has moved beyond its original four-skill prototype. The live foundation is broad enough that progress is now tracked by completion programs rather than sequential v1 phases.
+AnkiScape now has 15 complete skill surfaces, five partial Combat-trained skills, and five planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is a historical snapshot.
 
-Canonical status:
+## Complete Skill Surfaces
 
-- `memory-bank/completion-audit-2026-07-10.md`
-- `memory-bank/completion-audit.json`
-- `memory-bank/future-work-kanban.md`
-- `memory-bank/gap-backlog.json`
+- Gathering: Mining, Woodcutting, Farming, Fishing, Hunter.
+- Artisan: Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Herblore, Construction.
+- Support/combat-adjacent: Prayer and Magic.
 
-Historical implementation detail remains in dated source audits and status artifacts; it is intentionally not duplicated here.
-
-## Implemented Review Skills
-
-- Gathering: Mining, Woodcutting, Fishing, Hunter.
-- Artisan: Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Herblore.
-- All use stable targets, flat save state, review dispatch, inventory mutation, telemetry, undo, assets/provenance, Skills hub UI, Stats/Bank/HUD integration, and test coverage.
+These surfaces use stable IDs, flat save state, review or background dispatch as appropriate, inventory mutation, telemetry, undo, assets/provenance, Skills-hub UI, Stats/Bank/HUD integration, and focused tests.
 
 ## Partial Combat Skills
 
-Unified Combat already trains:
+Unified Combat trains Attack, Strength, Defence, Constitution, and Ranged. They deliberately remain `partial` because they do not own independent Skills-hub review surfaces. Magic is complete: its noncombat and combat contracts both ship.
 
-- Attack
-- Strength
-- Defence
-- Constitution
-- Ranged
-- Magic
+## Planned Skills
 
-The engine includes weapon-aware styles/attack types, standard bows/arrows, standard elemental combat spells, runes/staff substitution, supplies/loadouts, HP/food, stat potions, poison/antipoison, special energy scaffolding, drops, kill counts, equipment, death/graves/Death's Office, safe recovery, quest combat, target risk previews, carried inventory, banking, and undo.
+- Summoning
+- Agility
+- Dungeoneering
+- Slayer
+- Thieving
 
-These six are now explicitly `partial` in `skill_registry.py`, with Combat recorded as their training source. They remain non-implemented as independent review surfaces because full parity breadth does not yet exist.
+Each needs a closed product/source contract before implementation.
 
-## Missing Skills
+## Latest Closure
 
-- Prayer — partial design grill, no live skill loop.
-- Summoning.
-- Construction.
-- Farming.
-- Agility.
-- Dungeoneering.
-- Slayer.
-- Thieving.
-- Magic also remains incomplete as a full skill because only its combat slice is live.
+The Prayer polish closure adds:
 
-Every wholly missing skill requires a deep grill; see the canonical Kanban.
+- atomic material/method selection;
+- owned gilded altars at 250/300/350% with once-per-stint marrentill;
+- 26 five-state training-urn tiers across Mining, Cooking, Fishing, Woodcutting, Smithing, and Prayer;
+- target-carried Bonecrusher and Ectoplasmator behavior;
+- direct full-urn teleport with immediate persistence and independent LIFO undo;
+- substitution-aware skilling and Combat repacks;
+- exact Chivalry/Rigour/Augury/Piety Defence gates;
+- distinct Bonemeal and Wyvern bonemeal identities plus Prayer/Super prayer restore behavior;
+- explicit RS3 provenance for the two new passive icons.
 
-## Quests
-
-- 194 pre-EOC catalog rows, with Recipe for Disaster split into subquests.
-- Strict starts, prerequisites, quest points, rewards/pending future-skill XP, stage requirements, produced/consumed items, action blockers, branch variants, quest combat integration, availability filters, and many focused hand-audited replacements are live.
-- This is coverage scaffolding. Full fidelity still requires quest-by-quest stages, branches, transformations, combat, rewards, journals, unlocks, and missing-skill dependencies.
+The durable source/conflict record is `source-audits/prayer-altar-urn-passives-herblore-closure-2026-07-13.md`.
 
 ## Systems That Work
 
-- Skills hub and shared target metadata/renderers.
+- Skills hub, target metadata/renderers, Stats, Bank, Equipment, HUD, settings, and achievements.
 - Utility/Activities and material processing.
-- Bank, carried inventory, target-local Advanced layouts, presets, bank runs, drop mode, and undo.
-- Equipment and Combat setup.
-- NPC Shops, prices, shared stock, services/actions, player sells, market clock, and shop undo.
-- Bank Claims and pending skill XP rewards.
-- Achievements and Stats.
-- Review HUD, floating XP, level-up/achievement feedback, settings, and review action multipliers.
-- Item registry, asset scraping/provenance, source generators, quest/source audit tooling, and OpenRS2 cache queries.
+- Target-local carried inventory, Advanced layouts, bank runs, Keep/Drop, Combat loadouts, and undo.
+- NPC Shops, shared stock, services/actions, player selling, market clock, and shop undo.
+- Bank Claims and pending future-skill XP rewards.
+- A 194-row pre-EOC quest catalog with stage gates and focused audited replacements; presence remains scaffolding, not full fidelity.
+- Item registry, source generators, asset scraping/provenance, reachability audit, and OpenRS2 cache queries.
 
-## Latest Parity Additions
+## Remaining Programs
 
-- Truthful complete/partial/planned skill registry, including direct quest/action XP for live partial Combat stats.
-- Deterministic item reachability audit and repaired empty-bird-nest → crushed-nest chain.
-- Lava eel Cooking (`a3cb89e`).
-- Overload mixing and explicit RS3 asset sourcing (`28359a7`).
-- Cannonball Smithing with quest/mould/carried-layout/undo behavior (`fefca70`).
-- Cannonball-aware Smithing generator (`e64269c`).
-- Mould-aware Crafting fixtures and tanning icon contract repair (`5b13ff2`).
-
-## Detailed Existing-Skill Backlog
-
-`memory-bank/gap-backlog.json` is authoritative for the eleven registered skills. At the completion audit:
-
-- 22 cards merged.
-- 12 design-settled/source-waiting.
-- Four split-scope.
-- One parked Farming seed.
-- Grenwall source verification is closed as blocked pending literal period evidence or stable reconciled Darkan data.
-- One partially reopened/source-waiting.
-- One post-cutoff rejection.
-- One product-scope rejection.
-
-Do not promote a waiting card by guessing values. Split a proven sub-slice from a blocked family when appropriate.
-
-## Not Yet Complete
-
-- Eight wholly missing skill loops plus full Magic.
-- Full combat/equipment/enemy/boss/instance breadth.
+- Five planned skill loops.
+- Full Combat/equipment/enemy/boss/instance breadth.
 - Quest-by-quest fidelity across all 194 rows.
 - Activities, minigames, D&Ds, reward currencies/shops, and timed events.
-- GE and broad acquisition closure.
-- Achievement diaries, clue scrolls, collection tracking, and one-time world rewards.
-- Global level-1-to-99 and economy pacing.
-- Release-readiness and public/private distribution decision.
+- GE and broad authentic acquisition closure.
+- Achievement diaries, clue scrolls, collections, and one-time world rewards.
+- Global level-1-to-99/economy pacing and release-readiness.
 
-## Test Baseline
+## Verification Baseline
 
-After the 2026-07-11 autonomous closure pass:
+- Focused Prayer/passive/urn/logic/combat/Construction/runtime/storage/integration/Farming: 626 tests passing.
+- Independent backend audit superset: 663 tests passing.
+- `python3 run_tests.py`: 1,198 tests passing, 187 skips, 3 expected failures.
+- Full real offscreen Qt discovery: 1,198 tests passing, 3 expected failures.
+- Reachability: 1,102 actions, 725 consumed items, 296 orphan inputs (151 root, 145 cascade).
+- Compilation and `git diff --check`: clean.
 
-- `python3 run_tests.py`: 1,001 passed, 160 skipped.
-- Full offscreen Qt discovery: 1,001 passed.
-
-Test counts are historical snapshots, not permanent assertions; current runs outrank this note.
+Test counts are snapshots; current runs outrank this note.

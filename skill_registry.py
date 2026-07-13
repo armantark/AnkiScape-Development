@@ -206,7 +206,7 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
     SkillDefinition(
         id="prayer",
         display_name="Prayer",
-        category="support",
+        category="combat",
         implemented=True,
         participates_in_review=True,
         action_kind="process",

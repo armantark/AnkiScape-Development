@@ -122,6 +122,8 @@ try:
         prayer_targets_as_dict,
         prayer_utility_activities_as_dict,
     )
+    from .prayer_passive_data import prayer_passive_items_as_dict
+    from .urn_data import URN_TIERS, urn_extra_items_as_dict
     from .magic_data import (
         DEFAULT_MAGIC_TARGET,
         MAGIC_GROUP_ORDER,
@@ -255,6 +257,8 @@ except ImportError:
         prayer_targets_as_dict,
         prayer_utility_activities_as_dict,
     )
+    from prayer_passive_data import prayer_passive_items_as_dict
+    from urn_data import URN_TIERS, urn_extra_items_as_dict
     from magic_data import (
         DEFAULT_MAGIC_TARGET,
         MAGIC_GROUP_ORDER,
@@ -660,6 +664,14 @@ for _item_name in _crafting_item_names:
     if os.path.exists(_path):
         CRAFTED_ITEM_IMAGES[_item_name] = _path
 
+# The existing finished-urn sprites are shared by their runed, active, and full
+# storage states until a state-specific historical art pass is needed.
+for _urn_tier in URN_TIERS:
+    _path = os.path.join(CRAFTED_ITEMS_FOLDER, f"{_asset_slug(_urn_tier.item_active)}.png")
+    if os.path.exists(_path):
+        for _item_name in (_urn_tier.item_r, _urn_tier.item_active, _urn_tier.item_full):
+            CRAFTED_ITEM_IMAGES[_item_name] = _path
+
 # The complete leather table reuses its closest existing family art until a
 # later local asset pass can add item-specific sprites without a network fetch.
 for _item_name, _fallback_item in {
@@ -868,10 +880,16 @@ for _item_name in set(HERBLORE_OUTPUT_ITEMS) | set(HERBLORE_EXTRA_ITEM_DATA):
     if _path and os.path.exists(_path):
         HERBLORE_ITEM_IMAGES[_item_name] = _path
 
-PRAYER_EXTRA_ITEM_DATA = prayer_extra_items_as_dict()
+URN_ITEM_DATA = urn_extra_items_as_dict()
+PRAYER_PASSIVE_ITEM_DATA = prayer_passive_items_as_dict()
+PRAYER_EXTRA_ITEM_DATA = {
+    **prayer_extra_items_as_dict(),
+    **PRAYER_PASSIVE_ITEM_DATA,
+    **URN_ITEM_DATA,
+}
 PRAYER_ITEM_IMAGES = {}
 for _item_name in PRAYER_EXTRA_ITEM_DATA:
-    _path = os.path.join(PRAYER_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    _path = CRAFTED_ITEM_IMAGES.get(_item_name) or os.path.join(PRAYER_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
     if os.path.exists(_path):
         PRAYER_ITEM_IMAGES[_item_name] = _path
 UTILITY_ITEM_IMAGES.update(PRAYER_ITEM_IMAGES)

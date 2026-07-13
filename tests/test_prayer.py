@@ -5,10 +5,16 @@ from constants import ITEM_DEFINITIONS, ORE_DATA, PRAYER_DATA, PRAYER_ITEM_IMAGE
 from logic_pure import (
     apply_combat_burst_pure,
     apply_combat_preset_pure,
+    apply_combat_target_overrides_pure,
     apply_prayer_action_pure,
+    apply_prayer_selection_pure,
     apply_utility_activity_pure,
     curse_expected_ramp_pure,
+    effective_gilded_altar_multiplier_pure,
+    owned_gilded_altar_access_reasons_pure,
+    derive_casual_combat_magic_pure,
     prayer_drain_for_ticks_pure,
+    prayer_effect_state_pure,
     sanitize_prayer_selection_pure,
     save_combat_preset_pure,
 )
@@ -22,9 +28,69 @@ class PrayerDataAndMechanicsTest(unittest.TestCase):
         self.assertEqual(len([row for row in COMBAT_PRAYERS_BY_ID.values() if row.book == "standard"]), 30)
         self.assertEqual(len([row for row in COMBAT_PRAYERS_BY_ID.values() if row.book == "curses"]), 20)
         self.assertEqual(len(PRAYER_MATERIALS), 21)
-        self.assertEqual(len(PRAYER_TARGETS), 62)
+        self.assertEqual(len(PRAYER_TARGETS), 61)
         self.assertEqual(len(PRAYER_TARGETS), len(set(PRAYER_TARGETS)))
         self.assertNotIn("ectofuntus_ancient_bones", PRAYER_TARGETS)
+        self.assertNotIn("gilded_altar_ancient_bones", PRAYER_TARGETS)
+
+    def test_owned_gilded_altar_accepts_zero_one_or_two_burners_at_exact_rates(self):
+        target_id = "gilded_altar_dragon_bones"
+        for burner_flags, herbs, expected in (
+            ({}, 0, 2.5),
+            ({"marble_burner": True}, 1, 3.0),
+            ({"marble_burner": True, "mahogany_burner": True}, 2, 3.5),
+        ):
+            with self.subTest(expected=expected):
+                state = {
+                    "house_owned": True,
+                    "house_rooms_bought": {"chapel": True},
+                    "house_built_flags": {"guilded_altar": True, **burner_flags},
+                    "inventory": {"Dragon bones": 1, "Clean marrentill": herbs},
+                    "prayer_owned_altar_stint": {},
+                }
+                self.assertEqual(owned_gilded_altar_access_reasons_pure(state, target_id), ())
+                self.assertEqual(effective_gilded_altar_multiplier_pure(state, "owned", target_id), expected)
+        self.assertEqual(effective_gilded_altar_multiplier_pure({}, "hosted", target_id), 3.5)
+
+    def test_composite_prayer_selection_clears_only_changed_search_and_stint_state(self):
+        target_id = "gilded_altar_dragon_bones"
+        state = {
+            "prayer_level": 99,
+            "current_prayer": target_id,
+            "prayer_gilded_mode": "owned",
+            "prayer_gilded_house_search": {"target_id": target_id, "reviews_remaining": 3},
+            "prayer_owned_altar_stint": {"target_id": target_id, "burners_lit": 1},
+            "house_owned": True,
+            "house_rooms_bought": {"chapel": True},
+            "house_built_flags": {"guilded_altar": True, "marble_burner": True},
+            "inventory": {"Dragon bones": 2},
+        }
+        reselected, ok, reasons = apply_prayer_selection_pure(
+            state, "dragon_bones", "gilded_owned", PRAYER_DATA
+        )
+        self.assertTrue(ok)
+        self.assertEqual(reasons, ())
+        self.assertEqual(reselected["prayer_owned_altar_stint"], state["prayer_owned_altar_stint"])
+        self.assertEqual(reselected["prayer_gilded_house_search"], state["prayer_gilded_house_search"])
+
+        hosted, ok, reasons = apply_prayer_selection_pure(
+            state, "dragon_bones", "gilded_hosted", PRAYER_DATA
+        )
+        self.assertTrue(ok)
+        self.assertEqual(reasons, ())
+        self.assertEqual(hosted["prayer_gilded_mode"], "hosted")
+        self.assertEqual(hosted["prayer_owned_altar_stint"], {})
+        self.assertEqual(hosted["prayer_gilded_house_search"], {})
+
+        rejected, ok, reasons = apply_prayer_selection_pure(
+            {"prayer_level": 99, "inventory": {"Dragon bones": 1}},
+            "dragon_bones",
+            "gilded_owned",
+            PRAYER_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertIn("a player-owned house", reasons)
+        self.assertNotIn("current_prayer", rejected)
 
     def test_ectofuntus_consumes_inputs_and_returns_containers_and_tokens(self):
         inventory, xp, ok, outputs = apply_prayer_action_pure(
@@ -86,6 +152,106 @@ class PrayerDataAndMechanicsTest(unittest.TestCase):
             ("deflect_melee",),
         )
 
+    def test_conflict_matrix_matches_standard_and_curse_activation_rules(self):
+        standard = {
+            "prayer_level": 99,
+            "defense_level": 99,
+            "combat_prayer_book": "standard",
+            "knight_waves": {"completed": True},
+        }
+        matrix = {
+            ("steel_skin", "eagle_eye"): ("steel_skin", "eagle_eye"),
+            ("steel_skin", "mystic_might"): ("steel_skin", "mystic_might"),
+            ("steel_skin", "rigour"): ("steel_skin",),
+            ("rigour", "steel_skin"): ("rigour",),
+            ("rapid_restore", "rapid_heal"): ("rapid_restore", "rapid_heal"),
+            ("rapid_restore", "rapid_renewal"): ("rapid_restore", "rapid_renewal"),
+            ("rapid_heal", "rapid_renewal"): ("rapid_heal",),
+            ("protect_from_summoning", "protect_from_melee"): ("protect_from_summoning", "protect_from_melee"),
+            ("protect_from_melee", "redemption"): ("protect_from_melee",),
+        }
+        for selected, expected in matrix.items():
+            with self.subTest(selected=selected):
+                self.assertEqual(sanitize_prayer_selection_pure(standard, selected), expected)
+
+        curses = {
+            "prayer_level": 99,
+            "defense_level": 99,
+            "combat_prayer_book": "curses",
+            "quests": {"the_temple_at_senntisten": {"completed": True}},
+        }
+        self.assertEqual(
+            sanitize_prayer_selection_pure(curses, ("deflect_summoning", "deflect_melee")),
+            ("deflect_summoning", "deflect_melee"),
+        )
+        self.assertEqual(
+            sanitize_prayer_selection_pure(curses, ("deflect_melee", "soul_split")),
+            ("deflect_melee",),
+        )
+
+    def test_piety_requires_defence_70_and_valid_combined_prayers_drain_in_aggregate(self):
+        state = {
+            "prayer_level": 99,
+            "defense_level": 69,
+            "combat_prayer_book": "standard",
+            "knight_waves": {"completed": True},
+        }
+        self.assertEqual(sanitize_prayer_selection_pure(state, ("piety",)), ())
+        state["defense_level"] = 70
+        self.assertEqual(sanitize_prayer_selection_pure(state, ("piety",)), ("piety",))
+
+        selected = sanitize_prayer_selection_pure(state, ("steel_skin", "eagle_eye", "protect_item"))
+        self.assertEqual(selected, ("steel_skin", "eagle_eye", "protect_item"))
+        self.assertEqual(prayer_drain_for_ticks_pure(100, 0, selected, 0, 1, 1.0), (98, 10.0))
+
+    def test_high_tier_standard_prayers_enforce_their_defence_requirements(self):
+        state = {
+            "prayer_level": 99,
+            "defense_level": 64,
+            "combat_prayer_book": "standard",
+            "knight_waves": {"completed": True},
+        }
+        self.assertEqual(sanitize_prayer_selection_pure(state, ("chivalry",)), ())
+        state["defense_level"] = 65
+        self.assertEqual(sanitize_prayer_selection_pure(state, ("chivalry",)), ("chivalry",))
+        self.assertEqual(sanitize_prayer_selection_pure(state, ("rigour", "augury")), ())
+        state["defense_level"] = 70
+        self.assertEqual(sanitize_prayer_selection_pure(state, ("rigour",)), ("rigour",))
+        self.assertEqual(sanitize_prayer_selection_pure(state, ("augury",)), ("augury",))
+
+    def test_master_off_masks_effects_without_erasing_configured_fields(self):
+        state = {
+            "prayer_level": 99,
+            "defense_level": 99,
+            "combat_prayer_book": "standard",
+            "combat_selected_prayers": ["protect_item", "steel_skin"],
+            "combat_prayer_uptime": "100",
+            "combat_prayer_points": 990,
+            "combat_prayers_enabled": False,
+        }
+        effects = prayer_effect_state_pure(state)
+        self.assertEqual(effects["uptime"], 0.0)
+        self.assertEqual(effects["selected"], ())
+        self.assertNotIn("protect_item", effects)
+        self.assertEqual(state["combat_selected_prayers"], ["protect_item", "steel_skin"])
+        self.assertEqual(state["combat_prayer_uptime"], "100")
+
+        burst_state = {
+            **state,
+            "current_combat_target": "chicken",
+            "attack_level": 99,
+            "strength_level": 99,
+            "constitution_level": 99,
+            "combat_lifepoints": 990,
+            "inventory": {},
+        }
+        after, ok, result = apply_combat_burst_pure(burst_state, ticks=8, rng=lambda: .5)
+        self.assertTrue(ok)
+        self.assertEqual(result["prayer_uptime"], 0.0)
+        self.assertEqual(after["combat_prayer_points"], 990)
+        self.assertEqual(after["combat_selected_prayers"], ["protect_item", "steel_skin"])
+        self.assertEqual(after["combat_prayer_uptime"], "100")
+
     def test_sap_and_leech_ramps_use_proc_steps_and_five_stack_cap(self):
         self.assertEqual(curse_expected_ramp_pure(100, "sap")["enemy_drain"], .20)
         leech = curse_expected_ramp_pure(100, "leech")
@@ -117,6 +283,111 @@ class PrayerDataAndMechanicsTest(unittest.TestCase):
         applied, ok = apply_combat_preset_pure(saved, "Bossing", "chicken")
         self.assertTrue(ok)
         self.assertEqual(applied["combat_prayer_uptime"], "40")
+
+    def test_target_override_applies_without_pin_and_pinned_precedence_is_preset_then_override(self):
+        state = {
+            "prayer_level": 99,
+            "defense_level": 99,
+            "combat_prayer_book": "standard",
+            "combat_selected_prayers": ["steel_skin"],
+            "combat_prayer_uptime": "off",
+            "combat_presets": {
+                "Bossing": {
+                    "combat_selected_prayers": ["protect_from_melee"],
+                    "combat_prayer_uptime": "100",
+                }
+            },
+            "combat_target_overrides": {
+                "chicken": {
+                    "combat_selected_prayers": ["eagle_eye"],
+                    "combat_prayer_uptime": "40",
+                }
+            },
+        }
+        standalone = apply_combat_target_overrides_pure(state, "chicken")
+        self.assertEqual(standalone["combat_selected_prayers"], ["eagle_eye"])
+        self.assertEqual(standalone["combat_prayer_uptime"], "40")
+
+        runtime_state = {
+            **state,
+            "current_combat_target": "chicken",
+            "attack_level": 99,
+            "strength_level": 99,
+            "constitution_level": 99,
+            "combat_lifepoints": 990,
+            "combat_prayer_points": 990,
+            "combat_prayers_enabled": True,
+            "inventory": {},
+        }
+        runtime, runtime_ok, runtime_result = apply_combat_burst_pure(runtime_state, ticks=1, rng=lambda: .5)
+        self.assertTrue(runtime_ok)
+        self.assertEqual(runtime["combat_selected_prayers"], ["eagle_eye"])
+        self.assertEqual(runtime_result["prayer_uptime"], .4)
+
+        pinned, ok = apply_combat_preset_pure(state, "Bossing", "chicken")
+        self.assertTrue(ok)
+        self.assertEqual(pinned["combat_selected_prayers"], ["eagle_eye"])
+        self.assertEqual(pinned["combat_prayer_uptime"], "40")
+
+    def test_casual_pack_mode_preserves_disabled_config_and_falls_back_to_highest_legal_prayer(self):
+        disabled = {
+            "combat_pack_mode": "max_safety",
+            "combat_prayers_enabled": False,
+            "combat_selected_prayers": ["protect_item"],
+            "combat_prayer_uptime": "70",
+            "prayer_level": 99,
+            "defense_level": 99,
+        }
+        preserved = derive_casual_combat_magic_pure(disabled)
+        self.assertEqual(preserved["combat_selected_prayers"], ["protect_item"])
+        self.assertEqual(preserved["combat_prayer_uptime"], "70")
+
+        fallback = derive_casual_combat_magic_pure({
+            "combat_pack_mode": "max_output",
+            "combat_prayers_enabled": True,
+            "combat_prayer_book": "standard",
+            "combat_selected_prayers": [],
+            "combat_prayer_uptime": "off",
+            "current_combat_target": "chicken",
+            "equipment": {},
+            "prayer_level": 70,
+            "defense_level": 69,
+            "knight_waves": {"completed": True},
+        })
+        self.assertEqual(fallback["combat_selected_prayers"], ["chivalry"])
+
+    def test_locked_curses_normalization_is_idempotent_and_preserves_nested_unknown_data(self):
+        payload = {
+            "config_version": CURRENT_CONFIG_VERSION,
+            "inventory": {"Bonemeal": 4, "Wyvern bonemeal": 2},
+            "combat_prayer_book": "curses",
+            "combat_selected_prayers": ["turmoil"],
+            "combat_presets": {
+                "Future": {
+                    "combat_prayer_book": "curses",
+                    "combat_selected_prayers": ["turmoil"],
+                    "future_preset_key": {"kept": True},
+                }
+            },
+            "combat_active_preset": "Future",
+            "combat_target_overrides": {
+                "chicken": {
+                    "combat_prayer_book": "curses",
+                    "future_override_key": 17,
+                }
+            },
+            "future_top_level_key": {"kept": True},
+        }
+        normalized = migrate_loaded_data(payload, ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(normalized["combat_prayer_book"], "standard")
+        self.assertEqual(normalized["combat_selected_prayers"], [])
+        self.assertEqual(normalized["combat_presets"]["Future"]["combat_prayer_book"], "curses")
+        self.assertEqual(normalized["combat_presets"]["Future"]["future_preset_key"], {"kept": True})
+        self.assertEqual(normalized["combat_target_overrides"]["chicken"]["future_override_key"], 17)
+        self.assertEqual(normalized["future_top_level_key"], {"kept": True})
+        self.assertEqual(normalized["inventory"]["Bonemeal"], 4)
+        self.assertEqual(normalized["inventory"]["Wyvern bonemeal"], 2)
+        self.assertEqual(migrate_loaded_data(normalized, ORE_DATA, ITEM_DEFINITIONS), normalized)
 
     def test_protection_overlay_removes_matching_enemy_damage(self):
         base = {

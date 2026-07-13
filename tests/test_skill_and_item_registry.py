@@ -43,6 +43,7 @@ from constants import (
     MINING_OUTPUT_ITEMS,
     MINING_PICKAXE_DATA,
     ORE_DATA,
+    PRAYER_EXTRA_ITEM_DATA,
     QUEST_ITEM_IMAGES,
     RUNECRAFTING_ACCESS_ITEMS,
     RUNECRAFTING_DATA,
@@ -582,8 +583,32 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertEqual(activity["group"], "grinding")
             self.assertIn(source_item, by_storage_key)
             self.assertIsNotNone(by_storage_key[output_item].asset_path)
-        self.assertEqual(HERBLORE_DATA["finished_super_prayer"]["requirements"], {"Prayer potion (3)": 1, "Bonemeal": 1})
-        self.assertEqual(HERBLORE_EXTRA_ITEM_DATA["Bonemeal"]["item_id"], 6810)
+        grinding_rows = {
+            key: spec for key, spec in UTILITY_ACTIVITY_DATA.items() if spec.get("group") == "grinding"
+        }
+        self.assertEqual(len(grinding_rows), 31)
+        prep_rows = {
+            key: spec for key, spec in UTILITY_ACTIVITY_DATA.items() if spec.get("group") == "input_preparation"
+        }
+        self.assertEqual(set(prep_rows), {"fill_vial_of_water", "remove_swamp_toad_legs"})
+        self.assertTrue(all(float(spec.get("exp", 0.0) or 0.0) == 0.0 for spec in prep_rows.values()))
+        self.assertTrue(all(spec.get("batch_size") == 28 for spec in prep_rows.values()))
+
+        self.assertEqual(
+            HERBLORE_DATA["finished_super_prayer"]["requirements"],
+            {"Prayer potion (3)": 1, "Wyvern bonemeal": 1},
+        )
+        self.assertEqual(PRAYER_EXTRA_ITEM_DATA["Bonemeal"]["item_id"], 4255)
+        self.assertEqual(PRAYER_EXTRA_ITEM_DATA["Wyvern bonemeal"]["item_id"], 6810)
+        self.assertEqual(HERBLORE_EXTRA_ITEM_DATA["Wyvern bonemeal"]["item_id"], 6810)
+        self.assertNotEqual(
+            PRAYER_EXTRA_ITEM_DATA["Bonemeal"]["item_id"],
+            HERBLORE_EXTRA_ITEM_DATA["Wyvern bonemeal"]["item_id"],
+        )
+        self.assertIn("Bonemeal", by_storage_key)
+        self.assertIn("Wyvern bonemeal", by_storage_key)
+        self.assertIsNotNone(by_storage_key["Bonemeal"].asset_path)
+        self.assertIsNotNone(by_storage_key["Wyvern bonemeal"].asset_path)
         overload = HERBLORE_DATA["finished_overload"]
         self.assertEqual(overload["level"], 96)
         self.assertEqual(overload["exp"], 1000.0)

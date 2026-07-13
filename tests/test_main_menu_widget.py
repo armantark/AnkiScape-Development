@@ -542,7 +542,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.dialog = self._open(_make_player_data(), current_skill="Mining")
 
     def _open(self, player_data: dict, current_skill: str = "Mining", **extra) -> "QDialog":
-        from logic_pure import sanitize_prayer_selection_pure
+        from constants import PRAYER_DATA
+        from logic_pure import apply_prayer_selection_pure, sanitize_prayer_selection_pure
 
         def _set_prayer_config(key, value):
             self._prayer_config_calls.append((key, value))
@@ -552,6 +553,19 @@ class MainMenuWidgetTest(unittest.TestCase):
                     sanitize_prayer_selection_pure(player_data, player_data.get("combat_selected_prayers", ()))
                 )
             return True
+
+        def _set_prayer_selection(material_id, ui_method_id):
+            self._prayer_calls.append((material_id, ui_method_id))
+            updated, ok, _reasons = apply_prayer_selection_pure(
+                player_data,
+                material_id,
+                ui_method_id,
+                PRAYER_DATA,
+            )
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return ok
 
         def _farming_projection():
             from farming_logic import farming_frontend_projection_pure
@@ -583,7 +597,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_hunter=lambda target: self._hunter_calls.append(target),
             on_set_cooking=lambda target: self._cooking_calls.append(target),
             on_set_runecrafting=lambda target: self._runecrafting_calls.append(target),
-            on_set_prayer=lambda target: self._prayer_calls.append(target),
+            on_set_prayer_selection=_set_prayer_selection,
             on_set_magic=lambda target: self._magic_calls.append(target),
             on_set_construction=lambda target: self._construction_calls.append(target),
             on_set_magic_alchemy_item=lambda item: self._magic_alch_calls.append(item),
@@ -1575,7 +1589,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             if any(lw.item(i).text() == "Combat" for i in range(lw.count()))
         )
         texts = [skill_list.item(i).text() for i in range(skill_list.count())]
-        self.assertEqual(texts, ["Combat", "Magic", "Summoning"])
+        self.assertEqual(texts, ["Combat", "Prayer", "Magic", "Summoning"])
         for hidden in ("Attack", "Constitution", "Defense", "Ranged", "Strength"):
             self.assertNotIn(hidden, texts)
 
@@ -3625,6 +3639,122 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["inventory"]["Beer"], 1)
         self.assertEqual(pd["combat_current_levels"], {"strength": 52, "attack": 56})
 
+    def test_full_urn_bank_action_uses_stable_id_order_and_refreshes_immediately(self) -> None:
+        from logic_pure import teleport_full_urn_pure
+        from urn_data import URN_TIERS_BY_ID
+
+        tier = URN_TIERS_BY_ID["mining_cracked_urn"]
+        pd = _make_player_data()
+        pd["mining_level"] = 1
+        pd["mining_exp"] = 0.0
+        pd.update(
+            {
+                "inventory": {tier.item_full: 1},
+                "current_ore": "copper",
+                "carried_inventory": {"copper": {tier.item_full: 1}},
+            }
+        )
+        teleports: list[str] = []
+
+        def _teleport(urn_id: str) -> bool:
+            updated, _xp, ok, _skill_id = teleport_full_urn_pure(pd, urn_id)
+            if ok:
+                updated["mining_exp"] = tier.teleport_xp
+                updated["mining_level"] = 2
+                pd.clear()
+                pd.update(updated)
+                teleports.append(urn_id)
+            return ok
+
+        dialog = self._open(
+            pd,
+            current_skill="Mining",
+            carried_pack_target_active=True,
+            carried_advanced_state=True,
+            on_set_carried_advanced=lambda _enabled: None,
+            on_add_to_carried_layout=lambda _name, _delta: None,
+            on_teleport_training_urn=_teleport,
+            on_discard_item=lambda _item: True,
+        )
+        bank = _find_bank_list(dialog)
+        row = next(
+            bank.item(i)
+            for i in range(bank.count())
+            if bank.item(i).data(Qt.ItemDataRole.UserRole) == tier.item_full
+        )
+        self.assertEqual(row.data(Qt.ItemDataRole.UserRole + 1), tier.id)
+        self.assertIn(f"{tier.teleport_xp:g} Mining XP", row.toolTip())
+        self.assertIn("Ready in the carried pack", row.toolTip())
+        self.assertEqual(_panel_title(dialog), "Mining — Lv 1")
+
+        menu = dialog._ankiscape_equip_menu_for(tier.item_full)
+        actions = [action for action in menu.actions() if not action.isSeparator()]
+        self.assertEqual(
+            [action.text() for action in actions],
+            ["Teleport urn", "Add to carried layout", "Discard all (1)"],
+        )
+        teleport = actions[0]
+        self.assertEqual(teleport.objectName(), "teleportTrainingUrnAction")
+        self.assertEqual(teleport.data(), tier.id)
+        self.assertTrue(teleport.isEnabled())
+        teleport.trigger()
+        for _ in range(4):
+            QApplication.processEvents()
+
+        self.assertEqual(teleports, [tier.id])
+        self.assertEqual(pd["mining_level"], 2)
+        self.assertEqual(_panel_title(dialog), "Mining — Lv 2")
+        self.assertFalse(
+            any(
+                bank.item(i).data(Qt.ItemDataRole.UserRole) == tier.item_full
+                for i in range(bank.count())
+            )
+        )
+        dialog.deleteLater()
+
+    def test_urn_teleport_eligibility_and_passives_stay_non_equipment(self) -> None:
+        from urn_data import URN_TIERS_BY_ID
+
+        tier = URN_TIERS_BY_ID["mining_cracked_urn"]
+        pd = _make_player_data()
+        pd.update(
+            {
+                "inventory": {
+                    tier.item_full: 1,
+                    tier.item_r: 1,
+                    "Bonecrusher": 1,
+                    "Ectoplasmator": 1,
+                },
+                "current_ore": "copper",
+                "carried_inventory": {"tin": {tier.item_full: 1}},
+            }
+        )
+        dialog = self._open(
+            pd,
+            current_skill="Mining",
+            on_teleport_training_urn=lambda _urn_id: True,
+            on_discard_item=lambda _item: True,
+        )
+        full_menu = dialog._ankiscape_equip_menu_for(tier.item_full)
+        teleport = next(action for action in full_menu.actions() if action.text() == "Teleport urn")
+        self.assertFalse(teleport.isEnabled())
+        self.assertIn("current Mining target", teleport.toolTip())
+
+        runed_menu = dialog._ankiscape_equip_menu_for(tier.item_r)
+        self.assertNotIn("Teleport urn", [action.text() for action in runed_menu.actions()])
+
+        bank = _find_bank_list(dialog)
+        for passive in ("Bonecrusher", "Ectoplasmator"):
+            row = next(
+                bank.item(i)
+                for i in range(bank.count())
+                if bank.item(i).data(Qt.ItemDataRole.UserRole) == passive
+            )
+            self.assertFalse(row.icon().isNull(), f"{passive} row has no icon")
+            menu = dialog._ankiscape_equip_menu_for(passive)
+            self.assertFalse(any(action.text().startswith("Equip") for action in menu.actions()))
+        dialog.deleteLater()
+
     def test_bank_groups_food_with_icons_and_discard_all_confirmation(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Shrimps": 3}
@@ -4470,7 +4600,93 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(row.isDisabled())
         tree.itemClicked.emit(row, 0)
         QApplication.processEvents()
-        self.assertEqual(self._prayer_calls[-1], "bury_bones")
+        self.assertEqual(self._prayer_calls[-1], ("bones", "base"))
+        self.assertEqual(pd["current_prayer"], "bury_bones")
+
+    def test_prayer_gilded_mode_rates_rows_and_readiness_refresh_live(self) -> None:
+        pd = _make_player_data()
+        pd.update(
+            {
+                "prayer_level": 99,
+                "current_prayer": "gilded_altar_dragon_bones",
+                "prayer_gilded_mode": "hosted",
+                "prayer_owned_altar_stint": {},
+                "prayer_gilded_house_search": {},
+                "house_owned": True,
+                "house_rooms_bought": {"chapel": True},
+                "house_built_flags": {"guilded_altar": True},
+                "inventory": {"Dragon bones": 3, "Clean marrentill": 2},
+            }
+        )
+        dialog = self._open(pd, current_skill="Mining")
+        dialog.show()
+        dialog.resize(900, 560)
+        for _ in range(6):
+            QApplication.processEvents()
+        next(button for button in dialog.findChildren(QPushButton) if button.text() == "Combat").click()
+        for _ in range(4):
+            QApplication.processEvents()
+        skill_list = next(
+            widget
+            for widget in dialog.findChildren(QListWidget)
+            if {"Combat", "Prayer"}.issubset({widget.item(i).text() for i in range(widget.count())})
+        )
+        prayer_row = next(i for i in range(skill_list.count()) if skill_list.item(i).text() == "Prayer")
+        skill_list.setCurrentRow(prayer_row)
+        for _ in range(6):
+            QApplication.processEvents()
+
+        mode_label = dialog.findChild(QLabel, "prayerGildedModeLabel")
+        mode = dialog.findChild(QComboBox, "prayerGildedModeCombo")
+        self.assertEqual(mode_label.text(), "Gilded altar mode")
+        self.assertEqual(mode.itemText(mode.findData("hosted")), "Hosted - 350% XP")
+        self.assertEqual(mode.itemText(mode.findData("owned")), "Owned - 250% XP (0/2 burners)")
+        self.assertEqual(mode.currentData(), "hosted")
+
+        mode.setCurrentIndex(mode.findData("owned"))
+        for _ in range(6):
+            QApplication.processEvents()
+        self.assertEqual(self._prayer_calls[-1], ("dragon_bones", "gilded_owned"))
+        self.assertEqual(pd["prayer_gilded_mode"], "owned")
+        mode = dialog.findChild(QComboBox, "prayerGildedModeCombo")
+        tree = dialog.findChild(QTreeWidget, "prayerTargetTree")
+        row = _tree_row(tree, "gilded_altar_dragon_bones")
+        self.assertEqual(mode.currentData(), "owned")
+        self.assertEqual(row.text(0), "Dragon bones — 180 XP")
+        self.assertIn("Owned · 250% XP · 0/2 burners", row.toolTip(0))
+        self.assertIn("none required (0 burners)", row.toolTip(0))
+        self.assertFalse(row.isDisabled())
+        self.assertTrue(dialog.findChild(QPushButton, "prayerTrainButton").isEnabled())
+
+        pd["house_built_flags"]["marble_burner"] = True
+        mode.setCurrentIndex(mode.findData("hosted"))
+        for _ in range(6):
+            QApplication.processEvents()
+        mode = dialog.findChild(QComboBox, "prayerGildedModeCombo")
+        self.assertEqual(mode.itemText(mode.findData("owned")), "Owned - 300% XP (1/2 burners)")
+
+        pd["house_built_flags"]["mahogany_burner"] = True
+        mode.setCurrentIndex(mode.findData("owned"))
+        for _ in range(6):
+            QApplication.processEvents()
+        mode = dialog.findChild(QComboBox, "prayerGildedModeCombo")
+        tree = dialog.findChild(QTreeWidget, "prayerTargetTree")
+        row = _tree_row(tree, "gilded_altar_dragon_bones")
+        self.assertEqual(mode.currentData(), "owned")
+        self.assertEqual(mode.currentText(), "Owned - 350% XP (2/2 burners)")
+        self.assertEqual(row.text(0), "Dragon bones — 252 XP")
+        self.assertIn("Clean marrentill x2", row.toolTip(0))
+
+        for width, height in ((720, 540), (900, 560)):
+            dialog.resize(width, height)
+            for _ in range(6):
+                QApplication.processEvents()
+            panel = dialog.findChild(QWidget, "prayerSkillPanel")
+            tree = dialog.findChild(QTreeWidget, "prayerTargetTree")
+            self.assertGreater(panel.height(), 0)
+            self.assertGreater(tree.viewport().height(), 0)
+            self.assertEqual(tree.horizontalScrollBar().maximum(), 0)
+        dialog.deleteLater()
 
     def test_magic_surface_has_bank_alchemy_picker_and_locked_click_guard(self) -> None:
         pd = _make_player_data()
@@ -4544,6 +4760,34 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(book.model().item(curses_index).isEnabled())
         self.assertIsNotNone(dialog.findChild(QPushButton, "combatSavePresetButton"))
         self.assertIsNotNone(dialog.findChild(QCheckBox, "combatPinPresetCheck"))
+
+    def test_piety_gate_copy_names_and_enforces_defence_70(self) -> None:
+        pd = _make_player_data()
+        pd["prayer_level"] = 99
+        pd["defense_level"] = 69
+        pd["knight_waves"] = {"completed": True}
+        dialog = self._open(pd)
+        piety = dialog.findChild(QCheckBox, "combatPrayerCheck::piety")
+        self.assertIsNotNone(piety)
+        self.assertIn("70 Defence", piety.text())
+        self.assertIn("70 Defence", piety.toolTip())
+        self.assertFalse(piety.isEnabled())
+
+        pd["defense_level"] = 70
+        unlocked_dialog = self._open(pd)
+        unlocked = unlocked_dialog.findChild(QCheckBox, "combatPrayerCheck::piety")
+        self.assertTrue(unlocked.isEnabled())
+
+    def test_chivalry_gate_copy_names_knight_waves(self) -> None:
+        pd = _make_player_data()
+        pd["prayer_level"] = 99
+        pd["defense_level"] = 99
+        pd["knight_waves"] = {"completed": False}
+        dialog = self._open(pd)
+        chivalry = dialog.findChild(QCheckBox, "combatPrayerCheck::chivalry")
+        self.assertIsNotNone(chivalry)
+        self.assertFalse(chivalry.isEnabled())
+        self.assertIn("Knight Waves completion", chivalry.toolTip())
 
     def test_combat_prayer_checkbox_conflicts_are_reflected_in_widgets(self) -> None:
         pd = _make_player_data()

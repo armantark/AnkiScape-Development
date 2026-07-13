@@ -37,6 +37,7 @@ from combat_data import (
 from constants import EQUIPMENT_DATA
 from logic_pure import (
     _combat_apply_pvm_death,
+    _combat_auto_drink_potions,
     _combat_attack_bonus_from_totals,
     _combat_defence_bonus_from_totals,
     combat_melee_attack_type_pure,
@@ -211,6 +212,30 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
         self.assertIn("Super strength (4)", out["combat_supply_loadout"]["stat_potions"])  # vial untouched
         self.assertEqual(out["combat_supply_loadout"]["stat_potions"]["Super strength flask (5)"], 1)  # flask sipped
 
+    def test_super_prayer_auto_drink_outranks_regular_and_restores_prayer_points(self):
+        player = self._melee(
+            prayer_level=80,
+            combat_prayer_points=100,
+            combat_prayer_book="standard",
+            combat_selected_prayers=["protect_item"],
+            combat_prayer_uptime="100",
+            combat_prayers_enabled=True,
+            combat_supply_loadout={
+                "stat_potions": {
+                    "Prayer potion (4)": 1,
+                    "Super prayer (4)": 1,
+                }
+            },
+        )
+        events = _combat_auto_drink_potions(player, "melee")
+        self.assertIn({"item": "Super prayer (4)", "skills": ("prayer",)}, events)
+        self.assertEqual(player["combat_prayer_points"], 450)
+        self.assertNotIn("prayer", player.get("combat_current_levels", {}))
+        self.assertEqual(
+            player["combat_supply_loadout"]["stat_potions"],
+            {"Prayer potion (4)": 1, "Super prayer (3)": 1},
+        )
+
     def test_style_relevant_potions_load_and_off_style_ones_do_not(self):
         # Melee: strength/attack potions load (supers first, covering both stats);
         # a magic potion is off-style and never loaded.
@@ -263,6 +288,33 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
         _combat_apply_pvm_death(player, 100)
         self.assertEqual(player["combat_grave"]["items"].count("Bones"), 2)
         self.assertEqual(player["inventory"]["Bones"], 0)
+
+    def test_master_off_prevents_protect_item_from_saving_pvm_death_gear(self):
+        disabled = _player(
+            equipment={"weapon": "Iron sword", "shield": "Iron kiteshield"},
+            prayer_level=99,
+            combat_prayer_points=990,
+            combat_prayer_uptime="100",
+            combat_selected_prayers=["protect_item"],
+            combat_prayers_enabled=False,
+        )
+        _combat_apply_pvm_death(disabled, 100)
+        self.assertEqual(disabled["equipment"], {})
+        self.assertCountEqual(disabled["combat_grave"]["items"], ["Iron sword", "Iron kiteshield"])
+        self.assertEqual(disabled["combat_selected_prayers"], ["protect_item"])
+        self.assertEqual(disabled["combat_prayer_uptime"], "100")
+
+        enabled = _player(
+            equipment={"weapon": "Iron sword", "shield": "Iron kiteshield"},
+            prayer_level=99,
+            combat_prayer_points=990,
+            combat_prayer_uptime="100",
+            combat_selected_prayers=["protect_item"],
+            combat_prayers_enabled=True,
+        )
+        _combat_apply_pvm_death(enabled, 100)
+        self.assertEqual(len(enabled["equipment"]), 1)
+        self.assertEqual(len(enabled["combat_grave"]["items"]), 1)
 
     def test_a_stale_carried_view_does_not_occupy_phantom_loot_slots(self):
         # 20 food + a view claiming 8 trophies the bank no longer has must not fire a

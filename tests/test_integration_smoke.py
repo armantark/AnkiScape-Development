@@ -24,14 +24,21 @@ class _FakeReviewer:
 class _DummyCol:
     def __init__(self, store=None):
         self._store = dict(store or {})
+        self.custom_undo_entries = []
     def get_config(self, key, default=None):
         return self._store.get(key, default)
     def set_config(self, key, value):
         self._store[key] = value
+    def add_custom_undo_entry(self, name):
+        self.custom_undo_entries.append(name)
+        return len(self.custom_undo_entries)
 
 class _DummyMW:
     def __init__(self, col):
         self.col = col
+        self.undo_updates = 0
+    def update_undo_actions(self):
+        self.undo_updates += 1
 
 
 def _install_runtime_fakes():
@@ -2176,6 +2183,190 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
         self.assertEqual(calls["xp"], [72.0])
 
+    def test_carried_mining_urn_transition_and_progress_roll_back_on_undo(self):
+        addon = _load_addon_as_package("ankiscape_urn_undo_integration")
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._show_exp = lambda _exp: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        initial = {
+            "inventory": {"Cracked mining urn (r)": 1},
+            "carried_inventory": {"copper": {"Cracked mining urn (r)": 1}},
+            "mining_level": 1,
+            "mining_exp": 0.0,
+            "current_ore": "copper",
+            "toolbelt": {"mining": ["bronze_pickaxe"]},
+            "equipment": {},
+            "quests": {},
+            "completed_achievements": [],
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "Mining"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        rolls = iter((0.0, 0.0, 1.0, 0.0))
+        original_random = addon.random.random
+        addon.random.random = lambda: next(rolls, 0.5)
+        try:
+            addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(addon.player_data["inventory"]["Copper ore"], 1)
+        self.assertEqual(addon.player_data["inventory"]["Cracked mining urn"], 1)
+        self.assertEqual(addon.player_data["active_urn_mining"], "mining_cracked_urn")
+        self.assertEqual(addon.player_data["urn_progress_mining"], 17.5)
+        self.assertEqual(addon.player_data["mining_exp"], 17.5)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(types.SimpleNamespace(
+            operation="Answer Card", changes=types.SimpleNamespace(study_queues=True, card=True),
+        ))
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
+    def test_bonecrusher_kill_rewards_and_counters_roll_back_on_undo(self):
+        addon = _load_addon_as_package("ankiscape_bonecrusher_undo_integration")
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._show_exp = lambda _exp: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        initial = {
+            "inventory": {"Bonecrusher": 1},
+            "equipment": {},
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 99,
+            "prayer_level": 1,
+            "attack_exp": 0.0,
+            "strength_exp": 0.0,
+            "defense_exp": 0.0,
+            "constitution_exp": 0.0,
+            "ranged_exp": 0.0,
+            "magic_exp": 0.0,
+            "prayer_exp": 0.0,
+            "current_combat_target": "chicken",
+            "carried_advanced_targets": {"chicken": True},
+            "carried_layout": {"chicken": {"Bonecrusher": 1}},
+            "combat_attack_style": "aggressive",
+            "combat_lifepoints": 990,
+            "combat_auto_eat_food": ["Shrimps"],
+            "combat_supply_loadout": {},
+            "combat_current_levels": {},
+            "combat_status_effects": {},
+            "combat_recovery_progress": {},
+            "combat_encounter": {},
+            "combat_kill_counts": {},
+            "completed_achievements": [],
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "Combat"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        rolls = iter((0.0, 0.999999, 0.0) * 1000)
+        original_random = addon.random.random
+        addon.random.random = lambda: next(rolls, 0.5)
+        try:
+            addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+        finally:
+            addon.random.random = original_random
+
+        kills = addon.player_data["combat_kill_counts"]["chicken"]
+        self.assertGreater(kills, 0)
+        self.assertEqual(addon.player_data["prayer_exp"], 4.5 * kills)
+        self.assertEqual(addon.player_data["prayer_bonecrusher_triggers"], kills)
+        self.assertEqual(addon.player_data["prayer_actions_completed"], kills)
+        self.assertNotIn("Bones", addon.player_data["inventory"])
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(types.SimpleNamespace(
+            operation="Answer Card", changes=types.SimpleNamespace(study_queues=True, card=True),
+        ))
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
+    def test_ectoplasmator_kill_rewards_and_counters_roll_back_on_undo(self):
+        addon = _load_addon_as_package("ankiscape_ectoplasmator_undo_integration")
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._show_exp = lambda _exp: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        initial = {
+            "inventory": {"Ectoplasmator": 1},
+            "equipment": {},
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 99,
+            "prayer_level": 1,
+            "attack_exp": 0.0,
+            "strength_exp": 0.0,
+            "defense_exp": 0.0,
+            "constitution_exp": 0.0,
+            "ranged_exp": 0.0,
+            "magic_exp": 0.0,
+            "prayer_exp": 0.0,
+            "current_combat_target": "ghost",
+            "carried_advanced_targets": {"ghost": True},
+            "carried_layout": {"ghost": {"Ectoplasmator": 1}},
+            "combat_attack_style": "aggressive",
+            "combat_lifepoints": 990,
+            "combat_auto_eat_food": ["Shrimps"],
+            "combat_supply_loadout": {},
+            "combat_current_levels": {},
+            "combat_status_effects": {},
+            "combat_recovery_progress": {},
+            "combat_encounter": {},
+            "combat_kill_counts": {},
+            "completed_achievements": [],
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "Combat"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        original_enemy = copy.deepcopy(addon.COMBAT_ENEMY_DATA["ghost"])
+        easy_ghost = copy.deepcopy(original_enemy)
+        easy_ghost["stats"].update({"hitpoints": 1, "attack": 1, "strength": 1, "defence": 1})
+        easy_ghost["drops"] = {"guaranteed": (), "tables": ()}
+        addon.COMBAT_ENEMY_DATA["ghost"] = easy_ghost
+        rolls = iter((0.0, 0.999999, 0.0) * 1000)
+        original_random = addon.random.random
+        addon.random.random = lambda: next(rolls, 0.5)
+        try:
+            addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+        finally:
+            addon.random.random = original_random
+            addon.COMBAT_ENEMY_DATA["ghost"] = original_enemy
+
+        kills = addon.player_data["combat_kill_counts"]["ghost"]
+        self.assertGreater(kills, 0)
+        self.assertEqual(addon.player_data["prayer_exp"], 4.5 * kills)
+        self.assertEqual(addon.player_data["prayer_ectoplasmator_triggers"], kills)
+        self.assertEqual(addon.player_data["prayer_actions_completed"], kills)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(types.SimpleNamespace(
+            operation="Answer Card", changes=types.SimpleNamespace(study_queues=True, card=True),
+        ))
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
     def test_construction_review_reward_and_consumed_materials_roll_back_on_undo(self):
         addon = _load_addon_as_package("ankiscape_construction_undo_integration")
         calls = {"save": 0, "xp": []}
@@ -2199,7 +2390,12 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.answer_shown = True
         addon.exp_awarded = False
 
-        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.999999
+        try:
+            addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+        finally:
+            addon.random.random = original_random
         self.assertEqual(addon.player_data["inventory"]["Plank"], 0)
         self.assertEqual(addon.player_data["construction_exp"], 66.0)
         self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
@@ -2624,6 +2820,56 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["xp"], [30.0])
         self.assertGreaterEqual(calls["save"], 2)
 
+    def test_super_prayer_mixing_uses_wyvern_bonemeal_and_rolls_back_on_undo(self):
+        addon = _load_addon_as_package("ankiscape_super_prayer_mixing_undo_integration")
+
+        calls = {"save": 0, "xp": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+        ingredients = {
+            "Prayer potion (3)": 1,
+            "Wyvern bonemeal": 1,
+            "Bonemeal": 5,
+        }
+        addon.player_data = {
+            "inventory": ingredients.copy(),
+            "herblore_level": 94,
+            "herblore_exp": 0,
+            "current_herblore": "finished_super_prayer",
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Herblore"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertEqual(addon.player_data["inventory"]["Prayer potion (3)"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Wyvern bonemeal"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Bonemeal"], 5)
+        self.assertEqual(addon.player_data["inventory"]["Super prayer (3)"], 1)
+        self.assertEqual(addon.player_data["herblore_exp"], 270.0)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        changes = types.SimpleNamespace(
+            operation="Answer Card",
+            changes=types.SimpleNamespace(study_queues=True, card=True),
+        )
+        addon._on_state_did_undo(changes)
+
+        self.assertEqual(addon.player_data["inventory"], ingredients)
+        self.assertEqual(addon.player_data["herblore_exp"], 0)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+        self.assertEqual(calls["xp"], [270.0])
+        self.assertGreaterEqual(calls["save"], 2)
+
     def test_overload_mixing_review_reward_and_vials_roll_back_on_undo(self):
         addon = _load_addon_as_package("ankiscape_overload_mixing_undo_integration")
 
@@ -3039,6 +3285,132 @@ class TestIntegrationSmoke(unittest.TestCase):
             changes=types.SimpleNamespace(study_queues=True, card=True),
         ))
         self.assertEqual(addon.player_data, before)
+
+    def test_prayer_composite_selection_persists_once_and_rejection_has_no_side_effects(self):
+        addon = _load_addon_as_package("ankiscape_prayer_selection_integration")
+        calls = {"save": 0, "hud": 0}
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: calls.__setitem__("hud", calls["hud"] + 1)
+        addon.current_skill = "Prayer"
+        target_id = "gilded_altar_dragon_bones"
+        addon.player_data = {
+            "prayer_level": 99,
+            "current_prayer": target_id,
+            "prayer_gilded_mode": "owned",
+            "prayer_gilded_house_search": {"target_id": target_id, "reviews_remaining": 2},
+            "prayer_owned_altar_stint": {"target_id": target_id, "burners_lit": 1},
+            "house_owned": True,
+            "house_rooms_bought": {"chapel": True},
+            "house_built_flags": {"guilded_altar": True, "marble_burner": True},
+            "inventory": {"Dragon bones": 2},
+        }
+
+        self.assertTrue(addon.set_prayer_selection("dragon_bones", "gilded_owned"))
+        self.assertEqual(calls, {"save": 1, "hud": 1})
+        self.assertEqual(
+            addon.player_data["prayer_owned_altar_stint"],
+            {"target_id": target_id, "burners_lit": 1},
+        )
+        self.assertEqual(addon.player_data["prayer_gilded_house_search"]["reviews_remaining"], 2)
+
+        self.assertTrue(addon.set_prayer_selection("dragon_bones", "gilded_hosted"))
+        self.assertEqual(calls, {"save": 2, "hud": 2})
+        self.assertEqual(addon.player_data["prayer_gilded_mode"], "hosted")
+        self.assertEqual(addon.player_data["prayer_owned_altar_stint"], {})
+        self.assertEqual(addon.player_data["prayer_gilded_house_search"], {})
+
+        rejected_state = {"prayer_level": 99, "inventory": {"Dragon bones": 1}}
+        addon.player_data = copy.deepcopy(rejected_state)
+        self.assertFalse(addon.set_prayer_selection("dragon_bones", "gilded_owned"))
+        self.assertEqual(addon.player_data, rejected_state)
+        self.assertEqual(calls, {"save": 2, "hud": 2})
+
+    def test_direct_urn_teleports_use_separate_custom_lifo_undo(self):
+        addon = _load_addon_as_package("ankiscape_direct_urn_undo_integration")
+        from urn_data import URN_TIERS_BY_ID
+
+        tier = URN_TIERS_BY_ID["mining_cracked_urn"]
+        col = _DummyCol()
+        mw = _DummyMW(col)
+        addon.mw = mw
+        calls = {"save": 0, "hud": 0, "xp": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: calls.__setitem__("hud", calls["hud"] + 1)
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_exp = lambda amount: calls["xp"].append(amount)
+        addon.current_skill = "Mining"
+        initial = {
+            "inventory": {tier.item_full: 2},
+            "carried_inventory": {"copper": {tier.item_full: 2}},
+            "current_ore": "copper",
+            "mining_level": 1,
+            "mining_exp": 0.0,
+            "completed_achievements": [],
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon._REVIEW_UNDO_STACK.append({"sentinel": True})
+
+        self.assertTrue(addon.teleport_training_urn(tier.id))
+        self.assertTrue(addon.teleport_training_urn(tier.id))
+        self.assertEqual(col.custom_undo_entries, ["Teleport training urn", "Teleport training urn"])
+        self.assertEqual(mw.undo_updates, 2)
+        self.assertEqual(addon.player_data["inventory"][tier.item_full], 0)
+        self.assertNotIn("copper", addon.player_data["carried_inventory"])
+        self.assertEqual(addon.player_data["mining_exp"], tier.teleport_xp * 2)
+        telemetry = addon.player_data["action_telemetry"]["actions"][f"mining:teleport_{tier.id}"]
+        self.assertEqual((telemetry["attempts"], telemetry["successes"]), (2, 2))
+        self.assertEqual(len(addon._URN_TELEPORT_UNDO_STACK), 2)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        undo = types.SimpleNamespace(operation="Teleport training urn")
+        addon._on_state_did_undo(undo)
+        self.assertEqual(addon.player_data["inventory"][tier.item_full], 1)
+        self.assertEqual(addon.player_data["carried_inventory"]["copper"][tier.item_full], 1)
+        self.assertEqual(addon.player_data["mining_exp"], tier.teleport_xp)
+        self.assertEqual(len(addon._URN_TELEPORT_UNDO_STACK), 1)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(undo)
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._URN_TELEPORT_UNDO_STACK, [])
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+        self.assertEqual(calls["xp"], [tier.teleport_xp, tier.teleport_xp])
+        self.assertEqual(calls["save"], 4)
+
+    def test_combat_current_target_drives_main_menu_carried_pack_callbacks(self):
+        addon = _load_addon_as_package("ankiscape_combat_carried_target_integration")
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon.mw = _DummyMW(_DummyCol())
+        addon.save_player_data = lambda: None
+        addon.current_skill = "Combat"
+        addon.player_data = {
+            "current_combat_target": "ghost",
+            "current_prayer": "bury_bones",
+            "inventory": {"Bonecrusher": 1, "Ectoplasmator": 1},
+            "smithing_level": 1,
+            "carried_advanced_targets": {"ghost": True},
+            "carried_layout": {
+                "ghost": {"Bonecrusher": 1},
+                "bury_bones": {"Bones": 1},
+            },
+        }
+
+        addon._on_main_menu()
+
+        self.assertTrue(captured["carried_pack_target_active"])
+        self.assertTrue(captured["carried_advanced_state"])
+        cells = captured["get_carried_layout_cells"]()
+        self.assertIn(("Bonecrusher", 1), cells)
+        self.assertNotIn(("Bones", 1), cells)
+        captured["on_add_to_carried_layout"]("Ectoplasmator", 1)
+        self.assertEqual(
+            addon.player_data["carried_layout"]["ghost"],
+            {"Bonecrusher": 1, "Ectoplasmator": 1},
+        )
 
     def test_unrelated_undo_does_not_consume_review_snapshot(self):
         addon = _load_addon_as_package("ankiscape_unrelated_undo_integration")

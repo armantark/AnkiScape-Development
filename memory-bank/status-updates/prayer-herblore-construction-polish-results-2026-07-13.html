@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Prayer closure — verified</title>
+  <style>
+    :root{--bg:#09100f;--panel:#111b18;--panel2:#16231f;--line:#2c4139;--text:#eef7f1;--muted:#9fb4aa;--green:#79e2a7;--gold:#f5c96b;--blue:#83c8ff;--red:#ff8c8c;--shadow:0 18px 70px rgba(0,0,0,.32)}
+    *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 85% -10%,#204c3b 0,transparent 36%),radial-gradient(circle at 4% 32%,#182e3c 0,transparent 28%),var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    main{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:52px 0 80px}.eyebrow{color:var(--green);font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:12px}.hero{display:grid;grid-template-columns:1.35fr .65fr;gap:20px;align-items:stretch;margin:12px 0 22px}.card{background:linear-gradient(145deg,rgba(22,35,31,.94),rgba(13,23,20,.96));border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}.lead{padding:34px}h1{font-size:clamp(38px,7vw,70px);line-height:.96;letter-spacing:-.055em;margin:4px 0 20px;max-width:760px}.lede{font-size:18px;color:#c8d8d0;max-width:720px;margin:0}.stamp{padding:28px;display:flex;flex-direction:column;justify-content:space-between}.status{display:inline-flex;align-items:center;gap:10px;color:var(--green);font-weight:800}.dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 22px var(--green)}.small{color:var(--muted);font-size:13px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 22px}.metric{padding:20px}.metric strong{display:block;font-size:30px;letter-spacing:-.04em;color:var(--green)}.metric span{color:var(--muted);font-size:13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.section{padding:26px}h2{font-size:20px;margin:0 0 14px;letter-spacing:-.02em}.lane{display:flex;gap:12px;padding:11px 0;border-top:1px solid rgba(86,119,106,.28)}.lane:first-of-type{border-top:0}.check{color:var(--green);font-weight:900}.lane b{display:block}.lane p{margin:2px 0 0;color:var(--muted)}.defect{background:rgba(255,255,255,.025);border:1px solid rgba(86,119,106,.33);border-radius:13px;padding:14px;margin:10px 0}.defect b{color:var(--gold)}.defect p{margin:4px 0 0;color:var(--muted)}.wide{grid-column:1/-1}.timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.step{padding:15px;border-radius:12px;background:rgba(121,226,167,.055);border:1px solid rgba(121,226,167,.19)}.step span{display:block;color:var(--green);font-size:12px;font-weight:800;text-transform:uppercase}.step b{display:block;margin-top:5px}.note{padding:18px;border-left:3px solid var(--blue);background:rgba(131,200,255,.07);border-radius:0 12px 12px 0;color:#cfe8fb}.manual{counter-reset:qa}.manual li{list-style:none;position:relative;padding:10px 0 10px 38px;border-top:1px solid rgba(86,119,106,.24)}.manual li:first-child{border-top:0}.manual li:before{counter-increment:qa;content:counter(qa);position:absolute;left:0;top:9px;width:25px;height:25px;display:grid;place-items:center;border-radius:8px;background:#20372e;color:var(--green);font-weight:800}.source{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#b7cac0}.footer{margin-top:22px;padding:20px;color:var(--muted);display:flex;justify-content:space-between;gap:20px}.pill{display:inline-block;padding:5px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted);font-size:12px;margin:3px}.warn{color:var(--gold)}@media(max-width:820px){.hero,.grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}.timeline{grid-template-columns:1fr}.wide{grid-column:auto}.footer{display:block}}@media(max-width:480px){main{width:min(100% - 20px,1120px);padding-top:26px}.metrics{grid-template-columns:1fr}.lead,.stamp,.section{padding:21px}h1{font-size:42px}}
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">AnkiScape · closure report · 13 July 2026</div>
+  <section class="hero">
+    <article class="card lead">
+      <h1>Prayer closure is verified.</h1>
+      <p class="lede">The altar, urn, passive, Combat Prayer, and Herblore seams now behave as one coherent system, with Construction, Farming, combat, storage, undo, and the existing Qt surfaces preserved.</p>
+    </article>
+    <aside class="card stamp">
+      <div class="status"><span class="dot"></span>READY TO COMMIT</div>
+      <div>
+        <div class="small">Certification boundary</div>
+        <strong>Code + state + real offscreen Qt</strong>
+        <div class="small" style="margin-top:10px">The owner’s real Anki profile was not mutated.</div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="metrics">
+    <article class="card metric"><strong>1,198</strong><span>complete non-Qt tests passing</span></article>
+    <article class="card metric"><strong>1,198</strong><span>complete real offscreen Qt tests passing</span></article>
+    <article class="card metric"><strong>26</strong><span>five-state urn tiers across six skills</span></article>
+    <article class="card metric"><strong>4</strong><span>reproduced defects fixed during takeover</span></article>
+  </section>
+
+  <section class="grid">
+    <article class="card section">
+      <h2>Closure lanes</h2>
+      <div class="lane"><span class="check">✓</span><div><b>Combat Prayer</b><p>Atomic presets/overrides, master masking, conflict normalization, Curses fallback, and exact Chivalry/Rigour/Augury/Piety Defence gates.</p></div></div>
+      <div class="lane"><span class="check">✓</span><div><b>Owned altar</b><p>Zero/one/two burners produce 250/300/350%; marrentill is charged once per new stint and the multiplier stays frozen.</p></div></div>
+      <div class="lane"><span class="check">✓</span><div><b>Urn lifecycle</b><p>Runed → active → full transitions remain physical, target-local, overflow-safe, non-stackable, and bank-run safe.</p></div></div>
+      <div class="lane"><span class="check">✓</span><div><b>Passives</b><p>Bonecrusher and Ectoplasmator require the selected target’s carried pack; bank-only ownership is inert.</p></div></div>
+      <div class="lane"><span class="check">✓</span><div><b>Herblore identity</b><p>Bonemeal 4255 and Wyvern bonemeal 6810 stay distinct; Super prayer consumes only the latter.</p></div></div>
+    </article>
+
+    <article class="card section">
+      <h2>Takeover defects closed</h2>
+      <div class="defect"><b>Active urns stranded by bank runs</b><p>Saved layouts now materialize the urn’s current physical state for both skilling and Combat repacks.</p></div>
+      <div class="defect"><b>High-tier Defence gates incomplete</b><p>Chivalry 65 and Rigour/Augury/Piety 70 are encoded in shared data and sanitizer paths.</p></div>
+      <div class="defect"><b>Teleport left the Skills panel stale</b><p>A successful direct teleport rerenders the visible skill panel, including level-threshold changes.</p></div>
+      <div class="defect"><b>Chivalry lock was unexplained</b><p>Knight Waves requirements are now explicit in the disabled-row tooltip.</p></div>
+      <div class="note" style="margin-top:14px"><b>Source hygiene:</b> Bonecrusher/Ectoplasmator art was refetched through the explicit RS3 source path, and historical revision dates were reconciled to MediaWiki UTC metadata.</div>
+    </article>
+
+    <article class="card section wide">
+      <h2>Evidence sequence</h2>
+      <div class="timeline">
+        <div class="step"><span>01 · recover</span><b>Rules + Memory Bank + dirty tree</b></div>
+        <div class="step"><span>02 · audit</span><b>Backend, Qt, and handoff lanes</b></div>
+        <div class="step"><span>03 · reproduce</span><b>Four concrete defects</b></div>
+        <div class="step"><span>04 · repair</span><b>Focused diffs + regressions</b></div>
+        <div class="step"><span>05 · certify</span><b>Both complete suites green</b></div>
+      </div>
+      <p class="source" style="margin:18px 0 0">Focused closure: 626 passing · independent backend audit: 663 passing · non-Qt: 1,198 passing / 187 environment skips / 3 expected failures · offscreen Qt: 1,198 passing / 3 expected failures · reachability: 1,102 actions / 725 consumed items / 296 known orphan inputs · py_compile + git diff --check: clean.</p>
+    </article>
+
+    <article class="card section">
+      <h2>Undo and persistence</h2>
+      <div class="lane"><span class="check">✓</span><div><b>Answer Card remains atomic</b><p>Prayer rewards, passives, urn charge, combat, Farming, and Construction mutations restore through the existing review snapshot.</p></div></div>
+      <div class="lane"><span class="check">✓</span><div><b>Teleport undo is separate</b><p>Direct Bank actions persist immediately and unwind through a bounded LIFO custom stack without consuming review undo.</p></div></div>
+      <div class="lane"><span class="check">✓</span><div><b>Schema remains v33</b><p>Unknown keys survive; stale pointers normalize; existing save and registry contracts stay flat.</p></div></div>
+    </article>
+
+    <article class="card section">
+      <h2>Manual real-profile checklist</h2>
+      <ol class="manual">
+        <li>Back up the Anki profile, restart Anki, and open AnkiScape.</li>
+        <li>Open Prayer; switch hosted/owned gilded modes and confirm 250/300/350% plus once-per-stint marrentill.</li>
+        <li>Carry a runed urn for its selected target, answer a card, complete a bank run, and confirm the active urn keeps charging.</li>
+        <li>Right-click a carried full urn in Bank, teleport it, and confirm XP plus the visible skill level refresh.</li>
+        <li>Use the AnkiScape custom undo twice after two teleports; then confirm ordinary review undo is still independent.</li>
+        <li>Carry Bonecrusher/Ectoplasmator for one Combat target and confirm other-target/bank-only copies stay inert.</li>
+      </ol>
+    </article>
+  </section>
+
+  <section class="card footer">
+    <div><b>Durable handoff</b><br><span class="small">Source audit, live Kanban, core Memory Bank files, and this immutable result report agree.</span></div>
+    <div><span class="pill">Prayer</span><span class="pill">Construction</span><span class="pill">Herblore</span><span class="pill">Urns</span><span class="pill">Qt</span><span class="pill">Undo</span></div>
+  </section>
+</main>
+</body>
+</html>

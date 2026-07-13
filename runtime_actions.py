@@ -76,6 +76,11 @@ try:
         apply_construction_action_pure,
         construction_target_locked_reasons_pure,
         owned_gilded_altar_burner_count_pure,
+        owned_gilded_altar_marrentill_required_pure,
+        owned_gilded_altar_access_reasons_pure,
+        effective_gilded_altar_multiplier_pure,
+        charge_training_urn_for_action_pure,
+        intercept_bonecrusher_outputs_pure,
         prayer_gilded_search_step_pure,
         clear_prayer_gilded_stint_pure,
         prayer_target_locked_reasons_pure,
@@ -147,6 +152,7 @@ try:
     )
     from .shop_data import SHOP_PLAYER_BUY_PRICES
     from .smithing_data import DEFAULT_SMITHING_TARGET
+    from .urn_data import URN_STATE_ITEM_NAMES, materialize_urn_layout_pure
 except ImportError:  # pragma: no cover - flat import path used by tests
     from constants import (  # type: ignore
         BIRD_NEST_DROP_CHANCE,
@@ -211,6 +217,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         apply_construction_action_pure,
         construction_target_locked_reasons_pure,
         owned_gilded_altar_burner_count_pure,
+        owned_gilded_altar_marrentill_required_pure,
+        owned_gilded_altar_access_reasons_pure,
+        effective_gilded_altar_multiplier_pure,
+        charge_training_urn_for_action_pure,
+        intercept_bonecrusher_outputs_pure,
         prayer_gilded_search_step_pure,
         clear_prayer_gilded_stint_pure,
         prayer_target_locked_reasons_pure,
@@ -282,6 +293,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     )
     from shop_data import SHOP_PLAYER_BUY_PRICES  # type: ignore
     from smithing_data import DEFAULT_SMITHING_TARGET  # type: ignore
+    from urn_data import URN_STATE_ITEM_NAMES, materialize_urn_layout_pure  # type: ignore
 
 try:
     from . import inventory_pure
@@ -384,7 +396,16 @@ def _processing_requirements_for(
             resolved = fletching_material_requirements_pure(target, player_data.get("inventory", {}) or {}, table)
             if resolved is not None:
                 return resolved
-        return {str(item): int(amount) for item, amount in requirements.items() if isinstance(item, str)}
+        resolved = {str(item): int(amount) for item, amount in requirements.items() if isinstance(item, str)}
+        if (
+            handler_key == "prayer"
+            and spec.get("method") == "gilded_altar"
+            and player_data.get("prayer_gilded_mode", "hosted") == "owned"
+        ):
+            marrentill = owned_gilded_altar_marrentill_required_pure(player_data, str(target))
+            if marrentill > 0:
+                resolved["Clean marrentill"] = marrentill
+        return resolved
     essence_items = spec.get("essence_items")
     if isinstance(essence_items, (list, tuple)) and essence_items:
         inventory = player_data.get("inventory", {}) or {}
@@ -415,6 +436,16 @@ def _set_carried_target_map(player_data: dict[str, Any], map_key: str, target_id
     else:
         container.pop(target_id, None)
     player_data[map_key] = container
+
+
+def _carried_target_view(player_data: dict[str, Any], target_id: str) -> dict[str, int]:
+    carried = player_data.get("carried_inventory")
+    view = carried.get(target_id) if isinstance(carried, dict) else None
+    return dict(view) if isinstance(view, dict) else {}
+
+
+def _without_urn_substitutions(inventory: dict[str, Any]) -> dict[str, Any]:
+    return {item_name: amount for item_name, amount in inventory.items() if item_name not in URN_STATE_ITEM_NAMES}
 
 
 def _pack_can_supply(view: dict[str, Any], requirements: dict[str, int]) -> bool:
@@ -455,7 +486,11 @@ def _repack_view_for_target(
         # item in the layout, not just the bagged material (bags-in-the-grid is a
         # separate, unbuilt feature).
         return inventory_pure.apply_carried_layout_pure(
-            bank, layout, inventory_pure.CARRIED_CAPACITY, _OVERLAY_STACKABLE_NAMES)
+            bank,
+            materialize_urn_layout_pure(bank, layout),
+            inventory_pure.CARRIED_CAPACITY,
+            _OVERLAY_STACKABLE_NAMES,
+        )
     if is_processing:
         # Pack against the real 28 slots and let the packer model the bag (which
         # holds its material in one slot). Inflating `capacity` instead would hand
@@ -527,6 +562,11 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     if is_processing and requirements and not primed:
         view = _repack_view_for_target(is_processing, advanced, layout, bank, requirements, capacity)
         _set_carried_target_map(player_data, "carried_primed_targets", target_id, True)
+    elif handler_key == "hunter" and advanced and layout and not view:
+        # Hunter is gathering, but target-carried passives still need the saved
+        # Custom pack on the first trip rather than waiting for a bank-run cycle.
+        view = _repack_view_for_target(False, True, layout, bank, {}, capacity)
+        _set_carried_target_map(player_data, "carried_inventory", target_id, view)
 
     # Presence-only gates stay out of per-action packing: in default mode they
     # remain available from the bank. An advanced layout explicitly carries
@@ -556,6 +596,10 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         ctx.show_activity_gain("Bank run — restocked supplies (+1 review)")
         ctx.save_player_data()
         return True
+
+    # Handlers that substitute carried items (urn runed -> active -> full) must
+    # see the actual trip view, including a just-seeded first trip.
+    _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
 
     if is_processing and requirements:
         # Scope the handler's input access to what the pack holds, run it, then
@@ -603,6 +647,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         player_data["inventory"] = scoped_inventory
         result = handler(scoped_ctx)
         after_scoped = player_data.get("inventory", {}) or {}
+        new_view = _carried_target_view(player_data, target_id)
         reconciled = dict(after_scoped)
         for option in scoped_alternatives - requirements.keys():
             if option in bank:
@@ -616,7 +661,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             consumed = max(0, capped_before - after_amount)
             reconciled[item_name] = max(0, true_before - consumed)
             if consumed > 0:
-                new_view[item_name] = max(0, int(view.get(item_name, 0) or 0) - consumed)
+                new_view[item_name] = max(0, int(new_view.get(item_name, 0) or 0) - consumed)
         for item_name, _need in carried_presence_requirements.items():
             true_before = int(bank.get(item_name, 0) or 0)
             capped_before = int(scoped_inventory.get(item_name, 0) or 0)
@@ -624,12 +669,16 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             consumed = max(0, capped_before - after_amount)
             reconciled[item_name] = max(0, true_before - consumed)
             if consumed > 0:
-                new_view[item_name] = max(0, int(view.get(item_name, 0) or 0) - consumed)
+                new_view[item_name] = max(0, int(new_view.get(item_name, 0) or 0) - consumed)
         new_view = {name: count for name, count in new_view.items() if count > 0}
         player_data["inventory"] = reconciled
         if result is not False:
             player_data["skilling_bank_run"] = new_state
-            churn_delta = inventory_pure.carried_action_churn_pure(bank, reconciled, _OVERLAY_STACKABLE_NAMES)
+            churn_delta = inventory_pure.carried_action_churn_pure(
+                _without_urn_substitutions(bank),
+                _without_urn_substitutions(reconciled),
+                _OVERLAY_STACKABLE_NAMES,
+            )
             _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
             _set_carried_target_map(player_data, "carried_churn", target_id, new_churn + churn_delta)
         # Always run against the true bank, even on a failed tick, so a suppressed
@@ -646,20 +695,31 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     if result is not False:
         player_data["skilling_bank_run"] = new_state
         inv_after = player_data.get("inventory", {}) or {}
-        gains = inventory_pure.inventory_delta_gains(inv_before, inv_after)
+        post_handler_view = _carried_target_view(player_data, target_id)
+        gains = {
+            item_name: amount
+            for item_name, amount in inventory_pure.inventory_delta_gains(inv_before, inv_after).items()
+            if item_name not in URN_STATE_ITEM_NAMES
+        }
         if keep:
-            # Keep accrues churn and folds the product into the carried pack, which
-            # banks (costing a review) when full.
-            churn_delta = inventory_pure.carried_action_churn_pure(inv_before, inv_after, _OVERLAY_STACKABLE_NAMES)
-            new_view = inventory_pure.carried_fold_gains_pure(new_view, gains, _OVERLAY_STACKABLE_NAMES)
-            _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
+            # Keep accrues churn and folds ordinary products into the post-handler
+            # pack. Urn substitutions already happened in that pack and are not
+            # products, Drop targets, or churn.
+            churn_delta = inventory_pure.carried_action_churn_pure(
+                _without_urn_substitutions(inv_before),
+                _without_urn_substitutions(inv_after),
+                _OVERLAY_STACKABLE_NAMES,
+            )
+            post_handler_view = inventory_pure.carried_fold_gains_pure(
+                post_handler_view,
+                gains,
+                _OVERLAY_STACKABLE_NAMES,
+            )
+            _set_carried_target_map(player_data, "carried_inventory", target_id, post_handler_view)
             _set_carried_target_map(player_data, "carried_churn", target_id, new_churn + churn_delta)
         elif gains:
-            # Drop is power-gathering: the XP is kept but the product is destroyed,
-            # never banked — that is the whole point (fastest XP, no bank-run reviews,
-            # but you keep no materials). Without this, Drop kept every item for free
-            # AND paid no review, strictly dominating Keep. Consumed inputs (e.g.
-            # fishing bait) are a real cost and are left alone; only gains are dropped.
+            # Drop is power-gathering: ordinary gains are destroyed, while an urn's
+            # carried runed/active/full substitution remains a physical carried item.
             drained = dict(inv_after)
             for item_name, gained in gains.items():
                 drained[item_name] = max(0, int(drained.get(item_name, 0) or 0) - int(gained))
@@ -751,6 +811,30 @@ def _record_action(
     )
 
 
+def _charge_urn_for_action(
+    ctx: RuntimeActionContext,
+    skill_id: str,
+    action_id: str,
+    action_spec: dict[str, Any],
+    base_xp: float,
+    output_item: Optional[str] = None,
+) -> dict[str, Any]:
+    updated, info = charge_training_urn_for_action_pure(
+        ctx.player_data,
+        skill_id,
+        action_id,
+        action_spec,
+        base_xp,
+        output_item,
+        action_id,
+    )
+    # The pure result may repair a dangling pointer even when this action did not
+    # charge XP, so always apply it rather than keying state updates to `charged`.
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    return info
+
+
 def advance_farming_clock_for_review(ctx: RuntimeActionContext) -> dict[str, Any]:
     """Advance the background farm clock once for any answered review card."""
 
@@ -829,6 +913,7 @@ _COMBAT_EXP_SKILLS = {
     "constitution_exp": "constitution",
     "ranged_exp": "ranged",
     "magic_exp": "magic",
+    "prayer_exp": "prayer",
 }
 
 
@@ -1361,22 +1446,26 @@ def handle_prayer_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     if spec.get("method") == "gilded_altar":
-        burner_count = owned_gilded_altar_burner_count_pure(player_data)
-        owned = player_data.get("prayer_gilded_mode", "hosted") == "owned" and burner_count > 0
-        if owned:
+        mode = player_data.get("prayer_gilded_mode", "hosted")
+        if mode == "owned":
+            access_reasons = owned_gilded_altar_access_reasons_pure(player_data, target)
+            if access_reasons:
+                ctx.deactivate_current_skill()
+                ctx.show_error_message(
+                    "Owned gilded altar unavailable",
+                    f"Owned gilded training requires {', '.join(access_reasons)}, so Prayer has been switched off.",
+                )
+                return False
+            burner_count = owned_gilded_altar_burner_count_pure(player_data)
             stint = player_data.get("prayer_owned_altar_stint", {}) or {}
             if stint.get("target_id") != target:
-                inventory = player_data.get("inventory", {}) or {}
-                if int(inventory.get("Clean marrentill", 0) or 0) < burner_count:
-                    ctx.deactivate_current_skill()
-                    ctx.show_error_message("Out of marrentill", f"Your {burner_count} burner(s) need one clean marrentill each for this stint.")
-                    return False
-                inventory = dict(inventory)
-                inventory["Clean marrentill"] -= burner_count
-                player_data["inventory"] = inventory
+                if burner_count > 0:
+                    inventory = dict(player_data.get("inventory", {}) or {})
+                    inventory["Clean marrentill"] = int(inventory.get("Clean marrentill", 0) or 0) - burner_count
+                    player_data["inventory"] = inventory
                 player_data["prayer_owned_altar_stint"] = {"target_id": target, "burners_lit": burner_count}
             player_data.update(clear_prayer_gilded_stint_pure(player_data))
-        else:
+        elif mode == "hosted":
             player_data["prayer_owned_altar_stint"] = {}
             searched, ready, remaining = prayer_gilded_search_step_pure(player_data, target, ctx.random_random)
             player_data.update(searched)
@@ -1385,6 +1474,10 @@ def handle_prayer_answer(ctx: RuntimeActionContext) -> bool:
                 ctx.save_player_data()
                 ctx.show_activity_gain(f"Finding a hosted gilded altar — {remaining} review{'s' if remaining != 1 else ''} left")
                 return True
+        else:
+            ctx.deactivate_current_skill()
+            ctx.show_error_message("Prayer target unavailable", "Choose hosted or owned gilded training before reviewing.")
+            return False
     else:
         player_data.update(clear_prayer_gilded_stint_pure(player_data))
         player_data["prayer_owned_altar_stint"] = {}
@@ -1399,9 +1492,13 @@ def handle_prayer_answer(ctx: RuntimeActionContext) -> bool:
     if spec.get("method") == "bury":
         player_data["prayer_bury_count"] = int(player_data.get("prayer_bury_count", 0) or 0) + 1
     _record_action(ctx, "prayer", target, True, expected_success_chance=1.0, output_items=outputs)
-    if spec.get("method") == "gilded_altar" and player_data.get("prayer_gilded_mode") == "owned":
-        burners = int((player_data.get("prayer_owned_altar_stint", {}) or {}).get("burners_lit", 0) or 0)
-        base_exp = (base_exp / 3.5) * (2.5 + 0.5 * burners)
+    if spec.get("method") == "gilded_altar":
+        source_base = base_exp / 3.5
+        base_exp = source_base * effective_gilded_altar_multiplier_pure(
+            player_data,
+            player_data.get("prayer_gilded_mode", "hosted"),
+            target,
+        )
     exp_gained = ctx.award_skill_exp("prayer_exp", base_exp)
     ctx.level_up_check("Prayer", player_data)
     ctx.check_achievements(player_data)
@@ -1627,6 +1724,7 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
         return True
 
     player_data["inventory"] = new_inv
+    _charge_urn_for_action(ctx, "fishing", target, spec, base_exp, _output_item)
     _record_action(
         ctx,
         "fishing",
@@ -1700,18 +1798,34 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         return True
 
     player_data["inventory"] = new_inv
+    produced_outputs = _spec_output_items(spec, _output_item)
+    passive_data, retained_outputs, bonecrusher_info = intercept_bonecrusher_outputs_pure(
+        player_data,
+        target,
+        produced_outputs,
+    )
+    player_data.clear()
+    player_data.update(passive_data)
+    if bonecrusher_info["consumed"]:
+        inventory = dict(player_data.get("inventory", {}) or {})
+        for item_name, amount in bonecrusher_info["consumed"].items():
+            inventory[item_name] = max(0, int(inventory.get(item_name, 0) or 0) - int(amount))
+        player_data["inventory"] = inventory
     _record_action(
         ctx,
         "hunter",
         target,
         True,
         expected_success_chance=expected_success,
-        output_items=_spec_output_items(spec, _output_item),
+        output_items=retained_outputs,
     )
     player_data["hunter_success_count"] = player_data.get("hunter_success_count", 0) + 1
+    action_rewards = list(xp_rewards or ({"skill_id": "hunter", "amount": base_exp},))
+    if bonecrusher_info["prayer_xp"]:
+        action_rewards.append({"skill_id": "prayer", "amount": bonecrusher_info["prayer_xp"]})
     exp_gained = _award_action_xp_rewards(
         ctx,
-        xp_rewards or ({"skill_id": "hunter", "amount": base_exp},),
+        action_rewards,
         "hunter",
     )
     ctx.check_achievements(player_data)
@@ -1792,6 +1906,7 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
             ctx.show_activity_gain(f"+1 {output_item}")
         return True
 
+    _charge_urn_for_action(ctx, "cooking", target, spec, base_exp, output_item)
     _record_action(
         ctx,
         "cooking",
@@ -2036,6 +2151,7 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_activity_gain("The ore was too impure")
         return True
 
+    _charge_urn_for_action(ctx, "smithing", target, spec, base_exp, output_item)
     _record_action(
         ctx,
         "smithing",
@@ -2104,6 +2220,7 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
             player_data["logs_cut_today"] = 0
         player_data["logs_cut_today"] += 1
         player_data["inventory"] = new_inv
+        _charge_urn_for_action(ctx, "woodcutting", tree, spec, base_exp, output_item)
         output_items: dict[str, int] = {}
         for item_name in (output_item, nest_item):
             if item_name:
@@ -2193,6 +2310,7 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
             player_data["ores_mined_today"] = 0
         player_data["ores_mined_today"] += 1
         player_data["inventory"] = new_inv
+        _charge_urn_for_action(ctx, "mining", ore, ore_spec, base_exp, output_item)
         output_items: dict[str, int] = {}
         for item_name in (output_item, gem, extra_output):
             if item_name:
@@ -2240,7 +2358,11 @@ def _can_start_herblore_action(ctx: RuntimeActionContext) -> bool:
 
 def _can_start_prayer_action(ctx: RuntimeActionContext) -> bool:
     target = ctx.player_data.get("current_prayer", DEFAULT_PRAYER_TARGET)
-    return not prayer_target_locked_reasons_pure(ctx.player_data, target, PRAYER_DATA)
+    if prayer_target_locked_reasons_pure(ctx.player_data, target, PRAYER_DATA):
+        return False
+    if str(target).startswith("gilded_altar_") and ctx.player_data.get("prayer_gilded_mode") == "owned":
+        return not owned_gilded_altar_access_reasons_pure(ctx.player_data, target)
+    return True
 
 
 def _can_start_magic_action(ctx: RuntimeActionContext) -> bool:

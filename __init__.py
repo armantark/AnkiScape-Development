@@ -9,6 +9,7 @@ from .constants import (
     SMITHING_DATA,
     CRAFTING_DATA,
     COOKING_DATA,
+    PRAYER_DATA,
     FLETCHING_DATA,
     FIREMAKING_DATA,
     HUNTER_DATA,
@@ -70,6 +71,8 @@ from .logic_pure import (
     save_combat_preset_pure,
     purchase_house_pure,
     purchase_house_option_pure,
+    apply_prayer_selection_pure,
+    teleport_full_urn_pure,
 )
 from .construction_data import ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA
 from .logic import level_up_check, check_achievements
@@ -98,7 +101,7 @@ from .injectors import register_deck_browser_button as _register_deck_browser_bu
 from .injectors import force_deck_browser_refresh as _force_deck_browser_refresh
 from .storage import load_player_data as storage_load_player_data, save_player_data as storage_save_player_data
 from .action_registry import is_review_action, review_action_handler_key
-from .skill_registry import trainable_skill_definitions
+from .skill_registry import get_skill, trainable_skill_definitions
 from .shop_logic import advance_shop_market_clock_pure
 from .farming_logic import apply_farming_frontend_action_pure, farming_frontend_projection_pure
 from . import runtime_actions
@@ -126,7 +129,10 @@ except Exception:
 _ANKISCAPE_HOOKS_REGISTERED = False
 _LAST_MENU_OPEN_TS = 0.0
 _REVIEW_UNDO_STACK = []
+_URN_TELEPORT_UNDO_STACK = []
 _MAX_REVIEW_UNDO_SNAPSHOTS = 50
+_MAX_URN_TELEPORT_UNDO_SNAPSHOTS = 50
+_URN_TELEPORT_UNDO_OPERATION = "Teleport training urn"
 _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY = "ankiscape_review_action_multiplier"
 _LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
 _REVIEW_FEEDBACK_CONTEXT = None
@@ -373,6 +379,50 @@ def _award_hidden_skill_exp(exp_key: str, level_key: str, base_exp: float) -> No
     )
 
 
+def set_prayer_selection(material_id: str, ui_method_id: str) -> bool:
+    updated, ok, _reasons = apply_prayer_selection_pure(player_data, material_id, ui_method_id, PRAYER_DATA)
+    if not ok:
+        return False
+    player_data.clear()
+    player_data.update(updated)
+    save_player_data()
+    update_review_hud(player_data, current_skill)
+    return True
+
+
+def teleport_training_urn(urn_id: str) -> bool:
+    updated, base_xp, ok, skill_id = teleport_full_urn_pure(player_data, urn_id)
+    skill = get_skill(skill_id)
+    if not ok or skill is None:
+        return False
+    try:
+        mw.col.add_custom_undo_entry(_URN_TELEPORT_UNDO_OPERATION)
+    except (AttributeError, RuntimeError):
+        return False
+
+    _URN_TELEPORT_UNDO_STACK.append(copy.deepcopy(player_data))
+    if len(_URN_TELEPORT_UNDO_STACK) > _MAX_URN_TELEPORT_UNDO_SNAPSHOTS:
+        del _URN_TELEPORT_UNDO_STACK[:-_MAX_URN_TELEPORT_UNDO_SNAPSHOTS]
+
+    player_data.clear()
+    player_data.update(updated)
+    gained = _award_skill_exp(skill.exp_key, base_xp)
+    level_up_check(skill.display_name, player_data)
+    check_achievements(player_data)
+    save_player_data()
+    try:
+        mw.update_undo_actions()
+    except AttributeError:
+        pass
+    _refresh_skill_availability()
+    try:
+        update_review_hud(player_data, current_skill)
+    except Exception:
+        pass
+    _show_exp(gained)
+    return True
+
+
 def _implemented_exp_keys_snapshot() -> dict[str, float]:
     return {
         skill.exp_key: float(player_data.get(skill.exp_key, 0) or 0)
@@ -472,15 +522,22 @@ def _save_player_data_if_anki_ready() -> None:
         pass
 
 
+def _normalized_undo_operation(changes) -> str:
+    if changes is None:
+        return ""
+    try:
+        return " ".join(str(getattr(changes, "operation", "") or "").lower().split())
+    except Exception:
+        return ""
+
+
 def _looks_like_review_undo(changes) -> bool:
     """Match only the Anki answer operation that owns the latest snapshot."""
-    if changes is None:
-        return False
-    try:
-        operation = " ".join(str(getattr(changes, "operation", "") or "").lower().split())
-    except Exception:
-        return False
-    return operation in {"answer", "answer card"}
+    return _normalized_undo_operation(changes) in {"answer", "answer card"}
+
+
+def _looks_like_urn_teleport_undo(changes) -> bool:
+    return _normalized_undo_operation(changes) == _URN_TELEPORT_UNDO_OPERATION.lower()
 
 
 def _restore_review_award_snapshot(snapshot) -> None:
@@ -510,7 +567,26 @@ def _restore_review_award_snapshot(snapshot) -> None:
         pass
 
 
+def _restore_urn_teleport_snapshot(snapshot) -> None:
+    player_data.clear()
+    player_data.update(copy.deepcopy(snapshot))
+    save_player_data()
+    try:
+        update_review_hud(player_data, current_skill)
+        update_farming_hud_badge(player_data, _open_farming_sheet)
+    except Exception:
+        pass
+    try:
+        _refresh_skill_availability()
+    except Exception:
+        pass
+
+
 def _on_state_did_undo(changes=None) -> None:
+    if _looks_like_urn_teleport_undo(changes):
+        if _URN_TELEPORT_UNDO_STACK:
+            _restore_urn_teleport_snapshot(_URN_TELEPORT_UNDO_STACK.pop())
+        return
     if not _REVIEW_UNDO_STACK or not _looks_like_review_undo(changes):
         return
     snapshot = _REVIEW_UNDO_STACK.pop()
@@ -788,8 +864,11 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
     # Keep/Drop toggle above.
     def _current_carried_pack_target():
         handler_key = review_action_handler_key(current_skill)
-        target_key = runtime_actions._OVERLAY_TARGET_KEYS.get(handler_key)
-        target_id = player_data.get(target_key) if target_key else None
+        if handler_key == "combat":
+            target_id = player_data.get("current_combat_target")
+        else:
+            target_key = runtime_actions._OVERLAY_TARGET_KEYS.get(handler_key)
+            target_id = player_data.get(target_key) if target_key else None
         return str(target_id) if target_id else None
 
     def _current_carried_advanced_state():
@@ -917,8 +996,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_set_cooking=lambda target: _set_value("current_cooking", target),
         on_set_runecrafting=lambda target: _set_value("current_runecrafting", target),
         on_set_herblore=lambda target: _set_value("current_herblore", target),
-        on_set_prayer=lambda target: _set_value("current_prayer", target),
-        on_set_prayer_gilded_mode=lambda mode: _set_value("prayer_gilded_mode", mode),
+        on_set_prayer_selection=set_prayer_selection,
         on_set_magic=lambda target: _set_value("current_magic", target),
         on_set_construction=lambda target: _set_value("current_construction", target),
         on_purchase_house=_purchase_house,
@@ -960,6 +1038,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_unequip_slot=on_unequip_slot,
         on_discard_item=on_discard_item,
         on_consume_item=on_consume_item,
+        on_teleport_training_urn=teleport_training_urn,
         get_farming_projection=_get_farming_projection,
         on_farming_action=_apply_farming_action,
         initial_skill=initial_skill,

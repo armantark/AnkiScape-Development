@@ -303,6 +303,29 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["farm_patches"]["future_patch"], {"future": True})
         self.assertEqual(migrated["pending_skill_exp_rewards"], {"summoning_exp": 250.0})
 
+    def test_load_cleans_only_above_base_stale_prayer_current_level(self):
+        cleaned = migrate_loaded_data(
+            {
+                "config_version": CURRENT_CONFIG_VERSION,
+                "prayer_level": 70,
+                "combat_current_levels": {"prayer": 80, "attack": 65, "future_skill": 123},
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+        self.assertEqual(cleaned["combat_current_levels"], {"attack": 65, "future_skill": 123})
+
+        drained = migrate_loaded_data(
+            {
+                "config_version": CURRENT_CONFIG_VERSION,
+                "prayer_level": 70,
+                "combat_current_levels": {"prayer": 60, "attack": 65},
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+        self.assertEqual(drained["combat_current_levels"], {"prayer": 60, "attack": 65})
+
     def test_migrate_preserves_existing_action_telemetry_rows(self):
         migrated = migrate_loaded_data(
             {

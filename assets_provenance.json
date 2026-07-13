@@ -19053,6 +19053,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:52:24Z"
   },
+  "prayeritems/bonecrusher.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Bonecrusher.png",
+    "file_title": "Bonecrusher.png",
+    "image_url": "https://runescape.wiki/images/Bonecrusher.png?76fd5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e592f43fb88dbe714d1bce03b42062d749078092",
+    "size": 783,
+    "source_wiki": "rs3",
+    "timestamp": "2020-11-26T16:09:37Z"
+  },
   "prayeritems/bonemeal.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Bonemeal_%28Bones%29.png",
     "file_title": "Bonemeal (Bones).png",
@@ -19184,6 +19196,18 @@
     "size": 1175,
     "source_wiki": "osrs",
     "timestamp": "2014-07-21T19:45:02Z"
+  },
+  "prayeritems/ectoplasmator.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ectoplasmator.png",
+    "file_title": "Ectoplasmator.png",
+    "image_url": "https://runescape.wiki/images/Ectoplasmator.png?e489a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ce4214d99840cdcf96fe2c7be6096cb5b3841af5",
+    "size": 504,
+    "source_wiki": "rs3",
+    "timestamp": "2021-03-07T04:17:40Z"
   },
   "prayeritems/empty_pot.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Empty_pot.png",

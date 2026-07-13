@@ -211,3 +211,17 @@ The eleven-skill completeness audit is settled in `gap-backlog.json`,
 `gap-grill-decisions-2026-07-10.md`, and `completion-audit.json`. Prayer's
 kanban card moves to `IMPLEMENT` (with the extraction list above as its
 `SOURCE AUDIT` residue) as of 2026-07-11.
+
+## Post-implementation closure addendum — 2026-07-13
+
+The design body above is preserved as the original contract. Its live status is now:
+
+- Prayer shipped in `ed1327b`, and the altar/urn/passive/Herblore closure is complete in the 2026-07-13 working tree.
+- The previously parked owned-POH altar dependency is closed: zero, one, and two burners yield 250%, 300%, and 350%; clean marrentill is consumed once per new owned stint.
+- All 26 training-urn tiers across Mining, Cooking, Fishing, Woodcutting, Smithing, and Prayer ship with exact five-state source IDs, target-carried activation, overflow-preserving charge, substitution-aware bank repacks, and direct full-urn teleport.
+- Bonecrusher and Ectoplasmator ship as target-carried passives without invented acquisition routes. Their icons use explicit RS3 wiki provenance.
+- Direct urn teleports use a separate bounded LIFO custom undo and do not consume review undo.
+- Chivalry/Rigour/Augury/Piety enforce their exact Defence gates, and the Qt surface explains Knight Waves locks.
+- Source item IDs 4255 and 6810 remain distinct storage identities (`Bonemeal` and `Wyvern bonemeal`) even though the source display names collide; this supersedes the earlier gap-ledger collapse conclusion.
+
+The authoritative conflict/test record is `source-audits/prayer-altar-urn-passives-herblore-closure-2026-07-13.md`; the live forward status is `future-work-kanban.md`.

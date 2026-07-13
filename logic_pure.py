@@ -10,9 +10,9 @@ except ImportError:
     from equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 
 try:
-    from .inventory_pure import CARRIED_CAPACITY, carried_slots_used, clamp_carried_view_to_bank
+    from .inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure, carried_slots_used, clamp_carried_view_to_bank
 except ImportError:
-    from inventory_pure import CARRIED_CAPACITY, carried_slots_used, clamp_carried_view_to_bank
+    from inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure, carried_slots_used, clamp_carried_view_to_bank
 
 try:
     from .item_values import STACKABLE_ITEM_NAMES
@@ -40,9 +40,31 @@ try:
         PRAYER_UPTIME_POLICIES,
         SAP_SOURCE,
         LEECH_SOURCE,
+        resolve_prayer_selection_pure,
     )
 except ImportError:
-    from prayer_data import AUTO_PRAYER_TICKS_PER_ITEM, COMBAT_PRAYERS_BY_ID, PRAYER_MATERIALS, PRAYER_UPTIME_POLICIES, SAP_SOURCE, LEECH_SOURCE
+    from prayer_data import AUTO_PRAYER_TICKS_PER_ITEM, COMBAT_PRAYERS_BY_ID, PRAYER_MATERIALS, PRAYER_UPTIME_POLICIES, SAP_SOURCE, LEECH_SOURCE, resolve_prayer_selection_pure
+
+try:
+    from .prayer_passive_data import (
+        BONECRUSHER_ITEM_NAME,
+        ECTOPLASMATOR_ITEM_NAME,
+        ECTOPLASMATOR_XP_BY_ENEMY_ID,
+    )
+    from .urn_data import (
+        MAX_NONEMPTY_URNS_PER_SKILL,
+        URN_CARRIED_TARGET_KEYS,
+        URN_TIERS_BY_FULL_ITEM,
+        URN_TIERS_BY_ID,
+        URN_TIERS_BY_SKILL,
+        materialize_urn_layout_pure,
+        sanitize_urn_state_pure,
+        urn_action_event_pure,
+        urn_tier_accepts_event_pure,
+    )
+except ImportError:
+    from prayer_passive_data import BONECRUSHER_ITEM_NAME, ECTOPLASMATOR_ITEM_NAME, ECTOPLASMATOR_XP_BY_ENEMY_ID
+    from urn_data import MAX_NONEMPTY_URNS_PER_SKILL, URN_CARRIED_TARGET_KEYS, URN_TIERS_BY_FULL_ITEM, URN_TIERS_BY_ID, URN_TIERS_BY_SKILL, materialize_urn_layout_pure, sanitize_urn_state_pure, urn_action_event_pure, urn_tier_accepts_event_pure
 
 try:
     from .magic_data import CASUAL_MAGIC_DIAL, DREAM_COST, SPELLBOOK_SWAP_COST, VENGEANCE_COST
@@ -1070,6 +1092,42 @@ def prayer_target_locked_reasons_pure(player_data, target_id, prayer_data):
     return tuple(reasons)
 
 
+def prayer_selection_locked_reasons_pure(player_data, material_id, ui_method_id, prayer_data):
+    resolved = resolve_prayer_selection_pure(material_id, ui_method_id)
+    if resolved is None:
+        return ("unsupported material and method combination",)
+    target_id, gilded_mode = resolved
+    reasons = list(prayer_target_locked_reasons_pure(player_data, target_id, prayer_data))
+    if gilded_mode == "owned":
+        reasons.extend(owned_gilded_altar_access_reasons_pure(player_data, target_id))
+    return tuple(dict.fromkeys(reasons))
+
+
+def apply_prayer_selection_pure(player_data, material_id, ui_method_id, prayer_data):
+    """Atomically apply a material/method pair while preserving composite IDs."""
+    resolved = resolve_prayer_selection_pure(material_id, ui_method_id)
+    if resolved is None:
+        return player_data, False, ("unsupported material and method combination",)
+    reasons = prayer_selection_locked_reasons_pure(player_data, material_id, ui_method_id, prayer_data)
+    if reasons:
+        return player_data, False, reasons
+
+    target_id, gilded_mode = resolved
+    data = _copy_player_data_with_nested(player_data)
+    old_target = str(data.get("current_prayer", ""))
+    old_mode = str(data.get("prayer_gilded_mode", "hosted"))
+    data["current_prayer"] = target_id
+    if gilded_mode is not None:
+        data["prayer_gilded_mode"] = gilded_mode
+    selection_changed = target_id != old_target or (
+        gilded_mode is not None and gilded_mode != old_mode
+    )
+    if selection_changed:
+        data["prayer_gilded_house_search"] = {}
+        data["prayer_owned_altar_stint"] = {}
+    return data, True, ()
+
+
 def apply_prayer_action_pure(target_id, inventory, prayer_data):
     """Apply one normal Prayer training action; pacing/friction stays runtime-side."""
     spec = prayer_data.get(target_id)
@@ -1297,9 +1355,387 @@ def purchase_house_option_pure(player_data, option_id, options, *, kind):
 def owned_gilded_altar_burner_count_pure(player_data):
     rooms = player_data.get("house_rooms_bought", {}) or {}
     flags = player_data.get("house_built_flags", {}) or {}
-    if not bool(rooms.get("chapel")) or not bool(flags.get("guilded_altar")):
+    if not bool(player_data.get("house_owned")) or not bool(rooms.get("chapel")) or not bool(flags.get("guilded_altar")):
         return 0
     return min(2, sum(bool(flags.get(name)) for name in ("inscence_burner", "mahogany_burner", "marble_burner")))
+
+
+def owned_gilded_altar_effective_burners_pure(player_data, target_id=None):
+    stint = player_data.get("prayer_owned_altar_stint", {}) or {}
+    if isinstance(stint, Mapping) and target_id and stint.get("target_id") == target_id:
+        return min(2, _non_negative_int(stint.get("burners_lit", 0), 0))
+    return owned_gilded_altar_burner_count_pure(player_data)
+
+
+def owned_gilded_altar_marrentill_required_pure(player_data, target_id):
+    stint = player_data.get("prayer_owned_altar_stint", {}) or {}
+    if isinstance(stint, Mapping) and stint.get("target_id") == target_id:
+        return 0
+    return owned_gilded_altar_burner_count_pure(player_data)
+
+
+def owned_gilded_altar_access_reasons_pure(player_data, target_id):
+    reasons = []
+    rooms = player_data.get("house_rooms_bought", {}) or {}
+    flags = player_data.get("house_built_flags", {}) or {}
+    if not bool(player_data.get("house_owned")):
+        reasons.append("a player-owned house")
+    if not bool(rooms.get("chapel")):
+        reasons.append("a Chapel")
+    if not bool(flags.get("guilded_altar")):
+        reasons.append("a gilded altar")
+    marrentill_required = owned_gilded_altar_marrentill_required_pure(player_data, target_id)
+    if marrentill_required > 0:
+        inventory = player_data.get("inventory", {}) or {}
+        if _non_negative_int(inventory.get("Clean marrentill", 0), 0) < marrentill_required:
+            reasons.append(f"Clean marrentill x{marrentill_required}")
+    return tuple(reasons)
+
+
+def effective_gilded_altar_multiplier_pure(player_data, mode, target_id=None):
+    if mode == "hosted":
+        return 3.5
+    if mode == "owned":
+        return 2.5 + 0.5 * owned_gilded_altar_effective_burners_pure(player_data, target_id)
+    return 0.0
+
+
+def active_urn_state_pure(player_data, skill_id):
+    tier_id = player_data.get(f"active_urn_{skill_id}", "")
+    tier = URN_TIERS_BY_ID.get(tier_id)
+    if tier is None or tier.skill_id != skill_id:
+        return None
+    inventory = player_data.get("inventory", {}) or {}
+    if _non_negative_int(inventory.get(tier.item_active, 0), 0) <= 0:
+        return None
+    progress = min(tier.capacity_base_xp, _non_negative_float(player_data.get(f"urn_progress_{skill_id}", 0.0), 0.0))
+    return {"tier_id": tier.id, "progress": progress, "capacity": tier.capacity_base_xp, "item": tier.item_active}
+
+
+def nonempty_urn_count_pure(player_data, skill_id):
+    inventory = player_data.get("inventory", {}) or {}
+    total = 0
+    for tier in URN_TIERS_BY_SKILL.get(skill_id, ()):
+        total += _non_negative_int(inventory.get(tier.item_active, 0), 0)
+        total += _non_negative_int(inventory.get(tier.item_full, 0), 0)
+    return total
+
+
+def charge_training_urn_pure(
+    player_data,
+    skill_id,
+    resource_id,
+    resource_level,
+    base_xp,
+    carried_target_id=None,
+):
+    """Charge one skill family's urns from source base XP, preserving overflow.
+
+    Physical urn transitions require the selected target's carried view. Banked
+    urns and urns carried for another target remain untouched.
+    """
+    try:
+        remaining = max(0.0, float(base_xp))
+    except (TypeError, ValueError, OverflowError):
+        remaining = 0.0
+    info = {
+        "charged": False,
+        "base_xp_charged": 0.0,
+        "overflow_base_xp": remaining,
+        "activated": (),
+        "filled": (),
+    }
+    data = _copy_player_data_with_nested(player_data)
+    data.update(sanitize_urn_state_pure(data))
+    if remaining <= 0.0 or skill_id not in URN_TIERS_BY_SKILL or not isinstance(carried_target_id, str) or not carried_target_id:
+        return data, info
+
+    inventory = data.setdefault("inventory", {})
+    carried_map = data.setdefault("carried_inventory", {})
+    raw_carried = carried_map.get(carried_target_id, {})
+    carried_items = dict(raw_carried) if isinstance(raw_carried, Mapping) else {}
+
+    def available_count(item_name):
+        return min(
+            _non_negative_int(inventory.get(item_name, 0), 0),
+            _non_negative_int(carried_items.get(item_name, 0), 0),
+        )
+
+    def adjust_item(item_name, delta):
+        inventory[item_name] = max(0, _non_negative_int(inventory.get(item_name, 0), 0) + delta)
+        new_count = max(0, _non_negative_int(carried_items.get(item_name, 0), 0) + delta)
+        if new_count > 0:
+            carried_items[item_name] = new_count
+        else:
+            carried_items.pop(item_name, None)
+
+    active_key = f"active_urn_{skill_id}"
+    progress_key = f"urn_progress_{skill_id}"
+    activated = []
+    filled = []
+    charged = 0.0
+
+    while remaining > 1e-9:
+        active_id = str(data.get(active_key, "") or "")
+        tier = URN_TIERS_BY_ID.get(active_id)
+        if tier is not None and available_count(tier.item_active) <= 0:
+            break
+        if tier is not None and not urn_tier_accepts_event_pure(tier, str(resource_id), resource_level):
+            break
+
+        if tier is None:
+            if nonempty_urn_count_pure(data, skill_id) >= MAX_NONEMPTY_URNS_PER_SKILL:
+                break
+            tier = next(
+                (
+                    candidate
+                    for candidate in reversed(URN_TIERS_BY_SKILL[skill_id])
+                    if available_count(candidate.item_r) > 0
+                    and urn_tier_accepts_event_pure(candidate, str(resource_id), resource_level)
+                ),
+                None,
+            )
+            if tier is None:
+                break
+            adjust_item(tier.item_r, -1)
+            adjust_item(tier.item_active, 1)
+            data[active_key] = tier.id
+            data[progress_key] = 0.0
+            activated.append(tier.id)
+
+        progress = min(tier.capacity_base_xp, _non_negative_float(data.get(progress_key, 0.0), 0.0))
+        applied = min(remaining, max(0.0, tier.capacity_base_xp - progress))
+        if applied <= 1e-9:
+            applied = 0.0
+        progress += applied
+        remaining -= applied
+        charged += applied
+        data[progress_key] = progress
+
+        if progress + 1e-9 < tier.capacity_base_xp:
+            break
+        adjust_item(tier.item_active, -1)
+        adjust_item(tier.item_full, 1)
+        data[active_key] = ""
+        data[progress_key] = 0.0
+        filled.append(tier.id)
+
+    if carried_items:
+        carried_map[carried_target_id] = carried_items
+    else:
+        carried_map.pop(carried_target_id, None)
+    data["inventory"] = inventory
+    info.update(
+        {
+            "charged": charged > 0.0,
+            "base_xp_charged": charged,
+            "overflow_base_xp": max(0.0, remaining),
+            "activated": tuple(activated),
+            "filled": tuple(filled),
+        }
+    )
+    return data, info
+
+
+def charge_training_urn_for_action_pure(
+    player_data,
+    skill_id,
+    action_id,
+    action_spec,
+    base_xp,
+    output_item=None,
+    carried_target_id=None,
+):
+    event = urn_action_event_pure(skill_id, action_id, action_spec, float(base_xp or 0.0), output_item)
+    if event is None:
+        data = _copy_player_data_with_nested(player_data)
+        data.update(sanitize_urn_state_pure(data))
+        return data, {"charged": False, "base_xp_charged": 0.0, "overflow_base_xp": float(base_xp or 0.0), "activated": (), "filled": ()}
+    resource_id, resource_level, source_base_xp = event
+    return charge_training_urn_pure(
+        player_data,
+        skill_id,
+        resource_id,
+        resource_level,
+        source_base_xp,
+        carried_target_id,
+    )
+
+
+def full_urn_teleport_info_pure(player_data, item_name):
+    """Describe whether one full urn can teleport from its current target pack."""
+    tier = URN_TIERS_BY_FULL_ITEM.get(item_name)
+    if tier is None:
+        return None
+    target_key = URN_CARRIED_TARGET_KEYS.get(tier.skill_id)
+    target_id = str(player_data.get(target_key, "") or "") if target_key else ""
+    inventory = player_data.get("inventory", {}) or {}
+    carried = player_data.get("carried_inventory", {}) or {}
+    view = carried.get(target_id, {}) if isinstance(carried, Mapping) and target_id else {}
+    inventory_count = _non_negative_int(inventory.get(tier.item_full, 0), 0) if isinstance(inventory, Mapping) else 0
+    carried_count = min(
+        inventory_count,
+        _non_negative_int(view.get(tier.item_full, 0), 0) if isinstance(view, Mapping) else 0,
+    )
+    return {
+        "urn_id": tier.id,
+        "item_name": tier.item_full,
+        "skill_id": tier.skill_id,
+        "target_id": target_id,
+        "teleport_xp": tier.teleport_xp,
+        "inventory_count": inventory_count,
+        "carried_count": carried_count,
+        "eligible": bool(target_id and carried_count > 0),
+    }
+
+
+def teleport_full_urn_pure(player_data, urn_id):
+    tier = URN_TIERS_BY_ID.get(urn_id)
+    if tier is None:
+        return player_data, 0.0, False, ""
+    info = full_urn_teleport_info_pure(player_data, tier.item_full)
+    if not info or not info["eligible"]:
+        return player_data, 0.0, False, tier.skill_id
+
+    data = _copy_player_data_with_nested(player_data)
+    inventory = data.setdefault("inventory", {})
+    inventory[tier.item_full] = _non_negative_int(inventory.get(tier.item_full, 0), 0) - 1
+
+    target_id = str(info["target_id"])
+    carried = dict(data.get("carried_inventory", {}) or {})
+    view = dict(carried.get(target_id, {}) or {})
+    remaining_carried = _non_negative_int(info["carried_count"], 0) - 1
+    if remaining_carried > 0:
+        view[tier.item_full] = remaining_carried
+    else:
+        view.pop(tier.item_full, None)
+    if view:
+        carried[target_id] = view
+    else:
+        carried.pop(target_id, None)
+    data["carried_inventory"] = carried
+
+    record_action_telemetry_pure(
+        data,
+        tier.skill_id,
+        f"teleport_{tier.id}",
+        True,
+        expected_success_chance=1.0,
+    )
+    if tier.skill_id == "prayer":
+        data["prayer_urns_teleported"] = _non_negative_int(data.get("prayer_urns_teleported", 0), 0) + 1
+        data["prayer_actions_completed"] = _non_negative_int(data.get("prayer_actions_completed", 0), 0) + 1
+    return data, tier.teleport_xp, True, tier.skill_id
+
+
+def carried_target_item_count_pure(player_data, target_id, item_name):
+    if not isinstance(target_id, str) or not target_id:
+        return 0
+    inventory = player_data.get("inventory", {}) or {}
+    carried = player_data.get("carried_inventory", {}) or {}
+    view = carried.get(target_id, {}) if isinstance(carried, Mapping) else {}
+    if not isinstance(inventory, Mapping) or not isinstance(view, Mapping):
+        return 0
+    return min(
+        _non_negative_int(inventory.get(item_name, 0), 0),
+        _non_negative_int(view.get(item_name, 0), 0),
+    )
+
+
+def intercept_bonecrusher_outputs_pure(player_data, carried_target_id, outputs):
+    """Consume eligible bone outputs when Bonecrusher is in this target's pack."""
+    data = _copy_player_data_with_nested(player_data)
+    remaining = {
+        str(item_name): _non_negative_int(amount, 0)
+        for item_name, amount in (outputs or {}).items()
+        if isinstance(item_name, str) and _non_negative_int(amount, 0) > 0
+    }
+    info = {"count": 0, "prayer_xp": 0.0, "consumed": {}}
+    if carried_target_item_count_pure(data, carried_target_id, BONECRUSHER_ITEM_NAME) <= 0:
+        return data, remaining, info
+    for material in PRAYER_MATERIALS:
+        if material.kind != "bone" or material.id == "ancient_bones":
+            continue
+        amount = remaining.pop(material.item_name, 0)
+        if amount <= 0:
+            continue
+        info["count"] += amount
+        info["prayer_xp"] += material.xp * amount
+        info["consumed"][material.item_name] = amount
+    if info["count"]:
+        data["prayer_bonecrusher_triggers"] = _non_negative_int(data.get("prayer_bonecrusher_triggers", 0), 0) + info["count"]
+        data["prayer_actions_completed"] = _non_negative_int(data.get("prayer_actions_completed", 0), 0) + info["count"]
+    return data, remaining, info
+
+
+def resolve_prayer_kill_effects_pure(player_data, enemy_id, kill_drops, combat_auto_prayer_training):
+    """Resolve target-carried passives before retained drops and auto-training."""
+    data = _copy_player_data_with_nested(player_data)
+    remaining_drops = {
+        str(item_name): _non_negative_int(amount, 0)
+        for item_name, amount in (kill_drops or {}).items()
+        if isinstance(item_name, str) and _non_negative_int(amount, 0) > 0
+    }
+    carried_target_id = str(enemy_id or "")
+    prayer_xp = 0.0
+    auto_ticks = 0
+    info = {"bonecrusher": 0, "ectoplasmator": 0, "urn_ashes": 0, "auto_prayer": 0}
+
+    ectoplasmator_xp = ECTOPLASMATOR_XP_BY_ENEMY_ID.get(str(enemy_id))
+    if ectoplasmator_xp is not None and carried_target_item_count_pure(data, carried_target_id, ECTOPLASMATOR_ITEM_NAME) > 0:
+        prayer_xp += float(ectoplasmator_xp)
+        info["ectoplasmator"] = 1
+        data["prayer_ectoplasmator_triggers"] = _non_negative_int(data.get("prayer_ectoplasmator_triggers", 0), 0) + 1
+        data["prayer_actions_completed"] = _non_negative_int(data.get("prayer_actions_completed", 0), 0) + 1
+
+    data, remaining_drops, bonecrusher_info = intercept_bonecrusher_outputs_pure(
+        data,
+        carried_target_id,
+        remaining_drops,
+    )
+    prayer_xp += float(bonecrusher_info["prayer_xp"])
+    info["bonecrusher"] = int(bonecrusher_info["count"])
+
+    for material in PRAYER_MATERIALS:
+        if material.kind != "ash":
+            continue
+        amount = remaining_drops.get(material.item_name, 0)
+        if amount <= 0:
+            continue
+        retained = 0
+        for _index in range(amount):
+            charged_data, charge_info = charge_training_urn_pure(
+                data,
+                "prayer",
+                material.item_name,
+                None,
+                material.xp,
+                carried_target_id,
+            )
+            data = charged_data
+            if charge_info.get("charged"):
+                info["urn_ashes"] += 1
+            else:
+                retained += 1
+        if retained > 0:
+            remaining_drops[material.item_name] = retained
+        else:
+            remaining_drops.pop(material.item_name, None)
+    if info["urn_ashes"]:
+        data["prayer_urn_ashes_collected"] = _non_negative_int(data.get("prayer_urn_ashes_collected", 0), 0) + info["urn_ashes"]
+
+    if combat_auto_prayer_training:
+        for material in PRAYER_MATERIALS:
+            amount = remaining_drops.pop(material.item_name, 0)
+            if amount <= 0:
+                continue
+            prayer_xp += material.xp * amount
+            info["auto_prayer"] += amount
+            auto_ticks += amount * AUTO_PRAYER_TICKS_PER_ITEM
+        if info["auto_prayer"]:
+            data["prayer_actions_completed"] = _non_negative_int(data.get("prayer_actions_completed", 0), 0) + info["auto_prayer"]
+
+    return data, remaining_drops, prayer_xp, auto_ticks, info
 
 
 RING_OF_FORGING_ITEM = "Ring of forging"
@@ -1805,6 +2241,14 @@ def combat_magic_preset_locked_reasons_pure(player_data):
     return ()
 
 
+def _highest_legal_prayer_candidate_pure(data, candidates, book):
+    for prayer in sorted(candidates, key=lambda row: row.level, reverse=True):
+        sanitized = sanitize_prayer_selection_pure(data, (prayer.id,), book)
+        if sanitized:
+            return sanitized[0]
+    return None
+
+
 def derive_casual_combat_magic_pure(player_data):
     """Data-driven three-position dial layer atop the advanced preset fields."""
     data = _copy_player_data_with_nested(player_data)
@@ -1823,7 +2267,8 @@ def derive_casual_combat_magic_pure(player_data):
                 if prayer.book == book and prayer.level <= prayer_level
                 and any(effect == protection_effect for effect, _value in prayer.effects)
             ]
-            selected = [max(candidates, key=lambda prayer: prayer.level).id] if candidates else []
+            candidate = _highest_legal_prayer_candidate_pure(data, candidates, book)
+            selected = [candidate] if candidate else []
         else:
             equipment = data.get("equipment", {}) or {}
             weapon = str(equipment.get("weapon", "") or "")
@@ -1838,19 +2283,18 @@ def derive_casual_combat_magic_pure(player_data):
                 if prayer.book == book and prayer.level <= prayer_level
                 and set(prayer.groups).intersection(wanted)
             ]
-            selected = [max(candidates, key=lambda prayer: prayer.level).id] if candidates else []
+            candidate = _highest_legal_prayer_candidate_pure(data, candidates, book)
+            selected = [candidate] if candidate else []
             if not selected and book == "standard":
                 for group in ("attack", "strength", "defence"):
                     group_rows = [
                         prayer for prayer in COMBAT_PRAYERS_BY_ID.values()
                         if prayer.book == book and prayer.level <= prayer_level and group in prayer.groups
                     ]
-                    if group_rows:
-                        selected.append(max(group_rows, key=lambda prayer: prayer.level).id)
+                    candidate = _highest_legal_prayer_candidate_pure(data, group_rows, book)
+                    if candidate:
+                        selected.append(candidate)
         data["combat_selected_prayers"] = list(sanitize_prayer_selection_pure(data, selected, book))
-    else:
-        data["combat_prayer_uptime"] = "off"
-        data["combat_selected_prayers"] = []
     data["combat_vengeance"] = bool(rule["vengeance"] and _positive_int(data.get("magic_level", 1), 1) >= 94 and quest_completed_pure(data, "lunar_diplomacy"))
     data["combat_dream_thrift"] = bool(data.get("combat_dream_thrift", False) or rule["dream"])
     return data
@@ -1870,58 +2314,64 @@ def _combat_preset_snapshot(data):
 
 
 def sanitize_prayer_selection_pure(player_data, selected, book=None):
-    """Enforce level, book, quest, and authentic overlap groups in pure logic."""
+    """Enforce level, book, quest, stat gates, and exact prayer conflicts."""
     active_book = book if book in ("standard", "curses") else str(player_data.get("combat_prayer_book", "standard"))
     level = _positive_int(player_data.get("prayer_level", 1), 1)
+    defence_level = _positive_int(player_data.get("defense_level", 1), 1)
     quests = player_data.get("quests", {}) or {}
     knight_waves = bool((player_data.get("knight_waves") or {}).get("completed"))
     clean = []
-    occupied = set()
     curse_offence_family = None
     for prayer_id in selected if isinstance(selected, Iterable) and not isinstance(selected, (str, bytes)) else ():
         prayer = COMBAT_PRAYERS_BY_ID.get(str(prayer_id))
-        if prayer is None or prayer.book != active_book or prayer.level > level:
+        if prayer is None or prayer.book != active_book or prayer.level > level or prayer.defence_level > defence_level:
             continue
         if prayer.quest_gate == "the_temple_at_senntisten" and not bool((quests.get("the_temple_at_senntisten") or {}).get("completed")):
             continue
         if prayer.quest_gate == "knight_waves" and not knight_waves:
             continue
+
+        candidate_family = None
+        if prayer.book == "curses":
+            if prayer.id.startswith("sap_"):
+                candidate_family = "sap"
+            elif prayer.id.startswith("leech_"):
+                candidate_family = "leech"
+            elif prayer.id == "turmoil":
+                candidate_family = "turmoil"
+            if candidate_family is not None and curse_offence_family not in (None, candidate_family):
+                continue
+
         groups = set(prayer.groups)
-        if prayer.book == "standard":
-            selected_groups = {
-                group
-                for pid in clean
-                for group in COMBAT_PRAYERS_BY_ID[pid].groups
-            }
-            broad_offence = {"ranged_combat", "magic_combat", "melee_combat"}
-            if groups.intersection(broad_offence) and selected_groups.intersection({"attack", "strength", *broad_offence}):
-                continue
-            if groups.intersection({"attack", "strength"}) and selected_groups.intersection(broad_offence):
-                continue
-            if "defence" in groups and selected_groups.intersection(broad_offence):
-                continue
-            if groups.intersection(broad_offence) and "defence" in selected_groups:
-                continue
-        elif prayer.id.startswith("sap_"):
-            if curse_offence_family not in (None, "sap"):
-                continue
-            curse_offence_family = "sap"
-        elif prayer.id.startswith("leech_"):
-            if curse_offence_family not in (None, "leech"):
-                continue
-            curse_offence_family = "leech"
-        elif prayer.id == "turmoil":
-            if curse_offence_family is not None:
-                continue
-            curse_offence_family = "turmoil"
-        if groups.intersection(occupied):
+        conflicts = set(prayer.conflicts)
+        conflict_found = False
+        for selected_id in clean:
+            selected_prayer = COMBAT_PRAYERS_BY_ID[selected_id]
+            selected_groups = set(selected_prayer.groups)
+            if groups.intersection(selected_groups):
+                conflict_found = True
+                break
+            if conflicts.intersection(selected_groups) or set(selected_prayer.conflicts).intersection(groups):
+                conflict_found = True
+                break
+        if conflict_found:
             continue
+
         clean.append(prayer.id)
-        occupied.update(groups)
+        if candidate_family is not None:
+            curse_offence_family = candidate_family
     return tuple(clean)
 
 
+def active_prayer_selection_pure(data):
+    if not bool(data.get("combat_prayers_enabled", True)):
+        return ()
+    return sanitize_prayer_selection_pure(data, data.get("combat_selected_prayers", ()))
+
+
 def prayer_uptime_fraction_pure(data):
+    if not bool(data.get("combat_prayers_enabled", True)):
+        return 0.0
     policy = str(data.get("combat_prayer_uptime", "off"))
     if _non_negative_int(data.get("combat_prayer_points", 0), 0) <= 0:
         return 0.0
@@ -1929,7 +2379,7 @@ def prayer_uptime_fraction_pure(data):
 
 
 def prayer_effect_state_pure(data, uptime_override=None):
-    selected = sanitize_prayer_selection_pure(data, data.get("combat_selected_prayers", ()))
+    selected = active_prayer_selection_pure(data)
     uptime = prayer_uptime_fraction_pure(data) if uptime_override is None else max(0.0, min(1.0, float(uptime_override)))
     effects = {}
     for prayer_id in selected:
@@ -1998,6 +2448,17 @@ def save_combat_preset_pure(player_data, name):
     return data, True
 
 
+def apply_combat_target_overrides_pure(player_data, target_id):
+    data = _copy_player_data_with_nested(player_data)
+    overrides = (data.get("combat_target_overrides", {}) or {}).get(target_id, {}) if target_id else {}
+    if isinstance(overrides, Mapping):
+        for key, value in overrides.items():
+            if key in COMBAT_PRESET_FIELDS:
+                data[key] = dict(value) if isinstance(value, Mapping) else list(value) if isinstance(value, list) else value
+    data["combat_selected_prayers"] = list(sanitize_prayer_selection_pure(data, data.get("combat_selected_prayers", ())))
+    return data
+
+
 def apply_combat_preset_pure(player_data, name, target_id=None):
     data = _copy_player_data_with_nested(player_data)
     presets = data.get("combat_presets", {}) or {}
@@ -2008,12 +2469,7 @@ def apply_combat_preset_pure(player_data, name, target_id=None):
         if key in preset:
             value = preset[key]
             data[key] = dict(value) if isinstance(value, Mapping) else list(value) if isinstance(value, list) else value
-    overrides = (data.get("combat_target_overrides", {}) or {}).get(target_id, {}) if target_id else {}
-    if isinstance(overrides, Mapping):
-        for key, value in overrides.items():
-            if key in COMBAT_PRESET_FIELDS:
-                data[key] = dict(value) if isinstance(value, Mapping) else list(value) if isinstance(value, list) else value
-    data["combat_selected_prayers"] = list(sanitize_prayer_selection_pure(data, data.get("combat_selected_prayers", ())))
+    data = apply_combat_target_overrides_pure(data, target_id)
     data["combat_active_preset"] = str(name)
     return data, True
 
@@ -2393,6 +2849,9 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
     )
     prayer_book = player_data.get("combat_prayer_book", "standard")
     if prayer_book not in ("standard", "curses"):
+        prayer_book = "standard"
+    temple_state = ((player_data.get("quests", {}) or {}).get("the_temple_at_senntisten") or {})
+    if prayer_book == "curses" and not bool(temple_state.get("completed")):
         prayer_book = "standard"
     selected_prayers = list(sanitize_prayer_selection_pure(player_data, player_data.get("combat_selected_prayers", ()), prayer_book))
     uptime_policy = str(player_data.get("combat_prayer_uptime", "off"))
@@ -3167,29 +3626,57 @@ def _combat_banked_antipoison_count(data):
     return sum(_non_negative_int(inventory.get(item_name, 0), 0) for item_name in COMBAT_ANTIPOISON_POTION_DATA)
 
 
-def _combat_loot_slots(data, target_id):
-    """Carried slots the kept combat loot for this target occupies. Clamped to the
-    bank so loot the player has since sold/discarded/eaten cannot occupy phantom
-    slots and force a bank run that has nothing to deposit."""
+def _combat_custom_layout_view(data, target_id):
     if not isinstance(target_id, str):
-        return 0
+        return {}
+    advanced = data.get("carried_advanced_targets")
+    layouts = data.get("carried_layout")
+    if not isinstance(advanced, Mapping) or not advanced.get(target_id) or not isinstance(layouts, Mapping):
+        return {}
+    layout = layouts.get(target_id)
+    if not isinstance(layout, Mapping):
+        return {}
+    return apply_carried_layout_pure(
+        data.get("inventory", {}) or {},
+        materialize_urn_layout_pure(data.get("inventory", {}) or {}, layout),
+        CARRIED_CAPACITY,
+        STACKABLE_ITEM_NAMES,
+    )
+
+
+def _combat_carried_slot_counts(data, target_id):
+    """Return ``(all carried slots, depositable loot slots)`` for one target."""
+    if not isinstance(target_id, str):
+        return 0, 0
     carried = data.get("carried_inventory")
     view = carried.get(target_id) if isinstance(carried, Mapping) else None
     if not isinstance(view, Mapping):
-        return 0
-    return carried_slots_used(clamp_carried_view_to_bank(view, data.get("inventory")), STACKABLE_ITEM_NAMES)
+        return 0, 0
+    view = clamp_carried_view_to_bank(view, data.get("inventory"))
+    depositable = dict(view)
+    for item_name, baseline_count in _combat_custom_layout_view(data, target_id).items():
+        remaining = _non_negative_int(depositable.get(item_name, 0), 0) - _non_negative_int(baseline_count, 0)
+        if remaining > 0:
+            depositable[item_name] = remaining
+        else:
+            depositable.pop(item_name, None)
+    return (
+        carried_slots_used(view, STACKABLE_ITEM_NAMES),
+        carried_slots_used(depositable, STACKABLE_ITEM_NAMES),
+    )
 
 
 def _combat_deposit_loot(data, target_id):
-    """Banking deposits carried loot: it stays in the flat store but is no longer
-    at risk (cleared from the carried view, so death no longer drops it)."""
+    """Deposit loot, then repack the target's saved Custom carried layout."""
     if not isinstance(target_id, str):
         return
-    carried = data.get("carried_inventory")
-    if isinstance(carried, Mapping) and target_id in carried:
-        carried = dict(carried)
+    carried = dict(data.get("carried_inventory", {}) or {})
+    repacked = _combat_custom_layout_view(data, target_id)
+    if repacked:
+        carried[target_id] = repacked
+    else:
         carried.pop(target_id, None)
-        data["carried_inventory"] = carried
+    data["carried_inventory"] = carried
 
 
 def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None, enemy_data=None):
@@ -3223,8 +3710,8 @@ def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, s
     # full inventory cannot be relieved by banking. Requiring loot here means an
     # over-budget supply loadout can never softlock combat into a permanent
     # bank-run loop (it would refill the same supplies and re-trigger forever).
-    loot_slots = _combat_loot_slots(data, target_id)
-    if loot_slots > 0 and _combat_supply_slots_used(data) + loot_slots >= CARRIED_CAPACITY:
+    carried_slots, loot_slots = _combat_carried_slot_counts(data, target_id)
+    if loot_slots > 0 and _combat_supply_slots_used(data) + carried_slots >= CARRIED_CAPACITY:
         return True
     if _combat_loaded_food_count(data) <= 0 and _combat_banked_auto_food_count(data) > 0:
         return True
@@ -3730,6 +4217,14 @@ def _potion_boost_amount(base_level, strategy):
     return base // 10 + 3
 
 
+def prayer_potion_restore_amount_pure(base_level, strategy):
+    """Whole Prayer points restored before the stored tenths-of-a-point scale."""
+    base = max(1, int(base_level))
+    if strategy == "s_prayer":
+        return base * 35 // 100 + 7
+    return base // 4 + 7
+
+
 def _build_combat_potion_dose_lookup():
     """dose-item-name -> (base_name, skills, strategy, dose_int, is_flask) for every
     stat potion the combat loadout can auto-drink. Includes both the (1)-(4) vials
@@ -3773,7 +4268,7 @@ def _combat_pick_potion_for_skill(stat_potions, skill_id):
         if entry is None or skill_id not in entry[1]:
             continue
         _base, _skills, strategy, dose, _is_flask = entry
-        rank = (1 if strategy == "s" else 0, dose)
+        rank = (1 if strategy in {"s", "s_prayer"} else 0, dose)
         if best_rank is None or rank > best_rank:
             best, best_rank = item_name, rank
     return best
@@ -3793,7 +4288,7 @@ def _combat_auto_drink_potions(data, combat_class):
         base = _combat_base_skill_level(data, skill_id, 1)
         if skill_id == "prayer":
             prayer_max = base * 10
-            if not data.get("combat_selected_prayers") or _non_negative_int(data.get("combat_prayer_points", prayer_max), prayer_max) >= prayer_max:
+            if not active_prayer_selection_pure(data) or _non_negative_int(data.get("combat_prayer_points", prayer_max), prayer_max) >= prayer_max:
                 continue
         elif _combat_effective_skill_level(data, skill_id, base) > base:
             continue  # a boost is already active on this stat
@@ -3812,7 +4307,7 @@ def _combat_auto_drink_potions(data, combat_class):
         for boosted_skill in skills:
             if boosted_skill == "prayer":
                 prayer_level = _combat_base_skill_level(data, "prayer", 1)
-                restored = (prayer_level * 35 // 100 + 7) if strategy == "s_prayer" else (prayer_level // 4 + 7)
+                restored = prayer_potion_restore_amount_pure(prayer_level, strategy)
                 data["combat_prayer_points"] = min(prayer_level * 10, _non_negative_int(data.get("combat_prayer_points", 0), 0) + restored * 10)
             else:
                 boost = _potion_boost_amount(_combat_base_skill_level(data, boosted_skill, 1), strategy)
@@ -3833,7 +4328,7 @@ def _combat_relevant_potion_items(combat_class):
         if relevant_skills.intersection(skills):
             covers_two = len(skills) > 1
             # More doses per slot ranks higher, so a full flask (6) beats a vial (4).
-            rank = (1 if strategy == "s" else 0, 1 if covers_two else 0, int(dose))
+            rank = (1 if strategy in {"s", "s_prayer"} else 0, 1 if covers_two else 0, int(dose))
             items.append((rank, item_name))
     items.sort(reverse=True)
     return [item_name for _rank, item_name in items]
@@ -3910,6 +4405,7 @@ def apply_consumable_pure(player_data, item_name, rng=None):
     healed = 0
     boosts = {}
     drains = {}
+    prayer_points_restored = 0.0
     message = str(spec.get("message", ""))
 
     if spec["kind"] == "kebab_random":
@@ -3947,9 +4443,17 @@ def apply_consumable_pure(player_data, item_name, rng=None):
             apply_combat_stat_delta_pure(data, "attack", -atk_drain)
             drains["attack"] = atk_drain
     elif spec["kind"] == "potion":
+        strategy = str(spec.get("strategy", "r"))
         for skill_id in spec.get("skills", ()):
             base = _combat_base_skill_level(data, skill_id, 1)
-            amount = _potion_boost_amount(base, spec.get("strategy", "r"))
+            if skill_id == "prayer":
+                before = _non_negative_int(data.get("combat_prayer_points", base * 10), base * 10)
+                restored = prayer_potion_restore_amount_pure(base, strategy) * 10
+                after = min(base * 10, before + restored)
+                data["combat_prayer_points"] = after
+                prayer_points_restored = max(0, after - before) / 10.0
+                continue
+            amount = _potion_boost_amount(base, strategy)
             apply_combat_stat_boost_to_pure(data, skill_id, amount)
             boosts[skill_id] = amount
         # Leave the next-lower dose (or an empty Vial at dose 1) in inventory.
@@ -3965,6 +4469,7 @@ def apply_consumable_pure(player_data, item_name, rng=None):
         "healed": healed,
         "boosts": boosts,
         "drains": drains,
+        "prayer_points_restored": prayer_points_restored,
         "message": message,
     }
 
@@ -4209,9 +4714,19 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data, enemy_data))
     target_id = data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
+    carried = data.get("carried_inventory")
+    current_view = carried.get(target_id) if isinstance(carried, Mapping) else None
+    if not isinstance(current_view, Mapping) or not current_view:
+        repacked = _combat_custom_layout_view(data, target_id)
+        if repacked:
+            carried = dict(carried) if isinstance(carried, Mapping) else {}
+            carried[target_id] = repacked
+            data["carried_inventory"] = carried
     pinned_preset = (data.get("combat_target_presets", {}) or {}).get(target_id)
     if isinstance(pinned_preset, str):
         data, _applied = apply_combat_preset_pure(data, pinned_preset, target_id)
+    else:
+        data = apply_combat_target_overrides_pure(data, target_id)
     preset_reasons = combat_magic_preset_locked_reasons_pure(data)
     if preset_reasons:
         return player_data, False, {"reason": "combat_locked", "locked_reasons": preset_reasons}
@@ -4314,7 +4829,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     elif combat_class == "magic":
         player_attack_speed = max(1, _positive_int(spell_spec.get("attack_speed", 5), 5))
     enemy_attack_speed = max(1, _positive_int(enemy.get("attack_speed", 4), 4))
-    selected_prayers = tuple(sanitize_prayer_selection_pure(data, data.get("combat_selected_prayers", ())))
+    selected_prayers = tuple(active_prayer_selection_pure(data))
     requested_prayer_uptime = prayer_uptime_fraction_pure(data)
     total_ticks = max(1, _positive_int(ticks, COMBAT_BURST_TICKS))
     prayer_points_before = _non_negative_int(data.get("combat_prayer_points", 0), 0)
@@ -4329,7 +4844,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     data["combat_prayer_points"] = prayer_points_after
     data["combat_prayer_drain_counter"] = prayer_counter
     prayer_effects = prayer_effect_state_pure(data, prayer_uptime)
-    if prayer_points_after <= 0:
+    if prayer_points_after <= 0 and selected_prayers:
         data["combat_selected_prayers"] = []
 
     # Curse ramps are reset for each fight. The burst EV uses the attacks a
@@ -4527,13 +5042,15 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
                 kills += 1
                 killed = True
                 kill_drops = _combat_roll_drops(enemy, rng)
-                if data.get("combat_auto_prayer_training"):
-                    for material in PRAYER_MATERIALS:
-                        amount = _non_negative_int(kill_drops.pop(material.item_name, 0), 0)
-                        if amount:
-                            data["prayer_exp"] = float(data.get("prayer_exp", 0.0) or 0.0) + material.xp * amount
-                            data["prayer_actions_completed"] = _non_negative_int(data.get("prayer_actions_completed", 0), 0) + amount
-                            next_player_attack += amount * AUTO_PRAYER_TICKS_PER_ITEM
+                data, kill_drops, passive_prayer_xp, prayer_ticks, _prayer_effects = resolve_prayer_kill_effects_pure(
+                    data,
+                    target_id,
+                    kill_drops,
+                    bool(data.get("combat_auto_prayer_training")),
+                )
+                if passive_prayer_xp > 0:
+                    xp_rewards["prayer_exp"] = float(xp_rewards.get("prayer_exp", 0.0) or 0.0) + passive_prayer_xp
+                next_player_attack += prayer_ticks
                 for drop_name, drop_amount in kill_drops.items():
                     drops[drop_name] = _non_negative_int(drops.get(drop_name, 0), 0) + _non_negative_int(drop_amount, 0)
                 # Chain into the next spawn of the same target for the remaining
@@ -4751,6 +5268,11 @@ def _copy_player_data_with_nested(player_data):
 
     copied = dict(player_data)
     copied["inventory"] = dict(player_data.get("inventory", {}) or {})
+    raw_carried_inventory = player_data.get("carried_inventory", {}) or {}
+    copied["carried_inventory"] = {
+        str(target_id): dict(items) if isinstance(items, Mapping) else {}
+        for target_id, items in (raw_carried_inventory.items() if isinstance(raw_carried_inventory, Mapping) else ())
+    }
     copied["equipment"] = dict(player_data.get("equipment", {}) or {})
     copied["quests"] = {
         str(quest_id): dict(state) if isinstance(state, Mapping) else {}

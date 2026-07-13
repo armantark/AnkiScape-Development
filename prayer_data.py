@@ -27,16 +27,17 @@ DEFLECT_SOURCE = f"{DARKAN_ROOT}/src/main/java/com/rs/game/model/entity/player/P
 ANCIENT_CURSES_SOURCE = "RuneScape Wiki Ancient Curses oldid=6535713 (2012-11-05)"
 IMPIOUS_ASHES_SOURCE = "RuneScape Wiki Impious ashes oldid=6105641 (2012-08-18)"
 ACCURSED_ASHES_SOURCE = "RuneScape Wiki Accursed ashes oldid=6105640 (2012-08-18)"
-INFERNAL_ASHES_SOURCE = "RuneScape Wiki Infernal ashes oldid=6529055 (2012-11-01)"
-ECTOFUNTUS_SOURCE = "RuneScape Wiki Ectofuntus oldid=6544994 (2012-11-08)"
-CHIVALRY_SOURCE = "RuneScape Wiki Chivalry oldid=6268775 (2012-09-21)"
-PIETY_SOURCE = "RuneScape Wiki Piety oldid=6268774 (2012-09-21)"
-RAPID_RENEWAL_SOURCE = "RuneScape Wiki Rapid Renewal oldid=6268753 (2012-09-21)"
+INFERNAL_ASHES_SOURCE = "RuneScape Wiki Infernal ashes oldid=6529055 (2012-11-03)"
+ECTOFUNTUS_SOURCE = "RuneScape Wiki Ectofuntus oldid=6544994 (2012-11-09)"
+CHIVALRY_SOURCE = "RuneScape Wiki Chivalry oldid=6268775 (2012-09-19)"
+PIETY_SOURCE = "RuneScape Wiki Piety oldid=6268774 (2012-09-19)"
+RAPID_RENEWAL_SOURCE = "RuneScape Wiki Rapid Renewal oldid=6268753 (2012-09-19)"
 RAPID_RESTORE_SOURCE = "RuneScape Wiki Rapid Restore oldid=6268755 (2012-09-19)"
 REDEMPTION_SOURCE = "RuneScape Wiki Redemption oldid=6292830 (2012-09-24)"
 
 DEFAULT_PRAYER_TARGET = "bury_bones"
 PRAYER_GROUP_ORDER = ("Bury", "Scatter", "Ectofuntus", "Gilded altar")
+PRAYER_UI_METHOD_ORDER = ("base", "ectofuntus", "gilded_hosted", "gilded_owned")
 PRAYER_UPTIME_POLICIES = {"off": 0.0, "40": 0.4, "70": 0.7, "100": 1.0}
 GRIND_BONES_BATCH_SIZE = 9
 COLLECT_SLIME_BATCH_SIZE = 28
@@ -117,6 +118,7 @@ def prayer_targets_as_dict() -> Dict[str, dict]:
         base_group = "Bury" if material.kind == "bone" else "Scatter"
         targets[f"{base_method}_{material.id}"] = {
             "id": f"{base_method}_{material.id}", "display_name": material.item_name,
+            "material_id": material.id, "material_kind": material.kind,
             "method": base_method, "group": base_group, "level": 1,
             "requirements": {material.item_name: 1}, "byproducts": {},
             "exp": material.xp, "source": material.source,
@@ -128,23 +130,60 @@ def prayer_targets_as_dict() -> Dict[str, dict]:
                 byproducts["Empty pot"] = 1
             targets[f"ectofuntus_{material.id}"] = {
                 "id": f"ectofuntus_{material.id}", "display_name": material.item_name,
+                "material_id": material.id, "material_kind": material.kind,
                 "method": "ectofuntus", "group": "Ectofuntus", "level": 1,
                 "requirements": {ecto_input: 1, "Bucket of slime": 1},
                 "byproducts": byproducts, "outputs": {"Ecto-token": ECTOFUNTUS_TOKEN_REWARD},
                 "exp": material.xp * ECTOFUNTUS_MULTIPLIER,
                 "source": f"{material.source}; {ECTOFUNTUS_SOURCE}: 4x XP and 5 tokens/worship",
             }
-        targets[f"gilded_altar_{material.id}"] = {
-            "id": f"gilded_altar_{material.id}", "display_name": material.item_name,
-            "method": "gilded_altar", "group": "Gilded altar", "level": 1,
-            "requirements": {material.item_name: 1}, "byproducts": {},
-            "exp": material.xp * GILDED_ALTAR_MULTIPLIER,
-            "source": f"{material.source}; RuneScape Wiki Prayer oldid=6539264: lit gilded altar 3.5x",
-        }
+        if material.id != "ancient_bones":
+            targets[f"gilded_altar_{material.id}"] = {
+                "id": f"gilded_altar_{material.id}", "display_name": material.item_name,
+                "material_id": material.id, "material_kind": material.kind,
+                "method": "gilded_altar", "group": "Gilded altar", "level": 1,
+                "requirements": {material.item_name: 1}, "byproducts": {},
+                "base_exp": material.xp, "exp": material.xp * GILDED_ALTAR_MULTIPLIER,
+                "source": f"{material.source}; RuneScape Wiki Prayer oldid=6539264: lit gilded altar 3.5x",
+            }
     return targets
 
 
 PRAYER_TARGETS = prayer_targets_as_dict()
+
+
+def resolve_prayer_selection_pure(material_id: str, ui_method_id: str) -> Optional[Tuple[str, Optional[str]]]:
+    material = PRAYER_MATERIALS_BY_ID.get(material_id)
+    if material is None:
+        return None
+    if ui_method_id == "base":
+        method = "bury" if material.kind == "bone" else "scatter"
+        target_id = f"{method}_{material.id}"
+        mode = None
+    elif ui_method_id == "ectofuntus":
+        target_id = f"ectofuntus_{material.id}"
+        mode = None
+    elif ui_method_id in {"gilded_hosted", "gilded_owned"}:
+        target_id = f"gilded_altar_{material.id}"
+        mode = "owned" if ui_method_id == "gilded_owned" else "hosted"
+    else:
+        return None
+    return (target_id, mode) if target_id in PRAYER_TARGETS else None
+
+
+def prayer_selection_from_target_pure(target_id: str, gilded_mode: str = "hosted") -> Optional[Tuple[str, str]]:
+    spec = PRAYER_TARGETS.get(target_id)
+    if spec is None:
+        return None
+    material_id = str(spec["material_id"])
+    method = spec.get("method")
+    if method in {"bury", "scatter"}:
+        return material_id, "base"
+    if method == "ectofuntus":
+        return material_id, "ectofuntus"
+    if method == "gilded_altar":
+        return material_id, "gilded_owned" if gilded_mode == "owned" else "gilded_hosted"
+    return None
 
 
 def prayer_utility_activities_as_dict() -> Dict[str, dict]:
@@ -174,7 +213,12 @@ def prayer_extra_items_as_dict() -> Dict[str, dict]:
     for material in PRAYER_MATERIALS:
         items[material.item_name] = {"category": "material", "source": material.source, "exp": material.xp}
         if material.bonemeal_item:
-            items[material.bonemeal_item] = {"category": "material", "source": f"{material.source}; {ECTOFUNTUS_SOURCE}"}
+            bonemeal = {"category": "material", "source": f"{material.source}; {ECTOFUNTUS_SOURCE}"}
+            if material.bonemeal_item == "Bonemeal":
+                bonemeal["item_id"] = 4255
+            elif material.bonemeal_item == "Wyvern bonemeal":
+                bonemeal["item_id"] = 6810
+            items[material.bonemeal_item] = bonemeal
     for name in ("Bucket", "Bucket of slime", "Empty pot", "Ecto-token"):
         items[name] = {"category": "material", "source": ECTOFUNTUS_SOURCE}
     return items
@@ -191,9 +235,11 @@ class CombatPrayer:
     effects: Tuple[Tuple[str, float], ...]
     source: str
     quest_gate: Optional[str] = None
+    conflicts: Tuple[str, ...] = ()
+    defence_level: int = 1
 
 
-def _p(pid, name, level, drain_effect, groups=(), effects=(), gate=None):
+def _p(pid, name, level, drain_effect, groups=(), effects=(), gate=None, conflicts=(), defence_level=1):
     sources = [f"{PRAYER_SOURCE}: {pid.upper()}"]
     effect_names = {effect for effect, _value in effects}
     if effect_names.intersection({"attack", "strength", "defence"}):
@@ -212,44 +258,76 @@ def _p(pid, name, level, drain_effect, groups=(), effects=(), gate=None):
         sources.append(CHIVALRY_SOURCE)
     if pid == "piety":
         sources.append(PIETY_SOURCE)
-    return CombatPrayer(pid, name, "standard", level, float(drain_effect), tuple(groups), tuple(effects), "; ".join(sources), gate)
+    return CombatPrayer(
+        pid,
+        name,
+        "standard",
+        level,
+        float(drain_effect),
+        tuple(groups),
+        tuple(effects),
+        "; ".join(sources),
+        gate,
+        tuple(conflicts),
+        int(defence_level),
+    )
 
 
 STANDARD_PRAYERS: Tuple[CombatPrayer, ...] = (
-    _p("thick_skin", "Thick Skin", 1, 30, ("defence",), (("defence", 1.05),)),
-    _p("burst_of_strength", "Burst of Strength", 4, 30, ("strength",), (("strength", 1.05),)),
-    _p("clarity_of_thought", "Clarity of Thought", 7, 30, ("attack",), (("attack", 1.05),)),
-    _p("sharp_eye", "Sharp Eye", 8, 30, ("ranged_combat",), (("ranged", 1.05),)),
-    _p("mystic_will", "Mystic Will", 9, 30, ("magic_combat",), (("magic", 1.05),)),
-    _p("rock_skin", "Rock Skin", 10, 60, ("defence",), (("defence", 1.10),)),
-    _p("superhuman_strength", "Superhuman Strength", 13, 60, ("strength",), (("strength", 1.10),)),
-    _p("improved_reflexes", "Improved Reflexes", 16, 60, ("attack",), (("attack", 1.10),)),
-    _p("rapid_restore", "Rapid Restore", 19, 10, ("restoration",), (("rapid_restore", 2.0),)),
-    _p("rapid_heal", "Rapid Heal", 22, 20, ("restoration",), (("rapid_heal", 2.0),)),
+    _p("thick_skin", "Thick Skin", 1, 30, ("defence",), (("defence", 1.05),), conflicts=("melee_combat",)),
+    _p("burst_of_strength", "Burst of Strength", 4, 30, ("strength",), (("strength", 1.05),), conflicts=("ranged_combat", "magic_combat", "melee_combat")),
+    _p("clarity_of_thought", "Clarity of Thought", 7, 30, ("attack",), (("attack", 1.05),), conflicts=("ranged_combat", "magic_combat", "melee_combat")),
+    _p("sharp_eye", "Sharp Eye", 8, 30, ("ranged_combat",), (("ranged", 1.05),), conflicts=("attack", "strength", "magic_combat", "melee_combat")),
+    _p("mystic_will", "Mystic Will", 9, 30, ("magic_combat",), (("magic", 1.05),), conflicts=("attack", "strength", "ranged_combat", "melee_combat")),
+    _p("rock_skin", "Rock Skin", 10, 60, ("defence",), (("defence", 1.10),), conflicts=("melee_combat",)),
+    _p("superhuman_strength", "Superhuman Strength", 13, 60, ("strength",), (("strength", 1.10),), conflicts=("ranged_combat", "magic_combat", "melee_combat")),
+    _p("improved_reflexes", "Improved Reflexes", 16, 60, ("attack",), (("attack", 1.10),), conflicts=("ranged_combat", "magic_combat", "melee_combat")),
+    _p("rapid_restore", "Rapid Restore", 19, 10, ("rapid_restore",), (("rapid_restore", 2.0),)),
+    _p("rapid_heal", "Rapid Heal", 22, 20, ("rapid_heal",), (("rapid_heal", 2.0),), conflicts=("rapid_renewal",)),
     _p("protect_item", "Protect Item", 25, 20, (), (("protect_item", 1.0),)),
-    _p("hawk_eye", "Hawk Eye", 26, 60, ("ranged_combat",), (("ranged", 1.10),)),
-    _p("mystic_lore", "Mystic Lore", 27, 60, ("magic_combat",), (("magic", 1.10),)),
-    _p("steel_skin", "Steel Skin", 28, 120, ("defence",), (("defence", 1.15),)),
-    _p("ultimate_strength", "Ultimate Strength", 31, 120, ("strength",), (("strength", 1.15),)),
-    _p("incredible_reflexes", "Incredible Reflexes", 34, 120, ("attack",), (("attack", 1.15),)),
-    _p("protect_from_summoning", "Protect from Summoning", 35, 120, ("overhead",), (("protect_summoning", 1.0),)),
-    _p("protect_from_magic", "Protect from Magic", 37, 120, ("overhead",), (("protect_magic", 1.0),)),
-    _p("protect_from_missiles", "Protect from Missiles", 40, 120, ("overhead",), (("protect_ranged", 1.0),)),
-    _p("protect_from_melee", "Protect from Melee", 43, 120, ("overhead",), (("protect_melee", 1.0),)),
-    _p("eagle_eye", "Eagle Eye", 44, 120, ("ranged_combat",), (("ranged", 1.15),)),
-    _p("mystic_might", "Mystic Might", 45, 120, ("magic_combat",), (("magic", 1.15),)),
-    _p("retribution", "Retribution", 46, 30, ("overhead",), (("retribution", 1.0),)),
-    _p("redemption", "Redemption", 49, 60, ("overhead",), (("redemption", 1.0),)),
-    _p("smite", "Smite", 52, 180, ("overhead",), (("smite", 1.0),)),
-    _p("chivalry", "Chivalry", 60, 240, ("melee_combat",), (("attack", 1.15), ("strength", 1.18), ("defence", 1.20)), "knight_waves"),
-    _p("rapid_renewal", "Rapid Renewal", 65, 230, ("dungeoneering_restoration",), (("rapid_heal", 5.0),)),
-    _p("piety", "Piety", 70, 240, ("melee_combat",), (("attack", 1.20), ("strength", 1.23), ("defence", 1.25)), "knight_waves"),
-    _p("rigour", "Rigour", 74, 240, ("ranged_combat",), (("ranged_attack", 1.20), ("ranged_strength", 1.23), ("defence", 1.25))),
-    _p("augury", "Augury", 77, 240, ("magic_combat",), (("magic", 1.25), ("defence", 1.25))),
+    _p("hawk_eye", "Hawk Eye", 26, 60, ("ranged_combat",), (("ranged", 1.10),), conflicts=("attack", "strength", "magic_combat", "melee_combat")),
+    _p("mystic_lore", "Mystic Lore", 27, 60, ("magic_combat",), (("magic", 1.10),), conflicts=("attack", "strength", "ranged_combat", "melee_combat")),
+    _p("steel_skin", "Steel Skin", 28, 120, ("defence",), (("defence", 1.15),), conflicts=("melee_combat",)),
+    _p("ultimate_strength", "Ultimate Strength", 31, 120, ("strength",), (("strength", 1.15),), conflicts=("ranged_combat", "magic_combat", "melee_combat")),
+    _p("incredible_reflexes", "Incredible Reflexes", 34, 120, ("attack",), (("attack", 1.15),), conflicts=("ranged_combat", "magic_combat", "melee_combat")),
+    _p("protect_from_summoning", "Protect from Summoning", 35, 120, ("summoning_overhead",), (("protect_summoning", 1.0),), conflicts=("exclusive_overhead",)),
+    _p("protect_from_magic", "Protect from Magic", 37, 120, ("protection_overhead",), (("protect_magic", 1.0),), conflicts=("exclusive_overhead",)),
+    _p("protect_from_missiles", "Protect from Missiles", 40, 120, ("protection_overhead",), (("protect_ranged", 1.0),), conflicts=("exclusive_overhead",)),
+    _p("protect_from_melee", "Protect from Melee", 43, 120, ("protection_overhead",), (("protect_melee", 1.0),), conflicts=("exclusive_overhead",)),
+    _p("eagle_eye", "Eagle Eye", 44, 120, ("ranged_combat",), (("ranged", 1.15),), conflicts=("attack", "strength", "magic_combat", "melee_combat")),
+    _p("mystic_might", "Mystic Might", 45, 120, ("magic_combat",), (("magic", 1.15),), conflicts=("attack", "strength", "ranged_combat", "melee_combat")),
+    _p("retribution", "Retribution", 46, 30, ("exclusive_overhead",), (("retribution", 1.0),), conflicts=("protection_overhead", "summoning_overhead")),
+    _p("redemption", "Redemption", 49, 60, ("exclusive_overhead",), (("redemption", 1.0),), conflicts=("protection_overhead", "summoning_overhead")),
+    _p("smite", "Smite", 52, 180, ("exclusive_overhead",), (("smite", 1.0),), conflicts=("protection_overhead", "summoning_overhead")),
+    _p(
+        "chivalry",
+        "Chivalry",
+        60,
+        240,
+        ("melee_combat",),
+        (("attack", 1.15), ("strength", 1.18), ("defence", 1.20)),
+        "knight_waves",
+        conflicts=("attack", "strength", "defence", "ranged_combat", "magic_combat"),
+        defence_level=65,
+    ),
+    _p("rapid_renewal", "Rapid Renewal", 65, 230, ("rapid_renewal",), (("rapid_heal", 5.0),), conflicts=("rapid_heal",)),
+    _p(
+        "piety",
+        "Piety",
+        70,
+        240,
+        ("melee_combat",),
+        (("attack", 1.20), ("strength", 1.23), ("defence", 1.25)),
+        "knight_waves",
+        conflicts=("attack", "strength", "defence", "ranged_combat", "magic_combat"),
+        defence_level=70,
+    ),
+    _p("rigour", "Rigour", 74, 240, ("ranged_combat",), (("ranged_attack", 1.20), ("ranged_strength", 1.23), ("defence", 1.25)), conflicts=("attack", "strength", "defence", "magic_combat", "melee_combat"), defence_level=70),
+    _p("augury", "Augury", 77, 240, ("magic_combat",), (("magic", 1.25), ("defence", 1.25)), conflicts=("attack", "strength", "defence", "ranged_combat", "melee_combat"), defence_level=70),
 )
 
 
-def _c(pid, name, level, seconds, groups=(), effects=()):
+def _c(pid, name, level, seconds, groups=(), effects=(), conflicts=()):
     # At zero prayer bonus the 2011 counter resistance is 60.  The drain timer
     # fires every two 0.6-second game ticks, so 720/seconds counter units per
     # timer event reproduces the pinned wiki's displayed-point cadence while
@@ -261,7 +339,18 @@ def _c(pid, name, level, seconds, groups=(), effects=()):
         sources.extend((LEECH_SOURCE, CURSE_MANAGER_SOURCE))
     if pid.startswith("deflect_"):
         sources.append(DEFLECT_SOURCE)
-    return CombatPrayer(pid, name, "curses", level, 720.0 / seconds, tuple(groups), tuple(effects), "; ".join(sources), "the_temple_at_senntisten")
+    return CombatPrayer(
+        pid,
+        name,
+        "curses",
+        level,
+        720.0 / seconds,
+        tuple(groups),
+        tuple(effects),
+        "; ".join(sources),
+        "the_temple_at_senntisten",
+        tuple(conflicts),
+    )
 
 
 CURSES: Tuple[CombatPrayer, ...] = (
@@ -271,10 +360,10 @@ CURSES: Tuple[CombatPrayer, ...] = (
     _c("sap_mage", "Sap Mage", 54, .24, ("sap_mage",), (("sap_mage", 1.0),)),
     _c("sap_spirit", "Sap Spirit", 56, .24, ("sap_spirit",), (("sap_spirit", 1.0),)),
     _c("berserker", "Berserker", 59, 1.8, ("restoration",), (("berserker", 1.15),)),
-    _c("deflect_summoning", "Deflect Summoning", 62, .3, ("overhead",), (("protect_summoning", 1.0),)),
-    _c("deflect_magic", "Deflect Magic", 65, .3, ("overhead",), (("protect_magic", 1.0), ("deflect", .06))),
-    _c("deflect_missiles", "Deflect Missiles", 68, .3, ("overhead",), (("protect_ranged", 1.0), ("deflect", .06))),
-    _c("deflect_melee", "Deflect Melee", 71, .3, ("overhead",), (("protect_melee", 1.0), ("deflect", .06))),
+    _c("deflect_summoning", "Deflect Summoning", 62, .3, ("summoning_overhead",), (("protect_summoning", 1.0),), conflicts=("exclusive_overhead",)),
+    _c("deflect_magic", "Deflect Magic", 65, .3, ("protection_overhead",), (("protect_magic", 1.0), ("deflect", .06)), conflicts=("exclusive_overhead",)),
+    _c("deflect_missiles", "Deflect Missiles", 68, .3, ("protection_overhead",), (("protect_ranged", 1.0), ("deflect", .06)), conflicts=("exclusive_overhead",)),
+    _c("deflect_melee", "Deflect Melee", 71, .3, ("protection_overhead",), (("protect_melee", 1.0), ("deflect", .06)), conflicts=("exclusive_overhead",)),
     _c("leech_attack", "Leech Attack", 74, .36, ("leech_attack",), (("leech_attack", 1.0),)),
     _c("leech_ranged", "Leech Ranged", 76, .36, ("leech_ranged",), (("leech_ranged", 1.0),)),
     _c("leech_magic", "Leech Magic", 78, .36, ("leech_magic",), (("leech_magic", 1.0),)),
@@ -282,8 +371,8 @@ CURSES: Tuple[CombatPrayer, ...] = (
     _c("leech_strength", "Leech Strength", 82, .36, ("leech_strength",), (("leech_strength", 1.0),)),
     _c("leech_energy", "Leech Energy", 84, .36, ("leech_energy",), (("leech_energy", 1.0),)),
     _c("leech_special_attack", "Leech Special Attack", 86, .36, ("leech_special_attack",), (("leech_special", 1.0),)),
-    _c("wrath", "Wrath", 89, 1.2, ("overhead",), (("wrath", 1.0),)),
-    _c("soul_split", "Soul Split", 92, .2, ("overhead",), (("soul_split", .20),)),
+    _c("wrath", "Wrath", 89, 1.2, ("exclusive_overhead",), (("wrath", 1.0),), conflicts=("protection_overhead", "summoning_overhead")),
+    _c("soul_split", "Soul Split", 92, .2, ("exclusive_overhead",), (("soul_split", .20),), conflicts=("protection_overhead", "summoning_overhead")),
     _c("turmoil", "Turmoil", 95, .2, ("turmoil",), (("turmoil", 1.0),)),
 )
 COMBAT_PRAYERS = STANDARD_PRAYERS + CURSES

@@ -1,6 +1,6 @@
 # AnkiScape Completion Kanban
 
-Status: audited 2026-07-11. This is the canonical forward-work board. Detailed skill and program evidence lives in `memory-bank/completion-audit-2026-07-10.md` and `memory-bank/completion-audit.json`; the shipped-skill subledger remains `memory-bank/gap-backlog.json`.
+Status: reconciled 2026-07-13. This is the canonical forward-work board. The 2026-07-10 completion audit is a dated baseline; the shipped-skill subledger remains `memory-bank/gap-backlog.json`.
 
 ## Label contract
 
@@ -30,17 +30,18 @@ Labels: `SOURCE AUDIT`, then `IMPLEMENT` only when evidence closes.
 
 Labels: `SOURCE AUDIT`, `IMPLEMENT`, `WAIT: DARKAN` for hidden enemy/equipment behavior.
 
-- Attack, Strength, Defence, Constitution, Ranged, and Magic now use an explicit `partial` surface state with `training_source = Combat`; `implemented=False` still correctly means they do not own complete independent review surfaces.
-- Keep unified Combat selection; do not add six competing hub rows merely to make the registry count look complete.
+- Attack, Strength, Defence, Constitution, and Ranged use an explicit `partial` surface state with `training_source = Combat`; Magic is now a complete surface.
+- Keep unified Combat selection; do not add five competing hub rows merely to make the registry count look complete.
 - Quest gates and XP rewards now recognize trainable partial stats, and legacy pending Combat-stat XP migrates directly. See `memory-bank/source-audits/partial-combat-skill-registry-2026-07-11.md`.
 - Continue weapon/ammo/spell/equipment/enemy breadth under `memory-bank/combat-design-grill-2026-06-23.md` rather than reopening the Combat loop design.
 
-### Prayer — SHIPPED 2026-07-11 (commit ed1327b)
+### Prayer — SHIPPED 2026-07-11; altar/urn/passive closure 2026-07-13
 
 Labels: none remaining on the build itself; trailing `DEPENDENCY` items only.
 
 - Implemented in full from `memory-bank/ankiscape-skill-expansion.md`: bury/scatter/Ectofuntus/hosted-gilded methods, the EV prayer/curse combat translation with the uptime policy, prayer points/drain, the named combat preset system with per-target pins (storage v29), and the Knight Waves landmark. Verified at 1,016 pure + 1,016 offscreen Qt tests.
-- Trailing `DEPENDENCY` items: Shades of Mort'ton cremation and GE bones on their own families; owned-POH altars and burners on Construction (the Construction grill has since settled the burner rule: clean marrentill consumed per burner, no finding roll for an owned house).
+- The 2026-07-13 closure completes owned-POH altar runtime/UI at 250/300/350%, all 26 training-urn tiers, target-carried Bonecrusher/Ectoplasmator behavior, direct full-urn teleport with independent LIFO undo, and exact high-tier standard-Prayer Defence gates. See `memory-bank/source-audits/prayer-altar-urn-passives-herblore-closure-2026-07-13.md`.
+- Trailing `DEPENDENCY` items: Shades of Mort'ton cremation and GE bones on their own families; Bonecrusher/Ectoplasmator acquisition remains intentionally absent until authentic owning activities exist.
 - The implementation report's conservative calls (pinned Rapid Renewal 65/230 over the emulator, no Ancient bonemeal, renewal gradual formula omitted as unproven) are recorded in the results artifact.
 
 ### Magic — SHIPPED 2026-07-11 (commit 24fbafd)
@@ -64,15 +65,13 @@ Labels: none remaining on the build itself; trailing `DEPENDENCY` items only.
 
 Each skill receives its own grill before implementation. Source-shaped facts should be resolved autonomously; grill only materially different AnkiScape choices.
 
-### Farming — grill CLOSED 2026-07-11
+### Farming — SHIPPED 2026-07-13 (commit 9a88c56)
 
-Labels: `SOURCE AUDIT` (the 38-pin wiki gate), then `IMPLEMENT`.
+Labels: none remaining on the core build; trailing acquisition/activity dependencies only.
 
-- The contract is `memory-bank/farming-skill-contract-2026-07-11.md`; the source dossier is `memory-bank/source-audits/farming-source-dossier-2026-07-11.md`. Do not re-grill.
-- Settled: review-ticked clock (240 answered cards = 24 h; failures tick), pure background archetype (no target list; queued 1-review detours preempt the active skill; harvest-and-replant-same shortcut), owner-approved verb cost table, full-parity GM disease with unattended death, full Nov-2012 location-gated patch map, all authentic seed routes, no auto crop suggestions.
-- Remaining before build: resolve the dossier's 38 wiki pins (fruit-tree check XP, calquat timing, allotment payments, jute seeds, white lily, plant-cure XP, specials, patch inventory), the seed-source audit, and storage v32.
-- Absorb `hunter-habitat-jadinko` only after the core Farming build lands (Habitat patches ship live but seed-starved until then).
-- Magic-grill handoff (owner-mandated): Cure Plant and Fertile Soil ship now as pure casts; when Farming lands they must gain real function (e.g. a farming-run option/checkbox), not stay ceremonial. See `memory-bank/magic-skill-contract-2026-07-11.md` decision 9.
+- Implemented from `memory-bank/farming-skill-contract-2026-07-11.md` and the resolved source dossier: review-ticked clock, queued one-review field detours, full disease/death/growth state, the pre-EOC patch map, protection/compost/juju behavior, source-blocked rows, HUD, storage, and Qt sheet.
+- Cure Plant and Fertile Soil now have real Farming function rather than ceremonial casts.
+- `hunter-habitat-jadinko` remains an owning-activity/acquisition follow-up; core Farming is no longer its dependency.
 
 ### Agility
 
@@ -143,7 +142,7 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
 
 Labels: `WAIT: DARKAN`, after each `DEEP GRILL`.
 
-- Prefer stable restored mechanics for Farming growth/yields/disease, Construction hotspots/furniture/services, Agility failures/courses, Thieving success/stun/loot, Slayer assignment/reward pools, Summoning familiar behavior, Dungeoneering floors/rooms, and Prayer/Magic hidden state.
+- Prefer stable restored mechanics for Agility failures/courses, Thieving success/stun/loot, Slayer assignment/reward pools, Summoning familiar behavior, Dungeoneering floors/rooms, and still-missing special-method hidden state. Farming, Construction, Prayer, and Magic core loops are shipped.
 
 ## Cross-system program queue
 
@@ -165,7 +164,7 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `DEPENDENCY: COMBAT/PRAYER/SUMMONING`.
 
 Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 
-- Maintain `tools/audit_item_reachability.py`; its 2026-07-11 baseline found 267 orphan inputs across missing-skill/Farming, Magic/activity transformations, deferred activities, Combat/world acquisition, and potion-state plumbing. See `memory-bank/source-audits/item-reachability-audit-2026-07-11.md`.
+- Maintain `tools/audit_item_reachability.py`; the 2026-07-13 run finds 296 orphan inputs across planned skills, activities, Combat/world acquisition, and potion-state plumbing (151 root, 145 cascade). See the dated baseline audit for method and the current closure artifact for counts.
 - Close every live-but-unobtainable material through authentic drops, ground spawns, shops, claims, quests, skills, activities, or transformations. Do not seed free items or fake recipe gates.
 - The source-backed Woodcutting nest → empty nest → crushed nest route is repaired and regression-covered.
 - Finish equipment requirements, special attacks, poison, charges/degradation, set effects, jewellery, consumables, and source-specific use actions without creating fake recipes.

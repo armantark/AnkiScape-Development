@@ -8,10 +8,9 @@ AnkiScape is a Python Anki add-on that turns eligible card reviews into a lightw
 
 Reach a coherent “complete AnkiScape” rather than accumulating disconnected v1 slices. The canonical scope and work routing are:
 
-- `memory-bank/completion-audit-2026-07-10.md`
-- `memory-bank/completion-audit.json`
 - `memory-bank/future-work-kanban.md`
-- `memory-bank/gap-backlog.json` for detailed gaps inside the eleven registered review skills
+- `memory-bank/gap-backlog.json` for detailed gaps inside shipped skill families
+- dated completion audits as historical baseline evidence, not live registry truth
 
 ## Product Boundary
 
@@ -25,7 +24,7 @@ Reach a coherent “complete AnkiScape” rather than accumulating disconnected 
 
 ## Current Foundation
 
-- Eleven registered review skills.
+- Fifteen complete skill surfaces, five partial Combat-trained skills, and five planned skills.
 - Unified Combat with XP routing for Attack, Strength, Defence, Constitution, Ranged, and Magic.
 - A 194-row pre-EOC quest catalog and stage-gate engine, treated as coverage scaffolding rather than full quest parity.
 - Utility/Activities, Bank Claims, NPC shops/economy, equipment, carried inventory, achievements, undo, source tooling, assets/provenance, and full pure/Qt test suites.

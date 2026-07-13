@@ -210,7 +210,7 @@ FINISHED_TARGETS: Tuple[HerbloreTarget, ...] = (
         byproducts=(('Vial', 4),),
         source=OVERLOAD_WIKI_SOURCE,
     ),
-    HerbloreTarget('finished_super_prayer', 'Super prayer (3)', "finished", 'standard', 94, 270.0, (('Prayer potion (3)', 1), ('Bonemeal', 1)), 'Super prayer (3)', source=POTION_DATA_SOURCE_PATH),
+    HerbloreTarget('finished_super_prayer', 'Super prayer (3)', "finished", 'standard', 94, 270.0, (('Prayer potion (3)', 1), ('Wyvern bonemeal', 1)), 'Super prayer (3)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_prayer_renewal', 'Prayer renewal (3)', "finished", 'standard', 94, 190.0, (('Fellstalk potion (unf)', 1), ('Morchella mushroom', 1)), 'Prayer renewal (3)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_agility_mix', 'Agility mix (2)', "finished", 'barbarian', 37, 27.0, (('Agility potion (2)', 1), ('Caviar', 1)), 'Agility mix (2)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_attack_mix', 'Attack mix (2)', "finished", 'barbarian', 4, 7.0, (('Attack potion (2)', 1), ('Caviar', 1)), 'Attack mix (2)', source=POTION_DATA_SOURCE_PATH),
@@ -340,9 +340,9 @@ HERBLORE_GROUP_LABELS: Dict[str, str] = {
     "finished": "Finished potions",
 }
 
-# Item 6810 is Super prayer's canonical secondary. It stays input-starved until
-# a source exists.
-_HERBLORE_UNCACHED_ITEMS = ("Bonemeal",)
+# Item 6810 is Super prayer's distinct Wyvern-bonemeal secondary. Herblore
+# registers the identity here without adding a migration or acquisition route.
+_HERBLORE_UNCACHED_ITEMS = ("Wyvern bonemeal",)
 
 
 def _target_as_dict(target: HerbloreTarget) -> Dict[str, object]:
@@ -468,7 +468,7 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             item["item_id"] = pestle_item_ids[name]
         elif name in input_preparation_item_data:
             item["item_id"] = input_preparation_item_data[name][0]
-        elif name == "Bonemeal":
+        elif name == "Wyvern bonemeal":
             item["item_id"] = 6810
         elif name == "Overload (3)":
             item["item_id"] = 15333

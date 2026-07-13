@@ -90,6 +90,31 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(telemetry["outputs"], {"Overload (3)": 1, "Vial": 4})
         self.assertEqual(calls["xp"], [1000.0])
 
+    def test_super_prayer_recipe_consumes_only_wyvern_bonemeal(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {
+                "Prayer potion (3)": 1,
+                "Wyvern bonemeal": 1,
+                "Bonemeal": 7,
+            },
+            "herblore_level": 94,
+            "herblore_exp": 0.0,
+            "current_herblore": "finished_super_prayer",
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(handle_herblore_answer(_context(player_data, calls)))
+
+        self.assertEqual(player_data["inventory"]["Prayer potion (3)"], 0)
+        self.assertEqual(player_data["inventory"]["Wyvern bonemeal"], 0)
+        self.assertEqual(player_data["inventory"]["Bonemeal"], 7)
+        self.assertEqual(player_data["inventory"]["Super prayer (3)"], 1)
+        self.assertEqual(player_data["herblore_exp"], 270.0)
+        telemetry = player_data["action_telemetry"]["actions"]["herblore:finished_super_prayer"]
+        self.assertEqual(telemetry["outputs"], {"Super prayer (3)": 1})
+        self.assertEqual(calls["xp"], [270.0])
+
     def test_woodcutting_inferno_adze_incinerates_logs_for_firemaking_xp(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

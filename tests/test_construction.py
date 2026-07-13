@@ -33,12 +33,12 @@ def _house(**updates):
 
 class ConstructionDataAndMechanicsTest(unittest.TestCase):
     @staticmethod
-    def _context(player, calls):
+    def _context(player, calls, random_random=None):
         def award(key, xp):
             player[key] = float(player.get(key, 0) or 0) + xp
             return xp
         return RuntimeActionContext(
-            player_data=player, random_random=lambda: .9,
+            player_data=player, random_random=random_random or (lambda: .9),
             show_error_message=lambda title, text: calls.setdefault("errors", []).append((title, text)),
             deactivate_current_skill=lambda: calls.__setitem__("deactivated", True),
             award_skill_exp=award, award_hidden_skill_exp=lambda key, _level, xp: award(key, xp),
@@ -119,7 +119,7 @@ class ConstructionDataAndMechanicsTest(unittest.TestCase):
         self.assertEqual(rewards["magic"], 35.0)
         self.assertEqual(result["inventory"]["Varrock teleport tablet"], 1)
 
-    def test_owned_gilded_altar_requires_chapel_altar_and_burner(self):
+    def test_owned_gilded_altar_counts_at_most_two_burners(self):
         data = _house(house_built_flags={"guilded_altar": True, "marble_burner": True})
         self.assertEqual(owned_gilded_altar_burner_count_pure(data), 1)
         data["house_built_flags"]["mahogany_burner"] = True
@@ -139,6 +139,56 @@ class ConstructionDataAndMechanicsTest(unittest.TestCase):
         self.assertNotIn("activity", calls)
         self.assertTrue(handle_prayer_answer(self._context(player, calls)))
         self.assertEqual(player["prayer_exp"], 432.0)
+
+    def test_owned_altar_zero_one_two_burners_use_exact_rates_without_hosted_rng(self):
+        cases = (
+            ({"guilded_altar": True}, 0, 180.0),
+            ({"guilded_altar": True, "marble_burner": True}, 1, 216.0),
+            ({"guilded_altar": True, "marble_burner": True, "mahogany_burner": True}, 2, 252.0),
+        )
+        for flags, herbs, expected_xp in cases:
+            with self.subTest(flags=flags):
+                player = _house(
+                    prayer_level=99,
+                    prayer_exp=0,
+                    current_prayer="gilded_altar_dragon_bones",
+                    prayer_gilded_mode="owned",
+                    prayer_owned_altar_stint={},
+                    house_built_flags=flags,
+                    inventory={"Dragon bones": 1, "Clean marrentill": herbs},
+                    completed_achievements=[],
+                )
+                calls = {}
+
+                def hosted_rng_must_not_run():
+                    self.fail("owned gilded altar called hosted search RNG")
+
+                self.assertTrue(handle_prayer_answer(self._context(player, calls, hosted_rng_must_not_run)))
+                self.assertEqual(player["prayer_exp"], expected_xp)
+                self.assertEqual(player["inventory"]["Clean marrentill"], 0)
+                self.assertEqual(player["prayer_owned_altar_stint"]["burners_lit"], herbs)
+
+    def test_owned_altar_mid_stint_construction_does_not_change_rate_or_recharge_herbs(self):
+        player = _house(
+            prayer_level=99,
+            prayer_exp=0,
+            current_prayer="gilded_altar_dragon_bones",
+            prayer_gilded_mode="owned",
+            prayer_owned_altar_stint={},
+            house_built_flags={"guilded_altar": True, "marble_burner": True},
+            inventory={"Dragon bones": 2, "Clean marrentill": 2},
+            completed_achievements=[],
+        )
+        calls = {}
+        self.assertTrue(handle_prayer_answer(self._context(player, calls)))
+        self.assertEqual(player["prayer_exp"], 216.0)
+        self.assertEqual(player["inventory"]["Clean marrentill"], 1)
+
+        player["house_built_flags"]["mahogany_burner"] = True
+        self.assertTrue(handle_prayer_answer(self._context(player, calls)))
+        self.assertEqual(player["prayer_exp"], 432.0)
+        self.assertEqual(player["inventory"]["Clean marrentill"], 1)
+        self.assertEqual(player["prayer_owned_altar_stint"]["burners_lit"], 1)
 
     def test_room_style_and_servant_ladders_use_closed_values(self):
         self.assertEqual(SERVANT_DATA["demon_butler"]["wage"], 7500)

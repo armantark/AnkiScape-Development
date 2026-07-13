@@ -15,8 +15,8 @@ Anki already rewards consistency through memory gains, but that feedback is abst
 
 ## Current Experience
 
-- Eleven selectable review skills: Mining, Woodcutting, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Hunter, and Herblore.
-- Unified Combat trains Attack, Strength, Defence, Constitution, Ranged, and Magic through equipment/style/spell choices, with real supplies, HP, food, death/recovery, drops, poison, potions, loadouts, and target-local carried inventory.
+- Fifteen complete skill surfaces: Mining, Woodcutting, Farming, Fishing, Hunter, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Herblore, Prayer, Magic, and Construction.
+- Unified Combat trains the five partial skills Attack, Strength, Defence, Constitution, and Ranged through equipment/style choices, with real supplies, HP, food, Prayer/Magic configuration, death/recovery, drops, poison, potions, loadouts, and target-local carried inventory.
 - Quests, Utility/Activities, Bank, Equipment, NPC Shops, Stats, Achievements, Settings, Bank Claims, HUD feedback, and review undo are live foundations.
 - The quest catalog contains 194 pre-EOC rows, but many still require quest-by-quest fidelity work.
 
@@ -24,7 +24,7 @@ Anki already rewards consistency through memory gains, but that feedback is abst
 
 The goal is full pre-EOC breadth translated to Anki—not a literal world simulator. Missing skills receive deep product grills where their authentic loops have multiple reasonable review abstractions. Large hidden-server systems may wait for a stable high-fidelity Darkan restoration, then must still be reconciled against period evidence.
 
-Canonical scope: `memory-bank/completion-audit-2026-07-10.md` and `memory-bank/future-work-kanban.md`.
+Canonical live scope: `memory-bank/future-work-kanban.md`; the 2026-07-10 completion audit is a dated baseline.
 
 ## Boundaries
 

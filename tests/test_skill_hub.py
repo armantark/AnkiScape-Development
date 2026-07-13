@@ -14,14 +14,13 @@ class TestSkillHubViewModel(unittest.TestCase):
         by_id = {cat.category_id: cat for cat in hub}
 
         # Only the categories that currently have implemented skills should show.
-        self.assertEqual(set(by_id), {"combat", "gathering", "artisan", "support"})
+        self.assertEqual(set(by_id), {"combat", "gathering", "artisan"})
 
         self.assertEqual(
             [card.display_name for card in by_id["gathering"].skills],
             ["Mining", "Woodcutting", "Farming", "Fishing", "Hunter"],
         )
-        self.assertEqual([card.display_name for card in by_id["support"].skills], ["Prayer"])
-        self.assertEqual([card.display_name for card in by_id["combat"].skills], ["Magic"])
+        self.assertEqual([card.display_name for card in by_id["combat"].skills], ["Prayer", "Magic"])
         self.assertEqual(
             [card.display_name for card in by_id["artisan"].skills],
             ["Smithing", "Crafting", "Fletching", "Firemaking", "Cooking", "Runecrafting", "Herblore", "Construction"],

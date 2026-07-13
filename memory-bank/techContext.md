@@ -147,5 +147,11 @@ lives in `logic_pure.py`; storage config version 15 adds
 - Rune/Pure essence reuse Mining ore art; do provenance-affecting refreshes
   sequentially because the provenance JSON writer is not concurrency-safe.
 
+### Prayer passive asset wiring
+- `tools/fetch_prayer_assets.py` derives Prayer materials and passive-item rows from `prayer_data.py` and `prayer_passive_data.py`.
+- Its fetch path is explicitly restricted to `RS3_WIKI`; do not restore the shared OSRS-first fallback for these pre-EOC assets without independent exact-period art proof.
+- Bonecrusher and Ectoplasmator live at `prayeritems/bonecrusher.png` and `prayeritems/ectoplasmator.png`; `tests/test_urns.py` requires `source_wiki == "rs3"` for both provenance rows.
+- Run Prayer/provenance fetches sequentially because the shared JSON writer is not concurrency-safe.
+
 ## Manual Testing Target
 Manual verification should happen inside Anki when runtime behavior changes. Browser-based Pinchtab testing is only relevant if the change introduces browser-rendered surfaces that can be exercised outside Anki.

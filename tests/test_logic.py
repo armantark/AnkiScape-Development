@@ -5,6 +5,7 @@ from logic_pure import (
     apply_combat_stat_delta_pure,
     apply_combat_stat_boost_to_pure,
     _potion_boost_amount,
+    prayer_potion_restore_amount_pure,
     _combat_effective_skill_level,
     get_exp_to_next_level,
     calculate_new_level,
@@ -622,6 +623,41 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(_potion_boost_amount(99, "r"), 12)
         self.assertEqual(_potion_boost_amount(99, "s"), 19)
         self.assertEqual(_potion_boost_amount(1, "s"), 5)
+
+    def test_manual_prayer_potions_restore_points_with_exact_formulas_and_cap(self):
+        self.assertEqual(prayer_potion_restore_amount_pure(80, "prayer"), 27)
+        self.assertEqual(prayer_potion_restore_amount_pure(80, "s_prayer"), 35)
+        self.assertEqual(prayer_potion_restore_amount_pure(99, "prayer"), 31)
+        self.assertEqual(prayer_potion_restore_amount_pure(99, "s_prayer"), 41)
+
+        regular, regular_result = apply_consumable_pure(
+            {
+                "inventory": {"Prayer potion (3)": 1},
+                "prayer_level": 80,
+                "combat_prayer_points": 100,
+                "combat_current_levels": {"attack": 77},
+            },
+            "Prayer potion (3)",
+        )
+        self.assertTrue(regular_result["allowed"])
+        self.assertEqual(regular["combat_prayer_points"], 370)
+        self.assertEqual(regular_result["prayer_points_restored"], 27.0)
+        self.assertEqual(regular["combat_current_levels"], {"attack": 77})
+        self.assertEqual(regular["inventory"], {"Prayer potion (2)": 1})
+
+        super_prayer, super_result = apply_consumable_pure(
+            {
+                "inventory": {"Super prayer (3)": 1},
+                "prayer_level": 80,
+                "combat_prayer_points": 790,
+                "combat_current_levels": {},
+            },
+            "Super prayer (3)",
+        )
+        self.assertEqual(super_prayer["combat_prayer_points"], 800)
+        self.assertEqual(super_result["prayer_points_restored"], 1.0)
+        self.assertNotIn("prayer", super_prayer["combat_current_levels"])
+        self.assertEqual(super_prayer["inventory"], {"Super prayer (2)": 1})
 
     def test_potion_boost_is_a_floor_that_cures_drains_without_stacking(self):
         # boost-to-floor: sets current to base+boost, cures a drain, never
