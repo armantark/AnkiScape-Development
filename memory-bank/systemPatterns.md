@@ -12,6 +12,14 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `R = 1000`, exact integer residual scheduling, four admission modes, overflow
   validation, and resource/actor lock shapes. Phase 1 is dormant: no review
   handler calls it.
+- `cadence_shadow.py`: Phase 3's guarded observer for Mining, Woodcutting,
+  Fishing, Hunter, Cooking, and Firemaking. It resolves compatible pinned rates,
+  advances exact low/high proposal envelopes, stores sanitized rational
+  aggregates in `player_data["cadence_shadow"]`, and never returns an outcome to
+  a live handler.
+- `tools/cadence_shadow_report.py`: renders current, proposed, and pinned source
+  XP/hour for either the complete six-skill route catalog or accumulated shadow
+  state from a player-data JSON export.
 - `logic.py`: Anki-aware level-up and achievement checks plus probability wrappers.
 - `storage.py`: Anki config persistence.
 - `storage_pure.py`: default player shape and migrations.
@@ -49,6 +57,21 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `assigned_reviews`, `opportunities_emitted`, and `cadence_version`. Config v34
   adds the mapping without rewriting existing state. Because review undo diffs
   the complete `player_data`, cadence residuals require no separate undo stack.
+- Shadow observation is a separate route-keyed `player_data["cadence_shadow"]`
+  namespace. Keeping it inside the review snapshot makes observer residuals and
+  aggregates undo atomically, while separation from `cadence_profiles` prevents
+  observational credit from becoming live cadence state. The observer is lazy,
+  exception-contained, off by default, and never changes gameplay state or RNG.
+- Gathering shadow routes advance both ends of a sourced XP/hour range as exact
+  `Fraction` profiles and report range splits instead of inventing a midpoint.
+  Processing routes whose authentic success probability already embeds cadence
+  reuse the handler's existing roll; they declare `cap_one_action` but do not
+  enter the residual scheduler or draw another random number.
+- Runtime-to-source mappings must be semantically exact. Missing or incompatible
+  rows are reportable `source_blocked` observations, not opportunities to infer a
+  replacement rate. This includes ordinary versus concentrated gold, mixed
+  leaping fish versus sturgeon-only evidence, runite coins/hour versus XP/hour,
+  and urn-inclusive rocktail XP that cannot be decomposed.
 - Skill identity has two separate axes: `implemented` means a complete owned review surface, while `surface_state` is `complete`, `partial`, or `planned`; `trainable` covers complete and partial skills. Use `training_source` for partial cross-surface stats and `visible_in_skill_hub` to hide Attack, Constitution, Defence, Ranged, and Strength because they train only through Combat. Prayer and Magic are complete surfaces; Summoning remains planned.
 - Composite target choices must be committed atomically. Prayer stores stable material and UI-method identities, resolves them to the runtime target/mode pair in pure logic, validates the pair once, and clears hosted-search/owned-stint state only when that composite selection changes.
 - Target-carried passives are physical pack semantics, not global ownership flags. Bonecrusher, Ectoplasmator, and training urns activate only when the selected target's clamped carried view contains the relevant item; bank-only or other-target copies remain inert.

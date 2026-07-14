@@ -102,6 +102,8 @@ try:
         calculate_hunter_success_probability_pure,
         calculate_mining_success_probability_pure,
         calculate_woodcutting_success_probability_pure,
+        cooking_source_roll_chance_pure,
+        firemaking_source_roll_chance_pure,
         calculate_new_level,
         can_chop_woodcutting_target_pure,
         can_craft_item_pure,
@@ -243,6 +245,8 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         calculate_hunter_success_probability_pure,
         calculate_mining_success_probability_pure,
         calculate_woodcutting_success_probability_pure,
+        cooking_source_roll_chance_pure,
+        firemaking_source_roll_chance_pure,
         calculate_new_level,
         can_chop_woodcutting_target_pure,
         can_craft_item_pure,
@@ -322,6 +326,7 @@ class RuntimeActionContext:
     implemented_exp_keys_snapshot: Callable[[], dict[str, float]]
     show_quest_exp_delta: Callable[[dict[str, float]], None]
     review_action_multiplier: int = 1
+    cadence_shadow_enabled: bool = False
     # Fired once when the Stronghold of Security is finished, so the UI can pop
     # the boot-choice reward dialog. Optional so older call sites keep working.
     prompt_stronghold_reward: Optional[Callable[[], None]] = None
@@ -797,6 +802,8 @@ def _record_action(
     output_qty: int = 1,
     output_items: Optional[dict[str, int]] = None,
     failure_kind: Optional[str] = None,
+    primary_xp: Any = 0,
+    proposed_outcome_success: Any = None,
 ) -> None:
     record_action_telemetry_pure(
         ctx.player_data,
@@ -809,6 +816,23 @@ def _record_action(
         output_items=output_items,
         failure_kind=failure_kind,
     )
+    if ctx.cadence_shadow_enabled:
+        try:
+            try:
+                from .cadence_shadow import record_cadence_shadow_pure
+            except ImportError:  # pragma: no cover - flat import path used by tests
+                from cadence_shadow import record_cadence_shadow_pure  # type: ignore
+            record_cadence_shadow_pure(
+                ctx.player_data,
+                skill_id,
+                action_id,
+                success,
+                live_xp=primary_xp,
+                proposed_outcome_success=proposed_outcome_success,
+            )
+        except Exception:
+            # Observation must never make a live action fail.
+            pass
 
 
 def _charge_urn_for_action(
@@ -1630,15 +1654,25 @@ def handle_firemaking_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     expected_success = calculate_firemaking_success_probability_pure(player_level, spec)
+    action_roll = ctx.random_random()
+    proposed_outcome_success = action_roll < firemaking_source_roll_chance_pure(player_level, spec)
     new_inv, base_exp, ok, _output_item = apply_firemaking_action_pure(
         target,
         player_data.get("inventory", {}),
         FIREMAKING_DATA,
         player_level,
-        ctx.random_random(),
+        action_roll,
     )
     if not ok:
-        _record_action(ctx, "firemaking", target, False, expected_success_chance=expected_success, failure_kind="dry")
+        _record_action(
+            ctx,
+            "firemaking",
+            target,
+            False,
+            expected_success_chance=expected_success,
+            failure_kind="dry",
+            proposed_outcome_success=proposed_outcome_success,
+        )
         ctx.save_player_data()
         return True
 
@@ -1650,6 +1684,8 @@ def handle_firemaking_answer(ctx: RuntimeActionContext) -> bool:
         True,
         expected_success_chance=expected_success,
         output_item=_output_item,
+        primary_xp=base_exp,
+        proposed_outcome_success=proposed_outcome_success,
     )
     exp_gained = ctx.award_skill_exp("firemaking_exp", base_exp)
     ctx.level_up_check("Firemaking", player_data)
@@ -1732,6 +1768,7 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
         True,
         expected_success_chance=expected_success,
         output_item=_output_item,
+        primary_xp=base_exp,
     )
     exp_gained = _award_action_xp_rewards(
         ctx,
@@ -1818,6 +1855,7 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         True,
         expected_success_chance=expected_success,
         output_items=retained_outputs,
+        primary_xp=base_exp,
     )
     player_data["hunter_success_count"] = player_data.get("hunter_success_count", 0) + 1
     action_rewards = list(xp_rewards or ({"skill_id": "hunter", "amount": base_exp},))
@@ -1873,6 +1911,9 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
 
     expected_success = calculate_cooking_success_probability_pure(player_level, spec)
     roll = ctx.random_random()
+    source_success = cooking_source_roll_chance_pure(player_level, spec)
+    source_runtime_action = bool(spec.get("source_success_formula") or spec.get("source_always_succeeds"))
+    proposed_outcome_success = roll <= source_success if source_runtime_action else roll < source_success
     byproduct_roll = ctx.random_random() if spec.get("byproduct_item") and roll <= expected_success else None
     new_inv, base_exp, ok, output_item, burned = apply_cooking_action_pure(
         target,
@@ -1896,6 +1937,7 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
             expected_success_chance=expected_success,
             output_item=output_item,
             failure_kind=failure_kind,
+            proposed_outcome_success=proposed_outcome_success,
         )
         if failure_kind == "burn":
             player_data["cooking_burn_count"] = player_data.get("cooking_burn_count", 0) + 1
@@ -1914,6 +1956,8 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
         True,
         expected_success_chance=expected_success,
         output_item=output_item,
+        primary_xp=base_exp,
+        proposed_outcome_success=proposed_outcome_success,
     )
     player_data["cooking_success_count"] = player_data.get("cooking_success_count", 0) + 1
     exp_gained = ctx.award_skill_exp("cooking_exp", base_exp)
@@ -2232,6 +2276,7 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
             True,
             expected_success_chance=expected_success,
             output_items=output_items,
+            primary_xp=base_exp,
         )
         exp_gained = ctx.award_skill_exp("woodcutting_exp", base_exp)
         ctx.level_up_check("Woodcutting", player_data)
@@ -2322,6 +2367,7 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
             True,
             expected_success_chance=expected_success,
             output_items=output_items,
+            primary_xp=base_exp,
         )
         exp_gained = ctx.award_skill_exp("mining_exp", base_exp)
         ctx.level_up_check("Mining", player_data)

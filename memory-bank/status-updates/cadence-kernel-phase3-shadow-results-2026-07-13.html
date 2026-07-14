@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cadence Kernel Phase 3 — Shadow Closure</title>
+  <style>
+    :root { color-scheme: dark; --bg:#080b12; --panel:#101622; --panel2:#151d2b; --line:#273247; --text:#eef3fb; --muted:#93a2b8; --cyan:#5de4d3; --green:#7ee787; --amber:#ffcf70; --rose:#ff7b91; --blue:#75a7ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:radial-gradient(circle at 15% 0%,#14263a 0,transparent 33%),var(--bg); color:var(--text); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(1220px,calc(100% - 32px)); margin:0 auto; padding:52px 0 80px; }
+    .eyebrow { color:var(--cyan); font:700 12px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.16em; text-transform:uppercase; }
+    h1 { margin:12px 0 12px; font-size:clamp(36px,7vw,72px); line-height:.98; letter-spacing:-.055em; max-width:900px; }
+    .lede { max-width:800px; color:#bdc9da; font-size:18px; line-height:1.6; }
+    .stamp { display:inline-flex; gap:8px; align-items:center; margin-top:18px; padding:8px 12px; border:1px solid #285c4a; border-radius:999px; color:var(--green); background:#0b211b; font-weight:700; font-size:13px; }
+    .stamp:before { content:""; width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 16px var(--green); }
+    .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:36px 0; }
+    .metric,.panel { background:linear-gradient(155deg,rgba(21,29,43,.98),rgba(12,17,27,.98)); border:1px solid var(--line); border-radius:18px; box-shadow:0 18px 50px rgba(0,0,0,.2); }
+    .metric { padding:20px; min-height:132px; }
+    .metric strong { display:block; font-size:40px; letter-spacing:-.04em; }
+    .metric span { color:var(--muted); line-height:1.35; }
+    .panel { padding:26px; margin-top:18px; }
+    h2 { margin:0 0 8px; font-size:26px; letter-spacing:-.025em; }
+    h3 { margin:0; font-size:17px; }
+    .sub { color:var(--muted); margin:0 0 20px; line-height:1.5; }
+    .skills { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .skill { border:1px solid var(--line); border-radius:14px; background:#0d131e; padding:16px; }
+    .skill-head { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+    .ratio { color:var(--cyan); font:700 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .bar { height:6px; background:#222c3d; border-radius:999px; margin:13px 0 9px; overflow:hidden; }
+    .bar i { display:block; height:100%; background:linear-gradient(90deg,var(--cyan),var(--blue)); border-radius:inherit; min-width:3px; }
+    .skill small { color:var(--muted); }
+    .choice { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .choice > div { padding:18px; border-radius:14px; border:1px solid var(--line); background:#0d131e; }
+    .choice .before { border-color:#5a4930; }
+    .choice .after { border-color:#285c4a; }
+    .label { display:inline-block; margin-bottom:10px; font:700 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.12em; text-transform:uppercase; }
+    .before .label { color:var(--amber); } .after .label { color:var(--green); }
+    .choice p { color:#bdc9da; line-height:1.55; margin:0; }
+    .controls { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 18px; }
+    button { appearance:none; border:1px solid var(--line); color:#b8c5d8; background:#0b1019; border-radius:999px; padding:8px 12px; font:700 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace; cursor:pointer; }
+    button.active { color:#07110f; background:var(--cyan); border-color:var(--cyan); }
+    .table-wrap { overflow:auto; border:1px solid var(--line); border-radius:14px; }
+    table { width:100%; border-collapse:collapse; min-width:860px; font-size:13px; }
+    th { position:sticky; top:0; background:#172031; color:#9eacc0; text-align:left; font:700 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace; text-transform:uppercase; letter-spacing:.08em; }
+    th,td { padding:11px 13px; border-bottom:1px solid #202a3b; }
+    td:nth-child(n+3),th:nth-child(n+3) { text-align:right; font-variant-numeric:tabular-nums; }
+    tr:last-child td { border-bottom:0; }
+    td.route { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; color:#dbe6f7; }
+    td.kernel { color:var(--cyan); } td.source { color:var(--amber); }
+    details { border:1px solid var(--line); border-radius:14px; margin-top:10px; background:#0d131e; }
+    summary { cursor:pointer; padding:15px 17px; font-weight:750; }
+    details p { color:#aab8cb; padding:0 17px 16px; margin:0; line-height:1.65; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; overflow-wrap:anywhere; }
+    .proof { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+    .check { padding:15px 16px; border:1px solid #285c4a; background:#0d1b18; border-radius:13px; }
+    .check b { color:var(--green); } .check span { display:block; color:#a9b8c8; margin-top:5px; line-height:1.45; }
+    .warning { border-left:3px solid var(--amber); padding:14px 16px; background:#201b11; color:#dfd2b3; border-radius:0 12px 12px 0; line-height:1.55; }
+    footer { margin-top:30px; color:#7f8ca0; font-size:12px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+    @media (max-width:850px) { .metrics,.skills { grid-template-columns:repeat(2,1fr); } .choice,.proof { grid-template-columns:1fr; } }
+    @media (max-width:520px) { main { width:min(100% - 20px,1220px); padding-top:32px; } .metrics,.skills { grid-template-columns:1fr; } .panel { padding:18px; } }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">AnkiScape · 2026-07-13 · Phase 3</div>
+  <h1>Shadow mode is closed.</h1>
+  <p class="lede">Six live skill adapters now expose the cadence kernel's proposal without letting it touch gameplay. Every runtime route is visible, every defensible source rate stays exact, and every gap fails closed.</p>
+  <div class="stamp">Verified in non-Qt and real offscreen Qt</div>
+
+  <section class="metrics">
+    <div class="metric"><strong>175</strong><span>runtime routes enumerated across six adapters</span></div>
+    <div class="metric"><strong>24</strong><span>source-ready routes producing a proposal</span></div>
+    <div class="metric"><strong>151</strong><span>explicitly visible <code>source_blocked</code> routes</span></div>
+    <div class="metric"><strong>0</strong><span>live gameplay or RNG divergences under fixed seed</span></div>
+  </section>
+
+  <section class="panel">
+    <h2>Coverage by adapter</h2>
+    <p class="sub">The narrow green share is honesty, not incompleteness hidden from view: a route becomes ready only when the runtime identity and pinned pre-cutoff rate mean the same thing.</p>
+    <div class="skills">
+      <div class="skill"><div class="skill-head"><h3>Mining</h3><span class="ratio">2 / 18</span></div><div class="bar"><i style="width:11.1%"></i></div><small>16 blocked</small></div>
+      <div class="skill"><div class="skill-head"><h3>Woodcutting</h3><span class="ratio">7 / 11</span></div><div class="bar"><i style="width:63.6%"></i></div><small>4 blocked</small></div>
+      <div class="skill"><div class="skill-head"><h3>Fishing</h3><span class="ratio">3 / 19</span></div><div class="bar"><i style="width:15.8%"></i></div><small>16 blocked</small></div>
+      <div class="skill"><div class="skill-head"><h3>Hunter</h3><span class="ratio">7 / 55</span></div><div class="bar"><i style="width:12.7%"></i></div><small>48 blocked</small></div>
+      <div class="skill"><div class="skill-head"><h3>Cooking</h3><span class="ratio">4 / 59</span></div><div class="bar"><i style="width:6.8%"></i></div><small>55 blocked</small></div>
+      <div class="skill"><div class="skill-head"><h3>Firemaking</h3><span class="ratio">1 / 13</span></div><div class="bar"><i style="width:7.7%"></i></div><small>12 blocked</small></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>One implementation decision changed</h2>
+    <p class="sub">The frozen plan remains untouched. The implementation moved the observer after reviewing the contract's undo requirement.</p>
+    <div class="choice">
+      <div class="before"><span class="label">Plan</span><p>Write external JSONL telemetry beside the save so flag-on save bytes remain identical.</p></div>
+      <div class="after"><span class="label">Shipped</span><p>Store telemetry in a dedicated transactional <code>cadence_shadow</code> namespace so review undo restores gameplay, proposal residuals, and aggregates atomically.</p></div>
+    </div>
+    <p class="warning" style="margin-top:14px">The flag may add instrumentation bytes. It does not change the per-review gameplay projection, XP, loot, callback sequence, dormant live <code>cadence_profiles</code>, or RNG state. Shadow credit can never become live cadence credit.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Source-ready divergence</h2>
+    <p class="sub">Level-99 catalog projection. “Kernel” is the Phase 3 proposal; “Source” is the pinned 2012 XP/hour ledger. Processing proposals can differ because the authentic source success probability is applied to the existing live roll.</p>
+    <div class="controls" id="filters">
+      <button class="active" data-skill="all">All 24</button><button data-skill="mining">Mining</button><button data-skill="woodcutting">Woodcutting</button><button data-skill="fishing">Fishing</button><button data-skill="hunter">Hunter</button><button data-skill="cooking">Cooking</button><button data-skill="firemaking">Firemaking</button>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Skill</th><th>Route</th><th>Current XP/h</th><th>Kernel XP/h</th><th>Source XP/h</th></tr></thead>
+      <tbody id="ready-rows">
+        <tr data-skill="mining"><td>Mining</td><td class="route">concentrated_gold</td><td>57,155</td><td class="kernel">35,000–40,000</td><td class="source">35,000–40,000</td></tr>
+        <tr data-skill="mining"><td>Mining</td><td class="route">iron</td><td>32,200</td><td class="kernel">29,167–35,000</td><td class="source">29,167–37,500</td></tr>
+        <tr data-skill="woodcutting"><td>Woodcutting</td><td class="route">tree</td><td>23,000</td><td class="kernel">8,333–12,500</td><td class="source">8,333–12,500</td></tr>
+        <tr data-skill="woodcutting"><td>Woodcutting</td><td class="route">oak</td><td>34,500</td><td class="kernel">15,000–37,500</td><td class="source">15,000–37,500</td></tr>
+        <tr data-skill="woodcutting"><td>Woodcutting</td><td class="route">willow</td><td>55,230</td><td class="kernel">25,000–50,000</td><td class="source">25,000–50,000</td></tr>
+        <tr data-skill="woodcutting"><td>Woodcutting</td><td class="route">maple</td><td>63,715</td><td class="kernel">30,000</td><td class="source">30,000</td></tr>
+        <tr data-skill="woodcutting"><td>Woodcutting</td><td class="route">yew</td><td>88,515</td><td class="kernel">19,167–31,667</td><td class="source">19,167–31,667</td></tr>
+        <tr data-skill="woodcutting"><td>Woodcutting</td><td class="route">magic</td><td>104,059</td><td class="kernel">14,167–25,000</td><td class="source">14,167–25,000</td></tr>
+        <tr data-skill="woodcutting"><td>Woodcutting</td><td class="route">ivy</td><td>163,658</td><td class="kernel">60,000–80,000</td><td class="source">60,000–80,000</td></tr>
+        <tr data-skill="fishing"><td>Fishing</td><td class="route">catch_monkfish</td><td>75,614</td><td class="kernel">25,000–40,000</td><td class="source">25,000–40,000</td></tr>
+        <tr data-skill="fishing"><td>Fishing</td><td class="route">catch_sharks</td><td>53,758</td><td class="kernel">20,000</td><td class="source">20,000</td></tr>
+        <tr data-skill="fishing"><td>Fishing</td><td class="route">catch_trout_salmon</td><td>59,792</td><td class="kernel">36,000–40,000</td><td class="source">36,000–40,000</td></tr>
+        <tr data-skill="hunter"><td>Hunter</td><td class="route">catch_black_salamander</td><td>267,884</td><td class="kernel">30,000–200,000</td><td class="source">30,000–200,000</td></tr>
+        <tr data-skill="hunter"><td>Hunter</td><td class="route">catch_chinchompa</td><td>172,751</td><td class="kernel">15,000–82,000</td><td class="source">15,000–82,000</td></tr>
+        <tr data-skill="hunter"><td>Hunter</td><td class="route">catch_dark_kebbit</td><td>99,000</td><td class="kernel">35,000–55,000</td><td class="source">35,000–55,000</td></tr>
+        <tr data-skill="hunter"><td>Hunter</td><td class="route">catch_orange_salamander</td><td>201,590</td><td class="kernel">60,000–90,000</td><td class="source">60,000–90,000</td></tr>
+        <tr data-skill="hunter"><td>Hunter</td><td class="route">catch_red_chinchompa</td><td>222,397</td><td class="kernel">50,000–100,000</td><td class="source">50,000–100,000</td></tr>
+        <tr data-skill="hunter"><td>Hunter</td><td class="route">catch_red_salamander</td><td>236,717</td><td class="kernel">40,000–110,000</td><td class="source">40,000–110,000</td></tr>
+        <tr data-skill="hunter"><td>Hunter</td><td class="route">catch_spotted_kebbit</td><td>42,000</td><td class="kernel">30,000–40,000</td><td class="source">30,000–40,000</td></tr>
+        <tr data-skill="cooking"><td>Cooking</td><td class="route">cook_lobster</td><td>110,400</td><td class="kernel">120,000</td><td class="source">150,000</td></tr>
+        <tr data-skill="cooking"><td>Cooking</td><td class="route">cook_monkfish</td><td>138,000</td><td class="kernel">150,000</td><td class="source">190,000</td></tr>
+        <tr data-skill="cooking"><td>Cooking</td><td class="route">cook_shark</td><td>186,531</td><td class="kernel">191,882</td><td class="source">263,000</td></tr>
+        <tr data-skill="cooking"><td>Cooking</td><td class="route">cook_tuna</td><td>92,000</td><td class="kernel">100,000</td><td class="source">125,000</td></tr>
+        <tr data-skill="firemaking"><td>Firemaking</td><td class="route">magic_logs</td><td>247,254</td><td class="kernel">303,800</td><td class="source">364,560</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="panel">
+    <h2>Everything that remains source-blocked</h2>
+    <p class="sub">All 151 route IDs remain in the catalog and keep reporting live XP/hour. They receive no proposal and create no residual profile.</p>
+    <details><summary>Mining · 16 blocked</summary><p>adamantite, blurite, clay, coal, concentrated_coal, copper, gem_rocks, gold, granite, limestone, mithril, rune_essence, runite, sandstone, silver, tin</p></details>
+    <details><summary>Woodcutting · 4 blocked</summary><p>achey, hollow, mahogany, teak</p></details>
+    <details><summary>Fishing · 16 blocked</summary><p>catch_cavefish, catch_crayfish, catch_karambwan, catch_leaping_fish, catch_lobsters, catch_mackerel_cod_bass, catch_pike, catch_rocktail, catch_sardine_herring, catch_shrimp_anchovies, catch_slimy_eel, catch_tuna_swordfish, karambwanji_net, lava_eel, lumbridge_swamp_eel_spawn, rainbow_fish</p></details>
+    <details><summary>Hunter · 48 blocked</summary><p>catch_baby_impling_puro_puro, catch_baby_impling_world, catch_barb_tailed_kebbit, catch_black_warlock, catch_cerulean_twitch, catch_copper_longtail, catch_crimson_swift, catch_dashing_kebbit, catch_dragon_impling_puro_puro, catch_dragon_impling_world, catch_earth_impling_puro_puro, catch_earth_impling_world, catch_eclectic_impling_puro_puro, catch_eclectic_impling_world, catch_essence_impling_puro_puro, catch_essence_impling_world, catch_ferret, catch_golden_warbler, catch_gourmet_impling_puro_puro, catch_gourmet_impling_world, catch_grenwall, catch_imp_magic_box, catch_kingly_impling_puro_puro, catch_kingly_impling_world, catch_magpie_impling_puro_puro, catch_magpie_impling_world, catch_nature_impling_puro_puro, catch_nature_impling_world, catch_ninja_impling_puro_puro, catch_ninja_impling_world, catch_pawya, catch_pirate_impling_puro_puro, catch_pirate_impling_world, catch_prickly_kebbit, catch_ruby_harvest, catch_sabre_toothed_kebbit, catch_sapphire_glacialis, catch_snowy_knight, catch_spirit_impling_puro_puro, catch_spirit_impling_world, catch_swamp_lizard, catch_tropical_wagtail, catch_wild_kebbit, catch_wimpy_bird, catch_young_impling_puro_puro, catch_young_impling_world, catch_zombie_impling_puro_puro, catch_zombie_impling_world</p></details>
+    <details><summary>Cooking · 55 blocked</summary><p>burn_seaweed, cook_admiral_pie, cook_anchovies, cook_apple_pie, cook_baked_potato, cook_bass, cook_bear_meat, cook_beef, cook_bread, cook_cave_eel, cook_cavefish, cook_chicken, cook_cod, cook_cooked_sweetcorn, cook_crayfish, cook_curry, cook_fat_snail, cook_fish_pie, cook_fried_mushrooms, cook_fried_onions, cook_garden_pie, cook_herring, cook_lava_eel, cook_lean_snail, cook_mackerel, cook_manta_ray, cook_meat_pie, cook_mud_pie, cook_pike, cook_pitta_bread, cook_plain_pizza, cook_rabbit, cook_rainbow_fish, cook_rat, cook_redberry_pie, cook_rocktail, cook_salmon, cook_sardine, cook_scrambled_egg, cook_sea_turtle, cook_shrimps, cook_slimy_eel, cook_stew, cook_summer_pie, cook_swordfish, cook_thin_snail, cook_trout, cook_ugthanki, cook_wild_pie, cook_yak, gut_leaping_salmon, gut_leaping_sturgeon, gut_leaping_trout, render_bear_sinew, render_beef_sinew</p></details>
+    <details><summary>Firemaking · 12 blocked</summary><p>achey_logs, arctic_pine_logs, curly_root, cursed_magic_logs, eucalyptus_logs, logs, mahogany_logs, maple_logs, oak_logs, teak_logs, willow_logs, yew_logs</p></details>
+  </section>
+
+  <section class="panel">
+    <h2>Proof, not test volume</h2>
+    <p class="sub">The new coverage is concentrated in ten high-signal Phase 3 tests plus existing regression suites. It checks observable contracts rather than multiplying trivial assertions.</p>
+    <div class="proof">
+      <div class="check"><b>✓ 176 focused tests</b><span>Cadence, real handlers, integration, parity sentinels; three expected failures preserved.</span></div>
+      <div class="check"><b>✓ 1,219 non-Qt</b><span>Complete discovery; 187 environment skips and three expected failures.</span></div>
+      <div class="check"><b>✓ 1,219 offscreen Qt</b><span>Real Qt runtime; three expected failures, no regressions.</span></div>
+      <div class="check"><b>✓ Six fixed-seed E2E paths</b><span>16 real reviews each; identical gameplay bytes, XP, loot, calls, and RNG.</span></div>
+      <div class="check"><b>✓ Atomic undo</b><span>The exact pre-review player-data snapshot returns, including observer residuals.</span></div>
+      <div class="check"><b>✓ Protected surfaces untouched</b><span>No diff in normalization, source ledger, XP audit, parity test, Combat, or Thieving.</span></div>
+    </div>
+  </section>
+  <footer>Branch: codex/cadence-phase3-shadow · R = 1000 reviews per balancing-hour · Plan artifact intentionally frozen</footer>
+</main>
+<script>
+  const buttons = [...document.querySelectorAll('#filters button')];
+  const rows = [...document.querySelectorAll('#ready-rows tr')];
+  buttons.forEach(button => button.addEventListener('click', () => {
+    buttons.forEach(item => item.classList.toggle('active', item === button));
+    rows.forEach(row => row.hidden = button.dataset.skill !== 'all' && row.dataset.skill !== button.dataset.skill);
+  }));
+</script>
+</body>
+</html>
