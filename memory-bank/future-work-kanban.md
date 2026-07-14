@@ -92,11 +92,28 @@ Labels: `DEEP GRILL` (closing), `SOURCE AUDIT`.
 - **Owner-settled 2026-07-13 (grill round 2):**
   - **Ship 2011Scape's pickpocket table wholesale**, pinned `provisional/2011Scape`, including the rows OSRS cannot referee (Paladin, Gnome, Hero — all invalidated by OSRS's May-2024 "Project Rebalance: Skilling"). Cherry-picking Darkan only where the referee is absent would select the source by convenience. The cost of being wrong is small: the two tables agree *exactly* at level 99 on eight of ten rows, and the worst disagreement at any reachable level is 11pp (Rogue), 3.9pp for the Paladin.
   - **The dossier's `x/y` chance notation is NOT a fraction.** It is `minChance`/`maxChance` — the level-1 and level-99 endpoints of `interpolate(min, max, 1, 99, ceiling=255)` (`PickpocketTarget.kt: fun roll`). The ceiling is 255 for *every* target: one roll shape, not one per denominator. Reading endpoints as fractions manufactures phantom conflicts.
-  - **Stall catching gets ONE global invented constant**, scaled by the stall's *sourced* restock timer, per the standard's "prefer one global constant applied by a sourced rule over a table of fabricated per-row values". Stall theft is positional in the real game (100% success, line-of-sight only), so no period number exists to find.
+  - **~~Stall catching gets ONE global invented constant~~ — SUPERSEDED, see below.** The stall catch chance is **zero**, and nothing is invented.
   - **Multi-pickpocket and stun/damage**: 2011Scape's values (`random(7) == 1` with the +10/+20/+30 Thieving and +0/+10/+20 Agility overshoot gates, which the period wiki corroborates over Darkan's `getRandomInclusive(50) < 5`).
   - **Pompous Merchant ships** — on the pinned 2012 wiki page's authority (level 1, 8 XP, 3 coins, stun, 10 LP), not Darkan's. The caches' missing `Pickpocket` option is recorded as a conflict, not a veto.
   - **Desert Phoenix is NOT a Thieving target.** Both caches show `Grab-feather`; 2011Scape has it only as a spawn, absent from the pickpocket table; the pinned page states no Thieving level. Darkan alone calls it Thieving. It ships as a **Utility activity** yielding one Phoenix feather, gated on The Golem, with no Thieving level and **no XP** — the wiki's "26 XP" never names a skill, and only Darkan claims Thieving.
   - **Pirates' Hideout chest parks.** Its XP is `?` in the period record itself. Sol to hunt a pre-cutoff value while extracting the tables; ships only if one surfaces.
+
+- **Owner-settled 2026-07-13 (grill round 3) — stalls need no invented constant at all:**
+  - **Stall catch chance is ZERO.** 2011Scape calls `handleSuccess` with no roll in front of it (`Stalls.kt:33`); the only failure path is `caughtByGuard`, which is purely positional (`it.sees(player, 8)`, `Stalls.kt:65`) and applies to just two of sixteen stalls — Draynor's wine (`StallTarget.kt:157`) and seed (`:188`), both Market Guard 2236. Every other row carries `guards = listOf()` and cannot fail. AnkiScape has no location layer, so the guard cannot be modelled; zero is the *faithful* value, not a shortcut.
+  - **The restock timer alone reproduces the sourced XP/hour, with no free parameters.** 2011Scape's `respawnTicks` and the 2012 wiki's experience-per-second column (pinned in `tools/sourced_xp_rates.py:90-95`) are the same numbers, derived independently and never in contact:
+
+    | stall | lvl | xp | respawnTicks | implied xp/hr | wiki E.P.S. × 3600 |
+    |---|---|---|---|---|---|
+    | Vegetable | 2 | 10 | 3 (1.8s) | 20,000 | 18,000 |
+    | Baker | 5 | 16 | 3 (1.8s) | 32,000 | 23,040 |
+    | Silk | 20 | 24 | 8 (4.8s) | 18,000 | 10,800 |
+    | Silver | 50 | 54 | 50 (30s) | **6,480** | **6,480** |
+    | Spice | 65 | 81 | 133 (79.8s) | 3,654 | 3,600 |
+    | Gem | 75 | 160 | 300 (180s) | 3,200 | 3,240 |
+
+    The three high-level rows agree to within rounding. Any nonzero catch constant would push every stall *below* its own sourced rate — reintroducing the exact defect the cadence kernel exists to fix. This is the strongest corroboration in the Thieving record; the earlier "invent one global constant" decision was solving a problem that does not exist.
+  - **The wall safe is the exception that proves it.** It is the only stall-family row carrying chance endpoints (`lowChance = 8, highChance = 160`, `StallTarget.kt:263-264`) — the same interpolate-against-255 shape as pickpocketing — and the only one whose 100%-success rate (70 xp / 3s = 84,000/hr) overshoots its sourced ceiling (~20,000/hr). It fails because the period game meant it to, and the source states by how much. Ship those endpoints. Note the fields are declared but unused in `Stalls.kt` — 2011Scape carried the data and never wired it.
+  - **Ship the level inversion honestly.** The level-5 baker stall out-earns the level-75 gem stall by ~7×, in both sources. That is authentic: pre-EOC players camped gem stalls for the *gems*, and the wiki's own escape hatch — "ideal to world hop" — is a location mechanic AnkiScape cannot model. It is safe to ship because the bad option is never the best available one: at 75 Thieving the player already has knights of Ardougne (180,000/hr, `sourced_xp_rates.py:82`) and blackjacking (200,000–270,000/hr, `:75`). The gem stall's poor XP is the *price* of its loot table, which we do model, and that reads as a choice rather than a trap. Do **not** invent a world-hop abstraction to "fix" it.
 
 ### Phoenix feather has no source — Super antifire is unmakeable
 
@@ -258,10 +275,16 @@ XP/hr, a plausible period rate) — it is the *review conversion* that is wrong.
 **This cannot be fixed later by lowering XP**, because XP/action is frozen by the
 parity contract. Cadence is the only lever.
 
-**Do NOT naively model respawn as the fix.** `XP ÷ respawn` makes the level-2
-vegetable stall the best XP in Thieving and the level-75 gem stall the worst —
-the period E.P.S. column confirms the single-stall rates really do invert, because
-real players world-hop rather than wait.
+**Respawn IS the model — and the inversion it produces is real** (settled
+2026-07-13, grill round 3; this reverses the earlier warning on this card).
+`XP ÷ respawn` makes the level-2 vegetable stall the best XP in Thieving and the
+level-75 gem stall the worst. That looked like a *reductio* against the model
+until both sources were checked: 2011Scape's `respawnTicks` and the period
+E.P.S. column agree to within rounding on every high-level row (table on the
+Thieving card). The single-stall rates really do invert. Real players world-hop,
+which is a location mechanic we cannot model and must not fake — and we do not
+need to, because at the levels where the inversion bites, far better Thieving
+methods are already open. Model the respawn, ship the inversion.
 
 **Remaining deliverables:**
 - Sourced XP/hour + modifier provenance for the artisan skills (Smithing, Crafting,
