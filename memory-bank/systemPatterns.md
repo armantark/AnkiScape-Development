@@ -502,6 +502,19 @@ Persisted Anki config is the stable boundary. Schema changes should go through `
 
 Source-complete data can be broader than a live catalog. Herblore keeps Daemonheim rows in explicit `DUNGEONEERING_*` tuples so item identities and historical transcription survive, while its ordinary exported targets filter them out until a session-scoped Dungeoneering product contract exists. When a live target is removed this way, migrate the saved selection to the skill default but preserve inventory keys and quantities.
 
+Anki's add-on directory is a runtime import boundary, not a harmless place for
+parallel checkouts. Every enabled direct child of `addons21` with an
+`__init__.py` is imported as a separate add-on package. Keep only the canonical
+AnkiScape checkout there; linked worktrees belong in the sibling
+`Anki2/ankiscape_worktrees/` root and should be created/audited through
+`tools/worktree_guard.py`.
+
+Production Anki hook wrappers expose their callbacks through `_hooks` but are
+not themselves iterable. Idempotent registration must inspect
+`getattr(hook, "_hooks", hook)` and still use the public `append`/`remove`
+methods. Tests for hook replacement should use a non-iterable production-shaped
+fake so a list-shaped test double cannot hide this API mismatch.
+
 Review-answer side effects must follow Anki's undo semantics. If a future skill mutates new `player_data` keys during an answer, the generic snapshot diff should catch them; if a future system writes outside `player_data`, it needs its own undo-aware rollback path.
 
 ## Live cadence route pattern

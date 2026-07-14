@@ -51,9 +51,19 @@ The dated `completion-audit-2026-07-10.*` files remain historical snapshots; liv
 
 ## Most Recent Completed Work
 
-- The deck-browser AnkiScape entry point now replaces its own nested callbacks by stable hook key, so repeated profile/setup calls cannot turn one click into three menu opens.
+- Anki was loading three linked worktrees beside the canonical checkout because
+  all four lived directly under `addons21` as enabled packages. The linked
+  worktrees now live under the sibling `Anki2/ankiscape_worktrees/` root, and
+  `tools/worktree_guard.py` audits that runtime boundary and creates future
+  worktrees only in the safe location.
+- The deck-browser entry point replaces its own nested callbacks by stable hook
+  key through Anki's production `_hooks` storage, so repeated registration or a
+  reload leaves exactly one callback and one menu open per click.
 - Ordinary Herblore now excludes the 54 Daemonheim-only clean, unfinished, and finished targets while preserving their item identities for old saves. A removed saved selection migrates to `clean_guam` without deleting inventory.
-- The live Herblore catalog is 22 clean, 22 unfinished, and 69 finished targets. All 22 clean rows and the skill rail use local RS3-provenanced artwork fetched by the data-derived `tools/fetch_herblore_assets.py` manifest.
+- The live Herblore catalog is 22 clean, 22 unfinished, and 69 finished targets.
+  All 113 rows now use local RS3-provenanced artwork. The skill rail uses the
+  compact OSRS `Herblore icon (detail).png`, matching the source/style family of
+  the other skill icons instead of the modern RS3 `Herblore detail.png` art.
 
 - The six Phase 3 adapters observe through the existing central action-telemetry seam exactly once per started action. They never supply an outcome to live gameplay.
 - Gathering adapters advance independent exact low/high source envelopes. Cooking and Firemaking compare the already-drawn live roll to the authentic source probability and draw no second random value.

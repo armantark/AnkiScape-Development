@@ -6,13 +6,32 @@ from importlib.util import spec_from_loader, module_from_spec
 from pathlib import Path
 
 
+class _FakeHook:
+    """Match Anki's append/remove API without pretending hooks are iterable."""
+
+    def __init__(self):
+        self._hooks = []
+
+    def append(self, callback):
+        self._hooks.append(callback)
+
+    def remove(self, callback):
+        if callback in self._hooks:
+            self._hooks.remove(callback)
+
+    def count(self):
+        return len(self._hooks)
+
+
 class _FakeHooks:
     def __init__(self):
         self.overview_did_refresh = []
         self.overview_will_refresh = []
         self.reviewer_did_show_question = []
         self.reviewer_did_show_answer = []
-        self.webview_did_receive_js_message = []
+        self.deck_browser_will_render_content = _FakeHook()
+        self.deck_browser_did_render = _FakeHook()
+        self.webview_did_receive_js_message = _FakeHook()
 
 
 def _install_runtime_fakes():
@@ -68,7 +87,7 @@ class TestJSBridgeRuntimePassthrough(unittest.TestCase):
         except Exception:
             pass
         aqt = sys.modules["aqt"]
-        handlers = aqt.gui_hooks.webview_did_receive_js_message
+        handlers = aqt.gui_hooks.webview_did_receive_js_message._hooks
         self.assertGreaterEqual(len(handlers), 1)
         # The only one we register should be our handler
         return handlers[-1]
@@ -101,8 +120,11 @@ class TestJSBridgeRuntimePassthrough(unittest.TestCase):
         for _ in range(3):
             addon._register_deck_browser_button()  # type: ignore[attr-defined]
 
-        handlers = sys.modules["aqt"].gui_hooks.webview_did_receive_js_message
+        hooks = sys.modules["aqt"].gui_hooks
+        handlers = hooks.webview_did_receive_js_message._hooks
         self.assertEqual(len(handlers), 1)
+        self.assertEqual(hooks.deck_browser_will_render_content.count(), 1)
+        self.assertEqual(hooks.deck_browser_did_render.count(), 1)
         handled, out = handlers[0](False, "ankiscape_open_menu", None)
         self.assertTrue(handled)
         self.assertEqual(out, "ankiscape_open_menu")

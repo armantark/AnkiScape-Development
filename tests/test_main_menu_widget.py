@@ -2327,7 +2327,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Byproduct: Vial x4", overload.toolTip(0))
         self.assertIn("Extreme ranging (3) x1", overload.toolTip(0))
 
-    def test_herblore_uses_its_skill_icon_and_only_overworld_clean_herbs(self) -> None:
+    def test_herblore_uses_its_skill_icon_and_icons_every_overworld_action(self) -> None:
         pd = _make_player_data()
         pd["herblore_level"] = 99
         pd["current_herblore"] = "clean_guam"
@@ -2345,6 +2345,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         tree = _find_tree_with_user_role(dialog, "clean_guam")
         clean_group = _tree_row(tree, "__herblore_group__:clean")
+        unf_group = _tree_row(tree, "__herblore_group__:unf")
+        finished_group = _tree_row(tree, "__herblore_group__:finished")
 
         self.assertFalse(herblore_item.icon().isNull())
         self.assertEqual(
@@ -2356,8 +2358,15 @@ class MainMenuWidgetTest(unittest.TestCase):
             _icon_pixels(QIcon(os.path.join(_ADDON_DIR, "icon", "achievement_icon.png"))),
         )
         self.assertEqual(clean_group.childCount(), 22)
-        self.assertFalse(_tree_row(tree, "clean_guam").icon(0).isNull())
-        self.assertFalse(_tree_row(tree, "clean_erzille").icon(0).isNull())
+        self.assertEqual(unf_group.childCount(), 22)
+        self.assertEqual(finished_group.childCount(), 69)
+        action_rows = [
+            item
+            for item in _smith_tree_items(tree)
+            if not str(item.data(0, Qt.ItemDataRole.UserRole)).startswith("__herblore_group__:")
+        ]
+        self.assertEqual(len(action_rows), 113)
+        self.assertTrue(all(not item.icon(0).isNull() for item in action_rows))
         self.assertNotIn(
             "clean_sagawort",
             {item.data(0, Qt.ItemDataRole.UserRole) for item in _smith_tree_items(tree)},

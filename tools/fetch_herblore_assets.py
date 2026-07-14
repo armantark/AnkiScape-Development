@@ -3,7 +3,7 @@
 # requires-python = ">=3.9"
 # dependencies = ["pillow>=10"]
 # ///
-"""Fetch the overworld Herblore row art and skill icon from RuneScape Wiki."""
+"""Fetch every live overworld Herblore row asset and the skill-rail icon."""
 
 from __future__ import annotations
 
@@ -14,32 +14,47 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from herblore_data import CLEAN_TARGETS
-from tools.fetch_assets import AssetFetchError, AssetRequest, HttpWikiClient, RS3_WIKI, fetch_asset
+from herblore_data import CLEAN_TARGETS, FINISHED_TARGETS, UNF_TARGETS
+from tools.fetch_assets import (
+    OSRS_WIKI,
+    RS3_WIKI,
+    AssetFetchError,
+    AssetRequest,
+    HttpWikiClient,
+    fetch_asset,
+)
 
 
 def _slug(name: str) -> str:
     return "_".join(part for part in "".join(ch.lower() if ch.isalnum() else " " for ch in name).split())
 
 
+def _wiki_title(output_item: str) -> str:
+    if output_item.endswith(" potion (unf)"):
+        return f"{output_item.removesuffix(' potion (unf)')} potion (unfinished).png"
+    if output_item == "Anti-p supermix (2)":
+        return "Super antipoison mix (2).png"
+    return f"{output_item}.png"
+
+
 def asset_manifest() -> tuple[AssetRequest, ...]:
-    clean_herbs = tuple(
+    live_outputs = tuple(
         AssetRequest(
             item_name=target.output_item,
-            wiki_title=f"{target.output_item}.png",
+            wiki_title=_wiki_title(target.output_item),
             output_path=ROOT / "herbloreitems" / f"{_slug(target.output_item)}.png",
             provenance_path=ROOT / "assets_provenance.json",
         )
-        for target in CLEAN_TARGETS
+        for target in CLEAN_TARGETS + UNF_TARGETS + FINISHED_TARGETS
     )
     return (
         AssetRequest(
             item_name="Herblore skill icon",
-            wiki_title="Herblore detail.png",
+            wiki_title="Herblore icon (detail).png",
             output_path=ROOT / "icon" / "herblore_icon.png",
             provenance_path=ROOT / "assets_provenance.json",
         ),
-        *clean_herbs,
+        *live_outputs,
     )
 
 
@@ -48,7 +63,14 @@ def main() -> int:
     failures = []
     for request in asset_manifest():
         try:
-            outcome = fetch_asset(request, client, size=64, sources=(RS3_WIKI,))
+            is_skill_icon = request.item_name == "Herblore skill icon"
+            outcome = fetch_asset(
+                request,
+                client,
+                size=64,
+                force=is_skill_icon,
+                sources=(OSRS_WIKI,) if is_skill_icon else (RS3_WIKI,),
+            )
             print(f"{outcome.item_name}: {outcome.source_wiki} -> {outcome.output_path}")
         except AssetFetchError as exc:
             failures.append(f"{request.item_name}: {exc}")

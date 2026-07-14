@@ -110,16 +110,19 @@ The durable source/conflict record is `source-audits/prayer-altar-urn-passives-h
 ## Verification Baseline
 
 - The test-signal cleanup and source-backed Thieving branches are merged into
-  `main` at `526f9c2` and `63b0a28`. The quality audit collects 1,215 tests
-  across 65 files with zero hard issues and five advisory clone groups.
+  `main` at `526f9c2` and `63b0a28`. The quality audit now collects 1,219 tests
+  across 66 files with zero hard issues and five advisory clone groups.
 - The merged Thieving behavior set passes 409 focused tests; the focused real
   offscreen Qt Thieving/Herblore surface pair passes 2 tests.
-- Current full Python 3.13 non-Qt discovery passes all 1,215 tests with 182
+- Current full Python 3.13 non-Qt discovery passes all 1,219 tests with 182
   environment skips and three expected failures.
-- Current full real offscreen Anki/Qt discovery passes all 1,215 tests with no
+- Current full real offscreen Anki/Qt discovery passes all 1,219 tests with no
   skips and three expected failures.
 
-- Herblore/menu correction focused pure/data/runtime/asset/storage suites: 330 tests passing; focused real Qt behavior: 2 tests passing.
+- Herblore asset, production-hook, and worktree-guard focused suites: 44 tests
+  passing; focused real Qt Herblore behavior: 2 tests passing. A live Anki
+  restart registers one bridge callback, one click opens one menu, and the
+  corrected compact Herblore rail icon is visible.
 - Compilation and `git diff --check` pass for the correction slice.
 
 - Cadence Phase 3 focused suite: 176 tests passing, three expected failures.

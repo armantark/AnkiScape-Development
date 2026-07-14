@@ -27,7 +27,7 @@ except Exception:
 def _replace_hook_callback(hook, callback, key: str) -> None:
     """Replace this add-on's prior callback, including one left by a reload."""
     callback._ankiscape_hook_key = key
-    for existing in list(hook):
+    for existing in list(getattr(hook, "_hooks", hook)):
         same_key = getattr(existing, "_ankiscape_hook_key", None) == key
         same_callback = (
             getattr(existing, "__module__", None) == getattr(callback, "__module__", None)

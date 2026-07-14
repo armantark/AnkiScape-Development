@@ -8,6 +8,11 @@
 ## Development Setup
 - Source lives directly in an Anki add-ons directory.
 - This working copy should live in `addons21/ankiscape_fork`, not the AnkiWeb-managed numeric folder `addons21/1808450369`.
+- The canonical checkout is the only AnkiScape checkout allowed inside
+  `addons21`. Linked worktrees belong in the sibling
+  `Anki2/ankiscape_worktrees/` directory and must be created/audited through
+  `python3 tools/worktree_guard.py`; otherwise Anki loads each enabled worktree
+  as a separate add-on copy.
 - Future AnkiWeb updates may recreate or update `addons21/1808450369`; treat that folder as upstream and manually diff/merge changes into `ankiscape_fork`.
 - The local working copy is a solo-project git repository on `main`.
 - Tests are run with `python3 run_tests.py`.
@@ -154,9 +159,15 @@ lives in `logic_pure.py`; storage config version 15 adds
 - Run Prayer/provenance fetches sequentially because the shared JSON writer is not concurrency-safe.
 
 ### Herblore asset wiring
-- `uv run tools/fetch_herblore_assets.py` derives its manifest from the live, already-filtered `herblore_data.CLEAN_TARGETS` catalog.
-- It fetches the Herblore detail icon into `icon/herblore_icon.png` and the 22 clean-herb outputs into `herbloreitems/`, all through the RS3-only source path.
-- `HERBLORE_ITEM_IMAGES` is existence-guarded and target metadata looks up each row's output item, so clean actions require clean-herb sprites rather than Farming's grimy-herb sprites.
+- `uv run tools/fetch_herblore_assets.py` derives its manifest from the live,
+  already-filtered `CLEAN_TARGETS + UNF_TARGETS + FINISHED_TARGETS` catalog.
+- The 113 row outputs are fetched through the RS3-only source path. The skill
+  rail intentionally uses OSRS `Herblore icon (detail).png`, the compact icon
+  family used by the other skill rails, rather than modern RS3
+  `Herblore detail.png`.
+- `HERBLORE_ITEM_IMAGES` is existence-guarded and target metadata looks up each
+  row's output item, so clean herbs, unfinished potions, and finished potions
+  render their own sprites.
 - Run the manifest sequentially because every request updates `assets_provenance.json`.
 
 ## Manual Testing Target
