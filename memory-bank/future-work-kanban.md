@@ -88,7 +88,21 @@ Labels: `DEEP GRILL` (closing), `SOURCE AUDIT`.
 - **Pyramid Plunder is EXCLUDED from the skill** and belongs to the Activities program: it grants Strength and Runecrafting XP, gates on a Strength level, spawns a combat NPC, and sells artefacts for up to 12,500 coins (`PyramidPlunder.kt:110-147`, `SimonTempleton.kt:48-61`). Sorceress's Garden, the Rogues' Den maze, and the Thieves' Guild go with it. The Rogues' Den *wall safes* are separable and do ship.
 - The Feud ships with this build (gates blackjacking). Dorgesh-Kaan chests and Lletya elves ship gated and dark behind their quests.
 - Blocked rewards: rogue outfit (×1.025 XP, Rogues' Den maze only) and Ardougne cloak (achievement diaries). Both listed on their owning cards.
-- Source dossier in flight: `memory-bank/source-audits/thieving-source-dossier-2026-07-13.md`. Open question it must close: whether stalls have a per-attempt caught roll at all, and whether the *stall owner* can call you out independently of guards.
+- Source dossier: `memory-bank/source-audits/thieving-source-dossier-2026-07-13.md`.
+- **Owner-settled 2026-07-13 (grill round 2):**
+  - **Ship 2011Scape's pickpocket table wholesale**, pinned `provisional/2011Scape`, including the rows OSRS cannot referee (Paladin, Gnome, Hero — all invalidated by OSRS's May-2024 "Project Rebalance: Skilling"). Cherry-picking Darkan only where the referee is absent would select the source by convenience. The cost of being wrong is small: the two tables agree *exactly* at level 99 on eight of ten rows, and the worst disagreement at any reachable level is 11pp (Rogue), 3.9pp for the Paladin.
+  - **The dossier's `x/y` chance notation is NOT a fraction.** It is `minChance`/`maxChance` — the level-1 and level-99 endpoints of `interpolate(min, max, 1, 99, ceiling=255)` (`PickpocketTarget.kt: fun roll`). The ceiling is 255 for *every* target: one roll shape, not one per denominator. Reading endpoints as fractions manufactures phantom conflicts.
+  - **Stall catching gets ONE global invented constant**, scaled by the stall's *sourced* restock timer, per the standard's "prefer one global constant applied by a sourced rule over a table of fabricated per-row values". Stall theft is positional in the real game (100% success, line-of-sight only), so no period number exists to find.
+  - **Multi-pickpocket and stun/damage**: 2011Scape's values (`random(7) == 1` with the +10/+20/+30 Thieving and +0/+10/+20 Agility overshoot gates, which the period wiki corroborates over Darkan's `getRandomInclusive(50) < 5`).
+  - **Pompous Merchant ships** — on the pinned 2012 wiki page's authority (level 1, 8 XP, 3 coins, stun, 10 LP), not Darkan's. The caches' missing `Pickpocket` option is recorded as a conflict, not a veto.
+  - **Desert Phoenix is NOT a Thieving target.** Both caches show `Grab-feather`; 2011Scape has it only as a spawn, absent from the pickpocket table; the pinned page states no Thieving level. Darkan alone calls it Thieving. It ships as a **Utility activity** yielding one Phoenix feather, gated on The Golem, with no Thieving level and **no XP** — the wiki's "26 XP" never names a skill, and only Darkan claims Thieving.
+  - **Pirates' Hideout chest parks.** Its XP is `?` in the period record itself. Sol to hunt a pre-cutoff value while extracting the tables; ships only if one surfaces.
+
+### Phoenix feather has no source — Super antifire is unmakeable
+
+Labels: `BUG`, `CONTENT GAP`.
+
+`herblore_data.py:188` ships Super antifire (3) at Herblore 85, requiring a Phoenix feather. `grep -rni "phoenix"` finds that recipe line and nothing else: **no action, drop, or shop anywhere in AnkiScape yields a Phoenix feather.** With no Grand Exchange the recipe is a dead end. Phoenix feathers are untradeable in the period game too, so the only authentic route is self-collection — the Desert Phoenix `Grab-feather` Utility activity above closes this. Found incidentally during the Thieving grill; independent of Thieving and should not be gated behind it.
 
 ### Slayer
 
