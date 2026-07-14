@@ -16,6 +16,8 @@ This is a read-only source harvest for the future AnkiScape Agility implementati
 - All XP values are unmodified base XP. Every positive course `addXp` call in the three trusted course files passes `checkBrawlingGloves = true`; brawling gloves are therefore an external XP modifier and must not be baked into these values or applied twice. `[S-GNOME:65,80,95,112,127,146,159,184,242,275,278,281,338,341; S-BARB:85,100,114,139,172,194,196,199,217,235,247,257,268,286,289; S-WILD:131,154,244,257,273]`
 - No XP/hour figure is adopted as an implementation constant. Period wiki rate examples variously include penance horns, brawling gloves, Sköll boots, pendants, Karamja gloves, uninterrupted play, or no failures; they are not base per-obstacle data.
 
+Pinned wiki revisions: Gnome Stronghold `6391497` (`2012-10-12T18:29:49Z`); Barbarian Outpost `6549278` (`2012-11-12T10:22:50Z`); Wilderness `6487716` (`2012-10-28T02:29:46Z`); Burthorpe `6130636` (`2012-08-23T14:17:25Z`); Agility Pyramid `6457748` (`2012-10-23T02:32:50Z`); Ape Atoll `6538325` (`2012-11-06T00:27:47Z`); Werewolf `6288778` (`2012-09-24T05:54:46Z`); Dorgesh-Kaan `6547042` (`2012-11-10T19:12:05Z`); Penguin `5988056` (`2012-07-25T13:51:02Z`); Brimhaven `6556177` (`2012-11-15T03:00:35Z`); Agility Arena ticket `5777910` (`2012-06-19T01:59:09Z`); Pirate Jackie `6225118` (`2012-09-09T21:46:21Z`).
+
 ## Coverage
 
 | Course/activity | 2011Scape? | Pinned wiki oldid | Darkan? | Cache corroborated? | Tier of shipped value |
