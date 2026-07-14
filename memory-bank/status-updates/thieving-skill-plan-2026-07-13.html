@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Thieving Skill — Implementation Plan</title>
+  <style>
+    :root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}
+    *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 20% -15%,#202a43 0,transparent 36%),var(--bg);color:var(--text);font-family:Outfit,Inter,ui-sans-serif,system-ui,-apple-system,sans-serif}.wrap{width:min(1180px,calc(100% - 28px));margin:auto;padding:46px 0 72px}.badge{display:inline-block;padding:7px 10px;border:1px solid #315b9c;border-radius:99px;color:#8cb6ff;background:#111b2d;font:700 11px/1 JetBrains Mono,monospace;letter-spacing:.12em}.hero{display:grid;grid-template-columns:1.25fr .75fr;gap:18px;align-items:end;margin:16px 0 28px}.hero h1{font-size:clamp(38px,6vw,68px);line-height:.98;letter-spacing:-.05em;margin:0}.hero p{color:var(--text-dim);line-height:1.6;margin:0}.panel{border:1px solid var(--border);border-radius:var(--radius);background:linear-gradient(155deg,#181d25,#11141a);padding:22px;margin-top:16px;box-shadow:0 18px 50px rgba(0,0,0,.18)}h2{margin:0 0 7px;font-size:24px}h3{margin:0 0 8px;font-size:17px}.sub{color:var(--text-dim);line-height:1.55;margin:0 0 18px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{padding:17px;border:1px solid var(--border);border-radius:10px;background:#10141b}.metric strong{display:block;font-size:28px;color:#b9d0ff}.metric span{color:var(--text-dim);font-size:12px}.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.step{position:relative;padding:17px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2)}.step b{display:block;color:var(--accent);font:700 11px/1 JetBrains Mono,monospace;margin-bottom:10px}.step p{margin:0;color:#c6cede;line-height:1.45;font-size:13px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.card{padding:18px;border:1px solid var(--border);border-radius:10px;background:#11151c}.label{display:inline-block;font:700 10px/1 JetBrains Mono,monospace;letter-spacing:.1em;text-transform:uppercase;margin-bottom:9px}.backend{color:var(--green)}.frontend{color:var(--purple)}.assets{color:var(--amber)}.verify{color:#72d7ff}.card ul{padding-left:18px;margin:8px 0 0;color:#b6c0d2;line-height:1.55;font-size:13px}.rule{display:grid;grid-template-columns:180px 1fr;gap:14px;padding:14px 0;border-top:1px solid var(--border)}.rule:first-of-type{border-top:0}.rule code{color:#9bc0ff;font-family:JetBrains Mono,monospace;font-size:12px}.rule div{color:#bdc7d8;line-height:1.5;font-size:13px}.gate{border-left:3px solid var(--amber);padding:15px 17px;background:#211c12;border-radius:0 10px 10px 0;color:#dbcba5;line-height:1.55}.tests{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.test{padding:15px;border:1px solid #28523a;border-radius:10px;background:#101c16}.test b{display:block;color:var(--green);margin-bottom:5px}.test span{font-size:12px;color:#a8b8ad;line-height:1.4}.file{display:inline-block;margin:3px 2px;padding:5px 7px;border-radius:6px;background:var(--surface-2);color:#aeb9cb;font:600 10px/1 JetBrains Mono,monospace}@media(max-width:850px){.hero,.grid{grid-template-columns:1fr}.metrics,.flow,.tests{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.metrics,.flow,.tests{grid-template-columns:1fr}.rule{grid-template-columns:1fr}.wrap{padding-top:26px}}
+  </style>
+</head>
+<body><main class="wrap">
+  <span class="badge">PRE-IMPLEMENTATION PLAN · FROZEN</span>
+  <section class="hero"><h1>Thieving becomes a real skill.</h1><p>One source-led slice for pickpockets, stalls, wall safes, blackjacking, failure stakes, loot, UI, assets, quest gates, and exact cadence—without touching another skill's balance.</p></section>
+  <section class="metrics">
+    <div class="metric"><strong>1</strong><span>isolated branch and worktree</span></div>
+    <div class="metric"><strong>4</strong><span>engine-native Thieving loops</span></div>
+    <div class="metric"><strong>0</strong><span>invented source values allowed</span></div>
+    <div class="metric"><strong>1,219</strong><span>baseline regression tests</span></div>
+  </section>
+
+  <section class="panel"><h2>Execution sequence</h2><p class="sub">Each gate produces something independently reviewable; the primary agent owns integration, source judgment, and final closure.</p><div class="flow">
+    <div class="step"><b>01 · EXTRACT</b><p>Read the actual 2011Scape tables and pin every number to file:line evidence.</p></div>
+    <div class="step"><b>02 · BUILD</b><p>Add pure data/mechanics, storage, cadence, failure state, loot, and dispatch.</p></div>
+    <div class="step"><b>03 · SURFACE</b><p>Wire the Skills hub, controls, tooltips, items, icons, achievements, and gates.</p></div>
+    <div class="step"><b>04 · PROVE</b><p>Measure stall XP/hour, exercise real handlers and undo, then run both complete suites.</p></div>
+  </div></section>
+
+  <section class="panel"><h2>Explicit workstreams</h2><p class="sub">Backend and frontend stay separate in implementation and verification, even though they land as one coherent skill.</p><div class="grid">
+    <article class="card"><span class="label backend">Backend</span><h3>Source-shaped mechanics</h3><ul><li>Stable target data for pickpockets, stalls, wall safe, and source-closed blackjack rows.</li><li>Interpolation against 255, multi-pickpocket, loot, damage, stun, shared LP, and food substrate.</li><li>Exact rational stall residuals through the shipped cadence kernel.</li><li>Additive storage migration, action dispatch, achievements, quest gates, and Phoenix-feather Utility route.</li></ul></article>
+    <article class="card"><span class="label frontend">Frontend</span><h3>Ordinary Skills-hub experience</h3><ul><li>Thieving graduates from planned to complete with grouped target rows.</li><li>Level/quest/item locks are normal disabled rows; no special “input-starved” UI.</li><li>Three casual controls total, including “Fight back when caught”; advanced editors own deeper control.</li><li>Stats, Bank, HUD, failure feedback, and real offscreen Qt coverage.</li></ul></article>
+    <article class="card"><span class="label assets">Assets</span><h3>First-class visual identity</h3><ul><li>Detail-resolution Thieving skill icon.</li><li>Visible NPC/stall/loot/blackjack/activity icons with recorded provenance.</li><li>Period cache or verified RuneScape Wiki art preferred; no silent OSRS substitution.</li><li>Manifest/path existence tests and text-only fallback only for genuinely unresolved single icons.</li></ul></article>
+    <article class="card"><span class="label verify">Balance & evidence</span><h3>No free parameters</h3><ul><li>Source XP remains untouched; cadence corrects rates.</li><li>Stall catch chance stays zero; wall safe keeps its only explicit failure roll.</li><li>Level inversion ships honestly; no world-hop abstraction.</li><li>2011Scape silence parks a row as <code>source_blocked</code>, even when Darkan has a lead.</li></ul></article>
+  </div></section>
+
+  <section class="panel"><h2>Non-negotiable mechanics</h2><p class="sub">These are acceptance contracts, not implementation suggestions.</p>
+    <div class="rule"><code>pickpocket</code><div>Linear endpoint interpolation across levels 1–99, rolled against the single fixed ceiling 255; failures consume the review, damage shared LP, and set a one-review stun-clearing state.</div></div>
+    <div class="rule"><code>stall cadence</code><div><code>rate_limited_profile_pure("thieving:" + stall_id, 6000, respawn_ticks)</code>; vegetable, baker, and wall safe explicitly declare <code>cap_one_action</code>.</div></div>
+    <div class="rule"><code>stall failure</code><div>Ordinary stalls have no invented catch roll. Positional guards are omitted because AnkiScape has no location layer. Wall safe alone uses endpoints 8→160 against 255.</div></div>
+    <div class="rule"><code>failure stake</code><div>The next review clears Thieving stun and performs no action. “Fight back when caught” is one shared toggle for caught-stall and blackjack-thug handling.</div></div>
+    <div class="rule"><code>evidence</code><div>Every shipped number lands in the Thieving tables audit with actual source file:line or pinned wiki oldid; dossier shorthand never supplies data.</div></div>
+  </section>
+
+  <section class="panel"><h2>Source gate</h2><p class="gate">The brief asks blackjacking and The Feud to ship, while the implementation contract also says 2011Scape-silent rows cannot inherit Darkan values. The extraction pass must prove every required blackjack value from 2011Scape or a pinned period wiki revision. Any unproved concrete value parks that row rather than being guessed; a true contradiction in the settled contract stops implementation for a direct report.</p></section>
+
+  <section class="panel"><h2>Verification ladder</h2><p class="sub">A small number of behavior-rich tests must prove the actual contracts.</p><div class="tests">
+    <div class="test"><b>Unit</b><span>tables, exact fractions, rolls, loot, stun, damage, cadence profiles</span></div>
+    <div class="test"><b>Integration</b><span>real review handlers, XP/items/LP, quest locks, storage, Phoenix activity</span></div>
+    <div class="test"><b>End-to-end</b><span>fixed-seed pickpocket/stall/safe/blackjack flows and exact undo rollback</span></div>
+    <div class="test"><b>Offscreen Qt</b><span>skill card, grouped rows, disabled clicks, controls, tooltips, dark-mode copy</span></div>
+  </div><p style="margin:18px 0 0"><span class="file">thieving_data.py</span><span class="file">logic_pure.py</span><span class="file">runtime_actions.py</span><span class="file">target_metadata.py</span><span class="file">ui.py</span><span class="file">storage_pure.py</span><span class="file">item_registry.py</span><span class="file">quest_data.py</span></p></section>
+</main></body></html>
