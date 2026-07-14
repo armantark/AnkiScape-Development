@@ -92,6 +92,22 @@ class TestJSBridgeRuntimePassthrough(unittest.TestCase):
         handled, out = h(True, "ankiscape_log:foo", None)
         self.assertTrue(handled)
 
+    def test_repeated_setup_keeps_one_menu_handler_and_one_open(self):
+        addon = _load_addon_as_package()
+        addon.ui.is_main_menu_open = lambda: False
+        opens = []
+        addon._on_main_menu = lambda: opens.append("open")
+
+        for _ in range(3):
+            addon._register_deck_browser_button()  # type: ignore[attr-defined]
+
+        handlers = sys.modules["aqt"].gui_hooks.webview_did_receive_js_message
+        self.assertEqual(len(handlers), 1)
+        handled, out = handlers[0](False, "ankiscape_open_menu", None)
+        self.assertTrue(handled)
+        self.assertEqual(out, "ankiscape_open_menu")
+        self.assertEqual(opens, ["open"])
+
 
 if __name__ == "__main__":
     unittest.main()

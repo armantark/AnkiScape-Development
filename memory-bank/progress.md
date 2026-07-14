@@ -90,6 +90,10 @@ The durable source/conflict record is `source-audits/prayer-altar-urn-passives-h
 
 ## Verification Baseline
 
+- Herblore/menu correction focused pure/data/runtime/asset/storage suites: 330 tests passing; focused real Qt behavior: 2 tests passing.
+- Current full discovery contains 1,228 tests. Python 3.13 non-Qt reports 1,035 passes, 188 environment skips, 3 expected failures, and 2 failures; real offscreen Qt reports 1,223 passes, 3 expected failures, and the same 2 failures. Both failures are pre-existing `test_quest_combat_stat_gap_audit` expectations reproduced unchanged on `main` against the current local Darkan cache. The system `python3` is 3.9 and additionally cannot import `tools/generate_equipment_data.py` because that existing module uses PEP 604 union syntax.
+- Compilation and `git diff --check` pass for the correction slice.
+
 - Cadence Phase 3 focused suite: 176 tests passing, three expected failures.
 - Phase 3 full non-Qt discovery: 1,219 tests passing, 187 skips, three expected failures.
 - Phase 3 full real offscreen Qt discovery: 1,219 tests passing, three expected failures.

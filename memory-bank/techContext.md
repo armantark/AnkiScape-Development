@@ -153,5 +153,11 @@ lives in `logic_pure.py`; storage config version 15 adds
 - Bonecrusher and Ectoplasmator live at `prayeritems/bonecrusher.png` and `prayeritems/ectoplasmator.png`; `tests/test_urns.py` requires `source_wiki == "rs3"` for both provenance rows.
 - Run Prayer/provenance fetches sequentially because the shared JSON writer is not concurrency-safe.
 
+### Herblore asset wiring
+- `uv run tools/fetch_herblore_assets.py` derives its manifest from the live, already-filtered `herblore_data.CLEAN_TARGETS` catalog.
+- It fetches the Herblore detail icon into `icon/herblore_icon.png` and the 22 clean-herb outputs into `herbloreitems/`, all through the RS3-only source path.
+- `HERBLORE_ITEM_IMAGES` is existence-guarded and target metadata looks up each row's output item, so clean actions require clean-herb sprites rather than Farming's grimy-herb sprites.
+- Run the manifest sequentially because every request updates `assets_provenance.json`.
+
 ## Manual Testing Target
 Manual verification should happen inside Anki when runtime behavior changes. Browser-based Pinchtab testing is only relevant if the change introduces browser-rendered surfaces that can be exercised outside Anki.

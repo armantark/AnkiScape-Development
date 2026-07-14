@@ -24,6 +24,23 @@ except Exception:
             pass
 
 
+def _replace_hook_callback(hook, callback, key: str) -> None:
+    """Replace this add-on's prior callback, including one left by a reload."""
+    callback._ankiscape_hook_key = key
+    for existing in list(hook):
+        same_key = getattr(existing, "_ankiscape_hook_key", None) == key
+        same_callback = (
+            getattr(existing, "__module__", None) == getattr(callback, "__module__", None)
+            and getattr(existing, "__name__", None) == getattr(callback, "__name__", None)
+        )
+        if same_key or same_callback:
+            try:
+                hook.remove(existing)
+            except Exception:
+                pass
+    hook.append(callback)
+
+
 # --- Pure JS builders (testable) ---
 
 def should_force_pass_through(message: object) -> bool:
@@ -615,29 +632,29 @@ def register_deck_browser_button() -> None:
             _debug_log("_did_render: eval failed")
 
     try:
-        try:
-            _hooks.deck_browser_will_render_content.remove(_add_button)
-        except Exception:
-            pass
-        _hooks.deck_browser_will_render_content.append(_add_button)
+        _replace_hook_callback(
+            _hooks.deck_browser_will_render_content,
+            _add_button,
+            "deck_browser_will_render_content",
+        )
         _debug_log("registered: deck_browser_will_render_content")
     except Exception as e:
         _debug_log(f"register failed: deck_browser_will_render_content: {e}")
     try:
-        try:
-            _hooks.deck_browser_did_render.remove(_did_render)
-        except Exception:
-            pass
-        _hooks.deck_browser_did_render.append(_did_render)
+        _replace_hook_callback(
+            _hooks.deck_browser_did_render,
+            _did_render,
+            "deck_browser_did_render",
+        )
         _debug_log("registered: deck_browser_did_render")
     except Exception as e:
         _debug_log(f"register failed: deck_browser_did_render: {e}")
     try:
-        try:
-            _hooks.webview_did_receive_js_message.remove(_on_js_message)
-        except Exception:
-            pass
-        _hooks.webview_did_receive_js_message.append(_on_js_message)
+        _replace_hook_callback(
+            _hooks.webview_did_receive_js_message,
+            _on_js_message,
+            "webview_did_receive_js_message",
+        )
         _debug_log("registered: webview_did_receive_js_message")
     except Exception as e:
         _debug_log(f"register failed: webview_did_receive_js_message: {e}")

@@ -20,6 +20,7 @@ try:
     from .firemaking_data import DEFAULT_FIREMAKING_TARGET, FIREMAKING_TARGETS_BY_ID
     from .fishing_data import DEFAULT_FISHING_TARGET, FISHING_METHODS_BY_ID
     from .hunter_data import DEFAULT_HUNTER_TARGET, HUNTER_TARGETS_BY_ID
+    from .herblore_data import DEFAULT_HERBLORE_TARGET, HERBLORE_TARGETS_BY_ID
     from .fletching_data import DEFAULT_FLETCHING_TARGET, FLETCHING_TARGETS_BY_ID, LEGACY_FLETCHING_TARGETS
     from .logic_pure import (
         default_action_telemetry_pure,
@@ -67,6 +68,7 @@ except ImportError:
     from firemaking_data import DEFAULT_FIREMAKING_TARGET, FIREMAKING_TARGETS_BY_ID
     from fishing_data import DEFAULT_FISHING_TARGET, FISHING_METHODS_BY_ID
     from hunter_data import DEFAULT_HUNTER_TARGET, HUNTER_TARGETS_BY_ID
+    from herblore_data import DEFAULT_HERBLORE_TARGET, HERBLORE_TARGETS_BY_ID
     from fletching_data import DEFAULT_FLETCHING_TARGET, FLETCHING_TARGETS_BY_ID, LEGACY_FLETCHING_TARGETS
     from logic_pure import (
         default_action_telemetry_pure,
@@ -320,6 +322,13 @@ def _migrate_runecrafting_target(data: Dict[str, Any]) -> None:
     if not isinstance(current_runecrafting, str) or current_runecrafting not in RUNECRAFTING_TARGETS_BY_ID:
         current_runecrafting = DEFAULT_RUNECRAFTING_TARGET
     data["current_runecrafting"] = current_runecrafting
+
+
+def _migrate_herblore_target(data: Dict[str, Any]) -> None:
+    current_herblore = data.get("current_herblore")
+    if not isinstance(current_herblore, str) or current_herblore not in HERBLORE_TARGETS_BY_ID:
+        current_herblore = DEFAULT_HERBLORE_TARGET
+    data["current_herblore"] = current_herblore
 
 
 def _migrate_quest_state(data: Dict[str, Any]) -> None:
@@ -716,6 +725,7 @@ def migrate_loaded_data(
     _migrate_hunter_target(data)
     _migrate_cooking_target(data)
     _migrate_runecrafting_target(data)
+    _migrate_herblore_target(data)
     _migrate_quest_state(data)
     _migrate_quest_stage_side_state(data)
     _migrate_pending_skill_exp_rewards(data)

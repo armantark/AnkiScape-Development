@@ -528,6 +528,25 @@ class TestStoragePure(unittest.TestCase):
         self.assertIn("Burnt shrimp", migrated["inventory"])
         self.assertEqual(COOKING_DATA["cook_shrimps"]["output_item"], "Shrimps")
 
+    def test_migrate_deferred_daemonheim_herblore_target_without_losing_items(self):
+        migrated = migrate_loaded_data(
+            {
+                "current_herblore": "clean_sagawort",
+                "inventory": {
+                    "Grimy sagewort": 2,
+                    "Clean sagewort": 1,
+                    "Strong survivalist's potion": 3,
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["current_herblore"], "clean_guam")
+        self.assertEqual(migrated["inventory"]["Grimy sagewort"], 2)
+        self.assertEqual(migrated["inventory"]["Clean sagewort"], 1)
+        self.assertEqual(migrated["inventory"]["Strong survivalist's potion"], 3)
+
     def test_migrate_hunter_target_to_stable_default_and_seeds_items(self):
         migrated = migrate_loaded_data(
             {"current_hunter": "Not a creature", "inventory": {"Mystery catch": 3}},
