@@ -303,7 +303,58 @@ The cache corroborates names and client options—examples include `Signpost [Ru
 
 ## Per-obstacle result table
 
-TODO
+Define the recovered period expression once:
+
+```text
+F(L; low, high) = 1 - clamp(
+    floor(low * (99-L) / 98)
+  + floor(high * (L-1) / 98)
+  + 1,
+  0, 256) / 256
+```
+
+`F` is the failure probability; the roll has 256 outcomes (`0..255`). “Blocked” means at least one expression parameter is absent or disqualified—not that failure behavior itself is unknown.
+
+| Course / failable obstacle | Result | Tier and gate disposition |
+|---|---|---|
+| Gnome advanced — signpost | `source_blocked`: RS3 `-1780/496` predicts `33.203125%` failure at 85, contradicting the period `40–50%` observation ([`oldid 36847895`](https://runescape.wiki/?oldid=36847895)). | RS3 Tier 4 lead rejected; no OSRS course. |
+| Barbarian normal — rope swing | `F(L;200,280)` ([`oldid 15232854`](https://oldschool.runescape.wiki/?oldid=15232854)) | **Tier 3.** RS 2007→2012 pass; OSRS course-rate pass; global 2023 formula contamination recovered. |
+| Barbarian normal — log balance | `F(L;180,260)` ([`oldid 15232855`](https://oldschool.runescape.wiki/?oldid=15232855)) | **Tier 3**, same gates; this row reaches certainty at the sourced level 93. |
+| Barbarian normal — balancing ledge | `F(L;200,280)` ([`oldid 15232856`](https://oldschool.runescape.wiki/?oldid=15232856)) | **Tier 3**, same gates. |
+| Barbarian advanced — “several”, log explicitly | `source_blocked`: full failable set and endpoints missing; RS3 charts only the balance beam. | OSRS bridge fails because advanced course was added in 2009; partial Tier 4 is insufficient. |
+| Wilderness access walkway | `source_blocked`: no endpoints and no mastery point. | No OSRS/RS3 chart; emulator value has no provenance. |
+| Wilderness main — rope swing | `F(L;200,250)` ([`oldid 15219008`](https://oldschool.runescape.wiki/?oldid=15219008)) | **Tier 3.** RS roll gate pass; OSRS course-rate pass; global formula recovered. |
+| Wilderness main — third stepping stone | `F(L;180,250)` ([`oldid 15210051`](https://oldschool.runescape.wiki/?oldid=15210051)) | **Tier 3**, same gates. |
+| Wilderness main — log balance | `F(L;200,250)` ([`oldid 15232857`](https://oldschool.runescape.wiki/?oldid=15232857)) | **Tier 3**, same gates. |
+| Burthorpe — log beam | `F(L;153,1263)`, bypassed after three completed laps ([`oldid 36872294`](https://runescape.wiki/?oldid=36872294)) | **Tier 4.** No OSRS bridge (course added 2012); RS3 post-cutoff rate history passes. |
+| Burthorpe — obstacle low wall | `F(L;153,1263)`, same three-lap bypass ([`oldid 36872295`](https://runescape.wiki/?oldid=36872295)) | **Tier 4**, same gates. |
+| Pyramid — rolling blocks | `source_blocked`: OSRS/RS3 `168/320` is disqualified by the 2009 code change and period observation conflict. | Tier 3/4 leads rejected. |
+| Pyramid — low walls | `source_blocked`: `245/255` disqualified by the same gates/conflict. | Tier 3/4 leads rejected. |
+| Pyramid — moving blocks | `source_blocked`: no endpoint pair in any source. | No formula lead. |
+| Pyramid — cross ledges | `source_blocked`: `181/320` disqualified. | Tier 3/4 leads rejected. |
+| Pyramid — planks | `source_blocked`: `166/340` disqualified. | Tier 3/4 leads rejected. |
+| Pyramid — cross gaps | `source_blocked`: `180/308` disqualified. | Tier 3/4 leads rejected. |
+| Pyramid — jump gaps | `source_blocked`: `185/329` disqualified. | Tier 3/4 leads rejected. |
+| Ape Atoll — final climb-down tree | `source_blocked`: period cutoff is known, but endpoint pair is not. | RS 2007→2012 pass; OSRS post-2013 failure change fails; RS3 2016 rate change contaminates `120/325`. |
+| Werewolf — deathslide | `source_blocked`: exact Agility/Strength/weight expression and endpoints absent. | Both branch leads lack a recoverable curve. |
+| Dorgesh-Kaan — cables | `source_blocked`: endpoint pairs absent. | RS history fails; OSRS absent; RS3 incomplete. |
+| Dorgesh-Kaan — ladders | `source_blocked`: one modern `-319/360` ladder lead does not cover the period behavior. | Partial Tier 4 lead rejected. |
+| Penguin — ice crushers | `source_blocked`: no endpoint pair. | OSRS and RS3 both lack a period-valid pair. |
+| Penguin — platform/stepping-stone rolls after the safe first jump | `F(L;155,308)` ([`oldid 15201377`](https://oldschool.runescape.wiki/?oldid=15201377)) | **Tier 3.** RS 2007→2012 pass; OSRS course pass; global formula recovered. |
+| Penguin — four icicle rolls | `F(L;155,308)` each ([`oldid 15201378`](https://oldschool.runescape.wiki/?oldid=15201378)) | **Tier 3**, same gates. |
+| Penguin — ice slope (except safe final step) | `source_blocked`: no period-valid endpoint pair. | RS3 `140/366` is contaminated by the 2016 rate reduction. |
+| Brimhaven — rope swing | `F(L;100,310)` | **Tier 4**, [`Avenue 4 endpoint source`](#brimhaven-tier-4-endpoint-set); RS3 post-cutoff pass. |
+| Brimhaven — low wall | `F(L;220,460)` | **Tier 4**, same gate/source. |
+| Brimhaven — log balance | `F(L;180,420)` | **Tier 4**, same gate/source. |
+| Brimhaven — balancing ledge | `F(L;140,370)` | **Tier 4**, same gate/source. |
+| Brimhaven — pillars | `F(L;120,340)` | **Tier 4**, same gate/source. |
+| Brimhaven — monkey bars | `F(L;160,400)` | **Tier 4**, same gate/source. |
+| Brimhaven — balancing rope | `F(L;200,440)` | **Tier 4**, same gate/source. |
+| Brimhaven — floor spikes | `F(L;60,250)` | **Tier 4**, same gate/source. |
+| Brimhaven — pressure pads | `F(L;40,230)` | **Tier 4**, same gate/source. |
+| Brimhaven — hand holds | `F(L;80,280)` | **Tier 4**, same gate/source. |
+| Brimhaven — spinning blades | `F(L;30,210)`; predicts `34.375%` failure at level 76 versus observed `34/100`. | **Tier 4**, independently period-corroborated. |
+| Brimhaven — darts | `F(L;20,190)` | **Tier 4**, same gate/source. |
 
 ## Synthesis: can Agility ship with zero invented constants?
 
