@@ -295,7 +295,11 @@ That is effectively exact agreement with the period controlled result `34 failur
 
 ## Avenue 5 — OpenRS2 cache completeness check
 
-TODO
+The bounded cache check used the latest pre-cutoff local cache, OpenRS2 revision `742` dated `2012-11-07`, through `tools/query_openrs2_cache_definitions.sh`. A single ID query covered representative and grouped failable objects from every course: Gnome signpost `43581`; Barbarian rope/log/ledge `43526/43595/2302`; Wilderness rope/log `2283/2297`; Burthorpe `66894/66902`; Pyramid stone/wall/ledge/plank/gaps `10859–10885`; Werewolf zip lines `5139–5141`; Dorgesh-Kaan cables/ladders `22564/22569/22572`; Penguin `21120–21156`; and Brimhaven `3551–3583`.
+
+The cache corroborates names and client options—examples include `Signpost [Run-across]`, `Log beam [Walk]`, `Zip line [Teeth-grip]`, `Cable [Walk-across]`, `Icicles [Tread-softly]`, and the full Brimhaven interaction set. It exposes **no server roll, endpoint, probability, mastery cutoff, or chance parameter**. That absence is expected: object definitions tell the client what an object is and which menu option to show; the failure decision is server-side.
+
+**Verdict:** the cache adds no formula and changes no row. It corroborates obstacle identity only; it never supplies a value.
 
 ## Per-obstacle result table
 
