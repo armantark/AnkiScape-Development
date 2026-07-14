@@ -2,7 +2,7 @@
 
 ## Current Baseline — 2026-07-13
 
-AnkiScape now has 15 complete skill surfaces, five partial Combat-trained skills, and five planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is a historical snapshot.
+AnkiScape now has 16 complete skill surfaces, five partial Combat-trained skills, and four planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is a historical snapshot.
 
 Phase 1 of the cadence kernel is complete on `main` at `b45aff0`. It
 adds a dormant pure scheduler, additive config-v34 route residuals, the strict
@@ -14,7 +14,8 @@ six in-scope adapters record current and proposed outcomes without mutating live
 gameplay. The 175-route catalog has 24 source-ready routes and 151 explicit
 `source_blocked` routes. Exact range envelopes, embedded Cooking/Firemaking
 source rolls, overflow declarations, save/load sanitation, reporting, and
-review undo are covered. Combat and Thieving are untouched.
+review undo are covered. Combat and the now-separately-shipped Thieving surface
+remain outside the cadence experiment.
 
 ## Complete Skill Surfaces
 
@@ -98,7 +99,7 @@ The durable source/conflict record is `source-audits/prayer-altar-urn-passives-h
 
 ## Remaining Programs
 
-- Five planned skill loops.
+- Four planned skill loops.
 - Full Combat/equipment/enemy/boss/instance breadth.
 - Quest-by-quest fidelity across all 194 rows.
 - Activities, minigames, D&Ds, reward currencies/shops, and timed events.
@@ -108,17 +109,23 @@ The durable source/conflict record is `source-audits/prayer-altar-urn-passives-h
 
 ## Verification Baseline
 
+- The test-signal cleanup and source-backed Thieving branches are merged into
+  `main` at `526f9c2` and `63b0a28`. The quality audit collects 1,215 tests
+  across 65 files with zero hard issues and five advisory clone groups.
+- The merged Thieving behavior set passes 409 focused tests; the focused real
+  offscreen Qt Thieving/Herblore surface pair passes 2 tests.
+- Current full Python 3.13 non-Qt discovery passes all 1,215 tests with 182
+  environment skips and three expected failures.
+- Current full real offscreen Anki/Qt discovery passes all 1,215 tests with no
+  skips and three expected failures.
+
 - Herblore/menu correction focused pure/data/runtime/asset/storage suites: 330 tests passing; focused real Qt behavior: 2 tests passing.
-- Current full discovery contains 1,228 tests. Python 3.13 non-Qt reports 1,035 passes, 188 environment skips, 3 expected failures, and 2 failures; real offscreen Qt reports 1,223 passes, 3 expected failures, and the same 2 failures. Both failures are pre-existing `test_quest_combat_stat_gap_audit` expectations reproduced unchanged on `main` against the current local Darkan cache. The system `python3` is 3.9 and additionally cannot import `tools/generate_equipment_data.py` because that existing module uses PEP 604 union syntax.
 - Compilation and `git diff --check` pass for the correction slice.
 
 - Cadence Phase 3 focused suite: 176 tests passing, three expected failures.
 - Phase 3 full non-Qt discovery: 1,219 tests passing, 187 skips, three expected failures.
 - Phase 3 full real offscreen Qt discovery: 1,219 tests passing, three expected failures.
 - Cadence Phase 1 targeted suite: 11 tests passing.
-- `python3 -m unittest discover -s tests -q` on `main`: 1,209 tests passing, 187
-  skips, three expected failures. The concurrent test-signal cleanup was
-  extracted from `main` at `7f3c0a1` and does not affect this count.
 - Focused Prayer/passive/urn/logic/combat/Construction/runtime/storage/integration/Farming: 626 tests passing.
 - Independent backend audit superset: 663 tests passing.
 - `python3 run_tests.py`: 1,198 tests passing, 187 skips, 3 expected failures.

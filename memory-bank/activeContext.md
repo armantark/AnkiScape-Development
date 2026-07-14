@@ -20,12 +20,11 @@ adds only the empty route-keyed `cadence_profiles` state;
 dispatch. No skill is routed through the kernel for live mutation. The Phase 3
 branch runs 1,219 tests with 187 non-Qt skips and three expected failures.
 
-A concurrent test-signal cleanup briefly shared this checkout and was extracted
-at `7f3c0a1`; it now lives on the `codex/test-signal-cleanup` branch in its own
-worktree. It is unrelated to the cadence work and does not affect `main`'s
-counts. One finding from it is worth re-landing there: `tests/
-test_js_bridge_contract.py` is written in pytest style in a `unittest discover`
-repository, so both of its tests collect as zero and have never executed.
+The test-signal cleanup is merged into `main` at `526f9c2`. It removed
+low-signal structural tests, converted the previously uncollected pytest-style
+JavaScript bridge checks to `unittest`, and added the durable quality contract
+in `memory-bank/test-quality-standard.md`. The audit now collects 1,215 tests
+across 65 files with zero hard issues; its five clone groups are advisory.
 
 The Prayer/altar/urn/passive/Herblore closure is implemented, fully certified, and committed on `main` at `300c7c5`. It extends the original Prayer ship with owned gilded-altar parity, all 26 pre-EOC training-urn tiers across six skills, target-carried Bonecrusher/Ectoplasmator behavior, direct full-urn teleport with an independent bounded Anki undo stack, exact high-tier standard-Prayer Defence gates, and distinct Bonemeal/Wyvern bonemeal storage identities.
 
@@ -96,7 +95,7 @@ The dated `completion-audit-2026-07-10.*` files remain historical snapshots; liv
 
 ## Next Recommended Work
 
-1. Resume the canonical Kanban rather than reopening Prayer: finish the active Thieving grill/source dossier or take the next owner-selected missing-skill program.
+1. Resume the canonical Kanban rather than reopening Prayer or Thieving: take the next owner-selected missing-skill program.
 2. Close reachability roots only through authentic owning skills, activities, Combat drops, quests, shops, spawns, claims, and item actions.
 3. When Darkan reaches a stable milestone, rerun parked hidden-server audits against that pinned source surface.
 
@@ -111,7 +110,7 @@ The dated `completion-audit-2026-07-10.*` files remain historical snapshots; liv
 
 ## Thieving closure (2026-07-13)
 
-Thieving is now a complete Support skill on `codex/thieving-skill`. It ships the
+Thieving is now a complete Support skill on `main`, merged at `63b0a28`. It ships the
 full 2011Scape pickpocket and stall tables, exact inclusive integer rolls,
 multi-pick, shared-LP damage plus one-review stun recovery, rational stall
 cadence, wall safes, and the complete Menaphite lure/knockout/two-pick loop.
