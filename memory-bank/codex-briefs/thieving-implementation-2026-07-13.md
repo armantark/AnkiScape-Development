@@ -31,7 +31,12 @@ Thieving is done when all of the following hold:
    twelve — target selection, XP, levels, the skill hub, the main menu.
 2. **Pickpocketing** ships 2011Scape's table wholesale, with the interpolation
    roll (`chance = (minChance + (maxChance-minChance)*(level-1)/98) / 255`), the
-   multi-pickpocket rule, and stun/damage on failure.
+   multi-pickpocket rule, and stun/damage on failure. Note that
+   `agilityLevelOvershoot` is Agility minus the *Thieving target's* level, and
+   Agility is still a stub capped at 66 by quest XP, so multi-pickpocket will
+   fire rarely at the top end and never for the Hero. That is expected and
+   accepted — see the contract. **Ship the sourced thresholds unchanged**; do not
+   compensate for the missing Agility skill by tuning them.
 3. **Stalls** are paced by the cadence kernel. Each stall's profile is exactly:
    ```python
    rate_limited_profile_pure(f"thieving:{stall_id}", 6000, respawn_ticks)

@@ -133,6 +133,21 @@ return if (thievingLevelOvershoot >= 10 && agilityLevelOvershoot >= 0 && player.
 
 Stun and damage on a failed pickpocket: 2011Scape's values.
 
+**Known and accepted: multi-pickpocket is degraded until Agility ships.**
+`agilityLevelOvershoot` is the player's *Agility* level minus the **Thieving
+target's** level (`Pickpocketing.kt:101`) — not minus an Agility requirement. So
+a Knight of Ardougne (Thieving 55) needs Agility >= 55 to double, >= 65 to
+triple, >= 75 to quadruple. The pinned rates already encode this: the Gnome's
+150,000/hr row declares its modifiers as `("multi-loot", "85 Agility")`
+(`sourced_xp_rates.py:83`).
+
+Agility is a stub (`skill_registry.py:251`, `surface_state="planned"`) whose only
+XP sources are quest rewards, capping a completionist at **level 66**. The rule
+therefore fires correctly but rarely at the top end, and never for the Hero
+(Thieving 80). **Ship the rule as written anyway** — it is the sourced rule, it
+degrades gracefully, and it heals on its own the day Agility ships. Do not
+compensate for the missing Agility skill by altering the thresholds.
+
 ## Failure stake (owner-settled, round 1)
 
 A failed attempt costs the review, applies the sourced damage to the **shared
