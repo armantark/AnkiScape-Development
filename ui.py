@@ -314,6 +314,7 @@ try:
         construction_target_rows,
         runecrafting_target_rows,
         smithing_target_rows,
+        thieving_target_rows,
         utility_activity_rows,
         woodcutting_target_rows,
     )
@@ -334,6 +335,7 @@ except Exception:
         construction_target_rows,
         runecrafting_target_rows,
         smithing_target_rows,
+        thieving_target_rows,
         utility_activity_rows,
         woodcutting_target_rows,
     )
@@ -342,6 +344,37 @@ try:
     from .construction_data import NAIL_DATA, ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA, WORKBENCH_TIERS
 except Exception:
     from construction_data import NAIL_DATA, ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA, WORKBENCH_TIERS  # type: ignore
+
+try:
+    from . import thieving_data as _thieving_data
+except ImportError:
+    try:
+        import thieving_data as _thieving_data  # type: ignore
+    except ImportError:  # The data table may land after this isolated UI slice.
+        _thieving_data = None
+
+THIEVING_TARGETS = getattr(_thieving_data, "THIEVING_TARGETS", {})
+THIEVING_GROUP_LABELS = getattr(
+    _thieving_data,
+    "THIEVING_GROUP_LABELS",
+    {
+        "pickpocketing": "Pickpocketing",
+        "stalls": "Stalls",
+        "safes": "Safes",
+        "blackjacking": "Blackjacking",
+    },
+)
+THIEVING_GROUP_ORDER = tuple(
+    getattr(
+        _thieving_data,
+        "THIEVING_GROUP_ORDER",
+        ("pickpocketing", "stalls", "safes", "blackjacking"),
+    )
+)
+DEFAULT_THIEVING_TARGET = str(
+    getattr(_thieving_data, "DEFAULT_THIEVING_TARGET", "pickpocket_man")
+)
+THIEVING_ITEM_IMAGES = getattr(_thieving_data, "THIEVING_ITEM_IMAGES", {})
 
 try:
     from .shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS, SHOP_PLAYER_BUY_PRICES
@@ -846,6 +879,12 @@ def grouped_inventory(inventory: dict) -> list:
 
 # Built once: storage_key -> ItemDefinition (category + asset_path lookups).
 _ITEM_DEFS_BY_KEY = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+THIEVING_ITEM_IMAGES = {
+    target_id: definition.asset_path
+    for target_id, item_name in THIEVING_ITEM_IMAGES.items()
+    for definition in (_ITEM_DEFS_BY_KEY.get(item_name),)
+    if definition is not None and definition.asset_path
+}
 
 def get_config_bool(key: str, default: bool = True) -> bool:
     """Safely read a boolean config from Anki's profile; fallback to default when unavailable.
@@ -2084,6 +2123,8 @@ def show_main_menu(
     on_set_cooking=None,
     on_set_runecrafting=None,
     on_set_herblore=None,
+    on_set_thieving=None,
+    on_set_thieving_fight_back=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
     on_set_construction=None,
@@ -2312,6 +2353,20 @@ def show_main_menu(
         except Exception:
             return False
 
+    def _thieving_available() -> bool:
+        try:
+            rows = thieving_target_rows(
+                player_data,
+                THIEVING_TARGETS,
+                THIEVING_ITEM_IMAGES,
+                DEFAULT_THIEVING_TARGET,
+            )
+            current = str(player_data.get("current_thieving", DEFAULT_THIEVING_TARGET))
+            row = next((candidate for candidate in rows if candidate.target_id == current), None)
+            return bool(row and row.enabled)
+        except Exception:
+            return False
+
     def _combat_available() -> bool:
         try:
             return any(
@@ -2347,6 +2402,8 @@ def show_main_menu(
             return _herblore_available()
         if display_name == "Prayer":
             return _prayer_available()
+        if display_name == "Thieving":
+            return _thieving_available()
         # Utility / Activities is always trainable: gather_* activities need no
         # inputs, so there is always at least one runnable activity.
         return True
@@ -2386,6 +2443,9 @@ def show_main_menu(
             return
         if display_name == "Prayer" and not _prayer_available():
             warn.setText("The selected Prayer method is not ready. Check its materials and altar requirements.")
+            return
+        if display_name == "Thieving" and not _thieving_available():
+            warn.setText("The selected Thieving target is locked. Check its level and quest requirements.")
             return
         if display_name == _COMBAT_HUB_NAME and not _combat_available():
             warn.setText("You can't fight any source-backed combat target yet.")
@@ -3318,6 +3378,52 @@ def show_main_menu(
             group_order=list(RUNECRAFTING_GROUP_LABELS),
         )
 
+    def _build_thieving_list() -> QWidget:
+        panel = QWidget()
+        panel.setObjectName("thievingSkillPanel")
+        layout = QVBoxLayout(panel)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+
+        casual_row = QWidget()
+        casual_row.setObjectName("thievingCasualControls")
+        casual_layout = QHBoxLayout(casual_row)
+        casual_layout.setContentsMargins(0, 0, 0, 0)
+        casual_layout.setSpacing(8)
+        casual_label = QLabel("Casual")
+        casual_label.setStyleSheet("color: palette(text); font-weight: 600;")
+        fight_back = QCheckBox("Fight back when caught")
+        fight_back.setObjectName("thievingFightBackCheck")
+        fight_back.setChecked(bool(player_data.get("thieving_fight_back_when_caught", False)))
+        fight_back.setToolTip(
+            "Off: flee after the sourced damage. On: enter a real combat encounter "
+            "when a stall guard or blackjack thug catches you."
+        )
+        if on_set_thieving_fight_back is not None:
+            fight_back.toggled.connect(
+                lambda enabled: on_set_thieving_fight_back(bool(enabled))
+            )
+        casual_layout.addWidget(casual_label)
+        casual_layout.addWidget(fight_back)
+        casual_layout.addStretch(1)
+        layout.addWidget(casual_row)
+
+        tree = _build_grouped_target_tree(
+            thieving_target_rows(
+                player_data,
+                THIEVING_TARGETS,
+                THIEVING_ITEM_IMAGES,
+                DEFAULT_THIEVING_TARGET,
+            ),
+            dict(THIEVING_GROUP_LABELS),
+            "__thieving_group__:",
+            on_set_thieving,
+            group_order=list(THIEVING_GROUP_ORDER),
+        )
+        tree.setObjectName("thievingTargetTree")
+        layout.addWidget(tree, 1)
+        return panel
+
     def _combat_mode_text() -> str:
         style_id = combat_attack_style_for_equipment_pure(player_data, EQUIPMENT_ITEM_DATA)
         spec = COMBAT_ATTACK_STYLE_DATA.get(style_id, COMBAT_ATTACK_STYLE_DATA.get(DEFAULT_COMBAT_ATTACK_STYLE, {}))
@@ -4109,6 +4215,7 @@ def show_main_menu(
         "Prayer": _build_prayer_list,
         "Magic": _build_magic_list,
         "Construction": _build_construction_list,
+        "Thieving": _build_thieving_list,
         _COMBAT_HUB_NAME: _build_combat_list,
         _UTILITY_HUB_NAME: _build_utility_list,
     }
@@ -4125,6 +4232,7 @@ def show_main_menu(
         "Runecrafting": "Select Runecrafting Action",
         "Herblore": "Select what to clean, mix, or brew",
         "Magic": "Select a Spell to Cast",
+        "Thieving": "Select a target to steal from",
         _COMBAT_HUB_NAME: "Select Enemy",
         _UTILITY_HUB_NAME: "Select an Activity (no XP)",
     }
@@ -4332,6 +4440,8 @@ def show_main_menu(
                         train_btn.setToolTip("Complete Rune Mysteries and gather essence plus altar access.")
                     elif name == "Prayer":
                         train_btn.setToolTip("Check the selected Prayer method's materials and altar requirements.")
+                    elif name == "Thieving":
+                        train_btn.setToolTip("Choose an unlocked target before training Thieving.")
                     elif name == _COMBAT_HUB_NAME:
                         train_btn.setToolTip("Select an available enemy.")
             train_btn.clicked.connect(lambda _=False, n=name: _set_active(n))

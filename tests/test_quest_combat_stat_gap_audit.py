@@ -23,8 +23,9 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
             counts,
             {
                 "darkan_hitpoints_only_metadata": 51,
-                "darkan_missing_resolver_stats": 18,
+                "darkan_missing_resolver_stats": 17,
                 "darkan_same_name_wrong_level": 7,
+                "darkan_identical_available": 1,
                 "no_local_source_match": 10,
                 "parser_or_variant_level": 17,
             },
@@ -51,7 +52,7 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
         )
         self.assertEqual(
             audit.classify_gap(self.by_quest_and_name[("monkey_madness", "Jungle demon")], self.darkan_groups, self.partial_groups),
-            "darkan_missing_resolver_stats",
+            "darkan_identical_available",
         )
         self.assertEqual(
             audit.classify_gap(self.by_quest_and_name[("land_of_the_goblins", "Snothead")], self.darkan_groups, self.partial_groups),

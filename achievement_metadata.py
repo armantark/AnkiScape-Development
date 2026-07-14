@@ -325,6 +325,11 @@ def build_achievement_definitions(
     add("Tree Doctor", "Check the health of your first Farming tree", "Easy", lambda player: _farming_counter(player, "tree_health_checks") >= 1)
     add("Full Farm Run", "Queue your first full farm run", "Moderate", lambda player: _farming_counter(player, "full_runs") >= 1)
 
+    add("First Lift", "Complete your first successful Thieving action", "Easy", lambda player: _level(player, "thieving_success_count", 0) >= 1)
+    add("Novice Thief", "Reach Thieving level 10", "Easy", lambda player: _level(player, "thieving_level") >= 10)
+    add("Sticky Fingers", "Complete 100 successful Thieving actions", "Moderate", lambda player: _level(player, "thieving_success_count", 0) >= 100)
+    add("Master Thief", "Reach Thieving level 99", "Very Challenging", lambda player: _level(player, "thieving_level") >= 99)
+
     add("First Cast", "Complete your first standalone Magic cast", "Easy", lambda player: _level(player, "magic_actions_completed", 0) >= 1)
     add("Novice Mage", "Reach Magic level 10", "Easy", lambda player: _level(player, "magic_level") >= 10)
     add("Spell Slinger", "Complete 100 standalone Magic casts", "Easy", lambda player: _level(player, "magic_actions_completed", 0) >= 100)

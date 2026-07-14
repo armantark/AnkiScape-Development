@@ -41,10 +41,10 @@ The dated `completion-audit-2026-07-10.*` files remain historical snapshots; liv
 
 ## Current Truth
 
-- `skill_registry.py` has 15 complete skill surfaces, five partial Combat-trained skills, and five planned skills.
-- Complete: Mining, Woodcutting, Farming, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Hunter, Herblore, Prayer, Magic, and Construction.
+- `skill_registry.py` has 16 complete skill surfaces, five partial Combat-trained skills, and four planned skills.
+- Complete: Mining, Woodcutting, Farming, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Hunter, Herblore, Prayer, Magic, Construction, and Thieving.
 - Partial through unified Combat: Attack, Strength, Defence, Constitution, and Ranged.
-- Planned: Summoning, Agility, Dungeoneering, Slayer, and Thieving.
+- Planned: Summoning, Agility, Dungeoneering, and Slayer.
 - Farming is shipped (`9a88c56`), not the next build.
 - The 194-row quest catalog remains coverage scaffolding rather than full quest parity.
 - NPC Shops are live; the fake GE remains parked until the item/acquisition universe is representative.
@@ -108,3 +108,31 @@ The dated `completion-audit-2026-07-10.*` files remain historical snapshots; liv
 - `python3 tools/audit_item_reachability.py --json`, compilation, and `git diff --check` at closure.
 - Manual real-profile QA remains an explicit owner checklist when a release candidate should touch the owner's Anki collection.
 - Pre/post status artifacts for normal complex work.
+
+## Thieving closure (2026-07-13)
+
+Thieving is now a complete Support skill on `codex/thieving-skill`. It ships the
+full 2011Scape pickpocket and stall tables, exact inclusive integer rolls,
+multi-pick, shared-LP damage plus one-review stun recovery, rational stall
+cadence, wall safes, and the complete Menaphite lure/knockout/two-pick loop.
+Fight-back starts an encounter-only Menaphite combat bridge; the default flee
+path applies one sourced damage event through the shared auto-eat/death/grave
+substrate. Wall safes use their distinct strict source roll and 20–60 LP trap;
+all Thieving routes advance once per answered card regardless of the global
+action multiplier. Desert Phoenix is a The Golem-gated, no-XP Utility activity
+yielding Phoenix feather.
+
+The owner resolved two implementation-time source questions: exact 2011Scape
+respawn cadence wins rounded wiki rates, and player-visible period blackjack
+values may use Darkan only for the missing hidden knockout roll/combat stats,
+clearly labelled provisional. Dorgesh-Kaan chests, Lletya elf, Pirates' Hideout,
+and incomplete blackjack variants remain source-blocked or parked. The durable
+table record is `memory-bank/source-audits/thieving-tables-2026-07-13.md`.
+
+Closure verification is green: Python 3.12 discovery and `run_tests.py` each
+pass 1,240 tests with 188 non-Qt skips and three pre-existing expected failures;
+the real Anki/Qt offscreen discovery passes all 1,240 tests with the same three
+expected failures and no skips. The focused closure set passes 609 tests, item
+reachability reports no Thieving/Phoenix orphan, compilation and diff checks are
+clean, and the result artifact is
+`memory-bank/status-updates/thieving-skill-results-2026-07-13.html`.

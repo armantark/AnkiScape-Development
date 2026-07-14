@@ -238,6 +238,20 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
         current_target_key="current_construction", default_target="crude_wooden_chair",
         review_handler_key="construction", visible_in_skill_hub=True,
     ),
+    SkillDefinition(
+        id="thieving",
+        display_name="Thieving",
+        category="support",
+        implemented=True,
+        participates_in_review=True,
+        action_kind="support",
+        level_key="thieving_level",
+        exp_key="thieving_exp",
+        current_target_key="current_thieving",
+        default_target="pickpocket_man",
+        review_handler_key="thieving",
+        visible_in_skill_hub=True,
+    ),
 )
 
 
@@ -251,7 +265,6 @@ PLANNED_SKILLS: Tuple[SkillDefinition, ...] = (
     SkillDefinition("agility", "Agility", "support", False, False, "support", "agility_level", "agility_exp", surface_state="planned"),
     SkillDefinition("dungeoneering", "Dungeoneering", "support", False, False, "support", "dungeoneering_level", "dungeoneering_exp", surface_state="planned"),
     SkillDefinition("slayer", "Slayer", "support", False, False, "support", "slayer_level", "slayer_exp", surface_state="planned"),
-    SkillDefinition("thieving", "Thieving", "support", False, False, "support", "thieving_level", "thieving_exp", surface_state="planned"),
 )
 
 

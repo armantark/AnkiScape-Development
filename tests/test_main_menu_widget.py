@@ -36,7 +36,7 @@ def _make_player_data() -> dict:
     from quest_data import default_quest_states
 
     data: dict = {"inventory": {}}
-    for skill in ("mining", "woodcutting", "farming", "fishing", "hunter", "smithing", "crafting", "fletching", "firemaking", "cooking", "runecrafting", "prayer", "magic"):
+    for skill in ("mining", "woodcutting", "farming", "fishing", "hunter", "smithing", "crafting", "fletching", "firemaking", "cooking", "runecrafting", "prayer", "magic", "thieving"):
         data[f"{skill}_level"] = 33
         data[f"{skill}_exp"] = 1000.0
     # Real saves are seeded with a bound starter tool per gathering skill; without
@@ -46,6 +46,8 @@ def _make_player_data() -> dict:
     data["equipment"] = {}
     data["current_hunter"] = "catch_crimson_swift"
     data["current_runecrafting"] = "craft_air_runes"
+    data["current_thieving"] = "pickpocket_man"
+    data["thieving_fight_back_when_caught"] = False
     data["current_quest"] = "rune_mysteries"
     data["quests"] = default_quest_states()
     data["quest_points"] = 0
@@ -513,6 +515,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._prayer_calls: list = []
         self._magic_calls: list = []
         self._construction_calls: list = []
+        self._thieving_calls: list = []
+        self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
         self._magic_alch_calls: list = []
         self._prayer_config_calls: list = []
@@ -580,6 +584,12 @@ class MainMenuWidgetTest(unittest.TestCase):
                 player_data.update(updated)
             return {"ok": ok, "message": message}
 
+        def _set_thieving_fight_back(enabled):
+            enabled = bool(enabled)
+            self._thieving_fight_back_calls.append(enabled)
+            player_data["thieving_fight_back_when_caught"] = enabled
+            return True
+
         self._ui.show_main_menu(
             **extra,
             player_data=player_data,
@@ -597,6 +607,8 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_hunter=lambda target: self._hunter_calls.append(target),
             on_set_cooking=lambda target: self._cooking_calls.append(target),
             on_set_runecrafting=lambda target: self._runecrafting_calls.append(target),
+            on_set_thieving=lambda target: self._thieving_calls.append(target),
+            on_set_thieving_fight_back=_set_thieving_fight_back,
             on_set_prayer_selection=_set_prayer_selection,
             on_set_magic=lambda target: self._magic_calls.append(target),
             on_set_construction=lambda target: self._construction_calls.append(target),
@@ -629,6 +641,136 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_initial_panel_shows_a_gathering_skill(self) -> None:
         title = _panel_title(self.dialog)
         self.assertTrue(title.startswith("Mining"), f"unexpected initial panel: {title!r}")
+
+    def test_thieving_support_panel_metadata_selection_lock_and_casual_toggle(self) -> None:
+        from target_metadata import thieving_target_rows
+
+        targets = {
+            "pickpocket_man": {
+                "display_name": "Man",
+                "level": 1,
+                "xp": 8,
+                "group": "pickpocketing",
+                "coins": 3,
+            },
+            "vegetable_stall": {
+                "display_name": "Vegetable stall",
+                "level": 2,
+                "xp": 10,
+                "group": "stalls",
+            },
+            "wall_safe": {
+                "display_name": "Wall safe",
+                "level": 50,
+                "xp": 70,
+                "group": "safes",
+            },
+            "blackjack_menaphite_thug": {
+                "display_name": "Menaphite thug",
+                "level": 65,
+                "xp": 137.5,
+                "group": "blackjacking",
+                "quest_gate": "the_feud",
+                "quest_gate_label": "The Feud",
+            },
+        }
+        player_data = _make_player_data()
+        player_data["thieving_level"] = 10
+        player_data["current_thieving"] = "pickpocket_man"
+
+        rows = thieving_target_rows(player_data, targets, {}, "pickpocket_man")
+        self.assertEqual(
+            [row.group for row in rows],
+            ["pickpocketing", "stalls", "safes", "blackjacking"],
+        )
+        self.assertTrue(rows[0].current)
+        self.assertTrue(rows[1].enabled)
+        self.assertFalse(rows[2].enabled)
+        self.assertIn("Locked: Thieving level 50", rows[2].label)
+        self.assertIn("Locked due to: Thieving level 50", rows[2].tooltip)
+
+        previous = {
+            "targets": self._ui.THIEVING_TARGETS,
+            "labels": self._ui.THIEVING_GROUP_LABELS,
+            "order": self._ui.THIEVING_GROUP_ORDER,
+            "default": self._ui.DEFAULT_THIEVING_TARGET,
+            "images": self._ui.THIEVING_ITEM_IMAGES,
+        }
+        dialog = None
+        try:
+            self._ui.THIEVING_TARGETS = targets
+            self._ui.THIEVING_GROUP_LABELS = {
+                "pickpocketing": "Pickpocketing",
+                "stalls": "Stalls",
+                "safes": "Safes",
+                "blackjacking": "Blackjacking",
+            }
+            self._ui.THIEVING_GROUP_ORDER = (
+                "pickpocketing",
+                "stalls",
+                "safes",
+                "blackjacking",
+            )
+            self._ui.DEFAULT_THIEVING_TARGET = "pickpocket_man"
+            self._ui.THIEVING_ITEM_IMAGES = {}
+
+            dialog = self._open(player_data, current_skill="Thieving")
+            dialog.show()
+            QApplication.processEvents()
+            support = next(button for button in dialog.findChildren(QPushButton) if button.text() == "Support")
+            self.assertTrue(support.isVisible())
+            skill_list = next(
+                widget
+                for widget in dialog.findChildren(QListWidget)
+                if "Thieving" in [widget.item(i).text() for i in range(widget.count())]
+            )
+            self.assertTrue(any(skill_list.item(i).text() == "Thieving" for i in range(skill_list.count())))
+
+            tree = dialog.findChild(QTreeWidget, "thievingTargetTree")
+            self.assertIsNotNone(tree)
+            self.assertEqual(
+                [tree.topLevelItem(i).text(0).split("  (")[0] for i in range(tree.topLevelItemCount())],
+                ["Pickpocketing", "Stalls", "Safes", "Blackjacking"],
+            )
+            self.assertEqual(
+                tree.currentItem().data(0, Qt.ItemDataRole.UserRole),
+                "pickpocket_man",
+            )
+
+            locked = next(
+                item for item in _tree_items(tree)
+                if item.data(0, Qt.ItemDataRole.UserRole) == "wall_safe"
+            )
+            self.assertTrue(locked.isDisabled())
+            before = list(self._thieving_calls)
+            tree.itemClicked.emit(locked, 0)
+            tree.itemActivated.emit(locked, 0)
+            QApplication.processEvents()
+            self.assertEqual(self._thieving_calls, before)
+
+            stall = next(
+                item for item in _tree_items(tree)
+                if item.data(0, Qt.ItemDataRole.UserRole) == "vegetable_stall"
+            )
+            self.assertFalse(stall.isDisabled())
+            tree.itemClicked.emit(stall, 0)
+            QApplication.processEvents()
+            self.assertEqual(self._thieving_calls[-1], "vegetable_stall")
+
+            fight_back = dialog.findChild(QCheckBox, "thievingFightBackCheck")
+            self.assertFalse(fight_back.isChecked())
+            fight_back.click()
+            QApplication.processEvents()
+            self.assertEqual(self._thieving_fight_back_calls[-1], True)
+            self.assertTrue(player_data["thieving_fight_back_when_caught"])
+        finally:
+            self._ui.THIEVING_TARGETS = previous["targets"]
+            self._ui.THIEVING_GROUP_LABELS = previous["labels"]
+            self._ui.THIEVING_GROUP_ORDER = previous["order"]
+            self._ui.DEFAULT_THIEVING_TARGET = previous["default"]
+            self._ui.THIEVING_ITEM_IMAGES = previous["images"]
+            if dialog is not None:
+                dialog.deleteLater()
 
     def test_farming_sheet_is_openable_without_train_button_or_target_prompt(self) -> None:
         farming_dialog = self._open(_make_player_data(), current_skill="Mining", initial_skill="Farming")
@@ -1512,12 +1654,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [label.text() for label in dialog.findChildren(QLabel)]
 
         self.assertTrue(
-            any(text.startswith("Easy") and "2/52 completed" in text for text in labels),
+            any(text.startswith("Easy") and "2/54 completed" in text for text in labels),
             "Easy achievement count did not use metadata grouping",
         )
         self.assertIn("First Steps", labels)
         self.assertIn("Rune Mysteries", labels)
-        self.assertIn("Completed: 2/150 (1.3%)", labels)
+        self.assertIn("Completed: 2/154 (1.3%)", labels)
 
     def test_selecting_woodcutting_updates_panel(self) -> None:
         skill_list = _find_skill_list(self.dialog)

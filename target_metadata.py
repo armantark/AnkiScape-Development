@@ -75,6 +75,14 @@ except Exception:
         utility_activity_locked_reasons_pure,
     )
 
+try:
+    from .logic_pure import thieving_target_locked_reasons_pure as _thieving_target_locked_reasons_pure
+except ImportError:
+    try:
+        from logic_pure import thieving_target_locked_reasons_pure as _thieving_target_locked_reasons_pure  # type: ignore
+    except ImportError:  # The Thieving logic module may land after this UI slice.
+        _thieving_target_locked_reasons_pure = None
+
 
 @dataclass(frozen=True)
 class TargetRowMetadata:
@@ -126,6 +134,101 @@ def _smithing_tier_of(spec: Mapping[str, object]) -> str:
     reqs = spec.get("requirements", {}) or {}
     requirements = reqs if isinstance(reqs, Mapping) else {}
     return str(next(iter(requirements), "")).replace(" bar", "").strip() or "Other"
+
+
+def _fallback_thieving_locked_reasons(
+    player_data: Mapping[str, object],
+    spec: Mapping[str, object],
+) -> tuple[str, ...]:
+    """Keep the target surface safe while the shared runtime gate is unavailable."""
+
+    reasons = []
+    level = int(spec.get("level", spec.get("required_level", 1)) or 1)
+    if int(player_data.get("thieving_level", 1) or 1) < level:
+        reasons.append(f"Thieving level {level}")
+
+    quest_id = str(spec.get("quest_gate", spec.get("required_quest", "")) or "")
+    if quest_id:
+        quests = player_data.get("quests", {}) or {}
+        quest_state = quests.get(quest_id, {}) if isinstance(quests, Mapping) else {}
+        completed = bool(quest_state.get("completed")) if isinstance(quest_state, Mapping) else bool(quest_state)
+        if not completed:
+            reasons.append(str(spec.get("quest_gate_label", quest_id.replace("_", " ").title())))
+
+    if spec.get("source_blocked"):
+        reasons.append(str(spec.get("source_blocked_reason", "source values are not closed")))
+    return tuple(dict.fromkeys(reasons))
+
+
+def thieving_target_rows(
+    player_data: Mapping[str, object],
+    thieving_data: Mapping[str, Mapping[str, object]],
+    thieving_item_images: Mapping[str, str],
+    default_target: str,
+) -> tuple[TargetRowMetadata, ...]:
+    """Build the grouped Thieving selector without importing Qt."""
+
+    rows = []
+    current_target = str(player_data.get("current_thieving", default_target) or default_target)
+    level_have = int(player_data.get("thieving_level", 1) or 1)
+    group_order = {
+        group: index
+        for index, group in enumerate(("pickpocketing", "stalls", "safes", "blackjacking"))
+    }
+
+    for target_id, spec in thieving_data.items():
+        display_name = str(spec.get("display_name", spec.get("name", target_id)))
+        level = int(spec.get("level", spec.get("required_level", 1)) or 1)
+        xp = float(spec.get("xp", spec.get("exp", 0)) or 0)
+        group = str(spec.get("group", spec.get("family", "pickpocketing")) or "pickpocketing")
+        if _thieving_target_locked_reasons_pure is not None:
+            locked_reasons = tuple(
+                _thieving_target_locked_reasons_pure(player_data, target_id, thieving_data)
+            )
+        else:
+            locked_reasons = _fallback_thieving_locked_reasons(player_data, spec)
+
+        tooltip_lines = [
+            f"{group.replace('_', ' ').title()} · Thieving level {level}. You have {level_have}.",
+            f"Thieving XP: {xp:g} per successful action",
+        ]
+        coins = spec.get("coins")
+        if coins is not None:
+            tooltip_lines.append(f"Coins: {coins} per successful action")
+        damage = int(spec.get("damage", spec.get("failure_damage", 0)) or 0)
+        stun = int(spec.get("stun", spec.get("stun_ticks", 0)) or 0)
+        if damage or stun:
+            failure_parts = []
+            if damage:
+                failure_parts.append(f"{damage} LP damage")
+            if stun:
+                failure_parts.append("next review clears the stun")
+            tooltip_lines.append("On failure: " + ", ".join(failure_parts))
+        if locked_reasons:
+            tooltip_lines.append("Locked due to: " + ", ".join(locked_reasons))
+
+        icon_name = str(spec.get("icon_name", spec.get("output_item", display_name)))
+        label = f"{display_name} (Lvl {level}) — {xp:g} XP"
+        if locked_reasons:
+            label += f" — Locked: {locked_reasons[0]}"
+        rows.append(TargetRowMetadata(
+            target_id=target_id,
+            label=label,
+            tooltip="\n".join(tooltip_lines),
+            enabled=not locked_reasons,
+            current=target_id == current_target,
+            icon_path=(
+                str(spec.get("asset_path"))
+                if spec.get("asset_path")
+                else thieving_item_images.get(target_id)
+                or thieving_item_images.get(icon_name)
+                or thieving_item_images.get(display_name)
+            ),
+            group=group,
+            locked_reasons=locked_reasons,
+            sort_key=(group_order.get(group, 99), level, display_name),
+        ))
+    return tuple(rows)
 
 
 def smithing_target_rows(
@@ -1141,8 +1244,12 @@ def combat_target_rows(
     rows = []
     current_target = player_data.get("current_combat_target", default_target)
     enemy_images = combat_enemy_images or {}
+    encounter_raw = player_data.get("combat_encounter", {}) or {}
+    encounter_target = encounter_raw.get("target_id") if isinstance(encounter_raw, Mapping) else None
 
     for target_id, enemy in combat_enemy_data.items():
+        if enemy.get("encounter_only") and encounter_target != target_id:
+            continue
         display_name = str(enemy.get("display_name", target_id))
         level = int(enemy.get("level", 1) or 1)
         stats_raw = enemy.get("stats", {})

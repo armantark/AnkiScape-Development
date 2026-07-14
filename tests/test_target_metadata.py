@@ -493,6 +493,52 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Your max hit:", chicken.tooltip)
         self.assertIn("Ammo: Bronze arrows x0 loaded + 50 bank", chicken.tooltip)
 
+    def test_combat_rows_only_show_encounter_target_while_that_encounter_is_active(self):
+        player_data = {
+            "current_combat_target": "chicken",
+            "combat_attack_style": "accurate",
+            "attack_level": 10,
+            "strength_level": 10,
+            "defense_level": 10,
+            "constitution_level": 10,
+            "inventory": {},
+            "equipment": {},
+            "combat_supply_loadout": {},
+        }
+
+        ordinary_rows = combat_target_rows(
+            player_data,
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+        self.assertNotIn("menaphite_thug", {row.target_id for row in ordinary_rows})
+
+        unrelated_encounter_rows = combat_target_rows(
+            {**player_data, "combat_encounter": {"target_id": "chicken", "enemy_lifepoints": 30}},
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+        self.assertNotIn("menaphite_thug", {row.target_id for row in unrelated_encounter_rows})
+
+        active_encounter_rows = combat_target_rows(
+            {
+                **player_data,
+                "current_combat_target": "menaphite_thug",
+                "combat_encounter": {"target_id": "menaphite_thug", "enemy_lifepoints": 600},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+        menaphite = _row(active_encounter_rows, "menaphite_thug")
+        self.assertTrue(menaphite.enabled)
+        self.assertTrue(menaphite.current)
+
     def test_combat_rows_use_enemy_images_instead_of_bones_fallback(self):
         rows = combat_target_rows(
             {

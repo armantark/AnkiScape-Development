@@ -649,6 +649,21 @@ class TestStoragePure(unittest.TestCase):
         for ore in MINING_OUTPUT_ITEMS:
             self.assertIn(ore, migrated["inventory"])  # seeded
 
+    def test_migrate_sanitizes_non_string_blackjack_phases(self):
+        for malformed_phase in ([], {}, ["knocked_out"]):
+            with self.subTest(malformed_phase=malformed_phase):
+                migrated = migrate_loaded_data(
+                    {
+                        "thieving_blackjack_phase": malformed_phase,
+                        "thieving_blackjack_picks_remaining": 2,
+                    },
+                    ORE_DATA,
+                    ITEM_DEFINITIONS,
+                )
+
+                self.assertEqual(migrated["thieving_blackjack_phase"], "needs_lure")
+                self.assertEqual(migrated["thieving_blackjack_picks_remaining"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()

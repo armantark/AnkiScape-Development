@@ -139,6 +139,15 @@ try:
         smithing_success_probability_pure,
         smithing_target_locked_reasons_pure,
         utility_activity_locked_reasons_pure,
+        thieving_blackjack_threshold_pure,
+        apply_thieving_damage_pure,
+        thieving_loot_roll_pure,
+        thieving_multi_pick_count_pure,
+        thieving_roll_succeeds_pure,
+        thieving_stall_cadence_profile_pure,
+        thieving_success_probability_pure,
+        thieving_target_locked_reasons_pure,
+        thieving_wall_safe_roll_succeeds_pure,
         STRONGHOLD_STEP_NAMES,
         STRONGHOLD_TOTAL_STEPS,
     )
@@ -155,6 +164,8 @@ try:
     from .shop_data import SHOP_PLAYER_BUY_PRICES
     from .smithing_data import DEFAULT_SMITHING_TARGET
     from .urn_data import URN_STATE_ITEM_NAMES, materialize_urn_layout_pure
+    from .thieving_data import DEFAULT_THIEVING_TARGET, THIEVING_TARGETS
+    from .cadence_kernel import advance_cadence_pure, default_cadence_profile_state_pure
 except ImportError:  # pragma: no cover - flat import path used by tests
     from constants import (  # type: ignore
         BIRD_NEST_DROP_CHANCE,
@@ -282,6 +293,15 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         smithing_success_probability_pure,
         smithing_target_locked_reasons_pure,
         utility_activity_locked_reasons_pure,
+        thieving_blackjack_threshold_pure,
+        apply_thieving_damage_pure,
+        thieving_loot_roll_pure,
+        thieving_multi_pick_count_pure,
+        thieving_roll_succeeds_pure,
+        thieving_stall_cadence_profile_pure,
+        thieving_success_probability_pure,
+        thieving_target_locked_reasons_pure,
+        thieving_wall_safe_roll_succeeds_pure,
         STRONGHOLD_STEP_NAMES,
         STRONGHOLD_TOTAL_STEPS,
     )
@@ -298,6 +318,8 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from shop_data import SHOP_PLAYER_BUY_PRICES  # type: ignore
     from smithing_data import DEFAULT_SMITHING_TARGET  # type: ignore
     from urn_data import URN_STATE_ITEM_NAMES, materialize_urn_layout_pure  # type: ignore
+    from thieving_data import DEFAULT_THIEVING_TARGET, THIEVING_TARGETS  # type: ignore
+    from cadence_kernel import advance_cadence_pure, default_cadence_profile_state_pure  # type: ignore
 
 try:
     from . import inventory_pure
@@ -348,6 +370,7 @@ _OVERLAY_TARGET_KEYS = {
     "runecrafting": "current_runecrafting",
     "herblore": "current_herblore",
     "prayer": "current_prayer",
+    "thieving": "current_thieving",
 }
 # A stackable occupies one slot for any quantity (then holds up to the int cap);
 # use the real cache stackable set so a stack is not miscounted as N slots.
@@ -2402,6 +2425,207 @@ def _can_start_herblore_action(ctx: RuntimeActionContext) -> bool:
     )
 
 
+def _thieving_rng_index(ctx: RuntimeActionContext, size: int) -> int:
+    return min(max(int(ctx.random_random() * max(size, 1)), 0), max(size - 1, 0))
+
+
+def _thieving_grant_outputs(player_data: dict[str, Any], outputs: dict[str, int]) -> None:
+    inventory = dict(player_data.get("inventory", {}) or {})
+    for item_name, amount in outputs.items():
+        inventory[item_name] = int(inventory.get(item_name, 0) or 0) + max(int(amount), 0)
+    player_data["inventory"] = inventory
+
+
+def _thieving_failure(ctx: RuntimeActionContext, target: str, spec: dict[str, Any]) -> bool:
+    player_data = ctx.player_data
+    wall_safe = spec.get("kind") == "wall_safe"
+    default_low = 20 if wall_safe else int(spec.get("failure_damage", 0) or 0)
+    default_high = 60 if wall_safe else default_low
+    low = int(spec.get("damage_min", default_low) or 0)
+    high = max(low, int(spec.get("damage_max", default_high) or default_high))
+    fight_back = bool(
+        spec.get("kind") == "blackjack"
+        and player_data.get("thieving_fight_back_when_caught")
+    )
+    damage = 0 if fight_back else low + _thieving_rng_index(ctx, high - low + 1) if high else 0
+    damage_result = {"damage": 0, "died": False, "food_used": None}
+    if damage > 0:
+        damaged_data, damage_result = apply_thieving_damage_pure(
+            player_data, damage, source="thieving_failure"
+        )
+        player_data.update(damaged_data)
+    player_data["thieving_stunned"] = True
+    player_data["thieving_failure_count"] = int(player_data.get("thieving_failure_count", 0) or 0) + 1
+    _record_action(
+        ctx, "thieving", target, False,
+        failure_kind="trap" if wall_safe else "caught",
+    )
+    if fight_back:
+        player_data["current_combat_target"] = "menaphite_thug"
+        player_data["combat_encounter"] = {
+            "target_id": "menaphite_thug",
+            "enemy_lifepoints": 600,
+        }
+        ctx.deactivate_current_skill()
+        ctx.show_activity_gain("Caught — Menaphite Thug fight started")
+    elif damage_result.get("died"):
+        ctx.deactivate_current_skill()
+        ctx.show_activity_gain("☠ YOU DIED — Thieving failure; gear moved to grave")
+    elif wall_safe:
+        ctx.show_activity_gain(f"Trap sprung — {damage_result['damage']} LP damage; next review clears the stun")
+    else:
+        ctx.show_activity_gain(f"Caught — {damage_result['damage']} LP damage; next review clears the stun")
+    food_used = damage_result.get("food_used")
+    if food_used:
+        ctx.show_activity_gain(
+            f"Auto-ate {food_used['item']} (+{food_used['healed_by']} LP)"
+        )
+    ctx.save_player_data()
+    return False
+
+
+def _thieving_award_success(
+    ctx: RuntimeActionContext,
+    target: str,
+    spec: dict[str, Any],
+    *,
+    xp: float | None = None,
+    fixed_outputs: dict[str, int] | None = None,
+    loot_count: int = 1,
+) -> None:
+    outputs: dict[str, int] = dict(fixed_outputs or {})
+    if fixed_outputs is None:
+        for _ in range(max(loot_count, 1)):
+            rolled = thieving_loot_roll_pure(
+                spec,
+                _thieving_rng_index(ctx, int(spec.get("loot_total", 1) or 1)),
+                ctx.random_random(),
+            )
+            for item_name, amount in rolled.items():
+                outputs[item_name] = outputs.get(item_name, 0) + amount
+    _thieving_grant_outputs(ctx.player_data, outputs)
+    base_xp = float(spec.get("xp", 0.0) if xp is None else xp)
+    gained = _award_action_xp_rewards(
+        ctx, ({"skill_id": "thieving", "amount": base_xp},), "thieving"
+    )
+    ctx.player_data["thieving_success_count"] = int(ctx.player_data.get("thieving_success_count", 0) or 0) + 1
+    _record_action(
+        ctx, "thieving", target, True,
+        expected_success_chance=thieving_success_probability_pure(
+            ctx.player_data.get("thieving_level", 1), spec
+        ) if "min_chance" in spec else 1.0,
+        output_items=outputs, primary_xp=base_xp,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.refresh_skill_availability()
+    ctx.show_exp(gained)
+
+
+def handle_thieving_answer(ctx: RuntimeActionContext) -> bool:
+    player_data = ctx.player_data
+    target = str(player_data.get("current_thieving", DEFAULT_THIEVING_TARGET))
+    if target not in THIEVING_TARGETS:
+        target = DEFAULT_THIEVING_TARGET
+        player_data["current_thieving"] = target
+    spec = THIEVING_TARGETS[target]
+    locked = thieving_target_locked_reasons_pure(player_data, target, THIEVING_TARGETS)
+    if locked:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Thieving target locked",
+            f"{spec.get('display_name', target)} requires {', '.join(locked)}, so Thieving has been switched off.",
+        )
+        return False
+
+    if player_data.get("thieving_stunned"):
+        player_data["thieving_stunned"] = False
+        ctx.show_activity_gain("Recovered from the stun — no Thieving attempt this review")
+        ctx.save_player_data()
+        return False
+
+    kind = spec.get("kind")
+    if kind in {"stall", "wall_safe"}:
+        profile = thieving_stall_cadence_profile_pure(target, spec)
+        profiles = dict(player_data.get("cadence_profiles", {}) or {})
+        step = advance_cadence_pure(
+            profile,
+            profiles.get(profile.profile_id, default_cadence_profile_state_pure()),
+        )
+        profiles[profile.profile_id] = step.state
+        player_data["cadence_profiles"] = profiles
+        if not step.emitted:
+            _record_action(ctx, "thieving", target, False, failure_kind="cadence_wait")
+            ctx.show_activity_gain("Stall restocking — cadence advanced")
+            ctx.save_player_data()
+            return True
+
+    player_data["thieving_attempt_count"] = int(player_data.get("thieving_attempt_count", 0) or 0) + 1
+
+    if kind == "blackjack":
+        phase = str(player_data.get("thieving_blackjack_phase", "needs_lure"))
+        if phase == "needs_lure":
+            player_data["thieving_blackjack_phase"] = "ready_to_knockout"
+            ctx.show_activity_gain("Menaphite thug lured — next review attempts the knockout")
+            ctx.save_player_data()
+            return False
+        if phase == "knocked_out":
+            _thieving_award_success(
+                ctx, target, spec,
+                fixed_outputs={"Coins": int(spec.get("coins", 60) or 60)},
+            )
+            remaining = max(0, int(player_data.get("thieving_blackjack_picks_remaining", 2) or 0) - 1)
+            player_data["thieving_blackjack_picks_remaining"] = remaining
+            if remaining <= 0:
+                player_data["thieving_blackjack_phase"] = "ready_to_knockout"
+            ctx.save_player_data()
+            return False
+        threshold = thieving_blackjack_threshold_pure(
+            player_data.get("thieving_level", 1),
+            spec.get("knockout_min_chance", 185),
+            spec.get("knockout_max_chance", 255),
+        )
+        if _thieving_rng_index(ctx, 255) > threshold:
+            return _thieving_failure(ctx, target, spec)
+        player_data["thieving_blackjack_phase"] = "knocked_out"
+        player_data["thieving_blackjack_picks_remaining"] = 2
+        knockout_xp = float(spec.get("knockout_xp", 10.0) or 0.0)
+        gained = _award_action_xp_rewards(
+            ctx, ({"skill_id": "thieving", "amount": knockout_xp},), "thieving"
+        )
+        ctx.show_exp(gained)
+        ctx.show_activity_gain("Knockout succeeded — two guaranteed picks available")
+        ctx.save_player_data()
+        return False
+
+    level = player_data.get("thieving_level", 1)
+    if kind in {"pickpocket", "wall_safe"}:
+        chance = thieving_success_probability_pure(level, spec)
+        roll = _thieving_rng_index(ctx, 255)
+        succeeds = (
+            thieving_wall_safe_roll_succeeds_pure(
+                level, spec["min_chance"], spec["max_chance"], roll
+            )
+            if kind == "wall_safe"
+            else thieving_roll_succeeds_pure(
+                level, spec["min_chance"], spec["max_chance"], roll
+            )
+        )
+        if not succeeds:
+            return _thieving_failure(ctx, target, spec)
+
+    loot_count = 1
+    if kind == "pickpocket":
+        loot_count = thieving_multi_pick_count_pure(
+            level,
+            player_data.get("agility_level", 1),
+            spec.get("level", 1),
+            _thieving_rng_index(ctx, 7),
+        )
+    _thieving_award_success(ctx, target, spec, loot_count=loot_count)
+    ctx.save_player_data()
+    return True
+
+
 def _can_start_prayer_action(ctx: RuntimeActionContext) -> bool:
     target = ctx.player_data.get("current_prayer", DEFAULT_PRAYER_TARGET)
     if prayer_target_locked_reasons_pure(ctx.player_data, target, PRAYER_DATA):
@@ -2525,6 +2749,13 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
     )
 
 
+def _can_start_thieving_action(ctx: RuntimeActionContext) -> bool:
+    target = ctx.player_data.get("current_thieving", DEFAULT_THIEVING_TARGET)
+    return not thieving_target_locked_reasons_pure(
+        ctx.player_data, target, THIEVING_TARGETS
+    )
+
+
 def _can_start_woodcutting_action(ctx: RuntimeActionContext) -> bool:
     return can_chop_woodcutting_target_pure(
         ctx.player_data.get("woodcutting_level", 1),
@@ -2561,6 +2792,7 @@ CAN_START_HANDLERS: dict[str, Callable[[RuntimeActionContext], bool]] = {
     "prayer": _can_start_prayer_action,
     "magic": _can_start_magic_action,
     "construction": _can_start_construction_action,
+    "thieving": _can_start_thieving_action,
     "combat": _can_start_combat_action,
     "utility": _can_start_utility_action,
     "quest": _can_start_quest_action,
@@ -2582,6 +2814,7 @@ ANSWER_HANDLERS: dict[str, Callable[[RuntimeActionContext], bool]] = {
     "prayer": handle_prayer_answer,
     "magic": handle_magic_answer,
     "construction": handle_construction_answer,
+    "thieving": handle_thieving_answer,
     "combat": handle_combat_answer,
     "utility": handle_utility_answer,
     "quest": handle_quest_answer,

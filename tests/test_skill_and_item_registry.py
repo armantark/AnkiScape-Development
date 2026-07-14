@@ -98,6 +98,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "Prayer",
                 "Magic",
                 "Construction",
+                "Thieving",
             ),
         )
         self.assertTrue(is_review_skill("Mining"))
@@ -112,6 +113,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertTrue(is_review_skill("Prayer"))
         self.assertTrue(is_review_skill("Magic"))
         self.assertTrue(is_review_skill("Construction"))
+        self.assertTrue(is_review_skill("Thieving"))
         self.assertEqual(review_handler_key("Fishing"), "fishing")
         self.assertEqual(review_handler_key("Fletching"), "fletching")
         self.assertEqual(review_handler_key("Firemaking"), "firemaking")
@@ -122,6 +124,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(review_handler_key("Prayer"), "prayer")
         self.assertEqual(review_handler_key("Magic"), "magic")
         self.assertEqual(review_handler_key("Construction"), "construction")
+        self.assertEqual(review_handler_key("Thieving"), "thieving")
         self.assertEqual(
             [skill.display_name for skill in CURRENT_SKILLS if skill.participates_in_review],
             list(implemented_review_skill_names()),
@@ -147,7 +150,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(review_action_handler_key("Runecrafting"), "runecrafting")
         self.assertEqual(review_action_handler_key("Hunter"), "hunter")
         self.assertEqual(review_action_handler_key("Herblore"), "herblore")
-        self.assertIsNone(review_action_handler_key("Thieving"))
+        self.assertEqual(review_action_handler_key("Thieving"), "thieving")
         self.assertEqual(
             review_action_display_names(),
             (
@@ -165,6 +168,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "Prayer",
                 "Magic",
                 "Construction",
+                "Thieving",
                 "Combat",
                 "Quests",
                 "Utility / Activities",
@@ -179,12 +183,18 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "summoning",
             "dungeoneering",
             "slayer",
-            "thieving",
         ]:
             self.assertIn(skill_id, planned)
             self.assertFalse(planned[skill_id].implemented)
             self.assertFalse(planned[skill_id].participates_in_review)
         self.assertEqual(len({skill.id for skill in ALL_SKILLS}), len(ALL_SKILLS))
+
+        thieving = get_skill("Thieving")
+        self.assertIsNotNone(thieving)
+        self.assertTrue(thieving.implemented)
+        self.assertTrue(thieving.participates_in_review)
+        self.assertEqual(thieving.category, "support")
+        self.assertEqual(thieving.current_target_key, "current_thieving")
 
     def test_farming_is_complete_background_training_without_a_reviewer_target(self):
         farming = get_skill("Farming")
@@ -299,6 +309,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "magic_exp": 0,
                 "construction_level": 1,
                 "construction_exp": 0,
+                "thieving_level": 1,
+                "thieving_exp": 0,
             },
         )
         self.assertEqual(
@@ -318,6 +330,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "current_prayer": "bury_bones",
                 "current_magic": "low_alchemy",
                 "current_construction": "crude_wooden_chair",
+                "current_thieving": "pickpocket_man",
             },
         )
         self.assertEqual(get_skill("Crafting").exp_key, "crafting_exp")
