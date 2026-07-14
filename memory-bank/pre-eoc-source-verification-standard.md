@@ -162,8 +162,30 @@ earlier builds when the date of introduction or configuration change matters.
 The latest available cache predates EOC by thirteen days, so it cannot prove a
 change made from November 8 through November 19.
 
-`tools/query_openrs2_cache.sh` searches item definitions directly from one of
-these zip files without modifying the archive. All six caches consistently
+**rev 727 is Darkan's own cache base.** Darkan agreeing with 727 therefore
+corroborates nothing on its own — it is one source, counted twice. Corroborate
+against 742 first.
+
+Each archive is also **extracted in place**, so queries do not pay a ~500 MB
+unzip on every lookup (2 seconds against an extracted cache versus roughly a
+minute against a zip):
+
+```
+~/Library/Caches/codex/2012scape-openrs2/extracted/<rev>-<date>/cache/
+```
+
+for example `extracted/742-2012-11-07/cache/`. The zips are kept alongside them
+as the immutable originals the SHA-256s above attest to; the extracted trees are
+disposable and can be regenerated with `unzip -q <zip> -d extracted/<rev>-<date>`.
+
+A cache proves what the *client* shipped — object, NPC, and item identities,
+names, and interaction options in a given build. It cannot prove XP, rolls,
+timers, or any other server-side value. Caches corroborate; they do not supply.
+
+Two tools read them. `tools/query_openrs2_cache.sh` searches **item**
+definitions; `tools/query_openrs2_cache_definitions.sh <cache> <npc|object>`
+searches **NPC and object** definitions and prints `id<TAB>name<TAB>[options]`.
+Both accept either a zip or an extracted cache directory and never modify it. All six caches consistently
 contain ammo mould with `Add-to-toolbelt` (4), rabbit snare with `Lay` (10031),
 and overload (3) with `Drink`/`Empty` (15333), while none contains an item named
 javelin head. The broader rev-742 proof pass confirmed period client definitions
