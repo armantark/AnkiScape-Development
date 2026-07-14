@@ -2936,6 +2936,11 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
     enemy = enemy_data.get(target_id)
     if enemy is None:
         return ("unknown enemy",)
+    encounter = player_data.get("combat_encounter", {}) or {}
+    if enemy.get("encounter_only") and not (
+        isinstance(encounter, Mapping) and encounter.get("target_id") == target_id
+    ):
+        return ("encounter only",)
     stats = enemy.get("stats", {})
     if not isinstance(stats, Mapping) or _positive_int(stats.get("hitpoints", 0), 0) <= 0:
         return ("missing source combat stats",)
@@ -8385,3 +8390,158 @@ def apply_firemaking_action_pure(target, inventory, firemaking_data, firemaking_
     output_qty = _positive_int(spec.get("output_qty", 1))
     new_inv[output_item] = new_inv.get(output_item, 0) + output_qty
     return new_inv, spec.get("exp", 0), True, output_item
+
+
+# --- Thieving -------------------------------------------------------------
+
+def thieving_roll_threshold_pure(level, minimum, maximum):
+    """2011Scape's integer interpolation before the inclusive 0..254 roll."""
+    level = max(1, min(_positive_int(level, 1), 99))
+    minimum = _non_negative_int(minimum, 0)
+    maximum = _non_negative_int(maximum, minimum)
+    return minimum + ((maximum - minimum) * (level - 1) // 98)
+
+
+def thieving_roll_succeeds_pure(level, minimum, maximum, roll):
+    threshold = thieving_roll_threshold_pure(level, minimum, maximum)
+    return _non_negative_int(roll, 255) <= threshold
+
+
+def thieving_wall_safe_success_count_pure(level, minimum, maximum):
+    """2011Scape wall-safe successes among the 255 possible integer rolls.
+
+    Wall safes use the standalone three-argument ``interpolate`` helper and a
+    strict ``> RANDOM.nextInt(255)`` comparison, unlike pickpockets' inclusive
+    ``level.interpolate(..., cap=255)`` roll.
+    """
+    level = max(1, min(_positive_int(level, 1), 99))
+    minimum = _non_negative_int(minimum, 0)
+    maximum = _non_negative_int(maximum, minimum)
+    return min(
+        255,
+        (minimum * (99 - level) // 98)
+        + (maximum * (level - 1) // 98)
+        + 1,
+    )
+
+
+def thieving_wall_safe_roll_succeeds_pure(level, minimum, maximum, roll):
+    success_count = thieving_wall_safe_success_count_pure(level, minimum, maximum)
+    return _non_negative_int(roll, 255) < success_count
+
+
+def apply_thieving_damage_pure(player_data, damage, *, source="thieving_failure"):
+    """Apply a Thieving failure through Combat's food and death substrate."""
+    data = _copy_player_data_with_nested(player_data)
+    max_lifepoints = combat_max_lifepoints_pure(data)
+    current_lifepoints = min(
+        max_lifepoints + COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS,
+        _non_negative_int(data.get("combat_lifepoints", max_lifepoints), max_lifepoints),
+    )
+    applied_damage = min(current_lifepoints, _non_negative_int(damage, 0))
+    current_lifepoints -= applied_damage
+    food_event = None
+    died = current_lifepoints <= 0 and applied_damage > 0
+    if died:
+        current_lifepoints = _combat_apply_pvm_death(data, max_lifepoints, source)
+    elif applied_damage > 0:
+        current_lifepoints, food_event = _combat_consume_auto_food(
+            data, current_lifepoints, max_lifepoints, lambda: 0.0
+        )
+    data["combat_lifepoints"] = current_lifepoints
+    return data, {
+        "damage": applied_damage,
+        "died": died,
+        "food_used": food_event,
+    }
+
+
+def thieving_success_probability_pure(level, spec):
+    if spec.get("kind") == "wall_safe":
+        return thieving_wall_safe_success_count_pure(
+            level, spec.get("min_chance", 0), spec.get("max_chance", 0)
+        ) / 255.0
+    threshold = thieving_roll_threshold_pure(
+        level, spec.get("min_chance", 0), spec.get("max_chance", 0)
+    )
+    return min(threshold + 1, 255) / 255.0
+
+
+def thieving_blackjack_threshold_pure(level, minimum=185, maximum=255):
+    """Darkan core skillSuccess threshold used provisionally for knockout only."""
+    level = max(1, min(_positive_int(level, 1), 99))
+    minimum = _non_negative_int(minimum, 0)
+    maximum = _non_negative_int(maximum, minimum)
+    return min(254, minimum + ((maximum - minimum) * level // 99))
+
+
+def thieving_multi_pick_count_pure(thieving_level, agility_level, target_level, roll):
+    thieving_overshoot = _positive_int(thieving_level, 1) - _positive_int(target_level, 1)
+    agility_overshoot = _positive_int(agility_level, 1) - _positive_int(target_level, 1)
+    if thieving_overshoot < 10 or agility_overshoot < 0 or _non_negative_int(roll, 0) != 1:
+        return 1
+    if thieving_overshoot >= 30 and agility_overshoot >= 20:
+        return 4
+    if thieving_overshoot >= 20 and agility_overshoot >= 10:
+        return 3
+    return 2
+
+
+def thieving_loot_roll_pure(spec, slot_roll, quantity_roll=0.0):
+    """Return one exact weighted-table drop plus every guaranteed drop."""
+    outputs = {
+        str(item): _positive_int(quantity, 1)
+        for item, quantity in (spec.get("guaranteed") or ())
+    }
+    total = _positive_int(spec.get("loot_total", 0), 1)
+    loot = tuple(spec.get("loot") or ())
+    if not loot or not spec.get("loot_total"):
+        return outputs
+    cursor = _non_negative_int(slot_roll, 0) % total
+    for item, minimum, maximum, slots in loot:
+        slots = _positive_int(slots, 1)
+        if cursor < slots:
+            minimum = _positive_int(minimum, 1)
+            maximum = max(minimum, _positive_int(maximum, minimum))
+            span = maximum - minimum + 1
+            q_roll = max(0.0, min(float(quantity_roll), 0.999999999999))
+            quantity = minimum + int(q_roll * span)
+            outputs[str(item)] = outputs.get(str(item), 0) + quantity
+            break
+        cursor -= slots
+    return outputs
+
+
+def thieving_stall_cadence_profile_pure(target_id, spec):
+    try:
+        from .cadence_kernel import CAP_ONE_ACTION, rate_limited_profile_pure
+    except ImportError:
+        from cadence_kernel import CAP_ONE_ACTION, rate_limited_profile_pure
+    ticks = _positive_int(spec.get("respawn_ticks", 1), 1)
+    overflow = CAP_ONE_ACTION if 6000 > 1000 * ticks else None
+    return rate_limited_profile_pure(
+        f"thieving:{target_id}", 6000, ticks, overflow_policy=overflow
+    )
+
+
+def thieving_target_locked_reasons_pure(player_data, target_id, thieving_data):
+    spec = thieving_data.get(target_id)
+    if not spec:
+        return ("unknown target",)
+    reasons = []
+    required_level = _positive_int(spec.get("level", 1), 1)
+    if _positive_int(player_data.get("thieving_level", 1), 1) < required_level:
+        reasons.append(f"Thieving level {required_level}")
+    if spec.get("source_blocked"):
+        reasons.append(str(spec.get("source_blocked_reason", "source values are not closed")))
+    quest_gate = spec.get("quest_gate")
+    if quest_gate and not quest_completed_pure(player_data, str(quest_gate)):
+        reasons.append(str(spec.get("quest_gate_label", str(quest_gate).replace("_", " ").title())))
+    required_items = tuple(spec.get("required_items_any") or ())
+    inventory = player_data.get("inventory", {}) or {}
+    if required_items and not any(_non_negative_int(inventory.get(item, 0), 0) > 0 for item in required_items):
+        reasons.append("usable blackjack")
+    encounter = player_data.get("combat_encounter") or {}
+    if isinstance(encounter, Mapping) and encounter:
+        reasons.append("active combat encounter")
+    return tuple(dict.fromkeys(reasons))

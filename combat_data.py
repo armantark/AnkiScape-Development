@@ -2628,6 +2628,31 @@ COMBAT_ANTIPOISON_POTION_DATA: Dict[str, dict] = {
 
 
 COMBAT_ENEMY_DATA: Dict[str, dict] = {
+    "menaphite_thug": {
+        "display_name": "Menaphite Thug",
+        "level": 55,
+        "group": "Pollnivneach",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 59,
+        "stats": {
+            "hitpoints": 600,
+            "attack": 60,
+            "strength": 50,
+            "defence": 20,
+            "magic": 0,
+            "ranged": 0,
+        },
+        "bonuses": {},
+        "drops": {"guaranteed": (), "tables": ()},
+        "source": (
+            "https://runescape.wiki/w/Menaphite_Thug?oldid=6546629; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "data/npcs/combatdefs/uncategorized/menaphite_thug (noanims).json"
+        ),
+        "source_status": "provisional/Darkan; owner-approved blackjack fight-back bridge",
+        "encounter_only": True,
+    },
     "chicken": {
         "display_name": "Chicken",
         "level": 1,

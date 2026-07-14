@@ -2832,7 +2832,8 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"]["biohazard"]["progress"], 14)
         self.assertEqual(player_data["quest_points"], 3)
         self.assertEqual(player_data["inventory"]["Combat Training Camp"], 1)
-        self.assertEqual(player_data["pending_skill_exp_rewards"], {"thieving_exp": 1250.0})
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+        self.assertEqual(player_data["thieving_exp"], 1250.0)
 
     def test_heroes_quest_stage_gates_lava_eel_firebird_and_black_arm_route(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -3138,7 +3139,7 @@ class TestLogic(unittest.TestCase):
                 "Yew shortbow": 1,
                 "Limpwurt root": 20,
             })
-            self.assertFalse(can_start_quest_pure(player_data, "temple_of_ikov", QUEST_DATA))
+            self.assertTrue(can_start_quest_pure(player_data, "temple_of_ikov", QUEST_DATA))
             player_data["quests"]["temple_of_ikov"] = {"started": True, "progress": 1, "completed": False}
             player_data["quest_route_states"] = {
                 "temple_of_ikov": [
@@ -3705,7 +3706,8 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(player_data["quests"]["fight_arena"]["completed"])
         self.assertEqual(player_data["quest_points"], 2)
         self.assertEqual(player_data["attack_exp"] - attack_before_reward, 12175.0)
-        self.assertEqual(player_data["pending_skill_exp_rewards"], {"thieving_exp": 2175.0})
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+        self.assertEqual(player_data["thieving_exp"], 2175.0)
         self.assertEqual(player_data["inventory"]["Coins"], 1000)
 
     def test_witchs_house_stage_gates_items_route_combat_and_reward(self):

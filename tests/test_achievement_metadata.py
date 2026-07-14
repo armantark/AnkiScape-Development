@@ -13,8 +13,8 @@ class AchievementMetadataTest(unittest.TestCase):
     def test_catalog_preserves_legacy_export_shape(self):
         names = list(ACHIEVEMENTS)
 
-        self.assertEqual(len(ACHIEVEMENT_DEFINITIONS), 150)
-        self.assertEqual(len(ACHIEVEMENTS), 150)
+        self.assertEqual(len(ACHIEVEMENT_DEFINITIONS), 154)
+        self.assertEqual(len(ACHIEVEMENTS), 154)
         self.assertEqual(
             names[:5],
             [
@@ -48,8 +48,8 @@ class AchievementMetadataTest(unittest.TestCase):
 
         self.assertIn("First Steps", completed_easy)
         self.assertIn("Rune Mysteries", completed_easy)
-        self.assertEqual(achievement_difficulty_progress(ACHIEVEMENTS, player_data, "Easy"), (2, 52))
-        self.assertEqual(achievement_progress(ACHIEVEMENTS, player_data), (2, 150, 2 / 150 * 100))
+        self.assertEqual(achievement_difficulty_progress(ACHIEVEMENTS, player_data, "Easy"), (2, 54))
+        self.assertEqual(achievement_progress(ACHIEVEMENTS, player_data), (2, 154, 2 / 154 * 100))
 
     def test_representative_conditions_cover_skill_quest_and_claim_state(self):
         player_data = {
@@ -132,6 +132,18 @@ class AchievementMetadataTest(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertFalse(ACHIEVEMENTS[name]["condition"]({"farming_level": threshold - 1}))
                 self.assertTrue(ACHIEVEMENTS[name]["condition"]({"farming_level": threshold}))
+
+    def test_thieving_achievements_use_durable_success_and_level_counters(self):
+        boundaries = (
+            ("First Lift", "thieving_success_count", 1),
+            ("Sticky Fingers", "thieving_success_count", 100),
+            ("Novice Thief", "thieving_level", 10),
+            ("Master Thief", "thieving_level", 99),
+        )
+        for name, key, threshold in boundaries:
+            with self.subTest(name=name):
+                self.assertFalse(ACHIEVEMENTS[name]["condition"]({key: threshold - 1}))
+                self.assertTrue(ACHIEVEMENTS[name]["condition"]({key: threshold}))
 
     def test_living_legend_uses_the_final_catalog_size(self):
         all_other_names = [name for name in ACHIEVEMENTS if name != "Living Legend"]

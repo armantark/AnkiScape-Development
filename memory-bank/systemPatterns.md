@@ -502,6 +502,22 @@ Persisted Anki config is the stable boundary. Schema changes should go through `
 
 Review-answer side effects must follow Anki's undo semantics. If a future skill mutates new `player_data` keys during an answer, the generic snapshot diff should catch them; if a future system writes outside `player_data`, it needs its own undo-aware rollback path.
 
+## Live cadence route pattern
+
+Thieving stalls are the first foreground family to route live behavior through
+`cadence_kernel.py`. A route owns one `cadence_profiles[profile_id]` residual;
+the active target alone advances it, waits still persist telemetry/residuals,
+and the outer review snapshot makes every advance and reward undo-atomic. Source
+rates above `R = 1000` must declare `CAP_ONE_ACTION`; never round a rational
+respawn rate or compensate by changing base XP.
+
+Failure state that must consume exactly one outer review returns `False` from
+the handler after mutation. That stops review multipliers from clearing a stun
+or repeating damage in the same card. The next review clears the persisted stun
+and also returns `False`. Skills whose failures use shared combat LP must be
+excluded from post-review safe combat recovery, or the integration layer will
+silently heal away the failure stake.
+
 ## UI Gotcha: nested-closure name collisions in `show_main_menu`
 `show_main_menu` is a very large function that defines many nested helpers (one per tab/section). All of these are locals of the *same* scope, so two sections defining a helper with the same name (e.g. `_select_skill`) silently rebind it — the later definition wins, and earlier callers route into the wrong function with no error. This caused the Skills-hub panel to ignore clicks (the Stats tab's `_select_skill` shadowed the hub's). Mitigation: prefix section-scoped helpers with their section (`_select_hub_skill`, etc.), and prefer the offscreen Qt behavior test to catch misrouted handlers. Longer term, splitting these sections into their own builder functions/classes would remove the shared scope entirely.
 

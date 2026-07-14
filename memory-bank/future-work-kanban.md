@@ -79,9 +79,17 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
 
 - Abstract courses as checkpoint/lap state without player location; decide failures/damage, tickets/rewards, run-energy benefits, shortcuts as dependency gates, equipment, and UI.
 
-### Thieving — grill IN PROGRESS 2026-07-13
+### Thieving — SHIPPED 2026-07-13
 
-Labels: `DEEP GRILL` (closing), `SOURCE AUDIT`.
+Labels: trailing `SOURCE AUDIT` and owning-activity dependencies only.
+
+- Core skill closure is implemented on `codex/thieving-skill`: 17 pickpocket
+  rows, all 18 2011Scape stall-family rows, wall safe, Menaphite blackjacking,
+  shared LP/stun/fight-back, storage v35, grouped Qt surface, assets, and exact
+  live cadence. See `memory-bank/source-audits/thieving-tables-2026-07-13.md`.
+- Remaining source debt: Dorgesh-Kaan chests, Lletya elf, Pirates' Hideout, and
+  incomplete blackjack variants. Activities exclusions and rogue/Ardougne
+  rewards remain on their owning cards.
 
 - Owner-settled so far: full-parity failure stake (a failed attempt costs the review, applies sourced damage to the shared combat lifepoint pool, and stuns, so the next review only clears the stun); a Thieving-scoped food loadout on the existing `combat_supply_loadout` substrate; a single "Fight back when caught" toggle (default off) governing both stall guards and blackjack thugs, where unchecked means you flee for one round of damage and checked means a real combat encounter; three casual controls total; targets are ordinary target rows like every other skill.
 - Scope: five engine-native loops — pickpocketing, stalls, chests, wall safes, blackjacking. Doors pending the source dossier.

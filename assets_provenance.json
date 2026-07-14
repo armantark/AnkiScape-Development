@@ -1,4 +1,16 @@
 {
+  "activityicons/desert_phoenix.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Desert_Phoenix.png",
+    "file_title": "Desert Phoenix.png",
+    "image_url": "https://runescape.wiki/images/Desert_Phoenix.png?0d9ab",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "09e1e87071d38caaa253e85548f748739efccb7f",
+    "size": 852139,
+    "source_wiki": "rs3",
+    "timestamp": "2024-03-14T12:48:08Z"
+  },
   "activityicons/gather_flax.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Flax.png",
     "file_title": "Flax.png",
@@ -17228,6 +17240,18 @@
     "size": 562,
     "source_wiki": "osrs",
     "timestamp": "2022-01-19T13:54:36Z"
+  },
+  "icon/thieving_icon.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Thieving-icon.png",
+    "file_title": "Thieving-icon.png",
+    "image_url": "https://runescape.wiki/images/Thieving-icon.png?1fcf2",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "beea7bf8eb20ed9cb1014474cc5bd1fe146fd76e",
+    "size": 1088,
+    "source_wiki": "rs3",
+    "timestamp": "2022-11-23T15:28:13Z"
   },
   "magicitems/adamant_bar.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Adamant_bar.png",

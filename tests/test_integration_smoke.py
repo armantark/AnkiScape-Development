@@ -177,14 +177,14 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.exp_awarded = False
         result = addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
         self.assertEqual(result, "answered")
-        self.assertEqual(calls["good_answer"], 0)
+        self.assertEqual(calls["good_answer"], 1)
 
         addon.current_skill = "Fletching"
         addon.card_turned = True
         addon.answer_shown = True
         addon.exp_awarded = False
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
-        self.assertEqual(calls["good_answer"], 1)
+        self.assertEqual(calls["good_answer"], 2)
 
         # With Experience HUD ON, both question/answer events should ensure+update
         addon._on_rev_show_question()
@@ -1798,7 +1798,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertIs(addon._registered_answer_handler("Fishing"), addon.runtime_actions.handle_fishing_answer)
         self.assertIs(addon._registered_answer_handler("Utility / Activities"), addon.runtime_actions.handle_utility_answer)
         self.assertIs(addon._registered_answer_handler("Utility"), addon.runtime_actions.handle_utility_answer)
-        self.assertIsNone(addon._registered_answer_handler("Thieving"))
+        self.assertIs(addon._registered_answer_handler("Thieving"), addon.runtime_actions.handle_thieving_answer)
 
     def test_can_start_current_action_uses_handler_keyed_readiness_checks(self):
         addon = _load_addon_as_package("ankiscape_action_dispatch_readiness")
@@ -1890,6 +1890,175 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertAlmostEqual(addon.player_data["woodcutting_exp"], 50.0)
         self.assertAlmostEqual(addon.player_data["fletching_exp"], 10.0)
         self.assertEqual(calls["xp"], [50.0, 10.0])
+
+    def test_thieving_failure_is_one_attempt_under_multiplier_and_undoes_atomically(self):
+        addon = _load_addon_as_package("ankiscape_thieving_review_integration")
+
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": 3}))
+        addon.player_data = {
+            "inventory": {},
+            "thieving_level": 1,
+            "thieving_exp": 0.0,
+            "current_thieving": "pickpocket_man",
+            "thieving_attempt_count": 0,
+            "thieving_success_count": 0,
+            "thieving_failure_count": 0,
+            "thieving_stunned": False,
+            "combat_lifepoints": 100,
+            "completed_achievements": [],
+        }
+        initial_state = copy.deepcopy(addon.player_data)
+        addon.current_skill = "Thieving"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        original_random = addon.random.random
+        rolls = iter((0.999, 0.0))
+        addon.random.random = lambda: next(rolls)
+        try:
+            addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(addon.player_data["thieving_attempt_count"], 1)
+        self.assertEqual(addon.player_data["thieving_failure_count"], 1)
+        self.assertEqual(addon.player_data["combat_lifepoints"], 90)
+        self.assertTrue(addon.player_data["thieving_stunned"])
+        self.assertEqual(addon.player_data["thieving_exp"], 0.0)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
+
+        self.assertEqual(addon.player_data, initial_state)
+        self.assertEqual(addon.current_skill, "Thieving")
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
+    def test_thieving_success_and_stall_cadence_ignore_review_multiplier(self):
+        addon = _load_addon_as_package("ankiscape_thieving_multiplier_cap_integration")
+
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": 3}))
+        addon.current_skill = "Thieving"
+
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.0
+        try:
+            addon.player_data = {
+                "inventory": {},
+                "thieving_level": 50,
+                "thieving_exp": 0.0,
+                "current_thieving": "pickpocket_man",
+                "thieving_attempt_count": 0,
+                "thieving_success_count": 0,
+                "thieving_failure_count": 0,
+                "thieving_stunned": False,
+                "combat_lifepoints": 100,
+                "completed_achievements": [],
+            }
+            addon.card_turned = True
+            addon.answer_shown = True
+            addon.exp_awarded = False
+            addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+            self.assertEqual(addon.player_data["thieving_attempt_count"], 1)
+            self.assertEqual(addon.player_data["thieving_success_count"], 1)
+            self.assertEqual(addon.player_data["inventory"]["Coins"], 3)
+            self.assertEqual(addon.player_data["thieving_exp"], 8.0)
+
+            addon.player_data = {
+                "inventory": {},
+                "thieving_level": 50,
+                "thieving_exp": 0.0,
+                "current_thieving": "stall_silver",
+                "thieving_attempt_count": 0,
+                "thieving_success_count": 0,
+                "thieving_failure_count": 0,
+                "thieving_stunned": False,
+                "cadence_profiles": {},
+                "combat_lifepoints": 100,
+                "completed_achievements": [],
+            }
+            addon.card_turned = True
+            addon.answer_shown = True
+            addon.exp_awarded = False
+            addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(addon.player_data["thieving_attempt_count"], 1)
+        self.assertEqual(addon.player_data["thieving_success_count"], 1)
+        self.assertEqual(addon.player_data["inventory"]["Silver ore"], 1)
+        self.assertEqual(addon.player_data["thieving_exp"], 54.0)
+        self.assertEqual(
+            addon.player_data["cadence_profiles"]["thieving:stall_silver"]["assigned_reviews"],
+            1,
+        )
+
+    def test_wall_safe_failure_consumes_one_multiplied_review_and_undoes_cadence(self):
+        addon = _load_addon_as_package("ankiscape_wall_safe_review_integration")
+
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": 3}))
+        addon.player_data = {
+            "inventory": {},
+            "thieving_level": 50,
+            "thieving_exp": 0.0,
+            "current_thieving": "wall_safe",
+            "thieving_attempt_count": 0,
+            "thieving_success_count": 0,
+            "thieving_failure_count": 0,
+            "thieving_stunned": False,
+            "cadence_profiles": {},
+            "combat_lifepoints": 100,
+            "completed_achievements": [],
+        }
+        initial_state = copy.deepcopy(addon.player_data)
+        addon.current_skill = "Thieving"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        original_random = addon.random.random
+        rolls = iter((85 / 255, 0.0))
+        addon.random.random = lambda: next(rolls)
+        try:
+            addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(addon.player_data["thieving_attempt_count"], 1)
+        self.assertEqual(addon.player_data["thieving_failure_count"], 1)
+        self.assertEqual(addon.player_data["combat_lifepoints"], 80)
+        self.assertTrue(addon.player_data["thieving_stunned"])
+        self.assertEqual(
+            addon.player_data["cadence_profiles"]["thieving:wall_safe"]["assigned_reviews"],
+            1,
+        )
+
+        addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
+
+        self.assertEqual(addon.player_data, initial_state)
+        self.assertEqual(addon.current_skill, "Thieving")
 
     def test_utility_multiplier_runs_wool_gathering_ticks(self):
         addon = _load_addon_as_package("ankiscape_wool_multiplier_integration")

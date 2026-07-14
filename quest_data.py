@@ -7645,6 +7645,14 @@ QUEST_UNLOCK_RULES: Tuple[QuestUnlockRule, ...] = (
     QuestUnlockRule(AS_A_FIRST_RESORT_ID, "target", "hunter", ("catch_wimpy_bird",), "As a First Resort", HUNTER_AS_A_FIRST_RESORT_SOURCE),
     QuestUnlockRule(ROCKING_OUT_ID, "target", "hunter", ("catch_pirate_impling_puro_puro", "catch_pirate_impling_world"), "Rocking Out", HUNTER_ROCKING_OUT_SOURCE),
     QuestUnlockRule(PRIEST_IN_PERIL_ID, "target", "hunter", ("catch_swamp_lizard",), "Priest in Peril", HUNTER_PRIEST_IN_PERIL_SOURCE),
+    QuestUnlockRule(
+        "the_golem",
+        "target",
+        "utility",
+        ("grab_desert_phoenix_feather",),
+        "The Golem",
+        "https://runescape.wiki/w/Desert_Phoenix?oldid=6295341",
+    ),
 )
 
 

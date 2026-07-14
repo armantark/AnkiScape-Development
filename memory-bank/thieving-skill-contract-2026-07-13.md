@@ -178,3 +178,23 @@ fears checkbox hell, and full control lives in the advanced editors.
   probability lottery.
 - Every shipped number carries a `file:line` citation into 2011Scape or a pinned
   wiki `oldid`.
+
+## Owner amendments during implementation
+
+The owner explicitly overrode the earlier source-blocking interpretation for
+blackjacking and asked the implementer to resolve it. The shipped minimal loop
+uses period-wiki player-visible values and the Darkan hidden knockout roll as a
+clearly labelled provisional bridge. Menaphite thug is the only blackjack row
+whose XP, loot, failure damage, and two-pick cycle are fully closed.
+
+For stalls, exact 2011Scape respawn cadence remains authoritative when the
+period wiki's rounded XP/hour disagrees. Acceptance therefore uses 6,480 for
+silver, `486000/133` for spice, and 3,200 for gem, without tuning constants.
+
+Closure audit clarified two source paths that the initial implementation had
+collapsed. Wall safes use `MiscExt.kt`'s standalone three-argument interpolation
+with a strict comparison, then deal the sourced 20–60 LP trap hit. Thieving is
+one foreground action per answered card, so a global action multiplier never
+advances its review-based cadence more than once. Failure damage shares Combat's
+auto-eat/death/grave substrate; choosing fight-back starts the Menaphite combat
+encounter without first applying the flee-only 40 LP hit.

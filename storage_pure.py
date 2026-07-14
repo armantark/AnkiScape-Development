@@ -44,6 +44,7 @@ try:
         SMITHING_RECIPES_BY_ID,
     )
     from .skill_registry import default_skill_state, default_target_state, planned_skill_definitions, trainable_skill_definitions
+    from .thieving_data import THIEVING_TARGETS
     from .woodcutting_data import (
         DEFAULT_WOODCUTTING_TOOLBELT,
         LEGACY_LOG_STORAGE_MIGRATIONS,
@@ -91,13 +92,14 @@ except ImportError:
         SMITHING_RECIPES_BY_ID,
     )
     from skill_registry import default_skill_state, default_target_state, planned_skill_definitions, trainable_skill_definitions
+    from thieving_data import THIEVING_TARGETS
     from woodcutting_data import (
         DEFAULT_WOODCUTTING_TOOLBELT,
         LEGACY_LOG_STORAGE_MIGRATIONS,
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 34
+CURRENT_CONFIG_VERSION = 35
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -163,6 +165,41 @@ def _default_inventory(ORE_DATA: Dict[str, Any], item_definitions: Optional[Iter
     return inventory
 
 
+def _sanitize_thieving_state(data: Dict[str, Any]) -> None:
+    default_target = default_target_state().get("current_thieving", "pickpocket_man")
+    current_target = data.get("current_thieving")
+    data["current_thieving"] = (
+        current_target
+        if isinstance(current_target, str) and current_target in THIEVING_TARGETS
+        else default_target
+    )
+    for key in (
+        "thieving_attempt_count",
+        "thieving_success_count",
+        "thieving_failure_count",
+    ):
+        value = data.get(key, 0)
+        data[key] = value if isinstance(value, int) and not isinstance(value, bool) and value >= 0 else 0
+    stunned = data.get("thieving_stunned", False)
+    data["thieving_stunned"] = stunned if isinstance(stunned, bool) else False
+    fight_back = data.get("thieving_fight_back_when_caught", False)
+    data["thieving_fight_back_when_caught"] = fight_back if isinstance(fight_back, bool) else False
+    phase = data.get("thieving_blackjack_phase", "needs_lure")
+    phase = (
+        phase
+        if isinstance(phase, str) and phase in {"needs_lure", "ready_to_knockout", "knocked_out"}
+        else "needs_lure"
+    )
+    picks = data.get("thieving_blackjack_picks_remaining", 0)
+    picks = min(picks, 2) if isinstance(picks, int) and not isinstance(picks, bool) and picks >= 0 else 0
+    if phase != "knocked_out":
+        picks = 0
+    elif picks == 0:
+        phase = "ready_to_knockout"
+    data["thieving_blackjack_phase"] = phase
+    data["thieving_blackjack_picks_remaining"] = picks
+
+
 def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Iterable[ItemDefinition]] = None) -> Dict[str, Any]:
     data: Dict[str, Any] = {
         "config_version": CURRENT_CONFIG_VERSION,
@@ -190,6 +227,13 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["cooking_success_count"] = 0
     data["cooking_burn_count"] = 0
     data["hunter_success_count"] = 0
+    data["thieving_attempt_count"] = 0
+    data["thieving_success_count"] = 0
+    data["thieving_failure_count"] = 0
+    data["thieving_stunned"] = False
+    data["thieving_fight_back_when_caught"] = False
+    data["thieving_blackjack_phase"] = "needs_lure"
+    data["thieving_blackjack_picks_remaining"] = 0
     data["action_telemetry"] = default_action_telemetry_pure()
     data["toolbelt"] = _default_toolbelt()
     data["equipment"] = {}
@@ -808,6 +852,17 @@ def migrate_loaded_data(
     # no live action reads or advances this state in Phase 1.
     if loaded_config_version < 34:
         data.setdefault("cadence_profiles", default_cadence_kernel_state_pure())
+    # v35: complete Thieving identity and review-side state. The target itself
+    # is registry-backed; the remaining keys are additive and stay flat.
+    if loaded_config_version < 35:
+        data.setdefault("current_thieving", default_target_state().get("current_thieving", "pickpocket_man"))
+        data.setdefault("thieving_attempt_count", 0)
+        data.setdefault("thieving_success_count", 0)
+        data.setdefault("thieving_failure_count", 0)
+        data.setdefault("thieving_stunned", False)
+        data.setdefault("thieving_fight_back_when_caught", False)
+        data.setdefault("thieving_blackjack_phase", "needs_lure")
+        data.setdefault("thieving_blackjack_picks_remaining", 0)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -833,6 +888,7 @@ def migrate_loaded_data(
     # invariant, not a schema migration; valid partial urns remain valid in bank.
     data.update(sanitize_urn_state_pure(data))
     data.update(sanitize_farming_state_pure(data))
+    _sanitize_thieving_state(data)
     data["cadence_profiles"] = sanitize_cadence_kernel_state_pure(
         data.get("cadence_profiles")
     )

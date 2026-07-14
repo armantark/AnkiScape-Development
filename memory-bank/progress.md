@@ -20,7 +20,7 @@ review undo are covered. Combat and Thieving are untouched.
 
 - Gathering: Mining, Woodcutting, Farming, Fishing, Hunter.
 - Artisan: Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Herblore, Construction.
-- Support/combat-adjacent: Prayer and Magic.
+- Support/combat-adjacent: Prayer, Magic, and Thieving.
 
 These surfaces use stable IDs, flat save state, review or background dispatch as appropriate, inventory mutation, telemetry, undo, assets/provenance, Skills-hub UI, Stats/Bank/HUD integration, and focused tests.
 
@@ -34,9 +34,27 @@ Unified Combat trains Attack, Strength, Defence, Constitution, and Ranged. They 
 - Agility
 - Dungeoneering
 - Slayer
-- Thieving
 
 Each needs a closed product/source contract before implementation.
+
+## Thieving closure
+
+Thieving adds 17 pickpocket rows, 18 stall-family rows, one complete Menaphite
+blackjack row, two visible source-blocked quest rows, exact cadence scheduling,
+source-weighted loot, shared combat LP/stun/fight-back state, storage v35,
+grouped Qt selection, four stable achievements, RuneScape-sourced skill and
+Phoenix assets with provenance, and targeted pure/runtime/storage/Qt coverage.
+Failure damage reuses Combat auto-eat/death/grave state, while encounter-only
+Menaphites stay out of the ordinary Combat picker. The Feud and The Golem were
+already playable in the 194-quest catalog; Thieving consumes those live
+completion states.
+
+Verification: 1,240/1,240 tests pass under Python 3.12 and under the real
+offscreen Anki/Qt environment; `run_tests.py` is also green. The three expected
+XP/hour parity failures predate this slice. A 609-test focused closure set,
+zero Thieving/Phoenix reachability orphans, compilation, and `git diff --check`
+complete the gate. See
+`status-updates/thieving-skill-results-2026-07-13.html`.
 
 ## Latest Closure
 

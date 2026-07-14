@@ -123,6 +123,7 @@ try:
         prayer_utility_activities_as_dict,
     )
     from .prayer_passive_data import prayer_passive_items_as_dict
+    from .thieving_data import thieving_extra_items_as_dict
     from .urn_data import URN_TIERS, urn_extra_items_as_dict
     from .magic_data import (
         DEFAULT_MAGIC_TARGET,
@@ -258,6 +259,7 @@ except ImportError:
         prayer_utility_activities_as_dict,
     )
     from prayer_passive_data import prayer_passive_items_as_dict
+    from thieving_data import thieving_extra_items_as_dict
     from urn_data import URN_TIERS, urn_extra_items_as_dict
     from magic_data import (
         DEFAULT_MAGIC_TARGET,
@@ -404,6 +406,16 @@ UTILITY_ACTIVITY_DATA = {
         "group": "gathering",
         "source": "OSRS Bow string > Strategy > Manual Spinning",
     },
+    "grab_desert_phoenix_feather": {
+        "display_name": "Grab Desert Phoenix feather",
+        "requirements": {},
+        "output_item": "Phoenix feather",
+        "output_qty": 1,
+        "batch_size": 1,
+        "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "desert_phoenix.png"),
+        "group": "gathering",
+        "source": "https://runescape.wiki/w/Desert_Phoenix?oldid=6295341",
+    },
     "open_bird_nest": {
         "display_name": "Open bird nests",
         "requirements": {},
@@ -495,6 +507,7 @@ UTILITY_ITEM_IMAGES = {
     "Soft clay": os.path.join(CRAFTED_ITEMS_FOLDER, "soft_clay.png"),
     "Wool": os.path.join(CRAFTED_ITEMS_FOLDER, "wool.png"),
     "Flax": os.path.join(CRAFTED_ITEMS_FOLDER, "flax.png"),
+    "Phoenix feather": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "desert_phoenix.png"),
     "Feather": os.path.join(FLETCHED_ITEMS_FOLDER, "feather.png"),
     "Fishing bait": os.path.join(FISHING_ITEMS_FOLDER, "fishing_bait.png"),
     # Coin-paid conversion outputs (art shared with the folders that first
@@ -887,6 +900,7 @@ PRAYER_EXTRA_ITEM_DATA = {
     **PRAYER_PASSIVE_ITEM_DATA,
     **URN_ITEM_DATA,
 }
+THIEVING_EXTRA_ITEM_DATA = thieving_extra_items_as_dict()
 PRAYER_ITEM_IMAGES = {}
 for _item_name in PRAYER_EXTRA_ITEM_DATA:
     _path = CRAFTED_ITEM_IMAGES.get(_item_name) or os.path.join(PRAYER_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
@@ -1133,6 +1147,7 @@ def _known_non_shop_item_names():
         COMBAT_EXTRA_ITEM_DATA,
         CONSTRUCTION_EXTRA_ITEM_DATA,
         FARMING_ITEM_DATA,
+        THIEVING_EXTRA_ITEM_DATA,
     ):
         names.update(mapping)
     names.update(MINING_OUTPUT_ITEMS)
@@ -1205,6 +1220,7 @@ def _known_non_shop_item_ids(names):
         HERBLORE_EXTRA_ITEM_DATA,
         COMBAT_EXTRA_ITEM_DATA,
         CONSTRUCTION_EXTRA_ITEM_DATA,
+        THIEVING_EXTRA_ITEM_DATA,
         FARMING_ITEM_DATA,
     ):
         for item_name, spec in mapping.items():
@@ -1241,6 +1257,7 @@ def _apply_equipment_metadata(extra_item_data):
 EXTRA_ITEM_DATA = _apply_equipment_metadata({
     # Magic references many existing cross-skill items. Put its generic
     # fallback rows first so the owning skill's category/stackability wins.
+    **THIEVING_EXTRA_ITEM_DATA,
     **CONSTRUCTION_EXTRA_ITEM_DATA,
     **MAGIC_EXTRA_ITEM_DATA,
     **QUEST_REWARD_ITEM_DATA,

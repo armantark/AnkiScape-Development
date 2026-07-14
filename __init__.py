@@ -1009,6 +1009,10 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_set_cooking=lambda target: _set_value("current_cooking", target),
         on_set_runecrafting=lambda target: _set_value("current_runecrafting", target),
         on_set_herblore=lambda target: _set_value("current_herblore", target),
+        on_set_thieving=lambda target: _set_value("current_thieving", target),
+        on_set_thieving_fight_back=lambda enabled: _set_value(
+            "thieving_fight_back_when_caught", bool(enabled)
+        ),
         on_set_prayer_selection=set_prayer_selection,
         on_set_magic=lambda target: _set_value("current_magic", target),
         on_set_construction=lambda target: _set_value("current_construction", target),
@@ -1436,7 +1440,8 @@ def on_good_answer(before_state=None):
             elif handler_key == "combat":
                 review_progressed = handler(review_ctx) is not False
             else:
-                for tick_index in range(_review_action_multiplier()):
+                action_ticks = 1 if handler_key == "thieving" else _review_action_multiplier()
+                for tick_index in range(action_ticks):
                     if tick_index > 0 and not _can_start_current_action():
                         break
                     result = runtime_actions.run_answer_with_carried_overlay(
@@ -1446,7 +1451,7 @@ def on_good_answer(before_state=None):
                         review_progressed = True
                     if result is False or current_skill == "None":
                         break
-                if review_progressed and handler_key not in ("quest",):
+                if review_progressed and handler_key not in ("quest", "thieving"):
                     _apply_safe_combat_recovery_after_review(review_ctx.save_player_data)
         finally:
             _finish_review_feedback_context()
