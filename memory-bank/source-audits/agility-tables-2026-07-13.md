@@ -22,16 +22,16 @@ Pinned wiki revisions: Gnome Stronghold `6391497` (`2012-10-12T18:29:49Z`); Barb
 
 | Course/activity | 2011Scape? | Pinned wiki oldid | Darkan? | Cache corroborated? | Tier of shipped value |
 |---|---:|---:|---:|---:|---|
-| Gnome Stronghold + Advanced fork | Yes — trusted trunk/branches `[S-GNOME:35-53,55-345]` | `6391497` (requirements/failure/conflict only) | Yes; divergent normal/advanced values | Not required for shipping | Tier 1: 2011Scape |
-| Barbarian Outpost + Advanced fork | Yes — trusted trunk/branches `[S-BARB:46-64,65-291]` | `6549278` (course requirement/failure only) | Yes; major normal-course divergence | Not required for shipping | Tier 1: 2011Scape; wiki fills the absent level-35 course gate only |
-| Wilderness | Yes — trusted ordered course `[S-WILD:30-38,81-279]` | `6487716` (failure/conflict only) | Yes; values agree, object revision differs | Not required for shipping | Tier 1: 2011Scape |
-| Burthorpe / Gnome beginner | No | `6130636` | Yes; final XP differs | Yes — all seven rows in C742/C741 | Tier 2: pinned wiki |
-| Agility Pyramid | No | `6457748` | Yes; ordered lead and multiple divergences | Partial — all named interactive types except “moving blocks” | Tier 2 for type XP/counts; ordered occurrence table is `source_blocked` |
-| Ape Atoll | No | `6538325` | Yes; XP table is wholly divergent | Yes — all six rows in C742/C741 | Tier 2: pinned wiki |
-| Werewolf (Canifis) | No | `6288778` | Yes; stick/failure divergences | Yes — all five rows in C742/C741 | Tier 2: pinned wiki |
-| Dorgesh-Kaan | No | `6547042` | No | Yes — all eight route rows in C742/C741 | Tier 2: pinned wiki |
-| Penguin | No | `5988056` | No | Partial — interactive object groups identified; course-label mapping noted | Tier 2: pinned wiki |
-| Brimhaven Agility Arena | No lap implementation | `6556177`; ticket `5777910`; Pirate Jackie `6225118` | Partial controller; no payout | Yes — dispensers 3581/3608 in C742/C741 | Tier 2: pinned wiki; Darkan only divergence |
+| Gnome Stronghold + Advanced fork | Yes — trusted trunk/branches `[S-GNOME:35-53,55-345]` | `6391497` (requirements/failure/conflict only) | Yes; divergent normal/advanced values `[D-GnomeAgility.java:45-252]` | Not required for shipping | Tier 1: 2011Scape |
+| Barbarian Outpost + Advanced fork | Yes — trusted trunk/branches `[S-BARB:46-64,65-291]` | `6549278` (course requirement/failure only) | Yes; major normal-course divergence `[D-BarbarianOutpostAgility.kt:61-267]` | Not required for shipping | Tier 1: 2011Scape; wiki fills the absent level-35 course gate only |
+| Wilderness | Yes — trusted ordered course `[S-WILD:30-38,81-279]` | `6487716` (failure/conflict only) | Yes; values agree, object revision differs `[D-WildernessAgility.kt:113-294]` | Not required for shipping | Tier 1: 2011Scape |
+| Burthorpe / Gnome beginner | No | `6130636` | Yes; final XP differs `[D-BurthorpeAgility.java:26-36]` | Yes — all seven rows in C742/C741 `[C742/C741 objects 66894,66897,66902,66904,66909,66910,66912]` | Tier 2: pinned wiki |
+| Agility Pyramid | No | `6457748` | Yes; ordered lead and multiple divergences `[D-AgilityPyramidController.java:44-297]` | Partial — all named interactive types except “moving blocks” `[C742/C741 objects 10851,10855-10865,10867-10868,10875-10876,10882-10888]` | Tier 2 for type XP/counts; ordered occurrence table is `source_blocked` |
+| Ape Atoll | No | `6538325` | Yes; XP table is wholly divergent `[D-ApeAtollAgility.java:44-143]` | Yes — all six rows in C742/C741 `[C742/C741 objects 12568,12570,12573,12575,12576,12578,12618]` | Tier 2: pinned wiki |
+| Werewolf (Canifis) | No | `6288778` | Yes; stick/failure divergences `[D-WerewolfAgility.kt:29-260]` | Yes — all five rows in C742/C741 `[C742/C741 objects 5133-5136,5139-5141,5152,35996]` | Tier 2: pinned wiki |
+| Dorgesh-Kaan | No | `6547042` | No course file in the audited Darkan Agility directory | Yes — all eight route rows in C742/C741 `[C742/C741 objects 22552,22557,22564,22569,22572]` | Tier 2: pinned wiki |
+| Penguin | No | `5988056` | No course file in the audited Darkan Agility directory | Partial — interactive object groups identified; course-label mapping noted `[C742/C741 objects 21120,21126,21128-21134,21142-21143,21148-21156]` | Tier 2: pinned wiki |
+| Brimhaven Agility Arena | No lap implementation | `6556177`; ticket `5777910`; Pirate Jackie `6225118` | Partial controller; no payout `[D-BrimhavenAgilityController.java:33-180; D-PirateJackieTheFruit.java:12-20]` | Yes — dispensers 3581/3608 in C742/C741 `[C742/C741 objects 3581,3608]` | Tier 2: pinned wiki; Darkan only divergence |
 
 ## 1. Gnome Stronghold: shared trunk with two branches
 
