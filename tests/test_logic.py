@@ -132,17 +132,14 @@ from constants import (
 )
 
 class TestLogic(unittest.TestCase):
-    def test_get_exp_to_next_level(self):
-        player_data = {"mining_level": 10, "total_exp": 1000}
-        EXP_TABLE = {10: 1500}
-        result = get_exp_to_next_level(player_data, EXP_TABLE)
-        self.assertEqual(result, 500)
-
-    def test_max_level(self):
-        player_data = {"mining_level": 99, "total_exp": 200000}
-        EXP_TABLE = {99: 200000}
-        result = get_exp_to_next_level(player_data, EXP_TABLE)
-        self.assertEqual(result, 0)
+    def test_exp_to_next_level_handles_progress_and_cap(self):
+        cases = (
+            ("progress", {"mining_level": 10, "total_exp": 1000}, {10: 1500}, 500),
+            ("level cap", {"mining_level": 99, "total_exp": 200000}, {99: 200000}, 0),
+        )
+        for name, player_data, exp_table, expected in cases:
+            with self.subTest(name):
+                self.assertEqual(get_exp_to_next_level(player_data, exp_table), expected)
 
     def test_get_newly_completed_achievements_basic(self):
         # Mock achievements and player data
@@ -480,29 +477,30 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(new_inv["Clay"], 12)
         self.assertEqual(new_inv["Soft clay"], 28)
 
-    def test_pestle_and_mortar_grinding_batches_without_xp(self):
-        new_inv, exp, ok, processed = apply_utility_activity_pure(
-            "grind_anchovies",
-            {"Anchovies": 30},
-            UTILITY_ACTIVITY_DATA,
+    def test_grinding_activities_batch_without_xp(self):
+        cases = (
+            ("anchovies", "grind_anchovies", {"Anchovies": 30}, "Anchovies", 2, "Anchovy paste", 28, 28),
+            (
+                "empty bird nests",
+                "grind_birds_nest",
+                {"Bird's nest (empty)": 3},
+                "Bird's nest (empty)",
+                0,
+                "Crushed nest",
+                3,
+                3,
+            ),
         )
-        self.assertTrue(ok)
-        self.assertEqual(exp, 0)
-        self.assertEqual(processed, 28)
-        self.assertEqual(new_inv["Anchovies"], 2)
-        self.assertEqual(new_inv["Anchovy paste"], 28)
-
-    def test_empty_bird_nests_feed_the_source_backed_crushed_nest_action(self):
-        new_inv, exp, ok, processed = apply_utility_activity_pure(
-            "grind_birds_nest",
-            {"Bird's nest (empty)": 3},
-            UTILITY_ACTIVITY_DATA,
-        )
-        self.assertTrue(ok)
-        self.assertEqual(exp, 0)
-        self.assertEqual(processed, 3)
-        self.assertEqual(new_inv["Bird's nest (empty)"], 0)
-        self.assertEqual(new_inv["Crushed nest"], 3)
+        for name, action_id, inventory, input_item, remainder, output_item, output, processed in cases:
+            with self.subTest(name):
+                new_inv, exp, ok, actual_processed = apply_utility_activity_pure(
+                    action_id, inventory, UTILITY_ACTIVITY_DATA
+                )
+                self.assertTrue(ok)
+                self.assertEqual(exp, 0)
+                self.assertEqual(actual_processed, processed)
+                self.assertEqual(new_inv[input_item], remainder)
+                self.assertEqual(new_inv[output_item], output)
 
     def test_light_source_actions_are_single_zero_xp_item_swaps_with_level_locks(self):
         new_inv, exp, ok, processed = apply_utility_activity_pure(
@@ -910,11 +908,17 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(glass_exp, 17.5)
         self.assertEqual(glass_inventory, {"Molten glass": 0, "Glassblowing pipe": 1, "Beer glass": 1})
 
-    def test_unfired_clay_ring_requires_ring_mould_for_readiness(self):
-        self.assertFalse(can_craft_item_pure(4, {"Soft clay": 1}, "form_clay_ring_unfired", CRAFTING_DATA))
-        self.assertTrue(can_craft_item_pure(
-            4, {"Soft clay": 1, "Ring mould": 1}, "form_clay_ring_unfired", CRAFTING_DATA
-        ))
+    def test_crafting_readiness_requires_live_tools(self):
+        cases = (
+            ("clay ring", 4, {"Soft clay": 1}, "Ring mould", "form_clay_ring_unfired"),
+            ("gold ring", 5, {"Gold bar": 1}, "Ring mould", "jewellery_gold_ring"),
+        )
+        for name, level, inventory, tool, recipe_id in cases:
+            with self.subTest(name):
+                self.assertFalse(can_craft_item_pure(level, inventory, recipe_id, CRAFTING_DATA))
+                self.assertTrue(can_craft_item_pure(
+                    level, {**inventory, tool: 1}, recipe_id, CRAFTING_DATA
+                ))
 
     def test_unfired_clay_ring_consumes_clay_and_retains_ring_mould(self):
         inventory, exp, ok = apply_crafting_pure(
@@ -1415,10 +1419,6 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(can_craft_item_pure(5, inv, "Gold ring", crafting_data))
         self.assertTrue(can_craft_item_pure(1, inv, "Soft clay", crafting_data))
         self.assertFalse(can_craft_item_pure(1, {}, "Soft clay", crafting_data))  # missing material
-
-    def test_can_craft_item_pure_requires_a_live_crafting_tool(self):
-        self.assertFalse(can_craft_item_pure(5, {"Gold bar": 1}, "jewellery_gold_ring", CRAFTING_DATA))
-        self.assertTrue(can_craft_item_pure(5, {"Gold bar": 1, "Ring mould": 1}, "jewellery_gold_ring", CRAFTING_DATA))
 
     def test_apply_fletching_pure(self):
         fletching_data = {
