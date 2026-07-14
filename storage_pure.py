@@ -836,6 +836,16 @@ def migrate_loaded_data(
     data["cadence_profiles"] = sanitize_cadence_kernel_state_pure(
         data.get("cadence_profiles")
     )
+    if "cadence_shadow" in data:
+        try:
+            try:
+                from .cadence_shadow import sanitize_cadence_shadow_state_pure
+            except ImportError:  # pragma: no cover - flat import path used by tests
+                from cadence_shadow import sanitize_cadence_shadow_state_pure  # type: ignore
+            data["cadence_shadow"] = sanitize_cadence_shadow_state_pure(data["cadence_shadow"])
+        except ImportError:
+            # A disabled optional observer must never make an existing save unloadable.
+            pass
     data.update(sanitize_combat_state_pure(data))
     combat_current_levels = data.get("combat_current_levels")
     if isinstance(combat_current_levels, dict) and "prayer" in combat_current_levels:

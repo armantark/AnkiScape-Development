@@ -2,13 +2,23 @@
 
 ## Current Focus
 
+Cadence Phase 3 shadow observation is complete on
+`codex/cadence-phase3-shadow`, based on Phase 1 at `b45aff0`. With the strict
+off-by-default `ankiscape_cadence_kernel` flag enabled, Mining, Woodcutting,
+Fishing, Hunter, Cooking, and Firemaking now record the kernel proposal beside
+the unchanged live result. The observer covers all 175 runtime routes: 24 have
+compatible pre-cutoff rates and 151 fail closed as `source_blocked`. Fixed-seed
+end-to-end tests prove identical per-review gameplay bytes, XP, loot, call
+sequence, and RNG state with the flag on or off; only the dedicated
+`player_data["cadence_shadow"]` instrumentation namespace differs.
+
 Phase 1 of the cadence kernel is committed on `main` at `b45aff0`.
 `cadence_kernel.py` owns the pure `R = 1000` contract, exact residual
 scheduling, admission/overflow declarations, and lock shapes. Storage config v34
 adds only the empty route-keyed `cadence_profiles` state;
 `ankiscape_cadence_kernel` is strict, off by default, and not read by review
-dispatch. No skill is routed through the kernel. `main` runs 1,209 tests with
-187 skips and three expected failures.
+dispatch. No skill is routed through the kernel for live mutation. The Phase 3
+branch runs 1,219 tests with 187 non-Qt skips and three expected failures.
 
 A concurrent test-signal cleanup briefly shared this checkout and was extracted
 at `7f3c0a1`; it now lives on the `codex/test-signal-cleanup` branch in its own
@@ -21,10 +31,10 @@ The Prayer/altar/urn/passive/Herblore closure is implemented, fully certified, a
 
 Use these as the live handoff sources:
 
-1. `memory-bank/future-work-kanban.md` — canonical forward-work board.
-2. `memory-bank/source-audits/prayer-altar-urn-passives-herblore-closure-2026-07-13.md` — closure evidence and conflict resolutions.
-3. `memory-bank/status-updates/prayer-herblore-construction-polish-plan-2026-07-13.html` — immutable pre-implementation contract.
-4. `memory-bank/status-updates/prayer-herblore-construction-polish-results-2026-07-13.html` — final verification handoff.
+1. `memory-bank/cadence-kernel-phase3-shadow-2026-07-13.md` — Phase 3 decisions, route coverage, verification, and manual QA.
+2. `memory-bank/status-updates/cadence-kernel-phase3-shadow-plan-2026-07-13.html` — immutable pre-implementation proposal.
+3. `memory-bank/status-updates/cadence-kernel-phase3-shadow-results-2026-07-13.html` — final divergence and verification handoff.
+4. `memory-bank/future-work-kanban.md` — canonical forward-work board.
 5. `memory-bank/pre-eoc-source-verification-standard.md` — permanent evidence contract.
 
 The dated `completion-audit-2026-07-10.*` files remain historical snapshots; live registry and Kanban state outrank them.
@@ -42,6 +52,11 @@ The dated `completion-audit-2026-07-10.*` files remain historical snapshots; liv
 
 ## Most Recent Completed Work
 
+- The six Phase 3 adapters observe through the existing central action-telemetry seam exactly once per started action. They never supply an outcome to live gameplay.
+- Gathering adapters advance independent exact low/high source envelopes. Cooking and Firemaking compare the already-drawn live roll to the authentic source probability and draw no second random value.
+- Source ranges remain ranges; no midpoint is invented. Explicit `cap_one_action` overflow metadata covers Mining iron and the five embedded Cooking/Firemaking routes.
+- Shadow residuals and aggregates sanitize without floats, round-trip through save/load, and roll back atomically with the review snapshot. A missing optional observer import cannot prevent a previously enabled save from loading after the flag is disabled.
+- The catalog reporter lists current, proposed, and pinned 2012 XP/hour for every in-scope route. Ordinary gold, runite, mixed leaping fish, rocktail urn-inclusive data, and all other incompatible/missing rows remain visibly `source_blocked`.
 - Prayer selection is atomic across material and method. Hosted/owned altar state is cleared only when that composite selection changes.
 - Owned gilded altars accept zero, one, or two burners at 250%, 300%, or 350%; clean marrentill is consumed once per new stint and the multiplier remains frozen for that stint.
 - Training urns use exact five-state physical identities, non-stackable semantics, target-carried activation, overflow-preserving charge, ten-nonempty caps, and direct full-urn teleport.
@@ -58,6 +73,13 @@ The dated `completion-audit-2026-07-10.*` files remain historical snapshots; liv
   migration phase, and preserve the off-path byte/RNG identity test.
 - Cadence residuals are integer-only per route. Inactive routes freeze, and the
   whole `cadence_profiles` mapping rides the existing review snapshot/undo path.
+- Phase 3 is observation only. `cadence_shadow` is transactional instrumentation,
+  separate from dormant live `cadence_profiles`; enabling it may add observer
+  bytes, but cannot change gameplay state, XP, loot, calls, or RNG.
+- Missing or semantically incompatible rates always remain `source_blocked`.
+  Do not substitute modern rates, midpoint a range, decompose the rocktail urn
+  quote, map ordinary gold to concentrated gold, or map mixed leaping fish to a
+  sturgeon-only rate.
 - Full pre-EOC cutoff: `2012-11-20`.
 - Do not re-grill Prayer, Magic, Construction, or Farming; their contracts are closed and implemented.
 - Do not collapse source IDs 4255 and 6810 into one storage key. The earlier gap-ledger conclusion is superseded by the closure audit.

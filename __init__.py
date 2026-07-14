@@ -479,6 +479,7 @@ def _runtime_action_context() -> RuntimeActionContext:
         implemented_exp_keys_snapshot=_implemented_exp_keys_snapshot,
         show_quest_exp_delta=_show_quest_exp_delta,
         review_action_multiplier=_review_action_multiplier(),
+        cadence_shadow_enabled=_cadence_kernel_enabled(),
         prompt_stronghold_reward=_prompt_stronghold_reward,
     )
 

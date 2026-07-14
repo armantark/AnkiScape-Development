@@ -9,6 +9,13 @@ adds a dormant pure scheduler, additive config-v34 route residuals, the strict
 off-by-default `ankiscape_cadence_kernel` flag, and exact save/load/undo and
 flag-off RNG/output regression coverage. No skill behavior is routed or changed.
 
+Phase 3 shadow observation is complete on `codex/cadence-phase3-shadow`. The
+six in-scope adapters record current and proposed outcomes without mutating live
+gameplay. The 175-route catalog has 24 source-ready routes and 151 explicit
+`source_blocked` routes. Exact range envelopes, embedded Cooking/Firemaking
+source rolls, overflow declarations, save/load sanitation, reporting, and
+review undo are covered. Combat and Thieving are untouched.
+
 ## Complete Skill Surfaces
 
 - Gathering: Mining, Woodcutting, Farming, Fishing, Hunter.
@@ -32,6 +39,20 @@ Unified Combat trains Attack, Strength, Defence, Constitution, and Ranged. They 
 Each needs a closed product/source contract before implementation.
 
 ## Latest Closure
+
+The cadence Phase 3 closure adds:
+
+- one guarded central observation seam for Mining, Woodcutting, Fishing, Hunter, Cooking, and Firemaking;
+- exact rational low/high source envelopes with no midpoint collapse;
+- reuse of the already-consumed live roll for Cooking and Firemaking, with no RNG drift;
+- a separate transactional `cadence_shadow` namespace that never seeds live `cadence_profiles`;
+- complete 175-route catalog and observed-save reporters for current, proposed, and source XP/hour;
+- fail-closed handling for 151 missing or semantically incompatible source rows;
+- fixed-seed flag-on/off gameplay-byte, XP, loot, call-sequence, RNG, save/load, and undo proof.
+
+The durable closure record is `cadence-kernel-phase3-shadow-2026-07-13.md`.
+
+## Previous Closure
 
 The Prayer polish closure adds:
 
@@ -69,6 +90,9 @@ The durable source/conflict record is `source-audits/prayer-altar-urn-passives-h
 
 ## Verification Baseline
 
+- Cadence Phase 3 focused suite: 176 tests passing, three expected failures.
+- Phase 3 full non-Qt discovery: 1,219 tests passing, 187 skips, three expected failures.
+- Phase 3 full real offscreen Qt discovery: 1,219 tests passing, three expected failures.
 - Cadence Phase 1 targeted suite: 11 tests passing.
 - `python3 -m unittest discover -s tests -q` on `main`: 1,209 tests passing, 187
   skips, three expected failures. The concurrent test-signal cleanup was
