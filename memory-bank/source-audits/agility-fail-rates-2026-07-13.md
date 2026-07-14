@@ -154,7 +154,7 @@ No OSRS formula survives both gates for the other course obstacles.
 
 ### Stop-rule contradiction: OSRS Pyramid endpoints versus the settled 2008 observations
 
-This contradiction halts the audit before the independent-emulator avenue. Every Pyramid obstacle requires level `30`, and each OSRS success curve rises with level, so its level-30 failure chance is the **maximum** it can produce for an eligible player. Using the recovered pre-2023 `c_old` rather than the contaminated modern rounding gives:
+This contradiction disqualifies the Pyramid endpoints but does not halt the remaining hunt avenues. Every Pyramid obstacle requires level `30`, and each OSRS success curve rises with level, so its level-30 failure chance is the **maximum** it can produce for an eligible player. Using the recovered pre-2023 `c_old` rather than the contaminated modern rounding gives:
 
 | Pyramid obstacle | OSRS `c_old(30)` | Maximum eligible OSRS fail chance | Settled 2008 pre-EOC observation, player level unstated | Result |
 |---|---:|---:|---:|---|
@@ -165,11 +165,69 @@ This contradiction halts the audit before the independent-emulator avenue. Every
 | Cross gap | `218/256` success | `38/256 = 14.84375%` [`oldid 15232861`](https://oldschool.runescape.wiki/?oldid=15232861) | approximately `30–40%` [`RS oldid 391182`](https://runescape.wiki/?oldid=391182) | Mutually incompatible if the observation measures this roll. |
 | Jump gap | `228/256` success | `28/256 = 10.9375%` [`oldid 15232861`](https://oldschool.runescape.wiki/?oldid=15232861) | `40%` [`RS oldid 391182`](https://runescape.wiki/?oldid=391182) | Mutually incompatible if the observation measures this roll. |
 
-The unknown 2008 player level cannot reconcile the rows: raising it above `30` only lowers every OSRS failure chance. The period figures are approximate observations rather than source code, but Tier 2 outranks Tier 3, and the `2009-10-20` main-line “improved the code” entry is a plausible divergence point. Per the audit's stop rule, the OSRS Pyramid endpoints remain disqualified and no emulator result should be used to choose a side without owner acknowledgement of this conflict.
+The unknown 2008 player level cannot reconcile the rows: raising it above `30` only lowers every OSRS failure chance. The period figures are approximate observations rather than source code, but Tier 2 outranks Tier 3, and the `2009-10-20` main-line “improved the code” entry is a plausible divergence point. Per the audit's conflict rule, the OSRS Pyramid endpoints remain disqualified; later emulator results are recorded with their own standing rather than silently used to choose a side.
 
 ## Avenue 3 — Other pre-EOC emulators
 
-TODO
+### Disk check and repository set
+
+The required local check covered `~/Downloads` and `~/Documents`. No 2009scape, Kronos, Apollo, Luna, Elvarg, RuneSource, 2006scape, or 2007scape source checkout was present. The one relevant local tree was a downloaded 2011Scape source snapshot at `~/Downloads/game-main`; its Barbarian plugin still says `TO-DO: Add Fail changes` at lines 10–14 and contains no roll. Public repositories were therefore read without cloning. Every source link below is pinned to a commit.
+
+### 2009scape: an implemented curve, but an emulator invention that conflicts with period evidence
+
+The official 2009scape GitLab is mirrored at [`downthecrop/2009scape-mirror`](https://github.com/downthecrop/2009scape-mirror). At commit [`65725314a2c75122d30e5d32b788af950e8ec5a4`](https://github.com/downthecrop/2009scape-mirror/tree/65725314a2c75122d30e5d32b788af950e8ec5a4), its shared handler implements a real expression ([`AgilityHandler.java`, lines 23–40](https://github.com/downthecrop/2009scape-mirror/blob/65725314a2c75122d30e5d32b788af950e8ec5a4/Server/src/main/content/global/skill/agility/AgilityHandler.java#L23-L40)):
+
+```text
+d = player_agility - obstacle_parameter_r
+if d > 69: fail = false
+otherwise:
+    a = 0.01 * (1 + d)
+    fail iff a * U <= b * V
+    where U,V are independent Uniform[0,1) draws
+```
+
+The parameter named `failChance` in the source is `b`; it is **not** the resulting failure probability. Integrating the two random draws gives the exact curve:
+
+```text
+P_fail(L; r,b) = 0                                      if L-r > 69
+                = b / (2a)                              if b <= a
+                = 1 - a / (2b)                          if b > a
+where a = 0.01 * (1 + L-r).
+```
+
+This is continuous-double RNG, not a roll against 255, and it has no RuneScape/Jagex citation in the code or history. The handler's surviving file history begins with a 2023 repository reorganisation; its older lineage is visible in Arios. The same lines appear verbatim in [`arios530/Arios-530` at `f004fb70...`, lines 23–37](https://github.com/arios530/Arios-530/blob/f004fb70be59987334a0e6770bb167b6fb339dc3/Arios-Server/src/org/arios/game/content/skill/member/agility/AgilityHandler.java#L23-L37) and the Arios derivative [`Rhiel/inferno-ps-game-server`, lines 22–37](https://github.com/Rhiel/inferno-ps-game-server/blob/2e849272312dc757a9637f7019933621a4d54816/src/org/arios/game/content/skill/member/agility/AgilityHandler.java#L22-L37). This is one copied lineage, **not three independent emulators agreeing**.
+
+2009scape supplies these parameters:
+
+| Course / obstacle | `r`, `b` in emulator | Consequence of the shared curve |
+|---|---:|---|
+| Barbarian rope / log / ledge | `1,.10` / `1,.50` / `1,.30` | Source calls at [`BarbarianOutpostCourse.kt` lines 87–110 and 151–163](https://github.com/downthecrop/2009scape-mirror/blob/65725314a2c75122d30e5d32b788af950e8ec5a4/Server/src/main/content/global/skill/agility/BarbarianOutpostCourse.kt#L87-L110). All become infallible at level 71, contradicting the sourced level-93 mastery point. At the real course requirement, level 35, the formula yields `14.29%`, `65%`, and `42.86%` respectively. |
+| Wilderness entrance / rope / stepping stones / log | `1,.30` / `1,.10` / `1,.30` / `1,.50` | Calls at [`WildernessCourse.kt` lines 63–78, 147–171, and 195–209](https://github.com/downthecrop/2009scape-mirror/blob/65725314a2c75122d30e5d32b788af950e8ec5a4/Server/src/main/content/global/skill/agility/WildernessCourse.kt#L63-L78). Again, every check is forced to zero at level 71. |
+| Pyramid low wall, ledge, plank, cross gap, jump gap | `10,.009` | One shared parameter for all five, with an explicit level-75 bypass ([`AgilityPyramidCourse.java` lines 206–247, 289–352, 488–505](https://github.com/downthecrop/2009scape-mirror/blob/65725314a2c75122d30e5d32b788af950e8ec5a4/Server/src/main/content/global/skill/agility/pyramid/AgilityPyramidCourse.java#L488-L505)). It therefore cannot reproduce Avenue 1's distinct approximate `5%`, `20%`, `25%`, `30–40%`, and `40%` obstacle rates at any one level. |
+| Pyramid rolling block | `2,.30` | Separate call at [`RollingBlock.java` lines 26–36](https://github.com/downthecrop/2009scape-mirror/blob/65725314a2c75122d30e5d32b788af950e8ec5a4/Server/src/main/content/global/skill/agility/pyramid/RollingBlock.java#L26-L36); it is forced to zero from level 72, unlike the other Pyramid checks' explicit 75. |
+| Brimhaven rope / low wall / rope balance / log | `1,.10` / `1,.05` / `1,.10` / `1,.10` | [`BrimhavenCourse.java` lines 33–71 and 157–178](https://github.com/downthecrop/2009scape-mirror/blob/65725314a2c75122d30e5d32b788af950e8ec5a4/Server/src/main/content/global/skill/agility/brimhaven/BrimhavenCourse.java#L33-L71). |
+| Brimhaven handholds / monkey bars / ledge / pillars | all `1,.15` | [`BrimhavenCourse.java` lines 99–154, 181–252, and 288–319](https://github.com/downthecrop/2009scape-mirror/blob/65725314a2c75122d30e5d32b788af950e8ec5a4/Server/src/main/content/global/skill/agility/brimhaven/BrimhavenCourse.java#L99-L154). |
+| Brimhaven floor spikes / pressure pads | both `20,.25` | [`FloorSpikes.java` lines 35–47](https://github.com/downthecrop/2009scape-mirror/blob/65725314a2c75122d30e5d32b788af950e8ec5a4/Server/src/main/content/global/skill/agility/brimhaven/FloorSpikes.java#L35-L47) and [`PressurePad.java` lines 35–47](https://github.com/downthecrop/2009scape-mirror/blob/65725314a2c75122d30e5d32b788af950e8ec5a4/Server/src/main/content/global/skill/agility/brimhaven/PressurePad.java#L35-L47). |
+| Brimhaven spinning blades / darts | both `40,.15` | [`SpinningBlades.java` lines 35–47](https://github.com/downthecrop/2009scape-mirror/blob/65725314a2c75122d30e5d32b788af950e8ec5a4/Server/src/main/content/global/skill/agility/brimhaven/SpinningBlades.java#L35-L47) and [`DartTrap.java` lines 40–55](https://github.com/downthecrop/2009scape-mirror/blob/65725314a2c75122d30e5d32b788af950e8ec5a4/Server/src/main/content/global/skill/agility/brimhaven/DartTrap.java#L40-L55). At level 76, `a=.37`, so spinning blades predict `.15/(2*.37)=20.27%`, materially below Avenue 1's controlled `34/100`. |
+
+There is no Gnome advanced, Ape Atoll, Werewolf, Dorgesh-Kaan, or Penguin course implementation in this tree. The ordinary Gnome course has no failure roll.
+
+**Verdict:** the expression is a valuable emulator lead and the most complete implementation found, but it is not a tiered source value. Its copied lineage, lack of provenance, non-255 RNG shape, inconsistent mastery levels, and direct Brimhaven/Pyramid conflicts make every one of its parameters `source_blocked` for shipping.
+
+### Bounded search of other emulator families
+
+| Project | Pinned search and result |
+|---|---|
+| Arios 530 and Inferno | Exact shared handler shown above. These are ancestors/derivatives of the 2009scape implementation, not independent corroboration. |
+| Kronos | [`TristanRSPS/KronosRSPS` at `e0b92878...`](https://github.com/TristanRSPS/KronosRSPS/tree/e0b92878dad313586f17110f96cccfd9199b8933): full recursive tree search and reads of `BarbarianCourse.java`, `GnomeStrongholdCourse.java`, and `WildernessCourse.java`; obstacle movement and XP only, no fail/chance/random call. |
+| Apollo | [`apollo-rsps/apollo` at `87553a83...`](https://github.com/apollo-rsps/apollo/tree/87553a83840503815ce9d0a1dd39a28855d3b561): recursive tree contains no Agility course implementation. |
+| Luna | [`luna-rs/luna` at `78bec8cf...`](https://github.com/luna-rs/luna/tree/78bec8cfb0e5c78011be0c0bdb3f7d4dc29d63c2): read the Agility core plus complete Gnome, Barbarian, and Wilderness scripts. The actions always complete; there is no failure branch ([Barbarian script](https://github.com/luna-rs/luna/blob/78bec8cfb0e5c78011be0c0bdb3f7d4dc29d63c2/src/main/kotlin/game/game/skill/agility/course/barbarian_outpost.kts), [Wilderness script](https://github.com/luna-rs/luna/blob/78bec8cfb0e5c78011be0c0bdb3f7d4dc29d63c2/src/main/kotlin/game/game/skill/agility/course/wilderness_course.kts)). |
+| 2006Scape | [`2006-Scape/2006Scape` at `7f1dc47c...`](https://github.com/2006-Scape/2006Scape/tree/7f1dc47c982fcb20aace35e23d37c238422460ab): read every file under `content/skills/agility`, including Ape Atoll, Barbarian, Gnome, Pyramid, Werewolf, and Wilderness. No obstacle fail/chance roll exists; the sole random call chooses Brimhaven's next ticket pillar ([`Agility.java` lines 662–694](https://github.com/2006-Scape/2006Scape/blob/7f1dc47c982fcb20aace35e23d37c238422460ab/2006Scape%20Server/src/main/java/com/rs2/game/content/skills/agility/Agility.java#L662-L694)). |
+| Elvarg and RuneSource | Recursive pinned-tree searches of [`RSPSApp/elvarg-rsps` at `478e6567...`](https://github.com/RSPSApp/elvarg-rsps/tree/478e6567aa533ae9f1d1bbf4971027b818c76a9a) and [`dozmus/runesource` at `6233edaa...`](https://github.com/dozmus/runesource/tree/6233edaa1a52b4f47640d0bccbc078af03354baf) found no Agility course source. |
+| 2011Scape | Local downloaded snapshot: the Barbarian plugin's lines 10–14 explicitly say `TO-DO: Add Fail changes`; no failure roll exists. The public repository search found installers, client/web/wiki projects, and an empty `Freq-R/2011scape-Game`, not a second server implementation. |
+| 633/Lletya completeness lead | [`CSS-Lletya/633-official` at `1b54cb99...`](https://github.com/CSS-Lletya/633-official/tree/1b54cb99edc9a940ce1bce07bec1c079ac8ac079): recursive read of `skills/skills/agility` finds course movement but no chance calculation. |
+
+No independent emulator agrees with 2009scape's curve or parameters, and none supplies a second formula.
 
 ## Avenue 4 — RS3 fallback
 
