@@ -354,7 +354,67 @@ F(L; low, high) = 1 - clamp(
 
 ## Synthesis: can Agility ship with zero invented constants?
 
-TODO
+### Direct answer, per course
+
+**Yes for some routes, no for the complete ten-course set.** Use `F(L;low,high)` from the per-obstacle table with a 256-outcome ceiling for every shippable random roll.
+
+| Course | Zero-invention verdict | Exact parameters, tier, and both branch gates |
+|---|---|---|
+| Gnome Stronghold | Normal route: **SHIPPABLE** because it has no failable obstacle. Advanced route: **SOURCE_BLOCKED**. | Signpost endpoint pair missing; RS3 `-1780/496` is contradicted by the level-85 period observation. RS 2007→2012 OSRS-licensing gate fails because advanced was added in 2009; OSRS post-2013 gate is n/a. |
+| Barbarian Outpost | Normal route: **SHIPPABLE**. Advanced route: **SOURCE_BLOCKED**. | Normal rope/ledge `200/280`, log `180/260`, `F`, ceiling 256, Tier 3. RS 2007→2012 gate **passes** for the normal roll; OSRS post-2013 rate gate **passes**, and global 2023 formula contamination is recovered. Advanced lacks the complete failable set/endpoints. |
+| Wilderness | Main loop: **SHIPPABLE**. Access walkway: **SOURCE_BLOCKED**; therefore the whole location is not complete. | Main rope/log `200/250`, third stone `180/250`, `F`, ceiling 256, Tier 3. RS 2007→2012 roll gate **passes**; OSRS post-2013 rate gate **passes**, global formula recovered. Walkway endpoints and mastery behavior are missing. |
+| Burthorpe | **SHIPPABLE.** | Log beam and low wall both `153/1263`, `F`, ceiling 256, plus the sourced bypass after three completed laps; Tier 4. RS 2007→2012 OSRS bridge **does not exist** because the course was added in 2012; OSRS post-2013 gate n/a. RS3 post-cutoff failure-rate gate **passes**. |
+| Agility Pyramid | **SOURCE_BLOCKED.** | Moving-block endpoints are missing; every other OSRS/RS3 pair is disqualified by the 2009 main-line code change, the RS3 2016 failure rebalance, and conflict with the 2008 observations. |
+| Ape Atoll | **SOURCE_BLOCKED.** | Final-tree endpoints are missing. RS 2007→2012 gate **passes**, but OSRS post-2013 gate **fails** on the 2024 failure change; RS3 `120/325` is contaminated by the 2016 rate reduction. |
+| Werewolf | **SOURCE_BLOCKED.** | The multi-variable Agility/Strength/weight expression and endpoints are missing. Both branch searches lack a recoverable period curve. |
+| Dorgesh-Kaan | **SOURCE_BLOCKED.** | Cable and ladder endpoints are missing/disqualified; period behavior never reaches zero, while the lone modern ladder pair does. |
+| Penguin | Platform jumps and icicles: **SHIPPABLE**; crushers and ice slope: **SOURCE_BLOCKED**, so the full course is incomplete. | Platforms/icicles `155/308`, `F`, ceiling 256, Tier 3. RS 2007→2012 gate **passes**; OSRS post-2013 course gate **passes**, global formula recovered. Crusher pair absent; RS3 slope pair contaminated by 2016. |
+| Brimhaven Arena | **SHIPPABLE** for every random obstacle. | Tier 4, `F`, ceiling 256; pairs are rope `100/310`, wall `220/460`, log `180/420`, ledge `140/370`, pillars `120/340`, monkey bars `160/400`, rope balance `200/440`, spikes `60/250`, pads `40/230`, hand holds `80/280`, blades `30/210`, darts `20/190`. RS 2007→2012 OSRS-licensing gate **fails** because of the 2009 logic rewrite, and OSRS post-2013 gate **fails** due its 2017/2024 changes; RS3 main-line post-cutoff rate gate **passes**, so Tier 4 is licensed instead. |
+
+### Does the 2011Scape/OSRS architectural agreement hold?
+
+**Yes.** 2011Scape's generic helper (`MiscExt.kt:51-57`) implements the same two-floored-terms-plus-one interpolation as the recovered pre-2023 OSRS `stat_random`. Its pickpocket target code (`PickpocketTarget.kt:539-551`) supplies level endpoints `1` and `99` and a `255` cap; the helper at `MiscExt.kt:43-49` compares the interpolated integer to `nextInt(cap)`. OSRS uses the same endpoint interpretation and interpolation but a literal `0..255` roll, i.e. 256 outcomes. The off-by-one ceiling/comparator details are not identical, but the architecture is unmistakably the same mechanic family. This is strong evidence that the OSRS endpoint pairs describe the kind of hidden roll the 2012 game ran; it does **not** waive either course-history gate for a particular pair.
+
+### RS main-line 2007→2012 gate, one line per course
+
+| Course | OSRS-licensing gate result |
+|---|---|
+| Gnome | Normal **pass**; advanced **fail/no bridge** because it was added in 2009. |
+| Barbarian | Normal **pass**; advanced **fail/no bridge** because it was added and streamlined in 2009. |
+| Wilderness | Main quoted roll **pass**; 2008–2012 history has no fail-rate rebalance. |
+| Burthorpe | **Fail/no bridge**; course added 2012, after the OSRS backup. |
+| Pyramid | **Fail**; 2009-10-20 “improved the code behind” the course. |
+| Ape Atoll | **Pass**; no 2007–2012 failure-rate rebalance recorded. |
+| Werewolf | **Fail**; 2009 code rewrite and missing Agility-check fix. |
+| Dorgesh-Kaan | **Fail**; 2009 “recent changes” and 2011 Surefooted failure fix. |
+| Penguin | **Pass**; only an under-level exit fix appears in the interval. |
+| Brimhaven | **Fail**; 2009-11-17 rewrote “a fair amount” of course logic. |
+
+### The proposed global clumsiness constant
+
+The owner's fallback is:
+
+```text
+p_fail(L) = C * (M-L) / (M-R)    for R <= L < M
+p_fail(L) = 0                     for L >= M
+```
+
+where `R` is the sourced course requirement, `M` the sourced mastery cutoff, and `C` one global failure probability at `R`.
+
+| Blocked course/component | Constraint on `C` | Arithmetic and limitation |
+|---|---:|---|
+| Gnome advanced | **`40% <= C <= 50%`** | `R=85`, `M=89`, and the observation is at `L=85`; therefore `p(85)=C*(89-85)/(89-85)=C≈40–50%`. This is the tightest valid numeric interval. |
+| Barbarian advanced | **`0% < C <= 100%`** | With `R=90`, `M=93`, the explicit rare failure at 92 gives `p(92)=C/3>0`, but “rare” has no numeric magnitude. The course is blocked independently because its failable set/endpoints are not enumerated. |
+| Wilderness access walkway | **`0% <= C <= 100%`**, but unusable | No mastery cutoff or quantitative observation exists, so no value narrows `C`, and the fallback cannot be instantiated without inventing `M`. |
+| Agility Pyramid | **`40% <= C <= 100%`; conditionally `∅` if the table rates share one player level.** | At any eligible level, linear decay implies `p(L)<=C`, so the largest reported rate (`40%` jump gap) requires `C>=40%`. One global course curve would give the same probability to every obstacle at the same level, while the 2008 rows report about `5%`, `10–15%`, `20%`, `25%`, `30–40%`, and `40%`; those cannot all equal one `p(L)`. Because the source does not state the measurement level(s) or `M`, only the envelope bound is unconditional. |
+| Ape Atoll | **`0% <= C <= 100%`** | `R=48`, `M=75`; the zero at 75 is built into the fallback for every `C` and supplies no start-rate bound. No intermediate quantitative observation survives. |
+| Werewolf | **Strict feasible set `∅`.** | `R=60`, `M=93`, `L=74`. The older `3/5` anecdote requires `C=(3/5)*(93-60)/(93-74)=99/95=104.2105%`; the later `4/6` requires `C=(4/6)*33/19=22/19=115.7895%`. Both exceed the probability ceiling. They also conflict with the period description “rare around 72.” |
+| Dorgesh-Kaan | **Strict feasible set `∅` for this fallback shape.** | The sourced behavior says failure remains possible even at 99 and never reaches zero. Any finite `M` forces zero, while `C=0` contradicts observed failure. No numeric constant can repair the missing/asymptotic shape. |
+| Penguin crushers/ice slope | **`0% <= C <= 100%`**, but unusable | The complete-course mastery cutoff and quantitative observations are absent. The shippable platform/icicle pairs do not license inventing the missing groups' `M` or endpoints. |
+
+Brimhaven is not a fallback constraint anymore: its actual Tier 4 curve supplies `34.375%` at level 76 and matches `34/100`. Translating that observation into `C` would require an unsourced mastery cutoff, so doing so would reintroduce the very invention this audit avoids.
+
+**Global conclusion:** if every anecdotal point is demanded literally, the single-constant fallback's feasible set is **empty**, because Werewolf requires `C>100%` and Dorgesh-Kaan rejects any finite zero cutoff; Pyramid is also inconsistent if its listed rates share a measurement level. After explicitly excluding those mutually inconsistent/model-incompatible observations, the tightest surviving evidence-bound interval is **`C ∈ [40%,50%]`**, supplied entirely by Gnome advanced and weakly supported by the Pyramid envelope `C>=40%`. On a real-valued 255 scale that is `102.0–127.5`; integerisation must reuse the existing comparator convention rather than inventing a new rounding rule.
 
 ## Remaining `source_blocked` rows and exhaustive search record
 
