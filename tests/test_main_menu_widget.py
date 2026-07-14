@@ -2185,6 +2185,42 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Byproduct: Vial x4", overload.toolTip(0))
         self.assertIn("Extreme ranging (3) x1", overload.toolTip(0))
 
+    def test_herblore_uses_its_skill_icon_and_only_overworld_clean_herbs(self) -> None:
+        pd = _make_player_data()
+        pd["herblore_level"] = 99
+        pd["current_herblore"] = "clean_guam"
+        dialog = self._open(pd, current_skill="Herblore")
+        artisan = next(button for button in dialog.findChildren(QPushButton) if button.text() == "Artisan")
+        artisan.click()
+        QApplication.processEvents()
+        skill_list = _find_artisan_skill_list(dialog)
+        herblore_item = next(
+            skill_list.item(index)
+            for index in range(skill_list.count())
+            if skill_list.item(index).text() == "Herblore"
+        )
+        skill_list.setCurrentItem(herblore_item)
+        QApplication.processEvents()
+        tree = _find_tree_with_user_role(dialog, "clean_guam")
+        clean_group = _tree_row(tree, "__herblore_group__:clean")
+
+        self.assertFalse(herblore_item.icon().isNull())
+        self.assertEqual(
+            _icon_pixels(herblore_item.icon()),
+            _icon_pixels(QIcon(self._ui.skill_icon_path_for("Herblore"))),
+        )
+        self.assertNotEqual(
+            _icon_pixels(herblore_item.icon()),
+            _icon_pixels(QIcon(os.path.join(_ADDON_DIR, "icon", "achievement_icon.png"))),
+        )
+        self.assertEqual(clean_group.childCount(), 22)
+        self.assertFalse(_tree_row(tree, "clean_guam").icon(0).isNull())
+        self.assertFalse(_tree_row(tree, "clean_erzille").icon(0).isNull())
+        self.assertNotIn(
+            "clean_sagawort",
+            {item.data(0, Qt.ItemDataRole.UserRole) for item in _smith_tree_items(tree)},
+        )
+
     def test_cannonball_row_shows_quest_gate_mould_and_icon(self) -> None:
         pd = _make_player_data()
         pd["smithing_level"] = 35

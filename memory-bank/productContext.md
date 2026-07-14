@@ -32,3 +32,4 @@ Canonical live scope: `memory-bank/future-work-kanban.md`; the 2026-07-10 comple
 - No persistent world map or transport network.
 - No modern RS3/OSRS substitution for missing pre-EOC proof.
 - No ordinary skilling “minutes per review”; the card clock is reserved for world/economy cadence.
+- Daemonheim resources belong to a future Dungeoneering session economy, not the persistent overworld Bank or ordinary Herblore target list.

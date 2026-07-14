@@ -52,6 +52,10 @@ The dated `completion-audit-2026-07-10.*` files remain historical snapshots; liv
 
 ## Most Recent Completed Work
 
+- The deck-browser AnkiScape entry point now replaces its own nested callbacks by stable hook key, so repeated profile/setup calls cannot turn one click into three menu opens.
+- Ordinary Herblore now excludes the 54 Daemonheim-only clean, unfinished, and finished targets while preserving their item identities for old saves. A removed saved selection migrates to `clean_guam` without deleting inventory.
+- The live Herblore catalog is 22 clean, 22 unfinished, and 69 finished targets. All 22 clean rows and the skill rail use local RS3-provenanced artwork fetched by the data-derived `tools/fetch_herblore_assets.py` manifest.
+
 - The six Phase 3 adapters observe through the existing central action-telemetry seam exactly once per started action. They never supply an outcome to live gameplay.
 - Gathering adapters advance independent exact low/high source envelopes. Cooking and Firemaking compare the already-drawn live roll to the authentic source probability and draw no second random value.
 - Source ranges remain ranges; no midpoint is invented. Explicit `cap_one_action` overflow metadata covers Mining iron and the five embedded Cooking/Firemaking routes.
@@ -86,6 +90,7 @@ The dated `completion-audit-2026-07-10.*` files remain historical snapshots; liv
 - Target-carried presence is the activation rule for urns and Prayer passives; bank ownership alone is inert.
 - Review undo and direct-inventory-action undo are distinct contracts and must remain independent.
 - Each wholly missing skill needs its own deep grill before implementation.
+- Dungeoneering must define its temporary session inventory/equipment/reward boundary before any Daemonheim herbs or potions return to a player-facing catalog; see `dungeoneering-product-decision-deferred-2026-07-13.md`.
 - Activities/minigames use Utility/Activities at the platform layer, but each family needs its own complete reward/state/source contract.
 - Global level-1-to-99 balancing waits until all skills and major methods are present.
 

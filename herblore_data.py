@@ -5,6 +5,10 @@ checkout is a development-time audit input):
   HerbData.kt   -- grimy/clean/unf identities + herb level & clean XP
   PotionData.kt -- finished recipe primary/secondary/product, level & XP
 
+The ordinary Herblore catalog deliberately excludes Daemonheim-only targets.
+Their source rows remain registered below so existing saves keep their item
+identities while Dungeoneering's temporary inventory/session model is deferred.
+
 Three-stage pipeline, each stage a menu action:
   clean    grimy herb            -> clean herb    (awards HerbData.experience)
   unf      clean herb + Vial of water -> unf potion (zero XP; clean_herb has the
@@ -89,7 +93,7 @@ class InputPreparationActivity:
     source: str
 
 
-CLEAN_TARGETS: Tuple[HerbloreTarget, ...] = (
+_SOURCE_CLEAN_TARGETS: Tuple[HerbloreTarget, ...] = (
     HerbloreTarget('clean_guam', 'Clean guam', "clean", "herb", 3, 2.5, (('Grimy guam', 1),), 'Clean guam'),
     HerbloreTarget('clean_marrentill', 'Clean marrentill', "clean", "herb", 5, 3.8, (('Grimy marrentill', 1),), 'Clean marrentill'),
     HerbloreTarget('clean_tarromin', 'Clean tarromin', "clean", "herb", 11, 5.0, (('Grimy tarromin', 1),), 'Clean tarromin'),
@@ -112,18 +116,18 @@ CLEAN_TARGETS: Tuple[HerbloreTarget, ...] = (
     HerbloreTarget('clean_ugune', 'Clean ugune', "clean", "herb", 55, 11.5, (('Grimy ugune', 1),), 'Clean ugune'),
     HerbloreTarget('clean_shengo', 'Clean shengo', "clean", "herb", 57, 11.7, (('Grimy shengo', 1),), 'Clean shengo'),
     HerbloreTarget('clean_samaden', 'Clean samaden', "clean", "herb", 58, 11.7, (('Grimy samaden', 1),), 'Clean samaden'),
-    HerbloreTarget('clean_sagawort', 'Clean sagewort', "clean", "herb", 3, 2.1, (('Grimy sagewort', 1),), 'Clean sagewort'),
-    HerbloreTarget('clean_featherfoil', 'Clean featherfoil', "clean", "herb", 41, 8.6, (('Grimy featherfoil', 1),), 'Clean featherfoil'),
-    HerbloreTarget('clean_valerian', 'Clean valerian', "clean", "herb", 4, 3.2, (('Grimy valerian', 1),), 'Clean valerian'),
-    HerbloreTarget('clean_aloe', 'Clean aloe', "clean", "herb", 8, 4.0, (('Grimy aloe', 1),), 'Clean aloe'),
-    HerbloreTarget('clean_wormwood', 'Clean wormwood leaf', "clean", "herb", 34, 7.2, (('Grimy wormwood leaf', 1),), 'Clean wormwood leaf'),
-    HerbloreTarget('clean_magebane', 'Clean magebane', "clean", "herb", 37, 7.7, (('Grimy magebane', 1),), 'Clean magebane'),
-    HerbloreTarget('clean_winter_grip', "Clean winter's grip", "clean", "herb", 67, 12.7, (("Grimy winter's grip", 1),), "Clean winter's grip"),
-    HerbloreTarget('clean_lycopus', 'Clean lycopus', "clean", "herb", 70, 13.1, (('Grimy lycopus', 1),), 'Clean lycopus'),
-    HerbloreTarget('clean_buckthorn', 'Clean buckthorn', "clean", "herb", 74, 13.8, (('Grimy buckthorn', 1),), 'Clean buckthorn'),
+    HerbloreTarget('clean_sagawort', 'Clean sagewort', "clean", "dungeoneering", 3, 2.1, (('Grimy sagewort', 1),), 'Clean sagewort'),
+    HerbloreTarget('clean_featherfoil', 'Clean featherfoil', "clean", "dungeoneering", 41, 8.6, (('Grimy featherfoil', 1),), 'Clean featherfoil'),
+    HerbloreTarget('clean_valerian', 'Clean valerian', "clean", "dungeoneering", 4, 3.2, (('Grimy valerian', 1),), 'Clean valerian'),
+    HerbloreTarget('clean_aloe', 'Clean aloe', "clean", "dungeoneering", 8, 4.0, (('Grimy aloe', 1),), 'Clean aloe'),
+    HerbloreTarget('clean_wormwood', 'Clean wormwood leaf', "clean", "dungeoneering", 34, 7.2, (('Grimy wormwood leaf', 1),), 'Clean wormwood leaf'),
+    HerbloreTarget('clean_magebane', 'Clean magebane', "clean", "dungeoneering", 37, 7.7, (('Grimy magebane', 1),), 'Clean magebane'),
+    HerbloreTarget('clean_winter_grip', "Clean winter's grip", "clean", "dungeoneering", 67, 12.7, (("Grimy winter's grip", 1),), "Clean winter's grip"),
+    HerbloreTarget('clean_lycopus', 'Clean lycopus', "clean", "dungeoneering", 70, 13.1, (('Grimy lycopus', 1),), 'Clean lycopus'),
+    HerbloreTarget('clean_buckthorn', 'Clean buckthorn', "clean", "dungeoneering", 74, 13.8, (('Grimy buckthorn', 1),), 'Clean buckthorn'),
 )
 
-UNF_TARGETS: Tuple[HerbloreTarget, ...] = (
+_SOURCE_UNF_TARGETS: Tuple[HerbloreTarget, ...] = (
     HerbloreTarget('unf_guam', 'Guam potion (unf)', "unf", "herb", 3, 0.0, (('Clean guam', 1), ('Vial of water', 1)), 'Guam potion (unf)'),
     HerbloreTarget('unf_marrentill', 'Marrentill potion (unf)', "unf", "herb", 5, 0.0, (('Clean marrentill', 1), ('Vial of water', 1)), 'Marrentill potion (unf)'),
     HerbloreTarget('unf_tarromin', 'Tarromin potion (unf)', "unf", "herb", 11, 0.0, (('Clean tarromin', 1), ('Vial of water', 1)), 'Tarromin potion (unf)'),
@@ -146,18 +150,18 @@ UNF_TARGETS: Tuple[HerbloreTarget, ...] = (
     HerbloreTarget('unf_ugune', 'Ugune potion (unf)', "unf", "herb", 55, 0.0, (('Clean ugune', 1), ('Vial of water', 1)), 'Ugune potion (unf)'),
     HerbloreTarget('unf_shengo', 'Shengo potion (unf)', "unf", "herb", 57, 0.0, (('Clean shengo', 1), ('Vial of water', 1)), 'Shengo potion (unf)'),
     HerbloreTarget('unf_samaden', 'Samaden potion (unf)', "unf", "herb", 58, 0.0, (('Clean samaden', 1), ('Vial of water', 1)), 'Samaden potion (unf)'),
-    HerbloreTarget('unf_sagawort', 'Sagewort potion (unf)', "unf", "herb", 3, 0.0, (('Clean sagewort', 1), ('Vial of water', 1)), 'Sagewort potion (unf)'),
-    HerbloreTarget('unf_featherfoil', 'Featherfoil potion (unf)', "unf", "herb", 41, 0.0, (('Clean featherfoil', 1), ('Vial of water', 1)), 'Featherfoil potion (unf)'),
-    HerbloreTarget('unf_valerian', 'Valerian potion (unf)', "unf", "herb", 4, 0.0, (('Clean valerian', 1), ('Vial of water', 1)), 'Valerian potion (unf)'),
-    HerbloreTarget('unf_aloe', 'Aloe potion (unf)', "unf", "herb", 8, 0.0, (('Clean aloe', 1), ('Vial of water', 1)), 'Aloe potion (unf)'),
-    HerbloreTarget('unf_wormwood', 'Wormwood potion (unf)', "unf", "herb", 34, 0.0, (('Clean wormwood leaf', 1), ('Vial of water', 1)), 'Wormwood potion (unf)'),
-    HerbloreTarget('unf_magebane', 'Magebane potion (unf)', "unf", "herb", 37, 0.0, (('Clean magebane', 1), ('Vial of water', 1)), 'Magebane potion (unf)'),
-    HerbloreTarget('unf_winter_grip', "Winter's grip potion (unf)", "unf", "herb", 67, 0.0, (("Clean winter's grip", 1), ('Vial of water', 1)), "Winter's grip potion (unf)"),
-    HerbloreTarget('unf_lycopus', 'Lycopus potion (unf)', "unf", "herb", 70, 0.0, (('Clean lycopus', 1), ('Vial of water', 1)), 'Lycopus potion (unf)'),
-    HerbloreTarget('unf_buckthorn', 'Buckthorn potion (unf)', "unf", "herb", 74, 0.0, (('Clean buckthorn', 1), ('Vial of water', 1)), 'Buckthorn potion (unf)'),
+    HerbloreTarget('unf_sagawort', 'Sagewort potion (unf)', "unf", "dungeoneering", 3, 0.0, (('Clean sagewort', 1), ('Vial of water', 1)), 'Sagewort potion (unf)'),
+    HerbloreTarget('unf_featherfoil', 'Featherfoil potion (unf)', "unf", "dungeoneering", 41, 0.0, (('Clean featherfoil', 1), ('Vial of water', 1)), 'Featherfoil potion (unf)'),
+    HerbloreTarget('unf_valerian', 'Valerian potion (unf)', "unf", "dungeoneering", 4, 0.0, (('Clean valerian', 1), ('Vial of water', 1)), 'Valerian potion (unf)'),
+    HerbloreTarget('unf_aloe', 'Aloe potion (unf)', "unf", "dungeoneering", 8, 0.0, (('Clean aloe', 1), ('Vial of water', 1)), 'Aloe potion (unf)'),
+    HerbloreTarget('unf_wormwood', 'Wormwood potion (unf)', "unf", "dungeoneering", 34, 0.0, (('Clean wormwood leaf', 1), ('Vial of water', 1)), 'Wormwood potion (unf)'),
+    HerbloreTarget('unf_magebane', 'Magebane potion (unf)', "unf", "dungeoneering", 37, 0.0, (('Clean magebane', 1), ('Vial of water', 1)), 'Magebane potion (unf)'),
+    HerbloreTarget('unf_winter_grip', "Winter's grip potion (unf)", "unf", "dungeoneering", 67, 0.0, (("Clean winter's grip", 1), ('Vial of water', 1)), "Winter's grip potion (unf)"),
+    HerbloreTarget('unf_lycopus', 'Lycopus potion (unf)', "unf", "dungeoneering", 70, 0.0, (('Clean lycopus', 1), ('Vial of water', 1)), 'Lycopus potion (unf)'),
+    HerbloreTarget('unf_buckthorn', 'Buckthorn potion (unf)', "unf", "dungeoneering", 74, 0.0, (('Clean buckthorn', 1), ('Vial of water', 1)), 'Buckthorn potion (unf)'),
 )
 
-FINISHED_TARGETS: Tuple[HerbloreTarget, ...] = (
+_SOURCE_FINISHED_TARGETS: Tuple[HerbloreTarget, ...] = (
     HerbloreTarget('finished_attack_potion', 'Attack potion (3)', "finished", 'standard', 3, 25.0, (('Guam potion (unf)', 1), ('Eye of newt', 1)), 'Attack potion (3)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_antipoison', 'Antipoison (3)', "finished", 'standard', 5, 37.5, (('Marrentill potion (unf)', 1), ('Unicorn horn dust', 1)), 'Antipoison (3)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_strength_potion', 'Strength potion (3)', "finished", 'standard', 12, 50.0, (('Tarromin potion (unf)', 1), ('Limpwurt root', 1)), 'Strength potion (3)', source=POTION_DATA_SOURCE_PATH),
@@ -283,6 +287,35 @@ FINISHED_TARGETS: Tuple[HerbloreTarget, ...] = (
     HerbloreTarget('finished_strong_survivalist', "Strong survivalist's potion", "finished", 'dungeoneering', 99, 315.5, (('Lycopus potion (unf)', 1), ('Firebreath whiskey', 1)), "Strong survivalist's potion", source=POTION_DATA_SOURCE_PATH),
 )
 
+# HerbData.kt labels these nine herb families as Dungeoneering herbs, and
+# PotionData.kt labels all 36 consumers as tier 1-3 Dungeoneering potions. Keep
+# the transcribed rows available for a future Daemonheim session catalog, but do
+# not expose its temporary-resource economy through ordinary Herblore.
+DUNGEONEERING_CLEAN_TARGETS: Tuple[HerbloreTarget, ...] = tuple(
+    target for target in _SOURCE_CLEAN_TARGETS if target.subgroup == "dungeoneering"
+)
+DUNGEONEERING_UNF_TARGETS: Tuple[HerbloreTarget, ...] = tuple(
+    target for target in _SOURCE_UNF_TARGETS if target.subgroup == "dungeoneering"
+)
+DUNGEONEERING_FINISHED_TARGETS: Tuple[HerbloreTarget, ...] = tuple(
+    target for target in _SOURCE_FINISHED_TARGETS if target.subgroup == "dungeoneering"
+)
+DUNGEONEERING_HERBLORE_TARGETS: Tuple[HerbloreTarget, ...] = (
+    DUNGEONEERING_CLEAN_TARGETS
+    + DUNGEONEERING_UNF_TARGETS
+    + DUNGEONEERING_FINISHED_TARGETS
+)
+
+CLEAN_TARGETS: Tuple[HerbloreTarget, ...] = tuple(
+    target for target in _SOURCE_CLEAN_TARGETS if target.subgroup != "dungeoneering"
+)
+UNF_TARGETS: Tuple[HerbloreTarget, ...] = tuple(
+    target for target in _SOURCE_UNF_TARGETS if target.subgroup != "dungeoneering"
+)
+FINISHED_TARGETS: Tuple[HerbloreTarget, ...] = tuple(
+    target for target in _SOURCE_FINISHED_TARGETS if target.subgroup != "dungeoneering"
+)
+
 PESTLE_AND_MORTAR_ACTIVITIES: Tuple[PestleAndMortarActivity, ...] = (
     PestleAndMortarActivity('grind_anchovies', 'Grind anchovies', 'Anchovies', 319, 'Anchovy paste', 11266, 'AnchovyPaste'),
     PestleAndMortarActivity('grind_tchiki_monkey_nuts', 'Grind tchiki monkey nuts', 'Tchiki monkey nuts', 7573, 'Tchiki nut paste', 7575, 'TchikiMonkeyNuts'),
@@ -333,6 +366,9 @@ INPUT_PREPARATION_ACTIVITIES: Tuple[InputPreparationActivity, ...] = (
 
 HERBLORE_TARGETS: Tuple[HerbloreTarget, ...] = CLEAN_TARGETS + UNF_TARGETS + FINISHED_TARGETS
 HERBLORE_TARGETS_BY_ID: Dict[str, HerbloreTarget] = {t.id: t for t in HERBLORE_TARGETS}
+_REGISTERED_HERBLORE_TARGETS: Tuple[HerbloreTarget, ...] = (
+    HERBLORE_TARGETS + DUNGEONEERING_HERBLORE_TARGETS
+)
 
 HERBLORE_GROUP_LABELS: Dict[str, str] = {
     "clean": "Clean herbs",
@@ -380,9 +416,14 @@ def herblore_finished_output_items() -> Tuple[str, ...]:
 
 def herblore_item_names() -> Tuple[str, ...]:
     """Every item the skill references: grimy/clean/unf herbs, secondaries,
-    products, and Vial of water."""
+    products, and Vial of water.
+
+    Deferred Daemonheim items stay registered so existing inventory quantities
+    remain typed and visible when old saves are loaded, even though their action
+    targets are absent from the ordinary Herblore catalog.
+    """
     names = []
-    for t in HERBLORE_TARGETS:
+    for t in _REGISTERED_HERBLORE_TARGETS:
         names.append(t.output_item)
         names.extend(name for name, _qty in t.requirements)
         names.extend(name for name, _qty in t.byproducts)
@@ -431,8 +472,8 @@ def input_preparation_activities_as_dict() -> Dict[str, Dict[str, object]]:
 def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
     """Register every herblore item name (category material). Items already
     registered by another system dedupe by storage key at build time, so this
-    only introduces the herblore-native herbs, unfinished potions, and the new
-    dungeoneering/juju products."""
+    introduces the herblore-native herbs, unfinished potions, and products.
+    Deferred Daemonheim identities remain here for save compatibility."""
     pestle_item_ids = {
         item_name: item_id
         for activity in PESTLE_AND_MORTAR_ACTIVITIES

@@ -500,10 +500,16 @@ Use the project skill at `.codex/skills/ankiscape-skill-expansion/SKILL.md` befo
 ## Compatibility Pattern
 Persisted Anki config is the stable boundary. Schema changes should go through `storage_pure.py` migrations and keep existing user data intact.
 
+Source-complete data can be broader than a live catalog. Herblore keeps Daemonheim rows in explicit `DUNGEONEERING_*` tuples so item identities and historical transcription survive, while its ordinary exported targets filter them out until a session-scoped Dungeoneering product contract exists. When a live target is removed this way, migrate the saved selection to the skill default but preserve inventory keys and quantities.
+
 Review-answer side effects must follow Anki's undo semantics. If a future skill mutates new `player_data` keys during an answer, the generic snapshot diff should catch them; if a future system writes outside `player_data`, it needs its own undo-aware rollback path.
 
 ## UI Gotcha: nested-closure name collisions in `show_main_menu`
 `show_main_menu` is a very large function that defines many nested helpers (one per tab/section). All of these are locals of the *same* scope, so two sections defining a helper with the same name (e.g. `_select_skill`) silently rebind it — the later definition wins, and earlier callers route into the wrong function with no error. This caused the Skills-hub panel to ignore clicks (the Stats tab's `_select_skill` shadowed the hub's). Mitigation: prefix section-scoped helpers with their section (`_select_hub_skill`, etc.), and prefer the offscreen Qt behavior test to catch misrouted handlers. Longer term, splitting these sections into their own builder functions/classes would remove the shared scope entirely.
+
+## UI Gotcha: nested hook callbacks are not removable by a fresh closure
+
+`injectors.register_deck_browser_button()` may run more than once during profile/setup flows. Its callbacks are nested functions, so recreating them and calling `hook.remove(new_callback)` does not remove the prior function object. Register these callbacks through the stable AnkiScape hook-key replacement helper; otherwise one browser message is dispatched once per surviving registration before the menu-open guard can observe the first scheduled dialog.
 
 ## UI Gotcha: dark-mode text colors (`palette(mid)` is NOT a text role)
 Recurring bug: greyed/disabled/placeholder text rendered with `palette(mid)` / `QPalette.Mid` becomes **invisible in dark mode**, because `mid` is a frame/border role that resolves to a near-black grey. It has bitten the Skills-hub train button, the Smithing locked rows, and the Equipment empty slots. Fix at the root: `ui.dim_text_color(widget)` (for `setForeground`) and `ui.dim_text_css(widget)` (for stylesheet `color:`), which derive the color from the theme's real `Text` role and drop the alpha so contrast holds in both themes. `palette(mid)` is fine for borders only. Also prefer `palette(text)`/`palette(base)` over `buttonText`/`button` for button labels (the button face renders light on macOS dark mode). Enforced going forward by `.cursor/rules/qt-dark-mode-text.mdc` and the regression test `test_empty_slot_text_is_dark_mode_safe_not_palette_mid`. When changing UI colors, verify in dark mode, not just light.
