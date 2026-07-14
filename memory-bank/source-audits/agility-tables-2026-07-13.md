@@ -297,15 +297,15 @@ All ordinary arena obstacle failures deal `20–60 life points` based on current
 
 ## 11. 2011Scape agility shortcuts
 
-These are one-off traversal gates, not a lap or a training method. The requested statement that the file “has five” does not match the source: it contains **three implemented behavior families**—monkey bars, a shared handler for six stile object variants, and one pipe. The rest of the file is comment-only TODO/reference material with no handler. Inventing two more would violate the audit.
+These are one-off traversal gates, not a lap or a training method. The file provides five logical shortcut entries through three executable behavior families: one monkey-bar crossing, two named stile locations sharing one handler, and the two directions through one pipe handler `[S-SHORT:33-89,91-96,234-244,409-506]`. None of these three `addXp` calls explicitly passes `checkBrawlingGloves = true`, so no brawling-glove multiplication is baked into the quoted XP `[S-SHORT:87,241,504]`.
 
-| Implemented shortcut family | Object ID(s) | Level requirement | XP | Notes |
+| Logical shortcut | Object ID(s) | Level requirement | XP | Notes |
 |---|---|---:|---:|---|
 | Edgeville Dungeon monkey bars | `29375` `[S-OBJS:15608]` | `15` `[S-SHORT:43-47]` | `20.0` `[S-SHORT:87]` | one-off gate; this `addXp` call does not pass the course files’ brawling-glove flag `[S-SHORT:87]` |
-| Stile climb-over handler | `993, 7527, 29460, 45205, 34776, 48208` `[S-SHORT:16-24; S-OBJS:561]` | none `[S-SHORT:91-96,234-243]` | `3.0` `[S-SHORT:241]` | comment names Fred the Farmer’s sheep field and Falador cabbage patch, but does not map individual IDs to those locations `[S-SHORT:91-96]` |
-| Edgeville Dungeon ↔ Varrock Sewers pipe | `29370` `[S-OBJS:15605]` | actual handler `53` `[S-SHORT:416-420]` | actual handler `7.5` `[S-SHORT:504]` | comment says level `51` and `10 XP`, but executable Tier-1 values win `[S-SHORT:409-415,416-420,504]` |
-| fourth requested shortcut | `source_blocked` | `source_blocked` | `source_blocked` | no fourth handler exists in the file |
-| fifth requested shortcut | `source_blocked` | `source_blocked` | `source_blocked` | no fifth handler exists in the file |
+| Fred the Farmer’s sheep-field stile | one of shared set `993, 7527, 29460, 45205, 34776, 48208`; exact location-to-ID mapping `source_blocked` `[S-SHORT:16-24,91-96; S-OBJS:561,4195,15659,17155,21454,22433]` | none `[S-SHORT:91-96,234-243]` | `3.0` `[S-SHORT:241]` | named as one of the two locations sharing the six-ID handler `[S-SHORT:91-96,234-243]` |
+| Falador cabbage-patch stile | one of the same shared set; exact location-to-ID mapping `source_blocked` `[S-SHORT:16-24,91-96; S-OBJS:561,4195,15659,17155,21454,22433]` | none `[S-SHORT:91-96,234-243]` | `3.0` `[S-SHORT:241]` | named as the other location sharing the six-ID handler `[S-SHORT:91-96,234-243]` |
+| Edgeville Dungeon → Varrock Sewers pipe | `29370` `[S-OBJS:15605]` | actual handler `53` `[S-SHORT:416-420]` | actual handler `7.5` `[S-SHORT:504]` | west-side entry takes the eastbound movement branch `[S-SHORT:421-424,435-467,458-504]`; comment says `51` and `10 XP`, but executable Tier-1 values win `[S-SHORT:409-420,504]` |
+| Varrock Sewers → Edgeville Dungeon pipe | `29370` `[S-OBJS:15605]` | actual handler `53` `[S-SHORT:416-420]` | actual handler `7.5` `[S-SHORT:504]` | east-side entry takes the westbound movement branch `[S-SHORT:421-424,445-475,468-504]`; comment says `51` and `10 XP`, but executable Tier-1 values win `[S-SHORT:409-420,504]` |
 
 ## 12. Period failure ledger
 
@@ -333,7 +333,7 @@ These are one-off traversal gates, not a lap or a training method. The requested
 2. **Burthorpe completion-bonus decomposition:** `source_blocked`. The period table gives final Leap of Faith `46.5 XP`, not a separate base-plus-bonus split.
 3. **Penguin exact scenery split:** the four wiki action groups and XP ship, and the client objects exist, but the exact one-ID boundary for Ice crushers/Ice slope is `source_blocked` beyond the grouped IDs listed.
 4. **Brimhaven level-scaling term:** `source_blocked`. Approved pre-EOC oldids prove only the fixed five-bundle schedule and 10% Karamja-glove outputs; Darkan has no exchange. The modern OSRS `+5/ticket/level above 40` statement is a lead only and must not ship.
-5. **2011Scape shortcut count:** source proves three behavior families, not five. The two requested extra rows remain `source_blocked`.
+5. **2011Scape shortcut structure:** the requested five logical entries are one monkey-bar crossing, the two named stile locations, and the two pipe directions; they share only three executable handlers. The exact mapping from each named stile location to one of the handler’s six object IDs is `source_blocked`.
 6. **Trusted handler double-awards:** Gnome advanced final and Barbarian normal final contain extra base-XP calls. Their declared obstacle XP and separately declared completion-bonus constants are the data-table values; runtime defects are recorded, not normalized into rates.
 7. **Trusted/wiki conflicts:** 2011Scape wins: Gnome rope/net/normal bonus `7.5/7.5/39.0` over wiki/Darkan `7/8/39.5`; Wilderness entry gate `53` over wiki `52`; the wiki-only Wilderness access walkway does not ship under the course-level authorization boundary.
 8. **Darkan inventions/divergences:** Darkan’s Barbarian normal XP table, Ape Atoll table, Pyramid bonus/order, Werewolf stick/failure XP, Burthorpe final XP, and Brimhaven unreachable ticket branch are all non-shipping. Dorgesh-Kaan and Penguin have no Darkan implementation at all.
