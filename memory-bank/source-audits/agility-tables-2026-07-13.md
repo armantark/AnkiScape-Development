@@ -29,7 +29,7 @@ This is a read-only source harvest for the future AnkiScape Agility implementati
 | Werewolf (Canifis) | No | `6288778` | Yes; stick/failure divergences | Yes — all five rows in C742/C741 | Tier 2: pinned wiki |
 | Dorgesh-Kaan | No | `6547042` | No | Yes — all eight route rows in C742/C741 | Tier 2: pinned wiki |
 | Penguin | No | `5988056` | No | Partial — interactive object groups identified; course-label mapping noted | Tier 2: pinned wiki |
-| Brimhaven Agility Arena | No lap implementation | `6556177`; ticket page `5777910` | Partial controller; no payout | Yes — dispensers 3581/3608 in C742/C741 | Tier 2: pinned wiki; Darkan only divergence |
+| Brimhaven Agility Arena | No lap implementation | `6556177`; ticket `5777910`; Pirate Jackie `6225118` | Partial controller; no payout | Yes — dispensers 3581/3608 in C742/C741 | Tier 2: pinned wiki; Darkan only divergence |
 
 ## 1. Gnome Stronghold: shared trunk with two branches
 
@@ -270,7 +270,7 @@ gloves_xp = base_xp * 1.10
 
 The five allowed bundle values and exact 10% outputs are directly tabulated by the two pinned oldids above; the expression is only their additive restatement.
 
-**Level-scaling audit:** the task premise says the exchange scales with Agility level, but neither approved period oldid states a level term, and Darkan implements no exchange at all (`PirateJackieTheFruit.java` only exposes Achievement System dialogue `[D-PirateJackieTheFruit.java:12-20]`). All `387` pre-cutoff revisions of the Brimhaven page and all `67` revisions of the ticket page were searched for a level-based exchange formula; none contained one. A modern OSRS page is a lead for `+5 XP per ticket per Agility level above 40`, but modern OSRS is inadmissible under this audit. Therefore the level-scaling term is `source_blocked`; it must **not** ship. The fixed bundle schedule above is the complete formula supported by approved pre-EOC evidence.
+**Level-scaling audit:** the task premise says the exchange scales with Agility level, but the pinned arena and ticket oldids tabulate fixed bundle awards and state no level term `[W-BRIM oldid=6556177; W-TICKET oldid=5777910]`. Pirate Jackie’s own pinned page says only that Karamja gloves increase the exchange award by `10%`; it states no level term or formula `[W-JACKIE oldid=6225118]`. Darkan implements no exchange at all (`PirateJackieTheFruit.java` only exposes Achievement System dialogue `[D-PirateJackieTheFruit.java:12-20]`). A modern OSRS page is a lead for `+5 XP per ticket per Agility level above 40`, but modern OSRS is inadmissible under this audit. Therefore the level-scaling term is `source_blocked`; it must **not** ship. The fixed bundle schedule above is the complete formula supported by approved pre-EOC evidence.
 
 ### Arena obstacle/failure matrix
 
