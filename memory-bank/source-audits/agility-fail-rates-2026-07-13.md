@@ -231,7 +231,67 @@ No independent emulator agrees with 2009scape's curve or parameters, and none su
 
 ## Avenue 4 — RS3 fallback
 
-TODO
+### RS3's roll and its 2018 contamination
+
+The current RuneScape Wiki describes the same `stat_random` mechanic family: integer `low` and `high` values represent levels 1 and 99, intermediate levels are interpolated, and the result is compared with an integer random roll. Its [`Skilling success chance` oldid `37009675`](https://runescape.wiki/?oldid=37009675) records a **3 September 2018 global rewrite** that allowed levels above 99 and “effectively” shifted chances. The current [`Module:Skilling success chart` oldid `36863307`](https://runescape.wiki/?oldid=36863307) uses two floored interpolation terms and a `2,550,001`-outcome scaled roll. Today's rendered RS3 chart is therefore contaminated for the 2012 cutoff.
+
+The pre-rewrite expression is nevertheless recoverable from the OSRS pre-2023 implementation in Avenue 2 and independently present in 2011Scape's generic `interpolate` helper:
+
+```text
+c_pre2018(L) = floor(low * (99-L) / 98)
+             + floor(high * (L-1) / 98)
+             + 1
+P_success    = clamp(c_pre2018, 0, 256) / 256
+P_fail       = 1 - P_success
+```
+
+RS3 can therefore supply Tier 4 **endpoints** only where the course's post-cutoff update history contains no failure rebalance. The expression comes from the recovered older engine family, not from silently applying today's RS3 formula.
+
+### Course results
+
+| Course | Current RS3 endpoint evidence | RS3 post-2012 contamination check | Tier 4 verdict |
+|---|---|---|---|
+| Gnome advanced signpost | `low=-1780`, `high=496`, Jagex-labelled chart ([`oldid 36847895`](https://runescape.wiki/?oldid=36847895)) | No course-history fail rebalance, but the endpoints fail a stronger period observation: `c_pre2018(85)=171`, hence `P_fail=85/256=33.203125%`, outside the recovered roughly `40–50%` at level 85. They do reach zero by 89. | Disqualified by Tier 2 contradiction; `source_blocked`. |
+| Barbarian normal | RS3 repeats OSRS's `200/280`, `180/260`, `200/280` ([rope `oldid 36847906`](https://runescape.wiki/?oldid=36847906), [log `oldid 36847904`](https://runescape.wiki/?oldid=36847904), [ledge `oldid 36847903`](https://runescape.wiki/?oldid=36847903)). | The only post-cutoff balance entry is 2016 XP, not failure. | Corroborates the higher-priority Tier 3 OSRS result; no Tier 4 substitution needed. |
+| Barbarian advanced | Only the balance beam has a chart, `-1635/400` ([`oldid 37068611`](https://runescape.wiki/?oldid=37068611)). | No recorded post-cutoff failure rebalance. | Full failable-obstacle set and endpoints are missing; `source_blocked`. |
+| Wilderness main | Current RS3 uses `200/255` for rope/log and `180/255` for stones ([rope `oldid 36872685`](https://runescape.wiki/?oldid=36872685), [stones `oldid 36872686`](https://runescape.wiki/?oldid=36872686), [log `oldid 36872687`](https://runescape.wiki/?oldid=36872687)), reflecting the 2016 change that made level 99 infallible. | **Contaminated:** 2016-08-15 amended fail rates. | Cannot replace Tier 3 OSRS `high=250`; access-walkway endpoints remain absent. |
+| Burthorpe log beam and low wall | Both have `low=153`, `high=1263`, Jagex-labelled charts ([`oldid 36872294`](https://runescape.wiki/?oldid=36872294), [`oldid 36872295`](https://runescape.wiki/?oldid=36872295)). The pages also state failure is disabled after three completed laps. | Course history after its 2012 release records only animation/environment changes, no failure rebalance. | **Tier 4 usable.** Both failable obstacles use `c_pre2018(L;153,1263)` against 256, subject to the sourced three-lap bypass. |
+| Agility Pyramid | Current normal endpoints match the OSRS leads: stone `168/320`, wall `245/255`, ledge `181/320`, plank `166/340`, cross gap `180/308`, jump gap `185/329` ([stone `oldid 36847883`](https://runescape.wiki/?oldid=36847883), [wall `37056065`](https://runescape.wiki/?oldid=37056065), [ledge `36847885`](https://runescape.wiki/?oldid=36847885), [plank `36847919`](https://runescape.wiki/?oldid=36847919), [gaps `36847886`](https://runescape.wiki/?oldid=36847886)). Moving-block endpoints are absent. | **Contaminated:** 2016-03-14 reduced every obstacle's failure rate. The same constants also conflict with the 2008 measurements as shown in Avenue 2. | `source_blocked`. |
+| Ape Atoll | Current Jagex-labelled charts are stepping stone `100/325`; rope, skull, monkeybars, and trees `120/325` ([oldids `36855411`–`36855415`](https://runescape.wiki/?oldid=36855411)). | **Contaminated:** 2016-03-14 reduced course failure rates. | `source_blocked`; no pre-change endpoints recovered. |
+| Werewolf | No endpoint chart or exact multi-variable expression was found. The live page adds Strength and carried weight to Agility, and only gives a modern guaranteed-success condition. | 2019 added skillcape failure prevention; no numerical course rebalance is recorded, but there is no formula to preserve. | `source_blocked`: expression and all endpoints missing. |
+| Dorgesh-Kaan | Fallen ladder alone has `low=-319`, `high=360` ([`oldid 36847897`](https://runescape.wiki/?oldid=36847897)); cable pages have no chart. | No post-cutoff numerical rebalance is recorded, but the partial current chart cannot cover the period page's cables-and-ladders failures. | `source_blocked`: cable endpoints and complete roll coverage missing. |
+| Penguin | Current RS3 has stepping stones/icicles `180/308` and ice slope `140/366`; crusher has no chart ([stones `oldid 36856199`](https://runescape.wiki/?oldid=36856199), [icicles `36856198`](https://runescape.wiki/?oldid=36856198), [ice `36856197`](https://runescape.wiki/?oldid=36856197)). | **Contaminated:** 2016-03-14 “greatly reduced” course failure rates. | Cannot fill the Tier 3 OSRS gaps; `source_blocked` for crusher and ice slope. |
+| Brimhaven Arena | All twelve random obstacles have Jagex-labelled endpoints; full table below. | **Pass:** after the cutoff the course history changes interfaces, click areas, rewards, and item handling, but records no fail-rate change. The 2009 main-line logic rewrite is already incorporated because RS3 is the continuing branch. | **Tier 4 usable for all random obstacles.** |
+
+### Brimhaven Tier 4 endpoint set
+
+Every row uses `c_pre2018` above and a 256-outcome ceiling. The wrong plank and sawblade remain timing/choice mechanics and do not use this random roll.
+
+| Random obstacle | `low`, `high` | Pinned RS3 revision |
+|---|---:|---|
+| Rope swing | `100,310` | [`oldid 36858429`](https://runescape.wiki/?oldid=36858429) |
+| Low wall | `220,460` | [`oldid 36858443`](https://runescape.wiki/?oldid=36858443) |
+| Log balance | `180,420` | [`oldid 36858444`](https://runescape.wiki/?oldid=36858444) |
+| Balancing ledge | `140,370` | [`oldid 36858453`](https://runescape.wiki/?oldid=36858453) |
+| Pillars | `120,340` | [`oldid 36858441`](https://runescape.wiki/?oldid=36858441) |
+| Monkey bars | `160,400` | [`oldid 36858440`](https://runescape.wiki/?oldid=36858440) |
+| Balancing rope | `200,440` | [`oldid 36858451`](https://runescape.wiki/?oldid=36858451) |
+| Floor spikes | `60,250` | [`oldid 36858447`](https://runescape.wiki/?oldid=36858447) |
+| Pressure pads | `40,230` | [`oldid 36858432`](https://runescape.wiki/?oldid=36858432) |
+| Hand holds | `80,280` | [`oldid 36858446`](https://runescape.wiki/?oldid=36858446) |
+| Spinning blades | `30,210` | [`oldid 36858445`](https://runescape.wiki/?oldid=36858445) |
+| Darts | `20,190` | [`oldid 36858456`](https://runescape.wiki/?oldid=36858456) |
+
+The strongest validation is independent of the modern chart. For spinning blades at the Avenue 1 measurement level `L=76`:
+
+```text
+c(76) = floor(30 * 23 / 98) + floor(210 * 75 / 98) + 1
+      = 7 + 160 + 1
+      = 168
+P_fail = (256 - 168) / 256 = 88/256 = 34.375%
+```
+
+That is effectively exact agreement with the period controlled result `34 failures / 100 attempts`. It also sharply falsifies 2009scape's `20.27%` prediction. Brimhaven therefore has a complete zero-invention Tier 4 failure model despite failing the OSRS 2007→2012 bridge: the main-line RS3 endpoints include the 2009 rewrite, the post-2012 history is clean, the pre-2018 roll is recovered, and a period experiment independently corroborates the result.
 
 ## Avenue 5 — OpenRS2 cache completeness check
 
