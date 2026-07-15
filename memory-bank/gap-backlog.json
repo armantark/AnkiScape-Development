@@ -263,6 +263,32 @@
       }
     },
     {
+      "id": "rc-abyss",
+      "rank": 12,
+      "skill": "Runecrafting",
+      "root_cause": "stub",
+      "severity": "major",
+      "title": "Add the Abyss as a selectable Runecrafting route",
+      "detail": "The Abyss is a wilderness shortcut that drops the runecrafter next to the rift ring, skipping most of the bank-to-altar walk; it is the canonical fast-but-dangerous alternative to the on-foot route for Nature and other runes. As a route (not a new rune), it applies to the existing standard/combination targets. It is the exemplar for the Agility run-energy model: its whole speed advantage is a shorter trip. Unlocked via Enter the Abyss / Abyssal mini-quest; skull and prayer-drain on entry; pouch degradation and Dark-mage repair.",
+      "source": "wiki:Abyss (oldid 6313726); game-main RunecraftAction.kt for the craft; recon memory-bank/source-audits/runecrafting-recon-2026-07-14.md",
+      "status": "design_partial_waiting_source",
+      "note": "Carded 2026-07-14 during the Agility run-energy grill (previously only loose prose in completion-audit.json). The Abyss-vs-foot Nature XP/hour delta is source_blocked (no period rate in any scoped page or a 400-revision scan back to 2010, per the RC recon), so the route ships as a selectable method whose throughput advantage is expressed through the sourced run-energy trip-cost model rather than a quoted rate. Familiars stay parked (Summoning dependency). See memory-bank/agility-run-energy-contract-2026-07-14.md.",
+      "decision_doc": "memory-bank/agility-run-energy-contract-2026-07-14.md"
+    },
+    {
+      "id": "rc-method-selection",
+      "rank": 11,
+      "skill": "Runecrafting",
+      "root_cause": "design",
+      "severity": "minor",
+      "title": "Each Runecrafting method is selectable once unlocked",
+      "detail": "Owner ruling (2026-07-14): the runecrafting method/route is a player-selectable target that becomes available the moment its unlock condition is met, rather than the game auto-picking a single method. The selectable set grows as the player unlocks it: on-foot standard/combination altars, the Abyss route (rc-abyss), Ourania/ZMI (rc-zmi-gop-wickedhood), and Runespan (rc-runespan). Method choice is Runecrafting's real throughput lever (Abyss/ZMI/Runespan/foot), which is exactly why the Agility run-energy effect on RC is small and faithful — Agility trims the walk, method changes the whole trip.",
+      "source": "owner-grill:2026-07-14",
+      "status": "design_settled",
+      "note": "Ties the RC method cards together and anchors the Agility contract's claim that RC's speed lever is method, not Agility level. Casual mode may still surface a sensible default; Advanced exposes the full unlocked method set.",
+      "decision_doc": "memory-bank/agility-run-energy-contract-2026-07-14.md"
+    },
+    {
       "id": "fm-bonfires",
       "rank": 10,
       "skill": "Firemaking",
