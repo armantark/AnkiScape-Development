@@ -1,11 +1,29 @@
 # Agility run-energy model — design contract (2026-07-14)
 
-Status: **design locked, harvest pending.** This is the durable record of an owner
-grill that ran across one session. Numbers marked "invented" are deliberate AnkiScape
-abstractions, labelled as such per the project rule ("never invent a value" means never
-pass an invention off as period-authentic — it does not forbid a clearly-labelled
-game-design abstraction, of which AnkiScape already ships several: one review = one
-action, the 240-review day).
+Status: **design locked, parity fork resolved, harvest pending.** This is the durable
+record of an owner grill that ran across one session. Numbers marked "invented" are
+deliberate AnkiScape abstractions, labelled as such per the project rule ("never invent a
+value" means never pass an invention off as period-authentic — it does not forbid a
+clearly-labelled game-design abstraction, of which AnkiScape already ships several: one
+review = one action, the 240-review day).
+
+**2026-07-15 parity resolution (Sol, xhigh; `source-audits/run-energy-parity-2026-07-15.md`).**
+The run-energy model is **drain-based** — Agility reduces run-energy drain (endurance),
+not recovery only. Governing evidence is Jagex's 9 June 2009 "Run energy upgrade," which
+states Agility "increases the distance you can run per run energy point," larger at levels
+50–99 ([oldid 4264036](https://runescape.wiki/w/Update:Run_energy_upgrade?oldid=4264036)).
+Darkan's recovery-only model (no Agility term in drain, `Entity.java:786`) is therefore
+**wrong for the freeze**, not a competing reading; game-main's Model A family is correct.
+There was **no run-energy rework between 2011 and 2012-11-20** (only 2009), so revision
+proximity does not favour Darkan. Run = 2 tiles/tick and walk = 1 are wiki-sourced at high
+confidence ([Game tick oldid 6117417](https://runescape.wiki/w/Game_tick?oldid=6117417)).
+
+**But the exact constants are `source_blocked` / `emulator_reconstruction`.** The period
+wiki gives observations, never an equation, and game-main's `(0.7 − 0.002·L)/0.92^…` form
+was itself set by a **2023** emulator commit reading the 2009 update, not a period source.
+So the *shape* is sourced (Agility helps drain, weight matters, negative weight clamps,
+run = 2×) and the *magnitude* is a bounded AnkiScape abstraction — exactly the owner's
+original framing.
 
 ## The problem this solves
 
@@ -62,14 +80,16 @@ Owner ruling: assume the optimal period route including free teleports — one v
 skill, ~13 flags, no per-target checkbox hell. The verdict reflects what the trip actually
 was in 2012.
 
-The `@99` column is a **throughput** target (see Magnitude — the ceiling is the
-invariant, tiers scale under it). The per-skill *trip reduction* needed to hit it is
-derived, not fixed.
+The `@99` column is a **throughput** target derived as `run-speed ceiling × walk fraction`
+(see Magnitude): the ~+11% Agility run-speed gain applies only to the walking portion of a
+trip, so a walk-dominated skill gets nearly the full ceiling and a stationary one gets ~0.
+This makes the tiers fall out of one anchored number instead of four hand-set ones. Weight
+(per-skill model, below) adds a little more on heavy-gathering trips.
 
 | Handler | Tier | Throughput @99 | Why |
 |---|---|---|---|
-| Runecrafting | strong | +15% | The bank-to-altar run IS the method; Abyss vs foot is the whole story. Trip so large that +15% ≈ 32→28 walking reviews — RC feels Agility least, which is faithful (RC's real speed lever was method, not Agility) |
-| Prayer | strong | +15% | Gilded altar / Ectofuntus are genuine journeys. (Owner's earlier "50% trip cut" is **superseded** by the throughput ceiling — 50% of a strong trip overshoots +15% ~6×) |
+| Runecrafting | strong | ~+11% | The bank-to-altar run IS the method (walk fraction ≈ 1), so it gets essentially the full run-speed ceiling. Trip so large that +11% ≈ 32→~29 walking reviews — RC still feels Agility least in *relative* terms, which is faithful (RC's real speed lever was method, not Agility) |
+| Prayer | strong | ~+11% | Gilded altar / Ectofuntus are genuine journeys (walk fraction ≈ 1). (Owner's earlier "50% trip cut" is **superseded** — 50% of a strong trip overshoots the anchored ceiling ~5×) |
 | Woodcutting | weak | ~+7% | Walk to bank, only when keep mode is on |
 | Mining | weak | ~+7% | Walk to bank (Living Rock's on-site pulley would be `none`, but per-skill) |
 | Fishing | weak | ~+7% | Walk to bank |
@@ -82,32 +102,73 @@ derived, not fixed.
 | Herblore | none | 0 | You stand on the bank chest |
 | Combat | weak, **restock unaffected** | ~+7% | Mostly short walks; the supply refill + altar restore still cost their reviews |
 
-## Magnitude (owner decision + empirical bound)
+## Magnitude (labeled bounded abstraction — owner decision 2026-07-15)
 
-The run-energy *magnitude* is confirmed **un-sourceable**: the RC recon
-(`source-audits/runecrafting-recon-2026-07-14.md`) found no period Abyss Nature XP/hour
-anywhere (exhaustive scan back to 2010). So the slope is invented — but **bounded by real
-data**: same level, same 43 essence, two different Nature routes gave **5,800 vs 11,600
-XP/hour**, a 2× spread from route/walk choice alone. Run energy is only one ingredient of a
-good route, so the Agility effect must be a fraction of 2×.
+The run-energy *magnitude* is **not sourceable** and ships as a deliberate, labeled
+AnkiScape abstraction (owner-approved 2026-07-15). Two independent facts fix this:
 
-**Owner decisions (reconciled):**
+- The exact drain constants are `source_blocked` / `emulator_reconstruction` (see the
+  parity resolution above): the period wiki has observations, not an equation.
+- The RC recon (`source-audits/runecrafting-recon-2026-07-14.md`) found no period Abyss
+  Nature XP/hour anywhere, so the throughput slope has no citation either.
 
-- **Throughput ceiling is the invariant, not the trip-reduction fraction.** No skill beats
-  its sourced rate by more than the tier target at 99: strong +15%, weak ~+7%, marginal
-  ~+3%, none 0. The trip reduction that achieves this is *derived per skill* and differs
-  wildly — a strong skill with a huge trip (RC) needs only a ~13% trip cut to reach +15%
-  throughput; a weak skill with a small trip needs a larger cut for less throughput. This
-  supersedes the earlier "Prayer 50% trip cut," which in throughput terms was ~+90% and
-  broke the ceiling.
+**The abstraction is bracketed by two real bounds, not free:**
+
+- **Lower/anchor bound — the emulator reconstruction.** game-main's Model A, evaluated as a
+  smoothed steady-state (`speed = (2+k)/(1+k)`, `k = drain/recovery`), gives a **~+10.85%
+  run-speed gain from Agility 1→99 at 0 kg** (weight-robust: ~+9.6% at 56 kg). This is our
+  best physical estimate of the run-speed ceiling. It is emulator-derived, labeled as such,
+  **not** a period citation, and explicitly a smoothed approximation (the real per-tick
+  behavior has a depletion penalty, so realized speed depends on toggle strategy).
+- **Upper bound — route data.** Same level, same 43 essence, two Nature routes gave
+  **5,800 vs 11,600 XP/hour**, a 2× spread from route/walk choice alone. Run energy is one
+  ingredient of a route, so the Agility effect must stay a fraction of 2×. ~+11% clears this.
+
+**Owner decisions (reconciled 2026-07-15):**
+
+- **Anchor the run-speed ceiling at ~+11%** (the reconstruction figure), replacing the
+  earlier hand-set +15%. Throughput per skill = `~11% × walk_fraction`, which is what makes
+  the tier table (strong ~+11%, weak ~+7%, marginal ~+3%, none 0) fall out of one anchored
+  number. The trip reduction that achieves this is derived per skill.
 - **Floor = source.** Level-1 Agility runs at exactly the sourced XP/hour; Agility is pure
-  upside up to the tier target. No baseline nerf to existing play. (This makes the earlier
-  "derived cost is a nerf" concern moot — the derived trip cost, unified with the kernel,
-  reproduces the sourced rate at the floor rather than undercutting it.)
+  upside up to the tier target. No baseline nerf. (The derived trip cost, unified with the
+  kernel, reproduces the sourced rate at the floor rather than undercutting it.)
 
 Curve shape (Sol's form): `throughput_gain(L) = target_tier · (L−1)/98`, applied only when
 a bank cost is actually due, back-solved to a trip reduction. Bags still help (they raise
 N; effects are sub-additive).
+
+## Weight model (owner decision 2026-07-15: model per-skill)
+
+Weight is modeled, not flattened. It is a second, smaller run-energy lever layered on the
+Agility ceiling, and it gives the weight-reduction reward gear (the Agile set, Boots of
+Lightness, capes) a real function on gathering trips.
+
+Sourced facts (parity report):
+
+- **Drain rises with positive carried weight; effective weight below 0 kg clamps to 0**
+  (`max(weight, 0)`), **medium confidence** — the closest Weight page says negative = 0 kg,
+  but the Energy page contradicts itself. game-main matches the better-supported reading, so
+  we adopt the clamp. Net-negative weight is therefore inert: reduction gear only helps down
+  to cancelling your carried load.
+- **Agile set = −22 kg** (top 14936 −12, legs 14938 −10), **wiki-sourced**
+  ([Weight oldid 6512729](https://runescape.wiki/w/Weight?oldid=6512729)). The earlier
+  "Agile sign bug" was a misread — the +12/+10 values live only on duplicate IDs
+  14937/14939 in Darkan's JSON; the primary items are correctly negative. No porting trap.
+- **Boots of Lightness ≈ −4.5 kg** (Temple of Ikov reward); spotted/spottier capes
+  ≈ −2.3 / −4.5 kg. RC pouches are **1.0 kg each** (a 4-pouch RC runner carries ≥4 kg;
+  essence is 0 kg), so RC is light but not weightless.
+- Graceful (the later restore-% set) is OSRS, introduced **2013-12-05** — post-cutoff,
+  correctly absent. Agile is weight-reduction only, no restore bonus.
+
+Magnitude of the weight lever (Model A, Agility 50): fully-loaded → unloaded (+56 → 0 kg) =
+**+7.75%**; +25 → 0 = **+3.5%**; capped at net-zero. Realistically the Agile −22 kg on a
+full 56 kg log load (→ 34 kg) is **~+2.8%**, and stacking Boots + a cape (~−9 more, → 25 kg)
+is **~+4%**. So weight is a single-digit-% gathering bonus, biggest on heavy-load skills
+(WC full logs, Mining ore) and near-zero on light ones (RC, Prayer). Per-skill nominal
+carried weight to be pinned from `items.yml` / caches during the harvest; the caches decode
+but do not carry a client-side weight field, so weight values come from item configs and the
+period Weight page, not the client cache.
 
 ## Presentation (owner decision: bursty)
 
@@ -150,5 +211,11 @@ conflict.
 ## Provenance
 - Sol rounds 1–3 (design): `/tmp/sol-agility-round{1,2,3}.md`
 - Sol bank-run critique + skill audit: `/tmp/sol-agility-bankrun.md`
+- **Run-energy parity resolution (drain vs recovery, weight clamp, formulas, movement):
+  `memory-bank/source-audits/run-energy-parity-2026-07-15.md`** — the load-bearing citations
+  are [Run energy upgrade oldid 4264036](https://runescape.wiki/w/Update:Run_energy_upgrade?oldid=4264036)
+  (2009 rework, Agility→endurance), [Weight oldid 6512729](https://runescape.wiki/w/Weight?oldid=6512729)
+  (Agile −12/−10, negative=0), [Game tick oldid 6117417](https://runescape.wiki/w/Game_tick?oldid=6117417)
+  (2 tiles/tick).
 - RC recon: `memory-bank/source-audits/runecrafting-recon-2026-07-14.md`
 - Fail-rate audit: `memory-bank/source-audits/agility-fail-rates-2026-07-13.md`
