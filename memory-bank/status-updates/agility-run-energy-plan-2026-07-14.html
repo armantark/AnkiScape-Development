@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Agility Run-Energy Model — Design Locked</title>
+  <style>
+    :root{--bg:#090b10;--surface:#121722;--surface2:#181f2c;--border:#273044;--text:#eef2f9;--dim:#99a5b9;--green:#52e09a;--cyan:#65cfff;--amber:#ffc65c;--violet:#b59cff;--red:#ff7c85;--r:15px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}
+    body{margin:0;background:radial-gradient(circle at 82% -10%,rgba(101,207,255,.20),transparent 36%),radial-gradient(circle at 3% 40%,rgba(181,156,255,.13),transparent 30%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif}
+    .wrap{width:min(1180px,calc(100% - 28px));margin:auto;padding:44px 0 76px}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+    .badge{display:inline-flex;gap:8px;align-items:center;border:1px solid #2a4a63;background:#0d1c26;color:#8fd8ff;border-radius:999px;padding:7px 11px;font:700 11px/1 ui-monospace,monospace;letter-spacing:.1em}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 15px var(--cyan)}
+    .hero{display:grid;grid-template-columns:1.3fr .7fr;gap:26px;align-items:end;margin:18px 0 30px}
+    .hero h1{margin:0;font-size:clamp(38px,6.4vw,70px);line-height:.96;letter-spacing:-.05em}
+    .hero p{margin:0;color:var(--dim);font-size:16px;line-height:1.65}
+    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .metric,.panel,.card{border:1px solid var(--border);background:linear-gradient(145deg,rgba(24,31,44,.94),rgba(14,18,27,.96));box-shadow:0 22px 60px rgba(0,0,0,.2)}
+    .metric{padding:18px;border-radius:12px}
+    .metric strong{display:block;color:#cde2ff;font-size:27px;letter-spacing:-.03em}
+    .metric span{display:block;color:var(--dim);font-size:12px;margin-top:4px;line-height:1.4}
+    .panel{padding:24px;border-radius:var(--r);margin-top:16px}
+    h2{margin:0 0 7px;font-size:24px;letter-spacing:-.02em}
+    h3{margin:0 0 7px;font-size:16px}
+    .sub{margin:0 0 18px;color:var(--dim);line-height:1.55;font-size:14px}
+    .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .card{padding:18px;border-radius:12px}
+    .eyebrow{font:700 10px/1 ui-monospace,monospace;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px}
+    .green{color:var(--green)}.cyan{color:var(--cyan)}.amber{color:var(--amber)}.violet{color:var(--violet)}.red{color:var(--red)}
+    .card p,.card li{color:#bdc6d6;line-height:1.55;font-size:13px}.card ul{margin:8px 0 0;padding-left:17px}
+    .flow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .num{font:800 11px/1 ui-monospace,monospace;color:var(--cyan);margin-bottom:12px}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th{text-align:left;color:var(--dim);font:700 10px/1.3 ui-monospace,monospace;text-transform:uppercase;letter-spacing:.08em;padding:9px 10px;border-bottom:1px solid var(--border)}
+    td{padding:10px;border-bottom:1px solid rgba(39,48,68,.55);color:#cbd4e3;vertical-align:top}
+    tr:last-child td{border-bottom:0}
+    .tier{display:inline-block;padding:4px 8px;border-radius:6px;font:700 10px/1 ui-monospace,monospace;text-transform:uppercase;letter-spacing:.05em}
+    .t-strong{background:#0f2a1e;color:var(--green)}.t-weak{background:#10222e;color:var(--cyan)}.t-marg{background:#251c0e;color:var(--amber)}.t-none{background:#1c1420;color:#8a7fa8}
+    .bar{position:relative;height:46px;border:1px solid var(--border);border-radius:10px;background:#0e131d;overflow:hidden;margin:6px 0 4px}
+    .bar .fill{position:absolute;top:0;bottom:0;left:0;background:linear-gradient(90deg,rgba(101,207,255,.35),rgba(101,207,255,.08))}
+    .bar .mark{position:absolute;top:0;bottom:0;width:2px;background:var(--green);box-shadow:0 0 10px var(--green)}
+    .bar .lab{position:absolute;top:50%;transform:translateY(-50%);font:700 11px/1 ui-monospace,monospace;padding:0 8px}
+    .check{display:flex;gap:11px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--border)}.check:first-of-type{border-top:0}
+    .tick{flex:0 0 auto;width:23px;height:23px;border-radius:50%;display:grid;place-items:center;background:#10281e;color:var(--green);font-weight:900;font-size:13px}
+    .check b{display:block;font-size:14px}.check small{display:block;color:var(--dim);line-height:1.45;margin-top:3px}
+    .parked{border-left:3px solid var(--amber);background:#1e190f;padding:16px 18px;border-radius:0 11px 11px 0;color:#d7c69d;line-height:1.6;font-size:13px}
+    .rule{border-left:3px solid var(--violet);background:#161022;padding:16px 18px;border-radius:0 11px 11px 0;color:#d3c9ea;line-height:1.6;font-size:14px}
+    .step{display:grid;grid-template-columns:34px 1fr;gap:14px;padding:14px 0;border-top:1px solid var(--border)}.step:first-of-type{border-top:0}
+    .snum{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:#12202e;color:var(--cyan);font:800 14px/1 ui-monospace,monospace}
+    .step b{font-size:14px}.step p{margin:4px 0 0;color:var(--dim);font-size:13px;line-height:1.5}
+    .ftag{display:inline-block;margin:4px 4px 0 0;padding:4px 7px;border-radius:6px;background:#1a2130;color:#9fb0c9;font:600 10px/1 ui-monospace,monospace}
+    .footer{margin-top:18px;color:#717d91;font:12px/1.6 ui-monospace,monospace}
+    @media(max-width:850px){.hero,.grid2,.flow{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.tblwrap{overflow-x:auto}}
+    @media(max-width:540px){.metrics{grid-template-columns:1fr}.wrap{padding-top:28px}}
+  </style>
+</head>
+<body><main class="wrap">
+  <span class="badge"><span class="dot"></span>PRE-IMPLEMENTATION PLAN · 2026-07-14 · DESIGN LOCKED</span>
+  <section class="hero">
+    <h1>Agility becomes a run-energy analog.</h1>
+    <p>No map, no movement — so run energy is modelled where the walk already lives: the review AnkiScape spends on a bank run. Higher Agility shrinks that trip. Sourced XP/hour rates are never touched. Every number below is either sourced or a deliberately-labelled, evidence-bounded invention.</p>
+  </section>
+
+  <section class="metrics">
+    <div class="metric"><strong>1 rule</strong><span>waive the review cost, never the bank transaction</span></div>
+    <div class="metric"><strong>13 skills</strong><span>tiered by whether the trip was a real walk</span></div>
+    <div class="metric"><strong>+10–15%</strong><span>ceiling at 99 Agility, bounded by real 2× route data</span></div>
+    <div class="metric"><strong>0 sourced rates</strong><span>altered — the mechanic sits beside them</span></div>
+  </section>
+
+  <section class="panel"><h2>The mechanic in three moves</h2><p class="sub">AnkiScape already charges a discrete "bank run" when the 28-slot pack fills or a recipe runs dry — that spent review <em>is</em> the walk. Agility reduces it.</p>
+  <div class="flow">
+    <article class="card"><div class="num">01 · TODAY</div><h3>The bank run is flat</h3><p>One review per 28 actions, everywhere. A made-up 3.6% that's near-zero for Fletching (you stand on the bank) and enormous for Runecrafting (the walk is the whole skill). <span class="mono">carried_bank_run_gate_pure</span>.</p></article>
+    <article class="card"><div class="num">02 · DERIVE</div><h3>Trip cost from the source</h3><p>Replace the flat constant with <span class="mono">R/actions_per_hour − 1</span>, so each skill's overhead is its real sourced dead time. Fractions resolve through the cadence kernel's existing rational scheduler. Also kills a latent double-count.</p></article>
+    <article class="card"><div class="num">03 · REDUCE</div><h3>Agility shrinks the walk</h3><p>Level-scaled reduction of the trip cost, applied only when a bank cost is actually due. You ran the trip instead of walking it. Bags still help — the effects are sub-additive.</p></article>
+  </div></section>
+
+  <section class="panel"><h2>The one implementation invariant</h2>
+    <p class="rule"><strong>Agility waives the review cost. It must never skip the bank transaction.</strong> On a successful roll the code still repacks, refills, materialises urns, deposits, and resets churn exactly as today — it simply doesn't charge a review. Sol's regression pass found five ways a naive "proc means act" version corrupts state: processing acts on an empty pack, urn charges vanish, churn re-triggers, priming becomes a free-refill exploit, and combat proceeds with no supplies. All avoided by treating this as an atomic cost-waiver, not a gate bypass.</p>
+  </section>
+
+  <section class="panel"><h2>Which skills feel it, and how much</h2><p class="sub">Owner ruling: assume the optimal period route including free teleports — one verdict per skill, no per-target checkbox hell. The tier reflects what the 2012 trip actually was.</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Handler</th><th>Tier</th><th>@99</th><th>Why the trip was / wasn't a walk</th></tr></thead>
+    <tbody>
+      <tr><td><b>Runecrafting</b></td><td><span class="tier t-strong">strong</span></td><td class="mono">capped</td><td>The bank-to-altar run <em>is</em> the method. The extreme case — ~33 reviews per conversion at its anchor rate.</td></tr>
+      <tr><td><b>Prayer</b></td><td><span class="tier t-strong">strong</span></td><td class="mono">50%</td><td>Gilded altar / Ectofuntus are genuine journeys. Owner capped it: 99 Agility ≠ free bank runs.</td></tr>
+      <tr><td><b>Woodcutting</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">+10–15%</td><td>Walk to bank — and only when keep mode is on (drop mode never banks).</td></tr>
+      <tr><td><b>Mining</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">+10–15%</td><td>Walk to bank.</td></tr>
+      <tr><td><b>Fishing</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">+10–15%</td><td>Walk to deposit the catch.</td></tr>
+      <tr><td><b>Hunter</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">+10–15%</td><td>Roaming for supplies and deposits; the traps themselves cluster in one spot.</td></tr>
+      <tr><td><b>Smithing</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">+10–15%</td><td>Back-and-forth to the furnace / anvil.</td></tr>
+      <tr><td><b>Crafting</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">+10–15%</td><td>Method-dependent in reality; resolved to weak under the per-skill ruling.</td></tr>
+      <tr><td><b>Cooking</b></td><td><span class="tier t-marg">marginal</span></td><td class="mono">small</td><td>Basically standing at the bank.</td></tr>
+      <tr><td><b>Firemaking</b></td><td><span class="tier t-marg">marginal</span></td><td class="mono">small</td><td>Basically standing at the bank.</td></tr>
+      <tr><td><b>Fletching</b></td><td><span class="tier t-none">none</span></td><td class="mono">0</td><td>You stand on the bank chest and click. No walk exists to make faster.</td></tr>
+      <tr><td><b>Herblore</b></td><td><span class="tier t-none">none</span></td><td class="mono">0</td><td>Same — bank-standing mixing.</td></tr>
+      <tr><td><b>Combat</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">+10–15%</td><td>Mostly short walks; the supply refill + altar restore keep costing their reviews (restock unaffected).</td></tr>
+    </tbody>
+  </table></div></section>
+
+  <section class="grid2">
+    <section class="panel"><h2>The magnitude, bounded by evidence</h2><p class="sub">The Abyss-vs-foot delta — the number that would have sized run energy for free — does not exist in any period source (exhaustive scan to 2010). So the slope is invented, but the RC recon handed us a real bound.</p>
+      <p class="mono" style="font-size:12px;color:var(--dim);margin:0 0 4px">SAME LEVEL · SAME 43 ESSENCE · TWO NATURE ROUTES</p>
+      <div class="bar">
+        <div class="fill" style="width:100%"></div>
+        <div class="mark" style="left:0%"></div>
+        <div class="mark" style="left:12%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)"></div>
+        <div class="mark" style="left:100%"></div>
+        <div class="lab" style="left:2%;color:var(--dim)">5.8k</div>
+        <div class="lab" style="left:14%;color:var(--cyan)">chosen ceiling</div>
+        <div class="lab" style="right:2%;color:var(--green)">11.6k · 2×</div>
+      </div>
+      <p style="color:#bdc6d6;font-size:13px;line-height:1.55;margin-top:12px">Route choice alone was worth <b>2×</b>. Run energy is only one ingredient of a good route, so the Agility effect must be a fraction of that. <b>Owner decision: ~+10–15% at 99</b>, treating the sourced rate as a mid-level fixed point — not a ceiling, not the full 2×. Curve: <span class="mono">reduction(L)=c·(L−1)/98</span>.</p>
+    </section>
+    <section class="panel"><h2>Runecrafting recon — the flagship</h2><p class="sub">RC turned out sourceable after all; it was just never harvested.</p>
+      <div class="check"><span class="tick">✓</span><div><b>Clean anchor exists</b><small>Nature Edgeville → fairy ring → glory-return: 11,600 XP/h at level 50, 43 essence/trip, internally consistent. ZMI ladder to ~55k at 99; Runespan covers the top (oldid 6530445).</small></div></div>
+      <div class="check"><span class="tick">✓</span><div><b>Instant whole-pack craft is faithful</b><small>2011Scape converts the entire pouchload in one action, so the cost lives entirely in the trip. RC is where this whole model is most visible.</small></div></div>
+      <div class="check"><span class="tick" style="background:#251c0e;color:var(--amber)">!</span><div><b>Three gaps stay blocked</b><small>The Abyss-vs-foot delta, Law &amp; Death standard altars, and the elemental 1.125-vs-10% ring conflict. Recorded, not guessed.</small></div></div>
+    </section>
+  </section>
+
+  <section class="panel"><h2>What's decided, and what's next</h2><p class="sub">Every owner call from this grill is locked. Implementation is gated on one harvest.</p>
+    <div class="grid2" style="margin-bottom:6px">
+      <div>
+        <p class="eyebrow green">RATIFIED</p>
+        <div class="check"><span class="tick">✓</span><div><b>Run-energy analog via the bank-run waiver</b><small>Invented, labelled, sits beside sourced rates.</small></div></div>
+        <div class="check"><span class="tick">✓</span><div><b>Trip cost derived from sourced rates</b><small>Not the flat 1-per-28 constant.</small></div></div>
+        <div class="check"><span class="tick">✓</span><div><b>Per-skill tiers, optimal-route assumption</b><small>Prayer capped 50%, combat restock unaffected.</small></div></div>
+        <div class="check"><span class="tick">✓</span><div><b>+10–15% ceiling at 99</b><small>Bounded by the 2× route evidence.</small></div></div>
+      </div>
+      <div>
+        <p class="eyebrow cyan">NEXT — GATED ON HARVEST</p>
+        <div class="step"><div class="snum">1</div><div><b>Full trip-cost harvest</b><p>Base XP/hour for Runecrafting, Crafting, Smithing, Prayer — the strong/weak skills with no rate yet. Candidate for a codex-workflows fan-out.</p><span class="ftag">sourced_xp_rates.py</span></div></div>
+        <div class="step"><div class="snum">2</div><div><b>Wire derived trip cost</b><p>Into the bank-run gate + cadence kernel, replacing the flat constant.</p><span class="ftag">inventory_pure.py</span><span class="ftag">cadence_kernel.py</span></div></div>
+        <div class="step"><div class="snum">3</div><div><b>Implement the atomic waiver</b><p>Never a gate bypass. Roll only when a cost is due.</p><span class="ftag">runtime_actions.py</span></div></div>
+        <div class="step"><div class="snum">4</div><div><b>Ship Agility as a surface</b><p>With barehand butterflies, Brimhaven flagship, four source-closed courses. Fixes the quest-validation short-circuit for free.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel"><h2>Intentionally parked</h2><p class="parked">The Runecrafting Abyss-vs-foot rate, Law and Death standard altars, and the elemental ring-factor conflict stay <span class="mono">source_blocked</span> until the full harvest pins them. No throughput number is invented — only the run-energy slope is, and it's bounded. Advanced Agility courses, Pyramid / Ape Atoll / Werewolf / Dorgesh-Kaan, generic shortcuts, and functional Agile-clothing weight benefits remain out of the first release.</p></section>
+
+  <p class="footer">Contract: memory-bank/agility-run-energy-contract-2026-07-14.md · Recon: source-audits/runecrafting-recon-2026-07-14.md · Sol rounds 1–3 + bank-run critique preserved · No code changed yet — design only.</p>
+</main></body></html>
