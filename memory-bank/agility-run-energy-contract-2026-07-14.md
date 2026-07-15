@@ -62,21 +62,25 @@ Owner ruling: assume the optimal period route including free teleports — one v
 skill, ~13 flags, no per-target checkbox hell. The verdict reflects what the trip actually
 was in 2012.
 
-| Handler | Tier | Reduction @99 | Why |
+The `@99` column is a **throughput** target (see Magnitude — the ceiling is the
+invariant, tiers scale under it). The per-skill *trip reduction* needed to hit it is
+derived, not fixed.
+
+| Handler | Tier | Throughput @99 | Why |
 |---|---|---|---|
-| Runecrafting | strong | (see cap) | The bank-to-altar run IS the method; Abyss vs foot is the whole story |
-| Prayer | strong, **capped 50%** | 50% | Gilded altar / Ectofuntus are genuine journeys; owner: 99 ≠ free |
-| Woodcutting | weak | ~+10–15% band | Walk to bank, only when keep mode is on |
-| Mining | weak | " | Walk to bank (Living Rock's on-site pulley would be `none`, but per-skill) |
-| Fishing | weak | " | Walk to bank |
-| Hunter | weak | " | Roaming for supplies/deposits; traps themselves cluster |
-| Smithing | weak | " | Back-and-forth to furnace/anvil |
-| Crafting | weak | " | Method-dependent; resolved to weak under per-skill ruling |
-| Cooking | marginal | small | Basically at the bank |
-| Firemaking | marginal | small | Basically at the bank |
+| Runecrafting | strong | +15% | The bank-to-altar run IS the method; Abyss vs foot is the whole story. Trip so large that +15% ≈ 32→28 walking reviews — RC feels Agility least, which is faithful (RC's real speed lever was method, not Agility) |
+| Prayer | strong | +15% | Gilded altar / Ectofuntus are genuine journeys. (Owner's earlier "50% trip cut" is **superseded** by the throughput ceiling — 50% of a strong trip overshoots +15% ~6×) |
+| Woodcutting | weak | ~+7% | Walk to bank, only when keep mode is on |
+| Mining | weak | ~+7% | Walk to bank (Living Rock's on-site pulley would be `none`, but per-skill) |
+| Fishing | weak | ~+7% | Walk to bank |
+| Hunter | weak | ~+7% | Roaming for supplies/deposits; traps themselves cluster |
+| Smithing | weak | ~+7% | Back-and-forth to furnace/anvil |
+| Crafting | weak | ~+7% | Method-dependent; resolved to weak under per-skill ruling |
+| Cooking | marginal | ~+3% | Basically at the bank |
+| Firemaking | marginal | ~+3% | Basically at the bank |
 | Fletching | none | 0 | You stand on the bank chest |
 | Herblore | none | 0 | You stand on the bank chest |
-| Combat | weak, **restock unaffected** | ~+10–15% band | Mostly short walks; the supply refill + altar restore still cost their reviews |
+| Combat | weak, **restock unaffected** | ~+7% | Mostly short walks; the supply refill + altar restore still cost their reviews |
 
 ## Magnitude (owner decision + empirical bound)
 
@@ -87,13 +91,34 @@ data**: same level, same 43 essence, two different Nature routes gave **5,800 vs
 XP/hour**, a 2× spread from route/walk choice alone. Run energy is only one ingredient of a
 good route, so the Agility effect must be a fraction of 2×.
 
-**Owner decision: at 99 Agility a walk-heavy skill beats its sourced rate by ~+10–15%**,
-treating the sourced rate as a mid-level fixed point (not a ceiling, not the full 2×). RC
-99 ≈ 13k against its 11,600 anchor. Prayer is capped harder at 50% cost reduction.
+**Owner decisions (reconciled):**
 
-Curve shape (Sol's form): `reduction(L) = c_tier · (L−1)/98`, rolled/applied only when a
-bank cost is actually due. Bags still help (they raise N; effects are sub-additive), which
-is why the curve stays well below 100%.
+- **Throughput ceiling is the invariant, not the trip-reduction fraction.** No skill beats
+  its sourced rate by more than the tier target at 99: strong +15%, weak ~+7%, marginal
+  ~+3%, none 0. The trip reduction that achieves this is *derived per skill* and differs
+  wildly — a strong skill with a huge trip (RC) needs only a ~13% trip cut to reach +15%
+  throughput; a weak skill with a small trip needs a larger cut for less throughput. This
+  supersedes the earlier "Prayer 50% trip cut," which in throughput terms was ~+90% and
+  broke the ceiling.
+- **Floor = source.** Level-1 Agility runs at exactly the sourced XP/hour; Agility is pure
+  upside up to the tier target. No baseline nerf to existing play. (This makes the earlier
+  "derived cost is a nerf" concern moot — the derived trip cost, unified with the kernel,
+  reproduces the sourced rate at the floor rather than undercutting it.)
+
+Curve shape (Sol's form): `throughput_gain(L) = target_tier · (L−1)/98`, applied only when
+a bank cost is actually due, back-solved to a trip reduction. Bags still help (they raise
+N; effects are sub-additive).
+
+## Presentation (owner decision: bursty)
+
+The trip cost presents as **discrete travel reviews then a payout burst**, not smoothed XP
+per review — faithful to the game (you walk, then convert). This is also the cheaper path:
+the bank-run gate already spends reviews with zero XP, so bursty is the existing behavior
+extended. RC is the extreme: ~28–32 travel reviews per conversion even at 99 Agility.
+
+**Refinement:** travel reviews show running progress ("running to the altar, 6/32") rather
+than being blank, so the stretch reads as movement, not dead air. Same burstiness, no
+"nothing happened" confusion. Build this unless the owner prefers truly blank travel ticks.
 
 ## Runecrafting sourcing (recon done)
 

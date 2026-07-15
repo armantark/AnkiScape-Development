@@ -65,7 +65,7 @@
   <section class="metrics">
     <div class="metric"><strong>1 rule</strong><span>waive the review cost, never the bank transaction</span></div>
     <div class="metric"><strong>13 skills</strong><span>tiered by whether the trip was a real walk</span></div>
-    <div class="metric"><strong>+10–15%</strong><span>ceiling at 99 Agility, bounded by real 2× route data</span></div>
+    <div class="metric"><strong>+15% cap</strong><span>throughput ceiling at 99; tiers scale under it, bounded by 2× route data</span></div>
     <div class="metric"><strong>0 sourced rates</strong><span>altered — the mechanic sits beside them</span></div>
   </section>
 
@@ -82,23 +82,24 @@
 
   <section class="panel"><h2>Which skills feel it, and how much</h2><p class="sub">Owner ruling: assume the optimal period route including free teleports — one verdict per skill, no per-target checkbox hell. The tier reflects what the 2012 trip actually was.</p>
   <div class="tblwrap"><table>
-    <thead><tr><th>Handler</th><th>Tier</th><th>@99</th><th>Why the trip was / wasn't a walk</th></tr></thead>
+    <thead><tr><th>Handler</th><th>Tier</th><th>Throughput @99</th><th>Why the trip was / wasn't a walk</th></tr></thead>
     <tbody>
-      <tr><td><b>Runecrafting</b></td><td><span class="tier t-strong">strong</span></td><td class="mono">capped</td><td>The bank-to-altar run <em>is</em> the method. The extreme case — ~33 reviews per conversion at its anchor rate.</td></tr>
-      <tr><td><b>Prayer</b></td><td><span class="tier t-strong">strong</span></td><td class="mono">50%</td><td>Gilded altar / Ectofuntus are genuine journeys. Owner capped it: 99 Agility ≠ free bank runs.</td></tr>
-      <tr><td><b>Woodcutting</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">+10–15%</td><td>Walk to bank — and only when keep mode is on (drop mode never banks).</td></tr>
-      <tr><td><b>Mining</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">+10–15%</td><td>Walk to bank.</td></tr>
-      <tr><td><b>Fishing</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">+10–15%</td><td>Walk to deposit the catch.</td></tr>
-      <tr><td><b>Hunter</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">+10–15%</td><td>Roaming for supplies and deposits; the traps themselves cluster in one spot.</td></tr>
-      <tr><td><b>Smithing</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">+10–15%</td><td>Back-and-forth to the furnace / anvil.</td></tr>
-      <tr><td><b>Crafting</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">+10–15%</td><td>Method-dependent in reality; resolved to weak under the per-skill ruling.</td></tr>
-      <tr><td><b>Cooking</b></td><td><span class="tier t-marg">marginal</span></td><td class="mono">small</td><td>Basically standing at the bank.</td></tr>
-      <tr><td><b>Firemaking</b></td><td><span class="tier t-marg">marginal</span></td><td class="mono">small</td><td>Basically standing at the bank.</td></tr>
+      <tr><td><b>Runecrafting</b></td><td><span class="tier t-strong">strong</span></td><td class="mono">+15%</td><td>The bank-to-altar run <em>is</em> the method. Trip so large that +15% only shrinks it ~32→28 reviews — RC feels Agility <em>least</em>, which is faithful (its real speed lever was method, not Agility).</td></tr>
+      <tr><td><b>Prayer</b></td><td><span class="tier t-strong">strong</span></td><td class="mono">+15%</td><td>Gilded altar / Ectofuntus are genuine journeys. The earlier "50% trip cut" is superseded — 50% overshoots the ceiling ~6×.</td></tr>
+      <tr><td><b>Woodcutting</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">~+7%</td><td>Walk to bank — and only when keep mode is on (drop mode never banks).</td></tr>
+      <tr><td><b>Mining</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">~+7%</td><td>Walk to bank.</td></tr>
+      <tr><td><b>Fishing</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">~+7%</td><td>Walk to deposit the catch.</td></tr>
+      <tr><td><b>Hunter</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">~+7%</td><td>Roaming for supplies and deposits; the traps themselves cluster in one spot.</td></tr>
+      <tr><td><b>Smithing</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">~+7%</td><td>Back-and-forth to the furnace / anvil.</td></tr>
+      <tr><td><b>Crafting</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">~+7%</td><td>Method-dependent in reality; resolved to weak under the per-skill ruling.</td></tr>
+      <tr><td><b>Cooking</b></td><td><span class="tier t-marg">marginal</span></td><td class="mono">~+3%</td><td>Basically standing at the bank.</td></tr>
+      <tr><td><b>Firemaking</b></td><td><span class="tier t-marg">marginal</span></td><td class="mono">~+3%</td><td>Basically standing at the bank.</td></tr>
       <tr><td><b>Fletching</b></td><td><span class="tier t-none">none</span></td><td class="mono">0</td><td>You stand on the bank chest and click. No walk exists to make faster.</td></tr>
       <tr><td><b>Herblore</b></td><td><span class="tier t-none">none</span></td><td class="mono">0</td><td>Same — bank-standing mixing.</td></tr>
-      <tr><td><b>Combat</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">+10–15%</td><td>Mostly short walks; the supply refill + altar restore keep costing their reviews (restock unaffected).</td></tr>
+      <tr><td><b>Combat</b></td><td><span class="tier t-weak">weak</span></td><td class="mono">~+7%</td><td>Mostly short walks; the supply refill + altar restore keep costing their reviews (restock unaffected).</td></tr>
     </tbody>
-  </table></div></section>
+  </table></div>
+  <p style="color:var(--dim);font-size:12.5px;line-height:1.55;margin:14px 0 0">The <b>throughput ceiling</b> is the invariant: no skill beats its source by more than its tier target. The actual trip reduction to hit it is derived per skill — a huge trip (RC) needs only a ~13% cut for +15%; a small trip needs a larger cut for less. <b>Floor = source</b>: level-1 Agility runs at the exact sourced rate, so Agility is pure upside with no new-player nerf. <b>Presentation is bursty</b>: travel reviews (shown as running progress, not blank) then a payout burst.</p></section>
 
   <section class="grid2">
     <section class="panel"><h2>The magnitude, bounded by evidence</h2><p class="sub">The Abyss-vs-foot delta — the number that would have sized run energy for free — does not exist in any period source (exhaustive scan to 2010). So the slope is invented, but the RC recon handed us a real bound.</p>
@@ -112,7 +113,7 @@
         <div class="lab" style="left:14%;color:var(--cyan)">chosen ceiling</div>
         <div class="lab" style="right:2%;color:var(--green)">11.6k · 2×</div>
       </div>
-      <p style="color:#bdc6d6;font-size:13px;line-height:1.55;margin-top:12px">Route choice alone was worth <b>2×</b>. Run energy is only one ingredient of a good route, so the Agility effect must be a fraction of that. <b>Owner decision: ~+10–15% at 99</b>, treating the sourced rate as a mid-level fixed point — not a ceiling, not the full 2×. Curve: <span class="mono">reduction(L)=c·(L−1)/98</span>.</p>
+      <p style="color:#bdc6d6;font-size:13px;line-height:1.55;margin-top:12px">Route choice alone was worth <b>2×</b>. Run energy is only one ingredient of a good route, so the Agility effect must be a fraction of that. <b>Owner decision: throughput ceiling of ~+15% at 99</b> is the invariant (tiers scale under it); the sourced rate is the <b>floor</b>, so Agility is pure upside. Curve: <span class="mono">gain(L)=target·(L−1)/98</span>.</p>
     </section>
     <section class="panel"><h2>Runecrafting recon — the flagship</h2><p class="sub">RC turned out sourceable after all; it was just never harvested.</p>
       <div class="check"><span class="tick">✓</span><div><b>Clean anchor exists</b><small>Nature Edgeville → fairy ring → glory-return: 11,600 XP/h at level 50, 43 essence/trip, internally consistent. ZMI ladder to ~55k at 99; Runespan covers the top (oldid 6530445).</small></div></div>
@@ -128,7 +129,7 @@
         <div class="check"><span class="tick">✓</span><div><b>Run-energy analog via the bank-run waiver</b><small>Invented, labelled, sits beside sourced rates.</small></div></div>
         <div class="check"><span class="tick">✓</span><div><b>Trip cost derived from sourced rates</b><small>Not the flat 1-per-28 constant.</small></div></div>
         <div class="check"><span class="tick">✓</span><div><b>Per-skill tiers, optimal-route assumption</b><small>Prayer capped 50%, combat restock unaffected.</small></div></div>
-        <div class="check"><span class="tick">✓</span><div><b>+10–15% ceiling at 99</b><small>Bounded by the 2× route evidence.</small></div></div>
+        <div class="check"><span class="tick">✓</span><div><b>Throughput ceiling is the invariant (~+15%)</b><small>Tiers scale under it; floor = source; bursty presentation. Bounded by the 2× route evidence.</small></div></div>
       </div>
       <div>
         <p class="eyebrow cyan">NEXT — GATED ON HARVEST</p>
