@@ -144,6 +144,9 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT`.
 - Park Social Slayer unless genuine shared-player state ever exists; do not ship
   a simulated partner or solo co-op multiplier. Preserve all seven period Slayer
   master challenges in the design and source their compound objective ledgers.
+- Add an explicit `Get assignment` master picker and make its NPC identity
+  quest-reactive: Turael to Spria and Duradel to Lapalok after While Guthix
+  Sleeps, with Achtryn replacing Mazchna only during the quest interval.
 
 ### Summoning
 

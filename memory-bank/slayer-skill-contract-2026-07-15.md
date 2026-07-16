@@ -163,9 +163,49 @@ compound objectives and completion rewards; the player may decline an offer for
 a normal assignment without a point penalty. See
 `source-audits/slayer-master-challenges-2026-07-15.md`.
 
+## Owner decision 5 — preserve special challenges
+
+The seven special challenges preserve their literal compound objective ledgers;
+none is collapsed into an ordinary single-target assignment with a larger
+reward. Location-only ceremony that AnkiScape cannot represent becomes concise
+status text, while any required report or hand-in is an instantaneous,
+review-free UI action.
+
+Challenges remain occasional random offers in place of a normal assignment.
+When the roll succeeds, `Get assignment` shows the chosen master's challenge
+with `Accept challenge` and `Take a normal assignment`; declining has no point
+penalty and immediately continues to the ordinary task roll. Challenges are not
+selectable on demand.
+
+The period sources establish an occasional roll after several consecutive tasks
+for the relevant master but do not state the exact 2012 prerequisite or chance.
+The modern `X/100` formula is absent from the cutoff revision and must not be
+backported without corroboration. The prerequisite and probability remain
+`source_blocked`; a later implementation may use only a source-closed value or
+the smallest labeled hidden-roll abstraction allowed by the verification
+standard.
+
+## Quest-reactive Slayer masters
+
+The Slayer-master roster must reflect canonical quest state. Completing While
+Guthix Sleeps permanently changes Turael to Spria and Duradel to Lapalok.
+Achtryn replaces Mazchna only during the relevant quest interval; Mazchna
+returns afterward. The replacement carries the same functional master role,
+assignment family, picker position, and management operations while changing
+the displayed NPC identity, portrait, and source-appropriate copy. See
+`source-audits/slayer-master-succession-2026-07-15.md`.
+
+## Slayer master picker
+
+There is no Slayer picker in the current runtime because Slayer implementation
+has not begun. The design does require one: pressing `Get assignment` opens a
+master-selection surface, preselects the last eligible master, permits choosing
+another master, displays requirements and assignment/reward context, and then
+performs the assignment or challenge-offer roll. Quest-reactive replacements
+update this same surface rather than creating duplicate master rows.
+
 ## Next unresolved product branch
 
-Determine whether the seven special challenges preserve their literal compound
-objective ledgers, with location-only travel/return rules represented as concise
-status text and instantaneous UI turn-in, or collapse into ordinary single-target
-assignments with a bonus reward.
+Determine whether the master picker shows every cutoff-live standard master with
+ineligible rows visibly locked and their unmet requirements explained, or hides
+masters until they become eligible.

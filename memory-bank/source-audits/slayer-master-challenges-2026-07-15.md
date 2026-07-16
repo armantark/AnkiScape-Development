@@ -17,6 +17,11 @@ Challenges are occasionally offered instead of a normal assignment, may be
 declined without a Slayer-point penalty, count as assignments, and award their
 own completion rewards.
 
+A period-lineage Knowledge Base mirror independently says that players who
+complete several consecutive tasks for a particular master have a chance to be
+offered that master's optional challenge:
+<https://www.2011.rs/kb/slayer_challenges>.
+
 ## Cutoff-live challenge families
 
 | Master | Literal period objective | Stated challenge reward |
@@ -45,6 +50,22 @@ page says so. The table records the challenge-specific reward only.
   probabilities are hidden rolls and remain `source_blocked` until the emulator
   and cache/source pass is complete.
 
+## Challenge-offer roll
+
+The cutoff revision states only that challenges are `occasionally offered`; it
+contains no numeric probability, counter formula, or exact minimum streak. The
+period-lineage Knowledge Base mirror likewise says `several consecutive tasks`
+for the particular master and `have the chance`, without a number.
+
+The current wiki's `X/100` formula is not period evidence: it does not appear in
+oldid `6328439`, and the current page cites a 2023 source for its eligibility
+section. Until a period implementation, talk-history row, or independent dated
+source closes the mechanic, both the prerequisite and hidden offer probability
+remain `source_blocked`. The design still preserves the sourced shape: roll only
+when requesting a new task from the chosen master; a successful roll offers the
+challenge instead; declining produces an ordinary assignment without a point
+penalty.
+
 ## Corroboration still required before implementation
 
 The period wiki revision closes the existence and user-visible shape of all
@@ -55,7 +76,7 @@ rev-727/rev-742, game-main, or independent period corroboration under
 
 ## Open AnkiScape abstraction
 
-The source challenges are structurally richer than an ordinary single-target
-assignment. The owner must decide whether AnkiScape preserves their compound
-objective ledgers while flattening only unavailable travel/location ceremony,
-or collapses each challenge to one ordinary target plus a reward bonus.
+The source challenges remain structurally richer than ordinary single-target
+assignments. AnkiScape preserves their compound objective ledgers and flattens
+only unavailable travel/location ceremony into concise status text and
+review-free hand-in UI.

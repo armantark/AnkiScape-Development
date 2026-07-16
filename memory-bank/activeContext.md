@@ -14,8 +14,12 @@ are excluded. Source kill-count rolls stay literal: each qualifying kill removes
 one, and long tasks may span reviews and study sessions without Slayer-specific
 compression. Social Slayer is confirmed cutoff-live but parked as a future
 genuine-multiplayer dependency with no solo substitute or dead UI. The seven
-cutoff-live Slayer-master special challenges are the next design branch. No
-Slayer gameplay implementation is authorized in this thread.
+cutoff-live Slayer-master special challenges retain their compound objectives
+and appear only as random offers in place of normal tasks; their exact cutoff
+offer probability remains `source_blocked`. The planned `Get assignment` master
+picker is not implemented yet and must reflect While Guthix Sleeps succession:
+Turael to Spria, Duradel to Lapalok, and temporary Mazchna to Achtryn. No Slayer
+gameplay implementation is authorized in this thread.
 
 Agility's owner grill and full-content design harvest are closed; implementation
 belongs in a new thread. The governing product contract is
