@@ -251,9 +251,28 @@ finisher state. Consumable finishers spend their item or charge; reusable tools
 must be present but remain owned. No kill, drops, Slayer XP, or assignment credit
 commits until the finisher succeeds.
 
+## Owner decision 9 — manual finishers consume a review
+
+Before the 400-point unlock, using the required finisher is its own Combat
+action and consumes the next correct review. That review atomically spends the
+consumable item or charge where applicable, completes the kill, awards drops and
+XP, decrements the assignment, and writes one undo record. An incorrect review
+does none of those things.
+
+After the unlock, a qualifying final damaging review applies the required
+finisher and completes the same effects in one atomic transaction. The item
+presence check and consumable spend still occur.
+
+## Cutoff exclusion — unlimited Slayer shakers
+
+Salt, ice, fungicide, and explosive shakers are excluded. All four unlimited
+items released on `2015-06-08`, after the cutoff. Period AnkiScape therefore
+uses bags of salt, ice coolers, fungicide charges, and fishing explosives as
+consumables; the rock hammer remains the reusable finishing tool. See
+`source-audits/slayer-finishing-blows-2026-07-15.md`.
+
 ## Next unresolved product branch
 
-Determine whether the pending manual finisher consumes the next correct review
-as its own Combat action, or is completed by a review-free UI click. The
-400-point unlock completes the finisher atomically with the final damaging
-review in either model.
+Determine whether a player may select a consumable finisher before the valid LP
+threshold and waste it with no effect, as the period game allowed, or whether
+AnkiScape disables the action until it can succeed.

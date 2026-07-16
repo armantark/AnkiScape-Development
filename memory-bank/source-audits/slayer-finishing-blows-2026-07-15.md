@@ -1,6 +1,6 @@
 # Slayer finishing blows and quick-kill unlock — 2026-07-15
 
-Status: **period mechanic and unlock closed; review mapping open**.
+Status: **period mechanic, cutoff exclusions, and review mapping closed; early-use UI open**.
 Cutoff: `2012-11-20T00:00:00Z`.
 
 ## Core reward evidence
@@ -70,6 +70,24 @@ intentionally excludes rockslug and gargoyle because Combat cannot yet express
 their required item-on-target finisher. Shipping them as ordinary enemies would
 be a parity regression.
 
+## Post-cutoff unlimited-shaker exclusion
+
+The current item records date all four unlimited shakers to `2015-06-08`, more
+than two years after the cutoff:
+
+- `Salt shaker`, item `34960`:
+  <https://runescape.wiki/w/Salt_shaker>;
+- `Ice shaker`, item `34961`:
+  <https://runescape.wiki/w/Ice_shaker>;
+- `Fungicide shaker`, item `34962`:
+  <https://runescape.wiki/w/Fungicide_shaker>; and
+- `Explosive shaker`, item `34963`:
+  <https://runescape.wiki/w/Explosive_shaker>.
+
+Exact-name queries against revs 727, 728, 729, 736, 741, and 742 returned no
+matching item definitions. The four shakers are excluded rather than treated as
+period upgrades or equipment. Their underlying one-use supplies remain live.
+
 ## Closed design constraints
 
 - The required item must remain meaningful before and after buying the unlock.
@@ -79,11 +97,16 @@ be a parity regression.
   successful finisher.
 - The automatic unlock folds the finisher into the final damaging Combat action.
 - Experimental fungicide remains a challenge-specific exception.
+- Unlimited shaker replacements do not exist at the cutoff.
 
-## Open review-native mapping
+## Review-native mapping
 
 The source describes a separate manual action before the unlock and an automatic
-finisher afterward. AnkiScape must decide whether the manual action consumes a
-correct review or is a review-free UI click. The former preserves one-review-one-
-action semantics and gives the 400-point unlock real review-economy value; the
-latter models only its reduction in interface friction.
+finisher afterward. The manual action consumes the next correct review and
+commits the consumable spend, kill, drops, XP, assignment progress, and undo
+record atomically. The 400-point unlock folds those effects into the final
+damaging review while retaining the item check and consumable spend.
+
+The remaining product question is whether the action selector permits the
+period game's early, ineffective use of a consumable finisher or disables the
+action until the target reaches its valid threshold.
