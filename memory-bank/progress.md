@@ -1,6 +1,6 @@
 # Progress
 
-## Current Baseline — 2026-07-13
+## Current Baseline — 2026-07-15
 
 AnkiScape now has 16 complete skill surfaces, five partial Combat-trained skills, and four planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is a historical snapshot.
 
@@ -32,11 +32,20 @@ Unified Combat trains Attack, Strength, Defence, Constitution, and Ranged. They 
 ## Planned Skills
 
 - Summoning
-- Agility
+- Agility — complete product/design-family contract; historical value sweep and
+  implementation pending
 - Dungeoneering
 - Slayer
 
-Each needs a closed product/source contract before implementation.
+Summoning, Dungeoneering, and Slayer still need closed product/source contracts
+before implementation.
+
+Agility's design contract is now closed in
+`agility-skill-contract-2026-07-15.md`, with the exhaustive design-family ledger
+in `source-audits/agility-complete-content-inventory-2026-07-15.md`. Candidate
+and `source_blocked` values still require the recorded historical sweep.
+Implementation remains a future thread and must ship the full Agility-owned
+surface atomically rather than a small course subset.
 
 ## Thieving closure
 

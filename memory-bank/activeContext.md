@@ -2,35 +2,29 @@
 
 ## Current Focus
 
-Agility is in owner grill and source-harvest, not implementation. The 2026-07-15
-harvest added `source-audits/agility-fail-consequences-2026-07-15.md`,
-`source-audits/agility-trip-cost-inputs-2026-07-15.md`, and
-`source-audits/agility-carried-weight-inputs-2026-07-15.md`. It overturned four
-premature simplifications: failures need obstacle-specific consequences rather
-than universal zero-XP/damage/stage-drop behavior; modern OSRS/RS3 failure
-curves are provisional candidates rather than period-closed values; item weight
-is target-load data rather than a period per-skill scalar; and optimal-route
-Crafting/Hunter/Combat do not gain throughput merely because their items can be
-heavy. The Explorer's-ring conflict is closed at 10% (`1.10`, or `2.10` with
-Runecrafting gloves), while Prayer's pure travel component remains
-`source_blocked`. The live owner question is Brimhaven's review-native ticket
-loop. Implementation belongs in a later thread after the grill closes.
+Agility's owner grill and full-content design harvest are closed; implementation
+belongs in a new thread. The governing product contract is
+`agility-skill-contract-2026-07-15.md`, backed by the exhaustive design-family ledger
+`source-audits/agility-complete-content-inventory-2026-07-15.md`. A
+closed design family is not a closed historical value: candidate and
+`source_blocked` rows still require the source-verification sweep named there. A
+`source_blocked` value may trigger one final implementation-time search or the
+smallest labeled review-native abstraction, but may never erase a period
+feature. The complete design includes every audited course plus the previously
+omitted Bandos route, Werewolf Skullball, Gnome Ball, Flash Powder Factory, The
+Pit, Circus, incidental actions, the full ordinary/grapple shortcut registries,
+cross-skill benefits, rewards/equipment/boosts, pending quest XP activation,
+and target-specific run energy/actual-load weight.
 
-Brimhaven owner direction (2026-07-15): flatten the arena's spatial mechanics
-rather than expose a literal 5x5 map. Preserve the recognizable ticket-state
-loop underneath, and use one concise player-facing narrative/status line to say
-which obstacle is being crossed, whether the active pillar was reached or
-missed, whether the streak is active, and whether a ticket was banked. Exact
-route generation and deadline cadence remain in the one-question-at-a-time
-grill. The owner then made the project-wide timer invariant explicit: wall-clock
-time has no place in AnkiScape. Brimhaven deadlines, like every other gameplay
-timer, must advance only through reviews/actions and roll back through undo.
-The delegated design is now closed in
-`agility-brimhaven-contract-2026-07-15.md`: hidden 5x5 geometry generates a
-`1..8` crossing distance, every chase has eight review attempts, the first tag
-activates and consecutive tags award tickets, misses reset activation, and all
-period XP/item exchanges remain player-chosen. No Brimhaven implementation is
-authorized in this thread.
+Course failure consequences remain obstacle-specific rather than universal;
+the contract now closes the fallback for unresolved hidden rolls at one global
+20% entry chance decaying to a sourced mastery point or 5% at level 99. Existing
+period consequences always override it. Brimhaven remains the flattened hidden
+5x5/eight-review chase in `agility-brimhaven-contract-2026-07-15.md`; the only
+ratification is Karamja gloves 4's sourced 25% chance to add a second ticket on
+a qualifying tag. Wall-clock time and global player-location state are forbidden
+throughout. No Agility implementation was authorized or performed in this
+design thread.
 
 Cadence Phase 3 shadow observation is complete on
 `codex/cadence-phase3-shadow`, based on Phase 1 at `b45aff0`. With the strict

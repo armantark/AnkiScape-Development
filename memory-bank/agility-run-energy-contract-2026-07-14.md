@@ -1,11 +1,18 @@
 # Agility run-energy model — design contract (2026-07-14)
 
-Status: **design locked, parity fork resolved, harvest pending.** This is the durable
+Status: **design locked, parity fork resolved, harvest complete.** This is the durable
 record of an owner grill that ran across one session. Numbers marked "invented" are
 deliberate AnkiScape abstractions, labelled as such per the project rule ("never invent a
 value" means never pass an invention off as period-authentic — it does not forbid a
 clearly-labelled game-design abstraction, of which AnkiScape already ships several: one
 review = one action, the 240-review day).
+
+**2026-07-15 completion note:** `agility-skill-contract-2026-07-15.md` is the
+governing implementation contract. The trip/weight harvest supersedes this
+document's earlier per-skill-weight shorthand: use actual target load where
+known, a labeled representative load otherwise, and never let weight create a
+benefit on a stationary method. The complete Agility course/activity boundary
+also supersedes the earlier four-course shipping shorthand below.
 
 **2026-07-15 parity resolution (Sol, xhigh; `source-audits/run-energy-parity-2026-07-15.md`).**
 The run-energy model is **drain-based** — Agility reduces run-energy drain (endurance),
@@ -138,11 +145,14 @@ Curve shape (Sol's form): `throughput_gain(L) = target_tier · (L−1)/98`, appl
 a bank cost is actually due, back-solved to a trip reduction. Bags still help (they raise
 N; effects are sub-additive).
 
-## Weight model (owner decision 2026-07-15: model per-skill)
+## Weight model (2026-07-15 correction: model actual target load)
 
 Weight is modeled, not flattened. It is a second, smaller run-energy lever layered on the
 Agility ceiling, and it gives the weight-reduction reward gear (the Agile set, Boots of
-Lightness, capes) a real function on gathering trips.
+Lightness, capes) a real function on gathering trips. The later harvest in
+`source-audits/agility-carried-weight-inputs-2026-07-15.md` governs: calculate
+the actual carried/equipped target load where possible rather than persisting
+one nominal scalar per skill.
 
 Sourced facts (parity report):
 
@@ -197,16 +207,16 @@ conflict.
 
 ## Open work before implementation
 
-1. **Full trip-cost harvest** (candidate for codex-workflows fan-out): base XP/hour for
-   Runecrafting (resolve the elemental ring conflict; pin the 7 oldids the recon lists),
-   Crafting, Smithing, Prayer — the strong/weak skills that currently have no sourced rate.
-   Cooking/Firemaking/WC/Mining/Fishing/Hunter/Thieving already have rates.
+1. **Completed 2026-07-15:** `source-audits/agility-trip-cost-inputs-2026-07-15.md`
+   resolves the elemental-ring conflict and closes target-specific RC/Crafting/
+   Smithing inputs; Prayer's pure travel component remains explicitly
+   `source_blocked`.
 2. Wire the derived trip cost into `carried_bank_run_gate_pure` / the cadence kernel,
    replacing flat `SKILLING_BANK_RUN_REVIEWS`.
 3. Implement the Agility waiver as an atomic cost-waiver path (never a gate bypass).
-4. Make Agility a trainable surface (fixes the quest-validation short-circuit at
-   `logic_pure.py:5436` for free) — ship atomically with the four barehand butterflies
-   (75/80/85/90 Agility), Brimhaven as flagship, and the four source-closed courses.
+4. Make Agility a trainable surface and ship the complete atomic boundary in
+   `agility-skill-contract-2026-07-15.md`, including all courses, activities,
+   cross-skill hooks, shortcuts, rewards, UI, assets, and verification.
 
 ## Provenance
 - Sol rounds 1–3 (design): `/tmp/sol-agility-round{1,2,3}.md`

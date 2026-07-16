@@ -87,6 +87,13 @@ active   + missed chase   -> inactive, +0 tickets
 inactive + missed chase   -> inactive, +0 tickets
 ```
 
+**2026-07-15 completeness ratification:** the table above is the unmodified
+base rule. If Karamja gloves 4 are equipped, each otherwise qualifying
+one-ticket tag has the period-sourced `25%` chance to award one additional
+ticket (`source-audits/agility-tables-2026-07-13.md:243-250`). The extra roll is
+part of the same route transaction and undo snapshot. This is the only
+supplement to the settled chase design.
+
 Stopping Brimhaven training ends the stint and clears activation, but never
 deletes already earned tickets. Closing and reopening the menu while Brimhaven
 remains the active training target does not end the stint. Save/load preserves
@@ -193,6 +200,7 @@ or separate minigame window is warranted.
 Ship Brimhaven only when all of these land together:
 
 - persisted/undoable stint, virtual route, attempts, activation, and tickets;
+- Karamja-gloves-4 double-ticket roll inside the qualifying-tag transaction;
 - obstacle XP, provisional failure labels, damage, temporary Agility drain, and
   existing LP/death integration;
 - admission and Rocking Out waiver;

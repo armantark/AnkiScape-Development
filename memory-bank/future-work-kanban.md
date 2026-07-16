@@ -75,9 +75,16 @@ Labels: none remaining on the core build; trailing acquisition/activity dependen
 
 ### Agility
 
-Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
+Labels: `DESIGN CLOSED`, `IMPLEMENTATION`, `SOURCE SWEEP`.
 
-- Abstract courses as checkpoint/lap state without player location; decide failures/damage, tickets/rewards, run-energy benefits, shortcuts as dependency gates, equipment, and UI.
+- Build from `memory-bank/agility-skill-contract-2026-07-15.md` and
+  `memory-bank/source-audits/agility-complete-content-inventory-2026-07-15.md`.
+  The complete boundary includes every course/activity, Brimhaven, failures/LP,
+  full ordinary/grapple shortcut registries, run energy/actual-load weight,
+  rewards/modifiers/boosts, cross-skill hooks, pending XP migration, UI, assets,
+  undo, and regression verification. Run one final source sweep for the
+  contract's remaining values, but never delete a feature because its exact
+  number stays blocked. No wall clock or global player-location state.
 
 ### Thieving — SHIPPED 2026-07-13
 

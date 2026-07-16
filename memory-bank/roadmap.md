@@ -1,10 +1,10 @@
 # AnkiScape Completion Roadmap
 
-Status: reconciled 2026-07-13. Use `future-work-kanban.md` for actionable cards and treat `completion-audit-2026-07-10.*` as dated baseline evidence.
+Status: reconciled 2026-07-15. Use `future-work-kanban.md` for actionable cards and treat `completion-audit-2026-07-10.*` as dated baseline evidence.
 
 ## Strategy
 
-Finish by dependency layers. Fifteen complete skill surfaces, unified Combat, quests, inventory/equipment, shops, activities, and shared UI/storage foundations already exist; remaining work is five planned skills plus cross-system breadth and release closure.
+Finish by dependency layers. Sixteen complete skill surfaces, unified Combat, quests, inventory/equipment, shops, activities, and shared UI/storage foundations already exist; remaining work is four planned skills plus cross-system breadth and release closure.
 
 ## Layer 1 — Close Proven Existing-Skill Slices
 
@@ -15,7 +15,11 @@ Finish by dependency layers. Fifteen complete skill surfaces, unified Combat, qu
 
 ## Layer 2 — Grill and Build Planned Skills
 
-- Agility and Thieving: support loops with route, failure, damage, and loot implications.
+- Agility: design closed in `agility-skill-contract-2026-07-15.md`; build the
+  complete course/activity/shortcut/passive/cross-skill surface in a fresh
+  implementation thread.
+- Thieving: implemented; preserve its shared LP/failure and multi-pick hooks as
+  Agility integrates.
 - Slayer and Summoning: Combat/acquisition-dependent systems.
 - Dungeoneering: late cross-skill meta-system.
 
