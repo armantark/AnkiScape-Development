@@ -2,9 +2,9 @@
 
 ## Current Focus
 
-Achievement semantics are the active implementation on
-`codex/achievement-semantics`. The branch includes the completed 18-pass
-overnight baseline and repairs all 70 action-worded achievements that were
+Achievement semantics are complete on `main` at `a0f5da4`. The integrated
+history includes the completed 18-pass overnight baseline and repairs all 70
+action-worded achievements that were
 reading disposable Bank balances. Config v37 adds owner-scoped cumulative
 action/output progress, while explicit Hold/Own predicates remain live. Potion
 holding thresholds are dose invariant, Runecrafting tiaras are excluded from
@@ -20,6 +20,11 @@ and worktree-safety gates pass.
 The broader achievement-diary gear reward model remains deliberately open.
 This repair supplies stable history for that future grill without choosing a
 reward cadence, item order, upgrade flow, or retroactive grant policy.
+
+This is a solo repository and the owner has explicitly selected a direct-main
+workflow. Work, test, and commit in the canonical `main` checkout. Do not create
+a feature branch or linked worktree unless the owner explicitly requests one
+for a particular task.
 
 Agility's owner grill, source harvest, and atomic implementation are closed. The
 governing product contract is

@@ -15,6 +15,9 @@
   as a separate add-on copy.
 - Future AnkiWeb updates may recreate or update `addons21/1808450369`; treat that folder as upstream and manually diff/merge changes into `ankiscape_fork`.
 - The local working copy is a solo-project git repository on `main`.
+- Work directly in the canonical `main` checkout and commit there. Do not create
+  feature branches or linked worktrees unless the owner explicitly requests
+  isolation for that specific task.
 - Tests are run with `python3 run_tests.py`.
 - Tests use Python's built-in `unittest`, not pytest.
 - `run_tests.py` adds the repo root to `PYTHONPATH` so pure modules can be imported directly.

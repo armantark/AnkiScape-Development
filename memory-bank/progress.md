@@ -336,8 +336,8 @@ Test counts are snapshots; current runs outrank this note.
 
 ## Overnight fresh-eyes audit closure (2026-07-16)
 
-- Completed 18 bounded passes and 36 attributable commits on the dedicated
-  safe branch without merging or pushing.
+- Completed 18 bounded passes and 36 attributable commits in a dedicated safe
+  worktree; the verified history was subsequently fast-forwarded into `main`.
 - Final core: 1,314 passing in 39.163 seconds, 193 environment skips, three
   expected XP-parity failures.
 - Final real offscreen Qt: 1,314 passing in 543.509 seconds, no skips, the same
@@ -349,6 +349,8 @@ Test counts are snapshots; current runs outrank this note.
 
 ## Achievement semantics foundation (2026-07-16)
 
+- Integrated into `main` at `a0f5da4` under the repository's direct-main
+  workflow.
 - Classified all 168 achievements and replaced 70 action-worded Bank snapshot
   predicates with durable action-owner production progress.
 - Added config v37 migration from the maximum of available telemetry history and
