@@ -290,8 +290,22 @@ block operations, and multiplayer-only co-op rewards. Social Slayer and its
 co-op purchases remain parked under Owner decision 4; the complete solo catalog
 remains mandatory.
 
-## Next unresolved product branch
+## Owner decision 11 — ring charges erase Slayer trip cost
 
-Determine how to preserve the ring of slaying's charged teleport value when
-AnkiScape intentionally has no global map or standalone transportation layer.
-Its task-check function alone duplicates the always-visible Slayer UI.
+The ring of slaying preserves its eight-charge transport value without adding a
+map, location, travel review, or wall-clock delay. When the player starts Combat
+at a qualifying Slayer destination, they may spend one charge to remove that
+trip's abstract run-energy cost. Assignment acquisition remains instantaneous
+and free; it never consumes a charge.
+
+The charge is spent by the destination-entry operation, not by selecting a
+monster, inspecting the current assignment, or resuming an encounter already in
+progress. The period task-check action may remain as harmless item flavor, but
+it grants no exclusive information because the active assignment is already
+legible in Slayer and Combat UI. At zero charges the item becomes the period
+uncharged ring and provides neither free entry nor an invented alternate effect.
+
+This is a labeled mapless transport abstraction. It keeps the sourced finite
+charge economy and the permanent ring-crafting unlock meaningful while routing
+the benefit through AnkiScape's existing run-energy resource rather than a
+forbidden time or location simulation.

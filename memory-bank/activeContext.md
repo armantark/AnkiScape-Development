@@ -27,9 +27,11 @@ quick-kill unlock automates rather than removes their item requirement. Before
 that unlock, the manual finisher consumes its own correct review. The unlimited
 shaker family is excluded as post-cutoff 2015 content. Finisher actions stay
 disabled until their valid LP threshold; early consumable waste is not encoded.
-The complete cutoff Slayer-point catalog is now pinned, and the ring of slaying's
-teleport value is the next open no-map abstraction. No Slayer gameplay
-implementation is authorized in this thread.
+The complete cutoff Slayer-point catalog is now pinned. The ring of slaying
+preserves its eight-charge transport value by spending one charge to erase the
+abstract run-energy cost of entering a qualifying Slayer destination; assignment
+acquisition, target inspection, and wall-clock travel remain free or absent. No
+Slayer gameplay implementation is authorized in this thread.
 
 Agility's owner grill and full-content design harvest are closed; implementation
 belongs in a new thread. The governing product contract is

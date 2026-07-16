@@ -1,6 +1,6 @@
 # Slayer points and reward catalog reconnaissance — 2026-07-15
 
-Status: **cutoff primary table pinned; cross-source value reconciliation open**.
+Status: **cutoff primary table pinned; ring abstraction owner-set; cross-source value reconciliation open**.
 Cutoff: `2012-11-20T00:00:00Z`.
 
 ## Primary period source
@@ -78,7 +78,7 @@ They are historically live but depend entirely on Social Slayer. Under Owner
 decision 4 they remain in the completeness ledger and create no solo runtime,
 UI, storage, or reward-shop rows.
 
-## Open ring-of-slaying abstraction
+## Owner-set ring-of-slaying abstraction
 
 The ring's eight charged teleports were a principal period benefit. Its task
 check duplicates AnkiScape's persistent task display, while the global transport
@@ -86,6 +86,13 @@ network is deliberately excluded by `systemPatterns.md`. The ring already has a
 source-backed Crafting recipe lead in the repository, so leaving all of its
 runtime effects inert would create a dead permanent unlock and dead item chain.
 
-A product decision is required before the reward catalog can close: either let a
-charge remove an abstract Slayer-trip run-energy cost, or explicitly retain the
-ring as a task-check/collection item with no teleport substitute.
+One charge removes the abstract run-energy cost of starting Combat at a
+qualifying Slayer destination. It is not spent on assignment acquisition,
+target selection, task inspection, or an encounter already in progress. This
+preserves the finite eight-charge transport value without inventing wall-clock
+travel or global player location. At zero charges the item becomes an uncharged
+ring with no substitute transport effect.
+
+The exact destination registry and ordinary trip-energy values remain source
+and implementation work. They must use the shared run-energy contract rather
+than a Slayer-local travel resource.

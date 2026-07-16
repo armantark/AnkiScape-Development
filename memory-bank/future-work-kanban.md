@@ -152,6 +152,9 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT`.
 - Build the complete cutoff reward/unlock ledger. Required finishing items must
   gate rockslugs, desert lizards, zygomites, and gargoyles; the 400-point quick
   killing-blow unlock automates the finisher without removing the item check.
+- Preserve the ring of slaying's eight-charge transport value by letting one
+  charge erase a qualifying Slayer destination's abstract run-energy entry
+  cost; do not add map state, travel reviews, or wall-clock delay.
 - Before that unlock, the finisher consumes its own correct review. Exclude the
   salt, ice, fungicide, and explosive shakers released in 2015.
 
