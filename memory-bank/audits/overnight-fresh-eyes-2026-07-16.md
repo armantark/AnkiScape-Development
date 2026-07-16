@@ -53,6 +53,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 | 10 | Combat supplies, supplemental Magic state, Ranged ammo, reflected kills, fatal loot, equipment protection, and undo seams | Opus | 3 | 3 | `916b075` | 334 focused combat/runtime/integration; 8 real offscreen Qt; 1,286 full; zero hard test-quality issues; reachability unchanged; compilation, diff, and worktree checks |
 | 11 | Thieving and Combat arrow outputs, NPC shops, generated Crafting and Fletching equipment, persistence, and undo seams | Opus | 2 | 2 | `9273cf4` | 263 focused; 5 real offscreen Qt; 1,291 full; zero hard test-quality issues; reachability unchanged; compilation, diff, and worktree checks |
 | 12 | Consumable producer/consumer identity and state symmetry across Herblore, Cooking, Farming, shops, connected Combat consumption, registry/assets, persistence, and undo | Opus | 8 | 8 | `f794108` | 19 focused; 5 real offscreen Qt; 1,302 full; reachability 1,200 actions/273 orphans; zero hard test-quality issues; compilation, diff, and worktree checks |
+| 13 | Save-schema lifecycle, defaults, migration, profile reload, persisted writer/reader symmetry, and direct-action undo | Opus | 5 | 1 | `1fb0b64` | 271 focused; 2 real offscreen Qt; 1,303 full; reachability unchanged at 1,200 actions/273 orphans; zero hard test-quality issues; compilation, diff, and worktree checks |
 
 ## Accepted fixes
 
@@ -102,6 +103,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Juju farming potion doses 1 through 4 can now be activated from the Farming surface, consume and preserve exact doses, apply the settled review-native farm-clock effect, and use complete registry/assets/provenance coverage.
 - Magic essence potion creation now emits the source-convergent `Magic essence mix (2)` identity rather than the conflicting `Magic potion (2)` transcription. The pinned cache item ID, recipe input, and consumption handler all converge on item 11489.
 - Shop resale now honors registry `tradeable=False`; Agility potion and mix dose families have canonical IDs and tradeability; Kebab and Half summer pie are food rather than Herblore products; and Summer pie uses the Bank's `Eat` verb.
+- Combat presets now contain configuration only. The finite `combat_supply_loadout` is neither snapshotted into new presets nor restored from legacy preset payloads, so target pins cannot mint consumed food, ammunition, runes, or potions or delete a freshly refilled pack on the next review.
 
 ## Rejected candidates
 
@@ -121,10 +123,13 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Empty sack and basket filling was not added speculatively: the existing Farming contract records those acquisition inputs as blocked rather than promising a live writer/reader path in this pass.
 - Bake Pie's mud-pie handling remains in Magic, where its target and inputs are internally consistent; moving it into Cooking would be a product expansion rather than a repair.
 - Fertile Soil's XP magnitude was not changed because the reviewer supplied no source-contract mismatch; its value remains a design/parity question, not a reproduced implementation failure.
+- Six Magic keys omitted from fresh-player defaults, three lazily created Prayer/Magic side-state keys, and the retired hidden-Agility default helper were recorded as schema asymmetries but not changed: all current readers provide matching defaults and no player-visible failure reproduces.
+- Source-blocked Thieving target IDs remain accepted by the load sanitizer because no live UI/runtime writer can persist those IDs; changing that dormant boundary was rejected without a current failure path.
+- Stale cross-profile undo snapshots were independently rejected: every answered review advances the shop clock before snapshot recording, preserving one snapshot per generic Anki Answer undo operation and keeping the LIFO stacks aligned.
 
 ## Queued confirmed defects
 
-None. The next pass rotates to persisted-state and direct-action seams rather than carrying an unverified candidate forward.
+None. The next pass rotates away from storage and Combat into achievement/counter and registry reachability seams rather than carrying an unverified candidate forward.
 
 ## Reviewer budget and availability
 
@@ -139,6 +144,7 @@ None. The next pass rotates to persisted-state and direct-action seams rather th
 - Pass 10 used one successful read-only Opus workflow (`fd4455dd-351c-4314-a98b-74af0726be7f`). The required pre/post live checks both reported Fable at 30% and all-model weekly usage at 17%; the Opus reviewer supplied three candidates, all independently reproduced, while Codex found and repaired three additional defects in the same bounded combat state path.
 - Pass 11 used one successful read-only Opus workflow (`c3bb074e-f91d-472e-b62d-03fc23390dbc`). The required pre/post live checks both reported Fable at 30% and all-model weekly usage at 17%; the reviewer exposed the NPC-shop ammunition producer failure and its blind oracle, while Codex independently found matching Thieving and Combat producers plus a stale generated-equipment snapshot.
 - Pass 12 used one successful read-only Opus workflow (`3f35b73d-08d0-41bc-91a9-213f0e3afde0`). The required pre/post live checks both reported Fable at 30%; all-model weekly usage rose from 17% to 18%. Six reviewer candidates were independently reproduced, and Codex found the missing supply-pack runtime plus the stronger cache-and-emulator resolution of the Magic essence mix identity conflict.
+- Pass 13 used one successful read-only Opus workflow (`3007fcda-2065-4cb2-b806-cca2a0e98ce0`). The required pre/post live checks both reported Fable at 30% and all-model weekly usage at 18%; current-session usage rose from 17% to 20%. The reviewer supplied one material finite-supply exploit and four explicit non-failing asymmetries; Codex reproduced and fixed only the exploit.
 
 ## Closure
 

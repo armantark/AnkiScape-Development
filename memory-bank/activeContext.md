@@ -342,3 +342,16 @@ Verification passes 19 focused tests, five real offscreen Qt checks, and all
 has zero hard issues; reachability now covers 1,200 actions with 273 orphan
 inputs (110 root, 163 cascade); compilation, diff, and safe-worktree checks
 pass.
+
+## Overnight fresh-eyes pass 13 (2026-07-16)
+
+Commit `1fb0b64` makes Combat presets configuration-only. The finite supply
+loadout is no longer captured by new presets or restored from legacy preset
+payloads, so a target pin cannot refill consumed food, ammunition, runes, or
+potions for free or erase a newly loaded pack on the following review.
+
+Verification passes 271 focused runtime/integration tests, two real offscreen
+Qt checks, and all 1,303 tests with 186 skips and three expected XP-parity
+failures. Test quality has zero hard issues; reachability remains 1,200 actions
+and 273 orphan inputs (110 root, 163 cascade); compilation, diff, and
+safe-worktree checks pass.

@@ -3,7 +3,7 @@
   "status": "active",
   "baseline_head": "74af8cf9806a4988ccae9cba202ca1be77e917c3",
   "deadline": "2026-07-16T09:00:00-07:00",
-  "iteration": 12,
+  "iteration": 13,
   "no_material_finding_passes": 0,
   "outer_loop_mode": "inner",
   "reviewer": {
@@ -12,10 +12,10 @@
     "fable_weekly_percent_cap": 30,
     "fable_weekly_percent_observed": 30,
     "fable_tokens": 676183,
-    "opus_calls": 11
+    "opus_calls": 12
   },
-  "last_scope": "Consumable producer/consumer identity and state symmetry across Herblore, Cooking, Farming, shops, connected Combat consumption, registry/assets, persistence, and undo",
-  "last_accepted_commit": "f794108",
+  "last_scope": "Save-schema lifecycle, defaults, migration, profile reload, persisted writer/reader symmetry, and direct-action undo",
+  "last_accepted_commit": "1fb0b64",
   "pending_concrete_defects": [],
   "safety_failure": null
 }

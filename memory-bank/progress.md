@@ -264,3 +264,13 @@ Test counts are snapshots; current runs outrank this note.
 - Committed as `f794108`; 19 focused tests, five real offscreen Qt checks, and
   all 1,302 tests pass. Reachability covers 1,200 actions with 273 orphan
   inputs, and test quality remains at zero hard issues.
+
+## Overnight fresh-eyes pass 13 — finite Combat preset state (2026-07-16)
+
+- Removed the owned `combat_supply_loadout` from the preset field contract, so
+  saving or pinning configuration cannot snapshot real item quantities.
+- Legacy presets containing the bad field are harmless on apply; the currently
+  loaded finite pack remains authoritative and continues to deplete normally.
+- Committed as `1fb0b64`; 271 focused tests, two real offscreen Qt checks, and
+  all 1,303 tests pass. Reachability remains 1,200 actions with 273 orphan
+  inputs, and test quality remains at zero hard issues.
