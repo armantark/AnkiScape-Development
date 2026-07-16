@@ -3,7 +3,7 @@
   "status": "active",
   "baseline_head": "74af8cf9806a4988ccae9cba202ca1be77e917c3",
   "deadline": "2026-07-16T09:00:00-07:00",
-  "iteration": 5,
+  "iteration": 6,
   "no_material_finding_passes": 0,
   "outer_loop_mode": "inner",
   "reviewer": {
@@ -12,10 +12,10 @@
     "fable_weekly_percent_cap": 30,
     "fable_weekly_percent_observed": 30,
     "fable_tokens": 676183,
-    "opus_calls": 4
+    "opus_calls": 5
   },
-  "last_scope": "Persisted item-name symmetry across carried packs, loot preferences, graves, Death's Office, equipment reclaim, shop rollback, and Magic selectors",
-  "last_accepted_commit": "3953b64",
+  "last_scope": "Shop services, Herblore dose conservation, Agility and Thieving activities, and achievement writer/reader symmetry",
+  "last_accepted_commit": "c1ca766",
   "pending_concrete_defects": [],
   "safety_failure": null
 }

@@ -171,3 +171,15 @@ Test counts are snapshots; current runs outrank this note.
   folded into the legacy migration map.
 - Committed as `3953b64`; 312 focused and 1,272 full tests pass, with zero hard
   test-quality issues.
+
+## Overnight fresh-eyes pass 6 — service and achievement symmetry (2026-07-16)
+
+- Repaired Pottery Apprentice to read the canonical `Empty pot` identity and
+  corrected the Monkey general stall to produce that same registered item.
+- Replaced Activity Circuit's arbitrary five-key count with an exact check of
+  all six live Agility activity families, including Flash Powder Factory.
+- Independently cleared Bob Barter's total-dose, container, review-neutrality,
+  and independent-undo paths without changing them.
+- Committed as `c1ca766`; 183 focused and 1,274 full tests pass. Reachability
+  remains 1,114 actions, 264 orphan inputs, and 149 cascade orphans; the test
+  quality audit reports zero hard issues.

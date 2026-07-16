@@ -2,6 +2,17 @@
 
 ## Current Focus
 
+The overnight fresh-eyes audit on `codex/overnight-fresh-eyes-2026-07-16`
+has completed six attributable passes. Pass 6 repaired three current
+producer/consumer seams: the Pottery Apprentice achievement now reads the
+canonical `Empty pot`, the Monkey general stall emits that same registered
+identity, and Activity Circuit requires all six live Agility activity families.
+Bob Barter's instantaneous decanting and independent undo were re-audited with
+no defect. Commit `c1ca766` passes 183 focused tests and the 1,274-test full
+suite; reachability remains 1,114 actions, 264 orphan inputs, and 149 cascade
+orphans, with zero hard test-quality issues. The next pass targets Qt lifecycle,
+hook registration, menu ownership, and runtime worktree isolation.
+
 Agility's owner grill, source harvest, and atomic implementation are closed. The
 governing product contract is
 `agility-skill-contract-2026-07-15.md`, backed by the exhaustive design-family ledger

@@ -46,6 +46,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 | 3 | Lantern and lamp-oil state graph across Crafting, Smithing, Firemaking, shops, equipment, quests, assets, and saves | Fable pre-implementation; Codex verification | 7 | 7 | `37b46c5` | 270 focused; 179 real offscreen Qt; 1,265 full; 14 fewer cascade orphans; zero hard test-quality issues |
 | 4 | Exact light-source identity across generated/manual quests, Dorgesh-Kaan Agility, registry, UI prose, and test oracles | Opus | 5 | 3 | `83de7e1` | 253 focused; 1,270 full; reachability unchanged; zero hard test-quality issues; compilation, diff, and worktree checks |
 | 5 | Persisted item-name symmetry across carried packs, loot preferences, graves, Death's Office, equipment reclaim, shop rollback, and Magic selectors | Opus | 3 | 3 | `3953b64` | 312 focused; 1,272 full; zero hard test-quality issues; compilation, diff, and worktree checks |
+| 6 | Shop services, Herblore dose conservation, Agility and Thieving activities, and achievement writer/reader symmetry | Opus | 3 | 3 | `c1ca766` | 183 focused; 1,274 full; reachability unchanged; zero hard test-quality issues; compilation, diff, and worktree checks |
 
 ## Accepted fixes
 
@@ -66,6 +67,9 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Temple of Ikov's visible requirements no longer advertise the deleted pseudo-item, live quest overrides are covered alongside generated rows, and a regression test proves equipped items cannot satisfy consumed alternatives.
 - Legacy lantern and Mining helmet names now migrate across carried views and layouts, loot overrides, grave and Death's Office item lists and stored loadouts, and the persisted Magic alchemy selector before carried-state clamping.
 - Death reclaim can no longer re-equip an unregistered `Mining helmet` with zero stats or return a phantom bank item after charging the reclaim fee; it restores the exact unlit equipment state in the same session.
+- Pottery Apprentice now reads the canonical `Empty pot` identity that Crafting produces and save migration preserves, keeping both it and Living Legend reachable.
+- The Monkey general stall now emits the registered `Empty pot` identity instead of a zero-value legacy key that changed on reload.
+- Activity Circuit now requires every live Agility activity key, including Flash Powder Factory, instead of accepting any five completion keys or letting Brimhaven substitute for an omitted family.
 
 ## Rejected candidates
 
@@ -77,10 +81,11 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Opus's stage-map clamp suggestion was rejected as prospective hardening: every current explicit stage is within the pinned quest's stage count, so no present failure exists.
 - Opus's Tears stage-2 option-wipe suggestion was likewise rejected as hypothetical parser drift. The current pinned parse places the light-source group at stage 1 and has no legitimate stage-2 alternative to preserve.
 - The pass-2 decision not to migrate `Gold amulet`-style names was rechecked and retained: those are still valid strung equipment identities, not collapsed legacy aliases.
+- Bob Barter's current dose and vial math was independently traced and retained: every supported target dose conserves total doses and containers, produces a strictly smaller remainder, remains review-neutral, and rolls back through its independent shop event.
 
 ## Queued confirmed defects
 
-None. The next pass rotates to quest, shop, activity, and achievement seams rather than carrying an unverified candidate forward.
+None. The next pass rotates to Qt lifecycle, hook registration, menu ownership, and worktree/runtime-isolation seams rather than carrying an unverified candidate forward.
 
 ## Reviewer budget and availability
 
@@ -88,6 +93,7 @@ None. The next pass rotates to quest, shop, activity, and achievement seams rath
 - The post-implementation Fable review exhausted the current Claude session before returning a verdict. An immediate Opus fallback was also blocked by the same account-wide session window and made no tool calls. Codex therefore accepted pass 3 only after its own full diff audit, targeted checks, full Python suite, real offscreen Qt suite, reachability comparison, compilation, diff check, and worktree audit. Opus resumes after the session reset.
 - Pass 4 used one successful read-only Opus workflow after the session reset (`2d78f29f-d957-4bee-bf90-389253cf7125`). The required pre/post live checks both reported Fable at 30%; no Fable review call was made.
 - Pass 5 used one successful read-only Opus workflow (`707070c2-c80d-4a36-a7d3-ad297f8669ab`). The required pre/post live checks again reported Fable at 30%.
+- Pass 6 used one successful read-only Opus workflow (`f9ddb28f-9257-473a-afee-40ddf738d09a`). The required pre/post live checks again reported Fable at 30%, so the Fable cap remains closed.
 
 ## Closure
 
