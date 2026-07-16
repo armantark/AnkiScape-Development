@@ -162,6 +162,10 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   reusing the six-minute calendar scale. Pinned evidence is in
   `source-audits/summoning-familiar-lifecycle-2026-07-16.md`; the cross-system
   reconciliation is `simulation-time-boundary-2026-07-16.md`.
+- BoB expiry creates an independently timed familiar-cargo reclaim event rather
+  than auto-banking. Gravestones and cargo events use the shared reviewer alert
+  strip in `review-hud-world-alerts-contract-2026-07-16.md` with distinct art and
+  behavior.
 
 ### Dungeoneering
 

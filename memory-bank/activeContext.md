@@ -13,10 +13,17 @@ The active-encounter fork is also closed: Again is decay-only, analogous to
 briefly clicking outside the mob area, so enemies do not attack and the paused
 encounter grants no positive recovery. Renewal is source/app-pattern resolved as
 a manual command plus a global auto-renew toggle that only consumes a deliberately
-carried matching pouch on successful answers. The next open Summoning fork is
-BoB cargo expiry without a ground-world substrate. Period evidence already rules
-out collapsing lifetime and Summoning points into one resource: points could
-reach zero without dismissing the familiar. Wall-clock gameplay remains forbidden.
+carried matching pouch on successful answers. BoB cargo expiry is now a distinct
+grave-like five-source-minute reclaim event; unclaimed cargo is destroyed. Both
+ordinary graves and cargo events project as distinct icons in the reusable alert
+strip above the reviewer XP HUD; see
+`review-hud-world-alerts-contract-2026-07-16.md`. BoB storage remains a distinct
+restricted inventory because flattening it would make expiry cargo arbitrary and
+erase period restrictions. The next open Summoning fork is whether Casual mode
+auto-packs that separate inventory or requires explicit opt-in. Period evidence
+already rules out collapsing lifetime and Summoning points into one resource:
+points could reach zero without dismissing the familiar. Wall-clock gameplay
+remains forbidden.
 
 Agility's owner grill, source harvest, and atomic implementation are closed. The
 governing product contract is

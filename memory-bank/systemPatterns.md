@@ -107,6 +107,12 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `simulation-time-boundary-2026-07-16.md` for the consumer reconciliation and
   the distinction between calendar scale, short-duration scale, and action
   budgets.
+- Urgent or expiring reviewer state uses the reusable interactive alert-strip
+  contract in `review-hud-world-alerts-contract-2026-07-16.md`. It is a sibling
+  above the mouse-transparent XP HUD, not a control embedded inside it and not a
+  new standalone widget per feature. Initial rows are the existing Gravestone
+  and Summoning's expiring Familiar cargo, each with distinct sourced art,
+  labels, countdown semantics, and detail actions.
 - The answered-card clock is not a universal action-duration converter. It runs
   background/world/economy timers; ordinary skilling still performs one sourced
   action tick per successful review unless an activity explicitly defines a

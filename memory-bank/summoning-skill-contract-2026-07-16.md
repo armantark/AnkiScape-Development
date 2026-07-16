@@ -138,12 +138,40 @@ The carried-pouch requirement bounds depletion and gives target loadouts natural
 control: a target that carries no spare matching pouch cannot auto-renew. Manual Renew
 remains available regardless of the toggle when its source gates are met.
 
-### 4. Beast-of-Burden cargo on expiry — open
+### 4. Beast-of-Burden cargo on expiry — settled 2026-07-16
 
 The period game dropped all BoB cargo on expiry and gave the owner five minutes to pick
-it up. AnkiScape has no ground or player-location state, so it must choose between a
-lossless automatic Bank deposit and a review-timed reclaim buffer whose unclaimed cargo
-is eventually destroyed.
+it up. AnkiScape represents that as a **separate grave-like familiar-cargo reclaim
+state**, not an automatic Bank deposit and not an overload of `combat_grave`.
+
+Each cargo pile has its own five-source-minute deadline translated through the settled
+short-duration answered-card mapping. Reclaim is a free direct UI command with bounded
+command undo. If the deadline passes, the cargo is destroyed; review undo restores the
+pre-expiry event. Multiple drops retain independent deadlines.
+
+The reviewer shows both ordinary graves and expiring familiar cargo as distinct small
+icons above the XP/progress HUD. Grave and cargo use different period-sourced art,
+labels, tooltips, countdown semantics, and click behavior. The reusable cross-system UI
+contract is `review-hud-world-alerts-contract-2026-07-16.md`.
+
+### 5. Beast-of-Burden inventory identity — source/app-pattern resolved 2026-07-16
+
+The period game gave a BoB a separate restricted inventory, while AnkiScape already has
+one target-carried 28-slot pack and automatic/custom packing. BoB storage remains a
+**separate inventory** with its sourced capacity and item restrictions. Flattening it
+into a larger player pack would make expiry cargo arbitrary and erase period rules such
+as essence-only abyssal storage and no access during combat.
+
+The separate inventory appears as a familiar sub-pack in Bank/Equipment and the active
+familiar surface. Advanced packing gets an explicit familiar grid. Casual packing may
+project target-aware automation onto the same inventory without merging the underlying
+state.
+
+### 6. Casual Beast-of-Burden packing — open
+
+Choose whether Casual automatically fills the separate BoB inventory from the current
+target's needs/outputs, or leaves it empty unless the player explicitly opts into
+familiar storage. Advanced remains explicit either way.
 
 ## Source/open-work queue
 
