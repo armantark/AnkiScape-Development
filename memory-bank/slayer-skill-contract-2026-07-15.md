@@ -309,3 +309,23 @@ This is a labeled mapless transport abstraction. It keeps the sourced finite
 charge economy and the permanent ring-crafting unlock meaningful while routing
 the benefit through AnkiScape's existing run-energy resource rather than a
 forbidden time or location simulation.
+
+## Owner decision 12 — source-first challenge-offer fallback
+
+Implementation must make one focused attempt to recover a cutoff-era Slayer
+master challenge prerequisite and offer probability from period implementation,
+talk history, cache evidence, or an independent dated source. Any qualifying
+period value supersedes the fallback below.
+
+If that pass remains `source_blocked`, use this labeled abstraction:
+
+- complete five consecutive assignments for the same functional master role;
+- on each later assignment request from that role, roll a 10% challenge-offer
+  chance;
+- producing an offer resets that role's challenge counter whether the player
+  accepts it or takes a normal assignment; and
+- changing masters breaks the master-specific challenge sequence but does not
+  alter the separate qualifying-task streak used for Slayer points.
+
+The roll occurs only during the instantaneous `Get assignment` transaction. It
+has no wall-clock cooldown, pity timer, daily limit, or hidden travel action.

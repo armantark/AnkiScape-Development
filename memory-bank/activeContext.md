@@ -30,8 +30,11 @@ disabled until their valid LP threshold; early consumable waste is not encoded.
 The complete cutoff Slayer-point catalog is now pinned. The ring of slaying
 preserves its eight-charge transport value by spending one charge to erase the
 abstract run-energy cost of entering a qualifying Slayer destination; assignment
-acquisition, target inspection, and wall-clock travel remain free or absent. No
-Slayer gameplay implementation is authorized in this thread.
+acquisition, target inspection, and wall-clock travel remain free or absent. A
+final implementation-time source pass owns the missing master-challenge trigger
+and probability; only if that stays blocked does the labeled five-consecutive-
+tasks/10%-offer fallback apply. No Slayer gameplay implementation is authorized
+in this thread.
 
 Agility's owner grill and full-content design harvest are closed; implementation
 belongs in a new thread. The governing product contract is

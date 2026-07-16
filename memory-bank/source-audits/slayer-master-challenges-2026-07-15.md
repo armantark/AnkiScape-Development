@@ -1,7 +1,7 @@
 # Slayer master challenges source reconnaissance — 2026-07-15
 
-Status: **period families and stated objectives attested; implementation
-corroboration and hidden rolls remain open**.
+Status: **period families and stated objectives attested; source-first
+hidden-roll fallback owner-set**.
 Cutoff: `2012-11-20T00:00:00Z`.
 
 ## Primary period source
@@ -65,6 +65,14 @@ remain `source_blocked`. The design still preserves the sourced shape: roll only
 when requesting a new task from the chosen master; a successful roll offers the
 challenge instead; declining produces an ordinary assignment without a point
 penalty.
+
+The implementation pass must make one final focused search for those two cutoff
+values. If it still finds no qualifying evidence, the owner-set fallback is five
+consecutive assignments for the same functional master role followed by a 10%
+offer roll on each later request. An offer resets that role's counter whether
+accepted or declined; changing roles breaks only this challenge sequence, not
+the distinct Slayer-point streak. This is a labeled abstraction, never a period
+claim, and any qualifying cutoff evidence replaces it.
 
 ## Corroboration still required before implementation
 
