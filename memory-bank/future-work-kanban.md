@@ -360,6 +360,16 @@ methods are already open. Model the respawn, ship the inversion.
 Labels: `PARKED` until feature closure, then `IMPLEMENT`.
 
 - Migration fixtures, manual Anki review QA, performance/accessibility, packaging/license audit, export/recovery, documentation, and personal-fork versus public-release scope.
+- When all 25 pre-EOC skill surfaces are complete or explicitly excluded,
+  publish a celebratory, interactive skill-milestone postmortem before moving on
+  as though it were an ordinary card. Cover the build timeline and commit
+  history; skill/action/target/item/quest/achievement totals; code, test, asset,
+  provenance, documentation, migration, and archive growth; source-closed versus
+  `source_blocked` or invented abstractions; major architecture changes; visual
+  before/afters; bugs and near-misses; owner decisions that materially shaped
+  the game; and lessons for the remaining activities/economy/release program.
+  Generate the statistics from repository tools and Git at milestone time rather
+  than preserving hand-maintained estimates.
 
 ## Explicitly excluded
 

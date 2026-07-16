@@ -42,6 +42,10 @@ Wait for a pinned high-fidelity milestone before broad ingestion, then reconcile
 
 ## Layer 6 — Balance and Release Closure
 
+- Celebrate the all-skills milestone with the repository-derived interactive
+  postmortem specified in `future-work-kanban.md`, including the project's
+  timeline, scale, parity record, visual evolution, hard lessons, and remaining
+  world-system work.
 - Tune review pacing only after all skills and major methods exist.
 - Validate long-run acquisition, item, and coin sinks.
 - Run migration, real-profile Anki, performance, accessibility, packaging/license, export/recovery, and documentation passes.
