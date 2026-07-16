@@ -47,6 +47,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 | 4 | Exact light-source identity across generated/manual quests, Dorgesh-Kaan Agility, registry, UI prose, and test oracles | Opus | 5 | 3 | `83de7e1` | 253 focused; 1,270 full; reachability unchanged; zero hard test-quality issues; compilation, diff, and worktree checks |
 | 5 | Persisted item-name symmetry across carried packs, loot preferences, graves, Death's Office, equipment reclaim, shop rollback, and Magic selectors | Opus | 3 | 3 | `3953b64` | 312 focused; 1,272 full; zero hard test-quality issues; compilation, diff, and worktree checks |
 | 6 | Shop services, Herblore dose conservation, Agility and Thieving activities, and achievement writer/reader symmetry | Opus | 3 | 3 | `c1ca766` | 183 focused; 1,274 full; reachability unchanged; zero hard test-quality issues; compilation, diff, and worktree checks |
+| 7 | Qt lifecycle, production hook registration, bridge filter symmetry, singleton menu ownership, and runtime worktree isolation | Opus | 12 | 8 | `09aacc2` | 91 focused; 86 clean real-Qt rerun after one test-fake ordering repair; 1,273 full; zero hard test-quality issues; compilation, diff, and worktree checks |
 
 ## Accepted fixes
 
@@ -70,6 +71,13 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Pottery Apprentice now reads the canonical `Empty pot` identity that Crafting produces and save migration preserves, keeping both it and Living Legend reachable.
 - The Monkey general stall now emits the registered `Empty pot` identity instead of a zero-value legacy key that changed on reload.
 - Activity Circuit now requires every live Agility activity key, including Flash Powder Factory, instead of accepting any five completion keys or letting Brimhaven substitute for an omitted family.
+- AnkiScape's global webview bridge now preserves the incoming `(handled, result)` pair for messages it does not own, so it cannot erase another add-on's successful handler. Its own debug messages are consumed with the documented non-nested tuple shape.
+- The bridge reserves a pending menu open before posting its zero-delay timer, so two messages in one event-queue drain cannot enter nested modal loops and overwrite singleton state.
+- Profile reload replaces the existing AnkiScape menu and callback instead of appending another top-level menu; the reusable XP popup is likewise no longer recreated on every profile load.
+- Main-menu dialogs use Qt's delete-on-close ownership contract, preventing each closed modal and its full widget tree from remaining parented to Anki's main window.
+- The accidentally nested, unreachable duplicate bridge handler and its dead wall-clock debounce were removed. Runtime gating remains review-native; no gameplay path gained wall-clock state.
+- The unsupported `DeckBrowserContent.links` hook, its orphan helper module, and four tests of a fabricated Anki API were removed. The production `deck_browser_did_render` JavaScript injector remains the single button path with its existing icon.
+- Bridge tests now use Anki's real tuple contract and a deterministic timer fake, including regression proof that upstream handled results survive and a double-open schedules one callback.
 
 ## Rejected candidates
 
@@ -82,10 +90,12 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Opus's Tears stage-2 option-wipe suggestion was likewise rejected as hypothetical parser drift. The current pinned parse places the light-source group at stage 1 and has no legitimate stage-2 alternative to preserve.
 - The pass-2 decision not to migrate `Gold amulet`-style names was rechecked and retained: those are still valid strung equipment identities, not collapsed legacy aliases.
 - Bob Barter's current dose and vial math was independently traced and retained: every supported target dose conserves total doses and containers, produces a strictly smaller remainder, remains review-neutral, and rolls back through its independent shop event.
+- Renaming the Stats tab's later `initial_skill` local was rejected as prospective cleanup: the only closure read executes before that assignment, so no current behavior fails.
+- Worktree-guard handling for a missing canonical `meta.json`, a future canonical checkout outside `addons21`, or a hand-copied meta-less duplicate was not changed. None occurs in the current registered layout, and the guard's present audit/add paths remain correct and non-destructive.
 
 ## Queued confirmed defects
 
-None. The next pass rotates to Qt lifecycle, hook registration, menu ownership, and worktree/runtime-isolation seams rather than carrying an unverified candidate forward.
+None. The next pass rotates to registries, assets, reachability, and remaining test-oracle integrity seams rather than carrying an unverified candidate forward.
 
 ## Reviewer budget and availability
 
@@ -94,6 +104,7 @@ None. The next pass rotates to Qt lifecycle, hook registration, menu ownership, 
 - Pass 4 used one successful read-only Opus workflow after the session reset (`2d78f29f-d957-4bee-bf90-389253cf7125`). The required pre/post live checks both reported Fable at 30%; no Fable review call was made.
 - Pass 5 used one successful read-only Opus workflow (`707070c2-c80d-4a36-a7d3-ad297f8669ab`). The required pre/post live checks again reported Fable at 30%.
 - Pass 6 used one successful read-only Opus workflow (`f9ddb28f-9257-473a-afee-40ddf738d09a`). The required pre/post live checks again reported Fable at 30%, so the Fable cap remains closed.
+- Pass 7 used one successful read-only Opus workflow (`0a9b2e49-9a95-4668-a9a5-8da61341607c`). The required pre/post live checks again reported Fable at 30%.
 
 ## Closure
 

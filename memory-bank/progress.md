@@ -183,3 +183,18 @@ Test counts are snapshots; current runs outrank this note.
 - Committed as `c1ca766`; 183 focused and 1,274 full tests pass. Reachability
   remains 1,114 actions, 264 orphan inputs, and 149 cascade orphans; the test
   quality audit reports zero hard issues.
+
+## Overnight fresh-eyes pass 7 — Qt lifecycle and bridge ownership (2026-07-16)
+
+- Preserved upstream add-on results through Anki's tuple-valued global webview
+  filter contract and consumed AnkiScape debug messages without nested tuples.
+- Serialized deferred bridge opens, replaced the previous profile menu on each
+  load, retained one XP popup, and marked the large main dialog for deletion on
+  close.
+- Removed the unreachable duplicate bridge handler and its wall-clock debounce,
+  plus the unsupported `DeckBrowserContent.links` hook and four tests that
+  asserted a fabricated Anki API. The real rendered-page JavaScript injector is
+  unchanged and remains the sole deck-browser button path.
+- Committed as `09aacc2`; 91 focused tests, 86 clean real-Qt lifecycle and
+  integration tests, and 1,273 full tests pass. Compilation, diff, worktree
+  safety, and the zero-hard-issue test-quality gate are clean.
