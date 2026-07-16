@@ -200,3 +200,19 @@ Barbarian Assault, and quest-owned stages. Exact Dorgesh route identities are
 registered; still-hidden payout differences remain `source_blocked` rather than
 invented. See
 `memory-bank/source-audits/agility-implementation-verification-2026-07-15.md`.
+
+## Overnight fresh-eyes pass 3 (2026-07-16)
+
+The safe worktree branch `codex/overnight-fresh-eyes-2026-07-16` now includes
+the exact lantern-state closure at `37b46c5`. Bullseye, candle, oil-lamp,
+oil-lantern, sapphire, emerald, and Mining helmet states remain distinct from
+production through preparation, use, equipment, shops, quests, assets, and
+save migration. Lamp-oil preparation is review-native and never wall-clock
+driven. Verification passes 1,265 Python tests, 179 real offscreen Qt tests,
+the zero-hard-issue test-quality audit, compilation, diff checks, and the safe
+worktree audit; reachability improves by 14 cascade orphans.
+
+The next confirmed implementation seam is the generated quest pseudo-item
+`Light sources`, present in three exact quest gates. Fable is at the owner's
+30% weekly cap; remaining overnight reviews use Opus after the Claude session
+window resets.
