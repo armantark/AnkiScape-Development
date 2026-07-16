@@ -42,7 +42,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 | Pass | Scope | Reviewer | Candidates | Confirmed | Commit | Verification |
 |---:|---|---|---:|---:|---|---|
 | 1 | Agility, Thieving, Farming, Magic runtime seams | Fable | 14 | 9 | `01ef8d9` | 230 focused; 1 real offscreen Qt; 1,252 full; reachability; zero hard test-quality issues |
-| 2 | Crafting and Magic item identity, registry, assets, reachability | Opus | 5 | 5 | pending | 252 focused; 1,258 full; reachability counts unchanged; zero hard test-quality issues |
+| 2 | Crafting and Magic item identity, registry, assets, reachability | Opus | 5 | 5 | `b263c15` | 252 focused; 1,258 full; reachability counts unchanged; zero hard test-quality issues |
 
 ## Accepted fixes
 
