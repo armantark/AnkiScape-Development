@@ -198,6 +198,9 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
 - A target-policy mismatch may swap safely at the next Bank boundary: deposit BoB
   cargo, verify the replacement can succeed, then dismiss and summon atomically.
   Failed preconditions preserve the old familiar and show the new policy as queued.
+- Casual `Best available` falls back to the strongest owned, level-valid, in-stock
+  familiar in the configured role whenever replacement is needed. It never crosses
+  roles; Advanced remains pinned to its exact familiar and lapses rather than substituting.
 
 ### Dungeoneering
 

@@ -146,6 +146,10 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   familiar survives target navigation, but the next Bank boundary may first deposit
   BoB cargo and then atomically dismiss and replace it when the new summon is guaranteed.
   Failed preconditions preserve the old familiar rather than trading it for a lapse.
+- Mode semantics govern substitution. Casual `Best available` re-resolves the strongest
+  owned, level-valid, in-stock familiar inside the configured source role whenever a
+  replacement is needed; Advanced exact selection never substitutes. Exhausting one
+  pouch type therefore downgrades Casual within-role but visibly lapses Advanced.
 - Optional combat exposure is fail-closed to source evidence. An attacking
   Summoning familiar is not a generic second damage target; only a pinned
   retaliation, area, enemy, or explicit aggro/tanking mechanic may reach its LP.

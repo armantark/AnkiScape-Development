@@ -52,8 +52,10 @@ the detour replaces the target action and may complete the resummon atomically. 
 mismatched live familiar is now safely swapped at the next Bank boundary only after BoB
 cargo is deposited and replacement success is guaranteed; otherwise the old familiar
 remains active and the new policy stays queued. The next open fork is whether Casual
-`Best available` may downgrade within the selected role when the best pouch type runs
-out. The cross-product help architecture is owner-settled in
+`Best available` should interrupt a live same-role fallback when a stronger pouch is
+restocked, or re-resolve only at normal renewal/replacement. Casual already falls back
+automatically within the selected role when its best pouch type runs out; Advanced
+remains exact. The cross-product help architecture is owner-settled in
 `help-system-contract-2026-07-16.md`: one offline searchable corpus feeds both the
 full Help Center and contextual page-level `?` entries.
 

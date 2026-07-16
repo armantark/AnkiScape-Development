@@ -335,12 +335,26 @@ policy stays visibly queued; automation does not destroy useful remaining durati
 to enter a lapsed state. The explicit manual switch command remains available. A completed
 safe swap is undoable as one review transaction together with its Bank boundary.
 
-### 14. Casual fallback when the best familiar runs out — open
+### 14. Casual fallback when the best familiar runs out — settled 2026-07-16
 
 Casual selects `Use best available` within a source-backed role, while Advanced pins an
-exact familiar. Choose whether Casual should automatically fall back to the next-best
-owned, level-valid familiar in that same role when the current pouch type runs out, or
-remain lapsed until more of the formerly best pouch exists.
+exact familiar. Whenever Casual needs a replacement, it resolves the strongest owned,
+level-valid, currently usable familiar in the configured role. If the former best pouch
+type is exhausted, it automatically falls back to the next candidate in that same role
+instead of lapsing. It never crosses roles or substitutes a pouch that the catalog has
+not classified as compatible with the target's policy.
+
+Resolution uses carried pouches first and then the settled one-review Bank detour. If no
+valid in-stock familiar remains in the role, the policy stays visibly lapsed. Advanced
+never falls back from its exact familiar. This mode distinction is deliberate: Casual
+maintains the requested role, while Advanced preserves exact identity.
+
+### 15. Upgrading a live Casual fallback after restocking — open
+
+If Casual is currently using a weaker same-role fallback and a stronger pouch later
+becomes available, choose whether the next Bank boundary should replace the still-live
+familiar immediately or whether `Best available` should be re-resolved only when the
+current familiar otherwise needs renewal or replacement.
 
 ## Source/open-work queue
 
