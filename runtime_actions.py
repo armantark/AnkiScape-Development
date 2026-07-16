@@ -2686,7 +2686,7 @@ def handle_thieving_answer(ctx: RuntimeActionContext) -> bool:
             level,
             player_data.get("agility_level", 1),
             spec.get("level", 1),
-            _thieving_rng_index(ctx, 7),
+            _thieving_rng_index(ctx, 8),
         )
     _thieving_award_success(ctx, target, spec, loot_count=loot_count)
     ctx.save_player_data()
@@ -2727,6 +2727,8 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
         player_data.clear()
         player_data.update(damaged)
         result["damage_result"] = damage_result
+        if damage_result.get("died"):
+            ctx.deactivate_current_skill()
 
     outputs = {
         str(item): int(quantity)
@@ -2766,6 +2768,12 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     if gained > 0:
         ctx.show_exp(gained)
     ctx.show_activity_gain(str(result.get("status", player_data.get("agility_status", "Agility action complete"))))
+    damage_result = result.get("damage_result") or {}
+    if damage_result.get("died"):
+        ctx.show_activity_gain("☠ YOU DIED — Agility failure; gear moved to grave")
+    elif damage_result.get("food_used"):
+        food = damage_result["food_used"]
+        ctx.show_activity_gain(f"Auto-ate {food['item']} (+{food['healed_by']} LP)")
     return True
 
 

@@ -49,6 +49,17 @@ def _context(player_data, calls):
 
 
 class MagicDataAndMechanicsTest(unittest.TestCase):
+    def test_dragonstone_enchants_consume_the_exact_crafting_output_names(self):
+        expected = {
+            "enchant_dragonstone_ring": "Dragonstone ring",
+            "enchant_dragonstone_necklace": "Dragon necklace",
+            "enchant_dragonstone_amulet": "Dragonstone ammy",
+            "enchant_dragonstone_bracelet": "Dragon bracelet",
+        }
+        for target_id, item_name in expected.items():
+            with self.subTest(target_id=target_id):
+                self.assertEqual(MAGIC_DATA[target_id]["requirements"], {item_name: 1})
+
     def test_three_books_and_stable_ids_are_complete(self):
         self.assertEqual(len(MAGIC_TARGETS), 94)
         self.assertEqual(len(MAGIC_TARGETS), len(set(MAGIC_TARGETS)))

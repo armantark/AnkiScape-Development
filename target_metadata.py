@@ -200,12 +200,21 @@ def thieving_target_rows(
         coins = spec.get("coins")
         if coins is not None:
             tooltip_lines.append(f"Coins: {coins} per successful action")
-        damage = int(spec.get("damage", spec.get("failure_damage", 0)) or 0)
+        default_low = 20 if spec.get("kind") == "wall_safe" else 0
+        default_high = 60 if spec.get("kind") == "wall_safe" else default_low
+        damage_low = int(
+            spec.get("damage_min", spec.get("damage", spec.get("failure_damage", default_low))) or 0
+        )
+        damage_high = max(
+            damage_low,
+            int(spec.get("damage_max", spec.get("damage", spec.get("failure_damage", default_high))) or 0),
+        )
         stun = int(spec.get("stun", spec.get("stun_ticks", 0)) or 0)
-        if damage or stun:
+        if damage_high or stun:
             failure_parts = []
-            if damage:
-                failure_parts.append(f"{damage} LP damage")
+            if damage_high:
+                damage_text = str(damage_low) if damage_low == damage_high else f"{damage_low}–{damage_high}"
+                failure_parts.append(f"{damage_text} LP damage")
             if stun:
                 failure_parts.append("next review clears the stun")
             tooltip_lines.append("On failure: " + ", ".join(failure_parts))

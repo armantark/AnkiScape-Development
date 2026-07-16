@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "status": "active",
+  "baseline_head": "74af8cf9806a4988ccae9cba202ca1be77e917c3",
+  "deadline": "2026-07-16T09:00:00-07:00",
+  "iteration": 1,
+  "no_material_finding_passes": 0,
+  "outer_loop_mode": "inner",
+  "reviewer": {
+    "fable_calls": 1,
+    "fable_call_cap": 1,
+    "fable_tokens": 250236,
+    "opus_calls": 0
+  },
+  "last_scope": "Agility, Thieving, Farming, and Magic runtime seams",
+  "last_accepted_commit": null,
+  "pending_concrete_defects": [
+    "Split unstrung and strung amulet identities so Crafting and String Jewellery cannot repeat XP on the same items"
+  ],
+  "safety_failure": null
+}

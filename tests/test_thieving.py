@@ -200,6 +200,24 @@ class TestThievingPureMechanics(unittest.TestCase):
                     expected,
                 )
 
+    def test_runtime_multi_pick_uses_inclusive_random_seven_denominator(self):
+        player_data = {
+            "current_thieving": "pickpocket_man",
+            "thieving_level": 99,
+            "thieving_exp": 0.0,
+            "agility_level": 99,
+            "thieving_attempt_count": 0,
+            "thieving_success_count": 0,
+            "thieving_failure_count": 0,
+            "thieving_stunned": False,
+            "inventory": {},
+            "completed_achievements": [],
+        }
+        ctx, _calls = _context(player_data, random_values=(0.0, 0.13))
+
+        self.assertTrue(handle_thieving_answer(ctx))
+        self.assertEqual(player_data["inventory"]["Coins"], 12)
+
     def test_all_18_stall_profiles_emit_exact_counts_in_26600_reviews(self):
         expected_counts = {
             "stall_vegetable": 26600,

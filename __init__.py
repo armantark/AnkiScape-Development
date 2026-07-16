@@ -1082,6 +1082,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_hire_servant=_hire_servant,
         on_set_house_style=_set_house_style,
         on_set_magic_alchemy_item=lambda item: _set_value("magic_alchemy_item", item),
+        on_set_farming_spell_patch=lambda patch: _set_value("farming_spell_patch", patch),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
         on_set_carried_keep_drop=_set_carried_keep_drop,
         carried_keep_drop_state=_current_gathering_keep_drop_state(),

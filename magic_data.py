@@ -124,7 +124,11 @@ _JEWEL_TIERS = (
 )
 for tier, gem, level, xp, runes, products in _JEWEL_TIERS:
     for form, product in zip(("ring", "necklace", "amulet", "bracelet"), products):
-        raw = f"{gem} {form}"
+        raw = {
+            ("Dragonstone", "necklace"): "Dragon necklace",
+            ("Dragonstone", "amulet"): "Dragonstone ammy",
+            ("Dragonstone", "bracelet"): "Dragon bracelet",
+        }.get((gem, form), f"{gem} {form}")
         _add(_spell(f"enchant_{gem.lower()}_{form}", f"Enchant {raw}", "standard", "Enchant jewellery", level, xp, runes, "transform", requirements={raw: 1}, outputs={product: 1}, source=f"{ENCHANT_SOURCE}; {STANDARD_WIKI}"))
 
 

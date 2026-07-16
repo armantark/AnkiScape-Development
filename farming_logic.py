@@ -126,6 +126,7 @@ def _default_bin_record() -> dict[str, Any]:
 
 def default_farming_state_pure() -> dict[str, Any]:
     return {
+        "farming_spell_patch": None,
         "farm_clock_minutes": 0,
         "farm_patches": {patch.id: _default_patch_record() for patch in FARMING_PATCHES},
         "farm_compost_bins": {row.id: _default_bin_record() for row in FARMING_COMPOST_BINS},
@@ -281,6 +282,11 @@ def sanitize_farming_state_pure(player_data: Mapping[str, Any]) -> dict[str, Any
     return {
         "farming_exp": _number(player_data.get("farming_exp", 0.0)),
         "farming_level": _int(player_data.get("farming_level", 1), default=1, minimum=1),
+        "farming_spell_patch": (
+            player_data.get("farming_spell_patch")
+            if player_data.get("farming_spell_patch") in FARMING_PATCHES_BY_ID
+            else None
+        ),
         "farm_clock_minutes": _int(player_data.get("farm_clock_minutes", defaults["farm_clock_minutes"])),
         "farm_patches": patches,
         "farm_compost_bins": bins,
@@ -426,11 +432,12 @@ def _process_patch_boundaries(updated: dict[str, Any], patch_id: str, random_ran
                 record["jade_prunes"] = 0
             _log(updated, "crop_ready", f"{crop.display_name} is ready.", patch_id=patch_id, crop_id=crop.id)
             break
-        # The first completed growth stage is immune. Watering is recorded but
-        # its exact multiplier/yield effect stays source-blocked by the ledger.
+        # The first completed growth stage is immune. The settled Farming
+        # contract applies GM's one-cycle 0.9 watering factor.
         if record["stage"] > 1 and not _disease_exempt(updated, patch_id, record, crop):
             tier = COMPOST_TIERS[record.get("compost_tier", "none")]
-            disease_slots = math.floor(crop.disease_slots * tier.disease_factor)
+            watering_factor = 0.9 if record.get("watered") else 1.0
+            disease_slots = math.floor(crop.disease_slots * tier.disease_factor * watering_factor)
             if random_random() < disease_slots / 128:
                 record["diseased"] = True
                 _log(updated, "crop_diseased", f"{crop.display_name} became diseased.", patch_id=patch_id, crop_id=crop.id)

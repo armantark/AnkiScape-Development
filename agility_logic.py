@@ -138,7 +138,19 @@ def sanitize_agility_state_pure(player_data: Optional[Mapping[str, Any]]) -> dic
     }
 
     raw_activity = source.get("agility_activity_state")
-    source["agility_activity_state"] = copy.deepcopy(raw_activity) if isinstance(raw_activity, Mapping) else {}
+    activities = copy.deepcopy(raw_activity) if isinstance(raw_activity, Mapping) else {}
+    raw_pit = activities.get("pit")
+    pit_reviews = _int(raw_pit.get("reviews"), maximum=5) if isinstance(raw_pit, Mapping) else 0
+    pit_challenge = str(raw_pit.get("challenge", "")) if isinstance(raw_pit, Mapping) else ""
+    if 1 <= pit_reviews <= 5 and pit_challenge in PIT_CHALLENGES:
+        activities["pit"] = {
+            "challenge": pit_challenge,
+            "reviews": pit_reviews,
+            "successes": _int(raw_pit.get("successes"), maximum=pit_reviews),
+        }
+    else:
+        activities.pop("pit", None)
+    source["agility_activity_state"] = activities
     raw_currencies = source.get("agility_activity_currencies")
     raw_currencies = raw_currencies if isinstance(raw_currencies, Mapping) else {}
     source["agility_activity_currencies"] = {
@@ -219,7 +231,12 @@ def agility_target_locked_reasons_pure(player_data: Mapping[str, Any], target_id
             reasons.append("Thieving level 75")
         if _int(player_data.get("herblore_level"), 1, minimum=1) < 50:
             reasons.append("Herblore level 50")
-    if target.id == "the_pit" and not bool(player_data.get("agility_pit_offer")):
+    pit_session = (player_data.get("agility_activity_state") or {}).get("pit")
+    if (
+        target.id == "the_pit"
+        and not bool(player_data.get("agility_pit_offer"))
+        and not bool(pit_session)
+    ):
         reasons.append("Talent Scout invitation")
     if (
         target.id == "circus_agility"

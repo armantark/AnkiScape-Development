@@ -12,6 +12,7 @@ from runtime_actions import (
     handle_fishing_answer,
     handle_fletching_answer,
     handle_hunter_answer,
+    handle_agility_answer,
     handle_herblore_answer,
     handle_quest_answer,
     handle_smithing_answer,
@@ -63,6 +64,26 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_fatal_agility_failure_deactivates_and_reports_shared_grave_death(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "current_agility": "wilderness_course",
+            "agility_level": 53,
+            "agility_exp": 0.0,
+            "combat_lifepoints": 10,
+            "hitpoints_level": 10,
+            "inventory": {},
+            "equipment": {"weapon": "Bronze sword"},
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(handle_agility_answer(_context(player_data, calls, random_values=(0.0, 0.5, 0.5, 0.5))))
+
+        self.assertTrue(calls["deactivated"])
+        self.assertEqual(player_data["combat_grave"]["items"], ["Bronze sword"])
+        self.assertEqual(player_data["combat_grave"]["source"], "agility_failure")
+        self.assertTrue(any("YOU DIED" in text for text in calls["activity"]))
+
     def test_barehanded_butterfly_awards_atomic_hunter_and_agility_xp_without_an_item(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

@@ -522,6 +522,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
         self._magic_alch_calls: list = []
+        self._farming_spell_patch_calls: list = []
         self._prayer_config_calls: list = []
         self._death_office_calls: list = []
         # Quests and Bank Claims are review-adjacent but not levelled skills.
@@ -618,6 +619,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_magic=lambda target: self._magic_calls.append(target),
             on_set_construction=lambda target: self._construction_calls.append(target),
             on_set_magic_alchemy_item=lambda item: self._magic_alch_calls.append(item),
+            on_set_farming_spell_patch=lambda patch: self._farming_spell_patch_calls.append(patch),
             on_set_utility=lambda activity: self._utility_calls.append(activity),
             on_set_combat=lambda target: self._combat_calls.append(target),
             on_set_combat_style=lambda style: self._combat_style_calls.append(style),
@@ -4898,12 +4900,20 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["magic_level"] = 99
         pd["inventory"] = {"Rune platebody": 1, "Air rune": 3, "Fire rune": 1, "Law rune": 1}
+        pd["farming_spell_patch"] = "falador_allotment_north"
         dialog = self._open(pd, current_skill="Magic")
         picker = dialog.findChild(QComboBox, "magicAlchemyItemCombo")
+        farming_picker = dialog.findChild(QComboBox, "magicFarmingPatchCombo")
         tree = dialog.findChild(QTreeWidget, "magicTargetTree")
         self.assertIsNotNone(picker)
+        self.assertIsNotNone(farming_picker)
         self.assertIsNotNone(tree)
         self.assertGreaterEqual(picker.findData("Rune platebody"), 0)
+        self.assertEqual(farming_picker.currentData(), "falador_allotment_north")
+        self.assertEqual(farming_picker.count(), 52)
+        farming_picker.setCurrentIndex(farming_picker.findData("falador_allotment_south"))
+        QApplication.processEvents()
+        self.assertEqual(self._farming_spell_patch_calls[-1], "falador_allotment_south")
         locked = next(
             item for item in _tree_items(tree)
             if item.data(0, Qt.ItemDataRole.UserRole) == "kharyrll_teleport"

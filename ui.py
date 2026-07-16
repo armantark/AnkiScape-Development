@@ -2158,6 +2158,7 @@ def show_main_menu(
     on_hire_servant=None,
     on_set_house_style=None,
     on_set_magic_alchemy_item=None,
+    on_set_farming_spell_patch=None,
     on_set_utility=None,
     on_set_carried_keep_drop=None,
     carried_keep_drop_state=None,
@@ -3324,6 +3325,38 @@ def show_main_menu(
             )
         alch_layout.addWidget(alch_picker, 1)
         panel_layout.addWidget(alch_row)
+
+        farming_spell_row = QWidget()
+        farming_spell_layout = QHBoxLayout(farming_spell_row)
+        farming_spell_layout.setContentsMargins(0, 0, 0, 0)
+        farming_spell_layout.addWidget(QLabel("Farming spell patch"))
+        farming_spell_picker = QComboBox()
+        farming_spell_picker.setObjectName("magicFarmingPatchCombo")
+        farming_spell_picker.addItem("Choose a patch…", "")
+        projection = farming_frontend_projection_pure(player_data)
+        patch_rows = sorted(
+            (
+                patch
+                for location in projection.get("locations", ())
+                for patch in location.get("patches", ())
+            ),
+            key=lambda patch: (str(patch.get("patch_name", "")), str(patch.get("patch_id", ""))),
+        )
+        for patch in patch_rows:
+            farming_spell_picker.addItem(
+                f"{patch['patch_name']} — {patch['status_label']}",
+                patch["patch_id"],
+            )
+        selected_patch = farming_spell_picker.findData(str(player_data.get("farming_spell_patch", "") or ""))
+        farming_spell_picker.setCurrentIndex(max(0, selected_patch))
+        if on_set_farming_spell_patch is not None:
+            farming_spell_picker.currentIndexChanged.connect(
+                lambda _index: on_set_farming_spell_patch(
+                    str(farming_spell_picker.currentData() or "") or None
+                )
+            )
+        farming_spell_layout.addWidget(farming_spell_picker, 1)
+        panel_layout.addWidget(farming_spell_row)
 
         alch_values = {
             item.storage_key: int(SHOP_PLAYER_BUY_PRICES[item.storage_key])

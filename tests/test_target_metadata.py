@@ -58,9 +58,11 @@ from target_metadata import (
     mining_target_rows,
     runecrafting_target_rows,
     smithing_target_rows,
+    thieving_target_rows,
     utility_activity_rows,
     woodcutting_target_rows,
 )
+from thieving_data import DEFAULT_THIEVING_TARGET, THIEVING_ITEM_IMAGES, THIEVING_TARGETS
 
 
 def _row(rows, target_id):
@@ -71,6 +73,17 @@ def _row(rows, target_id):
 
 
 class TargetMetadataTest(unittest.TestCase):
+    def test_thieving_rows_show_pickpocket_and_wall_safe_damage_ranges(self):
+        rows = thieving_target_rows(
+            {"thieving_level": 99, "current_thieving": DEFAULT_THIEVING_TARGET},
+            THIEVING_TARGETS,
+            THIEVING_ITEM_IMAGES,
+            DEFAULT_THIEVING_TARGET,
+        )
+
+        self.assertIn("10–30 LP damage", _row(rows, "pickpocket_female_ham").tooltip)
+        self.assertIn("20–60 LP damage", _row(rows, "wall_safe").tooltip)
+
     def test_cannonball_row_shows_quest_tool_output_and_rs_wiki_icon(self):
         from constants import SMITHING_EXTRA_ITEM_IMAGES
 
