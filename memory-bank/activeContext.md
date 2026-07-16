@@ -2,6 +2,16 @@
 
 ## Current Focus
 
+The overnight fresh-eyes audit on `codex/overnight-fresh-eyes-2026-07-16`
+has completed seven attributable passes. Pass 7 corrected Anki's production
+bridge-filter contract, serialized deferred menu opens, replaced duplicate
+profile menus, released closed modal widget trees, and removed the unsupported
+`DeckBrowserContent.links` path plus its fabricated tests. Commit `09aacc2`
+passes 91 focused tests, an 86-test real-Qt lifecycle/integration rerun, and the
+1,273-test full suite with zero hard test-quality issues. The worktree guard
+remains clean. The next pass targets registries, assets, reachability, and
+remaining test-oracle integrity seams.
+
 Agility's owner grill, source harvest, and atomic implementation are closed. The
 governing product contract is
 `agility-skill-contract-2026-07-15.md`, backed by the exhaustive design-family ledger
@@ -200,3 +210,222 @@ Barbarian Assault, and quest-owned stages. Exact Dorgesh route identities are
 registered; still-hidden payout differences remain `source_blocked` rather than
 invented. See
 `memory-bank/source-audits/agility-implementation-verification-2026-07-15.md`.
+
+## Overnight fresh-eyes pass 3 (2026-07-16)
+
+The safe worktree branch `codex/overnight-fresh-eyes-2026-07-16` now includes
+the exact lantern-state closure at `37b46c5`. Bullseye, candle, oil-lamp,
+oil-lantern, sapphire, emerald, and Mining helmet states remain distinct from
+production through preparation, use, equipment, shops, quests, assets, and
+save migration. Lamp-oil preparation is review-native and never wall-clock
+driven. Verification passes 1,265 Python tests, 179 real offscreen Qt tests,
+the zero-hard-issue test-quality audit, compilation, diff checks, and the safe
+worktree audit; reachability improves by 14 cascade orphans.
+
+The next confirmed implementation seam is the generated quest pseudo-item
+`Light sources`, present in three exact quest gates. Fable is at the owner's
+30% weekly cap; remaining overnight reviews use Opus after the Claude session
+window resets.
+
+## Overnight fresh-eyes pass 4 (2026-07-16)
+
+Commit `83de7e1` removes the `Light source`/`Light sources` pseudo-item from the
+live quest and Dorgesh-Kaan Agility surfaces. Eight source-placed quest gates
+now accept the eleven reachable exact lit states; Tears of Guthix retains its
+safe bullseye and sapphire-lantern sequence, while Watchtower and Another Slice
+of H.A.M. remain honestly `source_blocked` instead of receiving guessed gates.
+Temple of Ikov's visible requirements and the test oracles now describe the
+same real identities as runtime.
+
+Verification passes 253 focused tests and all 1,270 tests under the established
+Homebrew Python, with 183 non-Qt skips and three expected XP-parity failures.
+Test quality has zero hard issues; reachability remains 1,114 actions, 264
+orphan inputs, and 149 cascade orphans. Fable remains at the 30% weekly cap;
+the successful reviewer was one read-only Opus workflow.
+
+The next confirmed seam is save migration symmetry: legacy lantern/Mining
+helmet keys must be migrated in carried layouts and views, grave/Death's Office
+items and loadouts, and loot overrides before carried-state clamping.
+
+## Overnight fresh-eyes pass 5 (2026-07-16)
+
+Commit `3953b64` closes persisted item-name symmetry for the exact lantern and
+Mining helmet split. Migration now renames carried views/layouts, loot
+preferences, grave and Death's Office items/loadouts, and the Magic alchemy
+selector before any carried-state clamp can discard the old name. Reclaiming a
+legacy Mining helmet restores `Mining helmet (unlit)` as real equipment instead
+of occupying the head slot with an unregistered zero-stat phantom.
+
+Verification passes 312 focused storage/combat/Magic/shop/integration tests and
+all 1,272 tests, with 183 non-Qt skips and three expected XP-parity failures.
+Test quality remains at zero hard issues, compilation and diff checks pass, and
+the safe worktree audit remains clean. There is no queued confirmed defect;
+the next pass rotates to quest, shop, activity, and achievement seams.
+
+## Overnight fresh-eyes pass 8 (2026-07-16)
+
+Commit `5ab5aee` repairs three registry and audit seams. Smithing achievements
+now consume the canonical live bar identities; source item 4600 is consistently
+the obtainable and equippable `Willow blackjack`; and the acquisition graph now
+models Magic and Prayer outputs, rune costs, and dynamic bone alternatives.
+This removes false elemental-orb and Wine-of-zamorak roots while surfacing real
+downstream Prayer and Onyx acquisition debt that was previously invisible.
+
+Verification passes 78 focused tests, 509 integration/end-to-end tests, eight
+real offscreen Qt tests, and all 1,275 non-Qt tests with 185 skips and the three
+expected XP-parity failures. The test-quality audit has zero hard issues;
+compilation, diff, and worktree-safety checks pass. Reachability now covers
+1,188 actions, with 270 orphan inputs: 110 root and 160 cascade.
+
+## Overnight fresh-eyes pass 9 (2026-07-16)
+
+Commit `ceaab20` closes two quest writer/reader failures. Live quest data now
+always retains a completion sentinel after the highest requirement row, so the
+final sourced objective executes for all 152 affected generated quests instead
+of being marked complete without evaluation. Tears of Guthix now reaches and
+enforces its lit sapphire-lantern stage. Seven obtainable quest equipment items
+also receive their source-config equipment records, while Staff of armadyl is
+correctly retained as a non-equipment quest material.
+
+Verification passes 127 registry/shop/quest tests, 104 quest/runtime tests,
+four real offscreen Qt checks, and all 1,280 non-Qt tests with 185 skips and the
+three expected XP-parity failures. Test quality has zero hard issues;
+reachability remains 1,188 actions and 270 orphan inputs (110 root, 160
+cascade); compilation, diff, and safe-worktree checks pass.
+
+## Overnight fresh-eyes pass 10 (2026-07-16)
+
+Commit `916b075` closes six Combat state and consequence failures. Loaded Ranged
+ammo now wins over banked lower tiers; Vengeance and Spellbook Swap use the
+finite rune loadout and persist the state that crosses reviews; reflected kills
+receive ordinary kill/drop treatment; Dream cannot interrupt an active fight;
+same-review fatal loot enters the grave after filtering; and Protect Item keeps
+the highest-value equipped item.
+
+Verification passes 334 focused combat/runtime/integration tests, eight real
+offscreen Qt checks, and all 1,286 tests under Homebrew Python with 185 skips
+and the three expected XP-parity failures. Test quality has zero hard issues;
+reachability remains 1,188 actions and 270 orphan inputs (110 root, 160
+cascade); compilation, diff, and safe-worktree checks pass. The system Python
+is 3.9 and cannot parse the repository's supported union-type syntax, so the
+authoritative full run used the established Homebrew Python 3.14 interpreter.
+
+## Overnight fresh-eyes pass 11 (2026-07-16)
+
+Commit `9273cf4` closes ranged item identity seams across every live producer.
+Standard arrows from H.A.M. pickpockets, Combat drops, and NPC shops now enter
+the canonical plural ammunition stacks accepted by equipment and combat. Save
+migration merges legacy singular stacks, including persisted shop events and
+their inverse deltas, without losing quantities or breaking undo.
+
+The checked-in equipment snapshot was also regenerated from its current source
+generator. Twenty-nine live Crafting and Fletching outputs that were previously
+craftable but rejected by the equipment engine are now equippable, and a new
+generator/snapshot synchronization oracle prevents recurrence.
+
+Verification passes 263 focused tests, five real offscreen Qt checks, and all
+1,291 tests with 185 skips and three expected XP-parity failures. Test quality
+has zero hard issues; reachability remains 1,188 actions and 270 orphan inputs
+(110 root, 160 cascade); compilation, diff, and safe-worktree checks pass.
+
+## Overnight fresh-eyes pass 12 (2026-07-16)
+
+Commit `f794108` closes consumable and supply-pack state paths. Kebab now uses
+live RNG with deterministic undo; all eight supply packs support exact Open and
+Open all actions; Juju farming potion doses can be activated and conserved;
+Magic essence potion creation emits the source-convergent mix identity; and
+registry tradeability, food categories, potion-dose identities, assets, and
+Bank verbs now agree with their runtime consumers.
+
+Verification passes 19 focused tests, five real offscreen Qt checks, and all
+1,302 tests with 186 skips and three expected XP-parity failures. Test quality
+has zero hard issues; reachability now covers 1,200 actions with 273 orphan
+inputs (110 root, 163 cascade); compilation, diff, and safe-worktree checks
+pass.
+
+## Overnight fresh-eyes pass 13 (2026-07-16)
+
+Commit `1fb0b64` makes Combat presets configuration-only. The finite supply
+loadout is no longer captured by new presets or restored from legacy preset
+payloads, so a target pin cannot refill consumed food, ammunition, runes, or
+potions for free or erase a newly loaded pack on the following review.
+
+Verification passes 271 focused runtime/integration tests, two real offscreen
+Qt checks, and all 1,303 tests with 186 skips and three expected XP-parity
+failures. Test quality has zero hard issues; reachability remains 1,200 actions
+and 273 orphan inputs (110 root, 163 cascade); compilation, diff, and
+safe-worktree checks pass.
+
+## Overnight fresh-eyes pass 14 (2026-07-16)
+
+Commit `b59c846` makes achievement dispatch dependency-aware. When the final
+ordinary achievement and Living Legend become true on the same action, the
+dispatcher now evaluates to a fixed point and returns both completions
+atomically rather than making Living Legend wait for another unrelated action.
+
+Verification passes 251 focused pure/integration tests, one real offscreen Qt
+achievement-surface check, and all 1,304 tests with 186 skips and three
+expected XP-parity failures. Test quality has zero hard issues; compilation,
+diff, and safe-worktree checks pass.
+
+## Overnight fresh-eyes pass 15 (2026-07-16)
+
+Commit `1120fb4` closes two production paths that green lower-level tests did
+not exercise. Every Shop purchase, sale, service, vendor action, Bob Barter
+decant, and Wilderness consequence now persists through `save_player_data`
+immediately. The Farming sheet also exposes the accepted Juju farming potion
+action, uses the fullest owned dose first, and displays its review-native active
+state instead of leaving the backend-only action unreachable.
+
+Verification passes 242 focused Farming/Shop/runtime/integration tests, all 183
+real offscreen Qt tests, and all 1,305 core tests with 187 skips and three
+expected XP-parity failures. Test quality has zero hard issues; compilation,
+diff, and safe-worktree checks pass.
+
+## Overnight fresh-eyes pass 16 (2026-07-16)
+
+Commit `483eb55` closes reactive UI and target-resolution gaps across the six
+newest skill surfaces. The HUD resolves their friendly target names; equipped
+blackjacks satisfy Thieving gates; Magic, Construction, Thieving, and Agility
+controls rerender their dependent readiness state; every sourced Brimhaven XP
+bundle is selectable; Agility commands report outcomes; and paid Brimhaven
+stints end on target change or Stop Training.
+
+Verification passes 170 focused core tests, eight real offscreen Qt checks,
+and all 1,312 core tests with 193 skips and three expected XP-parity failures.
+Test quality has zero hard issues; compilation, diff, and safe-worktree checks
+pass.
+
+## Overnight fresh-eyes pass 17 (2026-07-16)
+
+Commit `111b280` closes consequence-ordering and undo gaps on management
+actions. XP-lamp claims update the funded skill's level before achievements,
+quest-bank and Stronghold rewards participate in direct-action undo, and Shop
+mutations reevaluate inventory achievements before saving.
+
+Verification passes 109 focused core tests and nine real offscreen Qt Shop
+checks. Test quality has zero hard issues; compilation, diff, and safe-worktree
+checks pass. Full closure verification remains pending.
+
+## Overnight fresh-eyes pass 18 (2026-07-16)
+
+Commit `91f0b35` closes the remaining reproduced Combat-management consequence
+gaps. Clearing the finite loadout immediately repaints returned bank items, and
+both unload and Death's Office reclaim evaluate inventory achievements before
+saving. The reviewer-proposed manual Refill button was rejected because the
+current UI contract deliberately uses automatic safe-boundary refill.
+
+Verification passes 252 focused core tests and the combat-filtered real
+offscreen Qt surface. Test quality has zero hard issues; compilation, diff, and
+safe-worktree checks pass. Full closure verification remains pending.
+
+## Overnight fresh-eyes audit closed (2026-07-16)
+
+The dedicated branch completed 18 bounded maker/checker passes and 36
+attributable commits without touching main or another worktree. Final closure
+passes all 1,314 core tests and all 1,314 real offscreen Qt tests; the only
+non-green cases are the same three declared XP-parity expected failures. Test
+quality has zero hard issues, reachability remains 1,200 actions / 273 known
+orphans, and compilation, diff, and worktree safety checks pass. There are no
+queued confirmed defects. Four owner-direction questions remain ranked in
+`memory-bank/design-gaps-overnight-2026-07-16.md`.

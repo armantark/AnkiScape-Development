@@ -1,10 +1,48 @@
 import unittest
 
+from firemaking_data import LIT_LIGHT_SOURCE_ITEMS, PERIOD_LIT_LIGHT_SOURCE_ITEMS
 from logic_pure import quest_combat_encounter_has_stats_pure
 from tools import build_pre_eoc_quest_catalog as builder
 
 
 class TestPreEocQuestCatalogBuilder(unittest.TestCase):
+    def test_light_source_options_match_the_runtime_exact_state_graph(self):
+        self.assertEqual(builder.LIT_LIGHT_SOURCE_ITEMS, LIT_LIGHT_SOURCE_ITEMS)
+        self.assertEqual(builder.PERIOD_LIT_LIGHT_SOURCE_ITEMS, PERIOD_LIT_LIGHT_SOURCE_ITEMS)
+
+        rows = builder.build_stage_requirements(
+            quest_id="example_quest",
+            display_name="Example Quest",
+            stages=1,
+            journal_stages=(),
+            journal_source="https://runescape.wiki/w/Example_Quest?oldid=1",
+            item_requirements={"required_inventory": {"Light source": 1}},
+            combat_encounters=(),
+            source="https://runescape.wiki/w/Example_Quest?oldid=2",
+        )
+
+        self.assertEqual(rows[0]["required_inventory"], {})
+        self.assertEqual(
+            tuple(next(iter(option)) for option in rows[0]["required_inventory_options"][0]),
+            LIT_LIGHT_SOURCE_ITEMS,
+        )
+        self.assertIn("oldid=6581760", rows[0]["source"])
+
+    def test_source_blocked_stage_does_not_create_a_false_start_gate(self):
+        rows = builder.build_stage_requirements(
+            quest_id="watchtower",
+            display_name="Watchtower",
+            stages=5,
+            journal_stages=(),
+            journal_source="https://runescape.wiki/w/Watchtower?oldid=1",
+            item_requirements={"required_inventory": {"Light source": 1}},
+            combat_encounters=(),
+            source="https://runescape.wiki/w/Watchtower?oldid=2",
+        )
+
+        self.assertFalse(any(row["required_inventory_options"] for row in rows))
+        self.assertFalse(any("Light source" in row["required_inventory"] for row in rows))
+
     def test_combat_parser_handles_level_prefixed_names(self):
         encounters = builder.parse_combat_encounters("Lvl 2 Goblins", "source", "dwarf_cannon")
 

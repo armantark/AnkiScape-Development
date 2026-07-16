@@ -22,7 +22,7 @@ try:
         SAPLING_RECIPES,
         SUPERCOMPOST_INPUTS,
     )
-    from .logic_pure import best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure
+    from .logic_pure import apply_consumable_pure, best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure
 except ImportError:  # pragma: no cover - flat imports used by tests
     from constants import EXP_TABLE, TREE_DATA, WOODCUTTING_AXE_DATA  # type: ignore
     from farming_data import (  # type: ignore
@@ -39,7 +39,7 @@ except ImportError:  # pragma: no cover - flat imports used by tests
         SAPLING_RECIPES,
         SUPERCOMPOST_INPUTS,
     )
-    from logic_pure import best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure  # type: ignore
+    from logic_pure import apply_consumable_pure, best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure  # type: ignore
 
 
 FIELD_STEP_KINDS = frozenset({"plant", "harvest", "check_health", "cure", "clear", "chop", "habitat_traverse"})
@@ -126,6 +126,7 @@ def _default_bin_record() -> dict[str, Any]:
 
 def default_farming_state_pure() -> dict[str, Any]:
     return {
+        "farming_spell_patch": None,
         "farm_clock_minutes": 0,
         "farm_patches": {patch.id: _default_patch_record() for patch in FARMING_PATCHES},
         "farm_compost_bins": {row.id: _default_bin_record() for row in FARMING_COMPOST_BINS},
@@ -281,6 +282,11 @@ def sanitize_farming_state_pure(player_data: Mapping[str, Any]) -> dict[str, Any
     return {
         "farming_exp": _number(player_data.get("farming_exp", 0.0)),
         "farming_level": _int(player_data.get("farming_level", 1), default=1, minimum=1),
+        "farming_spell_patch": (
+            player_data.get("farming_spell_patch")
+            if player_data.get("farming_spell_patch") in FARMING_PATCHES_BY_ID
+            else None
+        ),
         "farm_clock_minutes": _int(player_data.get("farm_clock_minutes", defaults["farm_clock_minutes"])),
         "farm_patches": patches,
         "farm_compost_bins": bins,
@@ -426,11 +432,12 @@ def _process_patch_boundaries(updated: dict[str, Any], patch_id: str, random_ran
                 record["jade_prunes"] = 0
             _log(updated, "crop_ready", f"{crop.display_name} is ready.", patch_id=patch_id, crop_id=crop.id)
             break
-        # The first completed growth stage is immune. Watering is recorded but
-        # its exact multiplier/yield effect stays source-blocked by the ledger.
+        # The first completed growth stage is immune. The settled Farming
+        # contract applies GM's one-cycle 0.9 watering factor.
         if record["stage"] > 1 and not _disease_exempt(updated, patch_id, record, crop):
             tier = COMPOST_TIERS[record.get("compost_tier", "none")]
-            disease_slots = math.floor(crop.disease_slots * tier.disease_factor)
+            watering_factor = 0.9 if record.get("watered") else 1.0
+            disease_slots = math.floor(crop.disease_slots * tier.disease_factor * watering_factor)
             if random_random() < disease_slots / 128:
                 record["diseased"] = True
                 _log(updated, "crop_diseased", f"{crop.display_name} became diseased.", patch_id=patch_id, crop_id=crop.id)
@@ -1121,20 +1128,12 @@ def pay_farming_protection_pure(player_data: Mapping[str, Any], patch_id: str) -
 
 
 def activate_juju_farming_potion_pure(player_data: Mapping[str, Any], item_name: str = "Juju farming potion (3)") -> tuple[dict[str, Any], bool, str]:
-    updated = _copy_with_farm_state(player_data)
-    prefix = "Juju farming potion ("
-    if not item_name.startswith(prefix) or not item_name.endswith(")"):
-        return updated, False, "not a Juju farming potion"
-    try:
-        doses = int(item_name[len(prefix):-1])
-    except ValueError:
-        return updated, False, "not a Juju farming potion"
-    if doses < 1 or doses > 4 or _int(updated["inventory"].get(item_name)) <= 0:
-        return updated, False, "missing Juju farming potion"
-    updated["inventory"][item_name] -= 1
-    leaves = f"Juju farming potion ({doses - 1})" if doses > 1 else "Vial"
-    updated["inventory"][leaves] = _int(updated["inventory"].get(leaves)) + 1
-    updated["farm_juju_active_until"] = updated["farm_clock_minutes"] + 5
+    if item_name not in {f"Juju farming potion ({dose})" for dose in range(1, 5)}:
+        return _copy_with_farm_state(player_data), False, "not a Juju farming potion"
+    updated, result = apply_consumable_pure(player_data, item_name)
+    if not result.get("allowed"):
+        reason = "not a Juju farming potion" if result.get("reason") == "not_a_consumable" else "missing Juju farming potion"
+        return updated, False, reason
     return updated, True, "Juju farming potion active for 5 farm minutes"
 
 
@@ -1578,6 +1577,15 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
     } for index, step in enumerate(state["farm_queue"]))
     preview_state, preview_ids = queue_full_run_pure(state)
     del preview_state
+    juju_item_name = next(
+        (
+            f"Juju farming potion ({dose})"
+            for dose in range(4, 0, -1)
+            if _int(inventory.get(f"Juju farming potion ({dose})")) > 0
+        ),
+        None,
+    )
+    juju_active = _juju_farming_active(state)
     compact_rows.sort(key=lambda row: (
         0 if row["status"] in {"diseased", "dead"} else 1 if row["status"] == "ready" else 2,
         row["reviews_to_transition"], row["location_name"], row["patch_name"],
@@ -1605,6 +1613,25 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
             "count": len(preview_ids),
             "preview": f"{len(preview_ids)} steps ready to queue" if preview_ids else "No planned work is ready.",
             "locked_reason": "" if preview_ids else "No planned work is ready.",
+        },
+        "juju_potion": {
+            "item_name": juju_item_name,
+            "active": juju_active,
+            "enabled": juju_item_name is not None and not juju_active,
+            "label": (
+                "Juju harvest bonus active"
+                if juju_active
+                else f"Drink {juju_item_name}"
+                if juju_item_name
+                else "No Juju farming potion"
+            ),
+            "locked_reason": (
+                "The Juju harvest bonus is already active."
+                if juju_active
+                else "No Juju farming potion doses are available in your Bank."
+                if juju_item_name is None
+                else ""
+            ),
         },
         "compact_rows": tuple(compact_rows),
         "hud": {
@@ -1645,6 +1672,10 @@ def apply_farming_frontend_action_pure(
         )
     if action_id == "pay_protection":
         return pay_farming_protection_pure(player_data, patch_id)
+    if action_id == "activate_juju_farming_potion":
+        return activate_juju_farming_potion_pure(
+            player_data, str(data.get("item_name", "Juju farming potion (3)"))
+        )
     if action_id == "queue_action":
         kind = str(data.get("kind", ""))
         primary = (patch_view or {}).get("primary_action")

@@ -49,6 +49,40 @@ def _context(player_data, calls):
 
 
 class MagicDataAndMechanicsTest(unittest.TestCase):
+    def test_dragonstone_enchants_consume_the_exact_crafting_output_names(self):
+        expected = {
+            "enchant_dragonstone_ring": "Dragonstone ring",
+            "enchant_dragonstone_necklace": "Dragon necklace",
+            "enchant_dragonstone_amulet": "Dragonstone ammy",
+            "enchant_dragonstone_bracelet": "Dragon bracelet",
+        }
+        for target_id, item_name in expected.items():
+            with self.subTest(target_id=target_id):
+                self.assertEqual(MAGIC_DATA[target_id]["requirements"], {item_name: 1})
+
+    def test_enchant_amulet_requires_the_strung_item_identity(self):
+        runes = {"Cosmic rune": 1, "Water rune": 1}
+        unstrung = {
+            "magic_level": 99,
+            "inventory": {**runes, "Sapphire amulet (u)": 1},
+        }
+        self.assertIn(
+            "Sapphire amulet x1",
+            magic_target_locked_reasons_pure(
+                unstrung, "enchant_sapphire_amulet", MAGIC_DATA, {}
+            ),
+        )
+        strung = {
+            "magic_level": 99,
+            "inventory": {**runes, "Sapphire amulet": 1},
+        }
+        self.assertEqual(
+            magic_target_locked_reasons_pure(
+                strung, "enchant_sapphire_amulet", MAGIC_DATA, {}
+            ),
+            (),
+        )
+
     def test_three_books_and_stable_ids_are_complete(self):
         self.assertEqual(len(MAGIC_TARGETS), 94)
         self.assertEqual(len(MAGIC_TARGETS), len(set(MAGIC_TARGETS)))
@@ -121,6 +155,32 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
         self.assertEqual(secondary, {"crafting": 30.0})
         self.assertEqual(glass["inventory"]["Bucket of sand"], 0)
         self.assertNotIn("Bucket", outputs)
+
+        string_data = {
+            "magic_level": 99,
+            "quests": _quest_state("lunar_diplomacy"),
+            "inventory": {
+                "Astral rune": 4,
+                "Earth rune": 20,
+                "Water rune": 10,
+                "Gold amulet (u)": 2,
+                "Sapphire amulet (u)": 1,
+            },
+        }
+        strung, _xp, secondary, outputs, ok, _ = apply_magic_action_pure(
+            string_data, "string_jewellery", MAGIC_DATA, {}
+        )
+        self.assertTrue(ok)
+        self.assertEqual(secondary, {"crafting": 12.0})
+        self.assertEqual(outputs, {"Gold amulet": 2, "Sapphire amulet": 1})
+        self.assertEqual(strung["inventory"]["Gold amulet (u)"], 0)
+        self.assertEqual(strung["inventory"]["Sapphire amulet (u)"], 0)
+        unchanged, xp, secondary, outputs, ok, _ = apply_magic_action_pure(
+            strung, "string_jewellery", MAGIC_DATA, {}
+        )
+        self.assertFalse(ok)
+        self.assertEqual((xp, secondary, outputs), (0.0, {}, {}))
+        self.assertEqual(unchanged, strung)
 
     def test_farming_spells_validate_before_spending_and_apply_atomically(self):
         base = {
@@ -245,8 +305,21 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
         self.assertEqual(saved["combat_presets"]["Magic"]["current_combat_spell"], "fire_surge")
         self.assertEqual(saved["combat_presets"]["Magic"]["combat_spellbook_swap"], "vengeance")
 
+    def test_existing_strung_amulet_inventory_and_equipment_survive_load(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": CURRENT_CONFIG_VERSION,
+                "inventory": {"Gold amulet": 2},
+                "equipment": {"neck": "Gold amulet"},
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+        self.assertEqual(migrated["inventory"]["Gold amulet"], 2)
+        self.assertEqual(migrated["equipment"]["neck"], "Gold amulet")
+
     def test_every_magic_manifest_asset_exists(self):
-        self.assertEqual(len(MAGIC_ITEM_IMAGES), 122)
+        self.assertEqual(len(MAGIC_ITEM_IMAGES), 130)
         for path in MAGIC_ITEM_IMAGES.values():
             self.assertTrue(os.path.exists(path), path)
 

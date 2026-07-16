@@ -284,6 +284,32 @@ class PrayerDataAndMechanicsTest(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(applied["combat_prayer_uptime"], "40")
 
+    def test_combat_presets_never_snapshot_or_restore_finite_supplies(self):
+        loaded = {
+            "combat_supply_loadout": {
+                "food": {"Lobster": 3},
+                "potions": {},
+                "stat_potions": {},
+                "ammo": {},
+                "runes": {},
+                "cannonballs": 0,
+            },
+            "combat_prayer_uptime": "70",
+        }
+        saved, ok = save_combat_preset_pure(loaded, "Bossing")
+        self.assertTrue(ok)
+        self.assertNotIn("combat_supply_loadout", saved["combat_presets"]["Bossing"])
+
+        # Old saves may already contain the bad field. Applying that preset must
+        # leave the currently owned pack alone rather than minting its snapshot.
+        saved["combat_presets"]["Bossing"]["combat_supply_loadout"] = {
+            "food": {"Lobster": 99}
+        }
+        saved["combat_supply_loadout"]["food"] = {"Lobster": 1}
+        applied, ok = apply_combat_preset_pure(saved, "Bossing")
+        self.assertTrue(ok)
+        self.assertEqual(applied["combat_supply_loadout"]["food"], {"Lobster": 1})
+
     def test_target_override_applies_without_pin_and_pinned_precedence_is_preset_then_override(self):
         state = {
             "prayer_level": 99,

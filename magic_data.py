@@ -43,6 +43,7 @@ def _spell(
     outputs=None, quest_gate: Optional[str] = None, source: str = STANDARD_WIKI,
     batch: str = "one", secondary_skill: Optional[str] = None,
     secondary_xp: float = 0.0, secondary_level: int = 1, coin_cost: int = 0,
+    reachability_inputs: Tuple[str, ...] = (),
 ) -> dict:
     return {
         "id": target_id, "display_name": name, "spellbook": book, "group": group,
@@ -52,6 +53,7 @@ def _spell(
         "secondary_skill": secondary_skill, "secondary_exp": float(secondary_xp),
         "secondary_level": int(secondary_level),
         "coin_cost": int(coin_cost),
+        "reachability_inputs": tuple(reachability_inputs),
     }
 
 
@@ -124,7 +126,11 @@ _JEWEL_TIERS = (
 )
 for tier, gem, level, xp, runes, products in _JEWEL_TIERS:
     for form, product in zip(("ring", "necklace", "amulet", "bracelet"), products):
-        raw = f"{gem} {form}"
+        raw = {
+            ("Dragonstone", "necklace"): "Dragon necklace",
+            ("Dragonstone", "amulet"): "Dragonstone ammy",
+            ("Dragonstone", "bracelet"): "Dragon bracelet",
+        }.get((gem, form), f"{gem} {form}")
         _add(_spell(f"enchant_{gem.lower()}_{form}", f"Enchant {raw}", "standard", "Enchant jewellery", level, xp, runes, "transform", requirements={raw: 1}, outputs={product: 1}, source=f"{ENCHANT_SOURCE}; {STANDARD_WIKI}"))
 
 
@@ -162,8 +168,8 @@ for ore, output, smith_level, smith_xp, req in (
     _add(_spell(f"superheat_{output.lower().replace(' ', '_')}", f"Superheat {output}", "standard", "Conversions", 43, 53, {"Fire rune": 4, "Nature rune": 1}, "transform", requirements=req, outputs={output: 1}, source=SUPERHEAT_SOURCE, secondary_skill="smithing", secondary_xp=smith_xp, secondary_level=smith_level))
 
 _add(
-    _spell("bones_to_bananas", "Bones to Bananas", "standard", "Conversions", 15, 25, {"Water rune": 2, "Earth rune": 2, "Nature rune": 1}, "bones_conversion", outputs={"Banana": 1}, source=f"{STANDARD_WIKI}; RuneScape Wiki Bones to Bananas oldid=6586873", batch="all"),
-    _spell("bones_to_peaches", "Bones to Peaches", "standard", "Conversions", 60, 65, {"Water rune": 4, "Earth rune": 2, "Nature rune": 2}, "bones_conversion", outputs={"Peach": 1}, quest_gate="mage_training_arena", source=f"{STANDARD_WIKI}; RuneScape Wiki Bones to Peaches oldid=6586898", batch="all"),
+    _spell("bones_to_bananas", "Bones to Bananas", "standard", "Conversions", 15, 25, {"Water rune": 2, "Earth rune": 2, "Nature rune": 1}, "bones_conversion", outputs={"Banana": 1}, source=f"{STANDARD_WIKI}; RuneScape Wiki Bones to Bananas oldid=6586873", batch="all", reachability_inputs=("Bones",)),
+    _spell("bones_to_peaches", "Bones to Peaches", "standard", "Conversions", 60, 65, {"Water rune": 4, "Earth rune": 2, "Nature rune": 2}, "bones_conversion", outputs={"Peach": 1}, quest_gate="mage_training_arena", source=f"{STANDARD_WIKI}; RuneScape Wiki Bones to Peaches oldid=6586898", batch="all", reachability_inputs=("Bones", "Big bones")),
     _spell("telegrab_wine_of_zamorak", "Telegrab Wine of Zamorak", "standard", "Pure casts", 33, 43, {"Air rune": 1, "Law rune": 1}, "produce", outputs={"Wine of zamorak": 1}, source=TELEGRAB_WIKI),
     _spell("charge", "Charge", "standard", "Pure casts", 80, 180, {"Air rune": 3, "Fire rune": 3, "Blood rune": 3}, "charge", quest_gate="mage_arena", source=f"{CHARGE_WIKI}; {MAGE_ARENA_WIKI}"),
 )
@@ -215,6 +221,14 @@ def magic_targets_as_dict() -> Dict[str, dict]:
 
 def magic_extra_items_as_dict() -> Dict[str, dict]:
     names = {item for spec in MAGIC_TARGETS.values() for field in ("requirements", "outputs", "rune_cost") for item in spec.get(field, {})}
+    names.update(
+        {
+            f"{tier} amulet{suffix}"
+            for tier in ("Gold", "Sapphire", "Emerald", "Ruby", "Diamond", "Onyx")
+            for suffix in ("", " (u)")
+        }
+    )
+    names.update({"Dragonstone ammy", "Dragonstone ammy (u)"})
     names.update({"Peach"})
     return {
         name: {

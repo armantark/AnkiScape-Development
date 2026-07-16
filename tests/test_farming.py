@@ -296,6 +296,18 @@ class TestFarmingClockAndActions(unittest.TestCase):
         dead, _ = advance_farm_clock_pure(diseased, 2, lambda: 1.0)
         self.assertTrue(dead["farm_patches"]["falador_allotment_north"]["dead"])
 
+    def test_watering_applies_settled_point_nine_disease_factor(self):
+        unwatered = _plant_ready(_state())
+        watered_state = _state()
+        watered_state["inventory"]["Watering can"] = 1
+        watered = _plant_ready(watered_state)
+
+        unwatered, _ = advance_farm_clock_pure(unwatered, 4, lambda: 0.22)
+        watered, _ = advance_farm_clock_pure(watered, 4, lambda: 0.22)
+
+        self.assertTrue(unwatered["farm_patches"]["falador_allotment_north"]["diseased"])
+        self.assertFalse(watered["farm_patches"]["falador_allotment_north"]["diseased"])
+
     def test_large_clock_tick_eagerly_processes_disease_and_the_crossed_death_boundary(self):
         advanced, _ = advance_farm_clock_pure(_plant_ready(_state()), 7, lambda: 0.0)
         record = advanced["farm_patches"]["falador_allotment_north"]
@@ -763,6 +775,18 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         active, ok, _ = activate_juju_farming_potion_pure(ready)
         self.assertTrue(ok)
         self.assertEqual(active["inventory"]["Juju farming potion (2)"], 1)
+        through_frontend, ok, message = apply_farming_frontend_action_pure(
+            ready, "activate_juju_farming_potion", {"item_name": "Juju farming potion (3)"}
+        )
+        self.assertTrue(ok, message)
+        self.assertEqual(through_frontend["inventory"]["Juju farming potion (2)"], 1)
+        self.assertEqual(through_frontend["farm_juju_active_until"], ready["farm_clock_minutes"] + 5)
+        rejected, ok, message = apply_farming_frontend_action_pure(
+            ready, "activate_juju_farming_potion", {"item_name": "Beer"}
+        )
+        self.assertFalse(ok)
+        self.assertEqual(message, "not a Juju farming potion")
+        self.assertEqual(rejected["inventory"], ready["inventory"])
         active, _ = advance_farm_clock_pure(active, 1, lambda: 1.0)
         active["farm_patches"]["falador_herb"]["lives"] = 1
         rolls = iter((1.0, 0.0))

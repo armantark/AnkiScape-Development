@@ -1,5 +1,8 @@
 import dataclasses
 import unittest
+from unittest.mock import patch
+
+import runtime_actions
 
 from runtime_actions import (
     RuntimeActionContext,
@@ -12,6 +15,7 @@ from runtime_actions import (
     handle_fishing_answer,
     handle_fletching_answer,
     handle_hunter_answer,
+    handle_agility_answer,
     handle_herblore_answer,
     handle_quest_answer,
     handle_smithing_answer,
@@ -63,6 +67,26 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_fatal_agility_failure_deactivates_and_reports_shared_grave_death(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "current_agility": "wilderness_course",
+            "agility_level": 53,
+            "agility_exp": 0.0,
+            "combat_lifepoints": 10,
+            "hitpoints_level": 10,
+            "inventory": {},
+            "equipment": {"weapon": "Bronze sword"},
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(handle_agility_answer(_context(player_data, calls, random_values=(0.0, 0.5, 0.5, 0.5))))
+
+        self.assertTrue(calls["deactivated"])
+        self.assertEqual(player_data["combat_grave"]["items"], ["Bronze sword"])
+        self.assertEqual(player_data["combat_grave"]["source"], "agility_failure")
+        self.assertTrue(any("YOU DIED" in text for text in calls["activity"]))
+
     def test_barehanded_butterfly_awards_atomic_hunter_and_agility_xp_without_an_item(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
@@ -464,6 +488,45 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["activity"], ["Defeated Chicken"])
         self.assertEqual(len(calls["xp"]), 1)
 
+    def test_fatal_combat_burst_graves_loot_earned_before_death(self):
+        enemy = {
+            "display_name": "Fatal looter",
+            "level": 99,
+            "group": "Test",
+            "stats": {"attack": 99, "strength": 99, "defence": 1, "hitpoints": 1},
+            "bonuses": {},
+            "attack_speed": 1,
+            "drops": {"guaranteed": (("Feather", 1),), "tables": ()},
+            "source": "test",
+        }
+        player_data = {
+            "inventory": {},
+            "equipment": {},
+            "current_combat_target": "fatal_looter",
+            "combat_attack_style": "accurate",
+            "combat_lifepoints": 1,
+            "combat_auto_flee": False,
+            "combat_auto_eat_food": [],
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 1,
+            "constitution_level": 10,
+            "attack_exp": 0.0,
+            "constitution_exp": 0.0,
+            "completed_achievements": [],
+        }
+        calls = {"xp": [], "saves": 0, "errors": []}
+
+        with patch.dict(runtime_actions.COMBAT_ENEMY_DATA, {"fatal_looter": enemy}):
+            ok = handle_combat_answer(_context(player_data, calls, [0.0, 0.999999, 0.0, 0.999999]))
+
+        self.assertTrue(ok)
+        self.assertTrue(player_data["combat_last_result"]["died"])
+        self.assertEqual(player_data["combat_last_result"]["kills"], 1)
+        self.assertIn("Feather", player_data["combat_grave"]["items"])
+        self.assertEqual(player_data["inventory"].get("Feather", 0), 0)
+        self.assertNotIn("fatal_looter", player_data.get("carried_inventory", {}))
+
     def test_combat_handler_runs_ranged_review_with_starter_bow_and_arrows(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
@@ -695,6 +758,42 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"][0][0], "Quest complete")
         self.assertIn("Rune Mysteries is complete", calls["errors"][0][1])
         self.assertIn("questing has been switched off", calls["errors"][0][1])
+
+    def test_quest_answer_runs_the_final_tears_of_guthix_stage_before_completion(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Bullseye lantern (empty)": 1, "Sapphire": 1},
+            "current_quest": "tears_of_guthix",
+            "quests": {"tears_of_guthix": {"started": True, "progress": 2, "completed": False}},
+            "quest_stage_actions": {
+                "tears_of_guthix": ["Complete Tears of Guthix stage 2 objective"]
+            },
+            "quest_points": 0,
+            "crafting_exp": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(handle_quest_answer(_context(player_data, calls)))
+        self.assertEqual(player_data["quests"]["tears_of_guthix"]["progress"], 3)
+        self.assertFalse(player_data["quests"]["tears_of_guthix"]["completed"])
+        self.assertNotIn("deactivated", calls)
+        self.assertEqual(calls["activity"], ["Tears of Guthix 3/4"])
+
+        self.assertFalse(handle_quest_answer(_context(player_data, calls)))
+        self.assertTrue(calls["deactivated"])
+        self.assertEqual(player_data["quests"]["tears_of_guthix"]["progress"], 3)
+        self.assertIn("Needs Sapphire lantern (lit) x1", calls["errors"][-1][1])
+
+        player_data["inventory"]["Sapphire lantern (lit)"] = 1
+        player_data["quest_stage_actions"]["tears_of_guthix"].append(
+            "Complete Tears of Guthix stage 3 objective"
+        )
+        self.assertTrue(handle_quest_answer(_context(player_data, calls)))
+        self.assertTrue(player_data["quests"]["tears_of_guthix"]["completed"])
+        self.assertEqual(player_data["quests"]["tears_of_guthix"]["progress"], 4)
+        self.assertEqual(player_data["crafting_exp"], 1000.0)
+        self.assertEqual(calls["activity"][-1], "Tears of Guthix complete")
 
     def test_quest_stage_blocker_deactivates_without_progress_or_reward(self):
         calls = {"xp": [], "saves": 0, "errors": []}

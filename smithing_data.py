@@ -1656,14 +1656,14 @@ SmithingRecipe(
     ),
 SmithingRecipe(
         id='forge_bullseye_lantern',
-        display_name='Bullseye lantern',
+        display_name='Bullseye lantern (unf)',
         station='anvil',
         level=49,
         base_exp=37.5,
         requirements=(
             ('Steel bar', 1),
 ),
-        output_item='Bullseye lantern',
+        output_item='Bullseye lantern (unf)',
         output_qty=1,
         source_item_id=4544,
         source='/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/smithing/data/BarProducts.kt',

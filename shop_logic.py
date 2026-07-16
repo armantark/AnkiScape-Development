@@ -42,8 +42,23 @@ try:
 except ImportError:
     from herblore_data import HERBLORE_TARGETS
 
+try:
+    from .crafting_data import LEGACY_CRAFTING_ITEM_MIGRATIONS
+except ImportError:
+    from crafting_data import LEGACY_CRAFTING_ITEM_MIGRATIONS
+
+try:
+    from .constants import EXTRA_ITEM_DATA
+except ImportError:
+    from constants import EXTRA_ITEM_DATA
+
 
 MAX_SHOP_EVENT_HISTORY = 200
+_CANONICAL_SHOP_ROW_NAMES = {
+    str(row["id"]): str(row["item_name"])
+    for shop in SHOP_DATA.values()
+    for row in shop.get("stock", ())
+}
 
 # Bob Barter's ordinary-vial catalog is the live, non-Daemonheim Herblore
 # catalog. Barbarian mixes use two-dose bowls rather than four-dose vials.
@@ -100,11 +115,14 @@ def sanitize_shop_state_pure(raw: Mapping[str, Any] | None) -> Dict[str, Any]:
                         continue
                     current_quantity = _clean_int(row_state.get("current_quantity"), 0, minimum=0)
                     default_quantity = _clean_int(row_state.get("default_quantity"), 0, minimum=0)
-                    if current_quantity == default_quantity and not bool(row_state.get("temporary")):
+                    temporary = bool(row_state.get("temporary"))
+                    if current_quantity == default_quantity and not temporary:
                         continue
                     clean_rows[row_id] = {
                         "item_id": _clean_int(row_state.get("item_id"), -1, minimum=-1),
-                        "item_name": str(row_state.get("item_name", "")),
+                        "item_name": _canonical_saved_shop_item_name(
+                            str(row_state.get("item_name", "")), row_id, temporary
+                        ),
                         "current_quantity": current_quantity,
                         "default_quantity": default_quantity,
                         "restock_ticks": _clean_int(row_state.get("restock_ticks"), 50, minimum=1),
@@ -112,7 +130,7 @@ def sanitize_shop_state_pure(raw: Mapping[str, Any] | None) -> Dict[str, Any]:
                         "buy_price": _clean_optional_int(row_state.get("buy_price")),
                         "sell_price": _clean_optional_int(row_state.get("sell_price")),
                         "tradeable": bool(row_state.get("tradeable", True)),
-                        "temporary": bool(row_state.get("temporary", False)),
+                        "temporary": temporary,
                     }
             if clean_rows:
                 clean_stock[group_id] = {
@@ -122,7 +140,11 @@ def sanitize_shop_state_pure(raw: Mapping[str, Any] | None) -> Dict[str, Any]:
                 }
 
     raw_events = data.get("shop_events")
-    clean_events = [dict(event) for event in raw_events if isinstance(event, Mapping)] if isinstance(raw_events, list) else []
+    clean_events = (
+        [_migrate_saved_shop_event_item_names(event) for event in raw_events if isinstance(event, Mapping)]
+        if isinstance(raw_events, list)
+        else []
+    )
     return {
         "shop_data_version": SHOP_DATA_VERSION,
         "shop_market_clock": clean_clock,
@@ -604,6 +626,55 @@ def _clean_optional_int(value: Any) -> int | None:
         return int(value)
     except (TypeError, ValueError):
         return None
+
+
+def _canonical_saved_shop_item_name(item_name: str, row_id: str = "", temporary: bool = False) -> str:
+    if not temporary and row_id in _CANONICAL_SHOP_ROW_NAMES:
+        return _CANONICAL_SHOP_ROW_NAMES[row_id]
+    return LEGACY_CRAFTING_ITEM_MIGRATIONS.get(item_name, item_name)
+
+
+def _migrate_item_delta_names(raw: Any) -> Any:
+    if not isinstance(raw, Mapping):
+        return raw
+    migrated: Dict[str, Any] = {}
+    for item_name, delta in raw.items():
+        if not isinstance(item_name, str):
+            continue
+        canonical_name = _canonical_saved_shop_item_name(item_name)
+        if isinstance(delta, int) and isinstance(migrated.get(canonical_name), int):
+            migrated[canonical_name] += delta
+        else:
+            migrated[canonical_name] = delta
+    return migrated
+
+
+def _migrate_saved_stock_set_names(raw: Any) -> Any:
+    if not isinstance(raw, Mapping):
+        return raw
+    migrated = copy.deepcopy(dict(raw))
+    for rows in migrated.values():
+        if not isinstance(rows, dict):
+            continue
+        for row_id, row_state in rows.items():
+            if not isinstance(row_id, str) or not isinstance(row_state, dict):
+                continue
+            row_state["item_name"] = _canonical_saved_shop_item_name(
+                str(row_state.get("item_name", "")), row_id, bool(row_state.get("temporary"))
+            )
+    return migrated
+
+
+def _migrate_saved_shop_event_item_names(raw: Mapping[str, Any]) -> Dict[str, Any]:
+    event = copy.deepcopy(dict(raw))
+    row_id = str(event.get("row_id", "") or "")
+    event["item_name"] = _canonical_saved_shop_item_name(str(event.get("item_name", "")), row_id)
+    event["inventory_delta"] = _migrate_item_delta_names(event.get("inventory_delta"))
+    inverse = event.get("inverse")
+    if isinstance(inverse, dict):
+        inverse["inventory_delta"] = _migrate_item_delta_names(inverse.get("inventory_delta"))
+        inverse["stock_set"] = _migrate_saved_stock_set_names(inverse.get("stock_set"))
+    return event
 
 
 def _shop_or_none(shop_id: str) -> Optional[Dict[str, Any]]:
@@ -1123,6 +1194,9 @@ def _stocked_row_for_item(shop: Mapping[str, Any], item_name: str) -> Optional[D
 
 
 def _item_tradeable(item_name: str) -> bool:
+    registry_spec = EXTRA_ITEM_DATA.get(item_name)
+    if registry_spec is not None and registry_spec.get("tradeable") is False:
+        return False
     for shop in SHOP_DATA.values():
         for row in shop.get("stock", []):
             if row.get("item_name") == item_name:

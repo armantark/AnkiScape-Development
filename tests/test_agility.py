@@ -135,6 +135,64 @@ class TestAgilityCourseData(unittest.TestCase):
 
 
 class TestAgilityPureEngine(unittest.TestCase):
+    def test_dorgesh_course_accepts_any_exact_lit_source_state(self):
+        player = {
+            **default_agility_state_pure(),
+            "agility_level": 99,
+            "quests": {
+                "death_to_the_dorgeshuun": {"started": True, "progress": 6, "completed": True},
+            },
+            "inventory": {},
+            "equipment": {},
+        }
+
+        missing = agility_target_locked_reasons_pure(player, "dorgesh_kaan")
+        self.assertIn("Lit torch or another valid alternative", missing)
+
+        player["inventory"]["Bullseye lantern (lit)"] = 1
+        self.assertEqual(agility_target_locked_reasons_pure(player, "dorgesh_kaan"), ())
+
+        player["inventory"].clear()
+        player["equipment"]["head"] = "Mining helmet (lit)"
+        self.assertEqual(agility_target_locked_reasons_pure(player, "dorgesh_kaan"), ())
+
+    def test_pit_invitation_stays_satisfied_while_six_review_challenge_is_active(self):
+        player = {
+            **default_agility_state_pure(),
+            "current_agility": "the_pit",
+            "agility_level": 99,
+            "agility_pit_offer": True,
+            "inventory": {},
+        }
+
+        player, first = apply_agility_review_pure(player, (0.99, 0.0, 0.5, 0.5))
+
+        self.assertTrue(first["allowed"])
+        self.assertFalse(player["agility_pit_offer"])
+        self.assertEqual(player["agility_activity_state"]["pit"]["reviews"], 1)
+        self.assertEqual(agility_target_locked_reasons_pure(player, "the_pit"), ())
+        player, second = apply_agility_review_pure(player, (0.99, 0.0, 0.5, 0.5))
+        self.assertTrue(second["allowed"])
+        self.assertEqual(player["agility_activity_state"]["pit"]["reviews"], 2)
+
+    def test_corrupt_pit_session_does_not_bypass_talent_scout_invitation(self):
+        player = {
+            **default_agility_state_pure(),
+            "current_agility": "the_pit",
+            "agility_level": 99,
+            "agility_activity_state": {"pit": {"unexpected": True}},
+            "inventory": {},
+        }
+
+        updated, result = apply_agility_review_pure(player, (0.99, 0.0, 0.5, 0.5))
+
+        self.assertFalse(result["allowed"])
+        self.assertNotIn("pit", updated["agility_activity_state"])
+        self.assertEqual(
+            agility_target_locked_reasons_pure(updated, "the_pit"),
+            ("Talent Scout invitation",),
+        )
+
     def test_one_review_advances_exactly_one_obstacle(self):
         player = {
             **default_agility_state_pure(),

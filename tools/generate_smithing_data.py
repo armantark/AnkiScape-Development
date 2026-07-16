@@ -149,6 +149,8 @@ def _resolve_item_id(value: str, item_constants: Mapping[str, int]) -> int:
 
 
 def _item_name(item_id: int, items: Mapping[int, ItemMeta]) -> str:
+    if item_id == 4544:
+        return "Bullseye lantern (unf)"
     try:
         return items[item_id].name
     except KeyError as exc:
@@ -248,7 +250,7 @@ def _parse_products(
         category = "tool" if smithing_type in {"TYPE_HATCHET", "TYPE_PICKAXE"} else "smithed"
         recipes.append(
             SourceRecipe(
-                recipe_id=f"forge_{_slug(result_name)}",
+                recipe_id="forge_bullseye_lantern" if result_id == 4544 else f"forge_{_slug(result_name)}",
                 display_name=result_name,
                 station="anvil",
                 level=level,

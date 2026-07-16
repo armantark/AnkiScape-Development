@@ -109,3 +109,72 @@ Bonfires/fire spirits should be treated as a future Firemaking extension. A good
 future slice would start with a small design note that decides how batch feeding,
 XP bonus, fire-spirit rewards, Cooking boost, temporary-health warmth, and
 review-action multiplier behavior interact with Anki undo.
+
+## Lantern item-state correction — 2026-07-16
+
+The original light-source extension preserved distinct labels but copied two
+incorrect raw IDs from game-main's `LightSource.kt`: an empty candle-lantern
+frame (4527) was treated as directly lightable, and an empty oil lantern (4535)
+was treated as fuelled. The producer graph also collapsed unfinished, empty,
+fuelled-unlit, and lit items back onto the cache display name. Because
+AnkiScape inventories are name-keyed, that made most lantern actions
+unreachable and made the bullseye-lens recipe consume a lens while returning
+the same inventory key.
+
+The corrected identities are pinned by the rev-667 item config, the local
+combination rows, Darkan commit `fab9b065dbf753e50e298eff8500256edf31fd75`,
+and period wiki revisions:
+
+- Candle lantern, oldid 5962978, 2012-07-20: 4527 empty frame, 4529/4532
+  candle-inserted unlit states, and 4531/4534 lit states.
+- Oil lamp, oldid 6359041, 2012-10-06: 4525 empty, 4522 fuelled-unlit, and
+  4524 lit.
+- Oil lantern, oldid 5372911, 2012-03-13: 4535 empty, 4537 fuelled-unlit, and
+  4539 lit. The period page supplies Crafting level 26; game-main's level 50
+  combination row conflicts and is not used.
+- Bullseye lantern (empty), oldid 6524183, 2012-11-03: 4544 unfinished metal
+  frame, 4546 lens-fitted empty, 4548 fuelled-unlit, and 4550 lit.
+- Sapphire lantern, oldid 6092552, 2012-08-14: 4700 empty, 4701
+  fuelled-unlit, and 4702 lit. Swapping a cut sapphire into the empty bullseye
+  returns the ordinary lantern lens.
+- Lamp oil, oldid 6241595, 2012-09-13: swamp tar is distilled in the lamp-oil
+  still and used to fill an empty lamp or lantern.
+
+Local implementation convergence:
+
+- `CombinationData.kt` maps 4544 + lens to 4546, 4546 + emerald lens to 9064,
+  and 4522 + lantern frame to 4537.
+- Darkan `src/main/java/com/rs/game/content/world/LightSource.java` binds the
+  light actions to 4529, 4522, 4537, 4548, and 4701 rather than the empty
+  states.
+- Darkan `data/npcs/drops/pickpocketing/pp_cavegoblin.json` drops 4537 and
+  4548, confirming that the cave-goblin rewards are fuelled-unlit items.
+
+### AnkiScape translation
+
+Lamp-oil preparation is one zero-XP Utility / Activities review: the line says
+that the player distils swamp tar and fills the selected empty light source,
+consumes one swamp tar, and outputs the exact fuelled-unlit item. This flattens
+the still interaction without introducing wall-clock time. Candle insertion is
+the same one-review, zero-XP preparation shape. Lighting and extinguishing stay
+separate one-review transformations so every state and undo boundary remains
+legible.
+
+Twenty-two distinct inventory sprites were fetched through
+`tools/fetch_firemaking_assets.py`; `assets_provenance.json` records the modern
+wiki file source used only for artwork. The gameplay identities and values come
+from the period evidence above, not from the modern asset pages.
+
+The same local light-source implementation maps Mining helmet 5014 to lit
+Mining helmet 5013. Both states retain the source equipment block, head slot,
+bonuses, Defence classification, and separate artwork. Exact-state registration
+uses the equipment category rather than leaving these wearable items as generic
+materials.
+
+Save migration preserves every previously collapsed inventory key. The old
+generic Mining helmet is also renamed while equipped, and touched Miltog stock
+rows plus their rollback records are canonicalized by stable shop-row ID. Some
+old name-keyed saves are intrinsically ambiguous: a generic Oil lamp could have
+represented either cache ID 4522 or 4525. Migration resolves that legacy key to
+the empty 4525 state, matching the old Crafting output and preserving the full
+preparation chain; new acquisitions preserve the exact cache state.

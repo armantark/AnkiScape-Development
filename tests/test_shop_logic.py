@@ -54,6 +54,17 @@ def _specialist_without_beer():
 
 
 class TestShopLogic(unittest.TestCase):
+    def test_general_store_rejects_registry_untradeable_items(self):
+        shop = _general_store()
+        player = build_shop_fixture_player_data()
+        player["inventory"]["Overload (3)"] = 1
+
+        updated, result = apply_shop_sell_pure(player, shop["id"], "Overload (3)", 1)
+
+        self.assertFalse(result["allowed"])
+        self.assertEqual(result["reason"], "item_not_tradeable")
+        self.assertEqual(updated["inventory"]["Overload (3)"], 1)
+
     def test_default_and_sanitize_shop_state(self):
         default_state = default_shop_state_pure()
         self.assertEqual(default_state["shop_data_version"], 1)
@@ -70,6 +81,116 @@ class TestShopLogic(unittest.TestCase):
         self.assertEqual(sanitized["shop_market_clock"]["answered_cards"], 4)
         self.assertEqual(sanitized["shop_market_clock"]["market_tick"], 7)
         self.assertEqual(sanitized["shop_next_event_id"], 3)
+
+    def test_saved_lantern_shop_rows_and_undo_events_migrate_exact_item_names(self):
+        row_id = "miltogs_lamps:4:5014"
+        saved = {
+            "inventory": {"Coins": 900, "Mining helmet (unlit)": 1},
+            "shop_market_clock": {"answered_cards": 0, "market_tick": 0},
+            "shop_stock_state": {
+                "miltogs_lamps": {
+                    "shop_id": "miltogs_lamps",
+                    "last_market_tick": 0,
+                    "rows": {
+                        row_id: {
+                            "item_id": 5014,
+                            "item_name": "Mining helmet",
+                            "current_quantity": 9,
+                            "default_quantity": 10,
+                            "restock_ticks": 50,
+                            "restock_amount": 1,
+                            "buy_price": 900,
+                            "sell_price": 270,
+                            "tradeable": True,
+                            "temporary": False,
+                        }
+                    },
+                }
+            },
+            "shop_events": [
+                {
+                    "event_id": "shop_evt_1",
+                    "type": "buy",
+                    "shop_id": "miltogs_lamps",
+                    "row_id": row_id,
+                    "item_name": "Mining helmet",
+                    "inventory_delta": {"Coins": -900, "Mining helmet": 1},
+                    "inverse": {
+                        "inventory_delta": {"Coins": 900, "Mining helmet": -1},
+                        "stock_set": {
+                            "miltogs_lamps": {
+                                row_id: {
+                                    "item_id": 5014,
+                                    "item_name": "Mining helmet",
+                                    "current_quantity": 10,
+                                    "default_quantity": 10,
+                                    "temporary": False,
+                                }
+                            }
+                        },
+                    },
+                    "display": "Bought 1 x Mining helmet from Miltog's Lamps",
+                }
+            ],
+            "shop_next_event_id": 2,
+        }
+
+        sanitized = sanitize_shop_state_pure(saved)
+        self.assertEqual(
+            sanitized["shop_stock_state"]["miltogs_lamps"]["rows"][row_id]["item_name"],
+            "Mining helmet (unlit)",
+        )
+        event = sanitized["shop_events"][0]
+        self.assertEqual(event["item_name"], "Mining helmet (unlit)")
+        self.assertEqual(event["inverse"]["inventory_delta"]["Mining helmet (unlit)"], -1)
+        self.assertEqual(
+            event["inverse"]["stock_set"]["miltogs_lamps"][row_id]["item_name"],
+            "Mining helmet (unlit)",
+        )
+
+        restored, result = rollback_shop_event_pure({**saved, **sanitized}, "shop_evt_1")
+        self.assertTrue(result["allowed"])
+        self.assertEqual(restored["inventory"]["Mining helmet (unlit)"], 0)
+
+    def test_saved_shop_arrow_events_migrate_to_canonical_stack_identity(self):
+        row_id = "armoury:3:882"
+        sanitized = sanitize_shop_state_pure(
+            {
+                "shop_events": [
+                    {
+                        "event_id": "shop_evt_1",
+                        "type": "buy",
+                        "shop_id": "armoury",
+                        "row_id": row_id,
+                        "item_name": "Bronze arrow",
+                        "inventory_delta": {"Coins": -70, "Bronze arrow": 10},
+                        "inverse": {
+                            "inventory_delta": {"Coins": 70, "Bronze arrow": -10},
+                            "stock_set": {
+                                "armoury": {
+                                    row_id: {
+                                        "item_id": 882,
+                                        "item_name": "Bronze arrow",
+                                        "current_quantity": 1000,
+                                        "default_quantity": 1000,
+                                        "temporary": False,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                ],
+            },
+        )
+
+        event = sanitized["shop_events"][0]
+        self.assertEqual(event["item_name"], "Bronze arrows")
+        self.assertEqual(event["inventory_delta"], {"Coins": -70, "Bronze arrows": 10})
+        self.assertEqual(event["inverse"]["inventory_delta"], {"Coins": 70, "Bronze arrows": -10})
+        self.assertEqual(
+            event["inverse"]["stock_set"]["armoury"][row_id]["item_name"],
+            "Bronze arrows",
+        )
 
     def test_market_clock_advances_on_answered_cards(self):
         data = build_shop_fixture_player_data()
@@ -99,6 +220,22 @@ class TestShopLogic(unittest.TestCase):
         rolled_back_view = shop_view_model_pure(rolled_back, shop["id"])
         restored_row = next(view_row for view_row in rolled_back_view["rows"] if view_row["id"] == row["id"])
         self.assertEqual(restored_row["current_quantity"], before_stock)
+
+    def test_shop_bought_arrows_use_equippable_identity_and_undo_cleanly(self):
+        shop = SHOP_DATA["armoury"]
+        row = next(row for row in shop["stock"] if row["item_id"] == 882)
+        data = build_shop_fixture_player_data()
+
+        updated, result = apply_shop_buy_pure(data, shop["id"], row["id"], 10)
+
+        self.assertTrue(result["allowed"])
+        self.assertEqual(row["item_name"], "Bronze arrows")
+        self.assertEqual(updated["inventory"]["Bronze arrows"], 10)
+        self.assertNotIn("Bronze arrow", updated["inventory"])
+
+        rolled_back, rollback_result = rollback_shop_event_pure(updated, result["event_id"])
+        self.assertTrue(rollback_result["allowed"])
+        self.assertEqual(rolled_back["inventory"].get("Bronze arrows", 0), 0)
 
     def test_locked_stock_fails_closed(self):
         shop, row = _locked_shop_and_row()

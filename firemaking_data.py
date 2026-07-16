@@ -34,6 +34,10 @@ LIGHT_SOURCE_PLUGIN_PATH = (
 )
 ITEMS_SOURCE_PATH = "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml"
 BONFIRE_SOURCE = "https://runescape.fandom.com/wiki/Update:Bonfires"
+CANDLE_LANTERN_SOURCE = "https://runescape.wiki/w/Candle_lantern?oldid=5962978"
+LAMP_OIL_SOURCE = "https://runescape.wiki/w/Lamp_oil?oldid=6241595"
+SAPPHIRE_LANTERN_SOURCE = "https://runescape.wiki/w/Sapphire_lantern_(lit)?oldid=6092552"
+LIGHT_SOURCES_SOURCE = "https://runescape.wiki/w/Light_sources?oldid=6581760"
 
 
 @dataclass(frozen=True)
@@ -79,6 +83,18 @@ class LightSourceActivity:
     source: str = LIGHT_SOURCE_PATH
 
 
+@dataclass(frozen=True)
+class LightSourcePreparation:
+    id: str
+    display_name: str
+    input_item: str
+    input_item_id: int
+    reagent_item: str
+    output_item: str
+    output_item_id: int
+    source: str
+
+
 FIREMAKING_TARGETS: Tuple[FiremakingTarget, ...] = (
     FiremakingTarget("logs", "Logs", "Logs", 1511, 1, 40.0),
     FiremakingTarget("achey_logs", "Achey tree logs", "Achey tree logs", 2862, 1, 40.0),
@@ -107,14 +123,43 @@ LIGHT_SOURCE_ACTIVITIES: Tuple[LightSourceActivity, ...] = (
     LightSourceActivity("light_unlit_torch", "Light unlit torch", "Unlit torch", 596, "Lit torch", 594, 1, "UNLIT_TORCH", True, False),
     LightSourceActivity("light_candle", "Light candle", "Candle", 36, "Lit candle", 33, 1, "CANDLE", True, True),
     LightSourceActivity("light_black_candle", "Light black candle", "Black candle", 38, "Lit black candle", 32, 1, "BLACK_CANDLE", False, False),
-    LightSourceActivity("light_candle_lantern_4527", "Light candle lantern (4527)", "Candle lantern (unlit, 4527)", 4527, "Candle lantern (lit, 4531)", 4531, 4, "CANDLE_LANTERN", True, True),
+    # Keep the stable action id even though the old implementation incorrectly
+    # used the empty frame (4527) instead of the white-candle state (4529).
+    LightSourceActivity("light_candle_lantern_4527", "Light candle lantern (white)", "Candle lantern (unlit, 4529)", 4529, "Candle lantern (lit, 4531)", 4531, 4, "CANDLE_LANTERN", True, True, source=CANDLE_LANTERN_SOURCE),
     LightSourceActivity("light_candle_lantern_4532", "Light candle lantern (4532)", "Candle lantern (unlit, 4532)", 4532, "Candle lantern (lit, 4534)", 4534, 4, "CANDLE_LANTERN_4532", True, True),
     LightSourceActivity("light_oil_lamp", "Light oil lamp", "Oil lamp (unlit)", 4522, "Oil lamp (lit)", 4524, 12, "OIL_LAMP", True, True),
-    LightSourceActivity("light_oil_lantern", "Light oil lantern", "Oil lantern (unlit)", 4535, "Oil lantern (lit)", 4539, 26, "OIL_LANTERN", True, True),
+    LightSourceActivity("light_oil_lantern", "Light oil lantern", "Oil lantern (unlit)", 4537, "Oil lantern (lit)", 4539, 26, "OIL_LANTERN", True, True, source="https://runescape.wiki/w/Oil_lantern?oldid=5372911"),
     LightSourceActivity("light_bullseye_lantern", "Light bullseye lantern", "Bullseye lantern (unlit)", 4548, "Bullseye lantern (lit)", 4550, 49, "BULLSEYE_LANTERN", False, False),
     LightSourceActivity("light_sapphire_lantern", "Light sapphire lantern", "Sapphire lantern (unlit)", 4701, "Sapphire lantern (lit)", 4702, 49, "SAPPHIRE_LANTERN", False, False),
     LightSourceActivity("light_emerald_lantern", "Light emerald lantern", "Emerald lantern (unlit)", 9064, "Emerald lantern (lit)", 9065, 49, "EMERALD_LANTERN", False, False),
     LightSourceActivity("light_mining_helmet", "Light mining helmet", "Mining helmet (unlit)", 5014, "Mining helmet (lit)", 5013, 65, "MINING_HELMET", True, True),
+)
+
+LIT_LIGHT_SOURCE_ITEMS: Tuple[str, ...] = tuple(
+    activity.lit_item for activity in LIGHT_SOURCE_ACTIVITIES
+)
+
+# The cutoff-era light-source table also names achievement headbands and the
+# expired Gielinor Games torches. Keep that complete source set explicit, while
+# runtime quest gates use only states the current item graph can award.
+PERIOD_LIT_LIGHT_SOURCE_ITEMS: Tuple[str, ...] = (
+    *LIT_LIGHT_SOURCE_ITEMS,
+    "Seer's headband 1",
+    "Seer's headband 2",
+    "Seer's headband 3",
+    "Seer's headband 4",
+    "Bronze torch",
+    "Silver torch",
+    "Gold torch",
+)
+
+LIGHT_SOURCE_PREPARATIONS: Tuple[LightSourcePreparation, ...] = (
+    LightSourcePreparation("insert_white_candle", "Put white candle in lantern", "Candle lantern (empty)", 4527, "Candle", "Candle lantern (unlit, 4529)", 4529, CANDLE_LANTERN_SOURCE),
+    LightSourcePreparation("insert_black_candle", "Put black candle in lantern", "Candle lantern (empty)", 4527, "Black candle", "Candle lantern (unlit, 4532)", 4532, CANDLE_LANTERN_SOURCE),
+    LightSourcePreparation("fill_oil_lamp", "Fill oil lamp with lamp oil", "Oil lamp (empty)", 4525, "Swamp tar", "Oil lamp (unlit)", 4522, LAMP_OIL_SOURCE),
+    LightSourcePreparation("fill_oil_lantern", "Fill oil lantern with lamp oil", "Oil lantern (empty)", 4535, "Swamp tar", "Oil lantern (unlit)", 4537, LAMP_OIL_SOURCE),
+    LightSourcePreparation("fill_bullseye_lantern", "Fill bullseye lantern with lamp oil", "Bullseye lantern (empty)", 4546, "Swamp tar", "Bullseye lantern (unlit)", 4548, LAMP_OIL_SOURCE),
+    LightSourcePreparation("fill_sapphire_lantern", "Fill sapphire lantern with lamp oil", "Sapphire lantern (empty)", 4700, "Swamp tar", "Sapphire lantern (unlit)", 4701, SAPPHIRE_LANTERN_SOURCE),
 )
 
 DEFERRED_FIREMAKING_CONTENT: Tuple[DeferredFiremakingContent, ...] = (
@@ -170,6 +215,21 @@ def firemaking_output_items() -> Tuple[str, ...]:
 
 def light_source_activities_as_dict() -> Dict[str, Dict[str, object]]:
     activities: Dict[str, Dict[str, object]] = {}
+    for preparation in LIGHT_SOURCE_PREPARATIONS:
+        activities[preparation.id] = {
+            "display_name": preparation.display_name,
+            "requirements": {
+                preparation.input_item: 1,
+                preparation.reagent_item: 1,
+            },
+            "output_item": preparation.output_item,
+            "output_qty": 1,
+            "batch_size": 1,
+            "group": "light_sources",
+            "source_item_id": preparation.input_item_id,
+            "output_item_id": preparation.output_item_id,
+            "source": preparation.source,
+        }
     for activity in LIGHT_SOURCE_ACTIVITIES:
         activities[activity.id] = {
             "display_name": activity.display_name,
@@ -220,8 +280,9 @@ def firemaking_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "tradeable": target.tradeable,
         }
     for activity in LIGHT_SOURCE_ACTIVITIES:
+        item_category = "equipment" if activity.source_enum == "MINING_HELMET" else "material"
         items[activity.raw_item] = {
-            "category": "material",
+            "category": item_category,
             "level": activity.level,
             "exp": 0.0,
             "source": activity.source,
@@ -229,7 +290,7 @@ def firemaking_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "tradeable": activity.raw_tradeable,
         }
         items[activity.lit_item] = {
-            "category": "material",
+            "category": item_category,
             "level": activity.level,
             "exp": 0.0,
             "source": activity.source,

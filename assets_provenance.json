@@ -11469,6 +11469,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:55:39Z"
   },
+  "crafteditems/diamond_amulet_u.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Diamond_amulet_%28unstrung%29.png",
+    "file_title": "Diamond amulet (unstrung).png",
+    "image_url": "https://runescape.wiki/images/Diamond_amulet_%28unstrung%29.png?8a178",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "dcb36e81ba7f0a3395842fd1b67bc8c2795f3344",
+    "size": 732,
+    "source_wiki": "rs3",
+    "timestamp": "2016-09-12T16:50:31Z"
+  },
   "crafteditems/diamond_bracelet.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Diamond_bracelet.png",
     "file_title": "Diamond bracelet.png",
@@ -11506,6 +11518,18 @@
     "timestamp": "2021-08-20T14:55:47Z"
   },
   "crafteditems/dragonstone_ammy.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Dragonstone_amulet.png",
+    "file_title": "Dragonstone amulet.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Dragonstone_amulet.png?0b998",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "dd481695eb69f909d206115fb11aaaa2e389033e",
+    "size": 530,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:48Z"
+  },
+  "crafteditems/dragonstone_ammy_u.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Dragonstone_amulet_%28unstrung%29.png",
     "file_title": "Dragonstone amulet (unstrung).png",
     "image_url": "https://runescape.wiki/images/Dragonstone_amulet_%28unstrung%29.png?deab8",
@@ -11576,6 +11600,18 @@
     "size": 529,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:55:52Z"
+  },
+  "crafteditems/emerald_amulet_u.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Emerald_amulet_%28unstrung%29.png",
+    "file_title": "Emerald amulet (unstrung).png",
+    "image_url": "https://runescape.wiki/images/Emerald_amulet_%28unstrung%29.png?fda4d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "34c3294804af278416d318570ae8e426a7109136",
+    "size": 654,
+    "source_wiki": "rs3",
+    "timestamp": "2016-09-12T17:08:48Z"
   },
   "crafteditems/emerald_bracelet.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Emerald_bracelet.png",
@@ -11902,6 +11938,18 @@
     "timestamp": "2023-06-16T15:40:44Z"
   },
   "crafteditems/gold_amulet.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Gold_amulet.png",
+    "file_title": "Gold amulet.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Gold_amulet.png?fc2ef",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2bdcc050dcd3e541e0f42a20a86a322f1c187108",
+    "size": 609,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:27Z"
+  },
+  "crafteditems/gold_amulet_u.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Gold_amulet_%28unstrung%29.png",
     "file_title": "Gold amulet (unstrung).png",
     "image_url": "https://runescape.wiki/images/Gold_amulet_%28unstrung%29.png?b3642",
@@ -12441,6 +12489,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:02:37Z"
   },
+  "crafteditems/onyx_amulet_u.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Onyx_amulet_%28unstrung%29.png",
+    "file_title": "Onyx amulet (unstrung).png",
+    "image_url": "https://runescape.wiki/images/Onyx_amulet_%28unstrung%29.png?346bb",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8d86362887e2a3a95a70b2b1b176964b30dd3f06",
+    "size": 215,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:14:31Z"
+  },
   "crafteditems/onyx_bracelet.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Onyx_bracelet.png",
     "file_title": "Onyx bracelet.png",
@@ -12657,6 +12717,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:04:36Z"
   },
+  "crafteditems/ruby_amulet_u.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ruby_amulet_%28unstrung%29.png",
+    "file_title": "Ruby amulet (unstrung).png",
+    "image_url": "https://runescape.wiki/images/Ruby_amulet_%28unstrung%29.png?fc988",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "abf0dfad735ae9df9342a6c51e0da44f1b43230e",
+    "size": 662,
+    "source_wiki": "rs3",
+    "timestamp": "2016-09-12T17:09:02Z"
+  },
   "crafteditems/ruby_bracelet.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Ruby_bracelet.png",
     "file_title": "Ruby bracelet.png",
@@ -12670,6 +12742,18 @@
     "timestamp": "2021-08-20T15:04:36Z"
   },
   "crafteditems/sapphire_amulet.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Sapphire_amulet.png",
+    "file_title": "Sapphire amulet.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Sapphire_amulet.png?3f71e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a5c6aaa13a18b112bad0b7403e10f8a5aa779f06",
+    "size": 529,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-23T20:43:52Z"
+  },
+  "crafteditems/sapphire_amulet_u.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Sapphire_amulet_%28unstrung%29.png",
     "file_title": "Sapphire amulet (unstrung).png",
     "image_url": "https://runescape.wiki/images/Sapphire_amulet_%28unstrung%29.png?1eaf8",
@@ -14961,6 +15045,114 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:52:14Z"
   },
+  "firemakingitems/bullseye_lantern_empty.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bullseye_lantern_%28empty%29.png",
+    "file_title": "Bullseye lantern (empty).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Bullseye_lantern_%28empty%29.png?c87e5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d82d85c10ecb9241440e7191202d366221ab9049",
+    "size": 519,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-23T20:43:23Z"
+  },
+  "firemakingitems/bullseye_lantern_lit.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bullseye_lantern_%28lit%29.png",
+    "file_title": "Bullseye lantern (lit).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Bullseye_lantern_%28lit%29.png?c50c3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7d3ab545108d85a37fdbb3d22704306001c818fa",
+    "size": 857,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:04Z"
+  },
+  "firemakingitems/bullseye_lantern_unf.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bullseye_lantern_%28unf%29.png",
+    "file_title": "Bullseye lantern (unf).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Bullseye_lantern_%28unf%29.png?acbdf",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "77c00eceac5ff104d2b5990f1c6b3beda15bc3fa",
+    "size": 386,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:05Z"
+  },
+  "firemakingitems/bullseye_lantern_unlit.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Bullseye_lantern_%28oil%29.png",
+    "file_title": "Bullseye lantern (oil).png",
+    "image_url": "https://runescape.wiki/images/Bullseye_lantern_%28oil%29.png?98f84",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "dd2ceb6755e7d2a5affb81087f45c97861678970",
+    "size": 1067,
+    "source_wiki": "rs3",
+    "timestamp": "2021-11-02T21:15:03Z"
+  },
+  "firemakingitems/candle_lantern_empty.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Candle_lantern_%28empty%29.png",
+    "file_title": "Candle lantern (empty).png",
+    "image_url": "https://runescape.wiki/images/Candle_lantern_%28empty%29.png?1158f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d163907a19441c477504892ef9eb7f40ab5b73fa",
+    "size": 1391,
+    "source_wiki": "rs3",
+    "timestamp": "2021-12-01T18:48:29Z"
+  },
+  "firemakingitems/candle_lantern_lit_4531.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Candle_lantern_%28lit_white%29.png",
+    "file_title": "Candle lantern (lit white).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Candle_lantern_%28lit_white%29.png?3c432",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "beb2712a9e6fb217a0656405ffb10b5a474e0195",
+    "size": 784,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:11Z"
+  },
+  "firemakingitems/candle_lantern_lit_4534.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Candle_lantern_%28lit_black%29.png",
+    "file_title": "Candle lantern (lit black).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Candle_lantern_%28lit_black%29.png?3c432",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9cb50bc8f92ccc5e7ade66a9c385766362219ae8",
+    "size": 759,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:11Z"
+  },
+  "firemakingitems/candle_lantern_unlit_4529.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Candle_lantern_%28white%29.png",
+    "file_title": "Candle lantern (white).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Candle_lantern_%28white%29.png?4e200",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d5522532f194b7881d2610ffbd215eef41e0c104",
+    "size": 742,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-23T20:43:25Z"
+  },
+  "firemakingitems/candle_lantern_unlit_4532.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Candle_lantern_%28black%29.png",
+    "file_title": "Candle lantern (black).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Candle_lantern_%28black%29.png?3c432",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "51a1424bdddecda61713ad3218f6f107851c4278",
+    "size": 721,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:11Z"
+  },
   "firemakingitems/curly_root.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Curly_root.png",
     "file_title": "Curly root.png",
@@ -14985,6 +15177,30 @@
     "source_wiki": "rs3",
     "timestamp": "2023-06-16T14:37:05Z"
   },
+  "firemakingitems/emerald_lantern_lit.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Emerald_lantern_%28lit%29.png",
+    "file_title": "Emerald lantern (lit).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Emerald_lantern_%28lit%29.png?1bc1e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9885ba45f69770585edc726af2e7f33a71d2a256",
+    "size": 806,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:51Z"
+  },
+  "firemakingitems/emerald_lantern_unlit.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Emerald_lantern.png",
+    "file_title": "Emerald lantern.png",
+    "image_url": "https://runescape.wiki/images/Emerald_lantern.png?61472",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5d8a82fe755433fa6edaf8ddd63630280a63ab49",
+    "size": 661,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T03:23:07Z"
+  },
   "firemakingitems/eucalyptus_logs.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Eucalyptus_logs.png",
     "file_title": "Eucalyptus logs.png",
@@ -14996,6 +15212,138 @@
     "size": 1702,
     "source_wiki": "rs3",
     "timestamp": "2021-11-18T12:09:35Z"
+  },
+  "firemakingitems/mining_helmet_lit.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Mining_helmet_%28lit%29.png",
+    "file_title": "Mining helmet (lit).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Mining_helmet_%28lit%29.png?ccf02",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7ceb957e58b4e1d2de61d1d1ffbf0530ab6790d9",
+    "size": 639,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:59:01Z"
+  },
+  "firemakingitems/mining_helmet_unlit.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Mining_helmet.png",
+    "file_title": "Mining helmet.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Mining_helmet.png?ccf02",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2c5a31af66e7471329b0a54323db5e6e580ca199",
+    "size": 651,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:59:01Z"
+  },
+  "firemakingitems/oil_lamp_empty.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Oil_lamp_%28empty%29.png",
+    "file_title": "Oil lamp (empty).png",
+    "image_url": "https://runescape.wiki/images/Oil_lamp_%28empty%29.png?a18b3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e3675a6a0e7bbf7e61d6e9f4eae2242d120ef048",
+    "size": 551,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:13:07Z"
+  },
+  "firemakingitems/oil_lamp_lit.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Oil_lamp.png",
+    "file_title": "Oil lamp.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Oil_lamp.png?769ea",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "fce335e576cb4beed272e2828c40164b48689d5e",
+    "size": 599,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:02:34Z"
+  },
+  "firemakingitems/oil_lamp_unlit.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Oil_lamp_%28oil%29.png",
+    "file_title": "Oil lamp (oil).png",
+    "image_url": "https://runescape.wiki/images/Oil_lamp_%28oil%29.png?6b36f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "fa6ff5b679ae613c96b76011cee99c8e1aa0a9c1",
+    "size": 734,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:13:09Z"
+  },
+  "firemakingitems/oil_lantern_empty.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Oil_lantern_%28empty%29.png",
+    "file_title": "Oil lantern (empty).png",
+    "image_url": "https://runescape.wiki/images/Oil_lantern_%28empty%29.png?c1b8a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "69cf277e2a1583c0377ceacbaf21c18327abcdfe",
+    "size": 779,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:13:13Z"
+  },
+  "firemakingitems/oil_lantern_lit.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Oil_lantern.png",
+    "file_title": "Oil lantern.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Oil_lantern.png?769ea",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0b9d7e01ed38762e84d8db736737dc20566cff41",
+    "size": 654,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:02:34Z"
+  },
+  "firemakingitems/oil_lantern_unlit.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Oil_lantern_%28oil%29.png",
+    "file_title": "Oil lantern (oil).png",
+    "image_url": "https://runescape.wiki/images/Oil_lantern_%28oil%29.png?a25d8",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bd52d02bcd0e54a1dd3f6e767a37f4d7bb49e8d7",
+    "size": 741,
+    "source_wiki": "rs3",
+    "timestamp": "2023-03-30T03:54:15Z"
+  },
+  "firemakingitems/sapphire_lantern_empty.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Sapphire_lantern_%28empty%29.png",
+    "file_title": "Sapphire lantern (empty).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Sapphire_lantern_%28empty%29.png?3f71e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "500553d9eca26ffc3ff2069ecacd7278e648e895",
+    "size": 471,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-23T20:43:52Z"
+  },
+  "firemakingitems/sapphire_lantern_lit.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Sapphire_lantern_%28lit%29.png",
+    "file_title": "Sapphire lantern (lit).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Sapphire_lantern_%28lit%29.png?c4e91",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e1c9d8dad9fd2d1c49ad7c32a0b23c82f3edf12a",
+    "size": 853,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:26Z"
+  },
+  "firemakingitems/sapphire_lantern_unlit.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Sapphire_lantern_%28oil%29.png",
+    "file_title": "Sapphire lantern (oil).png",
+    "image_url": "https://runescape.wiki/images/Sapphire_lantern_%28oil%29.png?e6029",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3a1c2658833f90a37f84d616c57aa90952033cf6",
+    "size": 591,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T07:21:38Z"
   },
   "fishingitems/caviar.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Caviar.png",
@@ -17673,6 +18021,30 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T04:52:53Z"
   },
+  "herbloreitems/juju_farming_potion_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Juju_farming_potion_%281%29.png",
+    "file_title": "Juju farming potion (1).png",
+    "image_url": "https://runescape.wiki/images/Juju_farming_potion_%281%29.png?1b351",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b02f50b9dbfa9a120c68392141a8034a69fb54fa",
+    "size": 984,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T04:53:07Z"
+  },
+  "herbloreitems/juju_farming_potion_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Juju_farming_potion_%282%29.png",
+    "file_title": "Juju farming potion (2).png",
+    "image_url": "https://runescape.wiki/images/Juju_farming_potion_%282%29.png?97a3f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "03b3a1407c236b3ae8102ba02ddfb46933e3e61f",
+    "size": 965,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T04:53:08Z"
+  },
   "herbloreitems/juju_farming_potion_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Juju_farming_potion_%283%29.png",
     "file_title": "Juju farming potion (3).png",
@@ -17684,6 +18056,18 @@
     "size": 945,
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T04:53:10Z"
+  },
+  "herbloreitems/juju_farming_potion_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Juju_farming_potion_%284%29.png",
+    "file_title": "Juju farming potion (4).png",
+    "image_url": "https://runescape.wiki/images/Juju_farming_potion_%284%29.png?1f3fe",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "06ad2cb557d3d39c0a40b5a6f178df1d28a36b2c",
+    "size": 932,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T04:53:12Z"
   },
   "herbloreitems/juju_fishing_potion_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Juju_fishing_potion_%283%29.png",
@@ -17768,6 +18152,18 @@
     "size": 969,
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T05:20:41Z"
+  },
+  "herbloreitems/magic_essence_mix_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Magic_essence_mix_%282%29.png",
+    "file_title": "Magic essence mix (2).png",
+    "image_url": "https://runescape.wiki/images/Magic_essence_mix_%282%29.png?887ee",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "34e550280c0163cc29d65bf896516d8ef94caf4c",
+    "size": 997,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T05:19:54Z"
   },
   "herbloreitems/magic_potion_2.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Magic_potion_%282%29.png",

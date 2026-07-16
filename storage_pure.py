@@ -640,7 +640,7 @@ def _migrate_equipment(data: Dict[str, Any]) -> None:
     if isinstance(equipment, dict):
         for slot, item_name in equipment.items():
             if isinstance(slot, str) and slot in _EQUIPMENT_SLOT_IDS and isinstance(item_name, str):
-                clean_equipment[slot] = item_name
+                clean_equipment[slot] = LEGACY_CRAFTING_ITEM_MIGRATIONS.get(item_name, item_name)
     data["equipment"] = clean_equipment
     data.pop("owned_equipment", None)
 
@@ -658,6 +658,49 @@ def _merge_renamed_item_quantity(store: Any, old_name: str, new_name: str) -> No
         existing = 0
     store[new_name] = existing + amount
     store.pop(old_name, None)
+
+
+def _migrate_legacy_crafting_item_references(data: Dict[str, Any]) -> None:
+    for collection_key in ("carried_inventory", "carried_layout"):
+        collection = data.get(collection_key)
+        if not isinstance(collection, dict):
+            continue
+        for item_store in collection.values():
+            if isinstance(item_store, dict):
+                _migrate_legacy_crafting_inventory(item_store)
+
+    overrides = data.get("loot_overrides")
+    if isinstance(overrides, dict):
+        for old_name, new_name in LEGACY_CRAFTING_ITEM_MIGRATIONS.items():
+            if old_name not in overrides:
+                continue
+            overrides.setdefault(new_name, overrides[old_name])
+            overrides.pop(old_name, None)
+
+    for state_key in ("combat_grave", "death_office"):
+        state = data.get(state_key)
+        if not isinstance(state, dict):
+            continue
+        items = state.get("items")
+        if isinstance(items, list):
+            state["items"] = [
+                LEGACY_CRAFTING_ITEM_MIGRATIONS.get(item_name, item_name)
+                if isinstance(item_name, str)
+                else item_name
+                for item_name in items
+            ]
+        loadout = state.get("loadout")
+        if isinstance(loadout, dict):
+            state["loadout"] = {
+                slot: LEGACY_CRAFTING_ITEM_MIGRATIONS.get(item_name, item_name)
+                if isinstance(item_name, str)
+                else item_name
+                for slot, item_name in loadout.items()
+            }
+
+    alchemy_item = data.get("magic_alchemy_item")
+    if isinstance(alchemy_item, str):
+        data["magic_alchemy_item"] = LEGACY_CRAFTING_ITEM_MIGRATIONS.get(alchemy_item, alchemy_item)
 
 
 def _migrate_plain_urn_item_stores(data: Dict[str, Any]) -> None:
@@ -794,6 +837,10 @@ def migrate_loaded_data(
     _migrate_legacy_bar_inventory(inv)
     _migrate_legacy_crafting_inventory(inv)
     data["inventory"] = inv
+
+    # Migrate every persisted reference before the carried-state sanitizer
+    # clamps saved views against the already-renamed bank.
+    _migrate_legacy_crafting_item_references(data)
 
     # Seed the carried-inventory overlay keys on old saves. Coins stay canonical
     # in the flat inventory (the money pouch is just that balance surfaced under a

@@ -7,6 +7,7 @@ from achievement_metadata import (
     achievement_rows_for_difficulty,
 )
 from constants import ACHIEVEMENTS, ACHIEVEMENT_DEFINITIONS
+from logic_pure import get_newly_completed_achievements
 
 
 class AchievementMetadataTest(unittest.TestCase):
@@ -72,6 +73,28 @@ class AchievementMetadataTest(unittest.TestCase):
         self.assertTrue(ACHIEVEMENTS["First Catch"]["condition"](player_data))
         self.assertTrue(ACHIEVEMENTS["Rune Mysteries"]["condition"](player_data))
         self.assertTrue(ACHIEVEMENTS["Hooded Runecrafter"]["condition"](player_data))
+
+    def test_pottery_and_activity_conditions_use_live_canonical_state(self):
+        self.assertTrue(
+            ACHIEVEMENTS["Pottery Apprentice"]["condition"](
+                {"inventory": {"Empty pot": 100}}
+            )
+        )
+
+        five_families = {
+            family: 1
+            for family in ("brimhaven", "skullball", "gnome_ball", "pit", "circus")
+        }
+        condition = ACHIEVEMENTS["Activity Circuit"]["condition"]
+        self.assertFalse(condition({"agility_activity_completions": five_families}))
+        five_families["flash_powder_factory"] = 1
+        self.assertTrue(condition({"agility_activity_completions": five_families}))
+
+    def test_smithing_conditions_use_live_canonical_bar_names(self):
+        inventory = {"Adamant bar": 250, "Rune bar": 100}
+
+        self.assertTrue(ACHIEVEMENTS["Adamantite Artisan"]["condition"]({"inventory": inventory}))
+        self.assertTrue(ACHIEVEMENTS["Runite Refiner"]["condition"]({"inventory": inventory}))
 
     def test_farming_achievements_use_durable_backend_counters(self):
         player_data = {
@@ -153,6 +176,23 @@ class AchievementMetadataTest(unittest.TestCase):
 
         player_data["completed_achievements"] = all_other_names[:-1]
         self.assertFalse(ACHIEVEMENTS["Living Legend"]["condition"](player_data))
+
+    def test_final_other_achievement_unlocks_living_legend_in_same_dispatch(self):
+        completed = [
+            name
+            for name in ACHIEVEMENTS
+            if name not in {"Living Legend", "Master Mage"}
+        ]
+        player_data = {
+            "inventory": {},
+            "magic_level": 99,
+            "completed_achievements": completed,
+        }
+
+        self.assertEqual(
+            get_newly_completed_achievements(player_data, ACHIEVEMENTS),
+            ["Master Mage", "Living Legend"],
+        )
 
 
 if __name__ == "__main__":

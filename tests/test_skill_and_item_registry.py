@@ -80,6 +80,22 @@ from skill_registry import (
 
 
 class TestSkillAndItemRegistry(unittest.TestCase):
+    def test_agility_consumable_dose_families_share_canonical_tradeability(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        expected_ids = {
+            "Agility potion (4)": 3032,
+            "Agility potion (3)": 3034,
+            "Agility potion (2)": 3036,
+            "Agility potion (1)": 3038,
+            "Agility mix (2)": 11461,
+            "Agility mix (1)": 11463,
+        }
+        for item_name, item_id in expected_ids.items():
+            with self.subTest(item_name=item_name):
+                definition = by_storage_key[item_name]
+                self.assertTrue(definition.tradeable)
+                self.assertEqual(definition.source_item_id, item_id)
+
     def test_current_skills_preserve_existing_display_contract(self):
         self.assertEqual(
             implemented_review_skill_names(),
@@ -495,17 +511,31 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         expected = {
             "Unlit torch": 596,
             "Lit torch": 594,
-            "Candle lantern (unlit, 4527)": 4527,
+            "Candle lantern (empty)": 4527,
+            "Candle lantern (unlit, 4529)": 4529,
             "Candle lantern (lit, 4531)": 4531,
+            "Oil lamp (empty)": 4525,
+            "Oil lamp (unlit)": 4522,
+            "Oil lantern (empty)": 4535,
+            "Oil lantern (unlit)": 4537,
+            "Bullseye lantern (unf)": 4544,
+            "Bullseye lantern (empty)": 4546,
+            "Bullseye lantern (unlit)": 4548,
+            "Sapphire lantern (empty)": 4700,
+            "Sapphire lantern (unlit)": 4701,
             "Mining helmet (unlit)": 5014,
             "Mining helmet (lit)": 5013,
         }
         for item_name, item_id in expected.items():
             self.assertIn(item_name, by_storage_key)
-            self.assertEqual(FIREMAKING_EXTRA_ITEM_DATA[item_name]["item_id"], item_id)
+            self.assertEqual(by_storage_key[item_name].source_item_id, item_id)
             self.assertIn(item_name, FIREMAKING_ITEM_IMAGES)
             self.assertTrue(os.path.exists(FIREMAKING_ITEM_IMAGES[item_name]))
             self.assertEqual(by_storage_key[item_name].asset_path, FIREMAKING_ITEM_IMAGES[item_name])
+        self.assertEqual(by_storage_key["Mining helmet (unlit)"].equipment_slot, "head")
+        self.assertEqual(by_storage_key["Mining helmet (lit)"].equipment_slot, "head")
+        self.assertEqual(by_storage_key["Mining helmet (unlit)"].category, "equipment")
+        self.assertEqual(by_storage_key["Mining helmet (lit)"].category, "equipment")
 
     def test_fishing_items_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
@@ -547,7 +577,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         for item_name in (
             "Strange skull",
             "Skull sceptre",
-            "Emerald lantern",
+            "Emerald lantern (unlit)",
             "Studded chaps",
             "Spiky vambraces",
             "Crab helmet",
@@ -559,6 +589,23 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         ):
             self.assertIn(item_name, by_storage_key)
             self.assertEqual(by_storage_key[item_name].category, "crafted")
+
+    def test_unstrung_amulets_are_distinct_non_equipment_registry_items(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for unstrung, strung, source_item_id in (
+            ("Gold amulet (u)", "Gold amulet", 1673),
+            ("Sapphire amulet (u)", "Sapphire amulet", 1675),
+            ("Emerald amulet (u)", "Emerald amulet", 1677),
+            ("Ruby amulet (u)", "Ruby amulet", 1679),
+            ("Diamond amulet (u)", "Diamond amulet", 1681),
+            ("Dragonstone ammy (u)", "Dragonstone ammy", 1683),
+            ("Onyx amulet (u)", "Onyx amulet", 6579),
+        ):
+            with self.subTest(unstrung=unstrung):
+                self.assertEqual(by_storage_key[unstrung].category, "crafted")
+                self.assertEqual(by_storage_key[unstrung].source_item_id, source_item_id)
+                self.assertIsNone(by_storage_key[unstrung].equipment_slot)
+                self.assertEqual(by_storage_key[strung].equipment_slot, "neck")
 
     def test_pestle_and_mortar_remainder_matches_2011scape_item_pairs(self):
         expected = {
@@ -788,6 +835,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Fire battlestaff": "equipment",
             "Goblin book": "material",
             "Half an apple pie": "food",
+            "Half a summer pie": "food",
+            "Kebab": "food",
             "H.A.M. boots": "equipment",
             "H.A.M. cloak": "equipment",
             "H.A.M. gloves": "equipment",
@@ -1257,7 +1306,6 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Glarial's amulet",
             "Glarial's urn",
             "A magic scroll",
-            "Light source",
             "Limpwurt root",
             "Ice arrows",
             "Lever",
@@ -1284,6 +1332,18 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertEqual(by_storage_key[item_name].asset_path, QUEST_ITEM_IMAGES[item_name])
             self.assertIsNotNone(by_storage_key[item_name].asset_path, f"{item_name} should have a quest-stage icon")
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
+
+    def test_every_registry_item_declared_equippable_has_live_equipment_data(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for item_name, definition in by_storage_key.items():
+            if definition.equipment_slot is None:
+                continue
+            with self.subTest(item_name=item_name):
+                self.assertIn(item_name, EQUIPMENT_DATA)
+                self.assertEqual(definition.equipment_slot, EQUIPMENT_DATA[item_name].slot)
+
+        self.assertEqual(by_storage_key["Staff of armadyl"].category, "material")
+        self.assertIsNone(by_storage_key["Staff of armadyl"].equipment_slot)
 
     def test_runecrafting_items_targets_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)

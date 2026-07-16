@@ -2,6 +2,7 @@
 from __future__ import annotations
 import os
 import datetime
+import base64
 from typing import Optional
 
 try:
@@ -12,6 +13,9 @@ except Exception:
     mw = None  # type: ignore
     _hooks = None  # type: ignore
     HAS_ANKI = False
+
+_MENU_OPEN_PENDING = False
+_ICON_DATA_URI: Optional[str] = None
 
 # Central debug logger (no cycle; support both package and flat import in tests)
 try:
@@ -39,6 +43,20 @@ def _replace_hook_callback(hook, callback, key: str) -> None:
             except Exception:
                 pass
     hook.append(callback)
+
+
+def _get_icon_data_uri() -> Optional[str]:
+    global _ICON_DATA_URI
+    if _ICON_DATA_URI is not None:
+        return _ICON_DATA_URI
+    try:
+        icon_path = os.path.join(os.path.dirname(__file__), "icon", "stats_icon.png")
+        with open(icon_path, "rb") as source:
+            encoded = base64.b64encode(source.read()).decode("ascii")
+        _ICON_DATA_URI = f"data:image/png;base64,{encoded}"
+    except OSError:
+        _ICON_DATA_URI = None
+    return _ICON_DATA_URI
 
 
 # --- Pure JS builders (testable) ---
@@ -453,7 +471,6 @@ def inject_reviewer_floating_button(_=None) -> None:
             _debug_log("inject_reviewer_floating_button: disabled; removed")
             return
         try:
-            from .deck_injection_pure import _get_icon_data_uri  # type: ignore
             icon_uri = _get_icon_data_uri() or ''
         except Exception:
             icon_uri = ''
@@ -493,7 +510,6 @@ def inject_overview_floating_button(overview=None, content=None) -> None:
             _debug_log("inject_overview_floating_button: disabled; removed")
             return
         try:
-            from .deck_injection_pure import _get_icon_data_uri  # type: ignore
             icon_uri = _get_icon_data_uri() or ''
         except Exception:
             icon_uri = ''
@@ -507,33 +523,9 @@ def inject_overview_floating_button(overview=None, content=None) -> None:
 def register_deck_browser_button() -> None:
     if not HAS_ANKI:
         return
-    try:
-        from .deck_injection_pure import DeckBrowserContent as _DBC, inject_into_deck_browser_content  # type: ignore
-    except Exception:
-        return
-
-    def _add_button(deck_browser, content):  # type: ignore[no-redef]
-        _debug_log("_add_button: called")
-        try:
-            db_content = _DBC(
-                links=getattr(content, "links", None),
-                stats=getattr(content, "stats", None),
-                tree=getattr(content, "tree", None),
-            )
-            before_links, before_stats, before_tree = db_content.links, db_content.stats, db_content.tree
-            db_content = inject_into_deck_browser_content(db_content)
-            if db_content.links != before_links:
-                if hasattr(content, "links"):
-                    content.links = db_content.links
-                _debug_log("_add_button: injected into links")
-            elif db_content.stats != before_stats or db_content.tree != before_tree:
-                _debug_log("_add_button: no injection (stats/tree avoided)")
-            else:
-                _debug_log("_add_button: already present; no injection")
-        except Exception as e:
-            _debug_log(f"_add_button: error {e}")
 
     def _on_js_message(handled, message, context):  # type: ignore[no-redef]
+        global _MENU_OPEN_PENDING
         _debug_log(f"_on_js_message: {message}")
         try:
             if isinstance(message, str):
@@ -547,7 +539,8 @@ def register_deck_browser_button() -> None:
                                 focus_main_menu_if_open()
                             except Exception:
                                 pass
-                        else:
+                        elif not _MENU_OPEN_PENDING:
+                            _MENU_OPEN_PENDING = True
                             # Resolve the package module reliably and call its _on_main_menu on the UI thread.
                             _debug_log("injectors.bridge: opening via package._on_main_menu")
                             try:
@@ -567,10 +560,13 @@ def register_deck_browser_button() -> None:
                                 open_cb = getattr(pkg, "_on_main_menu", None)
                                 if callable(open_cb):
                                     def _do_open():
+                                        global _MENU_OPEN_PENDING
                                         try:
                                             open_cb()  # type: ignore[misc]
                                         except Exception as e:
                                             _debug_log(f"injectors.bridge: _on_main_menu raised: {e}")
+                                        finally:
+                                            _MENU_OPEN_PENDING = False
 
                                     try:
                                         if QTimer is not None:
@@ -580,30 +576,26 @@ def register_deck_browser_button() -> None:
                                             _do_open()
                                             _debug_log("injectors.bridge: called _on_main_menu directly (no QTimer)")
                                     except Exception as e:
+                                        _MENU_OPEN_PENDING = False
                                         _debug_log(f"injectors.bridge: failed to dispatch open: {e}")
                                 else:
+                                    _MENU_OPEN_PENDING = False
                                     _debug_log("injectors.bridge: _on_main_menu not found on package module")
                         # We handled this custom message; signal handled
                         return (True, message)
                     except Exception as e:
+                        _MENU_OPEN_PENDING = False
                         _debug_log(f"injectors.bridge: error handling open_menu: {e}")
-                        return (handled, message)
+                        return handled
                 if message.startswith("ankiscape_log:"):
                     _debug_log(f"js: {message[len('ankiscape_log:'):]}")
-                    # Not handled; allow default processing to continue
-                    return (handled, message)
+                    return (True, None)
                 # Hardening: ensure native navigation/study messages pass through unhandled
                 if should_force_pass_through(message):
-                    return (False, message)
+                    return handled
         except Exception as e:
             _debug_log(f"injectors.bridge: handler exception: {e}")
-        # Default: do not intercept messages we don't recognize
-        try:
-            if isinstance(message, str):
-                return (False, message)
-        except Exception:
-            pass
-        return (handled, message)
+        return handled
 
     def _did_render(deck_browser):  # type: ignore[no-redef]
         try:
@@ -621,7 +613,6 @@ def register_deck_browser_button() -> None:
             except Exception:
                 pass
             try:
-                from .deck_injection_pure import _get_icon_data_uri  # type: ignore
                 _icon_uri = _get_icon_data_uri() or ''
             except Exception:
                 _icon_uri = ''
@@ -631,15 +622,6 @@ def register_deck_browser_button() -> None:
         except Exception:
             _debug_log("_did_render: eval failed")
 
-    try:
-        _replace_hook_callback(
-            _hooks.deck_browser_will_render_content,
-            _add_button,
-            "deck_browser_will_render_content",
-        )
-        _debug_log("registered: deck_browser_will_render_content")
-    except Exception as e:
-        _debug_log(f"register failed: deck_browser_will_render_content: {e}")
     try:
         _replace_hook_callback(
             _hooks.deck_browser_did_render,

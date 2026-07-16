@@ -33,12 +33,12 @@ from anki.hooks import addHook, wrap
 from aqt.reviewer import Reviewer
 import copy
 import inspect
-import time
 import random
 import os
 import datetime
 from .logic_pure import (
     apply_consumable_pure,
+    apply_item_pack_open_pure,
     combat_enemy_drop_item_names_pure,
     can_smith_any_pure,
     has_crafting_materials_pure,
@@ -95,7 +95,6 @@ from .ui import (
 )
 from . import ui
 from . import inventory_pure
-from .deck_injection_pure import DeckBrowserContent as _DBC, inject_into_deck_browser_content
 from .injectors import inject_reviewer_floating_button as _inject_reviewer_floating_button
 from .injectors import inject_overview_floating_button as _inject_overview_floating_button
 from .injectors import register_deck_browser_button as _register_deck_browser_button
@@ -127,9 +126,6 @@ except Exception:
     def _is_debug_enabled() -> bool:
         return False
 
-# Guard to avoid duplicate registrations
-_ANKISCAPE_HOOKS_REGISTERED = False
-_LAST_MENU_OPEN_TS = 0.0
 _REVIEW_UNDO_STACK = []
 _URN_TELEPORT_UNDO_STACK = []
 _DIRECT_ACTION_UNDO_STACK = []
@@ -983,24 +979,25 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         if ok:
             player_data.update(updated)
             save_player_data()
+        return ok
 
     def _purchase_house():
-        _apply_house_result(purchase_house_pure(player_data))
+        return _apply_house_result(purchase_house_pure(player_data))
 
     def _purchase_room(room_id):
-        _apply_house_result(purchase_house_option_pure(player_data, room_id, ROOM_DATA, kind="room"))
+        return _apply_house_result(purchase_house_option_pure(player_data, room_id, ROOM_DATA, kind="room"))
 
     def _hire_servant(servant_id):
         if not servant_id:
             player_data["house_servant"] = ""
             save_player_data()
-            return
-        _apply_house_result(purchase_house_option_pure(player_data, servant_id, SERVANT_DATA, kind="servant"))
+            return True
+        return _apply_house_result(purchase_house_option_pure(player_data, servant_id, SERVANT_DATA, kind="servant"))
 
     def _set_house_style(style_id):
         if style_id == player_data.get("house_style"):
-            return
-        _apply_house_result(purchase_house_option_pure(player_data, style_id, HOUSE_STYLE_DATA, kind="style"))
+            return True
+        return _apply_house_result(purchase_house_option_pure(player_data, style_id, HOUSE_STYLE_DATA, kind="style"))
 
     def _get_farming_projection():
         return farming_frontend_projection_pure(player_data)
@@ -1082,6 +1079,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_hire_servant=_hire_servant,
         on_set_house_style=_set_house_style,
         on_set_magic_alchemy_item=lambda item: _set_value("magic_alchemy_item", item),
+        on_set_farming_spell_patch=lambda patch: _set_value("farming_spell_patch", patch),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
         on_set_carried_keep_drop=_set_carried_keep_drop,
         carried_keep_drop_state=_current_gathering_keep_drop_state(),
@@ -1116,11 +1114,14 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_unequip_slot=on_unequip_slot,
         on_discard_item=on_discard_item,
         on_consume_item=on_consume_item,
+        on_open_item_pack=on_open_item_pack,
         on_teleport_training_urn=teleport_training_urn,
         get_farming_projection=_get_farming_projection,
         on_farming_action=_apply_farming_action,
         initial_skill=initial_skill,
         initial_farming_patch_id=initial_farming_patch_id,
+        on_check_achievements=check_achievements,
+        on_save_player_data=save_player_data,
     )
 
 
@@ -1213,8 +1214,10 @@ def _set_combat_prayer_config(key: str, value):
     return True
 
 
-def _save_combat_state_update(new_data):
+def _save_combat_state_update(new_data, *, evaluate_achievements=False):
     player_data.update(new_data)
+    if evaluate_achievements:
+        check_achievements(player_data)
     save_player_data()
     _refresh_skill_availability()
     try:
@@ -1256,7 +1259,7 @@ def on_unload_combat_loadout():
     if not ok:
         show_error_message("Cannot unload combat supplies", reason)
         return False
-    _save_combat_state_update(new_data)
+    _save_combat_state_update(new_data, evaluate_achievements=True)
     return True
 
 
@@ -1265,7 +1268,7 @@ def on_reclaim_death_office():
     if not ok:
         show_error_message("Cannot reclaim gear", reason)
         return False
-    _save_combat_state_update(new_data)
+    _save_combat_state_update(new_data, evaluate_achievements=True)
     return True
 
 
@@ -1301,14 +1304,29 @@ def on_set_quest_route_choice(quest_id, route_id):
 
 
 def on_claim_reward(claim_id, selected_skill_id=None):
+    before = {"player_data": copy.deepcopy(player_data), "random_state": random.getstate()}
+    exp_before = _implemented_exp_keys_snapshot()
     new_data, ok = apply_claim_pure(player_data, claim_id, CLAIM_DATA, selected_skill_id)
     if not ok:
         show_error_message("Cannot claim reward", "That claim is not available right now.")
         return False
+    try:
+        mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+    except (AttributeError, RuntimeError):
+        return False
+    _DIRECT_ACTION_UNDO_STACK.append(before)
+    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+    player_data.clear()
     player_data.update(new_data)
+    _show_quest_exp_delta(exp_before)
     check_achievements(player_data)
     save_player_data()
     _refresh_skill_availability()
+    try:
+        mw.update_undo_actions()
+    except AttributeError:
+        pass
     try:
         update_review_hud(player_data, current_skill)
     except Exception:
@@ -1323,12 +1341,29 @@ def _claim_stronghold_reward() -> bool:
     if not state.get("completed") or state.get("boots_choice") is not None:
         return False
     choice = ui.show_stronghold_reward_dialog()
-    if not choice or not grant_stronghold_reward_pure(player_data, choice):
+    if not choice:
         return False
+    before = {"player_data": copy.deepcopy(player_data), "random_state": random.getstate()}
+    updated = copy.deepcopy(player_data)
+    if not grant_stronghold_reward_pure(updated, choice):
+        return False
+    try:
+        mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+    except (AttributeError, RuntimeError):
+        return False
+    _DIRECT_ACTION_UNDO_STACK.append(before)
+    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+    player_data.clear()
+    player_data.update(updated)
     check_achievements(player_data)
     save_player_data()
     _refresh_skill_availability()
     _show_activity_gain(f"Claimed {choice} and {STRONGHOLD_REWARD_COINS:,} coins from the Stronghold of Security!")
+    try:
+        mw.update_undo_actions()
+    except AttributeError:
+        pass
     try:
         update_review_hud(player_data, current_skill)
     except Exception:
@@ -1426,12 +1461,20 @@ def on_discard_item(item_name):
 
 
 def on_consume_item(item_name):
-    """Eat/drink a stat-affecting consumable from the Bank (Kebab, Beer).
-    Direct player action like discard: applies the source effect, saves, and
-    returns the result dict (or None when nothing was consumed)."""
-    new_data, result = apply_consumable_pure(player_data, item_name)
+    """Apply one Bank consumable atomically and make the direct action undoable."""
+    before = {"player_data": copy.deepcopy(player_data), "random_state": random.getstate()}
+    new_data, result = apply_consumable_pure(player_data, item_name, rng=random.random)
     if not result.get("allowed"):
+        random.setstate(before["random_state"])
         return None
+    try:
+        mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+    except (AttributeError, RuntimeError):
+        random.setstate(before["random_state"])
+        return None
+    _DIRECT_ACTION_UNDO_STACK.append(before)
+    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
     player_data.clear()
     player_data.update(new_data)
     save_player_data()
@@ -1439,6 +1482,35 @@ def on_consume_item(item_name):
     try:
         update_review_hud(player_data, current_skill)
     except Exception:
+        pass
+    try:
+        mw.update_undo_actions()
+    except AttributeError:
+        pass
+    return result
+
+
+def on_open_item_pack(item_name, open_all=False):
+    before = {"player_data": copy.deepcopy(player_data), "random_state": random.getstate()}
+    inventory, result = apply_item_pack_open_pure(
+        player_data.get("inventory", {}) or {}, item_name, open_all=bool(open_all)
+    )
+    if not result.get("allowed"):
+        return None
+    try:
+        mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+    except (AttributeError, RuntimeError):
+        return None
+    _DIRECT_ACTION_UNDO_STACK.append(before)
+    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+    player_data["inventory"] = inventory
+    save_player_data()
+    _refresh_skill_availability()
+    try:
+        update_review_hud(player_data, current_skill)
+        mw.update_undo_actions()
+    except AttributeError:
         pass
     return result
 
@@ -1611,7 +1683,8 @@ def create_soft_clay():
 
 # Initialization and hooks
 def initialize_exp_popup():
-    mw.exp_popup = ExpPopup(mw)
+    if not hasattr(mw, "exp_popup"):
+        mw.exp_popup = ExpPopup(mw)
 
 
 # Flexible wrappers to handle version differences in hook signatures
@@ -1747,73 +1820,6 @@ except Exception:
     pass
 
 # Menu is created on profile load via initialize_menu
-
-    # --- Handle JS bridge messages from injected buttons ---
-    def _on_js_message(handled, message, context):  # type: ignore[no-redef]
-        """Respond to messages sent via pycmd() in injected JS."""
-        try:
-            if isinstance(message, str):
-                if message == "ankiscape_open_menu":
-                    debug_log("bridge: ankiscape_open_menu received")
-                    global _LAST_MENU_OPEN_TS
-                    now = time.time()
-                    if is_main_menu_open():
-                        debug_log("bridge: menu already open; focusing")
-                        try:
-                            focus_main_menu_if_open()
-                        except Exception:
-                            pass
-                    elif now - _LAST_MENU_OPEN_TS > 0.4:  # debounce
-                        _LAST_MENU_OPEN_TS = now
-                        debug_log("bridge: opening main menu via _on_main_menu")
-                        try:
-                            try:
-                                from aqt.qt import QTimer  # type: ignore
-                            except Exception:
-                                QTimer = None  # type: ignore
-                            if QTimer is not None:
-                                QTimer.singleShot(0, _on_main_menu)
-                                debug_log("bridge: scheduled _on_main_menu with QTimer")
-                            else:
-                                _on_main_menu()
-                                debug_log("bridge: called _on_main_menu directly (no QTimer)")
-                        except Exception:
-                            debug_log("bridge: _on_main_menu raised; swallowed")
-                            pass
-                    return (True, message)
-                if message.startswith("ankiscape_log:"):
-                    try:
-                        debug_log(f"js: {message[len('ankiscape_log:'):]}")
-                    except Exception:
-                        pass
-                    # Not handled; allow default processing to continue
-                    return (handled, message)
-                # Hardening: do not intercept native Anki navigation messages
-                try:
-                    low = message.lower()
-                except Exception:
-                    low = ""
-                if (
-                    low.startswith("open:")
-                    or low in ("decks", "add", "browse", "stats", "sync")
-                    or low == "study" or low == "review" or low == "start"
-                    or low.startswith("study") or low.startswith("review") or low.startswith("start")
-                    or low in ("preview", "previewer", "card-info", "addcards")
-                ):
-                    return (False, message)
-        except Exception:
-            debug_log("bridge: exception in _on_js_message")
-            pass
-        # Default: do not intercept messages we don't recognize
-        try:
-            if isinstance(message, str):
-                return (False, message)
-        except Exception:
-            pass
-        return (handled, message)
-
-    # Note: JS bridge hook is registered in injectors.register_deck_browser_button
-    # to keep one consistent handler and predictable order.
 
 # --- Deck Browser bottom button integration ---
 

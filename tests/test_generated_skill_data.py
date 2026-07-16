@@ -52,6 +52,35 @@ class TestGeneratedSkillData(unittest.TestCase):
             _equipment_item_block(checked_in, "Dragon sq shield"),
         )
         self.assertIn("source_item_id=1187", _equipment_item_block(generated, "Dragon sq shield"))
+        for item_name in (
+            "Willow blackjack",
+            "Ice arrows",
+            "Pendant of lucien",
+            "Armadyl pendant",
+            "Gnome amulet",
+            "Yew comp bow",
+            "Magic comp bow",
+            "Dark bow",
+            "Mining helmet (unlit)",
+            "Mining helmet (lit)",
+        ):
+            self.assertEqual(
+                _equipment_item_block(generated, item_name),
+                _equipment_item_block(checked_in, item_name),
+            )
+
+        from constants import CRAFTING_DATA, FLETCHING_DATA
+
+        live_recipe_outputs = {
+            recipe.get("output_item")
+            for data in (CRAFTING_DATA, FLETCHING_DATA)
+            for recipe in data.values()
+            if isinstance(recipe.get("output_item"), str)
+        }
+        for item_name in live_recipe_outputs:
+            marker = f"    {item_name!r}: EquipmentItem("
+            if marker in generated:
+                self.assertIn(marker, checked_in, f"{item_name} is craftable but absent from live equipment data")
 
 
 if __name__ == "__main__":

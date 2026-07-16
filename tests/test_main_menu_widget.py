@@ -12,10 +12,12 @@ Run with the Qt venv:
 """
 from __future__ import annotations
 
+import copy
 import os
 import re
 import sys
 import unittest
+from types import SimpleNamespace
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
@@ -26,7 +28,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QCheckBox, QColor, QComboBox, QDialog, QLabel, QLineEdit, QListWidget, QPalette, QPushButton, QIcon, QImage, QTabWidget, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from aqt.qt import QApplication, QCheckBox, QColor, QComboBox, QDialog, QLabel, QLineEdit, QListWidget, QMainWindow, QPalette, QPushButton, QIcon, QImage, QTabWidget, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
@@ -522,6 +524,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
         self._magic_alch_calls: list = []
+        self._farming_spell_patch_calls: list = []
         self._prayer_config_calls: list = []
         self._death_office_calls: list = []
         # Quests and Bank Claims are review-adjacent but not levelled skills.
@@ -549,8 +552,15 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.dialog = self._open(_make_player_data(), current_skill="Mining")
 
     def _open(self, player_data: dict, current_skill: str = "Mining", **extra) -> "QDialog":
+        from construction_data import HOUSE_STYLE_DATA, ROOM_DATA, SERVANT_DATA
         from constants import PRAYER_DATA
-        from logic_pure import apply_prayer_selection_pure, sanitize_prayer_selection_pure
+        from logic_pure import (
+            apply_prayer_selection_pure,
+            purchase_house_option_pure,
+            purchase_house_pure,
+            sanitize_prayer_selection_pure,
+            unload_combat_supply_loadout_pure,
+        )
 
         def _set_prayer_config(key, value):
             self._prayer_config_calls.append((key, value))
@@ -593,6 +603,46 @@ class MainMenuWidgetTest(unittest.TestCase):
             player_data["thieving_fight_back_when_caught"] = enabled
             return True
 
+        def _set_target(key, calls, target):
+            calls.append(target)
+            player_data[key] = target
+            return True
+
+        def _unload_combat_loadout():
+            self._combat_unload_calls.append(True)
+            updated, ok, _reason = unload_combat_supply_loadout_pure(player_data)
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return ok
+
+        def _apply_house_result(result):
+            updated, ok = result
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return ok
+
+        def _agility_command(action_id, payload):
+            from agility_logic import apply_agility_command_pure
+
+            self._agility_command_calls.append((action_id, dict(payload)))
+            updated, result = apply_agility_command_pure(player_data, action_id, payload, roll=0.5)
+            if result.get("allowed"):
+                player_data.clear()
+                player_data.update(updated)
+            return {"ok": bool(result.get("allowed")), **result}
+
+        def _hire_servant(servant_id):
+            if not servant_id:
+                player_data["house_servant"] = ""
+                return True
+            return _apply_house_result(
+                purchase_house_option_pure(
+                    player_data, servant_id, SERVANT_DATA, kind="servant"
+                )
+            )
+
         self._ui.show_main_menu(
             **extra,
             player_data=player_data,
@@ -610,14 +660,23 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_hunter=lambda target: self._hunter_calls.append(target),
             on_set_cooking=lambda target: self._cooking_calls.append(target),
             on_set_runecrafting=lambda target: self._runecrafting_calls.append(target),
-            on_set_thieving=lambda target: self._thieving_calls.append(target),
+            on_set_thieving=lambda target: _set_target("current_thieving", self._thieving_calls, target),
             on_set_thieving_fight_back=_set_thieving_fight_back,
-            on_set_agility=lambda target: self._agility_calls.append(target),
-            on_agility_command=lambda action, payload: self._agility_command_calls.append((action, dict(payload))) or {"ok": True},
+            on_set_agility=lambda target: _set_target("current_agility", self._agility_calls, target),
+            on_agility_command=_agility_command,
             on_set_prayer_selection=_set_prayer_selection,
-            on_set_magic=lambda target: self._magic_calls.append(target),
-            on_set_construction=lambda target: self._construction_calls.append(target),
-            on_set_magic_alchemy_item=lambda item: self._magic_alch_calls.append(item),
+            on_set_magic=lambda target: _set_target("current_magic", self._magic_calls, target),
+            on_set_construction=lambda target: _set_target("current_construction", self._construction_calls, target),
+            on_purchase_house=lambda: _apply_house_result(purchase_house_pure(player_data)),
+            on_purchase_room=lambda room_id: _apply_house_result(
+                purchase_house_option_pure(player_data, room_id, ROOM_DATA, kind="room")
+            ),
+            on_hire_servant=_hire_servant,
+            on_set_house_style=lambda style_id: _apply_house_result(
+                purchase_house_option_pure(player_data, style_id, HOUSE_STYLE_DATA, kind="style")
+            ),
+            on_set_magic_alchemy_item=lambda item: _set_target("magic_alchemy_item", self._magic_alch_calls, item),
+            on_set_farming_spell_patch=lambda patch: _set_target("farming_spell_patch", self._farming_spell_patch_calls, patch),
             on_set_utility=lambda activity: self._utility_calls.append(activity),
             on_set_combat=lambda target: self._combat_calls.append(target),
             on_set_combat_style=lambda style: self._combat_style_calls.append(style),
@@ -626,7 +685,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_combat_auto_eat_food=lambda food: self._combat_food_calls.append(food),
             on_set_combat_prayer_config=_set_prayer_config,
             on_refill_combat_loadout=lambda: self._combat_refill_calls.append(True) or True,
-            on_unload_combat_loadout=lambda: self._combat_unload_calls.append(True) or True,
+            on_unload_combat_loadout=_unload_combat_loadout,
             on_reclaim_death_office=lambda: self._death_office_calls.append(True) or True,
             on_set_quest=lambda quest_id: self._quest_calls.append(quest_id),
             on_set_quest_route_choice=lambda quest_id, route_id: self._quest_choice_calls.append((quest_id, route_id)) or True,
@@ -646,6 +705,31 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_initial_panel_shows_a_gathering_skill(self) -> None:
         title = _panel_title(self.dialog)
         self.assertTrue(title.startswith("Mining"), f"unexpected initial panel: {title!r}")
+
+    def test_main_menu_dialog_is_deleted_when_closed(self) -> None:
+        self.assertTrue(
+            self.dialog.testAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        )
+
+    def test_profile_reload_replaces_the_existing_menu_and_callback(self) -> None:
+        original_mw = self._ui.mw
+        window = QMainWindow()
+        window.form = SimpleNamespace(menubar=window.menuBar())
+        calls = []
+        try:
+            self._ui.mw = window
+            self._ui.create_menu(lambda: calls.append("first"))
+            menu = self._ui.create_menu(lambda: calls.append("second"))
+
+            self.assertEqual(
+                [action.text() for action in window.menuBar().actions()],
+                ["AnkiScape"],
+            )
+            menu.actions()[0].trigger()
+            self.assertEqual(calls, ["second"])
+        finally:
+            self._ui.mw = original_mw
+            window.deleteLater()
 
     def test_thieving_support_panel_metadata_selection_lock_and_casual_toggle(self) -> None:
         from target_metadata import thieving_target_rows
@@ -872,6 +956,29 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(action_id, "set_plan")
         self.assertEqual(payload["patch_id"], "falador_allotment_north")
         self.assertEqual(payload["crop_id"], "potato")
+
+    def test_farming_sheet_can_activate_owned_juju_potion(self) -> None:
+        player_data = _make_player_data()
+        player_data["inventory"] = {"Juju farming potion (3)": 1}
+        farming_dialog = self._open(player_data, current_skill="Mining", initial_skill="Farming")
+        farming_dialog.show()
+        for _ in range(4):
+            QApplication.processEvents()
+
+        activate = farming_dialog.findChild(QPushButton, "farmingActivateJujuButton")
+        self.assertIsNotNone(activate)
+        self.assertTrue(activate.isEnabled())
+        self.assertIn("(3)", activate.text())
+        activate.click()
+        QApplication.processEvents()
+
+        self.assertEqual(
+            self._farming_calls[-1],
+            ("activate_juju_farming_potion", {"item_name": "Juju farming potion (3)"}),
+        )
+        self.assertEqual(player_data["inventory"].get("Juju farming potion (3)", 0), 0)
+        self.assertEqual(player_data["inventory"]["Juju farming potion (2)"], 1)
+        self.assertGreater(player_data["farm_juju_active_until"], 0)
 
     def test_farming_stats_selector_is_present_but_farming_is_not_review_active(self) -> None:
         farming_buttons = [button for button in self.dialog.findChildren(QToolButton) if button.text() == "Farming"]
@@ -1544,7 +1651,13 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = fixtures["fixture_player_data"]
         live_view = fixtures["normal_coin_stock_shop"]
         live_row = next(row for row in live_view["rows"] if row["can_buy"])
-        dialog = self._open(pd)
+        saved = []
+        achievement_checks = []
+        dialog = self._open(
+            pd,
+            on_check_achievements=lambda data: achievement_checks.append(copy.deepcopy(data["inventory"])),
+            on_save_player_data=lambda: saved.append(copy.deepcopy(pd)),
+        )
         _open_shop_tab(dialog)
 
         search = _find_named_line_edit(dialog, "shopSearchInput")
@@ -1573,6 +1686,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["inventory"]["Coins"], before_coins - int(live_row["buy_price"]))
         history_texts = _list_texts(_find_named_list(dialog, "shopLocalHistoryList"))
         self.assertTrue(any(text.startswith("Bought 1 x") for text in history_texts), history_texts)
+        self.assertEqual(len(saved), 1)
+        self.assertEqual(achievement_checks, [pd["inventory"]])
+        self.assertEqual(saved[0]["inventory"], pd["inventory"])
+        self.assertEqual(saved[0]["shop_events"], pd["shop_events"])
 
     def test_shop_general_store_sell_creates_temporary_stock(self) -> None:
         from shop_fixtures import build_shop_frontend_fixtures
@@ -1981,6 +2098,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd.update(
             {
+                "inventory": {"Fire rune": 100},
                 "current_combat_target": "chicken",
                 "combat_auto_eat_threshold_percent": 55,
                 "combat_auto_eat_food": ["Lobster", "Shrimps"],
@@ -1988,7 +2106,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                     "food": {"Lobster": 3},
                     "potions": {"Antipoison (1)": 1},
                     "ammo": {"Bronze arrows": 10},
-                    "runes": {"Air rune": 5, "Mind rune": 5},
+                    "runes": {"Air rune": 5, "Mind rune": 5, "Fire rune": 50},
                 },
             }
         )
@@ -2014,6 +2132,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Ammo: Bronze arrows x10", summary_label.text())
         self.assertIn("Runes: Air rune x5, Mind rune x5", summary_label.text())
         self.assertIn("ready", bank_run_label.text())
+        _open_bank_tab(dialog)
+        bank = _find_list_with_item_prefix(dialog, "Fire rune x100")
+        self.assertTrue(any(text.startswith("Fire rune x100") for text in _list_texts(bank)))
 
         threshold_spin.setValue(60)
         QApplication.processEvents()
@@ -2022,6 +2143,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         clear_button.click()
         QApplication.processEvents()
         self.assertEqual(self._combat_unload_calls, [True])
+        bank = _find_list_with_item_prefix(dialog, "Fire rune x150")
+        self.assertTrue(any(text.startswith("Fire rune x150") for text in _list_texts(bank)))
 
     def test_fishing_is_selectable_and_shows_output_first_target_list(self) -> None:
         pd = _make_player_data()
@@ -3862,6 +3985,43 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["inventory"]["Beer"], 1)
         self.assertEqual(pd["combat_current_levels"], {"strength": 52, "attack": 56})
 
+    def test_bank_uses_edible_verb_and_opens_all_supply_packs(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Summer pie": 1, "Vial pack": 2}
+        opened: list[tuple[str, bool]] = []
+
+        self._captured.clear()
+        self._ui.show_main_menu(
+            player_data=pd,
+            current_skill="Mining",
+            can_smelt_any_bar=True,
+            on_save_skill=lambda *a: None,
+            on_set_ore=lambda *a: None,
+            on_set_tree=lambda *a: None,
+            on_set_bar=lambda *a: None,
+            on_set_smith=lambda *a: None,
+            on_set_craft=lambda *a: None,
+            on_set_fletch=lambda *a: None,
+            on_set_firemaking=lambda *a: None,
+            on_set_fishing=lambda *a: None,
+            on_set_cooking=lambda *a: None,
+            on_set_utility=lambda *a: None,
+            on_discard_item=lambda *a: True,
+            on_consume_item=lambda *_args: None,
+            on_open_item_pack=lambda item_name, open_all: opened.append((item_name, open_all)) or True,
+        )
+        dialog = self._captured[-1]
+
+        pie_menu = dialog._ankiscape_equip_menu_for("Summer pie")
+        self.assertTrue(any(action.text() == "Eat Summer pie" for action in pie_menu.actions()))
+
+        pack_menu = dialog._ankiscape_equip_menu_for("Vial pack")
+        open_all = next(action for action in pack_menu.actions() if action.text() == "Open all (2)")
+        self.assertEqual(open_all.toolTip(), "Receive 100 Vial.")
+        open_all.trigger()
+        QApplication.processEvents()
+        self.assertEqual(opened, [("Vial pack", True)])
+
     def test_full_urn_bank_action_uses_stable_id_order_and_refreshes_immediately(self) -> None:
         from logic_pure import teleport_full_urn_pure
         from urn_data import URN_TIERS_BY_ID
@@ -4898,12 +5058,20 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["magic_level"] = 99
         pd["inventory"] = {"Rune platebody": 1, "Air rune": 3, "Fire rune": 1, "Law rune": 1}
+        pd["farming_spell_patch"] = "falador_allotment_north"
         dialog = self._open(pd, current_skill="Magic")
         picker = dialog.findChild(QComboBox, "magicAlchemyItemCombo")
+        farming_picker = dialog.findChild(QComboBox, "magicFarmingPatchCombo")
         tree = dialog.findChild(QTreeWidget, "magicTargetTree")
         self.assertIsNotNone(picker)
+        self.assertIsNotNone(farming_picker)
         self.assertIsNotNone(tree)
         self.assertGreaterEqual(picker.findData("Rune platebody"), 0)
+        self.assertEqual(farming_picker.currentData(), "falador_allotment_north")
+        self.assertEqual(farming_picker.count(), 52)
+        farming_picker.setCurrentIndex(farming_picker.findData("falador_allotment_south"))
+        QApplication.processEvents()
+        self.assertEqual(self._farming_spell_patch_calls[-1], "falador_allotment_south")
         locked = next(
             item for item in _tree_items(tree)
             if item.data(0, Qt.ItemDataRole.UserRole) == "kharyrll_teleport"
@@ -4913,6 +5081,24 @@ class MainMenuWidgetTest(unittest.TestCase):
         tree.itemClicked.emit(locked, 0)
         QApplication.processEvents()
         self.assertEqual(self._magic_calls, before)
+
+    def test_magic_alchemy_picker_refreshes_target_readiness(self) -> None:
+        pd = _make_player_data()
+        pd.update({
+            "magic_level": 99,
+            "inventory": {"Rune platebody": 1, "Fire rune": 3, "Nature rune": 1},
+            "magic_alchemy_item": "",
+        })
+        dialog = self._open(pd, current_skill="Magic")
+        tree = dialog.findChild(QTreeWidget, "magicTargetTree")
+        self.assertTrue(_tree_row(tree, "low_alchemy").isDisabled())
+
+        picker = dialog.findChild(QComboBox, "magicAlchemyItemCombo")
+        picker.setCurrentIndex(picker.findData("Rune platebody"))
+        QApplication.processEvents()
+
+        tree = dialog.findChild(QTreeWidget, "magicTargetTree")
+        self.assertFalse(_tree_row(tree, "low_alchemy").isDisabled())
 
     def test_construction_house_sheet_and_locked_click_guard(self) -> None:
         pd = _make_player_data()
@@ -4933,6 +5119,107 @@ class MainMenuWidgetTest(unittest.TestCase):
         tree.itemClicked.emit(locked, 0)
         QApplication.processEvents()
         self.assertEqual(self._construction_calls, before)
+
+    def test_construction_house_purchase_refreshes_the_sheet(self) -> None:
+        pd = _make_player_data()
+        pd.update({
+            "construction_level": 99,
+            "house_owned": False,
+            "house_rooms_bought": {},
+            "inventory": {"Coins": 1_000},
+        })
+        dialog = self._open(pd, current_skill="Construction")
+        dialog.findChild(QPushButton, "constructionPurchaseHouseButton").click()
+        QApplication.processEvents()
+
+        self.assertTrue(pd["house_owned"])
+        self.assertIsNone(dialog.findChild(QPushButton, "constructionPurchaseHouseButton"))
+        self.assertIn("House · 2 rooms", dialog.findChild(QLabel, "constructionHouseSummary").text())
+
+    def test_agility_commands_report_failures_and_expose_every_ticket_bundle(self) -> None:
+        pd = _make_player_data()
+        pd["agility_level"] = 1
+        dialog = self._open(pd, current_skill="Agility")
+        labels = {button.text() for button in dialog.findChildren(QPushButton)}
+        for tickets in (1, 10, 25, 100, 1000):
+            self.assertIn(f"Redeem {tickets} ticket{'s' if tickets != 1 else ''}", labels)
+
+        dialog.findChild(QPushButton, "agilityCommand::purchase_agility_cape").click()
+        QApplication.processEvents()
+        status = dialog.findChild(QLabel, "agilityCommandStatus")
+        self.assertIsNotNone(status)
+        self.assertEqual(status.text(), "Requires level 99 Agility")
+
+    def test_switching_from_brimhaven_ends_the_paid_stint(self) -> None:
+        pd = _make_player_data()
+        pd.update({
+            "agility_level": 99,
+            "current_agility": "brimhaven_arena",
+            "agility_activity_state": {
+                "brimhaven": {"stint_active": True, "activated": True}
+            },
+        })
+        dialog = self._open(pd, current_skill="Agility")
+        tree = dialog.findChild(QTreeWidget, "agilityTargetTree")
+        tree.itemClicked.emit(_tree_row(tree, "burthorpe_course"), 0)
+        QApplication.processEvents()
+
+        self.assertEqual(pd["current_agility"], "burthorpe_course")
+        self.assertNotIn("brimhaven", pd.get("agility_activity_state", {}))
+        self.assertEqual(self._agility_command_calls[-1][0], "leave_activity")
+
+    def test_stopping_agility_ends_the_brimhaven_stint(self) -> None:
+        pd = _make_player_data()
+        pd.update({
+            "agility_level": 99,
+            "current_agility": "brimhaven_arena",
+            "agility_activity_state": {"brimhaven": {"stint_active": True}},
+        })
+        dialog = self._open(pd, current_skill="Agility")
+        next(
+            button for button in dialog.findChildren(QPushButton)
+            if button.text() == "Stop training"
+        ).click()
+        QApplication.processEvents()
+
+        self.assertNotIn("brimhaven", pd.get("agility_activity_state", {}))
+        self.assertEqual(self._agility_command_calls[-1][0], "leave_activity")
+
+    def test_thieving_target_change_refreshes_train_readiness(self) -> None:
+        pd = _make_player_data()
+        pd.update({"thieving_level": 1, "current_thieving": "wall_safe"})
+        dialog = self._open(pd, current_skill="Mining")
+        dialog.show()
+        QApplication.processEvents()
+        next(
+            button for button in dialog.findChildren(QPushButton)
+            if button.text() == "Support"
+        ).click()
+        QApplication.processEvents()
+        skill_list = next(
+            widget for widget in dialog.findChildren(QListWidget)
+            if "Thieving" in [widget.item(i).text() for i in range(widget.count())]
+        )
+        skill_list.setCurrentRow(next(
+            i for i in range(skill_list.count())
+            if skill_list.item(i).text() == "Thieving"
+        ))
+        QApplication.processEvents()
+        train = next(
+            button for button in dialog.findChildren(QPushButton)
+            if button.text() == "Train this skill" and button.isVisible()
+        )
+        self.assertFalse(train.isEnabled())
+
+        tree = dialog.findChild(QTreeWidget, "thievingTargetTree")
+        tree.itemClicked.emit(_tree_row(tree, "pickpocket_man"), 0)
+        QApplication.processEvents()
+
+        train = next(
+            button for button in dialog.findChildren(QPushButton)
+            if button.text() == "Train this skill" and button.isVisible()
+        )
+        self.assertTrue(train.isEnabled())
 
     def test_combat_magic_casual_controls_and_advanced_disclosure_fit_short_dialog(self) -> None:
         pd = _make_player_data()

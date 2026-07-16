@@ -146,3 +146,203 @@ The durable source/conflict record is `source-audits/prayer-altar-urn-passives-h
 - Compilation and `git diff --check`: clean.
 
 Test counts are snapshots; current runs outrank this note.
+
+## Overnight fresh-eyes pass 4 — exact light-source identity (2026-07-16)
+
+- Replaced the `Light source`/`Light sources` pseudo-item with eleven reachable
+  exact lit states in eight source-placed quest gates and Dorgesh-Kaan Agility.
+- Preserved the complete eighteen-item cutoff-era classification separately,
+  without surfacing deferred Seer's headbands or expired event torches.
+- Corrected the Tears of Guthix stage sequence and removed unsupported numeric
+  gates from Watchtower and Another Slice of H.A.M.
+- Removed Temple of Ikov's user-visible phantom requirement and repaired the
+  live-vs-generated and consumed-equipment test oracles.
+- Committed as `83de7e1`; 253 focused and 1,270 full tests pass, with zero hard
+  test-quality issues and unchanged reachability counts.
+
+## Overnight fresh-eyes pass 5 — persisted item-state symmetry (2026-07-16)
+
+- Migrated legacy lantern and Mining helmet references across carried packs,
+  advanced layouts, loot overrides, grave/Death's Office items and loadouts,
+  and the Magic alchemy selector before carried-state sanitation.
+- Prevented paid reclaim from restoring an unregistered zero-stat helmet or a
+  phantom bank item during the live session.
+- Reconfirmed that strung amulet identities are current items and must not be
+  folded into the legacy migration map.
+- Committed as `3953b64`; 312 focused and 1,272 full tests pass, with zero hard
+  test-quality issues.
+
+## Overnight fresh-eyes pass 6 — service and achievement symmetry (2026-07-16)
+
+- Repaired Pottery Apprentice to read the canonical `Empty pot` identity and
+  corrected the Monkey general stall to produce that same registered item.
+- Replaced Activity Circuit's arbitrary five-key count with an exact check of
+  all six live Agility activity families, including Flash Powder Factory.
+- Independently cleared Bob Barter's total-dose, container, review-neutrality,
+  and independent-undo paths without changing them.
+- Committed as `c1ca766`; 183 focused and 1,274 full tests pass. Reachability
+  remains 1,114 actions, 264 orphan inputs, and 149 cascade orphans; the test
+  quality audit reports zero hard issues.
+
+## Overnight fresh-eyes pass 7 — Qt lifecycle and bridge ownership (2026-07-16)
+
+- Preserved upstream add-on results through Anki's tuple-valued global webview
+  filter contract and consumed AnkiScape debug messages without nested tuples.
+- Serialized deferred bridge opens, replaced the previous profile menu on each
+  load, retained one XP popup, and marked the large main dialog for deletion on
+  close.
+- Removed the unreachable duplicate bridge handler and its wall-clock debounce,
+  plus the unsupported `DeckBrowserContent.links` hook and four tests that
+  asserted a fabricated Anki API. The real rendered-page JavaScript injector is
+  unchanged and remains the sole deck-browser button path.
+- Committed as `09aacc2`; 91 focused tests, 86 clean real-Qt lifecycle and
+  integration tests, and 1,273 full tests pass. Compilation, diff, worktree
+  safety, and the zero-hard-issue test-quality gate are clean.
+
+## Overnight fresh-eyes pass 8 — canonical registry and graph coverage (2026-07-16)
+
+- Repaired Adamantite Artisan and Runite Refiner to read the canonical live
+  `Adamant bar` and `Rune bar` identities.
+- Unified source item 4600 as `Willow blackjack` across generated equipment,
+  the registry, shops, quest rewards, Thieving requirements, and equip runtime.
+- Added live Magic and Prayer production to item reachability, including rune
+  costs and dynamic bone inputs, and updated stale battlestaff dependency notes.
+- Committed as `5ab5aee`; 78 focused, 509 integration/end-to-end, eight real
+  offscreen Qt, and 1,275 full tests pass. Reachability covers 1,188 actions and
+  reports 270 orphan inputs (110 root, 160 cascade); test quality remains at
+  zero hard issues.
+
+## Overnight fresh-eyes pass 9 — final quest stages and reward equipment (2026-07-16)
+
+- Added the missing completion sentinel after every live quest's highest
+  requirement, restoring the final source-backed objective in 152 generated
+  quests rather than letting completion skip it.
+- Generated source-config equipment records for seven obtainable quest items,
+  corrected Ice arrows to the `ammunition` slot, and reclassified the
+  non-equippable Staff of armadyl as quest material.
+- Added catalog-wide, pure progression, runtime-handler, registry, generator,
+  and level-gate regressions.
+- Committed as `ceaab20`; 127 registry/shop/quest tests, 104 quest/runtime
+  tests, four real offscreen Qt checks, and all 1,280 non-Qt tests pass.
+  Reachability remains 1,188 actions with 270 orphan inputs, and test quality
+  remains at zero hard issues.
+
+## Overnight fresh-eyes pass 10 — Combat state and consequence symmetry (2026-07-16)
+
+- Prioritized loaded compatible arrows over banked lower tiers, eliminating an
+  ordinary-drop-triggered `out_of_ammo` stall.
+- Routed Vengeance and Spellbook Swap through the finite rune loadout, persisted
+  their cross-review state, kept Dream between fights, and counted reflected
+  kills through the normal drop path.
+- Moved filtered loot from a fatal multi-kill review into the grave and made
+  Protect Item retain the highest store-value equipped item.
+- Committed as `916b075`; 334 focused tests, eight real offscreen Qt checks, and
+  all 1,286 tests pass. Reachability remains 1,188 actions with 270 orphan
+  inputs, and test quality remains at zero hard issues.
+
+## Overnight fresh-eyes pass 11 — ranged producer and equipment identity (2026-07-16)
+
+- Normalized H.A.M. loot, Combat drops, and NPC shops to the canonical plural
+  standard-arrow identities, with quantity-preserving save and shop-undo
+  migration for legacy singular keys.
+- Regenerated the equipment snapshot so all live Crafting and Fletching
+  equipment outputs are accepted by the equipment engine, adding 29 missing
+  rows and a synchronization oracle.
+- Committed as `9273cf4`; 263 focused tests, five real offscreen Qt checks, and
+  all 1,291 tests pass. Reachability remains 1,188 actions with 270 orphan
+  inputs, and test quality remains at zero hard issues.
+
+## Overnight fresh-eyes pass 12 — consumable and supply-pack state paths (2026-07-16)
+
+- Routed Kebab through live RNG with deterministic undo and added exact Open
+  and Open all actions for every registered supply pack.
+- Added Juju farming potion activation with exact dose conservation and assets,
+  then resolved the Magic essence mix identity conflict from pinned cache and
+  emulator evidence.
+- Aligned registry tradeability, Agility potion dose identities, food
+  categories, assets, Bank verbs, and reachability with their live consumers.
+- Committed as `f794108`; 19 focused tests, five real offscreen Qt checks, and
+  all 1,302 tests pass. Reachability covers 1,200 actions with 273 orphan
+  inputs, and test quality remains at zero hard issues.
+
+## Overnight fresh-eyes pass 13 — finite Combat preset state (2026-07-16)
+
+- Removed the owned `combat_supply_loadout` from the preset field contract, so
+  saving or pinning configuration cannot snapshot real item quantities.
+- Legacy presets containing the bad field are harmless on apply; the currently
+  loaded finite pack remains authoritative and continues to deplete normally.
+- Committed as `1fb0b64`; 271 focused tests, two real offscreen Qt checks, and
+  all 1,303 tests pass. Reachability remains 1,200 actions with 273 orphan
+  inputs, and test quality remains at zero hard issues.
+
+## Overnight fresh-eyes pass 14 — atomic achievement dependencies (2026-07-16)
+
+- Changed pure achievement dispatch to project newly satisfied completions and
+  iterate until no dependent predicate becomes newly true.
+- Added a catalog-backed regression proving Master Mage and Living Legend are
+  returned by the same dispatch when Magic 99 closes the final ordinary gap.
+- Committed as `b59c846`; 251 focused tests, one real offscreen Qt check, and
+  all 1,304 tests pass with 186 skips and three expected failures. Test quality
+  remains at zero hard issues; compilation, diff, and worktree safety pass.
+
+## Overnight fresh-eyes pass 15 — production persistence and UI reachability (2026-07-16)
+
+- Routed Shop, service, vendor, Bob Barter, and Wilderness transaction state to
+  the canonical player-data save callback instead of the current-skill config
+  callback, which never wrote the mutated player state.
+- Added a Farming-sheet Juju potion control backed by the existing pure action
+  and projection, including dose preservation and active-bonus legibility.
+- Committed as `1120fb4`; 242 focused tests, all 183 real offscreen Qt tests,
+  and all 1,305 core tests pass with 187 skips and three expected failures.
+  Test quality remains at zero hard issues; compilation, diff, and worktree
+  safety pass.
+
+## Overnight fresh-eyes pass 16 — live skill-surface coherence (2026-07-16)
+
+- Resolved friendly HUD target labels and equipped-blackjack readiness for the
+  newest skill families.
+- Made Magic, Construction, Thieving, and Agility controls refresh dependent
+  state and report direct-action outcomes immediately.
+- Exposed all five sourced Brimhaven XP exchanges and made target switching or
+  Stop Training end the paid arena stint.
+- Committed as `483eb55`; 170 focused core tests, eight real offscreen Qt
+  checks, and all 1,312 core tests pass with 193 skips and three expected
+  failures. Test quality remains at zero hard issues; compilation, diff, and
+  worktree safety pass.
+
+## Overnight fresh-eyes pass 17 — atomic reward consequences (2026-07-16)
+
+- XP-lamp claims now recalculate the selected skill level before achievement
+  evaluation and surface the granted XP immediately.
+- Quest-bank claims and Stronghold boot/coin rewards register direct-action
+  undo snapshots before mutating live state.
+- Shop purchases, sales, services, and vendor actions dispatch achievements
+  before the canonical save callback.
+- Committed as `111b280`; 109 focused core tests and nine real offscreen Qt
+  Shop checks pass. Test quality remains at zero hard issues; compilation,
+  diff, and worktree safety pass. Full closure verification remains pending.
+
+## Overnight fresh-eyes pass 18 — Combat management consequences (2026-07-16)
+
+- Clearing the finite Combat loadout now repaints returned Bank items in the
+  open dialog.
+- Loadout unload and Death's Office reclaim dispatch inventory achievements
+  before persistence.
+- Kept automatic safe-boundary refill as the settled UI instead of reviving the
+  deliberately removed manual Refill control.
+- Committed as `91f0b35`; 252 focused core tests and the combat-filtered real
+  offscreen Qt surface pass. Test quality remains at zero hard issues;
+  compilation, diff, and worktree safety pass. Full closure remains pending.
+
+## Overnight fresh-eyes audit closure (2026-07-16)
+
+- Completed 18 bounded passes and 36 attributable commits on the dedicated
+  safe branch without merging or pushing.
+- Final core: 1,314 passing in 39.163 seconds, 193 environment skips, three
+  expected XP-parity failures.
+- Final real offscreen Qt: 1,314 passing in 543.509 seconds, no skips, the same
+  three expected failures.
+- Test quality: zero hard issues across 66 files. Reachability: 1,200 actions,
+  273 known orphans. Compilation, diff, and worktree safety checks pass.
+- No confirmed defect remains queued; four creative-direction questions are
+  ranked in `memory-bank/design-gaps-overnight-2026-07-16.md`.

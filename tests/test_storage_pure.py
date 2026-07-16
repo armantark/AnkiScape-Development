@@ -623,7 +623,14 @@ class TestStoragePure(unittest.TestCase):
                     "Pot": 4,
                     "Unfired pie dish": 3,
                     "Pot (unfired)": 2,
-                }
+                    "Candle lantern": 1,
+                    "Oil lamp": 2,
+                    "Oil lantern": 3,
+                    "Bullseye lantern": 4,
+                    "Emerald lantern": 5,
+                    "Mining helmet": 1,
+                },
+                "equipment": {"head": "Mining helmet"},
             },
             ORE_DATA,
             ITEM_DEFINITIONS,
@@ -635,6 +642,83 @@ class TestStoragePure(unittest.TestCase):
         self.assertNotIn("Unfired pot", migrated["inventory"])
         self.assertNotIn("Pot", migrated["inventory"])
         self.assertNotIn("Unfired pie dish", migrated["inventory"])
+        self.assertEqual(migrated["inventory"]["Candle lantern (empty)"], 1)
+        self.assertEqual(migrated["inventory"]["Oil lamp (empty)"], 2)
+        self.assertEqual(migrated["inventory"]["Oil lantern (unlit)"], 3)
+        self.assertEqual(migrated["inventory"]["Bullseye lantern (empty)"], 4)
+        self.assertEqual(migrated["inventory"]["Emerald lantern (unlit)"], 5)
+        self.assertEqual(migrated["inventory"]["Mining helmet (unlit)"], 1)
+        self.assertEqual(migrated["equipment"], {"head": "Mining helmet (unlit)"})
+        for legacy_key in (
+            "Candle lantern",
+            "Oil lamp",
+            "Oil lantern",
+            "Bullseye lantern",
+            "Emerald lantern",
+            "Mining helmet",
+        ):
+            self.assertNotIn(legacy_key, migrated["inventory"])
+
+    def test_migrate_legacy_shop_arrows_into_canonical_stacks(self):
+        migrated = migrate_loaded_data(
+            {
+                "inventory": {
+                    "Bronze arrow": 10,
+                    "Bronze arrows": 5,
+                    "Rune arrow": 3,
+                    "Broad arrow": 2,
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["inventory"]["Bronze arrows"], 15)
+        self.assertEqual(migrated["inventory"]["Rune arrows"], 3)
+        self.assertEqual(migrated["inventory"]["Broad arrows"], 2)
+        for legacy_name in ("Bronze arrow", "Rune arrow", "Broad arrow"):
+            self.assertNotIn(legacy_name, migrated["inventory"])
+
+    def test_migrate_legacy_crafting_names_across_persisted_item_stores(self):
+        migrated = migrate_loaded_data(
+            {
+                "inventory": {"Mining helmet": 1, "Oil lamp": 2},
+                "carried_inventory": {
+                    "dorgesh_kaan": {"Mining helmet": 1, "Oil lamp": 1},
+                },
+                "carried_layout": {
+                    "dorgesh_kaan": {"Mining helmet": 1, "Oil lamp": 1},
+                },
+                "loot_overrides": {"Mining helmet": "keep", "Oil lamp": "leave"},
+                "combat_grave": {
+                    "items": ["Mining helmet", "Oil lamp"],
+                    "reviews_remaining": 1,
+                    "loadout": {"head": "Mining helmet"},
+                },
+                "death_office": {
+                    "items": ["Mining helmet", "Oil lamp"],
+                    "loadout": {"head": "Mining helmet"},
+                },
+                "magic_alchemy_item": "Mining helmet",
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        expected_view = {"Mining helmet (unlit)": 1, "Oil lamp (empty)": 1}
+        self.assertEqual(migrated["carried_inventory"]["dorgesh_kaan"], expected_view)
+        self.assertEqual(migrated["carried_layout"]["dorgesh_kaan"], expected_view)
+        self.assertEqual(
+            migrated["loot_overrides"],
+            {"Mining helmet (unlit)": "keep", "Oil lamp (empty)": "leave"},
+        )
+        for state_key in ("combat_grave", "death_office"):
+            self.assertEqual(
+                migrated[state_key]["items"],
+                ["Mining helmet (unlit)", "Oil lamp (empty)"],
+            )
+            self.assertEqual(migrated[state_key]["loadout"], {"head": "Mining helmet (unlit)"})
+        self.assertEqual(migrated["magic_alchemy_item"], "Mining helmet (unlit)")
 
     def test_migrate_idempotent(self):
         base = {"mining_exp": 10, "inventory": {}}

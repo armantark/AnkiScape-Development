@@ -34,7 +34,7 @@ from combat_data import (
     ZOMBIE_DROPS,
     ZOMBIE_LEVEL_25_DROPS,
 )
-from constants import EQUIPMENT_DATA
+from constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
 from logic_pure import (
     _combat_apply_pvm_death,
     _combat_auto_drink_potions,
@@ -65,6 +65,7 @@ from logic_pure import (
     set_combat_auto_eat_threshold_pure,
     unload_combat_supply_loadout_pure,
 )
+from storage_pure import migrate_loaded_data
 
 
 def _rng(values):
@@ -305,7 +306,7 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
         self.assertEqual(disabled["combat_prayer_uptime"], "100")
 
         enabled = _player(
-            equipment={"weapon": "Iron sword", "shield": "Iron kiteshield"},
+            equipment={"weapon": "Rune scimitar", "ammunition": "Bronze arrows"},
             prayer_level=99,
             combat_prayer_points=990,
             combat_prayer_uptime="100",
@@ -313,8 +314,8 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
             combat_prayers_enabled=True,
         )
         _combat_apply_pvm_death(enabled, 100)
-        self.assertEqual(len(enabled["equipment"]), 1)
-        self.assertEqual(len(enabled["combat_grave"]["items"]), 1)
+        self.assertEqual(enabled["equipment"], {"weapon": "Rune scimitar"})
+        self.assertEqual(enabled["combat_grave"]["items"], ["Bronze arrows"])
 
     def test_a_stale_carried_view_does_not_occupy_phantom_loot_slots(self):
         # 20 food + a view claiming 8 trophies the bank no longer has must not fire a
@@ -521,6 +522,19 @@ class CombatLogicTest(unittest.TestCase):
                 self.assertEqual(spec["source_item_id"], source_item_id)
                 self.assertEqual(spec["source_item_name"], source_item_name)
                 self.assertEqual(spec["ranged_strength"], ranged_strength)
+
+    def test_standard_arrow_drops_use_equippable_stack_identities(self):
+        drop_names = {
+            item_name
+            for enemy in COMBAT_ENEMY_DATA.values()
+            for item_name in combat_enemy_drop_item_names_pure(enemy)
+        }
+        source_names = {
+            spec["source_item_name"]
+            for spec in COMBAT_RANGED_AMMO_DATA.values()
+        }
+        self.assertTrue(set(COMBAT_RANGED_AMMO_DATA).issubset(drop_names))
+        self.assertTrue(source_names.isdisjoint(drop_names))
 
     def test_standard_strike_spell_rows_match_2011scape_source(self):
         self.assertEqual(
@@ -2745,6 +2759,7 @@ class CombatLogicTest(unittest.TestCase):
         player = _player(
             combat_attack_style="ranged_accurate",
             equipment={"weapon": "Magic shortbow"},
+            inventory={"Bronze arrows": 1},
             combat_supply_loadout={"ammo": {"Rune arrows": 2}},
             current_combat_target="giant_rat",
         )
@@ -3020,6 +3035,175 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(new_data["inventory"]["Air rune"], 5)
         self.assertEqual(new_data["inventory"]["Mind rune"], 5)
         self.assertEqual(new_data["combat_supply_loadout"]["runes"], {})
+
+    def test_vengeance_pending_carries_across_reviews_without_recasting_from_bank(self):
+        enemy_data = {
+            "vengeance_dummy": {
+                "display_name": "Vengeance dummy",
+                "level": 99,
+                "group": "Test",
+                "stats": {"attack": 99, "strength": 20, "defence": 99, "hitpoints": 1000},
+                "bonuses": {},
+                "attack_speed": 1,
+                "drops": {"guaranteed": (), "tables": ()},
+                "source": "test",
+            }
+        }
+        player = _player(
+            current_combat_target="vengeance_dummy",
+            combat_vengeance=True,
+            combat_spellbook_swap="vengeance",
+            quests={"lunar_diplomacy": {"completed": True}},
+            inventory={"Astral rune": 40, "Earth rune": 100, "Death rune": 20},
+            combat_supply_loadout={
+                "runes": {"Astral rune": 4, "Earth rune": 10, "Death rune": 2},
+            },
+        )
+
+        first, ok, first_result = apply_combat_burst_pure(
+            player,
+            enemy_data,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.0, 0.9]),
+        )
+        self.assertTrue(ok)
+        self.assertEqual(first_result["runes_used"], {"Astral rune": 4, "Earth rune": 10, "Death rune": 2})
+        self.assertNotIn("Cosmic rune", first_result["runes_used"])
+        self.assertTrue(first["combat_encounter"]["vengeance_pending"])
+        self.assertEqual(first["inventory"], player["inventory"])
+        self.assertAlmostEqual(first["magic_exp"], 112.0)
+
+        second, ok, second_result = apply_combat_burst_pure(
+            first,
+            enemy_data,
+            EQUIPMENT_DATA,
+            ticks=2,
+            rng=_rng([0.0, 0.9, 0.0, 0.9]),
+        )
+        self.assertTrue(ok)
+        self.assertEqual(second_result["runes_used"], {})
+        self.assertGreater(second_result["player_damage"], 0)
+        self.assertFalse(second["combat_encounter"]["vengeance_pending"])
+        self.assertEqual(second["inventory"], player["inventory"])
+        self.assertAlmostEqual(second["magic_exp"], 112.0)
+
+    def test_spellbook_swap_cost_is_paid_once_per_active_fight(self):
+        enemy_data = {
+            "swap_dummy": {
+                "display_name": "Swap dummy",
+                "level": 1,
+                "group": "Test",
+                "stats": {"attack": 1, "strength": 1, "defence": 99, "hitpoints": 1000},
+                "bonuses": {},
+                "attack_speed": 4,
+                "drops": {"guaranteed": (), "tables": ()},
+                "source": "test",
+            }
+        }
+        player = _player(
+            current_combat_target="swap_dummy",
+            combat_attack_style="magic_standard",
+            equipment={"weapon": "Staff of air"},
+            current_combat_spell="fire_strike",
+            combat_dream_thrift=True,
+            combat_spellbook_swap="dream",
+            quests={
+                "dream_mentor": {"completed": True},
+                "lunar_diplomacy": {"completed": True},
+            },
+            inventory={"Astral rune": 30, "Cosmic rune": 20, "Law rune": 10},
+            combat_supply_loadout={
+                "runes": {"Astral rune": 3, "Cosmic rune": 2, "Law rune": 1, "Fire rune": 6, "Mind rune": 2},
+            },
+        )
+
+        first, ok, first_result = apply_combat_burst_pure(
+            player,
+            enemy_data,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.0, 0.9]),
+        )
+        self.assertTrue(ok)
+        self.assertEqual(first_result["runes_used"]["Astral rune"], 3)
+        self.assertTrue(first["combat_encounter"]["spellbook_swap_paid"])
+
+        second, ok, second_result = apply_combat_burst_pure(
+            first,
+            enemy_data,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.0, 0.9]),
+        )
+        self.assertTrue(ok)
+        self.assertNotIn("Astral rune", second_result["runes_used"])
+        self.assertEqual(second["inventory"], player["inventory"])
+        self.assertGreaterEqual(first_result["xp_rewards"]["magic_exp"], 130.0)
+        self.assertLess(second_result["xp_rewards"]["magic_exp"], 130.0)
+
+    def test_dream_does_not_interrupt_an_active_fight(self):
+        player = _player(
+            combat_lifepoints=50,
+            combat_dream_thrift=True,
+            quests={"dream_mentor": {"completed": True}},
+            inventory={"Astral rune": 2, "Cosmic rune": 1, "Body rune": 5},
+            combat_encounter={"target_id": "chicken", "enemy_lifepoints": 30},
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["reason"], "combat_burst")
+        self.assertEqual(new_data["inventory"], player["inventory"])
+        self.assertEqual(new_data["magic_exp"], 0.0)
+
+    def test_vengeance_reflection_kill_counts_and_drops_normally(self):
+        enemy_data = {
+            "vengeance_target": {
+                "display_name": "Vengeance target",
+                "level": 99,
+                "group": "Test",
+                "stats": {"attack": 99, "strength": 20, "defence": 99, "hitpoints": 1000},
+                "bonuses": {},
+                "attack_speed": 1,
+                "drops": {"guaranteed": (("Feather", 1),), "tables": ()},
+                "source": "test",
+            }
+        }
+        player = _player(
+            current_combat_target="vengeance_target",
+            attack_level=1,
+            strength_level=1,
+            combat_auto_flee=False,
+            combat_vengeance=True,
+            quests={"lunar_diplomacy": {"completed": True}},
+            combat_encounter={
+                "target_id": "vengeance_target",
+                "enemy_lifepoints": 5,
+                "vengeance_pending": True,
+            },
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            enemy_data,
+            EQUIPMENT_DATA,
+            ticks=2,
+            rng=_rng([0.999999, 0.0, 0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(result["killed"])
+        self.assertEqual(result["kills"], 1)
+        self.assertEqual(result["drops"], {"Feather": 1})
+        self.assertEqual(new_data["combat_kill_counts"], {"vengeance_target": 1})
 
     def test_active_ranged_encounter_does_not_refill_ammo_mid_fight(self):
         player = _player(
@@ -3682,6 +3866,28 @@ class CombatLogicTest(unittest.TestCase):
         self.assertNotIn("Iron sword", reclaimed["inventory"])
         self.assertEqual(reclaimed["death_office"], {})
 
+    def test_legacy_mining_helmet_reclaims_as_the_exact_equipment_state(self):
+        migrated = migrate_loaded_data(
+            {
+                "inventory": {"Coins": 100},
+                "equipment": {},
+                "death_office": {
+                    "items": ["Mining helmet"],
+                    "source": "combat_stacked_grave",
+                    "loadout": {"head": "Mining helmet"},
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        reclaimed, ok, reason = reclaim_death_office_items_pure(migrated)
+
+        self.assertTrue(ok, reason)
+        self.assertEqual(reclaimed["equipment"], {"head": "Mining helmet (unlit)"})
+        self.assertNotIn("Mining helmet", reclaimed["inventory"])
+        self.assertEqual(reclaimed["death_office"], {})
+
     def test_reclaim_leaves_graved_piece_in_bank_when_slot_already_refilled(self):
         player = _player(
             inventory={"Coins": 500},
@@ -3760,6 +3966,25 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(refilled["inventory"]["Air rune"], 0)
         self.assertEqual(refilled["inventory"]["Mind rune"], 0)
         self.assertEqual(refilled["inventory"]["Fire rune"], 5)
+
+    def test_manual_refill_loadout_includes_melee_vengeance_runes(self):
+        player = _player(
+            combat_vengeance=True,
+            quests={"lunar_diplomacy": {"completed": True}},
+            inventory={"Astral rune": 8, "Earth rune": 20, "Death rune": 4},
+        )
+
+        refilled, ok, reason = refill_combat_supply_loadout_pure(player, EQUIPMENT_DATA)
+
+        self.assertTrue(ok, reason)
+        self.assertEqual(
+            refilled["combat_supply_loadout"]["runes"],
+            {"Astral rune": 8, "Earth rune": 20, "Death rune": 4},
+        )
+        self.assertEqual(
+            refilled["inventory"],
+            {"Astral rune": 0, "Earth rune": 0, "Death rune": 0},
+        )
 
     def test_manual_refill_loadout_blocks_inside_active_encounter(self):
         player = _player(

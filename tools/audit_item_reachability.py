@@ -56,7 +56,12 @@ def _outputs(spec: Mapping[str, Any]) -> set[str]:
 
 
 def _requirements(spec: Mapping[str, Any]) -> tuple[set[str], tuple[set[str], ...]]:
-    required = _names(spec.get("requirements")) | _names(spec.get("required_items")) | _names(spec.get("tools"))
+    required = (
+        _names(spec.get("requirements"))
+        | _names(spec.get("required_items"))
+        | _names(spec.get("tools"))
+        | _names(spec.get("rune_cost"))
+    )
     alternatives: list[set[str]] = []
     essence = _names(spec.get("essence_items"))
     if essence:
@@ -64,6 +69,9 @@ def _requirements(spec: Mapping[str, Any]) -> tuple[set[str], tuple[set[str], ..
     bait = _names(spec.get("bait_options"))
     if bait:
         alternatives.append(bait)
+    reachability_inputs = _names(spec.get("reachability_inputs"))
+    if reachability_inputs:
+        alternatives.append(reachability_inputs)
     return required, tuple(alternatives)
 
 
@@ -87,6 +95,7 @@ def _drop_names(value: Any) -> set[str]:
 def build_reachability_report() -> dict[str, Any]:
     import combat_data
     import constants
+    import pack_data
     import shop_data
     import shop_logic
     import woodcutting_data
@@ -105,6 +114,8 @@ def build_reachability_report() -> dict[str, Any]:
         "Runecrafting": constants.RUNECRAFTING_DATA,
         "Hunter": constants.HUNTER_DATA,
         "Herblore": constants.HERBLORE_DATA,
+        "Magic": constants.MAGIC_DATA,
+        "Prayer": constants.PRAYER_DATA,
         "Utility": constants.UTILITY_ACTIVITY_DATA,
     }
 
@@ -137,6 +148,13 @@ def build_reachability_report() -> dict[str, Any]:
         consumers[item_name].add(key)
         for item in leaves:
             producers[item].add(key)
+
+    for item_name, spec in pack_data.ITEM_PACK_DATA.items():
+        content_item = str(spec["content_item"])
+        key = f"Item action:open:{item_name}"
+        actions.append({"id": key, "required": {item_name}, "alternatives": (), "outputs": {content_item}})
+        consumers[item_name].add(key)
+        producers[content_item].add(key)
 
     bob = shop_data.SHOP_SERVICES.get("bob_barter_decant_four", {})
     if bob.get("visibility") == "visible" and bob.get("action_type") == "decant_potions_to_dose":

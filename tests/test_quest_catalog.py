@@ -1,11 +1,103 @@
 import unittest
 
+from firemaking_data import LIT_LIGHT_SOURCE_ITEMS
 from quest_catalog_generated import PRE_EOC_QUEST_CATALOG, PRE_EOC_QUEST_CATALOG_SOURCE
-from quest_data import QUESTS, QUESTS_BY_ID, quests_as_dict
+from quest_data import QUESTS, QUESTS_BY_ID, quest_reward_items_as_dict, quests_as_dict
 from tools.audit_quest_local_item_gates import quest_local_gate_candidates
 
 
 class TestQuestCatalog(unittest.TestCase):
+    def test_live_stage_counts_preserve_a_completion_sentinel_after_every_requirement(self):
+        live_quests = quests_as_dict()
+        for quest_id, quest in live_quests.items():
+            max_requirement_stage = max(
+                (stage["stage"] for stage in quest["stage_requirements"]),
+                default=0,
+            )
+            with self.subTest(quest_id=quest_id):
+                self.assertLess(max_requirement_stage, quest["stages"])
+
+        self.assertEqual(live_quests["tears_of_guthix"]["stages"], 4)
+        self.assertEqual(live_quests["land_of_the_goblins"]["stages"], 8)
+        self.assertEqual(live_quests["hazeel_cult"]["stages"], 4)
+
+    def test_lantern_quest_gates_use_reachable_exact_item_states(self):
+        live_quests = quests_as_dict()
+        light_source_stages = {
+            "temple_of_ikov": 1,
+            "tears_of_guthix": 1,
+            "the_lost_tribe": 2,
+            "wanted": 5,
+            "rag_and_bone_man": 2,
+            "land_of_the_goblins": 7,
+            "defender_of_varrock": 4,
+            "the_chosen_commander": 3,
+        }
+        for quest_id, expected_stage in light_source_stages.items():
+            rows = [
+                stage
+                for stage in live_quests[quest_id]["stage_requirements"]
+                if any(
+                    "Bullseye lantern (lit)" in option
+                    for group in stage["required_inventory_options"]
+                    for option in group
+                )
+            ]
+            self.assertEqual([stage["stage"] for stage in rows], [expected_stage], quest_id)
+            allowed_items = tuple(next(iter(option)) for option in rows[0]["required_inventory_options"][-1])
+            self.assertEqual(
+                allowed_items,
+                ("Bullseye lantern (lit)",) if quest_id == "tears_of_guthix" else LIT_LIGHT_SOURCE_ITEMS,
+                quest_id,
+            )
+
+        generated_and_live_quests = (*PRE_EOC_QUEST_CATALOG, *live_quests.values())
+        for quest in generated_and_live_quests:
+            for stage in quest["stage_requirements"]:
+                self.assertNotIn("Light source", stage["required_inventory"])
+                self.assertNotIn("Light sources", stage["required_inventory"])
+                self.assertNotIn("Light source", stage["required_tools"])
+                self.assertNotIn("Light sources", stage["required_tools"])
+                for option_group in stage["required_inventory_options"]:
+                    for option in option_group:
+                        self.assertNotIn("Light source", option)
+                        self.assertNotIn("Light sources", option)
+        self.assertNotIn("Light source", quest_reward_items_as_dict())
+        self.assertNotIn(
+            "Light source x1",
+            " ".join(live_quests["temple_of_ikov"]["requirements"]),
+        )
+
+        tears_stage = next(
+            stage for stage in live_quests["tears_of_guthix"]["stage_requirements"] if stage["stage"] == 2
+        )
+        self.assertEqual(
+            tears_stage["required_inventory"],
+            {"Bullseye lantern (empty)": 1, "Sapphire": 1},
+        )
+        self.assertEqual(tears_stage["required_inventory_options"], ())
+        tears_lit_stage = next(
+            stage for stage in live_quests["tears_of_guthix"]["stage_requirements"] if stage["stage"] == 3
+        )
+        self.assertEqual(tears_lit_stage["required_inventory"], {"Sapphire lantern (lit)": 1})
+
+        for quest_id in ("watchtower", "another_slice_of_h_a_m"):
+            self.assertFalse(
+                any(
+                    any("Bullseye lantern (lit)" in option for option in group)
+                    for stage in live_quests[quest_id]["stage_requirements"]
+                    for group in stage["required_inventory_options"]
+                ),
+                quest_id,
+            )
+
+        wgs_stage = next(
+            stage
+            for stage in live_quests["while_guthix_sleeps"]["stage_requirements"]
+            if stage["stage"] == 6
+        )
+        self.assertEqual(wgs_stage["required_inventory"], {"Sapphire lantern (lit)": 1})
+
     def test_pre_eoc_catalog_has_expected_cutoff_shape(self):
         ids = {quest["id"] for quest in PRE_EOC_QUEST_CATALOG}
 
@@ -291,7 +383,11 @@ class TestQuestCatalog(unittest.TestCase):
         by_stage = {row["stage"]: row for row in quest["stage_requirements"] if not row["variant"]}
         by_stage_variant = {(row["stage"], row["variant"]): row for row in quest["stage_requirements"]}
 
-        self.assertEqual(by_stage[1]["required_inventory"], {"Light source": 1})
+        self.assertEqual(by_stage[1]["required_inventory"], {})
+        self.assertEqual(
+            tuple(next(iter(option)) for option in by_stage[1]["required_inventory_options"][0]),
+            LIT_LIGHT_SOURCE_ITEMS,
+        )
         self.assertEqual(by_stage[1]["required_tools"], {"Pendant of lucien": 1})
         self.assertEqual(by_stage[2]["required_tools"], {"Knife": 1})
         self.assertEqual(by_stage[2]["produced_inventory"], {"Boots of lightness": 1})

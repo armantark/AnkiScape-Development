@@ -9,11 +9,13 @@ from constants import ORE_DATA
 from logic_pure import (
     apply_thieving_damage_pure,
     thieving_blackjack_threshold_pure,
+    thieving_loot_roll_pure,
     thieving_multi_pick_count_pure,
     thieving_roll_succeeds_pure,
     thieving_roll_threshold_pure,
     thieving_stall_cadence_profile_pure,
     thieving_success_probability_pure,
+    thieving_target_locked_reasons_pure,
     thieving_wall_safe_roll_succeeds_pure,
     thieving_wall_safe_success_count_pure,
 )
@@ -24,7 +26,7 @@ from runtime_actions import (
     handle_utility_answer,
 )
 from storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
-from thieving_data import PICKPOCKET_TARGETS, STALL_TARGETS
+from thieving_data import PICKPOCKET_TARGETS, STALL_TARGETS, THIEVING_TARGETS
 
 
 def _context(player_data, random_values=()):
@@ -92,6 +94,26 @@ def _blackjack_state(*, fight_back=False):
 
 
 class TestThievingPureMechanics(unittest.TestCase):
+    def test_equipped_blackjack_satisfies_blackjacking_item_gate(self):
+        player = _blackjack_state()
+        player["inventory"] = {}
+        player["equipment"] = {"weapon": "Willow blackjack"}
+
+        self.assertEqual(
+            thieving_target_locked_reasons_pure(
+                player,
+                "blackjack_menaphite_thug",
+                THIEVING_TARGETS,
+            ),
+            (),
+        )
+
+    def test_ham_pickpockets_drop_canonical_stackable_arrow_identities(self):
+        ham = PICKPOCKET_TARGETS["pickpocket_female_ham"]
+
+        self.assertEqual(thieving_loot_roll_pure(ham, 0, 0.0), {"Bronze arrows": 1})
+        self.assertEqual(thieving_loot_roll_pure(ham, 264, 0.0), {"Steel arrows": 1})
+
     def test_failure_damage_reuses_combat_auto_eat_and_death_state(self):
         fed, fed_result = apply_thieving_damage_pure(
             {
@@ -200,6 +222,24 @@ class TestThievingPureMechanics(unittest.TestCase):
                     expected,
                 )
 
+    def test_runtime_multi_pick_uses_inclusive_random_seven_denominator(self):
+        player_data = {
+            "current_thieving": "pickpocket_man",
+            "thieving_level": 99,
+            "thieving_exp": 0.0,
+            "agility_level": 99,
+            "thieving_attempt_count": 0,
+            "thieving_success_count": 0,
+            "thieving_failure_count": 0,
+            "thieving_stunned": False,
+            "inventory": {},
+            "completed_achievements": [],
+        }
+        ctx, _calls = _context(player_data, random_values=(0.0, 0.13))
+
+        self.assertTrue(handle_thieving_answer(ctx))
+        self.assertEqual(player_data["inventory"]["Coins"], 12)
+
     def test_all_18_stall_profiles_emit_exact_counts_in_26600_reviews(self):
         expected_counts = {
             "stall_vegetable": 26600,
@@ -237,6 +277,17 @@ class TestThievingPureMechanics(unittest.TestCase):
                     self.assertEqual(profile.overflow_policy, CAP_ONE_ACTION)
                 else:
                     self.assertIsNone(profile.overflow_policy)
+
+    def test_monkey_general_stall_uses_canonical_empty_pot_identity(self):
+        loot_names = {
+            item_name
+            for item_name, _minimum, _maximum, _weight in STALL_TARGETS[
+                "stall_monkey_general"
+            ]["loot"]
+        }
+
+        self.assertIn("Empty pot", loot_names)
+        self.assertNotIn("Pot", loot_names)
 
 
 class TestThievingRuntime(unittest.TestCase):

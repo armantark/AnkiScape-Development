@@ -226,7 +226,7 @@ _SOURCE_FINISHED_TARGETS: Tuple[HerbloreTarget, ...] = (
     HerbloreTarget('finished_energy_mix', 'Energy mix (2)', "finished", 'barbarian', 29, 23.0, (('Energy potion (2)', 1), ('Caviar', 1)), 'Energy mix (2)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_fishing_mix', 'Fishing mix (2)', "finished", 'barbarian', 53, 38.0, (('Fishing potion (2)', 1), ('Caviar', 1)), 'Fishing mix (2)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_hunting_mix', 'Hunting mix (2)', "finished", 'barbarian', 58, 40.0, (('Hunter potion (2)', 1), ('Caviar', 1)), 'Hunting mix (2)', source=POTION_DATA_SOURCE_PATH),
-    HerbloreTarget('finished_magic_essence_mix', 'Magic potion (2)', "finished", 'barbarian', 61, 43.0, (('Magic essence (2)', 1), ('Caviar', 1)), 'Magic potion (2)', source=POTION_DATA_SOURCE_PATH),
+    HerbloreTarget('finished_magic_essence_mix', 'Magic essence mix (2)', "finished", 'barbarian', 61, 43.0, (('Magic essence (2)', 1), ('Caviar', 1)), 'Magic essence mix (2)', source="Darkan CraftablePotion.MAGIC_ESSENCE_MIX; cache item 11489 (2011Scape PotionData product is mis-transcribed)"),
     HerbloreTarget('finished_magic_mix', 'Magic mix (2)', "finished", 'barbarian', 83, 57.0, (('Magic potion (2)', 1), ('Caviar', 1)), 'Magic mix (2)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_prayer_mix', 'Prayer mix (2)', "finished", 'barbarian', 42, 29.0, (('Prayer potion (2)', 1), ('Caviar', 1)), 'Prayer mix (2)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_ranging_mix', 'Ranging mix (2)', "finished", 'barbarian', 80, 54.0, (('Ranging potion (2)', 1), ('Caviar', 1)), 'Ranging mix (2)', source=POTION_DATA_SOURCE_PATH),
@@ -490,6 +490,11 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             (activity.output_item, activity.output_item_id),
         )
     }
+    canonical_item_ids = {
+        "Agility potion (3)": 3034,
+        "Agility potion (2)": 3036,
+        "Agility mix (2)": 11461,
+    }
     result = {}
     for name in herblore_item_names():
         item = {
@@ -514,6 +519,11 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
         elif name == "Overload (3)":
             item["item_id"] = 15333
             item["tradeable"] = False
+        elif name == "Magic essence mix (2)":
+            item["item_id"] = 11489
+        elif name.startswith("Juju farming potion ("):
+            dose = int(name.removeprefix("Juju farming potion (").removesuffix(")"))
+            item["item_id"] = {1: 20014, 2: 20013, 3: 20012, 4: 20011}[dose]
         elif name in {
             "Extreme attack (3)",
             "Extreme strength (3)",
@@ -522,5 +532,19 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "Extreme ranging (3)",
         }:
             item["tradeable"] = False
+        if name in canonical_item_ids:
+            item["item_id"] = canonical_item_ids[name]
         result[name] = item
+    for dose, item_id in {1: 20014, 2: 20013, 3: 20012, 4: 20011}.items():
+        name = f"Juju farming potion ({dose})"
+        result.setdefault(name, {
+            "display_name": name,
+            "output_item": name,
+            "level": 1,
+            "exp": 0.0,
+            "source": "Darkan item config: Juju farming potion dose family",
+            "category": "material",
+            "tradeable": True,
+            "item_id": item_id,
+        })
     return result

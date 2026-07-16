@@ -503,15 +503,28 @@ class TestLogic(unittest.TestCase):
                 self.assertEqual(new_inv[output_item], output)
 
     def test_light_source_actions_are_single_zero_xp_item_swaps_with_level_locks(self):
+        prepared, exp, ok, processed = apply_utility_activity_pure(
+            "insert_white_candle",
+            {"Candle lantern (empty)": 1, "Candle": 1},
+            UTILITY_ACTIVITY_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual((exp, processed), (0, 1))
+        self.assertEqual(
+            prepared,
+            {"Candle lantern (empty)": 0, "Candle": 0, "Candle lantern (unlit, 4529)": 1},
+        )
+
         new_inv, exp, ok, processed = apply_utility_activity_pure(
             "light_candle_lantern_4527",
-            {"Candle lantern (unlit, 4527)": 2},
+            prepared,
             UTILITY_ACTIVITY_DATA,
         )
         self.assertTrue(ok)
         self.assertEqual(exp, 0)
         self.assertEqual(processed, 1)
-        self.assertEqual(new_inv, {"Candle lantern (unlit, 4527)": 1, "Candle lantern (lit, 4531)": 1})
+        self.assertEqual(new_inv["Candle lantern (unlit, 4529)"], 0)
+        self.assertEqual(new_inv["Candle lantern (lit, 4531)"], 1)
 
         extinguished, exp, ok, processed = apply_utility_activity_pure(
             "extinguish_candle_lantern_4527",
@@ -521,10 +534,11 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(exp, 0)
         self.assertEqual(processed, 1)
-        self.assertEqual(extinguished, {"Candle lantern (unlit, 4527)": 2, "Candle lantern (lit, 4531)": 0})
+        self.assertEqual(extinguished["Candle lantern (unlit, 4529)"], 1)
+        self.assertEqual(extinguished["Candle lantern (lit, 4531)"], 0)
         self.assertEqual(
             utility_activity_locked_reasons_pure(
-                {"inventory": {"Candle lantern (unlit, 4527)": 1}, "firemaking_level": 3},
+                {"inventory": {"Candle lantern (unlit, 4529)": 1}, "firemaking_level": 3},
                 "light_candle_lantern_4527",
                 UTILITY_ACTIVITY_DATA,
             ),
@@ -538,6 +552,23 @@ class TestLogic(unittest.TestCase):
             ),
             (),
         )
+
+    def test_lamp_oil_chain_preserves_empty_unlit_and_lit_states(self):
+        filled, exp, ok, processed = apply_utility_activity_pure(
+            "fill_bullseye_lantern",
+            {"Bullseye lantern (empty)": 1, "Swamp tar": 1},
+            UTILITY_ACTIVITY_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual((exp, processed), (0, 1))
+        self.assertEqual(filled["Bullseye lantern (unlit)"], 1)
+        lit, exp, ok, processed = apply_utility_activity_pure(
+            "light_bullseye_lantern", filled, UTILITY_ACTIVITY_DATA
+        )
+        self.assertTrue(ok)
+        self.assertEqual((exp, processed), (0, 1))
+        self.assertEqual(lit["Bullseye lantern (unlit)"], 0)
+        self.assertEqual(lit["Bullseye lantern (lit)"], 1)
 
     def test_apply_utility_activity_can_generate_batch_without_inputs(self):
         utility_data = {
@@ -725,6 +756,16 @@ class TestLogic(unittest.TestCase):
         _d4, drain = apply_consumable_pure(pd, "Kebab", rng=lambda: next(drain_rolls))
         self.assertTrue(drain["drains"])
 
+    def test_juju_farming_potion_uses_answer_driven_farm_clock_and_preserves_dose(self):
+        pd = {"inventory": {"Juju farming potion (3)": 1}, "farm_clock_minutes": 17}
+
+        data, result = apply_consumable_pure(pd, "Juju farming potion (3)")
+
+        self.assertTrue(result["allowed"])
+        self.assertEqual(data["farm_juju_active_until"], 22)
+        self.assertEqual(data["inventory"], {"Juju farming potion (2)": 1})
+        self.assertEqual(pd["inventory"], {"Juju farming potion (3)": 1})
+
     def test_consumable_rejects_missing_and_non_consumable_items(self):
         _d, missing = apply_consumable_pure({"inventory": {}}, "Beer")
         self.assertFalse(missing["allowed"])
@@ -752,12 +793,15 @@ class TestLogic(unittest.TestCase):
     def test_item_combinations_and_button_polishing_execute_once(self):
         new_inv, exp, ok = apply_crafting_pure(
             "combine_bullseye_lantern",
-            {"Bullseye lantern": 1, "Lantern lens": 1},
+            {"Bullseye lantern (unf)": 1, "Lantern lens": 1},
             CRAFTING_DATA,
         )
         self.assertTrue(ok)
         self.assertEqual(exp, 0.0)
-        self.assertEqual(new_inv, {"Bullseye lantern": 1, "Lantern lens": 0})
+        self.assertEqual(
+            new_inv,
+            {"Bullseye lantern (unf)": 0, "Lantern lens": 0, "Bullseye lantern (empty)": 1},
+        )
 
         new_inv, exp, ok = apply_crafting_pure(
             "chisel_crab_helmet",
@@ -772,6 +816,35 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(exp, 5.0)
         self.assertEqual(new_inv, {"Buttons": 0, "Polished buttons": 1})
+
+    def test_stringing_consumes_unstrung_amulet_and_cannot_repeat(self):
+        furnace_inventory, furnace_xp, furnace_ok = apply_crafting_pure(
+            "jewellery_gold_amulet",
+            {"Gold bar": 1, "Amulet mould": 1},
+            CRAFTING_DATA,
+        )
+        self.assertTrue(furnace_ok)
+        self.assertEqual(furnace_xp, 30.0)
+        self.assertEqual(furnace_inventory["Gold amulet (u)"], 1)
+
+        strung_inventory, string_xp, string_ok = apply_crafting_pure(
+            "string_gold_amulet",
+            {**furnace_inventory, "Ball of wool": 1},
+            CRAFTING_DATA,
+        )
+        self.assertTrue(string_ok)
+        self.assertEqual(string_xp, 4.0)
+        self.assertEqual(strung_inventory["Gold amulet (u)"], 0)
+        self.assertEqual(strung_inventory["Gold amulet"], 1)
+
+        unchanged, repeated_xp, repeated_ok = apply_crafting_pure(
+            "string_gold_amulet",
+            {**strung_inventory, "Ball of wool": 1},
+            CRAFTING_DATA,
+        )
+        self.assertFalse(repeated_ok)
+        self.assertEqual(repeated_xp, 0)
+        self.assertEqual(unchanged["Gold amulet"], 1)
 
     def test_coin_paid_conversions_batch_with_per_unit_coins(self):
         # Tanning/sawmill conversions are review-paced no-XP batches with
@@ -1375,6 +1448,52 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(new_inv["Iron platebody"], 1)
         self.assertEqual(equipment, {})
+
+    def test_shop_blackjack_uses_the_equippable_canonical_identity(self):
+        inventory, equipment, ok = equip_item_pure(
+            "Willow blackjack", {"Willow blackjack": 1}, {}, EQUIPMENT_DATA
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(inventory["Willow blackjack"], 0)
+        self.assertEqual(equipment, {"weapon": "Willow blackjack"})
+
+    def test_live_quest_equipment_can_be_worn_with_sourced_level_gates(self):
+        expected_slots = {
+            "Ice arrows": "ammunition",
+            "Pendant of lucien": "neck",
+            "Armadyl pendant": "neck",
+            "Gnome amulet": "neck",
+            "Yew comp bow": "weapon",
+            "Magic comp bow": "weapon",
+            "Dark bow": "weapon",
+        }
+        for item_name, slot in expected_slots.items():
+            with self.subTest(item_name=item_name):
+                inventory, equipment, ok = equip_item_pure(
+                    item_name, {item_name: 1}, {}, EQUIPMENT_DATA
+                )
+                self.assertTrue(ok)
+                self.assertEqual(inventory[item_name], 0)
+                self.assertEqual(equipment, {slot: item_name})
+
+        for item_name, required_level in (
+            ("Yew comp bow", 40),
+            ("Magic comp bow", 50),
+            ("Dark bow", 60),
+        ):
+            with self.subTest(item_name=item_name, required_level=required_level):
+                ok, reason = can_equip_item_pure(
+                    item_name, EQUIPMENT_DATA, {"ranged_level": required_level - 1}
+                )
+                self.assertFalse(ok)
+                self.assertEqual(reason, f"Requires level {required_level} Ranged")
+
+                ok, reason = can_equip_item_pure(
+                    item_name, EQUIPMENT_DATA, {"ranged_level": required_level}
+                )
+                self.assertTrue(ok)
+                self.assertEqual(reason, "")
 
     def test_two_handed_weapon_and_shield_displace_each_other(self):
         inv = {"Bronze 2h sword": 1, "Bronze sq shield": 1}
@@ -2061,6 +2180,54 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(after_complete["inventory"]["Air talisman"], 1)
         self.assertEqual(after_complete["runecrafting_exp"], 0)
         self.assertEqual(after_complete["pending_skill_exp_rewards"], {})
+
+    def test_tears_of_guthix_final_lantern_stage_runs_before_completion(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["current_quest"] = "tears_of_guthix"
+        player_data["quests"]["tears_of_guthix"] = {
+            "started": True,
+            "progress": 2,
+            "completed": False,
+        }
+        player_data["inventory"]["Bullseye lantern (empty)"] = 1
+        player_data["inventory"]["Sapphire"] = 1
+        player_data["quest_stage_actions"] = {
+            "tears_of_guthix": ["Complete Tears of Guthix stage 2 objective"]
+        }
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "tears_of_guthix",
+            QUEST_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["tears_of_guthix"]["progress"], 3)
+        self.assertIn(
+            "Needs Sapphire lantern (lit) x1",
+            quest_current_stage_blocker_reasons_pure(
+                player_data,
+                "tears_of_guthix",
+                QUEST_DATA,
+            ),
+        )
+
+        player_data["inventory"]["Sapphire lantern (lit)"] = 1
+        player_data["quest_stage_actions"]["tears_of_guthix"].append(
+            "Complete Tears of Guthix stage 3 objective"
+        )
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "tears_of_guthix",
+            QUEST_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertTrue(player_data["quests"]["tears_of_guthix"]["completed"])
+        self.assertEqual(player_data["quests"]["tears_of_guthix"]["progress"], 4)
+        self.assertEqual(player_data["crafting_exp"], 1000.0)
 
     def test_unlock_quests_enforce_strict_start_requirements(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -3133,7 +3300,7 @@ class TestLogic(unittest.TestCase):
 
             player_data["thieving_level"] = 42
             player_data["inventory"].update({
-                "Light source": 1,
+                "Lit torch": 1,
                 "Knife": 1,
                 "Pendant of lucien": 1,
                 "Yew shortbow": 1,
@@ -4134,6 +4301,52 @@ class TestLogic(unittest.TestCase):
 
         player_data["inventory"]["Orange dye"] = 1
         self.assertEqual(quest_current_stage_blockers_pure(player_data, "dye_quest", quest_data), ())
+
+    def test_required_item_alternative_accepts_an_equipped_exact_state(self):
+        quest_data = {
+            "cave_quest": {
+                "stages": 1,
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "required_inventory_options": (
+                            ({"Bullseye lantern (lit)": 1}, {"Mining helmet (lit)": 1}),
+                        ),
+                        "source": "source",
+                    },
+                ),
+            }
+        }
+        player_data = {
+            "inventory": {},
+            "equipment": {"head": "Mining helmet (lit)"},
+            "quests": {"cave_quest": {"started": True, "progress": 1, "completed": False}},
+        }
+
+        self.assertEqual(quest_current_stage_blockers_pure(player_data, "cave_quest", quest_data), ())
+
+    def test_consumed_item_alternative_does_not_accept_an_equipped_item(self):
+        quest_data = {
+            "offering_quest": {
+                "stages": 1,
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "consumed_inventory_options": (({"Amulet of power": 1},),),
+                        "source": "source",
+                    },
+                ),
+            }
+        }
+        player_data = {
+            "inventory": {},
+            "equipment": {"neck": "Amulet of power"},
+            "quests": {"offering_quest": {"started": True, "progress": 1, "completed": False}},
+        }
+
+        blockers = quest_current_stage_blockers_pure(player_data, "offering_quest", quest_data)
+
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("missing_item_option",))
 
     def test_consumed_inventory_options_block_and_consume_selected_alternative(self):
         quest_data = {

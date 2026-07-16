@@ -15,11 +15,12 @@ except ImportError:
     from inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure, carried_slots_used, clamp_carried_view_to_bank
 
 try:
-    from .item_values import STACKABLE_ITEM_NAMES
+    from .item_values import ITEM_VALUES, STACKABLE_ITEM_NAMES
 except ImportError:
     try:
-        from item_values import STACKABLE_ITEM_NAMES
+        from item_values import ITEM_VALUES, STACKABLE_ITEM_NAMES
     except ImportError:  # values not generated in this checkout
+        ITEM_VALUES = {}
         STACKABLE_ITEM_NAMES = frozenset()
 
 try:
@@ -31,6 +32,11 @@ try:
     from .potion_data import POTION_FAMILIES, potion_dose_name, potion_flask_name
 except ImportError:
     from potion_data import POTION_FAMILIES, potion_dose_name, potion_flask_name
+
+try:
+    from .pack_data import ITEM_PACK_DATA
+except ImportError:
+    from pack_data import ITEM_PACK_DATA
 
 try:
     from .prayer_data import (
@@ -194,11 +200,22 @@ def get_newly_completed_achievements(player_data, ACHIEVEMENTS):
     """
     Returns a list of achievement names that are newly completed (not yet in player_data["completed_achievements"])
     """
-    completed = set(player_data.get("completed_achievements", []))
+    completed_names = list(player_data.get("completed_achievements", []))
+    completed = set(completed_names)
     newly_completed = []
-    for name, data in ACHIEVEMENTS.items():
-        if name not in completed and data["condition"](player_data):
-            newly_completed.append(name)
+    projected_data = dict(player_data)
+    while True:
+        added = False
+        projected_data["completed_achievements"] = completed_names + newly_completed
+        for name, data in ACHIEVEMENTS.items():
+            if name in completed or name in newly_completed:
+                continue
+            if data["condition"](projected_data):
+                newly_completed.append(name)
+                projected_data["completed_achievements"] = completed_names + newly_completed
+                added = True
+        if not added:
+            break
     return newly_completed
 
 def calculate_probability_with_level(player_level, base_probability, level_bonus_factor, source_probability, cap=0.95):
@@ -965,10 +982,15 @@ _PIE_OUTPUTS = {
 }
 _HUMIDIFY_OUTPUTS = {"Bucket": "Bucket of water", "Jug": "Jug of water", "Vial": "Vial of water", "Clay": "Soft clay"}
 _LEATHER_OUTPUTS = {"Cowhide": "Leather", "Green dragonhide": "Green dragon leather", "Blue dragonhide": "Blue dragon leather", "Red dragonhide": "Red dragon leather", "Black dragonhide": "Black dragon leather"}
-_STRINGABLE_AMULETS = (
-    "Gold amulet", "Sapphire amulet", "Emerald amulet", "Ruby amulet",
-    "Diamond amulet", "Dragonstone ammy", "Onyx amulet",
-)
+_STRINGABLE_AMULETS = {
+    "Gold amulet (u)": "Gold amulet",
+    "Sapphire amulet (u)": "Sapphire amulet",
+    "Emerald amulet (u)": "Emerald amulet",
+    "Ruby amulet (u)": "Ruby amulet",
+    "Diamond amulet (u)": "Diamond amulet",
+    "Dragonstone ammy (u)": "Dragonstone ammy",
+    "Onyx amulet (u)": "Onyx amulet",
+}
 
 
 def apply_magic_action_pure(player_data, target_id, magic_data, alch_values=None, random_random=None):
@@ -1045,14 +1067,11 @@ def apply_magic_action_pure(player_data, target_id, magic_data, alch_values=None
         add(_LEATHER_OUTPUTS[hide], count)
     elif action == "string_jewellery":
         total = 0
-        for item in _STRINGABLE_AMULETS:
+        for item, strung_item in _STRINGABLE_AMULETS.items():
             count = _non_negative_int(inventory.get(item, 0), 0)
             if count:
-                # Crafting V1 uses the same registry key for unstrung and strung
-                # amulets, so this batch is inventory-neutral while still paying
-                # runes and awarding the authentic Crafting XP.
                 inventory[item] = 0
-                add(item, count)
+                add(strung_item, count)
                 total += count
         secondary["crafting"] = 4.0 * total
     elif action == "magic_imbue":
@@ -2195,8 +2214,8 @@ def default_combat_supply_loadout_pure():
 
 
 COMBAT_PRESET_FIELDS = (
-    "combat_supply_loadout", "combat_pack_mode", "combat_auto_eat_threshold_percent",
-    "combat_auto_eat_food", "combat_auto_flee", "combat_selected_prayers",
+    "combat_pack_mode", "combat_auto_eat_threshold_percent", "combat_auto_eat_food",
+    "combat_auto_flee", "combat_selected_prayers",
     "combat_prayer_uptime", "combat_auto_prayer_training", "current_combat_spell",
     "combat_prayers_enabled", "combat_vengeance", "combat_dream_thrift",
     "combat_spellbook_swap",
@@ -2224,20 +2243,22 @@ def combat_magic_preset_locked_reasons_pure(player_data):
     swap_spell = str(player_data.get("combat_spellbook_swap", "") or "")
     if swap_spell and swap_spell not in {effect for effect, _book in effects}:
         return ("Spellbook Swap must name one selected magic effect",)
-    if len(books) <= 1:
-        return ()
-    if not swap_spell or swap_spell not in {effect for effect, _book in effects}:
-        return ("Preset mixes spellbooks",)
-    remaining_books = {book for effect, book in effects if effect != swap_spell}
-    swapped_books = {book for effect, book in effects if effect == swap_spell}
-    if len(remaining_books) != 1 or len(swapped_books) != 1 or remaining_books == swapped_books:
-        return ("Spellbook Swap allows exactly one off-book spell",)
-    if _positive_int(player_data.get("magic_level", 1), 1) < 96 or not quest_completed_pure(player_data, "lunar_diplomacy"):
-        return ("Spellbook Swap requires 96 Magic and Lunar Diplomacy",)
-    inventory = player_data.get("inventory", {}) or {}
-    for rune, amount in effective_magic_rune_cost_pure(player_data, SPELLBOOK_SWAP_COST).items():
-        if _non_negative_int(inventory.get(rune, 0), 0) < amount:
-            return (f"Spellbook Swap needs {rune} x{amount}",)
+    if len(books) > 1:
+        if not swap_spell or swap_spell not in {effect for effect, _book in effects}:
+            return ("Preset mixes spellbooks",)
+        remaining_books = {book for effect, book in effects if effect != swap_spell}
+        swapped_books = {book for effect, book in effects if effect == swap_spell}
+        if len(remaining_books) != 1 or len(swapped_books) != 1 or remaining_books == swapped_books:
+            return ("Spellbook Swap allows exactly one off-book spell",)
+        if _positive_int(player_data.get("magic_level", 1), 1) < 96 or not quest_completed_pure(player_data, "lunar_diplomacy"):
+            return ("Spellbook Swap requires 96 Magic and Lunar Diplomacy",)
+    target_id = str(player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET))
+    for label, cost, _xp in _combat_pending_supplemental_magic_costs_pure(player_data):
+        if label != "spellbook_swap":
+            continue
+        for rune, amount in cost.items():
+            if _combat_magic_rune_count(player_data, rune, target_id) < amount:
+                return (f"Spellbook Swap needs {rune} x{amount}",)
     return ()
 
 
@@ -2756,7 +2777,10 @@ def _combat_apply_pvm_death(data, max_player_lifepoints, grave_source="combat_de
     equipment = dict(data.get("equipment", {}) or {})
     protected_equipment = {}
     if prayer_effect_state_pure(data).get("protect_item") and equipment:
-        protected_slot = sorted(equipment)[0]
+        protected_slot = max(
+            equipment,
+            key=lambda slot: (_non_negative_int(ITEM_VALUES.get(equipment[slot], 0), 0), str(equipment[slot]), str(slot)),
+        )
         protected_equipment[protected_slot] = equipment.pop(protected_slot)
     grave_items = [item_name for item_name in equipment.values() if isinstance(item_name, str)]
     # Carried items are a view over the flat store: remove them from the bank and
@@ -3234,6 +3258,11 @@ def _combat_ranged_ammo_count(player_data, ammo_name, target_id):
 def _combat_selected_ranged_ammo(player_data, weapon_spec, target_id):
     if not isinstance(weapon_spec, Mapping):
         return None
+    loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
+    loaded_ammo = loadout.get("ammo", {}) or {}
+    for ammo_name in weapon_spec.get("compatible_ammo", ()) or ():
+        if isinstance(ammo_name, str) and _non_negative_int(loaded_ammo.get(ammo_name, 0), 0) > 0:
+            return ammo_name
     for ammo_name in weapon_spec.get("compatible_ammo", ()) or ():
         if isinstance(ammo_name, str) and _combat_ranged_ammo_count(player_data, ammo_name, target_id) > 0:
             return ammo_name
@@ -3281,6 +3310,71 @@ def combat_staff_covered_runes_pure(player_data, equipment_data=None):
     if not isinstance(covered_runes, Iterable):
         return {}
     return {rune_name: weapon_name for rune_name in covered_runes if isinstance(rune_name, str)}
+
+
+def _combat_effective_rune_cost_pure(player_data, rune_cost, equipment_data=None):
+    covered_runes = combat_staff_covered_runes_pure(player_data, equipment_data)
+    return {
+        str(rune_name): _positive_int(amount, 0)
+        for rune_name, amount in (rune_cost or {}).items()
+        if isinstance(rune_name, str)
+        and rune_name not in covered_runes
+        and _positive_int(amount, 0) > 0
+    }
+
+
+def _combat_spellbook_swap_applies_pure(player_data):
+    spell_id = str(player_data.get("current_combat_spell", DEFAULT_COMBAT_SPELL))
+    spell = COMBAT_MAGIC_SPELL_DATA.get(spell_id, {})
+    equipment = player_data.get("equipment", {}) or {}
+    effects = []
+    if str(equipment.get("weapon", "") or "") in COMBAT_MAGIC_STAFF_DATA:
+        effects.append((spell_id, str(spell.get("spellbook", "standard"))))
+    if bool(player_data.get("combat_vengeance", False)):
+        effects.append(("vengeance", "lunar"))
+    if bool(player_data.get("combat_dream_thrift", False)):
+        effects.append(("dream", "lunar"))
+    swap_spell = str(player_data.get("combat_spellbook_swap", "") or "")
+    return bool(swap_spell and len({book for _effect, book in effects}) > 1)
+
+
+def _combat_pending_supplemental_magic_costs_pure(player_data, equipment_data=None):
+    target_id = str(player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET))
+    encounter = player_data.get("combat_encounter", {}) or {}
+    active_encounter = isinstance(encounter, Mapping) and encounter.get("target_id") == target_id
+    swap_paid = bool(active_encounter and encounter.get("spellbook_swap_paid", False))
+    vengeance_pending = bool(active_encounter and encounter.get("vengeance_pending", False))
+    costs = []
+    if _combat_spellbook_swap_applies_pure(player_data) and not swap_paid:
+        costs.append(("spellbook_swap", SPELLBOOK_SWAP_COST, 130.0))
+    if bool(player_data.get("combat_vengeance", False)) and not vengeance_pending:
+        costs.append(("vengeance", VENGEANCE_COST, 112.0))
+    return tuple(
+        (label, _combat_effective_rune_cost_pure(player_data, raw_cost, equipment_data), xp)
+        for label, raw_cost, xp in costs
+    )
+
+
+def _combat_supplemental_rune_cost_pure(player_data, equipment_data=None):
+    combined = {}
+    for _label, cost, _xp in _combat_pending_supplemental_magic_costs_pure(player_data, equipment_data):
+        for rune_name, amount in cost.items():
+            combined[rune_name] = _non_negative_int(combined.get(rune_name, 0), 0) + amount
+    return combined
+
+
+def _combat_required_rune_cost_pure(player_data, combat_class, spell_spec, equipment_data=None):
+    combined = {}
+    if combat_class == "magic" and isinstance(spell_spec, Mapping):
+        for rune_name, amount in _combat_effective_rune_cost_pure(
+            player_data,
+            spell_spec.get("rune_cost", {}),
+            equipment_data,
+        ).items():
+            combined[rune_name] = _non_negative_int(combined.get(rune_name, 0), 0) + amount
+    for rune_name, amount in _combat_supplemental_rune_cost_pure(player_data, equipment_data).items():
+        combined[rune_name] = _non_negative_int(combined.get(rune_name, 0), 0) + amount
+    return combined
 
 
 def _combat_magic_rune_count(player_data, rune_name, target_id):
@@ -3592,16 +3686,14 @@ def _combat_banked_ranged_ammo_count(data, weapon_spec):
     return total
 
 
-def _combat_missing_loaded_runes(data, spell_spec, equipment_data=None):
-    rune_cost = spell_spec.get("rune_cost", {}) if isinstance(spell_spec, Mapping) else {}
+def _combat_missing_loaded_runes(data, rune_cost):
     if not isinstance(rune_cost, Mapping) or not rune_cost:
         return {}
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     rune_loadout = loadout.get("runes", {}) or {}
-    covered_runes = combat_staff_covered_runes_pure(data, equipment_data)
     missing = {}
     for rune_name, amount in rune_cost.items():
-        if not isinstance(rune_name, str) or rune_name in covered_runes:
+        if not isinstance(rune_name, str):
             continue
         required = _positive_int(amount, 0)
         loaded = _non_negative_int(rune_loadout.get(rune_name, 0), 0)
@@ -3699,8 +3791,9 @@ def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon
         _combat_refill_antipoison_loadout(data)
     if combat_class == "ranged":
         _combat_refill_ranged_ammo_loadout(data, ranged_weapon_spec)
-    elif combat_class == "magic":
-        _combat_refill_magic_rune_loadout(data, spell_spec, equipment_data)
+    rune_cost = _combat_required_rune_cost_pure(data, combat_class, spell_spec, equipment_data)
+    if rune_cost:
+        _combat_refill_magic_rune_loadout(data, rune_cost)
     # The same bank trip deposits accumulated loot (owner: loot banks alongside
     # supply depletion).
     _combat_deposit_loot(data, target_id)
@@ -3729,8 +3822,9 @@ def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, s
             return True
     if combat_class == "ranged":
         return _combat_loaded_ranged_ammo(data, ranged_weapon_spec) is None and _combat_banked_ranged_ammo_count(data, ranged_weapon_spec) > 0
-    if combat_class == "magic":
-        missing_runes = _combat_missing_loaded_runes(data, spell_spec, equipment_data)
+    rune_cost = _combat_required_rune_cost_pure(data, combat_class, spell_spec, equipment_data)
+    if rune_cost:
+        missing_runes = _combat_missing_loaded_runes(data, rune_cost)
         return _combat_bank_has_runes(data, missing_runes)
     return False
 
@@ -3818,10 +3912,7 @@ def _combat_refill_ranged_ammo_loadout(data, weapon_spec):
     data["combat_supply_loadout"] = loadout
 
 
-def _combat_refill_magic_rune_loadout(data, spell_spec, equipment_data=None):
-    if not isinstance(spell_spec, Mapping):
-        return
-    rune_cost = spell_spec.get("rune_cost", {})
+def _combat_refill_magic_rune_loadout(data, rune_cost):
     if not isinstance(rune_cost, Mapping):
         return
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
@@ -3831,14 +3922,8 @@ def _combat_refill_magic_rune_loadout(data, spell_spec, equipment_data=None):
         data["combat_supply_loadout"] = loadout
         return
     inventory = dict(inventory)
-    covered_runes = combat_staff_covered_runes_pure(data, equipment_data)
     for rune_name in rune_cost:
         if not isinstance(rune_name, str):
-            continue
-        if rune_name in covered_runes:
-            loaded = _non_negative_int(rune_loadout.pop(rune_name, 0), 0)
-            if loaded > 0:
-                inventory[rune_name] = _non_negative_int(inventory.get(rune_name, 0), 0) + loaded
             continue
         available = _non_negative_int(inventory.get(rune_name, 0), 0)
         if available <= 0:
@@ -3867,22 +3952,20 @@ def _combat_consume_ranged_ammo(data, weapon_spec, target_id):
     return ammo_name
 
 
-def _combat_consume_magic_runes(data, spell_spec, target_id, equipment_data=None):
-    if not isinstance(spell_spec, Mapping):
-        return None
-    rune_cost = spell_spec.get("rune_cost", {})
+def _combat_consume_loaded_rune_cost(data, rune_cost):
     if not isinstance(rune_cost, Mapping) or not rune_cost:
         return {}
-    if _combat_magic_missing_runes(data, spell_spec, target_id, equipment_data):
-        return None
-    covered_runes = combat_staff_covered_runes_pure(data, equipment_data)
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     rune_loadout = dict(loadout.get("runes", {}) or {})
+    if any(
+        _non_negative_int(rune_loadout.get(rune_name, 0), 0) < _positive_int(amount, 0)
+        for rune_name, amount in rune_cost.items()
+        if isinstance(rune_name, str)
+    ):
+        return None
     used = {}
     for rune_name, amount in rune_cost.items():
         if not isinstance(rune_name, str):
-            continue
-        if rune_name in covered_runes:
             continue
         required = _positive_int(amount, 0)
         if required <= 0:
@@ -3895,6 +3978,13 @@ def _combat_consume_magic_runes(data, spell_spec, target_id, equipment_data=None
     loadout["runes"] = rune_loadout
     data["combat_supply_loadout"] = loadout
     return used
+
+
+def _combat_consume_magic_runes(data, spell_spec, _target_id, equipment_data=None):
+    if not isinstance(spell_spec, Mapping):
+        return None
+    rune_cost = _combat_effective_rune_cost_pure(data, spell_spec.get("rune_cost", {}), equipment_data)
+    return _combat_consume_loaded_rune_cost(data, rune_cost)
 
 
 def _combat_ranged_strength_bonus(player_totals, ammo_name):
@@ -4390,10 +4480,33 @@ def _consumable_heal(data, amount):
     return healed - current
 
 
+def apply_item_pack_open_pure(inventory, item_name, open_all=False):
+    """Open one or every owned shop supply pack without mutating the input."""
+    updated = dict(inventory or {})
+    spec = ITEM_PACK_DATA.get(item_name)
+    owned = _non_negative_int(updated.get(item_name, 0), 0)
+    if spec is None or owned <= 0:
+        return updated, {"allowed": False, "reason": "missing_pack", "item_name": item_name}
+    packs_opened = owned if open_all else 1
+    remaining = owned - packs_opened
+    if remaining:
+        updated[item_name] = remaining
+    else:
+        updated.pop(item_name, None)
+    content_item = str(spec["content_item"])
+    content_quantity = packs_opened * int(spec["content_quantity"])
+    updated[content_item] = _non_negative_int(updated.get(content_item, 0), 0) + content_quantity
+    return updated, {
+        "allowed": True,
+        "item_name": item_name,
+        "packs_opened": packs_opened,
+        "content_item": content_item,
+        "content_quantity": content_quantity,
+    }
+
+
 def apply_consumable_pure(player_data, item_name, rng=None):
-    """Eat/drink a stat-affecting consumable (Kebab, Beer). Consumes one from
-    inventory, applies the source effect (heal + current-level boosts/drains),
-    and returns (new_data, result). Undo-safe: never mutates the input."""
+    """Consume one edible or potion and return its state/result without mutation."""
     rng = rng or (lambda: 0.0)
     spec = CONSUMABLE_DATA.get(item_name)
     if spec is None:
@@ -4467,6 +4580,13 @@ def apply_consumable_pure(player_data, item_name, rng=None):
             inv = dict(data.get("inventory", {}) or {})
             inv[leaves] = _non_negative_int(inv.get(leaves, 0), 0) + 1
             data["inventory"] = inv
+    elif spec["kind"] == "farming_juju":
+        leaves = str(spec.get("leaves", ""))
+        if leaves:
+            inv = dict(data.get("inventory", {}) or {})
+            inv[leaves] = _non_negative_int(inv.get(leaves, 0), 0) + 1
+            data["inventory"] = inv
+        data["farm_juju_active_until"] = _non_negative_int(data.get("farm_clock_minutes", 0), 0) + int(spec["farm_minutes"])
     elif spec["kind"] == "agility_boost":
         boost = _positive_int(spec.get("boost", 1), 1)
         healed = _consumable_heal(data, _non_negative_int(spec.get("heal", 0), 0))
@@ -4755,7 +4875,11 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     # Dream trades one review and one cast for its pinned 50 LP/minute healing
     # rate. It happens between fights before supplies or attack rolls.
     max_lp_for_dream = combat_max_lifepoints_pure(data)
-    if bool(data.get("combat_dream_thrift", False)) and _non_negative_int(data.get("combat_lifepoints", max_lp_for_dream), max_lp_for_dream) < max_lp_for_dream:
+    if (
+        bool(data.get("combat_dream_thrift", False))
+        and not combat_has_active_encounter_pure(data)
+        and _non_negative_int(data.get("combat_lifepoints", max_lp_for_dream), max_lp_for_dream) < max_lp_for_dream
+    ):
         dream_cost = effective_magic_rune_cost_pure(data, DREAM_COST)
         inventory = data.get("inventory", {}) or {}
         if all(_non_negative_int(inventory.get(rune, 0), 0) >= amount for rune, amount in dream_cost.items()):
@@ -4806,23 +4930,23 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         return player_data, False, {"reason": "combat_locked", "locked_reasons": locked_reasons}
     enemy = enemy_data[target_id]
 
-    supplemental_costs = []
-    if data.get("combat_spellbook_swap"):
-        supplemental_costs.append(("spellbook_swap", SPELLBOOK_SWAP_COST, 130.0))
-    if bool(data.get("combat_vengeance", False)):
-        supplemental_costs.append(("vengeance", VENGEANCE_COST, 112.0))
+    encounter = data.get("combat_encounter", {}) or {}
+    active_encounter = isinstance(encounter, Mapping) and encounter.get("target_id") == target_id
+    spellbook_swap_paid = bool(active_encounter and encounter.get("spellbook_swap_paid", False))
+    vengeance_pending = bool(active_encounter and encounter.get("vengeance_pending", False))
     supplemental_used = {}
-    vengeance_pending = bool(data.get("combat_vengeance", False))
-    inventory = dict(data.get("inventory", {}) or {})
-    for label, raw_cost, xp in supplemental_costs:
-        cost = effective_magic_rune_cost_pure(data, raw_cost)
-        if not all(_non_negative_int(inventory.get(rune, 0), 0) >= amount for rune, amount in cost.items()):
+    supplemental_magic_xp = 0.0
+    for label, cost, xp in _combat_pending_supplemental_magic_costs_pure(data, equipment_data):
+        used = _combat_consume_loaded_rune_cost(data, cost)
+        if used is None:
             return player_data, False, {"reason": "combat_locked", "locked_reasons": (f"{label.replace('_', ' ').title()} runes",)}
-        for rune, amount in cost.items():
-            inventory[rune] -= amount
+        for rune, amount in used.items():
             supplemental_used[rune] = supplemental_used.get(rune, 0) + amount
-        data["magic_exp"] = float(data.get("magic_exp", 0.0) or 0.0) + xp
-    data["inventory"] = inventory
+        supplemental_magic_xp += xp
+        if label == "spellbook_swap":
+            spellbook_swap_paid = True
+        elif label == "vengeance":
+            vengeance_pending = True
 
     # Auto-drink carried stat potions before the rolls are computed, so the boost
     # flows through the effective-level reads into this burst's max-hit/accuracy.
@@ -4837,8 +4961,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         ),
     )
     enemy_max_lp = _positive_int(enemy.get("stats", {}).get("hitpoints", 1), 1)
-    encounter = data.get("combat_encounter", {}) or {}
-    if isinstance(encounter, Mapping) and encounter.get("target_id") == target_id:
+    if active_encounter:
         enemy_lp = max(0, min(_positive_int(encounter.get("enemy_lifepoints", enemy_max_lp), enemy_max_lp), enemy_max_lp))
     else:
         enemy_lp = enemy_max_lp
@@ -4977,7 +5100,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     status_damage = {}
     status_applied = {}
     status_expired = []
-    xp_rewards = {}
+    xp_rewards = {"magic_exp": supplemental_magic_xp} if supplemental_magic_xp > 0 else {}
     drops = {}
     kills = 0
     killed = False
@@ -5119,6 +5242,24 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
             if player_lp <= 0:
                 died = True
                 break
+            if enemy_lp <= 0:
+                kills += 1
+                killed = True
+                kill_drops = _combat_roll_drops(enemy, rng)
+                data, kill_drops, passive_prayer_xp, prayer_ticks, _prayer_effects = resolve_prayer_kill_effects_pure(
+                    data,
+                    target_id,
+                    kill_drops,
+                    bool(data.get("combat_auto_prayer_training")),
+                )
+                if passive_prayer_xp > 0:
+                    xp_rewards["prayer_exp"] = float(xp_rewards.get("prayer_exp", 0.0) or 0.0) + passive_prayer_xp
+                next_player_attack += prayer_ticks
+                for drop_name, drop_amount in kill_drops.items():
+                    drops[drop_name] = _non_negative_int(drops.get(drop_name, 0), 0) + _non_negative_int(drop_amount, 0)
+                enemy_lp = enemy_max_lp
+                next_enemy_attack = tick + 1 + enemy_attack_speed
+                continue
             player_lp, food_event = _combat_consume_auto_food(data, player_lp, max_player_lp, rng)
             if food_event:
                 food_used.append(food_event)
@@ -5171,7 +5312,12 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         # burst ended right after a kill respawned a fresh full-LP enemy.
         data["combat_encounter"] = {}
     else:
-        data["combat_encounter"] = {"target_id": target_id, "enemy_lifepoints": enemy_lp}
+        next_encounter = {"target_id": target_id, "enemy_lifepoints": enemy_lp}
+        if spellbook_swap_paid:
+            next_encounter["spellbook_swap_paid"] = True
+        if bool(data.get("combat_vengeance", False)) or vengeance_pending:
+            next_encounter["vengeance_pending"] = bool(vengeance_pending)
+        data["combat_encounter"] = next_encounter
 
     _combat_regenerate_special_attack_energy(data, ticks_elapsed)
     data["combat_lifepoints"] = player_lp
@@ -5395,9 +5541,10 @@ def refill_combat_supply_loadout_pure(player_data, equipment_data=None):
     if combat_class == "ranged":
         _weapon_name, _equipment_spec, weapon_spec = _combat_ranged_weapon_spec(data, equipment_data or {})
         _combat_refill_ranged_ammo_loadout(data, weapon_spec)
-    elif combat_class == "magic":
-        _spell_id, spell_spec = _combat_selected_magic_spell(data)
-        _combat_refill_magic_rune_loadout(data, spell_spec, equipment_data or {})
+    _spell_id, spell_spec = _combat_selected_magic_spell(data)
+    rune_cost = _combat_required_rune_cost_pure(data, combat_class, spell_spec, equipment_data or {})
+    if rune_cost:
+        _combat_refill_magic_rune_loadout(data, rune_cost)
     return data, True, ""
 
 
@@ -6220,9 +6367,12 @@ def _quest_requirement_blockers(player_data, quest_id, requirement):
     seen_option_blockers = set()
     for option_key in ("required_inventory_options", "consumed_inventory_options"):
         for options in _quest_stage_item_option_groups(requirement, option_key):
-            option_met = any(
-                _positive_int(inventory.get(item_name, 0), 0) >= amount for item_name, amount in options
-            )
+            if option_key == "required_inventory_options":
+                option_met = any(_has_quest_tool(player_data, item_name, amount) for item_name, amount in options)
+            else:
+                option_met = any(
+                    _positive_int(inventory.get(item_name, 0), 0) >= amount for item_name, amount in options
+                )
             if option_met:
                 continue
             option_signature = tuple(options)
@@ -8584,7 +8734,12 @@ def thieving_target_locked_reasons_pure(player_data, target_id, thieving_data):
         reasons.append(str(spec.get("quest_gate_label", str(quest_gate).replace("_", " ").title())))
     required_items = tuple(spec.get("required_items_any") or ())
     inventory = player_data.get("inventory", {}) or {}
-    if required_items and not any(_non_negative_int(inventory.get(item, 0), 0) > 0 for item in required_items):
+    equipment = player_data.get("equipment", {}) or {}
+    equipped_items = set(equipment.values()) if isinstance(equipment, Mapping) else set()
+    if required_items and not any(
+        _non_negative_int(inventory.get(item, 0), 0) > 0 or item in equipped_items
+        for item in required_items
+    ):
         reasons.append("usable blackjack")
     encounter = player_data.get("combat_encounter") or {}
     if isinstance(encounter, Mapping) and encounter:

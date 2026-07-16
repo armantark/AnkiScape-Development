@@ -60,6 +60,7 @@ try:
         WOODCUTTING_AXE_DATA,
     )
     from .logic_pure import (
+        COMBAT_GRAVE_RECOVERY_REVIEWS,
         apply_combat_burst_pure,
         apply_cooking_action_pure,
         apply_crafting_pure,
@@ -218,6 +219,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         WOODCUTTING_AXE_DATA,
     )
     from logic_pure import (  # type: ignore
+        COMBAT_GRAVE_RECOVERY_REVIEWS,
         apply_combat_burst_pure,
         apply_cooking_action_pure,
         apply_crafting_pure,
@@ -1106,10 +1108,32 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
             for item_name, amount in left.items():
                 inventory[item_name] = max(0, int(inventory.get(item_name, 0) or 0) - amount)
             player_data["inventory"] = inventory
+        # A kill can precede death in the same review burst. The pure death path
+        # cannot grave those drops before this runtime-level loot filter decides
+        # which ones were actually picked up, so move kept fatal-burst loot into
+        # the new grave here instead of recreating a carried view after death.
+        if drops and result.get("died"):
+            grave = dict(player_data.get("combat_grave", {}) or {})
+            grave_items = list(grave.get("items", ()) or ())
+            inventory = dict(player_data.get("inventory", {}) or {})
+            for item_name, amount in drops.items():
+                if item_name == "Coins":
+                    continue
+                risked = min(max(0, int(amount or 0)), max(0, int(inventory.get(item_name, 0) or 0)))
+                if risked <= 0:
+                    continue
+                inventory[item_name] -= risked
+                grave_items.extend([item_name] * risked)
+            if grave_items:
+                grave["items"] = grave_items
+                grave.setdefault("reviews_remaining", COMBAT_GRAVE_RECOVERY_REVIEWS)
+                grave.setdefault("source", "combat_death")
+                player_data["combat_grave"] = grave
+            player_data["inventory"] = inventory
         # Kept loot competes for carried slots: fold it into the combat target's
-        # carried view (coins excluded) so it drops on death and, once the pack
-        # fills, forces a bank run alongside supply depletion. Banking deposits it.
-        if drops:
+        # carried view (coins excluded) so it drops on a later death and, once the
+        # pack fills, forces a bank run alongside supply depletion. Banking deposits it.
+        elif drops:
             carried = player_data.get("carried_inventory")
             if not isinstance(carried, dict):
                 carried = {}
@@ -2686,7 +2710,7 @@ def handle_thieving_answer(ctx: RuntimeActionContext) -> bool:
             level,
             player_data.get("agility_level", 1),
             spec.get("level", 1),
-            _thieving_rng_index(ctx, 7),
+            _thieving_rng_index(ctx, 8),
         )
     _thieving_award_success(ctx, target, spec, loot_count=loot_count)
     ctx.save_player_data()
@@ -2727,6 +2751,8 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
         player_data.clear()
         player_data.update(damaged)
         result["damage_result"] = damage_result
+        if damage_result.get("died"):
+            ctx.deactivate_current_skill()
 
     outputs = {
         str(item): int(quantity)
@@ -2766,6 +2792,12 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     if gained > 0:
         ctx.show_exp(gained)
     ctx.show_activity_gain(str(result.get("status", player_data.get("agility_status", "Agility action complete"))))
+    damage_result = result.get("damage_result") or {}
+    if damage_result.get("died"):
+        ctx.show_activity_gain("☠ YOU DIED — Agility failure; gear moved to grave")
+    elif damage_result.get("food_used"):
+        food = damage_result["food_used"]
+        ctx.show_activity_gain(f"Auto-ate {food['item']} (+{food['healed_by']} LP)")
     return True
 
 

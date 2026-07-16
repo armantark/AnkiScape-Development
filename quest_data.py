@@ -16,6 +16,11 @@ try:
 except ImportError:  # pragma: no cover
     from runecrafting_data import RUNEMYSTERIES_SOURCE_PATH, WICKED_HOOD_ITEM  # type: ignore
 
+try:
+    from .firemaking_data import LIT_LIGHT_SOURCE_ITEMS
+except ImportError:  # pragma: no cover
+    from firemaking_data import LIT_LIGHT_SOURCE_ITEMS  # type: ignore
+
 
 RUNE_MYSTERIES_ID = "rune_mysteries"
 COOKS_ASSISTANT_ID = "cooks_assistant"
@@ -2214,7 +2219,7 @@ TEMPLE_OF_IKOV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
     QuestStageRequirement(
         stage=1,
         description="Enter the Temple of Ikov with Lucien's pendant and a light source.",
-        required_inventory=(("Light source", 1),),
+        required_inventory_options=(tuple((item_name, 1) for item_name in LIT_LIGHT_SOURCE_ITEMS),),
         required_tools=(("Pendant of lucien", 1),),
         required_routes=("Enter the Temple of Ikov",),
         source=(
@@ -2707,8 +2712,8 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         requirements=(
             "Thieving 42",
             (
-                "Used during quest: Light source x1, Knife x1, Limpwurt root x20, "
-                "one yew, magic, or dark bow compatible with ice arrows."
+                "Used during quest: Knife x1, Limpwurt root x20, one yew, magic, or dark bow "
+                "compatible with ice arrows; bring any valid lit source."
             ),
             (
                 "Quest-made items: Pendant of lucien, Boots of lightness, Lever, Ice arrows, "
@@ -7567,8 +7572,9 @@ def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object
             _dedupe_stage_requirements((*base, *additions)),
         ),
     )
-    max_requirement_stage = max((requirement.stage for requirement in requirements), default=quest.stages)
-    stages = QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID.get(quest.id, max(quest.stages, max_requirement_stage))
+    max_requirement_stage = max((requirement.stage for requirement in requirements), default=0)
+    configured_stages = QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID.get(quest.id, quest.stages)
+    stages = max(configured_stages, max_requirement_stage + 1)
     journal_stages = QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID.get(quest.id, quest.journal_stages)
     combat = QUEST_COMBAT_TEXT_REPLACEMENTS_BY_ID.get(quest.id, quest.combat)
     choices = QUEST_CHOICE_REPLACEMENTS_BY_ID.get(quest.id, quest.choices)
@@ -8135,17 +8141,14 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
             "category": "equipment",
             "source": f"{FAMILY_CREST_JOHNATHON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
         },
-        "Light source": {
-            "category": "material",
-            "source": f"{TEMPLE_OF_IKOV_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}; {TEMPLE_OF_IKOV_WIKI_SOURCE}",
-        },
         "Limpwurt root": {
             "category": "material",
             "source": f"{TEMPLE_OF_IKOV_WINELDA_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
         },
         "Ice arrows": {
             "category": "equipment",
-            "equipment_slot": "ammo",
+            "equipment_slot": "ammunition",
+            "item_id": 78,
             "tradeable": False,
             "source": f"{TEMPLE_OF_IKOV_DUNGEON_SOURCE}; {TEMPLE_OF_IKOV_FIRE_WARRIOR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
         },
@@ -8155,8 +8158,8 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
             "source": f"{TEMPLE_OF_IKOV_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
         },
         "Staff of armadyl": {
-            "category": "equipment",
-            "equipment_slot": "weapon",
+            "category": "material",
+            "item_id": 84,
             "tradeable": False,
             "source": f"{TEMPLE_OF_IKOV_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
         },
@@ -8168,12 +8171,14 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Pendant of lucien": {
             "category": "equipment",
             "equipment_slot": "neck",
+            "item_id": 86,
             "tradeable": False,
             "source": f"{TEMPLE_OF_IKOV_LUCIEN_ARDOUGNE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
         },
         "Armadyl pendant": {
             "category": "equipment",
             "equipment_slot": "neck",
+            "item_id": 87,
             "tradeable": False,
             "source": f"{TEMPLE_OF_IKOV_GUARDIAN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
         },
@@ -8186,16 +8191,19 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Yew comp bow": {
             "category": "equipment",
             "equipment_slot": "weapon",
+            "item_id": 10282,
             "source": f"{TEMPLE_OF_IKOV_FIRE_WARRIOR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
         },
         "Magic comp bow": {
             "category": "equipment",
             "equipment_slot": "weapon",
+            "item_id": 10284,
             "source": f"{TEMPLE_OF_IKOV_FIRE_WARRIOR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
         },
         "Dark bow": {
             "category": "equipment",
             "equipment_slot": "weapon",
+            "item_id": 11235,
             "source": f"{TEMPLE_OF_IKOV_FIRE_WARRIOR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
         },
         "Child's blanket": {
@@ -8615,6 +8623,7 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Gnome amulet": {
             "category": "equipment",
             "equipment_slot": "neck",
+            "item_id": 589,
             "tradeable": False,
             "source": f"{TREE_GNOME_DARKAN_SOURCE}; {TREE_GNOME_BOLREN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
         },

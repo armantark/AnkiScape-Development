@@ -84,11 +84,14 @@ WIKI_TITLE_OVERRIDES: Dict[str, str] = {
     # The canonical 2011Scape item name omits the empty-state qualifier, while
     # the only published inventory sprite is the corresponding empty lantern.
     "Candle lantern": "Candle lantern (empty)",
-    # Crafted amulets are the *unstrung* item in our economy (stringing is a
-    # separate combination step); point at the unstrung inventory icon.
-    "Dragonstone ammy": "Dragonstone amulet (unstrung)",
-    "Gold amulet": "Gold amulet (unstrung)",
-    "Sapphire amulet": "Sapphire amulet (unstrung)",
+    "Dragonstone ammy": "Dragonstone amulet",
+    "Dragonstone ammy (u)": "Dragonstone amulet (unstrung)",
+    "Gold amulet (u)": "Gold amulet (unstrung)",
+    "Sapphire amulet (u)": "Sapphire amulet (unstrung)",
+    "Emerald amulet (u)": "Emerald amulet (unstrung)",
+    "Ruby amulet (u)": "Ruby amulet (unstrung)",
+    "Diamond amulet (u)": "Diamond amulet (unstrung)",
+    "Onyx amulet (u)": "Onyx amulet (unstrung)",
     "Unstrung emblem": "Unblessed symbol",
     # Intermediate pottery/urn states have no distinct inventory-icon page on the
     # wikis; fall back to the finished item's icon (same object, visually fine).
@@ -150,9 +153,22 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--force", action="store_true", help="Overwrite existing files.")
     parser.add_argument("--dry-run", action="store_true", help="Resolve without downloading.")
+    parser.add_argument(
+        "--item",
+        action="append",
+        default=[],
+        help="Fetch only this exact manifest item; repeat for multiple items.",
+    )
     args = parser.parse_args(argv)
 
     manifest = _build_manifest()
+    if args.item:
+        requested = set(args.item)
+        known = {item_name for item_name, _out_rel, _wiki_override in manifest}
+        unknown = sorted(requested - known)
+        if unknown:
+            parser.error(f"unknown Crafting item(s): {', '.join(unknown)}")
+        manifest = [row for row in manifest if row[0] in requested]
     client = HttpWikiClient()
     ok = skipped = failed = 0
     failures: List[str] = []

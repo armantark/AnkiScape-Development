@@ -123,11 +123,17 @@ def _agility_counter(player: PlayerData, key: str) -> int:
     return _level(counters, key, 0) if isinstance(counters, Mapping) else 0
 
 
-def _agility_activity_family_count(player: PlayerData) -> int:
+def _has_completed_agility_activity_families(
+    player: PlayerData,
+    required_families: Iterable[str],
+) -> bool:
     completions = player.get("agility_activity_completions", {}) or {}
     if not isinstance(completions, Mapping):
-        return 0
-    return sum(1 for value in completions.values() if _level({"value": value}, "value", 0) > 0)
+        return False
+    return all(
+        _level({"value": completions.get(family)}, "value", 0) > 0
+        for family in required_families
+    )
 
 
 def _owns_or_equipped(player: PlayerData, item_name: str) -> bool:
@@ -146,6 +152,7 @@ def build_achievement_definitions(
     fishing_output_items: Iterable[str],
     hunter_output_items: Iterable[str],
     herblore_finished_items: Iterable[str],
+    agility_activity_families: Iterable[str],
 ) -> tuple[AchievementDefinition, ...]:
     mining_output_items = tuple(mining_output_items)
     woodcutting_log_items = tuple(woodcutting_log_items)
@@ -155,6 +162,7 @@ def build_achievement_definitions(
     fishing_output_items = tuple(fishing_output_items)
     hunter_output_items = tuple(hunter_output_items)
     herblore_finished_items = tuple(herblore_finished_items)
+    agility_activity_families = tuple(dict.fromkeys(agility_activity_families))
 
     definitions: list[AchievementDefinition] = []
     final_count = {"value": 0}
@@ -258,11 +266,11 @@ def build_achievement_definitions(
     add("Iron Forger", "Smelt 500 Iron bars", "Moderate", lambda player: _item_count(player, "Iron bar") >= 500)
     add("Steel Specialist", "Smelt 1000 Steel bars", "Moderate", lambda player: _item_count(player, "Steel bar") >= 1000)
     add("Mithril Maestro", "Smelt 500 Mithril bars", "Difficult", lambda player: _item_count(player, "Mithril bar") >= 500)
-    add("Adamantite Artisan", "Smelt 250 Adamantite bars", "Very Challenging", lambda player: _item_count(player, "Adamantite bar") >= 250)
-    add("Runite Refiner", "Smelt 100 Runite bars", "Very Challenging", lambda player: _item_count(player, "Runite bar") >= 100)
+    add("Adamantite Artisan", "Smelt 250 Adamant bars", "Very Challenging", lambda player: _item_count(player, "Adamant bar") >= 250)
+    add("Runite Refiner", "Smelt 100 Rune bars", "Very Challenging", lambda player: _item_count(player, "Rune bar") >= 100)
 
     add("Novice Crafter", "Reach level 2 in Crafting", "Easy", lambda player: _level(player, "crafting_level") > 1)
-    add("Pottery Apprentice", "Craft 100 pots", "Easy", lambda player: _item_count(player, "Pot") >= 100)
+    add("Pottery Apprentice", "Craft 100 pots", "Easy", lambda player: _item_count(player, "Empty pot") >= 100)
     add("Jewelry Novice", "Craft 50 gold rings", "Moderate", lambda player: _item_count(player, "Gold ring") >= 50)
     add("Gem Cutter", "Cut 10 of each gem type", "Difficult", lambda player: _has_each(player, ("Sapphire", "Emerald", "Ruby", "Diamond"), 10))
     add("Master Crafter", "Reach Crafting level 99", "Very Challenging", lambda player: _level(player, "crafting_level") >= 99)
@@ -359,7 +367,7 @@ def build_achievement_definitions(
     add("Pit Proven", "Succeed in The Pit", "Moderate", lambda player: _level(player, "agility_pit_successes", 0) >= 1)
     add("Expert Acrobat", "Reach Agility level 60", "Difficult", lambda player: _level(player, "agility_level") >= 60)
     add("Arena Regular", "Hold 100 Brimhaven Agility Arena tickets", "Difficult", lambda player: _item_count(player, "Agility arena ticket") >= 100)
-    add("Activity Circuit", "Complete every live Agility activity family", "Difficult", lambda player: _agility_activity_family_count(player) >= 5)
+    add("Activity Circuit", "Complete every live Agility activity family", "Difficult", lambda player: _has_completed_agility_activity_families(player, agility_activity_families))
     add("Agile", "Own both pieces of the Agile set", "Difficult", lambda player: all(_owns_or_equipped(player, item) for item in ("Agile top", "Agile legs")))
     add("Master Acrobat", "Reach Agility level 99", "Very Challenging", lambda player: _level(player, "agility_level") >= 99)
     add("Endurance", "Complete 1,000 Agility actions", "Very Challenging", lambda player: _level(player, "agility_actions_completed", 0) >= 1000)

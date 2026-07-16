@@ -8,6 +8,7 @@ from firemaking_data import (
     FIREMAKING_TARGETS,
     FIREMAKING_TARGETS_BY_ID,
     LIGHT_SOURCE_ACTIVITIES,
+    LIGHT_SOURCE_PREPARATIONS,
     LIGHT_SOURCE_PATH,
     LIGHT_SOURCE_PLUGIN_PATH,
     firemaking_deferred_content_as_dict,
@@ -85,10 +86,10 @@ class TestFiremakingData(unittest.TestCase):
                 ("light_unlit_torch", 596, 594, 1),
                 ("light_candle", 36, 33, 1),
                 ("light_black_candle", 38, 32, 1),
-                ("light_candle_lantern_4527", 4527, 4531, 4),
+                ("light_candle_lantern_4527", 4529, 4531, 4),
                 ("light_candle_lantern_4532", 4532, 4534, 4),
                 ("light_oil_lamp", 4522, 4524, 12),
-                ("light_oil_lantern", 4535, 4539, 26),
+                ("light_oil_lantern", 4537, 4539, 26),
                 ("light_bullseye_lantern", 4548, 4550, 49),
                 ("light_sapphire_lantern", 4701, 4702, 49),
                 ("light_emerald_lantern", 9064, 9065, 49),
@@ -96,7 +97,7 @@ class TestFiremakingData(unittest.TestCase):
             ],
         )
         activities = light_source_activities_as_dict()
-        self.assertEqual(len(activities), 22)
+        self.assertEqual(len(activities), 28)
         for activity in LIGHT_SOURCE_ACTIVITIES:
             light = activities[activity.id]
             extinguish = activities[f"extinguish_{activity.id[6:]}"]
@@ -110,6 +111,26 @@ class TestFiremakingData(unittest.TestCase):
             self.assertNotIn("firemaking_level", extinguish)
         self.assertIn("LightSource.kt", LIGHT_SOURCE_PATH)
         self.assertIn("light_source.plugin.kts", LIGHT_SOURCE_PLUGIN_PATH)
+
+    def test_light_source_preparation_rows_preserve_item_states(self):
+        activities = light_source_activities_as_dict()
+        expected = {
+            "insert_white_candle": (4527, "Candle", "Candle lantern (unlit, 4529)", 4529),
+            "insert_black_candle": (4527, "Black candle", "Candle lantern (unlit, 4532)", 4532),
+            "fill_oil_lamp": (4525, "Swamp tar", "Oil lamp (unlit)", 4522),
+            "fill_oil_lantern": (4535, "Swamp tar", "Oil lantern (unlit)", 4537),
+            "fill_bullseye_lantern": (4546, "Swamp tar", "Bullseye lantern (unlit)", 4548),
+            "fill_sapphire_lantern": (4700, "Swamp tar", "Sapphire lantern (unlit)", 4701),
+        }
+        self.assertEqual(len(LIGHT_SOURCE_PREPARATIONS), len(expected))
+        for preparation in LIGHT_SOURCE_PREPARATIONS:
+            input_id, reagent, output_item, output_id = expected[preparation.id]
+            row = activities[preparation.id]
+            self.assertEqual(row["requirements"], {preparation.input_item: 1, reagent: 1})
+            self.assertEqual(row["source_item_id"], input_id)
+            self.assertEqual(row["output_item"], output_item)
+            self.assertEqual(row["output_item_id"], output_id)
+            self.assertNotIn("firemaking_level", row)
 
     def test_light_source_items_keep_canonical_ids(self):
         extra = firemaking_extra_items_as_dict()

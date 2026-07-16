@@ -57,8 +57,8 @@ class TestCraftingData(unittest.TestCase):
     def test_runtime_bound_crafting_remainder_matches_2011scape(self):
         data = crafting_recipes_as_dict()
         expected = {
-            "glass_empty_candle_lantern": (4, 19.0, {"Molten glass": 1}, "Candle lantern", 4527),
-            "glass_empty_oil_lamp": (12, 25.0, {"Molten glass": 1}, "Oil lamp", 4525),
+            "glass_empty_candle_lantern": (4, 19.0, {"Molten glass": 1}, "Candle lantern (empty)", 4527),
+            "glass_empty_oil_lamp": (12, 25.0, {"Molten glass": 1}, "Oil lamp (empty)", 4525),
             "glass_fishbowl": (42, 42.5, {"Molten glass": 1}, "Fishbowl", 6667),
             "glass_lantern_lens": (49, 55.0, {"Molten glass": 1}, "Lantern lens", 4542),
             "glass_empty_light_orb": (87, 70.0, {"Molten glass": 1}, "Empty light orb", 10980),
@@ -80,9 +80,11 @@ class TestCraftingData(unittest.TestCase):
             "combine_strange_skull": (1, 0.0, {"Left skull half": 1, "Right skull half": 1}, "Strange skull", 9009),
             "combine_runed_sceptre": (1, 0.0, {"Bottom of sceptre": 1, "Top of sceptre": 1}, "Runed sceptre", 9012),
             "combine_skull_sceptre": (1, 0.0, {"Strange skull": 1, "Runed sceptre": 1}, "Skull sceptre", 9013),
-            "combine_bullseye_lantern": (49, 0.0, {"Bullseye lantern": 1, "Lantern lens": 1}, "Bullseye lantern", 4546),
-            "combine_bullseye_emerald_lantern": (49, 0.0, {"Bullseye lantern": 1, "Emerald lens": 1}, "Emerald lantern", 9064),
-            "combine_oil_lantern": (50, 50.0, {"Oil lamp": 1, "Oil lantern frame": 1}, "Oil lantern", 4537),
+            "combine_bullseye_lantern": (49, 0.0, {"Bullseye lantern (unf)": 1, "Lantern lens": 1}, "Bullseye lantern (empty)", 4546),
+            "combine_bullseye_emerald_lantern": (49, 0.0, {"Bullseye lantern (empty)": 1, "Emerald lens": 1}, "Emerald lantern (unlit)", 9064),
+            "combine_bullseye_sapphire_lantern": (49, 0.0, {"Bullseye lantern (empty)": 1, "Sapphire": 1}, "Sapphire lantern (empty)", 4700),
+            "combine_empty_oil_lantern": (26, 50.0, {"Oil lamp (empty)": 1, "Oil lantern frame": 1}, "Oil lantern (empty)", 4535),
+            "combine_oil_lantern": (26, 50.0, {"Oil lamp (unlit)": 1, "Oil lantern frame": 1}, "Oil lantern (unlit)", 4537),
             "combine_studded_chaps": (44, 42.0, {"Leather chaps": 1, "Steel studs": 1}, "Studded chaps", 1097),
             "combine_spiky_vambraces": (32, 6.0, {"Leather vambraces": 1, "Kebbit claws": 1}, "Spiky vambraces", 10077),
             "combine_green_spiky_vambraces": (32, 6.0, {"Green d'hide vambraces": 1, "Kebbit claws": 1}, "Green spiky vambraces", 10079),
@@ -93,12 +95,13 @@ class TestCraftingData(unittest.TestCase):
             "chisel_crab_claw": (15, 32.5, {"Fresh crab claw": 1}, "Crab claw", 7537),
             "combine_seaweed_net": (52, 83.0, {"Unfinished net": 1, "Bronze wire": 1}, "Empty seaweed net", 14859),
             "combine_armadyl_battlestaff": (77, 150.0, {"Battlestaff": 1, "Orb of armadyl": 1}, "Armadyl battlestaff", 21777),
-            "string_gold_amulet": (1, 4.0, {"Gold amulet": 1, "Ball of wool": 1}, "Gold amulet", 1692),
-            "string_sapphire_amulet": (1, 4.0, {"Sapphire amulet": 1, "Ball of wool": 1}, "Sapphire amulet", 1694),
-            "string_emerald_amulet": (1, 4.0, {"Emerald amulet": 1, "Ball of wool": 1}, "Emerald amulet", 1696),
-            "string_ruby_amulet": (1, 4.0, {"Ruby amulet": 1, "Ball of wool": 1}, "Ruby amulet", 1698),
-            "string_diamond_amulet": (1, 4.0, {"Diamond amulet": 1, "Ball of wool": 1}, "Diamond amulet", 1700),
-            "string_onyx_amulet": (1, 4.0, {"Onyx amulet": 1, "Ball of wool": 1}, "Onyx amulet", 6581),
+            "string_gold_amulet": (1, 4.0, {"Gold amulet (u)": 1, "Ball of wool": 1}, "Gold amulet", 1692),
+            "string_sapphire_amulet": (1, 4.0, {"Sapphire amulet (u)": 1, "Ball of wool": 1}, "Sapphire amulet", 1694),
+            "string_emerald_amulet": (1, 4.0, {"Emerald amulet (u)": 1, "Ball of wool": 1}, "Emerald amulet", 1696),
+            "string_ruby_amulet": (1, 4.0, {"Ruby amulet (u)": 1, "Ball of wool": 1}, "Ruby amulet", 1698),
+            "string_diamond_amulet": (1, 4.0, {"Diamond amulet (u)": 1, "Ball of wool": 1}, "Diamond amulet", 1700),
+            "string_dragonstone_amulet": (1, 4.0, {"Dragonstone ammy (u)": 1, "Ball of wool": 1}, "Dragonstone ammy", 1702),
+            "string_onyx_amulet": (1, 4.0, {"Onyx amulet (u)": 1, "Ball of wool": 1}, "Onyx amulet", 6581),
             "string_unblessed_symbol": (1, 4.0, {"Unstrung symbol": 1, "Ball of wool": 1}, "Unblessed symbol", 1716),
             "string_unpowered_symbol": (1, 4.0, {"Unstrung emblem": 1, "Ball of wool": 1}, "Unpowered symbol", 1722),
             "polish_buttons": (3, 5.0, {"Buttons": 1}, "Polished buttons", 10496),
@@ -109,8 +112,30 @@ class TestCraftingData(unittest.TestCase):
             self.assertEqual(data[recipe_id]["requirements"], requirements)
             self.assertEqual(data[recipe_id]["output_item"], output_item)
             self.assertEqual(data[recipe_id]["source_item_id"], source_item_id)
+
+        self.assertEqual(data["combine_bullseye_sapphire_lantern"]["byproducts"], {"Lantern lens": 1})
         self.assertEqual(data["chisel_crab_helmet"]["station"], "chisel")
         self.assertTrue(data["polish_buttons"]["source"].endswith("other/polished_button.plugin.kts"))
+
+    def test_no_crafting_recipe_consumes_its_own_output(self):
+        for recipe in CRAFTING_RECIPES:
+            self.assertNotIn(recipe.output_item, dict(recipe.requirements), recipe.id)
+
+    def test_furnace_amulets_use_distinct_unstrung_item_ids(self):
+        data = crafting_recipes_as_dict()
+        expected = {
+            "jewellery_gold_amulet": ("Gold amulet (u)", 1673),
+            "jewellery_sapphire_amulet": ("Sapphire amulet (u)", 1675),
+            "jewellery_emerald_amulet": ("Emerald amulet (u)", 1677),
+            "jewellery_ruby_amulet": ("Ruby amulet (u)", 1679),
+            "jewellery_diamond_amulet": ("Diamond amulet (u)", 1681),
+            "jewellery_dragonstone_ammy": ("Dragonstone ammy (u)", 1683),
+            "jewellery_onyx_amulet": ("Onyx amulet (u)", 6579),
+        }
+        for recipe_id, (output_item, source_item_id) in expected.items():
+            with self.subTest(recipe_id=recipe_id):
+                self.assertEqual(data[recipe_id]["output_item"], output_item)
+                self.assertEqual(data[recipe_id]["source_item_id"], source_item_id)
 
     def test_root_crossbow_strings_and_milestone_capes_match_runtime_actions(self):
         data = crafting_recipes_as_dict()
