@@ -54,6 +54,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 | 11 | Thieving and Combat arrow outputs, NPC shops, generated Crafting and Fletching equipment, persistence, and undo seams | Opus | 2 | 2 | `9273cf4` | 263 focused; 5 real offscreen Qt; 1,291 full; zero hard test-quality issues; reachability unchanged; compilation, diff, and worktree checks |
 | 12 | Consumable producer/consumer identity and state symmetry across Herblore, Cooking, Farming, shops, connected Combat consumption, registry/assets, persistence, and undo | Opus | 8 | 8 | `f794108` | 19 focused; 5 real offscreen Qt; 1,302 full; reachability 1,200 actions/273 orphans; zero hard test-quality issues; compilation, diff, and worktree checks |
 | 13 | Save-schema lifecycle, defaults, migration, profile reload, persisted writer/reader symmetry, and direct-action undo | Opus | 5 | 1 | `1fb0b64` | 271 focused; 2 real offscreen Qt; 1,303 full; reachability unchanged at 1,200 actions/273 orphans; zero hard test-quality issues; compilation, diff, and worktree checks |
+| 14 | Achievement predicates, production writers, dependency ordering, and exact boundary semantics | Opus | 1 | 1 | `b59c846` | 251 focused; 1 real offscreen Qt; 1,304 full; zero hard test-quality issues; compilation, diff, and worktree checks |
 
 ## Accepted fixes
 
@@ -104,6 +105,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Magic essence potion creation now emits the source-convergent `Magic essence mix (2)` identity rather than the conflicting `Magic potion (2)` transcription. The pinned cache item ID, recipe input, and consumption handler all converge on item 11489.
 - Shop resale now honors registry `tradeable=False`; Agility potion and mix dose families have canonical IDs and tradeability; Kebab and Half summer pie are food rather than Herblore products; and Summer pie uses the Bank's `Eat` verb.
 - Combat presets now contain configuration only. The finite `combat_supply_loadout` is neither snapshotted into new presets nor restored from legacy preset payloads, so target pins cannot mint consumed food, ammunition, runes, or potions or delete a freshly refilled pack on the next review.
+- Achievement dispatch now evaluates newly satisfied predicates to a fixed point. Living Legend unlocks atomically with the final ordinary achievement instead of requiring an unrelated later action to trigger a second check.
 
 ## Rejected candidates
 
@@ -126,10 +128,14 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Six Magic keys omitted from fresh-player defaults, three lazily created Prayer/Magic side-state keys, and the retired hidden-Agility default helper were recorded as schema asymmetries but not changed: all current readers provide matching defaults and no player-visible failure reproduces.
 - Source-blocked Thieving target IDs remain accepted by the load sanitizer because no live UI/runtime writer can persist those IDs; changing that dormant boundary was rejected without a current failure path.
 - Stale cross-profile undo snapshots were independently rejected: every answered review advances the shop clock before snapshot recording, preserving one snapshot per generic Anki Answer undo operation and keeping the LIFO stacks aligned.
+- Construction tablets contributing to Construction output counters was retained as an unsettled adjacent-method semantic rather than relabeled as a runtime failure: the Construction surface owns the output while the settled contract assigns Magic XP.
+- Rune Essence Baron remains reachable through live combat drops after level 30 changes Mining output to Pure essence. Its description-to-route mismatch belongs with the catalog-wide held-item achievement semantics review, not a one-off counter rewrite.
+- Jack of All Ores and Flawless Footing have difficulty labels below their required skill levels, but the existing achievement design explicitly defers a full difficulty rebalance. No isolated relabel was made without that catalog-wide decision.
+- Living Legend's legacy list-length condition was not hardened against fabricated stale or duplicate names because no live writer or shipped migration produces them. The reproduced same-dispatch dependency failure was fixed independently.
 
 ## Queued confirmed defects
 
-None. The next pass rotates away from storage and Combat into achievement/counter and registry reachability seams rather than carrying an unverified candidate forward.
+None. The next pass rotates to test-oracle integrity and production-path blind spots rather than carrying an unverified candidate forward.
 
 ## Reviewer budget and availability
 
@@ -145,6 +151,7 @@ None. The next pass rotates away from storage and Combat into achievement/counte
 - Pass 11 used one successful read-only Opus workflow (`c3bb074e-f91d-472e-b62d-03fc23390dbc`). The required pre/post live checks both reported Fable at 30% and all-model weekly usage at 17%; the reviewer exposed the NPC-shop ammunition producer failure and its blind oracle, while Codex independently found matching Thieving and Combat producers plus a stale generated-equipment snapshot.
 - Pass 12 used one successful read-only Opus workflow (`3f35b73d-08d0-41bc-91a9-213f0e3afde0`). The required pre/post live checks both reported Fable at 30%; all-model weekly usage rose from 17% to 18%. Six reviewer candidates were independently reproduced, and Codex found the missing supply-pack runtime plus the stronger cache-and-emulator resolution of the Magic essence mix identity conflict.
 - Pass 13 used one successful read-only Opus workflow (`3007fcda-2065-4cb2-b806-cca2a0e98ce0`). The required pre/post live checks both reported Fable at 30% and all-model weekly usage at 18%; current-session usage rose from 17% to 20%. The reviewer supplied one material finite-supply exploit and four explicit non-failing asymmetries; Codex reproduced and fixed only the exploit.
+- Pass 14 used one successful read-only Opus workflow (`62af823b-8024-4fda-b0bf-c9bf946c9161`). The required pre/post live checks both reported Fable at 30%; all-model weekly usage rose from 18% to 19% and current-session usage from 20% to 25%. The reviewer found no material writer mismatch, while Codex independently reproduced and fixed the same-dispatch Living Legend dependency defect that the predicate-only tests missed.
 
 ## Closure
 

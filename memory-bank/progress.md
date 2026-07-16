@@ -274,3 +274,13 @@ Test counts are snapshots; current runs outrank this note.
 - Committed as `1fb0b64`; 271 focused tests, two real offscreen Qt checks, and
   all 1,303 tests pass. Reachability remains 1,200 actions with 273 orphan
   inputs, and test quality remains at zero hard issues.
+
+## Overnight fresh-eyes pass 14 — atomic achievement dependencies (2026-07-16)
+
+- Changed pure achievement dispatch to project newly satisfied completions and
+  iterate until no dependent predicate becomes newly true.
+- Added a catalog-backed regression proving Master Mage and Living Legend are
+  returned by the same dispatch when Magic 99 closes the final ordinary gap.
+- Committed as `b59c846`; 251 focused tests, one real offscreen Qt check, and
+  all 1,304 tests pass with 186 skips and three expected failures. Test quality
+  remains at zero hard issues; compilation, diff, and worktree safety pass.

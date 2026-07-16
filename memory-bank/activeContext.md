@@ -355,3 +355,15 @@ Qt checks, and all 1,303 tests with 186 skips and three expected XP-parity
 failures. Test quality has zero hard issues; reachability remains 1,200 actions
 and 273 orphan inputs (110 root, 163 cascade); compilation, diff, and
 safe-worktree checks pass.
+
+## Overnight fresh-eyes pass 14 (2026-07-16)
+
+Commit `b59c846` makes achievement dispatch dependency-aware. When the final
+ordinary achievement and Living Legend become true on the same action, the
+dispatcher now evaluates to a fixed point and returns both completions
+atomically rather than making Living Legend wait for another unrelated action.
+
+Verification passes 251 focused pure/integration tests, one real offscreen Qt
+achievement-surface check, and all 1,304 tests with 186 skips and three
+expected XP-parity failures. Test quality has zero hard issues; compilation,
+diff, and safe-worktree checks pass.
