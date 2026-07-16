@@ -329,3 +329,22 @@ If that pass remains `source_blocked`, use this labeled abstraction:
 
 The roll occurs only during the instantaneous `Get assignment` transaction. It
 has no wall-clock cooldown, pity timer, daily limit, or hidden travel action.
+
+## Owner decision 13 — one-trip challenges use explicit run sessions
+
+Turael/Spria's one-basement-visit challenge and Duradel/Lapalok's one-Slayer-
+Tower-trip challenge use explicit challenge-run sessions rather than global
+player location. Starting the first qualifying objective begins the run and its
+compound ledger persists across reviews, study sessions, Anki restarts, and
+switches among targets required by that challenge.
+
+The run resets only when the player deliberately abandons it, switches to
+unrelated Combat, or dies. Pausing study, closing Anki, changing among required
+challenge monsters, inspecting another UI page, banking, or changing equipment
+does not count as leaving. Resetting the run clears its challenge-objective
+ledger but leaves the accepted challenge active so the player may begin again.
+
+This preserves the sourced one-visit constraint through explicit player and
+Combat state transitions. It adds no wall-clock expiry, fake walking action, or
+persistent map coordinate. Ordinary Slayer assignments are unaffected and keep
+their already-settled cross-session progress.

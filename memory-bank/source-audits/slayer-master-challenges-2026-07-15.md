@@ -88,3 +88,10 @@ The source challenges remain structurally richer than ordinary single-target
 assignments. AnkiScape preserves their compound objective ledgers and flattens
 only unavailable travel/location ceremony into concise status text and
 review-free hand-in UI.
+
+The sourced `one basement visit` and `one Slayer Tower trip` constraints are not
+flattened away. They become explicit challenge-run sessions that persist across
+reviews and Anki restarts. Deliberate abandonment, unrelated Combat, or death
+resets the current run ledger; switching among the challenge's required targets
+does not. The accepted challenge itself remains active after a reset. This is a
+mapless continuity abstraction, not a claim that AnkiScape tracks location.
