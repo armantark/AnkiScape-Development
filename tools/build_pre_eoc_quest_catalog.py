@@ -2055,6 +2055,22 @@ def build_stage_requirements(
         ):
             continue
         clean_rows.append(row)
+
+    # The generic item parser cannot distinguish an item-state transformation
+    # from an alternatives list. These two source-backed lantern stages require
+    # the exact producible states used by the AnkiScape inventory graph.
+    if quest_id == "tears_of_guthix":
+        for row in clean_rows:
+            if row["stage"] == 2:
+                row["required_inventory"].update(
+                    {"Bullseye lantern (empty)": 1, "Sapphire": 1}
+                )
+                row["required_inventory_options"] = ()
+    elif quest_id == "while_guthix_sleeps":
+        for row in clean_rows:
+            if row["stage"] == 6 and "Sapphire lantern" in row["required_inventory"]:
+                row["required_inventory"].pop("Sapphire lantern")
+                row["required_inventory"]["Sapphire lantern (lit)"] = 1
     return tuple(clean_rows)
 
 

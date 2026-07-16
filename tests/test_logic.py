@@ -503,15 +503,28 @@ class TestLogic(unittest.TestCase):
                 self.assertEqual(new_inv[output_item], output)
 
     def test_light_source_actions_are_single_zero_xp_item_swaps_with_level_locks(self):
+        prepared, exp, ok, processed = apply_utility_activity_pure(
+            "insert_white_candle",
+            {"Candle lantern (empty)": 1, "Candle": 1},
+            UTILITY_ACTIVITY_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual((exp, processed), (0, 1))
+        self.assertEqual(
+            prepared,
+            {"Candle lantern (empty)": 0, "Candle": 0, "Candle lantern (unlit, 4529)": 1},
+        )
+
         new_inv, exp, ok, processed = apply_utility_activity_pure(
             "light_candle_lantern_4527",
-            {"Candle lantern (unlit, 4527)": 2},
+            prepared,
             UTILITY_ACTIVITY_DATA,
         )
         self.assertTrue(ok)
         self.assertEqual(exp, 0)
         self.assertEqual(processed, 1)
-        self.assertEqual(new_inv, {"Candle lantern (unlit, 4527)": 1, "Candle lantern (lit, 4531)": 1})
+        self.assertEqual(new_inv["Candle lantern (unlit, 4529)"], 0)
+        self.assertEqual(new_inv["Candle lantern (lit, 4531)"], 1)
 
         extinguished, exp, ok, processed = apply_utility_activity_pure(
             "extinguish_candle_lantern_4527",
@@ -521,10 +534,11 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(exp, 0)
         self.assertEqual(processed, 1)
-        self.assertEqual(extinguished, {"Candle lantern (unlit, 4527)": 2, "Candle lantern (lit, 4531)": 0})
+        self.assertEqual(extinguished["Candle lantern (unlit, 4529)"], 1)
+        self.assertEqual(extinguished["Candle lantern (lit, 4531)"], 0)
         self.assertEqual(
             utility_activity_locked_reasons_pure(
-                {"inventory": {"Candle lantern (unlit, 4527)": 1}, "firemaking_level": 3},
+                {"inventory": {"Candle lantern (unlit, 4529)": 1}, "firemaking_level": 3},
                 "light_candle_lantern_4527",
                 UTILITY_ACTIVITY_DATA,
             ),
@@ -538,6 +552,23 @@ class TestLogic(unittest.TestCase):
             ),
             (),
         )
+
+    def test_lamp_oil_chain_preserves_empty_unlit_and_lit_states(self):
+        filled, exp, ok, processed = apply_utility_activity_pure(
+            "fill_bullseye_lantern",
+            {"Bullseye lantern (empty)": 1, "Swamp tar": 1},
+            UTILITY_ACTIVITY_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual((exp, processed), (0, 1))
+        self.assertEqual(filled["Bullseye lantern (unlit)"], 1)
+        lit, exp, ok, processed = apply_utility_activity_pure(
+            "light_bullseye_lantern", filled, UTILITY_ACTIVITY_DATA
+        )
+        self.assertTrue(ok)
+        self.assertEqual((exp, processed), (0, 1))
+        self.assertEqual(lit["Bullseye lantern (unlit)"], 0)
+        self.assertEqual(lit["Bullseye lantern (lit)"], 1)
 
     def test_apply_utility_activity_can_generate_batch_without_inputs(self):
         utility_data = {
@@ -752,12 +783,15 @@ class TestLogic(unittest.TestCase):
     def test_item_combinations_and_button_polishing_execute_once(self):
         new_inv, exp, ok = apply_crafting_pure(
             "combine_bullseye_lantern",
-            {"Bullseye lantern": 1, "Lantern lens": 1},
+            {"Bullseye lantern (unf)": 1, "Lantern lens": 1},
             CRAFTING_DATA,
         )
         self.assertTrue(ok)
         self.assertEqual(exp, 0.0)
-        self.assertEqual(new_inv, {"Bullseye lantern": 1, "Lantern lens": 0})
+        self.assertEqual(
+            new_inv,
+            {"Bullseye lantern (unf)": 0, "Lantern lens": 0, "Bullseye lantern (empty)": 1},
+        )
 
         new_inv, exp, ok = apply_crafting_pure(
             "chisel_crab_helmet",

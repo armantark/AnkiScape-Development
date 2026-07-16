@@ -51,7 +51,47 @@ REUSED_LOG_ART = {
 
 WIKI_TITLE_OVERRIDES = {
     "Firemaking": "Firemaking icon (detail).png",
+    "Candle lantern (unlit, 4529)": "Candle lantern (white)",
+    "Candle lantern (lit, 4531)": "Candle lantern (lit white)",
+    "Candle lantern (unlit, 4532)": "Candle lantern (black)",
+    "Candle lantern (lit, 4534)": "Candle lantern (lit black)",
+    "Oil lamp (unlit)": "Oil lamp (oil)",
+    "Oil lamp (lit)": "Oil lamp",
+    "Oil lantern (unlit)": "Oil lantern (oil)",
+    "Oil lantern (lit)": "Oil lantern",
+    "Bullseye lantern (unlit)": "Bullseye lantern (oil)",
+    "Bullseye lantern (lit)": "Bullseye lantern (lit)",
+    "Sapphire lantern (unlit)": "Sapphire lantern (oil)",
+    "Sapphire lantern (lit)": "Sapphire lantern (lit)",
+    "Emerald lantern (unlit)": "Emerald lantern",
+    "Emerald lantern (lit)": "Emerald lantern (lit)",
+    "Mining helmet (unlit)": "Mining helmet",
 }
+
+LIGHT_SOURCE_ITEMS = (
+    "Candle lantern (empty)",
+    "Candle lantern (unlit, 4529)",
+    "Candle lantern (lit, 4531)",
+    "Candle lantern (unlit, 4532)",
+    "Candle lantern (lit, 4534)",
+    "Oil lamp (empty)",
+    "Oil lamp (unlit)",
+    "Oil lamp (lit)",
+    "Oil lantern (empty)",
+    "Oil lantern (unlit)",
+    "Oil lantern (lit)",
+    "Bullseye lantern (unf)",
+    "Bullseye lantern (empty)",
+    "Bullseye lantern (unlit)",
+    "Bullseye lantern (lit)",
+    "Sapphire lantern (empty)",
+    "Sapphire lantern (unlit)",
+    "Sapphire lantern (lit)",
+    "Emerald lantern (unlit)",
+    "Emerald lantern (lit)",
+    "Mining helmet (unlit)",
+    "Mining helmet (lit)",
+)
 
 
 def _slug(name: str) -> str:
@@ -74,6 +114,15 @@ def _manifest() -> List[Tuple[str, str, str, Optional[int]]]:
             continue
         manifest.append((input_item, wiki_title_for_item(input_item), _fm_item(input_item), None))
         seen.add(input_item)
+    for item_name in LIGHT_SOURCE_ITEMS:
+        manifest.append(
+            (
+                item_name,
+                wiki_title_for_item(item_name, WIKI_TITLE_OVERRIDES.get(item_name)),
+                _fm_item(item_name),
+                None,
+            )
+        )
     return manifest
 
 
@@ -81,12 +130,27 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--force", action="store_true", help="Overwrite existing files.")
     parser.add_argument("--dry-run", action="store_true", help="Resolve without downloading.")
+    parser.add_argument(
+        "--item",
+        action="append",
+        default=[],
+        help="Fetch only this exact manifest item; repeat for multiple items.",
+    )
     args = parser.parse_args(argv)
+
+    manifest = _manifest()
+    if args.item:
+        requested = set(args.item)
+        known = {item_name for item_name, _wiki_title, _out_rel, _size in manifest}
+        unknown = sorted(requested - known)
+        if unknown:
+            parser.error(f"unknown Firemaking item(s): {', '.join(unknown)}")
+        manifest = [row for row in manifest if row[0] in requested]
 
     client = HttpWikiClient()
     ok = skipped = failed = 0
     failures: List[str] = []
-    for item_name, wiki_title, out_rel, size in _manifest():
+    for item_name, wiki_title, out_rel, size in manifest:
         request = AssetRequest(
             item_name=item_name,
             wiki_title=wiki_title_for_item(item_name, wiki_title),

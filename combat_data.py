@@ -7004,7 +7004,7 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
                        {'slots': 64},
                        {'item': 'Candle', 'quantity': 1, 'slots': 5},
                        {'item': 'Tinderbox', 'quantity': 1, 'slots': 3},
-                       {'item': 'Candle lantern', 'quantity': 1, 'slots': 1})},
+                       {'item': 'Candle lantern (empty)', 'quantity': 1, 'slots': 1})},
             {'name': 'Charms',
              'total': 1000,
              'slots': ({'item': 'Gold charm', 'quantity': 1, 'slots': 90},

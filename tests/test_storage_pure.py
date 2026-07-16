@@ -623,7 +623,14 @@ class TestStoragePure(unittest.TestCase):
                     "Pot": 4,
                     "Unfired pie dish": 3,
                     "Pot (unfired)": 2,
-                }
+                    "Candle lantern": 1,
+                    "Oil lamp": 2,
+                    "Oil lantern": 3,
+                    "Bullseye lantern": 4,
+                    "Emerald lantern": 5,
+                    "Mining helmet": 1,
+                },
+                "equipment": {"head": "Mining helmet"},
             },
             ORE_DATA,
             ITEM_DEFINITIONS,
@@ -635,6 +642,22 @@ class TestStoragePure(unittest.TestCase):
         self.assertNotIn("Unfired pot", migrated["inventory"])
         self.assertNotIn("Pot", migrated["inventory"])
         self.assertNotIn("Unfired pie dish", migrated["inventory"])
+        self.assertEqual(migrated["inventory"]["Candle lantern (empty)"], 1)
+        self.assertEqual(migrated["inventory"]["Oil lamp (empty)"], 2)
+        self.assertEqual(migrated["inventory"]["Oil lantern (unlit)"], 3)
+        self.assertEqual(migrated["inventory"]["Bullseye lantern (empty)"], 4)
+        self.assertEqual(migrated["inventory"]["Emerald lantern (unlit)"], 5)
+        self.assertEqual(migrated["inventory"]["Mining helmet (unlit)"], 1)
+        self.assertEqual(migrated["equipment"], {"head": "Mining helmet (unlit)"})
+        for legacy_key in (
+            "Candle lantern",
+            "Oil lamp",
+            "Oil lantern",
+            "Bullseye lantern",
+            "Emerald lantern",
+            "Mining helmet",
+        ):
+            self.assertNotIn(legacy_key, migrated["inventory"])
 
     def test_migrate_idempotent(self):
         base = {"mining_exp": 10, "inventory": {}}

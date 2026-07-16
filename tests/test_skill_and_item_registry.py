@@ -495,17 +495,31 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         expected = {
             "Unlit torch": 596,
             "Lit torch": 594,
-            "Candle lantern (unlit, 4527)": 4527,
+            "Candle lantern (empty)": 4527,
+            "Candle lantern (unlit, 4529)": 4529,
             "Candle lantern (lit, 4531)": 4531,
+            "Oil lamp (empty)": 4525,
+            "Oil lamp (unlit)": 4522,
+            "Oil lantern (empty)": 4535,
+            "Oil lantern (unlit)": 4537,
+            "Bullseye lantern (unf)": 4544,
+            "Bullseye lantern (empty)": 4546,
+            "Bullseye lantern (unlit)": 4548,
+            "Sapphire lantern (empty)": 4700,
+            "Sapphire lantern (unlit)": 4701,
             "Mining helmet (unlit)": 5014,
             "Mining helmet (lit)": 5013,
         }
         for item_name, item_id in expected.items():
             self.assertIn(item_name, by_storage_key)
-            self.assertEqual(FIREMAKING_EXTRA_ITEM_DATA[item_name]["item_id"], item_id)
+            self.assertEqual(by_storage_key[item_name].source_item_id, item_id)
             self.assertIn(item_name, FIREMAKING_ITEM_IMAGES)
             self.assertTrue(os.path.exists(FIREMAKING_ITEM_IMAGES[item_name]))
             self.assertEqual(by_storage_key[item_name].asset_path, FIREMAKING_ITEM_IMAGES[item_name])
+        self.assertEqual(by_storage_key["Mining helmet (unlit)"].equipment_slot, "head")
+        self.assertEqual(by_storage_key["Mining helmet (lit)"].equipment_slot, "head")
+        self.assertEqual(by_storage_key["Mining helmet (unlit)"].category, "equipment")
+        self.assertEqual(by_storage_key["Mining helmet (lit)"].category, "equipment")
 
     def test_fishing_items_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
@@ -547,7 +561,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         for item_name in (
             "Strange skull",
             "Skull sceptre",
-            "Emerald lantern",
+            "Emerald lantern (unlit)",
             "Studded chaps",
             "Spiky vambraces",
             "Crab helmet",

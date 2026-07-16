@@ -19,7 +19,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 589)
+        self.assertEqual(len(EQUIPMENT_DATA), 590)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -36,6 +36,10 @@ class TestEquipmentData(unittest.TestCase):
         self.assertEqual(EQUIPMENT_DATA["Dragon sq shield"].slot, "shield")
         self.assertEqual(EQUIPMENT_DATA["Agile top"].slot, "body")
         self.assertEqual(EQUIPMENT_DATA["Acrobat hood"].slot, "head")
+        self.assertEqual(EQUIPMENT_DATA["Mining helmet (unlit)"].source_item_id, 5014)
+        self.assertEqual(EQUIPMENT_DATA["Mining helmet (lit)"].source_item_id, 5013)
+        self.assertEqual(EQUIPMENT_DATA["Mining helmet (unlit)"].combat_skill, "defense")
+        self.assertEqual(EQUIPMENT_DATA["Mining helmet (lit)"].combat_skill, "defense")
         self.assertEqual(EQUIPMENT_DATA["Agility cape"].skill_requirements, (("agility", 99),))
 
     def test_weapon_type_is_captured_for_the_attack_type_selector(self):

@@ -6,6 +6,24 @@ from tools.audit_quest_local_item_gates import quest_local_gate_candidates
 
 
 class TestQuestCatalog(unittest.TestCase):
+    def test_lantern_quest_gates_use_reachable_exact_item_states(self):
+        catalog = {quest["id"]: quest for quest in PRE_EOC_QUEST_CATALOG}
+        tears_stage = next(
+            stage for stage in catalog["tears_of_guthix"]["stage_requirements"] if stage["stage"] == 2
+        )
+        self.assertEqual(
+            tears_stage["required_inventory"],
+            {"Bullseye lantern (empty)": 1, "Sapphire": 1},
+        )
+        self.assertEqual(tears_stage["required_inventory_options"], ())
+
+        wgs_stage = next(
+            stage
+            for stage in catalog["while_guthix_sleeps"]["stage_requirements"]
+            if stage["stage"] == 6
+        )
+        self.assertEqual(wgs_stage["required_inventory"], {"Sapphire lantern (lit)": 1})
+
     def test_pre_eoc_catalog_has_expected_cutoff_shape(self):
         ids = {quest["id"] for quest in PRE_EOC_QUEST_CATALOG}
 

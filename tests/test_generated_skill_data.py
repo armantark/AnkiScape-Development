@@ -52,6 +52,11 @@ class TestGeneratedSkillData(unittest.TestCase):
             _equipment_item_block(checked_in, "Dragon sq shield"),
         )
         self.assertIn("source_item_id=1187", _equipment_item_block(generated, "Dragon sq shield"))
+        for item_name in ("Mining helmet (unlit)", "Mining helmet (lit)"):
+            self.assertEqual(
+                _equipment_item_block(generated, item_name),
+                _equipment_item_block(checked_in, item_name),
+            )
 
 
 if __name__ == "__main__":

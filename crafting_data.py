@@ -20,6 +20,8 @@ COMBINATION_SOURCE_PATH = "/Users/ArmanTarkhanian1/Downloads/game-main/game/plug
 ITEMS_SOURCE_PATH = "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml"
 DEFAULT_CRAFTING_TARGET = "form_pot_unfired"
 LIMESTONE_BRICK_SOURCE = "RuneScape Wiki Limestone brick oldid=6308408 (2012-09-27)"
+OIL_LANTERN_SOURCE = "https://runescape.wiki/w/Oil_lantern?oldid=5372911"
+SAPPHIRE_LANTERN_SOURCE = "https://runescape.wiki/w/Sapphire_lantern_(lit)?oldid=6092552"
 
 
 @dataclass(frozen=True)
@@ -280,8 +282,8 @@ CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
     # Glass, battlestaves, weaving, and selected source Crafting combinations.
     CraftingRecipe("glass_molten_glass", "Molten glass", "glass", "furnace", 1, 20.0, _req(("Soda ash", 1), ("Bucket of sand", 1)), "Molten glass", byproducts=(("Bucket", 1),), source=FURNACE_GLASS_SOURCE, source_enum="", notes="Furnace smelt (handleMoltenGlass); returns the emptied bucket. Inputs are live NPC shop stock."),
     CraftingRecipe("glass_beer_glass", "Beer glass", "glass", "glassblowing", 1, 17.5, _req(("Molten glass", 1)), "Beer glass", source=GLASS_SOURCE, source_enum="BEER_GLASS", required_items=_req(("Glassblowing pipe", 1))),
-    CraftingRecipe("glass_empty_candle_lantern", "Candle lantern", "glass", "glassblowing", 4, 19.0, _req(("Molten glass", 1)), "Candle lantern", source=GLASS_SOURCE, source_enum="EMPTY_CANDLE_LANTERN", source_item_id=4527, required_items=_req(("Glassblowing pipe", 1))),
-    CraftingRecipe("glass_empty_oil_lamp", "Oil lamp", "glass", "glassblowing", 12, 25.0, _req(("Molten glass", 1)), "Oil lamp", source=GLASS_SOURCE, source_enum="EMPTY_OIL_LAMP", source_item_id=4525, required_items=_req(("Glassblowing pipe", 1))),
+    CraftingRecipe("glass_empty_candle_lantern", "Candle lantern (empty)", "glass", "glassblowing", 4, 19.0, _req(("Molten glass", 1)), "Candle lantern (empty)", source=GLASS_SOURCE, source_enum="EMPTY_CANDLE_LANTERN", source_item_id=4527, required_items=_req(("Glassblowing pipe", 1))),
+    CraftingRecipe("glass_empty_oil_lamp", "Oil lamp (empty)", "glass", "glassblowing", 12, 25.0, _req(("Molten glass", 1)), "Oil lamp (empty)", source=GLASS_SOURCE, source_enum="EMPTY_OIL_LAMP", source_item_id=4525, required_items=_req(("Glassblowing pipe", 1))),
     CraftingRecipe("glass_vial", "Vial", "glass", "glassblowing", 33, 35.0, _req(("Molten glass", 1)), "Vial", source=GLASS_SOURCE, source_enum="EMPTY_VIAL", required_items=_req(("Glassblowing pipe", 1))),
     CraftingRecipe("glass_fishbowl", "Fishbowl", "glass", "glassblowing", 42, 42.5, _req(("Molten glass", 1)), "Fishbowl", source=GLASS_SOURCE, source_enum="FISHBOWL", source_item_id=6667, required_items=_req(("Glassblowing pipe", 1))),
     CraftingRecipe("glass_unpowered_orb", "Unpowered orb", "glass", "glassblowing", 46, 52.5, _req(("Molten glass", 1)), "Unpowered orb", source=GLASS_SOURCE, source_enum="UNPOWERED_ORB", required_items=_req(("Glassblowing pipe", 1))),
@@ -308,9 +310,11 @@ CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
     CraftingRecipe("combine_strange_skull", "Strange skull", "combination", "combine", 1, 0.0, _req(("Left skull half", 1), ("Right skull half", 1)), "Strange skull", source=COMBINATION_SOURCE_PATH, source_enum="STRANGE_SKULL", tradeable=False, source_item_id=9009),
     CraftingRecipe("combine_runed_sceptre", "Runed sceptre", "combination", "combine", 1, 0.0, _req(("Bottom of sceptre", 1), ("Top of sceptre", 1)), "Runed sceptre", source=COMBINATION_SOURCE_PATH, source_enum="RUNED_SCEPTRE", tradeable=False, source_item_id=9012),
     CraftingRecipe("combine_skull_sceptre", "Skull sceptre", "combination", "combine", 1, 0.0, _req(("Strange skull", 1), ("Runed sceptre", 1)), "Skull sceptre", source=COMBINATION_SOURCE_PATH, source_enum="SKULL_SCEPTRE", tradeable=False, source_item_id=9013),
-    CraftingRecipe("combine_bullseye_lantern", "Bullseye lantern", "combination", "combine", 49, 0.0, _req(("Bullseye lantern", 1), ("Lantern lens", 1)), "Bullseye lantern", source=COMBINATION_SOURCE_PATH, source_enum="BULLYEYE_LANTERN", tradeable=False, source_item_id=4546),
-    CraftingRecipe("combine_bullseye_emerald_lantern", "Emerald lantern", "combination", "combine", 49, 0.0, _req(("Bullseye lantern", 1), ("Emerald lens", 1)), "Emerald lantern", source=COMBINATION_SOURCE_PATH, source_enum="BULLYEYE_EMERALD_LANTERN", tradeable=False, source_item_id=9064),
-    CraftingRecipe("combine_oil_lantern", "Oil lantern", "combination", "combine", 50, 50.0, _req(("Oil lamp", 1), ("Oil lantern frame", 1)), "Oil lantern", source=COMBINATION_SOURCE_PATH, source_enum="OIL_LANTERN", source_item_id=4537),
+    CraftingRecipe("combine_bullseye_lantern", "Fit lantern lens", "combination", "combine", 49, 0.0, _req(("Bullseye lantern (unf)", 1), ("Lantern lens", 1)), "Bullseye lantern (empty)", source=COMBINATION_SOURCE_PATH, source_enum="BULLYEYE_LANTERN", tradeable=False, source_item_id=4546),
+    CraftingRecipe("combine_bullseye_emerald_lantern", "Fit emerald lens", "combination", "combine", 49, 0.0, _req(("Bullseye lantern (empty)", 1), ("Emerald lens", 1)), "Emerald lantern (unlit)", source=COMBINATION_SOURCE_PATH, source_enum="BULLYEYE_EMERALD_LANTERN", tradeable=False, source_item_id=9064),
+    CraftingRecipe("combine_bullseye_sapphire_lantern", "Fit sapphire lens", "combination", "combine", 49, 0.0, _req(("Bullseye lantern (empty)", 1), ("Sapphire", 1)), "Sapphire lantern (empty)", byproducts=(("Lantern lens", 1),), source=SAPPHIRE_LANTERN_SOURCE, source_enum="SAPPHIRE_LANTERN", tradeable=False, source_item_id=4700),
+    CraftingRecipe("combine_empty_oil_lantern", "Assemble empty oil lantern", "combination", "combine", 26, 50.0, _req(("Oil lamp (empty)", 1), ("Oil lantern frame", 1)), "Oil lantern (empty)", source=OIL_LANTERN_SOURCE, source_enum="OIL_LANTERN_EMPTY", source_item_id=4535),
+    CraftingRecipe("combine_oil_lantern", "Assemble oil lantern", "combination", "combine", 26, 50.0, _req(("Oil lamp (unlit)", 1), ("Oil lantern frame", 1)), "Oil lantern (unlit)", source=f"{COMBINATION_SOURCE_PATH}; {OIL_LANTERN_SOURCE}", source_enum="OIL_LANTERN", source_item_id=4537),
     CraftingRecipe("combine_studded_body", "Studded body", "combination", "combine", 41, 40.0, _req(("Leather body", 1), ("Steel studs", 1)), "Studded body", source=COMBINATION_SOURCE_PATH, source_enum="STUDDED_BODY"),
     CraftingRecipe("combine_studded_chaps", "Studded chaps", "combination", "combine", 44, 42.0, _req(("Leather chaps", 1), ("Steel studs", 1)), "Studded chaps", source=COMBINATION_SOURCE_PATH, source_enum="STUDDED_CHAPS", source_item_id=1097),
     CraftingRecipe("combine_spiky_vambraces", "Spiky vambraces", "combination", "combine", 32, 6.0, _req(("Leather vambraces", 1), ("Kebbit claws", 1)), "Spiky vambraces", source=COMBINATION_SOURCE_PATH, source_enum="LEATHER_SPIKY_VAMBRACES", source_item_id=10077),
@@ -381,6 +385,12 @@ LEGACY_CRAFTING_ITEM_MIGRATIONS: Dict[str, str] = {
     "Pot": "Empty pot",
     "Unfired pie dish": "Pie dish (unfired)",
     "Unfired bowl": "Bowl (unfired)",
+    "Candle lantern": "Candle lantern (empty)",
+    "Oil lamp": "Oil lamp (empty)",
+    "Oil lantern": "Oil lantern (unlit)",
+    "Bullseye lantern": "Bullseye lantern (empty)",
+    "Emerald lantern": "Emerald lantern (unlit)",
+    "Mining helmet": "Mining helmet (unlit)",
 }
 
 

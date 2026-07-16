@@ -71,6 +71,76 @@ class TestShopLogic(unittest.TestCase):
         self.assertEqual(sanitized["shop_market_clock"]["market_tick"], 7)
         self.assertEqual(sanitized["shop_next_event_id"], 3)
 
+    def test_saved_lantern_shop_rows_and_undo_events_migrate_exact_item_names(self):
+        row_id = "miltogs_lamps:4:5014"
+        saved = {
+            "inventory": {"Coins": 900, "Mining helmet (unlit)": 1},
+            "shop_market_clock": {"answered_cards": 0, "market_tick": 0},
+            "shop_stock_state": {
+                "miltogs_lamps": {
+                    "shop_id": "miltogs_lamps",
+                    "last_market_tick": 0,
+                    "rows": {
+                        row_id: {
+                            "item_id": 5014,
+                            "item_name": "Mining helmet",
+                            "current_quantity": 9,
+                            "default_quantity": 10,
+                            "restock_ticks": 50,
+                            "restock_amount": 1,
+                            "buy_price": 900,
+                            "sell_price": 270,
+                            "tradeable": True,
+                            "temporary": False,
+                        }
+                    },
+                }
+            },
+            "shop_events": [
+                {
+                    "event_id": "shop_evt_1",
+                    "type": "buy",
+                    "shop_id": "miltogs_lamps",
+                    "row_id": row_id,
+                    "item_name": "Mining helmet",
+                    "inventory_delta": {"Coins": -900, "Mining helmet": 1},
+                    "inverse": {
+                        "inventory_delta": {"Coins": 900, "Mining helmet": -1},
+                        "stock_set": {
+                            "miltogs_lamps": {
+                                row_id: {
+                                    "item_id": 5014,
+                                    "item_name": "Mining helmet",
+                                    "current_quantity": 10,
+                                    "default_quantity": 10,
+                                    "temporary": False,
+                                }
+                            }
+                        },
+                    },
+                    "display": "Bought 1 x Mining helmet from Miltog's Lamps",
+                }
+            ],
+            "shop_next_event_id": 2,
+        }
+
+        sanitized = sanitize_shop_state_pure(saved)
+        self.assertEqual(
+            sanitized["shop_stock_state"]["miltogs_lamps"]["rows"][row_id]["item_name"],
+            "Mining helmet (unlit)",
+        )
+        event = sanitized["shop_events"][0]
+        self.assertEqual(event["item_name"], "Mining helmet (unlit)")
+        self.assertEqual(event["inverse"]["inventory_delta"]["Mining helmet (unlit)"], -1)
+        self.assertEqual(
+            event["inverse"]["stock_set"]["miltogs_lamps"][row_id]["item_name"],
+            "Mining helmet (unlit)",
+        )
+
+        restored, result = rollback_shop_event_pure({**saved, **sanitized}, "shop_evt_1")
+        self.assertTrue(result["allowed"])
+        self.assertEqual(restored["inventory"]["Mining helmet (unlit)"], 0)
+
     def test_market_clock_advances_on_answered_cards(self):
         data = build_shop_fixture_player_data()
         advanced = advance_shop_market_clock_pure(data, answered_cards=10)

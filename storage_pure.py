@@ -640,7 +640,7 @@ def _migrate_equipment(data: Dict[str, Any]) -> None:
     if isinstance(equipment, dict):
         for slot, item_name in equipment.items():
             if isinstance(slot, str) and slot in _EQUIPMENT_SLOT_IDS and isinstance(item_name, str):
-                clean_equipment[slot] = item_name
+                clean_equipment[slot] = LEGACY_CRAFTING_ITEM_MIGRATIONS.get(item_name, item_name)
     data["equipment"] = clean_equipment
     data.pop("owned_equipment", None)
 

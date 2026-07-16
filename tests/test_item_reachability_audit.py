@@ -32,6 +32,23 @@ class TestItemReachabilityAudit(unittest.TestCase):
             agility_four["known_producers"],
         )
 
+        orphan_items = {row["item"] for row in report["orphan_inputs"]}
+        for item_name in (
+            "Candle lantern (empty)",
+            "Candle lantern (unlit, 4529)",
+            "Oil lamp (empty)",
+            "Oil lamp (unlit)",
+            "Oil lantern (empty)",
+            "Oil lantern (unlit)",
+            "Bullseye lantern (unf)",
+            "Bullseye lantern (empty)",
+            "Bullseye lantern (unlit)",
+            "Sapphire lantern (empty)",
+            "Sapphire lantern (unlit)",
+            "Mining helmet (unlit)",
+        ):
+            self.assertNotIn(item_name, orphan_items)
+
 
 if __name__ == "__main__":
     unittest.main()

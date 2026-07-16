@@ -737,13 +737,19 @@ _path = os.path.join(HUNTER_ITEMS_FOLDER, "small_fishing_net.png")
 if os.path.exists(_path):
     CRAFTED_ITEM_IMAGES["Unfinished net"] = _path
 
-# Combination outputs reuse nearby checked-in art until a later local asset pass.
+# Combination and lantern-state outputs use their exact checked-in sprites.
 for _item_name, _path in {
     "Strange skull": os.path.join(SHOP_ITEMS_FOLDER, "lizard_skull.png"),
     "Runed sceptre": os.path.join(COMBAT_ITEMS_FOLDER, "staff.png"),
     "Skull sceptre": os.path.join(COMBAT_ITEMS_FOLDER, "staff.png"),
-    "Bullseye lantern": os.path.join(SMITHING_ITEMS_FOLDER, "bullseye_lantern.png"),
-    "Emerald lantern": os.path.join(SMITHING_ITEMS_FOLDER, "bullseye_lantern.png"),
+    "Candle lantern (empty)": os.path.join(FIREMAKING_ITEMS_FOLDER, "candle_lantern_empty.png"),
+    "Oil lamp (empty)": os.path.join(FIREMAKING_ITEMS_FOLDER, "oil_lamp_empty.png"),
+    "Oil lantern (empty)": os.path.join(FIREMAKING_ITEMS_FOLDER, "oil_lantern_empty.png"),
+    "Oil lantern (unlit)": os.path.join(FIREMAKING_ITEMS_FOLDER, "oil_lantern_unlit.png"),
+    "Bullseye lantern (unf)": os.path.join(FIREMAKING_ITEMS_FOLDER, "bullseye_lantern_unf.png"),
+    "Bullseye lantern (empty)": os.path.join(FIREMAKING_ITEMS_FOLDER, "bullseye_lantern_empty.png"),
+    "Emerald lantern (unlit)": os.path.join(FIREMAKING_ITEMS_FOLDER, "emerald_lantern_unlit.png"),
+    "Sapphire lantern (empty)": os.path.join(FIREMAKING_ITEMS_FOLDER, "sapphire_lantern_empty.png"),
     "Spiky vambraces": os.path.join(CRAFTED_ITEMS_FOLDER, "leather_vambraces.png"),
     "Green spiky vambraces": os.path.join(CRAFTED_ITEMS_FOLDER, "green_d_hide_vambraces.png"),
     "Blue spiky vambraces": os.path.join(CRAFTED_ITEMS_FOLDER, "blue_d_hide_vambraces.png"),
@@ -792,29 +798,40 @@ FIREMAKING_ITEM_IMAGES.update({
     "Lit candle": os.path.join(SHOP_ITEMS_FOLDER, "candle.png"),
     "Black candle": os.path.join(QUEST_ITEMS_FOLDER, "black_candle.png"),
     "Lit black candle": os.path.join(QUEST_ITEMS_FOLDER, "lit_black_candle.png"),
-    "Candle lantern (unlit, 4527)": os.path.join(CRAFTED_ITEMS_FOLDER, "candle_lantern.png"),
-    "Candle lantern (lit, 4531)": os.path.join(CRAFTED_ITEMS_FOLDER, "candle_lantern.png"),
-    "Candle lantern (unlit, 4532)": os.path.join(CRAFTED_ITEMS_FOLDER, "candle_lantern.png"),
-    "Candle lantern (lit, 4534)": os.path.join(CRAFTED_ITEMS_FOLDER, "candle_lantern.png"),
-    "Oil lantern (unlit)": os.path.join(SHOP_ITEMS_FOLDER, "oil_lantern.png"),
-    "Oil lantern (lit)": os.path.join(SHOP_ITEMS_FOLDER, "oil_lantern.png"),
-    "Bullseye lantern (unlit)": os.path.join(SMITHING_ITEMS_FOLDER, "bullseye_lantern.png"),
-    "Bullseye lantern (lit)": os.path.join(SMITHING_ITEMS_FOLDER, "bullseye_lantern.png"),
-    "Sapphire lantern (unlit)": os.path.join(SMITHING_ITEMS_FOLDER, "bullseye_lantern.png"),
-    "Sapphire lantern (lit)": os.path.join(SMITHING_ITEMS_FOLDER, "bullseye_lantern.png"),
-    "Emerald lantern (unlit)": os.path.join(SMITHING_ITEMS_FOLDER, "bullseye_lantern.png"),
-    "Emerald lantern (lit)": os.path.join(SMITHING_ITEMS_FOLDER, "bullseye_lantern.png"),
-    "Mining helmet (unlit)": os.path.join(SHOP_ITEMS_FOLDER, "mining_helmet.png"),
-    "Mining helmet (lit)": os.path.join(SHOP_ITEMS_FOLDER, "mining_helmet.png"),
 })
+for _item_name in (
+    "Candle lantern (empty)",
+    "Candle lantern (unlit, 4529)",
+    "Candle lantern (lit, 4531)",
+    "Candle lantern (unlit, 4532)",
+    "Candle lantern (lit, 4534)",
+    "Oil lamp (empty)",
+    "Oil lamp (unlit)",
+    "Oil lamp (lit)",
+    "Oil lantern (empty)",
+    "Oil lantern (unlit)",
+    "Oil lantern (lit)",
+    "Bullseye lantern (unf)",
+    "Bullseye lantern (empty)",
+    "Bullseye lantern (unlit)",
+    "Bullseye lantern (lit)",
+    "Sapphire lantern (empty)",
+    "Sapphire lantern (unlit)",
+    "Sapphire lantern (lit)",
+    "Emerald lantern (unlit)",
+    "Emerald lantern (lit)",
+    "Mining helmet (unlit)",
+    "Mining helmet (lit)",
+):
+    FIREMAKING_ITEM_IMAGES[_item_name] = os.path.join(
+        FIREMAKING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png"
+    )
 for _item_name in FIREMAKING_EXTRA_ITEM_DATA:
     _path = FIREMAKING_ITEM_IMAGES.get(_item_name)
     if not _path:
         _path = os.path.join(FIREMAKING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
     if _path and os.path.exists(_path):
         FIREMAKING_ITEM_IMAGES[_item_name] = _path
-for _item_name in ("Oil lamp (unlit)", "Oil lamp (lit)"):
-    FIREMAKING_ITEM_IMAGES[_item_name] = os.path.join(current_dir, "icon", "firemaking_icon.png")
 UTILITY_ITEM_IMAGES.update(FIREMAKING_ITEM_IMAGES)
 
 FISHING_EXTRA_ITEM_DATA = fishing_extra_items_as_dict()

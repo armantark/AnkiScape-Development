@@ -118,6 +118,10 @@ NORMALIZED_MINING_BONUS_SLOTS: Mapping[str, SlotId] = {
     "amulet": "neck",
     "chest": "body",
 }
+EQUIPMENT_ITEM_NAME_OVERRIDES: Mapping[int, str] = {
+    5013: "Mining helmet (lit)",
+    5014: "Mining helmet (unlit)",
+}
 MINING_BONUS_EQUIPMENT_FALLBACKS: Mapping[int, int] = {
     8283: 1704,
 }
@@ -145,6 +149,7 @@ LEGACY_EQUIPMENT_ITEMS: Tuple[Tuple[str, int, Optional[str], int, bool, str, str
     ("Cape", 1019, None, 1, False, "cape", "CAPE_1019"),
     ("Chaos tiara", 5543, None, 1, False, "runecrafting_access", "Altar.kt; CHAOS_TIARA"),
     ("Chef's hat", 1949, None, 1, False, "hat", "CHEFS_HAT"),
+    ("Mining helmet (lit)", 5013, "defense", 1, False, "head", "LightSource.java; MINING_HELMET_LIT"),
     ("Cosmic tiara", 5539, None, 1, False, "runecrafting_access", "Altar.kt; COSMIC_TIARA"),
     ("Death tiara", 5547, None, 1, False, "runecrafting_access", "Altar.kt; DEATH_TIARA"),
     ("Earth tiara", 5535, None, 1, False, "runecrafting_access", "Altar.kt; EARTH_TIARA"),
@@ -384,6 +389,9 @@ def _required_level_for_recipe_equipment(item_name: str, combat_skill: Optional[
 
 
 def _canonical_equipment_item_name(source_item: SourceItem) -> str:
+    override = EQUIPMENT_ITEM_NAME_OVERRIDES.get(source_item.item_id)
+    if override:
+        return override
     if _slot_from_source(source_item.equipment, "weapon") == "ammunition" and source_item.name.endswith(" arrow"):
         return f"{source_item.name}s"
     return source_item.name

@@ -16,6 +16,28 @@ from tools.generate_npc_shop_data import build_catalog, rewrite_stock_exclusions
 
 
 class TestShopData(unittest.TestCase):
+    def test_miltog_lantern_states_keep_exact_names_and_prices(self):
+        from shop_data import SHOP_EXTRA_ITEM_DATA, SHOP_PLAYER_BUY_PRICES, SHOP_PLAYER_SELL_PRICES
+
+        rows = {
+            row["item_id"]: row
+            for row in SHOP_DATA["miltogs_lamps"]["stock"]
+            if row["item_id"] in {4522, 4525, 4535, 4537, 4546, 4548, 5014}
+        }
+        expected = {
+            4522: ("Oil lamp (unlit)", 28, 8),
+            4525: ("Oil lamp (empty)", 25, 7),
+            4535: ("Oil lantern (empty)", 120, 36),
+            4537: ("Oil lantern (unlit)", 125, 37),
+            4546: ("Bullseye lantern (empty)", 400, 120),
+            4548: ("Bullseye lantern (unlit)", 420, 126),
+            5014: ("Mining helmet (unlit)", 900, 270),
+        }
+        for item_id, (item_name, buy_price, sell_price) in expected.items():
+            self.assertEqual(rows[item_id]["item_name"], item_name)
+            self.assertEqual(SHOP_PLAYER_BUY_PRICES[item_name], buy_price)
+            self.assertEqual(SHOP_PLAYER_SELL_PRICES[item_name], sell_price)
+            self.assertIn(item_name, SHOP_EXTRA_ITEM_DATA)
     def test_generated_catalog_covers_all_source_shop_files_with_dispositions(self):
         self.assertEqual(SHOP_DATA_VERSION, 1)
         self.assertEqual(SHOP_COVERAGE_SUMMARY["source_shop_count"], 274)
