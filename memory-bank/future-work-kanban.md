@@ -152,7 +152,14 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT`.
 
 Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUISITION`.
 
-- Cover charms/secondaries, pouch creation, points, familiars, timers, specials, beasts of burden, combat roles, death, inventory, banking, UI, and undo.
+- Owner grill active 2026-07-16 under `summoning-skill-contract-2026-07-16.md`.
+  Cover the full period pouch/familiar/scroll catalog; charms/secondaries and
+  acquisition; separate lifetime, Summoning-point, and special-move resources;
+  combat, healing, gathering, boosting, teleport, foraging, and beast-of-burden
+  roles; death, inventory, banking, searchable UI, persistence, and undo.
+- First open fork: select the review-native familiar-lifetime clock. Pinned
+  period evidence is in
+  `source-audits/summoning-familiar-lifecycle-2026-07-16.md`.
 
 ### Dungeoneering
 

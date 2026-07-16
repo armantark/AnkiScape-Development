@@ -2,6 +2,15 @@
 
 ## Current Focus
 
+Summoning's complete owner grill is now active on `codex/summoning-grill`; no
+runtime implementation has started. The governing live ledger is
+`summoning-skill-contract-2026-07-16.md`, backed first by
+`source-audits/summoning-familiar-lifecycle-2026-07-16.md`. The first genuine
+fork is which review-native event spends a familiar's sourced per-row lifetime.
+Period evidence already rules out collapsing lifetime and Summoning points into
+one resource: points could reach zero without dismissing the familiar. Wall-clock
+gameplay remains forbidden.
+
 Agility's owner grill, source harvest, and atomic implementation are closed. The
 governing product contract is
 `agility-skill-contract-2026-07-15.md`, backed by the exhaustive design-family ledger
@@ -139,7 +148,7 @@ The dated `completion-audit-2026-07-10.*` files remain historical snapshots; liv
 
 ## Next Recommended Work
 
-1. Resume the canonical Kanban rather than reopening Prayer, Thieving, or Agility: take the next owner-selected missing-skill program.
+1. Continue the Summoning owner grill one genuine product fork at a time; implementation remains a later thread.
 2. Close reachability roots only through authentic owning skills, activities, Combat drops, quests, shops, spawns, claims, and item actions.
 3. When Darkan reaches a stable milestone, rerun parked hidden-server audits against that pinned source surface.
 
