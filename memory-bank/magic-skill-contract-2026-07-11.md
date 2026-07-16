@@ -175,3 +175,17 @@ cross-check) is authentic pre-EOC gap-fill via `tools/wiki_parity.py` pinned bef
 - Plank Make consumers → Construction.
 - Hunter Kit consumers → Hunter.
 - Magic Dart's Slayer staff acquisition → Slayer.
+
+## Charge duration amendment — 2026-07-16
+
+Charge uses the shared review-driven temporary-effect clock, never wall time and
+never the answered-card world/economy calendar. At 1x Actions per Review, every
+successful review advances temporary effects by 50 game ticks; the advancement
+scales linearly with Actions per Review. The source 700-tick Charge duration is
+therefore fourteen successful reviews at 1x.
+
+Temporary effects advance during simulated activity globally, including safe
+non-combat reviews, so Charge dissipates out of combat rather than pausing. A
+review that casts Charge advances already-active durations first and installs
+the new Charge state afterward, preserving its full duration. The cadence
+kernel remains an action-admission/rate scheduler, not this global effect clock.

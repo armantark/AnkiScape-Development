@@ -611,3 +611,19 @@ assets, and provenance manifest are included in the same closure. The detailed
 implementation map, abstractions, dependency boundaries, and verification
 commands are recorded in
 `source-audits/agility-implementation-verification-2026-07-15.md`.
+
+## Post-closure carried-risk amendment — 2026-07-16
+
+Agility courses participate in the same target-specific Auto/Custom 28-slot
+carried-pack system as every other dangerous activity. Auto packs target
+requirements and real food for courses that can damage the player; Custom uses
+the target's saved ordered layout. Failure weight is the clamped actual pack
+plus equipped-item weight, never the flat Bank and never an unwritten scalar.
+Fatal course failures use the shared auto-eat, death, grave, and undo channels
+for that same pack and the player's equipment.
+
+The Wilderness course also uses the existing PKer abstraction. Once per
+completed lap, before its award commits, it has a 1% ambush roll with a maximum
+250-LP hit. Normal carried food, auto-eat, death, grave, and rollback rules
+resolve the result. The risk is visible in target readiness; it does not create
+a wall-clock encounter or persistent world-location system.

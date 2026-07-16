@@ -118,3 +118,31 @@ The verification gate ran and produced `memory-bank/source-audits/farming-wiki-p
 
 - **Era active-training analogs (owner asked "what's the Tithe Farm analog?")**: pre-EOC Farming had no true active method; the closest analogs are Vinesweeper (2009 — flag/dig minigame paying Farming XP and seeds; the era's nearest Tithe Farm equivalent), the Evil Tree D&D (nurturing grants Farming XP), Livid Farm (July 2011, mostly Magic XP — already deferred to its own activity card), and fast-cycle Herblore Habitat vine farming. All are Activities with their own future grills; Farming ships as the pure background skill, and Vinesweeper is the strongest future-activity candidate for players wanting active Farming training.
 - **Diary gating**: whether any patch was Task-set-gated by the cutoff is a pin-phase fact to record (§4.10).
+
+## Post-closure replacement and preset amendment — 2026-07-16
+
+- Add `Dig up` as a one-review field verb for a healthy mature regrowth crop.
+  It requires a Spade, returns no produce, and leaves the patch empty. It never
+  silently plants another crop.
+- `Queue full run` continues to execute only the player's saved plans. When the
+  saved crop differs from a mature regrowth crop, it queues `Dig up` followed by
+  `Plant`; manually adding `Dig up` queues only that verb.
+- Add compact, user-named whole-farm presets as snapshots of selected patch
+  plans. A preset stores patch inclusion plus each included patch's crop,
+  compost, gardener policy, watering, cure, and other supported plan fields.
+  Existing expanded patch cards remain the only plan editor; presets do not
+  create a second configuration surface.
+- The compact control row is `Preset [name] [modified] [Apply plans]
+  [Presets...]`, followed by `Queue full run` and its ready-step count. Saving
+  asks only for a name and included patches. Management supports update,
+  included patches, rename, duplicate, and delete.
+- Selecting a preset is inert. `Apply plans` copies its plan data into the live
+  patch plans without queuing steps or consuming goods. A `modified` marker
+  appears when live plans diverge from the selected snapshot.
+- This amendment supersedes the immediate-payment sentence in §6a for planned
+  gardener protection. An explicit `Queue full run` pays each selected gardener
+  from the Bank before constructing that patch's steps. If the goods are
+  missing, that patch is skipped and reported rather than silently planted
+  unprotected. A manually assembled queue may still deliberately plant without
+  protection. Watering must function end to end before it appears as a preset
+  field.
