@@ -20,8 +20,10 @@ offer probability remains `source_blocked`. The planned `Get assignment` master
 picker is not implemented yet and must reflect While Guthix Sleeps succession:
 Turael to Spria, Duradel to Lapalok, and temporary Mazchna to Achtryn. Every
 period master role remains visible in that picker; ineligible rows are disabled
-and explain every unmet requirement. No Slayer gameplay implementation is
-authorized in this thread.
+and explain every unmet requirement. Master succession is presentation-only:
+active task state never changes, while quest state swaps the role's portrait,
+name, and copy. Required Slayer finishing items are the next open design branch.
+No Slayer gameplay implementation is authorized in this thread.
 
 Agility's owner grill and full-content design harvest are closed; implementation
 belongs in a new thread. The governing product contract is

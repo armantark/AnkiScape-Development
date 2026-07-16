@@ -217,9 +217,21 @@ eligible master remains preselected. Quest succession updates the identity and
 portrait inside the existing role row; it never leaves the dead master visible
 as another selectable master or creates a duplicate successor row.
 
+## Owner decision 7 — succession is presentation-only
+
+Crossing a While Guthix Sleeps succession boundary never cancels, rerolls,
+rewrites, or otherwise mutates an active assignment or challenge. Remaining
+objectives, qualifying targets, task count, point/streak treatment, rewards, and
+undo history remain exactly as they were.
+
+The task stores the stable functional master role. Quest state derives the
+current NPC name, portrait, and source-appropriate copy for that role, so Turael
+becomes Spria and Duradel becomes Lapalok without a second gameplay identity.
+Undoing the quest-state transition changes those presentation fields back and
+still leaves the task untouched.
+
 ## Next unresolved product branch
 
-Determine what happens when While Guthix Sleeps crosses a permanent succession
-boundary while a Turael- or Duradel-role assignment is already active: preserve
-the exact task and original issuer provenance while the successor manages it, or
-rewrite/cancel the active assignment.
+Determine how required Slayer finishing items integrate with Combat. Period
+targets such as rockslugs and gargoyles cannot currently ship because an ordinary
+kill would bypass their bag-of-salt or rock-hammer finishing action.

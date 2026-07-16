@@ -45,5 +45,7 @@ Achtryn replaces Mazchna only during the quest; Mazchna survives and returns.
   show the correct living or temporary master.
 - The replacements do not duplicate assignment pools, point ledgers, streaks,
   or UI rows.
-- Exact behavior for an assignment already active when the quest crosses a
-  succession boundary remains a product detail to settle before implementation.
+- An assignment or challenge already active when the quest crosses a succession
+  boundary remains byte-for-byte equivalent in gameplay state. Only the role's
+  derived NPC name, portrait, and copy change; reversing the quest-state
+  transition reverses only that presentation.
