@@ -1,6 +1,6 @@
 # AnkiScape Completion Kanban
 
-Status: reconciled 2026-07-16. This is the canonical forward-work board. The 2026-07-10 completion audit is a dated baseline; the shipped-skill subledger remains `memory-bank/gap-backlog.json`.
+Status: reconciled 2026-07-16. This is the canonical forward-work board. The 2026-07-10 completion audit is archived baseline evidence; the shipped-skill subledger remains `memory-bank/gap-backlog.json`.
 
 ## Label contract
 
@@ -13,6 +13,30 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 - `EXCLUDED`: outside the product/cutoff boundary.
 
 ## Now — audit-backed implementation and source work
+
+### Owner-approved post-closure amendments
+
+Labels: `IMPLEMENT`. Design is settled; these mechanics are not yet live.
+
+- Agility target packs must carry course requirements and real food when damage
+  is possible; fatal failures grave the actual pack/equipment, and the
+  Wilderness course uses the bounded PKer abstraction. Governing amendment:
+  `memory-bank/agility-skill-contract-2026-07-15.md`.
+- Magic Charge must use the shared review-driven temporary-effect clock, scale
+  with Actions per Review, dissipate during safe non-combat activity, and never
+  read wall time. Governing amendment:
+  `memory-bank/magic-skill-contract-2026-07-11.md`.
+- Farming must add explicit one-review `Dig up`, user-authored whole-farm preset
+  snapshots, inert selection/application, and the existing `Queue full run`
+  execution path. Governing amendment:
+  `memory-bank/farming-skill-contract-2026-07-11.md`.
+- Bank must add `Discard X` with direct-action undo and `Set carried quantity...`
+  with stack-aware slot validation while preserving insertion order as the
+  Custom-pack queue. Governing amendment:
+  `memory-bank/gap-grill-decisions-2026-07-10.md`.
+
+The resolved overnight question ledger is preserved at
+`memory-bank/archive/2026-07/resolved-queues/design-gaps-overnight-2026-07-16.md`.
 
 ### Existing-skill parity ledger
 

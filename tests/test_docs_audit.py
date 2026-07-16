@@ -66,6 +66,30 @@ class DocumentationAuditTests(unittest.TestCase):
             {"invalid_html_nesting", "missing_doctype", "trailing_whitespace", "unclosed_html_element"},
         )
 
+    def test_reports_missing_local_html_resources(self) -> None:
+        root = self._repo()
+        self._track(
+            root,
+            "report.html",
+            "<!doctype html><html><body><img src=\"missing.png\"></body></html>\n",
+        )
+
+        report = AUDIT_DOCS.audit_docs(root)
+
+        self.assertEqual([(issue.kind, issue.detail) for issue in report.issues], [("broken_html_target", "missing.png")])
+
+    def test_ignores_staged_paths_removed_during_a_move(self) -> None:
+        root = self._repo()
+        self._track(root, "old.md", "# Old location\n")
+        (root / "old.md").unlink()
+        (root / "archive").mkdir()
+        (root / "archive" / "old.md").write_text("# Archived\n", encoding="utf-8")
+
+        report = AUDIT_DOCS.audit_docs(root)
+
+        self.assertTrue(report.ok, report.issues)
+        self.assertEqual(report.markdown_files, 1)
+
 
 if __name__ == "__main__":
     unittest.main()

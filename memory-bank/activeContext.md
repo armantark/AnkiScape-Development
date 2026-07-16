@@ -2,6 +2,16 @@
 
 ## Current Focus
 
+The documentation archive closure is complete. The new `memory-bank/README.md`
+separates current entry points from evidence and historical records; six
+superseded/completed Markdown records plus the completion-audit JSON companion
+now live under `memory-bank/archive/2026-07/`. Another 308 old status files are
+grouped under `memory-bank/status-updates/archive/2026-05..07/`, leaving four
+current orientation reports at the status root. The four resolved overnight
+mechanics remain visible as `IMPLEMENT` cards rather than disappearing with
+their question ledger. The closure report is
+`status-updates/documentation-archive-results-2026-07-16.html`.
+
 Documentation integrity is closed across the whole repository. The canonical
 README, roadmap, Kanban, Project Brief, Product Context, Active Context, and
 Progress ledger now agree with the live 17-complete / five-partial /
@@ -92,12 +102,14 @@ The Prayer/altar/urn/passive/Herblore closure is implemented, fully certified, a
 Use these as the live handoff sources:
 
 1. `memory-bank/cadence-kernel-phase3-shadow-2026-07-13.md` — Phase 3 decisions, route coverage, verification, and manual QA.
-2. `memory-bank/status-updates/cadence-kernel-phase3-shadow-plan-2026-07-13.html` — immutable pre-implementation proposal.
-3. `memory-bank/status-updates/cadence-kernel-phase3-shadow-results-2026-07-13.html` — final divergence and verification handoff.
+2. `memory-bank/status-updates/archive/2026-07/cadence-kernel-phase3-shadow-plan-2026-07-13.html` — immutable pre-implementation proposal.
+3. `memory-bank/status-updates/archive/2026-07/cadence-kernel-phase3-shadow-results-2026-07-13.html` — final divergence and verification handoff.
 4. `memory-bank/future-work-kanban.md` — canonical forward-work board.
 5. `memory-bank/pre-eoc-source-verification-standard.md` — permanent evidence contract.
 
-The dated `completion-audit-2026-07-10.*` files remain historical snapshots; live registry and Kanban state outrank them.
+The dated completion-audit files are archived under
+`memory-bank/archive/2026-07/baselines/`; live registry and Kanban state outrank
+them.
 
 ## Current Truth
 
@@ -215,7 +227,7 @@ the real Anki/Qt offscreen discovery passes all 1,240 tests with the same three
 expected failures and no skips. The focused closure set passes 609 tests, item
 reachability reports no Thieving/Phoenix orphan, compilation and diff checks are
 clean, and the result artifact is
-`memory-bank/status-updates/thieving-skill-results-2026-07-13.html`.
+`memory-bank/status-updates/archive/2026-07/thieving-skill-results-2026-07-13.html`.
 
 ## Agility closure (2026-07-15)
 
@@ -456,5 +468,6 @@ expected failures, while the core run also contained environment skips. Test
 quality had zero hard issues, reachability remained 1,200 actions / 273 known
 orphans, and compilation, diff, and worktree safety checks passed. There were
 no queued confirmed defects. The four owner-direction questions recorded in
-`memory-bank/design-gaps-overnight-2026-07-16.md` are now design-resolved but
-await implementation on `main`.
+`memory-bank/archive/2026-07/resolved-queues/design-gaps-overnight-2026-07-16.md`
+are now design-resolved. Their four pending implementations are explicit
+`IMPLEMENT` cards in `memory-bank/future-work-kanban.md`.

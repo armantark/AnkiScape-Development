@@ -2,7 +2,26 @@
 
 ## Current Baseline — 2026-07-16
 
-AnkiScape now has 17 complete skill surfaces, five partial Combat-trained skills, and three planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is a historical snapshot.
+AnkiScape now has 17 complete skill surfaces, five partial Combat-trained skills, and three planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
+
+## Documentation archive closure — 2026-07-16
+
+- Added a Memory Bank index and explicit archive policy so current entry points,
+  evidence records, and historical artifacts have distinct homes.
+- Archived six superseded/completed root records plus the completion audit's JSON
+  companion; copied all four approved-but-unimplemented overnight decisions to
+  the canonical Kanban before archiving their resolved question ledger.
+- Moved 308 old status files into monthly archives while retaining the three
+  current July closure reports at the top-level status entry point.
+- Extended the documentation audit to validate local HTML resources and to
+  tolerate staged old paths during link-safe file moves.
+- Closure verification: 215 Markdown and 295 HTML documents pass the audit;
+  all 1,329 core tests pass with 193 environment skips and three declared
+  expected failures; test quality has zero hard issues across 67 files. All 24
+  JSON files parse, compilation/diff/worktree-safety gates pass, and Qt testing
+  is not required because no runtime or UI behavior changed.
+- Closure artifact:
+  `status-updates/documentation-archive-results-2026-07-16.html`.
 
 ## Documentation integrity closure — 2026-07-16
 
@@ -75,7 +94,7 @@ offscreen Anki/Qt environment; `run_tests.py` is also green. The three expected
 XP/hour parity failures predate this slice. A 609-test focused closure set,
 zero Thieving/Phoenix reachability orphans, compilation, and `git diff --check`
 complete the gate. See
-`status-updates/thieving-skill-results-2026-07-13.html`.
+`status-updates/archive/2026-07/thieving-skill-results-2026-07-13.html`.
 
 ## Cadence Phase 3 Closure — 2026-07-13
 
@@ -356,8 +375,9 @@ Test counts are snapshots; current runs outrank this note.
 - Test quality: zero hard issues across 66 files. Reachability: 1,200 actions,
   273 known orphans. Compilation, diff, and worktree safety checks pass.
 - No confirmed defect remains queued. The four creative-direction questions in
-  `memory-bank/design-gaps-overnight-2026-07-16.md` are design-resolved, with
-  implementation still pending on `main`.
+  `memory-bank/archive/2026-07/resolved-queues/design-gaps-overnight-2026-07-16.md`
+  are design-resolved, and their four pending implementations are recorded in
+  `memory-bank/future-work-kanban.md`.
 
 ## Achievement semantics foundation (2026-07-16)
 

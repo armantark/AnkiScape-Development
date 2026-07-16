@@ -2,7 +2,8 @@
 
 Focused continuation document for the **Prayer** deep grill.
 It is not the global post-Herblore roadmap; that role now belongs to
-`completion-audit-2026-07-10.md` and `future-work-kanban.md`.
+`archive/2026-07/baselines/completion-audit-2026-07-10.md` and
+`future-work-kanban.md`.
 
 Status: **historical Prayer grill, implemented 2026-07-11 and closed
 2026-07-13.** The body below preserves the pre-implementation contract; the
@@ -208,7 +209,8 @@ already exist in one pass. Only *dependency-blocked* items sit out (see Parked).
 ### Cross-cutting status
 
 The then-current eleven-skill completeness audit is preserved in `gap-backlog.json`,
-`gap-grill-decisions-2026-07-10.md`, and `completion-audit.json`. Prayer's
+`gap-grill-decisions-2026-07-10.md`, and
+`archive/2026-07/baselines/completion-audit.json`. Prayer's
 kanban card moves to `IMPLEMENT` (with the extraction list above as its
 `SOURCE AUDIT` residue) as of 2026-07-11.
 

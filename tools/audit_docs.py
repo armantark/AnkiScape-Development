@@ -53,15 +53,21 @@ class _DocumentParser(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.stack: list[tuple[str, int]] = []
         self.errors: list[tuple[int, str]] = []
+        self.local_targets: list[tuple[int, str]] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        del attrs
+        for name, value in attrs:
+            if name.lower() in {"href", "src"} and value:
+                self.local_targets.append((self.getpos()[0], value))
         tag = tag.lower()
         if tag not in VOID_ELEMENTS:
             self.stack.append((tag, self.getpos()[0]))
 
     def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        del tag, attrs
+        del tag
+        for name, value in attrs:
+            if name.lower() in {"href", "src"} and value:
+                self.local_targets.append((self.getpos()[0], value))
 
     def handle_endtag(self, tag: str) -> None:
         tag = tag.lower()
@@ -87,7 +93,8 @@ def _tracked_docs(root: Path) -> tuple[Path, ...]:
         check=True,
         capture_output=True,
     )
-    return tuple(root / item.decode() for item in result.stdout.split(b"\0") if item)
+    paths = (root / item.decode() for item in result.stdout.split(b"\0") if item)
+    return tuple(path for path in paths if path.exists())
 
 
 def _relative(path: Path, root: Path) -> str:
@@ -161,6 +168,19 @@ def _audit_html(path: Path, root: Path, text: str, issues: list[DocIssue]) -> No
     for tag, line in parser.stack:
         if tag not in OPTIONAL_END_ELEMENTS:
             issues.append(DocIssue("unclosed_html_element", _relative(path, root), line, f"unclosed <{tag}>"))
+    for line, target in parser.local_targets:
+        if target.startswith(("#", "http://", "https://", "mailto:", "data:", "javascript:", "/")):
+            continue
+        target_path = unquote(target.split("#", 1)[0].split("?", 1)[0])
+        if not target_path:
+            continue
+        resolved = (path.parent / target_path).resolve()
+        try:
+            resolved.relative_to(root.resolve())
+        except ValueError:
+            continue
+        if not resolved.exists():
+            issues.append(DocIssue("broken_html_target", _relative(path, root), line, target))
 
 
 def audit_docs(root: Path) -> DocAuditReport:

@@ -1,5 +1,5 @@
 {
-  "_comment": "Gap backlog for the autonomous /loop gap-fill run. Populated 2026-07-09 from the GPT-5.6-terra shipped-skills audit (memory-bank/status-updates/shipped-skills-gap-audit-2026-07-09.html). Each tick, tools/gap_driver.py pulls the highest-priority pending item, works it in its own worktree via the routed GPT-5.6 tier, has Sol review, and folds it in. Status: pending -> in_progress -> review -> merged | review_failed | blocked.",
+  "_comment": "Gap backlog for the autonomous /loop gap-fill run. Populated 2026-07-09 from the GPT-5.6-terra shipped-skills audit (memory-bank/status-updates/archive/2026-07/shipped-skills-gap-audit-2026-07-09.html). Each tick, tools/gap_driver.py pulls the highest-priority pending item, works it in its own worktree via the routed GPT-5.6 tier, has Sol review, and folds it in. Status: pending -> in_progress -> review -> merged | review_failed | blocked.",
   "policy": {
     "cutoff": "2012-11-20T00:00:00Z",
     "source_scope": "RuneScape content available by the cutoff only. Ignore Old School RuneScape-specific mechanics unless independent pre-cutoff RuneScape evidence proves the same mechanic existed.",
@@ -272,7 +272,7 @@
       "detail": "The Abyss is a wilderness shortcut that drops the runecrafter next to the rift ring, skipping most of the bank-to-altar walk; it is the canonical fast-but-dangerous alternative to the on-foot route for Nature and other runes. As a route (not a new rune), it applies to the existing standard/combination targets. It is the exemplar for the Agility run-energy model: its whole speed advantage is a shorter trip. Unlocked via Enter the Abyss / Abyssal mini-quest; skull and prayer-drain on entry; pouch degradation and Dark-mage repair.",
       "source": "wiki:Abyss (oldid 6313726); game-main RunecraftAction.kt for the craft; recon memory-bank/source-audits/runecrafting-recon-2026-07-14.md",
       "status": "design_partial_waiting_source",
-      "note": "Carded 2026-07-14 during the Agility run-energy grill (previously only loose prose in completion-audit.json). The Abyss-vs-foot Nature XP/hour delta is source_blocked (no period rate in any scoped page or a 400-revision scan back to 2010, per the RC recon), so the route ships as a selectable method whose throughput advantage is expressed through the sourced run-energy trip-cost model rather than a quoted rate. Familiars stay parked (Summoning dependency). See memory-bank/agility-run-energy-contract-2026-07-14.md.",
+      "note": "Carded 2026-07-14 during the Agility run-energy grill (previously only loose prose in memory-bank/archive/2026-07/baselines/completion-audit.json). The Abyss-vs-foot Nature XP/hour delta is source_blocked (no period rate in any scoped page or a 400-revision scan back to 2010, per the RC recon), so the route ships as a selectable method whose throughput advantage is expressed through the sourced run-energy trip-cost model rather than a quoted rate. Familiars stay parked (Summoning dependency). See memory-bank/agility-run-energy-contract-2026-07-14.md.",
       "decision_doc": "memory-bank/agility-run-energy-contract-2026-07-14.md"
     },
     {

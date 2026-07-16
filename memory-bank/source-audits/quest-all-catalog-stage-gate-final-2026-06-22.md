@@ -124,5 +124,5 @@ classifications:
 - `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`:
   544 tests passed.
 - Final completion status artifact:
-  `memory-bank/status-updates/quest-stage-gates-all-catalog-complete-2026-06-22.html`.
+  `memory-bank/status-updates/archive/2026-06/quest-stage-gates-all-catalog-complete-2026-06-22.html`.
 - Postplan mobile URL: `https://p0lvtdijaz75.postplan.dev`.

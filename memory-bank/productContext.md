@@ -24,7 +24,8 @@ Anki already rewards consistency through memory gains, but that feedback is abst
 
 The goal is full pre-EOC breadth translated to Anki—not a literal world simulator. Missing skills receive deep product grills where their authentic loops have multiple reasonable review abstractions. Large hidden-server systems may wait for a stable high-fidelity Darkan restoration, then must still be reconciled against period evidence.
 
-Canonical live scope: `memory-bank/future-work-kanban.md`; the 2026-07-10 completion audit is a dated baseline.
+Canonical live scope: `memory-bank/future-work-kanban.md`; the 2026-07-10
+completion audit is archived under `memory-bank/archive/2026-07/baselines/`.
 
 ## Boundaries
 

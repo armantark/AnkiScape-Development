@@ -198,5 +198,6 @@ Final holdouts:
 - Compilation, `git diff --check`, and the worktree safety audit pass.
 
 The four owner-direction questions recorded at closure are ranked in
-`memory-bank/design-gaps-overnight-2026-07-16.md`. They were subsequently
+`memory-bank/archive/2026-07/resolved-queues/design-gaps-overnight-2026-07-16.md`.
+They were subsequently
 design-resolved on 2026-07-16; their implementation remains pending on `main`.

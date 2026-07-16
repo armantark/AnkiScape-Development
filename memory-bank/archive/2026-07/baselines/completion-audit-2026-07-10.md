@@ -1,6 +1,8 @@
 # AnkiScape completion audit — 2026-07-10 (reconciled 2026-07-11)
 
-This is the project-wide completeness baseline. The machine-readable companion is `memory-bank/completion-audit.json`; the action surface is `memory-bank/future-work-kanban.md`.
+This is the archived project-wide completeness baseline. The machine-readable
+companion is `memory-bank/archive/2026-07/baselines/completion-audit.json`; the
+current action surface is `memory-bank/future-work-kanban.md`.
 
 ## What “complete” means
 

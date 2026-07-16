@@ -5,16 +5,22 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
 
 ## Documentation Authority
 
+- `README.md` is the Memory Bank entry point. It names the current core files,
+  evidence directories, and archive boundary.
 - `future-work-kanban.md`, `activeContext.md`, `progress.md`, and the live
   registries are current truth and must agree after every significant closure.
 - Dated source audits, contracts, briefs, and HTML status artifacts are evidence
   snapshots. Preserve their original claims, but add a clear status or
   supersession note when a later implementation would otherwise make the file
   look current.
+- `archive/` holds only completed handoffs, superseded baselines, and resolved
+  queues with named live successors. `status-updates/archive/YYYY-MM/` holds old
+  human-facing plans, results, and their screenshots; the `status-updates/` top
+  level is reserved for current orientation reports.
 - Run `/opt/homebrew/bin/python3 tools/audit_docs.py` after documentation
-  changes. It audits every
-  tracked Markdown and HTML file for mechanical integrity without rewriting
-  historical prose.
+  changes. It audits every present tracked or untracked Markdown and HTML file
+  for mechanical integrity, including local Markdown links and HTML resources,
+  without rewriting historical prose.
 
 ## Important Modules
 - `__init__.py`: runtime orchestration, global player state, review hooks, answer handling, menu callbacks, save/HUD/UI bridge callbacks, and compatibility review-action wrappers.

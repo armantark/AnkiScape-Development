@@ -4,7 +4,7 @@ Owner-approved 2026-07-13. Supersedes nothing; it is the first implementation of
 the XP/hour invariant recorded on the balance kanban card.
 
 Evidence: `memory-bank/source-audits/xp-hour-provenance-ledger-2026-07-13.md`.
-Decision: `memory-bank/status-updates/action-time-model-decision-2026-07-13.html`.
+Decision: `memory-bank/status-updates/archive/2026-07/action-time-model-decision-2026-07-13.html`.
 Measurement: `tools/xp_rate_audit.py`. Gate: `tests/test_xp_hour_parity.py`.
 
 ## 1. The problem, in one line

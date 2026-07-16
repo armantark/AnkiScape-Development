@@ -1,6 +1,7 @@
 # AnkiScape Completion Roadmap
 
-Status: reconciled 2026-07-16. Use `future-work-kanban.md` for actionable cards and treat `completion-audit-2026-07-10.*` as dated baseline evidence.
+Status: reconciled 2026-07-16. Use `future-work-kanban.md` for actionable cards;
+the dated completion audit is archived under `archive/2026-07/baselines/`.
 
 ## Strategy
 
