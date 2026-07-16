@@ -296,3 +296,16 @@ Test counts are snapshots; current runs outrank this note.
   and all 1,305 core tests pass with 187 skips and three expected failures.
   Test quality remains at zero hard issues; compilation, diff, and worktree
   safety pass.
+
+## Overnight fresh-eyes pass 16 — live skill-surface coherence (2026-07-16)
+
+- Resolved friendly HUD target labels and equipped-blackjack readiness for the
+  newest skill families.
+- Made Magic, Construction, Thieving, and Agility controls refresh dependent
+  state and report direct-action outcomes immediately.
+- Exposed all five sourced Brimhaven XP exchanges and made target switching or
+  Stop Training end the paid arena stint.
+- Committed as `483eb55`; 170 focused core tests, eight real offscreen Qt
+  checks, and all 1,312 core tests pass with 193 skips and three expected
+  failures. Test quality remains at zero hard issues; compilation, diff, and
+  worktree safety pass.

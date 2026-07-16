@@ -381,3 +381,17 @@ Verification passes 242 focused Farming/Shop/runtime/integration tests, all 183
 real offscreen Qt tests, and all 1,305 core tests with 187 skips and three
 expected XP-parity failures. Test quality has zero hard issues; compilation,
 diff, and safe-worktree checks pass.
+
+## Overnight fresh-eyes pass 16 (2026-07-16)
+
+Commit `483eb55` closes reactive UI and target-resolution gaps across the six
+newest skill surfaces. The HUD resolves their friendly target names; equipped
+blackjacks satisfy Thieving gates; Magic, Construction, Thieving, and Agility
+controls rerender their dependent readiness state; every sourced Brimhaven XP
+bundle is selectable; Agility commands report outcomes; and paid Brimhaven
+stints end on target change or Stop Training.
+
+Verification passes 170 focused core tests, eight real offscreen Qt checks,
+and all 1,312 core tests with 193 skips and three expected XP-parity failures.
+Test quality has zero hard issues; compilation, diff, and safe-worktree checks
+pass.

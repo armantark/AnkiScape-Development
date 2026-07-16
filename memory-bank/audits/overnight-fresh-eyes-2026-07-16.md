@@ -56,6 +56,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 | 13 | Save-schema lifecycle, defaults, migration, profile reload, persisted writer/reader symmetry, and direct-action undo | Opus | 5 | 1 | `1fb0b64` | 271 focused; 2 real offscreen Qt; 1,303 full; reachability unchanged at 1,200 actions/273 orphans; zero hard test-quality issues; compilation, diff, and worktree checks |
 | 14 | Achievement predicates, production writers, dependency ordering, and exact boundary semantics | Opus | 1 | 1 | `b59c846` | 251 focused; 1 real offscreen Qt; 1,304 full; zero hard test-quality issues; compilation, diff, and worktree checks |
 | 15 | Test-oracle integrity against production Shop persistence and Farming UI reachability | Opus | 6 | 2 | `1120fb4` | 242 focused; 183 real offscreen Qt; 1,305 full; zero hard test-quality issues; compilation, diff, and worktree checks |
+| 16 | Prayer, Magic, Construction, Thieving, Agility, and Herblore live-surface reachability | Opus | 6 | 8 | `483eb55` | 170 focused core; 8 real offscreen Qt; 1,312 full; zero hard test-quality issues; compilation, diff, and worktree checks |
 
 ## Accepted fixes
 
@@ -109,6 +110,10 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Achievement dispatch now evaluates newly satisfied predicates to a fixed point. Living Legend unlocks atomically with the final ordinary achievement instead of requiring an unrelated later action to trigger a second check.
 - Shop purchases, sales, services, Bob Barter decanting, stock/history changes, currency, and Wilderness consequences now call the canonical player-data save boundary immediately instead of surviving only in memory until an unrelated later save.
 - The Farming sheet now exposes the already-implemented Juju farming potion action, chooses the fullest owned dose first, shows the active review-native harvest bonus state, and preserves the next dose through the existing pure action boundary.
+- The review HUD now resolves friendly names for Herblore, Prayer, Magic, Construction, Thieving, and Agility instead of exposing their stable IDs.
+- An equipped Willow blackjack now satisfies the Thieving target gate, matching the runtime's ordinary equipment semantics.
+- Agility exposes all five sourced Brimhaven XP exchanges, reports command outcomes, rerenders after direct actions, and ends a paid Brimhaven stint when the player changes target or stops training.
+- Construction purchase, room, servant, and style actions report success or rejection and immediately refresh the house sheet. Magic prerequisite pickers and Thieving/Agility target changes likewise rebuild dependent readiness state instead of leaving stale rows or Train buttons.
 
 ## Rejected candidates
 
@@ -137,10 +142,11 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Living Legend's legacy list-length condition was not hardened against fabricated stale or duplicate names because no live writer or shipped migration produces them. The reproduced same-dispatch dependency failure was fixed independently.
 - The HUD cleanup and global-bridge pending-latch branches identified by the pass-15 reviewer remain unreachable under the current production ownership contracts; no speculative cleanup was added without a failing path.
 - The reachability test's broad action-count floor and partial generated-snapshot oracles were not tightened just to mirror today's exact counts. Existing semantic checks still catch current drift, and pinning incidental totals would add brittle test volume without protecting a reproduced behavior.
+- Always-enabled Magic and Construction Train buttons were not converted to speculative whole-skill gates: review runtime already deactivates unavailable targets, while this pass repaired the concrete stale selector and house-action failures.
 
 ## Queued confirmed defects
 
-None. The next pass rotates away from Shop/Farming persistence and test-oracle coverage rather than carrying an unverified candidate forward.
+None. The next pass rotates away from the six repaired skill surfaces rather than carrying an unverified candidate forward.
 
 ## Reviewer budget and availability
 
@@ -158,6 +164,7 @@ None. The next pass rotates away from Shop/Farming persistence and test-oracle c
 - Pass 13 used one successful read-only Opus workflow (`3007fcda-2065-4cb2-b806-cca2a0e98ce0`). The required pre/post live checks both reported Fable at 30% and all-model weekly usage at 18%; current-session usage rose from 17% to 20%. The reviewer supplied one material finite-supply exploit and four explicit non-failing asymmetries; Codex reproduced and fixed only the exploit.
 - Pass 14 used one successful read-only Opus workflow (`62af823b-8024-4fda-b0bf-c9bf946c9161`). The required pre/post live checks both reported Fable at 30%; all-model weekly usage rose from 18% to 19% and current-session usage from 20% to 25%. The reviewer found no material writer mismatch, while Codex independently reproduced and fixed the same-dispatch Living Legend dependency defect that the predicate-only tests missed.
 - Pass 15 used one successful read-only Opus workflow (`4f00a73a-0ac0-4bfd-bd81-c6f6a2788b85`). The required pre/post live checks both reported Fable at 30% and all-model weekly usage at 19%; current-session usage rose from 25% to 28%. The reviewer exposed the missing Juju Farming control but underrated it against the recorded acceptance claim; Codex reproduced that UI omission and independently found the stronger unsaved Shop mutation path.
+- Pass 16 used one successful read-only Opus workflow (`03135f05-b39a-47bb-a2e2-d271a30e4399`). The pre-check reported current-session 0%, all-model weekly 19%, and Fable 30%; the post-check reported 8%, 20%, and 31% respectively. The reviewer supplied six concrete surface defects; Codex reproduced all six and independently found the matching stale Magic prerequisite and target-readiness refresh paths.
 
 ## Closure
 
