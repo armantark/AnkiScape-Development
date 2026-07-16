@@ -1,5 +1,8 @@
 import dataclasses
 import unittest
+from unittest.mock import patch
+
+import runtime_actions
 
 from runtime_actions import (
     RuntimeActionContext,
@@ -484,6 +487,45 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Defeated Chicken"])
         self.assertEqual(len(calls["xp"]), 1)
+
+    def test_fatal_combat_burst_graves_loot_earned_before_death(self):
+        enemy = {
+            "display_name": "Fatal looter",
+            "level": 99,
+            "group": "Test",
+            "stats": {"attack": 99, "strength": 99, "defence": 1, "hitpoints": 1},
+            "bonuses": {},
+            "attack_speed": 1,
+            "drops": {"guaranteed": (("Feather", 1),), "tables": ()},
+            "source": "test",
+        }
+        player_data = {
+            "inventory": {},
+            "equipment": {},
+            "current_combat_target": "fatal_looter",
+            "combat_attack_style": "accurate",
+            "combat_lifepoints": 1,
+            "combat_auto_flee": False,
+            "combat_auto_eat_food": [],
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 1,
+            "constitution_level": 10,
+            "attack_exp": 0.0,
+            "constitution_exp": 0.0,
+            "completed_achievements": [],
+        }
+        calls = {"xp": [], "saves": 0, "errors": []}
+
+        with patch.dict(runtime_actions.COMBAT_ENEMY_DATA, {"fatal_looter": enemy}):
+            ok = handle_combat_answer(_context(player_data, calls, [0.0, 0.999999, 0.0, 0.999999]))
+
+        self.assertTrue(ok)
+        self.assertTrue(player_data["combat_last_result"]["died"])
+        self.assertEqual(player_data["combat_last_result"]["kills"], 1)
+        self.assertIn("Feather", player_data["combat_grave"]["items"])
+        self.assertEqual(player_data["inventory"].get("Feather", 0), 0)
+        self.assertNotIn("fatal_looter", player_data.get("carried_inventory", {}))
 
     def test_combat_handler_runs_ranged_review_with_starter_bow_and_arrows(self):
         calls = {"xp": [], "saves": 0, "errors": []}
