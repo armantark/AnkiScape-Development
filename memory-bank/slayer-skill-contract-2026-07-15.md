@@ -357,8 +357,10 @@ another gameplay rule. Purely cosmetic duplicate locations collapse into the
 same target entry and do not create map clutter.
 
 The player chooses a qualifying context alongside the exact enemy variant.
-Locked contexts remain visible where progression legibility helps and state
-their unmet assignment, master, Slayer, Combat, quest, activity, or item gates.
+Implemented contexts that the current player cannot yet enter remain visible
+where progression legibility helps and state their unmet assignment, master,
+Slayer, Combat, quest, activity, or item gates. A context whose own runtime
+dependencies are not implemented does not materialize as a disabled row.
 Selecting a context does not create global player location: it binds the source
 rules and abstract trip-energy cost to that Combat encounter until retreat,
 death, target/context change, or another established Combat reset boundary.
@@ -476,3 +478,49 @@ unlock. Cave horrors and the Mos Le'Harmless cave must arrive as real Combat
 target/context and acquisition content, including the sourced protective-item,
 light, access, drop, and undo rules. No free mask, quest flag, inert reward row,
 or alternate acquisition shortcut is acceptable.
+
+## Owner decision 18 — implementation gaps stay implicit
+
+The source and completeness ledgers retain every cutoff-live assignment family,
+but live Slayer surfaces and assignment rolls contain only runtime-ready
+families. A family gated by an unimplemented quest, target, Combat context,
+acquisition route, or other required subsystem is absent rather than rendered
+as a disabled, locked, placeholder, or `coming later` row. The player must never
+be asked to look at implementation debt.
+
+Runtime readiness and player eligibility are separate predicates. First derive
+whether the complete dependency graph behind a period task row is genuinely
+implemented. Only then apply the authentic master, quest-completion, Slayer,
+Combat, reward-unlock, block-list, and last-task eligibility rules. Rows failing
+either stage do not enter the weighted roll or its normalization denominator.
+This preserves the period behavior of reweighting among tasks the player can
+actually receive without inventing replacement weights.
+
+Automatic activation is part of the data contract. Assignment definitions must
+reference stable quest, target, context, and unlock identities rather than copy
+implementation flags into a second hand-maintained allowlist. Once all required
+identities become runtime-ready, the existing family participates in UI/search
+and assignment generation automatically; no save migration, row cleanup,
+special release switch, or follow-up patch is allowed.
+
+Pin each family's master weights, kill-count range, Slayer gate, and other period
+data now, using `source_blocked` where the exact value cannot yet be closed.
+Activation may not require filling in a second batch of family data. An audit
+must enumerate every cutoff family as either runtime-ready or blocked by named,
+machine-checkable stable dependency identities, reject unknown blockers, and
+prove that every rollable master has a non-empty eligible pool. This tooling is
+the developer-facing signal that replaces dead player-facing rows.
+
+The same readiness predicate hides a family-specific reward purchase whose
+effect cannot yet operate, including assignment unlocks such as aquanites or ice
+strykewyrms. Such rows appear automatically when their dependent family is
+runtime-ready. Activation changes future searches, purchases, and assignment
+rolls only; it never mutates an active task, streak, points, or block list
+retroactively.
+
+This decision does not reopen the owner's explicit progression-visible surfaces.
+Implemented Slayer masters remain visible when the player personally lacks
+their requirements under Owner decision 6, and the implemented Rewards surface
+retains its Smoking Kills progression lock under Owner decision 16. The hidden
+rule applies to missing product implementation, not to every authentic player
+progression gate.

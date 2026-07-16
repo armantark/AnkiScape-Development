@@ -58,7 +58,17 @@ route must become playable. The endpoint retains Cave horrors, the black-mask
 drop, 55 Crafting, Smoking Kills, and the 400-point helmet unlock. Shilo Village
 and Cabin Fever keep their period Agility gates, so the real Agility
 implementation is a sequencing dependency and no Slayer-local bypass is
-allowed.
+allowed. Assignment families behind other unimplemented dependencies remain in
+the source ledger but are absent from live UI and weighted rolls. Runtime
+readiness derives from their stable dependency identities, so a family activates
+automatically when its full route exists without a migration, cleanup pass, or
+release allowlist. A machine-checkable completeness audit replaces dead UI by
+naming each missing dependency, rejecting stale blockers and empty rollable
+master pools, and hiding dependent reward purchases until they can operate.
+Activation affects future rolls only. This does not overturn explicitly settled
+player-progression surfaces such as visible ineligible master roles. Agility is
+being implemented in another thread; once it lands, Slayer, Summoning, and
+Dungeoneering are the three planned skills remaining.
 
 Agility's owner grill and full-content design harvest are closed; implementation
 belongs in a new thread. The governing product contract is

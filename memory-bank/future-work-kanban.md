@@ -169,6 +169,14 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT`.
   400-point crafting unlock. Preserve every period quest and skill prerequisite;
   in particular, this route depends on the real Agility implementation rather
   than a Slayer-local waiver.
+- Keep cutoff-live assignment families in the completeness ledger but do not
+  render implementation-missing families as locked or coming-soon rows. Derive
+  runtime readiness from stable dependency identities so each family enters the
+  live UI and authentic weighted roll automatically when its quest, target,
+  context, acquisition, and unlock dependencies are genuinely implemented. Add
+  a completeness audit that names every blocking identity, rejects stale
+  blockers, prevents empty rollable-master pools, and applies the same rule to
+  family-specific reward purchases.
 - Before that unlock, the finisher consumes its own correct review. Exclude the
   salt, ice, fungicide, and explosive shakers released in 2015.
 
