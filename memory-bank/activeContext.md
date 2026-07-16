@@ -2,8 +2,8 @@
 
 ## Current Focus
 
-Slayer's source-first owner grill is active on `codex/slayer-grill`, with the
-accumulating decision record in `slayer-skill-contract-2026-07-15.md`. Its first
+Slayer's source-first owner grill is design-closed on `codex/slayer-grill`, with
+the governing decision record in `slayer-skill-contract-2026-07-15.md`. Its first
 decision preserves source-shaped assignment categories, lets the player choose
 the exact qualifying Combat variant, and requires a normal Combat search plus a
 `Current Slayer task only` checkbox. The missing reusable search/filter seam is
@@ -43,10 +43,12 @@ and a destructive below-10%-LP emergency retreat. No Slayer gameplay
 implementation is authorized in this thread. Slayer management is one
 integrated Skills page with `Assignment`, `Masters`, and `Rewards` subviews,
 shared search, and review-free deep-linking to Combat as the sole fight surface.
-For the remainder of this owner grill, Fable is an equal read-only background
-design voice: it reviews the live contract and unresolved branches before each
-substantive question, while Codex owns source verification, synthesis, and the
-committed decision record. Slayer implementation now owns a real playable
+Fable served as an equal read-only background design voice while Codex owned
+source verification, synthesis, and the committed decision record. Future Slayer
+work must not ask owner questions for behavior decided by period sources, the
+parity standard, an established app pattern, or this contract; reopen only for
+two materially defensible mappings with real product consequences. Slayer
+implementation now owns a real playable
 `Smoking Kills` quest and every still-missing prerequisite definition needed to
 reach it; before completion, ordinary Slayer remains playable while Sumona and
 the visible Rewards surface remain locked. Slayer now also owns real Shilo
@@ -90,6 +92,13 @@ a warning, not an invented hard gate. Only a literal sourced access or attack
 restriction blocks the encounter. Exact per-family triggers, magnitudes,
 immunities, and death/retreat behavior remain source-harvest work rather than
 owner questions.
+
+The remaining Slayer work is source harvest and implementation, led by complete
+per-master pool/weight/count/gate tables, the full family/variant membership and
+Slayer-XP/context ledger, and exact protective/special/challenge state effects.
+The current no-off-task-Slayer-XP rule must be verified across cutoff exceptions
+and amended directly if sources disprove it; that is parity reconciliation, not
+an owner fork.
 
 Agility's owner grill and full-content design harvest are closed; implementation
 belongs in a new thread. The governing product contract is

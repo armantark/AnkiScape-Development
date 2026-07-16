@@ -138,7 +138,7 @@ Labels: `BUG`, `CONTENT GAP`.
 
 ### Slayer
 
-Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT`.
+Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE SWEEP`, `DEPENDENCY: COMBAT`.
 
 - Reuse existing enemy Slayer metadata; add masters, assignment pools, XP, task progress, points/streaks, skips/blocks, reward shop, task-only targets, protection items, and Combat UI.
 - Park Social Slayer unless genuine shared-player state ever exists; do not ship
@@ -197,6 +197,10 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT`.
   source access/attack restrictions, and pin every family item's trigger,
   consequence, immunity, death/retreat behavior, and undo interaction in a
   focused audit before implementation.
+- Complete the design-closure source sweep without reopening owner questions for
+  source-determined behavior: close every per-master pool/weight/count/gate row,
+  pin every family variant's membership/stats/Slayer-XP eligibility/context, and
+  close protective, special-kill, challenge, and context state transitions.
 - Before that unlock, the finisher consumes its own correct review. Exclude the
   salt, ice, fungicide, and explosive shakers released in 2015.
 

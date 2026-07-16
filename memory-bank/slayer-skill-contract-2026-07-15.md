@@ -1,6 +1,7 @@
 # Slayer skill contract — 2026-07-15
 
-Status: **owner grill active; implementation belongs in a later thread.**
+Status: **owner-delegated and design-closed; source harvest and implementation
+belong in a later thread.**
 Cutoff: `2012-11-20T00:00:00Z`.
 
 This is the accumulating owner-decision contract for the complete Slayer
@@ -641,3 +642,28 @@ and undo. If an exact hidden rate or magnitude remains `source_blocked` after th
 required final search, preserve the attested mechanic with the smallest labeled
 abstraction permitted by the verification standard rather than converting it
 into a blanket lock or harmless warning.
+
+## Design-grill closure — 2026-07-15
+
+No unresolved owner-level Slayer fork remains. A mechanic does not become an
+owner question merely because its exact value or implementation is absent from
+this contract. If pinned period evidence, the parity standard, an established
+AnkiScape pattern, or a prior owner decision determines the answer, it belongs
+to source harvest or implementation. Reopen the owner grill only if that work
+exposes two materially different defensible Anki-native mappings with meaningful
+product consequences.
+
+The highest-risk remaining harvest obligations are:
+
+1. close every master's cutoff assignment table: family membership, weights,
+   kill-count ranges, baseline/player-gated classification, and unlock rules;
+2. pin the complete family/variant ledger: qualifying membership, Combat stats,
+   Slayer XP values and eligibility, contexts, and every blocker behind automatic
+   activation; and
+3. close protective-equipment, special-kill, challenge, and context effects down
+   to their triggers, magnitudes, state transitions, and undo behavior.
+
+The inherited blanket rule that off-task combat grants no Slayer XP remains the
+working contract until the source sweep tests it against every cutoff exception.
+If period evidence disproves it, amend the contract directly as a parity finding;
+do not turn the correction into an owner preference question.
