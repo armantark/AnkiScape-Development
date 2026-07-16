@@ -271,8 +271,27 @@ uses bags of salt, ice coolers, fungicide charges, and fishing explosives as
 consumables; the rock hammer remains the reusable finishing tool. See
 `source-audits/slayer-finishing-blows-2026-07-15.md`.
 
+## Owner decision 10 — no early-use item trap
+
+The manual finisher action is disabled until the target reaches its valid
+source LP threshold. AnkiScape does not encode the period ability to spend a bag
+of salt, ice cooler, or fungicide charge too early for no effect. This is an
+explicit UI-safety abstraction: it removes only an avoidable misclick trap and
+does not remove the required item, extra review, consumable spend, or value of
+the 400-point automatic-finisher unlock.
+
+## Cutoff Slayer-point reward surface
+
+The primary cutoff reward table is pinned in
+`source-audits/slayer-points-rewards-2026-07-15.md`. It includes ordinary and
+milestone task points, challenge bonuses, repeatable item/XP purchases,
+permanent crafting and assignment unlocks, the quick-finisher reward, skip and
+block operations, and multiplayer-only co-op rewards. Social Slayer and its
+co-op purchases remain parked under Owner decision 4; the complete solo catalog
+remains mandatory.
+
 ## Next unresolved product branch
 
-Determine whether a player may select a consumable finisher before the valid LP
-threshold and waste it with no effect, as the period game allowed, or whether
-AnkiScape disables the action until it can succeed.
+Determine how to preserve the ring of slaying's charged teleport value when
+AnkiScape intentionally has no global map or standalone transportation layer.
+Its task-check function alone duplicates the always-visible Slayer UI.

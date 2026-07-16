@@ -25,9 +25,11 @@ active task state never changes, while quest state swaps the role's portrait,
 name, and copy. Required Slayer finishers are mandatory, and the cutoff 400-point
 quick-kill unlock automates rather than removes their item requirement. Before
 that unlock, the manual finisher consumes its own correct review. The unlimited
-shaker family is excluded as post-cutoff 2015 content. Early consumable-finisher
-misuse is the next open design branch. No Slayer gameplay implementation is
-authorized in this thread.
+shaker family is excluded as post-cutoff 2015 content. Finisher actions stay
+disabled until their valid LP threshold; early consumable waste is not encoded.
+The complete cutoff Slayer-point catalog is now pinned, and the ring of slaying's
+teleport value is the next open no-map abstraction. No Slayer gameplay
+implementation is authorized in this thread.
 
 Agility's owner grill and full-content design harvest are closed; implementation
 belongs in a new thread. The governing product contract is

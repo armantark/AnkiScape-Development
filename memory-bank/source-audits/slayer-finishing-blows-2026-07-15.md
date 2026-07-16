@@ -1,6 +1,6 @@
 # Slayer finishing blows and quick-kill unlock — 2026-07-15
 
-Status: **period mechanic, cutoff exclusions, and review mapping closed; early-use UI open**.
+Status: **period mechanic, cutoff exclusions, and review mapping closed**.
 Cutoff: `2012-11-20T00:00:00Z`.
 
 ## Core reward evidence
@@ -107,6 +107,7 @@ commits the consumable spend, kill, drops, XP, assignment progress, and undo
 record atomically. The 400-point unlock folds those effects into the final
 damaging review while retaining the item check and consumable spend.
 
-The remaining product question is whether the action selector permits the
-period game's early, ineffective use of a consumable finisher or disables the
-action until the target reaches its valid threshold.
+The action selector disables manual finishers until the source LP threshold is
+valid. The period game's early, ineffective consumable use is intentionally not
+encoded; this removes a UI misclick trap without changing the item requirement,
+review cost, successful spend, or unlock value.
