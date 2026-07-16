@@ -37,8 +37,31 @@ try:
 except ImportError:
     from inventory_pure import CARRIED_CAPACITY
 
+try:
+    from .herblore_data import HERBLORE_TARGETS
+except ImportError:
+    from herblore_data import HERBLORE_TARGETS
+
 
 MAX_SHOP_EVENT_HISTORY = 200
+
+# Bob Barter's ordinary-vial catalog is the live, non-Daemonheim Herblore
+# catalog. Barbarian mixes use two-dose bowls rather than four-dose vials.
+DECANTABLE_FOUR_DOSE_POTION_BASES = tuple(
+    sorted(
+        {
+            target.output_item[:-4]
+            for target in HERBLORE_TARGETS
+            if target.group == "finished"
+            and target.subgroup != "barbarian"
+            and target.output_item.endswith(" (3)")
+            and all(
+                f"{target.output_item[:-4]} ({dose})" in SHOP_PLAYER_SELL_PRICES
+                for dose in range(1, 5)
+            )
+        }
+    )
+)
 
 
 def default_shop_state_pure() -> Dict[str, Any]:
@@ -455,6 +478,8 @@ def preview_shop_service_pure(player_data: Mapping[str, Any], service_id: str, q
     service = SHOP_SERVICES.get(service_id)
     if service is None:
         return _denied("unknown_service", requested_quantity=quantity)
+    if service.get("action_type") == "decant_potions_to_four":
+        return _preview_decant_potions_to_four(player_data, service, quantity)
     return _preview_service_like(player_data, service, quantity)
 
 
@@ -463,6 +488,8 @@ def apply_shop_service_pure(player_data: Mapping[str, Any], service_id: str, qua
     data = ensure_shop_state_pure(player_data)
     if service is None:
         return data, _denied("unknown_service", requested_quantity=quantity)
+    if service.get("action_type") == "decant_potions_to_four":
+        return _apply_decant_potions_to_four(data, service, quantity)
     return _apply_service_like(data, service, "service", quantity)
 
 
@@ -878,6 +905,103 @@ def _preview_service_like(player_data: Mapping[str, Any], service: Mapping[str, 
         "requirements": _service_requirement_rows(data, service, max_quantity, unit_price, currency_name),
         "requested_requirements": requested_requirements,
     }
+
+
+def _decant_potions_to_four_delta(
+    data: Mapping[str, Any],
+) -> tuple[Dict[str, int], list[str], int, int]:
+    inventory_delta: Dict[str, int] = {}
+    changed_families: list[str] = []
+    total_doses = 0
+    returned_vials = 0
+    for base in DECANTABLE_FOUR_DOSE_POTION_BASES:
+        counts = {dose: _inventory_count(data, f"{base} ({dose})") for dose in range(1, 5)}
+        family_doses = sum(dose * count for dose, count in counts.items())
+        if not family_doses:
+            continue
+        full_vials, remainder = divmod(family_doses, 4)
+        result_counts = {dose: 0 for dose in range(1, 5)}
+        result_counts[4] = full_vials
+        if remainder:
+            result_counts[remainder] += 1
+        family_delta = {
+            f"{base} ({dose})": result_counts[dose] - counts[dose]
+            for dose in range(1, 5)
+            if result_counts[dose] != counts[dose]
+        }
+        if not family_delta:
+            continue
+        inventory_delta.update(family_delta)
+        changed_families.append(base)
+        total_doses += family_doses
+        returned_vials += sum(counts.values()) - sum(result_counts.values())
+    if returned_vials:
+        inventory_delta["Vial"] = returned_vials
+    return inventory_delta, changed_families, total_doses, returned_vials
+
+
+def _preview_decant_potions_to_four(
+    player_data: Mapping[str, Any], service: Mapping[str, Any], quantity: int
+) -> Dict[str, Any]:
+    data = ensure_shop_state_pure(player_data)
+    requested = max(1, int(quantity))
+    if service.get("visibility") != "visible":
+        return _denied(
+            service.get("lock_reason") or "service_not_visible",
+            requested_quantity=requested,
+            service_id=service["id"],
+        )
+    inventory_delta, changed_families, total_doses, returned_vials = (
+        _decant_potions_to_four_delta(data)
+    )
+    if not inventory_delta:
+        return _denied("no_potions_to_decant", requested_quantity=requested, service_id=service["id"])
+    return {
+        "allowed": True,
+        "transaction_type": "service_like",
+        "id": service["id"],
+        "display_name": service["display_name"],
+        "requested_quantity": requested,
+        "quantity": 1,
+        "clamped": requested != 1,
+        "unit_price": 0,
+        "total_price": 0,
+        "currency_item_name": str(service.get("currency_item_name", "Coins")),
+        "requirements": [],
+        "requested_requirements": [],
+        "inventory_delta": inventory_delta,
+        "decanted_families": changed_families,
+        "family_count": len(changed_families),
+        "total_doses": total_doses,
+        "returned_vials": returned_vials,
+    }
+
+
+def _apply_decant_potions_to_four(
+    data: Dict[str, Any], service: Mapping[str, Any], quantity: int
+) -> tuple[Dict[str, Any], Dict[str, Any]]:
+    preview = _preview_decant_potions_to_four(data, service, quantity)
+    if not preview["allowed"]:
+        return data, preview
+    inventory_delta = preview["inventory_delta"]
+    for item_name, delta in inventory_delta.items():
+        _add_inventory(data, item_name, delta)
+    event = _build_event(
+        data,
+        "service",
+        {"id": "", "display_name": service["display_name"], "shared_stock_group": ""},
+        quantity=1,
+        service_id=service["id"],
+        item_name=service["display_name"],
+        total_price=0,
+        inventory_delta=inventory_delta,
+        stock_set={},
+        stock_delta={},
+    )
+    _append_event(data, event)
+    result = dict(preview)
+    result["event_id"] = event["event_id"]
+    return data, result
 
 
 def _apply_service_like(data: Dict[str, Any], service: Mapping[str, Any], event_type: str, quantity: int) -> tuple[Dict[str, Any], Dict[str, Any]]:

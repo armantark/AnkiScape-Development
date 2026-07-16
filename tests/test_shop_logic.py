@@ -3,6 +3,7 @@ import unittest
 from shop_data import SHOP_DATA
 from shop_fixtures import build_shop_fixture_player_data, build_shop_frontend_fixtures
 from shop_logic import (
+    DECANTABLE_FOUR_DOSE_POTION_BASES,
     advance_shop_market_clock_pure,
     apply_shop_buy_pure,
     apply_shop_sell_pure,
@@ -161,9 +162,6 @@ class TestShopLogic(unittest.TestCase):
         self.assertEqual(preview["reason"], "specialist_shop_stock_only")
 
     def test_services_vendor_actions_and_generic_transaction_wrapper(self):
-        # Processing conversions (tanning, sawmill) are review-paced
-        # Utility/Activities now, not instant shop services; the service APIs
-        # stay as a fail-closed contract slot for future instant services.
         data = build_shop_fixture_player_data()
         service_preview = preview_shop_service_pure(data, "al_kharid_tanner_soft_leather", 1)
         self.assertFalse(service_preview["allowed"])
@@ -176,6 +174,73 @@ class TestShopLogic(unittest.TestCase):
         after_beer, beer_result = apply_shop_transaction_pure(after_news, "vendor_action", action_id="bartender_buy_beer", quantity=1)
         self.assertTrue(beer_result["allowed"])
         self.assertEqual(after_beer["inventory"]["Beer"], after_news["inventory"]["Beer"] + 1)
+
+    def test_bob_barter_decants_every_inventory_family_to_four_doses(self):
+        data = build_shop_fixture_player_data()
+        data["inventory"].update(
+            {
+                "Agility potion (1)": 4,
+                "Agility potion (3)": 4,
+                "Attack potion (2)": 2,
+            }
+        )
+        before_clock = dict(data["shop_market_clock"])
+        before_coins = data["inventory"]["Coins"]
+
+        preview = preview_shop_service_pure(data, "bob_barter_decant_four", 99)
+        self.assertTrue(preview["allowed"])
+        self.assertEqual(preview["quantity"], 1)
+        self.assertTrue(preview["clamped"])
+        self.assertEqual(preview["decanted_families"], ["Agility potion", "Attack potion"])
+        self.assertEqual(preview["total_doses"], 20)
+        self.assertEqual(preview["returned_vials"], 5)
+
+        updated, result = apply_shop_service_pure(data, "bob_barter_decant_four", 99)
+        self.assertTrue(result["allowed"])
+        self.assertEqual(updated["inventory"]["Agility potion (1)"], 0)
+        self.assertEqual(updated["inventory"]["Agility potion (3)"], 0)
+        self.assertEqual(updated["inventory"]["Agility potion (4)"], 4)
+        self.assertEqual(updated["inventory"]["Attack potion (2)"], 0)
+        self.assertEqual(updated["inventory"]["Attack potion (4)"], 1)
+        self.assertEqual(updated["inventory"]["Vial"], 5)
+        self.assertEqual(updated["inventory"]["Coins"], before_coins)
+        self.assertEqual(updated["shop_market_clock"], before_clock)
+
+    def test_bob_barter_preserves_doses_and_rolls_back_independently(self):
+        data = build_shop_fixture_player_data()
+        data["inventory"].update(
+            {
+                "Prayer potion (1)": 1,
+                "Prayer potion (2)": 2,
+                "Prayer potion (3)": 1,
+                "Prayer potion (4)": 1,
+                "Vial": 2,
+            }
+        )
+        before = dict(data["inventory"])
+        before_doses = sum(dose * before[f"Prayer potion ({dose})"] for dose in range(1, 5))
+
+        updated, result = apply_shop_service_pure(data, "bob_barter_decant_four", 1)
+        after_doses = sum(
+            dose * updated["inventory"].get(f"Prayer potion ({dose})", 0)
+            for dose in range(1, 5)
+        )
+        self.assertEqual(after_doses, before_doses)
+        self.assertEqual(updated["inventory"]["Prayer potion (4)"], 3)
+        self.assertEqual(updated["inventory"]["Vial"], 4)
+
+        restored, undo = rollback_shop_event_pure(updated, result["event_id"])
+        self.assertTrue(undo["allowed"])
+        for item_name, quantity in before.items():
+            self.assertEqual(restored["inventory"].get(item_name, 0), quantity)
+
+    def test_bob_barter_rejects_inventory_that_needs_no_consolidation(self):
+        self.assertIn("Agility potion", DECANTABLE_FOUR_DOSE_POTION_BASES)
+        data = build_shop_fixture_player_data()
+        data["inventory"].update({"Agility potion (3)": 1, "Attack potion (4)": 3})
+        preview = preview_shop_service_pure(data, "bob_barter_decant_four", 1)
+        self.assertFalse(preview["allowed"])
+        self.assertEqual(preview["reason"], "no_potions_to_decant")
 
     def test_shop_access_gates_evaluate_against_the_save(self):
         # Owner-grilled hybrid gating: quest walls lock buys/sells with a

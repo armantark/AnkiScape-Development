@@ -82,9 +82,27 @@ MANUAL_ITEM_PRICES = {
 # for that friction, so they live as no-XP Utility/Activities in constants.py
 # (tan_soft_leather, tan_hard_leather, convert_logs_to_planks,
 # convert_oak_logs_to_oak_planks) with the same Darkan source strings. An
-# instant "Use x1000" shop service would delete source pacing. Only genuinely
-# instant purchases/sales belong in VENDOR_ACTIONS below.
-SERVICE_ROWS: list[dict[str, Any]] = []
+# instant "Use x1000" shop service would delete source pacing. Bob Barter's
+# inventory-wide potion consolidation is genuinely instantaneous and therefore
+# belongs here rather than in Utility/Activities.
+SERVICE_ROWS: list[dict[str, Any]] = [
+    {
+        "id": "bob_barter_decant_four",
+        "display_name": "Decant all vial potions to 4 doses",
+        "provider": "Bob Barter (herbs)",
+        "location": "Grand Exchange",
+        "currency_id": 995,
+        "price": 0,
+        "inputs": [],
+        "outputs": [],
+        "icon_item_name": "Agility potion (4)",
+        "action_type": "decant_potions_to_four",
+        "source": (
+            "RuneScape Wiki Bob Barter (herbs) oldid 6222086, 2012-09-09; "
+            "OpenRS2 rev 742 NPC 6524 Decant/Decant-X; Darkan BobBarter.java"
+        ),
+    },
+]
 
 # Hand-audited shop access walls (owner-grilled hybrid, 2026-07-07). Shops
 # absent from this table are open by decision — uncertainty defaults open and
@@ -993,6 +1011,49 @@ def rewrite_stock_exclusions_from_generated(
     return summary
 
 
+def rewrite_services_from_generated(
+    existing_path: Path,
+    output_path: Path,
+    items_path: Path,
+    *,
+    existing_ledger_path: Path | None = None,
+    ledger_output_path: Path | None = None,
+    summary_output_path: Path | None = None,
+) -> dict[str, Any]:
+    """Refresh service rows without rebuilding the pinned shop snapshot."""
+
+    generated = runpy.run_path(str(existing_path))
+    services = _attach_item_names(SERVICE_ROWS, load_2011_items(items_path))
+    summary = dict(generated["SHOP_COVERAGE_SUMMARY"])
+    summary["service_count"] = len(services)
+    catalog = {
+        "version": int(generated["SHOP_DATA_VERSION"]),
+        "shops": [dict(row) for row in generated["SHOP_DATA"].values()],
+        "currencies": [dict(row) for row in generated["SHOP_CURRENCIES"].values()],
+        "services": services,
+        "vendor_actions": [dict(row) for row in generated["SHOP_VENDOR_ACTIONS"].values()],
+        "summary": summary,
+        "player_sell_prices": dict(generated["SHOP_PLAYER_SELL_PRICES"]),
+        "player_buy_prices": dict(generated["SHOP_PLAYER_BUY_PRICES"]),
+    }
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    write_shop_data(catalog, output_path)
+
+    if ledger_output_path is not None or summary_output_path is not None:
+        if existing_ledger_path is None:
+            raise ValueError("existing_ledger_path is required for audit output")
+        ledger = json.loads(existing_ledger_path.read_text(encoding="utf-8"))
+        ledger["services"] = services
+        ledger["summary"] = dict(summary)
+        if ledger_output_path is not None:
+            ledger_output_path.parent.mkdir(parents=True, exist_ok=True)
+            ledger_output_path.write_text(json.dumps(ledger, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        if summary_output_path is not None:
+            summary_output_path.parent.mkdir(parents=True, exist_ok=True)
+            write_summary(ledger, summary_output_path)
+    return summary
+
+
 def _extra_item_specs(catalog: dict[str, Any]) -> dict[str, dict[str, Any]]:
     specs: dict[str, dict[str, Any]] = {}
 
@@ -1091,12 +1152,29 @@ def main() -> None:
         action="store_true",
         help="rewrite only pinned generator-owned stock exclusions from the existing generated catalog",
     )
+    parser.add_argument(
+        "--services-only",
+        action="store_true",
+        help="rewrite service rows without refreshing the pinned shop/source snapshot",
+    )
     args = parser.parse_args()
 
     if args.stock_exclusions_only:
         summary = rewrite_stock_exclusions_from_generated(
             args.existing_shop_data,
             args.shop_data_out,
+            existing_ledger_path=args.existing_ledger,
+            ledger_output_path=args.ledger_out,
+            summary_output_path=args.summary_out,
+        )
+        print(json.dumps(summary, sort_keys=True))
+        return
+
+    if args.services_only:
+        summary = rewrite_services_from_generated(
+            args.existing_shop_data,
+            args.shop_data_out,
+            args.items_2011,
             existing_ledger_path=args.existing_ledger,
             ledger_output_path=args.ledger_out,
             summary_output_path=args.summary_out,

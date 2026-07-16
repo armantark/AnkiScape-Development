@@ -22,6 +22,16 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertIn("Crushed nest", report["routes"])
         self.assertNotIn("Bird's nest", {row["item"] for row in report["orphan_inputs"]})
 
+        agility_four = next(
+            row for row in report["orphan_inputs"]
+            if row["item"] == "Agility potion (4)"
+        )
+        self.assertEqual(agility_four["kind"], "cascade")
+        self.assertIn(
+            "Shop service:bob_barter_decant_four:Agility potion",
+            agility_four["known_producers"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

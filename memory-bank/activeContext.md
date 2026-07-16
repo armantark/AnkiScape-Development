@@ -71,13 +71,18 @@ The dated `completion-audit-2026-07-10.*` files remain historical snapshots; liv
 - Farming is shipped (`9a88c56`), not the next build.
 - The 194-row quest catalog remains coverage scaffolding rather than full quest parity.
 - NPC Shops are live; the fake GE remains parked until the item/acquisition universe is representative.
-- The current reachability audit reports 1,061 actions, 701 consumed items, and
-  271 orphan inputs (137 root, 134 cascade). These are acquisition-program
-  signals, not Agility closure failures; the Agility-specific chain is the
-  already-deferred four-dose potion/decanting root and its lower-dose cascade.
+- The current reachability audit reports 1,106 actions, 727 consumed items, and
+  278 orphan inputs (115 root, 163 cascade). Bob Barter's quantity-free decant
+  routes turn the former four-dose potion roots into known-producer cascades;
+  their remaining availability follows upstream herb and secondary acquisition.
+  These are acquisition-program signals rather than Agility closure failures.
 
 ## Most Recent Completed Work
 
+- Bob Barter (herbs) is a free, instantaneous Grand Exchange shop service. One
+  click consolidates every eligible live non-Daemonheim vial-potion family to
+  four doses, returns excess empty vials, changes no review or clock state, and
+  records an independently undoable shop event.
 - Anki was loading three linked worktrees beside the canonical checkout because
   all four lived directly under `addons21` as enabled packages. The linked
   worktrees now live under the sibling `Anki2/ankiscape_worktrees/` root, and

@@ -5097,9 +5097,14 @@ def show_main_menu(
             missing = preview.get("missing_requirements", [])
             detail = _format_requirement_rows(missing if isinstance(missing, list) else [])
             return f"Missing requirements: {detail}." if detail else "Missing requirements."
+        if reason == "no_potions_to_decant":
+            return "You have no vial potions that Bob can consolidate."
         return fallback or reason
 
     def _service_icon_item_name(row: dict) -> str:
+        icon_item_name = row.get("icon_item_name")
+        if isinstance(icon_item_name, str) and _item_icon_path(icon_item_name):
+            return icon_item_name
         for key in ("outputs", "inputs"):
             for item in row.get(key, []):
                 item_name = item.get("item_name")
@@ -5427,6 +5432,18 @@ def show_main_menu(
         else:
             preview = preview_shop_vendor_action_pure(player_data, str(row.get("id", "")), qty)
         if preview.get("allowed"):
+            if preview.get("family_count") is not None:
+                family_count = int(preview.get("family_count", 0) or 0)
+                total_doses = int(preview.get("total_doses", 0) or 0)
+                returned_vials = int(preview.get("returned_vials", 0) or 0)
+                vial_suffix = f" Bob returns {returned_vials:,} empty vial(s)." if returned_vials else ""
+                service_preview.setText(
+                    f"Bob will consolidate {total_doses:,} doses across "
+                    f"{family_count:,} potion type(s) into four-dose vials "
+                    f"for free.{vial_suffix}"
+                )
+                service_use_btn.setEnabled(True)
+                return
             amount = int(preview.get("quantity", qty) or qty)
             total = int(preview.get("total_price", 0) or 0)
             currency = str(preview.get("currency_item_name", row.get("currency_item_name", "Coins")))

@@ -1668,21 +1668,35 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         fixtures = build_shop_frontend_fixtures()
         pd = fixtures["fixture_player_data"]
+        pd["inventory"].update({"Agility potion (1)": 4, "Agility potion (3)": 4})
         vendor_action_id = fixtures["vendor_action_transaction"]["action_id"]
         dialog = self._open(pd)
         _open_shop_tab(dialog)
 
         service_list = _find_named_list(dialog, "shopServiceList")
 
-        def _select_service_row(row_id: str) -> None:
+        def _select_service_row(row_id: str) -> QListWidgetItem:
             for index in range(service_list.count()):
                 item = service_list.item(index)
                 payload = item.data(Qt.ItemDataRole.UserRole)
                 if isinstance(payload, dict) and payload.get("id") == row_id:
                     service_list.setCurrentItem(item)
                     QApplication.processEvents()
-                    return
+                    return item
             raise AssertionError(f"service/vendor row {row_id!r} not found")
+
+        bob_item = _select_service_row("bob_barter_decant_four")
+        self.assertFalse(bob_item.icon().isNull())
+        preview_label = _find_named_label(dialog, "shopServicePreviewLabel")
+        self.assertIn("16 doses", preview_label.text())
+        use_button = _find_named_button(dialog, "shopServiceUseButton")
+        self.assertTrue(use_button.isEnabled(), preview_label.text())
+        use_button.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["inventory"]["Agility potion (1)"], 0)
+        self.assertEqual(pd["inventory"]["Agility potion (3)"], 0)
+        self.assertEqual(pd["inventory"]["Agility potion (4)"], 4)
+        self.assertEqual(pd["inventory"]["Vial"], 4)
 
         _select_service_row("bartender_sell_beer_glass")
         use_button = _find_named_button(dialog, "shopServiceUseButton")

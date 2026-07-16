@@ -76,10 +76,13 @@ class TestShopData(unittest.TestCase):
             self.assertEqual(shop["lock_reason"], "currency_not_implemented")
 
     def test_services_vendor_actions_and_extra_items_are_exported(self):
-        # Processing conversions (tanning, sawmill) are review-paced
-        # Utility/Activities, not instant shop services; SHOP_SERVICES stays
-        # an empty contract slot until a genuinely instant service exists.
-        self.assertEqual(SHOP_SERVICES, {})
+        self.assertEqual(set(SHOP_SERVICES), {"bob_barter_decant_four"})
+        bob = SHOP_SERVICES["bob_barter_decant_four"]
+        self.assertEqual(bob["provider"], "Bob Barter (herbs)")
+        self.assertEqual(bob["location"], "Grand Exchange")
+        self.assertEqual(bob["action_type"], "decant_potions_to_four")
+        self.assertEqual(bob["price"], 0)
+        self.assertIn("oldid 6222086", bob["source"])
         self.assertIn("bartender_buy_beer", SHOP_VENDOR_ACTIONS)
         self.assertIn("benny_buy_varrock_herald", SHOP_VENDOR_ACTIONS)
         self.assertIn("karim_buy_kebab", SHOP_VENDOR_ACTIONS)

@@ -1,6 +1,25 @@
 {
   "generated_at": "2026-07-06",
-  "services": [],
+  "services": [
+    {
+      "action_type": "decant_potions_to_four",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Decant all vial potions to 4 doses",
+      "icon_item_name": "Agility potion (4)",
+      "id": "bob_barter_decant_four",
+      "inputs": [],
+      "location": "Grand Exchange",
+      "lock_reason": "",
+      "outputs": [],
+      "price": 0,
+      "provider": "Bob Barter (herbs)",
+      "source": "RuneScape Wiki Bob Barter (herbs) oldid 6222086, 2012-09-09; OpenRS2 rev 742 NPC 6524 Decant/Decant-X; Darkan BobBarter.java",
+      "visibility": "visible"
+    }
+  ],
   "shop_data_version": 1,
   "shops": [
     {
@@ -30264,7 +30283,7 @@
     "locked_stock_row_count": 60,
     "player_sell_price_count": 6820,
     "runtime_shop_count": 273,
-    "service_count": 0,
+    "service_count": 1,
     "source_shop_count": 274,
     "stock_row_count": 2771,
     "vendor_action_count": 4,
