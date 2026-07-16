@@ -3,7 +3,7 @@
   "status": "active",
   "baseline_head": "74af8cf9806a4988ccae9cba202ca1be77e917c3",
   "deadline": "2026-07-16T09:00:00-07:00",
-  "iteration": 8,
+  "iteration": 9,
   "no_material_finding_passes": 0,
   "outer_loop_mode": "inner",
   "reviewer": {
@@ -12,10 +12,10 @@
     "fable_weekly_percent_cap": 30,
     "fable_weekly_percent_observed": 30,
     "fable_tokens": 676183,
-    "opus_calls": 7
+    "opus_calls": 8
   },
-  "last_scope": "Canonical registry identities, generated equipment, achievements, assets, and Magic/Prayer reachability coverage",
-  "last_accepted_commit": "5ab5aee",
+  "last_scope": "Quest stage and reward writers, shop identities, non-Agility activity counters, achievement readers, and obtainable quest equipment",
+  "last_accepted_commit": "ceaab20",
   "pending_concrete_defects": [],
   "safety_failure": null
 }

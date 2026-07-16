@@ -276,3 +276,19 @@ real offscreen Qt tests, and all 1,275 non-Qt tests with 185 skips and the three
 expected XP-parity failures. The test-quality audit has zero hard issues;
 compilation, diff, and worktree-safety checks pass. Reachability now covers
 1,188 actions, with 270 orphan inputs: 110 root and 160 cascade.
+
+## Overnight fresh-eyes pass 9 (2026-07-16)
+
+Commit `ceaab20` closes two quest writer/reader failures. Live quest data now
+always retains a completion sentinel after the highest requirement row, so the
+final sourced objective executes for all 152 affected generated quests instead
+of being marked complete without evaluation. Tears of Guthix now reaches and
+enforces its lit sapphire-lantern stage. Seven obtainable quest equipment items
+also receive their source-config equipment records, while Staff of armadyl is
+correctly retained as a non-equipment quest material.
+
+Verification passes 127 registry/shop/quest tests, 104 quest/runtime tests,
+four real offscreen Qt checks, and all 1,280 non-Qt tests with 185 skips and the
+three expected XP-parity failures. Test quality has zero hard issues;
+reachability remains 1,188 actions and 270 orphan inputs (110 root, 160
+cascade); compilation, diff, and safe-worktree checks pass.

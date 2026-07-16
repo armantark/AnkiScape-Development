@@ -211,3 +211,18 @@ Test counts are snapshots; current runs outrank this note.
   offscreen Qt, and 1,275 full tests pass. Reachability covers 1,188 actions and
   reports 270 orphan inputs (110 root, 160 cascade); test quality remains at
   zero hard issues.
+
+## Overnight fresh-eyes pass 9 — final quest stages and reward equipment (2026-07-16)
+
+- Added the missing completion sentinel after every live quest's highest
+  requirement, restoring the final source-backed objective in 152 generated
+  quests rather than letting completion skip it.
+- Generated source-config equipment records for seven obtainable quest items,
+  corrected Ice arrows to the `ammunition` slot, and reclassified the
+  non-equippable Staff of armadyl as quest material.
+- Added catalog-wide, pure progression, runtime-handler, registry, generator,
+  and level-gate regressions.
+- Committed as `ceaab20`; 127 registry/shop/quest tests, 104 quest/runtime
+  tests, four real offscreen Qt checks, and all 1,280 non-Qt tests pass.
+  Reachability remains 1,188 actions with 270 orphan inputs, and test quality
+  remains at zero hard issues.

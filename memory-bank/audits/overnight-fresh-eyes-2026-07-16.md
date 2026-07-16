@@ -49,6 +49,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 | 6 | Shop services, Herblore dose conservation, Agility and Thieving activities, and achievement writer/reader symmetry | Opus | 3 | 3 | `c1ca766` | 183 focused; 1,274 full; reachability unchanged; zero hard test-quality issues; compilation, diff, and worktree checks |
 | 7 | Qt lifecycle, production hook registration, bridge filter symmetry, singleton menu ownership, and runtime worktree isolation | Opus | 12 | 8 | `09aacc2` | 91 focused; 86 clean real-Qt rerun after one test-fake ordering repair; 1,273 full; zero hard test-quality issues; compilation, diff, and worktree checks |
 | 8 | Canonical registry identities, generated equipment, achievements, assets, and Magic/Prayer reachability coverage | Opus | 3 | 3 | `5ab5aee` | 78 focused; 509 integration/end-to-end; 8 real offscreen Qt; 1,275 full; zero hard test-quality issues; compilation, diff, and worktree checks |
+| 9 | Quest stage/reward writers, shop identities, non-Agility activity counters, achievement readers, and obtainable quest equipment | Opus | 2 | 2 | `ceaab20` | 127 registry/shop/quest plus 104 quest/runtime; 4 real offscreen Qt; 1,280 full; zero hard test-quality issues; reachability, compilation, diff, and worktree checks |
 
 ## Accepted fixes
 
@@ -82,6 +83,9 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Adamantite Artisan and Runite Refiner now read the canonical `Adamant bar` and `Rune bar` identities produced by live Smithing, restoring both achievements and Living Legend reachability.
 - Source item 4600 now generates and registers as the single canonical `Willow blackjack` identity used by the live shop, quest reward, Thieving gate, and equipment runtime; the obtainable weapon can be equipped instead of shadowing an unobtainable hyphenated row.
 - The reachability graph now includes live Magic and Prayer producers, their rune costs, dynamic bone alternatives, and Prayer byproducts. Charged elemental orbs and Wine of zamorak are no longer false root orphans, and the audit now exposes real downstream Prayer and Onyx dependency chains that were previously outside its graph.
+- Live quest normalization now guarantees one completion-sentinel state after the highest requirement row. The 152 generated quests whose last sourced objective previously sat on an unreachable stage now execute that objective before completion; Tears of Guthix, Land of the Goblins, and Hazeel Cult are pinned examples.
+- Seven obtainable quest equipment identities now use generated source-config equipment data: Ice arrows, both Temple of Ikov pendants, Gnome amulet, both composite bows, and Dark bow. Their slots, bonuses, attack speeds, two-handed flags, and Ranged level gates are live instead of the Bank advertising items the equipment engine rejected.
+- Staff of armadyl now follows source item 84's non-equipment config as a quest material instead of occupying a phantom weapon category, and Ice arrows use the runtime's canonical `ammunition` slot.
 
 ## Rejected candidates
 
@@ -96,6 +100,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Bob Barter's current dose and vial math was independently traced and retained: every supported target dose conserves total doses and containers, produces a strictly smaller remainder, remains review-neutral, and rolls back through its independent shop event.
 - Renaming the Stats tab's later `initial_skill` local was rejected as prospective cleanup: the only closure read executes before that assignment, so no current behavior fails.
 - Worktree-guard handling for a missing canonical `meta.json`, a future canonical checkout outside `addons21`, or a hand-copied meta-less duplicate was not changed. None occurs in the current registered layout, and the guard's present audit/add paths remain correct and non-destructive.
+- Twelve generated equipment rows that are absent from the item registry were not bulk-registered: none is currently obtainable through a live producer, reward, or shop, so doing so would expose new gameplay rather than repair a writer/reader mismatch.
 
 ## Queued confirmed defects
 
@@ -110,6 +115,7 @@ None. The next pass rotates to quest, shop, activity, and achievement writer/rea
 - Pass 6 used one successful read-only Opus workflow (`f9ddb28f-9257-473a-afee-40ddf738d09a`). The required pre/post live checks again reported Fable at 30%, so the Fable cap remains closed.
 - Pass 7 used one successful read-only Opus workflow (`0a9b2e49-9a95-4668-a9a5-8da61341607c`). The required pre/post live checks again reported Fable at 30%.
 - Pass 8 used one successful read-only Opus workflow (`cfaade17-3598-450d-beb9-93ede931fa1b`). The required pre/post live checks again reported Fable at 30%; the all-model weekly reading rose to 17%, but no Fable review was made.
+- Pass 9 used one successful read-only Opus workflow (`83a95201-9995-4f32-aa04-1c5280f9d7b6`). The required pre/post live checks both reported Fable at 30% and all-model weekly usage at 17%, so no Fable review was made.
 
 ## Closure
 
