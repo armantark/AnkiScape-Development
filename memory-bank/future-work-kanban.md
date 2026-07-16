@@ -171,6 +171,9 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   sourced familiar role and auto-pack an active BoB; Advanced pins the exact
   familiar and exposes its separate inventory grid. Target changes never silently
   dismiss, replace, or repack the live global familiar.
+- Casual Summoning-point upkeep inserts an abstracted obelisk restoration on the
+  next successful answer when needed, replacing that target action; Again never
+  restores. Advanced exposes the same automation as a toggle plus a manual command.
 
 ### Dungeoneering
 

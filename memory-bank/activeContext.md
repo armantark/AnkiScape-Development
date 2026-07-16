@@ -24,11 +24,14 @@ synchronized Bank, reviewer, and target projections; target-local policy chooses
 `Off`, Casual best-available by source role, or an exact Advanced familiar without
 silently replacing a live familiar on target switches. Selecting a BoB is Casual's
 opt-in to automatic target-preset packing of its separate inventory, while Advanced
-exposes the exact slots. The next open Summoning fork is whether Casual automation
-may restore the Summoning points it needs through an abstracted obelisk action or
-must pause for explicit upkeep. Period evidence already rules out collapsing
-lifetime and Summoning points into one resource: points could reach zero without
-dismissing the familiar. Wall-clock gameplay remains forbidden.
+exposes the exact slots. Casual point upkeep is also settled: when a familiar
+policy lacks the Summoning points it needs, the next successful answer becomes an
+abstracted obelisk-restoration action instead of the selected target action; Again
+never restores. The next open Summoning fork is whether Casual may automatically
+consume deliberately carried scrolls and special-move points to fire familiar
+specials. Period evidence already rules out collapsing lifetime and Summoning
+points into one resource: points could reach zero without dismissing the familiar.
+Wall-clock gameplay remains forbidden.
 
 Agility's owner grill, source harvest, and atomic implementation are closed. The
 governing product contract is

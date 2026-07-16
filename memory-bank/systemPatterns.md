@@ -119,6 +119,10 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   familiar policy may fill an empty slot but must not silently replace the live
   entity during navigation. BoB packing shares the target's existing
   Casual/Advanced inventory mode rather than adding an independent mode switch.
+- Casual background automation that needs a positive upkeep action may insert a
+  foreground detour: Summoning's abstracted obelisk restoration consumes the next
+  successful answer and replaces the selected target action. It cannot fire on
+  Again, run on wall-clock time, or grant the target's ordinary output as well.
 - The answered-card clock is not a universal action-duration converter. It runs
   background/world/economy timers; ordinary skilling still performs one sourced
   action tick per successful review unless an activity explicitly defines a

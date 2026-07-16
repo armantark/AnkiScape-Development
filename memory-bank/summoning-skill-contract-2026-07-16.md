@@ -199,12 +199,27 @@ existing Casual/Advanced packing mode rather than creating independent mode togg
 could contradict each other. Switching targets alone never repacks, empties, dismisses,
 or drops a live familiar's cargo.
 
-### 7. Casual Summoning-point upkeep — open
+### 7. Casual Summoning-point upkeep — settled 2026-07-16
 
-Choose whether familiar automation may restore the Summoning points needed to summon or
-use point-gated abilities through an abstracted obelisk action, or whether point restore
-always remains an explicit player command. This changes whether Casual familiar policies
-remain self-sustaining or eventually pause for manual upkeep.
+When a Casual familiar policy needs more Summoning points to summon or to perform a
+configured point-gated ability, it automatically spends the **next successful answer**
+on an abstracted obelisk restoration. That answer restores points instead of performing
+the selected target action. Again cannot restore points because it is a decay-only idle
+tick. This is an explicit foreground-action detour, not wall-clock travel or persistent
+player location.
+
+Advanced exposes a toggle for the same auto-restore behavior and retains a manual
+Restore command. Exact restore values and the relationship between ordinary Summoning
+points and special-move points remain source-harvest work; automation cannot silently
+merge the two resources.
+
+### 8. Casual scroll-special automation — open
+
+Choose whether Casual may automatically fire the active familiar's scroll special on a
+successful answer, consuming one deliberately carried matching scroll and the sourced
+special-move-point cost, or whether every scroll special remains an explicit command.
+The decision changes whether scroll-defined familiar roles participate automatically or
+remain manual despite the broader Casual familiar policy.
 
 ## Source/open-work queue
 
