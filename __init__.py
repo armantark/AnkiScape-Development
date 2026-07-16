@@ -1119,6 +1119,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_farming_action=_apply_farming_action,
         initial_skill=initial_skill,
         initial_farming_patch_id=initial_farming_patch_id,
+        on_save_player_data=save_player_data,
     )
 
 

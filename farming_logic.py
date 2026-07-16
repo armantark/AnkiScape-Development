@@ -1577,6 +1577,15 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
     } for index, step in enumerate(state["farm_queue"]))
     preview_state, preview_ids = queue_full_run_pure(state)
     del preview_state
+    juju_item_name = next(
+        (
+            f"Juju farming potion ({dose})"
+            for dose in range(4, 0, -1)
+            if _int(inventory.get(f"Juju farming potion ({dose})")) > 0
+        ),
+        None,
+    )
+    juju_active = _juju_farming_active(state)
     compact_rows.sort(key=lambda row: (
         0 if row["status"] in {"diseased", "dead"} else 1 if row["status"] == "ready" else 2,
         row["reviews_to_transition"], row["location_name"], row["patch_name"],
@@ -1604,6 +1613,25 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
             "count": len(preview_ids),
             "preview": f"{len(preview_ids)} steps ready to queue" if preview_ids else "No planned work is ready.",
             "locked_reason": "" if preview_ids else "No planned work is ready.",
+        },
+        "juju_potion": {
+            "item_name": juju_item_name,
+            "active": juju_active,
+            "enabled": juju_item_name is not None and not juju_active,
+            "label": (
+                "Juju harvest bonus active"
+                if juju_active
+                else f"Drink {juju_item_name}"
+                if juju_item_name
+                else "No Juju farming potion"
+            ),
+            "locked_reason": (
+                "The Juju harvest bonus is already active."
+                if juju_active
+                else "No Juju farming potion doses are available in your Bank."
+                if juju_item_name is None
+                else ""
+            ),
         },
         "compact_rows": tuple(compact_rows),
         "hud": {

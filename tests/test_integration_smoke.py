@@ -3179,7 +3179,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         addon.mw = _DummyMW(_DummyCol())
-        addon.save_player_data = lambda: None
+        save_calls = []
+        addon.save_player_data = lambda: save_calls.append(copy.deepcopy(addon.player_data))
         addon.current_skill = "Combat"
         addon.player_data = {
             "current_combat_target": "ghost",
@@ -3195,6 +3196,8 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon._on_main_menu()
 
+        captured["on_save_player_data"]()
+        self.assertEqual(save_calls, [addon.player_data])
         self.assertTrue(captured["carried_pack_target_active"])
         self.assertTrue(captured["carried_advanced_state"])
         cells = captured["get_carried_layout_cells"]()

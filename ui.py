@@ -2210,6 +2210,7 @@ def show_main_menu(
     on_farming_action=None,
     initial_skill=None,
     initial_farming_patch_id=None,
+    on_save_player_data=None,
 ):
     """Show the consolidated window.
 
@@ -3007,6 +3008,17 @@ def show_main_menu(
             preview.setStyleSheet(f"color: {dim_text_css(preview)};")
             bulk_layout.addWidget(full_run_button)
             bulk_layout.addWidget(preview, 1)
+            juju = projection.get("juju_potion", {})
+            juju_button = QPushButton(str(juju.get("label", "No Juju farming potion")))
+            juju_button.setObjectName("farmingActivateJujuButton")
+            juju_button.setEnabled(bool(juju.get("enabled")) and on_farming_action is not None)
+            juju_button.setToolTip(str(juju.get("locked_reason", "")))
+            juju_button.clicked.connect(
+                lambda _=False, item_name=juju.get("item_name"): _run_action(
+                    "activate_juju_farming_potion", {"item_name": item_name}
+                )
+            )
+            bulk_layout.addWidget(juju_button)
             sheet_layout.addWidget(bulk)
 
             toast = QLabel(message)
@@ -5177,8 +5189,10 @@ def show_main_menu(
         player_data.update(new_data)
 
     def _persist_shop_state() -> None:
+        if on_save_player_data is None:
+            return
         try:
-            on_save_skill(state.get("active", current_skill) or "None")
+            on_save_player_data()
         except Exception:
             pass
 

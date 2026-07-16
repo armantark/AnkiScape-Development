@@ -12,6 +12,7 @@ Run with the Qt venv:
 """
 from __future__ import annotations
 
+import copy
 import os
 import re
 import sys
@@ -901,6 +902,29 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(payload["patch_id"], "falador_allotment_north")
         self.assertEqual(payload["crop_id"], "potato")
 
+    def test_farming_sheet_can_activate_owned_juju_potion(self) -> None:
+        player_data = _make_player_data()
+        player_data["inventory"] = {"Juju farming potion (3)": 1}
+        farming_dialog = self._open(player_data, current_skill="Mining", initial_skill="Farming")
+        farming_dialog.show()
+        for _ in range(4):
+            QApplication.processEvents()
+
+        activate = farming_dialog.findChild(QPushButton, "farmingActivateJujuButton")
+        self.assertIsNotNone(activate)
+        self.assertTrue(activate.isEnabled())
+        self.assertIn("(3)", activate.text())
+        activate.click()
+        QApplication.processEvents()
+
+        self.assertEqual(
+            self._farming_calls[-1],
+            ("activate_juju_farming_potion", {"item_name": "Juju farming potion (3)"}),
+        )
+        self.assertEqual(player_data["inventory"].get("Juju farming potion (3)", 0), 0)
+        self.assertEqual(player_data["inventory"]["Juju farming potion (2)"], 1)
+        self.assertGreater(player_data["farm_juju_active_until"], 0)
+
     def test_farming_stats_selector_is_present_but_farming_is_not_review_active(self) -> None:
         farming_buttons = [button for button in self.dialog.findChildren(QToolButton) if button.text() == "Farming"]
         self.assertTrue(farming_buttons, "Farming should use the ordinary Stats selector")
@@ -1572,7 +1596,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = fixtures["fixture_player_data"]
         live_view = fixtures["normal_coin_stock_shop"]
         live_row = next(row for row in live_view["rows"] if row["can_buy"])
-        dialog = self._open(pd)
+        saved = []
+        dialog = self._open(
+            pd,
+            on_save_player_data=lambda: saved.append(copy.deepcopy(pd)),
+        )
         _open_shop_tab(dialog)
 
         search = _find_named_line_edit(dialog, "shopSearchInput")
@@ -1601,6 +1629,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["inventory"]["Coins"], before_coins - int(live_row["buy_price"]))
         history_texts = _list_texts(_find_named_list(dialog, "shopLocalHistoryList"))
         self.assertTrue(any(text.startswith("Bought 1 x") for text in history_texts), history_texts)
+        self.assertEqual(len(saved), 1)
+        self.assertEqual(saved[0]["inventory"], pd["inventory"])
+        self.assertEqual(saved[0]["shop_events"], pd["shop_events"])
 
     def test_shop_general_store_sell_creates_temporary_stock(self) -> None:
         from shop_fixtures import build_shop_frontend_fixtures
