@@ -121,8 +121,30 @@ AnkiScape cutoff, and their later choose-one-of-two assignment effect must not b
 recreated under another name. See
 `source-audits/slayer-vip-ticket-cutoff-2026-07-15.md`.
 
+## Owner decision 3 — authentic task sizes
+
+Source task kill-count rolls remain literal. One qualifying Combat kill removes
+exactly one remaining kill, and long assignments may span as many reviews and
+study sessions as they naturally require. AnkiScape adds no Slayer-specific
+compression factor, batch credit, catch-up multiplier, or shortened review-scale
+quantity.
+
+Pacing remains the product of the source assignment roll, the chosen qualifying
+enemy, Combat's existing action cadence, and the global actions-per-review
+setting. The task state persists between sessions and retains the explicit
+completion stop established above.
+
+## Cutoff inclusion lead — Social Slayer
+
+Social Slayer released on `2012-07-11`, before the cutoff. The official update
+post describes two players grouping through an enchanted gem or slayer ring;
+kills by either partner reduce the shared assignment, while Combat and Slayer XP
+remain personal. This establishes a real period feature that must appear in the
+completeness ledger, but it does not by itself authorize a fabricated solo
+partner. See `source-audits/social-slayer-cutoff-recon-2026-07-15.md`.
+
 ## Next unresolved product branch
 
-Determine whether source task kill-count rolls remain literal, so long and
-difficult tasks may span many reviews and study sessions, or whether AnkiScape
-compresses assignment sizes into a separate review-scale quantity.
+Determine whether Social Slayer remains a fully designed future shared-player
+dependency that is unavailable in the solo runtime until AnkiScape has real
+multiplayer state, or is flattened into a simulated-partner abstraction.

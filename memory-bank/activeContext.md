@@ -10,7 +10,11 @@ the exact qualifying Combat variant, and requires a normal Combat search plus a
 now a cross-system dependency rather than Slayer-local UI. Task completion is
 an explicit stop; `Get assignment` is instantaneous, review-free UI with the
 last eligible master preselected and changeable. Post-cutoff Slayer VIP tickets
-are excluded. No Slayer gameplay implementation is authorized in this thread.
+are excluded. Source kill-count rolls stay literal: each qualifying kill removes
+one, and long tasks may span reviews and study sessions without Slayer-specific
+compression. Social Slayer is confirmed cutoff-live and is the next owner
+decision because AnkiScape currently has no shared-player runtime. No Slayer
+gameplay implementation is authorized in this thread.
 
 Agility's owner grill and full-content design harvest are closed; implementation
 belongs in a new thread. The governing product contract is
