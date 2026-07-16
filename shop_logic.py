@@ -478,8 +478,8 @@ def preview_shop_service_pure(player_data: Mapping[str, Any], service_id: str, q
     service = SHOP_SERVICES.get(service_id)
     if service is None:
         return _denied("unknown_service", requested_quantity=quantity)
-    if service.get("action_type") == "decant_potions_to_four":
-        return _preview_decant_potions_to_four(player_data, service, quantity)
+    if service.get("action_type") == "decant_potions_to_dose":
+        return _preview_decant_potions(player_data, service, quantity)
     return _preview_service_like(player_data, service, quantity)
 
 
@@ -488,8 +488,8 @@ def apply_shop_service_pure(player_data: Mapping[str, Any], service_id: str, qua
     data = ensure_shop_state_pure(player_data)
     if service is None:
         return data, _denied("unknown_service", requested_quantity=quantity)
-    if service.get("action_type") == "decant_potions_to_four":
-        return _apply_decant_potions_to_four(data, service, quantity)
+    if service.get("action_type") == "decant_potions_to_dose":
+        return _apply_decant_potions(data, service, quantity)
     return _apply_service_like(data, service, "service", quantity)
 
 
@@ -907,21 +907,21 @@ def _preview_service_like(player_data: Mapping[str, Any], service: Mapping[str, 
     }
 
 
-def _decant_potions_to_four_delta(
-    data: Mapping[str, Any],
-) -> tuple[Dict[str, int], list[str], int, int]:
+def _decant_potions_delta(
+    data: Mapping[str, Any], target_dose: int
+) -> tuple[Dict[str, int], list[str], int, int, int]:
     inventory_delta: Dict[str, int] = {}
     changed_families: list[str] = []
     total_doses = 0
-    returned_vials = 0
+    vial_balance = 0
     for base in DECANTABLE_FOUR_DOSE_POTION_BASES:
         counts = {dose: _inventory_count(data, f"{base} ({dose})") for dose in range(1, 5)}
         family_doses = sum(dose * count for dose, count in counts.items())
         if not family_doses:
             continue
-        full_vials, remainder = divmod(family_doses, 4)
+        full_vials, remainder = divmod(family_doses, target_dose)
         result_counts = {dose: 0 for dose in range(1, 5)}
-        result_counts[4] = full_vials
+        result_counts[target_dose] = full_vials
         if remainder:
             result_counts[remainder] += 1
         family_delta = {
@@ -934,36 +934,58 @@ def _decant_potions_to_four_delta(
         inventory_delta.update(family_delta)
         changed_families.append(base)
         total_doses += family_doses
-        returned_vials += sum(counts.values()) - sum(result_counts.values())
-    if returned_vials:
-        inventory_delta["Vial"] = returned_vials
-    return inventory_delta, changed_families, total_doses, returned_vials
+        vial_balance += sum(counts.values()) - sum(result_counts.values())
+    if vial_balance:
+        inventory_delta["Vial"] = vial_balance
+    return (
+        inventory_delta,
+        changed_families,
+        total_doses,
+        max(0, vial_balance),
+        max(0, -vial_balance),
+    )
 
 
-def _preview_decant_potions_to_four(
-    player_data: Mapping[str, Any], service: Mapping[str, Any], quantity: int
+def _preview_decant_potions(
+    player_data: Mapping[str, Any], service: Mapping[str, Any], target_dose: int
 ) -> Dict[str, Any]:
     data = ensure_shop_state_pure(player_data)
-    requested = max(1, int(quantity))
+    requested = int(target_dose)
+    if requested not in (2, 3, 4):
+        return _denied(
+            "unsupported_decant_dose",
+            requested_quantity=requested,
+            service_id=service["id"],
+        )
     if service.get("visibility") != "visible":
         return _denied(
             service.get("lock_reason") or "service_not_visible",
             requested_quantity=requested,
             service_id=service["id"],
         )
-    inventory_delta, changed_families, total_doses, returned_vials = (
-        _decant_potions_to_four_delta(data)
+    inventory_delta, changed_families, total_doses, returned_vials, required_vials = (
+        _decant_potions_delta(data, requested)
     )
     if not inventory_delta:
         return _denied("no_potions_to_decant", requested_quantity=requested, service_id=service["id"])
+    owned_vials = _inventory_count(data, "Vial")
+    if required_vials > owned_vials:
+        return _denied(
+            "missing_decant_vials",
+            requested_quantity=requested,
+            service_id=service["id"],
+            target_dose=requested,
+            required_vials=required_vials,
+            owned_vials=owned_vials,
+        )
     return {
         "allowed": True,
         "transaction_type": "service_like",
         "id": service["id"],
         "display_name": service["display_name"],
-        "requested_quantity": requested,
+        "requested_quantity": 1,
         "quantity": 1,
-        "clamped": requested != 1,
+        "clamped": False,
         "unit_price": 0,
         "total_price": 0,
         "currency_item_name": str(service.get("currency_item_name", "Coins")),
@@ -972,15 +994,17 @@ def _preview_decant_potions_to_four(
         "inventory_delta": inventory_delta,
         "decanted_families": changed_families,
         "family_count": len(changed_families),
+        "target_dose": requested,
         "total_doses": total_doses,
         "returned_vials": returned_vials,
+        "required_vials": required_vials,
     }
 
 
-def _apply_decant_potions_to_four(
-    data: Dict[str, Any], service: Mapping[str, Any], quantity: int
+def _apply_decant_potions(
+    data: Dict[str, Any], service: Mapping[str, Any], target_dose: int
 ) -> tuple[Dict[str, Any], Dict[str, Any]]:
-    preview = _preview_decant_potions_to_four(data, service, quantity)
+    preview = _preview_decant_potions(data, service, target_dose)
     if not preview["allowed"]:
         return data, preview
     inventory_delta = preview["inventory_delta"]

@@ -2,12 +2,13 @@
   "generated_at": "2026-07-06",
   "services": [
     {
-      "action_type": "decant_potions_to_four",
+      "action_type": "decant_potions_to_dose",
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
       "currency_name": "Coins",
-      "display_name": "Decant all vial potions to 4 doses",
+      "default_target_dose": 4,
+      "display_name": "Decant all vial potions",
       "icon_item_name": "Agility potion (4)",
       "id": "bob_barter_decant_four",
       "inputs": [],
@@ -16,7 +17,7 @@
       "outputs": [],
       "price": 0,
       "provider": "Bob Barter (herbs)",
-      "source": "RuneScape Wiki Bob Barter (herbs) oldid 6222086, 2012-09-09; OpenRS2 rev 742 NPC 6524 Decant/Decant-X; Darkan BobBarter.java",
+      "source": "RuneScape Wiki Bob Barter (herbs) oldid 6222086, 2012-09-09; OpenRS2 rev 742 NPC 6524 Decant/Decant-X; Death Hats, Draynor and Upgrades, 2011-05-25; Darkan BobBarter.java",
       "visibility": "visible"
     }
   ],

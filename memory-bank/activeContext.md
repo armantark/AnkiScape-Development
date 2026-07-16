@@ -80,9 +80,11 @@ The dated `completion-audit-2026-07-10.*` files remain historical snapshots; liv
 ## Most Recent Completed Work
 
 - Bob Barter (herbs) is a free, instantaneous Grand Exchange shop service. One
-  click consolidates every eligible live non-Daemonheim vial-potion family to
-  four doses, returns excess empty vials, changes no review or clock state, and
-  records an independently undoable shop event.
+  click redistributes every eligible live non-Daemonheim vial-potion family to
+  the selected period-supported 2-, 3-, or 4-dose size. Total doses and vial
+  containers are conserved: a partial remainder is retained, splitting consumes
+  owned empty vials, and consolidation returns excess vials. The action changes
+  no review or clock state and records an independently undoable shop event.
 - Anki was loading three linked worktrees beside the canonical checkout because
   all four lived directly under `addons21` as enabled packages. The linked
   worktrees now live under the sibling `Anki2/ankiscape_worktrees/` root, and

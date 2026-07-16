@@ -1664,7 +1664,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_shop_service_and_vendor_actions_apply_and_feed_global_history(self) -> None:
         from shop_fixtures import build_shop_frontend_fixtures
-        from shop_data import SHOP_VENDOR_ACTIONS
+        from shop_data import SHOP_SERVICES, SHOP_VENDOR_ACTIONS
 
         fixtures = build_shop_frontend_fixtures()
         pd = fixtures["fixture_player_data"]
@@ -1673,9 +1673,23 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog = self._open(pd)
         _open_shop_tab(dialog)
 
+        selector = _find_named_list(dialog, "shopSelectionList")
         service_list = _find_named_list(dialog, "shopServiceList")
 
         def _select_service_row(row_id: str) -> QListWidgetItem:
+            source = SHOP_SERVICES if row_id in SHOP_SERVICES else SHOP_VENDOR_ACTIONS
+            provider = str(source[row_id]["provider"])
+            provider_item = next(
+                selector.item(index)
+                for index in range(selector.count())
+                if (
+                    isinstance(selector.item(index).data(Qt.ItemDataRole.UserRole), dict)
+                    and selector.item(index).data(Qt.ItemDataRole.UserRole).get("kind") == "provider"
+                    and selector.item(index).data(Qt.ItemDataRole.UserRole).get("provider") == provider
+                )
+            )
+            selector.setCurrentItem(provider_item)
+            QApplication.processEvents()
             for index in range(service_list.count()):
                 item = service_list.item(index)
                 payload = item.data(Qt.ItemDataRole.UserRole)
@@ -1687,16 +1701,23 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         bob_item = _select_service_row("bob_barter_decant_four")
         self.assertFalse(bob_item.icon().isNull())
+        dose_spin = dialog.findChild(QSpinBox, "shopServiceQuantitySpin")
+        self.assertIsNotNone(dose_spin)
+        self.assertTrue(dose_spin.isVisibleTo(dialog))
+        self.assertEqual((dose_spin.minimum(), dose_spin.maximum()), (2, 4))
+        dose_spin.setValue(3)
+        QApplication.processEvents()
         preview_label = _find_named_label(dialog, "shopServicePreviewLabel")
         self.assertIn("16 doses", preview_label.text())
+        self.assertIn("3-dose vials", preview_label.text())
         use_button = _find_named_button(dialog, "shopServiceUseButton")
         self.assertTrue(use_button.isEnabled(), preview_label.text())
         use_button.click()
         QApplication.processEvents()
-        self.assertEqual(pd["inventory"]["Agility potion (1)"], 0)
-        self.assertEqual(pd["inventory"]["Agility potion (3)"], 0)
-        self.assertEqual(pd["inventory"]["Agility potion (4)"], 4)
-        self.assertEqual(pd["inventory"]["Vial"], 4)
+        self.assertEqual(pd["inventory"]["Agility potion (1)"], 1)
+        self.assertEqual(pd["inventory"]["Agility potion (3)"], 5)
+        self.assertEqual(pd["inventory"].get("Agility potion (4)", 0), 0)
+        self.assertEqual(pd["inventory"]["Vial"], 2)
 
         _select_service_row("bartender_sell_beer_glass")
         use_button = _find_named_button(dialog, "shopServiceUseButton")

@@ -187,15 +187,16 @@ class TestShopLogic(unittest.TestCase):
         before_clock = dict(data["shop_market_clock"])
         before_coins = data["inventory"]["Coins"]
 
-        preview = preview_shop_service_pure(data, "bob_barter_decant_four", 99)
+        preview = preview_shop_service_pure(data, "bob_barter_decant_four", 4)
         self.assertTrue(preview["allowed"])
         self.assertEqual(preview["quantity"], 1)
-        self.assertTrue(preview["clamped"])
+        self.assertFalse(preview["clamped"])
+        self.assertEqual(preview["target_dose"], 4)
         self.assertEqual(preview["decanted_families"], ["Agility potion", "Attack potion"])
         self.assertEqual(preview["total_doses"], 20)
         self.assertEqual(preview["returned_vials"], 5)
 
-        updated, result = apply_shop_service_pure(data, "bob_barter_decant_four", 99)
+        updated, result = apply_shop_service_pure(data, "bob_barter_decant_four", 4)
         self.assertTrue(result["allowed"])
         self.assertEqual(updated["inventory"]["Agility potion (1)"], 0)
         self.assertEqual(updated["inventory"]["Agility potion (3)"], 0)
@@ -220,7 +221,7 @@ class TestShopLogic(unittest.TestCase):
         before = dict(data["inventory"])
         before_doses = sum(dose * before[f"Prayer potion ({dose})"] for dose in range(1, 5))
 
-        updated, result = apply_shop_service_pure(data, "bob_barter_decant_four", 1)
+        updated, result = apply_shop_service_pure(data, "bob_barter_decant_four", 4)
         after_doses = sum(
             dose * updated["inventory"].get(f"Prayer potion ({dose})", 0)
             for dose in range(1, 5)
@@ -234,11 +235,47 @@ class TestShopLogic(unittest.TestCase):
         for item_name, quantity in before.items():
             self.assertEqual(restored["inventory"].get(item_name, 0), quantity)
 
+    def test_bob_barter_decants_to_two_doses_and_preserves_partial_remainder(self):
+        data = build_shop_fixture_player_data()
+        data["inventory"].update(
+            {
+                "Prayer potion (3)": 1,
+                "Prayer potion (4)": 1,
+                "Vial": 2,
+            }
+        )
+
+        preview = preview_shop_service_pure(data, "bob_barter_decant_four", 2)
+        self.assertTrue(preview["allowed"])
+        self.assertEqual(preview["target_dose"], 2)
+        self.assertEqual(preview["total_doses"], 7)
+        self.assertEqual(preview["required_vials"], 2)
+
+        updated, result = apply_shop_service_pure(data, "bob_barter_decant_four", 2)
+        self.assertTrue(result["allowed"])
+        self.assertEqual(updated["inventory"]["Prayer potion (1)"], 1)
+        self.assertEqual(updated["inventory"]["Prayer potion (2)"], 3)
+        self.assertEqual(updated["inventory"]["Prayer potion (3)"], 0)
+        self.assertEqual(updated["inventory"]["Prayer potion (4)"], 0)
+        self.assertEqual(updated["inventory"]["Vial"], 0)
+
+    def test_bob_barter_requires_vials_for_smaller_doses_and_rejects_one_dose(self):
+        data = build_shop_fixture_player_data()
+        data["inventory"]["Prayer potion (4)"] = 2
+        preview = preview_shop_service_pure(data, "bob_barter_decant_four", 3)
+        self.assertFalse(preview["allowed"])
+        self.assertEqual(preview["reason"], "missing_decant_vials")
+        self.assertEqual(preview["required_vials"], 1)
+
+        one_dose = preview_shop_service_pure(data, "bob_barter_decant_four", 1)
+        self.assertFalse(one_dose["allowed"])
+        self.assertEqual(one_dose["reason"], "unsupported_decant_dose")
+
     def test_bob_barter_rejects_inventory_that_needs_no_consolidation(self):
         self.assertIn("Agility potion", DECANTABLE_FOUR_DOSE_POTION_BASES)
         data = build_shop_fixture_player_data()
         data["inventory"].update({"Agility potion (3)": 1, "Attack potion (4)": 3})
-        preview = preview_shop_service_pure(data, "bob_barter_decant_four", 1)
+        preview = preview_shop_service_pure(data, "bob_barter_decant_four", 4)
         self.assertFalse(preview["allowed"])
         self.assertEqual(preview["reason"], "no_potions_to_decant")
 

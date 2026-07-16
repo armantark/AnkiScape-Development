@@ -139,7 +139,7 @@ def build_reachability_report() -> dict[str, Any]:
             producers[item].add(key)
 
     bob = shop_data.SHOP_SERVICES.get("bob_barter_decant_four", {})
-    if bob.get("visibility") == "visible" and bob.get("action_type") == "decant_potions_to_four":
+    if bob.get("visibility") == "visible" and bob.get("action_type") == "decant_potions_to_dose":
         for base in shop_logic.DECANTABLE_FOUR_DOSE_POTION_BASES:
             # Reachability is quantity-free: a repeatable three-dose recipe can
             # supply enough copies for Bob to produce every lower/four-dose

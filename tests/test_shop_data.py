@@ -80,7 +80,8 @@ class TestShopData(unittest.TestCase):
         bob = SHOP_SERVICES["bob_barter_decant_four"]
         self.assertEqual(bob["provider"], "Bob Barter (herbs)")
         self.assertEqual(bob["location"], "Grand Exchange")
-        self.assertEqual(bob["action_type"], "decant_potions_to_four")
+        self.assertEqual(bob["action_type"], "decant_potions_to_dose")
+        self.assertEqual(bob["default_target_dose"], 4)
         self.assertEqual(bob["price"], 0)
         self.assertIn("oldid 6222086", bob["source"])
         self.assertIn("bartender_buy_beer", SHOP_VENDOR_ACTIONS)

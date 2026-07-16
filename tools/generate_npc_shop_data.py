@@ -88,7 +88,7 @@ MANUAL_ITEM_PRICES = {
 SERVICE_ROWS: list[dict[str, Any]] = [
     {
         "id": "bob_barter_decant_four",
-        "display_name": "Decant all vial potions to 4 doses",
+        "display_name": "Decant all vial potions",
         "provider": "Bob Barter (herbs)",
         "location": "Grand Exchange",
         "currency_id": 995,
@@ -96,10 +96,12 @@ SERVICE_ROWS: list[dict[str, Any]] = [
         "inputs": [],
         "outputs": [],
         "icon_item_name": "Agility potion (4)",
-        "action_type": "decant_potions_to_four",
+        "action_type": "decant_potions_to_dose",
+        "default_target_dose": 4,
         "source": (
             "RuneScape Wiki Bob Barter (herbs) oldid 6222086, 2012-09-09; "
-            "OpenRS2 rev 742 NPC 6524 Decant/Decant-X; Darkan BobBarter.java"
+            "OpenRS2 rev 742 NPC 6524 Decant/Decant-X; "
+            "Death Hats, Draynor and Upgrades, 2011-05-25; Darkan BobBarter.java"
         ),
     },
 ]

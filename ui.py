@@ -5099,6 +5099,13 @@ def show_main_menu(
             return f"Missing requirements: {detail}." if detail else "Missing requirements."
         if reason == "no_potions_to_decant":
             return "You have no vial potions that Bob can consolidate."
+        if reason == "missing_decant_vials":
+            required = int(preview.get("required_vials", 0) or 0)
+            owned = int(preview.get("owned_vials", 0) or 0)
+            dose = int(preview.get("target_dose", 0) or 0)
+            return f"Decanting to {dose} doses needs {required:,} empty vial(s); you have {owned:,}."
+        if reason == "unsupported_decant_dose":
+            return "Bob can decant vial potions to 2, 3, or 4 doses."
         return fallback or reason
 
     def _service_icon_item_name(row: dict) -> str:
@@ -5426,6 +5433,20 @@ def show_main_menu(
             service_preview.setText("Select a service or vendor action.")
             service_use_btn.setEnabled(False)
             return
+        is_decant = row.get("action_type") == "decant_potions_to_dose"
+        service_qty.blockSignals(True)
+        if is_decant:
+            if service_qty.minimum() != 2 or service_qty.maximum() != 4:
+                service_qty.setRange(2, 4)
+                service_qty.setValue(int(row.get("default_target_dose", 4) or 4))
+            service_qty.setPrefix("Dose ")
+            service_qty.setVisible(True)
+        else:
+            service_qty.setPrefix("")
+            service_qty.setRange(1, 999999)
+            service_qty.setValue(1)
+            service_qty.setVisible(False)
+        service_qty.blockSignals(False)
         qty = int(service_qty.value())
         if kind == "service":
             preview = preview_shop_service_pure(player_data, str(row.get("id", "")), qty)
@@ -5434,12 +5455,16 @@ def show_main_menu(
         if preview.get("allowed"):
             if preview.get("family_count") is not None:
                 family_count = int(preview.get("family_count", 0) or 0)
+                target_dose = int(preview.get("target_dose", 4) or 4)
                 total_doses = int(preview.get("total_doses", 0) or 0)
                 returned_vials = int(preview.get("returned_vials", 0) or 0)
+                required_vials = int(preview.get("required_vials", 0) or 0)
                 vial_suffix = f" Bob returns {returned_vials:,} empty vial(s)." if returned_vials else ""
+                if required_vials:
+                    vial_suffix = f" This uses {required_vials:,} empty vial(s)."
                 service_preview.setText(
                     f"Bob will consolidate {total_doses:,} doses across "
-                    f"{family_count:,} potion type(s) into four-dose vials "
+                    f"{family_count:,} potion type(s) into {target_dose}-dose vials "
                     f"for free.{vial_suffix}"
                 )
                 service_use_btn.setEnabled(True)
