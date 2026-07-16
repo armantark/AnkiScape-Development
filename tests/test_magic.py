@@ -297,6 +297,29 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
         self.assertEqual(player["magic_actions_completed"], 1)
         self.assertEqual(calls["saves"], 1)
 
+    def test_superheat_output_credit_belongs_to_magic_not_smithing(self):
+        player = {
+            "magic_level": 99,
+            "magic_exp": 0.0,
+            "smithing_level": 70,
+            "smithing_exp": 0.0,
+            "current_magic": "superheat_adamant_bar",
+            "inventory": {
+                "Nature rune": 1,
+                "Fire rune": 4,
+                "Adamantite ore": 1,
+                "Coal": 6,
+            },
+            "completed_achievements": [],
+        }
+        calls = {"errors": [], "saves": 0, "shown_xp": []}
+
+        self.assertTrue(handle_magic_answer(_context(player, calls)))
+
+        skills = player["achievement_progress"]["skills"]
+        self.assertEqual(skills["magic"]["outputs"], {"Adamant bar": 1})
+        self.assertNotIn("smithing", skills)
+
     def test_named_presets_capture_new_magic_fields(self):
         data = default_combat_state_pure()
         data.update({"current_combat_spell": "fire_surge", "combat_vengeance": True, "combat_dream_thrift": True, "combat_spellbook_swap": "vengeance"})

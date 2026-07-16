@@ -119,6 +119,22 @@ class ConstructionDataAndMechanicsTest(unittest.TestCase):
         self.assertEqual(rewards["magic"], 35.0)
         self.assertEqual(result["inventory"]["Varrock teleport tablet"], 1)
 
+        player = _house(
+            current_construction=target["id"],
+            construction_exp=0.0,
+            magic_exp=0.0,
+            house_built_flags={"mahogany_eagle_lecturn": True},
+            inventory=dict(target["requirements"]),
+            completed_achievements=[],
+        )
+        self.assertTrue(handle_construction_answer(self._context(player, {})))
+        skills = player["achievement_progress"]["skills"]
+        self.assertEqual(
+            skills["construction"]["outputs"],
+            {"Varrock teleport tablet": 1},
+        )
+        self.assertNotIn("magic", skills)
+
     def test_owned_gilded_altar_counts_at_most_two_burners(self):
         data = _house(house_built_flags={"guilded_altar": True, "marble_burner": True})
         self.assertEqual(owned_gilded_altar_burner_count_pure(data), 1)

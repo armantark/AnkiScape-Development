@@ -137,6 +137,7 @@ try:
         quest_current_stage_blockers_pure,
         quest_current_stage_resolvable_combat_blockers_pure,
         record_action_telemetry_pure,
+        record_achievement_progress_pure,
         consume_ring_of_forging_charge_pure,
         smithing_success_probability_pure,
         smithing_target_locked_reasons_pure,
@@ -296,6 +297,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         quest_current_stage_blockers_pure,
         quest_current_stage_resolvable_combat_blockers_pure,
         record_action_telemetry_pure,
+        record_achievement_progress_pure,
         consume_ring_of_forging_charge_pure,
         smithing_success_probability_pure,
         smithing_target_locked_reasons_pure,
@@ -884,6 +886,7 @@ def _record_action(
     output_item: Optional[str] = None,
     output_qty: int = 1,
     output_items: Optional[dict[str, int]] = None,
+    achievement_output_items: Optional[dict[str, int]] = None,
     failure_kind: Optional[str] = None,
     primary_xp: Any = 0,
     proposed_outcome_success: Any = None,
@@ -898,6 +901,18 @@ def _record_action(
         output_qty=output_qty,
         output_items=output_items,
         failure_kind=failure_kind,
+    )
+    progress_outputs = achievement_output_items
+    if progress_outputs is None:
+        progress_outputs = output_items
+    record_achievement_progress_pure(
+        ctx.player_data,
+        skill_id,
+        action_id,
+        success,
+        output_item=output_item if progress_outputs is None else None,
+        output_qty=output_qty,
+        output_items=progress_outputs,
     )
     if ctx.cadence_shadow_enabled:
         try:
@@ -2098,6 +2113,7 @@ def handle_runecrafting_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     rolls = [ctx.random_random() for _ in range(64)]
+    prior_inventory = dict(player_data.get("inventory", {}) or {})
     new_data, base_exp, ok, message = apply_runecrafting_action_pure(
         player_data,
         target,
@@ -2116,7 +2132,20 @@ def handle_runecrafting_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     player_data.update(new_data)
-    _record_action(ctx, "runecrafting", target, True, expected_success_chance=1.0)
+    output_item = str(spec.get("output_item", ""))
+    output_count = max(
+        0,
+        int((player_data.get("inventory", {}) or {}).get(output_item, 0) or 0)
+        - int(prior_inventory.get(output_item, 0) or 0),
+    ) if output_item else 0
+    _record_action(
+        ctx,
+        "runecrafting",
+        target,
+        True,
+        expected_success_chance=1.0,
+        output_items={output_item: output_count} if output_count else {},
+    )
     exp_gained = ctx.award_skill_exp("runecrafting_exp", base_exp)
     ctx.level_up_check("Runecrafting", player_data)
     ctx.check_achievements(player_data)
@@ -2390,6 +2419,11 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
             True,
             expected_success_chance=expected_success,
             output_items=output_items,
+            achievement_output_items=(
+                output_items
+                if output_item is not None or not spec.get("output_item")
+                else {str(spec.get("output_item")): 1, **output_items}
+            ),
             primary_xp=base_exp,
         )
         exp_gained = ctx.award_skill_exp("woodcutting_exp", base_exp)
@@ -2776,6 +2810,10 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     )
     if cross_rewards:
         _award_action_xp_rewards(ctx, cross_rewards, str(cross_rewards[0]["skill_id"]))
+    achievement_outputs = dict(outputs)
+    tickets = int(result.get("tickets", 0) or 0)
+    if tickets > 0:
+        achievement_outputs["Agility arena ticket"] = tickets
     _record_action(
         ctx,
         "agility",
@@ -2783,6 +2821,7 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
         bool(result.get("success")),
         expected_success_chance=result.get("expected_success_chance"),
         output_items=outputs,
+        achievement_output_items=achievement_outputs,
         failure_kind=result.get("failure_kind"),
         primary_xp=base_xp,
     )

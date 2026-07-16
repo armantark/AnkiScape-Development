@@ -101,6 +101,7 @@ class TestStoragePure(unittest.TestCase):
             "cooking_burn_count",
             "hunter_success_count",
             "action_telemetry",
+            "achievement_progress",
             "quests",
             "quest_points",
             "quest_combat_config",
@@ -138,6 +139,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["current_hunter"], "catch_crimson_swift")
         self.assertEqual(data["hunter_success_count"], 0)
         self.assertEqual(data["action_telemetry"], {"version": 1, "actions": {}})
+        self.assertEqual(data["achievement_progress"], {"version": 1, "skills": {}})
         self.assertEqual(data["current_combat_target"], "chicken")
         self.assertEqual(data["combat_attack_style"], "accurate")
         self.assertEqual(data["current_combat_spell"], "wind_strike")
@@ -354,6 +356,40 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(telemetry["attempts"], 3)
         self.assertEqual(telemetry["successes"], 1)
         self.assertEqual(telemetry["outputs"], {"Raw mackerel": 1})
+
+    def test_v37_migration_seeds_progress_from_telemetry_and_holdings_without_summing(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 36,
+                "inventory": {"Iron ore": 7, "Ashes": 3},
+                "action_telemetry": {
+                    "version": 1,
+                    "actions": {
+                        "mining:iron_rock": {
+                            "skill_id": "mining",
+                            "action_id": "iron_rock",
+                            "successes": 5,
+                            "outputs": {"Iron ore": 5},
+                        },
+                        "firemaking:normal_logs": {
+                            "skill_id": "firemaking",
+                            "action_id": "normal_logs",
+                            "successes": 10,
+                            "outputs": {"Ashes": 10},
+                        },
+                    },
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        mining = migrated["achievement_progress"]["skills"]["mining"]
+        firemaking = migrated["achievement_progress"]["skills"]["firemaking"]
+        self.assertEqual(mining["successes"], 5)
+        self.assertEqual(mining["actions"], {"iron_rock": 5})
+        self.assertEqual(mining["outputs"]["Iron ore"], 7)
+        self.assertEqual(firemaking["outputs"]["Ashes"], 10)
 
     def test_migrate_sanitizes_quest_stage_side_state(self):
         migrated = migrate_loaded_data(

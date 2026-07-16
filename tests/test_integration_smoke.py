@@ -267,6 +267,10 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertEqual(addon.player_data["inventory"]["Logs"], 0)
         self.assertEqual(addon.player_data["inventory"]["Ashes"], 1)
+        self.assertEqual(
+            addon.player_data["achievement_progress"]["skills"]["firemaking"]["outputs"]["Ashes"],
+            1,
+        )
         self.assertAlmostEqual(addon.player_data["firemaking_exp"], 40.0)
         self.assertEqual(calls["achievements"], [1])
         self.assertEqual(calls["save"], 1)
@@ -487,6 +491,10 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertEqual(addon.player_data["inventory"]["Rune essence"], 3)
         self.assertEqual(addon.player_data["inventory"]["Air rune"], 27)
+        self.assertEqual(
+            addon.player_data["achievement_progress"]["skills"]["runecrafting"]["outputs"]["Air rune"],
+            27,
+        )
         self.assertAlmostEqual(addon.player_data["runecrafting_exp"], 135.0)
         self.assertEqual(calls["achievements"], [27])
         self.assertEqual(calls["save"], 1)
@@ -2410,6 +2418,10 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertEqual(addon.player_data["inventory"], {"Logs": 0, "Ashes": 1})
         self.assertAlmostEqual(addon.player_data["firemaking_exp"], 40.0)
+        self.assertEqual(
+            addon.player_data["achievement_progress"]["skills"]["firemaking"]["outputs"],
+            {"Ashes": 1},
+        )
         self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
 
         changes = types.SimpleNamespace(
@@ -2420,6 +2432,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertEqual(addon.player_data["inventory"], {"Logs": 1})
         self.assertEqual(addon.player_data["firemaking_exp"], 0)
+        self.assertNotIn("achievement_progress", addon.player_data)
         self.assertEqual(addon.player_data["current_firemaking"], "logs")
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
         self.assertEqual(calls["xp"], [40.0])

@@ -7,7 +7,7 @@ from achievement_metadata import (
     achievement_rows_for_difficulty,
 )
 from constants import ACHIEVEMENTS, ACHIEVEMENT_DEFINITIONS
-from logic_pure import get_newly_completed_achievements
+from logic_pure import get_newly_completed_achievements, record_achievement_progress_pure
 
 
 class AchievementMetadataTest(unittest.TestCase):
@@ -54,12 +54,16 @@ class AchievementMetadataTest(unittest.TestCase):
 
     def test_representative_conditions_cover_skill_quest_and_claim_state(self):
         player_data = {
-            "inventory": {
-                "Iron ore": 100,
-                "Oak logs": 500,
-                "Air rune": 1000,
-                "Bronze bar": 1,
-                "Raw shrimps": 1,
+            "inventory": {},
+            "achievement_progress": {
+                "version": 1,
+                "skills": {
+                    "mining": {"outputs": {"Iron ore": 100}},
+                    "woodcutting": {"outputs": {"Oak logs": 500}},
+                    "runecrafting": {"outputs": {"Air rune": 1000}},
+                    "smithing": {"outputs": {"Bronze bar": 1}},
+                    "fishing": {"outputs": {"Raw shrimps": 1}},
+                },
             },
             "quests": {"rune_mysteries": {"completed": True}},
             "claims": {"wicked_hood": {"claimed": True}},
@@ -74,10 +78,10 @@ class AchievementMetadataTest(unittest.TestCase):
         self.assertTrue(ACHIEVEMENTS["Rune Mysteries"]["condition"](player_data))
         self.assertTrue(ACHIEVEMENTS["Hooded Runecrafter"]["condition"](player_data))
 
-    def test_pottery_and_activity_conditions_use_live_canonical_state(self):
+    def test_pottery_and_activity_conditions_use_durable_canonical_state(self):
         self.assertTrue(
             ACHIEVEMENTS["Pottery Apprentice"]["condition"](
-                {"inventory": {"Empty pot": 100}}
+                {"achievement_progress": {"skills": {"crafting": {"outputs": {"Empty pot": 100}}}}}
             )
         )
 
@@ -90,11 +94,86 @@ class AchievementMetadataTest(unittest.TestCase):
         five_families["flash_powder_factory"] = 1
         self.assertTrue(condition({"agility_activity_completions": five_families}))
 
-    def test_smithing_conditions_use_live_canonical_bar_names(self):
-        inventory = {"Adamant bar": 250, "Rune bar": 100}
+    def test_smithing_conditions_use_durable_canonical_bar_names(self):
+        progress = {
+            "skills": {
+                "smithing": {"outputs": {"Adamant bar": 250, "Rune bar": 100}}
+            }
+        }
 
-        self.assertTrue(ACHIEVEMENTS["Adamantite Artisan"]["condition"]({"inventory": inventory}))
-        self.assertTrue(ACHIEVEMENTS["Runite Refiner"]["condition"]({"inventory": inventory}))
+        self.assertTrue(ACHIEVEMENTS["Adamantite Artisan"]["condition"]({"achievement_progress": progress}))
+        self.assertTrue(ACHIEVEMENTS["Runite Refiner"]["condition"]({"achievement_progress": progress}))
+
+    def test_action_achievements_survive_spending_their_outputs(self):
+        player_data = {"inventory": {"Iron ore": 100}}
+        for _ in range(100):
+            record_achievement_progress_pure(
+                player_data,
+                "mining",
+                "iron_rock",
+                True,
+                output_item="Iron ore",
+            )
+        player_data["inventory"]["Iron ore"] = 0
+
+        self.assertTrue(ACHIEVEMENTS["Iron Initiate"]["condition"](player_data))
+        self.assertFalse(ACHIEVEMENTS["Bronze Master"]["condition"](player_data))
+
+    def test_cumulative_progress_unlocks_after_the_output_has_left_the_bank(self):
+        player_data = {"inventory": {}, "completed_achievements": []}
+        record_achievement_progress_pure(
+            player_data,
+            "firemaking",
+            "normal_logs",
+            True,
+            output_item="Ashes",
+        )
+        player_data["inventory"]["Ashes"] = 0
+
+        newly_completed = get_newly_completed_achievements(player_data, ACHIEVEMENTS)
+
+        self.assertIn("First Fire", newly_completed)
+
+    def test_potion_hold_achievements_are_dose_invariant(self):
+        condition = ACHIEVEMENTS["Potion Collector"]["condition"]
+
+        self.assertTrue(condition({"inventory": {"Attack potion (4)": 100}}))
+        self.assertTrue(condition({"inventory": {"Attack potion (2)": 200}}))
+        self.assertTrue(condition({"inventory": {"Attack flask (6)": 66, "Attack potion (4)": 1}}))
+        self.assertFalse(condition({"inventory": {"Attack potion (4)": 99}}))
+
+    def test_explicit_hold_achievement_remains_live_inventory_state(self):
+        player_data = {
+            "inventory": {"Agility arena ticket": 100},
+            "achievement_progress": {
+                "skills": {"agility": {"outputs": {"Agility arena ticket": 500}}}
+            },
+        }
+        condition = ACHIEVEMENTS["Arena Regular"]["condition"]
+
+        self.assertTrue(condition(player_data))
+        player_data["inventory"]["Agility arena ticket"] = 0
+        self.assertFalse(condition(player_data))
+
+    def test_action_credit_belongs_to_the_explicit_owner_skill(self):
+        player_data = {"inventory": {}}
+        record_achievement_progress_pure(
+            player_data,
+            "magic",
+            "superheat_item",
+            True,
+            output_item="Bronze bar",
+        )
+        record_achievement_progress_pure(
+            player_data,
+            "construction",
+            "make_tablet",
+            True,
+            output_item="Varrock teleport",
+        )
+
+        self.assertFalse(ACHIEVEMENTS["Novice Smith"]["condition"](player_data))
+        self.assertEqual(player_data["achievement_progress"]["skills"]["construction"]["successes"], 1)
 
     def test_farming_achievements_use_durable_backend_counters(self):
         player_data = {

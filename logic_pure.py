@@ -423,6 +423,85 @@ def default_action_telemetry_pure():
     return {"version": 1, "actions": {}}
 
 
+def default_achievement_progress_pure():
+    """Durable action-owner progress used by cumulative achievements."""
+    return {"version": 1, "skills": {}}
+
+
+def sanitize_achievement_progress_pure(progress):
+    sanitized = default_achievement_progress_pure()
+    if not isinstance(progress, Mapping):
+        return sanitized
+    raw_skills = progress.get("skills", {})
+    if not isinstance(raw_skills, Mapping):
+        return sanitized
+    skills = {}
+    for skill_id, raw_record in raw_skills.items():
+        if not isinstance(skill_id, str) or not isinstance(raw_record, Mapping):
+            continue
+        actions = raw_record.get("actions", {})
+        outputs = raw_record.get("outputs", {})
+        skills[skill_id] = {
+            "successes": _non_negative_int(raw_record.get("successes", 0), 0),
+            "actions": {
+                str(action_id): _non_negative_int(amount, 0)
+                for action_id, amount in actions.items()
+                if isinstance(action_id, str)
+            } if isinstance(actions, Mapping) else {},
+            "outputs": {
+                str(item_name): _non_negative_int(amount, 0)
+                for item_name, amount in outputs.items()
+                if isinstance(item_name, str)
+            } if isinstance(outputs, Mapping) else {},
+        }
+    sanitized["skills"] = skills
+    return sanitized
+
+
+def record_achievement_progress_pure(
+    player_data,
+    skill_id,
+    action_id,
+    success,
+    *,
+    output_item=None,
+    output_qty=1,
+    output_items=None,
+):
+    """Record cumulative credit under the explicit action-owning skill."""
+    progress = sanitize_achievement_progress_pure(player_data.get("achievement_progress"))
+    player_data["achievement_progress"] = progress
+    skills = progress.setdefault("skills", {})
+    owner = str(skill_id)
+    record = skills.setdefault(owner, {"successes": 0, "actions": {}, "outputs": {}})
+    if not bool(success):
+        return record
+
+    record["successes"] = _non_negative_int(record.get("successes", 0), 0) + 1
+    actions = dict(record.get("actions", {}) or {})
+    action_key = str(action_id)
+    actions[action_key] = _non_negative_int(actions.get(action_key, 0), 0) + 1
+    record["actions"] = actions
+
+    outputs = dict(record.get("outputs", {}) or {})
+    if isinstance(output_items, Mapping):
+        for item_name, amount in output_items.items():
+            if not item_name:
+                continue
+            qty = _non_negative_int(amount, 0)
+            if qty <= 0:
+                continue
+            key = str(item_name)
+            outputs[key] = _non_negative_int(outputs.get(key, 0), 0) + qty
+    elif output_item:
+        qty = _non_negative_int(output_qty, 0)
+        if qty > 0:
+            key = str(output_item)
+            outputs[key] = _non_negative_int(outputs.get(key, 0), 0) + qty
+    record["outputs"] = outputs
+    return record
+
+
 def sanitize_action_telemetry_pure(telemetry):
     sanitized = default_action_telemetry_pure()
     if not isinstance(telemetry, Mapping):

@@ -67,6 +67,47 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_brimhaven_ticket_is_cumulative_credit_without_double_adding_inventory(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "current_agility": "brimhaven_arena",
+            "agility_level": 99,
+            "agility_exp": 0.0,
+            "inventory": {},
+            "equipment": {},
+            "completed_achievements": [],
+            "agility_activity_state": {
+                "brimhaven": {
+                    "stint_active": True,
+                    "activated": True,
+                    "needs_chase": False,
+                    "crossings_remaining": 1,
+                    "attempts_remaining": 8,
+                    "obstacle_id": "low_wall",
+                    "obstacle_label": "Low wall",
+                    "obstacle_xp": 8.0,
+                    "obstacle_fail": 0.0,
+                    "temporary_drain": 0,
+                }
+            },
+        }
+
+        self.assertTrue(
+            handle_agility_answer(
+                _context(player_data, calls, random_values=(0.0, 0.0, 0.5, 0.5))
+            )
+        )
+
+        self.assertEqual(player_data["inventory"]["Agility arena ticket"], 1)
+        self.assertEqual(
+            player_data["achievement_progress"]["skills"]["agility"]["outputs"],
+            {"Agility arena ticket": 1},
+        )
+        self.assertEqual(
+            player_data["action_telemetry"]["actions"]["agility:low_wall"]["outputs"],
+            {},
+        )
+
     def test_fatal_agility_failure_deactivates_and_reports_shared_grave_death(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

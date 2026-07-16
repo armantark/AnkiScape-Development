@@ -6139,9 +6139,12 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(crafted_data["inventory"]["Rune essence"], 0)
         self.assertEqual(crafted_data["inventory"]["Air rune"], 28)
 
-    def test_firemaking_achievements_unlock_from_ashes_inventory(self):
+    def test_firemaking_achievements_unlock_from_durable_action_progress(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["inventory"]["Ashes"] = 1
+        player_data["achievement_progress"] = {
+            "version": 1,
+            "skills": {"firemaking": {"outputs": {"Ashes": 1}}},
+        }
 
         newly_completed = get_newly_completed_achievements(player_data, ACHIEVEMENTS)
 

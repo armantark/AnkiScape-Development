@@ -14,7 +14,16 @@ try:
     )
     from .item_registry import ItemDefinition
     from .urn_data import URN_PLAIN_TO_RUNED_ITEM, default_urn_state_pure, sanitize_urn_state_pure
-    from .constants import EXP_TABLE
+    from .constants import (
+        BAR_DATA,
+        EXP_TABLE,
+        FISHING_OUTPUT_ITEMS,
+        GEM_DATA,
+        HERBLORE_FINISHED_OUTPUT_ITEMS,
+        MINING_OUTPUT_ITEMS,
+        RUNECRAFTING_OUTPUT_ITEMS,
+        WOODCUTTING_LOG_ITEMS,
+    )
     from .quest_data import DEFAULT_QUEST_TARGET, default_claim_states, default_quest_states
     from .runecrafting_data import DEFAULT_RUNECRAFTING_TARGET, RUNECRAFTING_TARGETS_BY_ID
     from .firemaking_data import DEFAULT_FIREMAKING_TARGET, FIREMAKING_TARGETS_BY_ID
@@ -24,12 +33,14 @@ try:
     from .fletching_data import DEFAULT_FLETCHING_TARGET, FLETCHING_TARGETS_BY_ID, LEGACY_FLETCHING_TARGETS
     from .logic_pure import (
         default_action_telemetry_pure,
+        default_achievement_progress_pure,
         default_combat_state_pure,
         default_quest_combat_active_encounters_pure,
         default_quest_combat_config_pure,
         default_stronghold_state_pure,
         calculate_new_level,
         sanitize_action_telemetry_pure,
+        sanitize_achievement_progress_pure,
         sanitize_combat_state_pure,
         sanitize_quest_combat_active_encounters_pure,
         sanitize_quest_combat_config_pure,
@@ -64,7 +75,16 @@ except ImportError:
     )
     from item_registry import ItemDefinition
     from urn_data import URN_PLAIN_TO_RUNED_ITEM, default_urn_state_pure, sanitize_urn_state_pure
-    from constants import EXP_TABLE
+    from constants import (
+        BAR_DATA,
+        EXP_TABLE,
+        FISHING_OUTPUT_ITEMS,
+        GEM_DATA,
+        HERBLORE_FINISHED_OUTPUT_ITEMS,
+        MINING_OUTPUT_ITEMS,
+        RUNECRAFTING_OUTPUT_ITEMS,
+        WOODCUTTING_LOG_ITEMS,
+    )
     from quest_data import DEFAULT_QUEST_TARGET, default_claim_states, default_quest_states
     from runecrafting_data import DEFAULT_RUNECRAFTING_TARGET, RUNECRAFTING_TARGETS_BY_ID
     from firemaking_data import DEFAULT_FIREMAKING_TARGET, FIREMAKING_TARGETS_BY_ID
@@ -74,12 +94,14 @@ except ImportError:
     from fletching_data import DEFAULT_FLETCHING_TARGET, FLETCHING_TARGETS_BY_ID, LEGACY_FLETCHING_TARGETS
     from logic_pure import (
         default_action_telemetry_pure,
+        default_achievement_progress_pure,
         default_combat_state_pure,
         default_quest_combat_active_encounters_pure,
         default_quest_combat_config_pure,
         default_stronghold_state_pure,
         calculate_new_level,
         sanitize_action_telemetry_pure,
+        sanitize_achievement_progress_pure,
         sanitize_combat_state_pure,
         sanitize_quest_combat_active_encounters_pure,
         sanitize_quest_combat_config_pure,
@@ -103,7 +125,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 36
+CURRENT_CONFIG_VERSION = 37
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -204,12 +226,75 @@ def _sanitize_thieving_state(data: Dict[str, Any]) -> None:
     data["thieving_blackjack_picks_remaining"] = picks
 
 
+def _achievement_seed_items() -> Dict[str, set[str]]:
+    herblore_items: set[str] = set(HERBLORE_FINISHED_OUTPUT_ITEMS)
+    for item_name in HERBLORE_FINISHED_OUTPUT_ITEMS:
+        if not item_name.endswith(")") or " (" not in item_name:
+            continue
+        base, raw_dose = item_name.rsplit(" (", 1)
+        try:
+            max_dose = max(4, int(raw_dose[:-1]))
+        except (TypeError, ValueError):
+            continue
+        herblore_items.update(f"{base} ({dose})" for dose in range(1, max_dose + 1))
+        flask_base = base.replace(" potion", "")
+        herblore_items.update(f"{flask_base} flask ({dose})" for dose in range(1, 7))
+    return {
+        "mining": set(MINING_OUTPUT_ITEMS) | set(GEM_DATA),
+        "woodcutting": set(WOODCUTTING_LOG_ITEMS),
+        "runecrafting": set(RUNECRAFTING_OUTPUT_ITEMS),
+        "smithing": set(BAR_DATA),
+        "crafting": {"Empty pot", "Gold ring", "Sapphire", "Emerald", "Ruby", "Diamond"},
+        "firemaking": {"Ashes"},
+        "fishing": set(FISHING_OUTPUT_ITEMS),
+        "herblore": herblore_items,
+        "prayer": {"Ecto-token"},
+        "agility": {"Agility arena ticket"},
+    }
+
+
+def _migrate_achievement_progress(data: Dict[str, Any]) -> None:
+    """Seed the v37 ledger from the strongest non-destructive evidence available."""
+    progress = default_achievement_progress_pure()
+    skills = progress["skills"]
+    telemetry = sanitize_action_telemetry_pure(data.get("action_telemetry"))
+    for telemetry_record in telemetry.get("actions", {}).values():
+        skill_id = str(telemetry_record.get("skill_id", ""))
+        action_id = str(telemetry_record.get("action_id", ""))
+        if not skill_id or not action_id:
+            continue
+        record = skills.setdefault(skill_id, {"successes": 0, "actions": {}, "outputs": {}})
+        successes = max(0, int(telemetry_record.get("successes", 0) or 0))
+        record["successes"] += successes
+        record["actions"][action_id] = record["actions"].get(action_id, 0) + successes
+        for item_name, amount in (telemetry_record.get("outputs", {}) or {}).items():
+            amount = max(0, int(amount or 0))
+            record["outputs"][str(item_name)] = record["outputs"].get(str(item_name), 0) + amount
+
+    inventory = data.get("inventory", {}) or {}
+    if isinstance(inventory, dict):
+        for skill_id, item_names in _achievement_seed_items().items():
+            for item_name in item_names:
+                try:
+                    held = max(0, int(inventory.get(item_name, 0) or 0))
+                except (TypeError, ValueError):
+                    held = 0
+                if held:
+                    record = skills.setdefault(
+                        skill_id,
+                        {"successes": 0, "actions": {}, "outputs": {}},
+                    )
+                    record["outputs"][item_name] = max(record["outputs"].get(item_name, 0), held)
+    data["achievement_progress"] = sanitize_achievement_progress_pure(progress)
+
+
 def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Iterable[ItemDefinition]] = None) -> Dict[str, Any]:
     data: Dict[str, Any] = {
         "config_version": CURRENT_CONFIG_VERSION,
         "inventory": _default_inventory(ORE_DATA, item_definitions),
         "progress_to_next": 0,
         "completed_achievements": [],
+        "achievement_progress": default_achievement_progress_pure(),
     }
     data.update(default_skill_state())
     data.update(_default_combat_state())
@@ -928,6 +1013,11 @@ def migrate_loaded_data(
     if loaded_config_version < 36:
         for key, value in default_agility_state_pure().items():
             data.setdefault(key, value)
+    # v37: action-worded achievements use durable, action-owner progress rather
+    # than disposable Bank balances. Existing telemetry and holdings establish
+    # a conservative minimum; completed achievement names remain sticky.
+    if loaded_config_version < 37:
+        _migrate_achievement_progress(data)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -957,6 +1047,9 @@ def migrate_loaded_data(
     _sanitize_thieving_state(data)
     data["cadence_profiles"] = sanitize_cadence_kernel_state_pure(
         data.get("cadence_profiles")
+    )
+    data["achievement_progress"] = sanitize_achievement_progress_pure(
+        data.get("achievement_progress")
     )
     if "cadence_shadow" in data:
         try:

@@ -1400,7 +1400,6 @@ ACHIEVEMENT_DEFINITIONS = build_achievement_definitions(
     RUNECRAFTING_OUTPUT_ITEMS,
     BAR_DATA,
     FISHING_OUTPUT_ITEMS,
-    HUNTER_OUTPUT_ITEMS,
     HERBLORE_FINISHED_OUTPUT_ITEMS,
     (target.activity_kind for target in AGILITY_TARGETS if target.activity_kind),
 )
