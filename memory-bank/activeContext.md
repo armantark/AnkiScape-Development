@@ -49,7 +49,16 @@ substantive question, while Codex owns source verification, synthesis, and the
 committed decision record. Slayer implementation now owns a real playable
 `Smoking Kills` quest and every still-missing prerequisite definition needed to
 reach it; before completion, ordinary Slayer remains playable while Sumona and
-the visible Rewards surface remain locked.
+the visible Rewards surface remain locked. Slayer now also owns real Shilo
+Village access for Duradel and the complete transitive black-mask-to-Slayer-
+helmet route. The cutoff tree includes Cabin Fever, Rum Deal, Priest in Peril,
+Zogre Flesh Eaters, Big Chompy Bird Hunting, Jungle Potion, and Druidic Ritual;
+already-playable definitions are reused and every generated placeholder in the
+route must become playable. The endpoint retains Cave horrors, the black-mask
+drop, 55 Crafting, Smoking Kills, and the 400-point helmet unlock. Shilo Village
+and Cabin Fever keep their period Agility gates, so the real Agility
+implementation is a sequencing dependency and no Slayer-local bypass is
+allowed.
 
 Agility's owner grill and full-content design harvest are closed; implementation
 belongs in a new thread. The governing product contract is

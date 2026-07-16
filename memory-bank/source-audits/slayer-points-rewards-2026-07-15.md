@@ -60,6 +60,37 @@ a sufficient quest: its required actions still say `Complete Smoking Kills
 stage N objective`. Implementation must replace those placeholders through the
 canonical quest-definition system and preserve the source quest chain.
 
+## Reachability decision — the complete helmet route ships with Slayer
+
+The 400-point helmet unlock may not terminate in an inert reward. Slayer owns a
+real Shilo Village route for Duradel plus the complete black-mask acquisition
+and helmet-crafting path: Pirate's Treasure, Rum Deal, Cabin Fever, access to
+Mos Le'Harmless, Cave horrors, the black-mask drop, and every authentic
+transitive prerequisite not already playable. The endpoint also retains 55
+Crafting, Smoking Kills, and the 400-point purchase; no component or gate is
+collapsed into a free grant.
+
+The repository's generated Rum Deal row is incomplete: oldid `6556008` embeds
+its quest prerequisites through `{{Questreq|Rum Deal}}`, but the generated row
+has `required_quests=()`. The cutoff `Template:Questreq` revision `6552449`
+(2012-11-13) expands the relevant tree as follows:
+
+- Cabin Fever -> Pirate's Treasure and Rum Deal;
+- Rum Deal -> Priest in Peril and Zogre Flesh Eaters; and
+- Zogre Flesh Eaters -> Druidic Ritual, Big Chompy Bird Hunting, and Jungle
+  Potion.
+
+The generated Shilo Village row at oldid `6389566` separately requires Jungle
+Potion and 32 Agility. Cabin Fever oldid `6533785` requires 42 Agility and
+unlocks Mos Le'Harmless and Cave horrors. Because Agility is still planned in
+`skill_registry.py`, its implementation is a real sequencing dependency rather
+than a requirement Slayer may waive.
+
+This is intentionally a transitive rule. If the implementation source pass
+finds another cutoff-live prerequisite beneath either route, it joins the same
+quest program automatically instead of being represented by a flag, stub, or
+alternate item source.
+
 ### Permanent learn/unlock purchases
 
 | Unlock | Cost | Period requirement/effect lead |

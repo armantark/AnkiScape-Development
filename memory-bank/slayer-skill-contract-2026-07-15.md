@@ -444,3 +444,35 @@ Quest completion activates the authentic point/streak and reward systems. The
 exact initialization boundary for the first-four-task counter must be reconciled
 against period implementation during the quest/Slayer source pass; it may not be
 silently inferred from the existing generated catalog.
+
+## Owner decision 17 — Slayer owns the complete helmet route
+
+The Slayer implementation must make both Duradel and the Slayer helmet reachable
+end to end. It therefore owns a real playable `Shilo Village` definition and the
+complete period route through `Pirate's Treasure`, `Rum Deal`, `Cabin Fever`,
+Mos Le'Harmless, Cave horrors, and the black-mask drop. This is a transitive
+reachability rule rather than a closed hand-written list: every authentic quest,
+skill, item, encounter, and area prerequisite found beneath either route is in
+scope unless it is already genuinely playable.
+
+The pinned 2012 `Template:Questreq` revision `6552449` resolves prerequisites
+lost by the generated catalog. At the cutoff, `Cabin Fever` required `Pirate's
+Treasure` and `Rum Deal`; `Rum Deal` transitively required `Priest in Peril` and
+`Zogre Flesh Eaters`; and that route included `Druidic Ritual`, `Big Chompy Bird
+Hunting`, and `Jungle Potion`. Implementers must reconcile the complete tree from
+period sources rather than copying `quest_catalog_generated.py`'s empty
+`Rum Deal.required_quests` tuple.
+
+The route is also cross-skill gated. The pinned Shilo Village and Cabin Fever
+rows require 32 and 42 Agility respectively, while Agility remains planned in
+the live registry. Slayer may not bypass, waive, or replace those requirements;
+the route becomes usable only after the real Agility implementation can satisfy
+them.
+
+The endpoint is the crafted helmet, not merely possession of a black mask. The
+player must also satisfy the period 55 Crafting requirement, complete Smoking
+Kills, activate the point economy, and buy the 400-point `Craft Slayer helmets`
+unlock. Cave horrors and the Mos Le'Harmless cave must arrive as real Combat
+target/context and acquisition content, including the sourced protective-item,
+light, access, drop, and undo rules. No free mask, quest flag, inert reward row,
+or alternate acquisition shortcut is acceptable.

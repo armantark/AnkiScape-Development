@@ -164,6 +164,11 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT`.
   in the Slayer program so Sumona, reward points, and the Rewards subview are
   genuinely reachable; feed those quests through the canonical missing-quest
   backlog and runtime rather than adding flags or bypasses.
+- Build Shilo Village and the complete transitive Slayer-helmet route through
+  Cabin Fever, Mos Le'Harmless, Cave horrors, the black-mask drop, and the
+  400-point crafting unlock. Preserve every period quest and skill prerequisite;
+  in particular, this route depends on the real Agility implementation rather
+  than a Slayer-local waiver.
 - Before that unlock, the finisher consumes its own correct review. Exclude the
   salt, ice, fungicide, and explosive shakers released in 2015.
 
@@ -194,6 +199,10 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`, `IMPLEMENT`.
 - Slayer likewise owns `Smoking Kills` and every still-missing prerequisite in
   its reachable chain because the quest gates Sumona and the entire reward-point
   economy.
+- Slayer also raises Shilo Village and the complete black-mask/Slayer-helmet
+  route to the front of this quest program. The period quest tree is transitive,
+  not limited to a manually named subset; already-playable prerequisites are
+  reused and generated placeholders are replaced through the canonical runtime.
 - Wait for Darkan where historical sources cannot prove hidden transitions or combat definitions; never fill gaps from modern RS3/OSRS.
 
 ### Complete pre-EOC bestiary
