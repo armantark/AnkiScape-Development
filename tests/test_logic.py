@@ -3196,7 +3196,7 @@ class TestLogic(unittest.TestCase):
 
             player_data["thieving_level"] = 42
             player_data["inventory"].update({
-                "Light source": 1,
+                "Lit torch": 1,
                 "Knife": 1,
                 "Pendant of lucien": 1,
                 "Yew shortbow": 1,
@@ -4197,6 +4197,52 @@ class TestLogic(unittest.TestCase):
 
         player_data["inventory"]["Orange dye"] = 1
         self.assertEqual(quest_current_stage_blockers_pure(player_data, "dye_quest", quest_data), ())
+
+    def test_required_item_alternative_accepts_an_equipped_exact_state(self):
+        quest_data = {
+            "cave_quest": {
+                "stages": 1,
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "required_inventory_options": (
+                            ({"Bullseye lantern (lit)": 1}, {"Mining helmet (lit)": 1}),
+                        ),
+                        "source": "source",
+                    },
+                ),
+            }
+        }
+        player_data = {
+            "inventory": {},
+            "equipment": {"head": "Mining helmet (lit)"},
+            "quests": {"cave_quest": {"started": True, "progress": 1, "completed": False}},
+        }
+
+        self.assertEqual(quest_current_stage_blockers_pure(player_data, "cave_quest", quest_data), ())
+
+    def test_consumed_item_alternative_does_not_accept_an_equipped_item(self):
+        quest_data = {
+            "offering_quest": {
+                "stages": 1,
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "consumed_inventory_options": (({"Amulet of power": 1},),),
+                        "source": "source",
+                    },
+                ),
+            }
+        }
+        player_data = {
+            "inventory": {},
+            "equipment": {"neck": "Amulet of power"},
+            "quests": {"offering_quest": {"started": True, "progress": 1, "completed": False}},
+        }
+
+        blockers = quest_current_stage_blockers_pure(player_data, "offering_quest", quest_data)
+
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("missing_item_option",))
 
     def test_consumed_inventory_options_block_and_consume_selected_alternative(self):
         quest_data = {

@@ -226,6 +226,9 @@ def agility_target_locked_reasons_pure(player_data: Mapping[str, Any], target_id
     for item_name in target.required_items:
         if not _owns_item(player_data, item_name):
             reasons.append(item_name)
+    for item_options in target.required_item_options:
+        if not any(_owns_item(player_data, item_name) for item_name in item_options):
+            reasons.append(f"{item_options[0]} or another valid alternative")
     if target.id == "flash_powder_factory":
         if _int(player_data.get("thieving_level"), 1, minimum=1) < 75:
             reasons.append("Thieving level 75")

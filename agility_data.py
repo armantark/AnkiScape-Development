@@ -6,6 +6,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Tuple
 
+try:
+    from .firemaking_data import LIT_LIGHT_SOURCE_ITEMS
+except ImportError:  # pragma: no cover
+    from firemaking_data import LIT_LIGHT_SOURCE_ITEMS  # type: ignore
+
 
 _ROOT = Path(__file__).resolve().parent
 
@@ -35,6 +40,7 @@ class AgilityTarget:
     completion_bonus: float = 0.0
     quest_gate: Optional[str] = None
     required_items: Tuple[str, ...] = ()
+    required_item_options: Tuple[Tuple[str, ...], ...] = ()
     source_status: str = "period"
     activity_kind: Optional[str] = None
 
@@ -268,7 +274,7 @@ COURSE_TARGETS: Tuple[AgilityTarget, ...] = (
         )
         + (_stage("hand_in", "Hand the generator part to Turgall", 2057.0),),
         quest_gate="death_to_the_dorgeshuun",
-        required_items=("Light source",),
+        required_item_options=(LIT_LIGHT_SOURCE_ITEMS,),
     ),
     AgilityTarget(
         "penguin_course", "Penguin Agility Course", "courses", 30,

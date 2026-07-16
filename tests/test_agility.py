@@ -135,6 +135,27 @@ class TestAgilityCourseData(unittest.TestCase):
 
 
 class TestAgilityPureEngine(unittest.TestCase):
+    def test_dorgesh_course_accepts_any_exact_lit_source_state(self):
+        player = {
+            **default_agility_state_pure(),
+            "agility_level": 99,
+            "quests": {
+                "death_to_the_dorgeshuun": {"started": True, "progress": 6, "completed": True},
+            },
+            "inventory": {},
+            "equipment": {},
+        }
+
+        missing = agility_target_locked_reasons_pure(player, "dorgesh_kaan")
+        self.assertIn("Lit torch or another valid alternative", missing)
+
+        player["inventory"]["Bullseye lantern (lit)"] = 1
+        self.assertEqual(agility_target_locked_reasons_pure(player, "dorgesh_kaan"), ())
+
+        player["inventory"].clear()
+        player["equipment"]["head"] = "Mining helmet (lit)"
+        self.assertEqual(agility_target_locked_reasons_pure(player, "dorgesh_kaan"), ())
+
     def test_pit_invitation_stays_satisfied_while_six_review_challenge_is_active(self):
         player = {
             **default_agility_state_pure(),

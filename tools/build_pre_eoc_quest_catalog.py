@@ -33,6 +33,40 @@ RELEASE_LIST_SOURCE = "https://runescape.wiki/w/List_of_quests_by_release_date"
 EOC_CUTOFF_DATE = dt.date(2012, 11, 20)
 EOC_CUTOFF_TIMESTAMP = "2012-11-19T23:59:59Z"
 USER_AGENT = "AnkiScape pre-EOC quest catalog builder (local development; contact: local user)"
+LIGHT_SOURCES_SOURCE = "https://runescape.wiki/w/Light_sources?oldid=6581760"
+LIT_LIGHT_SOURCE_ITEMS = (
+    "Lit torch",
+    "Lit candle",
+    "Lit black candle",
+    "Candle lantern (lit, 4531)",
+    "Candle lantern (lit, 4534)",
+    "Oil lamp (lit)",
+    "Oil lantern (lit)",
+    "Bullseye lantern (lit)",
+    "Sapphire lantern (lit)",
+    "Emerald lantern (lit)",
+    "Mining helmet (lit)",
+)
+PERIOD_LIT_LIGHT_SOURCE_ITEMS = (
+    *LIT_LIGHT_SOURCE_ITEMS,
+    "Seer's headband 1",
+    "Seer's headband 2",
+    "Seer's headband 3",
+    "Seer's headband 4",
+    "Bronze torch",
+    "Silver torch",
+    "Gold torch",
+)
+LIGHT_SOURCE_REQUIREMENT_STAGE_BY_QUEST = {
+    "rag_and_bone_man": 2,
+    "land_of_the_goblins": 7,
+    "defender_of_varrock": 4,
+    "the_chosen_commander": 3,
+}
+LIGHT_SOURCE_STAGE_BLOCKED_QUESTS = frozenset({
+    "watchtower",
+    "another_slice_of_h_a_m",
+})
 SCAPE_2011_QUEST_IMPL_DIR = (
     Path("/Users/ArmanTarkhanian1/Downloads/game-main")
     / "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/quests/impl"
@@ -2015,16 +2049,26 @@ def build_stage_requirements(
     required_inventory = item_requirements.get("required_inventory", {})
     if isinstance(required_inventory, Mapping):
         for item_name, quantity in required_inventory.items():
-            stage = _infer_item_requirement_stage(journal_stages, (str(item_name),))
+            normalized_item_name = str(item_name)
+            stage = (
+                LIGHT_SOURCE_REQUIREMENT_STAGE_BY_QUEST.get(quest_id)
+                if normalized_item_name in {"Light source", "Light sources"}
+                else None
+            ) or _infer_item_requirement_stage(journal_stages, (normalized_item_name,))
             row = row_for_stage(stage, "Generated from pre-EOC Quest details item requirements.")
-            row["required_inventory"][str(item_name)] = int(quantity)
+            row["required_inventory"][normalized_item_name] = int(quantity)
 
     required_tools = item_requirements.get("required_tools", {})
     if isinstance(required_tools, Mapping):
         for item_name, quantity in required_tools.items():
-            stage = _infer_item_requirement_stage(journal_stages, (str(item_name),))
+            normalized_item_name = str(item_name)
+            stage = (
+                LIGHT_SOURCE_REQUIREMENT_STAGE_BY_QUEST.get(quest_id)
+                if normalized_item_name in {"Light source", "Light sources"}
+                else None
+            ) or _infer_item_requirement_stage(journal_stages, (normalized_item_name,))
             row = row_for_stage(stage, "Generated from pre-EOC Quest details item requirements.")
-            row["required_tools"][str(item_name)] = int(quantity)
+            row["required_tools"][normalized_item_name] = int(quantity)
 
     option_groups = item_requirements.get("required_inventory_options", ())
     if isinstance(option_groups, Iterable) and not isinstance(option_groups, (str, bytes, Mapping)):
@@ -2046,6 +2090,22 @@ def build_stage_requirements(
 
     clean_rows = []
     for stage, row in sorted(rows_by_stage.items()):
+        has_light_source_requirement = False
+        for requirement_key in ("required_inventory", "required_tools"):
+            for pseudo_item in ("Light source", "Light sources"):
+                if pseudo_item in row[requirement_key]:
+                    row[requirement_key].pop(pseudo_item)
+                    has_light_source_requirement = True
+        if has_light_source_requirement and quest_id not in LIGHT_SOURCE_STAGE_BLOCKED_QUESTS:
+            allowed_items = (
+                ("Bullseye lantern (lit)",)
+                if quest_id == "tears_of_guthix"
+                else LIT_LIGHT_SOURCE_ITEMS
+            )
+            row["required_inventory_options"] = tuple(row["required_inventory_options"]) + (
+                tuple({item_name: 1} for item_name in allowed_items),
+            )
+            row["source"] = merge_sources(str(row.get("source", "")), LIGHT_SOURCES_SOURCE)
         if (
             not row["required_inventory"]
             and not row["required_tools"]
@@ -2066,6 +2126,8 @@ def build_stage_requirements(
                     {"Bullseye lantern (empty)": 1, "Sapphire": 1}
                 )
                 row["required_inventory_options"] = ()
+            elif row["stage"] == 3:
+                row["required_inventory"]["Sapphire lantern (lit)"] = 1
     elif quest_id == "while_guthix_sleeps":
         for row in clean_rows:
             if row["stage"] == 6 and "Sapphire lantern" in row["required_inventory"]:

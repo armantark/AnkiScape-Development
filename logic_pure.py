@@ -6222,9 +6222,12 @@ def _quest_requirement_blockers(player_data, quest_id, requirement):
     seen_option_blockers = set()
     for option_key in ("required_inventory_options", "consumed_inventory_options"):
         for options in _quest_stage_item_option_groups(requirement, option_key):
-            option_met = any(
-                _positive_int(inventory.get(item_name, 0), 0) >= amount for item_name, amount in options
-            )
+            if option_key == "required_inventory_options":
+                option_met = any(_has_quest_tool(player_data, item_name, amount) for item_name, amount in options)
+            else:
+                option_met = any(
+                    _positive_int(inventory.get(item_name, 0), 0) >= amount for item_name, amount in options
+                )
             if option_met:
                 continue
             option_signature = tuple(options)

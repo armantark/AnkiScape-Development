@@ -16,6 +16,11 @@ try:
 except ImportError:  # pragma: no cover
     from runecrafting_data import RUNEMYSTERIES_SOURCE_PATH, WICKED_HOOD_ITEM  # type: ignore
 
+try:
+    from .firemaking_data import LIT_LIGHT_SOURCE_ITEMS
+except ImportError:  # pragma: no cover
+    from firemaking_data import LIT_LIGHT_SOURCE_ITEMS  # type: ignore
+
 
 RUNE_MYSTERIES_ID = "rune_mysteries"
 COOKS_ASSISTANT_ID = "cooks_assistant"
@@ -2214,7 +2219,7 @@ TEMPLE_OF_IKOV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
     QuestStageRequirement(
         stage=1,
         description="Enter the Temple of Ikov with Lucien's pendant and a light source.",
-        required_inventory=(("Light source", 1),),
+        required_inventory_options=(tuple((item_name, 1) for item_name in LIT_LIGHT_SOURCE_ITEMS),),
         required_tools=(("Pendant of lucien", 1),),
         required_routes=("Enter the Temple of Ikov",),
         source=(
@@ -2707,8 +2712,8 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         requirements=(
             "Thieving 42",
             (
-                "Used during quest: Light source x1, Knife x1, Limpwurt root x20, "
-                "one yew, magic, or dark bow compatible with ice arrows."
+                "Used during quest: Knife x1, Limpwurt root x20, one yew, magic, or dark bow "
+                "compatible with ice arrows; bring any valid lit source."
             ),
             (
                 "Quest-made items: Pendant of lucien, Boots of lightness, Lever, Ice arrows, "
@@ -8134,10 +8139,6 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Chaos gauntlets": {
             "category": "equipment",
             "source": f"{FAMILY_CREST_JOHNATHON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
-        },
-        "Light source": {
-            "category": "material",
-            "source": f"{TEMPLE_OF_IKOV_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}; {TEMPLE_OF_IKOV_WIKI_SOURCE}",
         },
         "Limpwurt root": {
             "category": "material",

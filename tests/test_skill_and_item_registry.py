@@ -1288,7 +1288,6 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Glarial's amulet",
             "Glarial's urn",
             "A magic scroll",
-            "Light source",
             "Limpwurt root",
             "Ice arrows",
             "Lever",

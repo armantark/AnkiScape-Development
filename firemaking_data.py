@@ -37,6 +37,7 @@ BONFIRE_SOURCE = "https://runescape.fandom.com/wiki/Update:Bonfires"
 CANDLE_LANTERN_SOURCE = "https://runescape.wiki/w/Candle_lantern?oldid=5962978"
 LAMP_OIL_SOURCE = "https://runescape.wiki/w/Lamp_oil?oldid=6241595"
 SAPPHIRE_LANTERN_SOURCE = "https://runescape.wiki/w/Sapphire_lantern_(lit)?oldid=6092552"
+LIGHT_SOURCES_SOURCE = "https://runescape.wiki/w/Light_sources?oldid=6581760"
 
 
 @dataclass(frozen=True)
@@ -132,6 +133,24 @@ LIGHT_SOURCE_ACTIVITIES: Tuple[LightSourceActivity, ...] = (
     LightSourceActivity("light_sapphire_lantern", "Light sapphire lantern", "Sapphire lantern (unlit)", 4701, "Sapphire lantern (lit)", 4702, 49, "SAPPHIRE_LANTERN", False, False),
     LightSourceActivity("light_emerald_lantern", "Light emerald lantern", "Emerald lantern (unlit)", 9064, "Emerald lantern (lit)", 9065, 49, "EMERALD_LANTERN", False, False),
     LightSourceActivity("light_mining_helmet", "Light mining helmet", "Mining helmet (unlit)", 5014, "Mining helmet (lit)", 5013, 65, "MINING_HELMET", True, True),
+)
+
+LIT_LIGHT_SOURCE_ITEMS: Tuple[str, ...] = tuple(
+    activity.lit_item for activity in LIGHT_SOURCE_ACTIVITIES
+)
+
+# The cutoff-era light-source table also names achievement headbands and the
+# expired Gielinor Games torches. Keep that complete source set explicit, while
+# runtime quest gates use only states the current item graph can award.
+PERIOD_LIT_LIGHT_SOURCE_ITEMS: Tuple[str, ...] = (
+    *LIT_LIGHT_SOURCE_ITEMS,
+    "Seer's headband 1",
+    "Seer's headband 2",
+    "Seer's headband 3",
+    "Seer's headband 4",
+    "Bronze torch",
+    "Silver torch",
+    "Gold torch",
 )
 
 LIGHT_SOURCE_PREPARATIONS: Tuple[LightSourcePreparation, ...] = (
