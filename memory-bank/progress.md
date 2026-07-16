@@ -146,3 +146,16 @@ The durable source/conflict record is `source-audits/prayer-altar-urn-passives-h
 - Compilation and `git diff --check`: clean.
 
 Test counts are snapshots; current runs outrank this note.
+
+## Overnight fresh-eyes pass 4 — exact light-source identity (2026-07-16)
+
+- Replaced the `Light source`/`Light sources` pseudo-item with eleven reachable
+  exact lit states in eight source-placed quest gates and Dorgesh-Kaan Agility.
+- Preserved the complete eighteen-item cutoff-era classification separately,
+  without surfacing deferred Seer's headbands or expired event torches.
+- Corrected the Tears of Guthix stage sequence and removed unsupported numeric
+  gates from Watchtower and Another Slice of H.A.M.
+- Removed Temple of Ikov's user-visible phantom requirement and repaired the
+  live-vs-generated and consumed-equipment test oracles.
+- Committed as `83de7e1`; 253 focused and 1,270 full tests pass, with zero hard
+  test-quality issues and unchanged reachability counts.

@@ -216,3 +216,23 @@ The next confirmed implementation seam is the generated quest pseudo-item
 `Light sources`, present in three exact quest gates. Fable is at the owner's
 30% weekly cap; remaining overnight reviews use Opus after the Claude session
 window resets.
+
+## Overnight fresh-eyes pass 4 (2026-07-16)
+
+Commit `83de7e1` removes the `Light source`/`Light sources` pseudo-item from the
+live quest and Dorgesh-Kaan Agility surfaces. Eight source-placed quest gates
+now accept the eleven reachable exact lit states; Tears of Guthix retains its
+safe bullseye and sapphire-lantern sequence, while Watchtower and Another Slice
+of H.A.M. remain honestly `source_blocked` instead of receiving guessed gates.
+Temple of Ikov's visible requirements and the test oracles now describe the
+same real identities as runtime.
+
+Verification passes 253 focused tests and all 1,270 tests under the established
+Homebrew Python, with 183 non-Qt skips and three expected XP-parity failures.
+Test quality has zero hard issues; reachability remains 1,114 actions, 264
+orphan inputs, and 149 cascade orphans. Fable remains at the 30% weekly cap;
+the successful reviewer was one read-only Opus workflow.
+
+The next confirmed seam is save migration symmetry: legacy lantern/Mining
+helmet keys must be migrated in carried layouts and views, grave/Death's Office
+items and loadouts, and loot overrides before carried-state clamping.

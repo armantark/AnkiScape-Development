@@ -44,6 +44,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 | 1 | Agility, Thieving, Farming, Magic runtime seams | Fable | 14 | 9 | `01ef8d9` | 230 focused; 1 real offscreen Qt; 1,252 full; reachability; zero hard test-quality issues |
 | 2 | Crafting and Magic item identity, registry, assets, reachability | Opus | 5 | 5 | `b263c15` | 252 focused; 1,258 full; reachability counts unchanged; zero hard test-quality issues |
 | 3 | Lantern and lamp-oil state graph across Crafting, Smithing, Firemaking, shops, equipment, quests, assets, and saves | Fable pre-implementation; Codex verification | 7 | 7 | `37b46c5` | 270 focused; 179 real offscreen Qt; 1,265 full; 14 fewer cascade orphans; zero hard test-quality issues |
+| 4 | Exact light-source identity across generated/manual quests, Dorgesh-Kaan Agility, registry, UI prose, and test oracles | Opus | 5 | 3 | `83de7e1` | 253 focused; 1,270 full; reachability unchanged; zero hard test-quality issues; compilation, diff, and worktree checks |
 
 ## Accepted fixes
 
@@ -59,6 +60,9 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Lamp-oil preparation flattens swamp-tar distillation and filling into one explicit zero-XP review without using wall-clock time; candle insertion remains its own zero-XP review.
 - Twenty-two distinct state sprites replace shared placeholders, and the generated-data checks cover both Mining helmet states plus the bullseye Smithing output.
 - Legacy collapsed inventory names, equipped Mining helmets, persisted Miltog stock, and shop rollback events migrate to exact state names. Intrinsically ambiguous old Oil lamp keys resolve to the empty state so the complete preparation chain remains available.
+- Eleven reachable ordinary lit states now replace the `Light source`/`Light sources` parser artifact in eight source-placed quest gates and the Dorgesh-Kaan Agility course. The complete eighteen-item cutoff-era classification remains recorded separately, without advertising unobtainable Seer's headbands or expired event torches.
+- Tears of Guthix now preserves its exact safe-source, sapphire-conversion, and lit-sapphire sequence. Watchtower and Another Slice of H.A.M. no longer impose false start gates while their numeric placement remains `source_blocked`.
+- Temple of Ikov's visible requirements no longer advertise the deleted pseudo-item, live quest overrides are covered alongside generated rows, and a regression test proves equipped items cannot satisfy consumed alternatives.
 
 ## Rejected candidates
 
@@ -67,15 +71,18 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Legacy `Gold amulet`-style save keys were not migrated to `(u)` keys. Before this repair those keys could already be equipped and enchanted, so treating them as strung preserves player capability; only newly smelted amulets use the unstrung identities.
 - Fable's claim that cave-goblin pickpocketing drops unfinished bullseye item 4544 was rejected: Darkan's exact `pp_cavegoblin.json` row uses fuelled-unlit item 4548. The implemented Thieving key follows that exact ID.
 - A full regeneration of shop and equipment snapshots was rejected because the local external source trees had unrelated drift. The pinned generated snapshots received only the exact lantern-state corrections, and their existing coverage-count tests remain unchanged.
+- Opus's stage-map clamp suggestion was rejected as prospective hardening: every current explicit stage is within the pinned quest's stage count, so no present failure exists.
+- Opus's Tears stage-2 option-wipe suggestion was likewise rejected as hypothetical parser drift. The current pinned parse places the light-source group at stage 1 and has no legitimate stage-2 alternative to preserve.
 
 ## Queued confirmed defects
 
-- Three generated quest gates still require the literal pseudo-item `Light sources`. The next pass must replace those parser artifacts with source-appropriate exact lit-state alternatives for Tears of Guthix, Rag and Bone Man, and Land of the Goblins.
+- Exact lantern and Mining helmet name migration currently covers the bank and equipped slots, but old names can be dropped from a carried view or survive in carried layouts, grave/Death's Office item lists and stored loadouts, and loot overrides. Pass 5 must migrate every persisted item-name store before carried-state clamping.
 
 ## Reviewer budget and availability
 
 - Live Claude `/usage` reached 30% for Fable after the pass-3 review attempt, so no further Fable calls are permitted in this overnight run.
 - The post-implementation Fable review exhausted the current Claude session before returning a verdict. An immediate Opus fallback was also blocked by the same account-wide session window and made no tool calls. Codex therefore accepted pass 3 only after its own full diff audit, targeted checks, full Python suite, real offscreen Qt suite, reachability comparison, compilation, diff check, and worktree audit. Opus resumes after the session reset.
+- Pass 4 used one successful read-only Opus workflow after the session reset (`2d78f29f-d957-4bee-bf90-389253cf7125`). The required pre/post live checks both reported Fable at 30%; no Fable review call was made.
 
 ## Closure
 

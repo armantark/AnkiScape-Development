@@ -3,7 +3,7 @@
   "status": "active",
   "baseline_head": "74af8cf9806a4988ccae9cba202ca1be77e917c3",
   "deadline": "2026-07-16T09:00:00-07:00",
-  "iteration": 3,
+  "iteration": 4,
   "no_material_finding_passes": 0,
   "outer_loop_mode": "inner",
   "reviewer": {
@@ -12,12 +12,12 @@
     "fable_weekly_percent_cap": 30,
     "fable_weekly_percent_observed": 30,
     "fable_tokens": 676183,
-    "opus_calls": 2
+    "opus_calls": 3
   },
-  "last_scope": "Lantern and lamp-oil item-state identity, preparation, equipment, shops, quests, assets, and save migration",
-  "last_accepted_commit": "37b46c5",
+  "last_scope": "Exact light-source identity across generated and manual quests, Dorgesh-Kaan Agility, registry, visible requirements, and test oracles",
+  "last_accepted_commit": "83de7e1",
   "pending_concrete_defects": [
-    "Replace the three generated quest pseudo-item requirements named Light sources with source-appropriate exact item-state alternatives"
+    "Migrate legacy lantern and Mining helmet item names across carried inventories/layouts, combat grave and Death's Office items/loadouts, and loot overrides before carried-state clamping"
   ],
   "safety_failure": null
 }
