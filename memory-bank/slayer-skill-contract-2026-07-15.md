@@ -99,11 +99,30 @@ does not know Slayer rules.
 - game-main contains master dialogue, enchanted-gem, equipment-shop, and reward
   files, but its usable coverage and period fidelity remain to be audited.
 
+## Owner decision 2 — assignment acquisition and stop point
+
+Task completion is a real stop point. The player explicitly presses `Get
+assignment`; the previous eligible master is preselected but may be changed
+before confirming. No task chains automatically.
+
+Choosing a master and receiving the rolled assignment is instantaneous UI and
+costs no review. AnkiScape does not invent a walking, travel, dialogue, or
+waiting action for visiting a Slayer master. The task roll, master, kill count,
+streak-relevant state, and any source special-challenge offer commit together as
+one undoable manual transaction.
+
+This preserves the meaningful return-to-master decision without turning NPC
+dialogue or absent world traversal into training.
+
+## Cutoff exclusion — Slayer VIP tickets
+
+Slayer VIP tickets are excluded. They released on `2014-04-14`, after the
+AnkiScape cutoff, and their later choose-one-of-two assignment effect must not be
+recreated under another name. See
+`source-audits/slayer-vip-ticket-cutoff-2026-07-15.md`.
+
 ## Next unresolved product branch
 
-After a task completes, determine whether the player explicitly requests the
-next assignment from a chosen eligible master or whether the system
-automatically chains from a saved master. The historical return-to-master shape
-is a source fact; whether AnkiScape preserves that stop point or flattens it is a
-material product choice.
-
+Determine whether source task kill-count rolls remain literal, so long and
+difficult tasks may span many reviews and study sessions, or whether AnkiScape
+compresses assignment sizes into a separate review-scale quantity.
