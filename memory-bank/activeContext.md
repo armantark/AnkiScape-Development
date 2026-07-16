@@ -395,3 +395,14 @@ Verification passes 170 focused core tests, eight real offscreen Qt checks,
 and all 1,312 core tests with 193 skips and three expected XP-parity failures.
 Test quality has zero hard issues; compilation, diff, and safe-worktree checks
 pass.
+
+## Overnight fresh-eyes pass 17 (2026-07-16)
+
+Commit `111b280` closes consequence-ordering and undo gaps on management
+actions. XP-lamp claims update the funded skill's level before achievements,
+quest-bank and Stronghold rewards participate in direct-action undo, and Shop
+mutations reevaluate inventory achievements before saving.
+
+Verification passes 109 focused core tests and nine real offscreen Qt Shop
+checks. Test quality has zero hard issues; compilation, diff, and safe-worktree
+checks pass. Full closure verification remains pending.

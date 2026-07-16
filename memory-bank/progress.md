@@ -309,3 +309,15 @@ Test counts are snapshots; current runs outrank this note.
   checks, and all 1,312 core tests pass with 193 skips and three expected
   failures. Test quality remains at zero hard issues; compilation, diff, and
   worktree safety pass.
+
+## Overnight fresh-eyes pass 17 — atomic reward consequences (2026-07-16)
+
+- XP-lamp claims now recalculate the selected skill level before achievement
+  evaluation and surface the granted XP immediately.
+- Quest-bank claims and Stronghold boot/coin rewards register direct-action
+  undo snapshots before mutating live state.
+- Shop purchases, sales, services, and vendor actions dispatch achievements
+  before the canonical save callback.
+- Committed as `111b280`; 109 focused core tests and nine real offscreen Qt
+  Shop checks pass. Test quality remains at zero hard issues; compilation,
+  diff, and worktree safety pass. Full closure verification remains pending.
