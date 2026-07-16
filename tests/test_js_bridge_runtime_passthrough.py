@@ -29,7 +29,6 @@ class _FakeHooks:
         self.overview_will_refresh = []
         self.reviewer_did_show_question = []
         self.reviewer_did_show_answer = []
-        self.deck_browser_will_render_content = _FakeHook()
         self.deck_browser_did_render = _FakeHook()
         self.webview_did_receive_js_message = _FakeHook()
 
@@ -45,6 +44,7 @@ def _install_runtime_fakes():
     aqt_reviewer.Reviewer = _FakeReviewer
     sys.modules["aqt"] = aqt
     sys.modules["aqt.reviewer"] = aqt_reviewer
+    sys.modules["aqt.qt"] = types.ModuleType("aqt.qt")
 
     anki_hooks = types.ModuleType("anki.hooks")
     def addHook(_name, _fn):
@@ -56,6 +56,20 @@ def _install_runtime_fakes():
     anki_hooks.addHook = addHook
     anki_hooks.wrap = wrap
     sys.modules["anki.hooks"] = anki_hooks
+
+
+def _install_deferred_timer_fake():
+    callbacks = []
+    aqt_qt = types.ModuleType("aqt.qt")
+
+    class _FakeTimer:
+        @staticmethod
+        def singleShot(_delay, callback):
+            callbacks.append(callback)
+
+    aqt_qt.QTimer = _FakeTimer
+    sys.modules["aqt.qt"] = aqt_qt
+    return callbacks
 
 
 def _load_addon_as_package(mod_name="ankiscape_for_bridge_test"):
@@ -95,21 +109,19 @@ class TestJSBridgeRuntimePassthrough(unittest.TestCase):
     def test_core_actions_are_never_swallowed(self):
         h = self._get_js_handler()
         for msg in ("browse", "add", "stats", "sync", "open:add", "open:decks", "preview", "card-info", "addcards"):
-            handled, out = h(False, msg, None)
-            self.assertFalse(handled, msg)
-            self.assertEqual(out, msg)
+            self.assertEqual(h((False, None), msg, None), (False, None), msg)
+
+        upstream = (True, "another add-on's result")
+        self.assertEqual(h(upstream, "another_addon_command", None), upstream)
+        self.assertEqual(h(upstream, "browse", None), upstream)
 
     def test_ankiscape_messages_are_handled_or_preserve(self):
         h = self._get_js_handler()
         # ankiscape_open_menu should be marked handled
-        handled, out = h(False, "ankiscape_open_menu", None)
+        handled, out = h((False, None), "ankiscape_open_menu", None)
         self.assertTrue(handled)
         self.assertEqual(out, "ankiscape_open_menu")
-        # ankiscape_log:* should preserve incoming handled
-        handled, out = h(False, "ankiscape_log:foo", None)
-        self.assertFalse(handled)
-        handled, out = h(True, "ankiscape_log:foo", None)
-        self.assertTrue(handled)
+        self.assertEqual(h((False, None), "ankiscape_log:foo", None), (True, None))
 
     def test_repeated_setup_keeps_one_menu_handler_and_one_open(self):
         addon = _load_addon_as_package()
@@ -123,11 +135,26 @@ class TestJSBridgeRuntimePassthrough(unittest.TestCase):
         hooks = sys.modules["aqt"].gui_hooks
         handlers = hooks.webview_did_receive_js_message._hooks
         self.assertEqual(len(handlers), 1)
-        self.assertEqual(hooks.deck_browser_will_render_content.count(), 1)
         self.assertEqual(hooks.deck_browser_did_render.count(), 1)
-        handled, out = handlers[0](False, "ankiscape_open_menu", None)
+        handled, out = handlers[0]((False, None), "ankiscape_open_menu", None)
         self.assertTrue(handled)
         self.assertEqual(out, "ankiscape_open_menu")
+        self.assertEqual(opens, ["open"])
+
+    def test_deferred_double_open_schedules_only_one_dialog(self):
+        callbacks = _install_deferred_timer_fake()
+        addon = _load_addon_as_package()
+        addon.ui.is_main_menu_open = lambda: False
+        opens = []
+        addon._on_main_menu = lambda: opens.append("open")
+        addon._register_deck_browser_button()  # type: ignore[attr-defined]
+        handler = sys.modules["aqt"].gui_hooks.webview_did_receive_js_message._hooks[0]
+
+        handler((False, None), "ankiscape_open_menu", None)
+        handler((False, None), "ankiscape_open_menu", None)
+
+        self.assertEqual(len(callbacks), 1)
+        callbacks.pop()()
         self.assertEqual(opens, ["open"])
 
 

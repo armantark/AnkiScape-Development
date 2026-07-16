@@ -2101,10 +2101,19 @@ def show_stronghold_reward_dialog() -> Optional[str]:
 
 def create_menu(on_main_menu):
     """Create a single AnkiScape > Menu entry that opens the consolidated window."""
+    previous = getattr(mw, "_ankiscape_menu", None)
+    if previous is not None:
+        try:
+            mw.form.menubar.removeAction(previous.menuAction())
+            previous.deleteLater()
+        except RuntimeError:
+            pass
     menu = QMenu("AnkiScape", mw)
+    mw._ankiscape_menu = menu
     mw.form.menubar.addMenu(menu)
     main_action = menu.addAction("Menu")
-    main_action.triggered.connect(on_main_menu)
+    main_action.triggered.connect(lambda _checked=False: on_main_menu())
+    return menu
 
 
 def update_menu_visibility(current_skill: str):
@@ -2206,6 +2215,7 @@ def show_main_menu(
     """
     _debug_log("ui.show_main_menu: enter")
     dialog = QDialog(mw)
+    dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
     dialog.setWindowTitle("AnkiScape Menu")
     dialog.setMinimumWidth(720)
     dialog.setMinimumHeight(540)

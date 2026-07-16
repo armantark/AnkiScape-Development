@@ -16,6 +16,7 @@ import os
 import re
 import sys
 import unittest
+from types import SimpleNamespace
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
@@ -26,7 +27,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QCheckBox, QColor, QComboBox, QDialog, QLabel, QLineEdit, QListWidget, QPalette, QPushButton, QIcon, QImage, QTabWidget, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from aqt.qt import QApplication, QCheckBox, QColor, QComboBox, QDialog, QLabel, QLineEdit, QListWidget, QMainWindow, QPalette, QPushButton, QIcon, QImage, QTabWidget, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
@@ -648,6 +649,31 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_initial_panel_shows_a_gathering_skill(self) -> None:
         title = _panel_title(self.dialog)
         self.assertTrue(title.startswith("Mining"), f"unexpected initial panel: {title!r}")
+
+    def test_main_menu_dialog_is_deleted_when_closed(self) -> None:
+        self.assertTrue(
+            self.dialog.testAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        )
+
+    def test_profile_reload_replaces_the_existing_menu_and_callback(self) -> None:
+        original_mw = self._ui.mw
+        window = QMainWindow()
+        window.form = SimpleNamespace(menubar=window.menuBar())
+        calls = []
+        try:
+            self._ui.mw = window
+            self._ui.create_menu(lambda: calls.append("first"))
+            menu = self._ui.create_menu(lambda: calls.append("second"))
+
+            self.assertEqual(
+                [action.text() for action in window.menuBar().actions()],
+                ["AnkiScape"],
+            )
+            menu.actions()[0].trigger()
+            self.assertEqual(calls, ["second"])
+        finally:
+            self._ui.mw = original_mw
+            window.deleteLater()
 
     def test_thieving_support_panel_metadata_selection_lock_and_casual_toggle(self) -> None:
         from target_metadata import thieving_target_rows

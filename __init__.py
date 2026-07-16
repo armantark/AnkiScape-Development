@@ -33,7 +33,6 @@ from anki.hooks import addHook, wrap
 from aqt.reviewer import Reviewer
 import copy
 import inspect
-import time
 import random
 import os
 import datetime
@@ -95,7 +94,6 @@ from .ui import (
 )
 from . import ui
 from . import inventory_pure
-from .deck_injection_pure import DeckBrowserContent as _DBC, inject_into_deck_browser_content
 from .injectors import inject_reviewer_floating_button as _inject_reviewer_floating_button
 from .injectors import inject_overview_floating_button as _inject_overview_floating_button
 from .injectors import register_deck_browser_button as _register_deck_browser_button
@@ -127,9 +125,6 @@ except Exception:
     def _is_debug_enabled() -> bool:
         return False
 
-# Guard to avoid duplicate registrations
-_ANKISCAPE_HOOKS_REGISTERED = False
-_LAST_MENU_OPEN_TS = 0.0
 _REVIEW_UNDO_STACK = []
 _URN_TELEPORT_UNDO_STACK = []
 _DIRECT_ACTION_UNDO_STACK = []
@@ -1612,7 +1607,8 @@ def create_soft_clay():
 
 # Initialization and hooks
 def initialize_exp_popup():
-    mw.exp_popup = ExpPopup(mw)
+    if not hasattr(mw, "exp_popup"):
+        mw.exp_popup = ExpPopup(mw)
 
 
 # Flexible wrappers to handle version differences in hook signatures
@@ -1748,73 +1744,6 @@ except Exception:
     pass
 
 # Menu is created on profile load via initialize_menu
-
-    # --- Handle JS bridge messages from injected buttons ---
-    def _on_js_message(handled, message, context):  # type: ignore[no-redef]
-        """Respond to messages sent via pycmd() in injected JS."""
-        try:
-            if isinstance(message, str):
-                if message == "ankiscape_open_menu":
-                    debug_log("bridge: ankiscape_open_menu received")
-                    global _LAST_MENU_OPEN_TS
-                    now = time.time()
-                    if is_main_menu_open():
-                        debug_log("bridge: menu already open; focusing")
-                        try:
-                            focus_main_menu_if_open()
-                        except Exception:
-                            pass
-                    elif now - _LAST_MENU_OPEN_TS > 0.4:  # debounce
-                        _LAST_MENU_OPEN_TS = now
-                        debug_log("bridge: opening main menu via _on_main_menu")
-                        try:
-                            try:
-                                from aqt.qt import QTimer  # type: ignore
-                            except Exception:
-                                QTimer = None  # type: ignore
-                            if QTimer is not None:
-                                QTimer.singleShot(0, _on_main_menu)
-                                debug_log("bridge: scheduled _on_main_menu with QTimer")
-                            else:
-                                _on_main_menu()
-                                debug_log("bridge: called _on_main_menu directly (no QTimer)")
-                        except Exception:
-                            debug_log("bridge: _on_main_menu raised; swallowed")
-                            pass
-                    return (True, message)
-                if message.startswith("ankiscape_log:"):
-                    try:
-                        debug_log(f"js: {message[len('ankiscape_log:'):]}")
-                    except Exception:
-                        pass
-                    # Not handled; allow default processing to continue
-                    return (handled, message)
-                # Hardening: do not intercept native Anki navigation messages
-                try:
-                    low = message.lower()
-                except Exception:
-                    low = ""
-                if (
-                    low.startswith("open:")
-                    or low in ("decks", "add", "browse", "stats", "sync")
-                    or low == "study" or low == "review" or low == "start"
-                    or low.startswith("study") or low.startswith("review") or low.startswith("start")
-                    or low in ("preview", "previewer", "card-info", "addcards")
-                ):
-                    return (False, message)
-        except Exception:
-            debug_log("bridge: exception in _on_js_message")
-            pass
-        # Default: do not intercept messages we don't recognize
-        try:
-            if isinstance(message, str):
-                return (False, message)
-        except Exception:
-            pass
-        return (handled, message)
-
-    # Note: JS bridge hook is registered in injectors.register_deck_browser_button
-    # to keep one consistent handler and predictable order.
 
 # --- Deck Browser bottom button integration ---
 
