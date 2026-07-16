@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AnkiScape Overnight Audit Results</title>
+  <style>
+    :root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#16233b 0,transparent 32%),var(--bg);color:var(--text);font-family:Outfit,Inter,system-ui,sans-serif;line-height:1.45}.wrap{max-width:1180px;margin:auto;padding:44px 22px 70px}.badge,.mono{font-family:"JetBrains Mono",ui-monospace,monospace}.badge{display:inline-block;padding:6px 10px;border:1px solid #315b99;border-radius:999px;color:#8bb8ff;background:var(--accent-glow);font-size:.72rem;letter-spacing:.08em}h1{font-size:clamp(2.2rem,5vw,4.6rem);line-height:.96;margin:18px 0 16px;max-width:900px}h1 span{color:var(--green)}.lede{max-width:760px;color:var(--text-dim);font-size:1.04rem}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:30px 0}.metric,.card{background:linear-gradient(145deg,var(--surface),#12161d);border:1px solid var(--border);border-radius:var(--radius)}.metric{padding:18px}.metric strong{display:block;font-size:2rem}.metric small{color:var(--text-dim)}.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.card{padding:22px}.card h2{margin:0 0 14px;font-size:1.08rem}.bar{height:10px;background:#252b36;border-radius:9px;overflow:hidden;margin:7px 0 16px}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:9px}.row{display:flex;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px solid var(--border)}.row:last-child{border:0}.row span{color:var(--text-dim)}.pill{font:600 .68rem "JetBrains Mono",monospace;padding:4px 8px;border-radius:999px;background:var(--surface-2)}.ok{color:var(--green)}.amber{color:var(--amber)}.timeline{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}.pass{padding:10px 4px;text-align:center;border:1px solid #265239;background:#11281c;border-radius:8px;color:#8cf0ad;font:700 .72rem "JetBrains Mono",monospace}.themes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.theme{padding:13px;background:var(--surface-2);border-radius:9px;color:var(--text-dim);font-size:.82rem}.theme b{display:block;color:var(--text);margin-bottom:3px}.gaps{margin-top:16px}.gap{display:grid;grid-template-columns:30px 1fr;gap:11px;padding:12px 0;border-top:1px solid var(--border)}.gap:first-of-type{border-top:0}.num{width:27px;height:27px;display:grid;place-items:center;border-radius:7px;background:#2a2210;color:var(--amber);font:bold .75rem "JetBrains Mono",monospace}.gap b{font-size:.9rem}.gap p{margin:3px 0;color:var(--text-dim);font-size:.8rem}.footer{margin-top:20px;padding:14px 18px;border:1px solid #28503a;background:#10251b;border-radius:10px;color:#a8ecc0;font-size:.86rem}.tag{display:inline-block;margin:4px 5px 0 0;padding:4px 7px;background:var(--surface-2);border-radius:5px;color:#b8c2d4;font:.64rem "JetBrains Mono",monospace}@media(max-width:850px){.metrics{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.timeline{grid-template-columns:repeat(3,1fr)}.themes{grid-template-columns:1fr}}@media(max-width:470px){.metrics{grid-template-columns:1fr 1fr}.metric strong{font-size:1.45rem}.wrap{padding:28px 14px}.card{padding:17px}}
+  </style>
+</head>
+<body><main class="wrap">
+  <span class="badge">AUDIT COMPLETE · 2026-07-16</span>
+  <h1>Fresh eyes found real defects.<br><span>Closure is green.</span></h1>
+  <p class="lede">Eighteen bounded maker/checker passes audited the recent AnkiScape expansion across gameplay, state, UI, assets, registries, tests, and worktree safety. Codex reproduced every accepted finding and rejected persuasive-but-nonfailing proposals.</p>
+  <section class="metrics">
+    <div class="metric"><strong>18</strong><small>bounded audit passes</small></div>
+    <div class="metric"><strong>36</strong><small>attributable commits</small></div>
+    <div class="metric"><strong>1,314</strong><small>core + real-Qt tests green</small></div>
+    <div class="metric"><strong>0</strong><small>hard test-quality issues</small></div>
+  </section>
+  <section class="grid">
+    <article class="card"><h2>Verification gates</h2>
+      <div class="row"><span>Core suite</span><b class="ok">1,314 · PASS</b></div>
+      <div class="row"><span>Real offscreen Qt</span><b class="ok">1,314 · PASS</b></div>
+      <div class="row"><span>Expected parity failures</span><b class="amber">3 · unchanged</b></div>
+      <div class="row"><span>Reachability graph</span><b>1,200 actions</b></div>
+      <div class="row"><span>Known orphan inputs</span><b>273 · stable</b></div>
+      <div class="row"><span>Compilation / diff / worktrees</span><b class="ok">PASS</b></div>
+    </article>
+    <article class="card"><h2>Reviewer budget discipline</h2>
+      <div class="row"><span>Fable calls</span><b>3</b></div><div class="bar"><i style="width:30%"></i></div>
+      <div class="row"><span>Opus calls after cap</span><b>17</b></div><div class="bar"><i style="width:85%"></i></div>
+      <div class="row"><span>Last live Fable reading</span><b class="amber">31%</b></div>
+      <p style="color:var(--text-dim);font-size:.82rem;margin:12px 0 0">Live <span class="mono">/usage</span> readings controlled model choice. Workflow token telemetry was never used as a quota proxy.</p>
+    </article>
+  </section>
+  <section class="card" style="margin-top:16px"><h2>Coverage ledger</h2><div class="timeline">
+    <div class="pass">01 ✓</div><div class="pass">02 ✓</div><div class="pass">03 ✓</div><div class="pass">04 ✓</div><div class="pass">05 ✓</div><div class="pass">06 ✓</div><div class="pass">07 ✓</div><div class="pass">08 ✓</div><div class="pass">09 ✓</div><div class="pass">10 ✓</div><div class="pass">11 ✓</div><div class="pass">12 ✓</div><div class="pass">13 ✓</div><div class="pass">14 ✓</div><div class="pass">15 ✓</div><div class="pass">16 ✓</div><div class="pass">17 ✓</div><div class="pass">18 ✓</div>
+  </div><div class="themes">
+    <div class="theme"><b>State integrity</b>Undo, RNG, death, saves, carried packs, claims, rewards.</div>
+    <div class="theme"><b>Gameplay reachability</b>Prayer, Magic, Farming, Construction, Herblore, Thieving, Agility, Combat.</div>
+    <div class="theme"><b>Surface integrity</b>Qt lifecycle, hooks, selectors, icons, shops, achievements, assets.</div>
+  </div></section>
+  <section class="grid gaps">
+    <article class="card"><h2>Highest-value outcomes</h2>
+      <div class="row"><span>Duplicate menu lifecycle</span><b class="ok">closed</b></div><div class="row"><span>Quest final-stage reachability</span><b class="ok">closed</b></div><div class="row"><span>Combat supply/death conservation</span><b class="ok">closed</b></div><div class="row"><span>Herblore/Prayer item chains</span><b class="ok">closed</b></div><div class="row"><span>Reactive skill surfaces</span><b class="ok">closed</b></div><div class="row"><span>Reward/shop atomicity</span><b class="ok">closed</b></div>
+      <span class="tag">111 files changed</span><span class="tag">+5,370 / −697</span><span class="tag">branch only</span>
+    </article>
+    <article class="card"><h2>Owner-direction queue</h2>
+      <div class="gap"><span class="num">1</span><div><b>Agility carried weight and death risk</b><p>Choose the target-pack model for weight and graves.</p></div></div>
+      <div class="gap"><span class="num">2</span><div><b>Charge duration</b><p>Choose a review-native eligible-attack budget.</p></div></div>
+      <div class="gap"><span class="num">3</span><div><b>Replacing mature regrowth crops</b><p>Add a one-review Dig up verb?</p></div></div>
+      <div class="gap"><span class="num">4</span><div><b>Discard-all undo</b><p>Extend bounded direct-action undo to destructive zero-XP Bank actions?</p></div></div>
+    </article>
+  </section>
+  <div class="footer"><b>Clean handoff:</b> no confirmed defect remains queued; no merge, push, deployment, dependency install, credential change, or unsafe worktree operation occurred.</div>
+</main></body></html>

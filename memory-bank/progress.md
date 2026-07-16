@@ -333,3 +333,16 @@ Test counts are snapshots; current runs outrank this note.
 - Committed as `91f0b35`; 252 focused core tests and the combat-filtered real
   offscreen Qt surface pass. Test quality remains at zero hard issues;
   compilation, diff, and worktree safety pass. Full closure remains pending.
+
+## Overnight fresh-eyes audit closure (2026-07-16)
+
+- Completed 18 bounded passes and 36 attributable commits on the dedicated
+  safe branch without merging or pushing.
+- Final core: 1,314 passing in 39.163 seconds, 193 environment skips, three
+  expected XP-parity failures.
+- Final real offscreen Qt: 1,314 passing in 543.509 seconds, no skips, the same
+  three expected failures.
+- Test quality: zero hard issues across 66 files. Reachability: 1,200 actions,
+  273 known orphans. Compilation, diff, and worktree safety checks pass.
+- No confirmed defect remains queued; four creative-direction questions are
+  ranked in `memory-bank/design-gaps-overnight-2026-07-16.md`.

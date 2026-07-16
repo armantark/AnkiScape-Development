@@ -418,3 +418,14 @@ current UI contract deliberately uses automatic safe-boundary refill.
 Verification passes 252 focused core tests and the combat-filtered real
 offscreen Qt surface. Test quality has zero hard issues; compilation, diff, and
 safe-worktree checks pass. Full closure verification remains pending.
+
+## Overnight fresh-eyes audit closed (2026-07-16)
+
+The dedicated branch completed 18 bounded maker/checker passes and 36
+attributable commits without touching main or another worktree. Final closure
+passes all 1,314 core tests and all 1,314 real offscreen Qt tests; the only
+non-green cases are the same three declared XP-parity expected failures. Test
+quality has zero hard issues, reachability remains 1,200 actions / 273 known
+orphans, and compilation, diff, and worktree safety checks pass. There are no
+queued confirmed defects. Four owner-direction questions remain ranked in
+`memory-bank/design-gaps-overnight-2026-07-16.md`.

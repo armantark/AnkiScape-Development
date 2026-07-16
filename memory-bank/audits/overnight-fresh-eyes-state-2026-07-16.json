@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "status": "active",
+  "status": "complete",
   "baseline_head": "74af8cf9806a4988ccae9cba202ca1be77e917c3",
   "deadline": "2026-07-16T09:00:00-07:00",
   "iteration": 18,
@@ -17,5 +17,16 @@
   "last_scope": "remaining non-review management actions and their transaction, refresh, and achievement boundaries",
   "last_accepted_commit": "91f0b35",
   "pending_concrete_defects": [],
-  "safety_failure": null
+  "safety_failure": null,
+  "closure": {
+    "completed_at": "2026-07-16T08:44:00-07:00",
+    "core_tests": 1314,
+    "core_skips": 193,
+    "expected_failures": 3,
+    "qt_tests": 1314,
+    "test_quality_hard_issues": 0,
+    "reachability_actions": 1200,
+    "reachability_orphans": 273,
+    "head": "1fa8770"
+  }
 }
