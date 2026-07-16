@@ -200,11 +200,22 @@ def get_newly_completed_achievements(player_data, ACHIEVEMENTS):
     """
     Returns a list of achievement names that are newly completed (not yet in player_data["completed_achievements"])
     """
-    completed = set(player_data.get("completed_achievements", []))
+    completed_names = list(player_data.get("completed_achievements", []))
+    completed = set(completed_names)
     newly_completed = []
-    for name, data in ACHIEVEMENTS.items():
-        if name not in completed and data["condition"](player_data):
-            newly_completed.append(name)
+    projected_data = dict(player_data)
+    while True:
+        added = False
+        projected_data["completed_achievements"] = completed_names + newly_completed
+        for name, data in ACHIEVEMENTS.items():
+            if name in completed or name in newly_completed:
+                continue
+            if data["condition"](projected_data):
+                newly_completed.append(name)
+                projected_data["completed_achievements"] = completed_names + newly_completed
+                added = True
+        if not added:
+            break
     return newly_completed
 
 def calculate_probability_with_level(player_level, base_probability, level_bonus_factor, source_probability, cap=0.95):
