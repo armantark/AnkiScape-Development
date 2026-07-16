@@ -2,15 +2,24 @@
 
 ## Current Focus
 
-The overnight fresh-eyes audit on `codex/overnight-fresh-eyes-2026-07-16`
-has completed seven attributable passes. Pass 7 corrected Anki's production
-bridge-filter contract, serialized deferred menu opens, replaced duplicate
-profile menus, released closed modal widget trees, and removed the unsupported
-`DeckBrowserContent.links` path plus its fabricated tests. Commit `09aacc2`
-passes 91 focused tests, an 86-test real-Qt lifecycle/integration rerun, and the
-1,273-test full suite with zero hard test-quality issues. The worktree guard
-remains clean. The next pass targets registries, assets, reachability, and
-remaining test-oracle integrity seams.
+Achievement semantics are the active implementation on
+`codex/achievement-semantics`. The branch includes the completed 18-pass
+overnight baseline and repairs all 70 action-worded achievements that were
+reading disposable Bank balances. Config v37 adds owner-scoped cumulative
+action/output progress, while explicit Hold/Own predicates remain live. Potion
+holding thresholds are dose invariant, Runecrafting tiaras are excluded from
+rune totals, and cross-skill production follows the explicit action surface.
+The governing record is `achievement-semantics-contract-2026-07-16.md`; the
+closure report is
+`status-updates/achievement-semantics-results-2026-07-16.html`. All 1,323 core
+tests pass with 193 environment skips and three expected failures, and all
+1,323 pass under the real offscreen Qt runtime with only the same expected
+failures. Test quality has zero hard issues; compilation, diff, reachability,
+and worktree-safety gates pass.
+
+The broader achievement-diary gear reward model remains deliberately open.
+This repair supplies stable history for that future grill without choosing a
+reward cadence, item order, upgrade flow, or retroactive grant policy.
 
 Agility's owner grill, source harvest, and atomic implementation are closed. The
 governing product contract is
@@ -81,8 +90,8 @@ The dated `completion-audit-2026-07-10.*` files remain historical snapshots; liv
 - Farming is shipped (`9a88c56`), not the next build.
 - The 194-row quest catalog remains coverage scaffolding rather than full quest parity.
 - NPC Shops are live; the fake GE remains parked until the item/acquisition universe is representative.
-- The current reachability audit reports 1,106 actions, 727 consumed items, and
-  278 orphan inputs (115 root, 163 cascade). Bob Barter's quantity-free decant
+- The current reachability audit reports 1,200 actions and 273 orphan inputs
+  (110 root, 163 cascade). Bob Barter's quantity-free decant
   routes turn the former four-dose potion roots into known-producer cascades;
   their remaining availability follows upstream herb and secondary acquisition.
   These are acquisition-program signals rather than Agility closure failures.

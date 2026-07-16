@@ -346,3 +346,27 @@ Test counts are snapshots; current runs outrank this note.
   273 known orphans. Compilation, diff, and worktree safety checks pass.
 - No confirmed defect remains queued; four creative-direction questions are
   ranked in `memory-bank/design-gaps-overnight-2026-07-16.md`.
+
+## Achievement semantics foundation (2026-07-16)
+
+- Classified all 168 achievements and replaced 70 action-worded Bank snapshot
+  predicates with durable action-owner production progress.
+- Added config v37 migration from the maximum of available telemetry history and
+  current relevant holdings while preserving completed achievement names.
+- Kept true Hold/Own achievements live, made finished-potion holdings invariant
+  across vial doses, mixes, flasks, and Bob Barter decanting, and excluded
+  Runecrafting tiaras from rune production totals.
+- Defined cross-skill ownership at the action surface: Magic Superheat does not
+  count as Smithing production, Construction tablets remain Construction-owned,
+  and Inferno-adze logs remain Woodcutting-owned.
+- Added focused unit, migration, runtime, integration, end-to-end, and undo
+  regressions. All 1,323 core tests pass with 193 environment skips and three
+  documented expected failures; all 1,323 tests also pass under the real
+  offscreen Qt runtime with the same three expected failures and no skips.
+- Test quality reports zero hard issues across 66 files. The 1,200-action
+  reachability baseline remains unchanged at 273 known orphans (110 root, 163
+  cascade); compilation, diff, and worktree-safety checks pass.
+- Published the self-contained closure report at
+  `memory-bank/status-updates/achievement-semantics-results-2026-07-16.html`.
+  Diary-gear cadence and acquisition remain a separate owner grill rather than
+  an implicit part of this semantics repair.

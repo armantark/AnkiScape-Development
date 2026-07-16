@@ -386,7 +386,6 @@ class TestStoragePure(unittest.TestCase):
 
         mining = migrated["achievement_progress"]["skills"]["mining"]
         firemaking = migrated["achievement_progress"]["skills"]["firemaking"]
-        self.assertEqual(mining["successes"], 5)
         self.assertEqual(mining["actions"], {"iron_rock": 5})
         self.assertEqual(mining["outputs"]["Iron ore"], 7)
         self.assertEqual(firemaking["outputs"]["Ashes"], 10)

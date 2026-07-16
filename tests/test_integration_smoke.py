@@ -2390,7 +2390,11 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         calls = {"save": 0, "xp": []}
         addon.level_up_check = lambda _skill, _data: None
-        addon.check_achievements = lambda _data: None
+        achievements = sys.modules[f"{addon.__name__}.constants"].ACHIEVEMENTS
+        def complete_first_fire(data):
+            if achievements["First Fire"]["condition"](data):
+                data["completed_achievements"].append("First Fire")
+        addon.check_achievements = complete_first_fire
         addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
         addon.update_review_hud = lambda _data, _skill: None
         addon._show_exp = lambda exp: calls["xp"].append(exp)
@@ -2422,6 +2426,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             addon.player_data["achievement_progress"]["skills"]["firemaking"]["outputs"],
             {"Ashes": 1},
         )
+        self.assertIn("First Fire", addon.player_data["completed_achievements"])
         self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
 
         changes = types.SimpleNamespace(
@@ -2433,6 +2438,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["inventory"], {"Logs": 1})
         self.assertEqual(addon.player_data["firemaking_exp"], 0)
         self.assertNotIn("achievement_progress", addon.player_data)
+        self.assertEqual(addon.player_data["completed_achievements"], [])
         self.assertEqual(addon.player_data["current_firemaking"], "logs")
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
         self.assertEqual(calls["xp"], [40.0])

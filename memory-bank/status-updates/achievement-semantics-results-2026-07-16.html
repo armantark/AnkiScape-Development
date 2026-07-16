@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Achievement Semantics — Results</title>
+  <style>
+    :root { color-scheme: dark; --bg:#090d12; --panel:#111821; --panel2:#17212c; --text:#ecf4f1; --muted:#9aaba8; --green:#38d878; --mint:#7ef1b1; --gold:#f0bd59; --red:#ff6b75; --line:#263441; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:radial-gradient(circle at 10% 0%,#132b24 0,transparent 32%),var(--bg); color:var(--text); font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif; line-height:1.5; }
+    main { width:min(1120px,calc(100% - 32px)); margin:0 auto; padding:64px 0 80px; }
+    .eyebrow { color:var(--mint); text-transform:uppercase; letter-spacing:.14em; font-size:12px; font-weight:800; }
+    h1 { max-width:830px; margin:12px 0 16px; font-size:clamp(38px,7vw,72px); line-height:.98; letter-spacing:-.045em; }
+    h2 { margin:0 0 18px; font-size:26px; letter-spacing:-.02em; }
+    p { margin:0; }
+    .lede { max-width:780px; color:#bfd0cc; font-size:19px; }
+    .status { display:inline-flex; align-items:center; gap:9px; margin-top:26px; padding:9px 13px; border:1px solid #2c7049; border-radius:999px; background:#103520; color:#a8f7c4; font-weight:750; font-size:14px; }
+    .dot { width:9px; height:9px; border-radius:50%; background:var(--green); box-shadow:0 0 16px var(--green); }
+    .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:42px 0 52px; }
+    .metric,.card { border:1px solid var(--line); background:linear-gradient(145deg,rgba(24,34,45,.95),rgba(14,21,29,.96)); border-radius:18px; }
+    .metric { padding:22px; min-height:132px; }
+    .metric strong { display:block; color:var(--mint); font-size:36px; letter-spacing:-.04em; }
+    .metric span { color:var(--muted); font-size:13px; }
+    .section { margin-top:18px; padding:28px; }
+    .split { display:grid; grid-template-columns:1fr 64px 1fr; gap:18px; align-items:stretch; }
+    .before,.after { padding:22px; border-radius:14px; background:#0d141c; border:1px solid var(--line); }
+    .before { border-color:#5a3037; }
+    .after { border-color:#24613d; }
+    .label { display:block; margin-bottom:12px; color:var(--red); text-transform:uppercase; letter-spacing:.12em; font-size:11px; font-weight:850; }
+    .after .label { color:var(--mint); }
+    .arrow { display:grid; place-items:center; color:var(--green); font-size:28px; }
+    code { color:#ccf7dc; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.9em; }
+    .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:18px; margin-top:18px; }
+    ul { margin:12px 0 0; padding-left:20px; color:#c0cfcd; }
+    li+li { margin-top:8px; }
+    .proof { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:18px; }
+    .proof div { padding:18px; border-radius:14px; background:#0c131a; border:1px solid var(--line); }
+    .proof strong { display:block; color:var(--gold); font-size:20px; }
+    .proof span { color:var(--muted); font-size:13px; }
+    .boundary { border-color:#5d4b28; background:linear-gradient(135deg,#211d13,#151719); }
+    .boundary b { color:var(--gold); }
+    .checklist { display:grid; gap:10px; margin-top:14px; }
+    .check { display:flex; gap:12px; padding:14px 16px; border-radius:12px; background:#0d141b; color:#c6d4d1; }
+    .check::before { content:"□"; color:var(--mint); font-weight:900; }
+    footer { margin-top:34px; color:#6f827e; font-size:12px; }
+    @media (max-width:760px) { main{padding-top:36px}.metrics,.grid,.proof{grid-template-columns:1fr 1fr}.split{grid-template-columns:1fr}.arrow{transform:rotate(90deg)} }
+    @media (max-width:520px) { .metrics,.grid,.proof{grid-template-columns:1fr}.section{padding:20px} }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">Achievement semantics · closure report · 2026-07-16</div>
+  <h1>Progress now means what the achievement says.</h1>
+  <p class="lede">Production achievements remember what the player has done. Holdings still inspect what the player owns. Decanting, spending, selling, and cross-skill XP can no longer rewrite history.</p>
+  <div class="status"><span class="dot"></span> Implementation complete on codex/achievement-semantics</div>
+
+  <section class="metrics">
+    <div class="metric"><strong>168</strong><span>catalog entries classified</span></div>
+    <div class="metric"><strong>70</strong><span>action predicates repaired</span></div>
+    <div class="metric"><strong>v37</strong><span>one-time save migration</span></div>
+    <div class="metric"><strong>1</strong><span>central runtime writer</span></div>
+  </section>
+
+  <section class="card section">
+    <h2>The semantic repair</h2>
+    <div class="split">
+      <div class="before"><span class="label">Before · disposable snapshot</span><p>“Mine 1,000 coal” read the current Bank quantity. Spending coal could erase progress before completion.</p></div>
+      <div class="arrow">→</div>
+      <div class="after"><span class="label">After · durable history</span><p>Successful Mining actions add actual coal output to <code>achievement_progress</code>. Using the coal changes inventory, never history.</p></div>
+    </div>
+  </section>
+
+  <div class="grid">
+    <section class="card section">
+      <h2>Ownership is explicit</h2>
+      <ul>
+        <li>Superheat output is Magic-owned, not Smithing production.</li>
+        <li>Construction tablets remain Construction-owned despite Magic XP.</li>
+        <li>Inferno-adze cuts remain Woodcutting-owned despite Firemaking XP.</li>
+        <li>Fishing double catches and Mining bonus ores count actual output.</li>
+      </ul>
+    </section>
+    <section class="card section">
+      <h2>Potions conserve meaning</h2>
+      <ul>
+        <li>Hold thresholds measure total finished doses.</li>
+        <li>Vials, mixes, and six-dose flasks use their real dose count.</li>
+        <li>Bob Barter can rearrange liquid without changing eligibility.</li>
+        <li>First Potion includes every finished Herblore product.</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="card section">
+    <h2>Verification</h2>
+    <div class="proof">
+      <div><strong>1,323 core</strong><span>passed; 193 skips and 3 documented expected failures</span></div>
+      <div><strong>0 hard issues</strong><span>test-quality audit across 66 files</span></div>
+      <div><strong>1,200 routes</strong><span>reachability baseline unchanged; 273 known orphans</span></div>
+      <div><strong>Atomic undo</strong><span>inventory, progress, and newly completed names restore together</span></div>
+      <div><strong>1,323 Qt</strong><span>passed in 556.955s with the same 3 expected failures and no skips</span></div>
+      <div><strong>Clean safety gates</strong><span>compile, diff, and worktree layout checks pass</span></div>
+    </div>
+  </section>
+
+  <section class="card section boundary">
+    <h2>Diary gear: foundation ready, reward model open</h2>
+    <p><b>This patch does not hand out diary gear.</b> It removes the unstable foundation that would have made any reward system unfair. The later design grill still needs to settle a fixed progression track, player choice versus deterministic unlocks, tier upgrades, retroactive grants, and the exact item roster. It should consume sticky milestone history, never a live percentage whose denominator can move.</p>
+  </section>
+
+  <section class="card section">
+    <h2>Manual smoke checks</h2>
+    <div class="checklist">
+      <div class="check">Spend a produced item, then confirm its cumulative achievement progress remains.</div>
+      <div class="check">Decant the same potion liquid between 2-, 3-, and 4-dose vials; Hold eligibility must not move.</div>
+      <div class="check">Earn and redeem Brimhaven tickets; Arena Ticket stays complete while Arena Regular tracks current holdings.</div>
+      <div class="check">Cross a threshold on an Anki review, undo it, and confirm output, ledger progress, and completion all roll back.</div>
+    </div>
+  </section>
+  <footer>Branch: codex/achievement-semantics · Safe worktree: achievement-semantics-2026-07-16 · No merge or push performed.</footer>
+</main>
+</body>
+</html>

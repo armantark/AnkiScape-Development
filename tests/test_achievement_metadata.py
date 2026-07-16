@@ -173,7 +173,19 @@ class AchievementMetadataTest(unittest.TestCase):
         )
 
         self.assertFalse(ACHIEVEMENTS["Novice Smith"]["condition"](player_data))
-        self.assertEqual(player_data["achievement_progress"]["skills"]["construction"]["successes"], 1)
+        self.assertEqual(
+            player_data["achievement_progress"]["skills"]["construction"]["actions"],
+            {"make_tablet": 1},
+        )
+
+    def test_rune_stockpile_excludes_tiara_outputs(self):
+        player_data = {
+            "achievement_progress": {
+                "skills": {"runecrafting": {"outputs": {"Air tiara": 1_000}}}
+            }
+        }
+
+        self.assertFalse(ACHIEVEMENTS["Rune Stockpile"]["condition"](player_data))
 
     def test_farming_achievements_use_durable_backend_counters(self):
         player_data = {

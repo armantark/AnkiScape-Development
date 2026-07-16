@@ -21,7 +21,7 @@ try:
         GEM_DATA,
         HERBLORE_FINISHED_OUTPUT_ITEMS,
         MINING_OUTPUT_ITEMS,
-        RUNECRAFTING_OUTPUT_ITEMS,
+        RUNECRAFTING_RUNE_OUTPUT_ITEMS,
         WOODCUTTING_LOG_ITEMS,
     )
     from .quest_data import DEFAULT_QUEST_TARGET, default_claim_states, default_quest_states
@@ -82,7 +82,7 @@ except ImportError:
         GEM_DATA,
         HERBLORE_FINISHED_OUTPUT_ITEMS,
         MINING_OUTPUT_ITEMS,
-        RUNECRAFTING_OUTPUT_ITEMS,
+        RUNECRAFTING_RUNE_OUTPUT_ITEMS,
         WOODCUTTING_LOG_ITEMS,
     )
     from quest_data import DEFAULT_QUEST_TARGET, default_claim_states, default_quest_states
@@ -242,7 +242,7 @@ def _achievement_seed_items() -> Dict[str, set[str]]:
     return {
         "mining": set(MINING_OUTPUT_ITEMS) | set(GEM_DATA),
         "woodcutting": set(WOODCUTTING_LOG_ITEMS),
-        "runecrafting": set(RUNECRAFTING_OUTPUT_ITEMS),
+        "runecrafting": set(RUNECRAFTING_RUNE_OUTPUT_ITEMS),
         "smithing": set(BAR_DATA),
         "crafting": {"Empty pot", "Gold ring", "Sapphire", "Emerald", "Ruby", "Diamond"},
         "firemaking": {"Ashes"},
@@ -263,9 +263,8 @@ def _migrate_achievement_progress(data: Dict[str, Any]) -> None:
         action_id = str(telemetry_record.get("action_id", ""))
         if not skill_id or not action_id:
             continue
-        record = skills.setdefault(skill_id, {"successes": 0, "actions": {}, "outputs": {}})
+        record = skills.setdefault(skill_id, {"actions": {}, "outputs": {}})
         successes = max(0, int(telemetry_record.get("successes", 0) or 0))
-        record["successes"] += successes
         record["actions"][action_id] = record["actions"].get(action_id, 0) + successes
         for item_name, amount in (telemetry_record.get("outputs", {}) or {}).items():
             amount = max(0, int(amount or 0))
@@ -282,7 +281,7 @@ def _migrate_achievement_progress(data: Dict[str, Any]) -> None:
                 if held:
                     record = skills.setdefault(
                         skill_id,
-                        {"successes": 0, "actions": {}, "outputs": {}},
+                        {"actions": {}, "outputs": {}},
                     )
                     record["outputs"][item_name] = max(record["outputs"].get(item_name, 0), held)
     data["achievement_progress"] = sanitize_achievement_progress_pure(progress)

@@ -245,6 +245,16 @@ def runecrafting_output_items() -> Tuple[str, ...]:
     return tuple(dict.fromkeys(items))
 
 
+def runecrafting_rune_output_items() -> Tuple[str, ...]:
+    """Rune products only; tiaras remain outputs but are not crafted runes."""
+    return tuple(
+        dict.fromkeys(
+            target.output_item
+            for target in STANDARD_RUNE_TARGETS + COMBINATION_RUNE_TARGETS
+        )
+    )
+
+
 def runecrafting_access_items() -> Tuple[str, ...]:
     items = []
     for altar in ALTARS:

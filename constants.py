@@ -104,6 +104,7 @@ try:
         runecrafting_access_items,
         runecrafting_extra_items_as_dict,
         runecrafting_output_items,
+        runecrafting_rune_output_items,
         runecrafting_pouches_as_dict,
         runecrafting_targets_as_dict,
     )
@@ -240,6 +241,7 @@ except ImportError:
         runecrafting_access_items,
         runecrafting_extra_items_as_dict,
         runecrafting_output_items,
+        runecrafting_rune_output_items,
         runecrafting_pouches_as_dict,
         runecrafting_targets_as_dict,
     )
@@ -650,6 +652,7 @@ COOKING_RAW_ITEMS = cooking_raw_items()
 RUNECRAFTING_DATA = runecrafting_targets_as_dict()
 RUNECRAFTING_POUCH_DATA = runecrafting_pouches_as_dict()
 RUNECRAFTING_OUTPUT_ITEMS = runecrafting_output_items()
+RUNECRAFTING_RUNE_OUTPUT_ITEMS = runecrafting_rune_output_items()
 RUNECRAFTING_ACCESS_ITEMS = runecrafting_access_items()
 HERBLORE_DATA = herblore_targets_as_dict()
 HERBLORE_OUTPUT_ITEMS = herblore_output_items()
@@ -1397,7 +1400,7 @@ ACHIEVEMENT_DEFINITIONS = build_achievement_definitions(
     MINING_OUTPUT_ITEMS,
     WOODCUTTING_LOG_ITEMS,
     GEM_DATA,
-    RUNECRAFTING_OUTPUT_ITEMS,
+    RUNECRAFTING_RUNE_OUTPUT_ITEMS,
     BAR_DATA,
     FISHING_OUTPUT_ITEMS,
     HERBLORE_FINISHED_OUTPUT_ITEMS,

@@ -442,7 +442,6 @@ def sanitize_achievement_progress_pure(progress):
         actions = raw_record.get("actions", {})
         outputs = raw_record.get("outputs", {})
         skills[skill_id] = {
-            "successes": _non_negative_int(raw_record.get("successes", 0), 0),
             "actions": {
                 str(action_id): _non_negative_int(amount, 0)
                 for action_id, amount in actions.items()
@@ -473,11 +472,10 @@ def record_achievement_progress_pure(
     player_data["achievement_progress"] = progress
     skills = progress.setdefault("skills", {})
     owner = str(skill_id)
-    record = skills.setdefault(owner, {"successes": 0, "actions": {}, "outputs": {}})
+    record = skills.setdefault(owner, {"actions": {}, "outputs": {}})
     if not bool(success):
         return record
 
-    record["successes"] = _non_negative_int(record.get("successes", 0), 0) + 1
     actions = dict(record.get("actions", {}) or {})
     action_key = str(action_id)
     actions[action_key] = _non_negative_int(actions.get(action_key, 0), 0) + 1
