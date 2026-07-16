@@ -232,7 +232,7 @@ Labels: `WAIT: DARKAN`, after each `DEEP GRILL`.
 
 ### In-product help and mechanics reference
 
-Labels: `PARKED`, `IMPLEMENT` after owner confirmation.
+Labels: `PARKED`; promote to `IMPLEMENT` when sequenced.
 
 - Build the single-source architecture proposed in
   `help-system-contract-2026-07-16.md`: an offline searchable Help Center backed

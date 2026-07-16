@@ -252,6 +252,19 @@ Effect classification follows semantics rather than whether the result is positi
 The harvested catalog must classify each effect explicitly. Implementation must not infer
 passivity from a familiar or scroll display name.
 
+### 10. Familiar combat exposure — open
+
+Period evidence already requires a healable familiar and a familiar-death path; those
+states are source-shaped rather than optional. The unresolved AnkiScape choice is how an
+attacking familiar becomes exposed to enemy damage inside the one-review Combat loop.
+
+Choose whether participation makes the familiar a real second damage target under a
+sourced or bounded fallback targeting rule, or whether ordinary enemy damage always
+stays on the player unless a specific sourced attack names the familiar. The mapping must
+also define how familiar death ends the summon, interacts with the ongoing encounter,
+and routes any BoB inventory into the already-settled five-source-minute cargo reclaim
+state.
+
 ## Source/open-work queue
 
 - Harvest the complete pouch, familiar, duration, point, scroll, special-move-point,

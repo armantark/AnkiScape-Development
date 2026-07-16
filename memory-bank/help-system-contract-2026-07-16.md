@@ -1,6 +1,6 @@
-# AnkiScape help-system contract (proposed 2026-07-16)
+# AnkiScape help-system contract (settled 2026-07-16)
 
-Status: **architecture proposed; implementation parked pending owner confirmation.**
+Status: **owner-settled architecture; implementation deliberately parked.**
 
 ## Problem
 
@@ -9,7 +9,7 @@ inventory, background clocks, combat, quests, skill-specific resources, expiry e
 and source-shaped exceptions. Tooltips cannot teach that system, but a separate external
 wiki would be unavailable offline and would inevitably drift from in-product explanations.
 
-## Recommendation: both surfaces, one corpus
+## Settled architecture: both surfaces, one corpus
 
 Ship an offline, searchable **Help Center** inside the add-on and contextual `?` entry
 points on every primary page. They render the same canonical content:
@@ -75,7 +75,8 @@ global search index.
 - External publication, if ever added, is a generated artifact and cannot become the
   canonical editing surface.
 
-## Open owner decision
+## Owner decision
 
-Confirm the combined model: in-product searchable Help Center plus contextual page-level
-entry points, both backed by one versioned content corpus.
+The combined model is settled: an in-product searchable Help Center and contextual
+page-level entry points share one versioned content corpus. Any future hosted manual is
+generated from that corpus rather than edited independently.

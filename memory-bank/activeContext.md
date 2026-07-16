@@ -35,8 +35,11 @@ may advance and resolve genuinely passive forage or healing, while attacks and
 commands still require their foreground/encounter conditions. Period evidence
 already rules out collapsing lifetime and Summoning points into one resource:
 points could reach zero without dismissing the familiar. Wall-clock gameplay
-remains forbidden. A separate proposed cross-product help architecture is recorded
-in `help-system-contract-2026-07-16.md` for owner confirmation.
+remains forbidden. The next open Summoning fork is how an attacking familiar's
+separate survivability participates in enemy damage without creating a second
+combat simulator. The cross-product help architecture is owner-settled in
+`help-system-contract-2026-07-16.md`: one offline searchable corpus feeds both the
+full Help Center and contextual page-level `?` entries.
 
 Agility's owner grill, source harvest, and atomic implementation are closed. The
 governing product contract is

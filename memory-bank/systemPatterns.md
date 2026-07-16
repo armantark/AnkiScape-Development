@@ -132,6 +132,11 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   Summoning auto-renew and auto-special may consume a deliberately packed matching
   pouch or scroll on a successful answer, but never pull from Bank stock. Catalog
   metadata, not display names, determines compatible roles and trigger conditions.
+- Player help has one canonical offline content corpus. The full searchable Help
+  Center and each page's contextual `?` entry render the same stable topic IDs;
+  optional external publication is generated, never separately authored. Complex
+  pages share one Qt search-field/controller contract while retaining page-specific
+  result adapters.
 - The answered-card clock is not a universal action-duration converter. It runs
   background/world/economy timers; ordinary skilling still performs one sourced
   action tick per successful review unless an activity explicitly defines a
