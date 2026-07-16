@@ -89,21 +89,30 @@ Evidence and confidence are recorded in
 
 ## Open decision ledger
 
-### 1. Familiar lifetime clock — open
+### 1. Familiar lifetime clock — settled 2026-07-16
 
-The period mechanic was global logged-in time, which cannot ship directly. The genuine
-product fork is which review-native event spends a familiar's sourced duration:
+**Every answered card** spends familiar lifetime, including Again. Again represents the
+player idling for one simulation interval while the world continues; it never performs
+the selected foreground action. This is the closest non-wall-clock analogue to global
+uptime, keeps long-duration familiars and renewal meaningful across target switches, and
+prevents duration freezing through an ineligible action.
 
-- every answered card while a familiar is active;
-- only successful AnkiScape gameplay actions while it is active; or
-- no gradual duration, with expiry only at a session/target boundary.
+The short-duration conversion preserves every familiar's sourced relative duration but
+does **not** automatically reuse the calendar/economy scale of six simulated minutes per
+card. That would reduce the shortest familiars to one card and make a 44-minute familiar
+last about eight. The cross-system event/magnitude contract is
+`simulation-time-boundary-2026-07-16.md`; exact short-duration calibration remains a
+labeled balance abstraction.
 
-Codex/Fable recommendation: **every answered card**, using one global
-minutes-to-review-ticks conversion that preserves all period duration ratios. This is
-the closest non-wall-clock analogue to global uptime, makes long-duration familiars and
-renewal meaningful across target switches, and prevents optimal play from freezing a
-familiar by selecting an ineligible action. The exact conversion magnitude remains a
-labeled abstraction to be calibrated after the owner selects the clock.
+Summoning-point drain follows the same answered-card lifetime while a familiar is out.
+It remains a separate resource: reaching zero disables point-gated abilities but does
+not dismiss the familiar.
+
+### 2. Again during an active Combat encounter — open cross-system dependency
+
+Choose whether Again is a decay-only idle tick, with no enemy attack and no positive
+in-encounter recovery, or whether an already-engaged enemy receives one bounded attack
+beat. Codex recommends decay-only; see `simulation-time-boundary-2026-07-16.md`.
 
 ## Source/open-work queue
 
@@ -116,4 +125,3 @@ labeled abstraction to be calibrated after the owner selects the clock.
   before asking the owner any question the repository already answers.
 - Continue the owner grill one genuine design fork at a time. Each answer closes this
   ledger before the next question is asked.
-

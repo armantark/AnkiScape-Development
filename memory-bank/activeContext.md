@@ -6,10 +6,13 @@ Summoning's complete owner grill is now active on `codex/summoning-grill`; no
 runtime implementation has started. The governing live ledger is
 `summoning-skill-contract-2026-07-16.md`, backed first by
 `source-audits/summoning-familiar-lifecycle-2026-07-16.md`. The first genuine
-fork is which review-native event spends a familiar's sourced per-row lifetime.
-Period evidence already rules out collapsing lifetime and Summoning points into
-one resource: points could reach zero without dismissing the familiar. Wall-clock
-gameplay remains forbidden.
+fork is closed: every answered card spends familiar lifetime, including Again.
+Again is now formally an idle/world tick with no foreground action; the broader
+contract and current-system audit are in `simulation-time-boundary-2026-07-16.md`.
+The next open fork is whether an active enemy attacks during that idle tick or
+only elapsed state decays. Period evidence already rules out collapsing lifetime
+and Summoning points into one resource: points could reach zero without
+dismissing the familiar. Wall-clock gameplay remains forbidden.
 
 Agility's owner grill, source harvest, and atomic implementation are closed. The
 governing product contract is

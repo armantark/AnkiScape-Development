@@ -157,9 +157,11 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   acquisition; separate lifetime, Summoning-point, and special-move resources;
   combat, healing, gathering, boosting, teleport, foraging, and beast-of-burden
   roles; death, inventory, banking, searchable UI, persistence, and undo.
-- First open fork: select the review-native familiar-lifetime clock. Pinned
-  period evidence is in
-  `source-audits/summoning-familiar-lifecycle-2026-07-16.md`.
+- Familiar lifetime is settled to every answered card, including Again, with a
+  separate short-duration conversion that preserves period ratios rather than
+  reusing the six-minute calendar scale. Pinned evidence is in
+  `source-audits/summoning-familiar-lifecycle-2026-07-16.md`; the cross-system
+  reconciliation is `simulation-time-boundary-2026-07-16.md`.
 
 ### Dungeoneering
 

@@ -99,6 +99,14 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   regardless of skill or reward success; undo rolls time back. Daily/weekly
   allowances reset at simulated boundaries without stacking, never from the
   computer's wall-clock date.
+- Answer-button semantics are now explicit: every valid answer emits one
+  idle/world tick, while only Hard, Good, and Easy (`ease > 1`) also emit a
+  foreground action. Again therefore means the player idled for one simulation
+  interval while the world continued. World and foreground mutation share the
+  same review snapshot and undo. See
+  `simulation-time-boundary-2026-07-16.md` for the consumer reconciliation and
+  the distinction between calendar scale, short-duration scale, and action
+  budgets.
 - The answered-card clock is not a universal action-duration converter. It runs
   background/world/economy timers; ordinary skilling still performs one sourced
   action tick per successful review unless an activity explicitly defines a
