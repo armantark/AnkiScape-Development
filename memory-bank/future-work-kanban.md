@@ -178,6 +178,10 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   answers, consumes a matching target-carried scroll plus sourced special-move
   points, and uses catalog-backed role triggers that avoid inapplicable or wasted
   effects. Bank scrolls are never consumed implicitly.
+- Classify every familiar effect as passive periodic, continuous, or
+  foreground/encounter-dependent. Passive effects advance and may produce on every
+  answered card including Again; commands and attacks retain their successful-action
+  gates. The catalog must state the class rather than deriving it from names.
 
 ### Dungeoneering
 
@@ -225,6 +229,18 @@ Labels: `WAIT: DARKAN`, after each `DEEP GRILL`.
   state. Agility, Farming, Construction, Prayer, and Magic core loops are shipped.
 
 ## Cross-system program queue
+
+### In-product help and mechanics reference
+
+Labels: `PARKED`, `IMPLEMENT` after owner confirmation.
+
+- Build the single-source architecture proposed in
+  `help-system-contract-2026-07-16.md`: an offline searchable Help Center backed
+  by versioned topic files, with each page's consistent `?` control deep-linking
+  into the same corpus. Do not maintain separate contextual copy and wiki prose.
+- Reuse one modular Qt search component for Help and the addon pages whose large
+  catalogs already need filtering; preserve page-specific result adapters rather
+  than cloning search widgets and keyboard behavior.
 
 ### Activities, minigames, D&Ds, and reward shops
 

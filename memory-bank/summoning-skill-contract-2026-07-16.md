@@ -231,14 +231,26 @@ from the same live familiar state, but cannot bypass sourced target, cooldown, p
 item gates. Trigger classifications come from the harvested familiar/scroll catalog,
 not display-name heuristics.
 
-### 9. Passive familiar output on Again — open
+### 9. Passive familiar output on Again — settled 2026-07-16
 
-Choose whether unprompted periodic familiar effects such as foraging, passive healing,
-and combat assistance execute on every answered-card world tick, or only on successful
-foreground answers while Again burns familiar lifetime without producing a positive
-effect. Continuous conditions such as an invisible skill boost or light level are not
-part of this fork: they are checked whenever a later foreground action or gate needs
-them.
+Again means **no user foreground input**, not a world with no benefits. Genuinely passive,
+duration-cadenced familiar effects continue on every answered-card world tick, including
+Again. A forager may therefore produce an item and a passive healer may heal while the
+player is AFK; the same tick still spends familiar lifetime and applies ordinary world
+decay. Review undo restores the whole tick atomically.
+
+Effect classification follows semantics rather than whether the result is positive:
+
+- **Passive periodic effects** advance and may resolve on every answered-card world tick.
+- **Continuous conditions** such as invisible skill boosts or light remain present while
+  the familiar is active and are consulted whenever a later gate or action needs them.
+- **Foreground- or encounter-dependent effects** require the corresponding successful
+  action. Familiar attacks do not occur on Again because the settled encounter rule says
+  neither side attacks when the player clicks away; auto-renew, obelisk restore, and
+  auto-special also retain their successful-answer gates because they are commands.
+
+The harvested catalog must classify each effect explicitly. Implementation must not infer
+passivity from a familiar or scroll display name.
 
 ## Source/open-work queue
 

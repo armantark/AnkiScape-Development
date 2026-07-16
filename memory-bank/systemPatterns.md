@@ -107,6 +107,11 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `simulation-time-boundary-2026-07-16.md` for the consumer reconciliation and
   the distinction between calendar scale, short-duration scale, and action
   budgets.
+- AFK is absence of user foreground input, not suspension of passive world
+  benefits. A genuinely passive periodic effect may advance and resolve on an
+  Again world tick; a foreground-, command-, or encounter-dependent effect still
+  requires its own successful action. Producers must declare this classification
+  explicitly rather than treating every positive result as foreground work.
 - Urgent or expiring reviewer state uses the reusable interactive alert-strip
   contract in `review-hud-world-alerts-contract-2026-07-16.md`. It is a sibling
   above the mouse-transparent XP HUD, not a control embedded inside it and not a

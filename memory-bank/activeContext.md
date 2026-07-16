@@ -29,12 +29,14 @@ policy lacks the Summoning points it needs, the next successful answer becomes a
 abstracted obelisk-restoration action instead of the selected target action; Again
 never restores. Casual auto-special is settled on by default: it fires only on
 successful answers under source-role triggers and consumes only a deliberately
-carried matching scroll plus special-move points, never Bank stock. The next open
-Summoning fork is whether periodic passive familiar output can occur on Again or
-whether Again burns lifetime without earning forage, healing, or attacks. Period
-evidence already rules out collapsing lifetime and Summoning points into one
-resource: points could reach zero without dismissing the familiar. Wall-clock
-gameplay remains forbidden.
+carried matching scroll plus special-move points, never Bank stock. Passive familiar
+effects now follow the owner's AFK boundary: every answered card, including Again,
+may advance and resolve genuinely passive forage or healing, while attacks and
+commands still require their foreground/encounter conditions. Period evidence
+already rules out collapsing lifetime and Summoning points into one resource:
+points could reach zero without dismissing the familiar. Wall-clock gameplay
+remains forbidden. A separate proposed cross-product help architecture is recorded
+in `help-system-contract-2026-07-16.md` for owner confirmation.
 
 Agility's owner grill, source harvest, and atomic implementation are closed. The
 governing product contract is
