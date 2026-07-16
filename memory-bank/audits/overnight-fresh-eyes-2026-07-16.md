@@ -55,6 +55,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 | 12 | Consumable producer/consumer identity and state symmetry across Herblore, Cooking, Farming, shops, connected Combat consumption, registry/assets, persistence, and undo | Opus | 8 | 8 | `f794108` | 19 focused; 5 real offscreen Qt; 1,302 full; reachability 1,200 actions/273 orphans; zero hard test-quality issues; compilation, diff, and worktree checks |
 | 13 | Save-schema lifecycle, defaults, migration, profile reload, persisted writer/reader symmetry, and direct-action undo | Opus | 5 | 1 | `1fb0b64` | 271 focused; 2 real offscreen Qt; 1,303 full; reachability unchanged at 1,200 actions/273 orphans; zero hard test-quality issues; compilation, diff, and worktree checks |
 | 14 | Achievement predicates, production writers, dependency ordering, and exact boundary semantics | Opus | 1 | 1 | `b59c846` | 251 focused; 1 real offscreen Qt; 1,304 full; zero hard test-quality issues; compilation, diff, and worktree checks |
+| 15 | Test-oracle integrity against production Shop persistence and Farming UI reachability | Opus | 6 | 2 | `1120fb4` | 242 focused; 183 real offscreen Qt; 1,305 full; zero hard test-quality issues; compilation, diff, and worktree checks |
 
 ## Accepted fixes
 
@@ -106,6 +107,8 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Shop resale now honors registry `tradeable=False`; Agility potion and mix dose families have canonical IDs and tradeability; Kebab and Half summer pie are food rather than Herblore products; and Summer pie uses the Bank's `Eat` verb.
 - Combat presets now contain configuration only. The finite `combat_supply_loadout` is neither snapshotted into new presets nor restored from legacy preset payloads, so target pins cannot mint consumed food, ammunition, runes, or potions or delete a freshly refilled pack on the next review.
 - Achievement dispatch now evaluates newly satisfied predicates to a fixed point. Living Legend unlocks atomically with the final ordinary achievement instead of requiring an unrelated later action to trigger a second check.
+- Shop purchases, sales, services, Bob Barter decanting, stock/history changes, currency, and Wilderness consequences now call the canonical player-data save boundary immediately instead of surviving only in memory until an unrelated later save.
+- The Farming sheet now exposes the already-implemented Juju farming potion action, chooses the fullest owned dose first, shows the active review-native harvest bonus state, and preserves the next dose through the existing pure action boundary.
 
 ## Rejected candidates
 
@@ -132,10 +135,12 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Rune Essence Baron remains reachable through live combat drops after level 30 changes Mining output to Pure essence. Its description-to-route mismatch belongs with the catalog-wide held-item achievement semantics review, not a one-off counter rewrite.
 - Jack of All Ores and Flawless Footing have difficulty labels below their required skill levels, but the existing achievement design explicitly defers a full difficulty rebalance. No isolated relabel was made without that catalog-wide decision.
 - Living Legend's legacy list-length condition was not hardened against fabricated stale or duplicate names because no live writer or shipped migration produces them. The reproduced same-dispatch dependency failure was fixed independently.
+- The HUD cleanup and global-bridge pending-latch branches identified by the pass-15 reviewer remain unreachable under the current production ownership contracts; no speculative cleanup was added without a failing path.
+- The reachability test's broad action-count floor and partial generated-snapshot oracles were not tightened just to mirror today's exact counts. Existing semantic checks still catch current drift, and pinning incidental totals would add brittle test volume without protecting a reproduced behavior.
 
 ## Queued confirmed defects
 
-None. The next pass rotates to test-oracle integrity and production-path blind spots rather than carrying an unverified candidate forward.
+None. The next pass rotates away from Shop/Farming persistence and test-oracle coverage rather than carrying an unverified candidate forward.
 
 ## Reviewer budget and availability
 
@@ -152,6 +157,7 @@ None. The next pass rotates to test-oracle integrity and production-path blind s
 - Pass 12 used one successful read-only Opus workflow (`3f35b73d-08d0-41bc-91a9-213f0e3afde0`). The required pre/post live checks both reported Fable at 30%; all-model weekly usage rose from 17% to 18%. Six reviewer candidates were independently reproduced, and Codex found the missing supply-pack runtime plus the stronger cache-and-emulator resolution of the Magic essence mix identity conflict.
 - Pass 13 used one successful read-only Opus workflow (`3007fcda-2065-4cb2-b806-cca2a0e98ce0`). The required pre/post live checks both reported Fable at 30% and all-model weekly usage at 18%; current-session usage rose from 17% to 20%. The reviewer supplied one material finite-supply exploit and four explicit non-failing asymmetries; Codex reproduced and fixed only the exploit.
 - Pass 14 used one successful read-only Opus workflow (`62af823b-8024-4fda-b0bf-c9bf946c9161`). The required pre/post live checks both reported Fable at 30%; all-model weekly usage rose from 18% to 19% and current-session usage from 20% to 25%. The reviewer found no material writer mismatch, while Codex independently reproduced and fixed the same-dispatch Living Legend dependency defect that the predicate-only tests missed.
+- Pass 15 used one successful read-only Opus workflow (`4f00a73a-0ac0-4bfd-bd81-c6f6a2788b85`). The required pre/post live checks both reported Fable at 30% and all-model weekly usage at 19%; current-session usage rose from 25% to 28%. The reviewer exposed the missing Juju Farming control but underrated it against the recorded acceptance claim; Codex reproduced that UI omission and independently found the stronger unsaved Shop mutation path.
 
 ## Closure
 

@@ -367,3 +367,17 @@ Verification passes 251 focused pure/integration tests, one real offscreen Qt
 achievement-surface check, and all 1,304 tests with 186 skips and three
 expected XP-parity failures. Test quality has zero hard issues; compilation,
 diff, and safe-worktree checks pass.
+
+## Overnight fresh-eyes pass 15 (2026-07-16)
+
+Commit `1120fb4` closes two production paths that green lower-level tests did
+not exercise. Every Shop purchase, sale, service, vendor action, Bob Barter
+decant, and Wilderness consequence now persists through `save_player_data`
+immediately. The Farming sheet also exposes the accepted Juju farming potion
+action, uses the fullest owned dose first, and displays its review-native active
+state instead of leaving the backend-only action unreachable.
+
+Verification passes 242 focused Farming/Shop/runtime/integration tests, all 183
+real offscreen Qt tests, and all 1,305 core tests with 187 skips and three
+expected XP-parity failures. Test quality has zero hard issues; compilation,
+diff, and safe-worktree checks pass.

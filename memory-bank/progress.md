@@ -284,3 +284,15 @@ Test counts are snapshots; current runs outrank this note.
 - Committed as `b59c846`; 251 focused tests, one real offscreen Qt check, and
   all 1,304 tests pass with 186 skips and three expected failures. Test quality
   remains at zero hard issues; compilation, diff, and worktree safety pass.
+
+## Overnight fresh-eyes pass 15 — production persistence and UI reachability (2026-07-16)
+
+- Routed Shop, service, vendor, Bob Barter, and Wilderness transaction state to
+  the canonical player-data save callback instead of the current-skill config
+  callback, which never wrote the mutated player state.
+- Added a Farming-sheet Juju potion control backed by the existing pure action
+  and projection, including dose preservation and active-bonus legibility.
+- Committed as `1120fb4`; 242 focused tests, all 183 real offscreen Qt tests,
+  and all 1,305 core tests pass with 187 skips and three expected failures.
+  Test quality remains at zero hard issues; compilation, diff, and worktree
+  safety pass.
