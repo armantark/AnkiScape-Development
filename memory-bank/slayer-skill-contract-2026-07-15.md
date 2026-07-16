@@ -617,3 +617,27 @@ scanning.
 This is nesting inside one list surface, not a nested window, menu, or second
 fight interface. Combat remains the sole encounter surface and the Slayer page's
 `Open in Combat` behavior remains unchanged.
+
+## Owner decision 21 — protective equipment preserves source consequences
+
+Missing Slayer protective equipment does not become an invented encounter gate.
+Where the cutoff game allowed combat without the relevant earmuffs, facemask,
+nose peg, mirror shield, witchwood icon, or equivalent protection, AnkiScape
+allows it and applies the exact sourced unprotected damage, stat drain, accuracy,
+or other fight consequence. A hard block is valid only when pinned period
+evidence says the player literally could not enter, attack, or continue.
+
+The Assignment and Combat surfaces warn clearly when the exact selected variant
+is missing its relevant protection, but the warning does not equip an item,
+change the target, or suppress a legal dangerous encounter. The effect belongs
+to Combat's ordinary per-attack/encounter state and commits atomically with the
+review that caused it; Combat undo restores the equipment-sensitive consequence
+with the rest of that review.
+
+Implementation requires a per-family protective-equipment source audit. Each
+row must pin the required equipped item, the unprotected trigger and consequence,
+any literal access gate, and the exact interaction with death, retreat, immunity,
+and undo. If an exact hidden rate or magnitude remains `source_blocked` after the
+required final search, preserve the attested mechanic with the smallest labeled
+abstraction permitted by the verification standard rather than converting it
+into a blanket lock or harmless warning.

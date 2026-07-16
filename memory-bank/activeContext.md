@@ -84,7 +84,12 @@ temporary XP, weight, or task-size compensation is added for limited variant
 breadth.
 When live breadth warrants it, Combat may group exact selectable variants beneath
 a non-selectable expandable family row inside the existing picker. This creates
-no nested window or second fight surface.
+no nested window or second fight surface. Slayer protective equipment preserves
+the cutoff game's actual unprotected Combat consequences; missing gear produces
+a warning, not an invented hard gate. Only a literal sourced access or attack
+restriction blocks the encounter. Exact per-family triggers, magnitudes,
+immunities, and death/retreat behavior remain source-harvest work rather than
+owner questions.
 
 Agility's owner grill and full-content design harvest are closed; implementation
 belongs in a new thread. The governing product contract is

@@ -192,6 +192,11 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT`.
   Combat picker; exact variants remain the only selectable targets. Inherently
   player-gated families certify only through their complete authentic gate chain,
   and every certifying variant must include its special kill/protection mechanics.
+- Preserve sourced unprotected-combat consequences for Slayer protective gear
+  and warn without blocking legal dangerous encounters. Hard-gate only literal
+  source access/attack restrictions, and pin every family item's trigger,
+  consequence, immunity, death/retreat behavior, and undo interaction in a
+  focused audit before implementation.
 - Before that unlock, the finisher consumes its own correct review. Exclude the
   salt, ice, fungicide, and explosive shakers released in 2015.
 
