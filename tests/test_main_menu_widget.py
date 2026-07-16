@@ -552,8 +552,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.dialog = self._open(_make_player_data(), current_skill="Mining")
 
     def _open(self, player_data: dict, current_skill: str = "Mining", **extra) -> "QDialog":
+        from construction_data import HOUSE_STYLE_DATA, ROOM_DATA, SERVANT_DATA
         from constants import PRAYER_DATA
-        from logic_pure import apply_prayer_selection_pure, sanitize_prayer_selection_pure
+        from logic_pure import (
+            apply_prayer_selection_pure,
+            purchase_house_option_pure,
+            purchase_house_pure,
+            sanitize_prayer_selection_pure,
+        )
 
         def _set_prayer_config(key, value):
             self._prayer_config_calls.append((key, value))
@@ -596,6 +602,38 @@ class MainMenuWidgetTest(unittest.TestCase):
             player_data["thieving_fight_back_when_caught"] = enabled
             return True
 
+        def _set_target(key, calls, target):
+            calls.append(target)
+            player_data[key] = target
+            return True
+
+        def _apply_house_result(result):
+            updated, ok = result
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return ok
+
+        def _agility_command(action_id, payload):
+            from agility_logic import apply_agility_command_pure
+
+            self._agility_command_calls.append((action_id, dict(payload)))
+            updated, result = apply_agility_command_pure(player_data, action_id, payload, roll=0.5)
+            if result.get("allowed"):
+                player_data.clear()
+                player_data.update(updated)
+            return {"ok": bool(result.get("allowed")), **result}
+
+        def _hire_servant(servant_id):
+            if not servant_id:
+                player_data["house_servant"] = ""
+                return True
+            return _apply_house_result(
+                purchase_house_option_pure(
+                    player_data, servant_id, SERVANT_DATA, kind="servant"
+                )
+            )
+
         self._ui.show_main_menu(
             **extra,
             player_data=player_data,
@@ -613,15 +651,23 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_hunter=lambda target: self._hunter_calls.append(target),
             on_set_cooking=lambda target: self._cooking_calls.append(target),
             on_set_runecrafting=lambda target: self._runecrafting_calls.append(target),
-            on_set_thieving=lambda target: self._thieving_calls.append(target),
+            on_set_thieving=lambda target: _set_target("current_thieving", self._thieving_calls, target),
             on_set_thieving_fight_back=_set_thieving_fight_back,
-            on_set_agility=lambda target: self._agility_calls.append(target),
-            on_agility_command=lambda action, payload: self._agility_command_calls.append((action, dict(payload))) or {"ok": True},
+            on_set_agility=lambda target: _set_target("current_agility", self._agility_calls, target),
+            on_agility_command=_agility_command,
             on_set_prayer_selection=_set_prayer_selection,
-            on_set_magic=lambda target: self._magic_calls.append(target),
-            on_set_construction=lambda target: self._construction_calls.append(target),
-            on_set_magic_alchemy_item=lambda item: self._magic_alch_calls.append(item),
-            on_set_farming_spell_patch=lambda patch: self._farming_spell_patch_calls.append(patch),
+            on_set_magic=lambda target: _set_target("current_magic", self._magic_calls, target),
+            on_set_construction=lambda target: _set_target("current_construction", self._construction_calls, target),
+            on_purchase_house=lambda: _apply_house_result(purchase_house_pure(player_data)),
+            on_purchase_room=lambda room_id: _apply_house_result(
+                purchase_house_option_pure(player_data, room_id, ROOM_DATA, kind="room")
+            ),
+            on_hire_servant=_hire_servant,
+            on_set_house_style=lambda style_id: _apply_house_result(
+                purchase_house_option_pure(player_data, style_id, HOUSE_STYLE_DATA, kind="style")
+            ),
+            on_set_magic_alchemy_item=lambda item: _set_target("magic_alchemy_item", self._magic_alch_calls, item),
+            on_set_farming_spell_patch=lambda patch: _set_target("farming_spell_patch", self._farming_spell_patch_calls, patch),
             on_set_utility=lambda activity: self._utility_calls.append(activity),
             on_set_combat=lambda target: self._combat_calls.append(target),
             on_set_combat_style=lambda style: self._combat_style_calls.append(style),
@@ -5018,6 +5064,24 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._magic_calls, before)
 
+    def test_magic_alchemy_picker_refreshes_target_readiness(self) -> None:
+        pd = _make_player_data()
+        pd.update({
+            "magic_level": 99,
+            "inventory": {"Rune platebody": 1, "Fire rune": 3, "Nature rune": 1},
+            "magic_alchemy_item": "",
+        })
+        dialog = self._open(pd, current_skill="Magic")
+        tree = dialog.findChild(QTreeWidget, "magicTargetTree")
+        self.assertTrue(_tree_row(tree, "low_alchemy").isDisabled())
+
+        picker = dialog.findChild(QComboBox, "magicAlchemyItemCombo")
+        picker.setCurrentIndex(picker.findData("Rune platebody"))
+        QApplication.processEvents()
+
+        tree = dialog.findChild(QTreeWidget, "magicTargetTree")
+        self.assertFalse(_tree_row(tree, "low_alchemy").isDisabled())
+
     def test_construction_house_sheet_and_locked_click_guard(self) -> None:
         pd = _make_player_data()
         pd.update({
@@ -5037,6 +5101,107 @@ class MainMenuWidgetTest(unittest.TestCase):
         tree.itemClicked.emit(locked, 0)
         QApplication.processEvents()
         self.assertEqual(self._construction_calls, before)
+
+    def test_construction_house_purchase_refreshes_the_sheet(self) -> None:
+        pd = _make_player_data()
+        pd.update({
+            "construction_level": 99,
+            "house_owned": False,
+            "house_rooms_bought": {},
+            "inventory": {"Coins": 1_000},
+        })
+        dialog = self._open(pd, current_skill="Construction")
+        dialog.findChild(QPushButton, "constructionPurchaseHouseButton").click()
+        QApplication.processEvents()
+
+        self.assertTrue(pd["house_owned"])
+        self.assertIsNone(dialog.findChild(QPushButton, "constructionPurchaseHouseButton"))
+        self.assertIn("House · 2 rooms", dialog.findChild(QLabel, "constructionHouseSummary").text())
+
+    def test_agility_commands_report_failures_and_expose_every_ticket_bundle(self) -> None:
+        pd = _make_player_data()
+        pd["agility_level"] = 1
+        dialog = self._open(pd, current_skill="Agility")
+        labels = {button.text() for button in dialog.findChildren(QPushButton)}
+        for tickets in (1, 10, 25, 100, 1000):
+            self.assertIn(f"Redeem {tickets} ticket{'s' if tickets != 1 else ''}", labels)
+
+        dialog.findChild(QPushButton, "agilityCommand::purchase_agility_cape").click()
+        QApplication.processEvents()
+        status = dialog.findChild(QLabel, "agilityCommandStatus")
+        self.assertIsNotNone(status)
+        self.assertEqual(status.text(), "Requires level 99 Agility")
+
+    def test_switching_from_brimhaven_ends_the_paid_stint(self) -> None:
+        pd = _make_player_data()
+        pd.update({
+            "agility_level": 99,
+            "current_agility": "brimhaven_arena",
+            "agility_activity_state": {
+                "brimhaven": {"stint_active": True, "activated": True}
+            },
+        })
+        dialog = self._open(pd, current_skill="Agility")
+        tree = dialog.findChild(QTreeWidget, "agilityTargetTree")
+        tree.itemClicked.emit(_tree_row(tree, "burthorpe_course"), 0)
+        QApplication.processEvents()
+
+        self.assertEqual(pd["current_agility"], "burthorpe_course")
+        self.assertNotIn("brimhaven", pd.get("agility_activity_state", {}))
+        self.assertEqual(self._agility_command_calls[-1][0], "leave_activity")
+
+    def test_stopping_agility_ends_the_brimhaven_stint(self) -> None:
+        pd = _make_player_data()
+        pd.update({
+            "agility_level": 99,
+            "current_agility": "brimhaven_arena",
+            "agility_activity_state": {"brimhaven": {"stint_active": True}},
+        })
+        dialog = self._open(pd, current_skill="Agility")
+        next(
+            button for button in dialog.findChildren(QPushButton)
+            if button.text() == "Stop training"
+        ).click()
+        QApplication.processEvents()
+
+        self.assertNotIn("brimhaven", pd.get("agility_activity_state", {}))
+        self.assertEqual(self._agility_command_calls[-1][0], "leave_activity")
+
+    def test_thieving_target_change_refreshes_train_readiness(self) -> None:
+        pd = _make_player_data()
+        pd.update({"thieving_level": 1, "current_thieving": "wall_safe"})
+        dialog = self._open(pd, current_skill="Mining")
+        dialog.show()
+        QApplication.processEvents()
+        next(
+            button for button in dialog.findChildren(QPushButton)
+            if button.text() == "Support"
+        ).click()
+        QApplication.processEvents()
+        skill_list = next(
+            widget for widget in dialog.findChildren(QListWidget)
+            if "Thieving" in [widget.item(i).text() for i in range(widget.count())]
+        )
+        skill_list.setCurrentRow(next(
+            i for i in range(skill_list.count())
+            if skill_list.item(i).text() == "Thieving"
+        ))
+        QApplication.processEvents()
+        train = next(
+            button for button in dialog.findChildren(QPushButton)
+            if button.text() == "Train this skill" and button.isVisible()
+        )
+        self.assertFalse(train.isEnabled())
+
+        tree = dialog.findChild(QTreeWidget, "thievingTargetTree")
+        tree.itemClicked.emit(_tree_row(tree, "pickpocket_man"), 0)
+        QApplication.processEvents()
+
+        train = next(
+            button for button in dialog.findChildren(QPushButton)
+            if button.text() == "Train this skill" and button.isVisible()
+        )
+        self.assertTrue(train.isEnabled())
 
     def test_combat_magic_casual_controls_and_advanced_disclosure_fit_short_dialog(self) -> None:
         pd = _make_player_data()

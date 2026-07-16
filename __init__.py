@@ -979,24 +979,25 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         if ok:
             player_data.update(updated)
             save_player_data()
+        return ok
 
     def _purchase_house():
-        _apply_house_result(purchase_house_pure(player_data))
+        return _apply_house_result(purchase_house_pure(player_data))
 
     def _purchase_room(room_id):
-        _apply_house_result(purchase_house_option_pure(player_data, room_id, ROOM_DATA, kind="room"))
+        return _apply_house_result(purchase_house_option_pure(player_data, room_id, ROOM_DATA, kind="room"))
 
     def _hire_servant(servant_id):
         if not servant_id:
             player_data["house_servant"] = ""
             save_player_data()
-            return
-        _apply_house_result(purchase_house_option_pure(player_data, servant_id, SERVANT_DATA, kind="servant"))
+            return True
+        return _apply_house_result(purchase_house_option_pure(player_data, servant_id, SERVANT_DATA, kind="servant"))
 
     def _set_house_style(style_id):
         if style_id == player_data.get("house_style"):
-            return
-        _apply_house_result(purchase_house_option_pure(player_data, style_id, HOUSE_STYLE_DATA, kind="style"))
+            return True
+        return _apply_house_result(purchase_house_option_pure(player_data, style_id, HOUSE_STYLE_DATA, kind="style"))
 
     def _get_farming_projection():
         return farming_frontend_projection_pure(player_data)

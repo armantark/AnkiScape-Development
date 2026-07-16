@@ -1,6 +1,7 @@
 # ui.py - UI components and dialogs for AnkiScape
 
 import os
+from collections.abc import Mapping
 from typing import Optional
 import datetime
 
@@ -1175,6 +1176,12 @@ _SKILL_TARGET_TABLES = {
     "hunter": HUNTER_DATA,
     "cooking": COOKING_DATA,
     "runecrafting": RUNECRAFTING_DATA,
+    "herblore": HERBLORE_DATA,
+    "prayer": PRAYER_DATA,
+    "magic": MAGIC_DATA,
+    "construction": CONSTRUCTION_DATA,
+    "thieving": THIEVING_TARGETS,
+    "agility": {target.id: target for target in AGILITY_TARGETS},
 }
 
 
@@ -1204,8 +1211,11 @@ def current_target_display_name(skill: str, player_data: dict) -> Optional[str]:
         return None
     table = _SKILL_TARGET_TABLES.get(sd.id)
     spec = table.get(target_id) if table else None
-    if isinstance(spec, dict):
+    if isinstance(spec, Mapping):
         return str(spec.get("display_name", target_id))
+    display_name = getattr(spec, "display_name", None)
+    if display_name:
+        return str(display_name)
     return str(target_id)
 
 
@@ -2508,6 +2518,16 @@ def show_main_menu(
         _render_panel()
 
     def _stop_training() -> None:
+        if (
+            state["active"] == "Agility"
+            and str(player_data.get("current_agility", DEFAULT_AGILITY_TARGET)) == "brimhaven_arena"
+            and (player_data.get("agility_activity_state") or {}).get("brimhaven")
+            and on_agility_command is not None
+        ):
+            result = on_agility_command("leave_activity", {}) or {}
+            if not result.get("ok", result.get("allowed", False)):
+                warn.setText(str(result.get("message", "Could not end the Brimhaven stint")))
+                return
         warn.setText("")
         state["active"] = "None"
         on_save_skill("None")
@@ -2799,6 +2819,8 @@ def show_main_menu(
         panel_layout.addWidget(tree, 1)
         return panel
 
+    construction_feedback = {"message": ""}
+
     def _build_construction_list() -> QWidget:
         panel = QWidget()
         panel.setObjectName("constructionSkillPanel")
@@ -2822,12 +2844,28 @@ def show_main_menu(
         else:
             summary.setText("No house owned · Purchase the 1,000 coin starter house (Garden + Parlour).")
         panel_layout.addWidget(summary)
+        action_status = QLabel(construction_feedback["message"])
+        action_status.setObjectName("constructionActionStatus")
+        action_status.setWordWrap(True)
+        action_status.setVisible(bool(construction_feedback["message"]))
+        panel_layout.addWidget(action_status)
+
+        def _run_house_action(callback, success_message: str) -> None:
+            construction_feedback["message"] = (
+                success_message
+                if bool(callback())
+                else "That house change is not currently available."
+            )
+            _render_panel()
+
         if not player_data.get("house_owned"):
             buy = QPushButton("Purchase house — 1,000 coins")
             buy.setObjectName("constructionPurchaseHouseButton")
             buy.setEnabled(on_purchase_house is not None and int((player_data.get("inventory", {}) or {}).get("Coins", 0) or 0) >= 1000)
             if on_purchase_house is not None:
-                buy.clicked.connect(lambda: on_purchase_house())
+                buy.clicked.connect(
+                    lambda: _run_house_action(on_purchase_house, "Purchased the starter house.")
+                )
             panel_layout.addWidget(buy)
         details_toggle = QToolButton()
         details_toggle.setObjectName("constructionHouseDetailsToggle")
@@ -2848,17 +2886,33 @@ def show_main_menu(
             button.setObjectName(f"constructionRoomButton::{room_id}")
             button.setEnabled(bool(player_data.get("house_owned")) and not owned and on_purchase_room is not None)
             if on_purchase_room is not None:
-                button.clicked.connect(lambda _c=False, rid=room_id: on_purchase_room(rid))
+                button.clicked.connect(
+                    lambda _c=False, rid=room_id, name=str(spec["display_name"]): _run_house_action(
+                        lambda: on_purchase_room(rid), f"Purchased {name}."
+                    )
+                )
             row_layout.addWidget(button); details_layout.addWidget(row)
         servant = QComboBox(); servant.setObjectName("constructionServantCombo"); servant.addItem("No servant", "")
         for sid, spec in SERVANT_DATA.items(): servant.addItem(f"{spec['display_name']} — {spec['wage']:,}/stint", sid)
         servant.setCurrentIndex(max(0, servant.findData(servant_id)))
-        if on_hire_servant is not None: servant.currentIndexChanged.connect(lambda _i: on_hire_servant(servant.currentData()))
+        if on_hire_servant is not None:
+            servant.currentIndexChanged.connect(
+                lambda _i: _run_house_action(
+                    lambda: on_hire_servant(servant.currentData()),
+                    "Updated the house servant.",
+                )
+            )
         details_layout.addWidget(servant)
         style = QComboBox(); style.setObjectName("constructionHouseStyleCombo")
         for sid, spec in HOUSE_STYLE_DATA.items(): style.addItem(f"{spec['display_name']} — {spec['price']:,}", sid)
         style.setCurrentIndex(max(0, style.findData(style_id)))
-        if on_set_house_style is not None: style.currentIndexChanged.connect(lambda _i: on_set_house_style(style.currentData()))
+        if on_set_house_style is not None:
+            style.currentIndexChanged.connect(
+                lambda _i: _run_house_action(
+                    lambda: on_set_house_style(style.currentData()),
+                    "Updated the house style.",
+                )
+            )
         details_layout.addWidget(style)
         details.setVisible(False)
         details_toggle.toggled.connect(lambda checked: (details.setVisible(checked), details_toggle.setArrowType(Qt.ArrowType.DownArrow if checked else Qt.ArrowType.RightArrow)))
@@ -3347,9 +3401,11 @@ def show_main_menu(
         selected_index = alch_picker.findData(current_alch)
         alch_picker.setCurrentIndex(max(0, selected_index))
         if on_set_magic_alchemy_item is not None:
-            alch_picker.currentIndexChanged.connect(
-                lambda _index: on_set_magic_alchemy_item(str(alch_picker.currentData() or ""))
-            )
+            def _set_alchemy_item(_index: int) -> None:
+                on_set_magic_alchemy_item(str(alch_picker.currentData() or ""))
+                _render_panel()
+
+            alch_picker.currentIndexChanged.connect(_set_alchemy_item)
         alch_layout.addWidget(alch_picker, 1)
         panel_layout.addWidget(alch_row)
 
@@ -3377,11 +3433,13 @@ def show_main_menu(
         selected_patch = farming_spell_picker.findData(str(player_data.get("farming_spell_patch", "") or ""))
         farming_spell_picker.setCurrentIndex(max(0, selected_patch))
         if on_set_farming_spell_patch is not None:
-            farming_spell_picker.currentIndexChanged.connect(
-                lambda _index: on_set_farming_spell_patch(
+            def _set_farming_patch(_index: int) -> None:
+                on_set_farming_spell_patch(
                     str(farming_spell_picker.currentData() or "") or None
                 )
-            )
+                _render_panel()
+
+            farming_spell_picker.currentIndexChanged.connect(_set_farming_patch)
         farming_spell_layout.addWidget(farming_spell_picker, 1)
         panel_layout.addWidget(farming_spell_row)
 
@@ -3502,6 +3560,11 @@ def show_main_menu(
         casual_layout.addStretch(1)
         layout.addWidget(casual_row)
 
+        def _select_thieving_target(target_id: str) -> None:
+            if on_set_thieving is not None:
+                on_set_thieving(target_id)
+                _render_panel()
+
         tree = _build_grouped_target_tree(
             thieving_target_rows(
                 player_data,
@@ -3511,12 +3574,14 @@ def show_main_menu(
             ),
             dict(THIEVING_GROUP_LABELS),
             "__thieving_group__:",
-            on_set_thieving,
+            _select_thieving_target,
             group_order=list(THIEVING_GROUP_ORDER),
         )
         tree.setObjectName("thievingTargetTree")
         layout.addWidget(tree, 1)
         return panel
+
+    agility_feedback = {"message": ""}
 
     def _build_agility_list() -> QWidget:
         panel = QWidget()
@@ -3569,6 +3634,20 @@ def show_main_menu(
         )
         layout.addWidget(benefits)
 
+        def _select_agility_target(target_id: str) -> None:
+            current = str(player_data.get("current_agility", DEFAULT_AGILITY_TARGET))
+            if current == "brimhaven_arena" and target_id != current and on_agility_command is not None:
+                result = on_agility_command("leave_activity", {}) or {}
+                if not result.get("ok", result.get("allowed", False)):
+                    agility_feedback["message"] = str(
+                        result.get("message", "Could not end the Brimhaven stint")
+                    )
+                    _render_panel()
+                    return
+            if on_set_agility is not None:
+                on_set_agility(target_id)
+            _render_panel()
+
         tree = _build_grouped_target_tree(
             agility_target_rows(
                 player_data,
@@ -3578,7 +3657,7 @@ def show_main_menu(
             ),
             dict(AGILITY_GROUP_LABELS),
             "__agility_group__:",
-            on_set_agility,
+            _select_agility_target,
             group_order=list(AGILITY_GROUP_ORDER),
         )
         tree.setObjectName("agilityTargetTree")
@@ -3592,13 +3671,25 @@ def show_main_menu(
 
         command_index = 0
 
+        command_status = QLabel(agility_feedback["message"])
+        command_status.setObjectName("agilityCommandStatus")
+        command_status.setWordWrap(True)
+        command_status.setVisible(bool(agility_feedback["message"]))
+        layout.addWidget(command_status)
+
+        def _run_agility_command(action_id: str, payload: dict) -> None:
+            result = on_agility_command(action_id, payload) if on_agility_command is not None else {}
+            result = result or {}
+            agility_feedback["message"] = str(result.get("message", ""))
+            _render_panel()
+
         def _command_button(label: str, action_id: str, payload=None) -> None:
             nonlocal command_index
             button = QPushButton(label)
             button.setObjectName("agilityCommand::" + action_id)
             button.setEnabled(on_agility_command is not None)
             button.clicked.connect(
-                lambda _=False, aid=action_id, body=dict(payload or {}): on_agility_command(aid, body)
+                lambda _=False, aid=action_id, body=dict(payload or {}): _run_agility_command(aid, body)
             )
             reward_layout.addWidget(button, command_index // 5, command_index % 5)
             command_index += 1
@@ -3606,7 +3697,13 @@ def show_main_menu(
         _command_button("Sell Pyramid top", "sell_pyramid_top", {"count": 1})
         _command_button("Claim Agile top", "claim_agile_piece", {"piece": "Agile top"})
         _command_button("Claim Agile legs", "claim_agile_piece", {"piece": "Agile legs"})
-        _command_button("Redeem 10 tickets", "redeem_brimhaven_xp", {"tickets": 10})
+        for tickets in (1, 10, 25, 100, 1000):
+            suffix = "ticket" if tickets == 1 else "tickets"
+            _command_button(
+                f"Redeem {tickets} {suffix}",
+                "redeem_brimhaven_xp",
+                {"tickets": tickets},
+            )
         _command_button("Toadflax (3 tickets)", "redeem_brimhaven_item", {"tickets": 3})
         _command_button("Wergali (5 tickets)", "redeem_brimhaven_item", {"tickets": 5})
         _command_button("Snapdragon (10 tickets)", "redeem_brimhaven_item", {"tickets": 10})

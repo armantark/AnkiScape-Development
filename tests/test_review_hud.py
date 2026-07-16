@@ -70,6 +70,12 @@ class TestCurrentTargetDisplayName(unittest.TestCase):
             "Fishing": ("current_fishing", "catch_crayfish", "Catch crayfish"),
             "Cooking": ("current_cooking", "cook_shrimps", "Cook raw shrimps"),
             "Runecrafting": ("current_runecrafting", "craft_air_runes", "Air runes"),
+            "Herblore": ("current_herblore", "clean_guam", "Clean guam"),
+            "Prayer": ("current_prayer", "gilded_altar_dragon_bones", "Dragon bones"),
+            "Magic": ("current_magic", "low_alchemy", "Low Level Alchemy"),
+            "Construction": ("current_construction", "crude_wooden_chair", "Crude wooden chair"),
+            "Thieving": ("current_thieving", "pickpocket_man", "Man / Woman"),
+            "Agility": ("current_agility", "burthorpe_course", "Burthorpe Agility Course"),
             "Quests": ("current_quest", "rune_mysteries", "Rune Mysteries"),
             "Combat": ("current_combat_target", "giant_rat", "Giant rat"),
         }

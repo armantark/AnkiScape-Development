@@ -15,6 +15,7 @@ from logic_pure import (
     thieving_roll_threshold_pure,
     thieving_stall_cadence_profile_pure,
     thieving_success_probability_pure,
+    thieving_target_locked_reasons_pure,
     thieving_wall_safe_roll_succeeds_pure,
     thieving_wall_safe_success_count_pure,
 )
@@ -25,7 +26,7 @@ from runtime_actions import (
     handle_utility_answer,
 )
 from storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
-from thieving_data import PICKPOCKET_TARGETS, STALL_TARGETS
+from thieving_data import PICKPOCKET_TARGETS, STALL_TARGETS, THIEVING_TARGETS
 
 
 def _context(player_data, random_values=()):
@@ -93,6 +94,20 @@ def _blackjack_state(*, fight_back=False):
 
 
 class TestThievingPureMechanics(unittest.TestCase):
+    def test_equipped_blackjack_satisfies_blackjacking_item_gate(self):
+        player = _blackjack_state()
+        player["inventory"] = {}
+        player["equipment"] = {"weapon": "Willow blackjack"}
+
+        self.assertEqual(
+            thieving_target_locked_reasons_pure(
+                player,
+                "blackjack_menaphite_thug",
+                THIEVING_TARGETS,
+            ),
+            (),
+        )
+
     def test_ham_pickpockets_drop_canonical_stackable_arrow_identities(self):
         ham = PICKPOCKET_TARGETS["pickpocket_female_ham"]
 

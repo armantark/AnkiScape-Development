@@ -8734,7 +8734,12 @@ def thieving_target_locked_reasons_pure(player_data, target_id, thieving_data):
         reasons.append(str(spec.get("quest_gate_label", str(quest_gate).replace("_", " ").title())))
     required_items = tuple(spec.get("required_items_any") or ())
     inventory = player_data.get("inventory", {}) or {}
-    if required_items and not any(_non_negative_int(inventory.get(item, 0), 0) > 0 for item in required_items):
+    equipment = player_data.get("equipment", {}) or {}
+    equipped_items = set(equipment.values()) if isinstance(equipment, Mapping) else set()
+    if required_items and not any(
+        _non_negative_int(inventory.get(item, 0), 0) > 0 or item in equipped_items
+        for item in required_items
+    ):
         reasons.append("usable blackjack")
     encounter = player_data.get("combat_encounter") or {}
     if isinstance(encounter, Mapping) and encounter:
