@@ -108,11 +108,42 @@ Summoning-point drain follows the same answered-card lifetime while a familiar i
 It remains a separate resource: reaching zero disables point-gated abilities but does
 not dismiss the familiar.
 
-### 2. Again during an active Combat encounter — open cross-system dependency
+### 2. Again during an active Combat encounter — settled 2026-07-16
 
-Choose whether Again is a decay-only idle tick, with no enemy attack and no positive
-in-encounter recovery, or whether an already-engaged enemy receives one bounded attack
-beat. Codex recommends decay-only; see `simulation-time-boundary-2026-07-16.md`.
+Again is a **decay-only idle tick**. It is equivalent to briefly clicking outside the
+mob area: elapsed state continues, but an already-engaged enemy receives no attack and
+the paused encounter grants no positive recovery. See
+`simulation-time-boundary-2026-07-16.md`.
+
+### 3. Familiar renewal policy — source/app-pattern resolved 2026-07-16
+
+Period renewal was a deliberate button available only at 2:30 or less, consumed one
+unnoted pouch of the same familiar, reset the timer, and healed the familiar. AnkiScape
+ships that manual Renew command exactly, translated through the short-duration card
+mapping and the direct-command undo path.
+
+It also ships one **global auto-renew toggle**, on by default. Auto-renew:
+
+- may fire only on a successful answer, never on Again, because renewal is positive
+  recovery rather than decay;
+- consumes only an unnoted matching pouch in the current target-carried inventory,
+  never a Bank stack;
+- fires at the first eligible answer inside the period renewal window;
+- performs the same timer reset and familiar heal as the manual command;
+- never summons a replacement after expiry; and
+- is global because the active familiar is global. A target-local toggle would silently
+  change the same entity's survival policy when the player switches targets.
+
+The carried-pouch requirement bounds depletion and gives target loadouts natural
+control: a target that carries no spare matching pouch cannot auto-renew. Manual Renew
+remains available regardless of the toggle when its source gates are met.
+
+### 4. Beast-of-Burden cargo on expiry — open
+
+The period game dropped all BoB cargo on expiry and gave the owner five minutes to pick
+it up. AnkiScape has no ground or player-location state, so it must choose between a
+lossless automatic Bank deposit and a review-timed reclaim buffer whose unclaimed cargo
+is eventually destroyed.
 
 ## Source/open-work queue
 

@@ -1,6 +1,7 @@
 # AnkiScape simulation-time boundary (2026-07-16)
 
-Status: **base invariant owner-settled; cross-system reconciliation active.** This
+Status: **base invariant and active-encounter behavior owner-settled; consumer
+reconciliation active.** This
 contract formalizes behavior that shops and Farming already implement, then records the
 remaining foreground-state fork without changing runtime code during the design grill.
 
@@ -55,27 +56,25 @@ mapping is an AnkiScape abstraction; period ratios and ordering remain source cl
 | Out-of-combat LP/stat/special recovery | Successful non-Combat review only | Current behavior (`__init__.py:1517-1518`, `logic_pure.py:4613-4648`); reconcile so Again cannot become free healing inside a frozen encounter. |
 | Agility boost and Surefooted budgets | Agility actions | Settled action budgets (`agility_logic.py:417-431`), despite older comments using review/hour pacing. |
 
-## Open decision 1 — idle during an active Combat encounter
+## Decision 1 — idle during an active Combat encounter (settled 2026-07-16)
 
-Two coherent interpretations remain:
+The owner selected **decay-only idle with no in-encounter recovery**. Again is
+equivalent to briefly clicking outside the mob area: an already-active enemy does not
+receive an attack beat, but elapsed state continues to decay. The paused encounter also
+does not grant positive LP, stat, Prayer, or special-attack recovery.
 
-1. **Decay-only idle:** an already-active encounter does not grant the enemy a new
-   attack. Globally elapsed short-duration state may still decay, including familiars,
-   Summoning points, Prayer, poison, immunity, and genuinely time-based boosts. Positive
-   LP/stat/special recovery pauses while the encounter remains active, preventing Again
-   from becoming a free mid-fight heal.
-2. **Hostile idle:** the enemy receives one bounded combat beat on Again, alongside all
-   elapsed-state decay. This is closer to literally standing AFK beside an attacking
-   monster, but makes a learning failure directly deal damage and may encourage dishonest
-   Hard grading.
+The rejected alternative was:
 
-Codex recommendation: **decay-only idle with no in-encounter recovery.** It formalizes
-the owner's “punishing but not too punishing” direction, preserves the existing rule that
-entities act only on a successful review, and avoids turning Anki grading into a survival
-choice. Fable's strongest counterargument is simulation purity: a genuinely engaged
-RuneScape enemy would keep attacking. That is real, but AnkiScape's selected target and
-persistent encounter are already abstractions rather than proof that the avatar stands
-in melee range throughout a failed card.
+- **Hostile idle:** the enemy receives one bounded combat beat on Again, alongside all
+  elapsed-state decay. This is closer to literally standing AFK beside an attacking
+  monster, but makes a learning failure directly deal damage and may encourage dishonest
+  Hard grading.
+
+The settled rule formalizes “punishing but not too punishing,” preserves the existing
+rule that entities act only on a successful review, and avoids turning Anki grading into
+a survival choice. Fable's strongest counterargument was simulation purity: a genuinely
+engaged RuneScape enemy would keep attacking. The owner resolved that abstraction in
+favor of decay-only idle.
 
 ## Reconciliation work after the owner answer
 
@@ -86,4 +85,3 @@ in melee range throughout a failed card.
   do not perform a mechanical global rename without migration and undo tests.
 - Add one dispatcher-level contract test proving Again advances world consumers but not
   foreground actions, then focused tests for each reclassified consumer.
-

@@ -9,10 +9,14 @@ runtime implementation has started. The governing live ledger is
 fork is closed: every answered card spends familiar lifetime, including Again.
 Again is now formally an idle/world tick with no foreground action; the broader
 contract and current-system audit are in `simulation-time-boundary-2026-07-16.md`.
-The next open fork is whether an active enemy attacks during that idle tick or
-only elapsed state decays. Period evidence already rules out collapsing lifetime
-and Summoning points into one resource: points could reach zero without
-dismissing the familiar. Wall-clock gameplay remains forbidden.
+The active-encounter fork is also closed: Again is decay-only, analogous to
+briefly clicking outside the mob area, so enemies do not attack and the paused
+encounter grants no positive recovery. Renewal is source/app-pattern resolved as
+a manual command plus a global auto-renew toggle that only consumes a deliberately
+carried matching pouch on successful answers. The next open Summoning fork is
+BoB cargo expiry without a ground-world substrate. Period evidence already rules
+out collapsing lifetime and Summoning points into one resource: points could
+reach zero without dismissing the familiar. Wall-clock gameplay remains forbidden.
 
 Agility's owner grill, source harvest, and atomic implementation are closed. The
 governing product contract is
