@@ -52,10 +52,14 @@ the detour replaces the target action and may complete the resummon atomically. 
 mismatched live familiar is now safely swapped at the next Bank boundary only after BoB
 cargo is deposited and replacement success is guaranteed; otherwise the old familiar
 remains active and the new policy stays queued. The next open fork is whether Casual
-`Best available` should interrupt a live same-role fallback when a stronger pouch is
-restocked, or re-resolve only at normal renewal/replacement. Casual already falls back
-automatically within the selected role when its best pouch type runs out; Advanced
-remains exact. The cross-product help architecture is owner-settled in
+target policy `Off` should preserve an already-live global familiar while disabling its
+automation, or dismiss it at the next safe Bank boundary. Casual already falls back
+automatically within its selected role when the best pouch runs out, but newly restocked
+stronger pouches never interrupt a live fallback; re-resolution waits for renewal,
+expiry, death, or a manual switch. BoB combat access is source-resolved: consecutive
+successful bursts cannot withdraw, while an Again disengages and permits a preset top-up
+before the next successful re-engagement. Advanced remains exact. The
+cross-product help architecture is owner-settled in
 `help-system-contract-2026-07-16.md`: one offline searchable corpus feeds both the
 full Help Center and contextual page-level `?` entries.
 

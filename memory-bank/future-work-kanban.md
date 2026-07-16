@@ -201,6 +201,12 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
 - Casual `Best available` falls back to the strongest owned, level-valid, in-stock
   familiar in the configured role whenever replacement is needed. It never crosses
   roles; Advanced remains pinned to its exact familiar and lapses rather than substituting.
+- Restocking a stronger same-role pouch never interrupts a live Casual fallback.
+  `Best available` re-resolves at renewal, expiry, death, or explicit manual switch,
+  preserving the remaining value of the already-consumed pouch.
+- A BoB cannot transfer supplies during consecutive successful bursts against a live
+  enemy. Again disengages without withdrawing; Casual may preset-top-up at the next
+  successful pre-engagement boundary, as it may before combat or after kill/retreat.
 
 ### Dungeoneering
 

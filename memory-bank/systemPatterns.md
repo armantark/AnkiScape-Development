@@ -150,6 +150,13 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   owned, level-valid, in-stock familiar inside the configured source role whenever a
   replacement is needed; Advanced exact selection never substitutes. Exhausting one
   pouch type therefore downgrades Casual within-role but visibly lapses Advanced.
+- Stock changes do not pre-empt paid duration. A newly restocked stronger pouch never
+  replaces a live same-role Casual fallback; resolution waits for renewal, expiry,
+  death, or an explicit manual switch.
+- Persistent encounters distinguish card boundaries from safe inventory boundaries.
+  A BoB cannot transfer during consecutive successful combat bursts against one live
+  enemy. Again performs no transfer but disengages; the next successful answer may
+  preset-top-up before re-engagement, as may pre-combat, post-kill, and post-retreat.
 - Optional combat exposure is fail-closed to source evidence. An attacking
   Summoning familiar is not a generic second damage target; only a pinned
   retaliation, area, enemy, or explicit aggro/tanking mechanic may reach its LP.

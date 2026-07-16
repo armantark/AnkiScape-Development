@@ -349,12 +349,44 @@ valid in-stock familiar remains in the role, the policy stays visibly lapsed. Ad
 never falls back from its exact familiar. This mode distinction is deliberate: Casual
 maintains the requested role, while Advanced preserves exact identity.
 
-### 15. Upgrading a live Casual fallback after restocking — open
+### 15. Upgrading a live Casual fallback after restocking — settled 2026-07-16
 
 If Casual is currently using a weaker same-role fallback and a stronger pouch later
-becomes available, choose whether the next Bank boundary should replace the still-live
-familiar immediately or whether `Best available` should be re-resolved only when the
-current familiar otherwise needs renewal or replacement.
+becomes available, the live familiar keeps its remaining duration. Pouch-stock changes
+alone never dismiss or replace it. `Best available` is re-resolved when the familiar
+otherwise needs renewal or replacement after expiry or death, or when the user issues an
+explicit manual switch.
+
+This avoids consuming two pouches for overlapping familiar time and prevents ordinary
+Bank restocking from causing hidden churn. The weaker fallback may remain visible for at
+most its remaining sourced lifetime; the manual switch is the deliberate escape hatch
+when an immediate upgrade is worth discarding that value.
+
+### 16. Beast-of-Burden supplies during a multi-review fight — source/app-pattern resolved 2026-07-16
+
+Period evidence says a BoB inventory could not be accessed in combat and instructed the
+player to find safety before withdrawing (`Beasts of Burden`, oldid 6288415, lines
+101-105 of the literal wikitext). A command boundary between consecutive successful
+combat-review bursts is not itself safe: while the same enemy remains engaged, neither
+Casual nor Advanced may transfer items between the player and familiar inventories.
+
+The settled answer-time model supplies the missing safe boundary. Again represents
+clicking outside the mob area and performs no foreground action. It does not withdraw
+items itself, but leaves the encounter disengaged; before the next successful answer
+re-engages, Casual may use its target preset to top up the player's pack from the BoB.
+Enemy death, explicit retreat, and pre-encounter setup are also safe boundaries. Advanced
+may use the same legal boundaries through its explicit familiar inventory controls.
+
+Transfers never occur inside the simulated combat burst, never exceed the player's free
+carried slots, and never bypass the familiar's sourced item restrictions. This makes the
+BoB genuine expanded inventory without pretending that every card boundary ends combat.
+
+### 17. Meaning of target familiar policy `Off` — open
+
+Choose whether entering a target whose familiar policy is `Off` merely disables target-
+driven renew/resummon/special automation while preserving an already-live global familiar,
+or whether the next safe Bank boundary should deposit cargo and dismiss that familiar so
+the target receives no familiar effects.
 
 ## Source/open-work queue
 
