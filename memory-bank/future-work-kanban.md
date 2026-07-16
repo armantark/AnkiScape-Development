@@ -174,6 +174,10 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
 - Casual Summoning-point upkeep inserts an abstracted obelisk restoration on the
   next successful answer when needed, replacing that target action; Again never
   restores. Advanced exposes the same automation as a toggle plus a manual command.
+- Casual auto-special is globally on by default but fires only on successful
+  answers, consumes a matching target-carried scroll plus sourced special-move
+  points, and uses catalog-backed role triggers that avoid inapplicable or wasted
+  effects. Bank scrolls are never consumed implicitly.
 
 ### Dungeoneering
 

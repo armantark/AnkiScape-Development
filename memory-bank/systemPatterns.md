@@ -123,6 +123,10 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   foreground detour: Summoning's abstracted obelisk restoration consumes the next
   successful answer and replaces the selected target action. It cannot fire on
   Again, run on wall-clock time, or grant the target's ordinary output as well.
+- Consumable automation uses the target-carried inventory as its explicit budget.
+  Summoning auto-renew and auto-special may consume a deliberately packed matching
+  pouch or scroll on a successful answer, but never pull from Bank stock. Catalog
+  metadata, not display names, determines compatible roles and trigger conditions.
 - The answered-card clock is not a universal action-duration converter. It runs
   background/world/economy timers; ordinary skilling still performs one sourced
   action tick per successful review unless an activity explicitly defines a

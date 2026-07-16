@@ -27,11 +27,14 @@ opt-in to automatic target-preset packing of its separate inventory, while Advan
 exposes the exact slots. Casual point upkeep is also settled: when a familiar
 policy lacks the Summoning points it needs, the next successful answer becomes an
 abstracted obelisk-restoration action instead of the selected target action; Again
-never restores. The next open Summoning fork is whether Casual may automatically
-consume deliberately carried scrolls and special-move points to fire familiar
-specials. Period evidence already rules out collapsing lifetime and Summoning
-points into one resource: points could reach zero without dismissing the familiar.
-Wall-clock gameplay remains forbidden.
+never restores. Casual auto-special is settled on by default: it fires only on
+successful answers under source-role triggers and consumes only a deliberately
+carried matching scroll plus special-move points, never Bank stock. The next open
+Summoning fork is whether periodic passive familiar output can occur on Again or
+whether Again burns lifetime without earning forage, healing, or attacks. Period
+evidence already rules out collapsing lifetime and Summoning points into one
+resource: points could reach zero without dismissing the familiar. Wall-clock
+gameplay remains forbidden.
 
 Agility's owner grill, source harvest, and atomic implementation are closed. The
 governing product contract is

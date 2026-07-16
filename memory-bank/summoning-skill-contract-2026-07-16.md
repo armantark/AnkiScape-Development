@@ -213,13 +213,32 @@ Restore command. Exact restore values and the relationship between ordinary Summ
 points and special-move points remain source-harvest work; automation cannot silently
 merge the two resources.
 
-### 8. Casual scroll-special automation — open
+### 8. Casual scroll-special automation — settled 2026-07-16
 
-Choose whether Casual may automatically fire the active familiar's scroll special on a
-successful answer, consuming one deliberately carried matching scroll and the sourced
-special-move-point cost, or whether every scroll special remains an explicit command.
-The decision changes whether scroll-defined familiar roles participate automatically or
-remain manual despite the broader Casual familiar policy.
+Casual ships with one global **auto-special toggle**, on by default. Auto-special:
+
+- may fire only on a successful answer, never on Again;
+- consumes only a matching scroll deliberately present in the current target-carried
+  inventory, never a Bank stack, plus the sourced special-move-point cost;
+- uses role-shaped, source-backed trigger conditions so healing is not wasted as
+  overheal, combat specials require an active encounter, and gathering/boost specials
+  require an applicable current target or missing effect; and
+- never replaces the manual Special command on the canonical familiar panel.
+
+The carried-scroll boundary makes target packing the explicit depletion budget and
+prevents Casual from silently draining the Bank. Advanced may configure exact behavior
+from the same live familiar state, but cannot bypass sourced target, cooldown, point, or
+item gates. Trigger classifications come from the harvested familiar/scroll catalog,
+not display-name heuristics.
+
+### 9. Passive familiar output on Again — open
+
+Choose whether unprompted periodic familiar effects such as foraging, passive healing,
+and combat assistance execute on every answered-card world tick, or only on successful
+foreground answers while Again burns familiar lifetime without producing a positive
+effect. Continuous conditions such as an invisible skill boost or light level are not
+part of this fork: they are checked whenever a later foreground action or gate needs
+them.
 
 ## Source/open-work queue
 
