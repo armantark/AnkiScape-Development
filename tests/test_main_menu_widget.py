@@ -559,6 +559,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             purchase_house_option_pure,
             purchase_house_pure,
             sanitize_prayer_selection_pure,
+            unload_combat_supply_loadout_pure,
         )
 
         def _set_prayer_config(key, value):
@@ -606,6 +607,14 @@ class MainMenuWidgetTest(unittest.TestCase):
             calls.append(target)
             player_data[key] = target
             return True
+
+        def _unload_combat_loadout():
+            self._combat_unload_calls.append(True)
+            updated, ok, _reason = unload_combat_supply_loadout_pure(player_data)
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return ok
 
         def _apply_house_result(result):
             updated, ok = result
@@ -676,7 +685,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_combat_auto_eat_food=lambda food: self._combat_food_calls.append(food),
             on_set_combat_prayer_config=_set_prayer_config,
             on_refill_combat_loadout=lambda: self._combat_refill_calls.append(True) or True,
-            on_unload_combat_loadout=lambda: self._combat_unload_calls.append(True) or True,
+            on_unload_combat_loadout=_unload_combat_loadout,
             on_reclaim_death_office=lambda: self._death_office_calls.append(True) or True,
             on_set_quest=lambda quest_id: self._quest_calls.append(quest_id),
             on_set_quest_route_choice=lambda quest_id, route_id: self._quest_choice_calls.append((quest_id, route_id)) or True,
@@ -2089,6 +2098,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd.update(
             {
+                "inventory": {"Fire rune": 100},
                 "current_combat_target": "chicken",
                 "combat_auto_eat_threshold_percent": 55,
                 "combat_auto_eat_food": ["Lobster", "Shrimps"],
@@ -2096,7 +2106,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                     "food": {"Lobster": 3},
                     "potions": {"Antipoison (1)": 1},
                     "ammo": {"Bronze arrows": 10},
-                    "runes": {"Air rune": 5, "Mind rune": 5},
+                    "runes": {"Air rune": 5, "Mind rune": 5, "Fire rune": 50},
                 },
             }
         )
@@ -2122,6 +2132,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Ammo: Bronze arrows x10", summary_label.text())
         self.assertIn("Runes: Air rune x5, Mind rune x5", summary_label.text())
         self.assertIn("ready", bank_run_label.text())
+        _open_bank_tab(dialog)
+        bank = _find_list_with_item_prefix(dialog, "Fire rune x100")
+        self.assertTrue(any(text.startswith("Fire rune x100") for text in _list_texts(bank)))
 
         threshold_spin.setValue(60)
         QApplication.processEvents()
@@ -2130,6 +2143,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         clear_button.click()
         QApplication.processEvents()
         self.assertEqual(self._combat_unload_calls, [True])
+        bank = _find_list_with_item_prefix(dialog, "Fire rune x150")
+        self.assertTrue(any(text.startswith("Fire rune x150") for text in _list_texts(bank)))
 
     def test_fishing_is_selectable_and_shows_output_first_target_list(self) -> None:
         pd = _make_player_data()

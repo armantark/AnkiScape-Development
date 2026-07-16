@@ -6716,8 +6716,8 @@ def show_main_menu(
         clear_inv_btn.setEnabled(on_unload_combat_loadout is not None)
 
         def _on_clear_inventory(_checked=False) -> None:
-            if on_unload_combat_loadout is not None:
-                on_unload_combat_loadout()
+            if on_unload_combat_loadout is not None and on_unload_combat_loadout():
+                _refresh_equipment_views(refresh_visible_skill=True)
             _refresh_carried_sections()
 
         clear_inv_btn.clicked.connect(_on_clear_inventory)

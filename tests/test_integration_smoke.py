@@ -2304,8 +2304,9 @@ class TestIntegrationSmoke(unittest.TestCase):
     def test_death_office_reclaim_callback_consumes_coins_and_saves(self):
         addon = _load_addon_as_package("ankiscape_death_office_reclaim_integration")
 
-        calls = {"save": 0, "errors": []}
+        calls = {"save": 0, "errors": [], "achievement_coins": []}
         addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.check_achievements = lambda data: calls["achievement_coins"].append(data["inventory"]["Coins"])
         addon._refresh_skill_availability = lambda: None
         addon.update_review_hud = lambda _data, _skill: None
         addon.show_error_message = lambda title, message: calls["errors"].append((title, message))
@@ -2322,12 +2323,16 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["inventory"]["Coins"], 50)
         self.assertEqual(addon.player_data["inventory"]["Bronze sword"], 1)
         self.assertEqual(addon.player_data["death_office"], {})
+        self.assertEqual(calls["achievement_coins"], [50])
 
     def test_combat_loadout_menu_callbacks_refill_and_unload_supplies(self):
         addon = _load_addon_as_package("ankiscape_combat_loadout_callbacks")
 
-        calls = {"save": 0, "hud": 0, "refresh": 0}
+        calls = {"save": 0, "hud": 0, "refresh": 0, "achievement_runes": []}
         addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.check_achievements = lambda data: calls["achievement_runes"].append(
+            data["inventory"].get("Air rune", 0) + data["inventory"].get("Mind rune", 0)
+        )
         addon.update_review_hud = lambda _data, _skill: calls.__setitem__("hud", calls["hud"] + 1)
         addon._refresh_skill_availability = lambda: calls.__setitem__("refresh", calls["refresh"] + 1)
         addon.show_error_message = lambda _title, message: self.fail(message)
@@ -2367,6 +2372,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["inventory"]["Antipoison (2)"], 1)
         self.assertEqual(addon.player_data["inventory"]["Air rune"], 5)
         self.assertEqual(addon.player_data["inventory"]["Mind rune"], 5)
+        self.assertEqual(calls["achievement_runes"], [10])
         self.assertGreaterEqual(calls["save"], 4)
         self.assertGreaterEqual(calls["hud"], 4)
         self.assertGreaterEqual(calls["refresh"], 4)

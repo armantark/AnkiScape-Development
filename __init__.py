@@ -1214,8 +1214,10 @@ def _set_combat_prayer_config(key: str, value):
     return True
 
 
-def _save_combat_state_update(new_data):
+def _save_combat_state_update(new_data, *, evaluate_achievements=False):
     player_data.update(new_data)
+    if evaluate_achievements:
+        check_achievements(player_data)
     save_player_data()
     _refresh_skill_availability()
     try:
@@ -1257,7 +1259,7 @@ def on_unload_combat_loadout():
     if not ok:
         show_error_message("Cannot unload combat supplies", reason)
         return False
-    _save_combat_state_update(new_data)
+    _save_combat_state_update(new_data, evaluate_achievements=True)
     return True
 
 
@@ -1266,7 +1268,7 @@ def on_reclaim_death_office():
     if not ok:
         show_error_message("Cannot reclaim gear", reason)
         return False
-    _save_combat_state_update(new_data)
+    _save_combat_state_update(new_data, evaluate_achievements=True)
     return True
 
 
