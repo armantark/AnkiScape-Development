@@ -141,6 +141,9 @@ Labels: `BUG`, `CONTENT GAP`.
 Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT`.
 
 - Reuse existing enemy Slayer metadata; add masters, assignment pools, XP, task progress, points/streaks, skips/blocks, reward shop, task-only targets, protection items, and Combat UI.
+- Park Social Slayer unless genuine shared-player state ever exists; do not ship
+  a simulated partner or solo co-op multiplier. Preserve all seven period Slayer
+  master challenges in the design and source their compound objective ledgers.
 
 ### Summoning
 

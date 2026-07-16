@@ -1,6 +1,6 @@
 # Social Slayer cutoff reconnaissance — 2026-07-15
 
-Status: **period inclusion closed; AnkiScape representation open**.
+Status: **period inclusion and product disposition closed**.
 Cutoff: `2012-11-20T00:00:00Z`.
 
 ## Finding
@@ -37,13 +37,13 @@ reward, cancellation, disconnect, or partner-leave edge case.
 - **Lead, not closed:** co-op point amount, reward tables, contribution
   thresholds, streak behavior, invitation/leave/disconnect handling, and exact
   interface state.
-- **Product decision required:** AnkiScape has no real second-player or shared
-  save-state layer. A simulated partner would be a new single-player mechanic,
-  not source parity.
+- **Owner decision:** AnkiScape has no real second-player or shared save-state
+  layer. The feature is parked for a possible future genuine multiplayer system;
+  no simulated partner or other single-player substitute will ship.
 
 ## Design consequence
 
-Social Slayer may not be silently omitted from the final Slayer contract. The
-owner must choose between a real future multiplayer/shared-state dependency and
-an explicitly invented solo abstraction. Exact open semantics remain
-`source_blocked` until the dedicated audit resolves them.
+Social Slayer remains visible in the final Slayer contract as a parked
+multiplayer dependency. It creates no current runtime, UI, storage, reward, or
+simulated-partner work. Exact semantics need auditing only if real shared-player
+state and an implementation mandate ever exist.

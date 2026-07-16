@@ -143,8 +143,29 @@ remain personal. This establishes a real period feature that must appear in the
 completeness ledger, but it does not by itself authorize a fabricated solo
 partner. See `source-audits/social-slayer-cutoff-recon-2026-07-15.md`.
 
+## Owner decision 4 — park Social Slayer
+
+Social Slayer is acknowledged in the completeness ledger and parked as a future
+multiplayer dependency. The solo add-on does not simulate a partner, create an
+AI contribution roll, shorten tasks in the name of co-op, expose dead co-op UI,
+or add speculative shared-save state.
+
+Reopen this branch only if AnkiScape gains genuine player-to-player shared state
+and the owner explicitly authorizes multiplayer Slayer work. That outcome is
+considered unlikely; the parked record exists to preserve historical
+completeness, not to create an implementation promise.
+
+## Cutoff inclusion — Slayer master challenges
+
+All seven cutoff-live Slayer-master challenge families are attested by the
+`2012-10-01` wiki revision. They are optional special assignments with distinct
+compound objectives and completion rewards; the player may decline an offer for
+a normal assignment without a point penalty. See
+`source-audits/slayer-master-challenges-2026-07-15.md`.
+
 ## Next unresolved product branch
 
-Determine whether Social Slayer remains a fully designed future shared-player
-dependency that is unavailable in the solo runtime until AnkiScape has real
-multiplayer state, or is flattened into a simulated-partner abstraction.
+Determine whether the seven special challenges preserve their literal compound
+objective ledgers, with location-only travel/return rules represented as concise
+status text and instantaneous UI turn-in, or collapse into ordinary single-target
+assignments with a bonus reward.
