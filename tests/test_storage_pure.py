@@ -659,6 +659,47 @@ class TestStoragePure(unittest.TestCase):
         ):
             self.assertNotIn(legacy_key, migrated["inventory"])
 
+    def test_migrate_legacy_crafting_names_across_persisted_item_stores(self):
+        migrated = migrate_loaded_data(
+            {
+                "inventory": {"Mining helmet": 1, "Oil lamp": 2},
+                "carried_inventory": {
+                    "dorgesh_kaan": {"Mining helmet": 1, "Oil lamp": 1},
+                },
+                "carried_layout": {
+                    "dorgesh_kaan": {"Mining helmet": 1, "Oil lamp": 1},
+                },
+                "loot_overrides": {"Mining helmet": "keep", "Oil lamp": "leave"},
+                "combat_grave": {
+                    "items": ["Mining helmet", "Oil lamp"],
+                    "reviews_remaining": 1,
+                    "loadout": {"head": "Mining helmet"},
+                },
+                "death_office": {
+                    "items": ["Mining helmet", "Oil lamp"],
+                    "loadout": {"head": "Mining helmet"},
+                },
+                "magic_alchemy_item": "Mining helmet",
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        expected_view = {"Mining helmet (unlit)": 1, "Oil lamp (empty)": 1}
+        self.assertEqual(migrated["carried_inventory"]["dorgesh_kaan"], expected_view)
+        self.assertEqual(migrated["carried_layout"]["dorgesh_kaan"], expected_view)
+        self.assertEqual(
+            migrated["loot_overrides"],
+            {"Mining helmet (unlit)": "keep", "Oil lamp (empty)": "leave"},
+        )
+        for state_key in ("combat_grave", "death_office"):
+            self.assertEqual(
+                migrated[state_key]["items"],
+                ["Mining helmet (unlit)", "Oil lamp (empty)"],
+            )
+            self.assertEqual(migrated[state_key]["loadout"], {"head": "Mining helmet (unlit)"})
+        self.assertEqual(migrated["magic_alchemy_item"], "Mining helmet (unlit)")
+
     def test_migrate_idempotent(self):
         base = {"mining_exp": 10, "inventory": {}}
         first = migrate_loaded_data(base, ORE_DATA)

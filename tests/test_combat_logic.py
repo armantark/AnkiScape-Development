@@ -34,7 +34,7 @@ from combat_data import (
     ZOMBIE_DROPS,
     ZOMBIE_LEVEL_25_DROPS,
 )
-from constants import EQUIPMENT_DATA
+from constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
 from logic_pure import (
     _combat_apply_pvm_death,
     _combat_auto_drink_potions,
@@ -65,6 +65,7 @@ from logic_pure import (
     set_combat_auto_eat_threshold_pure,
     unload_combat_supply_loadout_pure,
 )
+from storage_pure import migrate_loaded_data
 
 
 def _rng(values):
@@ -3680,6 +3681,28 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(reclaimed["equipment"], {"weapon": "Iron sword"})
         self.assertEqual(reclaimed["inventory"]["Bones"], 2)
         self.assertNotIn("Iron sword", reclaimed["inventory"])
+        self.assertEqual(reclaimed["death_office"], {})
+
+    def test_legacy_mining_helmet_reclaims_as_the_exact_equipment_state(self):
+        migrated = migrate_loaded_data(
+            {
+                "inventory": {"Coins": 100},
+                "equipment": {},
+                "death_office": {
+                    "items": ["Mining helmet"],
+                    "source": "combat_stacked_grave",
+                    "loadout": {"head": "Mining helmet"},
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        reclaimed, ok, reason = reclaim_death_office_items_pure(migrated)
+
+        self.assertTrue(ok, reason)
+        self.assertEqual(reclaimed["equipment"], {"head": "Mining helmet (unlit)"})
+        self.assertNotIn("Mining helmet", reclaimed["inventory"])
         self.assertEqual(reclaimed["death_office"], {})
 
     def test_reclaim_leaves_graved_piece_in_bank_when_slot_already_refilled(self):
