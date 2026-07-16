@@ -3,7 +3,7 @@
   "status": "active",
   "baseline_head": "74af8cf9806a4988ccae9cba202ca1be77e917c3",
   "deadline": "2026-07-16T09:00:00-07:00",
-  "iteration": 17,
+  "iteration": 18,
   "no_material_finding_passes": 0,
   "outer_loop_mode": "inner",
   "reviewer": {
@@ -12,10 +12,10 @@
     "fable_weekly_percent_cap": 30,
     "fable_weekly_percent_observed": 31,
     "fable_tokens": 676183,
-    "opus_calls": 16
+    "opus_calls": 17
   },
-  "last_scope": "quest claims, Stronghold rewards, shops, services, vendor actions, and achievement consequence dispatch",
-  "last_accepted_commit": "111b280",
+  "last_scope": "remaining non-review management actions and their transaction, refresh, and achievement boundaries",
+  "last_accepted_commit": "91f0b35",
   "pending_concrete_defects": [],
   "safety_failure": null
 }

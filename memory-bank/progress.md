@@ -321,3 +321,15 @@ Test counts are snapshots; current runs outrank this note.
 - Committed as `111b280`; 109 focused core tests and nine real offscreen Qt
   Shop checks pass. Test quality remains at zero hard issues; compilation,
   diff, and worktree safety pass. Full closure verification remains pending.
+
+## Overnight fresh-eyes pass 18 — Combat management consequences (2026-07-16)
+
+- Clearing the finite Combat loadout now repaints returned Bank items in the
+  open dialog.
+- Loadout unload and Death's Office reclaim dispatch inventory achievements
+  before persistence.
+- Kept automatic safe-boundary refill as the settled UI instead of reviving the
+  deliberately removed manual Refill control.
+- Committed as `91f0b35`; 252 focused core tests and the combat-filtered real
+  offscreen Qt surface pass. Test quality remains at zero hard issues;
+  compilation, diff, and worktree safety pass. Full closure remains pending.

@@ -406,3 +406,15 @@ mutations reevaluate inventory achievements before saving.
 Verification passes 109 focused core tests and nine real offscreen Qt Shop
 checks. Test quality has zero hard issues; compilation, diff, and safe-worktree
 checks pass. Full closure verification remains pending.
+
+## Overnight fresh-eyes pass 18 (2026-07-16)
+
+Commit `91f0b35` closes the remaining reproduced Combat-management consequence
+gaps. Clearing the finite loadout immediately repaints returned bank items, and
+both unload and Death's Office reclaim evaluate inventory achievements before
+saving. The reviewer-proposed manual Refill button was rejected because the
+current UI contract deliberately uses automatic safe-boundary refill.
+
+Verification passes 252 focused core tests and the combat-filtered real
+offscreen Qt surface. Test quality has zero hard issues; compilation, diff, and
+safe-worktree checks pass. Full closure verification remains pending.

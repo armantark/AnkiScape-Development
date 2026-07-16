@@ -58,6 +58,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 | 15 | Test-oracle integrity against production Shop persistence and Farming UI reachability | Opus | 6 | 2 | `1120fb4` | 242 focused; 183 real offscreen Qt; 1,305 full; zero hard test-quality issues; compilation, diff, and worktree checks |
 | 16 | Prayer, Magic, Construction, Thieving, Agility, and Herblore live-surface reachability | Opus | 6 | 8 | `483eb55` | 170 focused core; 8 real offscreen Qt; 1,312 full; zero hard test-quality issues; compilation, diff, and worktree checks |
 | 17 | Quest claims, Stronghold rewards, shops, services, vendor actions, and achievement consequence dispatch | Opus | 2 | 4 | `111b280` | 109 focused core; 9 real offscreen Qt; zero hard test-quality issues; compilation, diff, and worktree checks |
+| 18 | Remaining non-review management actions and their transaction, refresh, and achievement boundaries | Opus | 3 | 2 | `91f0b35` | 252 focused core; combat-filtered real offscreen Qt; zero hard test-quality issues; compilation, diff, and worktree checks |
 
 ## Accepted fixes
 
@@ -118,6 +119,8 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - XP-lamp claims now recompute funded skill levels before achievement evaluation and show their XP immediately, so a fresh Herblore or Construction lamp cannot strand progress behind a stale level gate.
 - Quest-bank claims and deferred Stronghold rewards now use the established direct-action undo boundary, including deterministic state restoration and Anki undo-menu refresh.
 - Shop purchases, sales, services, and vendor actions reevaluate achievements before their already-established persistence boundary, so inventory predicates unlock atomically instead of waiting for a later review.
+- Clearing the Combat supply loadout now repaints returned bank items immediately instead of leaving the visible Bank list stale.
+- Combat loadout unload and Death's Office reclaim now evaluate inventory achievements before saving, matching the atomic consequence boundary used by Shop and reward actions.
 
 ## Rejected candidates
 
@@ -149,6 +152,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Always-enabled Magic and Construction Train buttons were not converted to speculative whole-skill gates: review runtime already deactivates unavailable targets, while this pass repaired the concrete stale selector and house-action failures.
 - Mage Training Arena remains intentionally unavailable because no accepted contract supplies an unlock writer; the pass-17 reviewer confirmed that existing status record rather than inventing one.
 - Bob Barter decanting was not given special potion-hoarding achievement semantics. Ordinary shop consequence dispatch is now correct, while whether transient pre-decant dose arrangements should count remains a product-design question outside this defect pass.
+- The unused manual Combat refill callback was not surfaced: the current UI and its regression contract deliberately removed that control in favor of automatic safe-boundary refill, so dead callback cleanup is maintenance rather than a player-facing defect.
 
 ## Queued confirmed defects
 
@@ -172,6 +176,7 @@ None. The next pass rotates away from the six repaired skill surfaces rather tha
 - Pass 15 used one successful read-only Opus workflow (`4f00a73a-0ac0-4bfd-bd81-c6f6a2788b85`). The required pre/post live checks both reported Fable at 30% and all-model weekly usage at 19%; current-session usage rose from 25% to 28%. The reviewer exposed the missing Juju Farming control but underrated it against the recorded acceptance claim; Codex reproduced that UI omission and independently found the stronger unsaved Shop mutation path.
 - Pass 16 used one successful read-only Opus workflow (`03135f05-b39a-47bb-a2e2-d271a30e4399`). The pre-check reported current-session 0%, all-model weekly 19%, and Fable 30%; the post-check reported 8%, 20%, and 31% respectively. The reviewer supplied six concrete surface defects; Codex reproduced all six and independently found the matching stale Magic prerequisite and target-readiness refresh paths.
 - Pass 17 used one successful read-only Opus workflow (`9da89a0e-0fd4-429b-9d6e-58524e20cfc1`). The pre-check reported current-session 8%, all-model weekly 20%, and Fable 31%; the post-check reported 11%, 20%, and 31% respectively. The reviewer identified the stale XP-lamp level and deferred shop-achievement dispatch; Codex reproduced both and independently found that quest-bank and Stronghold reward grants also bypassed the established direct-action undo boundary.
+- Pass 18 used one successful read-only Opus workflow (`9f2562eb-cc08-40b4-8034-586b470be59e`). The pre-check reported current-session 11%, all-model weekly 20%, and Fable 31%; the post-check reported 13%, 20%, and 31% respectively. Codex reproduced and fixed the stale Bank repaint and delayed achievement dispatch, rejected the deliberately removed manual refill control, and recorded discard-stack undo as a design question rather than silently broadening the direct-action contract.
 
 ## Closure
 

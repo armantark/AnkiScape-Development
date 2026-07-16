@@ -22,6 +22,17 @@ Bushes, fruit trees, cactus, calquat, and Habitat bushes regenerate produce inde
 
 Recommended direction: add an explicit one-review `Dig up` field verb for a healthy mature regrowth crop, requiring a Spade and returning no produce. Keep `Clear` restricted to the already-settled dead/stump semantics.
 
+### 4. Undo policy for destructive Bank discard
+
+`Discard all` permanently deletes an owned stack after confirmation, while
+consumption, supply-pack opening, reward claims, Agility commands, and urn
+teleports use direct-action undo. Existing prose explicitly requires undo for
+XP-awarding direct actions but is less clear for a zero-XP destructive action.
+
+Recommended direction: make confirmed Bank discard use the same bounded
+direct-action undo stack. The confirmation remains useful, but it should not be
+the only recovery path for an arbitrarily large stack.
+
 ## Resolved without owner input
 
 - The Pit's existing invitation gate now remains satisfied while its six-review challenge session is active.
