@@ -51,6 +51,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 | 8 | Canonical registry identities, generated equipment, achievements, assets, and Magic/Prayer reachability coverage | Opus | 3 | 3 | `5ab5aee` | 78 focused; 509 integration/end-to-end; 8 real offscreen Qt; 1,275 full; zero hard test-quality issues; compilation, diff, and worktree checks |
 | 9 | Quest stage/reward writers, shop identities, non-Agility activity counters, achievement readers, and obtainable quest equipment | Opus | 2 | 2 | `ceaab20` | 127 registry/shop/quest plus 104 quest/runtime; 4 real offscreen Qt; 1,280 full; zero hard test-quality issues; reachability, compilation, diff, and worktree checks |
 | 10 | Combat supplies, supplemental Magic state, Ranged ammo, reflected kills, fatal loot, equipment protection, and undo seams | Opus | 3 | 3 | `916b075` | 334 focused combat/runtime/integration; 8 real offscreen Qt; 1,286 full; zero hard test-quality issues; reachability unchanged; compilation, diff, and worktree checks |
+| 11 | Thieving and Combat arrow outputs, NPC shops, generated Crafting and Fletching equipment, persistence, and undo seams | Opus | 2 | 2 | `9273cf4` | 263 focused; 5 real offscreen Qt; 1,291 full; zero hard test-quality issues; reachability unchanged; compilation, diff, and worktree checks |
 
 ## Accepted fixes
 
@@ -93,6 +94,8 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Dream remains a between-fights action and cannot consume banked runes to interrupt a live encounter.
 - Kept loot earned before a same-review death is moved into the new grave after runtime loot filtering instead of surviving in a recreated carried view.
 - Protect Item now preserves the highest store-value equipped item instead of the alphabetically first slot.
+- Standard-arrow drops, H.A.M. pickpocket loot, and all live NPC shop rows now produce the canonical plural ammunition identities accepted by equipment and combat. Existing singular save keys and shop rollback events migrate without losing quantities or undo symmetry.
+- The checked-in equipment snapshot now contains every live source-generator equipment output from Crafting and Fletching, including 29 previously craftable but rejected items. A synchronization oracle prevents future generator/snapshot drift.
 
 ## Rejected candidates
 
@@ -124,6 +127,7 @@ None. The next pass rotates to quest, shop, activity, and achievement writer/rea
 - Pass 8 used one successful read-only Opus workflow (`cfaade17-3598-450d-beb9-93ede931fa1b`). The required pre/post live checks again reported Fable at 30%; the all-model weekly reading rose to 17%, but no Fable review was made.
 - Pass 9 used one successful read-only Opus workflow (`83a95201-9995-4f32-aa04-1c5280f9d7b6`). The required pre/post live checks both reported Fable at 30% and all-model weekly usage at 17%, so no Fable review was made.
 - Pass 10 used one successful read-only Opus workflow (`fd4455dd-351c-4314-a98b-74af0726be7f`). The required pre/post live checks both reported Fable at 30% and all-model weekly usage at 17%; the Opus reviewer supplied three candidates, all independently reproduced, while Codex found and repaired three additional defects in the same bounded combat state path.
+- Pass 11 used one successful read-only Opus workflow (`c3bb074e-f91d-472e-b62d-03fc23390dbc`). The required pre/post live checks both reported Fable at 30% and all-model weekly usage at 17%; the reviewer exposed the NPC-shop ammunition producer failure and its blind oracle, while Codex independently found matching Thieving and Combat producers plus a stale generated-equipment snapshot.
 
 ## Closure
 

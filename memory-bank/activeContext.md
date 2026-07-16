@@ -309,3 +309,21 @@ reachability remains 1,188 actions and 270 orphan inputs (110 root, 160
 cascade); compilation, diff, and safe-worktree checks pass. The system Python
 is 3.9 and cannot parse the repository's supported union-type syntax, so the
 authoritative full run used the established Homebrew Python 3.14 interpreter.
+
+## Overnight fresh-eyes pass 11 (2026-07-16)
+
+Commit `9273cf4` closes ranged item identity seams across every live producer.
+Standard arrows from H.A.M. pickpockets, Combat drops, and NPC shops now enter
+the canonical plural ammunition stacks accepted by equipment and combat. Save
+migration merges legacy singular stacks, including persisted shop events and
+their inverse deltas, without losing quantities or breaking undo.
+
+The checked-in equipment snapshot was also regenerated from its current source
+generator. Twenty-nine live Crafting and Fletching outputs that were previously
+craftable but rejected by the equipment engine are now equippable, and a new
+generator/snapshot synchronization oracle prevents recurrence.
+
+Verification passes 263 focused tests, five real offscreen Qt checks, and all
+1,291 tests with 185 skips and three expected XP-parity failures. Test quality
+has zero hard issues; reachability remains 1,188 actions and 270 orphan inputs
+(110 root, 160 cascade); compilation, diff, and safe-worktree checks pass.

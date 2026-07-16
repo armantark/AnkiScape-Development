@@ -239,3 +239,15 @@ Test counts are snapshots; current runs outrank this note.
 - Committed as `916b075`; 334 focused tests, eight real offscreen Qt checks, and
   all 1,286 tests pass. Reachability remains 1,188 actions with 270 orphan
   inputs, and test quality remains at zero hard issues.
+
+## Overnight fresh-eyes pass 11 — ranged producer and equipment identity (2026-07-16)
+
+- Normalized H.A.M. loot, Combat drops, and NPC shops to the canonical plural
+  standard-arrow identities, with quantity-preserving save and shop-undo
+  migration for legacy singular keys.
+- Regenerated the equipment snapshot so all live Crafting and Fletching
+  equipment outputs are accepted by the equipment engine, adding 29 missing
+  rows and a synchronization oracle.
+- Committed as `9273cf4`; 263 focused tests, five real offscreen Qt checks, and
+  all 1,291 tests pass. Reachability remains 1,188 actions with 270 orphan
+  inputs, and test quality remains at zero hard issues.
