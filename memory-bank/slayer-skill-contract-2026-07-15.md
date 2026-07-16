@@ -572,3 +572,48 @@ block baseline certification. Their offer predicate uses the same derived
 runtime-readiness rule: a master can roll ordinary tasks while an unimplemented
 challenge offer remains absent, and that offer activates automatically once its
 complete compound objective is ready.
+
+## Owner decision 20 — certify families with an ordinary variant floor
+
+A baseline assignment family satisfies the qualifying-variant portion of master
+certification when its family roll data is complete and at least one fully
+functional, ordinarily available qualifying variant has an end-to-end Combat
+path. The certifying variant may not depend on a quest, reward purchase, special
+context, or other player gate that would leave the baseline family unavailable
+to an otherwise eligible player.
+
+If the period family has no ordinarily available variant, it is classified as a
+player-gated family under Owner decision 19 rather than forced through the
+baseline exception. Its authentic gated variant may certify the family only once
+the complete quest, reward, context, item, and acquisition chain is implemented;
+the design does not invent an ungated substitute merely to satisfy this floor.
+
+`Fully functional` includes the family's distinctive kill loop. A certifying
+variant must exercise any required finisher, protective equipment consequence,
+special damage rule, context rule, drop/acquisition dependency, and atomic undo
+branch established by the source. A generic enemy that merely reaches zero LP
+cannot certify a family whose real loop requires more.
+
+This floor does not shrink the cutoff family definition. Every qualifying
+variant and its stable family membership must be pinned in the completeness
+ledger now. Unimplemented variants remain named developer-audit blockers, stay
+absent from live search and selection, and enter automatically when their target,
+context, acquisition, and special-mechanic dependencies become runtime-ready.
+Adding a variant changes neither the active assignment nor its remaining count;
+it only expands the exact targets eligible for future Slayer credit.
+No temporary weight, kill-count, Slayer-XP, or other compensation is applied
+because the currently implemented variants happen to be weaker or stronger.
+
+If the implemented breadth makes a flat Combat target list unwieldy, the existing
+picker may render an expandable family-to-variant hierarchy. The family row is a
+non-target grouping label; only an exact child variant can be selected and
+persisted. Shared search matches family and variant metadata, reveals matching
+children even when their family was collapsed, and composes with `Current Slayer
+task only`. Expansion state is presentation-only and cannot change the persisted
+target, family, or assignment. A small family may remain flat. No fixed size
+threshold is invented: use the hierarchy only when it materially improves
+scanning.
+
+This is nesting inside one list surface, not a nested window, menu, or second
+fight interface. Combat remains the sole encounter surface and the Slayer page's
+`Open in Combat` behavior remains unchanged.

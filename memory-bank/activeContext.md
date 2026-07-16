@@ -74,7 +74,17 @@ and satisfies the still-open owner-set variant coverage bar. Authentic player
 quest, reward, block-list, and previous-task gates filter only after that
 certification; no master may ship with baseline weights silently renormalized
 around implementation gaps. Optional special challenges certify independently
-and do not block a master's ordinary pool.
+and do not block a master's ordinary pool. A baseline family certifies with
+complete roll data and one fully functional ordinarily available variant; every
+other cutoff variant remains pinned in the audit and activates automatically.
+An inherently player-gated family instead certifies only through its complete
+authentic gate chain, and every certifying variant must include its distinctive
+finisher, protective-equipment, context, acquisition, and undo behavior. No
+temporary XP, weight, or task-size compensation is added for limited variant
+breadth.
+When live breadth warrants it, Combat may group exact selectable variants beneath
+a non-selectable expandable family row inside the existing picker. This creates
+no nested window or second fight surface.
 
 Agility's owner grill and full-content design harvest are closed; implementation
 belongs in a new thread. The governing product contract is

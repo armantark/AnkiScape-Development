@@ -184,6 +184,14 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT`.
   block-list, and other player-specific exclusions only after baseline
   certification. Optional special challenges do not block the ordinary pool;
   gate each offer on its own complete runtime readiness.
+- Certify a baseline family once its roll data and one ordinarily available,
+  end-to-end qualifying Combat variant are ready. Keep every remaining cutoff
+  variant pinned and audit-visible but absent from player UI until its stable
+  dependencies activate it automatically. If live variant breadth becomes hard
+  to scan, allow expandable family-to-variant grouping inside the existing
+  Combat picker; exact variants remain the only selectable targets. Inherently
+  player-gated families certify only through their complete authentic gate chain,
+  and every certifying variant must include its special kill/protection mechanics.
 - Before that unlock, the finisher consumes its own correct review. Exclude the
   salt, ice, fungicide, and explosive shakers released in 2015.
 
