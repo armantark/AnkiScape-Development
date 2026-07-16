@@ -144,7 +144,7 @@ STALL_TARGETS = {
     "stall_baker": _stall("Baker stall",5,16.0,3,total=20,loot=(("Cake",1,1,13),("Bread",1,1,5),("Chocolate slice",1,1,2)),source_lines="40-58"),
     "stall_crafting": _stall("Crafting stall",5,16.0,12,total=3,loot=(("Chisel",1,1,1),("Necklace mould",1,1,1),("Ring mould",1,1,1)),source_lines="60-79"),
     "stall_monkey_food": _stall("Monkey food stall",5,16.0,12,total=10,loot=(("Banana",1,1,7),("Monkey nuts",1,1,1),("Banana stew",1,1,1),("Monkey bar",1,1,1)),source_lines="81-96"),
-    "stall_monkey_general": _stall("Monkey general stall",5,16.0,12,total=3,loot=(("Hammer",1,1,1),("Pot",1,1,1),("Tinderbox",1,1,1)),source_lines="98-112"),
+    "stall_monkey_general": _stall("Monkey general stall",5,16.0,12,total=3,loot=(("Hammer",1,1,1),("Empty pot",1,1,1),("Tinderbox",1,1,1)),source_lines="98-112"),
     "stall_tea": _stall("Tea stall",5,16.0,12,guaranteed=(("Cup of tea",1),),source_lines="114-125"),
     "stall_silk": _stall("Silk stall",20,24.0,8,guaranteed=(("Silk",1),),source_lines="127-138"),
     "stall_wine": _stall("Wine stall",22,27.0,16,total=100,loot=(("Jug",1,1,39),("Jug of water",1,1,20),("Grapes",1,1,17),("Jug of wine",1,1,13),("Bottle of wine",1,1,11)),source_lines="140-157"),

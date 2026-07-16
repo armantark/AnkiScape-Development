@@ -256,6 +256,17 @@ class TestThievingPureMechanics(unittest.TestCase):
                 else:
                     self.assertIsNone(profile.overflow_policy)
 
+    def test_monkey_general_stall_uses_canonical_empty_pot_identity(self):
+        loot_names = {
+            item_name
+            for item_name, _minimum, _maximum, _weight in STALL_TARGETS[
+                "stall_monkey_general"
+            ]["loot"]
+        }
+
+        self.assertIn("Empty pot", loot_names)
+        self.assertNotIn("Pot", loot_names)
+
 
 class TestThievingRuntime(unittest.TestCase):
     def test_failed_pickpocket_deals_damage_then_next_review_only_clears_stun(self):

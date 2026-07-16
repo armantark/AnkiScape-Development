@@ -73,6 +73,22 @@ class AchievementMetadataTest(unittest.TestCase):
         self.assertTrue(ACHIEVEMENTS["Rune Mysteries"]["condition"](player_data))
         self.assertTrue(ACHIEVEMENTS["Hooded Runecrafter"]["condition"](player_data))
 
+    def test_pottery_and_activity_conditions_use_live_canonical_state(self):
+        self.assertTrue(
+            ACHIEVEMENTS["Pottery Apprentice"]["condition"](
+                {"inventory": {"Empty pot": 100}}
+            )
+        )
+
+        five_families = {
+            family: 1
+            for family in ("brimhaven", "skullball", "gnome_ball", "pit", "circus")
+        }
+        condition = ACHIEVEMENTS["Activity Circuit"]["condition"]
+        self.assertFalse(condition({"agility_activity_completions": five_families}))
+        five_families["flash_powder_factory"] = 1
+        self.assertTrue(condition({"agility_activity_completions": five_families}))
+
     def test_farming_achievements_use_durable_backend_counters(self):
         player_data = {
             "inventory": {},

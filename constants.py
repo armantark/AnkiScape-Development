@@ -4,9 +4,9 @@ import os
 import re
 
 try:
-    from .agility_data import AGILITY_EXTRA_ITEM_DATA, AGILITY_ITEM_IMAGES
+    from .agility_data import AGILITY_EXTRA_ITEM_DATA, AGILITY_ITEM_IMAGES, AGILITY_TARGETS
 except ImportError:
-    from agility_data import AGILITY_EXTRA_ITEM_DATA, AGILITY_ITEM_IMAGES  # type: ignore
+    from agility_data import AGILITY_EXTRA_ITEM_DATA, AGILITY_ITEM_IMAGES, AGILITY_TARGETS  # type: ignore
 
 try:
     from .construction_data import (
@@ -1396,5 +1396,6 @@ ACHIEVEMENT_DEFINITIONS = build_achievement_definitions(
     FISHING_OUTPUT_ITEMS,
     HUNTER_OUTPUT_ITEMS,
     HERBLORE_FINISHED_OUTPUT_ITEMS,
+    (target.activity_kind for target in AGILITY_TARGETS if target.activity_kind),
 )
 ACHIEVEMENTS = achievements_as_dict(ACHIEVEMENT_DEFINITIONS)
