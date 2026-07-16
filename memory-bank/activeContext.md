@@ -261,3 +261,18 @@ all 1,272 tests, with 183 non-Qt skips and three expected XP-parity failures.
 Test quality remains at zero hard issues, compilation and diff checks pass, and
 the safe worktree audit remains clean. There is no queued confirmed defect;
 the next pass rotates to quest, shop, activity, and achievement seams.
+
+## Overnight fresh-eyes pass 8 (2026-07-16)
+
+Commit `5ab5aee` repairs three registry and audit seams. Smithing achievements
+now consume the canonical live bar identities; source item 4600 is consistently
+the obtainable and equippable `Willow blackjack`; and the acquisition graph now
+models Magic and Prayer outputs, rune costs, and dynamic bone alternatives.
+This removes false elemental-orb and Wine-of-zamorak roots while surfacing real
+downstream Prayer and Onyx acquisition debt that was previously invisible.
+
+Verification passes 78 focused tests, 509 integration/end-to-end tests, eight
+real offscreen Qt tests, and all 1,275 non-Qt tests with 185 skips and the three
+expected XP-parity failures. The test-quality audit has zero hard issues;
+compilation, diff, and worktree-safety checks pass. Reachability now covers
+1,188 actions, with 270 orphan inputs: 110 root and 160 cascade.

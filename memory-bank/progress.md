@@ -198,3 +198,16 @@ Test counts are snapshots; current runs outrank this note.
 - Committed as `09aacc2`; 91 focused tests, 86 clean real-Qt lifecycle and
   integration tests, and 1,273 full tests pass. Compilation, diff, worktree
   safety, and the zero-hard-issue test-quality gate are clean.
+
+## Overnight fresh-eyes pass 8 — canonical registry and graph coverage (2026-07-16)
+
+- Repaired Adamantite Artisan and Runite Refiner to read the canonical live
+  `Adamant bar` and `Rune bar` identities.
+- Unified source item 4600 as `Willow blackjack` across generated equipment,
+  the registry, shops, quest rewards, Thieving requirements, and equip runtime.
+- Added live Magic and Prayer production to item reachability, including rune
+  costs and dynamic bone inputs, and updated stale battlestaff dependency notes.
+- Committed as `5ab5aee`; 78 focused, 509 integration/end-to-end, eight real
+  offscreen Qt, and 1,275 full tests pass. Reachability covers 1,188 actions and
+  reports 270 orphan inputs (110 root, 160 cascade); test quality remains at
+  zero hard issues.

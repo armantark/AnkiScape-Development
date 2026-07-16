@@ -48,6 +48,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 | 5 | Persisted item-name symmetry across carried packs, loot preferences, graves, Death's Office, equipment reclaim, shop rollback, and Magic selectors | Opus | 3 | 3 | `3953b64` | 312 focused; 1,272 full; zero hard test-quality issues; compilation, diff, and worktree checks |
 | 6 | Shop services, Herblore dose conservation, Agility and Thieving activities, and achievement writer/reader symmetry | Opus | 3 | 3 | `c1ca766` | 183 focused; 1,274 full; reachability unchanged; zero hard test-quality issues; compilation, diff, and worktree checks |
 | 7 | Qt lifecycle, production hook registration, bridge filter symmetry, singleton menu ownership, and runtime worktree isolation | Opus | 12 | 8 | `09aacc2` | 91 focused; 86 clean real-Qt rerun after one test-fake ordering repair; 1,273 full; zero hard test-quality issues; compilation, diff, and worktree checks |
+| 8 | Canonical registry identities, generated equipment, achievements, assets, and Magic/Prayer reachability coverage | Opus | 3 | 3 | `5ab5aee` | 78 focused; 509 integration/end-to-end; 8 real offscreen Qt; 1,275 full; zero hard test-quality issues; compilation, diff, and worktree checks |
 
 ## Accepted fixes
 
@@ -78,6 +79,9 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - The accidentally nested, unreachable duplicate bridge handler and its dead wall-clock debounce were removed. Runtime gating remains review-native; no gameplay path gained wall-clock state.
 - The unsupported `DeckBrowserContent.links` hook, its orphan helper module, and four tests of a fabricated Anki API were removed. The production `deck_browser_did_render` JavaScript injector remains the single button path with its existing icon.
 - Bridge tests now use Anki's real tuple contract and a deterministic timer fake, including regression proof that upstream handled results survive and a double-open schedules one callback.
+- Adamantite Artisan and Runite Refiner now read the canonical `Adamant bar` and `Rune bar` identities produced by live Smithing, restoring both achievements and Living Legend reachability.
+- Source item 4600 now generates and registers as the single canonical `Willow blackjack` identity used by the live shop, quest reward, Thieving gate, and equipment runtime; the obtainable weapon can be equipped instead of shadowing an unobtainable hyphenated row.
+- The reachability graph now includes live Magic and Prayer producers, their rune costs, dynamic bone alternatives, and Prayer byproducts. Charged elemental orbs and Wine of zamorak are no longer false root orphans, and the audit now exposes real downstream Prayer and Onyx dependency chains that were previously outside its graph.
 
 ## Rejected candidates
 
@@ -95,7 +99,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 
 ## Queued confirmed defects
 
-None. The next pass rotates to registries, assets, reachability, and remaining test-oracle integrity seams rather than carrying an unverified candidate forward.
+None. The next pass rotates to quest, shop, activity, and achievement writer/reader seams rather than carrying an unverified candidate forward.
 
 ## Reviewer budget and availability
 
@@ -105,6 +109,7 @@ None. The next pass rotates to registries, assets, reachability, and remaining t
 - Pass 5 used one successful read-only Opus workflow (`707070c2-c80d-4a36-a7d3-ad297f8669ab`). The required pre/post live checks again reported Fable at 30%.
 - Pass 6 used one successful read-only Opus workflow (`f9ddb28f-9257-473a-afee-40ddf738d09a`). The required pre/post live checks again reported Fable at 30%, so the Fable cap remains closed.
 - Pass 7 used one successful read-only Opus workflow (`0a9b2e49-9a95-4668-a9a5-8da61341607c`). The required pre/post live checks again reported Fable at 30%.
+- Pass 8 used one successful read-only Opus workflow (`cfaade17-3598-450d-beb9-93ede931fa1b`). The required pre/post live checks again reported Fable at 30%; the all-model weekly reading rose to 17%, but no Fable review was made.
 
 ## Closure
 
