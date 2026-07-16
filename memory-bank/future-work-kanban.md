@@ -157,6 +157,9 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT`.
   cost; do not add map state, travel reviews, or wall-clock delay.
 - Represent only mechanically distinct Slayer areas as target-local Combat
   contexts, including Kuradal's Dungeon; collapse cosmetic duplicate locations.
+- Keep Slayer management inside one Skills page with `Assignment`, `Masters`,
+  and `Rewards` subviews; reuse shared search and deep-link into Combat rather
+  than opening nested dialogs or duplicating the fight picker.
 - Before that unlock, the finisher consumes its own correct review. Exclude the
   salt, ice, fungicide, and explosive shakers released in 2015.
 

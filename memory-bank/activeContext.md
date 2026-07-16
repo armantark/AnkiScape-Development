@@ -40,7 +40,13 @@ are target-local Combat contexts; cosmetic duplicates collapse, and no global
 player-location state is added. Period revisions now pin Kuradal's Dungeon and
 its ferocious ring: five trip charges, fixed +40 LP per successful dungeon hit,
 and a destructive below-10%-LP emergency retreat. No Slayer gameplay
-implementation is authorized in this thread.
+implementation is authorized in this thread. Slayer management is one
+integrated Skills page with `Assignment`, `Masters`, and `Rewards` subviews,
+shared search, and review-free deep-linking to Combat as the sole fight surface.
+For the remainder of this owner grill, Fable is an equal read-only background
+design voice: it reviews the live contract and unresolved branches before each
+substantive question, while Codex owns source verification, synthesis, and the
+committed decision record.
 
 Agility's owner grill and full-content design harvest are closed; implementation
 belongs in a new thread. The governing product contract is

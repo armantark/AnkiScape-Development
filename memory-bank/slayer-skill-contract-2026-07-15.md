@@ -388,3 +388,29 @@ emergency escape consumes no review; it atomically destroys the ring, ends the
 encounter, avoids grave processing, and participates in Combat review undo.
 Combining partially charged rings is a review-free inventory operation with its
 own manual undo record.
+
+## Owner decision 15 — one integrated Slayer management page
+
+Slayer management stays inside the existing AnkiScape Skills surface and does
+not open nested dialogs or independent windows. The page has three persistent
+subviews:
+
+1. `Assignment` is the default. It shows the current assignment or challenge,
+   remaining objectives, functional master and current portrait, point streak,
+   relevant context/item blockers, management operations, and recent progress.
+2. `Masters` contains the progression-visible picker settled in Owner decision
+   6. `Get assignment` changes to this subview, preserves the last eligible
+   selection, and performs the review-free assignment transaction in place.
+3. `Rewards` shows the point balance, repeatable purchases, permanent unlocks,
+   skips, block slots, and blocked-assignment management. Assignment actions may
+   deep-link to the relevant operation here without opening another window.
+
+Every long list uses the shared modular search/filter component; local Slayer UI
+must not create another bespoke search box. Search never changes persisted
+selection or active task state. Empty states and locked rows explain why an
+operation or result is unavailable.
+
+Slayer does not duplicate the combat target picker. `Open in Combat` switches
+the existing AnkiScape surface to Combat with `Current Slayer task only`
+enabled, while leaving the exact target and context for the player to choose.
+Combat remains the only fight interface and no deep-link starts an encounter.
