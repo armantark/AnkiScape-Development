@@ -26,9 +26,11 @@ synchronized Bank, reviewer, and target projections; target-local policy chooses
 silently replacing a live familiar on target switches. Selecting a BoB is Casual's
 opt-in to automatic target-preset packing of its separate inventory, while Advanced
 exposes the exact slots. Casual point upkeep is also settled: when a familiar
-policy lacks the Summoning points it needs, the next successful answer becomes an
-abstracted obelisk-restoration action instead of the selected target action; Again
-never restores. Casual auto-special is settled on by default: it fires only on
+policy lacks the Summoning points it needs, the next successful answer becomes the
+unified `Visiting altar+obelisk` action instead of the selected target action, fully
+restoring ordinary Prayer and Summoning points; Again never restores. Existing combat
+Bank runs coalesce their free altar stop with the obelisk without spending another
+review. Casual auto-special is settled on by default: it fires only on
 successful answers under source-role triggers and consumes only a deliberately
 carried matching scroll plus special-move points, never Bank stock. Passive familiar
 effects now follow the owner's AFK boundary: every answered card, including Again,
@@ -46,10 +48,12 @@ Summoning points and may resummon mid-encounter. Advanced may reserve multiple e
 pouch slots; Bank stock is never consumed directly. Missing resources leave the policy
 enabled but visibly lapsed until they return. Carried-pouch depletion now triggers an
 automatic one-review Bank detour when the enabled policy can refill from owned stock;
-the detour replaces the target action and may complete the resummon atomically. The next
-open fork is whether a mismatched live familiar may be safely swapped to the current
-target policy at a Bank boundary after depositing any BoB cargo, or must always run to
-expiry/manual dismissal. The cross-product help architecture is owner-settled in
+the detour replaces the target action and may complete the resummon atomically. A
+mismatched live familiar is now safely swapped at the next Bank boundary only after BoB
+cargo is deposited and replacement success is guaranteed; otherwise the old familiar
+remains active and the new policy stays queued. The next open fork is whether Casual
+`Best available` may downgrade within the selected role when the best pouch type runs
+out. The cross-product help architecture is owner-settled in
 `help-system-contract-2026-07-16.md`: one offline searchable corpus feeds both the
 full Help Center and contextual page-level `?` entries.
 

@@ -191,9 +191,9 @@ Combat and non-combat targets:
   one.
 - `Best available` resolves from owned, level-valid, usable familiars in the chosen role;
   its final ordering must come from the harvested catalog rather than display-name rules.
-- Automation may summon into an empty global slot but never silently dismiss or replace
-  a live familiar when the target changes. A mismatched live familiar remains active and
-  the target surface shows the queued policy with an explicit switch command.
+- Automation may summon into an empty global slot, but target navigation alone never
+  dismisses or replaces a live familiar. A mismatch remains active with the new policy
+  visibly queued until an explicit switch or the settled safe Bank-boundary swap.
 
 Choosing a BoB policy is the Casual opt-in to its storage. While a compatible BoB is
 active, Casual automatically packs its separate restricted inventory according to the
@@ -204,19 +204,27 @@ existing Casual/Advanced packing mode rather than creating independent mode togg
 could contradict each other. Switching targets alone never repacks, empties, dismisses,
 or drops a live familiar's cargo.
 
-### 7. Casual Summoning-point upkeep — settled 2026-07-16
+### 7. Unified altar + obelisk upkeep — settled 2026-07-16
 
 When a Casual familiar policy needs more Summoning points to summon or to perform a
 configured point-gated ability, it automatically spends the **next successful answer**
-on an abstracted obelisk restoration. That answer restores points instead of performing
-the selected target action. Again cannot restore points because it has no foreground
-command. This is an explicit foreground-action detour, not wall-clock travel or persistent
-player location.
+on an abstracted restore stop. The reviewer line reads **`Visiting altar+obelisk`** and
+fully restores both ordinary Prayer points and ordinary Summoning points. That answer
+restores the two pools instead of performing the selected target action. Again cannot
+restore points because it has no foreground command. This is an explicit foreground-
+action detour, not wall-clock travel or persistent player location.
+
+The same rule extends Prayer's existing combat Bank-run abstraction: every completed
+Bank run already includes a free altar stop, so once Summoning exists that same stop also
+visits an obelisk and restores Summoning points without another review. If Prayer and
+Summoning both need restoration, their requests coalesce into this one atomic action;
+they never queue two travel lines. This does not merge the resources, change potion
+behavior, or restore special-move points unless the source harvest separately proves
+that the chosen restore surface should do so.
 
 Advanced exposes a toggle for the same auto-restore behavior and retains a manual
-Restore command. Exact restore values and the relationship between ordinary Summoning
-points and special-move points remain source-harvest work; automation cannot silently
-merge the two resources.
+Restore command. Exact potion-restore values and special-move-point recovery remain
+source-harvest work; automation cannot silently merge the resources.
 
 ### 8. Casual scroll-special automation — settled 2026-07-16
 
@@ -314,12 +322,25 @@ This applies to Casual and Advanced when their familiar policy is enabled. Advan
 avoid the detour frequency by reserving several exact pouch slots; those pouches are
 consumed before any Bank access.
 
-### 13. Safe familiar swap after a target change — open
+### 13. Safe familiar swap after a target change — settled 2026-07-16
 
-Target switching alone never dismisses a live mismatched familiar. Choose whether the
-next Bank boundary may safely deposit any BoB cargo, dismiss the old familiar, and summon
-the new target policy's familiar when replacement success is guaranteed, or whether the
-old familiar always continues until renewal, death, expiry, or an explicit manual switch.
+Target switching alone never dismisses a live mismatched familiar. At the next Bank
+boundary, however, the target policy may atomically replace it when success is guaranteed:
+deposit any BoB cargo first, verify the desired replacement pouch and Summoning-point
+preconditions, dismiss the old familiar, then summon the replacement. The operation never
+creates a cargo-reclaim event because the cargo was safely deposited before dismissal.
+
+If any replacement precondition fails, the old familiar remains active and the new target
+policy stays visibly queued; automation does not destroy useful remaining duration merely
+to enter a lapsed state. The explicit manual switch command remains available. A completed
+safe swap is undoable as one review transaction together with its Bank boundary.
+
+### 14. Casual fallback when the best familiar runs out — open
+
+Casual selects `Use best available` within a source-backed role, while Advanced pins an
+exact familiar. Choose whether Casual should automatically fall back to the next-best
+owned, level-valid familiar in that same role when the current pouch type runs out, or
+remain lapsed until more of the formerly best pouch exists.
 
 ## Source/open-work queue
 

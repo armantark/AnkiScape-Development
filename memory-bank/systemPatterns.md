@@ -124,10 +124,12 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   familiar policy may fill an empty slot but must not silently replace the live
   entity during navigation. BoB packing shares the target's existing
   Casual/Advanced inventory mode rather than adding an independent mode switch.
-- Casual background automation that needs a positive upkeep action may insert a
-  foreground detour: Summoning's abstracted obelisk restoration consumes the next
-  successful answer and replaces the selected target action. It cannot fire on
-  Again, run on wall-clock time, or grant the target's ordinary output as well.
+- Compatible restore trips coalesce rather than charging duplicate reviews. Summoning's
+  `Visiting altar+obelisk` foreground detour consumes the next successful answer,
+  replaces the selected target action, and restores ordinary Prayer and Summoning
+  points together. An existing combat Bank-run altar stop adds the obelisk restore at
+  no further review cost. It cannot fire on Again, run on wall-clock time, restore
+  special-move points without source support, or grant the target's ordinary output.
 - Enabled automation may also insert an owned-resource Bank detour. Summoning pouch
   depletion converts the next successful answer into a refill/resummon transaction
   when compatible Bank stock exists; it does not also perform the target action and
@@ -140,6 +142,10 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   consume resources: the policy stays enabled in a visible lapsed state and re-arms
   when resources return. Catalog metadata, not display names, determines compatible
   roles and trigger conditions.
+- Deferred policy replacement may use a safe resource boundary. A mismatched live
+  familiar survives target navigation, but the next Bank boundary may first deposit
+  BoB cargo and then atomically dismiss and replace it when the new summon is guaranteed.
+  Failed preconditions preserve the old familiar rather than trading it for a lapse.
 - Optional combat exposure is fail-closed to source evidence. An attacking
   Summoning familiar is not a generic second damage target; only a pinned
   retaliation, area, enemy, or explicit aggro/tanking mechanic may reach its LP.

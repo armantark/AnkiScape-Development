@@ -169,11 +169,14 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
 - Implement one global familiar slot with a canonical Equipment panel and synced
   Bank/reviewer/target projections. Casual target presets select best available by
   sourced familiar role and auto-pack an active BoB; Advanced pins the exact
-  familiar and exposes its separate inventory grid. Target changes never silently
-  dismiss, replace, or repack the live global familiar.
-- Casual Summoning-point upkeep inserts an abstracted obelisk restoration on the
-  next successful answer when needed, replacing that target action; Again never
-  restores. Advanced exposes the same automation as a toggle plus a manual command.
+  familiar and exposes its separate inventory grid. Target navigation alone never
+  dismisses, replaces, or repacks the live global familiar; the settled safe Bank-
+  boundary swap may later replace it when all preconditions hold.
+- Casual Summoning-point upkeep inserts one `Visiting altar+obelisk` restoration
+  on the next successful answer when needed, replacing that target action and fully
+  restoring ordinary Prayer and Summoning points; Again never restores. Existing
+  combat Bank-run altar stops coalesce the obelisk without a second review. Advanced
+  exposes the same automation as a toggle plus a manual command.
 - Casual auto-special is globally on by default but fires only on successful
   answers, consumes a matching target-carried scroll plus sourced special-move
   points, and uses catalog-backed role triggers that avoid inapplicable or wasted
@@ -192,6 +195,9 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
 - If carried pouches run out while the policy is enabled, a successful answer may
   become a one-review Bank refill/resummon detour when compatible stock exists.
   Again never banks; insufficient Bank stock leaves the policy visibly lapsed.
+- A target-policy mismatch may swap safely at the next Bank boundary: deposit BoB
+  cargo, verify the replacement can succeed, then dismiss and summon atomically.
+  Failed preconditions preserve the old familiar and show the new policy as queued.
 
 ### Dungeoneering
 
