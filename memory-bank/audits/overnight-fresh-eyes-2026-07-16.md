@@ -50,6 +50,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 | 7 | Qt lifecycle, production hook registration, bridge filter symmetry, singleton menu ownership, and runtime worktree isolation | Opus | 12 | 8 | `09aacc2` | 91 focused; 86 clean real-Qt rerun after one test-fake ordering repair; 1,273 full; zero hard test-quality issues; compilation, diff, and worktree checks |
 | 8 | Canonical registry identities, generated equipment, achievements, assets, and Magic/Prayer reachability coverage | Opus | 3 | 3 | `5ab5aee` | 78 focused; 509 integration/end-to-end; 8 real offscreen Qt; 1,275 full; zero hard test-quality issues; compilation, diff, and worktree checks |
 | 9 | Quest stage/reward writers, shop identities, non-Agility activity counters, achievement readers, and obtainable quest equipment | Opus | 2 | 2 | `ceaab20` | 127 registry/shop/quest plus 104 quest/runtime; 4 real offscreen Qt; 1,280 full; zero hard test-quality issues; reachability, compilation, diff, and worktree checks |
+| 10 | Combat supplies, supplemental Magic state, Ranged ammo, reflected kills, fatal loot, equipment protection, and undo seams | Opus | 3 | 3 | `916b075` | 334 focused combat/runtime/integration; 8 real offscreen Qt; 1,286 full; zero hard test-quality issues; reachability unchanged; compilation, diff, and worktree checks |
 
 ## Accepted fixes
 
@@ -86,6 +87,12 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Live quest normalization now guarantees one completion-sentinel state after the highest requirement row. The 152 generated quests whose last sourced objective previously sat on an unreachable stage now execute that objective before completion; Tears of Guthix, Land of the Goblins, and Hazeel Cult are pinned examples.
 - Seven obtainable quest equipment identities now use generated source-config equipment data: Ice arrows, both Temple of Ikov pendants, Gnome amulet, both composite bows, and Dark bow. Their slots, bonuses, attack speeds, two-handed flags, and Ranged level gates are live instead of the Bank advertising items the equipment engine rejected.
 - Staff of armadyl now follows source item 84's non-equipment config as a quest material instead of occupying a phantom weapon category, and Ice arrows use the runtime's canonical `ammunition` slot.
+- Ranged ammo selection now prefers a compatible loaded stack before considering banked alternatives, so a low-tier arrow drop cannot make a higher-tier loaded quiver report `out_of_ammo` forever.
+- Vengeance runes now move through the finite combat loadout, its pending reflection survives review boundaries, reflected kills count and drop normally, and an unnecessary one-book swap selection no longer incurs Spellbook Swap costs.
+- Spellbook Swap payment persists for the active fight instead of charging every review, while supplemental rune requirements join ordinary safe-boundary loadout refills for melee, Ranged, and Magic presets.
+- Dream remains a between-fights action and cannot consume banked runes to interrupt a live encounter.
+- Kept loot earned before a same-review death is moved into the new grave after runtime loot filtering instead of surviving in a recreated carried view.
+- Protect Item now preserves the highest store-value equipped item instead of the alphabetically first slot.
 
 ## Rejected candidates
 
@@ -116,6 +123,7 @@ None. The next pass rotates to quest, shop, activity, and achievement writer/rea
 - Pass 7 used one successful read-only Opus workflow (`0a9b2e49-9a95-4668-a9a5-8da61341607c`). The required pre/post live checks again reported Fable at 30%.
 - Pass 8 used one successful read-only Opus workflow (`cfaade17-3598-450d-beb9-93ede931fa1b`). The required pre/post live checks again reported Fable at 30%; the all-model weekly reading rose to 17%, but no Fable review was made.
 - Pass 9 used one successful read-only Opus workflow (`83a95201-9995-4f32-aa04-1c5280f9d7b6`). The required pre/post live checks both reported Fable at 30% and all-model weekly usage at 17%, so no Fable review was made.
+- Pass 10 used one successful read-only Opus workflow (`fd4455dd-351c-4314-a98b-74af0726be7f`). The required pre/post live checks both reported Fable at 30% and all-model weekly usage at 17%; the Opus reviewer supplied three candidates, all independently reproduced, while Codex found and repaired three additional defects in the same bounded combat state path.
 
 ## Closure
 

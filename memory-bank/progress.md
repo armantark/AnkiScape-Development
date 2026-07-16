@@ -226,3 +226,16 @@ Test counts are snapshots; current runs outrank this note.
   tests, four real offscreen Qt checks, and all 1,280 non-Qt tests pass.
   Reachability remains 1,188 actions with 270 orphan inputs, and test quality
   remains at zero hard issues.
+
+## Overnight fresh-eyes pass 10 — Combat state and consequence symmetry (2026-07-16)
+
+- Prioritized loaded compatible arrows over banked lower tiers, eliminating an
+  ordinary-drop-triggered `out_of_ammo` stall.
+- Routed Vengeance and Spellbook Swap through the finite rune loadout, persisted
+  their cross-review state, kept Dream between fights, and counted reflected
+  kills through the normal drop path.
+- Moved filtered loot from a fatal multi-kill review into the grave and made
+  Protect Item retain the highest store-value equipped item.
+- Committed as `916b075`; 334 focused tests, eight real offscreen Qt checks, and
+  all 1,286 tests pass. Reachability remains 1,188 actions with 270 orphan
+  inputs, and test quality remains at zero hard issues.

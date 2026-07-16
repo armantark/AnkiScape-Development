@@ -292,3 +292,20 @@ four real offscreen Qt checks, and all 1,280 non-Qt tests with 185 skips and the
 three expected XP-parity failures. Test quality has zero hard issues;
 reachability remains 1,188 actions and 270 orphan inputs (110 root, 160
 cascade); compilation, diff, and safe-worktree checks pass.
+
+## Overnight fresh-eyes pass 10 (2026-07-16)
+
+Commit `916b075` closes six Combat state and consequence failures. Loaded Ranged
+ammo now wins over banked lower tiers; Vengeance and Spellbook Swap use the
+finite rune loadout and persist the state that crosses reviews; reflected kills
+receive ordinary kill/drop treatment; Dream cannot interrupt an active fight;
+same-review fatal loot enters the grave after filtering; and Protect Item keeps
+the highest-value equipped item.
+
+Verification passes 334 focused combat/runtime/integration tests, eight real
+offscreen Qt checks, and all 1,286 tests under Homebrew Python with 185 skips
+and the three expected XP-parity failures. Test quality has zero hard issues;
+reachability remains 1,188 actions and 270 orphan inputs (110 root, 160
+cascade); compilation, diff, and safe-worktree checks pass. The system Python
+is 3.9 and cannot parse the repository's supported union-type syntax, so the
+authoritative full run used the established Homebrew Python 3.14 interpreter.
