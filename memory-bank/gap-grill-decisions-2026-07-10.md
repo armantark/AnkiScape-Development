@@ -73,7 +73,17 @@ Decision status: design settled; implementation waits for the Darkan revamp.
 - Custom-pack entries are ordered. Adding a previously absent item appends it
   to the carried queue, and bank-run packing applies entries in that saved
   order, first-come-first-served when stock or slot capacity is insufficient.
-  The 4x7 grid renders the same order rather than sorting item names.
+  The 4x7 grid renders the same order rather than sorting item names. Changing
+  a positive quantity preserves that item's existing position; setting it to
+  zero removes it, and adding it again later appends it to the end.
+- Keep the Bank menu contextual and explicit. Existing source-backed verbs such
+  as Equip, Eat/Drink, and Teleport urn remain; add genuine instantaneous item
+  transformations such as applying weapon poison or cleaning a poisoned weapon
+  as their mechanics become available. Do not add a vague generic `Use` action.
+- Add Bank item search/filtering without changing saved carried-queue order.
+  Do not reproduce Withdraw, Deposit, Note, Un-note, Sell, bank tabs, or
+  placeholders: the flat Bank is persistent storage and the target-specific
+  28-slot pack is the carried subset.
 
 ### Source Gate
 
