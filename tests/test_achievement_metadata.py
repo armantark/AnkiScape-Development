@@ -89,6 +89,12 @@ class AchievementMetadataTest(unittest.TestCase):
         five_families["flash_powder_factory"] = 1
         self.assertTrue(condition({"agility_activity_completions": five_families}))
 
+    def test_smithing_conditions_use_live_canonical_bar_names(self):
+        inventory = {"Adamant bar": 250, "Rune bar": 100}
+
+        self.assertTrue(ACHIEVEMENTS["Adamantite Artisan"]["condition"]({"inventory": inventory}))
+        self.assertTrue(ACHIEVEMENTS["Runite Refiner"]["condition"]({"inventory": inventory}))
+
     def test_farming_achievements_use_durable_backend_counters(self):
         player_data = {
             "inventory": {},

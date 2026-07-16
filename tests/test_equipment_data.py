@@ -41,6 +41,8 @@ class TestEquipmentData(unittest.TestCase):
         self.assertEqual(EQUIPMENT_DATA["Mining helmet (unlit)"].combat_skill, "defense")
         self.assertEqual(EQUIPMENT_DATA["Mining helmet (lit)"].combat_skill, "defense")
         self.assertEqual(EQUIPMENT_DATA["Agility cape"].skill_requirements, (("agility", 99),))
+        self.assertEqual(EQUIPMENT_DATA["Willow blackjack"].source_item_id, 4600)
+        self.assertNotIn("Willow-blackjack", EQUIPMENT_DATA)
 
     def test_weapon_type_is_captured_for_the_attack_type_selector(self):
         # The generator records the RS WeaponType id per weapon so the attack-type

@@ -56,7 +56,12 @@ def _outputs(spec: Mapping[str, Any]) -> set[str]:
 
 
 def _requirements(spec: Mapping[str, Any]) -> tuple[set[str], tuple[set[str], ...]]:
-    required = _names(spec.get("requirements")) | _names(spec.get("required_items")) | _names(spec.get("tools"))
+    required = (
+        _names(spec.get("requirements"))
+        | _names(spec.get("required_items"))
+        | _names(spec.get("tools"))
+        | _names(spec.get("rune_cost"))
+    )
     alternatives: list[set[str]] = []
     essence = _names(spec.get("essence_items"))
     if essence:
@@ -64,6 +69,9 @@ def _requirements(spec: Mapping[str, Any]) -> tuple[set[str], tuple[set[str], ..
     bait = _names(spec.get("bait_options"))
     if bait:
         alternatives.append(bait)
+    reachability_inputs = _names(spec.get("reachability_inputs"))
+    if reachability_inputs:
+        alternatives.append(reachability_inputs)
     return required, tuple(alternatives)
 
 
@@ -105,6 +113,8 @@ def build_reachability_report() -> dict[str, Any]:
         "Runecrafting": constants.RUNECRAFTING_DATA,
         "Hunter": constants.HUNTER_DATA,
         "Herblore": constants.HERBLORE_DATA,
+        "Magic": constants.MAGIC_DATA,
+        "Prayer": constants.PRAYER_DATA,
         "Utility": constants.UTILITY_ACTIVITY_DATA,
     }
 

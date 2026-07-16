@@ -166,7 +166,7 @@ BLACKJACK_TARGETS = {
         "level": 65, "xp": 137.5, "coins": 60, "knockout_xp": 10.0,
         "knockout_min_chance": 185, "knockout_max_chance": 255,
         "failure_damage": 40, "quest_gate": "the_feud", "quest_gate_label": "The Feud",
-        "required_items_any": ("Willow blackjack", "Willow-blackjack", "Willow blackjack (o)"),
+        "required_items_any": ("Willow blackjack", "Willow blackjack (o)"),
         "source": "https://runescape.wiki/w/Menaphite_Thug?oldid=6546629",
         "probability_source": "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/skills/thieving/Knock-Out.kt:13-20",
         "source_status": "period-wiki values; provisional/Darkan hidden roll",

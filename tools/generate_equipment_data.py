@@ -119,6 +119,7 @@ NORMALIZED_MINING_BONUS_SLOTS: Mapping[str, SlotId] = {
     "chest": "body",
 }
 EQUIPMENT_ITEM_NAME_OVERRIDES: Mapping[int, str] = {
+    4600: "Willow blackjack",
     5013: "Mining helmet (lit)",
     5014: "Mining helmet (unlit)",
 }

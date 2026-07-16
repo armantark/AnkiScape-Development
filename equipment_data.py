@@ -4856,8 +4856,8 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         skill_requirements=(),
         weapon_type=-1,
     ),
-    'Willow-blackjack': EquipmentItem(
-        item_name='Willow-blackjack',
+    'Willow blackjack': EquipmentItem(
+        item_name='Willow blackjack',
         slot='weapon',
         combat_skill=None,
         required_level=1,

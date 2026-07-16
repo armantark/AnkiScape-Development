@@ -20,6 +20,9 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertIn("Logs", report["routes"])
         self.assertIn("Bronze bar", report["routes"])
         self.assertIn("Crushed nest", report["routes"])
+        self.assertEqual(report["routes"]["Air orb"], "Magic:charge_air_orb")
+        self.assertEqual(report["routes"]["Wine of zamorak"], "Magic:telegrab_wine_of_zamorak")
+        self.assertEqual(report["routes"]["Ecto-token"], "Prayer:ectofuntus_impious_ashes")
         self.assertNotIn("Bird's nest", {row["item"] for row in report["orphan_inputs"]})
 
         agility_four = next(
@@ -46,6 +49,11 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "Sapphire lantern (empty)",
             "Sapphire lantern (unlit)",
             "Mining helmet (unlit)",
+            "Air orb",
+            "Water orb",
+            "Earth orb",
+            "Fire orb",
+            "Wine of zamorak",
         ):
             self.assertNotIn(item_name, orphan_items)
 

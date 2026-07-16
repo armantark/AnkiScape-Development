@@ -1439,6 +1439,15 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(new_inv["Iron platebody"], 1)
         self.assertEqual(equipment, {})
 
+    def test_shop_blackjack_uses_the_equippable_canonical_identity(self):
+        inventory, equipment, ok = equip_item_pure(
+            "Willow blackjack", {"Willow blackjack": 1}, {}, EQUIPMENT_DATA
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(inventory["Willow blackjack"], 0)
+        self.assertEqual(equipment, {"weapon": "Willow blackjack"})
+
     def test_two_handed_weapon_and_shield_displace_each_other(self):
         inv = {"Bronze 2h sword": 1, "Bronze sq shield": 1}
         inv, equipment, ok = equip_item_pure("Bronze sq shield", inv, {}, EQUIPMENT_DATA)

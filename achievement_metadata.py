@@ -266,8 +266,8 @@ def build_achievement_definitions(
     add("Iron Forger", "Smelt 500 Iron bars", "Moderate", lambda player: _item_count(player, "Iron bar") >= 500)
     add("Steel Specialist", "Smelt 1000 Steel bars", "Moderate", lambda player: _item_count(player, "Steel bar") >= 1000)
     add("Mithril Maestro", "Smelt 500 Mithril bars", "Difficult", lambda player: _item_count(player, "Mithril bar") >= 500)
-    add("Adamantite Artisan", "Smelt 250 Adamantite bars", "Very Challenging", lambda player: _item_count(player, "Adamantite bar") >= 250)
-    add("Runite Refiner", "Smelt 100 Runite bars", "Very Challenging", lambda player: _item_count(player, "Runite bar") >= 100)
+    add("Adamantite Artisan", "Smelt 250 Adamant bars", "Very Challenging", lambda player: _item_count(player, "Adamant bar") >= 250)
+    add("Runite Refiner", "Smelt 100 Rune bars", "Very Challenging", lambda player: _item_count(player, "Rune bar") >= 100)
 
     add("Novice Crafter", "Reach level 2 in Crafting", "Easy", lambda player: _level(player, "crafting_level") > 1)
     add("Pottery Apprentice", "Craft 100 pots", "Easy", lambda player: _item_count(player, "Empty pot") >= 100)
