@@ -16,6 +16,14 @@ Runecrafting gloves), while Prayer's pure travel component remains
 `source_blocked`. The live owner question is Brimhaven's review-native ticket
 loop. Implementation belongs in a later thread after the grill closes.
 
+Brimhaven owner direction (2026-07-15): flatten the arena's spatial mechanics
+rather than expose a literal 5x5 map. Preserve the recognizable ticket-state
+loop underneath, and use one concise player-facing narrative/status line to say
+which obstacle is being crossed, whether the active pillar was reached or
+missed, whether the streak is active, and whether a ticket was banked. Exact
+route generation and deadline cadence remain in the one-question-at-a-time
+grill.
+
 Cadence Phase 3 shadow observation is complete on
 `codex/cadence-phase3-shadow`, based on Phase 1 at `b45aff0`. With the strict
 off-by-default `ankiscape_cadence_kernel` flag enabled, Mining, Woodcutting,
