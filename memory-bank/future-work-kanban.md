@@ -192,6 +192,21 @@ Labels: `WAIT: DARKAN`, after each `DEEP GRILL`.
 
 ## Cross-system program queue
 
+### Shared modular list search and filters
+
+Labels: `ARCHITECTURE`, `IMPLEMENT`, `DEPENDENCY: SLAYER UI`.
+
+- `ui.py` currently has Shop-specific text search and Quest-specific local
+  filter controls, while other large pages still lack a reusable search seam.
+- Extract one shared list-search/filter component with page-owned searchable
+  metadata and predicates. It must preserve active selection, never activate a
+  filtered row, provide a consistent empty state and keyboard/clear behavior,
+  and use dark-mode-safe styling.
+- First required consumer beyond the existing pages is Combat: ordinary search
+  plus a `Current Slayer task only` checkbox that intersects with every other
+  filter while leaving exact monster choice to the player. Do not solve this as
+  another Slayer-only nested helper in `show_main_menu`.
+
 ### Activities, minigames, D&Ds, and reward shops
 
 Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.

@@ -2,6 +2,14 @@
 
 ## Current Focus
 
+Slayer's source-first owner grill is active on `codex/slayer-grill`, with the
+accumulating decision record in `slayer-skill-contract-2026-07-15.md`. Its first
+decision preserves source-shaped assignment categories, lets the player choose
+the exact qualifying Combat variant, and requires a normal Combat search plus a
+`Current Slayer task only` checkbox. The missing reusable search/filter seam is
+now a cross-system dependency rather than Slayer-local UI. No Slayer gameplay
+implementation is authorized in this thread.
+
 Agility's owner grill and full-content design harvest are closed; implementation
 belongs in a new thread. The governing product contract is
 `agility-skill-contract-2026-07-15.md`, backed by the exhaustive design-family ledger
