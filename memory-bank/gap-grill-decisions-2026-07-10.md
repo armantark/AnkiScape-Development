@@ -59,6 +59,22 @@ Decision status: design settled; implementation waits for the Darkan revamp.
   target. Surface missing requirements and let the player edit that target's
   independent layout.
 
+### Bank Direct-Action Contract
+
+- Replace the destructive `Discard all` Bank command with `Discard X`. The
+  player chooses the quantity explicitly, and the remainder of the stack stays
+  in the Bank.
+- A discard is an instantaneous Bank action with its own direct-action undo
+  entry. It is never tied to Answer Card undo and never costs a review.
+- Replace the one-at-a-time `Add to carried layout` command with `Set carried
+  quantity...` for the active target's Custom pack. The backend must use the
+  canonical item stackability metadata: any positive quantity of a stackable
+  occupies one slot, while each non-stackable unit occupies one slot.
+- Custom-pack entries are ordered. Adding a previously absent item appends it
+  to the carried queue, and bank-run packing applies entries in that saved
+  order, first-come-first-served when stock or slot capacity is insufficient.
+  The 4x7 grid renders the same order rather than sorting item names.
+
 ### Source Gate
 
 The owner wants full parity, not wiki-estimated replacement numbers. The design
