@@ -18,8 +18,10 @@ cutoff-live Slayer-master special challenges retain their compound objectives
 and appear only as random offers in place of normal tasks; their exact cutoff
 offer probability remains `source_blocked`. The planned `Get assignment` master
 picker is not implemented yet and must reflect While Guthix Sleeps succession:
-Turael to Spria, Duradel to Lapalok, and temporary Mazchna to Achtryn. No Slayer
-gameplay implementation is authorized in this thread.
+Turael to Spria, Duradel to Lapalok, and temporary Mazchna to Achtryn. Every
+period master role remains visible in that picker; ineligible rows are disabled
+and explain every unmet requirement. No Slayer gameplay implementation is
+authorized in this thread.
 
 Agility's owner grill and full-content design harvest are closed; implementation
 belongs in a new thread. The governing product contract is

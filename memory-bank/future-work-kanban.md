@@ -147,6 +147,8 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT`.
 - Add an explicit `Get assignment` master picker and make its NPC identity
   quest-reactive: Turael to Spria and Duradel to Lapalok after While Guthix
   Sleeps, with Achtryn replacing Mazchna only during the quest interval.
+- Keep every period master role visible in the picker; disable ineligible rows
+  and state their unmet combat, Slayer, quest, and activity requirements.
 
 ### Summoning
 

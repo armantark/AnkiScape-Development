@@ -204,8 +204,22 @@ another master, displays requirements and assignment/reward context, and then
 performs the assignment or challenge-offer roll. Quest-reactive replacements
 update this same surface rather than creating duplicate master rows.
 
+## Owner decision 6 — progression-visible master roster
+
+The picker always shows every cutoff-live standard Slayer-master role.
+Ineligible masters remain visible but disabled, with every unmet combat, Slayer,
+quest, or activity requirement stated directly on the row. A locked row cannot
+be confirmed and does not participate in assignment or challenge rolls.
+
+Eligible rows expose the master identity, requirements met, ordinary point
+schedule, assignment-range summary, and challenge availability. The previous
+eligible master remains preselected. Quest succession updates the identity and
+portrait inside the existing role row; it never leaves the dead master visible
+as another selectable master or creates a duplicate successor row.
+
 ## Next unresolved product branch
 
-Determine whether the master picker shows every cutoff-live standard master with
-ineligible rows visibly locked and their unmet requirements explained, or hides
-masters until they become eligible.
+Determine what happens when While Guthix Sleeps crosses a permanent succession
+boundary while a Turael- or Duradel-role assignment is already active: preserve
+the exact task and original issuer provenance while the successor manages it, or
+rewrite/cancel the active assignment.
