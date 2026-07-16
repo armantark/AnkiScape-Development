@@ -47,6 +47,19 @@ The XP purchase is a sourced direct reward. AnkiScape's established rule grants
 XP for implemented skills immediately; it is not converted into invented review
 work.
 
+## Reachability decision — Smoking Kills ships with Slayer
+
+The point system cannot ship as a permanently inert surface. The Slayer build
+owns a complete playable `Smoking Kills` quest plus every still-incomplete
+prerequisite needed to reach it. Before completion, ordinary Slayer tasks and XP
+remain available while the visible Rewards catalog and Sumona remain locked
+with the quest requirement. No pre-quest completion receives retroactive points.
+
+The current `quest_catalog_generated.py` row is source-bearing scaffolding, not
+a sufficient quest: its required actions still say `Complete Smoking Kills
+stage N objective`. Implementation must replace those placeholders through the
+canonical quest-definition system and preserve the source quest chain.
+
 ### Permanent learn/unlock purchases
 
 | Unlock | Cost | Period requirement/effect lead |

@@ -414,3 +414,33 @@ Slayer does not duplicate the combat target picker. `Open in Combat` switches
 the existing AnkiScape surface to Combat with `Current Slayer task only`
 enabled, while leaving the exact target and context for the player to choose.
 Combat remains the only fight interface and no deep-link starts an encounter.
+
+## Owner decision 16 — Slayer owns a reachable Smoking Kills chain
+
+The Slayer implementation scope includes a complete playable `Smoking Kills`
+quest and every prerequisite quest definition that is still only generated or
+otherwise incomplete. This work remains part of the canonical missing-quest
+program; Slayer merely raises the chain's priority because it gates core Slayer
+progression. It does not create a separate competing quest architecture.
+
+The implementation must replace generated `Complete Smoking Kills stage N`
+placeholders with source-backed stages, item transformations, encounters,
+journal text, rewards, unlocks, undo behavior, and prerequisite enforcement.
+Every still-missing prerequisite receives the same real playable-definition bar
+rather than a completion flag or bypass.
+
+Before quest completion:
+
+- ordinary eligible masters, assignments, task progress, and Slayer XP remain
+  playable;
+- Sumona's master row remains visible and disabled with `Complete Smoking
+  Kills` among its unmet requirements;
+- the `Rewards` subview remains visible and lists the period reward catalog, but
+  all point balances, purchases, skips, blocks, and permanent unlocks are locked
+  behind an explicit `Complete Smoking Kills` callout; and
+- no pre-quest task retroactively grants points when the quest completes.
+
+Quest completion activates the authentic point/streak and reward systems. The
+exact initialization boundary for the first-four-task counter must be reconciled
+against period implementation during the quest/Slayer source pass; it may not be
+silently inferred from the existing generated catalog.

@@ -160,6 +160,10 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT`.
 - Keep Slayer management inside one Skills page with `Assignment`, `Masters`,
   and `Rewards` subviews; reuse shared search and deep-link into Combat rather
   than opening nested dialogs or duplicating the fight picker.
+- Build `Smoking Kills` and every still-incomplete prerequisite quest definition
+  in the Slayer program so Sumona, reward points, and the Rewards subview are
+  genuinely reachable; feed those quests through the canonical missing-quest
+  backlog and runtime rather than adding flags or bypasses.
 - Before that unlock, the finisher consumes its own correct review. Exclude the
   salt, ice, fungicide, and explosive shakers released in 2015.
 
@@ -187,6 +191,9 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`, `IMPLEMENT`.
 - Two distinct workstreams, do not conflate them: **build the 167 missing definitions**, and **re-audit the 27 that exist** for authentic stages, branches, item transformations, combat, rewards, journals, unlocks, and missing-skill gates.
 - Prioritise by what a quest unblocks. Skill grills surface these: Thieving alone needs The Feud (blackjacking), Death to the Dorgeshuun (Dorgesh-Kaan chests), and Mourning's End Part I (Lletya elves).
 - The Feud is being built as part of the Thieving expansion because it gates a core training method; it is the precedent, not an exception to the queue.
+- Slayer likewise owns `Smoking Kills` and every still-missing prerequisite in
+  its reachable chain because the quest gates Sumona and the entire reward-point
+  economy.
 - Wait for Darkan where historical sources cannot prove hidden transitions or combat definitions; never fill gaps from modern RS3/OSRS.
 
 ### Complete pre-EOC bestiary

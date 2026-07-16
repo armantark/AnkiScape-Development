@@ -46,7 +46,10 @@ shared search, and review-free deep-linking to Combat as the sole fight surface.
 For the remainder of this owner grill, Fable is an equal read-only background
 design voice: it reviews the live contract and unresolved branches before each
 substantive question, while Codex owns source verification, synthesis, and the
-committed decision record.
+committed decision record. Slayer implementation now owns a real playable
+`Smoking Kills` quest and every still-missing prerequisite definition needed to
+reach it; before completion, ordinary Slayer remains playable while Sumona and
+the visible Rewards surface remain locked.
 
 Agility's owner grill and full-content design harvest are closed; implementation
 belongs in a new thread. The governing product contract is
