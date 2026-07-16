@@ -2203,8 +2203,8 @@ def default_combat_supply_loadout_pure():
 
 
 COMBAT_PRESET_FIELDS = (
-    "combat_supply_loadout", "combat_pack_mode", "combat_auto_eat_threshold_percent",
-    "combat_auto_eat_food", "combat_auto_flee", "combat_selected_prayers",
+    "combat_pack_mode", "combat_auto_eat_threshold_percent", "combat_auto_eat_food",
+    "combat_auto_flee", "combat_selected_prayers",
     "combat_prayer_uptime", "combat_auto_prayer_training", "current_combat_spell",
     "combat_prayers_enabled", "combat_vengeance", "combat_dream_thrift",
     "combat_spellbook_swap",
