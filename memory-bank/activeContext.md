@@ -68,7 +68,13 @@ master pools, and hiding dependent reward purchases until they can operate.
 Activation affects future rolls only. This does not overturn explicitly settled
 player-progression surfaces such as visible ineligible master roles. Agility is
 being implemented in another thread; once it lands, Slayer, Summoning, and
-Dungeoneering are the three planned skills remaining.
+Dungeoneering are the three planned skills remaining. A Slayer master now
+certifies only when its complete ordinarily available cutoff pool has roll data
+and satisfies the still-open owner-set variant coverage bar. Authentic player
+quest, reward, block-list, and previous-task gates filter only after that
+certification; no master may ship with baseline weights silently renormalized
+around implementation gaps. Optional special challenges certify independently
+and do not block a master's ordinary pool.
 
 Agility's owner grill and full-content design harvest are closed; implementation
 belongs in a new thread. The governing product contract is

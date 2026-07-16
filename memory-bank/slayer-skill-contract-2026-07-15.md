@@ -206,10 +206,12 @@ update this same surface rather than creating duplicate master rows.
 
 ## Owner decision 6 — progression-visible master roster
 
-The picker always shows every cutoff-live standard Slayer-master role.
-Ineligible masters remain visible but disabled, with every unmet combat, Slayer,
-quest, or activity requirement stated directly on the row. A locked row cannot
-be confirmed and does not participate in assignment or challenge rolls.
+The picker always shows every runtime-certified cutoff-live standard
+Slayer-master role. Ineligible masters remain visible but disabled, with every
+unmet combat, Slayer, quest, or activity requirement stated directly on the row.
+A locked row cannot be confirmed and does not participate in assignment or
+challenge rolls. An uncertified role is implementation debt and therefore absent
+under Owner decisions 18 and 19, not displayed as another kind of player lock.
 
 Eligible rows expose the master identity, requirements met, ordinary point
 schedule, assignment-range summary, and challenge availability. The previous
@@ -435,8 +437,8 @@ Before quest completion:
 
 - ordinary eligible masters, assignments, task progress, and Slayer XP remain
   playable;
-- Sumona's master row remains visible and disabled with `Complete Smoking
-  Kills` among its unmet requirements;
+- once Sumona's role is runtime-certified, her row remains visible and disabled
+  with `Complete Smoking Kills` among its unmet requirements;
 - the `Rewards` subview remains visible and lists the period reward catalog, but
   all point balances, purchases, skips, blocks, and permanent unlocks are locked
   behind an explicit `Complete Smoking Kills` callout; and
@@ -524,3 +526,49 @@ their requirements under Owner decision 6, and the implemented Rewards surface
 retains its Smoking Kills progression lock under Owner decision 16. The hidden
 rule applies to missing product implementation, not to every authentic player
 progression gate.
+
+## Owner decision 19 — no partial baseline master pools
+
+A Slayer master becomes runtime-ready only when its complete ordinarily
+available cutoff pool is implemented. Every baseline family must have its stable
+identity and qualifying variants, per-master weight, kill-count range, Slayer
+and Combat gates, target/context behavior, and required acquisition mechanics.
+A missing family or unresolved implementation dependency keeps the entire
+master out of live assignment generation; the runtime may not silently roll and
+renormalize over a partial baseline pool.
+
+Authentic player-dependent exclusions are not baseline omissions. Quest-gated,
+reward-unlocked, blocked, previous-task, and other period eligibility rules are
+applied after the master passes baseline certification. Those families enter or
+leave a particular player's eligible weighted subset normally without making
+the master implementation-incomplete. Each baseline/player-gated classification
+must itself carry period evidence in the completeness ledger; an unclassified
+family fails closed as baseline rather than gaining an exemption by omission.
+
+Player-gated families still require their cutoff pool data to be pinned now and
+remain subject to Owner decision 18's readiness audit. If a player satisfies an
+authentic gate before its dependent family is implemented, that family remains
+absent and the audit continues to name the gap; no no-op unlock or dead row is
+exposed. The no-gap-renormalization certification guarantee applies to the
+ordinary baseline pool, while authentic player eligibility continues to
+reweight the receivable subset.
+
+An exact historical value that remains `source_blocked` after the required final
+source pass must receive the smallest explicit, labeled abstraction authorized
+by the verification standard before its family can certify. `source_blocked`
+may preserve an open research finding in the contract, but it cannot become a
+missing row, zero weight, or silent reason to ship a distorted pool.
+
+The completeness audit from Owner decision 18 certifies this boundary per
+master. It must distinguish baseline implementation blockers from authentic
+player eligibility, prove every baseline family has complete roll data and the
+owner-set qualifying-variant coverage, and reject any master that would otherwise
+roll a partial or empty baseline pool. A master absent for this reason creates no
+implementation-debt row; after certification, its ordinary visible
+player-progression locks follow Owner decision 6 automatically.
+
+Optional special challenges sit outside the ordinary weighted pool and do not
+block baseline certification. Their offer predicate uses the same derived
+runtime-readiness rule: a master can roll ordinary tasks while an unimplemented
+challenge offer remains absent, and that offer activates automatically once its
+complete compound objective is ready.

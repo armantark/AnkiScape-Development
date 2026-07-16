@@ -177,6 +177,13 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT`.
   a completeness audit that names every blocking identity, rejects stale
   blockers, prevents empty rollable-master pools, and applies the same rule to
   family-specific reward purchases.
+- Certify each Slayer master only after every ordinarily available family in its
+  pinned cutoff pool has complete roll data and satisfies the owner-set variant
+  coverage bar. Never ship a master whose baseline weights are silently
+  renormalized around implementation gaps; apply authentic quest, reward,
+  block-list, and other player-specific exclusions only after baseline
+  certification. Optional special challenges do not block the ordinary pool;
+  gate each offer on its own complete runtime readiness.
 - Before that unlock, the finisher consumes its own correct review. Exclude the
   salt, ice, fungicide, and explosive shakers released in 2015.
 
