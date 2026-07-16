@@ -22,7 +22,9 @@ loop underneath, and use one concise player-facing narrative/status line to say
 which obstacle is being crossed, whether the active pillar was reached or
 missed, whether the streak is active, and whether a ticket was banked. Exact
 route generation and deadline cadence remain in the one-question-at-a-time
-grill.
+grill. The owner then made the project-wide timer invariant explicit: wall-clock
+time has no place in AnkiScape. Brimhaven deadlines, like every other gameplay
+timer, must advance only through reviews/actions and roll back through undo.
 
 Cadence Phase 3 shadow observation is complete on
 `codex/cadence-phase3-shadow`, based on Phase 1 at `b45aff0`. With the strict

@@ -88,6 +88,11 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   behavior, decide and document it autonomously and batch routine conclusions.
   Ask only when multiple reasonable implementations would materially change the
   player experience and no existing contract chooses between them.
+- **Never use the computer wall clock for gameplay.** Elapsed seconds, dates,
+  application uptime, sleep, and time spent answering or pausing must never
+  advance, expire, regenerate, reset, or otherwise mutate AnkiScape state.
+  Gameplay time advances only through answered reviews/actions or an explicit
+  player command, and must participate in the normal snapshot/undo contract.
 - Historical timers use the global answered-card AnkiScape clock already shared
   by NPC shops and the parked GE: 10 answered cards equal one simulated game
   hour and 240 equal one simulated day. All answered cards advance the clock,
