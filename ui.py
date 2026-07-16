@@ -2220,6 +2220,7 @@ def show_main_menu(
     on_farming_action=None,
     initial_skill=None,
     initial_farming_patch_id=None,
+    on_check_achievements=None,
     on_save_player_data=None,
 ):
     """Show the consolidated window.
@@ -5286,6 +5287,8 @@ def show_main_menu(
         player_data.update(new_data)
 
     def _persist_shop_state() -> None:
+        if on_check_achievements is not None:
+            on_check_achievements(player_data)
         if on_save_player_data is None:
             return
         try:

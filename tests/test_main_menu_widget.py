@@ -1643,8 +1643,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         live_view = fixtures["normal_coin_stock_shop"]
         live_row = next(row for row in live_view["rows"] if row["can_buy"])
         saved = []
+        achievement_checks = []
         dialog = self._open(
             pd,
+            on_check_achievements=lambda data: achievement_checks.append(copy.deepcopy(data["inventory"])),
             on_save_player_data=lambda: saved.append(copy.deepcopy(pd)),
         )
         _open_shop_tab(dialog)
@@ -1676,6 +1678,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         history_texts = _list_texts(_find_named_list(dialog, "shopLocalHistoryList"))
         self.assertTrue(any(text.startswith("Bought 1 x") for text in history_texts), history_texts)
         self.assertEqual(len(saved), 1)
+        self.assertEqual(achievement_checks, [pd["inventory"]])
         self.assertEqual(saved[0]["inventory"], pd["inventory"])
         self.assertEqual(saved[0]["shop_events"], pd["shop_events"])
 

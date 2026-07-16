@@ -3174,6 +3174,77 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
         self.assertEqual(addon.player_data, initial)
 
+    def test_reward_claim_recomputes_level_before_achievements_and_is_undoable(self):
+        addon = _load_addon_as_package("ankiscape_reward_claim_direct_action_integration")
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        initial = {
+            "inventory": {},
+            "claims": {},
+            "quests": {
+                "stolen_hearts": {"started": True, "progress": 3, "completed": True},
+            },
+            "agility_level": 1,
+            "agility_exp": 0.0,
+            "completed_achievements": [],
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "Agility"
+        calls = {"levels": [], "achievement_levels": [], "xp": []}
+
+        def _level_up(skill_name, data):
+            calls["levels"].append(skill_name)
+            data["agility_level"] = addon.calculate_new_level(
+                data["agility_exp"], data["agility_level"], addon.EXP_TABLE
+            )
+
+        addon.level_up_check = _level_up
+        addon.check_achievements = lambda data: calls["achievement_levels"].append(data["agility_level"])
+        addon._show_exp = lambda amount: calls["xp"].append(amount)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+
+        self.assertTrue(addon.on_claim_reward("stolen_hearts_xp_lamp_2", "agility"))
+        self.assertEqual(addon.player_data["agility_exp"], 250.0)
+        self.assertEqual(addon.player_data["agility_level"], 3)
+        self.assertEqual(calls, {"levels": ["Agility"], "achievement_levels": [3], "xp": [250.0]})
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(addon.mw.undo_updates, 1)
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_stronghold_reward_is_a_direct_undoable_action(self):
+        addon = _load_addon_as_package("ankiscape_stronghold_reward_direct_action_integration")
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        initial = {
+            "inventory": {"Coins": 5},
+            "stronghold_of_security": {"step": 4, "completed": True, "boots_choice": None},
+            "completed_achievements": [],
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "Mining"
+        addon.ui.show_stronghold_reward_dialog = lambda: "Fancy boots"
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda _message: None
+
+        self.assertTrue(addon._claim_stronghold_reward())
+        self.assertEqual(addon.player_data["inventory"]["Coins"], 5 + addon.STRONGHOLD_REWARD_COINS)
+        self.assertEqual(addon.player_data["inventory"]["Fancy boots"], 1)
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(addon.mw.undo_updates, 1)
+
+        addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
     def test_combat_current_target_drives_main_menu_carried_pack_callbacks(self):
         addon = _load_addon_as_package("ankiscape_combat_carried_target_integration")
         captured = {}
