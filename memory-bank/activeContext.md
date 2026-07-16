@@ -35,9 +35,13 @@ may advance and resolve genuinely passive forage or healing, while attacks and
 commands still require their foreground/encounter conditions. Period evidence
 already rules out collapsing lifetime and Summoning points into one resource:
 points could reach zero without dismissing the familiar. Wall-clock gameplay
-remains forbidden. The next open Summoning fork is how an attacking familiar's
-separate survivability participates in enemy damage without creating a second
-combat simulator. The cross-product help architecture is owner-settled in
+remains forbidden. Familiar combat exposure is now source-gated: attacking alone
+does not make a familiar targetable, and silence means zero familiar damage rather
+than an invented fallback roll. Only pinned retaliation, area, enemy, or explicit
+aggro/tanking mechanics can reach familiar LP. The next open fork is whether death
+or expiry during an encounter may auto-summon another carried pouch immediately or
+must wait for an explicit command/safe boundary. The cross-product help architecture
+is owner-settled in
 `help-system-contract-2026-07-16.md`: one offline searchable corpus feeds both the
 full Help Center and contextual page-level `?` entries.
 

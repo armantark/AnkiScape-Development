@@ -252,18 +252,31 @@ Effect classification follows semantics rather than whether the result is positi
 The harvested catalog must classify each effect explicitly. Implementation must not infer
 passivity from a familiar or scroll display name.
 
-### 10. Familiar combat exposure — open
+### 10. Familiar combat exposure — settled 2026-07-16
 
-Period evidence already requires a healable familiar and a familiar-death path; those
-states are source-shaped rather than optional. The unresolved AnkiScape choice is how an
-attacking familiar becomes exposed to enemy damage inside the one-review Combat loop.
+Period evidence requires a healable familiar and a familiar-death path, but **attacking
+does not automatically make the familiar a second enemy target**. Ordinary enemy damage
+stays on the player unless a pinned period source proves a channel that can damage the
+familiar, such as a specific retaliation rule, area effect, enemy mechanic, or explicit
+aggro/tanking familiar ability.
 
-Choose whether participation makes the familiar a real second damage target under a
-sourced or bounded fallback targeting rule, or whether ordinary enemy damage always
-stays on the player unless a specific sourced attack names the familiar. The mapping must
-also define how familiar death ends the summon, interacts with the ongoing encounter,
-and routes any BoB inventory into the already-settled five-source-minute cargo reclaim
-state.
+Source silence means zero familiar damage. There is no generic fallback targeting roll
+invented merely to make familiar LP or renewal healing more visible. The catalog audit
+must determine whether any period scroll or ability actually redirects aggression; the
+owner's tank-scroll recollection is a research lead, not evidence. If such an ability is
+proved, it joins the settled role-aware auto-special system in Casual and exact behavior
+in Advanced.
+
+When a sourced channel kills the familiar, the summon ends without ending the player's
+encounter or refunding the pouch. Any BoB inventory moves atomically into the settled
+five-source-minute cargo reclaim state.
+
+### 11. Replacement after death or expiry mid-encounter — open
+
+Choose whether an empty familiar slot created by death or expiry during an active
+encounter may immediately trigger the target's normal Casual summon policy, potentially
+consuming another carried pouch against the same enemy, or stays empty until the player
+explicitly summons or the encounter reaches a safe target boundary.
 
 ## Source/open-work queue
 

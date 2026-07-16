@@ -182,6 +182,9 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   foreground/encounter-dependent. Passive effects advance and may produce on every
   answered card including Again; commands and attacks retain their successful-action
   gates. The catalog must state the class rather than deriving it from names.
+- Familiar LP takes enemy damage only through a pinned retaliation, area, enemy,
+  or aggro/tanking mechanic; attacking alone creates no exposure, and source
+  silence means zero damage rather than a fabricated fallback targeting roll.
 
 ### Dungeoneering
 

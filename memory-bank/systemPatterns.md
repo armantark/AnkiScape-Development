@@ -132,6 +132,10 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   Summoning auto-renew and auto-special may consume a deliberately packed matching
   pouch or scroll on a successful answer, but never pull from Bank stock. Catalog
   metadata, not display names, determines compatible roles and trigger conditions.
+- Optional combat exposure is fail-closed to source evidence. An attacking
+  Summoning familiar is not a generic second damage target; only a pinned
+  retaliation, area, enemy, or explicit aggro/tanking mechanic may reach its LP.
+  Missing evidence means zero familiar damage, not an invented targeting roll.
 - Player help has one canonical offline content corpus. The full searchable Help
   Center and each page's contextual `?` entry render the same stable topic IDs;
   optional external publication is generated, never separately authored. Complex

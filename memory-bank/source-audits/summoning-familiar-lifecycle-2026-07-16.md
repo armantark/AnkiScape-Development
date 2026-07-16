@@ -67,3 +67,7 @@ a familiar remain active at zero points, so those states supported different dec
   revisions and reconciled server code. Renewal and the basic BoB expiry/storage surface
   are pinned above; exact implementation still needs the owner automation and no-ground
   inventory decisions.
+- Search specifically for period familiar-targeting, retaliation, area-damage, aggro,
+  and tanking scroll/ability evidence. The owner's recollection that a scroll may redirect
+  damage is a lead only. If no pinned evidence names a damage channel, the familiar takes
+  no enemy damage; do not manufacture a fallback targeting chance.
