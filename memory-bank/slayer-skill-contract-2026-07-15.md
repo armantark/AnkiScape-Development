@@ -230,8 +230,30 @@ becomes Spria and Duradel becomes Lapalok without a second gameplay identity.
 Undoing the quest-state transition changes those presentation fields back and
 still leaves the task untouched.
 
+## Owner direction 8 — finishing requirements and Slayer upgrades are real
+
+Required Slayer finishing mechanics must exist; targets may not be admitted as
+ordinary Combat enemies that die when their LP reaches zero. The complete
+cutoff-live Slayer reward and unlock catalog is likewise mandatory design scope,
+not optional polish.
+
+The cutoff finishing-blow reward supplies the reconciliation. For 400 Slayer
+points, `Ability to deliver killing blows quicker` makes rockslugs, desert
+lizards, zygomites, and gargoyles die normally at zero LP as long as the
+required item remains in the player's active inventory. The unlock automates
+the finisher; it does not waive the bag of salt, ice cooler, fungicide spray, or
+rock hammer requirement. It supports ranged and magic kills and does not apply
+to Chaeldar's experimental-fungicide challenge. See
+`source-audits/slayer-finishing-blows-2026-07-15.md`.
+
+Without the unlock, reaching the source finisher range creates a pending manual
+finisher state. Consumable finishers spend their item or charge; reusable tools
+must be present but remain owned. No kill, drops, Slayer XP, or assignment credit
+commits until the finisher succeeds.
+
 ## Next unresolved product branch
 
-Determine how required Slayer finishing items integrate with Combat. Period
-targets such as rockslugs and gargoyles cannot currently ship because an ordinary
-kill would bypass their bag-of-salt or rock-hammer finishing action.
+Determine whether the pending manual finisher consumes the next correct review
+as its own Combat action, or is completed by a review-free UI click. The
+400-point unlock completes the finisher atomically with the final damaging
+review in either model.

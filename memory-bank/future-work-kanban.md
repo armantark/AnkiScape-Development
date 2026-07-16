@@ -149,6 +149,9 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT`.
   Sleeps, with Achtryn replacing Mazchna only during the quest interval.
 - Keep every period master role visible in the picker; disable ineligible rows
   and state their unmet combat, Slayer, quest, and activity requirements.
+- Build the complete cutoff reward/unlock ledger. Required finishing items must
+  gate rockslugs, desert lizards, zygomites, and gargoyles; the 400-point quick
+  killing-blow unlock automates the finisher without removing the item check.
 
 ### Summoning
 

@@ -22,7 +22,9 @@ Turael to Spria, Duradel to Lapalok, and temporary Mazchna to Achtryn. Every
 period master role remains visible in that picker; ineligible rows are disabled
 and explain every unmet requirement. Master succession is presentation-only:
 active task state never changes, while quest state swaps the role's portrait,
-name, and copy. Required Slayer finishing items are the next open design branch.
+name, and copy. Required Slayer finishers are mandatory, and the cutoff 400-point
+quick-kill unlock automates rather than removes their item requirement. Whether
+the pre-unlock manual finisher consumes a review is the next open design branch.
 No Slayer gameplay implementation is authorized in this thread.
 
 Agility's owner grill and full-content design harvest are closed; implementation
