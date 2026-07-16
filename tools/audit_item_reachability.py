@@ -95,6 +95,7 @@ def _drop_names(value: Any) -> set[str]:
 def build_reachability_report() -> dict[str, Any]:
     import combat_data
     import constants
+    import pack_data
     import shop_data
     import shop_logic
     import woodcutting_data
@@ -147,6 +148,13 @@ def build_reachability_report() -> dict[str, Any]:
         consumers[item_name].add(key)
         for item in leaves:
             producers[item].add(key)
+
+    for item_name, spec in pack_data.ITEM_PACK_DATA.items():
+        content_item = str(spec["content_item"])
+        key = f"Item action:open:{item_name}"
+        actions.append({"id": key, "required": {item_name}, "alternatives": (), "outputs": {content_item}})
+        consumers[item_name].add(key)
+        producers[content_item].add(key)
 
     bob = shop_data.SHOP_SERVICES.get("bob_barter_decant_four", {})
     if bob.get("visibility") == "visible" and bob.get("action_type") == "decant_potions_to_dose":

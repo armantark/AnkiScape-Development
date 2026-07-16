@@ -1010,6 +1010,12 @@ for _item_name in COMBAT_EXTRA_ITEM_DATA:
     )
     if _path and os.path.exists(_path):
         COMBAT_ITEM_IMAGES[_item_name] = _path
+for _item_name, _path in {
+    "Kebab": os.path.join(SHOP_ITEMS_FOLDER, "kebab.png"),
+    "Half a summer pie": os.path.join(COOKING_ITEMS_FOLDER, "summer_pie.png"),
+}.items():
+    if os.path.exists(_path):
+        COMBAT_ITEM_IMAGES[_item_name] = _path
 COMBAT_ENEMY_IMAGES = {}
 for _target_id in COMBAT_ENEMY_DATA:
     _path = os.path.join(COMBAT_ENEMIES_FOLDER, f"{_asset_slug(_target_id)}.png")

@@ -16,6 +16,13 @@ from logic_pure import apply_herblore_action_pure, can_herblore_target_pure
 
 
 class HerbloreDataTests(unittest.TestCase):
+    def test_magic_essence_mix_preserves_its_distinct_item_identity(self):
+        target = next(target for target in FINISHED_TARGETS if target.id == "finished_magic_essence_mix")
+        self.assertEqual(target.display_name, "Magic essence mix (2)")
+        self.assertEqual(target.output_item, "Magic essence mix (2)")
+        self.assertEqual(target.requirements, (("Magic essence (2)", 1), ("Caviar", 1)))
+        self.assertEqual(herblore_extra_items_as_dict()["Magic essence mix (2)"]["item_id"], 11489)
+
     def test_daemonheim_target_family_is_not_in_overworld_catalog(self):
         herb_ids = {
             "sagawort",

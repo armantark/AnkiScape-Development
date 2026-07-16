@@ -3890,6 +3890,43 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["inventory"]["Beer"], 1)
         self.assertEqual(pd["combat_current_levels"], {"strength": 52, "attack": 56})
 
+    def test_bank_uses_edible_verb_and_opens_all_supply_packs(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Summer pie": 1, "Vial pack": 2}
+        opened: list[tuple[str, bool]] = []
+
+        self._captured.clear()
+        self._ui.show_main_menu(
+            player_data=pd,
+            current_skill="Mining",
+            can_smelt_any_bar=True,
+            on_save_skill=lambda *a: None,
+            on_set_ore=lambda *a: None,
+            on_set_tree=lambda *a: None,
+            on_set_bar=lambda *a: None,
+            on_set_smith=lambda *a: None,
+            on_set_craft=lambda *a: None,
+            on_set_fletch=lambda *a: None,
+            on_set_firemaking=lambda *a: None,
+            on_set_fishing=lambda *a: None,
+            on_set_cooking=lambda *a: None,
+            on_set_utility=lambda *a: None,
+            on_discard_item=lambda *a: True,
+            on_consume_item=lambda *_args: None,
+            on_open_item_pack=lambda item_name, open_all: opened.append((item_name, open_all)) or True,
+        )
+        dialog = self._captured[-1]
+
+        pie_menu = dialog._ankiscape_equip_menu_for("Summer pie")
+        self.assertTrue(any(action.text() == "Eat Summer pie" for action in pie_menu.actions()))
+
+        pack_menu = dialog._ankiscape_equip_menu_for("Vial pack")
+        open_all = next(action for action in pack_menu.actions() if action.text() == "Open all (2)")
+        self.assertEqual(open_all.toolTip(), "Receive 100 Vial.")
+        open_all.trigger()
+        QApplication.processEvents()
+        self.assertEqual(opened, [("Vial pack", True)])
+
     def test_full_urn_bank_action_uses_stable_id_order_and_refreshes_immediately(self) -> None:
         from logic_pure import teleport_full_urn_pure
         from urn_data import URN_TIERS_BY_ID

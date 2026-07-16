@@ -540,13 +540,32 @@ _AGILITY_EQUIPMENT = {
     "Brawling gloves (Agility)", "Sköll boots", "Pendant of Agility",
     "Prized pendant of Agility", "Agility cape", "Agility hood",
 }
+_AGILITY_CONSUMABLE_IDS = {
+    "Agility potion (4)": 3032,
+    "Agility potion (3)": 3034,
+    "Agility potion (2)": 3036,
+    "Agility potion (1)": 3038,
+    "Agility mix (2)": 11461,
+    "Agility mix (1)": 11463,
+    "Summer pie": 7218,
+    "Half a summer pie": 7220,
+}
 AGILITY_EXTRA_ITEM_DATA = {
     item_name: {
-        "category": "equipment" if item_name in _AGILITY_EQUIPMENT else "material",
+        "category": (
+            "equipment"
+            if item_name in _AGILITY_EQUIPMENT
+            else "food"
+            if item_name in {"Summer pie", "Half a summer pie"}
+            else "material"
+        ),
         "source": "Agility",
         "stackable": item_name == "Agility arena ticket",
-        "tradeable": item_name in {"Pyramid top", "Gnomeball", "Toy mouse", "Mith grapple"},
-        "source_item_id": {"Agile top": 14936, "Agile legs": 14938}.get(item_name),
+        "tradeable": (
+            item_name in {"Pyramid top", "Gnomeball", "Toy mouse", "Mith grapple"}
+            or item_name in _AGILITY_CONSUMABLE_IDS
+        ),
+        "source_item_id": {"Agile top": 14936, "Agile legs": 14938, **_AGILITY_CONSUMABLE_IDS}.get(item_name),
     }
     for item_name in AGILITY_ITEM_FILENAMES
 }

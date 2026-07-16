@@ -47,6 +47,11 @@ try:
 except ImportError:
     from crafting_data import LEGACY_CRAFTING_ITEM_MIGRATIONS
 
+try:
+    from .constants import EXTRA_ITEM_DATA
+except ImportError:
+    from constants import EXTRA_ITEM_DATA
+
 
 MAX_SHOP_EVENT_HISTORY = 200
 _CANONICAL_SHOP_ROW_NAMES = {
@@ -1189,6 +1194,9 @@ def _stocked_row_for_item(shop: Mapping[str, Any], item_name: str) -> Optional[D
 
 
 def _item_tradeable(item_name: str) -> bool:
+    registry_spec = EXTRA_ITEM_DATA.get(item_name)
+    if registry_spec is not None and registry_spec.get("tradeable") is False:
+        return False
     for shop in SHOP_DATA.values():
         for row in shop.get("stock", []):
             if row.get("item_name") == item_name:

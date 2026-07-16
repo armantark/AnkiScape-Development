@@ -81,6 +81,14 @@ class HerbloreAssetTest(unittest.TestCase):
         )
         self.assertNotEqual(icon_path.read_bytes(), (ROOT / "icon" / "achievement_icon.png").read_bytes())
 
+    def test_juju_farming_dose_family_is_registered_and_provenanced(self):
+        provenance = json.loads((ROOT / "assets_provenance.json").read_text(encoding="utf-8"))
+        for dose in range(1, 5):
+            with self.subTest(dose=dose):
+                path = ROOT / "herbloreitems" / f"juju_farming_potion_{dose}.png"
+                self.assertTrue(path.is_file())
+                self.assertEqual(provenance[str(path.relative_to(ROOT))]["source_wiki"], "rs3")
+
 
 if __name__ == "__main__":
     unittest.main()

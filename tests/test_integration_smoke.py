@@ -3125,6 +3125,55 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["xp"], [tier.teleport_xp, tier.teleport_xp])
         self.assertEqual(calls["save"], 4)
 
+    def test_bank_kebab_uses_runtime_rng_and_direct_action_undo(self):
+        addon = _load_addon_as_package("ankiscape_consumable_direct_action_integration")
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.current_skill = "Combat"
+        initial = {
+            "inventory": {"Kebab": 1},
+            "constitution_level": 50,
+            "combat_lifepoints": 100,
+        }
+        addon.player_data = copy.deepcopy(initial)
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.5
+        self.addCleanup(setattr, addon.random, "random", original_random)
+
+        result = addon.on_consume_item("Kebab")
+
+        self.assertEqual(result["healed"], 50)
+        self.assertEqual(addon.player_data["combat_lifepoints"], 150)
+        self.assertNotIn("Kebab", addon.player_data["inventory"])
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_bank_pack_open_all_uses_direct_action_undo(self):
+        addon = _load_addon_as_package("ankiscape_pack_direct_action_integration")
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.current_skill = "Herblore"
+        initial = {"inventory": {"Vial pack": 2, "Vial": 1}}
+        addon.player_data = copy.deepcopy(initial)
+
+        result = addon.on_open_item_pack("Vial pack", True)
+
+        self.assertEqual(result["packs_opened"], 2)
+        self.assertEqual(addon.player_data["inventory"], {"Vial": 101})
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
+        self.assertEqual(addon.player_data, initial)
+
     def test_combat_current_target_drives_main_menu_carried_pack_callbacks(self):
         addon = _load_addon_as_package("ankiscape_combat_carried_target_integration")
         captured = {}

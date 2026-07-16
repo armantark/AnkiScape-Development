@@ -22,7 +22,7 @@ try:
         SAPLING_RECIPES,
         SUPERCOMPOST_INPUTS,
     )
-    from .logic_pure import best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure
+    from .logic_pure import apply_consumable_pure, best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure
 except ImportError:  # pragma: no cover - flat imports used by tests
     from constants import EXP_TABLE, TREE_DATA, WOODCUTTING_AXE_DATA  # type: ignore
     from farming_data import (  # type: ignore
@@ -39,7 +39,7 @@ except ImportError:  # pragma: no cover - flat imports used by tests
         SAPLING_RECIPES,
         SUPERCOMPOST_INPUTS,
     )
-    from logic_pure import best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure  # type: ignore
+    from logic_pure import apply_consumable_pure, best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure  # type: ignore
 
 
 FIELD_STEP_KINDS = frozenset({"plant", "harvest", "check_health", "cure", "clear", "chop", "habitat_traverse"})
@@ -1128,20 +1128,12 @@ def pay_farming_protection_pure(player_data: Mapping[str, Any], patch_id: str) -
 
 
 def activate_juju_farming_potion_pure(player_data: Mapping[str, Any], item_name: str = "Juju farming potion (3)") -> tuple[dict[str, Any], bool, str]:
-    updated = _copy_with_farm_state(player_data)
-    prefix = "Juju farming potion ("
-    if not item_name.startswith(prefix) or not item_name.endswith(")"):
-        return updated, False, "not a Juju farming potion"
-    try:
-        doses = int(item_name[len(prefix):-1])
-    except ValueError:
-        return updated, False, "not a Juju farming potion"
-    if doses < 1 or doses > 4 or _int(updated["inventory"].get(item_name)) <= 0:
-        return updated, False, "missing Juju farming potion"
-    updated["inventory"][item_name] -= 1
-    leaves = f"Juju farming potion ({doses - 1})" if doses > 1 else "Vial"
-    updated["inventory"][leaves] = _int(updated["inventory"].get(leaves)) + 1
-    updated["farm_juju_active_until"] = updated["farm_clock_minutes"] + 5
+    if item_name not in {f"Juju farming potion ({dose})" for dose in range(1, 5)}:
+        return _copy_with_farm_state(player_data), False, "not a Juju farming potion"
+    updated, result = apply_consumable_pure(player_data, item_name)
+    if not result.get("allowed"):
+        reason = "not a Juju farming potion" if result.get("reason") == "not_a_consumable" else "missing Juju farming potion"
+        return updated, False, reason
     return updated, True, "Juju farming potion active for 5 farm minutes"
 
 
@@ -1652,6 +1644,10 @@ def apply_farming_frontend_action_pure(
         )
     if action_id == "pay_protection":
         return pay_farming_protection_pure(player_data, patch_id)
+    if action_id == "activate_juju_farming_potion":
+        return activate_juju_farming_potion_pure(
+            player_data, str(data.get("item_name", "Juju farming potion (3)"))
+        )
     if action_id == "queue_action":
         kind = str(data.get("kind", ""))
         primary = (patch_view or {}).get("primary_action")

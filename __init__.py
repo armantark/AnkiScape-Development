@@ -38,6 +38,7 @@ import os
 import datetime
 from .logic_pure import (
     apply_consumable_pure,
+    apply_item_pack_open_pure,
     combat_enemy_drop_item_names_pure,
     can_smith_any_pure,
     has_crafting_materials_pure,
@@ -1112,6 +1113,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_unequip_slot=on_unequip_slot,
         on_discard_item=on_discard_item,
         on_consume_item=on_consume_item,
+        on_open_item_pack=on_open_item_pack,
         on_teleport_training_urn=teleport_training_urn,
         get_farming_projection=_get_farming_projection,
         on_farming_action=_apply_farming_action,
@@ -1422,12 +1424,20 @@ def on_discard_item(item_name):
 
 
 def on_consume_item(item_name):
-    """Eat/drink a stat-affecting consumable from the Bank (Kebab, Beer).
-    Direct player action like discard: applies the source effect, saves, and
-    returns the result dict (or None when nothing was consumed)."""
-    new_data, result = apply_consumable_pure(player_data, item_name)
+    """Apply one Bank consumable atomically and make the direct action undoable."""
+    before = {"player_data": copy.deepcopy(player_data), "random_state": random.getstate()}
+    new_data, result = apply_consumable_pure(player_data, item_name, rng=random.random)
     if not result.get("allowed"):
+        random.setstate(before["random_state"])
         return None
+    try:
+        mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+    except (AttributeError, RuntimeError):
+        random.setstate(before["random_state"])
+        return None
+    _DIRECT_ACTION_UNDO_STACK.append(before)
+    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
     player_data.clear()
     player_data.update(new_data)
     save_player_data()
@@ -1435,6 +1445,35 @@ def on_consume_item(item_name):
     try:
         update_review_hud(player_data, current_skill)
     except Exception:
+        pass
+    try:
+        mw.update_undo_actions()
+    except AttributeError:
+        pass
+    return result
+
+
+def on_open_item_pack(item_name, open_all=False):
+    before = {"player_data": copy.deepcopy(player_data), "random_state": random.getstate()}
+    inventory, result = apply_item_pack_open_pure(
+        player_data.get("inventory", {}) or {}, item_name, open_all=bool(open_all)
+    )
+    if not result.get("allowed"):
+        return None
+    try:
+        mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+    except (AttributeError, RuntimeError):
+        return None
+    _DIRECT_ACTION_UNDO_STACK.append(before)
+    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+    player_data["inventory"] = inventory
+    save_player_data()
+    _refresh_skill_availability()
+    try:
+        update_review_hud(player_data, current_skill)
+        mw.update_undo_actions()
+    except AttributeError:
         pass
     return result
 

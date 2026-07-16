@@ -2531,6 +2531,7 @@ CONSUMABLE_DATA: Dict[str, dict] = {
     # are lifepoints (AnkiScape level*10 model); boosts/drains are levels.
     "Kebab": {
         "kind": "kebab_random",
+        "verb": "Eat",
         "source": KEBAB_SOURCE,
         "effect_table": (
             {"upto": 8.71, "message": "That kebab didn't seem to do a lot."},
@@ -2583,6 +2584,7 @@ for _dose in range(1, 3):
     }
 CONSUMABLE_DATA["Summer pie"] = {
     "kind": "agility_boost",
+    "verb": "Eat",
     "boost": 5,
     "action_budget": 10,
     "heal": 110,
@@ -2592,6 +2594,7 @@ CONSUMABLE_DATA["Summer pie"] = {
 }
 CONSUMABLE_DATA["Half a summer pie"] = {
     "kind": "agility_boost",
+    "verb": "Eat",
     "boost": 5,
     "action_budget": 10,
     "heal": 110,
@@ -2599,6 +2602,14 @@ CONSUMABLE_DATA["Half a summer pie"] = {
     "message": "You finish the summer pie. It restores 110 LP and grants a +5 Agility boost.",
     "source": "Summer pie oldid 6358590; action budget is an AnkiScape abstraction",
 }
+for _dose in range(1, 5):
+    CONSUMABLE_DATA[f"Juju farming potion ({_dose})"] = {
+        "kind": "farming_juju",
+        "farm_minutes": 5,
+        "leaves": f"Juju farming potion ({_dose - 1})" if _dose > 1 else "Vial",
+        "message": "You drink the juju farming potion. Its harvest effect lasts for 5 farm minutes.",
+        "source": "Juju farming potion oldid 6439645; farming-skill contract section 23",
+    }
 
 # Skills a kebab's dodgy roll can drain (source: any non-Constitution skill id).
 KEBAB_DRAINABLE_SKILLS = (
@@ -7889,6 +7900,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Grimy ranarr": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_RANARR"},
     "Grimy tarromin": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_TARROMIN"},
     "Half an apple pie": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HALF_AN_APPLE_PIE"},
+    "Half a summer pie": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HALF_A_SUMMER_PIE"},
     "H.A.M. boots": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HAM_BOOTS"},
     "H.A.M. cloak": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HAM_CLOAK"},
     "H.A.M. gloves": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HAM_GLOVES"},
@@ -7903,6 +7915,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Iron spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.IRON_SPEAR"},
     "Jangerberry seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.JANGERBERRY_SEED"},
     "Jug of wine": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.JUG_OF_WINE"},
+    "Kebab": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.KEBAB"},
     "Jug": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.JUG"},
     "Knife": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.KNIFE"},
     "Kwuarm seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.KWUARM_SEED"},

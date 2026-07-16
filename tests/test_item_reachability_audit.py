@@ -23,6 +23,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertEqual(report["routes"]["Air orb"], "Magic:charge_air_orb")
         self.assertEqual(report["routes"]["Wine of zamorak"], "Magic:telegrab_wine_of_zamorak")
         self.assertEqual(report["routes"]["Ecto-token"], "Prayer:ectofuntus_impious_ashes")
+        self.assertEqual(report["routes"]["Juju vial"], "Item action:open:Juju vial pack")
         self.assertNotIn("Bird's nest", {row["item"] for row in report["orphan_inputs"]})
 
         agility_four = next(

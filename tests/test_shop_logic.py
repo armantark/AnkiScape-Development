@@ -54,6 +54,17 @@ def _specialist_without_beer():
 
 
 class TestShopLogic(unittest.TestCase):
+    def test_general_store_rejects_registry_untradeable_items(self):
+        shop = _general_store()
+        player = build_shop_fixture_player_data()
+        player["inventory"]["Overload (3)"] = 1
+
+        updated, result = apply_shop_sell_pure(player, shop["id"], "Overload (3)", 1)
+
+        self.assertFalse(result["allowed"])
+        self.assertEqual(result["reason"], "item_not_tradeable")
+        self.assertEqual(updated["inventory"]["Overload (3)"], 1)
+
     def test_default_and_sanitize_shop_state(self):
         default_state = default_shop_state_pure()
         self.assertEqual(default_state["shop_data_version"], 1)

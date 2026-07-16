@@ -34,6 +34,11 @@ except ImportError:
     from potion_data import POTION_FAMILIES, potion_dose_name, potion_flask_name
 
 try:
+    from .pack_data import ITEM_PACK_DATA
+except ImportError:
+    from pack_data import ITEM_PACK_DATA
+
+try:
     from .prayer_data import (
         COMBAT_PRAYERS_BY_ID,
         AUTO_PRAYER_TICKS_PER_ITEM,
@@ -4464,10 +4469,33 @@ def _consumable_heal(data, amount):
     return healed - current
 
 
+def apply_item_pack_open_pure(inventory, item_name, open_all=False):
+    """Open one or every owned shop supply pack without mutating the input."""
+    updated = dict(inventory or {})
+    spec = ITEM_PACK_DATA.get(item_name)
+    owned = _non_negative_int(updated.get(item_name, 0), 0)
+    if spec is None or owned <= 0:
+        return updated, {"allowed": False, "reason": "missing_pack", "item_name": item_name}
+    packs_opened = owned if open_all else 1
+    remaining = owned - packs_opened
+    if remaining:
+        updated[item_name] = remaining
+    else:
+        updated.pop(item_name, None)
+    content_item = str(spec["content_item"])
+    content_quantity = packs_opened * int(spec["content_quantity"])
+    updated[content_item] = _non_negative_int(updated.get(content_item, 0), 0) + content_quantity
+    return updated, {
+        "allowed": True,
+        "item_name": item_name,
+        "packs_opened": packs_opened,
+        "content_item": content_item,
+        "content_quantity": content_quantity,
+    }
+
+
 def apply_consumable_pure(player_data, item_name, rng=None):
-    """Eat/drink a stat-affecting consumable (Kebab, Beer). Consumes one from
-    inventory, applies the source effect (heal + current-level boosts/drains),
-    and returns (new_data, result). Undo-safe: never mutates the input."""
+    """Consume one edible or potion and return its state/result without mutation."""
     rng = rng or (lambda: 0.0)
     spec = CONSUMABLE_DATA.get(item_name)
     if spec is None:
@@ -4541,6 +4569,13 @@ def apply_consumable_pure(player_data, item_name, rng=None):
             inv = dict(data.get("inventory", {}) or {})
             inv[leaves] = _non_negative_int(inv.get(leaves, 0), 0) + 1
             data["inventory"] = inv
+    elif spec["kind"] == "farming_juju":
+        leaves = str(spec.get("leaves", ""))
+        if leaves:
+            inv = dict(data.get("inventory", {}) or {})
+            inv[leaves] = _non_negative_int(inv.get(leaves, 0), 0) + 1
+            data["inventory"] = inv
+        data["farm_juju_active_until"] = _non_negative_int(data.get("farm_clock_minutes", 0), 0) + int(spec["farm_minutes"])
     elif spec["kind"] == "agility_boost":
         boost = _positive_int(spec.get("boost", 1), 1)
         healed = _consumable_heal(data, _non_negative_int(spec.get("heal", 0), 0))

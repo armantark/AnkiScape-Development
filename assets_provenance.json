@@ -18021,6 +18021,30 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T04:52:53Z"
   },
+  "herbloreitems/juju_farming_potion_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Juju_farming_potion_%281%29.png",
+    "file_title": "Juju farming potion (1).png",
+    "image_url": "https://runescape.wiki/images/Juju_farming_potion_%281%29.png?1b351",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b02f50b9dbfa9a120c68392141a8034a69fb54fa",
+    "size": 984,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T04:53:07Z"
+  },
+  "herbloreitems/juju_farming_potion_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Juju_farming_potion_%282%29.png",
+    "file_title": "Juju farming potion (2).png",
+    "image_url": "https://runescape.wiki/images/Juju_farming_potion_%282%29.png?97a3f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "03b3a1407c236b3ae8102ba02ddfb46933e3e61f",
+    "size": 965,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T04:53:08Z"
+  },
   "herbloreitems/juju_farming_potion_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Juju_farming_potion_%283%29.png",
     "file_title": "Juju farming potion (3).png",
@@ -18032,6 +18056,18 @@
     "size": 945,
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T04:53:10Z"
+  },
+  "herbloreitems/juju_farming_potion_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Juju_farming_potion_%284%29.png",
+    "file_title": "Juju farming potion (4).png",
+    "image_url": "https://runescape.wiki/images/Juju_farming_potion_%284%29.png?1f3fe",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "06ad2cb557d3d39c0a40b5a6f178df1d28a36b2c",
+    "size": 932,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T04:53:12Z"
   },
   "herbloreitems/juju_fishing_potion_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Juju_fishing_potion_%283%29.png",
@@ -18116,6 +18152,18 @@
     "size": 969,
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T05:20:41Z"
+  },
+  "herbloreitems/magic_essence_mix_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Magic_essence_mix_%282%29.png",
+    "file_title": "Magic essence mix (2).png",
+    "image_url": "https://runescape.wiki/images/Magic_essence_mix_%282%29.png?887ee",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "34e550280c0163cc29d65bf896516d8ef94caf4c",
+    "size": 997,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T05:19:54Z"
   },
   "herbloreitems/magic_potion_2.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Magic_potion_%282%29.png",

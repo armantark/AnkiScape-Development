@@ -232,6 +232,10 @@ except Exception:
         current_dir,
     )
 try:
+    from .pack_data import ITEM_PACK_DATA
+except Exception:
+    from pack_data import ITEM_PACK_DATA  # type: ignore
+try:
     from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure
     from .skill_registry import get_skill
 except Exception:
@@ -2200,6 +2204,7 @@ def show_main_menu(
     on_unequip_slot=None,
     on_discard_item=None,
     on_consume_item=None,
+    on_open_item_pack=None,
     on_teleport_training_urn=None,
     get_farming_projection=None,
     on_farming_action=None,
@@ -7220,7 +7225,7 @@ def show_main_menu(
             except Exception:
                 CONSUMABLE_DATA = {}
         if item_name in CONSUMABLE_DATA:
-            verb = "Eat" if CONSUMABLE_DATA[item_name].get("kind") == "kebab_random" else "Drink"
+            verb = str(CONSUMABLE_DATA[item_name].get("verb", "Drink"))
             consume_action = menu.addAction(f"{verb} {item_name}")
             consume_action.setEnabled(amount > 0 and on_consume_item is not None)
 
@@ -7235,6 +7240,27 @@ def show_main_menu(
                         QMessageBox.information(bank_list, item_name, message)
 
             consume_action.triggered.connect(_do_consume)
+            menu.addSeparator()
+
+        if item_name in ITEM_PACK_DATA:
+            content_item = str(ITEM_PACK_DATA[item_name]["content_item"])
+            per_pack = int(ITEM_PACK_DATA[item_name]["content_quantity"])
+            open_action = menu.addAction(f"Open {item_name}")
+            open_action.setEnabled(amount > 0 and on_open_item_pack is not None)
+            open_action.setToolTip(f"Receive {per_pack:,} {content_item}.")
+
+            def _do_open(_checked: bool = False, open_all: bool = False) -> None:
+                if on_open_item_pack is None:
+                    return
+                if on_open_item_pack(item_name, open_all):
+                    _refresh_equipment_views()
+
+            open_action.triggered.connect(_do_open)
+            if amount > 1:
+                open_all_action = menu.addAction(f"Open all ({amount})")
+                open_all_action.setEnabled(on_open_item_pack is not None)
+                open_all_action.setToolTip(f"Receive {amount * per_pack:,} {content_item}.")
+                open_all_action.triggered.connect(lambda _checked=False: _do_open(open_all=True))
             menu.addSeparator()
 
         urn_info = full_urn_teleport_info_pure(player_data, item_name)

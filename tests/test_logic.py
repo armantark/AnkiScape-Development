@@ -756,6 +756,16 @@ class TestLogic(unittest.TestCase):
         _d4, drain = apply_consumable_pure(pd, "Kebab", rng=lambda: next(drain_rolls))
         self.assertTrue(drain["drains"])
 
+    def test_juju_farming_potion_uses_answer_driven_farm_clock_and_preserves_dose(self):
+        pd = {"inventory": {"Juju farming potion (3)": 1}, "farm_clock_minutes": 17}
+
+        data, result = apply_consumable_pure(pd, "Juju farming potion (3)")
+
+        self.assertTrue(result["allowed"])
+        self.assertEqual(data["farm_juju_active_until"], 22)
+        self.assertEqual(data["inventory"], {"Juju farming potion (2)": 1})
+        self.assertEqual(pd["inventory"], {"Juju farming potion (3)": 1})
+
     def test_consumable_rejects_missing_and_non_consumable_items(self):
         _d, missing = apply_consumable_pure({"inventory": {}}, "Beer")
         self.assertFalse(missing["allowed"])

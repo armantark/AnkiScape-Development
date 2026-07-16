@@ -80,6 +80,22 @@ from skill_registry import (
 
 
 class TestSkillAndItemRegistry(unittest.TestCase):
+    def test_agility_consumable_dose_families_share_canonical_tradeability(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        expected_ids = {
+            "Agility potion (4)": 3032,
+            "Agility potion (3)": 3034,
+            "Agility potion (2)": 3036,
+            "Agility potion (1)": 3038,
+            "Agility mix (2)": 11461,
+            "Agility mix (1)": 11463,
+        }
+        for item_name, item_id in expected_ids.items():
+            with self.subTest(item_name=item_name):
+                definition = by_storage_key[item_name]
+                self.assertTrue(definition.tradeable)
+                self.assertEqual(definition.source_item_id, item_id)
+
     def test_current_skills_preserve_existing_display_contract(self):
         self.assertEqual(
             implemented_review_skill_names(),
@@ -819,6 +835,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Fire battlestaff": "equipment",
             "Goblin book": "material",
             "Half an apple pie": "food",
+            "Half a summer pie": "food",
+            "Kebab": "food",
             "H.A.M. boots": "equipment",
             "H.A.M. cloak": "equipment",
             "H.A.M. gloves": "equipment",
