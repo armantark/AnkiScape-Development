@@ -167,11 +167,44 @@ familiar surface. Advanced packing gets an explicit familiar grid. Casual packin
 project target-aware automation onto the same inventory without merging the underlying
 state.
 
-### 6. Casual Beast-of-Burden packing — open
+### 6. Familiar selection and Beast-of-Burden packing — settled 2026-07-16
 
-Choose whether Casual automatically fills the separate BoB inventory from the current
-target's needs/outputs, or leaves it empty unless the player explicitly opts into
-familiar storage. Advanced remains explicit either way.
+The active familiar is one **global equipment entity**, not a Combat-only loadout field.
+Its canonical panel lives with Equipment and is projected read-consistently into Bank,
+the reviewer, and target configuration surfaces. The canonical panel owns the live
+familiar, remaining lifetime, Summoning points, Summon/Dismiss/Renew/special commands,
+the global auto-renew toggle, and the separate BoB inventory. Contextual projections
+never create a second copy of that state.
+
+Familiar **selection policy is target-local** because the useful role changes between
+Combat and non-combat targets:
+
+- Casual exposes `Use best available` plus a source-role dropdown, including combat,
+  skill-support, beast-of-burden, healing, foraging, teleport, and any additional roles
+  established by the full catalog audit.
+- Advanced pins an exact familiar and exposes its exact familiar inventory when it has
+  one.
+- `Best available` resolves from owned, level-valid, usable familiars in the chosen role;
+  its final ordering must come from the harvested catalog rather than display-name rules.
+- Automation may summon into an empty global slot but never silently dismiss or replace
+  a live familiar when the target changes. A mismatched live familiar remains active and
+  the target surface shows the queued policy with an explicit switch command.
+
+Choosing a BoB policy is the Casual opt-in to its storage. While a compatible BoB is
+active, Casual automatically packs its separate restricted inventory according to the
+same target preset that packs the player's carried inventory. Gathering/loot may use it
+as compatible overflow; processing may allocate compatible inputs to it. Advanced shows
+the extra slots and lets the player arrange them directly. Both inventories share the
+existing Casual/Advanced packing mode rather than creating independent mode toggles that
+could contradict each other. Switching targets alone never repacks, empties, dismisses,
+or drops a live familiar's cargo.
+
+### 7. Casual Summoning-point upkeep — open
+
+Choose whether familiar automation may restore the Summoning points needed to summon or
+use point-gated abilities through an abstracted obelisk action, or whether point restore
+always remains an explicit player command. This changes whether Casual familiar policies
+remain self-sustaining or eventually pause for manual upkeep.
 
 ## Source/open-work queue
 

@@ -166,6 +166,11 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   than auto-banking. Gravestones and cargo events use the shared reviewer alert
   strip in `review-hud-world-alerts-contract-2026-07-16.md` with distinct art and
   behavior.
+- Implement one global familiar slot with a canonical Equipment panel and synced
+  Bank/reviewer/target projections. Casual target presets select best available by
+  sourced familiar role and auto-pack an active BoB; Advanced pins the exact
+  familiar and exposes its separate inventory grid. Target changes never silently
+  dismiss, replace, or repack the live global familiar.
 
 ### Dungeoneering
 

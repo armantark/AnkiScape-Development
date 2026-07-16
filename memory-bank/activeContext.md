@@ -19,11 +19,16 @@ ordinary graves and cargo events project as distinct icons in the reusable alert
 strip above the reviewer XP HUD; see
 `review-hud-world-alerts-contract-2026-07-16.md`. BoB storage remains a distinct
 restricted inventory because flattening it would make expiry cargo arbitrary and
-erase period restrictions. The next open Summoning fork is whether Casual mode
-auto-packs that separate inventory or requires explicit opt-in. Period evidence
-already rules out collapsing lifetime and Summoning points into one resource:
-points could reach zero without dismissing the familiar. Wall-clock gameplay
-remains forbidden.
+erase period restrictions. The familiar is one global Equipment entity with
+synchronized Bank, reviewer, and target projections; target-local policy chooses
+`Off`, Casual best-available by source role, or an exact Advanced familiar without
+silently replacing a live familiar on target switches. Selecting a BoB is Casual's
+opt-in to automatic target-preset packing of its separate inventory, while Advanced
+exposes the exact slots. The next open Summoning fork is whether Casual automation
+may restore the Summoning points it needs through an abstracted obelisk action or
+must pause for explicit upkeep. Period evidence already rules out collapsing
+lifetime and Summoning points into one resource: points could reach zero without
+dismissing the familiar. Wall-clock gameplay remains forbidden.
 
 Agility's owner grill, source harvest, and atomic implementation are closed. The
 governing product contract is

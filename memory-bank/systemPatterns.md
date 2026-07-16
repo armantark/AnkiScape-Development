@@ -113,6 +113,12 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   new standalone widget per feature. Initial rows are the existing Gravestone
   and Summoning's expiring Familiar cargo, each with distinct sourced art,
   labels, countdown semantics, and detail actions.
+- Global gameplay entities may have synchronized contextual projections but only
+  one canonical writer. Summoning's familiar is owned by the Equipment surface;
+  Bank, reviewer, and per-target controls project that same state. Per-target
+  familiar policy may fill an empty slot but must not silently replace the live
+  entity during navigation. BoB packing shares the target's existing
+  Casual/Advanced inventory mode rather than adding an independent mode switch.
 - The answered-card clock is not a universal action-duration converter. It runs
   background/world/economy timers; ordinary skilling still performs one sourced
   action tick per successful review unless an activity explicitly defines a
