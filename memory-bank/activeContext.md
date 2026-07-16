@@ -2,6 +2,20 @@
 
 ## Current Focus
 
+Agility is in owner grill and source-harvest, not implementation. The 2026-07-15
+harvest added `source-audits/agility-fail-consequences-2026-07-15.md`,
+`source-audits/agility-trip-cost-inputs-2026-07-15.md`, and
+`source-audits/agility-carried-weight-inputs-2026-07-15.md`. It overturned four
+premature simplifications: failures need obstacle-specific consequences rather
+than universal zero-XP/damage/stage-drop behavior; modern OSRS/RS3 failure
+curves are provisional candidates rather than period-closed values; item weight
+is target-load data rather than a period per-skill scalar; and optimal-route
+Crafting/Hunter/Combat do not gain throughput merely because their items can be
+heavy. The Explorer's-ring conflict is closed at 10% (`1.10`, or `2.10` with
+Runecrafting gloves), while Prayer's pure travel component remains
+`source_blocked`. The live owner question is Brimhaven's review-native ticket
+loop. Implementation belongs in a later thread after the grill closes.
+
 Cadence Phase 3 shadow observation is complete on
 `codex/cadence-phase3-shadow`, based on Phase 1 at `b45aff0`. With the strict
 off-by-default `ankiscape_cadence_kernel` flag enabled, Mining, Woodcutting,
