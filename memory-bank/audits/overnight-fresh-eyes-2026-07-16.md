@@ -41,7 +41,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 
 | Pass | Scope | Reviewer | Candidates | Confirmed | Commit | Verification |
 |---:|---|---|---:|---:|---|---|
-| 1 | Agility, Thieving, Farming, Magic runtime seams | Fable | 14 | 9 | pending | 230 focused; 1 real offscreen Qt; 1,252 full; reachability; zero hard test-quality issues |
+| 1 | Agility, Thieving, Farming, Magic runtime seams | Fable | 14 | 9 | `01ef8d9` | 230 focused; 1 real offscreen Qt; 1,252 full; reachability; zero hard test-quality issues |
 
 ## Accepted fixes
 

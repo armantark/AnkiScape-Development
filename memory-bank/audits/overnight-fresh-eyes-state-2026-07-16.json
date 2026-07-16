@@ -13,7 +13,7 @@
     "opus_calls": 0
   },
   "last_scope": "Agility, Thieving, Farming, and Magic runtime seams",
-  "last_accepted_commit": null,
+  "last_accepted_commit": "01ef8d9",
   "pending_concrete_defects": [
     "Split unstrung and strung amulet identities so Crafting and String Jewellery cannot repeat XP on the same items"
   ],
