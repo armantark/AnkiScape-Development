@@ -278,6 +278,12 @@ def sanitize_bank_run_state(raw: Any, max_reviews: int) -> dict[str, Any]:
     target_id = raw.get("target_id")
     if isinstance(target_id, str):
         state["target_id"] = target_id
+    total = _clean_int(raw.get("reviews_total"), 0, minimum=0)
+    if total > 0:
+        state["reviews_total"] = max(remaining, min(total, max_reviews))
+    route_label = raw.get("route_label")
+    if isinstance(route_label, str) and route_label:
+        state["route_label"] = route_label
     return state
 
 
@@ -312,6 +318,9 @@ def bank_run_progress_pure(
     new_state: dict[str, Any] = {"reviews_remaining": remaining}
     if isinstance(target_id, str):
         new_state["target_id"] = target_id
+    for key in ("reviews_total", "route_label"):
+        if key in state:
+            new_state[key] = state[key]
     return new_state, {"active": True, "started": started, "completed": False, "reviews_remaining": remaining}
 
 
@@ -466,6 +475,7 @@ def default_carried_state() -> dict[str, Any]:
         "carried_churn": {},               # {target_id: int} — slots churned since last bank
         "carried_keep_drop": {},           # {target_id: "keep"|"drop"} — default keep
         "skilling_bank_run": {},           # active {reviews_remaining, target_id} run
+        "agility_last_travel": {},         # last target-local endurance/weight projection
         "loot_value_threshold": DEFAULT_LOOT_VALUE_THRESHOLD,
         "loot_overrides": {},              # {item: "keep"|"leave"} advanced per-drop
         "carried_layout": {},              # {target_id: {item: count}} — advanced saved 4x7 arrangement
@@ -553,9 +563,11 @@ def sanitize_carried_state(player_data: MutableMapping[str, Any]) -> None:
         else {}
     )
 
-    player_data["skilling_bank_run"] = sanitize_bank_run_state(
-        player_data.get("skilling_bank_run"), SKILLING_BANK_RUN_REVIEWS
-    )
+    raw_bank_run = player_data.get("skilling_bank_run")
+    max_bank_reviews = 100 if isinstance(raw_bank_run, Mapping) and raw_bank_run.get("reviews_total") else SKILLING_BANK_RUN_REVIEWS
+    player_data["skilling_bank_run"] = sanitize_bank_run_state(raw_bank_run, max_bank_reviews)
+    raw_travel = player_data.get("agility_last_travel")
+    player_data["agility_last_travel"] = dict(raw_travel) if isinstance(raw_travel, Mapping) else {}
 
     raw_overrides = player_data.get("loot_overrides")
     player_data["loot_overrides"] = (

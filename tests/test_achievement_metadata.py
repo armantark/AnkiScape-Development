@@ -13,8 +13,8 @@ class AchievementMetadataTest(unittest.TestCase):
     def test_catalog_preserves_legacy_export_shape(self):
         names = list(ACHIEVEMENTS)
 
-        self.assertEqual(len(ACHIEVEMENT_DEFINITIONS), 154)
-        self.assertEqual(len(ACHIEVEMENTS), 154)
+        self.assertEqual(len(ACHIEVEMENT_DEFINITIONS), 168)
+        self.assertEqual(len(ACHIEVEMENTS), 168)
         self.assertEqual(
             names[:5],
             [
@@ -48,8 +48,8 @@ class AchievementMetadataTest(unittest.TestCase):
 
         self.assertIn("First Steps", completed_easy)
         self.assertIn("Rune Mysteries", completed_easy)
-        self.assertEqual(achievement_difficulty_progress(ACHIEVEMENTS, player_data, "Easy"), (2, 54))
-        self.assertEqual(achievement_progress(ACHIEVEMENTS, player_data), (2, 154, 2 / 154 * 100))
+        self.assertEqual(achievement_difficulty_progress(ACHIEVEMENTS, player_data, "Easy"), (2, 58))
+        self.assertEqual(achievement_progress(ACHIEVEMENTS, player_data), (2, 168, 2 / 168 * 100))
 
     def test_representative_conditions_cover_skill_quest_and_claim_state(self):
         player_data = {

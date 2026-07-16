@@ -4,6 +4,11 @@ import os
 import re
 
 try:
+    from .agility_data import AGILITY_EXTRA_ITEM_DATA, AGILITY_ITEM_IMAGES
+except ImportError:
+    from agility_data import AGILITY_EXTRA_ITEM_DATA, AGILITY_ITEM_IMAGES  # type: ignore
+
+try:
     from .construction_data import (
         CONSTRUCTION_DATA,
         DEFAULT_CONSTRUCTION_TARGET,
@@ -1258,6 +1263,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     # Magic references many existing cross-skill items. Put its generic
     # fallback rows first so the owning skill's category/stackability wins.
     **THIEVING_EXTRA_ITEM_DATA,
+    **AGILITY_EXTRA_ITEM_DATA,
     **CONSTRUCTION_EXTRA_ITEM_DATA,
     **MAGIC_EXTRA_ITEM_DATA,
     **QUEST_REWARD_ITEM_DATA,
@@ -1279,6 +1285,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
 })
 EXTRA_ITEM_IMAGES = {
     **CONSTRUCTION_ITEM_IMAGES,
+    **AGILITY_ITEM_IMAGES,
     **FARMING_ITEM_IMAGES,
     **WOODCUTTING_EXTRA_ITEM_IMAGES,
     **MINING_EXTRA_ITEM_IMAGES,

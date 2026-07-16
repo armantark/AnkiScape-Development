@@ -46,6 +46,7 @@ try:
     )
     from .skill_registry import default_skill_state, default_target_state, planned_skill_definitions, trainable_skill_definitions
     from .thieving_data import THIEVING_TARGETS
+    from .agility_logic import default_agility_state_pure, sanitize_agility_state_pure
     from .woodcutting_data import (
         DEFAULT_WOODCUTTING_TOOLBELT,
         LEGACY_LOG_STORAGE_MIGRATIONS,
@@ -95,13 +96,14 @@ except ImportError:
     )
     from skill_registry import default_skill_state, default_target_state, planned_skill_definitions, trainable_skill_definitions
     from thieving_data import THIEVING_TARGETS
+    from agility_logic import default_agility_state_pure, sanitize_agility_state_pure
     from woodcutting_data import (
         DEFAULT_WOODCUTTING_TOOLBELT,
         LEGACY_LOG_STORAGE_MIGRATIONS,
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 35
+CURRENT_CONFIG_VERSION = 36
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -257,6 +259,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(inventory_pure.default_carried_state())
     data.update(default_shop_state_pure())
     data.update(default_farming_state_pure())
+    data.update(default_agility_state_pure())
     data["cadence_profiles"] = default_cadence_kernel_state_pure()
     return data
 
@@ -873,6 +876,11 @@ def migrate_loaded_data(
         data.setdefault("thieving_fight_back_when_caught", False)
         data.setdefault("thieving_blackjack_phase", "needs_lure")
         data.setdefault("thieving_blackjack_picks_remaining", 0)
+    # v36: complete Agility course/activity state. Pending Agility XP is applied
+    # by the standard trainable-skill migration above in the same load.
+    if loaded_config_version < 36:
+        for key, value in default_agility_state_pure().items():
+            data.setdefault(key, value)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -898,6 +906,7 @@ def migrate_loaded_data(
     # invariant, not a schema migration; valid partial urns remain valid in bank.
     data.update(sanitize_urn_state_pure(data))
     data.update(sanitize_farming_state_pure(data))
+    data.update(sanitize_agility_state_pure(data))
     _sanitize_thieving_state(data)
     data["cadence_profiles"] = sanitize_cadence_kernel_state_pure(
         data.get("cadence_profiles")

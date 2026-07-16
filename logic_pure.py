@@ -4467,6 +4467,23 @@ def apply_consumable_pure(player_data, item_name, rng=None):
             inv = dict(data.get("inventory", {}) or {})
             inv[leaves] = _non_negative_int(inv.get(leaves, 0), 0) + 1
             data["inventory"] = inv
+    elif spec["kind"] == "agility_boost":
+        boost = _positive_int(spec.get("boost", 1), 1)
+        healed = _consumable_heal(data, _non_negative_int(spec.get("heal", 0), 0))
+        data["agility_effective_boost"] = max(
+            _non_negative_int(data.get("agility_effective_boost", 0), 0),
+            boost,
+        )
+        data["agility_boost_actions_remaining"] = max(
+            _non_negative_int(data.get("agility_boost_actions_remaining", 0), 0),
+            _positive_int(spec.get("action_budget", 10), 10),
+        )
+        boosts["agility"] = boost
+        leaves = str(spec.get("leaves", ""))
+        if leaves:
+            inv = dict(data.get("inventory", {}) or {})
+            inv[leaves] = _non_negative_int(inv.get(leaves, 0), 0) + 1
+            data["inventory"] = inv
 
     return data, {
         "allowed": True,
@@ -7694,6 +7711,27 @@ def apply_fishing_action_pure(
     return inventory, 0, False, None, tuple()
 
 
+_AGILITY_DOUBLE_CATCH_LEVELS = {
+    "Raw tuna": 35,
+    "Raw swordfish": 50,
+    "Raw shark": 76,
+}
+
+
+def fishing_agility_double_catch_chance_pure(output_item, agility_level):
+    """Return the bounded pre-EOC Agility double-catch yield chance.
+
+    The eligible fish and unlock levels are period-sourced. The surviving
+    update text only calls the probability small, so 10% is the named
+    ``ankiscape_fishing_double_catch_fallback`` until a quantitative period
+    row replaces it. The extra fish never carries extra Fishing XP.
+    """
+    required = _AGILITY_DOUBLE_CATCH_LEVELS.get(str(output_item))
+    if required is None or _positive_int(agility_level, 1) < required:
+        return 0.0
+    return 0.10
+
+
 def _hunter_outputs_from_spec(spec):
     raw_outputs = spec.get("outputs", {})
     if isinstance(raw_outputs, Mapping):
@@ -7780,6 +7818,13 @@ def hunter_target_locked_reasons_pure(player_data, target, hunter_data, quest_un
     required_level = _positive_int(spec.get("level", 1), 1)
     if hunter_level < required_level:
         reasons.append(f"Hunter level {required_level}")
+    skill_requirements = spec.get("skill_requirements", {})
+    if isinstance(skill_requirements, Mapping):
+        for skill_id, required in skill_requirements.items():
+            required_level = _positive_int(required, 1)
+            current_level = _positive_int(player_data.get(f"{skill_id}_level", 1), 1)
+            if current_level < required_level:
+                reasons.append(f"{str(skill_id).replace('_', ' ').title()} level {required_level}")
     if not has_hunter_materials_pure(target, player_data.get("inventory", {}) or {}, hunter_data):
         reasons.append("materials")
     reasons.extend(missing_hunter_tools_pure(target, player_data.get("inventory", {}) or {}, hunter_data))

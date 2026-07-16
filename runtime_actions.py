@@ -99,6 +99,7 @@ try:
         calculate_cooking_success_probability_pure,
         calculate_firemaking_success_probability_pure,
         calculate_fishing_success_probability_pure,
+        fishing_agility_double_catch_chance_pure,
         calculate_hunter_success_probability_pure,
         calculate_mining_success_probability_pure,
         calculate_woodcutting_success_probability_pure,
@@ -165,6 +166,9 @@ try:
     from .smithing_data import DEFAULT_SMITHING_TARGET
     from .urn_data import URN_STATE_ITEM_NAMES, materialize_urn_layout_pure
     from .thieving_data import DEFAULT_THIEVING_TARGET, THIEVING_TARGETS
+    from .agility_data import AGILITY_TARGETS_BY_ID, DEFAULT_AGILITY_TARGET
+    from .agility_logic import agility_target_locked_reasons_pure, apply_agility_review_pure
+    from .agility_travel import agility_travel_profile_pure, scheduled_travel_reviews_pure
     from .cadence_kernel import advance_cadence_pure, default_cadence_profile_state_pure
 except ImportError:  # pragma: no cover - flat import path used by tests
     from constants import (  # type: ignore
@@ -253,6 +257,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         calculate_cooking_success_probability_pure,
         calculate_firemaking_success_probability_pure,
         calculate_fishing_success_probability_pure,
+        fishing_agility_double_catch_chance_pure,
         calculate_hunter_success_probability_pure,
         calculate_mining_success_probability_pure,
         calculate_woodcutting_success_probability_pure,
@@ -319,6 +324,9 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from smithing_data import DEFAULT_SMITHING_TARGET  # type: ignore
     from urn_data import URN_STATE_ITEM_NAMES, materialize_urn_layout_pure  # type: ignore
     from thieving_data import DEFAULT_THIEVING_TARGET, THIEVING_TARGETS  # type: ignore
+    from agility_data import AGILITY_TARGETS_BY_ID, DEFAULT_AGILITY_TARGET  # type: ignore
+    from agility_logic import agility_target_locked_reasons_pure, apply_agility_review_pure  # type: ignore
+    from agility_travel import agility_travel_profile_pure, scheduled_travel_reviews_pure  # type: ignore
     from cadence_kernel import advance_cadence_pure, default_cadence_profile_state_pure  # type: ignore
 
 try:
@@ -610,10 +618,52 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         and _bank_can_supply(bank, refill_requirements)
     )
 
-    new_state, new_view, new_churn, event, act = inventory_pure.carried_bank_run_gate_pure(
-        view, churn, keep, _OVERLAY_STACKABLE_NAMES, target_id, bank_run,
-        inventory_pure.SKILLING_BANK_RUN_REVIEWS, capacity, force,
-    )
+    active_run = isinstance(bank_run, dict) and int(bank_run.get("reviews_remaining", 0) or 0) > 0
+    trip_due = bool(keep and (active_run or churn >= capacity or force))
+    travel_profile = None
+    reviews_cost = inventory_pure.SKILLING_BANK_RUN_REVIEWS
+    if active_run:
+        reviews_cost = max(1, int(bank_run.get("reviews_total", bank_run.get("reviews_remaining", 1)) or 1))
+    elif trip_due:
+        travel_profile = agility_travel_profile_pure(
+            handler_key,
+            target_id,
+            int(player_data.get("agility_level", 1) or 1),
+            view,
+            player_data.get("equipment", {}),
+        )
+        # The only new RNG draw happens at the moment a trip is actually due.
+        reviews_cost = (
+            scheduled_travel_reviews_pure(travel_profile, ctx.random_random())
+            if travel_profile.adjusted_reviews > 0
+            else 0
+        )
+        player_data["agility_last_travel"] = {
+            "handler_key": handler_key,
+            "target_id": target_id,
+            "base_reviews": travel_profile.base_reviews,
+            "adjusted_reviews": travel_profile.adjusted_reviews,
+            "level_gain": travel_profile.level_gain,
+            "weight_gain": travel_profile.weight_gain,
+            "carried_weight_kg": travel_profile.carried_weight_kg,
+            "effective_weight_kg": travel_profile.effective_weight_kg,
+            "route_label": travel_profile.route_label,
+            "source_status": travel_profile.source_status,
+        }
+
+    if trip_due and reviews_cost <= 0:
+        new_state, new_view, new_churn = {}, {}, 0
+        event = {"active": True, "started": True, "completed": True, "reviews_remaining": 0, "waived": True}
+        act = True
+        new_view = _repack_view_for_target(is_processing, advanced, layout, bank, requirements, capacity)
+    else:
+        new_state, new_view, new_churn, event, act = inventory_pure.carried_bank_run_gate_pure(
+            view, churn, keep, _OVERLAY_STACKABLE_NAMES, target_id, bank_run,
+            max(1, reviews_cost), capacity, force,
+        )
+        if event.get("started") and new_state:
+            new_state["reviews_total"] = max(1, reviews_cost)
+            new_state["route_label"] = travel_profile.route_label if travel_profile else "Running to the bank"
 
     if not act:
         if event.get("completed"):
@@ -621,7 +671,15 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         player_data["skilling_bank_run"] = new_state
         _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
         _set_carried_target_map(player_data, "carried_churn", target_id, new_churn)
-        ctx.show_activity_gain("Bank run — restocked supplies (+1 review)")
+        total = int((new_state or bank_run or {}).get("reviews_total", reviews_cost) or reviews_cost)
+        remaining = int(event.get("reviews_remaining", 0) or 0)
+        route_label = str((new_state or bank_run or {}).get("route_label", "Running to the bank"))
+        progress = max(1, total - remaining)
+        ctx.show_activity_gain(
+            f"Bank run — {route_label} · {min(progress, total)}/{total} travel reviews"
+            if not event.get("completed")
+            else f"Bank run — {route_label} · arrived and restocked"
+        )
         ctx.save_player_data()
         return True
 
@@ -636,10 +694,10 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         # byproducts) passes through untouched, since it was never capped.
         scoped_inventory = dict(bank)
         for item_name, need in requirements.items():
-            scoped_inventory[item_name] = min(int(bank.get(item_name, 0) or 0), int(view.get(item_name, 0) or 0))
+            scoped_inventory[item_name] = min(int(bank.get(item_name, 0) or 0), int(new_view.get(item_name, 0) or 0))
         carried_presence_requirements = presence_requirements if advanced else {}
         for item_name, need in carried_presence_requirements.items():
-            scoped_inventory[item_name] = min(int(bank.get(item_name, 0) or 0), int(view.get(item_name, 0) or 0))
+            scoped_inventory[item_name] = min(int(bank.get(item_name, 0) or 0), int(new_view.get(item_name, 0) or 0))
         scoped_alternatives = set()
         if handler_key == "fletching":
             spec = FLETCHING_DATA.get(target_id, {})
@@ -903,7 +961,7 @@ def _apply_farming_queue_result(
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     if info.get("status") == "executed":
-        for skill, xp_key in (("Farming", "farming_xp"), ("Woodcutting", "woodcutting_xp")):
+        for skill, xp_key in (("Farming", "farming_xp"), ("Woodcutting", "woodcutting_xp"), ("Agility", "agility_xp")):
             if float(info.get(xp_key, 0.0) or 0.0) <= 0:
                 continue
             level_key = f"{skill.lower()}_level"
@@ -914,7 +972,7 @@ def _apply_farming_queue_result(
                 awarded_level,
                 int(ctx.player_data.get(level_key, old_levels[skill]) or old_levels[skill]),
             )
-        gained = float(info.get("farming_xp", 0.0) or 0.0) + float(info.get("woodcutting_xp", 0.0) or 0.0)
+        gained = sum(float(info.get(key, 0.0) or 0.0) for key in ("farming_xp", "woodcutting_xp", "agility_xp"))
         if gained > 0:
             ctx.show_exp(gained)
     else:
@@ -928,6 +986,7 @@ def _farming_levels_before_answer(ctx: RuntimeActionContext) -> dict[str, int]:
     return {
         "Farming": int(ctx.player_data.get("farming_level", 1) or 1),
         "Woodcutting": int(ctx.player_data.get("woodcutting_level", 1) or 1),
+        "Agility": int(ctx.player_data.get("agility_level", 1) or 1),
     }
 
 
@@ -1782,6 +1841,13 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
         ctx.save_player_data()
         return True
 
+    output_qty = 1
+    double_chance = fishing_agility_double_catch_chance_pure(_output_item, agility_level)
+    if double_chance > 0 and ctx.random_random() < double_chance and _output_item:
+        new_inv = dict(new_inv)
+        new_inv[_output_item] = int(new_inv.get(_output_item, 0) or 0) + 1
+        output_qty = 2
+
     player_data["inventory"] = new_inv
     _charge_urn_for_action(ctx, "fishing", target, spec, base_exp, _output_item)
     _record_action(
@@ -1791,6 +1857,7 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
         True,
         expected_success_chance=expected_success,
         output_item=_output_item,
+        output_qty=output_qty,
         primary_xp=base_exp,
     )
     exp_gained = _award_action_xp_rewards(
@@ -2626,6 +2693,82 @@ def handle_thieving_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
+    player_data = ctx.player_data
+    target_id = str(player_data.get("current_agility", DEFAULT_AGILITY_TARGET))
+    if target_id not in AGILITY_TARGETS_BY_ID:
+        target_id = DEFAULT_AGILITY_TARGET
+        player_data["current_agility"] = target_id
+    locked = agility_target_locked_reasons_pure(player_data, target_id)
+    if locked:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Agility target locked",
+            f"{AGILITY_TARGETS_BY_ID[target_id].display_name} requires {', '.join(locked)}, so Agility has been switched off.",
+        )
+        return False
+
+    updated, result = apply_agility_review_pure(
+        player_data,
+        tuple(ctx.random_random() for _ in range(4)),
+    )
+    if not result.get("allowed"):
+        return False
+    player_data.clear()
+    player_data.update(updated)
+
+    damage = int(result.get("damage", 0) or 0)
+    if damage > 0:
+        damaged, damage_result = apply_thieving_damage_pure(
+            player_data,
+            damage,
+            source="agility_failure",
+        )
+        player_data.clear()
+        player_data.update(damaged)
+        result["damage_result"] = damage_result
+
+    outputs = {
+        str(item): int(quantity)
+        for item, quantity in (result.get("outputs") or {}).items()
+        if int(quantity) > 0
+    }
+    if outputs:
+        inventory = dict(player_data.get("inventory", {}) or {})
+        for item, quantity in outputs.items():
+            inventory[item] = int(inventory.get(item, 0) or 0) + quantity
+        player_data["inventory"] = inventory
+
+    base_xp = float(result.get("xp", 0.0) or 0.0)
+    gained = ctx.award_skill_exp("agility_exp", base_xp) if base_xp > 0 else 0.0
+    if base_xp > 0:
+        ctx.level_up_check("Agility", player_data)
+    cross_rewards = tuple(
+        {"skill_id": str(skill_id), "amount": float(amount)}
+        for skill_id, amount in (result.get("cross_skill_rewards") or ())
+        if float(amount) > 0
+    )
+    if cross_rewards:
+        _award_action_xp_rewards(ctx, cross_rewards, str(cross_rewards[0]["skill_id"]))
+    _record_action(
+        ctx,
+        "agility",
+        str(result.get("action_id", target_id)),
+        bool(result.get("success")),
+        expected_success_chance=result.get("expected_success_chance"),
+        output_items=outputs,
+        failure_kind=result.get("failure_kind"),
+        primary_xp=base_xp,
+    )
+    ctx.check_achievements(player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if gained > 0:
+        ctx.show_exp(gained)
+    ctx.show_activity_gain(str(result.get("status", player_data.get("agility_status", "Agility action complete"))))
+    return True
+
+
 def _can_start_prayer_action(ctx: RuntimeActionContext) -> bool:
     target = ctx.player_data.get("current_prayer", DEFAULT_PRAYER_TARGET)
     if prayer_target_locked_reasons_pure(ctx.player_data, target, PRAYER_DATA):
@@ -2756,6 +2899,11 @@ def _can_start_thieving_action(ctx: RuntimeActionContext) -> bool:
     )
 
 
+def _can_start_agility_action(ctx: RuntimeActionContext) -> bool:
+    target = ctx.player_data.get("current_agility", DEFAULT_AGILITY_TARGET)
+    return not agility_target_locked_reasons_pure(ctx.player_data, str(target))
+
+
 def _can_start_woodcutting_action(ctx: RuntimeActionContext) -> bool:
     return can_chop_woodcutting_target_pure(
         ctx.player_data.get("woodcutting_level", 1),
@@ -2793,6 +2941,7 @@ CAN_START_HANDLERS: dict[str, Callable[[RuntimeActionContext], bool]] = {
     "magic": _can_start_magic_action,
     "construction": _can_start_construction_action,
     "thieving": _can_start_thieving_action,
+    "agility": _can_start_agility_action,
     "combat": _can_start_combat_action,
     "utility": _can_start_utility_action,
     "quest": _can_start_quest_action,
@@ -2815,6 +2964,7 @@ ANSWER_HANDLERS: dict[str, Callable[[RuntimeActionContext], bool]] = {
     "magic": handle_magic_answer,
     "construction": handle_construction_answer,
     "thieving": handle_thieving_answer,
+    "agility": handle_agility_answer,
     "combat": handle_combat_answer,
     "utility": handle_utility_answer,
     "quest": handle_quest_answer,

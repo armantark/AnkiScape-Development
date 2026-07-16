@@ -83,6 +83,11 @@ except ImportError:
     except ImportError:  # The Thieving logic module may land after this UI slice.
         _thieving_target_locked_reasons_pure = None
 
+try:
+    from .agility_logic import agility_target_locked_reasons_pure
+except ImportError:
+    from agility_logic import agility_target_locked_reasons_pure  # type: ignore
+
 
 @dataclass(frozen=True)
 class TargetRowMetadata:
@@ -224,6 +229,60 @@ def thieving_target_rows(
                 or thieving_item_images.get(icon_name)
                 or thieving_item_images.get(display_name)
             ),
+            group=group,
+            locked_reasons=locked_reasons,
+            sort_key=(group_order.get(group, 99), level, display_name),
+        ))
+    return tuple(rows)
+
+
+def agility_target_rows(
+    player_data: Mapping[str, object],
+    agility_targets: Sequence[object],
+    agility_target_images: Mapping[str, str],
+    default_target: str,
+) -> tuple[TargetRowMetadata, ...]:
+    """Build the grouped Agility selector without importing Qt."""
+
+    rows = []
+    current_target = str(player_data.get("current_agility", default_target) or default_target)
+    level_have = int(player_data.get("agility_level", 1) or 1)
+    group_order = {"courses": 0, "activities": 1}
+    for target in agility_targets:
+        target_id = str(getattr(target, "id"))
+        display_name = str(getattr(target, "display_name"))
+        level = int(getattr(target, "level"))
+        group = str(getattr(target, "group"))
+        stages = tuple(getattr(target, "stages"))
+        completion_bonus = float(getattr(target, "completion_bonus"))
+        lap_xp = sum(float(getattr(stage, "xp")) for stage in stages) + completion_bonus
+        locked_reasons = tuple(agility_target_locked_reasons_pure(player_data, target_id))
+        kind_label = "Course" if group == "courses" else "Activity"
+        tooltip_lines = [
+            f"{kind_label} · Agility level {level}. You have {level_have}.",
+        ]
+        if stages:
+            tooltip_lines.append(
+                f"{len(stages)} review-driven actions · {lap_xp:g} XP for a perfect ordered completion"
+            )
+            if any(bool(getattr(stage, "can_fail")) for stage in stages):
+                tooltip_lines.append("Failures can deal LP damage or change course position; undo restores the full action.")
+        else:
+            tooltip_lines.append("Review-driven activity with its own persisted progress and rewards.")
+        if target_id == "brimhaven_arena":
+            tooltip_lines.append("Hidden-pillar chase · eight attempts · activation streak · bankable tickets")
+        if locked_reasons:
+            tooltip_lines.append("Locked due to: " + ", ".join(locked_reasons))
+        label = f"{display_name} (Lvl {level})" if level > 1 else display_name
+        if locked_reasons:
+            label += f" — Locked: {locked_reasons[0]}"
+        rows.append(TargetRowMetadata(
+            target_id=target_id,
+            label=label,
+            tooltip="\n".join(tooltip_lines),
+            enabled=not locked_reasons,
+            current=target_id == current_target,
+            icon_path=agility_target_images.get(target_id),
             group=group,
             locked_reasons=locked_reasons,
             sort_key=(group_order.get(group, 99), level, display_name),
@@ -1058,6 +1117,18 @@ def hunter_target_rows(
             f"Materials:\n{_indented_material_lines(reqs, inventory)}\n"
             f"Reusable tools:\n{_indented_material_lines(tools, inventory, 'No reusable tools required')}"
         )
+        side_requirements = spec.get("skill_requirements", {})
+        if isinstance(side_requirements, Mapping) and side_requirements:
+            tooltip += "\nSide levels: " + ", ".join(
+                f"{str(skill).replace('_', ' ').title()} {int(level)}"
+                for skill, level in side_requirements.items()
+            )
+        xp_rewards = spec.get("xp_rewards", ())
+        if isinstance(xp_rewards, (tuple, list)) and len(xp_rewards) > 1:
+            tooltip += "\nXP rewards: " + ", ".join(
+                f"{str(reward.get('skill_id', '')).title()} {float(reward.get('amount', 0)):g}"
+                for reward in xp_rewards if isinstance(reward, Mapping)
+            )
         notes = spec.get("notes")
         if notes:
             tooltip += f"\nNote: {notes}"

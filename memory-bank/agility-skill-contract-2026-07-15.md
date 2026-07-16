@@ -581,3 +581,33 @@ list. Replace abstractions where better evidence is found; do not reopen the
 review-native product model unless evidence exposes a genuine contradiction.
 Then implement the full atomic boundary above. No feature may disappear merely
 because its exact historical number remained difficult to source.
+
+## Implementation closure — 2026-07-15
+
+The atomic boundary above is implemented. Agility is a complete Support skill
+with 18 grouped course/activity targets, course stages and lap bonuses, sourced
+and labeled-fallback failure profiles, LP damage and setbacks, the Brimhaven
+ticket chase, Skullball, Gnome Ball, Flash Powder Factory, The Pit, Circus, the
+full 68-row ordinary/grapple shortcut registry, target-specific travel costs,
+actual carried weight, reward commands, boosts, achievements, storage v36,
+review undo, and bounded direct-command undo.
+
+All release-blocking live-owner integrations are connected: Hunter barehand
+butterflies, Fishing double catches, Habitat and Farming travel, Herblore
+consumables, quest and generic XP rewards, LP/death, equipment, inventory, and
+the runtime dispatcher. Future-owner families remain registry-only boundaries;
+they do not expose fake player-facing partial mechanics. The pure Dorgesh route
+is period-backed, while the grapple and mixed identities remain explicitly
+`source_blocked` for exact payout differences.
+
+Every gameplay cadence is review/action derived. Circus uses the shared
+answered-card calendar at 240 reviews per day and seven days per simulated week;
+Flash Powder Factory uses a 24-review base session with the period two-minute
+Factory-top benefit represented as three proportional reviews; the skillcape
+boost lasts ten Agility actions. None of these use elapsed or wall-clock time.
+
+The Qt skill surface, compact period skill icon, reward controls, 42 local item
+assets, and provenance manifest are included in the same closure. The detailed
+implementation map, abstractions, dependency boundaries, and verification
+commands are recorded in
+`source-audits/agility-implementation-verification-2026-07-15.md`.

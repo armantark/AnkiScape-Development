@@ -5775,7 +5775,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(data["inventory"]["Sardine"], 20)
         self.assertEqual(data["cooking_exp"], 300.0)
 
-    def test_xp_lamp_claim_grants_chosen_skill_or_parks_unimplemented_skill(self):
+    def test_xp_lamp_claim_grants_chosen_trainable_skill(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["mining_level"] = 30
         player_data["quests"]["one_small_favour"] = {"started": True, "progress": 7, "completed": True}
@@ -5790,7 +5790,8 @@ class TestLogic(unittest.TestCase):
         claimed_data, ok = apply_claim_pure(player_data, "stolen_hearts_xp_lamp_2", CLAIM_DATA, "agility")
 
         self.assertTrue(ok)
-        self.assertEqual(claimed_data["pending_skill_exp_rewards"]["agility_exp"], 250.0)
+        self.assertEqual(claimed_data["agility_exp"], player_data["agility_exp"] + 250.0)
+        self.assertNotIn("agility_exp", claimed_data["pending_skill_exp_rewards"])
         self.assertTrue(claimed_data["claims"]["stolen_hearts_xp_lamp_2"]["claimed"])
 
     def test_standard_runecrafting_uses_talisman_capacity_and_does_not_spill_into_pure_essence(self):

@@ -118,6 +118,25 @@ def _farming_counter(player: PlayerData, key: str) -> int:
         return 0
 
 
+def _agility_counter(player: PlayerData, key: str) -> int:
+    counters = player.get("agility_lap_counts", {}) or {}
+    return _level(counters, key, 0) if isinstance(counters, Mapping) else 0
+
+
+def _agility_activity_family_count(player: PlayerData) -> int:
+    completions = player.get("agility_activity_completions", {}) or {}
+    if not isinstance(completions, Mapping):
+        return 0
+    return sum(1 for value in completions.values() if _level({"value": value}, "value", 0) > 0)
+
+
+def _owns_or_equipped(player: PlayerData, item_name: str) -> bool:
+    equipment = player.get("equipment", {}) or {}
+    return _item_count(player, item_name) > 0 or (
+        isinstance(equipment, Mapping) and item_name in equipment.values()
+    )
+
+
 def build_achievement_definitions(
     mining_output_items: Iterable[str],
     woodcutting_log_items: Iterable[str],
@@ -329,6 +348,21 @@ def build_achievement_definitions(
     add("Novice Thief", "Reach Thieving level 10", "Easy", lambda player: _level(player, "thieving_level") >= 10)
     add("Sticky Fingers", "Complete 100 successful Thieving actions", "Moderate", lambda player: _level(player, "thieving_success_count", 0) >= 100)
     add("Master Thief", "Reach Thieving level 99", "Very Challenging", lambda player: _level(player, "thieving_level") >= 99)
+
+    add("First Agility Action", "Complete your first Agility action", "Easy", lambda player: _level(player, "agility_actions_completed", 0) >= 1)
+    add("Novice Acrobat", "Reach Agility level 10", "Easy", lambda player: _level(player, "agility_level") >= 10)
+    add("Course Runner", "Complete your first Agility lap", "Easy", lambda player: _agility_counter(player, "total") >= 1)
+    add("Arena Ticket", "Earn your first Brimhaven Agility Arena ticket", "Easy", lambda player: _item_count(player, "Agility arena ticket") >= 1)
+    add("Intermediate Acrobat", "Reach Agility level 30", "Moderate", lambda player: _level(player, "agility_level") >= 30)
+    add("On the Move", "Complete 100 Agility actions", "Moderate", lambda player: _level(player, "agility_actions_completed", 0) >= 100)
+    add("Flawless Footing", "Complete a flawless advanced-course lap", "Moderate", lambda player: max(_agility_counter(player, "gnome_advanced_flawless"), _agility_counter(player, "barbarian_advanced_flawless")) >= 1)
+    add("Pit Proven", "Succeed in The Pit", "Moderate", lambda player: _level(player, "agility_pit_successes", 0) >= 1)
+    add("Expert Acrobat", "Reach Agility level 60", "Difficult", lambda player: _level(player, "agility_level") >= 60)
+    add("Arena Regular", "Hold 100 Brimhaven Agility Arena tickets", "Difficult", lambda player: _item_count(player, "Agility arena ticket") >= 100)
+    add("Activity Circuit", "Complete every live Agility activity family", "Difficult", lambda player: _agility_activity_family_count(player) >= 5)
+    add("Agile", "Own both pieces of the Agile set", "Difficult", lambda player: all(_owns_or_equipped(player, item) for item in ("Agile top", "Agile legs")))
+    add("Master Acrobat", "Reach Agility level 99", "Very Challenging", lambda player: _level(player, "agility_level") >= 99)
+    add("Endurance", "Complete 1,000 Agility actions", "Very Challenging", lambda player: _level(player, "agility_actions_completed", 0) >= 1000)
 
     add("First Cast", "Complete your first standalone Magic cast", "Easy", lambda player: _level(player, "magic_actions_completed", 0) >= 1)
     add("Novice Mage", "Reach Magic level 10", "Easy", lambda player: _level(player, "magic_level") >= 10)

@@ -315,6 +315,7 @@ try:
         runecrafting_target_rows,
         smithing_target_rows,
         thieving_target_rows,
+        agility_target_rows,
         utility_activity_rows,
         woodcutting_target_rows,
     )
@@ -336,6 +337,7 @@ except Exception:
         runecrafting_target_rows,
         smithing_target_rows,
         thieving_target_rows,
+        agility_target_rows,
         utility_activity_rows,
         woodcutting_target_rows,
     )
@@ -375,6 +377,27 @@ DEFAULT_THIEVING_TARGET = str(
     getattr(_thieving_data, "DEFAULT_THIEVING_TARGET", "pickpocket_man")
 )
 THIEVING_ITEM_IMAGES = getattr(_thieving_data, "THIEVING_ITEM_IMAGES", {})
+
+try:
+    from .agility_data import (
+        AGILITY_GROUP_LABELS,
+        AGILITY_GROUP_ORDER,
+        AGILITY_TARGET_IMAGES,
+        AGILITY_TARGETS,
+        ALL_AGILITY_SHORTCUTS,
+        DEFAULT_AGILITY_TARGET,
+    )
+    from .agility_logic import agility_status_line_pure, agility_target_locked_reasons_pure
+except ImportError:
+    from agility_data import (  # type: ignore
+        AGILITY_GROUP_LABELS,
+        AGILITY_GROUP_ORDER,
+        AGILITY_TARGET_IMAGES,
+        AGILITY_TARGETS,
+        ALL_AGILITY_SHORTCUTS,
+        DEFAULT_AGILITY_TARGET,
+    )
+    from agility_logic import agility_status_line_pure, agility_target_locked_reasons_pure  # type: ignore
 
 try:
     from .shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS, SHOP_PLAYER_BUY_PRICES
@@ -2125,6 +2148,8 @@ def show_main_menu(
     on_set_herblore=None,
     on_set_thieving=None,
     on_set_thieving_fight_back=None,
+    on_set_agility=None,
+    on_agility_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
     on_set_construction=None,
@@ -2367,6 +2392,13 @@ def show_main_menu(
         except Exception:
             return False
 
+    def _agility_available() -> bool:
+        try:
+            current = str(player_data.get("current_agility", DEFAULT_AGILITY_TARGET))
+            return not agility_target_locked_reasons_pure(player_data, current)
+        except Exception:
+            return False
+
     def _combat_available() -> bool:
         try:
             return any(
@@ -2404,6 +2436,8 @@ def show_main_menu(
             return _prayer_available()
         if display_name == "Thieving":
             return _thieving_available()
+        if display_name == "Agility":
+            return _agility_available()
         # Utility / Activities is always trainable: gather_* activities need no
         # inputs, so there is always at least one runnable activity.
         return True
@@ -3424,6 +3458,113 @@ def show_main_menu(
         layout.addWidget(tree, 1)
         return panel
 
+    def _build_agility_list() -> QWidget:
+        panel = QWidget()
+        panel.setObjectName("agilitySkillPanel")
+        layout = QVBoxLayout(panel)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+
+        status = QLabel(agility_status_line_pure(player_data))
+        status.setObjectName("agilityStatusLine")
+        status.setWordWrap(True)
+        status.setStyleSheet("color: palette(text); font-weight: 600;")
+        layout.addWidget(status)
+
+        level = max(1, min(99, int(player_data.get("agility_level", 1) or 1)))
+        gain = 11.0 * (level - 1) / 98.0
+        equipment = set((player_data.get("equipment") or {}).values())
+        reduction = sum(
+            value for item, value in {
+                "Agile top": 12.0,
+                "Agile legs": 10.0,
+                "Boots of lightness": 4.5,
+                "Spotted cape": 2.2,
+                "Spottier cape": 4.5,
+            }.items() if item in equipment
+        )
+        counts = player_data.get("agility_lap_counts") or {}
+        travel = player_data.get("agility_last_travel") or {}
+        base_reviews = float(travel.get("base_reviews", 0.0) or 0.0)
+        adjusted_reviews = float(travel.get("adjusted_reviews", base_reviews) or base_reviews)
+        route_gain = 100.0 * max(0.0, base_reviews - adjusted_reviews) / base_reviews if base_reviews > 0 else 0.0
+        unlocked_routes = sum(1 for row in ALL_AGILITY_SHORTCUTS if row.consumer == "route" and row.level <= level)
+        next_shortcut = next((row for row in sorted(ALL_AGILITY_SHORTCUTS, key=lambda item: item.level) if row.level > level), None)
+        next_shortcut_text = f"{next_shortcut.display_name} at {next_shortcut.level}" if next_shortcut else "all milestones unlocked"
+        travel_summary = (
+            f"last route {travel.get('route_label', 'travel')} saved {route_gain:.1f}% · "
+            f"effective load {float(travel.get('effective_weight_kg', 0.0) or 0.0):g} kg"
+            if travel else f"up to {gain:.1f}% less travel cost on movement-heavy routes"
+        )
+        benefits = QLabel(
+            f"Benefits & shortcuts · {travel_summary} · equipped reduction {reduction:g} kg · "
+            f"{unlocked_routes} consuming routes unlocked · next: {next_shortcut_text} · "
+            f"{int(counts.get('total', 0) or 0)} laps"
+        )
+        benefits.setObjectName("agilityBenefitsLine")
+        benefits.setWordWrap(True)
+        benefits.setStyleSheet("color: palette(text); font-size: 11px;")
+        benefits.setToolTip(
+            "Agility affects only route-local travel reviews. Bank transactions, materials, XP, and stationary methods are unchanged."
+        )
+        layout.addWidget(benefits)
+
+        tree = _build_grouped_target_tree(
+            agility_target_rows(
+                player_data,
+                AGILITY_TARGETS,
+                AGILITY_TARGET_IMAGES,
+                DEFAULT_AGILITY_TARGET,
+            ),
+            dict(AGILITY_GROUP_LABELS),
+            "__agility_group__:",
+            on_set_agility,
+            group_order=list(AGILITY_GROUP_ORDER),
+        )
+        tree.setObjectName("agilityTargetTree")
+        layout.addWidget(tree, 1)
+
+        rewards = QWidget()
+        rewards.setObjectName("agilityRewardControls")
+        reward_layout = QGridLayout(rewards)
+        reward_layout.setContentsMargins(0, 0, 0, 0)
+        reward_layout.setSpacing(6)
+
+        command_index = 0
+
+        def _command_button(label: str, action_id: str, payload=None) -> None:
+            nonlocal command_index
+            button = QPushButton(label)
+            button.setObjectName("agilityCommand::" + action_id)
+            button.setEnabled(on_agility_command is not None)
+            button.clicked.connect(
+                lambda _=False, aid=action_id, body=dict(payload or {}): on_agility_command(aid, body)
+            )
+            reward_layout.addWidget(button, command_index // 5, command_index % 5)
+            command_index += 1
+
+        _command_button("Sell Pyramid top", "sell_pyramid_top", {"count": 1})
+        _command_button("Claim Agile top", "claim_agile_piece", {"piece": "Agile top"})
+        _command_button("Claim Agile legs", "claim_agile_piece", {"piece": "Agile legs"})
+        _command_button("Redeem 10 tickets", "redeem_brimhaven_xp", {"tickets": 10})
+        _command_button("Toadflax (3 tickets)", "redeem_brimhaven_item", {"tickets": 3})
+        _command_button("Wergali (5 tickets)", "redeem_brimhaven_item", {"tickets": 5})
+        _command_button("Snapdragon (10 tickets)", "redeem_brimhaven_item", {"tickets": 10})
+        _command_button("Pirate's hook (800)", "redeem_brimhaven_item", {"tickets": 800})
+        _command_button("Redeem Brianpoints", "redeem_brianpoints", {"points": "all"})
+        for piece in ("Factory mask", "Factory top", "Factory trousers", "Factory gloves", "Factory boots"):
+            _command_button(piece, "redeem_factory_piece", {"piece": piece})
+        _command_button("Claim Pit XP", "claim_pit_reward", {})
+        _command_button("Gamble Pit XP", "gamble_pit_reward", {})
+        _command_button("Activate Surefooted", "activate_surefooted", {})
+        _command_button("Wind Toy mouse", "wind_toy_mouse", {})
+        _command_button("Buy Agility cape", "purchase_agility_cape", {})
+        _command_button("Activate cape", "activate_agility_cape", {})
+        _command_button("Leave activity", "leave_activity", {})
+        reward_layout.setColumnStretch(4, 1)
+        layout.addWidget(rewards)
+        return panel
+
     def _combat_mode_text() -> str:
         style_id = combat_attack_style_for_equipment_pure(player_data, EQUIPMENT_ITEM_DATA)
         spec = COMBAT_ATTACK_STYLE_DATA.get(style_id, COMBAT_ATTACK_STYLE_DATA.get(DEFAULT_COMBAT_ATTACK_STYLE, {}))
@@ -4216,6 +4357,7 @@ def show_main_menu(
         "Magic": _build_magic_list,
         "Construction": _build_construction_list,
         "Thieving": _build_thieving_list,
+        "Agility": _build_agility_list,
         _COMBAT_HUB_NAME: _build_combat_list,
         _UTILITY_HUB_NAME: _build_utility_list,
     }
@@ -4233,6 +4375,7 @@ def show_main_menu(
         "Herblore": "Select what to clean, mix, or brew",
         "Magic": "Select a Spell to Cast",
         "Thieving": "Select a target to steal from",
+        "Agility": "Select a course or activity",
         _COMBAT_HUB_NAME: "Select Enemy",
         _UTILITY_HUB_NAME: "Select an Activity (no XP)",
     }
@@ -4442,6 +4585,8 @@ def show_main_menu(
                         train_btn.setToolTip("Check the selected Prayer method's materials and altar requirements.")
                     elif name == "Thieving":
                         train_btn.setToolTip("Choose an unlocked target before training Thieving.")
+                    elif name == "Agility":
+                        train_btn.setToolTip("Choose an unlocked course or activity before training Agility.")
                     elif name == _COMBAT_HUB_NAME:
                         train_btn.setToolTip("Select an available enemy.")
             train_btn.clicked.connect(lambda _=False, n=name: _set_active(n))

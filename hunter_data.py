@@ -54,6 +54,7 @@ DEFAULT_HUNTER_TARGET = "catch_crimson_swift"
 HUNTER_GROUP_LABELS = {
     "bird_snaring": "Bird snaring",
     "butterfly_netting": "Butterfly netting",
+    "barehanded_butterflies": "Barehanded butterflies",
     "deadfall": "Deadfall",
     "box_trapping": "Box trapping",
     "net_trapping": "Net trapping",
@@ -99,6 +100,8 @@ class HunterTarget:
     outputs: Tuple[Tuple[str, int], ...]
     primary_output: str
     requirements: Tuple[Tuple[str, int], ...] = ()
+    skill_requirements: Tuple[Tuple[str, int], ...] = ()
+    xp_rewards: Tuple[Tuple[str, float], ...] = ()
     tools: Tuple[Tuple[str, int], ...] = ()
     source: str = ""
     mechanics_source: str = ""
@@ -141,6 +144,8 @@ def _target(
     tradeable: bool = True,
     notes: str = "",
     sort_order: int = 0,
+    skill_requirements: Tuple[Tuple[str, int], ...] = (),
+    xp_rewards: Tuple[Tuple[str, float], ...] = (),
 ) -> HunterTarget:
     tools = HUNTER_REUSABLE_TOOLS_BY_TARGET.get(id, HUNTER_REUSABLE_TOOLS_BY_GROUP.get(group, ()))
     return HunterTarget(
@@ -152,6 +157,8 @@ def _target(
         outputs=outputs,
         primary_output=primary_output,
         requirements=requirements,
+        skill_requirements=skill_requirements,
+        xp_rewards=xp_rewards,
         tools=tools,
         source=source,
         mechanics_source=mechanics_source,
@@ -322,6 +329,82 @@ HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
         HUNTER_BUTTERFLY_SOURCE,
         source_item_id=10014,
         deterministic=True,
+        sort_order=40,
+    ),
+    _target(
+        "barehand_ruby_harvest",
+        "Catch ruby harvest barehanded",
+        "barehanded_butterflies",
+        80,
+        300.0,
+        (),
+        "Ruby harvest",
+        skill_requirements=(('agility', 75),),
+        xp_rewards=(('hunter', 300.0), ('agility', 50.0)),
+        source=HUNTER_BUTTERFLY_SOURCE,
+        mechanics_source="period barehanded-butterfly reward table; success roll uses the labeled Hunter fallback",
+        source_item_id=10020,
+        rate1=128,
+        rate99=230,
+        tradeable=False,
+        notes="No net, jar, or retained butterfly. Requires 75 Agility.",
+        sort_order=10,
+    ),
+    _target(
+        "barehand_sapphire_glacialis",
+        "Catch sapphire glacialis barehanded",
+        "barehanded_butterflies",
+        85,
+        400.0,
+        (),
+        "Sapphire glacialis",
+        skill_requirements=(('agility', 80),),
+        xp_rewards=(('hunter', 400.0), ('agility', 70.0)),
+        source=HUNTER_BUTTERFLY_SOURCE,
+        mechanics_source="period barehanded-butterfly reward table; success roll uses the labeled Hunter fallback",
+        source_item_id=10018,
+        rate1=128,
+        rate99=230,
+        tradeable=False,
+        notes="No net, jar, or retained butterfly. Requires 80 Agility.",
+        sort_order=20,
+    ),
+    _target(
+        "barehand_snowy_knight",
+        "Catch snowy knight barehanded",
+        "barehanded_butterflies",
+        90,
+        500.0,
+        (),
+        "Snowy knight",
+        skill_requirements=(('agility', 85),),
+        xp_rewards=(('hunter', 500.0), ('agility', 100.0)),
+        source=HUNTER_BUTTERFLY_SOURCE,
+        mechanics_source="period barehanded-butterfly reward table; success roll uses the labeled Hunter fallback",
+        source_item_id=10016,
+        rate1=128,
+        rate99=230,
+        tradeable=False,
+        notes="No net, jar, or retained butterfly. Requires 85 Agility.",
+        sort_order=30,
+    ),
+    _target(
+        "barehand_black_warlock",
+        "Catch black warlock barehanded",
+        "barehanded_butterflies",
+        95,
+        650.0,
+        (),
+        "Black warlock",
+        skill_requirements=(('agility', 90),),
+        xp_rewards=(('hunter', 650.0), ('agility', 125.0)),
+        source=HUNTER_BUTTERFLY_SOURCE,
+        mechanics_source="period barehanded-butterfly reward table; success roll uses the labeled Hunter fallback",
+        source_item_id=10014,
+        rate1=128,
+        rate99=230,
+        tradeable=False,
+        notes="No net, jar, or retained butterfly. Requires 90 Agility.",
         sort_order=40,
     ),
     _target(
@@ -717,12 +800,18 @@ def _target_as_dict(target: HunterTarget) -> Dict[str, object]:
         "exp": target.base_exp,
         "base_exp": target.base_exp,
         "requirements": dict(target.requirements),
+        "skill_requirements": dict(target.skill_requirements),
         "tools": dict(target.tools),
         "outputs": dict(target.outputs),
         "output_item": target.primary_output,
         "output_qty": dict(target.outputs).get(target.primary_output, 1),
         "primary_output": target.primary_output,
-        "xp_rewards": ({"skill_id": "hunter", "amount": target.base_exp},),
+        "xp_rewards": tuple(
+            {"skill_id": skill_id, "amount": amount}
+            for skill_id, amount in (
+                target.xp_rewards or (("hunter", target.base_exp),)
+            )
+        ),
         "source": target.source,
         "mechanics_source": target.mechanics_source,
         "source_enum": target.source_enum,

@@ -73,18 +73,24 @@ Labels: none remaining on the core build; trailing acquisition/activity dependen
 - Cure Plant and Fertile Soil now have real Farming function rather than ceremonial casts.
 - `hunter-habitat-jadinko` remains an owning-activity/acquisition follow-up; core Farming is no longer its dependency.
 
-### Agility
+### Agility — SHIPPED 2026-07-15
 
-Labels: `DESIGN CLOSED`, `IMPLEMENTATION`, `SOURCE SWEEP`.
+Labels: trailing `SOURCE AUDIT` and owning-system dependencies only.
 
-- Build from `memory-bank/agility-skill-contract-2026-07-15.md` and
-  `memory-bank/source-audits/agility-complete-content-inventory-2026-07-15.md`.
-  The complete boundary includes every course/activity, Brimhaven, failures/LP,
-  full ordinary/grapple shortcut registries, run energy/actual-load weight,
-  rewards/modifiers/boosts, cross-skill hooks, pending XP migration, UI, assets,
-  undo, and regression verification. Run one final source sweep for the
-  contract's remaining values, but never delete a feature because its exact
-  number stays blocked. No wall clock or global player-location state.
+- The atomic build in `memory-bank/agility-skill-contract-2026-07-15.md` is live:
+  every audited course and activity, obstacle failures/LP/setbacks, Brimhaven,
+  68 ordinary/grapple shortcuts, run-energy/actual-load travel, rewards and
+  boosts, live cross-skill hooks, storage/undo, achievements, grouped Qt UI, and
+  period-provenanced assets.
+- Answered cards and Agility actions are the only cadence inputs. Agility
+  gameplay modules have a static no-wall-clock regression test.
+- Remaining dependency owners: Summoning familiars, Slayer routes,
+  Daemonheim/Dungeoneering, full Blast Furnace, Livid Farm, diary acquisition,
+  Barbarian Assault, and quest-owned stages. They have stable ownership
+  boundaries but no fake partial implementation.
+- Exact payout differences among the registered Dorgesh pure/grapple/mixed
+  route identities remain `source_blocked`. See
+  `memory-bank/source-audits/agility-implementation-verification-2026-07-15.md`.
 
 ### Thieving — SHIPPED 2026-07-13
 
@@ -188,7 +194,10 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
 
 Labels: `WAIT: DARKAN`, after each `DEEP GRILL`.
 
-- Prefer stable restored mechanics for Agility failures/courses, Thieving success/stun/loot, Slayer assignment/reward pools, Summoning familiar behavior, Dungeoneering floors/rooms, and still-missing special-method hidden state. Farming, Construction, Prayer, and Magic core loops are shipped.
+- Prefer stable restored mechanics for still-source-blocked Agility route values,
+  Thieving success/stun/loot, Slayer assignment/reward pools, Summoning familiar
+  behavior, Dungeoneering floors/rooms, and still-missing special-method hidden
+  state. Agility, Farming, Construction, Prayer, and Magic core loops are shipped.
 
 ## Cross-system program queue
 
@@ -210,11 +219,20 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `DEPENDENCY: COMBAT/PRAYER/SUMMONING`.
 
 Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 
-- Maintain `tools/audit_item_reachability.py`; the 2026-07-13 run finds 296 orphan inputs across planned skills, activities, Combat/world acquisition, and potion-state plumbing (151 root, 145 cascade). See the dated baseline audit for method and the current closure artifact for counts.
+- Maintain `tools/audit_item_reachability.py`; the 2026-07-15 run finds 271
+  orphan inputs across planned skills, activities, Combat/world acquisition,
+  and potion-state plumbing (137 root, 134 cascade). Agility's visible chain is
+  the four-dose potion root plus lower-dose cascades; authentic decanting remains
+  its acquisition owner. See the dated audits for method and the current closure
+  artifact for counts.
 - Close every live-but-unobtainable material through authentic drops, ground spawns, shops, claims, quests, skills, activities, or transformations. Do not seed free items or fake recipe gates.
 - The source-backed Woodcutting nest → empty nest → crushed nest route is repaired and regression-covered.
 - Finish equipment requirements, special attacks, poison, charges/degradation, set effects, jewellery, consumables, and source-specific use actions without creating fake recipes.
-- **Content gap found by the XP/hour audit (2026-07-13): barehand butterfly catching is missing.** Hunter's `catch_black_warlock` implements only the butterfly-**net** variant (54 XP). The period game also has **barehand** catching at Hunter 95 for **650 XP/catch**, which the 2012 guide rates at **140,000 XP/hr** — the best Hunter training in the game (Hunter training, oldid 6549266). So the skill's actual endgame method does not exist here. Found because grading the net variant against the barehand rate produced a phantom inversion; see `memory-bank/source-audits/xp-hour-provenance-ledger-2026-07-13.md`. Expect the same class of gap wherever a skill's best period method is missing — the audit surfaces them for free.
+- **Closed 2026-07-15:** barehand butterfly catching now ships as the distinct
+  Hunter 95 action with its exact Hunter and Agility XP awards and no captured
+  item. The prior XP/hour-audit gap remains useful evidence that missing method
+  variants must be checked separately from item identity; see
+  `memory-bank/source-audits/xp-hour-provenance-ledger-2026-07-13.md`.
 
 ### Achievement diaries, clues, collections, and one-time content
 

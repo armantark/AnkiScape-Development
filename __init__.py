@@ -105,6 +105,7 @@ from .action_registry import is_review_action, review_action_handler_key
 from .skill_registry import get_skill, trainable_skill_definitions
 from .shop_logic import advance_shop_market_clock_pure
 from .farming_logic import apply_farming_frontend_action_pure, farming_frontend_projection_pure
+from .agility_logic import apply_agility_command_pure
 from . import runtime_actions
 from .runtime_actions import RuntimeActionContext
 
@@ -131,9 +132,12 @@ _ANKISCAPE_HOOKS_REGISTERED = False
 _LAST_MENU_OPEN_TS = 0.0
 _REVIEW_UNDO_STACK = []
 _URN_TELEPORT_UNDO_STACK = []
+_DIRECT_ACTION_UNDO_STACK = []
 _MAX_REVIEW_UNDO_SNAPSHOTS = 50
 _MAX_URN_TELEPORT_UNDO_SNAPSHOTS = 50
+_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS = 50
 _URN_TELEPORT_UNDO_OPERATION = "Teleport training urn"
+_DIRECT_ACTION_UNDO_OPERATION = "AnkiScape direct action"
 _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY = "ankiscape_review_action_multiplier"
 _CADENCE_KERNEL_CONFIG_KEY = "ankiscape_cadence_kernel"
 _LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
@@ -553,6 +557,10 @@ def _looks_like_urn_teleport_undo(changes) -> bool:
     return _normalized_undo_operation(changes) == _URN_TELEPORT_UNDO_OPERATION.lower()
 
 
+def _looks_like_direct_action_undo(changes) -> bool:
+    return _normalized_undo_operation(changes) == _DIRECT_ACTION_UNDO_OPERATION.lower()
+
+
 def _restore_review_award_snapshot(snapshot) -> None:
     global player_data, current_skill
     for key in snapshot.get("remove", []):
@@ -589,6 +597,20 @@ def _restore_urn_teleport_snapshot(snapshot) -> None:
         update_farming_hud_badge(player_data, _open_farming_sheet)
     except Exception:
         pass
+
+
+def _restore_direct_action_snapshot(snapshot) -> None:
+    player_data.clear()
+    player_data.update(copy.deepcopy(snapshot["player_data"]))
+    random_state = snapshot.get("random_state")
+    if random_state is not None:
+        random.setstate(random_state)
+    save_player_data()
+    try:
+        update_review_hud(player_data, current_skill)
+        _refresh_skill_availability()
+    except Exception:
+        pass
     try:
         _refresh_skill_availability()
     except Exception:
@@ -596,6 +618,10 @@ def _restore_urn_teleport_snapshot(snapshot) -> None:
 
 
 def _on_state_did_undo(changes=None) -> None:
+    if _looks_like_direct_action_undo(changes):
+        if _DIRECT_ACTION_UNDO_STACK:
+            _restore_direct_action_snapshot(_DIRECT_ACTION_UNDO_STACK.pop())
+        return
     if _looks_like_urn_teleport_undo(changes):
         if _URN_TELEPORT_UNDO_STACK:
             _restore_urn_teleport_snapshot(_URN_TELEPORT_UNDO_STACK.pop())
@@ -992,6 +1018,39 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             pass
         return {"ok": ok, "message": message, "projection": farming_frontend_projection_pure(player_data)}
 
+    def _apply_agility_command(action_id, payload):
+        before = {"player_data": copy.deepcopy(player_data), "random_state": random.getstate()}
+        pit_reward = (player_data.get("agility_activity_state") or {}).get("pit_reward")
+        roll = random.random() if action_id == "gamble_pit_reward" and pit_reward else 0.5
+        updated, result = apply_agility_command_pure(player_data, action_id, payload, roll=roll)
+        if not result.get("allowed"):
+            random.setstate(before["random_state"])
+            return {"ok": False, **result}
+        try:
+            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+        except (AttributeError, RuntimeError):
+            random.setstate(before["random_state"])
+            return {"ok": False, "message": "Anki could not create an undo entry"}
+        _DIRECT_ACTION_UNDO_STACK.append(before)
+        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+        player_data.clear()
+        player_data.update(updated)
+        xp = float(result.get("xp", 0.0) or 0.0)
+        if xp > 0:
+            gained = _award_skill_exp("agility_exp", xp)
+            level_up_check("Agility", player_data)
+            _show_exp(gained)
+        check_achievements(player_data)
+        save_player_data()
+        _refresh_skill_availability()
+        try:
+            mw.update_undo_actions()
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **result}
+
     ui.show_main_menu(
         player_data,
         current_skill,
@@ -1013,6 +1072,8 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_set_thieving_fight_back=lambda enabled: _set_value(
             "thieving_fight_back_when_caught", bool(enabled)
         ),
+        on_set_agility=lambda target: _set_value("current_agility", target),
+        on_agility_command=_apply_agility_command,
         on_set_prayer_selection=set_prayer_selection,
         on_set_magic=lambda target: _set_value("current_magic", target),
         on_set_construction=lambda target: _set_value("current_construction", target),
@@ -1440,7 +1501,7 @@ def on_good_answer(before_state=None):
             elif handler_key == "combat":
                 review_progressed = handler(review_ctx) is not False
             else:
-                action_ticks = 1 if handler_key == "thieving" else _review_action_multiplier()
+                action_ticks = 1 if handler_key in {"thieving", "agility"} else _review_action_multiplier()
                 for tick_index in range(action_ticks):
                     if tick_index > 0 and not _can_start_current_action():
                         break
@@ -1451,7 +1512,7 @@ def on_good_answer(before_state=None):
                         review_progressed = True
                     if result is False or current_skill == "None":
                         break
-                if review_progressed and handler_key not in ("quest", "thieving"):
+                if review_progressed and handler_key not in ("quest", "thieving", "agility"):
                     _apply_safe_combat_recovery_after_review(review_ctx.save_player_data)
         finally:
             _finish_review_feedback_context()

@@ -2,8 +2,8 @@
 
 ## Current Focus
 
-Agility's owner grill and full-content design harvest are closed; implementation
-belongs in a new thread. The governing product contract is
+Agility's owner grill, source harvest, and atomic implementation are closed. The
+governing product contract is
 `agility-skill-contract-2026-07-15.md`, backed by the exhaustive design-family ledger
 `source-audits/agility-complete-content-inventory-2026-07-15.md`. A
 closed design family is not a closed historical value: candidate and
@@ -19,12 +19,12 @@ and target-specific run energy/actual-load weight.
 Course failure consequences remain obstacle-specific rather than universal;
 the contract now closes the fallback for unresolved hidden rolls at one global
 20% entry chance decaying to a sourced mastery point or 5% at level 99. Existing
-period consequences always override it. Brimhaven remains the flattened hidden
-5x5/eight-review chase in `agility-brimhaven-contract-2026-07-15.md`; the only
-ratification is Karamja gloves 4's sourced 25% chance to add a second ticket on
-a qualifying tag. Wall-clock time and global player-location state are forbidden
-throughout. No Agility implementation was authorized or performed in this
-design thread.
+period consequences always override it. Brimhaven ships as the flattened hidden
+5x5/eight-review chase in `agility-brimhaven-contract-2026-07-15.md`; Karamja
+gloves 4 retain their sourced 25% chance to add a second ticket on a qualifying
+tag. Wall-clock time and global player-location state remain forbidden
+throughout. The implementation and verification record live in
+`source-audits/agility-implementation-verification-2026-07-15.md`.
 
 Cadence Phase 3 shadow observation is complete on
 `codex/cadence-phase3-shadow`, based on Phase 1 at `b45aff0`. With the strict
@@ -64,14 +64,17 @@ The dated `completion-audit-2026-07-10.*` files remain historical snapshots; liv
 
 ## Current Truth
 
-- `skill_registry.py` has 16 complete skill surfaces, five partial Combat-trained skills, and four planned skills.
-- Complete: Mining, Woodcutting, Farming, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Hunter, Herblore, Prayer, Magic, Construction, and Thieving.
+- `skill_registry.py` has 17 complete skill surfaces, five partial Combat-trained skills, and three planned skills.
+- Complete: Mining, Woodcutting, Farming, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Hunter, Herblore, Prayer, Magic, Construction, Thieving, and Agility.
 - Partial through unified Combat: Attack, Strength, Defence, Constitution, and Ranged.
-- Planned: Summoning, Agility, Dungeoneering, and Slayer.
+- Planned: Summoning, Dungeoneering, and Slayer.
 - Farming is shipped (`9a88c56`), not the next build.
 - The 194-row quest catalog remains coverage scaffolding rather than full quest parity.
 - NPC Shops are live; the fake GE remains parked until the item/acquisition universe is representative.
-- The current reachability audit reports 1,102 actions, 725 consumed items, and 296 orphan inputs (151 root, 145 cascade). These are acquisition-program signals, not Prayer closure failures.
+- The current reachability audit reports 1,061 actions, 701 consumed items, and
+  271 orphan inputs (137 root, 134 cascade). These are acquisition-program
+  signals, not Agility closure failures; the Agility-specific chain is the
+  already-deferred four-dose potion/decanting root and its lower-dose cascade.
 
 ## Most Recent Completed Work
 
@@ -129,7 +132,7 @@ The dated `completion-audit-2026-07-10.*` files remain historical snapshots; liv
 
 ## Next Recommended Work
 
-1. Resume the canonical Kanban rather than reopening Prayer or Thieving: take the next owner-selected missing-skill program.
+1. Resume the canonical Kanban rather than reopening Prayer, Thieving, or Agility: take the next owner-selected missing-skill program.
 2. Close reachability roots only through authentic owning skills, activities, Combat drops, quests, shops, spawns, claims, and item actions.
 3. When Darkan reaches a stable milestone, rerun parked hidden-server audits against that pinned source surface.
 
@@ -169,3 +172,24 @@ expected failures and no skips. The focused closure set passes 609 tests, item
 reachability reports no Thieving/Phoenix orphan, compilation and diff checks are
 clean, and the result artifact is
 `memory-bank/status-updates/thieving-skill-results-2026-07-13.html`.
+
+## Agility closure (2026-07-15)
+
+Agility is now a complete Support skill. It ships the full course/action-stage
+engine, obstacle-specific failure/LP/setback behavior, lap bonuses, every audited
+activity family, Brimhaven's review-native ticket chase, 68 ordinary/grapple
+shortcuts, run-energy trip costs with actual carried weight, equipment and boost
+effects, achievements, command undo, a grouped Qt surface, and period-provenanced
+assets. Circus and every other cadence boundary derive from answered cards or
+Agility actions; a static regression guard rejects wall-clock imports from the
+gameplay modules.
+
+The release-blocking live integrations are active: barehand Hunter butterflies,
+Fishing double catches, Herblore consumable effects, Habitat traversal, quest and
+lamp rewards, Farming east-patch travel, LP/death, inventory, equipment, storage,
+and runtime dispatch. Future-owner hooks remain explicit but inert for Summoning,
+Slayer, Dungeoneering, full Blast Furnace, Livid Farm, diary acquisition,
+Barbarian Assault, and quest-owned stages. Exact Dorgesh route identities are
+registered; still-hidden payout differences remain `source_blocked` rather than
+invented. See
+`memory-bank/source-audits/agility-implementation-verification-2026-07-15.md`.

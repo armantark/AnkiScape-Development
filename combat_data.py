@@ -2559,6 +2559,47 @@ except ImportError:
     from potion_data import potion_consumables_as_dict
 CONSUMABLE_DATA.update(potion_consumables_as_dict())
 
+# Agility boosts are deliberately action-budgeted. RuneScape's minute-based
+# decay cannot use the wall clock in AnkiScape, so one dose holds for ten
+# answered Agility actions and then expires atomically.
+for _dose in range(1, 5):
+    CONSUMABLE_DATA[f"Agility potion ({_dose})"] = {
+        "kind": "agility_boost",
+        "boost": 3,
+        "action_budget": 10,
+        "leaves": f"Agility potion ({_dose - 1})" if _dose > 1 else "Vial",
+        "message": "You drink the agility potion. Your next Agility actions use a +3 boost.",
+        "source": "Agility potion oldid 6288977; action budget is an AnkiScape abstraction",
+    }
+for _dose in range(1, 3):
+    CONSUMABLE_DATA[f"Agility mix ({_dose})"] = {
+        "kind": "agility_boost",
+        "boost": 3,
+        "action_budget": 10,
+        "heal": 60,
+        "leaves": f"Agility mix ({_dose - 1})" if _dose > 1 else "Vial",
+        "message": "You drink the agility mix. It restores 60 LP and grants a +3 Agility boost.",
+        "source": "Agility mix oldid 6288968; action budget is an AnkiScape abstraction",
+    }
+CONSUMABLE_DATA["Summer pie"] = {
+    "kind": "agility_boost",
+    "boost": 5,
+    "action_budget": 10,
+    "heal": 110,
+    "leaves": "Half a summer pie",
+    "message": "You eat half the summer pie. It restores 110 LP and grants a +5 Agility boost.",
+    "source": "Summer pie oldid 6358590; action budget is an AnkiScape abstraction",
+}
+CONSUMABLE_DATA["Half a summer pie"] = {
+    "kind": "agility_boost",
+    "boost": 5,
+    "action_budget": 10,
+    "heal": 110,
+    "leaves": "Pie dish",
+    "message": "You finish the summer pie. It restores 110 LP and grants a +5 Agility boost.",
+    "source": "Summer pie oldid 6358590; action budget is an AnkiScape abstraction",
+}
+
 # Skills a kebab's dodgy roll can drain (source: any non-Constitution skill id).
 KEBAB_DRAINABLE_SKILLS = (
     "attack", "strength", "defense", "ranged", "magic", "prayer", "mining",

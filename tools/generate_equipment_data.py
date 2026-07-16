@@ -720,6 +720,72 @@ def _legacy_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedE
     return tuple(generated)
 
 
+def _agility_equipment_items(
+    items: Mapping[int, SourceItem],
+    items_by_name: Mapping[str, SourceItem],
+) -> Tuple[GeneratedEquipmentItem, ...]:
+    """Period Agility rewards and effect-bearing equipment.
+
+    Agile uses the primary IDs explicitly because duplicate same-name config rows
+    have the wrong weight sign. Weight itself remains in the Agility travel data;
+    this generator owns equip slots, combat bonuses, and level gates only.
+    """
+
+    definitions = (
+        ("Agile top", "body", 14936, (("defense", 35), ("constitution", 35))),
+        ("Agile legs", "legs", 14938, (("defense", 35), ("constitution", 35))),
+        ("Gorilla mask", "head", None, ()),
+        ("Factory mask", "head", None, ()),
+        ("Factory top", "body", None, ()),
+        ("Factory trousers", "legs", None, ()),
+        ("Factory gloves", "hands", None, ()),
+        ("Factory boots", "feet", None, ()),
+        ("Rogue mask", "head", None, ()),
+        ("Rogue top", "body", None, ()),
+        ("Rogue trousers", "legs", None, ()),
+        ("Rogue gloves", "hands", None, ()),
+        ("Rogue boots", "feet", None, ()),
+        ("Pirate's hook", "hands", None, ()),
+        ("Acrobat hood", "head", None, ()),
+        ("Acrobat shirt", "body", None, ()),
+        ("Acrobat pants", "legs", None, ()),
+        ("Acrobat shoes", "feet", None, ()),
+        ("Boots of lightness", "feet", None, ()),
+        ("Spotted cape", "cape", None, ()),
+        ("Spottier cape", "cape", None, ()),
+        ("Karamja gloves 4", "hands", None, ()),
+        ("Brawling gloves (Agility)", "hands", None, ()),
+        ("Sköll boots", "feet", None, ()),
+        ("Pendant of Agility", "neck", None, ()),
+        ("Prized pendant of Agility", "neck", None, ()),
+        ("Agility cape", "cape", None, (("agility", 99),)),
+        ("Agility hood", "head", None, (("agility", 99),)),
+    )
+    generated = []
+    for index, (name, fallback_slot, item_id, requirements) in enumerate(definitions):
+        source_item = items.get(item_id) if item_id is not None else items_by_name.get(name)
+        block = source_item.equipment if source_item is not None else None
+        generated.append(GeneratedEquipmentItem(
+            item_name=name,
+            slot=_slot_from_source(block, fallback_slot),
+            combat_skill=None,
+            required_level=1,
+            two_handed=False,
+            equipment_type="agility_reward",
+            bonuses=_bonuses_from_block(block),
+            attack_speed=_int_from_block(block, "attack_speed", 4),
+            source_item_id=source_item.item_id if source_item is not None else -1000 - index,
+            source=(
+                f"{ITEMS_YML_RELATIVE.as_posix()} item {source_item.item_id}; Agility reward/effect"
+                if source_item is not None
+                else "period RuneScape Wiki Agility reward; equipment block unavailable in rev-667 config"
+            ),
+            source_status="items.yml equipment block" if block is not None else "period manual slot; bonuses zeroed",
+            skill_requirements=requirements,
+        ))
+    return tuple(generated)
+
+
 def _stronghold_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedEquipmentItem, ...]:
     """Fancy boots (9005) and Fighting boots (9006), the Stronghold of Security
     completion reward. The player picks one; both are stat-identical, so the
@@ -901,7 +967,8 @@ def generate(game_root: Path, output_path: Path) -> None:
     items = _parse_items_yml(game_root / ITEMS_YML_RELATIVE)
     items_by_name = _source_items_by_name(items)
     equipment_items = _dedupe_equipment_items(
-        tuple(_smithing_equipment_items(items))
+        tuple(_agility_equipment_items(items, items_by_name))
+        + tuple(_smithing_equipment_items(items))
         + tuple(_mining_bonus_equipment_items(items))
         + tuple(_legacy_equipment_items(items))
         + tuple(_stronghold_equipment_items(items))

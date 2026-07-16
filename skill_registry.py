@@ -252,6 +252,20 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
         review_handler_key="thieving",
         visible_in_skill_hub=True,
     ),
+    SkillDefinition(
+        id="agility",
+        display_name="Agility",
+        category="support",
+        implemented=True,
+        participates_in_review=True,
+        action_kind="support",
+        level_key="agility_level",
+        exp_key="agility_exp",
+        current_target_key="current_agility",
+        default_target="burthorpe_course",
+        review_handler_key="agility",
+        visible_in_skill_hub=True,
+    ),
 )
 
 
@@ -262,7 +276,6 @@ PLANNED_SKILLS: Tuple[SkillDefinition, ...] = (
     SkillDefinition("ranged", "Ranged", "combat", False, False, "combat", "ranged_level", "ranged_exp", visible_in_skill_hub=False, surface_state="partial", training_source="Combat"),
     SkillDefinition("strength", "Strength", "combat", False, False, "combat", "strength_level", "strength_exp", visible_in_skill_hub=False, surface_state="partial", training_source="Combat"),
     SkillDefinition("summoning", "Summoning", "combat", False, False, "combat", "summoning_level", "summoning_exp", surface_state="planned"),
-    SkillDefinition("agility", "Agility", "support", False, False, "support", "agility_level", "agility_exp", surface_state="planned"),
     SkillDefinition("dungeoneering", "Dungeoneering", "support", False, False, "support", "dungeoneering_level", "dungeoneering_exp", surface_state="planned"),
     SkillDefinition("slayer", "Slayer", "support", False, False, "support", "slayer_level", "slayer_exp", surface_state="planned"),
 )

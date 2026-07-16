@@ -36,7 +36,7 @@ def _make_player_data() -> dict:
     from quest_data import default_quest_states
 
     data: dict = {"inventory": {}}
-    for skill in ("mining", "woodcutting", "farming", "fishing", "hunter", "smithing", "crafting", "fletching", "firemaking", "cooking", "runecrafting", "prayer", "magic", "thieving"):
+    for skill in ("mining", "woodcutting", "farming", "fishing", "hunter", "smithing", "crafting", "fletching", "firemaking", "cooking", "runecrafting", "prayer", "magic", "thieving", "agility"):
         data[f"{skill}_level"] = 33
         data[f"{skill}_exp"] = 1000.0
     # Real saves are seeded with a bound starter tool per gathering skill; without
@@ -47,6 +47,7 @@ def _make_player_data() -> dict:
     data["current_hunter"] = "catch_crimson_swift"
     data["current_runecrafting"] = "craft_air_runes"
     data["current_thieving"] = "pickpocket_man"
+    data["current_agility"] = "burthorpe_course"
     data["thieving_fight_back_when_caught"] = False
     data["current_quest"] = "rune_mysteries"
     data["quests"] = default_quest_states()
@@ -70,7 +71,7 @@ def _panel_title(dialog: "QDialog") -> str:
 
     The header is the QLabel styled bold/large that reads e.g. "Woodcutting — Lv 33".
     """
-    pattern = re.compile(r"^(Mining|Woodcutting|Fishing|Hunter|Smithing|Crafting|Fletching|Firemaking|Cooking|Runecrafting)(\s+—\s+Lv\s+\d+)?$")
+    pattern = re.compile(r"^(Mining|Woodcutting|Fishing|Hunter|Smithing|Crafting|Fletching|Firemaking|Cooking|Runecrafting|Agility)(\s+—\s+Lv\s+\d+)?$")
     for lbl in dialog.findChildren(QLabel):
         text = lbl.text()
         if pattern.match(text):
@@ -516,6 +517,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._magic_calls: list = []
         self._construction_calls: list = []
         self._thieving_calls: list = []
+        self._agility_calls: list = []
+        self._agility_command_calls: list = []
         self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
         self._magic_alch_calls: list = []
@@ -609,6 +612,8 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_runecrafting=lambda target: self._runecrafting_calls.append(target),
             on_set_thieving=lambda target: self._thieving_calls.append(target),
             on_set_thieving_fight_back=_set_thieving_fight_back,
+            on_set_agility=lambda target: self._agility_calls.append(target),
+            on_agility_command=lambda action, payload: self._agility_command_calls.append((action, dict(payload))) or {"ok": True},
             on_set_prayer_selection=_set_prayer_selection,
             on_set_magic=lambda target: self._magic_calls.append(target),
             on_set_construction=lambda target: self._construction_calls.append(target),
@@ -771,6 +776,67 @@ class MainMenuWidgetTest(unittest.TestCase):
             self._ui.THIEVING_ITEM_IMAGES = previous["images"]
             if dialog is not None:
                 dialog.deleteLater()
+
+    def test_agility_panel_renders_grouped_targets_locks_icon_and_commands(self) -> None:
+        player_data = _make_player_data()
+        player_data["agility_level"] = 1
+        player_data["current_agility"] = "burthorpe_course"
+        dialog = self._open(player_data, current_skill="Agility")
+        try:
+            dialog.show()
+            QApplication.processEvents()
+            self.assertEqual(_panel_title(dialog), "Agility — Lv 1")
+
+            panel = dialog.findChild(QWidget, "agilitySkillPanel")
+            tree = dialog.findChild(QTreeWidget, "agilityTargetTree")
+            self.assertIsNotNone(panel)
+            self.assertIsNotNone(tree)
+            self.assertEqual(
+                [tree.topLevelItem(i).text(0).split("  (")[0] for i in range(tree.topLevelItemCount())],
+                ["Courses", "Activities"],
+            )
+            self.assertEqual(tree.currentItem().data(0, Qt.ItemDataRole.UserRole), "burthorpe_course")
+
+            locked = _tree_row(tree, "gnome_advanced")
+            self.assertTrue(locked.isDisabled())
+            before = list(self._agility_calls)
+            tree.itemClicked.emit(locked, 0)
+            QApplication.processEvents()
+            self.assertEqual(self._agility_calls, before)
+
+            gnome = _tree_row(tree, "gnome_normal")
+            self.assertFalse(gnome.isDisabled())
+            tree.itemClicked.emit(gnome, 0)
+            QApplication.processEvents()
+            self.assertEqual(self._agility_calls[-1], "gnome_normal")
+
+            skill_list = next(
+                widget
+                for widget in dialog.findChildren(QListWidget)
+                if "Agility" in [widget.item(i).text() for i in range(widget.count())]
+            )
+            agility_item = next(
+                skill_list.item(i) for i in range(skill_list.count())
+                if skill_list.item(i).text() == "Agility"
+            )
+            self.assertFalse(agility_item.icon().isNull())
+            self.assertIsNotNone(dialog.findChild(QLabel, "agilityStatusLine"))
+            self.assertIsNotNone(dialog.findChild(QLabel, "agilityBenefitsLine"))
+            self.assertIsNotNone(dialog.findChild(QWidget, "agilityRewardControls"))
+
+            toy_button = dialog.findChild(QPushButton, "agilityCommand::wind_toy_mouse")
+            self.assertIsNotNone(toy_button)
+            toy_button.click()
+            QApplication.processEvents()
+            self.assertEqual(self._agility_command_calls[-1], ("wind_toy_mouse", {}))
+            for label in (
+                dialog.findChild(QLabel, "agilityStatusLine"),
+                dialog.findChild(QLabel, "agilityBenefitsLine"),
+            ):
+                self.assertIn("palette(text)", label.styleSheet())
+                self.assertNotIn("palette(mid)", label.styleSheet().lower())
+        finally:
+            dialog.deleteLater()
 
     def test_farming_sheet_is_openable_without_train_button_or_target_prompt(self) -> None:
         farming_dialog = self._open(_make_player_data(), current_skill="Mining", initial_skill="Farming")
@@ -1654,12 +1720,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [label.text() for label in dialog.findChildren(QLabel)]
 
         self.assertTrue(
-            any(text.startswith("Easy") and "2/54 completed" in text for text in labels),
+            any(text.startswith("Easy") and "2/58 completed" in text for text in labels),
             "Easy achievement count did not use metadata grouping",
         )
         self.assertIn("First Steps", labels)
         self.assertIn("Rune Mysteries", labels)
-        self.assertIn("Completed: 2/154 (1.3%)", labels)
+        self.assertIn("Completed: 2/168 (1.2%)", labels)
 
     def test_selecting_woodcutting_updates_panel(self) -> None:
         skill_list = _find_skill_list(self.dialog)

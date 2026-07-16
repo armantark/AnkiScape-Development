@@ -583,6 +583,29 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         self.assertNotEqual(blocked["farm_plans"], unlocked["farm_plans"])
         self.assertNotEqual(region_blocked["farm_plans"], region_open["farm_plans"])
 
+    def test_habitat_east_patch_prepends_three_review_driven_agility_traversals(self):
+        data = _state()
+        data["agility_level"] = 55
+        data["agility_exp"] = 0.0
+        queued, step_id, message = add_farm_queue_step_pure(
+            data,
+            "harvest",
+            "habitat_vine_herb_east",
+        )
+        self.assertIsNotNone(step_id)
+        self.assertEqual(message, "queued")
+        self.assertEqual(
+            [step["kind"] for step in queued["farm_queue"][:4]],
+            ["habitat_traverse", "habitat_traverse", "habitat_traverse", "harvest"],
+        )
+        for phase in range(3):
+            queued, consumed, info = consume_next_farm_queue_step_pure(queued)
+            self.assertTrue(consumed)
+            self.assertEqual(info["kind"], "habitat_traverse")
+            self.assertEqual(info["phase"], phase)
+        self.assertEqual(queued["agility_exp"], 30.0)
+        self.assertEqual(len(queued["farm_queue"]), 1)
+
     def test_compost_bin_region_gate_applies_to_fill_and_collect(self):
         data = _state()
         data["inventory"].update({"Potato": 15, "Bucket": 15})

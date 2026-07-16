@@ -3729,6 +3729,24 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
     HAZEEL_CULT_ID: (("Coins", 2005),),
 }
 
+QUEST_XP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestXpReward, ...]] = {
+    "royal_trouble": (QuestXpReward("agility", 5000),),
+    "grim_tales": (QuestXpReward("agility", 6000),),
+}
+
+QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestLampReward, ...]] = {
+    "myths_of_the_white_lands": (
+        QuestLampReward(
+            "Post-quest ice-cave Agility reward",
+            10000,
+            ("agility",),
+            1,
+            "https://runescape.wiki/w/Myths_of_the_White_Lands?oldid=6555850",
+            "Optional reward for completing the additional ice-cave route.",
+        ),
+    ),
+}
+
 
 QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {
     COOKS_ASSISTANT_ID: (
@@ -7301,6 +7319,7 @@ def _catalog_stage_requirements(value: object) -> Tuple[QuestStageRequirement, .
 
 def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
     display_name = str(row.get("display_name", row.get("id", "Quest")))
+    quest_id = str(row.get("id"))
     length = str(row.get("length", "Medium"))
     stages = _catalog_int(row, "stages", _generated_stage_count(length))
     required_quests = tuple(
@@ -7322,7 +7341,7 @@ def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
         for reward in row.get("xp_rewards", ()) or ()
         if isinstance(reward, dict) and reward.get("skill_id")
     )
-    quest_id = str(row.get("id"))
+    xp_rewards = QUEST_XP_REWARD_REPLACEMENTS_BY_ID.get(quest_id, xp_rewards)
     item_rewards = QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID.get(quest_id)
     if item_rewards is None:
         item_rewards = tuple(
@@ -7343,6 +7362,7 @@ def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
         for reward in row.get("lamp_rewards", ()) or ()
         if isinstance(reward, dict) and reward.get("amount")
     )
+    lamp_rewards = QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID.get(quest_id, lamp_rewards)
     return QuestDefinition(
         id=quest_id,
         display_name=display_name,

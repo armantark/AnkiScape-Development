@@ -63,6 +63,44 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_barehanded_butterfly_awards_atomic_hunter_and_agility_xp_without_an_item(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "hunter_level": 80,
+            "hunter_exp": 0.0,
+            "agility_level": 75,
+            "agility_exp": 0.0,
+            "current_hunter": "barehand_ruby_harvest",
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(handle_hunter_answer(_context(player_data, calls, random_values=(0.0,))))
+
+        self.assertEqual(player_data["inventory"], {})
+        self.assertEqual(player_data["hunter_exp"], 300.0)
+        self.assertEqual(player_data["agility_exp"], 50.0)
+        self.assertEqual(calls["xp"], [300.0])
+
+    def test_agility_double_catch_adds_one_shark_without_extra_fishing_xp(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "fishing_level": 99,
+            "fishing_exp": 0.0,
+            "agility_level": 76,
+            "current_fishing": "catch_sharks",
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(handle_fishing_answer(_context(player_data, calls, random_values=(0.0, 0.0))))
+
+        self.assertEqual(player_data["inventory"], {"Raw shark": 2})
+        self.assertEqual(player_data["fishing_exp"], 110.0)
+        self.assertEqual(calls["xp"], [110.0])
+        telemetry = player_data["action_telemetry"]["actions"]["fishing:catch_sharks"]
+        self.assertEqual(telemetry["outputs"], {"Raw shark": 2})
+
     def test_overload_handler_records_primary_output_and_four_vials(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         inputs = {
@@ -309,27 +347,19 @@ class TestRuntimeActions(unittest.TestCase):
         }
         ctx = _context(player_data, calls, random_values=(0.0, 0.2))
 
-        # The first source roll consumes the carried Thread. The next review is
-        # the normal one-review bank run, not a failed crafting tick.
+        # The first source roll consumes the carried Thread. Crafting is a
+        # stationary bank method, so the next review repacks and crafts in one
+        # atomic action instead of inventing a movement review.
         self.assertTrue(run_answer_with_carried_overlay(ctx, "crafting", handle_crafting_answer))
         self.assertEqual(player_data["inventory"], {"Leather": 26, "Thread": 4, "Leather gloves": 1})
         self.assertEqual(player_data["carried_inventory"]["leather_leather_gloves"], {"Leather": 26})
-        self.assertTrue(run_answer_with_carried_overlay(ctx, "crafting", handle_crafting_answer))
-        self.assertEqual(player_data["inventory"], {"Leather": 26, "Thread": 4, "Leather gloves": 1})
-        self.assertEqual(player_data["carried_inventory"]["leather_leather_gloves"], {"Leather": 26, "Thread": 1})
-        self.assertAlmostEqual(player_data["crafting_exp"], 13.8)
-        self.assertEqual(calls["xp"], [13.8])
-        self.assertEqual(calls["activity"], ["Bank run — restocked supplies (+1 review)"])
-        self.assertNotIn("deactivated", calls)
-        self.assertEqual(calls["errors"], [])
-
-        # The review after refilling resumes crafting and retains Thread on a
-        # non-consumption roll.
         self.assertTrue(run_answer_with_carried_overlay(ctx, "crafting", handle_crafting_answer))
         self.assertEqual(player_data["inventory"], {"Leather": 25, "Thread": 4, "Leather gloves": 2})
         self.assertEqual(player_data["carried_inventory"]["leather_leather_gloves"], {"Leather": 25, "Thread": 1})
         self.assertAlmostEqual(player_data["crafting_exp"], 27.6)
         self.assertEqual(calls["xp"], [13.8, 13.8])
+        self.assertNotIn("activity", calls)
+        self.assertNotIn("deactivated", calls)
         self.assertEqual(calls["errors"], [])
 
     def test_combat_full_loot_pack_forces_a_bank_run_that_deposits_it(self):

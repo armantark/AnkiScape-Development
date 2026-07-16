@@ -42,7 +42,14 @@ except ImportError:  # pragma: no cover - flat imports used by tests
     from logic_pure import best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure  # type: ignore
 
 
-FIELD_STEP_KINDS = frozenset({"plant", "harvest", "check_health", "cure", "clear", "chop"})
+FIELD_STEP_KINDS = frozenset({"plant", "harvest", "check_health", "cure", "clear", "chop", "habitat_traverse"})
+HABITAT_EAST_PATCH_ID = "habitat_vine_herb_east"
+HABITAT_TRAVERSAL_PHASES = (
+    "Climb the vine",
+    "Cross the ridge",
+    "Drop into the east camp",
+)
+HABITAT_TRAVERSAL_XP = 10.0
 FARM_EVENT_LOG_LIMIT = 200
 MORYTANIA_MEDIUM_TASK_KEYS = ("morytania_medium", "medium_morytania_tasks")
 FARM_COUNTER_DEFAULTS = {
@@ -748,6 +755,22 @@ def _execute_farm_field_step_in_place(
     kind = step.get("kind")
     if kind not in FIELD_STEP_KINDS:
         return False, {"message": "unknown field action", "kind": kind}
+    if kind == "habitat_traverse":
+        if _int(updated.get("agility_level", 1), default=1, minimum=1) < 55:
+            return False, {"message": "requires Agility level 55", "kind": kind}
+        phase = _int(step.get("phase"), minimum=0)
+        if phase >= len(HABITAT_TRAVERSAL_PHASES):
+            return False, {"message": "unknown Habitat traversal phase", "kind": kind}
+        _award_xp(updated, "agility", HABITAT_TRAVERSAL_XP)
+        message = f"{HABITAT_TRAVERSAL_PHASES[phase]} (+{HABITAT_TRAVERSAL_XP:g} Agility XP)."
+        _log(updated, "habitat_traversal", message, phase=phase, patch_id=HABITAT_EAST_PATCH_ID)
+        return True, {
+            "message": message,
+            "kind": kind,
+            "patch_id": HABITAT_EAST_PATCH_ID,
+            "agility_xp": HABITAT_TRAVERSAL_XP,
+            "phase": phase,
+        }
     patch_id, patch, crop, error = _patch_crop_for_step(updated, step)
     if error:
         return False, {"message": error, "kind": kind}
@@ -863,6 +886,14 @@ def add_farm_queue_step_pure(player_data: Mapping[str, Any], kind: str, patch_id
             return updated, None, "no valid crop"
         if not crop.runnable:
             return updated, None, f"{crop.display_name} has source-blocked mechanics"
+    if patch_id == HABITAT_EAST_PATCH_ID:
+        for phase in range(len(HABITAT_TRAVERSAL_PHASES)):
+            updated["farm_queue"].append({
+                "id": _step_id(updated),
+                "kind": "habitat_traverse",
+                "patch_id": patch_id,
+                "phase": phase,
+            })
     step_id = _step_id(updated)
     step = {"id": step_id, "kind": kind, "patch_id": patch_id}
     step.update(copy.deepcopy(details))
@@ -932,6 +963,16 @@ def _planned_patch_steps(updated: Mapping[str, Any], patch_id: str) -> tuple[lis
 
 def _append_planned_steps(updated: dict[str, Any], patch_id: str, kinds: list[str], plan: dict[str, Any]) -> list[str]:
     ids = []
+    if patch_id == HABITAT_EAST_PATCH_ID:
+        for phase in range(len(HABITAT_TRAVERSAL_PHASES)):
+            step_id = _step_id(updated)
+            updated["farm_queue"].append({
+                "id": step_id,
+                "kind": "habitat_traverse",
+                "patch_id": patch_id,
+                "phase": phase,
+            })
+            ids.append(step_id)
     for kind in kinds:
         step_id = _step_id(updated)
         step = {"id": step_id, "kind": kind, "patch_id": patch_id}
@@ -1288,6 +1329,10 @@ def _patch_status_view(state: Mapping[str, Any], patch: Any, record: Mapping[str
 
 
 def _queue_step_label(step: Mapping[str, Any]) -> str:
+    if step.get("kind") == "habitat_traverse":
+        phase = _int(step.get("phase"), minimum=0)
+        label = HABITAT_TRAVERSAL_PHASES[phase] if phase < len(HABITAT_TRAVERSAL_PHASES) else "Traverse to the east camp"
+        return f"{label} · Herblore Habitat"
     patch = FARMING_PATCHES_BY_ID.get(step.get("patch_id"))
     verb = str(step.get("kind", "work")).replace("_", " ").title()
     crop = FARMING_CROPS_BY_ID.get(step.get("crop_id"))

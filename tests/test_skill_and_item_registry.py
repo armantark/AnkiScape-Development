@@ -99,6 +99,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "Magic",
                 "Construction",
                 "Thieving",
+                "Agility",
             ),
         )
         self.assertTrue(is_review_skill("Mining"))
@@ -114,6 +115,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertTrue(is_review_skill("Magic"))
         self.assertTrue(is_review_skill("Construction"))
         self.assertTrue(is_review_skill("Thieving"))
+        self.assertTrue(is_review_skill("Agility"))
         self.assertEqual(review_handler_key("Fishing"), "fishing")
         self.assertEqual(review_handler_key("Fletching"), "fletching")
         self.assertEqual(review_handler_key("Firemaking"), "firemaking")
@@ -125,6 +127,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(review_handler_key("Magic"), "magic")
         self.assertEqual(review_handler_key("Construction"), "construction")
         self.assertEqual(review_handler_key("Thieving"), "thieving")
+        self.assertEqual(review_handler_key("Agility"), "agility")
         self.assertEqual(
             [skill.display_name for skill in CURRENT_SKILLS if skill.participates_in_review],
             list(implemented_review_skill_names()),
@@ -169,6 +172,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "Magic",
                 "Construction",
                 "Thieving",
+                "Agility",
                 "Combat",
                 "Quests",
                 "Utility / Activities",
@@ -311,6 +315,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "construction_exp": 0,
                 "thieving_level": 1,
                 "thieving_exp": 0,
+                "agility_level": 1,
+                "agility_exp": 0,
             },
         )
         self.assertEqual(
@@ -331,6 +337,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "current_magic": "low_alchemy",
                 "current_construction": "crude_wooden_chair",
                 "current_thieving": "pickpocket_man",
+                "current_agility": "burthorpe_course",
             },
         )
         self.assertEqual(get_skill("Crafting").exp_key, "crafting_exp")
@@ -1308,7 +1315,12 @@ class TestSkillAndItemRegistry(unittest.TestCase):
 
     def test_hunter_items_targets_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
-        self.assertEqual(len(HUNTER_DATA), 55)
+        self.assertEqual(len(HUNTER_DATA), 59)
+        self.assertEqual(
+            HUNTER_DATA["barehand_ruby_harvest"]["xp_rewards"],
+            ({"skill_id": "hunter", "amount": 300.0}, {"skill_id": "agility", "amount": 50.0}),
+        )
+        self.assertEqual(HUNTER_DATA["barehand_ruby_harvest"]["outputs"], {})
         self.assertEqual(HUNTER_DATA["catch_crimson_swift"]["outputs"]["Red feather"], 5)
         self.assertEqual(HUNTER_DATA["catch_crimson_swift"]["tools"], {"Bird snare": 1})
         self.assertEqual(HUNTER_DATA["catch_ferret"]["tools"], {"Box trap": 1})
