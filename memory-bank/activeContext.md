@@ -44,9 +44,12 @@ automatic maintenance: on the next successful answer after renewal, death, or ex
 needs a pouch, an atomic transaction consumes only a compatible carried pouch plus
 Summoning points and may resummon mid-encounter. Advanced may reserve multiple exact
 pouch slots; Bank stock is never consumed directly. Missing resources leave the policy
-enabled but visibly lapsed until they return. The next open fork is whether carried-
-pouch depletion may itself trigger an automatic one-review bank-run detour. The
-cross-product help architecture is owner-settled in
+enabled but visibly lapsed until they return. Carried-pouch depletion now triggers an
+automatic one-review Bank detour when the enabled policy can refill from owned stock;
+the detour replaces the target action and may complete the resummon atomically. The next
+open fork is whether a mismatched live familiar may be safely swapped to the current
+target policy at a Bank boundary after depositing any BoB cargo, or must always run to
+expiry/manual dismissal. The cross-product help architecture is owner-settled in
 `help-system-contract-2026-07-16.md`: one offline searchable corpus feeds both the
 full Help Center and contextual page-level `?` entries.
 

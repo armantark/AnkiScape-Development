@@ -189,6 +189,9 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   carried pouches on successful answers, including mid-encounter replacement.
   Advanced chooses its exact pouch-slot budget; missing pouch/points leaves a
   persistent lapsed reason and never partially consumes resources or Bank stock.
+- If carried pouches run out while the policy is enabled, a successful answer may
+  become a one-review Bank refill/resummon detour when compatible stock exists.
+  Again never banks; insufficient Bank stock leaves the policy visibly lapsed.
 
 ### Dungeoneering
 

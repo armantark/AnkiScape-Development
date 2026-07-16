@@ -297,12 +297,29 @@ a pouch directly from Bank. The familiar surface persistently and quietly shows 
 lapse reason, such as `Out of carried pouches` or `Summoning points too low`, rather than
 using a transient popup.
 
-### 12. Bank-run behavior after pouch depletion — open
+### 12. Bank-run behavior after pouch depletion — settled 2026-07-16
 
-Choose whether an enabled Casual familiar policy that exhausts its carried pouches may
-spend a successful answer on an automatic bank-run detour to refill and resume, or must
-remain lapsed until the target's ordinary inventory cycle independently reaches Bank.
-Advanced can avoid either outcome by reserving more exact pouch slots.
+When an enabled familiar policy needs a replacement but its carried-pouch budget is
+empty, it may spend the **next successful answer** on a one-review bank-run detour if
+Bank owns a compatible pouch. The detour refills the target preset, obtains the pouch,
+and summons the policy's familiar when all point and pouch preconditions hold; it does
+not also perform the selected target action. Again cannot trigger a bank run.
+
+If Bank has no compatible pouch, the policy remains visibly lapsed. If points are also
+insufficient, the bank detour never burns the newly obtained pouch: the settled point-
+restore detour resolves the remaining precondition before the summon transaction is
+re-evaluated. Every detour and summon remains atomic with review undo.
+
+This applies to Casual and Advanced when their familiar policy is enabled. Advanced can
+avoid the detour frequency by reserving several exact pouch slots; those pouches are
+consumed before any Bank access.
+
+### 13. Safe familiar swap after a target change — open
+
+Target switching alone never dismisses a live mismatched familiar. Choose whether the
+next Bank boundary may safely deposit any BoB cargo, dismiss the old familiar, and summon
+the new target policy's familiar when replacement success is guaranteed, or whether the
+old familiar always continues until renewal, death, expiry, or an explicit manual switch.
 
 ## Source/open-work queue
 

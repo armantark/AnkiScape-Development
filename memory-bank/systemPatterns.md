@@ -128,6 +128,11 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   foreground detour: Summoning's abstracted obelisk restoration consumes the next
   successful answer and replaces the selected target action. It cannot fire on
   Again, run on wall-clock time, or grant the target's ordinary output as well.
+- Enabled automation may also insert an owned-resource Bank detour. Summoning pouch
+  depletion converts the next successful answer into a refill/resummon transaction
+  when compatible Bank stock exists; it does not also perform the target action and
+  never fires on Again. Advanced carried slots reduce detour frequency rather than
+  bypassing the same resource rules.
 - Consumable automation uses the target-carried inventory as its explicit budget.
   An enabled Summoning familiar policy may atomically renew or replace from matching
   carried pouches, and auto-special may consume a deliberately packed scroll, but
