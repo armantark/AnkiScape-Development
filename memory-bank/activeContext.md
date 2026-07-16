@@ -9,11 +9,12 @@ runtime implementation has started. The governing live ledger is
 fork is closed: every answered card spends familiar lifetime, including Again.
 Again is now formally an idle/world tick with no foreground action; the broader
 contract and current-system audit are in `simulation-time-boundary-2026-07-16.md`.
-The active-encounter fork is also closed: Again is decay-only, analogous to
-briefly clicking outside the mob area, so enemies do not attack and the paused
-encounter grants no positive recovery. Renewal is source/app-pattern resolved as
-a manual command plus a global auto-renew toggle that only consumes a deliberately
-carried matching pouch on successful answers. BoB cargo expiry is now a distinct
+The active-encounter fork is also closed: Again is a world-only idle tick,
+analogous to briefly clicking outside the mob area, so enemies and foreground
+commands do not act while genuinely passive effects may still resolve. Renewal is
+source/app-pattern resolved as a manual command plus target-policy automation that
+only consumes a deliberately carried matching pouch on successful answers. BoB
+cargo expiry is now a distinct
 grave-like five-source-minute reclaim event; unclaimed cargo is destroyed. Both
 ordinary graves and cargo events project as distinct icons in the reusable alert
 strip above the reviewer XP HUD; see
@@ -38,10 +39,14 @@ points could reach zero without dismissing the familiar. Wall-clock gameplay
 remains forbidden. Familiar combat exposure is now source-gated: attacking alone
 does not make a familiar targetable, and silence means zero familiar damage rather
 than an invented fallback roll. Only pinned retaliation, area, enemy, or explicit
-aggro/tanking mechanics can reach familiar LP. The next open fork is whether death
-or expiry during an encounter may auto-summon another carried pouch immediately or
-must wait for an explicit command/safe boundary. The cross-product help architecture
-is owner-settled in
+aggro/tanking mechanics can reach familiar LP. Enabled familiar policy now means
+automatic maintenance: on the next successful answer after renewal, death, or expiry
+needs a pouch, an atomic transaction consumes only a compatible carried pouch plus
+Summoning points and may resummon mid-encounter. Advanced may reserve multiple exact
+pouch slots; Bank stock is never consumed directly. Missing resources leave the policy
+enabled but visibly lapsed until they return. The next open fork is whether carried-
+pouch depletion may itself trigger an automatic one-review bank-run detour. The
+cross-product help architecture is owner-settled in
 `help-system-contract-2026-07-16.md`: one offline searchable corpus feeds both the
 full Help Center and contextual page-level `?` entries.
 

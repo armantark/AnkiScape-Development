@@ -129,9 +129,12 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   successful answer and replaces the selected target action. It cannot fire on
   Again, run on wall-clock time, or grant the target's ordinary output as well.
 - Consumable automation uses the target-carried inventory as its explicit budget.
-  Summoning auto-renew and auto-special may consume a deliberately packed matching
-  pouch or scroll on a successful answer, but never pull from Bank stock. Catalog
-  metadata, not display names, determines compatible roles and trigger conditions.
+  An enabled Summoning familiar policy may atomically renew or replace from matching
+  carried pouches, and auto-special may consume a deliberately packed scroll, but
+  neither pulls directly from Bank stock. Missing preconditions never partially
+  consume resources: the policy stays enabled in a visible lapsed state and re-arms
+  when resources return. Catalog metadata, not display names, determines compatible
+  roles and trigger conditions.
 - Optional combat exposure is fail-closed to source evidence. An attacking
   Summoning familiar is not a generic second damage target; only a pinned
   retaliation, area, enemy, or explicit aggro/tanking mechanic may reach its LP.

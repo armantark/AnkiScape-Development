@@ -50,18 +50,24 @@ mapping is an AnkiScape abstraction; period ratios and ordering remain source cl
 | Ordinary skilling, quests, Combat, Thieving, and Agility actions | Successful answer only | Settled and compliant (`__init__.py:1530-1553`). |
 | Future familiar lifetime | Every answered card | Owner-settled in the Summoning grill. Uses short-duration conversion, not the six-minute calendar mapping. |
 | Future familiar Summoning-point drain | Every answered card while summoned | Source-shaped consequence of the same lifetime: points drain during the familiar's life and remain separate from expiry. |
-| Enemy attacks | Successful Combat action only | Current behavior; whether an active encounter attacks on Again is open. |
+| Enemy attacks | Successful Combat action only | Owner-settled: an active encounter receives no attack beat on Again. |
 | Prayer drain | Combat-action burst only | Current behavior (`logic_pure.py:4857-4869`); reconcile with the active-encounter decision. |
 | Poison and poison immunity | Combat or successful safe-recovery ticks only | Current behavior (`logic_pure.py:4070-4124`, `:4641`, `:5000`); reconcile with the active-encounter decision. |
-| Out-of-combat LP/stat/special recovery | Successful non-Combat review only | Current behavior (`__init__.py:1517-1518`, `logic_pure.py:4613-4648`); reconcile so Again cannot become free healing inside a frozen encounter. |
+| Generic out-of-combat LP/stat/special recovery | Successful non-Combat review only | Current behavior (`__init__.py:1517-1518`, `logic_pure.py:4613-4648`); this unsourced convenience recovery does not fire on Again. Source-classified passive effects are separate world consumers and may heal on Again. |
 | Agility boost and Surefooted budgets | Agility actions | Settled action budgets (`agility_logic.py:417-431`), despite older comments using review/hour pacing. |
 
-## Decision 1 — idle during an active Combat encounter (settled 2026-07-16)
+## Decision 1 — idle during an active Combat encounter (settled and clarified 2026-07-16)
 
-The owner selected **decay-only idle with no in-encounter recovery**. Again is
-equivalent to briefly clicking outside the mob area: an already-active enemy does not
-receive an attack beat, but elapsed state continues to decay. The paused encounter also
-does not grant positive LP, stat, Prayer, or special-attack recovery.
+The owner selected a **world-only idle tick with no foreground or encounter beat**.
+Again is equivalent to briefly clicking outside the mob area: an already-active enemy
+does not attack, the player does not act, and foreground commands do not fire. Elapsed
+state continues and genuinely passive effects may still resolve. AFK means no user
+input, not no benefit.
+
+Generic safe LP/stat/Prayer/special recovery remains tied to successful foreground
+reviews because it is an AnkiScape convenience helper rather than a sourced periodic
+world effect. A sourced passive familiar heal or forage roll is different: once its
+catalog row is classified as passive, it advances and may resolve on Again.
 
 The rejected alternative was:
 
@@ -70,11 +76,11 @@ The rejected alternative was:
   monster, but makes a learning failure directly deal damage and may encourage dishonest
   Hard grading.
 
-The settled rule formalizes “punishing but not too punishing,” preserves the existing
-rule that entities act only on a successful review, and avoids turning Anki grading into
-a survival choice. Fable's strongest counterargument was simulation purity: a genuinely
-engaged RuneScape enemy would keep attacking. The owner resolved that abstraction in
-favor of decay-only idle.
+The settled rule avoids turning Anki grading into a survival choice without freezing the
+world or deleting authentic passive benefits. Fable's strongest counterargument was
+simulation purity: a genuinely engaged RuneScape enemy would keep attacking. The owner
+resolved that abstraction in favor of pausing encounter beats while retaining passive
+world behavior.
 
 ## Reconciliation work after the owner answer
 

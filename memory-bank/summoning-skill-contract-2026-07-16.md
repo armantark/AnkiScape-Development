@@ -110,9 +110,11 @@ not dismiss the familiar.
 
 ### 2. Again during an active Combat encounter — settled 2026-07-16
 
-Again is a **decay-only idle tick**. It is equivalent to briefly clicking outside the
-mob area: elapsed state continues, but an already-engaged enemy receives no attack and
-the paused encounter grants no positive recovery. See
+Again is a **world-only idle tick**. It is equivalent to briefly clicking outside the
+mob area: elapsed state and genuinely passive effects continue, but an already-engaged
+enemy, the player, and command automation receive no foreground action. Existing generic
+safe-recovery helpers do not fire merely because a card was answered; a source-classified
+passive heal may. See
 `simulation-time-boundary-2026-07-16.md`.
 
 ### 3. Familiar renewal policy — source/app-pattern resolved 2026-07-16
@@ -122,7 +124,8 @@ unnoted pouch of the same familiar, reset the timer, and healed the familiar. An
 ships that manual Renew command exactly, translated through the short-duration card
 mapping and the direct-command undo path.
 
-It also ships one **global auto-renew toggle**, on by default. Auto-renew:
+Automatic renewal is part of an **enabled target familiar policy**, not a second global
+toggle. Auto-renew:
 
 - may fire only on a successful answer, never on Again, because renewal is positive
   recovery rather than decay;
@@ -130,13 +133,15 @@ It also ships one **global auto-renew toggle**, on by default. Auto-renew:
   never a Bank stack;
 - fires at the first eligible answer inside the period renewal window;
 - performs the same timer reset and familiar heal as the manual command;
-- never summons a replacement after expiry; and
-- is global because the active familiar is global. A target-local toggle would silently
-  change the same entity's survival policy when the player switches targets.
+- preserves the live familiar and its cargo rather than waiting for expiry; and
+- stops when the current target's familiar policy is disabled or its carried pouch
+  budget is empty.
 
 The carried-pouch requirement bounds depletion and gives target loadouts natural
-control: a target that carries no spare matching pouch cannot auto-renew. Manual Renew
-remains available regardless of the toggle when its source gates are met.
+control. Casual reserves matching pouches through its target preset; Advanced may place
+the exact number of pouches it wants in the carried grid, including several renewals or
+replacements without a bank run. Manual Renew remains available whenever its source
+gates are met, even if target automation is disabled.
 
 ### 4. Beast-of-Burden cargo on expiry — settled 2026-07-16
 
@@ -173,7 +178,7 @@ The active familiar is one **global equipment entity**, not a Combat-only loadou
 Its canonical panel lives with Equipment and is projected read-consistently into Bank,
 the reviewer, and target configuration surfaces. The canonical panel owns the live
 familiar, remaining lifetime, Summoning points, Summon/Dismiss/Renew/special commands,
-the global auto-renew toggle, and the separate BoB inventory. Contextual projections
+the active policy/lapse reason, and the separate BoB inventory. Contextual projections
 never create a second copy of that state.
 
 Familiar **selection policy is target-local** because the useful role changes between
@@ -204,8 +209,8 @@ or drops a live familiar's cargo.
 When a Casual familiar policy needs more Summoning points to summon or to perform a
 configured point-gated ability, it automatically spends the **next successful answer**
 on an abstracted obelisk restoration. That answer restores points instead of performing
-the selected target action. Again cannot restore points because it is a decay-only idle
-tick. This is an explicit foreground-action detour, not wall-clock travel or persistent
+the selected target action. Again cannot restore points because it has no foreground
+command. This is an explicit foreground-action detour, not wall-clock travel or persistent
 player location.
 
 Advanced exposes a toggle for the same auto-restore behavior and retains a manual
@@ -271,12 +276,33 @@ When a sourced channel kills the familiar, the summon ends without ending the pl
 encounter or refunding the pouch. Any BoB inventory moves atomically into the settled
 five-source-minute cargo reclaim state.
 
-### 11. Replacement after death or expiry mid-encounter — open
+### 11. Replacement after death or expiry — settled 2026-07-16
 
-Choose whether an empty familiar slot created by death or expiry during an active
-encounter may immediately trigger the target's normal Casual summon policy, potentially
-consuming another carried pouch against the same enemy, or stays empty until the player
-explicitly summons or the encounter reaches a safe target boundary.
+An enabled target familiar policy means **maintain this familiar role**, including
+automatic replacement after death or expiry. On the first eligible successful answer
+after the slot becomes empty, automation atomically consumes one compatible pouch from
+the current target-carried inventory and the sourced Summoning-point cost, then summons
+the policy's Casual best-available or exact Advanced familiar. It may occur during an
+encounter. Again never summons because it carries no positive command.
+
+The preconditions are all-or-nothing. If the pouch or points are missing, neither is
+partially consumed and the policy remains enabled but **lapsed**. Casual's settled
+point-restore detour may restore insufficient points before the summon transaction is
+re-evaluated. Returning resources re-arms the policy automatically; the user never has
+to toggle it off and on again.
+
+Advanced users may deliberately devote several carried-grid slots to matching pouches
+and therefore renew or replace repeatedly without a bank run. Automation never consumes
+a pouch directly from Bank. The familiar surface persistently and quietly shows any
+lapse reason, such as `Out of carried pouches` or `Summoning points too low`, rather than
+using a transient popup.
+
+### 12. Bank-run behavior after pouch depletion — open
+
+Choose whether an enabled Casual familiar policy that exhausts its carried pouches may
+spend a successful answer on an automatic bank-run detour to refill and resume, or must
+remain lapsed until the target's ordinary inventory cycle independently reaches Bank.
+Advanced can avoid either outcome by reserving more exact pouch slots.
 
 ## Source/open-work queue
 

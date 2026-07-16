@@ -185,6 +185,10 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
 - Familiar LP takes enemy damage only through a pinned retaliation, area, enemy,
   or aggro/tanking mechanic; attacking alone creates no exposure, and source
   silence means zero damage rather than a fabricated fallback targeting roll.
+- An enabled target familiar policy atomically renews or replaces from compatible
+  carried pouches on successful answers, including mid-encounter replacement.
+  Advanced chooses its exact pouch-slot budget; missing pouch/points leaves a
+  persistent lapsed reason and never partially consumes resources or Bank stock.
 
 ### Dungeoneering
 
