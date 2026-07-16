@@ -1,10 +1,10 @@
 # AnkiScape Completion Roadmap
 
-Status: reconciled 2026-07-15. Use `future-work-kanban.md` for actionable cards and treat `completion-audit-2026-07-10.*` as dated baseline evidence.
+Status: reconciled 2026-07-16. Use `future-work-kanban.md` for actionable cards and treat `completion-audit-2026-07-10.*` as dated baseline evidence.
 
 ## Strategy
 
-Finish by dependency layers. Sixteen complete skill surfaces, unified Combat, quests, inventory/equipment, shops, activities, and shared UI/storage foundations already exist; remaining work is four planned skills plus cross-system breadth and release closure.
+Finish by dependency layers. Seventeen complete skill surfaces, unified Combat, quests, inventory/equipment, shops, activities, and shared UI/storage foundations already exist; remaining work is three planned skills plus cross-system breadth and release closure.
 
 ## Layer 1 — Close Proven Existing-Skill Slices
 
@@ -15,15 +15,12 @@ Finish by dependency layers. Sixteen complete skill surfaces, unified Combat, qu
 
 ## Layer 2 — Grill and Build Planned Skills
 
-- Agility: design closed in `agility-skill-contract-2026-07-15.md`; build the
-  complete course/activity/shortcut/passive/cross-skill surface in a fresh
-  implementation thread.
-- Thieving: implemented; preserve its shared LP/failure and multi-pick hooks as
-  Agility integrates.
+- Agility and Thieving are implemented. Preserve their shared LP/failure,
+  carried-risk, and cross-skill hooks as later systems integrate.
 - Slayer and Summoning: Combat/acquisition-dependent systems.
 - Dungeoneering: late cross-skill meta-system.
 
-Prayer, Magic, Construction, and Farming are implemented and must not return to this queue. Attack, Strength, Defence, Constitution, and Ranged remain partial through unified Combat rather than gaining redundant review surfaces.
+Prayer, Magic, Construction, Farming, Thieving, and Agility are implemented and must not return to this queue. Attack, Strength, Defence, Constitution, and Ranged remain partial through unified Combat rather than gaining redundant review surfaces.
 
 ## Layer 3 — Ingest Stable Darkan Evidence
 

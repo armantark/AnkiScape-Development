@@ -1,5 +1,9 @@
 # Magic Skill Contract — grill closed 2026-07-11
 
+Status: **implemented on `main` at `24fbafd`; the 2026-07-16 Charge duration
+amendment is owner-approved but not yet implemented.** The body below preserves
+the pre-implementation contract.
+
 This is the implementation-ready contract for the full Magic skill continuation. The
 deep grill closed on 2026-07-11 with the owner present; do not re-grill the decisions
 recorded here. Remaining open items are mechanical source extractions, marked in the
@@ -177,6 +181,8 @@ cross-check) is authentic pre-EOC gap-fill via `tools/wiki_parity.py` pinned bef
 - Magic Dart's Slayer staff acquisition → Slayer.
 
 ## Charge duration amendment — 2026-07-16
+
+Status: **owner-approved design; implementation pending on `main`.**
 
 Charge uses the shared review-driven temporary-effect clock, never wall time and
 never the answered-card world/economy calendar. At 1x Actions per Review, every

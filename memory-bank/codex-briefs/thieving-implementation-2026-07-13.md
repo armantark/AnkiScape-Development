@@ -1,4 +1,10 @@
-# Role
+# Thieving implementation brief — executed historical snapshot
+
+Status: **executed and merged into `main` at `63b0a28`.** The branch/worktree
+instructions below describe the original implementation run and are superseded
+by the repository's current direct-main workflow.
+
+## Role
 
 You are implementing the **Thieving** skill in AnkiScape, an Anki add-on that
 turns flashcard reviews into RuneScape pre-EOC skilling actions.

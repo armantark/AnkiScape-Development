@@ -24,7 +24,7 @@ Reach a coherent “complete AnkiScape” rather than accumulating disconnected 
 
 ## Current Foundation
 
-- Sixteen complete skill surfaces, five partial Combat-trained skills, and four planned skills.
+- Seventeen complete skill surfaces, five partial Combat-trained skills, and three planned skills.
 - Unified Combat with XP routing for Attack, Strength, Defence, Constitution, Ranged, and Magic.
 - A 194-row pre-EOC quest catalog and stage-gate engine, treated as coverage scaffolding rather than full quest parity.
 - Utility/Activities, Bank Claims, NPC shops/economy, equipment, carried inventory, achievements, undo, source tooling, assets/provenance, and full pure/Qt test suites.

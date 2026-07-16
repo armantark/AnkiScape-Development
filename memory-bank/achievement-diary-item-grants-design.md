@@ -5,8 +5,8 @@
 The reward model remains a future deep-grill program tracked in
 `memory-bank/future-work-kanban.md`; it is not yet implementation-ready.
 
-The prerequisite achievement-history repair is implemented on
-`codex/achievement-semantics` and governed by
+The prerequisite achievement-history repair is implemented on `main` at
+`e733711` and `a0f5da4`, and governed by
 `memory-bank/achievement-semantics-contract-2026-07-16.md`. Diary rewards can
 now rely on sticky completions and owner-scoped cumulative production instead
 of disposable Bank snapshots. They must not use a live percentage denominator

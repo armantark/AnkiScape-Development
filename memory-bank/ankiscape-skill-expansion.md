@@ -4,14 +4,14 @@ Focused continuation document for the **Prayer** deep grill.
 It is not the global post-Herblore roadmap; that role now belongs to
 `completion-audit-2026-07-10.md` and `future-work-kanban.md`.
 
-Status: **grill completed 2026-07-11 — implementation-ready.** The design below
-is settled; do not re-grill it. What remains before/while coding is the short
-"implementation-time source extractions" list at the bottom (mechanical pins,
-not decisions).
+Status: **historical Prayer grill, implemented 2026-07-11 and closed
+2026-07-13.** The body below preserves the pre-implementation contract; the
+post-implementation addendum and linked source audit record the shipped state.
 
-Global status lives in the completion kanban. The registry distinguishes
-11 complete skill surfaces, six partial Combat-trained skills, and eight planned
-skills; Prayer stays `planned` in the registry until its surface actually ships.
+Global status lives in the completion kanban. At the time of this grill, the
+registry distinguished 11 complete skill surfaces, six partial Combat-trained
+skills, and eight planned skills; Prayer was still `planned` until its surface
+shipped.
 All source work below follows `pre-eoc-source-verification-standard.md`: pinned
 pre-EOC wiki revisions and period caches establish history, while
 2011Scape/current Darkan code is reconstruction evidence that must be
@@ -207,7 +207,7 @@ already exist in one pass. Only *dependency-blocked* items sit out (see Parked).
 
 ### Cross-cutting status
 
-The eleven-skill completeness audit is settled in `gap-backlog.json`,
+The then-current eleven-skill completeness audit is preserved in `gap-backlog.json`,
 `gap-grill-decisions-2026-07-10.md`, and `completion-audit.json`. Prayer's
 kanban card moves to `IMPLEMENT` (with the extraction list above as its
 `SOURCE AUDIT` residue) as of 2026-07-11.

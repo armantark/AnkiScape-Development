@@ -1,6 +1,10 @@
 # Agility source tables — 2026-07-13
 
-This is a read-only source harvest for the future AnkiScape Agility implementation. It preserves the required hierarchy exactly: 2011Scape values ship wherever that source implements the course; pinned pre-EOC RuneScape Wiki values fill only courses absent from 2011Scape; Darkan values never ship and appear only as divergences or leads; caches prove client object identity, never XP or server mechanics. `source_blocked` is deliberate wherever the approved sources do not prove a value.
+Status: **historical pre-implementation source snapshot.** Agility later shipped;
+the implementation record is
+`agility-implementation-verification-2026-07-15.md`.
+
+This read-only source harvest preserves the required hierarchy exactly: 2011Scape values ship wherever that source implements the course; pinned pre-EOC RuneScape Wiki values fill only courses absent from 2011Scape; Darkan values never ship and appear only as divergences or leads; caches prove client object identity, never XP or server mechanics. `source_blocked` is deliberate wherever the approved sources do not prove a value.
 
 ## Citation key and interpretation rules
 

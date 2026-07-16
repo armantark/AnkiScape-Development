@@ -187,15 +187,16 @@ dependency installation, push, merge, or external deployment occurred.
 
 Final holdouts:
 
-- All 1,314 core tests pass in 39.163 seconds under Homebrew Python, with 193
-  environment skips and the three declared XP-parity expected failures.
-- All 1,314 tests pass with the real Qt environment enabled and offscreen in
-  543.509 seconds, with the same three expected failures and no skips.
+- The core suite ran 1,314 methods in 39.163 seconds under Homebrew Python:
+  1,118 ordinary passes, 193 environment skips, and the three declared
+  XP-parity expected failures.
+- The real offscreen Qt suite ran 1,314 methods in 543.509 seconds: 1,311
+  ordinary passes, the same three expected failures, and no skips.
 - Test-quality audit reports zero hard issues across 66 test files.
 - Item reachability remains stable at 1,200 actions and 273 known orphan inputs
   (110 root, 163 cascade).
 - Compilation, `git diff --check`, and the worktree safety audit pass.
 
-The four remaining owner-direction questions are ranked in
-`memory-bank/design-gaps-overnight-2026-07-16.md`; none is a queued confirmed
-implementation defect.
+The four owner-direction questions recorded at closure are ranked in
+`memory-bank/design-gaps-overnight-2026-07-16.md`. They were subsequently
+design-resolved on 2026-07-16; their implementation remains pending on `main`.

@@ -2,7 +2,7 @@
 
 ## Status
 
-Implemented on `codex/achievement-semantics`. This contract repairs the current
+Implemented on `main` at `e733711` and `a0f5da4`. This contract repairs the current
 achievement catalog and establishes the history substrate that a later
 achievement-diary reward system may consume. It does not choose or grant diary
 gear.
@@ -102,4 +102,3 @@ quantities and not a recalculated percentage whose denominator moves whenever
 new achievements are added. The reward cadence, category/tier mapping, player
 choice, retroactive grants, upgrade flow, and exact diary-item roster remain a
 separate owner grill.
-

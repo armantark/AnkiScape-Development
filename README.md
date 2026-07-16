@@ -3,12 +3,17 @@
 AnkiScape adds a lightweight, game-like experience layer to Anki:
 - Review HUD feedback with the active skill or activity, level, and progress.
 - Floating XP or material toasts, achievement popups, and level-up popups.
-- A Skills hub for Mining, Woodcutting, Smithing, Crafting, and Fletching.
+- A Skills hub with 17 complete pre-EOC skill surfaces, plus unified Combat
+  training for five additional skills.
 - Utility / Activities for no-XP material prep such as soft clay, wool, flax, bird nests, and feathers.
 - Bank, Stats, Equipment, Achievements, and Settings tabs in the floating widget.
 - Undo-aware review rewards with an `Actions per review` pacing control.
 
 This development checkout tracks the local fork's current playable loop: study cards, run a selected skill or Utility activity, grow the inventory, and inspect progress from the widget.
+
+Current scope and priorities live in
+`memory-bank/future-work-kanban.md`; dated audits and status artifacts are
+historical evidence rather than live status.
 
 ## Install (from source)
 
@@ -17,7 +22,7 @@ Pick one of the following:
   1) Create a zip of this folder (excluding `.venv/`, `tests/`, `.pytest_cache/`, `.vscode/`, and log files).
   2) In Anki, Tools → Add-ons → Install from file, select the zip.
 - Dev checkout (advanced):
-  - Place/clone this folder into Anki’s add-ons directory (e.g. `~/Library/Application Support/Anki2/addons21/ankiscape`). Restart Anki.
+  - Place/clone this folder into Anki’s add-ons directory (e.g. `~/Library/Application Support/Anki2/addons21/ankiscape`). Keep exactly one enabled AnkiScape package directly under `addons21`; a second linked worktree there registers duplicate hooks and menus. Restart Anki.
 
 Note: Paths differ by OS/profile; see Anki docs for the add-ons directory location.
 
@@ -58,7 +63,7 @@ This migration is idempotent and covered by tests.
 Use the helper script at the repo root:
 
 ```
-python3 run_tests.py
+/opt/homebrew/bin/python3 run_tests.py
 ```
 
 - Uses Python’s built-in `unittest`.
@@ -74,6 +79,18 @@ QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests
 - Confirms widget, Skills hub, Bank, Stats, Equipment, Settings, and Utility row behavior in an offscreen Qt runtime.
 - Keeps UI contracts covered without requiring a visible Anki window.
 
+### Audit documentation
+
+Run the tracked Markdown/HTML integrity audit from the repository root:
+
+```
+/opt/homebrew/bin/python3 tools/audit_docs.py
+```
+
+It checks every tracked documentation file for UTF-8 and final-newline
+integrity, whitespace-only lines, balanced Markdown fences, valid local links,
+and lexically parseable HTML.
+
 ### Debug logging
 Set an environment variable before launching Anki or running tests to enable debug logs:
 - macOS/Linux (zsh): `export ANKISCAPE_DEBUG=1`
@@ -83,6 +100,6 @@ Logs are written next to the package as `ankiscape_debug.log` and rotate automat
 
 ## Packaging notes
 When preparing a release zip for Anki users, exclude development artifacts:
-- `.venv/`, `.pytest_cache/`, `.vscode/`, `__pycache__/`, test files, and log files.
+- `.venv/`, `.venv-qt/`, `.pytest_cache/`, `.vscode/`, `__pycache__/`, test files, and log files.
 
 The add-on will work out-of-the-box with the defaults above, and all new settings are backward-compatible via the migration step.

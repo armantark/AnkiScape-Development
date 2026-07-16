@@ -1,6 +1,11 @@
 # Farming Skill Contract — closed 2026-07-11
 
-Status: **CLOSED**. The deep grill finished on 2026-07-11. Every owner-facing decision below is settled; do not re-grill. Remaining work is mechanical: wiki-pin resolution (§9), data extraction, implementation, and verification. The source research record is `memory-bank/source-audits/farming-source-dossier-2026-07-11.md` (cited below as "dossier"); its per-row citations into game-main (GM) and the Darkan pin `7e7d67b` (DK) are the extraction map and are not repeated here.
+Status: **implemented on `main` at `9a88c56`; the 2026-07-16 replacement and
+preset amendment is owner-approved but not yet implemented.** The body below
+preserves the pre-implementation contract. The source research record is
+`memory-bank/source-audits/farming-source-dossier-2026-07-11.md` (cited below
+as "dossier"); its per-row citations into game-main (GM) and the Darkan pin
+`7e7d67b` (DK) are the extraction map and are not repeated here.
 
 Source rule for numeric conflicts (dossier Q27, settled): GM wins unless internally defective (e.g. the seven identical 1,199.5 fruit-tree check-XP rows); a defective or disputed GM value is settled by a pre-2012-11-20 pinned wiki revision, with DK as corroboration only. DK-only content (specials, Habitat) needs wiki pins wherever DK derives values instead of storing them (its `plantXP × 0.375` special-harvest formula). No disputed number ships without a pin.
 
@@ -120,6 +125,8 @@ The verification gate ran and produced `memory-bank/source-audits/farming-wiki-p
 - **Diary gating**: whether any patch was Task-set-gated by the cutoff is a pin-phase fact to record (§4.10).
 
 ## Post-closure replacement and preset amendment — 2026-07-16
+
+Status: **owner-approved design; implementation pending on `main`.**
 
 - Add `Dig up` as a one-review field verb for a healthy mature regrowth crop.
   It requires a Spade, returns no produce, and leaves the patch empty. It never

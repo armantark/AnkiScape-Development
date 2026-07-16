@@ -2,6 +2,18 @@
 
 ## Current Focus
 
+Documentation integrity is closed across the whole repository. The canonical
+README, roadmap, Kanban, Project Brief, Product Context, Active Context, and
+Progress ledger now agree with the live 17-complete / five-partial /
+three-planned registry. Dated contracts, audits, briefs, and HTML results retain
+their historical evidence with explicit shipped, merged, superseded, or
+implementation-pending annotations. `tools/audit_docs.py` is the repeatable
+mechanical gate for Markdown links/fences and HTML structure; it passes all 505
+project documents including the closure report. The full core suite ran 1,327
+methods with 1,131 ordinary passes, 193 environment skips, and three expected
+failures. Test quality has zero hard issues across 67 files. Results are in
+`status-updates/documentation-integrity-results-2026-07-16.html`.
+
 Achievement semantics are complete on `main` at `a0f5da4`. The integrated
 history includes the completed 18-pass overnight baseline and repairs all 70
 action-worded achievements that were
@@ -12,10 +24,10 @@ rune totals, and cross-skill production follows the explicit action surface.
 The governing record is `achievement-semantics-contract-2026-07-16.md`; the
 closure report is
 `status-updates/achievement-semantics-results-2026-07-16.html`. All 1,323 core
-tests pass with 193 environment skips and three expected failures, and all
-1,323 pass under the real offscreen Qt runtime with only the same expected
-failures. Test quality has zero hard issues; compilation, diff, reachability,
-and worktree-safety gates pass.
+core tests ran with 1,127 ordinary passes, 193 environment skips, and three
+expected failures. The real offscreen Qt run had 1,320 ordinary passes and the
+same three expected failures, with no skips. Test quality has zero hard issues;
+compilation, diff, reachability, and worktree-safety gates pass.
 
 The broader achievement-diary gear reward model remains deliberately open.
 This repair supplies stable history for that future grill without choosing a
@@ -50,8 +62,8 @@ tag. Wall-clock time and global player-location state remain forbidden
 throughout. The implementation and verification record live in
 `source-audits/agility-implementation-verification-2026-07-15.md`.
 
-Cadence Phase 3 shadow observation is complete on
-`codex/cadence-phase3-shadow`, based on Phase 1 at `b45aff0`. With the strict
+Cadence Phase 3 shadow observation is merged into `main` at `6422610`, based on
+Phase 1 at `b45aff0`. With the strict
 off-by-default `ankiscape_cadence_kernel` flag enabled, Mining, Woodcutting,
 Fishing, Hunter, Cooking, and Firemaking now record the kernel proposal beside
 the unchanged live result. The observer covers all 175 runtime routes: 24 have
@@ -66,7 +78,8 @@ scheduling, admission/overflow declarations, and lock shapes. Storage config v34
 adds only the empty route-keyed `cadence_profiles` state;
 `ankiscape_cadence_kernel` is strict, off by default, and not read by review
 dispatch. No skill is routed through the kernel for live mutation. The Phase 3
-branch runs 1,219 tests with 187 non-Qt skips and three expected failures.
+closure ran 1,219 methods with 187 non-Qt skips and three expected failures;
+that is a dated verification snapshot rather than the current suite size.
 
 The test-signal cleanup is merged into `main` at `526f9c2`. It removed
 low-signal structural tests, converted the previously uncollected pytest-style
@@ -101,7 +114,7 @@ The dated `completion-audit-2026-07-10.*` files remain historical snapshots; liv
   their remaining availability follows upstream herb and secondary acquisition.
   These are acquisition-program signals rather than Agility closure failures.
 
-## Most Recent Completed Work
+## Bob Barter Closure — 2026-07-15
 
 - Bob Barter (herbs) is a free, instantaneous Grand Exchange shop service. One
   click redistributes every eligible live non-Daemonheim vial-potion family to
@@ -436,10 +449,12 @@ safe-worktree checks pass. Full closure verification remains pending.
 ## Overnight fresh-eyes audit closed (2026-07-16)
 
 The dedicated branch completed 18 bounded maker/checker passes and 36
-attributable commits without touching main or another worktree. Final closure
-passes all 1,314 core tests and all 1,314 real offscreen Qt tests; the only
-non-green cases are the same three declared XP-parity expected failures. Test
-quality has zero hard issues, reachability remains 1,200 actions / 273 known
-orphans, and compilation, diff, and worktree safety checks pass. There are no
-queued confirmed defects. Four owner-direction questions remain ranked in
-`memory-bank/design-gaps-overnight-2026-07-16.md`.
+attributable commits without touching main or another worktree; it was later
+integrated through `2ac9ed5`. Final closure ran 1,314 core methods and 1,314 real
+offscreen Qt methods; each run contained the same three declared XP-parity
+expected failures, while the core run also contained environment skips. Test
+quality had zero hard issues, reachability remained 1,200 actions / 273 known
+orphans, and compilation, diff, and worktree safety checks passed. There were
+no queued confirmed defects. The four owner-direction questions recorded in
+`memory-bank/design-gaps-overnight-2026-07-16.md` are now design-resolved but
+await implementation on `main`.

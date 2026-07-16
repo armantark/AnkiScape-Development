@@ -1,7 +1,7 @@
 # Brimhaven Agility Arena — review-native design contract (2026-07-15)
 
-Status: **owner-delegated and design-closed; implementation belongs in a new
-thread.** This contract intentionally flattens the period arena's visible map
+Status: **implemented as part of the atomic Agility closure on `main`.** This
+contract intentionally flattens the period arena's visible map
 while preserving its ticket chase, streak pressure, obstacle identity, failure
 risk, and reward economy.
 

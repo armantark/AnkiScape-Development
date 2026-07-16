@@ -1,5 +1,8 @@
 # Construction Skill Contract — grill closed 2026-07-11
 
+Status: **implemented on `main` at `c628f0d`.** The body below preserves the
+pre-implementation contract and its extraction checklist.
+
 This is the implementation-ready contract for the Construction skill. Every
 decision below is settled; do not re-grill any of them. The remaining work
 before code is the mechanical extraction list at the bottom.

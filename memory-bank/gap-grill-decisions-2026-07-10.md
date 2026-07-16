@@ -61,6 +61,8 @@ Decision status: design settled; implementation waits for the Darkan revamp.
 
 ### Bank Direct-Action Contract
 
+Status: **owner-approved design; implementation pending on `main`.**
+
 - Replace the destructive `Discard all` Bank command with `Discard X`. The
   player chooses the quantity explicitly, and the remainder of the stack stays
   in the Bank.

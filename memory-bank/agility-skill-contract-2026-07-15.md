@@ -1,7 +1,8 @@
 # Agility skill — complete design contract (2026-07-15)
 
-Status: **owner-delegated and design-closed; implementation belongs in a new
-thread.** The source inventory is
+Status: **implemented on `main`; post-closure carried-risk amendment approved
+but not yet implemented.** The body preserves the pre-implementation design
+contract. The source inventory is
 `source-audits/agility-complete-content-inventory-2026-07-15.md`. Existing
 course tables, failure audits, Brimhaven contract, run-energy contract, and
 trip/weight harvest remain authoritative where this contract references them.
@@ -613,6 +614,8 @@ commands are recorded in
 `source-audits/agility-implementation-verification-2026-07-15.md`.
 
 ## Post-closure carried-risk amendment — 2026-07-16
+
+Status: **owner-approved design; implementation pending on `main`.**
 
 Agility courses participate in the same target-specific Auto/Custom 28-slot
 carried-pack system as every other dangerous activity. Auto packs target

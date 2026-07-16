@@ -1,15 +1,34 @@
 # Progress
 
-## Current Baseline — 2026-07-15
+## Current Baseline — 2026-07-16
 
-AnkiScape now has 16 complete skill surfaces, five partial Combat-trained skills, and four planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is a historical snapshot.
+AnkiScape now has 17 complete skill surfaces, five partial Combat-trained skills, and three planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is a historical snapshot.
+
+## Documentation integrity closure — 2026-07-16
+
+- Audited all 505 project Markdown/HTML documents, including this closure's
+  final results artifact. The permanent `tools/audit_docs.py` gate checks UTF-8,
+  final newlines, whitespace defects, Markdown fences/local links, HTML
+  doctypes, parsing, and explicit element nesting.
+- Reconciled current status to 17 complete, five partial, and three planned
+  skills; corrected merged-branch pointers, live acquisition/reachability
+  claims, and the difference between approved design and shipped behavior.
+- Preserved dated evidence instead of rewriting history. Historical contracts,
+  audits, briefs, and results now carry explicit status or later-integration
+  notes where their original wording could be mistaken for current state.
+- Full core verification ran 1,327 methods: 1,131 ordinary passes, 193
+  environment skips, and three expected failures. The test-quality audit reports
+  zero hard issues across 67 files; JSON parsing, compilation, diff, and
+  worktree-safety checks pass.
+- Closure artifact:
+  `status-updates/documentation-integrity-results-2026-07-16.html`.
 
 Phase 1 of the cadence kernel is complete on `main` at `b45aff0`. It
 adds a dormant pure scheduler, additive config-v34 route residuals, the strict
 off-by-default `ankiscape_cadence_kernel` flag, and exact save/load/undo and
 flag-off RNG/output regression coverage. No skill behavior is routed or changed.
 
-Phase 3 shadow observation is complete on `codex/cadence-phase3-shadow`. The
+Phase 3 shadow observation is merged into `main` at `6422610`. The
 six in-scope adapters record current and proposed outcomes without mutating live
 gameplay. The 175-route catalog has 24 source-ready routes and 151 explicit
 `source_blocked` routes. Exact range envelopes, embedded Cooking/Firemaking
@@ -21,7 +40,7 @@ remain outside the cadence experiment.
 
 - Gathering: Mining, Woodcutting, Farming, Fishing, Hunter.
 - Artisan: Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Herblore, Construction.
-- Support/combat-adjacent: Prayer, Magic, and Thieving.
+- Support/combat-adjacent: Prayer, Magic, Thieving, and Agility.
 
 These surfaces use stable IDs, flat save state, review or background dispatch as appropriate, inventory mutation, telemetry, undo, assets/provenance, Skills-hub UI, Stats/Bank/HUD integration, and focused tests.
 
@@ -32,20 +51,12 @@ Unified Combat trains Attack, Strength, Defence, Constitution, and Ranged. They 
 ## Planned Skills
 
 - Summoning
-- Agility — complete product/design-family contract; historical value sweep and
-  implementation pending
 - Dungeoneering
 - Slayer
 
-Summoning, Dungeoneering, and Slayer still need closed product/source contracts
-before implementation.
-
-Agility's design contract is now closed in
-`agility-skill-contract-2026-07-15.md`, with the exhaustive design-family ledger
-in `source-audits/agility-complete-content-inventory-2026-07-15.md`. Candidate
-and `source_blocked` values still require the recorded historical sweep.
-Implementation remains a future thread and must ship the full Agility-owned
-surface atomically rather than a small course subset.
+Summoning, Dungeoneering, and Slayer remain the three planned registry surfaces.
+Their active design work is tracked independently and must be merged into the
+canonical checkout before this ledger treats it as live.
 
 ## Thieving closure
 
@@ -66,7 +77,7 @@ zero Thieving/Phoenix reachability orphans, compilation, and `git diff --check`
 complete the gate. See
 `status-updates/thieving-skill-results-2026-07-13.html`.
 
-## Latest Closure
+## Cadence Phase 3 Closure — 2026-07-13
 
 The cadence Phase 3 closure adds:
 
@@ -80,7 +91,7 @@ The cadence Phase 3 closure adds:
 
 The durable closure record is `cadence-kernel-phase3-shadow-2026-07-13.md`.
 
-## Previous Closure
+## Prayer Polish Closure — 2026-07-13
 
 The Prayer polish closure adds:
 
@@ -108,7 +119,7 @@ The durable source/conflict record is `source-audits/prayer-altar-urn-passives-h
 
 ## Remaining Programs
 
-- Four planned skill loops.
+- Three planned skill loops.
 - Full Combat/equipment/enemy/boss/instance breadth.
 - Quest-by-quest fidelity across all 194 rows.
 - Activities, minigames, D&Ds, reward currencies/shops, and timed events.
@@ -338,14 +349,15 @@ Test counts are snapshots; current runs outrank this note.
 
 - Completed 18 bounded passes and 36 attributable commits in a dedicated safe
   worktree; the verified history was subsequently fast-forwarded into `main`.
-- Final core: 1,314 passing in 39.163 seconds, 193 environment skips, three
-  expected XP-parity failures.
-- Final real offscreen Qt: 1,314 passing in 543.509 seconds, no skips, the same
-  three expected failures.
+- Final core: 1,314 methods in 39.163 seconds, comprising 1,118 ordinary passes,
+  193 environment skips, and three expected XP-parity failures.
+- Final real offscreen Qt: 1,314 methods in 543.509 seconds, comprising 1,311
+  ordinary passes, no skips, and the same three expected failures.
 - Test quality: zero hard issues across 66 files. Reachability: 1,200 actions,
   273 known orphans. Compilation, diff, and worktree safety checks pass.
-- No confirmed defect remains queued; four creative-direction questions are
-  ranked in `memory-bank/design-gaps-overnight-2026-07-16.md`.
+- No confirmed defect remains queued. The four creative-direction questions in
+  `memory-bank/design-gaps-overnight-2026-07-16.md` are design-resolved, with
+  implementation still pending on `main`.
 
 ## Achievement semantics foundation (2026-07-16)
 
@@ -362,9 +374,10 @@ Test counts are snapshots; current runs outrank this note.
   count as Smithing production, Construction tablets remain Construction-owned,
   and Inferno-adze logs remain Woodcutting-owned.
 - Added focused unit, migration, runtime, integration, end-to-end, and undo
-  regressions. All 1,323 core tests pass with 193 environment skips and three
-  documented expected failures; all 1,323 tests also pass under the real
-  offscreen Qt runtime with the same three expected failures and no skips.
+  regressions. The core suite ran 1,323 methods: 1,127 ordinary passes, 193
+  environment skips, and three documented expected failures. The real
+  offscreen Qt suite ran 1,323 methods: 1,320 ordinary passes and the same three
+  expected failures, with no skips.
 - Test quality reports zero hard issues across 66 files. The 1,200-action
   reachability baseline remains unchanged at 273 known orphans (110 root, 163
   cascade); compilation, diff, and worktree-safety checks pass.

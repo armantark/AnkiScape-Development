@@ -3,6 +3,19 @@
 ## Architecture Snapshot
 The add-on is a small Python package loaded by Anki. It separates pure game contracts from Anki-aware orchestration for review dispatch, runtime actions, target rows, and achievements, though some skill behavior still lives in UI, storage, stats, and icon-registration surfaces.
 
+## Documentation Authority
+
+- `future-work-kanban.md`, `activeContext.md`, `progress.md`, and the live
+  registries are current truth and must agree after every significant closure.
+- Dated source audits, contracts, briefs, and HTML status artifacts are evidence
+  snapshots. Preserve their original claims, but add a clear status or
+  supersession note when a later implementation would otherwise make the file
+  look current.
+- Run `/opt/homebrew/bin/python3 tools/audit_docs.py` after documentation
+  changes. It audits every
+  tracked Markdown and HTML file for mechanical integrity without rewriting
+  historical prose.
+
 ## Important Modules
 - `__init__.py`: runtime orchestration, global player state, review hooks, answer handling, menu callbacks, save/HUD/UI bridge callbacks, and compatibility review-action wrappers.
 - `runtime_actions.py`: Anki-free runtime review-action handlers and handler-keyed can-start checks for the complete skill surfaces, unified Combat, Quests, and Utility/Activities. It mutates `player_data` through a callback/context contract supplied by `__init__.py`.
@@ -131,7 +144,7 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
 - Crafting recipe data stores source XP only. Runtime reward handling awards base XP per action tick; review pacing is controlled by the actions-per-review multiplier rather than by inflating a single action's XP.
 - Crafting now follows the source-data-module pattern at the backend layer (`crafting_data.py`). `current_craft` stores stable recipe IDs, inventory stores real item names, and the data intentionally includes live input-starved recipes so missing acquisition loops light up later without reshaping the recipe. XP-bearing Crafting ignores recipe `batch_size`; only no-XP Utility/Activities batch material prep.
 - Woodcutting now has a focused source-data module (`woodcutting_data.py`) rather than only ad hoc `constants.py` rows. Its stable target IDs are persisted in `current_tree`, while inventory uses real item output names such as `Logs` and `Oak logs`.
-- Fishing now follows the source-data-module pattern (`fishing_data.py`) as a Gathering skill. Its stable method IDs are persisted in `current_fishing`, while inventory uses real output item names such as `Raw crayfish`, `Raw salmon`, and `Raw shark`. Mixed-output rows preserve source order during rolls, consumable material is removed only after a successful catch, and Barbarian fish side XP updates hidden Strength/Agility state without exposing those skills in the UI yet.
+- Fishing now follows the source-data-module pattern (`fishing_data.py`) as a Gathering skill. Its stable method IDs are persisted in `current_fishing`, while inventory uses real output item names such as `Raw crayfish`, `Raw salmon`, and `Raw shark`. Mixed-output rows preserve source order during rolls, consumable material is removed only after a successful catch, and Barbarian fish side XP updates hidden Strength and the live Agility state without exposing Strength as an independent skill surface.
 - Fletching now follows the source-data-module pattern (`fletching_data.py`) as
   an Artisan processing skill. Stable target IDs are persisted in
   `current_fletch`, while inventory uses real output and material item names.

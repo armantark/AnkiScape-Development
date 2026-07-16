@@ -18,7 +18,8 @@
 - Work directly in the canonical `main` checkout and commit there. Do not create
   feature branches or linked worktrees unless the owner explicitly requests
   isolation for that specific task.
-- Tests are run with `python3 run_tests.py`.
+- Core tests run with `/opt/homebrew/bin/python3 run_tests.py`; the macOS system
+  Python is too old for the repository's type syntax.
 - Tests use Python's built-in `unittest`, not pytest.
 - `run_tests.py` adds the repo root to `PYTHONPATH` so pure modules can be imported directly.
 - `python3 tools/audit_item_reachability.py --json` emits the deterministic live action/acquisition graph ledger; its focused regression test is `tests/test_item_reachability_audit.py`.

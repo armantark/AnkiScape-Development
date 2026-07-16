@@ -1,6 +1,6 @@
 # AnkiScape Completion Kanban
 
-Status: reconciled 2026-07-13. This is the canonical forward-work board. The 2026-07-10 completion audit is a dated baseline; the shipped-skill subledger remains `memory-bank/gap-backlog.json`.
+Status: reconciled 2026-07-16. This is the canonical forward-work board. The 2026-07-10 completion audit is a dated baseline; the shipped-skill subledger remains `memory-bank/gap-backlog.json`.
 
 ## Label contract
 
@@ -19,7 +19,7 @@ Status: reconciled 2026-07-13. This is the canonical forward-work board. The 202
 Labels: `SOURCE AUDIT`, then `IMPLEMENT` only when evidence closes.
 
 - Continue from `memory-bank/gap-backlog.json`; do not reconstruct merged cards or re-grill settled branches.
-- Current detailed state: 22 merged, 13 design/source-blocked waits (including Grenwall), four split-scope, one Farming seed, one partially reopened/source-waiting, and two exclusions.
+- Current detailed state: 22 merged, 13 design/source-blocked waits (including Grenwall), four split-scope, one Farming seed, one partially reopened/source-waiting, two exclusions, one design-partial/source-waiting card, and one design-settled parent-decision card.
 - Grenwall's pinned period revision proves its broad reward family but not exact spike/herb probabilities; it now explicitly waits on literal period evidence or a stable reconciled Darkan milestone (`memory-bank/source-audits/grenwall-reward-source-closure-2026-07-11.md`).
 - The next implementation slice must have a pinned pre-EOC contract for its level, XP, inputs, outputs, gates, rates, and state transitions. Split proven sub-slices from blocked families as lava eel, Overload, and cannonballs already demonstrate.
 - Backend acceptance: data, pure behavior, storage/migration, dispatch, acquisition semantics, telemetry, and undo.
@@ -96,7 +96,7 @@ Labels: trailing `SOURCE AUDIT` and owning-system dependencies only.
 
 Labels: trailing `SOURCE AUDIT` and owning-activity dependencies only.
 
-- Core skill closure is implemented on `codex/thieving-skill`: 17 pickpocket
+- Core skill closure is implemented on `main` (merged at `63b0a28`): 17 pickpocket
   rows, all 18 2011Scape stall-family rows, wall safe, Menaphite blackjacking,
   shared LP/stun/fight-back, storage v35, grouped Qt surface, assets, and exact
   live cadence. See `memory-bank/source-audits/thieving-tables-2026-07-13.md`.
@@ -136,11 +136,14 @@ Labels: trailing `SOURCE AUDIT` and owning-activity dependencies only.
   - **The wall safe is the exception that proves it.** It is the only stall-family row carrying chance endpoints (`lowChance = 8, highChance = 160`, `StallTarget.kt:263-264`) — the same interpolate-against-255 shape as pickpocketing — and the only one whose 100%-success rate (70 xp / 3s = 84,000/hr) overshoots its sourced ceiling (~20,000/hr). It fails because the period game meant it to, and the source states by how much. Ship those endpoints. Note the fields are declared but unused in `Stalls.kt` — 2011Scape carried the data and never wired it.
   - **Ship the level inversion honestly.** The level-5 baker stall out-earns the level-75 gem stall by ~7×, in both sources. That is authentic: pre-EOC players camped gem stalls for the *gems*, and the wiki's own escape hatch — "ideal to world hop" — is a location mechanic AnkiScape cannot model. It is safe to ship because the bad option is never the best available one: at 75 Thieving the player already has knights of Ardougne (180,000/hr, `sourced_xp_rates.py:82`) and blackjacking (200,000–270,000/hr, `:75`). The gem stall's poor XP is the *price* of its loot table, which we do model, and that reads as a choice rather than a trap. Do **not** invent a world-hop abstraction to "fix" it.
 
-### Phoenix feather has no source — Super antifire is unmakeable
+### Phoenix feather acquisition — CLOSED
 
-Labels: `BUG`, `CONTENT GAP`.
+Labels: none remaining.
 
-`herblore_data.py:188` ships Super antifire (3) at Herblore 85, requiring a Phoenix feather. `grep -rni "phoenix"` finds that recipe line and nothing else: **no action, drop, or shop anywhere in AnkiScape yields a Phoenix feather.** With no Grand Exchange the recipe is a dead end. Phoenix feathers are untradeable in the period game too, so the only authentic route is self-collection — the Desert Phoenix `Grab-feather` Utility activity above closes this. Found incidentally during the Thieving grill; independent of Thieving and should not be gated behind it.
+The live Desert Phoenix `Grab-feather` Utility activity supplies Phoenix feathers
+after The Golem and makes the Super antifire chain obtainable. The route is
+independent of Thieving XP even though it was discovered during the Thieving
+grill.
 
 ### Slayer
 
@@ -219,12 +222,12 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `DEPENDENCY: COMBAT/PRAYER/SUMMONING`.
 
 Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 
-- Maintain `tools/audit_item_reachability.py`; the 2026-07-15 run finds 271
-  orphan inputs across planned skills, activities, Combat/world acquisition,
-  and potion-state plumbing (137 root, 134 cascade). Agility's visible chain is
-  the four-dose potion root plus lower-dose cascades; authentic decanting remains
-  its acquisition owner. See the dated audits for method and the current closure
-  artifact for counts.
+- Maintain `tools/audit_item_reachability.py`; the current run finds 1,200
+  actions and 273 orphan inputs (110 root, 163 cascade) across planned skills,
+  activities, Combat/world acquisition, and potion-state plumbing. Bob Barter's
+  quantity-free decant routes make potion dose variants known-producer cascades;
+  their remaining availability follows upstream herb and secondary acquisition.
+  See the dated audits for method and `activeContext.md` for the live count.
 - Close every live-but-unobtainable material through authentic drops, ground spawns, shops, claims, quests, skills, activities, or transformations. Do not seed free items or fake recipe gates.
 - The source-backed Woodcutting nest → empty nest → crushed nest route is repaired and regression-covered.
 - Finish equipment requirements, special attacks, poison, charges/degradation, set effects, jewellery, consumables, and source-specific use actions without creating fake recipes.
