@@ -25,6 +25,12 @@ route generation and deadline cadence remain in the one-question-at-a-time
 grill. The owner then made the project-wide timer invariant explicit: wall-clock
 time has no place in AnkiScape. Brimhaven deadlines, like every other gameplay
 timer, must advance only through reviews/actions and roll back through undo.
+The delegated design is now closed in
+`agility-brimhaven-contract-2026-07-15.md`: hidden 5x5 geometry generates a
+`1..8` crossing distance, every chase has eight review attempts, the first tag
+activates and consecutive tags award tickets, misses reset activation, and all
+period XP/item exchanges remain player-chosen. No Brimhaven implementation is
+authorized in this thread.
 
 Cadence Phase 3 shadow observation is complete on
 `codex/cadence-phase3-shadow`, based on Phase 1 at `b45aff0`. With the strict
