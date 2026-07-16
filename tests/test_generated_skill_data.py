@@ -69,6 +69,19 @@ class TestGeneratedSkillData(unittest.TestCase):
                 _equipment_item_block(checked_in, item_name),
             )
 
+        from constants import CRAFTING_DATA, FLETCHING_DATA
+
+        live_recipe_outputs = {
+            recipe.get("output_item")
+            for data in (CRAFTING_DATA, FLETCHING_DATA)
+            for recipe in data.values()
+            if isinstance(recipe.get("output_item"), str)
+        }
+        for item_name in live_recipe_outputs:
+            marker = f"    {item_name!r}: EquipmentItem("
+            if marker in generated:
+                self.assertIn(marker, checked_in, f"{item_name} is craftable but absent from live equipment data")
+
 
 if __name__ == "__main__":
     unittest.main()

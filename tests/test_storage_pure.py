@@ -659,6 +659,26 @@ class TestStoragePure(unittest.TestCase):
         ):
             self.assertNotIn(legacy_key, migrated["inventory"])
 
+    def test_migrate_legacy_shop_arrows_into_canonical_stacks(self):
+        migrated = migrate_loaded_data(
+            {
+                "inventory": {
+                    "Bronze arrow": 10,
+                    "Bronze arrows": 5,
+                    "Rune arrow": 3,
+                    "Broad arrow": 2,
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["inventory"]["Bronze arrows"], 15)
+        self.assertEqual(migrated["inventory"]["Rune arrows"], 3)
+        self.assertEqual(migrated["inventory"]["Broad arrows"], 2)
+        for legacy_name in ("Bronze arrow", "Rune arrow", "Broad arrow"):
+            self.assertNotIn(legacy_name, migrated["inventory"])
+
     def test_migrate_legacy_crafting_names_across_persisted_item_stores(self):
         migrated = migrate_loaded_data(
             {

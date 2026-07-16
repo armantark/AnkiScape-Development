@@ -381,6 +381,13 @@ LEGACY_CRAFTING_TARGETS: Dict[str, str] = {
 }
 
 LEGACY_CRAFTING_ITEM_MIGRATIONS: Dict[str, str] = {
+    "Bronze arrow": "Bronze arrows",
+    "Iron arrow": "Iron arrows",
+    "Steel arrow": "Steel arrows",
+    "Mithril arrow": "Mithril arrows",
+    "Adamant arrow": "Adamant arrows",
+    "Rune arrow": "Rune arrows",
+    "Broad arrow": "Broad arrows",
     "Unfired pot": "Pot (unfired)",
     "Pot": "Empty pot",
     "Unfired pie dish": "Pie dish (unfired)",

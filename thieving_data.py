@@ -54,11 +54,11 @@ def _pick(name, level, low, high, xp, damage, stun, *, guaranteed=(), total=0, l
 
 
 HAM_LOOT = (
-    ("Bronze arrow", 1, 13, 33), ("Bronze hatchet", 1, 1, 33),
+    ("Bronze arrows", 1, 13, 33), ("Bronze hatchet", 1, 1, 33),
     ("Bronze dagger", 1, 1, 33), ("Bronze pickaxe", 1, 1, 33),
     ("Iron hatchet", 1, 1, 33), ("Iron dagger", 1, 1, 33),
     ("Iron pickaxe", 1, 1, 33), ("Leather body", 1, 1, 33),
-    ("Steel arrow", 1, 13, 22), ("Steel hatchet", 1, 1, 22),
+    ("Steel arrows", 1, 13, 22), ("Steel hatchet", 1, 1, 22),
     ("Steel dagger", 1, 1, 22), ("Steel pickaxe", 1, 1, 22),
     ("H.A.M. boots", 1, 1, 11), ("H.A.M. cloak", 1, 1, 11),
     ("H.A.M. gloves", 1, 1, 11), ("H.A.M. hood", 1, 1, 11),

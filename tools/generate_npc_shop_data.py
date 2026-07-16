@@ -343,6 +343,13 @@ def load_2011_items(path: Path) -> dict[int, ItemMeta]:
 # the two keys slug-collide and the shop item silently loses its registry
 # entry, icon, and Bank category.
 ITEM_NAME_NORMALIZATIONS: dict[int, str] = {
+    882: "Bronze arrows",
+    884: "Iron arrows",
+    886: "Steel arrows",
+    888: "Mithril arrows",
+    890: "Adamant arrows",
+    892: "Rune arrows",
+    4160: "Broad arrows",
     4522: "Oil lamp (unlit)",
     4525: "Oil lamp (empty)",
     4535: "Oil lantern (empty)",

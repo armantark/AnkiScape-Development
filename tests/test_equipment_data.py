@@ -1,6 +1,7 @@
 import unittest
 
 from equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
+from shop_data import SHOP_DATA
 
 
 class TestEquipmentData(unittest.TestCase):
@@ -19,7 +20,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 597)
+        self.assertEqual(len(EQUIPMENT_DATA), 626)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -231,11 +232,24 @@ class TestEquipmentData(unittest.TestCase):
         self.assertEqual(EQUIPMENT_DATA["Mystic gloves"].bonuses.defence_magic, 3)
 
     def test_drop_and_shop_ammunition_uses_existing_plural_rows(self):
-        for singular_name in ("Bronze arrow", "Iron arrow"):
-            self.assertNotIn(singular_name, EQUIPMENT_DATA)
-        for plural_name in ("Bronze arrows", "Iron arrows", "Bronze bolts", "Iron bolts"):
-            self.assertIn(plural_name, EQUIPMENT_DATA)
-            self.assertEqual(EQUIPMENT_DATA[plural_name].slot, "ammunition")
+        expected = {
+            882: "Bronze arrows",
+            884: "Iron arrows",
+            886: "Steel arrows",
+            888: "Mithril arrows",
+            890: "Adamant arrows",
+            892: "Rune arrows",
+            4160: "Broad arrows",
+        }
+        sold_names = {
+            row["item_id"]: row["item_name"]
+            for shop in SHOP_DATA.values()
+            for row in shop["stock"]
+            if row["item_id"] in expected and row["disposition"] == "live"
+        }
+        self.assertEqual(sold_names, expected)
+        for item_name in expected.values():
+            self.assertEqual(EQUIPMENT_DATA[item_name].slot, "ammunition")
 
     def test_fist_of_guthix_metal_gauntlets_remain_unobtainable(self):
         for item_name in (

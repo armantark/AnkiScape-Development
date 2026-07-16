@@ -9,6 +9,7 @@ from constants import ORE_DATA
 from logic_pure import (
     apply_thieving_damage_pure,
     thieving_blackjack_threshold_pure,
+    thieving_loot_roll_pure,
     thieving_multi_pick_count_pure,
     thieving_roll_succeeds_pure,
     thieving_roll_threshold_pure,
@@ -92,6 +93,12 @@ def _blackjack_state(*, fight_back=False):
 
 
 class TestThievingPureMechanics(unittest.TestCase):
+    def test_ham_pickpockets_drop_canonical_stackable_arrow_identities(self):
+        ham = PICKPOCKET_TARGETS["pickpocket_female_ham"]
+
+        self.assertEqual(thieving_loot_roll_pure(ham, 0, 0.0), {"Bronze arrows": 1})
+        self.assertEqual(thieving_loot_roll_pure(ham, 264, 0.0), {"Steel arrows": 1})
+
     def test_failure_damage_reuses_combat_auto_eat_and_death_state(self):
         fed, fed_result = apply_thieving_damage_pure(
             {

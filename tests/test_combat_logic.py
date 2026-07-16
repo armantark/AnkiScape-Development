@@ -523,6 +523,19 @@ class CombatLogicTest(unittest.TestCase):
                 self.assertEqual(spec["source_item_name"], source_item_name)
                 self.assertEqual(spec["ranged_strength"], ranged_strength)
 
+    def test_standard_arrow_drops_use_equippable_stack_identities(self):
+        drop_names = {
+            item_name
+            for enemy in COMBAT_ENEMY_DATA.values()
+            for item_name in combat_enemy_drop_item_names_pure(enemy)
+        }
+        source_names = {
+            spec["source_item_name"]
+            for spec in COMBAT_RANGED_AMMO_DATA.values()
+        }
+        self.assertTrue(set(COMBAT_RANGED_AMMO_DATA).issubset(drop_names))
+        self.assertTrue(source_names.isdisjoint(drop_names))
+
     def test_standard_strike_spell_rows_match_2011scape_source(self):
         self.assertEqual(
             COMBAT_MAGIC_SPELL_DATA["water_strike"]["rune_cost"],

@@ -141,6 +141,46 @@ class TestShopLogic(unittest.TestCase):
         self.assertTrue(result["allowed"])
         self.assertEqual(restored["inventory"]["Mining helmet (unlit)"], 0)
 
+    def test_saved_shop_arrow_events_migrate_to_canonical_stack_identity(self):
+        row_id = "armoury:3:882"
+        sanitized = sanitize_shop_state_pure(
+            {
+                "shop_events": [
+                    {
+                        "event_id": "shop_evt_1",
+                        "type": "buy",
+                        "shop_id": "armoury",
+                        "row_id": row_id,
+                        "item_name": "Bronze arrow",
+                        "inventory_delta": {"Coins": -70, "Bronze arrow": 10},
+                        "inverse": {
+                            "inventory_delta": {"Coins": 70, "Bronze arrow": -10},
+                            "stock_set": {
+                                "armoury": {
+                                    row_id: {
+                                        "item_id": 882,
+                                        "item_name": "Bronze arrow",
+                                        "current_quantity": 1000,
+                                        "default_quantity": 1000,
+                                        "temporary": False,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                ],
+            },
+        )
+
+        event = sanitized["shop_events"][0]
+        self.assertEqual(event["item_name"], "Bronze arrows")
+        self.assertEqual(event["inventory_delta"], {"Coins": -70, "Bronze arrows": 10})
+        self.assertEqual(event["inverse"]["inventory_delta"], {"Coins": 70, "Bronze arrows": -10})
+        self.assertEqual(
+            event["inverse"]["stock_set"]["armoury"][row_id]["item_name"],
+            "Bronze arrows",
+        )
+
     def test_market_clock_advances_on_answered_cards(self):
         data = build_shop_fixture_player_data()
         advanced = advance_shop_market_clock_pure(data, answered_cards=10)
@@ -169,6 +209,22 @@ class TestShopLogic(unittest.TestCase):
         rolled_back_view = shop_view_model_pure(rolled_back, shop["id"])
         restored_row = next(view_row for view_row in rolled_back_view["rows"] if view_row["id"] == row["id"])
         self.assertEqual(restored_row["current_quantity"], before_stock)
+
+    def test_shop_bought_arrows_use_equippable_identity_and_undo_cleanly(self):
+        shop = SHOP_DATA["armoury"]
+        row = next(row for row in shop["stock"] if row["item_id"] == 882)
+        data = build_shop_fixture_player_data()
+
+        updated, result = apply_shop_buy_pure(data, shop["id"], row["id"], 10)
+
+        self.assertTrue(result["allowed"])
+        self.assertEqual(row["item_name"], "Bronze arrows")
+        self.assertEqual(updated["inventory"]["Bronze arrows"], 10)
+        self.assertNotIn("Bronze arrow", updated["inventory"])
+
+        rolled_back, rollback_result = rollback_shop_event_pure(updated, result["event_id"])
+        self.assertTrue(rollback_result["allowed"])
+        self.assertEqual(rolled_back["inventory"].get("Bronze arrows", 0), 0)
 
     def test_locked_stock_fails_closed(self):
         shop, row = _locked_shop_and_row()
