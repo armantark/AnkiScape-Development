@@ -327,3 +327,18 @@ Verification passes 263 focused tests, five real offscreen Qt checks, and all
 1,291 tests with 185 skips and three expected XP-parity failures. Test quality
 has zero hard issues; reachability remains 1,188 actions and 270 orphan inputs
 (110 root, 160 cascade); compilation, diff, and safe-worktree checks pass.
+
+## Overnight fresh-eyes pass 12 (2026-07-16)
+
+Commit `f794108` closes consumable and supply-pack state paths. Kebab now uses
+live RNG with deterministic undo; all eight supply packs support exact Open and
+Open all actions; Juju farming potion doses can be activated and conserved;
+Magic essence potion creation emits the source-convergent mix identity; and
+registry tradeability, food categories, potion-dose identities, assets, and
+Bank verbs now agree with their runtime consumers.
+
+Verification passes 19 focused tests, five real offscreen Qt checks, and all
+1,302 tests with 186 skips and three expected XP-parity failures. Test quality
+has zero hard issues; reachability now covers 1,200 actions with 273 orphan
+inputs (110 root, 163 cascade); compilation, diff, and safe-worktree checks
+pass.

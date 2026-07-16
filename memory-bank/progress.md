@@ -251,3 +251,16 @@ Test counts are snapshots; current runs outrank this note.
 - Committed as `9273cf4`; 263 focused tests, five real offscreen Qt checks, and
   all 1,291 tests pass. Reachability remains 1,188 actions with 270 orphan
   inputs, and test quality remains at zero hard issues.
+
+## Overnight fresh-eyes pass 12 — consumable and supply-pack state paths (2026-07-16)
+
+- Routed Kebab through live RNG with deterministic undo and added exact Open
+  and Open all actions for every registered supply pack.
+- Added Juju farming potion activation with exact dose conservation and assets,
+  then resolved the Magic essence mix identity conflict from pinned cache and
+  emulator evidence.
+- Aligned registry tradeability, Agility potion dose identities, food
+  categories, assets, Bank verbs, and reachability with their live consumers.
+- Committed as `f794108`; 19 focused tests, five real offscreen Qt checks, and
+  all 1,302 tests pass. Reachability covers 1,200 actions with 273 orphan
+  inputs, and test quality remains at zero hard issues.
