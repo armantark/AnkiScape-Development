@@ -159,3 +159,15 @@ Test counts are snapshots; current runs outrank this note.
   live-vs-generated and consumed-equipment test oracles.
 - Committed as `83de7e1`; 253 focused and 1,270 full tests pass, with zero hard
   test-quality issues and unchanged reachability counts.
+
+## Overnight fresh-eyes pass 5 — persisted item-state symmetry (2026-07-16)
+
+- Migrated legacy lantern and Mining helmet references across carried packs,
+  advanced layouts, loot overrides, grave/Death's Office items and loadouts,
+  and the Magic alchemy selector before carried-state sanitation.
+- Prevented paid reclaim from restoring an unregistered zero-stat helmet or a
+  phantom bank item during the live session.
+- Reconfirmed that strung amulet identities are current items and must not be
+  folded into the legacy migration map.
+- Committed as `3953b64`; 312 focused and 1,272 full tests pass, with zero hard
+  test-quality issues.

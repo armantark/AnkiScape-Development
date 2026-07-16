@@ -236,3 +236,18 @@ the successful reviewer was one read-only Opus workflow.
 The next confirmed seam is save migration symmetry: legacy lantern/Mining
 helmet keys must be migrated in carried layouts and views, grave/Death's Office
 items and loadouts, and loot overrides before carried-state clamping.
+
+## Overnight fresh-eyes pass 5 (2026-07-16)
+
+Commit `3953b64` closes persisted item-name symmetry for the exact lantern and
+Mining helmet split. Migration now renames carried views/layouts, loot
+preferences, grave and Death's Office items/loadouts, and the Magic alchemy
+selector before any carried-state clamp can discard the old name. Reclaiming a
+legacy Mining helmet restores `Mining helmet (unlit)` as real equipment instead
+of occupying the head slot with an unregistered zero-stat phantom.
+
+Verification passes 312 focused storage/combat/Magic/shop/integration tests and
+all 1,272 tests, with 183 non-Qt skips and three expected XP-parity failures.
+Test quality remains at zero hard issues, compilation and diff checks pass, and
+the safe worktree audit remains clean. There is no queued confirmed defect;
+the next pass rotates to quest, shop, activity, and achievement seams.

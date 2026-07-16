@@ -45,6 +45,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 | 2 | Crafting and Magic item identity, registry, assets, reachability | Opus | 5 | 5 | `b263c15` | 252 focused; 1,258 full; reachability counts unchanged; zero hard test-quality issues |
 | 3 | Lantern and lamp-oil state graph across Crafting, Smithing, Firemaking, shops, equipment, quests, assets, and saves | Fable pre-implementation; Codex verification | 7 | 7 | `37b46c5` | 270 focused; 179 real offscreen Qt; 1,265 full; 14 fewer cascade orphans; zero hard test-quality issues |
 | 4 | Exact light-source identity across generated/manual quests, Dorgesh-Kaan Agility, registry, UI prose, and test oracles | Opus | 5 | 3 | `83de7e1` | 253 focused; 1,270 full; reachability unchanged; zero hard test-quality issues; compilation, diff, and worktree checks |
+| 5 | Persisted item-name symmetry across carried packs, loot preferences, graves, Death's Office, equipment reclaim, shop rollback, and Magic selectors | Opus | 3 | 3 | `3953b64` | 312 focused; 1,272 full; zero hard test-quality issues; compilation, diff, and worktree checks |
 
 ## Accepted fixes
 
@@ -63,6 +64,8 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Eleven reachable ordinary lit states now replace the `Light source`/`Light sources` parser artifact in eight source-placed quest gates and the Dorgesh-Kaan Agility course. The complete eighteen-item cutoff-era classification remains recorded separately, without advertising unobtainable Seer's headbands or expired event torches.
 - Tears of Guthix now preserves its exact safe-source, sapphire-conversion, and lit-sapphire sequence. Watchtower and Another Slice of H.A.M. no longer impose false start gates while their numeric placement remains `source_blocked`.
 - Temple of Ikov's visible requirements no longer advertise the deleted pseudo-item, live quest overrides are covered alongside generated rows, and a regression test proves equipped items cannot satisfy consumed alternatives.
+- Legacy lantern and Mining helmet names now migrate across carried views and layouts, loot overrides, grave and Death's Office item lists and stored loadouts, and the persisted Magic alchemy selector before carried-state clamping.
+- Death reclaim can no longer re-equip an unregistered `Mining helmet` with zero stats or return a phantom bank item after charging the reclaim fee; it restores the exact unlit equipment state in the same session.
 
 ## Rejected candidates
 
@@ -73,16 +76,18 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - A full regeneration of shop and equipment snapshots was rejected because the local external source trees had unrelated drift. The pinned generated snapshots received only the exact lantern-state corrections, and their existing coverage-count tests remain unchanged.
 - Opus's stage-map clamp suggestion was rejected as prospective hardening: every current explicit stage is within the pinned quest's stage count, so no present failure exists.
 - Opus's Tears stage-2 option-wipe suggestion was likewise rejected as hypothetical parser drift. The current pinned parse places the light-source group at stage 1 and has no legitimate stage-2 alternative to preserve.
+- The pass-2 decision not to migrate `Gold amulet`-style names was rechecked and retained: those are still valid strung equipment identities, not collapsed legacy aliases.
 
 ## Queued confirmed defects
 
-- Exact lantern and Mining helmet name migration currently covers the bank and equipped slots, but old names can be dropped from a carried view or survive in carried layouts, grave/Death's Office item lists and stored loadouts, and loot overrides. Pass 5 must migrate every persisted item-name store before carried-state clamping.
+None. The next pass rotates to quest, shop, activity, and achievement seams rather than carrying an unverified candidate forward.
 
 ## Reviewer budget and availability
 
 - Live Claude `/usage` reached 30% for Fable after the pass-3 review attempt, so no further Fable calls are permitted in this overnight run.
 - The post-implementation Fable review exhausted the current Claude session before returning a verdict. An immediate Opus fallback was also blocked by the same account-wide session window and made no tool calls. Codex therefore accepted pass 3 only after its own full diff audit, targeted checks, full Python suite, real offscreen Qt suite, reachability comparison, compilation, diff check, and worktree audit. Opus resumes after the session reset.
 - Pass 4 used one successful read-only Opus workflow after the session reset (`2d78f29f-d957-4bee-bf90-389253cf7125`). The required pre/post live checks both reported Fable at 30%; no Fable review call was made.
+- Pass 5 used one successful read-only Opus workflow (`707070c2-c80d-4a36-a7d3-ad297f8669ab`). The required pre/post live checks again reported Fable at 30%.
 
 ## Closure
 
