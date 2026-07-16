@@ -219,6 +219,14 @@ def magic_targets_as_dict() -> Dict[str, dict]:
 
 def magic_extra_items_as_dict() -> Dict[str, dict]:
     names = {item for spec in MAGIC_TARGETS.values() for field in ("requirements", "outputs", "rune_cost") for item in spec.get(field, {})}
+    names.update(
+        {
+            f"{tier} amulet{suffix}"
+            for tier in ("Gold", "Sapphire", "Emerald", "Ruby", "Diamond", "Onyx")
+            for suffix in ("", " (u)")
+        }
+    )
+    names.update({"Dragonstone ammy", "Dragonstone ammy (u)"})
     names.update({"Peach"})
     return {
         name: {

@@ -2,7 +2,7 @@
 
 ## Objective
 
-Find and fix concrete defects and implementation imperfections across the AnkiScape repository before 09:00 America/Los_Angeles. Codex owns reproduction, implementation, tests, commits, and final decisions. Fable was limited to one read-only pass after that pass consumed 250,236 generated tokens; Opus is the reviewer for every later pass to protect the user's shared Fable quota.
+Find and fix concrete defects and implementation imperfections across the AnkiScape repository before 09:00 America/Los_Angeles. Codex owns reproduction, implementation, tests, commits, and final decisions. Reviewer selection uses Claude Code's live `/usage` reading: Fable remains available while `Current week (Fable)` is safely below 30%, then Opus takes over. Workflow token telemetry is not treated as quota percentage.
 
 ## Fixed critic instruction
 
@@ -42,6 +42,7 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 | Pass | Scope | Reviewer | Candidates | Confirmed | Commit | Verification |
 |---:|---|---|---:|---:|---|---|
 | 1 | Agility, Thieving, Farming, Magic runtime seams | Fable | 14 | 9 | `01ef8d9` | 230 focused; 1 real offscreen Qt; 1,252 full; reachability; zero hard test-quality issues |
+| 2 | Crafting and Magic item identity, registry, assets, reachability | Opus | 5 | 5 | pending | 252 focused; 1,258 full; reachability counts unchanged; zero hard test-quality issues |
 
 ## Accepted fixes
 
@@ -51,15 +52,19 @@ Every accepted change is checkpointed in a normal commit. Failed candidates are 
 - Farming applies its settled watered-disease multiplier and exposes the existing Farming-spell patch selector in the Magic UI.
 - Dragonstone enchant inputs use the canonical Crafting item identities.
 - Thieving target metadata presents target-specific and wall-safe failure-damage ranges.
+- Furnace Crafting now produces canonical unstrung amulet identities, while manual stringing and String Jewellery consume those identities and produce the separately registered strung equipment items. Existing saves keep their ambiguous legacy amulets as strung equipment, preserving the capability they already had.
+- The seven unstrung and seven strung amulet assets now use distinct source images, and the asset fetcher can refresh a bounded named subset without re-downloading the full Crafting catalog.
 
 ## Rejected candidates
 
 - A future change to Thieving stall respawn data could invalidate persisted cadence credit. Current shipped data does not do so, and save migration is required only with such a data change; no speculative runtime catch was added.
 - Dragonstone jewellery inputs remain intentionally acquisition-blocked, as already recorded in Crafting data; this is not a newly unreachable identity.
+- Legacy `Gold amulet`-style save keys were not migrated to `(u)` keys. Before this repair those keys could already be equipped and enchanted, so treating them as strung preserves player capability; only newly smelted amulets use the unstrung identities.
 
-## Queued confirmed defect
+## Queued confirmed defects
 
-- Crafting V1 gives unstrung and strung amulets the same item key. Both manual stringing and String Jewellery can therefore award repeatable Crafting XP from the same items. The next producer/consumer-identity pass must split those identities and migrate the affected recipes, spells, registry rows, tests, and assets as one atomic change.
+- `combine_bullseye_lantern` currently consumes `Bullseye lantern` and a lens while producing the same `Bullseye lantern` key, silently destroying the lens. The sourced item transition is unfinished item 4544 to empty item 4546.
+- The Firemaking light actions name several filled-unlit inputs that no current producer creates, including oil lamp and bullseye lantern states; the next pass must source and implement the missing lamp-oil filling chain and align Emerald lantern naming without merging distinct states.
 
 ## Closure
 

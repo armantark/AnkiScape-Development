@@ -560,6 +560,23 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertIn(item_name, by_storage_key)
             self.assertEqual(by_storage_key[item_name].category, "crafted")
 
+    def test_unstrung_amulets_are_distinct_non_equipment_registry_items(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for unstrung, strung, source_item_id in (
+            ("Gold amulet (u)", "Gold amulet", 1673),
+            ("Sapphire amulet (u)", "Sapphire amulet", 1675),
+            ("Emerald amulet (u)", "Emerald amulet", 1677),
+            ("Ruby amulet (u)", "Ruby amulet", 1679),
+            ("Diamond amulet (u)", "Diamond amulet", 1681),
+            ("Dragonstone ammy (u)", "Dragonstone ammy", 1683),
+            ("Onyx amulet (u)", "Onyx amulet", 6579),
+        ):
+            with self.subTest(unstrung=unstrung):
+                self.assertEqual(by_storage_key[unstrung].category, "crafted")
+                self.assertEqual(by_storage_key[unstrung].source_item_id, source_item_id)
+                self.assertIsNone(by_storage_key[unstrung].equipment_slot)
+                self.assertEqual(by_storage_key[strung].equipment_slot, "neck")
+
     def test_pestle_and_mortar_remainder_matches_2011scape_item_pairs(self):
         expected = {
             "grind_anchovies": ("Anchovies", 319, "Anchovy paste", 11266),

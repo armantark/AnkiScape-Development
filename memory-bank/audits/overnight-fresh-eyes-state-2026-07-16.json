@@ -3,19 +3,22 @@
   "status": "active",
   "baseline_head": "74af8cf9806a4988ccae9cba202ca1be77e917c3",
   "deadline": "2026-07-16T09:00:00-07:00",
-  "iteration": 1,
+  "iteration": 2,
   "no_material_finding_passes": 0,
   "outer_loop_mode": "inner",
   "reviewer": {
     "fable_calls": 1,
-    "fable_call_cap": 1,
+    "fable_call_cap": null,
+    "fable_weekly_percent_cap": 30,
+    "fable_weekly_percent_observed": 25,
     "fable_tokens": 250236,
-    "opus_calls": 0
+    "opus_calls": 1
   },
-  "last_scope": "Agility, Thieving, Farming, and Magic runtime seams",
+  "last_scope": "Crafting and Magic item identity, registry, assets, and reachability",
   "last_accepted_commit": "01ef8d9",
   "pending_concrete_defects": [
-    "Split unstrung and strung amulet identities so Crafting and String Jewellery cannot repeat XP on the same items"
+    "Repair bullseye lantern assembly identity so unfinished item 4544 becomes empty item 4546 instead of consuming a lens into the same key",
+    "Source and implement the missing lamp-oil filling chain so Firemaking light inputs are reachable without collapsing distinct item states"
   ],
   "safety_failure": null
 }

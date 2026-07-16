@@ -773,6 +773,35 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(exp, 5.0)
         self.assertEqual(new_inv, {"Buttons": 0, "Polished buttons": 1})
 
+    def test_stringing_consumes_unstrung_amulet_and_cannot_repeat(self):
+        furnace_inventory, furnace_xp, furnace_ok = apply_crafting_pure(
+            "jewellery_gold_amulet",
+            {"Gold bar": 1, "Amulet mould": 1},
+            CRAFTING_DATA,
+        )
+        self.assertTrue(furnace_ok)
+        self.assertEqual(furnace_xp, 30.0)
+        self.assertEqual(furnace_inventory["Gold amulet (u)"], 1)
+
+        strung_inventory, string_xp, string_ok = apply_crafting_pure(
+            "string_gold_amulet",
+            {**furnace_inventory, "Ball of wool": 1},
+            CRAFTING_DATA,
+        )
+        self.assertTrue(string_ok)
+        self.assertEqual(string_xp, 4.0)
+        self.assertEqual(strung_inventory["Gold amulet (u)"], 0)
+        self.assertEqual(strung_inventory["Gold amulet"], 1)
+
+        unchanged, repeated_xp, repeated_ok = apply_crafting_pure(
+            "string_gold_amulet",
+            {**strung_inventory, "Ball of wool": 1},
+            CRAFTING_DATA,
+        )
+        self.assertFalse(repeated_ok)
+        self.assertEqual(repeated_xp, 0)
+        self.assertEqual(unchanged["Gold amulet"], 1)
+
     def test_coin_paid_conversions_batch_with_per_unit_coins(self):
         # Tanning/sawmill conversions are review-paced no-XP batches with
         # coins consumed per unit, mirroring 2011's inventory-bounded runs

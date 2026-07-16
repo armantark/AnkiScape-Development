@@ -965,10 +965,15 @@ _PIE_OUTPUTS = {
 }
 _HUMIDIFY_OUTPUTS = {"Bucket": "Bucket of water", "Jug": "Jug of water", "Vial": "Vial of water", "Clay": "Soft clay"}
 _LEATHER_OUTPUTS = {"Cowhide": "Leather", "Green dragonhide": "Green dragon leather", "Blue dragonhide": "Blue dragon leather", "Red dragonhide": "Red dragon leather", "Black dragonhide": "Black dragon leather"}
-_STRINGABLE_AMULETS = (
-    "Gold amulet", "Sapphire amulet", "Emerald amulet", "Ruby amulet",
-    "Diamond amulet", "Dragonstone ammy", "Onyx amulet",
-)
+_STRINGABLE_AMULETS = {
+    "Gold amulet (u)": "Gold amulet",
+    "Sapphire amulet (u)": "Sapphire amulet",
+    "Emerald amulet (u)": "Emerald amulet",
+    "Ruby amulet (u)": "Ruby amulet",
+    "Diamond amulet (u)": "Diamond amulet",
+    "Dragonstone ammy (u)": "Dragonstone ammy",
+    "Onyx amulet (u)": "Onyx amulet",
+}
 
 
 def apply_magic_action_pure(player_data, target_id, magic_data, alch_values=None, random_random=None):
@@ -1045,14 +1050,11 @@ def apply_magic_action_pure(player_data, target_id, magic_data, alch_values=None
         add(_LEATHER_OUTPUTS[hide], count)
     elif action == "string_jewellery":
         total = 0
-        for item in _STRINGABLE_AMULETS:
+        for item, strung_item in _STRINGABLE_AMULETS.items():
             count = _non_negative_int(inventory.get(item, 0), 0)
             if count:
-                # Crafting V1 uses the same registry key for unstrung and strung
-                # amulets, so this batch is inventory-neutral while still paying
-                # runes and awarding the authentic Crafting XP.
                 inventory[item] = 0
-                add(item, count)
+                add(strung_item, count)
                 total += count
         secondary["crafting"] = 4.0 * total
     elif action == "magic_imbue":

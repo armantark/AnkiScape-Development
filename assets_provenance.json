@@ -11469,6 +11469,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:55:39Z"
   },
+  "crafteditems/diamond_amulet_u.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Diamond_amulet_%28unstrung%29.png",
+    "file_title": "Diamond amulet (unstrung).png",
+    "image_url": "https://runescape.wiki/images/Diamond_amulet_%28unstrung%29.png?8a178",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "dcb36e81ba7f0a3395842fd1b67bc8c2795f3344",
+    "size": 732,
+    "source_wiki": "rs3",
+    "timestamp": "2016-09-12T16:50:31Z"
+  },
   "crafteditems/diamond_bracelet.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Diamond_bracelet.png",
     "file_title": "Diamond bracelet.png",
@@ -11506,6 +11518,18 @@
     "timestamp": "2021-08-20T14:55:47Z"
   },
   "crafteditems/dragonstone_ammy.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Dragonstone_amulet.png",
+    "file_title": "Dragonstone amulet.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Dragonstone_amulet.png?0b998",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "dd481695eb69f909d206115fb11aaaa2e389033e",
+    "size": 530,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:48Z"
+  },
+  "crafteditems/dragonstone_ammy_u.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Dragonstone_amulet_%28unstrung%29.png",
     "file_title": "Dragonstone amulet (unstrung).png",
     "image_url": "https://runescape.wiki/images/Dragonstone_amulet_%28unstrung%29.png?deab8",
@@ -11576,6 +11600,18 @@
     "size": 529,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:55:52Z"
+  },
+  "crafteditems/emerald_amulet_u.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Emerald_amulet_%28unstrung%29.png",
+    "file_title": "Emerald amulet (unstrung).png",
+    "image_url": "https://runescape.wiki/images/Emerald_amulet_%28unstrung%29.png?fda4d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "34c3294804af278416d318570ae8e426a7109136",
+    "size": 654,
+    "source_wiki": "rs3",
+    "timestamp": "2016-09-12T17:08:48Z"
   },
   "crafteditems/emerald_bracelet.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Emerald_bracelet.png",
@@ -11902,6 +11938,18 @@
     "timestamp": "2023-06-16T15:40:44Z"
   },
   "crafteditems/gold_amulet.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Gold_amulet.png",
+    "file_title": "Gold amulet.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Gold_amulet.png?fc2ef",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2bdcc050dcd3e541e0f42a20a86a322f1c187108",
+    "size": 609,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:27Z"
+  },
+  "crafteditems/gold_amulet_u.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Gold_amulet_%28unstrung%29.png",
     "file_title": "Gold amulet (unstrung).png",
     "image_url": "https://runescape.wiki/images/Gold_amulet_%28unstrung%29.png?b3642",
@@ -12441,6 +12489,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:02:37Z"
   },
+  "crafteditems/onyx_amulet_u.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Onyx_amulet_%28unstrung%29.png",
+    "file_title": "Onyx amulet (unstrung).png",
+    "image_url": "https://runescape.wiki/images/Onyx_amulet_%28unstrung%29.png?346bb",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8d86362887e2a3a95a70b2b1b176964b30dd3f06",
+    "size": 215,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:14:31Z"
+  },
   "crafteditems/onyx_bracelet.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Onyx_bracelet.png",
     "file_title": "Onyx bracelet.png",
@@ -12657,6 +12717,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:04:36Z"
   },
+  "crafteditems/ruby_amulet_u.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ruby_amulet_%28unstrung%29.png",
+    "file_title": "Ruby amulet (unstrung).png",
+    "image_url": "https://runescape.wiki/images/Ruby_amulet_%28unstrung%29.png?fc988",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "abf0dfad735ae9df9342a6c51e0da44f1b43230e",
+    "size": 662,
+    "source_wiki": "rs3",
+    "timestamp": "2016-09-12T17:09:02Z"
+  },
   "crafteditems/ruby_bracelet.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Ruby_bracelet.png",
     "file_title": "Ruby bracelet.png",
@@ -12670,6 +12742,18 @@
     "timestamp": "2021-08-20T15:04:36Z"
   },
   "crafteditems/sapphire_amulet.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Sapphire_amulet.png",
+    "file_title": "Sapphire amulet.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Sapphire_amulet.png?3f71e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a5c6aaa13a18b112bad0b7403e10f8a5aa779f06",
+    "size": 529,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-23T20:43:52Z"
+  },
+  "crafteditems/sapphire_amulet_u.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Sapphire_amulet_%28unstrung%29.png",
     "file_title": "Sapphire amulet (unstrung).png",
     "image_url": "https://runescape.wiki/images/Sapphire_amulet_%28unstrung%29.png?1eaf8",

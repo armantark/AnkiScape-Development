@@ -93,12 +93,13 @@ class TestCraftingData(unittest.TestCase):
             "chisel_crab_claw": (15, 32.5, {"Fresh crab claw": 1}, "Crab claw", 7537),
             "combine_seaweed_net": (52, 83.0, {"Unfinished net": 1, "Bronze wire": 1}, "Empty seaweed net", 14859),
             "combine_armadyl_battlestaff": (77, 150.0, {"Battlestaff": 1, "Orb of armadyl": 1}, "Armadyl battlestaff", 21777),
-            "string_gold_amulet": (1, 4.0, {"Gold amulet": 1, "Ball of wool": 1}, "Gold amulet", 1692),
-            "string_sapphire_amulet": (1, 4.0, {"Sapphire amulet": 1, "Ball of wool": 1}, "Sapphire amulet", 1694),
-            "string_emerald_amulet": (1, 4.0, {"Emerald amulet": 1, "Ball of wool": 1}, "Emerald amulet", 1696),
-            "string_ruby_amulet": (1, 4.0, {"Ruby amulet": 1, "Ball of wool": 1}, "Ruby amulet", 1698),
-            "string_diamond_amulet": (1, 4.0, {"Diamond amulet": 1, "Ball of wool": 1}, "Diamond amulet", 1700),
-            "string_onyx_amulet": (1, 4.0, {"Onyx amulet": 1, "Ball of wool": 1}, "Onyx amulet", 6581),
+            "string_gold_amulet": (1, 4.0, {"Gold amulet (u)": 1, "Ball of wool": 1}, "Gold amulet", 1692),
+            "string_sapphire_amulet": (1, 4.0, {"Sapphire amulet (u)": 1, "Ball of wool": 1}, "Sapphire amulet", 1694),
+            "string_emerald_amulet": (1, 4.0, {"Emerald amulet (u)": 1, "Ball of wool": 1}, "Emerald amulet", 1696),
+            "string_ruby_amulet": (1, 4.0, {"Ruby amulet (u)": 1, "Ball of wool": 1}, "Ruby amulet", 1698),
+            "string_diamond_amulet": (1, 4.0, {"Diamond amulet (u)": 1, "Ball of wool": 1}, "Diamond amulet", 1700),
+            "string_dragonstone_amulet": (1, 4.0, {"Dragonstone ammy (u)": 1, "Ball of wool": 1}, "Dragonstone ammy", 1702),
+            "string_onyx_amulet": (1, 4.0, {"Onyx amulet (u)": 1, "Ball of wool": 1}, "Onyx amulet", 6581),
             "string_unblessed_symbol": (1, 4.0, {"Unstrung symbol": 1, "Ball of wool": 1}, "Unblessed symbol", 1716),
             "string_unpowered_symbol": (1, 4.0, {"Unstrung emblem": 1, "Ball of wool": 1}, "Unpowered symbol", 1722),
             "polish_buttons": (3, 5.0, {"Buttons": 1}, "Polished buttons", 10496),
@@ -111,6 +112,22 @@ class TestCraftingData(unittest.TestCase):
             self.assertEqual(data[recipe_id]["source_item_id"], source_item_id)
         self.assertEqual(data["chisel_crab_helmet"]["station"], "chisel")
         self.assertTrue(data["polish_buttons"]["source"].endswith("other/polished_button.plugin.kts"))
+
+    def test_furnace_amulets_use_distinct_unstrung_item_ids(self):
+        data = crafting_recipes_as_dict()
+        expected = {
+            "jewellery_gold_amulet": ("Gold amulet (u)", 1673),
+            "jewellery_sapphire_amulet": ("Sapphire amulet (u)", 1675),
+            "jewellery_emerald_amulet": ("Emerald amulet (u)", 1677),
+            "jewellery_ruby_amulet": ("Ruby amulet (u)", 1679),
+            "jewellery_diamond_amulet": ("Diamond amulet (u)", 1681),
+            "jewellery_dragonstone_ammy": ("Dragonstone ammy (u)", 1683),
+            "jewellery_onyx_amulet": ("Onyx amulet (u)", 6579),
+        }
+        for recipe_id, (output_item, source_item_id) in expected.items():
+            with self.subTest(recipe_id=recipe_id):
+                self.assertEqual(data[recipe_id]["output_item"], output_item)
+                self.assertEqual(data[recipe_id]["source_item_id"], source_item_id)
 
     def test_root_crossbow_strings_and_milestone_capes_match_runtime_actions(self):
         data = crafting_recipes_as_dict()
