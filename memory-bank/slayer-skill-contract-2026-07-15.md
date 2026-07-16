@@ -348,3 +348,43 @@ This preserves the sourced one-visit constraint through explicit player and
 Combat state transitions. It adds no wall-clock expiry, fake walking action, or
 persistent map coordinate. Ordinary Slayer assignments are unaffected and keep
 their already-settled cross-session progress.
+
+## Owner decision 14 — mechanically distinct areas are Combat contexts
+
+Slayer areas become explicit target-local Combat contexts only when the source
+location changes access, enemy membership, equipment effects, risk, drops, or
+another gameplay rule. Purely cosmetic duplicate locations collapse into the
+same target entry and do not create map clutter.
+
+The player chooses a qualifying context alongside the exact enemy variant.
+Locked contexts remain visible where progression legibility helps and state
+their unmet assignment, master, Slayer, Combat, quest, activity, or item gates.
+Selecting a context does not create global player location: it binds the source
+rules and abstract trip-energy cost to that Combat encounter until retreat,
+death, target/context change, or another established Combat reset boundary.
+
+Kuradal's Dungeon is the flagship case and must retain its task/access and
+ferocious-ring rules through this seam. Ring-of-slaying destinations also land
+on qualifying contexts, letting one charge erase the selected context's trip
+cost under Owner decision 11. Context selection itself is instantaneous and
+review-free; only source gameplay actions consume reviews.
+
+## Period closure — Kuradal context and ferocious ring
+
+The November 2012 revisions pinned in
+`source-audits/slayer-location-contexts-2026-07-15.md` establish Kuradal's
+task-only dungeon access, its eight-monster roster, 75 Slayer/110 Combat gate,
+cannon prohibition, and the complete visible ferocious-ring behavior.
+
+The period ring has five teleports, adds a fixed 40 life points after every
+successful hit in Kuradal's Dungeon, and acts as a ring of life there: dropping
+below 10% LP while still above zero retreats safely and destroys the worn ring
+regardless of charges. A lethal hit still kills. The fifth teleport consumes the
+ring entirely. Do not substitute the modern `4% damage` summary for the pinned
+fixed-40 rule.
+
+Each teleport charge erases the abstract Kuradal-context trip cost. The reactive
+emergency escape consumes no review; it atomically destroys the ring, ends the
+encounter, avoids grave processing, and participates in Combat review undo.
+Combining partially charged rings is a review-free inventory operation with its
+own manual undo record.

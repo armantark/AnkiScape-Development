@@ -155,6 +155,8 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT`.
 - Preserve the ring of slaying's eight-charge transport value by letting one
   charge erase a qualifying Slayer destination's abstract run-energy entry
   cost; do not add map state, travel reviews, or wall-clock delay.
+- Represent only mechanically distinct Slayer areas as target-local Combat
+  contexts, including Kuradal's Dungeon; collapse cosmetic duplicate locations.
 - Before that unlock, the finisher consumes its own correct review. Exclude the
   salt, ice, fungicide, and explosive shakers released in 2015.
 

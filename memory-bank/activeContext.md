@@ -35,8 +35,12 @@ final implementation-time source pass owns the missing master-challenge trigger
 and probability; only if that stays blocked does the labeled five-consecutive-
 tasks/10%-offer fallback apply. One-visit master challenges use explicit run
 sessions that survive Anki restarts and required-target switches but reset on
-abandonment, unrelated Combat, or death. No Slayer gameplay implementation is
-authorized in this thread.
+abandonment, unrelated Combat, or death. Mechanically distinct Slayer locations
+are target-local Combat contexts; cosmetic duplicates collapse, and no global
+player-location state is added. Period revisions now pin Kuradal's Dungeon and
+its ferocious ring: five trip charges, fixed +40 LP per successful dungeon hit,
+and a destructive below-10%-LP emergency retreat. No Slayer gameplay
+implementation is authorized in this thread.
 
 Agility's owner grill and full-content design harvest are closed; implementation
 belongs in a new thread. The governing product contract is
