@@ -717,6 +717,42 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertIn("Rune Mysteries is complete", calls["errors"][0][1])
         self.assertIn("questing has been switched off", calls["errors"][0][1])
 
+    def test_quest_answer_runs_the_final_tears_of_guthix_stage_before_completion(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Bullseye lantern (empty)": 1, "Sapphire": 1},
+            "current_quest": "tears_of_guthix",
+            "quests": {"tears_of_guthix": {"started": True, "progress": 2, "completed": False}},
+            "quest_stage_actions": {
+                "tears_of_guthix": ["Complete Tears of Guthix stage 2 objective"]
+            },
+            "quest_points": 0,
+            "crafting_exp": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(handle_quest_answer(_context(player_data, calls)))
+        self.assertEqual(player_data["quests"]["tears_of_guthix"]["progress"], 3)
+        self.assertFalse(player_data["quests"]["tears_of_guthix"]["completed"])
+        self.assertNotIn("deactivated", calls)
+        self.assertEqual(calls["activity"], ["Tears of Guthix 3/4"])
+
+        self.assertFalse(handle_quest_answer(_context(player_data, calls)))
+        self.assertTrue(calls["deactivated"])
+        self.assertEqual(player_data["quests"]["tears_of_guthix"]["progress"], 3)
+        self.assertIn("Needs Sapphire lantern (lit) x1", calls["errors"][-1][1])
+
+        player_data["inventory"]["Sapphire lantern (lit)"] = 1
+        player_data["quest_stage_actions"]["tears_of_guthix"].append(
+            "Complete Tears of Guthix stage 3 objective"
+        )
+        self.assertTrue(handle_quest_answer(_context(player_data, calls)))
+        self.assertTrue(player_data["quests"]["tears_of_guthix"]["completed"])
+        self.assertEqual(player_data["quests"]["tears_of_guthix"]["progress"], 4)
+        self.assertEqual(player_data["crafting_exp"], 1000.0)
+        self.assertEqual(calls["activity"][-1], "Tears of Guthix complete")
+
     def test_quest_stage_blocker_deactivates_without_progress_or_reward(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

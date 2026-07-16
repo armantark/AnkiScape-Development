@@ -1448,6 +1448,43 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(inventory["Willow blackjack"], 0)
         self.assertEqual(equipment, {"weapon": "Willow blackjack"})
 
+    def test_live_quest_equipment_can_be_worn_with_sourced_level_gates(self):
+        expected_slots = {
+            "Ice arrows": "ammunition",
+            "Pendant of lucien": "neck",
+            "Armadyl pendant": "neck",
+            "Gnome amulet": "neck",
+            "Yew comp bow": "weapon",
+            "Magic comp bow": "weapon",
+            "Dark bow": "weapon",
+        }
+        for item_name, slot in expected_slots.items():
+            with self.subTest(item_name=item_name):
+                inventory, equipment, ok = equip_item_pure(
+                    item_name, {item_name: 1}, {}, EQUIPMENT_DATA
+                )
+                self.assertTrue(ok)
+                self.assertEqual(inventory[item_name], 0)
+                self.assertEqual(equipment, {slot: item_name})
+
+        for item_name, required_level in (
+            ("Yew comp bow", 40),
+            ("Magic comp bow", 50),
+            ("Dark bow", 60),
+        ):
+            with self.subTest(item_name=item_name, required_level=required_level):
+                ok, reason = can_equip_item_pure(
+                    item_name, EQUIPMENT_DATA, {"ranged_level": required_level - 1}
+                )
+                self.assertFalse(ok)
+                self.assertEqual(reason, f"Requires level {required_level} Ranged")
+
+                ok, reason = can_equip_item_pure(
+                    item_name, EQUIPMENT_DATA, {"ranged_level": required_level}
+                )
+                self.assertTrue(ok)
+                self.assertEqual(reason, "")
+
     def test_two_handed_weapon_and_shield_displace_each_other(self):
         inv = {"Bronze 2h sword": 1, "Bronze sq shield": 1}
         inv, equipment, ok = equip_item_pure("Bronze sq shield", inv, {}, EQUIPMENT_DATA)
@@ -2133,6 +2170,54 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(after_complete["inventory"]["Air talisman"], 1)
         self.assertEqual(after_complete["runecrafting_exp"], 0)
         self.assertEqual(after_complete["pending_skill_exp_rewards"], {})
+
+    def test_tears_of_guthix_final_lantern_stage_runs_before_completion(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["current_quest"] = "tears_of_guthix"
+        player_data["quests"]["tears_of_guthix"] = {
+            "started": True,
+            "progress": 2,
+            "completed": False,
+        }
+        player_data["inventory"]["Bullseye lantern (empty)"] = 1
+        player_data["inventory"]["Sapphire"] = 1
+        player_data["quest_stage_actions"] = {
+            "tears_of_guthix": ["Complete Tears of Guthix stage 2 objective"]
+        }
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "tears_of_guthix",
+            QUEST_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["tears_of_guthix"]["progress"], 3)
+        self.assertIn(
+            "Needs Sapphire lantern (lit) x1",
+            quest_current_stage_blocker_reasons_pure(
+                player_data,
+                "tears_of_guthix",
+                QUEST_DATA,
+            ),
+        )
+
+        player_data["inventory"]["Sapphire lantern (lit)"] = 1
+        player_data["quest_stage_actions"]["tears_of_guthix"].append(
+            "Complete Tears of Guthix stage 3 objective"
+        )
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "tears_of_guthix",
+            QUEST_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertTrue(player_data["quests"]["tears_of_guthix"]["completed"])
+        self.assertEqual(player_data["quests"]["tears_of_guthix"]["progress"], 4)
+        self.assertEqual(player_data["crafting_exp"], 1000.0)
 
     def test_unlock_quests_enforce_strict_start_requirements(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

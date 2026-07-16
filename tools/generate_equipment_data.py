@@ -172,6 +172,15 @@ LEGACY_EQUIPMENT_ITEMS: Tuple[Tuple[str, int, Optional[str], int, bool, str, str
     ("Water tiara", 5531, None, 1, False, "runecrafting_access", "Altar.kt; WATER_TIARA"),
     ("Wicked hood", 22332, None, 1, False, "wicked_hood", "legacy equipment_data.py; WICKED_HOOD"),
 )
+QUEST_EQUIPMENT_ITEMS: Tuple[Tuple[int, str], ...] = (
+    (78, "Ice arrows"),
+    (86, "Pendant of lucien"),
+    (87, "Armadyl pendant"),
+    (589, "Gnome amulet"),
+    (10282, "Yew comp bow"),
+    (10284, "Magic comp bow"),
+    (11235, "Dark bow"),
+)
 
 
 @dataclass(frozen=True)
@@ -729,6 +738,18 @@ def _legacy_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedE
     return tuple(generated)
 
 
+def _quest_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedEquipmentItem, ...]:
+    generated = []
+    for item_id, item_name in QUEST_EQUIPMENT_ITEMS:
+        source_item = items.get(item_id)
+        if source_item is None:
+            continue
+        equipment_item = _equipment_item_from_source_item(source_item, "live quest item or reward")
+        if equipment_item is not None:
+            generated.append(replace(equipment_item, item_name=item_name))
+    return tuple(generated)
+
+
 def _agility_equipment_items(
     items: Mapping[int, SourceItem],
     items_by_name: Mapping[str, SourceItem],
@@ -980,6 +1001,7 @@ def generate(game_root: Path, output_path: Path) -> None:
         + tuple(_smithing_equipment_items(items))
         + tuple(_mining_bonus_equipment_items(items))
         + tuple(_legacy_equipment_items(items))
+        + tuple(_quest_equipment_items(items))
         + tuple(_stronghold_equipment_items(items))
         + tuple(_crafting_equipment_items(items, items_by_name))
         + tuple(_fletching_equipment_items(items, items_by_name))

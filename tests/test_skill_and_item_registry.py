@@ -1315,6 +1315,18 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertIsNotNone(by_storage_key[item_name].asset_path, f"{item_name} should have a quest-stage icon")
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 
+    def test_every_registry_item_declared_equippable_has_live_equipment_data(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for item_name, definition in by_storage_key.items():
+            if definition.equipment_slot is None:
+                continue
+            with self.subTest(item_name=item_name):
+                self.assertIn(item_name, EQUIPMENT_DATA)
+                self.assertEqual(definition.equipment_slot, EQUIPMENT_DATA[item_name].slot)
+
+        self.assertEqual(by_storage_key["Staff of armadyl"].category, "material")
+        self.assertIsNone(by_storage_key["Staff of armadyl"].equipment_slot)
+
     def test_runecrafting_items_targets_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         self.assertEqual(len(RUNECRAFTING_DATA), 61)

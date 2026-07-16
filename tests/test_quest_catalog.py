@@ -7,6 +7,20 @@ from tools.audit_quest_local_item_gates import quest_local_gate_candidates
 
 
 class TestQuestCatalog(unittest.TestCase):
+    def test_live_stage_counts_preserve_a_completion_sentinel_after_every_requirement(self):
+        live_quests = quests_as_dict()
+        for quest_id, quest in live_quests.items():
+            max_requirement_stage = max(
+                (stage["stage"] for stage in quest["stage_requirements"]),
+                default=0,
+            )
+            with self.subTest(quest_id=quest_id):
+                self.assertLess(max_requirement_stage, quest["stages"])
+
+        self.assertEqual(live_quests["tears_of_guthix"]["stages"], 4)
+        self.assertEqual(live_quests["land_of_the_goblins"]["stages"], 8)
+        self.assertEqual(live_quests["hazeel_cult"]["stages"], 4)
+
     def test_lantern_quest_gates_use_reachable_exact_item_states(self):
         live_quests = quests_as_dict()
         light_source_stages = {
