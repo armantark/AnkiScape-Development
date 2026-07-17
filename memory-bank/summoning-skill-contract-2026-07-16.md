@@ -677,9 +677,21 @@ source-mapped reviews. Tooth creature auto-care defaults healthy and cannot sile
 irreversibly variant-changing chocolatey milk; Advanced exact food selection expresses
 the deliberate decayed route.
 
-The next owner fork is whether review-driven growth that removes a gameplay capability
-should generate a one-time advance warning through the shared world-alert HUD. The
-transition itself remains unpaused and source-timed in either case.
+### 31. Capability-expiry warning without growth control — pattern resolved 2026-07-16
+
+The owner already required expirations to appear as compact icons above the reviewer
+XP/progress HUD. Review-driven growth that removes a pet capability therefore registers a
+one-time **Pet capability transition** row through
+`review-hud-world-alerts-contract-2026-07-16.md`. It names the pet, stage transition,
+capability, and approximate answered cards remaining. It provides no pause or delay:
+growth remains source-timed, advances only on answered cards while active, and is fully
+review-undoable.
+
+The next owner fork is how mature god-bird protection should act inside AnkiScape's
+one-enemy Combat model. A target-local God Wars ambient-pressure process would make the
+period perk live now; a latent faction-protection flag would preserve the design without
+numbers until a future multi-enemy/area substrate exists. A generic defensive buff is
+out of scope because the period effect only suppresses matching-faction aggression.
 
 ## Source/open-work queue
 

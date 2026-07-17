@@ -60,10 +60,13 @@ reacquisition row is unresolved. Platypus release-for-reward is a distinct conte
 Hunter/quest action, while generic Release never grants a reward. Cat ratting is an
 explicit source-shaped target rather than ambient output; Casual wily-cat retraining
 automates but preserves its interaction-review cost, and Tooth creature auto-care never
-silently selects the decayed adult. The next grill is whether source-timed pet growth that
-removes a gameplay capability receives an advance world-alert warning.
+silently selects the decayed adult. Source-timed pet growth that removes a capability now
+uses the already-settled reviewer expiration-alert strip without pausing the transition.
+The next grill is whether mature god-bird protection should introduce target-local God
+Wars ambient pressure now or remain a latent faction-protection flag until a future
+multi-enemy/area substrate exists.
 
-The 30 settled decisions define answered-card lifetime and passive world ticks,
+The 31 settled decisions define answered-card lifetime and passive world ticks,
 separate familiar/point/special resources, target-policy automation, carried
 pouch/scroll budgets, coalesced restore and Bank detours, safe replacement and
 dismissal, source-gated familiar combat, BoB inventory/reclaim rules, forbidden

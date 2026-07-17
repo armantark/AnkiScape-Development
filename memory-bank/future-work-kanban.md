@@ -355,8 +355,10 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   consumes the pet for the sourced casket/oyster roll; generic Release never grants it.
   Cat ratting is an explicit host target, Casual wily-cat retraining preserves its
   interaction-review cost, and Tooth creature auto-care cannot silently select a permanent
-  adult variant. Next decide whether source-timed growth that removes a pet capability
-  receives a one-time advance warning through the shared world-alert HUD.
+  adult variant. Source-timed growth that removes a capability uses the shared reviewer
+  world-alert strip without pausing the transition. Next decide whether mature god-bird
+  protection introduces a target-local God Wars ambient-pressure process now or remains a
+  latent faction-protection flag until a future multi-enemy/area substrate exists.
 
 ### Dungeoneering
 

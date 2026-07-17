@@ -192,7 +192,11 @@ the Pets log only explains and links them.
   automatic-return rule applies. Advanced's exact food selection is the deliberate path
   to the decayed form.
 
-The next genuine owner fork is informational rather than mechanical: whether review-driven
-growth that removes a pet capability, such as an adult cat becoming overgrown and losing
-rat-catching, should trigger a one-time world-alert warning before the unpaused sourced
-transition.
+Review-driven growth that removes a pet capability, such as an adult cat becoming
+overgrown and losing rat-catching, uses the owner's already-settled expiration-alert rule:
+the shared reviewer world-alert strip gives a one-time warning with approximate answered
+cards remaining. It never pauses or delays the sourced transition.
+
+The next genuine owner fork is how to represent mature god-bird protection in the current
+one-enemy Combat model. Period sources establish faction-specific God Wars aggression and
+protection, but not an AnkiScape ambient-pressure abstraction.

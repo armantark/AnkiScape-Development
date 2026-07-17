@@ -38,6 +38,11 @@ The initial alert kinds are:
    `Familiar cargo`. It uses period `Beast of burden-icon.png` or the closest verified
    familiar-inventory sprite rather than grave artwork. Countdown is the source's five
    minutes translated through the settled short-duration answered-card mapping.
+3. **Pet capability transition** — projects only a pending source-timed growth transition
+   that removes a gameplay capability, such as an adult cat becoming overgrown and losing
+   **Chase-vermin**. It appears once inside the source-calibrated advance-warning window,
+   names the capability, and shows approximate answered cards remaining. It is
+   informational: growth remains unpaused and has no delay control.
 
 Later urgent/expiring systems may register rows through the same projection, but ordinary
 buffs, skill effects, and permanent Bank Claims do not belong here merely because they
@@ -87,6 +92,11 @@ single cluster. When alerts are visible, XP/item popups start above the strip.
   costs no review, persists immediately, and uses the bounded direct-command undo path.
   Partial pack pickup would contradict the owner's “operate like the grave” direction
   and add inventory interruption without a ground world.
+- **Pet capability transition:** show the pet, current and next stage, capability being
+  removed, approximate answered cards remaining, and any already-unlocked sourced recovery
+  route. It has no pause, dismiss-transition, or growth-lock action. The alert disappears
+  when the transition occurs, the pet is stored, or review undo moves it back outside the
+  warning window.
 
 ## Familiar cargo reclaim state
 
