@@ -47,7 +47,7 @@ numeric parameter inside that route.
 | Harry's Fishing Shop | Pet fish | Harry-owned service or shop action, after pinning the period procedure; never a generic Pets-page purchase. |
 | Quest reward/NPC follow-up | Rune guardian, Tooth creature, Ex-ex-parrot, Cat/kitten, Pet rock, Searing Flame/Glowing Ember/Twisted Firestarter/Warming Flame, Baby troll | The quest stage or its named post-quest NPC grants the pet entity. Repeat claims, payments, and variants follow that pet's individual source. |
 | Quest transformation | Hellcat/hellkitten | Recipe for Disaster: Freeing Evil Dave transforms the owned cat entity; it does not mint a parallel generic pet. |
-| Hunter | Gecko, Platypus, Squirrel, Raccoon, Monkey | Normal Hunter targets with exact Hunter/Summoning/quest gates, tools, bait, XP, and success behavior. The catch awards the pet entity. |
+| Hunter | Gecko, Platypus, Squirrel, Raccoon, Monkey | Normal Hunter targets with exact Hunter/Summoning/quest gates, tools, bait, XP, and success behavior. The catch awards the pet entity. Platypus also exposes its sourced quest-location **Release for reward...** action through this owner surface. |
 | Quest-owned Hunter action | Broav | While Guthix Sleeps stage action, not a repeatable generic Hunter target unless its individual period source proves repeatability. |
 | Item/token exchange | Giant crab | Exchange the sourced crunchy claw token after the Pirate Pete subquest. |
 | Nest/drop/found egg plus hatch route | Raven, Saradomin owl, Guthix raptor, Zamorak hawk, Penguin, Vulture, Chameleon, Baby dragons | The owning source awards the exact egg: Woodcutting nest, NPC/zoo interaction, monster drop, or found-world action. The per-pet source then determines pet-shop incubation, NPC hatching, or another hatch surface; these must not be flattened into one invented procedure. |
@@ -77,6 +77,13 @@ The catalog never mints a pet. The owning quest, target, shop, drop table, or
 activity performs one atomic, undo-safe grant into the shared pet-entity store.
 This prevents duplicate identity between inventory items, Bank rows, active
 followers, and Menagerie residents.
+
+Source-specific destructive conversions also remain with their owner. Platypus oldid
+[6579823](https://runescape.wiki/w/Platypus?oldid=6579823)
+(2012-11-19 04:45:04 UTC) says releasing it at the quest location yields another casket
+or oyster. The Hunter/quest target therefore owns an atomic **Release for reward...**
+transaction that consumes the pet and grants the sourced roll. Generic pet Release never
+becomes a location-free reward action.
 
 The canonical follower surface gains a searchable **Pets** log. It projects the
 same catalog and shows owned state, current growth stage, compatible food, and

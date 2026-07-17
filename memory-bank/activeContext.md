@@ -56,10 +56,14 @@ outside the obtainable log and completion counts. Individual page review found n
 supported unreclaimable-one-time-pet category; known pets have replacement routes, while
 completed Ex-ex-parrot and Broav reacquisition remain `source_blocked`. Release never
 claims `Cannot be reobtained` from source silence and cannot ship for a pet whose
-reacquisition row is unresolved. The next grill is the execution boundary for exceptional
-pet functions: passive effects, quest-scripted actions, and repeatable reward actions.
+reacquisition row is unresolved. Platypus release-for-reward is a distinct contextual
+Hunter/quest action, while generic Release never grants a reward. Cat ratting is an
+explicit source-shaped target rather than ambient output; Casual wily-cat retraining
+automates but preserves its interaction-review cost, and Tooth creature auto-care never
+silently selects the decayed adult. The next grill is whether source-timed pet growth that
+removes a gameplay capability receives an advance world-alert warning.
 
-The 29 settled decisions define answered-card lifetime and passive world ticks,
+The 30 settled decisions define answered-card lifetime and passive world ticks,
 separate familiar/point/special resources, target-policy automation, carried
 pouch/scroll budgets, coalesced restore and Bank detours, safe replacement and
 dismissal, source-gated familiar combat, BoB inventory/reclaim rules, forbidden

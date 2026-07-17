@@ -351,8 +351,12 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   completion counts. Individual page review found no supported
   unreclaimable-one-time-pet category; Ex-ex-parrot and Broav reacquisition remain
   `source_blocked`, and their Release action cannot ship until those rows are resolved.
-  Next resolve how always-on, quest-scripted, and repeatable reward-producing exceptional
-  pet functions execute without becoming generic Pets-log actions.
+  Platypus **Release for reward...** belongs to its Hunter/quest location and atomically
+  consumes the pet for the sourced casket/oyster roll; generic Release never grants it.
+  Cat ratting is an explicit host target, Casual wily-cat retraining preserves its
+  interaction-review cost, and Tooth creature auto-care cannot silently select a permanent
+  adult variant. Next decide whether source-timed growth that removes a pet capability
+  receives a one-time advance warning through the shared world-alert HUD.
 
 ### Dungeoneering
 

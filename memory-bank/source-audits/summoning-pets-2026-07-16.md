@@ -159,3 +159,40 @@ states a replacement route only when the catalog has a pinned route, and never c
 `Cannot be reobtained` without affirmative period evidence. A source-blocked reacquisition
 row blocks shipping Release for that pet until the route is resolved; it does not invent
 either a reclaim or permanent-loss rule.
+
+## Exceptional-function execution
+
+Exceptional functions remain native to the system and context that gives them meaning;
+the Pets log only explains and links them.
+
+- Releasing a platypus at the same quest location grants another casket or oyster
+  ([oldid 6579823](https://runescape.wiki/w/Platypus?oldid=6579823),
+  2012-11-19 04:45:04 UTC). This is a distinct contextual Hunter/quest action,
+  **Release for reward...**, that atomically consumes the active platypus and grants the
+  sourced roll. It is not generic **Release permanently...** and cannot award that reward
+  outside the sourced context.
+- Cats catch ordinary rats through the explicit **Interact-with → Chase-vermin** command
+  ([oldid 6283489](https://runescape.wiki/w/Cat?oldid=6283489),
+  2012-09-23 03:37:47 UTC). Hell-rats use the same deliberate chase and produce ashes plus
+  a random spice
+  ([oldid 6504243](https://runescape.wiki/w/Hell-Rat?oldid=6504243),
+  2012-10-30 17:15:00 UTC). Cat ratting is therefore an explicit native target with one
+  chase attempt per review by default, not ambient output while training something else.
+- Wily cats become lazy after a sourced random short interval and require a random amount
+  of interaction to retrain
+  ([oldid 6390175](https://runescape.wiki/w/Wily_cat?oldid=6390175),
+  2012-10-12 12:21:52 UTC). Casual automates those interactions but does not erase their
+  cost: retraining consumes source-mapped interaction reviews before ratting resumes.
+  Exact distributions remain source-harvest work.
+- Tooth creature's adult form is irreversibly selected if it receives chocolatey milk
+  even once
+  ([oldid 6431044](https://runescape.wiki/w/Tooth_creature?oldid=6431044),
+  2012-10-17 01:38:42 UTC). Casual defaults to the healthy form and never silently packs
+  variant-changing food; with no non-transforming compatible food, the existing
+  automatic-return rule applies. Advanced's exact food selection is the deliberate path
+  to the decayed form.
+
+The next genuine owner fork is informational rather than mechanical: whether review-driven
+growth that removes a pet capability, such as an adult cat becoming overgrown and losing
+rat-catching, should trigger a one-time world-alert warning before the unpaused sourced
+transition.

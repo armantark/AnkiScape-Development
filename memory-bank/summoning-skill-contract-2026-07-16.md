@@ -658,10 +658,28 @@ Completed Ex-ex-parrot and Broav reacquisition remain `source_blocked`; Release 
 cannot ship until its row is resolved. This is an implementation dependency, not a new
 one-time-pet type or owner design fork.
 
-The next owner fork is how source-attested exceptional pet functions execute. The design
-must distinguish always-on effects, quest-scripted pet actions, and repeatable
-reward-producing pet actions without turning the Pets log into a second skill surface or
-silently discarding period functionality.
+### 30. Context-specific platypus release reward — settled 2026-07-16
+
+Platypus oldid
+[6579823](https://runescape.wiki/w/Platypus?oldid=6579823)
+(2012-11-19 04:45:04 UTC) states that releasing the pet at the same location used during
+As a First Resort... yields another casket or oyster. The owner accepted a distinct
+contextual Hunter/quest action, **Release for reward...**. It atomically consumes the
+active platypus and grants the sourced reward roll. Generic **Release permanently...**
+elsewhere remains ordinary destruction and never produces a reward.
+
+Other exceptional functions follow the same native-owner rule. Cat oldid
+[6283489](https://runescape.wiki/w/Cat?oldid=6283489)
+(2012-09-23 03:37:47 UTC) makes rat-catching an explicit **Chase-vermin** interaction, so
+cat ratting is an explicit host target rather than ambient output. Wily/lazy retraining
+keeps its sourced interaction cost but Casual performs it automatically through
+source-mapped reviews. Tooth creature auto-care defaults healthy and cannot silently use
+irreversibly variant-changing chocolatey milk; Advanced exact food selection expresses
+the deliberate decayed route.
+
+The next owner fork is whether review-driven growth that removes a gameplay capability
+should generate a one-time advance warning through the shared world-alert HUD. The
+transition itself remains unpaused and source-timed in either case.
 
 ## Source/open-work queue
 
