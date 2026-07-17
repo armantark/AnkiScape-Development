@@ -111,9 +111,14 @@ last about eight. The cross-system event/magnitude contract is
 `simulation-time-boundary-2026-07-16.md`; exact short-duration calibration remains a
 labeled balance abstraction.
 
-Summoning-point drain follows the same answered-card lifetime while a familiar is out.
-It remains a separate resource: reaching zero disables point-gated abilities but does
-not dismiss the familiar.
+Summoning-point drain follows the same answered-card lifetime while a familiar is out,
+but its magnitude is source-determined rather than a flat one point per card. After the
+pouch's initial summon cost, the continuing drain across one mapped lifetime totals
+`required Summoning level - initial summon cost`, unless the pool reaches zero. Runtime
+uses an exact integer residual against that familiar's mapped lifetime so chunking never
+changes the total. Time spent at zero advances the phase without accumulating point debt;
+restoring points mid-life exposes only future scheduled drain. Reaching zero disables
+point-gated abilities but does not dismiss the familiar.
 
 ### 2. Again during an active Combat encounter — settled 2026-07-16
 

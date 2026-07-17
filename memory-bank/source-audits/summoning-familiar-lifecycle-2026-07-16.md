@@ -38,7 +38,7 @@ below were checked against the literal revision wikitext rather than the modern 
 | Familiar lifetime was per-familiar, not a universal duration. | The oldid 6579789 table has a `Time (minutes)` column on every familiar row; early rows already differ (Spirit wolf 6, Dreadfowl 4, Meerkats 40, Spirit spider 15). | High |
 | A pouch summons one familiar and is consumed. | Oldid 6582606, `Pouches`, says the pouch is used up on summon and is not restored on dismissal. | High |
 | Only one familiar may be active. | Oldid 6582606, `Familiars`, requires dismissal before summoning another. | High |
-| Summoning points and familiar duration were distinct state. | Oldid 6542597 explains an initial summon cost plus continuing drain over the familiar's life; reaching zero does not dismiss the familiar. | High |
+| Summoning points and familiar duration were distinct state. | Oldid 6542597 explains an initial summon cost plus continuing drain over the familiar's life; the continuing amount equals `required level - initial cost`, and reaching zero does not dismiss the familiar. The mapped review lifetime therefore determines an exact integer residual rather than a flat one-point-per-card drain. | High |
 | Zero points disabled right-click abilities but not the familiar's other ordinary behavior. | Oldids 6542597 and 6582606 agree on the zero-point behavior. | High |
 | Scroll specials did not spend ordinary Summoning points. | Oldid 6542597 explicitly distinguishes scrolls from point-draining right-click abilities. | High |
 | Points restored at obelisks/small obelisks or with Summoning/super-restore potions. | Oldids 6542597 and 6582606 agree. | High |

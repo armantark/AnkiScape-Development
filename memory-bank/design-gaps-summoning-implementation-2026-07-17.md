@@ -87,6 +87,13 @@ action multiplier.
 - Special-move points use the exact 50-tick residual above rather than refilling
   to 60 on every card. The currently shipped constant remains implementation
   work for the cadence activation.
+- Ordinary Summoning-point drain is source-resolved rather than an owner fork.
+  After the pouch's initial point cost, continuing drain across the familiar's
+  mapped lifetime must total `required level - initial point cost`, unless the
+  pool reaches zero. Implement this as an exact per-familiar integer residual;
+  the shipped flat one-point-per-card drain is not source-correct. Time spent
+  at zero advances the drain phase without accumulating debt, so restoring
+  points later exposes only future scheduled drain.
 
 ## Source and dependency blocks, not owner questions
 
