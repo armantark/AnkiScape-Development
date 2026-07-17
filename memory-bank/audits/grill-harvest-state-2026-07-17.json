@@ -6,7 +6,7 @@
   "branch": "main",
   "baseline_commit": "2d51d213ab7e6c9a9b6fb397e9b664c9ed892d60",
   "current_phase": "implementation",
-  "last_observed_commit": "6639a485c2ad2403896a9759fb3f3d2aadba1b4c",
+  "last_observed_commit": "8426fa20881d5c670c3c6e8a8ecf299984b4c1b9",
   "queue": [
     {
       "id": "approved-amendments",
@@ -24,7 +24,8 @@
     }
   ],
   "accepted_commits": [
-    "6639a485c2ad2403896a9759fb3f3d2aadba1b4c"
+    "6639a485c2ad2403896a9759fb3f3d2aadba1b4c",
+    "8426fa20881d5c670c3c6e8a8ecf299984b4c1b9"
   ],
   "completed_batches": [
     "magic-charge-review-duration",
@@ -43,6 +44,9 @@
     "dungeoneering"
   ],
   "design_gap_file": "memory-bank/design-gaps-grill-harvest-2026-07-17.md",
+  "open_design_gaps": [
+    "mage-arena-alignment-capes-charge-effect"
+  ],
   "stop_conditions": [
     "all design-settled queue items verified or explicitly blocked",
     "unexpected concurrent writer collision",

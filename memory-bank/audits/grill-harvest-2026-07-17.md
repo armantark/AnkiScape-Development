@@ -134,3 +134,16 @@ Regression proof:
 - Full real offscreen Qt main-menu module: 190 passed in 532.645 seconds.
 - Documentation audit: 235 Markdown and 298 HTML files passed.
 - Compile, diff, and worktree-layout checks passed.
+
+## Source correction — Magic Charge
+
+The pinned oldid in `magic_data.py` was independently resolved and found to be
+the unrelated Charge Prayer page. It is replaced with `Charge (spell)` oldid
+`6593039` (2012-11-20), with a data regression preventing recurrence.
+
+That correct page closes the duration/rune/XP facts but also proves the damage
+effect depends on a god cape. The paired Mage Arena and God capes revisions
+prove one-cape alignment, first-staff reward, 80,000-coin extra staves,
+per-spell 100-cast attunement, and statue replacement/reclaim. Those mechanics
+do not exist in the current simplified landmark, so the abstraction is ranked
+P1 in the morning design-gap file rather than guessed into runtime.

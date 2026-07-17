@@ -121,6 +121,11 @@ cross-check) is authentic pre-EOC gap-fill via `tools/wiki_parity.py` pinned bef
 12. **God spells + Charge** unlock via a one-time Mage Arena landmark activity
     (Knight Waves / stronghold landmark pattern). Charge's cape/staff boost per
     pinned sources.
+    **2026-07-17 correction:** the former Charge oldid pointed to an unrelated
+    Prayer page. The correct cutoff pin and the resulting alignment/cape/attunement
+    design fork are documented in
+    `memory-bank/source-audits/magic-charge-reconciliation-2026-07-17.md`.
+    Review-driven duration is live; the damage boost waits for that owner fork.
 13. **Charge orbs** close the reachability audit's elemental-orb orphan category:
     unpowered orb + 30 elemental runes + 3 cosmic per cast (obelisk travel
     abstracted), outputs feed battlestaff Crafting.

@@ -15,7 +15,7 @@ from logic_pure import (
     set_combat_pack_mode_pure,
 )
 from farming_logic import default_farming_state_pure, execute_farm_field_step_pure, set_farm_plan_pure
-from magic_data import COMBAT_MAGIC_ADDITIONS, MAGIC_TARGETS
+from magic_data import CHARGE_WIKI, COMBAT_MAGIC_ADDITIONS, MAGIC_TARGETS
 from runtime_actions import RuntimeActionContext, answer_handler_for_key, handle_magic_answer
 from storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
 from target_metadata import magic_target_rows
@@ -51,6 +51,12 @@ def _context(player_data, calls):
 
 
 class MagicDataAndMechanicsTest(unittest.TestCase):
+    def test_charge_source_pin_is_the_spell_not_the_unrelated_prayer_page(self):
+        self.assertEqual(
+            CHARGE_WIKI,
+            "RuneScape Wiki Charge (spell) oldid=6593039 (2012-11-20)",
+        )
+
     def test_charge_uses_review_driven_ticks_and_expires_cleanly(self):
         advanced = advance_temporary_effects_pure(
             {
