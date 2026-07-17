@@ -80,6 +80,20 @@ from skill_registry import (
 
 
 class TestSkillAndItemRegistry(unittest.TestCase):
+    def test_slayer_shop_items_keep_source_identity_and_stackability(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        expected = {
+            "Bag of salt": (4161, True),
+            "Rock hammer": (4162, False),
+            "Ice cooler": (6696, True),
+            "Fungicide spray 10": (7421, False),
+        }
+        for item_name, (item_id, stackable) in expected.items():
+            with self.subTest(item_name=item_name):
+                definition = by_storage_key[item_name]
+                self.assertEqual(definition.source_item_id, item_id)
+                self.assertEqual(definition.stackable, stackable)
+
     def test_agility_consumable_dose_families_share_canonical_tradeability(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         expected_ids = {

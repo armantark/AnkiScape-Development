@@ -952,7 +952,15 @@ SHOP_PLAYER_BUY_PRICES: Dict[str, int] = {_py_repr(catalog.get("player_buy_price
 
 
 def shop_extra_items_as_dict() -> Dict[str, Dict[str, Any]]:
-    return {{name: dict(spec) for name, spec in SHOP_EXTRA_ITEM_DATA.items()}}
+    items = {{name: dict(spec) for name, spec in SHOP_EXTRA_ITEM_DATA.items()}}
+    for shop in SHOP_DATA.values():
+        for row in shop["stock"]:
+            spec = items.get(row["item_name"])
+            if spec is None:
+                continue
+            spec.setdefault("source_item_id", row["item_id"])
+            spec.setdefault("stackable", row["stackable"])
+    return items
 
 
 def shop_coverage_summary_as_dict() -> Dict[str, Any]:

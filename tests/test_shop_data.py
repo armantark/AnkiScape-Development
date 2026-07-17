@@ -16,6 +16,19 @@ from tools.generate_npc_shop_data import build_catalog, rewrite_stock_exclusions
 
 
 class TestShopData(unittest.TestCase):
+    def test_shop_only_items_preserve_source_identity_and_stackability(self):
+        expected = {
+            "Bag of salt": (4161, True),
+            "Rock hammer": (4162, False),
+            "Ice cooler": (6696, True),
+            "Fungicide spray 10": (7421, False),
+        }
+        extra_items = shop_extra_items_as_dict()
+        for item_name, (item_id, stackable) in expected.items():
+            with self.subTest(item_name=item_name):
+                self.assertEqual(extra_items[item_name]["source_item_id"], item_id)
+                self.assertEqual(extra_items[item_name]["stackable"], stackable)
+
     def test_miltog_lantern_states_keep_exact_names_and_prices(self):
         from shop_data import SHOP_EXTRA_ITEM_DATA, SHOP_PLAYER_BUY_PRICES, SHOP_PLAYER_SELL_PRICES
 
