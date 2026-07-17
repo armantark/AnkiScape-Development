@@ -6,8 +6,27 @@ audits; missing code dependencies are implementation backlog, not design gaps.
 
 ## Current owner-level gaps
 
-None. The closed contract and owner amendment at commit `d7539c9` settle every
-player-facing fork encountered through the surface catalog batch.
+### Bunyip passive-heal density — open 2026-07-17
+
+The source pins 20 LP every 15 seconds. The implementation currently imports
+the familiar-lifetime calibration directly and grants eight source ticks, or
+160 LP, on every answered card. Combat damage is not batched through that
+duration calibration: it resolves per exchange against a maximum of
+`Constitution × 10` LP. The current magnitude can therefore erase ordinary
+incoming damage and displace food, potions, and other healing.
+
+The settled rule that genuinely passive effects continue on Again is not open.
+The remaining owner choice is magnitude:
+
+- **160 LP per answered card:** lifetime cost and passive throughput use one
+  shared source-duration conversion.
+- **20 LP per answered card:** one source heal tick per answered-card world
+  tick, matching Combat's action density while leaving lifetime decay on its
+  separate ratio-preserving calibration.
+
+Recommendation: **20 LP per answered card, including Again**. This deliberately
+separates effect density from lifetime density and keeps Bunyip a meaningful
+sustain familiar rather than a near-total replacement for Combat healing.
 
 ## Implementation judgments recorded without reopening the grill
 
@@ -35,9 +54,8 @@ player-facing fork encountered through the surface catalog batch.
   shards. The period source proves that contents and quantity scale with raw
   shards but does not preserve the exact hidden selection table; this is a
   labeled balance abstraction rather than fabricated period content.
-- Bunyip's 20-LP-per-15-second passive heal is batched through the settled two
-  source-duration minutes per answered review, producing 160 LP per world tick.
-  This is the smallest review-native translation of the sourced effect.
+- Bunyip's exact 20-LP source tick is implemented, but its per-review batching
+  remains the owner-level gap above rather than an implementation-only judgment.
 
 ## Source and dependency blocks, not owner questions
 

@@ -766,6 +766,21 @@ successful-review transaction. Every target using this automation must declare P
 use in its route assumptions so a sourced rate that already includes Winter Storage is not
 discounted twice.
 
+### 36. Bunyip passive-heal density — open owner fork 2026-07-17
+
+Summoning familiars oldid
+[6579789](https://runescape.wiki/w/Summoning_familiars?oldid=6579789)
+(2012-11-19 04:08:58 UTC) pins Bunyip's passive heal at 20 LP every 15 seconds.
+Decision 9 already requires passive healing to occur on every answered-card world tick,
+including Again.
+
+The current implementation converts the settled two source-duration minutes per review
+into eight healing ticks and grants 160 LP per answered card. Familiar lifetime uses that
+ratio-preserving conversion, but Combat damage resolves per exchange rather than batching
+two minutes of enemy attacks. The unresolved product choice is therefore whether Bunyip
+also uses the lifetime-density conversion at 160 LP per answer, or uses one sourced
+20-LP heal tick per answer so its effect density matches the action-density Combat loop.
+
 ## Source/open-work queue
 
 - The ordinary pouch/scroll/lifetime/point/XP catalog, training, follower lifecycle,

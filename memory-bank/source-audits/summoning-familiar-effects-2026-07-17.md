@@ -21,9 +21,11 @@ adds 4 to Fishing, and Beaver adds 2 to Woodcutting. These boosts affect
 success calculations, not the player's visible level or level-gated unlocks.
 
 The same period family evidence closes Bunyip's passive heal at 20 life points
-every 15 seconds. Under the already-settled two source-duration minutes per
-answered review, that batches to 160 life points on every world tick, including
-Again, capped at the player's ordinary maximum.
+every 15 seconds. It does not decide how densely that real-time benefit should
+resolve against AnkiScape's per-exchange Combat damage. The implementation
+currently batches eight ticks into 160 LP per answered-card world tick, including
+Again, but the owner grill has reopened that magnitude because familiar lifetime
+decay and Combat effect throughput need not share one conversion.
 
 Void shifter's period escape occurs when nonlethal damage leaves the player
 below 10% life points. AnkiScape reuses the existing Combat interruption
@@ -34,8 +36,10 @@ continues through ordinary death and grave handling. No cooldown is invented.
 
 - Mining, Firemaking, Hunter, Fishing, and Woodcutting accept a separate
   familiar-adjusted roll level while retaining the base level for eligibility.
-- Bunyip healing runs in the global answered-card Summoning world tick and
-  never reads wall-clock time.
+- Bunyip healing runs in the global answered-card Summoning world tick,
+  including Again, and never reads wall-clock time. Its current 160-LP magnitude
+  is provisional pending the owner decision recorded in
+  `design-gaps-summoning-implementation-2026-07-17.md`.
 - Void shifter is evaluated after a nonlethal incoming Combat hit and before
   the next exchange.
 - Pack yak Winter Storage remains governed by its separate source/owner audit.
