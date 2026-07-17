@@ -65,6 +65,31 @@ AnkiScape now has 17 complete skill surfaces, five partial Combat-trained skills
 - Durable evidence:
   `source-audits/slayer-vannaka-pool-2026-07-17.md`.
 
+## Slayer Chaeldar source harvest — 2026-07-17
+
+- Reconciled the fourth functional-master pool at 34 families and a provisional
+  388-point hidden-weight denominator.
+- Restored Grifolapines and Grifolaroos from direct cutoff individual pages
+  despite their omission from the stale master/cross-master tables.
+- Restored Shadow warriors and Mutated zygomites over Darkan's omissions with
+  explicit 10-point common-baseline abstractions.
+- Kept Darkan's remaining weights provisional, closed Elves at `60–90`, and
+  labeled Grotworms' `72–109` as an observed-history envelope rather than a
+  recovered generator range.
+- Restored Chaeldar's 10/50/150 point schedule from the cutoff Slayer-points
+  table, both emulators, and the master page's own long-run arithmetic.
+- Corrected the accepted gates where Darkan conflicts with cutoff evidence:
+  Regicide for Elves, Rum Deal route access for Fever spiders, Magic 50 for
+  Fungal magi, Magic 60 for Grifolapines/Grifolaroos, and Slayer 67 plus
+  Branches of Darkmeyer for Vyrewatch.
+- Kept Chaeldar out of live assignment generation: end-to-end family readiness
+  is 0/34, 29 families have no direct target, and Banshee/Baby-blue behavior
+  requires complete protection/identity mechanics.
+- Corrected the live level-8 Crawling hand from game-main's conflicting 12
+  Slayer XP to the cutoff 16, with a focused source regression.
+- Durable evidence:
+  `source-audits/slayer-chaeldar-pool-2026-07-17.md`.
+
 ## Agility carried-risk amendment — 2026-07-17
 
 - Integrated into `main` at `69855d9`.

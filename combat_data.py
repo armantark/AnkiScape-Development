@@ -7222,7 +7222,7 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "attack_style": "melee",
         "attack_speed": 4,
         "respawn_delay": 15,
-        "slayer_xp": 12.0,
+        "slayer_xp": 16.0,
         "stats": {'hitpoints': 160, 'attack': 8, 'strength': 4, 'defence': 4, 'magic': 1, 'ranged': 1},
         "bonuses": {'attack_stab': 0,
  'attack_slash': 0,
@@ -7264,7 +7264,8 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
                        {'slots': 890})})},
         "source": (
             f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
-            "definitions/other/crawling_hand_level_8.plugin.kts"
+            "definitions/other/crawling_hand_level_8.plugin.kts; "
+            "RuneScape Wiki Crawling hand oldid 6530506"
         ),
     },
     "ankou_level_75": {

@@ -364,3 +364,52 @@ Evidence:
 - Test quality: zero hard issues across 67 files.
 - Documentation, compilation, diff, JSON, and worktree-safety checks passed.
 - No owner-level design gap emerged.
+
+## Slayer source batch — Chaeldar pool
+
+Finding: the cutoff master and cross-master tables contain 32 families, but
+direct cutoff Grifolapine and Grifolaroo pages restore two stale-table
+omissions. Darkan has 32 executable rows totaling 368 but instead omits Shadow
+warriors and Mutated zygomites.
+
+Resolution:
+
+- Reconciled 34 ordinary families and a provisional 388-point hidden-weight
+  denominator.
+- Restored Shadow warriors and Mutated zygomites with explicit 10-point
+  common-baseline abstractions.
+- Closed Elves at `60–90`, preserved Grotworms' `72–109` only as an observed
+  history envelope, and restored the internally consistent 10/50/150 point
+  schedule over the cutoff master's anonymous `100` typo.
+- Corrected the accepted family gates where Darkan conflicts with cutoff
+  evidence: Regicide for Elves, Rum Deal route access for Fever spiders, Magic
+  50 for Fungal magi, Magic 60 for the two Grifo families, and Slayer 67 plus
+  Branches of Darkmeyer for Vyrewatch.
+- Kept Chaeldar runtime-hidden at 0/34 end-to-end family readiness. Three
+  ordinary Combat targets are complete, Banshee and generic Baby dragon cannot
+  certify their families, and 29 families are absent.
+
+Concrete implementation repair:
+
+- The live level-8 Crawling hand copied game-main's conflicting 12 Slayer XP.
+- It now uses the cutoff level/LP/XP tuple `8/160/16` and cites Crawling-hand
+  oldid `6530506`; a focused regression pins the contract.
+- Banshee's protection consequence and Baby-blue identity remain complete
+  implementation blockers rather than receiving partial max-hit/name patches.
+
+Evidence:
+
+- `source-audits/slayer-chaeldar-pool-2026-07-17.md`.
+- Read-only workflow `d951e516-fbf0-4aa7-b087-7dd96c786115` supplied separate
+  emulator/runtime and period-history surveys; the primary independently
+  resolved the accepted union, gate conflicts, point arithmetic and Crawling
+  hand correction.
+- Focused Crawling-hand/schema regressions: 2 passed.
+- Combat logic and enemy-roster holdout: 181 passed.
+- Combat logic, enemy-roster, runtime-action, and integration holdout: 342
+  passed.
+- Full core: 1,366 methods, 196 environment skips, and three declared
+  XP-parity expected failures.
+- Test quality: zero hard issues across 67 files.
+- Documentation, compilation, diff, JSON, and worktree-safety checks passed.
+- No owner-level design gap emerged.

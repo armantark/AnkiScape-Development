@@ -60,6 +60,21 @@ protective/quest mechanics, and no stable assignment-family registry exists.
 The same pass corrected the Stronghold Shade to 3.5 Slayer XP and one-quarter
 ordinary combat/Constitution damage XP. No owner design question emerged.
 
+The fourth master-pool harvest is recorded in
+`source-audits/slayer-chaeldar-pool-2026-07-17.md`. It reconciles 34 ordinary
+families and a provisional 388-point denominator: the cutoff master/cross table
+supplies 32, while direct pre-cutoff pages restore Grifolapines and
+Grifolaroos. Shadow warriors and Mutated zygomites are missing from Darkan's
+executable pool and receive labeled 10-point common-baseline abstractions.
+Cutoff history closes Elves at `60–90`, preserves Grotworms only as a
+`72–109` observed-history envelope, restores Chaeldar's internally consistent
+10/50/150 point schedule, and exposes wrong emulator gates for Elves, Fever
+spiders, Fungal magi, Grifo families, and Vyrewatch. Runtime certification still
+fails at 0/34: only three families have complete ordinary Combat candidates,
+Banshee and generic Baby dragon are non-certifying, and 29 families are absent.
+The same pass corrected the level-8 Crawling hand from 12 to 16 Slayer XP. No
+owner design question emerged.
+
 The settled design keeps assignments and exact qualifying Combat variants
 source-shaped, places `Assignment`, `Masters`, and `Rewards` in one Slayer page,
 deep-links into Combat as the sole fight surface, and requires a reusable list

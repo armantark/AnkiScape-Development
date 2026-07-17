@@ -460,7 +460,15 @@ class CombatEnemyAttackStyleTest(unittest.TestCase):
                     self.assertTrue(enemy.get("max_hit") or enemy.get("max_hit_old_hp"))
 
 
-class CombatSourceXpModifierTest(unittest.TestCase):
+class CombatPeriodXpTest(unittest.TestCase):
+    def test_level_8_crawling_hand_uses_period_slayer_xp(self):
+        crawling_hand = COMBAT_ENEMY_DATA["crawling_hand"]
+
+        self.assertEqual(crawling_hand["level"], 8)
+        self.assertEqual(crawling_hand["stats"]["hitpoints"], 160)
+        self.assertEqual(crawling_hand["slayer_xp"], 16.0)
+        self.assertIn("Crawling hand oldid 6530506", crawling_hand["source"])
+
     def test_stronghold_shade_applies_period_reduced_combat_and_slayer_xp(self):
         shade = COMBAT_ENEMY_DATA["shade"]
         ordinary_shade = dict(shade)

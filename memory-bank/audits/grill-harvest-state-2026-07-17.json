@@ -6,7 +6,7 @@
   "branch": "main",
   "baseline_commit": "2d51d213ab7e6c9a9b6fb397e9b664c9ed892d60",
   "current_phase": "slayer_source_harvest",
-  "last_observed_commit": "5e24522b0464f70c39459bba1418e15fbee4dced",
+  "last_observed_commit": "f5031bf8baaa15d2b2eb9257f7471a7d0547de67",
   "queue": [
     {
       "id": "approved-amendments",
@@ -20,7 +20,7 @@
     },
     {
       "id": "slayer",
-      "status": "source_sweep_active_first_three_functional_master_pools_recorded",
+      "status": "source_sweep_active_first_four_functional_master_pools_recorded",
       "runtime_authorized": true
     }
   ],
@@ -30,7 +30,8 @@
     "69855d9649500f04e64343e8810e93b5ba4904c0",
     "9b65f45a507d638ce4a9ed3e5e71416f39d25a1d",
     "610587f3407606cacff96ca6926c0f84ac335703",
-    "5e24522b0464f70c39459bba1418e15fbee4dced"
+    "5e24522b0464f70c39459bba1418e15fbee4dced",
+    "f5031bf8baaa15d2b2eb9257f7471a7d0547de67"
   ],
   "completed_batches": [
     "magic-charge-review-duration",
@@ -39,7 +40,8 @@
     "farming-dig-up-presets-full-run",
     "slayer-turael-spria-source-pool",
     "slayer-mazchna-achtryn-source-pool",
-    "slayer-vannaka-source-pool"
+    "slayer-vannaka-source-pool",
+    "slayer-chaeldar-source-pool"
   ],
   "workflow_runs": [
     {
@@ -77,6 +79,11 @@
       "id": "f3f3ff2a-db8d-424f-8f1b-498eea5c914a",
       "purpose": "Vannaka emulator/runtime and period-history source surveys",
       "result": "primary reconciled 35 families, provisional 460-point weight denominator, Grotworm count abstraction, Terror-dog exclusion, and runtime blockers"
+    },
+    {
+      "id": "d951e516-fbf0-4aa7-b087-7dd96c786115",
+      "purpose": "Chaeldar emulator/runtime and period-history source surveys",
+      "result": "primary reconciled 34 families, provisional 388-point weight denominator, gate/count conflicts, restored point schedule, and runtime blockers"
     }
   ],
   "excluded_until_owner_authorizes": [
