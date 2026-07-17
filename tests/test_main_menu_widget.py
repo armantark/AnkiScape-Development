@@ -1301,6 +1301,21 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(body.isVisibleTo(body.parentWidget()))
         self.assertIn("▾", header.text())
 
+    def test_bank_carried_summary_counts_stackable_quantities_as_one_slot(self) -> None:
+        player_data = _make_player_data()
+        player_data["carried_inventory"] = {
+            "combat_target": {"Air rune": 5000, "Lobster": 2}
+        }
+        dialog = self._open(
+            player_data,
+            carried_stackable_names=frozenset({"Air rune"}),
+        )
+
+        summary = dialog.findChild(QLabel, "carriedInventorySummary")
+        self.assertIsNotNone(summary)
+        self.assertIn("3 slot(s) held", summary.text())
+        dialog.deleteLater()
+
     def test_carried_keep_drop_toggle_present_for_gathering_and_wired(self) -> None:
         from aqt.qt import QCheckBox
 
@@ -1372,7 +1387,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         # actual Qt geometry (not a screenshot) so this can't regress unnoticed.
         from aqt.qt import QPushButton, QWidget
 
-        add_calls: list = []
+        quantity_calls: list = []
         clear_calls: list = []
         advanced_calls: list = []
 
@@ -1385,7 +1400,9 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_carried_advanced=lambda v: advanced_calls.append(v),
             carried_advanced_state=True,
             get_carried_layout_cells=get_cells,
-            on_add_to_carried_layout=lambda name, delta: add_calls.append((name, delta)),
+            on_set_carried_layout_quantity=lambda name, quantity: quantity_calls.append(
+                (name, quantity)
+            ),
             on_clear_carried_layout=lambda: clear_calls.append(True),
         )
         # Layouts don't activate offscreen until the dialog is actually shown
@@ -1427,10 +1444,15 @@ class MainMenuWidgetTest(unittest.TestCase):
         # into the same pixels -- the concrete symptom of the compression bug.
         self.assertGreater(cells[27].geometry().y(), cells[0].geometry().y() + 200)
 
-        # Clicking a filled cell removes one unit via the callback.
-        cells[0].click()
-        QApplication.processEvents()
-        self.assertIn(("Iron ore", -1), add_calls)
+        # Clicking a filled cell edits its absolute quantity via the callback.
+        original_get_int = self._ui.QInputDialog.getInt
+        self._ui.QInputDialog.getInt = lambda *a, **k: (7, True)
+        try:
+            cells[0].click()
+            QApplication.processEvents()
+        finally:
+            self._ui.QInputDialog.getInt = original_get_int
+        self.assertIn(("Iron ore", 7), quantity_calls)
 
         # Switching to Auto hides the grid and fires the callback.
         auto_btn.click()
@@ -4055,9 +4077,9 @@ class MainMenuWidgetTest(unittest.TestCase):
             carried_pack_target_active=True,
             carried_advanced_state=True,
             on_set_carried_advanced=lambda _enabled: None,
-            on_add_to_carried_layout=lambda _name, _delta: None,
+            on_set_carried_layout_quantity=lambda _name, _quantity: True,
             on_teleport_training_urn=_teleport,
-            on_discard_item=lambda _item: True,
+            on_discard_item=lambda _item, _quantity: True,
         )
         bank = _find_bank_list(dialog)
         row = next(
@@ -4074,7 +4096,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         actions = [action for action in menu.actions() if not action.isSeparator()]
         self.assertEqual(
             [action.text() for action in actions],
-            ["Teleport urn", "Add to carried layout", "Discard all (1)"],
+            ["Teleport urn", "Set carried quantity…", "Discard X…"],
         )
         teleport = actions[0]
         self.assertEqual(teleport.objectName(), "teleportTrainingUrnAction")
@@ -4116,7 +4138,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             pd,
             current_skill="Mining",
             on_teleport_training_urn=lambda _urn_id: True,
-            on_discard_item=lambda _item: True,
+            on_discard_item=lambda _item, _quantity: True,
         )
         full_menu = dialog._ankiscape_equip_menu_for(tier.item_full)
         teleport = next(action for action in full_menu.actions() if action.text() == "Teleport urn")
@@ -4138,14 +4160,14 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertFalse(any(action.text().startswith("Equip") for action in menu.actions()))
         dialog.deleteLater()
 
-    def test_bank_groups_food_with_icons_and_discard_all_confirmation(self) -> None:
+    def test_bank_groups_food_with_icons_and_discard_x_prompt(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Shrimps": 3}
-        discards: list[str] = []
+        discards: list[tuple[str, int]] = []
 
-        def _discard(item_name: str) -> bool:
-            discards.append(item_name)
-            pd["inventory"][item_name] = 0
+        def _discard(item_name: str, quantity: int) -> bool:
+            discards.append((item_name, quantity))
+            pd["inventory"][item_name] -= quantity
             return True
 
         self._captured.clear()
@@ -4179,18 +4201,18 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         menu = dialog._ankiscape_equip_menu_for("Shrimps")
         action = menu.actions()[0]
-        self.assertEqual(action.text(), "Discard all (3)")
+        self.assertEqual(action.text(), "Discard X…")
         self.assertTrue(action.isEnabled())
 
-        original_question = self._ui.QMessageBox.question
-        self._ui.QMessageBox.question = lambda *a, **k: self._ui.QMessageBox.StandardButton.Yes
+        original_get_int = self._ui.QInputDialog.getInt
+        self._ui.QInputDialog.getInt = lambda *a, **k: (2, True)
         try:
             action.trigger()
             QApplication.processEvents()
         finally:
-            self._ui.QMessageBox.question = original_question
-        self.assertEqual(discards, ["Shrimps"])
-        self.assertEqual(pd["inventory"]["Shrimps"], 0)
+            self._ui.QInputDialog.getInt = original_get_int
+        self.assertEqual(discards, [("Shrimps", 2)])
+        self.assertEqual(pd["inventory"]["Shrimps"], 1)
 
     def test_bank_gear_lives_in_separate_panel_from_striped_inventory(self) -> None:
         pd = _make_player_data()

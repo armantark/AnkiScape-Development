@@ -61,7 +61,7 @@ Decision status: design settled; implementation waits for the Darkan revamp.
 
 ### Bank Direct-Action Contract
 
-Status: **owner-approved design; implementation pending on `main`.**
+Status: **implemented on `main` 2026-07-17.**
 
 - Replace the destructive `Discard all` Bank command with `Discard X`. The
   player chooses the quantity explicitly, and the remainder of the stack stays
@@ -86,6 +86,21 @@ Status: **owner-approved design; implementation pending on `main`.**
   Do not reproduce Withdraw, Deposit, Note, Un-note, Sell, bank tabs, or
   placeholders: the flat Bank is persistent storage and the target-specific
   28-slot pack is the carried subset.
+
+Implementation closure:
+
+- The Bank context menu now prompts for an exact `Discard X` quantity, preserves
+  the remainder, and records the mutation on the separate direct-action undo
+  stack.
+- Custom-pack cells and Bank rows now open one absolute quantity editor.
+  Stackables occupy one slot at any positive quantity; non-stackables consume
+  one slot each and reject edits beyond the 28-slot budget.
+- Updating a positive quantity retains the dictionary position used as the
+  packing queue. Removing and later re-adding an item appends it.
+- The carried summary now receives the canonical stackability registry instead
+  of counting every stackable unit as its own slot.
+- Pure, integration/undo, and real offscreen Qt regressions cover these
+  boundaries. Bank search/filtering remains a separate approved enhancement.
 
 ### Source Gate
 

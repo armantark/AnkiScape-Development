@@ -41,9 +41,11 @@ at every bank run," which needs a real per-target pack to exist. Restored:
   regression, fixed before it shipped.)
 - `layout_to_grid_cells_pure` expands a layout into exactly 28 slot-accurate
   display cells (pure math), so the UI layer does zero game-logic judgment.
-- UI (delegated to an Opus subagent, then reviewed): an "Advanced: arrange my
-  own 28-slot pack" checkbox, the 28-cell grid (click a cell to remove one
-  unit), a Clear button, and a bank-menu "Add to carried layout" action.
+- UI: the Equipment and Bank surfaces share an Auto/Custom control. Custom mode
+  uses a 28-cell grid, a Clear button, and an absolute `Set carried quantity…`
+  editor reachable from either a filled cell or a Bank row. Stackability-aware
+  validation lives in `inventory_pure.py`; editing a positive quantity
+  preserves queue order, while remove/re-add appends the item.
 - **Bug found in review, not by screenshot:** a plain `QWidget` housing 28
   fixed-size cell buttons defaults to a `Preferred` size policy, so the parent
   `QVBoxLayout` compressed the whole grid down to a 15px sliver under space

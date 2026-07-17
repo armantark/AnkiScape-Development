@@ -939,31 +939,27 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         player_data["carried_advanced_targets"] = advanced
         save_player_data()
 
-    def _add_to_carried_layout(item_name: str, delta: int):
+    def _set_carried_layout_quantity(item_name: str, quantity: int):
         target_id = _current_carried_pack_target()
         if target_id is None:
-            return
-        layout = player_data.get("carried_layout")
-        if not isinstance(layout, dict):
-            layout = {}
-        target_layout = dict(layout.get(target_id, {}))
-        # The grid is 28 cells; anything past that would be saved but never shown,
-        # so the player could neither see nor click it off again.
-        if int(delta) > 0 and not inventory_pure.carried_has_room_for(
-            target_layout, item_name, int(delta), runtime_actions._OVERLAY_STACKABLE_NAMES
-        ):
-            return
-        new_count = max(0, int(target_layout.get(item_name, 0)) + int(delta))
-        if new_count > 0:
-            target_layout[item_name] = new_count
-        else:
-            target_layout.pop(item_name, None)
+            return False
+        raw_layout = player_data.get("carried_layout")
+        layout = dict(raw_layout) if isinstance(raw_layout, dict) else {}
+        target_layout, ok = inventory_pure.set_carried_layout_quantity_pure(
+            layout.get(target_id, {}),
+            item_name,
+            quantity,
+            runtime_actions._OVERLAY_STACKABLE_NAMES,
+        )
+        if not ok:
+            return False
         if target_layout:
             layout[target_id] = target_layout
         else:
             layout.pop(target_id, None)
         player_data["carried_layout"] = layout
         save_player_data()
+        return True
 
     def _clear_carried_layout():
         target_id = _current_carried_pack_target()
@@ -1091,10 +1087,11 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_set_carried_advanced=_set_carried_advanced,
         carried_advanced_state=_current_carried_advanced_state(),
         # A callback, not a snapshot: the grid re-reads live player_data after
-        # every add/clear, so it can refresh without rebuilding the whole dialog.
+        # every quantity edit/clear, so it refreshes without rebuilding the dialog.
         get_carried_layout_cells=_current_carried_layout_cells,
-        on_add_to_carried_layout=_add_to_carried_layout,
+        on_set_carried_layout_quantity=_set_carried_layout_quantity,
         on_clear_carried_layout=_clear_carried_layout,
+        carried_stackable_names=runtime_actions._OVERLAY_STACKABLE_NAMES,
         on_set_combat=lambda target: _set_value("current_combat_target", target),
         on_set_combat_style=_set_combat_attack_style,
         on_set_combat_spell=lambda spell: _set_value("current_combat_spell", spell),
@@ -1446,17 +1443,33 @@ def on_unequip_slot(slot):
     return True
 
 
-def on_discard_item(item_name):
-    inventory = dict(player_data.get("inventory", {}) or {})
-    if int(inventory.get(item_name, 0) or 0) <= 0:
+def on_discard_item(item_name, quantity):
+    """Discard an exact Bank quantity as one separately undoable direct action."""
+    inventory, ok = inventory_pure.discard_inventory_quantity_pure(
+        player_data.get("inventory", {}) or {},
+        item_name,
+        quantity,
+    )
+    if not ok:
         return False
-    inventory[item_name] = 0
+    before = {"player_data": copy.deepcopy(player_data), "random_state": random.getstate()}
+    try:
+        mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+    except (AttributeError, RuntimeError):
+        return False
+    _DIRECT_ACTION_UNDO_STACK.append(before)
+    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
     player_data["inventory"] = inventory
     save_player_data()
     _refresh_skill_availability()
     try:
         update_review_hud(player_data, current_skill)
     except Exception:
+        pass
+    try:
+        mw.update_undo_actions()
+    except AttributeError:
         pass
     return True
 

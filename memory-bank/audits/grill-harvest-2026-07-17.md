@@ -108,3 +108,29 @@ Slayer's parked disposition, and the VIP-ticket exclusion are already
 source/design closed. None is enough to justify a partial live master pool or a
 dead Slayer page. The next Slayer work is therefore source harvesting and
 machine-checkable pool certification, not runtime exposure.
+
+## Accepted batch — Bank quantity actions
+
+Finding: the Bank still exposed destructive `Discard all` and one-unit Custom
+pack edits. Discard bypassed the direct-action undo channel, and the carried
+summary counted every unit in a stackable as a separate slot.
+
+Resolution:
+
+- `Discard X…` prompts for an exact positive quantity, preserves the Bank
+  remainder, and records one atomic direct-action undo snapshot.
+- `Set carried quantity…` edits the active target's desired Custom-pack quantity
+  from either the grid or Bank menu.
+- The pure setter enforces canonical stackability and the 28-slot budget,
+  retains an existing item's insertion position, removes at zero, and appends a
+  later re-add.
+- The live carried summary now receives the canonical stackable-item set.
+
+Regression proof:
+
+- `tests.test_inventory_pure` plus the full integration smoke module: 123
+  passed.
+- Focused real offscreen Qt Bank/carried tests: 5 passed.
+- Full real offscreen Qt main-menu module: 190 passed in 532.645 seconds.
+- Documentation audit: 235 Markdown and 298 HTML files passed.
+- Compile, diff, and worktree-layout checks passed.

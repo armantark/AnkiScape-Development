@@ -2192,8 +2192,9 @@ def show_main_menu(
     on_set_carried_advanced=None,
     carried_advanced_state=False,
     get_carried_layout_cells=None,
-    on_add_to_carried_layout=None,
+    on_set_carried_layout_quantity=None,
     on_clear_carried_layout=None,
+    carried_stackable_names=frozenset(),
     on_set_combat=None,
     on_set_combat_style=None,
     on_set_combat_spell=None,
@@ -6507,7 +6508,7 @@ def show_main_menu(
         carried_targets = 0
         for view in carried.values():
             if isinstance(view, dict) and view:
-                total_slots += inventory_pure.carried_slots_used(view, frozenset())
+                total_slots += inventory_pure.carried_slots_used(view, carried_stackable_names)
                 carried_targets += 1
         if run:
             status = f"Banking… {int(run.get('reviews_remaining', 0))} review(s) left"
@@ -6554,7 +6555,7 @@ def show_main_menu(
     # advanced flag without re-firing the backend, and one auto-view refresher per
     # section keeps its supply summary + bank-run text (and pack-mode combo)
     # current. carried_mode_state is the single source of truth the bank context
-    # menu reads to decide whether "Add to carried layout" applies.
+    # menu reads to decide whether "Set carried quantity" applies.
     carried_grid_refreshers: list = []
     carried_switch_setters: list = []
     carried_section_refreshers: list = []
@@ -6589,9 +6590,45 @@ def show_main_menu(
                     names.append(name)
         return names
 
+    def _current_layout_quantity(item_name: str) -> int:
+        if get_carried_layout_cells is None:
+            return 0
+        return sum(
+            int(count)
+            for name, count in get_carried_layout_cells()
+            if name == item_name
+        )
+
+    def _prompt_set_pack_quantity(item_name: str, parent=None) -> None:
+        """Set one absolute custom-pack quantity, preserving its queue position."""
+        if on_set_carried_layout_quantity is None:
+            return
+        current = _current_layout_quantity(item_name)
+        maximum = 2_147_483_647 if item_name in carried_stackable_names else inventory_pure.CARRIED_CAPACITY
+        quantity, ok = QInputDialog.getInt(
+            parent or dialog,
+            "Set carried quantity",
+            f"{item_name} quantity:",
+            min(maximum, current if current > 0 else 1),
+            0,
+            maximum,
+            1,
+        )
+        if not ok:
+            return
+        accepted = on_set_carried_layout_quantity(item_name, quantity)
+        if accepted is False:
+            QMessageBox.information(
+                parent or dialog,
+                "Carried pack full",
+                "That quantity would exceed the 28-slot carried pack.",
+            )
+            return
+        _refresh_carried_layout_grid()
+
     def _prompt_add_to_pack() -> None:
-        """Empty-slot click: pick a bank item to add to the custom pack."""
-        if on_add_to_carried_layout is None:
+        """Empty-slot click: pick a Bank item, then set its desired quantity."""
+        if on_set_carried_layout_quantity is None:
             return
         names = _pack_pickable_items()
         if not names:
@@ -6599,8 +6636,7 @@ def show_main_menu(
             return
         choice, ok = QInputDialog.getItem(dialog, "Add to carried pack", "Item:", names, 0, False)
         if ok and choice:
-            on_add_to_carried_layout(str(choice), 1)
-            _refresh_carried_layout_grid()
+            _prompt_set_pack_quantity(str(choice), dialog)
 
     def _sync_carried_switches(advanced: bool) -> None:
         carried_mode_state["advanced"] = bool(advanced)
@@ -6766,9 +6802,7 @@ def show_main_menu(
             def _on_cell_clicked(_checked=False, idx=i):
                 name = cell_items[idx]
                 if name:
-                    if on_add_to_carried_layout is not None:
-                        on_add_to_carried_layout(name, -1)
-                        _refresh_carried_layout_grid()
+                    _prompt_set_pack_quantity(name, cell_buttons[idx])
                 else:
                     _prompt_add_to_pack()
 
@@ -6795,7 +6829,10 @@ def show_main_menu(
         grid_row_layout.addStretch(1)
         custom_layout.addWidget(grid_row)
 
-        pack_hint = QLabel("Click an empty slot (or right-click a bank item) to add it. Click a filled slot to remove one.")
+        pack_hint = QLabel(
+            "Click an empty slot to choose an item. Click a filled slot, or "
+            "right-click a Bank item, to set its carried quantity."
+        )
         pack_hint.setWordWrap(True)
         pack_hint.setStyleSheet(f"color: {dim_text_css(container)}; font-size: 10px;")
         custom_layout.addWidget(pack_hint)
@@ -6830,13 +6867,13 @@ def show_main_menu(
                     count = int(count)
                     cell_button.setText(f"{item_name}\n×{count}" if count > 1 else str(item_name))
                     suffix = f" ×{count}" if count > 1 else ""
-                    cell_button.setToolTip(f"{item_name}{suffix} — click to remove one")
-                    cell_button.setEnabled(on_add_to_carried_layout is not None)
+                    cell_button.setToolTip(f"{item_name}{suffix} — click to set quantity")
+                    cell_button.setEnabled(on_set_carried_layout_quantity is not None)
                     cell_button.setStyleSheet(_CARRIED_CELL_FILLED_CSS)
                 else:
                     cell_button.setText("+")
                     cell_button.setToolTip("Empty slot — click to add a bank item")
-                    cell_button.setEnabled(on_add_to_carried_layout is not None)
+                    cell_button.setEnabled(on_set_carried_layout_quantity is not None)
                     cell_button.setStyleSheet(_CARRIED_CELL_EMPTY_CSS)
 
         carried_grid_refreshers.append(_refresh_grid)
@@ -7394,30 +7431,30 @@ def show_main_menu(
             teleport_action.triggered.connect(_do_teleport)
             menu.addSeparator()
 
-        if carried_mode_state["advanced"] and on_add_to_carried_layout is not None:
-            add_to_layout_action = menu.addAction("Add to carried layout")
-            add_to_layout_action.triggered.connect(
-                lambda _checked=False, name=item_name: (
-                    on_add_to_carried_layout(name, 1),
-                    _refresh_carried_layout_grid(),
-                )
+        if carried_mode_state["advanced"] and on_set_carried_layout_quantity is not None:
+            set_layout_action = menu.addAction("Set carried quantity…")
+            set_layout_action.triggered.connect(
+                lambda _checked=False, name=item_name: _prompt_set_pack_quantity(name, bank_list)
             )
             menu.addSeparator()
 
-        discard_action = menu.addAction(f"Discard all ({amount})")
+        discard_action = menu.addAction("Discard X…")
         discard_action.setEnabled(amount > 0 and on_discard_item is not None)
+        discard_action.setToolTip(f"Choose how many of the {amount} in your Bank to discard.")
 
         def _do_discard(_checked: bool = False) -> None:
             if on_discard_item is None:
                 return
-            answer = QMessageBox.question(
+            quantity, ok = QInputDialog.getInt(
                 bank_list,
-                "Discard all?",
-                f"Discard all {amount} {item_name} from your bank?",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                QMessageBox.StandardButton.No,
+                "Discard from Bank",
+                f"{item_name} quantity:",
+                amount,
+                1,
+                amount,
+                1,
             )
-            if answer == QMessageBox.StandardButton.Yes and on_discard_item(item_name):
+            if ok and on_discard_item(item_name, quantity):
                 _refresh_equipment_views()
 
         discard_action.triggered.connect(_do_discard)

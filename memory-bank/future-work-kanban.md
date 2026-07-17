@@ -16,24 +16,24 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ### Owner-approved post-closure amendments
 
-Labels: `IMPLEMENT`. Design is settled; these mechanics are not yet live.
+Labels: `IMPLEMENT`. Design is settled; the remaining mechanics are not yet live.
 
 - Agility target packs must carry course requirements and real food when damage
   is possible; fatal failures grave the actual pack/equipment, and the
   Wilderness course uses the bounded PKer abstraction. Governing amendment:
   `memory-bank/agility-skill-contract-2026-07-15.md`.
-- Magic Charge must use the shared review-driven temporary-effect clock, scale
-  with Actions per Review, dissipate during safe non-combat activity, and never
-  read wall time. Governing amendment:
-  `memory-bank/magic-skill-contract-2026-07-11.md`.
 - Farming must add explicit one-review `Dig up`, user-authored whole-farm preset
   snapshots, inert selection/application, and the existing `Queue full run`
   execution path. Governing amendment:
   `memory-bank/farming-skill-contract-2026-07-11.md`.
-- Bank must add `Discard X` with direct-action undo and `Set carried quantity...`
-  with stack-aware slot validation while preserving insertion order as the
-  Custom-pack queue. Governing amendment:
-  `memory-bank/gap-grill-decisions-2026-07-10.md`.
+
+Completed 2026-07-17:
+
+- Magic Charge now uses the shared review-driven temporary-effect clock, scales
+  with Actions per Review, dissipates during safe non-combat activity, and
+  never reads wall time.
+- Bank now provides direct-undoable `Discard X` and stack-aware absolute
+  carried-quantity editing while preserving the Custom-pack queue order.
 
 The resolved overnight question ledger is preserved at
 `memory-bank/archive/2026-07/resolved-queues/design-gaps-overnight-2026-07-16.md`.

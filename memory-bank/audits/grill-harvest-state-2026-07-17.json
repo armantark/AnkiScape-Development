@@ -5,16 +5,16 @@
   "automation_id": "ankiscape-grill-harvest",
   "branch": "main",
   "baseline_commit": "2d51d213ab7e6c9a9b6fb397e9b664c9ed892d60",
-  "current_phase": "readiness_audit",
-  "last_observed_commit": "f10089ced5c55b1cde52f9cfbca354fd7c11f5b0",
+  "current_phase": "implementation",
+  "last_observed_commit": "6639a485c2ad2403896a9759fb3f3d2aadba1b4c",
   "queue": [
     {
       "id": "approved-amendments",
-      "status": "surveying",
+      "status": "implementing",
       "items": [
         "agility-carried-risk-packs",
         "farming-dig-up-presets-full-run",
-        "bank-discard-x-carried-order"
+        "bank-discard-x-carried-order-complete"
       ]
     },
     {
@@ -23,9 +23,12 @@
       "runtime_authorized": true
     }
   ],
-  "accepted_commits": [],
+  "accepted_commits": [
+    "6639a485c2ad2403896a9759fb3f3d2aadba1b4c"
+  ],
   "completed_batches": [
-    "magic-charge-review-duration"
+    "magic-charge-review-duration",
+    "bank-discard-x-carried-order"
   ],
   "workflow_runs": [
     {

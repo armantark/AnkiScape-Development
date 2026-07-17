@@ -3235,6 +3235,26 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
         self.assertEqual(addon.player_data, initial)
 
+    def test_bank_discard_x_preserves_remainder_and_uses_direct_action_undo(self):
+        addon = _load_addon_as_package("ankiscape_discard_direct_action_integration")
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.current_skill = "Cooking"
+        initial = {"inventory": {"Shrimps": 5}}
+        addon.player_data = copy.deepcopy(initial)
+
+        self.assertTrue(addon.on_discard_item("Shrimps", 2))
+        self.assertEqual(addon.player_data["inventory"]["Shrimps"], 3)
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
     def test_reward_claim_recomputes_level_before_achievements_and_is_undoable(self):
         addon = _load_addon_as_package("ankiscape_reward_claim_direct_action_integration")
         col = _DummyCol()
@@ -3335,11 +3355,12 @@ class TestIntegrationSmoke(unittest.TestCase):
         cells = captured["get_carried_layout_cells"]()
         self.assertIn(("Bonecrusher", 1), cells)
         self.assertNotIn(("Bones", 1), cells)
-        captured["on_add_to_carried_layout"]("Ectoplasmator", 1)
+        self.assertTrue(captured["on_set_carried_layout_quantity"]("Ectoplasmator", 4))
         self.assertEqual(
             addon.player_data["carried_layout"]["ghost"],
-            {"Bonecrusher": 1, "Ectoplasmator": 1},
+            {"Bonecrusher": 1, "Ectoplasmator": 4},
         )
+        self.assertIn("Air rune", captured["carried_stackable_names"])
 
     def test_unrelated_undo_does_not_consume_review_snapshot(self):
         addon = _load_addon_as_package("ankiscape_unrelated_undo_integration")

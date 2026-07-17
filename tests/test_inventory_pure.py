@@ -16,6 +16,7 @@ from inventory_pure import (
     carried_action_churn_pure,
     carried_advanced_for,
     carried_keep_for,
+    discard_inventory_quantity_pure,
     effective_carried_capacity,
     filter_loot_pure,
     inventory_delta_gains,
@@ -23,6 +24,7 @@ from inventory_pure import (
     apply_carried_layout_pure,
     layout_to_grid_cells_pure,
     sanitize_carried_state,
+    set_carried_layout_quantity_pure,
 )
 
 
@@ -56,6 +58,45 @@ class TestInventoryPure(unittest.TestCase):
         self.assertEqual(carried_slots_used(carried, stackable), CARRIED_CAPACITY)
         self.assertTrue(carried_has_room_for(carried, "Air rune", 1000, stackable))
         self.assertFalse(carried_has_room_for(carried, "Feather", 1, {"Air rune", "Feather"}))
+
+    def test_set_carried_quantity_distinguishes_stackable_slot_cost(self):
+        layout = {"Lobster": 27, "Air rune": 5}
+
+        stacked, ok = set_carried_layout_quantity_pure(
+            layout, "Air rune", 50_000, {"Air rune"}
+        )
+        self.assertTrue(ok)
+        self.assertEqual(stacked, {"Lobster": 27, "Air rune": 50_000})
+
+        unchanged, ok = set_carried_layout_quantity_pure(
+            stacked, "Swordfish", 1, {"Air rune"}
+        )
+        self.assertFalse(ok)
+        self.assertEqual(unchanged, stacked)
+
+    def test_set_carried_quantity_preserves_order_until_removed(self):
+        layout = {"Lobster": 2, "Prayer potion (4)": 1}
+
+        updated, ok = set_carried_layout_quantity_pure(layout, "Lobster", 3, set())
+        self.assertTrue(ok)
+        self.assertEqual(list(updated), ["Lobster", "Prayer potion (4)"])
+
+        removed, ok = set_carried_layout_quantity_pure(updated, "Lobster", 0, set())
+        self.assertTrue(ok)
+        readded, ok = set_carried_layout_quantity_pure(removed, "Lobster", 1, set())
+        self.assertTrue(ok)
+        self.assertEqual(list(readded), ["Prayer potion (4)", "Lobster"])
+
+    def test_discard_exact_quantity_preserves_remainder_and_rejects_overdraw(self):
+        inventory = {"Shrimps": 5}
+
+        updated, ok = discard_inventory_quantity_pure(inventory, "Shrimps", 2)
+        self.assertTrue(ok)
+        self.assertEqual(updated["Shrimps"], 3)
+
+        unchanged, ok = discard_inventory_quantity_pure(updated, "Shrimps", 4)
+        self.assertFalse(ok)
+        self.assertEqual(unchanged["Shrimps"], 3)
 
     def test_high_alch_value_floors_and_loot_filter_branches(self):
         self.assertEqual(high_alch_value(99), 59)

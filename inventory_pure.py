@@ -85,6 +85,55 @@ def carried_has_room_for(
     return used + extra_slots <= CARRIED_CAPACITY
 
 
+def set_carried_layout_quantity_pure(
+    layout: Mapping[str, int],
+    item_name: str,
+    quantity: int,
+    stackable_names: set[str] | frozenset[str],
+    capacity: int = CARRIED_CAPACITY,
+) -> tuple[dict[str, int], bool]:
+    """Set one desired pack quantity without disturbing its queue position."""
+    current = dict(layout) if isinstance(layout, Mapping) else {}
+    if not isinstance(item_name, str) or not item_name:
+        return current, False
+    try:
+        desired = int(quantity)
+    except (TypeError, ValueError, OverflowError):
+        return current, False
+    if desired < 0:
+        return current, False
+
+    candidate = dict(current)
+    if desired:
+        candidate[item_name] = desired
+    else:
+        candidate.pop(item_name, None)
+    capacity = _clean_int(capacity, CARRIED_CAPACITY, minimum=1)
+    if carried_slots_used(candidate, stackable_names) > capacity:
+        return current, False
+    return candidate, True
+
+
+def discard_inventory_quantity_pure(
+    inventory: Mapping[str, int],
+    item_name: str,
+    quantity: int,
+) -> tuple[dict[str, int], bool]:
+    """Discard an exact positive bank quantity while preserving the remainder."""
+    current = dict(inventory) if isinstance(inventory, Mapping) else {}
+    if not isinstance(item_name, str) or not item_name:
+        return current, False
+    try:
+        discard_count = int(quantity)
+    except (TypeError, ValueError, OverflowError):
+        return current, False
+    available = _clean_int(current.get(item_name, 0), 0, minimum=0)
+    if discard_count <= 0 or discard_count > available:
+        return current, False
+    current[item_name] = available - discard_count
+    return current, True
+
+
 def high_alch_value(cache_value: Any) -> int:
     try:
         value = float(cache_value)
