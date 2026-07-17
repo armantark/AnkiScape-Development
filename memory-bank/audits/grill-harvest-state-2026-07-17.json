@@ -6,14 +6,16 @@
   "branch": "main",
   "baseline_commit": "2d51d213ab7e6c9a9b6fb397e9b664c9ed892d60",
   "current_phase": "implementation",
-  "last_observed_commit": "69855d9649500f04e64343e8810e93b5ba4904c0",
+  "last_observed_commit": "9b65f45a507d638ce4a9ed3e5e71416f39d25a1d",
   "queue": [
     {
       "id": "approved-amendments",
-      "status": "implementing",
+      "status": "complete",
       "items": [
-        "farming-dig-up-presets-full-run",
-        "bank-discard-x-carried-order-complete"
+        "farming-dig-up-presets-full-run-complete",
+        "bank-discard-x-carried-order-complete",
+        "agility-carried-risk-packs-complete",
+        "magic-charge-review-duration-complete"
       ]
     },
     {
@@ -25,12 +27,14 @@
   "accepted_commits": [
     "6639a485c2ad2403896a9759fb3f3d2aadba1b4c",
     "8426fa20881d5c670c3c6e8a8ecf299984b4c1b9",
-    "69855d9649500f04e64343e8810e93b5ba4904c0"
+    "69855d9649500f04e64343e8810e93b5ba4904c0",
+    "9b65f45a507d638ce4a9ed3e5e71416f39d25a1d"
   ],
   "completed_batches": [
     "magic-charge-review-duration",
     "bank-discard-x-carried-order",
-    "agility-carried-risk-packs"
+    "agility-carried-risk-packs",
+    "farming-dig-up-presets-full-run"
   ],
   "workflow_runs": [
     {
@@ -43,6 +47,16 @@
       "id": "1b9b3950-4568-49b3-b72a-e2a4e21e468b",
       "purpose": "Agility carried-risk final checker",
       "result": "stale carried-view weight defect reproduced and fixed"
+    },
+    {
+      "id": "927c74c3-df3a-4ba6-aa45-35a25cd6da2e",
+      "purpose": "Farming queue and preset seam audit",
+      "result": "payment ownership, transient plan preservation, and skip-reporting defects reproduced and fixed"
+    },
+    {
+      "id": "fcac964b-94d0-4df2-82c9-dfdac2685256",
+      "purpose": "Farming replacement and preset final checker",
+      "result": "queue escrow refund and maximum-length duplicate-name defects reproduced and fixed"
     }
   ],
   "excluded_until_owner_authorizes": [

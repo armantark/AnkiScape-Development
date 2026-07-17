@@ -1,8 +1,8 @@
 # Farming Skill Contract — closed 2026-07-11
 
 Status: **implemented on `main` at `9a88c56`; the 2026-07-16 replacement and
-preset amendment is owner-approved but not yet implemented.** The body below
-preserves the pre-implementation contract. The source research record is
+preset amendment is implemented at `9b65f45`.** The body below preserves the
+original contract and its post-closure amendment. The source research record is
 `memory-bank/source-audits/farming-source-dossier-2026-07-11.md` (cited below
 as "dossier"); its per-row citations into game-main (GM) and the Darkan pin
 `7e7d67b` (DK) are the extraction map and are not repeated here.
@@ -126,7 +126,7 @@ The verification gate ran and produced `memory-bank/source-audits/farming-wiki-p
 
 ## Post-closure replacement and preset amendment — 2026-07-16
 
-Status: **owner-approved design; implementation pending on `main`.**
+Status: **implemented and verified on `main` at `9b65f45`.**
 
 - Add `Dig up` as a one-review field verb for a healthy mature regrowth crop.
   It requires a Spade, returns no produce, and leaves the patch empty. It never
@@ -153,3 +153,7 @@ Status: **owner-approved design; implementation pending on `main`.**
   unprotected. A manually assembled queue may still deliberately plant without
   protection. Watering must function end to end before it appears as a preset
   field.
+- The queued planting step owns a validated escrow record for a newly paid
+  gardener. Removing or clearing that step, or skipping it because its planting
+  requirements changed, refunds the exact source-defined payment. Successful
+  planting consumes it. Legacy already-paid plans remain compatible.

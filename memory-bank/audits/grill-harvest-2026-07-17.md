@@ -184,3 +184,47 @@ Regression proof:
 - Documentation: 236 Markdown and 298 HTML files passed.
 - Compile/diff/worktree checks passed.
 - Checkpoint: `69855d9`.
+
+## Accepted batch — Farming replacement and whole-farm presets
+
+Finding: the approved post-closure amendment had no live owner. Mature
+regrowth crops could not be deliberately removed, the farm sheet had only
+per-patch plans, planned gardener intent still followed the old immediate-pay
+path, and full-run omissions were not reportable.
+
+Resolution:
+
+- `Dig up` is a one-review, zero-reward, Spade-gated verb for healthy mature
+  regrowth crops. A differing full-run plan queues `Dig up` then `Plant`; the
+  manual action queues only `Dig up`.
+- User-named presets snapshot selected patch plan policies without transient
+  paid-protection or Fertile Soil state. Selection is inert; apply is atomic;
+  save/update/rename/duplicate/delete remain compact under one management menu.
+- Plans now carry explicit gardener, watering, and item-cure policy. Full runs
+  pay selected gardeners while building the queue and report whole-patch skips
+  when payment is missing.
+- Newly paid gardener goods are validated escrow on the planting step.
+  Removing, clearing, or skipping that step refunds them; successful planting
+  consumes them.
+- Storage v39 adds preset/order/selection/skip defaults while preserving
+  unknown state.
+
+Checker findings:
+
+- The first escrow implementation stranded payment when a paid step was
+  removed, cleared, reordered into failure, or skipped. The primary reproduced
+  it and added exact refund semantics.
+- Duplicating a 60-character preset could sanitize back to the original name.
+  Duplicate suffixes now fit inside the 60-character limit and remain unique.
+
+Regression proof:
+
+- Focused logic/storage/integration: 176 methods passed.
+- Final focused real offscreen Qt Farming/HUD/dispatcher: 84 methods passed.
+- Full core: 1,363 methods, 1,164 ordinary passes, 196 environment skips, and
+  three declared XP-parity expected failures.
+- Full real offscreen Qt: 1,363 methods, 1,360 ordinary passes, no skips, and
+  the same three expected failures.
+- Test quality: zero hard issues across 67 files.
+- Compile/diff/worktree checks passed.
+- Checkpoint: `9b65f45`.

@@ -20,6 +20,25 @@ AnkiScape now has 17 complete skill surfaces, five partial Combat-trained skills
   quality issues, 236 Markdown and 298 HTML files, and safe diff/worktree
   closure.
 
+## Farming replacement and preset amendment — 2026-07-17
+
+- Integrated into `main` at `9b65f45`.
+- Added the explicit one-review `Dig up` verb for healthy mature regrowth
+  crops, including differing-plan full runs that queue removal before planting.
+- Added user-named whole-farm presets with selected patch inclusion, inert
+  selection/application, modified-state reporting, and full CRUD management.
+- Added per-plan gardener, watering, and Plant-cure policies. Full runs skip and
+  report patches missing gardener goods instead of silently planting
+  unprotected.
+- Gardener payments are validated queue escrow: successful planting consumes
+  them, while queue removal, clearing, or execution skips refund them.
+- The independent final checker found and the primary fixed removable payment
+  ownership and maximum-length duplicate preset names.
+- Verified all 1,363 core methods (1,164 ordinary passes, 196 environment
+  skips, three expected failures), all 1,363 real offscreen Qt methods (1,360
+  ordinary passes, three expected failures), 84 final focused Qt tests, zero
+  hard test-quality issues, and safe diff/worktree closure.
+
 ## Worktree collapse — 2026-07-16
 
 - Reconciled all seven linked worktrees into the canonical checkout and removed

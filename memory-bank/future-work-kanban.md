@@ -16,16 +16,7 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ### Owner-approved post-closure amendments
 
-Labels: `IMPLEMENT`. Design is settled; the remaining mechanics are not yet live.
-
-- Agility target packs must carry course requirements and real food when damage
-  is possible; fatal failures grave the actual pack/equipment, and the
-  Wilderness course uses the bounded PKer abstraction. Governing amendment:
-  `memory-bank/agility-skill-contract-2026-07-15.md`.
-- Farming must add explicit one-review `Dig up`, user-authored whole-farm preset
-  snapshots, inert selection/application, and the existing `Queue full run`
-  execution path. Governing amendment:
-  `memory-bank/farming-skill-contract-2026-07-11.md`.
+Labels: none. The two approved amendments are now live.
 
 Completed 2026-07-17:
 
@@ -34,6 +25,11 @@ Completed 2026-07-17:
   never reads wall time.
 - Bank now provides direct-undoable `Discard X` and stack-aware absolute
   carried-quantity editing while preserving the Custom-pack queue order.
+- Agility target packs carry course requirements and real food, share the
+  grave/death/undo path, and resolve the bounded Wilderness PKer abstraction.
+- Farming provides explicit one-review `Dig up`, user-authored whole-farm
+  presets, inert application, gardener-payment escrow, and reported full-run
+  skips.
 
 The resolved overnight question ledger is preserved at
 `memory-bank/archive/2026-07/resolved-queues/design-gaps-overnight-2026-07-16.md`.
@@ -95,6 +91,11 @@ Labels: none remaining on the core build; trailing acquisition/activity dependen
 
 - Implemented from `memory-bank/farming-skill-contract-2026-07-11.md` and the resolved source dossier: review-ticked clock, queued one-review field detours, full disease/death/growth state, the pre-EOC patch map, protection/compost/juju behavior, source-blocked rows, HUD, storage, and Qt sheet.
 - Cure Plant and Fertile Soil now have real Farming function rather than ceremonial casts.
+- The replacement/preset amendment shipped at `9b65f45`: healthy mature
+  regrowers can be dug up explicitly; differing full-run plans queue removal
+  then planting; whole-farm presets snapshot selected plan policies without
+  consuming goods; and gardener payments are escrowed by the queued planting
+  step with refund on removal, clearing, or execution skip.
 - `hunter-habitat-jadinko` remains an owning-activity/acquisition follow-up; core Farming is no longer its dependency.
 
 ### Agility — SHIPPED 2026-07-15
