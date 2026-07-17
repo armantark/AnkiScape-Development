@@ -128,6 +128,191 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["combat_grave"]["source"], "agility_failure")
         self.assertTrue(any("YOU DIED" in text for text in calls["activity"]))
 
+    def test_agility_auto_pack_carries_food_and_auto_eats_from_that_pack(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "current_agility": "wilderness_course",
+            "agility_level": 53,
+            "agility_exp": 0.0,
+            "combat_lifepoints": 20,
+            "hitpoints_level": 10,
+            "combat_auto_eat_threshold_percent": 40,
+            "combat_auto_eat_food": ["Shark"],
+            "inventory": {"Shark": 2},
+            "equipment": {},
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(
+            run_answer_with_carried_overlay(
+                _context(player_data, calls, random_values=(0.0, 0.5, 0.5, 0.5)),
+                "agility",
+                handle_agility_answer,
+            )
+        )
+
+        self.assertEqual(player_data["inventory"], {"Shark": 1})
+        self.assertEqual(player_data["carried_inventory"]["wilderness_course"], {"Shark": 1})
+        self.assertEqual(player_data["combat_lifepoints"], 100)
+        self.assertTrue(any("Auto-ate Shark" in text for text in calls["activity"]))
+
+    def test_agility_auto_pack_does_not_refill_for_food_beyond_the_28_slot_projection(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "current_agility": "wilderness_course",
+            "agility_level": 99,
+            "agility_exp": 0.0,
+            "combat_lifepoints": 1000,
+            "combat_auto_eat_food": ["Shark", "Lobster"],
+            "inventory": {"Shark": 100, "Lobster": 100},
+            "equipment": {},
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(
+            run_answer_with_carried_overlay(
+                _context(player_data, calls, random_values=(0.99, 0.99, 0.99, 0.99)),
+                "agility",
+                handle_agility_answer,
+            )
+        )
+
+        self.assertEqual(player_data["carried_inventory"]["wilderness_course"], {"Shark": 28})
+        self.assertNotIn("agility_last_travel", player_data)
+        self.assertEqual(player_data["agility_exp"], 15.0)
+
+    def test_depleted_agility_food_costs_a_review_to_repack_from_the_bank(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "current_agility": "wilderness_course",
+            "agility_level": 53,
+            "agility_exp": 0.0,
+            "combat_lifepoints": 1000,
+            "combat_auto_eat_food": ["Shark"],
+            "inventory": {"Shark": 72},
+            "equipment": {},
+            "completed_achievements": [],
+            "carried_primed_targets": {"wilderness_course": True},
+            "carried_inventory": {},
+        }
+
+        self.assertTrue(
+            run_answer_with_carried_overlay(
+                _context(player_data, calls, random_values=(0.5,)),
+                "agility",
+                handle_agility_answer,
+            )
+        )
+
+        self.assertEqual(player_data["agility_exp"], 0.0)
+        self.assertEqual(player_data["carried_inventory"]["wilderness_course"], {"Shark": 28})
+        self.assertTrue(any("arrived and restocked" in text for text in calls["activity"]))
+
+    def test_agility_custom_pack_does_not_fall_back_to_bank_for_course_requirements(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "current_agility": "werewolf_course",
+            "agility_level": 99,
+            "strength_level": 99,
+            "agility_exp": 0.0,
+            "inventory": {"Ring of charos": 1, "Shark": 27},
+            "equipment": {},
+            "quests": {"creature_of_fenkenstrain": {"completed": True}},
+            "completed_achievements": [],
+            "carried_advanced_targets": {"werewolf_course": True},
+            "carried_layout": {"werewolf_course": {"Shark": 27}},
+        }
+
+        self.assertFalse(
+            run_answer_with_carried_overlay(
+                _context(player_data, calls, random_values=(0.99, 0.5, 0.5, 0.5)),
+                "agility",
+                handle_agility_answer,
+            )
+        )
+
+        self.assertTrue(calls["deactivated"])
+        self.assertIn("Ring of charos", calls["errors"][0][1])
+        self.assertEqual(player_data["agility_exp"], 0.0)
+
+    def test_fatal_agility_failure_graves_only_the_active_pack_and_equipment(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "current_agility": "wilderness_course",
+            "agility_level": 53,
+            "agility_exp": 0.0,
+            "combat_lifepoints": 10,
+            "hitpoints_level": 10,
+            "combat_auto_eat_threshold_percent": 40,
+            "combat_auto_eat_food": ["Shark"],
+            "inventory": {"Shark": 1, "Logs": 4},
+            "equipment": {"weapon": "Bronze sword"},
+            "completed_achievements": [],
+            "carried_inventory": {"logs": {"Logs": 4}},
+        }
+
+        self.assertTrue(
+            run_answer_with_carried_overlay(
+                _context(player_data, calls, random_values=(0.0, 0.5, 0.5, 0.5)),
+                "agility",
+                handle_agility_answer,
+            )
+        )
+
+        self.assertCountEqual(player_data["combat_grave"]["items"], ["Bronze sword", "Shark"])
+        self.assertEqual(player_data["combat_grave"]["source"], "agility_failure")
+        self.assertEqual(player_data["carried_inventory"], {"logs": {"Logs": 4}})
+        self.assertEqual(player_data["inventory"], {"Shark": 0, "Logs": 4})
+        self.assertEqual(player_data["equipment"], {})
+
+    def test_fatal_wilderness_lap_ambush_forfeits_uncommitted_lap_reward(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "current_agility": "wilderness_course",
+            "agility_level": 99,
+            "agility_exp": 0.0,
+            "combat_lifepoints": 100,
+            "hitpoints_level": 10,
+            "combat_auto_eat_food": ["Shark"],
+            "inventory": {},
+            "equipment": {"weapon": "Bronze sword"},
+            "completed_achievements": [],
+            "agility_lap_counts": {
+                "total": 0,
+                "flawless": 0,
+                "gnome_advanced_flawless": 0,
+                "barbarian_advanced_flawless": 0,
+                "agile_legs_unlocked": False,
+                "agile_top_unlocked": False,
+            },
+            "agility_course_state": {
+                "target": "wilderness_course",
+                "stage": 5,
+                "checkpoint": "start",
+                "flawless": True,
+                "lap_xp_valid": True,
+                "requested_item_valid": True,
+                "status": "",
+            },
+            "agility_pit_offer": False,
+        }
+
+        self.assertTrue(
+            run_answer_with_carried_overlay(
+                _context(player_data, calls, random_values=(0.99, 0.0, 0.005, 0.90)),
+                "agility",
+                handle_agility_answer,
+            )
+        )
+
+        self.assertEqual(player_data["agility_exp"], 0.0)
+        self.assertEqual(player_data["agility_lap_counts"]["total"], 0)
+        self.assertFalse(player_data["agility_pit_offer"])
+        self.assertEqual(player_data["agility_course_state"]["stage"], 0)
+        self.assertEqual(player_data["combat_grave"]["source"], "agility_wilderness_pker")
+        self.assertEqual(calls["xp"], [])
+        self.assertIn("died before the lap reward", calls["activity"][0])
+
     def test_barehanded_butterfly_awards_atomic_hunter_and_agility_xp_without_an_item(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

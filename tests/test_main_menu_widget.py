@@ -2168,6 +2168,35 @@ class MainMenuWidgetTest(unittest.TestCase):
         bank = _find_list_with_item_prefix(dialog, "Fire rune x150")
         self.assertTrue(any(text.startswith("Fire rune x150") for text in _list_texts(bank)))
 
+    def test_agility_auto_pack_summary_replaces_combat_only_controls(self) -> None:
+        from aqt.qt import QLabel, QPushButton, QComboBox
+
+        dialog = self._open(
+            _make_player_data(),
+            current_skill="Agility",
+            get_carried_auto_summary=lambda: (
+                "Wilderness Agility Course Auto pack · 28/28 slots\n"
+                "Food: Shark x28\nRequirements: ready\n"
+                "Weight: 16.8 kg carried · 16.8 kg effective"
+            ),
+            get_carried_bank_run_summary=lambda: "Bank run: ready",
+            carried_auto_is_combat=False,
+        )
+        dialog.show()
+        _open_equipment_tab(dialog)
+        QApplication.processEvents()
+
+        summary = dialog.findChild(QLabel, "combatLoadoutSummaryLabel")
+        bank_run = dialog.findChild(QLabel, "combatBankRunLabel")
+        supply_mode = dialog.findChild(QComboBox, "combatPackModeCombo")
+        clear_button = dialog.findChild(QPushButton, "combatClearInventoryButton")
+        self.assertIn("Food: Shark x28", summary.text())
+        self.assertIn("Weight: 16.8 kg carried", summary.text())
+        self.assertEqual(bank_run.text(), "Bank run: ready")
+        self.assertFalse(supply_mode.isVisibleTo(dialog))
+        self.assertFalse(clear_button.isVisibleTo(dialog))
+        dialog.deleteLater()
+
     def test_fishing_is_selectable_and_shows_output_first_target_list(self) -> None:
         pd = _make_player_data()
         pd["fishing_level"] = 48

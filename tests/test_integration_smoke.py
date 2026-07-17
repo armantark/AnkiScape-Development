@@ -3362,6 +3362,135 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         self.assertIn("Air rune", captured["carried_stackable_names"])
 
+    def test_agility_current_target_projects_auto_food_requirements_and_weight_in_main_menu(self):
+        addon = _load_addon_as_package("ankiscape_agility_carried_target_integration")
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon.mw = _DummyMW(_DummyCol())
+        addon.current_skill = "Agility"
+        addon.player_data = {
+            "current_agility": "wilderness_course",
+            "agility_level": 53,
+            "inventory": {"Shark": 2},
+            "equipment": {},
+            "combat_auto_eat_food": ["Shark"],
+            "smithing_level": 1,
+        }
+
+        addon._on_main_menu()
+
+        self.assertTrue(captured["carried_pack_target_active"])
+        self.assertFalse(captured["carried_auto_is_combat"])
+        summary = captured["get_carried_auto_summary"]()
+        self.assertIn("Wilderness Agility Course Auto pack", summary)
+        self.assertIn("Food: Shark x2", summary)
+        self.assertIn("Weight: 1.2 kg carried", summary)
+        self.assertEqual(captured["get_carried_bank_run_summary"](), "Bank run: ready")
+
+    def test_agility_main_menu_summary_ignores_stale_carried_items(self):
+        addon = _load_addon_as_package("ankiscape_agility_stale_carried_summary")
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon.mw = _DummyMW(_DummyCol())
+        addon.current_skill = "Agility"
+        addon.player_data = {
+            "current_agility": "wilderness_course",
+            "agility_level": 53,
+            "inventory": {"Shark": 1},
+            "equipment": {},
+            "combat_auto_eat_food": ["Shark"],
+            "smithing_level": 1,
+            "carried_primed_targets": {"wilderness_course": True},
+            "carried_inventory": {
+                "wilderness_course": {
+                    "Shark": 1,
+                    "Dragon bones": 20,
+                },
+            },
+        }
+
+        addon._on_main_menu()
+
+        summary = captured["get_carried_auto_summary"]()
+        self.assertIn("Food: Shark x1", summary)
+        self.assertIn("Weight: 0.6 kg carried", summary)
+
+    def test_fatal_wilderness_lap_ambush_and_carried_pack_roll_back_as_one_review(self):
+        addon = _load_addon_as_package("ankiscape_wilderness_agility_undo_integration")
+        addon.mw = _DummyMW(_DummyCol())
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_exp = lambda _exp: None
+        addon._show_activity_gain = lambda _message: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+        initial = {
+            "current_agility": "wilderness_course",
+            "agility_level": 99,
+            "agility_exp": 0.0,
+            "combat_lifepoints": 100,
+            "hitpoints_level": 10,
+            "combat_auto_eat_threshold_percent": 40,
+            "combat_auto_eat_food": ["Shark"],
+            "inventory": {"Shark": 1, "Penance horn": 1},
+            "equipment": {"weapon": "Bronze sword"},
+            "completed_achievements": [],
+            "agility_effect_charges": {"Penance horn": 2},
+            "agility_lap_counts": {
+                "total": 0,
+                "flawless": 0,
+                "gnome_advanced_flawless": 0,
+                "barbarian_advanced_flawless": 0,
+                "agile_legs_unlocked": False,
+                "agile_top_unlocked": False,
+            },
+            "agility_course_state": {
+                "target": "wilderness_course",
+                "stage": 5,
+                "checkpoint": "start",
+                "flawless": True,
+                "lap_xp_valid": True,
+                "requested_item_valid": True,
+                "status": "",
+            },
+            "agility_pit_offer": False,
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "Agility"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        rolls = iter((0.99, 0.0, 0.005, 0.90) + (0.5,) * 100)
+        original_random = addon.random.random
+        addon.random.random = lambda: next(rolls)
+        try:
+            addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(addon.player_data["agility_exp"], 0.0)
+        self.assertEqual(addon.player_data["agility_lap_counts"]["total"], 0)
+        self.assertEqual(addon.player_data["agility_effect_charges"]["Penance horn"], 2)
+        self.assertEqual(
+            addon.player_data["combat_grave"]["source"],
+            "agility_wilderness_pker",
+        )
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(study_queues=True, card=True),
+            )
+        )
+
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
     def test_unrelated_undo_does_not_consume_review_snapshot(self):
         addon = _load_addon_as_package("ankiscape_unrelated_undo_integration")
 

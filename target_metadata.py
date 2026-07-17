@@ -280,6 +280,11 @@ def agility_target_rows(
             tooltip_lines.append("Review-driven activity with its own persisted progress and rewards.")
         if target_id == "brimhaven_arena":
             tooltip_lines.append("Hidden-pillar chase · eight attempts · activation streak · bankable tickets")
+        if target_id == "wilderness_course":
+            tooltip_lines.append(
+                "Wilderness risk · 1% PKer ambush after each completed lap · "
+                "maximum hit 250 LP · carried food and grave rules apply"
+            )
         if locked_reasons:
             tooltip_lines.append("Locked due to: " + ", ".join(locked_reasons))
         label = f"{display_name} (Lvl {level})" if level > 1 else display_name

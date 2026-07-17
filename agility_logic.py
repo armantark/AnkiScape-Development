@@ -39,6 +39,20 @@ except ImportError:  # pragma: no cover - flat test imports
         AgilityTarget,
     )
 
+try:
+    from .agility_travel import agility_carried_weight_pure
+except ImportError:  # pragma: no cover - flat test imports
+    from agility_travel import agility_carried_weight_pure  # type: ignore
+
+try:
+    from .inventory_pure import clamp_carried_view_to_bank
+except ImportError:  # pragma: no cover - flat test imports
+    from inventory_pure import clamp_carried_view_to_bank  # type: ignore
+
+
+WILDERNESS_PKER_AMBUSH_CHANCE = 0.01
+WILDERNESS_PKER_MAX_HIT_LP = 250
+
 
 def _int(value: Any, default: int = 0, *, minimum: int = 0, maximum: int = 2_147_483_647) -> int:
     try:
@@ -324,6 +338,7 @@ def _standard_course_review(
     target: AgilityTarget,
     roll: float,
     reward_roll: float,
+    carried_weight_kg: float,
 ) -> dict[str, Any]:
     raw_state = data["agility_course_state"]
     state = dict(raw_state)
@@ -338,7 +353,7 @@ def _standard_course_review(
         target,
         effective,
         strength_level=_int(data.get("strength_level"), 1, minimum=1, maximum=120),
-        carried_weight_kg=_float(data.get("agility_carried_weight_kg"), maximum=1000),
+        carried_weight_kg=carried_weight_kg,
     )
     if _int((data.get("agility_effect_charges") or {}).get("surefooted_reviews")) > 0:
         probability = 0.0
@@ -733,7 +748,37 @@ def apply_agility_review_pure(player_data: Mapping[str, Any], rolls: tuple[float
     elif target.activity_kind == "brimhaven":
         result = _brimhaven_review(data, normalized)
     else:
-        result = _standard_course_review(data, target, normalized[0], normalized[1])
+        carried_views = data.get("carried_inventory")
+        raw_active_view = (
+            carried_views.get(target_id, {})
+            if isinstance(carried_views, Mapping)
+            else {}
+        )
+        active_view = clamp_carried_view_to_bank(raw_active_view, data.get("inventory"))
+        _carried_weight, effective_weight = agility_carried_weight_pure(
+            active_view,
+            data.get("equipment", {}),
+        )
+        result = _standard_course_review(
+            data,
+            target,
+            normalized[0],
+            normalized[1],
+            effective_weight,
+        )
+        if target_id == "wilderness_course" and result.get("completed_lap"):
+            triggered = normalized[2] < WILDERNESS_PKER_AMBUSH_CHANCE
+            ambush = {"triggered": triggered}
+            if triggered:
+                damage_roll = max(0.0, min(normalized[3], 0.999999999))
+                damage = 1 + int(damage_roll * (WILDERNESS_PKER_MAX_HIT_LP - 1))
+                result["damage"] = damage
+                ambush["damage"] = damage
+                data["agility_status"] = (
+                    f"{data.get('agility_status', 'Lap complete')} · "
+                    f"PKer ambush · {damage} LP"
+                )
+            result["wilderness_ambush"] = ambush
     result["allowed"] = True
     _apply_agility_xp_modifiers(data, target, result)
     _advance_agility_effect_budgets(

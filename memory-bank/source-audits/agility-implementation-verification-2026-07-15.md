@@ -89,3 +89,35 @@ coverage is exercised by `tests/test_agility.py`.
 4. Exercise one reward command and both review/direct-command undo paths.
 5. Restart Anki mid-course and confirm the stage/activity resumes exactly.
 6. Equip one weight-reduction item and verify the Benefits travel summary changes.
+
+## Carried-risk amendment verification — 2026-07-17
+
+The post-closure owner amendment is now live:
+
+- Auto and Custom use the existing target-local carried-layout owner rather
+  than an Agility-only inventory. Auto projects course requirements before the
+  player's ordered real-food preferences; Custom preserves the exact saved
+  order and cannot borrow an omitted requirement from the Bank.
+- The first selected-course engagement primes its pack for free. Later supply
+  exhaustion schedules the ordinary one-review skilling bank trip before a
+  refill; the refill comparison uses the complete projected layout rather than
+  assuming that all remaining slots hold the first preferred food.
+- Failure chance reads actual active-pack and equipment weight. The covered
+  standard food and course requirements have reproduced or source-blocked
+  nominal weights in
+  `source-audits/agility-carried-weight-inputs-2026-07-15.md`.
+- Course damage consumes active-pack food at the saved threshold. Fatal damage
+  graves that target's pack and equipped gear without disturbing dormant
+  target packs.
+- The Wilderness course rolls its labeled 1% ambush only after completing a
+  lap and before committing its award. A fatal hit forfeits the uncommitted lap
+  reward and restores lap/Pit/modifier bookkeeping; normal review undo restores
+  the complete pre-review state.
+- Target readiness and the Auto summary expose requirements, food, weight,
+  bank-trip state, and Wilderness risk. Generic non-Combat targets do not show
+  Combat-only supply-mode or finite-loadout controls.
+
+Verification added focused pure/runtime/integration/target-metadata coverage,
+an exact fatal-ambush undo regression, and real offscreen Qt checks for both
+the Agility summary and preserved Combat controls. The full core and full
+offscreen Qt baselines are rerun at batch closure.

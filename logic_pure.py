@@ -2853,9 +2853,10 @@ def _set_combat_death_office_items(data, items, source="combat_death_office", lo
         data["death_office"] = {}
 
 
-def _carried_inventory_grave_counts(data):
+def _carried_inventory_grave_counts(data, target_id=None):
     """What is actually in hand at death ({item: count}) — the carried view of the
-    target being fought, i.e. the loot from this trip.
+    active target, i.e. the items from this trip. Combat defaults to its current
+    enemy; other dangerous skills pass their own target explicitly.
 
     NOT the union of every target's view. `carried_inventory` keeps a saved pack per
     target, so a player who has trained Firemaking, Cooking, and Smithing has a
@@ -2867,7 +2868,8 @@ def _carried_inventory_grave_counts(data):
     carried = data.get("carried_inventory")
     if not isinstance(carried, Mapping):
         return {}
-    target_id = data.get("current_combat_target")
+    if target_id is None:
+        target_id = data.get("current_combat_target")
     view = carried.get(target_id) if isinstance(target_id, str) else None
     if not isinstance(view, Mapping):
         return {}
@@ -2877,7 +2879,12 @@ def _carried_inventory_grave_counts(data):
     return clamp_carried_view_to_bank(view, data.get("inventory"))
 
 
-def _combat_apply_pvm_death(data, max_player_lifepoints, grave_source="combat_death"):
+def _combat_apply_pvm_death(
+    data,
+    max_player_lifepoints,
+    grave_source="combat_death",
+    carried_target_id=None,
+):
     equipment = dict(data.get("equipment", {}) or {})
     protected_equipment = {}
     if prayer_effect_state_pure(data).get("protect_item") and equipment:
@@ -2891,20 +2898,24 @@ def _combat_apply_pvm_death(data, max_player_lifepoints, grave_source="combat_de
     # drop them into the grave, expanded one grave entry per unit. Only the view of
     # the target being fought is at risk — other targets' saved packs are loadouts
     # resting in the bank, not carried, so they must survive the death.
-    carried_counts = _carried_inventory_grave_counts(data)
+    carried_counts = _carried_inventory_grave_counts(data, carried_target_id)
     if carried_counts:
         inventory = dict(data.get("inventory", {}) or {})
         for item_name, count in carried_counts.items():
             inventory[item_name] = max(0, _non_negative_int(inventory.get(item_name, 0), 0) - count)
             grave_items.extend([item_name] * count)
         data["inventory"] = inventory
-    fought_target = data.get("current_combat_target")
-    if isinstance(fought_target, str):
+    active_target = (
+        carried_target_id
+        if isinstance(carried_target_id, str)
+        else data.get("current_combat_target")
+    )
+    if isinstance(active_target, str):
         for map_key in ("carried_inventory", "carried_churn"):
             container = data.get(map_key)
-            if isinstance(container, Mapping) and fought_target in container:
+            if isinstance(container, Mapping) and active_target in container:
                 container = dict(container)
-                container.pop(fought_target, None)
+                container.pop(active_target, None)
                 data[map_key] = container
     existing_grave = data.get("combat_grave", {}) or {}
     existing_grave_items = _combat_grave_items(existing_grave)
@@ -8729,7 +8740,54 @@ def thieving_wall_safe_roll_succeeds_pure(level, minimum, maximum, roll):
     return _non_negative_int(roll, 255) < success_count
 
 
-def apply_thieving_damage_pure(player_data, damage, *, source="thieving_failure"):
+def _consume_carried_auto_food_pure(
+    data,
+    target_id,
+    current_lifepoints,
+    max_lifepoints,
+):
+    threshold_percent = _positive_int(data.get("combat_auto_eat_threshold_percent", 40), 40)
+    threshold = max(1, int(max_lifepoints * threshold_percent / 100.0))
+    if current_lifepoints > threshold or current_lifepoints >= max_lifepoints:
+        return current_lifepoints, None
+    carried = data.get("carried_inventory")
+    raw_view = carried.get(target_id) if isinstance(carried, Mapping) else None
+    view = clamp_carried_view_to_bank(raw_view, data.get("inventory"))
+    inventory = dict(data.get("inventory", {}) or {})
+    for item_name in data.get("combat_auto_eat_food", ()) or ():
+        food = COMBAT_FOOD_DATA.get(item_name)
+        available = min(
+            _non_negative_int(view.get(item_name, 0), 0),
+            _non_negative_int(inventory.get(item_name, 0), 0),
+        )
+        if not food or available <= 0:
+            continue
+        view[item_name] = available - 1
+        inventory[item_name] = _non_negative_int(inventory.get(item_name, 0), 0) - 1
+        if view[item_name] <= 0:
+            view.pop(item_name, None)
+        carried = dict(carried) if isinstance(carried, Mapping) else {}
+        if view:
+            carried[target_id] = view
+        else:
+            carried.pop(target_id, None)
+        data["carried_inventory"] = carried
+        data["inventory"] = inventory
+        healed_by = _positive_int(food.get("heal_lifepoints", 0), 0)
+        return min(max_lifepoints, current_lifepoints + healed_by), {
+            "item": item_name,
+            "healed_by": healed_by,
+        }
+    return current_lifepoints, None
+
+
+def apply_thieving_damage_pure(
+    player_data,
+    damage,
+    *,
+    source="thieving_failure",
+    carried_target_id=None,
+):
     """Apply a Thieving failure through Combat's food and death substrate."""
     data = _copy_player_data_with_nested(player_data)
     max_lifepoints = combat_max_lifepoints_pure(data)
@@ -8742,11 +8800,24 @@ def apply_thieving_damage_pure(player_data, damage, *, source="thieving_failure"
     food_event = None
     died = current_lifepoints <= 0 and applied_damage > 0
     if died:
-        current_lifepoints = _combat_apply_pvm_death(data, max_lifepoints, source)
-    elif applied_damage > 0:
-        current_lifepoints, food_event = _combat_consume_auto_food(
-            data, current_lifepoints, max_lifepoints, lambda: 0.0
+        current_lifepoints = _combat_apply_pvm_death(
+            data,
+            max_lifepoints,
+            source,
+            carried_target_id=carried_target_id,
         )
+    elif applied_damage > 0:
+        if isinstance(carried_target_id, str):
+            current_lifepoints, food_event = _consume_carried_auto_food_pure(
+                data,
+                carried_target_id,
+                current_lifepoints,
+                max_lifepoints,
+            )
+        else:
+            current_lifepoints, food_event = _combat_consume_auto_food(
+                data, current_lifepoints, max_lifepoints, lambda: 0.0
+            )
     data["combat_lifepoints"] = current_lifepoints
     return data, {
         "damage": applied_damage,

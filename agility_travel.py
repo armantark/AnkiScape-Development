@@ -46,6 +46,34 @@ AGILITY_ITEM_WEIGHTS_KG = {
     "Green d'hide body": 6.8,
     "Vial of water": 0.02,
     "Clean torstol": 0.0,
+    "Shark": 0.6,
+    "Swordfish": 0.4,
+    "Lobster": 0.3,
+    "Tuna": 0.4,
+    "Salmon": 0.5,
+    "Trout": 0.4,
+    "Cooked meat": 0.25,
+    "Cooked chicken": 0.1,
+    "Shrimps": 0.5,
+    "Crayfish": 0.1,
+    "Small ninja monkey greegree": 0.0,
+    "Ring of charos": 0.0,
+    "Lit torch": 0.5,
+    "Lit candle": 0.0,
+    "Lit black candle": 0.0,
+    "Candle lantern (lit, 4531)": 0.9,
+    "Candle lantern (lit, 4534)": 0.9,
+    "Oil lamp (lit)": 0.4,
+    "Oil lantern (lit)": 0.9,
+    "Bullseye lantern (lit)": 1.0,
+    "Sapphire lantern (lit)": 1.3,
+    "Emerald lantern (lit)": 1.3,
+    "Mining helmet (lit)": 1.0,
+    # The combined AnkiScape identity has no audited config row; keep its
+    # source-blocked contribution explicit instead of falling through as unknown.
+    "Penguin suit": 0.0,
+    "Mith grapple": 0.0,
+    "Crossbow": 2.0,
     "Agile top": -12.0,
     "Agile legs": -10.0,
     "Boots of lightness": -4.5,
@@ -81,6 +109,7 @@ _HANDLER_DEFAULTS = {
     "fletching": (0.0, "none", "Working at the bank", "period_route"),
     "herblore": (0.0, "none", "Working at the bank", "period_route"),
     "thieving": (0.0, "none", "Working on site", "period_route"),
+    "agility": (1.0, "weak", "Running to the course bank", "ankiscape_trip_abstraction"),
 }
 
 _TIER_CEILINGS = {"strong": 0.11, "weak": 0.07, "marginal": 0.03, "none": 0.0}
@@ -149,4 +178,3 @@ def scheduled_travel_reviews_pure(profile: AgilityTravelProfile, roll: float) ->
     whole = int(math.floor(profile.adjusted_reviews))
     fraction = profile.adjusted_reviews - whole
     return whole + int(max(0.0, min(_number(roll), 1.0)) < fraction)
-

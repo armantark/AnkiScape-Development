@@ -47,6 +47,7 @@ from constants import (
 )
 from target_metadata import (
     TargetRowMetadata,
+    agility_target_rows,
     combat_target_rows,
     cooking_target_rows,
     crafting_target_rows,
@@ -62,6 +63,7 @@ from target_metadata import (
     utility_activity_rows,
     woodcutting_target_rows,
 )
+from agility_data import AGILITY_ITEM_IMAGES, AGILITY_TARGETS, DEFAULT_AGILITY_TARGET
 from thieving_data import DEFAULT_THIEVING_TARGET, THIEVING_ITEM_IMAGES, THIEVING_TARGETS
 
 
@@ -73,6 +75,24 @@ def _row(rows, target_id):
 
 
 class TargetMetadataTest(unittest.TestCase):
+    def test_wilderness_agility_row_exposes_pker_food_and_grave_risk(self):
+        rows = agility_target_rows(
+            {
+                "agility_level": 99,
+                "current_agility": "wilderness_course",
+                "inventory": {},
+                "equipment": {},
+            },
+            AGILITY_TARGETS,
+            AGILITY_ITEM_IMAGES,
+            DEFAULT_AGILITY_TARGET,
+        )
+
+        wilderness = _row(rows, "wilderness_course")
+        self.assertIn("1% PKer ambush", wilderness.tooltip)
+        self.assertIn("maximum hit 250 LP", wilderness.tooltip)
+        self.assertIn("carried food and grave rules apply", wilderness.tooltip)
+
     def test_thieving_rows_show_pickpocket_and_wall_safe_damage_ranges(self):
         rows = thieving_target_rows(
             {"thieving_level": 99, "current_thieving": DEFAULT_THIEVING_TARGET},

@@ -615,7 +615,7 @@ commands are recorded in
 
 ## Post-closure carried-risk amendment — 2026-07-16
 
-Status: **owner-approved design; implementation pending on `main`.**
+Status: **implemented and verified on `main`.**
 
 Agility courses participate in the same target-specific Auto/Custom 28-slot
 carried-pack system as every other dangerous activity. Auto packs target
@@ -630,3 +630,20 @@ completed lap, before its award commits, it has a 1% ambush roll with a maximum
 250-LP hit. Normal carried food, auto-eat, death, grave, and rollback rules
 resolve the result. The risk is visible in target readiness; it does not create
 a wall-clock encounter or persistent world-location system.
+
+The shipped amendment uses the active target's canonical carried view for both
+weight and danger resolution. Auto fills course requirements first, then packs
+owned food in the player's saved preference order; Custom preserves the exact
+ordered layout and blocks a course whose required item was omitted. The first
+engagement primes the pack without charging a trip, while depleted supplies
+use the ordinary one-review skilling bank run before the projected 28-slot pack
+is refilled. Equipped requirements count toward readiness without consuming a
+carried slot.
+
+Fatal ordinary failures and Wilderness ambushes share the existing auto-eat,
+grave, equipment-loss, and review-undo transaction. A fatal lap-completion
+ambush forfeits the uncommitted lap XP, lap counters, Pit offer, and consumed XP
+modifier charges before persistence, so one Anki undo restores the whole
+review. The Skills surface shows the selected course, projected requirements
+and food, carried/effective weight, bank-run readiness, and the Wilderness risk
+without exposing Combat-only loadout controls.

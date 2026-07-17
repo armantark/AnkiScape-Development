@@ -60,6 +60,36 @@ caches expose item identity but no weight field, so ordinary-item rows remain
 | Clean torstol | 0 kg | `items.yml:1832-1835` | Emulator reconstruction |
 | Extreme attack/strength/defence/magic/ranging and clean torstol | 0 kg each | `items.yml:180083`, `180107`, `180131`, `180155`, `180179`, `1835`; matching Darkan rows | Emulator convergence |
 
+### Post-closure dangerous-course pack inputs — 2026-07-17
+
+The carried-risk amendment makes food and course requirements part of the
+actual Agility target pack, so their weights are now runtime inputs rather than
+incidental Bank items. The same 2011Scape item config supplies:
+
+| Item family | Weight | Config lines | Disposition |
+|---|---:|---|---|
+| Shark / swordfish / lobster | 0.6 / 0.4 / 0.3 kg | `items.yml:2637-2641`, `2565-2569`, `2601-2605` | Emulator reconstruction |
+| Tuna / salmon / trout | 0.4 / 0.5 / 0.4 kg | `items.yml:2493-2497`, `2301-2305`, `2325-2329` | Emulator reconstruction |
+| Cooked meat / cooked chicken | 0.25 / 0.1 kg | `items.yml:24179-24183`, `24167-24171` | Emulator reconstruction |
+| Shrimps / crayfish | 0.5 / 0.1 kg | `items.yml:2217-2221`, `152489-152493` | Emulator reconstruction |
+| Ninja monkey greegree / Ring of charos / Mith grapple | 0 / 0 / 0 kg | `items.yml:42517-42521`, `45019-45024`, `102273-102277` | Emulator reconstruction |
+| Lit torch / candle lantern / oil lamp / oil lantern | 0.5 / 0.9 / 0.4 / 0.9 kg | `items.yml:4641-4645`, `49659-49663`, `49617-49621`, `49695-49699` | Emulator reconstruction |
+| Bullseye / sapphire / emerald lantern | 1.0 / 1.3 / 1.3 kg | `items.yml:49749-49753`, `51073-51077`, `98084-98088` | Emulator reconstruction |
+| Lit mining helmet / crossbow | 1.0 / 2.0 kg | `items.yml:56563-56567`, `8050-8055` | Emulator reconstruction |
+
+The AnkiScape names distinguish lit state and, for the Ape Atoll requirement,
+the small ninja variant; the emulator rows use the shared base-object names.
+The weight is therefore inherited from the matching physical item row, not
+invented independently. `Penguin suit` remains `source_blocked` because neither
+audited config exposes that synthetic combined inventory identity; its current
+zero contribution is an explicit `ankiscape_weight_abstraction`, not a sourced
+claim.
+
+The first refill after a dangerous-course pack is exhausted uses the existing
+one-review weak-route bank-trip abstraction. This is labeled
+`ankiscape_trip_abstraction`: the exact course-to-bank routes are not period
+rate claims, but replenishing a physical food pack cannot be free.
+
 ### Agile sign-conflict resolution
 
 The same game-main config reports positive weights for item IDs `14936` and

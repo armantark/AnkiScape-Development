@@ -19,6 +19,7 @@ try:
         BIRD_NEST_OPEN_TABLES,
         COMBAT_BURST_TICKS,
         COMBAT_ENEMY_DATA,
+        COMBAT_FOOD_DATA,
         COOKING_DATA,
         CRAFTING_DATA,
         DEFAULT_COMBAT_TARGET,
@@ -169,7 +170,11 @@ try:
     from .urn_data import URN_STATE_ITEM_NAMES, materialize_urn_layout_pure
     from .thieving_data import DEFAULT_THIEVING_TARGET, THIEVING_TARGETS
     from .agility_data import AGILITY_TARGETS_BY_ID, DEFAULT_AGILITY_TARGET
-    from .agility_logic import agility_target_locked_reasons_pure, apply_agility_review_pure
+    from .agility_logic import (
+        agility_target_locked_reasons_pure,
+        apply_agility_review_pure,
+        sanitize_agility_state_pure,
+    )
     from .agility_travel import agility_travel_profile_pure, scheduled_travel_reviews_pure
     from .cadence_kernel import advance_cadence_pure, default_cadence_profile_state_pure
 except ImportError:  # pragma: no cover - flat import path used by tests
@@ -179,6 +184,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         BIRD_NEST_OPEN_TABLES,
         COMBAT_BURST_TICKS,
         COMBAT_ENEMY_DATA,
+        COMBAT_FOOD_DATA,
         COOKING_DATA,
         CRAFTING_DATA,
         DEFAULT_COMBAT_TARGET,
@@ -329,7 +335,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from urn_data import URN_STATE_ITEM_NAMES, materialize_urn_layout_pure  # type: ignore
     from thieving_data import DEFAULT_THIEVING_TARGET, THIEVING_TARGETS  # type: ignore
     from agility_data import AGILITY_TARGETS_BY_ID, DEFAULT_AGILITY_TARGET  # type: ignore
-    from agility_logic import agility_target_locked_reasons_pure, apply_agility_review_pure  # type: ignore
+    from agility_logic import (  # type: ignore
+        agility_target_locked_reasons_pure,
+        apply_agility_review_pure,
+        sanitize_agility_state_pure,
+    )
     from agility_travel import agility_travel_profile_pure, scheduled_travel_reviews_pure  # type: ignore
     from cadence_kernel import advance_cadence_pure, default_cadence_profile_state_pure  # type: ignore
 
@@ -383,6 +393,7 @@ _OVERLAY_TARGET_KEYS = {
     "herblore": "current_herblore",
     "prayer": "current_prayer",
     "thieving": "current_thieving",
+    "agility": "current_agility",
 }
 # A stackable occupies one slot for any quantity (then holds up to the int cap);
 # use the real cache stackable set so a stack is not miscounted as N slots.
@@ -467,6 +478,89 @@ def _processing_presence_requirements_for(handler_key: str, player_data: dict[st
     return {str(item): int(amount) for item, amount in required_items.items() if isinstance(item, str)}
 
 
+def _agility_target_can_damage(target_id: str) -> bool:
+    target = AGILITY_TARGETS_BY_ID.get(target_id)
+    if target is None:
+        return False
+    return (
+        target.activity_kind in {"brimhaven", "gnome_ball"}
+        or any(stage.can_fail for stage in target.stages)
+    )
+
+
+def _agility_equipment_satisfies(equipped_items: set[str], item_name: str) -> bool:
+    wanted = item_name.casefold()
+    return any(
+        candidate.casefold() == wanted
+        or (wanted == "crossbow" and "crossbow" in candidate.casefold())
+        for candidate in equipped_items
+    )
+
+
+def _agility_casual_layout_for(player_data: dict[str, Any], target_id: str) -> dict[str, int]:
+    """Build Auto mode's ordered requirement-and-food pack for one target."""
+
+    target = AGILITY_TARGETS_BY_ID.get(target_id)
+    if target is None:
+        return {}
+    bank = player_data.get("inventory", {}) or {}
+    equipment = player_data.get("equipment", {}) or {}
+    equipped_items = {
+        str(item)
+        for item in equipment.values()
+        if isinstance(item, str)
+    } if isinstance(equipment, dict) else set()
+    layout: dict[str, int] = {}
+    for item_name in target.required_items:
+        if not _agility_equipment_satisfies(equipped_items, item_name) and int(bank.get(item_name, 0) or 0) > 0:
+            layout[item_name] = 1
+    for item_options in target.required_item_options:
+        if any(_agility_equipment_satisfies(equipped_items, item_name) for item_name in item_options):
+            continue
+        stocked = next(
+            (item_name for item_name in item_options if int(bank.get(item_name, 0) or 0) > 0),
+            None,
+        )
+        if stocked is not None:
+            layout[stocked] = 1
+    if _agility_target_can_damage(target_id):
+        for item_name in player_data.get("combat_auto_eat_food", ()) or ():
+            if item_name not in COMBAT_FOOD_DATA:
+                continue
+            available = int(bank.get(item_name, 0) or 0)
+            if available > 0:
+                layout[item_name] = available
+    return layout
+
+
+def _agility_carried_requirement_gaps(
+    player_data: dict[str, Any],
+    target_id: str,
+    view: dict[str, Any],
+) -> tuple[str, ...]:
+    target = AGILITY_TARGETS_BY_ID.get(target_id)
+    if target is None:
+        return ()
+    equipment = player_data.get("equipment", {}) or {}
+    equipped_items = {
+        str(item)
+        for item in equipment.values()
+        if isinstance(item, str)
+    } if isinstance(equipment, dict) else set()
+    missing = [
+        item_name
+        for item_name in target.required_items
+        if not _agility_equipment_satisfies(equipped_items, item_name)
+        and int(view.get(item_name, 0) or 0) <= 0
+    ]
+    for item_options in target.required_item_options:
+        if any(_agility_equipment_satisfies(equipped_items, item_name) for item_name in item_options):
+            continue
+        if not any(int(view.get(item_name, 0) or 0) > 0 for item_name in item_options):
+            missing.append(f"{item_options[0]} or another valid alternative")
+    return tuple(missing)
+
+
 def _set_carried_target_map(player_data: dict[str, Any], map_key: str, target_id: str, value) -> None:
     container = player_data.get(map_key)
     if not isinstance(container, dict):
@@ -512,6 +606,7 @@ def _repack_view_for_target(
     bank: dict[str, Any],
     requirements: dict[str, int],
     capacity: int,
+    casual_layout: dict[str, int] | None = None,
 ) -> dict[str, int]:
     """The freshly-packed carried view after a completed bank run.
 
@@ -528,6 +623,13 @@ def _repack_view_for_target(
         return inventory_pure.apply_carried_layout_pure(
             bank,
             materialize_urn_layout_pure(bank, layout),
+            inventory_pure.CARRIED_CAPACITY,
+            _OVERLAY_STACKABLE_NAMES,
+        )
+    if casual_layout:
+        return inventory_pure.apply_carried_layout_pure(
+            bank,
+            casual_layout,
             inventory_pure.CARRIED_CAPACITY,
             _OVERLAY_STACKABLE_NAMES,
         )
@@ -568,6 +670,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     player_data = ctx.player_data
     target_id = str(player_data.get(target_key, ""))
     is_processing = handler_key in _PROCESSING_HANDLER_KEYS
+    is_agility = handler_key == "agility"
     # Keep/Drop is a gathering-only choice; processing always draws from (and
     # refills) its pack — there is no "drop the product" for a recipe's inputs.
     keep = True if is_processing else inventory_pure.carried_keep_for(player_data, target_id)
@@ -577,6 +680,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     advanced = inventory_pure.carried_advanced_for(player_data, target_id)
     layout = (player_data.get("carried_layout") or {}).get(target_id, {})
     bank = player_data.get("inventory", {}) or {}
+    casual_layout = _agility_casual_layout_for(player_data, target_id) if is_agility else {}
     # A carried bag raises the bank-run threshold for its material (fewer trips).
     owned_bags = {
         bag for bag in inventory_pure.BAG_DEFINITIONS
@@ -599,14 +703,34 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     # starting empty; the review cost is only for *refilling after depletion*,
     # never for the initial load (owner: no free banking, but this isn't a trip).
     primed = target_id in (player_data.get("carried_primed_targets") or {})
-    if is_processing and requirements and not primed:
-        view = _repack_view_for_target(is_processing, advanced, layout, bank, requirements, capacity)
+    if (is_processing and requirements or is_agility) and not primed:
+        view = _repack_view_for_target(
+            is_processing,
+            advanced,
+            layout,
+            bank,
+            requirements,
+            capacity,
+            casual_layout,
+        )
         _set_carried_target_map(player_data, "carried_primed_targets", target_id, True)
+        _set_carried_target_map(player_data, "carried_inventory", target_id, view)
     elif handler_key == "hunter" and advanced and layout and not view:
         # Hunter is gathering, but target-carried passives still need the saved
         # Custom pack on the first trip rather than waiting for a bank-run cycle.
         view = _repack_view_for_target(False, True, layout, bank, {}, capacity)
         _set_carried_target_map(player_data, "carried_inventory", target_id, view)
+
+    if is_agility and advanced:
+        missing = _agility_carried_requirement_gaps(player_data, target_id, view)
+        if missing:
+            ctx.deactivate_current_skill()
+            ctx.show_error_message(
+                "Agility pack incomplete",
+                f"Custom mode must carry or equip {', '.join(missing)} for "
+                f"{AGILITY_TARGETS_BY_ID[target_id].display_name}.",
+            )
+            return False
 
     # Presence-only gates stay out of per-action packing: in default mode they
     # remain available from the bank. An advanced layout explicitly carries
@@ -621,6 +745,24 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         and not _pack_can_supply(view, refill_requirements)
         and _bank_can_supply(bank, refill_requirements)
     )
+    desired_agility_view = (
+        _repack_view_for_target(
+            False,
+            advanced,
+            layout,
+            bank,
+            {},
+            capacity,
+            casual_layout,
+        )
+        if is_agility
+        else {}
+    )
+    if desired_agility_view:
+        force = force or any(
+            int(view.get(item_name, 0) or 0) <= 0 and int(bank.get(item_name, 0) or 0) > 0
+            for item_name in desired_agility_view
+        )
 
     active_run = isinstance(bank_run, dict) and int(bank_run.get("reviews_remaining", 0) or 0) > 0
     trip_due = bool(keep and (active_run or churn >= capacity or force))
@@ -659,7 +801,9 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         new_state, new_view, new_churn = {}, {}, 0
         event = {"active": True, "started": True, "completed": True, "reviews_remaining": 0, "waived": True}
         act = True
-        new_view = _repack_view_for_target(is_processing, advanced, layout, bank, requirements, capacity)
+        new_view = _repack_view_for_target(
+            is_processing, advanced, layout, bank, requirements, capacity, casual_layout
+        )
     else:
         new_state, new_view, new_churn, event, act = inventory_pure.carried_bank_run_gate_pure(
             view, churn, keep, _OVERLAY_STACKABLE_NAMES, target_id, bank_run,
@@ -671,7 +815,9 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
 
     if not act:
         if event.get("completed"):
-            new_view = _repack_view_for_target(is_processing, advanced, layout, bank, requirements, capacity)
+            new_view = _repack_view_for_target(
+                is_processing, advanced, layout, bank, requirements, capacity, casual_layout
+            )
         player_data["skilling_bank_run"] = new_state
         _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
         _set_carried_target_map(player_data, "carried_churn", target_id, new_churn)
@@ -2766,6 +2912,9 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
+    lap_counts_before = dict(sanitize_agility_state_pure(player_data)["agility_lap_counts"])
+    pit_offer_before = bool(player_data.get("agility_pit_offer", False))
+    xp_charges_before = dict(player_data.get("agility_effect_charges", {}) or {})
     updated, result = apply_agility_review_pure(
         player_data,
         tuple(ctx.random_random() for _ in range(4)),
@@ -2777,16 +2926,43 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
 
     damage = int(result.get("damage", 0) or 0)
     if damage > 0:
+        wilderness_ambush = bool((result.get("wilderness_ambush") or {}).get("triggered"))
         damaged, damage_result = apply_thieving_damage_pure(
             player_data,
             damage,
-            source="agility_failure",
+            source="agility_wilderness_pker" if wilderness_ambush else "agility_failure",
+            carried_target_id=target_id,
         )
         player_data.clear()
         player_data.update(damaged)
         result["damage_result"] = damage_result
         if damage_result.get("died"):
             ctx.deactivate_current_skill()
+            if wilderness_ambush and result.get("completed_lap"):
+                player_data["agility_lap_counts"] = lap_counts_before
+                player_data["agility_pit_offer"] = pit_offer_before
+                charges = dict(player_data.get("agility_effect_charges", {}) or {})
+                for modifier in result.get("xp_modifiers", ()) or ():
+                    item_name = modifier.get("item") if isinstance(modifier, dict) else None
+                    if not isinstance(item_name, str):
+                        continue
+                    if item_name in xp_charges_before:
+                        charges[item_name] = xp_charges_before[item_name]
+                    else:
+                        charges.pop(item_name, None)
+                player_data["agility_effect_charges"] = charges
+                result.update({
+                    "xp": 0.0,
+                    "base_xp": 0.0,
+                    "xp_modifiers": (),
+                    "success": False,
+                    "completed_lap": False,
+                    "failure_kind": "wilderness_pker_death",
+                    "reward_forfeited": True,
+                })
+                death_status = "Wilderness PKer ambush · died before the lap reward"
+                player_data["agility_status"] = death_status
+                result["status"] = death_status
 
     outputs = {
         str(item): int(quantity)
@@ -2833,7 +3009,8 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     ctx.show_activity_gain(str(result.get("status", player_data.get("agility_status", "Agility action complete"))))
     damage_result = result.get("damage_result") or {}
     if damage_result.get("died"):
-        ctx.show_activity_gain("☠ YOU DIED — Agility failure; gear moved to grave")
+        cause = "Wilderness PKer ambush" if (result.get("wilderness_ambush") or {}).get("triggered") else "Agility failure"
+        ctx.show_activity_gain(f"☠ YOU DIED — {cause}; carried pack and gear moved to grave")
     elif damage_result.get("food_used"):
         food = damage_result["food_used"]
         ctx.show_activity_gain(f"Auto-ate {food['item']} (+{food['healed_by']} LP)")

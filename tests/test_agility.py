@@ -248,6 +248,101 @@ class TestAgilityPureEngine(unittest.TestCase):
         self.assertEqual(updated["agility_course_state"]["stage"], 0)
         self.assertFalse(updated["agility_course_state"]["flawless"])
 
+    def test_werewolf_failure_uses_actual_target_pack_and_equipment_weight(self):
+        base = {
+            **default_agility_state_pure(),
+            "current_agility": "werewolf_course",
+            "agility_level": 60,
+            "strength_level": 60,
+            "inventory": {"Ring of charos": 1, "Dragon bones": 20},
+            "equipment": {},
+            "quests": {"creature_of_fenkenstrain": {"completed": True}},
+            "agility_carried_weight_kg": 999,
+        }
+        base["agility_course_state"] = {
+            "target": "werewolf_course",
+            "stage": 4,
+            "checkpoint": "start",
+            "flawless": True,
+            "lap_xp_valid": True,
+            "requested_item_valid": True,
+            "status": "",
+        }
+
+        without_pack, light = apply_agility_review_pure(base, (0.30, 0.5, 0.5, 0.5))
+        with_pack_input = {
+            **base,
+            "carried_inventory": {
+                "werewolf_course": {"Dragon bones": 20},
+                "another_target": {"Dragon bones": 28},
+            },
+        }
+        with_pack, heavy = apply_agility_review_pure(with_pack_input, (0.30, 0.5, 0.5, 0.5))
+
+        self.assertTrue(light["success"])
+        self.assertFalse(heavy["success"])
+        self.assertEqual(without_pack["agility_course_state"]["stage"], 5)
+        self.assertEqual(with_pack["agility_course_state"]["stage"], 5)
+        self.assertAlmostEqual(light["expected_success_chance"], 0.75)
+        self.assertAlmostEqual(heavy["expected_success_chance"], 0.675)
+
+    def test_stale_carried_items_do_not_inflate_failure_weight(self):
+        player = {
+            **default_agility_state_pure(),
+            "current_agility": "werewolf_course",
+            "agility_level": 60,
+            "strength_level": 60,
+            "inventory": {"Ring of charos": 1},
+            "equipment": {},
+            "quests": {"creature_of_fenkenstrain": {"completed": True}},
+            "carried_inventory": {
+                "werewolf_course": {
+                    "Ring of charos": 1,
+                    "Dragon bones": 20,
+                },
+            },
+        }
+        player["agility_course_state"] = {
+            "target": "werewolf_course",
+            "stage": 4,
+            "checkpoint": "start",
+            "flawless": True,
+            "lap_xp_valid": True,
+            "requested_item_valid": True,
+            "status": "",
+        }
+
+        _updated, result = apply_agility_review_pure(player, (0.30, 0.5, 0.5, 0.5))
+
+        self.assertTrue(result["success"])
+        self.assertAlmostEqual(result["expected_success_chance"], 0.75)
+
+    def test_wilderness_completed_lap_rolls_one_pker_ambush_with_existing_hit_semantics(self):
+        player = {
+            **default_agility_state_pure(),
+            "current_agility": "wilderness_course",
+            "agility_level": 99,
+            "combat_lifepoints": 1000,
+            "inventory": {},
+            "equipment": {},
+        }
+        player["agility_course_state"] = {
+            "target": "wilderness_course",
+            "stage": 5,
+            "checkpoint": "start",
+            "flawless": True,
+            "lap_xp_valid": True,
+            "requested_item_valid": True,
+            "status": "",
+        }
+
+        updated, result = apply_agility_review_pure(player, (0.99, 0.99, 0.005, 0.50))
+
+        self.assertTrue(result["completed_lap"])
+        self.assertEqual(result["wilderness_ambush"], {"triggered": True, "damage": 125})
+        self.assertEqual(result["damage"], 125)
+        self.assertIn("PKer ambush", updated["agility_status"])
+
     def test_sanitizer_bounds_state_and_preserves_unrelated_data(self):
         sanitized = sanitize_agility_state_pure(
             {

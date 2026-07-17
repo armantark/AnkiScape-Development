@@ -106,6 +106,7 @@ from .skill_registry import get_skill, trainable_skill_definitions
 from .shop_logic import advance_shop_market_clock_pure
 from .farming_logic import apply_farming_frontend_action_pure, farming_frontend_projection_pure
 from .agility_logic import apply_agility_command_pure
+from .agility_travel import agility_carried_weight_pure
 from . import runtime_actions
 from .runtime_actions import RuntimeActionContext
 
@@ -925,6 +926,63 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             inventory_pure.layout_to_grid_cells_pure(layout, runtime_actions._OVERLAY_STACKABLE_NAMES)
         )
 
+    def _current_carried_auto_summary():
+        handler_key = review_action_handler_key(current_skill)
+        target_id = _current_carried_pack_target()
+        if target_id is None or handler_key == "combat":
+            return ""
+        current_view = inventory_pure.clamp_carried_view_to_bank(
+            (player_data.get("carried_inventory") or {}).get(target_id, {}),
+            player_data.get("inventory", {}),
+        )
+        if handler_key == "agility":
+            target = runtime_actions.AGILITY_TARGETS_BY_ID.get(target_id)
+            casual_layout = runtime_actions._agility_casual_layout_for(player_data, target_id)
+            projected = inventory_pure.apply_carried_layout_pure(
+                player_data.get("inventory", {}) or {},
+                casual_layout,
+                inventory_pure.CARRIED_CAPACITY,
+                runtime_actions._OVERLAY_STACKABLE_NAMES,
+            )
+            view = current_view if target_id in (player_data.get("carried_primed_targets") or {}) else projected
+            carried_weight, effective_weight = agility_carried_weight_pure(
+                view,
+                player_data.get("equipment", {}),
+            )
+            foods = [
+                f"{item_name} x{int(amount)}"
+                for item_name, amount in view.items()
+                if item_name in runtime_actions.COMBAT_FOOD_DATA and int(amount or 0) > 0
+            ]
+            missing = runtime_actions._agility_carried_requirement_gaps(
+                player_data,
+                target_id,
+                view,
+            )
+            target_name = target.display_name if target is not None else target_id
+            slots = inventory_pure.carried_slots_used(view, runtime_actions._OVERLAY_STACKABLE_NAMES)
+            return (
+                f"{target_name} Auto pack · {slots}/{inventory_pure.CARRIED_CAPACITY} slots\n"
+                f"Food: {', '.join(foods) if foods else 'none banked'}\n"
+                f"Requirements: {'missing ' + ', '.join(missing) if missing else 'ready'}\n"
+                f"Weight: {carried_weight:g} kg carried · {effective_weight:g} kg effective"
+            )
+        slots = inventory_pure.carried_slots_used(
+            current_view,
+            runtime_actions._OVERLAY_STACKABLE_NAMES,
+        )
+        return f"{target_id} Auto pack · {slots}/{inventory_pure.CARRIED_CAPACITY} slots"
+
+    def _current_carried_bank_run_summary():
+        if review_action_handler_key(current_skill) == "combat":
+            return ""
+        run = player_data.get("skilling_bank_run", {}) or {}
+        remaining = int(run.get("reviews_remaining", 0) or 0) if isinstance(run, dict) else 0
+        if remaining > 0:
+            route = str(run.get("route_label", "Running to the bank"))
+            return f"Bank run: {route} · {remaining} review{'s' if remaining != 1 else ''} remaining"
+        return "Bank run: ready"
+
     def _set_carried_advanced(enabled: bool):
         target_id = _current_carried_pack_target()
         if target_id is None:
@@ -1092,6 +1150,9 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_set_carried_layout_quantity=_set_carried_layout_quantity,
         on_clear_carried_layout=_clear_carried_layout,
         carried_stackable_names=runtime_actions._OVERLAY_STACKABLE_NAMES,
+        get_carried_auto_summary=_current_carried_auto_summary,
+        get_carried_bank_run_summary=_current_carried_bank_run_summary,
+        carried_auto_is_combat=review_action_handler_key(current_skill) == "combat",
         on_set_combat=lambda target: _set_value("current_combat_target", target),
         on_set_combat_style=_set_combat_attack_style,
         on_set_combat_spell=lambda spell: _set_value("current_combat_spell", spell),

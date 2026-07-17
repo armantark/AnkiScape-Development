@@ -2195,6 +2195,9 @@ def show_main_menu(
     on_set_carried_layout_quantity=None,
     on_clear_carried_layout=None,
     carried_stackable_names=frozenset(),
+    get_carried_auto_summary=None,
+    get_carried_bank_run_summary=None,
+    carried_auto_is_combat=False,
     on_set_combat=None,
     on_set_combat_style=None,
     on_set_combat_spell=None,
@@ -6732,15 +6735,30 @@ def show_main_menu(
         supply_mode_combo.currentIndexChanged.connect(_on_pack_mode)
         supply_mode_layout.addWidget(supply_mode_label)
         supply_mode_layout.addWidget(supply_mode_combo, 1)
+        supply_mode_row.setVisible(bool(carried_auto_is_combat))
         auto_layout.addWidget(supply_mode_row)
 
-        supply_summary = QLabel(_combat_loadout_summary_text(player_data))
+        def _auto_summary_text() -> str:
+            if get_carried_auto_summary is not None:
+                text = str(get_carried_auto_summary() or "")
+                if text:
+                    return text
+            return _combat_loadout_summary_text(player_data)
+
+        def _auto_bank_run_text() -> str:
+            if get_carried_bank_run_summary is not None:
+                text = str(get_carried_bank_run_summary() or "")
+                if text:
+                    return text
+            return _combat_bank_run_text()
+
+        supply_summary = QLabel(_auto_summary_text())
         supply_summary.setObjectName(f"combatLoadoutSummaryLabel{name_suffix}")
         supply_summary.setWordWrap(True)
         supply_summary.setStyleSheet(f"color: {dim_text_css(supply_summary)};")
         auto_layout.addWidget(supply_summary)
 
-        bank_run_label = QLabel(_combat_bank_run_text())
+        bank_run_label = QLabel(_auto_bank_run_text())
         bank_run_label.setObjectName(f"combatBankRunLabel{name_suffix}")
         bank_run_label.setWordWrap(True)
         bank_run_label.setStyleSheet(f"color: {dim_text_css(bank_run_label)};")
@@ -6750,6 +6768,7 @@ def show_main_menu(
         clear_inv_btn.setObjectName(f"combatClearInventoryButton{name_suffix}")
         clear_inv_btn.setStyleSheet("QPushButton { padding: 2px 10px; }")
         clear_inv_btn.setEnabled(on_unload_combat_loadout is not None)
+        clear_inv_btn.setVisible(bool(carried_auto_is_combat))
 
         def _on_clear_inventory(_checked=False) -> None:
             if on_unload_combat_loadout is not None and on_unload_combat_loadout():
@@ -6762,12 +6781,13 @@ def show_main_menu(
         clear_inv_layout.setContentsMargins(0, 0, 0, 0)
         clear_inv_layout.addWidget(clear_inv_btn)
         clear_inv_layout.addStretch(1)
+        clear_inv_row.setVisible(bool(carried_auto_is_combat))
         auto_layout.addWidget(clear_inv_row)
         section_layout.addWidget(auto_view)
 
         def _refresh_auto_view() -> None:
-            supply_summary.setText(_combat_loadout_summary_text(player_data))
-            bank_run_label.setText(_combat_bank_run_text())
+            supply_summary.setText(_auto_summary_text())
+            bank_run_label.setText(_auto_bank_run_text())
             _mode = str(player_data.get("combat_pack_mode", "balanced"))
             supply_mode_combo.blockSignals(True)
             supply_mode_combo.setCurrentIndex(max(0, supply_mode_combo.findData(_mode)))
@@ -6889,6 +6909,7 @@ def show_main_menu(
     carried_pointer.setObjectName("carriedEquipmentPointer")
     carried_pointer.setWordWrap(True)
     carried_pointer.setStyleSheet(f"color: {dim_text_css(carried_pointer)};")
+    carried_pointer.setVisible(bool(carried_auto_is_combat))
     cb_layout.addWidget(carried_pointer)
 
     carried_summary = QLabel(_carried_panel_summary_text())
