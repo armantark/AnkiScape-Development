@@ -59,9 +59,12 @@ confirmation naming remaining duration, permanent pouch loss, and any BoB cargo 
 Cancel preserves the current training, while Confirm dismisses without a review or remote
 Bank deposit. Manual Dismiss turns that target policy Off by default, with an unchecked
 `Keep auto-summon` dialog option; area-required dismissal never mutates saved policy. The
-next open fork is whether Casual automatic scroll specials earn the period
-manual-use XP or whether only Advanced/manual commands do. Familiarisation is now a
-four-answer session with 15 shards per success, three focus pips, and one lost pip/no
+scroll-XP fork is also closed under the owner's universal action-collapse rule: every
+eligible special fired by a successful review awards its exact use XP in Casual or
+Advanced, while Again never does. A future genuinely passive headgear-like auto-fire would
+retain the period zero-XP exception. The next open fork is how source familiars that
+"forage and drop" items behave when the carried inventory has no room. Familiarisation is
+now a four-answer session with 15 shards per success, three focus pips, and one lost pip/no
 shards on Again. Target policy
 `Off — no familiar automation` now preserves any already-live global familiar while
 spending no further familiar resources. Casual already falls back

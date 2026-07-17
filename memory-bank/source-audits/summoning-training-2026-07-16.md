@@ -45,8 +45,9 @@ wikitext.
   records scroll creation XP, use XP, and special-move-point cost.
 - Oldid 6520851 line 1 awards scroll-use XP only for manual inventory activation and
   explicitly withholds it from scrolls fired automatically by enchanted headgear. That is
-  a source precedent for distinguishing manual and automated special use, not merely a UI
-  detail.
+  a source precedent for any future truly passive auto-fire. It does not by itself define
+  AnkiScape's successful-review abstraction, where an automatically resolved special still
+  represents the player's foreground action.
 - Wolf Whistle was optional by the cutoff. Its quest XP and starter items remain a quest
   reward when that quest exists, but completion cannot gate the skill (oldid 6579264 line
   5).

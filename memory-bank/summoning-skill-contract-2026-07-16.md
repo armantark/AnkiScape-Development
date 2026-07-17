@@ -177,7 +177,8 @@ state.
 The active familiar is one **global equipment entity**, not a Combat-only loadout field.
 Its canonical panel lives with Equipment and is projected read-consistently into Bank,
 the reviewer, and target configuration surfaces. The canonical panel owns the live
-familiar, remaining lifetime, Summoning points, Summon/Dismiss/Renew/special commands,
+familiar, remaining lifetime, Summoning points, Summon/Dismiss/Renew commands, special
+configuration/status,
 the active policy/lapse reason, and the separate BoB inventory. Contextual projections
 never create a second copy of that state.
 
@@ -236,13 +237,17 @@ Casual ships with one global **auto-special toggle**, on by default. Auto-specia
 - uses role-shaped, source-backed trigger conditions so healing is not wasted as
   overheal, combat specials require an active encounter, and gathering/boost specials
   require an applicable current target or missing effect; and
-- never replaces the manual Special command on the canonical familiar panel.
+- awards the row's exact scroll-use XP because the successful review is the collapsed
+  foreground special-use action, even though the UI resolves it automatically.
 
 The carried-scroll boundary makes target packing the explicit depletion budget and
 prevents Casual from silently draining the Bank. Advanced may configure exact behavior
 from the same live familiar state, but cannot bypass sourced target, cooldown, point, or
 item gates. Trigger classifications come from the harvested familiar/scroll catalog,
-not display-name heuristics.
+not display-name heuristics. Advanced changes configuration precision, not whether the
+player must click a separate Special action: all eligible specials resolve through
+successful reviews. No direct UI command can execute a special or award XP outside the
+review transaction.
 
 ### 9. Passive familiar output on Again — settled 2026-07-16
 
@@ -455,13 +460,20 @@ replacement deliberate rather than surprising. Area-required dismissal never cha
 saved policy because the area—not a changed preference—caused it; the policy simply cannot
 act while that target forbids familiars.
 
-### 21. Scroll-use XP under Casual automation — open
+### 21. Scroll-use XP under collapsed automation — settled 2026-07-16
 
 Period scroll rows award a small separate XP amount when the player manually activates a
 scroll, but explicitly award none when enchanted headgear activates it automatically.
-AnkiScape's settled Casual auto-special is closer to the latter even though the player opted
-into the policy. Choose whether Casual auto-specials award the row's use XP, or reserve use
-XP for Advanced/manual special commands.
+AnkiScape does not preserve a manual-click training lane: a successful review is the
+foreground action, and Casual versus Advanced changes configuration precision rather than
+whether the player clicks Special. Every eligible review-triggered special therefore
+consumes its scroll and points and awards the row's exact use XP in both modes. Again never
+fires a special or awards that XP.
+
+The period enchanted-headgear exception remains reserved for any future effect that truly
+fires passively outside a foreground successful-review action. Such passive auto-fire would
+consume its sourced resources but award no scroll-use XP. This preserves the source
+distinction without penalizing AnkiScape's universal action-collapse abstraction.
 
 ### 22. Ordinary Summoning training — source/app-pattern resolved 2026-07-16
 

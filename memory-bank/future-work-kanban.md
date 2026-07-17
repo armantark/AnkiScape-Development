@@ -225,8 +225,11 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   nothing, Confirm dismisses without a review, and cargo never auto-banks. The live owner
   decision makes general manual Dismiss turn the current target policy Off by default,
   with an unchecked `Keep auto-summon` escape hatch; area-required dismissal preserves
-  policy. The next fork is whether Casual automatic specials receive the source's manual-
-  use XP or only Advanced/manual activations do.
+  policy. Successful-review specials now award exact scroll-use XP in Casual and Advanced
+  because every gameplay action is collapsed into automatic review resolution; Again never
+  does, and only a future genuinely passive headgear-like auto-fire keeps the period zero-XP
+  exception. The next fork is inventory-full handling for familiars that source text says
+  forage and drop rather than store their output.
 
 ### Dungeoneering
 
