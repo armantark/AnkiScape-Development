@@ -348,9 +348,11 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   The searchable Pets log explains and links routes but never grants pets. Pin every exact
   cost, rate, XP value, timer, colour rule, and reclaim path before implementation. The
   Discontinued event pets remain compatibility-only outside the obtainable log and
-  completion counts. The next owner fork is whether a one-time pet with no sourced
-  reacquisition route keeps ordinary **Release permanently...** with a clear
-  `Cannot be reobtained` confirmation or receives stronger protection.
+  completion counts. Individual page review found no supported
+  unreclaimable-one-time-pet category; Ex-ex-parrot and Broav reacquisition remain
+  `source_blocked`, and their Release action cannot ship until those rows are resolved.
+  Next resolve how always-on, quest-scripted, and repeatable reward-producing exceptional
+  pet functions execute without becoming generic Pets-log actions.
 
 ### Dungeoneering
 

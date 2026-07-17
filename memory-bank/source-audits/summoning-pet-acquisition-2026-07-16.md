@@ -105,6 +105,44 @@ slot only where the sourced step needs an active cat. Hellcat conversion mutates
 the entity and preserves ownership/growth identity. No quest relies on a
 free-floating `Kitten` versus `Pet kitten` string mismatch.
 
+### Reacquisition evidence
+
+The initial suggestion that some ordinary obtainable pets form an
+`unreclaimable_one_time` category did not survive individual page review:
+
+- Pet rock may be claimed repeatedly and in multiples
+  ([oldid 6359073](https://runescape.wiki/w/Pet_rock?oldid=6359073),
+  2012-10-06 21:07:09 UTC).
+- Tooth creature is replaced for free after dismissal or running away
+  ([oldid 6431044](https://runescape.wiki/w/Tooth_creature?oldid=6431044),
+  2012-10-17 01:38:42 UTC).
+- Rune guardian and Baby troll both name replacement NPCs
+  ([oldid 6546314](https://runescape.wiki/w/Rune_guardian?oldid=6546314),
+  2012-11-10 04:47:33 UTC;
+  [oldid 6570210](https://runescape.wiki/w/Baby_Troll?oldid=6570210),
+  2012-11-18 02:47:30 UTC).
+- Each Firemaker's Curse fire pet respawns in its training cave after dismissal
+  ([oldid 6387133](https://runescape.wiki/w/Searing_Flame?oldid=6387133),
+  2012-10-12 02:23:23 UTC).
+- Pet fish has a repeatable Harry-owned catch procedure, and clockwork cat is a
+  repeatable craftable/tradeable item
+  ([oldid 6530403](https://runescape.wiki/w/Fishbowl_%28pet%29?oldid=6530403),
+  2012-11-04 02:41:10 UTC;
+  [oldid 5918433](https://runescape.wiki/w/Clockwork_cat?oldid=5918433),
+  2012-07-10 20:53:05 UTC).
+
+Ex-ex-parrot's component pages show that Bill Teach replaces a lost magical cage and that
+50 Ships Mufassah supplies the ex-parrot, but do not explicitly close repeat acquisition
+of the completed pet
+([oldid 6424740](https://runescape.wiki/w/Magical_cage?oldid=6424740),
+2012-10-15 21:53:34 UTC;
+[oldid 6221529](https://runescape.wiki/w/50_Ships_Mufassah?oldid=6221529),
+2012-09-09 19:12:01 UTC). Broav's page documents only the While Guthix Sleeps capture and
+keying flow
+([oldid 6362753](https://runescape.wiki/w/Broav?oldid=6362753),
+2012-10-07 05:51:05 UTC). Those two completed-pet reacquisition rows remain
+`source_blocked`; silence is not encoded as permanent loss.
+
 ## Explicitly unresolved numeric harvest
 
 The route exists even when one of these exact parameters remains
@@ -118,7 +156,7 @@ The route exists even when one of these exact parameters remains
 - each egg's exact hatch surface and incubation duration;
 - quest/post-quest replacement costs and eligibility;
 - colour choice versus random roll; and
-- whether a one-time pet has any period reclaim route.
+- the completed Ex-ex-parrot and Broav reacquisition routes after deliberate release.
 
 ## Settled owner decision: legacy event visibility
 

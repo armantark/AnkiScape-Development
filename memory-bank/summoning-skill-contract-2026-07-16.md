@@ -645,11 +645,23 @@ advances across the threshold. It never feeds remotely from Bank and never reset
 for free. With no compatible food, the existing automatic-return rule remains the safe
 fallback. Advanced retains the exact persisted meter and its explicit food policy.
 
-The next owner fork concerns one-time pets with no sourced reacquisition route: should the
-ordinary **Release permanently...** confirmation remain available with an explicit
-`Cannot be reobtained` line, or should those pets require stronger friction or make Release
-unavailable? The recommendation is the ordinary confirmation plus the irreversibility
-line.
+### 29. Pet release evidence and source-blocked reacquisition — source resolved 2026-07-16
+
+Individual page review found no supported category of unreclaimable ordinary obtainable
+pets. Pet rock, Tooth creature, Rune guardian, Baby troll, Firemaker's Curse fire pets,
+pet fish, and clockwork cat all have repeat-claim, replacement, respawn, catch, or crafting
+routes pinned in `source-audits/summoning-pets-2026-07-16.md`.
+
+The ordinary **Release permanently...** confirmation states the pinned replacement route
+when one exists. It never says `Cannot be reobtained` merely because a page is silent.
+Completed Ex-ex-parrot and Broav reacquisition remain `source_blocked`; Release for either
+cannot ship until its row is resolved. This is an implementation dependency, not a new
+one-time-pet type or owner design fork.
+
+The next owner fork is how source-attested exceptional pet functions execute. The design
+must distinguish always-on effects, quest-scripted pet actions, and repeatable
+reward-producing pet actions without turning the Pets log into a second skill surface or
+silently discarding period functionality.
 
 ## Source/open-work queue
 

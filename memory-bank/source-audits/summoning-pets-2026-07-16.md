@@ -125,11 +125,37 @@ cost, and the period consequence that an unfed pet stops following, while removi
 loss of a quest-linked pet. Acquisition ownership and the full source-route matrix are in
 `summoning-pet-acquisition-2026-07-16.md`.
 
-## Open owner fork: explicitly releasing a one-time pet
+## Release and reacquisition — source resolved 2026-07-16
 
-Some quest or reward pets may have no sourced reacquisition route. The ordinary
-**Release permanently...** confirmation can state that the selected pet cannot be
-reobtained, or AnkiScape can add stronger friction or disable Release for those entities.
-The recommendation is to keep the ordinary explicit confirmation with the additional
-irreversibility line: the rejected failure was unattended maintenance loss, not a
-deliberate destructive command.
+The proposed special category of an unreclaimable one-time pet is not supported by the
+period evidence. Pet rock explicitly permits repeated claims and multiple copies
+([oldid 6359073](https://runescape.wiki/w/Pet_rock?oldid=6359073),
+2012-10-06 21:07:09 UTC); Tooth creature explicitly gives a free replacement after
+dismissal or running away
+([oldid 6431044](https://runescape.wiki/w/Tooth_creature?oldid=6431044),
+2012-10-17 01:38:42 UTC); Rune guardian, Baby troll, and the Firemaker's Curse fire pets
+name replacement or respawn routes
+([oldid 6546314](https://runescape.wiki/w/Rune_guardian?oldid=6546314),
+2012-11-10 04:47:33 UTC;
+[oldid 6570210](https://runescape.wiki/w/Baby_Troll?oldid=6570210),
+2012-11-18 02:47:30 UTC;
+[oldid 6387133](https://runescape.wiki/w/Searing_Flame?oldid=6387133),
+2012-10-12 02:23:23 UTC). Pet fish is a repeatable Harry-owned catch procedure
+([oldid 6530403](https://runescape.wiki/w/Fishbowl_%28pet%29?oldid=6530403),
+2012-11-04 02:41:10 UTC), and clockwork cats are repeatably craftable and tradeable
+([oldid 5918433](https://runescape.wiki/w/Clockwork_cat?oldid=5918433),
+2012-07-10 20:53:05 UTC).
+
+The Ex-ex-parrot and Broav pages document their initial routes but do not establish what
+happens after the completed pet is deliberately released
+([oldid 6546370](https://runescape.wiki/w/Ex-ex-parrot?oldid=6546370),
+2012-11-10 04:59:32 UTC;
+[oldid 6362753](https://runescape.wiki/w/Broav?oldid=6362753),
+2012-10-07 05:51:05 UTC). Their reacquisition rows are therefore `source_blocked`, not
+evidence of permanent loss.
+
+There is no special unreclaimable-pet confirmation. The ordinary destructive confirmation
+states a replacement route only when the catalog has a pinned route, and never claims
+`Cannot be reobtained` without affirmative period evidence. A source-blocked reacquisition
+row blocks shipping Release for that pet until the route is resolved; it does not invent
+either a reclaim or permanent-loss rule.

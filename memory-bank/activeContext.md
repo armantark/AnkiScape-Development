@@ -52,11 +52,14 @@ Pet acquisition is distributed to the real source systems: shops/services, quest
 egg sources and per-pet hatch flows, Construction, and activity reward shops. A searchable
 Pets log explains and links those routes but never grants pets itself. Exact costs/rates/
 timers remain source-harvest work. Discontinued event pets remain compatibility-only
-outside the obtainable log and completion counts. The narrow open decision is whether an
-explicit **Release permanently...** remains available for a one-time pet with no sourced
-reacquisition route.
+outside the obtainable log and completion counts. Individual page review found no
+supported unreclaimable-one-time-pet category; known pets have replacement routes, while
+completed Ex-ex-parrot and Broav reacquisition remain `source_blocked`. Release never
+claims `Cannot be reobtained` from source silence and cannot ship for a pet whose
+reacquisition row is unresolved. The next grill is the execution boundary for exceptional
+pet functions: passive effects, quest-scripted actions, and repeatable reward actions.
 
-The 28 settled decisions define answered-card lifetime and passive world ticks,
+The 29 settled decisions define answered-card lifetime and passive world ticks,
 separate familiar/point/special resources, target-policy automation, carried
 pouch/scroll budgets, coalesced restore and Bank detours, safe replacement and
 dismissal, source-gated familiar combat, BoB inventory/reclaim rules, forbidden
