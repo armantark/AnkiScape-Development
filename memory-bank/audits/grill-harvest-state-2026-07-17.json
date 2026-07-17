@@ -6,7 +6,7 @@
   "branch": "main",
   "baseline_commit": "2d51d213ab7e6c9a9b6fb397e9b664c9ed892d60",
   "current_phase": "slayer_source_harvest",
-  "last_observed_commit": "610587f3407606cacff96ca6926c0f84ac335703",
+  "last_observed_commit": "5e24522b0464f70c39459bba1418e15fbee4dced",
   "queue": [
     {
       "id": "approved-amendments",
@@ -20,7 +20,7 @@
     },
     {
       "id": "slayer",
-      "status": "source_sweep_active_turael_spria_and_mazchna_achtryn_recorded",
+      "status": "source_sweep_active_first_three_functional_master_pools_recorded",
       "runtime_authorized": true
     }
   ],
@@ -28,7 +28,9 @@
     "6639a485c2ad2403896a9759fb3f3d2aadba1b4c",
     "8426fa20881d5c670c3c6e8a8ecf299984b4c1b9",
     "69855d9649500f04e64343e8810e93b5ba4904c0",
-    "9b65f45a507d638ce4a9ed3e5e71416f39d25a1d"
+    "9b65f45a507d638ce4a9ed3e5e71416f39d25a1d",
+    "610587f3407606cacff96ca6926c0f84ac335703",
+    "5e24522b0464f70c39459bba1418e15fbee4dced"
   ],
   "completed_batches": [
     "magic-charge-review-duration",
@@ -36,7 +38,8 @@
     "agility-carried-risk-packs",
     "farming-dig-up-presets-full-run",
     "slayer-turael-spria-source-pool",
-    "slayer-mazchna-achtryn-source-pool"
+    "slayer-mazchna-achtryn-source-pool",
+    "slayer-vannaka-source-pool"
   ],
   "workflow_runs": [
     {
@@ -69,6 +72,11 @@
       "id": "8ea520db-346c-4d41-a37f-414e9e373929",
       "purpose": "Mazchna/Achtryn emulator and period-history source surveys",
       "result": "primary reconciled 27 families, provisional 325-point weight denominator, malformed count history, and runtime blockers"
+    },
+    {
+      "id": "f3f3ff2a-db8d-424f-8f1b-498eea5c914a",
+      "purpose": "Vannaka emulator/runtime and period-history source surveys",
+      "result": "primary reconciled 35 families, provisional 460-point weight denominator, Grotworm count abstraction, Terror-dog exclusion, and runtime blockers"
     }
   ],
   "excluded_until_owner_authorizes": [

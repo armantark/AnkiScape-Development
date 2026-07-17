@@ -206,8 +206,11 @@ Snapshot:
   `2.82/4.23/8.45` weights and the 10–20 Icefiend exception.
 - Desert lizards, dogs, and monkeys are commented implementation omissions,
   not evidence against membership.
-- No active assignment generator consumes this table, so it is corroborating
-  data rather than executable runtime proof.
+- The current snapshot's
+  `slayer_masters_dialogue.plugin.kts:30-42,120-179` talk-to path does consume
+  this table, filter player requirements, and roll weights. This proves
+  executable intent, but not a successful server run; the source file itself
+  still labels its family data incomplete.
 
 The two implementations converge on every shared raw-weight ratio and count.
 They do not independently prove hidden period weights, which is why all weights
@@ -237,4 +240,3 @@ implementation and source verification:
 3. close target-local route/context dependencies for the certifying variants;
 4. add the machine-checkable Slayer family/readiness registry; and
 5. certify the whole role before exposing `Get assignment`.
-

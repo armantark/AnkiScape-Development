@@ -460,6 +460,41 @@ class CombatEnemyAttackStyleTest(unittest.TestCase):
                     self.assertTrue(enemy.get("max_hit") or enemy.get("max_hit_old_hp"))
 
 
+class CombatSourceXpModifierTest(unittest.TestCase):
+    def test_stronghold_shade_applies_period_reduced_combat_and_slayer_xp(self):
+        shade = COMBAT_ENEMY_DATA["shade"]
+        ordinary_shade = dict(shade)
+        ordinary_shade.pop("xp_multiplier")
+        player = _player(current_combat_target="shade")
+
+        _reduced, ok, reduced_result = apply_combat_burst_pure(
+            player,
+            {"shade": shade},
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.0, 0.5]),
+        )
+        _ordinary, ordinary_ok, ordinary_result = apply_combat_burst_pure(
+            player,
+            {"shade": ordinary_shade},
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.0, 0.5]),
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(ordinary_ok)
+        self.assertEqual(shade["slayer_xp"], 3.5)
+        self.assertAlmostEqual(
+            reduced_result["xp_rewards"]["attack_exp"],
+            ordinary_result["xp_rewards"]["attack_exp"] * 0.25,
+        )
+        self.assertAlmostEqual(
+            reduced_result["xp_rewards"]["constitution_exp"],
+            ordinary_result["xp_rewards"]["constitution_exp"] * 0.25,
+        )
+
+
 class CombatDropItemNamesTest(unittest.TestCase):
     def test_flattens_guaranteed_and_nested_table_items_in_order(self):
         enemy = {

@@ -42,6 +42,29 @@ AnkiScape now has 17 complete skill surfaces, five partial Combat-trained skills
 - Durable evidence:
   `source-audits/slayer-mazchna-achtryn-pool-2026-07-17.md`.
 
+## Slayer Vannaka source harvest — 2026-07-17
+
+- Reconciled the third functional-master pool at 35 families and a provisional
+  460-point hidden-weight denominator.
+- Rejected Darkan's extra Troll row because the cutoff Vannaka page omits it and
+  the cutoff cross-master table assigns Trolls only to Chaeldar and Sumona.
+- Restored Mogres and Sea snakes from cutoff master/cross-master evidence.
+  Their 10-point weights are labeled common-baseline abstractions; game-main's
+  explicit 2.17% ordinary-family rows independently round from `10 / 460`.
+- Kept the single observed Grotworm count of 69 as history rather than a fake
+  range, and labeled Darkan's ordinary Vannaka `60–120` range as the smallest
+  explicit count abstraction.
+- Kept Vannaka out of live assignment generation because 23 families, the
+  stable family/variant registry, and numerous quest, protection, lure, context,
+  and restricted-kill mechanics remain runtime blockers.
+- Corrected the Stronghold Shade to its cutoff 3.5 Slayer XP and one-quarter
+  ordinary combat/Constitution damage XP, with a deterministic live-burst
+  regression.
+- Corrected the earlier Turael audit: current game-main does execute its
+  incomplete Slayer table through the talk-to assignment path.
+- Durable evidence:
+  `source-audits/slayer-vannaka-pool-2026-07-17.md`.
+
 ## Agility carried-risk amendment — 2026-07-17
 
 - Integrated into `main` at `69855d9`.

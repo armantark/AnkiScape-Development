@@ -6821,7 +6821,8 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "attack_style": "melee",
         "attack_speed": 4,
         "respawn_delay": 50,
-        "slayer_xp": 4.2,
+        "slayer_xp": 3.5,
+        "xp_multiplier": 0.25,
         "stats": {'hitpoints': 700, 'attack': 74, 'strength': 74, 'defence': 70, 'magic': 1, 'ranged': 1},
         "bonuses": {'attack_stab': 0,
  'attack_slash': 0,
@@ -6839,7 +6840,7 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
                        {'item': 'Shade robe', 'quantity': 1, 'slots': 1})},)},
         "source": (
             f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
-            "definitions/undeads/shade_level_83.plugin.kts"
+            "definitions/undeads/shade_level_83.plugin.kts; RuneScape Wiki Shade oldid 6564222"
         ),
     },
     "ghost_level_77": {

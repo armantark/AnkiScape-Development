@@ -315,3 +315,52 @@ Evidence:
   behavioral regression.
 - Documentation, compilation, diff, JSON, and worktree-safety checks passed.
 - No owner-level design gap emerged.
+
+## Slayer source batch — Vannaka pool
+
+Finding: cutoff Vannaka contains 35 families, while Darkan contains 34
+executable rows totaling 450, adds Trolls, and cannot instantiate Mogres or Sea
+snakes because those family enums are comments. The cutoff Grotworm row records
+one observed assignment of 69 rather than a range.
+
+Resolution:
+
+- Reconciled 35 ordinary families and a provisional 460-point hidden-weight
+  denominator.
+- Rejected Darkan's Troll row from cutoff master and cross-master convergence.
+- Restored Mogres and Sea snakes with explicit 10-point common-baseline
+  abstractions. game-main's explicit 2.17% ordinary-family values independently
+  round from `10 / 460`, but its active input table remains deliberately
+  incomplete.
+- Used Darkan's ordinary `60–120` Grotworm range as the smallest labeled count
+  abstraction rather than converting a single observed 69 into a fixed task;
+  period talk history also reports 78.
+- Kept Vannaka runtime-hidden because 23 families have no Combat target and the
+  family registry, player gates, routes, protective equipment, lures, and
+  special kill methods remain incomplete.
+
+Concrete implementation repair:
+
+- The live Stronghold Shade copied game-main's conflicting 4.2 Slayer XP and
+  granted ordinary damage XP.
+- It now uses the cutoff 3.5 Slayer XP and the existing 0.25 NPC XP multiplier.
+  A deterministic Combat regression proves both ordinary combat and
+  Constitution damage XP are quartered.
+
+Evidence:
+
+- `source-audits/slayer-vannaka-pool-2026-07-17.md`.
+- Read-only workflow `f3f3ff2a-db8d-424f-8f1b-498eea5c914a` supplied separate
+  emulator/runtime and period-history surveys; the primary independently
+  resolved the accepted 35-family union and Shade correction.
+- The emulator survey also found and the primary corrected the earlier Turael
+  audit's false statement that game-main had no active assignment generator.
+- Focused Shade/schema regressions: 2 passed.
+- Combat logic and enemy-roster holdout: 180 passed.
+- Combat logic, enemy-roster, runtime-action, and integration holdout: 341
+  passed.
+- Full core: 1,365 methods, 196 environment skips, and three declared
+  XP-parity expected failures.
+- Test quality: zero hard issues across 67 files.
+- Documentation, compilation, diff, JSON, and worktree-safety checks passed.
+- No owner-level design gap emerged.

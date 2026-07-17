@@ -46,6 +46,20 @@ families lack required Slayer/protection behavior, and no assignment-family
 registry exists. This pass repaired Cave crawler's omitted source
 `poisonDamage = 8`. No owner design question emerged.
 
+The third master-pool harvest is recorded in
+`source-audits/slayer-vannaka-pool-2026-07-17.md`. It reconciles the cutoff
+35-family pool and a provisional 460-point denominator. Darkan's unsupported
+Troll row is replaced by the cutoff Mogre and Sea-snake families; their
+10-point values are labeled common-baseline abstractions. Grotworms use the
+ordinary `60–120` Darkan range rather than treating the cutoff page's single
+observed assignment of 69 as a complete range. game-main's explicit 2.17%
+ordinary weights independently round from `10 / 460`, although its live input
+table remains intentionally partial. Runtime certification still fails: 23
+families have no Combat target, present targets lack several required
+protective/quest mechanics, and no stable assignment-family registry exists.
+The same pass corrected the Stronghold Shade to 3.5 Slayer XP and one-quarter
+ordinary combat/Constitution damage XP. No owner design question emerged.
+
 The settled design keeps assignments and exact qualifying Combat variants
 source-shaped, places `Assignment`, `Masters`, and `Rewards` in one Slayer page,
 deep-links into Combat as the sole fight surface, and requires a reusable list

@@ -56,7 +56,7 @@ REQUIRED_ENEMY_KEYS = {
     "source",
 }
 
-OPTIONAL_ENEMY_KEYS = {"poison_damage"}
+OPTIONAL_ENEMY_KEYS = {"poison_damage", "xp_multiplier"}
 
 REQUIRED_STAT_KEYS = {"hitpoints", "attack", "strength", "defence", "magic", "ranged"}
 
@@ -119,6 +119,9 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                 if "poison_damage" in enemy:
                     self.assertIsInstance(enemy["poison_damage"], int)
                     self.assertGreater(enemy["poison_damage"], 0)
+                if "xp_multiplier" in enemy:
+                    self.assertIsInstance(enemy["xp_multiplier"], float)
+                    self.assertGreater(enemy["xp_multiplier"], 0.0)
                 self.assertGreater(enemy["stats"]["hitpoints"], 0)
 
     def test_new_enemy_drops_are_well_formed(self):
