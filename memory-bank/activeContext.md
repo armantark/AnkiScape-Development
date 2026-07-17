@@ -667,3 +667,26 @@ the family registry, assignment/task-credit runtime, 29 families, special
 mechanics, reward gates, contexts and Fight Cave remain absent. All seven
 functional master pools are now recorded. Summoning and Dungeoneering remain
 explicitly excluded.
+
+## Slayer Cockatrice protection slice (2026-07-17)
+
+Cockatrice now preserves the cutoff Mirror-shield consequence instead of
+behaving like an ordinary harmless melee target. Missing the equipped shield
+causes an automatically landed fixed hit using the labeled
+maximum-LP/6-with-110-cap reconciliation and drains Attack, Strength, Defence,
+Ranged, and Agility by one quarter of base per attack down to the period-proven
+one-quarter floor. The ordinary Combat food, retreat, death, grave, persistence,
+and review-undo paths remain authoritative.
+
+The existing Combat picker warns without hard-blocking the legal dangerous
+encounter and clears the warning only when Mirror shield occupies the shield
+slot. Banshee's protective item set and affected stats are pinned in
+`source-audits/slayer-protective-equipment-cockatrice-banshee-2026-07-17.md`,
+but its conflicting drain magnitude and out-of-scope Summoning effect keep it
+unimplemented. Summoning and Dungeoneering remain explicitly excluded.
+
+Verification passes 383 focused Combat/runtime/integration tests, one real
+offscreen Qt Combat-picker check, and all 1,374 core tests with 196 environment
+skips and three expected XP-parity failures. Test quality, documentation,
+compilation, diff and worktree-safety checks pass; reachability remains at its
+1,200-action / 273-known-orphan baseline.

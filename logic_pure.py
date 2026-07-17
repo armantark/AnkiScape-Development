@@ -3238,6 +3238,55 @@ def _combat_enemy_max_hit_old_hp(enemy, effective_strength, strength_bonus, enem
     return _combat_melee_max_hit_old_hp(effective_strength, strength_bonus)
 
 
+def _combat_protective_equipment_state(player_data, enemy):
+    protection = enemy.get("protective_equipment") if isinstance(enemy, Mapping) else None
+    if not isinstance(protection, Mapping):
+        return None, True
+    equipment = player_data.get("equipment", {}) or {}
+    if not isinstance(equipment, Mapping):
+        equipment = {}
+    slot = protection.get("slot")
+    required_items = protection.get("items", ()) or ()
+    equipped_item = equipment.get(slot) if isinstance(slot, str) else None
+    return protection, equipped_item in required_items
+
+
+def _combat_unprotected_damage_lifepoints(effect, max_lifepoints):
+    damage = effect.get("damage") if isinstance(effect, Mapping) else None
+    if not isinstance(damage, Mapping):
+        return 0
+    if damage.get("kind") != "max_lifepoints_fraction_capped":
+        return 0
+    numerator = _positive_int(damage.get("numerator", 1), 1)
+    denominator = _positive_int(damage.get("denominator", 1), 1)
+    amount = max(1, _positive_int(max_lifepoints, 1) * numerator // denominator)
+    cap = _positive_int(damage.get("cap", amount), amount)
+    return min(amount, cap)
+
+
+def _combat_apply_unprotected_stat_drains(data, effect):
+    drain = effect.get("stat_drain") if isinstance(effect, Mapping) else None
+    if not isinstance(drain, Mapping) or drain.get("kind") != "base_fraction_to_floor":
+        return {}
+    numerator = _positive_int(drain.get("numerator", 1), 1)
+    denominator = _positive_int(drain.get("denominator", 1), 1)
+    floor_numerator = _positive_int(drain.get("floor_numerator", 1), 1)
+    floor_denominator = _positive_int(drain.get("floor_denominator", 1), 1)
+    applied = {}
+    for skill_id in drain.get("skills", ()) or ():
+        if not isinstance(skill_id, str):
+            continue
+        base = _combat_base_skill_level(data, skill_id, 1)
+        current = _combat_effective_skill_level(data, skill_id, base)
+        floor_level = max(1, base * floor_numerator // floor_denominator)
+        amount = max(1, base * numerator // denominator)
+        updated = max(floor_level, current - amount)
+        if updated < current:
+            apply_combat_stat_delta_pure(data, skill_id, updated - current)
+            applied[skill_id] = current - updated
+    return applied
+
+
 def _combat_ranged_max_hit_old_hp(effective_ranged, ranged_strength_bonus):
     return max(0.0, 0.5 + float(effective_ranged) * (float(ranged_strength_bonus) + 64.0) / 640.0)
 
@@ -4802,9 +4851,19 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         _equipment_bonus_value(enemy_totals, "melee_strength"),
         enemy_totals,
     )
+    protective_equipment, protection_active = _combat_protective_equipment_state(player_data, enemy)
+    unprotected_effect = (
+        protective_equipment.get("unprotected_effect")
+        if isinstance(protective_equipment, Mapping) and not protection_active
+        else None
+    )
     max_lp = combat_max_lifepoints_pure(player_data)
     current_lp = max(0, min(_positive_int(player_data.get("combat_lifepoints", max_lp), max_lp), max_lp))
-    enemy_max_lp_hit = int(enemy_max_hit * 10)
+    enemy_max_lp_hit = (
+        _combat_unprotected_damage_lifepoints(unprotected_effect, max_lp)
+        if isinstance(unprotected_effect, Mapping)
+        else int(enemy_max_hit * 10)
+    )
     encounter = player_data.get("combat_encounter", {}) or {}
     active_encounter = isinstance(encounter, Mapping) and encounter.get("target_id") == target_id
     loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
@@ -4834,6 +4893,11 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         if risk == "Safe":
             risk = "Food advised"
     state = "Fighting" if active_encounter else "Ready"
+    protection_warning = (
+        str(protective_equipment.get("warning", ""))
+        if isinstance(protective_equipment, Mapping) and not protection_active
+        else ""
+    )
     return {
         "state": state,
         "risk_band": risk,
@@ -4853,6 +4917,7 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         "poison_damage": poison_lifepoints,
         "poison_chance": COMBAT_POISON_NPC_ATTACK_CHANCE if poison_damage > 0 and poison_immunity_ticks <= 0 else 0.0,
         "poison_immunity_ticks": poison_immunity_ticks,
+        "protection_warning": protection_warning,
         "source": enemy.get("source", ""),
     }
 
@@ -5212,6 +5277,12 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         _equipment_bonus_value(enemy_totals, "melee_strength"),
         enemy_totals,
     )
+    protective_equipment, protection_active = _combat_protective_equipment_state(data, enemy)
+    unprotected_effect = (
+        protective_equipment.get("unprotected_effect")
+        if isinstance(protective_equipment, Mapping) and not protection_active
+        else None
+    )
 
     next_player_attack = 0
     next_enemy_attack = enemy_attack_speed
@@ -5226,6 +5297,8 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     status_damage = {}
     status_applied = {}
     status_expired = []
+    unprotected_attacks = 0
+    stat_drains = {}
     xp_rewards = {"magic_exp": supplemental_magic_xp} if supplemental_magic_xp > 0 else {}
     drops = {}
     kills = 0
@@ -5335,15 +5408,55 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
 
         if tick >= next_enemy_attack and enemy_lp > 0:
             next_enemy_attack += enemy_attack_speed
-            landed = False
-            try:
-                landed = float(rng()) < enemy_accuracy
-            except (TypeError, ValueError):
+            if isinstance(unprotected_effect, Mapping):
+                damage = _combat_unprotected_damage_lifepoints(unprotected_effect, max_player_lp)
+                unprotected_attacks += 1
+                attack_drains = _combat_apply_unprotected_stat_drains(data, unprotected_effect)
+                for skill_id, amount in attack_drains.items():
+                    stat_drains[skill_id] = _non_negative_int(stat_drains.get(skill_id, 0), 0) + amount
+                if attack_drains:
+                    if combat_class == "ranged":
+                        player_attack_roll = _combat_effective_player_ranged_level(data, style_id) * float(
+                            prayer_effects.get("ranged_attack", prayer_effects.get("ranged", 1.0))
+                        ) * (_combat_attack_bonus_from_totals(player_totals, "ranged") + 64)
+                        player_max_hit = _combat_ranged_max_hit_old_hp(
+                            _combat_effective_player_ranged_level(data, style_id) * float(
+                                prayer_effects.get("ranged_strength", prayer_effects.get("ranged", 1.0))
+                            ),
+                            _combat_ranged_strength_bonus(player_totals, selected_ammo),
+                        )
+                    elif combat_class == "magic":
+                        player_attack_roll = _combat_effective_player_magic_level(data) * float(
+                            prayer_effects.get("magic", 1.0)
+                        ) * (_combat_attack_bonus_from_totals(player_totals, "magic") + 64)
+                        player_max_hit = _combat_magic_max_hit_old_hp(spell_spec, player_totals)
+                    else:
+                        player_attack_roll = _combat_effective_player_attack_level(data, style_id) * float(
+                            prayer_effects.get("attack", 1.0)
+                        ) * (
+                            _combat_attack_bonus_from_totals(
+                                player_totals,
+                                style_type=melee_style_type,
+                            )
+                            + 64
+                        )
+                        player_max_hit = _combat_melee_max_hit_old_hp(
+                            _combat_effective_player_strength_level(data, style_id)
+                            * float(prayer_effects.get("strength", 1.0)),
+                            _equipment_bonus_value(player_totals, "melee_strength"),
+                        )
+                    player_accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
+            else:
                 landed = False
-            damage = _combat_roll_damage_lifepoints(enemy_max_hit, rng) if landed else 0
+                try:
+                    landed = float(rng()) < enemy_accuracy
+                except (TypeError, ValueError):
+                    landed = False
+                damage = _combat_roll_damage_lifepoints(enemy_max_hit, rng) if landed else 0
             raw_enemy_damage = damage
-            protection_key = {"magic": "protect_magic", "ranged": "protect_ranged"}.get(enemy_class, "protect_melee")
-            damage = int(damage * (1.0 - float(prayer_effects.get(protection_key, 0.0))))
+            if not isinstance(unprotected_effect, Mapping):
+                protection_key = {"magic": "protect_magic", "ranged": "protect_ranged"}.get(enemy_class, "protect_melee")
+                damage = int(damage * (1.0 - float(prayer_effects.get(protection_key, 0.0))))
             damage = min(player_lp, damage)
             if damage > 0:
                 player_lp -= damage
@@ -5474,6 +5587,13 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         "status_damage": dict(status_damage),
         "status_applied": dict(status_applied),
         "status_expired": tuple(dict.fromkeys(status_expired)),
+        "unprotected_attacks": unprotected_attacks,
+        "stat_drains": dict(stat_drains),
+        "protection_warning": (
+            str(protective_equipment.get("warning", ""))
+            if isinstance(protective_equipment, Mapping) and not protection_active
+            else ""
+        ),
         "drops": drops,
         "xp_rewards": xp_rewards,
         "prayer_points_before": prayer_points_before,

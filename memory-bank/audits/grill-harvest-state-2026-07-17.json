@@ -6,7 +6,7 @@
   "branch": "main",
   "baseline_commit": "2d51d213ab7e6c9a9b6fb397e9b664c9ed892d60",
   "current_phase": "slayer_source_harvest",
-  "last_observed_commit": "00c201c11a9d54744323cacc26595aa1ab4bd4b5",
+  "last_observed_commit": "01d4223b42828e3b1e69524ffccec0421104d781",
   "queue": [
     {
       "id": "approved-amendments",
@@ -20,7 +20,7 @@
     },
     {
       "id": "slayer",
-      "status": "all_seven_functional_master_pools_recorded_family_sweep_next",
+      "status": "all_seven_functional_master_pools_recorded_cockatrice_protection_complete_family_sweep_continues",
       "runtime_authorized": true
     }
   ],
@@ -47,7 +47,8 @@
     "slayer-chaeldar-source-pool",
     "slayer-sumona-source-pool",
     "slayer-duradel-lapalok-source-pool",
-    "slayer-kuradal-source-pool"
+    "slayer-kuradal-source-pool",
+    "slayer-cockatrice-protective-equipment"
   ],
   "workflow_runs": [
     {
@@ -105,6 +106,11 @@
       "id": "033a9a66-8eb3-4b16-85ce-3cff1eb57c1a",
       "purpose": "Kuradal emulator/runtime survey plus attempted period-history leaf",
       "result": "emulator leaf succeeded; zero-progress network leaf canceled; primary independently reconciled 36 families, provisional 322-point denominator, count and gate conflicts, Kuradal context, challenge boundary, and runtime blockers"
+    },
+    {
+      "id": "79096d5a-3642-428f-84f1-721b0202d4d4",
+      "purpose": "Cockatrice and Banshee protective-equipment source surveys",
+      "result": "canceled after two overlong attempts produced no final reports; primary independently reconciled and implemented Cockatrice while leaving Banshee blocked"
     }
   ],
   "excluded_until_owner_authorizes": [

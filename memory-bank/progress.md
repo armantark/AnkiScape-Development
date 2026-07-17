@@ -608,3 +608,22 @@ Test counts are snapshots; current runs outrank this note.
   1,369 core methods pass, with 196 environment skips and the three declared
   XP-parity expected failures; test quality remains at zero hard issues.
   Summoning and Dungeoneering remained outside the batch.
+
+## Slayer Cockatrice protective equipment (2026-07-17)
+
+- Pinned the cutoff Mirror-shield trigger, fixed eye-beam hit, one-quarter stat
+  floor, item identity, slot, equip gate, and Slayer-shop acquisition.
+- Reconciled the hidden damage function as the smallest labeled mapping:
+  Darkan's maximum-LP/6 fixed hit capped at the period page's 110 LP.
+- Reconciled the repeated drain from the period one-quarter floor and
+  2011Scape's 25%-of-base Attack, Strength, Defence, Ranged, and Agility set.
+- Added the data-driven Combat consequence, fixed-hit/prayer bypass, persistent
+  current-level drains, ordinary food/death/retreat/undo integration, and a
+  non-blocking target warning.
+- Kept Banshee unimplemented because its exact stat-drain magnitude conflicts
+  across reconstructions and the period effect includes currently excluded
+  Summoning.
+- Verification passes 383 focused Combat/runtime/integration tests, one real
+  offscreen Qt picker check, and all 1,374 core methods with 196 skips and
+  three expected failures. Test quality has zero hard issues; documentation,
+  reachability, compilation, diff and worktree-safety checks pass.

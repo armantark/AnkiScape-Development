@@ -4166,6 +4166,127 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(immune_preview["poison_chance"], 0.0)
         self.assertEqual(immune_preview["poison_immunity_ticks"], 100)
 
+    def test_unshielded_cockatrice_fixed_attack_drains_stats_to_period_floor(self):
+        player = _player(
+            current_combat_target="cockatrice",
+            attack_level=60,
+            strength_level=60,
+            defense_level=60,
+            ranged_level=60,
+            agility_level=60,
+            constitution_level=60,
+            prayer_level=99,
+            combat_lifepoints=600,
+            combat_auto_flee=False,
+            combat_prayer_points=990,
+            combat_selected_prayers=["protect_from_melee"],
+            combat_prayer_uptime="100",
+        )
+
+        out, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=17,
+            rng=lambda: 0.999999,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["unprotected_attacks"], 4)
+        self.assertEqual(result["enemy_damage"], 400)
+        self.assertEqual(out["combat_lifepoints"], 200)
+        self.assertEqual(
+            out["combat_current_levels"],
+            {"attack": 15, "strength": 15, "defense": 15, "ranged": 15, "agility": 15},
+        )
+        self.assertEqual(
+            result["stat_drains"],
+            {"attack": 45, "strength": 45, "defense": 45, "ranged": 45, "agility": 45},
+        )
+
+    def test_mirror_shield_restores_cockatrice_to_ordinary_accuracy_rolls(self):
+        player = _player(
+            current_combat_target="cockatrice",
+            equipment={"shield": "Mirror shield"},
+            attack_level=60,
+            strength_level=60,
+            defense_level=60,
+            ranged_level=60,
+            agility_level=60,
+            constitution_level=60,
+            combat_lifepoints=600,
+            combat_auto_flee=False,
+        )
+
+        out, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=17,
+            rng=lambda: 0.999999,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["unprotected_attacks"], 0)
+        self.assertEqual(result["enemy_damage"], 0)
+        self.assertEqual(out["combat_lifepoints"], 600)
+        self.assertEqual(out["combat_current_levels"], {})
+
+    def test_cockatrice_drains_reduce_later_attacks_in_the_same_review(self):
+        base = dict(
+            current_combat_target="cockatrice",
+            attack_level=60,
+            strength_level=60,
+            defense_level=60,
+            ranged_level=60,
+            agility_level=60,
+            constitution_level=99,
+            combat_lifepoints=990,
+            combat_auto_flee=False,
+        )
+
+        _unprotected, ok, unprotected_result = apply_combat_burst_pure(
+            _player(**base),
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=13,
+            rng=lambda: 0.5,
+        )
+        _protected, protected_ok, protected_result = apply_combat_burst_pure(
+            _player(**base, equipment={"shield": "Mirror shield"}),
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=13,
+            rng=lambda: 0.5,
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(protected_ok)
+        self.assertLess(unprotected_result["player_damage"], protected_result["player_damage"])
+
+    def test_cockatrice_preview_warns_without_mirror_shield_and_clears_when_equipped(self):
+        unprotected = combat_target_preview_pure(
+            _player(constitution_level=60, combat_lifepoints=600),
+            "cockatrice",
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+        )
+        protected = combat_target_preview_pure(
+            _player(
+                constitution_level=60,
+                combat_lifepoints=600,
+                equipment={"shield": "Mirror shield"},
+            ),
+            "cockatrice",
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+        )
+
+        self.assertEqual(unprotected["enemy_max_hit"], 100)
+        self.assertIn("Mirror shield", unprotected["protection_warning"])
+        self.assertEqual(protected["protection_warning"], "")
+        self.assertLess(protected["enemy_max_hit"], unprotected["enemy_max_hit"])
+
 
 class CombatAttackTypeResolverTest(unittest.TestCase):
     """D1/D2/D3 attack-type feature: the equipped weapon's AttackStyleData slots

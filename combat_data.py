@@ -6965,6 +6965,35 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "attack_speed": 4,
         "respawn_delay": 15,
         "slayer_xp": 37.0,
+        "protective_equipment": {
+            "slot": "shield",
+            "items": ("Mirror shield",),
+            "warning": (
+                "Missing Mirror shield in the shield slot: Cockatrice eye beams "
+                "deal fixed damage and stat drain."
+            ),
+            "unprotected_effect": {
+                "damage": {
+                    "kind": "max_lifepoints_fraction_capped",
+                    "numerator": 1,
+                    "denominator": 6,
+                    "cap": 110,
+                },
+                "stat_drain": {
+                    "kind": "base_fraction_to_floor",
+                    "skills": ("attack", "strength", "defense", "ranged", "agility"),
+                    "numerator": 1,
+                    "denominator": 4,
+                    "floor_numerator": 1,
+                    "floor_denominator": 4,
+                },
+            },
+            "source_status": (
+                "abstraction/darkan+period+game-main: fixed max-LP-scaled hit "
+                "capped at the period 110 LP maximum; 25%-of-base drains stop at "
+                "the period one-quarter floor"
+            ),
+        },
         "stats": {'hitpoints': 370, 'attack': 22, 'strength': 37, 'defence': 37, 'magic': 1, 'ranged': 1},
         "bonuses": {'attack_stab': 0,
  'attack_slash': 0,
@@ -7015,7 +7044,10 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
                        {'slots': 875})})},
         "source": (
             f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
-            "definitions/critters/cockatrice_level_37.plugin.kts"
+            "definitions/critters/cockatrice_level_37.plugin.kts; "
+            f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/combat/"
+            "scripts/impl/CockatriceCombatScript.kt; "
+            "Darkan CockatriceCombat.java; RuneScape Wiki Cockatrice oldid 6579848"
         ),
     },
     "cave_bug": {

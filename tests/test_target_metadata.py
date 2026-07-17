@@ -75,6 +75,31 @@ def _row(rows, target_id):
 
 
 class TargetMetadataTest(unittest.TestCase):
+    def test_cockatrice_row_warns_about_missing_mirror_shield_without_locking_combat(self):
+        rows = combat_target_rows(
+            {
+                "attack_level": 60,
+                "strength_level": 60,
+                "defense_level": 60,
+                "ranged_level": 60,
+                "magic_level": 60,
+                "constitution_level": 60,
+                "combat_lifepoints": 600,
+                "inventory": {},
+                "equipment": {},
+                "current_combat_target": "cockatrice",
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+
+        cockatrice = _row(rows, "cockatrice")
+        self.assertTrue(cockatrice.enabled)
+        self.assertIn("Missing Mirror shield", cockatrice.tooltip)
+        self.assertIn("fixed damage and stat drain", cockatrice.tooltip)
+
     def test_wilderness_agility_row_exposes_pker_food_and_grave_risk(self):
         rows = agility_target_rows(
             {

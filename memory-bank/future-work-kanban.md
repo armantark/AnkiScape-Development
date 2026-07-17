@@ -244,6 +244,12 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE SWEEP`, `DEPENDENCY: COMBAT`.
   source access/attack restrictions, and pin every family item's trigger,
   consequence, immunity, death/retreat behavior, and undo interaction in a
   focused audit before implementation.
+- Cockatrice is the first completed protective-equipment slice: an equipped
+  Mirror shield suppresses its source-reconciled fixed hit and stat drain, while
+  the unprotected target remains legal and visibly warned. Banshee's item set
+  and affected stats are pinned, but its conflicting drain magnitude and
+  current Summoning-scope dependency keep that family unimplemented. See
+  `source-audits/slayer-protective-equipment-cockatrice-banshee-2026-07-17.md`.
 - Complete the design-closure source sweep without reopening owner questions for
   source-determined behavior: close every per-master pool/weight/count/gate row,
   pin every family variant's membership/stats/Slayer-XP eligibility/context, and

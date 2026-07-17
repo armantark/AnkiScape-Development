@@ -566,3 +566,46 @@ Evidence:
 - Test quality: zero hard issues across 67 files.
 - Documentation, compilation, diff, JSON and worktree-safety checks passed.
 - No owner-level design gap emerged.
+
+## Slayer implementation batch — Cockatrice protective equipment
+
+Finding: the live Cockatrice target ignored the Mirror shield entirely. A
+player could fight without it and receive only ordinary accuracy-rolled melee
+damage, omitting the cutoff fixed eye-beam hit and rapid stat drain.
+
+Resolution:
+
+- Pinned Cockatrice oldid `6579848`, Mirror-shield oldid `6283470`, rev-742
+  item `4156`, Darkan's fixed maximum-LP/6 hit, and 2011Scape's repeated
+  25%-of-base stat drain.
+- Recorded the implementation conflicts rather than silently selecting a
+  reconstruction. The accepted labeled mapping caps Darkan's level-scaled
+  fixed hit at the period-proven 110 LP and stops the five corroborated stat
+  drains at the period-proven one-quarter floor.
+- Added an exact-slot Mirror-shield check, a guaranteed fixed hit that bypasses
+  ordinary accuracy/protection-prayer reduction, persistent current-level
+  drains, and aggregate result telemetry.
+- Exposed the missing-shield consequence in the existing Combat target tooltip
+  without converting a legal dangerous encounter into a lock.
+- Kept Banshee unimplemented. Its protection set and affected stats are known,
+  but Darkan and 2011Scape conflict on the drain magnitude/selection rule and
+  the period effect includes Summoning, which remains outside this program.
+
+Evidence:
+
+- `source-audits/slayer-protective-equipment-cockatrice-banshee-2026-07-17.md`.
+- Read-only workflow `79096d5a-3642-428f-84f1-721b0202d4d4` was canceled after
+  two overlong attempts failed to produce bounded final reports; none of its
+  unverified conclusions were used. The primary independently inspected every
+  accepted source and reproduced the runtime defect.
+- Regression-first proof: six focused tests reproduce fixed damage, prayer
+  bypass, repeated drain/floor behavior, same-review combat impact, exact-slot
+  protection, preview state, tooltip warning, and schema.
+- Combat logic, enemy-roster, target-metadata, runtime-action and integration
+  holdout: 383 passed.
+- Real offscreen Qt Combat-picker check: 1 passed.
+- Full core: 1,374 methods, 196 environment skips and three declared XP-parity
+  expected failures.
+- Test quality: zero hard issues across 67 files. Documentation, reachability,
+  compilation, diff, JSON and worktree-safety checks passed.
+- No owner-level design gap emerged.
