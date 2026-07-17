@@ -3092,6 +3092,63 @@ class TestIntegrationSmoke(unittest.TestCase):
         ))
         self.assertEqual(addon.player_data, before)
 
+    def test_queued_farming_dig_up_preempts_one_review_and_undoes_atomically(self):
+        addon = _load_addon_as_package("ankiscape_farming_dig_up_undo_integration")
+        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_exp = lambda _xp: None
+        addon._show_activity_gain = lambda _message: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        state = {
+            "inventory": {
+                "Rake": 1,
+                "Seed dibber": 1,
+                "Spade": 1,
+                "Redberry seed": 1,
+            },
+            "farming_level": 99,
+            "farming_exp": 0.0,
+            "woodcutting_level": 99,
+            "woodcutting_exp": 0.0,
+            "agility_level": 99,
+            "completed_achievements": [],
+        }
+        state.update(farming_logic.default_farming_state_pure())
+        state, ok, _ = farming_logic.execute_farm_field_step_pure(
+            state,
+            {"kind": "plant", "patch_id": "champions_bush", "crop_id": "redberry"},
+        )
+        self.assertTrue(ok)
+        state, _ = farming_logic.advance_farm_clock_pure(state, 17, lambda: 1.0)
+        state, step_id, _ = farming_logic.add_farm_queue_step_pure(
+            state, "dig_up", "champions_bush"
+        )
+        self.assertIsNotNone(step_id)
+        before = copy.deepcopy(state)
+        addon.player_data = state
+        addon.current_skill = "Mining"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertIsNone(addon.player_data["farm_patches"]["champions_bush"]["crop_id"])
+        self.assertEqual(addon.player_data["farming_counters"]["dig_ups"], 1)
+        self.assertEqual(addon.player_data["farm_queue"], [])
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(types.SimpleNamespace(
+            operation="Answer Card",
+            changes=types.SimpleNamespace(study_queues=True, card=True),
+        ))
+        self.assertEqual(addon.player_data, before)
+
     def test_prayer_composite_selection_persists_once_and_rejection_has_no_side_effects(self):
         addon = _load_addon_as_package("ankiscape_prayer_selection_integration")
         calls = {"save": 0, "hud": 0}

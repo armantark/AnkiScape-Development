@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import copy
 import math
-from typing import Any, Callable, Mapping, Optional
+from typing import Any, Callable, Iterable, Mapping, Optional
 
 try:
     from .constants import EXP_TABLE, TREE_DATA, WOODCUTTING_AXE_DATA
@@ -42,7 +42,16 @@ except ImportError:  # pragma: no cover - flat imports used by tests
     from logic_pure import apply_consumable_pure, best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure  # type: ignore
 
 
-FIELD_STEP_KINDS = frozenset({"plant", "harvest", "check_health", "cure", "clear", "chop", "habitat_traverse"})
+FIELD_STEP_KINDS = frozenset({
+    "plant",
+    "harvest",
+    "check_health",
+    "cure",
+    "clear",
+    "dig_up",
+    "chop",
+    "habitat_traverse",
+})
 HABITAT_EAST_PATCH_ID = "habitat_vine_herb_east"
 HABITAT_TRAVERSAL_PHASES = (
     "Climb the vine",
@@ -60,6 +69,7 @@ FARM_COUNTER_DEFAULTS = {
     "tree_health_checks": 0,
     "cures": 0,
     "clears": 0,
+    "dig_ups": 0,
     "chops": 0,
     "full_runs": 0,
     "queue_steps_executed": 0,
@@ -131,6 +141,11 @@ def default_farming_state_pure() -> dict[str, Any]:
         "farm_patches": {patch.id: _default_patch_record() for patch in FARMING_PATCHES},
         "farm_compost_bins": {row.id: _default_bin_record() for row in FARMING_COMPOST_BINS},
         "farm_plans": {},
+        "farm_presets": {},
+        "farm_preset_order": [],
+        "farm_selected_preset": None,
+        "farm_next_preset_id": 1,
+        "farm_last_full_run_skips": [],
         "farm_queue": [],
         "farm_next_step_id": 1,
         "farm_sapling_jobs": [],
@@ -151,10 +166,56 @@ def _sanitize_plan(raw: Any) -> Optional[dict[str, Any]]:
     tier = plan.get("compost_tier", "none")
     plan["crop_id"] = crop_id
     plan["compost_tier"] = tier if tier in COMPOST_TIERS else "none"
-    plan["protection_intent"] = bool(plan.get("protection_intent", False))
+    plan["protection_intent"] = bool(
+        plan.get("protection_intent", False)
+        and FARMING_CROPS_BY_ID[crop_id].protection is not None
+    )
+    plan["watering_intent"] = bool(plan.get("watering_intent", True))
+    plan["cure_intent"] = bool(plan.get("cure_intent", True))
     plan["protection_paid"] = bool(plan.get("protection_paid", False))
     plan["fertile_soil_applied"] = bool(plan.get("fertile_soil_applied", False))
     return plan
+
+
+def _preset_plan_snapshot(raw: Any) -> Optional[dict[str, Any]]:
+    plan = _sanitize_plan(raw)
+    if plan is None:
+        return None
+    return {
+        "crop_id": plan["crop_id"],
+        "compost_tier": plan["compost_tier"],
+        "protection_intent": plan["protection_intent"],
+        "watering_intent": plan["watering_intent"],
+        "cure_intent": plan["cure_intent"],
+    }
+
+
+def _sanitize_preset(raw: Any, preset_id: str) -> Optional[dict[str, Any]]:
+    if not isinstance(raw, Mapping):
+        return None
+    name = str(raw.get("name", "")).strip()[:60]
+    if not name:
+        return None
+    raw_plans = raw.get("plans")
+    plans: dict[str, dict[str, Any]] = {}
+    if isinstance(raw_plans, Mapping):
+        for patch_id, raw_plan in raw_plans.items():
+            patch = FARMING_PATCHES_BY_ID.get(patch_id)
+            plan = _preset_plan_snapshot(raw_plan)
+            crop = FARMING_CROPS_BY_ID.get(plan.get("crop_id")) if plan else None
+            if (
+                patch is None
+                or crop is None
+                or crop.patch_type != patch.patch_type
+                or patch.crop_whitelist and crop.id not in patch.crop_whitelist
+            ):
+                continue
+            plans[patch_id] = plan
+    if not plans:
+        return None
+    preset = dict(raw)
+    preset.update({"id": preset_id, "name": name, "plans": plans})
+    return preset
 
 
 def _sanitize_patch_record(raw: Any) -> dict[str, Any]:
@@ -236,6 +297,44 @@ def sanitize_farming_state_pure(player_data: Mapping[str, Any]) -> dict[str, Any
             if plan is not None:
                 plans[patch_id] = copy.deepcopy(plan)
 
+    raw_presets = player_data.get("farm_presets")
+    presets: dict[str, dict[str, Any]] = {}
+    if isinstance(raw_presets, Mapping):
+        for preset_id, raw_preset in raw_presets.items():
+            if not isinstance(preset_id, str) or not preset_id.startswith("farm_preset_"):
+                continue
+            preset = _sanitize_preset(raw_preset, preset_id)
+            if preset is not None:
+                presets[preset_id] = preset
+    raw_preset_order = player_data.get("farm_preset_order")
+    preset_order = [
+        preset_id
+        for preset_id in raw_preset_order
+        if isinstance(preset_id, str) and preset_id in presets
+    ] if isinstance(raw_preset_order, list) else []
+    preset_order.extend(preset_id for preset_id in presets if preset_id not in preset_order)
+    selected_preset = player_data.get("farm_selected_preset")
+    if selected_preset not in presets:
+        selected_preset = None
+    highest_preset_id = max(
+        (
+            _int(preset_id.removeprefix("farm_preset_"))
+            for preset_id in presets
+            if preset_id.startswith("farm_preset_")
+        ),
+        default=0,
+    )
+    raw_full_run_skips = player_data.get("farm_last_full_run_skips")
+    full_run_skips = tuple(
+        {
+            "patch_id": str(row.get("patch_id", "")),
+            "patch_name": str(row.get("patch_name", "")),
+            "reason": str(row.get("reason", "")),
+        }
+        for row in raw_full_run_skips
+        if isinstance(row, Mapping) and row.get("patch_id") in FARMING_PATCHES_BY_ID
+    ) if isinstance(raw_full_run_skips, (list, tuple)) else ()
+
     raw_queue = player_data.get("farm_queue")
     queue: list[dict[str, Any]] = []
     if isinstance(raw_queue, list):
@@ -291,6 +390,14 @@ def sanitize_farming_state_pure(player_data: Mapping[str, Any]) -> dict[str, Any
         "farm_patches": patches,
         "farm_compost_bins": bins,
         "farm_plans": plans,
+        "farm_presets": presets,
+        "farm_preset_order": preset_order,
+        "farm_selected_preset": selected_preset,
+        "farm_next_preset_id": max(
+            highest_preset_id + 1,
+            _int(player_data.get("farm_next_preset_id", 1), default=1, minimum=1),
+        ),
+        "farm_last_full_run_skips": list(full_run_skips),
         "farm_queue": queue,
         "farm_next_step_id": max(
             highest_step_id + 1,
@@ -521,6 +628,30 @@ def _consume(inventory: dict[str, Any], requirements: Mapping[str, int]) -> None
         inventory[item] = _int(inventory.get(item)) - amount
 
 
+def _queued_protection_payment(step: Mapping[str, Any]) -> dict[str, int]:
+    crop = FARMING_CROPS_BY_ID.get(step.get("crop_id"))
+    payment = crop.protection if crop is not None else None
+    raw_payment = step.get("protection_payment")
+    if (
+        not step.get("protection_paid")
+        or payment is None
+        or not isinstance(raw_payment, Mapping)
+    ):
+        return {}
+    expected = dict(payment.items)
+    normalized = {
+        str(item): _int(amount, minimum=0)
+        for item, amount in raw_payment.items()
+        if isinstance(item, str)
+    }
+    return expected if normalized == expected else {}
+
+
+def _refund_queued_protection(updated: dict[str, Any], step: Mapping[str, Any]) -> None:
+    for item, amount in _queued_protection_payment(step).items():
+        updated["inventory"][item] = _int(updated["inventory"].get(item)) + amount
+
+
 def _reset_patch(record: dict[str, Any]) -> None:
     plan = copy.deepcopy(record.get("plan"))
     last_crop = record.get("crop_id") or record.get("last_crop_id")
@@ -563,7 +694,10 @@ def _plant(updated: dict[str, Any], patch_id: str, patch: Any, crop: Any, step: 
         return False, "missing seeds or compost", {}
     _consume(inventory, requirements)
     inventory["Weeds"] = _int(inventory.get("Weeds")) + 3
-    paid = bool(matching_plan and matching_plan.get("protection_paid"))
+    paid = bool(step.get("protection_paid")) or bool(
+        matching_plan and matching_plan.get("protection_paid")
+    )
+    watering_intent = True if matching_plan is None else bool(matching_plan.get("watering_intent"))
     if matching_plan:
         matching_plan["protection_paid"] = False
         matching_plan["fertile_soil_applied"] = False
@@ -579,7 +713,11 @@ def _plant(updated: dict[str, Any], patch_id: str, patch: Any, crop: Any, step: 
         "diseased": False,
         "dead": False,
         "protected": paid,
-        "watered": crop.patch_type in {"allotment", "flower", "hops"} and any(_int(inventory.get(item)) > 0 for item in ("Watering can", "Watering can (8)")),
+        "watered": (
+            watering_intent
+            and crop.patch_type in {"allotment", "flower", "hops"}
+            and any(_int(inventory.get(item)) > 0 for item in ("Watering can", "Watering can (8)"))
+        ),
         "health_checked": False,
         "stump": False,
         "produce_count": 0,
@@ -718,6 +856,28 @@ def _clear(updated: dict[str, Any], patch_id: str, crop: Any) -> tuple[bool, str
     return True, f"Cleared {FARMING_PATCHES_BY_ID[patch_id].display_name}.", {"outputs": outputs}
 
 
+def _is_regrowth_crop(crop: Any) -> bool:
+    return bool(crop.regrowth_minutes or crop.regrowth_range_minutes)
+
+
+def _dig_up(updated: dict[str, Any], patch_id: str, crop: Any) -> tuple[bool, str, dict[str, Any]]:
+    record = updated["farm_patches"][patch_id]
+    if _int(updated["inventory"].get("Spade")) <= 0:
+        return False, "missing Spade", {}
+    if (
+        not _is_regrowth_crop(crop)
+        or not _is_mature(record, crop)
+        or record.get("diseased")
+        or record.get("dead")
+        or record.get("stump")
+        or record.get("jade_state") in {"wild", "killed"}
+    ):
+        return False, "patch has no healthy mature regrowth crop", {}
+    _reset_patch(record)
+    _increment(updated, "dig_ups")
+    return True, f"Dug up {crop.display_name}.", {"farming_xp": 0.0, "outputs": {}}
+
+
 def _chop(updated: dict[str, Any], patch_id: str, crop: Any) -> tuple[bool, str, dict[str, Any]]:
     record = updated["farm_patches"][patch_id]
     if crop.id == "jade_vine":
@@ -787,6 +947,7 @@ def _execute_farm_field_step_in_place(
         "check_health": lambda: _check_health(updated, patch_id, crop),
         "cure": lambda: _cure(updated, patch_id, crop),
         "clear": lambda: _clear(updated, patch_id, crop),
+        "dig_up": lambda: _dig_up(updated, patch_id, crop),
         "chop": lambda: _chop(updated, patch_id, crop),
     }
     ok, message, details = handlers[kind]()
@@ -910,9 +1071,15 @@ def add_farm_queue_step_pure(player_data: Mapping[str, Any], kind: str, patch_id
 
 def remove_farm_queue_step_pure(player_data: Mapping[str, Any], step_id: str) -> tuple[dict[str, Any], bool]:
     updated = _copy_with_farm_state(player_data)
-    before = len(updated["farm_queue"])
-    updated["farm_queue"] = [step for step in updated["farm_queue"] if step.get("id") != step_id]
-    return updated, len(updated["farm_queue"]) != before
+    index = next(
+        (index for index, step in enumerate(updated["farm_queue"]) if step.get("id") == step_id),
+        None,
+    )
+    if index is None:
+        return updated, False
+    step = updated["farm_queue"].pop(index)
+    _refund_queued_protection(updated, step)
+    return updated, True
 
 
 def reorder_farm_queue_step_pure(player_data: Mapping[str, Any], step_id: str, new_index: int) -> tuple[dict[str, Any], bool]:
@@ -946,9 +1113,15 @@ def _planned_patch_steps(updated: Mapping[str, Any], patch_id: str) -> tuple[lis
     if record.get("jade_state") == "wild":
         return ["chop", "clear", "plant"], plan, "queued"
     if record.get("diseased"):
-        return ["cure"], plan, "queued"
+        return (
+            (["cure"], plan, "queued")
+            if plan.get("cure_intent", True)
+            else ([], plan, "auto-cure is disabled")
+        )
     if not _is_mature(record, crop):
         return [], plan, "crop is still growing"
+    if _is_regrowth_crop(crop) and plan["crop_id"] != crop.id:
+        return ["dig_up", "plant"], plan, "queued"
     if crop.patch_type == "tree":
         kinds = [] if record.get("health_checked") else ["check_health"]
         kinds.extend(("chop", "clear", "plant"))
@@ -968,7 +1141,15 @@ def _planned_patch_steps(updated: Mapping[str, Any], patch_id: str) -> tuple[lis
     return kinds, plan, "queued"
 
 
-def _append_planned_steps(updated: dict[str, Any], patch_id: str, kinds: list[str], plan: dict[str, Any]) -> list[str]:
+def _append_planned_steps(
+    updated: dict[str, Any],
+    patch_id: str,
+    kinds: list[str],
+    plan: dict[str, Any],
+    *,
+    protection_paid: bool = False,
+    protection_payment: Optional[Mapping[str, int]] = None,
+) -> list[str]:
     ids = []
     if patch_id == HABITAT_EAST_PATCH_ID:
         for phase in range(len(HABITAT_TRAVERSAL_PHASES)):
@@ -985,6 +1166,10 @@ def _append_planned_steps(updated: dict[str, Any], patch_id: str, kinds: list[st
         step = {"id": step_id, "kind": kind, "patch_id": patch_id}
         if kind == "plant":
             step.update({"crop_id": plan["crop_id"], "compost_tier": plan["compost_tier"]})
+            if protection_paid:
+                step["protection_paid"] = True
+            if protection_payment:
+                step["protection_payment"] = dict(protection_payment)
         updated["farm_queue"].append(step)
         ids.append(step_id)
     return ids
@@ -1003,10 +1188,47 @@ def queue_harvest_and_replant_same_pure(player_data: Mapping[str, Any], patch_id
 def queue_full_run_pure(player_data: Mapping[str, Any]) -> tuple[dict[str, Any], tuple[str, ...]]:
     updated = _copy_with_farm_state(player_data)
     ids: list[str] = []
+    skips: list[dict[str, str]] = []
     for patch in FARMING_PATCHES:
-        kinds, plan, _message = _planned_patch_steps(updated, patch.id)
+        kinds, plan, message = _planned_patch_steps(updated, patch.id)
         if kinds and plan is not None:
-            ids.extend(_append_planned_steps(updated, patch.id, kinds, plan))
+            protection_paid = bool(plan.get("protection_paid"))
+            protection_payment: dict[str, int] = {}
+            if "plant" in kinds and plan.get("protection_intent"):
+                planned_crop = FARMING_CROPS_BY_ID[plan["crop_id"]]
+                payment = planned_crop.protection
+                if payment is None:
+                    reason = "planned crop has no gardener protection"
+                    skips.append({"patch_id": patch.id, "patch_name": patch.display_name, "reason": reason})
+                    _log(updated, "full_run_patch_skipped", f"Skipped {patch.display_name}: {reason}.", patch_id=patch.id)
+                    continue
+                if not protection_paid:
+                    requirements = dict(payment.items)
+                    if not _has_items(updated["inventory"], requirements):
+                        reason = "missing gardener payment"
+                        skips.append({"patch_id": patch.id, "patch_name": patch.display_name, "reason": reason})
+                        _log(updated, "full_run_patch_skipped", f"Skipped {patch.display_name}: {reason}.", patch_id=patch.id)
+                        continue
+                    _consume(updated["inventory"], requirements)
+                    protection_paid = True
+                    protection_payment = requirements
+            ids.extend(
+                _append_planned_steps(
+                    updated,
+                    patch.id,
+                    kinds,
+                    plan,
+                    protection_paid=protection_paid,
+                    protection_payment=protection_payment,
+                )
+            )
+        elif plan is not None and message not in {
+            "crop is still growing",
+            "no produce is ready",
+            "auto-cure is disabled",
+        }:
+            skips.append({"patch_id": patch.id, "patch_name": patch.display_name, "reason": message})
+    updated["farm_last_full_run_skips"] = skips
     if ids:
         _increment(updated, "full_runs")
     return updated, tuple(ids)
@@ -1025,6 +1247,7 @@ def _consume_next_farm_queue_step_in_place(
     if ok:
         _increment(updated, "queue_steps_executed")
     else:
+        _refund_queued_protection(updated, step)
         _increment(updated, "queue_steps_skipped")
         _log(updated, "queue_step_skipped", f"Skipped {step.get('kind')}: {info['message']}.", step_id=step["id"], kind=step.get("kind"), patch_id=step.get("patch_id"))
     return True, info
@@ -1063,6 +1286,8 @@ def set_farm_plan_pure(
     crop_id: str,
     compost_tier: str = "none",
     protection_intent: bool = False,
+    watering_intent: bool = True,
+    cure_intent: bool = True,
 ) -> tuple[dict[str, Any], bool, str]:
     updated = _copy_with_farm_state(player_data)
     patch = FARMING_PATCHES_BY_ID.get(patch_id)
@@ -1081,13 +1306,176 @@ def set_farm_plan_pure(
     plan = {
         "crop_id": crop_id,
         "compost_tier": compost_tier,
-        "protection_intent": bool(protection_intent),
+        "protection_intent": bool(protection_intent and crop.protection is not None),
+        "watering_intent": bool(watering_intent),
+        "cure_intent": bool(cure_intent),
         "protection_paid": bool(existing_plan and existing_plan["crop_id"] == crop_id and existing_plan.get("protection_paid")),
         "fertile_soil_applied": bool(existing_plan and existing_plan["crop_id"] == crop_id and existing_plan.get("fertile_soil_applied")),
     }
     updated["farm_plans"][patch_id] = copy.deepcopy(plan)
     updated["farm_patches"][patch_id]["plan"] = copy.deepcopy(plan)
     return updated, True, "plan saved"
+
+
+def _next_farm_preset_id(updated: dict[str, Any]) -> str:
+    value = updated["farm_next_preset_id"]
+    updated["farm_next_preset_id"] = value + 1
+    return f"farm_preset_{value:08d}"
+
+
+def _farm_preset_name_available(
+    updated: Mapping[str, Any],
+    name: str,
+    *,
+    excluding_id: Optional[str] = None,
+) -> bool:
+    normalized = name.casefold()
+    return all(
+        preset_id == excluding_id or str(preset.get("name", "")).casefold() != normalized
+        for preset_id, preset in updated["farm_presets"].items()
+    )
+
+
+def save_farm_preset_pure(
+    player_data: Mapping[str, Any],
+    name: str,
+    patch_ids: Iterable[str],
+    preset_id: Optional[str] = None,
+) -> tuple[dict[str, Any], bool, str]:
+    updated = _copy_with_farm_state(player_data)
+    clean_name = str(name).strip()[:60]
+    if not clean_name:
+        return updated, False, "preset name is required"
+    if preset_id is not None and preset_id not in updated["farm_presets"]:
+        return updated, False, "preset no longer exists"
+    if not _farm_preset_name_available(updated, clean_name, excluding_id=preset_id):
+        return updated, False, "preset name already exists"
+    plans: dict[str, dict[str, Any]] = {}
+    for patch_id in dict.fromkeys(patch_ids):
+        if patch_id not in FARMING_PATCHES_BY_ID:
+            continue
+        plan = _preset_plan_snapshot(updated["farm_plans"].get(patch_id))
+        if plan is not None:
+            plans[patch_id] = plan
+    if not plans:
+        return updated, False, "choose at least one patch with a saved plan"
+    target_id = preset_id or _next_farm_preset_id(updated)
+    updated["farm_presets"][target_id] = {
+        "id": target_id,
+        "name": clean_name,
+        "plans": plans,
+    }
+    if target_id not in updated["farm_preset_order"]:
+        updated["farm_preset_order"].append(target_id)
+    updated["farm_selected_preset"] = target_id
+    return updated, True, "preset updated" if preset_id else "preset saved"
+
+
+def select_farm_preset_pure(
+    player_data: Mapping[str, Any],
+    preset_id: Optional[str],
+) -> tuple[dict[str, Any], bool, str]:
+    updated = _copy_with_farm_state(player_data)
+    if preset_id in {None, ""}:
+        changed = updated["farm_selected_preset"] is not None
+        updated["farm_selected_preset"] = None
+        return updated, changed, "preset selection cleared"
+    if preset_id not in updated["farm_presets"]:
+        return updated, False, "preset no longer exists"
+    updated["farm_selected_preset"] = preset_id
+    return updated, True, "preset selected"
+
+
+def apply_farm_preset_pure(
+    player_data: Mapping[str, Any],
+    preset_id: Optional[str] = None,
+) -> tuple[dict[str, Any], bool, str]:
+    updated = _copy_with_farm_state(player_data)
+    target_id = preset_id or updated["farm_selected_preset"]
+    preset = updated["farm_presets"].get(target_id)
+    if preset is None:
+        return updated, False, "select a preset first"
+    for patch_id, snapshot in preset["plans"].items():
+        existing = _sanitize_plan(updated["farm_plans"].get(patch_id))
+        if (
+            existing
+            and existing.get("protection_paid")
+            and existing["crop_id"] != snapshot["crop_id"]
+        ):
+            return updated, False, (
+                f"{FARMING_PATCHES_BY_ID[patch_id].display_name} has a legacy "
+                "gardener payment tied to its current crop; plant it before replacing that plan."
+            )
+    for patch_id, snapshot in preset["plans"].items():
+        existing = _sanitize_plan(updated["farm_plans"].get(patch_id))
+        plan = dict(snapshot)
+        same_crop = bool(existing and existing["crop_id"] == plan["crop_id"])
+        plan["protection_paid"] = bool(same_crop and existing.get("protection_paid"))
+        plan["fertile_soil_applied"] = bool(existing and existing.get("fertile_soil_applied"))
+        updated["farm_plans"][patch_id] = copy.deepcopy(plan)
+        updated["farm_patches"][patch_id]["plan"] = copy.deepcopy(plan)
+    updated["farm_selected_preset"] = target_id
+    return updated, True, f"Applied {len(preset['plans'])} patch plans."
+
+
+def rename_farm_preset_pure(
+    player_data: Mapping[str, Any],
+    preset_id: str,
+    name: str,
+) -> tuple[dict[str, Any], bool, str]:
+    updated = _copy_with_farm_state(player_data)
+    preset = updated["farm_presets"].get(preset_id)
+    if preset is None:
+        return updated, False, "preset no longer exists"
+    clean_name = str(name).strip()[:60]
+    if not clean_name:
+        return updated, False, "preset name is required"
+    if not _farm_preset_name_available(updated, clean_name, excluding_id=preset_id):
+        return updated, False, "preset name already exists"
+    preset["name"] = clean_name
+    return updated, True, "preset renamed"
+
+
+def duplicate_farm_preset_pure(
+    player_data: Mapping[str, Any],
+    preset_id: str,
+) -> tuple[dict[str, Any], bool, str]:
+    updated = _copy_with_farm_state(player_data)
+    preset = updated["farm_presets"].get(preset_id)
+    if preset is None:
+        return updated, False, "preset no longer exists"
+    suffix_number = 1
+    while True:
+        suffix = " copy" if suffix_number == 1 else f" copy {suffix_number}"
+        name = f"{preset['name'][:60 - len(suffix)]}{suffix}"
+        if _farm_preset_name_available(updated, name):
+            break
+        suffix_number += 1
+    new_id = _next_farm_preset_id(updated)
+    updated["farm_presets"][new_id] = {
+        "id": new_id,
+        "name": name,
+        "plans": copy.deepcopy(preset["plans"]),
+    }
+    updated["farm_preset_order"].append(new_id)
+    updated["farm_selected_preset"] = new_id
+    return updated, True, "preset duplicated"
+
+
+def delete_farm_preset_pure(
+    player_data: Mapping[str, Any],
+    preset_id: str,
+) -> tuple[dict[str, Any], bool, str]:
+    updated = _copy_with_farm_state(player_data)
+    if preset_id not in updated["farm_presets"]:
+        return updated, False, "preset no longer exists"
+    updated["farm_presets"].pop(preset_id)
+    updated["farm_preset_order"] = [
+        value for value in updated["farm_preset_order"] if value != preset_id
+    ]
+    if updated["farm_selected_preset"] == preset_id:
+        updated["farm_selected_preset"] = None
+    return updated, True, "preset deleted"
 
 
 def pay_farming_protection_pure(player_data: Mapping[str, Any], patch_id: str) -> tuple[dict[str, Any], bool, str]:
@@ -1339,6 +1727,13 @@ def _queue_step_label(step: Mapping[str, Any]) -> str:
     return f"{verb}{crop_suffix} · {patch.display_name if patch else 'Unknown patch'}"
 
 
+def _farm_preset_modified(state: Mapping[str, Any], preset: Mapping[str, Any]) -> bool:
+    return any(
+        _preset_plan_snapshot(state["farm_plans"].get(patch_id)) != snapshot
+        for patch_id, snapshot in preset.get("plans", {}).items()
+    )
+
+
 def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     """Return presentation-ready Farming state; Qt only renders this projection."""
 
@@ -1419,7 +1814,7 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
             primary_reason = _missing_items_reason(inventory, requirements)
         elif not primary_reason and primary_kind == "cure":
             primary_reason = _missing_items_reason(inventory, {"Plant cure": 1})
-        elif not primary_reason and primary_kind in {"harvest", "clear"}:
+        elif not primary_reason and primary_kind in {"harvest", "clear", "dig_up"}:
             primary_reason = _missing_items_reason(inventory, {"Spade": 1})
 
         primary_labels = {
@@ -1427,6 +1822,7 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
             "plant": "Queue plant",
             "cure": "Queue cure",
             "clear": "Queue clear",
+            "dig_up": "Queue dig up",
             "check_health": "Queue health check",
             "chop": "Queue chop",
             "harvest": "Queue harvest",
@@ -1437,6 +1833,27 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
             "enabled": primary_kind == "choose_plan" or not primary_reason,
             "locked_reason": primary_reason,
         }
+        dig_up_action = None
+        if (
+            crop is not None
+            and _is_regrowth_crop(crop)
+            and _is_mature(record, crop)
+            and not record.get("diseased")
+            and not record.get("dead")
+            and not record.get("stump")
+            and record.get("jade_state") not in {"wild", "killed"}
+        ):
+            dig_up_reason = access_reason
+            if not dig_up_reason and patch.id in queued_patch_ids:
+                dig_up_reason = "This patch already has queued work."
+            if not dig_up_reason:
+                dig_up_reason = _missing_items_reason(inventory, {"Spade": 1})
+            dig_up_action = {
+                "id": "dig_up",
+                "label": "Queue dig up",
+                "enabled": not dig_up_reason,
+                "locked_reason": dig_up_reason,
+            }
 
         shortcut_reason = access_reason
         if not shortcut_reason and status != "ready":
@@ -1462,14 +1879,19 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
         elif payment_crop is not None and payment_crop.protection is not None:
             payment_requirements = dict(payment_crop.protection.items)
             payment_reason = _missing_items_reason(inventory, payment_requirements)
-            protection["state"] = "Protection not paid"
+            protection["state"] = (
+                "Gardener planned for full run"
+                if crop is None and plan and plan.get("protection_intent")
+                else "Protection not paid"
+            )
             protection["requirements"] = payment_requirements
-            protection["action"] = {
-                "id": "pay_protection",
-                "label": "Pay now",
-                "enabled": not payment_reason and access_allowed,
-                "locked_reason": access_reason or payment_reason,
-            }
+            if crop is not None:
+                protection["action"] = {
+                    "id": "pay_protection",
+                    "label": "Pay now",
+                    "enabled": not payment_reason and access_allowed,
+                    "locked_reason": access_reason or payment_reason,
+                }
 
         sapling = None
         sapling_crop = planned_crop if planned_crop and planned_crop.id in SAPLING_RECIPES else None
@@ -1504,11 +1926,16 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
                 "crop_name": planned_crop.display_name if planned_crop else "No plan",
                 "compost_tier": plan.get("compost_tier", "none") if plan else "none",
                 "protection_intent": bool(plan and plan.get("protection_intent")),
+                "protection_available": bool(planned_crop and planned_crop.protection is not None),
+                "watering_intent": True if plan is None else bool(plan.get("watering_intent", True)),
+                "watering_available": bool(planned_crop and planned_crop.patch_type in {"allotment", "flower", "hops"}),
+                "cure_intent": True if plan is None else bool(plan.get("cure_intent", True)),
             },
             "crop_options": tuple(crop_options),
             "compost_options": tuple({"id": tier_id, "label": tier_id.replace("_", " ").title(), "enabled": True, "locked_reason": ""} for tier_id in COMPOST_TIERS),
             "protection": protection,
             "primary_action": primary_action,
+            "dig_up_action": dig_up_action,
             "shortcut_action": {
                 "id": "harvest_replant",
                 "label": "Harvest and replant same",
@@ -1576,7 +2003,20 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
         "can_move_down": index + 1 < len(state["farm_queue"]),
     } for index, step in enumerate(state["farm_queue"]))
     preview_state, preview_ids = queue_full_run_pure(state)
-    del preview_state
+    preview_skips = tuple(preview_state.get("farm_last_full_run_skips", ()))
+    preset_rows = tuple(
+        {
+            "id": preset_id,
+            "name": state["farm_presets"][preset_id]["name"],
+            "patch_count": len(state["farm_presets"][preset_id]["plans"]),
+            "selected": preset_id == state["farm_selected_preset"],
+            "modified": _farm_preset_modified(state, state["farm_presets"][preset_id]),
+            "patch_ids": tuple(state["farm_presets"][preset_id]["plans"]),
+        }
+        for preset_id in state["farm_preset_order"]
+        if preset_id in state["farm_presets"]
+    )
+    selected_preset = next((row for row in preset_rows if row["selected"]), None)
     juju_item_name = next(
         (
             f"Juju farming potion ({dose})"
@@ -1608,11 +2048,36 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
         "queued_count": len(queue_rows),
         "locations": tuple(ordered_groups),
         "queue": queue_rows,
+        "presets": {
+            "rows": preset_rows,
+            "selected_id": selected_preset["id"] if selected_preset else None,
+            "selected_name": selected_preset["name"] if selected_preset else "No preset",
+            "modified": bool(selected_preset and selected_preset["modified"]),
+            "can_apply": selected_preset is not None,
+            "planned_patch_ids": tuple(
+                patch.id for patch in FARMING_PATCHES if patch.id in state["farm_plans"]
+            ),
+        },
         "full_run": {
-            "enabled": bool(preview_ids),
+            "enabled": bool(preview_ids or preview_skips),
             "count": len(preview_ids),
-            "preview": f"{len(preview_ids)} steps ready to queue" if preview_ids else "No planned work is ready.",
-            "locked_reason": "" if preview_ids else "No planned work is ready.",
+            "skips": preview_skips,
+            "preview": (
+                f"{len(preview_ids)} steps ready · {len(preview_skips)} patch"
+                f"{'es' if len(preview_skips) != 1 else ''} skipped"
+                if preview_skips
+                else f"{len(preview_ids)} steps ready to queue"
+                if preview_ids
+                else "No planned work is ready."
+            ),
+            "locked_reason": (
+                ""
+                if preview_ids
+                else f"No steps can be queued; {len(preview_skips)} planned patch"
+                f"{'es' if len(preview_skips) != 1 else ''} would be skipped."
+                if preview_skips
+                else "No planned work is ready."
+            ),
         },
         "juju_potion": {
             "item_name": juju_item_name,
@@ -1669,6 +2134,7 @@ def apply_farming_frontend_action_pure(
         return set_farm_plan_pure(
             player_data, patch_id, crop_id,
             str(data.get("compost_tier", "none")), bool(data.get("protection_intent", False)),
+            bool(data.get("watering_intent", True)), bool(data.get("cure_intent", True)),
         )
     if action_id == "pay_protection":
         return pay_farming_protection_pure(player_data, patch_id)
@@ -1679,8 +2145,15 @@ def apply_farming_frontend_action_pure(
     if action_id == "queue_action":
         kind = str(data.get("kind", ""))
         primary = (patch_view or {}).get("primary_action")
-        if not primary or primary.get("id") != kind or not primary.get("enabled"):
-            return _copy_with_farm_state(player_data), False, (primary or {}).get("locked_reason") or "That action is no longer available."
+        action = (
+            primary
+            if primary and primary.get("id") == kind
+            else (patch_view or {}).get("dig_up_action")
+            if kind == "dig_up"
+            else None
+        )
+        if not action or action.get("id") != kind or not action.get("enabled"):
+            return _copy_with_farm_state(player_data), False, (action or {}).get("locked_reason") or "That action is no longer available."
         details = dict(data.get("details") or {})
         updated, step_id, message = add_farm_queue_step_pure(player_data, kind, patch_id, **details)
         return updated, step_id is not None, "Added 1 step to the queue." if step_id else message
@@ -1694,7 +2167,44 @@ def apply_farming_frontend_action_pure(
         if not projection["full_run"]["enabled"]:
             return _copy_with_farm_state(player_data), False, projection["full_run"]["locked_reason"]
         updated, ids = queue_full_run_pure(player_data)
-        return updated, bool(ids), f"Queued {len(ids)} Farming steps." if ids else "Nothing was queued; no planned patches need work."
+        skips = updated.get("farm_last_full_run_skips", ())
+        message = f"Queued {len(ids)} Farming steps."
+        if skips:
+            message += " Skipped " + ", ".join(
+                f"{row['patch_name']} ({row['reason']})" for row in skips
+            ) + "."
+        return (
+            updated,
+            bool(ids or skips),
+            message if ids or skips else "Nothing was queued; no planned patches need work.",
+        )
+    if action_id == "save_preset":
+        return save_farm_preset_pure(
+            player_data,
+            str(data.get("name", "")),
+            tuple(str(value) for value in data.get("patch_ids", ()) if isinstance(value, str)),
+            str(data.get("preset_id")) if data.get("preset_id") else None,
+        )
+    if action_id == "select_preset":
+        return select_farm_preset_pure(
+            player_data,
+            str(data.get("preset_id")) if data.get("preset_id") else None,
+        )
+    if action_id == "apply_preset":
+        return apply_farm_preset_pure(
+            player_data,
+            str(data.get("preset_id")) if data.get("preset_id") else None,
+        )
+    if action_id == "rename_preset":
+        return rename_farm_preset_pure(
+            player_data,
+            str(data.get("preset_id", "")),
+            str(data.get("name", "")),
+        )
+    if action_id == "duplicate_preset":
+        return duplicate_farm_preset_pure(player_data, str(data.get("preset_id", "")))
+    if action_id == "delete_preset":
+        return delete_farm_preset_pure(player_data, str(data.get("preset_id", "")))
     if action_id == "queue_remove":
         updated, ok = remove_farm_queue_step_pure(player_data, str(data.get("step_id", "")))
         return updated, ok, "Removed the queued step." if ok else "That queued step is no longer available."
@@ -1704,6 +2214,8 @@ def apply_farming_frontend_action_pure(
     if action_id == "queue_clear":
         updated = _copy_with_farm_state(player_data)
         changed = bool(updated["farm_queue"])
+        for step in updated["farm_queue"]:
+            _refund_queued_protection(updated, step)
         updated["farm_queue"] = []
         return updated, changed, "Cleared the Farming queue." if changed else "The Farming queue is already empty."
     if action_id == "make_saplings":

@@ -34,6 +34,8 @@ from farming_logic import (
     collect_compost_bin_pure,
     consume_next_farm_queue_step_pure,
     default_farming_state_pure,
+    delete_farm_preset_pure,
+    duplicate_farm_preset_pure,
     execute_farm_field_step_pure,
     fill_compost_bin_pure,
     harvest_save_slots_pure,
@@ -41,11 +43,15 @@ from farming_logic import (
     pay_farming_protection_pure,
     queue_full_run_pure,
     queue_harvest_and_replant_same_pure,
+    rename_farm_preset_pure,
     remove_farm_queue_step_pure,
     reorder_farm_queue_step_pure,
     roll_variable_harvest_count_pure,
     sanitize_farming_state_pure,
+    save_farm_preset_pure,
+    select_farm_preset_pure,
     set_farm_plan_pure,
+    apply_farm_preset_pure,
 )
 from item_registry import item_definitions_by_id, item_definitions_by_storage_key
 from shop_data import SHOP_DATA
@@ -191,6 +197,33 @@ class TestFarmingStorageAndRegistry(unittest.TestCase):
         self.assertEqual(state["farm_patches"]["future"], {"x": 1})
         self.assertEqual(state["farm_compost_bins"]["future"], {"x": 2})
         self.assertEqual(state["farm_queue"], [{"id": "x", "kind": "future_action", "future": True}])
+
+    def test_v38_migration_adds_preset_state_and_plan_policy_defaults(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 38,
+                "inventory": {},
+                "farm_plans": {
+                    "falador_allotment_north": {
+                        "crop_id": "potato",
+                        "compost_tier": "none",
+                    },
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(migrated["farm_presets"], {})
+        self.assertEqual(migrated["farm_preset_order"], [])
+        self.assertIsNone(migrated["farm_selected_preset"])
+        self.assertTrue(
+            migrated["farm_plans"]["falador_allotment_north"]["watering_intent"]
+        )
+        self.assertTrue(
+            migrated["farm_plans"]["falador_allotment_north"]["cure_intent"]
+        )
 
     def test_registry_and_every_farming_item_are_registered_without_a_target(self):
         farming = get_skill("farming")
@@ -688,6 +721,346 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         fruit_run, _ = queue_full_run_pure(fruit)
         self.assertEqual([step["kind"] for step in fruit_run["farm_queue"]], ["check_health", "harvest"])
 
+    def test_dig_up_is_manual_zero_reward_and_full_run_replaces_a_different_regrower(self):
+        state = _state()
+        state["inventory"].update({
+            "Rake": 1,
+            "Seed dibber": 1,
+            "Spade": 1,
+            "Redberry seed": 1,
+            "Cadavaberry seed": 1,
+        })
+        state, ok, _ = set_farm_plan_pure(state, "champions_bush", "redberry")
+        self.assertTrue(ok)
+        state, ok, _ = execute_farm_field_step_pure(
+            state, {"kind": "plant", "patch_id": "champions_bush", "crop_id": "redberry"}
+        )
+        self.assertTrue(ok)
+        state, _ = advance_farm_clock_pure(state, 17, lambda: 1.0)
+        xp_before = state["farming_exp"]
+
+        queued, ok, message = apply_farming_frontend_action_pure(
+            state,
+            "queue_action",
+            {"patch_id": "champions_bush", "kind": "dig_up", "details": {}},
+        )
+        self.assertTrue(ok, message)
+        self.assertEqual([step["kind"] for step in queued["farm_queue"]], ["dig_up"])
+        dug, consumed, info = consume_next_farm_queue_step_pure(queued)
+        self.assertTrue(consumed)
+        self.assertEqual(info["status"], "executed")
+        self.assertEqual(info["outputs"], {})
+        self.assertEqual(dug["farming_exp"], xp_before)
+        self.assertIsNone(dug["farm_patches"]["champions_bush"]["crop_id"])
+        self.assertEqual(dug["farming_counters"]["dig_ups"], 1)
+
+        state, ok, _ = set_farm_plan_pure(state, "champions_bush", "cadavaberry")
+        self.assertTrue(ok)
+        replacement, ids = queue_full_run_pure(state)
+        self.assertEqual(len(ids), 2)
+        self.assertEqual(
+            [step["kind"] for step in replacement["farm_queue"]],
+            ["dig_up", "plant"],
+        )
+        self.assertEqual(replacement["farm_queue"][1]["crop_id"], "cadavaberry")
+
+    def test_full_run_pays_planned_gardener_or_skips_the_whole_patch(self):
+        state = _state()
+        state["inventory"].update({
+            "Rake": 1,
+            "Seed dibber": 1,
+            "Potato seed": 3,
+            "Compost": 2,
+        })
+        state, ok, _ = set_farm_plan_pure(
+            state,
+            "falador_allotment_north",
+            "potato",
+            protection_intent=True,
+        )
+        self.assertTrue(ok)
+
+        queued, ids = queue_full_run_pure(state)
+        self.assertEqual(len(ids), 1)
+        self.assertEqual(queued["inventory"]["Compost"], 0)
+        self.assertFalse(
+            queued["farm_plans"]["falador_allotment_north"]["protection_paid"]
+        )
+        self.assertTrue(queued["farm_queue"][0]["protection_paid"])
+        self.assertEqual(
+            queued["farm_queue"][0]["protection_payment"],
+            {"Compost": 2},
+        )
+        removed, ok = remove_farm_queue_step_pure(
+            queued, queued["farm_queue"][0]["id"]
+        )
+        self.assertTrue(ok)
+        self.assertEqual(removed["inventory"]["Compost"], 2)
+        self.assertEqual(removed["farm_queue"], [])
+        cleared, ok, _ = apply_farming_frontend_action_pure(
+            queued, "queue_clear", {}
+        )
+        self.assertTrue(ok)
+        self.assertEqual(cleared["inventory"]["Compost"], 2)
+        self.assertEqual(cleared["farm_queue"], [])
+        invalidated = copy.deepcopy(queued)
+        invalidated["inventory"]["Potato seed"] = 0
+        refunded, consumed, info = consume_next_farm_queue_step_pure(invalidated)
+        self.assertTrue(consumed)
+        self.assertEqual(info["status"], "skipped")
+        self.assertEqual(refunded["inventory"]["Compost"], 2)
+
+        planted, consumed, info = consume_next_farm_queue_step_pure(queued)
+        self.assertTrue(consumed)
+        self.assertEqual(info["status"], "executed")
+        self.assertTrue(planted["farm_patches"]["falador_allotment_north"]["protected"])
+
+        missing = copy.deepcopy(state)
+        missing["inventory"]["Compost"] = 1
+        skipped, ids = queue_full_run_pure(missing)
+        self.assertEqual(ids, ())
+        self.assertEqual(skipped["farm_queue"], [])
+        self.assertEqual(skipped["inventory"]["Compost"], 1)
+        self.assertEqual(
+            skipped["farm_last_full_run_skips"],
+            [{
+                "patch_id": "falador_allotment_north",
+                "patch_name": "South Falador allotment north",
+                "reason": "missing gardener payment",
+            }],
+        )
+        projection = farming_frontend_projection_pure(missing)["full_run"]
+        self.assertTrue(projection["enabled"])
+        self.assertEqual(projection["count"], 0)
+        self.assertEqual(len(projection["skips"]), 1)
+        reported, ok, message = apply_farming_frontend_action_pure(
+            missing, "queue_full_run", {}
+        )
+        self.assertTrue(ok)
+        self.assertEqual(reported["farm_queue"], [])
+        self.assertEqual(reported["farming_counters"]["full_runs"], 0)
+        self.assertIn("Skipped South Falador allotment north", message)
+
+    def test_dig_up_rejects_invalid_patch_states_without_mutation(self):
+        base = _state()
+        base["inventory"].update({
+            "Rake": 1,
+            "Seed dibber": 1,
+            "Spade": 1,
+            "Redberry seed": 1,
+            "Potato seed": 3,
+        })
+        bush, ok, _ = execute_farm_field_step_pure(
+            base,
+            {"kind": "plant", "patch_id": "champions_bush", "crop_id": "redberry"},
+        )
+        self.assertTrue(ok)
+        mature, _ = advance_farm_clock_pure(bush, 17, lambda: 1.0)
+        variants = {}
+        variants["missing Spade"] = copy.deepcopy(mature)
+        variants["missing Spade"]["inventory"]["Spade"] = 0
+        variants["immature crop"] = copy.deepcopy(bush)
+        variants["diseased crop"] = copy.deepcopy(mature)
+        variants["diseased crop"]["farm_patches"]["champions_bush"]["diseased"] = True
+        potato, ok, _ = execute_farm_field_step_pure(
+            base,
+            {
+                "kind": "plant",
+                "patch_id": "falador_allotment_north",
+                "crop_id": "potato",
+            },
+        )
+        self.assertTrue(ok)
+        potato, _ = advance_farm_clock_pure(potato, 41, lambda: 1.0)
+        variants["non-regrowth crop"] = potato
+
+        for label, state in variants.items():
+            patch_id = (
+                "falador_allotment_north"
+                if label == "non-regrowth crop"
+                else "champions_bush"
+            )
+            before = copy.deepcopy(state)
+            rejected, ok, _ = execute_farm_field_step_pure(
+                state, {"kind": "dig_up", "patch_id": patch_id}
+            )
+            self.assertFalse(ok, label)
+            self.assertEqual(rejected, before, label)
+
+    def test_plan_water_and_item_cure_policies_drive_full_run(self):
+        state = _state()
+        state["inventory"].update({
+            "Rake": 1,
+            "Seed dibber": 1,
+            "Potato seed": 6,
+            "Watering can": 1,
+            "Plant cure": 1,
+        })
+        state, ok, _ = set_farm_plan_pure(
+            state,
+            "falador_allotment_north",
+            "potato",
+            watering_intent=False,
+            cure_intent=False,
+        )
+        self.assertTrue(ok)
+        state, ok, _ = execute_farm_field_step_pure(
+            state,
+            {"kind": "plant", "patch_id": "falador_allotment_north", "crop_id": "potato"},
+        )
+        self.assertTrue(ok)
+        self.assertFalse(state["farm_patches"]["falador_allotment_north"]["watered"])
+        state["farm_patches"]["falador_allotment_north"]["diseased"] = True
+        unchanged, ids = queue_full_run_pure(state)
+        self.assertEqual(ids, ())
+        self.assertEqual(unchanged["inventory"]["Plant cure"], 1)
+
+        state, ok, _ = set_farm_plan_pure(
+            state,
+            "falador_allotment_north",
+            "potato",
+            watering_intent=True,
+            cure_intent=True,
+        )
+        self.assertTrue(ok)
+        queued, ids = queue_full_run_pure(state)
+        self.assertEqual(len(ids), 1)
+        self.assertEqual(queued["farm_queue"][0]["kind"], "cure")
+
+    def test_presets_snapshot_only_plan_policy_and_selection_is_inert(self):
+        state = _state()
+        state["inventory"] = {"Coins": 10}
+        state, ok, _ = set_farm_plan_pure(
+            state,
+            "falador_allotment_north",
+            "potato",
+            "compost",
+            True,
+            False,
+            True,
+        )
+        self.assertTrue(ok)
+        state["farm_plans"]["falador_allotment_north"]["protection_paid"] = True
+        state["farm_plans"]["falador_allotment_north"]["fertile_soil_applied"] = True
+        state["farm_patches"]["falador_allotment_north"]["plan"] = copy.deepcopy(
+            state["farm_plans"]["falador_allotment_north"]
+        )
+        saved, ok, _ = save_farm_preset_pure(
+            state, "Herb run", ("falador_allotment_north",)
+        )
+        self.assertTrue(ok)
+        preset_id = saved["farm_selected_preset"]
+        snapshot = saved["farm_presets"][preset_id]["plans"]["falador_allotment_north"]
+        self.assertEqual(
+            snapshot,
+            {
+                "crop_id": "potato",
+                "compost_tier": "compost",
+                "protection_intent": True,
+                "watering_intent": False,
+                "cure_intent": True,
+            },
+        )
+        saved["farm_plans"]["falador_allotment_north"]["protection_paid"] = False
+        saved["farm_plans"]["falador_allotment_north"]["fertile_soil_applied"] = False
+        saved["farm_patches"]["falador_allotment_north"]["plan"] = copy.deepcopy(
+            saved["farm_plans"]["falador_allotment_north"]
+        )
+
+        changed, ok, _ = set_farm_plan_pure(
+            saved, "falador_allotment_north", "onion", watering_intent=True
+        )
+        self.assertTrue(ok)
+        before = copy.deepcopy(changed)
+        selected, ok, _ = select_farm_preset_pure(changed, preset_id)
+        self.assertTrue(ok)
+        self.assertEqual(selected["farm_plans"], before["farm_plans"])
+        self.assertEqual(selected["inventory"], before["inventory"])
+        self.assertEqual(selected["farm_queue"], before["farm_queue"])
+        self.assertTrue(farming_frontend_projection_pure(selected)["presets"]["modified"])
+
+        applied, ok, _ = apply_farm_preset_pure(selected)
+        self.assertTrue(ok)
+        self.assertEqual(
+            applied["farm_plans"]["falador_allotment_north"]["crop_id"],
+            "potato",
+        )
+        self.assertFalse(
+            applied["farm_plans"]["falador_allotment_north"]["protection_paid"]
+        )
+        self.assertFalse(farming_frontend_projection_pure(applied)["presets"]["modified"])
+
+        duplicate, ok, _ = duplicate_farm_preset_pure(applied, preset_id)
+        self.assertTrue(ok)
+        duplicate_id = duplicate["farm_selected_preset"]
+        renamed, ok, _ = rename_farm_preset_pure(duplicate, duplicate_id, "Weekend")
+        self.assertTrue(ok)
+        deleted, ok, _ = delete_farm_preset_pure(renamed, duplicate_id)
+        self.assertTrue(ok)
+        self.assertIsNone(deleted["farm_selected_preset"])
+        self.assertNotIn(duplicate_id, deleted["farm_presets"])
+
+        long_name = "A" * 60
+        long_named, ok, _ = rename_farm_preset_pure(
+            deleted, preset_id, long_name
+        )
+        self.assertTrue(ok)
+        long_copy, ok, _ = duplicate_farm_preset_pure(long_named, preset_id)
+        self.assertTrue(ok)
+        copy_name = long_copy["farm_presets"][
+            long_copy["farm_selected_preset"]
+        ]["name"]
+        self.assertEqual(len(copy_name), 60)
+        self.assertNotEqual(copy_name, long_name)
+
+    def test_preset_apply_preserves_patch_local_fertile_soil_and_legacy_payment(self):
+        state = _state()
+        state, ok, _ = set_farm_plan_pure(
+            state, "falador_allotment_north", "potato"
+        )
+        self.assertTrue(ok)
+        saved, ok, _ = save_farm_preset_pure(
+            state, "Allotment", ("falador_allotment_north",)
+        )
+        self.assertTrue(ok)
+        preset_id = saved["farm_selected_preset"]
+        changed, ok, _ = set_farm_plan_pure(
+            saved, "falador_allotment_north", "onion"
+        )
+        self.assertTrue(ok)
+        changed["farm_plans"]["falador_allotment_north"]["fertile_soil_applied"] = True
+        changed["farm_patches"]["falador_allotment_north"]["plan"] = copy.deepcopy(
+            changed["farm_plans"]["falador_allotment_north"]
+        )
+        applied, ok, _ = apply_farm_preset_pure(changed, preset_id)
+        self.assertTrue(ok)
+        self.assertTrue(
+            applied["farm_plans"]["falador_allotment_north"]["fertile_soil_applied"]
+        )
+
+        paid = copy.deepcopy(changed)
+        paid["farm_plans"]["falador_allotment_north"]["protection_paid"] = True
+        paid["farm_patches"]["falador_allotment_north"]["plan"] = copy.deepcopy(
+            paid["farm_plans"]["falador_allotment_north"]
+        )
+        before = copy.deepcopy(paid)
+        rejected, ok, _ = apply_farm_preset_pure(paid, preset_id)
+        self.assertFalse(ok)
+        self.assertEqual(rejected, before)
+
+    def test_gardener_intent_is_clamped_for_crops_without_a_payment(self):
+        state = _state(level=99)
+        planned, ok, _ = set_farm_plan_pure(
+            state,
+            "champions_bush",
+            "poison_ivy",
+            protection_intent=True,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(
+            planned["farm_plans"]["champions_bush"]["protection_intent"]
+        )
+
     def test_protection_is_exact_idempotent_live_state_and_rejects_diseased_crop(self):
         data = _state()
         data["inventory"].update({"Compost": 4, "Rake": 1, "Seed dibber": 1, "Spade": 1, "Potato seed": 3, "Watermelon seed": 3})
@@ -1103,6 +1476,7 @@ class TestFarmingFrontendProjection(unittest.TestCase):
         self.assertEqual(preview, {
             "enabled": True,
             "count": 1,
+            "skips": (),
             "preview": "1 steps ready to queue",
             "locked_reason": "",
         })

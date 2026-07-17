@@ -1118,7 +1118,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(queue.item(0).data(Qt.ItemDataRole.UserRole), "farm_step_00000001")
         dialog.deleteLater()
 
-    def test_farming_protection_checkbox_pays_immediately(self) -> None:
+    def test_farming_protection_checkbox_defers_payment_until_full_run(self) -> None:
         player_data = _make_player_data()
         player_data["farming_level"] = 1
         player_data["inventory"] = {
@@ -1145,13 +1145,77 @@ class MainMenuWidgetTest(unittest.TestCase):
         protect.setChecked(True)
         for _ in range(5):
             QApplication.processEvents()
-        self.assertEqual(self._farming_calls[-2][0], "set_plan")
-        self.assertEqual(self._farming_calls[-1], ("pay_protection", {"patch_id": "falador_allotment_north"}))
+        self.assertEqual(self._farming_calls[-1][0], "set_plan")
+        self.assertTrue(self._farming_calls[-1][1]["protection_intent"])
+        self.assertEqual(player_data["inventory"]["Compost"], 2)
+        self.assertFalse(player_data["farm_plans"]["falador_allotment_north"]["protection_paid"])
+        full_run = dialog.findChild(QPushButton, "farmingQueueFullRunButton")
+        self.assertTrue(full_run.isEnabled())
+        full_run.click()
+        for _ in range(5):
+            QApplication.processEvents()
         self.assertEqual(player_data["inventory"]["Compost"], 0)
-        self.assertTrue(player_data["farm_plans"]["falador_allotment_north"]["protection_paid"])
+        self.assertFalse(player_data["farm_plans"]["falador_allotment_north"]["protection_paid"])
+        self.assertTrue(player_data["farm_queue"][0]["protection_paid"])
+        self.assertEqual(player_data["farm_queue"][0]["protection_payment"], {"Compost": 2})
         protect = dialog.findChild(QCheckBox, "farmingPatchProtectionCheck::falador_allotment_north")
         self.assertTrue(protect.isChecked())
-        self.assertFalse(protect.isEnabled())
+        self.assertTrue(protect.isEnabled())
+        dialog.deleteLater()
+
+    def test_farming_preset_row_applies_plans_without_queuing(self) -> None:
+        from farming_logic import save_farm_preset_pure, set_farm_plan_pure
+
+        player_data = _make_player_data()
+        player_data["farming_level"] = 99
+        planned, ok, _ = set_farm_plan_pure(
+            player_data,
+            "falador_allotment_north",
+            "potato",
+            watering_intent=False,
+            cure_intent=True,
+        )
+        self.assertTrue(ok)
+        saved, ok, _ = save_farm_preset_pure(
+            planned, "Morning run", ("falador_allotment_north",)
+        )
+        self.assertTrue(ok)
+        preset_id = saved["farm_selected_preset"]
+        changed, ok, _ = set_farm_plan_pure(
+            saved, "falador_allotment_north", "onion"
+        )
+        self.assertTrue(ok)
+        player_data.clear()
+        player_data.update(changed)
+
+        dialog = self._open(player_data, current_skill="Mining", initial_skill="Farming")
+        dialog.show()
+        for _ in range(5):
+            QApplication.processEvents()
+
+        preset = dialog.findChild(QComboBox, "farmingPresetCombo")
+        modified = dialog.findChild(QLabel, "farmingPresetModifiedLabel")
+        apply_button = dialog.findChild(QPushButton, "farmingPresetApplyButton")
+        manage = dialog.findChild(QToolButton, "farmingPresetManageButton")
+        self.assertEqual(preset.currentData(), preset_id)
+        self.assertEqual(modified.text(), "modified")
+        self.assertTrue(apply_button.isEnabled())
+        self.assertIsNotNone(manage.menu())
+        self.assertEqual(player_data["farm_queue"], [])
+
+        apply_button.click()
+        for _ in range(5):
+            QApplication.processEvents()
+
+        self.assertEqual(
+            player_data["farm_plans"]["falador_allotment_north"]["crop_id"],
+            "potato",
+        )
+        self.assertEqual(player_data["farm_queue"], [])
+        self.assertEqual(
+            dialog.findChild(QLabel, "farmingPresetModifiedLabel").text(),
+            "",
+        )
         dialog.deleteLater()
 
     def test_farming_compost_bin_selects_an_available_input_and_gates_fill_by_selection(self) -> None:
@@ -1217,7 +1281,6 @@ class MainMenuWidgetTest(unittest.TestCase):
                 dialog.findChild(QPushButton, "farmingPatchPlanButton::falador_allotment_north"),
                 dialog.findChild(QPushButton, "farmingPatchPrimaryAction::falador_allotment_north"),
                 dialog.findChild(QPushButton, "farmingPatchHarvestReplantButton::falador_allotment_north"),
-                dialog.findChild(QPushButton, "farmingPatchProtectionButton::falador_allotment_north"),
             ]
             for button in buttons:
                 self.assertIsNotNone(button)

@@ -125,7 +125,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 38
+CURRENT_CONFIG_VERSION = 39
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -1027,6 +1027,12 @@ def migrate_loaded_data(
             "magic_charge_ticks_remaining",
             700 if bool(data.get("magic_charge_active", False)) else 0,
         )
+    # v39: Farming whole-farm presets and explicit plan automation fields.
+    # The Farming sanitizer supplies additive defaults and strips transient
+    # payment/spell state from saved preset snapshots.
+    if loaded_config_version < 39:
+        for key, value in default_farming_state_pure().items():
+            data.setdefault(key, value)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")

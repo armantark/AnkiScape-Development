@@ -27,6 +27,7 @@ try:
         QPoint,
         QMessageBox,
         QDialog,
+        QDialogButtonBox,
         QPixmap,
         QPalette,
         QColor,
@@ -2996,19 +2997,91 @@ def show_main_menu(
                 pass
             return ok
 
-        def _save_plan(patch: dict, crop_combo: QComboBox, compost_combo: QComboBox, protect_check: QCheckBox) -> None:
+        def _save_plan(
+            patch: dict,
+            crop_combo: QComboBox,
+            compost_combo: QComboBox,
+            protect_check: QCheckBox,
+            water_check: QCheckBox,
+            cure_check: QCheckBox,
+        ) -> None:
             crop_id = crop_combo.currentData()
             if not crop_id:
                 return
-            pay_protection = protect_check.isChecked()
-            saved = _run_action("set_plan", {
+            _run_action("set_plan", {
                 "patch_id": patch["patch_id"],
                 "crop_id": crop_id,
                 "compost_tier": compost_combo.currentData() or "none",
-                "protection_intent": pay_protection,
+                "protection_intent": protect_check.isChecked(),
+                "watering_intent": water_check.isChecked(),
+                "cure_intent": cure_check.isChecked(),
             })
-            if saved and pay_protection:
-                _run_action("pay_protection", {"patch_id": patch["patch_id"]})
+
+        def _choose_preset_patch_ids(
+            projection: dict,
+            selected_patch_ids: tuple[str, ...],
+        ) -> Optional[tuple[str, ...]]:
+            dialog = QDialog(panel)
+            dialog.setWindowTitle("Choose preset patches")
+            dialog.resize(520, 520)
+            layout = QVBoxLayout(dialog)
+            layout.addWidget(QLabel("Include saved plans from these patches:"))
+            choices = QListWidget()
+            choices.setObjectName("farmingPresetPatchList")
+            selected = set(selected_patch_ids)
+            for location in projection.get("locations", ()):
+                for patch in location.get("patches", ()):
+                    if not patch["plan"]["crop_id"]:
+                        continue
+                    item = QListWidgetItem(
+                        f"{location['display_name']} · {patch['patch_name']} · {patch['plan']['crop_name']}"
+                    )
+                    item.setData(Qt.ItemDataRole.UserRole, patch["patch_id"])
+                    item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                    item.setCheckState(
+                        Qt.CheckState.Checked
+                        if patch["patch_id"] in selected
+                        else Qt.CheckState.Unchecked
+                    )
+                    choices.addItem(item)
+            layout.addWidget(choices, 1)
+            buttons = QDialogButtonBox(
+                QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel
+            )
+            buttons.accepted.connect(dialog.accept)
+            buttons.rejected.connect(dialog.reject)
+            layout.addWidget(buttons)
+            if dialog.exec() != QDialog.DialogCode.Accepted:
+                return None
+            return tuple(
+                str(choices.item(index).data(Qt.ItemDataRole.UserRole))
+                for index in range(choices.count())
+                if choices.item(index).checkState() == Qt.CheckState.Checked
+            )
+
+        def _save_preset(existing: Optional[dict] = None) -> None:
+            projection = refs["projection"]
+            current_name = str(existing.get("name", "")) if existing else ""
+            name, accepted = QInputDialog.getText(
+                panel,
+                "Update Farming preset" if existing else "Save Farming preset",
+                "Preset name",
+                text=current_name,
+            )
+            if not accepted:
+                return
+            selected = (
+                tuple(existing.get("patch_ids", ()))
+                if existing
+                else tuple(projection.get("presets", {}).get("planned_patch_ids", ()))
+            )
+            patch_ids = _choose_preset_patch_ids(projection, selected)
+            if patch_ids is None:
+                return
+            payload = {"name": name, "patch_ids": patch_ids}
+            if existing:
+                payload["preset_id"] = existing["id"]
+            _run_action("save_preset", payload)
 
         def _set_location_expanded(location_id: str, expanded: bool) -> None:
             if expanded:
@@ -3054,8 +3127,81 @@ def show_main_menu(
             sheet_layout.addWidget(header)
 
             bulk = QWidget()
-            bulk_layout = QHBoxLayout(bulk)
+            bulk_layout = QVBoxLayout(bulk)
             bulk_layout.setContentsMargins(8, 2, 8, 2)
+            bulk_layout.setSpacing(4)
+            preset_row = QHBoxLayout()
+            presets = projection.get("presets", {})
+            preset_combo = QComboBox()
+            preset_combo.setObjectName("farmingPresetCombo")
+            preset_combo.addItem("No preset", None)
+            for row in presets.get("rows", ()):
+                preset_combo.addItem(row["name"], row["id"])
+            preset_combo.setCurrentIndex(
+                max(0, preset_combo.findData(presets.get("selected_id")))
+            )
+            preset_combo.currentIndexChanged.connect(
+                lambda _index, combo=preset_combo: _run_action(
+                    "select_preset", {"preset_id": combo.currentData()}
+                )
+            )
+            modified = QLabel("modified" if presets.get("modified") else "")
+            modified.setObjectName("farmingPresetModifiedLabel")
+            modified.setStyleSheet(f"color: {dim_text_css(modified)};")
+            apply_preset = QPushButton("Apply plans")
+            apply_preset.setObjectName("farmingPresetApplyButton")
+            apply_preset.setEnabled(bool(presets.get("can_apply")) and on_farming_action is not None)
+            apply_preset.clicked.connect(
+                lambda _=False, preset_id=presets.get("selected_id"): _run_action(
+                    "apply_preset", {"preset_id": preset_id}
+                )
+            )
+            preset_menu_button = QToolButton()
+            preset_menu_button.setObjectName("farmingPresetManageButton")
+            preset_menu_button.setText("Presets…")
+            preset_menu_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+            preset_menu = QMenu(preset_menu_button)
+            preset_menu.addAction("Save current plans…", lambda: _save_preset())
+            selected_row = next(
+                (row for row in presets.get("rows", ()) if row["id"] == presets.get("selected_id")),
+                None,
+            )
+            if selected_row is not None:
+                preset_menu.addAction("Update and choose included patches…", lambda row=selected_row: _save_preset(row))
+
+                def _rename_preset(row=selected_row) -> None:
+                    name, accepted = QInputDialog.getText(
+                        panel, "Rename Farming preset", "Preset name", text=row["name"]
+                    )
+                    if accepted:
+                        _run_action("rename_preset", {"preset_id": row["id"], "name": name})
+
+                preset_menu.addAction("Rename…", _rename_preset)
+                preset_menu.addAction(
+                    "Duplicate",
+                    lambda row=selected_row: _run_action("duplicate_preset", {"preset_id": row["id"]}),
+                )
+
+                def _delete_preset(row=selected_row) -> None:
+                    answer = QMessageBox.question(
+                        panel,
+                        "Delete Farming preset",
+                        f"Delete “{row['name']}”?",
+                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                        QMessageBox.StandardButton.No,
+                    )
+                    if answer == QMessageBox.StandardButton.Yes:
+                        _run_action("delete_preset", {"preset_id": row["id"]})
+
+                preset_menu.addAction("Delete", _delete_preset)
+            preset_menu_button.setMenu(preset_menu)
+            preset_row.addWidget(QLabel("Preset"))
+            preset_row.addWidget(preset_combo, 1)
+            preset_row.addWidget(modified)
+            preset_row.addWidget(apply_preset)
+            preset_row.addWidget(preset_menu_button)
+            bulk_layout.addLayout(preset_row)
+            run_row = QHBoxLayout()
             full_run = projection.get("full_run", {})
             full_run_button = QPushButton("Queue full run")
             full_run_button.setObjectName("farmingQueueFullRunButton")
@@ -3065,8 +3211,8 @@ def show_main_menu(
             preview = QLabel(str(full_run.get("preview", "")))
             preview.setObjectName("farmingFullRunPreviewLabel")
             preview.setStyleSheet(f"color: {dim_text_css(preview)};")
-            bulk_layout.addWidget(full_run_button)
-            bulk_layout.addWidget(preview, 1)
+            run_row.addWidget(full_run_button)
+            run_row.addWidget(preview, 1)
             juju = projection.get("juju_potion", {})
             juju_button = QPushButton(str(juju.get("label", "No Juju farming potion")))
             juju_button.setObjectName("farmingActivateJujuButton")
@@ -3077,7 +3223,8 @@ def show_main_menu(
                     "activate_juju_farming_potion", {"item_name": item_name}
                 )
             )
-            bulk_layout.addWidget(juju_button)
+            run_row.addWidget(juju_button)
+            bulk_layout.addLayout(run_row)
             sheet_layout.addWidget(bulk)
 
             toast = QLabel(message)
@@ -3149,7 +3296,9 @@ def show_main_menu(
                     plan = patch["plan"]
                     plan_label = QLabel(
                         f"Plan: {plan['crop_name']} · {str(plan['compost_tier']).replace('_', ' ').title()} · "
-                        f"{'Pay gardener' if plan['protection_intent'] else 'No gardener payment'}"
+                        f"{'Gardener' if plan['protection_intent'] else 'No gardener'} · "
+                        f"{'Water' if plan['watering_intent'] else 'Do not water'} · "
+                        f"{'Cure' if plan['cure_intent'] else 'Do not cure'}"
                     )
                     plan_label.setStyleSheet(f"color: {dim_text_css(plan_label)}; font-size: 11px;")
                     card_layout.addWidget(plan_label)
@@ -3179,24 +3328,61 @@ def show_main_menu(
                         compost_combo.addItem(option["label"], option["id"])
                     compost_combo.setCurrentIndex(max(0, compost_combo.findData(plan["compost_tier"])))
                     protection_action = patch["protection"].get("action")
-                    protect_check = QCheckBox("Pay gardener now")
+                    protect_check = QCheckBox("Gardener on full run")
                     protect_check.setObjectName(f"farmingPatchProtectionCheck::{patch_id}")
                     protect_check.setChecked(bool(plan["protection_intent"]))
                     protect_check.setEnabled(
-                        bool(protection_action and protection_action["enabled"]) and on_farming_action is not None
+                        bool(plan["protection_available"]) and on_farming_action is not None
                     )
                     protect_check.setToolTip(
-                        protection_action["locked_reason"] if protection_action else patch["protection"]["state"]
+                        "Payment is taken only when Queue full run builds this patch's planting steps."
+                        if plan["protection_available"]
+                        else "The planned crop has no gardener-protection payment."
                     )
+                    water_check = QCheckBox("Water when planted")
+                    water_check.setObjectName(f"farmingPatchWaterCheck::{patch_id}")
+                    water_check.setChecked(bool(plan["watering_intent"]))
+                    water_check.setEnabled(
+                        bool(plan["watering_available"]) and on_farming_action is not None
+                    )
+                    water_check.setToolTip(
+                        "Uses an owned Watering can; charges are not tracked."
+                        if plan["watering_available"]
+                        else "This patch type cannot be watered."
+                    )
+                    cure_check = QCheckBox("Auto-cure in full run")
+                    cure_check.setObjectName(f"farmingPatchCureCheck::{patch_id}")
+                    cure_check.setChecked(bool(plan["cure_intent"]))
+                    cure_check.setEnabled(bool(plan["crop_id"]) and on_farming_action is not None)
+                    cure_check.setToolTip("Queues the existing Plant cure item action when this patch is diseased.")
                     plan_grid.addWidget(QLabel("Crop plan"), 0, 0)
                     plan_grid.addWidget(crop_combo, 0, 1)
                     plan_grid.addWidget(QLabel("Compost"), 1, 0)
                     plan_grid.addWidget(compost_combo, 1, 1)
                     plan_grid.addWidget(protect_check, 2, 1)
+                    plan_grid.addWidget(water_check, 3, 1)
+                    plan_grid.addWidget(cure_check, 4, 1)
                     detail_layout.addLayout(plan_grid)
-                    crop_combo.currentIndexChanged.connect(lambda _i, p=patch, c=crop_combo, co=compost_combo, pr=protect_check: _save_plan(p, c, co, pr))
-                    compost_combo.currentIndexChanged.connect(lambda _i, p=patch, c=crop_combo, co=compost_combo, pr=protect_check: _save_plan(p, c, co, pr))
-                    protect_check.toggled.connect(lambda _v, p=patch, c=crop_combo, co=compost_combo, pr=protect_check: _save_plan(p, c, co, pr))
+                    crop_combo.currentIndexChanged.connect(
+                        lambda _i, p=patch, c=crop_combo, co=compost_combo, pr=protect_check, w=water_check, cu=cure_check:
+                        _save_plan(p, c, co, pr, w, cu)
+                    )
+                    compost_combo.currentIndexChanged.connect(
+                        lambda _i, p=patch, c=crop_combo, co=compost_combo, pr=protect_check, w=water_check, cu=cure_check:
+                        _save_plan(p, c, co, pr, w, cu)
+                    )
+                    protect_check.toggled.connect(
+                        lambda _v, p=patch, c=crop_combo, co=compost_combo, pr=protect_check, w=water_check, cu=cure_check:
+                        _save_plan(p, c, co, pr, w, cu)
+                    )
+                    water_check.toggled.connect(
+                        lambda _v, p=patch, c=crop_combo, co=compost_combo, pr=protect_check, w=water_check, cu=cure_check:
+                        _save_plan(p, c, co, pr, w, cu)
+                    )
+                    cure_check.toggled.connect(
+                        lambda _v, p=patch, c=crop_combo, co=compost_combo, pr=protect_check, w=water_check, cu=cure_check:
+                        _save_plan(p, c, co, pr, w, cu)
+                    )
 
                     actions = QVBoxLayout()
                     plan_button = QPushButton("Edit plan")
@@ -3221,6 +3407,19 @@ def show_main_menu(
                                 )
                             )
                         actions.addWidget(primary_button)
+                    dig_up = patch.get("dig_up_action")
+                    if dig_up:
+                        dig_up_button = QPushButton(dig_up["label"])
+                        dig_up_button.setObjectName(f"farmingPatchDigUpButton::{patch_id}")
+                        dig_up_button.setEnabled(bool(dig_up["enabled"]) and on_farming_action is not None)
+                        dig_up_button.setToolTip(dig_up["locked_reason"])
+                        dig_up_button.clicked.connect(
+                            lambda _=False, pid=patch_id: _run_action(
+                                "queue_action",
+                                {"patch_id": pid, "kind": "dig_up", "details": {}},
+                            )
+                        )
+                        actions.addWidget(dig_up_button)
                     shortcut = patch["shortcut_action"]
                     shortcut_button = QPushButton(shortcut["label"])
                     shortcut_button.setObjectName(f"farmingPatchHarvestReplantButton::{patch_id}")
