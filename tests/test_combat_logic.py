@@ -290,6 +290,28 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
         self.assertEqual(player["combat_grave"]["items"].count("Bones"), 2)
         self.assertEqual(player["inventory"]["Bones"], 0)
 
+    def test_pvm_death_applies_pet_loss_without_putting_pet_in_grave(self):
+        from pet_logic import acquire_pet_pure, let_out_pet_pure
+        from summoning_logic import default_summoning_state_pure
+
+        player = {
+            "inventory": {},
+            "equipment": {},
+            "summoning_level": 99,
+            "summoning_state": default_summoning_state_pure(),
+            "current_combat_target": "chicken",
+        }
+        player, _, instance_id = acquire_pet_pure(player, "bulldog")
+        player, _, _ = let_out_pet_pure(player, instance_id)
+
+        _combat_apply_pvm_death(player, 100)
+
+        self.assertNotIn(
+            instance_id, player["summoning_state"]["pet_instances"]
+        )
+        self.assertEqual(player["summoning_state"]["active_follower"], {})
+        self.assertEqual(player["combat_grave"], {})
+
     def test_master_off_prevents_protect_item_from_saving_pvm_death_gear(self):
         disabled = _player(
             equipment={"weapon": "Iron sword", "shield": "Iron kiteshield"},

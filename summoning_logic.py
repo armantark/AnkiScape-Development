@@ -9,6 +9,7 @@ from typing import Any, Callable, Optional
 
 try:
     from .item_values import STACKABLE_ITEM_NAMES
+    from .pet_logic import advance_active_pet_pure, sanitize_pet_instances_pure
     from .summoning_data import (
         DEFAULT_SUMMONING_TARGET,
         SOURCE_DURATION_UNITS_PER_REVIEW,
@@ -18,6 +19,7 @@ try:
     )
 except ImportError:
     from item_values import STACKABLE_ITEM_NAMES
+    from pet_logic import advance_active_pet_pure, sanitize_pet_instances_pure
     from summoning_data import (
         DEFAULT_SUMMONING_TARGET,
         SOURCE_DURATION_UNITS_PER_REVIEW,
@@ -92,6 +94,8 @@ def default_summoning_state_pure() -> dict[str, Any]:
         "target_policies": {},
         "cargo_events": [],
         "cargo_next_event_id": 1,
+        "pet_instances": {},
+        "pet_next_instance_id": 1,
         "familiarisation": default_familiarisation_state_pure(),
         "event_log": [],
     }
@@ -215,6 +219,15 @@ def sanitize_summoning_state_pure(
     event_log = source.get("event_log")
     if not isinstance(event_log, (list, tuple)):
         event_log = []
+    instances = sanitize_pet_instances_pure(source.get("pet_instances"))
+    active_follower = _sanitize_active_follower(
+        source.get("active_follower")
+    )
+    if (
+        active_follower.get("kind") == "pet"
+        and active_follower.get("entity_id") not in instances
+    ):
+        active_follower = {}
     return {
         "summoning_points_current": _clean_int(
             source.get("summoning_points_current"),
@@ -228,9 +241,7 @@ def sanitize_summoning_state_pure(
             minimum=0,
             maximum=SPECIAL_MOVE_POINTS_MAX,
         ),
-        "active_follower": _sanitize_active_follower(
-            source.get("active_follower")
-        ),
+        "active_follower": active_follower,
         "target_policies": {
             str(target): dict(policy)
             for target, policy in policies.items()
@@ -238,6 +249,10 @@ def sanitize_summoning_state_pure(
         },
         "cargo_events": events,
         "cargo_next_event_id": next_event,
+        "pet_instances": instances,
+        "pet_next_instance_id": _clean_int(
+            source.get("pet_next_instance_id"), 1, minimum=1
+        ),
         "familiarisation": _sanitize_familiarisation(
             source.get("familiarisation")
         ),
@@ -483,6 +498,59 @@ def dismiss_familiar_pure(
     }
 
 
+def apply_follower_player_death_pure(
+    player_data: Mapping[str, Any],
+    *,
+    protected_carried_pet_id: Optional[str] = None,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Apply the unsafe-death follower boundary without creating pet graves."""
+
+    updated = _copy_player_data(player_data)
+    level = _clean_int(updated.get("summoning_level"), 1, minimum=1)
+    state = sanitize_summoning_state_pure(
+        updated.get("summoning_state"), summoning_level=level
+    )
+    follower = state["active_follower"]
+    result = {
+        "lost_pet_ids": [],
+        "familiar_id": None,
+        "cargo_event": None,
+    }
+    instances = dict(state.get("pet_instances", {}) or {})
+    if follower.get("kind") == "pet":
+        instance_id = str(follower.get("entity_id", ""))
+        if instance_id in instances:
+            del instances[instance_id]
+            result["lost_pet_ids"].append(instance_id)
+    elif follower.get("kind") == "familiar":
+        result["familiar_id"] = str(follower.get("entity_id", ""))
+        result["cargo_event"] = _drop_familiar_storage(
+            state, follower, source="player_death"
+        )
+    for instance_id, instance in tuple(instances.items()):
+        if (
+            instance.get("location") == "carried"
+            and instance_id != protected_carried_pet_id
+        ):
+            del instances[instance_id]
+            result["lost_pet_ids"].append(instance_id)
+    state["pet_instances"] = instances
+    state["active_follower"] = {}
+    if result["lost_pet_ids"] or result["familiar_id"]:
+        state["event_log"] = (
+            list(state.get("event_log", []))
+            + [
+                {
+                    "kind": "unsafe_player_death",
+                    "lost_pet_ids": list(result["lost_pet_ids"]),
+                    "familiar_id": result["familiar_id"],
+                }
+            ]
+        )[-50:]
+    updated["summoning_state"] = state
+    return updated, result
+
+
 def renew_familiar_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
@@ -684,6 +752,7 @@ def advance_summoning_world_tick_pure(
     player_data: Mapping[str, Any],
     *,
     successful_answer: Optional[bool] = None,
+    active_carried_target: Optional[str] = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     updated = _copy_player_data(player_data)
     level = _clean_int(updated.get("summoning_level"), 1, minimum=1)
@@ -695,6 +764,7 @@ def advance_summoning_world_tick_pure(
         "expired_cargo_event": None,
         "lost_cargo_events": [],
         "familiarisation": None,
+        "pet": None,
     }
 
     retained_events: list[dict[str, Any]] = []
@@ -760,6 +830,12 @@ def advance_summoning_world_tick_pure(
             state["active_follower"] = follower
 
     updated["summoning_state"] = state
+    if state["active_follower"].get("kind") == "pet":
+        updated, pet_result = advance_active_pet_pure(
+            updated,
+            active_carried_target=active_carried_target,
+        )
+        result["pet"] = pet_result
     return updated, result
 
 

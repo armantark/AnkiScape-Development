@@ -109,7 +109,20 @@ from .shop_logic import advance_shop_market_clock_pure
 from .farming_logic import apply_farming_frontend_action_pure, farming_frontend_projection_pure
 from .agility_logic import apply_agility_command_pure
 from .agility_travel import agility_carried_weight_pure
-from .summoning_logic import advance_summoning_world_tick_pure
+from .summoning_logic import (
+    advance_summoning_world_tick_pure,
+    dismiss_familiar_pure,
+    reclaim_familiar_cargo_pure,
+    renew_familiar_pure,
+    restore_summoning_points_pure,
+    start_familiarisation_pure,
+    summon_familiar_pure,
+)
+from .pet_logic import (
+    let_out_pet_pure,
+    release_pet_pure,
+    store_active_pet_pure,
+)
 from . import runtime_actions
 from .runtime_actions import RuntimeActionContext
 
@@ -1152,6 +1165,73 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             pass
         return {"ok": True, **result}
 
+    def _apply_summoning_command(action_id, payload):
+        payload = payload if isinstance(payload, dict) else {}
+        info = {}
+        if action_id == "summon":
+            updated, ok, info = summon_familiar_pure(
+                player_data, str(payload.get("familiar_id", ""))
+            )
+        elif action_id == "dismiss":
+            updated, ok, info = dismiss_familiar_pure(player_data)
+        elif action_id == "renew":
+            updated, ok, info = renew_familiar_pure(player_data)
+        elif action_id == "restore_points":
+            updated = restore_summoning_points_pure(player_data)
+            ok = updated != player_data
+        elif action_id == "reclaim_cargo":
+            updated, ok, reclaimed = reclaim_familiar_cargo_pure(
+                player_data, int(payload.get("event_id", 0) or 0)
+            )
+            info = {"reclaimed": reclaimed}
+        elif action_id == "start_familiarisation":
+            updated, ok = start_familiarisation_pure(player_data)
+        elif action_id == "let_out_pet":
+            updated, ok, reason = let_out_pet_pure(
+                player_data, str(payload.get("instance_id", ""))
+            )
+            info = {"reason": reason}
+        elif action_id == "store_pet":
+            updated, ok = store_active_pet_pure(
+                player_data, location=str(payload.get("location", "bank"))
+            )
+        elif action_id == "release_pet":
+            updated, ok, reason = release_pet_pure(
+                player_data, str(payload.get("instance_id", ""))
+            )
+            info = {"reason": reason}
+        else:
+            return {"ok": False, "message": "Unknown Summoning command."}
+        if not ok:
+            reason = str(info.get("reason", "That action is unavailable."))
+            return {"ok": False, "message": reason.replace("_", " ").capitalize()}
+        before = {
+            "player_data": copy.deepcopy(player_data),
+            "random_state": random.getstate(),
+        }
+        try:
+            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+        except (AttributeError, RuntimeError):
+            return {"ok": False, "message": "Anki could not create an undo entry."}
+        _DIRECT_ACTION_UNDO_STACK.append(before)
+        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+        player_data.clear()
+        player_data.update(updated)
+        summon_xp = float(info.get("summon_xp", 0.0) or 0.0)
+        if summon_xp > 0:
+            _award_skill_exp("summoning_exp", summon_xp)
+            level_up_check("Summoning", player_data)
+        check_achievements(player_data)
+        save_player_data()
+        _refresh_skill_availability()
+        try:
+            mw.update_undo_actions()
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     ui.show_main_menu(
         player_data,
         current_skill,
@@ -1177,6 +1257,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_set_summoning=lambda target: _set_value(
             "current_summoning", target
         ),
+        on_summoning_command=_apply_summoning_command,
         on_agility_command=_apply_agility_command,
         on_set_prayer_selection=set_prayer_selection,
         on_set_magic=lambda target: _set_value("current_magic", target),
@@ -1744,6 +1825,7 @@ def on_answer_card(self, ease, _old):
                 advance_summoning_world_tick_pure(
                     player_data,
                     successful_answer=successful_answer,
+                    active_carried_target=_current_carried_pack_target(),
                 )
             )
             player_data.update(summoning_updated)

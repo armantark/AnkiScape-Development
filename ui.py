@@ -244,15 +244,19 @@ try:
         DEFAULT_SUMMONING_TARGET,
         SUMMONING_ACTIONS,
         SUMMONING_ACTIONS_BY_ID,
+        SUMMONING_POUCHES,
         SUMMONING_POUCHES_BY_ID,
     )
+    from .pet_data import OBTAINABLE_PETS, PETS_BY_ID
 except Exception:
     from summoning_data import (  # type: ignore
         DEFAULT_SUMMONING_TARGET,
         SUMMONING_ACTIONS,
         SUMMONING_ACTIONS_BY_ID,
+        SUMMONING_POUCHES,
         SUMMONING_POUCHES_BY_ID,
     )
+    from pet_data import OBTAINABLE_PETS, PETS_BY_ID  # type: ignore
 try:
     from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure
     from .skill_registry import get_skill
@@ -2201,6 +2205,7 @@ def show_main_menu(
     on_set_thieving_fight_back=None,
     on_set_agility=None,
     on_set_summoning=None,
+    on_summoning_command=None,
     on_agility_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
@@ -7943,6 +7948,294 @@ def show_main_menu(
     eq_caption = QLabel("Right-click a worn item to unequip. Right-click bank gear to equip.")
     eq_caption.setStyleSheet(f"color: {dim_text_css(eq_caption)};")
     eq_layout.addWidget(eq_caption)
+
+    # Followers are a global equipment-adjacent resource: familiars and pets
+    # share this one slot, while the Pets log projects the same persistent
+    # entities regardless of whether they are banked, carried, or in a
+    # Menagerie.
+    follower_group = QtFrame()
+    follower_group.setObjectName("summoningFollowerPanel")
+    follower_group.setFrameShape(QtFrame.Shape.StyledPanel)
+    follower_layout = QVBoxLayout(follower_group)
+    follower_layout.setContentsMargins(10, 8, 10, 8)
+    follower_layout.setSpacing(6)
+    follower_header = QLabel("Follower")
+    follower_header.setStyleSheet("color: palette(text); font-weight: 600;")
+    follower_layout.addWidget(follower_header)
+
+    follower_summary = QLabel()
+    follower_summary.setObjectName("summoningFollowerSummary")
+    follower_summary.setWordWrap(True)
+    follower_summary.setStyleSheet("color: palette(text);")
+    follower_layout.addWidget(follower_summary)
+
+    familiar_picker_row = QWidget()
+    familiar_picker_layout = QHBoxLayout(familiar_picker_row)
+    familiar_picker_layout.setContentsMargins(0, 0, 0, 0)
+    familiar_picker_layout.setSpacing(6)
+    familiar_picker = QComboBox()
+    familiar_picker.setObjectName("summoningFamiliarPicker")
+    summon_button = QPushButton("Summon")
+    summon_button.setObjectName("summoningSummonButton")
+    dismiss_button = QPushButton("Dismiss")
+    dismiss_button.setObjectName("summoningDismissButton")
+    renew_button = QPushButton("Renew")
+    renew_button.setObjectName("summoningRenewButton")
+    pick_up_pet_button = QPushButton("Pick up")
+    pick_up_pet_button.setObjectName("summoningPickUpPetButton")
+    for widget in (
+        familiar_picker,
+        summon_button,
+        dismiss_button,
+        renew_button,
+        pick_up_pet_button,
+    ):
+        familiar_picker_layout.addWidget(widget)
+    familiar_picker_layout.addStretch(1)
+    follower_layout.addWidget(familiar_picker_row)
+
+    follower_resources = QLabel()
+    follower_resources.setObjectName("summoningResourceSummary")
+    follower_resources.setWordWrap(True)
+    follower_resources.setStyleSheet(f"color: {dim_text_css(follower_resources)};")
+    follower_layout.addWidget(follower_resources)
+
+    pets_toggle = QPushButton("▸  Pets")
+    pets_toggle.setObjectName("summoningPetsToggle")
+    pets_toggle.setCheckable(True)
+    pets_toggle.setStyleSheet(
+        "QPushButton { text-align: left; font-weight: 600; border: none; padding: 3px 0; }"
+    )
+    follower_layout.addWidget(pets_toggle)
+    pets_body = QWidget()
+    pets_body.setVisible(False)
+    pets_layout = QVBoxLayout(pets_body)
+    pets_layout.setContentsMargins(8, 0, 0, 0)
+    pets_layout.setSpacing(5)
+    pets_list = QTreeWidget()
+    pets_list.setObjectName("summoningPetsLog")
+    pets_list.setHeaderLabels(["Pet", "State", "Stage / care", "Acquisition"])
+    pets_list.setRootIsDecorated(False)
+    pets_list.setAlternatingRowColors(True)
+    pets_list.setFixedHeight(210)
+    pets_layout.addWidget(pets_list)
+    pet_actions = QWidget()
+    pet_actions_layout = QHBoxLayout(pet_actions)
+    pet_actions_layout.setContentsMargins(0, 0, 0, 0)
+    let_out_button = QPushButton("Let out")
+    let_out_button.setObjectName("summoningLetOutPetButton")
+    release_button = QPushButton("Release permanently…")
+    release_button.setObjectName("summoningReleasePetButton")
+    pet_actions_layout.addWidget(let_out_button)
+    pet_actions_layout.addWidget(release_button)
+    pet_actions_layout.addStretch(1)
+    pets_layout.addWidget(pet_actions)
+    follower_layout.addWidget(pets_body)
+    pets_toggle.toggled.connect(
+        lambda checked: (
+            pets_toggle.setText("▾  Pets" if checked else "▸  Pets"),
+            pets_body.setVisible(bool(checked)),
+        )
+    )
+    eq_layout.addWidget(follower_group)
+
+    def _run_summoning_command(action_id: str, payload=None) -> bool:
+        if on_summoning_command is None:
+            return False
+        result = on_summoning_command(action_id, payload or {})
+        ok = bool(result.get("ok")) if isinstance(result, dict) else bool(result)
+        if not ok and isinstance(result, dict) and result.get("message"):
+            QMessageBox.information(
+                dialog, "Follower action unavailable", str(result["message"])
+            )
+        _refresh_follower_panel()
+        _populate_bank_list()
+        return ok
+
+    def _selected_pet_instance_id() -> Optional[str]:
+        item = pets_list.currentItem()
+        if item is None:
+            return None
+        instance_id = item.data(0, Qt.ItemDataRole.UserRole)
+        return instance_id if isinstance(instance_id, str) and instance_id else None
+
+    def _refresh_follower_panel() -> None:
+        state_value = player_data.get("summoning_state", {}) or {}
+        summoning_state = state_value if isinstance(state_value, dict) else {}
+        follower = summoning_state.get("active_follower", {}) or {}
+        instances_value = summoning_state.get("pet_instances", {}) or {}
+        instances = instances_value if isinstance(instances_value, dict) else {}
+        level = max(1, int(player_data.get("summoning_level", 1) or 1))
+        current_points = max(
+            0, int(summoning_state.get("summoning_points_current", level) or 0)
+        )
+        special_points = max(
+            0, int(summoning_state.get("special_move_points_current", 0) or 0)
+        )
+        follower_resources.setText(
+            f"Summoning points: {current_points}/{level}  •  "
+            f"Special-move points: {special_points}/60"
+        )
+
+        kind = str(follower.get("kind", ""))
+        entity_id = str(follower.get("entity_id", ""))
+        if kind == "familiar" and entity_id in SUMMONING_POUCHES_BY_ID:
+            pouch = SUMMONING_POUCHES_BY_ID[entity_id]
+            remaining = max(0, int(follower.get("remaining_reviews", 0) or 0))
+            storage = follower.get("storage", {}) or {}
+            cargo = ", ".join(
+                f"{name} ×{amount}" for name, amount in storage.items() if amount
+            )
+            follower_summary.setText(
+                f"{pouch.familiar_name} • {remaining} review(s) remain"
+                + (f"\nBoB: {cargo}" if cargo else "")
+            )
+        elif kind == "pet" and entity_id in instances:
+            instance = instances[entity_id]
+            pet = PETS_BY_ID.get(str(instance.get("pet_id", "")))
+            if pet is not None:
+                follower_summary.setText(
+                    f"{pet.display_name} • stage {int(instance.get('stage', 0)) + 1}"
+                    f"/{pet.stage_count} • growth {float(instance.get('growth', 0.0)):.0f}%"
+                    f" • hunger {float(instance.get('hunger', 0.0)):.0f}%"
+                )
+            else:
+                follower_summary.setText("Unknown active pet")
+        else:
+            follower_summary.setText("No follower active.")
+
+        familiar_picker.blockSignals(True)
+        familiar_picker.clear()
+        inventory = player_data.get("inventory", {}) or {}
+        for pouch in SUMMONING_POUCHES:
+            owned = max(0, int(inventory.get(pouch.pouch_name, 0) or 0))
+            if owned > 0 or pouch.level <= level:
+                familiar_picker.addItem(
+                    f"{pouch.familiar_name} — Lv {pouch.level} — {owned} pouch(es)",
+                    pouch.id,
+                )
+        familiar_picker.blockSignals(False)
+        familiar_picker.setEnabled(not kind and familiar_picker.count() > 0)
+        summon_button.setEnabled(
+            on_summoning_command is not None and not kind and familiar_picker.count() > 0
+        )
+        dismiss_button.setVisible(kind == "familiar")
+        dismiss_button.setEnabled(on_summoning_command is not None and kind == "familiar")
+        renew_button.setVisible(kind == "familiar")
+        renew_button.setEnabled(on_summoning_command is not None and kind == "familiar")
+        pick_up_pet_button.setVisible(kind == "pet")
+        pick_up_pet_button.setEnabled(on_summoning_command is not None and kind == "pet")
+
+        pets_list.blockSignals(True)
+        pets_list.clear()
+        owned_by_pet: dict[str, list[tuple[str, dict]]] = {}
+        for instance_id, instance in instances.items():
+            if isinstance(instance, dict):
+                owned_by_pet.setdefault(str(instance.get("pet_id", "")), []).append(
+                    (str(instance_id), instance)
+                )
+        for pet in OBTAINABLE_PETS:
+            owned = owned_by_pet.get(pet.id, [])
+            if owned:
+                for instance_id, instance in owned:
+                    location = str(instance.get("location", "bank")).title()
+                    stage = min(
+                        pet.stage_count,
+                        max(1, int(instance.get("stage", 0) or 0) + 1),
+                    )
+                    row = QTreeWidgetItem(
+                        [
+                            pet.display_name,
+                            location,
+                            f"{stage}/{pet.stage_count}; hunger {float(instance.get('hunger', 0.0)):.0f}%",
+                            pet.acquisition,
+                        ]
+                    )
+                    row.setData(0, Qt.ItemDataRole.UserRole, instance_id)
+                    asset = os.path.join(
+                        current_dir,
+                        f"petitems/{pet.id}_{max(0, stage - 1)}.png",
+                    )
+                    if os.path.exists(asset):
+                        row.setIcon(0, QIcon(asset))
+                    pets_list.addTopLevelItem(row)
+            else:
+                row = QTreeWidgetItem(
+                    [pet.display_name, "Not owned", f"1/{pet.stage_count}", pet.acquisition]
+                )
+                row.setForeground(1, dim_text_color(pets_list))
+                pets_list.addTopLevelItem(row)
+        for column in range(4):
+            pets_list.resizeColumnToContents(column)
+        pets_list.blockSignals(False)
+        _refresh_pet_action_buttons()
+
+    def _refresh_pet_action_buttons() -> None:
+        state_value = player_data.get("summoning_state", {}) or {}
+        instances = state_value.get("pet_instances", {}) or {}
+        follower = state_value.get("active_follower", {}) or {}
+        instance_id = _selected_pet_instance_id()
+        selected = instances.get(instance_id, {}) if instance_id else {}
+        can_activate = bool(
+            instance_id
+            and selected.get("location") != "active"
+            and not follower
+        )
+        let_out_button.setEnabled(
+            on_summoning_command is not None and can_activate
+        )
+        pet = PETS_BY_ID.get(str(selected.get("pet_id", "")))
+        release_button.setEnabled(
+            on_summoning_command is not None
+            and bool(instance_id)
+            and pet is not None
+            and not pet.release_source_blocked
+        )
+
+    summon_button.clicked.connect(
+        lambda _checked=False: _run_summoning_command(
+            "summon", {"familiar_id": familiar_picker.currentData()}
+        )
+    )
+    dismiss_button.clicked.connect(
+        lambda _checked=False: _run_summoning_command("dismiss")
+    )
+    renew_button.clicked.connect(
+        lambda _checked=False: _run_summoning_command("renew")
+    )
+    pick_up_pet_button.clicked.connect(
+        lambda _checked=False: _run_summoning_command("store_pet", {"location": "carried"})
+    )
+    let_out_button.clicked.connect(
+        lambda _checked=False: _run_summoning_command(
+            "let_out_pet", {"instance_id": _selected_pet_instance_id()}
+        )
+    )
+
+    def _release_selected_pet(_checked=False) -> None:
+        instance_id = _selected_pet_instance_id()
+        state_value = player_data.get("summoning_state", {}) or {}
+        instance = (state_value.get("pet_instances", {}) or {}).get(instance_id, {})
+        pet = PETS_BY_ID.get(str(instance.get("pet_id", "")))
+        if not instance_id or pet is None:
+            return
+        answer = QMessageBox.question(
+            dialog,
+            "Release pet permanently?",
+            f"Release {pet.display_name} permanently?\n\n"
+            f"Replacement route: {pet.acquisition}",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        if answer == QMessageBox.StandardButton.Yes:
+            _run_summoning_command("release_pet", {"instance_id": instance_id})
+
+    release_button.clicked.connect(_release_selected_pet)
+    pets_list.currentItemChanged.connect(
+        lambda _current, _previous: _refresh_pet_action_buttons()
+    )
+    _equipment_refreshers.append(_refresh_follower_panel)
+    _refresh_follower_panel()
 
     # The Equipment tab can grow tall (worn slots + totals + the 28-slot carried
     # editor on the left, the combat setup + loot controls on the right), so the

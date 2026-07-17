@@ -3144,6 +3144,17 @@ def _combat_apply_pvm_death(
     grave_source="combat_death",
     carried_target_id=None,
 ):
+    try:
+        from .summoning_logic import apply_follower_player_death_pure
+    except ImportError:
+        from summoning_logic import apply_follower_player_death_pure
+
+    follower_updated, _follower_death = apply_follower_player_death_pure(
+        data,
+        protected_carried_pet_id=data.get("combat_protected_pet_instance_id"),
+    )
+    data.clear()
+    data.update(follower_updated)
     equipment = dict(data.get("equipment", {}) or {})
     protected_equipment = {}
     if prayer_effect_state_pure(data).get("protect_item") and equipment:

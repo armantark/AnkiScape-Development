@@ -2836,6 +2836,54 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(len(rows), 145)
         self.assertTrue(all(not item.icon(0).isNull() for item in rows))
 
+    def test_equipment_follower_panel_projects_familiars_and_complete_pet_log(self) -> None:
+        from summoning_logic import default_summoning_state_pure, summon_familiar_pure
+
+        pd = _make_player_data()
+        pd["summoning_level"] = 99
+        pd["inventory"] = {"Spirit wolf pouch": 1}
+        pd["summoning_state"] = default_summoning_state_pure()
+        calls = []
+
+        def command(action_id, payload):
+            calls.append((action_id, dict(payload)))
+            if action_id != "summon":
+                return {"ok": False}
+            updated, ok, info = summon_familiar_pure(
+                pd, str(payload.get("familiar_id", ""))
+            )
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok, **info}
+
+        dialog = self._open(
+            pd,
+            current_skill="Summoning",
+            on_summoning_command=command,
+        )
+        dialog.show()
+        _open_equipment_tab(dialog)
+        QApplication.processEvents()
+
+        panel = dialog.findChild(QWidget, "summoningFollowerPanel")
+        summary = dialog.findChild(QLabel, "summoningFollowerSummary")
+        picker = dialog.findChild(QComboBox, "summoningFamiliarPicker")
+        summon = dialog.findChild(QPushButton, "summoningSummonButton")
+        pets = dialog.findChild(QTreeWidget, "summoningPetsLog")
+        self.assertIsNotNone(panel)
+        self.assertEqual(summary.text(), "No follower active.")
+        self.assertEqual(pets.topLevelItemCount(), 44)
+
+        picker.setCurrentIndex(picker.findData("spiritwolf"))
+        summon.click()
+        QApplication.processEvents()
+
+        self.assertEqual(calls, [("summon", {"familiar_id": "spiritwolf"})])
+        self.assertIn("Spirit wolf", summary.text())
+        self.assertIn("review(s) remain", summary.text())
+        dialog.deleteLater()
+
     def test_cannonball_row_shows_quest_gate_mould_and_icon(self) -> None:
         pd = _make_player_data()
         pd["smithing_level"] = 35

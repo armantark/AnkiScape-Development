@@ -135,7 +135,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 41
+CURRENT_CONFIG_VERSION = 42
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -359,6 +359,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_agility_state_pure())
     data["current_summoning"] = DEFAULT_SUMMONING_TARGET
     data["summoning_state"] = default_summoning_state_pure()
+    data["pet_auto_care"] = True
     data["cadence_profiles"] = default_cadence_kernel_state_pure()
     return data
 
@@ -1067,6 +1068,9 @@ def migrate_loaded_data(
     if loaded_config_version < 41:
         data.setdefault("current_summoning", DEFAULT_SUMMONING_TARGET)
         data.setdefault("summoning_state", default_summoning_state_pure())
+    # v42: persistent pet entities and the default-on Casual care policy.
+    if loaded_config_version < 42:
+        data.setdefault("pet_auto_care", True)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1112,6 +1116,7 @@ def migrate_loaded_data(
         data.get("summoning_state"),
         summoning_level=data.get("summoning_level", 1),
     )
+    data["pet_auto_care"] = bool(data.get("pet_auto_care", True))
     _sanitize_thieving_state(data)
     data["cadence_profiles"] = sanitize_cadence_kernel_state_pure(
         data.get("cadence_profiles")

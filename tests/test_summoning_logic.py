@@ -400,13 +400,14 @@ class SummoningLogicTests(unittest.TestCase):
         self.assertEqual(len(clean["cargo_events"]), 1)
         self.assertEqual(clean["cargo_next_event_id"], 5)
 
-    def test_v41_storage_default_and_migration_are_idempotent(self):
+    def test_v42_storage_default_and_migration_are_idempotent(self):
         default = default_player_data(ORE_DATA)
-        self.assertEqual(CURRENT_CONFIG_VERSION, 41)
+        self.assertEqual(CURRENT_CONFIG_VERSION, 42)
         self.assertEqual(default["current_summoning"], "infuse_spiritwolf")
         self.assertEqual(
             default["summoning_state"]["special_move_points_current"], 60
         )
+        self.assertTrue(default["pet_auto_care"])
 
         migrated = migrate_loaded_data(
             {
@@ -421,11 +422,12 @@ class SummoningLogicTests(unittest.TestCase):
             },
             ORE_DATA,
         )
-        self.assertEqual(migrated["config_version"], 41)
+        self.assertEqual(migrated["config_version"], 42)
         self.assertEqual(migrated["current_summoning"], "infuse_spiritwolf")
         self.assertEqual(
             migrated["summoning_state"]["summoning_points_current"], 12
         )
+        self.assertTrue(migrated["pet_auto_care"])
         self.assertEqual(
             migrate_loaded_data(migrated, ORE_DATA),
             migrated,

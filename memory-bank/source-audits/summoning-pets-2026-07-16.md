@@ -254,3 +254,28 @@ stage with its source-required cat item gate. The line represents the cat fighti
 Rat through the wall. Food is optional in the source and therefore is not a fabricated
 mandatory gate. Feeding, cautious retreat, LP exchange, and cat death are collapsed scene
 detail rather than a pet-combat actor, stance selector, or hidden success roll.
+
+## Implemented slice — 2026-07-17
+
+- `tools/generate_pet_catalog.py` deterministically parses Pet oldid `6579897`
+  into 47 stable definitions, including 44 obtainable entries and three
+  discontinued-event compatibility rows.
+- `pet_logic.py` owns persistent pet instances, the shared follower slot,
+  active-only growth/hunger, carried-food-only Casual care, safe no-food return,
+  Bank/carried/Menagerie storage, source-blocked release guards, and unsafe
+  death destruction.
+- Config version 42 migrates pet entities additively. Review ticks, direct
+  follower commands, and player death all use the existing Anki undo
+  transaction boundaries.
+- The canonical Equipment follower panel exposes active familiar/pet state,
+  Summon, Renew, Dismiss, Pick up, a searchable 44-entry Pets log, Let out, and
+  separately confirmed permanent Release.
+- `tools/fetch_pet_assets.py` resolves the period table's retired file names
+  through current official RuneScape Wiki file search and records every fetched
+  stage/variant image in `assets_provenance.json`.
+
+The growth and hunger magnitudes are review-native balance abstractions recorded
+in `design-gaps-summoning-implementation-2026-07-17.md`; no wall clock is used.
+Pet-shop prices, hatch durations, Hunter rates, and individual replacement
+transactions remain source/dependency work in the acquisition audit rather than
+invented values.
