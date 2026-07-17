@@ -6,7 +6,7 @@
   "branch": "main",
   "baseline_commit": "2d51d213ab7e6c9a9b6fb397e9b664c9ed892d60",
   "current_phase": "slayer_source_harvest",
-  "last_observed_commit": "01d4223b42828e3b1e69524ffccec0421104d781",
+  "last_observed_commit": "17329d7c2919dd3cdb2d820fae1063789d5db1b7",
   "queue": [
     {
       "id": "approved-amendments",
@@ -34,7 +34,8 @@
     "f5031bf8baaa15d2b2eb9257f7471a7d0547de67",
     "b09c6bab42b3a2329aea4139aae340cb42b92275",
     "31a5ec42bb13cff14ca7d0ee69b1f80148013314",
-    "00c201c11a9d54744323cacc26595aa1ab4bd4b5"
+    "00c201c11a9d54744323cacc26595aa1ab4bd4b5",
+    "17329d7c2919dd3cdb2d820fae1063789d5db1b7"
   ],
   "completed_batches": [
     "magic-charge-review-duration",
