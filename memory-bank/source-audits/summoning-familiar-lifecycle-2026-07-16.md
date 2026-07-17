@@ -44,6 +44,8 @@ below were checked against the literal revision wikitext rather than the modern 
 | A BoB had a separate inventory with direct whole-inventory bank deposit. | Oldid 6288415 describes its inventory UI and the familiar icon in the bank interface. | High |
 | BoB items fell to the ground when the familiar expired or died. | Oldid 6288415 describes expiry/death drops and a five-minute owner retrieval window after expiry. | High |
 | BoB inventory could not be accessed during combat. | Oldid 6288415 says players needed to find safety before withdrawing carried items. | High |
+| Most familiar-restricted areas blocked entry or required the familiar to be dismissed; they did not preserve it just outside. | Oldid 6582606 lines 89-116 calls these places areas where a familiar cannot be brought. Darkan commit `2383a9b213bbb2de46cbc4c376ef7d6d87dba312` independently blocks entry with a live familiar in `FightCavesController.java:71-75`, `pest/Lander.java:186-196`, and `transportation/canoes/Canoes.kt:339-343`. | High for the blocking shape; exact consequence remains area-specific. |
+| Temporary hiding was a separate, explicit exception. | Oldid 6582606 lines 117-121 says the familiar instead returns to the spirit plane and later returns only for the Grand Exchange, Oo'glog spas, and Varrock Museum. | High for the three listed contexts. |
 
 ## Design boundary
 
@@ -64,9 +66,11 @@ a familiar remain active at zero points, so those states supported different dec
   tertiary, and quest/activity gate.
 - Pin special-move-point recovery and scroll costs separately from Summoning points.
 - Source logout/context, forbidden-area, and familiar-combat behavior from period
-  revisions and reconciled server code. Renewal and the basic BoB expiry/storage surface
-  are pinned above; exact implementation still needs the owner automation and no-ground
-  inventory decisions.
+  revisions and reconciled server code. The broad forbidden-versus-hidden distinction is
+  now pinned, but each target still needs an explicit consequence enum: block until
+  dismissal, automatic dismissal, summon-only restriction, or temporary spirit-plane
+  hiding. Renewal and the basic BoB expiry/storage surface are pinned above; exact
+  implementation still needs that per-area catalog.
 - Search specifically for period familiar-targeting, retaliation, area-damage, aggro,
   and tanking scroll/ability evidence. The owner's recollection that a scroll may redirect
   damage is a lead only. If no pinned evidence names a damage channel, the familiar takes

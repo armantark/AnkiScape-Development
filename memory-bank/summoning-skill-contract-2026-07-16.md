@@ -415,13 +415,40 @@ the source's rolling week through the simulation clock. A partially completed ru
 across Anki closure and never resolves from wall time. Every segment, completion, reward,
 cooldown, and undo transition is atomic and duplicate-safe.
 
-### 19. Familiar-forbidden targets and areas — open
+### 19. Familiar-forbidden targets and areas — source shape resolved; owner safety fork open
 
-The period game had areas that did not allow familiars, but AnkiScape intentionally has
-no persistent player location. Choose whether selecting a source-forbidden target should
-park the live familiar outside—suppressing its effects, commands, BoB access, and target
-automation while lifetime continues—or require/deliver a safe dismissal before the target
-can run.
+The earlier `park outside` recommendation was wrong as a universal rule. Pinned period
+evidence distinguishes genuinely forbidden areas, which normally blocked entry until the
+familiar was gone, from the Grand Exchange, Oo'glog spas, and Varrock Museum, where it
+explicitly returned to the spirit plane and later came back. Darkan independently preserves
+the blocking shape for the Fight Caves, Pest Control landers, and canoe travel. The future
+target/route catalog therefore carries an explicit source consequence instead of one global
+`forbidden` boolean: `block_until_dismissed`, `auto_dismiss`, `summon_only_forbidden`, or
+`spirit_plane_hide`.
+
+Target selection alone still never spends the familiar. A target with
+`block_until_dismissed` may be selected, but its first action cannot start with a live
+familiar. The remaining owner fork is the safety affordance at that boundary: require an
+explicit source-like Dismiss (with BoB cargo entering the ordinary reclaim event), or spend
+a review on a protective Bank detour that deposits cargo before dismissal. The latter is
+safer but can become a remote-banking exploit if choosing a forbidden target is enough to
+trigger it.
+
+### 20. Ordinary Summoning training — source/app-pattern resolved 2026-07-16
+
+`source-audits/summoning-training-2026-07-16.md` closes the normal training shape without
+an owner question. The page exposes **Infuse pouches** and **Create scrolls** as searchable
+action families. One successful review infuses one pouch from its exact empty-pouch, charm,
+spirit-shard, and tertiary recipe for exact creation XP, or converts one pouch into ten
+matching scrolls for the row's exact creation XP. Again advances world state and creates
+nothing. Ordinary carried-pack and Bank-run rules own repeated trips; a later sourced
+cadence/trip pass must not change the source unit or XP.
+
+Wolf Whistle is an optional quest reward, not a skill gate. Familiarisation and quest or
+activity XP remain supporting routes. Surface-world search and filters never expose the
+separate Dungeoneering pouch/scroll tables; those wait for Dungeoneering's temporary-session
+economy. The complete row and acquisition harvest remains required before implementation,
+but the training interaction itself needs no further owner design.
 
 ## Source/open-work queue
 

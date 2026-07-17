@@ -51,9 +51,12 @@ automatic one-review Bank detour when the enabled policy can refill from owned s
 the detour replaces the target action and may complete the resummon atomically. A
 mismatched live familiar is now safely swapped at the next Bank boundary only after BoB
 cargo is deposited and replacement success is guaranteed; otherwise the old familiar
-remains active and the new policy stays queued. The next open fork is whether Casual
-source-forbidden targets should park a live familiar outside while its lifetime continues,
-or require/deliver a safe dismissal before the target runs. Familiarisation is now a
+remains active and the new policy stays queued. Period evidence has now corrected the
+forbidden-area model: most such targets block until dismissal, while only an explicit small
+set temporarily hides and later returns the familiar. The target catalog will encode that
+per-area consequence. The next open fork is whether a blocked target requires an explicit
+source-like Dismiss (and ordinary BoB cargo reclaim) or spends a review on a protective
+Bank-before-dismiss detour. Familiarisation is now a
 four-answer session with 15 shards per success, three focus pips, and one lost pip/no
 shards on Again. Target policy
 `Off — no familiar automation` now preserves any already-live global familiar while
@@ -74,6 +77,14 @@ shard-scaled ingredient box or 40-seconds-per-shard triple eligible charm drops.
 answered cards represent the run; it begins with three focus pips, grants 15 shards per
 success, and Again loses a pip without gathering. No wall-clock or location state is
 introduced.
+
+Ordinary Summoning training is source/app-pattern resolved in
+`source-audits/summoning-training-2026-07-16.md`: searchable **Infuse pouches** and
+**Create scrolls** families process one exact source unit per successful review, while the
+ordinary carried-pack/Bank-run model supplies repeated trips. Wolf Whistle is optional,
+and surface-world training excludes the separately sourced Dungeoneering pouch and scroll
+tables. Exact row and acquisition harvesting remains implementation-prep work, not an owner
+fork.
 
 Agility's owner grill, source harvest, and atomic implementation are closed. The
 governing product contract is

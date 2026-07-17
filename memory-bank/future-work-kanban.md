@@ -213,6 +213,15 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   zero focus, or its period time cap, followed by a shard-scaled ingredient-box or
   triple-charm choice. The delegated translation is four answered cards, three focus
   pips, 15 shards per success, and one lost pip/no shards on Again.
+- Ordinary training is source/app-pattern resolved under
+  `source-audits/summoning-training-2026-07-16.md`: searchable pouch-infusion and scroll-
+  creation families process one exact source unit per successful review; Wolf Whistle is
+  optional; Dungeoneering rows stay out of the surface-world catalog. Exact row,
+  acquisition, and route-cost harvesting remains before implementation.
+- The old universal `park outside` idea is rejected. Restricted targets need a per-area
+  consequence (`block_until_dismissed`, `auto_dismiss`, `summon_only_forbidden`, or
+  `spirit_plane_hide`). The live owner fork is whether a blocked target demands explicit
+  Dismiss with ordinary cargo reclaim, or pays a protective Bank-before-dismiss review.
 
 ### Dungeoneering
 
