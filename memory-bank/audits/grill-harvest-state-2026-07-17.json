@@ -6,13 +6,12 @@
   "branch": "main",
   "baseline_commit": "2d51d213ab7e6c9a9b6fb397e9b664c9ed892d60",
   "current_phase": "implementation",
-  "last_observed_commit": "8426fa20881d5c670c3c6e8a8ecf299984b4c1b9",
+  "last_observed_commit": "69855d9649500f04e64343e8810e93b5ba4904c0",
   "queue": [
     {
       "id": "approved-amendments",
       "status": "implementing",
       "items": [
-        "agility-carried-risk-packs",
         "farming-dig-up-presets-full-run",
         "bank-discard-x-carried-order-complete"
       ]
@@ -25,11 +24,13 @@
   ],
   "accepted_commits": [
     "6639a485c2ad2403896a9759fb3f3d2aadba1b4c",
-    "8426fa20881d5c670c3c6e8a8ecf299984b4c1b9"
+    "8426fa20881d5c670c3c6e8a8ecf299984b4c1b9",
+    "69855d9649500f04e64343e8810e93b5ba4904c0"
   ],
   "completed_batches": [
     "magic-charge-review-duration",
-    "bank-discard-x-carried-order"
+    "bank-discard-x-carried-order",
+    "agility-carried-risk-packs"
   ],
   "workflow_runs": [
     {
@@ -37,6 +38,11 @@
       "purpose": "readiness survey",
       "summoning_leaf": "canceled and discarded after owner scope clarification",
       "slayer_leaf": "complete; no live runtime slice certified"
+    },
+    {
+      "id": "1b9b3950-4568-49b3-b72a-e2a4e21e468b",
+      "purpose": "Agility carried-risk final checker",
+      "result": "stale carried-view weight defect reproduced and fixed"
     }
   ],
   "excluded_until_owner_authorizes": [
@@ -45,7 +51,8 @@
   ],
   "design_gap_file": "memory-bank/design-gaps-grill-harvest-2026-07-17.md",
   "open_design_gaps": [
-    "mage-arena-alignment-capes-charge-effect"
+    "mage-arena-alignment-capes-charge-effect",
+    "farming-preset-cross-skill-cure-policy"
   ],
   "stop_conditions": [
     "all design-settled queue items verified or explicitly blocked",

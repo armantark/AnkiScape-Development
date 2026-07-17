@@ -147,3 +147,40 @@ prove one-cape alignment, first-staff reward, 80,000-coin extra staves,
 per-spell 100-cast attunement, and statue replacement/reclaim. Those mechanics
 do not exist in the current simplified landmark, so the abstraction is ranked
 P1 in the morning design-gap file rather than guessed into runtime.
+
+## Accepted batch — Agility carried risk
+
+Finding: the approved dangerous-course amendment had no runtime owner. Agility
+failure still read a stale scalar weight, had no target-local food pack, and
+could damage LP without sharing the finite carried-inventory death contract.
+
+Resolution:
+
+- Auto and Custom now use the canonical 28-slot target pack. Auto packs course
+  requirements before owned food preferences; Custom preserves exact order and
+  blocks omitted requirements.
+- First engagement primes for free. Depleted food uses a one-review skilling
+  bank run, then refills the full projected multi-food layout.
+- Failure chance reads Bank-clamped active-pack plus equipment weight. Course
+  damage shares auto-eat, threshold, grave, equipment loss, and review undo.
+- Wilderness rolls the approved 1% ambush after lap completion but before its
+  reward commits. Fatal damage forfeits the uncommitted reward and rolls back
+  lap, Pit, and XP-modifier bookkeeping atomically.
+- The Skills surface reports projected pack, requirements, food, carried and
+  effective weight, bank-run state, and Wilderness risk without leaking
+  Combat-only controls.
+
+Checker finding: the first implementation allowed a stale saved carried view
+to inflate failure weight after its Bank items were sold or discarded. The
+primary reproduced it, clamped both runtime danger and the UI projection to
+actual holdings, and added focused regressions.
+
+Regression proof:
+
+- Full core: 1,353 methods passed; 195 environment skips and three declared
+  XP-parity expected failures.
+- Focused real offscreen Qt: two Agility/Combat carried-surface tests passed.
+- Test quality: zero hard issues across 67 files.
+- Documentation: 236 Markdown and 298 HTML files passed.
+- Compile/diff/worktree checks passed.
+- Checkpoint: `69855d9`.

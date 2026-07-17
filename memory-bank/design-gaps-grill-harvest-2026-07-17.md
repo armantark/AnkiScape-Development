@@ -47,3 +47,25 @@ the corrected page's no-recast-while-active rule.
 Evidence:
 
 - `memory-bank/source-audits/magic-charge-reconciliation-2026-07-17.md`
+
+### P2 — Farming preset cure policy beyond the existing Cure item
+
+The approved preset editor needs a compact cure choice for every patch. The
+current Farming owner already has an item-backed Cure action, while Magic owns
+a separate Cure Plant spell with its own rune, level, and target-selection
+requirements. Making presets choose between them, automatically fall back
+between them, or reserve runes would materially couple two otherwise separate
+automation policies.
+
+Recommended design:
+
+1. Ship a simple per-patch `Auto-cure` toggle now, backed by the existing Cure
+   item path and only queued when the patch is diseased.
+2. Keep Cure Plant as an explicit Magic action until Farming presets gain a
+   general cross-skill resource policy.
+3. If cross-skill preset policies are later approved, add an ordered
+   `Cure item → Cure Plant` preference rather than an opaque automatic choice.
+
+Owner decision needed later: whether presets should ever cast Cure Plant
+automatically, and if so whether the user chooses an ordered fallback or one
+exclusive cure method.

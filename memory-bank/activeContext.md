@@ -2,6 +2,18 @@
 
 ## Current Focus
 
+The active non-Summoning grill-harvest loop has closed Magic Charge review
+duration (`6639a48`), Bank quantity controls (`8426fa2`), the corrected Charge
+source boundary (`8b6a561`), and Agility carried risk (`69855d9`). Dangerous
+courses now use real target-local Auto/Custom packs, Bank-clamped carried and
+equipped weight, food and auto-eat, the shared grave/death path, and exact
+review undo. Wilderness lap ambushes resolve before the lap reward commits.
+The next implementation batch is Farming dig-up, whole-farm user presets, and
+full-run queue planning. Cross-skill Cure Plant automation is recorded as a
+non-blocking owner design gap; the existing item Cure path remains the preset
+default. Summoning runtime/source work remains excluded until the owner
+explicitly releases it.
+
 Slayer's source-first owner grill is design-closed and integrated into `main`.
 The governing record is `slayer-skill-contract-2026-07-15.md`, supported by
 focused audits for master succession/challenges, finishing blows, locations,
