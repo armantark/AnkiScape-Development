@@ -766,7 +766,7 @@ successful-review transaction. Every target using this automation must declare P
 use in its route assumptions so a sourced rate that already includes Winter Storage is not
 discounted twice.
 
-### 36. Bunyip passive-heal density — settled 2026-07-17
+### 36. Bunyip passive-heal density — resettled for live cadence 2026-07-17
 
 Summoning familiars oldid
 [6579789](https://runescape.wiki/w/Summoning_familiars?oldid=6579789)
@@ -774,11 +774,19 @@ Summoning familiars oldid
 Decision 9 already requires passive healing to occur on every answered-card world tick,
 including Again.
 
-The owner selected one sourced 20-LP heal tick per answered-card world tick, including
-Again. Familiar lifetime keeps its separate ratio-preserving review calibration. Combat
-damage resolves per exchange rather than batching two minutes of enemy attacks, so Bunyip
-effect density follows the action-density Combat loop instead of importing the lifetime
-conversion and granting 160 LP at once.
+The first closure selected one sourced 20-LP heal tick per answered-card world tick,
+including Again. That choice was calibrated against the shipped 50-tick Combat review.
+The later live cadence contract reduces ordinary Combat to six ticks per successful
+review, so retaining one heal per card would make the 15-second source effect resolve
+more than four times too densely against incoming damage.
+
+The owner therefore selected an exact residual effect clock: every answered card,
+including Again, adds six effect ticks; at 25 accumulated ticks Bunyip heals exactly
+20 LP, subtracts 25, and retains the remainder. This produces one heal roughly every
+four or five answered cards without wall-clock state. The residual belongs to the live
+Bunyip instance, starts at zero on a new summon, persists and sanitizes with follower
+state, and is review-undoable. It does not scale with the foreground action multiplier;
+familiar lifetime and other answered-card world effects remain card-based.
 
 ## Source/open-work queue
 

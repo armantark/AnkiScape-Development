@@ -6,7 +6,7 @@ audits; missing code dependencies are implementation backlog, not design gaps.
 
 ## Current owner-level gaps
 
-### Bunyip passive-heal density — settled 2026-07-17
+### Bunyip passive-heal density — resettled for live cadence 2026-07-17
 
 The source pins 20 LP every 15 seconds. The implementation initially imported
 the familiar-lifetime calibration directly and granted eight source ticks, or
@@ -15,14 +15,26 @@ duration calibration: it resolves per exchange against a maximum of
 `Constitution × 10` LP. That magnitude could therefore erase ordinary incoming
 damage and displace food, potions, and other healing.
 
-The settled rule that genuinely passive effects continue on Again remains
-unchanged. The owner selected **20 LP per answered card, including Again**:
-one source heal tick per answered-card world tick. Familiar lifetime keeps its
-separate ratio-preserving calibration.
+The first closure selected **20 LP per answered card, including Again**: one
+source heal tick per answered-card world tick. That was explicitly calibrated
+against the shipped 50-tick Combat review. The later live cadence decision
+reduces ordinary Combat to six ticks per successful review; retaining one heal
+per card would therefore make the sourced 15-second heal resolve more than four
+times too densely against incoming damage.
 
-This deliberately separates effect density from lifetime density and keeps
-Bunyip a meaningful sustain familiar rather than a near-total replacement for
-Combat healing.
+The owner resettled Bunyip on an **exact residual effect clock**. Every answered
+card, including Again, adds six effect ticks. At 25 accumulated ticks (15 source
+seconds), Bunyip heals exactly 20 LP and subtracts 25 while retaining the
+remainder. The sequence therefore heals roughly every four or five answered
+cards without reading wall time. This passive clock does not scale with the
+foreground action multiplier; familiar lifetime and other answered-card world
+effects also remain card-based.
+
+The residual belongs to the live Bunyip instance, persists and sanitizes with
+follower state, and participates in ordinary review undo. A new summon starts
+with zero credit. This deliberately separates effect density from lifetime
+density while keeping Bunyip meaningful without replacing food, potions, and
+other Combat healing.
 
 ## Implementation judgments recorded without reopening the grill
 
@@ -50,8 +62,8 @@ Combat healing.
   shards. The period source proves that contents and quantity scale with raw
   shards but does not preserve the exact hidden selection table; this is a
   labeled balance abstraction rather than fabricated period content.
-- Bunyip's exact 20-LP source tick is implemented once per answered-card world
-  tick, including Again.
+- Bunyip's 20-LP source tick is scheduled by the exact 25-tick residual above;
+  every answered-card world tick, including Again, contributes six ticks.
 
 ## Source and dependency blocks, not owner questions
 
