@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Worktree Collapse</title>
+  <style>
+    :root { color-scheme:dark; --bg:#090d12; --panel:#121923; --line:#29384a; --ink:#edf5fc; --muted:#9dabb9; --green:#64e09b; --blue:#77baff; --gold:#f1c56c; --violet:#ba9cff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:radial-gradient(circle at 12% 0%,rgba(119,186,255,.13),transparent 32rem),radial-gradient(circle at 92% 8%,rgba(186,156,255,.1),transparent 30rem),var(--bg); color:var(--ink); font:15px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { width:min(1100px,calc(100% - 32px)); margin:auto; padding:52px 0 70px; }
+    .eyebrow { color:var(--green); font-size:12px; font-weight:800; letter-spacing:.15em; text-transform:uppercase; }
+    h1 { max-width:850px; margin:12px 0 16px; font-size:clamp(42px,8vw,78px); line-height:.95; letter-spacing:-.05em; }
+    .lead { max-width:760px; color:var(--muted); font-size:18px; }
+    .grid { display:grid; gap:16px; }
+    .metrics { grid-template-columns:repeat(4,1fr); margin:34px 0 16px; }
+    .card { padding:22px; border:1px solid var(--line); border-radius:18px; background:linear-gradient(150deg,rgba(23,33,45,.96),rgba(15,21,30,.96)); }
+    .metric strong { display:block; font-size:40px; line-height:1; letter-spacing:-.04em; }
+    .metric span { display:block; margin-top:8px; color:var(--muted); font-size:13px; }
+    .two { grid-template-columns:1fr 1fr; }
+    h2 { margin:0 0 14px; font-size:23px; }
+    h3 { margin:0 0 5px; font-size:15px; }
+    p { margin:0; color:var(--muted); }
+    .row { padding:13px 0; border-top:1px solid var(--line); }
+    .row:first-of-type { border-top:0; padding-top:0; }
+    .tag { display:inline-block; margin-bottom:10px; padding:4px 8px; border-radius:7px; color:#08110c; background:var(--green); font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+    .tag.gold { background:var(--gold); color:#171004; }
+    .tag.violet { background:var(--violet); color:#100a1a; }
+    code { color:#d8eafd; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.9em; }
+    .bar { height:11px; margin:12px 0 6px; overflow:hidden; border-radius:99px; background:#080c11; }
+    .bar span { display:block; width:100%; height:100%; background:linear-gradient(90deg,var(--blue),var(--green)); }
+    .checks { margin-top:16px; grid-template-columns:repeat(3,1fr); }
+    .check { border-left:3px solid var(--green); }
+    footer { margin-top:18px; color:#748394; font-size:13px; }
+    @media (max-width:760px) { .metrics,.two,.checks { grid-template-columns:1fr 1fr; } }
+    @media (max-width:520px) { main{padding-top:34px}.metrics,.two,.checks{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">Repository consolidation · 2026-07-16</div>
+  <h1>Eight checkouts became one.</h1>
+  <p class="lead">Every linked AnkiScape worktree was audited before removal. Five were already represented on main; two carried real design history and were integrated before their clean checkouts were retired.</p>
+
+  <section class="grid metrics">
+    <div class="card metric"><strong>8 → 1</strong><span>total Git worktrees before and after</span></div>
+    <div class="card metric"><strong>7</strong><span>safe-root linked checkouts removed</span></div>
+    <div class="card metric"><strong>44</strong><span>unique Slayer + Summoning commits preserved</span></div>
+    <div class="card metric"><strong>0</strong><span>dirty or untracked files discarded</span></div>
+  </section>
+
+  <section class="grid two">
+    <article class="card">
+      <span class="tag">Already contained</span>
+      <h2>Five redundant worktrees</h2>
+      <div class="row"><h3>Agility / Bank owner decisions</h3><p>Already integrated into the canonical design contracts and Kanban.</p></div>
+      <div class="row"><h3>Herblore menu and assets</h3><p>Already present in the live add-on and verified closure history.</p></div>
+      <div class="row"><h3>Test cleanup, Thieving, overnight audit</h3><p>Each branch tip was an ancestor of <code>main</code>; their worktrees were pure duplicates.</p></div>
+    </article>
+
+    <article class="card">
+      <span class="tag gold">Newly preserved</span>
+      <h2>Two real design histories</h2>
+      <div class="row"><h3>Slayer · 23 commits</h3><p>Design-closed contract plus eight focused source audits, reconciled with the newer Memory Bank and status archive.</p></div>
+      <div class="row"><h3>Summoning · 21 commits</h3><p>Paused owner grill through decision 22, with lifecycle/training/Familiarisation audits and three cross-system contracts. No implementation claim was introduced.</p></div>
+      <div class="row"><h3>Conflict policy</h3><p>Current <code>main</code> status won stale branch narratives; every durable decision stayed in its governing contract and Kanban.</p></div>
+    </article>
+  </section>
+
+  <section class="grid checks">
+    <div class="card check"><h3>Worktree guard</h3><p>Safe. Only the canonical add-on checkout remains.</p></div>
+    <div class="card check"><h3>Documentation</h3><p>230 Markdown and 298 HTML files pass the integrity audit.</p></div>
+    <div class="card check"><h3>Runtime risk</h3><p>None: this consolidation integrates documentation/design only.</p></div>
+  </section>
+
+  <div class="bar"><span></span></div>
+  <footer>Canonical checkout: <code>addons21/ankiscape_fork</code> · Linked worktree count: zero</footer>
+</main>
+</body>
+</html>

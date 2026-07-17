@@ -4,6 +4,23 @@
 
 AnkiScape now has 17 complete skill surfaces, five partial Combat-trained skills, and three planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Worktree collapse — 2026-07-16
+
+- Reconciled all seven linked worktrees into the canonical checkout and removed
+  their safe-root directories. Agility/Bank decisions, Herblore assets, test
+  cleanup, Thieving, and the overnight audit were already contained in `main`.
+- Integrated the previously unmerged Slayer design contract and eight focused
+  source audits, preserving its complete owner-grill history while reconciling
+  current Memory Bank and archive structure.
+- Integrated the paused Summoning design ledger through decision 22 plus its
+  lifecycle, training, Familiarisation, simulation-time, reviewer-alert, and
+  Help contracts. Summoning remains an active design/source program; this does
+  not claim runtime implementation.
+- `git worktree list` now contains only the canonical `main` checkout, and the
+  worktree-guard audit passes.
+- Closure artifact:
+  `status-updates/worktree-collapse-results-2026-07-16.html`.
+
 ## Documentation archive closure — 2026-07-16
 
 - Added a Memory Bank index and explicit archive policy so current entry points,

@@ -118,6 +118,80 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   regardless of skill or reward success; undo rolls time back. Daily/weekly
   allowances reset at simulated boundaries without stacking, never from the
   computer's wall-clock date.
+- Answer-button semantics are now explicit: every valid answer emits one
+  idle/world tick, while only Hard, Good, and Easy (`ease > 1`) also emit a
+  foreground action. Again therefore means the player idled for one simulation
+  interval while the world continued. World and foreground mutation share the
+  same review snapshot and undo. See
+  `simulation-time-boundary-2026-07-16.md` for the consumer reconciliation and
+  the distinction between calendar scale, short-duration scale, and action
+  budgets.
+- AFK is absence of user foreground input, not suspension of passive world
+  benefits. A genuinely passive periodic effect may advance and resolve on an
+  Again world tick; a foreground-, command-, or encounter-dependent effect still
+  requires its own successful action. Producers must declare this classification
+  explicitly rather than treating every positive result as foreground work.
+- Urgent or expiring reviewer state uses the reusable interactive alert-strip
+  contract in `review-hud-world-alerts-contract-2026-07-16.md`. It is a sibling
+  above the mouse-transparent XP HUD, not a control embedded inside it and not a
+  new standalone widget per feature. Initial rows are the existing Gravestone
+  and Summoning's expiring Familiar cargo, each with distinct sourced art,
+  labels, countdown semantics, and detail actions.
+- Global gameplay entities may have synchronized contextual projections but only
+  one canonical writer. Summoning's familiar is owned by the Equipment surface;
+  Bank, reviewer, and per-target controls project that same state. Per-target
+  familiar policy may fill an empty slot but must not silently replace the live
+  entity during navigation. BoB packing shares the target's existing
+  Casual/Advanced inventory mode rather than adding an independent mode switch.
+- Compatible restore trips coalesce rather than charging duplicate reviews. Summoning's
+  `Visiting altar+obelisk` foreground detour consumes the next successful answer,
+  replaces the selected target action, and restores ordinary Prayer and Summoning
+  points together. An existing combat Bank-run altar stop adds the obelisk restore at
+  no further review cost. It cannot fire on Again, run on wall-clock time, restore
+  special-move points without source support, or grant the target's ordinary output.
+- Enabled automation may also insert an owned-resource Bank detour. Summoning pouch
+  depletion converts the next successful answer into a refill/resummon transaction
+  when compatible Bank stock exists; it does not also perform the target action and
+  never fires on Again. Advanced carried slots reduce detour frequency rather than
+  bypassing the same resource rules.
+- Consumable automation uses the target-carried inventory as its explicit budget.
+  An enabled Summoning familiar policy may atomically renew or replace from matching
+  carried pouches, and auto-special may consume a deliberately packed scroll, but
+  neither pulls directly from Bank stock. Missing preconditions never partially
+  consume resources: the policy stays enabled in a visible lapsed state and re-arms
+  when resources return. Catalog metadata, not display names, determines compatible
+  roles and trigger conditions.
+- Deferred policy replacement may use a safe resource boundary. A mismatched live
+  familiar survives target navigation, but the next Bank boundary may first deposit
+  BoB cargo and then atomically dismiss and replace it when the new summon is guaranteed.
+  Failed preconditions preserve the old familiar rather than trading it for a lapse.
+- Mode semantics govern substitution. Casual `Best available` re-resolves the strongest
+  owned, level-valid, in-stock familiar inside the configured source role whenever a
+  replacement is needed; Advanced exact selection never substitutes. Exhausting one
+  pouch type therefore downgrades Casual within-role but visibly lapses Advanced.
+- Stock changes do not pre-empt paid duration. A newly restocked stronger pouch never
+  replaces a live same-role Casual fallback; resolution waits for renewal, expiry,
+  death, or an explicit manual switch.
+- Persistent encounters distinguish card boundaries from safe inventory boundaries.
+  A BoB cannot transfer during consecutive successful combat bursts against one live
+  enemy. Again performs no transfer but disengages; the next successful answer may
+  preset-top-up before re-engagement, as may pre-combat, post-kill, and post-retreat.
+- Target automation `Off` is not a global dismissal command. It spends no further
+  familiar resources for that target but preserves an already-live global familiar;
+  manual Dismiss remains the explicit way to discard paid remaining duration.
+- Compact D&D sessions may use explicit answered-card segments when the activity loop
+  is the content. Familiarisation uses four segments and three focus pips: success gains
+  15 shards, Again gains none and loses one pip, ending at 60 shards, zero focus, or four
+  answers. Its rolling weekly cooldown uses world ticks and never the wall clock.
+- Optional combat exposure is fail-closed to source evidence. An attacking
+  Summoning familiar is not a generic second damage target; only a pinned
+  retaliation, area, enemy, or explicit aggro/tanking mechanic may reach its LP.
+  Missing evidence means zero familiar damage, not an invented targeting roll.
+- Player help has one canonical offline content corpus. The full searchable Help
+  Center and each page's contextual `?` entry render the same stable topic IDs;
+  optional external publication is generated, never separately authored. Complex
+  pages share one Qt search-field/controller contract while retaining page-specific
+  result adapters.
 - The answered-card clock is not a universal action-duration converter. It runs
   background/world/economy timers; ordinary skilling still performs one sourced
   action tick per successful review unless an activity explicitly defines a

@@ -241,7 +241,84 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE SWEEP`, `DEPENDENCY: COMBAT`.
 
 Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUISITION`.
 
-- Cover charms/secondaries, pouch creation, points, familiars, timers, specials, beasts of burden, combat roles, death, inventory, banking, UI, and undo.
+- Owner grill active 2026-07-16 under `summoning-skill-contract-2026-07-16.md`.
+  Cover the full period pouch/familiar/scroll catalog; charms/secondaries and
+  acquisition; separate lifetime, Summoning-point, and special-move resources;
+  combat, healing, gathering, boosting, teleport, foraging, and beast-of-burden
+  roles; death, inventory, banking, searchable UI, persistence, and undo.
+- Familiar lifetime is settled to every answered card, including Again, with a
+  separate short-duration conversion that preserves period ratios rather than
+  reusing the six-minute calendar scale. Pinned evidence is in
+  `source-audits/summoning-familiar-lifecycle-2026-07-16.md`; the cross-system
+  reconciliation is `simulation-time-boundary-2026-07-16.md`.
+- BoB expiry creates an independently timed familiar-cargo reclaim event rather
+  than auto-banking. Gravestones and cargo events use the shared reviewer alert
+  strip in `review-hud-world-alerts-contract-2026-07-16.md` with distinct art and
+  behavior.
+- Implement one global familiar slot with a canonical Equipment panel and synced
+  Bank/reviewer/target projections. Casual target presets select best available by
+  sourced familiar role and auto-pack an active BoB; Advanced pins the exact
+  familiar and exposes its separate inventory grid. Target navigation alone never
+  dismisses, replaces, or repacks the live global familiar; the settled safe Bank-
+  boundary swap may later replace it when all preconditions hold.
+- Casual Summoning-point upkeep inserts one `Visiting altar+obelisk` restoration
+  on the next successful answer when needed, replacing that target action and fully
+  restoring ordinary Prayer and Summoning points; Again never restores. Existing
+  combat Bank-run altar stops coalesce the obelisk without a second review. Advanced
+  exposes the same automation as a toggle plus a manual command.
+- Casual auto-special is globally on by default but fires only on successful
+  answers, consumes a matching target-carried scroll plus sourced special-move
+  points, and uses catalog-backed role triggers that avoid inapplicable or wasted
+  effects. Bank scrolls are never consumed implicitly.
+- Classify every familiar effect as passive periodic, continuous, or
+  foreground/encounter-dependent. Passive effects advance and may produce on every
+  answered card including Again; commands and attacks retain their successful-action
+  gates. The catalog must state the class rather than deriving it from names.
+- Familiar LP takes enemy damage only through a pinned retaliation, area, enemy,
+  or aggro/tanking mechanic; attacking alone creates no exposure, and source
+  silence means zero damage rather than a fabricated fallback targeting roll.
+- An enabled target familiar policy atomically renews or replaces from compatible
+  carried pouches on successful answers, including mid-encounter replacement.
+  Advanced chooses its exact pouch-slot budget; missing pouch/points leaves a
+  persistent lapsed reason and never partially consumes resources or Bank stock.
+- If carried pouches run out while the policy is enabled, a successful answer may
+  become a one-review Bank refill/resummon detour when compatible stock exists.
+  Again never banks; insufficient Bank stock leaves the policy visibly lapsed.
+- A target-policy mismatch may swap safely at the next Bank boundary: deposit BoB
+  cargo, verify the replacement can succeed, then dismiss and summon atomically.
+  Failed preconditions preserve the old familiar and show the new policy as queued.
+- Casual `Best available` falls back to the strongest owned, level-valid, in-stock
+  familiar in the configured role whenever replacement is needed. It never crosses
+  roles; Advanced remains pinned to its exact familiar and lapses rather than substituting.
+- Restocking a stronger same-role pouch never interrupts a live Casual fallback.
+  `Best available` re-resolves at renewal, expiry, death, or explicit manual switch,
+  preserving the remaining value of the already-consumed pouch.
+- A BoB cannot transfer supplies during consecutive successful bursts against a live
+  enemy. Again disengages without withdrawing; Casual may preset-top-up at the next
+  successful pre-engagement boundary, as it may before combat or after kill/retreat.
+- `Off — no familiar automation` never summons, renews, replaces, or auto-specials for
+  that target, but it preserves an already-live global familiar and its paid duration.
+- Familiarisation is source-pinned as a once-weekly shard/focus D&D ending at 60 shards,
+  zero focus, or its period time cap, followed by a shard-scaled ingredient-box or
+  triple-charm choice. The delegated translation is four answered cards, three focus
+  pips, 15 shards per success, and one lost pip/no shards on Again.
+- Ordinary training is source/app-pattern resolved under
+  `source-audits/summoning-training-2026-07-16.md`: searchable pouch-infusion and scroll-
+  creation families process one exact source unit per successful review; Wolf Whistle is
+  optional; Dungeoneering rows stay out of the surface-world catalog. Exact row,
+  acquisition, and route-cost harvesting remains before implementation.
+- The old universal `park outside` idea is rejected. Restricted targets need a per-area
+  consequence (`block_until_dismissed`, `auto_dismiss`, `summon_only_forbidden`, or
+  `spirit_plane_hide`). Starting a target that must dismiss a live familiar opens a
+  confirmation naming duration/pouch loss and any BoB cargo reclaim; Cancel changes
+  nothing, Confirm dismisses without a review, and cargo never auto-banks. The live owner
+  decision makes general manual Dismiss turn the current target policy Off by default,
+  with an unchecked `Keep auto-summon` escape hatch; area-required dismissal preserves
+  policy. Successful-review specials now award exact scroll-use XP in Casual and Advanced
+  because every gameplay action is collapsed into automatic review resolution; Again never
+  does, and only a future genuinely passive headgear-like auto-fire keeps the period zero-XP
+  exception. The next fork is inventory-full handling for familiars that source text says
+  forage and drop rather than store their output.
 
 ### Dungeoneering
 
@@ -311,6 +388,18 @@ Labels: `ARCHITECTURE`, `IMPLEMENT`, `DEPENDENCY: SLAYER UI`.
   plus a `Current Slayer task only` checkbox that intersects with every other
   filter while leaving exact monster choice to the player. Do not solve this as
   another Slayer-only nested helper in `show_main_menu`.
+
+### In-product help and mechanics reference
+
+Labels: `PARKED`; promote to `IMPLEMENT` when sequenced.
+
+- Build the single-source architecture proposed in
+  `help-system-contract-2026-07-16.md`: an offline searchable Help Center backed
+  by versioned topic files, with each page's consistent `?` control deep-linking
+  into the same corpus. Do not maintain separate contextual copy and wiki prose.
+- Reuse one modular Qt search component for Help and the addon pages whose large
+  catalogs already need filtering; preserve page-specific result adapters rather
+  than cloning search widgets and keyboard behavior.
 
 ### Activities, minigames, D&Ds, and reward shops
 

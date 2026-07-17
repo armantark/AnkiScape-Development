@@ -20,11 +20,28 @@ Smoking Kills, Shilo Village, and the full black-mask/Slayer-helmet dependency
 chains belong to the Slayer implementation program; Social Slayer remains
 parked until genuine multiplayer state exists.
 
+Summoning's documentation-only owner grill is paused and integrated into
+`main`; runtime implementation has deliberately not started. The active ledger
+is `summoning-skill-contract-2026-07-16.md`, backed by lifecycle, training, and
+Familiarisation source audits plus the cross-system simulation-time, reviewer
+alert, and Help contracts. Its source/open-work queue and remaining genuine
+owner forks stay active; the next named fork is how foragers that drop items
+behave when the carried inventory is full.
+
+The 22 settled decisions define answered-card lifetime and passive world ticks,
+separate familiar/point/special resources, target-policy automation, carried
+pouch/scroll budgets, coalesced restore and Bank detours, safe replacement and
+dismissal, source-gated familiar combat, BoB inventory/reclaim rules, forbidden
+area consequences, Familiarisation's four-answer session, ordinary pouch/scroll
+training, and scroll-use XP. Summoning also establishes one offline Help corpus
+for contextual and full-reference surfaces. These decisions are current design,
+not a claim that Summoning ships.
+
 The documentation archive closure is complete. The new `memory-bank/README.md`
 separates current entry points from evidence and historical records; six
 superseded/completed Markdown records plus the completion-audit JSON companion
 now live under `memory-bank/archive/2026-07/`. Another 308 old status files are
-grouped under `memory-bank/status-updates/archive/2026-05..07/`, leaving four
+grouped under `memory-bank/status-updates/archive/2026-05..07/`, leaving six
 current orientation reports at the status root. The four resolved overnight
 mechanics remain visible as `IMPLEMENT` cards rather than disappearing with
 their question ledger. The closure report is
@@ -64,7 +81,8 @@ reward cadence, item order, upgrade flow, or retroactive grant policy.
 This is a solo repository and the owner has explicitly selected a direct-main
 workflow. Work, test, and commit in the canonical `main` checkout. Do not create
 a feature branch or linked worktree unless the owner explicitly requests one
-for a particular task.
+for a particular task. All seven previously linked worktrees were reconciled and
+removed on 2026-07-16; the canonical add-on checkout is now the only worktree.
 
 Agility's owner grill, source harvest, and atomic implementation are closed. The
 governing product contract is

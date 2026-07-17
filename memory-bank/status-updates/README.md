@@ -10,6 +10,8 @@ are preserved by month under `archive/`.
 - `documentation-archive-results-2026-07-16.html`
 - `documentation-integrity-results-2026-07-16.html`
 - `overnight-fresh-eyes-results-2026-07-16.html`
+- `summoning-design-grill-plan-2026-07-16.html` (active paused grill)
+- `worktree-collapse-results-2026-07-16.html`
 
 See [the status archive index](archive/README.md) for all earlier reports and
 supporting screenshots.
