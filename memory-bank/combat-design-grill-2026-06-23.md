@@ -687,13 +687,23 @@ next implementation pass:
      does not fire in source-restricted areas/encounters, and respects the
      review-safe contract with no mid-review prompts (decision 47).
 
+105. Ring of life and the Summoning Void shifter share one emergency-retreat
+     transaction. When enemy damage leaves the player alive at or below the sourced
+     threshold, the effect immediately ends and resets the encounter without a grave;
+     a lethal hit still kills because the threshold is never reached alive. Ring of
+     life consumes/destroys itself according to its sourced item behavior; Void
+     shifter remains governed by its familiar lifetime and can trigger again because
+     the period source states no one-use cooldown. The escape consumes no separate
+     review, participates in the triggering combat review's undo, and never waives
+     the ordinary return route.
+
 ## Open Major Decisions
 
 - None at the current design depth. All gaps surfaced in this grill round
   (weapon poison, special-attack energy, stat/prayer drain, overheal, stacked
   grave deaths, prayer-impossible suicide runs, safe-everywhere healing, the
   unified review-tick recovery model, save migration, and the Dwarf multicannon)
-  are now resolved as decisions 95-104. Continue only if implementation source
+  are now resolved as decisions 95-105. Continue only if implementation source
   audits reveal a real conflict or missing policy.
 
 ## Implementation Handoff

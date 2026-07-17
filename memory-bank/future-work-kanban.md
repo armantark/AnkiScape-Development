@@ -327,8 +327,14 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   ordinary familiar teleports use the live familiar without consuming another pouch. Void
   shifter reuses Combat retreat only when damage leaves the player alive below 10% LP, with
   no invented cooldown. Call to Arms remains tied to the future Pest Control activity.
-- Next owner fork: decide whether Magic teleports and teleport jewellery should gain the
-  same compatible-target route effects in addition to Magic's existing pure training casts.
+- Magic teleports and charged jewellery share the target-local route-profile substrate.
+  Magic's pure training casts remain, while a route cast consumes exact runes and awards
+  exact XP once and jewellery consumes one source charge. Bank ownership alone is inert.
+- Pets are restored as Summoning's tenth atomic family and close Construction's parked
+  Menagerie dependency. Active pets share the follower slot and advance sourced
+  growth/hunger on every answered card; stored pets need no care. The next owner fork is
+  whether 100% hunger causes immediate permanent loss or the recommended one-answer HUD
+  rescue window before the pet runs away permanently.
 
 ### Dungeoneering
 

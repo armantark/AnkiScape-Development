@@ -49,11 +49,14 @@ cross-check) is authentic pre-EOC gap-fill via `tools/wiki_parity.py` pinned bef
    substitution applies (an owned fire staff waives the fire runes). UI: an Alchemy
    target with a bank item picker following the loadout-picker convention; 1 cast
    per review. The owner explicitly declined any faucet safeguard.
-2. **Teleports — pure training casts.** The full solo-teleport roster across all
-   three books ships as normal cast targets (authentic level/runes/XP, quest gates
-   respected: Trollheim, Ape Atoll, Watchtower, Mobilising Armies, Ancients and
-   Lunar teleports behind their books). Travel is already fully abstracted; casting
-   for XP is literally how the era trained. No invented travel hooks.
+2. **Teleports — dual training casts and target-local routes.** The full solo-
+   teleport roster across all three books remains available as normal cast targets
+   (authentic level/runes/XP and quest gates). Compatible skills/activities may also
+   select the same spell through the shared route-profile substrate accepted during
+   the Summoning grill. The first travel review consumes exact runes and awards exact
+   cast XP once; every rate declares its assumed route so the teleport never stacks a
+   second reduction onto a rate that already includes it. This is target-local travel
+   abstraction, not persistent location or a standalone transport network.
 3. **All three spellbooks in this slice.** Standard completion + Ancient Magicks
    (Desert Treasure gate) + Lunar (Lunar Diplomacy gate). This gives astral, cosmic,
    nature, law, and blood runes their consumers.
@@ -124,8 +127,9 @@ cross-check) is authentic pre-EOC gap-fill via `tools/wiki_parity.py` pinned bef
 14. **Enchanting** ships all gem tiers × rings/necklaces/amulets/bracelets from
     game-main `EnchantmentData.kt`, plus the enchant-bolt spell ladder (wiki-pinned).
     Enchanted outputs carry their cache equipment stats; Ring of recoil gets the
-    existing deflect-style EV; teleport jewellery is ordinary equipment whose travel
-    function is abstracted like all travel.
+    existing deflect-style EV. Teleport jewellery supplies exact-charge alternate
+    routes through the same target-local substrate as teleport spells and familiar
+    teleports.
 15. **Combat ladder gap-fill:** surges (81–95) and Wind Rush from game-main
     SpellbookData (present there, omitted from Combat V1 by oversight); god spells
     (60); Iban Blast (quest-gated, Underground Pass), Magic Dart (Slayer staff —

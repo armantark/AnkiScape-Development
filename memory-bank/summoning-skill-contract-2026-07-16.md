@@ -51,6 +51,10 @@ made falsely player-visible:
 9. **Persistence and proof:** storage migration, sanitization, deterministic RNG,
    review undo plus command undo where appropriate, pure/unit/integration/end-to-end
    tests, real offscreen Qt coverage, item reachability, and manual QA.
+10. **Pets:** the full freeze-date pet catalog, Summoning and cross-skill/quest gates,
+    acquisition, incubation, growth, hunger, feeding and interaction, follower-slot
+    exclusion, exceptional functions, Bank/inventory/Menagerie storage, loss, assets,
+    persistence, undo, and tests.
 
 Completeness means the full period catalog, not a curated subset called a first version.
 Rows whose hidden values remain unprovable may use the smallest clearly labeled
@@ -539,6 +543,41 @@ normal return route remains due. The source states no one-use cooldown, so AnkiS
 none; a still-live shifter can save the player again after healing and re-entry. Call to
 Arms remains parked behind Pest Control and only affects that activity if its eventual
 design has a real entry-route cost.
+
+### 25. Shared Magic, jewellery, and familiar route profiles — settled 2026-07-16
+
+Magic teleports and teleport jewellery join the same target-local alternate-route
+substrate as familiar teleports. This revises the earlier Magic decision that treated all
+teleports only as pure training casts, without creating persistent location or a transport
+network.
+
+Magic keeps its searchable pure-training teleport targets unchanged. When a compatible
+skill/activity route instead uses a teleport spell, the first travel review atomically
+consumes the spell's exact runes and awards its exact cast XP once; the remaining route
+reviews represent the sourced post-teleport circuit. Charged jewellery consumes exactly
+one source charge and awards no XP. An ordinary live-familiar teleport consumes neither a
+new pouch nor a jewellery/spell resource. Every route declares `assumed_route_id`, so none
+of these effects stacks on a rate that already includes it.
+
+Casual selects the fastest compatible route whose resources its target preset deliberately
+carries and whose familiar/equipment opportunity costs are valid. It may fall back to the
+next available route when a consumable route runs dry. Advanced pins the exact route and
+blocks or lapses rather than substituting silently. Bank ownership alone never activates a
+teleport resource.
+
+### 26. Pets — source boundary resolved; starvation consequence open 2026-07-16
+
+`source-audits/summoning-pets-2026-07-16.md` restores pets as the tenth atomic Summoning
+family. An active pet occupies the same global follower slot as a familiar; stored pets are
+inactive and need no care. Growth and hunger advance on every answered-card world tick,
+including Again. Pet catalog, stages, levels, food, acquisition/incubation routes,
+exceptional functions, Menagerie projection, assets, persistence, and undo all belong to
+the eventual atomic implementation.
+
+The remaining owner fork is deliberately narrow: the period game permanently lost an
+active pet at 100% hunger. Should AnkiScape do that immediately on the triggering review,
+or insert the recommended one-answered-card HUD rescue window before the same permanent
+run-away consequence?
 
 ## Source/open-work queue
 

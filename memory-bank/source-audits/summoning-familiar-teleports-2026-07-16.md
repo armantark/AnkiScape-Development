@@ -104,9 +104,9 @@ rejected because the graahk source proves substantial post-teleport circuit time
 Void-shifter source states no such cooldown. Consultation informed design review; it is not
 historical evidence.
 
-## Open cross-system fork
+## Cross-system route decision
 
-Summoning can use target-local alternate routes without reopening Magic. The remaining
-owner decision is whether the shared route-profile substrate should also revise Magic
-teleports and teleport jewellery so their source costs can affect compatible targets in
-addition to Magic's existing pure-training casts.
+The owner accepted a shared route-profile substrate on 2026-07-16. Magic teleports retain
+their pure-training targets and also consume exact runes/award exact cast XP when used by a
+compatible route. Teleport jewellery consumes one exact charge. Familiar, spell, and
+jewellery routes all use the same assumed-route metadata and never stack reductions.
