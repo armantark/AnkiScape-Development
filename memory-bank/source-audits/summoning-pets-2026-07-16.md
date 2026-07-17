@@ -64,8 +64,16 @@ with `Pet occupying follower slot`. Picking up or storing the pet re-arms the fa
 policy under its already-settled next-successful-answer rules.
 
 Active-pet growth and hunger advance on every answered-card world tick, including Again.
-Stored pets do not advance either meter. Exact per-pet growth stages, hunger rates, food
-effects, and interaction exceptions remain harvest work; Darkan values require period
+Stored pets do not advance either meter, but both values and the growth stage persist
+unchanged. Darkan commit `c343a917712649675989315009ce250639e0850f` stores
+`PetDetails` separately by base pet item in
+`src/main/java/com/rs/game/content/pets/PetManager.java:40-43,95-97`;
+`Pet.pickup()` returns the item and clears only the active follower identifiers at
+`src/main/java/com/rs/game/content/pets/Pet.java:96-105`.
+Respawning therefore reuses the same details rather than constructing a fresh meter.
+This reconciles with the period page's statement that stored pets are inactive and need
+no care. Exact per-pet growth stages, hunger rates, food effects, and interaction
+exceptions remain harvest work; Darkan's numeric values still require period
 corroboration before use.
 
 Pet activation follows the existing Bank item-action pattern without overloading item
@@ -85,6 +93,13 @@ tick would cross its feed threshold, including on Again. It never consumes food 
 from Bank. At later Bank boundaries the same preset refills the reserve. Advanced chooses
 the exact compatible food and quantity or disables auto-care.
 
+A high-hunger stored pet is not healed by Bank. **Let out** runs the ordinary Casual
+packing boundary, so compatible food is placed into real carried slots. On the first
+answered-card tick, auto-care consumes carried food before hunger advances across its
+threshold. If no compatible food exists, the pet may still be let out but the settled
+automatic-return rule sends it home before the 100% tick. Advanced retains the stored
+hunger value and its exact food/auto-care controls.
+
 Cats remain stateful pet entities with their sourced three growth stages and exceptional
 functions rather than becoming a generic quest flag. Quest requirements inspect the
 specific owned cat/kitten stage. A step that sourcedly needs the cat to act also requires
@@ -95,9 +110,10 @@ exact quest and cat-function matrix remains catalog harvest work.
 
 ## Settled owner decision: no-food safety
 
-The source says 100% hunger immediately loses the pet. The owner rejected this as bad game
-design, particularly for kittens, and rejected rescue-window maintenance as an unwanted
-study interruption. AnkiScape therefore uses an explicitly labeled safety abstraction:
+The source says 100% hunger immediately loses the pet. The owner rejected the broader
+Tamagotchi-style burden of monitoring hunger and kitten attention inside a game already
+full of competing systems; rescue-window maintenance would preserve that burden rather
+than solve it. AnkiScape therefore uses an explicitly labeled safety abstraction:
 when an active pet has no compatible carried food and the next hunger tick would reach
 100%, it automatically returns home to Bank (or its Menagerie slot) and the pet-care
 policy lapses with `Out of pet food`. The triggering review's undo restores the active
@@ -108,3 +124,12 @@ This preserves feeding's food and inventory cost, growth's follower-slot opportu
 cost, and the period consequence that an unfed pet stops following, while removing silent
 loss of a quest-linked pet. Acquisition ownership and the full source-route matrix are in
 `summoning-pet-acquisition-2026-07-16.md`.
+
+## Open owner fork: explicitly releasing a one-time pet
+
+Some quest or reward pets may have no sourced reacquisition route. The ordinary
+**Release permanently...** confirmation can state that the selected pet cannot be
+reobtained, or AnkiScape can add stronger friction or disable Release for those entities.
+The recommendation is to keep the ordinary explicit confirmation with the additional
+irreversibility line: the rejected failure was unattended maintenance loss, not a
+deliberate destructive command.

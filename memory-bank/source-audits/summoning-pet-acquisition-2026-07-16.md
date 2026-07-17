@@ -120,10 +120,11 @@ The route exists even when one of these exact parameters remains
 - colour choice versus random roll; and
 - whether a one-time pet has any period reclaim route.
 
-## Open owner fork: legacy event visibility
+## Settled owner decision: legacy event visibility
 
 Sparkles, Eek, and Mackers existed as pets at the freeze but their acquisition
-events had ended. The recommended boundary is to retain their stable definitions
+events had ended. Their stable definitions remain
 for historical completeness and legacy-state safety while excluding them from
-the main obtainable Pets log and every completion count. Showing impossible
-empty rows would turn authenticity into a permanently unfinishable collection.
+the main obtainable Pets log and every completion count. This preserves the
+freeze-date record without turning authenticity into a permanently unfinishable
+collection.

@@ -589,19 +589,26 @@ from Bank. Advanced chooses exact compatible food and quantity or disables auto-
 This preserves food's inventory opportunity cost while removing manual feeding and pack
 arrangement.
 
+Bank storage freezes rather than resets the pet entity. Hunger, growth, and stage persist
+unchanged while neither meter advances. Letting out a high-hunger pet runs the ordinary
+Casual packing boundary; compatible food occupies real carried slots and is consumed
+before the first answered-card hunger advance. With no compatible food, the pet may come
+out but returns home before the 100% tick. Bank therefore never becomes a free hunger
+reset and the player never has to perform a separate feeding interaction.
+
 Cats remain persistent, staged pet entities and retain source-specific quest and rat-
 catching behavior. Quest gates inspect the required cat or kitten stage. Only quest steps
 that sourcedly require the cat to act require it in the follower slot; ownership checks do
 not manufacture an active-pet requirement. Casual auto-care also abstracts kitten
 interaction upkeep without a foreground review.
 
-Following the owner's no-active-maintenance constraint, a pet with no compatible carried
-food automatically returns home to Bank or Menagerie immediately before the 100% hunger
-tick. The pet-care policy then lapses with `Out of pet food`; permanent loss occurs only
-through **Release permanently...**. This is a labeled AnkiScape safety abstraction from
-the period run-away rule.
+Following the owner's rejection of Tamagotchi-style maintenance, a pet with no compatible
+carried food automatically returns home to Bank or Menagerie immediately before the 100%
+hunger tick. The pet-care policy then lapses with `Out of pet food`; permanent loss occurs
+only through **Release permanently...**. This is a labeled AnkiScape safety abstraction
+from the period run-away rule.
 
-### 27. Distributed pet acquisition and searchable source log — architecture settled; legacy visibility open 2026-07-16
+### 27. Distributed pet acquisition, searchable source log, and legacy pets — settled 2026-07-16
 
 `source-audits/summoning-pet-acquisition-2026-07-16.md` maps every freeze-date pet to the
 system that actually awarded it. Pets are purchased from their period NPC shop/service,
@@ -621,9 +628,28 @@ and activity egglings retain their own routes. Existing god-bird eggs are wired 
 not reimplemented. Exact prices, rates, XP, costs, timers, and reclaim rules remain
 `source_blocked` until their individual pre-cutoff pages are pinned.
 
-The remaining owner fork is whether discontinued event pets appear as impossible empty
-rows in the main Pets log. The recommendation is to retain their data for historical and
-legacy-state safety but exclude them from the obtainable log and all completion counts.
+Discontinued event pets retain stable definitions for historical and legacy-state safety
+but are excluded from the obtainable log and every completion count. AnkiScape does not
+invent an event replay or leave new accounts with impossible collection gaps.
+
+### 28. Stored pet meters and safe reactivation — source/app-pattern resolved 2026-07-16
+
+Darkan commit `c343a917712649675989315009ce250639e0850f` keeps `PetDetails` outside
+the active follower item and reuses it after pickup, while the period page says stored pets
+are inactive and require no care. AnkiScape therefore persists hunger, growth, and stage
+but freezes both meters in Bank, inventory, or Menagerie.
+
+Casual **Let out** invokes its ordinary Bank/preset packing boundary. If the stored pet is
+hungry, the first answered-card tick consumes compatible carried food before hunger
+advances across the threshold. It never feeds remotely from Bank and never resets hunger
+for free. With no compatible food, the existing automatic-return rule remains the safe
+fallback. Advanced retains the exact persisted meter and its explicit food policy.
+
+The next owner fork concerns one-time pets with no sourced reacquisition route: should the
+ordinary **Release permanently...** confirmation remain available with an explicit
+`Cannot be reobtained` line, or should those pets require stronger friction or make Release
+unavailable? The recommendation is the ordinary confirmation plus the irreversibility
+line.
 
 ## Source/open-work queue
 

@@ -42,18 +42,21 @@ release is a separately confirmed destructive action. Pets share the global foll
 grow and become hungry only while active, and connect directly to Construction's parked
 Menagerie function. Casual pet care automatically packs a source-derived compatible-food
 reserve into real carried slots and feeds on answered-card ticks, preserving inventory cost
-without manual management. Cats retain staged quest and exceptional-function identity. An
-unfed pet now automatically returns home with `Out of pet food`; starvation never silently
-destroys it.
+without Tamagotchi-style manual management. Cats retain staged quest and exceptional-
+function identity. Stored hunger, growth, and stage persist but freeze; letting the pet out
+reuses the ordinary Casual packing boundary and feeds from real carried food before the
+first hunger advance. An unfed pet automatically returns home with `Out of pet food`;
+starvation never silently destroys it.
 
 Pet acquisition is distributed to the real source systems: shops/services, quests, Hunter,
 egg sources and per-pet hatch flows, Construction, and activity reward shops. A searchable
 Pets log explains and links those routes but never grants pets itself. Exact costs/rates/
-timers remain source-harvest work. The narrow open decision is whether discontinued event
-pets should appear as impossible rows or remain compatibility-only outside the obtainable
-log and completion counts.
+timers remain source-harvest work. Discontinued event pets remain compatibility-only
+outside the obtainable log and completion counts. The narrow open decision is whether an
+explicit **Release permanently...** remains available for a one-time pet with no sourced
+reacquisition route.
 
-The 26 settled decisions define answered-card lifetime and passive world ticks,
+The 28 settled decisions define answered-card lifetime and passive world ticks,
 separate familiar/point/special resources, target-policy automation, carried
 pouch/scroll budgets, coalesced restore and Bank detours, safe replacement and
 dismissal, source-gated familiar combat, BoB inventory/reclaim rules, forbidden

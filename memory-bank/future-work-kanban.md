@@ -334,9 +334,11 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   Menagerie dependency. Bank right-click **Let out**, follower-panel **Pick up**, and a
   separately confirmed **Release permanently...** keep activation distinct from Drop.
   Active pets share the follower slot and advance sourced growth/hunger on every answered
-  card; stored pets need no care. Casual auto-care reserves compatible food in real carried
-  slots according to sourced hunger cadence and the next Bank boundary, then feeds and
-  refills without manual packing. Cats retain staged quest and exceptional-function state.
+  card; stored hunger, growth, and stage persist but freeze. Casual auto-care reserves
+  compatible food in real carried slots according to sourced hunger cadence and the next
+  Bank boundary, then feeds and refills without Tamagotchi-style manual management. A
+  high-hunger pet reuses that packing boundary and feeds before its first hunger advance.
+  Cats retain staged quest and exceptional-function state.
   Exhausted food safely returns the pet home with an `Out of pet food` lapse rather than
   silently destroying it.
 - Implement the source-owned pet routes in
@@ -345,8 +347,10 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   per-pet incubation/hatching, Construction Workshop creation, and activity reward shops.
   The searchable Pets log explains and links routes but never grants pets. Pin every exact
   cost, rate, XP value, timer, colour rule, and reclaim path before implementation. The
-  next owner fork is whether discontinued event pets remain compatibility-only outside the
-  obtainable log and completion counts.
+  Discontinued event pets remain compatibility-only outside the obtainable log and
+  completion counts. The next owner fork is whether a one-time pet with no sourced
+  reacquisition route keeps ordinary **Release permanently...** with a clear
+  `Cannot be reobtained` confirmation or receives stronger protection.
 
 ### Dungeoneering
 
