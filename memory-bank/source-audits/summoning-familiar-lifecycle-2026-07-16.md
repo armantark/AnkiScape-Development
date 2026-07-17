@@ -40,6 +40,7 @@ below were checked against the literal revision wikitext rather than the modern 
 | Scroll specials did not spend ordinary Summoning points. | Oldid 6542597 explicitly distinguishes scrolls from point-draining right-click abilities. | High |
 | Points restored at obelisks/small obelisks or with Summoning/super-restore potions. | Oldids 6542597 and 6582606 agree. | High |
 | Familiar roles were heterogeneous. | Oldid 6582606 classifies fighters, skill boosters, beasts of burden, healers, foragers, teleporters, and other abilities; oldid 6579789 provides per-row specifics. | High |
+| Period foragers had two distinct delivery behaviors: some dropped items to the player, while others stored up to 30 items in familiar-owned storage. | Oldid 6579789 literal lines 55, 140, 312, 325, and 794 use `forages and drops`; lines 82, 215, 447, 519, 673-675, and 738 use `forages and stores up to 30`. The rows identify different output tables rather than one generic forage pool. | High |
 | Renewal deliberately consumed another pouch of the same familiar near expiry. | Oldid 6093772 says Renew required an unnoted matching pouch and was available only at 2:30 or less; renewal also healed the familiar. | High |
 | A BoB had a separate inventory with direct whole-inventory bank deposit. | Oldid 6288415 describes its inventory UI and the familiar icon in the bank interface. | High |
 | BoB items fell to the ground when the familiar expired or died. | Oldid 6288415 describes expiry/death drops and a five-minute owner retrieval window after expiry. | High |
@@ -58,6 +59,12 @@ product decision.
 Do not collapse duration and Summoning points into one charge pool. The period game let
 a familiar remain active at zero points, so those states supported different decisions.
 
+The source also does not permit collapsing drop-type foraging into familiar storage. How a
+failed delivery behaves when the player's inventory is full is not specified by the pinned
+table and is therefore an AnkiScape abstraction. The owner settled that abstraction as a
+suppressed roll with a visible event-log message and no owed output; storage-type familiars
+retain their explicit separate capacity.
+
 ## Remaining harvest
 
 - Extract every familiar row and reconcile its duration, summon cost, role, combat
@@ -75,3 +82,5 @@ a familiar remain active at zero points, so those states supported different dec
   and tanking scroll/ability evidence. The owner's recollection that a scroll may redirect
   damage is a lead only. If no pinned evidence names a damage channel, the familiar takes
   no enemy damage; do not manufacture a fallback targeting chance.
+- Harvest each forager's exact output table, cadence, delivery mode, and any conditions.
+  Preserve `drop_to_player` versus `familiar_storage` explicitly rather than deriving it.

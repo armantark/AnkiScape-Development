@@ -491,6 +491,26 @@ separate Dungeoneering pouch/scroll tables; those wait for Dungeoneering's tempo
 economy. The complete row and acquisition harvest remains required before implementation,
 but the training interaction itself needs no further owner design.
 
+### 23. Forager delivery and full inventories — settled 2026-07-16
+
+The period familiar catalog distinguishes familiars that **forage and drop** their output
+from familiars that **forage and store up to 30** items. The implementation catalog must
+encode that delivery mode per familiar as `drop_to_player` or `familiar_storage`; it must
+not flatten both behaviors into generic loot or infer the mode from familiar names.
+
+A sourced `drop_to_player` passive roll may resolve on any answered card, including Again.
+If the carried inventory has a compatible free slot—or an existing stack for a stackable
+item—the output enters it atomically. If there is no room, that roll is suppressed and the
+event log reports `No room for <item>`. It is not queued, sent to the Bank, placed in a new
+ground/reclaim container, or remembered as an owed proc. Again never creates a Bank trip;
+future rolls simply resume once ordinary gameplay has opened space.
+
+A `familiar_storage` roll instead fills the familiar's distinct sourced storage even when
+the player's carried inventory is full, up to that familiar's capacity of 30. Once that
+storage is full, later rolls are suppressed until it is emptied, under the same no-queue
+rule. The later full catalog harvest must preserve each familiar's sourced output table and
+cadence alongside the delivery mode.
+
 ## Source/open-work queue
 
 - Harvest the complete pouch, familiar, duration, point, scroll, special-move-point,

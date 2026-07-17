@@ -20,15 +20,20 @@ Smoking Kills, Shilo Village, and the full black-mask/Slayer-helmet dependency
 chains belong to the Slayer implementation program; Social Slayer remains
 parked until genuine multiplayer state exists.
 
-Summoning's documentation-only owner grill is paused and integrated into
-`main`; runtime implementation has deliberately not started. The active ledger
+Summoning's documentation-only owner grill is active in canonical `main`; runtime
+implementation has deliberately not started. The active ledger
 is `summoning-skill-contract-2026-07-16.md`, backed by lifecycle, training, and
 Familiarisation source audits plus the cross-system simulation-time, reviewer
 alert, and Help contracts. Its source/open-work queue and remaining genuine
-owner forks stay active; the next named fork is how foragers that drop items
-behave when the carried inventory is full.
+owner forks stay active. Foragers now preserve the period distinction between
+drop-to-player output and separate familiar storage: a full carried inventory suppresses
+a drop roll with a visible log entry and no queue or Bank detour, while storage-type
+familiars can continue to their sourced capacity of 30.
+The next owner fork is how source-authentic familiar teleports become real gameplay in a
+locationless app: route-cost modifiers, standalone commands, or a deliberate cross-system
+travel expansion rather than decorative controls.
 
-The 22 settled decisions define answered-card lifetime and passive world ticks,
+The 23 settled decisions define answered-card lifetime and passive world ticks,
 separate familiar/point/special resources, target-policy automation, carried
 pouch/scroll budgets, coalesced restore and Bank detours, safe replacement and
 dismissal, source-gated familiar combat, BoB inventory/reclaim rules, forbidden

@@ -317,8 +317,13 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   policy. Successful-review specials now award exact scroll-use XP in Casual and Advanced
   because every gameplay action is collapsed into automatic review resolution; Again never
   does, and only a future genuinely passive headgear-like auto-fire keeps the period zero-XP
-  exception. The next fork is inventory-full handling for familiars that source text says
-  forage and drop rather than store their output.
+  exception. Forager rows retain their sourced `drop_to_player` versus distinct
+  `familiar_storage` delivery modes. A full carried inventory suppresses a drop roll with a
+  visible log entry and no queued, banked, or owed output; storage-type familiars continue
+  to their sourced capacity of 30 before suppressing later rolls.
+- Next owner fork: give familiar teleports real behavior in AnkiScape's locationless travel
+  model. Magic currently treats teleport spells as pure training casts, but most familiar
+  teleports have no training XP, so a decorative command is not an acceptable completion.
 
 ### Dungeoneering
 
