@@ -788,6 +788,25 @@ Bunyip instance, starts at zero on a new summon, persists and sanitizes with fol
 state, and is review-undoable. It does not scale with the foreground action multiplier;
 familiar lifetime and other answered-card world effects remain card-based.
 
+### 37. Special-move-point recharge density — settled for live cadence 2026-07-17
+
+Summoning special moves oldid
+[5907879](https://runescape.wiki/w/Summoning_special_moves?oldid=5907879)
+pins a persistent 60-point pool that restores 15 points every 30 seconds and remains
+after a familiar leaves. The first implementation mapped the separate two-source-minute
+familiar-lifetime abstraction onto recharge and therefore restored the entire pool on
+every answered card.
+
+The live six-tick cadence makes that full refill both unnecessary and destructive to the
+scroll economy. The owner selected an exact global residual: every answered card,
+including Again, adds six recharge ticks; at 50 accumulated ticks the pool restores
+15 points, subtracts 50, and retains the remainder. Recharge continues with no active
+familiar. Default/new state starts at the 60-point maximum.
+
+The residual persists and sanitizes in global Summoning state, is included in review
+undo, and does not scale with the foreground action multiplier. This is an answered-card
+simulation clock, never a wall-clock timer.
+
 ## Source/open-work queue
 
 - The ordinary pouch/scroll/lifetime/point/XP catalog, training, follower lifecycle,

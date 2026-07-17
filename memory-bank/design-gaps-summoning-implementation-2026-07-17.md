@@ -36,6 +36,26 @@ with zero credit. This deliberately separates effect density from lifetime
 density while keeping Bunyip meaningful without replacing food, potions, and
 other Combat healing.
 
+### Special-move-point recharge density — settled for live cadence 2026-07-17
+
+The period source pins a persistent 60-point pool that naturally restores
+15 points every 30 seconds. The first implementation imported familiar
+lifetime density and restored the entire pool on every answered card. Under
+six-tick Combat reviews that makes every carried scroll effectively recharge
+for free before the next answer and erases the special-point economy.
+
+The owner selected a second **exact residual effect clock**. Every answered
+card, including Again, adds six recharge ticks. At 50 accumulated ticks
+(30 source seconds), the pool restores 15 points, subtracts 50, and retains
+the remainder. Recharge continues when no familiar is active because the
+period pool persists after a familiar leaves. New/default state still starts
+at the 60-point maximum.
+
+The recharge residual is global Summoning state, sanitizes and persists
+independently of the active follower, and participates in review undo. Like
+other answered-card world effects, it does not scale with the foreground
+action multiplier.
+
 ## Implementation judgments recorded without reopening the grill
 
 - Familiar lifetime uses the labeled two-source-duration-units-per-review
@@ -64,6 +84,9 @@ other Combat healing.
   labeled balance abstraction rather than fabricated period content.
 - Bunyip's 20-LP source tick is scheduled by the exact 25-tick residual above;
   every answered-card world tick, including Again, contributes six ticks.
+- Special-move points use the exact 50-tick residual above rather than refilling
+  to 60 on every card. The currently shipped constant remains implementation
+  work for the cadence activation.
 
 ## Source and dependency blocks, not owner questions
 
