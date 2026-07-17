@@ -6,7 +6,7 @@
   "branch": "main",
   "baseline_commit": "2d51d213ab7e6c9a9b6fb397e9b664c9ed892d60",
   "current_phase": "slayer_source_harvest",
-  "last_observed_commit": "31a5ec42bb13cff14ca7d0ee69b1f80148013314",
+  "last_observed_commit": "00c201c11a9d54744323cacc26595aa1ab4bd4b5",
   "queue": [
     {
       "id": "approved-amendments",
@@ -20,7 +20,7 @@
     },
     {
       "id": "slayer",
-      "status": "source_sweep_active_first_six_functional_master_pools_recorded",
+      "status": "all_seven_functional_master_pools_recorded_family_sweep_next",
       "runtime_authorized": true
     }
   ],
@@ -33,7 +33,8 @@
     "5e24522b0464f70c39459bba1418e15fbee4dced",
     "f5031bf8baaa15d2b2eb9257f7471a7d0547de67",
     "b09c6bab42b3a2329aea4139aae340cb42b92275",
-    "31a5ec42bb13cff14ca7d0ee69b1f80148013314"
+    "31a5ec42bb13cff14ca7d0ee69b1f80148013314",
+    "00c201c11a9d54744323cacc26595aa1ab4bd4b5"
   ],
   "completed_batches": [
     "magic-charge-review-duration",
@@ -45,7 +46,8 @@
     "slayer-vannaka-source-pool",
     "slayer-chaeldar-source-pool",
     "slayer-sumona-source-pool",
-    "slayer-duradel-lapalok-source-pool"
+    "slayer-duradel-lapalok-source-pool",
+    "slayer-kuradal-source-pool"
   ],
   "workflow_runs": [
     {
@@ -98,6 +100,11 @@
       "id": "edac15ac-4a8d-4b97-b7ac-ab30160eb335",
       "purpose": "Duradel/Lapalok emulator/runtime and period-history source surveys",
       "result": "primary reconciled 35 families, provisional 334-point weight denominator, count and gate conflicts, succession, challenge boundary, and runtime blockers"
+    },
+    {
+      "id": "033a9a66-8eb3-4b16-85ce-3cff1eb57c1a",
+      "purpose": "Kuradal emulator/runtime survey plus attempted period-history leaf",
+      "result": "emulator leaf succeeded; zero-progress network leaf canceled; primary independently reconciled 36 families, provisional 322-point denominator, count and gate conflicts, Kuradal context, challenge boundary, and runtime blockers"
     }
   ],
   "excluded_until_owner_authorizes": [

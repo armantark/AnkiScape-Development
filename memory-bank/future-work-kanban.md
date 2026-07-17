@@ -181,12 +181,13 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE SWEEP`, `DEPENDENCY: COMBAT`.
   35 families with a provisional 460-point denominator; Chaeldar is reconciled
   at 34 families with a provisional 388-point denominator; Sumona is reconciled
   at 37 families with a provisional 407-point denominator; Duradel/Lapalok are
-  reconciled at 35 families with a provisional 334-point denominator. All six roles
-  remain hidden until their full Combat families and distinctive
+  reconciled at 35 families with a provisional 334-point denominator; Kuradal
+  is reconciled at 36 families with a provisional 322-point denominator. All
+  seven roles remain hidden until their full Combat families and distinctive
   protection/finishing/context mechanics are executable. See the dated
   `slayer-turael-spria-pool`, `slayer-mazchna-achtryn-pool`,
   `slayer-vannaka-pool`, `slayer-chaeldar-pool`, `slayer-sumona-pool`, and
-  `slayer-duradel-lapalok-pool` audits.
+  `slayer-duradel-lapalok-pool` audits, plus `slayer-kuradal-pool`.
 - Park Social Slayer unless genuine shared-player state ever exists; do not ship
   a simulated partner or solo co-op multiplier. Preserve all seven period Slayer
   master challenges in the design and source their compound objective ledgers.
@@ -252,8 +253,9 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE SWEEP`, `DEPENDENCY: COMBAT`.
   provisional 355-point hidden-weight denominator are pinned, but the role
   remains runtime-blocked on six absent Combat families plus Banshee and
   Gelatinous special consequences. Mazchna/Achtryn, Vannaka, Chaeldar, and
-  Sumona, and Duradel/Lapalok are now recorded in their corresponding dated
-  pool audits; continue with Kuradal before exposing any live assignment roll.
+  Sumona, Duradel/Lapalok, and Kuradal are now recorded in their corresponding
+  dated pool audits. Continue the family/variant, protection, challenge and
+  location-context ledgers before exposing any live assignment roll.
 - Before that unlock, the finisher consumes its own correct review. Exclude the
   salt, ice, fungicide, and explosive shakers released in 2015.
 

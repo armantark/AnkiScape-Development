@@ -516,3 +516,53 @@ Evidence:
 - Test quality: zero hard issues across 67 files.
 - Documentation, compilation, diff, JSON and worktree-safety checks passed.
 - No owner-level design gap emerged.
+
+## Slayer source batch — Kuradal pool
+
+Finding: cutoff Kuradal contains 36 ordinary families. Darkan has 35
+executable rows totaling 312, names the ordinary TzHaar row Volcanic
+creatures, and omits Terror dogs. Its count calibration conflicts with nine
+direct cutoff rows.
+
+Resolution:
+
+- Reconciled 36 ordinary families and a provisional 322-point hidden-weight
+  denominator.
+- Mapped Darkan's 70–110 Volcanic-creatures row to ordinary TzHaar and restored
+  Terror dogs at the explicit 10-point common-master abstraction.
+- Used the direct cutoff master ledger for nine conflicting counts, including
+  Jungle strykewyrms `90–160`, Steel dragons `40–108` and Vyrewatch `60–170`.
+- Closed Combat 110, Slayer 75, Ancient Cavern access, 18/90/270 points,
+  Aquanite's 50-point assignment unlock and the fire-cape-or-2,000-point ice
+  strykewyrm route.
+- Kept Kuradal's Dungeon as a target-local Combat context with its eight-family
+  roster, cannon restriction, Ferocious-ring drops, fixed +40 successful-hit
+  bonus, emergency retreat and five-charge teleport behavior.
+- Pinned the separate 280-kill Fight Cave challenge: 25,000 Jad bonus XP,
+  12,000 stated completion XP, ordinary task points and no bonus challenge
+  points.
+- Kept Kuradal runtime-hidden at 0/36 end-to-end readiness. Four ordinary
+  candidates are complete; the family registry, assignment and task-credit
+  runtime, 29 absent families, special mechanics, reward gates, contexts and
+  Fight Cave do not exist.
+
+Concrete implementation repair:
+
+- The live level-149 TzHaar-Ket omitted the cutoff assignment's 136 Slayer XP.
+  A failing regression reproduced the missing field before the row and source
+  note were repaired.
+
+Evidence:
+
+- `source-audits/slayer-kuradal-pool-2026-07-17.md`.
+- Read-only workflow `033a9a66-8eb3-4b16-85ce-3cff1eb57c1a` supplied the
+  emulator/runtime matrix. Its networked period-history leaf was canceled
+  after six minutes with zero tools or progress; the primary independently read
+  Kuradal oldid `6588106`, its talk/revision history and the pinned emulator.
+- Combat logic, enemy-roster, runtime-action and integration holdout: 345
+  passed.
+- Full core: 1,369 methods, 196 environment skips and three declared
+  XP-parity expected failures.
+- Test quality: zero hard issues across 67 files.
+- Documentation, compilation, diff, JSON and worktree-safety checks passed.
+- No owner-level design gap emerged.

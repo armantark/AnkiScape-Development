@@ -1980,6 +1980,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(ket["group"], "TzHaar")
         self.assertEqual(ket["attack_speed"], 4)
         self.assertEqual(ket["respawn_delay"], 50)
+        self.assertEqual(ket["slayer_xp"], 136.0)
         self.assertEqual(ket["stats"]["hitpoints"], 1400)
         self.assertEqual(ket["stats"]["attack"], 120)
         self.assertEqual(ket["stats"]["strength"], 140)

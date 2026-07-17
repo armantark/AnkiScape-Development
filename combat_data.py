@@ -3314,6 +3314,7 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "attack_style": "melee",
         "attack_speed": 4,
         "respawn_delay": 50,
+        "slayer_xp": 136.0,
         "stats": {
             "hitpoints": 1400,
             "attack": 120,
@@ -3336,7 +3337,8 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "drops": TZHAAR_KET_DROPS,
         "source": (
             f"{TZHAAR_KET_SOURCE_PATH}: id Npcs.TZHAARKET_2616; "
-            "pre-death sound only; no source combat bonuses"
+            "pre-death sound only; no source combat bonuses; "
+            "RuneScape Wiki Kuradal oldid 6588106 (level 149, 136 Slayer XP)"
         ),
     },
     "farmer": {

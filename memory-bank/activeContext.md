@@ -649,3 +649,21 @@ ledger remain absent. This pass also repaired exact Abyssal-demon quantity
 distributions, its missing global Rare-table branch, and the accidental
 generic exposure of Kuradal's Dungeon-only Ferocious ring. Summoning and
 Dungeoneering remain explicitly excluded.
+
+## Slayer Kuradal source harvest (2026-07-17)
+
+The seventh and final functional Slayer-master pool is source-reconciled but
+remains runtime-hidden. Kuradal has 36 ordinary families and a provisional
+322-point calibration denominator: Darkan's 35 rows total 312, its Volcanic
+creatures row maps to ordinary TzHaar, and period-proven Terror dogs return at
+an explicit 10-point common-master abstraction. Combat 110, Slayer 75, Ancient
+Cavern access, 18/90/270 points, the two reward-gated families, Kuradal's
+Dungeon, Ferocious-ring consequences, and the 280-kill Fight Cave challenge
+are pinned in `source-audits/slayer-kuradal-pool-2026-07-17.md`.
+
+End-to-end readiness is 0/36. Four ordinary families are complete Combat
+candidates after restoring the level-149 TzHaar-Ket's missing 136 Slayer XP;
+the family registry, assignment/task-credit runtime, 29 families, special
+mechanics, reward gates, contexts and Fight Cave remain absent. All seven
+functional master pools are now recorded. Summoning and Dungeoneering remain
+explicitly excluded.

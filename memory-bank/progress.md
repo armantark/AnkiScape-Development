@@ -589,3 +589,22 @@ Test counts are snapshots; current runs outrank this note.
   1,369 core methods pass, with 196 environment skips and the three declared
   XP-parity expected failures; test quality remains at zero hard issues.
   Summoning and Dungeoneering remained outside the batch.
+
+## Slayer Kuradal source harvest (2026-07-17)
+
+- Reconciled 36 cutoff ordinary families and a provisional 322-point hidden
+  weight denominator from 35 Darkan rows plus a labeled 10-point Terror-dog
+  abstraction.
+- Mapped Darkan's `VOLCANIC_CREATURES` row to ordinary TzHaar, kept the
+  280-kill Fight Cave challenge separate, and resolved nine count conflicts
+  from the direct cutoff master ledger.
+- Pinned Combat 110, Slayer 75, Ancient Cavern access, 18/90/270 points,
+  Aquanite and ice-strykewyrm reward gates, Kuradal's Dungeon/Ferocious-ring
+  consequences, and the no-bonus-points Fight Cave challenge.
+- Kept Kuradal runtime-hidden at 0/36 readiness rather than renormalizing a
+  partial pool around absent families, contexts and mechanics.
+- Restored the live level-149 TzHaar-Ket's cutoff 136 Slayer XP after a focused
+  regression reproduced the missing field. All 345 focused holdouts and all
+  1,369 core methods pass, with 196 environment skips and the three declared
+  XP-parity expected failures; test quality remains at zero hard issues.
+  Summoning and Dungeoneering remained outside the batch.
