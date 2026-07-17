@@ -722,6 +722,22 @@ The earlier proposed recoverable pet-grave abstraction was wrong. The owner's
 anti-Tamagotchi rule prevents passive maintenance from silently deleting a pet; it does
 not erase an ordinary sourced combat-death consequence.
 
+### 34. Rat Catchers King Rat encounter — open owner fork 2026-07-17
+
+Rat Catchers oldid
+[6589064](https://runescape.wiki/w/Rat_Catchers?oldid=6589064)
+(2012-11-19 23:31:44 UTC) makes the cat the combatant during the King Rat stage:
+the rat can kill it in three to five hits or less, food used on the wall hole heals it,
+and a kitten may be told to fight cautiously so it retreats after losing more than half
+its LP. Reaching zero LP kills the cat.
+
+A general pet-combat actor would reopen the parked multi-actor Combat design for one quest.
+An ordinary quest success roll would instead erase the encounter's only meaningful player
+choice and could turn permanent pet loss into an unchosen dice roll. The bounded design fork
+is therefore whether the flattened quest action exposes the source-authentic kitten stance:
+normal fighting accepts real death risk, while cautious fighting retreats safely and leaves
+the checkpoint incomplete. Carried compatible food remains real mitigation in either mode.
+
 ## Source/open-work queue
 
 - Harvest the complete pouch, familiar, duration, point, scroll, special-move-point,

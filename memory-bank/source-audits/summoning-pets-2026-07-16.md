@@ -237,3 +237,20 @@ replacement, respawn, paid claim, or fresh acquisition occurs only where its ind
 route proves one; the previous entity's growth, hunger, variant, or name does not transfer
 unless that pet's source explicitly says it does. The owner's anti-Tamagotchi safety
 abstraction applies to passive hunger/attention upkeep, not ordinary combat death.
+
+## Rat Catchers King Rat encounter — source resolved, representation open 2026-07-17
+
+Rat Catchers oldid
+[6589064](https://runescape.wiki/w/Rat_Catchers?oldid=6589064)
+(2012-11-19 23:31:44 UTC) says the King Rat can kill the player's cat in three to
+five hits or less. The player heals it by using food on the wall hole; using food on the
+cat itself does nothing. A kitten may be told to fight cautiously and then runs away after
+losing more than half its LP. Cats and overgrown cats may also fight, and zero LP kills the
+pet.
+
+These facts are not `source_blocked`. The remaining question is only how much state the
+review-driven quest stage should expose. A full pet-LP combat actor would exceed this
+quest's needs and intrude on the separately parked multi-actor Combat grill. A completely
+opaque quest roll would lose the sourced cautious-retreat decision. The smallest faithful
+candidate is a flattened King Rat attempt with a kitten-only normal/cautious stance and
+real carried-food mitigation; the owner has not yet settled that representation.
