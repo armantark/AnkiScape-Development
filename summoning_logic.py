@@ -30,7 +30,11 @@ except ImportError:
 
 
 SPECIAL_MOVE_POINTS_MAX = 60
-SPECIAL_MOVE_POINT_RECOVERY_PER_REVIEW = SPECIAL_MOVE_POINTS_MAX
+ANSWER_EFFECT_TICKS = 6
+SPECIAL_MOVE_RECHARGE_TICKS = 50
+SPECIAL_MOVE_RECHARGE_POINTS = 15
+BUNYIP_HEAL_TICKS = 25
+BUNYIP_HEAL_LIFEPOINTS = 20
 CARGO_RECLAIM_SOURCE_MINUTES = 5
 CARGO_RECLAIM_REVIEWS = math.ceil(
     CARGO_RECLAIM_SOURCE_MINUTES / SOURCE_DURATION_UNITS_PER_REVIEW
@@ -97,6 +101,7 @@ def default_summoning_state_pure() -> dict[str, Any]:
     return {
         "summoning_points_current": 1,
         "special_move_points_current": SPECIAL_MOVE_POINTS_MAX,
+        "special_move_recharge_residual": 0,
         "active_follower": {},
         "target_policies": {},
         "cargo_events": [],
@@ -134,6 +139,20 @@ def _sanitize_active_follower(raw: Any) -> dict[str, Any]:
     clean["storage"] = _clean_inventory(raw.get("storage"))
     clean["hidden_in_spirit_plane"] = bool(raw.get("hidden_in_spirit_plane", False))
     clean["policy_lapse_reason"] = str(raw.get("policy_lapse_reason", ""))
+    clean["bunyip_heal_residual"] = _clean_int(
+        raw.get("bunyip_heal_residual"),
+        0,
+        minimum=0,
+        maximum=BUNYIP_HEAL_TICKS - 1,
+    )
+    pouch = SUMMONING_POUCHES_BY_ID.get(str(clean.get("entity_id", "")))
+    drain_period = pouch.lifetime_reviews if pouch is not None else clean["max_reviews"]
+    clean["summoning_point_drain_residual"] = _clean_int(
+        raw.get("summoning_point_drain_residual"),
+        0,
+        minimum=0,
+        maximum=max(0, drain_period - 1),
+    )
     return clean
 
 
@@ -248,6 +267,12 @@ def sanitize_summoning_state_pure(
             SPECIAL_MOVE_POINTS_MAX,
             minimum=0,
             maximum=SPECIAL_MOVE_POINTS_MAX,
+        ),
+        "special_move_recharge_residual": _clean_int(
+            source.get("special_move_recharge_residual"),
+            0,
+            minimum=0,
+            maximum=SPECIAL_MOVE_RECHARGE_TICKS - 1,
         ),
         "active_follower": active_follower,
         "target_policies": {
@@ -520,6 +545,8 @@ def summon_familiar_pure(
         "storage": {},
         "hidden_in_spirit_plane": False,
         "policy_lapse_reason": "",
+        "bunyip_heal_residual": 0,
+        "summoning_point_drain_residual": 0,
     }
     updated["inventory"] = inventory
     updated["summoning_state"] = state
@@ -650,6 +677,7 @@ def renew_familiar_pure(
     follower["remaining_reviews"] = pouch.lifetime_reviews
     follower["max_reviews"] = pouch.lifetime_reviews
     follower["lifepoints"] = follower.get("max_lifepoints", pouch.lifepoints or 0)
+    follower["summoning_point_drain_residual"] = 0
     state["active_follower"] = follower
     updated["inventory"] = inventory
     updated["summoning_state"] = state
@@ -943,10 +971,16 @@ def advance_summoning_world_tick_pure(
             "raw_shards": activity["raw_shards"],
         }
     state["familiarisation"] = activity
+    recharge_ticks = (
+        state["special_move_recharge_residual"] + ANSWER_EFFECT_TICKS
+    )
+    recharge_steps, state["special_move_recharge_residual"] = divmod(
+        recharge_ticks, SPECIAL_MOVE_RECHARGE_TICKS
+    )
     state["special_move_points_current"] = min(
         SPECIAL_MOVE_POINTS_MAX,
         state["special_move_points_current"]
-        + SPECIAL_MOVE_POINT_RECOVERY_PER_REVIEW,
+        + recharge_steps * SPECIAL_MOVE_RECHARGE_POINTS,
     )
     state["triple_charm_reviews_remaining"] = max(
         0, state["triple_charm_reviews_remaining"] - 1
@@ -956,6 +990,13 @@ def advance_summoning_world_tick_pure(
     if follower.get("kind") == "familiar":
         follower = dict(follower)
         if follower.get("entity_id") == "bunyip":
+            heal_steps, follower["bunyip_heal_residual"] = divmod(
+                _clean_int(
+                    follower.get("bunyip_heal_residual"), 0, minimum=0
+                )
+                + ANSWER_EFFECT_TICKS,
+                BUNYIP_HEAL_TICKS,
+            )
             maximum = max(
                 10,
                 _clean_int(
@@ -969,15 +1010,34 @@ def advance_summoning_world_tick_pure(
                 minimum=0,
                 maximum=maximum,
             )
-            after = min(maximum, before + 20)
+            after = min(
+                maximum,
+                before + heal_steps * BUNYIP_HEAL_LIFEPOINTS,
+            )
             updated["combat_lifepoints"] = after
             result["passive_healing"] = after - before
         follower["remaining_reviews"] = max(
             0, _clean_int(follower.get("remaining_reviews"), 0) - 1
         )
-        state["summoning_points_current"] = max(
-            0, state["summoning_points_current"] - 1
-        )
+        pouch = SUMMONING_POUCHES_BY_ID.get(str(follower["entity_id"]))
+        if pouch is not None:
+            lifetime_reviews = max(1, pouch.lifetime_reviews)
+            drain_per_lifetime = max(
+                0, pouch.level - pouch.summoning_point_cost
+            )
+            drain_steps, follower["summoning_point_drain_residual"] = divmod(
+                _clean_int(
+                    follower.get("summoning_point_drain_residual"),
+                    0,
+                    minimum=0,
+                    maximum=lifetime_reviews - 1,
+                )
+                + drain_per_lifetime,
+                lifetime_reviews,
+            )
+            state["summoning_points_current"] = max(
+                0, state["summoning_points_current"] - drain_steps
+            )
         if follower["remaining_reviews"] <= 0:
             result["expired_familiar"] = follower["entity_id"]
             result["expired_cargo_event"] = _drop_familiar_storage(

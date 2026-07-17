@@ -2,8 +2,13 @@ import unittest
 
 from summoning_data import SUMMONING_POUCHES_BY_ID
 from summoning_logic import (
+    ANSWER_EFFECT_TICKS,
+    BUNYIP_HEAL_LIFEPOINTS,
+    BUNYIP_HEAL_TICKS,
     CARGO_RECLAIM_REVIEWS,
     FAMILIARISATION_COOLDOWN_REVIEWS,
+    SPECIAL_MOVE_RECHARGE_POINTS,
+    SPECIAL_MOVE_RECHARGE_TICKS,
     SPECIAL_MOVE_POINTS_MAX,
     advance_summoning_world_tick_pure,
     apply_familiarisation_segment_pure,
@@ -146,6 +151,49 @@ class SummoningLogicTests(unittest.TestCase):
             advanced["summoning_state"]["summoning_points_current"], 0
         )
 
+    def test_familiar_point_drain_totals_exact_source_amount_per_lifetime(self):
+        pouch = SUMMONING_POUCHES_BY_ID["packyak"]
+        data = player(inventory={pouch.pouch_name: 1})
+
+        current, ok, _ = summon_familiar_pure(data, pouch.id)
+        self.assertTrue(ok)
+        after_summon = current["summoning_state"]["summoning_points_current"]
+        for _ in range(pouch.lifetime_reviews):
+            current, _ = advance_summoning_world_tick_pure(current)
+
+        self.assertEqual(
+            after_summon
+            - current["summoning_state"]["summoning_points_current"],
+            pouch.level - pouch.summoning_point_cost,
+        )
+        self.assertEqual(
+            current["summoning_state"]["active_follower"],
+            {},
+        )
+
+    def test_zero_summoning_points_advances_drain_phase_without_debt(self):
+        pouch = SUMMONING_POUCHES_BY_ID["packyak"]
+        data = player(inventory={pouch.pouch_name: 1})
+        current, ok, _ = summon_familiar_pure(data, pouch.id)
+        self.assertTrue(ok)
+        current["summoning_state"]["summoning_points_current"] = 0
+
+        for _ in range(5):
+            current, _ = advance_summoning_world_tick_pure(current)
+        follower = current["summoning_state"]["active_follower"]
+        self.assertEqual(
+            follower["summoning_point_drain_residual"],
+            (5 * (pouch.level - pouch.summoning_point_cost))
+            % pouch.lifetime_reviews,
+        )
+
+        current["summoning_state"]["summoning_points_current"] = 99
+        current, _ = advance_summoning_world_tick_pure(current)
+        self.assertEqual(
+            current["summoning_state"]["summoning_points_current"],
+            96,
+        )
+
     def test_renewal_is_gated_and_preserves_cargo(self):
         pouch = SUMMONING_POUCHES_BY_ID["packyak"]
         data = player(inventory={"Pack yak pouch": 2})
@@ -159,11 +207,15 @@ class SummoningLogicTests(unittest.TestCase):
         self.assertEqual(unchanged, active)
 
         active["summoning_state"]["active_follower"]["remaining_reviews"] = 2
+        active["summoning_state"]["active_follower"][
+            "summoning_point_drain_residual"
+        ] = pouch.lifetime_reviews - 1
         renewed, ok, result = renew_familiar_pure(active)
         self.assertTrue(ok)
         self.assertEqual(result["reason"], "renewed")
         follower = renewed["summoning_state"]["active_follower"]
         self.assertEqual(follower["remaining_reviews"], pouch.lifetime_reviews)
+        self.assertEqual(follower["summoning_point_drain_residual"], 0)
         self.assertEqual(follower["storage"], {"Raw shark": 3})
         self.assertEqual(renewed["inventory"]["Pack yak pouch"], 0)
 
@@ -372,7 +424,7 @@ class SummoningLogicTests(unittest.TestCase):
         self.assertEqual(result["reason"], "reward_unavailable")
         self.assertEqual(unchanged, charmed)
 
-    def test_bunyip_passive_healing_advances_on_every_world_tick(self):
+    def test_bunyip_passive_healing_uses_exact_answer_tick_residual(self):
         data = player(
             constitution_level=50,
             combat_lifepoints=100,
@@ -380,24 +432,64 @@ class SummoningLogicTests(unittest.TestCase):
         data["summoning_state"]["active_follower"] = {
             "kind": "familiar",
             "entity_id": "bunyip",
-            "remaining_reviews": 5,
-            "max_reviews": 5,
+            "remaining_reviews": 10,
+            "max_reviews": 10,
             "lifepoints": 4000,
             "max_lifepoints": 4000,
             "storage": {},
         }
 
-        advanced, result = advance_summoning_world_tick_pure(
-            data, successful_answer=False
+        current = data
+        healing = []
+        for _ in range(9):
+            current, result = advance_summoning_world_tick_pure(
+                current, successful_answer=False
+            )
+            healing.append(result["passive_healing"])
+
+        self.assertEqual(
+            healing,
+            [
+                0,
+                0,
+                0,
+                0,
+                BUNYIP_HEAL_LIFEPOINTS,
+                0,
+                0,
+                0,
+                BUNYIP_HEAL_LIFEPOINTS,
+            ],
+        )
+        self.assertEqual(current["combat_lifepoints"], 140)
+        self.assertEqual(
+            current["summoning_state"]["active_follower"][
+                "bunyip_heal_residual"
+            ],
+            (9 * ANSWER_EFFECT_TICKS) % BUNYIP_HEAL_TICKS,
         )
 
-        self.assertEqual(result["passive_healing"], 20)
-        self.assertEqual(advanced["combat_lifepoints"], 120)
+    def test_special_move_recharge_uses_global_exact_answer_tick_residual(self):
+        data = player()
+        data["summoning_state"]["special_move_points_current"] = 0
+
+        current = data
+        points = []
+        for _ in range(9):
+            current, _ = advance_summoning_world_tick_pure(
+                current, successful_answer=False
+            )
+            points.append(
+                current["summoning_state"]["special_move_points_current"]
+            )
+
         self.assertEqual(
-            advanced["summoning_state"]["active_follower"][
-                "remaining_reviews"
-            ],
-            4,
+            points,
+            [0] * 8 + [SPECIAL_MOVE_RECHARGE_POINTS],
+        )
+        self.assertEqual(
+            current["summoning_state"]["special_move_recharge_residual"],
+            (9 * ANSWER_EFFECT_TICKS) % SPECIAL_MOVE_RECHARGE_TICKS,
         )
 
     def test_familiar_invisible_boosts_change_roll_level_not_base_state(self):
@@ -529,6 +621,7 @@ class SummoningLogicTests(unittest.TestCase):
 
         self.assertEqual(clean["summoning_points_current"], 10)
         self.assertEqual(clean["special_move_points_current"], 0)
+        self.assertEqual(clean["special_move_recharge_residual"], 0)
         self.assertEqual(len(clean["cargo_events"]), 1)
         self.assertEqual(clean["cargo_next_event_id"], 5)
 
