@@ -147,6 +147,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "Construction",
                 "Thieving",
                 "Agility",
+                "Summoning",
             ),
         )
         self.assertTrue(is_review_skill("Mining"))
@@ -163,6 +164,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertTrue(is_review_skill("Construction"))
         self.assertTrue(is_review_skill("Thieving"))
         self.assertTrue(is_review_skill("Agility"))
+        self.assertTrue(is_review_skill("Summoning"))
         self.assertEqual(review_handler_key("Fishing"), "fishing")
         self.assertEqual(review_handler_key("Fletching"), "fletching")
         self.assertEqual(review_handler_key("Firemaking"), "firemaking")
@@ -175,6 +177,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(review_handler_key("Construction"), "construction")
         self.assertEqual(review_handler_key("Thieving"), "thieving")
         self.assertEqual(review_handler_key("Agility"), "agility")
+        self.assertEqual(review_handler_key("Summoning"), "summoning")
         self.assertEqual(
             [skill.display_name for skill in CURRENT_SKILLS if skill.participates_in_review],
             list(implemented_review_skill_names()),
@@ -220,6 +223,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "Construction",
                 "Thieving",
                 "Agility",
+                "Summoning",
                 "Combat",
                 "Quests",
                 "Utility / Activities",
@@ -231,7 +235,6 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         for skill_id in [
             "attack",
             "constitution",
-            "summoning",
             "dungeoneering",
             "slayer",
         ]:
@@ -364,6 +367,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "thieving_exp": 0,
                 "agility_level": 1,
                 "agility_exp": 0,
+                "summoning_level": 1,
+                "summoning_exp": 0,
             },
         )
         self.assertEqual(
@@ -385,6 +390,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "current_construction": "crude_wooden_chair",
                 "current_thieving": "pickpocket_man",
                 "current_agility": "burthorpe_course",
+                "current_summoning": "infuse_spiritwolf",
             },
         )
         self.assertEqual(get_skill("Crafting").exp_key, "crafting_exp")

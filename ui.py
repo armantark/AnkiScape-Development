@@ -138,6 +138,7 @@ try:
         RUNECRAFTING_ITEM_IMAGES,
         HERBLORE_ITEM_IMAGES,
         HERBLORE_OUTPUT_ITEMS,
+        SUMMONING_ITEM_IMAGES,
         UTILITY_ITEM_IMAGES,
         ACHIEVEMENTS,
         EQUIPMENT_SLOTS,
@@ -227,6 +228,7 @@ except Exception:
         RUNECRAFTING_ITEM_IMAGES,
         HERBLORE_ITEM_IMAGES,
         HERBLORE_OUTPUT_ITEMS,
+        SUMMONING_ITEM_IMAGES,
         UTILITY_ITEM_IMAGES,
         ACHIEVEMENTS,
         EQUIPMENT_SLOTS,
@@ -237,6 +239,20 @@ try:
     from .pack_data import ITEM_PACK_DATA
 except Exception:
     from pack_data import ITEM_PACK_DATA  # type: ignore
+try:
+    from .summoning_data import (
+        DEFAULT_SUMMONING_TARGET,
+        SUMMONING_ACTIONS,
+        SUMMONING_ACTIONS_BY_ID,
+        SUMMONING_POUCHES_BY_ID,
+    )
+except Exception:
+    from summoning_data import (  # type: ignore
+        DEFAULT_SUMMONING_TARGET,
+        SUMMONING_ACTIONS,
+        SUMMONING_ACTIONS_BY_ID,
+        SUMMONING_POUCHES_BY_ID,
+    )
 try:
     from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure
     from .skill_registry import get_skill
@@ -322,6 +338,7 @@ try:
         smithing_target_rows,
         thieving_target_rows,
         agility_target_rows,
+        summoning_target_rows,
         utility_activity_rows,
         woodcutting_target_rows,
     )
@@ -344,6 +361,7 @@ except Exception:
         smithing_target_rows,
         thieving_target_rows,
         agility_target_rows,
+        summoning_target_rows,
         utility_activity_rows,
         woodcutting_target_rows,
     )
@@ -1191,6 +1209,7 @@ _SKILL_TARGET_TABLES = {
     "construction": CONSTRUCTION_DATA,
     "thieving": THIEVING_TARGETS,
     "agility": {target.id: target for target in AGILITY_TARGETS},
+    "summoning": SUMMONING_ACTIONS_BY_ID,
 }
 
 
@@ -2181,6 +2200,7 @@ def show_main_menu(
     on_set_thieving=None,
     on_set_thieving_fight_back=None,
     on_set_agility=None,
+    on_set_summoning=None,
     on_agility_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
@@ -2760,6 +2780,24 @@ def show_main_menu(
             "__herblore_group__:",
             on_set_herblore,
             group_order=list(HERBLORE_GROUP_LABELS),
+        )
+
+    def _build_summoning_list() -> QTreeWidget:
+        return _build_grouped_target_tree(
+            summoning_target_rows(
+                player_data,
+                SUMMONING_ACTIONS,
+                SUMMONING_POUCHES_BY_ID,
+                SUMMONING_ITEM_IMAGES,
+                DEFAULT_SUMMONING_TARGET,
+            ),
+            {
+                "Infuse pouches": "Infuse pouches",
+                "Create scrolls": "Create scrolls",
+            },
+            "__summoning_group__:",
+            on_set_summoning,
+            group_order=["Infuse pouches", "Create scrolls"],
         )
 
     def _build_prayer_list() -> QWidget:
@@ -4865,6 +4903,7 @@ def show_main_menu(
         "Construction": _build_construction_list,
         "Thieving": _build_thieving_list,
         "Agility": _build_agility_list,
+        "Summoning": _build_summoning_list,
         _COMBAT_HUB_NAME: _build_combat_list,
         _UTILITY_HUB_NAME: _build_utility_list,
     }
@@ -4883,6 +4922,7 @@ def show_main_menu(
         "Magic": "Select a Spell to Cast",
         "Thieving": "Select a target to steal from",
         "Agility": "Select a course or activity",
+        "Summoning": "Select a pouch to infuse or scrolls to create",
         _COMBAT_HUB_NAME: "Select Enemy",
         _UTILITY_HUB_NAME: "Select an Activity (no XP)",
     }

@@ -88,6 +88,17 @@ try:
 except ImportError:
     from agility_logic import agility_target_locked_reasons_pure  # type: ignore
 
+try:
+    from .summoning_logic import (
+        summoning_action_locked_reasons_pure,
+        summoning_action_requirements_pure,
+    )
+except ImportError:
+    from summoning_logic import (  # type: ignore
+        summoning_action_locked_reasons_pure,
+        summoning_action_requirements_pure,
+    )
+
 
 @dataclass(frozen=True)
 class TargetRowMetadata:
@@ -105,6 +116,83 @@ class TargetRowMetadata:
     requires_confirmation: bool = False
     confirmation_title: str = ""
     confirmation_message: str = ""
+
+
+def summoning_target_rows(
+    player_data: Mapping[str, object],
+    actions: Sequence[object],
+    pouches_by_id: Mapping[str, object],
+    item_images: Mapping[str, str],
+    default_target: str,
+) -> tuple[TargetRowMetadata, ...]:
+    """Build the complete surface infusion and scroll-conversion selector."""
+
+    current = str(
+        player_data.get("current_summoning", default_target) or default_target
+    )
+    inventory = player_data.get("inventory", {})
+    owned = inventory if isinstance(inventory, Mapping) else {}
+    rows = []
+    group_order = {"Infuse pouches": 0, "Create scrolls": 1}
+    for action in actions:
+        target_id = str(getattr(action, "id"))
+        familiar_id = str(getattr(action, "familiar_id"))
+        family = str(getattr(action, "family"))
+        group = str(getattr(action, "subgroup"))
+        level = int(getattr(action, "level"))
+        xp = float(getattr(action, "xp"))
+        output_item = str(getattr(action, "output_item"))
+        output_quantity = int(getattr(action, "output_quantity"))
+        reasons = tuple(
+            summoning_action_locked_reasons_pure(player_data, target_id)
+        )
+        requirements = summoning_action_requirements_pure(
+            player_data, target_id
+        )
+        material_lines = list(
+            _indented_material_lines(requirements, owned).splitlines()
+        )
+        pouch = pouches_by_id.get(familiar_id)
+        if (
+            family == "infuse"
+            and pouch is not None
+            and str(getattr(pouch, "tertiary_mode", "")) == "any"
+        ):
+            alternatives = tuple(getattr(pouch, "tertiaries", ()))
+            if len(alternatives) > 1:
+                material_lines.append(
+                    "  Alternative tertiary: one of " + ", ".join(alternatives)
+                )
+        tooltip_lines = [
+            f"{group} · Summoning level {level}",
+            f"Summoning XP: {xp:g} per review",
+            f"Output: {output_item} x{output_quantity}",
+            "Materials:",
+            *material_lines,
+        ]
+        if reasons:
+            tooltip_lines.append("Locked due to: " + ", ".join(reasons))
+        label = f"{getattr(action, 'display_name')} (Lvl {level}) — {xp:g} XP"
+        if reasons:
+            label += f" — Locked: {reasons[0]}"
+        rows.append(
+            TargetRowMetadata(
+                target_id=target_id,
+                label=label,
+                tooltip="\n".join(tooltip_lines),
+                enabled=not reasons,
+                current=target_id == current,
+                icon_path=item_images.get(output_item),
+                group=group,
+                locked_reasons=reasons,
+                sort_key=(
+                    group_order.get(group, 99),
+                    level,
+                    str(getattr(action, "display_name")),
+                ),
+            )
+        )
+    return tuple(rows)
 
 
 def _material_lines(requirements: Mapping[str, int], inventory: Mapping[str, int]) -> tuple[bool, str]:

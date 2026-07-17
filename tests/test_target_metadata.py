@@ -43,6 +43,7 @@ from constants import (
     TREE_IMAGES,
     UTILITY_ACTIVITY_DATA,
     UTILITY_ITEM_IMAGES,
+    SUMMONING_ITEM_IMAGES,
     WOODCUTTING_AXE_DATA,
 )
 from target_metadata import (
@@ -59,12 +60,18 @@ from target_metadata import (
     mining_target_rows,
     runecrafting_target_rows,
     smithing_target_rows,
+    summoning_target_rows,
     thieving_target_rows,
     utility_activity_rows,
     woodcutting_target_rows,
 )
 from agility_data import AGILITY_ITEM_IMAGES, AGILITY_TARGETS, DEFAULT_AGILITY_TARGET
 from thieving_data import DEFAULT_THIEVING_TARGET, THIEVING_ITEM_IMAGES, THIEVING_TARGETS
+from summoning_data import (
+    DEFAULT_SUMMONING_TARGET,
+    SUMMONING_ACTIONS,
+    SUMMONING_POUCHES_BY_ID,
+)
 
 
 def _row(rows, target_id):
@@ -75,6 +82,38 @@ def _row(rows, target_id):
 
 
 class TargetMetadataTest(unittest.TestCase):
+    def test_summoning_rows_expose_all_targets_and_exact_recipe_state(self):
+        rows = summoning_target_rows(
+            {
+                "summoning_level": 99,
+                "current_summoning": "infuse_spiritwolf",
+                "inventory": {
+                    "Pouch": 1,
+                    "Spirit shards": 7,
+                    "Gold charm": 1,
+                    "Wolf bones": 1,
+                },
+            },
+            SUMMONING_ACTIONS,
+            SUMMONING_POUCHES_BY_ID,
+            SUMMONING_ITEM_IMAGES,
+            DEFAULT_SUMMONING_TARGET,
+        )
+
+        self.assertEqual(len(rows), 145)
+        spirit_wolf = _row(rows, "infuse_spiritwolf")
+        self.assertTrue(spirit_wolf.enabled)
+        self.assertTrue(spirit_wolf.current)
+        self.assertEqual(spirit_wolf.group, "Infuse pouches")
+        self.assertIn("Spirit shards x7 (you have 7)", spirit_wolf.tooltip)
+        self.assertIn("Output: Spirit wolf pouch x1", spirit_wolf.tooltip)
+        self.assertIsNotNone(spirit_wolf.icon_path)
+
+        scroll = _row(rows, "scroll_calltoarms")
+        self.assertFalse(scroll.enabled)
+        self.assertEqual(scroll.group, "Create scrolls")
+        self.assertIn("Output: Call to arms scroll x10", scroll.tooltip)
+
     def test_cockatrice_row_warns_about_missing_mirror_shield_without_locking_combat(self):
         rows = combat_target_rows(
             {

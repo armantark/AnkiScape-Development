@@ -266,6 +266,20 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
         review_handler_key="agility",
         visible_in_skill_hub=True,
     ),
+    SkillDefinition(
+        id="summoning",
+        display_name="Summoning",
+        category="combat",
+        implemented=True,
+        participates_in_review=True,
+        action_kind="process",
+        level_key="summoning_level",
+        exp_key="summoning_exp",
+        current_target_key="current_summoning",
+        default_target="infuse_spiritwolf",
+        review_handler_key="summoning",
+        visible_in_skill_hub=True,
+    ),
 )
 
 
@@ -275,7 +289,6 @@ PLANNED_SKILLS: Tuple[SkillDefinition, ...] = (
     SkillDefinition("defense", "Defence", "combat", False, False, "combat", "defense_level", "defense_exp", visible_in_skill_hub=False, surface_state="partial", training_source="Combat"),
     SkillDefinition("ranged", "Ranged", "combat", False, False, "combat", "ranged_level", "ranged_exp", visible_in_skill_hub=False, surface_state="partial", training_source="Combat"),
     SkillDefinition("strength", "Strength", "combat", False, False, "combat", "strength_level", "strength_exp", visible_in_skill_hub=False, surface_state="partial", training_source="Combat"),
-    SkillDefinition("summoning", "Summoning", "combat", False, False, "combat", "summoning_level", "summoning_exp", surface_state="planned"),
     SkillDefinition("dungeoneering", "Dungeoneering", "support", False, False, "support", "dungeoneering_level", "dungeoneering_exp", surface_state="planned"),
     SkillDefinition("slayer", "Slayer", "support", False, False, "support", "slayer_level", "slayer_exp", surface_state="planned"),
 )

@@ -120,6 +120,7 @@ try:
         pestle_and_mortar_activities_as_dict,
     )
     from .shop_data import shop_extra_items_as_dict
+    from .summoning_data import summoning_extra_items_as_dict
     from .potion_data import potion_items_as_dict, potion_item_names
     from .prayer_data import (
         DEFAULT_PRAYER_TARGET,
@@ -257,6 +258,7 @@ except ImportError:
         pestle_and_mortar_activities_as_dict,
     )
     from shop_data import shop_extra_items_as_dict
+    from summoning_data import summoning_extra_items_as_dict
     from potion_data import potion_items_as_dict, potion_item_names
     from prayer_data import (
         DEFAULT_PRAYER_TARGET,
@@ -340,6 +342,7 @@ SHOP_ITEMS_FOLDER = os.path.join(current_dir, "shopitems")
 PRAYER_ITEMS_FOLDER = os.path.join(current_dir, "prayeritems")
 MAGIC_ITEMS_FOLDER = os.path.join(current_dir, "magicitems")
 CONSTRUCTION_ITEMS_FOLDER = os.path.join(current_dir, "constructionitems")
+SUMMONING_ITEMS_FOLDER = os.path.join(current_dir, "summoningitems")
 FARMING_ITEMS_FOLDER = os.path.join(current_dir, "farmingitems")
 FARMING_HUD_SPROUT_ICON = os.path.join(current_dir, "icon", "farming_icon.png")
 
@@ -954,6 +957,15 @@ for _item_name in CONSTRUCTION_ASSET_ITEM_DATA:
     if os.path.exists(_path):
         CONSTRUCTION_ITEM_IMAGES[_item_name] = _path
 
+SUMMONING_EXTRA_ITEM_DATA = summoning_extra_items_as_dict()
+SUMMONING_ITEM_IMAGES = {}
+for _item_name in SUMMONING_EXTRA_ITEM_DATA:
+    _path = os.path.join(
+        SUMMONING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png"
+    )
+    if os.path.exists(_path):
+        SUMMONING_ITEM_IMAGES[_item_name] = _path
+
 # Hatchets + bird nests + seed contents fetched into woodcuttingitems/ by
 # tools/fetch_woodcutting_assets.py. Slug matches _asset_slug so the keys line
 # up; only files that actually exist are wired (rare egg nests/eggs stay
@@ -1288,6 +1300,7 @@ def _apply_equipment_metadata(extra_item_data):
 EXTRA_ITEM_DATA = _apply_equipment_metadata({
     # Magic references many existing cross-skill items. Put its generic
     # fallback rows first so the owning skill's category/stackability wins.
+    **SUMMONING_EXTRA_ITEM_DATA,
     **THIEVING_EXTRA_ITEM_DATA,
     **AGILITY_EXTRA_ITEM_DATA,
     **CONSTRUCTION_EXTRA_ITEM_DATA,
@@ -1310,6 +1323,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **SHOP_ONLY_EXTRA_ITEM_DATA,
 })
 EXTRA_ITEM_IMAGES = {
+    **SUMMONING_ITEM_IMAGES,
     **CONSTRUCTION_ITEM_IMAGES,
     **AGILITY_ITEM_IMAGES,
     **FARMING_ITEM_IMAGES,

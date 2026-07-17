@@ -23,6 +23,9 @@ Scope: evidence needed to frame the first Summoning owner-grill decision. Cutoff
 6. **Beasts of Burden**, oldid
    [6288415](https://runescape.wiki/w/Beasts_of_Burden?oldid=6288415),
    2012-09-24 05:14:06 UTC.
+7. **Special moves**, oldid
+   [5907879](https://runescape.wiki/w/Special_moves?oldid=5907879),
+   2012-07-07 period snapshot.
 
 The revision IDs and timestamps were retrieved directly through the RuneScape Wiki
 MediaWiki revisions API with `rvstart=2012-11-20T23:59:59Z` and `rvdir=older`; claims
@@ -45,6 +48,7 @@ below were checked against the literal revision wikitext rather than the modern 
 | A BoB had a separate inventory with direct whole-inventory bank deposit. | Oldid 6288415 describes its inventory UI and the familiar icon in the bank interface. | High |
 | BoB items fell to the ground when the familiar expired or died. | Oldid 6288415 describes expiry/death drops and a five-minute owner retrieval window after expiry. | High |
 | BoB inventory could not be accessed during combat. | Oldid 6288415 says players needed to find safety before withdrawing carried items. | High |
+| Special-move energy recharged 15 points every 30 seconds and persisted after a familiar left. | Oldid 5907879 literal lines 8-14 states both the natural rate and persistence. Under the settled two-source-minutes-per-review mapping, one answered-card world tick necessarily reaches the 60-point cap; explicit commands between reviews can still spend the persistent pool. | High |
 | Most familiar-restricted areas blocked entry or required the familiar to be dismissed; they did not preserve it just outside. | Oldid 6582606 lines 89-116 calls these places areas where a familiar cannot be brought. Darkan commit `2383a9b213bbb2de46cbc4c376ef7d6d87dba312` independently blocks entry with a live familiar in `FightCavesController.java:71-75`, `pest/Lander.java:186-196`, and `transportation/canoes/Canoes.kt:339-343`. | High for the blocking shape; exact consequence remains area-specific. |
 | Temporary hiding was a separate, explicit exception. | Oldid 6582606 lines 117-121 says the familiar instead returns to the spirit plane and later returns only for the Grand Exchange, Oo'glog spas, and Varrock Museum. | High for the three listed contexts. |
 

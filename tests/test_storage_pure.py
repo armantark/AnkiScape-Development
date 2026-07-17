@@ -305,7 +305,9 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["farming_level"], 1)
         self.assertEqual(migrated["farm_clock_minutes"], 0)
         self.assertEqual(migrated["farm_patches"]["future_patch"], {"future": True})
-        self.assertEqual(migrated["pending_skill_exp_rewards"], {"summoning_exp": 250.0})
+        self.assertEqual(migrated["summoning_exp"], 250.0)
+        self.assertEqual(migrated["summoning_level"], 3)
+        self.assertEqual(migrated["pending_skill_exp_rewards"], {})
 
     def test_legacy_active_charge_migrates_to_a_full_review_driven_duration(self):
         migrated = migrate_loaded_data(

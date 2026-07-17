@@ -38,7 +38,7 @@ def _make_player_data() -> dict:
     from quest_data import default_quest_states
 
     data: dict = {"inventory": {}}
-    for skill in ("mining", "woodcutting", "farming", "fishing", "hunter", "smithing", "crafting", "fletching", "firemaking", "cooking", "runecrafting", "prayer", "magic", "thieving", "agility"):
+    for skill in ("mining", "woodcutting", "farming", "fishing", "hunter", "smithing", "crafting", "fletching", "firemaking", "cooking", "runecrafting", "prayer", "magic", "thieving", "agility", "summoning"):
         data[f"{skill}_level"] = 33
         data[f"{skill}_exp"] = 1000.0
     # Real saves are seeded with a bound starter tool per gathering skill; without
@@ -50,6 +50,7 @@ def _make_player_data() -> dict:
     data["current_runecrafting"] = "craft_air_runes"
     data["current_thieving"] = "pickpocket_man"
     data["current_agility"] = "burthorpe_course"
+    data["current_summoning"] = "infuse_spiritwolf"
     data["thieving_fight_back_when_caught"] = False
     data["current_quest"] = "rune_mysteries"
     data["quests"] = default_quest_states()
@@ -73,7 +74,7 @@ def _panel_title(dialog: "QDialog") -> str:
 
     The header is the QLabel styled bold/large that reads e.g. "Woodcutting — Lv 33".
     """
-    pattern = re.compile(r"^(Mining|Woodcutting|Fishing|Hunter|Smithing|Crafting|Fletching|Firemaking|Cooking|Runecrafting|Agility)(\s+—\s+Lv\s+\d+)?$")
+    pattern = re.compile(r"^(Mining|Woodcutting|Fishing|Hunter|Smithing|Crafting|Fletching|Firemaking|Cooking|Runecrafting|Agility|Summoning)(\s+—\s+Lv\s+\d+)?$")
     for lbl in dialog.findChildren(QLabel):
         text = lbl.text()
         if pattern.match(text):
@@ -520,6 +521,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._construction_calls: list = []
         self._thieving_calls: list = []
         self._agility_calls: list = []
+        self._summoning_calls: list = []
         self._agility_command_calls: list = []
         self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
@@ -682,6 +684,9 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_thieving=lambda target: _set_target("current_thieving", self._thieving_calls, target),
             on_set_thieving_fight_back=_set_thieving_fight_back,
             on_set_agility=lambda target: _set_target("current_agility", self._agility_calls, target),
+            on_set_summoning=lambda target: _set_target(
+                "current_summoning", self._summoning_calls, target
+            ),
             on_agility_command=_agility_command,
             on_set_prayer_selection=_set_prayer_selection,
             on_set_magic=lambda target: _set_target("current_magic", self._magic_calls, target),
@@ -2781,6 +2786,55 @@ class MainMenuWidgetTest(unittest.TestCase):
             "clean_sagawort",
             {item.data(0, Qt.ItemDataRole.UserRole) for item in _smith_tree_items(tree)},
         )
+
+    def test_summoning_uses_canonical_icon_and_complete_surface_target_tree(self) -> None:
+        pd = _make_player_data()
+        pd["summoning_level"] = 99
+        pd["inventory"] = {
+            "Pouch": 1,
+            "Spirit shards": 7,
+            "Gold charm": 1,
+            "Wolf bones": 1,
+        }
+        dialog = self._open(pd, current_skill="Summoning")
+        skill_list = next(
+            widget
+            for widget in dialog.findChildren(QListWidget)
+            if "Summoning" in [
+                widget.item(index).text() for index in range(widget.count())
+            ]
+        )
+        summoning_item = next(
+            skill_list.item(index)
+            for index in range(skill_list.count())
+            if skill_list.item(index).text() == "Summoning"
+        )
+        skill_list.setCurrentItem(summoning_item)
+        QApplication.processEvents()
+        tree = _find_tree_with_user_role(dialog, "infuse_spiritwolf")
+        infuse_group = _tree_row(
+            tree, "__summoning_group__:Infuse pouches"
+        )
+        scroll_group = _tree_row(
+            tree, "__summoning_group__:Create scrolls"
+        )
+
+        self.assertFalse(summoning_item.icon().isNull())
+        self.assertEqual(
+            _icon_pixels(summoning_item.icon()),
+            _icon_pixels(QIcon(self._ui.skill_icon_path_for("Summoning"))),
+        )
+        self.assertEqual(infuse_group.childCount(), 78)
+        self.assertEqual(scroll_group.childCount(), 67)
+        rows = [
+            item
+            for item in _smith_tree_items(tree)
+            if not str(
+                item.data(0, Qt.ItemDataRole.UserRole)
+            ).startswith("__summoning_group__:")
+        ]
+        self.assertEqual(len(rows), 145)
+        self.assertTrue(all(not item.icon(0).isNull() for item in rows))
 
     def test_cannonball_row_shows_quest_gate_mould_and_icon(self) -> None:
         pd = _make_player_data()

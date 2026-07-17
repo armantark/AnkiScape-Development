@@ -178,6 +178,12 @@ try:
     )
     from .agility_travel import agility_travel_profile_pure, scheduled_travel_reviews_pure
     from .cadence_kernel import advance_cadence_pure, default_cadence_profile_state_pure
+    from .summoning_data import DEFAULT_SUMMONING_TARGET, SUMMONING_ACTIONS_BY_ID
+    from .summoning_logic import (
+        apply_summoning_training_action_pure,
+        summoning_action_locked_reasons_pure,
+        summoning_action_requirements_pure,
+    )
 except ImportError:  # pragma: no cover - flat import path used by tests
     from constants import (  # type: ignore
         BIRD_NEST_DROP_CHANCE,
@@ -344,6 +350,12 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     )
     from agility_travel import agility_travel_profile_pure, scheduled_travel_reviews_pure  # type: ignore
     from cadence_kernel import advance_cadence_pure, default_cadence_profile_state_pure  # type: ignore
+    from summoning_data import DEFAULT_SUMMONING_TARGET, SUMMONING_ACTIONS_BY_ID  # type: ignore
+    from summoning_logic import (  # type: ignore
+        apply_summoning_training_action_pure,
+        summoning_action_locked_reasons_pure,
+        summoning_action_requirements_pure,
+    )
 
 try:
     from . import inventory_pure
@@ -396,6 +408,7 @@ _OVERLAY_TARGET_KEYS = {
     "prayer": "current_prayer",
     "thieving": "current_thieving",
     "agility": "current_agility",
+    "summoning": "current_summoning",
 }
 # A stackable occupies one slot for any quantity (then holds up to the int cap);
 # use the real cache stackable set so a stack is not miscounted as N slots.
@@ -405,7 +418,7 @@ _OVERLAY_STACKABLE_NAMES: frozenset[str] = STACKABLE_ITEM_NAMES
 # gathering skills fill the pack with their product instead. Combat has its own
 # supply_loadout system and is not routed through this wrapper at all.
 _PROCESSING_HANDLER_KEYS = frozenset(
-    {"cooking", "crafting", "fletching", "firemaking", "smithing", "runecrafting", "herblore", "prayer"}
+    {"cooking", "crafting", "fletching", "firemaking", "smithing", "runecrafting", "herblore", "prayer", "summoning"}
 )
 _PROCESSING_DATA_TABLES = {
     "cooking": (COOKING_DATA, "current_cooking", DEFAULT_COOKING_TARGET),
@@ -431,6 +444,20 @@ def _processing_requirements_for(
     ``essence_items`` works); resolve it to the first stocked essence in the
     target's source order, so the pack has something concrete to carry.
     """
+    if handler_key == "summoning":
+        target = str(
+            player_data.get("current_summoning", DEFAULT_SUMMONING_TARGET)
+        )
+        inventory = (
+            carried_inventory
+            if isinstance(carried_inventory, dict)
+            else player_data.get("inventory", {})
+        )
+        return summoning_action_requirements_pure(
+            player_data,
+            target,
+            inventory_override=inventory,
+        )
     table_info = _PROCESSING_DATA_TABLES.get(handler_key)
     if table_info is None:
         return {}
@@ -1767,6 +1794,67 @@ def handle_herblore_answer(ctx: RuntimeActionContext) -> bool:
     ctx.save_player_data()
     ctx.refresh_skill_availability()
     ctx.show_exp(exp_gained)
+    return True
+
+
+def handle_summoning_answer(ctx: RuntimeActionContext) -> bool:
+    player_data = ctx.player_data
+    target = str(
+        player_data.get("current_summoning", DEFAULT_SUMMONING_TARGET)
+    )
+    if target not in SUMMONING_ACTIONS_BY_ID:
+        target = DEFAULT_SUMMONING_TARGET
+        player_data["current_summoning"] = target
+    action = SUMMONING_ACTIONS_BY_ID[target]
+    locked_reasons = summoning_action_locked_reasons_pure(player_data, target)
+    level_reasons = tuple(
+        reason
+        for reason in locked_reasons
+        if str(reason).startswith("Summoning level")
+    )
+    if level_reasons:
+        ctx.show_error_message(
+            "Insufficient level",
+            f"You need {level_reasons[0]} for {action.display_name}.",
+        )
+        return False
+
+    updated, ok, result = apply_summoning_training_action_pure(
+        player_data, target
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        missing = ", ".join(
+            reason.removeprefix("Missing ")
+            for reason in result.get("locked_reasons", ())
+            if str(reason).startswith("Missing ")
+        )
+        ctx.show_error_message(
+            "Out of Summoning materials",
+            f"You need {missing or 'the source recipe'} for "
+            f"{action.display_name.lower()}, so Summoning has been switched off.",
+        )
+        return False
+
+    player_data["inventory"] = updated["inventory"]
+    output_item = str(result["output_item"])
+    output_quantity = int(result["output_quantity"])
+    _record_action(
+        ctx,
+        "summoning",
+        target,
+        True,
+        expected_success_chance=1.0,
+        output_items={output_item: output_quantity},
+        primary_xp=float(result["xp"]),
+    )
+    exp_gained = ctx.award_skill_exp("summoning_exp", float(result["xp"]))
+    ctx.level_up_check("Summoning", player_data)
+    ctx.check_achievements(player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_exp(exp_gained)
+    ctx.show_activity_gain(f"+{output_quantity} {output_item}")
     return True
 
 
@@ -3231,6 +3319,15 @@ def _can_start_mining_action(ctx: RuntimeActionContext) -> bool:
     )
 
 
+def _can_start_summoning_action(ctx: RuntimeActionContext) -> bool:
+    target = str(
+        ctx.player_data.get("current_summoning", DEFAULT_SUMMONING_TARGET)
+    )
+    return not summoning_action_locked_reasons_pure(
+        ctx.player_data, target
+    )
+
+
 CAN_START_HANDLERS: dict[str, Callable[[RuntimeActionContext], bool]] = {
     "mining": _can_start_mining_action,
     "woodcutting": _can_start_woodcutting_action,
@@ -3248,6 +3345,7 @@ CAN_START_HANDLERS: dict[str, Callable[[RuntimeActionContext], bool]] = {
     "construction": _can_start_construction_action,
     "thieving": _can_start_thieving_action,
     "agility": _can_start_agility_action,
+    "summoning": _can_start_summoning_action,
     "combat": _can_start_combat_action,
     "utility": _can_start_utility_action,
     "quest": _can_start_quest_action,
@@ -3271,6 +3369,7 @@ ANSWER_HANDLERS: dict[str, Callable[[RuntimeActionContext], bool]] = {
     "construction": handle_construction_answer,
     "thieving": handle_thieving_answer,
     "agility": handle_agility_answer,
+    "summoning": handle_summoning_answer,
     "combat": handle_combat_answer,
     "utility": handle_utility_answer,
     "quest": handle_quest_answer,

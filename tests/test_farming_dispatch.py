@@ -61,6 +61,55 @@ class TestFarmingReviewDispatch(unittest.TestCase):
 
         self.assertEqual(order, ["shop", "farm"])
 
+    def test_summoning_world_tick_runs_on_again_before_farming_clock(self):
+        addon = _load_addon_as_package("ankiscape_summoning_world_dispatch")
+        self._configure(addon)
+        summoning_logic = sys.modules[f"{addon.__name__}.summoning_logic"]
+        state = summoning_logic.default_summoning_state_pure()
+        state["summoning_points_current"] = 10
+        state["active_follower"] = {
+            "kind": "familiar",
+            "entity_id": "spiritwolf",
+            "remaining_reviews": 3,
+            "max_reviews": 3,
+            "lifepoints": 100,
+            "max_lifepoints": 100,
+            "storage": {},
+        }
+        addon.player_data = {
+            "inventory": {},
+            "summoning_level": 10,
+            "summoning_state": state,
+        }
+        addon.current_skill = "None"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        order = []
+        original_tick = addon.advance_summoning_world_tick_pure
+
+        def tracked_tick(data, **kwargs):
+            order.append("summoning")
+            return original_tick(data, **kwargs)
+
+        addon.advance_shop_market_clock_pure = (
+            lambda data: order.append("shop") or dict(data)
+        )
+        addon.advance_summoning_world_tick_pure = tracked_tick
+        addon.runtime_actions.advance_farming_clock_for_review = (
+            lambda _ctx: order.append("farm") or {}
+        )
+
+        addon.on_answer_card(_FakeReviewer(), 1, lambda _self, _ease: "answered")
+
+        self.assertEqual(order, ["shop", "summoning", "farm"])
+        follower = addon.player_data["summoning_state"]["active_follower"]
+        self.assertEqual(follower["remaining_reviews"], 2)
+        self.assertEqual(
+            addon.player_data["summoning_state"]["summoning_points_current"],
+            9,
+        )
+
     def test_success_consumes_one_farm_step_and_preempts_active_skill_multiplier(self):
         addon = _load_addon_as_package("ankiscape_farming_queue_dispatch")
         self._configure(addon)

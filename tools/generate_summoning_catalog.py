@@ -32,12 +32,15 @@ DARKAN_COMMIT = "d02d8b88a1c7f654a24cdd3cc5a4fb7c9a11a87a"
 POUCH_OLDID = 6438719
 SCROLL_OLDID = 6520851
 FAMILIAR_OLDID = 6579789
+TERTIARY_CANONICAL_NAMES = {
+    "Obsidian Charm": "Obsidian charm",
+}
 
 EXTRA_ITEM_IDS = {
     "Meerkats pouch": 19622,
     "Fetch casket scroll": 19621,
     "Ghast pouch": 21444,
-    "Ghastly attack scroll": 21453,
+    "Ghastly request scroll": 21453,
 }
 
 
@@ -222,7 +225,10 @@ def parse_pouch_rows(wikitext: str) -> list[dict[str, object]]:
             raise RuntimeError(f"Charm missing for {familiar}")
         tertiaries = tuple(
             dict.fromkeys(
-                display[:1].upper() + display[1:]
+                TERTIARY_CANONICAL_NAMES.get(
+                    display[:1].upper() + display[1:],
+                    display[:1].upper() + display[1:],
+                )
                 for target, display in wiki_links(row[5])
                 if not target.startswith(("Exchange:", "Grand Exchange:"))
             )
@@ -497,6 +503,8 @@ def build_catalog() -> tuple[list[dict[str, object]], list[dict[str, object]]]:
                 **emulator,
                 "duration_minutes": familiar["duration_minutes"],
                 "summoning_point_cost": familiar["summoning_point_cost"],
+                "combat": familiar["combat"],
+                "lifepoints": familiar["lifepoints"],
                 "roles": familiar["roles"],
                 "bob_capacity": familiar["bob_capacity"],
                 "delivery_mode": familiar["delivery_mode"],
@@ -526,8 +534,8 @@ def build_catalog() -> tuple[list[dict[str, object]], list[dict[str, object]]]:
         {
             "familiar_name": "Ghast familiar",
             "pouch_name": "Ghast pouch",
-            "scroll_name": "Ghastly attack scroll",
-            "summon_xp": 3.0,
+            "scroll_name": "Ghastly request scroll",
+            "summon_xp": 1.8,
             "craftable": False,
             "acquisition": "Temple Trekking / Burgh de Rott Ramble reward",
         },
@@ -540,15 +548,12 @@ def build_catalog() -> tuple[list[dict[str, object]], list[dict[str, object]]]:
             )
             if extra["familiar_name"] == "Meerkats"
             else {
-                "id": "ghastlyattack",
-                "name": "Ghastly attack scroll",
+                "id": "ghastlyrequest",
+                "name": "Ghastly request scroll",
                 "creation_xp": None,
-                "use_xp": 3.0,
-                "special_points": 6,
-                "source": (
-                    "RuneScape Wiki Summoning familiars "
-                    f"oldid={FAMILIAR_OLDID}"
-                ),
+                "use_xp": 0.9,
+                "special_points": 20,
+                "source": "RuneScape Wiki Ghast (familiar) oldid=6555839",
             }
         )
         catalog.append(
@@ -576,6 +581,8 @@ def build_catalog() -> tuple[list[dict[str, object]], list[dict[str, object]]]:
                 ),
                 "duration_minutes": familiar["duration_minutes"],
                 "summoning_point_cost": familiar["summoning_point_cost"],
+                "combat": familiar["combat"],
+                "lifepoints": familiar["lifepoints"],
                 "roles": familiar["roles"],
                 "bob_capacity": familiar["bob_capacity"],
                 "delivery_mode": familiar["delivery_mode"],
@@ -594,6 +601,17 @@ def build_catalog() -> tuple[list[dict[str, object]], list[dict[str, object]]]:
         )
 
     catalog.sort(key=lambda row: (int(row["level"]), str(row["familiar_name"])))
+    scroll_rows.append(
+        {
+            "id": "ghastlyrequest",
+            "name": "Ghastly request scroll",
+            "level": 87,
+            "creation_xp": None,
+            "use_xp": 0.9,
+            "special_points": 20,
+            "source": "RuneScape Wiki Ghast (familiar) oldid=6555839",
+        }
+    )
     scroll_rows.sort(key=lambda row: (int(row["level"]), str(row["name"])))
     return catalog, scroll_rows
 

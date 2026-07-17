@@ -109,6 +109,7 @@ from .shop_logic import advance_shop_market_clock_pure
 from .farming_logic import apply_farming_frontend_action_pure, farming_frontend_projection_pure
 from .agility_logic import apply_agility_command_pure
 from .agility_travel import agility_carried_weight_pure
+from .summoning_logic import advance_summoning_world_tick_pure
 from . import runtime_actions
 from .runtime_actions import RuntimeActionContext
 
@@ -1173,6 +1174,9 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             "thieving_fight_back_when_caught", bool(enabled)
         ),
         on_set_agility=lambda target: _set_value("current_agility", target),
+        on_set_summoning=lambda target: _set_value(
+            "current_summoning", target
+        ),
         on_agility_command=_apply_agility_command,
         on_set_prayer_selection=set_prayer_selection,
         on_set_magic=lambda target: _set_value("current_magic", target),
@@ -1733,6 +1737,16 @@ def on_answer_card(self, ease, _old):
     if review_answered:
         try:
             player_data.update(advance_shop_market_clock_pure(player_data))
+        except Exception:
+            pass
+        try:
+            summoning_updated, _summoning_events = (
+                advance_summoning_world_tick_pure(
+                    player_data,
+                    successful_answer=successful_answer,
+                )
+            )
+            player_data.update(summoning_updated)
         except Exception:
             pass
         if successful_answer:

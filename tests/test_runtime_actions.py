@@ -19,6 +19,7 @@ from runtime_actions import (
     handle_herblore_answer,
     handle_quest_answer,
     handle_smithing_answer,
+    handle_summoning_answer,
     handle_woodcutting_answer,
     run_answer_with_carried_overlay,
 )
@@ -67,6 +68,28 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_summoning_handler_processes_one_source_recipe(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "current_summoning": "infuse_spiritwolf",
+            "summoning_level": 99,
+            "summoning_exp": 0.0,
+            "inventory": {
+                "Pouch": 1,
+                "Spirit shards": 7,
+                "Gold charm": 1,
+                "Wolf bones": 1,
+            },
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(handle_summoning_answer(_context(player_data, calls)))
+
+        self.assertEqual(player_data["inventory"]["Spirit wolf pouch"], 1)
+        self.assertEqual(player_data["summoning_exp"], 4.8)
+        self.assertEqual(calls["xp"], [4.8])
+        self.assertEqual(calls["saves"], 1)
+
     def test_brimhaven_ticket_is_cumulative_credit_without_double_adding_inventory(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

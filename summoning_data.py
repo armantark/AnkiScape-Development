@@ -57,6 +57,8 @@ class SummoningPouch:
     duration_source_minutes: int
     lifetime_reviews: int
     summoning_point_cost: int
+    combat: str
+    lifepoints: Optional[int]
     roles: tuple[str, ...]
     bob_capacity: int
     forage_capacity: int
@@ -121,6 +123,8 @@ def _pouch_from_row(row: Mapping[str, object]) -> SummoningPouch:
         duration_source_minutes=duration,
         lifetime_reviews=max(2, math.ceil(duration / SOURCE_DURATION_UNITS_PER_REVIEW)),
         summoning_point_cost=int(row["summoning_point_cost"]),
+        combat=str(row["combat"]),
+        lifepoints=int(row["lifepoints"]) if row.get("lifepoints") is not None else None,
         roles=tuple(str(role) for role in row["roles"]),
         bob_capacity=int(row["bob_capacity"]),
         forage_capacity=int(row["forage_capacity"]),

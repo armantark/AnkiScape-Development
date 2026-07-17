@@ -45,6 +45,13 @@ Python catalog.
   remain summonable items with Treasure Trails and Temple Trekking/Burgh de Rott
   Ramble acquisition routes respectively; they are not fabricated obelisk
   recipes.
+- Ghast oldid
+  [6555839](https://runescape.wiki/w/Ghast_%28familiar%29?oldid=6555839)
+  (2012-11-15 00:05:41 UTC) closes its exceptional values: summoning the
+  familiar awards 1.8 XP; the item and move are **Ghastly request**; a scroll
+  awards 0.9 XP, costs 20 special-move points, and restores 100 Prayer points.
+  This row is appended to the distinct scroll catalog because the general
+  Summoning-scroll table omits it.
 - Spirit cobra accepts either ordinary or swamp snake hide. Ice titan requires
   both Air and Water talismans, while Wolpertinger requires both Raw rabbit and
   Wolf bones. These semantics are encoded instead of flattening every
@@ -86,4 +93,3 @@ It is not a claim that one review equals two real minutes.
   drop, Hunter, shop, or skilling route exists.
 - The full pet catalog and acquisition matrix remain separate from these 80
   summonable familiar rows and are not counted as ordinary pouch targets.
-

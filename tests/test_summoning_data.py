@@ -108,6 +108,11 @@ class SummoningDataTests(unittest.TestCase):
         )
         self.assertNotIn("infuse_meerkats", SUMMONING_ACTIONS_BY_ID)
         self.assertNotIn("infuse_ghast", SUMMONING_ACTIONS_BY_ID)
+        ghast = SUMMONING_POUCHES_BY_ID["ghast"]
+        self.assertEqual(ghast.summon_xp, 1.8)
+        self.assertEqual(ghast.scroll_name, "Ghastly request scroll")
+        self.assertEqual(ghast.scroll_use_xp, 0.9)
+        self.assertEqual(ghast.special_points, 20)
 
     def test_review_lifetime_mapping_is_bounded_and_ratio_preserving(self):
         self.assertEqual(SOURCE_DURATION_UNITS_PER_REVIEW, 2)
