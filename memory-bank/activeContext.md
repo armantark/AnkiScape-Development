@@ -161,6 +161,11 @@ training, and scroll-use XP. Summoning also establishes one offline Help corpus
 for contextual and full-reference surfaces. These decisions are current design,
 not a claim that Summoning ships.
 
+The next open owner fork is Pack Yak's Winter Storage trigger. The period move banks one
+selected carried item per scroll and 12 special points; Casual must either bank configured
+outputs proactively or conserve scrolls until a full-pack boundary would force a Bank trip.
+Any target rate must declare whether Winter Storage is already assumed.
+
 The documentation archive closure is complete. The new `memory-bank/README.md`
 separates current entry points from evidence and historical records; six
 superseded/completed Markdown records plus the completion-audit JSON companion
