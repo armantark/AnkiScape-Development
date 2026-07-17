@@ -40,6 +40,13 @@ FAMILIARISATION_MAX_SEGMENTS = 4
 FAMILIARISATION_STARTING_FOCUS = 3
 FAMILIARISATION_SHARDS_PER_SUCCESS = 15
 FAMILIARISATION_SHARD_CAP = 60
+_FAMILIAR_SKILL_ROLL_BOOSTS = {
+    ("lavatitan", "mining"): 10,
+    ("lavatitan", "firemaking"): 10,
+    ("arcticbear", "hunter"): 7,
+    ("granitelobster", "fishing"): 4,
+    ("beaver", "woodcutting"): 2,
+}
 _ESSENCE_ONLY_FAMILIARS = frozenset(
     {"abyssalparasite", "abyssallurker", "abyssaltitan"}
 )
@@ -96,6 +103,7 @@ def default_summoning_state_pure() -> dict[str, Any]:
         "cargo_next_event_id": 1,
         "pet_instances": {},
         "pet_next_instance_id": 1,
+        "triple_charm_reviews_remaining": 0,
         "familiarisation": default_familiarisation_state_pure(),
         "event_log": [],
     }
@@ -253,10 +261,18 @@ def sanitize_summoning_state_pure(
         "pet_next_instance_id": _clean_int(
             source.get("pet_next_instance_id"), 1, minimum=1
         ),
+        "triple_charm_reviews_remaining": _clean_int(
+            source.get("triple_charm_reviews_remaining"), 0, minimum=0
+        ),
         "familiarisation": _sanitize_familiarisation(
             source.get("familiarisation")
         ),
-        "event_log": [str(entry) for entry in event_log[-50:]],
+        "event_log": [
+            copy.deepcopy(dict(entry))
+            if isinstance(entry, Mapping)
+            else str(entry)
+            for entry in event_log[-50:]
+        ],
     }
 
 
@@ -403,6 +419,66 @@ def restore_summoning_points_pure(
     )
     updated["summoning_state"] = state
     return updated
+
+
+def familiar_effective_roll_level_pure(
+    player_data: Mapping[str, Any],
+    skill_id: str,
+    base_level: Any,
+) -> int:
+    """Apply a live familiar's sourced invisible boost to success rolls only."""
+    base = _clean_int(base_level, 1, minimum=1)
+    state = player_data.get("summoning_state", {}) or {}
+    follower = state.get("active_follower", {}) or {}
+    if follower.get("kind") != "familiar":
+        return base
+    boost = _FAMILIAR_SKILL_ROLL_BOOSTS.get(
+        (str(follower.get("entity_id", "")), str(skill_id)),
+        0,
+    )
+    return base + boost
+
+
+def set_winter_storage_priority_pure(
+    player_data: Mapping[str, Any],
+    target_id: str,
+    item_name: str,
+    threshold_free_slots: Any = 0,
+) -> tuple[dict[str, Any], bool]:
+    if not target_id:
+        return dict(player_data), False
+    updated = _copy_player_data(player_data)
+    level = _clean_int(updated.get("summoning_level"), 1, minimum=1)
+    state = sanitize_summoning_state_pure(
+        updated.get("summoning_state"), summoning_level=level
+    )
+    policies = dict(state.get("target_policies", {}) or {})
+    policy = dict(policies.get(target_id, {}) or {})
+    if item_name:
+        carried = (updated.get("carried_inventory", {}) or {}).get(
+            target_id, {}
+        )
+        if (
+            not isinstance(carried, Mapping)
+            or _clean_int(carried.get(item_name), 0, minimum=0) <= 0
+        ):
+            return dict(player_data), False
+        policy["winter_storage_priority"] = [item_name]
+        advanced = bool(
+            (updated.get("carried_advanced_targets", {}) or {}).get(target_id)
+        )
+        policy["winter_storage_threshold_free_slots"] = (
+            _clean_int(threshold_free_slots, 0, minimum=0, maximum=27)
+            if advanced
+            else 0
+        )
+    else:
+        policy.pop("winter_storage_priority", None)
+        policy.pop("winter_storage_threshold_free_slots", None)
+    policies[target_id] = policy
+    state["target_policies"] = policies
+    updated["summoning_state"] = state
+    return updated, True
 
 
 def summon_familiar_pure(
@@ -708,6 +784,67 @@ def start_familiarisation_pure(
     return updated, True
 
 
+def claim_familiarisation_reward_pure(
+    player_data: Mapping[str, Any],
+    choice: str,
+) -> tuple[dict[str, Any], bool, dict[str, Any]]:
+    if choice not in {"ingredients", "triple_charms"}:
+        return dict(player_data), False, {"reason": "unknown_reward"}
+    updated = _copy_player_data(player_data)
+    level = _clean_int(updated.get("summoning_level"), 1, minimum=1)
+    state = sanitize_summoning_state_pure(
+        updated.get("summoning_state"), summoning_level=level
+    )
+    activity = dict(state["familiarisation"])
+    if not activity["awaiting_reward"]:
+        return dict(player_data), False, {"reason": "reward_unavailable"}
+    shards = _clean_int(activity.get("raw_shards"), 0, minimum=0)
+    sequence = _clean_int(activity.get("reward_sequence"), 0, minimum=0)
+    result: dict[str, Any] = {
+        "reason": "reward_claimed",
+        "choice": choice,
+        "raw_shards": shards,
+    }
+    if choice == "triple_charms":
+        source_minutes = round(shards * 40.0 / 60.0)
+        reviews = max(
+            1,
+            math.ceil(source_minutes / SOURCE_DURATION_UNITS_PER_REVIEW),
+        )
+        state["triple_charm_reviews_remaining"] = max(
+            state["triple_charm_reviews_remaining"], reviews
+        )
+        result["reviews"] = reviews
+    else:
+        ingredients = tuple(
+            sorted(
+                {
+                    item_name
+                    for pouch in SUMMONING_POUCHES_BY_ID.values()
+                    for item_name in pouch.tertiaries
+                    if item_name
+                }
+            )
+        )
+        count = max(1, math.ceil(shards / FAMILIARISATION_SHARDS_PER_SUCCESS))
+        awarded: dict[str, int] = {}
+        if ingredients:
+            inventory = dict(updated.get("inventory", {}) or {})
+            for offset in range(count):
+                item_name = ingredients[(sequence + offset) % len(ingredients)]
+                inventory[item_name] = _clean_int(
+                    inventory.get(item_name), 0, minimum=0
+                ) + 1
+                awarded[item_name] = awarded.get(item_name, 0) + 1
+            updated["inventory"] = inventory
+        result["ingredients"] = awarded
+    activity["awaiting_reward"] = False
+    activity["reward_sequence"] = sequence + 1
+    state["familiarisation"] = activity
+    updated["summoning_state"] = state
+    return updated, True, result
+
+
 def apply_familiarisation_segment_pure(
     player_data: Mapping[str, Any],
     *,
@@ -764,6 +901,7 @@ def advance_summoning_world_tick_pure(
         "expired_cargo_event": None,
         "lost_cargo_events": [],
         "familiarisation": None,
+        "passive_healing": 0,
         "pet": None,
     }
 
@@ -810,10 +948,30 @@ def advance_summoning_world_tick_pure(
         state["special_move_points_current"]
         + SPECIAL_MOVE_POINT_RECOVERY_PER_REVIEW,
     )
+    state["triple_charm_reviews_remaining"] = max(
+        0, state["triple_charm_reviews_remaining"] - 1
+    )
 
     follower = state["active_follower"]
     if follower.get("kind") == "familiar":
         follower = dict(follower)
+        if follower.get("entity_id") == "bunyip":
+            maximum = max(
+                10,
+                _clean_int(
+                    updated.get("constitution_level"), 10, minimum=1
+                )
+                * 10,
+            )
+            before = _clean_int(
+                updated.get("combat_lifepoints"),
+                maximum,
+                minimum=0,
+                maximum=maximum,
+            )
+            after = min(maximum, before + 160)
+            updated["combat_lifepoints"] = after
+            result["passive_healing"] = after - before
         follower["remaining_reviews"] = max(
             0, _clean_int(follower.get("remaining_reviews"), 0) - 1
         )

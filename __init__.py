@@ -111,11 +111,13 @@ from .agility_logic import apply_agility_command_pure
 from .agility_travel import agility_carried_weight_pure
 from .summoning_logic import (
     advance_summoning_world_tick_pure,
+    claim_familiarisation_reward_pure,
     dismiss_familiar_pure,
     reclaim_familiar_cargo_pure,
     renew_familiar_pure,
     restore_summoning_points_pure,
     start_familiarisation_pure,
+    set_winter_storage_priority_pure,
     summon_familiar_pure,
 )
 from .pet_logic import (
@@ -1186,6 +1188,17 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             info = {"reclaimed": reclaimed}
         elif action_id == "start_familiarisation":
             updated, ok = start_familiarisation_pure(player_data)
+        elif action_id == "claim_familiarisation":
+            updated, ok, info = claim_familiarisation_reward_pure(
+                player_data, str(payload.get("choice", ""))
+            )
+        elif action_id == "set_winter_storage_priority":
+            updated, ok = set_winter_storage_priority_pure(
+                player_data,
+                str(payload.get("target_id", "")),
+                str(payload.get("item_name", "")),
+                payload.get("threshold_free_slots", 0),
+            )
         elif action_id == "let_out_pet":
             updated, ok, reason = let_out_pet_pure(
                 player_data, str(payload.get("instance_id", ""))
@@ -1275,6 +1288,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_set_loot_override=_set_loot_override,
         loot_override_rows=_current_combat_loot_rows(),
         carried_pack_target_active=_current_carried_pack_target() is not None,
+        active_carried_target_id=_current_carried_pack_target(),
         on_set_carried_advanced=_set_carried_advanced,
         carried_advanced_state=_current_carried_advanced_state(),
         # A callback, not a snapshot: the grid re-reads live player_data after
@@ -1808,6 +1822,16 @@ def on_good_answer(before_state=None):
 ## Removed roll_gem wrapper; mining uses apply_mining_pure directly.
 
 
+def _active_review_carried_target():
+    handler_key = review_action_handler_key(current_skill)
+    if handler_key == "combat":
+        target_id = player_data.get("current_combat_target")
+    else:
+        target_key = runtime_actions._OVERLAY_TARGET_KEYS.get(handler_key)
+        target_id = player_data.get(target_key) if target_key else None
+    return str(target_id) if target_id else None
+
+
 def on_answer_card(self, ease, _old):
     global card_turned, exp_awarded, answer_shown
     review_answered = card_turned and answer_shown
@@ -1825,7 +1849,7 @@ def on_answer_card(self, ease, _old):
                 advance_summoning_world_tick_pure(
                     player_data,
                     successful_answer=successful_answer,
-                    active_carried_target=_current_carried_pack_target(),
+                    active_carried_target=_active_review_carried_target(),
                 )
             )
             player_data.update(summoning_updated)

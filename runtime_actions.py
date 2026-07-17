@@ -8,6 +8,7 @@ coordination.
 
 from __future__ import annotations
 
+import copy
 import dataclasses
 from dataclasses import dataclass
 from typing import Any, Callable, Optional
@@ -181,6 +182,8 @@ try:
     from .summoning_data import DEFAULT_SUMMONING_TARGET, SUMMONING_ACTIONS_BY_ID
     from .summoning_logic import (
         apply_summoning_training_action_pure,
+        familiar_effective_roll_level_pure,
+        restore_summoning_points_pure,
         summoning_action_locked_reasons_pure,
         summoning_action_requirements_pure,
     )
@@ -353,6 +356,8 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from summoning_data import DEFAULT_SUMMONING_TARGET, SUMMONING_ACTIONS_BY_ID  # type: ignore
     from summoning_logic import (  # type: ignore
         apply_summoning_training_action_pure,
+        familiar_effective_roll_level_pure,
+        restore_summoning_points_pure,
         summoning_action_locked_reasons_pure,
         summoning_action_requirements_pure,
     )
@@ -673,6 +678,98 @@ def _repack_view_for_target(
     return {}
 
 
+def _try_pack_yak_winter_storage_overlay(
+    player_data: dict[str, Any],
+    target_id: str,
+    view: dict[str, int],
+    churn: int,
+    capacity: int,
+    *,
+    advanced: bool,
+    force_bank: bool,
+) -> tuple[dict[str, int], int, bool]:
+    """Use one carried Winter Storage scroll before an otherwise-due trip."""
+    state = player_data.get("summoning_state", {}) or {}
+    follower = state.get("active_follower", {}) or {}
+    if (
+        force_bank
+        or follower.get("kind") != "familiar"
+        or follower.get("entity_id") != "packyak"
+        or int(state.get("special_move_points_current", 0) or 0) < 12
+    ):
+        return view, churn, False
+    policy = (state.get("target_policies", {}) or {}).get(target_id, {}) or {}
+    priority = policy.get("winter_storage_priority", ()) or ()
+    if isinstance(priority, str):
+        priority = (priority,)
+    threshold = (
+        max(
+            0,
+            min(
+                27,
+                int(policy.get("winter_storage_threshold_free_slots", 0) or 0),
+            ),
+        )
+        if advanced
+        else 0
+    )
+    if churn < max(1, capacity - threshold):
+        return view, churn, False
+    scroll_name = "Winter storage scroll"
+    if int(view.get(scroll_name, 0) or 0) <= 0:
+        return view, churn, False
+    selected = next(
+        (
+            item_name
+            for item_name in priority
+            if isinstance(item_name, str)
+            and item_name != scroll_name
+            and int(view.get(item_name, 0) or 0) > 0
+            and (
+                item_name not in _OVERLAY_STACKABLE_NAMES
+                or int(view.get(item_name, 0) or 0) == 1
+            )
+        ),
+        None,
+    )
+    if selected is None:
+        return view, churn, False
+
+    updated_view = dict(view)
+    updated_view[selected] = int(updated_view.get(selected, 0) or 0) - 1
+    updated_view[scroll_name] = int(updated_view.get(scroll_name, 0) or 0) - 1
+    updated_view = {
+        item_name: amount
+        for item_name, amount in updated_view.items()
+        if amount > 0
+    }
+    inventory = dict(player_data.get("inventory", {}) or {})
+    inventory[scroll_name] = max(
+        0, int(inventory.get(scroll_name, 0) or 0) - 1
+    )
+    player_data["inventory"] = inventory
+    updated_state = dict(state)
+    updated_state["special_move_points_current"] = (
+        int(updated_state.get("special_move_points_current", 0) or 0) - 12
+    )
+    updated_state["event_log"] = (
+        list(updated_state.get("event_log", []))
+        + [
+            {
+                "kind": "winter_storage",
+                "target_id": target_id,
+                "item": selected,
+                "xp": 4.8,
+            }
+        ]
+    )[-50:]
+    player_data["summoning_state"] = updated_state
+    player_data["summoning_exp"] = (
+        float(player_data.get("summoning_exp", 0.0) or 0.0) + 4.8
+    )
+    return updated_view, max(0, churn - 1), True
+
+
 def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
     """Run one skilling tick through the 28-slot carried overlay.
 
@@ -794,6 +891,28 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         )
 
     active_run = isinstance(bank_run, dict) and int(bank_run.get("reviews_remaining", 0) or 0) > 0
+    winter_storage_before = None
+    if keep and not active_run:
+        winter_storage_before = copy.deepcopy(player_data)
+        view, churn, winter_storage_used = _try_pack_yak_winter_storage_overlay(
+            player_data,
+            target_id,
+            view,
+            int(churn or 0),
+            capacity,
+            advanced=advanced,
+            force_bank=force,
+        )
+        if winter_storage_used:
+            bank = player_data.get("inventory", {}) or {}
+            _set_carried_target_map(
+                player_data, "carried_inventory", target_id, view
+            )
+            _set_carried_target_map(
+                player_data, "carried_churn", target_id, churn
+            )
+        else:
+            winter_storage_before = None
     trip_due = bool(keep and (active_run or churn >= capacity or force))
     travel_profile = None
     reviews_cost = inventory_pure.SKILLING_BANK_RUN_REVIEWS
@@ -841,6 +960,9 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         if event.get("started") and new_state:
             new_state["reviews_total"] = max(1, reviews_cost)
             new_state["route_label"] = travel_profile.route_label if travel_profile else "Running to the bank"
+
+    if event.get("completed"):
+        player_data.update(restore_summoning_points_pure(player_data))
 
     if not act:
         if event.get("completed"):
@@ -911,6 +1033,11 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         )
         player_data["inventory"] = scoped_inventory
         result = handler(scoped_ctx)
+        if result is False and winter_storage_before is not None:
+            player_data.clear()
+            player_data.update(winter_storage_before)
+            ctx.save_player_data()
+            return False
         after_scoped = player_data.get("inventory", {}) or {}
         new_view = _carried_target_view(player_data, target_id)
         reconciled = dict(after_scoped)
@@ -957,6 +1084,11 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
 
     inv_before = dict(bank)
     result = handler(ctx)
+    if result is False and winter_storage_before is not None:
+        player_data.clear()
+        player_data.update(winter_storage_before)
+        ctx.save_player_data()
+        return False
     if result is not False:
         player_data["skilling_bank_run"] = new_state
         inv_after = player_data.get("inventory", {}) or {}
@@ -2032,6 +2164,9 @@ def handle_firemaking_answer(ctx: RuntimeActionContext) -> bool:
     spec = FIREMAKING_DATA[target]
     display_name = spec.get("display_name", target)
     player_level = player_data.get("firemaking_level", 1)
+    success_level = familiar_effective_roll_level_pure(
+        player_data, "firemaking", player_level
+    )
     quest_locked = tuple(
         reason
         for reason in firemaking_target_locked_reasons_pure(player_data, target, FIREMAKING_DATA, QUEST_UNLOCK_RULES)
@@ -2059,15 +2194,20 @@ def handle_firemaking_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    expected_success = calculate_firemaking_success_probability_pure(player_level, spec)
+    expected_success = calculate_firemaking_success_probability_pure(
+        success_level, spec
+    )
     action_roll = ctx.random_random()
-    proposed_outcome_success = action_roll < firemaking_source_roll_chance_pure(player_level, spec)
+    proposed_outcome_success = (
+        action_roll < firemaking_source_roll_chance_pure(success_level, spec)
+    )
     new_inv, base_exp, ok, _output_item = apply_firemaking_action_pure(
         target,
         player_data.get("inventory", {}),
         FIREMAKING_DATA,
         player_level,
         action_roll,
+        success_level,
     )
     if not ok:
         _record_action(
@@ -2111,6 +2251,9 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
     spec = FISHING_DATA[target]
     display_name = spec.get("display_name", target)
     player_level = player_data.get("fishing_level", 1)
+    success_level = familiar_effective_roll_level_pure(
+        player_data, "fishing", player_level
+    )
     strength_level = player_data.get("strength_level", 1)
     agility_level = player_data.get("agility_level", 1)
     inventory = player_data.get("inventory", {})
@@ -2147,7 +2290,7 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     expected_success = _combined_success_probability(
-        calculate_fishing_success_probability_pure(player_level, fish)
+        calculate_fishing_success_probability_pure(success_level, fish)
         for fish in eligible
     )
     rolls = [ctx.random_random() for _ in eligible]
@@ -2159,6 +2302,7 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
         strength_level,
         agility_level,
         rolls=rolls,
+        success_level=success_level,
     )
     if not ok:
         _record_action(ctx, "fishing", target, False, expected_success_chance=expected_success, failure_kind="dry")
@@ -2205,6 +2349,9 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
     spec = HUNTER_DATA[target]
     display_name = spec.get("display_name", target)
     player_level = player_data.get("hunter_level", 1)
+    success_level = familiar_effective_roll_level_pure(
+        player_data, "hunter", player_level
+    )
     inventory = player_data.get("inventory", {})
 
     locked_reasons = hunter_target_locked_reasons_pure(player_data, target, HUNTER_DATA, QUEST_UNLOCK_RULES)
@@ -2235,13 +2382,16 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    expected_success = calculate_hunter_success_probability_pure(player_level, spec)
+    expected_success = calculate_hunter_success_probability_pure(
+        success_level, spec
+    )
     new_inv, base_exp, ok, _output_item, xp_rewards = apply_hunter_action_pure(
         target,
         inventory,
         HUNTER_DATA,
         player_level,
         ctx.random_random(),
+        success_level,
     )
     if not ok:
         _record_action(ctx, "hunter", target, False, expected_success_chance=expected_success, failure_kind="dry")
@@ -2650,6 +2800,9 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
         player_data["current_tree"] = tree
     spec = TREE_DATA[tree]
     player_level = player_data.get("woodcutting_level", 1)
+    success_level = familiar_effective_roll_level_pure(
+        player_data, "woodcutting", player_level
+    )
 
     if player_level < spec.get("level", 1):
         ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Woodcutting to chop {spec.get('display_name', tree)}.")
@@ -2673,7 +2826,9 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
     r_nest_drop = ctx.random_random()
     r_nest_type = ctx.random_random()
     r_inferno_adze = ctx.random_random() if axe_spec.get("incinerates_logs", False) and spec.get("output_item") else None
-    expected_success = calculate_woodcutting_success_probability_pure(player_level, spec, axe_spec)
+    expected_success = calculate_woodcutting_success_probability_pure(
+        success_level, spec, axe_spec
+    )
     new_inv, base_exp, ok, output_item, nest_item = apply_woodcutting_action_pure(
         tree,
         player_data.get("inventory", {}),
@@ -2686,6 +2841,7 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
         BIRD_NEST_DROP_TABLE,
         BIRD_NEST_DROP_CHANCE,
         r_inferno_adze,
+        success_level,
     )
     if ok:
         if "logs_cut_today" not in player_data:
@@ -2734,6 +2890,9 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
         player_data["current_ore"] = ore
     ore_spec = ORE_DATA[ore]
     player_level = player_data["mining_level"]
+    success_level = familiar_effective_roll_level_pure(
+        player_data, "mining", player_level
+    )
 
     if player_level < ore_spec.get("level", 1):
         ctx.show_error_message("Insufficient level", f"You need level {ore_spec['level']} Mining to mine {ore_spec.get('display_name', ore)}.")
@@ -2767,7 +2926,9 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
     r_output = ctx.random_random()
     r_gem_chance = ctx.random_random()
     r_gem_pick = ctx.random_random()
-    expected_success = calculate_mining_success_probability_pure(player_level, ore_spec, pickaxe_spec)
+    expected_success = calculate_mining_success_probability_pure(
+        success_level, ore_spec, pickaxe_spec
+    )
 
     new_inv, base_exp, ok, output_item, gem, extra_output = apply_mining_action_pure(
         ore,
@@ -2782,6 +2943,7 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
         INCIDENTAL_GEM_DROP_TABLE,
         gem_drop_chance,
         bonus_state["varrock_armour_tier"],
+        success_level,
     )
     if ok:
         if "ores_mined_today" not in player_data:

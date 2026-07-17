@@ -2223,6 +2223,7 @@ def show_main_menu(
     on_set_loot_override=None,
     loot_override_rows=(),
     carried_pack_target_active=False,
+    active_carried_target_id=None,
     on_set_carried_advanced=None,
     carried_advanced_state=False,
     get_carried_layout_cells=None,
@@ -5649,6 +5650,11 @@ def show_main_menu(
             missing = preview.get("missing_requirements", [])
             detail = _format_requirement_rows(missing if isinstance(missing, list) else [])
             return f"Missing requirements: {detail}." if detail else "Missing requirements."
+        if reason == "skill_level":
+            skill_id = str(preview.get("skill_id", "skill")).title()
+            required = int(preview.get("required_level", 1) or 1)
+            current = int(preview.get("current_level", 1) or 1)
+            return f"Requires {required} {skill_id}; you have {current}."
         if reason == "no_potions_to_decant":
             return "You have no vial potions that Bob can consolidate."
         if reason == "missing_decant_vials":
@@ -5986,22 +5992,30 @@ def show_main_menu(
     def _refresh_service_preview() -> None:
         kind, row = _selected_service_def()
         if row is None:
+            service_qty.setProperty("serviceRowId", "")
             service_preview.setText("Select a service or vendor action.")
             service_use_btn.setEnabled(False)
             return
-        is_decant = row.get("action_type") == "decant_potions_to_dose"
+        row_id = str(row.get("id", ""))
+        row_changed = service_qty.property("serviceRowId") != row_id
+        action_type = row.get("action_type")
+        is_decant = action_type == "decant_potions_to_dose"
+        has_quantity = action_type == "bogrog_pouch_exchange"
         service_qty.blockSignals(True)
         if is_decant:
             if service_qty.minimum() != 2 or service_qty.maximum() != 4:
                 service_qty.setRange(2, 4)
+            if row_changed:
                 service_qty.setValue(int(row.get("default_target_dose", 4) or 4))
             service_qty.setPrefix("Dose ")
             service_qty.setVisible(True)
         else:
             service_qty.setPrefix("")
             service_qty.setRange(1, 999999)
-            service_qty.setValue(1)
-            service_qty.setVisible(False)
+            if row_changed:
+                service_qty.setValue(1)
+            service_qty.setVisible(has_quantity)
+        service_qty.setProperty("serviceRowId", row_id)
         service_qty.blockSignals(False)
         qty = int(service_qty.value())
         if kind == "service":
@@ -8000,6 +8014,68 @@ def show_main_menu(
     follower_resources.setStyleSheet(f"color: {dim_text_css(follower_resources)};")
     follower_layout.addWidget(follower_resources)
 
+    familiarisation_summary = QLabel()
+    familiarisation_summary.setObjectName("summoningFamiliarisationSummary")
+    familiarisation_summary.setWordWrap(True)
+    familiarisation_summary.setStyleSheet(
+        f"color: {dim_text_css(familiarisation_summary)};"
+    )
+    follower_layout.addWidget(familiarisation_summary)
+    follower_action_row = QWidget()
+    follower_action_layout = QHBoxLayout(follower_action_row)
+    follower_action_layout.setContentsMargins(0, 0, 0, 0)
+    follower_action_layout.setSpacing(6)
+    restore_points_button = QPushButton("Visit obelisk")
+    restore_points_button.setObjectName("summoningRestorePointsButton")
+    start_familiarisation_button = QPushButton("Start Familiarisation")
+    start_familiarisation_button.setObjectName(
+        "summoningStartFamiliarisationButton"
+    )
+    ingredient_reward_button = QPushButton("Ingredient box")
+    ingredient_reward_button.setObjectName(
+        "summoningIngredientRewardButton"
+    )
+    charm_reward_button = QPushButton("Triple charms")
+    charm_reward_button.setObjectName("summoningCharmRewardButton")
+    reclaim_cargo_button = QPushButton("Reclaim cargo")
+    reclaim_cargo_button.setObjectName("summoningReclaimCargoButton")
+    for widget in (
+        restore_points_button,
+        start_familiarisation_button,
+        ingredient_reward_button,
+        charm_reward_button,
+        reclaim_cargo_button,
+    ):
+        follower_action_layout.addWidget(widget)
+    follower_action_layout.addStretch(1)
+    follower_layout.addWidget(follower_action_row)
+
+    winter_storage_row = QWidget()
+    winter_storage_row.setObjectName("summoningWinterStorageRow")
+    winter_storage_layout = QHBoxLayout(winter_storage_row)
+    winter_storage_layout.setContentsMargins(0, 0, 0, 0)
+    winter_storage_layout.setSpacing(6)
+    winter_storage_label = QLabel("Winter Storage priority")
+    winter_storage_picker = QComboBox()
+    winter_storage_picker.setObjectName("summoningWinterStoragePicker")
+    winter_storage_threshold = QSpinBox()
+    winter_storage_threshold.setObjectName(
+        "summoningWinterStorageThreshold"
+    )
+    winter_storage_threshold.setRange(0, 27)
+    winter_storage_threshold.setSuffix(" free")
+    winter_storage_threshold.setToolTip(
+        "Advanced only: use Winter Storage when this many carried slots remain. "
+        "Zero means wait until the pack is full."
+    )
+    winter_storage_save = QPushButton("Set")
+    winter_storage_save.setObjectName("summoningWinterStorageSetButton")
+    winter_storage_layout.addWidget(winter_storage_label)
+    winter_storage_layout.addWidget(winter_storage_picker, 1)
+    winter_storage_layout.addWidget(winter_storage_threshold)
+    winter_storage_layout.addWidget(winter_storage_save)
+    follower_layout.addWidget(winter_storage_row)
+
     pets_toggle = QPushButton("▸  Pets")
     pets_toggle.setObjectName("summoningPetsToggle")
     pets_toggle.setCheckable(True)
@@ -8076,9 +8152,117 @@ def show_main_menu(
             f"Summoning points: {current_points}/{level}  •  "
             f"Special-move points: {special_points}/60"
         )
+        activity = summoning_state.get("familiarisation", {}) or {}
+        charm_reviews = max(
+            0,
+            int(
+                summoning_state.get(
+                    "triple_charm_reviews_remaining", 0
+                )
+                or 0
+            ),
+        )
+        if activity.get("active"):
+            familiarisation_summary.setText(
+                "Familiarisation: "
+                f"{int(activity.get('segments', 0))}/4 segments • "
+                f"{int(activity.get('focus', 0))} focus • "
+                f"{int(activity.get('raw_shards', 0))}/60 shards"
+            )
+        elif activity.get("awaiting_reward"):
+            familiarisation_summary.setText(
+                "Familiarisation complete — choose the ingredient box or "
+                "triple-charm reward."
+            )
+        else:
+            cooldown = max(
+                0, int(activity.get("cooldown_reviews_remaining", 0) or 0)
+            )
+            familiarisation_summary.setText(
+                f"Familiarisation: {'ready' if cooldown <= 0 else f'{cooldown} review(s) until ready'}"
+                + (
+                    f" • Triple charms: {charm_reviews} review(s)"
+                    if charm_reviews
+                    else ""
+                )
+            )
+        restore_points_button.setEnabled(
+            on_summoning_command is not None and current_points < level
+        )
+        start_familiarisation_button.setVisible(
+            not activity.get("active") and not activity.get("awaiting_reward")
+        )
+        start_familiarisation_button.setEnabled(
+            on_summoning_command is not None
+            and int(activity.get("cooldown_reviews_remaining", 0) or 0) <= 0
+        )
+        ingredient_reward_button.setVisible(bool(activity.get("awaiting_reward")))
+        charm_reward_button.setVisible(bool(activity.get("awaiting_reward")))
+        ingredient_reward_button.setEnabled(on_summoning_command is not None)
+        charm_reward_button.setEnabled(on_summoning_command is not None)
+        cargo_events = summoning_state.get("cargo_events", []) or []
+        reclaim_cargo_button.setVisible(bool(cargo_events))
+        reclaim_cargo_button.setEnabled(
+            on_summoning_command is not None and bool(cargo_events)
+        )
 
         kind = str(follower.get("kind", ""))
         entity_id = str(follower.get("entity_id", ""))
+        winter_visible = bool(
+            kind == "familiar"
+            and entity_id == "packyak"
+            and active_carried_target_id
+        )
+        winter_storage_row.setVisible(winter_visible)
+        winter_storage_picker.blockSignals(True)
+        winter_storage_picker.clear()
+        if winter_visible:
+            carried_view = (
+                (player_data.get("carried_inventory", {}) or {}).get(
+                    active_carried_target_id, {}
+                )
+                or {}
+            )
+            for item_name, amount in carried_view.items():
+                if item_name != "Winter storage scroll" and int(amount or 0) > 0:
+                    winter_storage_picker.addItem(str(item_name), str(item_name))
+            policy = (
+                (summoning_state.get("target_policies", {}) or {}).get(
+                    active_carried_target_id, {}
+                )
+                or {}
+            )
+            priority = policy.get("winter_storage_priority", []) or []
+            current_priority = priority[0] if priority else ""
+            index = winter_storage_picker.findData(current_priority)
+            if index >= 0:
+                winter_storage_picker.setCurrentIndex(index)
+            winter_storage_threshold.setValue(
+                max(
+                    0,
+                    min(
+                        27,
+                        int(
+                            policy.get(
+                                "winter_storage_threshold_free_slots", 0
+                            )
+                            or 0
+                        ),
+                    ),
+                )
+            )
+        winter_storage_threshold.setVisible(
+            winter_visible and bool(carried_advanced_state)
+        )
+        winter_storage_threshold.setEnabled(
+            winter_visible and bool(carried_advanced_state)
+        )
+        winter_storage_picker.blockSignals(False)
+        winter_storage_save.setEnabled(
+            on_summoning_command is not None
+            and winter_visible
+            and winter_storage_picker.count() > 0
+        )
         if kind == "familiar" and entity_id in SUMMONING_POUCHES_BY_ID:
             pouch = SUMMONING_POUCHES_BY_ID[entity_id]
             remaining = max(0, int(follower.get("remaining_reviews", 0) or 0))
@@ -8209,6 +8393,42 @@ def show_main_menu(
     let_out_button.clicked.connect(
         lambda _checked=False: _run_summoning_command(
             "let_out_pet", {"instance_id": _selected_pet_instance_id()}
+        )
+    )
+    restore_points_button.clicked.connect(
+        lambda _checked=False: _run_summoning_command("restore_points")
+    )
+    start_familiarisation_button.clicked.connect(
+        lambda _checked=False: _run_summoning_command("start_familiarisation")
+    )
+    ingredient_reward_button.clicked.connect(
+        lambda _checked=False: _run_summoning_command(
+            "claim_familiarisation", {"choice": "ingredients"}
+        )
+    )
+    charm_reward_button.clicked.connect(
+        lambda _checked=False: _run_summoning_command(
+            "claim_familiarisation", {"choice": "triple_charms"}
+        )
+    )
+
+    def _reclaim_oldest_cargo(_checked=False) -> None:
+        state_value = player_data.get("summoning_state", {}) or {}
+        events = state_value.get("cargo_events", []) or []
+        if events:
+            _run_summoning_command(
+                "reclaim_cargo", {"event_id": events[0].get("event_id")}
+            )
+
+    reclaim_cargo_button.clicked.connect(_reclaim_oldest_cargo)
+    winter_storage_save.clicked.connect(
+        lambda _checked=False: _run_summoning_command(
+            "set_winter_storage_priority",
+            {
+                "target_id": active_carried_target_id,
+                "item_name": winter_storage_picker.currentData() or "",
+                "threshold_free_slots": winter_storage_threshold.value(),
+            },
         )
     )
 

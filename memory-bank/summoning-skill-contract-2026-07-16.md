@@ -1,8 +1,11 @@
 # Summoning skill contract — owner grill (2026-07-16)
 
-Status: **owner grill active; implementation deliberately not started.** This contract
-is the durable decision ledger for the complete pre-EOC Summoning surface frozen at
-2012-11-20. Historical facts and AnkiScape abstractions must stay visibly distinct.
+Status: **implemented on `main` in the 2026-07-17 Summoning closure.** Catalog,
+training/lifecycle, and persistent-pet checkpoints landed at `006d65f`, `5f56495`,
+and `f3e2f45`; the closing batch adds restoration potions, Familiarisation rewards,
+source-ready familiar effects, Winter Storage automation, and Bogrog. This contract
+remains the durable decision ledger for the complete pre-EOC Summoning surface frozen
+at 2012-11-20. Historical facts and AnkiScape abstractions must stay visibly distinct.
 
 ## Product boundary
 
@@ -765,12 +768,16 @@ discounted twice.
 
 ## Source/open-work queue
 
-- Harvest the complete pouch, familiar, duration, point, scroll, special-move-point,
-  capacity, boost, combat, foraging, healing, teleport, and creation-XP tables.
-- Reconcile pinned wiki revisions with the closest stable Darkan/2011Scape behavior for
-  hidden rolls and state transitions.
-- Inventory every period Summoning quest/activity/area gate and acquisition route.
-- Audit existing charm, potion, quest, item, combat, inventory, death, and Agility hooks
-  before asking the owner any question the repository already answers.
-- Continue the owner grill one genuine design fork at a time. Each answer closes this
-  ledger before the next question is asked.
+- The ordinary pouch/scroll/lifetime/point/XP catalog, training, follower lifecycle,
+  BoB storage/reclaim, pets, Familiarisation, restoration potions, Bogrog, Winter
+  Storage, source-ready boosts/healing, and Void-shifter escape are implemented.
+- Continue source harvesting for the explicitly parked combat/special-scroll effects,
+  forager tables/cadence, and remaining target-local teleports. Ship only atomic
+  source-ready slices; do not substitute persuasive approximations.
+- Finish external acquisition dependencies through their owning quest, activity,
+  Hunter, Construction, Combat, and reward-shop systems.
+- Daemonheim familiars remain Dungeoneering-owned and must never leak into the
+  persistent overworld catalog.
+- `design-gaps-summoning-implementation-2026-07-17.md` records no remaining owner
+  question. New source/dependency blocks belong there only if they become a genuine
+  player-experience fork.

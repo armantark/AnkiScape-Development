@@ -44,6 +44,9 @@ from logic_pure import (
     combat_weapon_attack_style_slots_pure,
     combat_weapon_style_options_pure,
     _combat_roll_drops,
+    _combat_apply_triple_charm_reward,
+    _combat_try_pack_yak_winter_storage,
+    _combat_refill_context_supplies,
     _combat_enemy_attack_class,
     _combat_enemy_bonuses,
     _combat_enemy_max_hit_old_hp,
@@ -134,6 +137,76 @@ _KILLER_ENEMY_DATA = {
 
 
 class CombatStatPotionAutoDrinkTest(unittest.TestCase):
+    def test_familiarisation_triples_only_eligible_ordinary_charm_drops(self):
+        data = {
+            "summoning_state": {"triple_charm_reviews_remaining": 2}
+        }
+        self.assertEqual(
+            _combat_apply_triple_charm_reward(
+                data, {"Gold charm": 1, "Obsidian charm": 2, "Bones": 1}
+            ),
+            {"Gold charm": 3, "Obsidian charm": 2, "Bones": 1},
+        )
+
+    def test_pack_yak_winter_storage_only_commits_when_it_avoids_bank_run(self):
+        loot = {f"Loot {index}": 1 for index in range(26)}
+        carried = {
+            **loot,
+            "Bones": 1,
+            "Winter storage scroll": 1,
+        }
+        player = {
+            "inventory": dict(carried),
+            "summoning_exp": 0.0,
+            "summoning_state": {
+                "active_follower": {
+                    "kind": "familiar",
+                    "entity_id": "packyak",
+                },
+                "special_move_points_current": 60,
+                "target_policies": {
+                    "chicken": {"winter_storage_priority": ["Bones"]}
+                },
+            },
+            "carried_inventory": {"chicken": dict(carried)},
+            "current_combat_target": "chicken",
+            "combat_supply_loadout": {},
+        }
+
+        used = _combat_try_pack_yak_winter_storage(
+            player, "chicken", "melee", {}, {}, {}, COMBAT_ENEMY_DATA
+        )
+
+        self.assertTrue(used)
+        self.assertNotIn("Bones", player["carried_inventory"]["chicken"])
+        self.assertNotIn(
+            "Winter storage scroll", player["carried_inventory"]["chicken"]
+        )
+        self.assertEqual(player["inventory"]["Bones"], 1)
+        self.assertEqual(player["inventory"]["Winter storage scroll"], 0)
+        self.assertEqual(
+            player["summoning_state"]["special_move_points_current"], 48
+        )
+        self.assertEqual(player["summoning_exp"], 4.8)
+
+    def test_combat_bank_boundary_restores_prayer_and_summoning_together(self):
+        player = {
+            "inventory": {},
+            "prayer_level": 70,
+            "summoning_level": 52,
+            "combat_prayer_points": 1,
+            "summoning_state": {"summoning_points_current": 0},
+        }
+
+        _combat_refill_context_supplies(
+            player, "chicken", "melee", {}, {}, {}, COMBAT_ENEMY_DATA
+        )
+
+        self.assertEqual(player["combat_prayer_points"], 700)
+        self.assertEqual(
+            player["summoning_state"]["summoning_points_current"], 52
+        )
+
     def _melee(self, **overrides):
         base = dict(
             current_combat_target="chicken",
@@ -3915,6 +3988,68 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(fled["equipment"], {"weapon": "Iron sword"})
         self.assertEqual(fled["combat_grave"], {})
         self.assertEqual(fled["combat_encounter"], {})
+
+    def test_void_shifter_escapes_after_nonlethal_damage_below_ten_percent(self):
+        player = _player(
+            current_combat_target="killer",
+            combat_lifepoints=20,
+            combat_auto_flee=False,
+            combat_auto_eat_food=[],
+            combat_supply_loadout={},
+            summoning_state={
+                "active_follower": {
+                    "kind": "familiar",
+                    "entity_id": "voidshifter",
+                }
+            },
+        )
+
+        escaped, ok, result = apply_combat_burst_pure(
+            player,
+            _KILLER_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=5,
+            rng=_rng([0.999999, 0.0, 0.1]),
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(result["fled"])
+        self.assertTrue(result["familiar_escape"])
+        self.assertFalse(result["died"])
+        self.assertEqual(result["stop_reason"], "void_shifter")
+        self.assertEqual(escaped["combat_encounter"], {})
+        self.assertEqual(
+            escaped["summoning_state"]["active_follower"]["entity_id"],
+            "voidshifter",
+        )
+
+    def test_void_shifter_does_not_prevent_lethal_damage(self):
+        player = _player(
+            current_combat_target="killer",
+            combat_lifepoints=1,
+            combat_auto_flee=False,
+            combat_auto_eat_food=[],
+            combat_supply_loadout={},
+            summoning_state={
+                "active_follower": {
+                    "kind": "familiar",
+                    "entity_id": "voidshifter",
+                }
+            },
+        )
+
+        died, ok, result = apply_combat_burst_pure(
+            player,
+            _KILLER_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=5,
+            rng=_rng([0.999999, 0.0, 0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(result["died"])
+        self.assertFalse(result["familiar_escape"])
+        self.assertEqual(died["summoning_state"]["active_follower"], {})
 
     def test_combat_burst_resets_the_leave_combat_rest_window(self):
         player = _player(combat_rest_reviews=5)

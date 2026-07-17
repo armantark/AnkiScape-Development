@@ -8,10 +8,13 @@ from constants import (
     CRAFTING_DATA,
     EQUIPMENT_DATA,
     ITEM_DEFINITIONS,
+    MINING_PICKAXE_DATA,
     ORE_DATA,
 )
 from logic_pure import (
     apply_combat_burst_pure,
+    best_mining_pickaxe_pure,
+    calculate_mining_success_probability_pure,
     charge_training_urn_pure,
     full_urn_teleport_info_pure,
     teleport_full_urn_pure,
@@ -23,6 +26,7 @@ from runtime_actions import (
     handle_mining_answer,
     handle_smithing_answer,
     run_answer_with_carried_overlay,
+    _try_pack_yak_winter_storage_overlay,
 )
 from storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
 from tools.fetch_prayer_assets import asset_manifest
@@ -295,6 +299,139 @@ class UrnRuntimeOverlayTest(unittest.TestCase):
             {"Cracked mining urn": 1, "Copper ore": 1},
         )
         self.assertEqual(player["carried_churn"]["copper"], 1)
+
+    def test_pack_yak_winter_storage_avoids_full_pack_trip_and_action_continues(self):
+        carried = {
+            "Copper ore": 27,
+            "Winter storage scroll": 1,
+        }
+        player = {
+            "inventory": dict(carried),
+            "carried_inventory": {"copper": dict(carried)},
+            "carried_churn": {"copper": 28},
+            "mining_level": 99,
+            "mining_exp": 0.0,
+            "summoning_exp": 0.0,
+            "current_ore": "copper",
+            "toolbelt": {"mining": ["bronze_pickaxe"]},
+            "equipment": {},
+            "quests": {},
+            "completed_achievements": [],
+            "summoning_state": {
+                "active_follower": {
+                    "kind": "familiar",
+                    "entity_id": "packyak",
+                },
+                "special_move_points_current": 60,
+                "target_policies": {
+                    "copper": {
+                        "winter_storage_priority": ["Copper ore"],
+                    }
+                },
+            },
+        }
+
+        acted = run_answer_with_carried_overlay(
+            _context(player, (0.0, 1.0, 0.0)),
+            "mining",
+            handle_mining_answer,
+        )
+
+        self.assertTrue(acted)
+        self.assertEqual(player["mining_exp"], 17.5)
+        self.assertEqual(player["summoning_exp"], 4.8)
+        self.assertEqual(player["inventory"]["Copper ore"], 28)
+        self.assertEqual(player["inventory"]["Winter storage scroll"], 0)
+        self.assertEqual(
+            player["summoning_state"]["special_move_points_current"], 48
+        )
+        self.assertEqual(player["skilling_bank_run"], {})
+
+    def test_advanced_winter_storage_threshold_can_fire_before_full(self):
+        carried = {
+            "Copper ore": 25,
+            "Winter storage scroll": 1,
+        }
+        player = {
+            "inventory": dict(carried),
+            "summoning_exp": 0.0,
+            "summoning_state": {
+                "active_follower": {
+                    "kind": "familiar",
+                    "entity_id": "packyak",
+                },
+                "special_move_points_current": 60,
+                "target_policies": {
+                    "copper": {
+                        "winter_storage_priority": ["Copper ore"],
+                        "winter_storage_threshold_free_slots": 2,
+                    }
+                },
+            },
+        }
+
+        view, churn, used = _try_pack_yak_winter_storage_overlay(
+            player,
+            "copper",
+            carried,
+            26,
+            28,
+            advanced=True,
+            force_bank=False,
+        )
+
+        self.assertTrue(used)
+        self.assertEqual(churn, 25)
+        self.assertEqual(view, {"Copper ore": 24})
+        self.assertEqual(player["summoning_exp"], 4.8)
+
+    def test_lava_titan_improves_mining_roll_without_unlocking_tools(self):
+        base_player = {
+            "inventory": {},
+            "mining_level": 1,
+            "mining_exp": 0.0,
+            "current_ore": "copper",
+            "toolbelt": {"mining": ["bronze_pickaxe"]},
+            "equipment": {},
+            "quests": {},
+            "completed_achievements": [],
+        }
+        pickaxe = best_mining_pickaxe_pure(
+            1,
+            {},
+            base_player["toolbelt"],
+            MINING_PICKAXE_DATA,
+        )
+        base_chance = calculate_mining_success_probability_pure(
+            1, ORE_DATA["copper"], pickaxe
+        )
+        boosted_chance = calculate_mining_success_probability_pure(
+            11, ORE_DATA["copper"], pickaxe
+        )
+        roll = (base_chance + boosted_chance) / 2
+
+        control = copy.deepcopy(base_player)
+        self.assertTrue(
+            handle_mining_answer(
+                _context(control, (roll, 0.0, 1.0, 0.0))
+            )
+        )
+        self.assertNotIn("Copper ore", control["inventory"])
+
+        boosted = copy.deepcopy(base_player)
+        boosted["summoning_state"] = {
+            "active_follower": {
+                "kind": "familiar",
+                "entity_id": "lavatitan",
+            }
+        }
+        self.assertTrue(
+            handle_mining_answer(
+                _context(boosted, (roll, 0.0, 1.0, 0.0))
+            )
+        )
+        self.assertEqual(boosted["inventory"]["Copper ore"], 1)
+        self.assertEqual(boosted["mining_level"], 1)
 
     def test_gathering_drop_destroys_product_but_keeps_carried_urn_transition(self):
         player = self._mining_player(drop=True)

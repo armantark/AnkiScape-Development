@@ -4093,6 +4093,32 @@ def _combat_roll_drops(enemy, rng):
     return drops
 
 
+def _combat_apply_triple_charm_reward(data, drops):
+    state = data.get("summoning_state", {}) or {}
+    if (
+        not isinstance(state, Mapping)
+        or _non_negative_int(
+            state.get("triple_charm_reviews_remaining", 0), 0
+        ) <= 0
+    ):
+        return drops
+    eligible = {"Gold charm", "Green charm", "Crimson charm", "Blue charm"}
+    return {
+        item_name: amount * 3 if item_name in eligible else amount
+        for item_name, amount in drops.items()
+    }
+
+
+def _combat_void_shifter_escape_ready(data, lifepoints, maximum):
+    state = data.get("summoning_state", {}) or {}
+    follower = state.get("active_follower", {}) or {}
+    return bool(
+        follower.get("kind") == "familiar"
+        and follower.get("entity_id") == "voidshifter"
+        and 0 < lifepoints < maximum * 0.10
+    )
+
+
 def _combat_refill_food_loadout(data):
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     food_loadout = dict(loadout.get("food", {}) or {})
@@ -4262,6 +4288,11 @@ def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon
     # altar stop, restoring the internal level*10 Prayer point pool.
     data["combat_prayer_points"] = _positive_int(data.get("prayer_level", 1), 1) * 10
     data["combat_prayer_drain_counter"] = 0.0
+    summoning_state = dict(data.get("summoning_state", {}) or {})
+    summoning_state["summoning_points_current"] = _positive_int(
+        data.get("summoning_level", 1), 1
+    )
+    data["summoning_state"] = summoning_state
     _combat_refill_food_loadout(data)
     _combat_refill_stat_potions(data, combat_class)
     enemy_lookup = enemy_data or COMBAT_ENEMY_DATA
@@ -4310,6 +4341,121 @@ def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, s
     return False
 
 
+def _combat_try_pack_yak_winter_storage(
+    data,
+    target_id,
+    combat_class,
+    ranged_weapon_spec,
+    spell_spec,
+    equipment_data=None,
+    enemy_data=None,
+):
+    state = data.get("summoning_state", {}) or {}
+    follower = state.get("active_follower", {}) or {}
+    if (
+        not isinstance(state, Mapping)
+        or follower.get("kind") != "familiar"
+        or follower.get("entity_id") != "packyak"
+        or _non_negative_int(
+            state.get("special_move_points_current", 0), 0
+        ) < 12
+    ):
+        return False
+    policy = (state.get("target_policies", {}) or {}).get(target_id, {}) or {}
+    priority = policy.get("winter_storage_priority", ())
+    if isinstance(priority, str):
+        priority = (priority,)
+    if not isinstance(priority, Iterable):
+        return False
+    carried_root = data.get("carried_inventory", {}) or {}
+    carried = (
+        carried_root.get(target_id, {})
+        if isinstance(carried_root, Mapping)
+        else {}
+    )
+    if not isinstance(carried, Mapping):
+        return False
+    scroll_name = "Winter storage scroll"
+    if _non_negative_int(carried.get(scroll_name, 0), 0) <= 0:
+        return False
+    depositable = dict(carried)
+    for item_name, baseline in _combat_custom_layout_view(data, target_id).items():
+        remaining = _non_negative_int(
+            depositable.get(item_name, 0), 0
+        ) - _non_negative_int(baseline, 0)
+        if remaining > 0:
+            depositable[item_name] = remaining
+        else:
+            depositable.pop(item_name, None)
+    selected = next(
+        (
+            item_name
+            for item_name in priority
+            if isinstance(item_name, str)
+            and item_name != scroll_name
+            and _non_negative_int(depositable.get(item_name, 0), 0) > 0
+            and (
+                item_name not in STACKABLE_ITEM_NAMES
+                or _non_negative_int(carried.get(item_name, 0), 0) == 1
+            )
+        ),
+        None,
+    )
+    if selected is None:
+        return False
+    candidate = _copy_player_data_with_nested(data)
+    candidate_carried_root = dict(candidate.get("carried_inventory", {}) or {})
+    candidate_carried = dict(candidate_carried_root.get(target_id, {}) or {})
+    candidate_carried[selected] -= 1
+    if candidate_carried[selected] <= 0:
+        candidate_carried.pop(selected, None)
+    candidate_carried[scroll_name] -= 1
+    if candidate_carried[scroll_name] <= 0:
+        candidate_carried.pop(scroll_name, None)
+    candidate_carried_root[target_id] = candidate_carried
+    candidate["carried_inventory"] = candidate_carried_root
+    inventory = dict(candidate.get("inventory", {}) or {})
+    inventory[scroll_name] = max(
+        0, _non_negative_int(inventory.get(scroll_name, 0), 0) - 1
+    )
+    candidate["inventory"] = inventory
+    candidate_state = dict(candidate.get("summoning_state", {}) or {})
+    candidate_state["special_move_points_current"] = (
+        _non_negative_int(
+            candidate_state.get("special_move_points_current", 0), 0
+        )
+        - 12
+    )
+    candidate["summoning_state"] = candidate_state
+    if _combat_bank_run_needed(
+        candidate,
+        target_id,
+        combat_class,
+        ranged_weapon_spec,
+        spell_spec,
+        equipment_data,
+        enemy_data,
+    ):
+        return False
+    candidate["summoning_exp"] = float(
+        candidate.get("summoning_exp", 0.0) or 0.0
+    ) + 4.8
+    candidate_state["event_log"] = (
+        list(candidate_state.get("event_log", []))
+        + [
+            {
+                "kind": "winter_storage",
+                "target_id": target_id,
+                "item": selected,
+                "xp": 4.8,
+            }
+        ]
+    )[-50:]
+    data.clear()
+    data.update(candidate)
+    return True
+
+
 def _combat_bank_run_result(data, target_id, started=False, completed=False):
     bank_run = _sanitize_combat_bank_run(data.get("combat_bank_run"))
     return {
@@ -4356,8 +4502,17 @@ def _combat_progress_or_start_bank_run(data, target_id, combat_class, ranged_wea
         bank_run = {}
     started = False
     if not bank_run and _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data):
-        bank_run = {"reviews_remaining": COMBAT_BANK_RUN_REVIEWS, "target_id": target_id}
-        started = True
+        if not _combat_try_pack_yak_winter_storage(
+            data,
+            target_id,
+            combat_class,
+            ranged_weapon_spec,
+            spell_spec,
+            equipment_data,
+            enemy_data,
+        ):
+            bank_run = {"reviews_remaining": COMBAT_BANK_RUN_REVIEWS, "target_id": target_id}
+            started = True
     if not bank_run:
         data["combat_bank_run"] = {}
         return None
@@ -5004,7 +5159,10 @@ def apply_consumable_pure(player_data, item_name, rng=None):
     healed = 0
     boosts = {}
     drains = {}
+    stats_restored = {}
     prayer_points_restored = 0.0
+    summoning_points_restored = 0
+    special_move_points_restored = 0
     message = str(spec.get("message", ""))
 
     if spec["kind"] == "kebab_random":
@@ -5047,14 +5205,55 @@ def apply_consumable_pure(player_data, item_name, rng=None):
             base = _combat_base_skill_level(data, skill_id, 1)
             if skill_id == "prayer":
                 before = _non_negative_int(data.get("combat_prayer_points", base * 10), base * 10)
-                restored = prayer_potion_restore_amount_pure(base, strategy) * 10
+                restored = (
+                    (base // 4 + 8) * 10
+                    if strategy == "super_restore"
+                    else prayer_potion_restore_amount_pure(base, strategy) * 10
+                )
                 after = min(base * 10, before + restored)
                 data["combat_prayer_points"] = after
                 prayer_points_restored = max(0, after - before) / 10.0
                 continue
+            if skill_id == "summoning":
+                base = _positive_int(data.get("summoning_level", 1), 1)
+                state = dict(data.get("summoning_state", {}) or {})
+                before = _non_negative_int(
+                    state.get("summoning_points_current", base), base
+                )
+                restore = base // 4 + (
+                    8 if strategy == "super_restore" else 7
+                )
+                after = min(base, before + restore)
+                state["summoning_points_current"] = after
+                data["summoning_state"] = state
+                summoning_points_restored = max(0, after - before)
+                continue
+            if strategy == "super_restore":
+                before = _combat_effective_skill_level(
+                    data, skill_id, base
+                )
+                if before < base:
+                    after = min(base, before + base // 4 + 8)
+                    apply_combat_stat_delta_pure(
+                        data, skill_id, after - before
+                    )
+                    stats_restored[skill_id] = after - before
+                continue
             amount = _potion_boost_amount(base, strategy)
             apply_combat_stat_boost_to_pure(data, skill_id, amount)
             boosts[skill_id] = amount
+        special_points = _non_negative_int(
+            spec.get("special_points", 0), 0
+        )
+        if special_points:
+            state = dict(data.get("summoning_state", {}) or {})
+            before = _non_negative_int(
+                state.get("special_move_points_current", 60), 60
+            )
+            after = min(60, before + special_points)
+            state["special_move_points_current"] = after
+            data["summoning_state"] = state
+            special_move_points_restored = after - before
         # Leave the next-lower dose (or an empty Vial at dose 1) in inventory.
         leaves = str(spec.get("leaves", ""))
         if leaves:
@@ -5092,7 +5291,10 @@ def apply_consumable_pure(player_data, item_name, rng=None):
         "healed": healed,
         "boosts": boosts,
         "drains": drains,
+        "stats_restored": stats_restored,
         "prayer_points_restored": prayer_points_restored,
+        "summoning_points_restored": summoning_points_restored,
+        "special_move_points_restored": special_move_points_restored,
         "message": message,
     }
 
@@ -5621,6 +5823,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     killed = False
     died = False
     fled = False
+    familiar_escape = False
     out_of_ammo = False
     out_of_runes = False
     magic_effect_applied = False
@@ -5648,6 +5851,12 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
             if food_event:
                 food_used.append(food_event)
 
+        if status_result.get("damage") and _combat_void_shifter_escape_ready(
+            data, player_lp, max_player_lp
+        ):
+            fled = True
+            familiar_escape = True
+            break
         if _combat_should_auto_flee(data, player_lp, max_player_lp):
             fled = True
             break
@@ -5701,7 +5910,9 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
             if enemy_lp <= 0:
                 kills += 1
                 killed = True
-                kill_drops = _combat_roll_drops(enemy, rng)
+                kill_drops = _combat_apply_triple_charm_reward(
+                    data, _combat_roll_drops(enemy, rng)
+                )
                 data, kill_drops, passive_prayer_xp, prayer_ticks, _prayer_effects = resolve_prayer_kill_effects_pure(
                     data,
                     target_id,
@@ -5802,10 +6013,18 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
             if player_lp <= 0:
                 died = True
                 break
+            if _combat_void_shifter_escape_ready(
+                data, player_lp, max_player_lp
+            ):
+                fled = True
+                familiar_escape = True
+                break
             if enemy_lp <= 0:
                 kills += 1
                 killed = True
-                kill_drops = _combat_roll_drops(enemy, rng)
+                kill_drops = _combat_apply_triple_charm_reward(
+                    data, _combat_roll_drops(enemy, rng)
+                )
                 data, kill_drops, passive_prayer_xp, prayer_ticks, _prayer_effects = resolve_prayer_kill_effects_pure(
                     data,
                     target_id,
@@ -5895,9 +6114,11 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         "kills": kills,
         "died": died,
         "fled": fled,
+        "familiar_escape": familiar_escape,
         "stop_reason": (
             "out_of_ammo" if out_of_ammo
             else "out_of_runes" if out_of_runes
+            else "void_shifter" if familiar_escape
             else "auto_flee" if fled
             else ""
         ),
@@ -8258,11 +8479,16 @@ def apply_woodcutting_action_pure(
     nest_drop_table=None,
     nest_drop_chance=0.0,
     r_inferno_adze=None,
+    success_level=None,
 ):
     spec = tree_data.get(target_id)
     if not spec or not axe_spec:
         return inventory, 0, False, None, None
-    success_probability = calculate_woodcutting_success_probability_pure(woodcutting_level, spec, axe_spec)
+    success_probability = calculate_woodcutting_success_probability_pure(
+        woodcutting_level if success_level is None else success_level,
+        spec,
+        axe_spec,
+    )
     if r_action >= success_probability:
         return inventory, 0, False, None, None
 
@@ -8391,6 +8617,7 @@ def apply_fishing_action_pure(
     strength_level=1,
     agility_level=1,
     rolls=(),
+    success_level=None,
 ):
     """Apply one ordered source-shaped Fishing attempt.
 
@@ -8409,7 +8636,10 @@ def apply_fishing_action_pure(
             roll = float(next(roll_iter))
         except (StopIteration, TypeError, ValueError):
             roll = 1.0
-        success_probability = calculate_fishing_success_probability_pure(fishing_level, fish)
+        success_probability = calculate_fishing_success_probability_pure(
+            fishing_level if success_level is None else success_level,
+            fish,
+        )
         if roll >= success_probability:
             continue
 
@@ -8565,12 +8795,22 @@ def can_hunt_target_pure(hunter_level, inventory, target, hunter_data):
     return has_hunter_materials_pure(target, inventory, hunter_data) and has_hunter_tools_pure(target, inventory, hunter_data)
 
 
-def apply_hunter_action_pure(target, inventory, hunter_data, hunter_level, r_action):
+def apply_hunter_action_pure(
+    target,
+    inventory,
+    hunter_data,
+    hunter_level,
+    r_action,
+    success_level=None,
+):
     """Apply one Hunter attempt and return inventory, XP, success, output, rewards."""
     spec = hunter_data.get(target)
     if not spec or not can_hunt_target_pure(hunter_level, inventory, target, hunter_data):
         return inventory, 0, False, None, tuple()
-    success_probability = calculate_hunter_success_probability_pure(hunter_level, spec)
+    success_probability = calculate_hunter_success_probability_pure(
+        hunter_level if success_level is None else success_level,
+        spec,
+    )
     if float(r_action) >= success_probability:
         return inventory, 0, False, None, tuple()
 
@@ -8666,6 +8906,7 @@ def apply_mining_action_pure(
     gem_drop_table=(),
     gem_drop_chance=1 / 256,
     varrock_armour_tier=0,
+    success_level=None,
 ):
     """Apply one source-shaped Anki Mining attempt.
 
@@ -8675,7 +8916,11 @@ def apply_mining_action_pure(
     spec = ore_data.get(target_id)
     if not spec or not pickaxe_spec:
         return inventory, 0, False, None, None, None
-    success_probability = calculate_mining_success_probability_pure(mining_level, spec, pickaxe_spec)
+    success_probability = calculate_mining_success_probability_pure(
+        mining_level if success_level is None else success_level,
+        spec,
+        pickaxe_spec,
+    )
     if r_action >= success_probability:
         return inventory, 0, False, None, None, None
 
@@ -9132,7 +9377,14 @@ def can_burn_any_firemaking_target_pure(inventory, firemaking_level, firemaking_
     )
 
 
-def apply_firemaking_action_pure(target, inventory, firemaking_data, firemaking_level, r_action):
+def apply_firemaking_action_pure(
+    target,
+    inventory,
+    firemaking_data,
+    firemaking_level,
+    r_action,
+    success_level=None,
+):
     """Apply one Firemaking attempt.
 
     Returns (inventory, base_exp, success, output_item). Failed attempts consume
@@ -9141,7 +9393,10 @@ def apply_firemaking_action_pure(target, inventory, firemaking_data, firemaking_
     spec = firemaking_data.get(target)
     if not spec or not has_firemaking_materials_pure(target, inventory, firemaking_data):
         return inventory, 0, False, None
-    success_probability = calculate_firemaking_success_probability_pure(firemaking_level, spec)
+    success_probability = calculate_firemaking_success_probability_pure(
+        firemaking_level if success_level is None else success_level,
+        spec,
+    )
     if r_action >= success_probability:
         return inventory, 0, False, None
 

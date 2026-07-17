@@ -1948,6 +1948,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         fixtures = build_shop_frontend_fixtures()
         pd = fixtures["fixture_player_data"]
         pd["inventory"].update({"Agility potion (1)": 4, "Agility potion (3)": 4})
+        pd["summoning_level"] = 99
+        pd["inventory"]["Pack yak pouch"] = 3
         vendor_action_id = fixtures["vendor_action_transaction"]["action_id"]
         dialog = self._open(pd)
         _open_shop_tab(dialog)
@@ -2019,6 +2021,25 @@ class MainMenuWidgetTest(unittest.TestCase):
         use_button.click()
         QApplication.processEvents()
         self.assertEqual(pd["inventory"].get(vendor_output_name, 0), before_vendor_output + vendor_output_quantity)
+
+        _select_service_row("bogrog_exchange_packyak")
+        dose_spin = dialog.findChild(QSpinBox, "shopServiceQuantitySpin")
+        self.assertTrue(dose_spin.isVisibleTo(dialog))
+        dose_spin.setValue(2)
+        QApplication.processEvents()
+        before_shards = pd["inventory"].get("Spirit shards", 0)
+        use_button = _find_named_button(dialog, "shopServiceUseButton")
+        self.assertTrue(
+            use_button.isEnabled(),
+            _find_named_label(dialog, "shopServicePreviewLabel").text(),
+        )
+        use_button.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["inventory"]["Pack yak pouch"], 1)
+        self.assertEqual(
+            pd["inventory"]["Spirit shards"],
+            before_shards + (2 * 148),
+        )
 
         global_button = _find_named_button(dialog, "shopGlobalHistoryButton")
         global_button.click()
@@ -2882,6 +2903,78 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(calls, [("summon", {"familiar_id": "spiritwolf"})])
         self.assertIn("Spirit wolf", summary.text())
         self.assertIn("review(s) remain", summary.text())
+        dialog.deleteLater()
+
+    def test_pack_yak_panel_exposes_target_priority_and_advanced_threshold(self) -> None:
+        pd = _make_player_data()
+        pd["summoning_level"] = 99
+        pd["carried_inventory"] = {
+            "copper": {"Copper ore": 4, "Winter storage scroll": 2}
+        }
+        pd["summoning_state"] = {
+            "summoning_points_current": 99,
+            "special_move_points_current": 60,
+            "active_follower": {
+                "kind": "familiar",
+                "entity_id": "packyak",
+                "remaining_reviews": 10,
+                "max_reviews": 10,
+                "lifepoints": 7100,
+                "max_lifepoints": 7100,
+                "storage": {},
+            },
+            "target_policies": {
+                "copper": {
+                    "winter_storage_priority": ["Copper ore"],
+                    "winter_storage_threshold_free_slots": 3,
+                }
+            },
+        }
+        calls = []
+        dialog = self._open(
+            pd,
+            current_skill="Mining",
+            active_carried_target_id="copper",
+            carried_pack_target_active=True,
+            carried_advanced_state=True,
+            on_summoning_command=lambda action_id, payload: calls.append(
+                (action_id, dict(payload))
+            )
+            or {"ok": True},
+        )
+        dialog.show()
+        _open_equipment_tab(dialog)
+        QApplication.processEvents()
+
+        row = dialog.findChild(QWidget, "summoningWinterStorageRow")
+        picker = dialog.findChild(QComboBox, "summoningWinterStoragePicker")
+        threshold = dialog.findChild(
+            QSpinBox, "summoningWinterStorageThreshold"
+        )
+        save = dialog.findChild(
+            QPushButton, "summoningWinterStorageSetButton"
+        )
+        self.assertFalse(row.isHidden())
+        self.assertEqual(picker.currentData(), "Copper ore")
+        self.assertFalse(threshold.isHidden())
+        self.assertEqual(threshold.value(), 3)
+
+        threshold.setValue(2)
+        save.click()
+        QApplication.processEvents()
+        self.assertEqual(
+            calls,
+            [
+                (
+                    "set_winter_storage_priority",
+                    {
+                        "target_id": "copper",
+                        "item_name": "Copper ore",
+                        "threshold_free_slots": 2,
+                    },
+                )
+            ],
+        )
         dialog.deleteLater()
 
     def test_cannonball_row_shows_quest_gate_mould_and_icon(self) -> None:

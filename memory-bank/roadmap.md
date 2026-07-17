@@ -5,7 +5,7 @@ the dated completion audit is archived under `archive/2026-07/baselines/`.
 
 ## Strategy
 
-Finish by dependency layers. Seventeen complete skill surfaces, unified Combat, quests, inventory/equipment, shops, activities, and shared UI/storage foundations already exist; remaining work is three planned skills plus cross-system breadth and release closure.
+Finish by dependency layers. Eighteen complete skill surfaces, unified Combat, quests, inventory/equipment, shops, activities, and shared UI/storage foundations already exist; remaining work is two planned skills plus cross-system breadth and release closure.
 
 ## Layer 1 — Close Proven Existing-Skill Slices
 
@@ -18,10 +18,10 @@ Finish by dependency layers. Seventeen complete skill surfaces, unified Combat, 
 
 - Agility and Thieving are implemented. Preserve their shared LP/failure,
   carried-risk, and cross-skill hooks as later systems integrate.
-- Slayer and Summoning: Combat/acquisition-dependent systems.
+- Slayer: Combat/acquisition-dependent assignment system.
 - Dungeoneering: late cross-skill meta-system.
 
-Prayer, Magic, Construction, Farming, Thieving, and Agility are implemented and must not return to this queue. Attack, Strength, Defence, Constitution, and Ranged remain partial through unified Combat rather than gaining redundant review surfaces.
+Prayer, Magic, Construction, Farming, Thieving, Agility, and Summoning are implemented and must not return to this queue. Attack, Strength, Defence, Constitution, and Ranged remain partial through unified Combat rather than gaining redundant review surfaces.
 
 ## Layer 3 — Ingest Stable Darkan Evidence
 

@@ -12,6 +12,7 @@ from shop_data import (
     SHOP_VENDOR_ACTIONS,
     shop_extra_items_as_dict,
 )
+from summoning_data import SUMMONING_POUCHES
 from tools.generate_npc_shop_data import build_catalog, rewrite_stock_exclusions_from_generated
 
 
@@ -111,7 +112,20 @@ class TestShopData(unittest.TestCase):
             self.assertEqual(shop["lock_reason"], "currency_not_implemented")
 
     def test_services_vendor_actions_and_extra_items_are_exported(self):
-        self.assertEqual(set(SHOP_SERVICES), {"bob_barter_decant_four"})
+        self.assertEqual(len(SHOP_SERVICES), 79)
+        self.assertEqual(
+            {
+                service_id
+                for service_id in SHOP_SERVICES
+                if service_id.startswith("bogrog_exchange_")
+            },
+            {
+                f"bogrog_exchange_{pouch.id}"
+                for pouch in SUMMONING_POUCHES
+                if pouch.bogrog_level is not None
+                and pouch.bogrog_shards is not None
+            },
+        )
         bob = SHOP_SERVICES["bob_barter_decant_four"]
         self.assertEqual(bob["provider"], "Bob Barter (herbs)")
         self.assertEqual(bob["location"], "Grand Exchange")
@@ -119,6 +133,19 @@ class TestShopData(unittest.TestCase):
         self.assertEqual(bob["default_target_dose"], 4)
         self.assertEqual(bob["price"], 0)
         self.assertIn("oldid 6222086", bob["source"])
+        for pouch in SUMMONING_POUCHES:
+            service = SHOP_SERVICES.get(f"bogrog_exchange_{pouch.id}")
+            if pouch.bogrog_level is None or pouch.bogrog_shards is None:
+                self.assertIsNone(service)
+                continue
+            self.assertEqual(service["provider"], "Bogrog")
+            self.assertEqual(service["required_level"], pouch.bogrog_level)
+            self.assertEqual(
+                service["inputs"][0]["item_name"], pouch.pouch_name
+            )
+            self.assertEqual(
+                service["outputs"][0]["quantity"], pouch.bogrog_shards
+            )
         self.assertIn("bartender_buy_beer", SHOP_VENDOR_ACTIONS)
         self.assertIn("benny_buy_varrock_herald", SHOP_VENDOR_ACTIONS)
         self.assertIn("karim_buy_kebab", SHOP_VENDOR_ACTIONS)

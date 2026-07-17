@@ -2,7 +2,31 @@
 
 ## Current Baseline — 2026-07-16
 
-AnkiScape now has 17 complete skill surfaces, five partial Combat-trained skills, and three planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
+AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
+
+## Summoning implementation closure — 2026-07-17
+
+- Shipped the complete 80-familiar surface catalog, 78 pouch recipes, 67
+  scroll targets, exact source XP/requirements, and the ordinary Skills-hub
+  training surface.
+- Added persistent summon/dismiss/renew state, separate ordinary and
+  special-move points, BoB storage/reclaim, four-review Familiarisation, its
+  ingredient/triple-charm rewards, and answered-card world ticks.
+- Restored the 47 freeze-date pets, their shared follower slot, care/growth,
+  acquisition log, death/release semantics, Menagerie dependency, UI, assets,
+  migration, and undo-safe commands.
+- Added exact Summoning and super-restore dose families, source-ready familiar
+  boosts, Bunyip healing, Void-shifter escape, Pack yak Winter Storage, and all
+  78 Bogrog pouch exchanges.
+- Kept Daemonheim out of the overworld and parked unsourced combat/scroll,
+  forager, and teleport mechanics without fabricated substitutes. No unresolved
+  owner-level design question remains.
+- Verified 1,446 core methods (1,242 ordinary passes, 201 environment skips,
+  three expected failures) and 1,446 real offscreen Qt methods (1,443 ordinary
+  passes, three expected failures), plus focused UI, docs, test-quality,
+  compilation, JSON, generator-determinism, diff, and worktree-safety gates.
+  Reachability records 1,220 actions and 290 known acquisition/dependency
+  orphans (112 root, 178 cascade); it remains a debt report, not a passing gate.
 
 ## Mage Arena and Farming cure-policy closure — 2026-07-17
 
@@ -246,7 +270,7 @@ remain outside the cadence experiment.
 
 - Gathering: Mining, Woodcutting, Farming, Fishing, Hunter.
 - Artisan: Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Herblore, Construction.
-- Support/combat-adjacent: Prayer, Magic, Thieving, and Agility.
+- Support/combat-adjacent: Prayer, Magic, Thieving, Agility, and Summoning.
 
 These surfaces use stable IDs, flat save state, review or background dispatch as appropriate, inventory mutation, telemetry, undo, assets/provenance, Skills-hub UI, Stats/Bank/HUD integration, and focused tests.
 
@@ -256,13 +280,12 @@ Unified Combat trains Attack, Strength, Defence, Constitution, and Ranged. They 
 
 ## Planned Skills
 
-- Summoning
 - Dungeoneering
 - Slayer
 
-Summoning, Dungeoneering, and Slayer remain the three planned registry surfaces.
-Their active design work is tracked independently and must be merged into the
-canonical checkout before this ledger treats it as live.
+Dungeoneering and Slayer remain the two planned registry surfaces. Their active
+design/source work is tracked independently and must be merged into the
+canonical checkout before this ledger treats either as live.
 
 ## Thieving closure
 

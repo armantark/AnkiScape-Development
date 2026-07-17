@@ -15,7 +15,7 @@ Anki already rewards consistency through memory gains, but that feedback is abst
 
 ## Current Experience
 
-- Seventeen complete skill surfaces: Mining, Woodcutting, Farming, Fishing, Hunter, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Herblore, Prayer, Magic, Construction, Thieving, and Agility.
+- Eighteen complete skill surfaces: Mining, Woodcutting, Farming, Fishing, Hunter, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Herblore, Prayer, Magic, Construction, Thieving, Agility, and Summoning.
 - Unified Combat trains the five partial skills Attack, Strength, Defence, Constitution, and Ranged through equipment/style choices, with real supplies, HP, food, Prayer/Magic configuration, death/recovery, drops, poison, potions, loadouts, and target-local carried inventory.
 - Quests, Utility/Activities, Bank, Equipment, NPC Shops, Stats, Achievements, Settings, Bank Claims, HUD feedback, and review undo are live foundations.
 - The quest catalog contains 194 pre-EOC rows, but many still require quest-by-quest fidelity work.

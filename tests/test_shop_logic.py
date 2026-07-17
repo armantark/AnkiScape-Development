@@ -312,6 +312,56 @@ class TestShopLogic(unittest.TestCase):
         self.assertTrue(beer_result["allowed"])
         self.assertEqual(after_beer["inventory"]["Beer"], after_news["inventory"]["Beer"] + 1)
 
+    def test_bogrog_exchange_uses_exact_level_rows_and_is_atomic(self):
+        player = build_shop_fixture_player_data()
+        player["summoning_level"] = 96
+        player["summoning_exp"] = 1234.5
+        player["inventory"].update({"Pack yak pouch": 3, "Spirit shards": 10})
+        before_clock = dict(player["shop_market_clock"])
+
+        denied = preview_shop_service_pure(
+            player, "bogrog_exchange_packyak", 2
+        )
+        self.assertFalse(denied["allowed"])
+        self.assertEqual(denied["reason"], "skill_level")
+        self.assertEqual(denied["required_level"], 97)
+
+        player["summoning_level"] = 97
+        exchanged, result = apply_shop_service_pure(
+            player, "bogrog_exchange_packyak", 10
+        )
+
+        self.assertTrue(result["allowed"])
+        self.assertTrue(result["clamped"])
+        self.assertEqual(result["quantity"], 3)
+        self.assertEqual(exchanged["inventory"]["Pack yak pouch"], 0)
+        self.assertEqual(exchanged["inventory"]["Spirit shards"], 454)
+        self.assertEqual(exchanged["summoning_exp"], 1234.5)
+        self.assertEqual(exchanged["shop_market_clock"], before_clock)
+
+        restored, undo = rollback_shop_event_pure(
+            exchanged, result["event_id"]
+        )
+        self.assertTrue(undo["allowed"])
+        self.assertEqual(restored["inventory"]["Pack yak pouch"], 3)
+        self.assertEqual(restored["inventory"]["Spirit shards"], 10)
+
+    def test_bogrog_exception_rows_use_pinned_table_levels(self):
+        player = build_shop_fixture_player_data()
+        player["summoning_level"] = 46
+        player["inventory"]["Bull ant pouch"] = 1
+        denied = preview_shop_service_pure(
+            player, "bogrog_exchange_bullant", 1
+        )
+        self.assertEqual(denied["reason"], "skill_level")
+        self.assertEqual(denied["required_level"], 47)
+
+        player["summoning_level"] = 47
+        allowed = preview_shop_service_pure(
+            player, "bogrog_exchange_bullant", 1
+        )
+        self.assertTrue(allowed["allowed"])
+
     def test_bob_barter_decants_every_inventory_family_to_four_doses(self):
         data = build_shop_fixture_player_data()
         data["inventory"].update(
@@ -395,6 +445,22 @@ class TestShopLogic(unittest.TestCase):
         self.assertEqual(updated["inventory"]["Prayer potion (3)"], 0)
         self.assertEqual(updated["inventory"]["Prayer potion (4)"], 0)
         self.assertEqual(updated["inventory"]["Vial"], 0)
+
+    def test_bob_barter_decants_summoning_potions_without_losing_remainder(self):
+        data = build_shop_fixture_player_data()
+        data["inventory"].update(
+            {"Summoning potion (1)": 1, "Summoning potion (3)": 1}
+        )
+
+        updated, result = apply_shop_service_pure(
+            data, "bob_barter_decant_four", 2
+        )
+
+        self.assertTrue(result["allowed"])
+        self.assertIn("Summoning potion", result["decanted_families"])
+        self.assertEqual(updated["inventory"]["Summoning potion (1)"], 0)
+        self.assertEqual(updated["inventory"]["Summoning potion (2)"], 2)
+        self.assertEqual(updated["inventory"]["Summoning potion (3)"], 0)
 
     def test_bob_barter_requires_vials_for_smaller_doses_and_rejects_one_dose(self):
         data = build_shop_fixture_player_data()

@@ -30,3 +30,21 @@ player-facing fork encountered through the surface catalog batch.
   ordinary unprotected carried pets are destroyed and never enter the grave.
   This is a dependency on the already-designed death-equipment surface, not a
   Summoning design fork.
+- Familiarisation's ingredient box uses a deterministic rotation through the
+  source-backed pouch-ingredient catalog, awarding one ingredient per 15 raw
+  shards. The period source proves that contents and quantity scale with raw
+  shards but does not preserve the exact hidden selection table; this is a
+  labeled balance abstraction rather than fabricated period content.
+- Bunyip's 20-LP-per-15-second passive heal is batched through the settled two
+  source-duration minutes per answered review, producing 160 LP per world tick.
+  This is the smallest review-native translation of the sourced effect.
+
+## Source and dependency blocks, not owner questions
+
+- Most familiar combat attacks and special-scroll effects still lack a
+  source-complete effect substrate.
+- Forager output tables and exact delivery cadence remain `source_blocked`.
+- Ordinary familiar teleports other than the already-integrated spirit-graahk
+  route remain dependency-blocked on target-local route evidence/substrates.
+- Daemonheim familiars and herbs remain reserved for the future Dungeoneering
+  session economy and do not enter the persistent overworld catalog.

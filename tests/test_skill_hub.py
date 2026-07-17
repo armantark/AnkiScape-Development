@@ -20,7 +20,10 @@ class TestSkillHubViewModel(unittest.TestCase):
             [card.display_name for card in by_id["gathering"].skills],
             ["Mining", "Woodcutting", "Farming", "Fishing", "Hunter"],
         )
-        self.assertEqual([card.display_name for card in by_id["combat"].skills], ["Prayer", "Magic"])
+        self.assertEqual(
+            [card.display_name for card in by_id["combat"].skills],
+            ["Prayer", "Magic", "Summoning"],
+        )
         self.assertEqual(
             [card.display_name for card in by_id["artisan"].skills],
             ["Smithing", "Crafting", "Fletching", "Firemaking", "Cooking", "Runecrafting", "Herblore", "Construction"],
@@ -74,10 +77,9 @@ class TestSkillHubViewModel(unittest.TestCase):
         self.assertTrue(cards["prayer"].selectable_for_review)
         self.assertTrue(cards["magic"].implemented)
         self.assertTrue(cards["magic"].selectable_for_review)
-        for skill_id in ("summoning",):
-            self.assertIn(skill_id, cards)
-            self.assertFalse(cards[skill_id].implemented)
-            self.assertFalse(cards[skill_id].selectable_for_review)
+        self.assertIn("summoning", cards)
+        self.assertTrue(cards["summoning"].implemented)
+        self.assertTrue(cards["summoning"].selectable_for_review)
         self.assertEqual(cards["magic"].surface_state, "complete")
         self.assertEqual(cards["prayer"].surface_state, "complete")
         for skill_id in ("attack", "constitution", "defense", "ranged", "strength"):

@@ -3,7 +3,7 @@
 AnkiScape adds a lightweight, game-like experience layer to Anki:
 - Review HUD feedback with the active skill or activity, level, and progress.
 - Floating XP or material toasts, achievement popups, and level-up popups.
-- A Skills hub with 17 complete pre-EOC skill surfaces, plus unified Combat
+- A Skills hub with 18 complete pre-EOC skill surfaces, plus unified Combat
   training for five additional skills.
 - Utility / Activities for no-XP material prep such as soft clay, wool, flax, bird nests, and feathers.
 - Bank, Stats, Equipment, Achievements, and Settings tabs in the floating widget.

@@ -7,14 +7,17 @@ from summoning_logic import (
     SPECIAL_MOVE_POINTS_MAX,
     advance_summoning_world_tick_pure,
     apply_familiarisation_segment_pure,
+    claim_familiarisation_reward_pure,
     apply_summoning_training_action_pure,
     default_summoning_state_pure,
     dismiss_familiar_pure,
+    familiar_effective_roll_level_pure,
     familiar_storage_transfer_pure,
     reclaim_familiar_cargo_pure,
     renew_familiar_pure,
     sanitize_summoning_state_pure,
     start_familiarisation_pure,
+    set_winter_storage_priority_pure,
     summon_familiar_pure,
     summoning_action_locked_reasons_pure,
     use_familiar_special_pure,
@@ -342,6 +345,94 @@ class SummoningLogicTests(unittest.TestCase):
         self.assertEqual(result["familiarisation"]["raw_shards"], 15)
         self.assertEqual(result["familiarisation"]["focus"], 2)
 
+    def test_familiarisation_rewards_are_immediate_scaled_and_duplicate_safe(self):
+        started, ok = start_familiarisation_pure(player())
+        self.assertTrue(ok)
+        current = started
+        for _ in range(4):
+            current, ok, _ = apply_familiarisation_segment_pure(
+                current, successful_answer=True
+            )
+            self.assertTrue(ok)
+
+        charmed, ok, result = claim_familiarisation_reward_pure(
+            current, "triple_charms"
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["raw_shards"], 60)
+        self.assertEqual(result["reviews"], 20)
+        self.assertEqual(
+            charmed["summoning_state"]["triple_charm_reviews_remaining"], 20
+        )
+        unchanged, ok, result = claim_familiarisation_reward_pure(
+            charmed, "triple_charms"
+        )
+        self.assertFalse(ok)
+        self.assertEqual(result["reason"], "reward_unavailable")
+        self.assertEqual(unchanged, charmed)
+
+    def test_bunyip_passive_healing_advances_on_every_world_tick(self):
+        data = player(
+            constitution_level=50,
+            combat_lifepoints=100,
+        )
+        data["summoning_state"]["active_follower"] = {
+            "kind": "familiar",
+            "entity_id": "bunyip",
+            "remaining_reviews": 5,
+            "max_reviews": 5,
+            "lifepoints": 4000,
+            "max_lifepoints": 4000,
+            "storage": {},
+        }
+
+        advanced, result = advance_summoning_world_tick_pure(
+            data, successful_answer=False
+        )
+
+        self.assertEqual(result["passive_healing"], 160)
+        self.assertEqual(advanced["combat_lifepoints"], 260)
+        self.assertEqual(
+            advanced["summoning_state"]["active_follower"][
+                "remaining_reviews"
+            ],
+            4,
+        )
+
+    def test_familiar_invisible_boosts_change_roll_level_not_base_state(self):
+        data = player()
+        data["summoning_state"]["active_follower"] = {
+            "kind": "familiar",
+            "entity_id": "lavatitan",
+        }
+
+        self.assertEqual(
+            familiar_effective_roll_level_pure(data, "mining", 82), 92
+        )
+        self.assertEqual(
+            familiar_effective_roll_level_pure(data, "firemaking", 80), 90
+        )
+        self.assertEqual(
+            familiar_effective_roll_level_pure(data, "hunter", 82), 82
+        )
+        self.assertNotIn("mining_level", data)
+
+    def test_ingredient_reward_uses_deterministic_source_ingredient_bundle(self):
+        data = player()
+        data["summoning_state"]["familiarisation"].update(
+            {"awaiting_reward": True, "raw_shards": 30}
+        )
+
+        rewarded, ok, result = claim_familiarisation_reward_pure(
+            data, "ingredients"
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(sum(result["ingredients"].values()), 2)
+        for item_name, amount in result["ingredients"].items():
+            self.assertEqual(rewarded["inventory"][item_name], amount)
+
     def test_special_costs_commit_only_after_effect_succeeds(self):
         pouch = SUMMONING_POUCHES_BY_ID["packyak"]
         data = player(
@@ -369,6 +460,47 @@ class SummoningLogicTests(unittest.TestCase):
         self.assertEqual(
             used["summoning_state"]["special_move_points_current"],
             SPECIAL_MOVE_POINTS_MAX - pouch.special_points,
+        )
+
+    def test_winter_storage_priority_must_name_a_real_carried_item(self):
+        data = player(
+            carried_inventory={
+                "chicken": {"Bones": 2, "Winter storage scroll": 1}
+            }
+        )
+        unchanged, ok = set_winter_storage_priority_pure(
+            data, "chicken", "Raw chicken"
+        )
+        self.assertFalse(ok)
+        self.assertEqual(unchanged, data)
+
+        updated, ok = set_winter_storage_priority_pure(
+            data, "chicken", "Bones"
+        )
+        self.assertTrue(ok)
+        self.assertEqual(
+            updated["summoning_state"]["target_policies"]["chicken"][
+                "winter_storage_priority"
+            ],
+            ["Bones"],
+        )
+        self.assertEqual(
+            updated["summoning_state"]["target_policies"]["chicken"][
+                "winter_storage_threshold_free_slots"
+            ],
+            0,
+        )
+
+        data["carried_advanced_targets"] = {"chicken": True}
+        advanced, ok = set_winter_storage_priority_pure(
+            data, "chicken", "Bones", 3
+        )
+        self.assertTrue(ok)
+        self.assertEqual(
+            advanced["summoning_state"]["target_policies"]["chicken"][
+                "winter_storage_threshold_free_slots"
+            ],
+            3,
         )
 
     def test_sanitizer_clamps_points_and_drops_duplicate_cargo_ids(self):
@@ -399,6 +531,30 @@ class SummoningLogicTests(unittest.TestCase):
         self.assertEqual(clean["special_move_points_current"], 0)
         self.assertEqual(len(clean["cargo_events"]), 1)
         self.assertEqual(clean["cargo_next_event_id"], 5)
+
+    def test_sanitizer_preserves_structured_event_log_entries(self):
+        raw = {
+            "event_log": [
+                {
+                    "kind": "unsafe_player_death",
+                    "lost_pet_ids": ["pet-1"],
+                    "familiar_id": "packyak",
+                }
+            ]
+        }
+
+        clean = sanitize_summoning_state_pure(raw, summoning_level=99)
+
+        self.assertEqual(
+            clean["event_log"],
+            [
+                {
+                    "kind": "unsafe_player_death",
+                    "lost_pet_ids": ["pet-1"],
+                    "familiar_id": "packyak",
+                }
+            ],
+        )
 
     def test_v42_storage_default_and_migration_are_idempotent(self):
         default = default_player_data(ORE_DATA)

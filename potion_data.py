@@ -1,4 +1,4 @@
-"""Standard combat stat potions (2011Scape `PotionType.kt`).
+"""Surface stat and point-restoration potions.
 
 Boost formulas (game-balance facts from the Apache-2.0 source, computed off the
 BASE/max level, capped — potions cure a drained stat and boost to base+boost,
@@ -6,10 +6,8 @@ they do not stack past that ceiling):
   regular ("r"): floor(base / 10) + 3
   super   ("s"): floor(15 * base / 100) + 5
 
-Prayer / restore / super-restore potions are deferred (they need a Prayer skill
-and the drain path respectively). Herblore mixing is a separate future skill;
-until it (or shops) source these, the potions are live-but-inert like any other
-material-gated content.
+Herblore produces the potion families registered here. Drinking and Bob
+Barter's dose-preserving decant service both consume this shared registry.
 """
 
 from __future__ import annotations
@@ -61,6 +59,19 @@ POTION_FAMILIES: Dict[str, Dict[str, object]] = {
     # PotionType.kt: floor(base*0.35)+7 prayer points.
     "Super prayer": {"skills": ("prayer",), "strategy": "s_prayer", "doses": {1: 15331, 2: 15330, 3: 15329, 4: 15328},
                      "flask_doses": {1: 23481, 2: 23479, 3: 23477, 4: 23475, 5: 23473, 6: 23471}},
+    # Darkan Potions.kt: adjustStat(7, 0.25, false, SUMMONING), capped at the
+    # base Summoning level. Vial and flask ids are the pre-EOC cache family.
+    "Summoning potion": {"skills": ("summoning",), "strategy": "summoning", "doses": {1: 12146, 2: 12144, 3: 12142, 4: 12140},
+                         "flask_doses": {1: 23631, 2: 23629, 3: 23627, 4: 23625, 5: 23623, 6: 23621},
+                         "special_points": 15},
+    # PotionType.kt and Darkan Potions.kt: floor(base/4)+8 restores drained
+    # combat stats, Prayer, and Summoning to (but never above) their base pools.
+    "Super restore": {
+        "skills": ("attack", "strength", "defense", "ranged", "magic", "prayer", "summoning"),
+        "strategy": "super_restore",
+        "doses": {1: 3030, 2: 3028, 3: 3026, 4: 3024},
+        "flask_doses": {1: 23409, 2: 23407, 3: 23405, 4: 23403, 5: 23401, 6: 23399},
+    },
 }
 
 
@@ -104,6 +115,7 @@ def potion_consumables_as_dict() -> Dict[str, Dict[str, object]]:
                 "kind": "potion",
                 "skills": tuple(spec["skills"]),  # type: ignore[arg-type]
                 "strategy": spec["strategy"],
+                "special_points": spec.get("special_points", 0),
                 "leaves": potion_dose_name(base, dose - 1) if dose > 1 else VIAL_ITEM[0],
                 "message": f"You drink some of your {base.lower()}.",
                 "source": POTION_SOURCE_PATH,
@@ -113,6 +125,7 @@ def potion_consumables_as_dict() -> Dict[str, Dict[str, object]]:
                 "kind": "potion",
                 "skills": tuple(spec["skills"]),  # type: ignore[arg-type]
                 "strategy": spec["strategy"],
+                "special_points": spec.get("special_points", 0),
                 "leaves": potion_flask_name(base, dose - 1) if dose > 1 else EMPTY_FLASK_ITEM[0],
                 "message": f"You drink some of your {base.lower()}.",
                 "source": f"{POTION_SOURCE_PATH}; {DARKAN_ITEM_CONFIG_SOURCE}: {base} flask",

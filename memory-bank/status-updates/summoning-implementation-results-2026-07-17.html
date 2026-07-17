@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Summoning Closure</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(167,139,250,.14), transparent 30rem),
+        radial-gradient(circle at 88% 18%, rgba(79,140,255,.12), transparent 34rem),
+        var(--bg);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    main { width: min(1160px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 64px; }
+    .badge, .eyebrow, code {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border: 1px solid rgba(74,222,128,.35);
+      border-radius: 999px;
+      color: var(--green);
+      background: rgba(74,222,128,.08);
+      font-size: .72rem;
+      letter-spacing: .08em;
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 16px currentColor; }
+    h1 { margin: 18px 0 8px; font-size: clamp(2.25rem, 6vw, 4.8rem); line-height: .98; letter-spacing: -.055em; }
+    .lede { max-width: 800px; margin: 0; color: var(--text-dim); font-size: 1.05rem; }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin: 30px 0;
+    }
+    .metric, .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(30,35,44,.93), rgba(22,26,33,.93));
+      box-shadow: 0 16px 50px rgba(0,0,0,.18);
+    }
+    .metric { padding: 16px; min-height: 112px; }
+    .metric strong { display: block; font-size: 1.8rem; line-height: 1; margin: 8px 0; }
+    .metric span { color: var(--text-dim); font-size: .76rem; }
+    .eyebrow { color: var(--accent); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; }
+    .grid { display: grid; grid-template-columns: 1.12fr .88fr; gap: 16px; }
+    .card { padding: 22px; }
+    .card h2 { margin: 5px 0 14px; font-size: 1.18rem; }
+    .card p { color: var(--text-dim); margin: 0 0 14px; }
+    .stack { display: grid; gap: 10px; }
+    .row {
+      display: grid;
+      grid-template-columns: 36px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(12,14,18,.48);
+      border: 1px solid rgba(42,48,64,.76);
+    }
+    .icon {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      background: var(--accent-glow);
+      color: var(--accent);
+      font-weight: 800;
+    }
+    .row strong { display: block; font-size: .9rem; }
+    .row small { color: var(--text-dim); }
+    .state { color: var(--green); font: 700 .66rem "JetBrains Mono", monospace; }
+    .fixes { counter-reset: fixes; display: grid; gap: 12px; }
+    .fix {
+      position: relative;
+      padding: 14px 14px 14px 48px;
+      border-left: 2px solid var(--amber);
+      background: rgba(251,191,36,.055);
+    }
+    .fix::before {
+      counter-increment: fixes;
+      content: counter(fixes);
+      position: absolute;
+      left: 14px;
+      top: 15px;
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+      border-radius: 7px;
+      color: var(--amber);
+      background: rgba(251,191,36,.12);
+      font: 700 .72rem "JetBrains Mono", monospace;
+    }
+    .fix strong { display: block; margin-bottom: 3px; }
+    .fix span { color: var(--text-dim); font-size: .83rem; }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 15px;
+    }
+    .step { position: relative; padding: 14px; border-radius: 10px; background: rgba(79,140,255,.07); border: 1px solid rgba(79,140,255,.22); }
+    .step:not(:last-child)::after { content: "›"; position: absolute; right: -8px; top: 50%; transform: translateY(-50%); color: var(--accent); z-index: 2; }
+    .step strong { display: block; font-size: .82rem; }
+    .step span { color: var(--text-dim); font-size: .72rem; }
+    .wide { grid-column: 1 / -1; }
+    .verify {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .bar-label { display: flex; justify-content: space-between; gap: 12px; font-size: .78rem; margin: 12px 0 5px; }
+    .bar-label span { color: var(--text-dim); }
+    .bar { height: 9px; overflow: hidden; border-radius: 99px; background: #0b0d11; }
+    .bar i { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); }
+    .blocked { border-left: 3px solid var(--purple); padding-left: 14px; }
+    .blocked li, .qa li { margin: 8px 0; color: var(--text-dim); }
+    .blocked strong { color: var(--text); }
+    .footer { margin-top: 18px; text-align: center; color: var(--text-dim); font-size: .78rem; }
+    @media (max-width: 900px) {
+      .metrics { grid-template-columns: repeat(3, 1fr); }
+      .grid, .verify { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr 1fr; }
+      .wide { grid-column: auto; }
+    }
+    @media (max-width: 520px) {
+      main { width: min(100% - 20px, 1160px); padding-top: 28px; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .step:not(:last-child)::after { display: none; }
+      .row { grid-template-columns: 36px 1fr; }
+      .state { grid-column: 2; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <span class="badge"><span class="dot"></span> VERIFIED ON MAIN · 2026-07-17</span>
+    <h1>Summoning is alive.</h1>
+    <p class="lede">AnkiScape’s eighteenth complete skill now has its full ordinary catalog, review-native follower lifecycle, persistent pets, real resource costs, cross-skill effects, and source-shaped service economy—with Daemonheim kept behind the correct boundary.</p>
+  </header>
+
+  <section class="metrics" aria-label="Closure metrics">
+    <div class="metric"><span class="eyebrow">Familiars</span><strong>80</strong><span>surface definitions</span></div>
+    <div class="metric"><span class="eyebrow">Pouches</span><strong>78</strong><span>infusion recipes</span></div>
+    <div class="metric"><span class="eyebrow">Scrolls</span><strong>67</strong><span>conversion targets</span></div>
+    <div class="metric"><span class="eyebrow">Pets</span><strong>47</strong><span>freeze-date identities</span></div>
+    <div class="metric"><span class="eyebrow">Bogrog</span><strong>78</strong><span>exact exchange rows</span></div>
+    <div class="metric"><span class="eyebrow">Tests</span><strong>2×1446</strong><span>pure + real Qt discovery</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <span class="eyebrow">Playable surface</span>
+      <h2>One skill, several connected loops</h2>
+      <div class="stack">
+        <div class="row"><span class="icon">I</span><div><strong>Infuse & convert</strong><small>Exact charms, shards, secondaries, level gates, XP, pouches, and scrolls.</small></div><span class="state">LIVE</span></div>
+        <div class="row"><span class="icon">F</span><div><strong>Follower lifecycle</strong><small>Summon, dismiss, renew, duration, points, specials, BoB cargo, expiry, and reclaim.</small></div><span class="state">LIVE</span></div>
+        <div class="row"><span class="icon">P</span><div><strong>Persistent pets</strong><small>Shared follower slot, growth, food, acquisition log, Menagerie handoff, death, and release.</small></div><span class="state">LIVE</span></div>
+        <div class="row"><span class="icon">A</span><div><strong>Familiarisation</strong><small>Four-review spirit-plane session, focus, shards, ingredient box, and triple charms.</small></div><span class="state">LIVE</span></div>
+        <div class="row"><span class="icon">Y</span><div><strong>Pack yak automation</strong><small>Target priority, Casual full-pack trigger, Advanced threshold, one scroll and one item.</small></div><span class="state">LIVE</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <span class="eyebrow">Fresh-eyes fixes</span>
+      <h2>Defects found during closure</h2>
+      <div class="fixes">
+        <div class="fix"><strong>World ticks were silently skipped</strong><span>The review hook called a menu-local helper, swallowed the resulting exception, and never advanced Summoning. The helper is now review-global and integration-tested on Again.</span></div>
+        <div class="fix"><strong>Shop quantities collapsed to one</strong><span>Each preview refresh reset the spinner. Row identity now preserves the selected quantity, proven by a two-pouch Bogrog transaction in real Qt.</span></div>
+        <div class="fix"><strong>Structured death events became strings</strong><span>Sanitization now deep-copies event dictionaries instead of destroying their machine-readable shape.</span></div>
+        <div class="fix"><strong>One pouch name drifted</strong><span>The Shop generator now preserves the Summoning catalog’s canonical item name instead of re-resolving a conflicting item-ID alias.</span></div>
+      </div>
+    </article>
+
+    <article class="card wide">
+      <span class="eyebrow">Review transaction</span>
+      <h2>The world moves once, in a deterministic order</h2>
+      <div class="flow" role="img" aria-label="Shop clock then Summoning tick then Farming clock then selected action">
+        <div class="step"><strong>1 · Economy</strong><span>Advance Shop clock</span></div>
+        <div class="step"><strong>2 · Summoning</strong><span>Lifetime, healing, points, pets, D&amp;D</span></div>
+        <div class="step"><strong>3 · Farming</strong><span>Queue or background growth</span></div>
+        <div class="step"><strong>4 · Active action</strong><span>Only on a successful answer</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <span class="eyebrow">Verification</span>
+      <h2>Full closure, not sampled confidence</h2>
+      <div class="verify">
+        <div>
+          <div class="bar-label"><strong>Core Python</strong><span>1,242 pass · 201 skip · 3 expected</span></div>
+          <div class="bar"><i></i></div>
+          <div class="bar-label"><strong>Real offscreen Qt</strong><span>1,443 pass · 3 expected</span></div>
+          <div class="bar"><i></i></div>
+        </div>
+        <ul class="qa">
+          <li>Focused Summoning, Combat, Shop, storage, reachability, and registry suites.</li>
+          <li>Real follower panel, Winter Storage policy, and multi-quantity Bogrog UI transactions.</li>
+          <li>Docs, test-quality, compilation, JSON, generator-determinism, diff, and worktree audits.</li>
+          <li>Reachability debt recorded: 1,220 actions, 112 root orphans, and 178 cascade orphans.</li>
+          <li>No wall-clock gameplay and no Daemonheim resource leakage.</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="card">
+      <span class="eyebrow">Deliberately parked</span>
+      <h2>No design interview required</h2>
+      <ul class="blocked">
+        <li><strong>Combat & scroll effects:</strong> source/dependency-blocked until their exact effect substrates exist.</li>
+        <li><strong>Foragers:</strong> exact output tables and delivery cadence remain source-blocked.</li>
+        <li><strong>Teleports:</strong> spirit graahk is integrated; remaining routes wait for target-local evidence and consumers.</li>
+        <li><strong>Dungeoneering:</strong> its familiars and herbs stay in the future temporary Daemonheim economy.</li>
+      </ul>
+    </article>
+  </section>
+
+  <p class="footer">Source-shaped where the period record closes; visibly parked where it does not.</p>
+</main>
+</body>
+</html>

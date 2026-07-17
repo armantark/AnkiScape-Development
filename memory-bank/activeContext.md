@@ -2,6 +2,21 @@
 
 ## Current Focus
 
+Summoning is now the eighteenth complete skill surface. The 2026-07-17 closure
+ships the full ordinary pouch/scroll catalog, training, follower lifecycle,
+points, BoB cargo, Familiarisation, the freeze-date pet family, restoration
+potions, all 78 Bogrog exchanges, Pack yak Winter Storage, and the source-ready
+boost/heal/escape effects. Daemonheim remains outside the overworld. Remaining
+combat-scroll, forager, and teleport rows are explicit source/dependency blocks,
+not exposed approximations, and no owner-level Summoning design gap remains.
+Closure verification passes 1,446 core methods (1,242 ordinary passes, 201
+environment skips, three expected failures) and 1,446 real offscreen Qt methods
+(1,443 ordinary passes, three expected failures), plus focused Bogrog/follower
+UI, docs, test-quality, compilation, JSON, reachability, generator-determinism,
+diff, and worktree-safety checks. The reachability report records 1,220 actions
+and 290 known acquisition/dependency orphans (112 root, 178 cascade); it remains
+an explicit debt ledger rather than a green gate.
+
 The active non-Summoning grill-harvest follow-up has closed its final two owner
 questions. Mage Arena now has final-form alignment, matching first cape/staff,
 review-native per-spell attunement, one-cape statue replacement/reclaim, and
@@ -19,8 +34,8 @@ quantity controls (`8426fa2`), the corrected Charge source boundary
 (`8b6a561`), Agility carried risk (`69855d9`), and Farming replacement/preset
 planning (`9b65f45`). The former open design ledger is now archived at
 `archive/2026-07/resolved-queues/design-gaps-grill-harvest-2026-07-17.md`.
-Summoning runtime/source work remains excluded until the owner explicitly
-releases it.
+The owner released Summoning implementation after the final Winter Storage fork
+closed at `d7539c9`.
 
 Slayer's source-first owner grill is design-closed and integrated into `main`.
 The governing record is `slayer-skill-contract-2026-07-15.md`, supported by
@@ -108,12 +123,11 @@ Smoking Kills, Shilo Village, and the full black-mask/Slayer-helmet dependency
 chains belong to the Slayer implementation program; Social Slayer remains
 parked until genuine multiplayer state exists.
 
-Summoning's documentation-only owner grill is active in canonical `main`; runtime
-implementation has deliberately not started. The active ledger
-is `summoning-skill-contract-2026-07-16.md`, backed by lifecycle, training, and
-Familiarisation source audits plus the cross-system simulation-time, reviewer
-alert, and Help contracts. Its source/open-work queue and remaining genuine
-owner forks stay active. Foragers now preserve the period distinction between
+Summoning's owner grill is closed and its implementation is live in canonical
+`main`. The governing ledger is `summoning-skill-contract-2026-07-16.md`,
+backed by the catalog, lifecycle, training, Familiarisation, pet, potion,
+Bogrog, familiar-effect, Winter Storage, simulation-time, reviewer-alert, and
+Help audits/contracts. Foragers preserve the period distinction between
 drop-to-player output and separate familiar storage: a full carried inventory suppresses
 a drop roll with a visible log entry and no queue or Bank detour, while storage-type
 familiars can continue to their sourced capacity of 30.
@@ -161,14 +175,15 @@ the cat fights through the wall, and the stage keeps the source-required cat ite
 Optional food, cautious retreat, LP exchange, and cat death remain represented scene detail,
 not a pet-combat actor, stance selector, hidden roll, or false mandatory food gate.
 
-The 35 settled decisions define answered-card lifetime and passive world ticks,
+The 35 settled decisions now govern answered-card lifetime and passive world ticks,
 separate familiar/point/special resources, target-policy automation, carried
 pouch/scroll budgets, coalesced restore and Bank detours, safe replacement and
 dismissal, source-gated familiar combat, BoB inventory/reclaim rules, forbidden
 area consequences, Familiarisation's four-answer session, ordinary pouch/scroll
 training, and scroll-use XP. Summoning also establishes one offline Help corpus
-for contextual and full-reference surfaces. These decisions are current design,
-not a claim that Summoning ships.
+for contextual and full-reference surfaces. The ordinary skill surface ships;
+explicit source/dependency blocks remain parked as recorded in its design-gap
+and source-audit ledgers.
 
 Pack Yak's Winter Storage trigger is settled at the full-pack boundary. Casual spends one
 carried scroll and 12 special points to bank one configured eligible item only when doing
@@ -288,10 +303,10 @@ them.
 
 ## Current Truth
 
-- `skill_registry.py` has 17 complete skill surfaces, five partial Combat-trained skills, and three planned skills.
+- `skill_registry.py` has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills.
 - Complete: Mining, Woodcutting, Farming, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Hunter, Herblore, Prayer, Magic, Construction, Thieving, and Agility.
 - Partial through unified Combat: Attack, Strength, Defence, Constitution, and Ranged.
-- Planned: Summoning, Dungeoneering, and Slayer.
+- Planned: Dungeoneering and Slayer.
 - Farming is shipped (`9a88c56`), not the next build.
 - The 194-row quest catalog remains coverage scaffolding rather than full quest parity.
 - NPC Shops are live; the fake GE remains parked until the item/acquisition universe is representative.
@@ -682,7 +697,8 @@ candidates after restoring the level-149 TzHaar-Ket's missing 136 Slayer XP;
 the family registry, assignment/task-credit runtime, 29 families, special
 mechanics, reward gates, contexts and Fight Cave remain absent. All seven
 functional master pools are now recorded. Summoning and Dungeoneering remain
-explicitly excluded.
+explicitly excluded from that Slayer harvest; Summoning was implemented later
+in the day.
 
 ## Slayer Cockatrice protection slice (2026-07-17)
 
@@ -699,7 +715,8 @@ encounter and clears the warning only when Mirror shield occupies the shield
 slot. Banshee's protective item set and affected stats are pinned in
 `source-audits/slayer-protective-equipment-cockatrice-banshee-2026-07-17.md`,
 but its conflicting drain magnitude and out-of-scope Summoning effect keep it
-unimplemented. Summoning and Dungeoneering remain explicitly excluded.
+unimplemented. Summoning and Dungeoneering were explicitly excluded from this
+Slayer slice; Summoning was implemented later in the day.
 
 Verification passes 383 focused Combat/runtime/integration tests, one real
 offscreen Qt Combat-picker check, and all 1,374 core tests with 196 environment

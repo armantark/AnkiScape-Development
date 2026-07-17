@@ -291,13 +291,18 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
 
 ### Summoning
 
-Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUISITION`.
+Labels: `COMPLETE`, `SOURCE DEBT`, `DEPENDENCY: COMBAT/ACQUISITION`.
 
-- Owner grill active 2026-07-16 under `summoning-skill-contract-2026-07-16.md`.
-  Cover the full period pouch/familiar/scroll catalog; charms/secondaries and
-  acquisition; separate lifetime, Summoning-point, and special-move resources;
-  combat, healing, gathering, boosting, teleport, foraging, and beast-of-burden
-  roles; death, inventory, banking, searchable UI, persistence, and undo.
+- **Implemented 2026-07-17:** `summoning-skill-contract-2026-07-16.md` now
+  governs the live eighteenth skill surface. The full ordinary catalog,
+  pouch/scroll training, follower lifecycle, points, BoB cargo,
+  Familiarisation, pets, restoration potions, Bogrog, Winter Storage, and the
+  source-ready boost/heal/escape effects are shipped with assets, persistence,
+  UI, undo, and pure/Qt coverage.
+- Remaining combat/special-scroll effects, forager tables/cadence, and ordinary
+  familiar teleports stay source/dependency-blocked. Daemonheim remains wholly
+  owned by Dungeoneering; do not leak its familiars or herbs into overworld
+  Summoning.
 - Familiar lifetime is settled to every answered card, including Again, with a
   separate short-duration conversion that preserves period ratios rather than
   reusing the six-minute calendar scale. Pinned evidence is in

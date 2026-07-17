@@ -106,6 +106,56 @@ SERVICE_ROWS: list[dict[str, Any]] = [
     },
 ]
 
+
+def _bogrog_exchange_service_rows() -> list[dict[str, Any]]:
+    generated = runpy.run_path(str(REPO_ROOT / "summoning_data_generated.py"))
+    rows: list[dict[str, Any]] = []
+    for pouch in generated["SUMMONING_CATALOG"]:
+        required_level = pouch.get("bogrog_level")
+        refunded_shards = pouch.get("bogrog_shards")
+        if required_level is None or refunded_shards is None:
+            continue
+        rows.append(
+            {
+                "id": f"bogrog_exchange_{pouch['id']}",
+                "display_name": (
+                    f"Exchange {pouch['pouch_name']} for "
+                    f"{int(refunded_shards)} spirit shards"
+                ),
+                "provider": "Bogrog",
+                "location": "Gu'Tanoth",
+                "currency_id": 995,
+                "price": 0,
+                "inputs": [
+                    {
+                        "item_id": int(pouch["pouch_item_id"]),
+                        "quantity": 1,
+                        "item_name": str(pouch["pouch_name"]),
+                    }
+                ],
+                "outputs": [
+                    {
+                        "item_id": 12183,
+                        "quantity": int(refunded_shards),
+                        "item_name": "Spirit shards",
+                    }
+                ],
+                "icon_item_name": str(pouch["pouch_name"]),
+                "action_type": "bogrog_pouch_exchange",
+                "required_skill": "summoning",
+                "required_level": int(required_level),
+                "familiar_id": str(pouch["id"]),
+                "source": (
+                    "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches "
+                    "oldid 6438719 exact exchange columns"
+                ),
+            }
+        )
+    return rows
+
+
+SERVICE_ROWS.extend(_bogrog_exchange_service_rows())
+
 # Hand-audited shop access walls (owner-grilled hybrid, 2026-07-07). Shops
 # absent from this table are open by decision — uncertainty defaults open and
 # is revisitable via the ledger. Kinds:
@@ -769,7 +819,9 @@ def _attach_item_names(rows: Iterable[dict[str, Any]], items: dict[int, ItemMeta
             for item in clean.get(key, []):
                 item_id = int(item["item_id"])
                 clean_item = dict(item)
-                clean_item["item_name"] = _item_name(items, item_id)
+                clean_item["item_name"] = str(
+                    clean_item.get("item_name") or _item_name(items, item_id)
+                )
                 clean_item["tradeable"] = bool(items.get(item_id).tradeable) if item_id in items else False
                 clean_rows.append(clean_item)
             clean[key] = clean_rows

@@ -944,6 +944,21 @@ def _preview_service_like(player_data: Mapping[str, Any], service: Mapping[str, 
     requested = max(1, int(quantity))
     if service.get("visibility") != "visible":
         return _denied(service.get("lock_reason") or "service_not_visible", requested_quantity=requested, service_id=service["id"])
+    required_skill = str(service.get("required_skill", ""))
+    required_level = _clean_int(service.get("required_level"), 0, minimum=0)
+    if required_skill and required_level:
+        current_level = _clean_int(
+            data.get(f"{required_skill}_level"), 1, minimum=1
+        )
+        if current_level < required_level:
+            return _denied(
+                "skill_level",
+                requested_quantity=requested,
+                service_id=service["id"],
+                skill_id=required_skill,
+                required_level=required_level,
+                current_level=current_level,
+            )
     currency_name = str(service.get("currency_item_name", "Coins"))
     unit_price = _clean_int(service.get("price"), 0, minimum=0)
     requested_requirements = _service_requirement_rows(data, service, requested, unit_price, currency_name)

@@ -688,6 +688,79 @@ class TestLogic(unittest.TestCase):
         self.assertNotIn("prayer", super_prayer["combat_current_levels"])
         self.assertEqual(super_prayer["inventory"], {"Super prayer (2)": 1})
 
+    def test_summoning_potion_restores_exact_points_and_decrements_dose(self):
+        restored, result = apply_consumable_pure(
+            {
+                "inventory": {"Summoning potion (3)": 1},
+                "summoning_level": 80,
+                "summoning_state": {
+                    "summoning_points_current": 10,
+                    "special_move_points_current": 40,
+                },
+            },
+            "Summoning potion (3)",
+        )
+
+        self.assertTrue(result["allowed"])
+        self.assertEqual(result["summoning_points_restored"], 27)
+        self.assertEqual(result["special_move_points_restored"], 15)
+        self.assertEqual(
+            restored["summoning_state"]["summoning_points_current"], 37
+        )
+        self.assertEqual(restored["inventory"], {"Summoning potion (2)": 1})
+        self.assertEqual(
+            restored["summoning_state"]["special_move_points_current"], 55
+        )
+
+        capped, capped_result = apply_consumable_pure(
+            {
+                "inventory": {"Summoning flask (1)": 1},
+                "summoning_level": 80,
+                "summoning_state": {"summoning_points_current": 79},
+            },
+            "Summoning flask (1)",
+        )
+        self.assertEqual(capped_result["summoning_points_restored"], 1)
+        self.assertEqual(capped["summoning_state"]["summoning_points_current"], 80)
+        self.assertEqual(capped["inventory"], {"Potion flask": 1})
+
+    def test_super_restore_repairs_stats_prayer_and_summoning_but_not_specials(self):
+        restored, result = apply_consumable_pure(
+            {
+                "inventory": {"Super restore (3)": 1},
+                "attack_level": 80,
+                "strength_level": 80,
+                "defense_level": 80,
+                "ranged_level": 80,
+                "magic_level": 80,
+                "prayer_level": 80,
+                "summoning_level": 80,
+                "combat_current_levels": {"attack": 50, "magic": 90},
+                "combat_prayer_points": 100,
+                "summoning_state": {
+                    "summoning_points_current": 10,
+                    "special_move_points_current": 40,
+                },
+            },
+            "Super restore (3)",
+        )
+
+        self.assertTrue(result["allowed"])
+        self.assertEqual(result["stats_restored"], {"attack": 28})
+        self.assertEqual(result["prayer_points_restored"], 28.0)
+        self.assertEqual(result["summoning_points_restored"], 28)
+        self.assertEqual(result["special_move_points_restored"], 0)
+        self.assertEqual(restored["combat_current_levels"]["attack"], 78)
+        self.assertEqual(restored["combat_current_levels"]["magic"], 90)
+        self.assertEqual(restored["combat_prayer_points"], 380)
+        self.assertEqual(
+            restored["summoning_state"]["summoning_points_current"], 38
+        )
+        self.assertEqual(
+            restored["summoning_state"]["special_move_points_current"], 40
+        )
+        self.assertEqual(restored["inventory"], {"Super restore (2)": 1})
+
     def test_potion_boost_is_a_floor_that_cures_drains_without_stacking(self):
         # boost-to-floor: sets current to base+boost, cures a drain, never
         # stacks past base+boost, never lowers a higher boost.

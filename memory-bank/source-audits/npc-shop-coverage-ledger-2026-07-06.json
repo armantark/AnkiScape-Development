@@ -19,6 +19,2736 @@
       "provider": "Bob Barter (herbs)",
       "source": "RuneScape Wiki Bob Barter (herbs) oldid 6222086, 2012-09-09; OpenRS2 rev 742 NPC 6524 Decant/Decant-X; Death Hats, Draynor and Upgrades, 2011-05-25; Darkan BobBarter.java",
       "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit wolf pouch for 5 spirit shards",
+      "familiar_id": "spiritwolf",
+      "icon_item_name": "Spirit wolf pouch",
+      "id": "bogrog_exchange_spiritwolf",
+      "inputs": [
+        {
+          "item_id": 12047,
+          "item_name": "Spirit wolf pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 5,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 21,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Dreadfowl pouch for 6 spirit shards",
+      "familiar_id": "dreadfowl",
+      "icon_item_name": "Dreadfowl pouch",
+      "id": "bogrog_exchange_dreadfowl",
+      "inputs": [
+        {
+          "item_id": 12043,
+          "item_name": "Dreadfowl pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 6,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 21,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit spider pouch for 6 spirit shards",
+      "familiar_id": "spiritspider",
+      "icon_item_name": "Spirit spider pouch",
+      "id": "bogrog_exchange_spiritspider",
+      "inputs": [
+        {
+          "item_id": 12059,
+          "item_name": "Spirit spider pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 6,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 21,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Thorny snail pouch for 7 spirit shards",
+      "familiar_id": "thornysnail",
+      "icon_item_name": "Thorny snail pouch",
+      "id": "bogrog_exchange_thornysnail",
+      "inputs": [
+        {
+          "item_id": 12019,
+          "item_name": "Thorny snail pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 7,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 23,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Granite crab pouch for 5 spirit shards",
+      "familiar_id": "granitecrab",
+      "icon_item_name": "Granite crab pouch",
+      "id": "bogrog_exchange_granitecrab",
+      "inputs": [
+        {
+          "item_id": 12009,
+          "item_name": "Granite crab pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 5,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 26,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit mosquito pouch for 1 spirit shards",
+      "familiar_id": "spiritmosquito",
+      "icon_item_name": "Spirit mosquito pouch",
+      "id": "bogrog_exchange_spiritmosquito",
+      "inputs": [
+        {
+          "item_id": 12778,
+          "item_name": "Spirit mosquito pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 1,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 27,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Desert wyrm pouch for 32 spirit shards",
+      "familiar_id": "desertwyrm",
+      "icon_item_name": "Desert wyrm pouch",
+      "id": "bogrog_exchange_desertwyrm",
+      "inputs": [
+        {
+          "item_id": 12049,
+          "item_name": "Desert wyrm pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 32,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 28,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit scorpion pouch for 40 spirit shards",
+      "familiar_id": "spiritscorpion",
+      "icon_item_name": "Spirit scorpion pouch",
+      "id": "bogrog_exchange_spiritscorpion",
+      "inputs": [
+        {
+          "item_id": 12055,
+          "item_name": "Spirit scorpion pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 40,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 29,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit tz-kih pouch for 45 spirit shards",
+      "familiar_id": "spirittzkih",
+      "icon_item_name": "Spirit tz-kih pouch",
+      "id": "bogrog_exchange_spirittzkih",
+      "inputs": [
+        {
+          "item_id": 12808,
+          "item_name": "Spirit tz-kih pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 45,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 31,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Albino rat pouch for 53 spirit shards",
+      "familiar_id": "albinorat",
+      "icon_item_name": "Albino rat pouch",
+      "id": "bogrog_exchange_albinorat",
+      "inputs": [
+        {
+          "item_id": 12067,
+          "item_name": "Albino rat pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 53,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 32,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit kalphite pouch for 36 spirit shards",
+      "familiar_id": "spiritkalphite",
+      "icon_item_name": "Spirit kalphite pouch",
+      "id": "bogrog_exchange_spiritkalphite",
+      "inputs": [
+        {
+          "item_id": 12063,
+          "item_name": "Spirit kalphite pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 36,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 34,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Compost mound pouch for 33 spirit shards",
+      "familiar_id": "compostmound",
+      "icon_item_name": "Compost mound pouch",
+      "id": "bogrog_exchange_compostmound",
+      "inputs": [
+        {
+          "item_id": 12091,
+          "item_name": "Compost mound pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 33,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 37,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Giant chinchompa pouch for 59 spirit shards",
+      "familiar_id": "giantchinchompa",
+      "icon_item_name": "Giant chinchompa pouch",
+      "id": "bogrog_exchange_giantchinchompa",
+      "inputs": [
+        {
+          "item_id": 12800,
+          "item_name": "Giant chinchompa pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 59,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 38,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Vampire bat pouch for 57 spirit shards",
+      "familiar_id": "vampyrebat",
+      "icon_item_name": "Vampire bat pouch",
+      "id": "bogrog_exchange_vampyrebat",
+      "inputs": [
+        {
+          "item_id": 12053,
+          "item_name": "Vampire bat pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 57,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 39,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Honey badger pouch for 59 spirit shards",
+      "familiar_id": "honeybadger",
+      "icon_item_name": "Honey badger pouch",
+      "id": "bogrog_exchange_honeybadger",
+      "inputs": [
+        {
+          "item_id": 12065,
+          "item_name": "Honey badger pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 59,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 40,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Beaver pouch for 51 spirit shards",
+      "familiar_id": "beaver",
+      "icon_item_name": "Beaver pouch",
+      "id": "bogrog_exchange_beaver",
+      "inputs": [
+        {
+          "item_id": 12021,
+          "item_name": "Beaver pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 51,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 41,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Void ravager pouch for 52 spirit shards",
+      "familiar_id": "voidravager",
+      "icon_item_name": "Void ravager pouch",
+      "id": "bogrog_exchange_voidravager",
+      "inputs": [
+        {
+          "item_id": 12818,
+          "item_name": "Void ravager pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 52,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 42,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Void shifter pouch for 52 spirit shards",
+      "familiar_id": "voidshifter",
+      "icon_item_name": "Void shifter pouch",
+      "id": "bogrog_exchange_voidshifter",
+      "inputs": [
+        {
+          "item_id": 12814,
+          "item_name": "Void shifter pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 52,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 42,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Void spinner pouch for 52 spirit shards",
+      "familiar_id": "voidspinner",
+      "icon_item_name": "Void spinner pouch",
+      "id": "bogrog_exchange_voidspinner",
+      "inputs": [
+        {
+          "item_id": 12780,
+          "item_name": "Void spinner pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 52,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 42,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Void torcher pouch for 52 spirit shards",
+      "familiar_id": "voidtorcher",
+      "icon_item_name": "Void torcher pouch",
+      "id": "bogrog_exchange_voidtorcher",
+      "inputs": [
+        {
+          "item_id": 12798,
+          "item_name": "Void torcher pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 52,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 42,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Bronze minotaur pouch for 72 spirit shards",
+      "familiar_id": "bronzeminotaur",
+      "icon_item_name": "Bronze minotaur pouch",
+      "id": "bogrog_exchange_bronzeminotaur",
+      "inputs": [
+        {
+          "item_id": 12073,
+          "item_name": "Bronze minotaur pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 72,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 44,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Bull ant pouch for 8 spirit shards",
+      "familiar_id": "bullant",
+      "icon_item_name": "Bull ant pouch",
+      "id": "bogrog_exchange_bullant",
+      "inputs": [
+        {
+          "item_id": 12087,
+          "item_name": "Bull ant pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 8,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 47,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Macaw pouch for 55 spirit shards",
+      "familiar_id": "macaw",
+      "icon_item_name": "Macaw pouch",
+      "id": "bogrog_exchange_macaw",
+      "inputs": [
+        {
+          "item_id": 12071,
+          "item_name": "Macaw pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 55,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 48,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Evil turnip pouch for 73 spirit shards",
+      "familiar_id": "evilturnip",
+      "icon_item_name": "Evil turnip pouch",
+      "id": "bogrog_exchange_evilturnip",
+      "inputs": [
+        {
+          "item_id": 12051,
+          "item_name": "Evil turnip pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 73,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 49,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit cockatrice pouch for 62 spirit shards",
+      "familiar_id": "spiritcockatrice",
+      "icon_item_name": "Spirit cockatrice pouch",
+      "id": "bogrog_exchange_spiritcockatrice",
+      "inputs": [
+        {
+          "item_id": 12095,
+          "item_name": "Spirit cockatrice pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 62,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 50,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit coraxatrice pouch for 50 spirit shards",
+      "familiar_id": "spiritcoraxatrice",
+      "icon_item_name": "Spirit coraxatrice pouch",
+      "id": "bogrog_exchange_spiritcoraxatrice",
+      "inputs": [
+        {
+          "item_id": 12105,
+          "item_name": "Spirit coraxatrice pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 50,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 50,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit guthatrice pouch for 62 spirit shards",
+      "familiar_id": "spiritguthatrice",
+      "icon_item_name": "Spirit guthatrice pouch",
+      "id": "bogrog_exchange_spiritguthatrice",
+      "inputs": [
+        {
+          "item_id": 12097,
+          "item_name": "Spirit guthatrice pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 62,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 50,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit pengatrice pouch for 50 spirit shards",
+      "familiar_id": "spiritpengatrice",
+      "icon_item_name": "Spirit pengatrice pouch",
+      "id": "bogrog_exchange_spiritpengatrice",
+      "inputs": [
+        {
+          "item_id": 12103,
+          "item_name": "Spirit pengatrice pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 50,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 50,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit saratrice pouch for 50 spirit shards",
+      "familiar_id": "spiritsaratrice",
+      "icon_item_name": "Spirit saratrice pouch",
+      "id": "bogrog_exchange_spiritsaratrice",
+      "inputs": [
+        {
+          "item_id": 12099,
+          "item_name": "Spirit saratrice pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 50,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 50,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit vulatrice pouch for 50 spirit shards",
+      "familiar_id": "spiritvulatrice",
+      "icon_item_name": "Spirit vulatrice pouch",
+      "id": "bogrog_exchange_spiritvulatrice",
+      "inputs": [
+        {
+          "item_id": 12107,
+          "item_name": "Spirit vulatrice pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 50,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 50,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit zamatrice pouch for 50 spirit shards",
+      "familiar_id": "spiritzamatrice",
+      "icon_item_name": "Spirit zamatrice pouch",
+      "id": "bogrog_exchange_spiritzamatrice",
+      "inputs": [
+        {
+          "item_id": 12101,
+          "item_name": "Spirit zamatrice pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 50,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 50,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Iron minotaur pouch for 88 spirit shards",
+      "familiar_id": "ironminotaur",
+      "icon_item_name": "Iron minotaur pouch",
+      "id": "bogrog_exchange_ironminotaur",
+      "inputs": [
+        {
+          "item_id": 12075,
+          "item_name": "Iron minotaur pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 88,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 53,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Pyrelord pouch for 78 spirit shards",
+      "familiar_id": "pyrelord",
+      "icon_item_name": "Pyrelord pouch",
+      "id": "bogrog_exchange_pyrelord",
+      "inputs": [
+        {
+          "item_id": 12816,
+          "item_name": "Pyrelord pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 78,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 53,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Magpie pouch for 62 spirit shards",
+      "familiar_id": "magpie",
+      "icon_item_name": "Magpie pouch",
+      "id": "bogrog_exchange_magpie",
+      "inputs": [
+        {
+          "item_id": 12041,
+          "item_name": "Magpie pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 62,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 54,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Bloated leech pouch for 82 spirit shards",
+      "familiar_id": "bloatedleech",
+      "icon_item_name": "Bloated leech pouch",
+      "id": "bogrog_exchange_bloatedleech",
+      "inputs": [
+        {
+          "item_id": 12061,
+          "item_name": "Bloated leech pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 82,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 56,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit terrorbird pouch for 9 spirit shards",
+      "familiar_id": "spiritterrorbird",
+      "icon_item_name": "Spirit terrorbird pouch",
+      "id": "bogrog_exchange_spiritterrorbird",
+      "inputs": [
+        {
+          "item_id": 12007,
+          "item_name": "Spirit terrorbird pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 9,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 58,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Abyssal parasite pouch for 75 spirit shards",
+      "familiar_id": "abyssalparasite",
+      "icon_item_name": "Abyssal parasite pouch",
+      "id": "bogrog_exchange_abyssalparasite",
+      "inputs": [
+        {
+          "item_id": 12035,
+          "item_name": "Abyssal parasite pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 75,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 60,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit jelly pouch for 106 spirit shards",
+      "familiar_id": "spiritjelly",
+      "icon_item_name": "Spirit jelly pouch",
+      "id": "bogrog_exchange_spiritjelly",
+      "inputs": [
+        {
+          "item_id": 12027,
+          "item_name": "Spirit jelly pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 106,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 61,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Ibis pouch for 77 spirit shards",
+      "familiar_id": "ibis",
+      "icon_item_name": "Ibis pouch",
+      "id": "bogrog_exchange_ibis",
+      "inputs": [
+        {
+          "item_id": 12531,
+          "item_name": "Ibis pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 77,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 62,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Steel minotaur pouch for 99 spirit shards",
+      "familiar_id": "steelminotaur",
+      "icon_item_name": "Steel minotaur pouch",
+      "id": "bogrog_exchange_steelminotaur",
+      "inputs": [
+        {
+          "item_id": 12077,
+          "item_name": "Steel minotaur pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 99,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 62,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit graahk pouch for 108 spirit shards",
+      "familiar_id": "spiritgraahk",
+      "icon_item_name": "Spirit graahk pouch",
+      "id": "bogrog_exchange_spiritgraahk",
+      "inputs": [
+        {
+          "item_id": 12810,
+          "item_name": "Spirit graahk pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 108,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 63,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit kyatt pouch for 108 spirit shards",
+      "familiar_id": "spiritkyatt",
+      "icon_item_name": "Spirit kyatt pouch",
+      "id": "bogrog_exchange_spiritkyatt",
+      "inputs": [
+        {
+          "item_id": 12812,
+          "item_name": "Spirit kyatt pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 108,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 63,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit larupia pouch for 109 spirit shards",
+      "familiar_id": "spiritlarupia",
+      "icon_item_name": "Spirit larupia pouch",
+      "id": "bogrog_exchange_spiritlarupia",
+      "inputs": [
+        {
+          "item_id": 12784,
+          "item_name": "Spirit larupia pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 109,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 63,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Karam. overlord pouch for 101 spirit shards",
+      "familiar_id": "karamthulhuoverlord",
+      "icon_item_name": "Karam. overlord pouch",
+      "id": "bogrog_exchange_karamthulhuoverlord",
+      "inputs": [
+        {
+          "item_id": 12023,
+          "item_name": "Karam. overlord pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 101,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 64,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Smoke devil pouch for 99 spirit shards",
+      "familiar_id": "smokedevil",
+      "icon_item_name": "Smoke devil pouch",
+      "id": "bogrog_exchange_smokedevil",
+      "inputs": [
+        {
+          "item_id": 12085,
+          "item_name": "Smoke devil pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 99,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 66,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Abyssal lurker pouch for 84 spirit shards",
+      "familiar_id": "abyssallurker",
+      "icon_item_name": "Abyssal lurker pouch",
+      "id": "bogrog_exchange_abyssallurker",
+      "inputs": [
+        {
+          "item_id": 12037,
+          "item_name": "Abyssal lurker pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 84,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 67,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit cobra pouch for 82 spirit shards",
+      "familiar_id": "spiritcobra",
+      "icon_item_name": "Spirit cobra pouch",
+      "id": "bogrog_exchange_spiritcobra",
+      "inputs": [
+        {
+          "item_id": 12015,
+          "item_name": "Spirit cobra pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 82,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 68,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Stranger plant pouch for 90 spirit shards",
+      "familiar_id": "strangerplant",
+      "icon_item_name": "Stranger plant pouch",
+      "id": "bogrog_exchange_strangerplant",
+      "inputs": [
+        {
+          "item_id": 12045,
+          "item_name": "Stranger plant pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 90,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 69,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Barker toad pouch for 7 spirit shards",
+      "familiar_id": "barkertoad",
+      "icon_item_name": "Barker toad pouch",
+      "id": "bogrog_exchange_barkertoad",
+      "inputs": [
+        {
+          "item_id": 12123,
+          "item_name": "Barker toad pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 7,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 71,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Mithril minotaur pouch for 107 spirit shards",
+      "familiar_id": "mithrilminotaur",
+      "icon_item_name": "Mithril minotaur pouch",
+      "id": "bogrog_exchange_mithrilminotaur",
+      "inputs": [
+        {
+          "item_id": 12079,
+          "item_name": "Mithril minotaur pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 107,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 71,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange War tortoise pouch for 1 spirit shards",
+      "familiar_id": "wartortoise",
+      "icon_item_name": "War tortoise pouch",
+      "id": "bogrog_exchange_wartortoise",
+      "inputs": [
+        {
+          "item_id": 12031,
+          "item_name": "War tortoise pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 1,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 72,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Bunyip pouch for 77 spirit shards",
+      "familiar_id": "bunyip",
+      "icon_item_name": "Bunyip pouch",
+      "id": "bogrog_exchange_bunyip",
+      "inputs": [
+        {
+          "item_id": 12029,
+          "item_name": "Bunyip pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 77,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 73,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Fruit bat pouch for 91 spirit shards",
+      "familiar_id": "fruitbat",
+      "icon_item_name": "Fruit bat pouch",
+      "id": "bogrog_exchange_fruitbat",
+      "inputs": [
+        {
+          "item_id": 12033,
+          "item_name": "Fruit bat pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 91,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 73,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Ravenous locust pouch for 56 spirit shards",
+      "familiar_id": "ravenouslocust",
+      "icon_item_name": "Ravenous locust pouch",
+      "id": "bogrog_exchange_ravenouslocust",
+      "inputs": [
+        {
+          "item_id": 12820,
+          "item_name": "Ravenous locust pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 56,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 74,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Arctic bear pouch for 10 spirit shards",
+      "familiar_id": "arcticbear",
+      "icon_item_name": "Arctic bear pouch",
+      "id": "bogrog_exchange_arcticbear",
+      "inputs": [
+        {
+          "item_id": 12057,
+          "item_name": "Arctic bear pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 10,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 75,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Phoenix pouch for 121 spirit shards",
+      "familiar_id": "phoenix",
+      "icon_item_name": "Phoenix pouch",
+      "id": "bogrog_exchange_phoenix",
+      "inputs": [
+        {
+          "item_id": 14623,
+          "item_name": "Phoenix pouch",
+          "quantity": 1,
+          "tradeable": true
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 121,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 76,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Obsidian golem pouch for 137 spirit shards",
+      "familiar_id": "obsidiangolem",
+      "icon_item_name": "Obsidian golem pouch",
+      "id": "bogrog_exchange_obsidiangolem",
+      "inputs": [
+        {
+          "item_id": 12792,
+          "item_name": "Obsidian golem pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 137,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 77,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Granite lobster pouch for 117 spirit shards",
+      "familiar_id": "granitelobster",
+      "icon_item_name": "Granite lobster pouch",
+      "id": "bogrog_exchange_granitelobster",
+      "inputs": [
+        {
+          "item_id": 12069,
+          "item_name": "Granite lobster pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 117,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 78,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Praying mantis pouch for 118 spirit shards",
+      "familiar_id": "prayingmantis",
+      "icon_item_name": "Praying mantis pouch",
+      "id": "bogrog_exchange_prayingmantis",
+      "inputs": [
+        {
+          "item_id": 12011,
+          "item_name": "Praying mantis pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 118,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 79,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Adamant minotaur pouch for 101 spirit shards",
+      "familiar_id": "adamantminotaur",
+      "icon_item_name": "Adamant minotaur pouch",
+      "id": "bogrog_exchange_adamantminotaur",
+      "inputs": [
+        {
+          "item_id": 12081,
+          "item_name": "Adamant minotaur pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 101,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 80,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Forge regent pouch for 99 spirit shards",
+      "familiar_id": "forgeregent",
+      "icon_item_name": "Forge regent pouch",
+      "id": "bogrog_exchange_forgeregent",
+      "inputs": [
+        {
+          "item_id": 12782,
+          "item_name": "Forge regent pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 99,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 80,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Talon beast pouch for 122 spirit shards",
+      "familiar_id": "talonbeast",
+      "icon_item_name": "Talon beast pouch",
+      "id": "bogrog_exchange_talonbeast",
+      "inputs": [
+        {
+          "item_id": 12794,
+          "item_name": "Talon beast pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 122,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 81,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Giant ent pouch for 87 spirit shards",
+      "familiar_id": "giantent",
+      "icon_item_name": "Giant ent pouch",
+      "id": "bogrog_exchange_giantent",
+      "inputs": [
+        {
+          "item_id": 12013,
+          "item_name": "Giant ent pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 87,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 82,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Fire titan pouch for 139 spirit shards",
+      "familiar_id": "firetitan",
+      "icon_item_name": "Fire titan pouch",
+      "id": "bogrog_exchange_firetitan",
+      "inputs": [
+        {
+          "item_id": 12802,
+          "item_name": "Fire titan pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 139,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 83,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Ice titan pouch for 139 spirit shards",
+      "familiar_id": "icetitan",
+      "icon_item_name": "Ice titan pouch",
+      "id": "bogrog_exchange_icetitan",
+      "inputs": [
+        {
+          "item_id": 12806,
+          "item_name": "Ice titan pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 139,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 83,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Moss titan pouch for 142 spirit shards",
+      "familiar_id": "mosstitan",
+      "icon_item_name": "Moss titan pouch",
+      "id": "bogrog_exchange_mosstitan",
+      "inputs": [
+        {
+          "item_id": 12804,
+          "item_name": "Moss titan pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 142,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 83,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Hydra pouch for 90 spirit shards",
+      "familiar_id": "hydra",
+      "icon_item_name": "Hydra pouch",
+      "id": "bogrog_exchange_hydra",
+      "inputs": [
+        {
+          "item_id": 12025,
+          "item_name": "Hydra pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 90,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 84,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Lava titan pouch for 154 spirit shards",
+      "familiar_id": "lavatitan",
+      "icon_item_name": "Lava titan pouch",
+      "id": "bogrog_exchange_lavatitan",
+      "inputs": [
+        {
+          "item_id": 12788,
+          "item_name": "Lava titan pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 154,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 85,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Spirit dagannoth pouch for 1 spirit shards",
+      "familiar_id": "spiritdagannoth",
+      "icon_item_name": "Spirit dagannoth pouch",
+      "id": "bogrog_exchange_spiritdagannoth",
+      "inputs": [
+        {
+          "item_id": 12017,
+          "item_name": "Spirit dagannoth pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 1,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 85,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Swamp titan pouch for 105 spirit shards",
+      "familiar_id": "swamptitan",
+      "icon_item_name": "Swamp titan pouch",
+      "id": "bogrog_exchange_swamptitan",
+      "inputs": [
+        {
+          "item_id": 12776,
+          "item_name": "Swamp titan pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 105,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 87,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Rune minotaur pouch for 1 spirit shards",
+      "familiar_id": "runeminotaur",
+      "icon_item_name": "Rune minotaur pouch",
+      "id": "bogrog_exchange_runeminotaur",
+      "inputs": [
+        {
+          "item_id": 12083,
+          "item_name": "Rune minotaur pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 1,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 89,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Unicorn stallion pouch for 98 spirit shards",
+      "familiar_id": "unicornstallion",
+      "icon_item_name": "Unicorn stallion pouch",
+      "id": "bogrog_exchange_unicornstallion",
+      "inputs": [
+        {
+          "item_id": 12039,
+          "item_name": "Unicorn stallion pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 98,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 91,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Geyser titan pouch for 156 spirit shards",
+      "familiar_id": "geysertitan",
+      "icon_item_name": "Geyser titan pouch",
+      "id": "bogrog_exchange_geysertitan",
+      "inputs": [
+        {
+          "item_id": 12786,
+          "item_name": "Geyser titan pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 156,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 92,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Wolpertinger pouch for 143 spirit shards",
+      "familiar_id": "wolpertinger",
+      "icon_item_name": "Wolpertinger pouch",
+      "id": "bogrog_exchange_wolpertinger",
+      "inputs": [
+        {
+          "item_id": 12089,
+          "item_name": "Wolpertinger pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 143,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 93,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Abyssal titan pouch for 79 spirit shards",
+      "familiar_id": "abyssaltitan",
+      "icon_item_name": "Abyssal titan pouch",
+      "id": "bogrog_exchange_abyssaltitan",
+      "inputs": [
+        {
+          "item_id": 12796,
+          "item_name": "Abyssal titan pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 79,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 94,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Iron titan pouch for 139 spirit shards",
+      "familiar_id": "irontitan",
+      "icon_item_name": "Iron titan pouch",
+      "id": "bogrog_exchange_irontitan",
+      "inputs": [
+        {
+          "item_id": 12822,
+          "item_name": "Iron titan pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 139,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 96,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Pack yak pouch for 148 spirit shards",
+      "familiar_id": "packyak",
+      "icon_item_name": "Pack yak pouch",
+      "id": "bogrog_exchange_packyak",
+      "inputs": [
+        {
+          "item_id": 12093,
+          "item_name": "Pack yak pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 148,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 97,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
+    },
+    {
+      "action_type": "bogrog_pouch_exchange",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Exchange Steel titan pouch for 125 spirit shards",
+      "familiar_id": "steeltitan",
+      "icon_item_name": "Steel titan pouch",
+      "id": "bogrog_exchange_steeltitan",
+      "inputs": [
+        {
+          "item_id": 12790,
+          "item_name": "Steel titan pouch",
+          "quantity": 1,
+          "tradeable": false
+        }
+      ],
+      "location": "Gu'Tanoth",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 12183,
+          "item_name": "Spirit shards",
+          "quantity": 125,
+          "tradeable": true
+        }
+      ],
+      "price": 0,
+      "provider": "Bogrog",
+      "required_level": 99,
+      "required_skill": "summoning",
+      "source": "RuneScape Wiki Bogrog oldid 6222092; Summoning pouches oldid 6438719 exact exchange columns",
+      "visibility": "visible"
     }
   ],
   "shop_data_version": 1,
@@ -30284,7 +33014,7 @@
     "locked_stock_row_count": 60,
     "player_sell_price_count": 6820,
     "runtime_shop_count": 273,
-    "service_count": 1,
+    "service_count": 79,
     "source_shop_count": 274,
     "stock_row_count": 2771,
     "vendor_action_count": 4,
