@@ -461,6 +461,12 @@ class CombatEnemyAttackStyleTest(unittest.TestCase):
 
 
 class CombatPeriodXpTest(unittest.TestCase):
+    def test_death_spawn_never_grants_slayer_xp(self):
+        death_spawn = COMBAT_ENEMY_DATA["death_spawn"]
+
+        self.assertEqual(death_spawn["slayer_xp"], 0.0)
+        self.assertIn("Death spawn oldid 6327456", death_spawn["source"])
+
     def test_level_8_crawling_hand_uses_period_slayer_xp(self):
         crawling_hand = COMBAT_ENEMY_DATA["crawling_hand"]
 

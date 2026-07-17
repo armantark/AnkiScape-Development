@@ -90,6 +90,30 @@ AnkiScape now has 17 complete skill surfaces, five partial Combat-trained skills
 - Durable evidence:
   `source-audits/slayer-chaeldar-pool-2026-07-17.md`.
 
+## Slayer Sumona source harvest — 2026-07-17
+
+- Reconciled the fifth functional-master pool at 37 families and a provisional
+  407-point hidden-weight denominator.
+- Restored Scabarites and Terror dogs from cutoff master, cross-master, and
+  individual-family evidence over Darkan's commented stubs. Their 10-point
+  weights are labeled common-baseline abstractions; Darkan's other 35 rows
+  contribute 387 provisional points.
+- Kept cutoff Black demons, Grifolapines, Grifolaroos, and Mutated jadinkos
+  despite omissions in the stale cross-master table, and corrected Darkan's
+  Black-demon and Gargoyle count conflicts to `120–185`.
+- Closed Sumona's Combat 85, Slayer 35, Smoking Kills, and 12/60/180 point
+  gates. Preserved the Kalphite Queen challenge as a 15,000-XP, 30-point,
+  one-task compound objective while leaving its exact offer rule
+  `source_blocked`.
+- Kept Sumona out of live assignment generation: end-to-end family readiness
+  is 0/37, only four ordinary families have complete Combat targets, and the
+  remaining family registry, quest, target, protection, identity, special, and
+  task-credit paths are absent.
+- Removed the incorrect 60 Slayer XP from temporary Death spawns and added a
+  cutoff-source regression.
+- Durable evidence:
+  `source-audits/slayer-sumona-pool-2026-07-17.md`.
+
 ## Agility carried-risk amendment — 2026-07-17
 
 - Integrated into `main` at `69855d9`.

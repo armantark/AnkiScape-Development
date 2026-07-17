@@ -75,6 +75,19 @@ Banshee and generic Baby dragon are non-certifying, and 29 families are absent.
 The same pass corrected the level-8 Crawling hand from 12 to 16 Slayer XP. No
 owner design question emerged.
 
+The fifth master-pool harvest is recorded in
+`source-audits/slayer-sumona-pool-2026-07-17.md`. It reconciles Sumona's 37
+ordinary families and a provisional 407-point denominator. Darkan supplies 35
+executable rows totaling 387; cutoff evidence restores its commented
+Scabarite and Terror-dog families with explicit 10-point common-baseline
+abstractions. The cutoff master and quest pages close Combat 85, Slayer 35,
+Smoking Kills, and the 12/60/180 point schedule. End-to-end readiness remains
+0/37 because no family registry or assignment runtime exists, only four
+ordinary families have complete Combat targets, and the remaining rows need
+missing targets or complete protection, identity, interruption, and summon
+behavior. The same pass removed incorrect Slayer XP from the temporary Death
+spawn. No owner design question emerged.
+
 The settled design keeps assignments and exact qualifying Combat variants
 source-shaped, places `Assignment`, `Masters`, and `Rewards` in one Slayer page,
 deep-links into Combat as the sole fight surface, and requires a reusable list

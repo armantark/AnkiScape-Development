@@ -413,3 +413,52 @@ Evidence:
 - Test quality: zero hard issues across 67 files.
 - Documentation, compilation, diff, JSON, and worktree-safety checks passed.
 - No owner-level design gap emerged.
+
+## Slayer source batch — Sumona pool
+
+Finding: cutoff Sumona contains 37 families, while Darkan has 35 executable
+rows totaling 387 and leaves Scabarites and Terror dogs as comments. The
+cross-master table is stale for Black demons and three later ordinary
+families, and Darkan conflicts with the cutoff Black-demon and Gargoyle counts.
+
+Resolution:
+
+- Reconciled 37 ordinary families and a provisional 407-point hidden-weight
+  denominator.
+- Restored Scabarites and Terror dogs with explicit 10-point common-baseline
+  abstractions over their commented Darkan stubs.
+- Kept Black demons, Grifolapines, Grifolaroos, and Mutated jadinkos from the
+  master-specific and individual-family evidence despite cross-table
+  omissions.
+- Corrected Black demons and Gargoyles to `120–185`, preserved unusual
+  historical maxima as observation envelopes, and left the exact
+  higher-Combat within-family selection formula `source_blocked`.
+- Closed Combat 85, Slayer 35, Smoking Kills, and the 12/60/180 point schedule.
+  Preserved the Kalphite Queen challenge's 15,000 Slayer XP, 30 bonus points,
+  and one-task credit while leaving its exact offer rule source-blocked.
+- Kept Sumona runtime-hidden at 0/37 end-to-end family readiness. Only four
+  ordinary candidates are complete, and the family registry, assignment
+  generator, task-credit path, Smoking Kills, most targets, and required
+  special mechanics do not exist.
+
+Concrete implementation repair:
+
+- Temporary Death spawns incorrectly granted 60 Slayer XP.
+- The row now grants no Slayer XP and cites cutoff Death-spawn oldid `6327456`;
+  a focused regression pins the no-credit contract.
+
+Evidence:
+
+- `source-audits/slayer-sumona-pool-2026-07-17.md`.
+- Read-only workflow `0b971b55-f68c-42a7-bef6-46cd66c215d3` supplied separate
+  emulator/runtime and period-history surveys; the primary independently
+  reconciled the accepted pool, denominator, gates, count conflicts, challenge,
+  and runtime blockers.
+- The 37-row ledger is unique and totals 407 points mechanically.
+- Combat logic, enemy-roster, runtime-action, and integration holdout: 343
+  passed.
+- Full core: 1,367 methods, 196 environment skips, and three declared
+  XP-parity expected failures.
+- Test quality: zero hard issues across 67 files.
+- Documentation, compilation, diff, JSON, and worktree-safety checks passed.
+- No owner-level design gap emerged.

@@ -179,11 +179,13 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE SWEEP`, `DEPENDENCY: COMBAT`.
   provisional 355-point denominator; Mazchna/Achtryn is reconciled at 27
   families with a provisional 325-point denominator; Vannaka is reconciled at
   35 families with a provisional 460-point denominator; Chaeldar is reconciled
-  at 34 families with a provisional 388-point denominator. All four roles
+  at 34 families with a provisional 388-point denominator; Sumona is reconciled
+  at 37 families with a provisional 407-point denominator. All five roles
   remain hidden until their full Combat families and distinctive
   protection/finishing/context mechanics are executable. See the dated
-  `slayer-turael-spria-pool`, `slayer-mazchna-achtryn-pool`, and
-  `slayer-vannaka-pool`, and `slayer-chaeldar-pool` audits.
+  `slayer-turael-spria-pool`, `slayer-mazchna-achtryn-pool`,
+  `slayer-vannaka-pool`, `slayer-chaeldar-pool`, and `slayer-sumona-pool`
+  audits.
 - Park Social Slayer unless genuine shared-player state ever exists; do not ship
   a simulated partner or solo co-op multiplier. Preserve all seven period Slayer
   master challenges in the design and source their compound objective ledgers.
@@ -248,9 +250,9 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE SWEEP`, `DEPENDENCY: COMBAT`.
   `source-audits/slayer-turael-spria-pool-2026-07-17.md`: 23 families and the
   provisional 355-point hidden-weight denominator are pinned, but the role
   remains runtime-blocked on six absent Combat families plus Banshee and
-  Gelatinous special consequences. Mazchna/Achtryn, Vannaka, and Chaeldar are
-  now recorded in their corresponding dated pool audits; continue with the
-  remaining masters before exposing any live assignment roll.
+  Gelatinous special consequences. Mazchna/Achtryn, Vannaka, Chaeldar, and
+  Sumona are now recorded in their corresponding dated pool audits; continue
+  with the remaining masters before exposing any live assignment roll.
 - Before that unlock, the finisher consumes its own correct review. Exclude the
   salt, ice, fungicide, and explosive shakers released in 2015.
 

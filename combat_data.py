@@ -6503,7 +6503,7 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "attack_style": "melee",
         "attack_speed": 4,
         "respawn_delay": 0,
-        "slayer_xp": 60.0,
+        "slayer_xp": 0.0,
         "stats": {'hitpoints': 600, 'attack': 67, 'strength': 7, 'defence': 30, 'magic': 1, 'ranged': 1},
         "bonuses": {'attack_stab': 0,
  'attack_slash': 0,
@@ -6517,7 +6517,8 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "drops": {'guaranteed': (('Accursed ashes', 1),), 'tables': ()},
         "source": (
             f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
-            "definitions/demons/death_spawn_lvl_46.plugin.kts"
+            "definitions/demons/death_spawn_lvl_46.plugin.kts; "
+            "RuneScape Wiki Death spawn oldid 6327456 (no Slayer level or XP)"
         ),
     },
     "hellhound": {
