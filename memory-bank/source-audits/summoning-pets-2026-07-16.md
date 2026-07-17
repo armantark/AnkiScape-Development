@@ -197,6 +197,19 @@ overgrown and losing rat-catching, uses the owner's already-settled expiration-a
 the shared reviewer world-alert strip gives a one-time warning with approximate answered
 cards remaining. It never pauses or delays the sourced transition.
 
-The next genuine owner fork is how to represent mature god-bird protection in the current
-one-enemy Combat model. Period sources establish faction-specific God Wars aggression and
-protection, but not an AnkiScape ambient-pressure abstraction.
+God bird oldid
+[6579887](https://runescape.wiki/w/God_bird?oldid=6579887)
+(2012-11-19 05:27:38 UTC) establishes that only the mature Zamorak hawk and Saradomin owl
+stop their respective God Wars warriors from attacking; the Guthix raptor has no matching
+faction and no protection. The individual owl and hawk pages further require the mature
+bird to be actively following rather than carried in inventory
+([oldid 6474427](https://runescape.wiki/w/Saradomin_owl?oldid=6474427),
+2012-10-26 02:35:48 UTC;
+[oldid 6274378](https://runescape.wiki/w/Zamorak_hawk?oldid=6274378),
+2012-09-21 03:25:13 UTC).
+
+The current one-enemy Combat model cannot represent ambient faction aggression honestly.
+The owner parked that larger multi-enemy design grill. The pet catalog still records the
+stage-gated faction-protection flag now, but it has no invented damage reduction or
+ambient-pressure number. A future God Wars/multi-enemy substrate consumes the flag
+automatically without changing the pet row.

@@ -356,9 +356,9 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   Cat ratting is an explicit host target, Casual wily-cat retraining preserves its
   interaction-review cost, and Tooth creature auto-care cannot silently select a permanent
   adult variant. Source-timed growth that removes a capability uses the shared reviewer
-  world-alert strip without pausing the transition. Next decide whether mature god-bird
-  protection introduces a target-local God Wars ambient-pressure process now or remains a
-  latent faction-protection flag until a future multi-enemy/area substrate exists.
+  world-alert strip without pausing the transition. Mature god-bird protection is stored
+  as a stage-gated faction flag but remains numerically inert until the later
+  multi-enemy/God Wars grill; do not invent a generic defensive buff in the meantime.
 
 ### Dungeoneering
 
@@ -454,6 +454,9 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
 Labels: `DEEP GRILL`, `WAIT: DARKAN`, `DEPENDENCY: COMBAT/PRAYER/SUMMONING`.
 
 - Fight Caves/Kiln, Barrows, God Wars, Corporeal Beast, Nex, quest bosses, and minigame enemies need authentic context and cannot become ordinary farm-target rows.
+- Grill multi-enemy and ambient-faction aggression as one God Wars/Combat system. That
+  substrate must consume the already-defined mature Zamorak-hawk and Saradomin-owl
+  protection flags; the Guthix raptor intentionally supplies none.
 
 ### Acquisition and item/equipment completeness
 

@@ -687,11 +687,21 @@ capability, and approximate answered cards remaining. It provides no pause or de
 growth remains source-timed, advances only on answered cards while active, and is fully
 review-undoable.
 
-The next owner fork is how mature god-bird protection should act inside AnkiScape's
-one-enemy Combat model. A target-local God Wars ambient-pressure process would make the
-period perk live now; a latent faction-protection flag would preserve the design without
-numbers until a future multi-enemy/area substrate exists. A generic defensive buff is
-out of scope because the period effect only suppresses matching-faction aggression.
+### 32. God-bird protection parked behind the future multi-enemy substrate — settled 2026-07-17
+
+God bird oldid
+[6579887](https://runescape.wiki/w/God_bird?oldid=6579887)
+(2012-11-19 05:27:38 UTC) says mature Zamorak hawks and Saradomin owls stop only their
+respective warriors from attacking in the God Wars Dungeon; Guthix raptors provide no
+protection. The individual bird pages require the mature bird to be actively following,
+not merely carried.
+
+The owner parked the ambient/multi-enemy Combat design for a later dedicated grill. The
+pet catalog still stores a stage-gated `god_wars_protection_faction` value for Zamorak and
+Saradomin, with no value for Guthix. It is numerically inert in the current one-enemy
+Combat model and automatically becomes live when the future God Wars aggression substrate
+consumes it. AnkiScape does not substitute a generic defensive buff, invented incoming-
+damage process, visible future-content lock, or special placeholder state.
 
 ## Source/open-work queue
 
