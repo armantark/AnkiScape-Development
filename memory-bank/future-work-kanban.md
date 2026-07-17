@@ -331,10 +331,14 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   Magic's pure training casts remain, while a route cast consumes exact runes and awards
   exact XP once and jewellery consumes one source charge. Bank ownership alone is inert.
 - Pets are restored as Summoning's tenth atomic family and close Construction's parked
-  Menagerie dependency. Active pets share the follower slot and advance sourced
-  growth/hunger on every answered card; stored pets need no care. The next owner fork is
-  whether 100% hunger causes immediate permanent loss or the recommended one-answer HUD
-  rescue window before the pet runs away permanently.
+  Menagerie dependency. Bank right-click **Let out**, follower-panel **Pick up**, and a
+  separately confirmed **Release permanently...** keep activation distinct from Drop.
+  Active pets share the follower slot and advance sourced growth/hunger on every answered
+  card; stored pets need no care. Casual auto-care reserves compatible food in real carried
+  slots according to sourced hunger cadence and the next Bank boundary, then feeds and
+  refills without manual packing. Cats retain staged quest and exceptional-function state.
+  The next owner fork is whether exhausted food can still cause permanent starvation loss
+  or automatically returns the pet home with an `Out of pet food` lapse.
 
 ### Dungeoneering
 

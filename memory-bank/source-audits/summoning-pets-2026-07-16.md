@@ -68,21 +68,45 @@ Stored pets do not advance either meter. Exact per-pet growth stages, hunger rat
 effects, and interaction exceptions remain harvest work; Darkan values require period
 corroboration before use.
 
-Casual may reserve and automatically consume compatible target-carried pet food before a
-hunger tick would reach 100%. It never feeds from Bank. Advanced chooses the exact food
-budget and may disable automatic feeding. Feeding and direct pet interaction are bounded
-UI commands with command undo, not review actions.
+Pet activation follows the existing Bank item-action pattern without overloading item
+discard: right-clicking a stored pet offers **Let out**, while **Release permanently...**
+is a separate destructive command with a confirmation naming the pet, its growth stage,
+and any known quest dependency. The canonical follower panel offers **Pick up** and shows
+growth, hunger, compatible-food status, and the follower-slot lapse reason. These are
+bounded UI commands with command undo, not review actions.
 
-## Open owner fork: starvation safety
+Casual pet care is enabled by default. At an existing Bank/preset boundary it
+automatically chooses and packs compatible food from owned Bank stock into the real
+28-slot carried inventory. The reserve is calculated from the sourced hunger cadence and
+the target's expected next Bank boundary; it is not an invented fixed number of slots.
+Food therefore keeps its authentic inventory opportunity cost without requiring the
+owner to arrange it manually. Auto-care consumes carried compatible food before a hunger
+tick would cross its feed threshold, including on Again. It never consumes food remotely
+from Bank. At later Bank boundaries the same preset refills the reserve. Advanced chooses
+the exact compatible food and quantity or disables auto-care.
+
+Cats remain stateful pet entities with their sourced three growth stages and exceptional
+functions rather than becoming a generic quest flag. Quest requirements inspect the
+specific owned cat/kitten stage. A step that sourcedly needs the cat to act also requires
+the cat in the follower slot; mere ownership is sufficient only where the sourced quest
+requirement is possession rather than active pet behavior. Kitten attention can be
+fulfilled by Casual auto-care without a separate review or manual interaction, while the
+exact quest and cat-function matrix remains catalog harvest work.
+
+## Open owner fork: no-food safety
 
 The source says 100% hunger immediately loses the pet. AnkiScape must decide whether to
-preserve that immediate permanent loss or insert a visible review-native rescue window so
-an unnoticed hunger transition during study cannot silently destroy a potentially rare or
-quest-linked pet.
+preserve permanent starvation loss at all or substitute a safe automatic return when food
+runs out, so an unattended hunger transition during study cannot silently destroy a
+potentially rare or quest-linked pet.
 
-The recommended smallest safety abstraction is: reaching 100% creates a prominent hungry
-pet world alert and a **one-answered-card rescue window**. The player may feed or pick up
-the pet before the next answer. If the next answered card resolves while the pet remains
-active and unfed, it runs away permanently, exactly as the source consequence requires.
-Review undo restores the pet and pre-loss hunger state. This changes timing by one tick,
-not the underlying loss rule.
+The earlier recommended rescue window still creates precisely the active maintenance the
+owner rejected. The revised recommendation is a stronger, explicitly labeled safety
+abstraction: when an active pet has no compatible carried food and the next hunger tick
+would reach 100%, it automatically returns home to Bank (or its Menagerie slot) and the
+pet-care policy lapses with `Out of pet food`. The triggering review's undo restores the
+active pre-return state. Permanent loss remains available only through the explicit
+**Release permanently...** command. This preserves feeding's food and inventory cost,
+growth's follower-slot opportunity cost, and the period consequence that an unfed pet
+stops following, while removing study-interrupting rescue management and silent loss of a
+quest-linked pet.

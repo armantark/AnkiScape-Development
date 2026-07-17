@@ -565,7 +565,7 @@ next available route when a consumable route runs dry. Advanced pins the exact r
 blocks or lapses rather than substituting silently. Bank ownership alone never activates a
 teleport resource.
 
-### 26. Pets — source boundary resolved; starvation consequence open 2026-07-16
+### 26. Pet activation, growth, feeding, and quest identity — owner direction recorded; no-food consequence open 2026-07-16
 
 `source-audits/summoning-pets-2026-07-16.md` restores pets as the tenth atomic Summoning
 family. An active pet occupies the same global follower slot as a familiar; stored pets are
@@ -574,10 +574,33 @@ including Again. Pet catalog, stages, levels, food, acquisition/incubation route
 exceptional functions, Menagerie projection, assets, persistence, and undo all belong to
 the eventual atomic implementation.
 
-The remaining owner fork is deliberately narrow: the period game permanently lost an
-active pet at 100% hunger. Should AnkiScape do that immediately on the triggering review,
-or insert the recommended one-answered-card HUD rescue window before the same permanent
-run-away consequence?
+A stored pet is activated with a Bank right-click **Let out** action, not Drop. The
+destructive action is separately labeled **Release permanently...** and requires a
+confirmation with pet, stage, and known quest-dependency information. The canonical
+follower panel owns the active pet and exposes **Pick up**, growth, hunger, food status,
+and the same follower-slot state used by familiars.
+
+Casual pet care is on by default. Existing Bank/preset boundaries automatically choose
+and reserve compatible food in the real 28-slot carried inventory, using the sourced
+hunger cadence and expected next Bank boundary rather than a guessed fixed slot count.
+Auto-care feeds from that carried reserve before the hunger threshold on every answered
+card, including Again, and refills at later Bank boundaries; it never consumes remotely
+from Bank. Advanced chooses exact compatible food and quantity or disables auto-care.
+This preserves food's inventory opportunity cost while removing manual feeding and pack
+arrangement.
+
+Cats remain persistent, staged pet entities and retain source-specific quest and rat-
+catching behavior. Quest gates inspect the required cat or kitten stage. Only quest steps
+that sourcedly require the cat to act require it in the follower slot; ownership checks do
+not manufacture an active-pet requirement. Casual auto-care also abstracts kitten
+interaction upkeep without a foreground review.
+
+The remaining owner fork is whether exhausted food should still permit permanent
+starvation loss. The revised recommendation, following the owner's no-active-maintenance
+constraint, is that a pet with no compatible carried food automatically returns home to
+Bank or Menagerie immediately before the 100% hunger tick. The pet-care policy then lapses
+with `Out of pet food`; permanent loss occurs only through **Release permanently...**.
+This is a labeled AnkiScape safety abstraction from the period run-away rule.
 
 ## Source/open-work queue
 

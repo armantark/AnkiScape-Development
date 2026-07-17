@@ -36,11 +36,15 @@ consume fresh pouches, and Void shifter reuses lethal-versus-sub-10%-LP retreat 
 without an invented cooldown. Magic teleports and charged jewellery now share those
 target-local route profiles while pure Magic teleport training remains available.
 
-The next owner fork comes from an omitted atomic family: pre-EOC Summoning pets. Pets share
-the global follower slot, grow and become hungry only while active, and connect directly to
-Construction's parked Menagerie function. The narrow open decision is whether 100% hunger
-causes immediate permanent run-away loss or the recommended one-answered-card HUD rescue
-window before permanent loss.
+Pre-EOC Summoning pets are now restored as an atomic family. **Let out** and **Pick up**
+operate through Bank/the canonical follower panel; Drop is not overloaded, while permanent
+release is a separately confirmed destructive action. Pets share the global follower slot,
+grow and become hungry only while active, and connect directly to Construction's parked
+Menagerie function. Casual pet care automatically packs a source-derived compatible-food
+reserve into real carried slots and feeds on answered-card ticks, preserving inventory cost
+without manual management. Cats retain staged quest and exceptional-function identity.
+The narrow open decision is whether exhausted food still permits permanent starvation loss
+or instead triggers the recommended automatic return home with `Out of pet food`.
 
 The 25 settled decisions define answered-card lifetime and passive world ticks,
 separate familiar/point/special resources, target-policy automation, carried
