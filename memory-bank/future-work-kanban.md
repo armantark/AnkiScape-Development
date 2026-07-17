@@ -172,7 +172,7 @@ grill.
 
 ### Slayer
 
-Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE SWEEP`, `DEPENDENCY: COMBAT`.
+Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUESTS/ACTIVITIES`.
 
 - Reuse existing enemy Slayer metadata; add masters, assignment pools, XP, task progress, points/streaks, skips/blocks, reward shop, task-only targets, protection items, and Combat UI.
 - Source sweep progress: Turael/Spria is reconciled at 23 families with a
@@ -188,6 +188,10 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE SWEEP`, `DEPENDENCY: COMBAT`.
   `slayer-turael-spria-pool`, `slayer-mazchna-achtryn-pool`,
   `slayer-vannaka-pool`, `slayer-chaeldar-pool`, `slayer-sumona-pool`, and
   `slayer-duradel-lapalok-pool` audits, plus `slayer-kuradal-pool`.
+- The bounded 2026-07-17 harvest is closed. Resume from the per-family blocker
+  identities in those audits; do not reopen the owner design or expose a
+  partial master. The remaining program is implementation-time source audit
+  plus Combat, quest, location, reward, and activity dependency work.
 - Park Social Slayer unless genuine shared-player state ever exists; do not ship
   a simulated partner or solo co-op multiplier. Preserve all seven period Slayer
   master challenges in the design and source their compound objective ledgers.

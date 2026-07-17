@@ -1,12 +1,13 @@
 {
   "schema_version": 1,
-  "status": "active",
+  "status": "complete",
   "started_at": "2026-07-16T23:07:53-07:00",
+  "completed_at": "2026-07-17T12:05:00-07:00",
   "automation_id": "ankiscape-grill-harvest",
   "branch": "main",
   "baseline_commit": "2d51d213ab7e6c9a9b6fb397e9b664c9ed892d60",
-  "current_phase": "slayer_source_harvest",
-  "last_observed_commit": "2ddbb0a33937fccdbfa2d0e4f8a82675bee3015d",
+  "current_phase": "closure_complete",
+  "last_observed_commit": "a0d447777cad3b773eeb1d3c82ba2dba2c0c5e48",
   "queue": [
     {
       "id": "approved-amendments",
@@ -20,7 +21,7 @@
     },
     {
       "id": "slayer",
-      "status": "all_seven_functional_master_pools_recorded_cockatrice_and_finisher_acquisition_complete_remaining_runtime_dependency_blocked",
+      "status": "source_harvest_closed_remaining_runtime_dependency_blocked",
       "runtime_authorized": true
     }
   ],
@@ -36,7 +37,8 @@
     "31a5ec42bb13cff14ca7d0ee69b1f80148013314",
     "00c201c11a9d54744323cacc26595aa1ab4bd4b5",
     "17329d7c2919dd3cdb2d820fae1063789d5db1b7",
-    "2ddbb0a33937fccdbfa2d0e4f8a82675bee3015d"
+    "2ddbb0a33937fccdbfa2d0e4f8a82675bee3015d",
+    "a0d447777cad3b773eeb1d3c82ba2dba2c0c5e48"
   ],
   "completed_batches": [
     "magic-charge-review-duration",
@@ -126,10 +128,30 @@
     "dungeoneering"
   ],
   "design_gap_file": "memory-bank/design-gaps-grill-harvest-2026-07-17.md",
+  "results_artifact": {
+    "repo_path": "memory-bank/status-updates/grill-harvest-results-2026-07-17.html",
+    "postplan_url": "https://co9e6hzqn0pd.postplan.dev"
+  },
   "open_design_gaps": [
     "mage-arena-alignment-capes-charge-effect",
     "farming-preset-cross-skill-cure-policy"
   ],
+  "closure_verification": {
+    "core_methods": 1376,
+    "core_ordinary_passes": 1177,
+    "core_skips": 196,
+    "core_expected_failures": 3,
+    "qt_methods": 1376,
+    "qt_ordinary_passes": 1373,
+    "qt_skips": 0,
+    "qt_expected_failures": 3,
+    "test_quality_hard_issues": 0,
+    "docs_markdown_files": 245,
+    "docs_html_files": 301,
+    "reachability_actions": 1200,
+    "reachability_orphans": 273,
+    "worktree_guard": "safe"
+  },
   "stop_conditions": [
     "all design-settled queue items verified or explicitly blocked",
     "unexpected concurrent writer collision",

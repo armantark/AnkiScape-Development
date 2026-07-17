@@ -704,3 +704,20 @@ complete target rows, and all four enemy assets are absent. The generic
 manual/quick-finisher runtime remains dependency-blocked until it can ship
 with at least one genuinely reachable family. Details are in
 `source-audits/slayer-finishing-blows-2026-07-15.md`.
+
+## Grill-harvest closure (2026-07-17)
+
+The approved amendment queue and bounded Slayer source-harvest program are
+closed. Slayer itself is not shipped: all seven functional master pools are
+recorded, but authentic assignment runtime remains blocked by incomplete
+Combat families, quests, contexts, rewards, challenges, and special mechanics.
+Do not expose a partial master or renormalize its weights.
+
+Final verification ran 1,376 core methods (1,177 ordinary passes, 196
+environment skips, three expected XP-parity failures) and 1,376 real offscreen
+Qt methods (1,373 ordinary passes, no skips, the same three expected failures).
+Docs, test quality, compilation, JSON, diff, reachability, and worktree safety
+all pass. The next Slayer pass should begin from the stable blocker identities
+in the seven master audits, not reopen the owner contract or fabricate a
+partial assignment pool. The closure report is
+`status-updates/grill-harvest-results-2026-07-17.html`.

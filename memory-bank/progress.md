@@ -641,3 +641,19 @@ Test counts are snapshots; current runs outrank this note.
   flows. Reachability remains at 1,200 actions and 273 known orphans.
 - Kept all four finisher families hidden: target data, context-correct drops,
   enemy assets, and reachable finisher runtime are not yet jointly certified.
+
+## Grill-harvest program closure (2026-07-17)
+
+- Completed all four owner-approved post-closure amendments.
+- Reconciled all seven functional Slayer-master pools and implemented every
+  source-ready atomic repair found during this bounded harvest.
+- Closed the remaining Slayer runtime as explicit source/dependency work
+  rather than exposing incomplete masters or dead feature code.
+- Final core discovery: 1,376 methods, 1,177 ordinary passes, 196 skips, and
+  three expected failures.
+- Final real offscreen Qt discovery: 1,376 methods, 1,373 ordinary passes, no
+  skips, and three expected failures.
+- Documentation, test quality, compilation, JSON, diff, reachability, and
+  worktree-safety gates all pass.
+- Published `status-updates/grill-harvest-results-2026-07-17.html` and its
+  mobile-safe copy at <https://co9e6hzqn0pd.postplan.dev>.

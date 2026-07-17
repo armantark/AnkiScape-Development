@@ -641,4 +641,39 @@ Evidence:
 - Shop, shop-logic, registry, and integration holdout: 167 passed.
 - Real offscreen Qt shop flows: 3 passed.
 - Compilation passed; reachability remains at 1,200 actions / 273 known
-  orphans. Full closure verification remains pending.
+  orphans.
+
+## Program closure
+
+The design-settled queue is closed:
+
+- Magic Charge, Bank Discard X/carried ordering, Agility risk packs, and
+  Farming Dig up/presets/full run are implemented and committed.
+- Every functional cutoff Slayer-master pool is source-reconciled.
+- Source-ready live defects found during the harvest were repaired:
+  Shade/Crawling-hand/TzHaar Slayer XP, Death-spawn XP exclusion,
+  Abyssal-demon drops, Kuradal-context Ferocious-ring exclusion, Cockatrice
+  protection, and shop-only item identity/stackability.
+- Remaining Slayer runtime is dependency- or source-blocked, not waiting on an
+  unstated implementation decision. No master can be exposed without
+  renormalizing around missing families; finishers lack a jointly certified
+  target/runtime/asset slice; Banshee still crosses the excluded Summoning
+  boundary; required quests, contexts, challenge ledgers, and reward routes are
+  incomplete.
+
+Closure verification:
+
+- Core discovery: 1,376 methods; 1,177 ordinary passes, 196 environment skips,
+  and three declared XP-parity expected failures.
+- Real offscreen Qt discovery: 1,376 methods; 1,373 ordinary passes, no skips,
+  and the same three expected failures.
+- Test-quality audit: zero hard issues across 67 files.
+- Documentation audit: 245 Markdown and 301 HTML files, clean.
+- Reachability: unchanged at 1,200 actions and 273 known orphans (110 root,
+  163 cascade).
+- Compilation, JSON, diff, and worktree-safety checks passed.
+- No new owner-level design gap emerged. The two pre-existing ranked questions
+  remain in `design-gaps-grill-harvest-2026-07-17.md`.
+- Results artifact:
+  `status-updates/grill-harvest-results-2026-07-17.html`; mobile copy:
+  <https://co9e6hzqn0pd.postplan.dev>.
