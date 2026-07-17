@@ -93,20 +93,18 @@ requirement is possession rather than active pet behavior. Kitten attention can 
 fulfilled by Casual auto-care without a separate review or manual interaction, while the
 exact quest and cat-function matrix remains catalog harvest work.
 
-## Open owner fork: no-food safety
+## Settled owner decision: no-food safety
 
-The source says 100% hunger immediately loses the pet. AnkiScape must decide whether to
-preserve permanent starvation loss at all or substitute a safe automatic return when food
-runs out, so an unattended hunger transition during study cannot silently destroy a
-potentially rare or quest-linked pet.
+The source says 100% hunger immediately loses the pet. The owner rejected this as bad game
+design, particularly for kittens, and rejected rescue-window maintenance as an unwanted
+study interruption. AnkiScape therefore uses an explicitly labeled safety abstraction:
+when an active pet has no compatible carried food and the next hunger tick would reach
+100%, it automatically returns home to Bank (or its Menagerie slot) and the pet-care
+policy lapses with `Out of pet food`. The triggering review's undo restores the active
+pre-return state. Permanent loss remains available only through the explicit **Release
+permanently...** command.
 
-The earlier recommended rescue window still creates precisely the active maintenance the
-owner rejected. The revised recommendation is a stronger, explicitly labeled safety
-abstraction: when an active pet has no compatible carried food and the next hunger tick
-would reach 100%, it automatically returns home to Bank (or its Menagerie slot) and the
-pet-care policy lapses with `Out of pet food`. The triggering review's undo restores the
-active pre-return state. Permanent loss remains available only through the explicit
-**Release permanently...** command. This preserves feeding's food and inventory cost,
-growth's follower-slot opportunity cost, and the period consequence that an unfed pet
-stops following, while removing study-interrupting rescue management and silent loss of a
-quest-linked pet.
+This preserves feeding's food and inventory cost, growth's follower-slot opportunity
+cost, and the period consequence that an unfed pet stops following, while removing silent
+loss of a quest-linked pet. Acquisition ownership and the full source-route matrix are in
+`summoning-pet-acquisition-2026-07-16.md`.

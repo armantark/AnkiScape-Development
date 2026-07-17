@@ -42,11 +42,18 @@ release is a separately confirmed destructive action. Pets share the global foll
 grow and become hungry only while active, and connect directly to Construction's parked
 Menagerie function. Casual pet care automatically packs a source-derived compatible-food
 reserve into real carried slots and feeds on answered-card ticks, preserving inventory cost
-without manual management. Cats retain staged quest and exceptional-function identity.
-The narrow open decision is whether exhausted food still permits permanent starvation loss
-or instead triggers the recommended automatic return home with `Out of pet food`.
+without manual management. Cats retain staged quest and exceptional-function identity. An
+unfed pet now automatically returns home with `Out of pet food`; starvation never silently
+destroys it.
 
-The 25 settled decisions define answered-card lifetime and passive world ticks,
+Pet acquisition is distributed to the real source systems: shops/services, quests, Hunter,
+egg sources and per-pet hatch flows, Construction, and activity reward shops. A searchable
+Pets log explains and links those routes but never grants pets itself. Exact costs/rates/
+timers remain source-harvest work. The narrow open decision is whether discontinued event
+pets should appear as impossible rows or remain compatibility-only outside the obtainable
+log and completion counts.
+
+The 26 settled decisions define answered-card lifetime and passive world ticks,
 separate familiar/point/special resources, target-policy automation, carried
 pouch/scroll budgets, coalesced restore and Bank detours, safe replacement and
 dismissal, source-gated familiar combat, BoB inventory/reclaim rules, forbidden

@@ -337,8 +337,16 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   card; stored pets need no care. Casual auto-care reserves compatible food in real carried
   slots according to sourced hunger cadence and the next Bank boundary, then feeds and
   refills without manual packing. Cats retain staged quest and exceptional-function state.
-  The next owner fork is whether exhausted food can still cause permanent starvation loss
-  or automatically returns the pet home with an `Out of pet food` lapse.
+  Exhausted food safely returns the pet home with an `Out of pet food` lapse rather than
+  silently destroying it.
+- Implement the source-owned pet routes in
+  `source-audits/summoning-pet-acquisition-2026-07-16.md`: period pet shops/services,
+  quest grants and transformations, Hunter catches, existing and missing nest/drop eggs,
+  per-pet incubation/hatching, Construction Workshop creation, and activity reward shops.
+  The searchable Pets log explains and links routes but never grants pets. Pin every exact
+  cost, rate, XP value, timer, colour rule, and reclaim path before implementation. The
+  next owner fork is whether discontinued event pets remain compatibility-only outside the
+  obtainable log and completion counts.
 
 ### Dungeoneering
 

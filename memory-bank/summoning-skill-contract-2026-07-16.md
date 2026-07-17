@@ -565,7 +565,7 @@ next available route when a consumable route runs dry. Advanced pins the exact r
 blocks or lapses rather than substituting silently. Bank ownership alone never activates a
 teleport resource.
 
-### 26. Pet activation, growth, feeding, and quest identity — owner direction recorded; no-food consequence open 2026-07-16
+### 26. Pet activation, growth, feeding, quest identity, and no-food safety — settled 2026-07-16
 
 `source-audits/summoning-pets-2026-07-16.md` restores pets as the tenth atomic Summoning
 family. An active pet occupies the same global follower slot as a familiar; stored pets are
@@ -595,12 +595,35 @@ that sourcedly require the cat to act require it in the follower slot; ownership
 not manufacture an active-pet requirement. Casual auto-care also abstracts kitten
 interaction upkeep without a foreground review.
 
-The remaining owner fork is whether exhausted food should still permit permanent
-starvation loss. The revised recommendation, following the owner's no-active-maintenance
-constraint, is that a pet with no compatible carried food automatically returns home to
-Bank or Menagerie immediately before the 100% hunger tick. The pet-care policy then lapses
-with `Out of pet food`; permanent loss occurs only through **Release permanently...**.
-This is a labeled AnkiScape safety abstraction from the period run-away rule.
+Following the owner's no-active-maintenance constraint, a pet with no compatible carried
+food automatically returns home to Bank or Menagerie immediately before the 100% hunger
+tick. The pet-care policy then lapses with `Out of pet food`; permanent loss occurs only
+through **Release permanently...**. This is a labeled AnkiScape safety abstraction from
+the period run-away rule.
+
+### 27. Distributed pet acquisition and searchable source log — architecture settled; legacy visibility open 2026-07-16
+
+`source-audits/summoning-pet-acquisition-2026-07-16.md` maps every freeze-date pet to the
+system that actually awarded it. Pets are purchased from their period NPC shop/service,
+granted or transformed by their quest, caught through Hunter, hatched from a source-owned
+egg, built in the Construction Workshop, or bought from the relevant activity reward
+shop. The Summoning/follower surface never becomes a generic pet vending page.
+
+One stable pet catalog owns identity, stages, food, colours, exceptional functions, and a
+typed acquisition route. The owner system performs the atomic undo-safe grant. A
+searchable **Pets** log on the canonical follower surface projects owned state, stage,
+food, and a one-line source with navigation to the owner surface when available. It uses
+the planned shared modular page-search component.
+
+Egg incubation uses the per-pet period hatch surface. Pet-shop incubation, where sourced,
+advances on the answered-card world clock and remains safe until collected; direct-hatch
+and activity egglings retain their own routes. Existing god-bird eggs are wired forward,
+not reimplemented. Exact prices, rates, XP, costs, timers, and reclaim rules remain
+`source_blocked` until their individual pre-cutoff pages are pinned.
+
+The remaining owner fork is whether discontinued event pets appear as impossible empty
+rows in the main Pets log. The recommendation is to retain their data for historical and
+legacy-state safety but exclude them from the obtainable log and all completion counts.
 
 ## Source/open-work queue
 
