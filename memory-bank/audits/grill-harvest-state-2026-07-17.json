@@ -6,7 +6,7 @@
   "branch": "main",
   "baseline_commit": "2d51d213ab7e6c9a9b6fb397e9b664c9ed892d60",
   "current_phase": "slayer_source_harvest",
-  "last_observed_commit": "026861c2e4a0ccb7af52853c57bf07b9cd050ea3",
+  "last_observed_commit": "610587f3407606cacff96ca6926c0f84ac335703",
   "queue": [
     {
       "id": "approved-amendments",
@@ -20,7 +20,7 @@
     },
     {
       "id": "slayer",
-      "status": "source_sweep_active_turael_spria_recorded",
+      "status": "source_sweep_active_turael_spria_and_mazchna_achtryn_recorded",
       "runtime_authorized": true
     }
   ],
@@ -35,7 +35,8 @@
     "bank-discard-x-carried-order",
     "agility-carried-risk-packs",
     "farming-dig-up-presets-full-run",
-    "slayer-turael-spria-source-pool"
+    "slayer-turael-spria-source-pool",
+    "slayer-mazchna-achtryn-source-pool"
   ],
   "workflow_runs": [
     {
@@ -63,6 +64,11 @@
       "id": "d1d846df-f0f1-44f7-ad7a-6533ee2e02b3",
       "purpose": "Turael/Spria emulator and period-history source surveys",
       "result": "primary reconciled 23 families, provisional 355-point weight denominator, and runtime blockers"
+    },
+    {
+      "id": "8ea520db-346c-4d41-a37f-414e9e373929",
+      "purpose": "Mazchna/Achtryn emulator and period-history source surveys",
+      "result": "primary reconciled 27 families, provisional 325-point weight denominator, malformed count history, and runtime blockers"
     }
   ],
   "excluded_until_owner_authorizes": [

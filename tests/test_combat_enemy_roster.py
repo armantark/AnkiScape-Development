@@ -56,6 +56,8 @@ REQUIRED_ENEMY_KEYS = {
     "source",
 }
 
+OPTIONAL_ENEMY_KEYS = {"poison_damage"}
+
 REQUIRED_STAT_KEYS = {"hitpoints", "attack", "strength", "defence", "magic", "ranged"}
 
 REQUIRED_BONUS_KEYS = {
@@ -108,11 +110,15 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             with self.subTest(enemy=enemy_name):
                 enemy = COMBAT_ENEMY_DATA[enemy_name]
 
-                self.assertEqual(set(enemy), REQUIRED_ENEMY_KEYS)
+                self.assertEqual(set(enemy) - OPTIONAL_ENEMY_KEYS, REQUIRED_ENEMY_KEYS)
+                self.assertEqual(set(enemy) - REQUIRED_ENEMY_KEYS, set(enemy) & OPTIONAL_ENEMY_KEYS)
                 self.assertEqual(set(enemy["stats"]), REQUIRED_STAT_KEYS)
                 self.assertEqual(set(enemy["bonuses"]), REQUIRED_BONUS_KEYS)
                 self.assertEqual(enemy["attack_style"], "melee")
                 self.assertGreater(enemy["level"], 0)
+                if "poison_damage" in enemy:
+                    self.assertIsInstance(enemy["poison_damage"], int)
+                    self.assertGreater(enemy["poison_damage"], 0)
                 self.assertGreater(enemy["stats"]["hitpoints"], 0)
 
     def test_new_enemy_drops_are_well_formed(self):

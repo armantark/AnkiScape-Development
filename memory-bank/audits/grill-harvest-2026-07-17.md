@@ -269,3 +269,49 @@ Evidence and verification:
 - Test quality: zero hard issues across 67 files and 1,364 methods.
 - Documentation, compilation, diff, JSON, and worktree-safety checks passed.
 - No owner-level design gap emerged.
+
+## Slayer source batch — Mazchna/Achtryn pool
+
+Finding: no single local source contained the whole second functional master
+pool. Cutoff Mazchna had an anonymous `40–85` count mutation, Achtryn omitted
+Cyclopes and Grotworms, Darkan could not instantiate Mogres or Wall beasts, and
+game-main explicitly left ten families unfinished.
+
+Resolution:
+
+- Reconciled 27 ordinary families and a provisional 325-point hidden-weight
+  denominator.
+- Restored Mogres and Wall beasts from cutoff master, cross-master, and
+  individual-monster evidence. Their 10-point weights are explicit
+  common-baseline abstractions because the hidden values did not survive.
+- Rejected `40–85`: the earlier edit described as a Jagex Knowledge Base task
+  correction, cutoff Achtryn, and Darkan all converge on `40–70`.
+- Preserved Cyclopes at `30–60` and Wall beasts at `10–20`; the repaired
+  cutoff row span closes Grotworms at `40–70` over Darkan's conflicting
+  `20–40`.
+- Kept the role runtime-inactive because ten families have no Combat target,
+  Banshee/Cockatrice/Hobgoblin remain mechanically incomplete for Slayer, and
+  the stable assignment-family registry does not exist.
+
+Concrete implementation repair:
+
+- The source pass found that live Cave crawler combat had dropped
+  `poisonDamage = 8` from its pinned game-main definition.
+- The row now carries that value, and a deterministic Combat regression proves
+  the 80-LP initial poison reaches persistent player status.
+
+Evidence:
+
+- `source-audits/slayer-mazchna-achtryn-pool-2026-07-17.md`.
+- Read-only workflow `8ea520db-346c-4d41-a37f-414e9e373929` supplied separate
+  emulator/runtime and period-history surveys; the primary independently
+  resolved the anonymous count mutation and complete period family union.
+- Focused poison/schema regressions: 2 passed.
+- Combat logic, runtime-action, and integration holdouts: 336 passed.
+- Full core: 1,364 methods, 196 environment skips, and three declared
+  XP-parity expected failures.
+- Test quality: zero hard issues across 67 files; the duplicated Cave
+  slime/Cave crawler poison checks were consolidated into one data-driven
+  behavioral regression.
+- Documentation, compilation, diff, JSON, and worktree-safety checks passed.
+- No owner-level design gap emerged.

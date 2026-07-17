@@ -22,6 +22,26 @@ AnkiScape now has 17 complete skill surfaces, five partial Combat-trained skills
 - Durable evidence:
   `source-audits/slayer-turael-spria-pool-2026-07-17.md`.
 
+## Slayer Mazchna/Achtryn source harvest — 2026-07-17
+
+- Reconciled the second functional-master pool at 27 families and a provisional
+  325-point hidden-weight denominator.
+- Rejected the anonymous Mazchna `40–85` range in favor of the earlier
+  Knowledge Base correction, cutoff Achtryn table, and Darkan convergence at
+  `40–70`; preserved `30–60` Cyclopes and `10–20` Wall beasts, and used the
+  repaired cutoff row span to close Grotworms at `40–70` over Darkan's
+  conflicting `20–40`.
+- Restored the emulator-stubbed Mogre and Wall-beast rows from cutoff master,
+  cross-master, and individual monster evidence. Their 10-point hidden weights
+  are labeled common-baseline abstractions, not recovered facts.
+- Kept Mazchna/Achtryn out of live assignment generation because ten families,
+  three existing-target mechanics, and the whole assignment-family registry
+  remain runtime blockers.
+- Fixed Cave crawler's omitted source `poisonDamage = 8` and added deterministic
+  Combat-state coverage.
+- Durable evidence:
+  `source-audits/slayer-mazchna-achtryn-pool-2026-07-17.md`.
+
 ## Agility carried-risk amendment — 2026-07-17
 
 - Integrated into `main` at `69855d9`.

@@ -32,6 +32,20 @@ abominations lack the worn-gauntlet finisher. The same pass repaired the live
 Cave slime's omitted source poison damage. None of these findings creates an
 owner design question.
 
+The second master-pool harvest is recorded in
+`source-audits/slayer-mazchna-achtryn-pool-2026-07-17.md`. It reconciles a
+27-family functional pool and a provisional 325-point hidden-weight
+denominator. The earlier Knowledge Base correction, Achtryn's cutoff table, and
+Darkan close the malformed Mazchna `40–85` range at `40–70`; Cyclopes remain
+`30–60`, the repaired cutoff row span closes Grotworms at `40–70`, and Wall
+beasts remain `10–20`. Mogre and Wall-beast weights are explicit 10-point
+common-baseline abstractions because both emulator task-family entries are
+stubs. Runtime certification still fails: ten families have no Combat target,
+three existing
+families lack required Slayer/protection behavior, and no assignment-family
+registry exists. This pass repaired Cave crawler's omitted source
+`poisonDamage = 8`. No owner design question emerged.
+
 The settled design keeps assignments and exact qualifying Combat variants
 source-shaped, places `Assignment`, `Masters`, and `Rewards` in one Slayer page,
 deep-links into Combat as the sole fight surface, and requires a reusable list

@@ -175,6 +175,12 @@ grill.
 Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE SWEEP`, `DEPENDENCY: COMBAT`.
 
 - Reuse existing enemy Slayer metadata; add masters, assignment pools, XP, task progress, points/streaks, skips/blocks, reward shop, task-only targets, protection items, and Combat UI.
+- Source sweep progress: Turael/Spria is reconciled at 23 families with a
+  provisional 355-point denominator; Mazchna/Achtryn is reconciled at 27
+  families with a provisional 325-point denominator. Both roles remain hidden
+  until their full Combat families and distinctive protection/finishing
+  mechanics are executable. See the dated `slayer-turael-spria-pool` and
+  `slayer-mazchna-achtryn-pool` audits.
 - Park Social Slayer unless genuine shared-player state ever exists; do not ship
   a simulated partner or solo co-op multiplier. Preserve all seven period Slayer
   master challenges in the design and source their compound objective ledgers.

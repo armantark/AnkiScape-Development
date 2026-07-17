@@ -3520,26 +3520,35 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(new_data["combat_status_effects"]["poison"]["tick_progress"], 0)
         self.assertEqual(combat_status_summary_pure(new_data), "Poisoned: 30 LP in 30 ticks")
 
-    def test_cave_slime_source_poison_reaches_combat_state(self):
-        player = _player(
-            current_combat_target="cave_slime",
-            defense_level=1,
-            combat_lifepoints=100,
+    def test_source_poison_rows_reach_combat_state(self):
+        cases = (
+            ("cave_slime", 100, 30, 11, "poisonDamage=3"),
+            ("cave_crawler", 200, 80, 36, "poisonDamage=8"),
         )
+        for target_id, lifepoints, initial_damage, ticks_left, source_marker in cases:
+            with self.subTest(target=target_id):
+                player = _player(
+                    current_combat_target=target_id,
+                    defense_level=1,
+                    combat_lifepoints=lifepoints,
+                )
 
-        new_data, ok, result = apply_combat_burst_pure(
-            player,
-            COMBAT_ENEMY_DATA,
-            EQUIPMENT_DATA,
-            ticks=5,
-            rng=_rng([0.999999, 0.999999, 0.0, 0.0, 0.0]),
-        )
+                new_data, ok, result = apply_combat_burst_pure(
+                    player,
+                    COMBAT_ENEMY_DATA,
+                    EQUIPMENT_DATA,
+                    ticks=5,
+                    rng=_rng([0.999999, 0.999999, 0.0, 0.0, 0.0]),
+                )
 
-        self.assertTrue(ok)
-        self.assertFalse(result["died"])
-        self.assertEqual(result["status_applied"], {"poison": 30})
-        self.assertEqual(new_data["combat_status_effects"]["poison"]["ticks_left"], 11)
-        self.assertIn("poisonDamage=3", COMBAT_ENEMY_DATA["cave_slime"]["source"])
+                self.assertTrue(ok)
+                self.assertFalse(result["died"])
+                self.assertEqual(result["status_applied"], {"poison": initial_damage})
+                self.assertEqual(
+                    new_data["combat_status_effects"]["poison"]["ticks_left"],
+                    ticks_left,
+                )
+                self.assertIn(source_marker, COMBAT_ENEMY_DATA[target_id]["source"])
 
     def test_poison_enemy_antipoison_loadout_auto_cures_after_source_poison(self):
         player = _player(
