@@ -228,3 +228,44 @@ Regression proof:
 - Test quality: zero hard issues across 67 files.
 - Compile/diff/worktree checks passed.
 - Checkpoint: `9b65f45`.
+
+## Slayer source batch — Turael/Spria pool
+
+Finding: the cutoff master pages were not complete enough to certify even the
+smallest Slayer master. They omitted both 2012 families, contained an anonymous
+Troll-row insertion contradicted elsewhere, exposed no weights, and disagreed
+on the Icefiend count.
+
+Resolution:
+
+- Reconciled a 23-family functional Turael/Spria pool.
+- Recovered Gelatinous abominations from the cutoff creature, Troll Warzone,
+  and Spiked-gauntlet pages; recovered Grotworms from all three cutoff monster
+  pages plus Darkan.
+- Rejected Turael Trolls from the cutoff cross-master table and Darkan
+  convergence.
+- Closed Icefiends at 10–20 and recorded every hidden weight as provisional.
+  Darkan's raw ratios, game-main's percentages, and the recovered 30-weight
+  Gelatinous family close one 355-point denominator exactly.
+- Kept the role runtime-inactive because six families and two special
+  kill/protection effects remain baseline blockers.
+
+Concrete implementation repair:
+
+- The source pass found that live Cave slime combat had dropped
+  `poisonDamage = 3` from its pinned game-main definition.
+- The row now carries that value, and a deterministic Combat regression proves
+  the poison reaches persistent player status.
+
+Evidence and verification:
+
+- Source record:
+  `source-audits/slayer-turael-spria-pool-2026-07-17.md`.
+- Read-only workflow `d1d846df-f0f1-44f7-ad7a-6533ee2e02b3` supplied separate
+  emulator and period-history surveys; the primary independently found the two
+  omitted 2012 families and synthesized the accepted pool.
+- Focused Cave slime poison regressions: 2 passed.
+- Combat logic, runtime-action, and integration holdouts: 336 passed.
+- Test quality: zero hard issues across 67 files and 1,364 methods.
+- Documentation, compilation, diff, JSON, and worktree-safety checks passed.
+- No owner-level design gap emerged.

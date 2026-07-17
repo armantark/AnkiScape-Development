@@ -4,6 +4,24 @@
 
 AnkiScape now has 17 complete skill surfaces, five partial Combat-trained skills, and three planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Turael/Spria source harvest — 2026-07-17
+
+- Reconciled the first complete functional-master pool at 23 families and a
+  355-point provisional hidden-weight denominator.
+- Restored Gelatinous abominations and Grotworms from cutoff monster/tutorial
+  evidence plus emulator convergence; rejected Turael Trolls as an anonymous,
+  malformed wiki-table insertion contradicted by the cutoff cross-master table
+  and Darkan.
+- Closed the Icefiend conflict at 10–20 from the explicit Turael correction and
+  two-emulator convergence. Gelatinous ordinary count remains a labeled 15–50
+  Turael-default abstraction, distinct from its sourced five-kill tutorial.
+- Kept Turael/Spria out of live assignment generation because six families and
+  two distinctive kill/protection mechanics remain baseline blockers.
+- Fixed Cave slime's omitted source `poisonDamage = 3` and added deterministic
+  Combat-state coverage.
+- Durable evidence:
+  `source-audits/slayer-turael-spria-pool-2026-07-17.md`.
+
 ## Agility carried-risk amendment — 2026-07-17
 
 - Integrated into `main` at `69855d9`.

@@ -5,8 +5,8 @@
   "automation_id": "ankiscape-grill-harvest",
   "branch": "main",
   "baseline_commit": "2d51d213ab7e6c9a9b6fb397e9b664c9ed892d60",
-  "current_phase": "implementation",
-  "last_observed_commit": "9b65f45a507d638ce4a9ed3e5e71416f39d25a1d",
+  "current_phase": "slayer_source_harvest",
+  "last_observed_commit": "026861c2e4a0ccb7af52853c57bf07b9cd050ea3",
   "queue": [
     {
       "id": "approved-amendments",
@@ -20,7 +20,7 @@
     },
     {
       "id": "slayer",
-      "status": "source_blocked_pending_exhaustive_pool_sweep",
+      "status": "source_sweep_active_turael_spria_recorded",
       "runtime_authorized": true
     }
   ],
@@ -34,7 +34,8 @@
     "magic-charge-review-duration",
     "bank-discard-x-carried-order",
     "agility-carried-risk-packs",
-    "farming-dig-up-presets-full-run"
+    "farming-dig-up-presets-full-run",
+    "slayer-turael-spria-source-pool"
   ],
   "workflow_runs": [
     {
@@ -57,6 +58,11 @@
       "id": "fcac964b-94d0-4df2-82c9-dfdac2685256",
       "purpose": "Farming replacement and preset final checker",
       "result": "queue escrow refund and maximum-length duplicate-name defects reproduced and fixed"
+    },
+    {
+      "id": "d1d846df-f0f1-44f7-ad7a-6533ee2e02b3",
+      "purpose": "Turael/Spria emulator and period-history source surveys",
+      "result": "primary reconciled 23 families, provisional 355-point weight denominator, and runtime blockers"
     }
   ],
   "excluded_until_owner_authorizes": [

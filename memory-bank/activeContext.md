@@ -20,6 +20,18 @@ points/rewards, Social Slayer, and the post-cutoff VIP-ticket exclusion. No
 Slayer gameplay is implemented yet; the next bounded program is the contract's
 complete source sweep followed by atomic implementation.
 
+The first master-pool harvest is now recorded in
+`source-audits/slayer-turael-spria-pool-2026-07-17.md`. Reconciliation recovered
+23 ordinary Turael/Spria families, including the master-table omissions
+Gelatinous abominations and Grotworms, and rejected the anonymous Troll row.
+Hidden weights remain explicitly provisional; the 355-point denominator
+converges across Darkan's raw values, game-main's percentages, and the recovered
+30-weight Gelatinous family. Runtime certification still fails: six families
+have no Combat target, Banshee lacks its earmuff consequence, and Gelatinous
+abominations lack the worn-gauntlet finisher. The same pass repaired the live
+Cave slime's omitted source poison damage. None of these findings creates an
+owner design question.
+
 The settled design keeps assignments and exact qualifying Combat variants
 source-shaped, places `Assignment`, `Masters`, and `Rewards` in one Slayer page,
 deep-links into Combat as the sole fight surface, and requires a reusable list

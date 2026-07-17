@@ -235,6 +235,12 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE SWEEP`, `DEPENDENCY: COMBAT`.
   source-determined behavior: close every per-master pool/weight/count/gate row,
   pin every family variant's membership/stats/Slayer-XP eligibility/context, and
   close protective, special-kill, challenge, and context state transitions.
+- Turael/Spria's first pool pass is recorded in
+  `source-audits/slayer-turael-spria-pool-2026-07-17.md`: 23 families and the
+  provisional 355-point hidden-weight denominator are pinned, but the role
+  remains runtime-blocked on six absent Combat families plus Banshee and
+  Gelatinous special consequences. Continue with the remaining masters before
+  exposing any live assignment roll.
 - Before that unlock, the finisher consumes its own correct review. Exclude the
   salt, ice, fungicide, and explosive shakers released in 2015.
 

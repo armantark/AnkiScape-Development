@@ -7035,6 +7035,7 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "attack_style": "melee",
         "attack_speed": 4,
         "respawn_delay": 15,
+        "poison_damage": 3,
         "slayer_xp": 25.0,
         "stats": {'hitpoints': 250, 'attack': 13, 'strength': 13, 'defence': 35, 'magic': 13, 'ranged': 1},
         "bonuses": {'attack_stab': 0,
@@ -7074,7 +7075,7 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
                        {'slots': 875})})},
         "source": (
             f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
-            "definitions/critters/cave_slime_lvl_23.plugin.kts"
+            "definitions/critters/cave_slime_lvl_23.plugin.kts: poisonDamage=3"
         ),
     },
     "flesh_crawler_level_28": {
