@@ -442,15 +442,28 @@ automatically dismissed a familiar still receives this AnkiScape safety confirma
 the destructive transition; preserving a warning is a UI safeguard, not a claim that the
 period game always offered one.
 
-### 20. Manual dismissal versus enabled automation — open
+### 20. Manual dismissal versus enabled automation — settled 2026-07-16
 
 Outside a familiar-forbidden target, confirming Dismiss can conflict with an enabled target
-policy that would otherwise consume another pouch and resummon on the next successful
-answer. Choose whether manual dismissal also turns that target's familiar automation Off,
-or leaves the policy enabled. Area-required dismissal is different: it does not mutate a
-saved policy, because the area—not a changed user preference—caused the dismissal.
+policy. Confirming a general manual Dismiss therefore turns that target's familiar policy
+Off by default; otherwise the next successful answer would consume another pouch and
+silently reverse the explicit decision.
 
-### 21. Ordinary Summoning training — source/app-pattern resolved 2026-07-16
+The shared dialog includes one unchecked escape hatch: **Keep auto-summon for this target
+(resummons next successful answer)**. Checking it preserves the policy and makes the next
+replacement deliberate rather than surprising. Area-required dismissal never changes a
+saved policy because the area—not a changed preference—caused it; the policy simply cannot
+act while that target forbids familiars.
+
+### 21. Scroll-use XP under Casual automation — open
+
+Period scroll rows award a small separate XP amount when the player manually activates a
+scroll, but explicitly award none when enchanted headgear activates it automatically.
+AnkiScape's settled Casual auto-special is closer to the latter even though the player opted
+into the policy. Choose whether Casual auto-specials award the row's use XP, or reserve use
+XP for Advanced/manual special commands.
+
+### 22. Ordinary Summoning training — source/app-pattern resolved 2026-07-16
 
 `source-audits/summoning-training-2026-07-16.md` closes the normal training shape without
 an owner question. The page exposes **Infuse pouches** and **Create scrolls** as searchable

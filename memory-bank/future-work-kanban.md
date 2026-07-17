@@ -223,8 +223,10 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   `spirit_plane_hide`). Starting a target that must dismiss a live familiar opens a
   confirmation naming duration/pouch loss and any BoB cargo reclaim; Cancel changes
   nothing, Confirm dismisses without a review, and cargo never auto-banks. The live owner
-  fork is whether a general manual Dismiss also disables enabled target automation or lets
-  it resummon on the next successful answer.
+  decision makes general manual Dismiss turn the current target policy Off by default,
+  with an unchecked `Keep auto-summon` escape hatch; area-required dismissal preserves
+  policy. The next fork is whether Casual automatic specials receive the source's manual-
+  use XP or only Advanced/manual activations do.
 
 ### Dungeoneering
 

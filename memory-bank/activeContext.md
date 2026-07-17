@@ -57,9 +57,10 @@ set temporarily hides and later returns the familiar. The target catalog will en
 per-area consequence. Starting a blocked target with a live familiar now opens a destructive
 confirmation naming remaining duration, permanent pouch loss, and any BoB cargo reclaim;
 Cancel preserves the current training, while Confirm dismisses without a review or remote
-Bank deposit. The next open fork is whether a general manual Dismiss also disables an
-enabled target auto-maintenance policy or allows it to resummon on the next successful
-answer. Familiarisation is now a
+Bank deposit. Manual Dismiss turns that target policy Off by default, with an unchecked
+`Keep auto-summon` dialog option; area-required dismissal never mutates saved policy. The
+next open fork is whether Casual automatic scroll specials earn the period
+manual-use XP or whether only Advanced/manual commands do. Familiarisation is now a
 four-answer session with 15 shards per success, three focus pips, and one lost pip/no
 shards on Again. Target policy
 `Off — no familiar automation` now preserves any already-live global familiar while

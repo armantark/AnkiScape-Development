@@ -43,6 +43,10 @@ wikitext.
 - One pouch converts into ten matching scrolls at an obelisk. Oldid 6520851 line 1
   explicitly says its creation-XP column is per pouch, not per scroll; the table separately
   records scroll creation XP, use XP, and special-move-point cost.
+- Oldid 6520851 line 1 awards scroll-use XP only for manual inventory activation and
+  explicitly withholds it from scrolls fired automatically by enchanted headgear. That is
+  a source precedent for distinguishing manual and automated special use, not merely a UI
+  detail.
 - Wolf Whistle was optional by the cutoff. Its quest XP and starter items remain a quest
   reward when that quest exists, but completion cannot gate the skill (oldid 6579264 line
   5).
