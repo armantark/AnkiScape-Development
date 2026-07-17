@@ -214,21 +214,26 @@ stage-gated faction-protection flag now, but it has no invented damage reduction
 ambient-pressure number. A future God Wars/multi-enemy substrate consumes the flag
 automatically without changing the pet row.
 
-## Open owner fork: active pet on player death
+## Pet behavior on player death — source resolved 2026-07-17
 
 Clockwork cat oldid
 [5918433](https://runescape.wiki/w/Clockwork_cat?oldid=5918433)
-(2012-07-10 20:53:05 UTC) explicitly says the pet is lost on player death when active or
-not kept as an item. Cat oldid
+(2012-07-10 20:53:05 UTC) explicitly says the pet is lost on player death when active or,
+as an item, when it is not one of the kept items. Items Kept on Death oldid
+[6449538](https://runescape.wiki/w/Items_Kept_on_Death?oldid=6449538)
+(2012-10-21 17:48:44 UTC) lists pets among items that may be kept if selected but cannot
+be reclaimed from a gravestone when not kept. Cat oldid
 [6283489](https://runescape.wiki/w/Cat?oldid=6283489)
-(2012-09-23 03:37:47 UTC) confirms cats can be killed, while the generic Pet page does not
-close a universal recovery rule. The period consequence is therefore loss-shaped, but
-exact behavior remains pet-specific.
+(2012-09-23 03:37:47 UTC) independently confirms that pet cats can be killed.
 
-Permanent accidental destruction is already incompatible with the owner's settled
-anti-disappearance rule and with pets whose reacquisition is `source_blocked`. The real
-product fork is whether death places the exact active pet entity into the existing
-grave/Death's Office recovery flow, temporarily making it unavailable while preserving
-growth, hunger, stage, and variant, or sends it directly home to Bank/Menagerie without a
-death cost. The recommendation is the recoverable grave path as an explicit safety
-abstraction from true period loss.
+AnkiScape follows that period boundary. An active pet is lost on an unsafe player death.
+A pet entity carried as an item survives only if the ordinary Items Kept on Death
+selection protects it; otherwise it is destroyed and never enters `combat_grave` or
+Death's Office. Banked and Menagerie pets are not carried and remain safe. Safe-death
+contexts preserve the pet with the rest of the loadout.
+
+Reacquisition and the state of the replacement are pet-specific source data. A free
+replacement, respawn, paid claim, or fresh acquisition occurs only where its individual
+route proves one; the previous entity's growth, hunger, variant, or name does not transfer
+unless that pet's source explicitly says it does. The owner's anti-Tamagotchi safety
+abstraction applies to passive hunger/attention upkeep, not ordinary combat death.

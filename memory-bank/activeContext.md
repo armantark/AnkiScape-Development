@@ -76,12 +76,12 @@ silently selects the decayed adult. Source-timed pet growth that removes a capab
 uses the already-settled reviewer expiration-alert strip without pausing the transition.
 Mature god-bird protection is recorded as a source-shaped, stage-gated faction flag but
 remains numerically inert until a later dedicated multi-enemy/God Wars grill; no generic
-defensive buff or ambient-damage abstraction is invented now. The next owner fork is
-whether an active pet on player death becomes temporarily unavailable through the existing
-grave/Death's Office recovery flow or returns immediately to Bank/Menagerie at no cost;
-permanent accidental destruction is already excluded.
+defensive buff or ambient-damage abstraction is invented now. Unsafe player death follows
+the period pet-loss rule: an active pet is destroyed, and an unprotected carried pet item
+is not recoverable from a grave. Banked/Menagerie pets and safe-death contexts remain
+safe. The anti-Tamagotchi abstraction is limited to passive hunger/attention upkeep.
 
-The 32 settled decisions define answered-card lifetime and passive world ticks,
+The 33 settled decisions define answered-card lifetime and passive world ticks,
 separate familiar/point/special resources, target-policy automation, carried
 pouch/scroll budgets, coalesced restore and Bank detours, safe replacement and
 dismissal, source-gated familiar combat, BoB inventory/reclaim rules, forbidden

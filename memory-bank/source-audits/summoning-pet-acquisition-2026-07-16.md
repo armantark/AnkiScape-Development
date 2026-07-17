@@ -150,6 +150,18 @@ keying flow
 2012-10-07 05:51:05 UTC). Those two completed-pet reacquisition rows remain
 `source_blocked`; silence is not encoded as permanent loss.
 
+### Death loss does not imply a replacement route
+
+Items Kept on Death oldid
+[6449538](https://runescape.wiki/w/Items_Kept_on_Death?oldid=6449538)
+(2012-10-21 17:48:44 UTC) establishes that an unprotected carried pet is destroyed rather
+than recoverable from a gravestone, while Clockwork cat oldid
+[5918433](https://runescape.wiki/w/Clockwork_cat?oldid=5918433)
+(2012-07-10 20:53:05 UTC) expressly includes the active follower. This death consequence
+is independent of whether the pet has a sourced repeat-acquisition route. Each catalog row
+therefore needs both `death_loss` and its separately sourced `reacquisition_route`; missing
+reacquisition evidence does not manufacture grave recovery or a free replacement.
+
 ## Explicitly unresolved numeric harvest
 
 The route exists even when one of these exact parameters remains

@@ -703,12 +703,24 @@ Combat model and automatically becomes live when the future God Wars aggression 
 consumes it. AnkiScape does not substitute a generic defensive buff, invented incoming-
 damage process, visible future-content lock, or special placeholder state.
 
-The next owner fork is active-pet handling on player death. Period evidence explicitly
-loses at least the clockwork cat, but permanent accidental destruction is incompatible
-with the settled pet-safety rule. The remaining choices are a recoverable pet projection
-through the existing grave/Death's Office flow, preserving exact entity state while
-temporarily unavailable, or an immediate cost-free return to Bank/Menagerie. The
-recommendation is grave recovery so death remains consequential without deleting the pet.
+### 33. Authentic pet loss on player death — source/owner resolved 2026-07-17
+
+Items Kept on Death oldid
+[6449538](https://runescape.wiki/w/Items_Kept_on_Death?oldid=6449538)
+(2012-10-21 17:48:44 UTC) lists pets as keepable inventory items that are nevertheless
+unrecoverable from a gravestone when not kept. Clockwork cat oldid
+[5918433](https://runescape.wiki/w/Clockwork_cat?oldid=5918433)
+(2012-07-10 20:53:05 UTC) explicitly applies loss to an active pet as well.
+
+An unsafe player death therefore destroys the active pet. A carried pet item survives
+only when protected by the ordinary Items Kept on Death selection; otherwise it is
+destroyed rather than added to `combat_grave` or Death's Office. Banked and Menagerie pets
+remain safe, and safe-death contexts preserve the pet. Reacquisition and replacement state
+follow the individual pet's pinned route without invented inheritance.
+
+The earlier proposed recoverable pet-grave abstraction was wrong. The owner's
+anti-Tamagotchi rule prevents passive maintenance from silently deleting a pet; it does
+not erase an ordinary sourced combat-death consequence.
 
 ## Source/open-work queue
 
