@@ -6,27 +6,23 @@ audits; missing code dependencies are implementation backlog, not design gaps.
 
 ## Current owner-level gaps
 
-### Bunyip passive-heal density — open 2026-07-17
+### Bunyip passive-heal density — settled 2026-07-17
 
-The source pins 20 LP every 15 seconds. The implementation currently imports
-the familiar-lifetime calibration directly and grants eight source ticks, or
+The source pins 20 LP every 15 seconds. The implementation initially imported
+the familiar-lifetime calibration directly and granted eight source ticks, or
 160 LP, on every answered card. Combat damage is not batched through that
 duration calibration: it resolves per exchange against a maximum of
-`Constitution × 10` LP. The current magnitude can therefore erase ordinary
-incoming damage and displace food, potions, and other healing.
+`Constitution × 10` LP. That magnitude could therefore erase ordinary incoming
+damage and displace food, potions, and other healing.
 
-The settled rule that genuinely passive effects continue on Again is not open.
-The remaining owner choice is magnitude:
+The settled rule that genuinely passive effects continue on Again remains
+unchanged. The owner selected **20 LP per answered card, including Again**:
+one source heal tick per answered-card world tick. Familiar lifetime keeps its
+separate ratio-preserving calibration.
 
-- **160 LP per answered card:** lifetime cost and passive throughput use one
-  shared source-duration conversion.
-- **20 LP per answered card:** one source heal tick per answered-card world
-  tick, matching Combat's action density while leaving lifetime decay on its
-  separate ratio-preserving calibration.
-
-Recommendation: **20 LP per answered card, including Again**. This deliberately
-separates effect density from lifetime density and keeps Bunyip a meaningful
-sustain familiar rather than a near-total replacement for Combat healing.
+This deliberately separates effect density from lifetime density and keeps
+Bunyip a meaningful sustain familiar rather than a near-total replacement for
+Combat healing.
 
 ## Implementation judgments recorded without reopening the grill
 
@@ -54,8 +50,8 @@ sustain familiar rather than a near-total replacement for Combat healing.
   shards. The period source proves that contents and quantity scale with raw
   shards but does not preserve the exact hidden selection table; this is a
   labeled balance abstraction rather than fabricated period content.
-- Bunyip's exact 20-LP source tick is implemented, but its per-review batching
-  remains the owner-level gap above rather than an implementation-only judgment.
+- Bunyip's exact 20-LP source tick is implemented once per answered-card world
+  tick, including Again.
 
 ## Source and dependency blocks, not owner questions
 

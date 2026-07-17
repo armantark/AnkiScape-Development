@@ -969,7 +969,7 @@ def advance_summoning_world_tick_pure(
                 minimum=0,
                 maximum=maximum,
             )
-            after = min(maximum, before + 160)
+            after = min(maximum, before + 20)
             updated["combat_lifepoints"] = after
             result["passive_healing"] = after - before
         follower["remaining_reviews"] = max(

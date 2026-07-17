@@ -391,8 +391,8 @@ class SummoningLogicTests(unittest.TestCase):
             data, successful_answer=False
         )
 
-        self.assertEqual(result["passive_healing"], 160)
-        self.assertEqual(advanced["combat_lifepoints"], 260)
+        self.assertEqual(result["passive_healing"], 20)
+        self.assertEqual(advanced["combat_lifepoints"], 120)
         self.assertEqual(
             advanced["summoning_state"]["active_follower"][
                 "remaining_reviews"

@@ -191,10 +191,9 @@ so prevents the next Bank trip, then continues the target action atomically. Adv
 choose item priority and an earlier threshold. Any target rate must declare whether Winter
 Storage is already assumed.
 
-The implementation-gap grill has reopened one Summoning magnitude: Bunyip currently heals
-160 LP per answered-card world tick by importing the familiar-lifetime conversion, while
-Combat damage resolves per exchange. The settled passive-on-Again behavior remains fixed;
-the owner must choose between 160 LP and one sourced 20-LP heal tick per answer.
+The implementation-gap grill settled Bunyip at one sourced 20-LP heal tick per
+answered-card world tick, including Again. Familiar lifetime keeps its separate
+ratio-preserving calibration; effect density follows Combat's per-exchange action loop.
 
 The documentation archive closure is complete. The new `memory-bank/README.md`
 separates current entry points from evidence and historical records; six
