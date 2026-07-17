@@ -1,0 +1,1200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Completion Atlas — Morning Review</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090d12;
+      --panel: #111821;
+      --panel-2: #16202b;
+      --ink: #eef5ef;
+      --muted: #9caea4;
+      --line: #273541;
+      --green: #62dc84;
+      --green-2: #1aa65a;
+      --cyan: #65d6d1;
+      --gold: #f1c865;
+      --red: #ff7878;
+      --purple: #b8a0ff;
+      --shadow: 0 18px 55px rgba(0, 0, 0, .35);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(30, 154, 91, .16), transparent 28rem),
+        radial-gradient(circle at 90% 12%, rgba(101, 214, 209, .10), transparent 32rem),
+        var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    a { color: var(--cyan); }
+    button, input { font: inherit; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px clamp(16px, 4vw, 56px);
+      border-bottom: 1px solid rgba(98, 220, 132, .18);
+      background: rgba(9, 13, 18, .88);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      margin-right: auto;
+      font-weight: 800;
+      letter-spacing: .02em;
+    }
+
+    .brand span { color: var(--green); }
+
+    .progress-shell {
+      width: min(220px, 26vw);
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #1b2630;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--green-2), var(--green));
+      transition: width .2s ease;
+    }
+
+    .progress-label {
+      min-width: 74px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .ghost, .primary {
+      cursor: pointer;
+      border-radius: 10px;
+      padding: 9px 13px;
+      font-weight: 750;
+    }
+
+    .ghost {
+      border: 1px solid var(--line);
+      color: var(--ink);
+      background: #121a22;
+    }
+
+    .primary {
+      border: 1px solid rgba(98, 220, 132, .45);
+      color: #07120b;
+      background: var(--green);
+    }
+
+    main {
+      width: min(1240px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 52px 0 96px;
+    }
+
+    .eyebrow {
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 920px;
+      margin: 14px 0 18px;
+      font-size: clamp(42px, 7vw, 86px);
+      line-height: .98;
+      letter-spacing: -.055em;
+    }
+
+    .hero-copy {
+      max-width: 760px;
+      margin: 0;
+      color: #c4d2c9;
+      font-size: clamp(17px, 2vw, 22px);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 24px;
+      align-items: end;
+    }
+
+    .callout {
+      padding: 24px;
+      border: 1px solid rgba(98, 220, 132, .25);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(29, 126, 73, .18), rgba(17, 24, 33, .92));
+      box-shadow: var(--shadow);
+    }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 19px;
+    }
+
+    .callout p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin: 36px 0 0;
+    }
+
+    .metric {
+      min-height: 118px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(17, 24, 33, .82);
+    }
+
+    .metric b {
+      display: block;
+      color: var(--green);
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .section {
+      margin-top: 72px;
+      scroll-margin-top: 92px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 22px;
+    }
+
+    h2 {
+      margin: 6px 0 0;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.05;
+      letter-spacing: -.035em;
+    }
+
+    .section-intro {
+      max-width: 600px;
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .closure-grid,
+    .tree-grid,
+    .portfolio-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .closure-grid { grid-template-columns: repeat(5, 1fr); }
+    .tree-grid { grid-template-columns: repeat(4, 1fr); }
+    .portfolio-grid { grid-template-columns: repeat(3, 1fr); }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(22, 32, 43, .96), rgba(14, 20, 27, .96));
+      box-shadow: 0 12px 38px rgba(0, 0, 0, .18);
+    }
+
+    .closure-grid .card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 3px;
+      background: var(--green);
+    }
+
+    .number {
+      display: inline-grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      margin-bottom: 22px;
+      border-radius: 10px;
+      background: rgba(98, 220, 132, .13);
+      color: var(--green);
+      font-weight: 900;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .architecture {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 18px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .stack-row {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 16px;
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: rgba(10, 15, 21, .48);
+    }
+
+    .stack-row strong { color: var(--cyan); }
+    .stack-row span { color: var(--muted); }
+
+    .warning {
+      border-color: rgba(241, 200, 101, .35);
+      background: linear-gradient(145deg, rgba(99, 72, 16, .20), rgba(17, 24, 33, .94));
+    }
+
+    .warning .eyebrow { color: var(--gold); }
+
+    .dungeon-map {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .room {
+      display: grid;
+      place-items: center;
+      min-height: 74px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #101821;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .room.live {
+      border-color: rgba(98, 220, 132, .48);
+      color: var(--ink);
+      background: rgba(26, 166, 90, .14);
+    }
+
+    .room.boss {
+      border-color: rgba(255, 120, 120, .42);
+      color: #ffd0d0;
+      background: rgba(136, 35, 35, .20);
+    }
+
+    .arrow {
+      color: var(--green);
+      text-align: center;
+      font-size: 18px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0 6px 8px 0;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #202d38;
+      color: #bdd0c5;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+
+    .portfolio-card {
+      display: flex;
+      min-height: 225px;
+      flex-direction: column;
+    }
+
+    .portfolio-card .rank {
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .portfolio-card h3 {
+      margin-top: 8px;
+      font-size: 21px;
+    }
+
+    .portfolio-card p { margin-bottom: 16px; }
+
+    .portfolio-card .proves {
+      margin-top: auto;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+      color: #c8d8cf;
+      font-size: 13px;
+    }
+
+    .tree.must { border-top: 3px solid var(--red); }
+    .tree.breadth { border-top: 3px solid var(--cyan); }
+    .tree.park { border-top: 3px solid var(--purple); }
+    .tree.release { border-top: 3px solid var(--gold); }
+
+    .tree ul {
+      margin: 14px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    .tree li + li { margin-top: 7px; }
+
+    .decision-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .decision-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .decision {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(17, 24, 33, .9);
+      transition: border-color .2s ease, background .2s ease;
+    }
+
+    .decision.answered {
+      border-color: rgba(98, 220, 132, .42);
+      background: rgba(18, 35, 28, .86);
+    }
+
+    .decision summary {
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      gap: 14px;
+      align-items: center;
+      cursor: pointer;
+      padding: 18px 20px;
+      list-style: none;
+    }
+
+    .decision summary::-webkit-details-marker { display: none; }
+
+    .decision-index {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: #202c36;
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .decision.answered .decision-index {
+      background: var(--green);
+      color: #07120b;
+    }
+
+    .decision-title {
+      font-size: 17px;
+      font-weight: 850;
+    }
+
+    .decision-meta {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .decision-body {
+      padding: 0 20px 22px 82px;
+    }
+
+    .options {
+      display: grid;
+      gap: 9px;
+      margin-top: 14px;
+    }
+
+    .option {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 12px;
+      align-items: start;
+      cursor: pointer;
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #10171e;
+    }
+
+    .option:hover { border-color: #3d5261; }
+
+    .option.recommended {
+      border-color: rgba(98, 220, 132, .28);
+      background: rgba(26, 166, 90, .08);
+    }
+
+    .option input { margin-top: 3px; accent-color: var(--green); }
+    .option b { color: var(--ink); }
+    .option small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+    }
+
+    .rec {
+      margin-left: 6px;
+      color: var(--green);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .hide-recs .rec { display: none; }
+    .hide-recs .option.recommended {
+      border-color: var(--line);
+      background: #10171e;
+    }
+
+    .stop {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 18px;
+      align-items: center;
+      padding: 25px;
+      border: 1px solid rgba(101, 214, 209, .30);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(19, 93, 99, .19), rgba(17, 24, 33, .95));
+    }
+
+    .stop-icon {
+      display: grid;
+      place-items: center;
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      background: rgba(101, 214, 209, .14);
+      color: var(--cyan);
+      font-size: 26px;
+    }
+
+    .sources {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .sources code {
+      color: #c8d8cf;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 40;
+      padding: 13px 16px;
+      border: 1px solid rgba(98, 220, 132, .45);
+      border-radius: 12px;
+      background: #13241a;
+      color: var(--ink);
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid, .architecture { grid-template-columns: 1fr; }
+      .metric-grid { grid-template-columns: repeat(3, 1fr); }
+      .closure-grid { grid-template-columns: repeat(2, 1fr); }
+      .portfolio-grid, .tree-grid { grid-template-columns: repeat(2, 1fr); }
+      .dungeon-map { grid-template-columns: repeat(4, 1fr); }
+      .arrow { display: none; }
+    }
+
+    @media (max-width: 680px) {
+      .topbar { flex-wrap: wrap; }
+      .brand { width: 100%; }
+      .progress-shell { flex: 1; width: auto; }
+      main { width: min(100% - 22px, 1240px); padding-top: 34px; }
+      .metric-grid, .closure-grid, .portfolio-grid, .tree-grid { grid-template-columns: 1fr; }
+      .section-head { align-items: start; flex-direction: column; }
+      .stack-row { grid-template-columns: 1fr; gap: 6px; }
+      .decision summary { grid-template-columns: 42px 1fr; }
+      .decision-meta { grid-column: 2; }
+      .decision-body { padding-left: 20px; }
+      .stop { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Anki<span>Scape</span> Completion Atlas</div>
+    <div class="progress-shell" aria-label="Decision progress">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="progress-label" id="progressLabel">0 / 20</div>
+    <button class="ghost" id="recommendationsButton" type="button">Hide recs</button>
+    <button class="primary" id="copyButton" type="button">Copy answers</button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">Morning review · 17 July 2026</div>
+          <h1>Finish the world, not just the skill list.</h1>
+          <p class="hero-copy">
+            A curated completion program for Dungeoneering, minigames, D&amp;Ds,
+            Combat instances, and the feature trees hiding behind “three skills left.”
+            Twenty real forks are preloaded with recommendations; your choices persist
+            in this browser.
+          </p>
+        </div>
+        <aside class="callout">
+          <strong>The headline recommendation</strong>
+          <p>
+            Define completion by end-to-end closure and mechanical archetypes,
+            then build one narrow session substrate before Dungeoneering. Do not
+            make “complete” mean hand-authoring every duplicate NPC in a decade-old MMO.
+          </p>
+        </aside>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric"><b>17</b><span>complete skill surfaces</span></div>
+        <div class="metric"><b>3</b><span>planned skills remain</span></div>
+        <div class="metric"><b>27 / 194</b><span>authored quest overrides / catalog rows</span></div>
+        <div class="metric"><b>131</b><span>live Combat enemy rows</span></div>
+        <div class="metric"><b>273</b><span>orphan item inputs in 1,200 routes</span></div>
+      </div>
+    </section>
+
+    <section class="section" id="completion">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">The completion contract</div>
+          <h2>Five closure rules</h2>
+        </div>
+        <p class="section-intro">
+          This is a final-product line, not a “small first version.” Long-tail instances
+          can continue afterward without keeping the product permanently unfinished.
+        </p>
+      </div>
+      <div class="closure-grid">
+        <article class="card"><span class="number">1</span><h3>All 25 skills</h3><p>Complete loop or signed product exclusion. No dead skill page.</p></article>
+        <article class="card"><span class="number">2</span><h3>No dangling pointers</h3><p>Every visible gate, item, reward, and promise works or is explicitly excluded.</p></article>
+        <article class="card"><span class="number">3</span><h3>Archetype coverage</h3><p>Every distinct mechanical family has a complete authentic representative.</p></article>
+        <article class="card"><span class="number">4</span><h3>Pacing invariant</h3><p>Effective XP per review tracks real pre-EOC XP per hour across shipped content.</p></article>
+        <article class="card"><span class="number">5</span><h3>Explained boundaries</h3><p>The in-product Help Center owns a readable exclusion ledger.</p></article>
+      </div>
+    </section>
+
+    <section class="section" id="architecture">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Shared architecture</div>
+          <h2>Build narrow primitives once</h2>
+        </div>
+        <p class="section-intro">
+          The hub is an entry point. It is not permission to force processing,
+          minigames, boss instances, and Daemonheim into one row schema.
+        </p>
+      </div>
+      <div class="architecture">
+        <div class="stack">
+          <div class="stack-row"><strong>Session boundary</strong><span>Scoped state, optional temporary inventory, resume, abandon, complete, and atomic undo.</span></div>
+          <div class="stack-row"><strong>Currency wallet</strong><span>One ledger substrate; authentic separate currencies; Activity Rewards shop surface.</span></div>
+          <div class="stack-row"><strong>Item condition</strong><span>Shared charge, degrade, break, repair, recharge, Bank, grave, and undo semantics.</span></div>
+          <div class="stack-row"><strong>Activity families</strong><span>Processing, Skill Activities, Minigames, D&amp;Ds, and Activity Rewards under one umbrella.</span></div>
+        </div>
+        <aside class="card warning">
+          <div class="eyebrow">Cutoff correction lead</div>
+          <h3>Generic random events probably do not belong</h3>
+          <p>
+            The parked seed proposes adding random events to every run, but the
+            remaining RuneScape random events were reportedly removed on
+            24 October 2012—before the 20 November cutoff. Use authentic
+            per-activity variance instead, and pin the dated update before the
+            contract closes.
+          </p>
+          <p style="margin-top:14px">
+            <a href="https://wiki.darkan.org/Random_Event">Darkan source lead</a>
+            ·
+            <a href="https://runescape.fandom.com/wiki/Random_events">historical summary</a>
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="dungeoneering">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Dungeoneering thesis</div>
+          <h2>A renewable fresh-account arc</h2>
+        </div>
+        <p class="section-intro">
+          One room-scale beat per successful review. A closed temporary economy,
+          seeded frontier, real scarcity, ordinary skill XP, boss payoff, and no wall-clock expiry.
+        </p>
+      </div>
+      <article class="card">
+        <div>
+          <span class="tag">Solo canonical</span>
+          <span class="tag">One active floor</span>
+          <span class="tag">Temporary inventory</span>
+          <span class="tag">Authentic complexity</span>
+          <span class="tag">Persistent binds</span>
+          <span class="tag">Completion XP</span>
+        </div>
+        <div class="dungeon-map" aria-label="Illustrative seeded room frontier">
+          <div class="room live">Start<br>Smuggler</div><div class="arrow">→</div>
+          <div class="room live">Resource<br>room</div><div class="arrow">→</div>
+          <div class="room live">Skill<br>door</div><div class="arrow">→</div>
+          <div class="room">Key<br>branch</div>
+          <div class="room">Puzzle<br>bonus</div><div class="arrow">↗</div>
+          <div class="room live">Combat<br>room</div><div class="arrow">→</div>
+          <div class="room live">Herblore<br>prep</div><div class="arrow">→</div>
+          <div class="room boss">Boss<br>completion</div>
+        </div>
+        <p style="margin-top:18px">
+          The graph is generated at entry but only the reachable frontier is shown.
+          Casual chooses a sensible route; Advanced chooses the next room and exact
+          temporary loadout. Critical rooms are level-feasible; bonus rooms may exceed
+          the player’s levels. Death penalizes completion without erasing the floor.
+        </p>
+      </article>
+    </section>
+
+    <section class="section" id="portfolio">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Starter portfolio</div>
+          <h2>Architecture proof cases</h2>
+        </div>
+        <p class="section-intro">
+          Ranked by new reusable capability, not by fame. Agility’s in-flight
+          activities are the reference case, not another ownership migration.
+        </p>
+      </div>
+      <div class="portfolio-grid">
+        <article class="card portfolio-card"><span class="rank">01 · D&amp;D kernel</span><h3>Tears of Guthix</h3><p>Turns an existing quest promise into a real recurring activity.</p><div class="proves">Review-clock eligibility · lowest-skill reward · compact session</div></article>
+        <article class="card portfolio-card"><span class="rank">02 · World event</span><h3>Shooting Stars</h3><p>A finite resource depleted by the player and a bounded simulated population.</p><div class="proves">World cadence · contribution cap · reward exchange</div></article>
+        <article class="card portfolio-card"><span class="rank">03 · Currency route</span><h3>Fist of Guthix</h3><p>The cleanest proof of opponent abstraction → tokens → shop → charged gear.</p><div class="proves">Simulated opponent · special currency · degradation</div></article>
+        <article class="card portfolio-card"><span class="rank">04 · Instance</span><h3>Barrows</h3><p>Persistent encounter sequence, chest state, repair, and unique drops.</p><div class="proves">Multi-encounter run · reward roll · repair loop</div></article>
+        <article class="card portfolio-card"><span class="rank">05 · Progression route</span><h3>Warriors’ Guild</h3><p>A missing melee tree with token drain, an armour sink, and defender ladder.</p><div class="proves">Metered access · item sink · escalating reward</div></article>
+        <article class="card portfolio-card"><span class="rank">06 · Long session</span><h3>Fight Caves</h3><p>The rehearsal for multi-day persistence before Dungeoneering adds an economy.</p><div class="proves">Waves · target priority · safe death · resume</div></article>
+        <article class="card portfolio-card"><span class="rank">07 · Co-op pressure</span><h3>Fishing Trawler</h3><p>Solo agency inside a source-shaped crew pressure system.</p><div class="proves">Simulated crew · duties · failure meter · haul</div></article>
+        <article class="card portfolio-card"><span class="rank">08 · Closed economy</span><h3>Stealing Creation</h3><p>Gather, craft, and fight with items that disappear at the session boundary.</p><div class="proves">Temporary economy · crafting · bounded opposition</div></article>
+        <article class="card portfolio-card"><span class="rank">09 · Background world</span><h3>Managing Miscellania</h3><p>The strongest fit for a world that advances through study rather than minutes.</p><div class="proves">Allocation · approval · coin sink · production</div></article>
+      </div>
+    </section>
+
+    <section class="section" id="trees">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Feature trees</div>
+          <h2>What was hiding off the skill list</h2>
+        </div>
+        <p class="section-intro">
+          “Complete” needs an owned place for these systems, even when the correct
+          disposition is representative breadth or an explicit exclusion.
+        </p>
+      </div>
+      <div class="tree-grid">
+        <article class="card tree must">
+          <h3>Must close</h3>
+          <ul>
+            <li>Canonical readiness graph</li>
+            <li>Shared search + offline Help</li>
+            <li>Reward currencies and shops</li>
+            <li>Charges, degradation, repair</li>
+            <li>Skill capes and 99 recognition</li>
+            <li>Warriors’ Guild and defenders</li>
+            <li>Quest promise/reference split</li>
+            <li>Charm-bearing bestiary breadth</li>
+            <li>Item acquisition and use closure</li>
+          </ul>
+        </article>
+        <article class="card tree breadth">
+          <h3>Representative breadth</h3>
+          <ul>
+            <li>Authentic diary tasks + rewards</li>
+            <li>Clue scrolls + caskets</li>
+            <li>Passive collections / strange rocks</li>
+            <li>Miniquests and Dungeoneering sagas</li>
+            <li>Resource dungeons</li>
+            <li>Quest-boss replay / Dominion Tower</li>
+            <li>D&amp;D cadence families</li>
+            <li>Enemy/drop/context ingestion</li>
+          </ul>
+        </article>
+        <article class="card tree park">
+          <h3>Park or exclude</h3>
+          <ul>
+            <li>Persistent map + transport</li>
+            <li>Full multiplayer and clans</li>
+            <li>Legacy random events at cutoff</li>
+            <li>Squeal / Solomon’s commerce</li>
+            <li>Literal subscription-tenure simulation</li>
+            <li>Holiday calendars and cosmetic breadth</li>
+            <li>Post-cutoff substitutions</li>
+            <li>Visible inert previews</li>
+          </ul>
+        </article>
+        <article class="card tree release">
+          <h3>Release closure</h3>
+          <ul>
+            <li>Golden save migration fixtures</li>
+            <li>Export, validation, import, restore</li>
+            <li>Reproducible add-on packaging</li>
+            <li>Asset and license manifest</li>
+            <li>Large-save performance budgets</li>
+            <li>Keyboard and theme accessibility</li>
+            <li>Clean-profile install smoke test</li>
+            <li>Personal fork vs public release</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="decisions">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Owner grill queue</div>
+          <h2>Twenty consequential forks</h2>
+        </div>
+        <p class="section-intro">
+          Recommendations are preselected visually, but no answer is recorded until
+          you click it. Answers save locally. Copying produces a clean handoff for the next thread.
+        </p>
+      </div>
+      <div class="decision-toolbar">
+        <button class="ghost" id="openFirstButton" type="button">Open unanswered</button>
+        <button class="ghost" id="clearButton" type="button">Clear choices</button>
+      </div>
+      <div class="decision-list" id="decisionList"></div>
+    </section>
+
+    <section class="section">
+      <div class="stop">
+        <div class="stop-icon">◇</div>
+        <div>
+          <h3>Natural stopping point</h3>
+          <p>
+            Answer decisions 1–10 first. They close the product and platform contract.
+            Then ratify the portfolio and answer the Dungeoneering block. Nothing here
+            authorizes implementation; accepted choices should move into owning contracts
+            and source audits before code starts.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section sources">
+      <div class="eyebrow">Repository grounding</div>
+      <p>
+        Primary local records: <code>memory-bank/projectbrief.md:7-38</code>,
+        <code>productContext.md:23-36</code>, <code>roadmap.md:17-59</code>,
+        <code>future-work-kanban.md:366-607</code>,
+        <code>dungeoneering-product-decision-deferred-2026-07-13.md:3-22</code>,
+        <code>minigames-activities-design-seed.md:12-87</code>,
+        <code>help-system-contract-2026-07-16.md:12-82</code>.
+        Detailed synthesis:
+        <code>memory-bank/ankiscape-completion-starter-grill-2026-07-17.md</code>.
+      </p>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const decisions = [
+      {
+        group: "A · Finish line",
+        title: "What closes AnkiScape?",
+        prompt: "Choose the completion contract that prevents both endless parity and disconnected slices.",
+        options: [
+          ["A", "Enumerative parity", "Every quest, NPC, activity, and item must land before completion."],
+          ["B", "Five closure rules", "Skills, no dangling pointers, archetype coverage, pacing, and an exclusion ledger.", true],
+          ["C", "Closure rules + all quests", "Use the five rules and also require collapsed playability for all 194 quests."]
+        ]
+      },
+      {
+        group: "A · Finish line",
+        title: "How much quest and bestiary breadth blocks completion?",
+        prompt: "The catalog has 194 rows, but only 27 authored overrides; the Combat picker has 131 enemies.",
+        options: [
+          ["A", "Everything blocks", "Keep every attackable NPC and every quest as a manual blocking program."],
+          ["B", "Demand classes + archetypes", "Close live Slayer, quest, drop, charm, and activity dependencies; measure the long tail separately.", true],
+          ["C", "All quests, demand-class NPCs", "Every quest becomes collapsed-playable, while only referenced NPC classes block."]
+        ]
+      },
+      {
+        group: "A · Finish line",
+        title: "Where does the exclusion ledger live?",
+        prompt: "A product boundary should be understandable without reading development notes.",
+        options: [
+          ["A", "Memory Bank only", "Keep exclusions as internal project documentation."],
+          ["B", "Help Center topic", "Explain every exclusion and the nearest supported abstraction in-product.", true]
+        ]
+      },
+      {
+        group: "B · Platform",
+        title: "How should activities be placed?",
+        prompt: "The existing Utility list is primarily 124 atomic conversion rows.",
+        options: [
+          ["A", "One flat Utility list", "Put processing, minigames, D&Ds, and instances together."],
+          ["B", "Nested umbrella", "Keep Utility/Activities, add families, and preserve skill/Combat/Dungeoneering ownership.", true],
+          ["C", "New top-level Minigames tab", "Separate all rich activities from Utility."]
+        ]
+      },
+      {
+        group: "B · Platform",
+        title: "How should reward currencies and shops work?",
+        prompt: "FoG, TokKul, commendations, and tickets should not become one generic balance.",
+        options: [
+          ["A", "Generic activity points", "All activities pay one fungible currency."],
+          ["B", "Authentic balances, shared wallet", "Reuse Shop transactions and expose a dedicated Activity Rewards surface.", true],
+          ["C", "Bespoke everything", "Every activity owns its own persistence and shop code."]
+        ]
+      },
+      {
+        group: "B · Platform",
+        title: "How much session machinery should be shared?",
+        prompt: "Fight Caves, Stealing Creation, and Dungeoneering all need resumable multi-review state.",
+        options: [
+          ["A", "Nothing shared", "Every content family owns all session semantics."],
+          ["B", "Narrow boundary", "Share scoped state, resume/abandon/complete, and undo; keep family reducers distinct.", true],
+          ["C", "Giant minigame engine", "Represent every activity through one highly configurable state machine."]
+        ]
+      },
+      {
+        group: "B · Platform",
+        title: "What is the activity review-cost grammar?",
+        prompt: "Selection should not secretly become travel or administrative gameplay.",
+        options: [
+          ["A", "Entry costs a review", "Opening or entering consumes the next successful card."],
+          ["B", "Meaningful beats cost reviews", "Entry is free; rooms, rounds, waves, and duties consume the review that resolves them.", true],
+          ["C", "Per-activity bespoke", "Every contract invents its own entry/progress cost."]
+        ]
+      },
+      {
+        group: "B · Platform",
+        title: "When does the degradation substrate land?",
+        prompt: "FoG gear, Barrows equipment, chaotics, and jewellery need consistent condition state.",
+        options: [
+          ["A", "Ad hoc counters", "Each item family handles its own charge state."],
+          ["B", "Before first charged reward", "One substrate owns charge, break, repair, Bank, grave, and undo.", true]
+        ]
+      },
+      {
+        group: "B · Platform",
+        title: "How far can solo abstraction go?",
+        prompt: "Some multiplayer-shaped activities retain meaningful individual agency; others are social at the core.",
+        options: [
+          ["A", "Park all multiplayer-shaped content", "No simulated players at all."],
+          ["B", "Bounded case-by-case simulation", "Allow explicit opponent/crew models for FoG, Trawler, and Stealing Creation; park social modes.", true],
+          ["C", "Generic party multiplier", "Represent parties and opponents only through difficulty/reward coefficients."]
+        ]
+      },
+      {
+        group: "B · Platform",
+        title: "Do generic random events belong in activity runs?",
+        prompt: "The remaining random events appear to have been removed before the exact cutoff.",
+        options: [
+          ["A", "Inject them everywhere", "Use a shared event table to create flavor."],
+          ["B", "Source-shaped variance only", "Remove the generic layer and ledger legacy random events as excluded or nostalgic.", true]
+        ]
+      },
+      {
+        group: "C · Portfolio",
+        title: "Ratify the architecture proof set?",
+        prompt: "Tears, Shooting Stars, FoG, Barrows, Warriors’ Guild, Fight Caves, Trawler, Stealing Creation, Miscellania.",
+        options: [
+          ["A", "Use the ranked set", "Treat the first six as architecture and the rest as validation.", true],
+          ["B", "Dungeoneering bias", "Move Stealing Creation immediately after FoG."],
+          ["C", "Cut to five", "Tears, FoG, Barrows, Fight Caves, and Stealing Creation only."]
+        ]
+      },
+      {
+        group: "C · Portfolio",
+        title: "What happens to XP-multiplying activity rewards?",
+        prompt: "Proto-tools, penance effects, and similar rewards can invalidate the global pacing audit.",
+        options: [
+          ["A", "Ship immediately", "Use source values before global cadence closure."],
+          ["B", "Hide until cadence-aware", "Ship the activity, but expose these reward rows only when the invariant accounts for them.", true],
+          ["C", "Compensate locally now", "Invent reductions in the owning activity."]
+        ]
+      },
+      {
+        group: "D · Dungeoneering",
+        title: "What does one floor look like in review terms?",
+        prompt: "The temporary economy only matters if rooms create actual needs and choices.",
+        options: [
+          ["A", "Fixed review counter", "A floor is N reviews with outcome rolls."],
+          ["B", "Seeded room graph", "One room-scale beat per review, with frontier choices, keys, gates, and boss.", true],
+          ["C", "Boss-only", "Preparation is abstract; the floor is primarily a boss encounter."]
+        ]
+      },
+      {
+        group: "D · Dungeoneering",
+        title: "What is the party model?",
+        prompt: "Period Dungeoneering genuinely supported solo.",
+        options: [
+          ["A", "Authentic solo canonical", "Use sourced solo scaling and park fake party administration.", true],
+          ["B", "Simulated party profiles", "Offer 1–5 member archetypes with bounded teammate behavior."],
+          ["C", "Party-flavored multiplier", "A setting changes difficulty and rewards without teammate state."]
+        ]
+      },
+      {
+        group: "D · Dungeoneering",
+        title: "How do persistence and death work?",
+        prompt: "A real floor may span several study sessions.",
+        options: [
+          ["A", "Resume indefinitely", "Target switches freeze it; death penalizes completion and respawns without erasing the floor.", true],
+          ["B", "World-clock expiry", "The floor abandons after a review-based interval."],
+          ["C", "Fragile session", "Death or target switch abandons it."]
+        ]
+      },
+      {
+        group: "D · Dungeoneering",
+        title: "Does dungeon skilling award ordinary skill XP?",
+        prompt: "The authentic item boundary does not require an XP boundary.",
+        options: [
+          ["A", "Authentic skill XP", "Keep source XP and calibrate cadence so Daemonheim does not erase overworld methods.", true],
+          ["B", "Dungeoneering XP only", "Suppress ordinary skill XP inside the floor."]
+        ]
+      },
+      {
+        group: "D · Dungeoneering",
+        title: "How much of complexity and binds survives?",
+        prompt: "Jagex already built a sourced knob for how much system richness a floor uses.",
+        options: [
+          ["A", "Preserve both", "Casual automates sensible settings; Advanced selects; critical path remains level-feasible.", true],
+          ["B", "Complexity 6 + auto-best", "Remove most setup choice."],
+          ["C", "Remove both", "Flatten floors to one standard ruleset."]
+        ]
+      },
+      {
+        group: "D · Dungeoneering",
+        title: "How is the token shop staged?",
+        prompt: "A visible reward is only real when its entire item behavior exists.",
+        options: [
+          ["A", "Whole period catalog", "Expose all sourced rows with the first floor."],
+          ["B", "Runtime-ready rows only", "Start with one or two complete rewards and grow without inert entries.", true]
+        ]
+      },
+      {
+        group: "E · Leftovers",
+        title: "What should achievement diaries be?",
+        prompt: "Fabricated AnkiScape achievements currently risk becoming the acquisition route for authentic diary gear.",
+        options: [
+          ["A", "Percentage grants", "Existing fabricated achievements automatically grant authentic diary rewards."],
+          ["B", "Every literal diary", "Build the full original regional task system."],
+          ["C", "Curated authentic task sets", "Use period tasks AnkiScape can genuinely express and preserve the authentic reward ladder.", true]
+        ]
+      },
+      {
+        group: "E · Leftovers",
+        title: "How should period MTX and account-meta systems be handled?",
+        prompt: "Squeal, Solomon’s, and Loyalty are inside the date boundary but not automatically inside the product boundary.",
+        options: [
+          ["A", "Exclude wholesale", "No acquisition or effects from any of the three systems."],
+          ["B", "Exclude commerce, adapt gameplay auras", "Translate useful auras to transparent milestones and label the invention.", true],
+          ["C", "Optional entitlements", "Expose account toggles for period benefits without simulating purchases."]
+        ]
+      }
+    ];
+
+    const storageKey = "ankiscape-completion-atlas-2026-07-17";
+    const uiKey = storageKey + "-ui";
+    const list = document.getElementById("decisionList");
+    const progressBar = document.getElementById("progressBar");
+    const progressLabel = document.getElementById("progressLabel");
+    const toast = document.getElementById("toast");
+    let answers = JSON.parse(localStorage.getItem(storageKey) || "{}");
+    let hideRecommendations = JSON.parse(localStorage.getItem(uiKey) || "false");
+
+    function escapeHtml(value) {
+      return value.replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#039;"
+      })[char]);
+    }
+
+    function render() {
+      document.body.classList.toggle("hide-recs", hideRecommendations);
+      document.getElementById("recommendationsButton").textContent =
+        hideRecommendations ? "Show recs" : "Hide recs";
+
+      list.innerHTML = decisions.map((decision, index) => {
+        const id = String(index + 1);
+        const selected = answers[id] || "";
+        const optionHtml = decision.options.map(option => {
+          const [code, label, description, recommended] = option;
+          const checked = selected === code ? " checked" : "";
+          return `
+            <label class="option${recommended ? " recommended" : ""}">
+              <input type="radio" name="decision-${id}" value="${code}"${checked}>
+              <span>
+                <b>${code}. ${escapeHtml(label)}</b>
+                ${recommended ? '<span class="rec">recommended</span>' : ""}
+                <small>${escapeHtml(description)}</small>
+              </span>
+            </label>`;
+        }).join("");
+        return `
+          <details class="decision${selected ? " answered" : ""}" data-id="${id}">
+            <summary>
+              <span class="decision-index">${selected || id}</span>
+              <span class="decision-title">${escapeHtml(decision.title)}</span>
+              <span class="decision-meta">${escapeHtml(decision.group)}</span>
+            </summary>
+            <div class="decision-body">
+              <p>${escapeHtml(decision.prompt)}</p>
+              <div class="options">${optionHtml}</div>
+            </div>
+          </details>`;
+      }).join("");
+
+      list.querySelectorAll('input[type="radio"]').forEach(input => {
+        input.addEventListener("change", event => {
+          const details = event.target.closest(".decision");
+          answers[details.dataset.id] = event.target.value;
+          localStorage.setItem(storageKey, JSON.stringify(answers));
+          render();
+          const next = list.querySelector(".decision:not(.answered)");
+          if (next) next.open = true;
+        });
+      });
+
+      const count = Object.keys(answers).filter(key => answers[key]).length;
+      progressBar.style.width = `${(count / decisions.length) * 100}%`;
+      progressLabel.textContent = `${count} / ${decisions.length}`;
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    document.getElementById("recommendationsButton").addEventListener("click", () => {
+      hideRecommendations = !hideRecommendations;
+      localStorage.setItem(uiKey, JSON.stringify(hideRecommendations));
+      render();
+    });
+
+    document.getElementById("clearButton").addEventListener("click", () => {
+      if (!window.confirm("Clear all saved choices in this review packet?")) return;
+      answers = {};
+      localStorage.removeItem(storageKey);
+      render();
+      showToast("Choices cleared");
+    });
+
+    document.getElementById("openFirstButton").addEventListener("click", () => {
+      const first = list.querySelector(".decision:not(.answered)") || list.querySelector(".decision");
+      if (!first) return;
+      first.open = true;
+      first.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+
+    document.getElementById("copyButton").addEventListener("click", async () => {
+      const lines = [
+        "AnkiScape completion starter grill — owner answers",
+        ""
+      ];
+      decisions.forEach((decision, index) => {
+        const id = String(index + 1);
+        const selected = answers[id];
+        if (!selected) {
+          lines.push(`${id}. ${decision.title}: UNANSWERED`);
+          return;
+        }
+        const option = decision.options.find(candidate => candidate[0] === selected);
+        lines.push(`${id}. ${decision.title}: ${selected} — ${option[1]}`);
+      });
+      const text = lines.join("\n");
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("Answers copied");
+      } catch (error) {
+        const area = document.createElement("textarea");
+        area.value = text;
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand("copy");
+        area.remove();
+        showToast("Answers copied");
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
