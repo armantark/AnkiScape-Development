@@ -14,6 +14,9 @@ one-action-per-card use one coherent exchange rate:
   per eligible successful review at multiplier 1.
 - Source-ready skilling routes use their declared `rate_limited`,
   `embedded_probability`, or `passthrough` contracts live.
+- Every implemented XP-bearing review handler is exhaustively classified. No skill
+  may remain outside the kernel merely because it was absent from the original
+  six-skill shadow adapter.
 - The shipped behavior is live by default. Preserve an explicit rollback flag whose
   off path is byte-for-byte and RNG-for-RNG identical to the current legacy path.
 - No gameplay mechanic may read the wall clock.
@@ -109,6 +112,57 @@ decision boundary; automatic safety behavior runs inside each six-tick slice.
 - Keep `cadence_wait`, `attempt_failure`, and `success_with_risk` distinct in both UI
   feedback and telemetry.
 
+### Whole-addon coverage — no silent skills
+
+The original shadow adapter covers only Mining, Woodcutting, Fishing, Hunter,
+Cooking, and Firemaking. That is an implementation checkpoint, not the intended
+product boundary.
+
+Build one auditable cadence-coverage matrix for every implemented review skill and
+every other XP-bearing foreground review route. Validation must fail when a new
+implemented review handler lacks a declaration. Each route must name:
+
+- its live mode;
+- its exact source/profile row or honest `source_blocked` reason;
+- whether success, depletion, banking, travel, batching, or modifiers are already
+  included;
+- its action multiplier behavior;
+- its undo boundary;
+- whether the flag-off path uses a distinct legacy implementation.
+
+Cover at least the complete current registry:
+
+- Mining, Woodcutting, Fishing, Hunter, Cooking, and Firemaking: migrate every
+  source-ready shadow row to live behavior; retain explicit blocked rows.
+- Thieving: preserve and reconcile the already-live canary rather than implementing
+  a second scheduler beside it.
+- Smithing, Crafting, Fletching, Runecrafting, Herblore, Prayer, Magic,
+  Construction, Agility, and Summoning: classify every selectable route, not merely
+  the default target. `passthrough` is valid only when one review really represents
+  the approved action unit; `source_blocked` is valid only with a recorded reason.
+- Seed the matrix with the deterministic period rows already present in
+  `tools/sourced_xp_rates.py`: High Alchemy, superheating mithril, dragonhide bodies,
+  elemental battlestaves, Ardougne urn crafting, and gilded-altar dragon bones.
+  Activate compatible live targets using those exact rates and `includes` metadata;
+  do not leave them stranded as evidence used only to justify `R`.
+- Attack, Strength, Defence, Constitution, Ranged, and combat Magic inherit
+  ordinary Combat's six-tick cadence and must not add a second admission gate.
+- Farming remains a background/queued simulation with its established answered-card
+  clock and is explicitly cadence-exempt; do not force it into foreground admission.
+- Planned Slayer and Dungeoneering do not need fake live handlers. Record how their
+  future XP-bearing actions attach to this coverage contract so their implementations
+  cannot bypass it.
+
+Also inventory XP-bearing quest stages and no-XP Utility/Activity review actions.
+Classify intentional exemptions such as collapsed, non-repeatable quest combat.
+Do not silently treat an activity as one balancing-hour model merely because it is
+not listed in `skill_registry.py`.
+
+The implementation is incomplete if its final report names only Combat and the six
+shadow skills. It must include the coverage matrix and prove that every current
+review handler is either live through the kernel, intentionally passthrough, a
+documented exemption, or source-blocked with current behavior preserved.
+
 ## Concrete defects to expect
 
 Do not implement this as a constant replacement. The current combat engine appears to
@@ -154,6 +208,8 @@ Add only high-signal coverage. At minimum prove:
     passing assertions, while `source_blocked` routes remain explicitly covered.
 11. Quest combat remains non-repeatable and does not inherit ordinary six-tick UI or a
     repeatable 500-tick reward path.
+12. A registry/dispatch coverage test fails if an implemented XP-bearing review handler
+    has no cadence declaration, including handlers added after this migration.
 
 Run focused unit and integration suites first, then the repository's required full
 suite. Exercise the real offscreen Qt surfaces if settings, target feedback, or combat
@@ -171,7 +227,8 @@ Commit according to the repository rules without staging unrelated concurrent wo
 Finish with:
 
 - the exact live routes activated;
-- the exact legacy/source-blocked routes intentionally unchanged;
+- a complete per-skill coverage matrix, including every passthrough, exemption, and
+  source-blocked route intentionally unchanged;
 - the combat continuity state added or migrated;
 - focused, full-suite, Qt, and manual verification results;
 - commit hash and canonical-checkout status;
