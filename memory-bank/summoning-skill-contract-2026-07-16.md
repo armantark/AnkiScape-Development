@@ -394,14 +394,34 @@ this target`, with the ordinary manual Dismiss command available from the canoni
 familiar panel. This prevents navigation order from destroying a pouch while still
 making `Off` a strict promise that the target will spend no additional familiar resources.
 
-### 18. Familiarisation session shape — open
+### 18. Familiarisation session shape — owner-delegated and settled 2026-07-16
 
 Pinned period evidence in `source-audits/summoning-familiarisation-2026-07-16.md` fixes
 the once-weekly spirit-plane fiction, 60-shard/focus/20-minute stop conditions, and the
 choice between a shard-scaled ingredient box or shard-scaled triple eligible charm drops.
-Choose whether AnkiScape should flatten one complete run into a single successful review
-with a narrative result line, or use a short multi-review session in which each segment
-collects partial shards and hunter pressure can reduce focus or end the run early.
+The owner delegated the unfamiliar D&D's AnkiScape shape rather than reconstructing it
+from memory. It becomes a compact **four-answered-card session**, not a one-review roll.
+
+The run starts with three abstract focus pips and zero shards. Each successful answer
+gathers 15 shards; Hard, Good, and Easy are deliberately equivalent. Again consumes the
+segment, gathers nothing, and removes one focus pip as hunter pressure. The run ends at
+60 shards, zero focus, or four segments. These integers are labeled balance abstractions,
+not claims about period shard density or hunter hit rates.
+
+At the end, the player immediately chooses the source reward: a shard-scaled ingredient
+box or shard-scaled triple eligible charm drops. The reward command costs no review.
+Cooldown begins at activity entry and ends 1,680 answered-card world ticks later, matching
+the source's rolling week through the simulation clock. A partially completed run persists
+across Anki closure and never resolves from wall time. Every segment, completion, reward,
+cooldown, and undo transition is atomic and duplicate-safe.
+
+### 19. Familiar-forbidden targets and areas — open
+
+The period game had areas that did not allow familiars, but AnkiScape intentionally has
+no persistent player location. Choose whether selecting a source-forbidden target should
+park the live familiar outside—suppressing its effects, commands, BoB access, and target
+automation while lifetime continues—or require/deliver a safe dismissal before the target
+can run.
 
 ## Source/open-work queue
 

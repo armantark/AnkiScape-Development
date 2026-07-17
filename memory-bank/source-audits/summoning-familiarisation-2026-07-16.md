@@ -45,6 +45,12 @@ Standing project rules settle the outer shell without owner input:
 - charm exclusions and ingredient-box contents remain catalog/source data; and
 - the entire session and reward claim must remain undo-safe without duplicate claims.
 
-The remaining owner fork is whether the spirit-plane run is one flattened successful
-review with a narrative result line or a short multi-review session whose segments can
-lose focus and collect partial shards.
+## Settled AnkiScape translation
+
+The owner delegated this unfamiliar D&D's product shape. AnkiScape uses a four-answer
+session with three abstract focus pips. A successful answer collects 15 shards; Again
+collects none and removes one focus pip. The session ends at 60 shards, zero focus, or
+four segments, then exposes the period ingredient-box/triple-charm choice as a free
+direct command. These discrete magnitudes are labeled balance abstractions rather than
+period claims. Cooldown starts at entry, partial sessions persist without wall-clock
+resolution, and every review/reward mutation is undo-safe.

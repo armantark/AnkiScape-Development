@@ -52,8 +52,10 @@ the detour replaces the target action and may complete the resummon atomically. 
 mismatched live familiar is now safely swapped at the next Bank boundary only after BoB
 cargo is deposited and replacement success is guaranteed; otherwise the old familiar
 remains active and the new policy stays queued. The next open fork is whether Casual
-Familiarisation should flatten one complete weekly spirit-plane run into one successful
-review or use a short multi-review shard/focus session. Target policy
+source-forbidden targets should park a live familiar outside while its lifetime continues,
+or require/deliver a safe dismissal before the target runs. Familiarisation is now a
+four-answer session with 15 shards per success, three focus pips, and one lost pip/no
+shards on Again. Target policy
 `Off — no familiar automation` now preserves any already-live global familiar while
 spending no further familiar resources. Casual already falls back
 automatically within its selected role when the best pouch runs out, but newly restocked
@@ -65,12 +67,13 @@ cross-product help architecture is owner-settled in
 `help-system-contract-2026-07-16.md`: one offline searchable corpus feeds both the
 full Help Center and contextual page-level `?` entries.
 
-Familiarisation period mechanics are pinned in
+Familiarisation period mechanics and the delegated translation are pinned in
 `source-audits/summoning-familiarisation-2026-07-16.md`: once weekly, random familiar
 projection, raw-shard gathering under focus pressure, a 60-shard cap, and the choice of a
-shard-scaled ingredient box or 40-seconds-per-shard triple eligible charm drops. Its
-review-session length remains the live abstraction fork; no wall-clock or location state
-will be introduced.
+shard-scaled ingredient box or 40-seconds-per-shard triple eligible charm drops. Four
+answered cards represent the run; it begins with three focus pips, grants 15 shards per
+success, and Again loses a pip without gathering. No wall-clock or location state is
+introduced.
 
 Agility's owner grill, source harvest, and atomic implementation are closed. The
 governing product contract is

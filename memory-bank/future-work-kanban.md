@@ -211,7 +211,8 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   that target, but it preserves an already-live global familiar and its paid duration.
 - Familiarisation is source-pinned as a once-weekly shard/focus D&D ending at 60 shards,
   zero focus, or its period time cap, followed by a shard-scaled ingredient-box or
-  triple-charm choice. Its one-review versus short-session abstraction remains open.
+  triple-charm choice. The delegated translation is four answered cards, three focus
+  pips, 15 shards per success, and one lost pip/no shards on Again.
 
 ### Dungeoneering
 
