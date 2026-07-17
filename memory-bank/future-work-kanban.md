@@ -171,9 +171,71 @@ grill.
 
 ### Slayer
 
-Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT`.
+Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE SWEEP`, `DEPENDENCY: COMBAT`.
 
 - Reuse existing enemy Slayer metadata; add masters, assignment pools, XP, task progress, points/streaks, skips/blocks, reward shop, task-only targets, protection items, and Combat UI.
+- Park Social Slayer unless genuine shared-player state ever exists; do not ship
+  a simulated partner or solo co-op multiplier. Preserve all seven period Slayer
+  master challenges in the design and source their compound objective ledgers.
+- Add an explicit `Get assignment` master picker and make its NPC identity
+  quest-reactive: Turael to Spria and Duradel to Lapalok after While Guthix
+  Sleeps, with Achtryn replacing Mazchna only during the quest interval.
+- Keep every period master role visible in the picker; disable ineligible rows
+  and state their unmet combat, Slayer, quest, and activity requirements.
+- Build the complete cutoff reward/unlock ledger. Required finishing items must
+  gate rockslugs, desert lizards, zygomites, and gargoyles; the 400-point quick
+  killing-blow unlock automates the finisher without removing the item check.
+- Preserve the ring of slaying's eight-charge transport value by letting one
+  charge erase a qualifying Slayer destination's abstract run-energy entry
+  cost; do not add map state, travel reviews, or wall-clock delay.
+- Represent only mechanically distinct Slayer areas as target-local Combat
+  contexts, including Kuradal's Dungeon; collapse cosmetic duplicate locations.
+- Keep Slayer management inside one Skills page with `Assignment`, `Masters`,
+  and `Rewards` subviews; reuse shared search and deep-link into Combat rather
+  than opening nested dialogs or duplicating the fight picker.
+- Build `Smoking Kills` and every still-incomplete prerequisite quest definition
+  in the Slayer program so Sumona, reward points, and the Rewards subview are
+  genuinely reachable; feed those quests through the canonical missing-quest
+  backlog and runtime rather than adding flags or bypasses.
+- Build Shilo Village and the complete transitive Slayer-helmet route through
+  Cabin Fever, Mos Le'Harmless, Cave horrors, the black-mask drop, and the
+  400-point crafting unlock. Preserve every period quest and skill prerequisite;
+  in particular, this route depends on the real Agility implementation rather
+  than a Slayer-local waiver.
+- Keep cutoff-live assignment families in the completeness ledger but do not
+  render implementation-missing families as locked or coming-soon rows. Derive
+  runtime readiness from stable dependency identities so each family enters the
+  live UI and authentic weighted roll automatically when its quest, target,
+  context, acquisition, and unlock dependencies are genuinely implemented. Add
+  a completeness audit that names every blocking identity, rejects stale
+  blockers, prevents empty rollable-master pools, and applies the same rule to
+  family-specific reward purchases.
+- Certify each Slayer master only after every ordinarily available family in its
+  pinned cutoff pool has complete roll data and satisfies the owner-set variant
+  coverage bar. Never ship a master whose baseline weights are silently
+  renormalized around implementation gaps; apply authentic quest, reward,
+  block-list, and other player-specific exclusions only after baseline
+  certification. Optional special challenges do not block the ordinary pool;
+  gate each offer on its own complete runtime readiness.
+- Certify a baseline family once its roll data and one ordinarily available,
+  end-to-end qualifying Combat variant are ready. Keep every remaining cutoff
+  variant pinned and audit-visible but absent from player UI until its stable
+  dependencies activate it automatically. If live variant breadth becomes hard
+  to scan, allow expandable family-to-variant grouping inside the existing
+  Combat picker; exact variants remain the only selectable targets. Inherently
+  player-gated families certify only through their complete authentic gate chain,
+  and every certifying variant must include its special kill/protection mechanics.
+- Preserve sourced unprotected-combat consequences for Slayer protective gear
+  and warn without blocking legal dangerous encounters. Hard-gate only literal
+  source access/attack restrictions, and pin every family item's trigger,
+  consequence, immunity, death/retreat behavior, and undo interaction in a
+  focused audit before implementation.
+- Complete the design-closure source sweep without reopening owner questions for
+  source-determined behavior: close every per-master pool/weight/count/gate row,
+  pin every family variant's membership/stats/Slayer-XP eligibility/context, and
+  close protective, special-kill, challenge, and context state transitions.
+- Before that unlock, the finisher consumes its own correct review. Exclude the
+  salt, ice, fungicide, and explosive shakers released in 2015.
 
 ### Summoning
 
@@ -199,6 +261,13 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`, `IMPLEMENT`.
 - Two distinct workstreams, do not conflate them: **build the 167 missing definitions**, and **re-audit the 27 that exist** for authentic stages, branches, item transformations, combat, rewards, journals, unlocks, and missing-skill gates.
 - Prioritise by what a quest unblocks. Skill grills surface these: Thieving alone needs The Feud (blackjacking), Death to the Dorgeshuun (Dorgesh-Kaan chests), and Mourning's End Part I (Lletya elves).
 - The Feud is being built as part of the Thieving expansion because it gates a core training method; it is the precedent, not an exception to the queue.
+- Slayer likewise owns `Smoking Kills` and every still-missing prerequisite in
+  its reachable chain because the quest gates Sumona and the entire reward-point
+  economy.
+- Slayer also raises Shilo Village and the complete black-mask/Slayer-helmet
+  route to the front of this quest program. The period quest tree is transitive,
+  not limited to a manually named subset; already-playable prerequisites are
+  reused and generated placeholders are replaced through the canonical runtime.
 - Wait for Darkan where historical sources cannot prove hidden transitions or combat definitions; never fill gaps from modern RS3/OSRS.
 
 ### Complete pre-EOC bestiary
@@ -227,6 +296,21 @@ Labels: `WAIT: DARKAN`, after each `DEEP GRILL`.
   state. Agility, Farming, Construction, Prayer, and Magic core loops are shipped.
 
 ## Cross-system program queue
+
+### Shared modular list search and filters
+
+Labels: `ARCHITECTURE`, `IMPLEMENT`, `DEPENDENCY: SLAYER UI`.
+
+- `ui.py` currently has Shop-specific text search and Quest-specific local
+  filter controls, while other large pages still lack a reusable search seam.
+- Extract one shared list-search/filter component with page-owned searchable
+  metadata and predicates. It must preserve active selection, never activate a
+  filtered row, provide a consistent empty state and keyboard/clear behavior,
+  and use dark-mode-safe styling.
+- First required consumer beyond the existing pages is Combat: ordinary search
+  plus a `Current Slayer task only` checkbox that intersects with every other
+  filter while leaving exact monster choice to the player. Do not solve this as
+  another Slayer-only nested helper in `show_main_menu`.
 
 ### Activities, minigames, D&Ds, and reward shops
 

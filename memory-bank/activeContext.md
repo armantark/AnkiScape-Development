@@ -2,6 +2,24 @@
 
 ## Current Focus
 
+Slayer's source-first owner grill is design-closed and integrated into `main`.
+The governing record is `slayer-skill-contract-2026-07-15.md`, supported by
+focused audits for master succession/challenges, finishing blows, locations,
+points/rewards, Social Slayer, and the post-cutoff VIP-ticket exclusion. No
+Slayer gameplay is implemented yet; the next bounded program is the contract's
+complete source sweep followed by atomic implementation.
+
+The settled design keeps assignments and exact qualifying Combat variants
+source-shaped, places `Assignment`, `Masters`, and `Rewards` in one Slayer page,
+deep-links into Combat as the sole fight surface, and requires a reusable list
+search/filter seam. It preserves quest-reactive masters, authentic task sizes,
+mandatory finishers and protective consequences, points/streaks/challenges,
+target-local Slayer contexts, ring-of-slaying trip value, and runtime-ready
+family activation without dead rows or renormalized incomplete master pools.
+Smoking Kills, Shilo Village, and the full black-mask/Slayer-helmet dependency
+chains belong to the Slayer implementation program; Social Slayer remains
+parked until genuine multiplayer state exists.
+
 The documentation archive closure is complete. The new `memory-bank/README.md`
 separates current entry points from evidence and historical records; six
 superseded/completed Markdown records plus the completion-audit JSON companion
