@@ -3640,6 +3640,17 @@ def _combat_apply_magic_xp(xp_rewards, spell_spec, damage_lifepoints, npc_xp_mul
 
 
 def _combat_slot_drop_quantity(slot, rng):
+    quantity_choices = slot.get("quantity_choices")
+    if isinstance(quantity_choices, (tuple, list)):
+        choices = tuple(_positive_int(value, 0) for value in quantity_choices)
+        choices = tuple(value for value in choices if value > 0)
+        if choices:
+            try:
+                roll = float(rng())
+            except (TypeError, ValueError):
+                roll = 0.0
+            index = int(max(0.0, min(roll, 0.999999999)) * len(choices))
+            return choices[index]
     quantity_range = slot.get("quantity_range")
     if isinstance(quantity_range, (tuple, list)) and len(quantity_range) >= 2:
         low = _positive_int(quantity_range[0], 0)

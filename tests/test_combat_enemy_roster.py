@@ -151,13 +151,26 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             self.assertGreater(slot["slots"], 0)
             if "item" in slot:
                 self.assertIsInstance(slot["item"], str)
-                self.assertTrue("quantity" in slot or "quantity_range" in slot)
+                quantity_fields = {
+                    field
+                    for field in ("quantity", "quantity_range", "quantity_choices")
+                    if field in slot
+                }
+                self.assertEqual(len(quantity_fields), 1)
                 if "quantity" in slot:
                     self.assertIsInstance(slot["quantity"], int)
                     self.assertGreater(slot["quantity"], 0)
                 if "quantity_range" in slot:
                     self.assertEqual(len(slot["quantity_range"]), 2)
                     self.assertLessEqual(slot["quantity_range"][0], slot["quantity_range"][1])
+                if "quantity_choices" in slot:
+                    self.assertTrue(slot["quantity_choices"])
+                    self.assertTrue(
+                        all(
+                            isinstance(quantity, int) and quantity > 0
+                            for quantity in slot["quantity_choices"]
+                        )
+                    )
             if "table" in slot:
                 self.assertIn("name", slot["table"])
                 self.assertIn("total", slot["table"])

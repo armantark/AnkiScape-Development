@@ -462,3 +462,57 @@ Evidence:
 - Test quality: zero hard issues across 67 files.
 - Documentation, compilation, diff, JSON, and worktree-safety checks passed.
 - No owner-level design gap emerged.
+
+## Slayer source batch — Duradel/Lapalok pool
+
+Finding: cutoff Duradel/Lapalok contains 35 families. Darkan has 34 executable
+rows totaling 324 and omits Scabarites. The cutoff overview tables are stale
+for four later families, while several Darkan count/gate rows reflect copied
+Kuradal or post-cutoff behavior.
+
+Resolution:
+
+- Reconciled 35 ordinary families and a provisional 334-point hidden-weight
+  denominator.
+- Restored Scabarites at the explicit 10-point common-master abstraction and
+  closed its observed count at `40–79` from direct revision history.
+- Restored Ganodermic creatures, Grifolapines, Grifolaroos and Mutated
+  jadinkos from direct family/Darkan convergence despite overview omissions.
+- Corrected Kalphites to `130–200`, kept four late-family generator ranges
+  explicitly provisional, and rejected post-cutoff reconstructed counts where
+  cutoff evidence or the pinned emulator disagrees.
+- Closed Combat 100, Slayer 50, Shilo Village access, 15/75/225 points and
+  Duradel-to-Lapalok succession after While Guthix Sleeps.
+- Pinned the 69-kill Slayer Tower challenge, rejecting stale master-page XP
+  arithmetic in favor of the dedicated cutoff challenge page: no individual
+  Slayer XP, 20,000 XP and 35 bonus points on hand-in.
+- Kept Duradel/Lapalok runtime-hidden at 0/35 end-to-end readiness. Three
+  ordinary candidates are complete; the family registry, assignment and
+  task-credit runtime, most targets, special mechanics, quests, succession and
+  challenge ledger do not exist.
+
+Concrete implementation repair:
+
+- Abyssal demon Blood/Law/Nature/coin drops now use the source's exact
+  discrete/ranged quantities, and its missing 16/1024 global Rare-table branch
+  is live.
+- The generic Abyssal-demon target no longer exposes Kuradal's Dungeon-only
+  Ferocious ring. The removed branch remains a nothing slot so all other
+  probabilities stay stable.
+
+Evidence:
+
+- `source-audits/slayer-duradel-lapalok-pool-2026-07-17.md`.
+- Read-only workflow `edac15ac-4a8d-4b97-b7ac-ab30160eb335` supplied separate
+  emulator/runtime and period-history surveys; the primary independently
+  reconciled the accepted family union, counts, gates, succession, challenge
+  conflict and runtime blockers.
+- Focused deterministic regressions cover the exact quantity choices/range,
+  global Rare-table branch and context-specific ring exclusion.
+- Combat logic, enemy-roster, runtime-action and integration holdout: 345
+  passed.
+- Full core: 1,369 methods, 196 environment skips and three declared
+  XP-parity expected failures.
+- Test quality: zero hard issues across 67 files.
+- Documentation, compilation, diff, JSON and worktree-safety checks passed.
+- No owner-level design gap emerged.

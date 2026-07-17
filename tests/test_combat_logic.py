@@ -2240,6 +2240,30 @@ class CombatLogicTest(unittest.TestCase):
 
         self.assertEqual(drops, {"Air rune": 6})
 
+    def test_abyssal_demon_drop_rolls_source_quantities_and_rare_table(self):
+        abyssal_demon = COMBAT_ENEMY_DATA["abyssal_demon"]
+
+        cases = (
+            ([210 / 1024, 0.0], {"Infernal ashes": 1, "Blood rune": 7}),
+            ([210 / 1024, 0.999999], {"Infernal ashes": 1, "Blood rune": 50}),
+            ([298 / 1024, 0.999999], {"Infernal ashes": 1, "Law rune": 45}),
+            ([338 / 1024, 0.999999], {"Infernal ashes": 1, "Nature rune": 77}),
+            ([428 / 1024, 0.999999], {"Infernal ashes": 1, "Coins": 486}),
+            ([829 / 1024, 0.0], {"Infernal ashes": 1, "Nature rune": 67}),
+        )
+        for rolls, expected in cases:
+            with self.subTest(rolls=rolls):
+                self.assertEqual(_combat_roll_drops(abyssal_demon, _rng(rolls)), expected)
+
+    def test_generic_abyssal_demon_excludes_kuradal_dungeon_ring(self):
+        abyssal_demon = COMBAT_ENEMY_DATA["abyssal_demon"]
+
+        self.assertNotIn("Ferocious ring (5)", combat_enemy_drop_item_names_pure(abyssal_demon))
+        self.assertEqual(
+            _combat_roll_drops(abyssal_demon, _rng([583 / 1024])),
+            {"Infernal ashes": 1},
+        )
+
     def test_highwayman_quantity_range_drop_rolls_with_guaranteed_cape(self):
         drops = _combat_roll_drops(
             COMBAT_ENEMY_DATA["highwayman"],

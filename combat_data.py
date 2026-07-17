@@ -76,6 +76,9 @@ GLOBAL_SEEDS_SOURCE_PATH = (
 GLOBAL_GEMS_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/drops/global/Gems.kt"
 )
+GLOBAL_RARE_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/drops/global/Rare.kt"
+)
 GLOBAL_MEGA_RARE_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/drops/global/MegaRare.kt"
 )
@@ -1129,6 +1132,34 @@ COMBAT_GEM_DROP_TABLE = {
         {"item": "Loop half of a key", "quantity": 1, "slots": 8},
         {"item": "Tooth half of a key", "quantity": 1, "slots": 8},
         {"table": COMBAT_MEGA_RARE_DROP_TABLE, "slots": 8},
+    ),
+}
+
+
+COMBAT_RARE_DROP_TABLE = {
+    "name": "Rare",
+    "source": f"{GLOBAL_RARE_SOURCE_PATH}: Rare.rareTable",
+    "total": 1024,
+    "slots": (
+        {"item": "Nature rune", "quantity": 67, "slots": 24},
+        {"item": "Adamant javelin", "quantity": 20, "slots": 16},
+        {"item": "Death rune", "quantity": 45, "slots": 16},
+        {"item": "Law rune", "quantity": 45, "slots": 16},
+        {"item": "Rune arrows", "quantity": 42, "slots": 16},
+        {"item": "Steel arrows", "quantity": 150, "slots": 16},
+        {"item": "Rune 2h sword", "quantity": 1, "slots": 24},
+        {"item": "Rune battleaxe", "quantity": 1, "slots": 24},
+        {"item": "Rune sq shield", "quantity": 1, "slots": 16},
+        {"item": "Dragon med helm", "quantity": 1, "slots": 8},
+        {"item": "Rune kiteshield", "quantity": 1, "slots": 8},
+        {"item": "Coins", "quantity": 3000, "slots": 168},
+        {"item": "Loop half of a key", "quantity": 1, "slots": 160},
+        {"item": "Tooth half of a key", "quantity": 1, "slots": 160},
+        {"item": "Rune bar", "quantity": 1, "slots": 40},
+        {"item": "Dragonstone", "quantity": 1, "slots": 16},
+        {"item": "Silver ore", "quantity": 100, "slots": 16},
+        {"table": COMBAT_GEM_DROP_TABLE, "slots": 160},
+        {"table": COMBAT_MEGA_RARE_DROP_TABLE, "slots": 120},
     ),
 }
 
@@ -6409,18 +6440,18 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
                        {'item': 'Rune sq shield', 'quantity': 1, 'slots': 8},
                        {'item': 'Dragon med helm', 'quantity': 1, 'slots': 16},
                        {'item': 'Air rune', 'quantity': 1, 'slots': 64},
-                       {'item': 'Blood rune', 'quantity': 1, 'slots': 32},
+                       {'item': 'Blood rune', 'quantity_choices': (7, 50), 'slots': 32},
                        {'item': 'Chaos rune', 'quantity': 1, 'slots': 56},
-                       {'item': 'Law rune', 'quantity': 1, 'slots': 32},
+                       {'item': 'Law rune', 'quantity_choices': (3, 45), 'slots': 32},
                        {'item': 'Death rune', 'quantity': 1, 'slots': 8},
-                       {'item': 'Nature rune', 'quantity': 1, 'slots': 8},
+                       {'item': 'Nature rune', 'quantity_range': (61, 77), 'slots': 8},
                        {'item': 'Earth talisman', 'quantity': 1, 'slots': 41},
                        {'item': 'Cosmic talisman', 'quantity': 1, 'slots': 41},
-                       {'item': 'Coins', 'quantity': 1, 'slots': 41},
+                       {'item': 'Coins', 'quantity_choices': (9, 10, 486), 'slots': 41},
                        {'item': 'Lobster', 'quantity': 1, 'slots': 41},
                        {'item': 'Pure essence', 'quantity': 1, 'slots': 41},
                        {'item': 'Adamant bar', 'quantity': 1, 'slots': 32},
-                       {'item': 'Ferocious ring (5)', 'quantity': 1, 'slots': 32},
+                       {'slots': 32},
                        {'item': 'Defence potion (3)', 'quantity': 1, 'slots': 32},
                        {'item': 'Rune bar', 'quantity': 1, 'slots': 2},
                        {'item': 'Dragonstone', 'quantity': 1, 'slots': 2},
@@ -6428,10 +6459,13 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
                        {'item': 'Clue scroll (hard)', 'quantity': 1, 'slots': 8},
                        {'item': 'Starved ancient effigy', 'quantity': 1, 'slots': 8},
                        {'item': 'Abyssal head', 'quantity': 1, 'slots': 2},
-                       {'table': COMBAT_MINOR_HERB_DROP_TABLE, 'slots': 152})},)},
+                       {'table': COMBAT_MINOR_HERB_DROP_TABLE, 'slots': 152},
+                       {'table': COMBAT_RARE_DROP_TABLE, 'slots': 16},
+                       {'slots': 179})},)},
         "source": (
             f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
-            "definitions/demons/abyssal_demon_level_124.plugin.kts"
+            "definitions/demons/abyssal_demon_level_124.plugin.kts; "
+            "Ferocious ring excluded outside Kuradal's Dungeon"
         ),
     },
     "nechryael": {

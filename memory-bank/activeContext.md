@@ -630,3 +630,22 @@ no queued confirmed defects. The four owner-direction questions recorded in
 `memory-bank/archive/2026-07/resolved-queues/design-gaps-overnight-2026-07-16.md`
 are now design-resolved. Their four pending implementations are explicit
 `IMPLEMENT` cards in `memory-bank/future-work-kanban.md`.
+
+## Slayer Duradel/Lapalok source harvest (2026-07-17)
+
+The sixth functional Slayer-master pool is source-reconciled but remains
+runtime-hidden. Duradel/Lapalok have 35 ordinary families and a provisional
+334-point calibration denominator: 34 Darkan rows total 324, with
+period-proven Scabarites restored at an explicit 10-point common-master
+abstraction. Combat 100, Slayer 50, Shilo Village access, the 15/75/225 point
+schedule, While Guthix Sleeps succession, and the 69-kill Slayer Tower
+challenge are pinned in
+`source-audits/slayer-duradel-lapalok-pool-2026-07-17.md`.
+
+End-to-end readiness is 0/35. Only Black demon, Greater demon and Hellhound are
+complete ordinary candidates; the family registry, assignment/task-credit
+runtime, most targets, special mechanics, quests, succession and challenge
+ledger remain absent. This pass also repaired exact Abyssal-demon quantity
+distributions, its missing global Rare-table branch, and the accidental
+generic exposure of Kuradal's Dungeon-only Ferocious ring. Summoning and
+Dungeoneering remain explicitly excluded.

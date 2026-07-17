@@ -567,3 +567,25 @@ Test counts are snapshots; current runs outrank this note.
   `memory-bank/status-updates/achievement-semantics-results-2026-07-16.html`.
   Diary-gear cadence and acquisition remain a separate owner grill rather than
   an implicit part of this semantics repair.
+
+## Slayer Duradel/Lapalok source harvest (2026-07-17)
+
+- Reconciled 35 cutoff ordinary families and a provisional 334-point hidden
+  weight denominator from 34 Darkan rows plus a labeled 10-point Scabarite
+  abstraction.
+- Pinned Combat 100, Slayer 50, Shilo Village access, 15/75/225 points,
+  Duradel-to-Lapalok succession after While Guthix Sleeps, and the 69-kill
+  Slayer Tower challenge with no per-kill Slayer XP.
+- Resolved Scabarites to the observed cutoff `40–79`, corrected Kalphites to
+  `130–200`, and kept four late-family count ranges explicitly provisional
+  where the historical generator remains source-blocked.
+- Kept the master runtime-hidden at 0/35 readiness rather than renormalizing a
+  partial pool around missing families and mechanics.
+- Restored Abyssal-demon source quantity distributions and the global Rare
+  table, and removed the Kuradal's Dungeon-only Ferocious-ring drop from the
+  generic target without changing other drop probabilities.
+- Added deterministic Combat regressions for the repaired quantities, Rare
+  branch and context-specific exclusion. All 345 focused holdouts and all
+  1,369 core methods pass, with 196 environment skips and the three declared
+  XP-parity expected failures; test quality remains at zero hard issues.
+  Summoning and Dungeoneering remained outside the batch.
