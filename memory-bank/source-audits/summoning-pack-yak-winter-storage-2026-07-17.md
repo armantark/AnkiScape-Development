@@ -28,7 +28,7 @@ Summoning contract decision 8 already settles that an eligible special:
 Target route/rate metadata must also declare whether Pack Yak or Winter Storage is already
 assumed. The special cannot independently discount a rate that already includes it.
 
-## Open owner fork
+## Settled AnkiScape trigger
 
 The source defines what one activation does but not when Casual should spend it in a
 review-driven target:
@@ -37,6 +37,12 @@ review-driven target:
 2. **Full-pack boundary:** carry outputs normally, then bank one configured eligible item
    on the successful review where the pack would otherwise force a Bank trip.
 
-Both preserve the exact one-scroll/one-item transaction. They materially differ in scroll
-consumption, visible inventory use, and trip length, so this is an owner decision rather
-than a source lookup.
+The owner selected the full-pack boundary. Casual does not proactively bank every output.
+On the successful review where the carried pack would otherwise force a Bank trip, it uses
+one carried scroll and 12 special points to bank one configured eligible item, awards 4.8
+use XP, and continues the target action atomically. If no configured eligible item, scroll,
+or points are available, the ordinary Bank trip occurs.
+
+Advanced may configure item priority and an earlier threshold. Both modes retain the exact
+one-scroll/one-item source transaction, and target route metadata declares whether Winter
+Storage is already assumed to prevent a second trip-rate discount.

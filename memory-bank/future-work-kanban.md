@@ -404,10 +404,10 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   cat item gate. Optional food, cautious retreat, LP exchange, and cat death remain
   represented scene detail; do not add a pet-combat actor, stance selector, hidden roll,
   or false mandatory food gate.
-- Pack Yak Winter Storage still needs one Casual trigger decision: bank each configured
-  output proactively, or conserve its one-item-per-scroll transaction until the pack would
-  otherwise force a Bank trip. Route/rate metadata must declare whether Pack Yak use is
-  already assumed.
+- Pack Yak Winter Storage fires at the full-pack boundary in Casual: spend one carried
+  scroll and 12 special points to bank one configured eligible item only when that prevents
+  the next Bank trip. Advanced may choose item priority and an earlier threshold. Route/rate
+  metadata must declare whether Pack Yak use is already assumed.
 
 ### Dungeoneering
 

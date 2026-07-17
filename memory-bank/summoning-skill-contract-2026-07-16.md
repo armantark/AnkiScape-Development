@@ -742,7 +742,7 @@ than mandatory in the period source, so it is not invented as a hard item gate. 
 not create a pet-combat actor, stance selector, probability roll, or exception to the
 standard quest UI.
 
-### 35. Pack Yak Winter Storage trigger — open owner fork 2026-07-17
+### 35. Pack Yak Winter Storage trigger — settled 2026-07-17
 
 Pack yak oldid
 [6462316](https://runescape.wiki/w/Pack_yak?oldid=6462316)
@@ -751,12 +751,17 @@ scroll to bank one selected inventory item remotely. It was explicitly used to e
 away from a Bank; noted stacks still banked only one item per scroll.
 
 Decision 8 already requires specials to resolve only through successful reviews, from
-deliberately carried scrolls and points. The remaining owner fork is the Casual trigger:
-bank each eligible target output proactively, or wait until the carried pack would
-otherwise force a Bank trip and then bank a configured eligible item to free the slot.
-Either shape must declare Pack Yak use in the target's route assumptions so a sourced rate
-that already includes Winter Storage is not discounted twice. Advanced may choose item
-priority and threshold but cannot bypass the same successful-review transaction.
+deliberately carried scrolls and points. The owner selected the full-pack boundary:
+Casual carries outputs normally and fires Winter Storage only on the successful review
+where banking one configured eligible item prevents the next Bank trip. It consumes one
+carried scroll and 12 points, banks one item, awards 4.8 use XP, and then permits the target
+action to continue atomically. Without an eligible configured item, scroll, or points, the
+ordinary Bank trip proceeds.
+
+Advanced may choose item priority and an earlier threshold but cannot bypass the same
+successful-review transaction. Every target using this automation must declare Pack Yak
+use in its route assumptions so a sourced rate that already includes Winter Storage is not
+discounted twice.
 
 ## Source/open-work queue
 

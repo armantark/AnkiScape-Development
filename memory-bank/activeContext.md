@@ -152,7 +152,7 @@ the cat fights through the wall, and the stage keeps the source-required cat ite
 Optional food, cautious retreat, LP exchange, and cat death remain represented scene detail,
 not a pet-combat actor, stance selector, hidden roll, or false mandatory food gate.
 
-The 34 settled decisions define answered-card lifetime and passive world ticks,
+The 35 settled decisions define answered-card lifetime and passive world ticks,
 separate familiar/point/special resources, target-policy automation, carried
 pouch/scroll budgets, coalesced restore and Bank detours, safe replacement and
 dismissal, source-gated familiar combat, BoB inventory/reclaim rules, forbidden
@@ -161,10 +161,11 @@ training, and scroll-use XP. Summoning also establishes one offline Help corpus
 for contextual and full-reference surfaces. These decisions are current design,
 not a claim that Summoning ships.
 
-The next open owner fork is Pack Yak's Winter Storage trigger. The period move banks one
-selected carried item per scroll and 12 special points; Casual must either bank configured
-outputs proactively or conserve scrolls until a full-pack boundary would force a Bank trip.
-Any target rate must declare whether Winter Storage is already assumed.
+Pack Yak's Winter Storage trigger is settled at the full-pack boundary. Casual spends one
+carried scroll and 12 special points to bank one configured eligible item only when doing
+so prevents the next Bank trip, then continues the target action atomically. Advanced may
+choose item priority and an earlier threshold. Any target rate must declare whether Winter
+Storage is already assumed.
 
 The documentation archive closure is complete. The new `memory-bank/README.md`
 separates current entry points from evidence and historical records; six
