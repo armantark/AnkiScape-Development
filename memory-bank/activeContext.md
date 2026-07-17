@@ -52,8 +52,10 @@ the detour replaces the target action and may complete the resummon atomically. 
 mismatched live familiar is now safely swapped at the next Bank boundary only after BoB
 cargo is deposited and replacement success is guaranteed; otherwise the old familiar
 remains active and the new policy stays queued. The next open fork is whether Casual
-target policy `Off` should preserve an already-live global familiar while disabling its
-automation, or dismiss it at the next safe Bank boundary. Casual already falls back
+Familiarisation should flatten one complete weekly spirit-plane run into one successful
+review or use a short multi-review shard/focus session. Target policy
+`Off — no familiar automation` now preserves any already-live global familiar while
+spending no further familiar resources. Casual already falls back
 automatically within its selected role when the best pouch runs out, but newly restocked
 stronger pouches never interrupt a live fallback; re-resolution waits for renewal,
 expiry, death, or a manual switch. BoB combat access is source-resolved: consecutive
@@ -62,6 +64,13 @@ before the next successful re-engagement. Advanced remains exact. The
 cross-product help architecture is owner-settled in
 `help-system-contract-2026-07-16.md`: one offline searchable corpus feeds both the
 full Help Center and contextual page-level `?` entries.
+
+Familiarisation period mechanics are pinned in
+`source-audits/summoning-familiarisation-2026-07-16.md`: once weekly, random familiar
+projection, raw-shard gathering under focus pressure, a 60-shard cap, and the choice of a
+shard-scaled ingredient box or 40-seconds-per-shard triple eligible charm drops. Its
+review-session length remains the live abstraction fork; no wall-clock or location state
+will be introduced.
 
 Agility's owner grill, source harvest, and atomic implementation are closed. The
 governing product contract is

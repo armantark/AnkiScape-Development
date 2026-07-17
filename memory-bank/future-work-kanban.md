@@ -207,6 +207,11 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
 - A BoB cannot transfer supplies during consecutive successful bursts against a live
   enemy. Again disengages without withdrawing; Casual may preset-top-up at the next
   successful pre-engagement boundary, as it may before combat or after kill/retreat.
+- `Off — no familiar automation` never summons, renews, replaces, or auto-specials for
+  that target, but it preserves an already-live global familiar and its paid duration.
+- Familiarisation is source-pinned as a once-weekly shard/focus D&D ending at 60 shards,
+  zero focus, or its period time cap, followed by a shard-scaled ingredient-box or
+  triple-charm choice. Its one-review versus short-session abstraction remains open.
 
 ### Dungeoneering
 

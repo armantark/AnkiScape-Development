@@ -157,6 +157,9 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   A BoB cannot transfer during consecutive successful combat bursts against one live
   enemy. Again performs no transfer but disengages; the next successful answer may
   preset-top-up before re-engagement, as may pre-combat, post-kill, and post-retreat.
+- Target automation `Off` is not a global dismissal command. It spends no further
+  familiar resources for that target but preserves an already-live global familiar;
+  manual Dismiss remains the explicit way to discard paid remaining duration.
 - Optional combat exposure is fail-closed to source evidence. An attacking
   Summoning familiar is not a generic second damage target; only a pinned
   retaliation, area, enemy, or explicit aggro/tanking mechanic may reach its LP.

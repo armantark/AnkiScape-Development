@@ -381,12 +381,27 @@ Transfers never occur inside the simulated combat burst, never exceed the player
 carried slots, and never bypass the familiar's sourced item restrictions. This makes the
 BoB genuine expanded inventory without pretending that every card boundary ends combat.
 
-### 17. Meaning of target familiar policy `Off` — open
+### 17. Meaning of target familiar policy `Off` — settled 2026-07-16
 
-Choose whether entering a target whose familiar policy is `Off` merely disables target-
-driven renew/resummon/special automation while preserving an already-live global familiar,
-or whether the next safe Bank boundary should deposit cargo and dismiss that familiar so
-the target receives no familiar effects.
+The target option is labeled **`Off — no familiar automation`**. It never summons,
+renews, replaces, or triggers specials for that target, but it does not dismiss an
+already-live global familiar. The familiar keeps its paid remaining duration until it
+expires or the user explicitly dismisses it; any source-applicable passive or continuous
+effect remains part of that live global entity.
+
+The target surface makes the distinction explicit: `Familiar active — not managed by
+this target`, with the ordinary manual Dismiss command available from the canonical
+familiar panel. This prevents navigation order from destroying a pouch while still
+making `Off` a strict promise that the target will spend no additional familiar resources.
+
+### 18. Familiarisation session shape — open
+
+Pinned period evidence in `source-audits/summoning-familiarisation-2026-07-16.md` fixes
+the once-weekly spirit-plane fiction, 60-shard/focus/20-minute stop conditions, and the
+choice between a shard-scaled ingredient box or shard-scaled triple eligible charm drops.
+Choose whether AnkiScape should flatten one complete run into a single successful review
+with a narrative result line, or use a short multi-review session in which each segment
+collects partial shards and hunter pressure can reduce focus or end the run early.
 
 ## Source/open-work queue
 
