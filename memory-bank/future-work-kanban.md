@@ -220,8 +220,11 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   acquisition, and route-cost harvesting remains before implementation.
 - The old universal `park outside` idea is rejected. Restricted targets need a per-area
   consequence (`block_until_dismissed`, `auto_dismiss`, `summon_only_forbidden`, or
-  `spirit_plane_hide`). The live owner fork is whether a blocked target demands explicit
-  Dismiss with ordinary cargo reclaim, or pays a protective Bank-before-dismiss review.
+  `spirit_plane_hide`). Starting a target that must dismiss a live familiar opens a
+  confirmation naming duration/pouch loss and any BoB cargo reclaim; Cancel changes
+  nothing, Confirm dismisses without a review, and cargo never auto-banks. The live owner
+  fork is whether a general manual Dismiss also disables enabled target automation or lets
+  it resummon on the next successful answer.
 
 ### Dungeoneering
 

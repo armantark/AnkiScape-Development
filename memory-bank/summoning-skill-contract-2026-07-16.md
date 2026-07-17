@@ -415,7 +415,7 @@ the source's rolling week through the simulation clock. A partially completed ru
 across Anki closure and never resolves from wall time. Every segment, completion, reward,
 cooldown, and undo transition is atomic and duplicate-safe.
 
-### 19. Familiar-forbidden targets and areas — source shape resolved; owner safety fork open
+### 19. Familiar-forbidden targets and areas — confirmed dismissal settled 2026-07-16
 
 The earlier `park outside` recommendation was wrong as a universal rule. Pinned period
 evidence distinguishes genuinely forbidden areas, which normally blocked entry until the
@@ -427,14 +427,30 @@ target/route catalog therefore carries an explicit source consequence instead of
 `spirit_plane_hide`.
 
 Target selection alone still never spends the familiar. A target with
-`block_until_dismissed` may be selected, but its first action cannot start with a live
-familiar. The remaining owner fork is the safety affordance at that boundary: require an
-explicit source-like Dismiss (with BoB cargo entering the ordinary reclaim event), or spend
-a review on a protective Bank detour that deposits cargo before dismissal. The latter is
-safer but can become a remote-banking exploit if choosing a forbidden target is enough to
-trigger it.
+`block_until_dismissed` may be inspected, but starting its training while a familiar is
+live opens the shared **Dismiss familiar?** confirmation before the target becomes active.
+Cancel preserves the familiar and current training unchanged. Confirm atomically dismisses
+the familiar, discards its remaining duration, and permits target activation without
+spending a review. It never inserts a protective Bank detour or deposits cargo remotely.
 
-### 20. Ordinary Summoning training — source/app-pattern resolved 2026-07-16
+The confirmation names the familiar, remaining lifetime, and permanent pouch loss. If a
+BoB is carrying anything, it also states the occupied-slot/item count and that the cargo
+will enter the already-settled temporary reclaim event rather than the Bank. General manual
+Dismiss commands use the same dialog. Source-driven expiry and death do not ask for
+confirmation, and `spirit_plane_hide` does not dismiss at all. Any period area that
+automatically dismissed a familiar still receives this AnkiScape safety confirmation before
+the destructive transition; preserving a warning is a UI safeguard, not a claim that the
+period game always offered one.
+
+### 20. Manual dismissal versus enabled automation — open
+
+Outside a familiar-forbidden target, confirming Dismiss can conflict with an enabled target
+policy that would otherwise consume another pouch and resummon on the next successful
+answer. Choose whether manual dismissal also turns that target's familiar automation Off,
+or leaves the policy enabled. Area-required dismissal is different: it does not mutate a
+saved policy, because the area—not a changed user preference—caused the dismissal.
+
+### 21. Ordinary Summoning training — source/app-pattern resolved 2026-07-16
 
 `source-audits/summoning-training-2026-07-16.md` closes the normal training shape without
 an owner question. The page exposes **Infuse pouches** and **Create scrolls** as searchable

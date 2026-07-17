@@ -54,9 +54,12 @@ cargo is deposited and replacement success is guaranteed; otherwise the old fami
 remains active and the new policy stays queued. Period evidence has now corrected the
 forbidden-area model: most such targets block until dismissal, while only an explicit small
 set temporarily hides and later returns the familiar. The target catalog will encode that
-per-area consequence. The next open fork is whether a blocked target requires an explicit
-source-like Dismiss (and ordinary BoB cargo reclaim) or spends a review on a protective
-Bank-before-dismiss detour. Familiarisation is now a
+per-area consequence. Starting a blocked target with a live familiar now opens a destructive
+confirmation naming remaining duration, permanent pouch loss, and any BoB cargo reclaim;
+Cancel preserves the current training, while Confirm dismisses without a review or remote
+Bank deposit. The next open fork is whether a general manual Dismiss also disables an
+enabled target auto-maintenance policy or allows it to resummon on the next successful
+answer. Familiarisation is now a
 four-answer session with 15 shards per success, three focus pips, and one lost pip/no
 shards on Again. Target policy
 `Off — no familiar automation` now preserves any already-live global familiar while
