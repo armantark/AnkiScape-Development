@@ -51,6 +51,7 @@ from .logic_pure import (
     apply_quest_route_choice_pure,
     apply_claim_pure,
     apply_safe_combat_recovery_pure,
+    advance_temporary_effects_pure,
     set_combat_auto_eat_threshold_pure,
     set_combat_pack_mode_pure,
     set_combat_auto_eat_food_pure,
@@ -1611,6 +1612,13 @@ def on_answer_card(self, ease, _old):
             player_data.update(advance_shop_market_clock_pure(player_data))
         except Exception:
             pass
+        if successful_answer:
+            player_data.update(
+                advance_temporary_effects_pure(
+                    player_data,
+                    _review_action_multiplier(),
+                )
+            )
         if successful_answer and had_farm_step:
             farm_preempted = runtime_actions.handle_farming_review_answer(_runtime_action_context())
         else:

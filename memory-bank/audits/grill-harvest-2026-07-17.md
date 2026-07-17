@@ -1,0 +1,110 @@
+# Grill harvest audit — 2026-07-17
+
+## Purpose
+
+Continue the source and implementation work that is already authorized by the
+canonical owner-grill records. This run does not reopen settled choices or
+touch Summoning or Dungeoneering before the owner explicitly releases them.
+
+## Inner loop
+
+Each batch has one attributable hypothesis: a named contract slice can be made
+complete without crossing an unresolved owner or evidence boundary.
+
+1. Freeze the clean `main` baseline and the relevant contract/source rows.
+2. Use bounded read-only surveys where independent inspection improves coverage.
+3. Reproduce every claimed gap in the canonical checkout.
+4. Implement the smallest coherent batch.
+5. Verify targeted pure, integration, undo, asset, and offscreen Qt behavior as
+   applicable.
+6. Accept only a green batch; update the Memory Bank and commit it normally.
+
+The checker never substitutes persuasion for repository evidence. Source gaps
+remain `source_blocked`; player-experience forks go to the ranked design-gap
+file.
+
+## Queue
+
+| Program | Authority | Current boundary |
+|---|---|---|
+| Approved amendments | Owner-approved, design-settled | Survey implementation seams, then ship coherent batches |
+| Slayer | Owner grill design-closed | Complete source sweep; implement only source-ready atomic slices |
+| Summoning | Owner grill still active | Entirely out of scope until the owner explicitly releases it |
+| Dungeoneering | Not design-closed | Out of scope |
+
+## Baseline
+
+- Branch: `main`
+- Commit: `2d51d213ab7e6c9a9b6fb397e9b664c9ed892d60`
+- Worktree guard: safe
+- Linked worktrees: none
+- Heartbeat: `ankiscape-grill-harvest`
+
+## Coverage ledger
+
+### Pass 1 — readiness survey
+
+Status: active.
+
+Scopes:
+
+- Approved amendment implementation and verification seams.
+- Slayer source-completeness and atomic-slice readiness.
+
+The initially launched Summoning survey leaf was canceled immediately when the
+owner clarified that no Summoning work, including source harvesting, should
+continue before grill closure. Its partial output is not accepted evidence and
+will not be used.
+
+Accepted findings, rejected findings, test evidence, and commits will be
+appended here as the run advances.
+
+## Accepted batch — Magic Charge duration
+
+Finding: the live Charge action set an indefinite `magic_charge_active` boolean.
+No review-driven duration or migration existed.
+
+Resolution:
+
+- Config v38 persists the source-backed 700-tick duration.
+- Every successful review advances temporary effects by 50 ticks per configured
+  Action per Review before action dispatch.
+- Safe non-combat activity therefore dissipates Charge, while a review that
+  casts Charge installs a fresh full duration after advancing the old state.
+- The review snapshot restores duration, active state, inventory, and action
+  output atomically.
+
+Regression proof:
+
+- The focused regression failed before implementation with missing pure symbols,
+  missing migration state, and an indefinitely active effect.
+- `tests.test_magic` plus `tests.test_storage_pure`: 49 passed.
+- Targeted integration and multiplier/undo holdouts: 3 passed.
+- Documentation audit: 235 Markdown and 298 HTML files passed before this
+  audit record was added; it will run again at commit closure.
+
+Concurrency note: while this batch was dirty, another task advanced `main` from
+`2d51d21` to Summoning-only commit `f10089c`. Its five files do not overlap the
+Magic implementation or this audit. This batch will stage only its attributable
+files and will not edit or rely on Summoning work.
+
+## Slayer readiness gate
+
+The independent local audit confirms that no live Slayer runtime slice is
+source-ready. In particular, no master satisfies the contract's complete
+baseline-pool certification rule. Turael/Spria is the smallest likely first
+master, but remains only a candidate until its whole pool is certified.
+
+The following are source- or dependency-blocked rather than owner-design gaps:
+
+- exhaustive per-master weights, kill ranges, and gates;
+- stable family/variant membership and Slayer-XP eligibility;
+- protective-item consequences and the remaining area/context registry;
+- point/reward conflicts and Smoking Kills counter initialization;
+- playable source-backed stages for the Slayer-owned quest chains.
+
+Finishing-blow semantics, master succession, the Kuradal core context, Social
+Slayer's parked disposition, and the VIP-ticket exclusion are already
+source/design closed. None is enough to justify a partial live master pool or a
+dead Slayer page. The next Slayer work is therefore source harvesting and
+machine-checkable pool certification, not runtime exposure.

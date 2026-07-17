@@ -1,8 +1,8 @@
 # Magic Skill Contract — grill closed 2026-07-11
 
 Status: **implemented on `main` at `24fbafd`; the 2026-07-16 Charge duration
-amendment is owner-approved but not yet implemented.** The body below preserves
-the pre-implementation contract.
+amendment is implemented in the 2026-07-17 grill-harvest batch.** The body below
+preserves the pre-implementation contract.
 
 This is the implementation-ready contract for the full Magic skill continuation. The
 deep grill closed on 2026-07-11 with the owner present; do not re-grill the decisions
@@ -186,7 +186,7 @@ cross-check) is authentic pre-EOC gap-fill via `tools/wiki_parity.py` pinned bef
 
 ## Charge duration amendment — 2026-07-16
 
-Status: **owner-approved design; implementation pending on `main`.**
+Status: **implemented on `main` in the 2026-07-17 grill-harvest batch.**
 
 Charge uses the shared review-driven temporary-effect clock, never wall time and
 never the answered-card world/economy calendar. At 1x Actions per Review, every
@@ -199,3 +199,10 @@ non-combat reviews, so Charge dissipates out of combat rather than pausing. A
 review that casts Charge advances already-active durations first and installs
 the new Charge state afterward, preserving its full duration. The cadence
 kernel remains an action-admission/rate scheduler, not this global effect clock.
+
+The persisted state is `magic_charge_ticks_remaining`; the legacy
+`magic_charge_active` flag is retained as a derived compatibility field. Config
+v38 gives an active v37 save one full 700-tick duration because the old schema
+stored no elapsed review count. Successful reviews advance the state before
+dispatch, so recasting Charge installs a fresh full duration, and Answer Card
+undo restores the entire transition atomically.

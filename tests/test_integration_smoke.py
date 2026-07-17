@@ -2241,6 +2241,42 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertAlmostEqual(addon.player_data["fletching_exp"], 0)
         self.assertEqual(calls["xp"], [15.0])
 
+    def test_successful_noncombat_review_advances_charge_and_undo_restores_it(self):
+        addon = _load_addon_as_package("ankiscape_charge_clock_integration")
+
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": 2}))
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._show_exp = lambda _exp: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.player_data = {
+            "inventory": {"Logs": 2},
+            "fletching_level": 1,
+            "fletching_exp": 0,
+            "current_fletch": "arrow_shafts",
+            "completed_achievements": [],
+            "magic_charge_active": True,
+            "magic_charge_ticks_remaining": 100,
+        }
+        initial_state = copy.deepcopy(addon.player_data)
+        addon.current_skill = "Fletching"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertFalse(addon.player_data["magic_charge_active"])
+        self.assertEqual(addon.player_data["magic_charge_ticks_remaining"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Arrow shafts"], 30)
+
+        addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
+
+        self.assertEqual(addon.player_data, initial_state)
+
     def test_successful_noncombat_review_applies_one_safe_combat_recovery_and_undo_restores_it(self):
         addon = _load_addon_as_package("ankiscape_safe_recovery_integration")
 

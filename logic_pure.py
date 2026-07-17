@@ -975,6 +975,32 @@ def _apply_farming_spell_pure(player_data, target_id):
     return apply_farming_spell_pure(player_data, target_id)
 
 
+MAGIC_CHARGE_DURATION_TICKS = 700
+TEMPORARY_EFFECT_TICKS_PER_ACTION = 50
+
+
+def advance_temporary_effects_pure(player_data, action_ticks=1):
+    """Advance review-paced temporary effects without reading wall time."""
+    data = dict(player_data)
+    ticks = (
+        TEMPORARY_EFFECT_TICKS_PER_ACTION
+        * sanitize_review_action_multiplier(action_ticks)
+    )
+    remaining = _non_negative_int(
+        data.get(
+            "magic_charge_ticks_remaining",
+            MAGIC_CHARGE_DURATION_TICKS
+            if data.get("magic_charge_active", False)
+            else 0,
+        ),
+        0,
+    )
+    remaining = max(0, remaining - ticks)
+    data["magic_charge_ticks_remaining"] = remaining
+    data["magic_charge_active"] = remaining > 0
+    return data
+
+
 def effective_magic_rune_cost_pure(player_data, rune_cost):
     """Waive elemental runes covered by the best owned/equipped staff."""
     cost = {str(name): _non_negative_int(amount, 0) for name, amount in (rune_cost or {}).items()}
@@ -1155,6 +1181,7 @@ def apply_magic_action_pure(player_data, target_id, magic_data, alch_values=None
         data["magic_imbue_active"] = True
     elif action == "charge":
         data["magic_charge_active"] = True
+        data["magic_charge_ticks_remaining"] = MAGIC_CHARGE_DURATION_TICKS
     elif target_id in {"cure_plant", "fertile_soil"}:
         data, applied, message = _apply_farming_spell_pure(data, target_id)
         if not applied:

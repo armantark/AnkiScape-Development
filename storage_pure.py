@@ -125,7 +125,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 37
+CURRENT_CONFIG_VERSION = 38
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -300,6 +300,8 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_combat_state_pure())
     data.update(_default_hidden_support_state())
     data.update(default_target_state())
+    data["magic_charge_active"] = False
+    data["magic_charge_ticks_remaining"] = 0
     data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
     data["current_quest"] = DEFAULT_QUEST_TARGET
     data["construction_actions_completed"] = 0
@@ -1017,6 +1019,14 @@ def migrate_loaded_data(
     # a conservative minimum; completed achievement names remain sticky.
     if loaded_config_version < 37:
         _migrate_achievement_progress(data)
+    # v38: Charge stops being an indefinite boolean and uses the global
+    # review-driven temporary-effect clock. An active legacy spell receives one
+    # full sourced duration because no elapsed review count was persisted.
+    if loaded_config_version < 38:
+        data.setdefault(
+            "magic_charge_ticks_remaining",
+            700 if bool(data.get("magic_charge_active", False)) else 0,
+        )
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1024,6 +1034,15 @@ def migrate_loaded_data(
     data.setdefault("magic_actions_completed", 0)
     data.setdefault("magic_imbue_active", False)
     data.setdefault("magic_charge_active", False)
+    try:
+        charge_ticks = max(0, int(data.get(
+            "magic_charge_ticks_remaining",
+            700 if bool(data.get("magic_charge_active", False)) else 0,
+        ) or 0))
+    except (TypeError, ValueError, OverflowError):
+        charge_ticks = 0
+    data["magic_charge_ticks_remaining"] = charge_ticks
+    data["magic_charge_active"] = charge_ticks > 0
     data.setdefault("mage_arena", {"step": 0, "completed": False})
     data.setdefault("mage_training_arena", {"completed": False})
     data.setdefault("current_construction", "crude_wooden_chair")

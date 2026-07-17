@@ -3,8 +3,10 @@ import unittest
 
 from constants import ITEM_DEFINITIONS, MAGIC_DATA, MAGIC_ITEM_IMAGES, ORE_DATA
 from logic_pure import (
+    MAGIC_CHARGE_DURATION_TICKS,
     apply_magic_action_pure,
     apply_mage_arena_step_pure,
+    advance_temporary_effects_pure,
     combat_magic_preset_locked_reasons_pure,
     default_combat_state_pure,
     effective_magic_rune_cost_pure,
@@ -49,6 +51,50 @@ def _context(player_data, calls):
 
 
 class MagicDataAndMechanicsTest(unittest.TestCase):
+    def test_charge_uses_review_driven_ticks_and_expires_cleanly(self):
+        advanced = advance_temporary_effects_pure(
+            {
+                "magic_charge_active": True,
+                "magic_charge_ticks_remaining": MAGIC_CHARGE_DURATION_TICKS,
+            },
+            action_ticks=2,
+        )
+        self.assertEqual(
+            advanced["magic_charge_ticks_remaining"],
+            MAGIC_CHARGE_DURATION_TICKS - 100,
+        )
+        self.assertTrue(advanced["magic_charge_active"])
+
+        expired = advance_temporary_effects_pure(
+            {
+                "magic_charge_active": True,
+                "magic_charge_ticks_remaining": 50,
+            },
+            action_ticks=1,
+        )
+        self.assertEqual(expired["magic_charge_ticks_remaining"], 0)
+        self.assertFalse(expired["magic_charge_active"])
+
+    def test_casting_charge_installs_a_fresh_full_duration(self):
+        data = {
+            "magic_level": 99,
+            "mage_arena": {"completed": True},
+            "inventory": {"Air rune": 3, "Fire rune": 3, "Blood rune": 3},
+            "magic_charge_active": True,
+            "magic_charge_ticks_remaining": 50,
+        }
+
+        result, _xp, _secondary, _outputs, ok, _message = apply_magic_action_pure(
+            data, "charge", MAGIC_DATA, {}
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(result["magic_charge_active"])
+        self.assertEqual(
+            result["magic_charge_ticks_remaining"],
+            MAGIC_CHARGE_DURATION_TICKS,
+        )
+
     def test_dragonstone_enchants_consume_the_exact_crafting_output_names(self):
         expected = {
             "enchant_dragonstone_ring": "Dragonstone ring",

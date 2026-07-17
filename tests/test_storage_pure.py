@@ -176,6 +176,8 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["carried_inventory"], {})
         self.assertEqual(data["loot_value_threshold"], DEFAULT_LOOT_VALUE_THRESHOLD)
         self.assertEqual(data["shop_market_clock"], {"version": 1, "answered_cards": 0, "market_tick": 0})
+        self.assertFalse(data["magic_charge_active"])
+        self.assertEqual(data["magic_charge_ticks_remaining"], 0)
         self.assertEqual(data["shop_stock_state"], {})
         self.assertEqual(data["shop_events"], [])
         self.assertEqual(data["shop_next_event_id"], 1)
@@ -304,6 +306,20 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["farm_clock_minutes"], 0)
         self.assertEqual(migrated["farm_patches"]["future_patch"], {"future": True})
         self.assertEqual(migrated["pending_skill_exp_rewards"], {"summoning_exp": 250.0})
+
+    def test_legacy_active_charge_migrates_to_a_full_review_driven_duration(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 37,
+                "magic_charge_active": True,
+                "inventory": {},
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertTrue(migrated["magic_charge_active"])
+        self.assertEqual(migrated["magic_charge_ticks_remaining"], 700)
 
     def test_load_cleans_only_above_base_stale_prayer_current_level(self):
         cleaned = migrate_loaded_data(

@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "status": "active",
+  "started_at": "2026-07-16T23:07:53-07:00",
+  "automation_id": "ankiscape-grill-harvest",
+  "branch": "main",
+  "baseline_commit": "2d51d213ab7e6c9a9b6fb397e9b664c9ed892d60",
+  "current_phase": "readiness_audit",
+  "last_observed_commit": "f10089ced5c55b1cde52f9cfbca354fd7c11f5b0",
+  "queue": [
+    {
+      "id": "approved-amendments",
+      "status": "surveying",
+      "items": [
+        "agility-carried-risk-packs",
+        "farming-dig-up-presets-full-run",
+        "bank-discard-x-carried-order"
+      ]
+    },
+    {
+      "id": "slayer",
+      "status": "source_blocked_pending_exhaustive_pool_sweep",
+      "runtime_authorized": true
+    }
+  ],
+  "accepted_commits": [],
+  "completed_batches": [
+    "magic-charge-review-duration"
+  ],
+  "workflow_runs": [
+    {
+      "id": "4ba23be3-2cda-4e62-8550-b2372242cf58",
+      "purpose": "readiness survey",
+      "summoning_leaf": "canceled and discarded after owner scope clarification",
+      "slayer_leaf": "complete; no live runtime slice certified"
+    }
+  ],
+  "excluded_until_owner_authorizes": [
+    "summoning",
+    "dungeoneering"
+  ],
+  "design_gap_file": "memory-bank/design-gaps-grill-harvest-2026-07-17.md",
+  "stop_conditions": [
+    "all design-settled queue items verified or explicitly blocked",
+    "unexpected concurrent writer collision",
+    "genuine external blocker"
+  ]
+}
