@@ -213,3 +213,22 @@ The owner parked that larger multi-enemy design grill. The pet catalog still rec
 stage-gated faction-protection flag now, but it has no invented damage reduction or
 ambient-pressure number. A future God Wars/multi-enemy substrate consumes the flag
 automatically without changing the pet row.
+
+## Open owner fork: active pet on player death
+
+Clockwork cat oldid
+[5918433](https://runescape.wiki/w/Clockwork_cat?oldid=5918433)
+(2012-07-10 20:53:05 UTC) explicitly says the pet is lost on player death when active or
+not kept as an item. Cat oldid
+[6283489](https://runescape.wiki/w/Cat?oldid=6283489)
+(2012-09-23 03:37:47 UTC) confirms cats can be killed, while the generic Pet page does not
+close a universal recovery rule. The period consequence is therefore loss-shaped, but
+exact behavior remains pet-specific.
+
+Permanent accidental destruction is already incompatible with the owner's settled
+anti-disappearance rule and with pets whose reacquisition is `source_blocked`. The real
+product fork is whether death places the exact active pet entity into the existing
+grave/Death's Office recovery flow, temporarily making it unavailable while preserving
+growth, hunger, stage, and variant, or sends it directly home to Bank/Menagerie without a
+death cost. The recommendation is the recoverable grave path as an explicit safety
+abstraction from true period loss.

@@ -703,6 +703,13 @@ Combat model and automatically becomes live when the future God Wars aggression 
 consumes it. AnkiScape does not substitute a generic defensive buff, invented incoming-
 damage process, visible future-content lock, or special placeholder state.
 
+The next owner fork is active-pet handling on player death. Period evidence explicitly
+loses at least the clockwork cat, but permanent accidental destruction is incompatible
+with the settled pet-safety rule. The remaining choices are a recoverable pet projection
+through the existing grave/Death's Office flow, preserving exact entity state while
+temporarily unavailable, or an immediate cost-free return to Bank/Menagerie. The
+recommendation is grave recovery so death remains consequential without deleting the pet.
+
 ## Source/open-work queue
 
 - Harvest the complete pouch, familiar, duration, point, scroll, special-move-point,

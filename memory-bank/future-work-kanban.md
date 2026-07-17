@@ -359,6 +359,9 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   world-alert strip without pausing the transition. Mature god-bird protection is stored
   as a stage-gated faction flag but remains numerically inert until the later
   multi-enemy/God Wars grill; do not invent a generic defensive buff in the meantime.
+  Next decide whether an active pet on player death enters the recoverable grave/Death's
+  Office flow or returns immediately to Bank/Menagerie. Permanent accidental destruction
+  remains excluded.
 
 ### Dungeoneering
 
