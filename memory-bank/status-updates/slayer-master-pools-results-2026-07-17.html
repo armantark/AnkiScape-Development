@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Slayer Master Pool Sweep</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 78% 0%, rgba(167, 139, 250, .13), transparent 32rem),
+        radial-gradient(circle at 8% 20%, var(--accent-glow), transparent 28rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Outfit, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 42px 0 64px; }
+    .eyebrow, .tag, .metric-label, th, .state {
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 10px;
+      border: 1px solid rgba(74, 222, 128, .35);
+      border-radius: 999px;
+      color: var(--green);
+      background: rgba(74, 222, 128, .07);
+      font-size: .68rem;
+      font-weight: 700;
+    }
+    h1 { max-width: 850px; margin: 18px 0 10px; font-size: clamp(2rem, 6vw, 4.4rem); line-height: .98; letter-spacing: -.045em; }
+    .subtitle { max-width: 760px; margin: 0; color: var(--text-dim); font-size: 1rem; }
+    .metric-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 30px 0; }
+    .metric, .card, .table-wrap, .next {
+      background: linear-gradient(145deg, rgba(30,35,44,.96), rgba(22,26,33,.96));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .metric { padding: 17px; min-height: 116px; }
+    .metric strong { display: block; font-size: 2rem; letter-spacing: -.04em; }
+    .metric-label { color: var(--text-dim); font-size: .62rem; }
+    .metric small { display: block; margin-top: 8px; color: var(--text-dim); font-size: .72rem; }
+    .tabs { display: flex; gap: 8px; margin: 0 0 14px; flex-wrap: wrap; }
+    .tabs button {
+      appearance: none;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--text-dim);
+      padding: 9px 13px;
+      font: inherit;
+      font-size: .8rem;
+      cursor: pointer;
+    }
+    .tabs button[aria-selected="true"] { color: var(--text); border-color: var(--accent); background: var(--accent-glow); }
+    .panel[hidden] { display: none; }
+    .table-wrap { overflow: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 720px; }
+    th { color: var(--text-dim); font-size: .63rem; text-align: left; padding: 13px 16px; border-bottom: 1px solid var(--border); }
+    td { padding: 14px 16px; border-bottom: 1px solid rgba(42,48,64,.65); font-size: .84rem; }
+    tr:last-child td { border-bottom: 0; }
+    .bar { width: 100%; min-width: 120px; height: 8px; overflow: hidden; border-radius: 99px; background: #0f1217; }
+    .bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--purple)); }
+    .state { color: var(--amber); font-size: .62rem; white-space: nowrap; }
+    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .card { padding: 20px; }
+    .card h2 { margin: 5px 0 8px; font-size: 1.05rem; }
+    .card p { margin: 0; color: var(--text-dim); font-size: .85rem; }
+    .tag { display: inline-flex; padding: 4px 7px; border-radius: 6px; background: var(--surface-2); color: var(--green); font-size: .6rem; }
+    .fix-list { display: grid; gap: 8px; margin-top: 15px; }
+    .fix {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 9px;
+      padding: 9px 10px;
+      border: 1px solid rgba(42,48,64,.75);
+      border-radius: 9px;
+      background: rgba(12,14,18,.38);
+      font-size: .77rem;
+    }
+    .fix b { color: var(--green); }
+    .guardrail { border-color: rgba(251,191,36,.28); }
+    .guardrail .tag { color: var(--amber); }
+    .next { margin-top: 14px; padding: 22px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; }
+    .next h2 { margin: 0 0 5px; font-size: 1.12rem; }
+    .next p { margin: 0; color: var(--text-dim); font-size: .84rem; }
+    .pill { border-radius: 999px; padding: 10px 13px; color: var(--purple); background: rgba(167,139,250,.09); border: 1px solid rgba(167,139,250,.3); font-size: .72rem; white-space: nowrap; }
+    footer { margin-top: 18px; color: var(--text-dim); font-size: .7rem; }
+    @media (max-width: 900px) {
+      .metric-grid { grid-template-columns: repeat(2, 1fr); }
+      .cards { grid-template-columns: 1fr; }
+      .next { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      main { width: min(100% - 22px, 1180px); padding-top: 24px; }
+      .metric-grid { grid-template-columns: 1fr 1fr; }
+      .metric { min-height: 100px; padding: 14px; }
+      .metric strong { font-size: 1.65rem; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <span class="eyebrow">Source sweep complete · runtime held closed</span>
+  <h1>Seven Slayer masters, one honest baseline.</h1>
+  <p class="subtitle">Every functional pre-EOC master pool is now recorded without silently renormalizing around missing Combat content. The sweep also repaired eight concrete source/data defects and kept Summoning and Dungeoneering outside the work.</p>
+
+  <section class="metric-grid" aria-label="Closure metrics">
+    <div class="metric"><span class="metric-label">Master roles</span><strong>7 / 7</strong><small>All functional pools recorded</small></div>
+    <div class="metric"><span class="metric-label">Pool rows</span><strong>227</strong><small>Across independent master ledgers</small></div>
+    <div class="metric"><span class="metric-label">Confirmed fixes</span><strong>8</strong><small>Regression-backed source repairs</small></div>
+    <div class="metric"><span class="metric-label">Core tests</span><strong>1,369</strong><small>196 skips · 3 declared xfails</small></div>
+    <div class="metric"><span class="metric-label">Hard test issues</span><strong>0</strong><small>67 test files audited</small></div>
+  </section>
+
+  <div class="tabs" role="tablist" aria-label="Result views">
+    <button role="tab" aria-selected="true" aria-controls="pools" id="tab-pools">Master ledger</button>
+    <button role="tab" aria-selected="false" aria-controls="repairs" id="tab-repairs">Repair ledger</button>
+    <button role="tab" aria-selected="false" aria-controls="guardrails" id="tab-guardrails">Ship guardrails</button>
+  </div>
+
+  <section class="panel" id="pools" role="tabpanel" aria-labelledby="tab-pools">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Functional role</th><th>Families</th><th>Calibration denominator</th><th>Relative breadth</th><th>Runtime</th></tr></thead>
+        <tbody>
+          <tr><td>Turael / Spria</td><td>23</td><td>355</td><td><div class="bar"><span style="width:62%"></span></div></td><td><span class="state">0 / 23 held</span></td></tr>
+          <tr><td>Mazchna / Achtryn</td><td>27</td><td>325</td><td><div class="bar"><span style="width:73%"></span></div></td><td><span class="state">0 / 27 held</span></td></tr>
+          <tr><td>Vannaka</td><td>35</td><td>460</td><td><div class="bar"><span style="width:95%"></span></div></td><td><span class="state">0 / 35 held</span></td></tr>
+          <tr><td>Chaeldar</td><td>34</td><td>388</td><td><div class="bar"><span style="width:92%"></span></div></td><td><span class="state">0 / 34 held</span></td></tr>
+          <tr><td>Sumona</td><td>37</td><td>407</td><td><div class="bar"><span style="width:100%"></span></div></td><td><span class="state">0 / 37 held</span></td></tr>
+          <tr><td>Duradel / Lapalok</td><td>35</td><td>334</td><td><div class="bar"><span style="width:95%"></span></div></td><td><span class="state">0 / 35 held</span></td></tr>
+          <tr><td>Kuradal</td><td>36</td><td>322</td><td><div class="bar"><span style="width:97%"></span></div></td><td><span class="state">0 / 36 held</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel" id="repairs" role="tabpanel" aria-labelledby="tab-repairs" hidden>
+    <div class="cards">
+      <article class="card">
+        <span class="tag">Combat consequences</span>
+        <h2>Four enemy-behavior repairs</h2>
+        <div class="fix-list">
+          <div class="fix"><b>✓</b><span>Cave slime poison restored.</span></div>
+          <div class="fix"><b>✓</b><span>Cave crawler poison restored.</span></div>
+          <div class="fix"><b>✓</b><span>Stronghold Shade XP multiplier corrected.</span></div>
+          <div class="fix"><b>✓</b><span>Death spawn Slayer credit removed.</span></div>
+        </div>
+      </article>
+      <article class="card">
+        <span class="tag">Data fidelity</span>
+        <h2>Four source-row repairs</h2>
+        <div class="fix-list">
+          <div class="fix"><b>✓</b><span>Crawling hand cutoff Slayer XP restored.</span></div>
+          <div class="fix"><b>✓</b><span>Abyssal quantities and Rare table restored.</span></div>
+          <div class="fix"><b>✓</b><span>Generic Ferocious-ring drop removed.</span></div>
+          <div class="fix"><b>✓</b><span>Level-149 TzHaar-Ket Slayer XP restored.</span></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="panel" id="guardrails" role="tabpanel" aria-labelledby="tab-guardrails" hidden>
+    <div class="cards">
+      <article class="card guardrail">
+        <span class="tag">No partial masters</span>
+        <h2>Missing content does not distort odds</h2>
+        <p>Every role stays hidden until its complete baseline family pool is executable. Quest, reward, block-list, and player-specific filters apply only after baseline certification.</p>
+      </article>
+      <article class="card guardrail">
+        <span class="tag">No fake certainty</span>
+        <h2>Weights remain labeled calibration</h2>
+        <p>Emulator weights are useful implementation evidence, not historical probabilities. Restored rows use explicit common-master abstractions where the hidden value did not survive.</p>
+      </article>
+      <article class="card guardrail">
+        <span class="tag">Context stays real</span>
+        <h2>Mechanics travel with the target</h2>
+        <p>Protection, finishers, assignment-only attacks, Kuradal's Dungeon, and challenge instances must be executable before a family can certify.</p>
+      </article>
+      <article class="card guardrail">
+        <span class="tag">Scope lock</span>
+        <h2>Summoning remains sealed</h2>
+        <p>No Summoning or Dungeoneering implementation was included. Summoning stays out until the owner finishes its grill and explicitly releases it.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="next">
+    <div>
+      <h2>Next source lane: family mechanics</h2>
+      <p>Complete the variant, protective-equipment, finishing-blow, assignment-only attack, challenge, and location-context ledgers. No master becomes selectable merely because its pool table is known.</p>
+    </div>
+    <span class="pill">Design gaps surfaced: none</span>
+  </section>
+  <footer>Commits 610587f → 1c8b46a · Direct-main checkpoint · No push</footer>
+</main>
+<script>
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  tabs.forEach((tab) => tab.addEventListener('click', () => {
+    tabs.forEach((item) => {
+      const selected = item === tab;
+      item.setAttribute('aria-selected', selected ? 'true' : 'false');
+      document.getElementById(item.getAttribute('aria-controls')).hidden = !selected;
+    });
+  }));
+</script>
+</body>
+</html>
