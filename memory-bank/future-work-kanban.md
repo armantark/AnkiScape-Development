@@ -321,9 +321,14 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   `familiar_storage` delivery modes. A full carried inventory suppresses a drop roll with a
   visible log entry and no queued, banked, or owed output; storage-type familiars continue
   to their sourced capacity of 30 before suppressing later rolls.
-- Next owner fork: give familiar teleports real behavior in AnkiScape's locationless travel
-  model. Magic currently treats teleport spells as pure training casts, but most familiar
-  teleports have no training XP, so a decorative command is not an acceptable completion.
+- Familiar teleports select target-local alternate route profiles, with every source rate
+  declaring its assumed route so a familiar never double-discounts a rate that already
+  includes it. Spirit graahk's sourced 60-second Nature circuit replaces the slower route;
+  ordinary familiar teleports use the live familiar without consuming another pouch. Void
+  shifter reuses Combat retreat only when damage leaves the player alive below 10% LP, with
+  no invented cooldown. Call to Arms remains tied to the future Pest Control activity.
+- Next owner fork: decide whether Magic teleports and teleport jewellery should gain the
+  same compatible-target route effects in addition to Magic's existing pure training casts.
 
 ### Dungeoneering
 

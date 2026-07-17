@@ -511,6 +511,35 @@ storage is full, later rolls are suppressed until it is emptied, under the same 
 rule. The later full catalog harvest must preserve each familiar's sourced output table and
 cadence alongside the delivery mode.
 
+### 24. Familiar teleports — source/app-pattern resolved 2026-07-16
+
+`source-audits/summoning-familiar-teleports-2026-07-16.md` confirms that spirit graahk,
+kyatt, larupia, arctic bear, and the Void familiars had real player teleports. They become
+target-local alternate route profiles, never a global map, persistent player location,
+standalone transport network, decorative command, or universal flat discount.
+
+Each profile represents the entire relevant circuit and declares its assumed route. A
+familiar route replaces another profile; it cannot stack on a sourced rate that already
+assumes the familiar. The Spirit graahk's sourced 60-second Nature circuit is therefore
+`15 2/3` travel reviews plus one conversion review at the existing 1,000-review/hour
+cadence, replacing—not reducing again—the sourced `32 1/3`-review fairy-ring/glory route.
+Other destinations require their own sourced circuit; a destination alone does not prove
+that every compatible target collapses to one review.
+
+An already-live familiar may use an unlimited ordinary teleport when its selected route
+requires it. The settled familiar policy owns pouch consumption, Summoning cost, lifetime,
+replacement, and the opportunity cost of the one global familiar slot; an ordinary
+teleport does not consume another pouch. Casual selects a strictly faster eligible route
+when its target policy permits the required familiar. Advanced selects the exact route and
+familiar. Again never advances the foreground travel phase.
+
+Void shifter's passive escape reuses Combat retreat: damage that leaves the player alive
+below 10% maximum LP ends and resets the encounter, while lethal damage still kills. The
+normal return route remains due. The source states no one-use cooldown, so AnkiScape adds
+none; a still-live shifter can save the player again after healing and re-entry. Call to
+Arms remains parked behind Pest Control and only affects that activity if its eventual
+design has a real entry-route cost.
+
 ## Source/open-work queue
 
 - Harvest the complete pouch, familiar, duration, point, scroll, special-move-point,

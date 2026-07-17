@@ -29,11 +29,14 @@ owner forks stay active. Foragers now preserve the period distinction between
 drop-to-player output and separate familiar storage: a full carried inventory suppresses
 a drop roll with a visible log entry and no queue or Bank detour, while storage-type
 familiars can continue to their sourced capacity of 30.
-The next owner fork is how source-authentic familiar teleports become real gameplay in a
-locationless app: route-cost modifiers, standalone commands, or a deliberate cross-system
-travel expansion rather than decorative controls.
+Familiar teleports are now resolved as target-local alternate route profiles with
+route-assumption metadata. Spirit graahk's sourced 60-second Nature circuit replaces the
+slower sourced route rather than stacking another discount; ordinary teleports do not
+consume fresh pouches, and Void shifter reuses lethal-versus-sub-10%-LP retreat semantics
+without an invented cooldown. The next owner fork is whether Magic and teleport jewellery
+should gain the same compatible-target route effects alongside Magic's pure training casts.
 
-The 23 settled decisions define answered-card lifetime and passive world ticks,
+The 24 settled decisions define answered-card lifetime and passive world ticks,
 separate familiar/point/special resources, target-policy automation, carried
 pouch/scroll budgets, coalesced restore and Bank detours, safe replacement and
 dismissal, source-gated familiar combat, BoB inventory/reclaim rules, forbidden
