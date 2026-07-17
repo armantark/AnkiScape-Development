@@ -4,6 +4,31 @@
 
 AnkiScape now has 17 complete skill surfaces, five partial Combat-trained skills, and three planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Mage Arena and Farming cure-policy closure — 2026-07-17
+
+- Completed the sourced Mage Arena reward loop: final-form alignment, the first
+  matching cape/staff, one-review god-spell attunement, one-cape statue
+  replacement/reclaim, matching-loadout equipment guards, and legacy-save
+  compatibility.
+- Completed Charge's real combat effect. The matching attuned god spell rises
+  from 200 to 300 LP maximum hit only while Charge is active and the matching
+  cape/staff are worn; preview and live combat share the calculation.
+- Added the three period god-cape assets and generated their exact item-config
+  equipment rows. Their canonical item records now retain cache IDs,
+  non-stackability, non-tradeability, cape-slot metadata, and provenance. The
+  generator reproduces the equipment rows rather than relying on hand edits.
+- Added Farming's per-patch two-option cure priority, preset/queue snapshots,
+  execution-time fallback, and canonical Cure Plant rune/quest/XP transaction.
+- Archived both resolved owner questions; no non-Summoning design gap remains
+  from the grill-harvest program.
+- Final verification passed all 1,388 core methods and all 1,388 real offscreen
+  Qt methods. Core discovery retains 196 environment skips; Qt discovery has
+  none. Both contain only the three declared XP-parity expected failures, and
+  test quality reports zero hard issues across 67 files.
+- Published
+  `status-updates/mage-arena-farming-cure-results-2026-07-17.html` and its
+  mobile-safe copy at <https://q0wso578s42a.postplan.dev>.
+
 ## Slayer Turael/Spria source harvest — 2026-07-17
 
 - Reconciled the first complete functional-master pool at 23 families and a

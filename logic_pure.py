@@ -837,6 +837,38 @@ KNIGHT_WAVES_TOTAL_STEPS = 8
 KNIGHT_WAVES_XP_REWARD = 20000
 MAGE_ARENA_STEP_NAMES = ("Human", "Ogre", "Giant spider", "Ghost", "Black demon")
 MAGE_ARENA_TOTAL_STEPS = len(MAGE_ARENA_STEP_NAMES)
+MAGE_ARENA_GOD_DATA = {
+    "saradomin": {
+        "display_name": "Saradomin",
+        "cape": "Saradomin cape",
+        "staff": "Saradomin staff",
+        "spell_id": "saradomin_strike",
+        "spell_name": "Saradomin Strike",
+    },
+    "guthix": {
+        "display_name": "Guthix",
+        "cape": "Guthix cape",
+        "staff": "Guthix staff",
+        "spell_id": "claws_of_guthix",
+        "spell_name": "Claws of Guthix",
+    },
+    "zamorak": {
+        "display_name": "Zamorak",
+        "cape": "Zamorak cape",
+        "staff": "Zamorak staff",
+        "spell_id": "flames_of_zamorak",
+        "spell_name": "Flames of Zamorak",
+    },
+}
+MAGE_ARENA_GOD_CAPES = frozenset(
+    row["cape"] for row in MAGE_ARENA_GOD_DATA.values()
+)
+MAGE_ARENA_GOD_STAVES = frozenset(
+    row["staff"] for row in MAGE_ARENA_GOD_DATA.values()
+)
+MAGE_ARENA_SPELL_TO_GOD = {
+    row["spell_id"]: god_id for god_id, row in MAGE_ARENA_GOD_DATA.items()
+}
 
 
 def default_knight_waves_state_pure():
@@ -888,23 +920,171 @@ def mage_arena_locked_reasons_pure(player_data):
     reasons = []
     if _positive_int(player_data.get("magic_level", 1), 1) < 60:
         reasons.append("Magic level 60")
-    state = player_data.get("mage_arena", {}) or {}
+    state = sanitize_mage_arena_state_pure(player_data.get("mage_arena"))
     if bool(state.get("completed")):
         reasons.append("already completed")
+    elif state["step"] == MAGE_ARENA_TOTAL_STEPS - 1 and not state["alignment"]:
+        reasons.append("Choose a god alignment")
     return tuple(reasons)
 
 
+def default_mage_arena_state_pure():
+    return {
+        "step": 0,
+        "completed": False,
+        "alignment": "",
+        "attuned_spells": [],
+    }
+
+
+def sanitize_mage_arena_state_pure(raw):
+    state = default_mage_arena_state_pure()
+    if not isinstance(raw, Mapping):
+        return state
+    state["step"] = min(
+        MAGE_ARENA_TOTAL_STEPS,
+        _non_negative_int(raw.get("step", 0), 0),
+    )
+    state["completed"] = (
+        bool(raw.get("completed")) or state["step"] >= MAGE_ARENA_TOTAL_STEPS
+    )
+    alignment = str(raw.get("alignment", "") or "")
+    state["alignment"] = alignment if alignment in MAGE_ARENA_GOD_DATA else ""
+    raw_attuned = raw.get("attuned_spells", ())
+    if isinstance(raw_attuned, (list, tuple, set, frozenset)):
+        state["attuned_spells"] = [
+            spell_id
+            for spell_id in MAGE_ARENA_SPELL_TO_GOD
+            if spell_id in raw_attuned
+        ]
+    return state
+
+
+def set_mage_arena_alignment_pure(player_data, god_id):
+    data = _copy_player_data_with_nested(player_data)
+    state = sanitize_mage_arena_state_pure(data.get("mage_arena"))
+    if god_id not in MAGE_ARENA_GOD_DATA:
+        return data, False, {"reason": "unknown_alignment"}
+    if state["completed"]:
+        return data, False, {"reason": "mage_arena_completed"}
+    state["alignment"] = god_id
+    data["mage_arena"] = state
+    return data, True, {"reason": "alignment_selected", "alignment": god_id}
+
+
+def _owns_or_equips_pure(player_data, item_name):
+    inventory = player_data.get("inventory", {}) or {}
+    equipment = player_data.get("equipment", {}) or {}
+    return (
+        _non_negative_int(inventory.get(item_name, 0), 0) > 0
+        or item_name in equipment.values()
+    )
+
+
+def attune_mage_arena_spell_pure(player_data, god_id):
+    data = _copy_player_data_with_nested(player_data)
+    state = sanitize_mage_arena_state_pure(data.get("mage_arena"))
+    row = MAGE_ARENA_GOD_DATA.get(god_id)
+    if not state["completed"]:
+        return data, False, {"reason": "mage_arena_incomplete"}
+    if row is None:
+        return data, False, {"reason": "unknown_alignment"}
+    if row["spell_id"] in state["attuned_spells"]:
+        return data, False, {"reason": "already_attuned"}
+    if not _owns_or_equips_pure(data, row["staff"]):
+        return data, False, {"reason": "missing_staff", "staff": row["staff"]}
+    state["attuned_spells"].append(row["spell_id"])
+    data["mage_arena"] = state
+    return data, True, {
+        "reason": "spell_attuned",
+        "alignment": god_id,
+        "spell_id": row["spell_id"],
+        "spell_name": row["spell_name"],
+    }
+
+
+def apply_mage_arena_cape_action_pure(player_data, god_id):
+    data = _copy_player_data_with_nested(player_data)
+    state = sanitize_mage_arena_state_pure(data.get("mage_arena"))
+    legacy_first_claim = not state["alignment"]
+    row = MAGE_ARENA_GOD_DATA.get(god_id)
+    if not state["completed"]:
+        return data, False, {"reason": "mage_arena_incomplete"}
+    if row is None:
+        return data, False, {"reason": "unknown_alignment"}
+
+    inventory = data.setdefault("inventory", {})
+    equipment = data.setdefault("equipment", {})
+    equipped_cape = equipment.get("cape")
+    target_is_equipped = equipped_cape == row["cape"]
+    if equipped_cape in MAGE_ARENA_GOD_CAPES and not target_is_equipped:
+        equipment.pop("cape", None)
+    for cape_name in MAGE_ARENA_GOD_CAPES:
+        inventory[cape_name] = 0
+    if not target_is_equipped:
+        inventory[row["cape"]] = 1
+    if legacy_first_claim:
+        if not _owns_or_equips_pure(data, row["staff"]):
+            inventory[row["staff"]] = 1
+        if row["spell_id"] not in state["attuned_spells"]:
+            state["attuned_spells"].append(row["spell_id"])
+    state["alignment"] = god_id
+    data["mage_arena"] = state
+    return data, True, {
+        "reason": (
+            "legacy_alignment_claimed"
+            if legacy_first_claim
+            else "cape_reclaimed" if target_is_equipped else "cape_replaced"
+        ),
+        "alignment": god_id,
+        "cape": row["cape"],
+        "staff": row["staff"] if legacy_first_claim else "",
+        "spell_id": row["spell_id"] if legacy_first_claim else "",
+    }
+
+
 def apply_mage_arena_step_pure(player_data):
-    """One review defeats one pinned Kolodion form; the fifth unlocks god spells."""
+    """Defeat one Kolodion form; the fifth grants and attunes one god loadout."""
     data = _copy_player_data_with_nested(player_data)
     reasons = mage_arena_locked_reasons_pure(data)
     if reasons:
-        return data, False, {"reason": "mage_arena_locked", "locked_reasons": reasons}
-    raw = data.get("mage_arena", {}) or {}
-    step = min(MAGE_ARENA_TOTAL_STEPS, _non_negative_int(raw.get("step", 0), 0) + 1)
+        reason = (
+            "mage_arena_alignment_required"
+            if reasons == ("Choose a god alignment",)
+            else "mage_arena_locked"
+        )
+        return data, False, {"reason": reason, "locked_reasons": reasons}
+    state = sanitize_mage_arena_state_pure(data.get("mage_arena"))
+    step = min(MAGE_ARENA_TOTAL_STEPS, state["step"] + 1)
     completed = step >= MAGE_ARENA_TOTAL_STEPS
-    data["mage_arena"] = {"step": step, "completed": completed}
-    return data, True, {"reason": "mage_arena", "step": step, "completed": completed}
+    state["step"] = step
+    state["completed"] = completed
+    rewards = {}
+    if completed:
+        row = MAGE_ARENA_GOD_DATA[state["alignment"]]
+        inventory = data.setdefault("inventory", {})
+        equipment = data.setdefault("equipment", {})
+        for cape_name in MAGE_ARENA_GOD_CAPES:
+            inventory[cape_name] = 0
+        if equipment.get("cape") in MAGE_ARENA_GOD_CAPES:
+            equipment.pop("cape", None)
+        inventory[row["cape"]] = 1
+        if not _owns_or_equips_pure(data, row["staff"]):
+            inventory[row["staff"]] = 1
+        state["attuned_spells"] = [row["spell_id"]]
+        rewards = {
+            "alignment": state["alignment"],
+            "cape": row["cape"],
+            "staff": row["staff"],
+            "spell_id": row["spell_id"],
+        }
+    data["mage_arena"] = state
+    return data, True, {
+        "reason": "mage_arena",
+        "step": step,
+        "completed": completed,
+        **rewards,
+    }
 
 
 def apply_smelt_pure(bar_name, inventory, bar_data):
@@ -959,20 +1139,20 @@ def _magic_quest_gate_complete_pure(player_data, gate):
     return quest_completed_pure(player_data, str(gate))
 
 
-def _farming_spell_locked_reasons_pure(player_data, target_id):
+def _farming_spell_locked_reasons_pure(player_data, target_id, patch_id=None):
     try:
         from .farming_logic import farming_spell_target_locked_reasons_pure
     except ImportError:  # pragma: no cover - flat imports used by tests
         from farming_logic import farming_spell_target_locked_reasons_pure  # type: ignore
-    return farming_spell_target_locked_reasons_pure(player_data, target_id)
+    return farming_spell_target_locked_reasons_pure(player_data, target_id, patch_id)
 
 
-def _apply_farming_spell_pure(player_data, target_id):
+def _apply_farming_spell_pure(player_data, target_id, patch_id=None):
     try:
         from .farming_logic import apply_farming_spell_pure
     except ImportError:  # pragma: no cover - flat imports used by tests
         from farming_logic import apply_farming_spell_pure  # type: ignore
-    return apply_farming_spell_pure(player_data, target_id)
+    return apply_farming_spell_pure(player_data, target_id, patch_id)
 
 
 MAGIC_CHARGE_DURATION_TICKS = 700
@@ -1016,7 +1196,12 @@ def effective_magic_rune_cost_pure(player_data, rune_cost):
     return cost
 
 
-def _magic_dynamic_requirements_pure(player_data, spec, alch_values):
+def _magic_dynamic_requirements_pure(
+    player_data,
+    spec,
+    alch_values,
+    farming_patch_id=None,
+):
     action = str(spec.get("action", "pure"))
     inventory = player_data.get("inventory", {}) or {}
     requirements = dict(_requirements_from_spec(spec))
@@ -1045,11 +1230,22 @@ def _magic_dynamic_requirements_pure(player_data, spec, alch_values):
         if not any(_non_negative_int(inventory.get(item, 0), 0) > 0 for item in _STRINGABLE_AMULETS):
             return requirements, ("Unstrung amulet",)
     elif str(spec.get("id", "")) in {"cure_plant", "fertile_soil"}:
-        return requirements, _farming_spell_locked_reasons_pure(player_data, str(spec["id"]))
+        return requirements, _farming_spell_locked_reasons_pure(
+            player_data,
+            str(spec["id"]),
+            farming_patch_id,
+        )
     return requirements, ()
 
 
-def magic_target_locked_reasons_pure(player_data, target_id, magic_data, alch_values=None):
+def magic_target_locked_reasons_pure(
+    player_data,
+    target_id,
+    magic_data,
+    alch_values=None,
+    *,
+    farming_patch_id=None,
+):
     spec = magic_data.get(target_id)
     if not isinstance(spec, Mapping):
         return ("Unknown Magic target",)
@@ -1065,8 +1261,20 @@ def magic_target_locked_reasons_pure(player_data, target_id, magic_data, alch_va
     gate = spec.get("quest_gate")
     if gate and not _magic_quest_gate_complete_pure(player_data, gate):
         reasons.append(str(gate).replace("_", " ").title())
+    god_id = MAGE_ARENA_SPELL_TO_GOD.get(target_id)
+    if god_id:
+        state = sanitize_mage_arena_state_pure(player_data.get("mage_arena"))
+        if target_id not in state["attuned_spells"]:
+            reasons.append(
+                f"Attune {MAGE_ARENA_GOD_DATA[god_id]['spell_name']} in the Mage Arena"
+            )
     inventory = player_data.get("inventory", {}) or {}
-    requirements, dynamic_reasons = _magic_dynamic_requirements_pure(player_data, spec, alch_values or {})
+    requirements, dynamic_reasons = _magic_dynamic_requirements_pure(
+        player_data,
+        spec,
+        alch_values or {},
+        farming_patch_id,
+    )
     reasons.extend(dynamic_reasons)
     for item_name, amount in requirements.items():
         if _non_negative_int(inventory.get(item_name, 0), 0) < amount:
@@ -1096,18 +1304,37 @@ _STRINGABLE_AMULETS = {
 }
 
 
-def apply_magic_action_pure(player_data, target_id, magic_data, alch_values=None, random_random=None):
+def apply_magic_action_pure(
+    player_data,
+    target_id,
+    magic_data,
+    alch_values=None,
+    random_random=None,
+    *,
+    farming_patch_id=None,
+):
     """Apply one closed-contract noncombat cast as a single undoable mutation."""
     spec = magic_data.get(target_id)
     alch_values = alch_values or {}
     random_random = random_random or (lambda: 1.0)
-    if not isinstance(spec, Mapping) or magic_target_locked_reasons_pure(player_data, target_id, magic_data, alch_values):
+    if not isinstance(spec, Mapping) or magic_target_locked_reasons_pure(
+        player_data,
+        target_id,
+        magic_data,
+        alch_values,
+        farming_patch_id=farming_patch_id,
+    ):
         return player_data, 0.0, {}, {}, False, "Magic target is locked"
     data = _copy_player_data_with_nested(player_data)
     inventory = data.setdefault("inventory", {})
     for rune_name, amount in effective_magic_rune_cost_pure(data, spec.get("rune_cost", {})).items():
         inventory[rune_name] = _non_negative_int(inventory.get(rune_name, 0), 0) - amount
-    requirements, _ = _magic_dynamic_requirements_pure(data, spec, alch_values)
+    requirements, _ = _magic_dynamic_requirements_pure(
+        data,
+        spec,
+        alch_values,
+        farming_patch_id,
+    )
     for item_name, amount in requirements.items():
         inventory[item_name] = _non_negative_int(inventory.get(item_name, 0), 0) - amount
 
@@ -1183,7 +1410,11 @@ def apply_magic_action_pure(player_data, target_id, magic_data, alch_values=None
         data["magic_charge_active"] = True
         data["magic_charge_ticks_remaining"] = MAGIC_CHARGE_DURATION_TICKS
     elif target_id in {"cure_plant", "fertile_soil"}:
-        data, applied, message = _apply_farming_spell_pure(data, target_id)
+        data, applied, message = _apply_farming_spell_pure(
+            data,
+            target_id,
+            farming_patch_id,
+        )
         if not applied:
             return player_data, 0.0, {}, {}, False, message
     elif action == "cure_me":
@@ -2133,7 +2364,26 @@ def can_equip_item_pure(
         current_level = _positive_int(player_data.get(level_key, 1), 1)
         if current_level < required_level:
             return False, f"Requires level {required_level} {_combat_skill_label(combat_skill)}"
+    equipment = player_data.get("equipment", {}) or {}
+    item_god = _mage_arena_god_for_item(item_name)
+    if item_name in MAGE_ARENA_GOD_STAVES:
+        cape = equipment.get("cape")
+        cape_god = _mage_arena_god_for_item(cape)
+        if cape_god and cape_god != item_god:
+            return False, f"{item_name} cannot be equipped with {cape}"
+    elif item_name in MAGE_ARENA_GOD_CAPES:
+        weapon = equipment.get("weapon")
+        weapon_god = _mage_arena_god_for_item(weapon)
+        if weapon_god and weapon_god != item_god:
+            return False, f"{item_name} cannot be equipped with {weapon}"
     return True, ""
+
+
+def _mage_arena_god_for_item(item_name):
+    for god_id, row in MAGE_ARENA_GOD_DATA.items():
+        if item_name in {row["cape"], row["staff"]}:
+            return god_id
+    return None
 
 
 def equip_item_pure(
@@ -2151,6 +2401,15 @@ def equip_item_pure(
     owned_qty = inventory.get(item_name, 0)
     if owned_qty <= 0:
         return dict(inventory), dict(equipment), False
+    item_god = _mage_arena_god_for_item(item_name)
+    if item_name in MAGE_ARENA_GOD_STAVES:
+        equipped_god = _mage_arena_god_for_item(equipment.get("cape"))
+        if equipped_god and equipped_god != item_god:
+            return dict(inventory), dict(equipment), False
+    elif item_name in MAGE_ARENA_GOD_CAPES:
+        equipped_god = _mage_arena_god_for_item(equipment.get("weapon"))
+        if equipped_god and equipped_god != item_god:
+            return dict(inventory), dict(equipment), False
 
     new_inventory = dict(inventory)
     new_equipment = {
@@ -3291,10 +3550,39 @@ def _combat_ranged_max_hit_old_hp(effective_ranged, ranged_strength_bonus):
     return max(0.0, 0.5 + float(effective_ranged) * (float(ranged_strength_bonus) + 64.0) / 640.0)
 
 
-def _combat_magic_max_hit_old_hp(spell_spec, player_totals):
+def charged_god_spell_max_hit_bonus_pure(player_data, spell_id):
+    god_id = MAGE_ARENA_SPELL_TO_GOD.get(str(spell_id))
+    if not god_id:
+        return 0
+    if not bool(player_data.get("magic_charge_active", False)):
+        return 0
+    if _non_negative_int(player_data.get("magic_charge_ticks_remaining", 0), 0) <= 0:
+        return 0
+    row = MAGE_ARENA_GOD_DATA[god_id]
+    equipment = player_data.get("equipment", {}) or {}
+    if (
+        equipment.get("cape") != row["cape"]
+        or equipment.get("weapon") != row["staff"]
+    ):
+        return 0
+    state = sanitize_mage_arena_state_pure(player_data.get("mage_arena"))
+    return 10 if row["spell_id"] in state["attuned_spells"] else 0
+
+
+def _combat_magic_max_hit_old_hp(
+    spell_spec,
+    player_totals,
+    player_data=None,
+    spell_id=None,
+):
     if not isinstance(spell_spec, Mapping):
         return 0.0
     base_hit = _positive_int(spell_spec.get("max_hit_old_hp", 0), 0)
+    if isinstance(player_data, Mapping):
+        base_hit += charged_god_spell_max_hit_bonus_pure(
+            player_data,
+            spell_id or spell_spec.get("id", ""),
+        )
     multiplier = 1.0 + (_equipment_bonus_value(player_totals, "magic_damage") / 100.0)
     return max(0.0, floor(float(base_hit) * multiplier))
 
@@ -3580,6 +3868,13 @@ def _combat_magic_locked_reasons(player_data, target_id, equipment_data=None):
     gate = spell_spec.get("quest_gate")
     if gate and not _magic_quest_gate_complete_pure(player_data, gate):
         return (str(gate).replace("_", " ").title(),)
+    god_id = MAGE_ARENA_SPELL_TO_GOD.get(spell_id)
+    if god_id:
+        state = sanitize_mage_arena_state_pure(player_data.get("mage_arena"))
+        if spell_id not in state["attuned_spells"]:
+            return (
+                f"Attune {MAGE_ARENA_GOD_DATA[god_id]['spell_name']} in the Mage Arena",
+            )
     required_weapon = spell_spec.get("required_weapon")
     if required_weapon and (player_data.get("equipment", {}) or {}).get("weapon") != required_weapon:
         return (str(required_weapon),)
@@ -4839,7 +5134,12 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
             _combat_ranged_strength_bonus(player_totals, ammo_name),
         )
     elif combat_class == "magic":
-        player_max_hit = _combat_magic_max_hit_old_hp(spell_spec, player_totals)
+        player_max_hit = _combat_magic_max_hit_old_hp(
+            spell_spec,
+            player_totals,
+            player_data,
+            spell_id,
+        )
     else:
         player_max_hit = _combat_melee_max_hit_old_hp(
             _combat_effective_player_strength_level(player_data, style_id),
@@ -5246,7 +5546,12 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * enemy_defence_factor * (
             _combat_defence_bonus_from_totals(enemy_totals, "magic") + 64
         )
-        player_max_hit = _combat_magic_max_hit_old_hp(spell_spec, player_totals)
+        player_max_hit = _combat_magic_max_hit_old_hp(
+            spell_spec,
+            player_totals,
+            data,
+            spell_id,
+        )
     else:
         player_attack_roll = _combat_effective_player_attack_level(data, style_id) * float(prayer_effects.get("attack", 1.0)) * (
             _combat_attack_bonus_from_totals(player_totals, style_type=melee_style_type) + 64
@@ -5429,7 +5734,12 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
                         player_attack_roll = _combat_effective_player_magic_level(data) * float(
                             prayer_effects.get("magic", 1.0)
                         ) * (_combat_attack_bonus_from_totals(player_totals, "magic") + 64)
-                        player_max_hit = _combat_magic_max_hit_old_hp(spell_spec, player_totals)
+                        player_max_hit = _combat_magic_max_hit_old_hp(
+                            spell_spec,
+                            player_totals,
+                            data,
+                            spell_id,
+                        )
                     else:
                         player_attack_roll = _combat_effective_player_attack_level(data, style_id) * float(
                             prayer_effects.get("attack", 1.0)

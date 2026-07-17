@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape · Mage Arena &amp; Farming Cure Closure</title>
+  <style>
+    :root {
+      --bg: #090d0b;
+      --panel: #111914;
+      --panel-2: #17221b;
+      --line: #2c3a30;
+      --text: #f1f5f2;
+      --muted: #a5b2a8;
+      --green: #5de387;
+      --gold: #f2c464;
+      --blue: #75b9ff;
+      --red: #ff7d7d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 0%, #183222 0, transparent 33rem),
+        radial-gradient(circle at 100% 10%, #18233b 0, transparent 28rem),
+        var(--bg);
+      font: 16px/1.55 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1160px, calc(100% - 32px)); margin: 0 auto; padding: 64px 0 80px; }
+    .eyebrow { color: var(--green); font-weight: 800; letter-spacing: .14em; text-transform: uppercase; font-size: .75rem; }
+    h1 { max-width: 900px; margin: 12px 0 16px; font-size: clamp(2.5rem, 7vw, 5.8rem); line-height: .98; letter-spacing: -.055em; }
+    .lede { max-width: 820px; margin: 0 0 36px; color: var(--muted); font-size: 1.16rem; }
+    .badge { display: inline-flex; gap: 8px; align-items: center; padding: 8px 12px; border: 1px solid #326942; border-radius: 999px; background: #13251a; color: var(--green); font-weight: 800; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 14px var(--green); }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 28px 0 48px; }
+    .metric, .card { border: 1px solid var(--line); background: linear-gradient(145deg, rgba(23,34,27,.96), rgba(13,19,15,.96)); border-radius: 18px; }
+    .metric { padding: 20px; }
+    .metric strong { display: block; font-size: 2rem; letter-spacing: -.04em; }
+    .metric span { color: var(--muted); font-size: .86rem; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .card { padding: 28px; }
+    .card h2 { margin: 0 0 8px; font-size: 1.35rem; }
+    .card p { margin: 0 0 18px; color: var(--muted); }
+    .flow { display: flex; align-items: stretch; gap: 8px; overflow-x: auto; padding-bottom: 6px; }
+    .step { min-width: 128px; flex: 1; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: #0d130f; }
+    .step b { display: block; color: var(--gold); font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; }
+    .step span { display: block; margin-top: 5px; font-size: .9rem; }
+    .arrow { align-self: center; color: var(--muted); font-weight: 900; }
+    .list { display: grid; gap: 10px; margin-top: 18px; }
+    .row { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: start; color: var(--muted); }
+    .check { color: var(--green); font-weight: 900; }
+    .caught { color: var(--red); }
+    .wide { grid-column: 1 / -1; }
+    .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+    code { color: var(--blue); font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    @media (max-width: 780px) {
+      main { padding-top: 40px; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .wide { grid-column: auto; }
+      .flow { flex-direction: column; }
+      .arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">AnkiScape · closure report · 17 July 2026</div>
+    <h1>Mage Arena has teeth. Farming has a cure policy.</h1>
+    <p class="lede">Two owner decisions are now complete, migrated, surfaced in Qt, and wired through the real combat and Farming transactions. The final review found three integration defects before they escaped.</p>
+    <div class="badge"><span class="dot"></span> Verified on canonical main</div>
+
+    <section class="metrics" aria-label="Verification metrics">
+      <div class="metric"><strong>1,388</strong><span>core methods · green</span></div>
+      <div class="metric"><strong>1,388</strong><span>real offscreen Qt methods · green</span></div>
+      <div class="metric"><strong>0</strong><span>failures, errors, or hard test issues</span></div>
+      <div class="metric"><strong>3</strong><span>declared XP-parity expected failures</span></div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Mage Arena reward loop</h2>
+        <p>The landmark now ends in a consequential alignment rather than a generic completion flag.</p>
+        <div class="flow">
+          <div class="step"><b>5 reviews</b><span>Defeat Kolodion’s forms</span></div>
+          <div class="arrow">→</div>
+          <div class="step"><b>Choose</b><span>Saradomin, Guthix, or Zamorak</span></div>
+          <div class="arrow">→</div>
+          <div class="step"><b>Claim</b><span>Matching cape, staff, and first attunement</span></div>
+        </div>
+        <div class="list">
+          <div class="row"><span class="check">✓</span><span>One review attunes each additional god spell after its staff is owned.</span></div>
+          <div class="row"><span class="check">✓</span><span>Statue actions switch or reclaim the one allowed cape instantly, with direct-action undo.</span></div>
+          <div class="row"><span class="check">✓</span><span>Charge raises the matching god spell from 200 to 300 LP max hit only with the attuned spell and matching cape/staff.</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Farming cure policy</h2>
+        <p>Each patch plan has a compact ordered choice, not another automation maze.</p>
+        <div class="flow">
+          <div class="step"><b>Policy A</b><span>Plant cure first</span></div>
+          <div class="arrow">⇄</div>
+          <div class="step"><b>Policy B</b><span>Cure Plant first</span></div>
+          <div class="arrow">→</div>
+          <div class="step"><b>Fallback</b><span>Try the other route atomically</span></div>
+        </div>
+        <div class="list">
+          <div class="row"><span class="check">✓</span><span>Plans, user presets, and queued steps preserve the preference.</span></div>
+          <div class="row"><span class="check">✓</span><span>The spell route reuses the canonical quest, rune, Magic XP, and rollback transaction.</span></div>
+          <div class="row"><span class="check">✓</span><span>Config v40 migrates legacy saves without inventing Mage Arena progress.</span></div>
+        </div>
+      </article>
+
+      <article class="card wide">
+        <h2>Fresh-eyes catches</h2>
+        <p>All three were integration seams, not cosmetic polish.</p>
+        <div class="grid">
+          <div class="row"><span class="caught">1</span><span>The first generated god-cape rows had lost their sourced 1/1/2 melee defence bonuses.</span></div>
+          <div class="row"><span class="caught">2</span><span>God staves were absent from the magic-weapon registry, making combat preview silently use melee math.</span></div>
+          <div class="row"><span class="caught">3</span><span>Canonical god-cape items inherited generic defaults: no cache IDs, stackable, and tradeable.</span></div>
+          <div class="row"><span class="check">✓</span><span>Generator, weapon registry, item manifest, provenance, and focused regressions now lock every repair.</span></div>
+        </div>
+      </article>
+    </section>
+
+    <div class="footer">Also green: documentation audit, compilation, JSON validation, diff check, asset provenance, worktree guard, and the established <code>1,200 actions / 273 known orphans</code> reachability baseline. Summoning and Dungeoneering were not touched.</div>
+  </main>
+</body>
+</html>

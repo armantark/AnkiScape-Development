@@ -3383,6 +3383,50 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
+    def test_mage_arena_statue_switch_is_a_direct_undoable_action(self):
+        addon = _load_addon_as_package(
+            "ankiscape_mage_arena_cape_direct_action_integration"
+        )
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.current_skill = "Magic"
+        initial = {
+            "inventory": {
+                "Saradomin cape": 1,
+                "Guthix staff": 1,
+            },
+            "equipment": {},
+            "mage_arena": {
+                "step": 5,
+                "completed": True,
+                "alignment": "saradomin",
+                "attuned_spells": ["saradomin_strike"],
+            },
+            "smithing_level": 1,
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda _message: None
+
+        addon._on_main_menu()
+        apply_action = captured["on_mage_arena_action"]
+        self.assertTrue(apply_action("cape", "guthix"))
+        self.assertEqual(addon.player_data["mage_arena"]["alignment"], "guthix")
+        self.assertEqual(addon.player_data["inventory"]["Saradomin cape"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Guthix cape"], 1)
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
     def test_combat_current_target_drives_main_menu_carried_pack_callbacks(self):
         addon = _load_addon_as_package("ankiscape_combat_carried_target_integration")
         captured = {}

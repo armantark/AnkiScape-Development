@@ -269,9 +269,9 @@ except Exception:
     )
 
 try:
-    from .logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure
+    from .logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_GOD_DATA, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure, sanitize_mage_arena_state_pure
 except Exception:
-    from logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure  # type: ignore
+    from logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_GOD_DATA, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure, sanitize_mage_arena_state_pure  # type: ignore
 
 try:
     from .equipment_data import EQUIPMENT_BONUS_FIELDS
@@ -449,9 +449,17 @@ except Exception:
     import inventory_pure  # type: ignore
 
 try:
-    from .farming_logic import farming_frontend_projection_pure
+    from .farming_logic import (
+        CURE_PLANT_SPELL_FIRST,
+        PLANT_CURE_ITEM_FIRST,
+        farming_frontend_projection_pure,
+    )
 except Exception:
-    from farming_logic import farming_frontend_projection_pure  # type: ignore
+    from farming_logic import (  # type: ignore
+        CURE_PLANT_SPELL_FIRST,
+        PLANT_CURE_ITEM_FIRST,
+        farming_frontend_projection_pure,
+    )
 
 # Central debug logger (support both package and flat import in tests)
 try:
@@ -2213,6 +2221,7 @@ def show_main_menu(
     on_set_quest_route_choice=None,
     on_claim_reward=None,
     on_claim_stronghold_reward=None,
+    on_mage_arena_action=None,
     on_set_floating_enabled=None,
     on_set_floating_position=None,
     on_equip_item=None,
@@ -3004,6 +3013,7 @@ def show_main_menu(
             protect_check: QCheckBox,
             water_check: QCheckBox,
             cure_check: QCheckBox,
+            cure_preference_combo: QComboBox,
         ) -> None:
             crop_id = crop_combo.currentData()
             if not crop_id:
@@ -3015,6 +3025,10 @@ def show_main_menu(
                 "protection_intent": protect_check.isChecked(),
                 "watering_intent": water_check.isChecked(),
                 "cure_intent": cure_check.isChecked(),
+                "cure_route_preference": (
+                    cure_preference_combo.currentData()
+                    or PLANT_CURE_ITEM_FIRST
+                ),
             })
 
         def _choose_preset_patch_ids(
@@ -3298,7 +3312,7 @@ def show_main_menu(
                         f"Plan: {plan['crop_name']} · {str(plan['compost_tier']).replace('_', ' ').title()} · "
                         f"{'Gardener' if plan['protection_intent'] else 'No gardener'} · "
                         f"{'Water' if plan['watering_intent'] else 'Do not water'} · "
-                        f"{'Cure' if plan['cure_intent'] else 'Do not cure'}"
+                        f"{'Cure (' + ('spell first' if plan['cure_route_preference'] == CURE_PLANT_SPELL_FIRST else 'item first') + ')' if plan['cure_intent'] else 'Do not cure'}"
                     )
                     plan_label.setStyleSheet(f"color: {dim_text_css(plan_label)}; font-size: 11px;")
                     card_layout.addWidget(plan_label)
@@ -3354,7 +3368,37 @@ def show_main_menu(
                     cure_check.setObjectName(f"farmingPatchCureCheck::{patch_id}")
                     cure_check.setChecked(bool(plan["cure_intent"]))
                     cure_check.setEnabled(bool(plan["crop_id"]) and on_farming_action is not None)
-                    cure_check.setToolTip("Queues the existing Plant cure item action when this patch is diseased.")
+                    cure_check.setToolTip(
+                        "Queues one cure step when this patch is diseased."
+                    )
+                    cure_preference_combo = QComboBox()
+                    cure_preference_combo.setObjectName(
+                        f"farmingPatchCurePreferenceCombo::{patch_id}"
+                    )
+                    cure_preference_combo.addItem(
+                        "Plant cure first",
+                        PLANT_CURE_ITEM_FIRST,
+                    )
+                    cure_preference_combo.addItem(
+                        "Cure Plant first",
+                        CURE_PLANT_SPELL_FIRST,
+                    )
+                    cure_preference_combo.setCurrentIndex(
+                        max(
+                            0,
+                            cure_preference_combo.findData(
+                                plan["cure_route_preference"]
+                            ),
+                        )
+                    )
+                    cure_preference_combo.setEnabled(
+                        cure_check.isChecked()
+                        and bool(plan["crop_id"])
+                        and on_farming_action is not None
+                    )
+                    cure_preference_combo.setToolTip(
+                        "If the preferred cure is unavailable, the full run tries the other route."
+                    )
                     plan_grid.addWidget(QLabel("Crop plan"), 0, 0)
                     plan_grid.addWidget(crop_combo, 0, 1)
                     plan_grid.addWidget(QLabel("Compost"), 1, 0)
@@ -3362,26 +3406,32 @@ def show_main_menu(
                     plan_grid.addWidget(protect_check, 2, 1)
                     plan_grid.addWidget(water_check, 3, 1)
                     plan_grid.addWidget(cure_check, 4, 1)
+                    plan_grid.addWidget(cure_preference_combo, 5, 1)
                     detail_layout.addLayout(plan_grid)
                     crop_combo.currentIndexChanged.connect(
-                        lambda _i, p=patch, c=crop_combo, co=compost_combo, pr=protect_check, w=water_check, cu=cure_check:
-                        _save_plan(p, c, co, pr, w, cu)
+                        lambda _i, p=patch, c=crop_combo, co=compost_combo, pr=protect_check, w=water_check, cu=cure_check, cup=cure_preference_combo:
+                        _save_plan(p, c, co, pr, w, cu, cup)
                     )
                     compost_combo.currentIndexChanged.connect(
-                        lambda _i, p=patch, c=crop_combo, co=compost_combo, pr=protect_check, w=water_check, cu=cure_check:
-                        _save_plan(p, c, co, pr, w, cu)
+                        lambda _i, p=patch, c=crop_combo, co=compost_combo, pr=protect_check, w=water_check, cu=cure_check, cup=cure_preference_combo:
+                        _save_plan(p, c, co, pr, w, cu, cup)
                     )
                     protect_check.toggled.connect(
-                        lambda _v, p=patch, c=crop_combo, co=compost_combo, pr=protect_check, w=water_check, cu=cure_check:
-                        _save_plan(p, c, co, pr, w, cu)
+                        lambda _v, p=patch, c=crop_combo, co=compost_combo, pr=protect_check, w=water_check, cu=cure_check, cup=cure_preference_combo:
+                        _save_plan(p, c, co, pr, w, cu, cup)
                     )
                     water_check.toggled.connect(
-                        lambda _v, p=patch, c=crop_combo, co=compost_combo, pr=protect_check, w=water_check, cu=cure_check:
-                        _save_plan(p, c, co, pr, w, cu)
+                        lambda _v, p=patch, c=crop_combo, co=compost_combo, pr=protect_check, w=water_check, cu=cure_check, cup=cure_preference_combo:
+                        _save_plan(p, c, co, pr, w, cu, cup)
                     )
                     cure_check.toggled.connect(
-                        lambda _v, p=patch, c=crop_combo, co=compost_combo, pr=protect_check, w=water_check, cu=cure_check:
-                        _save_plan(p, c, co, pr, w, cu)
+                        lambda _v, p=patch, c=crop_combo, co=compost_combo, pr=protect_check, w=water_check, cu=cure_check, cup=cure_preference_combo:
+                        _save_plan(p, c, co, pr, w, cu, cup)
+                    )
+                    cure_check.toggled.connect(cure_preference_combo.setEnabled)
+                    cure_preference_combo.currentIndexChanged.connect(
+                        lambda _i, p=patch, c=crop_combo, co=compost_combo, pr=protect_check, w=water_check, cu=cure_check, cup=cure_preference_combo:
+                        _save_plan(p, c, co, pr, w, cu, cup)
                     )
 
                     actions = QVBoxLayout()
@@ -4641,14 +4691,24 @@ def show_main_menu(
         if kw_completed or kw_locked:
             kw_child.setDisabled(True)
         landmark_parent.addChild(kw_child)
-        ma_state = player_data.get("mage_arena") or {}
+        ma_state = sanitize_mage_arena_state_pure(player_data.get("mage_arena"))
         ma_step = max(0, min(int(ma_state.get("step", 0) or 0), MAGE_ARENA_TOTAL_STEPS))
         ma_completed = bool(ma_state.get("completed"))
+        ma_alignment = str(ma_state.get("alignment", "") or "")
         ma_locked = mage_arena_locked_reasons_pure(player_data)
-        ma_label = "Mage Arena ✓" if ma_completed else f"Mage Arena — {ma_step}/{MAGE_ARENA_TOTAL_STEPS} Kolodion forms"
+        alignment_label = (
+            MAGE_ARENA_GOD_DATA[ma_alignment]["display_name"]
+            if ma_alignment in MAGE_ARENA_GOD_DATA
+            else ""
+        )
+        ma_label = (
+            f"Mage Arena ✓ · {alignment_label or 'choose alignment'}"
+            if ma_completed
+            else f"Mage Arena — {ma_step}/{MAGE_ARENA_TOTAL_STEPS} Kolodion forms"
+        )
         ma_child = QTreeWidgetItem([ma_label])
         ma_child.setData(0, Qt.ItemDataRole.UserRole, _MAGE_ARENA_UTILITY_KEY)
-        ma_child.setToolTip(0, "Defeat Kolodion's five forms, one per review. Completion unlocks the three god spells and Charge."
+        ma_child.setToolTip(0, "Defeat Kolodion's five forms, one per review. Choose an alignment before the final form; completion grants its cape, staff, and attunement."
                             + (f"\nLocked due to: {', '.join(ma_locked)}" if ma_locked and not ma_completed else ""))
         ma_icon = os.path.join(current_dir, "icon", "magic_icon.png")
         if os.path.exists(ma_icon):
@@ -4656,6 +4716,74 @@ def show_main_menu(
         if ma_completed or ma_locked:
             ma_child.setDisabled(True)
         landmark_parent.addChild(ma_child)
+        if ma_step == MAGE_ARENA_TOTAL_STEPS - 1 and not ma_completed:
+            alignment_parent = QTreeWidgetItem(["Choose alignment for the final form"])
+            alignment_parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
+            landmark_parent.addChild(alignment_parent)
+            for god_id, row in MAGE_ARENA_GOD_DATA.items():
+                alignment_item = QTreeWidgetItem([row["display_name"]])
+                alignment_item.setData(
+                    0,
+                    Qt.ItemDataRole.UserRole,
+                    f"__mage_alignment__:{god_id}",
+                )
+                alignment_item.setToolTip(
+                    0,
+                    f"Final victory grants the {row['cape']} and {row['staff']} and attunes {row['spell_name']}.",
+                )
+                alignment_parent.addChild(alignment_item)
+            alignment_parent.setExpanded(True)
+        if ma_completed:
+            statue_parent = QTreeWidgetItem(["Mage Arena statues"])
+            statue_parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
+            landmark_parent.addChild(statue_parent)
+            inventory = player_data.get("inventory", {}) or {}
+            equipment = player_data.get("equipment", {}) or {}
+            attuned = set(ma_state.get("attuned_spells", ()))
+            for god_id, row in MAGE_ARENA_GOD_DATA.items():
+                cape_label = (
+                    f"Choose {row['cape']}"
+                    if not ma_alignment
+                    else (
+                        f"Reclaim {row['cape']}"
+                        if god_id == ma_alignment
+                        else f"Switch to {row['cape']}"
+                    )
+                )
+                cape_item = QTreeWidgetItem([cape_label])
+                cape_item.setData(
+                    0,
+                    Qt.ItemDataRole.UserRole,
+                    f"__mage_cape__:{god_id}",
+                )
+                cape_item.setToolTip(
+                    0,
+                    "Instant statue action. Any other god cape is destroyed or replaced; only one may be owned.",
+                )
+                statue_parent.addChild(cape_item)
+                if row["spell_id"] not in attuned:
+                    staff_owned = (
+                        int(inventory.get(row["staff"], 0) or 0) > 0
+                        or row["staff"] in equipment.values()
+                    )
+                    attune_item = QTreeWidgetItem(
+                        [f"Attune {row['spell_name']} · one review"]
+                    )
+                    attune_item.setData(
+                        0,
+                        Qt.ItemDataRole.UserRole,
+                        f"mage_arena_attune:{god_id}",
+                    )
+                    attune_item.setToolTip(
+                        0,
+                        f"Represents 100 arena casts. Requires owning {row['staff']}."
+                        + ("" if staff_owned else f"\nMissing {row['staff']}."),
+                    )
+                    attune_item.setDisabled(not staff_owned)
+                    statue_parent.addChild(attune_item)
+            statue_parent.setExpanded(
+                str(current).startswith("mage_arena_attune:")
+            )
         landmark_active = False
         if current == _KNIGHT_WAVES_UTILITY_KEY and not kw_completed:
             selected_child = kw_child
@@ -4693,6 +4821,24 @@ def show_main_menu(
             if activity_id == _MAGE_ARENA_UTILITY_KEY:
                 if on_set_utility is not None:
                     on_set_utility(activity_id)
+                return
+            if str(activity_id).startswith("__mage_alignment__:"):
+                god_id = str(activity_id).removeprefix("__mage_alignment__:")
+                if (
+                    on_mage_arena_action is not None
+                    and on_mage_arena_action("select_alignment", god_id)
+                    and on_set_utility is not None
+                ):
+                    on_set_utility(_MAGE_ARENA_UTILITY_KEY)
+                return
+            if str(activity_id).startswith("__mage_cape__:"):
+                god_id = str(activity_id).removeprefix("__mage_cape__:")
+                if on_mage_arena_action is not None:
+                    on_mage_arena_action("cape", god_id)
+                return
+            if str(activity_id).startswith("mage_arena_attune:"):
+                if on_set_utility is not None:
+                    on_set_utility(str(activity_id))
                 return
             if on_set_utility is not None:
                 on_set_utility(activity_id)

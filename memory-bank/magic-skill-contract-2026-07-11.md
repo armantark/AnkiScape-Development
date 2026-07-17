@@ -1,8 +1,8 @@
 # Magic Skill Contract — grill closed 2026-07-11
 
-Status: **implemented on `main` at `24fbafd`; the 2026-07-16 Charge duration
-amendment is implemented in the 2026-07-17 grill-harvest batch.** The body below
-preserves the pre-implementation contract.
+Status: **implemented on `main` at `24fbafd`; the Charge duration and Mage Arena
+reward/effect amendments were completed in the 2026-07-17 grill-harvest
+follow-ups.** The body below preserves the pre-implementation contract.
 
 This is the implementation-ready contract for the full Magic skill continuation. The
 deep grill closed on 2026-07-11 with the owner present; do not re-grill the decisions
@@ -125,7 +125,8 @@ cross-check) is authentic pre-EOC gap-fill via `tools/wiki_parity.py` pinned bef
     Prayer page. The correct cutoff pin and the resulting alignment/cape/attunement
     design fork are documented in
     `memory-bank/source-audits/magic-charge-reconciliation-2026-07-17.md`.
-    Review-driven duration is live; the damage boost waits for that owner fork.
+    The owner approved the collapsed alignment/attunement path on 2026-07-17;
+    the complete reward and damage path is recorded in the amendment below.
 13. **Charge orbs** close the reachability audit's elemental-orb orphan category:
     unpowered orb + 30 elemental runes + 3 cosmic per cast (obelisk travel
     abstracted), outputs feed battlestaff Crafting.
@@ -211,3 +212,24 @@ v38 gives an active v37 save one full 700-tick duration because the old schema
 stored no elapsed review count. Successful reviews advance the state before
 dispatch, so recasting Charge installs a fresh full duration, and Answer Card
 undo restores the entire transition atomically.
+
+## Mage Arena reward and Charge-effect amendment — 2026-07-17
+
+Status: **implemented and verified.**
+
+- The first four Kolodion forms remain one review each. Before the fifth, the
+  player chooses Saradomin, Guthix, or Zamorak; final victory grants that cape,
+  the first matching staff, and the matching spell attunement.
+- The other two god spells require owning their shop-bought matching staff and
+  one explicit `Attune` review each. One review is the labeled AnkiScape
+  abstraction for the sourced 100 arena casts.
+- Statue cape replacement/reclaim is instantaneous and direct-undoable. It
+  destroys or replaces any other god cape, preserving the sourced one-cape
+  limit. Matching cape/staff equip guards prevent mixed-god loadouts.
+- Charge's +100 LP maximum-hit effect applies only to an attuned god spell,
+  only while Charge has reviews remaining, and only while its matching cape
+  and staff are worn. Combat preview and live bursts use the same calculation.
+- Config v40 stores alignment and attuned spell IDs. A legacy completed save
+  with an alignment retains its initial attunement; an older completion with
+  no alignment receives the original free cape/staff/attunement on its first
+  statue claim.

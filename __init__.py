@@ -73,7 +73,9 @@ from .logic_pure import (
     purchase_house_pure,
     purchase_house_option_pure,
     apply_prayer_selection_pure,
+    apply_mage_arena_cape_action_pure,
     teleport_full_urn_pure,
+    set_mage_arena_alignment_pure,
 )
 from .construction_data import ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA
 from .cadence_kernel import sanitize_cadence_kernel_enabled_pure
@@ -1070,6 +1072,52 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             pass
         return {"ok": ok, "message": message, "projection": farming_frontend_projection_pure(player_data)}
 
+    def _apply_mage_arena_action(action_id, god_id):
+        if action_id == "select_alignment":
+            updated, ok, info = set_mage_arena_alignment_pure(
+                player_data,
+                god_id,
+            )
+            if not ok:
+                show_error_message(
+                    "Cannot choose alignment",
+                    str(info.get("reason", "That alignment is unavailable.")),
+                )
+                return False
+            player_data.clear()
+            player_data.update(updated)
+            save_player_data()
+            return True
+        if action_id != "cape":
+            return False
+        before = {
+            "player_data": copy.deepcopy(player_data),
+            "random_state": random.getstate(),
+        }
+        updated, ok, info = apply_mage_arena_cape_action_pure(
+            player_data,
+            god_id,
+        )
+        if not ok:
+            show_error_message(
+                "Cannot use Mage Arena statue",
+                str(info.get("reason", "That statue action is unavailable.")),
+            )
+            return False
+        try:
+            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+        except (AttributeError, RuntimeError):
+            return False
+        _DIRECT_ACTION_UNDO_STACK.append(before)
+        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+        player_data.clear()
+        player_data.update(updated)
+        save_player_data()
+        _refresh_skill_availability()
+        _show_activity_gain(f"Claimed {info.get('cape', 'god cape')}.")
+        return True
+
     def _apply_agility_command(action_id, payload):
         before = {"player_data": copy.deepcopy(player_data), "random_state": random.getstate()}
         pit_reward = (player_data.get("agility_activity_state") or {}).get("pit_reward")
@@ -1167,6 +1215,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_set_quest_route_choice=on_set_quest_route_choice,
         on_claim_reward=on_claim_reward,
         on_claim_stronghold_reward=_claim_stronghold_reward,
+        on_mage_arena_action=_apply_mage_arena_action,
         on_set_floating_enabled=_set_floating_enabled,
         on_set_floating_position=_set_floating_position,
         on_equip_item=on_equip_item,

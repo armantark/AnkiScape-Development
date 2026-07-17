@@ -1,8 +1,9 @@
 # Farming Skill Contract — closed 2026-07-11
 
-Status: **implemented on `main` at `9a88c56`; the 2026-07-16 replacement and
-preset amendment is implemented at `9b65f45`.** The body below preserves the
-original contract and its post-closure amendment. The source research record is
+Status: **implemented on `main` at `9a88c56`; the replacement/preset and
+cross-skill cure-policy amendments were completed in the 2026-07-17 follow-up
+batches.** The body below preserves the original contract and its post-closure
+amendments. The source research record is
 `memory-bank/source-audits/farming-source-dossier-2026-07-11.md` (cited below
 as "dossier"); its per-row citations into game-main (GM) and the Darkan pin
 `7e7d67b` (DK) are the extraction map and are not repeated here.
@@ -157,3 +158,20 @@ Status: **implemented and verified on `main` at `9b65f45`.**
   gardener. Removing or clearing that step, or skipping it because its planting
   requirements changed, refunds the exact source-defined payment. Successful
   planting consumes it. Legacy already-paid plans remain compatible.
+
+## Post-closure cure-route policy amendment — 2026-07-17
+
+Status: **implemented and verified.**
+
+- Every patch plan retains the existing `Auto-cure` toggle and adds one compact
+  ordered preference: `Plant cure first` or `Cure Plant first`.
+- Whole-farm presets snapshot that preference. A queued cure step snapshots it
+  again so later plan edits cannot rewrite already queued intent.
+- At execution time the preferred route is attempted first and the other route
+  is the automatic fallback. Both unavailable means the step fails without
+  consuming either resource or changing the diseased patch.
+- The item route consumes one Plant cure and awards no Farming XP. The spell
+  route reuses the canonical Cure Plant Magic transaction, including Lunar
+  Diplomacy, level, rune, 60 Magic XP, and patch validation.
+- The cure step still precedes the farm-clock advance for a queued full run, so
+  an available cure protects the patch at the imminent disease/death boundary.

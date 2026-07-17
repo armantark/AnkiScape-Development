@@ -20,7 +20,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 626)
+        self.assertEqual(len(EQUIPMENT_DATA), 629)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -42,6 +42,26 @@ class TestEquipmentData(unittest.TestCase):
         self.assertEqual(EQUIPMENT_DATA["Mining helmet (unlit)"].combat_skill, "defense")
         self.assertEqual(EQUIPMENT_DATA["Mining helmet (lit)"].combat_skill, "defense")
         self.assertEqual(EQUIPMENT_DATA["Agility cape"].skill_requirements, (("agility", 99),))
+        for item_name, source_item_id in (
+            ("Saradomin cape", 2412),
+            ("Guthix cape", 2413),
+            ("Zamorak cape", 2414),
+        ):
+            with self.subTest(item_name=item_name):
+                cape = EQUIPMENT_DATA[item_name]
+                self.assertEqual(cape.slot, "cape")
+                self.assertEqual(cape.equipment_type, "god_cape")
+                self.assertEqual(cape.source_item_id, source_item_id)
+                self.assertEqual(cape.bonuses.attack_magic, 10)
+                self.assertEqual(
+                    (
+                        cape.bonuses.defence_stab,
+                        cape.bonuses.defence_slash,
+                        cape.bonuses.defence_crush,
+                        cape.bonuses.defence_magic,
+                    ),
+                    (1, 1, 2, 10),
+                )
         self.assertEqual(EQUIPMENT_DATA["Willow blackjack"].source_item_id, 4600)
         self.assertNotIn("Willow-blackjack", EQUIPMENT_DATA)
 

@@ -842,6 +842,25 @@ def _stronghold_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[Genera
     return tuple(generated)
 
 
+def _mage_arena_equipment_items(
+    items: Mapping[int, SourceItem],
+) -> Tuple[GeneratedEquipmentItem, ...]:
+    generated = []
+    for item_id in (2412, 2413, 2414):
+        source_item = items.get(item_id)
+        if source_item is None:
+            continue
+        equipment_item = _equipment_item_from_source_item(
+            source_item,
+            "Mage Arena reward; RuneScape Wiki oldid=6512911",
+        )
+        if equipment_item is not None:
+            generated.append(
+                replace(equipment_item, equipment_type="god_cape")
+            )
+    return tuple(generated)
+
+
 def _dedupe_equipment_items(items: Sequence[GeneratedEquipmentItem]) -> Tuple[GeneratedEquipmentItem, ...]:
     by_name: Dict[str, GeneratedEquipmentItem] = {}
     for item in items:
@@ -1003,6 +1022,7 @@ def generate(game_root: Path, output_path: Path) -> None:
         + tuple(_legacy_equipment_items(items))
         + tuple(_quest_equipment_items(items))
         + tuple(_stronghold_equipment_items(items))
+        + tuple(_mage_arena_equipment_items(items))
         + tuple(_crafting_equipment_items(items, items_by_name))
         + tuple(_fletching_equipment_items(items, items_by_name))
         + tuple(_shop_equipment_items(items, items_by_name))

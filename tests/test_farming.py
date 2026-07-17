@@ -25,6 +25,8 @@ from farming_data import (
     FARMING_SOURCE_BLOCKED,
 )
 from farming_logic import (
+    CURE_PLANT_SPELL_FIRST,
+    PLANT_CURE_ITEM_FIRST,
     activate_juju_farming_potion_pure,
     add_farm_queue_step_pure,
     apply_farming_frontend_action_pure,
@@ -224,6 +226,10 @@ class TestFarmingStorageAndRegistry(unittest.TestCase):
         self.assertTrue(
             migrated["farm_plans"]["falador_allotment_north"]["cure_intent"]
         )
+        self.assertEqual(
+            migrated["farm_plans"]["falador_allotment_north"]["cure_route_preference"],
+            PLANT_CURE_ITEM_FIRST,
+        )
 
     def test_registry_and_every_farming_item_are_registered_without_a_target(self):
         farming = get_skill("farming")
@@ -379,6 +385,123 @@ class TestFarmingClockAndActions(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(info["farming_xp"], 0.0)
         self.assertEqual(cured["farming_exp"], planted["farming_exp"])
+
+    def test_cure_preference_uses_preferred_route_then_falls_back_atomically(self):
+        base = _plant_ready(_state(), compost="compost")
+        patch_id = "falador_allotment_north"
+        base["farm_patches"][patch_id]["diseased"] = True
+        base["magic_level"] = 66
+        base["magic_exp"] = 0.0
+        base["quests"] = {"lunar_diplomacy": {"completed": True}}
+        base["inventory"].update({
+            "Plant cure": 1,
+            "Astral rune": 1,
+            "Earth rune": 8,
+        })
+
+        spell_first, ok, _ = set_farm_plan_pure(
+            base,
+            patch_id,
+            "potato",
+            cure_route_preference=CURE_PLANT_SPELL_FIRST,
+        )
+        self.assertTrue(ok)
+        queued, ids = queue_full_run_pure(spell_first)
+        self.assertEqual(len(ids), 1)
+        self.assertEqual(
+            queued["farm_queue"][0]["cure_route_preference"],
+            CURE_PLANT_SPELL_FIRST,
+        )
+        cured, consumed, info = apply_farming_review_with_queue_pure(
+            queued, lambda: 1.0
+        )
+        self.assertTrue(consumed)
+        self.assertEqual(info["cure_route"], "cure_plant_spell")
+        self.assertEqual(cured["magic_exp"], 60.0)
+        self.assertEqual(cured["inventory"]["Plant cure"], 1)
+        self.assertEqual(cured["inventory"]["Astral rune"], 0)
+        self.assertEqual(cured["inventory"]["Earth rune"], 0)
+
+        item_fallback = copy.deepcopy(spell_first)
+        item_fallback["farm_patches"][patch_id]["diseased"] = True
+        item_fallback["inventory"]["Astral rune"] = 0
+        item_fallback["inventory"]["Earth rune"] = 0
+        queued, _ = queue_full_run_pure(item_fallback)
+        cured, consumed, info = apply_farming_review_with_queue_pure(
+            queued, lambda: 1.0
+        )
+        self.assertTrue(consumed)
+        self.assertEqual(info["cure_route"], "plant_cure_item")
+        self.assertEqual(cured["magic_exp"], 0.0)
+        self.assertEqual(cured["inventory"]["Plant cure"], 0)
+
+    def test_item_first_falls_back_to_cure_plant_and_queue_snapshots_preference(self):
+        patch_id = "falador_allotment_north"
+        base = _plant_ready(_state(), compost="compost")
+        base["farm_patches"][patch_id]["diseased"] = True
+        base["magic_level"] = 66
+        base["magic_exp"] = 0.0
+        base["quests"] = {"lunar_diplomacy": {"completed": True}}
+        base["inventory"].update({"Astral rune": 1, "Earth rune": 8})
+        planned, ok, _ = set_farm_plan_pure(
+            base,
+            patch_id,
+            "potato",
+            cure_route_preference=PLANT_CURE_ITEM_FIRST,
+        )
+        self.assertTrue(ok)
+        queued, _ = queue_full_run_pure(planned)
+        changed, ok, _ = set_farm_plan_pure(
+            queued,
+            patch_id,
+            "potato",
+            cure_route_preference=CURE_PLANT_SPELL_FIRST,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(
+            changed["farm_queue"][0]["cure_route_preference"],
+            PLANT_CURE_ITEM_FIRST,
+        )
+
+        cured, consumed, info = apply_farming_review_with_queue_pure(
+            changed, lambda: 1.0
+        )
+        self.assertTrue(consumed)
+        self.assertEqual(info["cure_route"], "cure_plant_spell")
+        self.assertEqual(cured["magic_exp"], 60.0)
+
+    def test_cure_preference_is_part_of_farming_preset_snapshots(self):
+        patch_id = "falador_allotment_north"
+        state = _state()
+        state, ok, _ = set_farm_plan_pure(
+            state,
+            patch_id,
+            "potato",
+            cure_route_preference=CURE_PLANT_SPELL_FIRST,
+        )
+        self.assertTrue(ok)
+        saved, ok, _ = save_farm_preset_pure(state, "Spell cure", [patch_id])
+        self.assertTrue(ok)
+        preset_id = saved["farm_selected_preset"]
+        self.assertEqual(
+            saved["farm_presets"][preset_id]["plans"][patch_id]["cure_route_preference"],
+            CURE_PLANT_SPELL_FIRST,
+        )
+
+        changed, ok, _ = set_farm_plan_pure(
+            saved,
+            patch_id,
+            "potato",
+            cure_route_preference=PLANT_CURE_ITEM_FIRST,
+        )
+        self.assertTrue(ok)
+        self.assertTrue(farming_frontend_projection_pure(changed)["presets"]["modified"])
+        applied, ok, _ = apply_farm_preset_pure(changed, preset_id)
+        self.assertTrue(ok)
+        self.assertEqual(
+            applied["farm_plans"][patch_id]["cure_route_preference"],
+            CURE_PLANT_SPELL_FIRST,
+        )
 
     def test_exact_save_slot_loop_and_whole_patch_harvest(self):
         potato = FARMING_CROPS_BY_ID["potato"]
@@ -959,6 +1082,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
                 "protection_intent": True,
                 "watering_intent": False,
                 "cure_intent": True,
+                "cure_route_preference": PLANT_CURE_ITEM_FIRST,
             },
         )
         saved["farm_plans"]["falador_allotment_north"]["protection_paid"] = False

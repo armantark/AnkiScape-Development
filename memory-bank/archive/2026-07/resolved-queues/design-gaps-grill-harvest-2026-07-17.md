@@ -1,9 +1,8 @@
-# Design gaps for morning review — 2026-07-17
+# Resolved grill-harvest design gaps — 2026-07-17
 
-This file contains only genuine owner-level creative direction discovered while
-source harvesting or implementing the settled queue. Missing historical values,
-ordinary dependency gaps, and implementation details with an established
-AnkiScape pattern do not belong here.
+Both questions were resolved by the owner on 2026-07-17 and implemented in the
+same follow-up batch. This archived record preserves the alternatives and final
+direction without leaving a stale open-work queue in the live Memory Bank.
 
 ## Priority guide
 
@@ -12,7 +11,7 @@ AnkiScape pattern do not belong here.
   independent work.
 - **P2:** meaningful polish or scope choice that can wait.
 
-## Open questions
+## Resolved questions
 
 ### P1 — Mage Arena alignment, god capes, and Charge's actual effect
 
@@ -39,10 +38,12 @@ Recommended design:
    spells, only while Charge remains active, and only with the appropriate cape
    and valid casting weapon equipped.
 
-Owner decision needed: approve this collapsed attunement/alignment loop or
-choose a different representation. A smaller source conflict can be settled at
-the same time: retain the approved refresh-on-recast abstraction, or enforce
-the corrected page's no-recast-while-active rule.
+Owner decision: approved the recommended collapsed alignment and attunement
+loop. The existing review-driven refresh-on-recast abstraction remains in
+force. Implementation adds final-form alignment, the first matching cape and
+staff, per-spell one-review attunement, instantaneous direct-undoable statue
+replacement/reclaim, one-cape and matching-loadout enforcement, and Charge's
+conditional +100 LP maximum-hit effect.
 
 Evidence:
 
@@ -57,15 +58,14 @@ requirements. Making presets choose between them, automatically fall back
 between them, or reserve runes would materially couple two otherwise separate
 automation policies.
 
-Recommended design:
+Alternatives considered:
 
-1. Ship a simple per-patch `Auto-cure` toggle now, backed by the existing Cure
-   item path and only queued when the patch is diseased.
-2. Keep Cure Plant as an explicit Magic action until Farming presets gain a
-   general cross-skill resource policy.
-3. If cross-skill preset policies are later approved, add an ordered
-   `Cure item → Cure Plant` preference rather than an opaque automatic choice.
+1. Keep auto-cure item-only.
+2. Make the two routes mutually exclusive.
+3. Save an ordered preference and fall back to the other route when the first
+   is unavailable.
 
-Owner decision needed later: whether presets should ever cast Cure Plant
-automatically, and if so whether the user chooses an ordered fallback or one
-exclusive cure method.
+Owner decision: use the third option as a compact two-choice toggle:
+`Plant cure first` or `Cure Plant first`. The choice is stored per patch and in
+presets, snapshotted into queued cure steps, and resolved atomically at
+execution time through the existing item and Magic transactions.

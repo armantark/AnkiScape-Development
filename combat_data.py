@@ -734,6 +734,30 @@ COMBAT_MAGIC_STAFF_DATA: Dict[str, dict] = {
         "source_item_id": 1387,
         "source": f"{MAGIC_STAVES_SOURCE_PATH}: FIRE_RUNE uses STAFF_OF_FIRE; {ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_FIRE",
     },
+    "Saradomin staff": {
+        "covered_runes": (),
+        "source_item_id": 2415,
+        "source": (
+            f"{ITEM_ID_SOURCE_PATH}: Items.SARADOMIN_STAFF; "
+            "RuneScape Wiki Mage Arena oldid=6512911"
+        ),
+    },
+    "Guthix staff": {
+        "covered_runes": (),
+        "source_item_id": 2416,
+        "source": (
+            f"{ITEM_ID_SOURCE_PATH}: Items.GUTHIX_STAFF; "
+            "RuneScape Wiki Mage Arena oldid=6512911"
+        ),
+    },
+    "Zamorak staff": {
+        "covered_runes": (),
+        "source_item_id": 2417,
+        "source": (
+            f"{ITEM_ID_SOURCE_PATH}: Items.ZAMORAK_STAFF; "
+            "RuneScape Wiki Mage Arena oldid=6512911"
+        ),
+    },
 }
 
 
@@ -7941,6 +7965,27 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Buttons": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BUTTONS"},
     "Cactus seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CACTUS_SEED"},
     "Cape": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CAPE_1019"},
+    "Saradomin cape": {
+        "category": "equipment",
+        "source": "RuneScape cache item 2412; Mage Arena oldid=6512911",
+        "source_item_id": 2412,
+        "stackable": False,
+        "tradeable": False,
+    },
+    "Guthix cape": {
+        "category": "equipment",
+        "source": "RuneScape cache item 2413; Mage Arena oldid=6512911",
+        "source_item_id": 2413,
+        "stackable": False,
+        "tradeable": False,
+    },
+    "Zamorak cape": {
+        "category": "equipment",
+        "source": "RuneScape cache item 2414; Mage Arena oldid=6512911",
+        "source_item_id": 2414,
+        "stackable": False,
+        "tradeable": False,
+    },
     "Cadantine seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CADANTINE_SEED"},
     "Cadava berries": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CADAVA_BERRIES"},
     "Champion's scroll": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CHAMPIONS_SCROLL_6800"},

@@ -127,15 +127,41 @@
     "summoning",
     "dungeoneering"
   ],
-  "design_gap_file": "memory-bank/design-gaps-grill-harvest-2026-07-17.md",
+  "design_gap_file": "memory-bank/archive/2026-07/resolved-queues/design-gaps-grill-harvest-2026-07-17.md",
   "results_artifact": {
     "repo_path": "memory-bank/status-updates/grill-harvest-results-2026-07-17.html",
     "postplan_url": "https://co9e6hzqn0pd.postplan.dev"
   },
-  "open_design_gaps": [
-    "mage-arena-alignment-capes-charge-effect",
-    "farming-preset-cross-skill-cure-policy"
-  ],
+  "open_design_gaps": [],
+  "post_closure_followup": {
+    "status": "verified",
+    "completed_items": [
+      "mage-arena-alignment-capes-attunement-charge-effect",
+      "farming-item-spell-cure-preference"
+    ],
+    "results_artifact": {
+      "repo_path": "memory-bank/status-updates/mage-arena-farming-cure-results-2026-07-17.html",
+      "postplan_url": "https://q0wso578s42a.postplan.dev"
+    },
+    "verification": {
+      "focused_methods": 192,
+      "focused_qt_methods": 2,
+      "core_methods": 1388,
+      "core_ordinary_passes": 1189,
+      "core_skips": 196,
+      "core_expected_failures": 3,
+      "qt_methods": 1388,
+      "qt_ordinary_passes": 1385,
+      "qt_skips": 0,
+      "qt_expected_failures": 3,
+      "test_quality_hard_issues": 0,
+      "docs_markdown_files": 246,
+      "docs_html_files": 303,
+      "reachability_actions": 1200,
+      "reachability_orphans": 273,
+      "worktree_guard": "safe"
+    }
+  },
   "closure_verification": {
     "core_methods": 1376,
     "core_ordinary_passes": 1177,

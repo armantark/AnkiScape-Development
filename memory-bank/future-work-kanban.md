@@ -16,7 +16,8 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ### Owner-approved post-closure amendments
 
-Labels: none. The two approved amendments are now live.
+Labels: none. All approved amendments and their two follow-up design questions
+are now live.
 
 Completed 2026-07-17:
 
@@ -30,9 +31,16 @@ Completed 2026-07-17:
 - Farming provides explicit one-review `Dig up`, user-authored whole-farm
   presets, inert application, gardener-payment escrow, and reported full-run
   skips.
+- Mage Arena now grants one chosen god loadout, exposes collapsed per-spell
+  attunement and one-cape statue actions, and makes Charge's matching-loadout
+  +100 LP god-spell effect real.
+- Farming presets now store a compact item-first/spell-first cure preference
+  and use the other route as an execution-time fallback.
 
-The resolved overnight question ledger is preserved at
-`memory-bank/archive/2026-07/resolved-queues/design-gaps-overnight-2026-07-16.md`.
+The resolved question ledgers are preserved at
+`memory-bank/archive/2026-07/resolved-queues/design-gaps-overnight-2026-07-16.md`
+and
+`memory-bank/archive/2026-07/resolved-queues/design-gaps-grill-harvest-2026-07-17.md`.
 
 ### Existing-skill parity ledger
 
@@ -70,7 +78,10 @@ Labels: none remaining on the build itself; trailing `DEPENDENCY` items only.
 
 - Implemented in full from `memory-bank/magic-skill-contract-2026-07-11.md`: 94 noncombat targets across all three spellbooks, uncapped 40%/60% alchemy with staff substitution, the combat roster gap-fill (god spells behind the five-review Mage Arena landmark, all 16 ordinary Ancients, four Miasmics), preset-schema extension for spellbook/autocast/Vengeance/Dream/Swap (storage v30), and the curated three casual controls. Verified at 1,031 pure + 1,031 offscreen Qt tests.
 - Charge orbs closed the reachability audit's elemental-orb orphan category; telegrab ships as the authentic Wine of Zamorak route.
-- Trailing `DEPENDENCY` items: Livid Farm spell set (its own activity card), Cure Plant / Fertile Soil real function (Farming), Plank Make consumers (Construction — closed by the Construction ship), Hunter Kit consumers (Hunter), Slayer staff acquisition (Slayer), Bones to Peaches behind a future Mage Training Arena activity.
+- The 2026-07-17 follow-up completes Mage Arena alignment/rewards/attunement,
+  god-cape equipment and assets, and Charge's real matching-loadout combat
+  effect. Cure Plant is also live as a Farming preset fallback route.
+- Trailing `DEPENDENCY` items: Livid Farm spell set (its own activity card), Hunter Kit consumers (Hunter), Slayer staff acquisition (Slayer), Bones to Peaches behind a future Mage Training Arena activity.
 
 ### Construction — SHIPPED 2026-07-11 (commit c628f0d)
 
@@ -96,6 +107,9 @@ Labels: none remaining on the core build; trailing acquisition/activity dependen
   then planting; whole-farm presets snapshot selected plan policies without
   consuming goods; and gardener payments are escrowed by the queued planting
   step with refund on removal, clearing, or execution skip.
+- The 2026-07-17 cure-policy follow-up adds a compact per-patch item-first or
+  spell-first preference, persists it in presets and queued steps, and uses the
+  canonical Cure Plant Magic transaction as the fallback route.
 - `hunter-habitat-jadinko` remains an owning-activity/acquisition follow-up; core Farming is no longer its dependency.
 
 ### Agility — SHIPPED 2026-07-15

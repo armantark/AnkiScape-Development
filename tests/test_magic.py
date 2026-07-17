@@ -1,22 +1,36 @@
 import os
 import unittest
 
-from constants import ITEM_DEFINITIONS, MAGIC_DATA, MAGIC_ITEM_IMAGES, ORE_DATA
+from combat_data import COMBAT_ENEMY_DATA
+from constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, MAGIC_DATA, MAGIC_ITEM_IMAGES, ORE_DATA
 from logic_pure import (
     MAGIC_CHARGE_DURATION_TICKS,
+    MAGE_ARENA_GOD_DATA,
+    apply_mage_arena_cape_action_pure,
     apply_magic_action_pure,
     apply_mage_arena_step_pure,
+    attune_mage_arena_spell_pure,
     advance_temporary_effects_pure,
+    can_equip_item_pure,
+    charged_god_spell_max_hit_bonus_pure,
+    combat_target_preview_pure,
     combat_magic_preset_locked_reasons_pure,
     default_combat_state_pure,
     effective_magic_rune_cost_pure,
+    equip_item_pure,
     magic_target_locked_reasons_pure,
     save_combat_preset_pure,
+    set_mage_arena_alignment_pure,
     set_combat_pack_mode_pure,
 )
 from farming_logic import default_farming_state_pure, execute_farm_field_step_pure, set_farm_plan_pure
 from magic_data import CHARGE_WIKI, COMBAT_MAGIC_ADDITIONS, MAGIC_TARGETS
-from runtime_actions import RuntimeActionContext, answer_handler_for_key, handle_magic_answer
+from runtime_actions import (
+    RuntimeActionContext,
+    answer_handler_for_key,
+    handle_magic_answer,
+    handle_utility_answer,
+)
 from storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
 from target_metadata import magic_target_rows
 
@@ -320,12 +334,223 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
         self.assertIn("protect_from_melee", safe["combat_selected_prayers"])
 
     def test_mage_arena_is_a_five_review_landmark(self):
-        data = {"magic_level": 60, "mage_arena": {"step": 0, "completed": False}}
-        for step in range(1, 6):
+        data = {
+            "magic_level": 60,
+            "inventory": {},
+            "equipment": {},
+            "mage_arena": {"step": 0, "completed": False},
+        }
+        for step in range(1, 5):
             data, ok, info = apply_mage_arena_step_pure(data)
             self.assertTrue(ok)
             self.assertEqual(info["step"], step)
+
+        blocked, ok, info = apply_mage_arena_step_pure(data)
+        self.assertFalse(ok)
+        self.assertEqual(info["reason"], "mage_arena_alignment_required")
+        self.assertEqual(blocked, data)
+
+        data, ok, _ = set_mage_arena_alignment_pure(data, "guthix")
+        self.assertTrue(ok)
+        data, ok, info = apply_mage_arena_step_pure(data)
+        self.assertTrue(ok)
+        self.assertEqual(info["step"], 5)
         self.assertTrue(data["mage_arena"]["completed"])
+        self.assertEqual(data["mage_arena"]["alignment"], "guthix")
+        self.assertEqual(data["mage_arena"]["attuned_spells"], ["claws_of_guthix"])
+        self.assertEqual(data["inventory"]["Guthix cape"], 1)
+        self.assertEqual(data["inventory"]["Guthix staff"], 1)
+
+    def test_mage_arena_attunement_requires_the_matching_staff_and_cape_actions_enforce_one_cape(self):
+        data = {
+            "magic_level": 99,
+            "inventory": {"Saradomin cape": 2, "Guthix cape": 1},
+            "equipment": {"cape": "Zamorak cape"},
+            "mage_arena": {
+                "step": 5,
+                "completed": True,
+                "alignment": "saradomin",
+                "attuned_spells": ["saradomin_strike"],
+            },
+        }
+        unchanged, ok, info = attune_mage_arena_spell_pure(data, "zamorak")
+        self.assertFalse(ok)
+        self.assertEqual(info["reason"], "missing_staff")
+        self.assertEqual(
+            unchanged["mage_arena"]["attuned_spells"],
+            data["mage_arena"]["attuned_spells"],
+        )
+        self.assertNotIn("Zamorak staff", data["inventory"])
+
+        data["inventory"]["Zamorak staff"] = 1
+        attuned, ok, info = attune_mage_arena_spell_pure(data, "zamorak")
+        self.assertTrue(ok)
+        self.assertEqual(info["spell_id"], "flames_of_zamorak")
+        self.assertEqual(
+            attuned["mage_arena"]["attuned_spells"],
+            ["saradomin_strike", "flames_of_zamorak"],
+        )
+
+        switched, ok, info = apply_mage_arena_cape_action_pure(attuned, "guthix")
+        self.assertTrue(ok)
+        self.assertEqual(info["cape"], "Guthix cape")
+        self.assertNotIn("cape", switched["equipment"])
+        self.assertEqual(switched["inventory"]["Saradomin cape"], 0)
+        self.assertEqual(switched["inventory"]["Zamorak cape"], 0)
+        self.assertEqual(switched["inventory"]["Guthix cape"], 1)
+        self.assertNotIn(
+            "claws_of_guthix",
+            switched["mage_arena"]["attuned_spells"],
+        )
+
+    def test_legacy_mage_arena_claim_preserves_the_original_free_loadout(self):
+        legacy = {
+            "inventory": {},
+            "equipment": {},
+            "mage_arena": {"step": 5, "completed": True},
+        }
+        claimed, ok, info = apply_mage_arena_cape_action_pure(legacy, "zamorak")
+        self.assertTrue(ok)
+        self.assertEqual(info["reason"], "legacy_alignment_claimed")
+        self.assertEqual(claimed["inventory"]["Zamorak cape"], 1)
+        self.assertEqual(claimed["inventory"]["Zamorak staff"], 1)
+        self.assertEqual(
+            claimed["mage_arena"]["attuned_spells"],
+            ["flames_of_zamorak"],
+        )
+
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 39,
+                "mage_arena": {
+                    "step": 5,
+                    "completed": True,
+                    "alignment": "saradomin",
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+        self.assertEqual(
+            migrated["mage_arena"]["attuned_spells"],
+            ["saradomin_strike"],
+        )
+
+    def test_god_spell_attunement_and_charge_bonus_require_the_matching_loadout(self):
+        state = {
+            "magic_level": 99,
+            "mage_arena": {
+                "step": 5,
+                "completed": True,
+                "alignment": "saradomin",
+                "attuned_spells": ["saradomin_strike"],
+            },
+            "magic_charge_active": True,
+            "magic_charge_ticks_remaining": 700,
+            "equipment": {
+                "cape": "Saradomin cape",
+                "weapon": "Saradomin staff",
+            },
+            "inventory": {},
+        }
+        self.assertEqual(
+            charged_god_spell_max_hit_bonus_pure(state, "saradomin_strike"),
+            10,
+        )
+
+        wrong_cape = {**state, "equipment": {**state["equipment"], "cape": "Guthix cape"}}
+        self.assertEqual(
+            charged_god_spell_max_hit_bonus_pure(wrong_cape, "saradomin_strike"),
+            0,
+        )
+        for god_id, row in MAGE_ARENA_GOD_DATA.items():
+            with self.subTest(god_id=god_id):
+                self.assertIn(
+                    row["spell_id"],
+                    {spell.id for spell in COMBAT_MAGIC_ADDITIONS},
+                )
+
+    def test_god_loadout_equip_guard_and_combat_preview_apply_charge(self):
+        player = {
+            "inventory": {"Guthix cape": 1},
+            "equipment": {"weapon": "Saradomin staff"},
+            "magic_level": 99,
+        }
+        ok, reason = can_equip_item_pure("Guthix cape", EQUIPMENT_DATA, player)
+        self.assertFalse(ok)
+        self.assertIn("Saradomin staff", reason)
+        inventory, equipment, equipped = equip_item_pure(
+            "Guthix cape",
+            player["inventory"],
+            player["equipment"],
+            EQUIPMENT_DATA,
+        )
+        self.assertFalse(equipped)
+        self.assertEqual(inventory, player["inventory"])
+        self.assertEqual(equipment, player["equipment"])
+
+        combat_player = {
+            "inventory": {"Air rune": 4, "Fire rune": 2, "Blood rune": 2},
+            "equipment": {
+                "weapon": "Saradomin staff",
+                "cape": "Saradomin cape",
+            },
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "ranged_level": 99,
+            "magic_level": 99,
+            "constitution_level": 99,
+            "combat_lifepoints": 990,
+            "combat_attack_style": "magic_standard",
+            "current_combat_spell": "saradomin_strike",
+            "combat_supply_loadout": {},
+            "combat_encounter": {},
+            "combat_status_effects": {},
+            "combat_auto_eat_food": [],
+            "mage_arena": {
+                "step": 5,
+                "completed": True,
+                "alignment": "saradomin",
+                "attuned_spells": ["saradomin_strike"],
+            },
+            "magic_charge_active": True,
+            "magic_charge_ticks_remaining": 700,
+        }
+        charged = combat_target_preview_pure(
+            combat_player,
+            "chicken",
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+        )
+        self.assertEqual(charged["state"], "Ready")
+        self.assertEqual(charged["player_max_hit"], 300)
+        uncharged = combat_target_preview_pure(
+            {**combat_player, "magic_charge_active": False},
+            "chicken",
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+        )
+        self.assertEqual(uncharged["player_max_hit"], 200)
+
+    def test_mage_arena_attunement_runtime_consumes_exactly_one_review(self):
+        player = {
+            "current_utility": "mage_arena_attune:guthix",
+            "inventory": {"Guthix staff": 1},
+            "equipment": {},
+            "completed_achievements": [],
+            "mage_arena": {
+                "step": 5,
+                "completed": True,
+                "alignment": "saradomin",
+                "attuned_spells": ["saradomin_strike"],
+            },
+        }
+        calls = {"errors": [], "saves": 0, "shown_xp": []}
+        self.assertTrue(handle_utility_answer(_context(player, calls)))
+        self.assertIn("claws_of_guthix", player["mage_arena"]["attuned_spells"])
+        self.assertEqual(calls["saves"], 1)
+        self.assertTrue(calls["deactivated"])
 
     def test_v30_migration_preserves_combat_trained_magic_xp_and_extends_presets(self):
         migrated = migrate_loaded_data({

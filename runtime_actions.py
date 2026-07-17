@@ -92,6 +92,7 @@ try:
         apply_stronghold_step_pure,
         apply_knight_waves_step_pure,
         apply_mage_arena_step_pure,
+        attune_mage_arena_spell_pure,
         knight_waves_locked_reasons_pure,
         mage_arena_locked_reasons_pure,
         apply_utility_activity_pure,
@@ -257,6 +258,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         apply_stronghold_step_pure,
         apply_knight_waves_step_pure,
         apply_mage_arena_step_pure,
+        attune_mage_arena_spell_pure,
         knight_waves_locked_reasons_pure,
         mage_arena_locked_reasons_pure,
         apply_utility_activity_pure,
@@ -1124,7 +1126,12 @@ def _apply_farming_queue_result(
     ctx.player_data.clear()
     ctx.player_data.update(updated)
     if info.get("status") == "executed":
-        for skill, xp_key in (("Farming", "farming_xp"), ("Woodcutting", "woodcutting_xp"), ("Agility", "agility_xp")):
+        for skill, xp_key in (
+            ("Farming", "farming_xp"),
+            ("Woodcutting", "woodcutting_xp"),
+            ("Agility", "agility_xp"),
+            ("Magic", "magic_xp"),
+        ):
             if float(info.get(xp_key, 0.0) or 0.0) <= 0:
                 continue
             level_key = f"{skill.lower()}_level"
@@ -1135,7 +1142,15 @@ def _apply_farming_queue_result(
                 awarded_level,
                 int(ctx.player_data.get(level_key, old_levels[skill]) or old_levels[skill]),
             )
-        gained = sum(float(info.get(key, 0.0) or 0.0) for key in ("farming_xp", "woodcutting_xp", "agility_xp"))
+        gained = sum(
+            float(info.get(key, 0.0) or 0.0)
+            for key in (
+                "farming_xp",
+                "woodcutting_xp",
+                "agility_xp",
+                "magic_xp",
+            )
+        )
         if gained > 0:
             ctx.show_exp(gained)
     else:
@@ -1150,6 +1165,7 @@ def _farming_levels_before_answer(ctx: RuntimeActionContext) -> dict[str, int]:
         "Farming": int(ctx.player_data.get("farming_level", 1) or 1),
         "Woodcutting": int(ctx.player_data.get("woodcutting_level", 1) or 1),
         "Agility": int(ctx.player_data.get("agility_level", 1) or 1),
+        "Magic": int(ctx.player_data.get("magic_level", 1) or 1),
     }
 
 
@@ -1445,6 +1461,7 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
 STRONGHOLD_UTILITY_KEY = "stronghold_of_security"
 KNIGHT_WAVES_UTILITY_KEY = "knight_waves"
 MAGE_ARENA_UTILITY_KEY = "mage_arena"
+MAGE_ARENA_ATTUNE_PREFIX = "mage_arena_attune:"
 
 
 def _handle_stronghold_answer(ctx: RuntimeActionContext) -> bool:
@@ -1508,9 +1525,41 @@ def _handle_mage_arena_answer(ctx: RuntimeActionContext) -> bool:
     ctx.refresh_skill_availability()
     if info.get("completed"):
         ctx.deactivate_current_skill()
-        ctx.show_activity_gain("Mage Arena complete — god spells and Charge unlocked")
+        ctx.show_activity_gain(
+            f"Mage Arena complete — {str(info.get('alignment', '')).title()} cape, staff, and spell attunement claimed"
+        )
     else:
         ctx.show_activity_gain(f"Mage Arena: {info.get('step', 0)}/5 Kolodion forms defeated")
+    return True
+
+
+def _handle_mage_arena_attunement_answer(
+    ctx: RuntimeActionContext,
+    activity_key: str,
+) -> bool:
+    god_id = activity_key.removeprefix(MAGE_ARENA_ATTUNE_PREFIX)
+    new_data, ok, info = attune_mage_arena_spell_pure(ctx.player_data, god_id)
+    if not ok:
+        ctx.deactivate_current_skill()
+        reason = str(info.get("reason", "attunement unavailable")).replace("_", " ")
+        ctx.show_error_message("Mage Arena attunement locked", reason)
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(new_data)
+    _record_action(
+        ctx,
+        "utility",
+        activity_key,
+        True,
+        expected_success_chance=1.0,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.deactivate_current_skill()
+    ctx.show_activity_gain(
+        f"{info.get('spell_name', 'God spell')} attuned for use outside the Mage Arena"
+    )
     return True
 
 
@@ -1523,6 +1572,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_knight_waves_answer(ctx)
     if activity_key == MAGE_ARENA_UTILITY_KEY:
         return _handle_mage_arena_answer(ctx)
+    if str(activity_key).startswith(MAGE_ARENA_ATTUNE_PREFIX):
+        return _handle_mage_arena_attunement_answer(ctx, str(activity_key))
     if activity_key not in UTILITY_ACTIVITY_DATA:
         activity_key = DEFAULT_UTILITY_ACTIVITY
         player_data["current_utility"] = activity_key
@@ -3132,6 +3183,13 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return not knight_waves_locked_reasons_pure(ctx.player_data)
     if activity_key == MAGE_ARENA_UTILITY_KEY:
         return not mage_arena_locked_reasons_pure(ctx.player_data)
+    if str(activity_key).startswith(MAGE_ARENA_ATTUNE_PREFIX):
+        god_id = str(activity_key).removeprefix(MAGE_ARENA_ATTUNE_PREFIX)
+        _updated, ok, _info = attune_mage_arena_spell_pure(
+            ctx.player_data,
+            god_id,
+        )
+        return ok
     return not utility_activity_locked_reasons_pure(
         ctx.player_data,
         activity_key,

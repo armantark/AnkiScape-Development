@@ -52,6 +52,12 @@ FIELD_STEP_KINDS = frozenset({
     "chop",
     "habitat_traverse",
 })
+PLANT_CURE_ITEM_FIRST = "plant_cure_item_first"
+CURE_PLANT_SPELL_FIRST = "cure_plant_spell_first"
+CURE_ROUTE_PREFERENCES = frozenset({
+    PLANT_CURE_ITEM_FIRST,
+    CURE_PLANT_SPELL_FIRST,
+})
 HABITAT_EAST_PATCH_ID = "habitat_vine_herb_east"
 HABITAT_TRAVERSAL_PHASES = (
     "Climb the vine",
@@ -172,6 +178,14 @@ def _sanitize_plan(raw: Any) -> Optional[dict[str, Any]]:
     )
     plan["watering_intent"] = bool(plan.get("watering_intent", True))
     plan["cure_intent"] = bool(plan.get("cure_intent", True))
+    preference = str(
+        plan.get("cure_route_preference", PLANT_CURE_ITEM_FIRST) or ""
+    )
+    plan["cure_route_preference"] = (
+        preference
+        if preference in CURE_ROUTE_PREFERENCES
+        else PLANT_CURE_ITEM_FIRST
+    )
     plan["protection_paid"] = bool(plan.get("protection_paid", False))
     plan["fertile_soil_applied"] = bool(plan.get("fertile_soil_applied", False))
     return plan
@@ -187,6 +201,7 @@ def _preset_plan_snapshot(raw: Any) -> Optional[dict[str, Any]]:
         "protection_intent": plan["protection_intent"],
         "watering_intent": plan["watering_intent"],
         "cure_intent": plan["cure_intent"],
+        "cure_route_preference": plan["cure_route_preference"],
     }
 
 
@@ -821,16 +836,89 @@ def _check_health(updated: dict[str, Any], patch_id: str, crop: Any) -> tuple[bo
     return True, f"Checked the health of {crop.display_name}.", {"farming_xp": crop.check_health_xp}
 
 
-def _cure(updated: dict[str, Any], patch_id: str, crop: Any) -> tuple[bool, str, dict[str, Any]]:
+def _cure_spell_locked_reasons(
+    updated: Mapping[str, Any],
+    patch_id: str,
+) -> tuple[str, ...]:
+    try:
+        from .constants import MAGIC_DATA
+        from .logic_pure import magic_target_locked_reasons_pure
+    except ImportError:  # pragma: no cover - flat imports used by tests
+        from constants import MAGIC_DATA  # type: ignore
+        from logic_pure import magic_target_locked_reasons_pure  # type: ignore
+    return magic_target_locked_reasons_pure(
+        updated,
+        "cure_plant",
+        MAGIC_DATA,
+        {},
+        farming_patch_id=patch_id,
+    )
+
+
+def _cure(
+    updated: dict[str, Any],
+    patch_id: str,
+    crop: Any,
+    step: Mapping[str, Any],
+) -> tuple[bool, str, dict[str, Any]]:
     record = updated["farm_patches"][patch_id]
     if not record.get("diseased") or record.get("dead"):
         return False, "crop is not diseased", {}
-    if _int(updated["inventory"].get("Plant cure")) <= 0:
-        return False, "missing Plant cure", {}
-    updated["inventory"]["Plant cure"] -= 1
-    record["diseased"] = False
-    _increment(updated, "cures")
-    return True, f"Cured {crop.display_name}.", {"farming_xp": 0.0}
+
+    preference = str(
+        step.get("cure_route_preference", PLANT_CURE_ITEM_FIRST) or ""
+    )
+    if preference not in CURE_ROUTE_PREFERENCES:
+        preference = PLANT_CURE_ITEM_FIRST
+    routes = (
+        ("cure_plant_spell", "plant_cure_item")
+        if preference == CURE_PLANT_SPELL_FIRST
+        else ("plant_cure_item", "cure_plant_spell")
+    )
+    failures = []
+    for route in routes:
+        if route == "plant_cure_item":
+            if _int(updated["inventory"].get("Plant cure")) <= 0:
+                failures.append("missing Plant cure")
+                continue
+            updated["inventory"]["Plant cure"] -= 1
+            record["diseased"] = False
+            _increment(updated, "cures")
+            return True, f"Cured {crop.display_name} with Plant cure.", {
+                "farming_xp": 0.0,
+                "cure_route": route,
+            }
+
+        spell_reasons = _cure_spell_locked_reasons(updated, patch_id)
+        if spell_reasons:
+            failures.append("Cure Plant: " + ", ".join(spell_reasons))
+            continue
+        try:
+            from .constants import MAGIC_DATA
+            from .logic_pure import apply_magic_action_pure
+        except ImportError:  # pragma: no cover - flat imports used by tests
+            from constants import MAGIC_DATA  # type: ignore
+            from logic_pure import apply_magic_action_pure  # type: ignore
+        cast, magic_xp, _secondary, _outputs, ok, message = apply_magic_action_pure(
+            updated,
+            "cure_plant",
+            MAGIC_DATA,
+            {},
+            farming_patch_id=patch_id,
+        )
+        if not ok:
+            failures.append("Cure Plant is unavailable")
+            continue
+        _award_xp(cast, "magic", magic_xp)
+        updated.clear()
+        updated.update(cast)
+        return True, message, {
+            "farming_xp": 0.0,
+            "magic_xp": magic_xp,
+            "cure_route": route,
+        }
+
+    return False, "; ".join(dict.fromkeys(failures)), {}
 
 
 def _clear(updated: dict[str, Any], patch_id: str, crop: Any) -> tuple[bool, str, dict[str, Any]]:
@@ -945,7 +1033,7 @@ def _execute_farm_field_step_in_place(
         "plant": lambda: _plant(updated, patch_id, patch, crop, step),
         "harvest": lambda: _harvest(updated, patch_id, crop, random_random),
         "check_health": lambda: _check_health(updated, patch_id, crop),
-        "cure": lambda: _cure(updated, patch_id, crop),
+        "cure": lambda: _cure(updated, patch_id, crop, step),
         "clear": lambda: _clear(updated, patch_id, crop),
         "dig_up": lambda: _dig_up(updated, patch_id, crop),
         "chop": lambda: _chop(updated, patch_id, crop),
@@ -1065,6 +1153,13 @@ def add_farm_queue_step_pure(player_data: Mapping[str, Any], kind: str, patch_id
     step_id = _step_id(updated)
     step = {"id": step_id, "kind": kind, "patch_id": patch_id}
     step.update(copy.deepcopy(details))
+    if kind == "cure" and "cure_route_preference" not in step:
+        plan = _sanitize_plan(updated["farm_plans"].get(patch_id))
+        step["cure_route_preference"] = (
+            plan["cure_route_preference"]
+            if plan is not None
+            else PLANT_CURE_ITEM_FIRST
+        )
     updated["farm_queue"].append(step)
     return updated, step_id, "queued"
 
@@ -1170,6 +1265,8 @@ def _append_planned_steps(
                 step["protection_paid"] = True
             if protection_payment:
                 step["protection_payment"] = dict(protection_payment)
+        elif kind == "cure":
+            step["cure_route_preference"] = plan["cure_route_preference"]
         updated["farm_queue"].append(step)
         ids.append(step_id)
     return ids
@@ -1288,11 +1385,17 @@ def set_farm_plan_pure(
     protection_intent: bool = False,
     watering_intent: bool = True,
     cure_intent: bool = True,
+    cure_route_preference: str = PLANT_CURE_ITEM_FIRST,
 ) -> tuple[dict[str, Any], bool, str]:
     updated = _copy_with_farm_state(player_data)
     patch = FARMING_PATCHES_BY_ID.get(patch_id)
     crop = FARMING_CROPS_BY_ID.get(crop_id)
-    if patch is None or crop is None or compost_tier not in COMPOST_TIERS:
+    if (
+        patch is None
+        or crop is None
+        or compost_tier not in COMPOST_TIERS
+        or cure_route_preference not in CURE_ROUTE_PREFERENCES
+    ):
         return updated, False, "unknown plan value"
     if not farming_access_gate_allows_pure(updated, patch.access_gate):
         return updated, False, "patch access is locked"
@@ -1309,6 +1412,7 @@ def set_farm_plan_pure(
         "protection_intent": bool(protection_intent and crop.protection is not None),
         "watering_intent": bool(watering_intent),
         "cure_intent": bool(cure_intent),
+        "cure_route_preference": cure_route_preference,
         "protection_paid": bool(existing_plan and existing_plan["crop_id"] == crop_id and existing_plan.get("protection_paid")),
         "fertile_soil_applied": bool(existing_plan and existing_plan["crop_id"] == crop_id and existing_plan.get("fertile_soil_applied")),
     }
@@ -1813,7 +1917,12 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
             requirements.update({"Rake": 1, tool: 1})
             primary_reason = _missing_items_reason(inventory, requirements)
         elif not primary_reason and primary_kind == "cure":
-            primary_reason = _missing_items_reason(inventory, {"Plant cure": 1})
+            item_reason = _missing_items_reason(inventory, {"Plant cure": 1})
+            spell_reasons = _cure_spell_locked_reasons(state, patch.id)
+            if item_reason and spell_reasons:
+                primary_reason = (
+                    f"{item_reason}; Cure Plant: {', '.join(spell_reasons)}"
+                )
         elif not primary_reason and primary_kind in {"harvest", "clear", "dig_up"}:
             primary_reason = _missing_items_reason(inventory, {"Spade": 1})
 
@@ -1930,6 +2039,14 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
                 "watering_intent": True if plan is None else bool(plan.get("watering_intent", True)),
                 "watering_available": bool(planned_crop and planned_crop.patch_type in {"allotment", "flower", "hops"}),
                 "cure_intent": True if plan is None else bool(plan.get("cure_intent", True)),
+                "cure_route_preference": (
+                    PLANT_CURE_ITEM_FIRST
+                    if plan is None
+                    else plan.get(
+                        "cure_route_preference",
+                        PLANT_CURE_ITEM_FIRST,
+                    )
+                ),
             },
             "crop_options": tuple(crop_options),
             "compost_options": tuple({"id": tier_id, "label": tier_id.replace("_", " ").title(), "enabled": True, "locked_reason": ""} for tier_id in COMPOST_TIERS),
@@ -2135,6 +2252,7 @@ def apply_farming_frontend_action_pure(
             player_data, patch_id, crop_id,
             str(data.get("compost_tier", "none")), bool(data.get("protection_intent", False)),
             bool(data.get("watering_intent", True)), bool(data.get("cure_intent", True)),
+            str(data.get("cure_route_preference", PLANT_CURE_ITEM_FIRST)),
         )
     if action_id == "pay_protection":
         return pay_farming_protection_pure(player_data, patch_id)

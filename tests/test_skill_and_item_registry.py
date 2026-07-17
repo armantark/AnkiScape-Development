@@ -80,6 +80,23 @@ from skill_registry import (
 
 
 class TestSkillAndItemRegistry(unittest.TestCase):
+    def test_mage_arena_capes_keep_cache_identity_and_economy_rules(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for item_name, item_id in {
+            "Saradomin cape": 2412,
+            "Guthix cape": 2413,
+            "Zamorak cape": 2414,
+        }.items():
+            with self.subTest(item_name=item_name):
+                definition = by_storage_key[item_name]
+                self.assertEqual(definition.source_item_id, item_id)
+                self.assertEqual(definition.category, "equipment")
+                self.assertEqual(definition.equipment_slot, "cape")
+                self.assertFalse(definition.stackable)
+                self.assertFalse(definition.tradeable)
+                self.assertIsNotNone(definition.asset_path)
+                self.assertTrue(os.path.exists(definition.asset_path))
+
     def test_slayer_shop_items_keep_source_identity_and_stackability(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         expected = {

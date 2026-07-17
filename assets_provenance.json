@@ -1981,6 +1981,18 @@
     "source_wiki": "rs3",
     "timestamp": "2023-02-02T06:07:20Z"
   },
+  "combatitems/guthix_cape.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Guthix_cape.png",
+    "file_title": "Guthix cape.png",
+    "image_url": "https://runescape.wiki/images/Guthix_cape.png?6f549",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6c903df5b248c2324689fd9c16ada772a7ffdb2f",
+    "size": 363,
+    "source_wiki": "rs3",
+    "timestamp": "2023-05-08T05:13:44Z"
+  },
   "combatitems/h_a_m_boots.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:H.A.M._boots.png",
     "file_title": "H.A.M. boots.png",
@@ -2233,6 +2245,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:18Z"
   },
+  "combatitems/saradomin_cape.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Saradomin_cape.png",
+    "file_title": "Saradomin cape.png",
+    "image_url": "https://runescape.wiki/images/Saradomin_cape.png?cebbe",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "73d9154e804cb99c5b2817d200ba04699af0ba33",
+    "size": 417,
+    "source_wiki": "rs3",
+    "timestamp": "2023-05-08T05:14:14Z"
+  },
   "combatitems/shears.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Shears.png",
     "file_title": "Shears.png",
@@ -2460,6 +2484,18 @@
     "size": 312,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:14:06Z"
+  },
+  "combatitems/zamorak_cape.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Zamorak_cape.png",
+    "file_title": "Zamorak cape.png",
+    "image_url": "https://runescape.wiki/images/Zamorak_cape.png?11f8e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2438d3bfed84fe013042ccd1e2a2da53a79254cc",
+    "size": 232,
+    "source_wiki": "rs3",
+    "timestamp": "2023-05-08T05:15:07Z"
   },
   "constructionitems/4_poster.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:4-poster.png",
@@ -18141,18 +18177,6 @@
     "source_wiki": "rs3",
     "timestamp": "2025-05-07T18:15:49Z"
   },
-  "herbloreitems/magic_mix_2.png": {
-    "file_page_url": "https://runescape.wiki/wiki/File:Magic_mix_%282%29.png",
-    "file_title": "Magic mix (2).png",
-    "image_url": "https://runescape.wiki/images/Magic_mix_%282%29.png?8a4bb",
-    "license_string": "unknown",
-    "mediatype": "BITMAP",
-    "mime": "image/png",
-    "sha1": "ce413eaa4c09bed31c2e1218409a15998ac499ed",
-    "size": 969,
-    "source_wiki": "rs3",
-    "timestamp": "2016-05-02T05:20:41Z"
-  },
   "herbloreitems/magic_essence_mix_2.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Magic_essence_mix_%282%29.png",
     "file_title": "Magic essence mix (2).png",
@@ -18164,6 +18188,18 @@
     "size": 997,
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T05:19:54Z"
+  },
+  "herbloreitems/magic_mix_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Magic_mix_%282%29.png",
+    "file_title": "Magic mix (2).png",
+    "image_url": "https://runescape.wiki/images/Magic_mix_%282%29.png?8a4bb",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ce413eaa4c09bed31c2e1218409a15998ac499ed",
+    "size": 969,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T05:20:41Z"
   },
   "herbloreitems/magic_potion_2.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Magic_potion_%282%29.png",

@@ -523,6 +523,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._agility_command_calls: list = []
         self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
+        self._mage_arena_calls: list = []
         self._magic_alch_calls: list = []
         self._farming_spell_patch_calls: list = []
         self._prayer_config_calls: list = []
@@ -633,6 +634,24 @@ class MainMenuWidgetTest(unittest.TestCase):
                 player_data.update(updated)
             return {"ok": bool(result.get("allowed")), **result}
 
+        def _mage_arena_action(action_id, god_id):
+            from logic_pure import (
+                apply_mage_arena_cape_action_pure,
+                set_mage_arena_alignment_pure,
+            )
+
+            self._mage_arena_calls.append((action_id, god_id))
+            action = (
+                set_mage_arena_alignment_pure
+                if action_id == "select_alignment"
+                else apply_mage_arena_cape_action_pure
+            )
+            updated, ok, _info = action(player_data, god_id)
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return ok
+
         def _hire_servant(servant_id):
             if not servant_id:
                 player_data["house_servant"] = ""
@@ -691,6 +710,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_quest_route_choice=lambda quest_id, route_id: self._quest_choice_calls.append((quest_id, route_id)) or True,
             on_claim_reward=lambda claim_id, selected_skill_id=None: self._claim_calls.append((claim_id, selected_skill_id)) or True,
             on_claim_stronghold_reward=lambda: self._stronghold_claim_calls.append(True) or True,
+            on_mage_arena_action=_mage_arena_action,
             get_farming_projection=_farming_projection,
             on_farming_action=_farming_action,
         )
@@ -1161,6 +1181,58 @@ class MainMenuWidgetTest(unittest.TestCase):
         protect = dialog.findChild(QCheckBox, "farmingPatchProtectionCheck::falador_allotment_north")
         self.assertTrue(protect.isChecked())
         self.assertTrue(protect.isEnabled())
+        dialog.deleteLater()
+
+    def test_farming_cure_preference_is_a_compact_saved_toggle(self) -> None:
+        from farming_logic import CURE_PLANT_SPELL_FIRST, set_farm_plan_pure
+
+        player_data = _make_player_data()
+        player_data["farming_level"] = 99
+        planned, ok, _ = set_farm_plan_pure(
+            player_data,
+            "falador_allotment_north",
+            "potato",
+        )
+        self.assertTrue(ok)
+        player_data.clear()
+        player_data.update(planned)
+        dialog = self._open(
+            player_data,
+            current_skill="Mining",
+            initial_skill="Farming",
+        )
+        dialog.show()
+        dialog.resize(900, 560)
+        for _ in range(5):
+            QApplication.processEvents()
+        dialog.findChild(QToolButton, "farmingLocationToggle::falador").click()
+        QApplication.processEvents()
+        dialog.findChild(
+            QToolButton,
+            "farmingPatchExpandButton::falador_allotment_north",
+        ).click()
+        QApplication.processEvents()
+
+        combo = dialog.findChild(
+            QComboBox,
+            "farmingPatchCurePreferenceCombo::falador_allotment_north",
+        )
+        self.assertEqual(combo.count(), 2)
+        self.assertEqual(combo.itemText(0), "Plant cure first")
+        self.assertEqual(combo.itemText(1), "Cure Plant first")
+        combo.setCurrentIndex(combo.findData(CURE_PLANT_SPELL_FIRST))
+        for _ in range(5):
+            QApplication.processEvents()
+        self.assertEqual(
+            player_data["farm_plans"]["falador_allotment_north"][
+                "cure_route_preference"
+            ],
+            CURE_PLANT_SPELL_FIRST,
+        )
+        self.assertEqual(
+            self._farming_calls[-1][1]["cure_route_preference"],
+            CURE_PLANT_SPELL_FIRST,
+        )
         dialog.deleteLater()
 
     def test_farming_preset_row_applies_plans_without_queuing(self) -> None:
@@ -4843,6 +4915,57 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._stronghold_claim_calls, [])
         self.assertEqual(self._utility_calls, [])
+
+    def test_mage_arena_alignment_and_attunement_rows_use_their_distinct_actions(self) -> None:
+        pending = _make_player_data()
+        pending["magic_level"] = 60
+        pending["mage_arena"] = {
+            "step": 4,
+            "completed": False,
+            "alignment": "",
+            "attuned_spells": [],
+        }
+        pending_dialog = self._open(pending)
+        pending_tree = self._open_utility(pending_dialog)
+        alignment = _utility_row(
+            pending_tree,
+            "__mage_alignment__:guthix",
+        )
+        pending_tree.itemClicked.emit(alignment, 0)
+        QApplication.processEvents()
+        self.assertEqual(
+            self._mage_arena_calls[-1],
+            ("select_alignment", "guthix"),
+        )
+        self.assertEqual(pending["mage_arena"]["alignment"], "guthix")
+        self.assertEqual(self._utility_calls[-1], "mage_arena")
+
+        completed = _make_player_data()
+        completed["magic_level"] = 99
+        completed["inventory"] = {"Guthix staff": 1}
+        completed["mage_arena"] = {
+            "step": 5,
+            "completed": True,
+            "alignment": "saradomin",
+            "attuned_spells": ["saradomin_strike"],
+        }
+        completed_dialog = self._open(completed)
+        completed_tree = self._open_utility(completed_dialog)
+        attune = _utility_row(completed_tree, "mage_arena_attune:guthix")
+        self.assertTrue(attune.flags() & Qt.ItemFlag.ItemIsEnabled)
+        completed_tree.itemClicked.emit(attune, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._utility_calls[-1], "mage_arena_attune:guthix")
+
+        switch = _utility_row(completed_tree, "__mage_cape__:guthix")
+        completed_tree.itemClicked.emit(switch, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._mage_arena_calls[-1], ("cape", "guthix"))
+        self.assertEqual(completed["mage_arena"]["alignment"], "guthix")
+        self.assertNotIn(
+            "claws_of_guthix",
+            completed["mage_arena"]["attuned_spells"],
+        )
 
     def test_utility_region_quest_locks_are_inert(self) -> None:
         pd = _make_player_data()

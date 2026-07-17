@@ -35,6 +35,8 @@ try:
         default_action_telemetry_pure,
         default_achievement_progress_pure,
         default_combat_state_pure,
+        default_mage_arena_state_pure,
+        MAGE_ARENA_GOD_DATA,
         default_quest_combat_active_encounters_pure,
         default_quest_combat_config_pure,
         default_stronghold_state_pure,
@@ -42,6 +44,7 @@ try:
         sanitize_action_telemetry_pure,
         sanitize_achievement_progress_pure,
         sanitize_combat_state_pure,
+        sanitize_mage_arena_state_pure,
         sanitize_quest_combat_active_encounters_pure,
         sanitize_quest_combat_config_pure,
         sanitize_stronghold_state_pure,
@@ -96,6 +99,8 @@ except ImportError:
         default_action_telemetry_pure,
         default_achievement_progress_pure,
         default_combat_state_pure,
+        default_mage_arena_state_pure,
+        MAGE_ARENA_GOD_DATA,
         default_quest_combat_active_encounters_pure,
         default_quest_combat_config_pure,
         default_stronghold_state_pure,
@@ -103,6 +108,7 @@ except ImportError:
         sanitize_action_telemetry_pure,
         sanitize_achievement_progress_pure,
         sanitize_combat_state_pure,
+        sanitize_mage_arena_state_pure,
         sanitize_quest_combat_active_encounters_pure,
         sanitize_quest_combat_config_pure,
         sanitize_stronghold_state_pure,
@@ -125,7 +131,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 39
+CURRENT_CONFIG_VERSION = 40
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -302,6 +308,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_target_state())
     data["magic_charge_active"] = False
     data["magic_charge_ticks_remaining"] = 0
+    data["mage_arena"] = default_mage_arena_state_pure()
     data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
     data["current_quest"] = DEFAULT_QUEST_TARGET
     data["construction_actions_completed"] = 0
@@ -1033,6 +1040,21 @@ def migrate_loaded_data(
     if loaded_config_version < 39:
         for key, value in default_farming_state_pure().items():
             data.setdefault(key, value)
+    # v40: Mage Arena alignment/attunements and Farming cure-route preference.
+    # Both nested structures are normalized again below so the migration stays
+    # additive and idempotent for partial or future-shaped payloads.
+    if loaded_config_version < 40:
+        data.setdefault("mage_arena", default_mage_arena_state_pure())
+        legacy_arena = data.get("mage_arena", {}) or {}
+        legacy_alignment = str(legacy_arena.get("alignment", "") or "")
+        if (
+            bool(legacy_arena.get("completed"))
+            and legacy_alignment in MAGE_ARENA_GOD_DATA
+            and not legacy_arena.get("attuned_spells")
+        ):
+            legacy_arena["attuned_spells"] = [
+                MAGE_ARENA_GOD_DATA[legacy_alignment]["spell_id"]
+            ]
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1049,7 +1071,7 @@ def migrate_loaded_data(
         charge_ticks = 0
     data["magic_charge_ticks_remaining"] = charge_ticks
     data["magic_charge_active"] = charge_ticks > 0
-    data.setdefault("mage_arena", {"step": 0, "completed": False})
+    data["mage_arena"] = sanitize_mage_arena_state_pure(data.get("mage_arena"))
     data.setdefault("mage_training_arena", {"completed": False})
     data.setdefault("current_construction", "crude_wooden_chair")
     data.setdefault("construction_actions_completed", 0)

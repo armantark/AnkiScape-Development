@@ -2,16 +2,25 @@
 
 ## Current Focus
 
-The active non-Summoning grill-harvest loop has closed Magic Charge review
-duration (`6639a48`), Bank quantity controls (`8426fa2`), the corrected Charge
-source boundary (`8b6a561`), Agility carried risk (`69855d9`), and Farming
-replacement/preset planning (`9b65f45`). Farming now exposes explicit healthy
-mature-regrower `Dig up`, user-authored whole-farm plan presets, inert
-selection/application, watering and item-cure policy, reported full-run skips,
-and refundable gardener-payment escrow owned by queued planting steps.
-Cross-skill Cure Plant automation remains a non-blocking owner design gap; the
-existing item Cure path remains the preset default. Summoning runtime/source
-work remains excluded until the owner explicitly releases it.
+The active non-Summoning grill-harvest follow-up has closed its final two owner
+questions. Mage Arena now has final-form alignment, matching first cape/staff,
+review-native per-spell attunement, one-cape statue replacement/reclaim, and
+Charge's matching-loadout +100 LP god-spell maximum-hit effect. Farming
+auto-cure now saves a per-patch `Plant cure first` / `Cure Plant first`
+preference, snapshots it into presets and queued steps, and falls back
+atomically through the canonical item or Magic transaction. Config v40
+preserves legacy Mage Arena completions and normalizes both new schemas. The
+final candidate passes 1,388 core methods and 1,388 real offscreen Qt methods;
+test quality, documentation, compilation, JSON, reachability, asset provenance,
+diff, and worktree-safety gates pass.
+
+The earlier loop also closed Magic Charge review duration (`6639a48`), Bank
+quantity controls (`8426fa2`), the corrected Charge source boundary
+(`8b6a561`), Agility carried risk (`69855d9`), and Farming replacement/preset
+planning (`9b65f45`). The former open design ledger is now archived at
+`archive/2026-07/resolved-queues/design-gaps-grill-harvest-2026-07-17.md`.
+Summoning runtime/source work remains excluded until the owner explicitly
+releases it.
 
 Slayer's source-first owner grill is design-closed and integrated into `main`.
 The governing record is `slayer-skill-contract-2026-07-15.md`, supported by

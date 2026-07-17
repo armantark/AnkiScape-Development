@@ -673,7 +673,57 @@ Closure verification:
   163 cascade).
 - Compilation, JSON, diff, and worktree-safety checks passed.
 - No new owner-level design gap emerged. The two pre-existing ranked questions
-  remain in `design-gaps-grill-harvest-2026-07-17.md`.
+  were subsequently resolved and are preserved in
+  `archive/2026-07/resolved-queues/design-gaps-grill-harvest-2026-07-17.md`.
 - Results artifact:
   `status-updates/grill-harvest-results-2026-07-17.html`; mobile copy:
   <https://co9e6hzqn0pd.postplan.dev>.
+
+## Post-closure follow-up — Mage Arena and Farming cure policy
+
+The owner approved the recommended Mage Arena alignment/attunement abstraction
+and selected an ordered two-option Farming cure policy.
+
+Accepted implementation:
+
+- Mage Arena's final form requires a chosen god and grants that first matching
+  cape, staff, and spell attunement. Other god spells consume one explicit
+  attunement review after their shop-bought staff is owned.
+- Instant statue actions preserve the one-cape limit and direct-action undo.
+  Mismatched god cape/staff equipment is rejected.
+- Charge's +100 LP maximum-hit effect now reaches preview and live combat only
+  for the matching attuned god spell and worn loadout.
+- Farming plans and presets store `Plant cure first` or `Cure Plant first`.
+  Queued cure steps snapshot the choice and try the other route atomically when
+  the preferred resource path is unavailable.
+- Config v40 migrates Mage Arena alignment/attunements and sanitizes the new
+  Farming preference without invalidating completed legacy arenas.
+
+The implementation review also caught and repaired three concrete integration
+defects before closure:
+
+- The first cape transcription zeroed its sourced 1/1/2 melee defence bonuses.
+- God staves were not registered as magic weapons, so Combat preview silently
+  used melee math.
+- The cape item rows inherited generic defaults, losing their cache IDs and
+  incorrectly becoming stackable and tradeable.
+
+The equipment generator, magic staff registry, and canonical item manifest now
+carry those fixes with regression coverage.
+
+Follow-up verification:
+
+- Focused Mage Arena, Farming, equipment, registry, runtime, integration, and
+  migration coverage: 192 methods passed.
+- Focused real offscreen Qt controls: two methods passed.
+- Full core discovery: 1,388 methods, 1,189 ordinary passes, 196 environment
+  skips, and three declared XP-parity expected failures.
+- Full real offscreen Qt discovery: 1,388 methods, 1,385 ordinary passes, no
+  skips, and the same three expected failures.
+- Test quality: zero hard issues across 67 files. Documentation, compilation,
+  JSON, reachability, asset provenance, diff, and worktree-safety checks pass.
+- Reachability remains at the established 1,200-action / 273-known-orphan
+  baseline.
+- Follow-up results artifact:
+  `status-updates/mage-arena-farming-cure-results-2026-07-17.html`; mobile
+  copy: <https://q0wso578s42a.postplan.dev>.

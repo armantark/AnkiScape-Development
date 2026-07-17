@@ -47,14 +47,19 @@ Together these revisions establish:
 - a god staff cannot be equipped with another god's cape; Charge requires the
   appropriate cape and staff pairing for its 50% higher god-spell hit.
 
-## Runtime comparison
+## Runtime resolution
 
-The live five-review Mage Arena landmark only records completion.
-All three god spells and Charge then unlock together. God staves exist in the
-equipment/shop data, but the landmark grants none; god capes are not live
-equipment; there is no god alignment, per-spell arena attunement, cape
-replacement/reclaim action, or gameplay reader for Charge's damage boost.
+The owner approved the collapsed review-native representation on 2026-07-17.
+The five-review landmark now requires a god alignment before the final form,
+then grants the matching cape and first staff and attunes that first spell.
+Each other god spell uses one explicit attunement review after the player owns
+its 80,000-coin staff. This single review is a labeled abstraction of the
+source-required 100 arena casts.
 
-The duration clock is independently valid and remains shipped. Completing the
-damage effect and reward path requires the owner-level abstraction recorded in
-`memory-bank/design-gaps-grill-harvest-2026-07-17.md`.
+Statue replacement/reclaim is instantaneous and direct-undoable. Only one god
+cape may be owned; mismatched god capes and staves cannot be equipped. Charge
+adds 100 LP to the matching attuned god spell only while its review-driven
+duration is active and the matching cape and staff are worn. The generated
+cape equipment rows preserve item-config attack/defence bonuses and period
+asset provenance. The resolved design record is archived at
+`memory-bank/archive/2026-07/resolved-queues/design-gaps-grill-harvest-2026-07-17.md`.
