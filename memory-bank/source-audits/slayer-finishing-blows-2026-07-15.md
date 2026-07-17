@@ -111,3 +111,38 @@ The action selector disables manual finishers until the source LP threshold is
 valid. The period game's early, ineffective consumable use is intentionally not
 encoded; this removes a UI misclick trap without changing the item requirement,
 review cost, successful spend, or unlock value.
+
+## Implementation-readiness follow-up — 2026-07-17
+
+The four finishing-item acquisition rows are source-ready:
+
+| Item | Source item | Inventory shape | Shop acquisition |
+|---|---:|---|---|
+| Bag of salt | 4161 | stackable; consumed once | Turael stock 1,000 at 10 coins |
+| Rock hammer | 4162 | non-stackable; reusable presence check | Turael stock 10 at 500 coins |
+| Ice cooler | 6696 | stackable; consumed once | Turael stock 1,000 at 1 coin |
+| Fungicide spray 10 | 7421 | non-stackable charged tool | Turael stock 10 at 300 coins |
+
+The source rows are
+`/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/data/items/shops/turaels_slayer_equipment.json`.
+The generated shop stock already retained these item IDs and stackability
+values, but `shop_extra_items_as_dict()` dropped both fields before the shared
+item registry was built. Commit `2ddbb0a` now preserves them. Regression
+coverage pins all four source identities and inventory shapes at both the shop
+catalog and consolidated item-registry boundaries.
+
+This does **not** certify any finisher family for runtime admission:
+
+- Rockslug and Gargoyle have useful 2011Scape Combat candidates, but their
+  reconstructed 50/100-LP death-blow thresholds conflict with the period
+  1–39/below-90 evidence above. Gargoyle's candidate also leaks the
+  Kuradal's-Dungeon-only Ferocious-ring drop into its global table.
+- Desert lizard and Mutated zygomite do not have complete reconciled Combat
+  rows in the pinned local reconstructions.
+- All four target images and provenance rows are absent, and the Combat asset
+  fetcher correctly refuses unknown target IDs.
+
+The generic manual/automatic finisher runtime must therefore land together
+with at least one fully reconciled target row, context-correct drop table, and
+enemy asset. Until then, the four families remain `source_blocked` rather than
+shipping as ordinary enemies or unreachable finisher code.

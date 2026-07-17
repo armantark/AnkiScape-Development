@@ -6,7 +6,7 @@
   "branch": "main",
   "baseline_commit": "2d51d213ab7e6c9a9b6fb397e9b664c9ed892d60",
   "current_phase": "slayer_source_harvest",
-  "last_observed_commit": "17329d7c2919dd3cdb2d820fae1063789d5db1b7",
+  "last_observed_commit": "2ddbb0a33937fccdbfa2d0e4f8a82675bee3015d",
   "queue": [
     {
       "id": "approved-amendments",
@@ -20,7 +20,7 @@
     },
     {
       "id": "slayer",
-      "status": "all_seven_functional_master_pools_recorded_cockatrice_protection_complete_family_sweep_continues",
+      "status": "all_seven_functional_master_pools_recorded_cockatrice_and_finisher_acquisition_complete_remaining_runtime_dependency_blocked",
       "runtime_authorized": true
     }
   ],
@@ -35,7 +35,8 @@
     "b09c6bab42b3a2329aea4139aae340cb42b92275",
     "31a5ec42bb13cff14ca7d0ee69b1f80148013314",
     "00c201c11a9d54744323cacc26595aa1ab4bd4b5",
-    "17329d7c2919dd3cdb2d820fae1063789d5db1b7"
+    "17329d7c2919dd3cdb2d820fae1063789d5db1b7",
+    "2ddbb0a33937fccdbfa2d0e4f8a82675bee3015d"
   ],
   "completed_batches": [
     "magic-charge-review-duration",
@@ -49,7 +50,8 @@
     "slayer-sumona-source-pool",
     "slayer-duradel-lapalok-source-pool",
     "slayer-kuradal-source-pool",
-    "slayer-cockatrice-protective-equipment"
+    "slayer-cockatrice-protective-equipment",
+    "slayer-finisher-item-acquisition-metadata"
   ],
   "workflow_runs": [
     {
@@ -112,6 +114,11 @@
       "id": "79096d5a-3642-428f-84f1-721b0202d4d4",
       "purpose": "Cockatrice and Banshee protective-equipment source surveys",
       "result": "canceled after two overlong attempts produced no final reports; primary independently reconciled and implemented Cockatrice while leaving Banshee blocked"
+    },
+    {
+      "id": "6c3706e6-f7be-408f-a3bf-217c23d23d3e",
+      "purpose": "finisher family, item, asset and Combat-seam readiness",
+      "result": "item/acquisition leaf certified four item rows and family blockers; Combat-seam leaf timed out and its partial output was not used; primary repaired the source-ready shared-registry metadata defect"
     }
   ],
   "excluded_until_owner_authorizes": [

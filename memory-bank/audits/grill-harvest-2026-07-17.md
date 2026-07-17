@@ -609,3 +609,36 @@ Evidence:
 - Test quality: zero hard issues across 67 files. Documentation, reachability,
   compilation, diff, JSON and worktree-safety checks passed.
 - No owner-level design gap emerged.
+
+## Slayer implementation batch — finisher-item acquisition metadata
+
+Finding: every Slayer finisher supply was purchasable, and each shop stock row
+contained its source item ID and stackability, but the generated
+`shop_extra_items_as_dict()` projection discarded both. The consolidated item
+registry therefore treated Rock hammer and Fungicide spray 10 as stackable and
+gave all four supplies no source identity.
+
+Resolution:
+
+- Preserved `source_item_id` and `stackable` from the first canonical stock row
+  while building shop-only item metadata.
+- Applied the same logic to the generator template and its checked-in output.
+- Pinned Bag of salt 4161, Rock hammer 4162, Ice cooler 6696, and Fungicide
+  spray 10 7421 through both catalog and registry regressions.
+- Kept the finisher engine and all four enemy rows hidden. None is yet a
+  complete reachable slice: reconciled Combat/drop rows and enemy assets are
+  missing, with additional period/reconstruction conflicts for Rockslug and
+  Gargoyle.
+
+Evidence:
+
+- `source-audits/slayer-finishing-blows-2026-07-15.md`.
+- Read-only workflow `6c3706e6-f7be-408f-a3bf-217c23d23d3e` certified the
+  item/shop facts and family blockers. Its separate Combat-seam leaf timed out
+  before a final report; the primary did not rely on that partial output.
+- Regression-first proof failed on all eight catalog/registry assertions before
+  the repair and passed afterward.
+- Shop, shop-logic, registry, and integration holdout: 167 passed.
+- Real offscreen Qt shop flows: 3 passed.
+- Compilation passed; reachability remains at 1,200 actions / 273 known
+  orphans. Full closure verification remains pending.

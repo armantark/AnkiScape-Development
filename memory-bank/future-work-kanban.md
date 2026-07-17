@@ -250,6 +250,12 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE SWEEP`, `DEPENDENCY: COMBAT`.
   and affected stats are pinned, but its conflicting drain magnitude and
   current Summoning-scope dependency keep that family unimplemented. See
   `source-audits/slayer-protective-equipment-cockatrice-banshee-2026-07-17.md`.
+- Finisher-item acquisition metadata is now ready: Bag of salt, Rock hammer,
+  Ice cooler, and Fungicide spray retain their source item IDs and real
+  stackability in the shared registry. The four target families remain
+  source-blocked on reconciled Combat rows, context-correct drops, and enemy
+  assets; do not add a dead generic finisher engine ahead of a certifiable
+  family. See `source-audits/slayer-finishing-blows-2026-07-15.md`.
 - Complete the design-closure source sweep without reopening owner questions for
   source-determined behavior: close every per-master pool/weight/count/gate row,
   pin every family variant's membership/stats/Slayer-XP eligibility/context, and

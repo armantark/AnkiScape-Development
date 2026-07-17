@@ -690,3 +690,17 @@ offscreen Qt Combat-picker check, and all 1,374 core tests with 196 environment
 skips and three expected XP-parity failures. Test quality, documentation,
 compilation, diff and worktree-safety checks pass; reachability remains at its
 1,200-action / 273-known-orphan baseline.
+
+## Slayer finisher acquisition readiness (2026-07-17)
+
+The four cutoff finisher supplies now preserve their source identity and
+inventory shape through the generated shop catalog and shared item registry.
+Bag of salt and Ice cooler are stackable consumables; Rock hammer and
+Fungicide spray 10 are non-stackable tools. The repair is commit `2ddbb0a`.
+
+No finisher target was admitted. Rockslug and Gargoyle still require
+period-reconciled Combat/drop rows, Desert lizard and Mutated zygomite lack
+complete target rows, and all four enemy assets are absent. The generic
+manual/quick-finisher runtime remains dependency-blocked until it can ship
+with at least one genuinely reachable family. Details are in
+`source-audits/slayer-finishing-blows-2026-07-15.md`.

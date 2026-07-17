@@ -627,3 +627,17 @@ Test counts are snapshots; current runs outrank this note.
   offscreen Qt picker check, and all 1,374 core methods with 196 skips and
   three expected failures. Test quality has zero hard issues; documentation,
   reachability, compilation, diff and worktree-safety checks pass.
+
+## Slayer finisher-item acquisition metadata (2026-07-17)
+
+- Reproduced a generated-data loss where shop-only items discarded their
+  source item IDs and defaulted to stackable in the shared registry.
+- Preserved stock-row `source_item_id` and `stackable` through the generated
+  helper, including the generator template so regeneration cannot erase the
+  repair.
+- Pinned Bag of salt 4161 as stackable, Rock hammer 4162 as non-stackable, Ice
+  cooler 6696 as stackable, and Fungicide spray 10 7421 as non-stackable.
+- Passed 167 shop/registry/integration methods and three real offscreen Qt shop
+  flows. Reachability remains at 1,200 actions and 273 known orphans.
+- Kept all four finisher families hidden: target data, context-correct drops,
+  enemy assets, and reachable finisher runtime are not yet jointly certified.
