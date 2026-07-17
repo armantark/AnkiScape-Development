@@ -722,7 +722,7 @@ The earlier proposed recoverable pet-grave abstraction was wrong. The owner's
 anti-Tamagotchi rule prevents passive maintenance from silently deleting a pet; it does
 not erase an ordinary sourced combat-death consequence.
 
-### 34. Rat Catchers King Rat encounter — open owner fork 2026-07-17
+### 34. Rat Catchers King Rat encounter — settled 2026-07-17
 
 Rat Catchers oldid
 [6589064](https://runescape.wiki/w/Rat_Catchers?oldid=6589064)
@@ -731,12 +731,16 @@ the rat can kill it in three to five hits or less, food used on the wall hole he
 and a kitten may be told to fight cautiously so it retreats after losing more than half
 its LP. Reaching zero LP kills the cat.
 
-A general pet-combat actor would reopen the parked multi-actor Combat design for one quest.
-An ordinary quest success roll would instead erase the encounter's only meaningful player
-choice and could turn permanent pet loss into an unchosen dice roll. The bounded design fork
-is therefore whether the flattened quest action exposes the source-authentic kitten stance:
-normal fighting accepts real death risk, while cautious fighting retreats safely and leaves
-the checkpoint incomplete. Carried compatible food remains real mitigation in either mode.
+The owner confirmed that this follows AnkiScape's existing quest abstraction: quests are
+status-line stages with source-authentic item gates, not bespoke simulations of each quest
+sequence. The stage therefore requires a valid cat and resolves through the ordinary quest
+stage action. Its status line says that the cat fights the King Rat through the wall.
+
+The sourced feeding, cautious stance, LP exchange, retreat, and cat-death possibilities
+remain evidence for the represented scene, not live substate. Food was recommended rather
+than mandatory in the period source, so it is not invented as a hard item gate. This does
+not create a pet-combat actor, stance selector, probability roll, or exception to the
+standard quest UI.
 
 ## Source/open-work queue
 

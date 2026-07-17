@@ -238,7 +238,7 @@ route proves one; the previous entity's growth, hunger, variant, or name does no
 unless that pet's source explicitly says it does. The owner's anti-Tamagotchi safety
 abstraction applies to passive hunger/attention upkeep, not ordinary combat death.
 
-## Rat Catchers King Rat encounter — source resolved, representation open 2026-07-17
+## Rat Catchers King Rat encounter — source and representation resolved 2026-07-17
 
 Rat Catchers oldid
 [6589064](https://runescape.wiki/w/Rat_Catchers?oldid=6589064)
@@ -248,9 +248,9 @@ cat itself does nothing. A kitten may be told to fight cautiously and then runs 
 losing more than half its LP. Cats and overgrown cats may also fight, and zero LP kills the
 pet.
 
-These facts are not `source_blocked`. The remaining question is only how much state the
-review-driven quest stage should expose. A full pet-LP combat actor would exceed this
-quest's needs and intrude on the separately parked multi-actor Combat grill. A completely
-opaque quest roll would lose the sourced cautious-retreat decision. The smallest faithful
-candidate is a flattened King Rat attempt with a kitten-only normal/cautious stance and
-real carried-food mitigation; the owner has not yet settled that representation.
+These facts are not `source_blocked`, but they do not create an exception to AnkiScape's
+existing quest representation. The owner settled the encounter as one ordinary status-line
+stage with its source-required cat item gate. The line represents the cat fighting the King
+Rat through the wall. Food is optional in the source and therefore is not a fabricated
+mandatory gate. Feeding, cautious retreat, LP exchange, and cat death are collapsed scene
+detail rather than a pet-combat actor, stance selector, or hidden success roll.

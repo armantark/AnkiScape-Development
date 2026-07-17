@@ -400,10 +400,10 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUIS
   Unsafe death authentically destroys an active pet and any unprotected carried pet item;
   pets never enter the gravestone or Death's Office. Banked/Menagerie pets and safe-death
   contexts remain safe. Reacquisition and replacement state are source-specific.
-- Rat Catchers' King Rat stage still needs one owner representation decision. Period evidence
-  pins cat death, carried-food healing through the wall, and a kitten-only cautious retreat.
-  Keep the design quest-local: do not build a general pet-combat actor or make permanent
-  pet loss an opaque unchosen roll.
+- Rat Catchers' King Rat stage is one ordinary quest status line with the source-required
+  cat item gate. Optional food, cautious retreat, LP exchange, and cat death remain
+  represented scene detail; do not add a pet-combat actor, stance selector, hidden roll,
+  or false mandatory food gate.
 
 ### Dungeoneering
 

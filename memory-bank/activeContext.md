@@ -147,11 +147,12 @@ defensive buff or ambient-damage abstraction is invented now. Unsafe player deat
 the period pet-loss rule: an active pet is destroyed, and an unprotected carried pet item
 is not recoverable from a grave. Banked/Menagerie pets and safe-death contexts remain
 safe. The anti-Tamagotchi abstraction is limited to passive hunger/attention upkeep.
-The next open owner fork is Rat Catchers' King Rat stage: period evidence pins cat death,
-wall-hole feeding, and a kitten-only cautious retreat, while the representation must avoid
-inventing a general pet-combat actor or reducing permanent loss to an unchosen opaque roll.
+Rat Catchers' King Rat stage follows the existing quest abstraction: one status line says
+the cat fights through the wall, and the stage keeps the source-required cat item gate.
+Optional food, cautious retreat, LP exchange, and cat death remain represented scene detail,
+not a pet-combat actor, stance selector, hidden roll, or false mandatory food gate.
 
-The 33 settled decisions and one open fork define answered-card lifetime and passive world ticks,
+The 34 settled decisions define answered-card lifetime and passive world ticks,
 separate familiar/point/special resources, target-policy automation, carried
 pouch/scroll budgets, coalesced restore and Bank detours, safe replacement and
 dismissal, source-gated familiar combat, BoB inventory/reclaim rules, forbidden
