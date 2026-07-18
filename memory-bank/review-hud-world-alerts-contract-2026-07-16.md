@@ -63,6 +63,11 @@ a fourth independent `_reposition` heuristic. Introduce one shared reviewer-over
 layout coordinator that places ReviewHUD, Farming, the alert strip, and ExpPopup as a
 single cluster. When alerts are visible, XP/item popups start above the strip.
 
+The later owner-settled contextual-action row in
+`review-hud-context-actions-contract-2026-07-18.md` joins this same cluster. It
+does not turn alert icons into decision buttons or add another independent
+positioning heuristic.
+
 - Hidden with zero rows; it never reserves empty space.
 - One compact 28 px button per alert event, not a labeled toolbar.
 - Each button uses the event-specific icon, a small remaining-time badge, tooltip, and

@@ -105,6 +105,15 @@ source-shaped. The challenge must store the originating course rather than
 looking at the currently selected `the_pit` target when calculating or
 recording the reward.
 
+The reward uses the shared owner-settled reviewer context surface rather than a
+permanent setting or always-visible Agility command row. **Take XP / Gamble**
+appears above the review HUD for one answered-card grace period. Ignoring it on
+the next answer uses the last explicitly clicked valid Pit choice, or
+conservative `Take XP` when no preference exists. An automatic resolution is
+part of that review's atomic undo snapshot and does not itself change the
+remembered preference. See
+`memory-bank/review-hud-context-actions-contract-2026-07-18.md`.
+
 ## Implementation mismatch recorded on 2026-07-18
 
 The current implementation is not yet aligned with this contract:
@@ -115,9 +124,13 @@ The current implementation is not yet aligned with this contract:
 - no global auto-accept checkbox exists;
 - `_pit_review` records the current target rather than a persisted originating
   course, so course-scaled reward identity is lost after selecting The Pit; and
+- Pit rewards exist only as always-present Agility-panel commands rather than
+  the contextual review row, with no next-answer default or remembered explicit
+  choice; and
 - existing tests cover active/corrupt invitation state but not the nine
   eligible and two ineligible course boundaries.
 
 The implementation pass must fix those concrete mismatches and add targeted
 eligibility, auto-accept, familiar-confirmation, origin-course, return-target,
-and undo coverage. This design thread does not modify the live Agility code.
+context-row, remembered-choice, next-answer resolution, and undo coverage. This
+design thread does not modify the live Agility code.

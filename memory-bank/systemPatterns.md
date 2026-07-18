@@ -141,6 +141,12 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   new standalone widget per feature. Initial rows are the existing Gravestone
   and Summoning's expiring Familiar cargo, each with distinct sourced art,
   labels, countdown semantics, and detail actions.
+- Rare gameplay-created decisions use the sibling contextual-action contract in
+  `review-hud-context-actions-contract-2026-07-18.md`: one labeled row, at most
+  three direct actions, no duplicate toast, no automatic Casual/Advanced split,
+  and no permanent setting by default. Ignoring a safely defaultable row means
+  answering the next card; that review atomically applies the last explicitly
+  clicked still-valid family choice or the authored conservative default.
 - Global gameplay entities may have synchronized contextual projections but only
   one canonical writer. Summoning's familiar is owned by the Equipment surface;
   Bank, reviewer, and per-target controls project that same state. Per-target

@@ -433,6 +433,14 @@ available for manual acceptance or decline. The focused contract and current
 implementation mismatches are recorded in
 `memory-bank/source-audits/the-pit-loop-2026-07-18.md`.
 
+The Pit reward is the first contextual reviewer action. **Take XP / Gamble**
+appears in one shared row above the XP/LP HUD with one answered-card grace
+period; ignoring it uses the last explicitly clicked valid Pit choice or the
+conservative `Take XP` default inside the next review's undo transaction. This
+creates no auto-gamble checkbox and no Casual/Advanced split. The reusable
+contract and later candidate-harvest boundary are recorded in
+`memory-bank/review-hud-context-actions-contract-2026-07-18.md`.
+
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking
 the shared substrate.

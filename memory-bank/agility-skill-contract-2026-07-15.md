@@ -291,13 +291,20 @@ is success under the explicit `ankiscape_pit_success_threshold`. Success/failure
 pays the audited course-scaled table; if the table
 remains disputed, retain its range internally and use the lower attested value
 until better evidence arrives. First success grants the gorilla mask. The
-optional `2x/1x/0.5x` gamble is an explicit post-result command with equal odds
-and its own undo snapshot. An owned Agility skillcape also exposes the period
-reduced-XP practice option without altering ordinary offers.
+optional `2x/1x/0.5x` gamble appears as the first
+`ReviewContextActionStrip` decision: **Take XP / Gamble**. The row has one
+answered-card grace period. Ignoring it uses the last explicitly clicked valid
+Pit choice, or the conservative `Take XP` default when none exists, inside the
+next review's undo transaction. A direct click keeps its own undo snapshot.
+There is no permanent auto-gamble checkbox or Casual/Advanced split. An owned
+Agility skillcape also exposes the period reduced-XP practice option without
+altering ordinary offers.
 
 The focused source and UI contract, plus the current implementation mismatches,
 are recorded in
-`memory-bank/source-audits/the-pit-loop-2026-07-18.md`.
+`memory-bank/source-audits/the-pit-loop-2026-07-18.md`. The cross-system
+reviewer interaction contract is
+`memory-bank/review-hud-context-actions-contract-2026-07-18.md`.
 
 ### Circus
 
