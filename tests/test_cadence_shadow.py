@@ -1,11 +1,8 @@
-import copy
 import json
-import pickle
 import random
 import subprocess
 import sys
 import tempfile
-import types
 import unittest
 from fractions import Fraction
 from pathlib import Path
@@ -19,18 +16,10 @@ from cadence_shadow import (
     resolve_cadence_shadow_rate_pure,
     sanitize_cadence_shadow_state_pure,
 )
-from cadence_kernel import default_cadence_profile_state_pure
 from runtime_actions import RuntimeActionContext, _record_action
 from storage_pure import migrate_loaded_data
 from constants import COOKING_DATA, FIREMAKING_DATA, FISHING_DATA, HUNTER_DATA, ORE_DATA, TREE_DATA
 from tools.cadence_shadow_report import catalog_rows, render_text
-from tests.test_integration_smoke import (
-    _DummyCol,
-    _DummyMW,
-    _FakeReviewer,
-    _install_runtime_fakes,
-    _load_addon_as_package,
-)
 
 
 class CadenceShadowPureTest(unittest.TestCase):
@@ -244,198 +233,6 @@ class CadenceShadowPureTest(unittest.TestCase):
             for nested in value:
                 self._assert_no_float(nested)
 
-
-class CadenceShadowIntegrationTest(unittest.TestCase):
-    def setUp(self):
-        self._original_modules = dict(sys.modules)
-        _install_runtime_fakes()
-
-    def tearDown(self):
-        sys.modules.clear()
-        sys.modules.update(self._original_modules)
-
-    def test_flag_on_off_preserve_each_review_gameplay_bytes_rng_xp_and_loot(self):
-        for index, (skill, route, fixture) in enumerate(self._route_fixtures()):
-            with self.subTest(skill=skill, route=route):
-                off_sequence, off_rng, off_data = self._run_reviews(
-                    f"ankiscape_shadow_{index}_off",
-                    {"ankiscape_cadence_kernel": False},
-                    skill,
-                    fixture,
-                )
-                on_sequence, on_rng, on_data = self._run_reviews(
-                    f"ankiscape_shadow_{index}_on",
-                    {"ankiscape_cadence_kernel": True},
-                    skill,
-                    fixture,
-                )
-                self.assertEqual(on_sequence, off_sequence)
-                self.assertEqual(on_rng, off_rng)
-                self.assertNotIn(SHADOW_STATE_KEY, off_data)
-                self.assertEqual(
-                    on_data[SHADOW_STATE_KEY]["routes"][route]["assigned_reviews"],
-                    16,
-                )
-                self.assertEqual(on_data["cadence_profiles"], off_data["cadence_profiles"])
-
-    def test_review_undo_restores_shadow_residual_with_gameplay(self):
-        addon = _load_addon_as_package("ankiscape_shadow_undo")
-        initial_shadow = {}
-        addon.player_data = {
-            "inventory": {},
-            "woodcutting_level": 99,
-            "woodcutting_exp": 0,
-            "current_tree": "magic",
-            "toolbelt": {"woodcutting": ["rune_hatchet"]},
-            "completed_achievements": [],
-            "cadence_profiles": {},
-        }
-        addon.current_skill = "Woodcutting"
-        addon.mw = _DummyMW(_DummyCol({"ankiscape_cadence_kernel": True}))
-        addon.level_up_check = lambda _skill, _data: None
-        addon.check_achievements = lambda _data: None
-        addon.save_player_data = lambda: None
-        addon.update_review_hud = lambda _data, _skill: None
-        addon.update_farming_hud_badge = lambda _data, _callback: None
-        addon._refresh_skill_availability = lambda: None
-        addon._show_exp = lambda _value: None
-        addon._show_activity_gain = lambda _value: None
-        before = addon._capture_player_data_snapshot()
-        addon.card_turned = addon.answer_shown = True
-        addon.exp_awarded = False
-        addon.random.seed(7)
-        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
-        self.assertIn(SHADOW_STATE_KEY, addon.player_data)
-        addon._on_state_did_undo(
-            types.SimpleNamespace(
-                operation="Answer Card",
-                changes=types.SimpleNamespace(study_queues=True, card=True),
-            )
-        )
-        self.assertEqual(addon.player_data.get(SHADOW_STATE_KEY, {}), initial_shadow)
-        self.assertEqual(addon.player_data, before["player_data"])
-
-    def test_valid_source_blocked_runite_records_live_results_without_residual(self):
-        _sequence, _rng, data = self._run_reviews(
-            "ankiscape_shadow_runite",
-            {"ankiscape_cadence_kernel": True},
-            "Mining",
-            {
-                "inventory": {},
-                "mining_level": 99,
-                "mining_exp": 0,
-                "current_ore": "runite",
-                "toolbelt": {"mining": ["rune_pickaxe"]},
-            },
-        )
-        route = data[SHADOW_STATE_KEY]["routes"]["mining:runite"]
-        self.assertEqual(route["source_status"], SOURCE_BLOCKED)
-        self.assertEqual(route["assigned_reviews"], 16)
-        self.assertEqual(route["live_successes"], 6)
-        self.assertEqual(route["live_xp"], [750, 1])
-        self.assertNotIn("mining:runite", data[SHADOW_STATE_KEY]["profiles"])
-        self.assertEqual(data["inventory"]["Runite ore"], 6)
-        self.assertEqual(data["mining_exp"], 750)
-        report = cadence_shadow_report_rows_pure(data)[0]
-        self.assertEqual(report["current_xp_hour"], [46_875, 1])
-
-    def _run_reviews(self, module_name, config, skill, fixture):
-        addon = _load_addon_as_package(module_name)
-        calls = {"xp": [], "gains": []}
-        addon.level_up_check = lambda _skill, _data: None
-        addon.check_achievements = lambda _data: None
-        addon.save_player_data = lambda: None
-        addon.update_review_hud = lambda _data, _skill: None
-        addon._refresh_skill_availability = lambda: None
-        addon.show_error_message = lambda _title, message: self.fail(message)
-        addon._show_exp = lambda value: calls["xp"].append(value)
-        addon._show_activity_gain = lambda value: calls["gains"].append(value)
-        addon.mw = _DummyMW(_DummyCol(config))
-        addon.player_data = {
-            "completed_achievements": [],
-            "cadence_profiles": {
-                "sentinel": copy.deepcopy(default_cadence_profile_state_pure(opening_ready=False))
-            },
-            **copy.deepcopy(fixture),
-        }
-        addon.current_skill = skill
-        addon.random.seed(20260713)
-        sequence = []
-        for _ in range(16):
-            addon.card_turned = addon.answer_shown = True
-            addon.exp_awarded = False
-            addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
-            gameplay = {key: value for key, value in addon.player_data.items() if key != SHADOW_STATE_KEY}
-            sequence.append(pickle.dumps({"player_data": gameplay, "calls": calls}, protocol=5))
-        return sequence, addon.random.getstate(), addon.player_data
-
-    def _route_fixtures(self):
-        return (
-            (
-                "Mining",
-                "mining:iron",
-                {
-                    "inventory": {},
-                    "mining_level": 99,
-                    "mining_exp": 0,
-                    "current_ore": "iron",
-                    "toolbelt": {"mining": ["rune_pickaxe"]},
-                },
-            ),
-            (
-                "Woodcutting",
-                "woodcutting:magic",
-                {
-                    "inventory": {},
-                    "woodcutting_level": 99,
-                    "woodcutting_exp": 0,
-                    "current_tree": "magic",
-                    "toolbelt": {"woodcutting": ["rune_hatchet"]},
-                },
-            ),
-            (
-                "Fishing",
-                "fishing:catch_sharks",
-                {
-                    "inventory": {},
-                    "fishing_level": 99,
-                    "fishing_exp": 0,
-                    "strength_level": 99,
-                    "agility_level": 99,
-                    "current_fishing": "catch_sharks",
-                },
-            ),
-            (
-                "Hunter",
-                "hunter:catch_red_chinchompa",
-                {
-                    "inventory": {"Box trap": 1},
-                    "hunter_level": 99,
-                    "hunter_exp": 0,
-                    "current_hunter": "catch_red_chinchompa",
-                },
-            ),
-            (
-                "Cooking",
-                "cooking:cook_shark",
-                {
-                    "inventory": {"Raw shark": 100},
-                    "cooking_level": 99,
-                    "cooking_exp": 0,
-                    "current_cooking": "cook_shark",
-                },
-            ),
-            (
-                "Firemaking",
-                "firemaking:magic_logs",
-                {
-                    "inventory": {"Magic logs": 100},
-                    "firemaking_level": 99,
-                    "firemaking_exp": 0,
-                    "current_firemaking": "magic_logs",
-                },
-            ),
-        )
 
 
 if __name__ == "__main__":

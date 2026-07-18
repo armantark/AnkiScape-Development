@@ -1,9 +1,4 @@
-"""Pure foreground-action cadence contracts and scheduling.
-
-The kernel is intentionally dormant in Phase 1: runtime review dispatch does
-not call this module yet. Persisted progress is represented by plain mappings so
-it remains compatible with Anki's profile configuration storage.
-"""
+"""Pure foreground-action cadence contracts and exact residual scheduling."""
 
 from __future__ import annotations
 
@@ -84,7 +79,7 @@ def _require_integer(name: str, value: Any, *, minimum: int) -> int:
 
 
 def sanitize_cadence_kernel_enabled_pure(value: Any, default: bool = False) -> bool:
-    """Return a strict boolean feature flag, defaulting off for invalid values."""
+    """Return a strict boolean feature flag using the caller's declared default."""
 
     return value if isinstance(value, bool) else bool(default)
 
@@ -252,9 +247,6 @@ def advance_cadence_pure(
     """Advance one active profile for one eligible successful review."""
 
     validate_cadence_profile_pure(profile)
-    if profile.mode in (EMBEDDED_PROBABILITY, COMBAT_TICKS):
-        raise NotImplementedError(f"{profile.mode} is declared but dormant in Phase 1")
-
     state = sanitize_cadence_profile_state_pure(raw_state)
     if state["cadence_version"] != profile.cadence_version:
         raise ValueError("persisted cadence_version does not match the profile")
@@ -262,7 +254,7 @@ def advance_cadence_pure(
         raise ValueError("persisted credit must be smaller than the profile threshold")
 
     state["assigned_reviews"] += 1
-    emitted = profile.mode == PASSTHROUGH
+    emitted = profile.mode in (PASSTHROUGH, EMBEDDED_PROBABILITY, COMBAT_TICKS)
     if profile.mode == RATE_LIMITED:
         if state["opening_ready"]:
             state["opening_ready"] = False

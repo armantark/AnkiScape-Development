@@ -1,7 +1,9 @@
 # Cadence kernel contract
 
-Owner-approved 2026-07-13. Supersedes nothing; it is the first implementation of
-the XP/hour invariant recorded on the balance kanban card.
+Owner-approved 2026-07-13; reconciled to the live default-on implementation
+2026-07-17. This is the canonical foreground cadence contract. The original
+Phase 1/Phase 3 rollout records remain historical evidence, not current runtime
+status.
 
 Evidence: `memory-bank/source-audits/xp-hour-provenance-ledger-2026-07-13.md`.
 Decision: `memory-bank/status-updates/archive/2026-07/action-time-model-decision-2026-07-13.html`.
@@ -43,28 +45,33 @@ coordinated them. Mining behaves as ~1,000 reviews per game-hour, Combat *declar
    that happened to us.** No location layer, review-paced actions and the 240-card
    day are chosen. Runite out-earning iron is an accident. Keep the first, fix the
    second. Deliberate divergences get written down; accidental ones get fixed.
-5. **Ship behind a config flag**, `ankiscape_cadence_kernel`, beside the review
-   multiplier. **Off = today's behaviour byte-for-byte.** On = the new model. The
-   owner A/B tests it in his own save. Storage migration is **additive only** — new
-   keys, nothing rewritten — so flipping back leaves nothing broken.
+5. **Ship with a rollback flag**, `ankiscape_cadence_kernel`, beside the review
+   multiplier. The live kernel is now the default. Explicit boolean `false`
+   restores the legacy handler and RNG order byte-for-byte; missing, true, or
+   malformed values use live cadence. Storage migration is **additive only** —
+   new keys, nothing rewritten — so rollback leaves save data intact.
 6. **Save compatibility is not a constraint.** The owner is the sole alpha tester of
    his own open-source project and accepts that his save's behaviour changes.
 
 ## 3. Felt-change contract (what the owner agreed to feel)
 
-- **Skilling: one review = one discrete action or attempt, unchanged.** You answer a
-  card, you swing the pickaxe, you get an ore or you don't. Stalls add "the stall is
-  bare", which is the same shape as a failed mining roll and has existed since launch.
+- **Skilling follows the route declaration.** `passthrough` and
+  `embedded_probability` buy one attempt per kernel step. `rate_limited` may
+  instead produce a visible cadence wait: no attempt, failure, resource use, or
+  dry-streak change occurred. Source-blocked routes retain their approved legacy
+  action unit until compatible evidence exists.
 - **Rare actions get genuinely rarer.** Runite falls from 54% to ~14%. This is the
   fix, and it is a real felt nerf. Accepted knowingly.
 - **Combat feels meaningfully slower per card, and this is unavoidable.** One card
   currently buys 50 ticks (30s); under the kernel it buys ~6 ticks (3.6s), and
   combat XP/card falls ~8×. *Any* design that preserves the current combat feel
   **is** the 8× bug.
-- **Combat's reaction cadence does NOT change.** The tactical decision point stays at
-  50 ticks — preset, flee, target swap on the same rhythm. Auto-eat and auto-flee run
-  inside the tranche. The player is never forced to click more often than today. This
-  is the thing the 30-second burst was protecting and it is preserved.
+- **Combat advances six immediate game ticks per kernel step.** Encounters,
+  attack countdowns, enemy LP, prayers, curses, statuses, special regeneration,
+  and RNG phase persist between reviews. The player may change preset, flee, or
+  swap target between reviews; there is no hidden 50-tick tactical tranche.
+  Kill, death, flee, or bank boundaries end the review without starting a second
+  enemy.
 
 ## 4. The kernel
 
@@ -179,24 +186,62 @@ Three distinct outcomes, never conflated: `cadence_wait` (no attempt occurred),
 `attempt_failure` (an authentic attempt failed), `success_with_risk`. Cadence waits
 must not inflate dry-streak statistics.
 
-## 5. Phase plan (Sol's ordering; combat LAST)
+## 5. Live activation status
 
-Each phase is independently shippable and leaves the game consistent.
+The staged rollout is complete. `cadence_live.py` owns runtime declarations and
+`cadence_coverage.py` fails closed if an implemented handler or selectable route
+has no classification.
 
-| # | Phase | Size | Notes |
-|---|---|---|---|
-| 0 | Rate provenance + overflow ledger | M | **DONE** — ledger, audit tool, tests |
-| 1 | Dormant kernel + storage schema + config flag | M | Nothing routed through it. No behaviour change. |
-| 2 | **Thieving as the greenfield canary** | L | Unshipped ⇒ no save migration, no regression surface |
-| 3 | Shadow mode on the adapter skills | S–M | Compute proposed vs current, mutate nothing |
-| 4 | Mining migration | L | Remove `ratio × sqrt` |
-| 5 | WC, Fishing, Hunter, Cooking, Firemaking | M–L ea. | One per release |
-| 6 | Combat engine split | L | Highest risk. Last, not first. |
+| Runtime family | Live classification |
+|---|---|
+| Combat | `combat_ticks`: `6 × M` immediate ticks with continuous encounter state |
+| Thieving | Existing exact canary scheduler; no second admission gate |
+| Source-compatible gathering | `rate_limited` exact residual using the conservative lower endpoint of a sourced range |
+| Source-compatible Cooking/Firemaking | `embedded_probability`: one authentic attempt and roll, no second gate |
+| Exact deterministic artisan rows | `rate_limited` when the runtime conditions match the cited row |
+| Source-incompatible or unsourced routes | Approved passthrough behavior with `source_blocked` evidence status |
+| Quests | Finite stage progression; one collapsed stage per eligible review, never multiplied |
+| Utility/Activities and Farming | Explicit cadence exemptions owned by their activity or world-clock contracts |
 
-**Combat is last by design.** Its 8× over-reward is the worst bug in the game, but it
-has the most tangled call boundaries, and the kernel must prove itself on Thieving
-and live gathering first. Deferring the *migration* is safe; deferring the
-*architecture* is not — which is why the kernel cannot wait.
+Shadow state remains observational history only and is never promoted into
+`cadence_profiles`.
+
+### 5.1 Complete coverage matrix
+
+The 2026-07-17 closure validates 20 implemented handler families and 2,207
+declarations: 2,197 selectable foreground routes plus ten handler-level
+exemptions or future-attachment rows. `source_blocked` is an evidence status,
+not a disabled action: those 212 routes preserve their approved handler behavior
+without pretending an incompatible rate is exact.
+
+| Handler | Routes | Live modes |
+|---|---:|---|
+| Agility | 18 | 18 passthrough |
+| Combat | 131 | 131 combat ticks |
+| Construction | 544 | 544 passthrough |
+| Cooking | 59 | 3 embedded probability; 56 source blocked |
+| Crafting | 231 | 177 passthrough; 2 rate limited; 52 source blocked |
+| Dungeoneering | 1 | 1 future attachment |
+| Farming | 1 | 1 exemption |
+| Firemaking | 13 | 1 embedded probability; 12 source blocked |
+| Fishing | 19 | 2 rate limited; 17 source blocked |
+| Fletching | 96 | 96 passthrough |
+| Herblore | 113 | 113 passthrough |
+| Hunter | 59 | 4 rate limited; 55 source blocked |
+| Magic | 94 | 92 passthrough; 2 rate limited |
+| Mining | 18 | 2 rate limited; 16 source blocked |
+| Prayer | 61 | 60 passthrough; 1 rate limited |
+| Quest | 194 | 194 exemptions |
+| Runecrafting | 61 | 61 passthrough |
+| Slayer | 1 | 1 future attachment |
+| Smithing | 168 | 168 passthrough |
+| Summoning | 146 | 146 passthrough |
+| Thieving | 38 | 38 passthrough to the existing exact scheduler |
+| Utility / Activities | 130 | 130 exemptions |
+| Woodcutting | 11 | 7 rate limited; 4 source blocked |
+
+The exact machine-readable rows live in `cadence_coverage.py`; this table is a
+dated human-readable projection, not a second authority.
 
 ## 6. Do-not-double-apply
 
@@ -218,10 +263,25 @@ never both apply.
 
 ## 7. Verification
 
-- `tests/test_xp_hour_parity.py` carries three `expectedFailure`s. When a migration
-  is correct, unittest reports an **unexpected success**, which *fails the suite* and
-  forces the marker's removal. The bug cannot be silently left behind.
+- `tests/test_xp_hour_parity.py` grades the live route declarations. It has no
+  expected failures: exact source-ready rates, route ordering, residual emission
+  counts, and embedded-probability behavior must pass normally.
 - A `n/d` contract must admit exactly `n` actions in `d` reviews — assert it.
 - With the flag **off**, output and RNG consumption must be **byte-identical** to
   today. Assert this; it is what makes the flag a real escape hatch.
-- Full baseline: 1,198 tests green.
+- Whole-addon route coverage must fail when a handler or selectable target lacks
+  a declaration.
+- Focused live cadence, kernel, parity, combat, runtime, and Summoning tests must
+  pass with no cadence skips or expected failures before closure.
+
+### 7.1 Closure evidence — 2026-07-17
+
+- The focused live cadence/kernel/parity/combat/runtime/Summoning/Thieving slice
+  passes 528 methods with no skips or expected failures.
+- Full core discovery passes all 1,474 methods: 1,273 ordinary passes and 201
+  environment skips.
+- Full real offscreen Qt discovery passes all 1,474 methods with no skips.
+- Documentation, compilation, diff, worktree safety, and test-quality audits
+  pass; the quality audit reports zero hard issues across 71 test files.
+- The obsolete skipped shadow-integration class and the three XP-parity
+  expected failures were removed after replacement live coverage passed.

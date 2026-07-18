@@ -517,6 +517,11 @@ def sanitize_action_telemetry_pure(telemetry):
         record["attempts"] = _non_negative_int(record.get("attempts", 0), 0)
         record["successes"] = _non_negative_int(record.get("successes", 0), 0)
         record["failures"] = _non_negative_int(record.get("failures", 0), 0)
+        if "cadence_waits" in record:
+            record["cadence_waits"] = _non_negative_int(
+                record.get("cadence_waits", 0),
+                0,
+            )
         record["expected_successes"] = _non_negative_float(record.get("expected_successes", 0.0), 0.0)
         record["current_dry_streak"] = _non_negative_int(record.get("current_dry_streak", 0), 0)
         record["longest_dry_streak"] = _non_negative_int(record.get("longest_dry_streak", 0), 0)
@@ -609,6 +614,31 @@ def record_action_telemetry_pure(
     return record
 
 
+def record_cadence_wait_telemetry_pure(player_data, skill_id, action_id):
+    """Record admission delay without fabricating an attempted action or dry streak."""
+    telemetry = sanitize_action_telemetry_pure(player_data.get("action_telemetry"))
+    player_data["action_telemetry"] = telemetry
+    key = action_telemetry_key_pure(skill_id, action_id)
+    record = telemetry.setdefault("actions", {}).setdefault(
+        key,
+        {
+            "skill_id": str(skill_id),
+            "action_id": str(action_id),
+            "attempts": 0,
+            "successes": 0,
+            "failures": 0,
+            "expected_successes": 0.0,
+            "current_dry_streak": 0,
+            "longest_dry_streak": 0,
+            "outputs": {},
+            "failure_kinds": {},
+        },
+    )
+    record["cadence_waits"] = _non_negative_int(record.get("cadence_waits", 0), 0) + 1
+    record["last_outcome"] = "cadence_wait"
+    return record
+
+
 def summarize_action_telemetry_pure(player_data):
     telemetry = sanitize_action_telemetry_pure(player_data.get("action_telemetry"))
     rows = []
@@ -624,6 +654,7 @@ def summarize_action_telemetry_pure(player_data):
                 "attempts": attempts,
                 "successes": successes,
                 "failures": _non_negative_int(record.get("failures", 0), 0),
+                "cadence_waits": _non_negative_int(record.get("cadence_waits", 0), 0),
                 "observed_success_rate": (successes / attempts) if attempts else 0.0,
                 "expected_success_rate": (expected_successes / attempts) if attempts else 0.0,
                 "current_dry_streak": _non_negative_int(record.get("current_dry_streak", 0), 0),
@@ -1159,10 +1190,10 @@ MAGIC_CHARGE_DURATION_TICKS = 700
 TEMPORARY_EFFECT_TICKS_PER_ACTION = 50
 
 
-def advance_temporary_effects_pure(player_data, action_ticks=1):
+def advance_temporary_effects_pure(player_data, action_ticks=1, *, elapsed_ticks=None):
     """Advance review-paced temporary effects without reading wall time."""
     data = dict(player_data)
-    ticks = (
+    ticks = max(0, int(elapsed_ticks)) if elapsed_ticks is not None else (
         TEMPORARY_EFFECT_TICKS_PER_ACTION
         * sanitize_review_action_multiplier(action_ticks)
     )
@@ -4629,12 +4660,27 @@ def _combat_ranged_strength_bonus(player_totals, ammo_name):
     return _equipment_bonus_value(player_totals, "ranged_strength") + ammo_bonus
 
 
-def _combat_regenerate_special_attack_energy(data, ticks):
+def _combat_regenerate_special_attack_energy(data, ticks, *, exact=False):
     energy = _non_negative_int(
         data.get("combat_special_attack_energy", COMBAT_SPECIAL_ATTACK_MAX_ENERGY),
         COMBAT_SPECIAL_ATTACK_MAX_ENERGY,
     )
-    regen = int(max(0, _non_negative_int(ticks, 0)) * COMBAT_SPECIAL_ATTACK_REGEN_PER_50_TICKS / COMBAT_BURST_TICKS)
+    elapsed = max(0, _non_negative_int(ticks, 0))
+    if exact:
+        numerator = (
+            min(
+                COMBAT_BURST_TICKS - 1,
+                _non_negative_int(
+                    data.get("combat_special_attack_regen_residual", 0),
+                    0,
+                ),
+            )
+            + elapsed * COMBAT_SPECIAL_ATTACK_REGEN_PER_50_TICKS
+        )
+        regen, residual = divmod(numerator, COMBAT_BURST_TICKS)
+        data["combat_special_attack_regen_residual"] = residual
+    else:
+        regen = int(elapsed * COMBAT_SPECIAL_ATTACK_REGEN_PER_50_TICKS / COMBAT_BURST_TICKS)
     data["combat_special_attack_energy"] = min(COMBAT_SPECIAL_ATTACK_MAX_ENERGY, energy + regen)
 
 
@@ -5553,7 +5599,16 @@ def reclaim_death_office_items_pure(player_data):
     return data, True, ""
 
 
-def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, ticks=None, rng=None):
+def apply_combat_burst_pure(
+    player_data,
+    enemy_data=None,
+    equipment_data=None,
+    ticks=None,
+    rng=None,
+    *,
+    live_cadence=False,
+    stop_after_first_kill=False,
+):
     enemy_data = enemy_data or COMBAT_ENEMY_DATA
     equipment_data = equipment_data or {}
     rng = rng or (lambda: 0.0)
@@ -5638,9 +5693,19 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     active_encounter = isinstance(encounter, Mapping) and encounter.get("target_id") == target_id
     spellbook_swap_paid = bool(active_encounter and encounter.get("spellbook_swap_paid", False))
     vengeance_pending = bool(active_encounter and encounter.get("vengeance_pending", False))
+    vengeance_cast_paid = bool(
+        active_encounter and encounter.get("vengeance_cast_paid", False)
+    )
     supplemental_used = {}
     supplemental_magic_xp = 0.0
-    for label, cost, xp in _combat_pending_supplemental_magic_costs_pure(data, equipment_data):
+    pending_supplemental = _combat_pending_supplemental_magic_costs_pure(
+        data, equipment_data
+    )
+    if live_cadence and vengeance_cast_paid:
+        pending_supplemental = tuple(
+            row for row in pending_supplemental if row[0] != "vengeance"
+        )
+    for label, cost, xp in pending_supplemental:
         used = _combat_consume_loaded_rune_cost(data, cost)
         if used is None:
             return player_data, False, {"reason": "combat_locked", "locked_reasons": (f"{label.replace('_', ' ').title()} runes",)}
@@ -5651,6 +5716,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
             spellbook_swap_paid = True
         elif label == "vengeance":
             vengeance_pending = True
+            vengeance_cast_paid = True
 
     # Auto-drink carried stat potions before the rolls are computed, so the boost
     # flows through the effective-level reads into this burst's max-hit/accuracy.
@@ -5679,36 +5745,101 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         player_attack_speed = max(1, _positive_int(spell_spec.get("attack_speed", 5), 5))
     enemy_attack_speed = max(1, _positive_int(enemy.get("attack_speed", 4), 4))
     selected_prayers = tuple(active_prayer_selection_pure(data))
-    requested_prayer_uptime = prayer_uptime_fraction_pure(data)
+    requested_prayer_uptime = (
+        float(PRAYER_UPTIME_POLICIES.get(str(data.get("combat_prayer_uptime", "off")), 0.0))
+        if live_cadence and selected_prayers
+        else prayer_uptime_fraction_pure(data)
+    )
     total_ticks = max(1, _positive_int(ticks, COMBAT_BURST_TICKS))
     prayer_points_before = _non_negative_int(data.get("combat_prayer_points", 0), 0)
-    prayer_points_after, prayer_counter, prayer_uptime = prayer_drain_and_effective_uptime_pure(
-        prayer_points_before,
-        data.get("combat_prayer_drain_counter", 0.0),
-        selected_prayers,
-        _equipment_bonus_value(player_totals, "prayer"),
-        total_ticks,
-        requested_prayer_uptime,
+    prayer_counter_before = data.get("combat_prayer_drain_counter", 0.0)
+    prayer_points_after, prayer_counter, prayer_uptime = (
+        (
+            prayer_points_before,
+            prayer_counter_before,
+            requested_prayer_uptime,
+        )
+        if live_cadence
+        else prayer_drain_and_effective_uptime_pure(
+            prayer_points_before,
+            prayer_counter_before,
+            selected_prayers,
+            _equipment_bonus_value(player_totals, "prayer"),
+            total_ticks,
+            requested_prayer_uptime,
+        )
     )
     data["combat_prayer_points"] = prayer_points_after
     data["combat_prayer_drain_counter"] = prayer_counter
     prayer_effects = prayer_effect_state_pure(data, prayer_uptime)
-    if prayer_points_after <= 0 and selected_prayers:
+    if prayer_points_after <= 0 and selected_prayers and not live_cadence:
         data["combat_selected_prayers"] = []
 
     # Curse ramps are reset for each fight. The burst EV uses the attacks a
     # single full-health enemy is expected to survive, bounded by this review.
-    expected_attacks = max(1, int(max(1, _positive_int(ticks, COMBAT_BURST_TICKS)) / player_attack_speed))
+    expected_attacks = (
+        0
+        if live_cadence
+        else max(1, int(max(1, _positive_int(ticks, COMBAT_BURST_TICKS)) / player_attack_speed))
+    )
     sap_ramp = curse_expected_ramp_pure(expected_attacks, "sap")
     leech_ramp = curse_expected_ramp_pure(expected_attacks, "leech")
-    enemy_attack_factor = 1.0
-    enemy_defence_factor = 1.0
     spell_effect = str(spell_spec.get("effect", "")) if combat_class == "magic" else ""
     spell_effect_value = float(spell_spec.get("effect_value", 0.0) or 0.0) if combat_class == "magic" else 0.0
-    if spell_effect in {"attack_drain", "strength_drain", "magic_drain"}:
+    magic_effects_applied = (
+        {
+            str(effect)
+            for effect in encounter.get("magic_effects_applied", ())
+            if isinstance(effect, str)
+        }
+        if live_cadence and active_encounter
+        else set()
+    )
+    magic_effect_applied = spell_effect in magic_effects_applied
+    enemy_attack_factor = (
+        max(
+            0.01,
+            min(
+                1.0,
+                _non_negative_float(
+                    encounter.get("spell_enemy_attack_factor", 1.0),
+                    1.0,
+                ),
+            ),
+        )
+        if live_cadence and active_encounter
+        else 1.0
+    )
+    enemy_defence_factor = (
+        max(
+            0.01,
+            min(
+                1.0,
+                _non_negative_float(
+                    encounter.get("spell_enemy_defence_factor", 1.0),
+                    1.0,
+                ),
+            ),
+        )
+        if live_cadence and active_encounter
+        else 1.0
+    )
+    if spell_effect in {"attack_drain", "strength_drain", "magic_drain"} and (
+        not live_cadence or not magic_effect_applied
+    ):
         enemy_attack_factor *= max(0.0, 1.0 - spell_effect_value)
-    if spell_effect in {"defence_drain"}:
+        if live_cadence:
+            magic_effects_applied.add(spell_effect)
+            magic_effect_applied = True
+    if spell_effect in {"defence_drain"} and (
+        not live_cadence or not magic_effect_applied
+    ):
         enemy_defence_factor *= max(0.0, 1.0 - spell_effect_value)
+        if live_cadence:
+            magic_effects_applied.add(spell_effect)
+            magic_effect_applied = True
+    spell_enemy_attack_factor = enemy_attack_factor
+    spell_enemy_defence_factor = enemy_defence_factor
     for prayer_id in selected_prayers:
         if prayer_id.startswith("sap_"):
             enemy_attack_factor *= 1.0 - sap_ramp["enemy_drain"] * prayer_uptime
@@ -5802,8 +5933,47 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         else None
     )
 
-    next_player_attack = 0
-    next_enemy_attack = enemy_attack_speed
+    next_player_attack = (
+        _non_negative_int(encounter.get("player_attack_ticks_remaining", 0), 0)
+        if live_cadence and active_encounter
+        else 0
+    )
+    next_enemy_attack = (
+        _non_negative_int(
+            encounter.get("enemy_attack_ticks_remaining", enemy_attack_speed),
+            enemy_attack_speed,
+        )
+        if live_cadence and active_encounter
+        else enemy_attack_speed
+    )
+    curse_attack_count = (
+        _non_negative_int(encounter.get("curse_attack_count", 0), 0)
+        if live_cadence and active_encounter
+        else 0
+    )
+
+    def _live_curse_adjustments(tick_uptime):
+        enemy_drain = 0.0
+        self_boost = 0.0
+        if any(prayer_id.startswith("sap_") for prayer_id in selected_prayers):
+            enemy_drain = max(
+                enemy_drain,
+                curse_expected_ramp_pure(curse_attack_count, "sap")["enemy_drain"],
+            )
+        if any(prayer_id.startswith("leech_") for prayer_id in selected_prayers):
+            ramp = curse_expected_ramp_pure(curse_attack_count, "leech")
+            enemy_drain = max(enemy_drain, ramp["enemy_drain"])
+            self_boost = max(self_boost, ramp["self_boost"])
+        return enemy_drain * tick_uptime, self_boost * tick_uptime
+
+    def _live_prayer_factor(effect_key, tick_uptime):
+        fallback_key = "ranged" if effect_key.startswith("ranged_") else effect_key
+        full = float(prayer_effects.get(effect_key, prayer_effects.get(fallback_key, 1.0)))
+        if prayer_uptime <= 0:
+            return 1.0
+        ratio = max(0.0, min(float(tick_uptime) / prayer_uptime, 1.0))
+        return 1.0 + (full - 1.0) * ratio
+
     player_damage = 0
     enemy_damage = 0
     food_used = []
@@ -5826,7 +5996,6 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     familiar_escape = False
     out_of_ammo = False
     out_of_runes = False
-    magic_effect_applied = False
     npc_xp_multiplier = _combat_npc_xp_multiplier(enemy)
     ticks_elapsed = 0
     # This is a live combat review, so the out-of-combat rest window restarts from
@@ -5835,6 +6004,22 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
 
     for tick in range(total_ticks):
         ticks_elapsed = tick + 1
+        tick_prayer_uptime = prayer_uptime
+        if live_cadence:
+            (
+                prayer_points_after,
+                prayer_counter,
+                tick_prayer_uptime,
+            ) = prayer_drain_and_effective_uptime_pure(
+                prayer_points_after,
+                prayer_counter,
+                selected_prayers,
+                _equipment_bonus_value(player_totals, "prayer"),
+                1,
+                requested_prayer_uptime,
+            )
+            data["combat_prayer_points"] = prayer_points_after
+            data["combat_prayer_drain_counter"] = prayer_counter
         potion_event = _combat_consume_antipoison_if_needed(data)
         if potion_event:
             potions_used.append(potion_event)
@@ -5878,11 +6063,78 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
                 for rune_name, amount in used.items():
                     runes_used[rune_name] = _non_negative_int(runes_used.get(rune_name, 0), 0) + amount
             landed = False
+            live_enemy_drain, live_self_boost = (
+                _live_curse_adjustments(tick_prayer_uptime)
+                if live_cadence
+                else (0.0, 0.0)
+            )
+            live_player_accuracy = player_accuracy
+            live_player_max_hit = player_max_hit
+            if live_cadence:
+                attack_effect_key = {
+                    "ranged": "ranged_attack",
+                    "magic": "magic",
+                }.get(combat_class, "attack")
+                strength_effect_key = {
+                    "ranged": "ranged_strength",
+                    "magic": "magic",
+                }.get(combat_class, "strength")
+                full_attack_factor = max(
+                    0.000001,
+                    float(
+                        prayer_effects.get(
+                            attack_effect_key,
+                            prayer_effects.get(
+                                "ranged" if combat_class == "ranged" else attack_effect_key,
+                                1.0,
+                            ),
+                        )
+                    ),
+                )
+                full_strength_factor = max(
+                    0.000001,
+                    float(
+                        prayer_effects.get(
+                            strength_effect_key,
+                            prayer_effects.get(
+                                "ranged" if combat_class == "ranged" else strength_effect_key,
+                                1.0,
+                            ),
+                        )
+                    ),
+                )
+                current_attack_factor = _live_prayer_factor(
+                    attack_effect_key, tick_prayer_uptime
+                )
+                current_strength_factor = _live_prayer_factor(
+                    strength_effect_key, tick_prayer_uptime
+                )
+                current_enemy_defence_factor = max(
+                    0.01,
+                    spell_enemy_defence_factor * (1.0 - live_enemy_drain),
+                )
+                live_player_accuracy = _combat_accuracy(
+                    player_attack_roll / full_attack_factor * current_attack_factor,
+                    enemy_defence_roll
+                    / max(enemy_defence_factor, 0.000001)
+                    * current_enemy_defence_factor,
+                )
+                live_player_max_hit = max(
+                    0,
+                    int(
+                        player_max_hit
+                        / full_strength_factor
+                        * current_strength_factor
+                        * (1.0 + live_self_boost)
+                    ),
+                )
             try:
-                landed = float(rng()) < player_accuracy
+                landed = float(rng()) < live_player_accuracy
             except (TypeError, ValueError):
                 landed = False
-            damage = _combat_roll_damage_lifepoints(player_max_hit, rng) if landed else 0
+            damage = _combat_roll_damage_lifepoints(live_player_max_hit, rng) if landed else 0
+            if live_cadence:
+                curse_attack_count += 1
             damage = min(enemy_lp, damage)
             if damage > 0:
                 enemy_lp -= damage
@@ -5897,10 +6149,24 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
                         enemy_lp -= poison_ev
                         player_damage += poison_ev
                         magic_effect_applied = True
+                        magic_effects_applied.add(spell_effect)
                     elif spell_effect == "defence_flat" and not magic_effect_applied:
                         enemy_defence_factor = max(.01, enemy_defence_factor - spell_effect_value / 100.0)
+                        spell_enemy_defence_factor = enemy_defence_factor
                         magic_effect_applied = True
-                soul_split_heal = int(damage * float(prayer_effects.get("soul_split", 0.0)))
+                        magic_effects_applied.add(spell_effect)
+                soul_split_uptime = (
+                    tick_prayer_uptime if live_cadence else prayer_uptime
+                )
+                soul_split_heal = int(
+                    damage
+                    * float(prayer_effects.get("soul_split", 0.0))
+                    * (
+                        soul_split_uptime / prayer_uptime
+                        if prayer_uptime > 0
+                        else 0.0
+                    )
+                )
                 if soul_split_heal > 0:
                     player_lp = min(max_player_lp, player_lp + soul_split_heal)
             if combat_class == "magic":
@@ -5929,6 +6195,8 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
                 # old `break` wasted up to half of a ~30s review window). A fresh
                 # enemy respawns at full LP and re-engages after its normal attack
                 # delay, so it gets no free instant hit on the kill tick.
+                if live_cadence:
+                    break
                 enemy_lp = enemy_max_lp
                 next_enemy_attack = tick + 1 + enemy_attack_speed
                 continue
@@ -5980,15 +6248,50 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
                     player_accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
             else:
                 landed = False
+                live_enemy_accuracy = enemy_accuracy
+                if live_cadence:
+                    live_enemy_drain, _live_self_boost = (
+                        _live_curse_adjustments(tick_prayer_uptime)
+                    )
+                    full_defence_factor = max(
+                        0.000001, float(prayer_effects.get("defence", 1.0))
+                    )
+                    current_defence_factor = _live_prayer_factor(
+                        "defence", tick_prayer_uptime
+                    )
+                    current_enemy_attack_factor = max(
+                        0.01,
+                        spell_enemy_attack_factor * (1.0 - live_enemy_drain),
+                    )
+                    live_enemy_accuracy = _combat_accuracy(
+                        enemy_attack_roll
+                        / max(enemy_attack_factor, 0.000001)
+                        * current_enemy_attack_factor,
+                        player_defence_roll
+                        / full_defence_factor
+                        * current_defence_factor,
+                    )
                 try:
-                    landed = float(rng()) < enemy_accuracy
+                    landed = float(rng()) < live_enemy_accuracy
                 except (TypeError, ValueError):
                     landed = False
                 damage = _combat_roll_damage_lifepoints(enemy_max_hit, rng) if landed else 0
             raw_enemy_damage = damage
             if not isinstance(unprotected_effect, Mapping):
                 protection_key = {"magic": "protect_magic", "ranged": "protect_ranged"}.get(enemy_class, "protect_melee")
-                damage = int(damage * (1.0 - float(prayer_effects.get(protection_key, 0.0))))
+                protection_scale = (
+                    tick_prayer_uptime / prayer_uptime
+                    if live_cadence and prayer_uptime > 0
+                    else 1.0
+                )
+                damage = int(
+                    damage
+                    * (
+                        1.0
+                        - float(prayer_effects.get(protection_key, 0.0))
+                        * protection_scale
+                    )
+                )
             damage = min(player_lp, damage)
             if damage > 0:
                 player_lp -= damage
@@ -5999,16 +6302,42 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
                         enemy_lp -= reflected_vengeance
                         player_damage += reflected_vengeance
                     vengeance_pending = False
-                reflected = min(enemy_lp, int(raw_enemy_damage * float(prayer_effects.get("deflect", 0.0))))
+                deflect_scale = (
+                    tick_prayer_uptime / prayer_uptime
+                    if live_cadence and prayer_uptime > 0
+                    else 1.0
+                )
+                reflected = min(
+                    enemy_lp,
+                    int(
+                        raw_enemy_damage
+                        * float(prayer_effects.get("deflect", 0.0))
+                        * deflect_scale
+                    ),
+                )
                 if reflected > 0:
                     enemy_lp -= reflected
                     player_damage += reflected
-            if 0 < player_lp < max_player_lp * .10 and float(prayer_effects.get("redemption", 0.0)) > 0:
+            if (
+                0 < player_lp < max_player_lp * .10
+                and tick_prayer_uptime > 0
+                and float(prayer_effects.get("redemption", 0.0)) > 0
+            ):
                 # RuneScape Wiki Redemption oldid=6292830: heal 250% of Prayer
                 # level below 10% LP, then consume every remaining prayer point.
-                player_lp = min(max_player_lp, player_lp + int(_positive_int(data.get("prayer_level", 1), 1) * 2.5 * prayer_uptime))
+                player_lp = min(
+                    max_player_lp,
+                    player_lp
+                    + int(
+                        _positive_int(data.get("prayer_level", 1), 1)
+                        * 2.5
+                        * tick_prayer_uptime
+                    ),
+                )
                 data["combat_prayer_points"] = 0
+                prayer_points_after = 0
                 data["combat_prayer_drain_counter"] = 0.0
+                prayer_counter = 0.0
                 data["combat_selected_prayers"] = []
             if player_lp <= 0:
                 died = True
@@ -6036,6 +6365,8 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
                 next_player_attack += prayer_ticks
                 for drop_name, drop_amount in kill_drops.items():
                     drops[drop_name] = _non_negative_int(drops.get(drop_name, 0), 0) + _non_negative_int(drop_amount, 0)
+                if live_cadence or stop_after_first_kill:
+                    break
                 enemy_lp = enemy_max_lp
                 next_enemy_attack = tick + 1 + enemy_attack_speed
                 continue
@@ -6086,19 +6417,48 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
             enemy_lp -= death_burst
             player_damage += death_burst
         player_lp = _combat_apply_pvm_death(data, max_player_lp)
-    elif fled or enemy_lp <= 0 or enemy_lp >= enemy_max_lp:
+    elif fled or enemy_lp <= 0 or (enemy_lp >= enemy_max_lp and not live_cadence):
         # No partial progress to carry: the player fled, nothing was fought, or the
         # burst ended right after a kill respawned a fresh full-LP enemy.
         data["combat_encounter"] = {}
     else:
         next_encounter = {"target_id": target_id, "enemy_lifepoints": enemy_lp}
+        if live_cadence:
+            next_encounter.update(
+                {
+                    "player_attack_ticks_remaining": max(
+                        0, next_player_attack - ticks_elapsed
+                    ),
+                    "enemy_attack_ticks_remaining": max(
+                        0, next_enemy_attack - ticks_elapsed
+                    ),
+                    "curse_attack_count": curse_attack_count,
+                    "magic_effects_applied": tuple(sorted(magic_effects_applied)),
+                    "spell_enemy_attack_factor": spell_enemy_attack_factor,
+                    "spell_enemy_defence_factor": spell_enemy_defence_factor,
+                }
+            )
         if spellbook_swap_paid:
             next_encounter["spellbook_swap_paid"] = True
         if bool(data.get("combat_vengeance", False)) or vengeance_pending:
             next_encounter["vengeance_pending"] = bool(vengeance_pending)
+        if live_cadence and vengeance_cast_paid:
+            next_encounter["vengeance_cast_paid"] = True
         data["combat_encounter"] = next_encounter
 
-    _combat_regenerate_special_attack_energy(data, ticks_elapsed)
+    if live_cadence and prayer_points_after <= 0 and selected_prayers:
+        data["combat_selected_prayers"] = []
+
+    if live_cadence:
+        data.update(
+            advance_temporary_effects_pure(
+                data,
+                elapsed_ticks=ticks_elapsed,
+            )
+        )
+    _combat_regenerate_special_attack_energy(
+        data, ticks_elapsed, exact=live_cadence
+    )
     data["combat_lifepoints"] = player_lp
     result = {
         "reason": "combat_burst",
@@ -6282,7 +6642,11 @@ def combat_supply_loadout_summary_pure(player_data):
 
 def combat_has_active_encounter_pure(player_data):
     encounter = player_data.get("combat_encounter", {}) or {}
-    return isinstance(encounter, Mapping) and isinstance(encounter.get("target_id"), str)
+    return (
+        isinstance(encounter, Mapping)
+        and isinstance(encounter.get("target_id"), str)
+        and not bool(encounter.get("disengaged"))
+    )
 
 
 def set_combat_pack_mode_pure(player_data, mode):
@@ -7614,7 +7978,17 @@ def _quest_current_stage_encounter_by_id(player_data, quest_id, quest_data, enco
     return None
 
 
-def apply_quest_combat_encounter_pure(player_data, quest_id, quest_data, encounter_id=None, ticks=None, rng=None, equipment_data=None):
+def apply_quest_combat_encounter_pure(
+    player_data,
+    quest_id,
+    quest_data,
+    encounter_id=None,
+    ticks=None,
+    rng=None,
+    equipment_data=None,
+    *,
+    stop_after_first_kill=False,
+):
     state = quest_state_pure(player_data, quest_id)
     if not state["started"] or state["completed"]:
         return player_data, False, {"reason": "quest_not_in_progress"}
@@ -7670,6 +8044,7 @@ def apply_quest_combat_encounter_pure(player_data, quest_id, quest_data, encount
         equipment_data or {},
         ticks=combat_ticks,
         rng=combat_rng,
+        stop_after_first_kill=stop_after_first_kill,
     )
     if not combat_ok:
         return player_data, False, combat_result
@@ -9247,7 +9622,16 @@ def calculate_cooking_success_probability_pure(
     return normalize_review_success_probability_pure(source_chance, minimum, scale, cap)
 
 
-def apply_cooking_action_pure(target, inventory, cooking_data, cooking_level, roll, byproduct_roll=None):
+def apply_cooking_action_pure(
+    target,
+    inventory,
+    cooking_data,
+    cooking_level,
+    roll,
+    byproduct_roll=None,
+    *,
+    use_source_probability=False,
+):
     """Apply one Cooking action.
 
     Returns (inventory, exp, processed, output_item, burned). A failed burn still
@@ -9262,7 +9646,11 @@ def apply_cooking_action_pure(target, inventory, cooking_data, cooking_level, ro
     for material, amount in spec.get("requirements", {}).items():
         new_inv[material] = new_inv.get(material, 0) - amount
 
-    success_probability = calculate_cooking_success_probability_pure(cooking_level, spec)
+    success_probability = (
+        cooking_source_roll_chance_pure(cooking_level, spec)
+        if use_source_probability
+        else calculate_cooking_success_probability_pure(cooking_level, spec)
+    )
     source_runtime_action = bool(spec.get("source_success_formula") or spec.get("source_always_succeeds"))
     succeeded = float(roll) <= success_probability if source_runtime_action else float(roll) < success_probability
     if succeeded:
@@ -9384,6 +9772,8 @@ def apply_firemaking_action_pure(
     firemaking_level,
     r_action,
     success_level=None,
+    *,
+    use_source_probability=False,
 ):
     """Apply one Firemaking attempt.
 
@@ -9393,9 +9783,11 @@ def apply_firemaking_action_pure(
     spec = firemaking_data.get(target)
     if not spec or not has_firemaking_materials_pure(target, inventory, firemaking_data):
         return inventory, 0, False, None
-    success_probability = calculate_firemaking_success_probability_pure(
-        firemaking_level if success_level is None else success_level,
-        spec,
+    effective_level = firemaking_level if success_level is None else success_level
+    success_probability = (
+        firemaking_source_roll_chance_pure(effective_level, spec)
+        if use_source_probability
+        else calculate_firemaking_success_probability_pure(effective_level, spec)
     )
     if r_action >= success_probability:
         return inventory, 0, False, None

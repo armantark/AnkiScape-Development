@@ -41,11 +41,15 @@ class Rate(NamedTuple):
 
 
 MINING: dict[str, Rate] = {
-    # F2P Mining training oldid 6571684 (2012-11-18): "about 45000 XP per hour;
-    # the fastest mining experience in the free game" — quoted WITH urns.
     # P2P Mining training oldid 6564341 (2012-11-16): "35k to 38k per hour for most".
-    "iron": Rate(35_000, 45_000, 35.0, 99, ("urns", "dropping"),
-                 "F2P Mining training oldid 6571684; P2P oldid 6564341"),
+    "iron": Rate(35_000, 38_000, 35.0, 99, ("dropping",),
+                 "P2P Mining training oldid 6564341"),
+    # F2P Mining training oldid 6571684 (2012-11-18): "about 45000 XP per hour;
+    # the fastest mining experience in the free game" — quoted WITH urns. This
+    # remains a separate evidence row because its modifier does not apply to the
+    # P2P endpoint above.
+    "iron_f2p_urns": Rate(45_000, 45_000, 35.0, 99, ("urns", "dropping"),
+                          "F2P Mining training oldid 6571684"),
     # Concentrated gold, Living Rock Caverns, no familiar, rune pick/adze.
     "gold": Rate(35_000, 40_000, 65.0, 99, ("dropping",),
                  "P2P Mining training oldid 6564341"),
@@ -128,13 +132,17 @@ HUNTER: dict[str, Rate] = {
     "catch_orange_salamander": Rate(60_000, 90_000, 224.0, 47, (), "Hunter training oldid 6549266"),
     "catch_dark_kebbit": Rate(35_000, 55_000, 132.0, 57, (), "Hunter training oldid 6549266 (falconry)"),
     "catch_spotted_kebbit": Rate(30_000, 40_000, 104.0, 43, (), "Hunter training oldid 6549266 (falconry)"),
+    "barehand_black_warlock": Rate(
+        140_000,
+        140_000,
+        650.0,
+        95,
+        (),
+        "Hunter training oldid 6549266 (barehand butterfly catching)",
+    ),
 }
-# NOT graded: black warlock. The guide's 140k/hr figure is for BAREHAND catching
-# (650 xp/catch, level 95); AnkiScape's `catch_black_warlock` is the butterfly-NET
-# variant at 54 xp. Grading one against the other produced a phantom inversion on
-# the first run. Barehand butterfly catching is simply not implemented — that is a
-# content gap for the kanban, not a balance defect. Same trap Sol named: a quoted
-# rate carries reference conditions, and matching the wrong action to it lies.
+# The 140k/hr figure is for BAREHAND catching (650 Hunter XP/catch, level 95).
+# `catch_black_warlock` remains the incompatible 54-XP butterfly-net route.
 
 COOKING: dict[str, Rate] = {
     # P2P Cooking training oldid 6579488, 2012-11-19. The no-urn column.

@@ -4,6 +4,36 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Live cadence activation — 2026-07-17
+
+- Made the `R = 1000` cadence kernel default-on with an explicit boolean-false
+  legacy rollback.
+- Added complete handler/route coverage, exact lower-endpoint residual admission
+  for compatible ranged evidence, authentic embedded-probability routes, and
+  source-blocked passthrough for incompatible rows.
+- Changed ordinary Combat to `6 × M` immediate ticks with persistent encounter,
+  prayer/curse, status, special-regeneration, and RNG phase. Again grants no
+  encounter beat; terminal boundaries cannot chain another enemy.
+- Preserved one collapsed quest stage per eligible review while keeping
+  flag-off quest combat at its legacy 50 ticks.
+- Replaced the three retired XP-parity expected failures and obsolete runtime
+  shadow integration tests with live route, residual, RNG, continuity, undo,
+  and coverage tests.
+- Reconciled Design 2 timing decisions: Loyalty and Veteran counts remain on the
+  independent 240-answer world day; Aura windows are eligible-action budgets;
+  recurring entries reuse world-calendar boundaries; Tears beats are
+  activity-progress actions; Castle Wars retains 5,000 games but drops the
+  invalid 16,667-review calendar conversion.
+- Final verification passes all 1,474 core methods (1,273 ordinary passes and
+  201 environment skips) and all 1,474 real offscreen Qt methods, with no
+  cadence skips or expected failures. The focused
+  cadence/kernel/parity/combat/runtime/Summoning/Thieving slice passes 528
+  methods. Documentation, compilation, reachability, asset integrity, worktree
+  safety, and test-quality gates also pass; the quality audit reports zero hard
+  issues across 71 test files.
+- Published `status-updates/cadence-kernel-live-results-2026-07-17.html` and
+  its mobile-safe copy at <https://nl2rgoy9pvqk.postplan.dev>.
+
 ## Summoning implementation closure — 2026-07-17
 
 - Shipped the complete 80-familiar surface catalog, 78 pouch recipes, 67

@@ -1427,7 +1427,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.player_data = {"inventory": {}, "current_utility": "make_soft_clay"}
         self.assertFalse(addon._can_start_current_action())
 
-    def test_review_action_multiplier_runs_gathering_and_processing_ticks(self):
+    def test_review_action_multiplier_runs_complete_live_cadence_steps(self):
         addon = _load_addon_as_package("ankiscape_review_multiplier_integration")
 
         calls = {"save": 0, "xp": []}
@@ -1470,10 +1470,10 @@ class TestIntegrationSmoke(unittest.TestCase):
             addon.random.random = original_random
 
         self.assertEqual(addon.player_data["inventory"]["Logs"], 0)
-        self.assertEqual(addon.player_data["inventory"]["Arrow shafts"], 30)
-        self.assertAlmostEqual(addon.player_data["woodcutting_exp"], 50.0)
-        self.assertAlmostEqual(addon.player_data["fletching_exp"], 10.0)
-        self.assertEqual(calls["xp"], [50.0, 10.0])
+        self.assertEqual(addon.player_data["inventory"]["Arrow shafts"], 15)
+        self.assertAlmostEqual(addon.player_data["woodcutting_exp"], 25.0)
+        self.assertAlmostEqual(addon.player_data["fletching_exp"], 5.0)
+        self.assertEqual(calls["xp"], [25.0, 5.0])
 
     def test_thieving_failure_is_one_attempt_under_multiplier_and_undoes_atomically(self):
         addon = _load_addon_as_package("ankiscape_thieving_review_integration")

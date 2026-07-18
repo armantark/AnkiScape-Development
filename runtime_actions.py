@@ -140,6 +140,7 @@ try:
         quest_current_stage_blockers_pure,
         quest_current_stage_resolvable_combat_blockers_pure,
         record_action_telemetry_pure,
+        record_cadence_wait_telemetry_pure,
         record_achievement_progress_pure,
         consume_ring_of_forging_charge_pure,
         smithing_success_probability_pure,
@@ -178,7 +179,12 @@ try:
         sanitize_agility_state_pure,
     )
     from .agility_travel import agility_travel_profile_pure, scheduled_travel_reviews_pure
-    from .cadence_kernel import advance_cadence_pure, default_cadence_profile_state_pure
+    from .cadence_kernel import EMBEDDED_PROBABILITY, RATE_LIMITED, advance_cadence_pure, default_cadence_profile_state_pure
+    from .cadence_live import (
+        LIVE_COMBAT_TICKS_PER_REVIEW,
+        advance_live_cadence_route_pure,
+        resolve_live_cadence_route_pure,
+    )
     from .summoning_data import DEFAULT_SUMMONING_TARGET, SUMMONING_ACTIONS_BY_ID
     from .summoning_logic import (
         apply_summoning_training_action_pure,
@@ -314,6 +320,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         quest_current_stage_blockers_pure,
         quest_current_stage_resolvable_combat_blockers_pure,
         record_action_telemetry_pure,
+        record_cadence_wait_telemetry_pure,
         record_achievement_progress_pure,
         consume_ring_of_forging_charge_pure,
         smithing_success_probability_pure,
@@ -352,7 +359,12 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         sanitize_agility_state_pure,
     )
     from agility_travel import agility_travel_profile_pure, scheduled_travel_reviews_pure  # type: ignore
-    from cadence_kernel import advance_cadence_pure, default_cadence_profile_state_pure  # type: ignore
+    from cadence_kernel import EMBEDDED_PROBABILITY, RATE_LIMITED, advance_cadence_pure, default_cadence_profile_state_pure  # type: ignore
+    from cadence_live import (  # type: ignore
+        LIVE_COMBAT_TICKS_PER_REVIEW,
+        advance_live_cadence_route_pure,
+        resolve_live_cadence_route_pure,
+    )
     from summoning_data import DEFAULT_SUMMONING_TARGET, SUMMONING_ACTIONS_BY_ID  # type: ignore
     from summoning_logic import (  # type: ignore
         apply_summoning_training_action_pure,
@@ -390,6 +402,8 @@ class RuntimeActionContext:
     show_quest_exp_delta: Callable[[dict[str, float]], None]
     review_action_multiplier: int = 1
     cadence_shadow_enabled: bool = False
+    cadence_live_enabled: bool = False
+    cadence_forced_opportunity: bool = False
     # Fired once when the Stronghold of Security is finished, so the UI can pop
     # the boot-choice reward dialog. Optional so older call sites keep working.
     prompt_stronghold_reward: Optional[Callable[[], None]] = None
@@ -891,6 +905,37 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         )
 
     active_run = isinstance(bank_run, dict) and int(bank_run.get("reviews_remaining", 0) or 0) > 0
+    action_ctx = ctx
+    cadence_admitted = False
+    cadence_profiles_present = "cadence_profiles" in player_data
+    cadence_profiles_before = copy.deepcopy(player_data.get("cadence_profiles"))
+    cadence_profiles_after_admission = None
+
+    def restore_cadence_profiles_after_rejection() -> None:
+        if not cadence_admitted:
+            return
+        if player_data.get("cadence_profiles") != cadence_profiles_after_admission:
+            # A handler may own a second scheduler under the same route key
+            # (Thieving stalls and wall safes). Once that scheduler advances,
+            # the review was a real action attempt rather than an eligibility
+            # rejection, so its cadence must survive an unsuccessful outcome.
+            return
+        if cadence_profiles_present:
+            player_data["cadence_profiles"] = copy.deepcopy(
+                cadence_profiles_before
+            )
+        else:
+            player_data.pop("cadence_profiles", None)
+
+    if keep and not active_run and handler_key not in {"magic", "prayer"}:
+        action_ctx, cadence_admitted = _admit_live_cadence(
+            ctx, handler_key, target_id
+        )
+        if not cadence_admitted:
+            return True
+        cadence_profiles_after_admission = copy.deepcopy(
+            player_data.get("cadence_profiles")
+        )
     winter_storage_before = None
     if keep and not active_run:
         winter_storage_before = copy.deepcopy(player_data)
@@ -965,6 +1010,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         player_data.update(restore_summoning_points_pure(player_data))
 
     if not act:
+        restore_cadence_profiles_after_rejection()
         if event.get("completed"):
             new_view = _repack_view_for_target(
                 is_processing, advanced, layout, bank, requirements, capacity, casual_layout
@@ -987,6 +1033,15 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     # Handlers that substitute carried items (urn runed -> active -> full) must
     # see the actual trip view, including a just-seeded first trip.
     _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
+    if not cadence_admitted and handler_key not in {"magic", "prayer"}:
+        action_ctx, cadence_admitted = _admit_live_cadence(
+            ctx, handler_key, target_id
+        )
+        if not cadence_admitted:
+            return True
+        cadence_profiles_after_admission = copy.deepcopy(
+            player_data.get("cadence_profiles")
+        )
 
     if is_processing and requirements:
         # Scope the handler's input access to what the pack holds, run it, then
@@ -1024,7 +1079,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         deferred_achievement_check = []
         deferred_availability_refresh = []
         scoped_ctx = dataclasses.replace(
-            ctx,
+            action_ctx,
             save_player_data=lambda: None,
             check_achievements=lambda _data: deferred_achievement_check.append(True),
             refresh_skill_availability=lambda: deferred_availability_refresh.append(True),
@@ -1036,6 +1091,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         if result is False and winter_storage_before is not None:
             player_data.clear()
             player_data.update(winter_storage_before)
+            restore_cadence_profiles_after_rejection()
             ctx.save_player_data()
             return False
         after_scoped = player_data.get("inventory", {}) or {}
@@ -1079,14 +1135,17 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             ctx.check_achievements(player_data)
         if deferred_availability_refresh:
             ctx.refresh_skill_availability()
+        if result is False:
+            restore_cadence_profiles_after_rejection()
         ctx.save_player_data()
         return result
 
     inv_before = dict(bank)
-    result = handler(ctx)
+    result = handler(action_ctx)
     if result is False and winter_storage_before is not None:
         player_data.clear()
         player_data.update(winter_storage_before)
+        restore_cadence_profiles_after_rejection()
         ctx.save_player_data()
         return False
     if result is not False:
@@ -1122,6 +1181,8 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
                 drained[item_name] = max(0, int(drained.get(item_name, 0) or 0) - int(gained))
             player_data["inventory"] = {name: count for name, count in drained.items() if count > 0}
         ctx.save_player_data()
+    else:
+        restore_cadence_profiles_after_rejection()
     return result
 
 
@@ -1238,6 +1299,30 @@ def _record_action(
         except Exception:
             # Observation must never make a live action fail.
             pass
+
+
+def _record_cadence_wait(ctx: RuntimeActionContext, skill_id: str, action_id: str) -> None:
+    record_cadence_wait_telemetry_pure(ctx.player_data, skill_id, action_id)
+    ctx.show_activity_gain("Cadence — no action opportunity this review")
+    ctx.save_player_data()
+
+
+def _admit_live_cadence(
+    ctx: RuntimeActionContext,
+    skill_id: str,
+    action_id: str,
+) -> tuple[RuntimeActionContext, bool]:
+    if not ctx.cadence_live_enabled:
+        return ctx, True
+    declaration, admitted = advance_live_cadence_route_pure(
+        ctx.player_data, skill_id, action_id
+    )
+    if not admitted:
+        _record_cadence_wait(ctx, skill_id, action_id)
+        return ctx, False
+    if declaration.mode == RATE_LIMITED:
+        return dataclasses.replace(ctx, cadence_forced_opportunity=True), True
+    return ctx, True
 
 
 def _charge_urn_for_action(
@@ -1366,7 +1451,12 @@ def _combat_review_ticks(ctx: RuntimeActionContext) -> int:
         multiplier = int(ctx.review_action_multiplier)
     except (TypeError, ValueError):
         multiplier = 1
-    return COMBAT_BURST_TICKS * max(1, multiplier)
+    ticks_per_review = (
+        LIVE_COMBAT_TICKS_PER_REVIEW
+        if ctx.cadence_live_enabled
+        else COMBAT_BURST_TICKS
+    )
+    return ticks_per_review * max(1, multiplier)
 
 
 def _refresh_combat_levels(ctx: RuntimeActionContext, xp_rewards: Any) -> None:
@@ -1418,6 +1508,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         EQUIPMENT_DATA,
         ticks=_combat_review_ticks(ctx),
         rng=ctx.random_random,
+        live_cadence=ctx.cadence_live_enabled,
     )
     if not ok:
         ctx.deactivate_current_skill()
@@ -2044,6 +2135,9 @@ def handle_prayer_answer(ctx: RuntimeActionContext) -> bool:
         player_data.update(clear_prayer_gilded_stint_pure(player_data))
         player_data["prayer_owned_altar_stint"] = {}
 
+    ctx, admitted = _admit_live_cadence(ctx, "prayer", target)
+    if not admitted:
+        return True
     new_inventory, base_exp, ok, outputs = apply_prayer_action_pure(target, player_data.get("inventory", {}), PRAYER_DATA)
     if not ok:
         ctx.deactivate_current_skill()
@@ -2124,6 +2218,20 @@ def handle_magic_answer(ctx: RuntimeActionContext) -> bool:
         player_data["current_magic"] = target
     spec = MAGIC_DATA[target]
     display_name = str(spec.get("display_name", target))
+    if ctx.cadence_live_enabled:
+        locked = magic_target_locked_reasons_pure(
+            player_data, target, MAGIC_DATA, _magic_alch_values()
+        )
+        if locked:
+            ctx.deactivate_current_skill()
+            ctx.show_error_message(
+                "Magic target unavailable",
+                f"{display_name} requires {', '.join(locked)}, so Magic has been switched off.",
+            )
+            return False
+        ctx, admitted = _admit_live_cadence(ctx, "magic", target)
+        if not admitted:
+            return True
     new_data, magic_xp, secondary, outputs, ok, message = apply_magic_action_pure(
         player_data, target, MAGIC_DATA, _magic_alch_values(), ctx.random_random
     )
@@ -2194,8 +2302,15 @@ def handle_firemaking_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    expected_success = calculate_firemaking_success_probability_pure(
-        success_level, spec
+    embedded_probability = bool(
+        ctx.cadence_live_enabled
+        and resolve_live_cadence_route_pure("firemaking", target, player_data).mode
+        == EMBEDDED_PROBABILITY
+    )
+    expected_success = (
+        firemaking_source_roll_chance_pure(success_level, spec)
+        if embedded_probability
+        else calculate_firemaking_success_probability_pure(success_level, spec)
     )
     action_roll = ctx.random_random()
     proposed_outcome_success = (
@@ -2208,6 +2323,7 @@ def handle_firemaking_answer(ctx: RuntimeActionContext) -> bool:
         player_level,
         action_roll,
         success_level,
+        use_source_probability=embedded_probability,
     )
     if not ok:
         _record_action(
@@ -2289,11 +2405,19 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    expected_success = _combined_success_probability(
-        calculate_fishing_success_probability_pure(success_level, fish)
-        for fish in eligible
+    expected_success = (
+        1.0
+        if ctx.cadence_forced_opportunity
+        else _combined_success_probability(
+            calculate_fishing_success_probability_pure(success_level, fish)
+            for fish in eligible
+        )
     )
-    rolls = [ctx.random_random() for _ in eligible]
+    rolls = (
+        [0.0 for _ in eligible]
+        if ctx.cadence_forced_opportunity
+        else [ctx.random_random() for _ in eligible]
+    )
     new_inv, base_exp, ok, _output_item, xp_rewards = apply_fishing_action_pure(
         target,
         inventory,
@@ -2382,15 +2506,17 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    expected_success = calculate_hunter_success_probability_pure(
-        success_level, spec
+    expected_success = (
+        1.0
+        if ctx.cadence_forced_opportunity
+        else calculate_hunter_success_probability_pure(success_level, spec)
     )
     new_inv, base_exp, ok, _output_item, xp_rewards = apply_hunter_action_pure(
         target,
         inventory,
         HUNTER_DATA,
         player_level,
-        ctx.random_random(),
+        0.0 if ctx.cadence_forced_opportunity else ctx.random_random(),
         success_level,
     )
     if not ok:
@@ -2473,7 +2599,16 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    expected_success = calculate_cooking_success_probability_pure(player_level, spec)
+    embedded_probability = bool(
+        ctx.cadence_live_enabled
+        and resolve_live_cadence_route_pure("cooking", target, player_data).mode
+        == EMBEDDED_PROBABILITY
+    )
+    expected_success = (
+        cooking_source_roll_chance_pure(player_level, spec)
+        if embedded_probability
+        else calculate_cooking_success_probability_pure(player_level, spec)
+    )
     roll = ctx.random_random()
     source_success = cooking_source_roll_chance_pure(player_level, spec)
     source_runtime_action = bool(spec.get("source_success_formula") or spec.get("source_always_succeeds"))
@@ -2486,6 +2621,7 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
         player_level,
         roll,
         byproduct_roll,
+        use_source_probability=embedded_probability,
     )
     if not ok:
         return False
@@ -2608,9 +2744,10 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
             quest_id,
             QUEST_DATA,
             combat_blockers[0].get("encounter_id"),
-            ticks=_combat_review_ticks(ctx),
             rng=ctx.random_random,
             equipment_data=EQUIPMENT_DATA,
+            ticks=None if ctx.cadence_live_enabled else _combat_review_ticks(ctx),
+            stop_after_first_kill=ctx.cadence_live_enabled,
         )
         if not ok:
             ctx.deactivate_current_skill()
@@ -2822,12 +2959,16 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    r_action = ctx.random_random()
+    r_action = 0.0 if ctx.cadence_forced_opportunity else ctx.random_random()
     r_nest_drop = ctx.random_random()
     r_nest_type = ctx.random_random()
     r_inferno_adze = ctx.random_random() if axe_spec.get("incinerates_logs", False) and spec.get("output_item") else None
-    expected_success = calculate_woodcutting_success_probability_pure(
-        success_level, spec, axe_spec
+    expected_success = (
+        1.0
+        if ctx.cadence_forced_opportunity
+        else calculate_woodcutting_success_probability_pure(
+            success_level, spec, axe_spec
+        )
     )
     new_inv, base_exp, ok, output_item, nest_item = apply_woodcutting_action_pure(
         tree,
@@ -2922,12 +3063,16 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
 
     bonus_state = equipment_bonus_state_pure(player_data.get("equipment", {}) or {}, MINING_BONUS_ITEM_DATA)
     gem_drop_chance = GLORY_GEM_DROP_CHANCE if bonus_state["has_glory"] else INCIDENTAL_GEM_DROP_CHANCE
-    r_action = ctx.random_random()
+    r_action = 0.0 if ctx.cadence_forced_opportunity else ctx.random_random()
     r_output = ctx.random_random()
     r_gem_chance = ctx.random_random()
     r_gem_pick = ctx.random_random()
-    expected_success = calculate_mining_success_probability_pure(
-        success_level, ore_spec, pickaxe_spec
+    expected_success = (
+        1.0
+        if ctx.cadence_forced_opportunity
+        else calculate_mining_success_probability_pure(
+            success_level, ore_spec, pickaxe_spec
+        )
     )
 
     new_inv, base_exp, ok, output_item, gem, extra_output = apply_mining_action_pure(
@@ -3126,7 +3271,11 @@ def handle_thieving_answer(ctx: RuntimeActionContext) -> bool:
         profiles[profile.profile_id] = step.state
         player_data["cadence_profiles"] = profiles
         if not step.emitted:
-            _record_action(ctx, "thieving", target, False, failure_kind="cadence_wait")
+            record_cadence_wait_telemetry_pure(
+                player_data,
+                "thieving",
+                target,
+            )
             ctx.show_activity_gain("Stall restocking — cadence advanced")
             ctx.save_player_data()
             return True

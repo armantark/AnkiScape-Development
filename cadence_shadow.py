@@ -81,6 +81,7 @@ _SOURCE_ROUTE_KEYS = {
         "catch_orange_salamander": "catch_orange_salamander",
         "catch_dark_kebbit": "catch_dark_kebbit",
         "catch_spotted_kebbit": "catch_spotted_kebbit",
+        "barehand_black_warlock": "barehand_black_warlock",
     },
     "cooking": {
         "cook_lobster": "cook_lobster",

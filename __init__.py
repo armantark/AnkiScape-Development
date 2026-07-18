@@ -388,11 +388,11 @@ def _review_action_multiplier() -> int:
 def _cadence_kernel_enabled() -> bool:
     try:
         if mw and getattr(mw, 'col', None):
-            raw_value = mw.col.get_config(_CADENCE_KERNEL_CONFIG_KEY, False)
-            return sanitize_cadence_kernel_enabled_pure(raw_value)
+            raw_value = mw.col.get_config(_CADENCE_KERNEL_CONFIG_KEY, True)
+            return sanitize_cadence_kernel_enabled_pure(raw_value, default=True)
     except Exception:
         pass
-    return False
+    return True
 
 
 def _award_skill_exp(exp_key: str, base_exp: float) -> float:
@@ -499,7 +499,8 @@ def _runtime_action_context() -> RuntimeActionContext:
         implemented_exp_keys_snapshot=_implemented_exp_keys_snapshot,
         show_quest_exp_delta=_show_quest_exp_delta,
         review_action_multiplier=_review_action_multiplier(),
-        cadence_shadow_enabled=_cadence_kernel_enabled(),
+        cadence_shadow_enabled=False,
+        cadence_live_enabled=_cadence_kernel_enabled(),
         prompt_stronghold_reward=_prompt_stronghold_reward,
     )
 
@@ -1796,7 +1797,12 @@ def on_good_answer(before_state=None):
             elif handler_key == "combat":
                 review_progressed = handler(review_ctx) is not False
             else:
-                action_ticks = 1 if handler_key in {"thieving", "agility"} else _review_action_multiplier()
+                action_ticks = (
+                    1
+                    if handler_key in {"thieving", "agility"}
+                    or (handler_key == "quest" and _cadence_kernel_enabled())
+                    else _review_action_multiplier()
+                )
                 for tick_index in range(action_ticks):
                     if tick_index > 0 and not _can_start_current_action():
                         break
@@ -1855,13 +1861,28 @@ def on_answer_card(self, ease, _old):
             player_data.update(summoning_updated)
         except Exception:
             pass
-        if successful_answer:
+        live_combat = (
+            _cadence_kernel_enabled()
+            and review_action_handler_key(current_skill) == "combat"
+        )
+        if successful_answer and not live_combat:
             player_data.update(
                 advance_temporary_effects_pure(
                     player_data,
                     _review_action_multiplier(),
                 )
             )
+        elif (
+            not successful_answer
+            and _cadence_kernel_enabled()
+            and review_action_handler_key(current_skill) == "combat"
+        ):
+            encounter = player_data.get("combat_encounter", {}) or {}
+            if isinstance(encounter, dict) and encounter.get("target_id"):
+                player_data["combat_encounter"] = {
+                    **encounter,
+                    "disengaged": True,
+                }
         if successful_answer and had_farm_step:
             farm_preempted = runtime_actions.handle_farming_review_answer(_runtime_action_context())
         else:

@@ -2,6 +2,19 @@
 
 ## Current Focus
 
+Live cadence activation and the Design 2 reconciliation are verified and ready
+for their atomic commit. The complete core suite passes all 1,474 methods
+(1,273 ordinary passes and 201 environment skips); the complete real offscreen
+Qt suite passes all 1,474 methods with no skips. Neither suite contains a
+cadence skip or expected failure. The focused
+cadence/kernel/parity/combat/runtime/Summoning/Thieving set passes 528 methods,
+and documentation, compilation, reachability, asset, worktree-safety, and
+test-quality gates are clean. The current Anki process predates this candidate,
+so the next ordinary Anki restart is the manual live-load smoke rather than a
+reason to disrupt an active review session during closure. The closure report is
+`status-updates/cadence-kernel-live-results-2026-07-17.html`, with a mobile
+copy at <https://nl2rgoy9pvqk.postplan.dev>.
+
 Summoning is now the eighteenth complete skill surface. The 2026-07-17 closure
 ships the full ordinary pouch/scroll catalog, training, follower lifecycle,
 points, BoB cargo, Familiarisation, the freeze-date pet family, restoration
@@ -266,24 +279,25 @@ tag. Wall-clock time and global player-location state remain forbidden
 throughout. The implementation and verification record live in
 `source-audits/agility-implementation-verification-2026-07-15.md`.
 
-Cadence Phase 3 shadow observation is merged into `main` at `6422610`, based on
-Phase 1 at `b45aff0`. With the strict
-off-by-default `ankiscape_cadence_kernel` flag enabled, Mining, Woodcutting,
-Fishing, Hunter, Cooking, and Firemaking now record the kernel proposal beside
-the unchanged live result. The observer covers all 175 runtime routes: 24 have
-compatible pre-cutoff rates and 151 fail closed as `source_blocked`. Fixed-seed
-end-to-end tests prove identical per-review gameplay bytes, XP, loot, call
-sequence, and RNG state with the flag on or off; only the dedicated
-`player_data["cadence_shadow"]` instrumentation namespace differs.
+The cadence kernel is now live and default-on in the canonical dirty checkout.
+`cadence_live.py` maps source-ready routes to exact rate-limited or
+embedded-probability behavior, Combat to `6 × M` continuous encounter ticks,
+and incompatible evidence to explicit `source_blocked` handler passthrough.
+`cadence_coverage.py` classifies every implemented handler and selectable route,
+including Quest, Utility, Farming, attached Summoning effects, and future
+Slayer/Dungeoneering attachments. Explicit boolean false remains the
+byte-identical legacy rollback.
 
-Phase 1 of the cadence kernel is committed on `main` at `b45aff0`.
-`cadence_kernel.py` owns the pure `R = 1000` contract, exact residual
-scheduling, admission/overflow declarations, and lock shapes. Storage config v34
-adds only the empty route-keyed `cadence_profiles` state;
-`ankiscape_cadence_kernel` is strict, off by default, and not read by review
-dispatch. No skill is routed through the kernel for live mutation. The Phase 3
-closure ran 1,219 methods with 187 non-Qt skips and three expected failures;
-that is a dated verification snapshot rather than the current suite size.
+Live Combat persists attack phase, enemy LP, prayer/curse state, status clocks,
+special regeneration residual, and RNG phase between reviews. Again advances
+world consumers but no combat beat, and terminal kill/death/flee/bank
+boundaries never start a second enemy. Finite quest combat remains a deliberate
+collapsed-stage exemption; rollback retains its legacy 50-tick burst.
+
+The former Phase 1/Phase 3 files at commits `b45aff0` and `6422610` are
+historical rollout evidence only. Shadow residuals are never promoted into live
+`cadence_profiles`, and runtime shadow integration tests were removed after
+replacement live coverage passed.
 
 The test-signal cleanup is merged into `main` at `526f9c2`. It removed
 low-signal structural tests, converted the previously uncollected pytest-style
@@ -295,11 +309,11 @@ The Prayer/altar/urn/passive/Herblore closure is implemented, fully certified, a
 
 Use these as the live handoff sources:
 
-1. `memory-bank/cadence-kernel-phase3-shadow-2026-07-13.md` — Phase 3 decisions, route coverage, verification, and manual QA.
-2. `memory-bank/status-updates/archive/2026-07/cadence-kernel-phase3-shadow-plan-2026-07-13.html` — immutable pre-implementation proposal.
-3. `memory-bank/status-updates/archive/2026-07/cadence-kernel-phase3-shadow-results-2026-07-13.html` — final divergence and verification handoff.
-4. `memory-bank/future-work-kanban.md` — canonical forward-work board.
-5. `memory-bank/pre-eoc-source-verification-standard.md` — permanent evidence contract.
+1. `memory-bank/cadence-kernel-contract-2026-07-13.md` — canonical live cadence contract and taxonomy.
+2. `memory-bank/codex-briefs/cadence-kernel-live-activation-2026-07-17.md` — activation acceptance criteria.
+3. `memory-bank/future-work-kanban.md` — remaining source-rate and activity work.
+4. `memory-bank/pre-eoc-source-verification-standard.md` — permanent evidence contract.
+5. `memory-bank/cadence-kernel-phase3-shadow-2026-07-13.md` — historical Phase 3 evidence, not current runtime behavior.
 
 The dated completion-audit files are archived under
 `memory-bank/archive/2026-07/baselines/`; live registry and Kanban state outrank
@@ -342,11 +356,15 @@ them.
   compact OSRS `Herblore icon (detail).png`, matching the source/style family of
   the other skill icons instead of the modern RS3 `Herblore detail.png` art.
 
-- The six Phase 3 adapters observe through the existing central action-telemetry seam exactly once per started action. They never supply an outcome to live gameplay.
-- Gathering adapters advance independent exact low/high source envelopes. Cooking and Firemaking compare the already-drawn live roll to the authentic source probability and draw no second random value.
-- Source ranges remain ranges; no midpoint is invented. Explicit `cap_one_action` overflow metadata covers Mining iron and the five embedded Cooking/Firemaking routes.
-- Shadow residuals and aggregates sanitize without floats, round-trip through save/load, and roll back atomically with the review snapshot. A missing optional observer import cannot prevent a previously enabled save from loading after the flag is disabled.
-- The catalog reporter lists current, proposed, and pinned 2012 XP/hour for every in-scope route. Ordinary gold, runite, mixed leaping fish, rocktail urn-inclusive data, and all other incompatible/missing rows remain visibly `source_blocked`.
+- Live source-ready gathering routes advance exact lower-endpoint residuals;
+  Cooking and Firemaking compare one already-drawn roll to the authentic source
+  probability and draw no second random value.
+- Source ranges remain ranges in evidence. Live admission uses the explicitly
+  labeled conservative lower endpoint rather than inventing a midpoint.
+- Historical shadow residuals remain readable but never seed or advance live
+  `cadence_profiles`.
+- Whole-addon coverage records every source-incompatible or missing route as
+  `source_blocked` while preserving its approved handler action.
 - Prayer selection is atomic across material and method. Hosted/owned altar state is cleared only when that composite selection changes.
 - Owned gilded altars accept zero, one, or two burners at 250%, 300%, or 350%; clean marrentill is consumed once per new stint and the multiplier remains frozen for that stint.
 - Training urns use exact five-state physical identities, non-stackable semantics, target-carried activation, overflow-preserving charge, ten-nonempty caps, and direct full-urn teleport.
@@ -359,13 +377,12 @@ them.
 
 ## Decision Boundaries
 
-- Cadence Phase 1 is architecture only: do not route a skill until its later
-  migration phase, and preserve the off-path byte/RNG identity test.
+- Live cadence is default-on. Only explicit boolean false takes the
+  byte/RNG-identical legacy path.
 - Cadence residuals are integer-only per route. Inactive routes freeze, and the
   whole `cadence_profiles` mapping rides the existing review snapshot/undo path.
-- Phase 3 is observation only. `cadence_shadow` is transactional instrumentation,
-  separate from dormant live `cadence_profiles`; enabling it may add observer
-  bytes, but cannot change gameplay state, XP, loot, calls, or RNG.
+- `cadence_shadow` is historical instrumentation, separate from live
+  `cadence_profiles`, and is never promoted into gameplay state.
 - Missing or semantically incompatible rates always remain `source_blocked`.
   Do not substitute modern rates, midpoint a range, decompose the rocktail urn
   quote, map ordinary gold to concentrated gold, or map mixed leaping fish to a

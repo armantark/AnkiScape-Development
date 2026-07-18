@@ -133,7 +133,7 @@ class TestCadenceKernelPure(unittest.TestCase):
             (1, 1),
         )
 
-    def test_unimplemented_modes_are_declared_but_dormant(self):
+    def test_non_rate_modes_emit_one_live_opportunity_per_review(self):
         state = default_cadence_profile_state_pure(opening_ready=False)
         with self.assertRaises(ValueError):
             advance_cadence_pure(
@@ -142,8 +142,10 @@ class TestCadenceKernelPure(unittest.TestCase):
             )
         for mode in (EMBEDDED_PROBABILITY, COMBAT_TICKS):
             with self.subTest(mode=mode):
-                with self.assertRaises(NotImplementedError):
-                    advance_cadence_pure(CadenceProfile(mode, mode), state)
+                result = advance_cadence_pure(CadenceProfile(mode, mode), state)
+                self.assertTrue(result.emitted)
+                self.assertEqual(result.state["assigned_reviews"], 1)
+                self.assertEqual(result.state["opportunities_emitted"], 1)
 
     def test_save_load_round_trip_preserves_exact_residual_and_never_float(self):
         residual = {
@@ -199,16 +201,19 @@ class TestCadenceKernelIntegration(unittest.TestCase):
         sys.modules.clear()
         sys.modules.update(self._original_modules)
 
-    def test_config_flag_is_strict_and_defaults_off(self):
+    def test_config_flag_defaults_on_and_accepts_only_explicit_boolean_false(self):
         addon = _load_addon_as_package("ankiscape_cadence_config")
         addon.mw = _DummyMW(_DummyCol())
-        self.assertFalse(addon._cadence_kernel_enabled())
+        self.assertTrue(addon._cadence_kernel_enabled())
 
         addon.mw = _DummyMW(_DummyCol({"ankiscape_cadence_kernel": True}))
         self.assertTrue(addon._cadence_kernel_enabled())
 
-        addon.mw = _DummyMW(_DummyCol({"ankiscape_cadence_kernel": "true"}))
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_cadence_kernel": False}))
         self.assertFalse(addon._cadence_kernel_enabled())
+
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_cadence_kernel": "true"}))
+        self.assertTrue(addon._cadence_kernel_enabled())
 
     def test_review_undo_restores_exact_cadence_residual(self):
         addon = _load_addon_as_package("ankiscape_cadence_undo")
@@ -245,24 +250,147 @@ class TestCadenceKernelIntegration(unittest.TestCase):
         self.assertEqual(addon.player_data["cadence_profiles"]["gem_stall"], initial)
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
 
+    def test_again_disengages_without_advancing_persisted_combat_phase(self):
+        addon = _load_addon_as_package("ankiscape_cadence_again")
+        addon.mw = _DummyMW(
+            _DummyCol({"ankiscape_cadence_kernel": True})
+        )
+        phase = {
+            "target_id": "chicken",
+            "enemy_lifepoints": 17,
+            "player_attack_ticks_remaining": 3,
+            "enemy_attack_ticks_remaining": 2,
+            "curse_attack_count": 4,
+        }
+        addon.player_data = {
+            "inventory": {},
+            "current_combat_target": "chicken",
+            "combat_encounter": copy.deepcopy(phase),
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Combat"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+
+        addon.on_answer_card(
+            _FakeReviewer(),
+            1,
+            lambda _self, _ease: "answered",
+        )
+
+        self.assertEqual(
+            addon.player_data["combat_encounter"],
+            {**phase, "disengaged": True},
+        )
+
+    def test_successful_live_combat_answer_does_not_fake_disengagement(self):
+        addon = _load_addon_as_package("ankiscape_cadence_combat_success")
+        runtime = sys.modules["ankiscape_cadence_combat_success.runtime_actions"]
+        phase = {
+            "target_id": "chicken",
+            "enemy_lifepoints": 17,
+            "player_attack_ticks_remaining": 3,
+            "enemy_attack_ticks_remaining": 2,
+        }
+        seen = []
+
+        def handler(ctx):
+            seen.append(copy.deepcopy(ctx.player_data["combat_encounter"]))
+            return True
+
+        runtime.ANSWER_HANDLERS["combat"] = handler
+        runtime.CAN_START_HANDLERS["combat"] = lambda _ctx: True
+        addon.mw = _DummyMW(
+            _DummyCol({"ankiscape_cadence_kernel": True})
+        )
+        addon.player_data = {
+            "inventory": {},
+            "current_combat_target": "chicken",
+            "combat_encounter": copy.deepcopy(phase),
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Combat"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.level_up_check = lambda *_args: None
+        addon.check_achievements = lambda *_args: None
+
+        addon.on_answer_card(
+            _FakeReviewer(),
+            4,
+            lambda _self, _ease: "answered",
+        )
+
+        self.assertEqual(seen, [phase])
+
     def test_flag_off_preserves_exact_outputs_and_rng_consumption(self):
-        absent_output, absent_rng = self._run_legacy_review(
-            "ankiscape_cadence_absent",
-            {},
+        baseline_output, baseline_rng = self._run_legacy_review(
+            "ankiscape_cadence_off_baseline",
+            {"ankiscape_cadence_kernel": False},
         )
         off_output, off_rng = self._run_legacy_review(
             "ankiscape_cadence_off",
-            {"ankiscape_cadence_kernel": False},
+            {
+                "ankiscape_cadence_kernel": False,
+                "unrelated_addon_setting": "unchanged",
+            },
         )
 
-        self.assertEqual(off_output, absent_output)
-        self.assertEqual(off_rng, absent_rng)
+        self.assertEqual(off_output, baseline_output)
+        self.assertEqual(off_rng, baseline_rng)
+
+    def test_quest_multiplier_is_legacy_only_when_live_cadence_is_disabled(self):
+        def run(module_name, enabled):
+            addon = _load_addon_as_package(module_name)
+            runtime = sys.modules[f"{module_name}.runtime_actions"]
+            calls = []
+
+            def handler(_ctx):
+                calls.append("quest")
+                return True
+
+            runtime.ANSWER_HANDLERS["quest"] = handler
+            runtime.CAN_START_HANDLERS["quest"] = lambda _ctx: True
+            addon.mw = _DummyMW(
+                _DummyCol(
+                    {
+                        "ankiscape_cadence_kernel": enabled,
+                        "ankiscape_review_action_multiplier": 3,
+                    }
+                )
+            )
+            addon.player_data = {"inventory": {}, "completed_achievements": []}
+            addon.current_skill = "Quests"
+            addon.exp_awarded = False
+            addon.update_review_hud = lambda *_args: None
+            addon._refresh_skill_availability = lambda: None
+            addon.on_good_answer({})
+            return calls
+
+        self.assertEqual(
+            run("ankiscape_cadence_quest_legacy", False),
+            ["quest", "quest", "quest"],
+        )
+        self.assertEqual(
+            run("ankiscape_cadence_quest_live", True),
+            ["quest"],
+        )
 
     def _run_legacy_review(self, module_name, config):
         addon = _load_addon_as_package(module_name)
-        kernel = sys.modules[f"{module_name}.cadence_kernel"]
-        kernel.advance_cadence_pure = lambda *_args, **_kwargs: self.fail(
-            "Phase 1 review dispatch must not call the dormant cadence kernel"
+        runtime = sys.modules[f"{module_name}.runtime_actions"]
+        runtime.advance_live_cadence_route_pure = lambda *_args, **_kwargs: self.fail(
+            "explicit flag-off review dispatch must bypass the live cadence kernel"
         )
         calls = {"xp": [], "gains": []}
         addon.level_up_check = lambda _skill, _data: None

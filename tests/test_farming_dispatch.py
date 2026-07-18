@@ -107,8 +107,9 @@ class TestFarmingReviewDispatch(unittest.TestCase):
         self.assertEqual(follower["remaining_reviews"], 2)
         self.assertEqual(
             addon.player_data["summoning_state"]["summoning_points_current"],
-            9,
+            10,
         )
+        self.assertEqual(follower["summoning_point_drain_residual"], 0)
 
     def test_success_consumes_one_farm_step_and_preempts_active_skill_multiplier(self):
         addon = _load_addon_as_package("ankiscape_farming_queue_dispatch")
