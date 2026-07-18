@@ -4702,40 +4702,45 @@ class CombatLogicTest(unittest.TestCase):
             {},
         )
 
-    def test_desert_lizard_requires_slayer_level_and_a_water_source(self):
-        low_level = _player(
-            current_combat_target="desert_lizard",
-            slayer_level=21,
-            inventory={"Waterskin (4)": 1},
-        )
-        dry = _player(
-            current_combat_target="desert_lizard",
-            slayer_level=22,
-        )
-        ready = _player(
-            current_combat_target="desert_lizard",
-            slayer_level=22,
-            inventory={"Waterskin (4)": 1},
-        )
+    def test_desert_targets_require_slayer_level_and_a_water_source(self):
+        for target_id, required_level in (
+            ("desert_lizard", 22),
+            ("crocodile", 10),
+        ):
+            with self.subTest(target_id=target_id):
+                low_level = _player(
+                    current_combat_target=target_id,
+                    slayer_level=required_level - 1,
+                    inventory={"Waterskin (4)": 1},
+                )
+                dry = _player(
+                    current_combat_target=target_id,
+                    slayer_level=required_level,
+                )
+                ready = _player(
+                    current_combat_target=target_id,
+                    slayer_level=required_level,
+                    inventory={"Waterskin (4)": 1},
+                )
 
-        self.assertEqual(
-            combat_target_locked_reasons_pure(
-                low_level, "desert_lizard", COMBAT_ENEMY_DATA
-            ),
-            ("Slayer level 22",),
-        )
-        self.assertEqual(
-            combat_target_locked_reasons_pure(
-                dry, "desert_lizard", COMBAT_ENEMY_DATA
-            ),
-            ("Desert heat: filled Waterskin",),
-        )
-        self.assertEqual(
-            combat_target_locked_reasons_pure(
-                ready, "desert_lizard", COMBAT_ENEMY_DATA
-            ),
-            (),
-        )
+                self.assertEqual(
+                    combat_target_locked_reasons_pure(
+                        low_level, target_id, COMBAT_ENEMY_DATA
+                    ),
+                    (f"Slayer level {required_level}",),
+                )
+                self.assertEqual(
+                    combat_target_locked_reasons_pure(
+                        dry, target_id, COMBAT_ENEMY_DATA
+                    ),
+                    ("Desert heat: filled Waterskin",),
+                )
+                self.assertEqual(
+                    combat_target_locked_reasons_pure(
+                        ready, target_id, COMBAT_ENEMY_DATA
+                    ),
+                    (),
+                )
 
     def test_desert_lizard_bank_run_loads_finishers_and_preserves_water_doses(self):
         player = _player(

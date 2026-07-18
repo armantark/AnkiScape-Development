@@ -7907,6 +7907,70 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "remains source_blocked"
         ),
     },
+    "crocodile": {
+        "display_name": "Crocodile",
+        "level": 63,
+        "group": "Slayer",
+        "required_slayer_level": 10,
+        "attack_style": "melee",
+        "attack_speed": 5,
+        "respawn_delay": 59,
+        "max_hit": 67,
+        "slayer_xp": 62.0,
+        "desert_context": True,
+        "environmental_hazard": {
+            "display_name": "Desert heat",
+            "dose_items": (
+                "Waterskin (4)",
+                "Waterskin (3)",
+                "Waterskin (2)",
+                "Waterskin (1)",
+            ),
+            "empty_item": "Waterskin (0)",
+            "reviews_per_dose": 1,
+            "loadout_cap": 8,
+            "source_status": (
+                "period-exact ordinary River Elid heat/water requirement and "
+                "dose preservation; one dose per damaging Combat review is the "
+                "existing bounded review-native desert abstraction"
+            ),
+        },
+        "stats": {
+            "hitpoints": 630,
+            "attack": 53,
+            "strength": 54,
+            "defence": 54,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (("Bones", 1),),
+            "tables": (),
+        },
+        "source": (
+            "https://runescape.wiki/w/Crocodile?oldid=6529105; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/crocodile/"
+            "crocodile_(63).json"
+        ),
+        "source_status": (
+            "period exact level-63 River Elid identity, LP, Slayer gate/XP, "
+            "five-tick melee, 67-LP maximum hit, guaranteed Bones, no other "
+            "drops, and desert heat; Darkan exact stats and respawn; level-89 "
+            "marsh variant and Darkan's merged Big-bones row excluded"
+        ),
+    },
     "kalphite_soldier": {
         "display_name": "Kalphite Soldier",
         "level": 85,

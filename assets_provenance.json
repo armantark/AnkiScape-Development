@@ -827,6 +827,18 @@
     "source_wiki": "osrs",
     "timestamp": "2019-06-24T17:00:49Z"
   },
+  "combatenemies/crocodile.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Crocodile.png",
+    "file_title": "Crocodile.png",
+    "image_url": "https://runescape.wiki/images/Crocodile.png?1b607",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a3c27eecbb9230f3febf8c27d4c3af73020bc18b",
+    "size": 610609,
+    "source_wiki": "rs3",
+    "timestamp": "2022-01-04T12:20:15Z"
+  },
   "combatenemies/cuffs.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Man.png",
     "file_title": "Man.png",

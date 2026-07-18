@@ -2249,6 +2249,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_combat_is_selectable_and_shows_simple_enemy_targets(self) -> None:
         pd = _make_player_data()
+        pd["inventory"]["Waterskin (4)"] = 1
         pd["current_combat_target"] = "seagull"
         pd["slayer_level"] = 60
         pd["quests"]["priest_in_peril"] = {
@@ -2277,6 +2278,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         bloodveld = _tree_row(tree, "bloodveld")
         infernal_mage = _tree_row(tree, "infernal_mage")
         basilisk = _tree_row(tree, "basilisk")
+        crocodile = _tree_row(tree, "crocodile")
         kalphite_soldier = _tree_row(tree, "kalphite_soldier")
         wall_beast = _tree_row(tree, "wall_beast")
         vampyre = _tree_row(tree, "vampyre")
@@ -2346,6 +2348,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Mystic hat (light) x1 (1/512)", basilisk.toolTip(0))
         self.assertIn("Basilisk head x1 (1/2000)", basilisk.toolTip(0))
         self.assertFalse(basilisk.icon(0).isNull())
+        self.assertEqual(crocodile.text(0), "Crocodile (Lvl 63)")
+        self.assertIn("Enemy max hit: 67 LP", crocodile.toolTip(0))
+        self.assertIn("Bones x1", crocodile.toolTip(0))
+        self.assertIn(
+            "Desert heat: 1 Waterskin dose per Combat review",
+            crocodile.toolTip(0),
+        )
+        self.assertFalse(crocodile.icon(0).isNull())
         self.assertEqual(kalphite_soldier.text(0), "Kalphite Soldier (Lvl 85)")
         self.assertIn("Enemy max hit: 80 LP", kalphite_soldier.toolTip(0))
         self.assertIn(

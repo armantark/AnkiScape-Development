@@ -2,6 +2,16 @@
 
 ## Current Focus
 
+The ordinary level-63 River Elid Crocodile is now executable with Slayer 10,
+five-tick melee, 630 LP, 62 Slayer XP, guaranteed Bones, and the existing
+review-driven desert-heat supply loop. The level-89 marsh form and Darkan's
+merged Big-bones row are deliberately excluded. Vannaka advances to 21/35
+while remaining hidden. Evidence:
+`source-audits/slayer-crocodile-combat-2026-07-18.md`. No owner-facing design
+fork emerged. Results:
+`status-updates/slayer-crocodile-results-2026-07-18.html`
+(<https://kjy22255e4a6.postplan.dev>).
+
 The ordinary level-61 Basilisk is now executable with Slayer 40, six-tick
 melee, 750 LP, 75 Slayer XP, and the source's Mirror-shield requirement.
 Unshielded damage can be stopped by Protect from Melee while the random

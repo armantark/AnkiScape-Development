@@ -29,6 +29,7 @@ NEW_COMBAT_ENEMIES = (
     "bloodveld",
     "infernal_mage",
     "basilisk",
+    "crocodile",
     "kalphite_soldier",
     "wall_beast",
     "vampyre",
@@ -90,6 +91,7 @@ OPTIONAL_ENEMY_KEYS = {
     "finisher",
     "required_slayer_level",
     "environmental_hazard",
+    "desert_context",
     "retaliation_stop_lifepoints",
     "regeneration",
     "source_status",
@@ -280,6 +282,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("bloodveld", "Bloodveld.png"),
             ("infernal_mage", "Infernal Mage.png"),
             ("basilisk", "Basilisk.png"),
+            ("crocodile", "Crocodile.png"),
             ("kalphite_soldier", "Kalphite Soldier.png"),
             ("wall_beast", "Wall beast icon.png"),
             ("vampyre", "Vampire (historical) (level 61).png"),
@@ -506,6 +509,38 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertIn(
             "charm distribution remains source_blocked", basilisk["source_status"]
         )
+
+    def test_crocodile_preserves_the_level_63_desert_variant(self):
+        crocodile = COMBAT_ENEMY_DATA["crocodile"]
+
+        self.assertEqual(crocodile["level"], 63)
+        self.assertEqual(crocodile["required_slayer_level"], 10)
+        self.assertEqual(crocodile["attack_style"], "melee")
+        self.assertEqual(crocodile["attack_speed"], 5)
+        self.assertEqual(crocodile["respawn_delay"], 59)
+        self.assertEqual(crocodile["slayer_xp"], 62.0)
+        self.assertEqual(crocodile["max_hit"], 67)
+        self.assertEqual(
+            crocodile["stats"],
+            {
+                "hitpoints": 630,
+                "attack": 53,
+                "strength": 54,
+                "defence": 54,
+                "magic": 1,
+                "ranged": 1,
+            },
+        )
+        self.assertEqual(crocodile["drops"], {
+            "guaranteed": (("Bones", 1),),
+            "tables": (),
+        })
+        self.assertEqual(
+            crocodile["environmental_hazard"]["display_name"], "Desert heat"
+        )
+        self.assertTrue(crocodile["desert_context"])
+        self.assertIn("oldid=6529105", crocodile["source"])
+        self.assertIn("level-89 marsh variant", crocodile["source_status"])
 
     def test_kalphite_soldier_preserves_the_cutoff_variant_and_drop_table(self):
         soldier = COMBAT_ENEMY_DATA["kalphite_soldier"]

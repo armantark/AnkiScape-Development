@@ -4,6 +4,23 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Crocodile Combat closure — 2026-07-18
+
+- Added the ordinary level-63 River Elid Crocodile as a Slayer-10 Combat target
+  with 630 LP, 62 Slayer XP, five-tick melee, and maximum hit 67.
+- Preserved the exact level-63 drop boundary: guaranteed Bones and no other
+  table. Darkan's merged level-63/89 Bones-plus-Big-bones row is rejected.
+- Reused the existing filled-Waterskin desert hazard with dose preservation,
+  review-driven consumption, pack capacity, bank runs, and atomic undo.
+- Advanced Vannaka from 20/35 to 21/35 without exposing or renormalizing the
+  incomplete master. Thirteen missing targets and Earth warrior's Wilderness
+  context remain.
+- Focused checks and the real offscreen Qt picker pass. Durable evidence is
+  `source-audits/slayer-crocodile-combat-2026-07-18.md`; no owner design input
+  was required. Results:
+  `status-updates/slayer-crocodile-results-2026-07-18.html`
+  (<https://kjy22255e4a6.postplan.dev>).
+
 ## Slayer Basilisk Combat closure — 2026-07-18
 
 - Added the ordinary level-61 Basilisk as a Slayer-40 Combat target with 750
