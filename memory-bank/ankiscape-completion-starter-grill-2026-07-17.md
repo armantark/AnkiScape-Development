@@ -323,6 +323,15 @@ actions, lets it become a live six-tick Wild Vine encounter, or pays Horacio's
 source produce cost and replants for another Farming cycle. The focused
 contract is `memory-bank/source-audits/jade-vine-loop-2026-07-18.md`.
 
+Vinesweeper is completely flattened rather than reproducing Minesweeper or
+simulating a hidden field. Each successful review resolves one automatic
+source-shaped operation and reports its point, flag, coin, Ogleroot, and Hunter
+XP deltas. The source point wallet, ten-flag cap, penalties, 30 Hunter XP rabbit
+repulsion, direct Farming-XP redemption, and complete cutoff reward shop remain.
+Lost flags refill automatically for 500 coins, then 50 points, and the activity
+pauses only when neither can pay. The focused contract is
+`memory-bank/source-audits/vinesweeper-loop-2026-07-18.md`.
+
 Fist of Guthix does not expose opponent selection or difficulty profiles. The
 cutoff game paired waiting-room players randomly regardless of Combat level,
 randomized the first-round roles, and swapped roles for round two. AnkiScape
