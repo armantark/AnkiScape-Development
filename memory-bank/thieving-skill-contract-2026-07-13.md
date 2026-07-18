@@ -172,7 +172,9 @@ fears checkbox hell, and full control lives in the advanced editors.
 - **Pirates' Hideout chest parks.** Its XP is literally `?` in the period record.
   Ships only if a pre-cutoff value surfaces.
 - **Pyramid Plunder is excluded from the skill** and belongs to the Activities
-  program (it grants Strength and Runecrafting XP and gates on a Strength level).
+  program. Its owner-settled automatic room strategy and review budget are
+  recorded in
+  `memory-bank/source-audits/pyramid-plunder-loop-2026-07-17.md`.
   Sorceress's Garden, the Rogues' Den maze, and the Thieves' Guild go with it.
   The Rogues' Den **wall safes are separable and do ship.**
 - **The Feud ships with this build** — it gates blackjacking. Dorgesh-Kaan chests

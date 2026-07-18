@@ -376,6 +376,17 @@ communal pressure preserve depletion without simulating individual players.
 The complete contract is recorded in
 `memory-bank/source-audits/fish-flingers-loop-2026-07-17.md`.
 
+Pyramid Plunder begins with one standing run priority: **Max XP**,
+**Treasure**, or **Balanced**. It applies automatically across the run with no
+per-room object controls. One successful review resolves one accessible room,
+so the exact level-gated eight-room structure produces runs from one to eight
+reviews. XP rushes toward the deepest urns, Treasure favors chests and
+sarcophagi, and Balanced opens useful chests while emphasizing the final two
+accessible rooms. The source five-minute limit becomes this finite room budget,
+never wall time. The pinned structure and remaining hazard decision are
+recorded in
+`memory-bank/source-audits/pyramid-plunder-loop-2026-07-17.md`.
+
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking
 the shared substrate.
