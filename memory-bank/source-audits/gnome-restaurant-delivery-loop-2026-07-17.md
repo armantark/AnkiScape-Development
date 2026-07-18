@@ -54,10 +54,19 @@ base points, and reward tables. Cooking continues to own the gnome recipe
 chains, and previously player-prepared banked items remain valid inputs exactly
 as the period source permits.
 
+The source tutorial remains a one-time eight-item checklist: its four prescribed
+gnome dishes and four prescribed cocktails must each have been prepared by the
+player. Ordinary Cooking production satisfies the checklist, including
+qualifying production recorded before the player opens Gnome Restaurant. The
+Activity must read durable player-production facts rather than duplicate the
+recipes, consume eight tutorial-only reviews, or require an established player
+to remake food solely to replay NPC instruction.
+
 ## Still open for source harvest or later grill
 
 - Corroborate the timer, point, token, customer, and reward claims against an
   independent period-lineage source.
+- Identify and corroborate the exact four tutorial dishes and four cocktails.
 - Transcribe the complete cutoff customer pools, route requirements, and reward
   tables, including customer-specific rewards.
 - Resolve the source hard-order decline wait through the answered-card clock.

@@ -33,5 +33,9 @@ Design gates:
   as explicit states even though geography is abstracted.
 - Reuse finished gnome items and intermediate recipe logic from Cooking; do not
   duplicate recipes inside the Activity implementation.
+- Preserve the source eight-item tutorial as a one-time checklist backed by
+  ordinary Cooking production. Qualifying lifetime production from before the
+  Activity was opened counts retroactively; do not force established players to
+  remake the tutorial set.
 - Decide the Activity UI and reward presentation during its own grill. Do not
   expose individual reward stubs before they function end to end.

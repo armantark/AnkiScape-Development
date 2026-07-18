@@ -314,6 +314,10 @@ the activity reuses player-prepared gnome food from Cooking, including eligible
 items prepared and banked before assignment. The pinned structure and remaining
 source work are recorded in
 `memory-bank/source-audits/gnome-restaurant-delivery-loop-2026-07-17.md`.
+Its source tutorial remains a one-time checklist for four prescribed dishes and
+four prescribed cocktails, fulfilled through ordinary Cooking production.
+Qualifying lifetime production counts retroactively, so opening the Activity
+does not force an established player to remake the eight items.
 
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking
