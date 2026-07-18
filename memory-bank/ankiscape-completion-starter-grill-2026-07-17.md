@@ -329,6 +329,16 @@ coin/chosen-skill redemption remain source-shaped. The pinned structure and
 remaining source work are recorded in
 `memory-bank/source-audits/penguin-hide-and-seek-loop-2026-07-17.md`.
 
+Shattered Heart preserves strange rocks as real inventory items rather than an
+invisible collection ledger. Loose rocks occupy slots and retain the source
+output-replacement risk; the optional 10 kg collection bag only catches rocks
+while it is actually carried. The museum exposes one instantaneous **Add all
+completed pairs** command that batches XP and statue progress without consuming
+a review. An opt-in **Automatically discard strange rocks** setting suppresses
+future awards before inventory mutation but never deletes rocks already owned.
+The pinned structure and remaining source work are recorded in
+`memory-bank/source-audits/shattered-heart-loop-2026-07-17.md`.
+
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking
 the shared substrate.
