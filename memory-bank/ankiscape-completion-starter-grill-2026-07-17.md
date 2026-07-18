@@ -244,7 +244,7 @@ The portfolio is ordered by reusable architecture proven, not nostalgia.
 | 0 | Flash Powder Factory / Brimhaven | In-flight Agility reference for finite skill-owned sessions and currencies | Extract contracts after Agility closes; do not move ownership. |
 | 1 | Tears of Guthix | Recurring D&D eligibility and dynamic lowest-skill reward | Review-clock eligibility; compact session; quest promise becomes real. |
 | 2 | Shooting Stars | Timed world event, finite shared resource, contribution cap, exchange | One Mining attempt/review; simulated population also depletes the star. |
-| 3 | Fist of Guthix | Bounded simulated opponent, currency, reward shop, degradation/recharge | Resumable match phases; tokens only at resolution; explicit invented opponent model. |
+| 3 | Fist of Guthix | Bounded simulated opponent, currency, reward shop, degradation/recharge | Resumable match phases; automatic random pairing; tokens only at resolution. |
 | 4 | Barrows | Multi-encounter Combat instance, chest state, repair loop, unique drops | Live six-tick Combat slices within a persistent brother/crypt/chest run. |
 | 5 | Warriors' Guild | Token-metered access, armour sink, escalating defender ladder | Earn and drain tokens through review actions; repeat cyclops encounters. |
 | 6 | Fight Caves | Long resumable wave instance, target priority, safe death, prestige reward | Live Combat slices inside persistent waves; explicit Leave; no timeout. |
@@ -261,6 +261,14 @@ discovery, a rapid middle influx, and late saturation. The resulting active
 population, together with remaining star mass, drives communal depletion.
 Prompt participation is calibrated toward the source-expected opportunity;
 delaying or leaving may produce only a partial reward. Wall time is never read.
+
+Fist of Guthix does not expose opponent selection or difficulty profiles. The
+cutoff game paired waiting-room players randomly regardless of Combat level,
+randomized the first-round roles, and swapped roles for round two. AnkiScape
+therefore draws one simulated opponent from a period-shaped player population at
+match entry and keeps that opponent for both rounds. Any approximation of the
+population distribution must be labeled and source-audited; neither Casual nor
+Advanced may choose an easier or harder rival.
 
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking
