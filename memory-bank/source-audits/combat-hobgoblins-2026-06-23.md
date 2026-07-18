@@ -15,10 +15,16 @@ review combat yet.
 ## Combat rows
 
 - `hobgoblin_unarmed`: 290 LP, Attack 22, Strength 24, Defence 24, Magic 1,
-  Ranged 1; attack speed 4, respawn delay 50.
+  Ranged 1; attack speed 4, respawn delay 50; 29 Slayer XP.
 - `hobgoblin_armed`: 490 LP, Attack 33, Strength 31, Defence 36, Magic 1,
   Ranged 1; attack speed 6, respawn delay 30; Attack Stab 8, Attack Crush 10,
-  Defence Stab 1, Defence Slash 1.
+  Defence Stab 1, Defence Slash 1; 49 Slayer XP.
+
+The XP values were closed on 2026-07-18 from RuneScape Wiki `Hobgoblin`
+oldid `6448782`, timestamp `2012-10-21T14:16:05Z`. Its literal infobox maps
+the ordinary 290/490-LP variants to 29/49 Slayer XP. The independent OSRS
+lineage table retains the same two values; it corroborates rather than supplies
+the pre-EOC rows.
 
 Both source files omit Magic and Ranged stats, so they use AnkiScape's existing
 default `1` convention for rows that already provide melee-critical Attack,
@@ -61,6 +67,7 @@ The fetched icons are:
 Targeted coverage was added for:
 
 - Source stats, bonuses, timing, aggro provenance, and runtime drop denominators.
+- Exact 29/49 Slayer XP and the pinned pre-EOC oldid in both live variants.
 - Nested minor herb, allotment seed, uncommon seed, and gem table references.
 - Deterministic drop rolls through a normal main slot, Charms table, and nested
   uncommon seed table.

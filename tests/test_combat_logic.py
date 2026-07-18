@@ -2024,6 +2024,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(unarmed["display_name"], "Hobgoblin (unarmed)")
         self.assertEqual(unarmed["level"], 28)
         self.assertEqual(unarmed["group"], "Hobgoblins")
+        self.assertEqual(unarmed["slayer_xp"], 29.0)
         self.assertEqual(unarmed["attack_speed"], 4)
         self.assertEqual(unarmed["respawn_delay"], 50)
         self.assertEqual(unarmed["stats"]["hitpoints"], 290)
@@ -2043,10 +2044,12 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("active source slots sum to 127", unarmed["source"])
         self.assertIn("total(1024)", unarmed["source"])
         self.assertIn("active source slots sum to 1000", unarmed["source"])
+        self.assertIn("Hobgoblin oldid 6448782", unarmed["source"])
 
         self.assertEqual(armed["display_name"], "Hobgoblin (armed)")
         self.assertEqual(armed["level"], 28)
         self.assertEqual(armed["group"], "Hobgoblins")
+        self.assertEqual(armed["slayer_xp"], 49.0)
         self.assertEqual(armed["attack_speed"], 6)
         self.assertEqual(armed["respawn_delay"], 30)
         self.assertEqual(armed["stats"]["hitpoints"], 490)
@@ -2066,6 +2069,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(sum(slot["slots"] for slot in armed_charms["slots"]), 1000)
         self.assertIn("hobgoblin_armed_lvl_28.plugin.kts", armed["source"])
         self.assertIn("aggro radius 4", armed["source"])
+        self.assertIn("Hobgoblin oldid 6448782", armed["source"])
 
     def test_tzhaar_ket_row_matches_source_and_equipment_drops(self):
         ket = COMBAT_ENEMY_DATA["tzhaar_ket"]

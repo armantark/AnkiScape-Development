@@ -3545,6 +3545,7 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "display_name": "Hobgoblin (unarmed)",
         "level": 28,
         "group": "Hobgoblins",
+        "slayer_xp": 29.0,
         "attack_style": "melee",
         "attack_speed": 4,
         "respawn_delay": 50,
@@ -3571,13 +3572,15 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "source": (
             f"{HOBGOBLIN_UNARMED_SOURCE_PATH}: ids Npcs.HOBGOBLIN/Npcs.HOBGOBLIN_2686/"
             "Npcs.HOBGOBLIN_2687; main table declares total(128), active source slots sum to 127; "
-            "Charms table declares total(1024), active source slots sum to 1000"
+            "Charms table declares total(1024), active source slots sum to 1000; "
+            "RuneScape Wiki Hobgoblin oldid 6448782 (290 LP / 29 Slayer XP)"
         ),
     },
     "hobgoblin_armed": {
         "display_name": "Hobgoblin (armed)",
         "level": 28,
         "group": "Hobgoblins",
+        "slayer_xp": 49.0,
         "attack_style": "melee",
         "attack_speed": 6,
         "respawn_delay": 30,
@@ -3603,7 +3606,8 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "drops": HOBGOBLIN_ARMED_DROPS,
         "source": (
             f"{HOBGOBLIN_ARMED_SOURCE_PATH}: ids Npcs.HOBGOBLIN_2688/Npcs.HOBGOBLIN_4898; "
-            "aggro radius 4"
+            "aggro radius 4; RuneScape Wiki Hobgoblin oldid 6448782 "
+            "(490 LP / 49 Slayer XP)"
         ),
     },
     "tzhaar_ket": {
