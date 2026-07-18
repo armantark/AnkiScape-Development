@@ -268,6 +268,11 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   and affected stats are pinned, but its conflicting drain magnitude and
   current Summoning-scope dependency keep that family unimplemented. See
   `source-audits/slayer-protective-equipment-cockatrice-banshee-2026-07-17.md`.
+- Jackal is now an executable Dogs-family representative with its cutoff
+  identity, exact maximum hit, guaranteed Bones, asset, and Combat picker
+  surface. This closes one family dependency for Turael/Spria and
+  Mazchna/Achtryn without exposing either incomplete assignment pool. See
+  `source-audits/slayer-dogs-jackal-combat-2026-07-17.md`.
 - Finisher-item acquisition metadata is now ready: Bag of salt, Rock hammer,
   Ice cooler, and Fungicide spray retain their source item IDs and real
   stackability in the shared registry. The four target families remain
@@ -281,7 +286,7 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
 - Turael/Spria's first pool pass is recorded in
   `source-audits/slayer-turael-spria-pool-2026-07-17.md`: 23 families and the
   provisional 355-point hidden-weight denominator are pinned, but the role
-  remains runtime-blocked on six absent Combat families plus Banshee and
+  remains runtime-blocked on five absent Combat families plus Banshee and
   Gelatinous special consequences. Mazchna/Achtryn, Vannaka, Chaeldar, and
   Sumona, Duradel/Lapalok, and Kuradal are now recorded in their corresponding
   dated pool audits. Continue the family/variant, protection, challenge and

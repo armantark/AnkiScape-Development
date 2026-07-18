@@ -69,9 +69,12 @@ closed at `d7539c9`.
 Slayer's source-first owner grill is design-closed and integrated into `main`.
 The governing record is `slayer-skill-contract-2026-07-15.md`, supported by
 focused audits for master succession/challenges, finishing blows, locations,
-points/rewards, Social Slayer, and the post-cutoff VIP-ticket exclusion. No
-Slayer gameplay is implemented yet; the next bounded program is the contract's
-complete source sweep followed by atomic implementation.
+points/rewards, Social Slayer, and the post-cutoff VIP-ticket exclusion. Live
+assignment gameplay remains closed, but source-ready Combat dependencies are
+now landing atomically: Cockatrice protection is complete, the finisher
+supplies are obtainable, and Jackal now supplies an executable Dogs-family
+variant. The Jackal slice passes the complete 1,481-method core suite, 337
+focused Combat/runtime methods, and a real offscreen Qt picker check.
 
 The first master-pool harvest is now recorded in
 `source-audits/slayer-turael-spria-pool-2026-07-17.md`. Reconciliation recovered
@@ -79,11 +82,11 @@ The first master-pool harvest is now recorded in
 Gelatinous abominations and Grotworms, and rejected the anonymous Troll row.
 Hidden weights remain explicitly provisional; the 355-point denominator
 converges across Darkan's raw values, game-main's percentages, and the recovered
-30-weight Gelatinous family. Runtime certification still fails: six families
-have no Combat target, Banshee lacks its earmuff consequence, and Gelatinous
-abominations lack the worn-gauntlet finisher. The same pass repaired the live
-Cave slime's omitted source poison damage. None of these findings creates an
-owner design question.
+30-weight Gelatinous family. Jackal now closes the Dogs-family target with the
+cutoff level-21/270-LP/27-Slayer-XP row and Darkan's exact combat definition.
+Runtime certification still fails: five families have no Combat target,
+Banshee lacks its earmuff consequence, and Gelatinous abominations lack the
+worn-gauntlet finisher. None of these findings creates an owner design question.
 
 The second master-pool harvest is recorded in
 `source-audits/slayer-mazchna-achtryn-pool-2026-07-17.md`. It reconciles a

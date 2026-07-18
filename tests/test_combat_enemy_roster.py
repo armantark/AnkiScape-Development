@@ -1,4 +1,6 @@
+import json
 import unittest
+from pathlib import Path
 
 from combat_data import COMBAT_ENEMY_DATA
 
@@ -18,6 +20,7 @@ NEW_COMBAT_ENEMIES = (
     "werewolf",
     "ice_warrior",
     "earth_warrior",
+    "jackal",
     "banshee",
     "shade",
     "ghost_level_77",
@@ -56,7 +59,7 @@ REQUIRED_ENEMY_KEYS = {
     "source",
 }
 
-OPTIONAL_ENEMY_KEYS = {"poison_damage", "xp_multiplier", "protective_equipment"}
+OPTIONAL_ENEMY_KEYS = {"max_hit", "poison_damage", "xp_multiplier", "protective_equipment"}
 
 REQUIRED_STAT_KEYS = {"hitpoints", "attack", "strength", "defence", "magic", "ranged"}
 
@@ -116,6 +119,9 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                 self.assertEqual(set(enemy["bonuses"]), REQUIRED_BONUS_KEYS)
                 self.assertEqual(enemy["attack_style"], "melee")
                 self.assertGreater(enemy["level"], 0)
+                if "max_hit" in enemy:
+                    self.assertIsInstance(enemy["max_hit"], int)
+                    self.assertGreater(enemy["max_hit"], 0)
                 if "poison_damage" in enemy:
                     self.assertIsInstance(enemy["poison_damage"], int)
                     self.assertGreater(enemy["poison_damage"], 0)
@@ -134,6 +140,33 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                     self.assertTrue(protection["unprotected_effect"])
                     self.assertTrue(protection["source_status"])
                 self.assertGreater(enemy["stats"]["hitpoints"], 0)
+
+    def test_jackal_preserves_the_cutoff_dogs_family_combat_row(self):
+        jackal = COMBAT_ENEMY_DATA["jackal"]
+
+        self.assertEqual(jackal["level"], 21)
+        self.assertEqual(jackal["slayer_xp"], 27.0)
+        self.assertEqual(jackal["max_hit"], 80)
+        self.assertEqual(jackal["stats"]["hitpoints"], 270)
+        self.assertEqual(jackal["stats"]["attack"], 17)
+        self.assertEqual(jackal["stats"]["strength"], 18)
+        self.assertEqual(jackal["stats"]["defence"], 15)
+        self.assertEqual(jackal["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertIn("oldid=6493724", jackal["source"])
+
+    def test_jackal_target_asset_is_present_and_provenanced(self):
+        root = Path(__file__).resolve().parents[1]
+        asset_path = root / "combatenemies" / "jackal.png"
+        provenance = json.loads(
+            (root / "assets_provenance.json").read_text(encoding="utf-8")
+        )
+
+        self.assertTrue(asset_path.is_file())
+        self.assertIn("combatenemies/jackal.png", provenance)
+        self.assertEqual(
+            provenance["combatenemies/jackal.png"]["file_title"],
+            "Jackal.png",
+        )
 
     def test_new_enemy_drops_are_well_formed(self):
         for enemy_name in NEW_COMBAT_ENEMIES:

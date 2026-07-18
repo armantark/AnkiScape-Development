@@ -27,6 +27,24 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
   `status-updates/slayer-search-seam-results-2026-07-17.html` and its mobile-safe
   copy at <https://s1kaasu9wfmq.postplan.dev>.
 
+## Slayer Dogs-family Combat slice — 2026-07-17
+
+- Added the level-21 Jackal as an ordinary Combat target and the first
+  executable representative of Slayer's Dogs family.
+- Preserved the cutoff 270 LP, 27 Slayer XP, guaranteed Bones, aggression, and
+  explicit 80 LP maximum hit. Darkan independently supplies its Attack 17,
+  Strength 18, Defence 15, melee identity, and respawn row.
+- Added a sourced 48px target asset and provenance, exact data/preview
+  regressions, and a real offscreen Qt picker assertion covering the row,
+  tooltip, and rendered icon.
+- Verification passes all 1,481 core methods, 337 focused
+  Combat/target/runtime/cadence methods, the real offscreen Qt picker check,
+  documentation, compilation, test-quality, diff, and worktree-safety gates.
+- Kept Turael/Spria and Mazchna/Achtryn hidden. This certifies one baseline
+  family dependency; it does not renormalize either incomplete master pool.
+- Durable evidence:
+  `source-audits/slayer-dogs-jackal-combat-2026-07-17.md`.
+
 ## Live cadence activation — 2026-07-17
 
 - Made the `R = 1000` cadence kernel default-on with an explicit boolean-false

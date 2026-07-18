@@ -220,9 +220,11 @@ remain explicitly provisional.
 
 Turael/Spria remains absent from live Slayer assignment generation.
 
-The current Combat registry has at least one ordinary variant for 17 of the 23
-families. It has no Desert lizard, Dog/Jackal, Gelatinous abomination,
-Grotworm, Icefiend, or Monkey target. Existing Banshee combat also lacks the
+The current Combat registry has at least one ordinary variant for 18 of the 23
+families. Jackal now supplies the Dogs-family representative recorded in
+`slayer-dogs-jackal-combat-2026-07-17.md`. It still has no Desert lizard,
+Gelatinous abomination, Grotworm, Icefiend, or Monkey target. Existing Banshee
+combat also lacks the
 sourced unprotected-earmuff consequence, and Gelatinous abominations require a
 new worn-Spiked-gauntlets finisher. Those are baseline certification blockers,
 not player-facing locked rows.

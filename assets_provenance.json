@@ -1151,6 +1151,18 @@
     "source_wiki": "osrs",
     "timestamp": "2019-01-29T06:12:38Z"
   },
+  "combatenemies/jackal.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Jackal.png",
+    "file_title": "Jackal.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Jackal.png?5b7f9",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "fd48544f43ae50603c2b5c6c5ba10cbcdf357b4f",
+    "size": 75472,
+    "source_wiki": "osrs",
+    "timestamp": "2019-05-14T01:33:53Z"
+  },
   "combatenemies/jail_guard.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Jail_guard_%281%29.png",
     "file_title": "Jail guard (1).png",

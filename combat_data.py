@@ -6823,6 +6823,43 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "definitions/other/earth_warrior_level_51.plugin.kts"
         ),
     },
+    "jackal": {
+        "display_name": "Jackal",
+        "level": 21,
+        "group": "Slayer",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 59,
+        "max_hit": 80,
+        "slayer_xp": 27.0,
+        "stats": {
+            "hitpoints": 270,
+            "attack": 17,
+            "strength": 18,
+            "defence": 15,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": {"guaranteed": (("Bones", 1),), "tables": ()},
+        "source": (
+            "https://runescape.wiki/w/Jackal?oldid=6493724; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "data/npcs/combatdefs/uncategorized/jackal.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "data/npcs/drops/jackal.json"
+        ),
+    },
     "banshee": {
         "display_name": "Banshee",
         "level": 23,

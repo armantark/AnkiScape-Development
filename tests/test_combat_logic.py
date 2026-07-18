@@ -4306,6 +4306,18 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(preview["enemy_max_lifepoints"], 50)
         self.assertTrue(str(preview["source"]).endswith("giant_rat_level_2.plugin.kts"))
 
+    def test_jackal_preview_uses_the_source_max_hit_instead_of_melee_derivation(self):
+        preview = combat_target_preview_pure(
+            _player(),
+            "jackal",
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+        )
+
+        self.assertEqual(preview["enemy_max_lifepoints"], 270)
+        self.assertEqual(preview["enemy_max_hit"], 80)
+        self.assertIn("oldid=6493724", preview["source"])
+
     def test_combat_preview_marks_poison_enemies_as_food_advised(self):
         preview = combat_target_preview_pure(_player(), "poison_scorpion", COMBAT_ENEMY_DATA, EQUIPMENT_DATA)
 
