@@ -255,7 +255,7 @@ The portfolio is ordered by reusable architecture proven, not nostalgia.
 | 4 | Barrows | Multi-encounter Combat instance, chest state, repair loop, unique drops | Live six-tick Combat slices within a persistent brother/crypt/chest run. |
 | 5 | Warriors' Guild | Token-metered access, armour sink, escalating defender ladder | Earn and drain tokens through review actions; repeat cyclops encounters. |
 | 6 | Fight Caves | Long resumable wave instance, target priority, safe death, prestige reward | Live Combat slices inside persistent waves; explicit Leave; no timeout. |
-| 7 | Fishing Trawler | Cooperative pressure system flattened for solo | Player duty plus bounded simulated crew; persistent leaks/water/net/supplies. |
+| 7 | Fishing Trawler | Cooperative pressure system flattened for solo | Player duty plus fixed automatic public-crew pressure; persistent leaks/water/net/supplies. |
 | 8 | Stealing Creation | Temporary closed economy before Dungeoneering | Gather, craft, and fight with session-only items; bounded opponent simulation. |
 | 9 | Managing Miscellania | Background allocation, approval, coin sink, resource faucet | Review-clock production with explicit allocation and collection, never wall time. |
 | 10 | Gnome Restaurant | Persistent order/delivery/reward chain using existing recipes | Receive, prepare, abstract-deliver, resolve, return; no duplicated Cooking data. |

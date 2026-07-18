@@ -875,16 +875,21 @@ the eventual Dungeoneering expansion.
 
 - Build Trawler as a persistent activity session, not an ordinary Fishing
   target and not a one-review loot roll. Track boat water, active leaks, net
-  state, player contribution/activity, crew contribution, remaining action
-  phases, supplies, and success or sinking.
+  state, player contribution/activity, remaining action phases, supplies, haul
+  quality, and success or sinking. Do not persist individual crew members,
+  crew contribution, or any other population simulation.
 - One successful review performs one useful Trawler duty. The global market
   clock continues to advance, but the source's twelve minutes do not collapse
   the trip into two reviews; skilling still uses action ticks rather than
   converting every review into six minutes.
-- Casual joins a busy public crew and automatically performs the most urgent
-  useful action that its carried supplies permit: repair leaks, bail, or repair
-  the net. Advanced saves duty checkboxes, a solo/small/busy crew preference,
-  and this activity's unified carried layout.
+- Every trip automatically includes one competent public-crew baseline. Crew
+  assistance is a fixed pressure offset resolved inside the same atomic review
+  reducer, never a selectable crew size, persisted actor, background loop, or
+  manual management surface.
+- Casual automatically performs the most urgent useful action that its carried
+  supplies permit: repair leaks, bail, repair the net, or fish when the boat is
+  stable. Advanced saves only the player's duty preferences and this
+  activity's unified carried layout; it does not expose a crew selector.
 - Swamp paste and rope are consumed by their duties; the bailing bucket is a
   reusable carried tool. The source shop supplies all three through the normal
   Shop surface.
