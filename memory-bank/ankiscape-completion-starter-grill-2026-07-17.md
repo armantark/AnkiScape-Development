@@ -277,6 +277,9 @@ cap remains. Its finite session preserves three visible phases—Farming nurture
 root-cutting/kindling preparation, and combined chopping/burning—without
 simulating worlds, root positions, or individual fires. The focused contract is
 `memory-bank/source-audits/evil-tree-loop-2026-07-18.md`.
+Farming-qualified players may take the authentic nurture-only participation
+when they cannot fell the drawn tier; the UI says so before entry, then awards
+only the Farming action and consumes the participation without another dialog.
 
 Fist of Guthix does not expose opponent selection or difficulty profiles. The
 cutoff game paired waiting-room players randomly regardless of Combat level,

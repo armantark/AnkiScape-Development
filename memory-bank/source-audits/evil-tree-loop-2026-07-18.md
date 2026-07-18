@@ -4,8 +4,9 @@ Date: `2026-07-18`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **period source pinned; three-phase loop and review-clock discovery
-owner-settled; partial-participation gate under grill.**
+Status: **period source pinned; three-phase loop, review-clock discovery, and
+partial participation owner-settled; post-event continuation reward under
+grill.**
 
 ## Pinned period evidence
 
@@ -86,16 +87,43 @@ period distribution is recovered, implementation may use a labeled random
 abstraction across the seven real tiers; it must not quietly favor the player's
 current level.
 
-## Next owner fork: partial participation
+## Partial participation
 
 The source permits a player who meets the Farming requirement to nurture a tree
 even when they cannot later meet its equal Woodcutting and Firemaking
 requirements. Nurturing grants Farming XP and consumes one of the two daily
 interactions.
 
-The recommended authentic behavior is to allow that partial entry. The
+The owner accepted the authentic partial entry. The
 pre-interaction panel clearly shows `Nurture only — cannot fell`, and selecting
 it starts the ordinary Nurture phase without a separate confirmation dialog.
 After the nurture beat, the session ends with the earned Farming XP but without
 the fallen-tree reward. Requiring all three skill gates would be tidier, but it
 would delete a legal source action and make the random tier less meaningful.
+
+## Post-event Woodcutting blessing
+
+The source reward is a timed ordinary-tree Woodcutting benefit: qualifying
+trees are less likely to be felled after a log, bird nests are more likely, and
+logs are sent to the Bank when the inventory is full. Its tier-based source
+duration is six to thirty minutes.
+
+AnkiScape converts that duration through the global answered-card clock,
+yielding approximately one to five review opportunities. Every answered card
+after collection consumes the duration, regardless of the active target;
+answering nothing pauses it. This follows the source's logged-in timer and
+logout pause without reading the wall clock. The existing review-world status
+strip shows the blessing and remaining review-clock duration.
+
+The nest boost and overflow banking apply directly to eligible ordinary-tree
+Woodcutting actions. AnkiScape has no persistent tree objects, so reduced
+felling becomes one immediate, non-chaining continuation roll after a
+successful eligible chop. This reuses the normal chop roll and represents the
+saved depletion/respawn interruption without adding tree state, hidden world
+simulation, or a tunable throughput multiplier.
+
+The remaining owner fork is whether a successful continuation roll grants both
+the normal log and normal Woodcutting XP, or the log only. The recommendation is
+log plus XP: in the source, the surviving tree permits another real chop whose
+successful harvest awards both. The effect is short, bounded, visible in the
+review result, and must be included when cadence mappings are calibrated.
