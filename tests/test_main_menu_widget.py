@@ -2122,6 +2122,56 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("seagull_level_2.plugin.kts", seagull.toolTip(0))
         self.assertEqual(tree.currentItem().data(0, Qt.ItemDataRole.UserRole), "seagull")
 
+    def test_combat_search_filters_without_changing_or_activating_the_saved_target(self) -> None:
+        from aqt.qt import QEvent, QKeyEvent
+
+        pd = _make_player_data()
+        pd["current_combat_target"] = "seagull"
+        dialog = self._open(pd, current_skill="Combat")
+        search = _find_named_line_edit(dialog, "combatTargetSearchInput")
+
+        search.setText("cockatrice mirror")
+        QApplication.processEvents()
+        tree = dialog.findChild(QTreeWidget, "combatTargetTree")
+        visible_roles = {
+            item.data(0, Qt.ItemDataRole.UserRole)
+            for item in _tree_items(tree)
+        }
+        self.assertEqual(
+            visible_roles,
+            {"__combat_group__:Slayer", "cockatrice"},
+        )
+        self.assertEqual(pd["current_combat_target"], "seagull")
+        self.assertEqual(self._combat_calls, [])
+        self.assertIsNone(tree.currentItem())
+        self.assertTrue(tree.topLevelItem(0).isExpanded())
+
+        search.setText("definitely-not-a-target")
+        QApplication.processEvents()
+        tree = dialog.findChild(QTreeWidget, "combatTargetTree")
+        empty = tree.topLevelItem(0)
+        self.assertEqual(empty.text(0), "No combat targets match this search.")
+        self.assertFalse(empty.flags() & Qt.ItemFlag.ItemIsEnabled)
+        tree.itemActivated.emit(empty, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._combat_calls, [])
+
+        escape = QKeyEvent(
+            QEvent.Type.KeyPress,
+            Qt.Key.Key_Escape,
+            Qt.KeyboardModifier.NoModifier,
+        )
+        QApplication.sendEvent(search, escape)
+        QApplication.processEvents()
+        self.assertEqual(search.text(), "")
+        tree = dialog.findChild(QTreeWidget, "combatTargetTree")
+        self.assertEqual(
+            tree.currentItem().data(0, Qt.ItemDataRole.UserRole),
+            "seagull",
+        )
+        self.assertEqual(pd["current_combat_target"], "seagull")
+        dialog.deleteLater()
+
     def test_combat_sidebar_hides_combat_only_stat_skills(self) -> None:
         combat_button = next(b for b in self.dialog.findChildren(QPushButton) if b.text() == "Combat")
         combat_button.click()
@@ -4114,6 +4164,28 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIsNone(dialog.findChild(QWidget, "questCard_cooks_assistant"))
         self.assertIsNotNone(dialog.findChild(QWidget, "questCard_while_guthix_sleeps"))
+
+    def test_quest_search_composes_with_filters_and_has_shared_empty_state(self) -> None:
+        dialog = self._open(_make_player_data())
+        search = _find_named_line_edit(dialog, "questSearchInput")
+        summary = dialog.findChild(QLabel, "questFilterSummaryLabel")
+
+        search.setText("while_guthix_sleeps")
+        QApplication.processEvents()
+        self.assertIsNotNone(dialog.findChild(QWidget, "questCard_while_guthix_sleeps"))
+        self.assertEqual(summary.text(), "Showing 1/194")
+
+        hide_locked = dialog.findChild(QCheckBox, "questHideLockedCheck")
+        hide_locked.setChecked(True)
+        QApplication.processEvents()
+        self.assertEqual(summary.text(), "Showing 0/194")
+        self.assertIsNotNone(dialog.findChild(QLabel, "questEmptyFilterLabel"))
+
+        hide_locked.setChecked(False)
+        search.clear()
+        QApplication.processEvents()
+        self.assertEqual(summary.text(), "Showing 194/194")
+        dialog.deleteLater()
 
     def test_bank_claims_expose_eligible_wicked_hood_claim(self) -> None:
         pd = _make_player_data()

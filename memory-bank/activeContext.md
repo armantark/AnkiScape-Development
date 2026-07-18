@@ -2,6 +2,18 @@
 
 ## Current Focus
 
+The shared catalog search seam is implemented across Shop, Quests, and Combat.
+`CatalogFilterBar` standardizes dark-mode-safe search, clear/Escape behavior,
+page-owned filters, and count summaries without owning result semantics.
+Combat search preserves the saved target, expands matching groups, and cannot
+activate an absent or empty row; Quest text search composes with every existing
+catalog filter. The `Current Slayer task only` checkbox remains correctly
+deferred until authentic assignment state exists instead of shipping a dead
+control. The complete pure suite passes all 1,478 methods; real offscreen Qt
+discovery also passes all 1,478 methods with no failures or skips. The closure
+report is `status-updates/slayer-search-seam-results-2026-07-17.html`, with a
+mobile-safe copy at <https://s1kaasu9wfmq.postplan.dev>.
+
 Live cadence activation and the Design 2 reconciliation are verified and ready
 for their atomic commit. The post-review complete core suite passes all 1,476
 methods (1,275 ordinary passes and 201 environment skips); the matching real

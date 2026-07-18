@@ -484,18 +484,17 @@ Labels: `WAIT: DARKAN`, after each `DEEP GRILL`.
 
 ### Shared modular list search and filters
 
-Labels: `ARCHITECTURE`, `IMPLEMENT`, `DEPENDENCY: SLAYER UI`.
+Labels: `SHIPPED: SEARCH SEAM`, `DEPENDENCY: SLAYER RUNTIME`.
 
-- `ui.py` currently has Shop-specific text search and Quest-specific local
-  filter controls, while other large pages still lack a reusable search seam.
-- Extract one shared list-search/filter component with page-owned searchable
-  metadata and predicates. It must preserve active selection, never activate a
-  filtered row, provide a consistent empty state and keyboard/clear behavior,
-  and use dark-mode-safe styling.
-- First required consumer beyond the existing pages is Combat: ordinary search
-  plus a `Current Slayer task only` checkbox that intersects with every other
-  filter while leaving exact monster choice to the player. Do not solve this as
-  another Slayer-only nested helper in `show_main_menu`.
+- `CatalogFilterBar` now supplies one dark-mode-safe text/filter seam to Shop,
+  Quests, and Combat while each page retains its own searchable metadata,
+  predicates, and result renderer.
+- Combat search preserves the exact saved target, expands matching groups,
+  never activates an absent/empty row, restores the current row after clear,
+  and shares the same clear-button/Escape behavior as the other catalogs.
+- Add `Current Slayer task only` when the first authentic assignment state
+  lands. It must intersect with text search and leave exact monster choice to
+  the player; do not expose a disabled placeholder or invent task state early.
 
 ### In-product help and mechanics reference
 

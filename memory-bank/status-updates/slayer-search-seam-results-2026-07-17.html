@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Shared Catalog Search</title>
+  <style>
+    :root {
+      --bg: #0a0d12;
+      --surface: #151a22;
+      --surface-2: #1d2430;
+      --border: #2a3443;
+      --text: #edf2f8;
+      --muted: #8c99aa;
+      --green: #4ade80;
+      --blue: #60a5fa;
+      --amber: #fbbf24;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 85% 5%, rgba(96,165,250,.15), transparent 32rem),
+        radial-gradient(circle at 8% 30%, rgba(74,222,128,.1), transparent 28rem),
+        var(--bg);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: auto; padding: 44px 0 64px; }
+    h1 { max-width: 820px; margin: 17px 0 10px; font-size: clamp(2.25rem, 7vw, 4.8rem); line-height: .95; letter-spacing: -.05em; }
+    h2 { margin: 0 0 7px; font-size: 1.04rem; }
+    p { margin: 0; color: var(--muted); }
+    .eyebrow, .label, .state {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .eyebrow {
+      display: inline-flex;
+      padding: 7px 10px;
+      border: 1px solid rgba(74,222,128,.35);
+      border-radius: 999px;
+      color: var(--green);
+      background: rgba(74,222,128,.07);
+      font-size: .67rem;
+      font-weight: 700;
+    }
+    .lede { max-width: 760px; font-size: 1.02rem; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 30px 0; }
+    .metric, .card, .flow {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(29,36,48,.97), rgba(21,26,34,.97));
+    }
+    .metric { padding: 18px; min-height: 116px; }
+    .metric strong { display: block; margin: 2px 0 7px; font-size: 2rem; letter-spacing: -.04em; }
+    .metric small, .label { color: var(--muted); font-size: .64rem; }
+    .flow { padding: 22px; margin-bottom: 14px; overflow: hidden; }
+    .flow-row { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 14px; align-items: center; }
+    .node { min-height: 114px; padding: 16px; border: 1px solid var(--border); border-radius: 11px; background: rgba(10,13,18,.45); }
+    .node .state { display: inline-block; margin-bottom: 10px; color: var(--blue); font-size: .61rem; }
+    .arrow { color: var(--green); font-size: 1.4rem; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; }
+    .card { padding: 20px; }
+    .card .state { display: inline-block; margin-bottom: 11px; color: var(--green); font-size: .61rem; }
+    .card.guard .state { color: var(--amber); }
+    .proof { display: grid; grid-template-columns: 1.3fr .7fr; gap: 13px; margin-top: 14px; }
+    .checklist { display: grid; gap: 8px; margin-top: 14px; }
+    .check {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 9px;
+      padding: 9px 10px;
+      border: 1px solid rgba(42,52,67,.8);
+      border-radius: 9px;
+      background: rgba(10,13,18,.38);
+      color: var(--muted);
+      font-size: .79rem;
+    }
+    .check b { color: var(--green); }
+    .next { display: flex; flex-direction: column; justify-content: space-between; }
+    .pill {
+      align-self: flex-start;
+      margin-top: 20px;
+      padding: 9px 12px;
+      border: 1px solid rgba(96,165,250,.35);
+      border-radius: 999px;
+      color: var(--blue);
+      background: rgba(96,165,250,.08);
+      font-size: .72rem;
+    }
+    footer { margin-top: 18px; color: var(--muted); font-size: .7rem; }
+    @media (max-width: 860px) {
+      .metrics, .cards { grid-template-columns: 1fr 1fr; }
+      .flow-row { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); justify-self: center; }
+      .proof { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      main { width: min(100% - 22px, 1120px); padding-top: 26px; }
+      .metrics, .cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <span class="eyebrow">Search seam shipped · Slayer-ready</span>
+  <h1>One search language for every crowded catalog.</h1>
+  <p class="lede">Shop, Quests, and Combat now share the same dark-mode-safe search behavior while each page keeps control of its own data and rules. The seam is ready for Slayer assignment filtering without inventing task state before that runtime exists.</p>
+
+  <section class="metrics" aria-label="Closure metrics">
+    <div class="metric"><span class="label">Catalog surfaces</span><strong>3</strong><small>Shop · Quests · Combat</small></div>
+    <div class="metric"><span class="label">Core suite</span><strong>1,478</strong><small>All methods green</small></div>
+    <div class="metric"><span class="label">Real Qt suite</span><strong>1,478</strong><small>No failures or skips</small></div>
+    <div class="metric"><span class="label">Hard quality issues</span><strong>0</strong><small>71 test files audited</small></div>
+  </section>
+
+  <section class="flow">
+    <div class="flow-row">
+      <article class="node">
+        <span class="state">Shared chrome</span>
+        <h2>CatalogFilterBar</h2>
+        <p>Text entry, clear button, Escape handling, optional filter rows, and stable result counts.</p>
+      </article>
+      <span class="arrow">→</span>
+      <article class="node">
+        <span class="state">Page-owned meaning</span>
+        <h2>Metadata + predicates</h2>
+        <p>Each catalog decides what text is searchable and how its existing filters compose.</p>
+      </article>
+      <span class="arrow">→</span>
+      <article class="node">
+        <span class="state">Safe rendering</span>
+        <h2>Exact visible results</h2>
+        <p>Filtering cannot silently activate a missing row or mutate persisted gameplay selection.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="cards">
+    <article class="card">
+      <span class="state">Combat</span>
+      <h2>Targets stay exact</h2>
+      <p>Search covers target ids, labels, tooltips, and groups. Matches expand automatically; clearing restores the saved target.</p>
+    </article>
+    <article class="card">
+      <span class="state">Quests</span>
+      <h2>Filters truly compose</h2>
+      <p>Text search works alongside access, difficulty, length, timeline, completion, and start-eligibility filters.</p>
+    </article>
+    <article class="card">
+      <span class="state">Shop</span>
+      <h2>No semantic rewrite</h2>
+      <p>The existing source-backed shop search moved onto the shared component without changing result semantics.</p>
+    </article>
+  </section>
+
+  <section class="proof">
+    <article class="card">
+      <span class="state">Verification ledger</span>
+      <h2>Behavior, rendering, and repository health</h2>
+      <div class="checklist">
+        <div class="check"><b>✓</b><span>Full pure/core discovery: 1,478 tests passed.</span></div>
+        <div class="check"><b>✓</b><span>Full real offscreen Qt discovery: 1,478 tests passed.</span></div>
+        <div class="check"><b>✓</b><span>Focused Combat, Quest, and Shop interactions passed.</span></div>
+        <div class="check"><b>✓</b><span>Visual offscreen renders checked at the actual menu width.</span></div>
+        <div class="check"><b>✓</b><span>Compilation, docs, test quality, diff, and worktree gates passed.</span></div>
+      </div>
+    </article>
+    <article class="card guard next">
+      <div>
+        <span class="state">Deliberate boundary</span>
+        <h2>No fake Slayer toggle</h2>
+        <p>“Current Slayer task only” remains absent until assignment state is real. The reusable seam is finished; the gameplay predicate will land atomically with Slayer runtime.</p>
+      </div>
+      <span class="pill">Next: missing Slayer combat families</span>
+    </article>
+  </section>
+
+  <footer>Direct-main checkpoint · Concurrent changes preserved · No push</footer>
+</main>
+</body>
+</html>

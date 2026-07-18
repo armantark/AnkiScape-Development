@@ -1259,6 +1259,90 @@ if HAS_QT:
     _HUD_BG = "rgba(20, 20, 20, 180)"
     _HUD_BORDER = "rgba(255, 255, 255, 60)"
 
+    class CatalogFilterBar(QWidget):
+        """Shared search/filter chrome for catalog-like pages.
+
+        Pages retain ownership of searchable metadata and filter predicates.
+        This widget standardizes text entry, clear/Escape behavior, optional
+        page filters, and the visible/total summary without knowing what a row
+        means or how a result is rendered.
+        """
+
+        def __init__(
+            self,
+            *,
+            placeholder: str,
+            search_object_name: str,
+            parent=None,
+        ):
+            super().__init__(parent)
+            self.setObjectName(f"{search_object_name}Bar")
+            root = QVBoxLayout(self)
+            root.setContentsMargins(0, 0, 0, 0)
+            root.setSpacing(6)
+
+            search_row = QHBoxLayout()
+            search_row.setContentsMargins(0, 0, 0, 0)
+            search_row.setSpacing(8)
+
+            self.search_input = QLineEdit()
+            self.search_input.setObjectName(search_object_name)
+            self.search_input.setPlaceholderText(placeholder)
+            self.search_input.setClearButtonEnabled(True)
+            self.search_input.setStyleSheet(
+                "QLineEdit { padding: 7px 10px; border: 1px solid palette(mid);"
+                " border-radius: 8px; color: palette(text); background: palette(base); }"
+            )
+            self.search_input.installEventFilter(self)
+            search_row.addWidget(self.search_input, 1)
+
+            self.summary_label = QLabel("")
+            self.summary_label.setObjectName(f"{search_object_name}Summary")
+            self.summary_label.setStyleSheet(f"color: {dim_text_css(self.summary_label)};")
+            search_row.addWidget(self.summary_label)
+            root.addLayout(search_row)
+
+            self.filter_row = QWidget()
+            self.filter_layout = QHBoxLayout(self.filter_row)
+            self.filter_layout.setContentsMargins(0, 0, 0, 0)
+            self.filter_layout.setSpacing(8)
+            self.filter_row.setVisible(False)
+            root.addWidget(self.filter_row)
+
+        def eventFilter(self, watched, event):  # type: ignore[no-untyped-def]
+            if (
+                watched is self.search_input
+                and event.type() == QEvent.Type.KeyPress
+                and event.key() == Qt.Key.Key_Escape
+                and self.search_input.text()
+            ):
+                self.search_input.clear()
+                event.accept()
+                return True
+            return super().eventFilter(watched, event)
+
+        def add_filter(self, widget: QWidget, label: str = "") -> None:
+            self.filter_row.setVisible(True)
+            if label:
+                label_widget = QLabel(label)
+                label_widget.setStyleSheet(f"color: {dim_text_css(label_widget)};")
+                self.filter_layout.addWidget(label_widget)
+            self.filter_layout.addWidget(widget)
+
+        def query(self) -> str:
+            return self.search_input.text().strip().casefold()
+
+        def matches_text(self, *values: object) -> bool:
+            query = self.query()
+            if not query:
+                return True
+            searchable = " ".join(str(value) for value in values if value is not None).casefold()
+            return all(token in searchable for token in query.split())
+
+        def set_count(self, visible: int, total: int) -> None:
+            self.summary_label.setText(f"Showing {int(visible)}/{int(total)}")
+            self.summary_label.setMinimumWidth(self.summary_label.sizeHint().width())
+
     class ReviewHUD(QWidget):
         """A compact overlay shown on the review screen (lower center).
         Displays current skill (icon + name), level, and progress to next level.
@@ -4585,6 +4669,12 @@ def show_main_menu(
 
         layout.addWidget(_build_combat_skill_bars())
 
+        filter_bar = CatalogFilterBar(
+            placeholder="Search combat targets",
+            search_object_name="combatTargetSearchInput",
+        )
+        layout.addWidget(filter_bar)
+
         combat_images = _item_asset_paths()
         combat_rows = combat_target_rows(
             player_data,
@@ -4607,15 +4697,57 @@ def show_main_menu(
             )
             return answer == QMessageBox.StandardButton.Yes
 
-        tree = _build_grouped_target_tree(
-            combat_rows,
-            {group: group for group in COMBAT_TARGET_GROUP_ORDER},
-            "__combat_group__:",
-            on_set_combat,
-            confirm_select=_confirm_combat_target,
-            group_order=list(COMBAT_TARGET_GROUP_ORDER),
+        tree_host = QWidget()
+        tree_layout = QVBoxLayout(tree_host)
+        tree_layout.setContentsMargins(0, 0, 0, 0)
+        tree_layout.setSpacing(0)
+        live_tree = {"widget": None}
+
+        def _render_combat_targets() -> None:
+            previous = live_tree["widget"]
+            if previous is not None:
+                tree_layout.removeWidget(previous)
+                previous.setParent(None)
+                previous.deleteLater()
+
+            filtered_rows = tuple(
+                row
+                for row in combat_rows
+                if filter_bar.matches_text(
+                    row.target_id,
+                    row.label,
+                    row.tooltip,
+                    row.group,
+                )
+            )
+            tree = _build_grouped_target_tree(
+                filtered_rows,
+                {group: group for group in COMBAT_TARGET_GROUP_ORDER},
+                "__combat_group__:",
+                on_set_combat,
+                confirm_select=_confirm_combat_target,
+                group_order=list(COMBAT_TARGET_GROUP_ORDER),
+                expanded_groups=(
+                    {row.group or "other" for row in filtered_rows}
+                    if filter_bar.query()
+                    else None
+                ),
+            )
+            tree.setObjectName("combatTargetTree")
+            if not filtered_rows:
+                empty = QTreeWidgetItem(["No combat targets match this search."])
+                empty.setFlags(Qt.ItemFlag.NoItemFlags)
+                empty.setForeground(0, dim_text_color(tree))
+                tree.addTopLevelItem(empty)
+            filter_bar.set_count(len(filtered_rows), len(combat_rows))
+            tree_layout.addWidget(tree)
+            live_tree["widget"] = tree
+
+        filter_bar.search_input.textChanged.connect(
+            lambda _text="": _render_combat_targets()
         )
-        layout.addWidget(tree, 1)
+        _render_combat_targets()
+        layout.addWidget(tree_host, 1)
         return container
 
     def _build_utility_list() -> QTreeWidget:
@@ -5296,15 +5428,13 @@ def show_main_menu(
     shop_layout.setContentsMargins(12, 12, 12, 12)
     shop_layout.setSpacing(8)
 
-    shop_search = QLineEdit()
-    shop_search.setObjectName("shopSearchInput")
-    shop_search.setPlaceholderText("Search shops or items")
-    shop_search.setClearButtonEnabled(True)
-    shop_search.setStyleSheet(
-        "QLineEdit { padding: 7px 10px; border: 1px solid palette(mid);"
-        " border-radius: 8px; color: palette(text); background: palette(base); }"
+    shop_filter_bar = CatalogFilterBar(
+        placeholder="Search shops or items",
+        search_object_name="shopSearchInput",
     )
-    shop_layout.addWidget(shop_search)
+    shop_filter_bar.summary_label.setVisible(False)
+    shop_search = shop_filter_bar.search_input
+    shop_layout.addWidget(shop_filter_bar)
 
     shop_selector = QListWidget()
     shop_selector.setObjectName("shopSelectionList")
@@ -6385,10 +6515,11 @@ def show_main_menu(
     }
     timeline_order = {"Fifth Age": 0, "Ambiguous": 1, "Sixth Age": 2}
 
-    quest_filter_row = QWidget()
-    quest_filter_layout = QHBoxLayout(quest_filter_row)
-    quest_filter_layout.setContentsMargins(0, 0, 0, 0)
-    quest_filter_layout.setSpacing(8)
+    quest_filter_bar = CatalogFilterBar(
+        placeholder="Search quests",
+        search_object_name="questSearchInput",
+    )
+    quest_search = quest_filter_bar.search_input
 
     hide_completed_cb = QCheckBox("Hide completed")
     hide_completed_cb.setObjectName("questHideCompletedCheck")
@@ -6411,28 +6542,17 @@ def show_main_menu(
     timeline_filter_combo.setObjectName("questTimelineFilterCombo")
     timeline_filter_combo.addItems(("All timelines", *timeline_order.keys()))
 
-    quest_filter_summary = QLabel("")
-    quest_filter_summary.setObjectName("questFilterSummaryLabel")
-    quest_filter_summary.setStyleSheet(f"color: {dim_text_css(quest_filter_summary)};")
-
-    def _quest_filter_label(text: str) -> QLabel:
-        label = QLabel(text)
-        label.setStyleSheet(f"color: {dim_text_css(label)};")
-        return label
-
-    quest_filter_layout.addWidget(hide_completed_cb)
-    quest_filter_layout.addWidget(hide_locked_cb)
+    quest_filter_bar.summary_label.setObjectName("questFilterSummaryLabel")
+    quest_filter_bar.add_filter(hide_completed_cb)
+    quest_filter_bar.add_filter(hide_locked_cb)
     for label_text, combo in (
         ("Access", access_filter_combo),
         ("Difficulty", difficulty_filter_combo),
         ("Length", length_filter_combo),
         ("Timeline", timeline_filter_combo),
     ):
-        quest_filter_layout.addWidget(_quest_filter_label(label_text))
-        quest_filter_layout.addWidget(combo)
-    quest_filter_layout.addStretch(1)
-    quest_filter_layout.addWidget(quest_filter_summary)
-    q_layout.addWidget(quest_filter_row)
+        quest_filter_bar.add_filter(combo, label_text)
+    q_layout.addWidget(quest_filter_bar)
 
     quest_scroll = QScrollArea()
     quest_scroll.setWidgetResizable(True)
@@ -6526,6 +6646,14 @@ def show_main_menu(
         return "Requires: " + ", ".join(shown)
 
     def _quest_matches_filters(quest_id: str, quest: dict) -> bool:
+        if not quest_filter_bar.matches_text(
+            quest_id,
+            quest.get("display_name", ""),
+            quest.get("start_point", ""),
+            quest.get("requirements", ()),
+            quest.get("unlocks", ()),
+        ):
+            return False
         availability = quest_availability_state_pure(player_data, quest_id, QUEST_DATA)
         if hide_completed_cb.isChecked() and availability == "completed":
             return False
@@ -6741,10 +6869,11 @@ def show_main_menu(
             empty_label.setWordWrap(True)
             empty_label.setStyleSheet(f"color: {dim_text_css(empty_label)};")
             quest_content_layout.addWidget(empty_label)
-        quest_filter_summary.setText(f"Showing {visible_count}/{len(QUEST_DATA)}")
+        quest_filter_bar.set_count(visible_count, len(QUEST_DATA))
         quest_content_layout.addStretch(1)
 
     quest_sort_combo.currentTextChanged.connect(lambda _text: _rebuild_quest_cards())
+    quest_search.textChanged.connect(lambda _text: _rebuild_quest_cards())
     hide_completed_cb.toggled.connect(lambda _checked: _rebuild_quest_cards())
     hide_locked_cb.toggled.connect(lambda _checked: _rebuild_quest_cards())
     for combo in (access_filter_combo, difficulty_filter_combo, length_filter_combo, timeline_filter_combo):

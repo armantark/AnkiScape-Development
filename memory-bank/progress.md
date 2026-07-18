@@ -4,6 +4,29 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Shared catalog search seam — 2026-07-17
+
+- Added one reusable `CatalogFilterBar` for Shop, Quests, Combat, and future
+  large catalog surfaces. Pages own their metadata and predicates; the shared
+  widget owns dark-mode-safe search chrome, clear/Escape behavior, optional
+  filter placement, and count summaries.
+- Added live Combat text search over exact target ids, labels, tooltips, and
+  groups. Filtering preserves the persisted target, expands matching groups,
+  restores the current row after clear, and renders an inert empty state.
+- Added Quest text search that composes with access, difficulty, length,
+  timeline, completion, and start-eligibility filters. Migrated Shop's existing
+  source-backed search input onto the same component without changing backend
+  result semantics.
+- Kept `Current Slayer task only` out until real assignment state lands; no
+  disabled placeholder or invented task state is exposed.
+- Verification passes all 1,478 pure/core methods and all 1,478 real offscreen
+  Qt methods with no failures or skips, plus focused interaction checks, visual
+  offscreen rendering, test-quality, documentation, compilation, and
+  worktree-safety gates.
+- Published
+  `status-updates/slayer-search-seam-results-2026-07-17.html` and its mobile-safe
+  copy at <https://s1kaasu9wfmq.postplan.dev>.
+
 ## Live cadence activation — 2026-07-17
 
 - Made the `R = 1000` cadence kernel default-on with an explicit boolean-false
