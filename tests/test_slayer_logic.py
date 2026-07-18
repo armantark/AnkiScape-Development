@@ -71,13 +71,10 @@ class SlayerAssignmentDataTest(unittest.TestCase):
         self.assertFalse(readiness["certified"])
         self.assertFalse(readiness["runtime_enabled"])
         self.assertEqual(readiness["family_count"], 27)
-        self.assertEqual(readiness["ready_family_count"], 25)
+        self.assertEqual(readiness["ready_family_count"], 26)
         self.assertEqual(
             set(readiness["blockers"]),
-            {
-                "cyclopes:combat_target",
-                "mogres:combat_target",
-            },
+            {"mogres:combat_target"},
         )
         self.assertNotIn("hobgoblins:slayer_xp", readiness["blockers"])
         self.assertEqual(

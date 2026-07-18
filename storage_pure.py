@@ -64,6 +64,10 @@ try:
     from .slayer_logic import sanitize_slayer_state_pure
     from .thieving_data import THIEVING_TARGETS
     from .agility_logic import default_agility_state_pure, sanitize_agility_state_pure
+    from .warriors_guild_logic import (
+        default_warriors_guild_state_pure,
+        sanitize_warriors_guild_state_pure,
+    )
     from .woodcutting_data import (
         DEFAULT_WOODCUTTING_TOOLBELT,
         LEGACY_LOG_STORAGE_MIGRATIONS,
@@ -131,6 +135,10 @@ except ImportError:
     from slayer_logic import sanitize_slayer_state_pure
     from thieving_data import THIEVING_TARGETS
     from agility_logic import default_agility_state_pure, sanitize_agility_state_pure
+    from warriors_guild_logic import (  # type: ignore
+        default_warriors_guild_state_pure,
+        sanitize_warriors_guild_state_pure,
+    )
     from woodcutting_data import (
         DEFAULT_WOODCUTTING_TOOLBELT,
         LEGACY_LOG_STORAGE_MIGRATIONS,
@@ -359,6 +367,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_shop_state_pure())
     data.update(default_farming_state_pure())
     data.update(default_agility_state_pure())
+    data["warriors_guild"] = default_warriors_guild_state_pure()
     data["current_summoning"] = DEFAULT_SUMMONING_TARGET
     data["summoning_state"] = default_summoning_state_pure()
     data["pet_auto_care"] = True
@@ -1121,6 +1130,9 @@ def migrate_loaded_data(
     data["summoning_state"] = sanitize_summoning_state_pure(
         data.get("summoning_state"),
         summoning_level=data.get("summoning_level", 1),
+    )
+    data["warriors_guild"] = sanitize_warriors_guild_state_pure(
+        data.get("warriors_guild")
     )
     data["pet_auto_care"] = bool(data.get("pet_auto_care", True))
     data.update(sanitize_slayer_state_pure(data))

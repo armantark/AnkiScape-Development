@@ -29,6 +29,17 @@ except ImportError:
     from skill_registry import get_skill, trainable_skill_definitions
 
 try:
+    from .warriors_guild_logic import (
+        warriors_guild_cyclops_damage_multiplier_pure,
+        warriors_guild_cyclops_locked_reasons_pure,
+    )
+except ImportError:
+    from warriors_guild_logic import (  # type: ignore
+        warriors_guild_cyclops_damage_multiplier_pure,
+        warriors_guild_cyclops_locked_reasons_pure,
+    )
+
+try:
     from .potion_data import POTION_FAMILIES, potion_dose_name, potion_flask_name
 except ImportError:
     from potion_data import POTION_FAMILIES, potion_dose_name, potion_flask_name
@@ -3490,11 +3501,23 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
             f"{hazard.get('display_name', 'Environmental hazard')}: "
             "filled Waterskin",
         )
+    if enemy.get("warriors_guild_gate"):
+        guild_locked = warriors_guild_cyclops_locked_reasons_pure(
+            player_data,
+            str(enemy.get("warriors_guild_target", target_id)),
+        )
+        if guild_locked:
+            return guild_locked
     style_id = combat_attack_style_for_equipment_pure(player_data, equipment_data)
     style = style_data.get(style_id)
     if not isinstance(style, Mapping):
         return ("invalid attack style",)
     combat_class = style.get("combat_class")
+    allowed_classes = tuple(enemy.get("allowed_combat_classes", ()) or ())
+    if allowed_classes and combat_class not in allowed_classes:
+        return (
+            "Melee only inside the Warriors' Guild Cyclops room",
+        )
     if combat_class == "melee":
         return tuple()
     if combat_class == "ranged":
@@ -6174,6 +6197,10 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
             _combat_effective_player_strength_level(player_data, style_id),
             _equipment_bonus_value(player_totals, "melee_strength"),
         )
+    if enemy.get("warriors_guild_gate"):
+        player_max_hit *= warriors_guild_cyclops_damage_multiplier_pure(
+            player_data
+        )
     enemy_max_hit = _combat_enemy_max_hit_old_hp(
         enemy,
         _positive_int(enemy.get("stats", {}).get("strength", 1), 1) + 8,
@@ -6766,6 +6793,8 @@ def apply_combat_burst_pure(
             _combat_effective_player_strength_level(data, style_id) * float(prayer_effects.get("strength", 1.0)),
             _equipment_bonus_value(player_totals, "melee_strength"),
         )
+    if enemy.get("warriors_guild_gate"):
+        player_max_hit *= warriors_guild_cyclops_damage_multiplier_pure(data)
     player_accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
 
     # The enemy attacks with ITS style: a mage's accuracy comes off its magic

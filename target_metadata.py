@@ -89,6 +89,17 @@ except ImportError:
     from agility_logic import agility_target_locked_reasons_pure  # type: ignore
 
 try:
+    from .warriors_guild_logic import (
+        sanitize_warriors_guild_state_pure,
+        warriors_guild_activity_locked_reasons_pure,
+    )
+except ImportError:
+    from warriors_guild_logic import (  # type: ignore
+        sanitize_warriors_guild_state_pure,
+        warriors_guild_activity_locked_reasons_pure,
+    )
+
+try:
     from .summoning_logic import (
         summoning_action_locked_reasons_pure,
         summoning_action_requirements_pure,
@@ -1423,6 +1434,15 @@ def combat_target_rows(
     for target_id, enemy in combat_enemy_data.items():
         if enemy.get("encounter_only") and encounter_target != target_id:
             continue
+        if enemy.get("warriors_guild_spawn_only"):
+            guild_state = sanitize_warriors_guild_state_pure(
+                player_data.get("warriors_guild")
+            )
+            if (
+                not guild_state["cyclossus_pending"]
+                and current_target != target_id
+            ):
+                continue
         display_name = str(enemy.get("display_name", target_id))
         level = int(enemy.get("level", 1) or 1)
         attack_style = str(enemy.get("attack_style", "melee") or "melee")
@@ -1596,7 +1616,26 @@ def utility_activity_rows(
         icon_path = activity_icon if isinstance(activity_icon, str) and activity_icon else None
         openable_items = spec.get("openable_items")
 
-        if openable_items:
+        if spec.get("warriors_guild_activity"):
+            state = sanitize_warriors_guild_state_pure(
+                player_data.get("warriors_guild")
+            )
+            token_key = str(spec.get("token_key", ""))
+            token_count = int(state["tokens"].get(token_key, 0) or 0)
+            locked_reasons = warriors_guild_activity_locked_reasons_pure(
+                player_data,
+                activity_key,
+            )
+            enabled = not locked_reasons or state["automation_mode"] == "casual"
+            tooltip = (
+                f"{spec.get('summary', label)}\n"
+                f"{token_key.title()} tokens: {token_count}\n"
+                "Casual rotates automatically; Advanced runs this exact activity.\n"
+                f"Source: {spec.get('source', '')}"
+            )
+            if locked_reasons:
+                tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
+        elif openable_items:
             have_nests = sum(inventory.get(nest, 0) for nest in openable_items)
             tooltip = (
                 f"Opens up to {batch_size} bird nests per successful card. No XP.\n"

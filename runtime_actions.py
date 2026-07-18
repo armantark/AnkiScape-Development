@@ -195,6 +195,15 @@ try:
         summoning_action_requirements_pure,
     )
     from .slayer_logic import apply_slayer_kills_pure
+    from .warriors_guild_data import WARRIORS_GUILD_ACTIVITIES
+    from .warriors_guild_logic import (
+        apply_warriors_guild_activity_pure,
+        apply_warriors_guild_cyclops_kills_pure,
+        apply_warriors_guild_cyclossus_kills_pure,
+        consume_warriors_guild_cyclops_tokens_pure,
+        sanitize_warriors_guild_state_pure,
+        warriors_guild_activity_locked_reasons_pure,
+    )
 except ImportError:  # pragma: no cover - flat import path used by tests
     from constants import (  # type: ignore
         BIRD_NEST_DROP_CHANCE,
@@ -377,6 +386,15 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         summoning_action_requirements_pure,
     )
     from slayer_logic import apply_slayer_kills_pure  # type: ignore
+    from warriors_guild_data import WARRIORS_GUILD_ACTIVITIES  # type: ignore
+    from warriors_guild_logic import (  # type: ignore
+        apply_warriors_guild_activity_pure,
+        apply_warriors_guild_cyclops_kills_pure,
+        apply_warriors_guild_cyclossus_kills_pure,
+        consume_warriors_guild_cyclops_tokens_pure,
+        sanitize_warriors_guild_state_pure,
+        warriors_guild_activity_locked_reasons_pure,
+    )
 
 try:
     from . import inventory_pure
@@ -1539,6 +1557,62 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_error_message("Combat unavailable", f"Combat has been switched off because {reason_text}.")
         return False
 
+    guild_result = {}
+    if (
+        target_id in {"cyclops", "cyclossus"}
+        and result.get("reason") == "combat_burst"
+    ):
+        payment_state = sanitize_warriors_guild_state_pure(
+            new_data.get("warriors_guild")
+        )
+        new_data, token_result = consume_warriors_guild_cyclops_tokens_pure(
+            new_data,
+            int(result.get("ticks_elapsed", 0) or 0),
+        )
+        if target_id == "cyclops":
+            new_data, defender_result = apply_warriors_guild_cyclops_kills_pure(
+                new_data,
+                int(result.get("kills", 0) or 0),
+                ctx.random_random,
+            )
+            if defender_result.get("cyclossus_spawned"):
+                new_data["current_combat_target"] = "cyclossus"
+        else:
+            new_data, defender_result = apply_warriors_guild_cyclossus_kills_pure(
+                new_data,
+                int(result.get("kills", 0) or 0),
+            )
+            if defender_result.get("cleared"):
+                new_data["current_combat_target"] = "cyclops"
+        guild_result = {
+            "tokens": token_result,
+            "defenders": defender_result,
+        }
+        if payment_state["payment_mode"] == "multi" and int(result.get("kills", 0) or 0) > 0:
+            extra_bones = int(result.get("kills", 0) or 0)
+            inventory = dict(new_data.get("inventory", {}) or {})
+            inventory["Big bones"] = int(inventory.get("Big bones", 0) or 0) + extra_bones
+            new_data["inventory"] = inventory
+            result_drops = dict(result.get("drops", {}) or {})
+            result_drops["Big bones"] = int(result_drops.get("Big bones", 0) or 0) + extra_bones
+            result["drops"] = result_drops
+        defender_drops = dict(defender_result.get("drops", {}) or {})
+        if defender_drops:
+            result_drops = dict(result.get("drops", {}) or {})
+            for item_name, amount in defender_drops.items():
+                result_drops[item_name] = int(result_drops.get(item_name, 0) or 0) + int(amount)
+            result["drops"] = result_drops
+        if result.get("died") or result.get("fled"):
+            guild_state = sanitize_warriors_guild_state_pure(
+                new_data.get("warriors_guild")
+            )
+            guild_state["in_cyclops_room"] = False
+            guild_state["cyclossus_pending"] = False
+            guild_state["token_drain_residual"] = 0
+            new_data["warriors_guild"] = guild_state
+            new_data["current_combat_target"] = "cyclops"
+        result["warriors_guild"] = guild_result
+
     new_data, slayer_result = apply_slayer_kills_pure(
         new_data,
         target_id=str(result.get("target_id", target_id)),
@@ -1560,7 +1634,14 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     # it again; stackables, coins, and unknown-value items are kept.
     if drops:
         threshold = player_data.get("loot_value_threshold", inventory_pure.DEFAULT_LOOT_VALUE_THRESHOLD)
-        overrides = player_data.get("loot_overrides")
+        overrides = dict(player_data.get("loot_overrides") or {})
+        if target_id in {"cyclops", "cyclossus"}:
+            for item_name in (
+                guild_result.get("defenders", {}).get("drops", {})
+                if isinstance(guild_result, dict)
+                else {}
+            ):
+                overrides[str(item_name)] = "keep"
         drops, left = inventory_pure.filter_loot_pure(
             drops, ITEM_VALUES, threshold, STACKABLE_ITEM_NAMES, overrides
         )
@@ -1647,7 +1728,30 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
                 if slayer_result.get("completed")
                 else f" · {int(slayer_result.get('remaining', 0) or 0)} Slayer kills left"
             )
-        ctx.show_activity_gain(f"Defeated {kill_phrase}{slayer_suffix}")
+        guild_suffix = ""
+        defender_drops = (
+            guild_result.get("defenders", {}).get("drops", {})
+            if isinstance(guild_result, dict)
+            else {}
+        )
+        if defender_drops:
+            guild_suffix += " · " + ", ".join(
+                f"{amount} × {item_name}"
+                for item_name, amount in defender_drops.items()
+            )
+        if (
+            isinstance(guild_result, dict)
+            and guild_result.get("defenders", {}).get("cyclossus_spawned")
+        ):
+            guild_suffix += " · a Cyclossus appeared"
+        if (
+            isinstance(guild_result, dict)
+            and guild_result.get("tokens", {}).get("ejected")
+        ):
+            guild_suffix += " · tokens depleted; left the Cyclops room"
+        ctx.show_activity_gain(
+            f"Defeated {kill_phrase}{slayer_suffix}{guild_suffix}"
+        )
     else:
         enemy_healing = int(result.get("enemy_healing", 0) or 0)
         vampyre_bites = int(result.get("vampyre_bites", 0) or 0)
@@ -1877,6 +1981,91 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_mage_arena_answer(ctx)
     if str(activity_key).startswith(MAGE_ARENA_ATTUNE_PREFIX):
         return _handle_mage_arena_attunement_answer(ctx, str(activity_key))
+    if activity_key in WARRIORS_GUILD_ACTIVITIES:
+        selected = (
+            activity_key
+            if activity_key in WARRIORS_GUILD_ACTIVITIES
+            else ""
+        )
+        locked = warriors_guild_activity_locked_reasons_pure(
+            player_data,
+            selected,
+        )
+        mode = sanitize_warriors_guild_state_pure(
+            player_data.get("warriors_guild")
+        )["automation_mode"]
+        if locked and mode == "advanced":
+            ctx.deactivate_current_skill()
+            ctx.show_error_message(
+                "Warriors' Guild activity locked",
+                f"{WARRIORS_GUILD_ACTIVITIES[selected]['display_name']} requires {', '.join(locked)}.",
+            )
+            return False
+        updated, ok, result = apply_warriors_guild_activity_pure(
+            player_data,
+            selected,
+            (ctx.random_random(), ctx.random_random()),
+        )
+        if not ok:
+            ctx.deactivate_current_skill()
+            ctx.show_error_message(
+                "Warriors' Guild activity locked",
+                str(result.get("reason", "No activity is available.")),
+            )
+            return False
+        xp_rewards = dict(result.get("xp_rewards", {}) or {})
+        for exp_key, amount in xp_rewards.items():
+            updated[exp_key] = float(updated.get(exp_key, 0.0) or 0.0) + float(amount)
+        player_data.clear()
+        player_data.update(updated)
+        damage_result = {"damage": 0, "died": False, "food_used": None}
+        if int(result.get("damage", 0) or 0) > 0:
+            damaged, damage_result = apply_thieving_damage_pure(
+                player_data,
+                int(result["damage"]),
+                source="warriors_guild_failure",
+            )
+            player_data.clear()
+            player_data.update(damaged)
+        _record_action(
+            ctx,
+            "utility",
+            str(result["activity_id"]),
+            bool(result.get("success")),
+            expected_success_chance=1.0,
+            failure_kind="activity_failure" if not result.get("success") else "",
+        )
+        _refresh_combat_levels(ctx, xp_rewards)
+        ctx.check_achievements(player_data)
+        ctx.save_player_data()
+        ctx.refresh_skill_availability()
+        if damage_result.get("died"):
+            ctx.deactivate_current_skill()
+            ctx.show_activity_gain(
+                f"☠ YOU DIED — {result['display_name']} failure"
+            )
+            return True
+        if result.get("success"):
+            armour = (
+                f" · {result['armour_tier']} suit"
+                if result.get("armour_tier")
+                else ""
+            )
+            loss = (
+                f" · lost {result['lost_item']}"
+                if result.get("lost_item")
+                else ""
+            )
+            ctx.show_activity_gain(
+                f"{result['display_name']}: +{int(result['token_gain'])} "
+                f"{result['token_key']} tokens{armour}{loss}"
+            )
+        else:
+            ctx.show_activity_gain(
+                f"{result['display_name']} failed — "
+                f"{int(damage_result.get('damage', 0) or 0)} LP damage"
+            )
+        return True
     if activity_key not in UTILITY_ACTIVITY_DATA:
         activity_key = DEFAULT_UTILITY_ACTIVITY
         player_data["current_utility"] = activity_key

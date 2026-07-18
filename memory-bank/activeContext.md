@@ -2,6 +2,26 @@
 
 ## Current Focus
 
+Warriors' Guild is now live as the honest executable boundary for
+Mazchna/Achtryn's Cyclopes family. Five Utility activities feed five persistent
+token balances; Casual auto-balances or falls back to the fastest viable
+single-token route, while Advanced exposes exact activity and room-payment
+selection. The Cyclops room preserves entry and residual-based drain, melee
+restriction, multi-token benefits, progressive defender drops, explicit
+Kamfreena showing, and recovery from the best retained defender. A sourced
+Cyclossus can now interrupt the loop after Rune is shown, requires a worn Rune
+or Dragon defender, and carries its own combat/drop/helmet surface. The compact
+Qt panel and all activity, enemy, defender, and helmet assets are checked in.
+`tools/audit_slayer_readiness.py` now reports Mazchna/Achtryn at 26/27 with
+only Mogres blocked by the Darkan-owned `skippy_and_the_mogres` quest
+dependency; the partial master remains hidden. Undocumented rates are labeled
+bounded abstractions, and no owner design fork emerged. Durable evidence is
+`source-audits/warriors-guild-live-implementation-2026-07-18.md`. Full core
+and real offscreen Qt discovery each pass all 1,592 tests, and the equipment
+registry reproduces from its generator. The visual closure report is
+`status-updates/warriors-guild-results-2026-07-18.html`
+(<https://h9vvkp6arl98.postplan.dev>).
+
 The ordinary level-85 Kalphite Soldier is now an executable Slayer Combat
 target, closing Mazchna/Achtryn's Kalphites family. It preserves 900 LP, 90
 Slayer XP, the period six-tick melee attack, the approximate 80-LP maximum hit,

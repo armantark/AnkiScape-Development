@@ -186,6 +186,16 @@ QUEST_EQUIPMENT_ITEMS: Tuple[Tuple[int, str], ...] = (
     (11235, "Dark bow"),
     (13277, "Masked earmuffs"),
 )
+WARRIORS_GUILD_DEFENDERS: Tuple[Tuple[str, int, int], ...] = (
+    ("Bronze defender", 8844, 1),
+    ("Iron defender", 8845, 1),
+    ("Steel defender", 8846, 5),
+    ("Black defender", 8847, 10),
+    ("Mithril defender", 8848, 20),
+    ("Adamant defender", 8849, 30),
+    ("Rune defender", 8850, 40),
+    ("Dragon defender", 20072, 60),
+)
 
 
 @dataclass(frozen=True)
@@ -816,6 +826,50 @@ def _quest_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedEq
     return tuple(generated)
 
 
+def _warriors_guild_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedEquipmentItem, ...]:
+    generated = []
+    for item_name, item_id, required_level in WARRIORS_GUILD_DEFENDERS:
+        source_item = items.get(item_id)
+        block = source_item.equipment if source_item is not None else None
+        if not _has_mappable_equipment_slot(block):
+            continue
+        generated.append(
+            GeneratedEquipmentItem(
+                item_name=item_name,
+                slot="shield",
+                combat_skill="attack",
+                required_level=required_level,
+                two_handed=False,
+                equipment_type="defender",
+                bonuses=_bonuses_from_block(block),
+                attack_speed=_int_from_block(block, "attack_speed", 4),
+                source_item_id=item_id,
+                source=(
+                    f"RuneScape Wiki Defenders oldid=6513277; "
+                    f"{ITEMS_YML_RELATIVE.as_posix()} item {item_id}"
+                ),
+                source_status="period exact requirements and equipment bonuses",
+                skill_requirements=(("attack", required_level), ("defense", required_level)),
+            )
+        )
+    generated.append(
+        GeneratedEquipmentItem(
+            item_name="Cyclopean helmet",
+            slot="head",
+            combat_skill=None,
+            required_level=1,
+            two_handed=False,
+            equipment_type="cosmetic",
+            bonuses={field: 0 for field in BONUS_FIELDS},
+            attack_speed=4,
+            source_item_id=20070,
+            source="RuneScape Wiki Cyclopean helmet oldid=5825578",
+            source_status="period exact cosmetic head slot and zero bonuses",
+        )
+    )
+    return tuple(generated)
+
+
 def _agility_equipment_items(
     items: Mapping[int, SourceItem],
     items_by_name: Mapping[str, SourceItem],
@@ -1089,6 +1143,7 @@ def generate(game_root: Path, output_path: Path) -> None:
         + tuple(_quest_equipment_items(items))
         + tuple(_stronghold_equipment_items(items))
         + tuple(_mage_arena_equipment_items(items))
+        + tuple(_warriors_guild_equipment_items(items))
         + tuple(_crafting_equipment_items(items, items_by_name))
         + tuple(_fletching_equipment_items(items, items_by_name))
         + tuple(_shop_equipment_items(items, items_by_name))

@@ -2277,6 +2277,155 @@ ICE_GIANT_DROPS = {
     ),
 }
 
+CYCLOPS_WARRIORS_GUILD_DROPS = {
+    "guaranteed": (("Big bones", 1),),
+    "tables": (
+        {
+            "name": "Tertiary",
+            "total": 100000,
+            "slots": (
+                {"item": "Long bone", "quantity": 1, "slots": 250},
+                {"item": "Curved bone", "quantity": 1, "slots": 20},
+                {"slots": 99730},
+            ),
+        },
+        *tuple(
+            {
+                "name": f"Darkan independent: {item_name}",
+                "total": total,
+                "slots": (
+                    {
+                        "item": item_name,
+                        **(
+                            {"quantity_range": quantity}
+                            if isinstance(quantity, tuple)
+                            else {"quantity": quantity}
+                        ),
+                        "slots": chance,
+                    },
+                    {"slots": total - chance},
+                ),
+            }
+            for item_name, quantity, chance, total in (
+                ("Limpwurt root", 1, 5597, 100000),
+                ("Black knife", (1, 4), 5597, 100000),
+                ("Coins", (1, 5), 5597, 100000),
+                ("Iron chainbody", 1, 5597, 100000),
+                ("Steel chainbody", 1, 5597, 100000),
+                ("Steel dagger", 1, 5597, 100000),
+                ("Black dagger", 1, 5597, 100000),
+                ("Steel sword", 1, 5597, 100000),
+                ("Black sword", 1, 5597, 100000),
+                ("Steel longsword", 1, 5597, 100000),
+                ("Black longsword", 1, 5597, 100000),
+                ("Iron 2h sword", 1, 5597, 100000),
+                ("Steel 2h sword", 1, 5597, 100000),
+                ("Steel battleaxe", 1, 5597, 100000),
+                ("Steel mace", 1, 5597, 100000),
+                ("Bones", 1, 777, 50000),
+                ("Iron full helm", 1, 777, 50000),
+                ("Iron kiteshield", 1, 777, 50000),
+                ("Mithril dagger", 1, 777, 50000),
+                ("Mithril longsword", 1, 777, 50000),
+                ("Black 2h sword", 1, 777, 50000),
+                ("Adamant mace", 1, 777, 50000),
+                ("Fire talisman", 1, 777, 50000),
+                ("Body talisman", 1, 777, 50000),
+                ("Grimy guam", 1, 37, 50000),
+                ("Grimy marrentill", 1, 37, 50000),
+                ("Grimy tarromin", 1, 37, 50000),
+                ("Grimy harralander", 1, 37, 50000),
+                ("Grimy ranarr", 1, 37, 50000),
+                ("Grimy irit", 1, 37, 50000),
+                ("Grimy avantoe", 1, 37, 50000),
+                ("Grimy kwuarm", 1, 37, 50000),
+                ("Grimy cadantine", 1, 37, 50000),
+                ("Grimy dwarf weed", 1, 37, 50000),
+                ("Fire rune", 15, 37, 50000),
+                ("Water rune", 7, 37, 50000),
+                ("Mind rune", (2, 3), 37, 50000),
+                ("Death rune", 2, 37, 50000),
+                ("Nature rune", (2, 3), 37, 50000),
+                ("Law rune", (2, 3), 37, 50000),
+                ("Cosmic rune", (2, 3), 37, 50000),
+                ("Steel arrows", 5, 37, 50000),
+                ("Mithril sq shield", 1, 37, 50000),
+                ("Adamant 2h sword", 1, 37, 50000),
+                ("Grimy lantadyme", 1, 37, 50000),
+                ("Cactus seed", 1, 37, 50000),
+                ("Cadantine seed", 1, 37, 50000),
+                ("Dwarf weed seed", 1, 37, 50000),
+                ("Spirit weed seed", 1, 37, 50000),
+                ("Bones", 1, 7, 100000),
+                ("Rune dagger", 1, 7, 100000),
+                ("Beer", 1, 7, 100000),
+                ("Limpwurt seed", 1, 7, 100000),
+                ("Jangerberry seed", 1, 7, 100000),
+                ("Whiteberry seed", 1, 7, 100000),
+                ("Belladonna seed", 1, 7, 100000),
+                ("Bittercap mushroom spore", 1, 7, 100000),
+                ("Marrentill seed", 1, 7, 100000),
+                ("Tarromin seed", 1, 7, 100000),
+                ("Harralander seed", 1, 7, 100000),
+                ("Ranarr seed", 1, 7, 100000),
+                ("Toadflax seed", 1, 7, 100000),
+                ("Irit seed", 1, 7, 100000),
+                ("Avantoe seed", 1, 7, 100000),
+                ("Snapdragon seed", 1, 7, 100000),
+                ("Lantadyme seed", 1, 7, 100000),
+                ("Yanillian seed", 2, 7, 100000),
+                ("Wildblood seed", 1, 7, 100000),
+                ("Potato seed", 1, 7, 100000),
+                ("Sweetcorn seed", 3, 7, 100000),
+                ("Watermelon seed", 1, 7, 100000),
+                ("Strawberry seed", 1, 7, 100000),
+                ("Cabbage seed", 4, 7, 100000),
+            )
+        ),
+    ),
+}
+
+CYCLOSSUS_WARRIORS_GUILD_DROPS = {
+    "guaranteed": (("Big bones", 1),),
+    "tables": tuple(
+        {
+            "name": f"Darkan independent: {item_name}",
+            "total": 100000,
+            "slots": (
+                {
+                    "item": item_name,
+                    **(
+                        {"quantity_range": quantity}
+                        if isinstance(quantity, tuple)
+                        else {"quantity": quantity}
+                    ),
+                    "slots": slots,
+                },
+                {"slots": 100000 - slots},
+            ),
+        }
+        for item_name, quantity, slots in (
+            ("Limpwurt root", 5, 11993),
+            ("Big bones", 2, 11993),
+            ("Coins", (1, 1901), 11993),
+            ("Adamant chainbody", 1, 11993),
+            ("Steel warhammer", 1, 11993),
+            ("Mithril warhammer", 1, 11993),
+            ("Cyclopean helmet", 1, 11993),
+            # The period page calls this common; Darkan omits the unique-drop
+            # handler, so its common-row weight is the closest executable proxy.
+            ("Dragon defender", 1, 11993),
+            ("Shark", 1, 777),
+            ("Adamantite ore", 1, 777),
+            ("Law rune", 45, 777),
+            ("Blood rune", (5, 18), 777),
+            ("Adamant plateskirt", 1, 777),
+            ("Mithril sq shield", 1, 777),
+            ("Adamant scimitar", 1, 777),
+        )
+    ),
+}
+
 
 DESERT_LIZARD_DROPS = {
     "guaranteed": (("Bones", 1),),
@@ -7458,6 +7607,102 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "empty slots; navigation-only unhelmeted grab excluded"
         ),
     },
+    "cyclops": {
+        "display_name": "Cyclops",
+        "level": 56,
+        "group": "Slayer",
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 64,
+        "slayer_xp": 75.0,
+        "allowed_combat_classes": ("melee",),
+        "warriors_guild_gate": True,
+        "stats": {
+            "hitpoints": 750,
+            "attack": 47,
+            "strength": 50,
+            "defence": 26,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": CYCLOPS_WARRIORS_GUILD_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Cyclops?oldid=6565802; "
+            "https://runescape.wiki/w/Warriors%27_Guild?oldid=6565080; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/cyclops/"
+            "cyclops_(56).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/cyclops_warrior_guild.json"
+        ),
+        "source_status": (
+            "period level, LP, maximum hit, melee-only Guild immunity, "
+            "Slayer XP and guaranteed Big bones; Darkan exact combat stats, "
+            "respawn and independent probability rows; defender drops are "
+            "resolved by the Warriors' Guild progression state"
+        ),
+    },
+    "cyclossus": {
+        "display_name": "Cyclossus",
+        "level": 156,
+        "group": "Slayer",
+        "attack_style": "melee",
+        "attack_speed": 7,
+        "respawn_delay": 59,
+        "max_hit": 94,
+        "slayer_xp": 350.0,
+        "allowed_combat_classes": ("melee",),
+        "warriors_guild_gate": True,
+        "warriors_guild_target": "cyclossus",
+        "warriors_guild_spawn_only": True,
+        "stats": {
+            "hitpoints": 3280,
+            "attack": 64,
+            "strength": 64,
+            "defence": 64,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": CYCLOSSUS_WARRIORS_GUILD_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Cyclossus?oldid=6510357; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "cyclossus (nostats) (noanims).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/cyclossus.json"
+        ),
+        "source_status": (
+            "period exact level, LP, maximum hit, speed, Slayer XP, defender "
+            "requirement, guaranteed Big bones and common unique rewards; "
+            "Darkan exact respawn and independent probability rows; its absent "
+            "combat stats are filled from the cache record; the spatial shove "
+            "and stun are compressed into the ordinary review combat exchange"
+        ),
+    },
     "vampyre": {
         "display_name": "Vampyre",
         "level": 61,
@@ -9285,6 +9530,35 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Coins": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COINS_995"},
     "Cowhide": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COWHIDE"},
     "Curved bone": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CURVED_BONE"},
+    **{
+        item_name: {
+            "category": "equipment",
+            "source": (
+                f"RuneScape Wiki Defenders oldid=6513277; "
+                f"Darkan cache item {item_id}"
+            ),
+            "source_item_id": item_id,
+            "stackable": False,
+            "tradeable": False,
+        }
+        for item_name, item_id in (
+            ("Bronze defender", 8844),
+            ("Iron defender", 8845),
+            ("Steel defender", 8846),
+            ("Black defender", 8847),
+            ("Mithril defender", 8848),
+            ("Adamant defender", 8849),
+            ("Rune defender", 8850),
+            ("Dragon defender", 20072),
+        )
+    },
+    "Cyclopean helmet": {
+        "category": "equipment",
+        "source": "RuneScape Wiki Cyclopean helmet oldid=5825578; Darkan cache item 20070",
+        "source_item_id": 20070,
+        "stackable": False,
+        "tradeable": True,
+    },
     "Damaged armour": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.DAMAGED_ARMOUR"},
     "Beer": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BEER"},
     "Dragon spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.DRAGON_SPEAR"},

@@ -121,6 +121,13 @@ from .summoning_logic import (
     summon_familiar_pure,
 )
 from .slayer_logic import get_slayer_assignment_pure
+from .warriors_guild_logic import (
+    enter_warriors_guild_cyclops_room_pure,
+    leave_warriors_guild_cyclops_room_pure,
+    sanitize_warriors_guild_state_pure,
+    set_warriors_guild_policy_pure,
+    show_warriors_guild_defender_pure,
+)
 from .pet_logic import (
     let_out_pet_pure,
     release_pet_pure,
@@ -1169,6 +1176,66 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             pass
         return {"ok": True, **result}
 
+    def _apply_warriors_guild_command(action_id, payload):
+        payload = payload if isinstance(payload, dict) else {}
+        if action_id == "set_policy":
+            updated, ok, info = set_warriors_guild_policy_pure(
+                player_data,
+                automation_mode=str(payload.get("automation_mode", "casual")),
+                payment_mode=str(payload.get("payment_mode", "multi")),
+                single_token=str(payload.get("single_token", "attack")),
+            )
+            if not ok:
+                return {
+                    "ok": False,
+                    "message": str(info.get("reason", "That policy is unavailable.")),
+                }
+            player_data.clear()
+            player_data.update(updated)
+            save_player_data()
+            return {"ok": True, **info}
+
+        before = {
+            "player_data": copy.deepcopy(player_data),
+            "random_state": random.getstate(),
+        }
+        if action_id == "enter_room":
+            updated, ok, info = enter_warriors_guild_cyclops_room_pure(
+                player_data
+            )
+        elif action_id == "leave_room":
+            updated, ok, info = leave_warriors_guild_cyclops_room_pure(
+                player_data
+            )
+        elif action_id == "show_defender":
+            updated, ok, info = show_warriors_guild_defender_pure(player_data)
+        else:
+            return {"ok": False, "message": "Unknown Warriors' Guild command."}
+        if not ok:
+            random.setstate(before["random_state"])
+            return {
+                "ok": False,
+                "message": str(info.get("reason", "That action is unavailable.")),
+            }
+        try:
+            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+        except (AttributeError, RuntimeError):
+            random.setstate(before["random_state"])
+            return {"ok": False, "message": "Anki could not create an undo entry."}
+        _DIRECT_ACTION_UNDO_STACK.append(before)
+        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+        player_data.clear()
+        player_data.update(updated)
+        save_player_data()
+        _refresh_skill_availability()
+        try:
+            mw.update_undo_actions()
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_summoning_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         info = {}
@@ -1325,6 +1392,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_summoning_command=_apply_summoning_command,
         on_slayer_command=_apply_slayer_command,
         on_agility_command=_apply_agility_command,
+        on_warriors_guild_command=_apply_warriors_guild_command,
         on_set_prayer_selection=set_prayer_selection,
         on_set_magic=lambda target: _set_value("current_magic", target),
         on_set_construction=lambda target: _set_value("current_construction", target),
@@ -1409,6 +1477,15 @@ def _set_combat_attack_style(selection):
 
 def _set_combat_target(target):
     player_data["combat_action"] = "attack"
+    if target not in {"cyclops", "cyclossus"}:
+        guild_state = sanitize_warriors_guild_state_pure(
+            player_data.get("warriors_guild")
+        )
+        if guild_state["in_cyclops_room"]:
+            guild_state["in_cyclops_room"] = False
+            guild_state["cyclossus_pending"] = False
+            guild_state["token_drain_residual"] = 0
+            player_data["warriors_guild"] = guild_state
     _set_value("current_combat_target", target)
 
 

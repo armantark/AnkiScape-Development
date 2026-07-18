@@ -59,6 +59,66 @@
     "source_wiki": "rs3",
     "timestamp": "2021-12-13T02:02:42Z"
   },
+  "activityicons/warriors_guild_animated_armour.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Animated_Bronze_Armour.png",
+    "file_title": "Animated Bronze Armour.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Animated_Bronze_Armour.png?47f5e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4043aefcacb0deb352598e2b49f6ba8cf389f8b5",
+    "size": 14945,
+    "source_wiki": "osrs",
+    "timestamp": "2019-05-02T03:02:41Z"
+  },
+  "activityicons/warriors_guild_attack_dummy.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Dummy.png",
+    "file_title": "Dummy.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Dummy.png?09db6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "cd97d730ab859d627b7a08856f1a15fa5d4a138a",
+    "size": 91072,
+    "source_wiki": "osrs",
+    "timestamp": "2021-04-28T14:15:38Z"
+  },
+  "activityicons/warriors_guild_catapult.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Defensive_shield.png",
+    "file_title": "Defensive shield.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Defensive_shield.png?6b57c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "97982a498b7671954237b9fa1c4fd685efd79e16",
+    "size": 597,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:38Z"
+  },
+  "activityicons/warriors_guild_keg_balance.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Keg.png",
+    "file_title": "Keg.png",
+    "image_url": "https://runescape.wiki/images/Keg.png?705cf",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2a64f366a69e7f42a80692bffc1d69f9dafdc285",
+    "size": 788,
+    "source_wiki": "rs3",
+    "timestamp": "2014-05-02T17:42:46Z"
+  },
+  "activityicons/warriors_guild_shot_put.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Shot.png",
+    "file_title": "Shot.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Shot.png?7db15",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6fc2ab1dc20fdc71292bc5051d0e2571ae6a5c00",
+    "size": 163597,
+    "source_wiki": "osrs",
+    "timestamp": "2024-08-27T11:52:29Z"
+  },
   "agilityitems/acrobat_hood.png": {
     "file_page_url": "https://runescape.wiki/w/File:Acrobat_hood_(male).png",
     "file_title": "Acrobat hood (male).png",
@@ -754,6 +814,30 @@
     "size": 16789,
     "source_wiki": "osrs",
     "timestamp": "2019-05-04T15:56:01Z"
+  },
+  "combatenemies/cyclops.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Cyclops.png",
+    "file_title": "Cyclops.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Cyclops.png?dd786",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bb4d7e854d0f420b5d3fe4c8a5b8e1fa31083050",
+    "size": 67193,
+    "source_wiki": "osrs",
+    "timestamp": "2019-04-03T23:59:29Z"
+  },
+  "combatenemies/cyclossus.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Cyclossus.png",
+    "file_title": "Cyclossus.png",
+    "image_url": "https://runescape.wiki/images/Cyclossus.png?fff7f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f3eff29af0e8a309b9d41cb8af8ffd1fce741578",
+    "size": 271518,
+    "source_wiki": "rs3",
+    "timestamp": "2017-02-06T15:11:35Z"
   },
   "combatenemies/deadly_red_spider.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Deadly_red_spider.png",
@@ -1871,6 +1955,18 @@
     "source_wiki": "rs3",
     "timestamp": "2024-07-15T23:59:23Z"
   },
+  "combatitems/adamant_defender.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Adamant_defender.png",
+    "file_title": "Adamant defender.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Adamant_defender.png?e3937",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c9ed11329a7e281610d3b3918054216fca17d887",
+    "size": 380,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:51:45Z"
+  },
   "combatitems/banana.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Banana.png",
     "file_title": "Banana.png",
@@ -1921,6 +2017,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:52:27Z"
   },
+  "combatitems/black_defender.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Black_defender.png",
+    "file_title": "Black defender.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Black_defender.png?0a33f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3b7aa99b305e500a11c31f80ed2c193a4d1f1d32",
+    "size": 221,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:52:30Z"
+  },
   "combatitems/blue_charm.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Blue_charm.png",
     "file_title": "Blue charm.png",
@@ -1942,6 +2050,18 @@
     "mime": "image/png",
     "sha1": "db3131aa319c1ef7013b79427486202e6d8bae12",
     "size": 559,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:53:59Z"
+  },
+  "combatitems/bronze_defender.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bronze_defender.png",
+    "file_title": "Bronze defender.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Bronze_defender.png?05d25",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b4fdd34633b565a88ad09044027625e361ceac12",
+    "size": 358,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:53:59Z"
   },
@@ -2089,6 +2209,18 @@
     "source_wiki": "rs3",
     "timestamp": "2023-02-02T06:10:09Z"
   },
+  "combatitems/cyclopean_helmet.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Cyclopean_helmet.png",
+    "file_title": "Cyclopean helmet.png",
+    "image_url": "https://runescape.wiki/images/Cyclopean_helmet.png?a4aa2",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "428889d9eaad54d14d5e0580c91a55cc5ec26d68",
+    "size": 857,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:47:32Z"
+  },
   "combatitems/damaged_armour.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Damaged_armour.png",
     "file_title": "Damaged armour.png",
@@ -2100,6 +2232,18 @@
     "size": 513,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:55:30Z"
+  },
+  "combatitems/dragon_defender.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Dragon_defender.png",
+    "file_title": "Dragon defender.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Dragon_defender.png?3a184",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "29f58b0a3e9ee8410df77cfd2a43870a42895931",
+    "size": 704,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:34Z"
   },
   "combatitems/dragon_spear.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Dragon_spear.png",
@@ -2281,6 +2425,18 @@
     "source_wiki": "rs3",
     "timestamp": "2023-02-02T06:06:08Z"
   },
+  "combatitems/iron_defender.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Iron_defender.png",
+    "file_title": "Iron defender.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Iron_defender.png?13f14",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1089233c65149cfb4b1a3cec4e5f77eddc05d6bd",
+    "size": 390,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:51Z"
+  },
   "combatitems/iron_javelin.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Iron_javelin.png",
     "file_title": "Iron javelin.png",
@@ -2328,6 +2484,18 @@
     "size": 425,
     "source_wiki": "rs3",
     "timestamp": "2019-12-07T14:17:57Z"
+  },
+  "combatitems/mithril_defender.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Mithril_defender.png",
+    "file_title": "Mithril defender.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Mithril_defender.png?ccf02",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5185890a4c2f95e511645056b693ea1dbe0b37ef",
+    "size": 404,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:59:01Z"
   },
   "combatitems/muddy_key.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Muddy_key.png",
@@ -2400,6 +2568,18 @@
     "size": 445,
     "source_wiki": "rs3",
     "timestamp": "2012-05-22T14:32:06Z"
+  },
+  "combatitems/rune_defender.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rune_defender.png",
+    "file_title": "Rune defender.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Rune_defender.png?ce07d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "91c71fcbe7107f9b1899f2bad448745a032e1ce2",
+    "size": 442,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:07Z"
   },
   "combatitems/rune_javelin.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rune_javelin.png",
@@ -2518,6 +2698,18 @@
     "mime": "image/png",
     "sha1": "80652b103da4c82f9f8d544d952ad992508c1f6e",
     "size": 736,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:58Z"
+  },
+  "combatitems/steel_defender.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Steel_defender.png",
+    "file_title": "Steel defender.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Steel_defender.png?3203e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "74c234f78b91b44d5bac913ea0f48b1ac1dd10b2",
+    "size": 459,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:58Z"
   },

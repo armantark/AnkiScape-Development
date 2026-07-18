@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape — Warriors' Guild closure</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f7f2e8;
+      --muted: #b6ad9d;
+      --panel: rgba(24, 29, 31, 0.88);
+      --panel-strong: #191e20;
+      --line: rgba(247, 242, 232, 0.12);
+      --gold: #efb84f;
+      --bronze: #b77842;
+      --steel: #aebbc2;
+      --green: #61d088;
+      --red: #e76d63;
+      --blue: #65b7d8;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.36);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 0%, rgba(183, 120, 66, 0.22), transparent 28rem),
+        radial-gradient(circle at 90% 15%, rgba(101, 183, 216, 0.13), transparent 30rem),
+        linear-gradient(145deg, #111617 0%, #0c1011 55%, #15120e 100%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 48px 0 72px;
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--gold);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      width: 34px;
+      height: 2px;
+      content: "";
+      background: var(--gold);
+    }
+
+    h1 {
+      max-width: 880px;
+      margin: 14px 0 14px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.8rem, 7vw, 6.4rem);
+      font-weight: 500;
+      letter-spacing: -0.055em;
+      line-height: 0.92;
+    }
+
+    .lede {
+      max-width: 760px;
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 2.1vw, 1.3rem);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(28px, 5vw, 60px);
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background:
+        linear-gradient(120deg, rgba(25, 30, 32, 0.98), rgba(25, 30, 32, 0.76)),
+        repeating-linear-gradient(90deg, transparent 0 38px, rgba(255, 255, 255, 0.025) 39px 40px);
+      box-shadow: var(--shadow);
+    }
+
+    .hero::after {
+      position: absolute;
+      right: -60px;
+      bottom: -110px;
+      width: 340px;
+      height: 340px;
+      border: 58px solid rgba(239, 184, 79, 0.08);
+      border-radius: 50%;
+      content: "";
+    }
+
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .badge {
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .badge.good {
+      border-color: rgba(97, 208, 136, 0.35);
+      color: var(--green);
+      background: rgba(97, 208, 136, 0.08);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .stat, .card {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--panel);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.16);
+    }
+
+    .stat {
+      padding: 20px;
+    }
+
+    .stat strong {
+      display: block;
+      color: var(--gold);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.7rem, 3vw, 2.5rem);
+      line-height: 1;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .card {
+      padding: clamp(22px, 3vw, 32px);
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.65rem;
+      font-weight: 500;
+      letter-spacing: -0.025em;
+    }
+
+    h3 {
+      margin: 0 0 4px;
+      font-size: 1rem;
+    }
+
+    p { margin: 0; }
+
+    .stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 13px;
+      align-items: start;
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .icon {
+      display: grid;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      border: 1px solid rgba(239, 184, 79, 0.3);
+      border-radius: 10px;
+      color: var(--gold);
+      background: rgba(239, 184, 79, 0.08);
+      font-weight: 900;
+    }
+
+    .row p, .note, li {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .meter {
+      overflow: hidden;
+      height: 13px;
+      margin: 12px 0 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .meter > span {
+      display: block;
+      width: 96.3%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--bronze), var(--gold), var(--green));
+    }
+
+    .readiness {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .readiness strong {
+      color: var(--green);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 2.4rem;
+    }
+
+    ul {
+      margin: 16px 0 0;
+      padding-left: 20px;
+    }
+
+    li + li { margin-top: 8px; }
+
+    .verification {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .proof {
+      padding: 18px;
+      border: 1px solid rgba(97, 208, 136, 0.2);
+      border-radius: 16px;
+      background: rgba(97, 208, 136, 0.055);
+    }
+
+    .proof strong {
+      display: block;
+      color: var(--green);
+      font-size: 1.05rem;
+    }
+
+    .proof span {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .caught {
+      margin-top: 18px;
+      padding: 18px;
+      border-left: 3px solid var(--blue);
+      border-radius: 4px 14px 14px 4px;
+      background: rgba(101, 183, 216, 0.07);
+    }
+
+    .caught strong { color: var(--blue); }
+
+    footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 20px;
+      padding: 20px 4px 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    code {
+      color: var(--steel);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.9em;
+    }
+
+    @media (max-width: 900px) {
+      .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      main { width: min(100% - 20px, 1180px); padding-top: 18px; }
+      .hero { border-radius: 22px; }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .verification { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="eyebrow">AnkiScape · implementation closure</div>
+      <h1>Warriors’ Guild is live.</h1>
+      <p class="lede">
+        The honest executable boundary for Cyclopes is now a complete activity loop:
+        earn five token currencies, enter the Cyclops room, climb the defender ladder,
+        and face the period Cyclossus interruption.
+      </p>
+      <div class="status-row">
+        <span class="badge good">Source-harvested</span>
+        <span class="badge good">Pure suite clean</span>
+        <span class="badge good">Real Qt suite clean</span>
+        <span class="badge">No owner design fork</span>
+      </div>
+    </section>
+
+    <section class="stats" aria-label="Closure statistics">
+      <div class="stat"><strong>5</strong><span>Guild activities</span></div>
+      <div class="stat"><strong>5</strong><span>Token balances</span></div>
+      <div class="stat"><strong>8</strong><span>Defenders</span></div>
+      <div class="stat"><strong>2</strong><span>Combat targets</span></div>
+      <div class="stat"><strong>1,592</strong><span>Pure tests</span></div>
+      <div class="stat"><strong>1,592</strong><span>Real Qt tests</span></div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>What shipped</h2>
+        <div class="stack">
+          <div class="row">
+            <div class="icon">01</div>
+            <div>
+              <h3>Five authentic token sources</h3>
+              <p>Animated armour, attack dummy, catapult, keg balance, and shot put each resolve as one bounded review action with their own sourced XP and token behavior.</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="icon">02</div>
+            <div>
+              <h3>Two automation policies</h3>
+              <p>Casual balances every available token pool or selects the fastest viable fallback. Advanced exposes exact activity, payment mode, and single-token currency.</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="icon">03</div>
+            <div>
+              <h3>Exact residual room drain</h3>
+              <p>Single-token and all-token room payments preserve 20/100 and 3/100 tick rates across arbitrary cadence chunks without wall-clock state.</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="icon">04</div>
+            <div>
+              <h3>Defenders through Cyclossus</h3>
+              <p>Kamfreena’s show step, best-owned recovery, melee-only Cyclopes, Rune-gated Cyclossus spawning, Dragon defender, and the cosmetic Cyclopean helmet are all executable.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <aside class="card">
+        <h2>Slayer readiness</h2>
+        <div class="readiness">
+          <p>Mazchna / Achtryn</p>
+          <strong>26 / 27</strong>
+        </div>
+        <div class="meter" aria-label="26 of 27 Slayer families ready"><span></span></div>
+        <p class="note">Cyclopes are closed. The incomplete master remains hidden.</p>
+        <ul>
+          <li><strong>Only blocker:</strong> Mogres</li>
+          <li><strong>Dependency:</strong> Darkan’s cutoff <code>skippy_and_the_mogres</code> quest pass</li>
+          <li><strong>Handoff:</strong> the Mogre combat target is already source-closed and waits only for that quest completion ID</li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Verification</h2>
+        <div class="verification">
+          <div class="proof">
+            <strong>1,592 passed</strong>
+            <span>Complete Python discovery · 214 expected skips</span>
+          </div>
+          <div class="proof">
+            <strong>1,592 passed</strong>
+            <span>Complete real PyQt offscreen discovery</span>
+          </div>
+          <div class="proof">
+            <strong>0 hard issues</strong>
+            <span>Test-quality audit across 73 files</span>
+          </div>
+          <div class="proof">
+            <strong>Docs clean</strong>
+            <span>301 Markdown + 322 HTML files audited</span>
+          </div>
+        </div>
+        <div class="caught">
+          <strong>The full suite earned its keep.</strong>
+          <p class="note">It caught a generated-data boundary defect after the defenders were added. The fix moved Warriors’ Guild equipment into <code>tools/generate_equipment_data.py</code>, so the checked-in registry now reproduces cleanly instead of relying on a manual tail patch.</p>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Evidence boundary</h2>
+        <p class="note">Period Wiki snapshots and Darkan establish the activities, token costs, defender progression, entry threshold, Cyclops restrictions, and Cyclossus identity. Rates absent from those sources remain labeled bounded abstractions.</p>
+        <ul>
+          <li>Defender and Cyclossus rolls: <code>1/50</code> single, <code>1/25</code> multi</li>
+          <li>Multi-token damage bonus: <code>+5%</code></li>
+          <li>Animated-armour piece loss: <code>5%</code></li>
+          <li>Five-keg interval success: <code>80%</code></li>
+          <li>No claim presents these abstractions as recovered RuneScape rates</li>
+        </ul>
+      </article>
+    </section>
+
+    <footer>
+      <span>Closed 2026-07-18 · canonical main checkout</span>
+      <span>Durable audit: <code>memory-bank/source-audits/warriors-guild-live-implementation-2026-07-18.md</code></span>
+    </footer>
+  </main>
+</body>
+</html>

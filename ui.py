@@ -239,6 +239,13 @@ try:
     from .pack_data import ITEM_PACK_DATA
 except Exception:
     from pack_data import ITEM_PACK_DATA  # type: ignore
+
+try:
+    from .warriors_guild_data import WARRIORS_GUILD_TOKEN_KEYS
+    from .warriors_guild_logic import warriors_guild_view_pure
+except ImportError:
+    from warriors_guild_data import WARRIORS_GUILD_TOKEN_KEYS  # type: ignore
+    from warriors_guild_logic import warriors_guild_view_pure  # type: ignore
 try:
     from .summoning_data import (
         DEFAULT_SUMMONING_TARGET,
@@ -590,6 +597,7 @@ _UTILITY_GROUP_LABELS = {
     "containers_opening": "Containers / opening",
     "grinding": "Grinding",
     "light_sources": "Light sources",
+    "warriors_guild": "Warriors' Guild",
 }
 
 
@@ -2316,6 +2324,7 @@ def show_main_menu(
     on_summoning_command=None,
     on_slayer_command=None,
     on_agility_command=None,
+    on_warriors_guild_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
     on_set_construction=None,
@@ -5072,8 +5081,172 @@ def show_main_menu(
         layout.addWidget(tree_host, 1)
         return container
 
-    def _build_utility_list() -> QTreeWidget:
+    def _build_utility_list() -> QWidget:
+        container = QWidget()
+        container_layout = QVBoxLayout(container)
+        container_layout.setContentsMargins(0, 0, 0, 0)
+        container_layout.setSpacing(8)
+
+        guild_box = QtFrame()
+        guild_box.setObjectName("warriorsGuildPanel")
+        guild_box.setStyleSheet(
+            "QFrame#warriorsGuildPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        guild_layout = QVBoxLayout(guild_box)
+        guild_layout.setContentsMargins(10, 8, 10, 8)
+        guild_layout.setSpacing(6)
+        guild_title = QLabel("Warriors' Guild · Cyclops room")
+        guild_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        guild_layout.addWidget(guild_title)
+
+        token_label = QLabel()
+        token_label.setObjectName("warriorsGuildTokenBalances")
+        token_label.setWordWrap(True)
+        token_label.setStyleSheet("color: palette(text);")
+        guild_layout.addWidget(token_label)
+
+        policy_row = QWidget()
+        policy_layout = QHBoxLayout(policy_row)
+        policy_layout.setContentsMargins(0, 0, 0, 0)
+        policy_layout.setSpacing(6)
+        automation_combo = QComboBox()
+        automation_combo.setObjectName("warriorsGuildAutomationMode")
+        automation_combo.addItem("Casual · auto-balance", "casual")
+        automation_combo.addItem("Advanced · exact activity", "advanced")
+        payment_combo = QComboBox()
+        payment_combo.setObjectName("warriorsGuildPaymentMode")
+        payment_combo.addItem("All five tokens", "multi")
+        payment_combo.addItem("One token balance", "single")
+        single_combo = QComboBox()
+        single_combo.setObjectName("warriorsGuildSingleToken")
+        for token_key in WARRIORS_GUILD_TOKEN_KEYS:
+            single_combo.addItem(token_key.title(), token_key)
+        policy_layout.addWidget(automation_combo, 2)
+        policy_layout.addWidget(payment_combo, 1)
+        policy_layout.addWidget(single_combo, 1)
+        guild_layout.addWidget(policy_row)
+
+        action_row = QWidget()
+        action_layout = QHBoxLayout(action_row)
+        action_layout.setContentsMargins(0, 0, 0, 0)
+        action_layout.setSpacing(6)
+        room_button = QPushButton()
+        room_button.setObjectName("warriorsGuildRoomButton")
+        show_button = QPushButton("Show defender to Kamfreena")
+        show_button.setObjectName("warriorsGuildShowDefender")
+        next_label = QLabel()
+        next_label.setObjectName("warriorsGuildNextDefender")
+        next_label.setStyleSheet("color: palette(text);")
+        action_layout.addWidget(room_button)
+        action_layout.addWidget(show_button)
+        action_layout.addWidget(next_label, 1)
+        guild_layout.addWidget(action_row)
+        container_layout.addWidget(guild_box)
+
+        syncing_guild = {"active": False}
+
+        def _refresh_guild_panel() -> None:
+            syncing_guild["active"] = True
+            view = warriors_guild_view_pure(player_data)
+            token_label.setText(
+                " · ".join(
+                    f"{key.title()} {int(view['tokens'].get(key, 0) or 0)}"
+                    for key in WARRIORS_GUILD_TOKEN_KEYS
+                )
+            )
+            automation_combo.setCurrentIndex(
+                max(0, automation_combo.findData(view["automation_mode"]))
+            )
+            payment_combo.setCurrentIndex(
+                max(0, payment_combo.findData(view["payment_mode"]))
+            )
+            single_combo.setCurrentIndex(
+                max(0, single_combo.findData(view["single_token"]))
+            )
+            advanced = view["automation_mode"] == "advanced"
+            payment_combo.setEnabled(advanced and not view["in_cyclops_room"])
+            single_combo.setEnabled(
+                advanced
+                and view["payment_mode"] == "single"
+                and not view["in_cyclops_room"]
+            )
+            automation_combo.setEnabled(not view["in_cyclops_room"])
+            room_button.setText(
+                "Leave Cyclops room"
+                if view["in_cyclops_room"]
+                else "Enter Cyclops room"
+            )
+            room_button.setEnabled(
+                on_warriors_guild_command is not None
+                and (view["in_cyclops_room"] or view["room_ready"])
+            )
+            room_button.setToolTip(
+                ""
+                if view["in_cyclops_room"] or view["room_ready"]
+                else view["room_entry_reason"]
+            )
+            showable = str(view.get("showable_defender", "") or "")
+            show_button.setEnabled(
+                on_warriors_guild_command is not None and bool(showable)
+            )
+            show_button.setText(
+                f"Show {showable}" if showable else "Show defender to Kamfreena"
+            )
+            next_label.setText(
+                "Cyclossus waiting · equip a Rune or Dragon defender"
+                if view["cyclossus_pending"]
+                else f"Next drop: {view['next_defender']}"
+            )
+            syncing_guild["active"] = False
+
+        def _guild_command(action_id: str, payload=None) -> None:
+            if on_warriors_guild_command is None:
+                return
+            result = on_warriors_guild_command(action_id, payload or {}) or {}
+            if not result.get("ok", False) and result.get("message"):
+                QMessageBox.warning(
+                    container,
+                    "Warriors' Guild",
+                    str(result["message"]),
+                )
+            _refresh_guild_panel()
+
+        def _set_guild_policy() -> None:
+            if syncing_guild["active"]:
+                return
+            _guild_command(
+                "set_policy",
+                {
+                    "automation_mode": automation_combo.currentData(),
+                    "payment_mode": payment_combo.currentData(),
+                    "single_token": single_combo.currentData(),
+                },
+            )
+
+        automation_combo.currentIndexChanged.connect(
+            lambda _index: _set_guild_policy()
+        )
+        payment_combo.currentIndexChanged.connect(
+            lambda _index: _set_guild_policy()
+        )
+        single_combo.currentIndexChanged.connect(
+            lambda _index: _set_guild_policy()
+        )
+        room_button.clicked.connect(
+            lambda _checked=False: _guild_command(
+                "leave_room"
+                if warriors_guild_view_pure(player_data)["in_cyclops_room"]
+                else "enter_room"
+            )
+        )
+        show_button.clicked.connect(
+            lambda _checked=False: _guild_command("show_defender")
+        )
+        _refresh_guild_panel()
+
         tree = QTreeWidget()
+        tree.setObjectName("utilityActivityTree")
         tree.setHeaderHidden(True)
         tree.setIconSize(QSize(28, 28))
         tree.setRootIsDecorated(True)
@@ -5343,7 +5516,8 @@ def show_main_menu(
 
         tree.itemClicked.connect(_on_utility_clicked)
         tree.itemActivated.connect(_on_utility_clicked)
-        return tree
+        container_layout.addWidget(tree, 1)
+        return container
 
     _TARGET_BUILDERS = {
         "Mining": _build_ore_list,

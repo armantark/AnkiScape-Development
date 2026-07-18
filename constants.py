@@ -132,6 +132,7 @@ try:
     from .prayer_passive_data import prayer_passive_items_as_dict
     from .thieving_data import thieving_extra_items_as_dict
     from .urn_data import URN_TIERS, urn_extra_items_as_dict
+    from .warriors_guild_data import WARRIORS_GUILD_ACTIVITIES
     from .magic_data import (
         DEFAULT_MAGIC_TARGET,
         MAGIC_GROUP_ORDER,
@@ -270,6 +271,7 @@ except ImportError:
     from prayer_passive_data import prayer_passive_items_as_dict
     from thieving_data import thieving_extra_items_as_dict
     from urn_data import URN_TIERS, urn_extra_items_as_dict
+    from warriors_guild_data import WARRIORS_GUILD_ACTIVITIES
     from magic_data import (
         DEFAULT_MAGIC_TARGET,
         MAGIC_GROUP_ORDER,
@@ -508,6 +510,14 @@ UTILITY_ACTIVITY_DATA.update(pestle_and_mortar_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(light_source_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(input_preparation_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(prayer_utility_activities_as_dict())
+UTILITY_ACTIVITY_DATA.update(WARRIORS_GUILD_ACTIVITIES)
+for _activity_id in WARRIORS_GUILD_ACTIVITIES:
+    _activity_icon = os.path.join(
+        UTILITY_ACTIVITY_ICONS_FOLDER,
+        f"{_activity_id}.png",
+    )
+    if os.path.exists(_activity_icon):
+        UTILITY_ACTIVITY_DATA[_activity_id]["icon_path"] = _activity_icon
 
 CRAFTING_DATA = crafting_recipes_as_dict()
 CRAFTING_REQUIRED_ITEM_DATA = crafting_required_items_as_dict()

@@ -177,7 +177,7 @@ _FAMILIES: Tuple[SlayerFamily, ...] = (
     SlayerFamily(
         "cyclopes",
         "Cyclopes",
-        ("cyclops",),
+        ("cyclops", "cyclossus"),
         required_skill_totals=((("attack", "strength"), 130),),
         source=MAZCHNA_AUDIT_SOURCE,
     ),

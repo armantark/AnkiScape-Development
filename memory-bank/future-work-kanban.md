@@ -219,8 +219,8 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
 - Mazchna/Achtryn is now the second completely encoded pool. Stable family
   identities are separate from its 27 master-specific roll rows and provisional
   325-point denominator. `tools/audit_slayer_readiness.py` derives the live
-  readiness ledger: 25/27 families are ready, while Cyclopes and Mogres remain
-  exact Combat/activity/quest blockers. Vampyres are closed through the
+  readiness ledger: 26/27 families are ready, while Mogres remains the sole
+  exact quest blocker. Vampyres are closed through the
   ordinary level-61 Feral vampyre with its Priest in Peril gate, guaranteed
   Vampyre dust, Holy-symbol weakness, bite effect, and losslessly normalized
   100,000-slot table. Wall beasts are closed through
@@ -239,12 +239,14 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   cutoff Mogre miniquest with completion ID `skippy_and_the_mogres`; do not
   advance readiness with a permanently locked partial target. See
   `source-audits/slayer-mogre-combat-2026-07-18.md`.
-- Cyclopes are not an atomic standalone target. Their honest executable
-  boundary is the Warriors' Guild activity, including entry requirements, the
-  five token sources, animator armour loop, top-floor token drain, Cyclops
-  combat, and progressive defender drops. Keep the family blocked until that
-  activity slice is source-harvested and executable; do not add a context-free
-  Cyclops row merely to certify the master.
+- Cyclopes are closed through their honest Warriors' Guild boundary rather than
+  a context-free row: all five token sources, entry and residual drain,
+  animated armour, Cyclops combat, progressive defenders, Kamfreena showing,
+  and the spawned defender-gated Cyclossus are executable. See
+  `source-audits/warriors-guild-live-implementation-2026-07-18.md` and
+  `status-updates/warriors-guild-results-2026-07-18.html`
+  (<https://h9vvkp6arl98.postplan.dev>). Full core and real offscreen Qt
+  discovery each pass all 1,592 tests.
 - Park Social Slayer unless genuine shared-player state ever exists; do not ship
   a simulated partner or solo co-op multiplier. Preserve all seven period Slayer
   master challenges in the design and source their compound objective ledgers.

@@ -525,6 +525,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._summoning_calls: list = []
         self._slayer_command_calls: list = []
         self._agility_command_calls: list = []
+        self._warriors_guild_calls: list = []
         self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
         self._mage_arena_calls: list = []
@@ -661,6 +662,34 @@ class MainMenuWidgetTest(unittest.TestCase):
                 player_data.update(updated)
             return {"ok": ok, **info}
 
+        def _warriors_guild_command(action_id, payload):
+            from warriors_guild_logic import (
+                enter_warriors_guild_cyclops_room_pure,
+                leave_warriors_guild_cyclops_room_pure,
+                set_warriors_guild_policy_pure,
+                show_warriors_guild_defender_pure,
+            )
+
+            self._warriors_guild_calls.append((action_id, dict(payload)))
+            if action_id == "set_policy":
+                result = set_warriors_guild_policy_pure(
+                    player_data,
+                    automation_mode=payload.get("automation_mode"),
+                    payment_mode=payload.get("payment_mode"),
+                    single_token=payload.get("single_token"),
+                )
+            elif action_id == "enter_room":
+                result = enter_warriors_guild_cyclops_room_pure(player_data)
+            elif action_id == "leave_room":
+                result = leave_warriors_guild_cyclops_room_pure(player_data)
+            else:
+                result = show_warriors_guild_defender_pure(player_data)
+            updated, ok, info = result
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return {"ok": ok, "message": info.get("message", info.get("reason", ""))}
+
         def _mage_arena_action(action_id, god_id):
             from logic_pure import (
                 apply_mage_arena_cape_action_pure,
@@ -714,6 +743,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             ),
             on_slayer_command=_slayer_command,
             on_agility_command=_agility_command,
+            on_warriors_guild_command=_warriors_guild_command,
             on_set_prayer_selection=_set_prayer_selection,
             on_set_magic=lambda target: _set_target("current_magic", self._magic_calls, target),
             on_set_construction=lambda target: _set_target("current_construction", self._construction_calls, target),
@@ -5616,6 +5646,53 @@ class MainMenuWidgetTest(unittest.TestCase):
             if isinstance(role, str) and role.startswith("__utility_group__"):
                 continue
             self.assertFalse(row.icon(0).isNull(), f"{row.text(0)} should have an activity icon")
+
+    def test_warriors_guild_panel_exposes_tokens_policy_and_room_state(self) -> None:
+        pd = _make_player_data()
+        pd["attack_level"] = 99
+        pd["strength_level"] = 99
+        pd["inventory"].update(
+            {
+                "Rune full helm": 1,
+                "Rune platebody": 1,
+                "Rune platelegs": 1,
+            }
+        )
+        dialog = self._open(pd)
+        utility_tree = self._open_utility(dialog)
+        dialog.show()
+        QApplication.processEvents()
+
+        panel = _find_named_widget(dialog, "warriorsGuildPanel")
+        self.assertTrue(panel.isVisible())
+        token_label = _find_named_label(dialog, "warriorsGuildTokenBalances")
+        self.assertIn("Combat 0", token_label.text())
+        self.assertIn("Balance 0", token_label.text())
+        room_button = _find_named_button(dialog, "warriorsGuildRoomButton")
+        self.assertFalse(room_button.isEnabled())
+        self.assertIn("Need 30 of every", room_button.toolTip())
+
+        for activity_id in (
+            "warriors_guild_animated_armour",
+            "warriors_guild_attack_dummy",
+            "warriors_guild_catapult",
+            "warriors_guild_shot_put",
+            "warriors_guild_keg_balance",
+        ):
+            self.assertFalse(
+                _utility_row(utility_tree, activity_id).icon(0).isNull(),
+                activity_id,
+            )
+
+        automation = _find_named_widget(dialog, "warriorsGuildAutomationMode")
+        self.assertIsInstance(automation, QComboBox)
+        automation.setCurrentIndex(automation.findData("advanced"))
+        QApplication.processEvents()
+        self.assertEqual(
+            self._warriors_guild_calls[-1][0],
+            "set_policy",
+        )
+        self.assertEqual(pd["warriors_guild"]["automation_mode"], "advanced")
 
     def test_wool_gathering_is_enabled_and_selectable_from_utility(self) -> None:
         # gather_wool stands in for the retired scavenge_chicken_feathers

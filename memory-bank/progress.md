@@ -4,6 +4,33 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Warriors' Guild and Cyclopes closure — 2026-07-18
+
+- Implemented all five source activities and token balances, Casual/Advanced
+  automation, single/multi Cyclops-room entry and exact residual drain,
+  progressive defender showing/drops, multi-token benefits, and explicit room
+  exit/depletion/death cleanup.
+- Added source-backed Cyclops and Cyclossus Combat targets. Cyclossus spawns
+  only after Rune has been shown, interrupts the ordinary target, requires a
+  worn Rune or Dragon defender, and returns to Cyclops after defeat.
+- Registered all eight defenders and the cosmetic Cyclopean helmet as equipment
+  with period bonuses/requirements, source-shaped drops, provenance-tracked
+  activity/enemy/item assets, and a compact real Qt control surface.
+- Advanced live Mazchna/Achtryn readiness from 25/27 to 26/27. Mogres is now
+  the sole blocker and remains correctly assigned to the Darkan quest pass for
+  `skippy_and_the_mogres`; the incomplete master stays hidden.
+- Exact missing rates remain explicit abstractions rather than invented parity
+  claims. The complete evidence boundary is
+  `source-audits/warriors-guild-live-implementation-2026-07-18.md`; no owner
+  design input was required.
+- Moved defender and Cyclopean-helmet registration into
+  `tools/generate_equipment_data.py` after full discovery caught a brittle
+  manual-tail boundary. Focused pure and Qt checks, all 1,592 core tests, all
+  1,592 real offscreen Qt tests, documentation, test-quality, readiness,
+  provenance, and worktree checks pass. Results:
+  `status-updates/warriors-guild-results-2026-07-18.html`
+  (<https://h9vvkp6arl98.postplan.dev>).
+
 ## Slayer Kalphite Soldier Combat closure — 2026-07-18
 
 - Added the ordinary level-85 Kalphite Soldier as an executable Combat target
