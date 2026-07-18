@@ -164,6 +164,14 @@ DARKAN_DEVELOPER_INFO_ROOT = (
 DARKAN_NPC_LIST_SOURCE = f"{DARKAN_DEVELOPER_INFO_ROOT}/npcList.txt"
 DARKAN_BEASTS_SOURCE = f"{DARKAN_DEVELOPER_INFO_ROOT}/beasts.txt"
 DARKAN_ENUMS_SOURCE = f"{DARKAN_DEVELOPER_INFO_ROOT}/enums.txt"
+STOLEN_HEARTS_WIKI_SOURCE = "https://runescape.wiki/w/Stolen_Hearts?oldid=6579723"
+STOLEN_HEARTS_QUICK_GUIDE_SOURCE = (
+    "https://runescape.wiki/w/Stolen_Hearts%2FQuick_guide?oldid=6315136"
+)
+STOLEN_HEARTS_CACHE_SOURCE = (
+    "/Users/ArmanTarkhanian1/Library/Caches/codex/2012scape-openrs2/"
+    "extracted/742-2012-11-07/cache"
+)
 DARKAN_TUTORIAL_COMBAT_INSTRUCTOR_SOURCE = f"{DARKAN_TUTORIAL_SOURCE_ROOT}/CombatInstructor.java"
 DARKAN_TUTORIAL_MAGIC_INSTRUCTOR_SOURCE = f"{DARKAN_TUTORIAL_SOURCE_ROOT}/MagicInstructor.java"
 DARKAN_TUTORIAL_MINING_INSTRUCTOR_SOURCE = f"{DARKAN_TUTORIAL_SOURCE_ROOT}/MiningInstructor.java"
@@ -3732,11 +3740,13 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
     PLAGUE_CITY_ID: (("A magic scroll", 1),),
     DWARF_CANNON_ID: (("Ammo mould", 1),),
     HAZEEL_CULT_ID: (("Coins", 2005),),
+    "stolen_hearts": (("Coins", 2500),),
 }
 
 QUEST_XP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestXpReward, ...]] = {
     "royal_trouble": (QuestXpReward("agility", 5000),),
     "grim_tales": (QuestXpReward("agility", 6000),),
+    "stolen_hearts": (QuestXpReward("constitution", 250),),
 }
 
 QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestLampReward, ...]] = {
@@ -3754,6 +3764,104 @@ QUEST_LAMP_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestLampReward, ...]] = {
 
 
 QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {
+    "stolen_hearts": (
+        _stage_req(
+            1,
+            "Join the Skulls and earn Khnum's trust.",
+            f"{STOLEN_HEARTS_WIKI_SOURCE}; {STOLEN_HEARTS_QUICK_GUIDE_SOURCE}",
+            auto_actions=(
+                "Threaten the Skullery bouncer and enter the gang cellar",
+                "Pass Khnum's recruitment questions",
+            ),
+        ),
+        _stage_req(
+            2,
+            "Tail Khnum to Draynor jail and uncover the kidnapping plot.",
+            f"{STOLEN_HEARTS_WIKI_SOURCE}; {STOLEN_HEARTS_QUICK_GUIDE_SOURCE}",
+            auto_actions=(
+                "Report the Skullery to Ozan and tail Khnum",
+                "Interrogate Khnum with Ozan and Leela",
+            ),
+        ),
+        _stage_req(
+            3,
+            "Confront Lady Keli and recover the ransom note.",
+            (
+                f"{STOLEN_HEARTS_WIKI_SOURCE}; {STOLEN_HEARTS_QUICK_GUIDE_SOURCE}; "
+                f"{STOLEN_HEARTS_CACHE_SOURCE}; {DARKAN_BEASTS_SOURCE}"
+            ),
+            produced_inventory=(("Ransom note", 1),),
+            auto_actions=("Confront Lady Keli near the Wizards' Tower bridge",),
+            combat_encounters=(
+                _combat(
+                    "stolen_hearts",
+                    "mercenary_joe",
+                    "Mercenary Joe",
+                    2,
+                    (
+                        f"{STOLEN_HEARTS_WIKI_SOURCE}; {STOLEN_HEARTS_CACHE_SOURCE}; "
+                        f"{DARKAN_BEASTS_SOURCE}"
+                    ),
+                    "Defeat Mercenary Joe and two Skulls mercenaries before collecting the ransom note.",
+                    npc_stats=(
+                        ("hitpoints", 500),
+                        ("attack", 1),
+                        ("strength", 1),
+                        ("defence", 1),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_stats_source=f"{DARKAN_BEASTS_SOURCE}:4959",
+                ),
+                _combat(
+                    "stolen_hearts",
+                    "skulls_mercenary",
+                    "Skulls mercenary",
+                    2,
+                    (
+                        f"{STOLEN_HEARTS_WIKI_SOURCE}; {STOLEN_HEARTS_CACHE_SOURCE}; "
+                        f"{DARKAN_BEASTS_SOURCE}"
+                    ),
+                    "Defeat Mercenary Joe and two Skulls mercenaries before collecting the ransom note.",
+                    quantity=2,
+                    npc_stats=(
+                        ("hitpoints", 400),
+                        ("attack", 1),
+                        ("strength", 1),
+                        ("defence", 1),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_stats_source=f"{DARKAN_BEASTS_SOURCE}:4960-4961",
+                ),
+            ),
+        ),
+        _stage_req(
+            4,
+            "Carry the ransom warning to Al Kharid and cross the rooftops with Ozan.",
+            f"{STOLEN_HEARTS_WIKI_SOURCE}; {STOLEN_HEARTS_QUICK_GUIDE_SOURCE}",
+            required_inventory=(("Ransom note", 1),),
+            produced_inventory=(("History of the Kharid-ib", 1),),
+            auto_actions=(
+                "Travel with Ozan to Al Kharid",
+                "Cross the Al Kharid rooftops and enter the palace treasury",
+                "Read the History of the Kharid-ib",
+            ),
+        ),
+        _stage_req(
+            5,
+            "Solve Het's scales, take the Kharid-ib, and identify yourself to Osman.",
+            f"{STOLEN_HEARTS_WIKI_SOURCE}; {STOLEN_HEARTS_QUICK_GUIDE_SOURCE}",
+            consumed_inventory=(
+                ("Ransom note", 1),
+                ("History of the Kharid-ib", 1),
+            ),
+            auto_actions=(
+                "Find the heavy weight in two weighings",
+                "Take the Kharid-ib and give Leela's passphrase to Osman",
+            ),
+        ),
+    ),
     COOKS_ASSISTANT_ID: (
         _stage_req(
             1,
@@ -7961,6 +8069,24 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
             }
     generated_items.update({
         "Coins": {"category": "material", "source": "RuneScape currency"},
+        "Ransom note": {
+            "category": "material",
+            "item_id": 25127,
+            "tradeable": False,
+            "source": (
+                f"{STOLEN_HEARTS_WIKI_SOURCE}; {STOLEN_HEARTS_CACHE_SOURCE}; "
+                f"{DARKAN_DEVELOPER_INFO_ROOT}/itemList.txt"
+            ),
+        },
+        "History of the Kharid-ib": {
+            "category": "material",
+            "item_id": 25128,
+            "tradeable": False,
+            "source": (
+                f"{STOLEN_HEARTS_WIKI_SOURCE}; {STOLEN_HEARTS_CACHE_SOURCE}; "
+                f"{DARKAN_DEVELOPER_INFO_ROOT}/itemList.txt"
+            ),
+        },
         "Fishing pass": {
             "category": "material",
             "source": f"{DARKAN_FISHING_CONTEST_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",

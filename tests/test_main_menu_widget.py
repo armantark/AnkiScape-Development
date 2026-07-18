@@ -4145,6 +4145,38 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIn("a_souls_bane", self._quest_calls)
 
+    def test_quests_tab_allows_stolen_hearts_mercenary_stage_selection(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "stolen_hearts"
+        pd["quests"]["stolen_hearts"] = {
+            "started": True,
+            "progress": 3,
+            "completed": False,
+        }
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        pd["attack_level"] = 99
+        pd["strength_level"] = 99
+        pd["defense_level"] = 99
+        pd["constitution_level"] = 99
+        dialog = self._open(pd)
+
+        labels = [label.text() for label in dialog.findChildren(QLabel)]
+        self.assertIn(
+            (
+                "Blocked: Battle required: Mercenary Joe level 2, "
+                "Battle required: Skulls mercenary level 2 x2"
+            ),
+            labels,
+        )
+        action = dialog.findChild(QPushButton, "questAction_stolen_hearts")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+        self.assertNotIn("Complete Stolen Hearts stage", action.toolTip())
+
+        action.click()
+        QApplication.processEvents()
+        self.assertIn("stolen_hearts", self._quest_calls)
+
     def test_quests_tab_allows_conflict_overridden_dad_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Coins": 12}

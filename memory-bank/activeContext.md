@@ -2,6 +2,22 @@
 
 ## Current Focus
 
+The Slayer-critical quest dependency pass has begun with Stolen Hearts. Its
+generated five-row placeholder sequence is now a playable source-backed chain:
+Skulls infiltration, the Khnum pursuit, Mercenary Joe plus two Skulls
+mercenaries, ransom-note and history-book custody, rooftop/treasury traversal,
+Het's scales, the Kharid-ib, and Osman's handoff. The override removes the bogus
+Khnum item reward, prevents generated lamp XP from being double-counted, adds
+the exact direct 250 Constitution XP and 2,500 coins, and registers period item
+identities and icons. Focused backend and real offscreen Qt checks pass; the
+complete core suite passes 1,508 methods with 1,303 ordinary passes and 205
+declared environment skips, while real offscreen Qt passes all 1,508 methods
+without skips or failures. Diamond in the Rough is the next independent
+Smoking Kills prerequisite. Durable evidence is
+`source-audits/quest-stolen-hearts-playable-2026-07-17.md`; the visual closure
+report is `status-updates/quest-stolen-hearts-results-2026-07-17.html`
+(<https://4sptl2883909.postplan.dev>).
+
 Rockslug and Gargoyle are now executable Slayer Combat targets rather than
 finisher-engine blockers. Rockslug preserves the cutoff 1–39 LP Bag-of-salt
 window, consumable salt, and a latched 10-LP frozen/no-retaliation state.

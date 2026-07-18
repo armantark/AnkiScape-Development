@@ -23625,6 +23625,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:57:43Z"
   },
+  "questitems/history_of_the_kharid_ib.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:History_of_the_Kharid-ib.png",
+    "file_title": "History of the Kharid-ib.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502043347%21History_of_the_Kharid-ib.png?c1cc3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c8bfeaf310e6c7edaaf6ade281c12082b3c0905e",
+    "size": 1144,
+    "source_wiki": "rs3",
+    "timestamp": "2012-09-26T17:23:30Z"
+  },
   "questitems/ice_arrows.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Ice_arrows_5.png",
     "file_title": "Ice arrows 5.png",
@@ -24178,6 +24190,18 @@
     "size": 267,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:02:54Z"
+  },
+  "questitems/ransom_note.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ransom_note.png",
+    "file_title": "Ransom note.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502065102%21Ransom_note.png?c648f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d6424184152685fd3d24d98a0b8bbfd81e83fcd1",
+    "size": 926,
+    "source_wiki": "rs3",
+    "timestamp": "2012-09-30T01:20:33Z"
   },
   "questitems/rat_poison.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rat_poison.png",

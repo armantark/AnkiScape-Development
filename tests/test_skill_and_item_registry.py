@@ -1,3 +1,4 @@
+import json
 import os
 import unittest
 
@@ -1362,12 +1363,25 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Orb of protection",
             "Orbs of protection",
             "Gnome amulet",
+            "Ransom note",
+            "History of the Kharid-ib",
         ):
             self.assertIn(item_name, QUEST_ITEM_IMAGES)
             self.assertTrue(os.path.exists(QUEST_ITEM_IMAGES[item_name]))
             self.assertIn(item_name, by_storage_key)
             self.assertEqual(by_storage_key[item_name].asset_path, QUEST_ITEM_IMAGES[item_name])
             self.assertIsNotNone(by_storage_key[item_name].asset_path, f"{item_name} should have a quest-stage icon")
+        with open(
+            os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets_provenance.json"),
+            encoding="utf-8",
+        ) as file_obj:
+            provenance = json.load(file_obj)
+        for asset_key in (
+            "questitems/ransom_note.png",
+            "questitems/history_of_the_kharid_ib.png",
+        ):
+            self.assertLess(provenance[asset_key]["timestamp"], "2012-11-20T00:00:00Z")
+            self.assertIn("/archive/", provenance[asset_key]["image_url"])
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 
     def test_every_registry_item_declared_equippable_has_live_equipment_data(self):

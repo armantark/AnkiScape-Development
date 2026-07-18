@@ -883,3 +883,25 @@ Test counts are snapshots; current runs outrank this note.
   worktree-safety gates all pass.
 - Published `status-updates/grill-harvest-results-2026-07-17.html` and its
   mobile-safe copy at <https://co9e6hzqn0pd.postplan.dev>.
+
+## Stolen Hearts quest dependency — 2026-07-17
+
+- Replaced all five generated objective placeholders with a playable,
+  source-backed quest chain covering the Skulls infiltration, Khnum pursuit,
+  three mercenary fights, temporary-item custody, rooftop/treasury traversal,
+  Het's scales, the Kharid-ib, and Osman's handoff.
+- Corrected the generated rewards by removing the bogus Khnum item and
+  separating direct 250 Constitution XP from the three authentic 250-XP lamp
+  claims; the quest now awards 2,500 coins and preserves its three quest
+  points.
+- Registered rev-742 item identities 25127 and 25128, added the two
+  period-named quest-item icons with provenance, and removed one statless
+  Combat row from the catalog debt ledger.
+- Added pure, live-dispatch, source-contract, asset, and real offscreen Qt
+  regressions. The complete core suite passes all 1,508 methods with 1,303
+  ordinary passes and 205 declared environment skips; the complete real
+  offscreen Qt suite passes all 1,508 methods without skips or failures.
+  Test-quality, documentation, compilation, diff, quest-audit, asset, and
+  worktree-safety gates pass. Diamond in the Rough is next.
+- Published `status-updates/quest-stolen-hearts-results-2026-07-17.html` and
+  its mobile-safe copy at <https://4sptl2883909.postplan.dev>.

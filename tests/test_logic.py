@@ -5464,6 +5464,93 @@ class TestLogic(unittest.TestCase):
         )
         self.assertEqual(quest_current_stage_blockers_pure(resolved, "the_restless_ghost", QUEST_DATA), ())
 
+    def test_stolen_hearts_stage_chain_resolves_combat_items_and_exact_rewards(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["stolen_hearts"] = {
+            "started": True,
+            "progress": 1,
+            "completed": False,
+        }
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["attack_level"] = 99
+        player_data["strength_level"] = 99
+        player_data["defense_level"] = 99
+        player_data["constitution_level"] = 99
+
+        for expected_progress in (2, 3):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "stolen_hearts",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(
+                player_data["quests"]["stolen_hearts"]["progress"],
+                expected_progress,
+            )
+
+        blockers = quest_current_stage_blockers_pure(
+            player_data,
+            "stolen_hearts",
+            QUEST_DATA,
+        )
+        self.assertEqual(
+            tuple(blocker["reason"] for blocker in blockers),
+            (
+                "Battle required: Mercenary Joe level 2",
+                "Battle required: Skulls mercenary level 2 x2",
+            ),
+        )
+
+        for expected_encounter in (
+            "stolen_hearts_mercenary_joe",
+            "stolen_hearts_skulls_mercenary",
+            "stolen_hearts_skulls_mercenary",
+        ):
+            player_data, ok, result = apply_quest_combat_encounter_pure(
+                player_data,
+                "stolen_hearts",
+                QUEST_DATA,
+                stop_after_first_kill=True,
+            )
+            self.assertTrue(ok, result)
+            self.assertEqual(result["encounter_id"], expected_encounter)
+            self.assertTrue(result["killed"])
+
+        for expected_progress in (4, 5):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "stolen_hearts",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertEqual(
+                player_data["quests"]["stolen_hearts"]["progress"],
+                expected_progress,
+            )
+            self.assertFalse(completed_now)
+
+        constitution_before_reward = player_data["constitution_exp"]
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "stolen_hearts",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(player_data["quests"]["stolen_hearts"]["progress"], 6)
+
+        self.assertTrue(player_data["quests"]["stolen_hearts"]["completed"])
+        self.assertEqual(player_data["inventory"]["Coins"], 2500)
+        self.assertEqual(player_data["inventory"].get("Ransom note", 0), 0)
+        self.assertEqual(player_data["inventory"].get("History of the Kharid-ib", 0), 0)
+        self.assertEqual(
+            player_data["constitution_exp"],
+            constitution_before_reward + 250,
+        )
+        self.assertNotIn("combat_exp", player_data["pending_skill_exp_rewards"])
+
     def test_demon_slayer_source_backed_stage_chain_blocks_and_completes_in_order(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["demon_slayer"] = {"started": True, "progress": 1, "completed": False}

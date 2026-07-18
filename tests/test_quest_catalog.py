@@ -714,16 +714,19 @@ class TestQuestCatalog(unittest.TestCase):
                 for requirement in quest["stage_requirements"]
             )
         ]
-        quests_with_action_requirements = [
+        quests_with_narrative_actions = [
             quest_id
             for quest_id, quest in data.items()
-            if any(requirement["required_actions"] for requirement in quest["stage_requirements"])
+            if any(
+                requirement["required_actions"] or requirement["auto_actions"]
+                for requirement in quest["stage_requirements"]
+            )
         ]
 
         self.assertEqual(len(quests_with_stage_requirements), 194)
         self.assertGreaterEqual(len(quests_with_combat), 110)
         self.assertGreaterEqual(len(quests_with_item_requirements), 160)
-        self.assertGreaterEqual(len(quests_with_action_requirements), 190)
+        self.assertGreaterEqual(len(quests_with_narrative_actions), 190)
 
         hazeel = data["hazeel_cult"]
         self.assertEqual(hazeel["rewards"], {"Coins": 2005})
@@ -1702,6 +1705,44 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(pirate_by_stage[2]["produced_inventory"], {"Pirate message": 1})
         self.assertEqual(pirate_by_stage[3]["required_inventory"], {"Pirate message": 1})
         self.assertEqual(pirate_by_stage[3]["required_tools"], {"Spade": 1})
+
+    def test_stolen_hearts_is_a_playable_source_backed_dependency(self):
+        quest = quests_as_dict()["stolen_hearts"]
+        by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
+
+        self.assertEqual(quest["rewards"], {"Coins": 2500})
+        self.assertEqual(
+            quest["xp_rewards"],
+            ({"skill_id": "constitution", "amount": 250.0},),
+        )
+        self.assertEqual(len(quest["lamp_rewards"]), 3)
+        self.assertNotIn("Khnum", quest["rewards"])
+        self.assertFalse(
+            any(
+                action.startswith("Complete Stolen Hearts stage")
+                for row in by_stage.values()
+                for action in row["required_actions"]
+            )
+        )
+        self.assertEqual(
+            [encounter["display_name"] for encounter in by_stage[3]["combat_encounters"]],
+            ["Mercenary Joe", "Skulls mercenary"],
+        )
+        self.assertEqual(by_stage[3]["combat_encounters"][1]["quantity"], 2)
+        self.assertEqual(by_stage[3]["produced_inventory"], {"Ransom note": 1})
+        self.assertEqual(
+            by_stage[4]["produced_inventory"],
+            {"History of the Kharid-ib": 1},
+        )
+        self.assertEqual(
+            by_stage[5]["consumed_inventory"],
+            {"Ransom note": 1, "History of the Kharid-ib": 1},
+        )
+
+        items = quest_reward_items_as_dict()
+        self.assertEqual(items["Ransom note"]["item_id"], 25127)
+        self.assertEqual(items["History of the Kharid-ib"]["item_id"], 25128)
+        self.assertFalse(items["Ransom note"]["tradeable"])
 
     def test_generated_rewards_journals_and_lamps_are_structured(self):
         data = quests_as_dict()

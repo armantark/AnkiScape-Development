@@ -228,7 +228,9 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
 - Build `Smoking Kills` and every still-incomplete prerequisite quest definition
   in the Slayer program so Sumona, reward points, and the Rewards subview are
   genuinely reachable; feed those quests through the canonical missing-quest
-  backlog and runtime rather than adding flags or bypasses.
+  backlog and runtime rather than adding flags or bypasses. Stolen Hearts is
+  now source-backed and playable; Diamond in the Rough is the next direct
+  prerequisite slice.
 - Build Shilo Village and the complete transitive Slayer-helmet route through
   Cabin Fever, Mos Le'Harmless, Cave horrors, the black-mask drop, and the
   400-point crafting unlock. Preserve every period quest and skill prerequisite;

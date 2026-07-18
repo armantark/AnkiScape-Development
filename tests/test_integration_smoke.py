@@ -1242,6 +1242,63 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["gains"], ["Defeated Fear reaper"])
         self.assertEqual(calls["dialogs"], [])
 
+    def test_stolen_hearts_review_flow_resolves_the_real_mercenary_stage(self):
+        addon = _load_addon_as_package("ankiscape_stolen_hearts_integration")
+        _install_quest_combat_mid_rolls(self, addon)
+
+        calls = {"save": 0, "gains": [], "dialogs": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
+        addon.mw = _DummyMW(_DummyCol({}))
+        addon.current_skill = "Quests"
+        addon.player_data = {
+            "inventory": {},
+            "current_quest": "stolen_hearts",
+            "quests": {
+                "stolen_hearts": {
+                    "started": True,
+                    "progress": 3,
+                    "completed": False,
+                }
+            },
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_points": 0,
+            "claims": {"wicked_hood": {"claimed": False}},
+            "wicked_hood": {"fed_altars": []},
+            "pending_skill_exp_rewards": {},
+            "runecrafting_pouches": {},
+            "item_charges": {},
+            "completed_achievements": [],
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 99,
+            "prayer_level": 1,
+        }
+
+        for expected_gain in (
+            "Defeated Mercenary Joe",
+            "Defeated Skulls mercenary",
+            "Defeated Skulls mercenary",
+        ):
+            addon.on_quest_answer()
+            self.assertEqual(calls["gains"][-1], expected_gain)
+            self.assertEqual(
+                addon.player_data["quests"]["stolen_hearts"]["progress"],
+                3,
+            )
+
+        addon.on_quest_answer()
+
+        self.assertEqual(addon.player_data["quests"]["stolen_hearts"]["progress"], 4)
+        self.assertEqual(addon.player_data["inventory"]["Ransom note"], 1)
+        self.assertEqual(calls["gains"][-1], "Stolen Hearts 4/6")
+        self.assertEqual(calls["save"], 4)
+        self.assertEqual(calls["dialogs"], [])
+
     def test_quest_answer_completes_holy_grail_final_handoff_and_consumes_grail(self):
         addon = _load_addon_as_package("ankiscape_holy_grail_completion_integration")
 
