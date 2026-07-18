@@ -441,6 +441,15 @@ creates no auto-gamble checkbox and no Casual/Advanced split. The reusable
 contract and later candidate-harvest boundary are recorded in
 `memory-bank/review-hud-context-actions-contract-2026-07-18.md`.
 
+Managing Miscellania preserves the source's unusual retroactive allocation
+rule. Answered-card days accumulate only funded, approval-weighted production
+credit; the current subject distribution converts the entire unclaimed pool
+into source-shaped resources and bonus rolls when **Collect** is clicked. No
+resource-by-resource background simulation runs. Approval, coffer funding,
+worker allocation, reward preview, and collection share one bespoke Activity
+management panel rather than generic target rows. The focused contract is
+`memory-bank/source-audits/managing-miscellania-loop-2026-07-18.md`.
+
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking
 the shared substrate.
