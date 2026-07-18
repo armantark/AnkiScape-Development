@@ -2568,18 +2568,34 @@ class CombatLogicTest(unittest.TestCase):
             {"Bones": 1, "Black boots": 1},
         )
 
-    def test_infernal_mage_rare_tables_roll_independently(self):
-        self.assertEqual(
-            _combat_roll_drops(
-                COMBAT_ENEMY_DATA["infernal_mage"],
-                _rng([0.999999, 0.0, 0.0]),
+    def test_slayer_mage_rare_tables_roll_independently(self):
+        cases = (
+            (
+                "infernal_mage",
+                {
+                    "Bones": 1,
+                    "Mystic boots (dark)": 1,
+                    "Lava battlestaff": 1,
+                },
             ),
-            {
-                "Bones": 1,
-                "Mystic boots (dark)": 1,
-                "Lava battlestaff": 1,
-            },
+            (
+                "basilisk",
+                {
+                    "Bones": 1,
+                    "Mystic hat (light)": 1,
+                    "Basilisk head": 1,
+                },
+            ),
         )
+        for target_id, expected in cases:
+            with self.subTest(target_id=target_id):
+                self.assertEqual(
+                    _combat_roll_drops(
+                        COMBAT_ENEMY_DATA[target_id],
+                        _rng([0.999999, 0.0, 0.0]),
+                    ),
+                    expected,
+                )
 
     def test_zombie_drop_rolls_nested_minor_herbs_and_level_25_variant(self):
         herb_drops = _combat_roll_drops(
@@ -5321,12 +5337,14 @@ class CombatLogicTest(unittest.TestCase):
     def test_protective_gear_preview_warns_when_missing_and_clears_when_equipped(self):
         cases = (
             ("cockatrice", "shield", "Mirror shield", 60, 100),
+            ("basilisk", "shield", "Mirror shield", 120, 120),
             ("banshee", "head", "Earmuffs", 99, 80),
         )
         for target_id, slot, item_name, constitution_level, expected_max_hit in cases:
             with self.subTest(target_id=target_id):
                 unprotected = combat_target_preview_pure(
                     _player(
+                        slayer_level=99,
                         constitution_level=constitution_level,
                         combat_lifepoints=constitution_level * 10,
                     ),
@@ -5336,6 +5354,7 @@ class CombatLogicTest(unittest.TestCase):
                 )
                 protected = combat_target_preview_pure(
                     _player(
+                        slayer_level=99,
                         constitution_level=constitution_level,
                         combat_lifepoints=constitution_level * 10,
                         equipment={slot: item_name},
@@ -5349,6 +5368,50 @@ class CombatLogicTest(unittest.TestCase):
                 self.assertIn(item_name, unprotected["protection_warning"])
                 self.assertEqual(protected["protection_warning"], "")
                 self.assertLess(protected["enemy_max_hit"], unprotected["enemy_max_hit"])
+
+    def test_basilisk_prayer_blocks_unshielded_damage_but_not_random_stat_drain(self):
+        base = dict(
+            current_combat_target="basilisk",
+            slayer_level=40,
+            attack_level=60,
+            strength_level=60,
+            defense_level=60,
+            ranged_level=60,
+            magic_level=60,
+            prayer_level=99,
+            constitution_level=60,
+            combat_lifepoints=600,
+            combat_auto_flee=False,
+            combat_selected_prayers=["protect_from_melee"],
+            combat_prayer_uptime="100",
+            combat_prayer_points=990,
+        )
+
+        protected, ok, result = apply_combat_burst_pure(
+            _player(**base),
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=19,
+            rng=lambda: 0.999999,
+        )
+        shielded, shielded_ok, shielded_result = apply_combat_burst_pure(
+            _player(**base, equipment={"shield": "Mirror shield"}),
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=19,
+            rng=lambda: 0.999999,
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(shielded_ok)
+        self.assertEqual(result["unprotected_attacks"], 3)
+        self.assertEqual(result["enemy_damage"], 0)
+        self.assertEqual(result["stat_drains"], {"magic": 15})
+        self.assertEqual(protected["combat_lifepoints"], 600)
+        self.assertEqual(protected["combat_current_levels"], {"magic": 45})
+        self.assertEqual(shielded_result["unprotected_attacks"], 0)
+        self.assertEqual(shielded_result["stat_drains"], {})
+        self.assertEqual(shielded["combat_current_levels"], {})
 
     def test_vampyre_requires_morytania_access_and_holy_symbol_weakens_it(self):
         locked = _player(current_combat_target="vampyre")

@@ -28,6 +28,7 @@ NEW_COMBAT_ENEMIES = (
     "jelly",
     "bloodveld",
     "infernal_mage",
+    "basilisk",
     "kalphite_soldier",
     "wall_beast",
     "vampyre",
@@ -278,6 +279,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("jelly", "Jelly.png"),
             ("bloodveld", "Bloodveld.png"),
             ("infernal_mage", "Infernal Mage.png"),
+            ("basilisk", "Basilisk.png"),
             ("kalphite_soldier", "Kalphite Soldier.png"),
             ("wall_beast", "Wall beast icon.png"),
             ("vampyre", "Vampire (historical) (level 61).png"),
@@ -371,6 +373,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
     def test_slayer_targets_require_their_source_levels(self):
         for target_id, required_level in (
             ("pyrefiend", 30),
+            ("basilisk", 40),
             ("infernal_mage", 45),
             ("bloodveld", 50),
             ("jelly", 52),
@@ -477,6 +480,32 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertEqual(sum(slot["slots"] for slot in lava["slots"]), 1000)
         self.assertIn("oldid=6446423", mage["source"])
         self.assertIn("charm distribution remains source_blocked", mage["source_status"])
+
+    def test_basilisk_preserves_the_cutoff_variant_and_independent_tables(self):
+        basilisk = COMBAT_ENEMY_DATA["basilisk"]
+
+        self.assertEqual(basilisk["level"], 61)
+        self.assertEqual(basilisk["required_slayer_level"], 40)
+        self.assertEqual(basilisk["attack_style"], "melee")
+        self.assertEqual(basilisk["attack_speed"], 6)
+        self.assertEqual(basilisk["respawn_delay"], 59)
+        self.assertEqual(basilisk["slayer_xp"], 75.0)
+        self.assertEqual(basilisk["max_hit"], 59)
+        self.assertEqual(basilisk["stats"]["hitpoints"], 750)
+        self.assertEqual(basilisk["drops"]["guaranteed"], (("Bones", 1),))
+        main, light_mystic, head = basilisk["drops"]["tables"]
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
+        self.assertEqual(sum(slot["slots"] for slot in light_mystic["slots"]), 512)
+        self.assertEqual(sum(slot["slots"] for slot in head["slots"]), 2000)
+        self.assertTrue(
+            basilisk["protective_equipment"]["unprotected_effect"][
+                "protection_prayer_applies"
+            ]
+        )
+        self.assertIn("oldid=6565796", basilisk["source"])
+        self.assertIn(
+            "charm distribution remains source_blocked", basilisk["source_status"]
+        )
 
     def test_kalphite_soldier_preserves_the_cutoff_variant_and_drop_table(self):
         soldier = COMBAT_ENEMY_DATA["kalphite_soldier"]

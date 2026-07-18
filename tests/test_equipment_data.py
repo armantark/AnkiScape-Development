@@ -20,7 +20,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 653)
+        self.assertEqual(len(EQUIPMENT_DATA), 654)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -46,6 +46,14 @@ class TestEquipmentData(unittest.TestCase):
         self.assertEqual(EQUIPMENT_DATA["Catspeak amulet"].slot, "neck")
         self.assertEqual(EQUIPMENT_DATA["Beads of the dead"].slot, "neck")
         self.assertEqual(EQUIPMENT_DATA["Masked earmuffs"].slot, "head")
+        light_mystic_hat = EQUIPMENT_DATA["Mystic hat (light)"]
+        self.assertEqual(light_mystic_hat.source_item_id, 4109)
+        self.assertEqual(light_mystic_hat.slot, "head")
+        self.assertEqual(
+            light_mystic_hat.skill_requirements,
+            (("defense", 20), ("magic", 20)),
+        )
+        self.assertEqual(light_mystic_hat.bonuses.attack_magic, 4)
         for item_name, source_item_id in (
             ("Saradomin cape", 2412),
             ("Guthix cape", 2413),

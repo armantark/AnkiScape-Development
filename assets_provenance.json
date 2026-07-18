@@ -683,6 +683,18 @@
     "source_wiki": "osrs",
     "timestamp": "2020-05-19T00:19:48Z"
   },
+  "combatenemies/basilisk.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Basilisk.png",
+    "file_title": "Basilisk.png",
+    "image_url": "https://runescape.wiki/images/Basilisk.png?edd44",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "755423f7c8ddfb0fcfdc374dfff8eb0f80755f31",
+    "size": 1399157,
+    "source_wiki": "rs3",
+    "timestamp": "2026-01-28T14:09:44Z"
+  },
   "combatenemies/big_wolf.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Big_Wolf.png",
     "file_title": "Big Wolf.png",
@@ -2592,6 +2604,18 @@
     "size": 433,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:59:14Z"
+  },
+  "combatitems/mystic_hat_light.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Mystic_hat.png",
+    "file_title": "Mystic hat.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Mystic_hat.png?246bf",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "dabb8730035b7f3f894e5dcd1804b098a218517b",
+    "size": 827,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:59:12Z"
   },
   "combatitems/needle.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Needle.png",

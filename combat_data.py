@@ -7776,6 +7776,137 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "Lava battlestaff; charm distribution remains source_blocked"
         ),
     },
+    "basilisk": {
+        "display_name": "Basilisk",
+        "level": 61,
+        "group": "Slayer",
+        "required_slayer_level": 40,
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 59,
+        "slayer_xp": 75.0,
+        "protective_equipment": {
+            "slot": "shield",
+            "items": ("Mirror shield",),
+            "warning": (
+                "Missing Mirror shield in the shield slot: Basilisk gaze "
+                "deals fixed damage and drains one combat stat."
+            ),
+            "unprotected_effect": {
+                "damage": {
+                    "kind": "max_lifepoints_fraction_capped",
+                    "numerator": 1,
+                    "denominator": 10,
+                    "cap": 120,
+                },
+                "protection_prayer_applies": True,
+                "stat_drain": {
+                    "kind": "flat_to_floor",
+                    "skills": (
+                        "attack",
+                        "defense",
+                        "strength",
+                        "ranged",
+                        "prayer",
+                        "magic",
+                    ),
+                    "amount": 5,
+                    "floor": 1,
+                    "selection": "random_one",
+                },
+            },
+            "source_status": (
+                "period exact shield requirement, 120-LP unprotected maximum, "
+                "Protect from Melee damage block, and unavoidable stat drain; "
+                "abstraction/darkan: fixed max-LP/10 hit and one random combat "
+                "stat drained by five"
+            ),
+        },
+        "stats": {
+            "hitpoints": 750,
+            "attack": 30,
+            "strength": 45,
+            "defence": 75,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (("Bones", 1),),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 128,
+                    "slots": (
+                        {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 35},
+                        {"item": "Coins", "quantity": 44, "slots": 28},
+                        {"item": "Coins", "quantity": 200, "slots": 17},
+                        {"item": "Water rune", "quantity": 75, "slots": 8},
+                        {"item": "Nature rune", "quantity": 15, "slots": 5},
+                        {"item": "Coins", "quantity": 132, "slots": 5},
+                        {"item": "Coins", "quantity": 11, "slots": 5},
+                        {"table": COMBAT_GEM_DROP_TABLE, "slots": 5},
+                        {"item": "Mithril hatchet", "quantity": 1, "slots": 3},
+                        {"item": "Steel battleaxe", "quantity": 1, "slots": 3},
+                        {"item": "Law rune", "quantity": 3, "slots": 3},
+                        {"item": "Adamantite ore", "quantity": 1, "slots": 3},
+                        {"item": "Mithril spear", "quantity": 1, "slots": 2},
+                        {"item": "Adamant full helm", "quantity": 1, "slots": 1},
+                        {"item": "Mithril kiteshield", "quantity": 1, "slots": 1},
+                        {"item": "Rune dagger", "quantity": 1, "slots": 1},
+                        {"item": "Nature rune", "quantity": 37, "slots": 1},
+                        {"item": "Coins", "quantity": 440, "slots": 1},
+                        {"slots": 1},
+                    ),
+                },
+                {
+                    "name": "Light mystic",
+                    "total": 512,
+                    "slots": (
+                        {"item": "Mystic hat (light)", "quantity": 1, "slots": 1},
+                        {"slots": 511},
+                    ),
+                },
+                {
+                    "name": "Basilisk head",
+                    "total": 2000,
+                    "slots": (
+                        {"item": "Basilisk head", "quantity": 1, "slots": 1},
+                        {"slots": 1999},
+                    ),
+                },
+            ),
+        },
+        "source": (
+            "https://runescape.wiki/w/Basilisk?oldid=6565796; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/game/content/skills/"
+            "slayer/npcs/combat/Basilisk.java; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "basilisk.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/basilisk.json"
+        ),
+        "source_status": (
+            "period exact ordinary identity, LP, Slayer gate/XP, six-tick melee, "
+            "protected and unprotected maximum hits, shield semantics, and "
+            "guaranteed Bones; Darkan exact stats, respawn, 128-slot main table, "
+            "1/512 light-mystic hat, and 1/2000 Basilisk head; charm distribution "
+            "remains source_blocked"
+        ),
+    },
     "kalphite_soldier": {
         "display_name": "Kalphite Soldier",
         "level": 85,
@@ -9997,6 +10128,26 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
         "source_item_id": 4107,
         "stackable": False,
         "tradeable": True,
+    },
+    "Mystic hat (light)": {
+        "category": "equipment",
+        "source": (
+            "game-main data/cfg/items.yml item 4109; "
+            "RuneScape Wiki Basilisk oldid 6565796"
+        ),
+        "source_item_id": 4109,
+        "stackable": False,
+        "tradeable": True,
+    },
+    "Basilisk head": {
+        "category": "material",
+        "source": (
+            "game-main data/cfg/items.yml item 7977; "
+            "RuneScape Wiki Basilisk oldid 6565796"
+        ),
+        "source_item_id": 7977,
+        "stackable": False,
+        "tradeable": False,
     },
     "Black boots": {
         "category": "equipment",

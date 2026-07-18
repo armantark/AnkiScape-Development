@@ -4,6 +4,26 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Basilisk Combat closure — 2026-07-18
+
+- Added the ordinary level-61 Basilisk as a Slayer-40 Combat target with 750
+  LP, 75 Slayer XP, six-tick melee, maximum hit 59, and guaranteed Bones.
+- Reused the equipped Mirror-shield contract while preserving Basilisk's
+  distinct source behavior: Protect from Melee blocks the unshielded damage
+  but not its random five-level stat drain.
+- Encoded the exact independent 128-slot ordinary, 1/512 light-Mystic, and
+  1/2,000 Basilisk-head tables. Charm distribution remains `source_blocked`.
+- Registered Mystic hat (light) as generated Defence-20/Magic-20 equipment and
+  corrected Basilisk head to its non-stackable, untradeable item-7977 identity.
+- Advanced Vannaka from 19/35 to 20/35 without exposing or renormalizing the
+  incomplete master. Fourteen missing targets and Earth warrior's Wilderness
+  context remain.
+- Focused checks and the real offscreen Qt picker pass. Durable evidence is
+  `source-audits/slayer-basilisk-combat-2026-07-18.md`; no owner design input
+  was required. Results:
+  `status-updates/slayer-basilisk-results-2026-07-18.html`
+  (<https://12bv7z5x53a2.postplan.dev>).
+
 ## Slayer Infernal Mage Combat closure — 2026-07-18
 
 - Added the ordinary level-66 Infernal Mage as a Slayer-45 Combat target with

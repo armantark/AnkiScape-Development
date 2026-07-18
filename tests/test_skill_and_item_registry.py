@@ -197,6 +197,22 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 self.assertEqual(definition.asset_path, COMBAT_ITEM_IMAGES[item_name])
                 self.assertTrue(os.path.exists(definition.asset_path))
 
+    def test_basilisk_rare_drops_keep_real_identity_and_assets(self):
+        definitions = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        hat = definitions["Mystic hat (light)"]
+        self.assertEqual(hat.source_item_id, 4109)
+        self.assertEqual(hat.category, "equipment")
+        self.assertEqual(hat.equipment_slot, "head")
+        self.assertEqual(hat.asset_path, COMBAT_ITEM_IMAGES["Mystic hat (light)"])
+        self.assertTrue(os.path.exists(hat.asset_path))
+
+        head = definitions["Basilisk head"]
+        self.assertEqual(head.source_item_id, 7977)
+        self.assertEqual(head.category, "material")
+        self.assertFalse(head.stackable)
+        self.assertFalse(head.tradeable)
+        self.assertTrue(os.path.exists(head.asset_path))
+
     def test_agility_consumable_dose_families_share_canonical_tradeability(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         expected_ids = {

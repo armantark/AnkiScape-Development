@@ -2,6 +2,18 @@
 
 ## Current Focus
 
+The ordinary level-61 Basilisk is now executable with Slayer 40, six-tick
+melee, 750 LP, 75 Slayer XP, and the source's Mirror-shield requirement.
+Unshielded damage can be stopped by Protect from Melee while the random
+five-level stat drain still lands; the magnitude is explicitly
+`abstraction/darkan`. Mystic hat (light) is generated equipment and the
+existing Basilisk head now carries its real item identity. Vannaka advances to
+20/35 while remaining hidden; charm distribution stays `source_blocked`.
+Evidence: `source-audits/slayer-basilisk-combat-2026-07-18.md`. No owner-facing
+design fork emerged. Results:
+`status-updates/slayer-basilisk-results-2026-07-18.html`
+(<https://12bv7z5x53a2.postplan.dev>).
+
 The ordinary level-66 Infernal Mage is now executable with Slayer 45, six-tick
 Magic attacks, 600 LP, 60 Slayer XP, and four independent source-shaped drop
 tables. Lava battlestaff, dark Mystic hat, and dark Mystic boots are generated

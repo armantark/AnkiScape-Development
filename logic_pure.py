@@ -3728,7 +3728,7 @@ def _combat_unprotected_damage_lifepoints(effect, max_lifepoints):
     return min(amount, cap)
 
 
-def _combat_apply_unprotected_stat_drains(data, effect):
+def _combat_apply_unprotected_stat_drains(data, effect, rng=None):
     drain = effect.get("stat_drain") if isinstance(effect, Mapping) else None
     if not isinstance(drain, Mapping):
         return {}
@@ -3743,10 +3743,23 @@ def _combat_apply_unprotected_stat_drains(data, effect):
     else:
         flat_amount = _positive_int(drain.get("amount", 1), 1)
         flat_floor = _positive_int(drain.get("floor", 1), 1)
+    skills = tuple(
+        skill_id
+        for skill_id in (drain.get("skills", ()) or ())
+        if isinstance(skill_id, str)
+    )
+    if drain.get("selection") == "random_one" and skills:
+        try:
+            roll = float(rng()) if callable(rng) else 0.0
+        except (TypeError, ValueError):
+            roll = 0.0
+        index = min(
+            len(skills) - 1,
+            int(max(0.0, min(roll, 0.999999999)) * len(skills)),
+        )
+        skills = (skills[index],)
     applied = {}
-    for skill_id in drain.get("skills", ()) or ():
-        if not isinstance(skill_id, str):
-            continue
+    for skill_id in skills:
         base = _combat_base_skill_level(data, skill_id, 1)
         current = _combat_effective_skill_level(data, skill_id, base)
         if kind == "base_fraction_to_floor":
@@ -7166,7 +7179,9 @@ def apply_combat_burst_pure(
             if isinstance(unprotected_effect, Mapping):
                 damage = _combat_unprotected_damage_lifepoints(unprotected_effect, max_player_lp)
                 unprotected_attacks += 1
-                attack_drains = _combat_apply_unprotected_stat_drains(data, unprotected_effect)
+                attack_drains = _combat_apply_unprotected_stat_drains(
+                    data, unprotected_effect, rng
+                )
                 for skill_id, amount in attack_drains.items():
                     stat_drains[skill_id] = _non_negative_int(stat_drains.get(skill_id, 0), 0) + amount
                 if attack_drains:
@@ -7237,7 +7252,10 @@ def apply_combat_burst_pure(
                     landed = False
                 damage = _combat_roll_damage_lifepoints(enemy_max_hit, rng) if landed else 0
             raw_enemy_damage = damage
-            if not isinstance(unprotected_effect, Mapping):
+            if (
+                not isinstance(unprotected_effect, Mapping)
+                or bool(unprotected_effect.get("protection_prayer_applies"))
+            ):
                 protection_class = _combat_enemy_protection_class(enemy)
                 protection_key = {
                     "magic": "protect_magic",
