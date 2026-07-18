@@ -2236,6 +2236,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         jackal = _tree_row(tree, "jackal")
         icefiend = _tree_row(tree, "icefiend")
         pyrefiend = _tree_row(tree, "pyrefiend")
+        kalphite_soldier = _tree_row(tree, "kalphite_soldier")
         banshee = _tree_row(tree, "banshee")
         seagull = _tree_row(tree, "seagull")
 
@@ -2276,6 +2277,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Enemy max hit: 44 LP", pyrefiend.toolTip(0))
         self.assertIn("Steel boots x1 (1/128)", pyrefiend.toolTip(0))
         self.assertFalse(pyrefiend.icon(0).isNull())
+        self.assertEqual(kalphite_soldier.text(0), "Kalphite Soldier (Lvl 85)")
+        self.assertIn("Enemy max hit: 80 LP", kalphite_soldier.toolTip(0))
+        self.assertIn(
+            "Poison: 50 LP initial · 40% attack chance",
+            kalphite_soldier.toolTip(0),
+        )
+        self.assertIn("Rune chainbody x1 (1/128)", kalphite_soldier.toolTip(0))
+        self.assertFalse(kalphite_soldier.icon(0).isNull())
         self.assertEqual(banshee.text(0), "Banshee (Lvl 23)")
         self.assertIn("Missing Earmuffs", banshee.toolTip(0))
         self.assertIn("Enemy max hit: 10 LP", banshee.toolTip(0))

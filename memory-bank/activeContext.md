@@ -2,21 +2,21 @@
 
 ## Current Focus
 
-The ordinary level-43 Pyrefiend is now an executable Slayer Combat target,
-closing the seventh Mazchna/Achtryn family. Its source-backed `magic_melee`
-style uses enemy Attack plus stab bonus against player Magic defence while
-Protect from Melee, not Protect from Magic, prevents the hit. The Combat picker
-states that unusual attack style directly. The target preserves 450 LP, 45
-Slayer XP, a 44-LP maximum hit, the exact 128-slot ordinary drop table, and
-guaranteed Impious ashes. Steel boots item 4123 is a real Defence-5 feet item
-with cache identity, equipment bonuses, registry reachability, and an item
-sprite. Mazchna/Achtryn remains correctly hidden at 22/27; the exact remaining
-Combat-target blockers are Cyclopes, Kalphites, Mogres, Vampyres, and Wall
-beasts. No owner design gap emerged. Full core and real offscreen Qt discovery
-each pass all 1,565 methods. Durable evidence is
-`source-audits/slayer-pyrefiend-combat-2026-07-18.md`; the visual report is
-`status-updates/slayer-pyrefiend-combat-results-2026-07-18.html`
-(<https://0ga1wxb9wpb8.postplan.dev>).
+The ordinary level-85 Kalphite Soldier is now an executable Slayer Combat
+target, closing Mazchna/Achtryn's Kalphites family. It preserves 900 LP, 90
+Slayer XP, the period six-tick melee attack, the approximate 80-LP maximum hit,
+and Darkan's exact 128-slot drop table. The existing game-main-shaped poison
+channel cannot encode the period 48-LP initial hit exactly, so the row uses the
+nearest representable 50 LP and states that bounded abstraction explicitly.
+The Combat picker exposes poison risk, the complete table, and the pre-cutoff
+target sprite. Mazchna/Achtryn remains correctly hidden at 23/27; the four
+remaining Combat-target blockers are Cyclopes, Mogres, Vampyres, and Wall
+beasts. Full core and real offscreen Qt discovery each pass all 1,566 methods;
+test quality reports zero hard issues. No owner design gap emerged. Durable
+evidence is `source-audits/slayer-kalphite-soldier-combat-2026-07-18.md`; the
+visual report is
+`status-updates/slayer-kalphite-soldier-combat-results-2026-07-18.html`
+(<https://trn4s92bn2a4.postplan.dev>).
 
 Mazchna/Achtryn is now the second fully represented Slayer-master pool, but it
 remains correctly hidden. The data model separates stable family identity from
@@ -24,8 +24,8 @@ master-specific weight/count rows, preserving all 27 reconciled families and
 the provisional 325-point denominator without mutating Turael's values. The new
 `tools/audit_slayer_readiness.py` derives certification from live target,
 Slayer-XP, poison, protection, and finisher dependencies. It certifies
-Turael/Spria at 23/23 and reports Mazchna/Achtryn at 22/27 with exactly five
-Combat-target blockers: Cyclopes, Kalphites, Mogres, Vampyres, and Wall beasts.
+Turael/Spria at 23/23 and reports Mazchna/Achtryn at 23/27 with exactly four
+Combat-target blockers: Cyclopes, Mogres, Vampyres, and Wall beasts.
 The audit also rejects malformed roll rows, denominator drift,
 enabled partial masters, and certified-but-forgotten hidden masters. Both
 Hobgoblin variants now award their pinned 29/49 Slayer XP. No owner design gap

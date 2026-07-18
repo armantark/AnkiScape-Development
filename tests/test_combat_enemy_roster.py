@@ -24,6 +24,7 @@ NEW_COMBAT_ENEMIES = (
     "jackal",
     "icefiend",
     "pyrefiend",
+    "kalphite_soldier",
     "gelatinous_abomination",
     "young_grotworm",
     "monkey",
@@ -222,6 +223,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("jackal", "Jackal.png"),
             ("icefiend", "Icefiend.png"),
             ("pyrefiend", "Pyrefiend.png"),
+            ("kalphite_soldier", "Kalphite Soldier.png"),
             ("gelatinous_abomination", "Gelatinous abomination icon.png"),
             ("young_grotworm", "Young grotworm.png"),
             ("monkey", "Karamja monkey.png"),
@@ -295,6 +297,34 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ),
             (),
         )
+
+    def test_kalphite_soldier_preserves_the_cutoff_variant_and_drop_table(self):
+        soldier = COMBAT_ENEMY_DATA["kalphite_soldier"]
+
+        self.assertEqual(soldier["level"], 85)
+        self.assertEqual(soldier["attack_style"], "melee")
+        self.assertEqual(soldier["attack_speed"], 6)
+        self.assertEqual(soldier["respawn_delay"], 59)
+        self.assertEqual(soldier["slayer_xp"], 90.0)
+        self.assertEqual(soldier["max_hit"], 80)
+        self.assertEqual(soldier["poison_damage"], 5)
+        self.assertIn("nearest representable 50-LP", soldier["source_status"])
+        self.assertEqual(
+            soldier["stats"],
+            {
+                "hitpoints": 900,
+                "attack": 70,
+                "strength": 70,
+                "defence": 70,
+                "magic": 1,
+                "ranged": 1,
+            },
+        )
+        self.assertEqual(soldier["drops"]["guaranteed"], ())
+        main = soldier["drops"]["tables"][0]
+        self.assertEqual(main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
+        self.assertIn("oldid=6565809", soldier["source"])
 
     def test_desert_lizard_preserves_the_period_finisher_variant(self):
         lizard = COMBAT_ENEMY_DATA["desert_lizard"]

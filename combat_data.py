@@ -7285,6 +7285,81 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "Wars, Daemonheim, revenant, and familiar variants excluded"
         ),
     },
+    "kalphite_soldier": {
+        "display_name": "Kalphite Soldier",
+        "level": 85,
+        "group": "Slayer",
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 80,
+        "poison_damage": 5,
+        "slayer_xp": 90.0,
+        "stats": {
+            "hitpoints": 900,
+            "attack": 70,
+            "strength": 70,
+            "defence": 70,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 128,
+                    "slots": (
+                        {"item": "Coins", "quantity": 120, "slots": 40},
+                        {"item": "Coins", "quantity": 40, "slots": 29},
+                        {"item": "Coins", "quantity": 200, "slots": 10},
+                        {"item": "Fire rune", "quantity": 60, "slots": 8},
+                        {"item": "Coins", "quantity": 10, "slots": 7},
+                        {"item": "Chaos rune", "quantity": 12, "slots": 5},
+                        {"item": "Steel full helm", "quantity": 1, "slots": 4},
+                        {"item": "Steel hatchet", "quantity": 1, "slots": 4},
+                        {"table": COMBAT_GEM_DROP_TABLE, "slots": 4},
+                        {"item": "Steel scimitar", "quantity": 1, "slots": 3},
+                        {"item": "Death rune", "quantity": 3, "slots": 3},
+                        {"item": "Waterskin (4)", "quantity": 1, "slots": 3},
+                        {"item": "Nature rune", "quantity": 1, "slots": 2},
+                        {"item": "Rune chainbody", "quantity": 1, "slots": 1},
+                        {"item": "Mithril sq shield", "quantity": 1, "slots": 1},
+                        {"item": "Adamant med helm", "quantity": 1, "slots": 1},
+                        {"item": "Fire rune", "quantity": 30, "slots": 1},
+                        {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 1},
+                        {"item": "Coins", "quantity": 450, "slots": 1},
+                    ),
+                },
+            ),
+        },
+        "source": (
+            "https://runescape.wiki/w/Kalphite_Soldier?oldid=6565809; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "kalphite_soldier.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/kalphite_soldier.json"
+        ),
+        "source_status": (
+            "period ordinary level-85 identity, LP, maximum hit, attack speed, "
+            "Slayer XP, 48-LP initial poison, stab-style melee, assignment "
+            "membership, and no guaranteed drop; nearest representable 50-LP "
+            "poison abstraction; Darkan exact stats, respawn, and 128-slot "
+            "drops; worker, guardian, and queen variants excluded"
+        ),
+    },
     "gelatinous_abomination": {
         "display_name": "Gelatinous abomination",
         "level": 2,

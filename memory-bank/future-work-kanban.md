@@ -219,8 +219,10 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
 - Mazchna/Achtryn is now the second completely encoded pool. Stable family
   identities are separate from its 27 master-specific roll rows and provisional
   325-point denominator. `tools/audit_slayer_readiness.py` derives the live
-  readiness ledger: 22/27 families are ready, while Cyclopes, Kalphites,
-  Mogres, Vampyres, and Wall beasts remain exact Combat-target blockers.
+  readiness ledger: 23/27 families are ready, while Cyclopes, Mogres, Vampyres,
+  and Wall beasts remain exact Combat-target blockers. Kalphites are closed
+  through the ordinary level-85 Soldier with its period poison risk and exact
+  128-slot drop table.
   Pyrefiends are closed through the ordinary level-43 representative with
   source-faithful magic-based-melee semantics. The role stays hidden; stale
   prose blockers for protection,

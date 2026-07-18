@@ -4,6 +4,34 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Kalphite Soldier Combat closure — 2026-07-18
+
+- Added the ordinary level-85 Kalphite Soldier as an executable Combat target
+  with 900 LP, 90 Slayer XP, a six-tick melee attack, an approximate 80-LP
+  maximum hit, and a pre-cutoff target image.
+- Encoded Darkan's exact 128-slot mutually exclusive drop table using the
+  existing item registry plus shared gem and minor-herb tables; no name-only
+  economy item was introduced.
+- Reused the shared poison runtime and made the unavoidable magnitude
+  abstraction explicit: the period page gives 48 LP, while the
+  game-main-shaped integer unit can represent only ten-LP increments, so the
+  target uses the nearest value of 50 LP rather than 480 or 40.
+- Advanced executable Mazchna/Achtryn readiness from 22/27 to 23/27 without
+  exposing the partial master. Cyclopes, Mogres, Vampyres, and Wall beasts are
+  the four exact remaining Combat-target blockers.
+- Focused pure and real offscreen Qt regressions pass. Full core discovery
+  passes all 1,566 methods with 213 declared environment skips; full real
+  offscreen Qt discovery passes all 1,566 methods without failures or skips.
+  Test quality reports zero hard issues, and documentation, compilation, diff,
+  readiness, and worktree checks pass. The expected reachability debt ledger
+  remains 1,231 actions, 1,811 reachable items, 285 orphan inputs, and 311
+  blocked actions.
+- Durable evidence is
+  `source-audits/slayer-kalphite-soldier-combat-2026-07-18.md`; the visual
+  report is
+  `status-updates/slayer-kalphite-soldier-combat-results-2026-07-18.html`
+  (<https://trn4s92bn2a4.postplan.dev>). No owner design decision was required.
+
 ## Slayer Pyrefiend Combat closure — 2026-07-18
 
 - Added the ordinary level-43 Pyrefiend as a Slayer-30 Combat target with 450

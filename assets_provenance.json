@@ -1223,6 +1223,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-14T09:10:05Z"
   },
+  "combatenemies/kalphite_soldier.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Kalphite_Soldier.png",
+    "file_title": "Kalphite Soldier.png",
+    "image_url": "https://runescape.wiki/images/archive/20130114154811%21Kalphite_Soldier.png?24fdb",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a1c3fa7bfd41b605230388bd755ec08dea154a5d",
+    "size": 463784,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-08T01:49:01Z"
+  },
   "combatenemies/king_scorpion.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:King_Scorpion.png",
     "file_title": "King Scorpion.png",
