@@ -23,6 +23,8 @@ NEW_COMBAT_ENEMIES = (
     "jackal",
     "icefiend",
     "desert_lizard",
+    "rockslug",
+    "gargoyle",
     "banshee",
     "shade",
     "ghost_level_77",
@@ -69,6 +71,8 @@ OPTIONAL_ENEMY_KEYS = {
     "finisher",
     "required_slayer_level",
     "environmental_hazard",
+    "retaliation_stop_lifepoints",
+    "regeneration",
 }
 
 REQUIRED_STAT_KEYS = {"hitpoints", "attack", "strength", "defence", "magic", "ranged"}
@@ -84,12 +88,6 @@ REQUIRED_BONUS_KEYS = {
     "defence_ranged",
     "melee_strength",
 }
-
-
-# The reusable finisher engine now expresses source item-gated kills. Gargoyle
-# and Rockslug remain out only until their individual rows and assets are
-# reconciled; adding them here prematurely would still invent their combat data.
-ITEM_GATED_ENEMIES_NOT_MODELLED = ("gargoyle", "rockslug")
 
 
 class CombatEnemyRosterDataTest(unittest.TestCase):
@@ -111,10 +109,6 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
 
         self.assertEqual(set(COMBAT_ENEMY_DATA) & skilling_ids, set())
 
-
-    def test_unreconciled_item_gated_enemies_stay_out(self):
-        for enemy_name in ITEM_GATED_ENEMIES_NOT_MODELLED:
-            self.assertNotIn(enemy_name, COMBAT_ENEMY_DATA)
 
     def test_new_enemies_have_required_schema(self):
         for enemy_name in NEW_COMBAT_ENEMIES:
@@ -211,6 +205,8 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("jackal", "Jackal.png"),
             ("icefiend", "Icefiend.png"),
             ("desert_lizard", "Desert lizard (green).png"),
+            ("rockslug", "Rock slug icon.png"),
+            ("gargoyle", "Gargoyle icon.png"),
         ):
             with self.subTest(target=target_id):
                 relative_path = f"combatenemies/{target_id}.png"
@@ -297,6 +293,67 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertTrue(
             all(table["total"] == 100000 for table in lizard["drops"]["tables"])
         )
+
+    def test_rockslug_preserves_the_period_finisher_and_frozen_state(self):
+        rockslug = COMBAT_ENEMY_DATA["rockslug"]
+
+        self.assertEqual(rockslug["level"], 29)
+        self.assertEqual(rockslug["required_slayer_level"], 20)
+        self.assertEqual(rockslug["max_hit"], 41)
+        self.assertEqual(rockslug["slayer_xp"], 27.0)
+        self.assertEqual(rockslug["retaliation_stop_lifepoints"], 10)
+        self.assertEqual(
+            rockslug["stats"],
+            {
+                "hitpoints": 270,
+                "attack": 22,
+                "strength": 27,
+                "defence": 27,
+                "magic": 1,
+                "ranged": 1,
+            },
+        )
+        self.assertEqual(
+            rockslug["finisher"]["item"],
+            "Bag of salt",
+        )
+        self.assertEqual(rockslug["finisher"]["threshold_lifepoints"], 39)
+        self.assertTrue(rockslug["finisher"]["consume"])
+        self.assertIn("oldid=6530509", rockslug["source"])
+        self.assertEqual(len(rockslug["drops"]["tables"]), 21)
+
+    def test_gargoyle_preserves_the_period_reusable_finisher_and_regeneration(self):
+        gargoyle = COMBAT_ENEMY_DATA["gargoyle"]
+
+        self.assertEqual(gargoyle["level"], 111)
+        self.assertEqual(gargoyle["required_slayer_level"], 75)
+        self.assertEqual(gargoyle["attack_speed"], 6)
+        self.assertEqual(gargoyle["max_hit"], 119)
+        self.assertEqual(gargoyle["slayer_xp"], 105.0)
+        self.assertEqual(
+            gargoyle["regeneration"],
+            {
+                "lifepoints_per_tick_numerator": 12,
+                "lifepoints_per_tick_denominator": 5,
+                "source_status": (
+                    "period page reports roughly 20 LP per five seconds; expressed "
+                    "as the exact equivalent 12/5 LP per 0.6-second gameplay tick"
+                ),
+            },
+        )
+        self.assertEqual(gargoyle["finisher"]["item"], "Rock hammer")
+        self.assertEqual(gargoyle["finisher"]["threshold_lifepoints"], 89)
+        self.assertFalse(gargoyle["finisher"]["consume"])
+        self.assertNotIn(
+            "Ferocious ring (5)",
+            {
+                slot.get("item")
+                for table in gargoyle["drops"]["tables"]
+                for slot in table["slots"]
+            },
+        )
+        self.assertIn("oldid=6579781", gargoyle["source"])
+        self.assertEqual(len(gargoyle["drops"]["tables"]), 23)
 
     def test_new_enemy_drops_are_well_formed(self):
         for enemy_name in NEW_COMBAT_ENEMIES:

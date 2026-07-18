@@ -839,6 +839,18 @@
     "source_wiki": "rs3",
     "timestamp": "2022-07-10T15:22:46Z"
   },
+  "combatenemies/gargoyle.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Gargoyle_icon.png",
+    "file_title": "Gargoyle icon.png",
+    "image_url": "https://runescape.wiki/images/Gargoyle_icon.png?c302b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e0e5fb6c2b205eb2dddfb74abc21d99cd091211f",
+    "size": 500,
+    "source_wiki": "rs3",
+    "timestamp": "2011-01-28T23:53:48Z"
+  },
   "combatenemies/ghost.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Ghost.png",
     "file_title": "Ghost.png",
@@ -1378,6 +1390,18 @@
     "size": 14337,
     "source_wiki": "osrs",
     "timestamp": "2019-05-14T01:46:04Z"
+  },
+  "combatenemies/rockslug.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Rock_slug_icon.png",
+    "file_title": "Rock slug icon.png",
+    "image_url": "https://runescape.wiki/images/Rock_slug_icon.png?620db",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c03eda81df232eec1985a4820084baaf5a5d677c",
+    "size": 1119,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-27T19:21:04Z"
   },
   "combatenemies/scorpion.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Scorpion.png",

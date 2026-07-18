@@ -3761,6 +3761,7 @@ def combat_finisher_state_pure(player_data, target_id=None, enemy_data=None):
             "item_count": 0,
             "threshold_lifepoints": 0,
             "action_label": "",
+            "consumable": False,
         }
     item_name = str(finisher.get("item", "") or "")
     threshold = _positive_int(finisher.get("threshold_lifepoints", 0), 0)
@@ -3786,6 +3787,7 @@ def combat_finisher_state_pure(player_data, target_id=None, enemy_data=None):
         "action_label": str(
             finisher.get("action_label", f"Use {item_name}") or f"Use {item_name}"
         ),
+        "consumable": bool(finisher.get("consume", False)),
         "enemy_lifepoints": enemy_lifepoints,
     }
 
@@ -4624,21 +4626,25 @@ def _combat_custom_layout_view(data, target_id):
 
 
 def _combat_refill_finisher_loadout(data, enemy):
-    finisher = _combat_finisher_spec(enemy)
-    if finisher is None:
-        return
-    item_name = str(finisher.get("item", "") or "")
-    if not item_name:
-        return
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
-    finishers = dict(loadout.get("finishers", {}) or {})
     inventory = dict(data.get("inventory", {}) or {})
+    for loaded_item, amount in (loadout.get("finishers", {}) or {}).items():
+        inventory[loaded_item] = (
+            _non_negative_int(inventory.get(loaded_item, 0), 0)
+            + _non_negative_int(amount, 0)
+        )
+    finishers = {}
+    finisher = _combat_finisher_spec(enemy)
+    item_name = (
+        str(finisher.get("item", "") or "")
+        if finisher is not None
+        else ""
+    )
     available = _non_negative_int(inventory.get(item_name, 0), 0)
     if available > 0:
-        inventory[item_name] = 0
-        finishers[item_name] = (
-            _non_negative_int(finishers.get(item_name, 0), 0) + available
-        )
+        take = available if bool(finisher.get("consume", False)) else 1
+        inventory[item_name] = available - take
+        finishers[item_name] = take
     loadout["finishers"] = finishers
     data["inventory"] = inventory
     data["combat_supply_loadout"] = loadout
@@ -4658,12 +4664,6 @@ def _combat_banked_finisher_count(data, enemy):
 
 
 def _combat_refill_hazard_loadout(data, enemy):
-    hazard = _combat_environmental_hazard_spec(enemy)
-    if hazard is None:
-        return
-    dose_items = _combat_hazard_dose_items(hazard)
-    if not dose_items:
-        return
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     inventory = dict(data.get("inventory", {}) or {})
     for item_name, amount in (loadout.get("hazards", {}) or {}).items():
@@ -4672,7 +4672,13 @@ def _combat_refill_hazard_loadout(data, enemy):
             + _non_negative_int(amount, 0)
         )
     supplies = {}
-    remaining_slots = _positive_int(hazard.get("loadout_cap", 1), 1)
+    hazard = _combat_environmental_hazard_spec(enemy)
+    dose_items = _combat_hazard_dose_items(hazard)
+    remaining_slots = (
+        _positive_int(hazard.get("loadout_cap", 1), 1)
+        if hazard is not None
+        else 0
+    )
     for item_name in dose_items:
         available = _non_negative_int(inventory.get(item_name, 0), 0)
         if available <= 0 or remaining_slots <= 0:
@@ -5603,15 +5609,22 @@ def _combat_refill_stat_potions(data, combat_class="melee"):
 
 
 def _combat_supply_slots_used(data):
-    """Slots the combat loadout occupies in the shared 28-slot inventory. Food and
-    unstackable potions cost one slot each; ammo/runes/cannonballs are stackable,
-    so one slot per distinct stack. What's left is room for loot."""
+    """Slots the combat loadout occupies in the shared 28-slot inventory.
+
+    Food, potions, hazards, and non-stackable finishing tools cost one slot per
+    item; ammo, runes, cannonballs, and stackable finishers cost one per stack.
+    """
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     slots = 0
     for key in ("food", "potions", "stat_potions", "hazards"):
         slots += sum(_non_negative_int(amount, 0) for amount in (loadout.get(key, {}) or {}).values())
-    for key in ("ammo", "runes", "finishers"):
+    for key in ("ammo", "runes"):
         slots += sum(1 for amount in (loadout.get(key, {}) or {}).values() if _non_negative_int(amount, 0) > 0)
+    for item_name, amount in (loadout.get("finishers", {}) or {}).items():
+        count = _non_negative_int(amount, 0)
+        if count <= 0:
+            continue
+        slots += 1 if item_name in STACKABLE_ITEM_NAMES else count
     if _non_negative_int(loadout.get("cannonballs", 0), 0) > 0:
         slots += 1
     return slots
@@ -6234,6 +6247,37 @@ def apply_combat_burst_pure(
         enemy_lp = max(0, min(_positive_int(encounter.get("enemy_lifepoints", enemy_max_lp), enemy_max_lp), enemy_max_lp))
     else:
         enemy_lp = enemy_max_lp
+    regeneration = (
+        enemy.get("regeneration")
+        if isinstance(enemy.get("regeneration"), Mapping)
+        else None
+    )
+    enemy_regen_numerator = (
+        _positive_int(regeneration.get("lifepoints_per_tick_numerator", 0), 0)
+        if regeneration is not None
+        else 0
+    )
+    enemy_regen_denominator = (
+        _positive_int(regeneration.get("lifepoints_per_tick_denominator", 1), 1)
+        if regeneration is not None
+        else 1
+    )
+    enemy_regen_residual = (
+        _non_negative_int(encounter.get("regeneration_residual", 0), 0)
+        % enemy_regen_denominator
+        if active_encounter and enemy_regen_numerator > 0
+        else 0
+    )
+    retaliation_stop_lifepoints = _non_negative_int(
+        enemy.get("retaliation_stop_lifepoints", 0), 0
+    )
+    retaliation_stopped = bool(
+        retaliation_stop_lifepoints > 0
+        and (
+            enemy_lp <= retaliation_stop_lifepoints
+            or (active_encounter and encounter.get("retaliation_stopped", False))
+        )
+    )
 
     player_totals = equipment_stat_totals_pure(data.get("equipment", {}) or {}, equipment_data)
     enemy_totals = _combat_enemy_bonuses(enemy)
@@ -6487,6 +6531,7 @@ def apply_combat_burst_pure(
     unprotected_attacks = 0
     stat_drains = {}
     automatic_finishers = 0
+    enemy_healing = 0
     xp_rewards = {"magic_exp": supplemental_magic_xp} if supplemental_magic_xp > 0 else {}
     drops = {}
     kills = 0
@@ -6504,6 +6549,19 @@ def apply_combat_burst_pure(
 
     for tick in range(total_ticks):
         ticks_elapsed = tick + 1
+        if enemy_regen_numerator > 0:
+            if enemy_lp < enemy_max_lp:
+                enemy_regen_residual += enemy_regen_numerator
+                healing = min(
+                    enemy_max_lp - enemy_lp,
+                    enemy_regen_residual // enemy_regen_denominator,
+                )
+                if healing > 0:
+                    enemy_lp += healing
+                    enemy_healing += healing
+                    enemy_regen_residual -= healing * enemy_regen_denominator
+            else:
+                enemy_regen_residual = 0
         tick_prayer_uptime = prayer_uptime
         if live_cadence:
             (
@@ -6712,7 +6770,12 @@ def apply_combat_burst_pure(
                 next_enemy_attack = tick + 1 + enemy_attack_speed
                 continue
 
-        if tick >= next_enemy_attack and enemy_lp > 0:
+        if (
+            retaliation_stop_lifepoints > 0
+            and enemy_lp <= retaliation_stop_lifepoints
+        ):
+            retaliation_stopped = True
+        if tick >= next_enemy_attack and enemy_lp > 0 and not retaliation_stopped:
             next_enemy_attack += enemy_attack_speed
             if isinstance(unprotected_effect, Mapping):
                 damage = _combat_unprotected_damage_lifepoints(unprotected_effect, max_player_lp)
@@ -6893,6 +6956,8 @@ def apply_combat_burst_pure(
                 if live_cadence or stop_after_first_kill:
                     break
                 enemy_lp = enemy_max_lp
+                enemy_regen_residual = 0
+                retaliation_stopped = False
                 next_enemy_attack = tick + 1 + enemy_attack_speed
                 continue
             player_lp, food_event = _combat_consume_auto_food(data, player_lp, max_player_lp, rng)
@@ -6975,6 +7040,10 @@ def apply_combat_burst_pure(
                     "spell_enemy_defence_factor": spell_enemy_defence_factor,
                 }
             )
+        if enemy_regen_numerator > 0:
+            next_encounter["regeneration_residual"] = enemy_regen_residual
+        if retaliation_stop_lifepoints > 0 and retaliation_stopped:
+            next_encounter["retaliation_stopped"] = True
         if spellbook_swap_paid:
             next_encounter["spellbook_swap_paid"] = True
         if bool(data.get("combat_vengeance", False)) or vengeance_pending:
@@ -7005,6 +7074,8 @@ def apply_combat_burst_pure(
         "ticks_elapsed": ticks_elapsed,
         "player_damage": player_damage,
         "enemy_damage": enemy_damage,
+        "enemy_healing": enemy_healing,
+        "enemy_retaliation_stopped": retaliation_stopped,
         "enemy_lifepoints": enemy_lp,
         "player_lifepoints": player_lp,
         "killed": killed,

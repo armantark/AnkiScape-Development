@@ -2,6 +2,22 @@
 
 ## Current Focus
 
+Rockslug and Gargoyle are now executable Slayer Combat targets rather than
+finisher-engine blockers. Rockslug preserves the cutoff 1–39 LP Bag-of-salt
+window, consumable salt, and a latched 10-LP frozen/no-retaliation state.
+Gargoyle preserves the below-90 LP reusable Rock-hammer action and carries its
+`12/5` LP-per-game-tick regeneration residual across review boundaries. Both
+use reconciled Darkan independent drops plus Summoning-era charm rolls,
+period-source icons, normal manual/quick finisher semantics, and real Combat
+picker surfaces. The ordinary target excludes Kuradal's-Dungeon-only Ferocious
+rings. Core verification passes all 1,504 methods with 204 declared
+environment skips; focused backend and all 200 real main-menu Qt checks pass.
+The Qt harness now flushes deferred dialog deletion between tests, reducing the
+widget suite's measured peak resident memory from 9.7 GB to 1.22 GB. Full real
+offscreen Qt verification passes all 1,504 methods without skips or failures.
+Durable evidence is
+`source-audits/slayer-rockslug-gargoyle-combat-2026-07-17.md`.
+
 The personal-fork-versus-public-release question is settled as **prepare a
 separately named public derivative release**, not upload immediately. Wilson Yeh
 must be credited prominently as the original creator; Arman is the independent
@@ -790,21 +806,22 @@ environment skips. Test quality remains at zero hard issues and the pre-existing
 four structural-clone candidates; documentation, compilation, diff and
 worktree-safety checks pass.
 
-## Slayer finisher runtime and first live family (2026-07-17)
+## Slayer finisher runtime and live families (2026-07-17)
 
 The four cutoff finisher supplies now preserve their source identity and
 inventory shape through the generated shop catalog and shared item registry.
 Bag of salt and Ice cooler are stackable consumables; Rock hammer and
 Fungicide spray 10 are non-stackable tools. The repair is commit `2ddbb0a`.
 
-Desert lizard now ships with the generic manual/quick-finisher runtime, a
-reconciled Combat/drop row, source level gate, contextual Waterskin supply
-cost, and proven enemy asset. Manual completion costs its own correct review;
-the 400-point flag folds the same item spend and kill into lethal damage.
-Rockslug, Gargoyle, and Mutated zygomite still require their own reconciled
-target/drop/context rows and assets, but no longer need a new finisher engine.
+Desert lizard ships with the generic manual/quick-finisher runtime, a reconciled
+Combat/drop row, source level gate, contextual Waterskin supply cost, and
+proven enemy asset. Rockslug and Gargoyle now reuse that engine with their own
+reconciled rows, period mechanics, and assets. Manual completion costs its own
+correct review; the 400-point flag folds the same required item and kill into
+lethal damage. Mutated zygomite is the remaining ordinary finisher family
+without a reconciled live target.
 Details are in `source-audits/slayer-finishing-blows-2026-07-15.md` and
-`source-audits/slayer-desert-lizard-combat-2026-07-17.md`.
+`source-audits/slayer-rockslug-gargoyle-combat-2026-07-17.md`.
 
 Final verification passes all 1,497 core methods (1,293 ordinary passes and
 204 expected environment skips) and all 1,497 real offscreen Qt methods with

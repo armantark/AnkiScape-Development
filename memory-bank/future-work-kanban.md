@@ -283,10 +283,12 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   stackability in the shared registry. Desert lizard and the generic
   manual/automatic finisher engine are live with a source level gate,
   context-correct independent drops, an asset, and review-native Waterskin
-  supply cost. Rockslug, Gargoyle, and Mutated zygomite remain blocked on their
-  own reconciled target/drop/context rows and assets. See
+  supply cost. Rockslug and Gargoyle are also live with reconciled Combat/drop
+  rows, period finishing windows, source-specific frozen/regeneration behavior,
+  and proven assets. Mutated zygomite is the remaining ordinary finisher family
+  blocked on its charged-tool target/runtime/drop/asset slice. See
   `source-audits/slayer-finishing-blows-2026-07-15.md` and
-  `source-audits/slayer-desert-lizard-combat-2026-07-17.md`.
+  `source-audits/slayer-rockslug-gargoyle-combat-2026-07-17.md`.
 - Complete the design-closure source sweep without reopening owner questions for
   source-determined behavior: close every per-master pool/weight/count/gate row,
   pin every family variant's membership/stats/Slayer-XP eligibility/context, and

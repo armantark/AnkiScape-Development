@@ -4162,8 +4162,9 @@ def show_main_menu(
                 finisher_item = action_combo.model().item(1)
                 finisher_item.setEnabled(bool(state["available"]))
                 if state["available"]:
+                    verb = "Consumes one" if state["consumable"] else "Uses the reusable"
                     finisher_item.setToolTip(
-                        f"Consumes one {state['item']} and finishes the enemy."
+                        f"{verb} {state['item']} and finishes the enemy."
                     )
                 elif state["ready"]:
                     finisher_item.setToolTip(

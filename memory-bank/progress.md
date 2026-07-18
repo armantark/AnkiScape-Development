@@ -838,6 +838,36 @@ Test counts are snapshots; current runs outrank this note.
   hard test-quality issues, and passing documentation, compilation, diff,
   item-reachability, and worktree-safety audits.
 
+## Slayer Rockslug and Gargoyle Combat slices — 2026-07-17
+
+- Added Rockslug with Slayer 20, 270 LP, maximum hit 41, exact 27 Slayer XP,
+  the cutoff 1–39 LP Bag-of-salt finisher, and a latched 10-LP
+  frozen/no-retaliation state.
+- Added Gargoyle with Slayer 75, 1,050 LP, maximum hit 119, exact 105 Slayer
+  XP, the cutoff below-90 LP reusable Rock-hammer action, and continuous
+  regeneration represented as `12/5` LP per gameplay tick with a persisted
+  integer residual.
+- Reconciled Darkan independent drop rolls with 2011Scape charm tables. The
+  ordinary Gargoyle target excludes the Kuradal's-Dungeon-only Ferocious ring.
+- Corrected Combat supply refill so changing targets returns obsolete finisher
+  and hazard supplies, loads one copy of a reusable non-stackable tool, and
+  counts non-stackable finisher slots accurately.
+- Added period RuneScape Wiki icons and changed the Combat asset fetcher to
+  prefer RuneScape Wiki files over same-named OSRS fallbacks.
+- Focused backend verification passes 374 methods and the real offscreen Qt
+  action/picker check. The complete core suite passes 1,504 methods, with 1,300
+  ordinary passes and 204 declared environment skips. All 200 real main-menu
+  widget tests pass. Their harness now flushes deferred dialog deletion after
+  each test, reducing the measured peak resident memory from 9.7 GB to 1.22 GB
+  and removing the pathological application-style recomputation tail. The
+  complete real offscreen Qt suite passes all 1,504 methods without skips or
+  failures in 490.6 seconds.
+- Durable evidence:
+  `source-audits/slayer-rockslug-gargoyle-combat-2026-07-17.md`.
+- Results artifact:
+  `status-updates/slayer-rockslug-gargoyle-results-2026-07-17.html`
+  (<https://887yman86rqy.postplan.dev>).
+
 ## Grill-harvest program closure (2026-07-17)
 
 - Completed all four owner-approved post-closure amendments.

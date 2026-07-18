@@ -4324,6 +4324,29 @@ class CombatLogicTest(unittest.TestCase):
         )
         self.assertEqual(refilled["inventory"]["Shark"], 81)
 
+    def test_refill_returns_the_previous_targets_context_supplies(self):
+        player = _player(
+            current_combat_target="chicken",
+            combat_supply_loadout={
+                "finishers": {"Ice cooler": 3},
+                "hazards": {
+                    "Waterskin (4)": 2,
+                    "Waterskin (0)": 1,
+                },
+            },
+        )
+
+        refilled, ok, reason = refill_combat_supply_loadout_pure(
+            player, EQUIPMENT_DATA
+        )
+
+        self.assertTrue(ok, reason)
+        self.assertEqual(refilled["combat_supply_loadout"]["finishers"], {})
+        self.assertEqual(refilled["combat_supply_loadout"]["hazards"], {})
+        self.assertEqual(refilled["inventory"]["Ice cooler"], 3)
+        self.assertEqual(refilled["inventory"]["Waterskin (4)"], 2)
+        self.assertEqual(refilled["inventory"]["Waterskin (0)"], 1)
+
     def test_unload_combat_supply_loadout_returns_supplies_to_bank(self):
         player = _player(
             inventory={"Shark": 2},
@@ -4574,6 +4597,174 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(
             result["hazard_supplies_used"],
             ({"item": "Waterskin (4)", "replacement": "Waterskin (3)"},),
+        )
+
+    def test_rockslug_finisher_consumes_salt_and_frozen_slug_cannot_retaliate(self):
+        player = _player(
+            current_combat_target="rockslug",
+            slayer_level=99,
+            combat_encounter={
+                "target_id": "rockslug",
+                "enemy_lifepoints": 39,
+            },
+            combat_supply_loadout={"finishers": {"Bag of salt": 2}},
+        )
+
+        finished, ok, result = apply_combat_finisher_pure(
+            player, COMBAT_ENEMY_DATA, rng=lambda: 1.0
+        )
+
+        self.assertTrue(ok, result)
+        self.assertTrue(result["finisher_consumed"])
+        self.assertEqual(
+            finished["combat_supply_loadout"]["finishers"],
+            {"Bag of salt": 1},
+        )
+
+        frozen = _player(
+            current_combat_target="rockslug",
+            slayer_level=99,
+            combat_encounter={
+                "target_id": "rockslug",
+                "enemy_lifepoints": 10,
+            },
+        )
+        latched, ok, result = apply_combat_burst_pure(
+            frozen,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=lambda: 1.0,
+            live_cadence=True,
+        )
+
+        self.assertTrue(ok, result)
+        self.assertTrue(latched["combat_encounter"]["retaliation_stopped"])
+
+        latched["combat_encounter"]["enemy_lifepoints"] = 20
+        fought, ok, result = apply_combat_burst_pure(
+            latched,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=8,
+            rng=lambda: 0.0,
+            live_cadence=True,
+        )
+        self.assertTrue(ok, result)
+        self.assertEqual(result["enemy_damage"], 0)
+        self.assertTrue(result["enemy_retaliation_stopped"])
+        self.assertEqual(fought["combat_lifepoints"], frozen["combat_lifepoints"])
+
+    def test_gargoyle_finisher_is_reusable_and_refill_loads_only_one_hammer(self):
+        player = _player(
+            current_combat_target="gargoyle",
+            slayer_level=99,
+            inventory={"Rock hammer": 3},
+        )
+
+        refilled, ok, reason = refill_combat_supply_loadout_pure(
+            player, EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, reason)
+        self.assertEqual(
+            refilled["combat_supply_loadout"]["finishers"],
+            {"Rock hammer": 1},
+        )
+        self.assertEqual(refilled["inventory"]["Rock hammer"], 2)
+
+        refilled["combat_encounter"] = {
+            "target_id": "gargoyle",
+            "enemy_lifepoints": 89,
+        }
+        finished, ok, result = apply_combat_finisher_pure(
+            refilled, COMBAT_ENEMY_DATA, rng=lambda: 1.0
+        )
+
+        self.assertTrue(ok, result)
+        self.assertFalse(result["finisher_consumed"])
+        self.assertEqual(
+            finished["combat_supply_loadout"]["finishers"],
+            {"Rock hammer": 1},
+        )
+
+    def test_gargoyle_quick_finisher_keeps_the_reusable_hammer(self):
+        player = _player(
+            current_combat_target="gargoyle",
+            slayer_level=99,
+            slayer_quick_finishers_unlocked=True,
+            combat_encounter={
+                "target_id": "gargoyle",
+                "enemy_lifepoints": 1,
+            },
+            combat_supply_loadout={"finishers": {"Rock hammer": 1}},
+        )
+        rolls = iter((0.0, 1.0))
+
+        finished, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=lambda: next(rolls, 1.0),
+            live_cadence=True,
+        )
+
+        self.assertTrue(ok, result)
+        self.assertTrue(result["killed"])
+        self.assertEqual(result["automatic_finishers"], 1)
+        self.assertEqual(
+            finished["combat_supply_loadout"]["finishers"],
+            {"Rock hammer": 1},
+        )
+
+    def test_gargoyle_regeneration_is_tick_exact_across_review_boundaries(self):
+        player = _player(
+            current_combat_target="gargoyle",
+            slayer_level=99,
+            attack_level=1,
+            strength_level=1,
+            combat_encounter={
+                "target_id": "gargoyle",
+                "enemy_lifepoints": 100,
+            },
+        )
+
+        whole, ok_whole, whole_result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=5,
+            rng=lambda: 1.0,
+            live_cadence=True,
+        )
+        first, ok_first, first_result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=2,
+            rng=lambda: 1.0,
+            live_cadence=True,
+        )
+        split, ok_split, split_result = apply_combat_burst_pure(
+            first,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=3,
+            rng=lambda: 1.0,
+            live_cadence=True,
+        )
+
+        self.assertTrue(ok_whole and ok_first and ok_split)
+        self.assertEqual(whole_result["enemy_healing"], 12)
+        self.assertEqual(first_result["enemy_healing"], 4)
+        self.assertEqual(split_result["enemy_healing"], 8)
+        self.assertEqual(
+            split["combat_encounter"]["enemy_lifepoints"],
+            whole["combat_encounter"]["enemy_lifepoints"],
+        )
+        self.assertEqual(
+            split["combat_encounter"]["regeneration_residual"],
+            whole["combat_encounter"]["regeneration_residual"],
         )
 
     def test_combat_loadout_preferences_are_sanitized(self):

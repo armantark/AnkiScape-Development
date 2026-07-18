@@ -2334,6 +2334,123 @@ DESERT_LIZARD_DROPS = {
 }
 
 
+ROCKSLUG_DROPS = {
+    "guaranteed": (),
+    "tables": tuple(
+        {
+            "name": f"Darkan independent: {item_name}",
+            "total": denominator,
+            "slots": (
+                {
+                    "item": item_name,
+                    **(
+                        {"quantity_range": quantity}
+                        if isinstance(quantity, tuple)
+                        else {"quantity": quantity}
+                    ),
+                    "slots": chance,
+                },
+                {"slots": denominator - chance},
+            ),
+        }
+        for item_name, quantity, chance, denominator in (
+            ("Copper ore", 1, 647, 10000),
+            ("Tin ore", 1, 647, 10000),
+            ("Iron ore", 1, 647, 10000),
+            ("Coal", 1, 647, 10000),
+            ("Earth rune", (5, 42), 647, 10000),
+            ("Rune essence", 1, 647, 10000),
+            ("Dwarven stout", 1, 647, 10000),
+            ("Hammer", 1, 647, 10000),
+            ("Bronze bar", 1, 647, 10000),
+            ("Iron bar", 1, 647, 10000),
+            ("Potato seed", 4, 647, 10000),
+            ("Onion seed", 4, 647, 10000),
+            ("Cabbage seed", 4, 647, 10000),
+            ("Mithril ore", 1, 2803, 100000),
+            ("Chaos rune", (2, 5), 2803, 100000),
+            ("Coins", (279, 418), 2803, 100000),
+            ("Tomato seed", 3, 2803, 100000),
+            ("Sweetcorn seed", 3, 2803, 100000),
+            ("Mystic gloves", 1, 467, 50000),
+            ("Strawberry seed", 2, 467, 50000),
+        )
+    )
+    + (
+        {
+            "name": "Charms",
+            "total": 1000,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 90},
+                {"item": "Green charm", "quantity": 1, "slots": 20},
+                {"item": "Crimson charm", "quantity": 1, "slots": 10},
+                {"item": "Blue charm", "quantity": 1, "slots": 5},
+                {"slots": 875},
+            ),
+        },
+    ),
+}
+
+
+GARGOYLE_DROPS = {
+    "guaranteed": (),
+    "tables": tuple(
+        {
+            "name": f"Darkan independent: {item_name}",
+            "total": denominator,
+            "slots": (
+                {"item": item_name, "quantity": quantity, "slots": chance},
+                {"slots": denominator - chance},
+            ),
+        }
+        for item_name, quantity, chance, denominator in (
+            ("Coins", 11, 27, 128),
+            ("Coins", 22, 20, 128),
+            ("Fire rune", 37, 10, 128),
+            ("Steel hatchet", 1, 10, 128),
+            ("Chaos rune", 15, 8, 128),
+            ("Fire rune", 75, 6, 128),
+            ("Pure essence", 35, 6, 128),
+            ("Steel bar", 3, 6, 128),
+            ("Death rune", 5, 5, 128),
+            ("Coins", 460, 5, 128),
+            ("Adamant platelegs", 1, 4, 128),
+            ("Steel battleaxe", 1, 3, 128),
+            ("Gold bar", 1, 3, 128),
+            ("Steel 2h sword", 1, 2, 128),
+            ("Mithril bar", 3, 2, 128),
+            ("Runite ore", 1, 2, 128),
+            ("Adamant boots", 1, 1, 128),
+            ("Thread", 10, 1, 128),
+            ("Rune full helm", 1, 1, 128),
+            ("Granite maul", 1, 1, 256),
+            ("Mystic robe top", 1, 1, 512),
+        )
+    )
+    + (
+        {
+            "name": "Darkan independent: gem drop table",
+            "total": 128,
+            "slots": (
+                {"table": COMBAT_GEM_DROP_TABLE, "slots": 5},
+                {"slots": 123},
+            ),
+        },
+        {
+            "name": "Charms",
+            "total": 1000,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 100},
+                {"item": "Green charm", "quantity": 1, "slots": 50},
+                {"item": "Crimson charm", "quantity": 1, "slots": 50},
+                {"item": "Blue charm", "quantity": 1, "slots": 70},
+                {"slots": 730},
+            ),
+        },
+    ),
+}
+
+
 GHOST_DROPS = {"guaranteed": (), "tables": ()}
 
 
@@ -7055,6 +7172,117 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "data/npcs/drops/desert_lizard.json; "
             "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
             "src/main/java/com/rs/game/content/skills/slayer/npcs/ConditionalDeath.java"
+        ),
+    },
+    "rockslug": {
+        "display_name": "Rock slug",
+        "level": 29,
+        "group": "Slayer",
+        "required_slayer_level": 20,
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 59,
+        "max_hit": 41,
+        "slayer_xp": 27.0,
+        "retaliation_stop_lifepoints": 10,
+        "finisher": {
+            "item": "Bag of salt",
+            "threshold_lifepoints": 39,
+            "consume": True,
+            "action_label": "Use Bag of salt",
+            "quick_unlock_key": "slayer_quick_finishers_unlocked",
+            "source_status": (
+                "period-exact 1–39 LP item/consumption threshold and 10-LP "
+                "retaliation stop; Darkan/game-main reconcile combat and drops"
+            ),
+        },
+        "stats": {
+            "hitpoints": 270,
+            "attack": 22,
+            "strength": 27,
+            "defence": 27,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": ROCKSLUG_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Rock_slug?oldid=6530509; "
+            f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+            "definitions/critters/rockslug_lvl_29.plugin.kts; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "data/npcs/combatdefs/uncategorized/rockslug.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "data/npcs/drops/rockslug.json"
+        ),
+    },
+    "gargoyle": {
+        "display_name": "Gargoyle",
+        "level": 111,
+        "group": "Slayer",
+        "required_slayer_level": 75,
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 119,
+        "slayer_xp": 105.0,
+        "regeneration": {
+            "lifepoints_per_tick_numerator": 12,
+            "lifepoints_per_tick_denominator": 5,
+            "source_status": (
+                "period page reports roughly 20 LP per five seconds; expressed "
+                "as the exact equivalent 12/5 LP per 0.6-second gameplay tick"
+            ),
+        },
+        "finisher": {
+            "item": "Rock hammer",
+            "threshold_lifepoints": 89,
+            "consume": False,
+            "action_label": "Smash with Rock hammer",
+            "quick_unlock_key": "slayer_quick_finishers_unlocked",
+            "source_status": (
+                "period-exact below-90 LP reusable hammer requirement; "
+                "Darkan/game-main reconcile combat and drops"
+            ),
+        },
+        "stats": {
+            "hitpoints": 1050,
+            "attack": 75,
+            "strength": 105,
+            "defence": 107,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 20,
+            "defence_slash": 20,
+            "defence_crush": 0,
+            "defence_magic": 20,
+            "defence_ranged": 20,
+            "melee_strength": 0,
+        },
+        "drops": GARGOYLE_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Gargoyle?oldid=6579781; "
+            f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+            "definitions/other/gargoyle_lvl_111.plugin.kts; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "data/npcs/combatdefs/uncategorized/gargoyle.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "data/npcs/drops/gargoyle.json"
         ),
     },
     "banshee": {

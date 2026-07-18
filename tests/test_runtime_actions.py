@@ -817,6 +817,36 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"][0][0], "Finisher unavailable")
         self.assertEqual(calls["saves"], 1)
 
+    def test_combat_handler_reports_target_regeneration(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "equipment": {},
+            "current_combat_target": "gargoyle",
+            "combat_encounter": {
+                "target_id": "gargoyle",
+                "enemy_lifepoints": 100,
+            },
+            "combat_lifepoints": 100,
+            "combat_auto_eat_food": ["Shrimps"],
+            "attack_level": 1,
+            "strength_level": 1,
+            "defense_level": 99,
+            "constitution_level": 10,
+            "slayer_level": 99,
+            "completed_achievements": [],
+        }
+
+        ok = handle_combat_answer(
+            _context(player_data, calls, [1.0] * 100)
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(
+            calls["activity"],
+            ["Gargoyle: 0 damage dealt, 220 LP left, 120 LP regenerated"],
+        )
+
     def test_fatal_combat_burst_graves_loot_earned_before_death(self):
         enemy = {
             "display_name": "Fatal looter",

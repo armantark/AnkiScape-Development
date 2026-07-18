@@ -1627,9 +1627,14 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     elif kills > 0:
         ctx.show_activity_gain(f"Defeated {kill_phrase}")
     else:
+        enemy_healing = int(result.get("enemy_healing", 0) or 0)
+        healing_phrase = (
+            f", {enemy_healing} LP regenerated" if enemy_healing > 0 else ""
+        )
         ctx.show_activity_gain(
             f"{display_name}: {int(result.get('player_damage', 0) or 0)} damage dealt, "
             f"{int(result.get('enemy_lifepoints', 0) or 0)} LP left"
+            f"{healing_phrase}"
         )
     return True
 

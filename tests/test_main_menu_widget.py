@@ -28,7 +28,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QCheckBox, QColor, QComboBox, QDialog, QLabel, QLineEdit, QListWidget, QMainWindow, QPalette, QPushButton, QIcon, QImage, QTabWidget, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from aqt.qt import QApplication, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QPalette, QPushButton, QIcon, QImage, QTabWidget, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
@@ -728,6 +728,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         QDialog.exec = self._orig_exec  # type: ignore[assignment,method-assign]
         self._ui.get_config_bool = self._orig_cfg
         self.dialog.deleteLater()
+        QApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
 
     def test_initial_panel_shows_a_gathering_skill(self) -> None:
         title = _panel_title(self.dialog)
@@ -2253,9 +2254,35 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._combat_action_calls[-1], "finisher")
 
+        reusable = _make_player_data()
+        reusable.update(
+            {
+                "current_combat_target": "gargoyle",
+                "slayer_level": 99,
+                "combat_encounter": {
+                    "target_id": "gargoyle",
+                    "enemy_lifepoints": 89,
+                },
+                "combat_supply_loadout": {
+                    "finishers": {"Rock hammer": 1},
+                },
+            }
+        )
+        reusable_dialog = self._open(reusable, current_skill="Combat")
+        reusable_combo = reusable_dialog.findChild(QComboBox, "combatActionCombo")
+        self.assertEqual(reusable_combo.itemText(1), "Smash with Rock hammer")
+        self.assertTrue(reusable_combo.model().item(1).isEnabled())
+        self.assertIn(
+            "reusable Rock hammer",
+            reusable_combo.model().item(1).toolTip(),
+        )
+        gargoyle_tree = _find_tree_with_user_role(reusable_dialog, "gargoyle")
+        self.assertFalse(_tree_row(gargoyle_tree, "gargoyle").icon(0).isNull())
+
         ordinary_dialog.deleteLater()
         blocked_dialog.deleteLater()
         ready_dialog.deleteLater()
+        reusable_dialog.deleteLater()
 
     def test_combat_sidebar_hides_combat_only_stat_skills(self) -> None:
         combat_button = next(b for b in self.dialog.findChildren(QPushButton) if b.text() == "Combat")

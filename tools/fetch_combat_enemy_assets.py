@@ -25,6 +25,8 @@ from fetch_assets import (  # noqa: E402
     AssetFetchError,
     AssetRequest,
     HttpWikiClient,
+    OSRS_WIKI,
+    RS3_WIKI,
     fetch_asset,
     wiki_title_for_item,
 )
@@ -33,6 +35,8 @@ from fetch_assets import (  # noqa: E402
 TITLE_OVERRIDES = {
     "jackal": ("Jackalnew.png", "Jackal.png"),
     "desert_lizard": ("Desert lizard (green).png", "Desert lizard icon.png"),
+    "rockslug": ("Rock slug icon.png", "Rock slug.png"),
+    "gargoyle": ("Gargoyle icon.png", "Gargoyle.png"),
     "giant_spider": ("Giant spider (Level 2).png",),
     "giant_spider_level_50": ("Giant spider (Level 50).png",),
     "pirate": ("Pirate (Port Sarim).png", "Pirate (Brimhaven).png"),
@@ -126,7 +130,13 @@ def fetch_enemy_assets(target_ids: Sequence[str], force: bool = False, size: int
                 provenance_path=REPO_ROOT / "assets_provenance.json",
             )
             try:
-                outcome = fetch_asset(request, client, size=size, force=force)
+                outcome = fetch_asset(
+                    request,
+                    client,
+                    size=size,
+                    force=force,
+                    sources=(RS3_WIKI, OSRS_WIKI),
+                )
             except AssetFetchError as exc:
                 last_error = str(exc)
                 continue

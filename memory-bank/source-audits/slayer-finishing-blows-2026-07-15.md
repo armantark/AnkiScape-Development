@@ -151,6 +151,12 @@ drop rolls, period level/XP/finisher gates, a proven sprite, an eight-skin
 Desert-heat supply pack, and real Qt selection. See
 `slayer-desert-lizard-combat-2026-07-17.md`.
 
-Rockslug, Gargoyle, and Mutated zygomite remain blocked on their own reconciled
-target/drop/context rows and assets. They can now reuse the live engine rather
-than requiring a second finishing-blow design.
+Rockslug and Gargoyle are now live with reconciled target/drop rows, exact
+period finishing windows, source-specific behavior, proven period icons, and
+the shared finisher runtime. Rockslug consumes one Bag of salt and stops
+retaliating at 10 LP. Gargoyle retains its reusable Rock hammer and carries
+tick-exact regeneration across review boundaries. See
+`slayer-rockslug-gargoyle-combat-2026-07-17.md`.
+
+Mutated zygomite remains the only ordinary finishing-blow family blocked on its
+own reconciled target, charged-tool behavior, drops, and asset.
