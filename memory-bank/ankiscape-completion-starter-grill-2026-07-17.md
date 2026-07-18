@@ -270,6 +270,14 @@ match entry and keeps that opponent for both rounds. Any approximation of the
 population distribution must be labeled and source-audited; neither Casual nor
 Advanced may choose an easier or harder rival.
 
+The hunted role preserves its source-authentic positioning tradeoff as one
+pre-round stance rather than per-review movement controls: **Centre** pursues
+maximum charge gain at maximum exposure, **Hybrid** balances charging and
+evasion, and **Evasive** favors houses and portals at the cost of charge gain.
+Casual selects a stance from the actual matchup; Advanced selects explicitly.
+The hunter role continues through the ordinary Combat equipment and style
+contracts rather than creating a second FoG-only combat loadout system.
+
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking
 the shared substrate.

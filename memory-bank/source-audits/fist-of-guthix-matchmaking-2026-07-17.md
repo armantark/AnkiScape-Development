@@ -30,3 +30,19 @@ opponent across both role-swapped rounds. Casual and Advanced modes cannot
 choose opponent strength. The exact population distribution is not proven by
 this page and must be source-audited or recorded as a labeled bounded
 abstraction before implementation.
+
+## Owner-settled review-native tactic
+
+The source gives the hunted player a real risk/reward choice: standing nearer
+the centre gains charges faster but increases exposure, while teleport houses
+and portals improve evasion at the cost of charging time and, for portals,
+charges. AnkiScape preserves that agency as one stance selected before the
+hunted round:
+
+- **Centre:** maximize charge gain and accept maximum exposure.
+- **Hybrid:** balance charging and evasion.
+- **Evasive:** favor houses and portals, accepting reduced charge gain.
+
+Casual selects the stance from the generated matchup. Advanced selects it
+explicitly. Reviews resolve complete tactical exchanges within the stance; they
+do not expose movement-by-movement controls.
