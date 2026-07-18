@@ -67,9 +67,29 @@ There is no hazard combat target, extra combat review, hidden attack loop, or
 paused encounter state. The Treasure priority naturally accepts more hazard
 exposure because it searches more chests and sarcophagi.
 
-## Remaining design fork
+## Inventory and loot contract
 
-Artefacts are useful outside the run for selling, quests, and Pharaoh's sceptre
-recharging. The remaining owner decision is whether they occupy the player's
-real inventory during the run or sit in a temporary activity ledger until the
-run ends.
+The run-priority dropdown also controls ordinary artefact retention:
+
+- **Max XP** immediately discards ivory, pottery, stone, gold, and jewelled
+  ordinary artefacts. They never occupy an inventory slot.
+- **Balanced** immediately discards ivory, pottery, and stone artefacts, but
+  retains gold and jewelled artefacts. The period value table makes this a
+  stable `750`-coin threshold: gold seal, golden scarab, golden statuette,
+  jewelled golden statuette, and jewelled diamond statuette.
+- **Treasure** retains every ordinary artefact tier.
+
+Retained artefacts use real carried-inventory slots and therefore compete with
+food and antipoison. If the retained haul fills the inventory, the run ends
+early and atomically deposits the retained haul into the bank. A normally
+completed run does the same after its final room, with one non-blocking summary
+and no additional review or manual banking step.
+
+Pharaoh's sceptre, Sceptre of the gods, and Black ibis pieces are protected
+unique rewards in every mode and never enter the discard path. Finding a
+Pharaoh's sceptre immediately ends the run as the pinned source specifies; a
+full inventory routes the protected reward directly to the bank instead of
+reproducing the source's ground-drop loss risk.
+
+This closes the owner-facing Pyramid Plunder design. Exact loot and hazard rolls
+remain source-audit work, not design forks.

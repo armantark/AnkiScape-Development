@@ -386,8 +386,12 @@ accessible rooms. The source five-minute limit becomes this finite room budget,
 never wall time. Urn snakes, scarab swarms, and mummies resolve as shared
 LP/poison consequences inside the triggering room review; they never launch a
 separate Combat encounter, though lethal damage still ends the run through the
-ordinary death/grave pipeline. The pinned structure and remaining inventory
-decision are recorded in
+ordinary death/grave pipeline. The same priority controls real inventory:
+Max XP discards ordinary artefacts, Balanced keeps only gold and jewelled
+artefacts, and Treasure keeps every tier. Retained loot competes with supplies
+until completion or a full-inventory early exit, then banks automatically;
+unique sceptres and Black ibis pieces are always protected. The complete
+contract is recorded in
 `memory-bank/source-audits/pyramid-plunder-loop-2026-07-17.md`.
 
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
