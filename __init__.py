@@ -1301,7 +1301,8 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         get_carried_auto_summary=_current_carried_auto_summary,
         get_carried_bank_run_summary=_current_carried_bank_run_summary,
         carried_auto_is_combat=review_action_handler_key(current_skill) == "combat",
-        on_set_combat=lambda target: _set_value("current_combat_target", target),
+        on_set_combat=_set_combat_target,
+        on_set_combat_action=lambda action: _set_value("combat_action", action),
         on_set_combat_style=_set_combat_attack_style,
         on_set_combat_spell=lambda spell: _set_value("current_combat_spell", spell),
         on_set_combat_auto_eat_threshold=on_set_combat_auto_eat_threshold,
@@ -1352,6 +1353,11 @@ def _set_combat_attack_style(selection):
     weapon_style, style_type = selection
     player_data["combat_attack_style"] = weapon_style
     _set_value("combat_attack_style_type", style_type)
+
+
+def _set_combat_target(target):
+    player_data["combat_action"] = "attack"
+    _set_value("current_combat_target", target)
 
 
 def _set_value(key: str, value):

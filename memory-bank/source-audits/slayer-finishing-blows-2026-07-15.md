@@ -131,7 +131,8 @@ item registry was built. Commit `2ddbb0a` now preserves them. Regression
 coverage pins all four source identities and inventory shapes at both the shop
 catalog and consolidated item-registry boundaries.
 
-This does **not** certify any finisher family for runtime admission:
+At that implementation-readiness checkpoint, this did **not** certify any
+finisher family for runtime admission:
 
 - Rockslug and Gargoyle have useful 2011Scape Combat candidates, but their
   reconstructed 50/100-LP death-blow thresholds conflict with the period
@@ -142,7 +143,14 @@ This does **not** certify any finisher family for runtime admission:
 - All four target images and provenance rows are absent, and the Combat asset
   fetcher correctly refuses unknown target IDs.
 
-The generic manual/automatic finisher runtime must therefore land together
-with at least one fully reconciled target row, context-correct drop table, and
-enemy asset. Until then, the four families remain `source_blocked` rather than
-shipping as ordinary enemies or unreachable finisher code.
+## Live implementation follow-up — 2026-07-17
+
+The generic manual/automatic finisher runtime and Desert lizard landed
+together. The target now has a reconciled Combat row, 31 independent Darkan
+drop rolls, period level/XP/finisher gates, a proven sprite, an eight-skin
+Desert-heat supply pack, and real Qt selection. See
+`slayer-desert-lizard-combat-2026-07-17.md`.
+
+Rockslug, Gargoyle, and Mutated zygomite remain blocked on their own reconciled
+target/drop/context rows and assets. They can now reuse the live engine rather
+than requiring a second finishing-blow design.

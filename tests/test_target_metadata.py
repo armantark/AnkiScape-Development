@@ -254,10 +254,15 @@ class TargetMetadataTest(unittest.TestCase):
                 "strength_level": 10,
                 "defense_level": 10,
                 "constitution_level": 10,
+                "slayer_level": 99,
                 "inventory": {"Shark": 2},
                 "equipment": {},
                 "combat_auto_eat_food": ["Shark"],
-                "combat_supply_loadout": {"food": {"Shark": 1}},
+                "combat_supply_loadout": {
+                    "food": {"Shark": 1},
+                    "finishers": {"Ice cooler": 2},
+                    "hazards": {"Waterskin (4)": 1},
+                },
             },
             COMBAT_ENEMY_DATA,
             {},
@@ -319,6 +324,7 @@ class TargetMetadataTest(unittest.TestCase):
         pit_scorpion = _row(rows, "pit_scorpion")
         scorpion_level_59 = _row(rows, "scorpion_level_59")
         poison_spider_level_64 = _row(rows, "poison_spider_level_64")
+        desert_lizard = _row(rows, "desert_lizard")
 
         self.assertTrue(chicken.enabled)
         self.assertTrue(giant_rat.current)
@@ -328,6 +334,15 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Food: Shark x1 loaded + 2 bank", giant_rat.tooltip)
         self.assertIn("Raw rat meat", giant_rat.tooltip)
         self.assertIn("giant_rat_level_2.plugin.kts", giant_rat.tooltip)
+        self.assertIn(
+            "Finisher: Use Ice cooler at 1–30 LP · 2 loaded",
+            desert_lizard.tooltip,
+        )
+        self.assertIn(
+            "Desert heat: 1 Waterskin dose per Combat review · 1 loaded + 0 bank",
+            desert_lizard.tooltip,
+        )
+        self.assertIn("oldid=6548273", desert_lizard.tooltip)
         self.assertEqual(giant_rat_level_26.group, "Rats")
         self.assertIn("Giant rat · combat level 26", giant_rat_level_26.tooltip)
         self.assertIn("Enemy LP: 250/250", giant_rat_level_26.tooltip)

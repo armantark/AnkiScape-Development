@@ -51,6 +51,7 @@ from logic_pure import (
     _combat_enemy_bonuses,
     _combat_enemy_max_hit_old_hp,
     apply_combat_burst_pure,
+    apply_combat_finisher_pure,
     apply_combat_poison_effect_pure,
     apply_safe_combat_recovery_pure,
     combat_death_office_reclaim_cost_pure,
@@ -4259,7 +4260,69 @@ class CombatLogicTest(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("active fight", reason)
         self.assertEqual(refilled["inventory"]["Shark"], 30)
-        self.assertEqual(refilled["combat_supply_loadout"], {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0})
+        self.assertEqual(refilled["combat_supply_loadout"], {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "finishers": {}, "hazards": {}, "cannonballs": 0})
+
+    def test_manual_refill_loads_the_selected_targets_finisher(self):
+        player = _player(
+            current_combat_target="desert_lizard",
+            inventory={
+                "Ice cooler": 3,
+                "Waterskin (4)": 2,
+                "Waterskin (2)": 1,
+            },
+        )
+
+        refilled, ok, reason = refill_combat_supply_loadout_pure(
+            player, EQUIPMENT_DATA
+        )
+
+        self.assertTrue(ok, reason)
+        self.assertEqual(
+            refilled["combat_supply_loadout"]["finishers"],
+            {"Ice cooler": 3},
+        )
+        self.assertEqual(
+            refilled["combat_supply_loadout"]["hazards"],
+            {"Waterskin (4)": 2, "Waterskin (2)": 1},
+        )
+        self.assertEqual(refilled["inventory"]["Ice cooler"], 0)
+
+    def test_desert_hazard_pack_never_overfills_the_shared_inventory(self):
+        from logic_pure import CARRIED_CAPACITY, _combat_supply_slots_used
+
+        player = _player(
+            current_combat_target="desert_lizard",
+            combat_pack_mode="max_safety",
+            combat_auto_eat_food=["Shark"],
+            inventory={
+                "Shark": 100,
+                "Ice cooler": 10,
+                "Waterskin (4)": 8,
+            },
+        )
+
+        refilled, ok, reason = refill_combat_supply_loadout_pure(
+            player, EQUIPMENT_DATA
+        )
+
+        self.assertTrue(ok, reason)
+        self.assertEqual(
+            _combat_supply_slots_used(refilled),
+            CARRIED_CAPACITY,
+        )
+        self.assertEqual(
+            refilled["combat_supply_loadout"]["hazards"],
+            {"Waterskin (4)": 8},
+        )
+        self.assertEqual(
+            refilled["combat_supply_loadout"]["finishers"],
+            {"Ice cooler": 10},
+        )
+        self.assertEqual(
+            refilled["combat_supply_loadout"]["food"],
+            {"Shark": 19},
+        )
+        self.assertEqual(refilled["inventory"]["Shark"], 81)
 
     def test_unload_combat_supply_loadout_returns_supplies_to_bank(self):
         player = _player(
@@ -4269,6 +4332,7 @@ class CombatLogicTest(unittest.TestCase):
                 "potions": {"Antipoison (1)": 1},
                 "ammo": {"Bronze arrows": 5},
                 "runes": {"Air rune": 7},
+                "finishers": {"Ice cooler": 2},
                 "cannonballs": 2,
             },
         )
@@ -4280,8 +4344,237 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(unloaded["inventory"]["Antipoison (1)"], 1)
         self.assertEqual(unloaded["inventory"]["Bronze arrows"], 5)
         self.assertEqual(unloaded["inventory"]["Air rune"], 7)
+        self.assertEqual(unloaded["inventory"]["Ice cooler"], 2)
         self.assertEqual(unloaded["inventory"]["Cannonball"], 2)
-        self.assertEqual(unloaded["combat_supply_loadout"], {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0})
+        self.assertEqual(unloaded["combat_supply_loadout"], {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "finishers": {}, "hazards": {}, "cannonballs": 0})
+
+    def test_desert_lizard_manual_finisher_commits_one_atomic_kill(self):
+        player = _player(
+            current_combat_target="desert_lizard",
+            combat_action="finisher",
+            slayer_level=22,
+            combat_encounter={
+                "target_id": "desert_lizard",
+                "enemy_lifepoints": 30,
+            },
+            combat_supply_loadout={"finishers": {"Ice cooler": 2}},
+        )
+
+        finished, ok, result = apply_combat_finisher_pure(
+            player, COMBAT_ENEMY_DATA, rng=lambda: 0.999999
+        )
+
+        self.assertTrue(ok, result)
+        self.assertEqual(result["kills"], 1)
+        self.assertEqual(result["drops"], {"Bones": 1})
+        self.assertEqual(result["finisher_item"], "Ice cooler")
+        self.assertTrue(result["finisher_consumed"])
+        self.assertEqual(
+            finished["combat_supply_loadout"]["finishers"],
+            {"Ice cooler": 1},
+        )
+        self.assertEqual(finished["combat_kill_counts"], {"desert_lizard": 1})
+        self.assertEqual(finished["inventory"]["Bones"], 1)
+        self.assertEqual(finished["combat_encounter"], {})
+        self.assertEqual(finished["combat_action"], "attack")
+        self.assertNotIn(
+            "Waterskin (4)",
+            player["combat_supply_loadout"].get("hazards", {}),
+        )
+
+    def test_desert_lizard_manual_finisher_rejects_invalid_state_without_spending(self):
+        cases = (
+            (
+                "above threshold",
+                {"target_id": "desert_lizard", "enemy_lifepoints": 31},
+                {"Ice cooler": 1},
+                "finisher_not_ready",
+            ),
+            (
+                "missing item",
+                {"target_id": "desert_lizard", "enemy_lifepoints": 30},
+                {},
+                "finisher_item_missing",
+            ),
+        )
+        for label, encounter, finishers, expected_reason in cases:
+            with self.subTest(label=label):
+                player = _player(
+                    current_combat_target="desert_lizard",
+                    combat_action="finisher",
+                    slayer_level=22,
+                    combat_encounter=encounter,
+                    combat_supply_loadout={"finishers": finishers},
+                    inventory={"Waterskin (4)": 1},
+                )
+
+                unchanged, ok, result = apply_combat_finisher_pure(
+                    player, COMBAT_ENEMY_DATA
+                )
+
+                self.assertFalse(ok)
+                self.assertIs(unchanged, player)
+                self.assertEqual(result["reason"], expected_reason)
+                self.assertEqual(
+                    player["combat_supply_loadout"]["finishers"], finishers
+                )
+
+    def test_desert_lizard_finisher_cannot_bypass_the_slayer_level_gate(self):
+        player = _player(
+            current_combat_target="desert_lizard",
+            combat_action="finisher",
+            slayer_level=21,
+            combat_encounter={
+                "target_id": "desert_lizard",
+                "enemy_lifepoints": 30,
+            },
+            combat_supply_loadout={"finishers": {"Ice cooler": 1}},
+        )
+
+        unchanged, ok, result = apply_combat_finisher_pure(
+            player, COMBAT_ENEMY_DATA
+        )
+
+        self.assertFalse(ok)
+        self.assertIs(unchanged, player)
+        self.assertEqual(result["reason"], "combat_locked")
+        self.assertEqual(result["locked_reasons"], ("Slayer level 22",))
+        self.assertEqual(
+            player["combat_supply_loadout"]["finishers"],
+            {"Ice cooler": 1},
+        )
+
+    def test_desert_lizard_lethal_damage_requires_or_automates_the_finisher(self):
+        cases = (
+            ("manual required", False, 2, 0, 0, 2),
+            ("quick unlocked", True, 2, 1, 1, 1),
+            ("quick missing item", True, 0, 0, 0, 0),
+        )
+        for label, quick, loaded, kills, automatic, remaining in cases:
+            with self.subTest(label=label):
+                player = _player(
+                    current_combat_target="desert_lizard",
+                    slayer_level=22,
+                    constitution_level=99,
+                    combat_lifepoints=990,
+                    combat_auto_flee=False,
+                    combat_encounter={
+                        "target_id": "desert_lizard",
+                        "enemy_lifepoints": 20,
+                    },
+                    combat_supply_loadout={
+                        "finishers": {"Ice cooler": loaded} if loaded else {},
+                        "hazards": {"Waterskin (4)": 1},
+                    },
+                    slayer_quick_finishers_unlocked=quick,
+                )
+
+                fought, ok, result = apply_combat_burst_pure(
+                    player,
+                    COMBAT_ENEMY_DATA,
+                    EQUIPMENT_DATA,
+                    ticks=1,
+                    rng=_rng([0.0, 0.999999]),
+                )
+
+                self.assertTrue(ok)
+                self.assertEqual(result["kills"], kills)
+                self.assertEqual(result["automatic_finishers"], automatic)
+                if kills:
+                    self.assertEqual(fought["combat_encounter"], {})
+                else:
+                    self.assertEqual(
+                        fought["combat_encounter"]["enemy_lifepoints"], 1
+                    )
+                self.assertEqual(
+                    fought["combat_supply_loadout"]["finishers"].get(
+                        "Ice cooler", 0
+                    ),
+                    remaining,
+                )
+                self.assertEqual(
+                    fought["combat_supply_loadout"]["hazards"],
+                    {"Waterskin (3)": 1},
+                )
+
+    def test_desert_lizard_requires_slayer_level_and_a_water_source(self):
+        low_level = _player(
+            current_combat_target="desert_lizard",
+            slayer_level=21,
+            inventory={"Waterskin (4)": 1},
+        )
+        dry = _player(
+            current_combat_target="desert_lizard",
+            slayer_level=22,
+        )
+        ready = _player(
+            current_combat_target="desert_lizard",
+            slayer_level=22,
+            inventory={"Waterskin (4)": 1},
+        )
+
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                low_level, "desert_lizard", COMBAT_ENEMY_DATA
+            ),
+            ("Slayer level 22",),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                dry, "desert_lizard", COMBAT_ENEMY_DATA
+            ),
+            ("Desert heat: filled Waterskin",),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                ready, "desert_lizard", COMBAT_ENEMY_DATA
+            ),
+            (),
+        )
+
+    def test_desert_lizard_bank_run_loads_finishers_and_preserves_water_doses(self):
+        player = _player(
+            current_combat_target="desert_lizard",
+            slayer_level=22,
+            constitution_level=99,
+            combat_lifepoints=990,
+            combat_auto_flee=False,
+            inventory={"Ice cooler": 2, "Waterskin (4)": 2},
+        )
+
+        banking, ok, started = apply_combat_burst_pure(
+            player, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1
+        )
+        loaded, ok_loaded, completed = apply_combat_burst_pure(
+            banking, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1
+        )
+        fought, ok_fought, result = apply_combat_burst_pure(
+            loaded,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.999999]),
+        )
+
+        self.assertTrue(ok and ok_loaded and ok_fought)
+        self.assertTrue(started["bank_run_started"])
+        self.assertTrue(completed["bank_run_completed"])
+        self.assertEqual(
+            loaded["combat_supply_loadout"]["finishers"],
+            {"Ice cooler": 2},
+        )
+        self.assertEqual(
+            loaded["combat_supply_loadout"]["hazards"],
+            {"Waterskin (4)": 2},
+        )
+        self.assertEqual(
+            fought["combat_supply_loadout"]["hazards"],
+            {"Waterskin (4)": 1, "Waterskin (3)": 1},
+        )
+        self.assertEqual(
+            result["hazard_supplies_used"],
+            ({"item": "Waterskin (4)", "replacement": "Waterskin (3)"},),
+        )
 
     def test_combat_loadout_preferences_are_sanitized(self):
         player = _player(combat_auto_eat_food=["Shrimps", "Shark"], combat_auto_eat_threshold_percent=40)

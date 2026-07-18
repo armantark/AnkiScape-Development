@@ -2604,7 +2604,16 @@ def combat_max_lifepoints_pure(player_data):
 
 
 def default_combat_supply_loadout_pure():
-    return {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0}
+    return {
+        "food": {},
+        "potions": {},
+        "stat_potions": {},
+        "ammo": {},
+        "runes": {},
+        "finishers": {},
+        "hazards": {},
+        "cannonballs": 0,
+    }
 
 
 COMBAT_PRESET_FIELDS = (
@@ -2892,6 +2901,7 @@ def apply_combat_preset_pure(player_data, name, target_id=None):
 def default_combat_state_pure():
     state = {
         "current_combat_target": DEFAULT_COMBAT_TARGET,
+        "combat_action": "attack",
         "combat_attack_style": DEFAULT_COMBAT_ATTACK_STYLE,
         "combat_attack_style_type": "auto",
         "current_combat_spell": DEFAULT_COMBAT_SPELL,
@@ -2968,6 +2978,20 @@ def _sanitize_combat_supply_loadout(raw_loadout):
                 for item_name, amount in raw_mapping.items()
                 if isinstance(item_name, str) and _non_negative_int(amount, 0) > 0
             }
+    raw_finishers = raw_loadout.get("finishers", {})
+    if isinstance(raw_finishers, Mapping):
+        loadout["finishers"] = {
+            str(item_name): _non_negative_int(amount, 0)
+            for item_name, amount in raw_finishers.items()
+            if isinstance(item_name, str) and _non_negative_int(amount, 0) > 0
+        }
+    raw_hazards = raw_loadout.get("hazards", {})
+    if isinstance(raw_hazards, Mapping):
+        loadout["hazards"] = {
+            str(item_name): _non_negative_int(amount, 0)
+            for item_name, amount in raw_hazards.items()
+            if isinstance(item_name, str) and _non_negative_int(amount, 0) > 0
+        }
     loadout["cannonballs"] = _non_negative_int(raw_loadout.get("cannonballs", 0), 0)
     return loadout
 
@@ -3310,6 +3334,11 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
         active_preset = next(iter(presets))
     return {
         "current_combat_target": target,
+        "combat_action": (
+            "finisher"
+            if player_data.get("combat_action") == "finisher"
+            else "attack"
+        ),
         "combat_attack_style": style,
         "combat_attack_style_type": style_type,
         "current_combat_spell": spell,
@@ -3387,6 +3416,37 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
     drops = enemy.get("drops")
     if not isinstance(drops, Mapping):
         return ("missing source drop behavior",)
+    required_slayer_level = _positive_int(
+        enemy.get("required_slayer_level", 0), 0
+    )
+    if (
+        required_slayer_level > 0
+        and _positive_int(player_data.get("slayer_level", 1), 1)
+        < required_slayer_level
+    ):
+        return (f"Slayer level {required_slayer_level}",)
+    hazard = _combat_environmental_hazard_spec(enemy)
+    finisher = _combat_finisher_spec(enemy)
+    encounter = player_data.get("combat_encounter", {}) or {}
+    finisher_review_ready = bool(
+        player_data.get("combat_action") == "finisher"
+        and isinstance(encounter, Mapping)
+        and encounter.get("target_id") == target_id
+        and finisher is not None
+        and 0
+        < _positive_int(encounter.get("enemy_lifepoints", 0), 0)
+        <= _positive_int(finisher.get("threshold_lifepoints", 0), 0)
+    )
+    if (
+        hazard is not None
+        and not finisher_review_ready
+        and _combat_loaded_hazard_count(player_data, hazard) <= 0
+        and _combat_banked_hazard_count(player_data, hazard) <= 0
+    ):
+        return (
+            f"{hazard.get('display_name', 'Environmental hazard')}: "
+            "filled Waterskin",
+        )
     style_id = combat_attack_style_for_equipment_pure(player_data, equipment_data)
     style = style_data.get(style_id)
     if not isinstance(style, Mapping):
@@ -3597,6 +3657,178 @@ def _combat_apply_unprotected_stat_drains(data, effect):
             apply_combat_stat_delta_pure(data, skill_id, updated - current)
             applied[skill_id] = current - updated
     return applied
+
+
+def _combat_finisher_spec(enemy):
+    finisher = enemy.get("finisher") if isinstance(enemy, Mapping) else None
+    return finisher if isinstance(finisher, Mapping) else None
+
+
+def _combat_environmental_hazard_spec(enemy):
+    hazard = (
+        enemy.get("environmental_hazard")
+        if isinstance(enemy, Mapping)
+        else None
+    )
+    return hazard if isinstance(hazard, Mapping) else None
+
+
+def _combat_hazard_dose_items(hazard):
+    if not isinstance(hazard, Mapping):
+        return ()
+    return tuple(
+        item_name
+        for item_name in hazard.get("dose_items", ()) or ()
+        if isinstance(item_name, str) and item_name
+    )
+
+
+def _combat_loaded_hazard_count(data, hazard):
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    supplies = loadout.get("hazards", {}) or {}
+    return sum(
+        _non_negative_int(supplies.get(item_name, 0), 0)
+        for item_name in _combat_hazard_dose_items(hazard)
+    )
+
+
+def _combat_banked_hazard_count(data, hazard):
+    inventory = data.get("inventory", {}) or {}
+    if not isinstance(inventory, Mapping):
+        return 0
+    return sum(
+        _non_negative_int(inventory.get(item_name, 0), 0)
+        for item_name in _combat_hazard_dose_items(hazard)
+    )
+
+
+def _combat_consume_hazard_dose(data, hazard):
+    dose_items = _combat_hazard_dose_items(hazard)
+    if not dose_items:
+        return None
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    supplies = dict(loadout.get("hazards", {}) or {})
+    for index, item_name in enumerate(dose_items):
+        current = _non_negative_int(supplies.get(item_name, 0), 0)
+        if current <= 0:
+            continue
+        if current == 1:
+            supplies.pop(item_name, None)
+        else:
+            supplies[item_name] = current - 1
+        replacement = (
+            dose_items[index + 1]
+            if index + 1 < len(dose_items)
+            else str(hazard.get("empty_item", "") or "")
+        )
+        if replacement:
+            supplies[replacement] = (
+                _non_negative_int(supplies.get(replacement, 0), 0) + 1
+            )
+        loadout["hazards"] = supplies
+        data["combat_supply_loadout"] = loadout
+        return {"item": item_name, "replacement": replacement}
+    return None
+
+
+def _combat_loaded_finisher_count(player_data, item_name):
+    if not isinstance(item_name, str) or not item_name:
+        return 0
+    loadout = _sanitize_combat_supply_loadout(
+        player_data.get("combat_supply_loadout")
+    )
+    return _non_negative_int(
+        (loadout.get("finishers", {}) or {}).get(item_name, 0), 0
+    )
+
+
+def combat_finisher_state_pure(player_data, target_id=None, enemy_data=None):
+    enemy_data = enemy_data or COMBAT_ENEMY_DATA
+    target_id = (
+        target_id
+        if isinstance(target_id, str)
+        else player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
+    )
+    enemy = enemy_data.get(target_id) if isinstance(enemy_data, Mapping) else None
+    finisher = _combat_finisher_spec(enemy)
+    if finisher is None:
+        return {
+            "required": False,
+            "ready": False,
+            "available": False,
+            "automatic": False,
+            "item": "",
+            "item_count": 0,
+            "threshold_lifepoints": 0,
+            "action_label": "",
+        }
+    item_name = str(finisher.get("item", "") or "")
+    threshold = _positive_int(finisher.get("threshold_lifepoints", 0), 0)
+    encounter = player_data.get("combat_encounter", {}) or {}
+    enemy_lifepoints = (
+        _positive_int(encounter.get("enemy_lifepoints", 0), 0)
+        if isinstance(encounter, Mapping) and encounter.get("target_id") == target_id
+        else 0
+    )
+    ready = 0 < enemy_lifepoints <= threshold
+    item_count = _combat_loaded_finisher_count(player_data, item_name)
+    quick_unlock_key = str(finisher.get("quick_unlock_key", "") or "")
+    return {
+        "required": True,
+        "ready": ready,
+        "available": ready and item_count > 0,
+        "automatic": bool(
+            quick_unlock_key and player_data.get(quick_unlock_key, False)
+        ),
+        "item": item_name,
+        "item_count": item_count,
+        "threshold_lifepoints": threshold,
+        "action_label": str(
+            finisher.get("action_label", f"Use {item_name}") or f"Use {item_name}"
+        ),
+        "enemy_lifepoints": enemy_lifepoints,
+    }
+
+
+def _combat_consume_loaded_finisher(data, finisher):
+    item_name = str(finisher.get("item", "") or "")
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    finishers = dict(loadout.get("finishers", {}) or {})
+    current = _non_negative_int(finishers.get(item_name, 0), 0)
+    if current <= 0:
+        return False
+    if bool(finisher.get("consume", False)):
+        current -= 1
+        if current > 0:
+            finishers[item_name] = current
+        else:
+            finishers.pop(item_name, None)
+        loadout["finishers"] = finishers
+        data["combat_supply_loadout"] = loadout
+    return True
+
+
+def _combat_cap_damage_for_finisher(
+    data, finisher, enemy_lifepoints, damage, *, allow_automatic=True
+):
+    enemy_lifepoints = _non_negative_int(enemy_lifepoints, 0)
+    if enemy_lifepoints <= 0:
+        return 0, False
+    damage = min(
+        enemy_lifepoints,
+        _non_negative_int(damage, 0),
+    )
+    if finisher is None or damage < enemy_lifepoints:
+        return damage, False
+    quick_unlock_key = str(finisher.get("quick_unlock_key", "") or "")
+    if (
+        allow_automatic
+        and quick_unlock_key
+        and bool(data.get(quick_unlock_key, False))
+        and _combat_consume_loaded_finisher(data, finisher)
+    ):
+        return damage, True
+    return enemy_lifepoints - 1, False
 
 
 def _combat_ranged_max_hit_old_hp(effective_ranged, ranged_strength_bonus):
@@ -4151,6 +4383,107 @@ def _combat_apply_triple_charm_reward(data, drops):
     }
 
 
+def apply_combat_finisher_pure(player_data, enemy_data=None, rng=None):
+    enemy_data = enemy_data or COMBAT_ENEMY_DATA
+    rng = rng or (lambda: 0.0)
+    data = _copy_player_data_with_nested(player_data)
+    data.update(sanitize_combat_state_pure(data, enemy_data))
+    target_id = data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
+    enemy = enemy_data.get(target_id) if isinstance(enemy_data, Mapping) else None
+    locked_reasons = combat_target_locked_reasons_pure(
+        data, target_id, enemy_data
+    )
+    if locked_reasons:
+        return player_data, False, {
+            "reason": "combat_locked",
+            "target_id": target_id,
+            "locked_reasons": locked_reasons,
+        }
+    finisher = _combat_finisher_spec(enemy)
+    if finisher is None:
+        return player_data, False, {"reason": "no_finisher", "target_id": target_id}
+    state = combat_finisher_state_pure(data, target_id, enemy_data)
+    if not state["ready"]:
+        return player_data, False, {
+            "reason": "finisher_not_ready",
+            "target_id": target_id,
+            "threshold_lifepoints": state["threshold_lifepoints"],
+        }
+    if not state["available"] or not _combat_consume_loaded_finisher(data, finisher):
+        return player_data, False, {
+            "reason": "finisher_item_missing",
+            "target_id": target_id,
+            "item": state["item"],
+        }
+
+    kill_drops = _combat_apply_triple_charm_reward(
+        data, _combat_roll_drops(enemy, rng)
+    )
+    (
+        data,
+        kill_drops,
+        passive_prayer_xp,
+        _prayer_ticks,
+        _prayer_effects,
+    ) = resolve_prayer_kill_effects_pure(
+        data,
+        target_id,
+        kill_drops,
+        bool(data.get("combat_auto_prayer_training")),
+    )
+    xp_rewards = {}
+    if passive_prayer_xp > 0:
+        xp_rewards["prayer_exp"] = passive_prayer_xp
+        data["prayer_exp"] = (
+            float(data.get("prayer_exp", 0.0) or 0.0) + passive_prayer_xp
+        )
+    inventory = dict(data.get("inventory", {}) or {})
+    for item_name, amount in kill_drops.items():
+        inventory[item_name] = (
+            _non_negative_int(inventory.get(item_name, 0), 0)
+            + _non_negative_int(amount, 0)
+        )
+    data["inventory"] = inventory
+    kill_counts = dict(data.get("combat_kill_counts", {}) or {})
+    kill_counts[target_id] = _non_negative_int(kill_counts.get(target_id, 0), 0) + 1
+    data["combat_kill_counts"] = kill_counts
+    data["combat_encounter"] = {}
+    data["combat_action"] = "attack"
+    result = {
+        "reason": "combat_finisher",
+        "target_id": target_id,
+        "display_name": str(enemy.get("display_name", target_id)),
+        "ticks": 0,
+        "ticks_elapsed": 0,
+        "player_damage": 0,
+        "enemy_damage": 0,
+        "enemy_lifepoints": 0,
+        "player_lifepoints": _non_negative_int(
+            data.get("combat_lifepoints", combat_max_lifepoints_pure(data)), 0
+        ),
+        "killed": True,
+        "kills": 1,
+        "died": False,
+        "fled": False,
+        "familiar_escape": False,
+        "stop_reason": "",
+        "food_used": tuple(),
+        "potions_used": tuple(),
+        "ammo_used": {},
+        "runes_used": {},
+        "status_damage": {},
+        "status_applied": {},
+        "status_expired": tuple(),
+        "drops": kill_drops,
+        "xp_rewards": xp_rewards,
+        "finisher_item": state["item"],
+        "finisher_consumed": bool(finisher.get("consume", False)),
+        "automatic_finisher": False,
+    }
+    data["combat_last_result"] = result
+    return data, True, result
+
+
 def _combat_void_shifter_escape_ready(data, lifepoints, maximum):
     state = data.get("summoning_state", {}) or {}
     follower = state.get("active_follower", {}) or {}
@@ -4290,6 +4623,107 @@ def _combat_custom_layout_view(data, target_id):
     )
 
 
+def _combat_refill_finisher_loadout(data, enemy):
+    finisher = _combat_finisher_spec(enemy)
+    if finisher is None:
+        return
+    item_name = str(finisher.get("item", "") or "")
+    if not item_name:
+        return
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    finishers = dict(loadout.get("finishers", {}) or {})
+    inventory = dict(data.get("inventory", {}) or {})
+    available = _non_negative_int(inventory.get(item_name, 0), 0)
+    if available > 0:
+        inventory[item_name] = 0
+        finishers[item_name] = (
+            _non_negative_int(finishers.get(item_name, 0), 0) + available
+        )
+    loadout["finishers"] = finishers
+    data["inventory"] = inventory
+    data["combat_supply_loadout"] = loadout
+
+
+def _combat_banked_finisher_count(data, enemy):
+    finisher = _combat_finisher_spec(enemy)
+    if finisher is None:
+        return 0
+    item_name = str(finisher.get("item", "") or "")
+    inventory = data.get("inventory", {}) or {}
+    return (
+        _non_negative_int(inventory.get(item_name, 0), 0)
+        if isinstance(inventory, Mapping)
+        else 0
+    )
+
+
+def _combat_refill_hazard_loadout(data, enemy):
+    hazard = _combat_environmental_hazard_spec(enemy)
+    if hazard is None:
+        return
+    dose_items = _combat_hazard_dose_items(hazard)
+    if not dose_items:
+        return
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    inventory = dict(data.get("inventory", {}) or {})
+    for item_name, amount in (loadout.get("hazards", {}) or {}).items():
+        inventory[item_name] = (
+            _non_negative_int(inventory.get(item_name, 0), 0)
+            + _non_negative_int(amount, 0)
+        )
+    supplies = {}
+    remaining_slots = _positive_int(hazard.get("loadout_cap", 1), 1)
+    for item_name in dose_items:
+        available = _non_negative_int(inventory.get(item_name, 0), 0)
+        if available <= 0 or remaining_slots <= 0:
+            continue
+        take = min(available, remaining_slots)
+        supplies[item_name] = take
+        inventory[item_name] = available - take
+        remaining_slots -= take
+    loadout["hazards"] = supplies
+    data["inventory"] = inventory
+    data["combat_supply_loadout"] = loadout
+
+
+def _combat_trim_food_to_capacity(data):
+    """Keep mandatory supplies while returning excess food to the bank."""
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    excess_slots = max(0, _combat_supply_slots_used(data) - CARRIED_CAPACITY)
+    if excess_slots <= 0:
+        return
+    food = dict(loadout.get("food", {}) or {})
+    inventory = dict(data.get("inventory", {}) or {})
+    preferred = [
+        item_name
+        for item_name in data.get("combat_auto_eat_food", ()) or ()
+        if isinstance(item_name, str)
+    ]
+    removal_order = list(reversed(preferred))
+    removal_order.extend(
+        item_name for item_name in reversed(tuple(food)) if item_name not in preferred
+    )
+    for item_name in removal_order:
+        if excess_slots <= 0:
+            break
+        loaded = _non_negative_int(food.get(item_name, 0), 0)
+        if loaded <= 0:
+            continue
+        returned = min(loaded, excess_slots)
+        remaining = loaded - returned
+        if remaining > 0:
+            food[item_name] = remaining
+        else:
+            food.pop(item_name, None)
+        inventory[item_name] = (
+            _non_negative_int(inventory.get(item_name, 0), 0) + returned
+        )
+        excess_slots -= returned
+    loadout["food"] = food
+    data["inventory"] = inventory
+    data["combat_supply_loadout"] = loadout
+
+
 def _combat_carried_slot_counts(data, target_id):
     """Return ``(all carried slots, depositable loot slots)`` for one target."""
     if not isinstance(target_id, str):
@@ -4339,6 +4773,7 @@ def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon
     _combat_refill_stat_potions(data, combat_class)
     enemy_lookup = enemy_data or COMBAT_ENEMY_DATA
     enemy = enemy_lookup.get(target_id, {}) if isinstance(target_id, str) and isinstance(enemy_lookup, Mapping) else {}
+    _combat_refill_finisher_loadout(data, enemy)
     target_poison = _positive_int(enemy.get("poison_damage", 0), 0) if isinstance(enemy, Mapping) else 0
     effects = _sanitize_combat_status_effects(data.get("combat_status_effects"))
     if target_poison > 0 or "poison" in effects:
@@ -4348,6 +4783,8 @@ def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon
     rune_cost = _combat_required_rune_cost_pure(data, combat_class, spell_spec, equipment_data)
     if rune_cost:
         _combat_refill_magic_rune_loadout(data, rune_cost)
+    _combat_refill_hazard_loadout(data, enemy)
+    _combat_trim_food_to_capacity(data)
     # The same bank trip deposits accumulated loot (owner: loot banks alongside
     # supply depletion).
     _combat_deposit_loot(data, target_id)
@@ -4369,6 +4806,21 @@ def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, s
         return True
     enemy_lookup = enemy_data or COMBAT_ENEMY_DATA
     enemy = enemy_lookup.get(target_id, {}) if isinstance(target_id, str) and isinstance(enemy_lookup, Mapping) else {}
+    finisher = _combat_finisher_spec(enemy)
+    if finisher is not None:
+        item_name = str(finisher.get("item", "") or "")
+        if (
+            _combat_loaded_finisher_count(data, item_name) <= 0
+            and _combat_banked_finisher_count(data, enemy) > 0
+        ):
+            return True
+    hazard = _combat_environmental_hazard_spec(enemy)
+    if (
+        hazard is not None
+        and _combat_loaded_hazard_count(data, hazard) <= 0
+        and _combat_banked_hazard_count(data, hazard) > 0
+    ):
+        return True
     target_poison = _positive_int(enemy.get("poison_damage", 0), 0) if isinstance(enemy, Mapping) else 0
     effects = _sanitize_combat_status_effects(data.get("combat_status_effects"))
     if (target_poison > 0 or "poison" in effects) and _combat_loaded_antipoison_count(data) <= 0:
@@ -5156,9 +5608,9 @@ def _combat_supply_slots_used(data):
     so one slot per distinct stack. What's left is room for loot."""
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     slots = 0
-    for key in ("food", "potions", "stat_potions"):
+    for key in ("food", "potions", "stat_potions", "hazards"):
         slots += sum(_non_negative_int(amount, 0) for amount in (loadout.get(key, {}) or {}).values())
-    for key in ("ammo", "runes"):
+    for key in ("ammo", "runes", "finishers"):
         slots += sum(1 for amount in (loadout.get(key, {}) or {}).values() if _non_negative_int(amount, 0) > 0)
     if _non_negative_int(loadout.get("cannonballs", 0), 0) > 0:
         slots += 1
@@ -5468,6 +5920,25 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         if isinstance(protective_equipment, Mapping) and not protection_active
         else ""
     )
+    finisher_state = combat_finisher_state_pure(
+        player_data, target_id, enemy_data
+    )
+    hazard = _combat_environmental_hazard_spec(enemy)
+    hazard_state = (
+        {
+            "display_name": str(
+                hazard.get("display_name", "Environmental hazard")
+            ),
+            "loaded": _combat_loaded_hazard_count(player_data, hazard),
+            "banked": _combat_banked_hazard_count(player_data, hazard),
+            "reviews_per_dose": _positive_int(
+                hazard.get("reviews_per_dose", 1), 1
+            ),
+            "source_status": str(hazard.get("source_status", "") or ""),
+        }
+        if hazard is not None
+        else {}
+    )
     return {
         "state": state,
         "risk_band": risk,
@@ -5488,6 +5959,8 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         "poison_chance": COMBAT_POISON_NPC_ATTACK_CHANCE if poison_damage > 0 and poison_immunity_ticks <= 0 else 0.0,
         "poison_immunity_ticks": poison_immunity_ticks,
         "protection_warning": protection_warning,
+        "finisher": finisher_state,
+        "environmental_hazard": hazard_state,
         "source": enemy.get("source", ""),
     }
 
@@ -5699,6 +6172,21 @@ def apply_combat_burst_pure(
     if locked_reasons:
         return player_data, False, {"reason": "combat_locked", "locked_reasons": locked_reasons}
     enemy = enemy_data[target_id]
+    finisher = _combat_finisher_spec(enemy)
+    hazard = _combat_environmental_hazard_spec(enemy)
+    hazard_supply = (
+        _combat_consume_hazard_dose(data, hazard)
+        if hazard is not None
+        else None
+    )
+    if hazard is not None and hazard_supply is None:
+        return player_data, False, {
+            "reason": "combat_locked",
+            "locked_reasons": (
+                f"{hazard.get('display_name', 'Environmental hazard')}: "
+                "filled Waterskin",
+            ),
+        }
 
     encounter = data.get("combat_encounter", {}) or {}
     active_encounter = isinstance(encounter, Mapping) and encounter.get("target_id") == target_id
@@ -5998,6 +6486,7 @@ def apply_combat_burst_pure(
     status_expired = []
     unprotected_attacks = 0
     stat_drains = {}
+    automatic_finishers = 0
     xp_rewards = {"magic_exp": supplemental_magic_xp} if supplemental_magic_xp > 0 else {}
     drops = {}
     kills = 0
@@ -6146,7 +6635,11 @@ def apply_combat_burst_pure(
             damage = _combat_roll_damage_lifepoints(live_player_max_hit, rng) if landed else 0
             if live_cadence:
                 curse_attack_count += 1
-            damage = min(enemy_lp, damage)
+            damage, automatic_finisher = _combat_cap_damage_for_finisher(
+                data, finisher, enemy_lp, damage
+            )
+            if automatic_finisher:
+                automatic_finishers += 1
             if damage > 0:
                 enemy_lp -= damage
                 player_damage += damage
@@ -6156,7 +6649,14 @@ def apply_combat_burst_pure(
                     elif spell_effect == "freeze":
                         next_enemy_attack += max(0, int(spell_effect_value / .6))
                     elif spell_effect == "poison" and not magic_effect_applied:
-                        poison_ev = min(enemy_lp, max(0, int(spell_effect_value)))
+                        poison_ev, automatic_finisher = _combat_cap_damage_for_finisher(
+                            data,
+                            finisher,
+                            enemy_lp,
+                            max(0, int(spell_effect_value)),
+                        )
+                        if automatic_finisher:
+                            automatic_finishers += 1
                         enemy_lp -= poison_ev
                         player_damage += poison_ev
                         magic_effect_applied = True
@@ -6308,7 +6808,17 @@ def apply_combat_burst_pure(
                 player_lp -= damage
                 enemy_damage += damage
                 if vengeance_pending:
-                    reflected_vengeance = min(enemy_lp, int(raw_enemy_damage * .75))
+                    (
+                        reflected_vengeance,
+                        automatic_finisher,
+                    ) = _combat_cap_damage_for_finisher(
+                        data,
+                        finisher,
+                        enemy_lp,
+                        int(raw_enemy_damage * .75),
+                    )
+                    if automatic_finisher:
+                        automatic_finishers += 1
                     if reflected_vengeance > 0:
                         enemy_lp -= reflected_vengeance
                         player_damage += reflected_vengeance
@@ -6318,7 +6828,9 @@ def apply_combat_burst_pure(
                     if live_cadence and prayer_uptime > 0
                     else 1.0
                 )
-                reflected = min(
+                reflected, automatic_finisher = _combat_cap_damage_for_finisher(
+                    data,
+                    finisher,
                     enemy_lp,
                     int(
                         raw_enemy_damage
@@ -6326,6 +6838,8 @@ def apply_combat_burst_pure(
                         * deflect_scale
                     ),
                 )
+                if automatic_finisher:
+                    automatic_finishers += 1
                 if reflected > 0:
                     enemy_lp -= reflected
                     player_damage += reflected
@@ -6424,7 +6938,19 @@ def apply_combat_burst_pure(
                 death_roll = max(0.0, min(1.0, float(rng())))
             except (TypeError, ValueError):
                 death_roll = 0.0
-            death_burst = min(enemy_lp, int(_positive_int(data.get("prayer_level", 1), 1) * cap_multiplier * death_roll))
+            death_burst, automatic_finisher = _combat_cap_damage_for_finisher(
+                data,
+                finisher,
+                enemy_lp,
+                int(
+                    _positive_int(data.get("prayer_level", 1), 1)
+                    * cap_multiplier
+                    * death_roll
+                ),
+                allow_automatic=False,
+            )
+            if automatic_finisher:
+                automatic_finishers += 1
             enemy_lp -= death_burst
             player_damage += death_burst
         player_lp = _combat_apply_pvm_death(data, max_player_lp)
@@ -6502,6 +7028,14 @@ def apply_combat_burst_pure(
         "status_expired": tuple(dict.fromkeys(status_expired)),
         "unprotected_attacks": unprotected_attacks,
         "stat_drains": dict(stat_drains),
+        "finisher_ready": bool(
+            finisher is not None
+            and 0
+            < enemy_lp
+            <= _positive_int(finisher.get("threshold_lifepoints", 0), 0)
+        ),
+        "automatic_finishers": automatic_finishers,
+        "hazard_supplies_used": (hazard_supply,) if hazard_supply else tuple(),
         "protection_warning": (
             str(protective_equipment.get("warning", ""))
             if isinstance(protective_equipment, Mapping) and not protection_active
@@ -6647,6 +7181,8 @@ def combat_supply_loadout_summary_pure(player_data):
         "stat_potions_loaded_items": dict(loadout.get("stat_potions", {}) or {}),
         "ammo_loaded": dict(loadout.get("ammo", {}) or {}),
         "runes_loaded": dict(loadout.get("runes", {}) or {}),
+        "finishers_loaded": dict(loadout.get("finishers", {}) or {}),
+        "hazards_loaded": dict(loadout.get("hazards", {}) or {}),
         "cannonballs_loaded": _non_negative_int(loadout.get("cannonballs", 0), 0),
     }
 
@@ -6708,6 +7244,11 @@ def refill_combat_supply_loadout_pure(player_data, equipment_data=None):
     rune_cost = _combat_required_rune_cost_pure(data, combat_class, spell_spec, equipment_data or {})
     if rune_cost:
         _combat_refill_magic_rune_loadout(data, rune_cost)
+    target_id = data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
+    enemy = COMBAT_ENEMY_DATA.get(target_id, {})
+    _combat_refill_finisher_loadout(data, enemy)
+    _combat_refill_hazard_loadout(data, enemy)
+    _combat_trim_food_to_capacity(data)
     return data, True, ""
 
 
@@ -6718,7 +7259,7 @@ def unload_combat_supply_loadout_pure(player_data):
         return data, False, "An active fight cannot unload supplies between review bursts."
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     inventory = dict(data.get("inventory", {}) or {})
-    for key in ("food", "potions", "stat_potions", "ammo", "runes"):
+    for key in ("food", "potions", "stat_potions", "ammo", "runes", "finishers", "hazards"):
         for item_name, amount in (loadout.get(key, {}) or {}).items():
             if isinstance(item_name, str):
                 inventory[item_name] = _non_negative_int(inventory.get(item_name, 0), 0) + _non_negative_int(amount, 0)
@@ -7265,6 +7806,15 @@ def combat_hud_state_pure(player_data, enemy_data=None, equipment_data=None):
     def _pct(value, ceiling):
         return int((min(value, ceiling) / ceiling) * 100) if ceiling > 0 else 0
 
+    finisher = combat_finisher_state_pure(player_data, target_id, enemy_data)
+    status = combat_status_summary_pure(player_data)
+    if finisher["ready"]:
+        finisher_status = (
+            f"Finisher ready: {finisher['action_label']}"
+            if finisher["available"]
+            else f"Finisher blocked: no loaded {finisher['item']}"
+        )
+        status = f"{status} · {finisher_status}" if status else finisher_status
     return {
         "combat_level": player_combat_level_pure(player_data),
         "player_lifepoints": current_lp,
@@ -7281,7 +7831,8 @@ def combat_hud_state_pure(player_data, enemy_data=None, equipment_data=None):
         "kills_total": kills_total,
         "last_kills": last_kills,
         "last_outcome": last_outcome,
-        "status": combat_status_summary_pure(player_data),
+        "status": status,
+        "finisher": finisher,
     }
 
 

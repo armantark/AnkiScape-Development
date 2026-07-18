@@ -1462,6 +1462,23 @@ def combat_target_rows(
                 poison_line = f"Poison: {poison_damage} LP initial · {poison_chance:.0%} attack chance\n"
             protection_warning = str(preview.get("protection_warning", "") or "")
             protection_line = f"Protection: {protection_warning}\n" if protection_warning else ""
+            finisher = preview.get("finisher", {}) or {}
+            finisher_line = ""
+            if isinstance(finisher, Mapping) and finisher.get("required"):
+                finisher_line = (
+                    f"Finisher: {finisher.get('action_label')} at "
+                    f"1–{finisher.get('threshold_lifepoints', 0)} LP · "
+                    f"{finisher.get('item_count', 0)} loaded\n"
+                )
+            hazard = preview.get("environmental_hazard", {}) or {}
+            hazard_line = ""
+            if isinstance(hazard, Mapping) and hazard:
+                hazard_line = (
+                    f"{hazard.get('display_name', 'Environmental hazard')}: "
+                    "1 Waterskin dose per Combat review · "
+                    f"{hazard.get('loaded', 0)} loaded + "
+                    f"{hazard.get('banked', 0)} bank\n"
+                )
             tooltip = (
                 f"{display_name} · combat level {level}\n"
                 f"State: {preview.get('state', 'Ready')} · risk: {risk_band}\n"
@@ -1472,6 +1489,8 @@ def combat_target_rows(
                 f"Enemy LP: {preview.get('enemy_lifepoints', 0)}/{preview.get('enemy_max_lifepoints', stats.get('hitpoints', 0))}\n"
                 f"Enemy max hit: {preview.get('enemy_max_hit', 0)} LP\n"
                 f"{protection_line}"
+                f"{finisher_line}"
+                f"{hazard_line}"
                 f"{poison_line}"
                 f"Food: {_combat_food_summary(player_data, target_id)}\n"
                 f"{_combat_ammo_summary(player_data, target_id, preview.get('ammo'))}"

@@ -510,6 +510,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._runecrafting_calls: list = []
         # Same seams for Combat target/style/spell selection.
         self._combat_calls: list = []
+        self._combat_action_calls: list = []
         self._combat_style_calls: list = []
         self._combat_spell_calls: list = []
         self._combat_threshold_calls: list = []
@@ -703,6 +704,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_farming_spell_patch=lambda patch: _set_target("farming_spell_patch", self._farming_spell_patch_calls, patch),
             on_set_utility=lambda activity: self._utility_calls.append(activity),
             on_set_combat=lambda target: self._combat_calls.append(target),
+            on_set_combat_action=lambda action: self._combat_action_calls.append(action),
             on_set_combat_style=lambda style: self._combat_style_calls.append(style),
             on_set_combat_spell=lambda spell: self._combat_spell_calls.append(spell),
             on_set_combat_auto_eat_threshold=lambda threshold: self._combat_threshold_calls.append(threshold),
@@ -2185,6 +2187,75 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertEqual(pd["current_combat_target"], "seagull")
         dialog.deleteLater()
+
+    def test_combat_finisher_action_only_enables_in_the_source_lp_window(self) -> None:
+        ordinary = _make_player_data()
+        ordinary["current_combat_target"] = "chicken"
+        ordinary_dialog = self._open(ordinary, current_skill="Combat")
+        ordinary_combo = ordinary_dialog.findChild(QComboBox, "combatActionCombo")
+        self.assertIsNotNone(ordinary_combo)
+        self.assertTrue(ordinary_combo.parentWidget().isHidden())
+
+        blocked = _make_player_data()
+        blocked.update(
+            {
+                "current_combat_target": "desert_lizard",
+                "slayer_level": 99,
+                "combat_encounter": {
+                    "target_id": "desert_lizard",
+                    "enemy_lifepoints": 31,
+                },
+                "combat_supply_loadout": {
+                    "finishers": {"Ice cooler": 1},
+                    "hazards": {"Waterskin (4)": 1},
+                },
+            }
+        )
+        blocked_dialog = self._open(blocked, current_skill="Combat")
+        blocked_combo = blocked_dialog.findChild(QComboBox, "combatActionCombo")
+        self.assertFalse(blocked_combo.parentWidget().isHidden())
+        self.assertFalse(blocked_combo.model().item(1).isEnabled())
+
+        ready = _make_player_data()
+        ready.update(
+            {
+                "current_combat_target": "desert_lizard",
+                "slayer_level": 99,
+                "combat_encounter": {
+                    "target_id": "desert_lizard",
+                    "enemy_lifepoints": 30,
+                },
+                "combat_supply_loadout": {
+                    "finishers": {"Ice cooler": 1},
+                    "hazards": {"Waterskin (4)": 1},
+                },
+            }
+        )
+        ready_dialog = self._open(ready, current_skill="Combat")
+        combo = ready_dialog.findChild(QComboBox, "combatActionCombo")
+
+        self.assertFalse(combo.parentWidget().isHidden())
+        self.assertEqual(
+            [combo.itemData(index) for index in range(combo.count())],
+            ["attack", "finisher"],
+        )
+        self.assertEqual(combo.itemText(1), "Use Ice cooler")
+        self.assertTrue(combo.model().item(1).isEnabled())
+        tree = _find_tree_with_user_role(ready_dialog, "desert_lizard")
+        lizard = _tree_row(tree, "desert_lizard")
+        self.assertFalse(lizard.icon(0).isNull())
+        self.assertIn("Finisher: Use Ice cooler at 1–30 LP", lizard.toolTip(0))
+        self.assertIn(
+            "Desert heat: 1 Waterskin dose per Combat review",
+            lizard.toolTip(0),
+        )
+        combo.setCurrentIndex(1)
+        QApplication.processEvents()
+        self.assertEqual(self._combat_action_calls[-1], "finisher")
+
+        ordinary_dialog.deleteLater()
+        blocked_dialog.deleteLater()
+        ready_dialog.deleteLater()
 
     def test_combat_sidebar_hides_combat_only_stat_skills(self) -> None:
         combat_button = next(b for b in self.dialog.findChildren(QPushButton) if b.text() == "Combat")

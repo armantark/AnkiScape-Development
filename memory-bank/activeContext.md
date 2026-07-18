@@ -91,7 +91,13 @@ Icefiend checkpoint passes all 1,482 core methods, 339 focused methods, and the
 same real offscreen Qt picker path. Banshee protection is now executable too:
 an unprotected scream applies the period damage shape and full eight-skill set
 through a deliberately labeled flat-five abstraction; equipped Earmuffs or
-Slayer-helmet-family headgear suppress it.
+Slayer-helmet-family headgear suppress it. Desert lizard is the first live
+finisher family: Slayer 22, its Ice-cooler 1–30 LP gate, the 400-point
+automatic-finisher flag, independent drops, and a sourced sprite are
+executable. Desert heat is a labeled review-native supply abstraction: each
+damaging Combat review consumes one Waterskin dose, preserves the lower-dose
+skin, and uses the ordinary two-review bank refill. Exact cutoff heat
+timing/damage remains `source_blocked`; no wall-clock mechanic was introduced.
 
 The first master-pool harvest is now recorded in
 `source-audits/slayer-turael-spria-pool-2026-07-17.md`. Reconciliation recovered
@@ -102,7 +108,8 @@ converges across Darkan's raw values, game-main's percentages, and the recovered
 30-weight Gelatinous family. Jackal closes the Dogs-family target, and the
 cutoff level-13 Icefiend closes Icefiends with 150 LP, 15 Slayer XP, a 20 LP
 maximum hit, and its complete 128-slot ordinary drop table. Runtime
-certification still fails: four families have no Combat target and Gelatinous
+certification still fails: Desert lizards are now executable, three families
+still have no Combat target, and Gelatinous
 abominations lack the worn-gauntlet finisher. None of these findings creates an
 owner design question.
 
@@ -783,19 +790,27 @@ environment skips. Test quality remains at zero hard issues and the pre-existing
 four structural-clone candidates; documentation, compilation, diff and
 worktree-safety checks pass.
 
-## Slayer finisher acquisition readiness (2026-07-17)
+## Slayer finisher runtime and first live family (2026-07-17)
 
 The four cutoff finisher supplies now preserve their source identity and
 inventory shape through the generated shop catalog and shared item registry.
 Bag of salt and Ice cooler are stackable consumables; Rock hammer and
 Fungicide spray 10 are non-stackable tools. The repair is commit `2ddbb0a`.
 
-No finisher target was admitted. Rockslug and Gargoyle still require
-period-reconciled Combat/drop rows, Desert lizard and Mutated zygomite lack
-complete target rows, and all four enemy assets are absent. The generic
-manual/quick-finisher runtime remains dependency-blocked until it can ship
-with at least one genuinely reachable family. Details are in
-`source-audits/slayer-finishing-blows-2026-07-15.md`.
+Desert lizard now ships with the generic manual/quick-finisher runtime, a
+reconciled Combat/drop row, source level gate, contextual Waterskin supply
+cost, and proven enemy asset. Manual completion costs its own correct review;
+the 400-point flag folds the same item spend and kill into lethal damage.
+Rockslug, Gargoyle, and Mutated zygomite still require their own reconciled
+target/drop/context rows and assets, but no longer need a new finisher engine.
+Details are in `source-audits/slayer-finishing-blows-2026-07-15.md` and
+`source-audits/slayer-desert-lizard-combat-2026-07-17.md`.
+
+Final verification passes all 1,497 core methods (1,293 ordinary passes and
+204 expected environment skips) and all 1,497 real offscreen Qt methods with
+no skips, expected failures, or failures. Test quality remains at zero hard
+issues and the same four review-only structural clone groups. Documentation,
+compilation, diff, item reachability, and worktree-safety audits pass.
 
 ## Grill-harvest closure (2026-07-17)
 

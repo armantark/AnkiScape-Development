@@ -32,6 +32,7 @@ from fetch_assets import (  # noqa: E402
 
 TITLE_OVERRIDES = {
     "jackal": ("Jackalnew.png", "Jackal.png"),
+    "desert_lizard": ("Desert lizard (green).png", "Desert lizard icon.png"),
     "giant_spider": ("Giant spider (Level 2).png",),
     "giant_spider_level_50": ("Giant spider (Level 50).png",),
     "pirate": ("Pirate (Port Sarim).png", "Pirate (Brimhaven).png"),

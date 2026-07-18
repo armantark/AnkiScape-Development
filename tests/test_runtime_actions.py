@@ -737,6 +737,86 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["activity"], ["Defeated Chicken"])
         self.assertEqual(len(calls["xp"]), 1)
 
+    def test_combat_handler_routes_a_ready_manual_finisher(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "equipment": {},
+            "current_combat_target": "desert_lizard",
+            "combat_action": "finisher",
+            "combat_encounter": {
+                "target_id": "desert_lizard",
+                "enemy_lifepoints": 30,
+            },
+            "combat_supply_loadout": {
+                "finishers": {"Ice cooler": 2},
+                "hazards": {"Waterskin (0)": 1},
+            },
+            "combat_lifepoints": 100,
+            "combat_auto_eat_food": ["Shrimps"],
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 10,
+            "slayer_level": 99,
+            "completed_achievements": [],
+        }
+
+        ok = handle_combat_answer(
+            _context(player_data, calls, [0.999999] * 40)
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["combat_action"], "attack")
+        self.assertEqual(player_data["combat_encounter"], {})
+        self.assertEqual(player_data["combat_kill_counts"], {"desert_lizard": 1})
+        self.assertEqual(
+            player_data["combat_supply_loadout"]["finishers"],
+            {"Ice cooler": 1},
+        )
+        self.assertEqual(
+            player_data["action_telemetry"]["actions"]["combat:desert_lizard"][
+                "attempts"
+            ],
+            1,
+        )
+        self.assertEqual(calls["activity"], ["Defeated Desert lizard"])
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["saves"], 1)
+
+    def test_combat_handler_resets_a_stale_finisher_without_disabling_combat(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "equipment": {},
+            "current_combat_target": "desert_lizard",
+            "combat_action": "finisher",
+            "combat_encounter": {
+                "target_id": "desert_lizard",
+                "enemy_lifepoints": 31,
+            },
+            "combat_supply_loadout": {
+                "finishers": {"Ice cooler": 1},
+                "hazards": {"Waterskin (4)": 1},
+            },
+            "combat_lifepoints": 100,
+            "combat_auto_eat_food": ["Shrimps"],
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 10,
+            "slayer_level": 99,
+            "completed_achievements": [],
+        }
+
+        ok = handle_combat_answer(_context(player_data, calls))
+
+        self.assertFalse(ok)
+        self.assertEqual(player_data["combat_action"], "attack")
+        self.assertNotIn("deactivated", calls)
+        self.assertEqual(calls["errors"][0][0], "Finisher unavailable")
+        self.assertEqual(calls["saves"], 1)
+
     def test_fatal_combat_burst_graves_loot_earned_before_death(self):
         enemy = {
             "display_name": "Fatal looter",

@@ -2325,7 +2325,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["combat_recovery_progress"], {"stat_drain_ticks": 50})
         self.assertEqual(
             addon.player_data["combat_supply_loadout"],
-            {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0},
+            {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "finishers": {}, "hazards": {}, "cannonballs": 0},
         )
         self.assertEqual(addon.player_data["combat_bank_run"], {"reviews_remaining": 1, "target_id": "chicken"})
         self.assertEqual(addon.player_data["combat_last_result"]["reason"], "combat_bank_run")
@@ -2410,7 +2410,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertTrue(addon.on_unload_combat_loadout())
         self.assertEqual(
             addon.player_data["combat_supply_loadout"],
-            {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0},
+            {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "finishers": {}, "hazards": {}, "cannonballs": 0},
         )
         self.assertEqual(addon.player_data["inventory"]["Shark"], 30)
         self.assertEqual(addon.player_data["inventory"]["Antipoison (2)"], 1)

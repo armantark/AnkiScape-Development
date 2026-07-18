@@ -767,6 +767,18 @@
     "source_wiki": "osrs",
     "timestamp": "2019-02-02T18:47:08Z"
   },
+  "combatenemies/desert_lizard.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Desert_lizard_%28green%29.png",
+    "file_title": "Desert lizard (green).png",
+    "image_url": "https://runescape.wiki/images/Desert_lizard_%28green%29.png?2087d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d2ce57af11eb515038e485871c2f2c1c2e24a1be",
+    "size": 170081,
+    "source_wiki": "rs3",
+    "timestamp": "2024-02-02T06:04:43Z"
+  },
   "combatenemies/duck_land.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Duck.png",
     "file_title": "Duck.png",

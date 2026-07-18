@@ -64,6 +64,7 @@ try:
     from .logic_pure import (
         COMBAT_GRAVE_RECOVERY_REVIEWS,
         apply_combat_burst_pure,
+        apply_combat_finisher_pure,
         apply_cooking_action_pure,
         apply_crafting_pure,
         apply_firemaking_action_pure,
@@ -244,6 +245,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from logic_pure import (  # type: ignore
         COMBAT_GRAVE_RECOVERY_REVIEWS,
         apply_combat_burst_pure,
+        apply_combat_finisher_pure,
         apply_cooking_action_pure,
         apply_crafting_pure,
         apply_firemaking_action_pure,
@@ -1502,15 +1504,32 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    new_data, ok, result = apply_combat_burst_pure(
-        player_data,
-        COMBAT_ENEMY_DATA,
-        EQUIPMENT_DATA,
-        ticks=_combat_review_ticks(ctx),
-        rng=ctx.random_random,
-        live_cadence=ctx.cadence_live_enabled,
-    )
+    using_finisher = player_data.get("combat_action") == "finisher"
+    if using_finisher:
+        new_data, ok, result = apply_combat_finisher_pure(
+            player_data,
+            COMBAT_ENEMY_DATA,
+            rng=ctx.random_random,
+        )
+    else:
+        new_data, ok, result = apply_combat_burst_pure(
+            player_data,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=_combat_review_ticks(ctx),
+            rng=ctx.random_random,
+            live_cadence=ctx.cadence_live_enabled,
+        )
     if not ok:
+        if using_finisher:
+            player_data["combat_action"] = "attack"
+            reason = str(result.get("reason", "finisher_unavailable"))
+            ctx.show_error_message(
+                "Finisher unavailable",
+                reason.replace("_", " ").capitalize() + ".",
+            )
+            ctx.save_player_data()
+            return False
         ctx.deactivate_current_skill()
         reasons = result.get("locked_reasons") if isinstance(result, dict) else None
         reason_text = ", ".join(reasons) if reasons else "the selected target is unavailable"

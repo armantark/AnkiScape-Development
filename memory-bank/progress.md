@@ -805,8 +805,38 @@ Test counts are snapshots; current runs outrank this note.
   cooler 6696 as stackable, and Fungicide spray 10 7421 as non-stackable.
 - Passed 167 shop/registry/integration methods and three real offscreen Qt shop
   flows. Reachability remains at 1,200 actions and 273 known orphans.
-- Kept all four finisher families hidden: target data, context-correct drops,
-  enemy assets, and reachable finisher runtime are not yet jointly certified.
+- At this checkpoint all four finisher families remained hidden: target data,
+  context-correct drops, enemy assets, and reachable finisher runtime were not
+  yet jointly certified.
+
+## Slayer Desert lizard and generic finisher runtime — 2026-07-17
+
+- Added the cutoff level-24 Desert lizard with Slayer 22, 250 LP, maximum hit
+  40 LP, 25 Slayer XP, reconciled Darkan stats, guaranteed Bones, and 31
+  independent source-probability drop tables.
+- Added a generic loaded-finisher pack and manual action. Lethal damage holds a
+  required target at 1 LP; the valid action atomically spends one Ice cooler,
+  awards the kill/drops, clears the encounter, and resets to Attack.
+- Added the 400-point automatic-finisher seam. It still requires and consumes
+  the item, supports player-side lethal damage sources, and cannot spend a
+  second item after the target is already dead.
+- Flattened Desert heat into a labeled, wall-clock-free supply rule: one
+  Waterskin dose per damaging Combat review. Dose remainders, eight-skin pack
+  loading, carried-slot cost, depletion, and the existing two-review bank run
+  are executable. Exact historical heat interval/damage remains
+  `source_blocked`.
+- Added a sourced 48px sprite/provenance row, tooltip and pack legibility,
+  persistence migration, runtime telemetry, and real offscreen Qt action-state
+  coverage.
+- Kept every incomplete Slayer master hidden. This certifies Desert lizards as
+  a family dependency and makes the finisher engine reusable by Rockslug,
+  Gargoyle, and Mutated zygomite; it does not renormalize a master pool.
+- Durable evidence:
+  `source-audits/slayer-desert-lizard-combat-2026-07-17.md`.
+- Final verification: 1,497 core methods (1,293 ordinary passes and 204
+  expected environment skips), 1,497 real offscreen Qt ordinary passes, zero
+  hard test-quality issues, and passing documentation, compilation, diff,
+  item-reachability, and worktree-safety audits.
 
 ## Grill-harvest program closure (2026-07-17)
 

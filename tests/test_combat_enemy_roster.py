@@ -22,6 +22,7 @@ NEW_COMBAT_ENEMIES = (
     "earth_warrior",
     "jackal",
     "icefiend",
+    "desert_lizard",
     "banshee",
     "shade",
     "ghost_level_77",
@@ -60,7 +61,15 @@ REQUIRED_ENEMY_KEYS = {
     "source",
 }
 
-OPTIONAL_ENEMY_KEYS = {"max_hit", "poison_damage", "xp_multiplier", "protective_equipment"}
+OPTIONAL_ENEMY_KEYS = {
+    "max_hit",
+    "poison_damage",
+    "xp_multiplier",
+    "protective_equipment",
+    "finisher",
+    "required_slayer_level",
+    "environmental_hazard",
+}
 
 REQUIRED_STAT_KEYS = {"hitpoints", "attack", "strength", "defence", "magic", "ranged"}
 
@@ -77,11 +86,9 @@ REQUIRED_BONUS_KEYS = {
 }
 
 
-# The source gates these kills on an item the combat model cannot express
-# (`on_item_on_npc`): a Gargoyle must be smashed with a rock hammer, a Rockslug
-# salted with a bag of salt. Adding them as ordinary melee enemies would let you
-# kill them without the item, deviating from the source. They stay out until a
-# required-finisher mechanic exists.
+# The reusable finisher engine now expresses source item-gated kills. Gargoyle
+# and Rockslug remain out only until their individual rows and assets are
+# reconciled; adding them here prematurely would still invent their combat data.
 ITEM_GATED_ENEMIES_NOT_MODELLED = ("gargoyle", "rockslug")
 
 
@@ -105,7 +112,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertEqual(set(COMBAT_ENEMY_DATA) & skilling_ids, set())
 
 
-    def test_item_gated_enemies_stay_out_until_the_mechanic_exists(self):
+    def test_unreconciled_item_gated_enemies_stay_out(self):
         for enemy_name in ITEM_GATED_ENEMIES_NOT_MODELLED:
             self.assertNotIn(enemy_name, COMBAT_ENEMY_DATA)
 
@@ -140,6 +147,45 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                     self.assertTrue(protection["warning"])
                     self.assertTrue(protection["unprotected_effect"])
                     self.assertTrue(protection["source_status"])
+                if "finisher" in enemy:
+                    finisher = enemy["finisher"]
+                    self.assertEqual(
+                        set(finisher),
+                        {
+                            "item",
+                            "threshold_lifepoints",
+                            "consume",
+                            "action_label",
+                            "quick_unlock_key",
+                            "source_status",
+                        },
+                    )
+                    self.assertTrue(finisher["item"])
+                    self.assertGreater(finisher["threshold_lifepoints"], 0)
+                    self.assertIsInstance(finisher["consume"], bool)
+                    self.assertTrue(finisher["action_label"])
+                    self.assertTrue(finisher["quick_unlock_key"])
+                    self.assertTrue(finisher["source_status"])
+                if "required_slayer_level" in enemy:
+                    self.assertIsInstance(enemy["required_slayer_level"], int)
+                    self.assertGreater(enemy["required_slayer_level"], 0)
+                if "environmental_hazard" in enemy:
+                    hazard = enemy["environmental_hazard"]
+                    self.assertEqual(
+                        set(hazard),
+                        {
+                            "display_name",
+                            "dose_items",
+                            "empty_item",
+                            "reviews_per_dose",
+                            "loadout_cap",
+                            "source_status",
+                        },
+                    )
+                    self.assertTrue(hazard["dose_items"])
+                    self.assertGreater(hazard["reviews_per_dose"], 0)
+                    self.assertGreater(hazard["loadout_cap"], 0)
+                    self.assertTrue(hazard["source_status"])
                 self.assertGreater(enemy["stats"]["hitpoints"], 0)
 
     def test_jackal_preserves_the_cutoff_dogs_family_combat_row(self):
@@ -164,6 +210,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         for target_id, file_title in (
             ("jackal", "Jackal.png"),
             ("icefiend", "Icefiend.png"),
+            ("desert_lizard", "Desert lizard (green).png"),
         ):
             with self.subTest(target=target_id):
                 relative_path = f"combatenemies/{target_id}.png"
@@ -190,6 +237,66 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertEqual(main["total"], 128)
         self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
         self.assertIn("oldid=6419875", icefiend["source"])
+
+    def test_desert_lizard_preserves_the_period_finisher_variant(self):
+        lizard = COMBAT_ENEMY_DATA["desert_lizard"]
+
+        self.assertEqual(lizard["level"], 24)
+        self.assertEqual(lizard["required_slayer_level"], 22)
+        self.assertEqual(lizard["slayer_xp"], 25.0)
+        self.assertEqual(lizard["max_hit"], 40)
+        self.assertEqual(lizard["attack_speed"], 6)
+        self.assertEqual(lizard["respawn_delay"], 59)
+        self.assertEqual(
+            lizard["stats"],
+            {
+                "hitpoints": 250,
+                "attack": 20,
+                "strength": 22,
+                "defence": 20,
+                "magic": 1,
+                "ranged": 1,
+            },
+        )
+        self.assertEqual(lizard["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertEqual(
+            lizard["finisher"],
+            {
+                "item": "Ice cooler",
+                "threshold_lifepoints": 30,
+                "consume": True,
+                "action_label": "Use Ice cooler",
+                "quick_unlock_key": "slayer_quick_finishers_unlocked",
+                "source_status": (
+                    "period-exact threshold/item/consumption; Darkan ConditionalDeath "
+                    "confirms the same item-gated death family"
+                ),
+            },
+        )
+        self.assertEqual(
+            lizard["environmental_hazard"],
+            {
+                "display_name": "Desert heat",
+                "dose_items": (
+                    "Waterskin (4)",
+                    "Waterskin (3)",
+                    "Waterskin (2)",
+                    "Waterskin (1)",
+                ),
+                "empty_item": "Waterskin (0)",
+                "reviews_per_dose": 1,
+                "loadout_cap": 8,
+                "source_status": (
+                    "period-exact water requirement and dose preservation; one dose "
+                    "per damaging Combat review is a bounded review-native abstraction"
+                ),
+            },
+        )
+        self.assertIn("oldid=6548273", lizard["source"])
+        self.assertEqual(len(lizard["drops"]["tables"]), 31)
+        self.assertTrue(
+            all(table["total"] == 100000 for table in lizard["drops"]["tables"])
+        )
 
     def test_new_enemy_drops_are_well_formed(self):
         for enemy_name in NEW_COMBAT_ENEMIES:

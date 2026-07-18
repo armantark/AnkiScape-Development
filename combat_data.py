@@ -2278,6 +2278,62 @@ ICE_GIANT_DROPS = {
 }
 
 
+DESERT_LIZARD_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": tuple(
+        {
+            "name": f"Darkan independent: {item_name}",
+            "total": 100000,
+            "slots": (
+                {
+                    "item": item_name,
+                    **(
+                        {"quantity_range": quantity}
+                        if isinstance(quantity, tuple)
+                        else {"quantity": quantity}
+                    ),
+                    "slots": chance,
+                },
+                {"slots": 100000 - chance},
+            ),
+        }
+        for item_name, quantity, chance in (
+            ("Grimy tarromin", 1, 7009),
+            ("Grimy harralander", 1, 7009),
+            ("Copper ore", 1, 7009),
+            ("Tin ore", 1, 7009),
+            ("Iron ore", 1, 7009),
+            ("Fire rune", (1, 5), 7009),
+            ("Nature rune", 5, 7009),
+            ("Waterskin (0)", 2, 7009),
+            ("Silver bar", 1, 7009),
+            ("Onion seed", 4, 7009),
+            ("Tomato seed", 3, 7009),
+            ("Cabbage seed", 3, 7009),
+            ("Grimy guam", 1, 1401),
+            ("Grimy marrentill", 1, 1401),
+            ("Grimy ranarr", 1, 1401),
+            ("Grimy irit", 1, 1401),
+            ("Grimy avantoe", 1, 1401),
+            ("Silver ore", 1, 1401),
+            ("Coal", 1, 1401),
+            ("Grimy kwuarm", 1, 1401),
+            ("Potato seed", 4, 1401),
+            ("Strawberry seed", 3, 1401),
+            ("Grimy cadantine", 1, 207),
+            ("Grimy lantadyme", 1, 207),
+            ("Grimy dwarf weed", 1, 207),
+            ("Mithril ore", 1, 207),
+            ("Knife", 1, 207),
+            ("Waterskin (4)", 2, 207),
+            ("Kebab", 1, 207),
+            ("Mystic gloves (light)", 1, 207),
+            ("Watermelon seed", 1, 207),
+        )
+    ),
+}
+
+
 GHOST_DROPS = {"guaranteed": (), "tables": ()}
 
 
@@ -6932,6 +6988,73 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "definitions/demons/icefiend_level_13.plugin.kts; "
             "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
             "data/npcs/combatdefs/uncategorized/icefiend/icefiend_(13).json"
+        ),
+    },
+    "desert_lizard": {
+        "display_name": "Desert lizard",
+        "level": 24,
+        "group": "Slayer",
+        "required_slayer_level": 22,
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 40,
+        "slayer_xp": 25.0,
+        "finisher": {
+            "item": "Ice cooler",
+            "threshold_lifepoints": 30,
+            "consume": True,
+            "action_label": "Use Ice cooler",
+            "quick_unlock_key": "slayer_quick_finishers_unlocked",
+            "source_status": (
+                "period-exact threshold/item/consumption; Darkan ConditionalDeath "
+                "confirms the same item-gated death family"
+            ),
+        },
+        "environmental_hazard": {
+            "display_name": "Desert heat",
+            "dose_items": (
+                "Waterskin (4)",
+                "Waterskin (3)",
+                "Waterskin (2)",
+                "Waterskin (1)",
+            ),
+            "empty_item": "Waterskin (0)",
+            "reviews_per_dose": 1,
+            "loadout_cap": 8,
+            "source_status": (
+                "period-exact water requirement and dose preservation; one dose "
+                "per damaging Combat review is a bounded review-native abstraction"
+            ),
+        },
+        "stats": {
+            "hitpoints": 250,
+            "attack": 20,
+            "strength": 22,
+            "defence": 20,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": DESERT_LIZARD_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Desert_lizard?oldid=6548273; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "data/npcs/combatdefs/uncategorized/desert_lizard.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "data/npcs/drops/desert_lizard.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "src/main/java/com/rs/game/content/skills/slayer/npcs/ConditionalDeath.java"
         ),
     },
     "banshee": {

@@ -258,10 +258,10 @@ except Exception:
     )
     from pet_data import OBTAINABLE_PETS, PETS_BY_ID  # type: ignore
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, combat_finisher_state_pure, player_combat_level_pure
     from .skill_registry import get_skill
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, combat_finisher_state_pure, player_combat_level_pure  # type: ignore
     from skill_registry import get_skill  # type: ignore
 try:
     from .logic_pure import combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure
@@ -2264,7 +2264,9 @@ def _combat_loadout_summary_text(player_data: dict) -> str:
         f"Potions: {_mapping_text(summary.get('potions_loaded_items'))}\n"
         f"Stat potions: {_mapping_text(summary.get('stat_potions_loaded_items'))}\n"
         f"Ammo: {_mapping_text(summary.get('ammo_loaded'))}\n"
-        f"Runes: {_mapping_text(summary.get('runes_loaded'))}"
+        f"Runes: {_mapping_text(summary.get('runes_loaded'))}\n"
+        f"Finishers: {_mapping_text(summary.get('finishers_loaded'))}\n"
+        f"Hazard supplies: {_mapping_text(summary.get('hazards_loaded'))}"
     )
 
 
@@ -2318,6 +2320,7 @@ def show_main_menu(
     get_carried_bank_run_summary=None,
     carried_auto_is_combat=False,
     on_set_combat=None,
+    on_set_combat_action=None,
     on_set_combat_style=None,
     on_set_combat_spell=None,
     on_set_combat_auto_eat_threshold=None,
@@ -4136,6 +4139,56 @@ def show_main_menu(
         mode_label.setStyleSheet("color: palette(text); font-weight: 600;")
         layout.addWidget(mode_label)
 
+        action_row = QWidget()
+        action_row_layout = QHBoxLayout(action_row)
+        action_row_layout.setContentsMargins(0, 0, 0, 0)
+        action_row_layout.setSpacing(8)
+        action_row_layout.addWidget(QLabel("Next review"))
+        action_combo = QComboBox()
+        action_combo.setObjectName("combatActionCombo")
+        action_row_layout.addWidget(action_combo, 1)
+        layout.addWidget(action_row)
+
+        def _refresh_combat_action() -> None:
+            target_id = str(
+                player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
+            )
+            state = combat_finisher_state_pure(player_data, target_id)
+            action_combo.blockSignals(True)
+            action_combo.clear()
+            action_combo.addItem("Attack", "attack")
+            if state["required"]:
+                action_combo.addItem(state["action_label"], "finisher")
+                finisher_item = action_combo.model().item(1)
+                finisher_item.setEnabled(bool(state["available"]))
+                if state["available"]:
+                    finisher_item.setToolTip(
+                        f"Consumes one {state['item']} and finishes the enemy."
+                    )
+                elif state["ready"]:
+                    finisher_item.setToolTip(
+                        f"No {state['item']} is loaded in the combat pack."
+                    )
+                else:
+                    finisher_item.setToolTip(
+                        f"Available at 1–{state['threshold_lifepoints']} enemy LP."
+                    )
+                if (
+                    player_data.get("combat_action") == "finisher"
+                    and state["available"]
+                ):
+                    action_combo.setCurrentIndex(1)
+            action_combo.blockSignals(False)
+            action_row.setVisible(bool(state["required"]))
+
+        if on_set_combat_action is not None:
+            action_combo.currentIndexChanged.connect(
+                lambda _index: on_set_combat_action(
+                    str(action_combo.currentData() or "attack")
+                )
+            )
+        _refresh_combat_action()
+
         # Attack-style picker. The valid styles depend on the equipped weapon's
         # combat class (melee/ranged); a magic weapon has a single fixed style, so
         # the combo is omitted and the mode label above already reads "Magic".
@@ -4618,6 +4671,7 @@ def show_main_menu(
         def _refresh_combat_setup_panel() -> None:
             mode_label.setText(f"Combat mode: {_combat_mode_text()}")
             _rebuild_style_combo()
+            _refresh_combat_action()
 
         _combat_setup_refreshers.append(_refresh_combat_setup_panel)
 

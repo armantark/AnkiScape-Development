@@ -280,19 +280,23 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   `source-audits/slayer-icefiend-combat-2026-07-17.md`.
 - Finisher-item acquisition metadata is now ready: Bag of salt, Rock hammer,
   Ice cooler, and Fungicide spray retain their source item IDs and real
-  stackability in the shared registry. The four target families remain
-  source-blocked on reconciled Combat rows, context-correct drops, and enemy
-  assets; do not add a dead generic finisher engine ahead of a certifiable
-  family. See `source-audits/slayer-finishing-blows-2026-07-15.md`.
+  stackability in the shared registry. Desert lizard and the generic
+  manual/automatic finisher engine are live with a source level gate,
+  context-correct independent drops, an asset, and review-native Waterskin
+  supply cost. Rockslug, Gargoyle, and Mutated zygomite remain blocked on their
+  own reconciled target/drop/context rows and assets. See
+  `source-audits/slayer-finishing-blows-2026-07-15.md` and
+  `source-audits/slayer-desert-lizard-combat-2026-07-17.md`.
 - Complete the design-closure source sweep without reopening owner questions for
   source-determined behavior: close every per-master pool/weight/count/gate row,
   pin every family variant's membership/stats/Slayer-XP eligibility/context, and
   close protective, special-kill, challenge, and context state transitions.
 - Turael/Spria's first pool pass is recorded in
   `source-audits/slayer-turael-spria-pool-2026-07-17.md`: 23 families and the
-  provisional 355-point hidden-weight denominator are pinned, but the role
-  remains runtime-blocked on four absent Combat families plus the Gelatinous
-  special consequence. Mazchna/Achtryn, Vannaka, Chaeldar, and
+  provisional 355-point hidden-weight denominator are pinned. Desert lizards
+  are now executable, reducing that role's missing-target blocker set from four
+  to three; the Gelatinous special consequence remains. Mazchna/Achtryn,
+  Vannaka, Chaeldar, and
   Sumona, Duradel/Lapalok, and Kuradal are now recorded in their corresponding
   dated pool audits. Continue the family/variant, protection, challenge and
   location-context ledgers before exposing any live assignment roll.
