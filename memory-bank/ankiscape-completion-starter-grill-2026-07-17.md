@@ -306,6 +306,16 @@ useful AnkiScape choice. Bork's daily source and reward shape are pinned, but
 its Ork-legion encounter remains parked behind the already-parked general
 multi-enemy design rather than receiving a bespoke hidden simulator.
 
+Troll Invasion preserves all twenty Standard or seven Hard wave markers, but a
+wave is not one review. Combat uses the live kernel's six-tick review slices
+against one persistent, visible aggregate wave front; clearing it advances the
+source wave counter and partial-reward fraction. Repair is an automatic
+one-maintenance-action passthrough that selects the most urgent of oil, ballista,
+wall, and barricade work, while exposing only four condition values, morale,
+and progress. Its source endpoints become 1,500 defeated trolls or a
+167-eligible-review ceiling, never wall time. The focused contract is
+`memory-bank/source-audits/troll-invasion-loop-2026-07-18.md`.
+
 Fist of Guthix does not expose opponent selection or difficulty profiles. The
 cutoff game paired waiting-room players randomly regardless of Combat level,
 randomized the first-round roles, and swapped roles for round two. AnkiScape

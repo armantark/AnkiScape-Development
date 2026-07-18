@@ -4,8 +4,8 @@ Date: `2026-07-18`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **period combat, repair, reward, and reset surfaces pinned; Combat wave
-granularity under owner grill.**
+Status: **period combat, repair, reward, and reset surfaces pinned; review-native
+action model owner-closed.**
 
 ## Pinned period evidence
 
@@ -58,22 +58,65 @@ clock normalization unless a project-wide simulated calendar later supplies a
 different month boundary. Runs remain playable after the monthly book has been
 claimed for their ordinary Combat or Repair XP, exactly as the source allowed.
 
-## First owner fork: Combat wave granularity
+## Settled review-native action model
 
-The source supplies exact wave identities, but literal enemy-by-enemy Combat
-would require the still-parked general multi-enemy model. The review-native
-choices are:
+### Combat
 
-1. one successful review resolves one complete source wave, preserving all
-   twenty standard or seven hard wave markers; or
-2. several source waves are grouped into larger progress bands.
+A source wave is a progress boundary, not an Anki action unit. One successful
+review advances the selected Combat route by the live kernel's ordinary
+`6 × M` immediate game ticks. It is therefore invalid to clear a whole wave
+merely because one card was answered.
 
-The recommendation is one review per wave. It preserves the recognizable
-endurance ladder, partial-reward formula, standard-to-hard unlock, supply-table
-failure, and Cliff finale with only 20 or 7 explicit state transitions. Each
-review performs one aggregate wave outcome and emits its full XP, consumable,
-LP, supply-table, and threat consequence; it does not simulate individual
-trolls behind the result line.
+Each source wave is represented by one visible aggregate **wave front** with
+persistent LP and pressure state derived from that wave's period roster. The
+ordinary Combat engine attacks that front for six ticks at multiplier 1. It
+does not instantiate or tick every troll behind the result line. Clearing the
+front advances exactly one of the source's twenty Standard or seven Hard wave
+markers. A kill, defeat, flee, destroyed-supply boundary, or completed wave ends
+the review without spending unused ticks on the next wave.
 
-Grouping waves would shorten the run, but it would require invented band
-boundaries and make the source's exact partial-completion formula less legible.
+This keeps the activity inside the cadence kernel rather than creating an
+activity-specific combat burst. It also preserves the source's exact
+wave-based partial-reward fraction, Standard-to-Hard unlock, supply-table
+failure, priority-threat texture, and Cliff finale without depending on the
+parked general multi-enemy model. The supply table follows the active Combat
+automation preset at safe boundaries. A sourced Dynamite consequence may
+destroy it for the rest of the run, and the result line must say so.
+
+Implementation still has to source and pin the aggregate-front construction
+from each exact wave roster. The abstraction is the aggregation itself, not
+permission to invent unsupported enemy totals, XP, or damage.
+
+### Repair
+
+One successful review performs one complete maintenance action. This is a
+cadence `passthrough` action, not Combat ticks and not a hidden ten-minute
+simulation. At multiplier `M`, the review performs up to `M` complete
+maintenance actions and stops at the activity boundary.
+
+The player does not babysit four repair buttons. The route automatically picks
+the most urgent valid job among oil drums, ballista ammunition, walls, and
+barricades: first prevent an imminent gatehouse failure, then repair the
+lowest-condition component. Its one-line result names the job, the authentic
+Construction, Crafting, or Firemaking XP, the ten-troll credit, and any morale
+power or troll-pressure consequence.
+
+The complete runtime state is four bounded component conditions, morale,
+trolls defeated, and eligible repair reviews spent. It never simulates
+individual defenders or trolls. One aggregate, source-shaped pressure
+consequence resolves after each maintenance action. Morale powers use a
+deterministic automatic priority: prevent failure first, otherwise spend only
+when capped or when the power improves the current action. The UI may explain
+the selected power in the result line, but exposes no per-review morale
+controls.
+
+The source endpoints map without wall time:
+
+- reaching 1,500 defeated trolls completes the route, normally after 150
+  productive maintenance actions because each contributes ten; or
+- the ten-minute endpoint becomes a ceiling of 167 eligible successful reviews
+  at the canonical 1,000-reviews-per-balancing-hour cadence.
+
+Interrupted or non-productive maintenance can therefore make the 167-review
+ceiling relevant. Leaving earlier cashes out the same source-shaped completion
+fraction used by the activity's reward contract.
