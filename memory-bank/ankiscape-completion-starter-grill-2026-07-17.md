@@ -102,6 +102,13 @@ the source-authentic reset, cash-out, or abandonment consequence, with a
 confirmation before destructive loss. Merely viewing another page does not
 invent a pause point; each activity contract must pin what counts as leaving.
 
+All activity abstractions also follow the global computational boundary in
+`memory-bank/simulation-computation-budget-contract-2026-07-17.md`. A concise
+result line summarizes the complete consequential state transition; it must
+never hide an unnecessary world simulation. Existing settled designs receive
+the same implementation-time audit rather than being grandfathered into
+unbounded or invisible work.
+
 ### One special-currency wallet, authentic separate balances
 
 Use one persisted wallet/ledger substrate, but retain authentic per-activity
