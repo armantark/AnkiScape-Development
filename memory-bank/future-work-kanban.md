@@ -230,6 +230,12 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   prose blockers for protection,
   poison, finishers, Dogs, Grotworms, and Hobgoblin XP no longer control
   certification.
+- Mogre combat is source-closed, including its atomic Fishing-explosive lure,
+  poison immunity, exact 128-slot Darkan table, tertiary bones, and target
+  icon. Keep it marked `DEPENDENCY: QUEST` until the Darkan quest pass adds the
+  cutoff Mogre miniquest with completion ID `skippy_and_the_mogres`; do not
+  advance readiness with a permanently locked partial target. See
+  `source-audits/slayer-mogre-combat-2026-07-18.md`.
 - Park Social Slayer unless genuine shared-player state ever exists; do not ship
   a simulated partner or solo co-op multiplier. Preserve all seven period Slayer
   master challenges in the design and source their compound objective ledgers.

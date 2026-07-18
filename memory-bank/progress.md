@@ -1179,3 +1179,21 @@ Test counts are snapshots; current runs outrank this note.
 - Published
   `status-updates/slayer-wall-beast-combat-results-2026-07-18.html`
   (<https://0aaltfsrmyrn.postplan.dev>).
+
+## Slayer Mogre source closure and quest handoff — 2026-07-18
+
+- Closed the ordinary level-60 Mogre combat contract from cutoff Wiki
+  revisions and Darkan: Slayer 32/48 XP, atomic Fishing-explosive lure,
+  poison immunity, exact melee cadence and damage, a 128-slot main drop table,
+  guaranteed Big bones, and independent long/curved-bone tertiaries.
+- Recovered the complete non-combat Skippy supply chain and its sole gameplay
+  reward. The live Slayer family already names the correct completion ID,
+  `skippy_and_the_mogres`, but the quest catalog does not implement it.
+- Kept Mazchna/Achtryn at 24/27 rather than adding a permanently locked partial
+  Combat target. The exact quest implementation handoff is appended to
+  `codex-briefs/darkan-quest-agent-handoff-2026-07-18.md`.
+- Recorded missing Mudskipper hat/Flippers identities and icons, the optional
+  Super fishing explosive acquisition dependency, and the Rag and Bone Man
+  context restriction without inventing routes or weights.
+- No owner design decision was required. Durable evidence:
+  `source-audits/slayer-mogre-combat-2026-07-18.md`.

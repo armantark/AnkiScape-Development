@@ -1001,3 +1001,16 @@ remain. No owner design gap emerged. Durable evidence is
 `source-audits/slayer-wall-beast-combat-2026-07-18.md`; the visual closure
 report is `status-updates/slayer-wall-beast-combat-results-2026-07-18.html`
 (<https://0aaltfsrmyrn.postplan.dev>).
+
+The next Mazchna blocker, Mogres, is now source-closed but correctly remains
+dependency-blocked. Cutoff evidence pins the level-60 target, atomic
+Fishing-explosive lure, Slayer 32/48 XP, poison immunity, six-tick melee,
+89-LP maximum hit, the exact three-stage Skippy supply chain, and the unlock.
+Darkan supplies matching combat stats, a 59-tick respawn, an exact 128-slot
+main drop table, and the shared long/curved-bone tertiary table. The existing
+Slayer family already requires completion ID `skippy_and_the_mogres`, but that
+miniquest is absent from the quest catalog. Adding a permanently locked target
+would falsely advance readiness, so the quest-owned chain is handed to the
+Darkan quest thread and no runtime row ships yet. No owner design gap emerged.
+Durable evidence is
+`source-audits/slayer-mogre-combat-2026-07-18.md`.
