@@ -10,14 +10,14 @@ try:
         DEFAULT_SLAYER_MASTER_ID,
         SLAYER_FAMILIES_BY_ID,
         SLAYER_MASTERS_BY_ID,
-        SlayerFamily,
+        SlayerAssignmentFamily,
     )
 except ImportError:  # pragma: no cover - flat test imports
     from slayer_data import (  # type: ignore
         DEFAULT_SLAYER_MASTER_ID,
         SLAYER_FAMILIES_BY_ID,
         SLAYER_MASTERS_BY_ID,
-        SlayerFamily,
+        SlayerAssignmentFamily,
     )
 
 
@@ -65,7 +65,7 @@ def slayer_master_display_name_pure(
 
 def slayer_family_locked_reasons_pure(
     player_data: Mapping[str, Any],
-    family: SlayerFamily,
+    family: SlayerAssignmentFamily,
 ) -> Tuple[str, ...]:
     reasons = []
     slayer_level = _positive_int(player_data.get("slayer_level", 1), 1)
@@ -81,21 +81,31 @@ def slayer_family_locked_reasons_pure(
                 family.required_quest_id.replace("_", " ").title(),
             )
         )
+    for skill_id, required_level in family.required_skill_levels:
+        if _positive_int(player_data.get(f"{skill_id}_level", 1), 1) < required_level:
+            reasons.append(f"{skill_id.replace('_', ' ').title()} level {required_level}")
+    for skill_ids, required_total in family.required_skill_totals:
+        current_total = sum(
+            _positive_int(player_data.get(f"{skill_id}_level", 1), 1)
+            for skill_id in skill_ids
+        )
+        if current_total < required_total:
+            names = " + ".join(skill_id.replace("_", " ").title() for skill_id in skill_ids)
+            reasons.append(f"{names} total {required_total}")
     return tuple(reasons)
 
 
 def eligible_slayer_families_pure(
     player_data: Mapping[str, Any],
     master_id: str = DEFAULT_SLAYER_MASTER_ID,
-) -> Tuple[SlayerFamily, ...]:
+) -> Tuple[SlayerAssignmentFamily, ...]:
     master = SLAYER_MASTERS_BY_ID.get(master_id)
-    if master is None:
+    if master is None or not master.runtime_enabled:
         return ()
     return tuple(
         family
-        for family_id in master.family_ids
-        if (family := SLAYER_FAMILIES_BY_ID.get(family_id)) is not None
-        and not slayer_family_locked_reasons_pure(player_data, family)
+        for family in master.assignments
+        if not slayer_family_locked_reasons_pure(player_data, family)
     )
 
 
@@ -110,6 +120,7 @@ def sanitize_slayer_state_pure(player_data: Mapping[str, Any]) -> dict:
     if (
         family is None
         or master is None
+        or not master.runtime_enabled
         or family_id not in master.family_ids
     ):
         assignment = {}

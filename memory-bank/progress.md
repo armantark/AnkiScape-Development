@@ -4,6 +4,30 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Mazchna/Achtryn hidden-pool readiness — 2026-07-18
+
+- Split stable Slayer family identities from master-specific assignment rows,
+  preserving Turael's live values while encoding all 27 Mazchna/Achtryn rows
+  and the exact provisional 325-point denominator.
+- Kept Mazchna/Achtryn runtime-disabled; Achtryn's While Guthix Sleeps interval
+  remains source metadata rather than an exposed partial role.
+- Added an executable readiness audit over live Combat targets, Slayer XP, and
+  required poison/protection/finisher mechanics. It certifies Turael/Spria at
+  23/23 and reports Mazchna/Achtryn at 21/27.
+- Closed the stale Hobgoblin blocker with the pinned pre-EOC 29/49 Slayer XP.
+  The only remaining Mazchna target blockers are Cyclopes, Kalphites, Mogres,
+  Pyrefiends, Vampyres, and Wall beasts.
+- Added pure regression coverage for master-specific rows, hidden-master
+  behavior, exact blocker derivation, and catalog-integrity failures. No owner
+  design question emerged.
+- Full core and real offscreen Qt discovery each pass all 1,560 methods.
+  Focused Slayer/Combat/runtime/integration coverage, test quality,
+  documentation, compilation, JSON, diff, reachability, and worktree-safety
+  checks pass.
+- Published
+  `status-updates/slayer-mazchna-readiness-results-2026-07-18.html`
+  (<https://ir3cpm2ptnfp.postplan.dev>).
+
 ## Slayer Mutated zygomite Combat closure — 2026-07-18
 
 - Added both ordinary Mutated zygomite variants with period Slayer/quest gates,

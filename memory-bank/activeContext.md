@@ -2,6 +2,21 @@
 
 ## Current Focus
 
+Mazchna/Achtryn is now the second fully represented Slayer-master pool, but it
+remains correctly hidden. The data model separates stable family identity from
+master-specific weight/count rows, preserving all 27 reconciled families and
+the provisional 325-point denominator without mutating Turael's values. The new
+`tools/audit_slayer_readiness.py` derives certification from live target,
+Slayer-XP, poison, protection, and finisher dependencies. It certifies
+Turael/Spria at 23/23 and reports Mazchna/Achtryn at 21/27 with exactly six
+Combat-target blockers: Cyclopes, Kalphites, Mogres, Pyrefiends, Vampyres, and
+Wall beasts. The audit also rejects malformed roll rows, denominator drift,
+enabled partial masters, and certified-but-forgotten hidden masters. Both
+Hobgoblin variants now award their pinned 29/49 Slayer XP. No owner design gap
+emerged. The closure report is
+`status-updates/slayer-mazchna-readiness-results-2026-07-18.html`
+(<https://ir3cpm2ptnfp.postplan.dev>).
+
 Mutated zygomite is now the fourth and final ordinary Slayer finishing-blow
 family. Both cutoff variants are executable at Slayer 57 after Lost City, with
 their distinct 650/750 LP and 65/75 Slayer XP rows, period file-revision

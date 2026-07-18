@@ -1,7 +1,13 @@
 import unittest
 
 from combat_data import COMBAT_ENEMY_DATA
-from slayer_data import SLAYER_FAMILIES_BY_ID, TURAEL_FAMILIES
+from slayer_data import (
+    MAZCHNA_FAMILIES,
+    MAZCHNA_FAMILIES_BY_ID,
+    MAZCHNA_MASTER,
+    TURAEL_FAMILIES,
+    TURAEL_FAMILIES_BY_ID,
+)
 from slayer_logic import (
     apply_slayer_kills_pure,
     eligible_slayer_families_pure,
@@ -10,6 +16,10 @@ from slayer_logic import (
     slayer_master_display_name_pure,
     slayer_target_ids_for_assignment_pure,
 )
+from slayer_readiness import (
+    slayer_catalog_integrity_issues_pure,
+    slayer_master_readiness_pure,
+)
 
 
 class SlayerAssignmentDataTest(unittest.TestCase):
@@ -17,12 +27,79 @@ class SlayerAssignmentDataTest(unittest.TestCase):
         self.assertEqual(len(TURAEL_FAMILIES), 23)
         self.assertEqual(sum(family.weight for family in TURAEL_FAMILIES), 355)
         self.assertEqual(
-            (SLAYER_FAMILIES_BY_ID["icefiends"].count_min, SLAYER_FAMILIES_BY_ID["icefiends"].count_max),
+            (
+                TURAEL_FAMILIES_BY_ID["icefiends"].count_min,
+                TURAEL_FAMILIES_BY_ID["icefiends"].count_max,
+            ),
             (10, 20),
         )
         self.assertEqual(
-            (SLAYER_FAMILIES_BY_ID["grotworms"].count_min, SLAYER_FAMILIES_BY_ID["grotworms"].count_max),
+            (
+                TURAEL_FAMILIES_BY_ID["grotworms"].count_min,
+                TURAEL_FAMILIES_BY_ID["grotworms"].count_max,
+            ),
             (15, 30),
+        )
+
+    def test_hidden_mazchna_pool_preserves_complete_master_specific_rows(self):
+        self.assertEqual(len(MAZCHNA_FAMILIES), 27)
+        self.assertEqual(sum(family.weight for family in MAZCHNA_FAMILIES), 325)
+        self.assertEqual(
+            (
+                MAZCHNA_FAMILIES_BY_ID["cyclopes"].count_min,
+                MAZCHNA_FAMILIES_BY_ID["cyclopes"].count_max,
+            ),
+            (30, 60),
+        )
+        self.assertEqual(
+            (
+                MAZCHNA_FAMILIES_BY_ID["wall_beasts"].count_min,
+                MAZCHNA_FAMILIES_BY_ID["wall_beasts"].count_max,
+            ),
+            (10, 20),
+        )
+        self.assertEqual(MAZCHNA_MASTER.required_combat_level, 20)
+        self.assertEqual(MAZCHNA_MASTER.required_quest_id, "priest_in_peril")
+        self.assertEqual(MAZCHNA_MASTER.alternate_display_name, "Achtryn")
+        self.assertFalse(MAZCHNA_MASTER.runtime_enabled)
+
+    def test_mazchna_readiness_is_derived_and_keeps_partial_pool_hidden(self):
+        readiness = slayer_master_readiness_pure(
+            MAZCHNA_MASTER.id, COMBAT_ENEMY_DATA
+        )
+
+        self.assertFalse(readiness["certified"])
+        self.assertFalse(readiness["runtime_enabled"])
+        self.assertEqual(readiness["family_count"], 27)
+        self.assertEqual(readiness["ready_family_count"], 21)
+        self.assertEqual(
+            set(readiness["blockers"]),
+            {
+                "cyclopes:combat_target",
+                "kalphites:combat_target",
+                "mogres:combat_target",
+                "pyrefiends:combat_target",
+                "vampyres:combat_target",
+                "wall_beasts:combat_target",
+            },
+        )
+        self.assertNotIn("hobgoblins:slayer_xp", readiness["blockers"])
+        self.assertEqual(
+            eligible_slayer_families_pure(
+                {
+                    "slayer_level": 99,
+                    "combat_level": 126,
+                    "quests": {"priest_in_peril": {"completed": True}},
+                },
+                MAZCHNA_MASTER.id,
+            ),
+            (),
+        )
+
+    def test_slayer_catalog_integrity_rejects_no_live_or_stale_master_state(self):
+        self.assertEqual(
+            slayer_catalog_integrity_issues_pure(COMBAT_ENEMY_DATA),
+            (),
         )
 
     def test_every_assignable_family_has_a_live_combat_target(self):
@@ -67,7 +144,10 @@ class SlayerAssignmentDataTest(unittest.TestCase):
             "quests": {"priest_in_peril": {"completed": True}},
         }
         unlocked_ids = {family.id for family in eligible_slayer_families_pure(unlocked)}
-        self.assertEqual(unlocked_ids, set(SLAYER_FAMILIES_BY_ID))
+        self.assertEqual(
+            unlocked_ids,
+            {family.id for family in TURAEL_FAMILIES},
+        )
 
 
 class SlayerAssignmentLogicTest(unittest.TestCase):

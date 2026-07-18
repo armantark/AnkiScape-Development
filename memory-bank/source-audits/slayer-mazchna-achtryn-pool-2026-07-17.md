@@ -186,20 +186,23 @@ Pinned path:
 
 This audit does **not** authorize a partial live Mazchna/Achtryn role.
 
-- The Combat roster has no target for Cyclopes, Desert lizards, Dogs,
-  Grotworms, Kalphites, Mogres, Pyrefiends, Rock slugs, Vampyres, or Wall
-  beasts.
-- Existing Banshee and Cockatrice targets do not yet enforce their protective
-  equipment consequences.
-- Existing Hobgoblin targets do not yet carry Slayer XP.
-- Desert-lizard and Rock-slug finishing items, Mogre luring, and Wall-beast
-  helmet behavior do not exist.
-- Cave-crawler source poison was missing when this audit began. The live row
-  now carries `poison_damage = 8`, and a deterministic Combat regression proves
-  that the 80-LP initial poison reaches persistent player status.
-- No master-assignment runtime or explicit family-to-variant registry is live.
-  Future membership must use stable family ids, never display-name substring
-  matching; for example, Werewolves must not silently become Wolves.
+- The complete 27-family pool now exists as hidden data. Stable family identity
+  is separate from master-specific weight/count rows, so Mazchna's 325-point
+  denominator cannot overwrite Turael's values.
+- `tools/audit_slayer_readiness.py` derives blockers from the current Combat
+  registry instead of trusting this dated prose snapshot. It reports 21/27
+  families ready and keeps the role runtime-disabled.
+- The exact remaining target blockers are Cyclopes, Kalphites, Mogres,
+  Pyrefiends, Vampyres, and Wall beasts. When Mogre and Wall-beast targets land,
+  the same audit will additionally require their lure and protective-equipment
+  feature keys before certification.
+- Banshee and Cockatrice protection, Cave-crawler and Cave-slime poison,
+  Desert-lizard and Rockslug finishers, Dogs, Grotworms, and both Hobgoblin
+  Slayer-XP rows are now executable and no longer appear as blockers.
+- The audit rejects empty pools, duplicate families, invalid roll rows,
+  denominator drift, enabled masters with blockers, and certified masters left
+  hidden. Family membership remains explicit by stable id; display-name
+  matching cannot admit Werewolves into Wolves.
 
 No owner-level design choice is needed. The remaining blockers are source/data,
 Combat-content, item-mechanics, quest-gate, and integration work.

@@ -216,6 +216,14 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   undo, and management surfaces are complete. Resume the remaining masters from
   their per-family blocker identities; do not reopen owner design or expose a
   partial pool.
+- Mazchna/Achtryn is now the second completely encoded pool. Stable family
+  identities are separate from its 27 master-specific roll rows and provisional
+  325-point denominator. `tools/audit_slayer_readiness.py` derives the live
+  readiness ledger: 21/27 families are ready, while Cyclopes, Kalphites,
+  Mogres, Pyrefiends, Vampyres, and Wall beasts remain exact Combat-target
+  blockers. The role stays hidden; stale prose blockers for protection,
+  poison, finishers, Dogs, Grotworms, and Hobgoblin XP no longer control
+  certification.
 - Park Social Slayer unless genuine shared-player state ever exists; do not ship
   a simulated partner or solo co-op multiplier. Preserve all seven period Slayer
   master challenges in the design and source their compound objective ledgers.
@@ -256,9 +264,10 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   runtime readiness from stable dependency identities so each family enters the
   live UI and authentic weighted roll automatically when its quest, target,
   context, acquisition, and unlock dependencies are genuinely implemented. Add
-  a completeness audit that names every blocking identity, rejects stale
-  blockers, prevents empty rollable-master pools, and applies the same rule to
-  family-specific reward purchases.
+  each remaining master to the live completeness audit, which now names every
+  Mazchna blocker, rejects stale blockers, prevents empty or malformed rollable
+  pools, and refuses enabled partial masters. Apply the same rule to
+  family-specific reward purchases when those rows land.
 - Certify each Slayer master only after every ordinarily available family in its
   pinned cutoff pool has complete roll data and satisfies the owner-set variant
   coverage bar. Never ship a master whose baseline weights are silently

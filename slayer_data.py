@@ -1,8 +1,8 @@
-"""Source-backed Slayer master and assignment-family data.
+"""Source-backed Slayer family identities and master-specific assignment rows.
 
-The live runtime begins with the complete Turael/Spria pool. Other masters stay
-out of player surfaces until their full baseline pools satisfy the repository's
-readiness contract.
+Only certified masters are runtime-enabled. Hidden master pools remain complete
+data contracts so readiness can be derived from live Combat dependencies rather
+than maintained as a stale prose checklist.
 """
 
 from __future__ import annotations
@@ -19,99 +19,193 @@ SLAYER_ASSIGNMENT_SOURCE = (
 TURAEL_AUDIT_SOURCE = (
     "memory-bank/source-audits/slayer-turael-spria-pool-2026-07-17.md"
 )
+MAZCHNA_AUDIT_SOURCE = (
+    "memory-bank/source-audits/slayer-mazchna-achtryn-pool-2026-07-17.md"
+)
 
 
 @dataclass(frozen=True)
 class SlayerFamily:
+    """Stable family identity shared by every master that assigns it."""
+
     id: str
     display_name: str
-    weight: int
-    count_min: int
-    count_max: int
     target_ids: Tuple[str, ...]
     required_slayer_level: int = 1
     required_quest_id: str = ""
+    required_skill_levels: Tuple[Tuple[str, int], ...] = ()
+    required_skill_totals: Tuple[Tuple[Tuple[str, ...], int], ...] = ()
+    readiness_features: Tuple[str, ...] = ()
     source: str = TURAEL_AUDIT_SOURCE
+
+
+@dataclass(frozen=True)
+class SlayerMasterFamilyRow:
+    """A family's weight and count range for one specific master."""
+
+    family_id: str
+    weight: int
+    count_min: int
+    count_max: int
+    source: str
+
+
+@dataclass(frozen=True)
+class SlayerAssignmentFamily:
+    """Runtime view combining a stable family with one master's roll row."""
+
+    family: SlayerFamily
+    row: SlayerMasterFamilyRow
+
+    @property
+    def id(self) -> str:
+        return self.family.id
+
+    @property
+    def display_name(self) -> str:
+        return self.family.display_name
+
+    @property
+    def target_ids(self) -> Tuple[str, ...]:
+        return self.family.target_ids
+
+    @property
+    def required_slayer_level(self) -> int:
+        return self.family.required_slayer_level
+
+    @property
+    def required_quest_id(self) -> str:
+        return self.family.required_quest_id
+
+    @property
+    def required_skill_levels(self) -> Tuple[Tuple[str, int], ...]:
+        return self.family.required_skill_levels
+
+    @property
+    def required_skill_totals(self) -> Tuple[Tuple[Tuple[str, ...], int], ...]:
+        return self.family.required_skill_totals
+
+    @property
+    def readiness_features(self) -> Tuple[str, ...]:
+        return self.family.readiness_features
+
+    @property
+    def weight(self) -> int:
+        return self.row.weight
+
+    @property
+    def count_min(self) -> int:
+        return self.row.count_min
+
+    @property
+    def count_max(self) -> int:
+        return self.row.count_max
+
+    @property
+    def source(self) -> str:
+        return self.row.source
 
 
 @dataclass(frozen=True)
 class SlayerMaster:
     id: str
     display_name: str
-    family_ids: Tuple[str, ...]
+    assignments: Tuple[SlayerAssignmentFamily, ...]
     required_slayer_level: int = 1
     required_combat_level: int = 1
     required_quest_id: str = ""
+    runtime_enabled: bool = False
+    alternate_display_name: str = ""
+    alternate_display_condition: str = ""
+    expected_weight_total: int = 0
     source: str = TURAEL_AUDIT_SOURCE
 
+    @property
+    def family_ids(self) -> Tuple[str, ...]:
+        return tuple(assignment.id for assignment in self.assignments)
 
-TURAEL_FAMILIES: Tuple[SlayerFamily, ...] = (
+
+_FAMILIES: Tuple[SlayerFamily, ...] = (
     SlayerFamily(
         "banshees",
         "Banshees",
-        30,
-        15,
-        50,
         ("banshee",),
         required_slayer_level=15,
         required_quest_id="priest_in_peril",
+        readiness_features=("protective_equipment",),
     ),
-    SlayerFamily("bats", "Bats", 10, 15, 50, ("giant_bat",)),
-    SlayerFamily("bears", "Bears", 10, 15, 50, ("black_bear",)),
-    SlayerFamily("birds", "Birds", 10, 15, 50, ("seagull",)),
+    SlayerFamily("bats", "Bats", ("giant_bat",)),
+    SlayerFamily("bears", "Bears", ("black_bear",)),
+    SlayerFamily("birds", "Birds", ("seagull",)),
+    SlayerFamily("cave_bugs", "Cave bugs", ("cave_bug",), required_slayer_level=7),
     SlayerFamily(
-        "cave_bugs",
-        "Cave bugs",
-        10,
-        15,
-        50,
-        ("cave_bug",),
-        required_slayer_level=7,
+        "cave_crawlers",
+        "Cave crawlers",
+        ("cave_crawler",),
+        required_slayer_level=10,
+        readiness_features=("poison_damage",),
+        source=MAZCHNA_AUDIT_SOURCE,
     ),
     SlayerFamily(
         "cave_slimes",
         "Cave slimes",
-        30,
-        15,
-        50,
         ("cave_slime",),
         required_slayer_level=17,
+        readiness_features=("poison_damage",),
     ),
-    SlayerFamily("cows", "Cows", 10, 15, 50, ("cow", "cow_calf")),
+    SlayerFamily(
+        "catablepon",
+        "Catablepon",
+        ("catablepon_level_49", "catablepon_level_64", "catablepon_level_68"),
+        source=MAZCHNA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "cockatrice",
+        "Cockatrice",
+        ("cockatrice",),
+        required_slayer_level=25,
+        readiness_features=("protective_equipment",),
+        source=MAZCHNA_AUDIT_SOURCE,
+    ),
+    SlayerFamily("cows", "Cows", ("cow", "cow_calf")),
     SlayerFamily(
         "crawling_hands",
         "Crawling hands",
-        30,
-        15,
-        50,
         ("crawling_hand",),
         required_slayer_level=5,
     ),
     SlayerFamily(
+        "cyclopes",
+        "Cyclopes",
+        ("cyclops",),
+        required_skill_totals=((("attack", "strength"), 130),),
+        source=MAZCHNA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
         "desert_lizards",
         "Desert lizards",
-        30,
-        15,
-        50,
         ("desert_lizard",),
         required_slayer_level=22,
+        readiness_features=("finisher",),
     ),
-    SlayerFamily("dogs", "Dogs", 15, 15, 50, ("jackal",)),
+    SlayerFamily("dogs", "Dogs", ("jackal",)),
+    SlayerFamily("dwarves", "Dwarves", ("dwarf_level_10", "dwarf_level_11")),
     SlayerFamily(
-        "dwarves",
-        "Dwarves",
-        10,
-        15,
-        50,
-        ("dwarf_level_10", "dwarf_level_11"),
+        "flesh_crawlers",
+        "Flesh crawlers",
+        ("flesh_crawler_level_28", "flesh_crawler_level_35", "flesh_crawler_level_41"),
+        source=MAZCHNA_AUDIT_SOURCE,
     ),
-    SlayerFamily("ghosts", "Ghosts", 15, 15, 50, ("ghost",)),
+    SlayerFamily("ghosts", "Ghosts", ("ghost",)),
+    SlayerFamily("ghouls", "Ghouls", ("ghoul",), source=MAZCHNA_AUDIT_SOURCE),
+    SlayerFamily(
+        "gelatinous_abominations",
+        "Gelatinous abominations",
+        ("gelatinous_abomination",),
+    ),
     SlayerFamily(
         "goblins",
         "Goblins",
-        10,
-        15,
-        50,
         (
             "goblin_level_2_unarmed",
             "goblin_level_2_armed",
@@ -122,39 +216,66 @@ TURAEL_FAMILIES: Tuple[SlayerFamily, ...] = (
             "goblin_level_25",
         ),
     ),
+    SlayerFamily("grotworms", "Grotworms", ("young_grotworm",)),
     SlayerFamily(
-        "gelatinous_abominations",
-        "Gelatinous abominations",
-        30,
-        15,
-        50,
-        ("gelatinous_abomination",),
+        "hill_giants",
+        "Hill giants",
+        ("hill_giant",),
+        source=MAZCHNA_AUDIT_SOURCE,
     ),
     SlayerFamily(
-        "grotworms",
-        "Grotworms",
-        15,
-        15,
-        30,
-        ("young_grotworm",),
+        "hobgoblins",
+        "Hobgoblins",
+        ("hobgoblin_unarmed", "hobgoblin_armed"),
+        source=MAZCHNA_AUDIT_SOURCE,
     ),
-    SlayerFamily("icefiends", "Icefiends", 10, 10, 20, ("icefiend",)),
+    SlayerFamily(
+        "ice_warriors",
+        "Ice warriors",
+        ("ice_warrior",),
+        source=MAZCHNA_AUDIT_SOURCE,
+    ),
+    SlayerFamily("icefiends", "Icefiends", ("icefiend",)),
+    SlayerFamily(
+        "kalphites",
+        "Kalphites",
+        ("kalphite_soldier",),
+        source=MAZCHNA_AUDIT_SOURCE,
+    ),
     SlayerFamily(
         "minotaurs",
         "Minotaurs",
-        10,
-        15,
-        50,
         ("minotaur_level_12", "minotaur_level_27"),
     ),
-    SlayerFamily("monkeys", "Monkeys", 10, 15, 50, ("monkey",)),
-    SlayerFamily("scorpions", "Scorpions", 10, 15, 50, ("scorpion",)),
+    SlayerFamily(
+        "mogres",
+        "Mogres",
+        ("mogre",),
+        required_slayer_level=32,
+        required_quest_id="skippy_and_the_mogres",
+        readiness_features=("lure",),
+        source=MAZCHNA_AUDIT_SOURCE,
+    ),
+    SlayerFamily("monkeys", "Monkeys", ("monkey",)),
+    SlayerFamily(
+        "pyrefiends",
+        "Pyrefiends",
+        ("pyrefiend",),
+        required_slayer_level=30,
+        source=MAZCHNA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "rock_slugs",
+        "Rock slugs",
+        ("rockslug",),
+        required_slayer_level=20,
+        readiness_features=("finisher",),
+        source=MAZCHNA_AUDIT_SOURCE,
+    ),
+    SlayerFamily("scorpions", "Scorpions", ("scorpion",)),
     SlayerFamily(
         "skeletons",
         "Skeletons",
-        15,
-        15,
-        50,
         (
             "skeleton_level_21",
             "skeleton_level_22",
@@ -165,28 +286,30 @@ TURAEL_FAMILIES: Tuple[SlayerFamily, ...] = (
             "skeleton_level_85",
         ),
     ),
+    SlayerFamily("spiders", "Spiders", ("spider", "giant_spider")),
     SlayerFamily(
-        "spiders",
-        "Spiders",
-        10,
-        15,
-        50,
-        ("spider", "giant_spider"),
+        "vampyres",
+        "Vampyres",
+        ("vampyre",),
+        source=MAZCHNA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "wall_beasts",
+        "Wall beasts",
+        ("wall_beast",),
+        required_slayer_level=35,
+        required_skill_levels=(("defence", 5),),
+        readiness_features=("protective_equipment",),
+        source=MAZCHNA_AUDIT_SOURCE,
     ),
     SlayerFamily(
         "wolves",
         "Wolves",
-        15,
-        15,
-        50,
         ("wolf", "white_wolf_level_25", "white_wolf_level_38", "big_wolf"),
     ),
     SlayerFamily(
         "zombies",
         "Zombies",
-        10,
-        15,
-        50,
         (
             "zombie_level_13",
             "zombie_level_18",
@@ -200,17 +323,122 @@ TURAEL_FAMILIES: Tuple[SlayerFamily, ...] = (
 )
 
 SLAYER_FAMILIES_BY_ID: Dict[str, SlayerFamily] = {
-    family.id: family for family in TURAEL_FAMILIES
+    family.id: family for family in _FAMILIES
 }
+
+
+def _assignment(
+    family_id: str,
+    weight: int,
+    count_min: int,
+    count_max: int,
+    source: str,
+) -> SlayerAssignmentFamily:
+    return SlayerAssignmentFamily(
+        family=SLAYER_FAMILIES_BY_ID[family_id],
+        row=SlayerMasterFamilyRow(
+            family_id=family_id,
+            weight=weight,
+            count_min=count_min,
+            count_max=count_max,
+            source=source,
+        ),
+    )
+
+
+TURAEL_FAMILIES: Tuple[SlayerAssignmentFamily, ...] = (
+    _assignment("banshees", 30, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("bats", 10, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("bears", 10, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("birds", 10, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("cave_bugs", 10, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("cave_slimes", 30, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("cows", 10, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("crawling_hands", 30, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("desert_lizards", 30, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("dogs", 15, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("dwarves", 10, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("ghosts", 15, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("goblins", 10, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("gelatinous_abominations", 30, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("grotworms", 15, 15, 30, TURAEL_AUDIT_SOURCE),
+    _assignment("icefiends", 10, 10, 20, TURAEL_AUDIT_SOURCE),
+    _assignment("minotaurs", 10, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("monkeys", 10, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("scorpions", 10, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("skeletons", 15, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("spiders", 10, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("wolves", 15, 15, 50, TURAEL_AUDIT_SOURCE),
+    _assignment("zombies", 10, 15, 50, TURAEL_AUDIT_SOURCE),
+)
+
+MAZCHNA_FAMILIES: Tuple[SlayerAssignmentFamily, ...] = tuple(
+    _assignment(family_id, weight, count_min, count_max, MAZCHNA_AUDIT_SOURCE)
+    for family_id, weight, count_min, count_max in (
+        ("banshees", 20, 40, 70),
+        ("bats", 10, 40, 70),
+        ("bears", 10, 40, 70),
+        ("catablepon", 10, 40, 70),
+        ("cave_crawlers", 20, 40, 70),
+        ("cave_slimes", 10, 40, 70),
+        ("cockatrice", 20, 40, 70),
+        ("crawling_hands", 20, 40, 70),
+        ("cyclopes", 10, 30, 60),
+        ("desert_lizards", 10, 40, 70),
+        ("dogs", 10, 40, 70),
+        ("flesh_crawlers", 10, 40, 70),
+        ("ghouls", 10, 40, 70),
+        ("ghosts", 10, 40, 70),
+        ("grotworms", 10, 40, 70),
+        ("hill_giants", 10, 40, 70),
+        ("hobgoblins", 10, 40, 70),
+        ("ice_warriors", 10, 40, 70),
+        ("kalphites", 10, 40, 70),
+        ("mogres", 10, 40, 70),
+        ("pyrefiends", 20, 40, 70),
+        ("rock_slugs", 15, 40, 70),
+        ("skeletons", 10, 40, 70),
+        ("vampyres", 10, 40, 70),
+        ("wall_beasts", 10, 10, 20),
+        ("wolves", 10, 40, 70),
+        ("zombies", 10, 40, 70),
+    )
+)
 
 TURAEL_MASTER = SlayerMaster(
     id="turael_spria",
     display_name="Turael",
-    family_ids=tuple(family.id for family in TURAEL_FAMILIES),
+    assignments=TURAEL_FAMILIES,
+    runtime_enabled=True,
+    expected_weight_total=355,
+)
+
+MAZCHNA_MASTER = SlayerMaster(
+    id="mazchna_achtryn",
+    display_name="Mazchna",
+    assignments=MAZCHNA_FAMILIES,
+    required_combat_level=20,
+    required_quest_id="priest_in_peril",
+    alternate_display_name="Achtryn",
+    alternate_display_condition="while_guthix_sleeps_in_progress",
+    expected_weight_total=325,
+    source=MAZCHNA_AUDIT_SOURCE,
 )
 
 SLAYER_MASTERS_BY_ID: Dict[str, SlayerMaster] = {
-    TURAEL_MASTER.id: TURAEL_MASTER,
+    master.id: master for master in (TURAEL_MASTER, MAZCHNA_MASTER)
+}
+LIVE_SLAYER_MASTERS_BY_ID: Dict[str, SlayerMaster] = {
+    master_id: master
+    for master_id, master in SLAYER_MASTERS_BY_ID.items()
+    if master.runtime_enabled
+}
+
+TURAEL_FAMILIES_BY_ID: Dict[str, SlayerAssignmentFamily] = {
+    family.id: family for family in TURAEL_FAMILIES
+}
+MAZCHNA_FAMILIES_BY_ID: Dict[str, SlayerAssignmentFamily] = {
+    family.id: family for family in MAZCHNA_FAMILIES
 }
 
 DEFAULT_SLAYER_MASTER_ID = TURAEL_MASTER.id
