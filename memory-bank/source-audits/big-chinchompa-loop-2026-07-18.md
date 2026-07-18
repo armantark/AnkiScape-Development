@@ -4,8 +4,8 @@ Date: `2026-07-18`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **period structure pinned; discovery and aggregate communal pressure
-settled; action-unit grill still active.**
+Status: **period structure, discovery, aggregate communal pressure, action
+unit, rewards, and cadence closed for implementation.**
 
 ## Pinned period evidence
 
@@ -95,10 +95,86 @@ remaining review-clock opportunity, and the player's 1,500-point progress are
 visible. No hidden population detail is computed merely to produce the status
 line.
 
-## Still-open action unit
+## Jar circuit and cadence
 
-The period jar and moth tiers are real, but AnkiScape must choose whether a
-successful review catches one moth or resolves a complete fifteen-moth
-catch-and-feed circuit. This is the active owner fork. The final choice must
-state multiplier, event-boundary, `Again`, and undo behavior before the
-contract closes.
+One successful review resolves one complete fifteen-moth jar circuit:
+
+1. use the activity-local Moth jar and Protea flower;
+2. catch fifteen moths of the highest tier allowed by the player's current
+   Hunter level;
+3. empty the jar into the Plutonial Chinchompa; and
+4. atomically grant fifteen times that tier's exact Hunter XP and event points.
+
+The circuit is a declared `activity_group`, not fifteen hidden cadence
+admissions. At cadence multiplier `M`, resolve up to `M` whole jar circuits,
+stopping before the next circuit if the source event clock or communal
+fullness has ended the event. A circuit already admitted while the event is
+active completes atomically even if its feeding reaches communal fullness.
+
+The 1,500 personal point cap is not a terminal boundary. Further circuits
+continue granting Hunter XP but no event points until the event ends, matching
+the pinned source.
+
+`Again` performs no player jar circuit and grants no XP or points, but the
+answered-card world boundary still advances the event clock and aggregate crowd
+pressure. On a successful review, the admitted player circuit resolves before
+that boundary's crowd-pressure delta; a player who began a valid action is not
+retroactively displaced by the aggregate crowd.
+
+One undo restores the complete review transaction: player XP and points,
+personal cap progress, communal fullness, event resolution, Competence points,
+world-event clock, and cadence residuals. Crowd pressure is evaluated once per
+review boundary, never once per moth.
+
+The fifteen-moth grouping makes the source twenty-minute event meaningful at
+AnkiScape's world-clock scale. It does not claim that a RuneScape jar always
+took one fixed duration; it is the explicit owner-approved activity
+abstraction.
+
+## Rewards and private grounds
+
+At event resolution, earned event points become Competence points one-for-one,
+clamped to the source 20,000-point wallet cap. This is the smallest consistent
+interpretation of the pinned reward language; if later server evidence proves a
+different conversion, implementation replaces this row without changing the
+session model.
+
+The complete cutoff reward shop is a bespoke direct-command surface:
+
+| Reward | Competence cost | Hunter requirement |
+|---|---:|---:|
+| Swamp lizard quota ticket | 4 | 29 |
+| Carnivorous chinchompa quota ticket | 6 | 63 |
+| Pawya quota ticket | 8 | 66 |
+| Polar kebbit quota ticket | 15 | 70 |
+| Grenwall quota ticket | 10 | 77 |
+| Protea flower | 1 | 1 |
+| Swamp toad | 12 | 1 |
+| Flax | 2 | 1 |
+| Swamp tar | 4 | 1 |
+| Hunter XP | 1 | 1 |
+
+Each Hunter-XP point grants the exact source five XP. Purchases consume no
+review and are never cadence-multiplied.
+
+Quota tickets unlock no duplicate catch logic. The private-ground variants
+reuse their existing ordinary Hunter target, XP, loot, success, inventory, and
+cadence contracts, with one matching ticket consumed atomically only when a
+creature is successfully collected. Entering the private ground consumes
+nothing. A failed attempt leaves the ticket intact.
+
+## Implementation acceptance
+
+The implementation pass must prove:
+
+1. two events per 240-card day and the rational twenty-minute window;
+2. late entry and aggregate S-curve early exhaustion;
+3. constant-work naturalized population evaluation with no agent list;
+4. one fifteen-moth circuit per activity kernel step;
+5. exact level, XP, and point rows for all eight moth tiers;
+6. continued Hunter XP after the 1,500-point cap;
+7. terminal, multiplier, `Again`, save/load, and full undo behavior;
+8. one-for-one event-to-Competence conversion and the 20,000 cap;
+9. the complete cutoff reward shop; and
+10. successful-catch-only quota-ticket consumption through ordinary Hunter
+    targets.

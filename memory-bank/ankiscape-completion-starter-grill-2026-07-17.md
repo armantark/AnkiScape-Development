@@ -288,7 +288,10 @@ with the source twenty-minute rational world-clock window; late entry retains
 only the remaining opportunity, and either the window or communal fullness may
 end it. The shared Quiet / Normal / Busy world-population profile drives both
 Shooting Stars and Big Chinchompa, avoiding another activity-specific control.
-The source shape and remaining action-unit fork are recorded in
+One activity kernel step resolves one complete fifteen-moth jar circuit at the
+highest eligible tier; multiplier stops at the event boundary, and the personal
+point cap never stops continued Hunter XP. Competence rewards, the exact cutoff
+shop, and per-success private-ground quota-ticket consumption are recorded in
 `memory-bank/source-audits/big-chinchompa-loop-2026-07-18.md`.
 
 Evil Trees reuse Shooting Stars' review-clock discovery surface without its
