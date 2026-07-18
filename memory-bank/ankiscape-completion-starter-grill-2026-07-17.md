@@ -319,6 +319,16 @@ four prescribed cocktails, fulfilled through ordinary Cooking production.
 Qualifying lifetime production counts retroactively, so opening the Activity
 does not force an established player to remake the eight items.
 
+Penguin Hide and Seek is deliberately flatter than its source travel and
+community-hunting loop. Each answered-card week exposes the eligible penguin
+roster with exact source locations. Selecting an entry starts one atomic review
+action whose successful result abstracts travel, spying, and the point award;
+there are no hints, searches, discovery rolls, roaming NPCs, trapping, or
+community-intel modes. Quest upgrades, point values, the point cap, and
+coin/chosen-skill redemption remain source-shaped. The pinned structure and
+remaining source work are recorded in
+`memory-bank/source-audits/penguin-hide-and-seek-loop-2026-07-17.md`.
+
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking
 the shared substrate.
