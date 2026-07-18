@@ -295,6 +295,15 @@ there is no puzzle UI, answer choice, failure roll, or puzzle-driven graph
 reshuffle. The exact source-backed state and persistence boundary are recorded
 in `memory-bank/source-audits/barrows-tunnel-session-2026-07-17.md`.
 
+Warriors' Guild preserves its five authentic token balances and earning
+activities. Casual automation rotates toward the multi-token Cyclops-room
+threshold because that mode improves defender progression and keeps all five
+rooms relevant; if every pool cannot currently be earned, it falls back to the
+fastest viable single-token route. Advanced selects the exact earning activity
+and Cyclops-room payment mode. Source values and the defender ladder are
+recorded in
+`memory-bank/source-audits/warriors-guild-defender-loop-2026-07-17.md`.
+
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking
 the shared substrate.
