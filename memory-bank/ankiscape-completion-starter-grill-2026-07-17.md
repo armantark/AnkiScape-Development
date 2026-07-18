@@ -285,6 +285,14 @@ Casual selects a stance from the actual matchup; Advanced selects explicitly.
 The hunter role continues through the ordinary Combat equipment and style
 contracts rather than creating a second FoG-only combat loadout system.
 
+Barrows preserves its cutoff nine-room crypt as a bounded seeded graph rather
+than flattening the tunnels into one navigation beat. The graph is generated
+once, inactive runs perform no work, and each successful review resolves only
+the current transition and encounter. Casual automatically routes toward the
+central chest; Advanced chooses among currently revealed doors. The exact
+source-backed state and persistence boundary are recorded in
+`memory-bank/source-audits/barrows-tunnel-session-2026-07-17.md`.
+
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking
 the shared substrate.
