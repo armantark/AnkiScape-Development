@@ -27,6 +27,10 @@ not as controls the player must babysit:
 - the first three successful reviews all produce catches;
 - those reviews successively discover bait, hook, and weight, visibly raising
   catch efficiency until the third review reaches full efficiency;
+- one event lasts six successful reviews, leaving three catches at full
+  efficiency after the discovery ramp;
+- the sixth review atomically closes the event and awards XP, medals, and
+  tokens;
 - the exact intermediate efficiency percentages are labeled AnkiScape balance
   values rather than source claims;
 - stock depletion automatically rotates species or location;
@@ -39,8 +43,6 @@ discovery step, current stock/rotation, score, and earned reward counters. Do
 not persist competitors, tackle candidates, search history, or background
 workers. All changes are answered-card-driven and undoable.
 
-## Open design value
-
-The event's total successful-review length remains owner-open. The recommended
-shape is six reviews: one compact sweep matching the source's six species,
-including the three-review discovery ramp and three reviews at full efficiency.
+The six-review length is an AnkiScape pacing abstraction, not a conversion of
+the source duration into wall-clock or answered-card minutes. It provides one
+compact sweep matching the source's six-species structure.

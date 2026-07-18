@@ -851,9 +851,8 @@ Living-mineral yield and exact star/server rolls.
 
 Backlog id: `fish-trawler-flingers`
 
-Decision status: composite row split by system. Fishing Trawler and the Fish
-Flingers automatic-discovery loop are settled; Fish Flingers event length
-remains open. Daemonheim fishing belongs to the eventual Dungeoneering
+Decision status: composite row split by system. Fishing Trawler and Fish
+Flingers are settled. Daemonheim fishing belongs to the eventual Dungeoneering
 expansion.
 
 ### Period Facts
@@ -908,6 +907,9 @@ expansion.
   successively discover the best bait, hook, and weight, visibly raising catch
   efficiency at each step; the third reaches full efficiency. Exact percentage
   steps are a labeled balance value, not a claimed source rate.
+- One event lasts six successful reviews: three productive discovery-ramp
+  catches followed by three catches at full efficiency. The sixth review
+  atomically closes the event and awards its XP, medals, and tokens.
 - Species and location changes caused by stock depletion are automatic. Model
   only bounded current-stock/event progress and a fixed communal depletion
   pressure; do not simulate or persist individual competitors.
