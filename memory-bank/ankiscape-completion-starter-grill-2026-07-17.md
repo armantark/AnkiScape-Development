@@ -454,6 +454,10 @@ saved source-chore dropdown shared across both UI modes. A successful review
 performs the selected eligible chore and grants its small source-shaped skill
 XP and approval opportunity; unrelated reviews never maintain approval for
 free.
+The coffer never draws from the Bank automatically. One-day, seven-day,
+thirty-day, maximum, and exact deposit/withdraw controls calculate convenient
+explicit transfers from the source salary formula; underfunding simply reduces
+or stops production credit.
 
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking

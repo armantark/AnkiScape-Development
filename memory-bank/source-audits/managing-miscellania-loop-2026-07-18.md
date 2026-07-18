@@ -5,8 +5,8 @@ Date: `2026-07-18`
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
 Status: **collection-time allocation, bespoke Activity surface, and
-approval-maintenance review target owner-settled; coffer funding still under
-grill.**
+approval-maintenance review target owner-settled; coffer funding explicit;
+allocation UI still under grill.**
 
 ## Pinned period evidence
 
@@ -106,7 +106,27 @@ increments, and XP remain source-data harvest. The implementation must not
 flatten different chores into invented equal XP merely because they share the
 same target.
 
+## Explicit coffer funding
+
+Managing Miscellania never withdraws coins automatically from the Bank. Coffer
+funding remains an explicit, undoable direct command on the bespoke panel.
+
+The panel provides:
+
+- **Fund 1 day**;
+- **Fund 7 days**;
+- **Fund 30 days**;
+- **Deposit maximum**; and
+- exact deposit and withdrawal controls.
+
+The duration buttons calculate the required target balance from the live quest
+state and source salary formula; they are conveniences over the authentic
+coffer rather than invented recurring payments. If the coffer cannot fund the
+maximum salary, the source-shaped lower withdrawal produces proportionally
+lower credit. An empty coffer produces no credit. No checkbox, Casual/Advanced
+split, recurring Bank transfer, or silent fallback exists.
+
 ## Still open in the owner grill
 
-The next product fork is whether coffer funding stays entirely explicit or may
-draw automatically from the Bank.
+The next product fork is whether the subject-distribution UI preserves
+individual worker allocation or flattens it into output priorities.
