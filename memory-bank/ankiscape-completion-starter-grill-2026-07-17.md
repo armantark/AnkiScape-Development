@@ -95,6 +95,13 @@ Each content family still owns its actual reducer. A Fishing Trawler pressure
 meter is not a reskinned Fight Cave wave, and neither should become a pile of
 configuration switches.
 
+Session suspension is source-owned rather than a blanket platform convenience.
+An activity may preserve and resume an unfinished run only when the cutoff game
+supported leaving and resuming that activity. Otherwise, switching away uses
+the source-authentic reset, cash-out, or abandonment consequence, with a
+confirmation before destructive loss. Merely viewing another page does not
+invent a pause point; each activity contract must pin what counts as leaving.
+
 ### One special-currency wallet, authentic separate balances
 
 Use one persisted wallet/ledger substrate, but retain authentic per-activity
