@@ -339,6 +339,16 @@ future awards before inventory mutation but never deletes rocks already owned.
 The pinned structure and remaining source work are recorded in
 `memory-bank/source-audits/shattered-heart-loop-2026-07-17.md`.
 
+Each Circus skill performance resolves as one atomic successful review rather
+than ten or six separate reviews. The player first selects **Max XP**,
+**Entertain for costume**, or **Balanced**; Casual builds the bounded source
+routine, while Advanced may edit its exact lineup. The three base performances
+are Magic, Ranged, and Agility. `The Firemaker's Curse` adds fire-breathing and
+flaming poi, while `Some Like It Cold` adds Thieving magic tricks, producing a
+three-to-six-review weekly visit. The pinned structure and remaining source work
+are recorded in
+`memory-bank/source-audits/circus-performance-loop-2026-07-17.md`.
+
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking
 the shared substrate.
