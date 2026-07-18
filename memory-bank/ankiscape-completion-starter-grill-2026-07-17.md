@@ -458,6 +458,11 @@ The coffer never draws from the Bank automatically. One-day, seven-day,
 thirty-day, maximum, and exact deposit/withdraw controls calculate convenient
 explicit transfers from the source salary formula; underfunding simply reduces
 or stops production credit.
+Worker allocation preserves individual subject counts: one row per source
+resource family with decrement, increment, **Max**, and visible pips; ten
+subjects expand to fifteen after `Royal Trouble`, while the per-family cap
+remains ten. The allocation persists, immediately refreshes the retroactive
+collection preview, and has no mode split or speculative profit optimizer.
 
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking

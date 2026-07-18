@@ -4,9 +4,9 @@ Date: `2026-07-18`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **collection-time allocation, bespoke Activity surface, and
-approval-maintenance review target owner-settled; coffer funding explicit;
-allocation UI still under grill.**
+Status: **owner-design loop closed; collection-time allocation, bespoke
+Activity surface, approval maintenance, explicit coffer funding, and authentic
+worker allocation are settled. Exact source-table harvesting remains.**
 
 ## Pinned period evidence
 
@@ -126,7 +126,32 @@ maximum salary, the source-shaped lower withdrawal produces proportionally
 lower credit. An empty coffer produces no credit. No checkbox, Casual/Advanced
 split, recurring Bank transfer, or silent fallback exists.
 
-## Still open in the owner grill
+## Worker allocation UI
 
-The next product fork is whether the subject-distribution UI preserves
-individual worker allocation or flattens it into output priorities.
+The panel preserves the authentic individual-subject allocation rather than
+flattening it into `Profit`, `Supplies`, or `Balanced` presets. Each source
+resource family receives one row with:
+
+- decrement and increment controls;
+- a **Max** control;
+- visible worker pips; and
+- the source ten-subject per-family cap.
+
+Ten subjects are available after `Throne of Miscellania`; `Royal Trouble`
+raises the shared pool to fifteen without raising the per-family cap.
+Allocation persists until the player changes it, and every change immediately
+recomputes the reward preview against the complete unclaimed production-credit
+pool.
+
+Allocation changes are free, undoable direct commands. The same exact surface
+appears in Casual and Advanced. AnkiScape does not provide a speculative
+max-profit optimizer before its economy can support a meaningful answer.
+
+## Owner-design closure and remaining source work
+
+Managing Miscellania has no remaining owner-facing product fork. Implementation
+still requires the exact output tables, bonus-item rolls, approval-chore
+requirements and outcomes, storage ceiling, Fremennik-task effects, flatpack
+coffer values, and independent period-lineage corroboration named above. Any
+missing row remains source work rather than permission to invent a second
+management model.
