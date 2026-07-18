@@ -8,7 +8,8 @@ grill, source audit, complete mechanics, persistence, rewards, and tests.
 
 Origin: Cooking gap grill `cook-karambwan-family`.
 
-Status: parked for a separate minigame/Activity design grill.
+Status: active owner grill; the deadline translation is settled in
+`memory-bank/source-audits/gnome-restaurant-delivery-loop-2026-07-17.md`.
 
 Starting loop:
 
@@ -24,8 +25,10 @@ Design gates:
 - Use a pinned November 2012 source for customers, order pools, delivery gates,
   reward tables, equipment effects, failures, and any timing rules.
 - Non-combat progression currently resolves actions, not simulated minutes. The
-  future activity grill must decide how delivery limits translate into actions
-  without pre-empting the parked global XP-per-hour balancing pass.
+  six- and eleven-minute source limits become a bounded punctuality state:
+  every `Again` while an order is outstanding lowers eventual tip quality, but
+  an order never expires and its prepared food and base points are never lost.
+  No wall clock, route simulation, or per-minute replay is permitted.
 - Keep customer selection, preparation, delivery, reward, persistence, and undo
   as explicit states even though geography is abstracted.
 - Reuse finished gnome items and intermediate recipe logic from Cooking; do not

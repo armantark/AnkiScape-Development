@@ -304,6 +304,17 @@ and Cyclops-room payment mode. Source values and the defender ladder are
 recorded in
 `memory-bank/source-audits/warriors-guild-defender-loop-2026-07-17.md`.
 
+Gnome Restaurant keeps accepted orders persistent rather than mapping the
+source six- and eleven-minute limits onto brittle one- and two-review
+expirations. Each `Again` answered before delivery lowers a bounded, clamped
+punctuality state that affects only eventual tip quality. It cannot destroy the
+order, consume prepared food, or remove the source base points. Easy and hard
+orders retain their distinct customer pools, requirements, points, and rewards;
+the activity reuses player-prepared gnome food from Cooking, including eligible
+items prepared and banked before assignment. The pinned structure and remaining
+source work are recorded in
+`memory-bank/source-audits/gnome-restaurant-delivery-loop-2026-07-17.md`.
+
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking
 the shared substrate.
