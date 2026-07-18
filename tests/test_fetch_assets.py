@@ -3,6 +3,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,6 +44,43 @@ class FakeWikiClient:
 
 
 class TestFetchAssets(unittest.TestCase):
+    def test_historical_lookup_requests_newest_revision_before_cutoff(self):
+        class RecordingClient(fetch_assets.HttpWikiClient):
+            def __init__(self):
+                super().__init__(before_timestamp="2012-11-20T00:00:00Z")
+                self.url = ""
+
+            def _request_json(self, url):
+                self.url = url
+                return {
+                    "query": {
+                        "pages": [
+                            {
+                                "title": "File:Canopic jar.png",
+                                "imageinfo": [
+                                    {
+                                        "url": "https://runescape.wiki/images/archive/example.png",
+                                        "sha1": "period",
+                                        "size": 123,
+                                        "mime": "image/png",
+                                        "timestamp": "2012-09-28T00:00:00Z",
+                                        "mediatype": "BITMAP",
+                                    }
+                                ],
+                            }
+                        ]
+                    }
+                }
+
+        client = RecordingClient()
+        info = client.query_image_info(fetch_assets.RS3_WIKI, "Canopic jar.png")
+        query = parse_qs(urlparse(client.url).query)
+
+        self.assertEqual(query["iistart"], ["2012-11-20T00:00:00Z"])
+        self.assertEqual(query["iilimit"], ["1"])
+        self.assertEqual(info.timestamp, "2012-09-28T00:00:00Z")
+        self.assertIn("/archive/", info.image_url)
+
     def test_wiki_title_mapping_uses_tree_log_overrides(self):
         self.assertEqual(fetch_assets.wiki_title_for_item("Tree"), "Logs.png")
         self.assertEqual(fetch_assets.wiki_title_for_item("Oak"), "Oak logs.png")

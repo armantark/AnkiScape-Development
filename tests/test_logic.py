@@ -5476,6 +5476,9 @@ class TestLogic(unittest.TestCase):
         player_data["strength_level"] = 99
         player_data["defense_level"] = 99
         player_data["constitution_level"] = 99
+        player_data["ranged_level"] = 99
+        player_data["magic_level"] = 99
+        player_data["prayer_level"] = 99
 
         for expected_progress in (2, 3):
             player_data, ok, completed_now = apply_quest_progress_pure(
@@ -5666,6 +5669,144 @@ class TestLogic(unittest.TestCase):
         )
         self.assertEqual(player_data["thieving_exp"], xp_before["thieving"] + 250)
         self.assertEqual(player_data["mining_exp"], xp_before["mining"])
+
+    def test_icthlarins_little_helper_stage_chain_resolves_guardian_ceremony_and_priest(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["icthlarins_little_helper"] = {
+            "started": True,
+            "progress": 1,
+            "completed": False,
+        }
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["attack_level"] = 99
+        player_data["strength_level"] = 99
+        player_data["defense_level"] = 99
+        player_data["constitution_level"] = 99
+        player_data["ranged_level"] = 99
+        player_data["magic_level"] = 99
+        player_data["prayer_level"] = 99
+        player_data["inventory"].update(
+            {
+                "Kitten": 1,
+                "Tinderbox": 1,
+                "Waterskin (4)": 1,
+                "Coins": 30,
+                "Willow logs": 1,
+                "Bucket": 1,
+                "Bag of salt": 1,
+                "Knife": 1,
+            }
+        )
+
+        for expected_progress in (2, 3):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "icthlarins_little_helper",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(
+                player_data["quests"]["icthlarins_little_helper"]["progress"],
+                expected_progress,
+            )
+
+        self.assertEqual(player_data["inventory"]["Canopic jar"], 1)
+        self.assertEqual(player_data["inventory"]["Sphinx's token"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "icthlarins_little_helper",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(
+            player_data["quests"]["icthlarins_little_helper"]["progress"],
+            4,
+        )
+        self.assertEqual(player_data["inventory"].get("Canopic jar", 0), 0)
+        self.assertEqual(player_data["inventory"].get("Sphinx's token", 0), 0)
+        self.assertEqual(
+            tuple(
+                blocker["reason"]
+                for blocker in quest_current_stage_blockers_pure(
+                    player_data,
+                    "icthlarins_little_helper",
+                    QUEST_DATA,
+                )
+            ),
+            ("Battle required: Canopic guardian level 81",),
+        )
+
+        player_data, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            "icthlarins_little_helper",
+            QUEST_DATA,
+            stop_after_first_kill=True,
+        )
+        self.assertTrue(ok, result)
+        self.assertEqual(result["encounter_id"], "icthlarins_little_helper_canopic_guardian")
+        self.assertTrue(result["killed"])
+
+        for expected_progress in (5, 6, 7, 8):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "icthlarins_little_helper",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(
+                player_data["quests"]["icthlarins_little_helper"]["progress"],
+                expected_progress,
+            )
+
+        self.assertEqual(player_data["inventory"].get("Canopic jar", 0), 0)
+        self.assertEqual(player_data["inventory"].get("Sphinx's token", 0), 0)
+        self.assertEqual(
+            player_data["inventory"].get("Holy symbol (Icthlarin's Little Helper)", 0),
+            0,
+        )
+        self.assertEqual(
+            player_data["inventory"].get("Unholy symbol (Icthlarin's Little Helper)", 0),
+            0,
+        )
+        self.assertEqual(player_data["inventory"].get("Bucket", 0), 0)
+        self.assertEqual(player_data["inventory"].get("Bag of salt", 0), 0)
+
+        player_data, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            "icthlarins_little_helper",
+            QUEST_DATA,
+            stop_after_first_kill=True,
+        )
+        self.assertTrue(ok, result)
+        self.assertEqual(result["encounter_id"], "icthlarins_little_helper_possessed_priest")
+        self.assertTrue(result["killed"])
+
+        xp_before = {
+            "agility": player_data["agility_exp"],
+            "thieving": player_data["thieving_exp"],
+            "woodcutting": player_data["woodcutting_exp"],
+        }
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "icthlarins_little_helper",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(player_data["quests"]["icthlarins_little_helper"]["progress"], 9)
+        self.assertEqual(player_data["inventory"]["Catspeak amulet"], 1)
+        self.assertEqual(
+            player_data["inventory"].get("Unholy symbol (Icthlarin's Little Helper)", 0),
+            0,
+        )
+        self.assertEqual(player_data["agility_exp"], xp_before["agility"] + 4000)
+        self.assertEqual(player_data["thieving_exp"], xp_before["thieving"] + 4500)
+        self.assertEqual(player_data["woodcutting_exp"], xp_before["woodcutting"] + 4000)
+        self.assertEqual(player_data["quest_points"], 2)
 
     def test_demon_slayer_source_backed_stage_chain_blocks_and_completes_in_order(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

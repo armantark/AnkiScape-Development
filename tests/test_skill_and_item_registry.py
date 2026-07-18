@@ -1367,6 +1367,14 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "History of the Kharid-ib",
             "Heavy weight",
             "Sundial gnomon",
+            "Kitten",
+            "Canopic jar",
+            "Sphinx's token",
+            "Holy symbol (Icthlarin's Little Helper)",
+            "Unholy symbol (Icthlarin's Little Helper)",
+            "Bucket of sap",
+            "Pile of salt",
+            "Catspeak amulet",
         ):
             self.assertIn(item_name, QUEST_ITEM_IMAGES)
             self.assertTrue(os.path.exists(QUEST_ITEM_IMAGES[item_name]))
@@ -1383,8 +1391,15 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "questitems/history_of_the_kharid_ib.png",
             "questitems/heavy_weight.png",
             "questitems/sundial_gnomon.png",
+            "questitems/canopic_jar.png",
+            "questitems/sphinx_s_token.png",
+            "questitems/holy_symbol.png",
+            "questitems/unholy_symbol.png",
+            "questitems/bucket_of_sap.png",
+            "questitems/pile_of_salt.png",
+            "questitems/catspeak_amulet.png",
         ):
-            self.assertLess(provenance[asset_key]["timestamp"], "2012-11-20T00:00:00Z")
+            self.assertLessEqual(provenance[asset_key]["timestamp"], "2012-11-20T00:00:00Z")
             self.assertIn("/archive/", provenance[asset_key]["image_url"])
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 

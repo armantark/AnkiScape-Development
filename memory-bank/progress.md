@@ -928,3 +928,31 @@ Test counts are snapshots; current runs outrank this note.
 - Published
   `status-updates/quest-diamond-in-the-rough-results-2026-07-17.html` and its
   mobile-safe copy at <https://6vqmrgu0eo7j.postplan.dev>.
+
+## Icthlarin's Little Helper quest dependency — 2026-07-17
+
+- Replaced the generated placeholders and statless Combat rows with a playable
+  nine-step quest chain covering hypnosis, canopic-jar custody, the Sphinx
+  riddle and token, exactly one jar-bound guardian, the Sophanem ceremony, both
+  quest symbols, the Possessed Priest, and the final report.
+- Split the guardian and priest fights from their adjacent inventory
+  transactions. The canopic jar and unholy symbol now leave the carried pack
+  before Combat, while ceremony supplies are required only after the guardian
+  dies.
+- Preserved exact ordinary rewards: two quest points, 4,500 Thieving XP, 4,000
+  Agility XP, 4,000 Woodcutting XP, and one Catspeak amulet. Priest drops remain
+  explicit implementation/source debt because the quest encounter schema has
+  no drop transaction and the random potion distribution is not pinned.
+- Registered seven period quest-item icons with pre-cutoff provenance and
+  extended the reusable asset fetcher with cutoff-aware historical file
+  revision lookup.
+- Added source-contract, complete pure-chain, live-dispatch, registry, asset,
+  quest-debt, and real offscreen Qt regressions. The complete core suite passes
+  all 1,517 methods with 1,310 ordinary passes and 207 declared environment
+  skips; real offscreen Qt discovery passes all 1,517 methods without skips or
+  failures. Smoking Kills itself is next; Contact! is not a cutoff prerequisite.
+- Durable evidence:
+  `source-audits/quest-icthlarins-little-helper-playable-2026-07-17.md`.
+- Published
+  `status-updates/quest-icthlarins-little-helper-results-2026-07-17.html` and
+  its mobile-safe copy at <https://llzbgu6xic8d.postplan.dev>.

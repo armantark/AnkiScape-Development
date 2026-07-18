@@ -121,11 +121,13 @@ class HttpWikiClient:
         timeout_seconds: float = 30.0,
         retries: int = 3,
         min_interval_seconds: float = 1.1,
+        before_timestamp: Optional[str] = None,
     ) -> None:
         self.user_agent = user_agent
         self.timeout_seconds = timeout_seconds
         self.retries = retries
         self.min_interval_seconds = min_interval_seconds
+        self.before_timestamp = before_timestamp
         self._last_request_at = 0.0
 
     def query_image_info(self, source: WikiSource, file_title: str) -> Optional[ImageInfo]:
@@ -138,6 +140,13 @@ class HttpWikiClient:
             "iiprop": "url|sha1|size|mime|timestamp|mediatype|extmetadata",
             "titles": f"File:{file_title}",
         }
+        if self.before_timestamp:
+            params.update(
+                {
+                    "iistart": self.before_timestamp,
+                    "iilimit": "1",
+                }
+            )
         url = f"{source.api_url}?{urllib.parse.urlencode(params)}"
         payload = self._request_json(url)
         pages = payload.get("query", {}).get("pages", [])
@@ -422,6 +431,13 @@ def _build_parser() -> argparse.ArgumentParser:
             "the right size with a plain QIcon (no runtime cropping)."
         ),
     )
+    parser.add_argument(
+        "--before",
+        help=(
+            "Use the newest file revision at or before this ISO timestamp. "
+            "This is required when period art must be pinned instead of using the current upload."
+        ),
+    )
     parser.add_argument("--dry-run", action="store_true", help="Resolve and print source/target without downloading.")
     parser.add_argument("--force", action="store_true", help="Overwrite an existing output file.")
     parser.add_argument("--provenance", type=Path, default=Path("assets_provenance.json"))
@@ -436,7 +452,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         request = resolve_asset_request(args.item, args.key, args.out, args.wiki_title, args.provenance)
         outcome = fetch_asset(
             request=request,
-            client=HttpWikiClient(user_agent=args.user_agent),
+            client=HttpWikiClient(user_agent=args.user_agent, before_timestamp=args.before),
             size=args.size,
             force=args.force,
             dry_run=args.dry_run,

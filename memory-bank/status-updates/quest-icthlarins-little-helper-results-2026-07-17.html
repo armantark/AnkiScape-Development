@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Icthlarin's Little Helper — Playable Closure</title>
+  <style>
+    :root {
+      --bg: #0c0e12; --surface: #161a21; --surface-2: #1e232c;
+      --border: #2a3040; --text: #e8ecf4; --text-dim: #8b95a8;
+      --accent: #4f8cff; --accent-glow: rgba(79,140,255,.15);
+      --red: #ff5c5c; --green: #4ade80; --amber: #fbbf24;
+      --purple: #a78bfa; --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; color: var(--text); background:
+        radial-gradient(circle at 75% -20%, rgba(167,139,250,.16), transparent 42%),
+        radial-gradient(circle at 5% 30%, rgba(79,140,255,.12), transparent 32%),
+        var(--bg);
+      font: 15px/1.55 Outfit, Inter, system-ui, sans-serif;
+    }
+    main { width: min(1180px, calc(100% - 32px)); margin: 48px auto 72px; }
+    .badge, .kicker, .tag {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      text-transform: uppercase; letter-spacing: .11em;
+    }
+    .badge {
+      display: inline-block; padding: 6px 10px; color: var(--green);
+      border: 1px solid rgba(74,222,128,.35); border-radius: 999px;
+      background: rgba(74,222,128,.08); font-size: 11px;
+    }
+    h1 { margin: 16px 0 8px; font-size: clamp(32px, 6vw, 62px); line-height: 1.02; letter-spacing: -.04em; }
+    .lead { color: var(--text-dim); max-width: 780px; font-size: 18px; }
+    .metrics {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+      margin: 32px 0;
+    }
+    .metric, .card {
+      background: rgba(22,26,33,.92); border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .metric { padding: 18px; }
+    .metric strong { display: block; font-size: 28px; line-height: 1.1; }
+    .metric span { color: var(--text-dim); font-size: 12px; }
+    .section-title { margin: 38px 0 14px; font-size: 19px; }
+    .flow {
+      display: grid; grid-template-columns: repeat(9, minmax(115px, 1fr));
+      gap: 8px; overflow-x: auto; padding: 2px 0 12px;
+    }
+    .step {
+      min-height: 140px; padding: 14px; border-radius: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      position: relative;
+    }
+    .step::after {
+      content: "→"; position: absolute; right: -10px; top: 50%;
+      color: var(--text-dim); z-index: 2;
+    }
+    .step:last-child::after { content: ""; }
+    .step .num { color: var(--accent); font: 700 11px "JetBrains Mono", monospace; }
+    .step h3 { font-size: 14px; margin: 8px 0 5px; }
+    .step p { color: var(--text-dim); font-size: 12px; margin: 0; }
+    .step.combat { border-color: rgba(255,92,92,.55); box-shadow: inset 0 3px 0 rgba(255,92,92,.7); }
+    .step.item { box-shadow: inset 0 3px 0 rgba(251,191,36,.7); }
+    .step.reward { box-shadow: inset 0 3px 0 rgba(74,222,128,.7); }
+    .grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 16px; }
+    .card { padding: 22px; }
+    .card h2 { margin: 0 0 14px; font-size: 19px; }
+    .list { display: grid; gap: 10px; }
+    .row {
+      display: grid; grid-template-columns: 14px 1fr; gap: 10px;
+      align-items: start; color: var(--text-dim);
+    }
+    .dot { width: 8px; height: 8px; margin-top: 7px; border-radius: 50%; background: var(--green); }
+    .dot.amber { background: var(--amber); }
+    .dot.purple { background: var(--purple); }
+    .reward-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .reward-item { padding: 12px; background: var(--surface-2); border-radius: 9px; }
+    .reward-item strong { display: block; color: var(--green); }
+    .reward-item span { color: var(--text-dim); font-size: 12px; }
+    .tag {
+      display: inline-block; padding: 4px 7px; border-radius: 6px;
+      background: var(--surface-2); color: var(--text-dim); font-size: 9px;
+      margin: 3px 2px 0 0;
+    }
+    .footer {
+      margin-top: 18px; padding: 18px 22px; display: flex;
+      justify-content: space-between; gap: 18px; align-items: center;
+      background: linear-gradient(90deg, var(--accent-glow), rgba(167,139,250,.08));
+      border: 1px solid var(--border); border-radius: var(--radius);
+    }
+    .footer strong { color: var(--accent); }
+    .footer p { margin: 0; color: var(--text-dim); }
+    @media (max-width: 900px) {
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      main { width: min(100% - 20px, 1180px); margin-top: 24px; }
+      .metrics { grid-template-columns: 1fr; }
+      .reward-grid { grid-template-columns: 1fr; }
+      .footer { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">Completed · Source-backed quest dependency</span>
+  <h1>Icthlarin's Little Helper is playable.</h1>
+  <p class="lead">The final generated placeholders are gone. Every review now advances a named, inventory-safe quest action, with two real Combat boundaries and exact ordinary rewards.</p>
+
+  <section class="metrics" aria-label="Closure metrics">
+    <div class="metric"><strong>9</strong><span>ordered quest steps</span></div>
+    <div class="metric"><strong>7</strong><span>period item icons</span></div>
+    <div class="metric"><strong>1,517</strong><span>core tests green</span></div>
+    <div class="metric"><strong>97</strong><span>statless quest fights remaining</span></div>
+  </section>
+
+  <h2 class="section-title">Review-native quest flow</h2>
+  <section class="flow" aria-label="Nine-stage quest flow">
+    <article class="step item"><span class="num">01</span><h3>Hypnosis</h3><p>Enter Sophanem and recover the canopic jar.</p></article>
+    <article class="step item"><span class="num">02</span><h3>Sphinx</h3><p>Answer the family riddle and receive her token.</p></article>
+    <article class="step item"><span class="num">03</span><h3>Authorize</h3><p>Hand over the token and place the jar before Combat.</p></article>
+    <article class="step combat"><span class="num">04</span><h3>Guardian</h3><p>Defeat exactly one bounded jar-bound guardian.</p></article>
+    <article class="step item"><span class="num">05</span><h3>Ceremony</h3><p>Return the jar; buy linen and collect evergreen sap.</p></article>
+    <article class="step item"><span class="num">06</span><h3>Memory</h3><p>Transform the quest holy symbol into its unholy form.</p></article>
+    <article class="step item"><span class="num">07</span><h3>Hide symbol</h3><p>Remove the symbol from the pack before the fight.</p></article>
+    <article class="step combat"><span class="num">08</span><h3>Priest</h3><p>Defeat the Possessed Priest and break the hypnosis.</p></article>
+    <article class="step reward"><span class="num">09</span><h3>Report</h3><p>Complete the quest and receive exact ordinary rewards.</p></article>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h2>What the implementation protects</h2>
+      <div class="list">
+        <div class="row"><span class="dot"></span><span>Canopic jar and Sphinx token are consumed before the guardian fight; the restored jar returns only after victory.</span></div>
+        <div class="row"><span class="dot"></span><span>Ceremony supplies do not gate the guardian. They are checked only when the player actually reaches the ceremony.</span></div>
+        <div class="row"><span class="dot"></span><span>The unholy symbol leaves the carried pack before the Possessed Priest encounter.</span></div>
+        <div class="row"><span class="dot purple"></span><span>The four hidden guardian assignments are flattened into one representative line, not four fake simultaneous fights.</span></div>
+        <div class="row"><span class="dot amber"></span><span>The Carpenter wait is a named review action. No gameplay path reads wall-clock time.</span></div>
+      </div>
+    </article>
+    <article class="card">
+      <h2>Exact ordinary rewards</h2>
+      <div class="reward-grid">
+        <div class="reward-item"><strong>2</strong><span>Quest points</span></div>
+        <div class="reward-item"><strong>4,500</strong><span>Thieving XP</span></div>
+        <div class="reward-item"><strong>4,000</strong><span>Agility XP</span></div>
+        <div class="reward-item"><strong>4,000</strong><span>Woodcutting XP</span></div>
+        <div class="reward-item"><strong>1</strong><span>Catspeak amulet</span></div>
+        <div class="reward-item"><strong>Unlocked</strong><span>Sophanem quest gate</span></div>
+      </div>
+      <div style="margin-top:14px">
+        <span class="tag">quest_data.py</span>
+        <span class="tag">tools/fetch_assets.py</span>
+        <span class="tag">assets_provenance.json</span>
+        <span class="tag">questitems/</span>
+      </div>
+    </article>
+  </section>
+
+  <section class="footer">
+    <div><strong>Next dependency</strong><p>Smoking Kills itself — not Contact! — is next in the Slayer-critical queue.</p></div>
+    <div><span class="tag">SOURCE AUDIT CLOSED</span> <span class="tag">QT VERIFIED</span> <span class="tag">UNDO-SAFE</span></div>
+  </section>
+</main>
+</body>
+</html>

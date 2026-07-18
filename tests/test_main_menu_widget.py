@@ -4158,6 +4158,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["strength_level"] = 99
         pd["defense_level"] = 99
         pd["constitution_level"] = 99
+        pd["ranged_level"] = 99
+        pd["magic_level"] = 99
+        pd["prayer_level"] = 99
         dialog = self._open(pd)
 
         labels = [label.text() for label in dialog.findChildren(QLabel)]
@@ -4214,6 +4217,33 @@ class MainMenuWidgetTest(unittest.TestCase):
         action.click()
         QApplication.processEvents()
         self.assertIn("diamond_in_the_rough", self._quest_calls)
+
+    def test_quests_tab_allows_icthlarins_canopic_guardian_selection(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "icthlarins_little_helper"
+        pd["inventory"] = {}
+        pd["quests"]["icthlarins_little_helper"] = {
+            "started": True,
+            "progress": 4,
+            "completed": False,
+        }
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        pd["attack_level"] = 99
+        pd["strength_level"] = 99
+        pd["defense_level"] = 99
+        pd["constitution_level"] = 99
+        dialog = self._open(pd)
+
+        labels = [label.text() for label in dialog.findChildren(QLabel)]
+        self.assertIn("Blocked: Battle required: Canopic guardian level 81", labels)
+        action = dialog.findChild(QPushButton, "questAction_icthlarins_little_helper")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+        self.assertNotIn("Complete Icthlarin's Little Helper stage", action.toolTip())
+
+        action.click()
+        QApplication.processEvents()
+        self.assertIn("icthlarins_little_helper", self._quest_calls)
 
     def test_quests_tab_allows_conflict_overridden_dad_combat_gate_selection(self) -> None:
         pd = _make_player_data()

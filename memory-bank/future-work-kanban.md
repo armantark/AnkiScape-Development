@@ -229,10 +229,11 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   in the Slayer program so Sumona, reward points, and the Rewards subview are
   genuinely reachable; feed those quests through the canonical missing-quest
   backlog and runtime rather than adding flags or bypasses. Stolen Hearts and
-  Diamond in the Rough are now source-backed and playable; Icthlarin's Little
-  Helper is the next incomplete direct prerequisite slice. Diamond in the
-  Rough's two optional level-80 hidden-reward actions remain a separate
-  source-ready follow-up rather than automatic quest-completion XP.
+  Diamond in the Rough and Icthlarin's Little Helper are now source-backed and
+  playable, completing the missing direct prerequisite slices. Smoking Kills
+  itself is next. Diamond in the Rough's two optional level-80 hidden-reward
+  actions remain a separate source-ready follow-up rather than automatic
+  quest-completion XP.
 - Build Shilo Village and the complete transitive Slayer-helmet route through
   Cabin Fever, Mos Le'Harmless, Cave horrors, the black-mask drop, and the
   400-point crafting unlock. Preserve every period quest and skill prerequisite;

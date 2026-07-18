@@ -1799,6 +1799,80 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertFalse(items["Heavy weight"]["stackable"])
         self.assertFalse(items["Sundial gnomon"]["tradeable"])
 
+    def test_icthlarins_little_helper_is_a_playable_source_backed_dependency(self):
+        quest = quests_as_dict()["icthlarins_little_helper"]
+        by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
+
+        self.assertEqual(quest["stages"], 9)
+        self.assertEqual(quest["point_reward"], 2)
+        self.assertEqual(quest["rewards"], {"Catspeak amulet": 1})
+        self.assertEqual(
+            quest["xp_rewards"],
+            (
+                {"skill_id": "agility", "amount": 4000},
+                {"skill_id": "thieving", "amount": 4500},
+                {"skill_id": "woodcutting", "amount": 4000},
+            ),
+        )
+        self.assertFalse(
+            any(
+                action.startswith("Complete Icthlarin's Little Helper stage")
+                for row in by_stage.values()
+                for action in row["required_actions"]
+            )
+        )
+        self.assertEqual(
+            by_stage[1]["required_inventory_options"],
+            (({"Kitten": 1}, {"Cat": 1}, {"Overgrown cat": 1}, {"Hellcat": 1}),),
+        )
+        self.assertEqual(
+            by_stage[1]["consumed_inventory"],
+            {"Tinderbox": 1, "Waterskin (4)": 1},
+        )
+        self.assertEqual(by_stage[1]["produced_inventory"], {"Canopic jar": 1})
+        self.assertEqual(by_stage[2]["produced_inventory"], {"Sphinx's token": 1})
+        self.assertEqual(
+            by_stage[3]["consumed_inventory"],
+            {"Canopic jar": 1, "Sphinx's token": 1},
+        )
+        guardian = by_stage[4]["combat_encounters"][0]
+        self.assertEqual(
+            (guardian["display_name"], guardian["level"], guardian["npc_stats"]["hitpoints"]),
+            ("Canopic guardian", 81, 750),
+        )
+        self.assertEqual(by_stage[4]["produced_inventory"], {"Canopic jar": 1})
+        self.assertEqual(
+            by_stage[5]["consumed_inventory_options"],
+            (({"Pile of salt": 1}, {"Bag of salt": 1}),),
+        )
+        self.assertEqual(
+            by_stage[5]["consumed_inventory"],
+            {"Canopic jar": 1, "Coins": 30, "Willow logs": 1, "Bucket": 1},
+        )
+        self.assertEqual(by_stage[5]["required_tools"], {"Knife": 1})
+        self.assertEqual(
+            by_stage[6]["produced_inventory"],
+            {"Unholy symbol (Icthlarin's Little Helper)": 1},
+        )
+        self.assertEqual(
+            by_stage[7]["consumed_inventory"],
+            {"Unholy symbol (Icthlarin's Little Helper)": 1},
+        )
+        priest = by_stage[8]["combat_encounters"][0]
+        self.assertEqual(
+            (priest["display_name"], priest["level"], priest["npc_stats"]["hitpoints"]),
+            ("Possessed Priest", 126, 800),
+        )
+        self.assertEqual(priest["npc_configs"]["max_hit"], 140)
+
+        items = quest_reward_items_as_dict()
+        self.assertEqual(items["Canopic jar"]["item_id"], 4678)
+        self.assertEqual(items["Sphinx's token"]["item_id"], 4691)
+        self.assertEqual(items["Holy symbol (Icthlarin's Little Helper)"]["item_id"], 4682)
+        self.assertEqual(items["Unholy symbol (Icthlarin's Little Helper)"]["item_id"], 4683)
+        self.assertEqual(items["Catspeak amulet"]["item_id"], 4677)
+        self.assertFalse(items["Catspeak amulet"]["tradeable"])
+
     def test_generated_rewards_journals_and_lamps_are_structured(self):
         data = quests_as_dict()
 

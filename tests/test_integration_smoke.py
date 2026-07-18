@@ -1276,7 +1276,9 @@ class TestIntegrationSmoke(unittest.TestCase):
             "strength_level": 99,
             "defense_level": 99,
             "constitution_level": 99,
-            "prayer_level": 1,
+            "ranged_level": 99,
+            "magic_level": 99,
+            "prayer_level": 99,
         }
 
         for expected_gain in (
@@ -1366,6 +1368,90 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["inventory"]["Waterskin (4)"], 4)
         self.assertEqual(calls["gains"][-1], "Diamond in the Rough 3/5")
         self.assertEqual(calls["save"], 7)
+        self.assertEqual(calls["dialogs"], [])
+
+    def test_icthlarins_little_helper_review_flow_resolves_the_canopic_guardian(self):
+        addon = _load_addon_as_package("ankiscape_icthlarins_little_helper_integration")
+        _install_quest_combat_mid_rolls(self, addon)
+
+        calls = {"save": 0, "gains": [], "dialogs": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
+        addon.mw = _DummyMW(_DummyCol({}))
+        addon.current_skill = "Quests"
+        addon.player_data = {
+            "inventory": {
+                "Canopic jar": 1,
+                "Sphinx's token": 1,
+                "Coins": 30,
+                "Willow logs": 1,
+                "Bucket": 1,
+                "Bag of salt": 1,
+                "Knife": 1,
+            },
+            "current_quest": "icthlarins_little_helper",
+            "quests": {
+                "icthlarins_little_helper": {
+                    "started": True,
+                    "progress": 3,
+                    "completed": False,
+                },
+            },
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_points": 0,
+            "claims": {"wicked_hood": {"claimed": False}},
+            "wicked_hood": {"fed_altars": []},
+            "pending_skill_exp_rewards": {},
+            "runecrafting_pouches": {},
+            "item_charges": {},
+            "completed_achievements": [],
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 99,
+            "prayer_level": 1,
+        }
+
+        addon.on_quest_answer()
+        self.assertEqual(calls["gains"][-1], "Icthlarin's Little Helper 4/9")
+        self.assertEqual(
+            addon.player_data["quests"]["icthlarins_little_helper"]["progress"],
+            4,
+        )
+        self.assertEqual(addon.player_data["inventory"].get("Canopic jar", 0), 0)
+        self.assertEqual(addon.player_data["inventory"].get("Sphinx's token", 0), 0)
+
+        addon.on_quest_answer()
+        self.assertEqual(calls["gains"][-1], "Defeated Canopic guardian")
+        self.assertEqual(
+            addon.player_data["quests"]["icthlarins_little_helper"]["progress"],
+            4,
+        )
+
+        addon.on_quest_answer()
+
+        self.assertEqual(
+            addon.player_data["quests"]["icthlarins_little_helper"]["progress"],
+            5,
+        )
+        self.assertEqual(addon.player_data["inventory"]["Canopic jar"], 1)
+
+        addon.on_quest_answer()
+
+        self.assertEqual(
+            addon.player_data["quests"]["icthlarins_little_helper"]["progress"],
+            6,
+        )
+        self.assertEqual(
+            addon.player_data["inventory"]["Holy symbol (Icthlarin's Little Helper)"],
+            1,
+        )
+        self.assertEqual(addon.player_data["inventory"].get("Bucket", 0), 0)
+        self.assertEqual(calls["gains"][-1], "Icthlarin's Little Helper 6/9")
+        self.assertEqual(calls["save"], 4)
         self.assertEqual(calls["dialogs"], [])
 
     def test_quest_answer_completes_holy_grail_final_handoff_and_consumes_grail(self):

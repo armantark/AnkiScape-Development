@@ -2,6 +2,27 @@
 
 ## Current Focus
 
+Icthlarin's Little Helper is now the third playable Slayer-critical quest
+dependency. Its generated placeholder sequence and statless fights are replaced
+by a nine-step review-native chain covering the Wanderer's hypnosis, canopic
+jar and Sphinx-token custody, one bounded representative guardian, the
+Sophanem ceremony, holy-to-unholy symbol transformation, the Possessed Priest,
+and exact ordinary completion rewards. The implementation deliberately
+separates both Combat boundaries from their surrounding inventory transactions,
+so the player never carries the canopic jar or unholy symbol into the fight and
+does not need post-guardian ceremony supplies prematurely. Seven period quest
+icons are registered with pre-cutoff provenance, and the reusable asset fetcher
+can now select the newest file revision at or before a historical cutoff. The
+complete core suite passes all 1,517 methods with 1,310 ordinary passes and 207
+declared environment skips; the matching real offscreen Qt discovery passes all
+1,517 methods without skips or failures. Smoking Kills itself is the next
+Slayer dependency; Contact! is not required by the pinned cutoff quest
+requirements. Durable evidence is
+`source-audits/quest-icthlarins-little-helper-playable-2026-07-17.md`; the
+visual closure report is
+`status-updates/quest-icthlarins-little-helper-results-2026-07-17.html`
+(<https://llzbgu6xic8d.postplan.dev>).
+
 Diamond in the Rough is now the second playable Slayer-critical quest
 dependency. Its four generated placeholders and grouped statless fight are
 replaced by the Heavy weight, five Bandits plus their king, Sundial gnomon,

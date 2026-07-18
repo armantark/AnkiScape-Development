@@ -1003,6 +1003,9 @@ SMITHING_EXTRA_ITEM_IMAGES["Dragon sq shield"] = SMITHING_EXTRA_ITEM_IMAGES["Run
 QUEST_ITEM_IMAGES = {}
 QUEST_ITEM_IMAGE_FILE_OVERRIDES = {
     "Lever": "temple_lever.png",
+    "Kitten": "pet_kitten.png",
+    "Holy symbol (Icthlarin's Little Helper)": "holy_symbol.png",
+    "Unholy symbol (Icthlarin's Little Helper)": "unholy_symbol.png",
 }
 for _item_name in QUEST_REWARD_ITEM_DATA:
     _path = os.path.join(
