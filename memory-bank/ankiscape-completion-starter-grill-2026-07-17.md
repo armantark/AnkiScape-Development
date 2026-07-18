@@ -449,6 +449,11 @@ resource-by-resource background simulation runs. Approval, coffer funding,
 worker allocation, reward preview, and collection share one bespoke Activity
 management panel rather than generic target rows. The focused contract is
 `memory-bank/source-audits/managing-miscellania-loop-2026-07-18.md`.
+Approval is restored through one **Help the subjects** review target with a
+saved source-chore dropdown shared across both UI modes. A successful review
+performs the selected eligible chore and grants its small source-shaped skill
+XP and approval opportunity; unrelated reviews never maintain approval for
+free.
 
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking

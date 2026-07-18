@@ -4,8 +4,9 @@ Date: `2026-07-18`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **collection-time allocation and bespoke Activity surface
-owner-settled; approval-maintenance loop still under grill.**
+Status: **collection-time allocation, bespoke Activity surface, and
+approval-maintenance review target owner-settled; coffer funding still under
+grill.**
 
 ## Pinned period evidence
 
@@ -83,8 +84,29 @@ components, but it must not scatter coffer, approval, distribution, and
 collection across unrelated tabs. Allocation changes and coffer transfers are
 free direct commands; they do not consume reviews.
 
+## Approval maintenance
+
+Approval restoration is a real foreground Miscellania action, not a free
+background benefit and not an automatic tax on unrelated reviews.
+
+The Activity exposes one **Help the subjects** review target and one saved
+**Approval work** dropdown containing only the player's currently eligible
+source chores. The default is the fastest source-backed eligible chore; the
+same dropdown and behavior apply in both Casual and Advanced.
+
+One successful review performs one selected source chore, awards its
+source-shaped small skill XP, and applies its sourced approval opportunity.
+`Again` performs no chore and grants no approval or foreground XP, although the
+ordinary answered-card world clock still advances. At `100%` approval the
+source prevents further chores, so the target becomes unavailable until
+approval falls rather than silently awarding XP without approval work.
+
+The exact eligible chores, skill requirements, recognition rolls, approval
+increments, and XP remain source-data harvest. The implementation must not
+flatten different chores into invented equal XP merely because they share the
+same target.
+
 ## Still open in the owner grill
 
-The next product fork is how the source approval-restoration chores become
-review actions without turning kingdom management into either free passive
-yield or repetitive babysitting.
+The next product fork is whether coffer funding stays entirely explicit or may
+draw automatically from the Bank.
