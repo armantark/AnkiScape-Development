@@ -73,8 +73,12 @@ points/rewards, Social Slayer, and the post-cutoff VIP-ticket exclusion. Live
 assignment gameplay remains closed, but source-ready Combat dependencies are
 now landing atomically: Cockatrice protection is complete, the finisher
 supplies are obtainable, and Jackal now supplies an executable Dogs-family
-variant. The Jackal slice passes the complete 1,481-method core suite, 337
-focused Combat/runtime methods, and a real offscreen Qt picker check.
+variant. The ordinary level-13 Icefiend now supplies a second missing family
+without folding in its God Wars, Ghorrock, quest, Revenant, or Daemonheim
+forms. The Jackal slice passes the complete 1,481-method core suite, 337
+focused Combat/runtime methods, and a real offscreen Qt picker check. The
+Icefiend checkpoint passes all 1,482 core methods, 339 focused methods, and the
+same real offscreen Qt picker path.
 
 The first master-pool harvest is now recorded in
 `source-audits/slayer-turael-spria-pool-2026-07-17.md`. Reconciliation recovered
@@ -82,9 +86,10 @@ The first master-pool harvest is now recorded in
 Gelatinous abominations and Grotworms, and rejected the anonymous Troll row.
 Hidden weights remain explicitly provisional; the 355-point denominator
 converges across Darkan's raw values, game-main's percentages, and the recovered
-30-weight Gelatinous family. Jackal now closes the Dogs-family target with the
-cutoff level-21/270-LP/27-Slayer-XP row and Darkan's exact combat definition.
-Runtime certification still fails: five families have no Combat target,
+30-weight Gelatinous family. Jackal closes the Dogs-family target, and the
+cutoff level-13 Icefiend closes Icefiends with 150 LP, 15 Slayer XP, a 20 LP
+maximum hit, and its complete 128-slot ordinary drop table. Runtime
+certification still fails: four families have no Combat target,
 Banshee lacks its earmuff consequence, and Gelatinous abominations lack the
 worn-gauntlet finisher. None of these findings creates an owner design question.
 

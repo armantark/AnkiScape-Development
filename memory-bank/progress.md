@@ -45,6 +45,27 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
 - Durable evidence:
   `source-audits/slayer-dogs-jackal-combat-2026-07-17.md`.
 
+## Slayer Icefiend Combat slice — 2026-07-17
+
+- Added the ordinary level-13 Icefiend as an executable Slayer-family target;
+  God Wars, Ghorrock, quest, Revenant, and Daemonheim variants remain distinct.
+- Preserved the cutoff 150 LP, 15 Slayer XP, melee identity, passive stance,
+  guaranteed Impious ashes, and explicit 20 LP maximum hit. game-main and the
+  matching Darkan level-13 row converge on Attack 10, Strength 10, and Defence
+  12; the cutoff page overrides game-main's conflicting 7 XP and hybrid style.
+- Added game-main's exact 128-slot ordinary drop table, a sourced target asset,
+  provenance, exact roster/preview regressions, and real offscreen Qt picker
+  coverage.
+- Verification passes all 1,482 core methods, 339 focused
+  Combat/target/runtime/cadence methods, the real offscreen Qt picker check,
+  documentation, compilation, test-quality, diff, and worktree-safety gates.
+  Reachability remains the declared 290-orphan debt ledger rather than a green
+  gate.
+- Kept Turael/Spria hidden. The family dependency is ready, but the incomplete
+  master pool is not renormalized or exposed.
+- Durable evidence:
+  `source-audits/slayer-icefiend-combat-2026-07-17.md`.
+
 ## Live cadence activation — 2026-07-17
 
 - Made the `R = 1000` cadence kernel default-on with an explicit boolean-false

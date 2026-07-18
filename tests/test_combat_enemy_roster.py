@@ -21,6 +21,7 @@ NEW_COMBAT_ENEMIES = (
     "ice_warrior",
     "earth_warrior",
     "jackal",
+    "icefiend",
     "banshee",
     "shade",
     "ghost_level_77",
@@ -154,19 +155,41 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertEqual(jackal["drops"]["guaranteed"], (("Bones", 1),))
         self.assertIn("oldid=6493724", jackal["source"])
 
-    def test_jackal_target_asset_is_present_and_provenanced(self):
+    def test_new_slayer_family_assets_are_present_and_provenanced(self):
         root = Path(__file__).resolve().parents[1]
-        asset_path = root / "combatenemies" / "jackal.png"
         provenance = json.loads(
             (root / "assets_provenance.json").read_text(encoding="utf-8")
         )
 
-        self.assertTrue(asset_path.is_file())
-        self.assertIn("combatenemies/jackal.png", provenance)
+        for target_id, file_title in (
+            ("jackal", "Jackal.png"),
+            ("icefiend", "Icefiend.png"),
+        ):
+            with self.subTest(target=target_id):
+                relative_path = f"combatenemies/{target_id}.png"
+                self.assertTrue((root / relative_path).is_file())
+                self.assertIn(relative_path, provenance)
+                self.assertEqual(provenance[relative_path]["file_title"], file_title)
+
+    def test_icefiend_preserves_the_cutoff_ordinary_variant(self):
+        icefiend = COMBAT_ENEMY_DATA["icefiend"]
+
+        self.assertEqual(icefiend["level"], 13)
+        self.assertEqual(icefiend["attack_style"], "melee")
+        self.assertEqual(icefiend["slayer_xp"], 15.0)
+        self.assertEqual(icefiend["max_hit"], 20)
+        self.assertEqual(icefiend["stats"]["hitpoints"], 150)
+        self.assertEqual(icefiend["stats"]["attack"], 10)
+        self.assertEqual(icefiend["stats"]["strength"], 10)
+        self.assertEqual(icefiend["stats"]["defence"], 12)
         self.assertEqual(
-            provenance["combatenemies/jackal.png"]["file_title"],
-            "Jackal.png",
+            icefiend["drops"]["guaranteed"],
+            (("Impious ashes", 1),),
         )
+        main = icefiend["drops"]["tables"][0]
+        self.assertEqual(main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
+        self.assertIn("oldid=6419875", icefiend["source"])
 
     def test_new_enemy_drops_are_well_formed(self):
         for enemy_name in NEW_COMBAT_ENEMIES:

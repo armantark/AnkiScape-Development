@@ -1139,6 +1139,18 @@
     "source_wiki": "osrs",
     "timestamp": "2024-09-29T08:39:40Z"
   },
+  "combatenemies/icefiend.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Icefiend.png",
+    "file_title": "Icefiend.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Icefiend.png?b8975",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8a70f62a7202410a4197d9ef5ad763da0b58a3d2",
+    "size": 86908,
+    "source_wiki": "osrs",
+    "timestamp": "2023-04-30T04:19:54Z"
+  },
   "combatenemies/imp.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Imp.png",
     "file_title": "Imp.png",

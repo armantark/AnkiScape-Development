@@ -6860,6 +6860,80 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "data/npcs/drops/jackal.json"
         ),
     },
+    "icefiend": {
+        "display_name": "Icefiend",
+        "level": 13,
+        "group": "Slayer",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 15,
+        "max_hit": 20,
+        "slayer_xp": 15.0,
+        "stats": {
+            "hitpoints": 150,
+            "attack": 10,
+            "strength": 10,
+            "defence": 12,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (("Impious ashes", 1),),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 128,
+                    "slots": (
+                        {"item": "Water talisman", "quantity": 1, "slots": 8},
+                        {"item": "Bronze sword", "quantity": 1, "slots": 4},
+                        {"item": "Bronze hatchet", "quantity": 1, "slots": 4},
+                        {"item": "Iron hatchet", "quantity": 1, "slots": 4},
+                        {"item": "Bronze pickaxe", "quantity": 1, "slots": 4},
+                        {"item": "Iron pickaxe", "quantity": 1, "slots": 4},
+                        {"item": "Bronze arrows", "quantity_range": (2, 9), "slots": 4},
+                        {"item": "Iron arrows", "quantity_range": (1, 5), "slots": 4},
+                        {"item": "Steel arrows", "quantity": 1, "slots": 4},
+                        {"item": "Bronze bolts", "quantity_range": (1, 10), "slots": 4},
+                        {"item": "Bronze med helm", "quantity": 1, "slots": 4},
+                        {"item": "Bronze full helm", "quantity": 1, "slots": 4},
+                        {"item": "Iron chainbody", "quantity": 1, "slots": 4},
+                        {"item": "Silver ore", "quantity": 1, "slots": 4},
+                        {"item": "Silver bar", "quantity": 1, "slots": 4},
+                        {"item": "Steel med helm", "quantity": 1, "slots": 2},
+                        {"item": "Jug of wine", "quantity": 1, "slots": 2},
+                        {"item": "Steel hatchet", "quantity": 1, "slots": 1},
+                        {"item": "Steel pickaxe", "quantity": 1, "slots": 1},
+                        {"item": "Staff of air", "quantity": 1, "slots": 1},
+                        {"item": "Staff of water", "quantity": 1, "slots": 1},
+                        {"item": "Dwarven stout", "quantity": 1, "slots": 1},
+                        {"item": "Cake", "quantity": 1, "slots": 1},
+                        {"item": "Beer", "quantity": 1, "slots": 1},
+                        {"item": "Chaos rune", "quantity_range": (1, 6), "slots": 1},
+                        {"item": "Death rune", "quantity_range": (1, 2), "slots": 1},
+                        {"slots": 51},
+                    ),
+                },
+            ),
+        },
+        "source": (
+            "https://runescape.wiki/w/Icefiend?oldid=6419875; "
+            f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+            "definitions/demons/icefiend_level_13.plugin.kts; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "data/npcs/combatdefs/uncategorized/icefiend/icefiend_(13).json"
+        ),
+    },
     "banshee": {
         "display_name": "Banshee",
         "level": 23,
