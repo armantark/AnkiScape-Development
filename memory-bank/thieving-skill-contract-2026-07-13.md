@@ -176,14 +176,17 @@ fears checkbox hell, and full control lives in the advanced editors.
   recorded in
   `memory-bank/source-audits/pyramid-plunder-loop-2026-07-17.md`.
   Sorceress's Garden also belongs to Activities and follows
-  `memory-bank/source-audits/sorceress-garden-loop-2026-07-18.md`; the Rogues'
-  Den maze and Thieves' Guild go with it.
+  `memory-bank/source-audits/sorceress-garden-loop-2026-07-18.md`; Flash Powder
+  Factory follows
+  `memory-bank/source-audits/flash-powder-factory-loop-2026-07-18.md`, while
+  the historical Rogues' Den maze is excluded because the Factory replaced it
+  before cutoff. The Thieves' Guild also belongs to Activities.
   The Rogues' Den **wall safes are separable and do ship.**
 - **The Feud ships with this build** — it gates blackjacking. Dorgesh-Kaan chests
   and Lletya elves ship gated and dark behind their quests.
-- Blocked rewards, listed on their own cards, not here: the rogue outfit
-  (x1.025 XP, Rogues' Den maze only) and the Ardougne cloak (achievement
-  diaries).
+- Rogue equipment's acquisition route is Flash Powder Factory rubble. Its
+  claimed outside `1.025x` XP effect remains `source_blocked`; the Ardougne
+  cloak remains owned by achievement diaries.
 
 ## Invariants
 

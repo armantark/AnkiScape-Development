@@ -248,7 +248,7 @@ The portfolio is ordered by reusable architecture proven, not nostalgia.
 
 | Order | Proof case | What it proves | Recommended review-native shape |
 |---:|---|---|---|
-| 0 | Flash Powder Factory / Brimhaven | In-flight Agility reference for finite skill-owned sessions and currencies | Extract contracts after Agility closes; do not move ownership. |
+| 0 | Flash Powder Factory / Brimhaven | In-flight Agility reference for finite skill-owned sessions and currencies | Flash Powder Factory now has a focused eight-slot contract; retain Agility ownership and finish Brimhaven through its own settled contract. |
 | 1 | Tears of Guthix | Recurring D&D eligibility and dynamic lowest-skill reward | Review-clock eligibility; compact session; quest promise becomes real. |
 | 2 | Shooting Stars | Timed world event, finite shared resource, contribution cap, exchange | One Mining attempt/review; simulated population also depletes the star. |
 | 3 | Fist of Guthix | Bounded simulated opponent, currency, reward shop, degradation/recharge | Resumable match phases; automatic random pairing; tokens only at resolution. |
@@ -413,6 +413,16 @@ activity set are consolidated in
 `memory-bank/source-audits/activity-entry-gate-ledger-2026-07-18.md`. Focused
 activity audits remain authoritative for their loops; the ledger prevents gate
 requirements from being lost between design and implementation.
+
+Flash Powder Factory uses an eight-slot answered-card session, extended to nine
+by a Rogue or Factory top. Every answered card consumes a slot: non-`Again`
+answers resolve one complete reagent/catalyst/mixer circuit, while `Again`
+spends the live-session opportunity without producing powder. A standing
+**Max Brianpoints / Rogue equipment / Balanced** strategy controls charge,
+rubble, and apparatus priorities. Pickpocketing survives only as at most one
+visible apparatus contest inside a productive review; no opponents, paths, or
+population are simulated. The full contract is recorded in
+`memory-bank/source-audits/flash-powder-factory-loop-2026-07-18.md`.
 
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking

@@ -145,9 +145,17 @@ Labels: trailing `SOURCE AUDIT` and owning-activity dependencies only.
 
 - Owner-settled so far: full-parity failure stake (a failed attempt costs the review, applies sourced damage to the shared combat lifepoint pool, and stuns, so the next review only clears the stun); a Thieving-scoped food loadout on the existing `combat_supply_loadout` substrate; a single "Fight back when caught" toggle (default off) governing both stall guards and blackjack thugs, where unchecked means you flee for one round of damage and checked means a real combat encounter; three casual controls total; targets are ordinary target rows like every other skill.
 - Scope: five engine-native loops — pickpocketing, stalls, chests, wall safes, blackjacking. Doors pending the source dossier.
-- **Pyramid Plunder is EXCLUDED from the skill** and belongs to the Activities program: it grants Strength and Runecrafting XP, gates on a Strength level, spawns a combat NPC, and sells artefacts for up to 12,500 coins (`PyramidPlunder.kt:110-147`, `SimonTempleton.kt:48-61`). Sorceress's Garden, the Rogues' Den maze, and the Thieves' Guild go with it. The Rogues' Den *wall safes* are separable and do ship.
+- **Pyramid Plunder is EXCLUDED from the skill** and belongs to the Activities
+  program: it requires level 21 Thieving, uses progressively level-gated rooms,
+  and may award Strength or Runecrafting XP alongside Thieving rewards.
+  Sorceress's Garden, Flash Powder Factory, and the Thieves' Guild go with it.
+  The historical Rogues' Den maze was replaced by Flash Powder Factory before
+  cutoff and does not ship as a second live activity. Rogues' Den wall safes
+  are separable and do ship.
 - The Feud ships with this build (gates blackjacking). Dorgesh-Kaan chests and Lletya elves ship gated and dark behind their quests.
-- Blocked rewards: rogue outfit (×1.025 XP, Rogues' Den maze only) and Ardougne cloak (achievement diaries). Both listed on their owning cards.
+- Owning-activity dependencies: Rogue equipment is obtained through Flash
+  Powder Factory rubble; its claimed outside `1.025x` XP effect remains
+  `source_blocked`. The Ardougne cloak remains owned by achievement diaries.
 - Source dossier: `memory-bank/source-audits/thieving-source-dossier-2026-07-13.md`.
 - **Owner-settled 2026-07-13 (grill round 2):**
   - **Ship 2011Scape's pickpocket table wholesale**, pinned `provisional/2011Scape`, including the rows OSRS cannot referee (Paladin, Gnome, Hero — all invalidated by OSRS's May-2024 "Project Rebalance: Skilling"). Cherry-picking Darkan only where the referee is absent would select the source by convenience. The cost of being wrong is small: the two tables agree *exactly* at level 99 on eight of ten rows, and the worst disagreement at any reachable level is 11pp (Rogue), 3.9pp for the Paladin.

@@ -31,8 +31,14 @@ Cutoff: RuneScape immediately before EOC, `2012-11-20`.
   prerequisite and contains no answer. The cutoff Garden article likewise
   states the Osman/apprentice introduction but no quest prerequisite. A
   `Diamond in the Rough` requirement first appears in the article after the
-  cutoff. The cutoff quest migration is therefore `source_blocked`, not a
-  license to preserve an impossible removed-quest gate or import a modern rule.
+  cutoff.
+
+The period documentation trail does not independently close that migration,
+but the owner has supplied high-confidence firsthand cutoff memory that
+`Diamond in the Rough` inherited the prerequisite. AnkiScape therefore uses
+completion of `Diamond in the Rough` as the product gate. This is explicitly an
+owner-resolved historical gap rather than a claim that the pinned article
+stated the replacement gate.
 
 The pinned pages do not award XP for squeezing fruit. A local Darkan
 reconstruction adds `5 Herblore XP`, but without cutoff corroboration that is a
@@ -104,7 +110,7 @@ cutoff run succeeded.
 ## Entry gates
 
 The four seasonal gardens retain exact Thieving gates `1/25/45/65`. Starting
-the activity also requires its one-time Osman/apprentice introduction state.
-The removed-quest migration remains `source_blocked` as described above and in
-`activity-entry-gate-ledger-2026-07-18.md`; implementation must resolve that
-historical gate before shipping rather than requiring an unobtainable quest.
+the activity requires completion of `Diamond in the Rough` followed by its
+one-time Osman/apprentice introduction state. The replacement gate is
+owner-resolved as described above and indexed in
+`activity-entry-gate-ledger-2026-07-18.md`.
