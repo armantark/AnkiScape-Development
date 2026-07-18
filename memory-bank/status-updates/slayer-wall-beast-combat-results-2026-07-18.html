@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wall beast Combat closure</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1110;
+      --panel: #171d1a;
+      --panel-2: #202823;
+      --text: #f2f1e9;
+      --muted: #a9afa9;
+      --line: #344039;
+      --moss: #8fbe74;
+      --lime: #b7dc78;
+      --stone: #b7ae98;
+      --red: #ef736f;
+      --blue: #78b7e6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 8% 0%, rgba(143, 190, 116, .16), transparent 30rem),
+        linear-gradient(115deg, transparent 48%, rgba(183, 174, 152, .035) 49%, transparent 50%),
+        var(--bg);
+      color: var(--text);
+      font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 52px 0 64px; }
+    .eyebrow {
+      display: inline-flex; gap: 8px; align-items: center;
+      color: var(--lime); text-transform: uppercase; letter-spacing: .14em;
+      font-size: 12px; font-weight: 800;
+    }
+    .eyebrow::before {
+      content: ""; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--lime); box-shadow: 0 0 18px var(--lime);
+    }
+    h1 { max-width: 850px; margin: 15px 0 12px; font-size: clamp(38px, 7vw, 74px); line-height: .98; letter-spacing: -.05em; }
+    .lede { max-width: 790px; color: var(--muted); font-size: 18px; margin: 0 0 34px; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 28px 0 40px; }
+    .metric, .card {
+      border: 1px solid var(--line);
+      background: linear-gradient(145deg, rgba(255,255,255,.025), transparent), var(--panel);
+      border-radius: 16px;
+    }
+    .metric { padding: 18px; }
+    .metric strong { display: block; color: var(--lime); font-size: 30px; line-height: 1; margin-bottom: 8px; }
+    .metric span { color: var(--muted); font-size: 13px; }
+    .grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 16px; }
+    .card { padding: 24px; }
+    .card h2 { margin: 0 0 7px; font-size: 20px; }
+    .card > p { margin: 0 0 20px; color: var(--muted); }
+    .flow {
+      display: grid; grid-template-columns: 1fr 34px 1fr 34px 1fr 34px 1fr;
+      align-items: stretch; gap: 7px; margin-top: 18px;
+    }
+    .node {
+      min-height: 120px; display: flex; flex-direction: column; justify-content: center;
+      padding: 14px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line);
+    }
+    .node b { color: var(--stone); font-size: 15px; }
+    .node span { color: var(--muted); font-size: 12px; margin-top: 4px; }
+    .node.reset { border-color: rgba(239,115,111,.4); }
+    .node.reset b { color: #ffaaa7; }
+    .arrow { display: grid; place-items: center; color: var(--moss); font-size: 22px; }
+    .callout {
+      margin-top: 14px; padding: 13px 15px; border-radius: 10px;
+      background: rgba(120,183,230,.08); border: 1px solid rgba(120,183,230,.28);
+      color: #cce7fa;
+    }
+    .checks { display: grid; gap: 10px; margin-top: 16px; }
+    .check { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; }
+    .check i {
+      width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center;
+      background: rgba(143,190,116,.12); color: var(--lime); font-style: normal; font-size: 12px;
+    }
+    .check b { display: block; font-size: 14px; }
+    .check span { color: var(--muted); font-size: 13px; }
+    .blockers { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { border: 1px solid var(--line); background: #202722; color: #d8d8ce; border-radius: 999px; padding: 7px 11px; font-size: 13px; }
+    .manual { margin-top: 16px; }
+    .manual ol { margin: 10px 0 0; padding-left: 21px; color: var(--muted); }
+    .manual li + li { margin-top: 5px; }
+    .footer { margin-top: 16px; padding: 20px 24px; display: flex; justify-content: space-between; gap: 20px; align-items: center; }
+    .footer strong { color: var(--lime); }
+    .footer span { color: var(--muted); }
+    code { color: #d6edc8; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    @media (max-width: 900px) {
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .grid { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); min-height: 24px; }
+      .footer { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">Verified closure · 18 July 2026</div>
+  <h1>The helmet gate now behaves like a Wall beast fight.</h1>
+  <p class="lede">The ordinary level-49 beast is playable end to end. Its Spiny helmet rule applies at encounter boundaries, its poison immunity is real, and its drop distribution reaches the Bank through canonical item identities.</p>
+
+  <section class="metrics">
+    <div class="metric"><strong>24 / 27</strong><span>Mazchna families executable</span></div>
+    <div class="metric"><strong>100,000</strong><span>reconciled drop slots</span></div>
+    <div class="metric"><strong>1,570</strong><span>core methods passed</span></div>
+    <div class="metric"><strong>1,570</strong><span>real Qt methods passed</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h2>Start-only protection, exactly where it matters</h2>
+      <p>The equipment check is tied to creating a beast, not every attack. That preserves the source game’s post-discovery helmet swap without allowing an unprotected next spawn.</p>
+      <div class="flow">
+        <div class="node"><b>Equip Spiny helmet</b><span>The target unlocks for a new encounter.</span></div>
+        <div class="arrow">→</div>
+        <div class="node"><b>Begin fight</b><span>The Wall beast becomes the active enemy.</span></div>
+        <div class="arrow">→</div>
+        <div class="node"><b>Swap helmet</b><span>The existing encounter legally continues.</span></div>
+        <div class="arrow">→</div>
+        <div class="node reset"><b>Kill resets gate</b><span>No chained spawn until Spiny is equipped again.</span></div>
+      </div>
+      <div class="callout">This is deliberately separate from Banshee and Cockatrice protection, which applies during enemy attacks. One reusable schema now expresses both kinds of equipment rule without conflating them.</div>
+    </article>
+
+    <article class="card">
+      <h2>Combat identity</h2>
+      <p>The target uses the period facts where available and labels its one lower-tier stability fill.</p>
+      <div class="checks">
+        <div class="check"><i>✓</i><div><b>Ordinary level 49</b><span>1,050 LP · Slayer 35 · 105 Slayer XP · max hit 44</span></div></div>
+        <div class="check"><i>✓</i><div><b>Poison immune</b><span>Smoke spells keep their base hit but cannot apply their extra poison damage</span></div></div>
+        <div class="check"><i>✓</i><div><b>Thirty source rows</b><span>Losslessly normalized to 100,000 slots, including ten empty slots</span></div></div>
+        <div class="check"><i>✓</i><div><b>No shadow items</b><span>Every drop maps to an existing item registry identity</span></div></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Verification ledger</h2>
+      <p>The full closure was rerun after adding the poison-immunity regression. Both complete suites now prove the final source state rather than an earlier candidate.</p>
+      <div class="checks">
+        <div class="check"><i>✓</i><div><b>Focused behavior</b><span>Start gate, legal swap, post-kill reset, drops, poison immunity, and master readiness</span></div></div>
+        <div class="check"><i>✓</i><div><b>Real picker seam</b><span>Rendered icon, locked warning, Slayer requirement, and equipment requirement</span></div></div>
+        <div class="check"><i>✓</i><div><b>Complete core</b><span>1,570 passed; 213 declared environment skips</span></div></div>
+        <div class="check"><i>✓</i><div><b>Complete offscreen Qt</b><span>1,570 passed; no failures and no skips</span></div></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Mazchna’s last three blockers</h2>
+      <p>The master remains hidden until every assignment family is executable. Wall beasts now leave three concrete Combat targets rather than a vague readiness gap.</p>
+      <div class="blockers">
+        <span class="chip">Cyclopes</span>
+        <span class="chip">Mogres</span>
+        <span class="chip">Vampyres</span>
+      </div>
+      <div class="manual">
+        <b>Manual Anki check</b>
+        <ol>
+          <li>At Slayer 35, confirm Wall beast is locked without a Spiny helmet.</li>
+          <li>Equip Spiny, begin the fight, then swap headgear after dealing partial damage.</li>
+          <li>Finish the beast and confirm the next spawn is blocked until Spiny is re-equipped.</li>
+        </ol>
+      </div>
+    </article>
+  </section>
+
+  <section class="card footer">
+    <div><strong>No owner decision waiting.</strong><br><span>The remaining work is source harvest and implementation, not design interviewing.</span></div>
+    <code>slayer-wall-beast-combat-2026-07-18.md</code>
+  </section>
+</main>
+</body>
+</html>

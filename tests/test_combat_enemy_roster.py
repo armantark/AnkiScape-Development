@@ -25,6 +25,7 @@ NEW_COMBAT_ENEMIES = (
     "icefiend",
     "pyrefiend",
     "kalphite_soldier",
+    "wall_beast",
     "gelatinous_abomination",
     "young_grotworm",
     "monkey",
@@ -74,8 +75,10 @@ REQUIRED_ENEMY_KEYS = {
 OPTIONAL_ENEMY_KEYS = {
     "max_hit",
     "poison_damage",
+    "poison_immune",
     "xp_multiplier",
     "protective_equipment",
+    "start_equipment",
     "finisher",
     "required_slayer_level",
     "environmental_hazard",
@@ -142,6 +145,8 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                 if "poison_damage" in enemy:
                     self.assertIsInstance(enemy["poison_damage"], int)
                     self.assertGreater(enemy["poison_damage"], 0)
+                if "poison_immune" in enemy:
+                    self.assertIs(enemy["poison_immune"], True)
                 if "xp_multiplier" in enemy:
                     self.assertIsInstance(enemy["xp_multiplier"], float)
                     self.assertGreater(enemy["xp_multiplier"], 0.0)
@@ -156,6 +161,16 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                     self.assertTrue(protection["warning"])
                     self.assertTrue(protection["unprotected_effect"])
                     self.assertTrue(protection["source_status"])
+                if "start_equipment" in enemy:
+                    requirement = enemy["start_equipment"]
+                    self.assertEqual(
+                        set(requirement),
+                        {"slot", "items", "warning", "source_status"},
+                    )
+                    self.assertIn(requirement["slot"], {"head", "shield", "neck"})
+                    self.assertTrue(requirement["items"])
+                    self.assertTrue(requirement["warning"])
+                    self.assertTrue(requirement["source_status"])
                 if "finisher" in enemy:
                     finisher = enemy["finisher"]
                     required_finisher_keys = {
@@ -224,6 +239,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("icefiend", "Icefiend.png"),
             ("pyrefiend", "Pyrefiend.png"),
             ("kalphite_soldier", "Kalphite Soldier.png"),
+            ("wall_beast", "Wall beast icon.png"),
             ("gelatinous_abomination", "Gelatinous abomination icon.png"),
             ("young_grotworm", "Young grotworm.png"),
             ("monkey", "Karamja monkey.png"),
@@ -325,6 +341,46 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertEqual(main["total"], 128)
         self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
         self.assertIn("oldid=6565809", soldier["source"])
+
+    def test_wall_beast_preserves_the_cutoff_variant_and_drop_table(self):
+        wall_beast = COMBAT_ENEMY_DATA["wall_beast"]
+
+        self.assertEqual(wall_beast["level"], 49)
+        self.assertEqual(wall_beast["required_slayer_level"], 35)
+        self.assertEqual(wall_beast["attack_style"], "melee")
+        self.assertEqual(wall_beast["attack_speed"], 4)
+        self.assertEqual(wall_beast["respawn_delay"], 39)
+        self.assertEqual(wall_beast["slayer_xp"], 105.0)
+        self.assertEqual(wall_beast["max_hit"], 44)
+        self.assertIs(wall_beast["poison_immune"], True)
+        self.assertEqual(
+            wall_beast["stats"],
+            {
+                "hitpoints": 1050,
+                "attack": 30,
+                "strength": 30,
+                "defence": 16,
+                "magic": 1,
+                "ranged": 1,
+            },
+        )
+        self.assertEqual(
+            wall_beast["start_equipment"],
+            {
+                "slot": "head",
+                "items": ("Spiny helmet",),
+                "warning": "Equip a Spiny helmet to start fighting Wall beasts",
+                "source_status": (
+                    "period-exact start-only helmet gate; other equivalent helmets "
+                    "remain excluded until their equipment identities are live"
+                ),
+            },
+        )
+        self.assertEqual(wall_beast["drops"]["guaranteed"], ())
+        main = wall_beast["drops"]["tables"][0]
+        self.assertEqual(main["total"], 100000)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 100000)
+        self.assertIn("oldid=6079584", wall_beast["source"])
 
     def test_desert_lizard_preserves_the_period_finisher_variant(self):
         lizard = COMBAT_ENEMY_DATA["desert_lizard"]

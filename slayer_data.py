@@ -299,7 +299,7 @@ _FAMILIES: Tuple[SlayerFamily, ...] = (
         ("wall_beast",),
         required_slayer_level=35,
         required_skill_levels=(("defence", 5),),
-        readiness_features=("protective_equipment",),
+        readiness_features=("start_equipment",),
         source=MAZCHNA_AUDIT_SOURCE,
     ),
     SlayerFamily(

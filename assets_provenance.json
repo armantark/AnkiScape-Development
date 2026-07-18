@@ -1667,6 +1667,18 @@
     "source_wiki": "osrs",
     "timestamp": "2022-07-25T15:42:43Z"
   },
+  "combatenemies/wall_beast.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Wall_beast_icon.png",
+    "file_title": "Wall beast icon.png",
+    "image_url": "https://runescape.wiki/images/archive/20181101005622%21Wall_beast_icon.png?995e5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f540d69f42d780785dde8c677c49624dd12b4fc7",
+    "size": 336,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-30T12:36:55Z"
+  },
   "combatenemies/white_knight_level_36.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:White_Knight_%28initiate%2C_male%29.png",
     "file_title": "White Knight (initiate, male).png",

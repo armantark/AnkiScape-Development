@@ -978,3 +978,26 @@ all pass. The next Slayer pass should begin from the stable blocker identities
 in the seven master audits, not reopen the owner contract or fabricate a
 partial assignment pool. The closure report is
 `status-updates/grill-harvest-results-2026-07-17.html`.
+
+## Slayer Wall beast Combat slice (2026-07-18)
+
+The ordinary level-49 Wall beast is now an executable Mazchna-family Combat
+target. A real Spiny helmet is required only to start the fight: a player may
+swap headgear after discovery and continue the active encounter, but killing
+that beast while unhelmeted cannot chain into another spawn during the same
+review. This is a distinct `start_equipment` contract, not the per-enemy-attack
+damage/drain behavior used by Banshee and Cockatrice.
+
+The target carries the cutoff level, 1,050 LP, Slayer 35, 105 Slayer XP,
+44-LP maximum hit, poison immunity, and assignment identity; Darkan contributes
+exact combat stats, 39-tick respawn, and the thirty-row drop distribution.
+Ancient Smoke spells therefore deal their ordinary hit without their extra
+poison damage. The drop distribution is normalized losslessly to 100,000 slots
+with ten empty slots, and every item maps to an existing canonical registry
+identity. The pre-cutoff Wall beast icon is installed with provenance.
+
+Mazchna/Achtryn readiness is now 24/27. Only Cyclopes, Mogres, and Vampyres
+remain. No owner design gap emerged. Durable evidence is
+`source-audits/slayer-wall-beast-combat-2026-07-18.md`; the visual closure
+report is `status-updates/slayer-wall-beast-combat-results-2026-07-18.html`
+(<https://0aaltfsrmyrn.postplan.dev>).

@@ -5301,6 +5301,109 @@ class CombatLogicTest(unittest.TestCase):
                 self.assertEqual(protected["protection_warning"], "")
                 self.assertLess(protected["enemy_max_hit"], unprotected["enemy_max_hit"])
 
+    def test_wall_beast_requires_spiny_helmet_only_when_starting_a_fight(self):
+        missing = _player(
+            current_combat_target="wall_beast",
+            slayer_level=35,
+        )
+        equipped = _player(
+            current_combat_target="wall_beast",
+            slayer_level=35,
+            equipment={"head": "Spiny helmet"},
+        )
+        continuing = _player(
+            current_combat_target="wall_beast",
+            slayer_level=35,
+            combat_encounter={
+                "target_id": "wall_beast",
+                "enemy_lifepoints": 500,
+            },
+        )
+
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                missing, "wall_beast", COMBAT_ENEMY_DATA
+            ),
+            ("Equip a Spiny helmet to start fighting Wall beasts",),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                equipped, "wall_beast", COMBAT_ENEMY_DATA
+            ),
+            (),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                continuing, "wall_beast", COMBAT_ENEMY_DATA
+            ),
+            (),
+        )
+
+    def test_wall_beast_can_continue_after_helmet_swap_but_cannot_chain_a_respawn(self):
+        continuing = _player(
+            current_combat_target="wall_beast",
+            slayer_level=35,
+            combat_encounter={
+                "target_id": "wall_beast",
+                "enemy_lifepoints": 1,
+            },
+            combat_auto_flee=False,
+        )
+
+        out, ok, result = apply_combat_burst_pure(
+            continuing,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=50,
+            rng=_rng((0.0, 0.999999, 0.999999)),
+        )
+
+        self.assertTrue(ok, result)
+        self.assertEqual(result["kills"], 1)
+        self.assertEqual(out["combat_encounter"], {})
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                out, "wall_beast", COMBAT_ENEMY_DATA
+            ),
+            ("Equip a Spiny helmet to start fighting Wall beasts",),
+        )
+
+    def test_wall_beast_poison_immunity_suppresses_smoke_spell_poison_damage(self):
+        player = _player(
+            current_combat_target="wall_beast",
+            current_combat_spell="smoke_rush",
+            combat_attack_style="magic_standard",
+            equipment={"weapon": "Staff"},
+            slayer_level=35,
+            quests={"desert_treasure": {"completed": True}},
+            combat_supply_loadout={
+                "runes": {
+                    "Air rune": 1,
+                    "Fire rune": 1,
+                    "Chaos rune": 2,
+                    "Death rune": 2,
+                },
+            },
+            combat_encounter={
+                "target_id": "wall_beast",
+                "enemy_lifepoints": 1050,
+            },
+            combat_auto_flee=False,
+        )
+
+        out, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng((0.0, 0.999999)),
+        )
+
+        self.assertTrue(ok, result)
+        self.assertEqual(result["spell_id"], "smoke_rush")
+        self.assertEqual(result["player_damage"], 129)
+        self.assertEqual(out["combat_encounter"]["enemy_lifepoints"], 921)
+
     def test_unprotected_banshee_uses_period_damage_and_flat_eight_skill_drain(self):
         player = _player(
             current_combat_target="banshee",

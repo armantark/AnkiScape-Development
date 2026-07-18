@@ -3448,6 +3448,26 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
                     )
                 ),
             )
+    start_equipment, start_equipment_active = _combat_start_equipment_state(
+        player_data, enemy
+    )
+    active_encounter = (
+        isinstance(encounter, Mapping)
+        and encounter.get("target_id") == target_id
+    )
+    if (
+        isinstance(start_equipment, Mapping)
+        and not active_encounter
+        and not start_equipment_active
+    ):
+        return (
+            str(
+                start_equipment.get(
+                    "warning",
+                    "Required equipment must be worn to start this fight",
+                )
+            ),
+        )
     hazard = _combat_environmental_hazard_spec(enemy)
     finisher = _combat_finisher_spec(enemy)
     encounter = player_data.get("combat_encounter", {}) or {}
@@ -3642,6 +3662,21 @@ def _combat_protective_equipment_state(player_data, enemy):
     required_items = protection.get("items", ()) or ()
     equipped_item = equipment.get(slot) if isinstance(slot, str) else None
     return protection, equipped_item in required_items
+
+
+def _combat_start_equipment_state(player_data, enemy):
+    requirement = (
+        enemy.get("start_equipment") if isinstance(enemy, Mapping) else None
+    )
+    if not isinstance(requirement, Mapping):
+        return None, True
+    equipment = player_data.get("equipment", {}) or {}
+    if not isinstance(equipment, Mapping):
+        equipment = {}
+    slot = requirement.get("slot")
+    required_items = requirement.get("items", ()) or ()
+    equipped_item = equipment.get(slot) if isinstance(slot, str) else None
+    return requirement, equipped_item in required_items
 
 
 def _combat_unprotected_damage_lifepoints(effect, max_lifepoints):
@@ -6730,6 +6765,9 @@ def apply_combat_burst_pure(
         enemy_totals,
     )
     protective_equipment, protection_active = _combat_protective_equipment_state(data, enemy)
+    start_equipment, start_equipment_active = _combat_start_equipment_state(
+        data, enemy
+    )
     unprotected_effect = (
         protective_equipment.get("unprotected_effect")
         if isinstance(protective_equipment, Mapping) and not protection_active
@@ -6967,16 +7005,17 @@ def apply_combat_burst_pure(
                     elif spell_effect == "freeze":
                         next_enemy_attack += max(0, int(spell_effect_value / .6))
                     elif spell_effect == "poison" and not magic_effect_applied:
-                        poison_ev, automatic_finisher = _combat_cap_damage_for_finisher(
-                            data,
-                            finisher,
-                            enemy_lp,
-                            max(0, int(spell_effect_value)),
-                        )
-                        if automatic_finisher:
-                            automatic_finishers += 1
-                        enemy_lp -= poison_ev
-                        player_damage += poison_ev
+                        if not bool(enemy.get("poison_immune", False)):
+                            poison_ev, automatic_finisher = _combat_cap_damage_for_finisher(
+                                data,
+                                finisher,
+                                enemy_lp,
+                                max(0, int(spell_effect_value)),
+                            )
+                            if automatic_finisher:
+                                automatic_finishers += 1
+                            enemy_lp -= poison_ev
+                            player_damage += poison_ev
                         magic_effect_applied = True
                         magic_effects_applied.add(spell_effect)
                     elif spell_effect == "defence_flat" and not magic_effect_applied:
@@ -7024,7 +7063,14 @@ def apply_combat_burst_pure(
                 # old `break` wasted up to half of a ~30s review window). A fresh
                 # enemy respawns at full LP and re-engages after its normal attack
                 # delay, so it gets no free instant hit on the kill tick.
-                if live_cadence:
+                if (
+                    live_cadence
+                    or stop_after_first_kill
+                    or (
+                        isinstance(start_equipment, Mapping)
+                        and not start_equipment_active
+                    )
+                ):
                     break
                 enemy_lp = enemy_max_lp
                 next_enemy_attack = tick + 1 + enemy_attack_speed
@@ -7217,7 +7263,14 @@ def apply_combat_burst_pure(
                 next_player_attack += prayer_ticks
                 for drop_name, drop_amount in kill_drops.items():
                     drops[drop_name] = _non_negative_int(drops.get(drop_name, 0), 0) + _non_negative_int(drop_amount, 0)
-                if live_cadence or stop_after_first_kill:
+                if (
+                    live_cadence
+                    or stop_after_first_kill
+                    or (
+                        isinstance(start_equipment, Mapping)
+                        and not start_equipment_active
+                    )
+                ):
                     break
                 enemy_lp = enemy_max_lp
                 enemy_regen_residual = 0

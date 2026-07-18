@@ -2220,6 +2220,7 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_combat_is_selectable_and_shows_simple_enemy_targets(self) -> None:
         pd = _make_player_data()
         pd["current_combat_target"] = "seagull"
+        pd["slayer_level"] = 35
         dialog = self._open(pd, current_skill="Combat")
 
         tree = _find_tree_with_user_role(dialog, "seagull")
@@ -2237,6 +2238,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         icefiend = _tree_row(tree, "icefiend")
         pyrefiend = _tree_row(tree, "pyrefiend")
         kalphite_soldier = _tree_row(tree, "kalphite_soldier")
+        wall_beast = _tree_row(tree, "wall_beast")
         banshee = _tree_row(tree, "banshee")
         seagull = _tree_row(tree, "seagull")
 
@@ -2285,6 +2287,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertIn("Rune chainbody x1 (1/128)", kalphite_soldier.toolTip(0))
         self.assertFalse(kalphite_soldier.icon(0).isNull())
+        self.assertEqual(wall_beast.text(0), "Wall beast (Lvl 49)")
+        self.assertIn(
+            "Equip a Spiny helmet to start fighting Wall beasts",
+            wall_beast.toolTip(0),
+        )
+        self.assertFalse(wall_beast.icon(0).isNull())
         self.assertEqual(banshee.text(0), "Banshee (Lvl 23)")
         self.assertIn("Missing Earmuffs", banshee.toolTip(0))
         self.assertIn("Enemy max hit: 10 LP", banshee.toolTip(0))

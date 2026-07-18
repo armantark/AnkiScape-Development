@@ -7360,6 +7360,104 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "drops; worker, guardian, and queen variants excluded"
         ),
     },
+    "wall_beast": {
+        "display_name": "Wall beast",
+        "level": 49,
+        "group": "Slayer",
+        "required_slayer_level": 35,
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 39,
+        "max_hit": 44,
+        "poison_immune": True,
+        "slayer_xp": 105.0,
+        "stats": {
+            "hitpoints": 1050,
+            "attack": 30,
+            "strength": 30,
+            "defence": 16,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "start_equipment": {
+            "slot": "head",
+            "items": ("Spiny helmet",),
+            "warning": "Equip a Spiny helmet to start fighting Wall beasts",
+            "source_status": (
+                "period-exact start-only helmet gate; other equivalent helmets "
+                "remain excluded until their equipment identities are live"
+            ),
+        },
+        "drops": {
+            "guaranteed": (),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 100000,
+                    "slots": (
+                        {"item": "Grimy guam", "quantity": 1, "slots": 6458},
+                        {"item": "Grimy marrentill", "quantity": 1, "slots": 6458},
+                        {"item": "Grimy tarromin", "quantity": 1, "slots": 6458},
+                        {"item": "Grimy harralander", "quantity": 1, "slots": 6458},
+                        {"item": "Bones", "quantity": 1, "slots": 12985},
+                        {"item": "Air rune", "quantity": 3, "slots": 6458},
+                        {"item": "Tinderbox", "quantity": 1, "slots": 6458},
+                        {"item": "Unlit torch", "quantity": 1, "slots": 6458},
+                        {"item": "Coins", "quantity": 15, "slots": 6458},
+                        {"item": "Steel full helm", "quantity": 1, "slots": 6458},
+                        {"item": "Lantern lens", "quantity": 1, "slots": 6458},
+                        {
+                            "item": "Bullseye lantern (unf)",
+                            "quantity": 1,
+                            "slots": 6458,
+                        },
+                        {"item": "Grimy kwuarm", "quantity": 1, "slots": 4664},
+                        {"item": "Grimy cadantine", "quantity": 1, "slots": 4664},
+                        {"item": "Eye of newt", "quantity": 1, "slots": 4664},
+                        {"item": "Grimy ranarr", "quantity": 1, "slots": 310},
+                        {"item": "Grimy irit", "quantity": 1, "slots": 310},
+                        {"item": "Grimy avantoe", "quantity": 1, "slots": 310},
+                        {"item": "Chaos rune", "quantity_range": (3, 7), "slots": 310},
+                        {"item": "Cosmic rune", "quantity": 2, "slots": 310},
+                        {"item": "Mystic hat", "quantity": 1, "slots": 310},
+                        {"item": "Grimy dwarf weed", "quantity": 1, "slots": 23},
+                        {"item": "Bronze full helm", "quantity": 1, "slots": 23},
+                        {"item": "Mithril full helm", "quantity": 1, "slots": 23},
+                        {"item": "Black full helm", "quantity": 1, "slots": 23},
+                        {"item": "Grimy lantadyme", "quantity": 1, "slots": 23},
+                        {"slots": 10},
+                    ),
+                },
+            ),
+        },
+        "source": (
+            "https://runescape.wiki/w/Wall_beast?oldid=6079584; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "wall_beast (noanims).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/wall_beast.json"
+        ),
+        "source_status": (
+            "period ordinary level-49 identity, LP, maximum hit, Slayer gate/XP, "
+            "assignment membership, and start-only helmet behavior; stable "
+            "four-tick melee fill from the modern page with no recorded rate "
+            "change; Darkan exact stats and respawn; Darkan probability rows "
+            "normalized losslessly to 100000 mutually exclusive slots with 10 "
+            "empty slots; navigation-only unhelmeted grab excluded"
+        ),
+    },
     "gelatinous_abomination": {
         "display_name": "Gelatinous abomination",
         "level": 2,

@@ -1155,3 +1155,27 @@ Test counts are snapshots; current runs outrank this note.
 - Next: repair Jungle Potion's remaining generated stage buttons, then continue
   Big Chompy Bird Hunting → Zogre Flesh Eaters → Rum Deal → Cabin Fever before
   the Mos Le'Harmless, Cave horror, Black mask, and Slayer-helmet runtime.
+
+## Wall beast playable Slayer target — 2026-07-18
+
+- Added the ordinary level-49 Wall beast with cutoff combat identity, Slayer
+  gate/XP, maximum hit, Darkan stats/respawn, a reconciled 100,000-slot drop
+  table, and its pre-cutoff icon.
+- Added a reusable start-only equipment gate. Spiny helmet is checked when a
+  fight begins, not on every attack; an active beast survives a legal helmet
+  swap, while the next spawn again requires the helmet.
+- Enforced the cutoff poison immunity against the existing Ancient Smoke-spell
+  poison effect.
+- Reused every existing canonical item identity, including cache item 4544 as
+  `Bullseye lantern (unf)` and item 4089 as `Mystic hat`; no parallel registry
+  names were introduced.
+- Mazchna/Achtryn now derives at 24/27 ready families. Cyclopes, Mogres, and
+  Vampyres are the remaining exact blockers.
+- Focused pure and real offscreen Qt checks pass. Complete core discovery passes
+  all 1,570 methods with 213 declared environment skips; complete real
+  offscreen Qt discovery passes all 1,570 methods without failures or skips.
+- Durable evidence:
+  `source-audits/slayer-wall-beast-combat-2026-07-18.md`.
+- Published
+  `status-updates/slayer-wall-beast-combat-results-2026-07-18.html`
+  (<https://0aaltfsrmyrn.postplan.dev>).
