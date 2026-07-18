@@ -7971,6 +7971,75 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "marsh variant and Darkan's merged Big-bones row excluded"
         ),
     },
+    "otherworldly_being": {
+        "display_name": "Otherworldly being",
+        "level": 64,
+        "group": "Slayer",
+        "required_slayer_level": 1,
+        "quest_gate": "lost_city",
+        "quest_gate_label": "Complete Lost City",
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 70,
+        "slayer_xp": 66.0,
+        "stats": {
+            "hitpoints": 660,
+            "attack": 56,
+            "strength": 56,
+            "defence": 46,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 128,
+                    "slots": (
+                        {"item": "Coins", "quantity": 15, "slots": 59},
+                        {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 10},
+                        {"item": "Nature rune", "quantity": 5, "slots": 9},
+                        {"item": "Chaos rune", "quantity": 4, "slots": 8},
+                        {"item": "Law rune", "quantity": 2, "slots": 7},
+                        {"item": "Cosmic rune", "quantity": 2, "slots": 5},
+                        {"item": "Death rune", "quantity": 2, "slots": 4},
+                        {"table": COMBAT_GEM_DROP_TABLE, "slots": 3},
+                        {"item": "Ruby ring", "quantity": 1, "slots": 2},
+                        {"item": "Blood rune", "quantity": 2, "slots": 1},
+                        {"item": "Rune mace", "quantity": 1, "slots": 1},
+                        {"item": "Mackerel", "quantity": 1, "slots": 1},
+                        {"slots": 18},
+                    ),
+                },
+            ),
+        },
+        "source": (
+            "https://runescape.wiki/w/Otherworldly_being?oldid=6554205; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/areas/zanaris/"
+            "otherworldly_being.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/otherworldly_being.json"
+        ),
+        "source_status": (
+            "period exact ordinary identity, LP, Slayer XP, six-tick melee, "
+            "70-LP maximum hit, Vannaka membership, and Zanaris route; Darkan "
+            "exact stats, respawn, and complete 128-slot ordinary table"
+        ),
+    },
     "kalphite_soldier": {
         "display_name": "Kalphite Soldier",
         "level": 85,

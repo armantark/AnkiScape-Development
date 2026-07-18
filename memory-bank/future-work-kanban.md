@@ -235,7 +235,7 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   certification.
 - Vannaka is now the third completely encoded pool. Its 35 master-specific
   rows preserve the provisional 460-point denominator and remain hidden at
-  21/35 readiness. Ordinary Ogre closes the Ogres family with its exact nested
+  22/35 readiness. Ordinary Ogre closes the Ogres family with its exact nested
   common-seed and tertiary-bone drops; ordinary Jelly closes Jellies with
   magic-based melee, an exact 128-slot table, and generated Mithril boots;
   ordinary Bloodveld closes Bloodvelds with the same distinct attack channel,
@@ -244,8 +244,9 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   equipment; ordinary Basilisk adds its Mirror-shield gaze contract, exact
   tables, and generated light Mystic hat; ordinary level-63 Crocodile reuses
   the live desert-heat loop while rejecting the merged level-89 drop row. The
-  remaining 14 blockers are derived by
-  `tools/audit_slayer_readiness.py`: 13 missing Combat targets
+  Lost-City-gated Otherworldly being adds its exact 128-slot table without
+  duplicating quest work. The remaining 13 blockers are derived by
+  `tools/audit_slayer_readiness.py`: 12 missing Combat targets
   (including the Darkan-owned Mogre quest route) plus Wilderness-risk behavior
   for the already-live Earth warrior. Continue from that generated ledger; do
   not expose or renormalize the partial master. See
@@ -254,7 +255,8 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   `source-audits/slayer-bloodveld-combat-2026-07-18.md` and
   `source-audits/slayer-infernal-mage-combat-2026-07-18.md`, and
   `source-audits/slayer-basilisk-combat-2026-07-18.md`, plus
-  `source-audits/slayer-crocodile-combat-2026-07-18.md`.
+  `source-audits/slayer-crocodile-combat-2026-07-18.md` and
+  `source-audits/slayer-otherworldly-being-combat-2026-07-18.md`.
 - Mogre combat is source-closed, including its atomic Fishing-explosive lure,
   poison immunity, exact 128-slot Darkan table, tertiary bones, and target
   icon. Keep it marked `DEPENDENCY: QUEST` until the Darkan quest pass adds the

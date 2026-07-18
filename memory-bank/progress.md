@@ -4,6 +4,23 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Otherworldly being Combat closure — 2026-07-18
+
+- Added the ordinary level-64 Otherworldly being as a Lost-City-gated Combat
+  target with 660 LP, 66 Slayer XP, six-tick melee, and maximum hit 70.
+- Encoded Darkan's exact 128-slot ordinary table, including nested minor-herb
+  and gem rolls plus 18 explicit empty slots.
+- Reused the existing Lost City completion state without adding or duplicating
+  quest stages.
+- Advanced Vannaka from 21/35 to 22/35 without exposing or renormalizing the
+  incomplete master. Twelve missing targets and Earth warrior's Wilderness
+  context remain.
+- Focused checks and the real offscreen Qt picker pass. Durable evidence is
+  `source-audits/slayer-otherworldly-being-combat-2026-07-18.md`; no owner
+  design input was required. Results:
+  `status-updates/slayer-otherworldly-being-results-2026-07-18.html`
+  (<https://q57byaii1o36.postplan.dev>).
+
 ## Slayer Crocodile Combat closure — 2026-07-18
 
 - Added the ordinary level-63 River Elid Crocodile as a Slayer-10 Combat target

@@ -120,7 +120,7 @@ class SlayerAssignmentDataTest(unittest.TestCase):
         self.assertFalse(readiness["certified"])
         self.assertFalse(readiness["runtime_enabled"])
         self.assertEqual(readiness["family_count"], 35)
-        self.assertEqual(readiness["ready_family_count"], 21)
+        self.assertEqual(readiness["ready_family_count"], 22)
         self.assertEqual(
             set(readiness["blockers"]),
             {
@@ -134,7 +134,6 @@ class SlayerAssignmentDataTest(unittest.TestCase):
                 "killerwatts:combat_target",
                 "mogres:combat_target",
                 "molanisks:combat_target",
-                "otherworldly_beings:combat_target",
                 "sea_snakes:combat_target",
                 "shadow_warriors:combat_target",
                 "turoth:combat_target",

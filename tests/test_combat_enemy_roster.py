@@ -30,6 +30,7 @@ NEW_COMBAT_ENEMIES = (
     "infernal_mage",
     "basilisk",
     "crocodile",
+    "otherworldly_being",
     "kalphite_soldier",
     "wall_beast",
     "vampyre",
@@ -283,6 +284,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("infernal_mage", "Infernal Mage.png"),
             ("basilisk", "Basilisk.png"),
             ("crocodile", "Crocodile.png"),
+            ("otherworldly_being", "Otherworldly being.png"),
             ("kalphite_soldier", "Kalphite Soldier.png"),
             ("wall_beast", "Wall beast icon.png"),
             ("vampyre", "Vampire (historical) (level 61).png"),
@@ -541,6 +543,34 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertTrue(crocodile["desert_context"])
         self.assertIn("oldid=6529105", crocodile["source"])
         self.assertIn("level-89 marsh variant", crocodile["source_status"])
+
+    def test_otherworldly_being_preserves_zanaris_identity_and_exact_table(self):
+        being = COMBAT_ENEMY_DATA["otherworldly_being"]
+
+        self.assertEqual(being["level"], 64)
+        self.assertEqual(being["required_slayer_level"], 1)
+        self.assertEqual(being["quest_gate"], "lost_city")
+        self.assertEqual(being["attack_style"], "melee")
+        self.assertEqual(being["attack_speed"], 6)
+        self.assertEqual(being["respawn_delay"], 59)
+        self.assertEqual(being["slayer_xp"], 66.0)
+        self.assertEqual(being["max_hit"], 70)
+        self.assertEqual(
+            being["stats"],
+            {
+                "hitpoints": 660,
+                "attack": 56,
+                "strength": 56,
+                "defence": 46,
+                "magic": 1,
+                "ranged": 1,
+            },
+        )
+        self.assertEqual(being["drops"]["guaranteed"], ())
+        main = being["drops"]["tables"][0]
+        self.assertEqual(main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
+        self.assertIn("oldid=6554205", being["source"])
 
     def test_kalphite_soldier_preserves_the_cutoff_variant_and_drop_table(self):
         soldier = COMBAT_ENEMY_DATA["kalphite_soldier"]

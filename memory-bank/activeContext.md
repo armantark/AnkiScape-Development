@@ -2,6 +2,15 @@
 
 ## Current Focus
 
+The ordinary level-64 Otherworldly being is now executable with the existing
+Lost City gate, six-tick melee, 660 LP, 66 Slayer XP, and Darkan's exact
+128-slot table. This adds no quest content and does not overlap the Darkan
+quest-parity thread. Vannaka advances to 22/35 while remaining hidden.
+Evidence: `source-audits/slayer-otherworldly-being-combat-2026-07-18.md`. No
+owner-facing design fork emerged. Results:
+`status-updates/slayer-otherworldly-being-results-2026-07-18.html`
+(<https://q57byaii1o36.postplan.dev>).
+
 The ordinary level-63 River Elid Crocodile is now executable with Slayer 10,
 five-tick melee, 630 LP, 62 Slayer XP, guaranteed Bones, and the existing
 review-driven desert-heat supply loop. The level-89 marsh form and Darkan's
