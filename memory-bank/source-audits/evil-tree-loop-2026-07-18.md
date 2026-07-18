@@ -4,9 +4,9 @@ Date: `2026-07-18`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **period source pinned; three-phase loop, review-clock discovery, and
-partial participation owner-settled; post-event continuation reward under
-grill.**
+Status: **owner-design loop closed; period source, three-phase loop,
+review-clock discovery, partial participation, and post-event Woodcutting
+reward are settled. Exact source-table harvesting remains.**
 
 ## Pinned period evidence
 
@@ -122,8 +122,15 @@ successful eligible chop. This reuses the normal chop roll and represents the
 saved depletion/respawn interruption without adding tree state, hidden world
 simulation, or a tunable throughput multiplier.
 
-The remaining owner fork is whether a successful continuation roll grants both
-the normal log and normal Woodcutting XP, or the log only. The recommendation is
-log plus XP: in the source, the surviving tree permits another real chop whose
-successful harvest awards both. The effect is short, bounded, visible in the
+The owner selected the faithful normal-chop behavior: a successful continuation
+roll grants its normal log, normal Woodcutting XP, and ordinary roll side
+effects. The roll never chains. The effect is short, bounded, visible in the
 review result, and must be included when cadence mappings are calibrated.
+
+## Owner-design closure
+
+Evil Trees have no remaining owner-facing product fork. Implementation still
+needs the exact reward distribution, contribution curve, historical tier
+distribution if recoverable, nest modifier, and active-window timing. Missing
+numeric evidence may use only a labeled bounded abstraction that preserves the
+settled activity shape.

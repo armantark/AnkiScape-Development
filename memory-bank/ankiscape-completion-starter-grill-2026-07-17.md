@@ -109,6 +109,14 @@ never hide an unnecessary world simulation. Existing settled designs receive
 the same implementation-time audit rather than being grandfathered into
 unbounded or invisible work.
 
+The owner decision rule is **faithful without overengineering**. Preserve every
+source mechanic that changes requirements, agency, risk, rewards, or downstream
+state. Compress spatial repetition, compulsory busywork, and object-by-object
+simulation into the smallest visible action or result line that preserves those
+consequences. Do not delete a real consequence merely because its source
+presentation is inconvenient, and do not build a subsystem merely to reenact
+presentation that creates no AnkiScape decision.
+
 ### One special-currency wallet, authentic separate balances
 
 Use one persisted wallet/ledger substrate, but retain authentic per-activity
