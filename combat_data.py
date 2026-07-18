@@ -7213,6 +7213,78 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "data/npcs/combatdefs/uncategorized/icefiend/icefiend_(13).json"
         ),
     },
+    "pyrefiend": {
+        "display_name": "Pyrefiend",
+        "level": 43,
+        "group": "Slayer",
+        "required_slayer_level": 30,
+        "attack_style": "magic_melee",
+        "attack_speed": 4,
+        "respawn_delay": 15,
+        "max_hit": 44,
+        "slayer_xp": 45.0,
+        "stats": {
+            "hitpoints": 450,
+            "attack": 52,
+            "strength": 30,
+            "defence": 22,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 10,
+            "defence_slash": 10,
+            "defence_crush": 10,
+            "defence_magic": 0,
+            "defence_ranged": 10,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (("Impious ashes", 1),),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 128,
+                    "slots": (
+                        {"item": "Steel hatchet", "quantity": 1, "slots": 4},
+                        {"item": "Steel full helm", "quantity": 1, "slots": 4},
+                        {"item": "Mithril chainbody", "quantity": 1, "slots": 2},
+                        {"item": "Staff of fire", "quantity": 1, "slots": 3},
+                        {"item": "Steel boots", "quantity": 1, "slots": 1},
+                        {"item": "Adamant med helm", "quantity": 1, "slots": 1},
+                        {"item": "Fire rune", "quantity": 30, "slots": 21},
+                        {"item": "Fire rune", "quantity": 60, "slots": 8},
+                        {"item": "Chaos rune", "quantity": 12, "slots": 5},
+                        {"item": "Death rune", "quantity": 3, "slots": 3},
+                        {"item": "Coins", "quantity": 10, "slots": 7},
+                        {"item": "Coins", "quantity": 40, "slots": 24},
+                        {"item": "Coins", "quantity": 120, "slots": 20},
+                        {"item": "Coins", "quantity": 200, "slots": 10},
+                        {"item": "Coins", "quantity": 450, "slots": 2},
+                        {"item": "Gold ore", "quantity": 1, "slots": 8},
+                        {"item": "Jug of wine", "quantity": 1, "slots": 2},
+                        {"table": COMBAT_GEM_DROP_TABLE, "slots": 3},
+                    ),
+                },
+            ),
+        },
+        "source": (
+            "https://runescape.wiki/w/Pyrefiend?oldid=6565806; "
+            f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+            "definitions/demons/pyrefiend_lvl_43.plugin.kts; "
+            f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/"
+            "combat/formula/MeleeCombatFormula.kt"
+        ),
+        "source_status": (
+            "period ordinary level-43 identity, LP, maximum hit, Slayer gate/XP, "
+            "magic-based melee semantics, and guaranteed ash; game-main exact "
+            "stats, speeds, bonuses, and 128-slot drops; level-48 God Wars, Soul "
+            "Wars, Daemonheim, revenant, and familiar variants excluded"
+        ),
+    },
     "gelatinous_abomination": {
         "display_name": "Gelatinous abomination",
         "level": 2,
@@ -8998,6 +9070,16 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Staff of earth": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_EARTH"},
     "Staff of fire": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_FIRE"},
     "Steel spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STEEL_SPEAR"},
+    "Steel boots": {
+        "category": "equipment",
+        "source": (
+            "game-main data/cfg/items.yml item 4123; "
+            "OpenRS2 revision-742 item 4123"
+        ),
+        "source_item_id": 4123,
+        "stackable": False,
+        "tradeable": True,
+    },
     "Strawberry seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STRAWBERRY_SEED"},
     "Super defence (1)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SUPER_DEFENCE_1"},
     "Super antipoison (1)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SUPER_ANTIPOISON_1"},

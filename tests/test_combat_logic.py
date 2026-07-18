@@ -50,6 +50,7 @@ from logic_pure import (
     _combat_enemy_attack_class,
     _combat_enemy_bonuses,
     _combat_enemy_max_hit_old_hp,
+    _combat_enemy_protection_class,
     apply_combat_burst_pure,
     apply_combat_finisher_pure,
     apply_combat_poison_effect_pure,
@@ -64,6 +65,7 @@ from logic_pure import (
     refill_combat_supply_loadout_pure,
     combat_target_locked_reasons_pure,
     combat_target_preview_pure,
+    derive_casual_combat_magic_pure,
     reclaim_death_office_items_pure,
     set_combat_auto_eat_food_pure,
     set_combat_auto_eat_threshold_pure,
@@ -530,6 +532,71 @@ class CombatEnemyAttackStyleTest(unittest.TestCase):
         self.assertGreater(melee_result["enemy_accuracy"], 0.5)
         self.assertLess(magic_result["enemy_accuracy"], 0.2)
 
+    def test_magic_melee_uses_attack_against_magic_defence_and_melee_prayer(self):
+        player, equipment_data = self._magic_robe_setup()
+        magic_melee = self._enemy("magic_melee", magic=1, max_hit=40)
+        ordinary_magic = self._enemy("magic", magic=1, max_hit=40)
+
+        _out, ok, magic_melee_result = apply_combat_burst_pure(
+            dict(player),
+            magic_melee,
+            equipment_data,
+            ticks=1,
+            rng=lambda: 0.5,
+        )
+        _out2, ok2, ordinary_magic_result = apply_combat_burst_pure(
+            dict(player),
+            ordinary_magic,
+            equipment_data,
+            ticks=1,
+            rng=lambda: 0.5,
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(ok2)
+        self.assertGreater(
+            magic_melee_result["enemy_accuracy"],
+            ordinary_magic_result["enemy_accuracy"],
+        )
+        self.assertLess(magic_melee_result["enemy_accuracy"], 0.2)
+        self.assertEqual(_combat_enemy_attack_class(magic_melee["x"]), "magic")
+        self.assertEqual(_combat_enemy_protection_class(magic_melee["x"]), "melee")
+
+        def fought_with(prayer_id):
+            prepared = {
+                **player,
+                "prayer_level": 99,
+                "combat_prayer_points": 990,
+                "combat_prayer_uptime": "100",
+                "combat_selected_prayers": [prayer_id],
+                "combat_auto_flee": False,
+            }
+            return apply_combat_burst_pure(
+                prepared,
+                magic_melee,
+                equipment_data,
+                ticks=5,
+                rng=_rng([0.999, 0.0, 0.999, 0.0, 0.999, 0.0, 0.999]),
+            )[2]
+
+        self.assertEqual(fought_with("protect_from_melee")["enemy_damage"], 0)
+        self.assertGreater(fought_with("protect_from_magic")["enemy_damage"], 0)
+
+    def test_casual_max_safety_selects_melee_prayer_for_pyrefiend(self):
+        prepared = derive_casual_combat_magic_pure(
+            _player(
+                current_combat_target="pyrefiend",
+                combat_pack_mode="max_safety",
+                prayer_level=99,
+                combat_prayers_enabled=True,
+            )
+        )
+
+        self.assertEqual(
+            prepared["combat_selected_prayers"],
+            ["protect_from_melee"],
+        )
+
     def test_ranged_enemy_max_hit_uses_its_ranged_stat_not_melee_strength(self):
         weak_melee_strong_bow = self._enemy("ranged", strength=1, ranged=99)["x"]
         same_but_melee = self._enemy("melee", strength=1, ranged=99)["x"]
@@ -551,7 +618,7 @@ class CombatEnemyAttackStyleTest(unittest.TestCase):
         # Data guard: a non-melee enemy without an explicit max_hit would silently
         # fall back to the melee-strength derivation, which is wrong for a caster.
         for name, enemy in COMBAT_ENEMY_DATA.items():
-            if enemy.get("attack_style") == "magic":
+            if enemy.get("attack_style") in {"magic", "magic_melee"}:
                 with self.subTest(enemy=name):
                     self.assertTrue(enemy.get("max_hit") or enemy.get("max_hit_old_hp"))
 

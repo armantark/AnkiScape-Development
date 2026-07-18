@@ -2684,8 +2684,13 @@ def derive_casual_combat_magic_pure(player_data):
         book = str(data.get("combat_prayer_book", "standard"))
         target = COMBAT_ENEMY_DATA.get(str(data.get("current_combat_target", "")), {})
         if mode == "max_safety":
-            enemy_class = _combat_enemy_attack_class(target) if target else "melee"
-            protection_effect = {"magic": "protect_magic", "ranged": "protect_ranged"}.get(enemy_class, "protect_melee")
+            protection_class = (
+                _combat_enemy_protection_class(target) if target else "melee"
+            )
+            protection_effect = {
+                "magic": "protect_magic",
+                "ranged": "protect_ranged",
+            }.get(protection_class, "protect_melee")
             candidates = [
                 prayer for prayer in COMBAT_PRAYERS_BY_ID.values()
                 if prayer.book == book and prayer.level <= prayer_level
@@ -3585,17 +3590,26 @@ def _combat_melee_max_hit_old_hp(effective_strength, strength_bonus):
     return max(0.0, 0.5 + float(effective_strength) * (float(strength_bonus) + 64.0) / 640.0)
 
 
-COMBAT_ENEMY_ATTACK_CLASSES = ("melee", "ranged", "magic")
+COMBAT_ENEMY_ATTACK_STYLES = ("melee", "ranged", "magic", "magic_melee")
 
 
 def _combat_enemy_attack_class(enemy):
     """The style the ENEMY attacks with. Determines which of its attack bonuses
     drives its accuracy and which of the player's defence bonuses resists it.
-    Unknown values fall back to melee (every roster enemy is melee today)."""
+    Magic-based melee rolls against Magic defence while retaining melee damage
+    and protection-prayer semantics. Unknown values fall back to melee."""
     if not isinstance(enemy, Mapping):
         return "melee"
     style = enemy.get("attack_style", "melee")
-    return style if style in COMBAT_ENEMY_ATTACK_CLASSES else "melee"
+    if style == "magic_melee":
+        return "magic"
+    return style if style in COMBAT_ENEMY_ATTACK_STYLES else "melee"
+
+
+def _combat_enemy_protection_class(enemy):
+    if isinstance(enemy, Mapping) and enemy.get("attack_style") == "magic_melee":
+        return "melee"
+    return _combat_enemy_attack_class(enemy)
 
 
 def _combat_enemy_max_hit_old_hp(enemy, effective_strength, strength_bonus, enemy_totals=None):
@@ -6687,10 +6701,24 @@ def apply_combat_burst_pure(
     # The enemy attacks with ITS style: a mage's accuracy comes off its magic
     # level + magic attack bonus, and the player resists with magic defence.
     enemy_class = _combat_enemy_attack_class(enemy)
-    enemy_attack_stat = {"magic": "magic", "ranged": "ranged"}.get(enemy_class, "attack")
-    enemy_attack_roll = (_positive_int(enemy.get("stats", {}).get(enemy_attack_stat, 1), 1) + 8) * enemy_attack_factor * (
-        _combat_attack_bonus_from_totals(enemy_totals, enemy_class) + 64
+    magic_melee = enemy.get("attack_style") == "magic_melee"
+    enemy_attack_stat = (
+        "attack"
+        if magic_melee
+        else {"magic": "magic", "ranged": "ranged"}.get(enemy_class, "attack")
     )
+    enemy_attack_bonus = (
+        _combat_attack_bonus_from_totals(
+            enemy_totals,
+            "melee",
+            style_type="stab",
+        )
+        if magic_melee
+        else _combat_attack_bonus_from_totals(enemy_totals, enemy_class)
+    )
+    enemy_attack_roll = (
+        _positive_int(enemy.get("stats", {}).get(enemy_attack_stat, 1), 1) + 8
+    ) * enemy_attack_factor * (enemy_attack_bonus + 64)
     player_defence_roll = _combat_effective_player_defence_level(data, style_id) * float(prayer_effects.get("defence", 1.0)) * (
         _combat_defence_bonus_from_totals(player_totals, enemy_class) + 64
     )
@@ -7084,7 +7112,11 @@ def apply_combat_burst_pure(
                 damage = _combat_roll_damage_lifepoints(enemy_max_hit, rng) if landed else 0
             raw_enemy_damage = damage
             if not isinstance(unprotected_effect, Mapping):
-                protection_key = {"magic": "protect_magic", "ranged": "protect_ranged"}.get(enemy_class, "protect_melee")
+                protection_class = _combat_enemy_protection_class(enemy)
+                protection_key = {
+                    "magic": "protect_magic",
+                    "ranged": "protect_ranged",
+                }.get(protection_class, "protect_melee")
                 protection_scale = (
                     tick_prayer_uptime / prayer_uptime
                     if live_cadence and prayer_uptime > 0

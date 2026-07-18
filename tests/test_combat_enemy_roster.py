@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 from combat_data import COMBAT_ENEMY_DATA
+from logic_pure import combat_target_locked_reasons_pure
 
 
 NEW_COMBAT_ENEMIES = (
@@ -22,6 +23,7 @@ NEW_COMBAT_ENEMIES = (
     "earth_warrior",
     "jackal",
     "icefiend",
+    "pyrefiend",
     "gelatinous_abomination",
     "young_grotworm",
     "monkey",
@@ -128,7 +130,10 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                 self.assertEqual(set(enemy) - REQUIRED_ENEMY_KEYS, set(enemy) & OPTIONAL_ENEMY_KEYS)
                 self.assertEqual(set(enemy["stats"]), REQUIRED_STAT_KEYS)
                 self.assertEqual(set(enemy["bonuses"]), REQUIRED_BONUS_KEYS)
-                self.assertIn(enemy["attack_style"], {"melee", "magic", "ranged"})
+                self.assertIn(
+                    enemy["attack_style"],
+                    {"melee", "magic", "ranged", "magic_melee"},
+                )
                 self.assertGreater(enemy["level"], 0)
                 if "max_hit" in enemy:
                     self.assertIsInstance(enemy["max_hit"], int)
@@ -216,6 +221,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         for target_id, file_title in (
             ("jackal", "Jackal.png"),
             ("icefiend", "Icefiend.png"),
+            ("pyrefiend", "Pyrefiend.png"),
             ("gelatinous_abomination", "Gelatinous abomination icon.png"),
             ("young_grotworm", "Young grotworm.png"),
             ("monkey", "Karamja monkey.png"),
@@ -250,6 +256,45 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertEqual(main["total"], 128)
         self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
         self.assertIn("oldid=6419875", icefiend["source"])
+
+    def test_pyrefiend_preserves_the_cutoff_ordinary_variant_and_drop_table(self):
+        pyrefiend = COMBAT_ENEMY_DATA["pyrefiend"]
+
+        self.assertEqual(pyrefiend["level"], 43)
+        self.assertEqual(pyrefiend["required_slayer_level"], 30)
+        self.assertEqual(pyrefiend["attack_style"], "magic_melee")
+        self.assertEqual(pyrefiend["slayer_xp"], 45.0)
+        self.assertEqual(pyrefiend["max_hit"], 44)
+        self.assertEqual(pyrefiend["stats"]["hitpoints"], 450)
+        self.assertEqual(pyrefiend["stats"]["attack"], 52)
+        self.assertEqual(pyrefiend["stats"]["strength"], 30)
+        self.assertEqual(pyrefiend["stats"]["defence"], 22)
+        self.assertEqual(
+            pyrefiend["drops"]["guaranteed"],
+            (("Impious ashes", 1),),
+        )
+        main = pyrefiend["drops"]["tables"][0]
+        self.assertEqual(main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
+        self.assertIn("oldid=6565806", pyrefiend["source"])
+
+    def test_pyrefiend_requires_the_source_slayer_level(self):
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                {"slayer_level": 29},
+                "pyrefiend",
+                COMBAT_ENEMY_DATA,
+            ),
+            ("Slayer level 30",),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                {"slayer_level": 30},
+                "pyrefiend",
+                COMBAT_ENEMY_DATA,
+            ),
+            (),
+        )
 
     def test_desert_lizard_preserves_the_period_finisher_variant(self):
         lizard = COMBAT_ENEMY_DATA["desert_lizard"]

@@ -163,6 +163,19 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertIsNotNone(definition.asset_path)
         self.assertTrue(os.path.exists(definition.asset_path))
 
+    def test_pyrefiend_steel_boots_are_real_equipment_with_an_asset(self):
+        definition = item_definitions_by_storage_key(ITEM_DEFINITIONS)["Steel boots"]
+
+        self.assertEqual(definition.source_item_id, 4123)
+        self.assertFalse(definition.stackable)
+        self.assertTrue(definition.tradeable)
+        self.assertEqual(definition.category, "equipment")
+        self.assertEqual(definition.equipment_slot, "feet")
+        self.assertEqual(definition.equipment_tier, 5)
+        self.assertEqual(definition.asset_path, COMBAT_ITEM_IMAGES["Steel boots"])
+        self.assertTrue(os.path.exists(definition.asset_path))
+        self.assertEqual(EQUIPMENT_DATA["Steel boots"].required_level, 5)
+
     def test_agility_consumable_dose_families_share_canonical_tradeability(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         expected_ids = {
@@ -965,6 +978,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Staff of water": "equipment",
             "Staff of earth": "equipment",
             "Staff of fire": "equipment",
+            "Steel boots": "equipment",
             "Steel spear": "equipment",
             "Super defence (1)": "material",
             "Super strength (1)": "material",

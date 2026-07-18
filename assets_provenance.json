@@ -1415,6 +1415,18 @@
     "source_wiki": "rs3",
     "timestamp": "2024-01-17T03:32:21Z"
   },
+  "combatenemies/pyrefiend.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Pyrefiend.png",
+    "file_title": "Pyrefiend.png",
+    "image_url": "https://runescape.wiki/images/archive/20130626093122%21Pyrefiend.png?d0a6f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ccb36969b078ed325da3fa3e0880890c78f6226a",
+    "size": 264182,
+    "source_wiki": "rs3",
+    "timestamp": "2011-12-11T01:47:45Z"
+  },
   "combatenemies/ram.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Ram.png",
     "file_title": "Ram.png",
@@ -2460,6 +2472,18 @@
     "size": 394,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:55Z"
+  },
+  "combatitems/steel_boots.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Steel_boots.png",
+    "file_title": "Steel boots.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Steel_boots.png?3203e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "80652b103da4c82f9f8d544d952ad992508c1f6e",
+    "size": 736,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:58Z"
   },
   "combatitems/steel_spear.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Steel_spear.png",

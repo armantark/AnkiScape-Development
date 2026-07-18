@@ -4,6 +4,29 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Pyrefiend Combat closure — 2026-07-18
+
+- Added the ordinary level-43 Pyrefiend as a Slayer-30 Combat target with 450
+  LP, 45 Slayer XP, a 44-LP maximum hit, guaranteed Impious ashes, the exact
+  128-slot ordinary drop table, and a pre-cutoff target image.
+- Implemented the source's distinct magic-based-melee contract: enemy Attack
+  plus stab bonus rolls against player Magic defence, while Protect from Melee
+  remains the relevant protection prayer. Casual max-safety and the Combat
+  picker expose the same semantics.
+- Registered Steel boots item 4123 as real Defence-5 feet equipment with exact
+  bonuses, source identity, asset provenance, reachability, and generated-data
+  coverage.
+- Advanced the executable Mazchna/Achtryn readiness ledger from 21/27 to 22/27
+  without exposing a partial master. Cyclopes, Kalphites, Mogres, Vampyres, and
+  Wall beasts remain the five exact Combat-target blockers.
+- Focused backend and real picker regressions pass. Full core discovery passes
+  all 1,565 methods with 213 declared environment skips; full real offscreen Qt
+  discovery passes all 1,565 methods without failures or skips.
+- Durable evidence:
+  `source-audits/slayer-pyrefiend-combat-2026-07-18.md`; the visual report is
+  `status-updates/slayer-pyrefiend-combat-results-2026-07-18.html`
+  (<https://0ga1wxb9wpb8.postplan.dev>). No owner design decision was required.
+
 ## Slayer Mazchna/Achtryn hidden-pool readiness — 2026-07-18
 
 - Split stable Slayer family identities from master-specific assignment rows,
@@ -13,10 +36,10 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
   remains source metadata rather than an exposed partial role.
 - Added an executable readiness audit over live Combat targets, Slayer XP, and
   required poison/protection/finisher mechanics. It certifies Turael/Spria at
-  23/23 and reports Mazchna/Achtryn at 21/27.
+  23/23 and reports Mazchna/Achtryn at 22/27.
 - Closed the stale Hobgoblin blocker with the pinned pre-EOC 29/49 Slayer XP.
   The only remaining Mazchna target blockers are Cyclopes, Kalphites, Mogres,
-  Pyrefiends, Vampyres, and Wall beasts.
+  Vampyres, and Wall beasts.
 - Added pure regression coverage for master-specific rows, hidden-master
   behavior, exact blocker derivation, and catalog-integrity failures. No owner
   design question emerged.

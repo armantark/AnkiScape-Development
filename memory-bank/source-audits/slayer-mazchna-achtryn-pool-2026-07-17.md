@@ -190,10 +190,10 @@ This audit does **not** authorize a partial live Mazchna/Achtryn role.
   is separate from master-specific weight/count rows, so Mazchna's 325-point
   denominator cannot overwrite Turael's values.
 - `tools/audit_slayer_readiness.py` derives blockers from the current Combat
-  registry instead of trusting this dated prose snapshot. It reports 21/27
+  registry instead of trusting this dated prose snapshot. It reports 22/27
   families ready and keeps the role runtime-disabled.
 - The exact remaining target blockers are Cyclopes, Kalphites, Mogres,
-  Pyrefiends, Vampyres, and Wall beasts. When Mogre and Wall-beast targets land,
+  Vampyres, and Wall beasts. When Mogre and Wall-beast targets land,
   the same audit will additionally require their lure and protective-equipment
   feature keys before certification.
 - Banshee and Cockatrice protection, Cave-crawler and Cave-slime poison,

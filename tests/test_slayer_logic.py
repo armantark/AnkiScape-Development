@@ -71,14 +71,13 @@ class SlayerAssignmentDataTest(unittest.TestCase):
         self.assertFalse(readiness["certified"])
         self.assertFalse(readiness["runtime_enabled"])
         self.assertEqual(readiness["family_count"], 27)
-        self.assertEqual(readiness["ready_family_count"], 21)
+        self.assertEqual(readiness["ready_family_count"], 22)
         self.assertEqual(
             set(readiness["blockers"]),
             {
                 "cyclopes:combat_target",
                 "kalphites:combat_target",
                 "mogres:combat_target",
-                "pyrefiends:combat_target",
                 "vampyres:combat_target",
                 "wall_beasts:combat_target",
             },

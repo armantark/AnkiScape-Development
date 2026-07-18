@@ -1425,6 +1425,13 @@ def combat_target_rows(
             continue
         display_name = str(enemy.get("display_name", target_id))
         level = int(enemy.get("level", 1) or 1)
+        attack_style = str(enemy.get("attack_style", "melee") or "melee")
+        attack_style_label = {
+            "melee": "Melee",
+            "ranged": "Ranged",
+            "magic": "Magic",
+            "magic_melee": "Magic-based melee",
+        }.get(attack_style, attack_style.replace("_", " ").title())
         stats_raw = enemy.get("stats", {})
         stats = stats_raw if isinstance(stats_raw, Mapping) else {}
         preview = combat_target_preview_pure(player_data, target_id, combat_enemy_data, equipment_data)
@@ -1495,6 +1502,7 @@ def combat_target_rows(
                 f"State: {preview.get('state', 'Ready')} · risk: {risk_band}\n"
                 f"{confirmation_line}"
                 f"{interaction_line}"
+                f"Enemy attack: {attack_style_label}\n"
                 f"Accuracy: {float(preview.get('accuracy', 0.0) or 0.0):.0%}\n"
                 f"Your max hit: {preview.get('player_max_hit', 0)} LP\n"
                 f"Your LP: {preview.get('player_lifepoints', 0)}/{preview.get('player_max_lifepoints', 0)}\n"

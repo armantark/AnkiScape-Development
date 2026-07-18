@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pyrefiend Combat closure</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #11120f;
+      --panel: #1b1d18;
+      --panel-2: #24271f;
+      --text: #f3f0e7;
+      --muted: #aaa99f;
+      --line: #383c31;
+      --ember: #ff7a33;
+      --gold: #f3c766;
+      --green: #7bd88f;
+      --blue: #73b7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(255, 122, 51, .16), transparent 30rem),
+        radial-gradient(circle at 95% 10%, rgba(243, 199, 102, .08), transparent 24rem),
+        var(--bg);
+      color: var(--text);
+      font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 52px 0 64px; }
+    .eyebrow {
+      display: inline-flex; gap: 8px; align-items: center;
+      color: var(--green); text-transform: uppercase; letter-spacing: .14em;
+      font-size: 12px; font-weight: 800;
+    }
+    .eyebrow::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 18px var(--green); }
+    h1 { max-width: 790px; margin: 15px 0 12px; font-size: clamp(38px, 7vw, 76px); line-height: .98; letter-spacing: -.055em; }
+    .lede { max-width: 760px; color: var(--muted); font-size: 18px; margin: 0 0 34px; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 28px 0 40px; }
+    .metric, .card {
+      border: 1px solid var(--line);
+      background: linear-gradient(145deg, rgba(255,255,255,.025), transparent), var(--panel);
+      border-radius: 16px;
+    }
+    .metric { padding: 18px; }
+    .metric strong { display: block; color: var(--gold); font-size: 30px; line-height: 1; margin-bottom: 8px; }
+    .metric span { color: var(--muted); font-size: 13px; }
+    .grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 16px; }
+    .card { padding: 24px; }
+    .card h2 { margin: 0 0 7px; font-size: 20px; }
+    .card > p { margin: 0 0 20px; color: var(--muted); }
+    .flow {
+      display: grid; grid-template-columns: 1fr 34px 1fr 34px 1fr;
+      align-items: stretch; gap: 8px; margin-top: 18px;
+    }
+    .node {
+      min-height: 116px; display: flex; flex-direction: column; justify-content: center;
+      padding: 15px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line);
+    }
+    .node b { color: var(--gold); font-size: 16px; }
+    .node span { color: var(--muted); font-size: 13px; margin-top: 4px; }
+    .arrow { display: grid; place-items: center; color: var(--ember); font-size: 24px; }
+    .prayer {
+      margin-top: 12px; padding: 12px 14px; border-radius: 10px;
+      background: rgba(115, 183, 255, .08); border: 1px solid rgba(115, 183, 255, .28);
+      color: #cfe5ff;
+    }
+    .checks { display: grid; gap: 10px; margin-top: 16px; }
+    .check { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; }
+    .check i { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: rgba(123,216,143,.12); color: var(--green); font-style: normal; font-size: 12px; }
+    .check b { display: block; font-size: 14px; }
+    .check span { color: var(--muted); font-size: 13px; }
+    .blockers { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { border: 1px solid var(--line); background: #20221c; color: #d6d3ca; border-radius: 999px; padding: 7px 11px; font-size: 13px; }
+    .footer { margin-top: 16px; padding: 20px 24px; display: flex; justify-content: space-between; gap: 20px; align-items: center; }
+    .footer strong { color: var(--green); }
+    .footer span { color: var(--muted); }
+    code { color: #ffd6bd; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    @media (max-width: 820px) {
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .grid { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); min-height: 24px; }
+      .footer { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">Verified closure · 18 July 2026</div>
+  <h1>Pyrefiend is no longer a paper Slayer task.</h1>
+  <p class="lede">The ordinary level-43 variant is playable end to end, its unusual combat style survives translation, and Steel boots are a real equipment drop rather than an unreachable name.</p>
+
+  <section class="metrics">
+    <div class="metric"><strong>22 / 27</strong><span>Mazchna families executable</span></div>
+    <div class="metric"><strong>128</strong><span>exact ordinary drop slots</span></div>
+    <div class="metric"><strong>1,565</strong><span>core methods passed</span></div>
+    <div class="metric"><strong>1,565</strong><span>real Qt methods passed</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h2>Magic-based melee stays magic-based melee</h2>
+      <p>This is not flattened into ordinary melee or ordinary Magic. The three relevant systems intentionally disagree in the same way as the source game.</p>
+      <div class="flow">
+        <div class="node"><b>Enemy accuracy</b><span>Attack level + stab attack bonus</span></div>
+        <div class="arrow">→</div>
+        <div class="node"><b>Player defence</b><span>Magic defence roll</span></div>
+        <div class="arrow">→</div>
+        <div class="node"><b>Protection prayer</b><span>Protect from Melee</span></div>
+      </div>
+      <div class="prayer">Protect from Magic does not protect against this attack. Casual max-safety chooses Protect from Melee, and the Combat tooltip says “Magic-based melee.”</div>
+    </article>
+
+    <article class="card">
+      <h2>Source boundary</h2>
+      <p>One ordinary representative closes the family without silently absorbing unrelated variants.</p>
+      <div class="checks">
+        <div class="check"><i>✓</i><div><b>Ordinary level 43</b><span>450 LP · Slayer 30 · 45 Slayer XP · max hit 44</span></div></div>
+        <div class="check"><i>✓</i><div><b>Exact drop behavior</b><span>Guaranteed Impious ashes plus the reconciled 128-slot table</span></div></div>
+        <div class="check"><i>✓</i><div><b>Variant exclusions</b><span>God Wars, Soul Wars, Daemonheim, Revenant, and familiar forms remain distinct</span></div></div>
+        <div class="check"><i>✓</i><div><b>Steel boots</b><span>Item 4123 · feet slot · Defence 5 · exact bonuses and sprite</span></div></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Verification ledger</h2>
+      <p>The first complete run caught one stale exact-size test after the equipment catalog correctly grew from 638 to 639. The oracle was repaired and both closure gates were rerun cleanly.</p>
+      <div class="checks">
+        <div class="check"><i>✓</i><div><b>Focused backend</b><span>285 Combat, Slayer, registry, and item tests</span></div></div>
+        <div class="check"><i>✓</i><div><b>Real picker seam</b><span>Rendered icon, 44-LP hit, Steel-boots drop, and attack-style tooltip</span></div></div>
+        <div class="check"><i>✓</i><div><b>Complete core</b><span>1,565 passed; 213 declared environment skips</span></div></div>
+        <div class="check"><i>✓</i><div><b>Complete offscreen Qt</b><span>1,565 passed; no failures and no skips</span></div></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>What remains for Mazchna</h2>
+      <p>The master stays hidden. Five Combat families still need ordinary executable representatives and any distinctive mechanics required by the readiness audit.</p>
+      <div class="blockers">
+        <span class="chip">Cyclopes</span>
+        <span class="chip">Kalphites</span>
+        <span class="chip">Mogres</span>
+        <span class="chip">Vampyres</span>
+        <span class="chip">Wall beasts</span>
+      </div>
+    </article>
+  </section>
+
+  <section class="card footer">
+    <div><strong>No owner decision waiting.</strong><br><span>This slice was fully determined by period evidence and existing Combat conventions.</span></div>
+    <code>slayer-pyrefiend-combat-2026-07-18.md</code>
+  </section>
+</main>
+</body>
+</html>
