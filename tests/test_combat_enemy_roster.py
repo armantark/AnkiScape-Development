@@ -26,6 +26,7 @@ NEW_COMBAT_ENEMIES = (
     "pyrefiend",
     "kalphite_soldier",
     "wall_beast",
+    "vampyre",
     "gelatinous_abomination",
     "young_grotworm",
     "monkey",
@@ -79,6 +80,8 @@ OPTIONAL_ENEMY_KEYS = {
     "xp_multiplier",
     "protective_equipment",
     "start_equipment",
+    "weakening_equipment",
+    "bite",
     "finisher",
     "required_slayer_level",
     "environmental_hazard",
@@ -171,6 +174,35 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                     self.assertTrue(requirement["items"])
                     self.assertTrue(requirement["warning"])
                     self.assertTrue(requirement["source_status"])
+                if "weakening_equipment" in enemy:
+                    weakness = enemy["weakening_equipment"]
+                    self.assertEqual(
+                        set(weakness),
+                        {
+                            "slot",
+                            "items",
+                            "display_name",
+                            "enemy_accuracy_multiplier",
+                            "enemy_damage_multiplier",
+                            "source_status",
+                        },
+                    )
+                    self.assertIn(weakness["slot"], {"head", "shield", "neck"})
+                    self.assertTrue(weakness["items"])
+                    self.assertGreater(weakness["enemy_accuracy_multiplier"], 0.0)
+                    self.assertLess(weakness["enemy_accuracy_multiplier"], 1.0)
+                    self.assertGreater(weakness["enemy_damage_multiplier"], 0.0)
+                    self.assertLess(weakness["enemy_damage_multiplier"], 1.0)
+                    self.assertTrue(weakness["source_status"])
+                if "bite" in enemy:
+                    bite = enemy["bite"]
+                    self.assertGreater(bite["chance_numerator"], 0)
+                    self.assertGreaterEqual(
+                        bite["chance_denominator"], bite["chance_numerator"]
+                    )
+                    self.assertGreater(bite["max_heal"], 0)
+                    self.assertTrue(bite["stat_drain_skills"])
+                    self.assertTrue(bite["source_status"])
                 if "finisher" in enemy:
                     finisher = enemy["finisher"]
                     required_finisher_keys = {
@@ -240,6 +272,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("pyrefiend", "Pyrefiend.png"),
             ("kalphite_soldier", "Kalphite Soldier.png"),
             ("wall_beast", "Wall beast icon.png"),
+            ("vampyre", "Vampire (historical) (level 61).png"),
             ("gelatinous_abomination", "Gelatinous abomination icon.png"),
             ("young_grotworm", "Young grotworm.png"),
             ("monkey", "Karamja monkey.png"),
@@ -381,6 +414,38 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertEqual(main["total"], 100000)
         self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 100000)
         self.assertIn("oldid=6079584", wall_beast["source"])
+
+    def test_vampyre_preserves_the_cutoff_variant_and_lossless_drop_table(self):
+        vampyre = COMBAT_ENEMY_DATA["vampyre"]
+
+        self.assertEqual(vampyre["level"], 61)
+        self.assertEqual(vampyre["attack_style"], "melee")
+        self.assertEqual(vampyre["attack_speed"], 6)
+        self.assertEqual(vampyre["respawn_delay"], 59)
+        self.assertEqual(vampyre["slayer_xp"], 40.0)
+        self.assertEqual(vampyre["max_hit"], 74)
+        self.assertEqual(vampyre["quest_gate"], "priest_in_peril")
+        self.assertEqual(
+            vampyre["stats"],
+            {
+                "hitpoints": 400,
+                "attack": 55,
+                "strength": 60,
+                "defence": 55,
+                "magic": 0,
+                "ranged": 0,
+            },
+        )
+        self.assertEqual(vampyre["drops"]["guaranteed"], (("Vampyre dust", 1),))
+        main = vampyre["drops"]["tables"][0]
+        self.assertEqual(main["total"], 100000)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 100000)
+        self.assertEqual(main["slots"][-1], {"slots": 167})
+        self.assertEqual(
+            vampyre["weakening_equipment"]["items"], ("Holy symbol",)
+        )
+        self.assertEqual(vampyre["bite"]["chance_denominator"], 8)
+        self.assertIn("oldid=6545273", vampyre["source"])
 
     def test_desert_lizard_preserves_the_period_finisher_variant(self):
         lizard = COMBAT_ENEMY_DATA["desert_lizard"]

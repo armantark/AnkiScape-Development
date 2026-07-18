@@ -7458,6 +7458,164 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "empty slots; navigation-only unhelmeted grab excluded"
         ),
     },
+    "vampyre": {
+        "display_name": "Vampyre",
+        "level": 61,
+        "group": "Slayer",
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 74,
+        "slayer_xp": 40.0,
+        "quest_gate": "priest_in_peril",
+        "quest_gate_label": "Complete Priest in Peril",
+        "stats": {
+            "hitpoints": 400,
+            "attack": 55,
+            "strength": 60,
+            "defence": 55,
+            "magic": 0,
+            "ranged": 0,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "weakening_equipment": {
+            "slot": "neck",
+            "items": ("Holy symbol",),
+            "display_name": "Holy symbol",
+            "enemy_accuracy_multiplier": 0.8,
+            "enemy_damage_multiplier": 0.8,
+            "source_status": (
+                "period-authentic Holy symbol weakness; 20% enemy accuracy and "
+                "maximum-hit reduction is a bounded abstraction"
+            ),
+        },
+        "bite": {
+            "chance_numerator": 1,
+            "chance_denominator": 8,
+            "max_heal": 20,
+            "stat_drain_amount": 1,
+            "stat_drain_floor": 1,
+            "stat_drain_skills": (
+                "attack",
+                "strength",
+                "defense",
+                "ranged",
+                "prayer",
+                "magic",
+                "runecrafting",
+                "construction",
+                "constitution",
+                "agility",
+                "herblore",
+                "thieving",
+                "crafting",
+                "fletching",
+                "slayer",
+                "hunter",
+                "mining",
+                "smithing",
+                "fishing",
+                "cooking",
+                "firemaking",
+                "woodcutting",
+                "farming",
+                "summoning",
+            ),
+            "source_status": (
+                "period-authentic occasional bite that drains a combat or "
+                "non-combat stat and heals the Vampyre; 1/8 landed-hit chance, "
+                "20 LP healing cap, and one-level random drain are bounded "
+                "abstractions"
+            ),
+        },
+        "drops": {
+            "guaranteed": (("Vampyre dust", 1),),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 100000,
+                    "slots": (
+                        {"item": "Grimy marrentill", "quantity": 1, "slots": 20988},
+                        {"item": "Death rune", "quantity": 2, "slots": 20988},
+                        {"item": "Chaos rune", "quantity": 3, "slots": 20988},
+                        {"item": "Coins", "quantity": 15, "slots": 20988},
+                        {"item": "Grimy guam", "quantity": 1, "slots": 699},
+                        {"item": "Grimy tarromin", "quantity": 1, "slots": 699},
+                        {"item": "Grimy harralander", "quantity": 1, "slots": 699},
+                        {"item": "Grimy ranarr", "quantity": 1, "slots": 699},
+                        {"item": "Earth rune", "quantity": 4, "slots": 699},
+                        {"item": "Blood rune", "quantity_range": (1, 2), "slots": 699},
+                        {"item": "Black hatchet", "quantity": 1, "slots": 699},
+                        {"item": "Limpwurt seed", "quantity": 1, "slots": 699},
+                        {"item": "Jangerberry seed", "quantity": 1, "slots": 699},
+                        {"item": "Whiteberry seed", "quantity": 1, "slots": 699},
+                        {"item": "Poison ivy seed", "quantity": 1, "slots": 699},
+                        {"item": "Belladonna seed", "quantity": 1, "slots": 699},
+                        {
+                            "item": "Bittercap mushroom spore",
+                            "quantity_range": (1, 2),
+                            "slots": 699,
+                        },
+                        {"item": "Marrentill seed", "quantity": 1, "slots": 699},
+                        {"item": "Tarromin seed", "quantity": 1, "slots": 699},
+                        {"item": "Harralander seed", "quantity": 1, "slots": 699},
+                        {"item": "Toadflax seed", "quantity": 1, "slots": 699},
+                        {"item": "Irit seed", "quantity": 1, "slots": 699},
+                        {"item": "Wildblood seed", "quantity": 1, "slots": 699},
+                        {"item": "Strawberry seed", "quantity": 1, "slots": 699},
+                        {"item": "Grimy irit", "quantity": 1, "slots": 143},
+                        {"item": "Grimy avantoe", "quantity": 1, "slots": 143},
+                        {"item": "Grimy kwuarm", "quantity": 1, "slots": 143},
+                        {"item": "Grimy cadantine", "quantity": 1, "slots": 143},
+                        {"item": "Earth talisman", "quantity": 1, "slots": 143},
+                        {"item": "Cactus seed", "quantity": 1, "slots": 143},
+                        {"item": "Avantoe seed", "quantity": 1, "slots": 143},
+                        {"item": "Kwuarm seed", "quantity": 1, "slots": 143},
+                        {"item": "Dwarf weed seed", "quantity": 1, "slots": 143},
+                        {"item": "Watermelon seed", "quantity": 1, "slots": 143},
+                        {"item": "Spirit weed seed", "quantity": 1, "slots": 143},
+                        {
+                            "item": "Morchella mushroom spore",
+                            "quantity": 2,
+                            "slots": 143,
+                        },
+                        {"item": "Grimy dwarf weed", "quantity": 1, "slots": 37},
+                        {"item": "Grimy lantadyme", "quantity": 1, "slots": 37},
+                        {"item": "Ranarr seed", "quantity": 1, "slots": 37},
+                        {"item": "Cadantine seed", "quantity": 1, "slots": 37},
+                        {"item": "Lantadyme seed", "quantity": 1, "slots": 37},
+                        {"slots": 167},
+                    ),
+                },
+            ),
+        },
+        "source": (
+            "https://runescape.wiki/w/Feral_vampyre?oldid=6545273; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/vampyre/"
+            "vampyre_(61).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/vampyre.json"
+        ),
+        "source_status": (
+            "period ordinary level-61 Feral vampyre identity, LP, maximum hit, "
+            "Slayer XP, attack speed, all-weapon vulnerability, Holy symbol "
+            "weakness, occasional bite, and guaranteed Vampyre dust; Darkan "
+            "exact stats and respawn; Darkan probability rows normalized "
+            "losslessly to 100000 mutually exclusive slots with 167 empty "
+            "slots; level-72/77, Juvinate, and Vyrewatch variants excluded"
+        ),
+    },
     "gelatinous_abomination": {
         "display_name": "Gelatinous abomination",
         "level": 2,

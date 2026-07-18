@@ -219,8 +219,11 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
 - Mazchna/Achtryn is now the second completely encoded pool. Stable family
   identities are separate from its 27 master-specific roll rows and provisional
   325-point denominator. `tools/audit_slayer_readiness.py` derives the live
-  readiness ledger: 24/27 families are ready, while Cyclopes, Mogres, and
-  Vampyres remain exact Combat-target blockers. Wall beasts are closed through
+  readiness ledger: 25/27 families are ready, while Cyclopes and Mogres remain
+  exact Combat/activity/quest blockers. Vampyres are closed through the
+  ordinary level-61 Feral vampyre with its Priest in Peril gate, guaranteed
+  Vampyre dust, Holy-symbol weakness, bite effect, and losslessly normalized
+  100,000-slot table. Wall beasts are closed through
   the ordinary level-49 representative with a start-only Spiny-helmet gate and
   a reconciled 100,000-slot table. Kalphites are closed
   through the ordinary level-85 Soldier with its period poison risk and exact
@@ -236,6 +239,12 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   cutoff Mogre miniquest with completion ID `skippy_and_the_mogres`; do not
   advance readiness with a permanently locked partial target. See
   `source-audits/slayer-mogre-combat-2026-07-18.md`.
+- Cyclopes are not an atomic standalone target. Their honest executable
+  boundary is the Warriors' Guild activity, including entry requirements, the
+  five token sources, animator armour loop, top-floor token drain, Cyclops
+  combat, and progressive defender drops. Keep the family blocked until that
+  activity slice is source-harvested and executable; do not add a context-free
+  Cyclops row merely to certify the master.
 - Park Social Slayer unless genuine shared-player state ever exists; do not ship
   a simulated partner or solo co-op multiplier. Preserve all seven period Slayer
   master challenges in the design and source their compound objective ledgers.

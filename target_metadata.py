@@ -1469,6 +1469,43 @@ def combat_target_rows(
                 poison_line = f"Poison: {poison_damage} LP initial · {poison_chance:.0%} attack chance\n"
             protection_warning = str(preview.get("protection_warning", "") or "")
             protection_line = f"Protection: {protection_warning}\n" if protection_warning else ""
+            weakening = preview.get("weakening_equipment", {}) or {}
+            weakening_line = ""
+            if isinstance(weakening, Mapping) and weakening:
+                accuracy_reduction = max(
+                    0,
+                    round(
+                        (
+                            1.0
+                            - float(
+                                weakening.get(
+                                    "enemy_accuracy_multiplier", 1.0
+                                )
+                            )
+                        )
+                        * 100
+                    ),
+                )
+                damage_reduction = max(
+                    0,
+                    round(
+                        (
+                            1.0
+                            - float(
+                                weakening.get(
+                                    "enemy_damage_multiplier", 1.0
+                                )
+                            )
+                        )
+                        * 100
+                    ),
+                )
+                weakening_line = (
+                    f"Weakness: {weakening.get('display_name', 'special equipment')} "
+                    f"{'equipped' if weakening.get('active') else 'not equipped'} · "
+                    f"enemy accuracy -{accuracy_reduction}% · "
+                    f"max hit -{damage_reduction}%\n"
+                )
             finisher = preview.get("finisher", {}) or {}
             finisher_line = ""
             if isinstance(finisher, Mapping) and finisher.get("required"):
@@ -1509,6 +1546,7 @@ def combat_target_rows(
                 f"Enemy LP: {preview.get('enemy_lifepoints', 0)}/{preview.get('enemy_max_lifepoints', stats.get('hitpoints', 0))}\n"
                 f"Enemy max hit: {preview.get('enemy_max_hit', 0)} LP\n"
                 f"{protection_line}"
+                f"{weakening_line}"
                 f"{finisher_line}"
                 f"{hazard_line}"
                 f"{poison_line}"

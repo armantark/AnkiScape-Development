@@ -960,6 +960,50 @@ class TestRuntimeActions(unittest.TestCase):
             ["Gargoyle: 0 damage dealt, 220 LP left, 120 LP regenerated"],
         )
 
+    def test_combat_handler_reports_vampyre_bite_healing(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "equipment": {},
+            "current_combat_target": "vampyre",
+            "combat_lifepoints": 100,
+            "combat_auto_eat_food": ["Shrimps"],
+            "attack_level": 1,
+            "strength_level": 1,
+            "defense_level": 1,
+            "constitution_level": 10,
+            "slayer_level": 99,
+            "quests": {"priest_in_peril": {"completed": True}},
+            "completed_achievements": [],
+        }
+        result = {
+            "target_id": "vampyre",
+            "display_name": "Vampyre",
+            "kills": 0,
+            "died": False,
+            "fled": False,
+            "player_damage": 0,
+            "enemy_lifepoints": 320,
+            "enemy_healing": 20,
+            "vampyre_bites": 1,
+            "vampyre_bite_healing": 20,
+            "drops": {},
+            "xp_rewards": {},
+        }
+
+        with patch.object(
+            runtime_actions,
+            "apply_combat_burst_pure",
+            return_value=(dict(player_data), True, result),
+        ):
+            ok = handle_combat_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(
+            calls["activity"],
+            ["Vampyre: 0 damage dealt, 320 LP left, 20 LP healed by 1 bite"],
+        )
+
     def test_fatal_combat_burst_graves_loot_earned_before_death(self):
         enemy = {
             "display_name": "Fatal looter",

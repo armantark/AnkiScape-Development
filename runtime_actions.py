@@ -1650,9 +1650,16 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_activity_gain(f"Defeated {kill_phrase}{slayer_suffix}")
     else:
         enemy_healing = int(result.get("enemy_healing", 0) or 0)
-        healing_phrase = (
-            f", {enemy_healing} LP regenerated" if enemy_healing > 0 else ""
-        )
+        vampyre_bites = int(result.get("vampyre_bites", 0) or 0)
+        if vampyre_bites > 0:
+            healing_phrase = (
+                f", {enemy_healing} LP healed by "
+                f"{vampyre_bites} bite{'s' if vampyre_bites != 1 else ''}"
+            )
+        else:
+            healing_phrase = (
+                f", {enemy_healing} LP regenerated" if enemy_healing > 0 else ""
+            )
         ctx.show_activity_gain(
             f"{display_name}: {int(result.get('player_damage', 0) or 0)} damage dealt, "
             f"{int(result.get('enemy_lifepoints', 0) or 0)} LP left"

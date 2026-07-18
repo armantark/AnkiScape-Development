@@ -1014,3 +1014,33 @@ would falsely advance readiness, so the quest-owned chain is handed to the
 Darkan quest thread and no runtime row ships yet. No owner design gap emerged.
 Durable evidence is
 `source-audits/slayer-mogre-combat-2026-07-18.md`.
+
+## Slayer Feral vampyre Combat slice (2026-07-18)
+
+The ordinary level-61 Feral vampyre is now an executable Mazchna/Vannaka-family
+Combat target. Priest in Peril gates Morytania access. The target carries the
+cutoff 400 LP, 40 Slayer XP, six-tick melee, 74-LP maximum hit, guaranteed
+Vampyre dust, all-weapon vulnerability, poison susceptibility, and assignment
+identity; Darkan contributes exact combat stats, a 59-tick respawn, and 41
+ordinary probability rows.
+
+The Darkan rows are normalized losslessly to 100,000 mutually exclusive slots
+with 167 empty slots, and every output reuses a canonical item identity. The
+pre-cutoff level-61 sprite is installed from the historical file revision with
+provenance.
+
+Two period-authentic but numerically incomplete effects use explicit bounded
+abstractions. A worn Holy symbol reduces enemy accuracy and maximum hit by 20%,
+visible in Combat preview. A landed damaging attack has a 1/8 bite chance,
+heals up to 20 LP without exceeding damage dealt, and drains one random
+implemented skill by one current level. Runtime messaging distinguishes bite
+healing from passive regeneration.
+
+Mazchna/Achtryn readiness is now 25/27. Mogres remain dependency-blocked by the
+quest-owned Skippy miniquest; Cyclopes remain dependency-blocked by the complete
+Warriors' Guild token/defender activity. No owner design gap emerged. Durable
+evidence is
+`source-audits/slayer-feral-vampyre-combat-2026-07-18.md`.
+The visual closure report is
+`status-updates/slayer-feral-vampyre-results-2026-07-18.html`
+(<https://v0w3h4u00jo4.postplan.dev>).

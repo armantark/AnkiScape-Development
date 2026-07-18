@@ -3664,6 +3664,19 @@ def _combat_protective_equipment_state(player_data, enemy):
     return protection, equipped_item in required_items
 
 
+def _combat_weakening_equipment_state(player_data, enemy):
+    weakness = enemy.get("weakening_equipment") if isinstance(enemy, Mapping) else None
+    if not isinstance(weakness, Mapping):
+        return None, False
+    equipment = player_data.get("equipment", {}) or {}
+    if not isinstance(equipment, Mapping):
+        equipment = {}
+    slot = weakness.get("slot")
+    weakening_items = weakness.get("items", ()) or ()
+    equipped_item = equipment.get(slot) if isinstance(slot, str) else None
+    return weakness, equipped_item in weakening_items
+
+
 def _combat_start_equipment_state(player_data, enemy):
     requirement = (
         enemy.get("start_equipment") if isinstance(enemy, Mapping) else None
@@ -6167,6 +6180,14 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         _equipment_bonus_value(enemy_totals, "melee_strength"),
         enemy_totals,
     )
+    weakening_equipment, weakening_active = _combat_weakening_equipment_state(
+        player_data, enemy
+    )
+    if weakening_active:
+        enemy_max_hit *= max(
+            0.0,
+            float(weakening_equipment.get("enemy_damage_multiplier", 1.0)),
+        )
     protective_equipment, protection_active = _combat_protective_equipment_state(player_data, enemy)
     unprotected_effect = (
         protective_equipment.get("unprotected_effect")
@@ -6253,6 +6274,20 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         "poison_chance": COMBAT_POISON_NPC_ATTACK_CHANCE if poison_damage > 0 and poison_immunity_ticks <= 0 else 0.0,
         "poison_immunity_ticks": poison_immunity_ticks,
         "protection_warning": protection_warning,
+        "weakening_equipment": {
+            "display_name": str(
+                weakening_equipment.get("display_name", "Weakening equipment")
+            ),
+            "active": weakening_active,
+            "enemy_accuracy_multiplier": float(
+                weakening_equipment.get("enemy_accuracy_multiplier", 1.0)
+            ),
+            "enemy_damage_multiplier": float(
+                weakening_equipment.get("enemy_damage_multiplier", 1.0)
+            ),
+        }
+        if isinstance(weakening_equipment, Mapping)
+        else {},
         "finisher": finisher_state,
         "environmental_hazard": hazard_state,
         "source": enemy.get("source", ""),
@@ -6754,6 +6789,14 @@ def apply_combat_burst_pure(
     enemy_attack_roll = (
         _positive_int(enemy.get("stats", {}).get(enemy_attack_stat, 1), 1) + 8
     ) * enemy_attack_factor * (enemy_attack_bonus + 64)
+    weakening_equipment, weakening_active = _combat_weakening_equipment_state(
+        data, enemy
+    )
+    if weakening_active:
+        enemy_attack_roll *= max(
+            0.0,
+            float(weakening_equipment.get("enemy_accuracy_multiplier", 1.0)),
+        )
     player_defence_roll = _combat_effective_player_defence_level(data, style_id) * float(prayer_effects.get("defence", 1.0)) * (
         _combat_defence_bonus_from_totals(player_totals, enemy_class) + 64
     )
@@ -6764,6 +6807,11 @@ def apply_combat_burst_pure(
         _equipment_bonus_value(enemy_totals, "melee_strength"),
         enemy_totals,
     )
+    if weakening_active:
+        enemy_max_hit *= max(
+            0.0,
+            float(weakening_equipment.get("enemy_damage_multiplier", 1.0)),
+        )
     protective_equipment, protection_active = _combat_protective_equipment_state(data, enemy)
     start_equipment, start_equipment_active = _combat_start_equipment_state(
         data, enemy
@@ -6830,6 +6878,9 @@ def apply_combat_burst_pure(
     stat_drains = {}
     automatic_finishers = 0
     enemy_healing = 0
+    vampyre_bites = 0
+    vampyre_bite_healing = 0
+    bite_spec = enemy.get("bite") if isinstance(enemy.get("bite"), Mapping) else None
     xp_rewards = {"magic_exp": supplemental_magic_xp} if supplemental_magic_xp > 0 else {}
     drops = {}
     kills = 0
@@ -7216,6 +7267,75 @@ def apply_combat_burst_pure(
                 if reflected > 0:
                     enemy_lp -= reflected
                     player_damage += reflected
+                if isinstance(bite_spec, Mapping) and enemy_lp > 0:
+                    bite_numerator = _positive_int(
+                        bite_spec.get("chance_numerator", 1), 1
+                    )
+                    bite_denominator = _positive_int(
+                        bite_spec.get("chance_denominator", 1), 1
+                    )
+                    try:
+                        bite_triggered = (
+                            float(rng()) < bite_numerator / bite_denominator
+                        )
+                    except (TypeError, ValueError):
+                        bite_triggered = False
+                    if bite_triggered:
+                        vampyre_bites += 1
+                        bite_skills = tuple(
+                            skill_id
+                            for skill_id in (
+                                bite_spec.get("stat_drain_skills", ()) or ()
+                            )
+                            if isinstance(skill_id, str)
+                        )
+                        if bite_skills:
+                            try:
+                                skill_roll = max(
+                                    0.0, min(float(rng()), 0.999999999999)
+                                )
+                            except (TypeError, ValueError):
+                                skill_roll = 0.0
+                            drained_skill = bite_skills[
+                                int(skill_roll * len(bite_skills))
+                            ]
+                            bite_drains = _combat_apply_unprotected_stat_drains(
+                                data,
+                                {
+                                    "stat_drain": {
+                                        "kind": "flat_to_floor",
+                                        "amount": _positive_int(
+                                            bite_spec.get(
+                                                "stat_drain_amount", 1
+                                            ),
+                                            1,
+                                        ),
+                                        "floor": _positive_int(
+                                            bite_spec.get(
+                                                "stat_drain_floor", 1
+                                            ),
+                                            1,
+                                        ),
+                                        "skills": (drained_skill,),
+                                    },
+                                },
+                            )
+                            for skill_id, amount in bite_drains.items():
+                                stat_drains[skill_id] = (
+                                    _non_negative_int(
+                                        stat_drains.get(skill_id, 0), 0
+                                    )
+                                    + amount
+                                )
+                        bite_healing = min(
+                            max(0, damage),
+                            _positive_int(bite_spec.get("max_heal", 1), 1),
+                            max(0, enemy_max_lp - enemy_lp),
+                        )
+                        if bite_healing > 0:
+                            enemy_lp += bite_healing
+                            enemy_healing += bite_healing
+                            vampyre_bite_healing += bite_healing
             if (
                 0 < player_lp < max_player_lp * .10
                 and tick_prayer_uptime > 0
@@ -7392,6 +7512,8 @@ def apply_combat_burst_pure(
         "player_damage": player_damage,
         "enemy_damage": enemy_damage,
         "enemy_healing": enemy_healing,
+        "vampyre_bites": vampyre_bites,
+        "vampyre_bite_healing": vampyre_bite_healing,
         "enemy_retaliation_stopped": retaliation_stopped,
         "enemy_lifepoints": enemy_lp,
         "player_lifepoints": player_lp,

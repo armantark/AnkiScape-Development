@@ -74,6 +74,7 @@ TITLE_OVERRIDES = {
     "goblin_level_2_armed": ("Goblin.png",),
     "hobgoblin_unarmed": ("Hobgoblin.png",),
     "hobgoblin_armed": ("Hobgoblin.png",),
+    "vampyre": ("Vampire (historical) (level 61).png",),
 }
 
 

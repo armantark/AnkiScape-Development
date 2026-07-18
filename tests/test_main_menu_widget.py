@@ -2221,6 +2221,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_combat_target"] = "seagull"
         pd["slayer_level"] = 35
+        pd["quests"]["priest_in_peril"] = {
+            "started": True,
+            "progress": 9,
+            "completed": True,
+        }
         dialog = self._open(pd, current_skill="Combat")
 
         tree = _find_tree_with_user_role(dialog, "seagull")
@@ -2239,6 +2244,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pyrefiend = _tree_row(tree, "pyrefiend")
         kalphite_soldier = _tree_row(tree, "kalphite_soldier")
         wall_beast = _tree_row(tree, "wall_beast")
+        vampyre = _tree_row(tree, "vampyre")
         banshee = _tree_row(tree, "banshee")
         seagull = _tree_row(tree, "seagull")
 
@@ -2293,6 +2299,13 @@ class MainMenuWidgetTest(unittest.TestCase):
             wall_beast.toolTip(0),
         )
         self.assertFalse(wall_beast.icon(0).isNull())
+        self.assertEqual(vampyre.text(0), "Vampyre (Lvl 61)")
+        self.assertIn("Vampyre dust x1", vampyre.toolTip(0))
+        self.assertIn(
+            "Weakness: Holy symbol not equipped · enemy accuracy -20% · max hit -20%",
+            vampyre.toolTip(0),
+        )
+        self.assertFalse(vampyre.icon(0).isNull())
         self.assertEqual(banshee.text(0), "Banshee (Lvl 23)")
         self.assertIn("Missing Earmuffs", banshee.toolTip(0))
         self.assertIn("Enemy max hit: 10 LP", banshee.toolTip(0))

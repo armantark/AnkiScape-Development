@@ -5301,6 +5301,80 @@ class CombatLogicTest(unittest.TestCase):
                 self.assertEqual(protected["protection_warning"], "")
                 self.assertLess(protected["enemy_max_hit"], unprotected["enemy_max_hit"])
 
+    def test_vampyre_requires_morytania_access_and_holy_symbol_weakens_it(self):
+        locked = _player(current_combat_target="vampyre")
+        unlocked = _player(
+            current_combat_target="vampyre",
+            quests={"priest_in_peril": {"completed": True}},
+        )
+        protected = _player(
+            current_combat_target="vampyre",
+            equipment={"neck": "Holy symbol"},
+            quests={"priest_in_peril": {"completed": True}},
+        )
+
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                locked, "vampyre", COMBAT_ENEMY_DATA
+            ),
+            ("Complete Priest in Peril",),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                unlocked, "vampyre", COMBAT_ENEMY_DATA
+            ),
+            (),
+        )
+        ordinary_preview = combat_target_preview_pure(
+            unlocked, "vampyre", COMBAT_ENEMY_DATA, EQUIPMENT_DATA
+        )
+        protected_preview = combat_target_preview_pure(
+            protected, "vampyre", COMBAT_ENEMY_DATA, EQUIPMENT_DATA
+        )
+        self.assertEqual(ordinary_preview["enemy_max_hit"], 74)
+        self.assertEqual(protected_preview["enemy_max_hit"], 59)
+        self.assertFalse(
+            ordinary_preview["weakening_equipment"]["active"]
+        )
+        self.assertTrue(
+            protected_preview["weakening_equipment"]["active"]
+        )
+
+    def test_vampyre_bite_heals_and_drains_one_random_implemented_skill(self):
+        player = _player(
+            current_combat_target="vampyre",
+            attack_level=10,
+            defense_level=1,
+            constitution_level=99,
+            combat_lifepoints=990,
+            combat_auto_flee=False,
+            quests={"priest_in_peril": {"completed": True}},
+            combat_encounter={
+                "target_id": "vampyre",
+                "enemy_lifepoints": 300,
+                "enemy_attack_ticks_remaining": 0,
+                "player_attack_ticks_remaining": 99,
+            },
+        )
+
+        out, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng((0.0, 0.999999, 0.0, 0.0)),
+            live_cadence=True,
+        )
+
+        self.assertTrue(ok, result)
+        self.assertEqual(result["enemy_damage"], 73)
+        self.assertEqual(result["vampyre_bites"], 1)
+        self.assertEqual(result["vampyre_bite_healing"], 20)
+        self.assertEqual(result["enemy_healing"], 20)
+        self.assertEqual(result["enemy_lifepoints"], 320)
+        self.assertEqual(result["stat_drains"], {"attack": 1})
+        self.assertEqual(out["combat_current_levels"], {"attack": 9})
+
     def test_wall_beast_requires_spiny_helmet_only_when_starting_a_fight(self):
         missing = _player(
             current_combat_target="wall_beast",

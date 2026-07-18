@@ -1197,3 +1197,31 @@ Test counts are snapshots; current runs outrank this note.
   context restriction without inventing routes or weights.
 - No owner design decision was required. Durable evidence:
   `source-audits/slayer-mogre-combat-2026-07-18.md`.
+
+## Feral vampyre playable Slayer target — 2026-07-18
+
+- Added the ordinary level-61 Feral vampyre with cutoff combat identity,
+  Priest in Peril access, 40 Slayer XP, 74-LP maximum hit, Darkan
+  stats/respawn, a guaranteed Vampyre dust drop, and a losslessly reconciled
+  100,000-slot table.
+- Added data-declared weakening-equipment behavior. Wearing the existing
+  ordinary Holy symbol reduces the Vampyre's enemy accuracy and maximum hit by
+  20% in both preview and live Combat.
+- Added the source-described occasional bite using a labeled bounded
+  abstraction: 1/8 of landed damaging attacks, at most 20 LP healed, and one
+  random implemented skill drained by one current level.
+- Installed the pre-cutoff level-61 historical sprite with provenance and
+  exposed the weakness and bite outcome on the existing Combat UI/runtime
+  surfaces.
+- Mazchna/Achtryn now derives at 25/27 ready families. Mogres wait on the
+  Darkan-owned Skippy miniquest; Cyclopes wait on the full Warriors' Guild
+  activity rather than a context-free Combat row.
+- Focused pure coverage passes 332 methods and the focused real offscreen Qt
+  picker surface passes. Complete core discovery passes all 1,574 methods with
+  213 declared environment skips; complete real offscreen Qt discovery passes
+  all 1,574 methods without failures or skips.
+- Durable evidence:
+  `source-audits/slayer-feral-vampyre-combat-2026-07-18.md`.
+- Published
+  `status-updates/slayer-feral-vampyre-results-2026-07-18.html`
+  (<https://v0w3h4u00jo4.postplan.dev>).
