@@ -3567,20 +3567,31 @@ def _combat_unprotected_damage_lifepoints(effect, max_lifepoints):
 
 def _combat_apply_unprotected_stat_drains(data, effect):
     drain = effect.get("stat_drain") if isinstance(effect, Mapping) else None
-    if not isinstance(drain, Mapping) or drain.get("kind") != "base_fraction_to_floor":
+    if not isinstance(drain, Mapping):
         return {}
-    numerator = _positive_int(drain.get("numerator", 1), 1)
-    denominator = _positive_int(drain.get("denominator", 1), 1)
-    floor_numerator = _positive_int(drain.get("floor_numerator", 1), 1)
-    floor_denominator = _positive_int(drain.get("floor_denominator", 1), 1)
+    kind = drain.get("kind")
+    if kind not in ("base_fraction_to_floor", "flat_to_floor"):
+        return {}
+    if kind == "base_fraction_to_floor":
+        numerator = _positive_int(drain.get("numerator", 1), 1)
+        denominator = _positive_int(drain.get("denominator", 1), 1)
+        floor_numerator = _positive_int(drain.get("floor_numerator", 1), 1)
+        floor_denominator = _positive_int(drain.get("floor_denominator", 1), 1)
+    else:
+        flat_amount = _positive_int(drain.get("amount", 1), 1)
+        flat_floor = _positive_int(drain.get("floor", 1), 1)
     applied = {}
     for skill_id in drain.get("skills", ()) or ():
         if not isinstance(skill_id, str):
             continue
         base = _combat_base_skill_level(data, skill_id, 1)
         current = _combat_effective_skill_level(data, skill_id, base)
-        floor_level = max(1, base * floor_numerator // floor_denominator)
-        amount = max(1, base * numerator // denominator)
+        if kind == "base_fraction_to_floor":
+            floor_level = max(1, base * floor_numerator // floor_denominator)
+            amount = max(1, base * numerator // denominator)
+        else:
+            floor_level = flat_floor
+            amount = flat_amount
         updated = max(floor_level, current - amount)
         if updated < current:
             apply_combat_stat_delta_pure(data, skill_id, updated - current)

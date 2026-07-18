@@ -2094,6 +2094,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         barbarian_level_10 = _tree_row(tree, "barbarian_level_10")
         jackal = _tree_row(tree, "jackal")
         icefiend = _tree_row(tree, "icefiend")
+        banshee = _tree_row(tree, "banshee")
         seagull = _tree_row(tree, "seagull")
 
         self.assertEqual(cow_calf.text(0), "Cow calf (Lvl 2)")
@@ -2128,6 +2129,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Impious ashes x1", icefiend.toolTip(0))
         self.assertIn("Enemy max hit: 20 LP", icefiend.toolTip(0))
         self.assertFalse(icefiend.icon(0).isNull())
+        self.assertEqual(banshee.text(0), "Banshee (Lvl 23)")
+        self.assertIn("Missing Earmuffs", banshee.toolTip(0))
+        self.assertIn("Enemy max hit: 10 LP", banshee.toolTip(0))
         self.assertEqual(seagull.text(0), "Seagull (Lvl 2)")
         self.assertIn("seagull_level_2.plugin.kts", seagull.toolTip(0))
         self.assertEqual(tree.currentItem().data(0, Qt.ItemDataRole.UserRole), "seagull")

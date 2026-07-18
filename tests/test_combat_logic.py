@@ -4438,29 +4438,113 @@ class CombatLogicTest(unittest.TestCase):
         self.assertTrue(protected_ok)
         self.assertLess(unprotected_result["player_damage"], protected_result["player_damage"])
 
-    def test_cockatrice_preview_warns_without_mirror_shield_and_clears_when_equipped(self):
-        unprotected = combat_target_preview_pure(
-            _player(constitution_level=60, combat_lifepoints=600),
-            "cockatrice",
+    def test_protective_gear_preview_warns_when_missing_and_clears_when_equipped(self):
+        cases = (
+            ("cockatrice", "shield", "Mirror shield", 60, 100),
+            ("banshee", "head", "Earmuffs", 99, 80),
+        )
+        for target_id, slot, item_name, constitution_level, expected_max_hit in cases:
+            with self.subTest(target_id=target_id):
+                unprotected = combat_target_preview_pure(
+                    _player(
+                        constitution_level=constitution_level,
+                        combat_lifepoints=constitution_level * 10,
+                    ),
+                    target_id,
+                    COMBAT_ENEMY_DATA,
+                    EQUIPMENT_DATA,
+                )
+                protected = combat_target_preview_pure(
+                    _player(
+                        constitution_level=constitution_level,
+                        combat_lifepoints=constitution_level * 10,
+                        equipment={slot: item_name},
+                    ),
+                    target_id,
+                    COMBAT_ENEMY_DATA,
+                    EQUIPMENT_DATA,
+                )
+
+                self.assertEqual(unprotected["enemy_max_hit"], expected_max_hit)
+                self.assertIn(item_name, unprotected["protection_warning"])
+                self.assertEqual(protected["protection_warning"], "")
+                self.assertLess(protected["enemy_max_hit"], unprotected["enemy_max_hit"])
+
+    def test_unprotected_banshee_uses_period_damage_and_flat_eight_skill_drain(self):
+        player = _player(
+            current_combat_target="banshee",
+            attack_level=12,
+            strength_level=11,
+            defense_level=10,
+            ranged_level=9,
+            prayer_level=8,
+            magic_level=7,
+            agility_level=6,
+            summoning_level=5,
+            constitution_level=99,
+            combat_lifepoints=990,
+            combat_auto_flee=False,
+        )
+
+        out, ok, result = apply_combat_burst_pure(
+            player,
             COMBAT_ENEMY_DATA,
             EQUIPMENT_DATA,
+            ticks=13,
+            rng=lambda: 0.999999,
         )
-        protected = combat_target_preview_pure(
+
+        self.assertTrue(ok)
+        self.assertEqual(result["unprotected_attacks"], 2)
+        self.assertEqual(result["enemy_damage"], 160)
+        self.assertEqual(out["combat_lifepoints"], 830)
+        self.assertEqual(
+            out["combat_current_levels"],
+            {
+                "attack": 2,
+                "strength": 1,
+                "defense": 1,
+                "ranged": 1,
+                "prayer": 1,
+                "magic": 1,
+                "agility": 1,
+                "summoning": 1,
+            },
+        )
+        self.assertEqual(
+            result["stat_drains"],
+            {
+                "attack": 10,
+                "strength": 10,
+                "defense": 9,
+                "ranged": 8,
+                "prayer": 7,
+                "magic": 6,
+                "agility": 5,
+                "summoning": 4,
+            },
+        )
+
+    def test_earmuffs_restore_banshee_to_ordinary_accuracy_rolls(self):
+        out, ok, result = apply_combat_burst_pure(
             _player(
+                current_combat_target="banshee",
+                equipment={"head": "Earmuffs"},
                 constitution_level=60,
                 combat_lifepoints=600,
-                equipment={"shield": "Mirror shield"},
+                combat_auto_flee=False,
             ),
-            "cockatrice",
             COMBAT_ENEMY_DATA,
             EQUIPMENT_DATA,
+            ticks=13,
+            rng=lambda: 0.999999,
         )
 
-        self.assertEqual(unprotected["enemy_max_hit"], 100)
-        self.assertIn("Mirror shield", unprotected["protection_warning"])
-        self.assertEqual(protected["protection_warning"], "")
-        self.assertLess(protected["enemy_max_hit"], unprotected["enemy_max_hit"])
-
+        self.assertTrue(ok)
+        self.assertEqual(result["unprotected_attacks"], 0)
+        self.assertEqual(result["enemy_damage"], 0)
+        self.assertEqual(out["combat_lifepoints"], 600)
+        self.assertEqual(out["combat_current_levels"], {})
 
 class CombatAttackTypeResolverTest(unittest.TestCase):
     """D1/D2/D3 attack-type feature: the equipped weapon's AttackStyleData slots

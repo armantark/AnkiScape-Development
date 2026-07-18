@@ -264,9 +264,10 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   focused audit before implementation.
 - Cockatrice is the first completed protective-equipment slice: an equipped
   Mirror shield suppresses its source-reconciled fixed hit and stat drain, while
-  the unprotected target remains legal and visibly warned. Banshee's item set
-  and affected stats are pinned, but its conflicting drain magnitude and
-  current Summoning-scope dependency keep that family unimplemented. See
+  the unprotected target remains legal and visibly warned. Banshee is also
+  complete: the head-slot Earmuff/Slayer-helmet family suppresses a fixed
+  maximum-LP/10 scream capped at 80 LP and a labeled flat-five drain across the
+  period-proven eight skills. See
   `source-audits/slayer-protective-equipment-cockatrice-banshee-2026-07-17.md`.
 - Jackal is now an executable Dogs-family representative with its cutoff
   identity, exact maximum hit, guaranteed Bones, asset, and Combat picker
@@ -290,8 +291,8 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
 - Turael/Spria's first pool pass is recorded in
   `source-audits/slayer-turael-spria-pool-2026-07-17.md`: 23 families and the
   provisional 355-point hidden-weight denominator are pinned, but the role
-  remains runtime-blocked on four absent Combat families plus Banshee and
-  Gelatinous special consequences. Mazchna/Achtryn, Vannaka, Chaeldar, and
+  remains runtime-blocked on four absent Combat families plus the Gelatinous
+  special consequence. Mazchna/Achtryn, Vannaka, Chaeldar, and
   Sumona, Duradel/Lapalok, and Kuradal are now recorded in their corresponding
   dated pool audits. Continue the family/variant, protection, challenge and
   location-context ledgers before exposing any live assignment roll.

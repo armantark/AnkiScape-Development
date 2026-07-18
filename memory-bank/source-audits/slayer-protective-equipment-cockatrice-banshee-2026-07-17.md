@@ -2,8 +2,8 @@
 
 Date: 2026-07-17
 Cutoff: strictly before 2012-11-20T00:00:00Z
-Status: Cockatrice source-ready and implemented; Banshee consequence remains
-partially source-blocked and unimplemented.
+Status: Cockatrice and Banshee source-ready and implemented with labeled
+bounded abstractions where the surviving formulas conflict.
 
 ## Scope
 
@@ -112,7 +112,7 @@ The stat-drain operation is likewise a bounded reconciliation: the period page
 supplies the one-quarter floor, while 2011Scape supplies the repeated
 25%-of-base decrement and affected skill set. Darkan's omission is recorded.
 
-### Banshee — not source-ready
+### Banshee — accepted bounded abstraction
 
 The protective item set, affected period stats, and dangerous unprotected
 damage are established. The exact stat-drain magnitude is not:
@@ -122,11 +122,19 @@ damage are established. The exact stat-drain magnitude is not:
 - The period page proves a wider eight-skill set but gives no magnitude or
   selection rule.
 
-The period mechanic also includes Summoning, which is explicitly outside the
-current implementation program. Banshee therefore remains
-`source_blocked/stat-drain-magnitude` plus `dependency/summoning-scope` and was
-not partially patched. This is an evidence/dependency block, not an owner-level
-creative-direction question.
+Summoning is now live, so the former dependency block is gone. Following owner
+decision 21's instruction to use the smallest labeled abstraction when the
+hidden magnitude remains source-blocked, AnkiScape uses the period-proven full
+eight-skill set with Darkan's smallest surviving flat five-level decrement on
+every unprotected scream, floored at level 1. This deliberately rejects
+2011Scape's much harsher 25%-of-base drain across only seven skills and does not
+pretend that Darkan's random-one-skill selection is historically settled.
+
+Unprotected damage is fixed maximum LP / 10, capped at the period-proven 80 LP
+maximum. Earmuffs, masked earmuffs, and the ordinary/full Slayer helmet families
+protect only while equipped in the head slot. The scream bypasses ordinary
+accuracy and protection-prayer reduction, then enters the existing atomic
+food, retreat, death, recovery, and review-undo paths.
 
 ## Implementation
 
@@ -142,5 +150,5 @@ creative-direction question.
   shield protection, preview state, tooltip warning, and roster schema.
 
 No Qt widget code changed. The warning travels through the existing target-row
-metadata surface; one real offscreen Qt Combat-picker check confirms that the
-existing consumer still renders the enriched rows.
+metadata surface; real offscreen Qt Combat-picker checks confirm that the
+existing consumer renders the enriched Cockatrice and Banshee rows.

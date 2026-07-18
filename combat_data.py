@@ -6942,6 +6942,51 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "attack_speed": 6,
         "respawn_delay": 15,
         "slayer_xp": 22.0,
+        "protective_equipment": {
+            "slot": "head",
+            "items": (
+                "Earmuffs",
+                "Masked earmuffs",
+                "Slayer helmet",
+                "Slayer helmet (charged)",
+                "Slayer helmet (e)",
+                "Full slayer helmet",
+                "Full slayer helmet (charged)",
+                "Full slayer helmet (e)",
+            ),
+            "warning": (
+                "Missing Earmuffs or a Slayer helmet in the head slot: Banshee "
+                "screams deal fixed damage and drain eight skills."
+            ),
+            "unprotected_effect": {
+                "damage": {
+                    "kind": "max_lifepoints_fraction_capped",
+                    "numerator": 1,
+                    "denominator": 10,
+                    "cap": 80,
+                },
+                "stat_drain": {
+                    "kind": "flat_to_floor",
+                    "skills": (
+                        "attack",
+                        "strength",
+                        "defense",
+                        "ranged",
+                        "prayer",
+                        "magic",
+                        "agility",
+                        "summoning",
+                    ),
+                    "amount": 5,
+                    "floor": 1,
+                },
+            },
+            "source_status": (
+                "abstraction/period+darkan: fixed max-LP/10 hit capped at the "
+                "period 80 LP maximum; period eight-skill set uses Darkan's "
+                "smallest surviving flat five-level drain magnitude"
+            ),
+        },
         "stats": {'hitpoints': 220, 'attack': 22, 'strength': 15, 'defence': 22, 'magic': 1, 'ranged': 1},
         "bonuses": {'attack_stab': 0,
  'attack_slash': 0,
@@ -6983,7 +7028,10 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
                        {'slots': 898})})},
         "source": (
             f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
-            "definitions/undeads/banshee_level_23.plugin.kts"
+            "definitions/undeads/banshee_level_23.plugin.kts; "
+            "https://runescape.wiki/w/Banshee?oldid=6589075; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "src/main/java/com/rs/game/content/skills/slayer/npcs/combat/BansheeCombat.java"
         ),
     },
     "shade": {

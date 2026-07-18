@@ -753,7 +753,7 @@ Test counts are snapshots; current runs outrank this note.
   XP-parity expected failures; test quality remains at zero hard issues.
   Summoning and Dungeoneering remained outside the batch.
 
-## Slayer Cockatrice protective equipment (2026-07-17)
+## Slayer Cockatrice and Banshee protective equipment (2026-07-17)
 
 - Pinned the cutoff Mirror-shield trigger, fixed eye-beam hit, one-quarter stat
   floor, item identity, slot, equip gate, and Slayer-shop acquisition.
@@ -764,13 +764,16 @@ Test counts are snapshots; current runs outrank this note.
 - Added the data-driven Combat consequence, fixed-hit/prayer bypass, persistent
   current-level drains, ordinary food/death/retreat/undo integration, and a
   non-blocking target warning.
-- Kept Banshee unimplemented because its exact stat-drain magnitude conflicts
-  across reconstructions and the period effect includes currently excluded
-  Summoning.
-- Verification passes 383 focused Combat/runtime/integration tests, one real
-  offscreen Qt picker check, and all 1,374 core methods with 196 skips and
-  three expected failures. Test quality has zero hard issues; documentation,
-  reachability, compilation, diff and worktree-safety checks pass.
+- Added Banshee's complete head-slot protection family, fixed maximum-LP/10
+  scream capped at 80 LP, and the period-proven eight affected skills.
+- Reconciled the unresolved drain rule as the smallest labeled abstraction:
+  Darkan's flat five-level magnitude applied to the period's complete skill set,
+  floored at level 1. Summoning is now implemented and no longer a dependency
+  blocker.
+- Verification passes 236 focused Combat/roster/metadata tests, one real
+  offscreen Qt picker check, and all 1,485 current core methods with 203 skips.
+  Test quality has zero hard issues and no new clone group; documentation,
+  compilation, diff and worktree-safety checks pass.
 
 ## Slayer finisher-item acquisition metadata (2026-07-17)
 

@@ -78,7 +78,10 @@ without folding in its God Wars, Ghorrock, quest, Revenant, or Daemonheim
 forms. The Jackal slice passes the complete 1,481-method core suite, 337
 focused Combat/runtime methods, and a real offscreen Qt picker check. The
 Icefiend checkpoint passes all 1,482 core methods, 339 focused methods, and the
-same real offscreen Qt picker path.
+same real offscreen Qt picker path. Banshee protection is now executable too:
+an unprotected scream applies the period damage shape and full eight-skill set
+through a deliberately labeled flat-five abstraction; equipped Earmuffs or
+Slayer-helmet-family headgear suppress it.
 
 The first master-pool harvest is now recorded in
 `source-audits/slayer-turael-spria-pool-2026-07-17.md`. Reconciliation recovered
@@ -89,9 +92,9 @@ converges across Darkan's raw values, game-main's percentages, and the recovered
 30-weight Gelatinous family. Jackal closes the Dogs-family target, and the
 cutoff level-13 Icefiend closes Icefiends with 150 LP, 15 Slayer XP, a 20 LP
 maximum hit, and its complete 128-slot ordinary drop table. Runtime
-certification still fails: four families have no Combat target,
-Banshee lacks its earmuff consequence, and Gelatinous abominations lack the
-worn-gauntlet finisher. None of these findings creates an owner design question.
+certification still fails: four families have no Combat target and Gelatinous
+abominations lack the worn-gauntlet finisher. None of these findings creates an
+owner design question.
 
 The second master-pool harvest is recorded in
 `source-audits/slayer-mazchna-achtryn-pool-2026-07-17.md`. It reconciles a
@@ -745,7 +748,7 @@ functional master pools are now recorded. Summoning and Dungeoneering remain
 explicitly excluded from that Slayer harvest; Summoning was implemented later
 in the day.
 
-## Slayer Cockatrice protection slice (2026-07-17)
+## Slayer Cockatrice and Banshee protection slices (2026-07-17)
 
 Cockatrice now preserves the cutoff Mirror-shield consequence instead of
 behaving like an ordinary harmless melee target. Missing the equipped shield
@@ -755,19 +758,20 @@ Ranged, and Agility by one quarter of base per attack down to the period-proven
 one-quarter floor. The ordinary Combat food, retreat, death, grave, persistence,
 and review-undo paths remain authoritative.
 
-The existing Combat picker warns without hard-blocking the legal dangerous
-encounter and clears the warning only when Mirror shield occupies the shield
-slot. Banshee's protective item set and affected stats are pinned in
-`source-audits/slayer-protective-equipment-cockatrice-banshee-2026-07-17.md`,
-but its conflicting drain magnitude and out-of-scope Summoning effect keep it
-unimplemented. Summoning and Dungeoneering were explicitly excluded from this
-Slayer slice; Summoning was implemented later in the day.
+The existing Combat picker warns without hard-blocking either legal dangerous
+encounter. Cockatrice clears only for a Mirror shield in the shield slot.
+Banshee clears only for Earmuffs, masked earmuffs, or a Slayer-helmet-family
+item in the head slot. Its fixed maximum-LP/10 scream caps at 80 LP and drains
+the period-proven eight skills by five levels per attack to level 1. The
+flat-five magnitude is explicitly an owner-authorized bounded abstraction from
+Darkan; the source conflict remains visible in
+`source-audits/slayer-protective-equipment-cockatrice-banshee-2026-07-17.md`.
 
-Verification passes 383 focused Combat/runtime/integration tests, one real
-offscreen Qt Combat-picker check, and all 1,374 core tests with 196 environment
-skips and three expected XP-parity failures. Test quality, documentation,
-compilation, diff and worktree-safety checks pass; reachability remains at its
-1,200-action / 273-known-orphan baseline.
+The Banshee extension passes 236 focused Combat/roster/metadata tests, one real
+offscreen Qt Combat-picker check, and all 1,485 current core methods with 203
+environment skips. Test quality remains at zero hard issues and the pre-existing
+four structural-clone candidates; documentation, compilation, diff and
+worktree-safety checks pass.
 
 ## Slayer finisher acquisition readiness (2026-07-17)
 

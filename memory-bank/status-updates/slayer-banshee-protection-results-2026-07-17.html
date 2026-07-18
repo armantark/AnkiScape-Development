@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape — Banshee protection checkpoint</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090d12;
+      --panel: #111923;
+      --panel-2: #172330;
+      --text: #edf6ef;
+      --muted: #9db0a5;
+      --green: #57e389;
+      --amber: #f5c451;
+      --red: #ff7272;
+      --line: #253644;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 80% 0%, rgba(87, 227, 137, .14), transparent 35rem),
+        linear-gradient(145deg, #090d12, #0d141c);
+      color: var(--text);
+      font: 16px/1.55 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1080px, calc(100% - 32px)); margin: 0 auto; padding: 56px 0 72px; }
+    .eyebrow { color: var(--green); font-weight: 750; letter-spacing: .12em; text-transform: uppercase; font-size: .75rem; }
+    h1 { max-width: 760px; margin: 10px 0 14px; font-size: clamp(2.2rem, 6vw, 4.5rem); line-height: .98; letter-spacing: -.05em; }
+    .lede { max-width: 720px; color: var(--muted); font-size: 1.12rem; }
+    .status {
+      display: inline-flex; align-items: center; gap: 9px; margin-top: 18px; padding: 8px 12px;
+      border: 1px solid rgba(87, 227, 137, .4); border-radius: 999px; background: rgba(87, 227, 137, .08);
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 18px var(--green); }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-top: 38px; }
+    .card { grid-column: span 4; padding: 22px; border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(160deg, var(--panel-2), var(--panel)); }
+    .card.wide { grid-column: span 8; }
+    .card.full { grid-column: 1 / -1; }
+    .label { color: var(--muted); font-size: .78rem; text-transform: uppercase; letter-spacing: .09em; }
+    .metric { margin-top: 5px; font-size: 2.25rem; font-weight: 800; letter-spacing: -.04em; }
+    .metric small { font-size: 1rem; color: var(--muted); font-weight: 600; }
+    h2 { margin: 3px 0 16px; font-size: 1.35rem; }
+    ul { margin: 0; padding-left: 20px; }
+    li + li { margin-top: 8px; }
+    code { color: #b8f5cb; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 12px; }
+    .step { min-height: 110px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: #0d151d; }
+    .arrow { color: var(--green); font-size: 1.4rem; }
+    .warn { color: var(--amber); }
+    .next { border-color: rgba(245, 196, 81, .45); }
+    @media (max-width: 760px) {
+      main { padding-top: 34px; }
+      .card, .card.wide { grid-column: 1 / -1; }
+      .flow { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); text-align: center; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">Slayer implementation checkpoint · 17 July 2026</div>
+  <h1>Banshees now scream like they mean it.</h1>
+  <p class="lede">The previously harmless Slayer target now has its equipment-sensitive, always-landed consequence without blocking players from taking the risk.</p>
+  <div class="status"><span class="dot"></span> Verified and ready to commit on main</div>
+
+  <section class="grid">
+    <article class="card">
+      <div class="label">Core suite</div>
+      <div class="metric">1,485 <small>green</small></div>
+      <p>203 environment skips; no failures.</p>
+    </article>
+    <article class="card">
+      <div class="label">Focused checks</div>
+      <div class="metric">236 <small>green</small></div>
+      <p>Combat, roster schema, and metadata.</p>
+    </article>
+    <article class="card">
+      <div class="label">Test quality</div>
+      <div class="metric">0 <small>hard issues</small></div>
+      <p>No new clone group added.</p>
+    </article>
+
+    <article class="card wide">
+      <div class="label">Runtime consequence</div>
+      <h2>Unprotected scream</h2>
+      <div class="flow">
+        <div class="step"><strong>Head slot checked</strong><br><span class="warn">No earmuffs or Slayer helmet</span></div>
+        <div class="arrow">→</div>
+        <div class="step"><strong>Fixed damage</strong><br>Maximum LP ÷ 10, capped at 80 LP</div>
+        <div class="arrow">→</div>
+        <div class="step"><strong>Eight skills drained</strong><br>Flat 5 levels per scream, floor 1</div>
+      </div>
+    </article>
+    <article class="card">
+      <div class="label">Evidence discipline</div>
+      <h2>Honest abstraction</h2>
+      <p>The period page fixes the affected skills and 80 LP ceiling. Darkan supplies the smallest surviving five-level magnitude. The audit labels that reconciliation explicitly.</p>
+    </article>
+
+    <article class="card full">
+      <div class="label">What changed</div>
+      <h2>One reusable engine extension, one family closed</h2>
+      <ul>
+        <li><code>combat_data.py</code> records the complete headgear family, damage rule, skill set, and provenance.</li>
+        <li><code>logic_pure.py</code> now supports a reusable flat-to-floor protective stat drain alongside Cockatrice’s fraction-to-floor rule.</li>
+        <li>Pure tests prove repeated drain, level-one floors, protection, previews, and all eight affected skills.</li>
+        <li>The real offscreen Qt Combat picker renders the warning and authentic 10 LP default preview.</li>
+      </ul>
+    </article>
+
+    <article class="card full next">
+      <div class="label">Next Slayer blocker</div>
+      <h2>Desert lizards + finishing blow</h2>
+      <p>The starter master still remains hidden. Four families lack a certifying Combat target, and Gelatinous abominations still need their spiked-gauntlet finisher. No pool weights will be renormalized around those gaps.</p>
+    </article>
+  </section>
+</main>
+</body>
+</html>

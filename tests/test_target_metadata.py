@@ -139,6 +139,30 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Missing Mirror shield", cockatrice.tooltip)
         self.assertIn("fixed damage and stat drain", cockatrice.tooltip)
 
+    def test_banshee_row_warns_about_missing_earmuffs_without_locking_combat(self):
+        rows = combat_target_rows(
+            {
+                "attack_level": 60,
+                "strength_level": 60,
+                "defense_level": 60,
+                "ranged_level": 60,
+                "magic_level": 60,
+                "constitution_level": 60,
+                "inventory": {},
+                "equipment": {},
+                "current_combat_target": "banshee",
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+
+        banshee = _row(rows, "banshee")
+        self.assertTrue(banshee.enabled)
+        self.assertIn("Missing Earmuffs", banshee.tooltip)
+        self.assertIn("drain eight skills", banshee.tooltip)
+
     def test_wilderness_agility_row_exposes_pker_food_and_grave_risk(self):
         rows = agility_target_rows(
             {
