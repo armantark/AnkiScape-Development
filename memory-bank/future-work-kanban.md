@@ -550,8 +550,19 @@ Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 Labels: `DEEP GRILL`, `SOURCE AUDIT`, `WAIT: DARKAN` where server state is hidden.
 
 - Build from generic achievements and Bank Claims; add diary regions/tasks/rewards, clue step/casket state, collection tracking, one-time rewards, and their UI/undo contracts.
-- **Grill seed (owner, 2026-07-13):** the owner has a rudimentary idea for diary rewards built on our existing *fabricated* achievements, which have no source backing. That tension — invented achievement tasks handing out authentic pre-cutoff reward items — is the central thing the grill has to resolve, and it cannot be resolved by sourcing alone.
-- `memory-bank/achievement-diary-item-grants-design.md` is still a stub. Until this grill closes, diary reward items have no acquisition route and must not ship.
+- **Parked owner grill (2026-07-17): Treasure Trails.** Treat this as its own
+  feature tree rather than an appendix to the achievement-diary grill. Audit
+  the cutoff-era clue tiers, acquisition and one-clue ownership rules, step
+  counts and clue families, casket/reward rolls, equipment requirements, and
+  unique reward tables. Then design the review-step model, persistent/undoable
+  trail state, and flattened representations of maps, coordinates, puzzles,
+  challenges, and emote clues without introducing a general emote or world-map
+  system. Resume after the current overnight implementation/review work closes.
+- **Design closed 2026-07-17:** `memory-bank/achievement-diary-item-grants-design.md`
+  replaces the percentage-grant stub with the cutoff-faithful eight-family
+  diary structure, Burthorpe/Taverley and Miscellaneous sets, Taskmaster
+  translation, cape ladder, Completionist contract, and passive Music Log.
+  Implementation remains blocked on the source catalogs listed in that file.
 - **Blocked on this card:** the Ardougne cloak's Thieving bonus (Darkan gives +0.1 to the blackjack knock-out roll). Switch it on when diaries land rather than rediscovering it.
 
 ### Random events and timed world content
@@ -560,6 +571,18 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
 
 - Use the global 240-reviews-per-day clock for world/economy cadence only.
 - Decide visibility, opt-in/interrupt behavior, expiry, missed events, rewards, persistence, and undo without adding a world map.
+
+### Road to Restoration comparator
+
+Labels: `DESIGN AUDIT`, `MODERN LEAD ONLY`, `NO PARITY CLAIM`.
+
+- Use `memory-bank/source-audits/road-to-restoration-design-lessons-2026-07-17.md`
+  as the queue for modern first-party critiques of Aura/Loyalty lock-in,
+  DailyScape, early-game balance, combat baseline viability, GE friction, UI
+  discoverability, and world/asset coherence.
+- Source the 2012 system first. Then adopt, adapt, or reject the modern repair
+  explicitly; never import a post-cutoff value or mechanic under the label of
+  parity.
 
 ## Parked sequencing gates
 
@@ -572,7 +595,7 @@ Labels: `PARKED`, `DEPENDENCY: SKILL/ITEM BREADTH`.
 
 ### Level 1-99 time and economy balance — the XP/hour invariant
 
-Labels: `PARKED`, `DEPENDENCY: ALL SKILLS/MAJOR METHODS`.
+Labels: `LIVE KERNEL`, `SOURCE EXPANSION`, `DEPENDENCY: REMAINING METHODS`.
 
 **The invariant (owner-stated 2026-07-13).** One review is one unit of game
 time, so the quantity that must hold across the whole game is:
@@ -584,11 +607,17 @@ effective XP per review  ∝  real pre-EOC XP per hour
 Not XP per action. AnkiScape pays per review and therefore inherits XP-per-action
 unless something corrects it, but XP/hour is what Jagex actually balanced.
 
-**MEASURED, 2026-07-13.** This is no longer a hypothesis. `tools/xp_rate_audit.py`
-grades the *shipped* probability functions against pinned pre-EOC rates. Full
-analysis: `memory-bank/source-audits/xp-hour-provenance-ledger-2026-07-13.md`.
-Regression tests: `tests/test_xp_hour_parity.py` (3 `expectedFailure`s pinning the
-defects; they turn the suite red the moment they're fixed, forcing removal).
+**LIVE, 2026-07-17.** `R = 1000` now governs source-compatible foreground
+routes through `cadence_live.py`; `cadence_coverage.py` fails closed when a
+handler or selectable target lacks a classification. Full provenance remains
+`memory-bank/source-audits/xp-hour-provenance-ledger-2026-07-13.md`.
+`tests/test_xp_hour_parity.py` now grades live exact rates, route ordering,
+residual counts, and embedded-probability behavior with no expected failures.
+
+Before the first cadence-profile version or denominator change, add an explicit
+migration/reset path for incompatible persisted residuals. The current v1
+validator correctly rejects impossible credit/version state; a future version
+bump must not strand a route in a repeated runtime error.
 
 **There are TWO independent defects, and a skill can have either alone.**
 
@@ -597,27 +626,23 @@ defects; they turn the suite red the moment they're fixed, forcing removal).
 | Invented adapter | *ordering* | `0.20 + 0.72·√p` (`logic_pure.py:388`) inflates rare actions | Woodcutting, Fishing (Mining directionally) |
 | Unmodelled dead time | *rate* | one review per action, whatever the real wait | Hunter (traps), Thieving stalls (respawn), Combat (30s burst) |
 
-*Adapter.* Its damage scales with how rare the action is: near `p=1` the square
+*Legacy adapter.* Its damage scales with how rare the action is: near `p=1` the square
 root is nearly the identity, but a 6.3% action becomes 38%. In RuneScape a rare
 action is the signature of a **money** method — that is why it was made rare — so
 the adapter promotes exactly the content the period game made unattractive to
-train. Magic logs are our 2nd-best Woodcutting method and 2012's 2nd-worst.
-Sharks are our 3rd-best Fishing method and 2012's *worst* ("only 20k experience
-per hour"). Hunter and Cooking escape only because their rolls sit near certainty.
+train. This remains only in explicit flag-off behavior and source-blocked routes;
+source-ready live routes no longer use it.
 
-*Dead time.* Already shipped, in **Hunter** — trap catches make you wait, and we
-charge one review per catch and ignore the wait. Hunter's ordering looks fine,
-which is why nobody noticed; its *rate* is 2–4× too generous. This was previously
-believed to be a Thieving-only problem that Thieving would be first to hit. It is
-not.
+*Dead time.* Source-ready Hunter and gathering rows now encode their cited rate
+as exact residual admission rather than one catch per review. Rows lacking a
+compatible period rate remain `source_blocked`; their existing action unit is a
+known evidence gap, not silently promoted to parity.
 
-*Combat.* Its `R` is a **definition, not a measurement**: 50 ticks/review = 30s =
-120 reviews/hour. Every other skill *derives* R from a sourced rate and lands near
-1,000–1,475. So one combat card buys **5.5×–8.6×** more game time than a Mining
-card. The engine itself is faithful (moss giants at 50 ticks/review yield ~37k
-XP/hr, a plausible period rate) — it is the *review conversion* that is wrong.
-**This cannot be fixed later by lowering XP**, because XP/action is frozen by the
-parity contract. Cadence is the only lever.
+*Combat.* Live Combat now advances `6 × M` immediate ticks per successful card,
+persists the encounter and attack phase between cards, and ends the review at a
+kill, death, flee, or bank boundary. The old 50-tick burst exists only behind
+explicit cadence rollback and in deliberately separate legacy constants; it is
+not the live review conversion.
 
 **Respawn IS the model — and the inversion it produces is real** (settled
 2026-07-13, grill round 3; this reverses the earlier warning on this card).

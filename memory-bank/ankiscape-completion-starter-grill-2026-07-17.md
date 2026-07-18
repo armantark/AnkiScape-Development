@@ -1,6 +1,8 @@
 # AnkiScape Completion Starter Grill — 2026-07-17
 
-Status: **morning-review proposal, not owner-settled and not implementation-ready.**
+Status: **starter proposal with later owner-settled Achievement/Aura/recurring/
+Help/Tears decisions; cadence-reconciled 2026-07-17.** Unsettled activity
+families remain design work rather than implementation-ready requirements.
 
 This packet curates the next design program after Slayer and Summoning. It
 combines a repository audit, three bounded Sol-high read-only surveys, and an
@@ -66,9 +68,10 @@ resolver-ready; 103 remain statless.
 These tools are not yet a complete oracle. The item reachability tables omit
 some shipped action producers/consumers, including complete Farming,
 Construction, Thieving, and Agility surfaces, while visible Shop rows are seeded
-as reachable even when their owning skill remains planned. The cadence reporter
-now sees 179 routes with only 24 source-ready and 155 `source_blocked`, while
-some current documentation still records the earlier 175/151 snapshot. A
+as reachable even when their owning skill remains planned. The live cadence
+catalog now sees 2,197 selectable foreground routes: 24 rate-limited, four
+embedded-probability, 131 Combat, 1,513 passthrough, and 208
+`source_blocked`, plus explicit Quest/Utility/Farming/future-attachment rows. A
 machine-derived readiness graph is therefore its own completion feature, not
 just reporting polish.
 
@@ -235,9 +238,9 @@ The portfolio is ordered by reusable architecture proven, not nostalgia.
 | 1 | Tears of Guthix | Recurring D&D eligibility and dynamic lowest-skill reward | Review-clock eligibility; compact session; quest promise becomes real. |
 | 2 | Shooting Stars | Timed world event, finite shared resource, contribution cap, exchange | One Mining attempt/review; simulated population also depletes the star. |
 | 3 | Fist of Guthix | Bounded simulated opponent, currency, reward shop, degradation/recharge | Resumable match phases; tokens only at resolution; explicit invented opponent model. |
-| 4 | Barrows | Multi-encounter Combat instance, chest state, repair loop, unique drops | One Combat burst/review within a persistent brother/crypt/chest run. |
+| 4 | Barrows | Multi-encounter Combat instance, chest state, repair loop, unique drops | Live six-tick Combat slices within a persistent brother/crypt/chest run. |
 | 5 | Warriors' Guild | Token-metered access, armour sink, escalating defender ladder | Earn and drain tokens through review actions; repeat cyclops encounters. |
-| 6 | Fight Caves | Long resumable wave instance, target priority, safe death, prestige reward | Existing Combat bursts inside persistent waves; explicit Leave; no timeout. |
+| 6 | Fight Caves | Long resumable wave instance, target priority, safe death, prestige reward | Live Combat slices inside persistent waves; explicit Leave; no timeout. |
 | 7 | Fishing Trawler | Cooperative pressure system flattened for solo | Player duty plus bounded simulated crew; persistent leaks/water/net/supplies. |
 | 8 | Stealing Creation | Temporary closed economy before Dungeoneering | Gather, craft, and fight with session-only items; bounded opponent simulation. |
 | 9 | Managing Miscellania | Background allocation, approval, coin sink, resource faucet | Review-clock production with explicit allocation and collection, never wall time. |
@@ -327,8 +330,10 @@ named activity is period-valid or implementation-ready.
 - random events removed before the exact cutoff, pending final source pin;
 - Squeal of Fortune and Solomon's Store lootbox/cosmetic commerce;
 - Loyalty Programme acquisition as a literal subscription-tenure simulation;
-- holiday calendars, music unlocks, emotes, and titles unless a later cosmetic
-  pass finds a compelling review-native reason;
+- holiday calendars, general emotes, and titles unless a later cosmetic pass
+  finds a compelling review-native reason. Music unlocks are no longer
+  excluded: `memory-bank/achievement-diary-item-grants-design.md` now defines
+  the passive Music Log required by the cutoff Completionist contract;
 - post-cutoff and OSRS-only substitutions; and
 - visible inert previews.
 

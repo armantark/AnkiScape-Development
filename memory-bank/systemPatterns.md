@@ -29,13 +29,17 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
 - `logic_pure.py`: pure helpers for XP/level math, probabilities, crafting, Utility/Activities, mining, woodcutting, fishing, hunter, smithing, quests, claims, and runecrafting operations.
 - `cadence_kernel.py`: pure foreground-action cadence contracts. It declares
   `R = 1000`, exact integer residual scheduling, four admission modes, overflow
-  validation, and resource/actor lock shapes. Phase 1 is dormant: no review
-  handler calls it.
-- `cadence_shadow.py`: Phase 3's guarded observer for Mining, Woodcutting,
-  Fishing, Hunter, Cooking, and Firemaking. It resolves compatible pinned rates,
-  advances exact low/high proposal envelopes, stores sanitized rational
-  aggregates in `player_data["cadence_shadow"]`, and never returns an outcome to
-  a live handler.
+  validation, and resource/actor lock shapes.
+- `cadence_live.py`: default-on runtime route declarations and exact admission.
+  It maps source-compatible targets to rate-limited or embedded-probability
+  behavior, Combat to six immediate ticks, and incompatible evidence to an
+  explicit `source_blocked` declaration that preserves the handler action.
+- `cadence_coverage.py`: complete handler/target catalog and fail-closed
+  validation for every selectable foreground route plus Quest, Utility,
+  Farming, attached Summoning effects, and future skill attachments.
+- `cadence_shadow.py`: retained Phase 3 evidence resolver and reporting support.
+  Its old observer state is never advanced by the default runtime and never
+  seeds live cadence state.
 - `tools/cadence_shadow_report.py`: renders current, proposed, and pinned source
   XP/hour for either the complete six-skill route catalog or accumulated shadow
   state from a player-data JSON export.
@@ -76,16 +80,13 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `assigned_reviews`, `opportunities_emitted`, and `cadence_version`. Config v34
   adds the mapping without rewriting existing state. Because review undo diffs
   the complete `player_data`, cadence residuals require no separate undo stack.
-- Shadow observation is a separate route-keyed `player_data["cadence_shadow"]`
-  namespace. Keeping it inside the review snapshot makes observer residuals and
-  aggregates undo atomically, while separation from `cadence_profiles` prevents
-  observational credit from becoming live cadence state. The observer is lazy,
-  exception-contained, off by default, and never changes gameplay state or RNG.
-- Gathering shadow routes advance both ends of a sourced XP/hour range as exact
-  `Fraction` profiles and report range splits instead of inventing a midpoint.
-  Processing routes whose authentic success probability already embeds cadence
-  reuse the handler's existing roll; they declare `cap_one_action` but do not
-  enter the residual scheduler or draw another random number.
+- Historical shadow observation used a separate route-keyed
+  `player_data["cadence_shadow"]` namespace. The namespace may remain in old
+  saves and reports but is not promoted or advanced by live dispatch.
+- Live ranged XP/hour evidence uses the exact lower endpoint as a labeled
+  conservative abstraction, never a midpoint. Processing routes whose
+  authentic probability already embeds cadence reuse one source roll and do not
+  enter the residual scheduler or draw a second random number.
 - Runtime-to-source mappings must be semantically exact. Missing or incompatible
   rows are reportable `source_blocked` observations, not opportunities to infer a
   replacement rate. This includes ordinary versus concentrated gold, mixed
@@ -116,8 +117,11 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   by NPC shops and the parked GE: 10 answered cards equal one simulated game
   hour and 240 equal one simulated day. All answered cards advance the clock,
   regardless of skill or reward success; undo rolls time back. Daily/weekly
-  allowances reset at simulated boundaries without stacking, never from the
-  computer's wall-clock date.
+  allowances currently reset at simulated boundaries without stacking, never
+  from the computer's wall-clock date. Owner decision 2026-07-17 supersedes
+  this for recurring activity eligibility once implemented: bank one current
+  entry plus one reserve by default, while rewards still require playing the
+  activity. See `simulation-time-boundary-2026-07-16.md` Decision 2.
 - Answer-button semantics are now explicit: every valid answer emits one
   idle/world tick, while only Hard, Good, and Easy (`ease > 1`) also emit a
   foreground action. Again therefore means the player idled for one simulation
@@ -618,12 +622,27 @@ Review-answer side effects must follow Anki's undo semantics. If a future skill 
 
 ## Live cadence route pattern
 
-Thieving stalls are the first foreground family to route live behavior through
-`cadence_kernel.py`. A route owns one `cadence_profiles[profile_id]` residual;
-the active target alone advances it, waits still persist telemetry/residuals,
-and the outer review snapshot makes every advance and reward undo-atomic. Source
-rates above `R = 1000` must declare `CAP_ONE_ACTION`; never round a rational
-respawn rate or compensate by changing base XP.
+`cadence_live.py` is the only runtime admission resolver. A rate-limited route
+owns one `cadence_profiles[profile_id]` residual; the active target alone
+advances it, waits persist residuals and cadence-wait telemetry without an
+attempt, and the outer review snapshot makes admission and reward undo-atomic.
+Source rates above `R = 1000` must declare `CAP_ONE_ACTION`; never round a
+rational rate or compensate by changing base XP. Embedded-probability routes
+receive one authentic attempt with no second gate. Source-blocked routes retain
+their existing handler unit until a compatible row is proven.
+
+Combat consumes `6 × M` immediate ticks per successful card and persists the
+same encounter across cards. Again advances world consumers only and marks an
+active encounter disengaged for safe automation without granting either side a
+combat beat. Kill, death, flee, and bank boundaries stop the current review.
+Finite quest combat is deliberately exempt: live mode resolves one collapsed
+quest stage, while an explicit cadence rollback retains the legacy 50-tick
+quest-combat burst.
+
+In a shared canonical checkout, a whole-suite result is valid only for the
+source/test snapshot imported when discovery began. Before recording or
+committing a long verification run, compare source and test modification times
+against the run start and rerun if another thread wrote during discovery.
 
 Failure state that must consume exactly one outer review returns `False` from
 the handler after mutation. That stops review multipliers from clearing a stun

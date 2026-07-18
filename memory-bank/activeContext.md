@@ -3,15 +3,19 @@
 ## Current Focus
 
 Live cadence activation and the Design 2 reconciliation are verified and ready
-for their atomic commit. The complete core suite passes all 1,474 methods
-(1,273 ordinary passes and 201 environment skips); the complete real offscreen
-Qt suite passes all 1,474 methods with no skips. Neither suite contains a
-cadence skip or expected failure. The focused
-cadence/kernel/parity/combat/runtime/Summoning/Thieving set passes 528 methods,
-and documentation, compilation, reachability, asset, worktree-safety, and
-test-quality gates are clean. The current Anki process predates this candidate,
-so the next ordinary Anki restart is the manual live-load smoke rather than a
-reason to disrupt an active review session during closure. The closure report is
+for their atomic commit. The post-review complete core suite passes all 1,476
+methods (1,275 ordinary passes and 201 environment skips); the matching real
+offscreen Qt suite passes all 1,476 methods with no skips. The
+focused cadence/kernel/parity/combat/runtime/Summoning/Thieving set passes 363
+methods, and no cadence test is skipped or marked as an expected failure. The
+final independent review caught and closed a successful-answer disengagement
+inversion that could have allowed Dream healing between every live Combat
+slice; Again now remains the only answer path that marks disengagement, and its
+next successful slice resumes identical combat/RNG phase. Documentation,
+compilation, reachability, asset, worktree-safety, and test-quality gates are
+clean. The current Anki process predates this candidate, so the next ordinary
+Anki restart is the manual live-load smoke rather than a reason to disrupt an
+active review session during closure. The closure report is
 `status-updates/cadence-kernel-live-results-2026-07-17.html`, with a mobile
 copy at <https://nl2rgoy9pvqk.postplan.dev>.
 

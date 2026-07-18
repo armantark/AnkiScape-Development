@@ -256,7 +256,7 @@ generic skill registry/reward contract to accept Agility without schema work.
 | System | Agility-facing design |
 |---|---|
 | Random-event lamp / Book of Knowledge | Selected-skill XP (`10 x level` / `15 x level`); Random Events owns item/acquisition. [oldid 6469128](https://runescape.wiki/w/Random_event_gift?oldid=6469128), [oldid 6093126](https://runescape.wiki/w/Book_of_knowledge?oldid=6093126). |
-| Tears of Guthix | Route XP to the eligible lowest-XP skill; review-budget collection and answered-card week; D&D owns quest, tears, score and ornate-bowl cap. [oldid 6579712](https://runescape.wiki/w/Tears_of_Guthix?oldid=6579712). |
+| Tears of Guthix | Route XP to the eligible lowest-XP skill; review-budget collection and answered-card week; D&D owns quest, tears, score and ornate-bowl cap. Oldid 6579712 contains an explicit stale-pre-refresh warning; use `source-audits/tears-of-guthix-cutoff-reconciliation-2026-07-17.md` before implementing numeric rewards. |
 | Penguin Hide and Seek | Point exchange to chosen skill at `25 x skill level x points`; D&D owns weekly points/quest caps. [oldid 6569778](https://runescape.wiki/w/Penguin_Hide_and_Seek?oldid=6569778). |
 | Troll Invasion | Monthly reward book formula `8 x completion_fraction x (L^2 - 2L + 100)`; Combat D&D owns completion. [oldid 6588736](https://runescape.wiki/w/Troll_Invasion?oldid=6588736). |
 | Jack of Trades | Track XP in ten distinct skills during action-budget activation, then selectable `L^2 - 2L + 100` reward; Loyalty owns acquisition/cooldown. [oldid 6513813](https://runescape.wiki/w/Jack_of_trades_aura?oldid=6513813). |

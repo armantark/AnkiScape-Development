@@ -62,6 +62,11 @@ coordinated them. Mining behaves as ~1,000 reviews per game-hour, Combat *declar
   action unit until compatible evidence exists.
 - **Rare actions get genuinely rarer.** Runite falls from 54% to ~14%. This is the
   fix, and it is a real felt nerf. Accepted knowingly.
+- **Source-backed admission is level-flat when the source only gives a reference
+  training rate.** The exact cited row applies across the route's unlocked
+  levels unless a compatible level curve exists. This is a bounded,
+  source-visible abstraction and can make a newly unlocked route more generous
+  than its real low-level throughput; do not invent a hidden level scaler.
 - **Combat feels meaningfully slower per card, and this is unavoidable.** One card
   currently buys 50 ticks (30s); under the kernel it buys ~6 ticks (3.6s), and
   combat XP/card falls ~8×. *Any* design that preserves the current combat feel
@@ -277,11 +282,14 @@ never both apply.
 ### 7.1 Closure evidence — 2026-07-17
 
 - The focused live cadence/kernel/parity/combat/runtime/Summoning/Thieving slice
-  passes 528 methods with no skips or expected failures.
-- Full core discovery passes all 1,474 methods: 1,273 ordinary passes and 201
+  passes 363 methods with no skips or expected failures.
+- Full core discovery passes all 1,476 methods: 1,275 ordinary passes and 201
   environment skips.
-- Full real offscreen Qt discovery passes all 1,474 methods with no skips.
+- Full real offscreen Qt discovery passes all 1,476 methods with no skips.
 - Documentation, compilation, diff, worktree safety, and test-quality audits
   pass; the quality audit reports zero hard issues across 71 test files.
 - The obsolete skipped shadow-integration class and the three XP-parity
   expected failures were removed after replacement live coverage passed.
+- Successful Combat answers never mark an encounter disengaged. Again alone
+  marks that boundary, and a following successful answer resumes identical
+  combat state and RNG phase without granting the failed answer a combat beat.

@@ -64,6 +64,26 @@ each page supplies only its own row-filter adapter. This closes the existing pat
 pages independently needing search without forcing unrelated result models into one
 global search index.
 
+## Shared mechanics-details boundary
+
+The Help Center teaches concepts; a reusable optional `Details` surface explains
+the selected target's current effective state. It is available in both Casual
+and Advanced modes and may show:
+
+- effective success chance when genuinely known;
+- expected output or damage range;
+- XP and concrete failure consequences; and
+- a readable base-plus-modifiers breakdown.
+
+It must not expose equations, source files, source-audit classifications,
+internal ticks, RNG state, or fabricated precision. Shops continue to show
+current stock and transaction prices without predicting future restocks or
+price-curve internals. Qualitative wording is correct when the mechanic is not
+numerically resolved.
+
+The compact page remains the default; `Details` is user-invoked and shares
+registry-backed values with Help rather than copying them into prose.
+
 ## Verification and maintenance
 
 - Pure validation: unique topic IDs, valid related links/anchors, required metadata, and

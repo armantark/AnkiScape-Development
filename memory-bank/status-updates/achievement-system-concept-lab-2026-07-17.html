@@ -1,0 +1,1614 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Achievement System Concept Lab</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --surface-3: #252b35;
+      --border: #2a3040;
+      --border-strong: #3a4355;
+      --text: #e8ecf4;
+      --text-dim: #a7b0c0;
+      --text-faint: #747f92;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff6b6b;
+      --green: #4ade80;
+      --green-deep: #195c34;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --cyan: #52d7d0;
+      --radius: 12px;
+      --z-sticky: 20;
+      --z-dialog: 50;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        radial-gradient(circle at 18% -10%, rgba(74, 222, 128, .10), transparent 34rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    button, input { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, input:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 2px;
+    }
+
+    .appbar {
+      position: sticky;
+      top: 0;
+      z-index: var(--z-sticky);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-height: 58px;
+      padding: 9px clamp(14px, 3vw, 34px);
+      border-bottom: 1px solid var(--border);
+      background: rgba(12, 14, 18, .94);
+      backdrop-filter: blur(12px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid rgba(74, 222, 128, .5);
+      border-radius: 9px;
+      background: rgba(74, 222, 128, .09);
+      color: var(--green);
+      font-weight: 900;
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 14px;
+      line-height: 1.15;
+    }
+
+    .brand span {
+      display: block;
+      margin-top: 3px;
+      color: var(--text-dim);
+      font-size: 11px;
+    }
+
+    .appbar-actions {
+      display: flex;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .button {
+      cursor: pointer;
+      min-height: 36px;
+      border: 1px solid var(--border-strong);
+      border-radius: 9px;
+      padding: 7px 11px;
+      background: var(--surface);
+      font-size: 12px;
+      font-weight: 750;
+      transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+    }
+
+    .button:hover { background: var(--surface-2); }
+    .button.primary {
+      border-color: #3faf68;
+      background: #2c9b56;
+      color: #07170d;
+    }
+    .button.primary:hover { background: #4ade80; }
+    .button:disabled {
+      cursor: not-allowed;
+      opacity: .45;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 272px minmax(0, 1fr);
+      min-height: calc(100vh - 58px);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 58px;
+      align-self: start;
+      height: calc(100vh - 58px);
+      overflow: auto;
+      border-right: 1px solid var(--border);
+      background: #11141a;
+      padding: 20px 14px 28px;
+    }
+
+    .sidebar-intro {
+      margin: 0 8px 14px;
+      color: var(--text-dim);
+      font-size: 12px;
+    }
+
+    .concept-tabs {
+      display: grid;
+      gap: 5px;
+    }
+
+    .concept-tab {
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: 31px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 9px;
+      background: transparent;
+      text-align: left;
+      transition: background 180ms ease, border-color 180ms ease;
+    }
+
+    .concept-tab:hover { background: var(--surface); }
+    .concept-tab[aria-selected="true"] {
+      border-color: rgba(74, 222, 128, .46);
+      background: rgba(74, 222, 128, .10);
+    }
+
+    .tab-index {
+      display: grid;
+      place-items: center;
+      width: 29px;
+      height: 29px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      color: var(--text-dim);
+      font: 800 11px/1 "JetBrains Mono", ui-monospace, monospace;
+    }
+
+    .concept-tab[aria-selected="true"] .tab-index {
+      background: var(--green);
+      color: #07170d;
+    }
+
+    .tab-copy {
+      min-width: 0;
+    }
+
+    .tab-copy strong {
+      display: block;
+      overflow: hidden;
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .tab-copy span {
+      display: block;
+      margin-top: 2px;
+      color: var(--text-faint);
+      font-size: 10px;
+    }
+
+    .vote-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border-strong);
+    }
+    .vote-dot.like { background: var(--green); }
+    .vote-dot.maybe { background: var(--amber); }
+    .vote-dot.reject { background: var(--red); }
+
+    .sidebar-summary {
+      margin: 20px 8px 0;
+      padding-top: 15px;
+      border-top: 1px solid var(--border);
+    }
+
+    .summary-counts {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .summary-count {
+      border-radius: 999px;
+      padding: 5px 8px;
+      background: var(--surface);
+      color: var(--text-dim);
+      font: 700 10px/1 "JetBrains Mono", ui-monospace, monospace;
+    }
+
+    main {
+      min-width: 0;
+      padding: clamp(22px, 4vw, 46px);
+    }
+
+    .concept-panel {
+      display: none;
+      width: min(1160px, 100%);
+      margin: 0 auto;
+    }
+
+    .concept-panel.active { display: block; }
+
+    .concept-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 22px;
+      align-items: start;
+      margin-bottom: 24px;
+    }
+
+    .method-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border-radius: 999px;
+      padding: 5px 9px;
+      background: var(--accent-glow);
+      color: #b9d1ff;
+      font: 750 10px/1 "JetBrains Mono", ui-monospace, monospace;
+    }
+
+    h1 {
+      max-width: 18ch;
+      margin: 12px 0 8px;
+      font-size: clamp(28px, 4.2vw, 52px);
+      line-height: 1.02;
+      letter-spacing: -.035em;
+      text-wrap: balance;
+    }
+
+    .concept-lede {
+      max-width: 70ch;
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 14px;
+      text-wrap: pretty;
+    }
+
+    .verdict {
+      display: grid;
+      gap: 7px;
+      min-width: 204px;
+      padding: 12px;
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .verdict span {
+      color: var(--text-dim);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .verdict-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+    }
+
+    .vote-button {
+      cursor: pointer;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 5px;
+      background: var(--surface-2);
+      color: var(--text-dim);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .vote-button:hover,
+    .vote-button[aria-pressed="true"] { color: var(--text); }
+    .vote-button[data-vote="like"][aria-pressed="true"] { border-color: var(--green); background: rgba(74, 222, 128, .13); }
+    .vote-button[data-vote="maybe"][aria-pressed="true"] { border-color: var(--amber); background: rgba(251, 191, 36, .12); }
+    .vote-button[data-vote="reject"][aria-pressed="true"] { border-color: var(--red); background: rgba(255, 107, 107, .12); }
+
+    .workspace {
+      overflow: hidden;
+      border: 1px solid var(--border-strong);
+      border-radius: 14px;
+      background: #12151a;
+    }
+
+    .game-tabs {
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      border-bottom: 1px solid #424852;
+      background: #24272b;
+      scrollbar-width: none;
+    }
+
+    .game-tabs span {
+      flex: 0 0 auto;
+      border-right: 1px solid #424852;
+      padding: 9px 17px;
+      color: #aeb4bc;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .game-tabs .selected {
+      background: #30343a;
+      color: #f4f5f7;
+    }
+
+    .game-body {
+      min-height: 520px;
+      padding: clamp(16px, 3vw, 28px);
+      background: #292b2e;
+    }
+
+    .screen-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .screen-title .item-icon {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: #1d2329;
+      color: var(--amber);
+      font-size: 21px;
+    }
+
+    .screen-title h2 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -.01em;
+    }
+
+    .screen-title p {
+      margin: 3px 0 0;
+      color: #a5abb3;
+      font-size: 11px;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(250px, .7fr);
+      gap: 16px;
+    }
+
+    .panel {
+      border-radius: 11px;
+      background: #202225;
+      padding: 16px;
+    }
+
+    .panel h3 {
+      margin: 0 0 4px;
+      font-size: 13px;
+    }
+
+    .panel-sub {
+      margin: 0 0 14px;
+      color: #a8adb5;
+      font-size: 10px;
+    }
+
+    .meter {
+      position: relative;
+      height: 14px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #101214;
+    }
+
+    .meter-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #219653, var(--green));
+      transition: width 220ms ease-out;
+    }
+
+    .milestones {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      margin-top: 8px;
+      color: #979da6;
+      font: 700 9px/1 "JetBrains Mono", ui-monospace, monospace;
+    }
+    .milestones span:last-child { text-align: right; }
+
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      margin-top: 18px;
+    }
+    input[type="range"] { width: 100%; accent-color: var(--green); }
+
+    .value-chip {
+      min-width: 48px;
+      border-radius: 8px;
+      padding: 7px 8px;
+      background: #111315;
+      color: var(--green);
+      font: 800 11px/1 "JetBrains Mono", ui-monospace, monospace;
+      text-align: center;
+    }
+
+    .draft-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 9px;
+      margin-top: 18px;
+    }
+
+    .reward-card {
+      cursor: pointer;
+      border: 1px solid #3c434d;
+      border-radius: 10px;
+      padding: 12px;
+      background: #181b1f;
+      text-align: left;
+      transition: border-color 160ms ease, background 160ms ease;
+    }
+    .reward-card:hover { border-color: #8691a1; }
+    .reward-card.selected { border-color: var(--green); background: rgba(74, 222, 128, .09); }
+    .reward-card .reward-icon { font-size: 24px; }
+    .reward-card strong { display: block; margin-top: 8px; font-size: 11px; }
+    .reward-card small { display: block; margin-top: 3px; color: #969da7; font-size: 9px; }
+
+    .locked-copy {
+      display: grid;
+      place-items: center;
+      min-height: 132px;
+      margin-top: 18px;
+      border: 1px dashed #525964;
+      border-radius: 10px;
+      color: #9ba1aa;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .rule-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .rule-list li {
+      display: grid;
+      grid-template-columns: 17px 1fr;
+      gap: 8px;
+      align-items: start;
+      color: #c8cdd4;
+      font-size: 10px;
+    }
+
+    .rule-list li::before {
+      content: "✓";
+      display: grid;
+      place-items: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(74, 222, 128, .13);
+      color: var(--green);
+      font-size: 9px;
+      font-weight: 900;
+    }
+
+    .risk-note {
+      margin-top: 14px;
+      border-radius: 9px;
+      padding: 10px;
+      background: rgba(251, 191, 36, .09);
+      color: #e9d59c;
+      font-size: 10px;
+    }
+
+    /* Concept 2: track board */
+    .track-layout {
+      display: grid;
+      grid-template-columns: 200px minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    .family-list {
+      display: grid;
+      align-content: start;
+      gap: 5px;
+    }
+
+    .family-button {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: #1f2124;
+      color: #b9bec5;
+      font-size: 10px;
+      text-align: left;
+    }
+    .family-button.active {
+      border-color: #2e9f55;
+      background: rgba(74, 222, 128, .12);
+      color: #eef3ef;
+    }
+
+    .tier-rail {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .tier-node {
+      min-height: 60px;
+      border-radius: 9px;
+      padding: 9px;
+      background: #17191c;
+      color: #979da6;
+      font-size: 9px;
+    }
+    .tier-node strong { display: block; margin-bottom: 3px; color: #e5e7ea; font-size: 10px; }
+    .tier-node.earned { background: rgba(74, 222, 128, .12); color: #b8d8c1; }
+    .tier-node.current { outline: 1px solid var(--amber); }
+
+    .requirement-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .requirement {
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid #3b414a;
+      border-radius: 9px;
+      padding: 9px;
+      background: #191b1e;
+      text-align: left;
+    }
+    .requirement.done { border-color: #3b9f5c; background: rgba(74, 222, 128, .08); }
+    .check-box {
+      display: grid;
+      place-items: center;
+      width: 19px;
+      height: 19px;
+      border: 1px solid #68717d;
+      border-radius: 5px;
+      color: transparent;
+      font-size: 10px;
+    }
+    .requirement.done .check-box { border-color: var(--green); background: var(--green); color: #07170d; }
+    .requirement strong { display: block; font-size: 10px; }
+    .requirement small { display: block; margin-top: 2px; color: #969da7; font-size: 8px; }
+
+    /* Concept 3: heirloom */
+    .heirloom-layout {
+      display: grid;
+      grid-template-columns: minmax(230px, .72fr) minmax(0, 1.28fr);
+      gap: 14px;
+    }
+
+    .gear-pedestal {
+      display: grid;
+      place-items: center;
+      min-height: 350px;
+      border-radius: 11px;
+      background:
+        radial-gradient(circle, rgba(74, 222, 128, .13), transparent 48%),
+        #1a1c1f;
+      text-align: center;
+    }
+
+    .gear-glyph {
+      display: grid;
+      place-items: center;
+      width: 118px;
+      height: 118px;
+      border: 1px solid rgba(74, 222, 128, .5);
+      border-radius: 28px;
+      background: rgba(74, 222, 128, .08);
+      font-size: 58px;
+      transition: transform 220ms ease-out, background 220ms ease-out;
+    }
+    .gear-glyph.upgraded { transform: scale(1.04); background: rgba(251, 191, 36, .12); }
+    .gear-tier { margin-top: 15px; font-size: 15px; font-weight: 850; }
+    .gear-status { margin-top: 4px; color: #a3aab4; font-size: 10px; }
+
+    .deed-list { display: grid; gap: 8px; }
+    .deed {
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: 34px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+      border: 1px solid #3b414a;
+      border-radius: 10px;
+      padding: 10px;
+      background: #191b1e;
+      text-align: left;
+    }
+    .deed.done { border-color: #956fd8; background: rgba(167, 139, 250, .09); }
+    .deed-symbol {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #252930;
+      font-size: 16px;
+    }
+    .deed strong { display: block; font-size: 10px; }
+    .deed small { display: block; margin-top: 2px; color: #999fa8; font-size: 8px; }
+    .engraved { color: var(--purple); font: 800 9px/1 "JetBrains Mono", ui-monospace, monospace; }
+
+    /* Concept 4: contracts */
+    .contract-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding: 10px;
+      border-radius: 9px;
+      background: #191b1e;
+    }
+    .contract-toolbar strong { font-size: 11px; }
+    .contract-toolbar span { color: #9da4ad; font-size: 9px; }
+    .contract-toolbar .button { margin-left: auto; }
+
+    .contract-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .contract {
+      cursor: pointer;
+      position: relative;
+      min-height: 94px;
+      border: 1px solid #3c424b;
+      border-radius: 10px;
+      padding: 11px;
+      background: #191b1e;
+      text-align: left;
+    }
+    .contract.selected { border-color: var(--cyan); background: rgba(82, 215, 208, .08); }
+    .contract.completed { border-color: var(--green); background: rgba(74, 222, 128, .09); }
+    .contract.unavailable { cursor: default; opacity: .42; }
+    .contract-type {
+      display: inline-block;
+      margin-bottom: 8px;
+      border-radius: 999px;
+      padding: 4px 6px;
+      background: #282d34;
+      color: #bcc3cc;
+      font: 750 8px/1 "JetBrains Mono", ui-monospace, monospace;
+    }
+    .contract strong { display: block; font-size: 10px; }
+    .contract small { display: block; margin-top: 4px; color: #9da3ac; font-size: 8px; }
+
+    /* Concept 5: capstone */
+    .readiness-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      margin-bottom: 16px;
+    }
+    .readiness {
+      cursor: pointer;
+      border: 1px solid #414750;
+      border-radius: 9px;
+      padding: 10px;
+      background: #191b1e;
+      color: #aeb4bc;
+      text-align: left;
+    }
+    .readiness.done { border-color: var(--green); color: #e6eee8; }
+    .readiness strong { display: block; font-size: 10px; }
+    .readiness span { display: block; margin-top: 3px; font-size: 8px; }
+
+    .deed-stage {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+      margin: 18px 0;
+    }
+    .stage {
+      position: relative;
+      min-height: 88px;
+      border-radius: 9px;
+      padding: 10px;
+      background: #17191c;
+      color: #777f8a;
+      font-size: 8px;
+    }
+    .stage strong { display: block; margin: 6px 0 4px; color: #9da4ae; font-size: 9px; }
+    .stage.current { outline: 1px solid var(--amber); color: #d8c38a; }
+    .stage.current strong { color: #f1d790; }
+    .stage.done { background: rgba(74, 222, 128, .10); color: #a8c8b1; }
+    .stage.done strong { color: #d9eade; }
+    .stage-num { font: 800 9px/1 "JetBrains Mono", ui-monospace, monospace; }
+
+    .deed-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .deed-actions p {
+      margin: 0;
+      color: #a6adb6;
+      font-size: 9px;
+    }
+    .deed-actions .button { margin-left: auto; }
+
+    /* Concept 6: cabinet */
+    .cabinet {
+      padding: 13px;
+      border: 7px solid #3d2c22;
+      border-radius: 10px;
+      background: #17120f;
+    }
+    .cabinet-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 11px;
+      color: #d4c4b8;
+      font-size: 10px;
+    }
+    .shelf {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      padding: 12px 8px;
+      border-bottom: 7px solid #4b3528;
+      background: #211a16;
+    }
+    .display-slot {
+      cursor: pointer;
+      min-height: 103px;
+      border: 1px dashed #6b584c;
+      border-radius: 8px;
+      padding: 9px;
+      background: #181310;
+      color: #9e8f84;
+      text-align: center;
+    }
+    .display-slot.filled {
+      border-style: solid;
+      border-color: #c89b55;
+      background: rgba(200, 155, 85, .10);
+      color: #ead6b8;
+    }
+    .display-slot .slot-icon { display: block; font-size: 25px; filter: grayscale(1); opacity: .42; }
+    .display-slot.filled .slot-icon { filter: none; opacity: 1; }
+    .display-slot strong { display: block; margin-top: 8px; font-size: 9px; }
+    .display-slot small { display: block; margin-top: 3px; font-size: 7px; }
+
+    /* Concept 7: lattice */
+    .lattice-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 250px;
+      gap: 14px;
+    }
+    .seal-field {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      align-content: start;
+    }
+    .seal {
+      cursor: pointer;
+      min-height: 102px;
+      border: 1px solid #434a55;
+      border-radius: 50%;
+      padding: 14px 8px;
+      background: #181a1e;
+      color: #8f97a2;
+      text-align: center;
+      aspect-ratio: 1;
+    }
+    .seal.active {
+      border-color: var(--purple);
+      background: rgba(167, 139, 250, .12);
+      color: #e5dcfb;
+    }
+    .seal span { display: block; font-size: 21px; }
+    .seal strong { display: block; margin-top: 6px; font-size: 9px; }
+    .seal small { display: block; margin-top: 2px; font-size: 7px; }
+
+    .recipe-list { display: grid; gap: 7px; }
+    .recipe {
+      border: 1px solid #3b414a;
+      border-radius: 9px;
+      padding: 10px;
+      background: #191b1e;
+    }
+    .recipe.ready { border-color: var(--green); background: rgba(74, 222, 128, .09); }
+    .recipe-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .recipe-status { color: #9da4ad; font-size: 8px; }
+    .recipe.ready .recipe-status { color: var(--green); }
+    .recipe-seals {
+      display: flex;
+      gap: 4px;
+      margin-top: 7px;
+      flex-wrap: wrap;
+    }
+    .recipe-seals span {
+      border-radius: 999px;
+      padding: 4px 6px;
+      background: #292e35;
+      color: #aab1bb;
+      font-size: 7px;
+    }
+
+    .explain-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      margin-top: 16px;
+      overflow: hidden;
+      border-radius: 11px;
+      background: var(--border);
+    }
+    .explain {
+      min-height: 118px;
+      padding: 14px;
+      background: var(--surface);
+    }
+    .explain strong { display: block; font-size: 11px; }
+    .explain p { margin: 6px 0 0; color: var(--text-dim); font-size: 10px; }
+    .explain.risk strong { color: var(--amber); }
+    .explain.cost strong { color: var(--purple); }
+
+    dialog {
+      width: min(1040px, calc(100% - 28px));
+      max-height: calc(100vh - 32px);
+      overflow: auto;
+      border: 1px solid var(--border-strong);
+      border-radius: 14px;
+      padding: 0;
+      background: #11141a;
+      color: var(--text);
+      box-shadow: 0 8px 0 rgba(0, 0, 0, .35);
+    }
+    dialog::backdrop { background: rgba(4, 6, 9, .76); backdrop-filter: blur(4px); }
+    .dialog-head {
+      position: sticky;
+      top: 0;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 15px 17px;
+      border-bottom: 1px solid var(--border);
+      background: #11141a;
+    }
+    .dialog-head h2 { margin: 0; font-size: 17px; }
+    .dialog-head .button { margin-left: auto; }
+    .dialog-body { padding: 17px; }
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+    .compare-table th, .compare-table td {
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+    .compare-table th { color: var(--text-dim); font-size: 9px; }
+    .recommendation {
+      margin-top: 16px;
+      border-radius: 11px;
+      padding: 15px;
+      background: rgba(74, 222, 128, .10);
+    }
+    .recommendation strong { display: block; font-size: 12px; }
+    .recommendation p { margin: 6px 0 0; color: #c1d8c7; font-size: 10px; }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: calc(var(--z-dialog) + 1);
+      translate: 0 16px;
+      opacity: 0;
+      border: 1px solid #3d9d5c;
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #153522;
+      color: #d8f6e1;
+      font-size: 11px;
+      pointer-events: none;
+      transition: opacity 180ms ease, translate 180ms ease;
+    }
+    .toast.show { translate: 0; opacity: 1; }
+
+    @media (max-width: 920px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar {
+        position: sticky;
+        top: 58px;
+        z-index: 10;
+        width: 100%;
+        max-width: 100vw;
+        min-width: 0;
+        height: auto;
+        overflow-x: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+        padding: 8px 12px;
+      }
+      .sidebar-intro, .sidebar-summary { display: none; }
+      .concept-tabs { display: flex; width: max-content; min-width: 0; }
+      .concept-tab { width: 160px; }
+      main { width: 100%; max-width: 100vw; padding: 24px 16px 54px; }
+      .demo-grid, .heirloom-layout, .lattice-layout { grid-template-columns: 1fr; }
+      .explain-strip { grid-template-columns: 1fr; }
+      .track-layout { grid-template-columns: 1fr; }
+      .family-list { display: flex; overflow-x: auto; }
+      .family-button { min-width: max-content; }
+    }
+
+    @media (max-width: 620px) {
+      body { overflow-x: hidden; }
+      .appbar { gap: 8px; padding-inline: 12px; }
+      .brand { flex: 1; min-width: 0; }
+      .brand strong {
+        overflow: hidden;
+        font-size: 12px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .brand span { display: none; }
+      .appbar-actions .button:first-child { display: none; }
+      #copyButton { width: 54px; padding-inline: 7px; font-size: 0; }
+      #copyButton::after { content: "Copy"; font-size: 10px; }
+      .concept-panel, .concept-header, .workspace { max-width: 100%; min-width: 0; }
+      .concept-header { grid-template-columns: 1fr; }
+      .verdict { width: 100%; min-width: 0; }
+      .verdict-options, .vote-button { min-width: 0; }
+      .game-tabs span { padding: 8px 11px; }
+      .game-body { min-height: 560px; padding: 13px; }
+      .draft-grid, .requirement-grid, .contract-grid { grid-template-columns: 1fr; }
+      .tier-rail { grid-template-columns: repeat(2, 1fr); }
+      .readiness-grid { grid-template-columns: 1fr; }
+      .deed-stage { grid-template-columns: 1fr; }
+      .stage { min-height: 56px; }
+      .shelf { grid-template-columns: repeat(2, 1fr); }
+      .seal-field { grid-template-columns: repeat(2, 1fr); }
+      .compare-table { min-width: 720px; }
+      .dialog-body { overflow-x: auto; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="appbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">A</div>
+      <div>
+        <strong>Achievement System Concept Lab</strong>
+        <span>Seven playable directions for diary-item progression</span>
+      </div>
+    </div>
+    <div class="appbar-actions">
+      <button class="button" id="compareButton" type="button">Compare all</button>
+      <button class="button primary" id="copyButton" type="button">Copy decisions</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar" aria-label="Achievement concepts">
+      <p class="sidebar-intro">Try the miniature UI, then mark each direction. Your verdicts stay in this page until refreshed.</p>
+      <nav class="concept-tabs" role="tablist" aria-label="Concept mockups">
+        <button class="concept-tab" role="tab" aria-selected="true" aria-controls="concept-ledger" id="tab-ledger" data-concept="ledger">
+          <span class="tab-index">01</span><span class="tab-copy"><strong>Grand Ledger Draft</strong><span>Global meter + offers</span></span><span class="vote-dot"></span>
+        </button>
+        <button class="concept-tab" role="tab" aria-selected="false" aria-controls="concept-tracks" id="tab-tracks" data-concept="tracks">
+          <span class="tab-index">02</span><span class="tab-copy"><strong>Item-family Tracks</strong><span>Curated tier boards</span></span><span class="vote-dot"></span>
+        </button>
+        <button class="concept-tab" role="tab" aria-selected="false" aria-controls="concept-heirloom" id="tab-heirloom" data-concept="heirloom">
+          <span class="tab-index">03</span><span class="tab-copy"><strong>Heirloom Equipment</strong><span>Gear records its deeds</span></span><span class="vote-dot"></span>
+        </button>
+        <button class="concept-tab" role="tab" aria-selected="false" aria-controls="concept-contracts" id="tab-contracts" data-concept="contracts">
+          <span class="tab-index">04</span><span class="tab-copy"><strong>Contract Slates</strong><span>Pick and commit</span></span><span class="vote-dot"></span>
+        </button>
+        <button class="concept-tab" role="tab" aria-selected="false" aria-controls="concept-deeds" id="tab-deeds" data-concept="deeds">
+          <span class="tab-index">05</span><span class="tab-copy"><strong>Signature Deeds</strong><span>One memorable capstone</span></span><span class="vote-dot"></span>
+        </button>
+        <button class="concept-tab" role="tab" aria-selected="false" aria-controls="concept-cabinet" id="tab-cabinet" data-concept="cabinet">
+          <span class="tab-index">06</span><span class="tab-copy"><strong>Achievement Cabinet</strong><span>Visible collection sets</span></span><span class="vote-dot"></span>
+        </button>
+        <button class="concept-tab" role="tab" aria-selected="false" aria-controls="concept-lattice" id="tab-lattice" data-concept="lattice">
+          <span class="tab-index">07</span><span class="tab-copy"><strong>Mastery Lattice</strong><span>Intersecting seals</span></span><span class="vote-dot"></span>
+        </button>
+      </nav>
+      <div class="sidebar-summary">
+        <div class="summary-counts">
+          <span class="summary-count" id="likeCount">0 like</span>
+          <span class="summary-count" id="maybeCount">0 maybe</span>
+          <span class="summary-count" id="rejectCount">0 reject</span>
+        </div>
+      </div>
+    </aside>
+
+    <main>
+      <section class="concept-panel active" id="concept-ledger" role="tabpanel" aria-labelledby="tab-ledger" data-concept="ledger">
+        <header class="concept-header">
+          <div>
+            <span class="method-label">GLOBAL PROGRESS · CHOICE OR SURPRISE</span>
+            <h1>The Grand Ledger Draft</h1>
+            <p class="concept-lede">A frozen achievement page fills toward permanent reward thresholds. Each threshold presents three eligible diary-item families instead of silently dropping a random piece.</p>
+          </div>
+          <div class="verdict" data-verdict="ledger"><span>Your verdict</span><div class="verdict-options">
+            <button class="vote-button" data-vote="like" aria-pressed="false">Like</button>
+            <button class="vote-button" data-vote="maybe" aria-pressed="false">Maybe</button>
+            <button class="vote-button" data-vote="reject" aria-pressed="false">Reject</button>
+          </div></div>
+        </header>
+        <div class="workspace">
+          <div class="game-tabs"><span>Skills</span><span>Activities</span><span>Bank</span><span>Equipment</span><span class="selected">Achievements</span><span>Settings</span></div>
+          <div class="game-body">
+            <div class="screen-title"><div class="item-icon">📖</div><div><h2>Foundations Ledger</h2><p>This page never grows after publication. New achievements enter a new ledger.</p></div></div>
+            <div class="demo-grid">
+              <div class="panel">
+                <h3>Achievement completion</h3>
+                <p class="panel-sub">Drag the meter past 20% to reveal a reward draft.</p>
+                <div class="meter"><div class="meter-fill" id="ledgerFill" style="width: 18%"></div></div>
+                <div class="milestones"><span>0</span><span>10%</span><span>20%</span><span>30%</span><span>100%</span></div>
+                <div class="range-row"><input type="range" id="ledgerRange" min="0" max="100" value="18" aria-label="Ledger completion"><span class="value-chip" id="ledgerValue">18%</span></div>
+                <div id="draftLocked" class="locked-copy">Complete 2% more of this ledger to earn a Diary Writ.</div>
+                <div id="draftRewards" class="draft-grid" hidden>
+                  <button class="reward-card"><span class="reward-icon">⛏️</span><strong>Varrock armour 1</strong><small>New family · Mining and Smithing</small></button>
+                  <button class="reward-card"><span class="reward-icon">💍</span><strong>Explorer's ring 1</strong><small>New family · Utility and Magic</small></button>
+                  <button class="reward-card"><span class="reward-icon">🧤</span><strong>Karamja gloves 1</strong><small>New family · Island activities</small></button>
+                </div>
+              </div>
+              <aside class="panel">
+                <h3>What the model guarantees</h3>
+                <p class="panel-sub">The good version of a percentage grant.</p>
+                <ul class="rule-list">
+                  <li>The denominator is frozen per ledger page.</li>
+                  <li>Previously earned rewards never move backward.</li>
+                  <li>Offers prefer unowned families before upgrades.</li>
+                  <li>“Surprise me” can exist without forcing randomness.</li>
+                </ul>
+                <div class="risk-note">Main risk: the achievement that fills the meter may have nothing to do with the item offered.</div>
+              </aside>
+            </div>
+          </div>
+        </div>
+        <div class="explain-strip"><div class="explain"><strong>Best at</strong><p>Giving the whole catalog a simple, legible reward cadence.</p></div><div class="explain risk"><strong>Worst failure</strong><p>Diary gear becomes generic account loot rather than the result of related mastery.</p></div><div class="explain cost"><strong>Build burden · Low–medium</strong><p>Frozen ledgers, offer eligibility, migration, and a claim surface.</p></div></div>
+      </section>
+
+      <section class="concept-panel" id="concept-tracks" role="tabpanel" aria-labelledby="tab-tracks" data-concept="tracks">
+        <header class="concept-header">
+          <div>
+            <span class="method-label">TARGETED PROGRESS · IMMUTABLE TIER BOARDS</span>
+            <h1>Curated Item-family Tracks</h1>
+            <p class="concept-lede">Every authentic diary-item family owns a four-tier board made from accomplishments that actually exercise its skills, quests, activities, and effects.</p>
+          </div>
+          <div class="verdict" data-verdict="tracks"><span>Your verdict</span><div class="verdict-options">
+            <button class="vote-button" data-vote="like" aria-pressed="false">Like</button>
+            <button class="vote-button" data-vote="maybe" aria-pressed="false">Maybe</button>
+            <button class="vote-button" data-vote="reject" aria-pressed="false">Reject</button>
+          </div></div>
+        </header>
+        <div class="workspace">
+          <div class="game-tabs"><span>Skills</span><span>Activities</span><span>Bank</span><span>Equipment</span><span class="selected">Achievements</span><span>Settings</span></div>
+          <div class="game-body">
+            <div class="screen-title"><div class="item-icon">🧭</div><div><h2>Diary Equipment Tracks</h2><p>Select a family, then click requirements to preview tier progression.</p></div></div>
+            <div class="track-layout">
+              <div class="family-list" aria-label="Item families">
+                <button class="family-button active"><span>⛏️</span> Varrock armour</button>
+                <button class="family-button"><span>🕵️</span> Ardougne cloak</button>
+                <button class="family-button"><span>🧤</span> Karamja gloves</button>
+                <button class="family-button"><span>💍</span> Explorer's ring</button>
+                <button class="family-button"><span>🛡️</span> Falador shield</button>
+              </div>
+              <div class="panel">
+                <div class="tier-rail">
+                  <div class="tier-node current" data-track-tier="1"><strong>Armour 1</strong>Industrial foundations</div>
+                  <div class="tier-node" data-track-tier="2"><strong>Armour 2</strong>Metal mastery</div>
+                  <div class="tier-node" data-track-tier="3"><strong>Armour 3</strong>Supply chain</div>
+                  <div class="tier-node" data-track-tier="4"><strong>Armour 4</strong>Varrock mastery</div>
+                </div>
+                <div class="meter"><div class="meter-fill" id="trackFill" style="width: 0%"></div></div>
+                <div class="requirement-grid" id="trackRequirements" style="margin-top: 12px">
+                  <button class="requirement"><span class="check-box">✓</span><span><strong>Mine every common ore</strong><small>Breadth · telemetry-backed</small></span></button>
+                  <button class="requirement"><span class="check-box">✓</span><span><strong>Smelt 250 bars</strong><small>Production · cumulative</small></span></button>
+                  <button class="requirement"><span class="check-box">✓</span><span><strong>Reach Mining 30</strong><small>Progression · retroactive</small></span></button>
+                  <button class="requirement"><span class="check-box">✓</span><span><strong>Reach Smithing 30</strong><small>Progression · retroactive</small></span></button>
+                  <button class="requirement"><span class="check-box">✓</span><span><strong>Complete a workshop activity</strong><small>Activity · first clear</small></span></button>
+                  <button class="requirement"><span class="check-box">✓</span><span><strong>Forge a full equipment set</strong><small>Capstone · authored</small></span></button>
+                  <button class="requirement"><span class="check-box">✓</span><span><strong>Finish a Varrock quest</strong><small>Quest · sticky completion</small></span></button>
+                  <button class="requirement"><span class="check-box">✓</span><span><strong>Produce from self-mined ore</strong><small>Integration · provenance-aware</small></span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="explain-strip"><div class="explain"><strong>Best at</strong><p>Making every gear family feel causally connected to the play that earns it.</p></div><div class="explain risk"><strong>Worst failure</strong><p>Weakly themed families need careful curation rather than arbitrary regional trivia in disguise.</p></div><div class="explain cost"><strong>Build burden · Medium</strong><p>Eight-plus authored tracks, fixed manifests, alternates, migration, and tier claims.</p></div></div>
+      </section>
+
+      <section class="concept-panel" id="concept-heirloom" role="tabpanel" aria-labelledby="tab-heirloom" data-concept="heirloom">
+        <header class="concept-header">
+          <div>
+            <span class="method-label">ITEM-LED PROGRESSION · VISIBLE DEED RECORD</span>
+            <h1>Heirloom Equipment</h1>
+            <p class="concept-lede">Tier-one equipment is the beginning, not the prize. The item records distinct accomplishments performed while it is worn and upgrades when its engraving is complete.</p>
+          </div>
+          <div class="verdict" data-verdict="heirloom"><span>Your verdict</span><div class="verdict-options">
+            <button class="vote-button" data-vote="like" aria-pressed="false">Like</button>
+            <button class="vote-button" data-vote="maybe" aria-pressed="false">Maybe</button>
+            <button class="vote-button" data-vote="reject" aria-pressed="false">Reject</button>
+          </div></div>
+        </header>
+        <div class="workspace">
+          <div class="game-tabs"><span>Skills</span><span>Activities</span><span>Bank</span><span class="selected">Equipment</span><span>Achievements</span><span>Settings</span></div>
+          <div class="game-body">
+            <div class="screen-title"><div class="item-icon">⛏️</div><div><h2>Varrock armour record</h2><p>Click deeds to engrave them into the equipped item.</p></div></div>
+            <div class="heirloom-layout">
+              <div class="gear-pedestal">
+                <div><div class="gear-glyph" id="heirloomGlyph">🥋</div><div class="gear-tier" id="heirloomTier">Varrock armour 1</div><div class="gear-status" id="heirloomStatus">0 of 4 engravings complete</div></div>
+              </div>
+              <div class="panel">
+                <h3>Engraving record</h3>
+                <p class="panel-sub">Distinct mastery, not “wear this for 1,000 reviews.”</p>
+                <div class="deed-list" id="heirloomDeeds">
+                  <button class="deed"><span class="deed-symbol">⛏️</span><span><strong>Extract every metal class</strong><small>Mine one ore from bronze through runite while equipped.</small></span><span class="engraved">EMPTY</span></button>
+                  <button class="deed"><span class="deed-symbol">🔥</span><span><strong>Close the supply chain</strong><small>Smelt bars entirely from ore you produced.</small></span><span class="engraved">EMPTY</span></button>
+                  <button class="deed"><span class="deed-symbol">⚒️</span><span><strong>Commission a complete set</strong><small>Forge a coherent equipment set without purchasing bars.</small></span><span class="engraved">EMPTY</span></button>
+                  <button class="deed"><span class="deed-symbol">🏛️</span><span><strong>Serve Varrock industry</strong><small>Complete a related quest or industrial activity.</small></span><span class="engraved">EMPTY</span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="explain-strip"><div class="explain"><strong>Best at</strong><p>Turning the item into a companion whose history is visible and personal.</p></div><div class="explain risk"><strong>Worst failure</strong><p>If deeds are counters rather than choices, it becomes passive “wear it and wait.”</p></div><div class="explain cost"><strong>Build burden · Medium</strong><p>Per-item progress, equipment-aware telemetry, upgrade replacement, and tooltips.</p></div></div>
+      </section>
+
+      <section class="concept-panel" id="concept-contracts" role="tabpanel" aria-labelledby="tab-contracts" data-concept="contracts">
+        <header class="concept-header">
+          <div>
+            <span class="method-label">PLAYER-CHOSEN ROUTE · COMMITTED SLATE</span>
+            <h1>Pick-and-commit Contracts</h1>
+            <p class="concept-lede">Each tier offers several accomplishments with different skill, time, and difficulty profiles. The player commits to four, then finishes exactly that route.</p>
+          </div>
+          <div class="verdict" data-verdict="contracts"><span>Your verdict</span><div class="verdict-options">
+            <button class="vote-button" data-vote="like" aria-pressed="false">Like</button>
+            <button class="vote-button" data-vote="maybe" aria-pressed="false">Maybe</button>
+            <button class="vote-button" data-vote="reject" aria-pressed="false">Reject</button>
+          </div></div>
+        </header>
+        <div class="workspace">
+          <div class="game-tabs"><span>Skills</span><span>Activities</span><span>Bank</span><span>Equipment</span><span class="selected">Achievements</span><span>Settings</span></div>
+          <div class="game-body">
+            <div class="screen-title"><div class="item-icon">🕵️</div><div><h2>Ardougne cloak 2 contract slate</h2><p>Choose four. After committing, click each selected contract to simulate completion.</p></div></div>
+            <div class="contract-toolbar"><div><strong id="contractCount">0 of 4 selected</strong><span id="contractHint"> · Pick contracts with different kinds of effort.</span></div><button class="button primary" id="commitContracts" disabled>Commit slate</button></div>
+            <div class="contract-grid" id="contractGrid">
+              <button class="contract"><span class="contract-type">THIEVING</span><strong>Complete two full Slayer assignments through pickpocket supplies</strong><small>Low level gate · longer production route</small></button>
+              <button class="contract"><span class="contract-type">AGILITY</span><strong>Complete three distinct course families</strong><small>Medium level gate · short breadth route</small></button>
+              <button class="contract"><span class="contract-type">FARMING</span><strong>Harvest five herb species without a dead patch</strong><small>World-time route · planning pressure</small></button>
+              <button class="contract"><span class="contract-type">QUEST</span><strong>Complete two Ardougne-linked quests</strong><small>High dependency · permanent progress</small></button>
+              <button class="contract"><span class="contract-type">COMBAT</span><strong>Defeat three enemy families on assignment</strong><small>Equipment route · moderate risk</small></button>
+              <button class="contract"><span class="contract-type">CRAFTING</span><strong>Produce a full ranged-hide set from gathered inputs</strong><small>Cross-skill route · no rare drop</small></button>
+            </div>
+          </div>
+        </div>
+        <div class="explain-strip"><div class="explain"><strong>Best at</strong><p>Letting different accounts earn the same authentic item through genuinely different play.</p></div><div class="explain risk"><strong>Worst failure</strong><p>One cheap quartet becomes the solved route and turns every other contract into decoration.</p></div><div class="explain cost"><strong>Build burden · Medium–high</strong><p>Large contract pool, comparable costs, commitment state, swaps, and migration.</p></div></div>
+      </section>
+
+      <section class="concept-panel" id="concept-deeds" role="tabpanel" aria-labelledby="tab-deeds" data-concept="deeds">
+        <header class="concept-header">
+          <div>
+            <span class="method-label">READINESS + ONE AUTHORED CAPSTONE</span>
+            <h1>Signature Deeds</h1>
+            <p class="concept-lede">Levels and ordinary achievements establish readiness. The actual item is awarded for completing one memorable multi-stage commission rather than clearing a long list.</p>
+          </div>
+          <div class="verdict" data-verdict="deeds"><span>Your verdict</span><div class="verdict-options">
+            <button class="vote-button" data-vote="like" aria-pressed="false">Like</button>
+            <button class="vote-button" data-vote="maybe" aria-pressed="false">Maybe</button>
+            <button class="vote-button" data-vote="reject" aria-pressed="false">Reject</button>
+          </div></div>
+        </header>
+        <div class="workspace">
+          <div class="game-tabs"><span>Skills</span><span>Activities</span><span>Bank</span><span>Equipment</span><span class="selected">Achievements</span><span>Settings</span></div>
+          <div class="game-body">
+            <div class="screen-title"><div class="item-icon">⚒️</div><div><h2>The Royal Industrial Commission</h2><p>A prototype capstone for Varrock armour 3. Click readiness checks, then run the deed.</p></div></div>
+            <div class="panel">
+              <div class="readiness-grid" id="readinessGrid">
+                <button class="readiness"><strong>Mining 60</strong><span>Current save can prove this.</span></button>
+                <button class="readiness"><strong>Smithing 60</strong><span>Current save can prove this.</span></button>
+                <button class="readiness"><strong>Varrock armour 2</strong><span>Previous tier is required.</span></button>
+              </div>
+              <div class="deed-stage" id="deedStages">
+                <div class="stage current"><span class="stage-num">1</span><strong>Accept order</strong>Receive a randomized but level-feasible commission.</div>
+                <div class="stage"><span class="stage-num">2</span><strong>Source ore</strong>Produce the required inputs through Mining.</div>
+                <div class="stage"><span class="stage-num">3</span><strong>Refine</strong>Smelt the order without purchased bars.</div>
+                <div class="stage"><span class="stage-num">4</span><strong>Forge</strong>Create the named equipment order.</div>
+                <div class="stage"><span class="stage-num">5</span><strong>Deliver</strong>Claim the armour upgrade and commission record.</div>
+              </div>
+              <div class="deed-actions"><p id="deedMessage">Complete all readiness checks to begin.</p><button class="button primary" id="advanceDeed" disabled>Perform next stage</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="explain-strip"><div class="explain"><strong>Best at</strong><p>Producing a specific story the player remembers when looking at the reward.</p></div><div class="explain risk"><strong>Worst failure</strong><p>A mistuned capstone is a binary wall with expensive bespoke content behind every tier.</p></div><div class="explain cost"><strong>Build burden · High</strong><p>Authored stage machines, feasibility, failure behavior, reward claims, and tests.</p></div></div>
+      </section>
+
+      <section class="concept-panel" id="concept-cabinet" role="tabpanel" aria-labelledby="tab-cabinet" data-concept="cabinet">
+        <header class="concept-header">
+          <div>
+            <span class="method-label">COLLECTION MEMORY · ANY FOUR OF SIX</span>
+            <h1>The Achievement Cabinet</h1>
+            <p class="concept-lede">Each tier is a physical-looking display shelf. Permanent first-acquisition records fill its spaces; completing enough of the shelf awards the item without requiring the player to keep hoarding materials.</p>
+          </div>
+          <div class="verdict" data-verdict="cabinet"><span>Your verdict</span><div class="verdict-options">
+            <button class="vote-button" data-vote="like" aria-pressed="false">Like</button>
+            <button class="vote-button" data-vote="maybe" aria-pressed="false">Maybe</button>
+            <button class="vote-button" data-vote="reject" aria-pressed="false">Reject</button>
+          </div></div>
+        </header>
+        <div class="workspace">
+          <div class="game-tabs"><span>Skills</span><span>Activities</span><span>Bank</span><span>Equipment</span><span class="selected">Achievements</span><span>Settings</span></div>
+          <div class="game-body">
+            <div class="screen-title"><div class="item-icon">🏺</div><div><h2>Karamja cabinet · second shelf</h2><p>Click any four exhibits. The item itself does not need to remain in the Bank.</p></div></div>
+            <div class="cabinet">
+              <div class="cabinet-head"><strong id="cabinetCount">0 of 4 required exhibits</strong><span id="cabinetReward">Karamja gloves 2 · incomplete</span></div>
+              <div class="shelf" id="cabinetShelf">
+                <button class="display-slot"><span class="slot-icon">🎟️</span><strong>Brimhaven regular</strong><small>Earn a meaningful ticket bundle</small></button>
+                <button class="display-slot"><span class="slot-icon">🐟</span><strong>Island cook</strong><small>Prepare representative local fish</small></button>
+                <button class="display-slot"><span class="slot-icon">🌋</span><strong>TzHaar trophy</strong><small>Defeat a supported enemy family</small></button>
+                <button class="display-slot"><span class="slot-icon">🌿</span><strong>Island produce</strong><small>Harvest a Karamja-linked crop</small></button>
+                <button class="display-slot"><span class="slot-icon">🧗</span><strong>Course record</strong><small>Complete the relevant Agility family</small></button>
+                <button class="display-slot"><span class="slot-icon">📜</span><strong>Quest keepsake</strong><small>Finish a supported island quest</small></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="explain-strip"><div class="explain"><strong>Best at</strong><p>Making breadth concrete: empty spaces communicate the next attainable goal immediately.</p></div><div class="explain risk"><strong>Worst failure</strong><p>A rare last slot can stall a complete-looking shelf; “any N of M” must remain generous.</p></div><div class="explain cost"><strong>Build burden · Medium</strong><p>Permanent firsts ledger, curated shelves, visual assets, alternates, and claims.</p></div></div>
+      </section>
+
+      <section class="concept-panel" id="concept-lattice" role="tabpanel" aria-labelledby="tab-lattice" data-concept="lattice">
+        <header class="concept-header">
+          <div>
+            <span class="method-label">CROSS-SYSTEM MASTERY · REUSABLE SEALS</span>
+            <h1>The Mastery Lattice</h1>
+            <p class="concept-lede">Skills, quests, and activities award permanent mastery seals. Diary-item upgrades occur where the right seals intersect, turning them into recipes for account breadth.</p>
+          </div>
+          <div class="verdict" data-verdict="lattice"><span>Your verdict</span><div class="verdict-options">
+            <button class="vote-button" data-vote="like" aria-pressed="false">Like</button>
+            <button class="vote-button" data-vote="maybe" aria-pressed="false">Maybe</button>
+            <button class="vote-button" data-vote="reject" aria-pressed="false">Reject</button>
+          </div></div>
+        </header>
+        <div class="workspace">
+          <div class="game-tabs"><span>Skills</span><span>Activities</span><span>Bank</span><span>Equipment</span><span class="selected">Achievements</span><span>Settings</span></div>
+          <div class="game-body">
+            <div class="screen-title"><div class="item-icon">🔗</div><div><h2>Account mastery lattice</h2><p>Activate seals to see which equipment intersections become ready.</p></div></div>
+            <div class="lattice-layout">
+              <div class="seal-field" id="sealField">
+                <button class="seal" data-seal="mining"><span>⛏️</span><strong>Mining seal</strong><small>Metal breadth</small></button>
+                <button class="seal" data-seal="smithing"><span>⚒️</span><strong>Smithing seal</strong><small>Production mastery</small></button>
+                <button class="seal" data-seal="quest"><span>📜</span><strong>Quest seal</strong><small>Story progression</small></button>
+                <button class="seal" data-seal="agility"><span>🧗</span><strong>Agility seal</strong><small>Course breadth</small></button>
+                <button class="seal" data-seal="thieving"><span>🗝️</span><strong>Thieving seal</strong><small>Target mastery</small></button>
+                <button class="seal" data-seal="activity"><span>🎟️</span><strong>Activity seal</strong><small>First clears</small></button>
+              </div>
+              <div class="recipe-list">
+                <div class="recipe" data-requires="mining,smithing"><div class="recipe-head"><span>Varrock armour 1</span><span class="recipe-status">Missing seals</span></div><div class="recipe-seals"><span>Mining</span><span>Smithing</span></div></div>
+                <div class="recipe" data-requires="agility,thieving,quest"><div class="recipe-head"><span>Ardougne cloak 1</span><span class="recipe-status">Missing seals</span></div><div class="recipe-seals"><span>Agility</span><span>Thieving</span><span>Quest</span></div></div>
+                <div class="recipe" data-requires="agility,activity"><div class="recipe-head"><span>Karamja gloves 1</span><span class="recipe-status">Missing seals</span></div><div class="recipe-seals"><span>Agility</span><span>Activity</span></div></div>
+                <div class="recipe" data-requires="quest,activity"><div class="recipe-head"><span>Explorer's ring 1</span><span class="recipe-status">Missing seals</span></div><div class="recipe-seals"><span>Quest</span><span>Activity</span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="explain-strip"><div class="explain"><strong>Best at</strong><p>Creating broad account goals with reusable proof and naturally retroactive state.</p></div><div class="explain risk"><strong>Worst failure</strong><p>The lattice can feel like an abstract dependency spreadsheet instead of an accomplishment.</p></div><div class="explain cost"><strong>Build burden · Low–medium</strong><p>Seal definitions, derivation, item recipes, migration, and a clear visualization.</p></div></div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="compareDialog">
+    <div class="dialog-head"><h2>Seven-system comparison</h2><button class="button" id="closeCompare" type="button">Close</button></div>
+    <div class="dialog-body">
+      <table class="compare-table">
+        <thead><tr><th>System</th><th>Gear connection</th><th>Agency</th><th>Payoff</th><th>Burden</th><th>Failure mode</th><th>Your vote</th></tr></thead>
+        <tbody>
+          <tr><td>Grand Ledger Draft</td><td>Low</td><td>Medium</td><td>Reward reveal</td><td>Low–medium</td><td>Arbitrary offers</td><td data-table-vote="ledger">—</td></tr>
+          <tr><td>Item-family Tracks</td><td>High</td><td>Medium</td><td>Targeted tier completion</td><td>Medium</td><td>Curation load</td><td data-table-vote="tracks">—</td></tr>
+          <tr><td>Heirloom Equipment</td><td>Very high</td><td>Low</td><td>The object evolves</td><td>Medium</td><td>Passive wearing</td><td data-table-vote="heirloom">—</td></tr>
+          <tr><td>Contract Slates</td><td>High</td><td>High</td><td>Chosen route closes</td><td>Medium–high</td><td>Dominant cheap path</td><td data-table-vote="contracts">—</td></tr>
+          <tr><td>Signature Deeds</td><td>High</td><td>Medium</td><td>Memorable capstone</td><td>High</td><td>Binary difficulty wall</td><td data-table-vote="deeds">—</td></tr>
+          <tr><td>Achievement Cabinet</td><td>High</td><td>Medium</td><td>Last visible slot</td><td>Medium</td><td>Rare-slot stall</td><td data-table-vote="cabinet">—</td></tr>
+          <tr><td>Mastery Lattice</td><td>Medium</td><td>Low</td><td>Systems converge</td><td>Low–medium</td><td>Abstract dependency graph</td><td data-table-vote="lattice">—</td></tr>
+        </tbody>
+      </table>
+      <div class="recommendation"><strong>Current synthesis</strong><p>Use immutable item-family tracks as the base. Let each tier accept a curated subset of requirements, and reserve signature deeds for tiers where a genuinely memorable capstone exists. A global percentage bar can award a wildcard Diary Writ, but should not independently gate the item track or force random gear.</p></div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Copied.</div>
+
+  <script>
+    const concepts = ["ledger", "tracks", "heirloom", "contracts", "deeds", "cabinet", "lattice"];
+    const conceptNames = {
+      ledger: "Grand Ledger Draft",
+      tracks: "Curated Item-family Tracks",
+      heirloom: "Heirloom Equipment",
+      contracts: "Pick-and-commit Contracts",
+      deeds: "Signature Deeds",
+      cabinet: "Achievement Cabinet",
+      lattice: "Mastery Lattice"
+    };
+    const votes = {};
+
+    function showConcept(id) {
+      document.querySelectorAll(".concept-tab").forEach((tab) => {
+        const selected = tab.dataset.concept === id;
+        tab.setAttribute("aria-selected", String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+      });
+      document.querySelectorAll(".concept-panel").forEach((panel) => {
+        panel.classList.toggle("active", panel.dataset.concept === id);
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    document.querySelectorAll(".concept-tab").forEach((tab) => {
+      tab.addEventListener("click", () => showConcept(tab.dataset.concept));
+      tab.addEventListener("keydown", (event) => {
+        if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+        event.preventDefault();
+        const current = concepts.indexOf(tab.dataset.concept);
+        const delta = ["ArrowRight", "ArrowDown"].includes(event.key) ? 1 : -1;
+        const next = concepts[(current + delta + concepts.length) % concepts.length];
+        showConcept(next);
+        document.querySelector(`[data-concept="${next}"].concept-tab`).focus();
+      });
+    });
+
+    function updateVoteSummary() {
+      const counts = { like: 0, maybe: 0, reject: 0 };
+      Object.values(votes).forEach((vote) => counts[vote]++);
+      document.getElementById("likeCount").textContent = `${counts.like} like`;
+      document.getElementById("maybeCount").textContent = `${counts.maybe} maybe`;
+      document.getElementById("rejectCount").textContent = `${counts.reject} reject`;
+
+      concepts.forEach((id) => {
+        const dot = document.querySelector(`.concept-tab[data-concept="${id}"] .vote-dot`);
+        dot.className = `vote-dot${votes[id] ? ` ${votes[id]}` : ""}`;
+        const tableCell = document.querySelector(`[data-table-vote="${id}"]`);
+        tableCell.textContent = votes[id] ? votes[id][0].toUpperCase() + votes[id].slice(1) : "—";
+      });
+    }
+
+    document.querySelectorAll(".verdict").forEach((group) => {
+      const id = group.dataset.verdict;
+      group.querySelectorAll(".vote-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          const vote = button.dataset.vote;
+          votes[id] = votes[id] === vote ? undefined : vote;
+          group.querySelectorAll(".vote-button").forEach((candidate) => {
+            candidate.setAttribute("aria-pressed", String(votes[id] === candidate.dataset.vote));
+          });
+          updateVoteSummary();
+        });
+      });
+    });
+
+    const ledgerRange = document.getElementById("ledgerRange");
+    function updateLedger() {
+      const value = Number(ledgerRange.value);
+      document.getElementById("ledgerFill").style.width = `${value}%`;
+      document.getElementById("ledgerValue").textContent = `${value}%`;
+      document.getElementById("draftLocked").hidden = value >= 20;
+      document.getElementById("draftRewards").hidden = value < 20;
+      if (value < 20) document.getElementById("draftLocked").textContent = `Complete ${20 - value}% more of this ledger to earn a Diary Writ.`;
+    }
+    ledgerRange.addEventListener("input", updateLedger);
+    document.querySelectorAll(".reward-card").forEach((card) => card.addEventListener("click", () => {
+      document.querySelectorAll(".reward-card").forEach((candidate) => candidate.classList.remove("selected"));
+      card.classList.add("selected");
+    }));
+
+    const requirements = [...document.querySelectorAll("#trackRequirements .requirement")];
+    function updateTrack() {
+      const done = requirements.filter((row) => row.classList.contains("done")).length;
+      const pct = Math.round((done / requirements.length) * 100);
+      document.getElementById("trackFill").style.width = `${pct}%`;
+      document.querySelectorAll("[data-track-tier]").forEach((node) => {
+        const tier = Number(node.dataset.trackTier);
+        node.classList.toggle("earned", pct >= tier * 25);
+        node.classList.toggle("current", pct < tier * 25 && pct >= (tier - 1) * 25);
+      });
+    }
+    requirements.forEach((row) => row.addEventListener("click", () => {
+      row.classList.toggle("done");
+      updateTrack();
+    }));
+
+    const heirloomDeeds = [...document.querySelectorAll("#heirloomDeeds .deed")];
+    function updateHeirloom() {
+      const done = heirloomDeeds.filter((deed) => deed.classList.contains("done")).length;
+      const upgraded = done === heirloomDeeds.length;
+      document.getElementById("heirloomTier").textContent = upgraded ? "Varrock armour 2" : "Varrock armour 1";
+      document.getElementById("heirloomStatus").textContent = upgraded ? "Record complete · item upgraded" : `${done} of 4 engravings complete`;
+      document.getElementById("heirloomGlyph").classList.toggle("upgraded", upgraded);
+    }
+    heirloomDeeds.forEach((deed) => deed.addEventListener("click", () => {
+      deed.classList.toggle("done");
+      deed.querySelector(".engraved").textContent = deed.classList.contains("done") ? "ENGRAVED" : "EMPTY";
+      updateHeirloom();
+    }));
+
+    const contractRows = [...document.querySelectorAll("#contractGrid .contract")];
+    let contractCommitted = false;
+    function updateContracts() {
+      const selected = contractRows.filter((row) => row.classList.contains("selected") || row.classList.contains("completed"));
+      const completed = contractRows.filter((row) => row.classList.contains("completed"));
+      document.getElementById("contractCount").textContent = contractCommitted ? `${completed.length} of 4 completed` : `${selected.length} of 4 selected`;
+      document.getElementById("commitContracts").disabled = contractCommitted || selected.length !== 4;
+      document.getElementById("contractHint").textContent = contractCommitted ? " · Click selected contracts to complete them." : " · Pick contracts with different kinds of effort.";
+    }
+    contractRows.forEach((row) => row.addEventListener("click", () => {
+      if (!contractCommitted) {
+        const selectedCount = contractRows.filter((candidate) => candidate.classList.contains("selected")).length;
+        if (row.classList.contains("selected")) row.classList.remove("selected");
+        else if (selectedCount < 4) row.classList.add("selected");
+      } else if (row.classList.contains("selected") || row.classList.contains("completed")) {
+        row.classList.toggle("completed");
+        row.classList.add("selected");
+      }
+      updateContracts();
+    }));
+    document.getElementById("commitContracts").addEventListener("click", () => {
+      contractCommitted = true;
+      contractRows.forEach((row) => {
+        if (!row.classList.contains("selected")) row.classList.add("unavailable");
+      });
+      updateContracts();
+    });
+
+    const readiness = [...document.querySelectorAll("#readinessGrid .readiness")];
+    const stages = [...document.querySelectorAll("#deedStages .stage")];
+    let deedProgress = 0;
+    function updateDeed() {
+      const ready = readiness.every((item) => item.classList.contains("done"));
+      const advance = document.getElementById("advanceDeed");
+      advance.disabled = !ready || deedProgress >= stages.length;
+      stages.forEach((stage, index) => {
+        stage.classList.toggle("done", index < deedProgress);
+        stage.classList.toggle("current", index === deedProgress && deedProgress < stages.length);
+      });
+      document.getElementById("deedMessage").textContent = !ready
+        ? "Complete all readiness checks to begin."
+        : deedProgress >= stages.length
+          ? "Commission delivered. Varrock armour 3 is ready to claim."
+          : `Stage ${deedProgress + 1} of ${stages.length} is ready.`;
+    }
+    readiness.forEach((item) => item.addEventListener("click", () => {
+      item.classList.toggle("done");
+      updateDeed();
+    }));
+    document.getElementById("advanceDeed").addEventListener("click", () => {
+      deedProgress = Math.min(stages.length, deedProgress + 1);
+      updateDeed();
+    });
+
+    const cabinetSlots = [...document.querySelectorAll("#cabinetShelf .display-slot")];
+    function updateCabinet() {
+      const filled = cabinetSlots.filter((slot) => slot.classList.contains("filled")).length;
+      document.getElementById("cabinetCount").textContent = `${Math.min(filled, 4)} of 4 required exhibits`;
+      document.getElementById("cabinetReward").textContent = filled >= 4 ? "Karamja gloves 2 · ready to claim" : "Karamja gloves 2 · incomplete";
+    }
+    cabinetSlots.forEach((slot) => slot.addEventListener("click", () => {
+      slot.classList.toggle("filled");
+      updateCabinet();
+    }));
+
+    const seals = [...document.querySelectorAll("#sealField .seal")];
+    function updateLattice() {
+      const active = new Set(seals.filter((seal) => seal.classList.contains("active")).map((seal) => seal.dataset.seal));
+      document.querySelectorAll(".recipe[data-requires]").forEach((recipe) => {
+        const required = recipe.dataset.requires.split(",");
+        const ready = required.every((seal) => active.has(seal));
+        recipe.classList.toggle("ready", ready);
+        recipe.querySelector(".recipe-status").textContent = ready ? "Ready to claim" : `${required.filter((seal) => !active.has(seal)).length} missing`;
+      });
+    }
+    seals.forEach((seal) => seal.addEventListener("click", () => {
+      seal.classList.toggle("active");
+      updateLattice();
+    }));
+
+    const compareDialog = document.getElementById("compareDialog");
+    document.getElementById("compareButton").addEventListener("click", () => compareDialog.showModal());
+    document.getElementById("closeCompare").addEventListener("click", () => compareDialog.close());
+    compareDialog.addEventListener("click", (event) => {
+      const rect = compareDialog.getBoundingClientRect();
+      if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) compareDialog.close();
+    });
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    document.getElementById("copyButton").addEventListener("click", async () => {
+      const lines = ["AnkiScape achievement-system concept votes:"];
+      concepts.forEach((id) => lines.push(`- ${conceptNames[id]}: ${votes[id] || "unrated"}`));
+      lines.push("", "Notes:");
+      const text = lines.join("\n");
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("Decision summary copied.");
+      } catch {
+        window.prompt("Copy this decision summary:", text);
+      }
+    });
+
+    updateVoteSummary();
+    updateLedger();
+    updateTrack();
+    updateHeirloom();
+    updateContracts();
+    updateDeed();
+    updateCabinet();
+    updateLattice();
+  </script>
+</body>
+</html>

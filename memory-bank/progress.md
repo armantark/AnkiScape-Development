@@ -24,13 +24,17 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
   recurring entries reuse world-calendar boundaries; Tears beats are
   activity-progress actions; Castle Wars retains 5,000 games but drops the
   invalid 16,667-review calendar conversion.
-- Final verification passes all 1,474 core methods (1,273 ordinary passes and
-  201 environment skips) and all 1,474 real offscreen Qt methods, with no
-  cadence skips or expected failures. The focused
-  cadence/kernel/parity/combat/runtime/Summoning/Thieving slice passes 528
+- Final post-review verification passes all 1,476 core methods (1,275 ordinary
+  passes and 201 environment skips) and all 1,476 real offscreen Qt methods
+  with no skips. The focused
+  cadence/kernel/parity/combat/runtime/Summoning/Thieving slice passes 363
   methods. Documentation, compilation, reachability, asset integrity, worktree
   safety, and test-quality gates also pass; the quality audit reports zero hard
   issues across 71 test files.
+- Fixed the final independent-review blocker: successful Combat answers no
+  longer mark a live encounter disengaged and therefore cannot trigger
+  between-fight Dream healing mid-encounter. Again still marks disengagement,
+  and the next successful slice resumes the exact combat/RNG phase.
 - Published `status-updates/cadence-kernel-live-results-2026-07-17.html` and
   its mobile-safe copy at <https://nl2rgoy9pvqk.postplan.dev>.
 
