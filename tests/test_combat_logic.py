@@ -2550,6 +2550,15 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(long_bone_drops, {"Big bones": 1, "Long bone": 1})
         self.assertEqual(curved_bone_drops, {"Big bones": 1, "Curved bone": 1})
 
+    def test_jelly_drop_roll_can_reach_its_mithril_boots(self):
+        self.assertEqual(
+            _combat_roll_drops(
+                COMBAT_ENEMY_DATA["jelly"],
+                _rng([125 / 128]),
+            ),
+            {"Mithril boots": 1},
+        )
+
     def test_zombie_drop_rolls_nested_minor_herbs_and_level_25_variant(self):
         herb_drops = _combat_roll_drops(
             COMBAT_ENEMY_DATA["zombie_level_13"],

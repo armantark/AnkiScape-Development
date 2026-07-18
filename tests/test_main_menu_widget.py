@@ -2250,7 +2250,7 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_combat_is_selectable_and_shows_simple_enemy_targets(self) -> None:
         pd = _make_player_data()
         pd["current_combat_target"] = "seagull"
-        pd["slayer_level"] = 35
+        pd["slayer_level"] = 60
         pd["quests"]["priest_in_peril"] = {
             "started": True,
             "progress": 9,
@@ -2273,6 +2273,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         jackal = _tree_row(tree, "jackal")
         icefiend = _tree_row(tree, "icefiend")
         pyrefiend = _tree_row(tree, "pyrefiend")
+        jelly = _tree_row(tree, "jelly")
         kalphite_soldier = _tree_row(tree, "kalphite_soldier")
         wall_beast = _tree_row(tree, "wall_beast")
         vampyre = _tree_row(tree, "vampyre")
@@ -2320,6 +2321,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Enemy max hit: 44 LP", pyrefiend.toolTip(0))
         self.assertIn("Steel boots x1 (1/128)", pyrefiend.toolTip(0))
         self.assertFalse(pyrefiend.icon(0).isNull())
+        self.assertEqual(jelly.text(0), "Jelly (Lvl 78)")
+        self.assertIn("Enemy attack: Magic-based melee", jelly.toolTip(0))
+        self.assertIn("Enemy max hit: 60 LP", jelly.toolTip(0))
+        self.assertIn("Mithril boots x1 (1/128)", jelly.toolTip(0))
+        self.assertFalse(jelly.icon(0).isNull())
         self.assertEqual(kalphite_soldier.text(0), "Kalphite Soldier (Lvl 85)")
         self.assertIn("Enemy max hit: 80 LP", kalphite_soldier.toolTip(0))
         self.assertIn(

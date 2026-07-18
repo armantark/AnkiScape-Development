@@ -7537,6 +7537,76 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "Wars, Daemonheim, revenant, and familiar variants excluded"
         ),
     },
+    "jelly": {
+        "display_name": "Jelly",
+        "level": 78,
+        "group": "Slayer",
+        "required_slayer_level": 52,
+        "attack_style": "magic_melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 60,
+        "slayer_xp": 75.0,
+        "stats": {
+            "hitpoints": 750,
+            "attack": 45,
+            "strength": 45,
+            "defence": 120,
+            "magic": 45,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 128,
+                    "slots": (
+                        {"item": "Coins", "quantity": 102, "slots": 39},
+                        {"item": "Coins", "quantity": 44, "slots": 30},
+                        {"item": "Steel battleaxe", "quantity": 1, "slots": 11},
+                        {"item": "Coins", "quantity": 220, "slots": 10},
+                        {"item": "Steel 2h sword", "quantity": 1, "slots": 7},
+                        {"item": "Coins", "quantity": 11, "slots": 7},
+                        {"item": "Chaos rune", "quantity": 15, "slots": 5},
+                        {"table": COMBAT_GEM_DROP_TABLE, "slots": 4},
+                        {"item": "Steel hatchet", "quantity": 1, "slots": 3},
+                        {"item": "Death rune", "quantity": 5, "slots": 3},
+                        {"item": "Mithril kiteshield", "quantity": 1, "slots": 2},
+                        {"item": "Coins", "quantity": 460, "slots": 2},
+                        {"item": "Gold bar", "quantity": 1, "slots": 2},
+                        {"item": "Mithril boots", "quantity": 1, "slots": 1},
+                        {"item": "Rune full helm", "quantity": 1, "slots": 1},
+                        {"item": "Thread", "quantity": 10, "slots": 1},
+                    ),
+                },
+            ),
+        },
+        "source": (
+            "https://runescape.wiki/w/Jelly?oldid=6530513; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/jelly.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/jelly.json"
+        ),
+        "source_status": (
+            "period exact ordinary level, LP, Slayer gate/XP, attack speed, "
+            "magic-based melee semantics, and no guaranteed outside-Soul-Wars "
+            "drop; Darkan exact stats, respawn, approximate-period max hit, and "
+            "complete 128-slot ordinary drop table; Soul Wars variant excluded"
+        ),
+    },
     "kalphite_soldier": {
         "display_name": "Kalphite Soldier",
         "level": 85,
@@ -9729,6 +9799,16 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Long bone": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.LONG_BONE"},
     "Magic staff": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MAGIC_STAFF"},
     "Marrentill seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MARRENTILL_SEED"},
+    "Mithril boots": {
+        "category": "equipment",
+        "source": (
+            "game-main data/cfg/items.yml item 4127; "
+            "RuneScape Wiki Mithril armoured boots oldid 6007782"
+        ),
+        "source_item_id": 4127,
+        "stackable": False,
+        "tradeable": True,
+    },
     "Mithril spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MITHRIL_SPEAR"},
     "Monkey bones": {
         "category": "material",

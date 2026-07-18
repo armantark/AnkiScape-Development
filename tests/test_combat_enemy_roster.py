@@ -25,6 +25,7 @@ NEW_COMBAT_ENEMIES = (
     "jackal",
     "icefiend",
     "pyrefiend",
+    "jelly",
     "kalphite_soldier",
     "wall_beast",
     "vampyre",
@@ -272,6 +273,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("ogre", "Ogre.png"),
             ("icefiend", "Icefiend.png"),
             ("pyrefiend", "Pyrefiend.png"),
+            ("jelly", "Jelly.png"),
             ("kalphite_soldier", "Kalphite Soldier.png"),
             ("wall_beast", "Wall beast icon.png"),
             ("vampyre", "Vampire (historical) (level 61).png"),
@@ -362,23 +364,53 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
         self.assertIn("oldid=6565806", pyrefiend["source"])
 
-    def test_pyrefiend_requires_the_source_slayer_level(self):
+    def test_slayer_targets_require_their_source_levels(self):
+        for target_id, required_level in (("pyrefiend", 30), ("jelly", 52)):
+            with self.subTest(target_id=target_id):
+                self.assertEqual(
+                    combat_target_locked_reasons_pure(
+                        {"slayer_level": required_level - 1},
+                        target_id,
+                        COMBAT_ENEMY_DATA,
+                    ),
+                    (f"Slayer level {required_level}",),
+                )
+                self.assertEqual(
+                    combat_target_locked_reasons_pure(
+                        {"slayer_level": required_level},
+                        target_id,
+                        COMBAT_ENEMY_DATA,
+                    ),
+                    (),
+                )
+
+    def test_jelly_preserves_the_cutoff_ordinary_variant_and_drop_table(self):
+        jelly = COMBAT_ENEMY_DATA["jelly"]
+
+        self.assertEqual(jelly["level"], 78)
+        self.assertEqual(jelly["required_slayer_level"], 52)
+        self.assertEqual(jelly["attack_style"], "magic_melee")
+        self.assertEqual(jelly["attack_speed"], 6)
+        self.assertEqual(jelly["respawn_delay"], 59)
+        self.assertEqual(jelly["slayer_xp"], 75.0)
+        self.assertEqual(jelly["max_hit"], 60)
         self.assertEqual(
-            combat_target_locked_reasons_pure(
-                {"slayer_level": 29},
-                "pyrefiend",
-                COMBAT_ENEMY_DATA,
-            ),
-            ("Slayer level 30",),
+            jelly["stats"],
+            {
+                "hitpoints": 750,
+                "attack": 45,
+                "strength": 45,
+                "defence": 120,
+                "magic": 45,
+                "ranged": 1,
+            },
         )
-        self.assertEqual(
-            combat_target_locked_reasons_pure(
-                {"slayer_level": 30},
-                "pyrefiend",
-                COMBAT_ENEMY_DATA,
-            ),
-            (),
-        )
+        self.assertEqual(jelly["drops"]["guaranteed"], ())
+        main = jelly["drops"]["tables"][0]
+        self.assertEqual(main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
+        self.assertIn("oldid=6530513", jelly["source"])
+        self.assertIn("Soul Wars variant excluded", jelly["source_status"])
 
     def test_kalphite_soldier_preserves_the_cutoff_variant_and_drop_table(self):
         soldier = COMBAT_ENEMY_DATA["kalphite_soldier"]

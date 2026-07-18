@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jelly Combat closure</title>
+  <style>
+    :root { color-scheme: dark; --bg:#111613; --panel:#1b221e; --line:#39443d; --ink:#eef4ec; --muted:#abb8ae; --mint:#91d0aa; --amber:#e4bd72; }
+    * { box-sizing: border-box; }
+    body { margin:0; min-height:100vh; color:var(--ink); background:radial-gradient(circle at 15% 0, #2d4638 0, transparent 32rem), var(--bg); font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(1040px,calc(100% - 28px)); margin:auto; padding:56px 0 72px; }
+    .hero { display:grid; grid-template-columns:1fr auto; align-items:center; gap:30px; }
+    .eyebrow { color:var(--amber); font:700 12px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.13em; text-transform:uppercase; }
+    h1 { margin:12px 0; max-width:750px; font-size:clamp(40px,7vw,74px); line-height:.95; letter-spacing:-.045em; }
+    .lede { max-width:740px; color:var(--muted); font-size:18px; line-height:1.6; }
+    .sprite { width:132px; height:132px; image-rendering:pixelated; filter:drop-shadow(0 20px 18px #0008); }
+    .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:34px 0 14px; }
+    .metric,.panel { border:1px solid var(--line); background:linear-gradient(145deg,#1c241f,#181e1a); border-radius:16px; }
+    .metric { padding:19px; min-height:120px; }
+    .metric strong { display:block; color:var(--mint); font-size:32px; letter-spacing:-.04em; }
+    .metric span { display:block; margin-top:8px; color:var(--muted); line-height:1.35; }
+    .split { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; }
+    .panel { padding:25px; }
+    h2 { margin:0 0 14px; font-size:22px; }
+    ul { margin:0; padding-left:18px; color:var(--muted); line-height:1.65; }
+    li+li { margin-top:5px; }
+    .route { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-top:16px; }
+    .step { padding:12px; border-radius:12px; background:#101512; color:var(--muted); text-align:center; font:13px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .ok { color:var(--mint); }
+    .boundary { border-left:3px solid var(--amber); }
+    .foot { margin-top:20px; color:#829087; font-size:13px; }
+    @media(max-width:720px){.hero{grid-template-columns:1fr}.sprite{width:96px;height:96px}.metrics{grid-template-columns:repeat(2,1fr)}.split{grid-template-columns:1fr}.route{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Slayer · Combat closure · 18 July 2026</div>
+        <h1>Jelly is now more than a line in Vannaka’s table.</h1>
+        <p class="lede">The ordinary level-78 target is playable end to end: authentic Slayer gating, magic-based melee, exact drops, generated Mithril boots, UI visibility, and undo-safe shared Combat runtime.</p>
+      </div>
+      <img class="sprite" alt="Jelly target render" src="data:image/png;base64,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">
+    </section>
+
+    <section class="metrics">
+      <article class="metric"><strong>78</strong><span>Combat level</span></article>
+      <article class="metric"><strong>750</strong><span>Lifepoints</span></article>
+      <article class="metric"><strong>128</strong><span>Exact drop slots</span></article>
+      <article class="metric"><strong>17/35</strong><span>Vannaka readiness</span></article>
+    </section>
+
+    <div class="split">
+      <section class="panel">
+        <h2>Combat identity</h2>
+        <ul>
+          <li>Slayer 52 required; 75 Slayer XP per kill.</li>
+          <li>Six-tick magic-based melee, with Protect from Melee semantics.</li>
+          <li>Approximate period maximum hit 60, corroborated by Darkan.</li>
+          <li>No fake guaranteed Bones: ordinary Jellies drop nothing at 100%.</li>
+        </ul>
+      </section>
+      <section class="panel">
+        <h2>Mithril boots are real equipment</h2>
+        <ul>
+          <li>Item 4127, feet slot, Defence 20.</li>
+          <li>Exact 2011Scape bonuses: +8/+9/+10 melee defence.</li>
+          <li>Generated from the canonical equipment script.</li>
+          <li>Reachable through the Jelly table at 1/128.</li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="panel boundary" style="margin-top:14px">
+      <h2>Boundary preserved</h2>
+      <p class="lede" style="font-size:16px;margin:0">Soul Wars Jellies remain separate. Their fragment drop and PvP context are not flattened into this ordinary Fremennik Slayer Dungeon target. OSRS renders are visual-only and explicitly not historical evidence.</p>
+      <div class="route">
+        <div class="step"><span class="ok">356/356</span><br>focused pure</div>
+        <div class="step"><span class="ok">1,599/1,599</span><br>full pure</div>
+        <div class="step"><span class="ok">1,601/1,601</span><br>full real Qt</div>
+      </div>
+    </section>
+
+    <p class="foot">Evidence: memory-bank/source-audits/slayer-jelly-combat-2026-07-18.md · No owner design gap emerged.</p>
+  </main>
+</body>
+</html>

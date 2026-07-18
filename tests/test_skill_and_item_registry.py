@@ -163,18 +163,23 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertIsNotNone(definition.asset_path)
         self.assertTrue(os.path.exists(definition.asset_path))
 
-    def test_pyrefiend_steel_boots_are_real_equipment_with_an_asset(self):
-        definition = item_definitions_by_storage_key(ITEM_DEFINITIONS)["Steel boots"]
-
-        self.assertEqual(definition.source_item_id, 4123)
-        self.assertFalse(definition.stackable)
-        self.assertTrue(definition.tradeable)
-        self.assertEqual(definition.category, "equipment")
-        self.assertEqual(definition.equipment_slot, "feet")
-        self.assertEqual(definition.equipment_tier, 5)
-        self.assertEqual(definition.asset_path, COMBAT_ITEM_IMAGES["Steel boots"])
-        self.assertTrue(os.path.exists(definition.asset_path))
-        self.assertEqual(EQUIPMENT_DATA["Steel boots"].required_level, 5)
+    def test_slayer_boot_drops_are_real_equipment_with_assets(self):
+        definitions = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for item_name, item_id, required_level in (
+            ("Steel boots", 4123, 5),
+            ("Mithril boots", 4127, 20),
+        ):
+            with self.subTest(item_name=item_name):
+                definition = definitions[item_name]
+                self.assertEqual(definition.source_item_id, item_id)
+                self.assertFalse(definition.stackable)
+                self.assertTrue(definition.tradeable)
+                self.assertEqual(definition.category, "equipment")
+                self.assertEqual(definition.equipment_slot, "feet")
+                self.assertEqual(definition.equipment_tier, required_level)
+                self.assertEqual(definition.asset_path, COMBAT_ITEM_IMAGES[item_name])
+                self.assertTrue(os.path.exists(definition.asset_path))
+                self.assertEqual(EQUIPMENT_DATA[item_name].required_level, required_level)
 
     def test_agility_consumable_dose_families_share_canonical_tradeability(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)

@@ -167,6 +167,7 @@ LEGACY_EQUIPMENT_ITEMS: Tuple[Tuple[str, int, Optional[str], int, bool, str, str
     ("Staff of fire", 1387, None, 1, False, "elemental_staff", "STAFF_OF_FIRE"),
     ("Staff of water", 1383, None, 1, False, "elemental_staff", "STAFF_OF_WATER"),
     ("Steel boots", 4123, "defense", 5, False, "boots", "STEEL_BOOTS"),
+    ("Mithril boots", 4127, "defense", 20, False, "boots", "MITHRIL_BOOTS"),
     ("Steel spear", 1241, "attack", 5, True, "spear", "STEEL_SPEAR"),
     ("Toktz-ket-xil", 6524, "defense", 60, False, "obsidian_shield", "TOKTZKETXIL"),
     ("Tzhaar-ket-om", 6528, "strength", 60, True, "obsidian_maul", "TZHAARKETOM"),

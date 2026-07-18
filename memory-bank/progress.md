@@ -4,6 +4,25 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Jelly Combat closure — 2026-07-18
+
+- Added the ordinary level-78 Jelly as a Slayer-52 Combat target with 750 LP,
+  75 Slayer XP, six-tick magic-based melee, and the reconciled 60-LP maximum
+  hit.
+- Encoded Darkan's exact mutually exclusive 128-slot ordinary drop table and
+  deliberately excluded Soul Wars' separate fragment/PvP variant.
+- Registered Mithril boots item 4127 as generated Defence-20 feet equipment
+  with exact 2011Scape bonuses, item identity, acquisition, and asset surface.
+- Advanced the generated Vannaka ledger from 16/35 to 17/35 without exposing or
+  renormalizing the incomplete master. Seventeen missing targets and Earth
+  warrior's Wilderness context remain.
+- Focused checks and the current 1,599-test pure suite pass; the production
+  state also passed the 1,601-test real offscreen Qt suite before two redundant
+  pure test methods were consolidated. Durable evidence is
+  `source-audits/slayer-jelly-combat-2026-07-18.md`; no owner design input was
+  required. Results: `status-updates/slayer-jelly-results-2026-07-18.html`
+  (<https://qvrpp85jnouq.postplan.dev>).
+
 ## Slayer Vannaka pool and Ogre Combat closure — 2026-07-18
 
 - Encoded all 35 cutoff Vannaka families, their reconciled weights/count

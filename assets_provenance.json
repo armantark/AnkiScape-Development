@@ -1307,6 +1307,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-14T09:10:05Z"
   },
+  "combatenemies/jelly.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Jelly.png",
+    "file_title": "Jelly.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Jelly.png?7a847",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "df5896dcfca69523211469c9a5cd3cc8e31956e0",
+    "size": 282570,
+    "source_wiki": "osrs",
+    "timestamp": "2023-08-14T03:25:27Z"
+  },
   "combatenemies/kalphite_soldier.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Kalphite_Soldier.png",
     "file_title": "Kalphite Soldier.png",
@@ -2496,6 +2508,18 @@
     "size": 425,
     "source_wiki": "rs3",
     "timestamp": "2019-12-07T14:17:57Z"
+  },
+  "combatitems/mithril_boots.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Mithril_boots.png",
+    "file_title": "Mithril boots.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Mithril_boots.png?ccf02",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "250ae69be68d1a8076a28d8f85b10a6f4b352d3b",
+    "size": 644,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:59:01Z"
   },
   "combatitems/mithril_defender.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Mithril_defender.png",

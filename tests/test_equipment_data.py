@@ -20,7 +20,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 648)
+        self.assertEqual(len(EQUIPMENT_DATA), 649)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -254,6 +254,7 @@ class TestEquipmentData(unittest.TestCase):
             "Dragon med helm": ("head", 1149, 60, 33, 35, 32, 0),
             "Abyssal whip": ("weapon", 4151, 70, 0, 0, 0, 82),
             "Mystic gloves": ("hands", 4095, 20, 0, 0, 0, 0),
+            "Mithril boots": ("feet", 4127, 20, 8, 9, 10, 0),
             "Obsidian cape": ("cape", 6568, 1, 9, 9, 9, 0),
         }
         for item_name, (slot, source_item_id, required_level, stab_def, slash_def, crush_def, strength) in expected_items.items():

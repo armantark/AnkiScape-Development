@@ -2,11 +2,22 @@
 
 ## Current Focus
 
-Vannaka's complete cutoff pool is now represented in executable data: all 35
+The ordinary level-78 Jelly is now executable with Slayer 52, magic-based
+melee, six-tick attacks, 750 LP, 75 Slayer XP, Darkan's exact 128-slot table,
+and real Defence-20 Mithril boots generated from 2011Scape item 4127. Vannaka
+therefore advances to 17/35 while remaining correctly hidden. The ordinary
+target excludes Soul Wars' separate fragment/PvP context, and the OSRS-derived
+visuals are labeled visual-only rather than passed off as cutoff file
+revisions. Evidence: `source-audits/slayer-jelly-combat-2026-07-18.md`. No
+owner-facing design fork emerged. Results:
+`status-updates/slayer-jelly-results-2026-07-18.html`
+(<https://qvrpp85jnouq.postplan.dev>).
+
+Vannaka's complete cutoff pool is represented in executable data: all 35
 families, their reconciled weights and count ranges, the provisional 460-point
 denominator, and stable target/mechanic dependency identities. The role remains
-correctly hidden at 16/35 readiness; `tools/audit_slayer_readiness.py` derives
-the exact 19 blockers instead of trusting a prose count. The ordinary level-53
+correctly hidden; `tools/audit_slayer_readiness.py` derives its exact blockers
+instead of trusting a prose count. The ordinary level-53
 Ogre closes one family with 600 LP, 60 Slayer XP, the exact Darkan common-seed
 subtable, independent long/curved-bone tertiary rolls, guaranteed Big bones,
 and a pre-cutoff sprite. Mogres remain owned by the Darkan quest pass through

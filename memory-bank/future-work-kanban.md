@@ -235,13 +235,15 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   certification.
 - Vannaka is now the third completely encoded pool. Its 35 master-specific
   rows preserve the provisional 460-point denominator and remain hidden at
-  16/35 readiness. The ordinary level-53 Ogre closes the Ogres family with its
-  exact nested common-seed and tertiary-bone drops. The remaining 19 blockers
-  are derived by `tools/audit_slayer_readiness.py`: 18 missing Combat targets
+  17/35 readiness. Ordinary Ogre closes the Ogres family with its exact nested
+  common-seed and tertiary-bone drops; ordinary Jelly closes Jellies with
+  magic-based melee, an exact 128-slot table, and generated Mithril boots. The
+  remaining 18 blockers are derived by `tools/audit_slayer_readiness.py`: 17 missing Combat targets
   (including the Darkan-owned Mogre quest route) plus Wilderness-risk behavior
   for the already-live Earth warrior. Continue from that generated ledger; do
   not expose or renormalize the partial master. See
-  `source-audits/slayer-vannaka-ogre-combat-2026-07-18.md`.
+  `source-audits/slayer-vannaka-ogre-combat-2026-07-18.md` and
+  `source-audits/slayer-jelly-combat-2026-07-18.md`.
 - Mogre combat is source-closed, including its atomic Fishing-explosive lure,
   poison immunity, exact 128-slot Darkan table, tertiary bones, and target
   icon. Keep it marked `DEPENDENCY: QUEST` until the Darkan quest pass adds the
