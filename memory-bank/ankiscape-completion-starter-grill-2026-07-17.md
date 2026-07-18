@@ -289,6 +289,16 @@ Farming-qualified players may take the authentic nurture-only participation
 when they cannot fell the drawn tier; the UI says so before entry, then awards
 only the Farming action and consumes the participation without another dialog.
 
+Phoenix Lair compresses five spatially repetitive twig caverns into one visible
+traversal review with one aggregate guardian consequence and real loot, followed
+by one pyre-preparation review and the standard live Phoenix Combat encounter.
+The killing review lights the pyre and grants the fixed reward atomically.
+Leaving or dying resets the unfinished run without consuming its daily
+completion. Rare eggs use the contextual `Clap` / `Kick` action to choose Cute
+or Mean, with a remembered choice and `Clap` default; sub-72 eggs remain
+source-owned items until the shared pet surface can hatch them. The focused
+contract is `memory-bank/source-audits/phoenix-lair-loop-2026-07-18.md`.
+
 Fist of Guthix does not expose opponent selection or difficulty profiles. The
 cutoff game paired waiting-room players randomly regardless of Combat level,
 randomized the first-round roles, and swapped roles for round two. AnkiScape

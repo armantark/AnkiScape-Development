@@ -4,7 +4,9 @@ Date: `2026-07-18`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **period source pinned; cavern compression under owner grill.**
+Status: **owner-design loop closed; period source, compressed traversal,
+non-resumable session, Combat handoff, rewards, and eggling choice settled.
+Exact source-table harvesting remains.**
 
 ## Pinned period evidence
 
@@ -31,10 +33,15 @@ Status: **period source pinned; cavern compression under owner grill.**
 Source:
 
 - <https://runescape.wiki/w/Phoenix_Lair?oldid=6574295>
+- `Phoenix egg`, oldid `4364298` (`2011-06-05T00:56:14Z`):
+  <https://runescape.wiki/w/Phoenix_egg?oldid=4364298>
+- `Cracked phoenix egg`, oldid `4362222`
+  (`2011-06-04T23:46:16Z`):
+  <https://runescape.wiki/w/Cracked_phoenix_egg?oldid=4362222>
 
 Exact guardian rosters and drops, Phoenix combat data, egg chance, first-kill
-reward lineage, and source-day completion boundary remain implementation-source
-work.
+reward lineage, duplicate-egg behavior, and source-day completion boundary
+remain implementation-source work.
 
 ## Settled platform boundaries
 
@@ -53,20 +60,85 @@ must not simulate cavern maps, choke points, or individual background enemies.
 The source pet-egg choice is preserved through the contextual review action
 surface when an egg drops; it does not require a permanent setting.
 
-## First owner fork: cavern compression
+## Final review-native run
 
 The five cavern layouts differ spatially, but the required progress in each is
 the same: pass the blocking guardians and cut the one mandatory twig. There is
 no source route choice, distinct tool choice, or persistent resource decision
 between those five repetitions.
 
-The recommendation is one **Traverse the five caverns** review beat. Its result
-line names the five twigs, guardian passage, and any bounded LP/resource
-consequence. One subsequent **Prepare the pyre** review cuts all five twigs into
-ribbons and builds the nest. The next state starts the ordinary Phoenix Combat
-encounter; the killing review atomically lights the pyre and grants the
-completion reward.
+The delegated owner decision is:
+
+1. **Traverse the five caverns** — one successful review passes the five
+   mandatory guardian blockages, cuts all five twigs, grants the grouped
+   source-shaped Combat XP and real guardian-loot roll, and applies one bounded,
+   visible LP/food/Prayer consequence.
+2. **Prepare the pyre** — one successful review cuts all five twigs into ribbons
+   and builds the nest. The source completion XP is not paid early.
+3. **Defeat the Phoenix** — the ordinary live Combat reducer owns as many
+   reviews as the encounter needs. The killing review atomically lights the
+   pyre, speaks to the reborn Phoenix, consumes the daily completion allowance,
+   and grants the fixed completion rewards.
 
 Five separate cavern reviews would reenact spatial repetition without creating
 five AnkiScape decisions. Two grouped traversal reviews would split the
 difference numerically without gaining a source or product rationale.
+
+The traversal aggregation is one declared action grouping, not five hidden NPC
+simulations. It performs one aggregate source-table roll and emits the complete
+consequence in its result line. `Again` advances the global world clock but
+does not traverse, create twigs, apply traversal attrition, prepare the pyre, or
+advance Combat.
+
+## Requirements, real loot, and reset behavior
+
+The start preflight requires:
+
+- `In Pyre Need`;
+- Slayer 51;
+- the source knife, secateurs, and tinderbox through the ordinary toolbelt or
+  carried-tool rules; and
+- a Combat loadout that passes the shared encounter-readiness check.
+
+This preflight is a direct UI check and consumes no review. The five twigs,
+ribbons, and pyre are session-local. Real guardian drops and Combat XP are
+credited when earned and remain real even if the player later abandons the run.
+
+Death uses the shared PvM death and grave flow, places the grave outside the
+activity boundary, and clears the unfinished Lair run. Explicit abandonment or
+switching review targets uses the shared destructive-leave confirmation and
+also clears the run. Neither failure consumes the daily completion allowance;
+only the atomic pyre-lighting completion does. No pause or resume state exists.
+
+All traversal, preparation, Combat, completion, daily-charge, loot, XP, pet,
+and RNG mutations participate in the normal review/direct-action undo
+boundaries.
+
+## Phoenix eggling choice
+
+A successful rare egg roll creates the contextual action:
+
+**Phoenix egg — `Clap` / `Kick`**
+
+- `Clap` selects the ordinary Phoenix egg and Cute phoenix eggling.
+- `Kick` selects the Cracked phoenix egg and Mean phoenix eggling.
+- An explicit choice is remembered for this context family.
+- Ignoring the row until the next answered card uses the remembered valid
+  choice, or `Clap` as the authored default.
+- The same behavior applies in Casual and Advanced; there is no permanent
+  checkbox.
+
+At Summoning 72 or above, resolution grants the chosen eggling through the
+shared pet-entity store. Below 72, it grants the corresponding unhatched egg as
+an ordinary source-owned item; the shared Pets surface exposes its direct hatch
+action automatically once level 72 is reached. Owning one temperament never
+blocks acquiring the other. Exact repeat/duplicate-egg behavior remains
+source-table work rather than justification to suppress the rare roll.
+
+## Owner-design closure
+
+Phoenix Lair has no remaining owner-facing product fork. Implementation must
+still pin the source work named above, wire the fixed XP and quill rewards,
+attach the guardian and Phoenix combat/drop tables, register the temporary and
+real items, and provide period assets. Missing numeric evidence may use only a
+labeled bounded abstraction that preserves this settled loop.
