@@ -269,6 +269,15 @@ population, together with remaining star mass, drives communal depletion.
 Prompt participation is calibrated toward the source-expected opportunity;
 delaying or leaving may produce only a partial reward. Wall time is never read.
 
+Evil Trees reuse Shooting Stars' review-clock discovery surface without its
+communal-population simulation. About every twenty answered cards, a random
+period tier appears directly in the D&D UI while active, even when its real
+skill requirements exceed the player; the twice-per-simulated-day participation
+cap remains. Its finite session preserves three visible phases—Farming nurture,
+root-cutting/kindling preparation, and combined chopping/burning—without
+simulating worlds, root positions, or individual fires. The focused contract is
+`memory-bank/source-audits/evil-tree-loop-2026-07-18.md`.
+
 Fist of Guthix does not expose opponent selection or difficulty profiles. The
 cutoff game paired waiting-room players randomly regardless of Combat level,
 randomized the first-round roles, and swapped roles for round two. AnkiScape
