@@ -2,6 +2,17 @@
 
 ## Current Focus
 
+The ordinary level-76 Bloodveld is now executable with Slayer 50, six-tick
+magic-based melee, 1,200 LP, 120 Slayer XP, and Darkan's exact 128-slot
+ordinary table. Black boots item 4125 are generated from the 2011Scape
+equipment block with their Defence-10 gate and exact bonuses. Vannaka advances
+to 18/35 while remaining hidden; the separate level-81 God Wars variant remains
+pinned rather than duplicated as a cosmetically similar row. Evidence:
+`source-audits/slayer-bloodveld-combat-2026-07-18.md`. No owner-facing design
+fork emerged. Results:
+`status-updates/slayer-bloodveld-results-2026-07-18.html`
+(<https://k9ynbzcx5a8u.postplan.dev>).
+
 The ordinary level-78 Jelly is now executable with Slayer 52, magic-based
 melee, six-tick attacks, 750 LP, 75 Slayer XP, Darkan's exact 128-slot table,
 and real Defence-20 Mithril boots generated from 2011Scape item 4127. Vannaka

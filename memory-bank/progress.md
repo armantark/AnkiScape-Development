@@ -4,6 +4,25 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Bloodveld Combat closure — 2026-07-18
+
+- Added the ordinary level-76 Bloodveld as a Slayer-50 Combat target with 1,200
+  LP, 120 Slayer XP, six-tick magic-based melee, maximum hit 59, and guaranteed
+  Bones.
+- Encoded Darkan's 123 named ordinary slots plus five explicit empty slots at
+  the exact denominator 128; no absent rare-table or herb rows were invented.
+- Registered Black boots item 4125 as generated Defence-10 feet equipment with
+  exact 2011Scape bonuses and an item asset.
+- Advanced Vannaka from 17/35 to 18/35 without exposing or renormalizing the
+  incomplete master. Sixteen missing targets and Earth warrior's Wilderness
+  context remain.
+- Focused checks, the real offscreen Qt picker, and all 1,601 pure tests pass.
+  Durable evidence is
+  `source-audits/slayer-bloodveld-combat-2026-07-18.md`; no owner design input
+  was required. Results:
+  `status-updates/slayer-bloodveld-results-2026-07-18.html`
+  (<https://k9ynbzcx5a8u.postplan.dev>).
+
 ## Slayer Jelly Combat closure — 2026-07-18
 
 - Added the ordinary level-78 Jelly as a Slayer-52 Combat target with 750 LP,

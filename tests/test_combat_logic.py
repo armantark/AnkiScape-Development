@@ -2559,6 +2559,15 @@ class CombatLogicTest(unittest.TestCase):
             {"Mithril boots": 1},
         )
 
+    def test_bloodveld_drop_roll_can_reach_black_boots(self):
+        self.assertEqual(
+            _combat_roll_drops(
+                COMBAT_ENEMY_DATA["bloodveld"],
+                _rng([117 / 128]),
+            ),
+            {"Bones": 1, "Black boots": 1},
+        )
+
     def test_zombie_drop_rolls_nested_minor_herbs_and_level_25_variant(self):
         herb_drops = _combat_roll_drops(
             COMBAT_ENEMY_DATA["zombie_level_13"],

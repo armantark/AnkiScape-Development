@@ -731,6 +731,18 @@
     "source_wiki": "osrs",
     "timestamp": "2019-06-18T15:26:06Z"
   },
+  "combatenemies/bloodveld.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bloodveld.png",
+    "file_title": "Bloodveld.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Bloodveld.png?adc61",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "410afd9b6ee40d686176036ddc08d028b166969e",
+    "size": 60880,
+    "source_wiki": "osrs",
+    "timestamp": "2019-06-18T15:37:18Z"
+  },
   "combatenemies/chaos_druid.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Chaos_druid.png",
     "file_title": "Chaos druid.png",

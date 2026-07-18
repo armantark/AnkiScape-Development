@@ -26,6 +26,7 @@ NEW_COMBAT_ENEMIES = (
     "icefiend",
     "pyrefiend",
     "jelly",
+    "bloodveld",
     "kalphite_soldier",
     "wall_beast",
     "vampyre",
@@ -274,6 +275,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("icefiend", "Icefiend.png"),
             ("pyrefiend", "Pyrefiend.png"),
             ("jelly", "Jelly.png"),
+            ("bloodveld", "Bloodveld.png"),
             ("kalphite_soldier", "Kalphite Soldier.png"),
             ("wall_beast", "Wall beast icon.png"),
             ("vampyre", "Vampire (historical) (level 61).png"),
@@ -365,7 +367,11 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertIn("oldid=6565806", pyrefiend["source"])
 
     def test_slayer_targets_require_their_source_levels(self):
-        for target_id, required_level in (("pyrefiend", 30), ("jelly", 52)):
+        for target_id, required_level in (
+            ("pyrefiend", 30),
+            ("bloodveld", 50),
+            ("jelly", 52),
+        ):
             with self.subTest(target_id=target_id):
                 self.assertEqual(
                     combat_target_locked_reasons_pure(
@@ -411,6 +417,34 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
         self.assertIn("oldid=6530513", jelly["source"])
         self.assertIn("Soul Wars variant excluded", jelly["source_status"])
+
+    def test_bloodveld_preserves_the_cutoff_level_76_variant_and_drop_table(self):
+        bloodveld = COMBAT_ENEMY_DATA["bloodveld"]
+
+        self.assertEqual(bloodveld["level"], 76)
+        self.assertEqual(bloodveld["required_slayer_level"], 50)
+        self.assertEqual(bloodveld["attack_style"], "magic_melee")
+        self.assertEqual(bloodveld["attack_speed"], 6)
+        self.assertEqual(bloodveld["respawn_delay"], 59)
+        self.assertEqual(bloodveld["slayer_xp"], 120.0)
+        self.assertEqual(bloodveld["max_hit"], 59)
+        self.assertEqual(
+            bloodveld["stats"],
+            {
+                "hitpoints": 1200,
+                "attack": 75,
+                "strength": 45,
+                "defence": 30,
+                "magic": 1,
+                "ranged": 1,
+            },
+        )
+        self.assertEqual(bloodveld["drops"]["guaranteed"], (("Bones", 1),))
+        main = bloodveld["drops"]["tables"][0]
+        self.assertEqual(main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
+        self.assertIn("oldid=6565794", bloodveld["source"])
+        self.assertIn("level-81 God Wars variant excluded", bloodveld["source_status"])
 
     def test_kalphite_soldier_preserves_the_cutoff_variant_and_drop_table(self):
         soldier = COMBAT_ENEMY_DATA["kalphite_soldier"]

@@ -167,6 +167,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         definitions = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         for item_name, item_id, required_level in (
             ("Steel boots", 4123, 5),
+            ("Black boots", 4125, 10),
             ("Mithril boots", 4127, 20),
         ):
             with self.subTest(item_name=item_name):
