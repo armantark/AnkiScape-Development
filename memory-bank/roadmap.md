@@ -49,7 +49,10 @@ Wait for a pinned high-fidelity milestone before broad ingestion, then reconcile
 - Tune review pacing only after all skills and major methods exist.
 - Validate long-run acquisition, item, and coin sinks.
 - Run migration, real-profile Anki, performance, accessibility, packaging/license, export/recovery, and documentation passes.
-- Decide personal fork versus public derivative release.
+- Execute the settled public derivative go-live gates in
+  `public-release-lineage-and-license-2026-07-17.md`; the product disposition is
+  decided, but licensing, attribution, public-source, asset-provenance,
+  packaging, and AnkiWeb identity gates remain open.
 
 ## Permanent Boundaries
 

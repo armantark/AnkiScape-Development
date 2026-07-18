@@ -651,6 +651,23 @@ and also returns `False`. Skills whose failures use shared combat LP must be
 excluded from post-review safe combat recovery, or the integration layer will
 silently heal away the failure stake.
 
+## Public derivative release pattern
+
+GitHub fork metadata is not package-level attribution. Any public AnkiScape
+release must carry its own original-creator credit, explicit compatible license,
+source links, derivative-maintainer identity, and distinct AnkiWeb listing. Do
+not reuse Wilson's item `1808450369`, and do not leave the in-product review
+link pointing at his listing. Public source must match the exact release
+candidate rather than a stale fork snapshot.
+
+Code lineage and asset redistribution are separate gates. The working
+AGPL-3.0 basis from AnkiWeb does not close the repository's missing explicit
+license, Wilson acknowledgement, or the provenance of RuneScape-derived assets.
+Follow
+`memory-bank/public-release-lineage-and-license-2026-07-17.md` in order and
+stop before upload if any rights, attribution, asset, packaging, or real-profile
+verification gate remains open.
+
 ## UI Gotcha: nested-closure name collisions in `show_main_menu`
 `show_main_menu` is a very large function that defines many nested helpers (one per tab/section). All of these are locals of the *same* scope, so two sections defining a helper with the same name (e.g. `_select_skill`) silently rebind it — the later definition wins, and earlier callers route into the wrong function with no error. This caused the Skills-hub panel to ignore clicks (the Stats tab's `_select_skill` shadowed the hub's). Mitigation: prefix section-scoped helpers with their section (`_select_hub_skill`, etc.), and prefer the offscreen Qt behavior test to catch misrouted handlers. Longer term, splitting these sections into their own builder functions/classes would remove the shared scope entirely.
 

@@ -4,6 +4,25 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Public derivative release disposition — 2026-07-17
+
+- Settled the former personal-fork-versus-public-release question in favor of
+  preparing a distinct public derivative release.
+- Measured the lineage at a fixed Git snapshot: about 2.2% of current
+  production code is surviving unchanged original code under a conservative
+  comparison, while about 70.0% of Wilson's original production code still
+  survives. This supports “radically expanded derivative fork,” not minor
+  update or independent rewrite.
+- Locked prominent Wilson Yeh original-creator credit, Arman Tarkhanian
+  independent-maintainer identity, a new AnkiWeb listing, explicit compatible
+  licensing, complete source links, and a corrected in-product review link.
+- Kept publication gated on written license clarification or acknowledgement,
+  public-repository synchronization, asset redistribution provenance, packaging,
+  migration, real-profile, performance/accessibility, export/recovery, and
+  post-upload verification.
+- Durable record:
+  `public-release-lineage-and-license-2026-07-17.md`.
+
 ## Shared catalog search seam — 2026-07-17
 
 - Added one reusable `CatalogFilterBar` for Shop, Quests, Combat, and future

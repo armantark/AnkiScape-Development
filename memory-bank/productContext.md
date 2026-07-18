@@ -34,3 +34,6 @@ completion audit is archived under `memory-bank/archive/2026-07/baselines/`.
 - No modern RS3/OSRS substitution for missing pre-EOC proof.
 - No ordinary skilling “minutes per review”; the card clock is reserved for world/economy cadence.
 - Daemonheim resources belong to a future Dungeoneering session economy, not the persistent overworld Bank or ordinary Herblore target list.
+- Any public release is a separately named, independently maintained derivative
+  that credits Wilson Yeh as the original creator; it must not impersonate or
+  replace his existing AnkiWeb listing.

@@ -677,7 +677,18 @@ methods are already open. Model the respawn, ship the inversion.
 
 Labels: `PARKED` until feature closure, then `IMPLEMENT`.
 
-- Migration fixtures, manual Anki review QA, performance/accessibility, packaging/license audit, export/recovery, documentation, and personal-fork versus public-release scope.
+- **Product disposition settled 2026-07-17:** prepare a separately named public
+  derivative release under
+  `public-release-lineage-and-license-2026-07-17.md`; do not upload until its
+  ordered go-live gates pass.
+- Obtain Wilson's written acknowledgement or license clarification; add the
+  explicit compatible license, durable credits, and public attribution copy.
+- Synchronize the public fork to the exact candidate; create a new AnkiWeb
+  listing; replace the hard-coded `1808450369` review link; declare the original
+  package conflict where supported.
+- Close asset redistribution provenance, migration fixtures, manual Anki review
+  QA, performance/accessibility, packaging, export/recovery, documentation, and
+  post-upload verification.
 - When all 25 pre-EOC skill surfaces are complete or explicitly excluded,
   publish a celebratory, interactive skill-milestone postmortem before moving on
   as though it were an ordinary card. Cover the build timeline and commit

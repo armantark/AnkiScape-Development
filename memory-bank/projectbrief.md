@@ -36,3 +36,7 @@ Reach a coherent “complete AnkiScape” rather than accumulating disconnected 
 - Every concrete value or gate follows `memory-bank/pre-eoc-source-verification-standard.md`.
 - Saves migrate safely; review undo restores every mutation.
 - Full pure and offscreen Qt suites stay green, with manual Anki QA for release candidates.
+- A public release follows
+  `memory-bank/public-release-lineage-and-license-2026-07-17.md`: distinct
+  derivative identity, prominent original-creator credit, explicit compatible
+  licensing, asset provenance closure, and a new AnkiWeb listing.

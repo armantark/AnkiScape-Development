@@ -451,8 +451,10 @@ product rather than an afterthought:
 4. **Semantic documentation:** mechanical documentation audits stay necessary,
    but the Help corpus and release notes must also be checked against current
    runtime behavior rather than merely for valid links and HTML.
-5. **Product disposition:** explicitly decide personal fork versus public
-   derivative release after the packaging/license audit, not before.
+5. **Product disposition — settled 2026-07-17:** prepare a distinctly named
+   public derivative release, with upload still gated by the licensing,
+   attribution, asset-provenance, packaging, and verification sequence in
+   `public-release-lineage-and-license-2026-07-17.md`.
 
 ## Morning decision queue
 

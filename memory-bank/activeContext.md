@@ -2,6 +2,16 @@
 
 ## Current Focus
 
+The personal-fork-versus-public-release question is settled as **prepare a
+separately named public derivative release**, not upload immediately. Wilson Yeh
+must be credited prominently as the original creator; Arman is the independent
+maintainer of the radically expanded derivative. The release uses a new
+AnkiWeb listing, an explicit AGPL-3.0-or-later compatible license, durable
+credits, synchronized public source, a corrected review link, and closed asset
+provenance and release-engineering gates. The governing decision, measurement,
+copy, outreach note, blockers, and ordered go-live script are in
+`public-release-lineage-and-license-2026-07-17.md`.
+
 The shared catalog search seam is implemented across Shop, Quests, and Combat.
 `CatalogFilterBar` standardizes dark-mode-safe search, clear/Escape behavior,
 page-owned filters, and count summaries without owning result semantics.
