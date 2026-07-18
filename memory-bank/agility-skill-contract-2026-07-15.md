@@ -252,27 +252,35 @@ match abstraction.
 
 ### Flash Powder Factory
 
-FPF is a Utility/Activity with a fixed **24-review session budget**. This is a
-labeled replacement for the period real-time session, not a time conversion.
-The review loop cycles through five narrated objectives:
+FPF is a Utility/Activity with a fixed **eight answered-card session budget**,
+extended to nine by a Rogue or Factory top. A productive review resolves one
+complete A + B + catalyst + mixer circuit; `Again` consumes a live-session slot
+without producing a batch. **Max Brianpoints / Rogue equipment / Balanced**
+selects the standing route strategy. Charge, residue, catalyst reserve,
+apparatus count, rubble rewards, early exit, score caps, Brianpoints,
+Agility-XP redemption, Factory outfit effects, and Rogue reward lineage remain
+consequential. Pickpocketing is at most one visible apparatus contest inside a
+productive review, never opponent simulation.
 
-```text
-collect reagent A -> collect reagent B -> obtain catalyst -> mix -> deposit
-```
-
-Obstacles lie between objectives and use the activity's own source/provisional
-rolls. Charge, residue, apparatus pickpocketing, rubble, mixers, early exit,
-score caps, Brianpoints, Agility-XP redemption, Factory outfit effects, and
-Rogue reward lineage are all persisted inside the session. The Factory outfit
-and its `12,000`-point complete cost ship with the activity. No Brianpoint or
-reward row ships without the activity that earns it.
+The full controlling contract is
+`memory-bank/source-audits/flash-powder-factory-loop-2026-07-18.md`; the older
+24-review objective cycle is superseded.
 
 ### The Pit
 
-After an eligible completed course lap, the Talent Scout roll is made once. If
-its exact period chance remains blocked, use `1/8` as
-`ankiscape_pit_invitation_fallback`. An offer persists until accepted or
-declined; wall time and menu closing cannot consume it.
+Ordinary Talent Scout invitations roll only after completed laps at Gnome
+basic/advanced, Barbarian basic/advanced, Pyramid, Ape Atoll, Wilderness,
+Werewolf, or Dorgesh-Kaan. Burthorpe, Penguin, Activities, shortcuts, and
+incidental actions cannot trigger them. If the exact period chance remains
+blocked, use `1/8` as `ankiscape_pit_invitation_fallback`.
+
+Use one Agility-wide **Automatically accept Talent Scout invitations**
+checkbox, checked by default and identical in Casual and Advanced. Checked
+offers arm The Pit automatically and return to the originating course after
+the challenge. Unchecked offers persist until accepted or declined; wall time
+and menu closing cannot consume them. Free hands and no familiar remain entry
+requirements, with the settled familiar-dismissal confirmation reused rather
+than silently dismissing one.
 
 Accepting chooses Crate Expectations, Floor Is Lava, High-low, Karaoke, Hungry
 Sheep, or block matching and starts a six-review challenge. Six is the explicit
@@ -286,6 +294,10 @@ until better evidence arrives. First success grants the gorilla mask. The
 optional `2x/1x/0.5x` gamble is an explicit post-result command with equal odds
 and its own undo snapshot. An owned Agility skillcape also exposes the period
 reduced-XP practice option without altering ordinary offers.
+
+The focused source and UI contract, plus the current implementation mismatches,
+are recorded in
+`memory-bank/source-audits/the-pit-loop-2026-07-18.md`.
 
 ### Circus
 

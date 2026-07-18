@@ -424,6 +424,15 @@ visible apparatus contest inside a productive review; no opponents, paths, or
 population are simulated. The full contract is recorded in
 `memory-bank/source-audits/flash-powder-factory-loop-2026-07-18.md`.
 
+The Pit invitation applies to nine of the eleven ordinary live lap-course
+variants: Gnome and Barbarian basic/advanced, Pyramid, Ape Atoll, Wilderness,
+Werewolf, and Dorgesh-Kaan. Burthorpe and Penguin cannot trigger it. One global
+**Automatically accept Talent Scout invitations** checkbox is checked by
+default and behaves identically in Casual and Advanced; unchecked offers remain
+available for manual acceptance or decline. The focused contract and current
+implementation mismatches are recorded in
+`memory-bank/source-audits/the-pit-loop-2026-07-18.md`.
+
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking
 the shared substrate.
