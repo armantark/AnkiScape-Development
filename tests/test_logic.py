@@ -6044,6 +6044,119 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["slayer_points"], points_before)
         self.assertEqual(player_data["slayer_qualifying_streak"], streak_before)
 
+    def test_shilo_village_stage_chain_preserves_evidence_transforms_and_boss_order(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["jungle_potion"] = {
+            "started": True,
+            "progress": QUEST_DATA["jungle_potion"]["stages"],
+            "completed": True,
+        }
+        for level_key in (
+            "smithing_level",
+            "crafting_level",
+            "agility_level",
+            "attack_level",
+            "strength_level",
+            "defense_level",
+            "constitution_level",
+            "ranged_level",
+            "magic_level",
+            "prayer_level",
+        ):
+            player_data[level_key] = 200
+        player_data["combat_lifepoints"] = 2000
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+
+        player_data, ok = start_quest_pure(player_data, "shilo_village", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["inventory"]["Wampum belt"], 1)
+        player_data["inventory"].update(
+            {
+                "Rope": 1,
+                "Lit torch": 1,
+                "Spade": 1,
+                "Chisel": 1,
+                "Bronze wire": 1,
+                "Bones": 3,
+            }
+        )
+
+        expected_progress_and_items = (
+            (2, {"Wampum belt": 0}),
+            (3, {"Rope": 0, "Lit torch": 0}),
+            (
+                4,
+                {
+                    "Stone-plaque": 1,
+                    "Tattered scroll": 1,
+                    "Crumpled scroll": 1,
+                    "Zadimus corpse": 1,
+                },
+            ),
+            (5, {"Zadimus corpse": 0, "Bone shard": 1}),
+            (6, {"Sword pommel": 1, "Locating crystal": 1, "Bervirius notes": 1}),
+            (7, {}),
+            (8, {"Bone shard": 0, "Sword pommel": 0, "Bone key": 1, "Bone beads": 1}),
+            (9, {"Bone beads": 0, "Bronze wire": 0, "Beads of the dead": 1}),
+            (10, {"Bones": 0}),
+        )
+        for expected_progress, expected_items in expected_progress_and_items:
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "shilo_village",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"]["shilo_village"]["progress"], expected_progress)
+            for item_name, quantity in expected_items.items():
+                self.assertEqual(player_data["inventory"].get(item_name, 0), quantity)
+            if expected_progress == 4:
+                player_data["inventory"]["Stone-plaque"] = 0
+
+        for encounter_id in (
+            "shilo_village_nazastarool_zombie_91",
+            "shilo_village_nazastarool_skeleton_68",
+            "shilo_village_nazastarool_ghost_93",
+        ):
+            result = {}
+            for _ in range(12):
+                player_data, ok, result = apply_quest_combat_encounter_pure(
+                    player_data,
+                    "shilo_village",
+                    QUEST_DATA,
+                    stop_after_first_kill=True,
+                )
+                self.assertTrue(ok, result)
+                if result["killed"]:
+                    break
+            self.assertTrue(result["killed"])
+            self.assertEqual(result["encounter_id"], encounter_id)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "shilo_village",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["shilo_village"]["progress"], 11)
+        self.assertEqual(player_data["inventory"]["Rashiliyia corpse"], 1)
+
+        crafting_xp_before = player_data["crafting_exp"]
+        quest_points_before = player_data["quest_points"]
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "shilo_village",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(player_data["quests"]["shilo_village"]["progress"], 12)
+        self.assertEqual(player_data["inventory"].get("Rashiliyia corpse", 0), 0)
+        self.assertEqual(player_data["crafting_exp"], crafting_xp_before + 3875)
+        self.assertEqual(player_data["quest_points"], quest_points_before + 2)
+
     def test_demon_slayer_source_backed_stage_chain_blocks_and_completes_in_order(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["demon_slayer"] = {"started": True, "progress": 1, "completed": False}

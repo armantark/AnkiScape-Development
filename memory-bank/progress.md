@@ -1027,3 +1027,36 @@ Test counts are snapshots; current runs outrank this note.
   (<https://0hj7sz8kn416.postplan.dev>).
 - The next Slayer implementation dependency is Shilo Village and the complete
   transitive black-mask / Slayer-helmet route.
+
+## Shilo Village playable Slayer dependency — 2026-07-18
+
+- Replaced seven generated objective buttons with eleven review-native
+  requirements plus the completion sentinel, covering Ah Za Rhoon, Zadimus,
+  Bervirius, every quest-item transformation, Rashiliyia's tomb, and her release.
+- Replaced the generated single boss placeholder with ordered level-91 zombie,
+  level-68 skeleton, and level-93 ghost encounters using complete Darkan
+  resolver definitions.
+- Registered all thirteen rev-742 quest-item identities and pre-cutoff sprites;
+  Beads of the dead now generate as real neck equipment.
+- Preserved the period-optional Stone-plaque without making it a progression
+  gate. The collapsed temple review includes the item automatically, and the
+  UI does not promise Yanni's separate post-quest sale service.
+- A bounded Fable UI/copy review accepted the route and found five concrete
+  seams. Optionality wording, absent-sale wording, the pre-quest supply list,
+  Ah Za Rhoon geography, and the cache citation are all corrected.
+- Full core discovery passes all 1,546 methods with 213 declared environment
+  skips. Full real offscreen Qt discovery passes all 1,546 methods without
+  skips or failures. The final 355-method focused backend set and three-method
+  real Qt holdout also pass.
+- Test quality reports zero hard issues across 72 files. Documentation,
+  compilation, provenance JSON, combat-gap, diff, reachability, and worktree
+  safety audits pass; the known reachability ledger remains 1,220 actions,
+  1,789 reachable items, 288 orphan inputs, and 314 blocked actions.
+- Durable evidence:
+  `source-audits/quest-shilo-village-playable-2026-07-18.md`.
+- Published
+  `status-updates/quest-shilo-village-results-2026-07-18.html`
+  (<https://tqgeemw7wsuo.postplan.dev>).
+- Next: repair Jungle Potion's remaining generated stage buttons, then continue
+  Big Chompy Bird Hunting → Zogre Flesh Eaters → Rum Deal → Cabin Fever before
+  the Mos Le'Harmless, Cave horror, Black mask, and Slayer-helmet runtime.

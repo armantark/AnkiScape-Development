@@ -236,11 +236,13 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   reachable without bypass flags. Diamond in the Rough's two optional level-80
   hidden-reward actions remain a separate source-ready follow-up rather than
   automatic quest-completion XP.
-- Build Shilo Village and the complete transitive Slayer-helmet route through
-  Cabin Fever, Mos Le'Harmless, Cave horrors, the black-mask drop, and the
-  400-point crafting unlock. Preserve every period quest and skill prerequisite;
-  in particular, this route depends on the real Agility implementation rather
-  than a Slayer-local waiver.
+- Shilo Village is now source-backed and playable. Continue the transitive
+  Slayer-helmet route in dependency order: replace Jungle Potion's remaining
+  generated objective buttons; build Big Chompy Bird Hunting, Zogre Flesh
+  Eaters, Rum Deal, and Cabin Fever; then activate Mos Le'Harmless, Cave horrors,
+  the 1/512 Black mask drop, Slayer reward purchases, the 400-point helmet
+  unlock, and Crafting 55 assembly. Preserve every period quest and skill
+  prerequisite rather than adding Slayer-local waivers.
 - Keep cutoff-live assignment families in the completeness ledger but do not
   render implementation-missing families as locked or coming-soon rows. Derive
   runtime readiness from stable dependency identities so each family enters the
@@ -472,11 +474,15 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`, `IMPLEMENT`.
 - Slayer likewise owns `Smoking Kills` and every still-missing prerequisite in
   its reachable chain because the quest gates Sumona and the entire reward-point
   economy. That direct chain is now playable; the next Slayer-raised quest work
-  is Shilo Village and the transitive black-mask / Slayer-helmet route.
-- Slayer also raises Shilo Village and the complete black-mask/Slayer-helmet
-  route to the front of this quest program. The period quest tree is transitive,
-  not limited to a manually named subset; already-playable prerequisites are
-  reused and generated placeholders are replaced through the canonical runtime.
+  is Jungle Potion fidelity, followed by the remaining transitive black-mask /
+  Slayer-helmet route.
+- Shilo Village is now source-backed and playable. The remaining route stays at
+  the front of this quest program in dependency order: Jungle Potion fidelity,
+  Big Chompy Bird Hunting, Zogre Flesh Eaters, Rum Deal, and Cabin Fever before
+  Mos Le'Harmless, Cave horrors, the black-mask drop, and helmet assembly. The
+  period quest tree is transitive, not limited to a manually named subset;
+  already-playable prerequisites are reused and generated placeholders are
+  replaced through the canonical runtime.
 - Wait for Darkan where historical sources cannot prove hidden transitions or combat definitions; never fill gaps from modern RS3/OSRS.
 
 ### Complete pre-EOC bestiary

@@ -2,24 +2,23 @@
 
 ## Current Focus
 
-Smoking Kills is now a complete live Slayer dependency. Its generated
-placeholder rows and bogus completion items are replaced by twelve review-native
-requirements plus the completion sentinel: both tomb wings, grouped guardian
-waves, two Mummy Warriors and path keys, Catolax's Masked-earmuffs
-transformation, the Mighty banshee and Banshee voice, the barrier, the Banshee
-Mistress's disclosed assassin phase, and Sumona's final report. Five period
-quest icons and three real equipment rows are registered. A sourced
-`minimum_player_combat` encounter field keeps the level-111 boss visible while
-honouring the quest's Combat 85 player requirement. Completion grants one quest
-point and 5,000 Slayer XP, activates the existing Sumona/reward gates, and does
-not retroactively alter Slayer points or streak. Full core discovery passes all
-1,542 methods with 1,330 ordinary passes and 212 declared environment skips;
-full real offscreen Qt discovery passes all 1,542 methods without skips or
-failures. Durable evidence is
-`source-audits/quest-smoking-kills-playable-2026-07-18.md`; the visual closure
-report is `status-updates/quest-smoking-kills-results-2026-07-18.html`
-(<https://0hj7sz8kn416.postplan.dev>). The next Slayer implementation dependency
-is Shilo Village and the transitive black-mask / Slayer-helmet route.
+Shilo Village is now a complete live Slayer dependency. Eleven review-native
+requirements plus the completion sentinel cover the Wampum handoff, Ah Za
+Rhoon, both scrolls and Zadimus, Bervirius's evidence, Bone key and Beads
+transformations, the three-bone tomb gate, all three ordered Nazastarool forms,
+and Rashiliyia's release. The optional Stone-plaque remains obtainable but is
+not a false progression gate. Thirteen period quest-item sprites and cache
+identities are registered, including real Beads of the dead neck equipment.
+Completion grants two quest points and 3,875 Crafting XP and preserves the
+Shilo, cart, and gem-rock unlocks. Durable evidence is
+`source-audits/quest-shilo-village-playable-2026-07-18.md`. Full core discovery
+passes all 1,546 methods with 213 declared environment skips; full real
+offscreen Qt discovery passes all 1,546 methods. The visual closure report is
+`status-updates/quest-shilo-village-results-2026-07-18.html`
+(<https://tqgeemw7wsuo.postplan.dev>). The next Slayer implementation
+dependency is Jungle Potion fidelity, then Big Chompy Bird Hunting, Zogre Flesh
+Eaters, Rum Deal, and Cabin Fever before Mos Le'Harmless, Cave horrors, the
+black-mask drop, and Slayer-helmet assembly.
 
 Turael/Spria is now the first complete live Slayer-master role. The full
 23-family weighted pool is assignment-ready, matching Combat kills award Slayer

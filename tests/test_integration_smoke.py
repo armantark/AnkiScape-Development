@@ -1505,6 +1505,62 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["save"], 2)
         self.assertEqual(calls["dialogs"], [])
 
+    def test_shilo_village_review_flow_resolves_all_nazastarool_forms_then_corpse(self):
+        addon = _load_addon_as_package("ankiscape_shilo_village_integration")
+        _install_quest_combat_mid_rolls(self, addon)
+
+        calls = {"save": 0, "gains": [], "dialogs": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
+        addon.mw = _DummyMW(_DummyCol({}))
+        addon.current_skill = "Quests"
+        addon.player_data = {
+            "inventory": {"Bone key": 1, "Beads of the dead": 1},
+            "current_quest": "shilo_village",
+            "quests": {
+                "shilo_village": {
+                    "started": True,
+                    "progress": 10,
+                    "completed": False,
+                },
+            },
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_points": 0,
+            "claims": {"wicked_hood": {"claimed": False}},
+            "wicked_hood": {"fed_altars": []},
+            "pending_skill_exp_rewards": {},
+            "runecrafting_pouches": {},
+            "item_charges": {},
+            "completed_achievements": [],
+            "attack_level": 200,
+            "strength_level": 200,
+            "defense_level": 200,
+            "constitution_level": 200,
+            "ranged_level": 200,
+            "magic_level": 200,
+            "prayer_level": 200,
+        }
+
+        for display_name in (
+            "Nazastarool (Zombie)",
+            "Nazastarool (Skeleton)",
+            "Nazastarool (Ghost)",
+        ):
+            addon.on_quest_answer()
+            self.assertEqual(calls["gains"][-1], f"Defeated {display_name}")
+            self.assertEqual(addon.player_data["quests"]["shilo_village"]["progress"], 10)
+
+        addon.on_quest_answer()
+
+        self.assertEqual(addon.player_data["quests"]["shilo_village"]["progress"], 11)
+        self.assertEqual(addon.player_data["inventory"]["Rashiliyia corpse"], 1)
+        self.assertEqual(calls["gains"][-1], "Shilo Village 11/12")
+        self.assertEqual(calls["save"], 4)
+        self.assertEqual(calls["dialogs"], [])
+
     def test_quest_answer_completes_holy_grail_final_handoff_and_consumes_grail(self):
         addon = _load_addon_as_package("ankiscape_holy_grail_completion_integration")
 

@@ -1940,6 +1940,96 @@ class TestQuestCatalog(unittest.TestCase):
             self.assertFalse(items[item_name]["tradeable"])
             self.assertFalse(items[item_name]["stackable"])
 
+    def test_shilo_village_is_a_playable_source_backed_slayer_dependency(self):
+        quest = quests_as_dict()["shilo_village"]
+        by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
+
+        self.assertEqual(quest["stages"], 12)
+        self.assertEqual(quest["point_reward"], 2)
+        self.assertEqual(quest["xp_rewards"], ({"skill_id": "crafting", "amount": 3875},))
+        self.assertEqual(quest["start_inventory"], {"Wampum belt": 1})
+        self.assertEqual(
+            quest["required_skills"],
+            (
+                {"skill_id": "smithing", "display_name": "Smithing", "level": 4},
+                {"skill_id": "crafting", "display_name": "Crafting", "level": 20},
+                {"skill_id": "agility", "display_name": "Agility", "level": 32},
+            ),
+        )
+        self.assertIn(
+            "Used during quest: Rope x1, lit light source x1, Spade x1, Chisel x1, Bronze wire x1, Bones x3",
+            quest["requirements"],
+        )
+        self.assertEqual(tuple(by_stage), tuple(range(1, 12)))
+        self.assertFalse(
+            any(
+                action.startswith("Complete Shilo Village stage")
+                for row in by_stage.values()
+                for action in row["required_actions"]
+            )
+        )
+        self.assertEqual(by_stage[1]["consumed_inventory"], {"Wampum belt": 1})
+        self.assertEqual(
+            tuple(option for option in by_stage[2]["consumed_inventory_options"]),
+            (tuple({item_name: 1} for item_name in LIT_LIGHT_SOURCE_ITEMS),),
+        )
+        self.assertEqual(
+            by_stage[3]["produced_inventory"],
+            {
+                "Stone-plaque": 1,
+                "Tattered scroll": 1,
+                "Crumpled scroll": 1,
+                "Zadimus corpse": 1,
+            },
+        )
+        self.assertEqual(by_stage[3]["required_tools"], {})
+        self.assertEqual(
+            by_stage[4]["required_inventory"],
+            {"Tattered scroll": 1, "Crumpled scroll": 1},
+        )
+        self.assertEqual(by_stage[4]["consumed_inventory"], {"Zadimus corpse": 1})
+        self.assertEqual(by_stage[4]["produced_inventory"], {"Bone shard": 1})
+        self.assertEqual(
+            by_stage[5]["produced_inventory"],
+            {"Sword pommel": 1, "Locating crystal": 1, "Bervirius notes": 1},
+        )
+        self.assertEqual(
+            by_stage[7]["produced_inventory"],
+            {"Bone key": 1, "Bone beads": 1},
+        )
+        self.assertEqual(
+            by_stage[8]["consumed_inventory"],
+            {"Bone beads": 1, "Bronze wire": 1},
+        )
+        self.assertEqual(by_stage[8]["produced_inventory"], {"Beads of the dead": 1})
+        self.assertEqual(by_stage[9]["consumed_inventory"], {"Bones": 3})
+        self.assertEqual(
+            tuple(encounter["display_name"] for encounter in by_stage[10]["combat_encounters"]),
+            ("Nazastarool (Zombie)", "Nazastarool (Skeleton)", "Nazastarool (Ghost)"),
+        )
+        self.assertEqual(by_stage[10]["produced_inventory"], {"Rashiliyia corpse": 1})
+        self.assertEqual(by_stage[11]["consumed_inventory"], {"Rashiliyia corpse": 1})
+
+        items = quest_reward_items_as_dict()
+        for item_name, item_id in (
+            ("Bone shard", 604),
+            ("Bone key", 605),
+            ("Stone-plaque", 606),
+            ("Tattered scroll", 607),
+            ("Crumpled scroll", 608),
+            ("Rashiliyia corpse", 609),
+            ("Zadimus corpse", 610),
+            ("Locating crystal", 611),
+            ("Beads of the dead", 616),
+            ("Bone beads", 618),
+            ("Sword pommel", 623),
+            ("Bervirius notes", 624),
+            ("Wampum belt", 625),
+        ):
+            self.assertEqual(items[item_name]["item_id"], item_id)
+            self.assertFalse(items[item_name]["tradeable"])
+            self.assertFalse(items[item_name]["stackable"])
+
     def test_generated_rewards_journals_and_lamps_are_structured(self):
         data = quests_as_dict()
 

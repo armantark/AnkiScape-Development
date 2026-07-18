@@ -23037,6 +23037,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:52:24Z"
   },
+  "questitems/beads_of_the_dead.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Beads_of_the_dead.png",
+    "file_title": "Beads of the dead.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502173941%21Beads_of_the_dead.png?6b852",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8defec25afc0c833a206b268079c9277127cefdc",
+    "size": 468,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-17T23:11:22Z"
+  },
+  "questitems/bervirius_notes.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Bervirius_notes.png",
+    "file_title": "Bervirius notes.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502013028%21Bervirius_notes.png?35131",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "37040dc92d7c069ceafa1ad62f5c0aa2c0ab1339",
+    "size": 1073,
+    "source_wiki": "rs3",
+    "timestamp": "2012-05-25T20:24:43Z"
+  },
   "questitems/bird_feed.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bird_feed.png",
     "file_title": "Bird feed.png",
@@ -23156,6 +23180,42 @@
     "size": 535,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:36Z"
+  },
+  "questitems/bone_beads.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Bone_beads.png",
+    "file_title": "Bone beads.png",
+    "image_url": "https://runescape.wiki/images/archive/20130816173655%21Bone_beads.png?a0a4a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "cf2900dea453c55bcd56d099a9a237177c737085",
+    "size": 752,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-23T02:27:01Z"
+  },
+  "questitems/bone_key.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Bone_key_%28Shilo_Village%29.png",
+    "file_title": "Bone key (Shilo Village).png",
+    "image_url": "https://runescape.wiki/images/archive/20140502072308%21Bone_key_%28Shilo_Village%29.png?a4fca",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7d6b3f8fc087e458ccac0e326511e357ab34853f",
+    "size": 375,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-18T06:52:28Z"
+  },
+  "questitems/bone_shard.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Bone_shard.png",
+    "file_title": "Bone shard.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502014808%21Bone_shard.png?427a5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d021f734475ee5bd4333c3df59b4ead18cb14dab",
+    "size": 534,
+    "source_wiki": "rs3",
+    "timestamp": "2012-05-25T20:24:44Z"
   },
   "questitems/book_on_baxtorian.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Book_on_Baxtorian.png",
@@ -23372,6 +23432,18 @@
     "size": 744,
     "source_wiki": "rs3",
     "timestamp": "2024-11-20T04:08:51Z"
+  },
+  "questitems/crumpled_scroll.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Crumpled_scroll.png",
+    "file_title": "Crumpled scroll.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502024153%21Crumpled_scroll.png?adf95",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "266f8730fe5eae8180dddf28e73a3710cc85b755",
+    "size": 1064,
+    "source_wiki": "rs3",
+    "timestamp": "2012-05-25T20:24:45Z"
   },
   "questitems/distillator.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Distillator.png",
@@ -23999,6 +24071,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:58:48Z"
   },
+  "questitems/locating_crystal.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Locating_crystal.png",
+    "file_title": "Locating crystal.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502051318%21Locating_crystal.png?adf95",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "63a53ca323d0ab112521ddebf852a461f98d134a",
+    "size": 746,
+    "source_wiki": "rs3",
+    "timestamp": "2012-05-25T20:24:45Z"
+  },
   "questitems/magic_comp_bow.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Magic_comp_bow.png",
     "file_title": "Magic comp bow.png",
@@ -24407,6 +24491,18 @@
     "source_wiki": "rs3",
     "timestamp": "2012-09-30T01:20:33Z"
   },
+  "questitems/rashiliyia_corpse.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Rashiliyia_corpse.png",
+    "file_title": "Rashiliyia corpse.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502064009%21Rashiliyia_corpse.png?b1648",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3bcdc60fcd753465eec0a2927d7b4c326c66e899",
+    "size": 489,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-27T13:28:09Z"
+  },
   "questitems/rat_poison.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rat_poison.png",
     "file_title": "Rat poison.png",
@@ -24635,6 +24731,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-28T23:38:05Z"
   },
+  "questitems/stone_plaque.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Stone-plaque.png",
+    "file_title": "Stone-plaque.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502081135%21Stone-plaque.png?64226",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2ea7c86d123608a99bc9f179b1ee8dec2b5983af",
+    "size": 538,
+    "source_wiki": "rs3",
+    "timestamp": "2012-05-25T20:24:46Z"
+  },
   "questitems/sulphuric_broline.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Sulphuric_broline.png",
     "file_title": "Sulphuric broline.png",
@@ -24658,6 +24766,30 @@
     "size": 227,
     "source_wiki": "rs3",
     "timestamp": "2012-09-29T00:17:11Z"
+  },
+  "questitems/sword_pommel.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Sword_pommel.png",
+    "file_title": "Sword pommel.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502083057%21Sword_pommel.png?276a3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ad337a413f14e3d8b1a4cfc6c5f65e509c2b8134",
+    "size": 869,
+    "source_wiki": "rs3",
+    "timestamp": "2012-05-25T20:24:47Z"
+  },
+  "questitems/tattered_scroll.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Tattered_scroll.png",
+    "file_title": "Tattered scroll.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502083223%21Tattered_scroll.png?304db",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a38b373e83a9349c8ce15a4bb26c25949fd61212",
+    "size": 896,
+    "source_wiki": "rs3",
+    "timestamp": "2012-05-25T20:24:48Z"
   },
   "questitems/thieves_armband.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Thieves%27_armband.png",
@@ -24743,6 +24875,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-05-15T13:58:58Z"
   },
+  "questitems/wampum_belt.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Wampum_belt.png",
+    "file_title": "Wampum belt.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502173745%21Wampum_belt.png?78238",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4cfa4b39c0bf908a16a8f5f8f23c217c3f1e4207",
+    "size": 394,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-30T12:53:33Z"
+  },
   "questitems/warrant.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Warrant.png",
     "file_title": "Warrant.png",
@@ -24802,6 +24946,18 @@
     "size": 535,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:36Z"
+  },
+  "questitems/zadimus_corpse.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Zadimus_corpse.png",
+    "file_title": "Zadimus corpse.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502064114%21Zadimus_corpse.png?a9da1",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3bcdc60fcd753465eec0a2927d7b4c326c66e899",
+    "size": 489,
+    "source_wiki": "rs3",
+    "timestamp": "2011-12-05T10:44:08Z"
   },
   "runecraftingitems/air_rune.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Air_rune.png",

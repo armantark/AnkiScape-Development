@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shilo Village — Playable Quest Closure</title>
+  <style>
+    :root {
+      --bg: #0c0e12; --surface: #161a21; --surface-2: #1e232c;
+      --border: #2a3040; --text: #e8ecf4; --text-dim: #8b95a8;
+      --accent: #4f8cff; --accent-glow: rgba(79,140,255,.15);
+      --red: #ff5c5c; --green: #4ade80; --amber: #fbbf24;
+      --purple: #a78bfa; --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(74,222,128,.11), transparent 29rem),
+        radial-gradient(circle at 94% 7%, rgba(251,191,36,.09), transparent 25rem),
+        var(--bg);
+      color: var(--text); font: 15px/1.52 Outfit, Inter, system-ui, sans-serif;
+    }
+    main { width: min(1180px, calc(100% - 32px)); margin: 42px auto 70px; }
+    .badge, .kicker, .tag { font: 700 11px/1.2 "JetBrains Mono", ui-monospace, monospace; letter-spacing: .09em; text-transform: uppercase; }
+    .badge { display: inline-flex; gap: 8px; align-items: center; color: var(--green); border: 1px solid rgba(74,222,128,.32); background: rgba(74,222,128,.08); padding: 7px 10px; border-radius: 999px; }
+    .dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; box-shadow: 0 0 14px var(--green); }
+    h1 { max-width: 950px; margin: 20px 0 16px; font-size: clamp(2.2rem, 6vw, 4.7rem); line-height: .98; letter-spacing: -.05em; }
+    .lede { max-width: 860px; color: var(--text-dim); font-size: 1.08rem; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 30px 0 16px; }
+    .metric, .card { background: linear-gradient(145deg, rgba(30,35,44,.96), rgba(22,26,33,.96)); border: 1px solid var(--border); border-radius: var(--radius); }
+    .metric { padding: 18px; }
+    .metric strong { display: block; font-size: 1.7rem; letter-spacing: -.04em; }
+    .metric span { color: var(--text-dim); font-size: .78rem; }
+    .grid { display: grid; grid-template-columns: 1.08fr .92fr; gap: 16px; margin-top: 16px; }
+    .card { padding: 22px; }
+    .kicker { color: var(--accent); margin-bottom: 8px; }
+    h2 { margin: 0 0 15px; font-size: 1.28rem; }
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .pane { min-height: 218px; padding: 14px; background: #11151b; border: 1px solid var(--border); border-radius: 10px; }
+    .pane.before { border-color: rgba(255,92,92,.28); }
+    .pane.after { border-color: rgba(74,222,128,.30); }
+    .pane h3 { margin: 0 0 12px; color: var(--text-dim); font-size: .72rem; letter-spacing: .12em; }
+    .fake-row { display: flex; gap: 8px; align-items: center; margin: 7px 0; padding: 8px; background: var(--surface-2); border-radius: 7px; }
+    .fake-row.bad { color: #ff9a9a; border-left: 2px solid var(--red); }
+    .fake-row.good { border-left: 2px solid var(--green); }
+    .fake-num { width: 26px; color: var(--text-dim); font: 11px ui-monospace, monospace; }
+    .timeline { display: grid; gap: 8px; }
+    .step { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; padding: 10px; background: #11151b; border: 1px solid var(--border); border-radius: 9px; }
+    .step b { display: grid; place-items: center; width: 26px; height: 26px; color: var(--accent); background: var(--accent-glow); border-radius: 7px; font: 700 11px ui-monospace, monospace; }
+    .step span { font-size: .86rem; }
+    .step em { color: var(--text-dim); font-style: normal; font-size: .72rem; }
+    .bosses, .items { display: grid; gap: 9px; }
+    .bosses { grid-template-columns: repeat(3, 1fr); }
+    .items { grid-template-columns: repeat(3, 1fr); margin-top: 12px; }
+    .boss, .item { padding: 12px; background: #11151b; border: 1px solid var(--border); border-radius: 9px; }
+    .boss { text-align: center; }
+    .boss strong, .item strong { display: block; font-size: .82rem; }
+    .boss span, .item span { color: var(--text-dim); font: 11px ui-monospace, monospace; }
+    .arrow { color: var(--amber); text-align: center; font-size: 1.2rem; }
+    .note { margin-top: 12px; padding: 14px; border: 1px solid rgba(251,191,36,.32); background: rgba(251,191,36,.06); border-radius: 10px; color: var(--text-dim); }
+    .note strong { color: var(--amber); }
+    .checks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .check { display: flex; gap: 9px; align-items: center; padding: 10px; background: #11151b; border-radius: 8px; color: var(--text-dim); }
+    .check::before { content: "✓"; color: var(--green); font-weight: 900; }
+    .route { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+    .route span { padding: 7px 9px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; font-size: .78rem; }
+    .route i { color: var(--accent); font-style: normal; }
+    .footer { display: flex; justify-content: space-between; gap: 14px; margin-top: 16px; color: var(--text-dim); font-size: .78rem; }
+    .tag { color: var(--purple); background: rgba(167,139,250,.1); padding: 5px 8px; border-radius: 7px; }
+    @media (max-width: 850px) {
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .grid, .compare { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      main { width: min(100% - 20px, 1180px); margin-top: 22px; }
+      .metrics, .items, .bosses, .checks { grid-template-columns: 1fr; }
+      .step { grid-template-columns: 28px 1fr; }
+      .step em { grid-column: 2; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge"><i class="dot"></i> Completed · source-audited · verified</span>
+  <h1>Shilo Village now tells the whole story.</h1>
+  <p class="lede">The seven generated buttons are gone. The live quest carries every important clue and transformation from Mosol Rei’s Wampum belt through all three Nazastarool forms and Rashiliyia’s release.</p>
+
+  <section class="metrics" aria-label="Verification metrics">
+    <div class="metric"><strong>1,546</strong><span>core methods passed or declared skipped</span></div>
+    <div class="metric"><strong>1,546</strong><span>real offscreen Qt methods passed</span></div>
+    <div class="metric"><strong>13</strong><span>period-pinned quest-item sprites</span></div>
+    <div class="metric"><strong>0</strong><span>test-quality hard issues</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <div class="kicker">Before → after</div>
+      <h2>Scaffolding became a playable contract</h2>
+      <div class="compare">
+        <div class="pane before">
+          <h3>BEFORE · CATALOG PLACEHOLDERS</h3>
+          <div class="fake-row bad"><span class="fake-num">01</span><span>Complete Shilo Village stage 1</span></div>
+          <div class="fake-row bad"><span class="fake-num">06</span><span>One flattened Nazastarool row</span></div>
+          <div class="fake-row bad"><span class="fake-num">⚠</span><span>Quest items existed only as prose</span></div>
+          <div class="fake-row bad"><span class="fake-num">?</span><span>No custody or transformation chain</span></div>
+        </div>
+        <div class="pane after">
+          <h3>AFTER · ELEVEN MEANINGFUL GATES</h3>
+          <div class="fake-row good"><span class="fake-num">03</span><span>Scrolls, Zadimus, hazards, and plaque</span></div>
+          <div class="fake-row good"><span class="fake-num">07</span><span>Bone shard + pommel → key + beads</span></div>
+          <div class="fake-row good"><span class="fake-num">10</span><span>Zombie → Skeleton → Ghost</span></div>
+          <div class="fake-row good"><span class="fake-num">11</span><span>Corpse returned; spirit released</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="kicker">Review-native route</div>
+      <h2>The long quest, without map busywork</h2>
+      <div class="timeline">
+        <div class="step"><b>1</b><span>Wampum belt → Trufitus</span><em>quest start</em></div>
+        <div class="step"><b>2</b><span>Ah Za Rhoon fissure</span><em>light + rope</em></div>
+        <div class="step"><b>3</b><span>Temple evidence</span><em>hazards named</em></div>
+        <div class="step"><b>5</b><span>Bervirius’s tomb</span><em>three clues</em></div>
+        <div class="step"><b>7</b><span>Bone key + beads</span><em>atomic transforms</em></div>
+        <div class="step"><b>9</b><span>Rashiliyia’s tomb</span><em>three bones</em></div>
+        <div class="step"><b>10</b><span>Nazastarool</span><em>three battles</em></div>
+        <div class="step"><b>11</b><span>Release Rashiliyia</span><em>2 QP + 3,875 XP</em></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <div class="kicker">Boss contract</div>
+      <h2>Three forms, three real resolver rows</h2>
+      <div class="bosses">
+        <div class="boss"><strong>Zombie · 91</strong><span>500 LP · max 70</span></div>
+        <div class="boss"><strong>Skeleton · 68</strong><span>750 LP · max 120</span></div>
+        <div class="boss"><strong>Ghost · 93</strong><span>1,000 LP · max 152</span></div>
+      </div>
+      <div class="items">
+        <div class="item"><strong>Bone shard</strong><span>ID 604</span></div>
+        <div class="item"><strong>Stone-plaque</strong><span>ID 606</span></div>
+        <div class="item"><strong>Beads of the dead</strong><span>ID 616 · neck</span></div>
+        <div class="item"><strong>Sword pommel</strong><span>ID 623</span></div>
+        <div class="item"><strong>Bervirius notes</strong><span>ID 624</span></div>
+        <div class="item"><strong>Wampum belt</strong><span>ID 625</span></div>
+      </div>
+      <div class="note"><strong>Optional plaque, honest flattening:</strong> the period plaque is not a progression gate. The collapsed temple-search review includes it automatically so the item survives without a consequence-free picker. The UI does not promise Yanni’s sale service until that shop action exists.</div>
+    </article>
+
+    <article class="card">
+      <div class="kicker">Closure gates</div>
+      <h2>Checked at every layer</h2>
+      <div class="checks">
+        <div class="check">355 focused backend methods</div>
+        <div class="check">Real Qt quest-card holdout</div>
+        <div class="check">Full core discovery green</div>
+        <div class="check">Full real Qt discovery green</div>
+        <div class="check">Docs + provenance clean</div>
+        <div class="check">Worktree layout safe</div>
+        <div class="check">Fable copy review integrated</div>
+        <div class="check">No owner design gap</div>
+      </div>
+      <div class="note"><strong>Manual smoke:</strong> open Quests, start Shilo after Jungle Potion and the 4/20/32 skill gates, confirm the supply list, walk the eleven review beats, and verify the combined three-form boss blocker before the corpse handoff.</div>
+    </article>
+  </section>
+
+  <section class="card" style="margin-top:16px">
+    <div class="kicker">Next executable chain</div>
+    <h2>The route continues in dependency order</h2>
+    <div class="route">
+      <span>Jungle Potion fidelity</span><i>→</i>
+      <span>Big Chompy</span><i>→</i>
+      <span>Zogre Flesh Eaters</span><i>→</i>
+      <span>Rum Deal</span><i>→</i>
+      <span>Cabin Fever</span><i>→</i>
+      <span>Cave horrors</span><i>→</i>
+      <span>Black mask</span><i>→</i>
+      <span>Slayer helmet</span>
+    </div>
+  </section>
+
+  <div class="footer">
+    <span>Source ledger: quest-shilo-village-playable-2026-07-18.md</span>
+    <span class="tag">NO NEW DESIGN GAP</span>
+  </div>
+</main>
+</body>
+</html>

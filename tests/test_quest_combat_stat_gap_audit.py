@@ -22,8 +22,8 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
         self.assertEqual(
             counts,
             {
-                "darkan_hitpoints_only_metadata": 48,
-                "darkan_missing_resolver_stats": 17,
+                "darkan_hitpoints_only_metadata": 50,
+                "darkan_missing_resolver_stats": 15,
                 "darkan_same_name_wrong_level": 6,
                 "darkan_identical_available": 1,
                 "no_local_source_match": 7,

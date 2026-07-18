@@ -4418,6 +4418,49 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIn("smoking_kills", self._quest_calls)
 
+    def test_quests_tab_surfaces_shilo_village_three_form_boss_chain(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "shilo_village"
+        pd["inventory"] = {"Bone key": 1, "Beads of the dead": 1}
+        pd["quests"]["shilo_village"] = {
+            "started": True,
+            "progress": 10,
+            "completed": False,
+        }
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        for level_key in (
+            "attack_level",
+            "strength_level",
+            "defense_level",
+            "constitution_level",
+            "ranged_level",
+            "magic_level",
+            "prayer_level",
+        ):
+            pd[level_key] = 200
+        dialog = self._open(pd)
+
+        labels = [label.text() for label in dialog.findChildren(QLabel)]
+        combat_status = next(label for label in labels if label.startswith("Blocked: Battle required: Nazastarool"))
+        for encounter_text in (
+            "Nazastarool (Zombie) level 91",
+            "Nazastarool (Skeleton) level 68",
+            "Nazastarool (Ghost) level 93",
+        ):
+            self.assertIn(encounter_text, combat_status)
+        self.assertIn(
+            "Nazastarool will return as a zombie, skeleton, and ghost before yielding Rashiliyia's corpse.",
+            labels,
+        )
+        action = dialog.findChild(QPushButton, "questAction_shilo_village")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+        self.assertNotIn("Complete Shilo Village stage", action.toolTip())
+
+        action.click()
+        QApplication.processEvents()
+        self.assertIn("shilo_village", self._quest_calls)
+
     def test_quests_tab_allows_conflict_overridden_dad_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Coins": 12}
