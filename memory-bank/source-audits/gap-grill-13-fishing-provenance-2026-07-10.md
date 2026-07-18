@@ -23,8 +23,12 @@ evidence.
 
 ## Product boundary
 
-Fishing Trawler is a source-shaped persistent crew activity. Fish Flingers is a
-separate future multiplayer D&D design. Daemonheim fishing cannot be implemented
-honestly outside the future Dungeoneering session and temporary inventory. The
-global answered-card clock drives background/reset timing but does not convert a
-twelve-minute Trawler trip into two skilling reviews.
+Fishing Trawler is a source-shaped persistent pressure activity with a fixed
+automatic public-crew baseline rather than selectable or persisted crew state;
+see
+`memory-bank/source-audits/fishing-trawler-computation-reconciliation-2026-07-17.md`.
+Fish Flingers is a separate future multiplayer D&D design. Daemonheim fishing
+cannot be implemented honestly outside the future Dungeoneering session and
+temporary inventory. The global answered-card clock drives background/reset
+timing but does not convert a twelve-minute Trawler trip into two skilling
+reviews.

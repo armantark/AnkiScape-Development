@@ -497,8 +497,8 @@
       "note": "Fishing Trawler design settled 2026-07-10; Fish Flingers moves to the dedicated minigame/D&D pass and Daemonheim fish move to the Dungeoneering expansion",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#fishing-trawler-fish-flingers-and-daemonheim-fishing",
       "decision_summary": {
-        "trawler": "Use a persistent crew-activity session with boat water, leaks, net state, activity contribution, source supplies, success/failure, and a level-shaped catch at 40 percent normal Fishing XP.",
-        "trawler_modes": "Casual joins a busy public crew and performs the most urgent useful duty; Advanced saves allowed duty checkboxes, crew-size preference, and the activity carried layout.",
+        "trawler": "Use a persistent activity session with boat water, leaks, net state, activity contribution, source supplies, success/failure, and a level-shaped catch at 40 percent normal Fishing XP. Apply one fixed automatic public-crew pressure offset without persisting crew actors or contribution.",
+        "trawler_modes": "Casual performs the most urgent useful duty; Advanced saves the player's duty preferences and activity carried layout. Neither mode exposes crew selection or management.",
         "trawler_rewards": "On success, award the source catch and XP, then deposit the haul into the bank with a non-blocking summary; claiming does not consume another review.",
         "fish_flingers": "Keep as a separate multiplayer tackle-discovery D&D with its own temporary interface, simulated-day tickets, medals/tokens, and manual reward shop.",
         "daemonheim": "Implement Dungeoneering fish only inside the future Dungeoneering session with temporary stackable resources and no ordinary-bank leakage."
