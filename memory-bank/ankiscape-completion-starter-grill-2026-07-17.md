@@ -365,6 +365,15 @@ never wall-clock time, answered-card seconds, or a hidden tile simulation. The
 pinned structure and remaining source work are recorded in
 `memory-bank/source-audits/werewolf-skullball-loop-2026-07-17.md`.
 
+Fish Flingers exposes no bait, hook, or weight controls in either mode. Its
+source tackle-deduction game becomes a visible three-review automatic ramp:
+each review catches fish while successively discovering the best bait, hook,
+and weight, reaching full efficiency on the third. Species/location rotation
+and cooperative big-fish captures are automatic. Bounded stock and a fixed
+communal pressure preserve depletion without simulating individual players.
+The pinned structure and remaining event-length decision are recorded in
+`memory-bank/source-audits/fish-flingers-loop-2026-07-17.md`.
+
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking
 the shared substrate.

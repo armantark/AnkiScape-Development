@@ -494,13 +494,13 @@
       "detail": "Trawler rewards (turtles/manta rays) + trawler catches; Fish Flingers and Dungeoneering fishing as separate activity systems.",
       "source": "wiki:Fishing Trawler",
       "status": "split_scope",
-      "note": "Fishing Trawler design settled 2026-07-10; Fish Flingers moves to the dedicated minigame/D&D pass and Daemonheim fish move to the Dungeoneering expansion",
+      "note": "Fishing Trawler and the Fish Flingers automatic-discovery loop are settled; Fish Flingers event length remains open and Daemonheim fish move to the Dungeoneering expansion",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#fishing-trawler-fish-flingers-and-daemonheim-fishing",
       "decision_summary": {
         "trawler": "Use a persistent activity session with boat water, leaks, net state, activity contribution, source supplies, success/failure, and a level-shaped catch at 40 percent normal Fishing XP. Apply one fixed automatic public-crew pressure offset without persisting crew actors or contribution.",
         "trawler_modes": "Casual performs the most urgent useful duty; Advanced saves the player's duty preferences and activity carried layout. Neither mode exposes crew selection or management.",
         "trawler_rewards": "On success, award the source catch and XP, then deposit the haul into the bank with a non-blocking summary; claiming does not consume another review.",
-        "fish_flingers": "Keep as a separate multiplayer tackle-discovery D&D with its own temporary interface, simulated-day tickets, medals/tokens, and manual reward shop.",
+        "fish_flingers": "Keep as a separate recurring D&D. Productive catches automatically discover bait, hook, and weight over the first three successful reviews, reaching full efficiency without player controls; rotate depleted targets and capture cooperative big fish automatically. Preserve simulated-day tickets, medals/tokens, and the manual reward shop.",
         "daemonheim": "Implement Dungeoneering fish only inside the future Dungeoneering session with temporary stackable resources and no ordinary-bank leakage."
       }
     },

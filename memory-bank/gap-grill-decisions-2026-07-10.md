@@ -851,9 +851,10 @@ Living-mineral yield and exact star/server rolls.
 
 Backlog id: `fish-trawler-flingers`
 
-Decision status: composite row split by system. Fishing Trawler design is
-settled; Fish Flingers moves to the minigame/D&D pass and Daemonheim fishing to
-the eventual Dungeoneering expansion.
+Decision status: composite row split by system. Fishing Trawler and the Fish
+Flingers automatic-discovery loop are settled; Fish Flingers event length
+remains open. Daemonheim fishing belongs to the eventual Dungeoneering
+expansion.
 
 ### Period Facts
 
@@ -898,13 +899,27 @@ the eventual Dungeoneering expansion.
   the source catch interface sits beside a deposit box; claiming costs no extra
   review. A sunk trip awards no haul.
 
-### Scope Splits
+### Fish Flingers Activity
 
-- Fish Flingers remains a separate multiplayer D&D. Its tackle deduction,
-  temporary control panel, competition state, cooperative big fish, medals,
-  tokens, and visually distinct manual reward shop should be designed together
-  in the future minigame/activity pass. Its ticket grants use the shared
-  simulated-day clock rather than the computer date.
+- Fish Flingers remains a separate recurring D&D, but neither Casual nor
+  Advanced exposes bait, hook, or weight controls. The activity automatically
+  discovers the source combination while the player keeps fishing.
+- The first three successful reviews are all productive catches. They
+  successively discover the best bait, hook, and weight, visibly raising catch
+  efficiency at each step; the third reaches full efficiency. Exact percentage
+  steps are a labeled balance value, not a claimed source rate.
+- Species and location changes caused by stock depletion are automatic. Model
+  only bounded current-stock/event progress and a fixed communal depletion
+  pressure; do not simulate or persist individual competitors.
+- A cooperative big-fish opportunity is captured automatically inside the
+  triggering successful review using the public-event baseline. It consumes no
+  extra review and requires no confirmation or manual assistance control.
+- Preserve Fishing-level-scaled XP, tickets, medals, tokens, and the visually
+  distinct manual reward shop. Ticket grants use the shared simulated-day clock
+  rather than the computer date.
+
+### Scope Split
+
 - Daemonheim fish belong to Dungeoneering, not the ordinary Fishing target list.
   They use the dungeon's temporary stackable inventory, generated spots, toolbelt,
   Cooking/Firemaking survival loop, and party state; nothing leaves to the bank.
