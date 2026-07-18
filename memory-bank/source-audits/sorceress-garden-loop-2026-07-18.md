@@ -24,6 +24,15 @@ Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 - `Summer sq'irk` oldid `6520800` (`2012-11-02T13:28:52Z`) identifies juice as
   the fruit's only period use:
   <https://runescape.wiki/w/Summer_sq%27irk?oldid=6520800>.
+- `Prince Ali Rescue` oldid `6564887` (`2012-11-17T04:11:58Z`) records Garden
+  access as a quest reward, but also records that the quest was removed on
+  `2012-09-26`. `Talk:Sorceress's Garden` oldid `6307582`
+  (`2012-09-27T20:26:25Z`) asks whether the replacement quests inherited the
+  prerequisite and contains no answer. The cutoff Garden article likewise
+  states the Osman/apprentice introduction but no quest prerequisite. A
+  `Diamond in the Rough` requirement first appears in the article after the
+  cutoff. The cutoff quest migration is therefore `source_blocked`, not a
+  license to preserve an impossible removed-quest gate or import a modern rule.
 
 The pinned pages do not award XP for squeezing fruit. A local Darkan
 reconstruction adds `5 Herblore XP`, but without cutoff corroboration that is a
@@ -55,10 +64,11 @@ The settled surface is:
 The juice control is relevant only when Fruit or Alternate can produce juice.
 No manual squeeze or Osman-dialogue action consumes a review.
 
-One successful review resolves one attempt through the selected seasonal
-garden. A caught player returns to the central garden with no output, no damage,
-and no extra recovery review. A successful attempt awards the source Farming XP
-and then:
+One successful non-`Again` review resolves one attempt through the selected
+seasonal garden. An `Again` is the caught-player outcome: the elemental returns
+the player to the central garden with no output, no damage, no partial
+progress, and no extra recovery review. A successful attempt awards the source
+Farming XP and then:
 
 - **Fruit** picks one fruit;
 - **Herbs** picks two source-rolled grimy herbs; or
@@ -72,6 +82,29 @@ mortar. **Hand to Osman automatically** immediately consumes completed juice
 for its exact source Thieving XP; **Keep as juice** retains the item for its
 temporary Thieving and run-energy effect.
 
-The remaining source/design work is the automatic route-failure abstraction:
-the source makes capture a movement/timing consequence rather than publishing a
-simple success rate.
+## Crowd and capture abstraction
+
+The activity assumes a busy public world as narrative framing. The pinned
+cutoff page describes heavy bot infestation and elemental capture behavior,
+while the owner's period play memory supplies the familiar crowd-cover scene.
+That scene does not become a simulated population.
+
+- Every non-`Again` answer succeeds. The result line may say that the
+  elementals were occupied chasing other players while this route got through.
+- `Again` is the attention failure already owned by Anki grading and is
+  narrated as an elemental catch.
+- Do not add a catch roll after a correct answer, a crowd-density selector,
+  stored population, per-elemental target allocation, pathing, or background
+  work. Those would duplicate the grading signal without adding a player
+  decision.
+
+This is a labeled AnkiScape abstraction, not a claim that every attentive
+cutoff run succeeded.
+
+## Entry gates
+
+The four seasonal gardens retain exact Thieving gates `1/25/45/65`. Starting
+the activity also requires its one-time Osman/apprentice introduction state.
+The removed-quest migration remains `source_blocked` as described above and in
+`activity-entry-gate-ledger-2026-07-18.md`; implementation must resolve that
+historical gate before shipping rather than requiring an unobtainable quest.

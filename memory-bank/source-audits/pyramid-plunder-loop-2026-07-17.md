@@ -25,6 +25,20 @@ The cutoff page explicitly distinguishes the common XP route—rush to the
 deepest accessible rooms and loot urns there—from treasure-oriented chest and
 sarcophagus routes.
 
+## Entry and room gates
+
+Starting a run requires level 21 Thieving and access to Sophanem through either
+of the two source routes: `Icthlarin's Little Helper` started, or a Pharaoh's
+sceptre that bypasses the quest route. This is an ordinary alternative gate,
+not travel simulation.
+
+The eight rooms require exact Thieving levels
+`21/31/41/51/61/71/81/91`. The engraved sarcophagus in room eight additionally
+requires 75 Runecrafting. Completion of `Contact!` for the local bank and
+`The Feud` for cheaper carpet travel remain optional benefits rather than entry
+requirements. These gates are also indexed in
+`activity-entry-gate-ledger-2026-07-18.md`.
+
 ## Settled AnkiScape run contract
 
 Starting a run presents one standing priority:

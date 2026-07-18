@@ -396,14 +396,23 @@ contract is recorded in
 
 Sorceress's Garden separates **Harvest** (Fruit / Herbs / Alternate) from
 **Completed juice** (Hand to Osman automatically / Keep as juice). Each
-successful review resolves one garden attempt; capture returns the player to
-the centre without output or damage. Fruit is real staging inventory but
+non-`Again` review resolves one garden attempt. The Activity assumes a busy
+public world as scene context: the crowd provides cover on successful answers,
+while `Again` is narrated as an elemental capture that returns the player to
+the centre without output or damage. There is no extra catch roll, crowd
+selector, stored population, or elemental simulation. Fruit is real staging inventory but
 automatically squeezes at the source `5/4/3/2` threshold using an abstracted
 free beer glass and the cutoff tool-belt pestle and mortar. The complete juice
 can then become exact Osman XP or remain available for its boost and run-energy
-effect without another review. The pinned structure and remaining route-failure
-abstraction are recorded in
+effect without another review. The pinned structure, crowd abstraction, and
+cutoff quest-gate conflict are recorded in
 `memory-bank/source-audits/sorceress-garden-loop-2026-07-18.md`.
+
+Entry, quest, item, ticket, and recurrence gates for the recently grilled
+activity set are consolidated in
+`memory-bank/source-audits/activity-entry-gate-ledger-2026-07-18.md`. Focused
+activity audits remain authoritative for their loops; the ledger prevents gate
+requirements from being lost between design and implementation.
 
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking

@@ -18,6 +18,15 @@ and a reward shop:
 The earlier provenance summary is
 `memory-bank/source-audits/gap-grill-13-fishing-provenance-2026-07-10.md`.
 
+## Entry gate
+
+One stored entry ticket is consumed atomically when an event begins. There is
+no level, quest, or item gate. The source's two-per-day ticket grant and
+ten-ticket storage cap must use AnkiScape's answered-card calendar rather than
+the wall clock; extra tickets retain only their source acquisition routes.
+Undoing event entry restores the ticket. This gate is also indexed in
+`activity-entry-gate-ledger-2026-07-18.md`.
+
 ## Settled AnkiScape abstraction
 
 The source's tackle deduction survives as a visible automatic efficiency ramp,
