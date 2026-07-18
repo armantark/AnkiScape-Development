@@ -45,12 +45,31 @@ thresholds. The source five-minute limit is represented by this finite room
 budget, never by wall time or answered-card minutes.
 
 Persist only current room, chosen priority, accumulated XP/loot, carried
-supplies, LP/poison state, and any active hazard required by the eventual hazard
-decision. Every room transition and reward must remain atomic and undoable.
+supplies, and shared LP/poison state. Every room transition and reward must
+remain atomic and undoable.
 
-## Open design fork
+## Hazard contract
 
-The source permits scarab swarms and mummies to attack while the looting run
-continues. AnkiScape still needs to decide whether those hazards become separate
-Combat encounters or immediate shared-LP/poison consequences inside the room
-review.
+Urn snakes, scarab swarms, and awakened mummies are room hazards, not separate
+Combat encounters:
+
+- the triggering room review applies its sourced or source-audited LP and
+  poison consequence through the shared Combat damage channels;
+- the period page establishes `10-40` snake-bite damage with `20` starting
+  poison, scarab poison starting at `38`, and a level-84 mummy;
+- the exact trigger and mummy-damage rolls remain source work rather than being
+  inferred from those identities;
+- a surviving player advances or finishes the room normally, with the hazard
+  summarized in the same review-result line; and
+- lethal damage uses the ordinary death/grave pipeline and ends the run.
+
+There is no hazard combat target, extra combat review, hidden attack loop, or
+paused encounter state. The Treasure priority naturally accepts more hazard
+exposure because it searches more chests and sarcophagi.
+
+## Remaining design fork
+
+Artefacts are useful outside the run for selling, quests, and Pharaoh's sceptre
+recharging. The remaining owner decision is whether they occupy the player's
+real inventory during the run or sit in a temporary activity ledger until the
+run ends.

@@ -383,8 +383,11 @@ so the exact level-gated eight-room structure produces runs from one to eight
 reviews. XP rushes toward the deepest urns, Treasure favors chests and
 sarcophagi, and Balanced opens useful chests while emphasizing the final two
 accessible rooms. The source five-minute limit becomes this finite room budget,
-never wall time. The pinned structure and remaining hazard decision are
-recorded in
+never wall time. Urn snakes, scarab swarms, and mummies resolve as shared
+LP/poison consequences inside the triggering room review; they never launch a
+separate Combat encounter, though lethal damage still ends the run through the
+ordinary death/grave pipeline. The pinned structure and remaining inventory
+decision are recorded in
 `memory-bank/source-audits/pyramid-plunder-loop-2026-07-17.md`.
 
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
