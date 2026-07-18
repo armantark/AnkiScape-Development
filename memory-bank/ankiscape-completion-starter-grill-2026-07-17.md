@@ -349,6 +349,14 @@ three-to-six-review weekly visit. The pinned structure and remaining source work
 are recorded in
 `memory-bank/source-audits/circus-performance-loop-2026-07-17.md`.
 
+Gnome Ball uses a three-review match: goals one and two, goals three and four,
+then goal five with its source completion bonus and referee reward. Each review
+is one bounded match slice that may report passes, misses, and tackle damage but
+does not persist or simulate individual gnomes, field position, or possession.
+Ordinary dangerous-activity death handling and an explicit leave abort the
+match. The pinned structure and remaining source work are recorded in
+`memory-bank/source-audits/gnome-ball-loop-2026-07-17.md`.
+
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking
 the shared substrate.
