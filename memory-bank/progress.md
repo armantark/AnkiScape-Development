@@ -950,12 +950,14 @@ Test counts are snapshots; current runs outrank this note.
   quest-debt, and real offscreen Qt regressions. The complete core suite passes
   all 1,517 methods with 1,310 ordinary passes and 207 declared environment
   skips; real offscreen Qt discovery passes all 1,517 methods without skips or
-  failures. Smoking Kills itself is next; Contact! is not a cutoff prerequisite.
+  failures. Smoking Kills is now complete; Contact! was not a cutoff
+  prerequisite.
 - Durable evidence:
   `source-audits/quest-icthlarins-little-helper-playable-2026-07-17.md`.
 - Published
   `status-updates/quest-icthlarins-little-helper-results-2026-07-17.html` and
   its mobile-safe copy at <https://llzbgu6xic8d.postplan.dev>.
+
 ## Slayer Turael/Spria runtime closure — 2026-07-17
 
 - Activated the first complete Slayer master role from the reconciled
@@ -977,7 +979,51 @@ Test counts are snapshots; current runs outrank this note.
 - Fable's bounded UI review found no wiring or dark-mode defects and surfaced
   two real copy problems: internal readiness jargon and a task-filter dead-end
   message. Both are fixed.
-- No new design gap emerged. Smoking Kills is next.
+- No new design gap emerged. Smoking Kills is now complete.
 - Published
   `status-updates/slayer-turael-runtime-results-2026-07-17.html`
   (<https://5k6wxpak7xkj.postplan.dev>).
+
+## Smoking Kills playable Slayer dependency — 2026-07-18
+
+- Replaced four generated placeholders, the malformed grouped combat parser
+  row, and six bogus completion-item rewards with a playable thirteen-journal
+  quest whose twelve requirements cover both tomb wings, both Mummy Warriors
+  and path keys, Catolax's Masked-earmuffs transformation, the Mighty banshee
+  and voice, the barrier, the Banshee Mistress, and Sumona's report.
+- Kept the period half-health assassin phase visible while collapsing its four
+  temporary adds into the one boss battle they actually support. Tomb waves,
+  Mummy hidden stats, and the Banshee voice rate use explicit bounded
+  abstractions where the period evidence is `source_blocked`.
+- Added optional quest-combat `minimum_player_combat` metadata. Smoking Kills
+  therefore shows its level-90 and level-111 enemies while retaining the
+  quest's sourced Combat 85 player gate; every existing encounter keeps its
+  prior default.
+- Canonicalized the Restless Ghost reward name to the already-live
+  `Ghostspeak amulet`, registered cache identities 552, 1555, 13259, 13260,
+  13276, and 13277, generated real neck/head equipment rows, and pinned five
+  pre-cutoff quest sprites.
+- Completion grants exactly one quest point and 5,000 Slayer XP. Sumona and the
+  existing reward surface become reachable, while `slayer_points` and
+  `slayer_qualifying_streak` remain unchanged so no pre-quest task earns
+  retroactive points.
+- A bounded Fable UI/copy review approved the fixed tomb order and stage
+  density, and caught the hidden Combat-111 player gate plus four presentation
+  hazards. All reproduced findings were fixed; no owner-level design gap
+  emerged.
+- Focused catalog, pure, integration, registry, equipment, debt-ledger, and
+  real offscreen Qt checks pass. Full core discovery passes 1,542 methods with
+  1,330 ordinary passes and 212 declared environment skips; full real offscreen
+  Qt discovery passes all 1,542 methods without skips or failures.
+- Test-quality audit reports zero hard issues across 72 files. Documentation
+  audit passes 279 Markdown and 315 HTML files. Reachability is 1,220 actions,
+  1,789 reachable items, 288 orphan inputs, and 314 blocked actions; this batch
+  introduces no orphaned Smoking Kills stage item. Compilation, provenance
+  JSON, combat-debt, diff, and worktree-safety checks pass.
+- Durable evidence:
+  `source-audits/quest-smoking-kills-playable-2026-07-18.md`.
+- Published
+  `status-updates/quest-smoking-kills-results-2026-07-18.html`
+  (<https://0hj7sz8kn416.postplan.dev>).
+- The next Slayer implementation dependency is Shilo Village and the complete
+  transitive black-mask / Slayer-helmet route.

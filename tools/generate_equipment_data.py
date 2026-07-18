@@ -176,10 +176,13 @@ QUEST_EQUIPMENT_ITEMS: Tuple[Tuple[int, str], ...] = (
     (78, "Ice arrows"),
     (86, "Pendant of lucien"),
     (87, "Armadyl pendant"),
+    (552, "Ghostspeak amulet"),
     (589, "Gnome amulet"),
+    (4677, "Catspeak amulet"),
     (10282, "Yew comp bow"),
     (10284, "Magic comp bow"),
     (11235, "Dark bow"),
+    (13277, "Masked earmuffs"),
 )
 
 

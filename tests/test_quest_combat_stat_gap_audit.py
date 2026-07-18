@@ -18,15 +18,15 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
     def test_gap_classification_summary_matches_current_catalog_debt(self):
         counts = Counter(audit.classify_gap(gap, self.darkan_groups, self.partial_groups) for gap in self.gaps)
 
-        self.assertEqual(len(self.gaps), 97)
+        self.assertEqual(len(self.gaps), 93)
         self.assertEqual(
             counts,
             {
-                "darkan_hitpoints_only_metadata": 51,
+                "darkan_hitpoints_only_metadata": 48,
                 "darkan_missing_resolver_stats": 17,
                 "darkan_same_name_wrong_level": 6,
                 "darkan_identical_available": 1,
-                "no_local_source_match": 8,
+                "no_local_source_match": 7,
                 "parser_or_variant_level": 14,
             },
         )
@@ -63,6 +63,7 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
         self.assertNotIn(("the_void_stares_back", "Defiler"), self.by_quest_and_name)
         self.assertNotIn(("the_elder_kiln", "TokHaar-Xil"), self.by_quest_and_name)
         self.assertNotIn(("toktz_ket_dill", "Lava monster"), self.by_quest_and_name)
+        self.assertFalse(any(gap.quest_id == "smoking_kills" for gap in self.gaps))
         self.assertNotIn(("nomads_requiem", "Nomad"), self.by_quest_and_name)
         self.assertEqual(
             audit.classify_gap(self.by_quest_and_name[("fight_arena", "Khazard scorpion")], self.darkan_groups, self.partial_groups),

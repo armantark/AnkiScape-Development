@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smoking Kills — Playable Quest Closure</title>
+  <style>
+    :root {
+      --bg: #0c0e12; --surface: #161a21; --surface-2: #1e232c;
+      --border: #2a3040; --text: #e8ecf4; --text-dim: #8b95a8;
+      --accent: #4f8cff; --accent-glow: rgba(79,140,255,.15);
+      --red: #ff5c5c; --green: #4ade80; --amber: #fbbf24;
+      --purple: #a78bfa; --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background:
+        radial-gradient(circle at 15% 0%, rgba(74,222,128,.10), transparent 28rem),
+        radial-gradient(circle at 90% 10%, rgba(167,139,250,.10), transparent 24rem),
+        var(--bg);
+      color: var(--text); font: 15px/1.55 Outfit, Inter, system-ui, sans-serif;
+    }
+    main { width: min(1180px, calc(100% - 32px)); margin: 42px auto 70px; }
+    .badge, .kicker, .tag {
+      font: 700 11px/1.2 "JetBrains Mono", ui-monospace, monospace;
+      letter-spacing: .09em; text-transform: uppercase;
+    }
+    .badge {
+      display: inline-flex; gap: 8px; align-items: center; color: var(--green);
+      border: 1px solid rgba(74,222,128,.32); background: rgba(74,222,128,.08);
+      padding: 7px 10px; border-radius: 999px;
+    }
+    .dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; box-shadow: 0 0 14px var(--green); }
+    h1 { font-size: clamp(2.2rem, 6vw, 4.8rem); line-height: .98; margin: 20px 0 16px; letter-spacing: -.05em; max-width: 900px; }
+    .lede { max-width: 820px; color: var(--text-dim); font-size: 1.08rem; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 30px 0; }
+    .metric, .card {
+      background: linear-gradient(145deg, rgba(30,35,44,.96), rgba(22,26,33,.96));
+      border: 1px solid var(--border); border-radius: var(--radius);
+    }
+    .metric { padding: 18px; }
+    .metric strong { display: block; font-size: 1.7rem; letter-spacing: -.04em; }
+    .metric span { color: var(--text-dim); font-size: .78rem; }
+    .grid { display: grid; grid-template-columns: 1.08fr .92fr; gap: 16px; margin-top: 16px; }
+    .card { padding: 22px; }
+    .kicker { color: var(--accent); margin-bottom: 8px; }
+    h2 { margin: 0 0 15px; font-size: 1.3rem; }
+    p { margin: 0; }
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .pane { background: #11151b; border: 1px solid var(--border); border-radius: 10px; padding: 14px; min-height: 210px; }
+    .pane.before { border-color: rgba(255,92,92,.28); }
+    .pane.after { border-color: rgba(74,222,128,.3); }
+    .pane h3 { margin: 0 0 12px; font-size: .72rem; letter-spacing: .12em; color: var(--text-dim); }
+    .fake-row { display: flex; gap: 8px; padding: 8px; margin: 7px 0; border-radius: 7px; background: var(--surface-2); align-items: center; }
+    .fake-num { width: 24px; color: var(--text-dim); font: 11px ui-monospace, monospace; }
+    .fake-row.bad { color: #ff9a9a; border-left: 2px solid var(--red); }
+    .fake-row.good { border-left: 2px solid var(--green); }
+    .timeline { display: grid; gap: 8px; }
+    .step { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; background: #11151b; border: 1px solid var(--border); padding: 10px; border-radius: 9px; }
+    .step b { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; background: var(--accent-glow); color: var(--accent); font: 700 11px ui-monospace, monospace; }
+    .step span { font-size: .86rem; }
+    .step em { color: var(--text-dim); font-style: normal; font-size: .72rem; }
+    .items { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+    .item { background: #11151b; border: 1px solid var(--border); border-radius: 9px; padding: 12px; }
+    .item strong { display: block; font-size: .82rem; }
+    .item span { color: var(--text-dim); font: 11px ui-monospace, monospace; }
+    .phase { margin-top: 12px; padding: 16px; border: 1px solid rgba(167,139,250,.35); background: rgba(167,139,250,.07); border-radius: 10px; }
+    .phase strong { color: #c9b8ff; }
+    .checks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
+    .check { display: flex; gap: 9px; align-items: center; background: #11151b; padding: 10px; border-radius: 8px; color: var(--text-dim); }
+    .check::before { content: "✓"; color: var(--green); font-weight: 900; }
+    .footer { margin-top: 16px; display: flex; justify-content: space-between; gap: 14px; color: var(--text-dim); font-size: .78rem; }
+    .tag { color: var(--purple); background: rgba(167,139,250,.1); padding: 5px 8px; border-radius: 7px; }
+    @media (max-width: 850px) {
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .grid, .compare { grid-template-columns: 1fr; }
+      .items { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 520px) {
+      main { width: min(100% - 20px, 1180px); margin-top: 22px; }
+      .metrics, .items, .checks { grid-template-columns: 1fr; }
+      .step { grid-template-columns: 28px 1fr; }
+      .step em { grid-column: 2; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge"><i class="dot"></i> Completed · verified · committed next</span>
+  <h1>Smoking Kills is finally a quest, not a checkbox.</h1>
+  <p class="lede">Sumona’s gate now runs through a complete source-backed journey: both tomb wings, real quest-item custody, four combat boundaries, the Banshee Mistress’s assassin phase, and the authentic no-retroactive-points boundary.</p>
+
+  <section class="metrics" aria-label="Verification metrics">
+    <div class="metric"><strong>1,542</strong><span>core methods passed or declared skipped</span></div>
+    <div class="metric"><strong>1,542</strong><span>real offscreen Qt methods passed</span></div>
+    <div class="metric"><strong>0</strong><span>test-quality hard issues</span></div>
+    <div class="metric"><strong>5</strong><span>new period-pinned quest sprites</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <div class="kicker">Before → after</div>
+      <h2>The parser scaffolding is gone</h2>
+      <div class="compare">
+        <div class="pane before">
+          <h3>BEFORE · GENERATED SLOP</h3>
+          <div class="fake-row bad"><span class="fake-num">01</span><span>Complete Smoking Kills stage 1</span></div>
+          <div class="fake-row bad"><span class="fake-num">03</span><span>Fight “Sets of 2”</span></div>
+          <div class="fake-row bad"><span class="fake-num">🎁</span><span>Free Slayer helmet + reward headings</span></div>
+          <div class="fake-row bad"><span class="fake-num">⚠</span><span>Combat 111 secretly required</span></div>
+        </div>
+        <div class="pane after">
+          <h3>AFTER · PLAYABLE CONTRACT</h3>
+          <div class="fake-row good"><span class="fake-num">01</span><span>Sumona, Ali Cat, and Catolax’s tomb</span></div>
+          <div class="fake-row good"><span class="fake-num">07</span><span>Face mask + Earmuffs → Masked earmuffs</span></div>
+          <div class="fake-row good"><span class="fake-num">11</span><span>Mistress + disclosed assassin phase</span></div>
+          <div class="fake-row good"><span class="fake-num">✓</span><span>Combat 85 gate, level 111 enemy intact</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="kicker">Review-native route</div>
+      <h2>Twelve meaningful beats</h2>
+      <div class="timeline">
+        <div class="step"><b>1</b><span>Sumona + Ali Cat</span><em>cat / Catspeak</em></div>
+        <div class="step"><b>2</b><span>Ranged tomb wing</span><em>grouped wave</em></div>
+        <div class="step"><b>3</b><span>Ranged Mummy + key</span><em>level 54</em></div>
+        <div class="step"><b>5</b><span>Magic tomb wing</span><em>grouped wave</em></div>
+        <div class="step"><b>7</b><span>Catolax + Masked earmuffs</span><em>atomic transform</em></div>
+        <div class="step"><b>9</b><span>Mighty banshee + voice</span><em>level 90</em></div>
+        <div class="step"><b>11</b><span>Banshee Mistress</span><em>level 111 + adds</em></div>
+        <div class="step"><b>12</b><span>Report to Sumona</span><em>points unlocked</em></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <div class="kicker">Custody</div>
+      <h2>Every important item has a purpose</h2>
+      <div class="items">
+        <div class="item"><strong>Ghostspeak amulet</strong><span>ID 552 · neck</span></div>
+        <div class="item"><strong>Kitten</strong><span>ID 1555 · representative</span></div>
+        <div class="item"><strong>Ranged path key</strong><span>ID 13259 · consumed</span></div>
+        <div class="item"><strong>Magic path key</strong><span>ID 13260 · consumed</span></div>
+        <div class="item"><strong>Banshee voice</strong><span>ID 13276 · barrier</span></div>
+        <div class="item"><strong>Masked earmuffs</strong><span>ID 13277 · head</span></div>
+      </div>
+      <div class="phase">
+        <strong>Honest abstraction:</strong> exact key-retention and Banshee-voice drop-rate facts are source-blocked. Keys are consumed to avoid dead bank clutter; one deterministic quest kill grants the voice.
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="kicker">Closure gates</div>
+      <h2>No hidden debt in the shipped slice</h2>
+      <div class="checks">
+        <div class="check">336 focused backend checks</div>
+        <div class="check">Real Qt quest-card proof</div>
+        <div class="check">All combat rows resolver-ready</div>
+        <div class="check">All new assets provenance-pinned</div>
+        <div class="check">Docs audit clean</div>
+        <div class="check">Worktree layout safe</div>
+      </div>
+      <div class="phase">
+        <strong>Reward boundary:</strong> completion grants 1 quest point and 5,000 Slayer XP. It unlocks Sumona and the point economy, but grants no free reward-shop items and no retroactive points.
+      </div>
+    </article>
+  </section>
+
+  <div class="footer">
+    <span>Next dependency: Shilo Village → black mask → Slayer helmet route.</span>
+    <span class="tag">NO NEW DESIGN GAP</span>
+  </div>
+</main>
+</body>
+</html>

@@ -2,6 +2,25 @@
 
 ## Current Focus
 
+Smoking Kills is now a complete live Slayer dependency. Its generated
+placeholder rows and bogus completion items are replaced by twelve review-native
+requirements plus the completion sentinel: both tomb wings, grouped guardian
+waves, two Mummy Warriors and path keys, Catolax's Masked-earmuffs
+transformation, the Mighty banshee and Banshee voice, the barrier, the Banshee
+Mistress's disclosed assassin phase, and Sumona's final report. Five period
+quest icons and three real equipment rows are registered. A sourced
+`minimum_player_combat` encounter field keeps the level-111 boss visible while
+honouring the quest's Combat 85 player requirement. Completion grants one quest
+point and 5,000 Slayer XP, activates the existing Sumona/reward gates, and does
+not retroactively alter Slayer points or streak. Full core discovery passes all
+1,542 methods with 1,330 ordinary passes and 212 declared environment skips;
+full real offscreen Qt discovery passes all 1,542 methods without skips or
+failures. Durable evidence is
+`source-audits/quest-smoking-kills-playable-2026-07-18.md`; the visual closure
+report is `status-updates/quest-smoking-kills-results-2026-07-18.html`
+(<https://0hj7sz8kn416.postplan.dev>). The next Slayer implementation dependency
+is Shilo Village and the transitive black-mask / Slayer-helmet route.
+
 Turael/Spria is now the first complete live Slayer-master role. The full
 23-family weighted pool is assignment-ready, matching Combat kills award Slayer
 XP and decrement task progress atomically, and the management surface exposes
@@ -16,7 +35,7 @@ declared environment skips; complete real offscreen Qt discovery passes all
 by a targeted holdout. Durable evidence is
 `source-audits/slayer-turael-runtime-closure-2026-07-17.md`; the visual report is
 `status-updates/slayer-turael-runtime-results-2026-07-17.html`
-(<https://5k6wxpak7xkj.postplan.dev>). Smoking Kills is next.
+(<https://5k6wxpak7xkj.postplan.dev>).
 
 Icthlarin's Little Helper is now the third playable Slayer-critical quest
 dependency. Its generated placeholder sequence and statless fights are replaced
@@ -31,9 +50,9 @@ icons are registered with pre-cutoff provenance, and the reusable asset fetcher
 can now select the newest file revision at or before a historical cutoff. The
 complete core suite passes all 1,517 methods with 1,310 ordinary passes and 207
 declared environment skips; the matching real offscreen Qt discovery passes all
-1,517 methods without skips or failures. Smoking Kills itself is the next
-Slayer dependency; Contact! is not required by the pinned cutoff quest
-requirements. Durable evidence is
+1,517 methods without skips or failures. Smoking Kills is now complete;
+Contact! was not required by its pinned cutoff quest requirements. Durable
+evidence is
 `source-audits/quest-icthlarins-little-helper-playable-2026-07-17.md`; the
 visual closure report is
 `status-updates/quest-icthlarins-little-helper-results-2026-07-17.html`

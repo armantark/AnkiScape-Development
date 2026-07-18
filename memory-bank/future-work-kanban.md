@@ -231,11 +231,11 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   in the Slayer program so Sumona, reward points, and the Rewards subview are
   genuinely reachable; feed those quests through the canonical missing-quest
   backlog and runtime rather than adding flags or bypasses. Stolen Hearts and
-  Diamond in the Rough and Icthlarin's Little Helper are now source-backed and
-  playable, completing the missing direct prerequisite slices. Smoking Kills
-  itself is next. Diamond in the Rough's two optional level-80 hidden-reward
-  actions remain a separate source-ready follow-up rather than automatic
-  quest-completion XP.
+  Diamond in the Rough, Icthlarin's Little Helper, and Smoking Kills are now
+  source-backed and playable. Sumona and the reward-point surface are therefore
+  reachable without bypass flags. Diamond in the Rough's two optional level-80
+  hidden-reward actions remain a separate source-ready follow-up rather than
+  automatic quest-completion XP.
 - Build Shilo Village and the complete transitive Slayer-helmet route through
   Cabin Fever, Mos Le'Harmless, Cave horrors, the black-mask drop, and the
   400-point crafting unlock. Preserve every period quest and skill prerequisite;
@@ -471,7 +471,8 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`, `IMPLEMENT`.
 - The Feud is being built as part of the Thieving expansion because it gates a core training method; it is the precedent, not an exception to the queue.
 - Slayer likewise owns `Smoking Kills` and every still-missing prerequisite in
   its reachable chain because the quest gates Sumona and the entire reward-point
-  economy.
+  economy. That direct chain is now playable; the next Slayer-raised quest work
+  is Shilo Village and the transitive black-mask / Slayer-helmet route.
 - Slayer also raises Shilo Village and the complete black-mask/Slayer-helmet
   route to the front of this quest program. The period quest tree is transitive,
   not limited to a manually named subset; already-playable prerequisites are

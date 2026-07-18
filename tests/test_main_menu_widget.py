@@ -4383,6 +4383,41 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIn("icthlarins_little_helper", self._quest_calls)
 
+    def test_quests_tab_surfaces_smoking_kills_boss_at_quest_combat_requirement(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "smoking_kills"
+        pd["inventory"] = {"Masked earmuffs": 1}
+        pd["quests"]["smoking_kills"] = {
+            "started": True,
+            "progress": 11,
+            "completed": False,
+        }
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        pd["attack_level"] = 74
+        pd["strength_level"] = 74
+        pd["defense_level"] = 74
+        pd["constitution_level"] = 74
+        pd["ranged_level"] = 1
+        pd["magic_level"] = 1
+        pd["prayer_level"] = 1
+        pd["summoning_level"] = 1
+        dialog = self._open(pd)
+
+        labels = [label.text() for label in dialog.findChildren(QLabel)]
+        self.assertIn("Blocked: Battle required: Banshee Mistress level 111", labels)
+        self.assertIn(
+            "At half health the Banshee Mistress calls four level 141 Insectoid Assassins into the same battle.",
+            labels,
+        )
+        action = dialog.findChild(QPushButton, "questAction_smoking_kills")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+        self.assertNotIn("Complete Smoking Kills stage", action.toolTip())
+
+        action.click()
+        QApplication.processEvents()
+        self.assertIn("smoking_kills", self._quest_calls)
+
     def test_quests_tab_allows_conflict_overridden_dad_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Coins": 12}

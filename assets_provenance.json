@@ -23013,6 +23013,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:52:18Z"
   },
+  "questitems/banshee_voice.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Banshee_voice.png",
+    "file_title": "Banshee voice.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502071505%21Banshee_voice.png?1ebad",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0a9d04ad88ca0340fa92889745b81e24edee0c48",
+    "size": 1444,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-17T19:54:24Z"
+  },
   "questitems/bat_bones.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bat_bones.png",
     "file_title": "Bat bones.png",
@@ -23577,6 +23589,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:57:14Z"
   },
+  "questitems/ghostspeak_amulet.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ghostspeak_amulet.png",
+    "file_title": "Ghostspeak amulet.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502071949%21Ghostspeak_amulet.png?d1c38",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7675f16d12d162975e43ceee661ebeea04c15ad2",
+    "size": 627,
+    "source_wiki": "rs3",
+    "timestamp": "2009-12-26T18:06:32Z"
+  },
   "questitems/glarial_s_amulet.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Glarial%27s_amulet.png",
     "file_title": "Glarial's amulet.png",
@@ -23987,6 +24011,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:58:51Z"
   },
+  "questitems/magic_path_key.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Magic_path_key.png",
+    "file_title": "Magic path key.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502070913%21Magic_path_key.png?e3a1b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "385f0c81a44f9381a8eddc0ee715af06c7285553",
+    "size": 730,
+    "source_wiki": "rs3",
+    "timestamp": "2008-06-24T16:35:38Z"
+  },
   "questitems/magnet.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Magnet_%28Witch%27s_House%29.png",
     "file_title": "Magnet (Witch's House).png",
@@ -24010,6 +24046,18 @@
     "size": 190,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:58:54Z"
+  },
+  "questitems/masked_earmuffs.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Masked_earmuffs.png",
+    "file_title": "Masked earmuffs.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502073554%21Masked_earmuffs.png?9e0a0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6ebcda3e5fe01d3f8d7450933b21421dd34b1e32",
+    "size": 1389,
+    "source_wiki": "rs3",
+    "timestamp": "2010-04-12T08:35:44Z"
   },
   "questitems/maze_key.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Maze_key.png",
@@ -24334,6 +24382,18 @@
     "size": 267,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:02:54Z"
+  },
+  "questitems/ranged_path_key.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ranged_path_key.png",
+    "file_title": "Ranged path key.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502070806%21Ranged_path_key.png?10569",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0fd3372570c1db5ddaa92d84ab5e67f92b7386ca",
+    "size": 613,
+    "source_wiki": "rs3",
+    "timestamp": "2008-06-09T22:25:02Z"
   },
   "questitems/ransom_note.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Ransom_note.png",

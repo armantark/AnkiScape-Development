@@ -1873,6 +1873,73 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(items["Catspeak amulet"]["item_id"], 4677)
         self.assertFalse(items["Catspeak amulet"]["tradeable"])
 
+    def test_smoking_kills_is_a_playable_source_backed_slayer_unlock(self):
+        quest = quests_as_dict()["smoking_kills"]
+        by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
+
+        self.assertEqual(quest["stages"], 13)
+        self.assertEqual(quest["point_reward"], 1)
+        self.assertEqual(quest["xp_rewards"], ({"skill_id": "slayer", "amount": 5000},))
+        self.assertEqual(quest["rewards"], {})
+        self.assertFalse(
+            any(
+                action.startswith("Complete Smoking Kills stage")
+                for row in by_stage.values()
+                for action in row["required_actions"]
+            )
+        )
+        self.assertEqual(tuple(by_stage), tuple(range(1, 13)))
+        self.assertEqual(
+            by_stage[1]["required_inventory_options"],
+            (({"Kitten": 1}, {"Cat": 1}, {"Overgrown cat": 1}, {"Hellcat": 1}),),
+        )
+        self.assertEqual(by_stage[2]["required_tools"], {"Catspeak amulet": 1, "Pickaxe": 1})
+        self.assertEqual(
+            by_stage[3]["produced_inventory"],
+            {"Ranged path key": 1},
+        )
+        self.assertEqual(by_stage[4]["consumed_inventory"], {"Ranged path key": 1})
+        self.assertEqual(
+            by_stage[6]["produced_inventory"],
+            {"Magic path key": 1},
+        )
+        self.assertEqual(
+            by_stage[7]["consumed_inventory"],
+            {"Magic path key": 1, "Face mask": 1, "Earmuffs": 1},
+        )
+        self.assertEqual(by_stage[7]["produced_inventory"], {"Masked earmuffs": 1})
+        self.assertEqual(by_stage[7]["required_tools"], {"Ghostspeak amulet": 1})
+        for stage in (8, 9, 10, 11):
+            self.assertEqual(by_stage[stage]["required_tools"], {"Masked earmuffs": 1})
+
+        ranged_wave = by_stage[2]["combat_encounters"][0]
+        mummy = by_stage[3]["combat_encounters"][0]
+        mighty = by_stage[9]["combat_encounters"][0]
+        mistress = by_stage[11]["combat_encounters"][0]
+        self.assertEqual(
+            (ranged_wave["display_name"], ranged_wave["level"], ranged_wave["npc_stats"]["hitpoints"]),
+            ("Ranged-wing tomb guardians", 20, 800),
+        )
+        self.assertEqual((mummy["level"], mummy["npc_configs"]["max_hit"]), (54, 80))
+        self.assertEqual((mighty["level"], mighty["npc_stats"]["hitpoints"]), (90, 850))
+        self.assertEqual((mistress["level"], mistress["npc_stats"]["hitpoints"]), (111, 2220))
+        self.assertEqual(mistress["npc_configs"]["minimum_player_combat"], 85)
+        self.assertIn("four level 141 Insectoid Assassins", mistress["source_text"])
+
+        items = quest_reward_items_as_dict()
+        self.assertNotIn("Amulet of ghostspeak", items)
+        for item_name, item_id in (
+            ("Ghostspeak amulet", 552),
+            ("Kitten", 1555),
+            ("Ranged path key", 13259),
+            ("Magic path key", 13260),
+            ("Banshee voice", 13276),
+            ("Masked earmuffs", 13277),
+        ):
+            self.assertEqual(items[item_name]["item_id"], item_id)
+            self.assertFalse(items[item_name]["tradeable"])
+            self.assertFalse(items[item_name]["stackable"])
+
     def test_generated_rewards_journals_and_lamps_are_structured(self):
         data = quests_as_dict()
 

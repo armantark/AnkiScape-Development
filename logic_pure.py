@@ -8097,8 +8097,12 @@ def quest_combat_encounter_ready_pure(player_data, encounter):
     if not quest_combat_encounter_has_stats_pure(encounter):
         return False, "combat_missing_stats"
     encounter_level = _positive_int(encounter.get("level", 0), 0)
+    minimum_player_combat = _positive_int(
+        _quest_combat_configs(encounter).get("minimum_player_combat", encounter_level),
+        encounter_level,
+    )
     player_level = player_combat_level_pure(player_data)
-    if encounter_level > 0 and player_level < encounter_level:
+    if minimum_player_combat > 0 and player_level < minimum_player_combat:
         return False, "combat_underpowered"
     return True, "combat_ready"
 
@@ -8278,16 +8282,24 @@ def _quest_requirement_blockers(player_data, quest_id, requirement):
             )
             continue
         player_level = player_combat_level_pure(player_data)
-        if level > 0 and player_level < level:
+        minimum_player_combat = _positive_int(
+            _quest_combat_configs(encounter).get("minimum_player_combat", level),
+            level,
+        )
+        if minimum_player_combat > 0 and player_level < minimum_player_combat:
             blockers.append(
                 _quest_blocker(
                     stage,
                     "combat_underpowered",
-                    f"Requires combat level {level} for battle: {display_name}{level_text}{remaining_quantity_text}",
+                    (
+                        f"Requires combat level {minimum_player_combat} for battle: "
+                        f"{display_name}{level_text}{remaining_quantity_text}"
+                    ),
                     encounter_source,
                     encounter_id=encounter_id,
                     display_name=display_name,
                     level=level,
+                    minimum_player_combat=minimum_player_combat,
                     quantity=remaining_quantity,
                     total_quantity=quantity,
                     completed_quantity=completed_quantity,
@@ -8305,6 +8317,7 @@ def _quest_requirement_blockers(player_data, quest_id, requirement):
                 encounter_id=encounter_id,
                 display_name=display_name,
                 level=level,
+                minimum_player_combat=minimum_player_combat,
                 quantity=remaining_quantity,
                 total_quantity=quantity,
                 completed_quantity=completed_quantity,

@@ -4895,6 +4895,58 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(resolved["quest_combat_encounters"], {"proof_quest": ["count_draynor"]})
         self.assertEqual(quest_current_stage_blockers_pure(resolved, "proof_quest", quest_data), ())
 
+    def test_quest_combat_can_use_a_sourced_player_requirement_below_enemy_level(self):
+        quest_data = {
+            "proof_quest": {
+                "stages": 2,
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "combat_encounters": (
+                            {
+                                "encounter_id": "boss_111",
+                                "display_name": "Boss",
+                                "level": 111,
+                                "npc_stats": {
+                                    "hitpoints": 2220,
+                                    "attack": 111,
+                                    "strength": 111,
+                                    "defence": 111,
+                                    "magic": 111,
+                                    "ranged": 1,
+                                },
+                                "npc_configs": {"minimum_player_combat": 85},
+                                "source": "quest requires combat 85",
+                            },
+                        ),
+                    },
+                ),
+            }
+        }
+        player_data = {
+            "inventory": {},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quests": {"proof_quest": {"started": True, "progress": 1, "completed": False}},
+            "attack_level": 74,
+            "strength_level": 74,
+            "defense_level": 74,
+            "constitution_level": 74,
+            "prayer_level": 1,
+            "summoning_level": 1,
+            "ranged_level": 1,
+            "magic_level": 1,
+        }
+        self.assertEqual(player_combat_level_pure(player_data), 85)
+        blockers = quest_current_stage_blockers_pure(player_data, "proof_quest", quest_data)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
+        self.assertEqual(blockers[0]["level"], 111)
+        self.assertEqual(blockers[0]["minimum_player_combat"], 85)
+
+        player_data["attack_level"] = 73
+        blockers = quest_current_stage_blockers_pure(player_data, "proof_quest", quest_data)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_underpowered",))
+        self.assertIn("Requires combat level 85", blockers[0]["reason"])
+
     def test_quest_combat_quantity_resolves_one_enemy_per_review(self):
         quest_data = {
             "proof_quest": {
@@ -5807,6 +5859,190 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["thieving_exp"], xp_before["thieving"] + 4500)
         self.assertEqual(player_data["woodcutting_exp"], xp_before["woodcutting"] + 4000)
         self.assertEqual(player_data["quest_points"], 2)
+
+    def test_smoking_kills_stage_chain_resolves_tomb_items_banshees_and_unlock(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["smoking_kills"] = {
+            "started": True,
+            "progress": 1,
+            "completed": False,
+        }
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        for level_key in (
+            "attack_level",
+            "strength_level",
+            "defense_level",
+            "constitution_level",
+            "ranged_level",
+            "magic_level",
+            "prayer_level",
+        ):
+            player_data[level_key] = 200
+        player_data["combat_lifepoints"] = 2000
+        player_data["inventory"].update(
+            {
+                "Kitten": 1,
+                "Catspeak amulet": 1,
+                "Pickaxe": 1,
+                "Ghostspeak amulet": 1,
+                "Face mask": 1,
+                "Earmuffs": 1,
+            }
+        )
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "smoking_kills",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["smoking_kills"]["progress"], 2)
+
+        expected_encounters = (
+            ("smoking_kills_ranged_tomb_guardians", 3),
+            ("smoking_kills_ranged_mummy_warrior", 4),
+        )
+        for encounter_id, expected_progress in expected_encounters:
+            player_data, ok, result = apply_quest_combat_encounter_pure(
+                player_data,
+                "smoking_kills",
+                QUEST_DATA,
+                stop_after_first_kill=True,
+            )
+            self.assertTrue(ok, result)
+            self.assertTrue(result["killed"])
+            self.assertEqual(result["encounter_id"], encounter_id)
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "smoking_kills",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"]["smoking_kills"]["progress"], expected_progress)
+
+        self.assertEqual(player_data["inventory"]["Ranged path key"], 1)
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "smoking_kills",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["smoking_kills"]["progress"], 5)
+        self.assertEqual(player_data["inventory"].get("Ranged path key", 0), 0)
+
+        for encounter_id, expected_progress in (
+            ("smoking_kills_magic_tomb_guardians", 6),
+            ("smoking_kills_magic_mummy_warrior", 7),
+        ):
+            player_data, ok, result = apply_quest_combat_encounter_pure(
+                player_data,
+                "smoking_kills",
+                QUEST_DATA,
+                stop_after_first_kill=True,
+            )
+            self.assertTrue(ok, result)
+            self.assertTrue(result["killed"])
+            self.assertEqual(result["encounter_id"], encounter_id)
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "smoking_kills",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"]["smoking_kills"]["progress"], expected_progress)
+
+        self.assertEqual(player_data["inventory"]["Magic path key"], 1)
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "smoking_kills",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["smoking_kills"]["progress"], 8)
+        self.assertEqual(player_data["inventory"].get("Magic path key", 0), 0)
+        self.assertEqual(player_data["inventory"].get("Face mask", 0), 0)
+        self.assertEqual(player_data["inventory"].get("Earmuffs", 0), 0)
+        self.assertEqual(player_data["inventory"]["Masked earmuffs"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "smoking_kills",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["smoking_kills"]["progress"], 9)
+
+        player_data, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            "smoking_kills",
+            QUEST_DATA,
+            stop_after_first_kill=True,
+        )
+        self.assertTrue(ok, result)
+        self.assertTrue(result["killed"])
+        self.assertEqual(result["encounter_id"], "smoking_kills_mighty_banshee")
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "smoking_kills",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Banshee voice"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "smoking_kills",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["smoking_kills"]["progress"], 11)
+        self.assertEqual(player_data["inventory"].get("Banshee voice", 0), 0)
+
+        result = {}
+        for _ in range(4):
+            player_data, ok, result = apply_quest_combat_encounter_pure(
+                player_data,
+                "smoking_kills",
+                QUEST_DATA,
+                stop_after_first_kill=True,
+            )
+            self.assertTrue(ok, result)
+            if result["killed"]:
+                break
+        self.assertTrue(result["killed"])
+        self.assertEqual(result["encounter_id"], "smoking_kills_banshee_mistress")
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "smoking_kills",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["smoking_kills"]["progress"], 12)
+
+        slayer_xp_before = player_data["slayer_exp"]
+        points_before = player_data["slayer_points"]
+        streak_before = player_data["slayer_qualifying_streak"]
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "smoking_kills",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(player_data["quests"]["smoking_kills"]["progress"], 13)
+        self.assertEqual(player_data["slayer_exp"], slayer_xp_before + 5000)
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["slayer_points"], points_before)
+        self.assertEqual(player_data["slayer_qualifying_streak"], streak_before)
 
     def test_demon_slayer_source_backed_stage_chain_blocks_and_completes_in_order(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

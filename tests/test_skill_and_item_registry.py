@@ -1412,6 +1412,11 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Bucket of sap",
             "Pile of salt",
             "Catspeak amulet",
+            "Ghostspeak amulet",
+            "Ranged path key",
+            "Magic path key",
+            "Banshee voice",
+            "Masked earmuffs",
         ):
             self.assertIn(item_name, QUEST_ITEM_IMAGES)
             self.assertTrue(os.path.exists(QUEST_ITEM_IMAGES[item_name]))
@@ -1435,6 +1440,11 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "questitems/bucket_of_sap.png",
             "questitems/pile_of_salt.png",
             "questitems/catspeak_amulet.png",
+            "questitems/ghostspeak_amulet.png",
+            "questitems/ranged_path_key.png",
+            "questitems/magic_path_key.png",
+            "questitems/banshee_voice.png",
+            "questitems/masked_earmuffs.png",
             "combatitems/coral_bolts.png",
             "combatitems/royal_cape.png",
             "shopitems/spiked_gauntlets.png",
