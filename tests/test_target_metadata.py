@@ -741,6 +741,36 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertEqual(_row(rows, "chicken").icon_path, "/tmp/chicken.png")
         self.assertIsNone(_row(rows, "rat").icon_path)
 
+    def test_ogre_row_exposes_the_live_seed_table_and_period_asset(self):
+        rows = combat_target_rows(
+            {
+                "current_combat_target": "ogre",
+                "combat_attack_style": "accurate",
+                "attack_level": 60,
+                "strength_level": 60,
+                "defense_level": 60,
+                "constitution_level": 60,
+                "slayer_level": 60,
+                "inventory": {},
+                "equipment": {},
+                "combat_supply_loadout": {},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+            {"ogre": "/tmp/ogre.png"},
+        )
+
+        ogre = _row(rows, "ogre")
+        self.assertTrue(ogre.enabled)
+        self.assertTrue(ogre.current)
+        self.assertEqual(ogre.group, "Slayer")
+        self.assertEqual(ogre.icon_path, "/tmp/ogre.png")
+        self.assertIn("Ogre common seed table (19/128)", ogre.tooltip)
+        self.assertIn("Guaranteed: Big bones x1", ogre.tooltip)
+        self.assertIn("oldid=6565807", ogre.tooltip)
+
     def test_combat_rows_mark_death_possible_targets_for_confirmation(self):
         rows = combat_target_rows(
             {

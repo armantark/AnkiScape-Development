@@ -233,6 +233,15 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   prose blockers for protection,
   poison, finishers, Dogs, Grotworms, and Hobgoblin XP no longer control
   certification.
+- Vannaka is now the third completely encoded pool. Its 35 master-specific
+  rows preserve the provisional 460-point denominator and remain hidden at
+  16/35 readiness. The ordinary level-53 Ogre closes the Ogres family with its
+  exact nested common-seed and tertiary-bone drops. The remaining 19 blockers
+  are derived by `tools/audit_slayer_readiness.py`: 18 missing Combat targets
+  (including the Darkan-owned Mogre quest route) plus Wilderness-risk behavior
+  for the already-live Earth warrior. Continue from that generated ledger; do
+  not expose or renormalize the partial master. See
+  `source-audits/slayer-vannaka-ogre-combat-2026-07-18.md`.
 - Mogre combat is source-closed, including its atomic Fishing-explosive lure,
   poison immunity, exact 128-slot Darkan table, tertiary bones, and target
   icon. Keep it marked `DEPENDENCY: QUEST` until the Darkan quest pass adds the
@@ -245,7 +254,7 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   and the spawned defender-gated Cyclossus are executable. See
   `source-audits/warriors-guild-live-implementation-2026-07-18.md` and
   `status-updates/warriors-guild-results-2026-07-18.html`
-  (<https://h9vvkp6arl98.postplan.dev>). Full core and real offscreen Qt
+  (<https://vsx8a7pxsimj.postplan.dev>). Full core and real offscreen Qt
   discovery each pass all 1,592 tests.
 - Park Social Slayer unless genuine shared-player state ever exists; do not ship
   a simulated partner or solo co-op multiplier. Preserve all seven period Slayer

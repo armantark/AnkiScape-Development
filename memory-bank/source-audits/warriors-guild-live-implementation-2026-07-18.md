@@ -123,4 +123,4 @@ registry now regenerates cleanly instead of relying on a manual tail patch.
 
 The self-contained visual report is
 `memory-bank/status-updates/warriors-guild-results-2026-07-18.html`
-(<https://h9vvkp6arl98.postplan.dev>).
+(<https://vsx8a7pxsimj.postplan.dev>).

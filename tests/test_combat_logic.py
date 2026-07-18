@@ -2532,6 +2532,24 @@ class CombatLogicTest(unittest.TestCase):
     def test_ghost_drop_rolls_no_items(self):
         self.assertEqual(_combat_roll_drops(COMBAT_ENEMY_DATA["ghost"], _rng([])), {})
 
+    def test_ogre_drop_rolls_nested_seed_and_independent_bone_tables(self):
+        seed_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["ogre"],
+            _rng([0.0, 0.0, 0.999999]),
+        )
+        long_bone_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["ogre"],
+            _rng([0.999999, 0.0]),
+        )
+        curved_bone_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["ogre"],
+            _rng([0.999999, 250 / 100000]),
+        )
+
+        self.assertEqual(seed_drops, {"Big bones": 1, "Limpwurt seed": 1})
+        self.assertEqual(long_bone_drops, {"Big bones": 1, "Long bone": 1})
+        self.assertEqual(curved_bone_drops, {"Big bones": 1, "Curved bone": 1})
+
     def test_zombie_drop_rolls_nested_minor_herbs_and_level_25_variant(self):
         herb_drops = _combat_roll_drops(
             COMBAT_ENEMY_DATA["zombie_level_13"],

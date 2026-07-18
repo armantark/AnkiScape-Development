@@ -21,6 +21,7 @@ NEW_COMBAT_ENEMIES = (
     "werewolf",
     "ice_warrior",
     "earth_warrior",
+    "ogre",
     "jackal",
     "icefiend",
     "pyrefiend",
@@ -268,6 +269,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
 
         for target_id, file_title in (
             ("jackal", "Jackal.png"),
+            ("ogre", "Ogre.png"),
             ("icefiend", "Icefiend.png"),
             ("pyrefiend", "Pyrefiend.png"),
             ("kalphite_soldier", "Kalphite Soldier.png"),
@@ -287,6 +289,37 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                 self.assertTrue((root / relative_path).is_file())
                 self.assertIn(relative_path, provenance)
                 self.assertEqual(provenance[relative_path]["file_title"], file_title)
+
+    def test_ogre_preserves_the_cutoff_ordinary_variant_and_exact_seed_roll(self):
+        ogre = COMBAT_ENEMY_DATA["ogre"]
+
+        self.assertEqual(ogre["level"], 53)
+        self.assertEqual(ogre["attack_style"], "melee")
+        self.assertEqual(ogre["attack_speed"], 4)
+        self.assertEqual(ogre["respawn_delay"], 59)
+        self.assertEqual(ogre["slayer_xp"], 60.0)
+        self.assertEqual(ogre["max_hit"], 73)
+        self.assertEqual(
+            ogre["stats"],
+            {
+                "hitpoints": 600,
+                "attack": 43,
+                "strength": 43,
+                "defence": 43,
+                "magic": 1,
+                "ranged": 1,
+            },
+        )
+        self.assertEqual(ogre["drops"]["guaranteed"], (("Big bones", 1),))
+        main, tertiary = ogre["drops"]["tables"]
+        self.assertEqual(main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
+        seed_table = main["slots"][0]["table"]
+        self.assertEqual(seed_table["total"], 1000)
+        self.assertEqual(sum(slot["slots"] for slot in seed_table["slots"]), 1000)
+        self.assertEqual(tertiary["total"], 100000)
+        self.assertEqual(sum(slot["slots"] for slot in tertiary["slots"]), 100000)
+        self.assertIn("oldid=6565807", ogre["source"])
 
     def test_icefiend_preserves_the_cutoff_ordinary_variant(self):
         icefiend = COMBAT_ENEMY_DATA["icefiend"]

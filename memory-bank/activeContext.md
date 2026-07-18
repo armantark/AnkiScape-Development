@@ -2,6 +2,20 @@
 
 ## Current Focus
 
+Vannaka's complete cutoff pool is now represented in executable data: all 35
+families, their reconciled weights and count ranges, the provisional 460-point
+denominator, and stable target/mechanic dependency identities. The role remains
+correctly hidden at 16/35 readiness; `tools/audit_slayer_readiness.py` derives
+the exact 19 blockers instead of trusting a prose count. The ordinary level-53
+Ogre closes one family with 600 LP, 60 Slayer XP, the exact Darkan common-seed
+subtable, independent long/curved-bone tertiary rolls, guaranteed Big bones,
+and a pre-cutoff sprite. Mogres remain owned by the Darkan quest pass through
+`skippy_and_the_mogres`; no quest definition was duplicated. Durable evidence
+is `source-audits/slayer-vannaka-ogre-combat-2026-07-18.md`. No owner-facing
+design fork emerged. Results:
+`status-updates/slayer-vannaka-ogre-results-2026-07-18.html`
+(<https://o849m34h9y3r.postplan.dev>).
+
 Warriors' Guild is now live as the honest executable boundary for
 Mazchna/Achtryn's Cyclopes family. Five Utility activities feed five persistent
 token balances; Casual auto-balances or falls back to the fastest viable
@@ -20,7 +34,7 @@ bounded abstractions, and no owner design fork emerged. Durable evidence is
 and real offscreen Qt discovery each pass all 1,592 tests, and the equipment
 registry reproduces from its generator. The visual closure report is
 `status-updates/warriors-guild-results-2026-07-18.html`
-(<https://h9vvkp6arl98.postplan.dev>).
+(<https://vsx8a7pxsimj.postplan.dev>).
 
 The ordinary level-85 Kalphite Soldier is now an executable Slayer Combat
 target, closing Mazchna/Achtryn's Kalphites family. It preserves 900 LP, 90

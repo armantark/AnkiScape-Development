@@ -4,6 +4,27 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Vannaka pool and Ogre Combat closure — 2026-07-18
+
+- Encoded all 35 cutoff Vannaka families, their reconciled weights/count
+  ranges, and the provisional 460-point denominator without exposing a partial
+  master or renormalizing around missing families.
+- Extended the executable readiness audit to report Vannaka at 16/35 and name
+  all 19 remaining target/context blockers from live registry state.
+- Added the ordinary level-53 Ogre with 600 LP, 60 Slayer XP, guaranteed Big
+  bones, Darkan's exact 1,000-slot common-seed subtable behind its `19/128`
+  roll, independent long/curved-bone tertiary rolls, and a provenance-pinned
+  pre-cutoff sprite.
+- Kept quest ownership clean: Mogres still depend on the Darkan-owned
+  `skippy_and_the_mogres` completion ID, and this slice adds no quest/catalog
+  substitute.
+- Focused checks, all 1,597 pure tests, and all 1,597 real offscreen Qt tests
+  pass. Durable evidence is
+  `source-audits/slayer-vannaka-ogre-combat-2026-07-18.md`; no owner design
+  input was required. Results:
+  `status-updates/slayer-vannaka-ogre-results-2026-07-18.html`
+  (<https://o849m34h9y3r.postplan.dev>).
+
 ## Warriors' Guild and Cyclopes closure — 2026-07-18
 
 - Implemented all five source activities and token balances, Casual/Advanced
@@ -29,7 +50,7 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
   1,592 real offscreen Qt tests, documentation, test-quality, readiness,
   provenance, and worktree checks pass. Results:
   `status-updates/warriors-guild-results-2026-07-18.html`
-  (<https://h9vvkp6arl98.postplan.dev>).
+  (<https://vsx8a7pxsimj.postplan.dev>).
 
 ## Slayer Kalphite Soldier Combat closure — 2026-07-18
 

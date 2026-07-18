@@ -1439,6 +1439,18 @@
     "source_wiki": "osrs",
     "timestamp": "2019-05-04T15:56:01Z"
   },
+  "combatenemies/ogre.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ogre.png",
+    "file_title": "Ogre.png",
+    "image_url": "https://runescape.wiki/images/archive/20130106030027%21Ogre.png?354e1",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3a495ac8635a799a4b8579d61596ba9c19bbe38a",
+    "size": 119860,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-26T17:47:11Z"
+  },
   "combatenemies/outlaw.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Outlaw.png",
     "file_title": "Outlaw.png",

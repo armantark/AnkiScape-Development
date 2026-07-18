@@ -231,16 +231,15 @@ the table; the runtime exists, but its input data remains intentionally partial.
 
 This audit does **not** authorize a partial live Vannaka role.
 
-The Combat registry has at least one ordinary target for only 12 of 35
-families: Ankou, Banshees, Cockatrice, Earth warriors, Ghouls, Hill giants, Ice
-giants, Ice warriors, Lesser demons, Moss giants, Shades, and Werewolves.
-Twenty-three families have no target at all.
-
-The existing Banshee and Cockatrice rows still omit their protective-equipment
-consequences, and the Combat target gate does not yet express the quest,
-Slayer, Defence, context, lure, lantern, bell, restricted-weapon, dragonfire,
-or Wilderness obligations needed by the full pool. There is still no stable
-Slayer family-to-variant registry or live master assignment generator.
+Implementation update, 2026-07-18: all 35 rows now exist in the stable
+family/master registry and the live readiness audit reports 16/35 ready.
+Banshee and Cockatrice protection is executable, and Ogre is the newest
+ordinary Combat representative. Eighteen families still lack a qualifying
+Combat target, while Earth warrior additionally lacks its required Wilderness
+risk context. The exact generated ledger and Ogre evidence are recorded in
+`slayer-vannaka-ogre-combat-2026-07-18.md`; this dated update supersedes the
+12/35 snapshot below without changing the source conclusions that produced the
+pool.
 
 This source pass found and fixed one independent Combat defect. The live
 Stronghold `Shade` previously copied game-main's conflicting 4.2 Slayer XP and

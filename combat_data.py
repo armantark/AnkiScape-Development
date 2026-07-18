@@ -1126,6 +1126,41 @@ COMBAT_UNCOMMON_SEED_DROP_TABLE = {
     ),
 }
 
+COMBAT_OGRE_SEED_DROP_TABLE = {
+    "name": "Ogre common seed",
+    "source": (
+        "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+        "darkan-world-server/data/npcs/drops/special_tables/common_seeds.json"
+    ),
+    "total": 1000,
+    "slots": (
+        {"item": "Limpwurt seed", "quantity": 1, "slots": 135},
+        {"item": "Strawberry seed", "quantity": 1, "slots": 131},
+        {"item": "Marrentill seed", "quantity": 1, "slots": 123},
+        {"item": "Jangerberry seed", "quantity": 1, "slots": 94},
+        {"item": "Tarromin seed", "quantity": 1, "slots": 84},
+        {"item": "Wildblood seed", "quantity": 1, "slots": 83},
+        {"item": "Watermelon seed", "quantity": 1, "slots": 63},
+        {"item": "Harralander seed", "quantity": 1, "slots": 58},
+        {"item": "Ranarr seed", "quantity": 1, "slots": 40},
+        {"item": "Whiteberry seed", "quantity": 1, "slots": 34},
+        {"item": "Bittercap mushroom spore", "quantity": 1, "slots": 29},
+        {"item": "Toadflax seed", "quantity": 1, "slots": 27},
+        {"item": "Irit seed", "quantity": 1, "slots": 18},
+        {"item": "Belladonna seed", "quantity": 1, "slots": 18},
+        {"item": "Poison ivy seed", "quantity": 1, "slots": 13},
+        {"item": "Cactus seed", "quantity": 1, "slots": 12},
+        {"item": "Avantoe seed", "quantity": 1, "slots": 12},
+        {"item": "Kwuarm seed", "quantity": 1, "slots": 9},
+        {"item": "Snapdragon seed", "quantity": 1, "slots": 6},
+        {"item": "Cadantine seed", "quantity": 1, "slots": 4},
+        {"item": "Lantadyme seed", "quantity": 1, "slots": 3},
+        {"item": "Dwarf weed seed", "quantity": 1, "slots": 2},
+        {"item": "Torstol seed", "quantity": 1, "slots": 1},
+        {"slots": 1},
+    ),
+}
+
 
 COMBAT_MEGA_RARE_DROP_TABLE = {
     "name": "Mega rare",
@@ -2272,6 +2307,29 @@ ICE_GIANT_DROPS = {
                 {"item": "Curved bone", "quantity": 1, "slots": 20},
                 {"item": "Champion's scroll", "quantity": 1, "slots": 20},
                 {"slots": 99710},
+            ),
+        },
+    ),
+}
+
+OGRE_DROPS = {
+    "guaranteed": (("Big bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 128,
+            "slots": (
+                {"table": COMBAT_OGRE_SEED_DROP_TABLE, "slots": 19},
+                {"slots": 109},
+            ),
+        },
+        {
+            "name": "Tertiary",
+            "total": 100000,
+            "slots": (
+                {"item": "Long bone", "quantity": 1, "slots": 250},
+                {"item": "Curved bone", "quantity": 1, "slots": 20},
+                {"slots": 99730},
             ),
         },
     ),
@@ -7249,6 +7307,51 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "source": (
             f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
             "definitions/other/earth_warrior_level_51.plugin.kts"
+        ),
+    },
+    "ogre": {
+        "display_name": "Ogre",
+        "level": 53,
+        "group": "Slayer",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 59,
+        "max_hit": 73,
+        "slayer_xp": 60.0,
+        "stats": {
+            "hitpoints": 600,
+            "attack": 43,
+            "strength": 43,
+            "defence": 43,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": OGRE_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Ogre?oldid=6565807; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/ogre/"
+            "ogre_(53).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/ogre.json"
+        ),
+        "source_status": (
+            "period exact ordinary level-53 identity, LP, maximum hit, attack "
+            "speed, Slayer XP, and guaranteed Big bones; Darkan exact "
+            "stats, respawn, 19/128 common-seed roll, and independent long/"
+            "curved-bone tertiary rolls; level-58 God Wars and level-63 Combat "
+            "Training Camp variants excluded"
         ),
     },
     "jackal": {

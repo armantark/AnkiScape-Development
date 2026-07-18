@@ -7,6 +7,9 @@ from slayer_data import (
     MAZCHNA_MASTER,
     TURAEL_FAMILIES,
     TURAEL_FAMILIES_BY_ID,
+    VANNAKA_FAMILIES,
+    VANNAKA_FAMILIES_BY_ID,
+    VANNAKA_MASTER,
 )
 from slayer_logic import (
     apply_slayer_kills_pure,
@@ -85,6 +88,67 @@ class SlayerAssignmentDataTest(unittest.TestCase):
                     "quests": {"priest_in_peril": {"completed": True}},
                 },
                 MAZCHNA_MASTER.id,
+            ),
+            (),
+        )
+
+    def test_hidden_vannaka_pool_preserves_complete_master_specific_rows(self):
+        self.assertEqual(len(VANNAKA_FAMILIES), 35)
+        self.assertEqual(sum(family.weight for family in VANNAKA_FAMILIES), 460)
+        self.assertEqual(
+            (
+                VANNAKA_FAMILIES_BY_ID["crocodiles"].count_min,
+                VANNAKA_FAMILIES_BY_ID["crocodiles"].count_max,
+            ),
+            (30, 60),
+        )
+        self.assertEqual(
+            (
+                VANNAKA_FAMILIES_BY_ID["grotworms"].count_min,
+                VANNAKA_FAMILIES_BY_ID["grotworms"].count_max,
+            ),
+            (60, 120),
+        )
+        self.assertEqual(VANNAKA_MASTER.required_combat_level, 40)
+        self.assertFalse(VANNAKA_MASTER.runtime_enabled)
+
+    def test_vannaka_readiness_is_derived_and_keeps_partial_pool_hidden(self):
+        readiness = slayer_master_readiness_pure(
+            VANNAKA_MASTER.id, COMBAT_ENEMY_DATA
+        )
+
+        self.assertFalse(readiness["certified"])
+        self.assertFalse(readiness["runtime_enabled"])
+        self.assertEqual(readiness["family_count"], 35)
+        self.assertEqual(readiness["ready_family_count"], 16)
+        self.assertEqual(
+            set(readiness["blockers"]),
+            {
+                "aberrant_spectres:combat_target",
+                "basilisks:combat_target",
+                "bloodveld:combat_target",
+                "brine_rats:combat_target",
+                "crocodiles:combat_target",
+                "dust_devils:combat_target",
+                "earth_warriors:wilderness_risk",
+                "green_dragons:combat_target",
+                "harpie_bug_swarms:combat_target",
+                "infernal_mages:combat_target",
+                "jellies:combat_target",
+                "jungle_horrors:combat_target",
+                "killerwatts:combat_target",
+                "mogres:combat_target",
+                "molanisks:combat_target",
+                "otherworldly_beings:combat_target",
+                "sea_snakes:combat_target",
+                "shadow_warriors:combat_target",
+                "turoth:combat_target",
+            },
+        )
+        self.assertEqual(
+            eligible_slayer_families_pure(
+                {"slayer_level": 99, "combat_level": 126, "quests": {}},
+                VANNAKA_MASTER.id,
             ),
             (),
         )

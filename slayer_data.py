@@ -22,6 +22,9 @@ TURAEL_AUDIT_SOURCE = (
 MAZCHNA_AUDIT_SOURCE = (
     "memory-bank/source-audits/slayer-mazchna-achtryn-pool-2026-07-17.md"
 )
+VANNAKA_AUDIT_SOURCE = (
+    "memory-bank/source-audits/slayer-vannaka-pool-2026-07-17.md"
+)
 
 
 @dataclass(frozen=True)
@@ -179,6 +182,7 @@ _FAMILIES: Tuple[SlayerFamily, ...] = (
         "Cyclopes",
         ("cyclops", "cyclossus"),
         required_skill_totals=((("attack", "strength"), 130),),
+        readiness_features=("warriors_guild_gate",),
         source=MAZCHNA_AUDIT_SOURCE,
     ),
     SlayerFamily(
@@ -320,6 +324,188 @@ _FAMILIES: Tuple[SlayerFamily, ...] = (
             "zombie_level_53",
         ),
     ),
+    SlayerFamily(
+        "aberrant_spectres",
+        "Aberrant spectres",
+        ("aberrant_spectre",),
+        required_slayer_level=60,
+        required_quest_id="priest_in_peril",
+        readiness_features=("protective_equipment",),
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "ankou",
+        "Ankou",
+        ("ankou_level_75", "ankou_level_82", "ankou_level_86"),
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "basilisks",
+        "Basilisks",
+        ("basilisk",),
+        required_slayer_level=40,
+        required_skill_levels=(("defence", 20),),
+        readiness_features=("protective_equipment",),
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "bloodveld",
+        "Bloodveld",
+        ("bloodveld",),
+        required_slayer_level=50,
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "brine_rats",
+        "Brine rats",
+        ("brine_rat",),
+        required_slayer_level=47,
+        readiness_features=("partial_quest_access",),
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "crocodiles",
+        "Crocodiles",
+        ("crocodile",),
+        readiness_features=("desert_context",),
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "dust_devils",
+        "Dust devils",
+        ("dust_devil",),
+        required_slayer_level=65,
+        readiness_features=("protective_equipment",),
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "earth_warriors",
+        "Earth warriors",
+        ("earth_warrior",),
+        readiness_features=("wilderness_risk",),
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "green_dragons",
+        "Green dragons",
+        ("green_dragon",),
+        readiness_features=("dragonfire", "wilderness_risk"),
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "harpie_bug_swarms",
+        "Harpie bug swarms",
+        ("harpie_bug_swarm",),
+        required_slayer_level=33,
+        readiness_features=("protective_equipment",),
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "ice_giants",
+        "Ice giants",
+        ("ice_giant",),
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "infernal_mages",
+        "Infernal mages",
+        ("infernal_mage",),
+        required_slayer_level=45,
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "jellies",
+        "Jellies",
+        ("jelly",),
+        required_slayer_level=52,
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "jungle_horrors",
+        "Jungle horrors",
+        ("jungle_horror",),
+        required_quest_id="cabin_fever",
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "killerwatts",
+        "Killerwatts",
+        ("killerwatt",),
+        required_slayer_level=37,
+        required_quest_id="ernest_the_chicken",
+        readiness_features=("protective_equipment",),
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "lesser_demons",
+        "Lesser demons",
+        ("lesser_demon",),
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "molanisks",
+        "Molanisks",
+        ("molanisk",),
+        required_slayer_level=39,
+        required_quest_id="death_to_the_dorgeshuun",
+        readiness_features=("lure", "light_source"),
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "moss_giants",
+        "Moss giants",
+        ("moss_giant",),
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "ogres",
+        "Ogres",
+        ("ogre",),
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "otherworldly_beings",
+        "Otherworldly beings",
+        ("otherworldly_being",),
+        required_quest_id="lost_city",
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "sea_snakes",
+        "Sea snakes",
+        ("sea_snake_hatchling", "sea_snake_young"),
+        required_quest_id="royal_trouble",
+        readiness_features=("poison_damage",),
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "shades",
+        "Shades",
+        ("shade",),
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "shadow_warriors",
+        "Shadow warriors",
+        ("shadow_warrior",),
+        required_quest_id="legends_quest",
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "turoth",
+        "Turoth",
+        ("turoth",),
+        required_slayer_level=55,
+        readiness_features=("restricted_weapon",),
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "werewolves",
+        "Werewolves",
+        ("werewolf",),
+        required_quest_id="priest_in_peril",
+        source=VANNAKA_AUDIT_SOURCE,
+    ),
 )
 
 SLAYER_FAMILIES_BY_ID: Dict[str, SlayerFamily] = {
@@ -405,6 +591,47 @@ MAZCHNA_FAMILIES: Tuple[SlayerAssignmentFamily, ...] = tuple(
     )
 )
 
+VANNAKA_FAMILIES: Tuple[SlayerAssignmentFamily, ...] = tuple(
+    _assignment(family_id, weight, count_min, count_max, VANNAKA_AUDIT_SOURCE)
+    for family_id, weight, count_min, count_max in (
+        ("aberrant_spectres", 25, 60, 120),
+        ("ankou", 10, 60, 120),
+        ("banshees", 15, 60, 120),
+        ("basilisks", 10, 60, 120),
+        ("bloodveld", 20, 60, 120),
+        ("brine_rats", 20, 60, 120),
+        ("cockatrice", 10, 60, 120),
+        ("crocodiles", 10, 30, 60),
+        ("cyclopes", 10, 60, 120),
+        ("dust_devils", 25, 60, 120),
+        ("earth_warriors", 15, 30, 60),
+        ("ghouls", 10, 60, 120),
+        ("green_dragons", 10, 30, 60),
+        ("grotworms", 15, 60, 120),
+        ("harpie_bug_swarms", 20, 60, 120),
+        ("hill_giants", 10, 60, 120),
+        ("ice_giants", 10, 60, 120),
+        ("ice_warriors", 10, 60, 120),
+        ("infernal_mages", 10, 60, 120),
+        ("jellies", 20, 60, 120),
+        ("jungle_horrors", 10, 60, 120),
+        ("killerwatts", 20, 60, 120),
+        ("lesser_demons", 10, 60, 120),
+        ("mogres", 10, 60, 120),
+        ("molanisks", 10, 60, 120),
+        ("moss_giants", 10, 60, 120),
+        ("ogres", 10, 60, 120),
+        ("otherworldly_beings", 10, 60, 120),
+        ("pyrefiends", 10, 60, 120),
+        ("sea_snakes", 10, 30, 60),
+        ("shades", 10, 60, 120),
+        ("shadow_warriors", 10, 60, 120),
+        ("turoth", 20, 60, 120),
+        ("vampyres", 15, 60, 120),
+        ("werewolves", 10, 60, 120),
+    )
+)
+
 TURAEL_MASTER = SlayerMaster(
     id="turael_spria",
     display_name="Turael",
@@ -425,8 +652,17 @@ MAZCHNA_MASTER = SlayerMaster(
     source=MAZCHNA_AUDIT_SOURCE,
 )
 
+VANNAKA_MASTER = SlayerMaster(
+    id="vannaka",
+    display_name="Vannaka",
+    assignments=VANNAKA_FAMILIES,
+    required_combat_level=40,
+    expected_weight_total=460,
+    source=VANNAKA_AUDIT_SOURCE,
+)
+
 SLAYER_MASTERS_BY_ID: Dict[str, SlayerMaster] = {
-    master.id: master for master in (TURAEL_MASTER, MAZCHNA_MASTER)
+    master.id: master for master in (TURAEL_MASTER, MAZCHNA_MASTER, VANNAKA_MASTER)
 }
 LIVE_SLAYER_MASTERS_BY_ID: Dict[str, SlayerMaster] = {
     master_id: master
@@ -439,6 +675,9 @@ TURAEL_FAMILIES_BY_ID: Dict[str, SlayerAssignmentFamily] = {
 }
 MAZCHNA_FAMILIES_BY_ID: Dict[str, SlayerAssignmentFamily] = {
     family.id: family for family in MAZCHNA_FAMILIES
+}
+VANNAKA_FAMILIES_BY_ID: Dict[str, SlayerAssignmentFamily] = {
+    family.id: family for family in VANNAKA_FAMILIES
 }
 
 DEFAULT_SLAYER_MASTER_ID = TURAEL_MASTER.id

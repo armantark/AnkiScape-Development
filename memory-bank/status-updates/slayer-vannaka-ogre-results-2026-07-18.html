@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vannaka pool + Ogre closure</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f6f0dc;
+      --muted: #bdb59d;
+      --line: #3b4034;
+      --panel: rgba(27, 31, 25, .94);
+      --green: #91c46c;
+      --amber: #e4b85c;
+      --red: #e78168;
+      --earth: #171a16;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 0%, rgba(87, 112, 68, .28), transparent 34rem),
+        radial-gradient(circle at 90% 10%, rgba(127, 85, 42, .22), transparent 32rem),
+        var(--earth);
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1100px, calc(100% - 32px)); margin: 0 auto; padding: 54px 0 72px; }
+    .eyebrow {
+      color: var(--amber);
+      font: 700 12px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    h1 { max-width: 800px; margin: 14px 0 14px; font-size: clamp(38px, 7vw, 74px); line-height: .96; letter-spacing: -.045em; }
+    .lede { max-width: 760px; color: var(--muted); font-size: 18px; line-height: 1.6; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 34px 0; }
+    .metric, .panel {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, .18);
+    }
+    .metric { min-height: 126px; padding: 19px; border-radius: 14px; }
+    .metric strong { display: block; color: var(--green); font-size: 34px; letter-spacing: -.04em; }
+    .metric span { display: block; margin-top: 8px; color: var(--muted); line-height: 1.35; }
+    .panel { margin-top: 14px; padding: 26px; border-radius: 18px; }
+    .split { display: grid; grid-template-columns: 1.25fr .75fr; gap: 14px; }
+    h2 { margin: 0 0 16px; font-size: 23px; letter-spacing: -.02em; }
+    p { line-height: 1.6; }
+    ul { margin: 0; padding-left: 19px; color: var(--muted); line-height: 1.65; }
+    li + li { margin-top: 5px; }
+    .bar { display: grid; grid-template-columns: 16fr 19fr; height: 18px; overflow: hidden; border-radius: 999px; background: #0f110e; }
+    .bar .ready { background: linear-gradient(90deg, #6d9c4e, #a8d67d); }
+    .bar .blocked { background: linear-gradient(90deg, #6d4a35, #a26448); }
+    .legend { display: flex; justify-content: space-between; margin-top: 10px; color: var(--muted); font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .ogre { display: flex; align-items: center; gap: 20px; }
+    .ogre img { width: 84px; height: 84px; image-rendering: pixelated; object-fit: contain; filter: drop-shadow(0 9px 14px rgba(0,0,0,.5)); }
+    .pill { display: inline-block; margin: 4px 5px 0 0; padding: 7px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 13px; }
+    .ok { color: var(--green); }
+    .warn { color: var(--amber); }
+    .foot { margin-top: 22px; color: #8e8978; font-size: 13px; }
+    @media (max-width: 800px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .split { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      main { width: min(100% - 22px, 1100px); padding-top: 34px; }
+      .grid { grid-template-columns: 1fr; }
+      .panel { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">Slayer implementation · 18 July 2026</div>
+    <h1>Vannaka is complete on paper and honest in runtime.</h1>
+    <p class="lede">The entire 2012 assignment pool is now executable data, while the incomplete master stays hidden. Ogre is the first newly closed family in that ledger, with source-shaped combat and drops rather than a placeholder row.</p>
+
+    <section class="grid" aria-label="closure metrics">
+      <article class="metric"><strong>35</strong><span>Vannaka families encoded</span></article>
+      <article class="metric"><strong>460</strong><span>preserved roll denominator</span></article>
+      <article class="metric"><strong>16/35</strong><span>families currently ready</span></article>
+      <article class="metric"><strong>1,597</strong><span>full pure tests passing</span></article>
+    </section>
+
+    <section class="panel">
+      <h2>No partial-master sleight of hand</h2>
+      <div class="bar" aria-label="16 ready families and 19 blocked families">
+        <div class="ready"></div>
+        <div class="blocked"></div>
+      </div>
+      <div class="legend"><span>16 ready</span><span>19 explicit blockers</span></div>
+      <p>The readiness audit derives this split from live Combat targets and required mechanics. Nothing missing is silently removed, and the original weights are never renormalized.</p>
+    </section>
+
+    <div class="split">
+      <section class="panel">
+        <div class="ogre">
+          <img src="data:image/png;base64,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" alt="2011 RuneScape Ogre sprite">
+          <div>
+            <div class="eyebrow">New executable family</div>
+            <h2 style="margin-top:8px">Ogre · level 53</h2>
+            <span class="pill">600 LP</span>
+            <span class="pill">60 Slayer XP</span>
+            <span class="pill">73 max hit</span>
+          </div>
+        </div>
+        <ul style="margin-top:22px">
+          <li>Guaranteed Big bones.</li>
+          <li>Exact 1,000-slot seed subtable behind a 19/128 main roll.</li>
+          <li>Independent 1/400 Long bone and 1/5,000 Curved bone rolls.</li>
+          <li>Pre-cutoff sprite revision pinned in asset provenance.</li>
+        </ul>
+      </section>
+
+      <section class="panel">
+        <div class="eyebrow">Verification</div>
+        <h2 style="margin-top:8px">Clean closure</h2>
+        <ul>
+          <li><span class="ok">336/336</span> focused pure checks</li>
+          <li><span class="ok">1,597/1,597</span> full real offscreen Qt discovery</li>
+          <li><span class="ok">1,597/1,597</span> full pure discovery</li>
+          <li><span class="ok">0</span> test-quality hard issues</li>
+          <li><span class="ok">303 MD + 323 HTML</span> docs audited</li>
+          <li><span class="ok">Safe</span> canonical worktree layout</li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="panel">
+      <h2>Boundary held</h2>
+      <p><span class="warn">Mogres remain quest-owned.</span> The Darkan quest pass still supplies <code>skippy_and_the_mogres</code>; this implementation does not duplicate or fake that dependency. The remaining Vannaka work is 18 Combat representatives plus Wilderness-risk behavior for Earth warriors. No owner-facing design decision emerged.</p>
+    </section>
+
+    <p class="foot">Evidence: memory-bank/source-audits/slayer-vannaka-ogre-combat-2026-07-18.md</p>
+  </main>
+</body>
+</html>
