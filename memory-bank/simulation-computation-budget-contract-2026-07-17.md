@@ -41,6 +41,27 @@ implementation reviews must verify this boundary.
 9. Undo restores the reducer's atomic delta. It must not reconstruct a hidden
    simulation trace.
 
+## Naturalized aggregate pressure
+
+When an approved activity uses an aggregate population curve, identical event
+phases should not produce mechanically identical pressure every time. Apply one
+small, event-seeded jitter term to the aggregate curve:
+
+- the base population remains the owning activity's visible S-curve or other
+  approved closed-form curve;
+- deterministic smooth phase noise modifies the current pressure by at most
+  `±10%`;
+- cumulative arrivals and depletion remain monotonic, so jitter can slow or
+  accelerate growth but never make participants or consumed resources reappear;
+- the event seed and current visible resource/fullness state are sufficient for
+  save/load and undo; no agent list or replay trace is stored; and
+- skipped intervals evaluate the keyed phase function directly rather than
+  replaying every missed step.
+
+The `±10%` envelope is an explicit AnkiScape naturalism abstraction, not a
+claimed RuneScape population statistic. An activity may use a narrower
+source-backed envelope, but may not silently exceed the shared default.
+
 ## Design and review gate
 
 Every implementation plan that uses words such as `simulate`, `population`,
