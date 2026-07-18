@@ -1295,6 +1295,18 @@
     "source_wiki": "osrs",
     "timestamp": "2019-01-29T06:12:38Z"
   },
+  "combatenemies/infernal_mage.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Infernal_Mage.png",
+    "file_title": "Infernal Mage.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Infernal_Mage.png?f3e68",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9edc62029adecb198fbcdcec5642208e020f2d8d",
+    "size": 40934,
+    "source_wiki": "osrs",
+    "timestamp": "2017-08-01T22:30:56Z"
+  },
   "combatenemies/jackal.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Jackal.png",
     "file_title": "Jackal.png",
@@ -2556,6 +2568,30 @@
     "size": 432,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:59:10Z"
+  },
+  "combatitems/mystic_boots_dark.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Mystic_boots_%28dark%29.png",
+    "file_title": "Mystic boots (dark).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Mystic_boots_%28dark%29.png?ed6d0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "fda90da244e8c353693210f727578d6345f54e41",
+    "size": 258,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:54Z"
+  },
+  "combatitems/mystic_hat_dark.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Mystic_hat_%28dark%29.png",
+    "file_title": "Mystic hat (dark).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Mystic_hat_%28dark%29.png?3ab54",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "52b3b6ff19c84c7476a07502632bb3f0062b79eb",
+    "size": 433,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:59:14Z"
   },
   "combatitems/needle.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Needle.png",

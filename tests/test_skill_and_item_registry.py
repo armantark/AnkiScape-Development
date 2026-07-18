@@ -169,6 +169,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             ("Steel boots", 4123, 5),
             ("Black boots", 4125, 10),
             ("Mithril boots", 4127, 20),
+            ("Mystic boots (dark)", 4107, 20),
         ):
             with self.subTest(item_name=item_name):
                 definition = definitions[item_name]
@@ -181,6 +182,20 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 self.assertEqual(definition.asset_path, COMBAT_ITEM_IMAGES[item_name])
                 self.assertTrue(os.path.exists(definition.asset_path))
                 self.assertEqual(EQUIPMENT_DATA[item_name].required_level, required_level)
+
+    def test_infernal_mage_rare_equipment_has_real_assets(self):
+        definitions = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for item_name, item_id, slot in (
+            ("Lava battlestaff", 3053, "weapon"),
+            ("Mystic hat (dark)", 4099, "head"),
+        ):
+            with self.subTest(item_name=item_name):
+                definition = definitions[item_name]
+                self.assertEqual(definition.source_item_id, item_id)
+                self.assertEqual(definition.category, "equipment")
+                self.assertEqual(definition.equipment_slot, slot)
+                self.assertEqual(definition.asset_path, COMBAT_ITEM_IMAGES[item_name])
+                self.assertTrue(os.path.exists(definition.asset_path))
 
     def test_agility_consumable_dose_families_share_canonical_tradeability(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)

@@ -2568,6 +2568,19 @@ class CombatLogicTest(unittest.TestCase):
             {"Bones": 1, "Black boots": 1},
         )
 
+    def test_infernal_mage_rare_tables_roll_independently(self):
+        self.assertEqual(
+            _combat_roll_drops(
+                COMBAT_ENEMY_DATA["infernal_mage"],
+                _rng([0.999999, 0.0, 0.0]),
+            ),
+            {
+                "Bones": 1,
+                "Mystic boots (dark)": 1,
+                "Lava battlestaff": 1,
+            },
+        )
+
     def test_zombie_drop_rolls_nested_minor_herbs_and_level_25_variant(self):
         herb_drops = _combat_roll_drops(
             COMBAT_ENEMY_DATA["zombie_level_13"],

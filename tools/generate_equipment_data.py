@@ -161,6 +161,9 @@ LEGACY_EQUIPMENT_ITEMS: Tuple[Tuple[str, int, Optional[str], int, bool, str, str
     ("Mind tiara", 5529, None, 1, False, "runecrafting_access", "Altar.kt; MIND_TIARA"),
     ("Nature tiara", 5541, None, 1, False, "runecrafting_access", "Altar.kt; NATURE_TIARA"),
     ("Obsidian cape", 6568, None, 1, False, "obsidian_cape", "OBSIDIAN_CAPE"),
+    ("Lava battlestaff", 3053, "attack", 30, False, "battlestaff", "LAVA_BATTLESTAFF"),
+    ("Mystic hat (dark)", 4099, "defense", 20, False, "head", "MYSTIC_HAT_DARK"),
+    ("Mystic boots (dark)", 4107, "defense", 20, False, "boots", "MYSTIC_BOOTS_DARK"),
     ("Staff", 1379, None, 1, False, "staff", "STAFF"),
     ("Staff of air", 1381, None, 1, False, "elemental_staff", "STAFF_OF_AIR"),
     ("Staff of earth", 1385, None, 1, False, "elemental_staff", "STAFF_OF_EARTH"),
@@ -175,6 +178,14 @@ LEGACY_EQUIPMENT_ITEMS: Tuple[Tuple[str, int, Optional[str], int, bool, str, str
     ("Water tiara", 5531, None, 1, False, "runecrafting_access", "Altar.kt; WATER_TIARA"),
     ("Wicked hood", 22332, None, 1, False, "wicked_hood", "legacy equipment_data.py; WICKED_HOOD"),
 )
+LEGACY_EQUIPMENT_REQUIREMENT_OVERRIDES: Mapping[
+    str, Tuple[Tuple[str, int], ...]
+] = {
+    "Fire battlestaff": (("attack", 30), ("magic", 30)),
+    "Lava battlestaff": (("attack", 30), ("magic", 30)),
+    "Mystic hat (dark)": (("defense", 20), ("magic", 40)),
+    "Mystic boots (dark)": (("defense", 20), ("magic", 20)),
+}
 QUEST_EQUIPMENT_ITEMS: Tuple[Tuple[int, str], ...] = (
     (78, "Ice arrows"),
     (86, "Pendant of lucien"),
@@ -730,10 +741,9 @@ def _legacy_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedE
                 source_item_id=item_id,
                 source=f"{ITEMS_YML_RELATIVE.as_posix()} item {item_id}; {source_note}",
                 source_status="items.yml equipment block",
-                skill_requirements=(
-                    (("attack", 30), ("magic", 30))
-                    if item_name == "Fire battlestaff"
-                    else _combat_requirements(combat_skill, required_level)
+                skill_requirements=LEGACY_EQUIPMENT_REQUIREMENT_OVERRIDES.get(
+                    item_name,
+                    _combat_requirements(combat_skill, required_level),
                 ),
             )
         )

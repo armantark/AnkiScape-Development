@@ -4,6 +4,26 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Infernal Mage Combat closure — 2026-07-18
+
+- Added the ordinary level-66 Infernal Mage as a Slayer-45 Combat target with
+  600 LP, 60 Slayer XP, six-tick Magic attacks, maximum hit 89, and guaranteed
+  Bones.
+- Preserved Darkan's exact independent source shape: a 128-slot ordinary table,
+  two 1/512 dark-mystic rolls, and a 1/1,000 Lava battlestaff roll.
+- Registered Lava battlestaff, dark Mystic hat, and dark Mystic boots as
+  generated equipment with exact period requirements, bonuses, and weapon
+  speed.
+- Advanced Vannaka from 18/35 to 19/35 without exposing or renormalizing the
+  incomplete master. Fifteen missing targets and Earth warrior's Wilderness
+  context remain.
+- Charm distribution remains explicitly `source_blocked`. Focused checks, the
+  real offscreen Qt picker, and all 1,604 pure tests pass. Durable evidence is
+  `source-audits/slayer-infernal-mage-combat-2026-07-18.md`; no owner design
+  input was required. Results:
+  `status-updates/slayer-infernal-mage-results-2026-07-18.html`
+  (<https://6zhziqqts1l7.postplan.dev>).
+
 ## Slayer Bloodveld Combat closure — 2026-07-18
 
 - Added the ordinary level-76 Bloodveld as a Slayer-50 Combat target with 1,200

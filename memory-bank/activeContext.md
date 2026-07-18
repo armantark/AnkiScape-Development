@@ -2,6 +2,18 @@
 
 ## Current Focus
 
+The ordinary level-66 Infernal Mage is now executable with Slayer 45, six-tick
+Magic attacks, 600 LP, 60 Slayer XP, and four independent source-shaped drop
+tables. Lava battlestaff, dark Mystic hat, and dark Mystic boots are generated
+equipment with their exact period requirements, bonuses, and weapon speed.
+Vannaka advances to 19/35 while remaining hidden; 15 target families plus the
+Earth-warrior Wilderness-risk seam remain. Charm distribution is
+`source_blocked`, not fabricated. Evidence:
+`source-audits/slayer-infernal-mage-combat-2026-07-18.md`. No owner-facing
+design fork emerged. Results:
+`status-updates/slayer-infernal-mage-results-2026-07-18.html`
+(<https://6zhziqqts1l7.postplan.dev>).
+
 The ordinary level-76 Bloodveld is now executable with Slayer 50, six-tick
 magic-based melee, 1,200 LP, 120 Slayer XP, and Darkan's exact 128-slot
 ordinary table. Black boots item 4125 are generated from the 2011Scape

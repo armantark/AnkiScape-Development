@@ -20,7 +20,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 650)
+        self.assertEqual(len(EQUIPMENT_DATA), 653)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -254,6 +254,8 @@ class TestEquipmentData(unittest.TestCase):
             "Dragon med helm": ("head", 1149, 60, 33, 35, 32, 0),
             "Abyssal whip": ("weapon", 4151, 70, 0, 0, 0, 82),
             "Mystic gloves": ("hands", 4095, 20, 0, 0, 0, 0),
+            "Mystic hat (dark)": ("head", 4099, 20, 0, 0, 0, 0),
+            "Mystic boots (dark)": ("feet", 4107, 20, 0, 0, 0, 0),
             "Black boots": ("feet", 4125, 10, 7, 8, 9, 0),
             "Mithril boots": ("feet", 4127, 20, 8, 9, 10, 0),
             "Obsidian cape": ("cape", 6568, 1, 9, 9, 9, 0),
@@ -273,6 +275,27 @@ class TestEquipmentData(unittest.TestCase):
         self.assertEqual(EQUIPMENT_DATA["Abyssal whip"].bonuses.attack_slash, 82)
         self.assertEqual(EQUIPMENT_DATA["Mystic gloves"].bonuses.attack_magic, 3)
         self.assertEqual(EQUIPMENT_DATA["Mystic gloves"].bonuses.defence_magic, 3)
+        lava_staff = EQUIPMENT_DATA["Lava battlestaff"]
+        self.assertEqual(lava_staff.slot, "weapon")
+        self.assertEqual(lava_staff.source_item_id, 3053)
+        self.assertEqual(lava_staff.required_level, 30)
+        self.assertEqual(lava_staff.attack_speed, 5)
+        self.assertEqual(lava_staff.bonuses.defence_stab, 2)
+        self.assertEqual(lava_staff.bonuses.defence_slash, 3)
+        self.assertEqual(lava_staff.bonuses.defence_crush, 1)
+        self.assertEqual(lava_staff.bonuses.melee_strength, 35)
+        self.assertEqual(
+            lava_staff.skill_requirements,
+            (("attack", 30), ("magic", 30)),
+        )
+        self.assertEqual(
+            EQUIPMENT_DATA["Mystic hat (dark)"].skill_requirements,
+            (("defense", 20), ("magic", 40)),
+        )
+        self.assertEqual(
+            EQUIPMENT_DATA["Mystic boots (dark)"].skill_requirements,
+            (("defense", 20), ("magic", 20)),
+        )
 
     def test_drop_and_shop_ammunition_uses_existing_plural_rows(self):
         expected = {

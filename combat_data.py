@@ -7684,6 +7684,98 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "level-81 God Wars variant excluded"
         ),
     },
+    "infernal_mage": {
+        "display_name": "Infernal Mage",
+        "level": 66,
+        "group": "Slayer",
+        "required_slayer_level": 45,
+        "attack_style": "magic",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 89,
+        "slayer_xp": 60.0,
+        "stats": {
+            "hitpoints": 600,
+            "attack": 1,
+            "strength": 1,
+            "defence": 60,
+            "magic": 75,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (("Bones", 1),),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 128,
+                    "slots": (
+                        {"item": "Coins", "quantity": 1, "slots": 19},
+                        {"item": "Death rune", "quantity": 7, "slots": 18},
+                        {"item": "Coins", "quantity": 2, "slots": 14},
+                        {"item": "Staff", "quantity": 1, "slots": 8},
+                        {"item": "Coins", "quantity": 4, "slots": 8},
+                        {"item": "Earth rune", "quantity": 10, "slots": 6},
+                        {"item": "Fire rune", "quantity": 10, "slots": 6},
+                        {"item": "Earth rune", "quantity": 36, "slots": 4},
+                        {"item": "Air rune", "quantity": 10, "slots": 3},
+                        {"item": "Water rune", "quantity": 10, "slots": 3},
+                        {"item": "Coins", "quantity": 29, "slots": 3},
+                        {"item": "Air rune", "quantity": 18, "slots": 2},
+                        {"item": "Water rune", "quantity": 18, "slots": 2},
+                        {"item": "Earth rune", "quantity": 18, "slots": 2},
+                        {"item": "Fire rune", "quantity": 18, "slots": 2},
+                        {"item": "Mind rune", "quantity": 18, "slots": 2},
+                        {"item": "Body rune", "quantity": 18, "slots": 2},
+                        {"item": "Blood rune", "quantity": 4, "slots": 2},
+                        {"item": "Staff of fire", "quantity": 1, "slots": 1},
+                        {"slots": 21},
+                    ),
+                },
+                {
+                    "name": "Dark mystic",
+                    "total": 512,
+                    "slots": (
+                        {"item": "Mystic boots (dark)", "quantity": 1, "slots": 1},
+                        {"item": "Mystic hat (dark)", "quantity": 1, "slots": 1},
+                        {"slots": 510},
+                    ),
+                },
+                {
+                    "name": "Lava battlestaff",
+                    "total": 1000,
+                    "slots": (
+                        {"item": "Lava battlestaff", "quantity": 1, "slots": 1},
+                        {"slots": 999},
+                    ),
+                },
+            ),
+        },
+        "source": (
+            "https://runescape.wiki/w/Infernal_Mage?oldid=6446423; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "infernal_mage.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/infernal_mage.json"
+        ),
+        "source_status": (
+            "period exact ordinary identity, LP, Slayer gate/XP, six-tick Magic "
+            "attack, maximum hit, and guaranteed Bones; Darkan exact stats, "
+            "respawn, 128-slot main table, 1/512 dark-mystic drops, and 1/1000 "
+            "Lava battlestaff; charm distribution remains source_blocked"
+        ),
+    },
     "kalphite_soldier": {
         "display_name": "Kalphite Soldier",
         "level": 85,
@@ -9876,6 +9968,36 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Long bone": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.LONG_BONE"},
     "Magic staff": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MAGIC_STAFF"},
     "Marrentill seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MARRENTILL_SEED"},
+    "Lava battlestaff": {
+        "category": "equipment",
+        "source": (
+            "game-main data/cfg/items.yml item 3053; "
+            "RuneScape Wiki Lava battlestaff oldid 6037449"
+        ),
+        "source_item_id": 3053,
+        "stackable": False,
+        "tradeable": True,
+    },
+    "Mystic hat (dark)": {
+        "category": "equipment",
+        "source": (
+            "game-main data/cfg/items.yml item 4099; "
+            "RuneScape Wiki Mystic hat oldid 5971728"
+        ),
+        "source_item_id": 4099,
+        "stackable": False,
+        "tradeable": True,
+    },
+    "Mystic boots (dark)": {
+        "category": "equipment",
+        "source": (
+            "game-main data/cfg/items.yml item 4107; "
+            "RuneScape Wiki Mystic boots oldid 6315992"
+        ),
+        "source_item_id": 4107,
+        "stackable": False,
+        "tradeable": True,
+    },
     "Black boots": {
         "category": "equipment",
         "source": (

@@ -27,6 +27,7 @@ NEW_COMBAT_ENEMIES = (
     "pyrefiend",
     "jelly",
     "bloodveld",
+    "infernal_mage",
     "kalphite_soldier",
     "wall_beast",
     "vampyre",
@@ -276,6 +277,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("pyrefiend", "Pyrefiend.png"),
             ("jelly", "Jelly.png"),
             ("bloodveld", "Bloodveld.png"),
+            ("infernal_mage", "Infernal Mage.png"),
             ("kalphite_soldier", "Kalphite Soldier.png"),
             ("wall_beast", "Wall beast icon.png"),
             ("vampyre", "Vampire (historical) (level 61).png"),
@@ -369,6 +371,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
     def test_slayer_targets_require_their_source_levels(self):
         for target_id, required_level in (
             ("pyrefiend", 30),
+            ("infernal_mage", 45),
             ("bloodveld", 50),
             ("jelly", 52),
         ):
@@ -445,6 +448,35 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
         self.assertIn("oldid=6565794", bloodveld["source"])
         self.assertIn("level-81 God Wars variant excluded", bloodveld["source_status"])
+
+    def test_infernal_mage_preserves_the_cutoff_variant_and_rare_tables(self):
+        mage = COMBAT_ENEMY_DATA["infernal_mage"]
+
+        self.assertEqual(mage["level"], 66)
+        self.assertEqual(mage["required_slayer_level"], 45)
+        self.assertEqual(mage["attack_style"], "magic")
+        self.assertEqual(mage["attack_speed"], 6)
+        self.assertEqual(mage["respawn_delay"], 59)
+        self.assertEqual(mage["slayer_xp"], 60.0)
+        self.assertEqual(mage["max_hit"], 89)
+        self.assertEqual(
+            mage["stats"],
+            {
+                "hitpoints": 600,
+                "attack": 1,
+                "strength": 1,
+                "defence": 60,
+                "magic": 75,
+                "ranged": 1,
+            },
+        )
+        self.assertEqual(mage["drops"]["guaranteed"], (("Bones", 1),))
+        main, dark_mystic, lava = mage["drops"]["tables"]
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
+        self.assertEqual(sum(slot["slots"] for slot in dark_mystic["slots"]), 512)
+        self.assertEqual(sum(slot["slots"] for slot in lava["slots"]), 1000)
+        self.assertIn("oldid=6446423", mage["source"])
+        self.assertIn("charm distribution remains source_blocked", mage["source_status"])
 
     def test_kalphite_soldier_preserves_the_cutoff_variant_and_drop_table(self):
         soldier = COMBAT_ENEMY_DATA["kalphite_soldier"]
