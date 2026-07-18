@@ -645,6 +645,17 @@ Finite quest combat is deliberately exempt: live mode resolves one collapsed
 quest stage, while an explicit cadence rollback retains the legacy 50-tick
 quest-combat burst.
 
+Utility/Activity exemption is an owning contract, not a cadence bypass.
+Activity routes must declare whether one review is a world-clock tick, live
+Combat slice, one source action, finite grouped beat, direct command, or
+source-blocked grouping. Every real activity Combat encounter uses the ordinary
+`6 × M` tick reducer even when its map, crowd, or enemy roster is aggregated.
+A finite grouped beat may preserve a bounded performance, room, route, or
+production circuit, but must name its grouped operations and fixed reward,
+stop at terminal boundaries, and never replay hidden subactions or add a second
+skill cadence gate. The complete reconciliation table is
+`memory-bank/source-audits/activity-cadence-reconciliation-2026-07-18.md`.
+
 In a shared canonical checkout, a whole-suite result is valid only for the
 source/test snapshot imported when discovery began. Before recording or
 committing a long verification run, compare source and test modification times

@@ -54,11 +54,11 @@ on logout or escape before pyre lighting. Viewing another page does not leave;
 switching to another review target or explicitly abandoning the run requires
 the shared destructive-leave confirmation and then clears all Lair state.
 
-The Phoenix itself uses the standard live Combat reducer. Guardian passage may
-apply a single bounded, visible traversal consequence, but the implementation
-must not simulate cavern maps, choke points, or individual background enemies.
-The source pet-egg choice is preserved through the contextual review action
-surface when an egg drops; it does not require a permanent setting.
+The Phoenix and the aggregate Reborn-guardian front both use the standard live
+Combat reducer. The guardian front must not simulate cavern maps, choke points,
+or individual background enemies. The source pet-egg choice is preserved
+through the contextual review action surface when an egg drops; it does not
+require a permanent setting.
 
 ## Final review-native run
 
@@ -69,26 +69,28 @@ between those five repetitions.
 
 The delegated owner decision is:
 
-1. **Traverse the five caverns** — one successful review passes the five
-   mandatory guardian blockages, cuts all five twigs, grants the grouped
-   source-shaped Combat XP and real guardian-loot roll, and applies one bounded,
-   visible LP/food/Prayer consequence.
+1. **Guardian front** — the five spatially repetitive cavern blockages become
+   one persistent aggregate Reborn-guardian encounter derived from the exact
+   five source rosters. Every successful review advances the ordinary live
+   Combat reducer by `6 × M` ticks. Defeating the front cuts all five twigs and
+   resolves the source-shaped guardian loot without instantiating five maps or
+   background NPCs.
 2. **Prepare the pyre** — one successful review cuts all five twigs into ribbons
-   and builds the nest. The source completion XP is not paid early.
+   and builds the nest. This is one declared finite activity grouping; the
+   source completion XP is not paid early.
 3. **Defeat the Phoenix** — the ordinary live Combat reducer owns as many
    reviews as the encounter needs. The killing review atomically lights the
    pyre, speaks to the reborn Phoenix, consumes the daily completion allowance,
    and grants the fixed completion rewards.
 
-Five separate cavern reviews would reenact spatial repetition without creating
-five AnkiScape decisions. Two grouped traversal reviews would split the
-difference numerically without gaining a source or product rationale.
+Five separate cavern graphs would reenact spatial repetition without creating
+five AnkiScape decisions. Grouping their actual Combat XP and attrition into one
+instant traversal review would instead violate the live cadence contract. The
+aggregate guardian front preserves the source roster's total encounter work and
+loot through one visible combat state while keeping the spatial compression.
 
-The traversal aggregation is one declared action grouping, not five hidden NPC
-simulations. It performs one aggregate source-table roll and emits the complete
-consequence in its result line. `Again` advances the global world clock but
-does not traverse, create twigs, apply traversal attrition, prepare the pyre, or
-advance Combat.
+`Again` advances the global world clock but does not create twigs, apply
+traversal attrition, prepare the pyre, or advance either Combat encounter.
 
 ## Requirements, real loot, and reset behavior
 

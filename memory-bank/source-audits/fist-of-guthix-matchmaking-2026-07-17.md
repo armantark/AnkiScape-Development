@@ -44,5 +44,25 @@ hunted round:
 - **Evasive:** favor houses and portals, accepting reduced charge gain.
 
 Casual selects the stance from the generated matchup. Advanced selects it
-explicitly. Reviews resolve complete tactical exchanges within the stance; they
-do not expose movement-by-movement controls.
+explicitly. Reviews resolve tactical exchange slices within the stance; they do
+not expose movement-by-movement controls.
+
+## Cadence reconciliation — 2026-07-18
+
+“Complete tactical exchanges” is presentation, not a separate combat action
+unit. The cutoff source grants damage-based Combat XP, including half normal
+Magic XP while using the supplied runes, so every active round advances through
+the live Combat reducer:
+
+- one successful review advances `6 × M` immediate ticks;
+- opponent LP, attack phases, charges, stance, temporary supplies, and round
+  state persist;
+- the hunted stance changes charge gain and exposure inside those ticks;
+- a kill, hunted-round endpoint, role swap, match completion, or forfeit ends
+  the review without spending unused ticks in the next phase; and
+- temporary runes and match state remain activity-owned, while Combat XP uses
+  the ordinary tick-level award path with the sourced FoG modifier.
+
+No opponent pathing or crowd simulation is added. This correction preserves the
+settled stance decision while preventing the activity exemption from bypassing
+Combat cadence.

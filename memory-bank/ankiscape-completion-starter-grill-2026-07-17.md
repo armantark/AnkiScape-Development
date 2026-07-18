@@ -290,9 +290,10 @@ when they cannot fell the drawn tier; the UI says so before entry, then awards
 only the Farming action and consumes the participation without another dialog.
 
 Phoenix Lair compresses five spatially repetitive twig caverns into one visible
-traversal review with one aggregate guardian consequence and real loot, followed
-by one pyre-preparation review and the standard live Phoenix Combat encounter.
-The killing review lights the pyre and grants the fixed reward atomically.
+aggregate Reborn-guardian front that persists through live six-tick Combat
+reviews, followed by one pyre-preparation review and the standard live Phoenix
+Combat encounter. The killing review lights the pyre and grants the fixed
+reward atomically.
 Leaving or dying resets the unfinished run without consuming its daily
 completion. Rare eggs use the contextual `Clap` / `Kick` action to choose Cute
 or Mean, with a remembered choice and `Clap` default; sub-72 eggs remain
@@ -315,6 +316,12 @@ wall, and barricade work, while exposing only four condition values, morale,
 and progress. Its source endpoints become 1,500 defeated trolls or a
 167-eligible-review ceiling, never wall time. The focused contract is
 `memory-bank/source-audits/troll-invasion-loop-2026-07-18.md`.
+
+Jade Vine remains part of the ordinary background Farming clock. After its
+health check, one saved patch policy keeps it tame through one-review prune
+actions, lets it become a live six-tick Wild Vine encounter, or pays Horacio's
+source produce cost and replants for another Farming cycle. The focused
+contract is `memory-bank/source-audits/jade-vine-loop-2026-07-18.md`.
 
 Fist of Guthix does not expose opponent selection or difficulty profiles. The
 cutoff game paired waiting-room players randomly regardless of Combat level,
