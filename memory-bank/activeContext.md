@@ -2,6 +2,21 @@
 
 ## Current Focus
 
+Diamond in the Rough is now the second playable Slayer-critical quest
+dependency. Its four generated placeholders and grouped statless fight are
+replaced by the Heavy weight, five Bandits plus their king, Sundial gnomon,
+Kalphite-nursery gem recovery, ordered Apep/Heru finale, and Prince Ali rescue.
+The reward override removes the two optional 20,000-XP level-80 fissure rewards
+from automatic completion while preserving the ordinary 250-XP trio, Combat
+lamp, and three retained gems. Focused backend and real offscreen Qt checks
+pass. The complete core suite passes 1,512 methods with 1,306 ordinary passes
+and 206 declared environment skips; real offscreen Qt passes all 1,512 methods
+without skips or failures. Durable evidence is
+`source-audits/quest-diamond-in-the-rough-playable-2026-07-17.md`; the visual
+closure report is
+`status-updates/quest-diamond-in-the-rough-results-2026-07-17.html`
+(<https://6vqmrgu0eo7j.postplan.dev>).
+
 The Slayer-critical quest dependency pass has begun with Stolen Hearts. Its
 generated five-row placeholder sequence is now a playable source-backed chain:
 Skulls infiltration, the Khnum pursuit, Mercenary Joe plus two Skulls

@@ -4177,6 +4177,44 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIn("stolen_hearts", self._quest_calls)
 
+    def test_quests_tab_allows_diamond_in_the_rough_ambush_selection(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "diamond_in_the_rough"
+        pd["inventory"] = {"Heavy weight": 1}
+        pd["quests"]["stolen_hearts"] = {
+            "started": True,
+            "progress": 6,
+            "completed": True,
+        }
+        pd["quests"]["diamond_in_the_rough"] = {
+            "started": True,
+            "progress": 2,
+            "completed": False,
+        }
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        pd["attack_level"] = 99
+        pd["strength_level"] = 99
+        pd["defense_level"] = 99
+        pd["constitution_level"] = 99
+        dialog = self._open(pd)
+
+        labels = [label.text() for label in dialog.findChildren(QLabel)]
+        self.assertIn(
+            (
+                "Blocked: Battle required: Bandit (Diamond in the Rough) level 2 x5, "
+                "Battle required: Bandit king level 3"
+            ),
+            labels,
+        )
+        action = dialog.findChild(QPushButton, "questAction_diamond_in_the_rough")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+        self.assertNotIn("Complete Diamond in the Rough stage", action.toolTip())
+
+        action.click()
+        QApplication.processEvents()
+        self.assertIn("diamond_in_the_rough", self._quest_calls)
+
     def test_quests_tab_allows_conflict_overridden_dad_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Coins": 12}

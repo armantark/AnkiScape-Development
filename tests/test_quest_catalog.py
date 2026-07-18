@@ -1744,6 +1744,61 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(items["History of the Kharid-ib"]["item_id"], 25128)
         self.assertFalse(items["Ransom note"]["tradeable"])
 
+    def test_diamond_in_the_rough_is_a_playable_source_backed_dependency(self):
+        quest = quests_as_dict()["diamond_in_the_rough"]
+        by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
+
+        self.assertEqual(quest["rewards"], {})
+        self.assertEqual(
+            quest["xp_rewards"],
+            (
+                {"skill_id": "agility", "amount": 250},
+                {"skill_id": "constitution", "amount": 250},
+                {"skill_id": "thieving", "amount": 250},
+            ),
+        )
+        self.assertEqual(len(quest["lamp_rewards"]), 1)
+        self.assertFalse(
+            any(
+                action.startswith("Complete Diamond in the Rough stage")
+                for row in by_stage.values()
+                for action in row["required_actions"]
+            )
+        )
+        self.assertEqual(by_stage[1]["produced_inventory"], {"Heavy weight": 1})
+        self.assertEqual(
+            [
+                (encounter["display_name"], encounter["level"], encounter["quantity"])
+                for encounter in by_stage[2]["combat_encounters"]
+            ],
+            [
+                ("Bandit (Diamond in the Rough)", 2, 5),
+                ("Bandit king", 3, 1),
+            ],
+        )
+        self.assertEqual(
+            by_stage[2]["produced_inventory"],
+            {"Sundial gnomon": 1, "Waterskin (4)": 4},
+        )
+        self.assertEqual(
+            by_stage[3]["consumed_inventory"],
+            {"Heavy weight": 1, "Sundial gnomon": 1},
+        )
+        self.assertEqual(
+            by_stage[3]["produced_inventory"],
+            {"Sapphire": 1, "Emerald": 1, "Ruby": 1},
+        )
+        self.assertEqual(
+            [encounter["display_name"] for encounter in by_stage[4]["combat_encounters"]],
+            ["Apep", "Heru"],
+        )
+
+        items = quest_reward_items_as_dict()
+        self.assertEqual(items["Heavy weight"]["item_id"], 25116)
+        self.assertEqual(items["Sundial gnomon"]["item_id"], 25118)
+        self.assertFalse(items["Heavy weight"]["stackable"])
+        self.assertFalse(items["Sundial gnomon"]["tradeable"])
+
     def test_generated_rewards_journals_and_lamps_are_structured(self):
         data = quests_as_dict()
 

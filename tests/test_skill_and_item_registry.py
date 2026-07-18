@@ -1365,6 +1365,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Gnome amulet",
             "Ransom note",
             "History of the Kharid-ib",
+            "Heavy weight",
+            "Sundial gnomon",
         ):
             self.assertIn(item_name, QUEST_ITEM_IMAGES)
             self.assertTrue(os.path.exists(QUEST_ITEM_IMAGES[item_name]))
@@ -1379,6 +1381,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         for asset_key in (
             "questitems/ransom_note.png",
             "questitems/history_of_the_kharid_ib.png",
+            "questitems/heavy_weight.png",
+            "questitems/sundial_gnomon.png",
         ):
             self.assertLess(provenance[asset_key]["timestamp"], "2012-11-20T00:00:00Z")
             self.assertIn("/archive/", provenance[asset_key]["image_url"])

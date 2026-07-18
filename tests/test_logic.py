@@ -5551,6 +5551,122 @@ class TestLogic(unittest.TestCase):
         )
         self.assertNotIn("combat_exp", player_data["pending_skill_exp_rewards"])
 
+    def test_diamond_in_the_rough_stage_chain_resolves_two_fights_and_exact_rewards(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["stolen_hearts"] = {
+            "started": True,
+            "progress": 6,
+            "completed": True,
+        }
+        player_data["quests"]["diamond_in_the_rough"] = {
+            "started": True,
+            "progress": 1,
+            "completed": False,
+        }
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["attack_level"] = 99
+        player_data["strength_level"] = 99
+        player_data["defense_level"] = 99
+        player_data["constitution_level"] = 99
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "diamond_in_the_rough",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["diamond_in_the_rough"]["progress"], 2)
+        self.assertEqual(player_data["inventory"]["Heavy weight"], 1)
+
+        self.assertEqual(
+            tuple(
+                blocker["reason"]
+                for blocker in quest_current_stage_blockers_pure(
+                    player_data,
+                    "diamond_in_the_rough",
+                    QUEST_DATA,
+                )
+            ),
+            (
+                "Battle required: Bandit (Diamond in the Rough) level 2 x5",
+                "Battle required: Bandit king level 3",
+            ),
+        )
+        for expected_encounter in (
+            "diamond_in_the_rough_bandit",
+            "diamond_in_the_rough_bandit",
+            "diamond_in_the_rough_bandit",
+            "diamond_in_the_rough_bandit",
+            "diamond_in_the_rough_bandit",
+            "diamond_in_the_rough_bandit_king",
+        ):
+            player_data, ok, result = apply_quest_combat_encounter_pure(
+                player_data,
+                "diamond_in_the_rough",
+                QUEST_DATA,
+                stop_after_first_kill=True,
+            )
+            self.assertTrue(ok, result)
+            self.assertEqual(result["encounter_id"], expected_encounter)
+            self.assertTrue(result["killed"])
+
+        for expected_progress in (3, 4):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "diamond_in_the_rough",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(
+                player_data["quests"]["diamond_in_the_rough"]["progress"],
+                expected_progress,
+            )
+        self.assertEqual(player_data["inventory"].get("Heavy weight", 0), 0)
+        self.assertEqual(player_data["inventory"].get("Sundial gnomon", 0), 0)
+        self.assertEqual(player_data["inventory"]["Waterskin (4)"], 4)
+        self.assertEqual(
+            {gem: player_data["inventory"][gem] for gem in ("Sapphire", "Emerald", "Ruby")},
+            {"Sapphire": 1, "Emerald": 1, "Ruby": 1},
+        )
+
+        for expected_encounter in (
+            "diamond_in_the_rough_apep",
+            "diamond_in_the_rough_heru",
+        ):
+            player_data, ok, result = apply_quest_combat_encounter_pure(
+                player_data,
+                "diamond_in_the_rough",
+                QUEST_DATA,
+                stop_after_first_kill=True,
+            )
+            self.assertTrue(ok, result)
+            self.assertEqual(result["encounter_id"], expected_encounter)
+            self.assertTrue(result["killed"])
+
+        xp_before = {
+            "agility": player_data["agility_exp"],
+            "constitution": player_data["constitution_exp"],
+            "thieving": player_data["thieving_exp"],
+            "mining": player_data["mining_exp"],
+        }
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "diamond_in_the_rough",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(player_data["quests"]["diamond_in_the_rough"]["progress"], 5)
+        self.assertEqual(player_data["agility_exp"], xp_before["agility"] + 250)
+        self.assertEqual(
+            player_data["constitution_exp"],
+            xp_before["constitution"] + 250,
+        )
+        self.assertEqual(player_data["thieving_exp"], xp_before["thieving"] + 250)
+        self.assertEqual(player_data["mining_exp"], xp_before["mining"])
+
     def test_demon_slayer_source_backed_stage_chain_blocks_and_completes_in_order(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["demon_slayer"] = {"started": True, "progress": 1, "completed": False}

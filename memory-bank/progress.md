@@ -905,3 +905,26 @@ Test counts are snapshots; current runs outrank this note.
   worktree-safety gates pass. Diamond in the Rough is next.
 - Published `status-updates/quest-stolen-hearts-results-2026-07-17.html` and
   its mobile-safe copy at <https://4sptl2883909.postplan.dev>.
+
+## Diamond in the Rough quest dependency — 2026-07-17
+
+- Replaced four generated objective placeholders with a playable chain
+  covering the Heavy weight, six-enemy sundial ambush, Sundial gnomon,
+  quicksand/Kalphite nursery, three retained gems, Apep/Heru finale, and Prince
+  Ali rescue.
+- Corrected the reward parser boundary: ordinary completion grants 250
+  Agility, Constitution, and Thieving XP plus the existing Combat lamp; the two
+  optional 20,000-XP level-80 fissure actions are no longer auto-awarded.
+- Registered rev-742 item identities 25116 and 25118, installed their original
+  September 2012 sprites with provenance, and reduced the statless quest
+  Combat ledger from 102 to 98 rows.
+- Added source-contract, pure full-chain, live-dispatch, asset, and real
+  offscreen Qt regressions. The complete core suite passes all 1,512 methods
+  with 1,306 ordinary passes and 206 declared environment skips; the complete
+  real offscreen Qt suite passes all 1,512 methods without skips or failures.
+  Test-quality, documentation, compilation, diff, quest-audit, asset,
+  reachability, and worktree-safety gates pass. Icthlarin's Little Helper is
+  next.
+- Published
+  `status-updates/quest-diamond-in-the-rough-results-2026-07-17.html` and its
+  mobile-safe copy at <https://6vqmrgu0eo7j.postplan.dev>.

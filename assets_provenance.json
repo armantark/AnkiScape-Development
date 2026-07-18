@@ -23625,6 +23625,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:57:43Z"
   },
+  "questitems/heavy_weight.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Heavy_weight.png",
+    "file_title": "Heavy weight.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502042944%21Heavy_weight.png?11094",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "92bc9d17ffb60d0f42c99c6e134ee357c0a62a07",
+    "size": 715,
+    "source_wiki": "rs3",
+    "timestamp": "2012-09-30T02:11:29Z"
+  },
   "questitems/history_of_the_kharid_ib.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:History_of_the_Kharid-ib.png",
     "file_title": "History of the Kharid-ib.png",
@@ -24430,6 +24442,18 @@
     "size": 761,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:06:35Z"
+  },
+  "questitems/sundial_gnomon.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Sundial_gnomon.png",
+    "file_title": "Sundial gnomon.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502081946%21Sundial_gnomon.png?8597b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e6347df56507a21194cf0296483c9ed2b795c294",
+    "size": 227,
+    "source_wiki": "rs3",
+    "timestamp": "2012-09-29T00:17:11Z"
   },
   "questitems/thieves_armband.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Thieves%27_armband.png",
