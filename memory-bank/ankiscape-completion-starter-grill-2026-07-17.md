@@ -357,6 +357,14 @@ Ordinary dangerous-activity death handling and an explicit leave abort the
 match. The pinned structure and remaining source work are recorded in
 `memory-bank/source-audits/gnome-ball-loop-2026-07-17.md`.
 
+Werewolf Skullball resolves its ten-goal course in one atomic successful review.
+The player chooses **Careful**, **Fast**, or **Balanced**; Advanced may provide
+the exact tap/kick/shoot route. Source elapsed-time scoring becomes bounded
+route-efficiency scoring derived from that choice and any sourced mistakes,
+never wall-clock time, answered-card seconds, or a hidden tile simulation. The
+pinned structure and remaining source work are recorded in
+`memory-bank/source-audits/werewolf-skullball-loop-2026-07-17.md`.
+
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking
 the shared substrate.
