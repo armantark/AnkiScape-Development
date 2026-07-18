@@ -299,6 +299,13 @@ or Mean, with a remembered choice and `Clap` default; sub-72 eggs remain
 source-owned items until the shared pet surface can hatch them. The focused
 contract is `memory-bank/source-audits/phoenix-lair-loop-2026-07-18.md`.
 
+Skeletal Horror is a weekly four-phase live Combat encounter. Limb thresholds
+automatically pick up and bury the right arm, left arm, and tail in the same
+review transaction, because ignoring them only heals the boss and creates no
+useful AnkiScape choice. Bork's daily source and reward shape are pinned, but
+its Ork-legion encounter remains parked behind the already-parked general
+multi-enemy design rather than receiving a bespoke hidden simulator.
+
 Fist of Guthix does not expose opponent selection or difficulty profiles. The
 cutoff game paired waiting-room players randomly regardless of Combat level,
 randomized the first-round roles, and swapped roles for round two. AnkiScape
