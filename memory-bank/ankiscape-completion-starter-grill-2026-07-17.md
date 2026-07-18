@@ -394,6 +394,17 @@ unique sceptres and Black ibis pieces are always protected. The complete
 contract is recorded in
 `memory-bank/source-audits/pyramid-plunder-loop-2026-07-17.md`.
 
+Sorceress's Garden separates **Harvest** (Fruit / Herbs / Alternate) from
+**Completed juice** (Hand to Osman automatically / Keep as juice). Each
+successful review resolves one garden attempt; capture returns the player to
+the centre without output or damage. Fruit is real staging inventory but
+automatically squeezes at the source `5/4/3/2` threshold using an abstracted
+free beer glass and the cutoff tool-belt pestle and mortar. The complete juice
+can then become exact Osman XP or remain available for its boost and run-energy
+effect without another review. The pinned structure and remaining route-failure
+abstraction are recorded in
+`memory-bank/source-audits/sorceress-garden-loop-2026-07-18.md`.
+
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking
 the shared substrate.

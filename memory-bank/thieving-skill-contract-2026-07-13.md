@@ -175,7 +175,9 @@ fears checkbox hell, and full control lives in the advanced editors.
   program. Its owner-settled automatic room strategy and review budget are
   recorded in
   `memory-bank/source-audits/pyramid-plunder-loop-2026-07-17.md`.
-  Sorceress's Garden, the Rogues' Den maze, and the Thieves' Guild go with it.
+  Sorceress's Garden also belongs to Activities and follows
+  `memory-bank/source-audits/sorceress-garden-loop-2026-07-18.md`; the Rogues'
+  Den maze and Thieves' Guild go with it.
   The Rogues' Den **wall safes are separable and do ship.**
 - **The Feud ships with this build** — it gates blackjacking. Dorgesh-Kaan chests
   and Lletya elves ship gated and dark behind their quests.

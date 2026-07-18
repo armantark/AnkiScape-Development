@@ -44,13 +44,34 @@ source conflict, not authority for an extra skill reward.
   one real juice. Any stranded fruit from a changed setting remains real and
   is processed automatically when a complete threshold becomes available.
 
-## Owner-facing UI fork
+## Settled review and UI contract
 
 Do not combine harvest destination and juice disposition into one dropdown.
-The recommended surface is:
+The settled surface is:
 
 1. **Harvest:** Fruit / Herbs / Alternate evenly.
 2. **Completed juice:** Hand to Osman automatically / Keep as juice.
 
 The juice control is relevant only when Fruit or Alternate can produce juice.
 No manual squeeze or Osman-dialogue action consumes a review.
+
+One successful review resolves one attempt through the selected seasonal
+garden. A caught player returns to the central garden with no output, no damage,
+and no extra recovery review. A successful attempt awards the source Farming XP
+and then:
+
+- **Fruit** picks one fruit;
+- **Herbs** picks two source-rolled grimy herbs; or
+- **Alternate** switches between those two outputs after each successful
+  harvest. Failed attempts never advance the alternation.
+
+Fruit remains a real carried item only until its seasonal `5/4/3/2` threshold.
+At that threshold it automatically consumes the fruit and an abstracted free
+beer glass and produces one real juice using the ambient tool-belt pestle and
+mortar. **Hand to Osman automatically** immediately consumes completed juice
+for its exact source Thieving XP; **Keep as juice** retains the item for its
+temporary Thieving and run-energy effect.
+
+The remaining source/design work is the automatic route-failure abstraction:
+the source makes capture a movement/timing consequence rather than publishing a
+simple success rate.
