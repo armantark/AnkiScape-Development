@@ -1307,6 +1307,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-07-03T15:45:40Z"
   },
+  "combatenemies/mutated_zygomite_level_74.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Mutated_zygomite_icon.png",
+    "file_title": "Mutated zygomite icon.png",
+    "image_url": "https://runescape.wiki/images/archive/20210312142609%21Mutated_zygomite_icon.png?21ed7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e3a675c39506655765d6dcd5a1893d225303b667",
+    "size": 695,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-26T10:07:23Z"
+  },
+  "combatenemies/mutated_zygomite_level_86.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Mutated_zygomite_icon.png",
+    "file_title": "Mutated zygomite icon.png",
+    "image_url": "https://runescape.wiki/images/archive/20210312142609%21Mutated_zygomite_icon.png?21ed7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e3a675c39506655765d6dcd5a1893d225303b667",
+    "size": 695,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-26T10:07:23Z"
+  },
   "combatenemies/narf_jeff_rusty.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Man.png",
     "file_title": "Man.png",
@@ -27792,16 +27816,16 @@
     "timestamp": "2021-08-20T14:57:11Z"
   },
   "shopitems/fungicide.png": {
-    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Fungicide.png",
+    "file_page_url": "https://runescape.wiki/wiki/File:Fungicide.png",
     "file_title": "Fungicide.png",
-    "image_url": "https://oldschool.runescape.wiki/images/Fungicide.png?d6d35",
+    "image_url": "https://runescape.wiki/images/archive/20140502174218%21Fungicide.png?d0977",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "55e500fecfd686502215e19b865a99391781e2e8",
-    "size": 503,
-    "source_wiki": "osrs",
-    "timestamp": "2021-08-20T14:57:12Z"
+    "sha1": "c4b1ca3d99ecf75c96facf9f0ee75b32855e09cf",
+    "size": 497,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-21T10:49:42Z"
   },
   "shopitems/fungicide_spray_10.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Fungicide_spray_10.png",

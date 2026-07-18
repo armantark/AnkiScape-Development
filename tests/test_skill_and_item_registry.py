@@ -118,6 +118,27 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                     self.assertIsNotNone(definition.asset_path)
                     self.assertTrue(os.path.exists(definition.asset_path))
 
+    def test_fungicide_charge_family_keeps_cache_identity_and_shared_assets(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        spray_asset = COMBAT_ITEM_IMAGES["Fungicide spray 10"]
+        for charges in range(11):
+            item_name = f"Fungicide spray {charges}"
+            with self.subTest(item_name=item_name):
+                definition = by_storage_key[item_name]
+                self.assertEqual(definition.source_item_id, 7431 - charges)
+                self.assertFalse(definition.stackable)
+                self.assertFalse(definition.tradeable)
+                self.assertEqual(definition.category, "tool")
+                self.assertEqual(definition.asset_path, spray_asset)
+                self.assertTrue(os.path.exists(definition.asset_path))
+
+        canister = by_storage_key["Fungicide"]
+        self.assertEqual(canister.source_item_id, 7432)
+        self.assertFalse(canister.stackable)
+        self.assertFalse(canister.tradeable)
+        self.assertEqual(canister.asset_path, COMBAT_ITEM_IMAGES["Fungicide"])
+        self.assertTrue(os.path.exists(canister.asset_path))
+
     def test_young_grotworm_equipment_drops_keep_period_identity(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         expected = {

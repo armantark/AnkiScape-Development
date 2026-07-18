@@ -4,6 +4,26 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Mutated zygomite Combat closure — 2026-07-18
+
+- Added both ordinary Mutated zygomite variants with period Slayer/quest gates,
+  LP, Slayer XP, maximum hit, sprites, and the one-line reveal interaction.
+- Implemented charge-preserving Fungicide spray states `10 → 0`, canister
+  reloads, manual and quick finishing parity, and capacity-safe Combat refills.
+- Registered cache items `7421–7432` with non-stackable/non-tradeable inventory
+  shape and shared dose-state icon fallback.
+- Reconciled the independent Darkan drop probabilities only where period
+  identity/quantity evidence allows it; unresolved rows and the 140-LP spore
+  frequency remain explicit `source_blocked` omissions.
+- Focused pure, runtime, registry, metadata, provenance, and reachability
+  coverage passes 391 methods. Full core discovery passes all 1,557 methods
+  with 213 declared environment skips; full real offscreen Qt discovery passes
+  all 1,557 methods without skips or failures.
+- Test-quality, documentation, JSON, reachability-route, diff, and worktree
+  safety checks pass. The visual report is
+  `status-updates/slayer-mutated-zygomite-results-2026-07-18.html`; mobile
+  copy: <https://ujk2cg24j80q.postplan.dev>.
+
 ## Public derivative release disposition — 2026-07-17
 
 - Settled the former personal-fork-versus-public-release question in favor of

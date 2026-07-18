@@ -3425,6 +3425,24 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
         < required_slayer_level
     ):
         return (f"Slayer level {required_slayer_level}",)
+    quest_gate = str(enemy.get("quest_gate", enemy.get("required_quest", "")) or "")
+    if quest_gate:
+        quests = player_data.get("quests", {}) or {}
+        quest_state = quests.get(quest_gate, {}) if isinstance(quests, Mapping) else {}
+        quest_completed = (
+            bool(quest_state.get("completed"))
+            if isinstance(quest_state, Mapping)
+            else bool(quest_state)
+        )
+        if not quest_completed:
+            return (
+                str(
+                    enemy.get(
+                        "quest_gate_label",
+                        f"Complete {quest_gate.replace('_', ' ').title()}",
+                    )
+                ),
+            )
     hazard = _combat_environmental_hazard_spec(enemy)
     finisher = _combat_finisher_spec(enemy)
     encounter = player_data.get("combat_encounter", {}) or {}
@@ -3664,6 +3682,47 @@ def _combat_finisher_spec(enemy):
     return finisher if isinstance(finisher, Mapping) else None
 
 
+def _combat_finisher_charge_items(finisher):
+    if not isinstance(finisher, Mapping):
+        return ()
+    rows = []
+    for row in finisher.get("charge_items", ()) or ():
+        if not isinstance(row, (tuple, list)) or len(row) < 2:
+            continue
+        item_name = row[0]
+        charges = _positive_int(row[1], 0)
+        if isinstance(item_name, str) and item_name and charges > 0:
+            rows.append((item_name, charges))
+    return tuple(rows)
+
+
+def _combat_loaded_finisher_charge_state(data, finisher):
+    charge_items = _combat_finisher_charge_items(finisher)
+    if not charge_items:
+        return 0, 0, 0
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    finishers = loadout.get("finishers", {}) or {}
+    empty_item = str(finisher.get("empty_item", "") or "")
+    reload_item = str(finisher.get("reload_item", "") or "")
+    tool_count = sum(
+        _non_negative_int(finishers.get(item_name, 0), 0)
+        for item_name, _charges in charge_items
+    )
+    if empty_item:
+        tool_count += _non_negative_int(finishers.get(empty_item, 0), 0)
+    charges = sum(
+        _non_negative_int(finishers.get(item_name, 0), 0) * charge_count
+        for item_name, charge_count in charge_items
+    )
+    reloads = (
+        _non_negative_int(finishers.get(reload_item, 0), 0)
+        if reload_item and tool_count > 0
+        else 0
+    )
+    reload_charges = _positive_int(finisher.get("reload_charges", 0), 0)
+    return charges, reloads, charges + reloads * reload_charges
+
+
 def _combat_environmental_hazard_spec(enemy):
     hazard = (
         enemy.get("environmental_hazard")
@@ -3743,6 +3802,11 @@ def _combat_loaded_finisher_count(player_data, item_name, finisher=None):
         return 0
     if isinstance(finisher, Mapping) and finisher.get("must_be_worn"):
         return _combat_equipped_item_count(player_data, item_name)
+    if _combat_finisher_charge_items(finisher):
+        _charges, _reloads, total_uses = _combat_loaded_finisher_charge_state(
+            player_data, finisher
+        )
+        return total_uses
     loadout = _sanitize_combat_supply_loadout(
         player_data.get("combat_supply_loadout")
     )
@@ -3771,8 +3835,12 @@ def combat_finisher_state_pure(player_data, target_id=None, enemy_data=None):
             "threshold_lifepoints": 0,
             "action_label": "",
             "consumable": False,
+            "charged": False,
+            "charges": 0,
+            "reloads": 0,
         }
     item_name = str(finisher.get("item", "") or "")
+    display_item = str(finisher.get("display_item", item_name) or item_name)
     threshold = _positive_int(finisher.get("threshold_lifepoints", 0), 0)
     encounter = player_data.get("combat_encounter", {}) or {}
     enemy_lifepoints = (
@@ -3782,6 +3850,10 @@ def combat_finisher_state_pure(player_data, target_id=None, enemy_data=None):
     )
     ready = 0 < enemy_lifepoints <= threshold
     item_count = _combat_loaded_finisher_count(player_data, item_name, finisher)
+    charge_items = _combat_finisher_charge_items(finisher)
+    charges, reloads, _total_uses = _combat_loaded_finisher_charge_state(
+        player_data, finisher
+    )
     quick_unlock_key = str(finisher.get("quick_unlock_key", "") or "")
     return {
         "required": True,
@@ -3790,13 +3862,16 @@ def combat_finisher_state_pure(player_data, target_id=None, enemy_data=None):
         "automatic": bool(
             quick_unlock_key and player_data.get(quick_unlock_key, False)
         ),
-        "item": item_name,
+        "item": display_item,
         "item_count": item_count,
         "threshold_lifepoints": threshold,
         "action_label": str(
             finisher.get("action_label", f"Use {item_name}") or f"Use {item_name}"
         ),
         "consumable": bool(finisher.get("consume", False)),
+        "charged": bool(charge_items),
+        "charges": charges,
+        "reloads": reloads,
         "enemy_lifepoints": enemy_lifepoints,
     }
 
@@ -3807,6 +3882,62 @@ def _combat_consume_loaded_finisher(data, finisher):
         return _combat_equipped_item_count(data, item_name) > 0
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     finishers = dict(loadout.get("finishers", {}) or {})
+    charge_items = _combat_finisher_charge_items(finisher)
+    if charge_items:
+        for index, (charged_item, _charges) in enumerate(charge_items):
+            current = _non_negative_int(finishers.get(charged_item, 0), 0)
+            if current <= 0:
+                continue
+            if current == 1:
+                finishers.pop(charged_item, None)
+            else:
+                finishers[charged_item] = current - 1
+            replacement = (
+                charge_items[index + 1][0]
+                if index + 1 < len(charge_items)
+                else str(finisher.get("empty_item", "") or "")
+            )
+            if replacement:
+                finishers[replacement] = (
+                    _non_negative_int(finishers.get(replacement, 0), 0) + 1
+                )
+            loadout["finishers"] = finishers
+            data["combat_supply_loadout"] = loadout
+            return True
+
+        empty_item = str(finisher.get("empty_item", "") or "")
+        reload_item = str(finisher.get("reload_item", "") or "")
+        empty_count = _non_negative_int(finishers.get(empty_item, 0), 0)
+        reload_count = _non_negative_int(finishers.get(reload_item, 0), 0)
+        if empty_count <= 0 or reload_count <= 0:
+            return False
+        if empty_count == 1:
+            finishers.pop(empty_item, None)
+        else:
+            finishers[empty_item] = empty_count - 1
+        if reload_count == 1:
+            finishers.pop(reload_item, None)
+        else:
+            finishers[reload_item] = reload_count - 1
+        replacement_charges = max(
+            0, _positive_int(finisher.get("reload_charges", 0), 0) - 1
+        )
+        replacement = next(
+            (
+                charged_item
+                for charged_item, charges in charge_items
+                if charges == replacement_charges
+            ),
+            empty_item,
+        )
+        if replacement:
+            finishers[replacement] = (
+                _non_negative_int(finishers.get(replacement, 0), 0) + 1
+            )
+        loadout["finishers"] = finishers
+        data["combat_supply_loadout"] = loadout
+        return True
+
     current = _non_negative_int(finishers.get(item_name, 0), 0)
     if current <= 0:
         return False
@@ -4658,6 +4789,60 @@ def _combat_refill_finisher_loadout(data, enemy):
         if finisher is not None
         else ""
     )
+    charge_items = _combat_finisher_charge_items(finisher)
+    if charge_items:
+        selected_item = ""
+        for charged_item, _charges in charge_items:
+            available = _non_negative_int(inventory.get(charged_item, 0), 0)
+            if available <= 0:
+                continue
+            inventory[charged_item] = available - 1
+            selected_item = charged_item
+            break
+        empty_item = str(finisher.get("empty_item", "") or "")
+        reload_item = str(finisher.get("reload_item", "") or "")
+        if (
+            not selected_item
+            and empty_item
+            and reload_item
+            and _non_negative_int(inventory.get(empty_item, 0), 0) > 0
+            and _non_negative_int(inventory.get(reload_item, 0), 0) > 0
+        ):
+            inventory[empty_item] = _non_negative_int(
+                inventory.get(empty_item, 0), 0
+            ) - 1
+            inventory[reload_item] = _non_negative_int(
+                inventory.get(reload_item, 0), 0
+            ) - 1
+            reload_charges = _positive_int(finisher.get("reload_charges", 0), 0)
+            selected_item = next(
+                (
+                    charged_item
+                    for charged_item, charges in charge_items
+                    if charges == reload_charges
+                ),
+                "",
+            )
+        if selected_item:
+            finishers[selected_item] = 1
+        loadout["finishers"] = finishers
+        data["inventory"] = inventory
+        data["combat_supply_loadout"] = loadout
+        if selected_item and reload_item:
+            remaining_slots = max(
+                0, CARRIED_CAPACITY - _combat_supply_slots_used(data)
+            )
+            available_reloads = _non_negative_int(
+                inventory.get(reload_item, 0), 0
+            )
+            take_reloads = min(available_reloads, remaining_slots)
+            if take_reloads > 0:
+                inventory[reload_item] = available_reloads - take_reloads
+                finishers[reload_item] = take_reloads
+                loadout["finishers"] = finishers
+                data["inventory"] = inventory
+                data["combat_supply_loadout"] = loadout
+        return
     available = _non_negative_int(inventory.get(item_name, 0), 0)
     if available > 0:
         take = available if bool(finisher.get("consume", False)) else 1
@@ -4674,6 +4859,34 @@ def _combat_banked_finisher_count(data, enemy):
         return 0
     item_name = str(finisher.get("item", "") or "")
     inventory = data.get("inventory", {}) or {}
+    charge_items = _combat_finisher_charge_items(finisher)
+    if charge_items and isinstance(inventory, Mapping):
+        charges = sum(
+            _non_negative_int(inventory.get(charged_item, 0), 0) * charge_count
+            for charged_item, charge_count in charge_items
+        )
+        empty_item = str(finisher.get("empty_item", "") or "")
+        reload_item = str(finisher.get("reload_item", "") or "")
+        banked_tools = sum(
+            _non_negative_int(inventory.get(charged_item, 0), 0)
+            for charged_item, _charges in charge_items
+        ) + _non_negative_int(inventory.get(empty_item, 0), 0)
+        loadout = _sanitize_combat_supply_loadout(
+            data.get("combat_supply_loadout")
+        )
+        loaded_finishers = loadout.get("finishers", {}) or {}
+        loaded_tools = sum(
+            _non_negative_int(loaded_finishers.get(charged_item, 0), 0)
+            for charged_item, _charges in charge_items
+        ) + _non_negative_int(loaded_finishers.get(empty_item, 0), 0)
+        reloads = (
+            _non_negative_int(inventory.get(reload_item, 0), 0)
+            if reload_item and banked_tools + loaded_tools > 0
+            else 0
+        )
+        return charges + reloads * _positive_int(
+            finisher.get("reload_charges", 0), 0
+        )
     return (
         _non_negative_int(inventory.get(item_name, 0), 0)
         if isinstance(inventory, Mapping)

@@ -1034,6 +1034,13 @@ for _item_name, _path in {
 }.items():
     if os.path.exists(_path):
         COMBAT_ITEM_IMAGES[_item_name] = _path
+_fungicide_spray_path = os.path.join(SHOP_ITEMS_FOLDER, "fungicide_spray_10.png")
+if os.path.exists(_fungicide_spray_path):
+    for _charges in range(11):
+        COMBAT_ITEM_IMAGES[f"Fungicide spray {_charges}"] = _fungicide_spray_path
+_fungicide_path = os.path.join(SHOP_ITEMS_FOLDER, "fungicide.png")
+if os.path.exists(_fungicide_path):
+    COMBAT_ITEM_IMAGES["Fungicide"] = _fungicide_path
 COMBAT_ENEMY_IMAGES = {}
 for _target_id in COMBAT_ENEMY_DATA:
     _path = os.path.join(COMBAT_ENEMIES_FOLDER, f"{_asset_slug(_target_id)}.png")

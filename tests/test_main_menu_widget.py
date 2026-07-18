@@ -2417,10 +2417,47 @@ class MainMenuWidgetTest(unittest.TestCase):
         gargoyle_tree = _find_tree_with_user_role(reusable_dialog, "gargoyle")
         self.assertFalse(_tree_row(gargoyle_tree, "gargoyle").icon(0).isNull())
 
+        charged = _make_player_data()
+        charged.update(
+            {
+                "current_combat_target": "mutated_zygomite_level_74",
+                "slayer_level": 57,
+                "quests": {"lost_city": {"completed": True}},
+                "combat_encounter": {
+                    "target_id": "mutated_zygomite_level_74",
+                    "enemy_lifepoints": 19,
+                },
+                "combat_supply_loadout": {
+                    "finishers": {
+                        "Fungicide spray 6": 1,
+                        "Fungicide": 1,
+                    },
+                },
+            }
+        )
+        charged_dialog = self._open(charged, current_skill="Combat")
+        charged_combo = charged_dialog.findChild(QComboBox, "combatActionCombo")
+        self.assertEqual(charged_combo.itemText(1), "Spray with fungicide")
+        self.assertTrue(charged_combo.model().item(1).isEnabled())
+        self.assertIn(
+            "Spends one Fungicide spray charge",
+            charged_combo.model().item(1).toolTip(),
+        )
+        charged_tree = _find_tree_with_user_role(
+            charged_dialog, "mutated_zygomite_level_74"
+        )
+        zygomite_74 = _tree_row(charged_tree, "mutated_zygomite_level_74")
+        zygomite_86 = _tree_row(charged_tree, "mutated_zygomite_level_86")
+        self.assertFalse(zygomite_74.icon(0).isNull())
+        self.assertFalse(zygomite_86.icon(0).isNull())
+        self.assertIn("6 spray charges + 1 canister reloads", zygomite_74.toolTip(0))
+        self.assertIn("Encounter: Pick the fungi", zygomite_74.toolTip(0))
+
         ordinary_dialog.deleteLater()
         blocked_dialog.deleteLater()
         ready_dialog.deleteLater()
         reusable_dialog.deleteLater()
+        charged_dialog.deleteLater()
 
     def test_combat_sidebar_hides_combat_only_stat_skills(self) -> None:
         combat_button = next(b for b in self.dialog.findChildren(QPushButton) if b.text() == "Combat")

@@ -605,6 +605,53 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Poison: 60 LP", poison_spider_level_64.tooltip)
         self.assertIn("poison_spider_lvl_64.plugin.kts", poison_spider_level_64.tooltip)
 
+    def test_mutated_zygomite_rows_show_access_and_charged_spray_state(self):
+        player = {
+            "current_combat_target": "mutated_zygomite_level_74",
+            "combat_attack_style": "accurate",
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 99,
+            "slayer_level": 57,
+            "inventory": {},
+            "equipment": {},
+            "combat_supply_loadout": {
+                "finishers": {
+                    "Fungicide spray 7": 1,
+                    "Fungicide": 2,
+                },
+            },
+        }
+        locked_rows = combat_target_rows(
+            player,
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+        locked = _row(locked_rows, "mutated_zygomite_level_74")
+        self.assertFalse(locked.enabled)
+        self.assertIn("Complete Lost City", locked.locked_reasons)
+
+        player["quests"] = {"lost_city": {"completed": True}}
+        ready_rows = combat_target_rows(
+            player,
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+        ready = _row(ready_rows, "mutated_zygomite_level_74")
+        self.assertTrue(ready.enabled)
+        self.assertIn(
+            "Finisher: Spray with fungicide at 1–19 LP · "
+            "7 spray charges + 2 canister reloads",
+            ready.tooltip,
+        )
+        self.assertIn("Encounter: Pick the fungi", ready.tooltip)
+        self.assertIn("oldid=6530349", ready.tooltip)
+
     def test_combat_rows_pass_equipment_data_for_ranged_ammo_locks(self):
         rows = combat_target_rows(
             {

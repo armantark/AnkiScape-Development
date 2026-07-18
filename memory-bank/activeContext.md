@@ -2,6 +2,22 @@
 
 ## Current Focus
 
+Mutated zygomite is now the fourth and final ordinary Slayer finishing-blow
+family. Both cutoff variants are executable at Slayer 57 after Lost City, with
+their distinct 650/750 LP and 65/75 Slayer XP rows, period file-revision
+sprites, guaranteed Ashes, and reconciled independent drops. The charged
+Fungicide-spray runtime preserves every remaining dose, reloads an empty spray
+from one loaded canister, supports the quick-finisher unlock without bypassing
+item cost, and respects the shared 28-slot Combat pack. The Combat picker
+exposes the `Pick fungi` encounter abstraction, access gate, live charges, and
+canister reloads. The occasional 140-LP spore attack frequency remains
+`source_blocked` and is not simulated. Durable evidence is
+`source-audits/slayer-mutated-zygomite-combat-2026-07-18.md`. Full core and
+real offscreen Qt discovery each pass all 1,557 methods; the core runner records
+213 declared environment skips while Qt records none. The visual closure report
+is `status-updates/slayer-mutated-zygomite-results-2026-07-18.html`
+(<https://ujk2cg24j80q.postplan.dev>).
+
 Shilo Village is now a complete live Slayer dependency. Eleven review-native
 requirements plus the completion sentinel cover the Wampum handoff, Ah Za
 Rhoon, both scrolls and Zadimus, Bervirius's evidence, Bone key and Beads

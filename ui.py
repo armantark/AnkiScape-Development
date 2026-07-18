@@ -4185,10 +4185,17 @@ def show_main_menu(
                 finisher_item = action_combo.model().item(1)
                 finisher_item.setEnabled(bool(state["available"]))
                 if state["available"]:
-                    verb = "Consumes one" if state["consumable"] else "Uses the reusable"
-                    finisher_item.setToolTip(
-                        f"{verb} {state['item']} and finishes the enemy."
-                    )
+                    if state.get("charged"):
+                        finisher_item.setToolTip(
+                            "Spends one Fungicide spray charge and preserves the "
+                            "remaining dose. A loaded Fungicide canister automatically "
+                            "refills an empty spray."
+                        )
+                    else:
+                        verb = "Consumes one" if state["consumable"] else "Uses the reusable"
+                        finisher_item.setToolTip(
+                            f"{verb} {state['item']} and finishes the enemy."
+                        )
                 elif state["ready"]:
                     finisher_item.setToolTip(
                         f"No {state['item']} is loaded in the combat pack."

@@ -4645,6 +4645,236 @@ class CombatLogicTest(unittest.TestCase):
             ({"item": "Waterskin (4)", "replacement": "Waterskin (3)"},),
         )
 
+    def test_mutated_zygomite_requires_slayer_and_lost_city(self):
+        low_level = _player(
+            current_combat_target="mutated_zygomite_level_74",
+            slayer_level=56,
+        )
+        missing_quest = _player(
+            current_combat_target="mutated_zygomite_level_74",
+            slayer_level=57,
+        )
+        ready = _player(
+            current_combat_target="mutated_zygomite_level_74",
+            slayer_level=57,
+            quests={"lost_city": {"completed": True}},
+        )
+
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                low_level, "mutated_zygomite_level_74", COMBAT_ENEMY_DATA
+            ),
+            ("Slayer level 57",),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                missing_quest, "mutated_zygomite_level_74", COMBAT_ENEMY_DATA
+            ),
+            ("Complete Lost City",),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                ready, "mutated_zygomite_level_74", COMBAT_ENEMY_DATA
+            ),
+            (),
+        )
+
+    def test_mutated_zygomite_manual_finisher_spends_one_charge_atomically(self):
+        player = _player(
+            current_combat_target="mutated_zygomite_level_74",
+            combat_action="finisher",
+            slayer_level=57,
+            quests={"lost_city": {"completed": True}},
+            combat_encounter={
+                "target_id": "mutated_zygomite_level_74",
+                "enemy_lifepoints": 19,
+            },
+            combat_supply_loadout={"finishers": {"Fungicide spray 10": 1}},
+        )
+
+        finished, ok, result = apply_combat_finisher_pure(
+            player, COMBAT_ENEMY_DATA, rng=lambda: 0.999999
+        )
+
+        self.assertTrue(ok, result)
+        self.assertEqual(result["kills"], 1)
+        self.assertEqual(result["finisher_item"], "Fungicide spray")
+        self.assertTrue(result["finisher_consumed"])
+        self.assertEqual(
+            finished["combat_supply_loadout"]["finishers"],
+            {"Fungicide spray 9": 1},
+        )
+        self.assertEqual(
+            finished["combat_kill_counts"],
+            {"mutated_zygomite_level_74": 1},
+        )
+        self.assertEqual(finished["inventory"]["Ashes"], 1)
+
+    def test_mutated_zygomite_spray_threshold_and_canister_reload_preserve_remainder(self):
+        above_threshold = _player(
+            current_combat_target="mutated_zygomite_level_74",
+            combat_action="finisher",
+            slayer_level=57,
+            quests={"lost_city": {"completed": True}},
+            combat_encounter={
+                "target_id": "mutated_zygomite_level_74",
+                "enemy_lifepoints": 20,
+            },
+            combat_supply_loadout={"finishers": {"Fungicide spray 1": 1}},
+        )
+        unchanged, ok, result = apply_combat_finisher_pure(
+            above_threshold, COMBAT_ENEMY_DATA
+        )
+        self.assertFalse(ok)
+        self.assertIs(unchanged, above_threshold)
+        self.assertEqual(result["reason"], "finisher_not_ready")
+        self.assertEqual(
+            above_threshold["combat_supply_loadout"]["finishers"],
+            {"Fungicide spray 1": 1},
+        )
+
+        first_kill = dict(above_threshold)
+        first_kill["combat_encounter"] = {
+            "target_id": "mutated_zygomite_level_74",
+            "enemy_lifepoints": 19,
+        }
+        emptied, ok, _result = apply_combat_finisher_pure(
+            first_kill, COMBAT_ENEMY_DATA, rng=lambda: 0.999999
+        )
+        self.assertTrue(ok)
+        self.assertEqual(
+            emptied["combat_supply_loadout"]["finishers"],
+            {"Fungicide spray 0": 1},
+        )
+
+        emptied["combat_action"] = "finisher"
+        emptied["combat_encounter"] = {
+            "target_id": "mutated_zygomite_level_74",
+            "enemy_lifepoints": 19,
+        }
+        emptied["combat_supply_loadout"]["finishers"]["Fungicide"] = 1
+        reloaded, ok, _result = apply_combat_finisher_pure(
+            emptied, COMBAT_ENEMY_DATA, rng=lambda: 0.999999
+        )
+        self.assertTrue(ok)
+        self.assertEqual(
+            reloaded["combat_supply_loadout"]["finishers"],
+            {"Fungicide spray 9": 1},
+        )
+
+    def test_mutated_zygomite_quick_finisher_spends_exactly_one_spray_charge(self):
+        player = _player(
+            current_combat_target="mutated_zygomite_level_74",
+            slayer_level=57,
+            quests={"lost_city": {"completed": True}},
+            constitution_level=99,
+            combat_lifepoints=990,
+            combat_auto_flee=False,
+            slayer_quick_finishers_unlocked=True,
+            combat_encounter={
+                "target_id": "mutated_zygomite_level_74",
+                "enemy_lifepoints": 10,
+            },
+            combat_supply_loadout={"finishers": {"Fungicide spray 10": 1}},
+        )
+
+        finished, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.0, 0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["kills"], 1)
+        self.assertEqual(result["automatic_finishers"], 1)
+        self.assertEqual(
+            finished["combat_supply_loadout"]["finishers"],
+            {"Fungicide spray 9": 1},
+        )
+
+    def test_mutated_zygomite_refill_uses_best_spray_and_respects_pack_capacity(self):
+        from logic_pure import CARRIED_CAPACITY, _combat_supply_slots_used
+
+        player = _player(
+            current_combat_target="mutated_zygomite_level_74",
+            slayer_level=57,
+            quests={"lost_city": {"completed": True}},
+            combat_pack_mode="max_safety",
+            combat_auto_eat_food=["Shark"],
+            inventory={
+                "Shark": 100,
+                "Fungicide spray 7": 1,
+                "Fungicide spray 3": 1,
+                "Fungicide": 20,
+            },
+        )
+
+        refilled, ok, reason = refill_combat_supply_loadout_pure(
+            player, EQUIPMENT_DATA
+        )
+
+        self.assertTrue(ok, reason)
+        self.assertEqual(_combat_supply_slots_used(refilled), CARRIED_CAPACITY)
+        self.assertEqual(
+            refilled["combat_supply_loadout"]["finishers"],
+            {"Fungicide spray 7": 1, "Fungicide": 7},
+        )
+        self.assertEqual(refilled["combat_supply_loadout"]["food"], {"Shark": 20})
+        self.assertEqual(refilled["inventory"]["Fungicide spray 3"], 1)
+
+        unloaded, ok, reason = unload_combat_supply_loadout_pure(refilled)
+        self.assertTrue(ok, reason)
+        self.assertEqual(unloaded["inventory"]["Fungicide spray 7"], 1)
+        self.assertEqual(unloaded["inventory"]["Fungicide spray 3"], 1)
+        self.assertEqual(unloaded["inventory"]["Fungicide"], 20)
+
+    def test_mutated_zygomite_refill_turns_empty_spray_and_canister_into_full_spray(self):
+        player = _player(
+            current_combat_target="mutated_zygomite_level_86",
+            slayer_level=57,
+            quests={"lost_city": {"completed": True}},
+            inventory={"Fungicide spray 0": 1, "Fungicide": 1},
+        )
+
+        refilled, ok, reason = refill_combat_supply_loadout_pure(
+            player, EQUIPMENT_DATA
+        )
+
+        self.assertTrue(ok, reason)
+        self.assertEqual(
+            refilled["combat_supply_loadout"]["finishers"],
+            {"Fungicide spray 10": 1},
+        )
+        self.assertEqual(refilled["inventory"]["Fungicide spray 0"], 0)
+        self.assertEqual(refilled["inventory"]["Fungicide"], 0)
+
+    def test_loaded_empty_spray_and_banked_canister_keep_zygomite_available(self):
+        player = _player(
+            current_combat_target="mutated_zygomite_level_74",
+            slayer_level=57,
+            quests={"lost_city": {"completed": True}},
+            inventory={"Fungicide": 1},
+            combat_supply_loadout={"finishers": {"Fungicide spray 0": 1}},
+        )
+
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                player, "mutated_zygomite_level_74", COMBAT_ENEMY_DATA
+            ),
+            (),
+        )
+
+        refilled, ok, reason = refill_combat_supply_loadout_pure(
+            player, EQUIPMENT_DATA
+        )
+        self.assertTrue(ok, reason)
+        self.assertEqual(
+            refilled["combat_supply_loadout"]["finishers"],
+            {"Fungicide spray 10": 1},
+        )
+
     def test_rockslug_finisher_consumes_salt_and_frozen_slug_cannot_retaliate(self):
         player = _player(
             current_combat_target="rockslug",

@@ -2451,6 +2451,108 @@ GARGOYLE_DROPS = {
 }
 
 
+MUTATED_ZYGOMITE_DROPS = {
+    "guaranteed": (("Ashes", 1),),
+    "tables": (
+        {
+            "name": "Period-common abstraction: Fungicide",
+            "total": 8,
+            "slots": (
+                {"item": "Fungicide", "quantity": 1, "slots": 1},
+                {"slots": 7},
+            ),
+        },
+    )
+    + tuple(
+        {
+            "name": f"Darkan independent: {item_name}",
+            "total": denominator,
+            "slots": (
+                {
+                    "item": item_name,
+                    **(
+                        {"quantity_range": quantity}
+                        if isinstance(quantity, tuple)
+                        else {"quantity": quantity}
+                    ),
+                    "slots": chance,
+                },
+                {"slots": denominator - chance},
+            ),
+        }
+        for item_name, quantity, chance, denominator in (
+            ("Strawberry seed", (1, 6), 16791, 20000),
+            ("Grimy guam", 1, 233, 50000),
+            ("Grimy marrentill", 1, 233, 50000),
+            ("Grimy tarromin", 1, 233, 50000),
+            ("Grimy harralander", 1, 233, 50000),
+            ("Grimy ranarr", 1, 233, 50000),
+            ("Grimy irit", 1, 233, 50000),
+            ("Grimy avantoe", 1, 233, 50000),
+            ("Grimy kwuarm", 1, 233, 50000),
+            ("Grimy cadantine", 1, 233, 50000),
+            ("Grimy dwarf weed", 1, 233, 50000),
+            ("Grimy lantadyme", 1, 233, 50000),
+            ("Clay", 1, 233, 50000),
+            ("Earth rune", 15, 233, 50000),
+            ("Nature rune", 2, 233, 50000),
+            ("Law rune", (10, 50), 233, 50000),
+            ("Steel 2h sword", 1, 233, 50000),
+            ("Steel hatchet", 1, 233, 50000),
+            ("Mort myre fungus", (1, 3), 233, 50000),
+            ("Limpwurt seed", 1, 233, 50000),
+            ("Jangerberry seed", 1, 233, 50000),
+            ("Whiteberry seed", 1, 233, 50000),
+            ("Poison ivy seed", 1, 233, 50000),
+            ("Bittercap mushroom spore", 1, 233, 50000),
+            ("Toadflax seed", 1, 233, 50000),
+            ("Kwuarm seed", 1, 233, 50000),
+            ("Barley seed", 1, 233, 50000),
+            ("Asgarnian seed", 3, 233, 50000),
+            ("Wildblood seed", 1, 233, 50000),
+            ("Potato seed", 4, 233, 50000),
+            ("Supercompost", (1, 3), 233, 50000),
+            ("Blood rune", 50, 93, 50000),
+            ("Mithril full helm", 1, 93, 50000),
+            ("Rune full helm", 1, 93, 50000),
+            ("Ranarr seed", 1, 93, 50000),
+            ("Snapdragon seed", 1, 93, 50000),
+            ("Torstol seed", 1, 93, 50000),
+            ("Jute seed", 1, 93, 50000),
+            ("Yanillian seed", 1, 93, 50000),
+            ("Watermelon seed", (1, 3), 93, 50000),
+            ("Spirit weed seed", 1, 93, 50000),
+            ("Marigold seed", 1, 37, 100000),
+            ("Woad seed", 1, 37, 100000),
+            ("Onion seed", 4, 37, 100000),
+            ("Tomato seed", 3, 37, 100000),
+            ("Morchella mushroom spore", (1, 3), 37, 100000),
+        )
+    ),
+}
+
+
+MUTATED_ZYGOMITE_FINISHER = {
+    "item": "Fungicide spray 10",
+    "display_item": "Fungicide spray",
+    "charge_items": tuple(
+        (f"Fungicide spray {charges}", charges)
+        for charges in range(10, 0, -1)
+    ),
+    "empty_item": "Fungicide spray 0",
+    "reload_item": "Fungicide",
+    "reload_charges": 10,
+    "threshold_lifepoints": 19,
+    "consume": True,
+    "action_label": "Spray with fungicide",
+    "quick_unlock_key": "slayer_quick_finishers_unlocked",
+    "source_status": (
+        "period-exact below-20-LP charged spray; each use spends one charge, "
+        "and one Fungicide canister fully reloads the ten-charge spray"
+    ),
+}
+
+
 GHOST_DROPS = {"guaranteed": (), "tables": ()}
 
 
@@ -7445,6 +7547,108 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "data/npcs/drops/gargoyle.json"
         ),
     },
+    "mutated_zygomite_level_74": {
+        "display_name": "Mutated zygomite",
+        "level": 74,
+        "group": "Slayer",
+        "required_slayer_level": 57,
+        "quest_gate": "lost_city",
+        "quest_gate_label": "Complete Lost City",
+        "interaction_note": "Pick the fungi to reveal the zygomite, then fight it normally.",
+        "attack_style": "magic",
+        "attack_speed": 4,
+        "respawn_delay": 59,
+        "max_hit": 88,
+        "slayer_xp": 65.0,
+        "finisher": dict(MUTATED_ZYGOMITE_FINISHER),
+        "stats": {
+            "hitpoints": 650,
+            "attack": 65,
+            "strength": 65,
+            "defence": 65,
+            "magic": 65,
+            "ranged": 65,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": MUTATED_ZYGOMITE_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Mutated_zygomite?oldid=6530349; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "data/npcs/combatdefs/uncategorized/mutated_zygomite/"
+            "mutated_zygomite_(74).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "data/npcs/drops/mutated_zygomite.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "src/main/java/com/rs/game/content/skills/slayer/npcs/MutatedZygomite.java"
+        ),
+        "source_status": (
+            "period and Darkan reconcile identity, LP, Slayer XP, magical-melee "
+            "maximum hit, stats, access, finishing behavior, and resolved independent "
+            "drops; four-tick attack speed is the standard bounded combat abstraction; "
+            "the occasional 140-LP spore attack frequency remains source_blocked"
+        ),
+    },
+    "mutated_zygomite_level_86": {
+        "display_name": "Mutated zygomite",
+        "level": 86,
+        "group": "Slayer",
+        "required_slayer_level": 57,
+        "quest_gate": "lost_city",
+        "quest_gate_label": "Complete Lost City",
+        "interaction_note": "Pick the fungi to reveal the zygomite, then fight it normally.",
+        "attack_style": "magic",
+        "attack_speed": 4,
+        "respawn_delay": 59,
+        "max_hit": 88,
+        "slayer_xp": 75.0,
+        "finisher": dict(MUTATED_ZYGOMITE_FINISHER),
+        "stats": {
+            "hitpoints": 750,
+            "attack": 75,
+            "strength": 75,
+            "defence": 75,
+            "magic": 75,
+            "ranged": 75,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": MUTATED_ZYGOMITE_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Mutated_zygomite?oldid=6530349; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "data/npcs/combatdefs/uncategorized/mutated_zygomite/"
+            "mutated_zygomite_(86).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "data/npcs/drops/mutated_zygomite.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "src/main/java/com/rs/game/content/skills/slayer/npcs/MutatedZygomite.java"
+        ),
+        "source_status": (
+            "period and Darkan reconcile identity, LP, Slayer XP, magical-melee "
+            "maximum hit, stats, access, finishing behavior, and resolved independent "
+            "drops; four-tick attack speed is the standard bounded combat abstraction; "
+            "the occasional 140-LP spore attack frequency remains source_blocked"
+        ),
+    },
     "banshee": {
         "display_name": "Banshee",
         "level": 23,
@@ -8680,6 +8884,26 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Dwarf weed seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.DWARF_WEED_SEED"},
     "Eye patch": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.EYE_PATCH"},
     "Fire battlestaff": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.FIRE_BATTLESTAFF"},
+    "Fungicide": {
+        "category": "material",
+        "source": "Darkan cache item 7432; RuneScape Wiki Mutated zygomite oldid 6530349",
+        "source_item_id": 7432,
+        "stackable": False,
+        "tradeable": False,
+    },
+    **{
+        f"Fungicide spray {charges}": {
+            "category": "tool",
+            "source": (
+                f"Darkan cache item {7431 - charges}; "
+                "RuneScape Wiki Mutated zygomite oldid 6530349"
+            ),
+            "source_item_id": 7431 - charges,
+            "stackable": False,
+            "tradeable": False,
+        }
+        for charges in range(11)
+    },
     "Gardening boots": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GARDENING_BOOTS"},
     "Goblin book": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GOBLIN_BOOK"},
     "Grapes": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRAPES"},

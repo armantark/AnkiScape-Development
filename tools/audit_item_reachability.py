@@ -171,6 +171,54 @@ def build_reachability_report() -> dict[str, Any]:
             for item in outputs:
                 producers[item].add(key)
 
+    seen_charge_families: set[tuple[tuple[tuple[str, int], ...], str, str]] = set()
+    for enemy_id, enemy in combat_data.COMBAT_ENEMY_DATA.items():
+        finisher = enemy.get("finisher", {})
+        if not isinstance(finisher, Mapping):
+            continue
+        charge_items = tuple(
+            (str(row[0]), int(row[1]))
+            for row in finisher.get("charge_items", ()) or ()
+            if isinstance(row, (tuple, list))
+            and len(row) >= 2
+            and isinstance(row[0], str)
+        )
+        empty_item = str(finisher.get("empty_item", "") or "")
+        reload_item = str(finisher.get("reload_item", "") or "")
+        family = (charge_items, empty_item, reload_item)
+        if not charge_items or family in seen_charge_families:
+            continue
+        seen_charge_families.add(family)
+        ordered_states = [item for item, _charges in charge_items]
+        if empty_item:
+            ordered_states.append(empty_item)
+        for current, remainder in zip(ordered_states, ordered_states[1:]):
+            key = f"Combat finisher:{enemy_id}:{current}"
+            actions.append(
+                {
+                    "id": key,
+                    "required": {current},
+                    "alternatives": (),
+                    "outputs": {remainder},
+                }
+            )
+            consumers[current].add(key)
+            producers[remainder].add(key)
+        if empty_item and reload_item:
+            key = f"Combat refill:{enemy_id}"
+            full_item = charge_items[0][0]
+            actions.append(
+                {
+                    "id": key,
+                    "required": {empty_item, reload_item},
+                    "alternatives": (),
+                    "outputs": {full_item},
+                }
+            )
+            consumers[empty_item].add(key)
+            consumers[reload_item].add(key)
+            producers[full_item].add(key)
+
     seed_sources: dict[str, set[str]] = defaultdict(set)
     for shop_id, shop in shop_data.SHOP_DATA.items():
         if shop.get("visibility") != "visible" or not shop.get("currency_implemented"):

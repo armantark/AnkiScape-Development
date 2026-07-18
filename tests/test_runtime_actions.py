@@ -853,6 +853,50 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["saves"], 1)
 
+    def test_combat_handler_routes_charged_zygomite_finisher_without_losing_remainder(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "equipment": {},
+            "quests": {"lost_city": {"completed": True}},
+            "current_combat_target": "mutated_zygomite_level_86",
+            "combat_action": "finisher",
+            "combat_encounter": {
+                "target_id": "mutated_zygomite_level_86",
+                "enemy_lifepoints": 19,
+            },
+            "combat_supply_loadout": {
+                "finishers": {"Fungicide spray 4": 1},
+            },
+            "combat_lifepoints": 990,
+            "combat_auto_eat_food": ["Shark"],
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 99,
+            "slayer_level": 57,
+            "completed_achievements": [],
+        }
+
+        ok = handle_combat_answer(
+            _context(player_data, calls, [0.999999] * 40)
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["combat_action"], "attack")
+        self.assertEqual(player_data["combat_encounter"], {})
+        self.assertEqual(
+            player_data["combat_kill_counts"],
+            {"mutated_zygomite_level_86": 1},
+        )
+        self.assertEqual(
+            player_data["combat_supply_loadout"]["finishers"],
+            {"Fungicide spray 3": 1},
+        )
+        self.assertEqual(calls["activity"], ["Defeated Mutated zygomite"])
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["saves"], 1)
+
     def test_combat_handler_resets_a_stale_finisher_without_disabling_combat(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

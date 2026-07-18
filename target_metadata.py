@@ -1465,10 +1465,17 @@ def combat_target_rows(
             finisher = preview.get("finisher", {}) or {}
             finisher_line = ""
             if isinstance(finisher, Mapping) and finisher.get("required"):
+                if finisher.get("charged"):
+                    finisher_supply = (
+                        f"{finisher.get('charges', 0)} spray charges + "
+                        f"{finisher.get('reloads', 0)} canister reloads"
+                    )
+                else:
+                    finisher_supply = f"{finisher.get('item_count', 0)} loaded"
                 finisher_line = (
                     f"Finisher: {finisher.get('action_label')} at "
                     f"1–{finisher.get('threshold_lifepoints', 0)} LP · "
-                    f"{finisher.get('item_count', 0)} loaded\n"
+                    f"{finisher_supply}\n"
                 )
             hazard = preview.get("environmental_hazard", {}) or {}
             hazard_line = ""
@@ -1479,10 +1486,15 @@ def combat_target_rows(
                     f"{hazard.get('loaded', 0)} loaded + "
                     f"{hazard.get('banked', 0)} bank\n"
                 )
+            interaction_note = str(enemy.get("interaction_note", "") or "")
+            interaction_line = (
+                f"Encounter: {interaction_note}\n" if interaction_note else ""
+            )
             tooltip = (
                 f"{display_name} · combat level {level}\n"
                 f"State: {preview.get('state', 'Ready')} · risk: {risk_band}\n"
                 f"{confirmation_line}"
+                f"{interaction_line}"
                 f"Accuracy: {float(preview.get('accuracy', 0.0) or 0.0):.0%}\n"
                 f"Your max hit: {preview.get('player_max_hit', 0)} LP\n"
                 f"Your LP: {preview.get('player_lifepoints', 0)}/{preview.get('player_max_lifepoints', 0)}\n"

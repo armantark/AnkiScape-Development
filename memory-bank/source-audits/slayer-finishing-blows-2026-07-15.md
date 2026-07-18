@@ -158,5 +158,7 @@ retaliating at 10 LP. Gargoyle retains its reusable Rock hammer and carries
 tick-exact regeneration across review boundaries. See
 `slayer-rockslug-gargoyle-combat-2026-07-17.md`.
 
-Mutated zygomite remains the only ordinary finishing-blow family blocked on its
-own reconciled target, charged-tool behavior, drops, and asset.
+Mutated zygomite is now live with both ordinary variants, Lost City and Slayer
+57 gates, charged-spray preservation/reload behavior, reconciled drops, and
+period assets. See `slayer-mutated-zygomite-combat-2026-07-18.md`. This closes
+the ordinary finishing-blow family blocker.

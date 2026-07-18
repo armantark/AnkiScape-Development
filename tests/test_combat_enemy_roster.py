@@ -28,6 +28,8 @@ NEW_COMBAT_ENEMIES = (
     "desert_lizard",
     "rockslug",
     "gargoyle",
+    "mutated_zygomite_level_74",
+    "mutated_zygomite_level_86",
     "banshee",
     "shade",
     "ghost_level_77",
@@ -77,6 +79,9 @@ OPTIONAL_ENEMY_KEYS = {
     "retaliation_stop_lifepoints",
     "regeneration",
     "source_status",
+    "quest_gate",
+    "quest_gate_label",
+    "interaction_note",
 }
 
 REQUIRED_STAT_KEYS = {"hitpoints", "attack", "strength", "defence", "magic", "ranged"}
@@ -217,6 +222,8 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("desert_lizard", "Desert lizard (green).png"),
             ("rockslug", "Rock slug icon.png"),
             ("gargoyle", "Gargoyle icon.png"),
+            ("mutated_zygomite_level_74", "Mutated zygomite icon.png"),
+            ("mutated_zygomite_level_86", "Mutated zygomite icon.png"),
         ):
             with self.subTest(target=target_id):
                 relative_path = f"combatenemies/{target_id}.png"
@@ -364,6 +371,53 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         )
         self.assertIn("oldid=6579781", gargoyle["source"])
         self.assertEqual(len(gargoyle["drops"]["tables"]), 23)
+
+    def test_mutated_zygomites_preserve_period_variants_and_charged_finisher(self):
+        expected = {
+            "mutated_zygomite_level_74": (74, 650, 65, 65.0),
+            "mutated_zygomite_level_86": (86, 750, 75, 75.0),
+        }
+        for target_id, (level, lifepoints, combat_stat, slayer_xp) in expected.items():
+            with self.subTest(target=target_id):
+                zygomite = COMBAT_ENEMY_DATA[target_id]
+                self.assertEqual(zygomite["level"], level)
+                self.assertEqual(zygomite["required_slayer_level"], 57)
+                self.assertEqual(zygomite["quest_gate"], "lost_city")
+                self.assertEqual(zygomite["quest_gate_label"], "Complete Lost City")
+                self.assertEqual(zygomite["stats"]["hitpoints"], lifepoints)
+                for stat in ("attack", "strength", "defence", "magic", "ranged"):
+                    self.assertEqual(zygomite["stats"][stat], combat_stat)
+                self.assertEqual(zygomite["slayer_xp"], slayer_xp)
+                self.assertEqual(zygomite["max_hit"], 88)
+                self.assertEqual(zygomite["drops"]["guaranteed"], (("Ashes", 1),))
+                fungicide = zygomite["drops"]["tables"][0]
+                self.assertEqual(fungicide["name"], "Period-common abstraction: Fungicide")
+                self.assertEqual(fungicide["total"], 8)
+                self.assertEqual(
+                    fungicide["slots"],
+                    (
+                        {"item": "Fungicide", "quantity": 1, "slots": 1},
+                        {"slots": 7},
+                    ),
+                )
+                self.assertIn("oldid=6530349", zygomite["source"])
+                self.assertIn("source_blocked", zygomite["source_status"])
+
+                finisher = zygomite["finisher"]
+                self.assertEqual(finisher["item"], "Fungicide spray 10")
+                self.assertEqual(finisher["display_item"], "Fungicide spray")
+                self.assertEqual(finisher["threshold_lifepoints"], 19)
+                self.assertTrue(finisher["consume"])
+                self.assertEqual(
+                    finisher["charge_items"],
+                    tuple(
+                        (f"Fungicide spray {charges}", charges)
+                        for charges in range(10, 0, -1)
+                    ),
+                )
+                self.assertEqual(finisher["empty_item"], "Fungicide spray 0")
+                self.assertEqual(finisher["reload_item"], "Fungicide")
+                self.assertEqual(finisher["reload_charges"], 10)
 
     def test_new_enemy_drops_are_well_formed(self):
         for enemy_name in NEW_COMBAT_ENEMIES:
