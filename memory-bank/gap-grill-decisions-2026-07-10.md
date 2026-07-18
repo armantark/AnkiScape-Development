@@ -823,10 +823,19 @@ Living-mineral yield and exact star/server rolls.
 - Preserve the current layer, remaining communal dust, player dust, accessible
   level, and sprite state. Each successful review performs one Mining attempt;
   other simulated miners also advance communal depletion between attempts.
+- Communal scarcity is real rather than decorative: simulated miners can
+  exhaust the star before the player reaches the 200-dust cap. Cumulative
+  simulated arrivals follow an S-curve over answered-card world ticks—sparse
+  early discovery, rapid middle growth, then saturation—and depletion pressure
+  derives from that active crowd plus the remaining star mass. Prompt entry is
+  calibrated toward the source-expected opportunity, while delaying or leaving
+  may yield only a partial reward. Wall time is never consulted.
 - Casual mode joins a sensibly populated star and automatically waits through
   inaccessible upper layers while showing the current layer/action. Advanced
   mode may save preferred starting sizes and a quiet/normal/busy population,
   trading personal dust opportunity against faster access to lower layers.
+  Those population choices select the S-curve's ceiling and arrival pressure,
+  not a flat depletion multiplier.
 - Exchanging stardust with the released sprite is manual. Completing a star
   exposes the sprite, rewards scale to carried dust up to 200, and the exchange
   allowance resets every 240 answered cards. This preserves one reward per

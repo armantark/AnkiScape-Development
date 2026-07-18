@@ -254,6 +254,14 @@ The portfolio is ordered by reusable architecture proven, not nostalgia.
 | 10 | Gnome Restaurant | Persistent order/delivery/reward chain using existing recipes | Receive, prepare, abstract-deliver, resolve, return; no duplicated Cooking data. |
 | 11 | Dominion Tower | Quest-boss replay and roster growth | Persistent boss challenge context fed by playable quest completions. |
 
+Shooting Stars retain real communal scarcity. Simulated miners may exhaust the
+star before the player reaches the personal contribution cap. Cumulative crowd
+arrival follows an S-curve over answered-card world ticks: sparse early
+discovery, a rapid middle influx, and late saturation. The resulting active
+population, together with remaining star mass, drives communal depletion.
+Prompt participation is calibrated toward the source-expected opportunity;
+delaying or leaving may produce only a partial reward. Wall time is never read.
+
 The architecture wave is Tears, Shooting Stars, FoG, Barrows, Fight Caves, and
 Stealing Creation. The others validate additional families rather than blocking
 the shared substrate.
