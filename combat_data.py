@@ -7107,6 +7107,166 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "data/npcs/combatdefs/uncategorized/icefiend/icefiend_(13).json"
         ),
     },
+    "gelatinous_abomination": {
+        "display_name": "Gelatinous abomination",
+        "level": 2,
+        "group": "Slayer",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 59,
+        "max_hit": 16,
+        "slayer_xp": 5.0,
+        "stats": {
+            "hitpoints": 50,
+            "attack": 1,
+            "strength": 1,
+            "defence": 1,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "finisher": {
+            "item": "Spiked gauntlets",
+            "threshold_lifepoints": 1,
+            "consume": False,
+            "must_be_worn": True,
+            "action_label": "Crush with Spiked gauntlets",
+            "source_status": (
+                "period-exact worn, reusable lethal-hit requirement; the "
+                "one-lifepoint threshold is the source's explicit fail state"
+            ),
+        },
+        # The period page names common and uncommon drops but does not preserve
+        # numerical rates, and the reconciled Darkan tree has no drop table.
+        "drops": {"guaranteed": (), "tables": ()},
+        "source": (
+            "https://runescape.wiki/w/Gelatinous_abomination?oldid=6079671; "
+            "https://runescape.wiki/w/Spiked_gauntlets?oldid=5827717; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "data/npcs/combatdefs/uncategorized/"
+            "gelatinous_abomination (nostats) (noanims).json"
+        ),
+        "source_status": (
+            "period LP, level, max hit, Slayer XP, style, and finisher; "
+            "neutral combat stats are formula-constrained to combat level 2; "
+            "numeric non-guaranteed drop rates source_blocked"
+        ),
+    },
+    "young_grotworm": {
+        "display_name": "Young grotworm",
+        "level": 10,
+        "group": "Slayer",
+        "attack_style": "magic",
+        "attack_speed": 4,
+        "respawn_delay": 29,
+        "max_hit": 20,
+        "slayer_xp": 15.0,
+        "stats": {
+            "hitpoints": 150,
+            "attack": 8,
+            "strength": 8,
+            "defence": 8,
+            "magic": 10,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (("Bones", 1),),
+            "tables": (
+                {"name": "Coal", "total": 50000, "slots": ({"item": "Coal", "quantity": 1, "slots": 7009},)},
+                {"name": "Nature rune", "total": 50000, "slots": ({"item": "Nature rune", "quantity": 1, "slots": 7009},)},
+                {"name": "Coins", "total": 50000, "slots": ({"item": "Coins", "quantity": 100, "slots": 7009},)},
+                {"name": "Bronze spear", "total": 50000, "slots": ({"item": "Bronze spear", "quantity": 1, "slots": 7009},)},
+                {"name": "Coral bolts", "total": 50000, "slots": ({"item": "Coral bolts", "quantity": 20, "slots": 7009},)},
+                {"name": "Royal cape", "total": 50000, "slots": ({"item": "Royal cape", "quantity": 1, "slots": 7009},)},
+                {"name": "Cod", "total": 12500, "slots": ({"item": "Cod", "quantity": 1, "slots": 219},)},
+                {"name": "Mackerel", "total": 12500, "slots": ({"item": "Mackerel", "quantity": 1, "slots": 219},)},
+                {"name": "Iron ore", "total": 12500, "slots": ({"item": "Iron ore", "quantity": 1, "slots": 219},)},
+                {"name": "Silver ore", "total": 12500, "slots": ({"item": "Silver ore", "quantity": 1, "slots": 219},)},
+                {"name": "Water rune", "total": 12500, "slots": ({"item": "Water rune", "quantity": 8, "slots": 219},)},
+                {"name": "Earth rune", "total": 12500, "slots": ({"item": "Earth rune", "quantity": 8, "slots": 219},)},
+                {"name": "Mind rune", "total": 12500, "slots": ({"item": "Mind rune", "quantity": 8, "slots": 219},)},
+                {"name": "Flax", "total": 12500, "slots": ({"item": "Flax", "quantity": 4, "slots": 219},)},
+                {"name": "Strength potion (1)", "total": 50000, "slots": ({"item": "Strength potion (1)", "quantity": 1, "slots": 467},)},
+                {"name": "Attack potion (1)", "total": 50000, "slots": ({"item": "Attack potion (1)", "quantity": 1, "slots": 467},)},
+            ),
+        },
+        "source": (
+            "https://runescape.wiki/w/Young_grotworm?oldid=6490000; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "data/npcs/combatdefs/uncategorized/young_grotworm (nostats).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "data/npcs/drops/young_grotworm.json"
+        ),
+        "source_status": (
+            "period LP, level, speeds, max hits, Slayer XP, style, and drop "
+            "membership reconciled with Darkan rates; neutral melee/defence "
+            "stats are formula-constrained to combat level 10 and the single "
+            "runtime style uses the source's ranged magic attack"
+        ),
+    },
+    "monkey": {
+        "display_name": "Monkey",
+        "level": 3,
+        "group": "Animals",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 24,
+        "max_hit": 20,
+        "slayer_xp": 6.0,
+        "stats": {
+            "hitpoints": 60,
+            "attack": 2,
+            "strength": 2,
+            "defence": 1,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": {"guaranteed": (("Monkey bones", 1),), "tables": ()},
+        "source": (
+            "https://runescape.wiki/w/Monkey?oldid=6552407; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "data/npcs/combatdefs/uncategorized/monkey (nostats).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+            "data/npcs/drops/monkey.json"
+        ),
+        "source_status": (
+            "period LP, level, approximate max hit, Slayer XP, style, and "
+            "guaranteed drop; neutral combat stats are formula-constrained to "
+            "combat level 3"
+        ),
+    },
     "desert_lizard": {
         "display_name": "Desert lizard",
         "level": 24,
@@ -8475,6 +8635,13 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Buttons": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BUTTONS"},
     "Cactus seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CACTUS_SEED"},
     "Cape": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CAPE_1019"},
+    "Coral bolts": {
+        "category": "equipment",
+        "source": "RuneScape Wiki Coral bolts oldid 6146806; Darkan item config 24304",
+        "source_item_id": 24304,
+        "stackable": True,
+        "tradeable": False,
+    },
     "Saradomin cape": {
         "category": "equipment",
         "source": "RuneScape cache item 2412; Mage Arena oldid=6512911",
@@ -8555,6 +8722,13 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Magic staff": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MAGIC_STAFF"},
     "Marrentill seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MARRENTILL_SEED"},
     "Mithril spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MITHRIL_SPEAR"},
+    "Monkey bones": {
+        "category": "material",
+        "source": "RuneScape Wiki Monkey oldid 6552407; Darkan item config 3183",
+        "source_item_id": 3183,
+        "stackable": False,
+        "tradeable": True,
+    },
     "Muddy key": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MUDDY_KEY"},
     "Needle": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.NEEDLE"},
     "Obsidian cape": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.OBSIDIAN_CAPE"},
@@ -8569,6 +8743,20 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Rusty sword": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RUSTY_SWORD"},
     "Rune javelin": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RUNE_JAVELIN"},
     "Rune spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RUNE_SPEAR"},
+    "Royal cape": {
+        "category": "equipment",
+        "source": "RuneScape Wiki Royal cape oldid 6308196; Darkan item config 24315",
+        "source_item_id": 24315,
+        "stackable": False,
+        "tradeable": True,
+    },
+    "Spiked gauntlets": {
+        "category": "equipment",
+        "source": "RuneScape Wiki Spiked gauntlets oldid 5827717; Darkan item config 23035",
+        "source_item_id": 23035,
+        "stackable": False,
+        "tradeable": False,
+    },
     "Secateurs": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SECATEURS"},
     "Seed dibber": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SEED_DIBBER"},
     "Shears": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SHEARS"},

@@ -202,10 +202,12 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   `slayer-turael-spria-pool`, `slayer-mazchna-achtryn-pool`,
   `slayer-vannaka-pool`, `slayer-chaeldar-pool`, `slayer-sumona-pool`, and
   `slayer-duradel-lapalok-pool` audits, plus `slayer-kuradal-pool`.
-- The bounded 2026-07-17 harvest is closed. Resume from the per-family blocker
-  identities in those audits; do not reopen the owner design or expose a
-  partial master. The remaining program is implementation-time source audit
-  plus Combat, quest, location, reward, and activity dependency work.
+- The bounded 2026-07-17 harvest is closed. Turael/Spria is now the first
+  certified live master: all 23 assignment families have an executable
+  representative, and its assignment, Combat-credit, task-filter, migration,
+  undo, and management surfaces are complete. Resume the remaining masters from
+  their per-family blocker identities; do not reopen owner design or expose a
+  partial pool.
 - Park Social Slayer unless genuine shared-player state ever exists; do not ship
   a simulated partner or solo co-op multiplier. Preserve all seven period Slayer
   master challenges in the design and source their compound objective ledgers.
@@ -298,12 +300,12 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   source-determined behavior: close every per-master pool/weight/count/gate row,
   pin every family variant's membership/stats/Slayer-XP eligibility/context, and
   close protective, special-kill, challenge, and context state transitions.
-- Turael/Spria's first pool pass is recorded in
+- Turael/Spria's source pool is recorded in
   `source-audits/slayer-turael-spria-pool-2026-07-17.md`: 23 families and the
-  provisional 355-point hidden-weight denominator are pinned. Desert lizards
-  are now executable, reducing that role's missing-target blocker set from four
-  to three; the Gelatinous special consequence remains. Mazchna/Achtryn,
-  Vannaka, Chaeldar, and
+  provisional 355-point hidden-weight denominator are pinned. Its certified
+  runtime closure is recorded in
+  `source-audits/slayer-turael-runtime-closure-2026-07-17.md`; no target or
+  special-kill blockers remain for that role. Mazchna/Achtryn, Vannaka, Chaeldar, and
   Sumona, Duradel/Lapalok, and Kuradal are now recorded in their corresponding
   dated pool audits. Continue the family/variant, protection, challenge and
   location-context ledgers before exposing any live assignment roll.

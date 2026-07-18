@@ -30,6 +30,18 @@ class TestShopData(unittest.TestCase):
                 self.assertEqual(extra_items[item_name]["source_item_id"], item_id)
                 self.assertEqual(extra_items[item_name]["stackable"], stackable)
 
+    def test_slayer_shops_name_spiked_gauntlets_as_the_period_item(self):
+        rows = [
+            row
+            for shop in SHOP_DATA.values()
+            for row in shop["stock"]
+            if row["item_id"] == 23035
+        ]
+
+        self.assertEqual(len(rows), 8)
+        self.assertEqual({row["item_name"] for row in rows}, {"Spiked gauntlets"})
+        self.assertEqual({row["buy_price"] for row in rows}, {6})
+
     def test_miltog_lantern_states_keep_exact_names_and_prices(self):
         from shop_data import SHOP_EXTRA_ITEM_DATA, SHOP_PLAYER_BUY_PRICES, SHOP_PLAYER_SELL_PRICES
 
@@ -215,6 +227,37 @@ class TestShopData(unittest.TestCase):
         self.assertEqual(excluded["disposition"], "excluded")
         self.assertEqual(excluded["lock_reason"], "period_source_exclusion")
         self.assertEqual(catalog["summary"]["excluded_stock_row_count"], 1)
+        self.assertEqual(ledger["summary"], catalog["summary"])
+
+    def test_generator_recovers_spiked_gauntlets_missing_from_legacy_items_yml(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp = Path(temp_dir)
+            shops = temp / "shops"
+            shops.mkdir()
+            (shops / "slayer_equipment.json").write_text(
+                json.dumps(
+                    {
+                        "name": "Slayer Equipment",
+                        "items": [{"item": {"id": 23035, "amount": 10}}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            items = temp / "items.yml"
+            items.write_text("", encoding="utf-8")
+
+            catalog, ledger = build_catalog(
+                shops,
+                items,
+                {23035: {"value": 6, "sell_price": 1}},
+            )
+
+        row = catalog["shops"][0]["stock"][0]
+        self.assertEqual(row["item_name"], "Spiked gauntlets")
+        self.assertEqual(row["item_id"], 23035)
+        self.assertEqual(row["buy_price"], 6)
+        self.assertEqual(row["disposition"], "live")
+        self.assertEqual(row["lock_reason"], "")
         self.assertEqual(ledger["summary"], catalog["summary"])
 
     def test_focused_regeneration_keeps_runtime_and_audit_outputs_consistent(self):

@@ -735,6 +735,67 @@ def _legacy_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedE
             source_status="manual Runecrafting v1 equipment entry",
         )
     )
+    generated.append(
+        GeneratedEquipmentItem(
+            item_name="Spiked gauntlets",
+            slot="hands",
+            combat_skill=None,
+            required_level=1,
+            two_handed=False,
+            equipment_type="hands",
+            bonuses={
+                **{field: 0 for field in BONUS_FIELDS},
+                "defence_slash": 1,
+                "defence_crush": 2,
+            },
+            attack_speed=4,
+            source_item_id=23035,
+            source=(
+                "RuneScape Wiki Spiked gauntlets oldid 5827717; "
+                "Darkan item config 23035 and Slayer Equipment stock"
+            ),
+            source_status="period manual slot and bonuses",
+        )
+    )
+    generated.extend(
+        (
+            GeneratedEquipmentItem(
+                item_name="Coral bolts",
+                slot="ammunition",
+                combat_skill=None,
+                required_level=1,
+                two_handed=False,
+                equipment_type="ammunition",
+                bonuses={
+                    **{field: 0 for field in BONUS_FIELDS},
+                    "ranged_strength": 19,
+                },
+                attack_speed=4,
+                source_item_id=24304,
+                source=(
+                    "RuneScape Wiki Coral bolts oldid 6146806; "
+                    "Darkan item config 24304"
+                ),
+                source_status="period manual slot and ranged strength",
+            ),
+            GeneratedEquipmentItem(
+                item_name="Royal cape",
+                slot="cape",
+                combat_skill=None,
+                required_level=1,
+                two_handed=False,
+                equipment_type="cape",
+                bonuses={field: 0 for field in BONUS_FIELDS},
+                attack_speed=4,
+                source_item_id=24315,
+                source=(
+                    "RuneScape Wiki Royal cape oldid 6308196; "
+                    "Darkan item config 24315"
+                ),
+                source_status="period manual slot and zero bonuses",
+            ),
+        )
+    )
     return tuple(generated)
 
 

@@ -3731,9 +3731,18 @@ def _combat_consume_hazard_dose(data, hazard):
     return None
 
 
-def _combat_loaded_finisher_count(player_data, item_name):
+def _combat_equipped_item_count(player_data, item_name):
+    equipment = player_data.get("equipment", {}) or {}
+    if not isinstance(equipment, Mapping):
+        return 0
+    return sum(1 for equipped in equipment.values() if equipped == item_name)
+
+
+def _combat_loaded_finisher_count(player_data, item_name, finisher=None):
     if not isinstance(item_name, str) or not item_name:
         return 0
+    if isinstance(finisher, Mapping) and finisher.get("must_be_worn"):
+        return _combat_equipped_item_count(player_data, item_name)
     loadout = _sanitize_combat_supply_loadout(
         player_data.get("combat_supply_loadout")
     )
@@ -3772,7 +3781,7 @@ def combat_finisher_state_pure(player_data, target_id=None, enemy_data=None):
         else 0
     )
     ready = 0 < enemy_lifepoints <= threshold
-    item_count = _combat_loaded_finisher_count(player_data, item_name)
+    item_count = _combat_loaded_finisher_count(player_data, item_name, finisher)
     quick_unlock_key = str(finisher.get("quick_unlock_key", "") or "")
     return {
         "required": True,
@@ -3794,6 +3803,8 @@ def combat_finisher_state_pure(player_data, target_id=None, enemy_data=None):
 
 def _combat_consume_loaded_finisher(data, finisher):
     item_name = str(finisher.get("item", "") or "")
+    if finisher.get("must_be_worn"):
+        return _combat_equipped_item_count(data, item_name) > 0
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     finishers = dict(loadout.get("finishers", {}) or {})
     current = _non_negative_int(finishers.get(item_name, 0), 0)
@@ -3825,8 +3836,10 @@ def _combat_cap_damage_for_finisher(
     quick_unlock_key = str(finisher.get("quick_unlock_key", "") or "")
     if (
         allow_automatic
-        and quick_unlock_key
-        and bool(data.get(quick_unlock_key, False))
+        and (
+            bool(finisher.get("must_be_worn"))
+            or (quick_unlock_key and bool(data.get(quick_unlock_key, False)))
+        )
         and _combat_consume_loaded_finisher(data, finisher)
     ):
         return damage, True
@@ -4635,6 +4648,11 @@ def _combat_refill_finisher_loadout(data, enemy):
         )
     finishers = {}
     finisher = _combat_finisher_spec(enemy)
+    if finisher is not None and finisher.get("must_be_worn"):
+        loadout["finishers"] = finishers
+        data["inventory"] = inventory
+        data["combat_supply_loadout"] = loadout
+        return
     item_name = (
         str(finisher.get("item", "") or "")
         if finisher is not None
@@ -4816,7 +4834,8 @@ def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, s
     if finisher is not None:
         item_name = str(finisher.get("item", "") or "")
         if (
-            _combat_loaded_finisher_count(data, item_name) <= 0
+            not finisher.get("must_be_worn")
+            and _combat_loaded_finisher_count(data, item_name, finisher) <= 0
             and _combat_banked_finisher_count(data, enemy) > 0
         ):
             return True

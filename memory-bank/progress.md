@@ -956,3 +956,28 @@ Test counts are snapshots; current runs outrank this note.
 - Published
   `status-updates/quest-icthlarins-little-helper-results-2026-07-17.html` and
   its mobile-safe copy at <https://llzbgu6xic8d.postplan.dev>.
+## Slayer Turael/Spria runtime closure — 2026-07-17
+
+- Activated the first complete Slayer master role from the reconciled
+  23-family Turael/Spria pool.
+- Added Gelatinous abomination, Young grotworm, and Monkey as executable Combat
+  representatives with period stats, Slayer XP, drops, and assets.
+- Implemented the worn-only reusable Spiked-gauntlet finishing rule and
+  recovered item `23035` across all eight Slayer shops even though the legacy
+  item source omits it.
+- Registered Coral bolts and Royal cape as source-backed equipment drops with
+  their period identities, stackability, tradeability, slots, bonuses, and
+  pinned sprites.
+- Added assignment, Combat-credit, migration, undo, task-filter, hub, shop
+  generator, and real offscreen Qt regression coverage. Complete core discovery
+  passes 1,537 methods with 1,326 ordinary passes and 211 declared environment
+  skips; complete real offscreen Qt discovery passes all 1,536 methods without
+  skips or failures, with the latest item-only seams covered by a targeted
+  holdout.
+- Fable's bounded UI review found no wiring or dark-mode defects and surfaced
+  two real copy problems: internal readiness jargon and a task-filter dead-end
+  message. Both are fixed.
+- No new design gap emerged. Smoking Kills is next.
+- Published
+  `status-updates/slayer-turael-runtime-results-2026-07-17.html`
+  (<https://5k6wxpak7xkj.postplan.dev>).

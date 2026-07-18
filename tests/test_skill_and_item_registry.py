@@ -105,12 +105,42 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Rock hammer": (4162, False),
             "Ice cooler": (6696, True),
             "Fungicide spray 10": (7421, False),
+            "Spiked gauntlets": (23035, False),
         }
         for item_name, (item_id, stackable) in expected.items():
             with self.subTest(item_name=item_name):
                 definition = by_storage_key[item_name]
                 self.assertEqual(definition.source_item_id, item_id)
                 self.assertEqual(definition.stackable, stackable)
+                if item_name == "Spiked gauntlets":
+                    self.assertEqual(definition.category, "equipment")
+                    self.assertEqual(definition.equipment_slot, "hands")
+                    self.assertIsNotNone(definition.asset_path)
+                    self.assertTrue(os.path.exists(definition.asset_path))
+
+    def test_young_grotworm_equipment_drops_keep_period_identity(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        expected = {
+            "Coral bolts": (24304, True, False, "ammunition"),
+            "Royal cape": (24315, False, True, "cape"),
+        }
+        for item_name, (item_id, stackable, tradeable, slot) in expected.items():
+            with self.subTest(item_name=item_name):
+                definition = by_storage_key[item_name]
+                self.assertEqual(definition.source_item_id, item_id)
+                self.assertEqual(definition.stackable, stackable)
+                self.assertEqual(definition.tradeable, tradeable)
+                self.assertEqual(definition.equipment_slot, slot)
+                self.assertEqual(definition.asset_path, COMBAT_ITEM_IMAGES[item_name])
+                self.assertTrue(os.path.exists(definition.asset_path))
+
+    def test_monkey_bones_keep_cache_identity_and_inventory_shape(self):
+        definition = item_definitions_by_storage_key(ITEM_DEFINITIONS)["Monkey bones"]
+        self.assertEqual(definition.source_item_id, 3183)
+        self.assertFalse(definition.stackable)
+        self.assertTrue(definition.tradeable)
+        self.assertIsNotNone(definition.asset_path)
+        self.assertTrue(os.path.exists(definition.asset_path))
 
     def test_agility_consumable_dose_families_share_canonical_tradeability(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
@@ -237,11 +267,16 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "attack",
             "constitution",
             "dungeoneering",
-            "slayer",
         ]:
             self.assertIn(skill_id, planned)
             self.assertFalse(planned[skill_id].implemented)
             self.assertFalse(planned[skill_id].participates_in_review)
+        self.assertNotIn("slayer", planned)
+        slayer = get_skill("Slayer")
+        self.assertIsNotNone(slayer)
+        self.assertTrue(slayer.implemented)
+        self.assertFalse(slayer.participates_in_review)
+        self.assertEqual(slayer.training_source, "Combat assignments")
         self.assertEqual(len({skill.id for skill in ALL_SKILLS}), len(ALL_SKILLS))
 
         thieving = get_skill("Thieving")
@@ -368,6 +403,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "thieving_exp": 0,
                 "agility_level": 1,
                 "agility_exp": 0,
+                "slayer_level": 1,
+                "slayer_exp": 0,
                 "summoning_level": 1,
                 "summoning_exp": 0,
             },
@@ -1398,6 +1435,9 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "questitems/bucket_of_sap.png",
             "questitems/pile_of_salt.png",
             "questitems/catspeak_amulet.png",
+            "combatitems/coral_bolts.png",
+            "combatitems/royal_cape.png",
+            "shopitems/spiked_gauntlets.png",
         ):
             self.assertLessEqual(provenance[asset_key]["timestamp"], "2012-11-20T00:00:00Z")
             self.assertIn("/archive/", provenance[asset_key]["image_url"])

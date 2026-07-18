@@ -267,6 +267,19 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
         visible_in_skill_hub=True,
     ),
     SkillDefinition(
+        id="slayer",
+        display_name="Slayer",
+        category="support",
+        implemented=True,
+        participates_in_review=False,
+        action_kind="support",
+        level_key="slayer_level",
+        exp_key="slayer_exp",
+        visible_in_skill_hub=True,
+        surface_state="complete",
+        training_source="Combat assignments",
+    ),
+    SkillDefinition(
         id="summoning",
         display_name="Summoning",
         category="combat",
@@ -290,7 +303,6 @@ PLANNED_SKILLS: Tuple[SkillDefinition, ...] = (
     SkillDefinition("ranged", "Ranged", "combat", False, False, "combat", "ranged_level", "ranged_exp", visible_in_skill_hub=False, surface_state="partial", training_source="Combat"),
     SkillDefinition("strength", "Strength", "combat", False, False, "combat", "strength_level", "strength_exp", visible_in_skill_hub=False, surface_state="partial", training_source="Combat"),
     SkillDefinition("dungeoneering", "Dungeoneering", "support", False, False, "support", "dungeoneering_level", "dungeoneering_exp", surface_state="planned"),
-    SkillDefinition("slayer", "Slayer", "support", False, False, "support", "slayer_level", "slayer_exp", surface_state="planned"),
 )
 
 

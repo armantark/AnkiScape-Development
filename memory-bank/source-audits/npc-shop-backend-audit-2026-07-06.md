@@ -18,10 +18,10 @@ Generated: 2026-07-06
 - Hidden shops: 1
 - Stock rows: 2771
 - Period-source-excluded stock rows: 5
-- Live stock rows: 2690
+- Live stock rows: 2698
 - Locked stock rows: 60
 - Hidden stock rows: 0
-- Blocked stock rows: 21
+- Blocked stock rows: 13
 - Services: 79
 - Vendor actions: 4
 

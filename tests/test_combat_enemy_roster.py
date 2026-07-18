@@ -22,6 +22,9 @@ NEW_COMBAT_ENEMIES = (
     "earth_warrior",
     "jackal",
     "icefiend",
+    "gelatinous_abomination",
+    "young_grotworm",
+    "monkey",
     "desert_lizard",
     "rockslug",
     "gargoyle",
@@ -73,6 +76,7 @@ OPTIONAL_ENEMY_KEYS = {
     "environmental_hazard",
     "retaliation_stop_lifepoints",
     "regeneration",
+    "source_status",
 }
 
 REQUIRED_STAT_KEYS = {"hitpoints", "attack", "strength", "defence", "magic", "ranged"}
@@ -119,7 +123,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                 self.assertEqual(set(enemy) - REQUIRED_ENEMY_KEYS, set(enemy) & OPTIONAL_ENEMY_KEYS)
                 self.assertEqual(set(enemy["stats"]), REQUIRED_STAT_KEYS)
                 self.assertEqual(set(enemy["bonuses"]), REQUIRED_BONUS_KEYS)
-                self.assertEqual(enemy["attack_style"], "melee")
+                self.assertIn(enemy["attack_style"], {"melee", "magic", "ranged"})
                 self.assertGreater(enemy["level"], 0)
                 if "max_hit" in enemy:
                     self.assertIsInstance(enemy["max_hit"], int)
@@ -143,22 +147,25 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                     self.assertTrue(protection["source_status"])
                 if "finisher" in enemy:
                     finisher = enemy["finisher"]
-                    self.assertEqual(
-                        set(finisher),
-                        {
-                            "item",
-                            "threshold_lifepoints",
-                            "consume",
-                            "action_label",
-                            "quick_unlock_key",
-                            "source_status",
-                        },
+                    required_finisher_keys = {
+                        "item",
+                        "threshold_lifepoints",
+                        "consume",
+                        "action_label",
+                        "source_status",
+                    }
+                    self.assertTrue(required_finisher_keys <= set(finisher))
+                    self.assertTrue(
+                        {"quick_unlock_key", "must_be_worn"} & set(finisher)
                     )
                     self.assertTrue(finisher["item"])
                     self.assertGreater(finisher["threshold_lifepoints"], 0)
                     self.assertIsInstance(finisher["consume"], bool)
                     self.assertTrue(finisher["action_label"])
-                    self.assertTrue(finisher["quick_unlock_key"])
+                    if "quick_unlock_key" in finisher:
+                        self.assertTrue(finisher["quick_unlock_key"])
+                    if "must_be_worn" in finisher:
+                        self.assertTrue(finisher["must_be_worn"])
                     self.assertTrue(finisher["source_status"])
                 if "required_slayer_level" in enemy:
                     self.assertIsInstance(enemy["required_slayer_level"], int)
@@ -204,6 +211,9 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         for target_id, file_title in (
             ("jackal", "Jackal.png"),
             ("icefiend", "Icefiend.png"),
+            ("gelatinous_abomination", "Gelatinous abomination icon.png"),
+            ("young_grotworm", "Young grotworm.png"),
+            ("monkey", "Karamja monkey.png"),
             ("desert_lizard", "Desert lizard (green).png"),
             ("rockslug", "Rock slug icon.png"),
             ("gargoyle", "Gargoyle icon.png"),

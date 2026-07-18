@@ -194,6 +194,7 @@ try:
         summoning_action_locked_reasons_pure,
         summoning_action_requirements_pure,
     )
+    from .slayer_logic import apply_slayer_kills_pure
 except ImportError:  # pragma: no cover - flat import path used by tests
     from constants import (  # type: ignore
         BIRD_NEST_DROP_CHANCE,
@@ -375,6 +376,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         summoning_action_locked_reasons_pure,
         summoning_action_requirements_pure,
     )
+    from slayer_logic import apply_slayer_kills_pure  # type: ignore
 
 try:
     from . import inventory_pure
@@ -1445,6 +1447,7 @@ _COMBAT_EXP_SKILLS = {
     "ranged_exp": "ranged",
     "magic_exp": "magic",
     "prayer_exp": "prayer",
+    "slayer_exp": "slayer",
 }
 
 
@@ -1536,6 +1539,18 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_error_message("Combat unavailable", f"Combat has been switched off because {reason_text}.")
         return False
 
+    new_data, slayer_result = apply_slayer_kills_pure(
+        new_data,
+        target_id=str(result.get("target_id", target_id)),
+        kills=int(result.get("kills", 0) or 0),
+        enemy_data=COMBAT_ENEMY_DATA,
+    )
+    slayer_xp = float(slayer_result.get("slayer_xp", 0.0) or 0.0)
+    if slayer_xp > 0:
+        xp_rewards = dict(result.get("xp_rewards", {}) or {})
+        xp_rewards["slayer_exp"] = slayer_xp
+        result["xp_rewards"] = xp_rewards
+    result["slayer"] = slayer_result
     player_data.update(new_data)
     drops = result.get("drops", {}) if isinstance(result, dict) else {}
     if not isinstance(drops, dict):
@@ -1625,7 +1640,14 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         prefix = f"Defeated {kill_phrase}, then f" if kills > 0 else "F"
         ctx.show_activity_gain(f"{prefix}led {display_name} — out of food; combat switched off to stop you dying")
     elif kills > 0:
-        ctx.show_activity_gain(f"Defeated {kill_phrase}")
+        slayer_suffix = ""
+        if int(slayer_result.get("credited_kills", 0) or 0) > 0:
+            slayer_suffix = (
+                " · Slayer assignment complete"
+                if slayer_result.get("completed")
+                else f" · {int(slayer_result.get('remaining', 0) or 0)} Slayer kills left"
+            )
+        ctx.show_activity_gain(f"Defeated {kill_phrase}{slayer_suffix}")
     else:
         enemy_healing = int(result.get("enemy_healing", 0) or 0)
         healing_phrase = (

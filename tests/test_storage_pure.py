@@ -134,6 +134,11 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["defense_level"], 1)
         self.assertEqual(data["agility_level"], 1)
         self.assertEqual(data["agility_exp"], 0)
+        self.assertEqual(data["slayer_level"], 1)
+        self.assertEqual(data["slayer_exp"], 0)
+        self.assertEqual(data["slayer_assignment"], {})
+        self.assertEqual(data["slayer_tasks_completed"], 0)
+        self.assertFalse(data["slayer_combat_filter"])
         self.assertEqual(data["constitution_level"], 10)
         self.assertEqual(data["current_runecrafting"], "craft_air_runes")
         self.assertEqual(data["current_hunter"], "catch_crimson_swift")
@@ -470,10 +475,12 @@ class TestStoragePure(unittest.TestCase):
             {
                 "runecrafting_exp": 100,
                 "attack_exp": 25,
+                "slayer_exp": 0,
                 "pending_skill_exp_rewards": {
                     "runecrafting_exp": 5000,
                     "attack_exp": 1000,
                     "farming_exp": 250,
+                    "slayer_exp": 5000,
                 },
             },
             ORE_DATA,
@@ -485,6 +492,8 @@ class TestStoragePure(unittest.TestCase):
         self.assertGreater(migrated["attack_level"], 1)
         self.assertEqual(migrated["farming_exp"], 250.0)
         self.assertGreater(migrated["farming_level"], 1)
+        self.assertEqual(migrated["slayer_exp"], 5000.0)
+        self.assertGreater(migrated["slayer_level"], 1)
         self.assertEqual(migrated["pending_skill_exp_rewards"], {})
 
     def test_migrate_equipment_state_and_removes_owned_equipment(self):

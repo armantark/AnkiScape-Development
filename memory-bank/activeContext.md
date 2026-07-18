@@ -2,6 +2,22 @@
 
 ## Current Focus
 
+Turael/Spria is now the first complete live Slayer-master role. The full
+23-family weighted pool is assignment-ready, matching Combat kills award Slayer
+XP and decrement task progress atomically, and the management surface exposes
+Assignment, Masters, and Smoking-Kills-gated Rewards tabs without turning
+Slayer into a review-training target. The last target blockers are closed:
+Gelatinous abominations require worn reusable Spiked gauntlets at the sourced
+one-LP boundary; Young grotworms and Monkeys have period identities, stats,
+drops, and assets; Coral bolts and Royal cape are real registered equipment.
+Complete core discovery passes 1,537 methods with 1,326 ordinary passes and 211
+declared environment skips; complete real offscreen Qt discovery passes all
+1,536 methods without skips or failures, with the latest item-only seams covered
+by a targeted holdout. Durable evidence is
+`source-audits/slayer-turael-runtime-closure-2026-07-17.md`; the visual report is
+`status-updates/slayer-turael-runtime-results-2026-07-17.html`
+(<https://5k6wxpak7xkj.postplan.dev>). Smoking Kills is next.
+
 Icthlarin's Little Helper is now the third playable Slayer-critical quest
 dependency. Its generated placeholder sequence and statless fights are replaced
 by a nine-step review-native chain covering the Wanderer's hypnosis, canopic

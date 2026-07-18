@@ -7549,14 +7549,14 @@
           "visibility": "visible"
         },
         {
-          "disposition": "blocked",
+          "disposition": "live",
           "id": "chaeldars_slayer_equipment:22:23035",
           "item_id": 23035,
-          "item_name": "Item 23035",
-          "lock_reason": "unknown_item",
+          "item_name": "Spiked gauntlets",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "hidden"
+          "visibility": "visible"
         }
       ]
     },
@@ -9988,14 +9988,14 @@
           "visibility": "visible"
         },
         {
-          "disposition": "blocked",
+          "disposition": "live",
           "id": "duradels_slayer_equipment:22:23035",
           "item_id": 23035,
-          "item_name": "Item 23035",
-          "lock_reason": "unknown_item",
+          "item_name": "Spiked gauntlets",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "hidden"
+          "visibility": "visible"
         }
       ]
     },
@@ -17114,14 +17114,14 @@
           "visibility": "visible"
         },
         {
-          "disposition": "blocked",
+          "disposition": "live",
           "id": "jacquelyn_slayer_equipment:20:23035",
           "item_id": 23035,
-          "item_name": "Item 23035",
-          "lock_reason": "unknown_item",
+          "item_name": "Spiked gauntlets",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "hidden"
+          "visibility": "visible"
         }
       ]
     },
@@ -18681,14 +18681,14 @@
           "visibility": "visible"
         },
         {
-          "disposition": "blocked",
+          "disposition": "live",
           "id": "kuradals_slayer_equipment:22:23035",
           "item_id": 23035,
-          "item_name": "Item 23035",
-          "lock_reason": "unknown_item",
+          "item_name": "Spiked gauntlets",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "hidden"
+          "visibility": "visible"
         }
       ]
     },
@@ -20792,14 +20792,14 @@
           "visibility": "visible"
         },
         {
-          "disposition": "blocked",
+          "disposition": "live",
           "id": "mazchnas_slayer_equipment:22:23035",
           "item_id": 23035,
-          "item_name": "Item 23035",
-          "lock_reason": "unknown_item",
+          "item_name": "Spiked gauntlets",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "hidden"
+          "visibility": "visible"
         }
       ]
     },
@@ -26605,14 +26605,14 @@
           "visibility": "visible"
         },
         {
-          "disposition": "blocked",
+          "disposition": "live",
           "id": "sumonas_slayer_equipment:22:23035",
           "item_id": 23035,
-          "item_name": "Item 23035",
-          "lock_reason": "unknown_item",
+          "item_name": "Spiked gauntlets",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "hidden"
+          "visibility": "visible"
         }
       ]
     },
@@ -28701,14 +28701,14 @@
           "visibility": "visible"
         },
         {
-          "disposition": "blocked",
+          "disposition": "live",
           "id": "turaels_slayer_equipment:22:23035",
           "item_id": 23035,
-          "item_name": "Item 23035",
-          "lock_reason": "unknown_item",
+          "item_name": "Spiked gauntlets",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "hidden"
+          "visibility": "visible"
         }
       ]
     },
@@ -30031,14 +30031,14 @@
           "visibility": "visible"
         },
         {
-          "disposition": "blocked",
+          "disposition": "live",
           "id": "vannakas_slayer_equipment:22:23035",
           "item_id": 23035,
-          "item_name": "Item 23035",
-          "lock_reason": "unknown_item",
+          "item_name": "Spiked gauntlets",
+          "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",
-          "visibility": "hidden"
+          "visibility": "visible"
         }
       ]
     },
@@ -32998,7 +32998,7 @@
       "skill_total": 3,
       "wilderness": 14
     },
-    "blocked_stock_row_count": 21,
+    "blocked_stock_row_count": 13,
     "currency_counts": {
       "13727": 1,
       "6306": 2,
@@ -33009,7 +33009,7 @@
     "excluded_stock_row_count": 5,
     "hidden_shop_count": 1,
     "hidden_stock_row_count": 0,
-    "live_stock_row_count": 2690,
+    "live_stock_row_count": 2698,
     "locked_shop_count": 5,
     "locked_stock_row_count": 60,
     "player_sell_price_count": 6820,

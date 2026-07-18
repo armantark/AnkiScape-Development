@@ -258,6 +258,28 @@ except Exception:
     )
     from pet_data import OBTAINABLE_PETS, PETS_BY_ID  # type: ignore
 try:
+    from .slayer_data import (
+        DEFAULT_SLAYER_MASTER_ID,
+        SLAYER_FAMILIES_BY_ID,
+        TURAEL_MASTER,
+    )
+    from .slayer_logic import (
+        sanitize_slayer_state_pure,
+        slayer_master_display_name_pure,
+        slayer_target_ids_for_assignment_pure,
+    )
+except Exception:
+    from slayer_data import (  # type: ignore
+        DEFAULT_SLAYER_MASTER_ID,
+        SLAYER_FAMILIES_BY_ID,
+        TURAEL_MASTER,
+    )
+    from slayer_logic import (  # type: ignore
+        sanitize_slayer_state_pure,
+        slayer_master_display_name_pure,
+        slayer_target_ids_for_assignment_pure,
+    )
+try:
     from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, combat_finisher_state_pure, player_combat_level_pure
     from .skill_registry import get_skill
 except Exception:
@@ -2292,6 +2314,7 @@ def show_main_menu(
     on_set_agility=None,
     on_set_summoning=None,
     on_summoning_command=None,
+    on_slayer_command=None,
     on_agility_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
@@ -4716,6 +4739,208 @@ def show_main_menu(
         box_layout.addLayout(grid)
         return box
 
+    def _run_slayer_command(action_id: str, payload: dict) -> dict:
+        if on_slayer_command is None:
+            return {"ok": False, "message": "Slayer actions are unavailable."}
+        result = on_slayer_command(action_id, payload) or {}
+        if not result.get("ok", False):
+            warn.setText(str(result.get("message", "That Slayer action is unavailable.")))
+        else:
+            warn.setText("")
+        return result
+
+    def _open_slayer_assignment_in_combat() -> None:
+        result = _run_slayer_command("set_combat_filter", {"enabled": True})
+        if not result.get("ok", False):
+            return
+        state["category"] = "combat"
+        _update_cat_btn_styles()
+        state["skill"] = _COMBAT_HUB_NAME
+        _render_skill_list()
+        _render_panel()
+        tabs.setCurrentWidget(skills_tab)
+
+    def _build_slayer_list() -> QWidget:
+        data = sanitize_slayer_state_pure(player_data)
+        assignment = data.get("slayer_assignment") or {}
+        family = SLAYER_FAMILIES_BY_ID.get(
+            str(assignment.get("family_id", "") or "")
+        )
+        remaining = int(assignment.get("remaining", 0) or 0)
+
+        container = QWidget()
+        layout = QVBoxLayout(container)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+
+        slayer_tabs = QTabWidget()
+        slayer_tabs.setObjectName("slayerManagementTabs")
+        slayer_tabs.setDocumentMode(True)
+
+        assignment_tab = QWidget()
+        assignment_layout = QVBoxLayout(assignment_tab)
+        assignment_layout.setContentsMargins(10, 10, 10, 10)
+        assignment_layout.setSpacing(10)
+        if family is not None and remaining > 0:
+            card = QWidget()
+            card.setObjectName("slayerActiveAssignmentCard")
+            card.setStyleSheet(
+                "QWidget#slayerActiveAssignmentCard {"
+                " border: 1px solid #4CAF50; border-radius: 9px;"
+                " background: rgba(76,175,80,0.10); }"
+            )
+            card_layout = QVBoxLayout(card)
+            card_layout.setContentsMargins(12, 10, 12, 10)
+            title = QLabel(family.display_name)
+            title.setStyleSheet("color: palette(text); font-size: 14px; font-weight: 700;")
+            card_layout.addWidget(title)
+            master_name = slayer_master_display_name_pure(
+                data, str(assignment.get("master_id", DEFAULT_SLAYER_MASTER_ID))
+            )
+            progress = QLabel(
+                f"{remaining} of {int(assignment.get('initial_count', remaining) or remaining)} remaining"
+                f" · assigned by {master_name}"
+            )
+            progress.setObjectName("slayerAssignmentProgress")
+            progress.setStyleSheet(f"color: {dim_text_css(progress)};")
+            card_layout.addWidget(progress)
+            assignment_layout.addWidget(card)
+
+            open_combat = QPushButton("Open in Combat")
+            open_combat.setObjectName("slayerOpenCombatButton")
+            open_combat.setToolTip(
+                "Open Combat with Current Slayer task only enabled. No encounter starts."
+            )
+            open_combat.clicked.connect(
+                lambda _=False: _open_slayer_assignment_in_combat()
+            )
+            assignment_layout.addWidget(open_combat)
+        else:
+            active_master_name = slayer_master_display_name_pure(
+                data, DEFAULT_SLAYER_MASTER_ID
+            )
+            succession_note = (
+                "; after While Guthix Sleeps, Spria fills this role"
+                if active_master_name == "Turael"
+                else ""
+            )
+            empty = QLabel(
+                "You do not have an active assignment.\n"
+                f"Ask {active_master_name} for a beginner task{succession_note}."
+            )
+            empty.setObjectName("slayerAssignmentEmptyState")
+            empty.setWordWrap(True)
+            empty.setStyleSheet(f"color: {dim_text_css(empty)};")
+            assignment_layout.addWidget(empty)
+            get_assignment = QPushButton("Get assignment")
+            get_assignment.setObjectName("slayerGetAssignmentButton")
+            get_assignment.setEnabled(on_slayer_command is not None)
+
+            def _get_assignment(_checked=False) -> None:
+                result = _run_slayer_command(
+                    "get_assignment",
+                    {"master_id": DEFAULT_SLAYER_MASTER_ID},
+                )
+                if result.get("ok", False):
+                    _render_panel()
+
+            get_assignment.clicked.connect(_get_assignment)
+            assignment_layout.addWidget(get_assignment)
+        completed = QLabel(
+            f"Assignments completed: {int(data.get('slayer_tasks_completed', 0) or 0)}"
+        )
+        completed.setObjectName("slayerCompletedCount")
+        completed.setStyleSheet(f"color: {dim_text_css(completed)};")
+        assignment_layout.addWidget(completed)
+        assignment_layout.addStretch(1)
+        slayer_tabs.addTab(assignment_tab, "Assignment")
+
+        masters_tab = QWidget()
+        masters_layout = QVBoxLayout(masters_tab)
+        masters_layout.setContentsMargins(10, 10, 10, 10)
+        masters_layout.setSpacing(8)
+        master_card = QWidget()
+        master_card.setObjectName("slayerMaster_turael_spria")
+        master_card.setStyleSheet(
+            "QWidget#slayerMaster_turael_spria {"
+            " border: 1px solid palette(mid); border-radius: 9px;"
+            " background: palette(base); }"
+        )
+        master_layout = QHBoxLayout(master_card)
+        master_layout.setContentsMargins(12, 10, 12, 10)
+        master_copy = QVBoxLayout()
+        master_name = slayer_master_display_name_pure(data, TURAEL_MASTER.id)
+        master_title = QLabel(master_name)
+        master_title.setStyleSheet("color: palette(text); font-weight: 700;")
+        master_copy.addWidget(master_title)
+        master_note = QLabel(
+            f"Beginner master · {len(TURAEL_MASTER.family_ids)} possible assignments"
+        )
+        master_note.setStyleSheet(f"color: {dim_text_css(master_note)};")
+        master_copy.addWidget(master_note)
+        master_layout.addLayout(master_copy, 1)
+        master_button = QPushButton("Active task" if remaining > 0 else "Get assignment")
+        master_button.setObjectName("slayerMasterAssignmentButton")
+        master_button.setEnabled(on_slayer_command is not None and remaining <= 0)
+
+        def _get_master_assignment(_checked=False) -> None:
+            result = _run_slayer_command(
+                "get_assignment", {"master_id": DEFAULT_SLAYER_MASTER_ID}
+            )
+            if result.get("ok", False):
+                _render_panel()
+
+        master_button.clicked.connect(_get_master_assignment)
+        master_layout.addWidget(master_button)
+        masters_layout.addWidget(master_card)
+        masters_note = QLabel(
+            "More masters unlock as their assignments and requirements become available."
+        )
+        masters_note.setWordWrap(True)
+        masters_note.setStyleSheet(f"color: {dim_text_css(masters_note)};")
+        masters_layout.addWidget(masters_note)
+        masters_layout.addStretch(1)
+        slayer_tabs.addTab(masters_tab, "Masters")
+
+        rewards_tab = QWidget()
+        rewards_layout = QVBoxLayout(rewards_tab)
+        rewards_layout.setContentsMargins(10, 10, 10, 10)
+        rewards_layout.setSpacing(8)
+        smoking_complete = bool(
+            ((data.get("quests", {}) or {}).get("smoking_kills", {}) or {}).get(
+                "completed"
+            )
+        )
+        if not smoking_complete:
+            lock = QLabel(
+                "Complete Smoking Kills to activate Slayer points, streak rewards, "
+                "assignment skips and blocks, and the reward shop."
+            )
+            lock.setObjectName("slayerRewardsSmokingKillsLock")
+            lock.setWordWrap(True)
+            lock.setStyleSheet(
+                "color: palette(text); border: 1px solid rgba(255,183,77,0.55);"
+                " border-radius: 8px; background: rgba(255,183,77,0.08);"
+                " padding: 10px;"
+            )
+            rewards_layout.addWidget(lock)
+        else:
+            points = QLabel(f"Slayer points: {int(data.get('slayer_points', 0) or 0)}")
+            points.setObjectName("slayerPointsBalance")
+            points.setStyleSheet("color: palette(text); font-weight: 700;")
+            rewards_layout.addWidget(points)
+            availability = QLabel(
+                "Reward purchases will appear here as they become available."
+            )
+            availability.setWordWrap(True)
+            availability.setStyleSheet(f"color: {dim_text_css(availability)};")
+            rewards_layout.addWidget(availability)
+        rewards_layout.addStretch(1)
+        slayer_tabs.addTab(rewards_tab, "Rewards")
+
+        layout.addWidget(slayer_tabs, 1)
+        return container
+
     def _build_combat_list() -> QWidget:
         container = QWidget()
         layout = QVBoxLayout(container)
@@ -4728,6 +4953,13 @@ def show_main_menu(
             placeholder="Search combat targets",
             search_object_name="combatTargetSearchInput",
         )
+        task_only = QCheckBox("Current Slayer task only")
+        task_only.setObjectName("slayerTaskOnlyCheckBox")
+        task_only.setChecked(bool(player_data.get("slayer_combat_filter", False)))
+        task_only.setToolTip(
+            "Show only enemies that count toward the active Slayer assignment."
+        )
+        filter_bar.add_filter(task_only)
         layout.addWidget(filter_bar)
 
         combat_images = _item_asset_paths()
@@ -4738,6 +4970,9 @@ def show_main_menu(
             EQUIPMENT_ITEM_DATA,
             DEFAULT_COMBAT_TARGET,
             COMBAT_ENEMY_IMAGES,
+        )
+        assignment_target_ids = set(
+            slayer_target_ids_for_assignment_pure(player_data)
         )
 
         def _confirm_combat_target(row: TargetRowMetadata) -> bool:
@@ -4768,6 +5003,8 @@ def show_main_menu(
             filtered_rows = tuple(
                 row
                 for row in combat_rows
+                if not task_only.isChecked()
+                or row.target_id in assignment_target_ids
                 if filter_bar.matches_text(
                     row.target_id,
                     row.label,
@@ -4784,13 +5021,24 @@ def show_main_menu(
                 group_order=list(COMBAT_TARGET_GROUP_ORDER),
                 expanded_groups=(
                     {row.group or "other" for row in filtered_rows}
-                    if filter_bar.query()
+                    if filter_bar.query() or task_only.isChecked()
                     else None
                 ),
             )
             tree.setObjectName("combatTargetTree")
             if not filtered_rows:
-                empty = QTreeWidgetItem(["No combat targets match this search."])
+                if task_only.isChecked() and not assignment_target_ids:
+                    empty_text = (
+                        "No active Slayer assignment. Untick the filter to see all "
+                        "enemies, or get a new task from Slayer."
+                    )
+                elif task_only.isChecked() and filter_bar.query():
+                    empty_text = "No assigned targets match this search."
+                elif task_only.isChecked():
+                    empty_text = "No playable enemies are available for this assignment."
+                else:
+                    empty_text = "No combat targets match this search."
+                empty = QTreeWidgetItem([empty_text])
                 empty.setFlags(Qt.ItemFlag.NoItemFlags)
                 empty.setForeground(0, dim_text_color(tree))
                 tree.addTopLevelItem(empty)
@@ -4801,6 +5049,18 @@ def show_main_menu(
         filter_bar.search_input.textChanged.connect(
             lambda _text="": _render_combat_targets()
         )
+
+        def _set_task_only(enabled: bool) -> None:
+            result = _run_slayer_command(
+                "set_combat_filter", {"enabled": bool(enabled)}
+            )
+            if not result.get("ok", False):
+                task_only.blockSignals(True)
+                task_only.setChecked(not enabled)
+                task_only.blockSignals(False)
+            _render_combat_targets()
+
+        task_only.toggled.connect(_set_task_only)
         _render_combat_targets()
         layout.addWidget(tree_host, 1)
         return container
@@ -5097,6 +5357,7 @@ def show_main_menu(
         "Thieving": _build_thieving_list,
         "Agility": _build_agility_list,
         "Summoning": _build_summoning_list,
+        "Slayer": _build_slayer_list,
         _COMBAT_HUB_NAME: _build_combat_list,
         _UTILITY_HUB_NAME: _build_utility_list,
     }
@@ -5116,6 +5377,7 @@ def show_main_menu(
         "Thieving": "Select a target to steal from",
         "Agility": "Select a course or activity",
         "Summoning": "Select a pouch to infuse or scrolls to create",
+        "Slayer": "Manage assignments, masters, and rewards",
         _COMBAT_HUB_NAME: "Select Enemy",
         _UTILITY_HUB_NAME: "Select an Activity (no XP)",
     }

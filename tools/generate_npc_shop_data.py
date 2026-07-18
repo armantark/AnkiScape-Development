@@ -409,6 +409,17 @@ ITEM_NAME_NORMALIZATIONS: dict[int, str] = {
     4548: "Bullseye lantern (unlit)",
     4600: "Willow blackjack",
     5014: "Mining helmet (unlit)",
+    23035: "Spiked gauntlets",
+}
+
+# Period items present in the rev-742/Darkan cache but absent from the older
+# rev-667 items.yml baseline. These are still real shop stock, not unknown rows.
+MANUAL_ITEM_METADATA: dict[int, dict[str, Any]] = {
+    23035: {
+        "name": "Spiked gauntlets",
+        "tradeable": False,
+        "source": "RuneScape Wiki Spiked gauntlets oldid 5827717; OpenRS2/Darkan item 23035",
+    },
 }
 
 
@@ -627,6 +638,14 @@ def _stock_rows(
             amount = int(raw_item.get("amount", 0) or 0)
         restock_ticks = int(raw_item.get("restockTicks", DARKAN_DEFAULT_RESTOCK_TICKS) or DARKAN_DEFAULT_RESTOCK_TICKS)
         item_meta = items.get(item_id)
+        if item_meta is None and item_id in MANUAL_ITEM_METADATA:
+            manual_meta = MANUAL_ITEM_METADATA[item_id]
+            item_meta = ItemMeta(
+                id=item_id,
+                name=str(manual_meta["name"]),
+                tradeable=bool(manual_meta["tradeable"]),
+                equipment=None,
+            )
         fallback_name = _safe_str(raw_item.get("_name"), f"Item {item_id}")
         buy_price, sell_price, price_policy, price_source = _price_for_row(raw_item, item_id, currency_id, price_inputs)
         row_visibility = shop_visibility

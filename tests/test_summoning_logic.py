@@ -649,9 +649,9 @@ class SummoningLogicTests(unittest.TestCase):
             ],
         )
 
-    def test_v42_storage_default_and_migration_are_idempotent(self):
+    def test_summoning_storage_default_and_migration_are_idempotent(self):
         default = default_player_data(ORE_DATA)
-        self.assertEqual(CURRENT_CONFIG_VERSION, 42)
+        self.assertEqual(default["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(default["current_summoning"], "infuse_spiritwolf")
         self.assertEqual(
             default["summoning_state"]["special_move_points_current"], 60
@@ -671,7 +671,7 @@ class SummoningLogicTests(unittest.TestCase):
             },
             ORE_DATA,
         )
-        self.assertEqual(migrated["config_version"], 42)
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(migrated["current_summoning"], "infuse_spiritwolf")
         self.assertEqual(
             migrated["summoning_state"]["summoning_points_current"], 12

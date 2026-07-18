@@ -120,6 +120,7 @@ from .summoning_logic import (
     set_winter_storage_priority_pure,
     summon_familiar_pure,
 )
+from .slayer_logic import get_slayer_assignment_pure
 from .pet_logic import (
     let_out_pet_pure,
     release_pet_pure,
@@ -1246,6 +1247,56 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             pass
         return {"ok": True, **info}
 
+    def _apply_slayer_command(action_id, payload):
+        payload = payload if isinstance(payload, dict) else {}
+        if action_id == "set_combat_filter":
+            player_data["slayer_combat_filter"] = bool(
+                payload.get("enabled", False)
+            )
+            save_player_data()
+            return {
+                "ok": True,
+                "combat_filter": player_data["slayer_combat_filter"],
+            }
+        if action_id != "get_assignment":
+            return {"ok": False, "message": "Unknown Slayer command."}
+
+        before = {
+            "player_data": copy.deepcopy(player_data),
+            "random_state": random.getstate(),
+        }
+        updated, ok, info = get_slayer_assignment_pure(
+            player_data,
+            master_id=str(payload.get("master_id", "turael_spria")),
+            rng=random.random,
+        )
+        if not ok:
+            random.setstate(before["random_state"])
+            return {
+                "ok": False,
+                "message": str(info.get("reason", "That action is unavailable."))
+                .replace("_", " ")
+                .capitalize(),
+            }
+        try:
+            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+        except (AttributeError, RuntimeError):
+            random.setstate(before["random_state"])
+            return {"ok": False, "message": "Anki could not create an undo entry."}
+        _DIRECT_ACTION_UNDO_STACK.append(before)
+        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+        player_data.clear()
+        player_data.update(updated)
+        save_player_data()
+        _refresh_skill_availability()
+        try:
+            mw.update_undo_actions()
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     ui.show_main_menu(
         player_data,
         current_skill,
@@ -1272,6 +1323,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             "current_summoning", target
         ),
         on_summoning_command=_apply_summoning_command,
+        on_slayer_command=_apply_slayer_command,
         on_agility_command=_apply_agility_command,
         on_set_prayer_selection=set_prayer_selection,
         on_set_magic=lambda target: _set_value("current_magic", target),

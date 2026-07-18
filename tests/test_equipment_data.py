@@ -20,7 +20,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 629)
+        self.assertEqual(len(EQUIPMENT_DATA), 634)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -64,6 +64,23 @@ class TestEquipmentData(unittest.TestCase):
                 )
         self.assertEqual(EQUIPMENT_DATA["Willow blackjack"].source_item_id, 4600)
         self.assertNotIn("Willow-blackjack", EQUIPMENT_DATA)
+        spiked = EQUIPMENT_DATA["Spiked gauntlets"]
+        self.assertEqual(spiked.source_item_id, 23035)
+        self.assertEqual(spiked.slot, "hands")
+        self.assertEqual(spiked.bonuses.defence_slash, 1)
+        self.assertEqual(spiked.bonuses.defence_crush, 2)
+        self.assertNotEqual(
+            spiked.source_item_id,
+            EQUIPMENT_DATA["Slayer gloves"].source_item_id,
+        )
+        coral_bolts = EQUIPMENT_DATA["Coral bolts"]
+        self.assertEqual(coral_bolts.source_item_id, 24304)
+        self.assertEqual(coral_bolts.slot, "ammunition")
+        self.assertEqual(coral_bolts.bonuses.ranged_strength, 19)
+        royal_cape = EQUIPMENT_DATA["Royal cape"]
+        self.assertEqual(royal_cape.source_item_id, 24315)
+        self.assertEqual(royal_cape.slot, "cape")
+        self.assertEqual(sum(vars(royal_cape.bonuses).values()), 0)
 
     def test_weapon_type_is_captured_for_the_attack_type_selector(self):
         # The generator records the RS WeaponType id per weapon so the attack-type

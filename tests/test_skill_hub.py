@@ -28,11 +28,14 @@ class TestSkillHubViewModel(unittest.TestCase):
             [card.display_name for card in by_id["artisan"].skills],
             ["Smithing", "Crafting", "Fletching", "Firemaking", "Cooking", "Runecrafting", "Herblore", "Construction"],
         )
-        self.assertEqual([card.display_name for card in by_id["support"].skills], ["Thieving", "Agility"])
+        self.assertEqual(
+            [card.display_name for card in by_id["support"].skills],
+            ["Thieving", "Agility", "Slayer"],
+        )
         for cat in hub:
             for card in cat.skills:
                 self.assertTrue(card.implemented)
-                if card.skill_id == "farming":
+                if card.skill_id in {"farming", "slayer"}:
                     self.assertFalse(card.selectable_for_review)
                     self.assertEqual(card.surface_state, "complete")
                 else:
@@ -69,9 +72,10 @@ class TestSkillHubViewModel(unittest.TestCase):
         self.assertTrue(cards["hunter"].implemented)
         self.assertTrue(cards["hunter"].selectable_for_review)
 
-        # A genuinely unimplemented skill stays visible-but-unselectable here.
+        # Slayer is managed through Combat assignments rather than a review
+        # handler, so it is implemented but intentionally not review-selectable.
         self.assertIn("slayer", cards)
-        self.assertFalse(cards["slayer"].implemented)
+        self.assertTrue(cards["slayer"].implemented)
         self.assertFalse(cards["slayer"].selectable_for_review)
         self.assertTrue(cards["prayer"].implemented)
         self.assertTrue(cards["prayer"].selectable_for_review)

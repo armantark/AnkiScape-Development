@@ -38,7 +38,7 @@ def _make_player_data() -> dict:
     from quest_data import default_quest_states
 
     data: dict = {"inventory": {}}
-    for skill in ("mining", "woodcutting", "farming", "fishing", "hunter", "smithing", "crafting", "fletching", "firemaking", "cooking", "runecrafting", "prayer", "magic", "thieving", "agility", "summoning"):
+    for skill in ("mining", "woodcutting", "farming", "fishing", "hunter", "smithing", "crafting", "fletching", "firemaking", "cooking", "runecrafting", "prayer", "magic", "thieving", "agility", "summoning", "slayer"):
         data[f"{skill}_level"] = 33
         data[f"{skill}_exp"] = 1000.0
     # Real saves are seeded with a bound starter tool per gathering skill; without
@@ -74,7 +74,7 @@ def _panel_title(dialog: "QDialog") -> str:
 
     The header is the QLabel styled bold/large that reads e.g. "Woodcutting — Lv 33".
     """
-    pattern = re.compile(r"^(Mining|Woodcutting|Fishing|Hunter|Smithing|Crafting|Fletching|Firemaking|Cooking|Runecrafting|Agility|Summoning)(\s+—\s+Lv\s+\d+)?$")
+    pattern = re.compile(r"^(Mining|Woodcutting|Fishing|Hunter|Smithing|Crafting|Fletching|Firemaking|Cooking|Runecrafting|Agility|Summoning|Slayer)(\s+—\s+Lv\s+\d+)?$")
     for lbl in dialog.findChildren(QLabel):
         text = lbl.text()
         if pattern.match(text):
@@ -523,6 +523,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._thieving_calls: list = []
         self._agility_calls: list = []
         self._summoning_calls: list = []
+        self._slayer_command_calls: list = []
         self._agility_command_calls: list = []
         self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
@@ -637,6 +638,29 @@ class MainMenuWidgetTest(unittest.TestCase):
                 player_data.update(updated)
             return {"ok": bool(result.get("allowed")), **result}
 
+        def _slayer_command(action_id, payload):
+            from slayer_logic import get_slayer_assignment_pure
+
+            self._slayer_command_calls.append((action_id, dict(payload)))
+            if action_id == "set_combat_filter":
+                player_data["slayer_combat_filter"] = bool(
+                    payload.get("enabled", False)
+                )
+                return {
+                    "ok": True,
+                    "combat_filter": player_data["slayer_combat_filter"],
+                }
+            rolls = iter((0.0, 0.0))
+            updated, ok, info = get_slayer_assignment_pure(
+                player_data,
+                master_id=str(payload.get("master_id", "turael_spria")),
+                rng=lambda: next(rolls),
+            )
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return {"ok": ok, **info}
+
         def _mage_arena_action(action_id, god_id):
             from logic_pure import (
                 apply_mage_arena_cape_action_pure,
@@ -688,6 +712,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_summoning=lambda target: _set_target(
                 "current_summoning", self._summoning_calls, target
             ),
+            on_slayer_command=_slayer_command,
             on_agility_command=_agility_command,
             on_set_prayer_selection=_set_prayer_selection,
             on_set_magic=lambda target: _set_target("current_magic", self._magic_calls, target),
@@ -733,6 +758,119 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_initial_panel_shows_a_gathering_skill(self) -> None:
         title = _panel_title(self.dialog)
         self.assertTrue(title.startswith("Mining"), f"unexpected initial panel: {title!r}")
+
+    def _goto_slayer(self, dialog: "QDialog") -> None:
+        next(
+            button
+            for button in dialog.findChildren(QPushButton)
+            if button.text() == "Support"
+        ).click()
+        QApplication.processEvents()
+        skill_list = next(
+            widget
+            for widget in dialog.findChildren(QListWidget)
+            if "Slayer" in _list_texts(widget)
+        )
+        row = _list_texts(skill_list).index("Slayer")
+        skill_list.setCurrentRow(row)
+        QApplication.processEvents()
+
+    def test_slayer_is_management_only_and_exposes_three_live_tabs(self) -> None:
+        dialog = self._open(_make_player_data())
+        self._goto_slayer(dialog)
+
+        self.assertEqual(_panel_title(dialog), "Slayer — Lv 33")
+        self.assertFalse(
+            any(
+                button.isVisible()
+                and button.text() in {"Train this skill", "Currently training"}
+                for button in dialog.findChildren(QPushButton)
+            )
+        )
+        tabs = dialog.findChild(QTabWidget, "slayerManagementTabs")
+        self.assertIsNotNone(tabs)
+        self.assertEqual(
+            [tabs.tabText(index) for index in range(tabs.count())],
+            ["Assignment", "Masters", "Rewards"],
+        )
+        self.assertIsNotNone(dialog.findChild(QLabel, "slayerAssignmentEmptyState"))
+
+        tabs.setCurrentIndex(2)
+        QApplication.processEvents()
+        lock = dialog.findChild(QLabel, "slayerRewardsSmokingKillsLock")
+        self.assertIsNotNone(lock)
+        self.assertIn("Complete Smoking Kills", lock.text())
+
+    def test_slayer_assignment_action_rerenders_as_active_task(self) -> None:
+        dialog = self._open(_make_player_data())
+        self._goto_slayer(dialog)
+
+        dialog.findChild(QPushButton, "slayerGetAssignmentButton").click()
+        QApplication.processEvents()
+
+        self.assertEqual(
+            self._slayer_command_calls[-1],
+            ("get_assignment", {"master_id": "turael_spria"}),
+        )
+        progress = dialog.findChild(QLabel, "slayerAssignmentProgress")
+        self.assertIsNotNone(progress)
+        self.assertIn("remaining", progress.text())
+        self.assertIsNotNone(dialog.findChild(QPushButton, "slayerOpenCombatButton"))
+
+    def test_slayer_open_in_combat_enables_and_composes_task_filter(self) -> None:
+        data = _make_player_data()
+        data["slayer_assignment"] = {
+            "master_id": "turael_spria",
+            "family_id": "bats",
+            "initial_count": 15,
+            "remaining": 15,
+        }
+        dialog = self._open(data)
+        self._goto_slayer(dialog)
+
+        dialog.findChild(QPushButton, "slayerOpenCombatButton").click()
+        QApplication.processEvents()
+
+        checkbox = dialog.findChild(QCheckBox, "slayerTaskOnlyCheckBox")
+        self.assertIsNotNone(checkbox)
+        self.assertTrue(checkbox.isChecked())
+        self.assertEqual(
+            self._slayer_command_calls[-1],
+            ("set_combat_filter", {"enabled": True}),
+        )
+        tree = dialog.findChild(QTreeWidget, "combatTargetTree")
+        roles = {
+            item.data(0, Qt.ItemDataRole.UserRole)
+            for item in _tree_items(tree)
+        }
+        self.assertIn("giant_bat", roles)
+        self.assertNotIn("black_bear", roles)
+        giant_bat = next(
+            item
+            for item in _tree_items(tree)
+            if item.data(0, Qt.ItemDataRole.UserRole) == "giant_bat"
+        )
+        self.assertIsNotNone(giant_bat.parent())
+        self.assertTrue(giant_bat.parent().isExpanded())
+
+    def test_slayer_task_filter_empty_state_explains_recovery(self) -> None:
+        data = _make_player_data()
+        data["slayer_combat_filter"] = True
+        dialog = self._open(data, current_skill="Combat")
+
+        tree = dialog.findChild(QTreeWidget, "combatTargetTree")
+        self.assertIsNotNone(tree)
+        empty_rows = [
+            item.text(0)
+            for item in _tree_items(tree)
+            if not item.data(0, Qt.ItemDataRole.UserRole)
+        ]
+        self.assertTrue(
+            any(
+                "Untick the filter" in text and "get a new task" in text
+                for text in empty_rows
+            )
+        )
 
     def test_main_menu_dialog_is_deleted_when_closed(self) -> None:
         self.assertTrue(

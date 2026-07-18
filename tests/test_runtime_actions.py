@@ -737,6 +737,75 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["activity"], ["Defeated Chicken"])
         self.assertEqual(len(calls["xp"]), 1)
 
+    def test_combat_handler_credits_matching_slayer_assignment_atomically(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "equipment": {},
+            "current_combat_target": "giant_bat",
+            "combat_attack_style": "accurate",
+            "combat_lifepoints": 990,
+            "combat_auto_eat_food": ["Shrimps"],
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 99,
+            "slayer_level": 1,
+            "slayer_exp": 0.0,
+            "slayer_assignment": {
+                "master_id": "turael_spria",
+                "family_id": "bats",
+                "initial_count": 50,
+                "remaining": 50,
+            },
+            "completed_achievements": [],
+        }
+
+        ok = handle_combat_answer(
+            _context(player_data, calls, [0.0, 0.999999] * 100)
+        )
+
+        self.assertTrue(ok)
+        credited = 50 - player_data["slayer_assignment"]["remaining"]
+        self.assertGreater(credited, 0)
+        self.assertEqual(player_data["slayer_exp"], 32.0 * credited)
+        self.assertIn("Slayer", calls["level_checks"])
+        self.assertIn("Slayer kills left", calls["activity"][0])
+        self.assertEqual(calls["saves"], 1)
+
+    def test_combat_handler_does_not_credit_an_off_task_target(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "equipment": {},
+            "current_combat_target": "black_bear",
+            "combat_attack_style": "accurate",
+            "combat_lifepoints": 990,
+            "combat_auto_eat_food": ["Shrimps"],
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 99,
+            "slayer_level": 1,
+            "slayer_exp": 0.0,
+            "slayer_assignment": {
+                "master_id": "turael_spria",
+                "family_id": "bats",
+                "initial_count": 50,
+                "remaining": 50,
+            },
+            "completed_achievements": [],
+        }
+
+        ok = handle_combat_answer(
+            _context(player_data, calls, [0.0, 0.999999] * 100)
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["slayer_assignment"]["remaining"], 50)
+        self.assertEqual(player_data["slayer_exp"], 0.0)
+        self.assertNotIn("Slayer", calls.get("level_checks", []))
+
     def test_combat_handler_routes_a_ready_manual_finisher(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

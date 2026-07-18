@@ -3639,6 +3639,49 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
+    def test_slayer_assignment_roll_is_a_direct_undoable_action(self):
+        addon = _load_addon_as_package(
+            "ankiscape_slayer_assignment_direct_action_integration"
+        )
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.current_skill = "Combat"
+        initial = {
+            "inventory": {},
+            "quests": {},
+            "slayer_level": 1,
+            "slayer_exp": 0.0,
+            "slayer_assignment": {},
+            "smithing_level": 1,
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        original_random = addon.random.random
+        rolls = iter((0.0, 0.0))
+        addon.random.random = lambda: next(rolls)
+        self.addCleanup(setattr, addon.random, "random", original_random)
+
+        addon._on_main_menu()
+        result = captured["on_slayer_command"](
+            "get_assignment", {"master_id": "turael_spria"}
+        )
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(addon.player_data["slayer_assignment"]["family_id"], "bats")
+        self.assertEqual(addon.player_data["slayer_assignment"]["remaining"], 15)
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
     def test_combat_current_target_drives_main_menu_carried_pack_callbacks(self):
         addon = _load_addon_as_package("ankiscape_combat_carried_target_integration")
         captured = {}

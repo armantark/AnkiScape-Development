@@ -851,6 +851,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-01-28T23:53:48Z"
   },
+  "combatenemies/gelatinous_abomination.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Gelatinous_abomination_icon.png",
+    "file_title": "Gelatinous abomination icon.png",
+    "image_url": "https://runescape.wiki/images/archive/20181101001240%21Gelatinous_abomination_icon.png?8b6e3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4575f29661bb61a83f6ba9a5848f7c39a5f3aa93",
+    "size": 862,
+    "source_wiki": "rs3",
+    "timestamp": "2012-08-07T10:22:09Z"
+  },
   "combatenemies/ghost.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Ghost.png",
     "file_title": "Ghost.png",
@@ -1258,6 +1270,18 @@
     "size": 17205,
     "source_wiki": "osrs",
     "timestamp": "2019-12-31T03:21:09Z"
+  },
+  "combatenemies/monkey.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Karamja_monkey.png",
+    "file_title": "Karamja monkey.png",
+    "image_url": "https://runescape.wiki/images/archive/20130811185409%21Karamja_monkey.png?9de53",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "23fe23b905512a0cc80940cb97203c5c2c88ed60",
+    "size": 161070,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-23T07:53:24Z"
   },
   "combatenemies/moss_giant.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Moss_giant.png",
@@ -1679,6 +1703,18 @@
     "source_wiki": "osrs",
     "timestamp": "2019-05-14T02:25:35Z"
   },
+  "combatenemies/young_grotworm.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Young_grotworm.png",
+    "file_title": "Young grotworm.png",
+    "image_url": "https://runescape.wiki/images/Young_grotworm.png?46643",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f82f6a103f37977bfae7ec1cd4171b562dbe4075",
+    "size": 161886,
+    "source_wiki": "rs3",
+    "timestamp": "2012-05-22T16:47:11Z"
+  },
   "combatenemies/zombie_level_13.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Zombie.png",
     "file_title": "Zombie.png",
@@ -1944,6 +1980,18 @@
     "size": 423,
     "source_wiki": "osrs",
     "timestamp": "2020-07-22T17:46:31Z"
+  },
+  "combatitems/coral_bolts.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Coral_bolts_5.png",
+    "file_title": "Coral bolts 5.png",
+    "image_url": "https://runescape.wiki/images/archive/20160503051117%21Coral_bolts_5.png?077ee",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a9cdab457177081f279aa6ab09e737bc0ef77cf4",
+    "size": 603,
+    "source_wiki": "rs3",
+    "timestamp": "2012-05-22T18:16:30Z"
   },
   "combatitems/cowhide.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Cowhide.png",
@@ -2268,6 +2316,18 @@
     "size": 295,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:04:28Z"
+  },
+  "combatitems/royal_cape.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Royal_cape.png",
+    "file_title": "Royal cape.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502070817%21Royal_cape.png?d927f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "daf39e324b2fa9edb5ee63e82324553441e60609",
+    "size": 445,
+    "source_wiki": "rs3",
+    "timestamp": "2012-05-22T14:32:06Z"
   },
   "combatitems/rune_javelin.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rune_javelin.png",
@@ -19605,6 +19665,18 @@
     "source_wiki": "osrs",
     "timestamp": "2022-01-19T13:54:36Z"
   },
+  "icon/slayer_icon.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Slayer-icon.png",
+    "file_title": "Slayer-icon.png",
+    "image_url": "https://runescape.wiki/images/archive/20160127022257%21Slayer-icon.png?cdb53",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0615b83d3c2d5c915c59c1042cb05d8f233a84bf",
+    "size": 1489,
+    "source_wiki": "rs3",
+    "timestamp": "2012-01-21T21:47:05Z"
+  },
   "icon/summoning_icon.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Summoning-icon.png",
     "file_title": "Summoning-icon.png",
@@ -30226,6 +30298,18 @@
     "size": 555,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:55Z"
+  },
+  "shopitems/spiked_gauntlets.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Spiked_gauntlets.png",
+    "file_title": "Spiked gauntlets.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502075750%21Spiked_gauntlets.png?017cc",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "67087aee90eab84dff65b5f2f17ad824ead96045",
+    "size": 672,
+    "source_wiki": "rs3",
+    "timestamp": "2012-01-31T18:18:59Z"
   },
   "shopitems/spinning_plate.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Spinning_plate.png",

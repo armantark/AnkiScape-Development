@@ -4520,6 +4520,52 @@ class CombatLogicTest(unittest.TestCase):
                     {"Waterskin (3)": 1},
                 )
 
+    def test_gelatinous_abomination_requires_worn_spiked_gauntlets_to_die(self):
+        without_gauntlets = _player(
+            current_combat_target="gelatinous_abomination",
+            combat_encounter={
+                "target_id": "gelatinous_abomination",
+                "enemy_lifepoints": 10,
+            },
+        )
+
+        blocked, ok, result = apply_combat_burst_pure(
+            without_gauntlets,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.0, 0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["kills"], 0)
+        self.assertEqual(blocked["combat_encounter"]["enemy_lifepoints"], 1)
+
+        wearing_gauntlets = _player(
+            current_combat_target="gelatinous_abomination",
+            equipment={"hands": "Spiked gauntlets"},
+            combat_encounter={
+                "target_id": "gelatinous_abomination",
+                "enemy_lifepoints": 10,
+            },
+        )
+        finished, ok, result = apply_combat_burst_pure(
+            wearing_gauntlets,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.0, 0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["kills"], 1)
+        self.assertEqual(result["automatic_finishers"], 1)
+        self.assertEqual(finished["equipment"]["hands"], "Spiked gauntlets")
+        self.assertEqual(
+            finished["combat_supply_loadout"].get("finishers", {}),
+            {},
+        )
+
     def test_desert_lizard_requires_slayer_level_and_a_water_source(self):
         low_level = _player(
             current_combat_target="desert_lizard",
