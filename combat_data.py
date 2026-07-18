@@ -2596,6 +2596,63 @@ JUNGLE_HORROR_DROPS = {
     ),
 }
 
+SHADOW_WARRIOR_DROPS = {
+    "guaranteed": (),
+    "tables": tuple(
+        {
+            "name": f"Darkan independent: {item_name}",
+            "total": 128,
+            "slots": (
+                {"item": item_name, "quantity": quantity, "slots": chance},
+                {"slots": 128 - chance},
+            ),
+        }
+        for item_name, quantity, chance in (
+            ("Coins", 8, 47),
+            ("Cosmic rune", 3, 9),
+            ("Blood rune", 2, 6),
+            ("Air rune", 45, 4),
+            ("Death rune", 2, 4),
+            ("Mithril bar", 1, 4),
+            ("Adamant spear", 1, 1),
+            ("Black dagger (p)", 1, 1),
+            ("Black knife", 1, 1),
+            ("Black longsword", 1, 1),
+            ("Black robe", 1, 1),
+            ("Weapon poison", 1, 1),
+        )
+    )
+    + (
+        {
+            "name": "Darkan independent: Herb table",
+            "total": 128,
+            "slots": (
+                {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 18},
+                {"slots": 110},
+            ),
+        },
+        {
+            "name": "Darkan independent: Gem table",
+            "total": 128,
+            "slots": (
+                {"table": COMBAT_GEM_DROP_TABLE, "slots": 8},
+                {"slots": 120},
+            ),
+        },
+        {
+            "name": "Darkan charms",
+            "total": 606,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 26},
+                {"item": "Green charm", "quantity": 1, "slots": 11},
+                {"item": "Crimson charm", "quantity": 1, "slots": 44},
+                {"item": "Blue charm", "quantity": 1, "slots": 3},
+                {"slots": 522},
+            ),
+        },
+    ),
+}
+
 
 ROCKSLUG_DROPS = {
     "guaranteed": (),
@@ -8141,6 +8198,57 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "84-LP maximum hit, Vannaka membership, guaranteed Bones, and "
             "Mos Le'Harmless route; Darkan exact stats, respawn, and 32 "
             "independent ordinary drop rolls"
+        ),
+    },
+    "shadow_warrior": {
+        "display_name": "Shadow warrior",
+        "level": 48,
+        "group": "Slayer",
+        "required_slayer_level": 1,
+        "quest_gate": "legends_quest",
+        "quest_gate_label": "Complete Legends' Quest",
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 65,
+        "slayer_xp": 67.0,
+        "stats": {
+            "hitpoints": 670,
+            "attack": 36,
+            "strength": 36,
+            "defence": 33,
+            "magic": 0,
+            "ranged": 0,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": SHADOW_WARRIOR_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Shadow_warrior?oldid=6555920; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "shadow_warrior (noanims).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/shadow_warrior.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/charmDrops.txt; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/tools/old/CharmDrop.java"
+        ),
+        "source_status": (
+            "period exact ordinary identity, LP, Slayer XP, six-tick melee, "
+            "65-LP maximum hit, Vannaka/Chaeldar membership, Legends' Guild "
+            "route, and no guaranteed drop; Darkan exact stats, respawn, 14 "
+            "independent ordinary rolls, and emulator-exact charm selection"
         ),
     },
     "kalphite_soldier": {

@@ -32,6 +32,7 @@ NEW_COMBAT_ENEMIES = (
     "crocodile",
     "otherworldly_being",
     "jungle_horror",
+    "shadow_warrior",
     "kalphite_soldier",
     "wall_beast",
     "vampyre",
@@ -287,6 +288,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("crocodile", "Crocodile.png"),
             ("otherworldly_being", "Otherworldly being.png"),
             ("jungle_horror", "Jungle horror.png"),
+            ("shadow_warrior", "Shadow warrior.png"),
             ("kalphite_soldier", "Kalphite Soldier.png"),
             ("wall_beast", "Wall beast icon.png"),
             ("vampyre", "Vampire (historical) (level 61).png"),
@@ -603,6 +605,43 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                 sum(slot["slots"] for slot in table["slots"]), table["total"]
             )
         self.assertIn("oldid=6534099", horror["source"])
+
+    def test_shadow_warrior_preserves_route_identity_and_independent_rolls(self):
+        warrior = COMBAT_ENEMY_DATA["shadow_warrior"]
+
+        self.assertEqual(warrior["level"], 48)
+        self.assertEqual(warrior["required_slayer_level"], 1)
+        self.assertEqual(warrior["quest_gate"], "legends_quest")
+        self.assertEqual(warrior["attack_style"], "melee")
+        self.assertEqual(warrior["attack_speed"], 6)
+        self.assertEqual(warrior["respawn_delay"], 59)
+        self.assertEqual(warrior["slayer_xp"], 67.0)
+        self.assertEqual(warrior["max_hit"], 65)
+        self.assertEqual(
+            warrior["stats"],
+            {
+                "hitpoints": 670,
+                "attack": 36,
+                "strength": 36,
+                "defence": 33,
+                "magic": 0,
+                "ranged": 0,
+            },
+        )
+        self.assertEqual(warrior["drops"]["guaranteed"], ())
+        ordinary_tables = warrior["drops"]["tables"][:-1]
+        self.assertEqual(len(ordinary_tables), 14)
+        for table in ordinary_tables:
+            self.assertEqual(
+                sum(slot["slots"] for slot in table["slots"]), table["total"]
+            )
+        charm_table = warrior["drops"]["tables"][-1]
+        self.assertEqual(charm_table["total"], 606)
+        self.assertEqual(
+            tuple(slot.get("slots") for slot in charm_table["slots"]),
+            (26, 11, 44, 3, 522),
+        )
+        self.assertIn("oldid=6555920", warrior["source"])
 
     def test_kalphite_soldier_preserves_the_cutoff_variant_and_drop_table(self):
         soldier = COMBAT_ENEMY_DATA["kalphite_soldier"]

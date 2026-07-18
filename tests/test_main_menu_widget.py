@@ -2267,6 +2267,11 @@ class MainMenuWidgetTest(unittest.TestCase):
             "progress": 1,
             "completed": True,
         }
+        pd["quests"]["legends_quest"] = {
+            "started": True,
+            "progress": 1,
+            "completed": True,
+        }
         dialog = self._open(pd, current_skill="Combat")
 
         tree = _find_tree_with_user_role(dialog, "seagull")
@@ -2291,6 +2296,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         crocodile = _tree_row(tree, "crocodile")
         otherworldly_being = _tree_row(tree, "otherworldly_being")
         jungle_horror = _tree_row(tree, "jungle_horror")
+        shadow_warrior = _tree_row(tree, "shadow_warrior")
         kalphite_soldier = _tree_row(tree, "kalphite_soldier")
         wall_beast = _tree_row(tree, "wall_beast")
         vampyre = _tree_row(tree, "vampyre")
@@ -2381,6 +2387,11 @@ class MainMenuWidgetTest(unittest.TestCase):
             "Iron warhammer x1 (1679/20000)", jungle_horror.toolTip(0)
         )
         self.assertFalse(jungle_horror.icon(0).isNull())
+        self.assertEqual(shadow_warrior.text(0), "Shadow warrior (Lvl 48)")
+        self.assertIn("Enemy max hit: 65 LP", shadow_warrior.toolTip(0))
+        self.assertIn("Adamant spear x1 (1/128)", shadow_warrior.toolTip(0))
+        self.assertIn("Crimson charm x1 (44/606)", shadow_warrior.toolTip(0))
+        self.assertFalse(shadow_warrior.icon(0).isNull())
         self.assertEqual(kalphite_soldier.text(0), "Kalphite Soldier (Lvl 85)")
         self.assertIn("Enemy max hit: 80 LP", kalphite_soldier.toolTip(0))
         self.assertIn(

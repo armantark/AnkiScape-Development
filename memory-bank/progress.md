@@ -4,6 +4,27 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Shadow warrior Combat closure — 2026-07-18
+
+- Added the ordinary level-48 Shadow warrior as a Legends'-Quest-gated Combat
+  target with 670 LP, 67 Slayer XP, six-tick melee, and maximum hit 65.
+- Preserved Darkan's exact ordinary-drop shape as 14 independent 128-way
+  hit-or-empty tables.
+- Derived the exact executable Darkan charm distribution from its inclusive
+  threshold-and-uniform-selection algorithm rather than treating the four
+  source numbers as independent percentages.
+- Reused the existing Legends' Quest completion state without adding or
+  duplicating quest stages.
+- Advanced Vannaka from 23/35 to 24/35 without exposing or renormalizing the
+  incomplete master. Ten missing targets and Earth warrior's Wilderness
+  context remain.
+- Focused checks and the real offscreen Qt picker pass. Exact period defensive
+  bonuses remain `source_blocked`; no owner design input was required. Durable
+  evidence is
+  `source-audits/slayer-shadow-warrior-combat-2026-07-18.md`. Results:
+  `status-updates/slayer-shadow-warrior-results-2026-07-18.html`
+  (<https://4c0ztjs0b4cs.postplan.dev>).
+
 ## Slayer Jungle horror Combat closure — 2026-07-18
 
 - Added the ordinary level-70 Jungle horror as a Cabin-Fever-gated Combat

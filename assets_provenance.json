@@ -1691,6 +1691,18 @@
     "source_wiki": "osrs",
     "timestamp": "2019-05-14T01:57:26Z"
   },
+  "combatenemies/shadow_warrior.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Shadow_warrior.png",
+    "file_title": "Shadow warrior.png",
+    "image_url": "https://runescape.wiki/images/Shadow_warrior.png?4ab88",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9f911a1bcd3658ac7bda8cc5598aa7c1e57da02c",
+    "size": 185961,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-12T19:44:44Z"
+  },
   "combatenemies/skeleton_level_21.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Skeleton.png",
     "file_title": "Skeleton.png",

@@ -2,6 +2,16 @@
 
 ## Current Focus
 
+The ordinary level-48 Shadow warrior is now executable with the existing
+Legends' Quest gate, six-tick melee, 670 LP, 67 Slayer XP, Darkan's 14
+independent ordinary rolls, and the emulator-exact charm selector. This adds
+no quest content and does not overlap the Darkan quest-parity thread. Vannaka
+advances to 24/35 while remaining hidden. Exact period defensive bonuses
+remain `source_blocked`; no owner-facing design fork emerged. Evidence:
+`source-audits/slayer-shadow-warrior-combat-2026-07-18.md`. Results:
+`status-updates/slayer-shadow-warrior-results-2026-07-18.html`
+(<https://4c0ztjs0b4cs.postplan.dev>).
+
 The ordinary level-70 Jungle horror is now executable with the existing Cabin
 Fever gate, six-tick melee, 450 LP, 45 Slayer XP, guaranteed Bones, and
 Darkan's exact 32 independent ordinary rolls. This adds no quest content and
