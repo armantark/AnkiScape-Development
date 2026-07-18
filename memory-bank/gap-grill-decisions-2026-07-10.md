@@ -830,10 +830,12 @@ Living-mineral yield and exact star/server rolls.
   derives from that active crowd plus the remaining star mass. Prompt entry is
   calibrated toward the source-expected opportunity, while delaying or leaving
   may yield only a partial reward. Wall time is never consulted.
-- Each star instance applies the shared event-seeded naturalism jitter to that
-  S-curve. The bounded smooth `±10%` pressure variation makes otherwise equal
-  events feel slightly different without creating players, reversing cumulative
-  arrivals, or adding work proportional to crowd size.
+- Each star instance applies the shared naturalized-population parameters to
+  that S-curve. Answered-card time of day influences the crowd distribution;
+  the event seed varies the population ceiling, midpoint, steepness, and smooth
+  `±10%` pressure jitter. Otherwise equal events therefore feel different
+  without creating players, reversing cumulative arrivals, or adding work
+  proportional to crowd size.
 - Casual mode joins a sensibly populated star and automatically waits through
   inaccessible upper layers while showing the current layer/action. Advanced
   mode may save preferred starting sizes and a quiet/normal/busy population,

@@ -76,10 +76,12 @@ The same saved Quiet / Normal / Busy world-population profile planned for
 Shooting Stars supplies the S-curve ceiling and pressure here. Big Chinchompa
 does not add another checkbox or activity-specific crowd control.
 
-Each event seed also supplies the shared smooth `±10%` naturalism jitter around
-the base S-curve. The keyed phase noise varies aggregate feeding pressure
-slightly between events while cumulative arrivals and fullness remain
-monotonic. It does not store hunters, replay missed ticks, or add another
+Big Chinchompa consumes the complete shared naturalized-population parameter
+set. The answered-card world-day phase shifts the expected population; the
+event seed then varies the crowd ceiling, S-curve midpoint, steepness, and
+smooth `±10%` phase jitter within the global bounds. Cumulative arrivals and
+fullness remain monotonic. This creates different plausible event rhythms
+without storing hunters, replaying missed ticks, or adding another
 player-facing control.
 
 The event ends when either:

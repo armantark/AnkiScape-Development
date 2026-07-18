@@ -275,10 +275,12 @@ arrival follows an S-curve over answered-card world ticks: sparse early
 discovery, a rapid middle influx, and late saturation. The resulting active
 population, together with remaining star mass, drives communal depletion.
 Prompt participation is calibrated toward the source-expected opportunity;
-delaying or leaving may produce only a partial reward. Each event applies the
-shared event-seeded smooth `±10%` pressure jitter, so equal population profiles
-do not produce identical depletion rhythms while cumulative arrivals remain
-monotonic. Wall time is never read.
+delaying or leaving may produce only a partial reward. Each event uses the
+shared naturalized-population inputs: answered-card time of day, an
+event-randomized population ceiling, bounded midpoint and steepness variation,
+and smooth phase jitter. Equal population profiles therefore do not produce
+identical depletion rhythms while cumulative arrivals remain monotonic. Wall
+time is never read.
 
 Big Chinchompa reuses that same aggregate S-curve population pressure rather
 than simulating individual hunters. Two events occur per 240-card day, each

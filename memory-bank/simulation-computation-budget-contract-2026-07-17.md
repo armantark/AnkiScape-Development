@@ -44,23 +44,32 @@ implementation reviews must verify this boundary.
 ## Naturalized aggregate pressure
 
 When an approved activity uses an aggregate population curve, identical event
-phases should not produce mechanically identical pressure every time. Apply one
-small, event-seeded jitter term to the aggregate curve:
+phases should not produce mechanically identical pressure every time. The
+shared model has four constant-work inputs:
 
-- the base population remains the owning activity's visible S-curve or other
-  approved closed-form curve;
-- deterministic smooth phase noise modifies the current pressure by at most
-  `±10%`;
+- a smooth answered-card time-of-day envelope over the 240-card world day,
+  initially ranging from `0.75×` at the quiet trough to `1.25×` at the peak;
+- one event-seeded population ceiling, initially varying by at most `±20%`
+  around the selected Quiet / Normal / Busy profile after the day envelope;
+- event-seeded S-curve midpoint and steepness shifts, initially bounded to
+  `±10%` of the event window and `±15%` of base steepness respectively; and
+- deterministic smooth phase noise modifying current pressure by at most
+  `±10%`.
+
+The owning activity's S-curve or other approved closed-form curve remains the
+base. These inputs alter its aggregate shape, not its computational model:
+
 - cumulative arrivals and depletion remain monotonic, so jitter can slow or
   accelerate growth but never make participants or consumed resources reappear;
-- the event seed and current visible resource/fullness state are sufficient for
-  save/load and undo; no agent list or replay trace is stored; and
+- the event seed, world-day phase, population profile, and current visible
+  resource/fullness state are sufficient for save/load and undo; no agent list
+  or replay trace is stored; and
 - skipped intervals evaluate the keyed phase function directly rather than
   replaying every missed step.
 
-The `±10%` envelope is an explicit AnkiScape naturalism abstraction, not a
-claimed RuneScape population statistic. An activity may use a narrower
-source-backed envelope, but may not silently exceed the shared default.
+These default envelopes are explicit AnkiScape naturalism abstractions, not
+claimed RuneScape population statistics. An activity may use narrower
+source-backed ranges, but may not silently exceed the shared defaults.
 
 ## Design and review gate
 
