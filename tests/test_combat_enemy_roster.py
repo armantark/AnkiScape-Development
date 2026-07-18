@@ -31,6 +31,7 @@ NEW_COMBAT_ENEMIES = (
     "basilisk",
     "crocodile",
     "otherworldly_being",
+    "jungle_horror",
     "kalphite_soldier",
     "wall_beast",
     "vampyre",
@@ -285,6 +286,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("basilisk", "Basilisk.png"),
             ("crocodile", "Crocodile.png"),
             ("otherworldly_being", "Otherworldly being.png"),
+            ("jungle_horror", "Jungle horror.png"),
             ("kalphite_soldier", "Kalphite Soldier.png"),
             ("wall_beast", "Wall beast icon.png"),
             ("vampyre", "Vampire (historical) (level 61).png"),
@@ -571,6 +573,36 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertEqual(main["total"], 128)
         self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
         self.assertIn("oldid=6554205", being["source"])
+
+    def test_jungle_horror_preserves_route_identity_and_independent_rolls(self):
+        horror = COMBAT_ENEMY_DATA["jungle_horror"]
+
+        self.assertEqual(horror["level"], 70)
+        self.assertEqual(horror["required_slayer_level"], 1)
+        self.assertEqual(horror["quest_gate"], "cabin_fever")
+        self.assertEqual(horror["attack_style"], "melee")
+        self.assertEqual(horror["attack_speed"], 6)
+        self.assertEqual(horror["respawn_delay"], 59)
+        self.assertEqual(horror["slayer_xp"], 45.0)
+        self.assertEqual(horror["max_hit"], 84)
+        self.assertEqual(
+            horror["stats"],
+            {
+                "hitpoints": 450,
+                "attack": 70,
+                "strength": 70,
+                "defence": 55,
+                "magic": 1,
+                "ranged": 1,
+            },
+        )
+        self.assertEqual(horror["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertEqual(len(horror["drops"]["tables"]), 32)
+        for table in horror["drops"]["tables"]:
+            self.assertEqual(
+                sum(slot["slots"] for slot in table["slots"]), table["total"]
+            )
+        self.assertIn("oldid=6534099", horror["source"])
 
     def test_kalphite_soldier_preserves_the_cutoff_variant_and_drop_table(self):
         soldier = COMBAT_ENEMY_DATA["kalphite_soldier"]

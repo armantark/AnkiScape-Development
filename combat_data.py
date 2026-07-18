@@ -2540,6 +2540,62 @@ DESERT_LIZARD_DROPS = {
     ),
 }
 
+JUNGLE_HORROR_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": tuple(
+        {
+            "name": f"Darkan independent: {item_name}",
+            "total": denominator,
+            "slots": (
+                {
+                    "item": item_name,
+                    **(
+                        {"quantity_range": quantity}
+                        if isinstance(quantity, tuple)
+                        else {"quantity": quantity}
+                    ),
+                    "slots": chance,
+                },
+                {"slots": denominator - chance},
+            ),
+        }
+        for item_name, quantity, chance, denominator in (
+            ("Bones", 1, 1679, 20000),
+            ("Nature rune", (1, 2), 1679, 20000),
+            ("Iron javelin", 5, 1679, 20000),
+            ("Iron kiteshield", 1, 1679, 20000),
+            ("Iron warhammer", 1, 1679, 20000),
+            ("Pineapple", 1, 1679, 20000),
+            ("Potato seed", 1, 1679, 20000),
+            ("Onion seed", 1, 1679, 20000),
+            ("Mahogany logs", 1, 1679, 20000),
+            ("Teak logs", (1, 3), 1679, 20000),
+            ("Grimy guam", 1, 999, 50000),
+            ("Grimy marrentill", 1, 999, 50000),
+            ("Grimy tarromin", 1, 999, 50000),
+            ("Grimy harralander", 1, 999, 50000),
+            ("Big bones", 1, 999, 50000),
+            ("Death rune", 1, 999, 50000),
+            ("Iron spear", 1, 999, 50000),
+            ("Iron ore", 1, 93, 50000),
+            ("Grimy ranarr", 1, 31, 25000),
+            ("Grimy irit", 1, 31, 25000),
+            ("Grimy avantoe", 1, 31, 25000),
+            ("Grimy kwuarm", 1, 31, 25000),
+            ("Grimy cadantine", 1, 31, 25000),
+            ("Grimy dwarf weed", 1, 31, 25000),
+            ("Grimy lantadyme", 1, 31, 25000),
+            ("Sweetcorn seed", 1, 31, 25000),
+            ("Watermelon seed", 1, 31, 25000),
+            ("Tomato seed", 1, 31, 25000),
+            ("Strawberry seed", 1, 31, 25000),
+            ("Cabbage seed", 1, 31, 25000),
+            ("Oak plank", 4, 31, 25000),
+            ("Evil turnip seed", 1, 31, 25000),
+        )
+    ),
+}
+
 
 ROCKSLUG_DROPS = {
     "guaranteed": (),
@@ -8038,6 +8094,53 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "period exact ordinary identity, LP, Slayer XP, six-tick melee, "
             "70-LP maximum hit, Vannaka membership, and Zanaris route; Darkan "
             "exact stats, respawn, and complete 128-slot ordinary table"
+        ),
+    },
+    "jungle_horror": {
+        "display_name": "Jungle horror",
+        "level": 70,
+        "group": "Slayer",
+        "required_slayer_level": 1,
+        "quest_gate": "cabin_fever",
+        "quest_gate_label": "Complete Cabin Fever",
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 84,
+        "slayer_xp": 45.0,
+        "stats": {
+            "hitpoints": 450,
+            "attack": 70,
+            "strength": 70,
+            "defence": 55,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": JUNGLE_HORROR_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Jungle_horror?oldid=6534099; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "jungle_horror.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/jungle_horror.json"
+        ),
+        "source_status": (
+            "period exact ordinary identity, LP, Slayer XP, six-tick melee, "
+            "84-LP maximum hit, Vannaka membership, guaranteed Bones, and "
+            "Mos Le'Harmless route; Darkan exact stats, respawn, and 32 "
+            "independent ordinary drop rolls"
         ),
     },
     "kalphite_soldier": {

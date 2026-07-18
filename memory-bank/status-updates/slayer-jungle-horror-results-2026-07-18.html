@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jungle horror closure · AnkiScape</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101713;
+      --panel: #18231c;
+      --panel-2: #202e25;
+      --text: #edf7ef;
+      --muted: #a8bbac;
+      --green: #70d68a;
+      --gold: #f0c66b;
+      --line: #33473a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 80% 0%, #25432e 0, transparent 34rem),
+        var(--bg);
+      color: var(--text);
+      font: 16px/1.55 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1040px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 64px; }
+    .eyebrow { color: var(--green); font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 8px 0 10px; font-size: clamp(2.2rem, 6vw, 4.6rem); line-height: .98; max-width: 780px; }
+    .lede { color: var(--muted); max-width: 720px; font-size: 1.12rem; }
+    .hero { display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: center; }
+    .sprite {
+      width: 150px; height: 150px; image-rendering: pixelated;
+      border-radius: 28px; padding: 22px; background: linear-gradient(145deg, #263b2c, #132019);
+      border: 1px solid var(--line); box-shadow: 0 22px 60px #0008;
+      display: grid; place-items: center; color: var(--green); font-size: 3.6rem; font-weight: 850;
+    }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 34px 0; }
+    .card { background: color-mix(in srgb, var(--panel) 92%, transparent); border: 1px solid var(--line); border-radius: 18px; padding: 20px; }
+    .value { font-size: 1.85rem; font-weight: 800; color: var(--gold); }
+    .label { color: var(--muted); font-size: .9rem; }
+    h2 { margin: 0 0 12px; font-size: 1.2rem; }
+    ul { margin: 0; padding-left: 1.2rem; }
+    li + li { margin-top: 7px; }
+    .two { display: grid; grid-template-columns: 1.15fr .85fr; gap: 14px; }
+    .pass { color: var(--green); font-weight: 750; }
+    code { color: #cfebd5; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    footer { margin-top: 26px; color: var(--muted); font-size: .9rem; }
+    @media (max-width: 760px) {
+      .hero { grid-template-columns: 1fr; }
+      .sprite { width: 112px; height: 112px; }
+      .grid, .two { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Slayer closure · 18 July 2026</div>
+      <h1>Jungle horrors are live.</h1>
+      <p class="lede">The level-70 Mos Le'Harmless target now runs through the ordinary Combat loop without inventing quest content or flattening its unusual drop semantics.</p>
+    </div>
+    <div class="sprite" aria-label="Combat level 70">70</div>
+  </section>
+
+  <section class="grid" aria-label="Closure metrics">
+    <div class="card"><div class="value">23 / 35</div><div class="label">Vannaka families ready</div></div>
+    <div class="card"><div class="value">32</div><div class="label">Independent drop rolls preserved</div></div>
+    <div class="card"><div class="value">1,610</div><div class="label">Pure tests passing</div></div>
+  </section>
+
+  <section class="two">
+    <article class="card">
+      <h2>What shipped</h2>
+      <ul>
+        <li>Level 70, 450 LP, 45 Slayer XP, six-tick melee, 84 maximum hit.</li>
+        <li>The existing Cabin Fever completion gate, with no new quest stages.</li>
+        <li>Guaranteed Bones plus Darkan’s exact 32 independent hit-or-empty tables.</li>
+        <li>A sourced 48×48 target icon and visible picker probabilities.</li>
+      </ul>
+    </article>
+    <article class="card">
+      <h2>Verification</h2>
+      <ul>
+        <li><span class="pass">PASS</span> 265 focused pure checks.</li>
+        <li><span class="pass">PASS</span> real offscreen Qt picker regression.</li>
+        <li><span class="pass">PASS</span> full 1,610-test discovery, 214 declared skips.</li>
+        <li><span class="pass">PASS</span> bounded Sol-high workflow review, no defects.</li>
+        <li><span class="pass">PASS</span> docs, quality, readiness, compile, and worktree audits.</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="card" style="margin-top:14px">
+    <h2>Honest remaining boundary</h2>
+    <p style="margin:0;color:var(--muted)">Exact period charm rates remain <code>source_blocked</code>. Vannaka stays hidden with 12 generated blockers: 11 missing Combat targets and Earth warrior’s Wilderness-risk behavior. No owner design decision was required for this batch.</p>
+  </section>
+
+  <footer>Evidence: <code>memory-bank/source-audits/slayer-jungle-horror-combat-2026-07-18.md</code></footer>
+</main>
+</body>
+</html>

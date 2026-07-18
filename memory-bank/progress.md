@@ -4,6 +4,24 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Jungle horror Combat closure — 2026-07-18
+
+- Added the ordinary level-70 Jungle horror as a Cabin-Fever-gated Combat
+  target with 450 LP, 45 Slayer XP, six-tick melee, and maximum hit 84.
+- Preserved Darkan's exact drop shape: guaranteed Bones plus 32 independent
+  hit-or-empty tables rather than one mutually exclusive denominator.
+- Reused the existing Cabin Fever completion state without adding or
+  duplicating quest stages.
+- Advanced Vannaka from 22/35 to 23/35 without exposing or renormalizing the
+  incomplete master. Eleven missing targets and Earth warrior's Wilderness
+  context remain.
+- Focused checks, the real offscreen Qt picker, and a bounded read-only
+  Sol-high workflow review pass. Exact period charm distribution remains
+  `source_blocked`; no owner design input was required. Durable evidence is
+  `source-audits/slayer-jungle-horror-combat-2026-07-18.md`. Results:
+  `status-updates/slayer-jungle-horror-results-2026-07-18.html`
+  (<https://7s9qx4vwmhao.postplan.dev>).
+
 ## Slayer Otherworldly being Combat closure — 2026-07-18
 
 - Added the ordinary level-64 Otherworldly being as a Lost-City-gated Combat

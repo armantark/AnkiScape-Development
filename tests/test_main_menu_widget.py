@@ -2262,6 +2262,11 @@ class MainMenuWidgetTest(unittest.TestCase):
             "progress": 1,
             "completed": True,
         }
+        pd["quests"]["cabin_fever"] = {
+            "started": True,
+            "progress": 1,
+            "completed": True,
+        }
         dialog = self._open(pd, current_skill="Combat")
 
         tree = _find_tree_with_user_role(dialog, "seagull")
@@ -2285,6 +2290,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         basilisk = _tree_row(tree, "basilisk")
         crocodile = _tree_row(tree, "crocodile")
         otherworldly_being = _tree_row(tree, "otherworldly_being")
+        jungle_horror = _tree_row(tree, "jungle_horror")
         kalphite_soldier = _tree_row(tree, "kalphite_soldier")
         wall_beast = _tree_row(tree, "wall_beast")
         vampyre = _tree_row(tree, "vampyre")
@@ -2369,6 +2375,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Minor herb table (10/128)", otherworldly_being.toolTip(0))
         self.assertIn("Rune mace x1 (1/128)", otherworldly_being.toolTip(0))
         self.assertFalse(otherworldly_being.icon(0).isNull())
+        self.assertEqual(jungle_horror.text(0), "Jungle horror (Lvl 70)")
+        self.assertIn("Enemy max hit: 84 LP", jungle_horror.toolTip(0))
+        self.assertIn(
+            "Iron warhammer x1 (1679/20000)", jungle_horror.toolTip(0)
+        )
+        self.assertFalse(jungle_horror.icon(0).isNull())
         self.assertEqual(kalphite_soldier.text(0), "Kalphite Soldier (Lvl 85)")
         self.assertIn("Enemy max hit: 80 LP", kalphite_soldier.toolTip(0))
         self.assertIn(

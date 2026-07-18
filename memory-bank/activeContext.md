@@ -2,6 +2,16 @@
 
 ## Current Focus
 
+The ordinary level-70 Jungle horror is now executable with the existing Cabin
+Fever gate, six-tick melee, 450 LP, 45 Slayer XP, guaranteed Bones, and
+Darkan's exact 32 independent ordinary rolls. This adds no quest content and
+does not overlap the Darkan quest-parity thread. Vannaka advances to 23/35
+while remaining hidden. Exact period charm distribution remains
+`source_blocked`; no owner-facing design fork emerged. Evidence:
+`source-audits/slayer-jungle-horror-combat-2026-07-18.md`. Results:
+`status-updates/slayer-jungle-horror-results-2026-07-18.html`
+(<https://7s9qx4vwmhao.postplan.dev>).
+
 The ordinary level-64 Otherworldly being is now executable with the existing
 Lost City gate, six-tick melee, 660 LP, 66 Slayer XP, and Darkan's exact
 128-slot table. This adds no quest content and does not overlap the Darkan

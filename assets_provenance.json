@@ -1367,6 +1367,18 @@
     "source_wiki": "osrs",
     "timestamp": "2023-08-14T03:25:27Z"
   },
+  "combatenemies/jungle_horror.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Jungle_horror.png",
+    "file_title": "Jungle horror.png",
+    "image_url": "https://runescape.wiki/images/Jungle_horror.png?90ebb",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "df43fb7f7442f3a8e45deef51e51286c17ececce",
+    "size": 250288,
+    "source_wiki": "rs3",
+    "timestamp": "2018-03-12T13:41:10Z"
+  },
   "combatenemies/kalphite_soldier.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Kalphite_Soldier.png",
     "file_title": "Kalphite Soldier.png",
