@@ -1,5 +1,24 @@
 # Combat Design Grill - 2026-06-23
 
+> **Supersession note (2026-07-19, Sol relitigation audit):** later contracts
+> override this log where they conflict. (1) The 50-tick tactical tranche and
+> every 50-derived conversion (special energy, recovery, previews) are dead —
+> Combat is `6 × M` ticks per kernel step (`cadence-kernel-contract-2026-07-13.md`);
+> an implementation audit of surviving `50`-derived code is owed. (2) Quantity
+> rows are not automatically sequential queues — multi-enemy encounters use
+> the engaged-target roster (`multi-enemy-encounter-contract-2026-07-18.md`);
+> sequential spawns survive only where the source presents them. (3) Swapping
+> the engaged roster member does not reset the enclosing encounter; only
+> leaving for a different encounter invokes its owning reset rule. (4) Loot
+> enters the 28-slot carried model, not the Bank directly
+> (`inventory-carry-model-design-2026-07-07.md`). (5) Death risks carried
+> inventory alongside equipment, with source-owned safe-death exceptions
+> (Fight Caves; Dungeoneering's payout penalty). (6) Combat meta-achievements
+> must live in a diary/bounded set per
+> `achievement-diary-item-grants-design.md` — no free-floating list.
+> Off-route Combat recovery (old decisions around lines 647-671) is being
+> relitigated separately.
+
 Status: complete design grill log. The first Combat V1 ordinary-training
 implementation and the recovery/loadout foundation landed on 2026-06-23; see
 `memory-bank/source-audits/combat-v1-implementation-2026-06-23.md` for the

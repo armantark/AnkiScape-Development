@@ -1,5 +1,15 @@
 # 28-Slot Carried Inventory — Design (owner-grilled 2026-07-07)
 
+> **Supersession note (2026-07-19):** (1) the carried overlay owns ordinary
+> overworld play only — closed session economies (Dungeoneering, Stealing
+> Creation) use session-scoped inventory/equipment per their contracts.
+> (2) Death policy is source-owned per context: the grave path is the
+> overworld default, but safe-death instances (Fight Caves) and
+> payout-penalty deaths (Dungeoneering) override it. (3) "Every bank run
+> costs a review everywhere" conflicts with the cadence kernel's
+> do-not-double-apply rule on routes whose sourced rate already includes
+> banking; that replacement is being relitigated separately.
+
 Status: **feature-complete (2026-07-07).** All eight core decisions, both
 casual and advanced modes, the full-cache loot filter, combat-loot integration,
 and the 4×7 advanced grid UI are built and tested (846 tests, plus 151/151 in a

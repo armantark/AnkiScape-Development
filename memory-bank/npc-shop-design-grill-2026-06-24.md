@@ -1,5 +1,11 @@
 # NPC Shop Design Grill
 
+> **Supersession note (2026-07-19):** where this grill's decisions 11/19
+> concern activity-reward shops, later authority wins: reward rows appear
+> only when fully functional (no player-facing locked rows), and a reward
+> shop depends on its owning family's settled reducer/session shape — the
+> "flattened linear Activities" assumption no longer holds.
+
 Status: completed design grill; NPC Shops implemented end to end on 2026-07-06.
 Opened: 2026-06-24.
 Seed: `memory-bank/npc-shop-design-seed.md`.

@@ -1,5 +1,12 @@
 # Minigames & Activities Design Seed
 
+> **SUPERSEDED 2026-07-19** by the completion packet
+> (`ankiscape-completion-starter-grill-2026-07-17.md`) and the focused
+> activity contracts: activities keep family/skill ownership and ordinary
+> XP (not one flat no-XP Utility model), generic random-event injection is
+> removed, and charged rewards wait for the shared degradation substrate.
+> This seed survives as historical context only.
+
 Status: captured 2026-07-07, not implemented. Parked stub — this is a seed to
 anchor future discussion, not a spec. Do not build from it until it is grilled.
 
