@@ -17,6 +17,14 @@ assets. The adult's 158-LP period maximum explicitly supersedes Darkan's
 conflicting 144-LP lead under the source hierarchy. See
 `source-audits/slayer-red-dragon-family-combat-2026-07-19.md`.
 
+Scabaras lancer is harvested but remains source-blocked. The cutoff page and
+Darkan close its level, LP, XP, style, maximum, poison behavior, drops, and
+Sumona identity, but Darkan explicitly marks the combat row `nostats`, the
+rev-742 cache only proves identity/options, and game-main has spawns without
+combat levels. Attack, Strength, Defence, Magic, and Ranged cannot be inferred
+from combat level 112. See
+`source-audits/slayer-scabaras-lancer-combat-2026-07-19.md`.
+
 Iron dragon is Sumona's nineteenth certifying family. The level-189 ordinary
 target preserves 1,650 LP, 173.2 Slayer XP, the existing metal-dragon
 dragonfire abstraction, exact Darkan combat stats, the 128-slot ordinary

@@ -2134,3 +2134,19 @@ Test counts are snapshots; current runs outrank this note.
 - Results artifact:
   `status-updates/slayer-red-dragon-family-results-2026-07-19.html`
   ([mobile copy](https://2365habrkscc.postplan.dev)).
+
+## Slayer Scabaras lancer source boundary — 2026-07-19
+
+- Pinned the cutoff level-112, 900-LP, 90-XP Scabaras lancer with melee,
+  approximate 130 maximum, poison behavior, guaranteed Bones, Sumona
+  assignment, and explicit Scabarites qualification.
+- Confirmed the rev-742 ID and Attack option and harvested Darkan's 59-tick
+  respawn, defensive bonuses, denominator-bearing drops, and hard-clue row.
+- Kept the target source-blocked because Darkan explicitly marks the combat
+  definition `nostats`; the cache cannot supply server levels, and game-main
+  has spawn rows but no combat definition. Attack, Strength, Defence, Magic,
+  and Ranged remain absent.
+- Excluded the post-EOC bestiary row, which conflicts at level 77 and 2,750 LP,
+  and did not infer non-roll content from combat level 112.
+- Sumona remains hidden and unrenormalized at 20/37. No owner-facing design
+  gap emerged.

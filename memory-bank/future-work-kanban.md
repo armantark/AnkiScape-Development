@@ -396,6 +396,13 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   pre-cutoff assets. The direct period 158-LP adult maximum explicitly
   supersedes Darkan's conflicting 144-LP lead. See
   `source-audits/slayer-red-dragon-family-combat-2026-07-19.md`.
+- Scabaras lancer remains source-blocked despite a complete cutoff identity,
+  LP/XP/style/maximum/drop record. Darkan explicitly marks the executable row
+  `nostats`, the cache proves only identity/options, and game-main contains
+  spawns without Attack/Strength/Defence/Magic/Ranged levels. Do not infer
+  those content values from combat level 112 or substitute another family
+  representative. See
+  `source-audits/slayer-scabaras-lancer-combat-2026-07-19.md`.
 - Iron dragon is source-closed and executable as Sumona's nineteenth ready
   family. The ordinary level-189 target preserves the period 1,650 LP and
   173.2 Slayer XP, reuses the settled metal-dragon dragonfire abstraction,
