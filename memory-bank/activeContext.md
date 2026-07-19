@@ -2,6 +2,17 @@
 
 ## Current Focus
 
+The Kurask source pass closed its level-106/970-LP identity, complete real
+combat levels, Slayer-70 gate/97 XP, aggressive six-tick melee, 120-LP
+maximum, restricted leaf/broad/Magic-Dart routes, cache bonuses, and respawn.
+It did not activate a Combat row because Darkan's ordinary selector directly
+conflicts with cutoff quantities, including 20 noted Big bones against one or
+two ordinary Big bones, and does not preserve the visible drop set. The live
+Turoth restriction seam is sufficient once a selector is source-ready. Under
+the source standard Kurask remains `source_blocked`; Chaeldar stays hidden at
+25/34 and no design fork is open. Evidence:
+`source-audits/slayer-kurask-combat-2026-07-19.md`.
+
 The Jungle-strykewyrm source pass closed its level-110/1,100-LP identity,
 Slayer-73 assignment-only gate, six-tick hybrid attacks, poison families,
 tunnelling concept, cache IDs, and named drops. It did not activate a Combat

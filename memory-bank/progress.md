@@ -1982,3 +1982,17 @@ Test counts are snapshots; current runs outrank this note.
 - Chaeldar remains hidden and unrenormalized at 25/34. No owner design fork was
   reopened. Durable evidence:
   `source-audits/slayer-jungle-strykewyrm-combat-2026-07-19.md`.
+
+## Slayer Kurask source boundary — 2026-07-19
+
+- Closed the complete real combat row, Slayer-70 gate/97 XP, aggressive
+  six-tick melee, 120-LP maximum, cache bonuses, respawn, and every effective
+  leaf/broad/Magic-Dart route.
+- Confirmed the existing Turoth `restricted_weapon` seam can represent the
+  settled Kurask kill loop without new design.
+- Kept the target blocked because Darkan's ordinary selector conflicts with
+  visible cutoff quantities, most clearly 20 noted Big bones against one or
+  two ordinary Big bones, and fails to preserve the complete named drop set.
+- Chaeldar remains hidden and unrenormalized at 25/34. No owner design fork was
+  reopened. Durable evidence:
+  `source-audits/slayer-kurask-combat-2026-07-19.md`.

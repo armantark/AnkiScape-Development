@@ -343,12 +343,17 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   melee-poison, burrow-damage/poison, and ordinary-quantity conflicts; its
   three attack-conditional poison channels also exceed the current generic
   poison schema. Keep that family blocked.
+  The Kurask combat row and Turoth restriction seam are source-ready, but its
+  Darkan ordinary selector directly conflicts with cutoff quantities and does
+  not preserve the visible drop set. Keep Kurask blocked until its selector is
+  reconciled without cherry-picking.
   See
   `source-audits/slayer-chaeldar-registry-2026-07-18.md` and
   `source-audits/slayer-fever-spider-combat-2026-07-19.md` and
   `source-audits/slayer-fungal-mage-combat-2026-07-19.md` and
   `source-audits/slayer-grifolic-creatures-combat-2026-07-19.md` and
   `source-audits/slayer-jungle-strykewyrm-combat-2026-07-19.md` and
+  `source-audits/slayer-kurask-combat-2026-07-19.md` and
   `source-audits/slayer-fire-giant-combat-2026-07-18.md` and
   `source-audits/slayer-blue-dragon-family-combat-2026-07-18.md` and
   `source-audits/slayer-bronze-dragon-combat-2026-07-18.md`,
