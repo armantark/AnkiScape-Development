@@ -1271,6 +1271,18 @@
     "source_wiki": "osrs",
     "timestamp": "2018-04-19T19:50:40Z"
   },
+  "combatenemies/harpie_bug_swarm.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Harpie_Bugs_Swarm.png",
+    "file_title": "Harpie Bugs Swarm.png",
+    "image_url": "https://runescape.wiki/images/archive/20250104224229%21Harpie_Bugs_Swarm.png?9c5a4",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "35aed332b962184f0e6abef078c54ead74403812",
+    "size": 442608,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-22T15:29:28Z"
+  },
   "combatenemies/highwayman.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Highwayman.png",
     "file_title": "Highwayman.png",
@@ -29086,6 +29098,18 @@
     "size": 270,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:58:47Z"
+  },
+  "shopitems/lit_bug_lantern.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Lit_bug_lantern.png",
+    "file_title": "Lit bug lantern.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502071015%21Lit_bug_lantern.png?4403e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5528311d9e4dfa83965e3a9fd471b83e05b42cc9",
+    "size": 642,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-25T10:06:16Z"
   },
   "shopitems/lizard_skull.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Lizard_skull.png",

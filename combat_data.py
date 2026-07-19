@@ -7655,6 +7655,143 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             f"{LEATHER_DRAGON_COMBAT_SOURCE_PATH}"
         ),
     },
+    "harpie_bug_swarm": {
+        "display_name": "Harpie Bug Swarm",
+        "level": 46,
+        "group": "Slayer",
+        "required_slayer_level": 33,
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 60,
+        "slayer_xp": 25.0,
+        "stats": {
+            "hitpoints": 250,
+            "attack": 54,
+            "strength": 46,
+            "defence": 32,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 10,
+            "defence_slash": 5,
+            "defence_crush": 10,
+            "defence_magic": 5,
+            "defence_ranged": 10,
+            "melee_strength": 0,
+        },
+        "start_equipment": {
+            "slot": "shield",
+            "items": ("Lit bug lantern",),
+            "persistent": True,
+            "warning": "Equip a Lit bug lantern to damage Harpie bug swarms",
+            "source_status": (
+                "period-exact continuous damage gate; every player hit is "
+                "zeroed unless item 7053 occupies the shield slot"
+            ),
+        },
+        "drops": {
+            "guaranteed": (),
+            "tables": (
+                {
+                    "name": "Darkan main",
+                    "total": 100000,
+                    "slots": (
+                        {"item": "Gold ore", "quantity": 1, "slots": 10514},
+                        {
+                            "item": "Fire rune",
+                            "quantity_range": (20, 90),
+                            "slots": 10514,
+                        },
+                        {
+                            "item": "Chaos rune",
+                            "quantity_range": (5, 15),
+                            "slots": 10514,
+                        },
+                        {
+                            "item": "Coins",
+                            "quantity_range": (30, 1000),
+                            "slots": 10514,
+                        },
+                        {
+                            "item": "Mithril chainbody",
+                            "quantity": 1,
+                            "slots": 10514,
+                        },
+                        {
+                            "item": "Steel full helm",
+                            "quantity": 1,
+                            "slots": 10514,
+                        },
+                        {
+                            "item": "Steel hatchet",
+                            "quantity": 1,
+                            "slots": 10514,
+                        },
+                        {
+                            "item": "Staff of fire",
+                            "quantity": 1,
+                            "slots": 10514,
+                        },
+                        {"item": "Coal", "quantity": 1, "slots": 2336},
+                        {"item": "Bones", "quantity": 1, "slots": 2336},
+                        {
+                            "item": "Death rune",
+                            "quantity_range": (3, 50),
+                            "slots": 2336,
+                        },
+                        {
+                            "item": "Black 2h sword",
+                            "quantity": 1,
+                            "slots": 2336,
+                        },
+                        {"item": "Jug of wine", "quantity": 1, "slots": 2336},
+                        {"item": "Steel boots", "quantity": 1, "slots": 2336},
+                        {"item": "Bones", "quantity": 1, "slots": 467},
+                        {"item": "Blood rune", "quantity": 50, "slots": 467},
+                        {"item": "Rune javelin", "quantity": 5, "slots": 467},
+                        {"slots": 471},
+                    ),
+                },
+                {
+                    "name": "Darkan charms",
+                    "total": 202,
+                    "slots": (
+                        {"item": "Gold charm", "quantity": 1, "slots": 3},
+                        {"item": "Green charm", "quantity": 1, "slots": 11},
+                        {"slots": 188},
+                    ),
+                },
+            ),
+        },
+        "source": (
+            "https://runescape.wiki/w/Harpie_Bug_Swarm?oldid=6530649; "
+            "https://runescape.wiki/w/Lit_bug_lantern?oldid=6591557; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/game/content/skills/"
+            "slayer/npcs/HarpieBug.java; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "harpie_bug_swarm (noanims).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/harpie_bug_swarm.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/charmDrops.txt; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/tools/old/CharmDrop.java"
+        ),
+        "source_status": (
+            "period exact ordinary identity, LP, Slayer and Firemaking gates, "
+            "Slayer XP, six-tick melee, maximum hit, and continuous lit-lantern "
+            "damage gate; Darkan exact stats, bonuses, respawn, one exact "
+            "100,000-slot ordinary selector, and emulator-exact 202-slot charm "
+            "selector; period wiki and Darkan drop contents conflict"
+        ),
+    },
     "ogre": {
         "display_name": "Ogre",
         "level": 53,

@@ -882,6 +882,49 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Dragon bones x1", green_dragon.tooltip)
         self.assertIn("Green dragonhide x1", green_dragon.tooltip)
 
+    def test_harpie_bug_swarm_row_exposes_the_continuous_lantern_gate(self):
+        locked_rows = combat_target_rows(
+            {
+                "current_combat_target": "chicken",
+                "slayer_level": 33,
+                "combat_lifepoints": 330,
+                "constitution_level": 33,
+                "inventory": {},
+                "equipment": {"shield": "Unlit bug lantern"},
+                "combat_supply_loadout": {},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+        locked = _row(locked_rows, "harpie_bug_swarm")
+        self.assertFalse(locked.enabled)
+        self.assertEqual(
+            locked.locked_reasons,
+            ("Equip a Lit bug lantern to damage Harpie bug swarms",),
+        )
+
+        ready_rows = combat_target_rows(
+            {
+                "current_combat_target": "chicken",
+                "slayer_level": 33,
+                "combat_lifepoints": 330,
+                "constitution_level": 33,
+                "inventory": {},
+                "equipment": {"shield": "Lit bug lantern"},
+                "combat_supply_loadout": {},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+        ready = _row(ready_rows, "harpie_bug_swarm")
+        self.assertTrue(ready.enabled)
+        self.assertIn("Gold ore x1 (10514/100000)", ready.tooltip)
+        self.assertIn("Green charm x1 (11/202)", ready.tooltip)
+
     def test_combat_rows_show_magic_spell_and_rune_supply(self):
         rows = combat_target_rows(
             {

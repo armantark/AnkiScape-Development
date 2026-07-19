@@ -4,6 +4,33 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Harpie Bug Swarm Combat closure — 2026-07-18
+
+- Added the ordinary level-46 Harpie Bug Swarm with Slayer 33, 250 LP, 25
+  Slayer XP, six-tick melee, and a 60-LP maximum hit.
+- Preserved the source's literal continuous damage gate: lit bug lantern item
+  7053 must occupy the shield slot when every Combat review begins, including
+  an already-active encounter.
+- Added Firemaking 33 lighting and ungated extinguishing as zero-XP Utility
+  item swaps, generated the lit lantern as wearable zero-bonus shield
+  equipment, and preserved the existing 130-coin Slayer-master acquisition.
+- Excluded the lit bug lantern from functional light-source gates because the
+  cutoff item page explicitly says it cannot illuminate caves.
+- Encoded Darkan's exact 100,000-slot ordinary selector and independently
+  derived 202-slot charm selector. The cutoff wiki's different drop contents
+  are recorded as a source conflict.
+- Advanced Vannaka to 29/35 while leaving the incomplete master hidden and
+  unrenormalized. Six missing Combat representatives remain. No owner-facing
+  design fork emerged.
+- Durable evidence:
+  `source-audits/slayer-harpie-bug-swarm-combat-2026-07-18.md`. Results:
+  `status-updates/slayer-harpie-bug-swarm-results-2026-07-18.html`
+  (<https://lwn2getn9lo2.postplan.dev>).
+- Verification closed with 747 focused tests, 1,640 full non-Qt tests
+  (215 declared Qt-only skips), and all 1,640 tests in the real offscreen Qt
+  environment with zero skips, failures, or errors. Documentation,
+  test-quality, generated-data, reachability, and worktree audits were rerun.
+
 ## Slayer Green dragon Combat closure — 2026-07-18
 
 - Added the ordinary Wilderness level-79 Green dragon with 750 LP, 75 Slayer

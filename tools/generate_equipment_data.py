@@ -151,6 +151,7 @@ LEGACY_EQUIPMENT_ITEMS: Tuple[Tuple[str, int, Optional[str], int, bool, str, str
     ("Chaos tiara", 5543, None, 1, False, "runecrafting_access", "Altar.kt; CHAOS_TIARA"),
     ("Chef's hat", 1949, None, 1, False, "hat", "CHEFS_HAT"),
     ("Mining helmet (lit)", 5013, "defense", 1, False, "head", "LightSource.java; MINING_HELMET_LIT"),
+    ("Lit bug lantern", 7053, None, 1, False, "shield", "Lit bug lantern oldid=6591557; LightSource.java item 7053"),
     ("Cosmic tiara", 5539, None, 1, False, "runecrafting_access", "Altar.kt; COSMIC_TIARA"),
     ("Death tiara", 5547, None, 1, False, "runecrafting_access", "Altar.kt; DEATH_TIARA"),
     ("Earth tiara", 5535, None, 1, False, "runecrafting_access", "Altar.kt; EARTH_TIARA"),

@@ -22,6 +22,7 @@ NEW_COMBAT_ENEMIES = (
     "ice_warrior",
     "earth_warrior",
     "green_dragon",
+    "harpie_bug_swarm",
     "ogre",
     "jackal",
     "icefiend",
@@ -334,6 +335,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("mutated_zygomite_level_74", "Mutated zygomite icon.png"),
             ("mutated_zygomite_level_86", "Mutated zygomite icon.png"),
             ("green_dragon", "Green dragon.png"),
+            ("harpie_bug_swarm", "Harpie Bugs Swarm.png"),
         ):
             with self.subTest(target=target_id):
                 relative_path = f"combatenemies/{target_id}.png"

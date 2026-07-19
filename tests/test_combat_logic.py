@@ -6077,6 +6077,60 @@ class CombatLogicTest(unittest.TestCase):
             {"Bones": 1, "Crimson charm": 1},
         )
 
+    def test_harpie_bug_swarm_requires_the_lit_lantern_throughout_the_fight(self):
+        warning = "Equip a Lit bug lantern to damage Harpie bug swarms"
+        missing = _player(
+            current_combat_target="harpie_bug_swarm",
+            slayer_level=33,
+        )
+        unlit = _player(
+            current_combat_target="harpie_bug_swarm",
+            slayer_level=33,
+            equipment={"shield": "Unlit bug lantern"},
+        )
+        equipped = _player(
+            current_combat_target="harpie_bug_swarm",
+            slayer_level=33,
+            equipment={"shield": "Lit bug lantern"},
+        )
+        active_but_unprotected = _player(
+            current_combat_target="harpie_bug_swarm",
+            slayer_level=33,
+            combat_encounter={
+                "target_id": "harpie_bug_swarm",
+                "enemy_lifepoints": 100,
+            },
+        )
+
+        for player_data in (missing, unlit, active_but_unprotected):
+            with self.subTest(equipment=player_data.get("equipment", {})):
+                self.assertEqual(
+                    combat_target_locked_reasons_pure(
+                        player_data, "harpie_bug_swarm", COMBAT_ENEMY_DATA
+                    ),
+                    (warning,),
+                )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                equipped, "harpie_bug_swarm", COMBAT_ENEMY_DATA
+            ),
+            (),
+        )
+
+    def test_harpie_bug_swarm_keeps_main_and_charm_selectors_independent(self):
+        harpie = COMBAT_ENEMY_DATA["harpie_bug_swarm"]
+
+        self.assertEqual(harpie["attack_speed"], 6)
+        self.assertEqual(harpie["slayer_xp"], 25.0)
+        self.assertEqual(
+            _combat_roll_drops(harpie, _rng((0.0, 0.0))),
+            {"Gold ore": 1, "Gold charm": 1},
+        )
+        self.assertEqual(
+            _combat_roll_drops(harpie, _rng((0.999999, 3 / 202))),
+            {"Green charm": 1},
+        )
+
     def test_wall_beast_can_continue_after_helmet_swap_but_cannot_chain_a_respawn(self):
         continuing = _player(
             current_combat_target="wall_beast",

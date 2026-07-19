@@ -235,7 +235,7 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   certification.
 - Vannaka is now the third completely encoded pool. Its 35 master-specific
   rows preserve the provisional 460-point denominator and remain hidden at
-  28/35 readiness. Ordinary Ogre closes the Ogres family with its exact nested
+  29/35 readiness. Ordinary Ogre closes the Ogres family with its exact nested
   common-seed and tertiary-bone drops; ordinary Jelly closes Jellies with
   magic-based melee, an exact 128-slot table, and generated Mithril boots;
   ordinary Bloodveld closes Bloodvelds with the same distinct attack channel,
@@ -260,14 +260,19 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   wearable Anti-dragon shield item 1540, the existing Wilderness-risk contract,
   and the pinned ordinary drop selectors. Its hidden 1/4 breath selector is
   labeled `provisional/darkan`, while charm rates remain `source_blocked`.
-  The remaining seven blockers are derived by
-  `tools/audit_slayer_readiness.py`: seven missing Combat targets, including
+  Ordinary Harpie Bug Swarm adds its continuous lit-lantern shield gate,
+  Firemaking 33 lighting and extinguishing chain, exact 100,000-slot ordinary
+  selector, and independently derived 202-slot charm selector. Lit item 7053
+  is generated equipment but is correctly excluded from cave-light gates.
+  The remaining six blockers are derived by
+  `tools/audit_slayer_readiness.py`: six missing Combat targets, including
   the Darkan-owned Mogre quest route. Continue from that generated ledger; do
   not expose or renormalize the partial master. See
   `source-audits/slayer-vannaka-ogre-combat-2026-07-18.md` and
   `source-audits/slayer-jelly-combat-2026-07-18.md`, plus
   `source-audits/slayer-bloodveld-combat-2026-07-18.md` and
   `source-audits/slayer-infernal-mage-combat-2026-07-18.md`, and
+  `source-audits/slayer-harpie-bug-swarm-combat-2026-07-18.md`, plus
   `source-audits/slayer-basilisk-combat-2026-07-18.md`, plus
   `source-audits/slayer-crocodile-combat-2026-07-18.md` and
   `source-audits/slayer-otherworldly-being-combat-2026-07-18.md` and

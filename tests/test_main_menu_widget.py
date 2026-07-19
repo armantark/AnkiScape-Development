@@ -2255,6 +2255,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_combat_target"] = "seagull"
         pd["slayer_level"] = 65
         pd["equipment"]["head"] = "Face mask"
+        pd["equipment"]["shield"] = "Lit bug lantern"
         pd["quests"]["priest_in_peril"] = {
             "started": True,
             "progress": 9,
@@ -2297,6 +2298,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         infernal_mage = _tree_row(tree, "infernal_mage")
         dust_devil = _tree_row(tree, "dust_devil")
         green_dragon = _tree_row(tree, "green_dragon")
+        harpie_bug_swarm = _tree_row(tree, "harpie_bug_swarm")
         aberrant_spectre = _tree_row(tree, "aberrant_spectre")
         basilisk = _tree_row(tree, "basilisk")
         crocodile = _tree_row(tree, "crocodile")
@@ -2379,6 +2381,16 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Dragonfire: None protection", green_dragon.toolTip(0))
         self.assertIn("Dragon bones x1", green_dragon.toolTip(0))
         self.assertFalse(green_dragon.icon(0).isNull())
+        self.assertEqual(
+            harpie_bug_swarm.text(0), "Harpie Bug Swarm (Lvl 46)"
+        )
+        self.assertIn(
+            "Gold ore x1 (10514/100000)", harpie_bug_swarm.toolTip(0)
+        )
+        self.assertIn(
+            "Green charm x1 (11/202)", harpie_bug_swarm.toolTip(0)
+        )
+        self.assertFalse(harpie_bug_swarm.icon(0).isNull())
         self.assertEqual(
             aberrant_spectre.text(0), "Aberrant spectre (Lvl 96)"
         )

@@ -397,7 +397,7 @@ _FAMILIES: Tuple[SlayerFamily, ...] = (
         "Harpie bug swarms",
         ("harpie_bug_swarm",),
         required_slayer_level=33,
-        readiness_features=("protective_equipment",),
+        readiness_features=("start_equipment",),
         source=VANNAKA_AUDIT_SOURCE,
     ),
     SlayerFamily(

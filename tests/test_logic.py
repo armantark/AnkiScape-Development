@@ -553,6 +553,34 @@ class TestLogic(unittest.TestCase):
             (),
         )
 
+    def test_bug_lantern_lights_at_33_and_extinguishes_without_a_level_gate(self):
+        locked = utility_activity_locked_reasons_pure(
+            {"inventory": {"Unlit bug lantern": 1}, "firemaking_level": 32},
+            "light_bug_lantern",
+            UTILITY_ACTIVITY_DATA,
+        )
+        self.assertEqual(locked, ("Firemaking 33",))
+
+        lit, exp, ok, processed = apply_utility_activity_pure(
+            "light_bug_lantern",
+            {"Unlit bug lantern": 1},
+            UTILITY_ACTIVITY_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual((exp, processed), (0, 1))
+        self.assertEqual(lit["Unlit bug lantern"], 0)
+        self.assertEqual(lit["Lit bug lantern"], 1)
+
+        extinguished, exp, ok, processed = apply_utility_activity_pure(
+            "extinguish_bug_lantern",
+            lit,
+            UTILITY_ACTIVITY_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual((exp, processed), (0, 1))
+        self.assertEqual(extinguished["Unlit bug lantern"], 1)
+        self.assertEqual(extinguished["Lit bug lantern"], 0)
+
     def test_lamp_oil_chain_preserves_empty_unlit_and_lit_states(self):
         filled, exp, ok, processed = apply_utility_activity_pure(
             "fill_bullseye_lantern",

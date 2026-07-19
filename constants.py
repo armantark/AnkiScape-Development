@@ -810,6 +810,8 @@ FIREMAKING_ITEM_IMAGES = dict(LOG_IMAGES)
 FIREMAKING_ITEM_IMAGES.update({
     "Unlit torch": os.path.join(SHOP_ITEMS_FOLDER, "unlit_torch.png"),
     "Lit torch": os.path.join(SHOP_ITEMS_FOLDER, "unlit_torch.png"),
+    "Unlit bug lantern": os.path.join(SHOP_ITEMS_FOLDER, "unlit_bug_lantern.png"),
+    "Lit bug lantern": os.path.join(SHOP_ITEMS_FOLDER, "lit_bug_lantern.png"),
     "Candle": os.path.join(SHOP_ITEMS_FOLDER, "candle.png"),
     "Lit candle": os.path.join(SHOP_ITEMS_FOLDER, "candle.png"),
     "Black candle": os.path.join(QUEST_ITEMS_FOLDER, "black_candle.png"),

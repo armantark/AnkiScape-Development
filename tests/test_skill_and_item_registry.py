@@ -672,6 +672,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Sapphire lantern (unlit)": 4701,
             "Mining helmet (unlit)": 5014,
             "Mining helmet (lit)": 5013,
+            "Unlit bug lantern": 7051,
+            "Lit bug lantern": 7053,
         }
         for item_name, item_id in expected.items():
             self.assertIn(item_name, by_storage_key)
@@ -683,6 +685,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(by_storage_key["Mining helmet (lit)"].equipment_slot, "head")
         self.assertEqual(by_storage_key["Mining helmet (unlit)"].category, "equipment")
         self.assertEqual(by_storage_key["Mining helmet (lit)"].category, "equipment")
+        self.assertEqual(by_storage_key["Lit bug lantern"].equipment_slot, "shield")
 
     def test_fishing_items_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)

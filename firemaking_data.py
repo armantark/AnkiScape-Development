@@ -37,6 +37,7 @@ BONFIRE_SOURCE = "https://runescape.fandom.com/wiki/Update:Bonfires"
 CANDLE_LANTERN_SOURCE = "https://runescape.wiki/w/Candle_lantern?oldid=5962978"
 LAMP_OIL_SOURCE = "https://runescape.wiki/w/Lamp_oil?oldid=6241595"
 SAPPHIRE_LANTERN_SOURCE = "https://runescape.wiki/w/Sapphire_lantern_(lit)?oldid=6092552"
+BUG_LANTERN_SOURCE = "https://runescape.wiki/w/Lit_bug_lantern?oldid=6591557"
 LIGHT_SOURCES_SOURCE = "https://runescape.wiki/w/Light_sources?oldid=6581760"
 
 
@@ -129,6 +130,7 @@ LIGHT_SOURCE_ACTIVITIES: Tuple[LightSourceActivity, ...] = (
     LightSourceActivity("light_candle_lantern_4532", "Light candle lantern (4532)", "Candle lantern (unlit, 4532)", 4532, "Candle lantern (lit, 4534)", 4534, 4, "CANDLE_LANTERN_4532", True, True),
     LightSourceActivity("light_oil_lamp", "Light oil lamp", "Oil lamp (unlit)", 4522, "Oil lamp (lit)", 4524, 12, "OIL_LAMP", True, True),
     LightSourceActivity("light_oil_lantern", "Light oil lantern", "Oil lantern (unlit)", 4537, "Oil lantern (lit)", 4539, 26, "OIL_LANTERN", True, True, source="https://runescape.wiki/w/Oil_lantern?oldid=5372911"),
+    LightSourceActivity("light_bug_lantern", "Light bug lantern", "Unlit bug lantern", 7051, "Lit bug lantern", 7053, 33, "BUG_LANTERN", True, False, source=BUG_LANTERN_SOURCE),
     LightSourceActivity("light_bullseye_lantern", "Light bullseye lantern", "Bullseye lantern (unlit)", 4548, "Bullseye lantern (lit)", 4550, 49, "BULLSEYE_LANTERN", False, False),
     LightSourceActivity("light_sapphire_lantern", "Light sapphire lantern", "Sapphire lantern (unlit)", 4701, "Sapphire lantern (lit)", 4702, 49, "SAPPHIRE_LANTERN", False, False),
     LightSourceActivity("light_emerald_lantern", "Light emerald lantern", "Emerald lantern (unlit)", 9064, "Emerald lantern (lit)", 9065, 49, "EMERALD_LANTERN", False, False),
@@ -136,7 +138,9 @@ LIGHT_SOURCE_ACTIVITIES: Tuple[LightSourceActivity, ...] = (
 )
 
 LIT_LIGHT_SOURCE_ITEMS: Tuple[str, ...] = tuple(
-    activity.lit_item for activity in LIGHT_SOURCE_ACTIVITIES
+    activity.lit_item
+    for activity in LIGHT_SOURCE_ACTIVITIES
+    if activity.source_enum != "BUG_LANTERN"
 )
 
 # The cutoff-era light-source table also names achievement headbands and the
@@ -280,7 +284,11 @@ def firemaking_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "tradeable": target.tradeable,
         }
     for activity in LIGHT_SOURCE_ACTIVITIES:
-        item_category = "equipment" if activity.source_enum == "MINING_HELMET" else "material"
+        item_category = (
+            "equipment"
+            if activity.source_enum in {"BUG_LANTERN", "MINING_HELMET"}
+            else "material"
+        )
         items[activity.raw_item] = {
             "category": item_category,
             "level": activity.level,

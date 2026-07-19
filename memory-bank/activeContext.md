@@ -2,6 +2,23 @@
 
 ## Current Focus
 
+The ordinary level-46 Harpie Bug Swarm is now the 29th executable Vannaka
+family: Slayer 33, 250 LP, 25 Slayer XP, six-tick melee, a 60-LP maximum,
+Darkan's exact 100,000-slot ordinary selector, and its separately derived
+202-slot charm selector. A lit bug lantern must remain equipped in the shield
+slot; the 130-coin unlit shop item now lights at Firemaking 33, extinguishes
+through the existing Utility pattern, and generates wearable lit item 7053.
+The lit lantern correctly does not count as cave illumination. Vannaka remains
+hidden at 29/35 with six missing representatives. The pinned wiki and Darkan
+drop contents conflict, so the executable selector is labeled rather than
+misrepresented as closed historical drop parity. No owner-facing design fork
+emerged. Evidence:
+`source-audits/slayer-harpie-bug-swarm-combat-2026-07-18.md`. Results:
+`status-updates/slayer-harpie-bug-swarm-results-2026-07-18.html`
+(<https://lwn2getn9lo2.postplan.dev>). The full non-Qt and real offscreen Qt
+suites each pass all 1,640 tests; the non-Qt environment declares 215 Qt-only
+skips, while the real Qt run has zero skips.
+
 The ordinary level-79 Green dragon is now the 28th executable Vannaka family:
 750 LP, 75 Slayer XP, six-tick melee, 85-LP melee maximum, guaranteed Dragon
 bones and Green dragonhide, the exact imported drop selectors, and the existing
