@@ -40,6 +40,29 @@ and 20 Water. The 87-Astral summary conflicts with the task table and remains
 rejected unless an independent source explains the missing ten. The literal
 per-duty spell rows own implementation.
 
+### 850,000 versus the stale 880,000 calculation
+
+The cutoff Livid Farm page's spell table, cap prose, reward transaction, and
+trivia all set Borrowed Power at 850,000 Produce points. `Borrowed Power`, oldid
+`6587752` (`2012-11-19T14:23:14Z`), independently says the spell costs 850,000.
+
+The same Livid Farm revision nevertheless retains a later “557 cycles” estimate
+and rune-cost formula based on 880,000 points. Revision `4657954`
+(`2011-08-23T17:45:46Z`) shows why: Borrowed Power originally cost 880,000
+points when that cycle calculation was written. The unlock was later reduced to
+850,000, while the worked estimate was not updated.
+
+AnkiScape therefore uses the cutoff 850,000 threshold and rejects the stale
+880,000 calculation. At 1,580 points per full-reward cycle, the final unlock
+requires 538 emitted cycles. From a fresh 6:5 residual, that is 449 successful
+reviews. Any remainder above 850,000 survives the final deduction and becomes
+the first wish balance.
+
+Additional source:
+
+- <https://runescape.wiki/w/Borrowed_Power?oldid=6587752>
+- <https://runescape.wiki/w/Livid_Farm?oldid=4657954>
+
 ## Exact five-round cycle
 
 One complete cycle contains:
@@ -134,3 +157,27 @@ partially execute a cycle, buy runes, or pull them from the Bank.
 
 This is one descriptive dropdown, not five duty checkboxes and not a
 Casual/Advanced split.
+
+## Authentic full-reward milestone projection
+
+The exact cumulative thresholds remain:
+
+| Unlock | Produce threshold | Earliest successful review |
+|---|---:|---:|
+| South Falador Teleport | 69,840 | 38 |
+| Repair Rune Pouch | 139,760 | 75 |
+| North Ardougne Teleport | 227,120 | 120 |
+| Remote Farm | 314,480 | 167 |
+| Spiritualise Food | 401,840 | 213 |
+| Make Leather | 489,200 | 259 |
+| Disruption Shield | 576,560 | 305 |
+| Vengeance Group | 663,920 | 351 |
+| Teleport to Trollheim | 744,400 | 394 |
+| Group Teleport to Trollheim | 806,400 | 426 |
+| Borrowed Power | 850,000 | 449 |
+
+These projections assume the full 1,580-point routine from Magic 91 onward and
+a fresh cadence residual. Reduced-reward cycles take longer; temporary Magic
+boosts or a pre-existing residual may shift the exact review on which a
+threshold is crossed. The runtime owns the actual cumulative point balance, not
+this explanatory projection.
