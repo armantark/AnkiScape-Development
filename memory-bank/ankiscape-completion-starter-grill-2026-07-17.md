@@ -313,6 +313,16 @@ capacitor loop, and every period wish are now specified in that focused
 contract; only the named hidden rolls and two undocumented reward magnitudes
 remain source-blocked.
 
+Mage Training Arena preserves its four rooms, four Pizazz wallets, exact rune
+and XP economy, bonuses, hazards, and four-column reward prices without
+reproducing its spatial puzzles. A selected reward goal automatically routes
+successful reviews toward the largest source-rate-normalized remaining room
+workload; a direct room override remains available. Auto may switch rooms only
+after a completed maze, 100 Alchemist coins, a ten-enchantment bonus, or sixteen
+deposited Graveyard fruit. It never blends currencies, purchases the reward,
+acquires supplies, or treats every room point as equal. The focused contract is
+`memory-bank/source-audits/mage-training-arena-loop-2026-07-18.md`.
+
 Evil Trees reuse Shooting Stars' review-clock discovery surface without its
 communal-population simulation. About every twenty answered cards, a random
 period tier appears directly in the D&D UI while active, even when its real
