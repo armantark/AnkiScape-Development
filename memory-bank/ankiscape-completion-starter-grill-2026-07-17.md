@@ -630,8 +630,12 @@ Design coverage should name the broader trees even when they are not first:
   source audit before implementation.
 - **Competitive:** Fist of Guthix, Great Orb Project, Stealing Creation, Castle
   Wars, Soul Wars, Conquest, Clan Wars, Duel Arena, and Mobilising Armies.
-  Only content with meaningful individual agency under a bounded opponent model
-  should receive a solo adaptation; intrinsically social siblings remain parked.
+  Scope settled 2026-07-18: the owner directed that **all** competitive
+  activities receive solo adaptations with labeled bounded simulations — the
+  individual-agency parking test is retired as a scope gate (it survives only
+  as design guidance for how each adaptation preserves agency). Scope-triage
+  questions are closed across the activity program; remaining grill work is
+  design forks only, taken in size order.
 - **Recurring D&Ds:** Tears of Guthix, Familiarisation, Shooting Stars, Evil
   Tree, Penguin Hide and Seek, Circus, Shattered Heart/strange rocks, Troll
   Invasion, Big Chinchompa, Skeletal Horror, Bork, Phoenix, and Jade Vine.
