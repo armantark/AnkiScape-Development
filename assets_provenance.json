@@ -1499,6 +1499,18 @@
     "source_wiki": "osrs",
     "timestamp": "2017-08-01T22:30:56Z"
   },
+  "combatenemies/iron_dragon.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Iron_dragon.png",
+    "file_title": "Iron dragon.png",
+    "image_url": "https://runescape.wiki/images/archive/20130110122756%21Iron_dragon.png?2704a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "76c989a0a0730df9cb66ceb98e0cfd78edf77609",
+    "size": 91125,
+    "source_wiki": "rs3",
+    "timestamp": "2010-12-29T13:34:17Z"
+  },
   "combatenemies/jackal.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Jackal.png",
     "file_title": "Jackal.png",

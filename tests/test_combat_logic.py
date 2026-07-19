@@ -2812,6 +2812,43 @@ class CombatLogicTest(unittest.TestCase):
             },
         )
 
+    def test_iron_dragon_rolls_exact_ordinary_and_independent_tertiaries(self):
+        dragon = COMBAT_ENEMY_DATA["iron_dragon"]
+        empty_ordinary = _combat_roll_drops(
+            dragon,
+            _rng(
+                [
+                    127 / 128,
+                    0.999999,
+                    0.999999,
+                    0.999999,
+                    0.999999,
+                    0.999999,
+                ]
+            ),
+        )
+        rares = _combat_roll_drops(
+            dragon,
+            _rng([0.0, 0.999999, 0.0, 0.0, 0.0, 0.0, 0.0]),
+        )
+
+        self.assertEqual(
+            empty_ordinary,
+            {"Dragon bones": 1, "Iron bar": 5},
+        )
+        self.assertEqual(
+            rares,
+            {
+                "Dragon bones": 1,
+                "Iron bar": 5,
+                "Adamant javelin": 4,
+                "Dragon plateskirt": 1,
+                "Dragon platelegs": 1,
+                "Draconic visage": 1,
+                "Clue scroll (hard)": 1,
+            },
+        )
+
     def test_cave_horror_rolls_nested_allotments_and_independent_rares(self):
         horror = COMBAT_ENEMY_DATA["cave_horror"]
 

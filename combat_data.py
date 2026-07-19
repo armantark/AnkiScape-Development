@@ -2687,6 +2687,87 @@ BRONZE_DRAGON_DROPS = {
     ),
 }
 
+IRON_DRAGON_DROPS = {
+    "guaranteed": (("Dragon bones", 1), ("Iron bar", 5)),
+    "tables": (
+        {
+            "name": "Darkan ordinary",
+            "total": 128,
+            "slots": (
+                {"item": "Adamant javelin", "quantity": 4, "slots": 19},
+                {"item": "Coins", "quantity": 270, "slots": 20},
+                {"item": "Blood rune", "quantity": 15, "slots": 19},
+                {"item": "Coins", "quantity": 550, "slots": 10},
+                {"item": "Super strength (1)", "quantity": 1, "slots": 8},
+                {"item": "Rune dart (p)", "quantity": 9, "slots": 7},
+                {
+                    "item": "Adamant bolts",
+                    "quantity_range": (2, 12),
+                    "slots": 6,
+                },
+                {"item": "Soul rune", "quantity": 3, "slots": 5},
+                {"item": "Runite limbs", "quantity": 1, "slots": 5},
+                {"item": "Adamant 2h sword", "quantity": 1, "slots": 4},
+                {"item": "Adamant hatchet", "quantity": 1, "slots": 3},
+                {"item": "Adamant battleaxe", "quantity": 1, "slots": 3},
+                {"item": "Rune knife", "quantity": 5, "slots": 3},
+                {"item": "Adamant bar", "quantity": 2, "slots": 3},
+                {"item": "Curry", "quantity": 1, "slots": 3},
+                {"table": DARKAN_GEM_DROP_TABLE, "slots": 3},
+                {"table": DARKAN_STANDARD_RARE_DROP_TABLE, "slots": 2},
+                {"item": "Adamant sq shield", "quantity": 1, "slots": 1},
+                {"item": "Rune med helm", "quantity": 1, "slots": 1},
+                {"item": "Rune battleaxe", "quantity": 1, "slots": 1},
+                {"item": "Coins", "quantity": 990, "slots": 1},
+                {"slots": 1},
+            ),
+        },
+        {
+            "name": "Darkan charms",
+            "total": 1212,
+            "slots": (
+                {"item": "Gold charm", "quantity": 2, "slots": 48},
+                {"item": "Green charm", "quantity": 2, "slots": 282},
+                {"item": "Crimson charm", "quantity": 2, "slots": 54},
+                {"item": "Blue charm", "quantity": 2, "slots": 12},
+                {"slots": 816},
+            ),
+        },
+        {
+            "name": "Dragon plateskirt",
+            "total": 1024,
+            "slots": (
+                {"item": "Dragon plateskirt", "quantity": 1, "slots": 1},
+                {"slots": 1023},
+            ),
+        },
+        {
+            "name": "Dragon platelegs",
+            "total": 1024,
+            "slots": (
+                {"item": "Dragon platelegs", "quantity": 1, "slots": 1},
+                {"slots": 1023},
+            ),
+        },
+        {
+            "name": "Draconic visage",
+            "total": 10000,
+            "slots": (
+                {"item": "Draconic visage", "quantity": 1, "slots": 1},
+                {"slots": 9999},
+            ),
+        },
+        {
+            "name": "Hard clue",
+            "total": 128,
+            "slots": (
+                {"item": "Clue scroll (hard)", "quantity": 1, "slots": 1},
+                {"slots": 127},
+            ),
+        },
+    ),
+}
+
 OGRE_DROPS = {
     "guaranteed": (("Big bones", 1),),
     "tables": (
@@ -8553,6 +8634,75 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "losslessly enumerated charms, independent 1/2048 plate drops, "
             "1/128 hard clue, and 1/500 elite clue; location, quest-only, "
             "post-cutoff, and Daemonheim contexts excluded"
+        ),
+    },
+    "iron_dragon": {
+        "display_name": "Iron dragon",
+        "level": 189,
+        "group": "Dragons",
+        "dragonfire": {
+            "chance_numerator": 1,
+            "chance_denominator": 2,
+            "unprotected_max_hit": 500,
+            "partial_max_hit": 50,
+            "shield_items": ("Anti-dragon shield", "Dragonfire shield"),
+            "source": (
+                "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+                "darkan-world-server/src/main/java/com/rs/game/content/world/"
+                "npcs/MetalDragonCombat.java:41-61; "
+                f"{DRAGONFIRE_FORMULA_SOURCE_PATH}:878-908"
+            ),
+            "source_status": (
+                "existing bounded no-position metal-dragon abstraction using "
+                "Darkan's exact adjacent 1/2 attack-selection roll and "
+                "protection tiers; long-range dragonfire, damage envelope, "
+                "and metal-dragon protection behavior corroborated by Iron "
+                "dragon oldid=6530527 and Dragonfire oldid=6534496"
+            ),
+        },
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 203,
+        "slayer_xp": 173.2,
+        "stats": {
+            "hitpoints": 1650,
+            "attack": 165,
+            "strength": 165,
+            "defence": 165,
+            "magic": 100,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 50,
+            "defence_slash": 70,
+            "defence_crush": 70,
+            "defence_magic": 30,
+            "defence_ranged": 90,
+            "melee_strength": 0,
+        },
+        "drops": IRON_DRAGON_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Iron_dragon?oldid=6530527; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "iron_dragon/iron_dragon_(189).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/iron_dragon.json"
+        ),
+        "source_status": (
+            "period exact ordinary level, LP, Slayer XP, six-tick "
+            "melee/long-range dragonfire, 203-LP melee maximum, aggression, "
+            "poison behavior, guaranteed Dragon bones/five Iron bars, and "
+            "Sumona assignment; Darkan exact combat levels, defences, "
+            "59-tick respawn, 128-slot ordinary selector including one empty "
+            "slot, nested tables, losslessly enumerated quantity-two charms, "
+            "independent 1/1024 plate drops, 1/10000 visage, and 1/128 hard "
+            "clue; location, quest-only, post-cutoff, pit, and Daemonheim "
+            "contexts excluded"
         ),
     },
     "cave_horror": {

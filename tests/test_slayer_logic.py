@@ -281,7 +281,7 @@ class SlayerAssignmentDataTest(unittest.TestCase):
         self.assertFalse(readiness["certified"])
         self.assertFalse(readiness["runtime_enabled"])
         self.assertEqual(readiness["family_count"], 37)
-        self.assertEqual(readiness["ready_family_count"], 18)
+        self.assertEqual(readiness["ready_family_count"], 19)
         self.assertEqual(
             set(readiness["blockers"]),
             {
@@ -291,7 +291,6 @@ class SlayerAssignmentDataTest(unittest.TestCase):
                 "fungal_magi:combat_target",
                 "grifolapines:combat_target",
                 "grifolaroos:combat_target",
-                "iron_dragons:combat_target",
                 "jungle_strykewyrms:combat_target",
                 "kurasks:combat_target",
                 "mutated_jadinkos:combat_target",

@@ -33,6 +33,7 @@ NEW_COMBAT_ENEMIES = (
     "blue_dragon",
     "baby_blue_dragon",
     "bronze_dragon",
+    "iron_dragon",
     "cave_horror",
     "ogre",
     "jackal",
@@ -393,6 +394,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("blue_dragon", "Blue dragon.png"),
             ("baby_blue_dragon", "Baby blue dragon.png"),
             ("bronze_dragon", "Bronze dragon.png"),
+            ("iron_dragon", "Iron dragon.png"),
             ("cave_horror", "Cave horror icon.png"),
             ("dagannoth", "Dagannoth ranged.png"),
             ("dagannoth_level_92", "Dagannoth melee.png"),
@@ -476,6 +478,11 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                     self.assertEqual(
                         provenance[relative_path]["timestamp"],
                         "2010-12-11T13:46:01Z",
+                    )
+                if target_id == "iron_dragon":
+                    self.assertEqual(
+                        provenance[relative_path]["timestamp"],
+                        "2010-12-29T13:34:17Z",
                     )
                 if target_id == "cave_horror":
                     self.assertEqual(
@@ -787,6 +794,50 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                 table["total"],
             )
         self.assertIn("oldid=6550367", dragon["source"])
+        self.assertIn("one empty slot", dragon["source_status"])
+
+    def test_iron_dragon_preserves_cutoff_metal_dragon_contract(self):
+        dragon = COMBAT_ENEMY_DATA["iron_dragon"]
+
+        self.assertEqual(dragon["level"], 189)
+        self.assertEqual(dragon["attack_speed"], 6)
+        self.assertEqual(dragon["max_hit"], 203)
+        self.assertEqual(dragon["slayer_xp"], 173.2)
+        self.assertEqual(
+            dragon["stats"],
+            {
+                "hitpoints": 1650,
+                "attack": 165,
+                "strength": 165,
+                "defence": 165,
+                "magic": 100,
+                "ranged": 1,
+            },
+        )
+        self.assertEqual(dragon["dragonfire"]["chance_numerator"], 1)
+        self.assertEqual(dragon["dragonfire"]["chance_denominator"], 2)
+        self.assertEqual(dragon["dragonfire"]["unprotected_max_hit"], 500)
+        self.assertEqual(
+            dragon["drops"]["guaranteed"],
+            (("Dragon bones", 1), ("Iron bar", 5)),
+        )
+        self.assertEqual(
+            [(table["name"], table["total"]) for table in dragon["drops"]["tables"]],
+            [
+                ("Darkan ordinary", 128),
+                ("Darkan charms", 1212),
+                ("Dragon plateskirt", 1024),
+                ("Dragon platelegs", 1024),
+                ("Draconic visage", 10000),
+                ("Hard clue", 128),
+            ],
+        )
+        for table in dragon["drops"]["tables"]:
+            self.assertEqual(
+                sum(slot["slots"] for slot in table["slots"]),
+                table["total"],
+            )
+        self.assertIn("oldid=6530527", dragon["source"])
         self.assertIn("one empty slot", dragon["source_status"])
 
     def test_cave_horror_preserves_cutoff_access_scream_and_drop_contract(self):

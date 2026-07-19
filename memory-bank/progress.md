@@ -2077,3 +2077,31 @@ Test counts are snapshots; current runs outrank this note.
 - Located the future implementation inside the pure Combat burst transaction
   and the settled engaged-target plus pressure-roster contract. No global map,
   wall clock, partial special loop, or owner design fork was introduced.
+- Read-only Workflow `3c11e193-9b94-48cd-9e02-5d6bb15c4101` was canceled
+  without using either leaf. The Abyssal leaf expanded to 85,033 generated
+  tokens and remained stuck in a wait without a final report; the Nechryael
+  leaf never established a session and emitted no telemetry. The primary
+  independently reproduced every accepted source finding.
+
+## Slayer Iron dragon Combat target — 2026-07-19
+
+- Added the ordinary level-189 Iron dragon as Sumona's nineteenth certifying
+  family, preserving 1,650 LP, 173.2 Slayer XP, six-tick attacks, and the
+  existing bounded metal-dragon dragonfire model.
+- Imported Darkan's exact Combat stats, defences, 59-tick respawn, guaranteed
+  Dragon bones and five Iron bars, the 128-slot ordinary selector including
+  its explicit empty slot, a losslessly enumerated quantity-two charm table,
+  and independent plate, visage, and hard-clue rolls.
+- Added the pre-cutoff target image and provenance plus roster, selector,
+  readiness, and real offscreen Qt coverage.
+- Sumona now derives 19/37 families ready and remains hidden and
+  unrenormalized. No owner-facing design gap emerged.
+- Verification: 319 focused Slayer/Combat tests pass; the real offscreen Qt
+  Combat-target/tooltip check passes; the complete core runner passes 1,683
+  tests with 215 environment skips. Documentation, test-quality, compile,
+  provenance JSON, readiness, diff, and worktree audits pass. The
+  repository-wide reachability audit retains its known 288-orphan/313-blocked
+  backlog and reports no Iron-dragon-specific regression.
+- Results artifact:
+  `status-updates/slayer-iron-dragon-results-2026-07-19.html`
+  ([mobile copy](https://za9osdb8btx6.postplan.dev)).
