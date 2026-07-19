@@ -4,9 +4,10 @@ Date: `2026-07-18`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **period room and reward structure pinned; goal-driven routing,
-checkpoint switching, and Arena-wide approach owner-settled; Graveyard safety
-and final cadence rates still active.**
+Status: **owner-design loop closed; period room and reward structure,
+goal-driven routing, checkpoint switching, Arena-wide approach, and Graveyard
+death boundary are settled; final source/cadence rates remain implementation
+work.**
 
 ## Pinned period evidence
 
@@ -180,13 +181,52 @@ auto-eat/LP policy rather than being smuggled into a vague â€œcheap versus fastâ
 setting. There is no third Balanced value, per-room checkbox matrix, or
 Casual/Advanced split.
 
-## Active design fork
+## Graveyard death boundary
 
-The remaining owner-facing MTA choice is the Graveyard safety boundary:
-whether automation exits before the next hazard whenever carried/converted
-food cannot keep LP above the ordinary safe threshold, or whether it continues
-and preserves a meaningful chance of the source ten-point death penalty without
-requiring the user to babysit LP.
+The source hazard remains real. Shared auto-eat consumes eligible carried or
+converted food at the ordinary LP threshold. If no food can restore the player,
+automation does not grant a free pre-hazard exit: falling-bone damage continues
+through its source-shaped hidden roll.
+
+Death atomically:
+
+- returns the player to the Arena lobby;
+- removes exactly ten Graveyard Pizazz points without going below zero;
+- preserves equipment and the other three Pizazz wallets;
+- clears only the room-local fruit/bone residuals that the source discards; and
+- stops Arena training instead of automatically re-entering.
+
+This preserves the Graveyard's only meaningful danger without requiring the
+player to watch LP between reviews. A manual Leave command remains available
+before answering another card, but no new safety toggle or free auto-retreat is
+added.
+
+## Wand upgrade chain
+
+The wand rows are not four independent purchases. Period item revisions close
+the exact upgrade chain:
+
+| Wand | Period item oldid | Points (Telekinetic / Alchemist / Enchantment / Graveyard) | Required input |
+|---|---:|---:|---|
+| Beginner wand | `6021040` (`2012-07-31`) | `30 / 30 / 300 / 30` | none |
+| Apprentice wand | `5825592` (`2012-06-25`) | `60 / 60 / 600 / 60` | Beginner wand |
+| Teacher wand | `5832254` (`2012-06-25`) | `150 / 200 / 1,500 / 150` | Apprentice wand |
+| Master wand | `6291896` (`2012-09-24`) | `240 / 240 / 2,400 / 240` | Teacher wand |
+
+Buying an upgrade atomically consumes its predecessor and the four point costs.
+Selecting a higher wand as the reward goal automatically expands the goal into
+the missing predecessor purchases before calculating remaining room workloads.
+It never pretends the displayed Master-wand row can be bought directly without
+the Teacher wand. Already owning the required predecessor removes only that
+earlier material requirement, not the listed point price of the selected
+upgrade.
+
+Sources:
+
+- <https://runescape.wiki/w/Beginner_wand?oldid=6021040>
+- <https://runescape.wiki/w/Apprentice_wand?oldid=5825592>
+- <https://runescape.wiki/w/Teacher_wand?oldid=5832254>
+- <https://runescape.wiki/w/Master_wand?oldid=6291896>
 
 ## Implementation source work
 
