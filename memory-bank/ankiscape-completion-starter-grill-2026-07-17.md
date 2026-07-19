@@ -388,6 +388,12 @@ consequence remain as settled in
 `memory-bank/source-audits/fishing-trawler-computation-reconciliation-2026-07-17.md`,
 which now also records the trip-granularity decision.
 
+Temple Trekking treks are seeded short sequences of event nodes: obstacles
+resolve as one review beat each, ambushes run as live six-tick Combat
+encounters with the escorted companion as persisted ally state whose death
+fails the trek, and reward tokens pay at the destination. The focused record
+is `memory-bank/source-audits/temple-trekking-trek-model-2026-07-18.md`.
+
 Pest Control uses a shared-assault engine: the fixed competent crowd both
 damages the active portal and holds pests off the Void Knight at bounded
 rates, while the player's reviews are live six-tick Combat slices against the
