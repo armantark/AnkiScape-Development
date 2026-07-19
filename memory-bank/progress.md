@@ -1996,3 +1996,16 @@ Test counts are snapshots; current runs outrank this note.
 - Chaeldar remains hidden and unrenormalized at 25/34. No owner design fork was
   reopened. Durable evidence:
   `source-audits/slayer-kurask-combat-2026-07-19.md`.
+
+## Slayer Troll registry stop — 2026-07-19
+
+- Stopped before implementing Trolls because the settled broad-category
+  contract and pool audit require explicit stable mountain/ice/river/undead
+  membership, while `slayer_data.py` binds the complete family to only
+  `("troll",)`.
+- Confirmed one generic target would make readiness falsely certify the whole
+  category and that Darkan's substring/name-fragment row cannot supply the
+  required stable boundary.
+- Made no runtime, variant, asset, or test changes. Chaeldar remains hidden and
+  unrenormalized at 25/34. Durable conflict report:
+  `audits/slayer-troll-registry-conflict-2026-07-19.md`.

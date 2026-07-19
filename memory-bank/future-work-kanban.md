@@ -347,6 +347,13 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   Darkan ordinary selector directly conflicts with cutoff quantities and does
   not preserve the visible drop set. Keep Kurask blocked until its selector is
   reconciled without cherry-picking.
+  Stop at Trolls: the settled broad-category contract and pool audit require
+  explicit stable mountain/ice/river/undead membership, while the executable
+  registry declares only `("troll",)`. One generic row would falsely certify
+  the category. See
+  `audits/slayer-troll-registry-conflict-2026-07-19.md`; do not choose or
+  collapse the variant set without resolving which authoritative record is
+  wrong.
   See
   `source-audits/slayer-chaeldar-registry-2026-07-18.md` and
   `source-audits/slayer-fever-spider-combat-2026-07-19.md` and

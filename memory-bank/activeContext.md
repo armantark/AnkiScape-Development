@@ -2,6 +2,15 @@
 
 ## Current Focus
 
+The Chaeldar queue is stopped at Trolls on a direct settled-contract/code
+conflict. The Slayer contract preserves broad assignments as explicit stable
+variant categories, and the Chaeldar pool audit names ordinary mountain, ice,
+river, and undead Troll variants. The supposedly complete registry instead
+binds the family to only `("troll",)`, so one generic Combat row would falsely
+certify the entire category. No variant set was invented or collapsed.
+Chaeldar remains hidden at 25/34. Conflict report:
+`audits/slayer-troll-registry-conflict-2026-07-19.md`.
+
 The Kurask source pass closed its level-106/970-LP identity, complete real
 combat levels, Slayer-70 gate/97 XP, aggressive six-tick melee, 120-LP
 maximum, restricted leaf/broad/Magic-Dart routes, cache bonuses, and respawn.
