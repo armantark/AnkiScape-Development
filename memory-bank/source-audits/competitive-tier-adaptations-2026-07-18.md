@@ -21,6 +21,24 @@ harvest work.**
 - Staking against simulated players is excluded, with a Help entry explaining
   why: any stake paid by a simulated opponent is an invented coin faucet.
 
+## Conquest (owner-settled 2026-07-18): auto-played real board
+
+The real Conquest rules engine (actual 20×20 board, unit types, command
+abilities) runs internally with the same modest heuristic playing **both**
+sides — MTA-Telekinetic-style automated microplay. The player chooses only
+the army loadout and a doctrine (aggressive/defensive/balanced); one review
+resolves one full turn exchange with a one-line result. Outcomes emerge from
+authentic rules, never invented matchup rolls, and there is no player-facing
+board UI. Wins pay rating-scaled commendations into the shared Void Knight
+wallet (redundant with Pest Control by design), so Conquest is sequenced
+after Dungeoneering.
+
+**Mobilising Armies** follows the same auto-played-engine pattern
+(pattern-determined, no separate fork): the scenario engine runs internally,
+the player picks squad composition and doctrine, reviews resolve command
+exchanges, and reward credits fund the period catalog including ring imbues.
+Its focused audit happens at harvest time.
+
 ## Pattern-determined shapes (no owner fork; settled by existing contracts)
 
 These apply the settled race pattern (Trouble Brewing), bounded-opponent
