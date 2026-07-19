@@ -378,6 +378,16 @@ Lost flags refill automatically for 500 coins, then 50 points, and the activity
 pauses only when neither can pay. The focused contract is
 `memory-bank/source-audits/vinesweeper-loop-2026-07-18.md`.
 
+Fishing Trawler trips are event-scaled rather than duration-scaled. The
+source twelve-minute trip becomes the count of its consequential pressure
+events — leak clusters, net rips, and bailing junctures, expected on the
+order of ten duty reviews — with the level-shaped haul and its 40%-rate
+Fishing XP paid at trip end, scaled to preserve XP-per-review parity. The
+fixed public-crew baseline, one-duty-per-review reducer, and real sinking
+consequence remain as settled in
+`memory-bank/source-audits/fishing-trawler-computation-reconciliation-2026-07-17.md`,
+which now also records the trip-granularity decision.
+
 Fist of Guthix does not expose opponent selection or difficulty profiles. The
 cutoff game paired waiting-room players randomly regardless of Combat level,
 randomized the first-round roles, and swapped roles for round two. AnkiScape

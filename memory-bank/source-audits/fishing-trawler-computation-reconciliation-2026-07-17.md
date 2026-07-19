@@ -40,3 +40,25 @@ The crew is deliberately not simulated as state:
 This retains the source's cooperative pressure fantasy without spending
 computation on actors that the player cannot meaningfully inspect or influence.
 All transitions remain answered-card-driven and undoable.
+
+## Trip granularity (owner-settled 2026-07-18)
+
+A trip is **event-scaled**, not duration-scaled. Mapping the source
+twelve-minute trip literally through `R = 1000` would cost ~200 eligible
+reviews per haul — most of a 240-card day for one payout with sinking risk
+throughout — so the trip length is instead the count of consequential source
+pressure events: leak clusters, net rips, and bailing junctures, harvested
+from oldid `6288357` and emulator evidence, expected on the order of ten duty
+reviews. This compression is a labeled AnkiScape abstraction following the
+Pyramid Plunder room-budget and Fish Flingers six-review precedents; the
+source timer was wall-clock presentation, and the consequences it produced
+(pressure, supplies, haul, the 40% XP rate) survive the compression.
+
+- The haul and its 40%-of-ordinary Fishing XP pay out at trip end, scaled so
+  XP per review preserves the source rate through the cadence kernel.
+- Sinking remains a real outcome: unrepaired pressure across the trip's events
+  can sink it for zero haul, matching the pinned source.
+- The exact event count is harvest work, not a further owner question. If the
+  period record cannot attest per-trip event counts, derive them from the
+  pinned pressure cadence and record the derivation as
+  `provisional/<source>`; never present the count as historically closed.
