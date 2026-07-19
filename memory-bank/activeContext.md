@@ -2,6 +2,20 @@
 
 ## Current Focus
 
+Goraks are harvested but remain source-, context-, and
+representation-blocked. The cutoff record closes both level-145 Fairy-ring
+and level-149 God-Wars identities, the 40–80 count, Fairy Tale II assignment
+gate, LP/maxima, typeless prayer bypass, random landed-hit stat drain,
+guaranteed Big bones, visible loot set, and no-charm rule. The family gate is
+now encoded. Darkan's level-149 row incorrectly copies 1,120 LP/140 maximum;
+its selector omits Gorak claws, turns five exact Coin quantities into 27–286,
+adds Bones, and lacks the rare table. The cutoff cadence statements conflict
+and do not close the “at least one” stat-drain magnitude. Current Combat lacks
+a target-native prayer-bypassing landed-hit random-stat transaction, and
+neither settled location route is executable. No target or asset was added;
+Duradel/Lapalok remains 14/35. See
+`source-audits/slayer-gorak-combat-2026-07-19.md`.
+
 Ganodermic creatures are harvested but remain source- and dependency-blocked.
 Both Darkan combat rows are explicitly `nostats` and generate non-real combat
 levels. The runt has no ordinary drop file. The beast's complete 256-slot

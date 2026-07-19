@@ -376,6 +376,10 @@ class SlayerAssignmentDataTest(unittest.TestCase):
             ("ganodermic_runt", "ganodermic_beast"),
         )
         self.assertEqual(
+            DURADEL_FAMILIES_BY_ID["goraks"].required_quest_id,
+            "a_fairy_tale_ii_cure_a_queen",
+        )
+        self.assertEqual(
             DURADEL_FAMILIES_BY_ID["ice_strykewyrms"].readiness_features,
             ("assignment_only", "strykewyrm_special", "fire_cape_or_reward"),
         )

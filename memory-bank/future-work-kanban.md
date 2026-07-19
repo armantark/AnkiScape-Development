@@ -460,6 +460,15 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   preserving temporary suppression, while the canonical Neem-oil/resource/
   context chain is absent. Duradel/Lapalok remains 14/35. See
   `source-audits/slayer-ganodermic-creatures-combat-2026-07-19.md`.
+- Goraks remain source-, context-, and representation-blocked. The shared
+  Fairy Tale II assignment gate is now source-closed and encoded. Darkan's
+  level-149 row conflicts with the cutoff LP/maximum, while its ordinary
+  selector omits Gorak claws and other rows, adds Bones, and changes five exact
+  Coin quantities into a continuous range. The cutoff does not resolve its
+  cadence conflict or exact random-stat drain magnitude. Current Combat lacks
+  the target-native prayer-bypassing landed-hit drain transaction, and neither
+  settled Fairy-ring/God-Wars route is executable. Duradel/Lapalok remains
+  14/35. See `source-audits/slayer-gorak-combat-2026-07-19.md`.
 - Kuradal remains unencoded despite its source-closed 36-row, 322-point pool.
   The period family ledger now closes ordinary TzHaar as Ket/Xil/Mej/Hur and
   Living rock creatures as patriarch/protector/striker, explicitly excluding

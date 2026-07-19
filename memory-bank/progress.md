@@ -4,6 +4,28 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Gorak source boundary — 2026-07-19
+
+- Closed the level-145 Fairy-ring and level-149 God-Wars identities, 40–80
+  count, Fairy Tale II completion assignment gate, 1,120/1,280 LP,
+  140/165 maxima, typeless prayer bypass, random landed-hit stat drain, Stab
+  weakness, guaranteed Big bones, visible loot contents, and no-charm rule.
+- Encoded the independently source-closed
+  `a_fairy_tale_ii_cure_a_queen` family gate and added a focused registry
+  assertion. This supersedes only the older pool audit's source-blocked quest
+  predicate, not the settled family or context contract.
+- Kept both targets source-blocked because Darkan's level-149 row copies the
+  level-145 LP/maximum, its ordinary selector omits Gorak claws and other
+  period rows, adds Bones, and turns five exact Coin quantities into a
+  continuous range. The cutoff cadence statements conflict and “at least one”
+  does not close the exact drain magnitude.
+- Kept both targets representation- and context-blocked because current Combat
+  has no target-native prayer-bypassing landed-hit random-stat transaction and
+  neither settled location route is player-selectable/atomic.
+- Duradel/Lapalok remains hidden and unrenormalized at 14/35. No owner-facing
+  design gap emerged. Durable evidence:
+  `source-audits/slayer-gorak-combat-2026-07-19.md`.
+
 ## Slayer Ganodermic-creatures source boundary — 2026-07-19
 
 - Closed the runt/beast identities, Slayer-95/Magic-60 gates, LP, XP, Magic

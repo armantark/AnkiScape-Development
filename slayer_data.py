@@ -777,6 +777,7 @@ _FAMILIES: Tuple[SlayerFamily, ...] = (
         "goraks",
         "Goraks",
         ("gorak_fairy_ring", "gorak_god_wars"),
+        required_quest_id="a_fairy_tale_ii_cure_a_queen",
         readiness_features=("location_context",),
         source=DURADEL_AUDIT_SOURCE,
     ),
