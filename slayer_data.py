@@ -535,7 +535,7 @@ _FAMILIES: Tuple[SlayerFamily, ...] = (
     SlayerFamily(
         "dagannoths",
         "Dagannoths",
-        ("dagannoth",),
+        ("dagannoth", "dagannoth_level_92"),
         source=CHAELDAR_AUDIT_SOURCE,
     ),
     SlayerFamily(

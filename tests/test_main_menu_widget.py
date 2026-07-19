@@ -2335,6 +2335,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         baby_blue_dragon = _tree_row(tree, "baby_blue_dragon")
         bronze_dragon = _tree_row(tree, "bronze_dragon")
         cave_horror = _tree_row(tree, "cave_horror")
+        dagannoth = _tree_row(tree, "dagannoth")
+        dagannoth_melee = _tree_row(tree, "dagannoth_level_92")
         aberrant_spectre = _tree_row(tree, "aberrant_spectre")
         basilisk = _tree_row(tree, "basilisk")
         crocodile = _tree_row(tree, "crocodile")
@@ -2483,6 +2485,17 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Black mask (10) x1 (1/512)", cave_horror.toolTip(0))
         self.assertIn("Crimson charm x1 (136/1212)", cave_horror.toolTip(0))
         self.assertFalse(cave_horror.icon(0).isNull())
+        self.assertEqual(dagannoth.text(0), "Dagannoth (ranged) (Lvl 74)")
+        self.assertIn("Enemy attack: Ranged", dagannoth.toolTip(0))
+        self.assertIn("Pearl bolt tips x12 (25/1100)", dagannoth.toolTip(0))
+        self.assertIn("Crimson charm x1 (212/1212)", dagannoth.toolTip(0))
+        self.assertFalse(dagannoth.icon(0).isNull())
+        self.assertEqual(
+            dagannoth_melee.text(0), "Dagannoth (melee) (Lvl 92)"
+        )
+        self.assertIn("Enemy attack: Melee", dagannoth_melee.toolTip(0))
+        self.assertIn("Clue scroll (medium) x1 (1/128)", dagannoth_melee.toolTip(0))
+        self.assertFalse(dagannoth_melee.icon(0).isNull())
         self.assertEqual(
             aberrant_spectre.text(0), "Aberrant spectre (Lvl 96)"
         )

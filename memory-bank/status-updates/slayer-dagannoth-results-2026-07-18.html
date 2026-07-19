@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AnkiScape Dagannoth Closure</title>
+  <style>
+    :root{color-scheme:dark;--bg:#07110f;--panel:#0e1d19;--line:#28463d;--ink:#edf8f3;--muted:#9ab9ad;--green:#63d39c;--gold:#f0c36b;--blue:#83c7e8}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 90% 0,#17382d 0,transparent 35%),var(--bg);color:var(--ink);font:16px/1.55 system-ui,sans-serif}
+    main{width:min(1080px,calc(100% - 32px));margin:0 auto;padding:52px 0 72px}
+    .eyebrow{color:var(--green);font-size:.78rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+    h1{font-size:clamp(2.4rem,7vw,5.2rem);line-height:.95;letter-spacing:-.055em;margin:.35rem 0 1rem;max-width:850px}
+    .lead{color:var(--muted);font-size:1.15rem;max-width:760px;margin:0 0 32px}
+    .score{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:28px 0}
+    .card,.panel{border:1px solid var(--line);background:linear-gradient(145deg,rgba(20,43,36,.96),rgba(11,25,21,.96));border-radius:18px}
+    .card{padding:18px}.card b{display:block;font-size:1.65rem;color:var(--green)}.card span{color:var(--muted);font-size:.85rem}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel{padding:24px}
+    h2{font-size:1.25rem;margin:0 0 14px}ul{padding-left:20px;margin:0}li+li{margin-top:8px}
+    .forms{display:grid;grid-template-columns:1fr 1fr;gap:10px}.form{padding:15px;border-radius:13px;background:#0a1714;border:1px solid #24463b}
+    .form strong{color:var(--gold)}.form small{display:block;color:var(--muted);margin-top:5px}
+    .bar{height:9px;background:#07110f;border-radius:99px;overflow:hidden;margin:12px 0 6px}.bar i{display:block;height:100%;width:70.6%;background:linear-gradient(90deg,var(--green),var(--blue))}
+    .proof{margin-top:16px}.proof div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line)}.proof span{color:var(--muted)}
+    code{color:#bcebd4;font:14px ui-monospace,monospace}.note{margin-top:16px;color:var(--muted);font-size:.9rem}
+    @media(max-width:760px){main{padding-top:34px}.score{grid-template-columns:1fr 1fr}.grid,.forms{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">AnkiScape · Slayer source harvest · verified</div>
+  <h1>Dagannoths are now genuinely two monsters.</h1>
+  <p class="lead">The ordinary family no longer collapses ranged and melee into one vague row. Each cutoff form has its own combat identity and art, while both share one source-exact loot contract.</p>
+
+  <section class="score">
+    <div class="card"><b>24 / 34</b><span>Chaeldar families ready</span></div>
+    <div class="card"><b>1,677</b><span>full-suite tests passed</span></div>
+    <div class="card"><b>1,100</b><span>ordinary drop slots</span></div>
+    <div class="card"><b>0</b><span>owner design gaps</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="panel">
+      <h2>Two source-backed forms</h2>
+      <div class="forms">
+        <div class="form"><strong>Level 74 · Ranged</strong><small>700 LP · 70 Slayer XP · six ticks · 80 max hit</small></div>
+        <div class="form"><strong>Level 92 · Melee</strong><small>1,200 LP · 120 Slayer XP · six ticks · 80 max hit</small></div>
+      </div>
+      <p class="note">Both pre-cutoff sprites are independently pinned and provenance-checked.</p>
+    </article>
+
+    <article class="panel">
+      <h2>Loot without probability slop</h2>
+      <ul>
+        <li>Guaranteed Bones.</li>
+        <li>All Darkan nonzero siblings combined into one cumulative 1,100-slot selector.</li>
+        <li>1,086 occupied slots and 14 explicit empty slots.</li>
+        <li>Independent exact charm selector and 1/128 medium clue.</li>
+      </ul>
+    </article>
+
+    <article class="panel">
+      <h2>Scope boundary held</h2>
+      <p>Waterbirth, Chaos Tunnels, Dagannoth Kings, quest encounters, and Daemonheim keep their own future contexts. Their stats and loot were not mixed into the ordinary targets, and the baseline Slayer family did not receive a false Lighthouse-only quest gate.</p>
+    </article>
+
+    <article class="panel">
+      <h2>Verification</h2>
+      <div class="bar"><i></i></div>
+      <div class="note">Chaeldar readiness: 24 of 34 exact families</div>
+      <div class="proof">
+        <div><span>Focused backend</span><code>359 passed</code></div>
+        <div><span>Focused real Qt</span><code>passed</code></div>
+        <div><span>Full non-Qt</span><code>1,677 passed</code></div>
+        <div><span>Full real Qt</span><code>1,677 passed</code></div>
+        <div><span>Test-quality hard issues</span><code>0</code></div>
+      </div>
+    </article>
+  </section>
+</main>
+</body>
+</html>

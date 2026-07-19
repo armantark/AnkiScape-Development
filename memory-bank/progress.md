@@ -4,6 +4,35 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Dagannoth Combat closure — 2026-07-18
+
+- Added separate ordinary level-74 ranged and level-92 melee Dagannoth targets
+  with exact period LP, Slayer XP, six-tick cadence, and distinct combat
+  identities.
+- Preserved Darkan's exact levels, defences, 80-LP maxima, 59-tick respawn,
+  and guaranteed Bones for both forms.
+- Combined every nonzero generic Darkan drop row into one exact 1,100-slot
+  selector: 1,086 occupied slots and 14 explicit empty slots. The independent
+  selector channels preserve 68/26/212/6 charm slots out of 1,212 and a 1/128
+  medium clue.
+- Kept Waterbirth, Chaos-Tunnel, King, quest, and Daemonheim contexts
+  separate. The baseline Slayer family does not receive a false
+  Lighthouse-only quest gate.
+- Pinned distinct pre-cutoff ranged and melee sprites with provenance.
+- Advanced Chaeldar to 24/34 while leaving its partial pool hidden and
+  unrenormalized. Ten Combat-family blockers remain.
+- No owner-facing design fork emerged. Durable evidence:
+  `source-audits/slayer-dagannoth-combat-2026-07-18.md`.
+- Focused Combat/Slayer/metadata coverage passes 359 tests, and the focused
+  real offscreen Qt picker passes.
+- Full non-Qt and real offscreen Qt discovery each pass all 1,677 tests; the
+  real Qt run has zero skips or failures. Test quality has zero hard issues
+  across 73 files and 1,677 methods. Reachability remains at 1,253 actions,
+  1,865 reachable items, 288 orphan inputs, and 313 blocked actions.
+- Results:
+  `status-updates/slayer-dagannoth-results-2026-07-18.html`; mobile copy:
+  <https://vzhh6w72sawc.postplan.dev>.
+
 ## Slayer Cave horror Combat closure — 2026-07-18
 
 - Added the ordinary level-80 Cave horror with Slayer 58, 550 LP, 55 Slayer
@@ -125,8 +154,8 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
 - Registered Chaeldar at Combat 70 behind Lost City while keeping
   `runtime_enabled=False`; live master selection cannot see or renormalize the
   partial pool.
-- Derived 23/34 readiness after the Fire giant, Blue dragon, Bronze dragon,
-  and Cave horror closures. Eleven absent target identities each report one
+- Derived 24/34 readiness after the Fire giant, Blue dragon, Bronze dragon,
+  Cave horror, and Dagannoth closures. Ten absent target identities each report one
   deterministic `combat_target` blocker, while Gargoyles and Mutated
   zygomites reuse their already-live finisher mechanics.
 - Preserved the source-blocked Rum Deal stage boundary for Fever spiders

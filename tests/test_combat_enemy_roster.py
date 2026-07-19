@@ -392,6 +392,8 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("baby_blue_dragon", "Baby blue dragon.png"),
             ("bronze_dragon", "Bronze dragon.png"),
             ("cave_horror", "Cave horror icon.png"),
+            ("dagannoth", "Dagannoth ranged.png"),
+            ("dagannoth_level_92", "Dagannoth melee.png"),
         ):
             with self.subTest(target=target_id):
                 relative_path = f"combatenemies/{target_id}.png"
@@ -417,6 +419,16 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                     self.assertEqual(
                         provenance[relative_path]["timestamp"],
                         "2010-06-01T15:33:31Z",
+                    )
+                if target_id == "dagannoth":
+                    self.assertEqual(
+                        provenance[relative_path]["timestamp"],
+                        "2011-11-19T16:36:18Z",
+                    )
+                if target_id == "dagannoth_level_92":
+                    self.assertEqual(
+                        provenance[relative_path]["timestamp"],
+                        "2011-11-19T18:45:30Z",
                     )
                 if target_id == "molanisk":
                     self.assertEqual(

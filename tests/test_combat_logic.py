@@ -2860,6 +2860,77 @@ class CombatLogicTest(unittest.TestCase):
             },
         )
 
+    def test_dagannoth_forms_preserve_period_combat_identities(self):
+        ranged = COMBAT_ENEMY_DATA["dagannoth"]
+        melee = COMBAT_ENEMY_DATA["dagannoth_level_92"]
+
+        self.assertEqual(
+            (
+                ranged["level"],
+                ranged["stats"]["hitpoints"],
+                ranged["attack_style"],
+                ranged["attack_speed"],
+                ranged["max_hit"],
+                ranged["slayer_xp"],
+            ),
+            (74, 700, "ranged", 6, 80, 70.0),
+        )
+        self.assertEqual(
+            (
+                melee["level"],
+                melee["stats"]["hitpoints"],
+                melee["attack_style"],
+                melee["attack_speed"],
+                melee["max_hit"],
+                melee["slayer_xp"],
+            ),
+            (92, 1200, "melee", 6, 80, 120.0),
+        )
+        self.assertEqual(melee["bonuses"]["defence_magic"], 50)
+        self.assertEqual(melee["bonuses"]["defence_ranged"], 50)
+        self.assertIs(ranged["drops"], melee["drops"])
+        self.assertIn("oldid=6548464", ranged["source"])
+
+    def test_dagannoth_drop_selector_preserves_empty_torstol_and_tertiaries(self):
+        dagannoth = COMBAT_ENEMY_DATA["dagannoth"]
+        ordinary, charms, clue = dagannoth["drops"]["tables"]
+
+        self.assertEqual(ordinary["total"], 1100)
+        self.assertEqual(
+            sum(slot["slots"] for slot in ordinary["slots"]),
+            ordinary["total"],
+        )
+        self.assertEqual(
+            sum(slot["slots"] for slot in charms["slots"]),
+            charms["total"],
+        )
+        self.assertEqual(
+            _combat_roll_drops(
+                dagannoth,
+                _rng((0.999999, 0.999999, 0.999999)),
+            ),
+            {"Bones": 1},
+        )
+        self.assertEqual(
+            _combat_roll_drops(
+                dagannoth,
+                _rng((1075 / 1100, 0.999999, 0.999999)),
+            ),
+            {"Bones": 1, "Torstol seed": 1},
+        )
+        self.assertEqual(
+            _combat_roll_drops(
+                dagannoth,
+                _rng((0.0, 0.0, 0.0)),
+            ),
+            {
+                "Bones": 1,
+                "Pearl bolt tips": 12,
+                "Gold charm": 1,
+                "Clue scroll (medium)": 1,
+            },
+        )
+
     def test_bloodveld_drop_roll_can_reach_black_boots(self):
         self.assertEqual(
             _combat_roll_drops(

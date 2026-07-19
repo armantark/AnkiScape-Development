@@ -947,6 +947,30 @@
     "source_wiki": "rs3",
     "timestamp": "2017-02-06T15:11:35Z"
   },
+  "combatenemies/dagannoth.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Dagannoth_ranged.png",
+    "file_title": "Dagannoth ranged.png",
+    "image_url": "https://runescape.wiki/images/Dagannoth_ranged.png?b8cb8",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0072acb0d06db051d4a96354b6054ae4e34fa758",
+    "size": 533820,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T16:36:18Z"
+  },
+  "combatenemies/dagannoth_level_92.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Dagannoth_melee.png",
+    "file_title": "Dagannoth melee.png",
+    "image_url": "https://runescape.wiki/images/archive/20141018181728%21Dagannoth_melee.png?676c9",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6613209af2eb8e024148d3449ed770ba67f9f82c",
+    "size": 571982,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T18:45:30Z"
+  },
   "combatenemies/deadly_red_spider.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Deadly_red_spider.png",
     "file_title": "Deadly red spider.png",

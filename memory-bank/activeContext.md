@@ -2,26 +2,25 @@
 
 ## Current Focus
 
-The ordinary level-80 Cave horror now closes Chaeldar's twenty-third
-executable family. It preserves Slayer 58, 550 LP, 55 Slayer XP, Cabin Fever
-and lit-light-source access, four-tick magical melee, a Witchwood-icon or
-Slayer-helmet close-combat protection route, the ranged safespot exception,
-and the sourced 87-LP/one-stat-by-5 scream consequence. Protect/Deflect Melee
-blocks the scream damage without inventing protection for its stat drain.
-Darkan supplies exact stats/bonuses/respawn, one 128-slot ordinary selector
-with an explicit empty slot, an exact variable-allotment nested table, a
-losslessly enumerated 1,212-slot charm selector, Long/Curved bones, the 1/512
-Black mask (10), and a 1/128 hard clue. The cutoff sprite is pinned with
-provenance. Chaeldar remains hidden and unrenormalized at 23/34, with eleven
-Combat identities outstanding. No owner-facing design fork emerged.
-Evidence: `source-audits/slayer-cave-horror-combat-2026-07-18.md`.
-Focused backend/integration verification passes 409 tests and the real
-offscreen Qt Combat picker passes. Full non-Qt and real offscreen Qt discovery
-each pass all 1,675 tests; the real Qt run has zero skips or failures.
-Documentation, test quality, compilation, provenance JSON, diff, readiness,
-reachability, and worktree-safety checks pass.
-Results: `status-updates/slayer-cave-horror-results-2026-07-18.html`; mobile
-copy: <https://pmzz0dpygpxu.postplan.dev>.
+The two ordinary Dagannoth forms now close Chaeldar's twenty-fourth executable
+family. Level 74 preserves 700 LP, 70 Slayer XP, six-tick ranged combat and
+Darkan's exact 80-LP maximum; level 92 preserves 1,200 LP, 120 Slayer XP,
+six-tick melee, an 80-LP maximum, and its exact Magic/Ranged defences. Both
+share guaranteed Bones, one losslessly combined 1,100-slot ordinary selector,
+the exact 1,212-slot charm selector, and an independent 1/128 medium clue.
+The generic Combat family does not import a false Lighthouse quest gate;
+Waterbirth, Chaos-Tunnel, boss, quest, and Daemonheim contexts remain
+separate. Both cutoff sprites are pinned with provenance. Chaeldar remains
+hidden and unrenormalized at 24/34, with ten Combat identities outstanding.
+No owner-facing design fork emerged. Evidence:
+`source-audits/slayer-dagannoth-combat-2026-07-18.md`. Focused backend
+verification passes 359 tests and the real offscreen Qt Combat picker passes.
+Full non-Qt and real offscreen Qt discovery each pass all 1,677 tests; the
+real Qt run has zero skips or failures. Documentation, test quality,
+compilation, provenance JSON, diff, readiness, reachability, and
+worktree-safety checks pass.
+Results: `status-updates/slayer-dagannoth-results-2026-07-18.html`; mobile
+copy: <https://vzhh6w72sawc.postplan.dev>.
 
 The ordinary level-131 Bronze dragon now closes Chaeldar's twenty-second
 executable family. It preserves 1,220 LP, 125 Slayer XP, six-tick melee plus
@@ -86,7 +85,7 @@ Chaeldar's complete cutoff assignment pool is now encoded as a hidden
 registry contract: 34 stable family rows, the provisional 388-point
 denominator, Combat 70, Lost City access, and every reconciled count range,
 skill/quest gate, and special-mechanic completeness key. Generated readiness
-is now 23/34. Eleven absent Combat identities produce one exact
+is now 24/34. Ten absent Combat identities produce one exact
 `combat_target` blocker each; Chaeldar remains excluded from live assignment
 selection, so the partial denominator is never renormalized or exposed.
 Fever spiders deliberately do not receive a false Rum Deal completion gate:

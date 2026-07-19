@@ -35,23 +35,23 @@ The generated readiness ledger originally reported **19/34** families ready.
 The Fire giant, Blue dragon family, and Bronze dragon closures recorded in
 `slayer-fire-giant-combat-2026-07-18.md` and
 `slayer-blue-dragon-family-combat-2026-07-18.md`, and
-`slayer-bronze-dragon-combat-2026-07-18.md`, followed by the Cave horror
-closure in `slayer-cave-horror-combat-2026-07-18.md`, advance the live ledger
-to **23/34**. The following eleven identities remain absent from
+`slayer-bronze-dragon-combat-2026-07-18.md`, followed by the Cave horror and
+Dagannoth closures in `slayer-cave-horror-combat-2026-07-18.md` and
+`slayer-dagannoth-combat-2026-07-18.md`, advance the live ledger to **24/34**.
+The following ten identities remain absent from
 `COMBAT_ENEMY_DATA` and each produces one
 stable `combat_target` blocker:
 
-1. Dagannoths
-2. Elves
-3. Fever spiders
-4. Fungal magi
-5. Grifolapines
-6. Grifolaroos
-7. Jungle strykewyrms
-8. Kurasks
-9. Trolls
-10. Vyrewatch
-11. Warped tortoises
+1. Elves
+2. Fever spiders
+3. Fungal magi
+4. Grifolapines
+5. Grifolaroos
+6. Jungle strykewyrms
+7. Kurasks
+8. Trolls
+9. Vyrewatch
+10. Warped tortoises
 
 Gargoyles and both Mutated-zygomite rows were already complete and now
 certify their families through the shared finisher engine. The twenty-three ready
