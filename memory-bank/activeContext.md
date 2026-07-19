@@ -2,6 +2,18 @@
 
 ## Current Focus
 
+The Fever-spider source pass closed its level-49/400-LP identity, Slayer
+42/40 XP, six-tick melee, Slayer-glove and Protect-from-Melee split, Rum Deal
+started-route access, exact Darkan 20-slot kwuarm selector, and quest-only body
+exclusion. It did not activate a Combat row. The cutoff record requires three
+balm doses, while Darkan's explicitly disclosed reconstruction uses severity
+15 and four-point balm reductions, requiring four doses; the cutoff
+unprotected `110` also conflicts with later correction history describing a
+Constitution-scaled effect. Under the source standard these non-roll values
+remain `source_blocked`, so Chaeldar stays hidden at 25/34 and Fever spiders
+retain their `combat_target` blocker. No design fork is open. Evidence:
+`source-audits/slayer-fever-spider-combat-2026-07-19.md`.
+
 The two ordinary Elf-warrior forms now close Chaeldar's twenty-fifth
 executable family. Level 90 preserves 1,050 LP, 105 Slayer XP, six-tick ranged
 combat, and a 116-LP maximum; level 108 preserves 1,060 LP, 107.5 Slayer XP,

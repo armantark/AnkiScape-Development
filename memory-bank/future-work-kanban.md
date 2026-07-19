@@ -326,8 +326,13 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   tortoises. Resume from `tools/audit_slayer_readiness.py`; do not render or
   renormalize the pool.
   Fever-spider access remains a partial Rum Deal permission seam rather than a
-  false completion gate. See
+  false completion gate. The 2026-07-19 source pass additionally found a hard
+  disease-value conflict: the cutoff requires three balm doses, while Darkan's
+  disclosed severity-15/four-point reconstruction requires four, and the exact
+  unprotected hit formula is not period closed. Keep Fever spiders blocked;
+  this is a source dependency, not an open design fork. See
   `source-audits/slayer-chaeldar-registry-2026-07-18.md` and
+  `source-audits/slayer-fever-spider-combat-2026-07-19.md` and
   `source-audits/slayer-fire-giant-combat-2026-07-18.md` and
   `source-audits/slayer-blue-dragon-family-combat-2026-07-18.md` and
   `source-audits/slayer-bronze-dragon-combat-2026-07-18.md`,

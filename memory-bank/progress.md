@@ -4,6 +4,20 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Fever-spider source boundary — 2026-07-19
+
+- Closed the source-ready Fever-spider identity, route, protection, ordinary
+  drop-selector, and quest-only body boundaries.
+- Reproduced a material disease conflict: the cutoff requires three Relicym's
+  balm doses, while Darkan's disclosed severity-15/four-point reconstruction
+  requires four. The exact unprotected hit formula is likewise not period
+  closed.
+- Left `fever_spider` absent rather than shipping persuasive but unsupported
+  disease numbers. Chaeldar remains hidden at 25/34 with the same nine
+  blockers; no design decision is pending.
+- Recorded the no-session Workflows run
+  `f2c763f0-4b3b-4ee7-abd6-6273dd05c186` and completed the audit independently.
+
 ## Slayer Elf warrior Combat closure — 2026-07-19
 
 - Added separate ordinary level-90 ranged and level-108 melee Elf-warrior
