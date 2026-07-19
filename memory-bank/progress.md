@@ -1936,3 +1936,19 @@ Test counts are snapshots; current runs outrank this note.
 - Published
   `status-updates/slayer-aberrant-spectre-results-2026-07-18.html`
   (<https://fr3fmom6akth.postplan.dev>).
+
+## Slayer Fungal-mage source boundary — 2026-07-19
+
+- Closed the cutoff-visible Fungal-mage contract: level 120, 1,200 LP,
+  Slayer 1/120 XP, Magic-50 assignment gate, six-tick Magic, 114-LP maximum,
+  poison immunity, 2–3-LP proximity infestation, and the roughly 20-second
+  Neem-oil weakening loop.
+- Pinned rev-742 NPC/item identities and Darkan's combat, infestation, oil,
+  drops, cache bonuses, and exact 606-slot charm lead.
+- Kept the target blocked because Darkan's `nostats` definition explicitly
+  generates non-real combat levels, the period sources conflict on the exact
+  Melee/Ranged reducer, the ordinary sources disagree on two quantities, and
+  the canonical Neem-drupe/jug/oil acquisition chain is not live.
+- Chaeldar remains hidden and unrenormalized at 25/34. No owner design fork was
+  reopened. Durable evidence:
+  `source-audits/slayer-fungal-mage-combat-2026-07-19.md`.

@@ -2,6 +2,21 @@
 
 ## Current Focus
 
+The Fungal-mage source pass closed its level-120/1,200-LP identity, Magic-50
+assignment gate, Slayer 1/120 XP, six-tick Magic attack, 114-LP maximum,
+2–3-LP proximity infestation, roughly 20-second neem effect, canonical client
+IDs, resource set, and Darkan charm lead. It did not activate a Combat row.
+Darkan explicitly labels the combat definition `nostats` and generates all five
+combat levels from combat level and LP with `realStats = false`; the cutoff
+record also conflicts between almost-one-tenth and one-fifth/one-sixth
+Melee/Ranged resistance, while Darkan uses exactly one fifth. The ordinary
+drop sources disagree on Potato-cactus/Limpwurt quantities, and the canonical
+Neem-drupe/jug/oil action chain is not live. Under the source standard these
+non-roll levels and conflicts remain `source_blocked`, so Chaeldar stays hidden
+at 25/34 and Fungal magi retain their `combat_target` blocker. No design fork
+is open. Evidence:
+`source-audits/slayer-fungal-mage-combat-2026-07-19.md`.
+
 The Fever-spider source pass closed its level-49/400-LP identity, Slayer
 42/40 XP, six-tick melee, Slayer-glove and Protect-from-Melee split, Rum Deal
 started-route access, exact Darkan 20-slot kwuarm selector, and quest-only body
