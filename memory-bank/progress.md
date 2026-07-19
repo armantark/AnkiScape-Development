@@ -4,6 +4,32 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Steel dragon Combat target — 2026-07-19
+
+- Added the ordinary level-246 Steel dragon as Duradel/Lapalok's fourteenth
+  certifying family and a future Kuradal dependency.
+- Preserved the exact period LP, Slayer XP, six-tick melee, 225-LP maximum,
+  settled metal-dragon dragonfire abstraction, guaranteed Dragon bones/five
+  Steel bars, exact emulator combat levels/defences/respawn, and all
+  independent plate/visage/clue rolls.
+- Closed Darkan's otherwise exact 123/128 ordinary selector with Coins x650
+  at 5/128. The period page attests the item and the OSRS fork table matches
+  every Darkan row before filling the exact five-slot gap; the row remains
+  explicitly `provisional/osrs-lineage`.
+- Added the losslessly enumerated quantity-three charm selector and the newest
+  pre-cutoff target asset with provenance.
+- Added source-data, selector-total, drop-RNG, asset, real-Qt picker, and
+  derived Slayer-readiness regression coverage. Duradel/Lapalok remains hidden
+  and unrenormalized at 14/35.
+- Workflows run `e670532d-28df-4f13-b515-2691702928cc` was canceled after it
+  acquired a worker slot but never established a Codex session or emitted a
+  tool call; no reviewer output was used.
+- Results:
+  `status-updates/slayer-steel-dragon-results-2026-07-19.html`
+  (<https://h9vvkp6arl98.postplan.dev>).
+- Governing evidence:
+  `source-audits/slayer-steel-dragon-combat-2026-07-19.md`.
+
 ## Slayer Black dragon Combat target — 2026-07-19
 
 - Added the ordinary level-227 Black dragon as Duradel's thirteenth certifying

@@ -2849,6 +2849,50 @@ class CombatLogicTest(unittest.TestCase):
             },
         )
 
+    def test_steel_dragon_rolls_closed_ordinary_and_independent_tertiaries(self):
+        dragon = COMBAT_ENEMY_DATA["steel_dragon"]
+        coin_closure = _combat_roll_drops(
+            dragon,
+            _rng(
+                [
+                    95 / 128,
+                    0.999999,
+                    0.999999,
+                    0.999999,
+                    0.999999,
+                    0.999999,
+                    0.999999,
+                ]
+            ),
+        )
+        rares = _combat_roll_drops(
+            dragon,
+            _rng([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+        )
+
+        self.assertEqual(
+            coin_closure,
+            {
+                "Dragon bones": 1,
+                "Steel bar": 5,
+                "Coins": 650,
+            },
+        )
+        self.assertEqual(
+            rares,
+            {
+                "Dragon bones": 1,
+                "Steel bar": 5,
+                "Rune javelin": 7,
+                "Gold charm": 3,
+                "Dragon plateskirt": 1,
+                "Dragon platelegs": 1,
+                "Draconic visage": 1,
+                "Clue scroll (hard)": 1,
+                "Clue scroll (elite)": 1,
+            },
+        )
+
     def test_red_dragon_rolls_exact_ordinary_and_independent_tertiaries(self):
         dragon = COMBAT_ENEMY_DATA["red_dragon"]
         empty_ordinary = _combat_roll_drops(

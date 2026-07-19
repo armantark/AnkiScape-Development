@@ -34,6 +34,7 @@ NEW_COMBAT_ENEMIES = (
     "baby_blue_dragon",
     "bronze_dragon",
     "iron_dragon",
+    "steel_dragon",
     "red_dragon",
     "black_dragon",
     "baby_red_dragon",
@@ -398,6 +399,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("baby_blue_dragon", "Baby blue dragon.png"),
             ("bronze_dragon", "Bronze dragon.png"),
             ("iron_dragon", "Iron dragon.png"),
+            ("steel_dragon", "Steel dragon.png"),
             ("red_dragon", "Red dragon old 5.png"),
             ("black_dragon", "Black dragon.png"),
             ("baby_red_dragon", "Baby red dragon.png"),
@@ -489,6 +491,11 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                     self.assertEqual(
                         provenance[relative_path]["timestamp"],
                         "2010-12-29T13:34:17Z",
+                    )
+                if target_id == "steel_dragon":
+                    self.assertLess(
+                        provenance[relative_path]["timestamp"],
+                        "2012-11-20T00:00:00Z",
                     )
                 if target_id == "red_dragon":
                     self.assertEqual(
@@ -860,6 +867,53 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             )
         self.assertIn("oldid=6530527", dragon["source"])
         self.assertIn("one empty slot", dragon["source_status"])
+
+    def test_steel_dragon_preserves_cutoff_metal_dragon_contract(self):
+        dragon = COMBAT_ENEMY_DATA["steel_dragon"]
+
+        self.assertEqual(dragon["level"], 246)
+        self.assertEqual(dragon["attack_speed"], 6)
+        self.assertEqual(dragon["respawn_delay"], 59)
+        self.assertEqual(dragon["max_hit"], 225)
+        self.assertEqual(dragon["slayer_xp"], 220.4)
+        self.assertEqual(
+            dragon["stats"],
+            {
+                "hitpoints": 2100,
+                "attack": 215,
+                "strength": 215,
+                "defence": 215,
+                "magic": 100,
+                "ranged": 1,
+            },
+        )
+        self.assertEqual(dragon["dragonfire"]["chance_numerator"], 1)
+        self.assertEqual(dragon["dragonfire"]["chance_denominator"], 2)
+        self.assertEqual(dragon["dragonfire"]["unprotected_max_hit"], 500)
+        self.assertEqual(
+            dragon["drops"]["guaranteed"],
+            (("Dragon bones", 1), ("Steel bar", 5)),
+        )
+        self.assertEqual(
+            [(table["name"], table["total"]) for table in dragon["drops"]["tables"]],
+            [
+                ("Darkan ordinary with OSRS-lineage closure", 128),
+                ("Darkan charms", 1212),
+                ("Dragon plateskirt", 512),
+                ("Dragon platelegs", 512),
+                ("Draconic visage", 10000),
+                ("Hard clue", 64),
+                ("Elite clue", 500),
+            ],
+        )
+        for table in dragon["drops"]["tables"]:
+            self.assertEqual(
+                sum(slot["slots"] for slot in table["slots"]),
+                table["total"],
+            )
+        self.assertIn("oldid=6582075", dragon["source"])
+        self.assertIn("provisional/osrs-lineage", dragon["source_status"])
+        self.assertIn("quantity-three charms", dragon["source_status"])
 
     def test_red_dragon_family_preserves_cutoff_adult_and_baby_contracts(self):
         adult = COMBAT_ENEMY_DATA["red_dragon"]

@@ -393,9 +393,9 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
 - Duradel/Lapalok is now the sixth completely encoded pool. Its complete
   35-row table preserves the provisional 334-point denominator, Combat 100,
   Slayer 50, Shilo Village access, and the While Guthix Sleeps identity swap
-  while remaining hidden at 13/35 derived readiness. The 22 exact blockers
+  while remaining hidden at 14/35 derived readiness. The 21 exact blockers
   remain visible in `tools/audit_slayer_readiness.py`; they include the
-  existing Abyssal-demon and Nechryael mechanic gaps and 20 families without
+  existing Abyssal-demon and Nechryael mechanic gaps and 19 families without
   a certifying Combat target.
   Continue from that generated ledger; do not expose or renormalize the
   partial role. Governing pool evidence:
@@ -407,6 +407,15 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   asset. King Black Dragon, Queen Black Dragon, Daemonheim, and
   location-specific contexts remain separate. See
   `source-audits/slayer-black-dragon-combat-2026-07-19.md`.
+- Steel dragon is source-closed and executable as Duradel/Lapalok's fourteenth
+  ready family. The ordinary target preserves cutoff LP/XP/maximum, the
+  settled metal-dragon dragonfire abstraction, guaranteed five-bar drop,
+  exact emulator combat state, lossless quantity-three charms, all
+  independent plate/visage/clue rolls, and cutoff art. Darkan's five-slot
+  ordinary-selector gap is filled by the period-attested Coins x650 row at
+  the matching OSRS fork's exact 5/128 rate and remains labeled
+  `provisional/osrs-lineage`. See
+  `source-audits/slayer-steel-dragon-combat-2026-07-19.md`.
 - Kuradal remains unencoded despite its source-closed 36-row, 322-point pool.
   The period family ledger now closes ordinary TzHaar as Ket/Xil/Mej/Hur and
   Living rock creatures as patriarch/protector/striker, explicitly excluding

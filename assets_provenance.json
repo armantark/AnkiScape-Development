@@ -2075,6 +2075,18 @@
     "source_wiki": "osrs",
     "timestamp": "2019-02-02T18:43:59Z"
   },
+  "combatenemies/steel_dragon.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Steel_dragon.png",
+    "file_title": "Steel dragon.png",
+    "image_url": "https://runescape.wiki/images/archive/20130110124037%21Steel_dragon.png?f62bd",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5912e48a6da4ecff30b93fc0a761f219a4de41ab",
+    "size": 242825,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-29T04:55:54Z"
+  },
   "combatenemies/thief.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Thief.png",
     "file_title": "Thief.png",
