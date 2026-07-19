@@ -4,6 +4,20 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Spiritual-family authority stop — 2026-07-19
+
+- Stopped before source-to-runtime implementation because the settled Sumona,
+  Duradel/Lapalok, and Kuradal records require four god variants, while the
+  supposedly complete registry names only one Saradomin target for each of the
+  Spiritual-mage and Spiritual-warrior families.
+- Confirmed rev-727 independently exposes four attackable identities per
+  generic family. The rev-742 exact-name surface differs and therefore needs
+  later source reconciliation rather than an inferred variant collapse.
+- Left both families non-certifying at `combat_target`; no target-local God
+  Wars context, Combat row, asset, or test was changed.
+- Sumona remains hidden and unrenormalized at 20/37. Durable conflict record:
+  `audits/slayer-spiritual-families-registry-conflict-2026-07-19.md`.
+
 ## Slayer Terror-dog source boundary — 2026-07-19
 
 - Closed the ordinary level-110 identity, real combat levels, Slayer-40 gate

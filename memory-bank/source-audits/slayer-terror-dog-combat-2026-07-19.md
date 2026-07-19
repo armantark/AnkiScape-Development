@@ -222,3 +222,8 @@ be adopted without reopening design.
 
 No owner-facing design question emerged. This is a source conflict under the
 2026-07-19 closed-design rule, not a design gap.
+
+Codex Workflows run `1d40e55e-023b-4a05-af94-694587855167` was canceled after
+the root independently proved the decisive selector conflict. The Sol-high
+read-only leaf never established a session and produced zero tokens, tool
+calls, or usable output.

@@ -397,6 +397,12 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   article history permits only ×44–200 and ×440. Do not cherry-pick that row
   away or implement a consumerless Prayer helper. See
   `source-audits/slayer-terror-dog-combat-2026-07-19.md`.
+- Stop at Spiritual mages and Spiritual warriors: every settled master record
+  requires four god variants plus target-local alignment context, but the
+  executable registry names only a Saradomin target for each family. Do not
+  let one representative certify either family and do not infer stable IDs for
+  the omitted variants. See
+  `audits/slayer-spiritual-families-registry-conflict-2026-07-19.md`.
 - Red dragons are source-closed and executable as Sumona's twentieth ready
   family. The adult and baby representatives preserve the cutoff substitution
   rule, adult-only dragonfire, exact period maxima, Darkan selectors, and

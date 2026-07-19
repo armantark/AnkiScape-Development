@@ -19,6 +19,14 @@ and later ×440. The talk history does not repair the conflict. No target,
 Prayer helper, item, or asset was added; Sumona remains 20/37. See
 `source-audits/slayer-terror-dog-combat-2026-07-19.md`.
 
+The Spiritual-mage and Spiritual-warrior queue is stopped on a second direct
+settled-record/code conflict. Sumona, Duradel/Lapalok, and Kuradal require four
+god variants and target-local alignment context, while `slayer_data.py`
+registers only one Saradomin target for each family. Rev-727 independently
+contains four attackable identities per generic family. No representative rule
+was inferred and no registry or Combat row was changed. See
+`audits/slayer-spiritual-families-registry-conflict-2026-07-19.md`.
+
 Red dragons are Sumona's twentieth certifying family. The ordinary level-152
 adult and level-48 baby preserve their cutoff substitution relationship,
 adult-only dragonfire, exact period XP/maxima, Darkan selectors, and pre-cutoff
