@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dungeoneering — The Choice Architecture, Concretely</title>
+<style>
+:root {
+    --bg: #0c0e12;
+    --surface: #161a21;
+    --surface-2: #1e232c;
+    --border: #2a3040;
+    --text: #e8ecf4;
+    --text-dim: #8b95a8;
+    --accent: #4f8cff;
+    --accent-glow: rgba(79, 140, 255, 0.15);
+    --red: #ff5c5c;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --purple: #a78bfa;
+    --radius: 12px;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans: "Outfit", -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.55; padding: 2.5rem 1.25rem 4rem; }
+.wrap { max-width: 1100px; margin: 0 auto; }
+.badge { display: inline-block; font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.12em; color: var(--purple); background: rgba(167,139,250,0.12); border: 1px solid var(--purple); border-radius: 999px; padding: 0.3rem 0.9rem; margin-bottom: 1rem; }
+h1 { font-size: 1.9rem; font-weight: 700; margin-bottom: 0.4rem; }
+.sub { color: var(--text-dim); font-size: 0.95rem; max-width: 66ch; margin-bottom: 2rem; }
+h2.tier { font-size: 1.05rem; font-family: var(--mono); letter-spacing: 0.06em; text-transform: uppercase; margin: 2.2rem 0 0.3rem; }
+h2.tier .n { display: inline-block; width: 1.6rem; height: 1.6rem; line-height: 1.6rem; text-align: center; background: var(--accent); color: #fff; border-radius: 6px; margin-right: 0.5rem; }
+p.tierdesc { color: var(--text-dim); font-size: 0.88rem; margin-bottom: 1rem; max-width: 70ch; }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem 1.3rem; margin-bottom: 1.2rem; }
+.panel h3 { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.8rem; }
+.mock { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 0.9rem 1rem; font-size: 0.82rem; }
+.mockrow { display: flex; align-items: center; gap: 0.6rem; padding: 0.3rem 0; flex-wrap: wrap; }
+.mockrow label { min-width: 110px; color: var(--text-dim); font-size: 0.75rem; }
+.chip { font-family: var(--mono); font-size: 0.72rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.25rem 0.6rem; }
+.chip.on { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.chip.dis { opacity: 0.4; }
+.note { font-size: 0.72rem; color: var(--text-dim); font-style: italic; margin-top: 0.6rem; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+@media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
+.resultline { font-family: var(--mono); font-size: 0.74rem; padding: 0.5rem 0.7rem; border-left: 3px solid var(--accent); background: var(--bg); border-radius: 0 6px 6px 0; margin-bottom: 0.45rem; }
+.resultline .xp { color: var(--green); }
+.resultline .warn { color: var(--amber); }
+.resultline .bad { color: var(--red); }
+.ctxrow { display: flex; align-items: center; gap: 0.6rem; background: var(--bg); border: 1px solid var(--amber); border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.78rem; flex-wrap: wrap; }
+.ctxrow .lbl { font-family: var(--mono); font-size: 0.66rem; color: var(--amber); letter-spacing: 0.06em; }
+.btnchip { font-family: var(--mono); font-size: 0.7rem; border: 1px solid var(--accent); color: var(--accent); border-radius: 6px; padding: 0.25rem 0.7rem; background: transparent; cursor: default; }
+.map { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin: 0.6rem 0; }
+.room { width: 62px; height: 46px; border-radius: 8px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.55rem; gap: 2px; text-align: center; }
+.room.done { background: rgba(74,222,128,0.1); border-color: var(--green); color: var(--green); }
+.room.front { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+.room.fog { color: var(--text-dim); border-style: dashed; opacity: 0.55; }
+.arrow { color: var(--text-dim); font-size: 0.8rem; }
+.ladder { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: 0.5rem; }
+@media (max-width: 700px) { .ladder { grid-template-columns: repeat(2, 1fr); } }
+.rung { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.6rem; font-size: 0.72rem; }
+.rung b { display: block; font-size: 0.78rem; }
+.rung .cost { font-family: var(--mono); font-size: 0.62rem; color: var(--amber); }
+.rung.owned { border-color: var(--green); }
+.rung.owned .cost { color: var(--green); }
+table { border-collapse: collapse; width: 100%; font-size: 0.78rem; }
+th, td { text-align: left; padding: 0.45rem 0.7rem; border-bottom: 1px solid var(--border); }
+th { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
+.sim { background: var(--surface); border: 1px solid var(--accent); border-radius: var(--radius); padding: 1.2rem 1.3rem; margin: 2rem 0; }
+.sim h3 { color: var(--accent); font-size: 0.95rem; margin-bottom: 0.3rem; }
+.sim p { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.8rem; }
+button.answer { font-family: var(--mono); font-size: 0.8rem; background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 0.6rem 1.2rem; cursor: pointer; }
+button.answer:hover { filter: brightness(1.15); }
+button.answer:disabled { opacity: 0.4; cursor: default; }
+#simlog { margin-top: 0.9rem; }
+.verdict { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.2rem; font-size: 0.85rem; margin-top: 2rem; }
+.verdict b { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <span class="badge">DRILL-DOWN — WHAT PLAYING IT ACTUALLY LOOKS LIKE</span>
+    <h1>Dungeoneering: the choice architecture, concretely</h1>
+    <p class="sub">Merged model 1+2 (floor size is the authentic small/medium/large source choice, so early floors are short by default). Every choice lives in one of three tiers. All numbers below marked ~ are <em>illustrative until harvest pins them</em> — shapes are the decision here, not values.</p>
+
+    <h2 class="tier"><span class="n">1</span>Entry — strategic, once per floor</h2>
+    <p class="tierdesc">You make these standing at the Daemonheim gate, never mid-review. Casual shows the same panel with everything defaulted to your last/best choice.</p>
+    <div class="panel">
+        <h3>Floor entry panel — mockup</h3>
+        <div class="mock">
+            <div class="mockrow"><label>Floor</label><span class="chip on">Frozen · floor 6 of 11</span><span class="chip dis">Abandoned (DG 12)</span></div>
+            <div class="mockrow"><label>Size</label><span class="chip">Small</span><span class="chip on">Medium</span><span class="chip dis">Large (DG ~15)</span></div>
+            <div class="mockrow"><label>Complexity</label><span class="chip">1</span><span class="chip">2</span><span class="chip">3</span><span class="chip">4</span><span class="chip">5</span><span class="chip on">6</span></div>
+            <div class="mockrow"><label>Kinship class</label><span class="chip on">Medic · tier 2</span><span class="chip">Tank · tier 1</span><span class="chip">change…</span></div>
+            <div class="mockrow"><label>Binds</label><span class="chip on">Fractite 2h ⛓</span><span class="chip on">~125 arrows ⛓</span><span class="chip dis">slot 2 at DG 50</span></div>
+            <div class="mockrow"><label>Policies</label><span class="chip on">Auto-route: toward boss</span><span class="chip on">Eat at &lt;50% LP</span><span class="chip on">Cook before boss</span></div>
+        </div>
+        <p class="note">Bind slots follow the authentic cap ladder (1 slot early, more with DG levels + the ammo bind). Prestige and previous-progress shown here too. One panel, then you just answer cards.</p>
+    </div>
+
+    <h2 class="tier"><span class="n">2</span>Checkpoints — rare, mid-floor, never modal</h2>
+    <p class="tierdesc">Two kinds only. Both are skippable and both have remembered defaults — ignoring them never stalls the floor.</p>
+    <div class="grid2">
+        <div class="panel">
+            <h3>The frontier — which room next (Advanced picks, Casual auto-routes)</h3>
+            <div class="map">
+                <div class="room done">START</div><span class="arrow">→</span>
+                <div class="room done">GUARD<br>✔</div><span class="arrow">→</span>
+                <div class="room front">SKILL DOOR<br>Fish 34</div>
+                <span class="arrow">┊</span>
+                <div class="room front">KEY DOOR<br>gold ◆</div>
+                <span class="arrow">┊</span>
+                <div class="room fog">? ? ?</div>
+                <div class="room fog">BOSS<br>somewhere</div>
+            </div>
+            <p class="note">Only the revealed frontier is visible — the roguelike feeling survives as fog, keys, and branch choices, not a map screen you manage.</p>
+        </div>
+        <div class="panel">
+            <h3>Bind offer — contextual action row (same surface as Pit/Aksel)</h3>
+            <div class="ctxrow"><span class="lbl">DROP</span> Promethium platebody — better than your bound Fractite 2h?
+                <button class="btnchip">Bind it</button><button class="btnchip">Replace 2h</button><button class="btnchip">Skip</button>
+            </div>
+            <p class="note">Appears only when a drop beats what's bound — rare because bind caps are authentic and drops are rolls. Ignore it and the remembered choice (or Skip) applies on your next answer.</p>
+        </div>
+    </div>
+
+    <h2 class="tier"><span class="n">3</span>Never per-review — automated microplay</h2>
+    <p class="tierdesc">Eating, potion sips, door-puzzle solving, gathering, cooking, ferrying items: resolved inside the room beat under your saved policies, MTA-style. The result line tells you what happened; undo reverses all of it.</p>
+    <div class="panel">
+        <h3>What answering cards feels like — real result-line shapes</h3>
+        <div class="resultline">Cleared <b>forgotten guard room</b>: slew 2 forgotten warriors · <span class="xp">+~410 Attack, +64 DG progress</span></div>
+        <div class="resultline">Passed <b>skill door</b>: fished & cooked 4 dusk eels on the way · <span class="xp">+~180 Fishing, +~150 Cooking</span> · ate 1 (LP 62%→84%)</div>
+        <div class="resultline"><span class="warn">Bound-key branch:</span> opened the gold door · found <b>promethium ore + salve nettles</b> (session-only)</div>
+        <div class="resultline"><span class="bad">Died to the floor boss (phase 2).</span> Respawned at start · payout modifier now ~−11% · floor intact</div>
+        <div class="resultline"><b>Floor complete.</b> Boss down · 9/11 rooms · 1 death · <span class="xp">+~5,900 Dungeoneering XP, +~590 tokens</span> · prestige 6 → next floor unlocked</div>
+    </div>
+
+    <div class="panel">
+        <h3>Outside metaprogression — where tokens go (period catalog, staged)</h3>
+        <div class="ladder">
+            <div class="rung owned"><b>Ring of Kinship</b><span class="cost">Medic tier 2 owned</span>class tiers upgrade in-floor automation quality</div>
+            <div class="rung"><b>Medic tier 3</b><span class="cost">~token cost @ harvest</span>stronger auto-heal efficiency</div>
+            <div class="rung"><b>Coal bag</b><span class="cost">proof purchase</span>first cross-system reward</div>
+            <div class="rung"><b>Scroll of life…</b><span class="cost">hidden until functional</span>rows open only when they fully work</div>
+        </div>
+        <p class="note">Plus prestige, floor-completion marks, and the closed economy: nothing found inside ever reaches your bank. Ordinary skill XP earned inside is real and cadence-calibrated.</p>
+    </div>
+
+    <div class="sim">
+        <h3>Feel it: simulate a small frozen floor</h3>
+        <p>Each click = one successful review. Watch the shape — no babysitting, choices only where they matter.</p>
+        <button class="answer" id="simBtn">Answer a card</button>
+        <div id="simlog"></div>
+    </div>
+
+    <div class="verdict">
+        <b>If this page matches what you imagined:</b> answer "ratify" in chat and Dungeoneering's design closes — engine (seeded room graph), three-tier choices, authentic bind caps + kinship ladder + prestige + complexity + closed economy, death as payout penalty, staged token shop. Harvest then pins every ~number from the period record. If something here feels wrong, name the panel and we fork just that piece.
+    </div>
+</div>
+<script>
+(function () {
+    var steps = [
+        'Entered <b>Frozen floor 6</b> (medium, complexity 6) · binds equipped · Medic tier 2 active',
+        'Cleared <b>entry corridor</b>: slew a frost guard · <span class="xp">+~380 Attack</span>',
+        'Passed <b>skill door</b>: cut congealed roots · <span class="xp">+~210 Woodcutting</span> · frontier: 2 doors revealed',
+        '<span class="warn">Bind offer:</span> katagon maul drop → remembered choice "Skip" applied',
+        'Opened <b>gold key door</b>: looted session ore + eels · cooked 3 · ate 1 (LP 71%→92%)',
+        'Cleared <b>puzzle room</b> (auto-solved): unlocked the boss corridor',
+        '<span class="bad">Boss phase 1:</span> Luminescent icefiend to 54% · took 220 damage · auto-ate 1 eel',
+        '<b>Floor complete!</b> Boss down · 7/9 rooms · 0 deaths · <span class="xp">+~4,100 DG XP, +~410 tokens</span> · prestige ticks up'
+    ];
+    var i = 0;
+    var btn = document.getElementById("simBtn");
+    var log = document.getElementById("simlog");
+    btn.addEventListener("click", function () {
+        if (i >= steps.length) return;
+        var d = document.createElement("div");
+        d.className = "resultline";
+        d.innerHTML = steps[i];
+        log.appendChild(d);
+        i++;
+        if (i >= steps.length) { btn.disabled = true; btn.textContent = "Floor complete — 8 reviews"; }
+    });
+})();
+</script>
+</body>
+</html>
