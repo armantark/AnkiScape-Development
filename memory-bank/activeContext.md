@@ -2,6 +2,19 @@
 
 ## Current Focus
 
+Warped terrorbird is harvested but stopped on an authority/schema conflict
+before implementation. The cutoff article says The Path of Glouphrie need only
+be started before assignment; the registered `required_quest_id` is evaluated
+only as quest completion. No substitute stage predicate was inferred. Both
+Darkan combat rows are `nostats`; the level-143 row conflicts at 140 versus
+the cutoff 210 maximum; and fixed Melee discards the sourced Melee/Ranged
+double-hit plus three Stab/Slash/Crush morphologies. Darkan's 19,999/20,000
+ordinary selector conflicts with most cutoff quantity ranges and omits visible
+rows. Crystal chime is not a reachable inventory dependency. No target, item,
+asset, gate, or test was changed; Duradel/Lapalok remains 14/35. See
+`source-audits/slayer-warped-terrorbird-combat-2026-07-19.md` and
+`audits/slayer-warped-terrorbird-gate-conflict-2026-07-19.md`.
+
 Goraks are harvested but remain source-, context-, and
 representation-blocked. The cutoff record closes both level-145 Fairy-ring
 and level-149 God-Wars identities, the 40–80 count, Fairy Tale II assignment

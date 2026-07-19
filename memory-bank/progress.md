@@ -4,6 +4,30 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Warped-terrorbird source/authority boundary — 2026-07-19
+
+- Pinned the ordinary level-81 and quest level-143 identities, Slayer 56,
+  1,549 LP/154 XP, approximate 140 and exact 210 maxima, Melee/Ranged
+  double-hit behavior, three morphology weaknesses, ear-protection cap,
+  carried Crystal-chime gate, guaranteed Bones, and visible loot set.
+- Stopped before implementation because the cutoff says The Path of Glouphrie
+  need only be started before assignment, while current `required_quest_id`
+  semantics require completion. No stage predicate was inferred.
+- Kept the target source-blocked because both Darkan rows are `nostats`, the
+  level-143 maximum conflicts at 140, and its 19,999/20,000 selector conflicts
+  with most cutoff quantity ranges and omits visible content.
+- Kept the target representation/dependency-blocked because fixed-style Combat
+  cannot preserve the mixed attack/morphology loop and Crystal chime is not a
+  reachable item dependency.
+- Read-only Workflows run `2c6d91c5-c38c-4fa9-aea1-016e2cfbc5d5` was canceled
+  without using a leaf result. It acquired a global slot but never established
+  a Codex session or emitted a tool call; the root independently reproduced
+  every accepted finding.
+- Duradel/Lapalok remains hidden and unrenormalized at 14/35. This is an
+  authority/schema stop rather than a new creative-design question. Durable
+  records: `source-audits/slayer-warped-terrorbird-combat-2026-07-19.md` and
+  `audits/slayer-warped-terrorbird-gate-conflict-2026-07-19.md`.
+
 ## Slayer Gorak source boundary — 2026-07-19
 
 - Closed the level-145 Fairy-ring and level-149 God-Wars identities, 40–80

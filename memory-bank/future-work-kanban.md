@@ -469,6 +469,15 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   the target-native prayer-bypassing landed-hit drain transaction, and neither
   settled Fairy-ring/God-Wars route is executable. Duradel/Lapalok remains
   14/35. See `source-audits/slayer-gorak-combat-2026-07-19.md`.
+- Warped terrorbirds are stopped on an authority/schema conflict. The cutoff
+  says The Path of Glouphrie need only be started before assignment, while the
+  current family field requires completion. Both Darkan rows are `nostats`,
+  the quest-form maximum conflicts, its selector disagrees with cutoff
+  quantities, and fixed-style Combat cannot preserve the mixed
+  attack/morphology loop. Crystal chime is not a reachable dependency.
+  Duradel/Lapalok remains 14/35. See
+  `source-audits/slayer-warped-terrorbird-combat-2026-07-19.md` and
+  `audits/slayer-warped-terrorbird-gate-conflict-2026-07-19.md`.
 - Kuradal remains unencoded despite its source-closed 36-row, 322-point pool.
   The period family ledger now closes ordinary TzHaar as Ket/Xil/Mej/Hur and
   Living rock creatures as patriarch/protector/striker, explicitly excluding
