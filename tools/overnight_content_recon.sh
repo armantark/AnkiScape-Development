@@ -27,14 +27,21 @@ anywhere in the ledger.
 
 Goal: enumerate, as exhaustively as the wiki allows, every gameplay surface
 that existed in RuneScape on 2012-11-19 (the day before EOC), and report only
-the ones the ledger does not own. Sources to walk (prefer pinned pre-cutoff
-oldids; current pages are acceptable for enumeration but flag anything whose
-period existence is uncertain):
-- the Minigames, Distractions and Diversions, Miniquests, and Bosses lists;
-- the 2010/2011/2012 game-update year pages (every content update after the
-  last ledger-known item);
-- Treasure Trails, task-set/diary, skill, and activity category indices;
-- members/f2p activity lists and the pay-to-play content index.
+the ones the ledger does not own.
+
+CONTINUATION MODE: a prior run produced
+`memory-bank/audits/overnight-content-recon-2026-07-19.md` with a completed
+Pass 0 baseline, Pass 1 (pinned wiki gameplay indices), and Pass 2A
+(2010-2012 update chronology), plus four admitted candidates already
+dispositioned in
+`memory-bank/source-audits/recon-coverage-closure-2026-07-18.md`. Do NOT
+repeat those passes. Resume from that report's "Deadline closure" section:
+the dated Wayback/official-Jagex pass, the full six-cache item/object/NPC
+cross-build pass (727 was only begun; extracted caches live under
+~/Library/Caches/codex/2012scape-openrs2/extracted/), the local
+implementation-seam pass over the 2011Scape and Darkan trees, and the
+convergence passes. Append new candidates to the SAME report file's ranked
+list, following its admission/duplicate-lock rules and checkpoint log.
 
 Be polite to the wiki: sequential fetches, no parallel hammering.
 

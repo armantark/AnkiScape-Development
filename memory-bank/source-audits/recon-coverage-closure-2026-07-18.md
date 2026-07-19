@@ -61,6 +61,37 @@ knowledge, no live wiki access — hence the planned overnight pass).
   the source assist system stays under the multiplayer exclusion), Oo'glog
   spa buffs as sourced timed effects on the world clock.
 
+## Overnight recon batch (2026-07-19) — pattern-determined, no forks
+
+The first overnight wiki recon
+(`memory-bank/audits/overnight-content-recon-2026-07-19.md`) admitted four
+candidates; all four adopt under the full-breadth policy via existing
+patterns:
+
+- **Chimp ice deliveries** (post–Do No Evil, oldid 6105414): the
+  delivery-loop pattern (Gnome Restaurant precedent) with the melt timer
+  compressed to a per-delivery beat budget, milestone statues and the
+  25-delivery Completionist mark as landmark beats, and sourced rune/scimitar
+  rewards.
+- **White tree fruit** (post–Garden of Tranquillity, oldid 5838367): a
+  Farming special-patch harvest (Jade Vine precedent) with the sourced
+  regrow, 12 XP, heal/run-energy item effects, and its diary and Beacon
+  Network dependencies recorded, not duplicated.
+- **Doric and Boric task series** (post–What's Mine is Yours, oldid
+  6553815): finite task chains as duty/landmark beats; the Gofannon amulet's
+  183,500 bonus-XP pool ships under the reward-XP accounting rule (sourced
+  magnitude, with/without parity assertion).
+- **Cheese-wheel churning and slicing** (oldid 6288901): ordinary Cooking
+  rows — churn at 48 Cooking, slice at 4 XP with the level-shaped minimum-
+  five yield roll handled as an authentic embedded roll or provisional
+  calibration per the standard.
+
+The recon itself is a **checkpoint, not exhaustive closure**: the Wayback/
+official-Jagex pass, the full six-cache pass (727 only begun), the local
+implementation-seam pass, and convergence passes remain unfinished. The
+continuation resumes from those families rather than repeating completed
+passes.
+
 ## Follow-through
 
 - The wider family ledger in the completion packet gains these names.
