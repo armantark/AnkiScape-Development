@@ -127,6 +127,7 @@ EQUIPMENT_REQUIREMENT_OVERRIDES: Mapping[
     int, Tuple[Tuple[str, int], ...]
 ] = {
     7159: (("slayer", 37),),
+    9185: (("ranged", 61),),
 }
 MINING_BONUS_EQUIPMENT_FALLBACKS: Mapping[int, int] = {
     8283: 1704,
@@ -171,7 +172,11 @@ LEGACY_EQUIPMENT_ITEMS: Tuple[Tuple[str, int, Optional[str], int, bool, str, str
     ("Mystic hat (dark)", 4099, "defense", 20, False, "head", "MYSTIC_HAT_DARK"),
     ("Mystic robe bottom (dark)", 4103, "defense", 20, False, "legs", "MYSTIC_ROBE_BOTTOM_DARK"),
     ("Mystic boots (dark)", 4107, "defense", 20, False, "boots", "MYSTIC_BOOTS_DARK"),
+    ("Mystic robe bottom (light)", 4113, "defense", 20, False, "legs", "MYSTIC_ROBE_BOTTOM_LIGHT"),
     ("Mystic hat (light)", 4109, "defense", 20, False, "head", "MYSTIC_HAT_LIGHT"),
+    ("Leaf-bladed spear", 4158, "attack", 50, True, "spear", "LEAF_BLADED_SPEAR"),
+    ("Leaf-bladed sword", 13290, "attack", 50, False, "sword", "LEAF_BLADED_SWORD"),
+    ("Slayer's staff", 4170, "magic", 50, False, "staff", "SLAYER_STAFF"),
     ("Staff", 1379, None, 1, False, "staff", "STAFF"),
     ("Staff of air", 1381, None, 1, False, "elemental_staff", "STAFF_OF_AIR"),
     ("Staff of earth", 1385, None, 1, False, "elemental_staff", "STAFF_OF_EARTH"),
@@ -194,7 +199,11 @@ LEGACY_EQUIPMENT_REQUIREMENT_OVERRIDES: Mapping[
     "Mystic hat (dark)": (("defense", 20), ("magic", 40)),
     "Mystic robe bottom (dark)": (("defense", 20), ("magic", 40)),
     "Mystic boots (dark)": (("defense", 20), ("magic", 20)),
+    "Mystic robe bottom (light)": (("defense", 20), ("magic", 40)),
     "Mystic hat (light)": (("defense", 20), ("magic", 20)),
+    "Leaf-bladed spear": (("attack", 50), ("slayer", 55)),
+    "Leaf-bladed sword": (("attack", 50), ("slayer", 55)),
+    "Slayer's staff": (("magic", 50),),
 }
 QUEST_EQUIPMENT_ITEMS: Tuple[Tuple[int, str], ...] = (
     (78, "Ice arrows"),
@@ -496,7 +505,19 @@ def _recipe_equipment_item(
     slot = _slot_from_source(block, "weapon")
     bonuses = _bonuses_from_block(block)
     combat_skill = _combat_skill_for_recipe_equipment(slot, bonuses)
-    required_level = _required_level_for_recipe_equipment(output_item, combat_skill, recipe.get("level", 1))
+    skill_requirements = EQUIPMENT_REQUIREMENT_OVERRIDES.get(source_item_id)
+    if skill_requirements is None:
+        required_level = _required_level_for_recipe_equipment(
+            output_item,
+            combat_skill,
+            recipe.get("level", 1),
+        )
+        skill_requirements = _combat_requirements(combat_skill, required_level)
+    else:
+        required_level = _source_required_level(
+            combat_skill,
+            skill_requirements,
+        )
     source_enum = recipe.get("source_enum") or recipe_key
     return GeneratedEquipmentItem(
         item_name=output_item,
@@ -510,7 +531,7 @@ def _recipe_equipment_item(
         source_item_id=source_item_id,
         source=f"{ITEMS_YML_RELATIVE.as_posix()} item {source_item_id}; {source_enum}",
         source_status="items.yml equipment block",
-        skill_requirements=_combat_requirements(combat_skill, required_level),
+        skill_requirements=skill_requirements,
     )
 
 

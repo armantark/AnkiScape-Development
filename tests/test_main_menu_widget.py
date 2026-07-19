@@ -2280,6 +2280,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         }
         pd["inventory"]["Slayer bell"] = 1
         pd["inventory"]["Lit torch"] = 1
+        pd["equipment"]["weapon"] = "Leaf-bladed spear"
         pd["quests"]["priest_in_peril"] = {
             "started": True,
             "progress": 9,
@@ -2328,6 +2329,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         sea_snake_young = _tree_row(tree, "sea_snake_young")
         brine_rat = _tree_row(tree, "brine_rat")
         molanisk = _tree_row(tree, "molanisk")
+        turoth = _tree_row(tree, "turoth")
         aberrant_spectre = _tree_row(tree, "aberrant_spectre")
         basilisk = _tree_row(tree, "basilisk")
         crocodile = _tree_row(tree, "crocodile")
@@ -2440,6 +2442,13 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Mole claw x1 (207/100000)", molanisk.toolTip(0))
         self.assertIn("Clue scroll (easy) x1 (1/128)", molanisk.toolTip(0))
         self.assertFalse(molanisk.icon(0).isNull())
+        self.assertEqual(turoth.text(0), "Turoth (Lvl 83)")
+        self.assertIn(
+            "Leaf-bladed sword x1 (169/100000)",
+            turoth.toolTip(0),
+        )
+        self.assertIn("Green charm x1 (214/1212)", turoth.toolTip(0))
+        self.assertFalse(turoth.icon(0).isNull())
         self.assertEqual(
             aberrant_spectre.text(0), "Aberrant spectre (Lvl 96)"
         )

@@ -245,6 +245,43 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "2008-10-20T16:36:49Z",
         )
 
+    def test_turoth_rare_equipment_keeps_cache_identity_and_assets(self):
+        definitions = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+
+        for item_name, source_item_id, slot in (
+            ("Leaf-bladed sword", 13290, "weapon"),
+            ("Mystic robe bottom (light)", 4113, "legs"),
+        ):
+            with self.subTest(item=item_name):
+                definition = definitions[item_name]
+                self.assertEqual(definition.source_item_id, source_item_id)
+                self.assertFalse(definition.stackable)
+                self.assertTrue(definition.tradeable)
+                self.assertEqual(definition.category, "equipment")
+                self.assertEqual(definition.equipment_slot, slot)
+                self.assertEqual(
+                    definition.asset_path,
+                    COMBAT_ITEM_IMAGES[item_name],
+                )
+                self.assertTrue(os.path.exists(definition.asset_path))
+
+        with open(
+            os.path.join(
+                os.path.dirname(os.path.dirname(__file__)),
+                "assets_provenance.json",
+            ),
+            encoding="utf-8",
+        ) as file_obj:
+            provenance = json.load(file_obj)
+        self.assertEqual(
+            provenance["combatitems/leaf_bladed_sword.png"]["timestamp"],
+            "2012-10-08T18:05:04Z",
+        )
+        self.assertEqual(
+            provenance["combatitems/mystic_robe_bottom_light.png"]["timestamp"],
+            "2012-03-06T23:33:11Z",
+        )
+
     def test_slayer_boot_drops_are_real_equipment_with_assets(self):
         definitions = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         for item_name, item_id, required_level in (

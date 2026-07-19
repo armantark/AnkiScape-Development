@@ -3577,6 +3577,52 @@ def combat_enemy_current_lifepoints_pure(player_data, target_id, enemy_data=None
     return _positive_int(enemy.get("stats", {}).get("hitpoints", 0), 0)
 
 
+def _combat_restricted_weapon_locked_reasons(
+    player_data,
+    target_id,
+    enemy,
+    combat_class,
+    equipment_data,
+):
+    restriction = enemy.get("restricted_weapon")
+    if not isinstance(restriction, Mapping):
+        return tuple()
+    target_name = str(enemy.get("display_name", target_id) or target_id)
+    if combat_class == "melee":
+        equipment = player_data.get("equipment", {}) or {}
+        weapon_name = (
+            equipment.get("weapon")
+            if isinstance(equipment, Mapping)
+            else None
+        )
+        allowed = tuple(restriction.get("melee_weapons", ()) or ())
+        if allowed and weapon_name not in allowed:
+            return (f"{target_name} weapon: " + " or ".join(allowed),)
+    elif combat_class == "ranged":
+        _weapon_name, _equipment_spec, weapon_spec = _combat_ranged_weapon_spec(
+            player_data,
+            equipment_data,
+        )
+        ammo_name = _combat_selected_ranged_ammo(
+            player_data,
+            weapon_spec,
+            target_id,
+        )
+        allowed = tuple(restriction.get("ranged_ammunition", ()) or ())
+        if allowed and ammo_name not in allowed:
+            return (f"{target_name} ammunition: " + " or ".join(allowed),)
+    elif combat_class == "magic":
+        spell_id, _spell_spec = _combat_selected_magic_spell(player_data)
+        allowed = tuple(restriction.get("magic_spells", ()) or ())
+        if allowed and spell_id not in allowed:
+            spell_names = tuple(
+                str(COMBAT_MAGIC_SPELL_DATA.get(value, {}).get("display_name", value))
+                for value in allowed
+            )
+            return (f"{target_name} spell: " + " or ".join(spell_names),)
+    return tuple()
+
+
 def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, style_data=None, equipment_data=None):
     enemy_data = enemy_data or COMBAT_ENEMY_DATA
     style_data = style_data or COMBAT_ATTACK_STYLE_DATA
@@ -3725,11 +3771,46 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
             "Melee only inside the Warriors' Guild Cyclops room",
         )
     if combat_class == "melee":
-        return tuple()
+        return _combat_restricted_weapon_locked_reasons(
+            player_data,
+            target_id,
+            enemy,
+            combat_class,
+            equipment_data or {},
+        )
     if combat_class == "ranged":
-        return _combat_ranged_locked_reasons(player_data, target_id, equipment_data or {})
+        restricted_reasons = _combat_restricted_weapon_locked_reasons(
+            player_data,
+            target_id,
+            enemy,
+            combat_class,
+            equipment_data or {},
+        )
+        if restricted_reasons:
+            return restricted_reasons
+        locked_reasons = _combat_ranged_locked_reasons(
+            player_data,
+            target_id,
+            equipment_data or {},
+        )
+        if locked_reasons:
+            return locked_reasons
+        return tuple()
     if combat_class == "magic":
-        return _combat_magic_locked_reasons(player_data, target_id, equipment_data or {})
+        locked_reasons = _combat_magic_locked_reasons(
+            player_data,
+            target_id,
+            equipment_data or {},
+        )
+        if locked_reasons:
+            return locked_reasons
+        return _combat_restricted_weapon_locked_reasons(
+            player_data,
+            target_id,
+            enemy,
+            combat_class,
+            equipment_data or {},
+        )
     return ("unsupported combat class",)
 
 
@@ -4461,15 +4542,35 @@ def _combat_ranged_ammo_count(player_data, ammo_name, target_id):
     return loaded + banked
 
 
-def _combat_selected_ranged_ammo(player_data, weapon_spec, target_id):
+def _combat_selected_ranged_ammo(
+    player_data,
+    weapon_spec,
+    target_id,
+    allowed_ammo=None,
+):
     if not isinstance(weapon_spec, Mapping):
         return None
+    compatible_ammo = tuple(weapon_spec.get("compatible_ammo", ()) or ())
+    if allowed_ammo is None:
+        enemy = COMBAT_ENEMY_DATA.get(target_id, {})
+        restriction = (
+            enemy.get("restricted_weapon")
+            if isinstance(enemy, Mapping)
+            else None
+        )
+        if isinstance(restriction, Mapping):
+            allowed_ammo = restriction.get("ranged_ammunition")
+    if allowed_ammo:
+        allowed = set(allowed_ammo)
+        compatible_ammo = tuple(
+            ammo_name for ammo_name in compatible_ammo if ammo_name in allowed
+        )
     loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
     loaded_ammo = loadout.get("ammo", {}) or {}
-    for ammo_name in weapon_spec.get("compatible_ammo", ()) or ():
+    for ammo_name in compatible_ammo:
         if isinstance(ammo_name, str) and _non_negative_int(loaded_ammo.get(ammo_name, 0), 0) > 0:
             return ammo_name
-    for ammo_name in weapon_spec.get("compatible_ammo", ()) or ():
+    for ammo_name in compatible_ammo:
         if isinstance(ammo_name, str) and _combat_ranged_ammo_count(player_data, ammo_name, target_id) > 0:
             return ammo_name
     return None
@@ -4483,8 +4584,16 @@ def _combat_ranged_locked_reasons(player_data, target_id, equipment_data):
         return ("ranged weapon",)
     if not isinstance(weapon_spec, Mapping):
         return ("supported ranged weapon",)
-    if _combat_selected_ranged_ammo(player_data, weapon_spec, target_id) is None:
+    ammo_name = _combat_selected_ranged_ammo(player_data, weapon_spec, target_id)
+    if ammo_name is None:
         return ("compatible ammunition",)
+    ammo_spec = equipment_data.get(ammo_name)
+    for combat_skill, required_level, level_key in _equipment_skill_requirements(
+        ammo_spec
+    ):
+        current_level = _positive_int(player_data.get(level_key, 1), 1)
+        if current_level < required_level:
+            return (f"{_combat_skill_label(combat_skill)} level {required_level}",)
     return tuple()
 
 

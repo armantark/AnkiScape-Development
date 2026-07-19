@@ -1071,6 +1071,48 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertFalse(missing_light.enabled)
         self.assertIn("One lit light source", missing_light.tooltip)
 
+    def test_turoth_row_exposes_damage_routes_and_exact_drop_selectors(self):
+        rows = combat_target_rows(
+            {
+                "current_combat_target": "chicken",
+                "slayer_level": 55,
+                "combat_lifepoints": 990,
+                "constitution_level": 99,
+                "inventory": {},
+                "equipment": {"weapon": "Leaf-bladed spear"},
+                "combat_supply_loadout": {},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+
+        turoth = _row(rows, "turoth")
+
+        self.assertTrue(turoth.enabled)
+        self.assertIn("only take damage from a leaf-bladed", turoth.tooltip)
+        self.assertIn("Leaf-bladed sword x1 (169/100000)", turoth.tooltip)
+        self.assertIn("Green charm x1 (214/1212)", turoth.tooltip)
+        self.assertIn("Clue scroll (hard) x1 (1/128)", turoth.tooltip)
+
+        wrong_weapon_rows = combat_target_rows(
+            {
+                "current_combat_target": "chicken",
+                "slayer_level": 55,
+                "inventory": {},
+                "equipment": {},
+                "combat_supply_loadout": {},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+        wrong_weapon = _row(wrong_weapon_rows, "turoth")
+        self.assertFalse(wrong_weapon.enabled)
+        self.assertIn("Turoth weapon: Leaf-bladed spear", wrong_weapon.tooltip)
+
     def test_combat_rows_show_magic_spell_and_rune_supply(self):
         rows = combat_target_rows(
             {

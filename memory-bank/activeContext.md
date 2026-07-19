@@ -2,6 +2,28 @@
 
 ## Current Focus
 
+The ordinary level-83 Turoth now closes the 34th executable Vannaka family.
+Combat enforces Slayer 55 plus one of the actual effective routes before a
+review can be spent: a Leaf-bladed spear or sword, Broad arrows or
+Broad-tipped bolts, or Magic Dart with the canonical `Slayer's staff`. The
+target preserves 760 LP, 76 Slayer XP, passive six-tick melee, a 97-LP
+maximum, poison immunity, Darkan's exact stats/bonuses/respawn, one exact
+100,000-slot ordinary selector, a losslessly enumerated 1,212-slot charm
+selector, and an independent 1/128 hard clue. Generated equipment now includes
+the light Mystic bottom and both leaf-bladed weapons with corrected skill
+requirements; Rune crossbow now uses its exact Ranged-61 item-config gate
+instead of the Fletching-69 recipe level, and the existing Slayer staff is
+recognized as a Magic staff.
+Vannaka remains hidden at 34/35 with only the Darkan-owned
+`skippy_and_the_mogres` quest permission blocking Mogres. No owner-facing
+design fork emerged. Evidence:
+`source-audits/slayer-turoth-combat-2026-07-18.md`. Results:
+`status-updates/slayer-turoth-results-2026-07-18.html`; mobile copy:
+<https://gimdeversiok.postplan.dev>. Focused verification passes 622 methods;
+full non-Qt and real offscreen Qt discovery each pass all 1,661 methods.
+Documentation, test quality, generated-data determinism, compilation, JSON,
+diff, readiness, reachability, and worktree-safety audits were rerun.
+
 The ordinary level-51 Molanisk now closes the 33rd executable Vannaka family.
 Its one-review encounter visibly folds the sourced wall lure into Combat:
 Death to the Dorgeshuun, Slayer 39, one non-consumed Slayer bell, and any real

@@ -1943,6 +1943,18 @@
     "source_wiki": "osrs",
     "timestamp": "2019-01-27T06:36:03Z"
   },
+  "combatenemies/turoth.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Turoth_icon.png",
+    "file_title": "Turoth icon.png",
+    "image_url": "https://runescape.wiki/images/archive/20181101013303%21Turoth_icon.png?95b1e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a622a84e3c81b6a7db20ad2ff5ff63a9acfe7423",
+    "size": 927,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-30T02:42:28Z"
+  },
   "combatenemies/tzhaar_ket.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:TzHaar-Ket.png",
     "file_title": "TzHaar-Ket.png",
@@ -2713,6 +2725,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:58:28Z"
   },
+  "combatitems/leaf_bladed_sword.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Leaf-bladed_sword.png",
+    "file_title": "Leaf-bladed sword.png",
+    "image_url": "https://runescape.wiki/images/archive/20131206205620%21Leaf-bladed_sword.png?52f0b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "98d23e9e80b992e35fb344158bbb20b6693fdb1c",
+    "size": 527,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-08T18:05:04Z"
+  },
   "combatitems/loop_half_of_a_key.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Loop_half_of_a_key.png",
     "file_title": "Loop half of a key.png",
@@ -2820,6 +2844,18 @@
     "size": 632,
     "source_wiki": "rs3",
     "timestamp": "2012-03-06T21:33:56Z"
+  },
+  "combatitems/mystic_robe_bottom_light.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Mystic_robe_bottom.png",
+    "file_title": "Mystic robe bottom.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502055048%21Mystic_robe_bottom.png?222c8",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2dd6af9c859600d8a2cd6842920525c736be58b9",
+    "size": 935,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-06T23:33:11Z"
   },
   "combatitems/needle.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Needle.png",

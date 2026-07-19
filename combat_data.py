@@ -371,13 +371,22 @@ COMBAT_RANGED_WEAPON_DATA: Dict[str, dict] = {
     },
     "Magic shortbow": {
         "equipment_type": "magic_shortbow",
-        "compatible_ammo": ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows", "Rune arrows"),
-        "source": f"{RANGED_BOW_SOURCE_PATH}: MAGIC_SHORTBOW accepts BRONZE_ARROWS + IRON_ARROWS + STEEL_ARROWS + MITHRIL_ARROWS + ADAMANT_ARROWS + RUNE_ARROWS; BROAD_ARROWS deferred until ammo skill gates exist",
+        "compatible_ammo": ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows", "Rune arrows", "Broad arrows"),
+        "source": f"{RANGED_BOW_SOURCE_PATH}: MAGIC_SHORTBOW accepts BRONZE_ARROWS + IRON_ARROWS + STEEL_ARROWS + MITHRIL_ARROWS + ADAMANT_ARROWS + RUNE_ARROWS + BROAD_ARROWS",
     },
     "Magic longbow": {
         "equipment_type": "magic_longbow",
-        "compatible_ammo": ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows", "Rune arrows"),
-        "source": f"{RANGED_BOW_SOURCE_PATH}: MAGIC_LONGBOW accepts BRONZE_ARROWS + IRON_ARROWS + STEEL_ARROWS + MITHRIL_ARROWS + ADAMANT_ARROWS + RUNE_ARROWS; BROAD_ARROWS deferred until ammo skill gates exist",
+        "compatible_ammo": ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows", "Rune arrows", "Broad arrows"),
+        "source": f"{RANGED_BOW_SOURCE_PATH}: MAGIC_LONGBOW accepts BRONZE_ARROWS + IRON_ARROWS + STEEL_ARROWS + MITHRIL_ARROWS + ADAMANT_ARROWS + RUNE_ARROWS + BROAD_ARROWS",
+    },
+    "Rune crossbow": {
+        "equipment_type": "rune_crossbow",
+        "compatible_ammo": ("Broad-tipped bolts",),
+        "source": (
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/game/content/combat/"
+            "RangedWeapon.kt:75-88; Turoth broad-bolt route"
+        ),
     },
 }
 
@@ -435,6 +444,25 @@ COMBAT_RANGED_AMMO_DATA: Dict[str, dict] = {
         "source": (
             f"{RANGED_ARROW_SOURCE_PATH}: RUNE_ARROWS; "
             f"{COMBAT_SOURCE_ROOT}/data/cfg/items.yml item 892"
+        ),
+    },
+    "Broad arrows": {
+        "source_item_id": 4160,
+        "source_item_name": "Broad arrow",
+        "ranged_strength": 28,
+        "source": (
+            f"{RANGED_BOW_SOURCE_PATH}: MAGIC_SHORTBOW and MAGIC_LONGBOW; "
+            f"{COMBAT_SOURCE_ROOT}/data/cfg/items.yml item 4160"
+        ),
+    },
+    "Broad-tipped bolts": {
+        "source_item_id": 13280,
+        "source_item_name": "Broad-tipped bolts",
+        "ranged_strength": 100,
+        "source": (
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/game/content/combat/"
+            "AmmoType.kt:55"
         ),
     },
 }
@@ -746,6 +774,14 @@ COMBAT_MAGIC_STAFF_DATA: Dict[str, dict] = {
         "covered_runes": ("Fire rune",),
         "source_item_id": 1387,
         "source": f"{MAGIC_STAVES_SOURCE_PATH}: FIRE_RUNE uses STAFF_OF_FIRE; {ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_FIRE",
+    },
+    "Slayer's staff": {
+        "covered_runes": (),
+        "source_item_id": 4170,
+        "source": (
+            "RuneScape Wiki Slayer Dart oldid=6003441; "
+            "Darkan cache item 4170"
+        ),
     },
     "Saradomin staff": {
         "covered_runes": (),
@@ -2630,6 +2666,93 @@ MOLANISK_DROPS = {
             "total": 128,
             "slots": (
                 {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1},
+                {"slots": 127},
+            ),
+        },
+    ),
+}
+
+TUROTH_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Darkan ordinary",
+            "total": 100000,
+            "slots": (
+                {"item": "Grimy guam", "quantity": 1, "slots": 5597},
+                {"item": "Grimy marrentill", "quantity": 1, "slots": 5597},
+                {"item": "Grimy tarromin", "quantity": 1, "slots": 5597},
+                {"item": "Grimy harralander", "quantity": 1, "slots": 5597},
+                {"item": "Limpwurt root", "quantity": 1, "slots": 5597},
+                {"item": "Law rune", "quantity": 3, "slots": 5597},
+                {"item": "Coins", "quantity_range": (44, 440), "slots": 5597},
+                {"item": "Steel platelegs", "quantity": 1, "slots": 5597},
+                {"item": "Mithril kiteshield", "quantity": 1, "slots": 5597},
+                {"item": "Mithril hatchet", "quantity": 1, "slots": 5597},
+                {"item": "Poison ivy seed", "quantity": 1, "slots": 5597},
+                {"item": "Cactus seed", "quantity": 1, "slots": 5597},
+                {"item": "Belladonna seed", "quantity": 1, "slots": 5597},
+                {"item": "Toadflax seed", "quantity": 1, "slots": 5597},
+                {"item": "Irit seed", "quantity": 1, "slots": 5597},
+                {"item": "Grimy ranarr", "quantity": 1, "slots": 1272},
+                {"item": "Grimy irit", "quantity": 1, "slots": 1272},
+                {"item": "Grimy avantoe", "quantity": 1, "slots": 1272},
+                {"item": "Grimy kwuarm", "quantity": 1, "slots": 1272},
+                {
+                    "item": "Nature rune",
+                    "quantity_range": (3, 15),
+                    "slots": 1272,
+                },
+                {"item": "Adamant full helm", "quantity": 1, "slots": 1272},
+                {"item": "Rune dagger", "quantity": 1, "slots": 1272},
+                {"item": "Avantoe seed", "quantity": 1, "slots": 1272},
+                {"item": "Snapdragon seed", "quantity": 1, "slots": 1272},
+                {"item": "Cadantine seed", "quantity": 1, "slots": 1272},
+                {
+                    "item": "Morchella mushroom spore",
+                    "quantity": 3,
+                    "slots": 1272,
+                },
+                {"item": "Death rune", "quantity": 50, "slots": 186},
+                {"item": "Grimy cadantine", "quantity": 1, "slots": 169},
+                {"item": "Grimy dwarf weed", "quantity": 1, "slots": 169},
+                {"item": "Grimy lantadyme", "quantity": 1, "slots": 169},
+                {
+                    "item": "Mystic robe bottom (light)",
+                    "quantity": 1,
+                    "slots": 169,
+                    "source_item_id": 4113,
+                },
+                {"item": "Ranarr seed", "quantity": 1, "slots": 169},
+                {"item": "Kwuarm seed", "quantity": 1, "slots": 169},
+                {"item": "Lantadyme seed", "quantity": 1, "slots": 169},
+                {"item": "Dwarf weed seed", "quantity": 1, "slots": 169},
+                {"item": "Torstol seed", "quantity": 1, "slots": 169},
+                {
+                    "item": "Leaf-bladed sword",
+                    "quantity": 1,
+                    "slots": 169,
+                    "source_item_id": 13290,
+                },
+                {"slots": 177},
+            ),
+        },
+        {
+            "name": "Darkan charms",
+            "total": 1212,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 34},
+                {"item": "Green charm", "quantity": 1, "slots": 214},
+                {"item": "Crimson charm", "quantity": 1, "slots": 22},
+                {"item": "Blue charm", "quantity": 1, "slots": 6},
+                {"slots": 936},
+            ),
+        },
+        {
+            "name": "Hard clue",
+            "total": 128,
+            "slots": (
+                {"item": "Clue scroll (hard)", "quantity": 1, "slots": 1},
                 {"slots": 127},
             ),
         },
@@ -8395,6 +8518,74 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "clue; no Darkan charm row, so no charm selector is manufactured"
         ),
     },
+    "turoth": {
+        "display_name": "Turoth",
+        "level": 83,
+        "group": "Slayer",
+        "required_slayer_level": 55,
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 97,
+        "poison_immune": True,
+        "slayer_xp": 76.0,
+        "stats": {
+            "hitpoints": 760,
+            "attack": 53,
+            "strength": 83,
+            "defence": 83,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 20,
+            "defence_crush": 20,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "restricted_weapon": {
+            "melee_weapons": ("Leaf-bladed spear", "Leaf-bladed sword"),
+            "ranged_ammunition": ("Broad arrows", "Broad-tipped bolts"),
+            "magic_spells": ("magic_dart",),
+        },
+        "drops": TUROTH_DROPS,
+        "interaction_note": (
+            "Turoths only take damage from a leaf-bladed spear or sword, "
+            "Broad arrows or Broad-tipped bolts, or Magic Dart."
+        ),
+        "source": (
+            "https://runescape.wiki/w/Turoth?oldid=6565315; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/turoth/"
+            "turoth_(83).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/developer-information/npcListBonuses.txt:1630; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/game/content/items/"
+            "CombatEnhancers.kt:136-156; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/turoth.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/charmDrops.txt:163; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/tools/old/CharmDrop.java:"
+            "51-94; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/utils/NPCClueDrops.java:160"
+        ),
+        "source_status": (
+            "period exact ordinary level-83 identity, LP, Slayer gate/XP, "
+            "passive six-tick melee, 97-LP maximum hit, and implemented effective "
+            "weapon, ammunition, and spell routes; Darkan exact stats, bonuses, respawn, "
+            "one exact 100,000-slot ordinary selector, executable 1,212-slot "
+            "charm selector, and independent 1/128 hard clue"
+        ),
+    },
     "ogre": {
         "display_name": "Ogre",
         "level": 53,
@@ -11756,6 +11947,16 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
         "stackable": False,
         "tradeable": True,
     },
+    "Mystic robe bottom (light)": {
+        "category": "equipment",
+        "source": (
+            "game-main data/cfg/items.yml item 4113; "
+            "RuneScape Wiki Turoth oldid 6565315"
+        ),
+        "source_item_id": 4113,
+        "stackable": False,
+        "tradeable": True,
+    },
     "Monkey bones": {
         "category": "material",
         "source": "RuneScape Wiki Monkey oldid 6552407; Darkan item config 3183",
@@ -11804,6 +12005,16 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Staff of earth": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_EARTH"},
     "Staff of fire": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_FIRE"},
     "Steel spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STEEL_SPEAR"},
+    "Leaf-bladed sword": {
+        "category": "equipment",
+        "source": (
+            "game-main data/cfg/items.yml item 13290; "
+            "RuneScape Wiki Turoth oldid 6565315"
+        ),
+        "source_item_id": 13290,
+        "stackable": False,
+        "tradeable": True,
+    },
     "Swamp weed": {
         "category": "material",
         "source": "Darkan cache item 10978; Darkan Molanisk drop table",

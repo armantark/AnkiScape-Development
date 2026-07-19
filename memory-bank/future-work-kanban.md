@@ -81,7 +81,10 @@ Labels: none remaining on the build itself; trailing `DEPENDENCY` items only.
 - The 2026-07-17 follow-up completes Mage Arena alignment/rewards/attunement,
   god-cape equipment and assets, and Charge's real matching-loadout combat
   effect. Cure Plant is also live as a Farming preset fallback route.
-- Trailing `DEPENDENCY` items: Livid Farm spell set (its own activity card), Hunter Kit consumers (Hunter), Slayer staff acquisition (Slayer), Bones to Peaches behind a future Mage Training Arena activity.
+- Trailing `DEPENDENCY` items: Livid Farm spell set (its own activity card),
+  Hunter Kit consumers (Hunter), and Bones to Peaches behind a future Mage
+  Training Arena activity. Magic Dart's canonical `Slayer's staff` route is
+  live.
 
 ### Construction — SHIPPED 2026-07-11 (commit c628f0d)
 
@@ -235,7 +238,7 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   certification.
 - Vannaka is now the third completely encoded pool. Its 35 master-specific
   rows preserve the provisional 460-point denominator and remain hidden at
-  33/35 readiness. Ordinary Molanisk closes Molanisks with its sourced quest,
+  34/35 readiness. Ordinary Molanisk closes Molanisks with its sourced quest,
   Slayer-bell, and real lit-source gates, exact 100,000-slot Darkan selector,
   and independent easy clue. Ordinary Brine rat closes Brine rats with its sourced
   Slayer/Olaf's-Quest/Spade gates, exact 512-slot ordinary selector, exact
@@ -280,8 +283,10 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   state. Ordinary Brine rat adds its Slayer/Olaf's-Quest/Spade access,
   exact ordinary/charm/clue selectors, and generated Brine sabre. Olaf's Quest
   completion is conservative until Darkan exports the sourced stage-40 cavern
-  permission. The remaining two blockers are derived by
-  `tools/audit_slayer_readiness.py`: Mogres and Turoth.
+  permission. Ordinary Turoth adds its Slayer-55 and exact effective-damage
+  routes, source-backed Broad ammunition support, poison immunity, exact
+  ordinary/charm/clue selectors, and generated rare equipment. The sole
+  remaining blocker derived by `tools/audit_slayer_readiness.py` is Mogres.
   Continue from that generated ledger; do not expose or renormalize the
   partial master. See
   `source-audits/slayer-vannaka-ogre-combat-2026-07-18.md` and
@@ -293,6 +298,7 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   `source-audits/slayer-sea-snakes-combat-2026-07-18.md`, plus
   `source-audits/slayer-brine-rat-combat-2026-07-18.md`, plus
   `source-audits/slayer-molanisk-combat-2026-07-18.md`, plus
+  `source-audits/slayer-turoth-combat-2026-07-18.md`, plus
   `source-audits/slayer-basilisk-combat-2026-07-18.md`, plus
   `source-audits/slayer-crocodile-combat-2026-07-18.md` and
   `source-audits/slayer-otherworldly-being-combat-2026-07-18.md` and

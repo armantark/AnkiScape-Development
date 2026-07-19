@@ -4,6 +4,37 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Turoth Combat closure — 2026-07-18
+
+- Added the ordinary level-83 Turoth with Slayer 55, 760 LP, 76 Slayer XP,
+  passive six-tick melee, a 97-LP maximum, poison immunity, and Darkan's exact
+  stats, bonuses, and 59-tick respawn.
+- Enforced the period damage restriction before a review can be spent:
+  Leaf-bladed spear or sword for melee, Broad arrows or Broad-tipped bolts for
+  Ranged, or Magic Dart with the canonical `Slayer's staff`.
+- Added source-backed Broad-arrow bow compatibility, Broad-tipped-bolt support,
+  ammunition-level locks, the Rune crossbow's exact Ranged-61 item-config gate,
+  and Magic-staff recognition for `Slayer's staff`.
+- Preserved one exact 100,000-slot Darkan ordinary selector, the losslessly
+  enumerated 1,212-slot Darkan charm selector, and an independent 1/128 hard
+  clue.
+- Generated the light Mystic bottom and Leaf-bladed sword, corrected the
+  Leaf-bladed spear's Attack-50/Slayer-55 requirements, and pinned cutoff enemy
+  and rare-drop art with provenance.
+- Advanced Vannaka to 34/35 while leaving the partial pool hidden and
+  unrenormalized. Mogres remain the sole quest-owned blocker.
+- No owner-facing design fork emerged. Durable evidence:
+  `source-audits/slayer-turoth-combat-2026-07-18.md`. Results:
+  `status-updates/slayer-turoth-results-2026-07-18.html`.
+- Published the mobile closure report at
+  <https://gimdeversiok.postplan.dev>.
+- Focused coverage passes 622 methods with 211 expected non-Qt skips. Full
+  non-Qt discovery passes all 1,661 methods with 215 expected Qt-environment
+  skips; full real offscreen Qt executes all 1,661 with zero skips, failures,
+  or errors. Documentation, test quality, generated-data determinism,
+  compilation, JSON, diff, readiness, reachability, and worktree-safety gates
+  pass.
+
 ## Slayer Molanisk Combat closure — 2026-07-18
 
 - Added the ordinary level-51 Molanisk with Slayer 39, 520 LP, 52 Slayer XP,

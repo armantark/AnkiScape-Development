@@ -20,7 +20,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 662)
+        self.assertEqual(len(EQUIPMENT_DATA), 664)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -89,6 +89,37 @@ class TestEquipmentData(unittest.TestCase):
             (("defense", 20), ("magic", 20)),
         )
         self.assertEqual(light_mystic_hat.bonuses.attack_magic, 4)
+        light_mystic_bottom = EQUIPMENT_DATA["Mystic robe bottom (light)"]
+        self.assertEqual(light_mystic_bottom.source_item_id, 4113)
+        self.assertEqual(light_mystic_bottom.slot, "legs")
+        self.assertEqual(
+            light_mystic_bottom.skill_requirements,
+            (("defense", 20), ("magic", 40)),
+        )
+        self.assertEqual(light_mystic_bottom.bonuses.attack_magic, 15)
+        for item_name, two_handed in (
+            ("Leaf-bladed spear", True),
+            ("Leaf-bladed sword", False),
+        ):
+            with self.subTest(item_name=item_name):
+                item = EQUIPMENT_DATA[item_name]
+                self.assertEqual(item.combat_skill, "attack")
+                self.assertEqual(item.required_level, 50)
+                self.assertEqual(
+                    item.skill_requirements,
+                    (("attack", 50), ("slayer", 55)),
+                )
+                self.assertEqual(item.two_handed, two_handed)
+        rune_crossbow = EQUIPMENT_DATA["Rune crossbow"]
+        self.assertEqual(rune_crossbow.required_level, 61)
+        self.assertEqual(
+            rune_crossbow.skill_requirements,
+            (("ranged", 61),),
+        )
+        slayer_staff = EQUIPMENT_DATA["Slayer's staff"]
+        self.assertEqual(slayer_staff.combat_skill, "magic")
+        self.assertEqual(slayer_staff.equipment_type, "staff")
+        self.assertEqual(slayer_staff.skill_requirements, (("magic", 50),))
         for item_name, source_item_id in (
             ("Saradomin cape", 2412),
             ("Guthix cape", 2413),

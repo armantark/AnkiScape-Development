@@ -138,8 +138,8 @@ cross-check) is authentic pre-EOC gap-fill via `tools/wiki_parity.py` pinned bef
     teleports.
 15. **Combat ladder gap-fill:** surges (81–95) and Wind Rush from game-main
     SpellbookData (present there, omitted from Combat V1 by oversight); god spells
-    (60); Iban Blast (quest-gated, Underground Pass), Magic Dart (Slayer staff —
-    ships input-starved), Crumble Undead, Storm of Armadyl (77; its Armadyl
+    (60); Iban Blast (quest-gated, Underground Pass), Magic Dart (canonical
+    `Slayer's staff` route live), Crumble Undead, Storm of Armadyl (77; its Armadyl
     components are already orphaned registry items), the bind family
     (bind/snare/entangle → freeze-style EV) and curse family
     (confuse/weaken/curse/vulnerability/enfeeble/stun → stat-drain EV), all pinned
@@ -188,7 +188,7 @@ cross-check) is authentic pre-EOC gap-fill via `tools/wiki_parity.py` pinned bef
 - Cure Plant / Fertile Soil real function → Farming card (note mirrored there).
 - Plank Make consumers → Construction.
 - Hunter Kit consumers → Hunter.
-- Magic Dart's Slayer staff acquisition → Slayer.
+- Magic Dart's canonical `Slayer's staff` acquisition and Combat route are live.
 
 ## Charge duration amendment — 2026-07-16
 

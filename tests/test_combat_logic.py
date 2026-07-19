@@ -769,8 +769,8 @@ class CombatLogicTest(unittest.TestCase):
             "Maple longbow": ("maple_longbow", ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows")),
             "Yew shortbow": ("yew_shortbow", ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows", "Rune arrows")),
             "Yew longbow": ("yew_longbow", ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows", "Rune arrows")),
-            "Magic shortbow": ("magic_shortbow", ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows", "Rune arrows")),
-            "Magic longbow": ("magic_longbow", ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows", "Rune arrows")),
+            "Magic shortbow": ("magic_shortbow", ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows", "Rune arrows", "Broad arrows")),
+            "Magic longbow": ("magic_longbow", ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows", "Rune arrows", "Broad arrows")),
         }
 
         for bow_name, (equipment_type, ammo) in expected_bows.items():
@@ -786,6 +786,7 @@ class CombatLogicTest(unittest.TestCase):
             "Mithril arrows": (888, "Mithril arrow", 22),
             "Adamant arrows": (890, "Adamant arrow", 31),
             "Rune arrows": (892, "Rune arrow", 49),
+            "Broad arrows": (4160, "Broad arrow", 28),
         }
         for ammo_name, (source_item_id, source_item_name, ranged_strength) in expected_ammo.items():
             with self.subTest(ammo_name=ammo_name):
@@ -800,11 +801,19 @@ class CombatLogicTest(unittest.TestCase):
             for enemy in COMBAT_ENEMY_DATA.values()
             for item_name in combat_enemy_drop_item_names_pure(enemy)
         }
-        source_names = {
-            spec["source_item_name"]
-            for spec in COMBAT_RANGED_AMMO_DATA.values()
+        standard_drop_ammo = {
+            "Bronze arrows",
+            "Iron arrows",
+            "Steel arrows",
+            "Mithril arrows",
+            "Adamant arrows",
+            "Rune arrows",
         }
-        self.assertTrue(set(COMBAT_RANGED_AMMO_DATA).issubset(drop_names))
+        source_names = {
+            COMBAT_RANGED_AMMO_DATA[item_name]["source_item_name"]
+            for item_name in standard_drop_ammo
+        }
+        self.assertTrue(standard_drop_ammo.issubset(drop_names))
         self.assertTrue(source_names.isdisjoint(drop_names))
 
     def test_standard_strike_spell_rows_match_2011scape_source(self):
@@ -6543,6 +6552,230 @@ class CombatLogicTest(unittest.TestCase):
                 _rng((99603.5 / 100000, 0.999999)),
             ),
             {"Bones": 1, "Death rune": 50},
+        )
+
+    def test_turoth_preserves_cutoff_combat_and_effective_damage_routes(self):
+        turoth = COMBAT_ENEMY_DATA["turoth"]
+
+        self.assertEqual(
+            (
+                turoth["level"],
+                turoth["stats"]["hitpoints"],
+                turoth["stats"]["attack"],
+                turoth["stats"]["strength"],
+                turoth["stats"]["defence"],
+                turoth["max_hit"],
+                turoth["slayer_xp"],
+            ),
+            (83, 760, 53, 83, 83, 97, 76.0),
+        )
+        self.assertEqual(turoth["attack_speed"], 6)
+        self.assertEqual(turoth["required_slayer_level"], 55)
+        self.assertIs(turoth["poison_immune"], True)
+        self.assertEqual(
+            turoth["restricted_weapon"],
+            {
+                "melee_weapons": ("Leaf-bladed spear", "Leaf-bladed sword"),
+                "ranged_ammunition": ("Broad arrows", "Broad-tipped bolts"),
+                "magic_spells": ("magic_dart",),
+            },
+        )
+
+        underleveled = _player(
+            current_combat_target="turoth",
+            slayer_level=54,
+            equipment={"weapon": "Leaf-bladed spear"},
+        )
+        wrong_melee = _player(
+            current_combat_target="turoth",
+            slayer_level=55,
+        )
+        spear = _player(
+            current_combat_target="turoth",
+            slayer_level=55,
+            equipment={"weapon": "Leaf-bladed spear"},
+        )
+        sword = _player(
+            current_combat_target="turoth",
+            slayer_level=55,
+            equipment={"weapon": "Leaf-bladed sword"},
+        )
+        broad_arrow = _player(
+            current_combat_target="turoth",
+            slayer_level=55,
+            ranged_level=52,
+            equipment={"weapon": "Magic shortbow"},
+            inventory={"Broad arrows": 10},
+        )
+        broad_bolt = _player(
+            current_combat_target="turoth",
+            slayer_level=55,
+            ranged_level=61,
+            equipment={"weapon": "Rune crossbow"},
+            inventory={"Broad-tipped bolts": 10},
+        )
+        mixed_arrows = _player(
+            current_combat_target="turoth",
+            slayer_level=55,
+            ranged_level=52,
+            equipment={"weapon": "Magic shortbow"},
+            combat_supply_loadout={
+                "ammo": {"Rune arrows": 10, "Broad arrows": 10},
+            },
+        )
+        low_ranged = _player(
+            current_combat_target="turoth",
+            slayer_level=55,
+            ranged_level=51,
+            equipment={"weapon": "Magic shortbow"},
+            inventory={"Broad arrows": 10},
+        )
+        wrong_arrow = _player(
+            current_combat_target="turoth",
+            slayer_level=55,
+            ranged_level=99,
+            equipment={"weapon": "Magic shortbow"},
+            inventory={"Rune arrows": 10},
+        )
+        magic_dart = _player(
+            current_combat_target="turoth",
+            slayer_level=55,
+            magic_level=50,
+            current_combat_spell="magic_dart",
+            equipment={"weapon": "Slayer's staff"},
+            inventory={"Mind rune": 4, "Death rune": 1},
+        )
+        wrong_spell = _player(
+            current_combat_target="turoth",
+            slayer_level=55,
+            magic_level=50,
+            current_combat_spell="wind_strike",
+            equipment={"weapon": "Slayer's staff"},
+            inventory={"Air rune": 1, "Mind rune": 1},
+        )
+
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                underleveled,
+                "turoth",
+                COMBAT_ENEMY_DATA,
+                equipment_data=EQUIPMENT_DATA,
+            ),
+            ("Slayer level 55",),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                wrong_melee,
+                "turoth",
+                COMBAT_ENEMY_DATA,
+                equipment_data=EQUIPMENT_DATA,
+            ),
+            ("Turoth weapon: Leaf-bladed spear or Leaf-bladed sword",),
+        )
+        for ready in (
+            spear,
+            sword,
+            broad_arrow,
+            broad_bolt,
+            mixed_arrows,
+            magic_dart,
+        ):
+            self.assertEqual(
+                combat_target_locked_reasons_pure(
+                    ready,
+                    "turoth",
+                    COMBAT_ENEMY_DATA,
+                    equipment_data=EQUIPMENT_DATA,
+                ),
+                (),
+            )
+        self.assertEqual(
+            combat_target_preview_pure(
+                mixed_arrows,
+                "turoth",
+                COMBAT_ENEMY_DATA,
+                EQUIPMENT_DATA,
+            )["ammo"],
+            "Broad arrows",
+        )
+        mixed_after, mixed_ok, mixed_result = apply_combat_burst_pure(
+            {**mixed_arrows, "combat_auto_flee": False},
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.0, 0.999999, 0.0, 0.999999]),
+        )
+        self.assertTrue(mixed_ok)
+        self.assertEqual(mixed_result["ammo"], "Broad arrows")
+        self.assertEqual(mixed_result["ammo_used"], {"Broad arrows": 1})
+        self.assertEqual(
+            mixed_after["combat_supply_loadout"]["ammo"],
+            {"Rune arrows": 10, "Broad arrows": 9},
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                low_ranged,
+                "turoth",
+                COMBAT_ENEMY_DATA,
+                equipment_data=EQUIPMENT_DATA,
+            ),
+            ("Ranged level 52",),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                wrong_arrow,
+                "turoth",
+                COMBAT_ENEMY_DATA,
+                equipment_data=EQUIPMENT_DATA,
+            ),
+            ("Turoth ammunition: Broad arrows or Broad-tipped bolts",),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                wrong_spell,
+                "turoth",
+                COMBAT_ENEMY_DATA,
+                equipment_data=EQUIPMENT_DATA,
+            ),
+            ("Turoth spell: Magic Dart",),
+        )
+        self.assertEqual(
+            COMBAT_MAGIC_SPELL_DATA["magic_dart"]["required_weapon"],
+            "Slayer's staff",
+        )
+
+    def test_turoth_drop_selectors_are_independent_and_exact(self):
+        turoth = COMBAT_ENEMY_DATA["turoth"]
+
+        for table in turoth["drops"]["tables"]:
+            with self.subTest(table=table["name"]):
+                self.assertEqual(
+                    sum(slot["slots"] for slot in table["slots"]),
+                    table["total"],
+                )
+
+        self.assertEqual(
+            _combat_roll_drops(turoth, _rng((0.0, 0.0, 0.0))),
+            {
+                "Bones": 1,
+                "Grimy guam": 1,
+                "Gold charm": 1,
+                "Clue scroll (hard)": 1,
+            },
+        )
+        self.assertEqual(
+            _combat_roll_drops(
+                turoth,
+                _rng((99654.5 / 100000, 0.999999, 0.999999)),
+            ),
+            {"Bones": 1, "Leaf-bladed sword": 1},
+        )
+        self.assertEqual(
+            _combat_roll_drops(
+                turoth,
+                _rng((0.999999, 34.5 / 1212, 0.999999)),
+            ),
+            {"Bones": 1, "Green charm": 1},
         )
 
     def test_wall_beast_can_continue_after_helmet_swap_but_cannot_chain_a_respawn(self):

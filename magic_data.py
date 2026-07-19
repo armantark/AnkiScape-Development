@@ -211,7 +211,6 @@ MAGIC_NOT_APPLICABLE = (
 MAGIC_DEPENDENCY_BLOCKED = (
     "Livid Farm spell set", "Cure Plant real Farming function",
     "Fertile Soil real Farming function", "Plank consumers", "Hunter Kit consumers",
-    "Slayer staff acquisition",
 )
 
 
@@ -269,7 +268,7 @@ STANDARD_COMBAT_GAPS = (
     _combat("crumble_undead", "Crumble Undead", "standard", 39, {"Air rune": 2, "Earth rune": 2, "Chaos rune": 1}, 24.5, 15, "undead_only", source=STANDARD_WIKI),
     _combat("iban_blast", "Iban Blast", "standard", 50, {"Fire rune": 5, "Death rune": 1}, 61, 25, gate="underground_pass", weapon="Iban's staff"),
     _combat("snare", "Snare", "standard", 50, {"Water rune": 4, "Earth rune": 4, "Nature rune": 3}, 60, 3, "freeze", 10),
-    _combat("magic_dart", "Magic Dart", "standard", 50, {"Mind rune": 4, "Death rune": 1}, 61, 15, weapon="Slayer staff", source="RuneScape Wiki Slayer Dart oldid=6003441 (2012-07-27)"),
+    _combat("magic_dart", "Magic Dart", "standard", 50, {"Mind rune": 4, "Death rune": 1}, 61, 15, weapon="Slayer's staff", source="RuneScape Wiki Slayer Dart oldid=6003441 (2012-07-27)"),
     _combat("vulnerability", "Vulnerability", "standard", 66, {"Water rune": 5, "Earth rune": 5, "Soul rune": 1}, 76, 0, "defence_drain", .10),
     _combat("enfeeble", "Enfeeble", "standard", 73, {"Water rune": 8, "Earth rune": 8, "Soul rune": 1}, 83, 0, "strength_drain", .10),
     _combat("storm_of_armadyl", "Storm of Armadyl", "standard", 77, {"Armadyl rune": 1}, 70, 27, "defence_flat", 1, "ritual_of_the_mahjarrat", source="RuneScape Wiki Storm of Armadyl oldid=6497017 (2012-10-29)"),
