@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape GE period harvest</title>
+  <style>
+    :root {
+      --bg: #0c0e12; --surface: #161a21; --surface-2: #1e232c;
+      --border: #2a3040; --text: #e8ecf4; --text-dim: #8b95a8;
+      --accent: #4f8cff; --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c; --green: #4ade80; --amber: #fbbf24;
+      --purple: #a78bfa; --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; color: var(--text); background:
+        radial-gradient(circle at 85% 5%, rgba(167,139,250,.13), transparent 27rem),
+        radial-gradient(circle at 10% 20%, var(--accent-glow), transparent 28rem),
+        var(--bg);
+      font: 15px/1.55 Outfit, Inter, system-ui, sans-serif;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 64px; }
+    .badge, .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+    .badge {
+      display: inline-block; padding: 6px 10px; border: 1px solid rgba(74,222,128,.35);
+      border-radius: 999px; color: var(--green); background: rgba(74,222,128,.08);
+      font-size: 11px; letter-spacing: .11em;
+    }
+    h1 { margin: 14px 0 8px; font-size: clamp(30px, 5vw, 54px); line-height: 1.02; letter-spacing: -.04em; }
+    .lede { max-width: 780px; color: var(--text-dim); font-size: 17px; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 30px 0; }
+    .metric, .card {
+      background: linear-gradient(145deg, rgba(30,35,44,.96), rgba(22,26,33,.96));
+      border: 1px solid var(--border); border-radius: var(--radius);
+    }
+    .metric { padding: 18px; }
+    .metric strong { display: block; font-size: 30px; line-height: 1.1; }
+    .metric span { color: var(--text-dim); font-size: 12px; }
+    .grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 16px; }
+    .card { padding: 22px; }
+    h2 { margin: 0 0 16px; font-size: 18px; }
+    h3 { margin: 18px 0 6px; font-size: 14px; }
+    p { margin: 7px 0; }
+    .dim { color: var(--text-dim); }
+    .funnel { display: grid; gap: 13px; }
+    .row { display: grid; grid-template-columns: 148px 1fr 52px; gap: 12px; align-items: center; }
+    .track { height: 12px; background: #0f1218; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+    .fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--purple)); }
+    .fill.green { background: linear-gradient(90deg, #20a85b, var(--green)); }
+    .fill.amber { background: linear-gradient(90deg, #b87908, var(--amber)); }
+    .conflict { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .conflict:last-child { border: 0; }
+    .old { color: var(--red); text-decoration: line-through; }
+    .new { color: var(--green); }
+    .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; margin-top: 14px; }
+    .node { padding: 12px; min-height: 92px; border-radius: 10px; background: #10141b; border: 1px solid var(--border); }
+    .node b { display: block; color: var(--accent); margin-bottom: 6px; }
+    details { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
+    summary { cursor: pointer; color: var(--amber); }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .tag { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 4px 7px; font: 11px "JetBrains Mono", monospace; color: var(--text-dim); }
+    .proof { margin-top: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .proof div { padding: 12px; background: #10141b; border-radius: 9px; border: 1px solid var(--border); }
+    .proof b { color: var(--green); display: block; }
+    @media (max-width: 820px) {
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .grid { grid-template-columns: 1fr; }
+      .flow, .proof { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 520px) {
+      main { width: min(100% - 20px, 1120px); padding-top: 28px; }
+      .row { grid-template-columns: 116px 1fr 45px; }
+      .flow, .proof { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">SOURCE HARVEST COMPLETE</span>
+  <h1>The Grand Exchange has a 2012 price spine.</h1>
+  <p class="lede">The registered market now prefers dated pre-EOC Exchange prices and period four-hour limits. Missing prices retain the cache anchor; ambiguous multi-variant identities remain closed instead of inheriting a plausible-looking number.</p>
+
+  <section class="metrics" aria-label="Harvest metrics">
+    <div class="metric"><strong>1,656</strong><span>registered GE identities</span></div>
+    <div class="metric"><strong>1,327</strong><span>dated period prices</span></div>
+    <div class="metric"><strong>1,637</strong><span>period buy limits</span></div>
+    <div class="metric"><strong>19</strong><span>fail-closed ambiguous rows</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h2>Coverage funnel</h2>
+      <div class="funnel">
+        <div class="row"><span>Cache exchangeable</span><div class="track"><div class="fill" style="width:100%"></div></div><b>3,271</b></div>
+        <div class="row"><span>Registered</span><div class="track"><div class="fill" style="width:50.6%"></div></div><b>1,656</b></div>
+        <div class="row"><span>Period limit</span><div class="track"><div class="fill green" style="width:98.9%"></div></div><b>1,637</b></div>
+        <div class="row"><span>Period price</span><div class="track"><div class="fill amber" style="width:80.1%"></div></div><b>1,327</b></div>
+      </div>
+      <h3>What happens to the remainder?</h3>
+      <p class="dim">329 missing dated prices use the owner-approved rev-727/742 cache value as an explicit fallback, never as a claimed GE history. The 19 unresolved limits block only buying; they do not invent a variant mapping.</p>
+      <div class="flow">
+        <div class="node"><b>1 · Resolve</b>Latest literal revision before 2012-11-20.</div>
+        <div class="node"><b>2 · Parse</b>Price, date, item ID, cache value and limit.</div>
+        <div class="node"><b>3 · Reconcile</b>Later item revisions beat the October table.</div>
+        <div class="node"><b>4 · Generate</b>Deterministic Python maps with provenance.</div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Nine conflicts, all explicit</h2>
+      <div class="conflict"><span>Basket</span><span class="old">100</span><span class="new">1,000</span></div>
+      <div class="conflict"><span>Cabbages (10)</span><span class="old">10,000</span><span class="new">1,000</span></div>
+      <div class="conflict"><span>Hammer</span><span class="old">100</span><span class="new">1,000</span></div>
+      <div class="conflict"><span>Juju vial of water</span><span class="old">10,000</span><span class="new">5,000</span></div>
+      <div class="conflict"><span>Onion / Onions (10)</span><span class="old">10,000</span><span class="new">1,000</span></div>
+      <div class="conflict"><span>Potatoes (10)</span><span class="old">10,000</span><span class="new">1,000</span></div>
+      <div class="conflict"><span>Raw rabbit</span><span class="old">10,000</span><span class="new">5,000</span></div>
+      <div class="conflict"><span>Wolf bones</span><span class="old">10,000</span><span class="new">1,000</span></div>
+      <p class="dim">Red is the 2012-10-23 aggregate table. Green is the nearer item-level pre-cutoff revision.</p>
+      <details>
+        <summary>Show the 19 blocked identities</summary>
+        <p class="dim">Black warlock, Cape, Feather headdress, Flowers, Fremennik cloak, Fremennik shirt, Pirate bandana, Pirate leggings, Priest gown, Robe top, Ruby harvest, Snowy knight, Stripy pirate shirt, Tribal top, Villager armband, Villager hat, Villager robe, Villager sandals, Woven top.</p>
+      </details>
+    </article>
+  </section>
+
+  <section class="card" style="margin-top:16px">
+    <h2>Proof and operating boundary</h2>
+    <div class="proof">
+      <div><b>52 tests pass</b>Catalog, offers, storage, generator parsing and cutoff provenance.</div>
+      <div><b>Retry + resume</b>HTTP 429 is honored and every successful page is checkpointed.</div>
+      <div><b>No market fiction</b>No OSRS price, modern RS3 price, guessed limit or wall-clock gameplay.</div>
+    </div>
+    <div class="tags">
+      <span class="tag">grand_exchange_period_generated.py</span>
+      <span class="tag">tools/generate_ge_period_data.py</span>
+      <span class="tag">grand_exchange_data.py</span>
+      <span class="tag">tests/test_grand_exchange_data.py</span>
+    </div>
+    <p class="dim" style="margin-top:14px">Still downstream: pre-cutoff interface/trend evidence, deterministic fills and review undo, Bankstanding, and the eight-slot Qt surface.</p>
+  </section>
+</main>
+</body>
+</html>

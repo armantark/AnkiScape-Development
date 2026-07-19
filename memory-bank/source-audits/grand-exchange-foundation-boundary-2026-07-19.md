@@ -2,8 +2,8 @@
 
 Date: 2026-07-19
 
-Status: **source-ready foundation implemented; period prices, buy limits,
-matching, review ticks, and Qt remain open.**
+Status: **source-ready foundation implemented; period prices and buy limits
+subsequently harvested; matching, review ticks, and Qt remain open.**
 
 ## Authority
 
@@ -55,14 +55,15 @@ cache-singular identity without hand curation.
 
 This slice does **not** claim a live player-facing market. The following remain:
 
-1. dated Wayback November-2012 price rows;
-2. period buy-limit rows;
-3. the pre-cutoff interface/trend harvest;
-4. stochastic fills, price improvement, bounded player impact, guide updates,
+1. the pre-cutoff interface/trend harvest;
+2. stochastic fills, price improvement, bounded player impact, guide updates,
    naturalized market texture, and review-undo integration;
-5. offer editing and queue-age reset;
-6. Bankstanding; and
-7. the top-level eight-slot Qt surface plus manual Anki verification.
+3. offer editing and queue-age reset;
+4. Bankstanding; and
+5. the top-level eight-slot Qt surface plus manual Anki verification.
+
+The subsequent period data closure is
+`source-audits/grand-exchange-period-price-limit-harvest-2026-07-19.md`.
 
 No owner-facing design gap emerged. These omissions are source or downstream
 implementation work under already-settled contracts.

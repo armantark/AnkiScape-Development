@@ -2554,3 +2554,20 @@ Test counts are snapshots; current runs outrank this note.
   in `source-audits/grand-exchange-foundation-boundary-2026-07-19.md`.
 - Published `status-updates/grand-exchange-foundation-results-2026-07-19.html`;
   mobile copy: `https://svzfn2ylt4dw.postplan.dev`.
+
+## Grand Exchange period price/limit harvest — 2026-07-19
+
+- Added a resumable, retrying historical-wiki generator and committed generated
+  per-item price, limit, oldid, timestamp, source date, item-ID, and cache-value
+  provenance.
+- The live catalog now prefers 1,327 dated period prices and exposes 1,637
+  sourced limits. It keeps the cache anchor for 329 unresolved prices and
+  refuses buy offers for the 19 identities that collapse multiple period
+  variants.
+- Recorded all nine aggregate-table versus later item-page limit conflicts and
+  applied the nearest-pre-cutoff item revision.
+- Durable evidence:
+  `source-audits/grand-exchange-period-price-limit-harvest-2026-07-19.md`.
+- Published
+  `status-updates/grand-exchange-period-harvest-results-2026-07-19.html`;
+  mobile copy: `https://fptne6w8pjqm.postplan.dev`.

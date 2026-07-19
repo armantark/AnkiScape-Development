@@ -1839,3 +1839,19 @@ The visual closure report is
   `source-audits/grand-exchange-foundation-boundary-2026-07-19.md`.
 - Results: `status-updates/grand-exchange-foundation-results-2026-07-19.html`;
   mobile copy: `https://svzfn2ylt4dw.postplan.dev`.
+
+## Grand Exchange period price/limit harvest — 2026-07-19
+
+- A checkpointed period-wiki harvester now generates 1,327 dated pre-EOC
+  Exchange prices and 1,637 four-hour buy limits for the 1,656 registered GE
+  rows. Later item revisions resolve nine conflicts with the October aggregate
+  limit table.
+- Nineteen collapsed multi-variant identities retain `buy_limit=None`, so their
+  buy offers fail closed rather than inheriting a guessed variant limit. The
+  other 329 items without a dated Exchange price retain the owner-approved
+  period-cache value fallback.
+- Durable evidence:
+  `source-audits/grand-exchange-period-price-limit-harvest-2026-07-19.md`.
+- Results:
+  `status-updates/grand-exchange-period-harvest-results-2026-07-19.html`;
+  mobile copy: `https://fptne6w8pjqm.postplan.dev`.

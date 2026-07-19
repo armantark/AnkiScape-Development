@@ -1,7 +1,18 @@
 import unittest
 
 from grand_exchange_data import GE_ITEM_CATALOG, build_ge_item_catalog_pure
+from grand_exchange_period_generated import (
+    PERIOD_GE_BUY_LIMIT_SOURCE,
+    PERIOD_GE_BUY_LIMITS,
+    PERIOD_GE_GUIDE_PRICES,
+    PERIOD_GE_PRICE_PROVENANCE,
+)
 from item_registry import ItemDefinition
+from tools.generate_ge_period_data import (
+    _normalized_name,
+    _parse_fields,
+    _period_name_candidates,
+)
 
 
 def _item(name, *, tradeable=True):
@@ -18,6 +29,31 @@ def _item(name, *, tradeable=True):
 
 
 class GrandExchangeDataTest(unittest.TestCase):
+    def test_harvester_normalizes_period_fraction_and_registry_aliases(self):
+        self.assertEqual(_normalized_name("½ anchovy pizza"), "1/2 anchovy pizza")
+        self.assertIn("Adamant arrow", _period_name_candidates("Adamant arrows"))
+        self.assertIn("Adamant helm", _period_name_candidates("Adamant med helm"))
+
+    def test_harvester_reads_literal_exchange_template_fields(self):
+        fields = _parse_fields(
+            "{{ExchangeItem\n"
+            "|Item=Yew logs\n"
+            "|ItemId=1515\n"
+            "|Price=494\n"
+            "|Limit=25000\n"
+            "}}"
+        )
+
+        self.assertEqual(
+            fields,
+            {
+                "item": "Yew logs",
+                "itemid": "1515",
+                "price": "494",
+                "limit": "25000",
+            },
+        )
+
     def test_catalog_intersects_registered_tradeable_and_cache_exchangeable_items(self):
         catalog = build_ge_item_catalog_pure(
             (
@@ -60,16 +96,74 @@ class GrandExchangeDataTest(unittest.TestCase):
             "period_grand_exchange_database",
         )
 
-    def test_live_catalog_is_registered_and_has_no_unsourced_buy_limit_claims(self):
+    def test_live_catalog_uses_period_prices_and_limits_when_the_identity_is_exact(self):
         self.assertIn("Logs", GE_ITEM_CATALOG)
         self.assertNotIn("Coins", GE_ITEM_CATALOG)
-        self.assertGreater(GE_ITEM_CATALOG["Logs"]["guide_price"], 0)
+        self.assertEqual(GE_ITEM_CATALOG["Logs"]["guide_price"], 106)
+        self.assertEqual(GE_ITEM_CATALOG["Logs"]["buy_limit"], 25_000)
         self.assertEqual(
+            GE_ITEM_CATALOG["Logs"]["guide_price_source"],
+            "period_grand_exchange_database",
+        )
+        self.assertEqual(
+            GE_ITEM_CATALOG["Logs"]["guide_price_provenance"]["oldid"],
+            6_519_754,
+        )
+        self.assertEqual(
+            GE_ITEM_CATALOG["Logs"]["buy_limit_source"]["oldid"],
+            6_457_777,
+        )
+
+    def test_generated_period_rows_are_registered_and_cutoff_safe(self):
+        self.assertLessEqual(set(PERIOD_GE_GUIDE_PRICES), set(GE_ITEM_CATALOG))
+        self.assertLessEqual(set(PERIOD_GE_BUY_LIMITS), set(GE_ITEM_CATALOG))
+        self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_327)
+        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_637)
+        self.assertEqual(PERIOD_GE_BUY_LIMIT_SOURCE["oldid"], 6_457_777)
+        self.assertTrue(PERIOD_GE_PRICE_PROVENANCE)
+        self.assertTrue(
+            all(
+                str(row["timestamp"]) < "2012-11-20T00:00:00Z"
+                for row in PERIOD_GE_PRICE_PROVENANCE.values()
+            )
+        )
+        # The later item revision wins when it conflicts with the October
+        # aggregate table.
+        self.assertEqual(PERIOD_GE_BUY_LIMITS["Basket"], 1_000)
+        self.assertEqual(
+            PERIOD_GE_PRICE_PROVENANCE["Basket"]["oldid"],
+            6_540_082,
+        )
+
+    def test_only_ambiguous_collapsed_identities_remain_buy_limit_blocked(self):
+        blocked = {
+            name
+            for name, row in GE_ITEM_CATALOG.items()
+            if row["buy_limit"] is None
+        }
+        self.assertEqual(
+            blocked,
             {
-                row["buy_limit_source"]
-                for row in GE_ITEM_CATALOG.values()
+                "Black warlock",
+                "Cape",
+                "Feather headdress",
+                "Flowers",
+                "Fremennik cloak",
+                "Fremennik shirt",
+                "Pirate bandana",
+                "Pirate leggings",
+                "Priest gown",
+                "Robe top",
+                "Ruby harvest",
+                "Snowy knight",
+                "Stripy pirate shirt",
+                "Tribal top",
+                "Villager armband",
+                "Villager hat",
+                "Villager robe",
+                "Villager sandals",
+                "Woven top",
             },
-            {None},
         )
 
 

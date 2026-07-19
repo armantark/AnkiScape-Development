@@ -19,6 +19,27 @@ except ImportError:
     from item_registry import ItemDefinition
     from item_values import EXCHANGEABLE_ITEM_NAMES, ITEM_VALUES
 
+try:
+    from .grand_exchange_period_generated import (
+        PERIOD_GE_BUY_LIMIT_SOURCE,
+        PERIOD_GE_BUY_LIMITS,
+        PERIOD_GE_GUIDE_PRICES,
+        PERIOD_GE_PRICE_PROVENANCE,
+    )
+except ImportError:
+    try:
+        from grand_exchange_period_generated import (
+            PERIOD_GE_BUY_LIMIT_SOURCE,
+            PERIOD_GE_BUY_LIMITS,
+            PERIOD_GE_GUIDE_PRICES,
+            PERIOD_GE_PRICE_PROVENANCE,
+        )
+    except ImportError:
+        PERIOD_GE_BUY_LIMIT_SOURCE = {}
+        PERIOD_GE_BUY_LIMITS = {}
+        PERIOD_GE_GUIDE_PRICES = {}
+        PERIOD_GE_PRICE_PROVENANCE = {}
+
 
 def build_ge_item_catalog_pure(
     item_definitions: Iterable[ItemDefinition],
@@ -27,9 +48,13 @@ def build_ge_item_catalog_pure(
     exchangeable_names: frozenset[str] | set[str],
     period_guide_prices: Mapping[str, int] | None = None,
     period_buy_limits: Mapping[str, int] | None = None,
+    period_price_provenance: Mapping[str, Mapping[str, object]] | None = None,
+    period_buy_limit_source: Mapping[str, object] | None = None,
 ) -> dict[str, dict[str, object]]:
     period_guide_prices = period_guide_prices or {}
     period_buy_limits = period_buy_limits or {}
+    period_price_provenance = period_price_provenance or {}
+    period_buy_limit_source = period_buy_limit_source or {}
     catalog: dict[str, dict[str, object]] = {}
     for item in item_definitions:
         item_name = item.storage_key
@@ -59,8 +84,13 @@ def build_ge_item_catalog_pure(
                 if period_price > 0
                 else "cache_value_fallback"
             ),
+            "guide_price_provenance": dict(
+                period_price_provenance.get(item_name, {})
+            ),
             "buy_limit": buy_limit if buy_limit > 0 else None,
-            "buy_limit_source": "period_buy_limit" if buy_limit > 0 else None,
+            "buy_limit_source": (
+                dict(period_buy_limit_source) if buy_limit > 0 else None
+            ),
         }
     return catalog
 
@@ -70,5 +100,9 @@ GE_ITEM_CATALOG = MappingProxyType(
         ITEM_DEFINITIONS,
         item_values=ITEM_VALUES,
         exchangeable_names=EXCHANGEABLE_ITEM_NAMES,
+        period_guide_prices=PERIOD_GE_GUIDE_PRICES,
+        period_buy_limits=PERIOD_GE_BUY_LIMITS,
+        period_price_provenance=PERIOD_GE_PRICE_PROVENANCE,
+        period_buy_limit_source=PERIOD_GE_BUY_LIMIT_SOURCE,
     )
 )
