@@ -86,11 +86,16 @@ patterns:
   five yield roll handled as an authentic embedded roll or provisional
   calibration per the standard.
 
-The recon itself is a **checkpoint, not exhaustive closure**: the Wayback/
-official-Jagex pass, the full six-cache pass (727 only begun), the local
-implementation-seam pass, and convergence passes remain unfinished. The
-continuation resumes from those families rather than repeating completed
-passes.
+**Recon program closed at diminishing returns (owner decision 2026-07-19).**
+The two highest-yield passes (wiki gameplay indices, full 2010–2012 update
+chronology) produced only four items, all pattern-determined with no owner
+forks; the unfinished passes (Wayback corroboration, five remaining cache
+builds, implementation-seam, convergence) are structurally lower-yield for
+surface discovery. The owner accepts the residual unknown-unknown risk. The
+standing net is harvest-time discovery: every focused audit pins period
+pages, and any surface found that way is admitted under this record's
+disposition process. `tools/overnight_content_recon.sh` stays available for
+an on-demand continuation but is no longer scheduled work.
 
 ## Follow-through
 
