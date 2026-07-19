@@ -1952,3 +1952,18 @@ Test counts are snapshots; current runs outrank this note.
 - Chaeldar remains hidden and unrenormalized at 25/34. No owner design fork was
   reopened. Durable evidence:
   `source-audits/slayer-fungal-mage-combat-2026-07-19.md`.
+
+## Slayer Grifolic-creatures source boundary — 2026-07-19
+
+- Closed the period-visible Grifolapine and Grifolaroo identities, Slayer and
+  Magic gates, hybrid attacks, fungal hazards, neem transitions, client IDs,
+  and named resource/drop sets.
+- Kept both targets blocked because their Darkan `nostats` rows explicitly
+  generate non-real combat levels; Grifolaroo also conflicts on LP/maximum,
+  Grifolapine conflicts on infestation damage, and the shared handler never
+  performs the cutoff Magic-to-Ranged neem transition.
+- Confirmed the two Darkan ordinary-drop files are duplicated reconstruction
+  stubs despite the cutoff monsters having materially different tables.
+- Chaeldar remains hidden and unrenormalized at 25/34. No owner design fork was
+  reopened. Durable evidence:
+  `source-audits/slayer-grifolic-creatures-combat-2026-07-19.md`.

@@ -2,6 +2,18 @@
 
 ## Current Focus
 
+The paired Grifolapine/Grifolaroo source pass closed their period identities,
+Slayer/Magic gates, hybrid attacks, fungal hazards, neem form changes, client
+IDs, and named drops. It did not activate either Combat row. Both Darkan
+definitions are explicitly `nostats` and generate all five combat levels as
+non-real fallbacks. Grifolaroo additionally conflicts on LP/maximum hit,
+Grifolapine conflicts on infestation damage, Darkan never performs the
+period Magic-to-Ranged switch while neemed, and its two ordinary-drop files
+are duplicated despite materially different cutoff tables. Under the source
+standard both families remain `source_blocked`; Chaeldar stays hidden at 25/34
+and no design fork is open. Evidence:
+`source-audits/slayer-grifolic-creatures-combat-2026-07-19.md`.
+
 The Fungal-mage source pass closed its level-120/1,200-LP identity, Magic-50
 assignment gate, Slayer 1/120 XP, six-tick Magic attack, 114-LP maximum,
 2–3-LP proximity infestation, roughly 20-second neem effect, canonical client

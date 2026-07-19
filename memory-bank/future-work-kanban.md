@@ -335,10 +335,15 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   five levels generated as non-real fallbacks; conflicting period
   Melee/Ranged reducers, unresolved quantity variants, and the absent canonical
   Neem-oil acquisition loop keep that family blocked without reopening design.
+  The paired Grifolapine/Grifolaroo pass found the same non-real generated-stat
+  boundary, plus visible LP/damage conflicts, a missing neemed
+  Magic-to-Ranged transition, and two duplicated Darkan ordinary-drop stubs
+  contradicting the distinct cutoff tables. Keep both families blocked.
   See
   `source-audits/slayer-chaeldar-registry-2026-07-18.md` and
   `source-audits/slayer-fever-spider-combat-2026-07-19.md` and
   `source-audits/slayer-fungal-mage-combat-2026-07-19.md` and
+  `source-audits/slayer-grifolic-creatures-combat-2026-07-19.md` and
   `source-audits/slayer-fire-giant-combat-2026-07-18.md` and
   `source-audits/slayer-blue-dragon-family-combat-2026-07-18.md` and
   `source-audits/slayer-bronze-dragon-combat-2026-07-18.md`,
