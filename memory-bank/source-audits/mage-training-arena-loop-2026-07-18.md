@@ -4,9 +4,9 @@ Date: `2026-07-18`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **period room and reward structure pinned; goal-driven routing and
-checkpoint switching owner-settled; room strategy and final cadence rates still
-active.**
+Status: **period room and reward structure pinned; goal-driven routing,
+checkpoint switching, and Arena-wide approach owner-settled; Graveyard safety
+and final cadence rates still active.**
 
 ## Pinned period evidence
 
@@ -158,12 +158,35 @@ checkpoint, recalculates all four, and continues until the four exact costs are
 present. This routing changes order and convenience, never the total source
 work, resources, XP, hazards, or reward price.
 
+## Arena-wide approach
+
+One saved **Approach** dropdown applies wherever the source offers a genuine
+cost-versus-throughput choice:
+
+1. **Fast rewards** (default)
+2. **Conserve runes**
+
+Fast rewards uses the highest-value eligible Alchemist target and the
+highest-throughput eligible Enchantment spell supported by the player's Magic
+level, carried runes, and equipment. Conserve runes takes free Alchemist casts
+when the source-shaped opportunity is present and otherwise continues useful
+goal routing; it selects the lowest actual consumable-rune cost per expected
+Enchantment point after staff substitution. It never turns a successful review
+into an inert wait merely to save a rune.
+
+The dropdown does not change Telekinetic solving, point prices, spell XP,
+hazards, or reward outputs. Graveyard survival remains owned by the shared
+auto-eat/LP policy rather than being smuggled into a vague “cheap versus fast”
+setting. There is no third Balanced value, per-room checkbox matrix, or
+Casual/Advanced split.
+
 ## Active design fork
 
-The remaining owner-facing balance choice is whether room microplay uses one
-fixed competent strategy or one Arena-wide saved priority such as fastest
-reward versus conserving runes. Per-room checkbox matrices and a
-Casual/Advanced split are excluded.
+The remaining owner-facing MTA choice is the Graveyard safety boundary:
+whether automation exits before the next hazard whenever carried/converted
+food cannot keep LP above the ordinary safe threshold, or whether it continues
+and preserves a meaningful chance of the source ten-point death penalty without
+requiring the user to babysit LP.
 
 ## Implementation source work
 
@@ -178,4 +201,3 @@ Before implementation:
    upgrade requirements, and equipment stats; and
 5. leave any unsupported hidden rate `source_blocked` or use only a compliant
    provisional hidden-roll calibration.
-
