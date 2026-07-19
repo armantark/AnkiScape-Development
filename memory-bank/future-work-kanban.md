@@ -727,14 +727,13 @@ Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 Labels: `DEEP GRILL`, `SOURCE AUDIT`, `WAIT: DARKAN` where server state is hidden.
 
 - Build from generic achievements and Bank Claims; add diary regions/tasks/rewards, clue step/casket state, collection tracking, one-time rewards, and their UI/undo contracts.
-- **Parked owner grill (2026-07-17): Treasure Trails.** Treat this as its own
-  feature tree rather than an appendix to the achievement-diary grill. Audit
-  the cutoff-era clue tiers, acquisition and one-clue ownership rules, step
-  counts and clue families, casket/reward rolls, equipment requirements, and
-  unique reward tables. Then design the review-step model, persistent/undoable
-  trail state, and flattened representations of maps, coordinates, puzzles,
-  challenges, and emote clues without introducing a general emote or world-map
-  system. Resume after the current overnight implementation/review work closes.
+- **Treasure Trails — design closed 2026-07-19:**
+  `memory-bank/treasure-trails-design-contract-2026-07-19.md` settles one
+  step per review with type-preserving flattening (gear-check beats for emote
+  steps, travel-and-dig beats for maps/coordinates, source answers for
+  riddles, puzzle boxes collapsed per the Barrows precedent), authentic
+  one-clue-per-tier ownership, and direct-command caskets. Remaining work is
+  the per-tier harvest listed in that contract.
 - **Design closed 2026-07-17:** `memory-bank/achievement-diary-item-grants-design.md`
   replaces the percentage-grant stub with the cutoff-faithful eight-family
   diary structure, Burthorpe/Taverley and Miscellaneous sets, Taskmaster
