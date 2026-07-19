@@ -1288,6 +1288,25 @@ DARKAN_ABERRANT_RARE_SEED_DROP_TABLE = {
     ),
 }
 
+DARKAN_VARIABLE_ALLOTMENT_DROP_TABLE = {
+    "name": "Darkan variable allotment",
+    "source": (
+        "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+        "darkan-world-server/data/npcs/drops/special_tables/"
+        "variable_allotment.json"
+    ),
+    "total": 263,
+    "slots": (
+        {"item": "Potato seed", "quantity_range": (1, 4), "slots": 96},
+        {"item": "Onion seed", "quantity_range": (1, 3), "slots": 72},
+        {"item": "Cabbage seed", "quantity_range": (1, 3), "slots": 48},
+        {"item": "Tomato seed", "quantity_range": (1, 2), "slots": 24},
+        {"item": "Sweetcorn seed", "quantity_range": (1, 2), "slots": 12},
+        {"item": "Strawberry seed", "quantity": 1, "slots": 7},
+        {"item": "Watermelon seed", "quantity": 1, "slots": 4},
+    ),
+}
+
 DARKAN_MEGA_RARE_DROP_TABLE = {
     "name": "Darkan mega rare",
     "source": (
@@ -3190,6 +3209,78 @@ DESERT_LIZARD_DROPS = {
                 )
             )
             + ({"slots": 19},),
+        },
+    ),
+}
+
+CAVE_HORROR_DROPS = {
+    "guaranteed": (("Big bones", 1),),
+    "tables": (
+        {
+            "name": "Darkan ordinary",
+            "total": 128,
+            "slots": (
+                {"item": "Coins", "quantity": 44, "slots": 28},
+                {
+                    "table": DARKAN_ABERRANT_RARE_SEED_DROP_TABLE,
+                    "slots": 18,
+                },
+                {
+                    "table": DARKAN_VARIABLE_ALLOTMENT_DROP_TABLE,
+                    "slots": 15,
+                },
+                {"table": DARKAN_HERB_DROP_TABLE, "slots": 13},
+                {"item": "Coins", "quantity": 132, "slots": 12},
+                {"item": "Limpwurt root", "quantity": 1, "slots": 7},
+                {"item": "Teak logs", "quantity": 4, "slots": 7},
+                {"item": "Nature rune", "quantity": 6, "slots": 6},
+                {"item": "Nature rune", "quantity": 4, "slots": 5},
+                {"table": DARKAN_GEM_DROP_TABLE, "slots": 5},
+                {"item": "Mithril hatchet", "quantity": 1, "slots": 3},
+                {"item": "Mahogany logs", "quantity": 2, "slots": 3},
+                {"item": "Rune dagger", "quantity": 1, "slots": 1},
+                {"item": "Adamant full helm", "quantity": 1, "slots": 1},
+                {"item": "Mithril kiteshield", "quantity": 1, "slots": 1},
+                {"item": "Nature rune", "quantity": 3, "slots": 1},
+                {"item": "Coins", "quantity": 440, "slots": 1},
+                {"slots": 1},
+            ),
+        },
+        {
+            "name": "Darkan charms",
+            "total": 1212,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 28},
+                {"item": "Green charm", "quantity": 1, "slots": 10},
+                {"item": "Crimson charm", "quantity": 1, "slots": 136},
+                {"item": "Blue charm", "quantity": 1, "slots": 6},
+                {"slots": 1032},
+            ),
+        },
+        {
+            "name": "Long and curved bones",
+            "total": 100000,
+            "slots": (
+                {"item": "Long bone", "quantity": 1, "slots": 250},
+                {"item": "Curved bone", "quantity": 1, "slots": 20},
+                {"slots": 99730},
+            ),
+        },
+        {
+            "name": "Black mask (10)",
+            "total": 512,
+            "slots": (
+                {"item": "Black mask (10)", "quantity": 1, "slots": 1},
+                {"slots": 511},
+            ),
+        },
+        {
+            "name": "Hard clue",
+            "total": 128,
+            "slots": (
+                {"item": "Clue scroll (hard)", "quantity": 1, "slots": 1},
+                {"slots": 127},
+            ),
         },
     ),
 }
@@ -8333,6 +8424,122 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "losslessly enumerated charms, independent 1/2048 plate drops, "
             "1/128 hard clue, and 1/500 elite clue; location, quest-only, "
             "post-cutoff, and Daemonheim contexts excluded"
+        ),
+    },
+    "cave_horror": {
+        "display_name": "Cave horror",
+        "level": 80,
+        "group": "Slayer",
+        "required_slayer_level": 58,
+        "quest_gate": "cabin_fever",
+        "quest_gate_label": "Complete Cabin Fever",
+        "required_item_options": (LIT_LIGHT_SOURCE_ITEMS,),
+        "required_item_options_label": (
+            "One lit light source in inventory or equipped for Mos Le'Harmless "
+            "Caves"
+        ),
+        "light_source": {"accepted_items": LIT_LIGHT_SOURCE_ITEMS},
+        "attack_style": "magic_melee",
+        "attack_speed": 4,
+        "respawn_delay": 39,
+        "max_hit": 90,
+        "slayer_xp": 55.0,
+        "stats": {
+            "hitpoints": 550,
+            "attack": 80,
+            "strength": 77,
+            "defence": 62,
+            "magic": 80,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "protective_equipment": {
+            "alternatives": (
+                {"slot": "neck", "items": ("Witchwood icon",)},
+                {
+                    "slot": "head",
+                    "items": (
+                        "Slayer helmet",
+                        "Slayer helmet (charged)",
+                        "Slayer helmet (e)",
+                        "Full slayer helmet",
+                        "Full slayer helmet (charged)",
+                        "Full slayer helmet (e)",
+                    ),
+                },
+            ),
+            "applies_to_player_classes": ("melee",),
+            "warning": (
+                "Missing a Witchwood icon or Slayer helmet for close combat: "
+                "each Cave horror scream deals 87 LP and drains one combat "
+                "stat by 5."
+            ),
+            "unprotected_effect": {
+                "damage": {"kind": "fixed", "amount": 87},
+                "protection_prayer_applies": True,
+                "stat_drain": {
+                    "kind": "flat_to_floor",
+                    "skills": (
+                        "attack",
+                        "defense",
+                        "strength",
+                        "ranged",
+                        "prayer",
+                        "magic",
+                    ),
+                    "amount": 5,
+                    "floor": 0,
+                    "selection": "random_one",
+                },
+            },
+            "source_status": (
+                "period exact close-combat equipment consequence, safespot "
+                "exception, stat-drain magnitude, and Protect/Deflect Melee "
+                "damage prevention; 87 LP is the conservative upper endpoint "
+                "of the cutoff page's 86-87 range"
+            ),
+        },
+        "drops": CAVE_HORROR_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Cave_horror?oldid=6550392; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/game/content/skills/"
+            "slayer/npcs/combat/CaveHorrorCombat.java; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "cave_horror (noanims).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/cave_horror.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/charmDrops.txt; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/tools/old/CharmDrop.java; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/utils/NPCClueDrops.java"
+        ),
+        "source_status": (
+            "period exact ordinary identity, LP, Slayer gate/XP, four-to-five-"
+            "tick magical melee, aggression, poison behavior, "
+            "light/Cabin-Fever access, Witchwood/Slayer-helmet protection, "
+            "scream consequence, and ranged safespot exception; four ticks "
+            "uses the conservative lower sourced cadence endpoint and the "
+            "approximate period 94-LP ordinary maximum is represented by "
+            "Darkan's exact 90; Darkan exact stats, zero bonuses, 39-tick "
+            "respawn, 128-slot ordinary selector with one empty slot, exact "
+            "nested tables, losslessly enumerated charms, long/curved bones, "
+            "1/512 Black mask (10), and 1/128 hard clue; "
+            "locations excluded and standard reciprocal ranged combat remains "
+            "the no-position AnkiScape abstraction"
         ),
     },
     "green_dragon": {

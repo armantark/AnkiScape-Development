@@ -2334,6 +2334,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         blue_dragon = _tree_row(tree, "blue_dragon")
         baby_blue_dragon = _tree_row(tree, "baby_blue_dragon")
         bronze_dragon = _tree_row(tree, "bronze_dragon")
+        cave_horror = _tree_row(tree, "cave_horror")
         aberrant_spectre = _tree_row(tree, "aberrant_spectre")
         basilisk = _tree_row(tree, "basilisk")
         crocodile = _tree_row(tree, "crocodile")
@@ -2475,6 +2476,13 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Dragon plateskirt x1 (1/2048)", bronze_dragon.toolTip(0))
         self.assertIn("Clue scroll (elite) x1 (1/500)", bronze_dragon.toolTip(0))
         self.assertFalse(bronze_dragon.icon(0).isNull())
+        self.assertEqual(cave_horror.text(0), "Cave horror (Lvl 80)")
+        self.assertIn("Enemy attack: Magic-based melee", cave_horror.toolTip(0))
+        self.assertIn("Enemy max hit: 87 LP", cave_horror.toolTip(0))
+        self.assertIn("Missing a Witchwood icon", cave_horror.toolTip(0))
+        self.assertIn("Black mask (10) x1 (1/512)", cave_horror.toolTip(0))
+        self.assertIn("Crimson charm x1 (136/1212)", cave_horror.toolTip(0))
+        self.assertFalse(cave_horror.icon(0).isNull())
         self.assertEqual(
             aberrant_spectre.text(0), "Aberrant spectre (Lvl 96)"
         )

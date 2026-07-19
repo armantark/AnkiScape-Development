@@ -2,6 +2,27 @@
 
 ## Current Focus
 
+The ordinary level-80 Cave horror now closes Chaeldar's twenty-third
+executable family. It preserves Slayer 58, 550 LP, 55 Slayer XP, Cabin Fever
+and lit-light-source access, four-tick magical melee, a Witchwood-icon or
+Slayer-helmet close-combat protection route, the ranged safespot exception,
+and the sourced 87-LP/one-stat-by-5 scream consequence. Protect/Deflect Melee
+blocks the scream damage without inventing protection for its stat drain.
+Darkan supplies exact stats/bonuses/respawn, one 128-slot ordinary selector
+with an explicit empty slot, an exact variable-allotment nested table, a
+losslessly enumerated 1,212-slot charm selector, Long/Curved bones, the 1/512
+Black mask (10), and a 1/128 hard clue. The cutoff sprite is pinned with
+provenance. Chaeldar remains hidden and unrenormalized at 23/34, with eleven
+Combat identities outstanding. No owner-facing design fork emerged.
+Evidence: `source-audits/slayer-cave-horror-combat-2026-07-18.md`.
+Focused backend/integration verification passes 409 tests and the real
+offscreen Qt Combat picker passes. Full non-Qt and real offscreen Qt discovery
+each pass all 1,675 tests; the real Qt run has zero skips or failures.
+Documentation, test quality, compilation, provenance JSON, diff, readiness,
+reachability, and worktree-safety checks pass.
+Results: `status-updates/slayer-cave-horror-results-2026-07-18.html`; mobile
+copy: <https://pmzz0dpygpxu.postplan.dev>.
+
 The ordinary level-131 Bronze dragon now closes Chaeldar's twenty-second
 executable family. It preserves 1,220 LP, 125 Slayer XP, six-tick melee plus
 metal-dragon dragonfire, a 123-LP melee maximum, conservative 500-LP
@@ -65,7 +86,7 @@ Chaeldar's complete cutoff assignment pool is now encoded as a hidden
 registry contract: 34 stable family rows, the provisional 388-point
 denominator, Combat 70, Lost City access, and every reconciled count range,
 skill/quest gate, and special-mechanic completeness key. Generated readiness
-is now 22/34. Twelve absent Combat identities produce one exact
+is now 23/34. Eleven absent Combat identities produce one exact
 `combat_target` blocker each; Chaeldar remains excluded from live assignment
 selection, so the partial denominator is never renormalized or exposed.
 Fever spiders deliberately do not receive a false Rum Deal completion gate:

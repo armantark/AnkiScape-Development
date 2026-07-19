@@ -3971,13 +3971,31 @@ def _combat_enemy_max_hit_old_hp(enemy, effective_strength, strength_bonus, enem
     return _combat_melee_max_hit_old_hp(effective_strength, strength_bonus)
 
 
-def _combat_protective_equipment_state(player_data, enemy):
+def _combat_protective_equipment_state(
+    player_data, enemy, player_combat_class=None
+):
     protection = enemy.get("protective_equipment") if isinstance(enemy, Mapping) else None
     if not isinstance(protection, Mapping):
         return None, True
+    protected_classes = tuple(
+        value
+        for value in (protection.get("applies_to_player_classes", ()) or ())
+        if isinstance(value, str)
+    )
+    if protected_classes and player_combat_class not in protected_classes:
+        return protection, True
     equipment = player_data.get("equipment", {}) or {}
     if not isinstance(equipment, Mapping):
         equipment = {}
+    alternatives = protection.get("alternatives", ()) or ()
+    if alternatives:
+        return protection, any(
+            isinstance(alternative, Mapping)
+            and isinstance(alternative.get("slot"), str)
+            and equipment.get(alternative["slot"])
+            in (alternative.get("items", ()) or ())
+            for alternative in alternatives
+        )
     slot = protection.get("slot")
     required_items = protection.get("items", ()) or ()
     equipped_item = equipment.get(slot) if isinstance(slot, str) else None
@@ -4016,6 +4034,8 @@ def _combat_unprotected_damage_lifepoints(effect, max_lifepoints, rng=None):
     damage = effect.get("damage") if isinstance(effect, Mapping) else None
     if not isinstance(damage, Mapping):
         return 0
+    if damage.get("kind") == "fixed":
+        return _non_negative_int(damage.get("amount", 0), 0)
     if damage.get("kind") == "uniform_max":
         maximum = _non_negative_int(damage.get("max", 0), 0)
         if not callable(rng):
@@ -6854,7 +6874,9 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
             0.0,
             float(weakening_equipment.get("enemy_damage_multiplier", 1.0)),
         )
-    protective_equipment, protection_active = _combat_protective_equipment_state(player_data, enemy)
+    protective_equipment, protection_active = _combat_protective_equipment_state(
+        player_data, enemy, combat_class
+    )
     unprotected_effect = (
         protective_equipment.get("unprotected_effect")
         if isinstance(protective_equipment, Mapping) and not protection_active
@@ -7551,7 +7573,9 @@ def apply_combat_burst_pure(
             0.0,
             float(weakening_equipment.get("enemy_damage_multiplier", 1.0)),
         )
-    protective_equipment, protection_active = _combat_protective_equipment_state(data, enemy)
+    protective_equipment, protection_active = _combat_protective_equipment_state(
+        data, enemy, combat_class
+    )
     start_equipment, start_equipment_active = _combat_start_equipment_state(
         data, enemy
     )

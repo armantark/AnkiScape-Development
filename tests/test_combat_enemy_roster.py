@@ -33,6 +33,7 @@ NEW_COMBAT_ENEMIES = (
     "blue_dragon",
     "baby_blue_dragon",
     "bronze_dragon",
+    "cave_horror",
     "ogre",
     "jackal",
     "icefiend",
@@ -190,14 +191,37 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                     self.assertGreater(enemy["xp_multiplier"], 0.0)
                 if "protective_equipment" in enemy:
                     protection = enemy["protective_equipment"]
-                    self.assertEqual(
-                        set(protection),
-                        {"slot", "items", "warning", "unprotected_effect", "source_status"},
-                    )
-                    self.assertIn(
-                        protection["slot"], {"head", "shield", "neck", "feet"}
-                    )
-                    self.assertTrue(protection["items"])
+                    base_keys = {
+                        "warning",
+                        "unprotected_effect",
+                        "source_status",
+                    }
+                    if "alternatives" in protection:
+                        self.assertEqual(
+                            set(protection),
+                            base_keys
+                            | {"alternatives", "applies_to_player_classes"},
+                        )
+                        self.assertTrue(protection["alternatives"])
+                        for alternative in protection["alternatives"]:
+                            self.assertIn(
+                                alternative["slot"],
+                                {"head", "shield", "neck", "feet"},
+                            )
+                            self.assertTrue(alternative["items"])
+                        self.assertTrue(
+                            protection["applies_to_player_classes"]
+                        )
+                    else:
+                        self.assertEqual(
+                            set(protection),
+                            base_keys | {"slot", "items"},
+                        )
+                        self.assertIn(
+                            protection["slot"],
+                            {"head", "shield", "neck", "feet"},
+                        )
+                        self.assertTrue(protection["items"])
                     self.assertTrue(protection["warning"])
                     self.assertTrue(protection["unprotected_effect"])
                     self.assertTrue(protection["source_status"])
@@ -367,6 +391,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("blue_dragon", "Blue dragon.png"),
             ("baby_blue_dragon", "Baby blue dragon.png"),
             ("bronze_dragon", "Bronze dragon.png"),
+            ("cave_horror", "Cave horror icon.png"),
         ):
             with self.subTest(target=target_id):
                 relative_path = f"combatenemies/{target_id}.png"
@@ -422,6 +447,11 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                     self.assertEqual(
                         provenance[relative_path]["timestamp"],
                         "2010-12-11T13:46:01Z",
+                    )
+                if target_id == "cave_horror":
+                    self.assertEqual(
+                        provenance[relative_path]["timestamp"],
+                        "2010-06-01T15:33:33Z",
                     )
 
     def test_green_dragon_preserves_cutoff_combat_and_drop_selectors(self):
@@ -729,6 +759,58 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             )
         self.assertIn("oldid=6550367", dragon["source"])
         self.assertIn("one empty slot", dragon["source_status"])
+
+    def test_cave_horror_preserves_cutoff_access_scream_and_drop_contract(self):
+        horror = COMBAT_ENEMY_DATA["cave_horror"]
+
+        self.assertEqual(horror["level"], 80)
+        self.assertEqual(horror["required_slayer_level"], 58)
+        self.assertEqual(horror["quest_gate"], "cabin_fever")
+        self.assertEqual(horror["attack_style"], "magic_melee")
+        self.assertEqual(horror["attack_speed"], 4)
+        self.assertEqual(horror["respawn_delay"], 39)
+        self.assertEqual(horror["max_hit"], 90)
+        self.assertEqual(horror["slayer_xp"], 55.0)
+        self.assertEqual(
+            horror["stats"],
+            {
+                "hitpoints": 550,
+                "attack": 80,
+                "strength": 77,
+                "defence": 62,
+                "magic": 80,
+                "ranged": 1,
+            },
+        )
+        self.assertEqual(
+            horror["protective_equipment"]["applies_to_player_classes"],
+            ("melee",),
+        )
+        self.assertEqual(
+            horror["protective_equipment"]["unprotected_effect"]["damage"],
+            {"kind": "fixed", "amount": 87},
+        )
+        self.assertEqual(horror["drops"]["guaranteed"], (("Big bones", 1),))
+        self.assertEqual(
+            [
+                (table["name"], table["total"])
+                for table in horror["drops"]["tables"]
+            ],
+            [
+                ("Darkan ordinary", 128),
+                ("Darkan charms", 1212),
+                ("Long and curved bones", 100000),
+                ("Black mask (10)", 512),
+                ("Hard clue", 128),
+            ],
+        )
+        for table in horror["drops"]["tables"]:
+            self.assertEqual(
+                sum(slot["slots"] for slot in table["slots"]),
+                table["total"],
+            )
+        self.assertIn("oldid=6550392", horror["source"])
+        self.assertIn("four ticks", horror["source_status"])
 
     def test_bloodveld_preserves_the_cutoff_level_76_variant_and_drop_table(self):
         bloodveld = COMBAT_ENEMY_DATA["bloodveld"]

@@ -815,6 +815,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-12-11T13:46:01Z"
   },
+  "combatenemies/cave_horror.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Cave_horror_icon.png",
+    "file_title": "Cave horror icon.png",
+    "image_url": "https://runescape.wiki/images/archive/20180312154750%21Cave_horror_icon.png?2c0b9",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0c632df9c05357407838d2c1d4ff48b4d9d141ff",
+    "size": 1491,
+    "source_wiki": "rs3",
+    "timestamp": "2010-06-01T15:33:33Z"
+  },
   "combatenemies/chaos_druid.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Chaos_druid.png",
     "file_title": "Chaos druid.png",

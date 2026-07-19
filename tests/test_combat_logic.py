@@ -17,6 +17,7 @@ from combat_data import (
     DARKAN_HERB_DROP_TABLE,
     DARKAN_MEGA_RARE_DROP_TABLE,
     DARKAN_ABERRANT_RARE_SEED_DROP_TABLE,
+    DARKAN_VARIABLE_ALLOTMENT_DROP_TABLE,
     HAAKON_DROPS,
     HAM_GUARD_DROPS,
     HILL_GIANT_DROPS,
@@ -2808,6 +2809,54 @@ class CombatLogicTest(unittest.TestCase):
                 "Dragon platelegs": 1,
                 "Clue scroll (hard)": 1,
                 "Clue scroll (elite)": 1,
+            },
+        )
+
+    def test_cave_horror_rolls_nested_allotments_and_independent_rares(self):
+        horror = COMBAT_ENEMY_DATA["cave_horror"]
+
+        self.assertEqual(DARKAN_VARIABLE_ALLOTMENT_DROP_TABLE["total"], 263)
+        self.assertEqual(
+            sum(
+                slot["slots"]
+                for slot in DARKAN_VARIABLE_ALLOTMENT_DROP_TABLE["slots"]
+            ),
+            263,
+        )
+        nested_and_mask = _combat_roll_drops(
+            horror,
+            _rng(
+                [
+                    46 / 128,
+                    0.0,
+                    0.0,
+                    0.999999,
+                    0.999999,
+                    0.0,
+                    0.999999,
+                ]
+            ),
+        )
+        charms_and_clue = _combat_roll_drops(
+            horror,
+            _rng([0.0, 0.0, 0.999999, 0.999999, 0.0]),
+        )
+
+        self.assertEqual(
+            nested_and_mask,
+            {
+                "Big bones": 1,
+                "Potato seed": 1,
+                "Black mask (10)": 1,
+            },
+        )
+        self.assertEqual(
+            charms_and_clue,
+            {
+                "Big bones": 1,
+                "Coins": 44,
+                "Gold charm": 1,
+                "Clue scroll (hard)": 1,
             },
         )
 
@@ -6106,6 +6155,154 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(pegged_result["unprotected_attacks"], 0)
         self.assertEqual(pegged_result["enemy_damage"], 0)
         self.assertEqual(pegged["combat_current_levels"], {})
+
+    def test_cave_horror_requires_route_access_and_a_lit_light_source(self):
+        base = {
+            "current_combat_target": "cave_horror",
+            "slayer_level": 58,
+        }
+        quest_locked = _player(**base, inventory={"Lit torch": 1})
+        missing_light = _player(
+            **base,
+            quests={"cabin_fever": {"completed": True}},
+        )
+        ready = _player(
+            **base,
+            quests={"cabin_fever": {"completed": True}},
+            equipment={"head": "Mining helmet (lit)"},
+        )
+
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                quest_locked, "cave_horror", COMBAT_ENEMY_DATA
+            ),
+            ("Complete Cabin Fever",),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                missing_light, "cave_horror", COMBAT_ENEMY_DATA
+            ),
+            (
+                "One lit light source in inventory or equipped for "
+                "Mos Le'Harmless Caves",
+            ),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                ready, "cave_horror", COMBAT_ENEMY_DATA
+            ),
+            (),
+        )
+
+    def test_cave_horror_close_combat_protection_accepts_neck_or_helmet(self):
+        base = dict(
+            current_combat_target="cave_horror",
+            slayer_level=58,
+            quests={"cabin_fever": {"completed": True}},
+            inventory={"Lit torch": 1},
+            constitution_level=60,
+            combat_lifepoints=600,
+        )
+
+        unprotected = combat_target_preview_pure(
+            _player(**base),
+            "cave_horror",
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+        )
+        icon = combat_target_preview_pure(
+            _player(**base, equipment={"neck": "Witchwood icon"}),
+            "cave_horror",
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+        )
+        helmet = combat_target_preview_pure(
+            _player(**base, equipment={"head": "Full slayer helmet"}),
+            "cave_horror",
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+        )
+        ranged = combat_target_preview_pure(
+            _player(
+                **{
+                    **base,
+                    "inventory": {
+                        "Lit torch": 1,
+                        "Bronze arrows": 10,
+                    },
+                },
+                combat_attack_style="ranged_accurate",
+                equipment={"weapon": "Shortbow"},
+            ),
+            "cave_horror",
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+        )
+
+        self.assertEqual(unprotected["enemy_max_hit"], 87)
+        self.assertIn("Witchwood icon", unprotected["protection_warning"])
+        self.assertEqual(icon["protection_warning"], "")
+        self.assertEqual(helmet["protection_warning"], "")
+        self.assertEqual(ranged["protection_warning"], "")
+
+    def test_cave_horror_prayer_blocks_scream_damage_but_not_stat_drain(self):
+        base = dict(
+            current_combat_target="cave_horror",
+            slayer_level=58,
+            quests={"cabin_fever": {"completed": True}},
+            inventory={"Lit torch": 1},
+            attack_level=60,
+            strength_level=60,
+            defense_level=60,
+            ranged_level=60,
+            magic_level=60,
+            prayer_level=99,
+            constitution_level=60,
+            combat_lifepoints=600,
+            combat_auto_flee=False,
+        )
+
+        unprotected, ok, result = apply_combat_burst_pure(
+            _player(**base),
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=9,
+            rng=lambda: 0.999999,
+        )
+        praying, praying_ok, praying_result = apply_combat_burst_pure(
+            _player(
+                **base,
+                combat_selected_prayers=["protect_from_melee"],
+                combat_prayer_uptime="100",
+                combat_prayer_points=990,
+            ),
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=9,
+            rng=lambda: 0.999999,
+        )
+        icon, icon_ok, icon_result = apply_combat_burst_pure(
+            _player(**base, equipment={"neck": "Witchwood icon"}),
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=9,
+            rng=lambda: 0.999999,
+        )
+
+        self.assertTrue(ok, result)
+        self.assertTrue(praying_ok, praying_result)
+        self.assertTrue(icon_ok, icon_result)
+        self.assertEqual(result["unprotected_attacks"], 2)
+        self.assertEqual(result["enemy_damage"], 174)
+        self.assertEqual(result["stat_drains"], {"magic": 10})
+        self.assertEqual(unprotected["combat_lifepoints"], 426)
+        self.assertEqual(praying_result["unprotected_attacks"], 2)
+        self.assertEqual(praying_result["enemy_damage"], 0)
+        self.assertEqual(praying_result["stat_drains"], {"magic": 10})
+        self.assertEqual(praying["combat_lifepoints"], 600)
+        self.assertEqual(icon_result["unprotected_attacks"], 0)
+        self.assertEqual(icon_result["stat_drains"], {})
+        self.assertEqual(icon["combat_current_levels"], {})
 
     def test_vampyre_requires_morytania_access_and_holy_symbol_weakens_it(self):
         locked = _player(current_combat_target="vampyre")

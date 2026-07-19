@@ -308,21 +308,25 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   `source-audits/slayer-earth-warrior-wilderness-risk-2026-07-18.md`.
 - Chaeldar is now the fourth completely encoded pool. Its 34 master-specific
   rows preserve the provisional 388-point denominator and remain hidden at
-  22/34 readiness. Fire giants now use the ordinary level-86 representative,
+  23/34 readiness. Fire giants now use the ordinary level-86 representative,
   while Blue dragons expose separate adult and baby task choices with
   source-backed dragonfire separation, exact selectors, a Summoning-99 egg
   gate, and cutoff assets. Bronze dragons now preserve metal-dragon
   dragonfire, the guaranteed bar drop, exact ordinary/charm/plate/clue
-  selectors, and cutoff art. The twelve exact blockers are Cave horrors,
-  Dagannoths, Elves, Fever spiders, Fungal magi, Grifolapines, Grifolaroos,
-  Jungle strykewyrms, Kurasks, Trolls, Vyrewatch, and Warped tortoises. Resume from
-  `tools/audit_slayer_readiness.py`; do not render or renormalize the pool.
+  selectors, and cutoff art. Cave horrors now preserve Cabin Fever/light
+  access, class-aware Witchwood/Slayer-helmet protection, the sourced scream,
+  exact selectors, the Black mask route, and cutoff art. The eleven exact
+  blockers are Dagannoths, Elves, Fever spiders, Fungal magi, Grifolapines,
+  Grifolaroos, Jungle strykewyrms, Kurasks, Trolls, Vyrewatch, and Warped
+  tortoises. Resume from `tools/audit_slayer_readiness.py`; do not render or
+  renormalize the pool.
   Fever-spider access remains a partial Rum Deal permission seam rather than a
   false completion gate. See
   `source-audits/slayer-chaeldar-registry-2026-07-18.md` and
   `source-audits/slayer-fire-giant-combat-2026-07-18.md` and
   `source-audits/slayer-blue-dragon-family-combat-2026-07-18.md` and
-  `source-audits/slayer-bronze-dragon-combat-2026-07-18.md`.
+  `source-audits/slayer-bronze-dragon-combat-2026-07-18.md` and
+  `source-audits/slayer-cave-horror-combat-2026-07-18.md`.
 - Darkan ordinary-drop semantics are corrected across eleven live Slayer
   targets. Sibling nonzero JSON rows now share one cumulative selector, while
   rate-zero rows, charms, and explicitly labeled period abstractions remain

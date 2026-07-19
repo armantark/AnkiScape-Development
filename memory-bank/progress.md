@@ -4,6 +4,36 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Cave horror Combat closure — 2026-07-18
+
+- Added the ordinary level-80 Cave horror with Slayer 58, 550 LP, 55 Slayer
+  XP, Cabin Fever and lit-light-source access, four-tick magical melee, and a
+  90-LP ordinary maximum.
+- Extended protective equipment to source-declared alternative slots and
+  combat classes: close combat accepts a Witchwood icon or any Slayer-helmet
+  variant, while ranged/Magic safespot loadouts do not receive a false
+  equipment warning.
+- Preserved the cutoff 87-LP scream endpoint and one-random-stat-by-5 drain.
+  Protect/Deflect Melee blocks scream damage but not the drain.
+- Preserved exact Darkan stats, zero bonuses, 39-tick respawn, one 128-slot
+  ordinary selector including its empty slot, the exact variable-allotment
+  nested table, a losslessly enumerated 1,212-slot charm selector,
+  Long/Curved bones, 1/512 Black mask (10), and 1/128 hard clue.
+- Pinned the pre-cutoff Cave horror icon and its provenance.
+- Advanced Chaeldar to 23/34 while leaving its partial pool hidden and
+  unrenormalized. Eleven Combat-family blockers remain.
+- No owner-facing design fork emerged. Durable evidence:
+  `source-audits/slayer-cave-horror-combat-2026-07-18.md`.
+- Focused Combat/Slayer/metadata coverage passes 409 tests, and the focused
+  real offscreen Qt picker passes.
+- Full non-Qt and real offscreen Qt discovery each pass all 1,675 tests; the
+  real Qt run has zero skips or failures. Test quality has zero hard issues
+  across 73 files and 1,675 methods. Documentation, compilation, provenance
+  JSON, diff, readiness, reachability, and worktree-safety gates pass.
+- Results:
+  `status-updates/slayer-cave-horror-results-2026-07-18.html`; mobile copy:
+  <https://pmzz0dpygpxu.postplan.dev>.
+
 ## Slayer Bronze dragon Combat closure — 2026-07-18
 
 - Added the ordinary level-131 Bronze dragon with 1,220 LP, 125 Slayer XP,
@@ -95,8 +125,8 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
 - Registered Chaeldar at Combat 70 behind Lost City while keeping
   `runtime_enabled=False`; live master selection cannot see or renormalize the
   partial pool.
-- Derived 22/34 readiness after the Fire giant, Blue dragon, and Bronze dragon
-  closures. Twelve absent target identities each report one
+- Derived 23/34 readiness after the Fire giant, Blue dragon, Bronze dragon,
+  and Cave horror closures. Eleven absent target identities each report one
   deterministic `combat_target` blocker, while Gargoyles and Mutated
   zygomites reuse their already-live finisher mechanics.
 - Preserved the source-blocked Rum Deal stage boundary for Fever spiders
