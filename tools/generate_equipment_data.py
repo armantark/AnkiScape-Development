@@ -678,7 +678,16 @@ def _drop_equipment_items(
             for slot in table.get("slots", ()):
                 if not isinstance(slot, Mapping):
                     continue
-                source_item = _resolve_source_item_by_name(slot.get("item"), items_by_name)
+                source_item_id = slot.get("source_item_id")
+                source_item = (
+                    items.get(source_item_id)
+                    if isinstance(source_item_id, int) and source_item_id > 0
+                    else None
+                )
+                if source_item is None:
+                    source_item = _resolve_source_item_by_name(
+                        slot.get("item"), items_by_name
+                    )
                 if source_item is None:
                     continue
                 equipment_item = _equipment_item_from_source_item(

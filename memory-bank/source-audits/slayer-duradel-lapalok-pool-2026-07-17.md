@@ -34,7 +34,7 @@ special attacks remain end-to-end Combat obligations.
 | Dagannoths | 10 | 130–200 | baseline | Ordinary, fledgling, spawn, guardian and three Kings in their proper contexts | weight `provisional/darkan`; count closed |
 | Dark beasts | 15 | 130–200 | Slayer 90; Temple of Light route | Ordinary and Revenant variants | weight `provisional/darkan`; exact quest-stage predicate `source_blocked` |
 | Desert strykewyrms | 11 | 90–140 | Slayer 77 | Assignment-only attackability, tunnelling and special attack | weight `provisional/darkan`; count/gate closed |
-| Dust devils | 10 | 130–200 | Slayer 65 | Face mask or accepted Slayer helmet; unprotected damage/stat drain | weight `provisional/darkan`; count/gate closed |
+| Dust devils | 10 | 130–200 | Slayer 65 | Continuous Face mask, Masked earmuffs, or accepted Slayer-helmet damage gate | weight `provisional/darkan`; count/gate/target closed |
 | Fire giants | 10 | 130–200 | baseline | Ordinary family | weight `provisional/darkan`; count closed |
 | Fungal magi | 8 | 100–200 | Magic 50 | Neem-oil infestation/attack interaction | weight `provisional/darkan`; count/gate closed |
 | Ganodermic creatures | 6 | 55–70 provisional | Slayer 95; Magic 60 | Ganodermic runt and beast; Polypore context | period family closed; historical generator range `source_blocked` |

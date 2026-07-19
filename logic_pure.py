@@ -3468,8 +3468,11 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
     )
     if (
         isinstance(start_equipment, Mapping)
-        and not active_encounter
         and not start_equipment_active
+        and (
+            not active_encounter
+            or bool(start_equipment.get("persistent"))
+        )
     ):
         return (
             str(

@@ -935,6 +935,18 @@
     "source_wiki": "osrs",
     "timestamp": "2026-04-09T05:27:07Z"
   },
+  "combatenemies/dust_devil.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Dust_devil.png",
+    "file_title": "Dust devil.png",
+    "image_url": "https://runescape.wiki/images/Dust_devil.png?fd339",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "792094caa391142657872a2bed3bc906401f3d7c",
+    "size": 292200,
+    "source_wiki": "rs3",
+    "timestamp": "2014-07-22T13:58:05Z"
+  },
   "combatenemies/dwarf_level_10.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Dwarf.png",
     "file_title": "Dwarf.png",

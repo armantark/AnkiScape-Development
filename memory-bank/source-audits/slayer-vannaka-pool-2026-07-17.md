@@ -45,7 +45,7 @@ family.
 | Cockatrice | 10 | 60–120 | Slayer 25; Defence 20 | Mirror shield | weight `provisional/darkan`; count/level closed |
 | Crocodiles | 10 | 30–60 | baseline | desert route/context | weight `provisional/darkan`; count closed |
 | Cyclopes | 10 | 60–120 | Attack + Strength 130 | Warriors' Guild tokens and Cyclops room | weight `provisional/darkan`; count closed |
-| Dust devils | 25 | 60–120 | Slayer 65 | Facemask, masked earmuffs, or accepted helmet equivalent | weight `provisional/darkan`; count/level closed |
+| Dust devils | 25 | 60–120 | Slayer 65 | Continuous Face mask, Masked earmuffs, or accepted Slayer-helmet damage gate | weight `provisional/darkan`; count/level/target closed |
 | Earth warriors | 15 | 30–60 | baseline | Wilderness risk for the ordinary period location | weight `provisional/darkan`; count closed |
 | Ghouls | 10 | 60–120 | baseline | Morytania route/context | weight `provisional/darkan`; count closed |
 | Green dragons | 10 | 30–60 | baseline | dragonfire protection and Wilderness risk | weight `provisional/darkan`; count closed |

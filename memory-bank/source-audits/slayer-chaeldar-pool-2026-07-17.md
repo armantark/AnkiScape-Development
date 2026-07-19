@@ -44,7 +44,7 @@ is an end-to-end Combat obligation.
 | Cave horrors | 15 | D | Slayer 58; Cabin Fever | Light, Mos Le'Harmless cave, conditional witchwood-icon scream consequence | weight `provisional/darkan`; count/gate closed |
 | Crawling hands | 5 | D | Slayer 5 | Ordinary, Skeletal, and Zombie variants with explicit route gates | weight `provisional/darkan`; count/gate closed |
 | Dagannoths | 10 | D | baseline | Ordinary forms and explicit boss/context variants | weight `provisional/darkan`; count closed |
-| Dust devils | 15 | D | Slayer 65 | Face mask or accepted helmet; unprotected damage/stat drain | weight `provisional/darkan`; count/gate closed |
+| Dust devils | 15 | D | Slayer 65 | Continuous Face mask, Masked earmuffs, or accepted Slayer-helmet damage gate | weight `provisional/darkan`; count/gate/target closed |
 | Elves | 10 | 60–90 | Regicide unlock/route | Explicit Elf-warrior membership | weight `provisional/darkan`; count/gate closed |
 | Fever spiders | 10 | D | Slayer 42; Rum Deal started for route | Slayer gloves; otherwise disease and repeated damage | weight `provisional/darkan`; exact assignment-time quest predicate `source_blocked` |
 | Fire giants | 10 | D | baseline | Ordinary non-excluded contexts | weight `provisional/darkan`; count closed |

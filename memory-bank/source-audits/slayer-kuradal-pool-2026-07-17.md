@@ -53,7 +53,7 @@ readiness.
 | Dagannoths | 10 | 170–240 | baseline | Ordinary, fledgling, spawn, guardian and three Kings in their proper contexts | K/A/D |
 | Dark beasts | 12 | 150–250 | Slayer 90 | Kuradal-Dungeon variant avoids importing an unrelated Temple-of-Light route gate | K/A/D/L |
 | Desert strykewyrms | 9 | 90–160 | Slayer 77 | Assignment-only attackability, tunnelling and special attack | K/A/D |
-| Dust devils | 10 | 150–250 | Slayer 65 | Face mask or accepted Slayer helmet; unprotected damage/stat drain | K/A/D |
+| Dust devils | 10 | 150–250 | Slayer 65 | Continuous Face mask, Masked earmuffs, or accepted Slayer-helmet damage gate | K/A/D/target closed |
 | Fire giants | 10 | 170–250 | baseline | Ordinary family | K/A/D |
 | Ganodermic creatures | 7 | 65–89 | Slayer 95; Magic 60 | Ganodermic runt and beast; Polypore context | K/A; cutoff count overrides D `70–90` |
 | Gargoyles | 12 | 150–250 | Slayer 75 | Rock-hammer finisher; quick-finisher still requires the hammer | K/A/D/L |

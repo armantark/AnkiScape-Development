@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dust devil closure</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1010;
+      --panel: #171b19;
+      --panel-2: #1e2421;
+      --ink: #f0eee7;
+      --muted: #aaa99f;
+      --line: #343a35;
+      --sand: #d8aa61;
+      --green: #79cf93;
+      --red: #ef766f;
+      --blue: #75b7d4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 80% 8%, rgba(216,170,97,.15), transparent 28rem),
+        linear-gradient(135deg, rgba(255,255,255,.015) 25%, transparent 25%) 0 0 / 18px 18px,
+        var(--bg);
+      color: var(--ink);
+      font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: auto; padding: 42px 0 64px; }
+    h1, h2, h3 { line-height: 1.12; letter-spacing: -.025em; }
+    h1 { max-width: 830px; margin: 10px 0 14px; font-size: clamp(42px, 8vw, 76px); }
+    h2 { margin: 0 0 16px; font-size: 25px; }
+    h3 { margin: 0 0 8px; font-size: 17px; }
+    p { margin: 0; }
+    .eyebrow { color: var(--sand); text-transform: uppercase; letter-spacing: .13em; font-size: 12px; font-weight: 800; }
+    .lede { max-width: 760px; color: var(--muted); font-size: 18px; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 28px; }
+    .metric, .card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(145deg, rgba(30,36,33,.97), rgba(23,27,25,.97));
+      box-shadow: 0 22px 60px rgba(0,0,0,.22);
+    }
+    .metric { padding: 18px; }
+    .metric strong { display: block; color: var(--green); font-size: 29px; }
+    .metric span { color: var(--muted); font-size: 13px; }
+    section { margin-top: 30px; }
+    .card { padding: 24px; }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .rule {
+      display: grid;
+      grid-template-columns: 116px 1fr;
+      gap: 20px;
+      align-items: center;
+      border-left: 4px solid var(--sand);
+    }
+    .icon {
+      width: 96px;
+      height: 96px;
+      display: grid;
+      place-items: center;
+      font-size: 58px;
+      background: radial-gradient(circle, rgba(216,170,97,.18), transparent 70%);
+    }
+    .tag { display: inline-block; margin-bottom: 9px; color: var(--sand); font-size: 11px; font-weight: 850; text-transform: uppercase; letter-spacing: .11em; }
+    .wrong { border-color: rgba(239,118,111,.42); }
+    .right { border-color: rgba(121,207,147,.42); }
+    .wrong .tag { color: var(--red); }
+    .right .tag { color: var(--green); }
+    .muted { color: var(--muted); }
+    .flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 12px; align-items: center; }
+    .node { padding: 17px; min-height: 105px; border-radius: 13px; border: 1px solid var(--line); background: #111513; }
+    .node strong { display: block; margin-bottom: 6px; color: var(--blue); }
+    .arrow { color: var(--sand); font-size: 25px; }
+    .checks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .check { padding: 15px; background: rgba(121,207,147,.06); border-left: 3px solid var(--green); border-radius: 0 12px 12px 0; }
+    .check strong { display: block; }
+    .check span { color: var(--muted); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    footer { margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+    @media (max-width: 760px) {
+      .metrics, .checks, .split { grid-template-columns: 1fr 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .arrow { justify-self: center; transform: rotate(90deg); }
+    }
+    @media (max-width: 520px) {
+      .metrics, .checks, .split { grid-template-columns: 1fr; }
+      .rule { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">AnkiScape · Slayer closure · 18 July 2026</div>
+    <h1>Dust devils are live. Keep the mask on.</h1>
+    <p class="lede">The level-93 representative now preserves the cutoff’s literal equipment rule, exact Combat profile, one cumulative Darkan drop selector, independent charms, and a real source-reachable Dragon chainbody.</p>
+    <div class="metrics">
+      <div class="metric"><strong>26 / 35</strong><span>Vannaka families ready</span></div>
+      <div class="metric"><strong>32,768</strong><span>ordinary selector slots</span></div>
+      <div class="metric"><strong>606</strong><span>exact charm outcomes</span></div>
+      <div class="metric"><strong>1,620</strong><span>full-suite tests passing</span></div>
+    </div>
+  </header>
+
+  <section class="card rule">
+    <div class="icon" aria-label="Dust devil">🌪️</div>
+    <div>
+      <div class="tag">Cutoff rule</div>
+      <h2>Protection is a continuous damage gate</h2>
+      <p class="muted">Face mask, Masked earmuffs, Slayer helmet, or Full slayer helmet must remain in the head slot. The 3 November 2012 revision says an unprotected player cannot damage Dust devils, so this is the contract’s narrow hard-gate case—not a harmless warning and not a Basilisk-style dangerous option.</p>
+    </div>
+  </section>
+
+  <section class="split">
+    <article class="card right">
+      <div class="tag">Source-faithful route</div>
+      <h2>Chaos Tunnels</h2>
+      <p class="muted">The same cutoff page provides a route where environmental smoke is absent outside the fight. The target therefore needs no invented Desert Treasure gate and adds no quest stages.</p>
+    </article>
+    <article class="card">
+      <div class="tag">Combat profile</div>
+      <h2>93 · 1,050 LP · 90 max</h2>
+      <p class="muted">Slayer 65, 105 Slayer XP, six-tick melee, Darkan’s exact 105 Attack / 70 Strength / 40 Defence stats, and a 59-tick respawn.</p>
+    </article>
+  </section>
+
+  <section class="card">
+    <h2>Drop execution</h2>
+    <div class="flow">
+      <div class="node"><strong>Guaranteed channel</strong>Bones on every kill.</div>
+      <div class="arrow">→</div>
+      <div class="node"><strong>One ordinary roll</strong><span class="mono">32,513 occupied + 255 empty</span>, including Dragon chainbody at <span class="mono">1 / 32,768</span>.</div>
+      <div class="arrow">→</div>
+      <div class="node"><strong>Separate charm roll</strong>Gold 31, Green 13, Crimson 115, Blue 3, empty 444—all over 606.</div>
+    </div>
+  </section>
+
+  <section class="split">
+    <article class="card wrong">
+      <div class="tag">Generator defect found</div>
+      <h2>Name-only lookup chose item 2513</h2>
+      <p class="muted">The unused same-name cache row looked like head equipment with no Defence gate. The generated output was structurally valid but semantically wrong.</p>
+    </article>
+    <article class="card right">
+      <div class="tag">Generator correction</div>
+      <h2>Exact source ID chooses item 3140</h2>
+      <p class="muted">Drop rows may pin a cache item ID before name fallback. Dragon chainbody now generates as body equipment with Defence 60 and its exact bonuses.</p>
+    </article>
+  </section>
+
+  <section>
+    <h2>Closure proof</h2>
+    <div class="checks">
+      <div class="check"><strong>337 focused tests</strong><span>Combat, Slayer, generation, equipment, registries, and reachability.</span></div>
+      <div class="check"><strong>1 real Qt flow</strong><span>Picker identity, max hit, drops, icon, and equipment-backed preview.</span></div>
+      <div class="check"><strong>1,620 full-suite tests</strong><span>Zero failures and errors; 214 intentional environment skips.</span></div>
+      <div class="check"><strong>Generator byte-stable</strong><span>Regeneration reproduces the checked-in equipment output exactly.</span></div>
+      <div class="check"><strong>Docs and quality clean</strong><span>Zero documentation errors and zero test-quality hard issues.</span></div>
+      <div class="check"><strong>No design gap</strong><span>Every player-facing choice was settled by source and the Slayer contract.</span></div>
+    </div>
+  </section>
+
+  <footer>Durable evidence: memory-bank/source-audits/slayer-dust-devil-combat-2026-07-18.md</footer>
+</main>
+</body>
+</html>

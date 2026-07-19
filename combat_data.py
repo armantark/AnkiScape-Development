@@ -1194,7 +1194,7 @@ COMBAT_GEM_DROP_TABLE = {
     ),
 }
 
-DARKAN_ABERRANT_HERB_DROP_TABLE = {
+DARKAN_HERB_DROP_TABLE = {
     "name": "Darkan herb",
     "source": (
         "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
@@ -1239,7 +1239,7 @@ DARKAN_ABERRANT_RARE_SEED_DROP_TABLE = {
     ),
 }
 
-DARKAN_ABERRANT_MEGA_RARE_DROP_TABLE = {
+DARKAN_MEGA_RARE_DROP_TABLE = {
     "name": "Darkan mega rare",
     "source": (
         "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
@@ -1255,7 +1255,7 @@ DARKAN_ABERRANT_MEGA_RARE_DROP_TABLE = {
     ),
 }
 
-DARKAN_ABERRANT_GEM_DROP_TABLE = {
+DARKAN_GEM_DROP_TABLE = {
     "name": "Darkan gem",
     "source": (
         "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
@@ -1271,7 +1271,7 @@ DARKAN_ABERRANT_GEM_DROP_TABLE = {
         {"item": "Rune javelin", "quantity": 5, "slots": 1},
         {"item": "Tooth half of a key", "quantity": 1, "slots": 1},
         {"item": "Loop half of a key", "quantity": 1, "slots": 1},
-        {"table": DARKAN_ABERRANT_MEGA_RARE_DROP_TABLE, "slots": 1},
+        {"table": DARKAN_MEGA_RARE_DROP_TABLE, "slots": 1},
         {"slots": 63},
     ),
 }
@@ -3228,6 +3228,57 @@ GUARD_DROPS = {
                 {"item": "Crimson charm", "quantity": 1, "slots": 5},
                 {"item": "Blue charm", "quantity": 1, "slots": 2},
                 {"slots": 914},
+            ),
+        },
+    ),
+}
+
+
+DUST_DEVIL_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Darkan main",
+            "total": 32768,
+            "slots": (
+                {"table": DARKAN_GEM_DROP_TABLE, "slots": 2816},
+                {"table": DARKAN_HERB_DROP_TABLE, "slots": 4864},
+                {"item": "Rune dagger", "quantity": 1, "slots": 256},
+                {"item": "Red d'hide vambraces", "quantity": 1, "slots": 512},
+                {"item": "Coins", "quantity": 300, "slots": 512},
+                {"item": "Fire rune", "quantity": 150, "slots": 512},
+                {"item": "Ugthanki kebab", "quantity": 1, "slots": 768},
+                {"item": "Earth battlestaff", "quantity": 1, "slots": 256},
+                {"item": "Rune arrows", "quantity": 12, "slots": 1280},
+                {"item": "Coins", "quantity": 50, "slots": 256},
+                {"item": "Fire rune", "quantity": 150, "slots": 2048},
+                {"item": "Steel hatchet", "quantity": 1, "slots": 768},
+                {"item": "Coins", "quantity": 60, "slots": 10240},
+                {"item": "Fire rune", "quantity": 37, "slots": 256},
+                {"item": "Soul rune", "quantity": 5, "slots": 1024},
+                {"item": "Coins", "quantity": 25, "slots": 1536},
+                {"item": "Mithril bar", "quantity": 1, "slots": 768},
+                {"item": "Soul rune", "quantity": 2, "slots": 256},
+                {"item": "Chaos rune", "quantity": 5, "slots": 1792},
+                {"item": "Coins", "quantity": 15, "slots": 1792},
+                {
+                    "item": "Dragon chainbody",
+                    "quantity": 1,
+                    "slots": 1,
+                    "source_item_id": 3140,
+                },
+                {"slots": 255},
+            ),
+        },
+        {
+            "name": "Darkan charms",
+            "total": 606,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 31},
+                {"item": "Green charm", "quantity": 1, "slots": 13},
+                {"item": "Crimson charm", "quantity": 1, "slots": 115},
+                {"item": "Blue charm", "quantity": 1, "slots": 3},
+                {"slots": 444},
             ),
         },
     ),
@@ -7950,6 +8001,82 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "source_blocked"
         ),
     },
+    "dust_devil": {
+        "display_name": "Dust devil",
+        "level": 93,
+        "group": "Slayer",
+        "required_slayer_level": 65,
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 90,
+        "slayer_xp": 105.0,
+        "stats": {
+            "hitpoints": 1050,
+            "attack": 105,
+            "strength": 70,
+            "defence": 40,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "start_equipment": {
+            "slot": "head",
+            "items": (
+                "Face mask",
+                "Masked earmuffs",
+                "Slayer helmet",
+                "Slayer helmet (charged)",
+                "Slayer helmet (e)",
+                "Full slayer helmet",
+                "Full slayer helmet (charged)",
+                "Full slayer helmet (e)",
+            ),
+            "persistent": True,
+            "warning": (
+                "Equip a Face mask, Masked earmuffs, or a Slayer helmet "
+                "to damage Dust devils"
+            ),
+            "source_status": (
+                "period-exact continuous damage gate; the cutoff page says "
+                "unprotected players cannot damage Dust devils"
+            ),
+        },
+        "drops": DUST_DEVIL_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Dust_devil?oldid=6529409; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/game/content/skills/"
+            "slayer/npcs/combat/DustDevil.java; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "dust_devil.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/dust_devil.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/charmDrops.txt; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/tools/old/CharmDrop.java"
+        ),
+        "source_status": (
+            "period exact ordinary identity, LP, Slayer gate/XP, six-tick "
+            "melee, maximum hit, continuous protective-headgear damage gate, "
+            "and guaranteed Bones; Darkan exact stats, respawn, one exact "
+            "32,768-slot ordinary selector with nested herb/gem tables, and "
+            "an emulator-exact charm selector; familiar-only Ranged attacks "
+            "have no player-combat effect; defensive bonuses are source_blocked"
+        ),
+    },
     "aberrant_spectre": {
         "display_name": "Aberrant spectre",
         "level": 96,
@@ -8034,7 +8161,7 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
                     "total": 512,
                     "slots": (
                         {
-                            "table": DARKAN_ABERRANT_HERB_DROP_TABLE,
+                            "table": DARKAN_HERB_DROP_TABLE,
                             "slots": 312,
                         },
                         {
@@ -8042,7 +8169,7 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
                             "slots": 76,
                         },
                         {
-                            "table": DARKAN_ABERRANT_GEM_DROP_TABLE,
+                            "table": DARKAN_GEM_DROP_TABLE,
                             "slots": 20,
                         },
                         {"item": "Steel hatchet", "quantity": 1, "slots": 12},

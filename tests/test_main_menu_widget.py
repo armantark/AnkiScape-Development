@@ -2251,7 +2251,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["inventory"]["Waterskin (4)"] = 1
         pd["current_combat_target"] = "seagull"
-        pd["slayer_level"] = 60
+        pd["slayer_level"] = 65
+        pd["equipment"]["head"] = "Face mask"
         pd["quests"]["priest_in_peril"] = {
             "started": True,
             "progress": 9,
@@ -2292,6 +2293,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         jelly = _tree_row(tree, "jelly")
         bloodveld = _tree_row(tree, "bloodveld")
         infernal_mage = _tree_row(tree, "infernal_mage")
+        dust_devil = _tree_row(tree, "dust_devil")
         aberrant_spectre = _tree_row(tree, "aberrant_spectre")
         basilisk = _tree_row(tree, "basilisk")
         crocodile = _tree_row(tree, "crocodile")
@@ -2365,6 +2367,11 @@ class MainMenuWidgetTest(unittest.TestCase):
             "Lava battlestaff x1 (64/64000)", infernal_mage.toolTip(0)
         )
         self.assertFalse(infernal_mage.icon(0).isNull())
+        self.assertEqual(dust_devil.text(0), "Dust devil (Lvl 93)")
+        self.assertIn("Enemy max hit: 90 LP", dust_devil.toolTip(0))
+        self.assertIn("Dragon chainbody x1 (1/32768)", dust_devil.toolTip(0))
+        self.assertIn("Crimson charm x1 (115/606)", dust_devil.toolTip(0))
+        self.assertFalse(dust_devil.icon(0).isNull())
         self.assertEqual(
             aberrant_spectre.text(0), "Aberrant spectre (Lvl 96)"
         )

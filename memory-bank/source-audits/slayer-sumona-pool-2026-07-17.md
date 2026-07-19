@@ -37,7 +37,7 @@ special attacks remain end-to-end Combat obligations.
 | Cave horrors | 15 | 120–185 | Slayer 58; Cabin Fever | Light and conditional witchwood-icon scream consequence | weight `provisional/darkan`; count/gate closed |
 | Dagannoths | 10 | 120–192 | baseline | Ordinary, fledgling, spawn, guardian and King variants with explicit contexts | weight `provisional/darkan`; count closed |
 | Desert strykewyrms | 14 | 90–110 | Slayer 77 | Assignment-only attackability, stomp/tunnelling and special attack | weight `provisional/darkan`; count/gate closed |
-| Dust devils | 15 | 120–185 | Slayer 65 | Face mask or accepted helmet; unprotected damage/stat drain | weight `provisional/darkan`; count/gate closed |
+| Dust devils | 15 | 120–185 | Slayer 65 | Continuous Face mask, Masked earmuffs, or accepted Slayer-helmet damage gate | weight `provisional/darkan`; count/gate/target closed |
 | Elves | 10 | 60–90 | Regicide unlock/route | Explicit eligible Elf family | weight `provisional/darkan`; count/gate closed |
 | Fire giants | 10 | 120–185 | baseline | Ordinary family | weight `provisional/darkan`; count closed |
 | Fungal magi | 10 | 90–150 | Magic 50 | Neem-oil infestation/attack interaction | weight `provisional/darkan`; count/gate closed |

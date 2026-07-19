@@ -13,9 +13,9 @@ from combat_data import (
     COMBAT_MAGIC_STAFF_DATA,
     COMBAT_RANGED_AMMO_DATA,
     COMBAT_RANGED_WEAPON_DATA,
-    DARKAN_ABERRANT_GEM_DROP_TABLE,
-    DARKAN_ABERRANT_HERB_DROP_TABLE,
-    DARKAN_ABERRANT_MEGA_RARE_DROP_TABLE,
+    DARKAN_GEM_DROP_TABLE,
+    DARKAN_HERB_DROP_TABLE,
+    DARKAN_MEGA_RARE_DROP_TABLE,
     DARKAN_ABERRANT_RARE_SEED_DROP_TABLE,
     HAAKON_DROPS,
     HAM_GUARD_DROPS,
@@ -2656,15 +2656,15 @@ class CombatLogicTest(unittest.TestCase):
     def test_aberrant_spectre_rolls_exact_main_and_nested_tables(self):
         spectre = COMBAT_ENEMY_DATA["aberrant_spectre"]
 
-        self.assertEqual(DARKAN_ABERRANT_HERB_DROP_TABLE["total"], 128)
+        self.assertEqual(DARKAN_HERB_DROP_TABLE["total"], 128)
         self.assertEqual(DARKAN_ABERRANT_RARE_SEED_DROP_TABLE["total"], 125)
-        self.assertEqual(DARKAN_ABERRANT_GEM_DROP_TABLE["total"], 128)
-        self.assertEqual(DARKAN_ABERRANT_MEGA_RARE_DROP_TABLE["total"], 256)
+        self.assertEqual(DARKAN_GEM_DROP_TABLE["total"], 128)
+        self.assertEqual(DARKAN_MEGA_RARE_DROP_TABLE["total"], 256)
         for table in (
-            DARKAN_ABERRANT_HERB_DROP_TABLE,
+            DARKAN_HERB_DROP_TABLE,
             DARKAN_ABERRANT_RARE_SEED_DROP_TABLE,
-            DARKAN_ABERRANT_GEM_DROP_TABLE,
-            DARKAN_ABERRANT_MEGA_RARE_DROP_TABLE,
+            DARKAN_GEM_DROP_TABLE,
+            DARKAN_MEGA_RARE_DROP_TABLE,
         ):
             self.assertEqual(
                 sum(slot["slots"] for slot in table["slots"]), table["total"]
@@ -5682,6 +5682,78 @@ class CombatLogicTest(unittest.TestCase):
                 continuing, "wall_beast", COMBAT_ENEMY_DATA
             ),
             (),
+        )
+
+    def test_dust_devil_requires_protective_headgear_throughout_the_fight(self):
+        missing = _player(
+            current_combat_target="dust_devil",
+            slayer_level=65,
+        )
+        equipped = _player(
+            current_combat_target="dust_devil",
+            slayer_level=65,
+            equipment={"head": "Face mask"},
+        )
+        active_but_unprotected = _player(
+            current_combat_target="dust_devil",
+            slayer_level=65,
+            combat_encounter={
+                "target_id": "dust_devil",
+                "enemy_lifepoints": 500,
+            },
+        )
+
+        warning = (
+            "Equip a Face mask, Masked earmuffs, or a Slayer helmet "
+            "to damage Dust devils"
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                missing, "dust_devil", COMBAT_ENEMY_DATA
+            ),
+            (warning,),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                equipped, "dust_devil", COMBAT_ENEMY_DATA
+            ),
+            (),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                active_but_unprotected, "dust_devil", COMBAT_ENEMY_DATA
+            ),
+            (warning,),
+        )
+
+        out, ok, result = apply_combat_burst_pure(
+            active_but_unprotected,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=6,
+            rng=_rng((0.0,)),
+        )
+        self.assertFalse(ok)
+        self.assertEqual(out, active_but_unprotected)
+        self.assertEqual(result["reason"], "combat_locked")
+        self.assertEqual(result["locked_reasons"], (warning,))
+
+    def test_dust_devil_keeps_rare_drop_and_charm_selectors_independent(self):
+        devil = COMBAT_ENEMY_DATA["dust_devil"]
+
+        self.assertEqual(
+            _combat_roll_drops(
+                devil,
+                _rng((32512 / 32768, 0.999999)),
+            ),
+            {"Bones": 1, "Dragon chainbody": 1},
+        )
+        self.assertEqual(
+            _combat_roll_drops(
+                devil,
+                _rng((0.999999, 44 / 606)),
+            ),
+            {"Bones": 1, "Crimson charm": 1},
         )
 
     def test_wall_beast_can_continue_after_helmet_swap_but_cannot_chain_a_respawn(self):

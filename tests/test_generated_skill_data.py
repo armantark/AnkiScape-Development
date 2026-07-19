@@ -61,6 +61,7 @@ class TestGeneratedSkillData(unittest.TestCase):
             "Yew comp bow",
             "Magic comp bow",
             "Dark bow",
+            "Dragon chainbody",
             "Mining helmet (unlit)",
             "Mining helmet (lit)",
         ):
@@ -68,6 +69,9 @@ class TestGeneratedSkillData(unittest.TestCase):
                 _equipment_item_block(generated, item_name),
                 _equipment_item_block(checked_in, item_name),
             )
+        dragon_chainbody = _equipment_item_block(generated, "Dragon chainbody")
+        self.assertIn("slot='body'", dragon_chainbody)
+        self.assertIn("source_item_id=3140", dragon_chainbody)
 
         from constants import CRAFTING_DATA, FLETCHING_DATA
 

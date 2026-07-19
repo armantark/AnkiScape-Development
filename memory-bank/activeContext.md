@@ -2,6 +2,20 @@
 
 ## Current Focus
 
+The ordinary level-93 Dust devil is now an executable Vannaka-family Combat
+target with Slayer 65, 1,050 LP, 105 Slayer XP, six-tick melee, a 90-LP
+maximum hit, and the cutoff's continuous protective-headgear damage gate. The
+Chaos Tunnels route avoids inventing Desert Treasure quest content. Darkan
+supplies exact stats, one 32,768-slot ordinary selector, exact nested tables,
+and an independent 606-way charm selector. Dragon chainbody item 3140 is now
+generated as Defence-60 body equipment; the generator honours a drop row's
+exact source item ID before same-name fallback. Vannaka advances to 26/35
+while remaining hidden. Eight Combat targets and Earth warrior's Wilderness
+risk remain. No owner-facing design fork emerged. Evidence:
+`source-audits/slayer-dust-devil-combat-2026-07-18.md`. Results:
+`status-updates/slayer-dust-devil-results-2026-07-18.html`
+(<https://dylce5d5v14s.postplan.dev>).
+
 The Darkan ordinary-drop loader is now mapped correctly across every live
 Slayer target that had been treating sibling JSON rows as independent rolls.
 `DropList` makes one cumulative ordinary selection; only rate-zero always

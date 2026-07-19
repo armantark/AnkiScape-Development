@@ -28,6 +28,7 @@ NEW_COMBAT_ENEMIES = (
     "jelly",
     "bloodveld",
     "infernal_mage",
+    "dust_devil",
     "aberrant_spectre",
     "basilisk",
     "crocodile",
@@ -179,8 +180,11 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                     requirement = enemy["start_equipment"]
                     self.assertEqual(
                         set(requirement),
-                        {"slot", "items", "warning", "source_status"},
+                        {"slot", "items", "warning", "source_status"}
+                        | ({"persistent"} if "persistent" in requirement else set()),
                     )
+                    if "persistent" in requirement:
+                        self.assertIs(requirement["persistent"], True)
                     self.assertIn(requirement["slot"], {"head", "shield", "neck"})
                     self.assertTrue(requirement["items"])
                     self.assertTrue(requirement["warning"])
@@ -586,6 +590,44 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         )
         self.assertIn("oldid=6555339", spectre["source"])
         self.assertIn("exact 512-slot ordinary selector", spectre["source_status"])
+
+    def test_dust_devil_preserves_cutoff_damage_gate_and_exact_selectors(self):
+        devil = COMBAT_ENEMY_DATA["dust_devil"]
+
+        self.assertEqual(devil["level"], 93)
+        self.assertEqual(devil["required_slayer_level"], 65)
+        self.assertEqual(devil["attack_style"], "melee")
+        self.assertEqual(devil["attack_speed"], 6)
+        self.assertEqual(devil["respawn_delay"], 59)
+        self.assertEqual(devil["slayer_xp"], 105.0)
+        self.assertEqual(devil["max_hit"], 90)
+        self.assertEqual(
+            devil["stats"],
+            {
+                "hitpoints": 1050,
+                "attack": 105,
+                "strength": 70,
+                "defence": 40,
+                "magic": 1,
+                "ranged": 1,
+            },
+        )
+        self.assertEqual(devil["drops"]["guaranteed"], (("Bones", 1),))
+        main, charms = devil["drops"]["tables"]
+        self.assertEqual(main["total"], 32768)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 32768)
+        self.assertEqual(main["slots"][-2]["item"], "Dragon chainbody")
+        self.assertEqual(main["slots"][-2]["slots"], 1)
+        self.assertEqual(main["slots"][-1], {"slots": 255})
+        self.assertEqual(charms["total"], 606)
+        self.assertEqual(
+            tuple(slot["slots"] for slot in charms["slots"]),
+            (31, 13, 115, 3, 444),
+        )
+        self.assertTrue(devil["start_equipment"]["persistent"])
+        self.assertIn("Face mask", devil["start_equipment"]["items"])
+        self.assertIn("Masked earmuffs", devil["start_equipment"]["items"])
+        self.assertIn("oldid=6529409", devil["source"])
 
     def test_crocodile_preserves_the_level_63_desert_variant(self):
         crocodile = COMBAT_ENEMY_DATA["crocodile"]

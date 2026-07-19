@@ -4,6 +4,27 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Dust devil Combat closure — 2026-07-18
+
+- Added the ordinary level-93 Dust devil with Slayer 65, 1,050 LP, 105 Slayer
+  XP, six-tick melee, and a 90-LP maximum hit.
+- Preserved the cutoff's literal damage gate: Face mask, Masked earmuffs, or
+  an accepted Slayer helmet must remain equipped throughout the fight.
+- Used the cutoff-attested Chaos Tunnels route rather than inventing a Desert
+  Treasure quest dependency or duplicating quest work.
+- Encoded Darkan's exact 32,768-slot ordinary selector, exact nested herb/gem
+  tables, and independent 606-way charm selector.
+- Generated Dragon chainbody item 3140 as Defence-60 body equipment and fixed
+  the generator to prefer an exact drop-row source ID over ambiguous name
+  fallback.
+- Advanced Vannaka to 26/35 while keeping the incomplete master hidden and
+  unrenormalized. Eight Combat targets plus Earth warrior's Wilderness risk
+  remain. No owner-facing design fork emerged.
+- Durable evidence:
+  `source-audits/slayer-dust-devil-combat-2026-07-18.md`. Results:
+  `status-updates/slayer-dust-devil-results-2026-07-18.html`
+  (<https://dylce5d5v14s.postplan.dev>).
+
 ## Darkan ordinary-drop selector correction — 2026-07-18
 
 - Reproduced Darkan's executable `DropList` behavior: all nonzero sibling rows

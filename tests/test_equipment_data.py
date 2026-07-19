@@ -20,7 +20,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 657)
+        self.assertEqual(len(EQUIPMENT_DATA), 658)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -35,6 +35,9 @@ class TestEquipmentData(unittest.TestCase):
         # smithing-recipe source, not the type-based armour/weapon selector.
         self.assertEqual(EQUIPMENT_DATA["Rune hatchet"].slot, "weapon")
         self.assertEqual(EQUIPMENT_DATA["Dragon sq shield"].slot, "shield")
+        self.assertEqual(EQUIPMENT_DATA["Dragon chainbody"].slot, "body")
+        self.assertEqual(EQUIPMENT_DATA["Dragon chainbody"].required_level, 60)
+        self.assertEqual(EQUIPMENT_DATA["Dragon chainbody"].source_item_id, 3140)
         self.assertEqual(EQUIPMENT_DATA["Agile top"].slot, "body")
         self.assertEqual(EQUIPMENT_DATA["Acrobat hood"].slot, "head")
         self.assertEqual(EQUIPMENT_DATA["Mining helmet (unlit)"].source_item_id, 5014)

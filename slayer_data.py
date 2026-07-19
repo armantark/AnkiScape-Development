@@ -375,7 +375,7 @@ _FAMILIES: Tuple[SlayerFamily, ...] = (
         "Dust devils",
         ("dust_devil",),
         required_slayer_level=65,
-        readiness_features=("protective_equipment",),
+        readiness_features=("start_equipment",),
         source=VANNAKA_AUDIT_SOURCE,
     ),
     SlayerFamily(
