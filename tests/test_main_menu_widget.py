@@ -1138,14 +1138,36 @@ class MainMenuWidgetTest(unittest.TestCase):
         panel = farming_dialog.findChild(QWidget, "farmingSkillPanel")
         self.assertIsNotNone(panel)
         self.assertIsNotNone(farming_dialog.findChild(QWidget, "farmingFarmSheet"))
-        self.assertEqual(len([widget for widget in farming_dialog.findChildren(QWidget) if widget.objectName().startswith("farmingPatchCard::")]), 51)
-        self.assertEqual(len([widget for widget in farming_dialog.findChildren(QLabel) if widget.objectName().startswith("farmingPatchVisual::")]), 51)
+        self.assertEqual(len([widget for widget in farming_dialog.findChildren(QWidget) if widget.objectName().startswith("farmingPatchCard::")]), 52)
+        self.assertEqual(len([widget for widget in farming_dialog.findChildren(QLabel) if widget.objectName().startswith("farmingPatchVisual::")]), 52)
         self.assertEqual(len([widget for widget in farming_dialog.findChildren(QLabel) if widget.objectName().startswith("farmingCompostBinVisual::")]), 6)
         self.assertFalse(any(button.text() in {"Train this skill", "Currently training"} and button.isVisible() for button in farming_dialog.findChildren(QPushButton)))
         self.assertFalse(any(label.text() == "Select a target" and label.isVisible() for label in farming_dialog.findChildren(QLabel)))
         self.assertLessEqual(farming_dialog.minimumHeight(), 560)
         scroll = farming_dialog.findChild(QWidget, "farmingFarmScroll")
         self.assertGreater(scroll.height(), 0)
+        self.assertIsNone(
+            farming_dialog.findChild(
+                QComboBox,
+                "farmingPatchCropCombo::varrock_white_tree",
+            )
+        )
+        white_tree_summary = farming_dialog.findChild(
+            QLabel,
+            "farmingPatchSummary::varrock_white_tree",
+        )
+        self.assertEqual(
+            white_tree_summary.text(),
+            "White Tree · Requires Garden of Tranquillity.",
+        )
+        white_tree_current = farming_dialog.findChild(
+            QLabel,
+            "farmingPatchCurrent::varrock_white_tree",
+        )
+        self.assertEqual(
+            white_tree_current.text(),
+            "Current: Locked",
+        )
 
     def test_farming_plan_change_calls_unified_callback_immediately(self) -> None:
         farming_dialog = self._open(_make_player_data(), current_skill="Mining", initial_skill="Farming")
@@ -6930,7 +6952,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIsNotNone(tree)
         self.assertGreaterEqual(picker.findData("Rune platebody"), 0)
         self.assertEqual(farming_picker.currentData(), "falador_allotment_north")
-        self.assertEqual(farming_picker.count(), 52)
+        self.assertEqual(farming_picker.count(), 53)
         farming_picker.setCurrentIndex(farming_picker.findData("falador_allotment_south"))
         QApplication.processEvents()
         self.assertEqual(self._farming_spell_patch_calls[-1], "falador_allotment_south")

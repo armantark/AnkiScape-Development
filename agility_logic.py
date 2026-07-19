@@ -105,6 +105,7 @@ def default_agility_state_pure() -> dict[str, Any]:
         "agility_effect_charges": {},
         "agility_effective_boost": 0,
         "agility_boost_actions_remaining": 0,
+        "agility_run_energy_credit_pct": 0,
         "agility_actions_completed": 0,
         "agility_pit_offer": False,
         "agility_pit_successes": 0,
@@ -183,6 +184,10 @@ def sanitize_agility_state_pure(player_data: Optional[Mapping[str, Any]]) -> dic
     source["agility_boost_actions_remaining"] = _int(source.get("agility_boost_actions_remaining"), maximum=10_000)
     if source["agility_boost_actions_remaining"] <= 0:
         source["agility_effective_boost"] = 0
+    source["agility_run_energy_credit_pct"] = _int(
+        source.get("agility_run_energy_credit_pct"),
+        maximum=100,
+    )
     source["agility_actions_completed"] = _int(source.get("agility_actions_completed"))
     source["agility_pit_offer"] = bool(source.get("agility_pit_offer", False))
     source["agility_pit_successes"] = _int(source.get("agility_pit_successes"))

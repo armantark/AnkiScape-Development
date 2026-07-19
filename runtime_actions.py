@@ -191,7 +191,11 @@ try:
         apply_agility_review_pure,
         sanitize_agility_state_pure,
     )
-    from .agility_travel import agility_travel_profile_pure, scheduled_travel_reviews_pure
+    from .agility_travel import (
+        agility_travel_profile_pure,
+        apply_run_energy_credit_pure,
+        scheduled_travel_reviews_pure,
+    )
     from .cadence_kernel import EMBEDDED_PROBABILITY, RATE_LIMITED, advance_cadence_pure, default_cadence_profile_state_pure
     from .cadence_live import (
         LIVE_COMBAT_TICKS_PER_REVIEW,
@@ -383,7 +387,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         apply_agility_review_pure,
         sanitize_agility_state_pure,
     )
-    from agility_travel import agility_travel_profile_pure, scheduled_travel_reviews_pure  # type: ignore
+    from agility_travel import (  # type: ignore
+        agility_travel_profile_pure,
+        apply_run_energy_credit_pure,
+        scheduled_travel_reviews_pure,
+    )
     from cadence_kernel import EMBEDDED_PROBABILITY, RATE_LIMITED, advance_cadence_pure, default_cadence_profile_state_pure  # type: ignore
     from cadence_live import (  # type: ignore
         LIVE_COMBAT_TICKS_PER_REVIEW,
@@ -996,6 +1004,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             winter_storage_before = None
     trip_due = bool(keep and (active_run or churn >= capacity or force))
     travel_profile = None
+    run_energy_credit_used = 0
     reviews_cost = inventory_pure.SKILLING_BANK_RUN_REVIEWS
     if active_run:
         reviews_cost = max(1, int(bank_run.get("reviews_total", bank_run.get("reviews_remaining", 1)) or 1))
@@ -1007,6 +1016,12 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             view,
             player_data.get("equipment", {}),
         )
+        travel_profile, run_energy_credit_used = apply_run_energy_credit_pure(
+            travel_profile,
+            player_data.get("agility_run_energy_credit_pct", 0),
+        )
+        if run_energy_credit_used:
+            player_data["agility_run_energy_credit_pct"] = 0
         # The only new RNG draw happens at the moment a trip is actually due.
         reviews_cost = (
             scheduled_travel_reviews_pure(travel_profile, ctx.random_random())
@@ -1024,6 +1039,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             "effective_weight_kg": travel_profile.effective_weight_kg,
             "route_label": travel_profile.route_label,
             "source_status": travel_profile.source_status,
+            "run_energy_credit_used_pct": run_energy_credit_used,
         }
 
     if trip_due and reviews_cost <= 0:

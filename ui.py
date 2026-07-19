@@ -3512,7 +3512,12 @@ def show_main_menu(
                         patch_icon.setPixmap(QIcon(patch_icon_path).pixmap(24, 24))
                         top.addWidget(patch_icon)
                     status_mark = "!" if patch["status"] in {"diseased", "dead"} else "✓" if patch["status"] == "ready" else ""
-                    summary_text = f"{status_mark} {patch['patch_type']} · {patch['crop_name']} · {patch['status_label']}"
+                    identity = patch["patch_type"]
+                    if identity.casefold() != patch["crop_name"].casefold():
+                        identity += f" · {patch['crop_name']}"
+                    summary_text = (
+                        f"{status_mark} {identity} · {patch['status_label']}"
+                    )
                     if patch.get("queued_count"):
                         summary_text += f" · {patch['queued_count']} queued"
                     patch_summary = QLabel(summary_text.strip())
@@ -3528,11 +3533,19 @@ def show_main_menu(
                     card_layout.addLayout(top)
                     plan = patch["plan"]
                     plan_label = QLabel(
-                        f"Plan: {plan['crop_name']} · {str(plan['compost_tier']).replace('_', ' ').title()} · "
-                        f"{'Gardener' if plan['protection_intent'] else 'No gardener'} · "
-                        f"{'Water' if plan['watering_intent'] else 'Do not water'} · "
-                        f"{'Cure (' + ('spell first' if plan['cure_route_preference'] == CURE_PLANT_SPELL_FIRST else 'item first') + ')' if plan['cure_intent'] else 'Do not cure'}"
+                        patch["fixed_crop_note"]
+                        if patch.get("fixed_crop")
+                        else (
+                            f"Plan: {plan['crop_name']} · {str(plan['compost_tier']).replace('_', ' ').title()} · "
+                            f"{'Gardener' if plan['protection_intent'] else 'No gardener'} · "
+                            f"{'Water' if plan['watering_intent'] else 'Do not water'} · "
+                            f"{'Cure (' + ('spell first' if plan['cure_route_preference'] == CURE_PLANT_SPELL_FIRST else 'item first') + ')' if plan['cure_intent'] else 'Do not cure'}"
+                        )
                     )
+                    plan_label.setObjectName(
+                        f"farmingPatchPlanSummary::{patch_id}"
+                    )
+                    plan_label.setWordWrap(True)
                     plan_label.setStyleSheet(f"color: {dim_text_css(plan_label)}; font-size: 11px;")
                     card_layout.addWidget(plan_label)
                     details = QWidget()
@@ -3540,10 +3553,77 @@ def show_main_menu(
                     detail_layout = QVBoxLayout(details)
                     detail_layout.setContentsMargins(8, 3, 0, 2)
                     detail_layout.setSpacing(5)
-                    detail_layout.addWidget(QLabel(
+                    if patch.get("fixed_crop"):
+                        capacity = patch.get("produce_capacity")
+                        produce = patch.get("produce_count", 0)
+                        produce_label = (
+                            f" · Fruit ready: {produce}/{capacity}"
+                            if capacity is not None
+                            else ""
+                        )
+                        current_text = (
+                            "Current: Locked"
+                            if not patch["access_allowed"]
+                            else (
+                                f"Current: {patch['crop_name']} · "
+                                f"{patch['stage_label']}{produce_label}"
+                            )
+                        )
+                        current_label = QLabel(current_text)
+                        current_label.setObjectName(
+                            f"farmingPatchCurrent::{patch_id}"
+                        )
+                        current_label.setWordWrap(True)
+                        detail_layout.addWidget(current_label)
+                        primary = patch.get("primary_action")
+                        if primary:
+                            primary_button = QPushButton(primary["label"])
+                            primary_button.setObjectName(
+                                f"farmingPatchPrimaryAction::{patch_id}"
+                            )
+                            primary_button.setEnabled(
+                                bool(primary["enabled"])
+                                and on_farming_action is not None
+                            )
+                            primary_button.setToolTip(primary["locked_reason"])
+                            primary_button.clicked.connect(
+                                lambda _=False, pid=patch_id, kind=primary["id"]:
+                                _run_action(
+                                    "queue_action",
+                                    {
+                                        "patch_id": pid,
+                                        "kind": kind,
+                                        "details": {},
+                                    },
+                                )
+                            )
+                            detail_layout.addWidget(primary_button)
+                        details.setVisible(expand.isChecked())
+                        expand.toggled.connect(
+                            lambda checked, pid=patch_id, d=details, b=expand: (
+                                _set_patch_expanded(pid, checked),
+                                d.setVisible(checked),
+                                b.setArrowType(
+                                    Qt.ArrowType.DownArrow
+                                    if checked
+                                    else Qt.ArrowType.RightArrow
+                                ),
+                            )
+                        )
+                        card_layout.addWidget(details)
+                        body_layout.addWidget(card)
+                        if patch_id == focus_patch:
+                            focus_widget = card
+                        continue
+                    current_label = QLabel(
                         f"Current: {patch['crop_name']} · {patch['stage_label']} · Compost: {patch['current_compost']} · "
                         f"Protection: {patch['protection']['state']}"
-                    ))
+                    )
+                    current_label.setObjectName(
+                        f"farmingPatchCurrent::{patch_id}"
+                    )
+                    current_label.setWordWrap(True)
+                    detail_layout.addWidget(current_label)
 
                     plan_grid = QGridLayout()
                     crop_combo = QComboBox()

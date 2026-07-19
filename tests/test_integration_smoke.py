@@ -3625,6 +3625,52 @@ class TestIntegrationSmoke(unittest.TestCase):
         ))
         self.assertEqual(addon.player_data, before)
 
+    def test_queued_white_tree_harvest_preempts_one_review_and_undoes_atomically(self):
+        addon = _load_addon_as_package("ankiscape_white_tree_undo_integration")
+        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_exp = lambda _xp: None
+        addon._show_activity_gain = lambda _message: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        state = {
+            "inventory": {},
+            "farming_level": 25,
+            "farming_exp": 0.0,
+            "quests": {"garden_of_tranquillity": {"completed": True}},
+            "completed_achievements": [],
+        }
+        state.update(farming_logic.default_farming_state_pure())
+        state, step_ids = farming_logic.queue_full_run_pure(state)
+        self.assertEqual(len(step_ids), 1)
+        before = copy.deepcopy(state)
+        addon.player_data = state
+        addon.current_skill = "Mining"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertEqual(addon.player_data["inventory"]["White tree fruit"], 4)
+        self.assertEqual(addon.player_data["farming_exp"], 48.0)
+        self.assertEqual(
+            addon.player_data["farm_patches"]["varrock_white_tree"]["produce_count"],
+            0,
+        )
+        self.assertEqual(addon.player_data["farm_queue"], [])
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(types.SimpleNamespace(
+            operation="Answer Card",
+            changes=types.SimpleNamespace(study_queues=True, card=True),
+        ))
+        self.assertEqual(addon.player_data, before)
+
     def test_prayer_composite_selection_persists_once_and_rejection_has_no_side_effects(self):
         addon = _load_addon_as_package("ankiscape_prayer_selection_integration")
         calls = {"save": 0, "hud": 0}

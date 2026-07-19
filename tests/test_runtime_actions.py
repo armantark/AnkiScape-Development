@@ -2491,6 +2491,42 @@ class TestCarriedOverlayWrapper(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Coal"], 29)
         self.assertEqual(player_data["carried_inventory"]["copper_ore"], {"Coal": 1})
 
+    def test_full_run_energy_credit_waives_and_consumes_the_next_moving_trip(self):
+        player_data = {
+            "inventory": {"Coal": 28},
+            "current_ore": "copper_ore",
+            "carried_inventory": {"copper_ore": {"Coal": 28}},
+            "carried_churn": {"copper_ore": 28},
+            "agility_run_energy_credit_pct": 100,
+        }
+        ctx, calls = self._mining_ctx(player_data)
+
+        self.assertTrue(
+            run_answer_with_carried_overlay(
+                ctx,
+                "mining",
+                self._fake_gather,
+            )
+        )
+
+        self.assertEqual(player_data["inventory"]["Coal"], 29)
+        self.assertEqual(
+            player_data["carried_inventory"]["copper_ore"],
+            {"Coal": 1},
+        )
+        self.assertEqual(player_data["agility_run_energy_credit_pct"], 0)
+        self.assertEqual(
+            player_data["agility_last_travel"][
+                "run_energy_credit_used_pct"
+            ],
+            100,
+        )
+        self.assertEqual(
+            player_data["agility_last_travel"]["adjusted_reviews"],
+            0.0,
+        )
+        self.assertEqual(calls["activity"], [])
+
     def test_drop_mode_destroys_the_product_never_banks_and_keeps_nothing(self):
         # Drop is power-gathering: XP is kept, the product is destroyed. Previously
         # Drop kept every gathered item AND paid no bank-run review, so it strictly

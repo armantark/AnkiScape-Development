@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any
 
 
@@ -178,3 +178,21 @@ def scheduled_travel_reviews_pure(profile: AgilityTravelProfile, roll: float) ->
     whole = int(math.floor(profile.adjusted_reviews))
     fraction = profile.adjusted_reviews - whole
     return whole + int(max(0.0, min(_number(roll), 1.0)) < fraction)
+
+
+def apply_run_energy_credit_pure(
+    profile: AgilityTravelProfile,
+    credit_pct: Any,
+) -> tuple[AgilityTravelProfile, int]:
+    """Apply a banked partial run-energy restore to the next moving trip."""
+
+    credit = max(0, min(100, int(_number(credit_pct))))
+    if credit <= 0 or profile.adjusted_reviews <= 0:
+        return profile, 0
+    return (
+        replace(
+            profile,
+            adjusted_reviews=profile.adjusted_reviews * (1.0 - credit / 100.0),
+        ),
+        credit,
+    )

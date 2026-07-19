@@ -92,13 +92,16 @@ def _plant_ready(data, patch_id="falador_allotment_north", crop_id="potato", com
 
 class TestFarmingData(unittest.TestCase):
     def test_repeatable_inventory_is_exact_and_stable(self):
-        self.assertEqual(len(FARMING_PATCHES), 51)
-        self.assertEqual(len({row.id for row in FARMING_PATCHES}), 51)
+        self.assertEqual(len(FARMING_PATCHES), 52)
+        self.assertEqual(len({row.id for row in FARMING_PATCHES}), 52)
         self.assertEqual(len(FARMING_COMPOST_BINS), 6)
         self.assertEqual(len({row.id for row in FARMING_COMPOST_BINS}), 6)
         spirit_slots = [row for row in FARMING_PATCHES if row.patch_type == "spirit_tree"]
         self.assertEqual(len(spirit_slots), 2)
         self.assertEqual(spirit_slots[0].location_options, ("Etceteria", "East Port Sarim", "North Brimhaven"))
+        white_tree = next(row for row in FARMING_PATCHES if row.id == "varrock_white_tree")
+        self.assertEqual(white_tree.fixed_crop_id, "white_tree")
+        self.assertEqual(white_tree.access_gate.key, "garden_of_tranquillity")
 
     def test_pinned_corrections_are_frozen(self):
         self.assertEqual(dict(FARMING_CROPS_BY_ID["sweetcorn"].protection.items), {"Jute fibre": 10})
@@ -125,6 +128,12 @@ class TestFarmingData(unittest.TestCase):
         for crop_id in ("cactus", "bittercap", "morchella", "belladonna", "jade_vine"):
             self.assertEqual(FARMING_CROPS_BY_ID[crop_id].disease_slots, 6)
             self.assertTrue(any("FarmPatch.java:455-483" in source for source in FARMING_CROPS_BY_ID[crop_id].sources))
+        white_tree = FARMING_CROPS_BY_ID["white_tree"]
+        self.assertEqual(
+            (white_tree.fixed_yield, white_tree.harvest_xp, white_tree.regrowth_minutes),
+            (4, 12.0, 6),
+        )
+        self.assertIsNone(white_tree.harvest_tool)
 
     def test_unresolved_rows_are_explicitly_non_runnable(self):
         expected = {
@@ -179,13 +188,84 @@ class TestFarmingStorageAndRegistry(unittest.TestCase):
         self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(migrated["farming_level"], 1)
         self.assertEqual(migrated["farming_exp"], 0)
-        self.assertEqual(len([key for key in migrated["farm_patches"] if key in {row.id for row in FARMING_PATCHES}]), 51)
-        self.assertEqual(len([key for key in migrated["farm_compost_bins"] if key in {row.id for row in FARMING_COMPOST_BINS}]), 6)
+        self.assertEqual(
+            len(
+                [
+                    key
+                    for key in migrated["farm_patches"]
+                    if key in {row.id for row in FARMING_PATCHES}
+                ]
+            ),
+            52,
+        )
+        self.assertEqual(
+            len(
+                [
+                    key
+                    for key in migrated["farm_compost_bins"]
+                    if key in {row.id for row in FARMING_COMPOST_BINS}
+                ]
+            ),
+            6,
+        )
         self.assertEqual(migrated["inventory"]["Mystery seed"], 7)
         self.assertEqual(migrated["future_top_level"], {"keep": True})
-        self.assertEqual(migrated["farm_patches"]["falador_allotment_north"]["future_patch_key"], "keep")
-        self.assertEqual(migrated["farm_patches"]["future_patch"], {"alien": True})
+        self.assertEqual(
+            migrated["farm_patches"]["falador_allotment_north"][
+                "future_patch_key"
+            ],
+            "keep",
+        )
+        self.assertEqual(
+            migrated["farm_patches"]["future_patch"],
+            {"alien": True},
+        )
         self.assertNotIn("current_farming", migrated)
+
+    def test_white_tree_is_a_quest_gated_permanent_harvest_and_full_run_step(self):
+        locked = sanitize_farming_state_pure(_state())
+        self.assertIsNone(locked["farm_patches"]["varrock_white_tree"]["crop_id"])
+
+        unlocked = _state(level=25)
+        unlocked["quests"] = {"garden_of_tranquillity": {"completed": True}}
+        unlocked.update(sanitize_farming_state_pure(unlocked))
+        record = unlocked["farm_patches"]["varrock_white_tree"]
+        self.assertEqual(record["crop_id"], "white_tree")
+        self.assertEqual(record["produce_count"], 4)
+
+        queued, step_ids = queue_full_run_pure(unlocked)
+        self.assertEqual(len(step_ids), 1)
+        self.assertEqual(
+            queued["farm_queue"][0],
+            {
+                "id": step_ids[0],
+                "kind": "harvest",
+                "patch_id": "varrock_white_tree",
+            },
+        )
+
+        harvested, consumed, info = apply_farming_review_with_queue_pure(queued)
+        self.assertTrue(consumed)
+        self.assertEqual(info["outputs"], {"White tree fruit": 4})
+        self.assertEqual(harvested["inventory"]["White tree fruit"], 4)
+        self.assertEqual(harvested["farming_exp"], 48.0)
+        self.assertEqual(
+            harvested["farm_patches"]["varrock_white_tree"]["produce_count"],
+            0,
+        )
+
+        regrown_one, _ = advance_farm_clock_pure(harvested, 1)
+        self.assertEqual(
+            regrown_one["farm_patches"]["varrock_white_tree"][
+                "produce_count"
+            ],
+            1,
+        )
+        regrown, _ = advance_farm_clock_pure(regrown_one, 3)
+        self.assertEqual(
+            regrown["farm_patches"]["varrock_white_tree"]["produce_count"],
+            4,
+        )
 
     def test_sanitation_repairs_known_rows_without_dropping_unknown_rows(self):
         state = sanitize_farming_state_pure({
@@ -1371,13 +1451,52 @@ class TestFarmingFrontendProjection(unittest.TestCase):
         view = farming_frontend_projection_pure(_state())
         patches = [patch for location in view["locations"] for patch in location["patches"]]
         bins = [row for location in view["locations"] for row in location["compost_bins"]]
-        self.assertEqual(len(patches), 51)
-        self.assertEqual(len({patch["patch_id"] for patch in patches}), 51)
+        self.assertEqual(len(patches), 52)
+        self.assertEqual(len({patch["patch_id"] for patch in patches}), 52)
         self.assertEqual(len(bins), 6)
         self.assertEqual(len({row["bin_id"] for row in bins}), 6)
         self.assertEqual(view["hud"]["priority"], "none")
         self.assertNotIn("input-starved", repr(view).lower())
         self.assertNotIn("source-blocked", repr(view).lower())
+
+    def test_white_tree_projection_is_a_single_permanent_harvest_surface(self):
+        state = _state(level=25)
+        state["quests"] = {
+            "garden_of_tranquillity": {"completed": True}
+        }
+        view = farming_frontend_projection_pure(state)
+        patch = next(
+            patch
+            for location in view["locations"]
+            for patch in location["patches"]
+            if patch["patch_id"] == "varrock_white_tree"
+        )
+
+        self.assertTrue(patch["fixed_crop"])
+        self.assertEqual(patch["crop_name"], "White tree")
+        self.assertEqual(patch["produce_count"], 4)
+        self.assertEqual(patch["produce_capacity"], 4)
+        self.assertEqual(patch["crop_options"], ())
+        self.assertIsNone(patch["shortcut_action"])
+        self.assertEqual(patch["primary_action"]["id"], "harvest")
+        self.assertEqual(
+            patch["fixed_crop_note"],
+            "Permanent post-quest tree · Queue full run harvests all ready fruit · One fruit regrows per answered card.",
+        )
+
+        state.update(sanitize_farming_state_pure(state))
+        state["farm_patches"]["varrock_white_tree"]["produce_count"] = 0
+        regrowing = farming_frontend_projection_pure(state)
+        regrowing_patch = next(
+            patch
+            for location in regrowing["locations"]
+            for patch in location["patches"]
+            if patch["patch_id"] == "varrock_white_tree"
+        )
+        self.assertEqual(
+            regrowing_patch["status_label"],
+            "Regrowing · next produce in about 1 review",
+        )
 
     def test_hud_precedence_is_alert_then_ready_then_queue_then_none(self):
         queued, step_id, _ = add_farm_queue_step_pure(_state(), "plant", "falador_allotment_north", crop_id="potato")

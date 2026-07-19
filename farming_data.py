@@ -51,6 +51,7 @@ class CropDefinition:
     sources: Tuple[str, ...] = ()
     tree_id: Optional[str] = None
     root_item: Optional[str] = None
+    harvest_tool: Optional[str] = "Spade"
 
     @property
     def runnable(self) -> bool:
@@ -76,6 +77,7 @@ class PatchDefinition:
     disease_free: bool = False
     crop_whitelist: Tuple[str, ...] = ()
     location_options: Tuple[str, ...] = ()
+    fixed_crop_id: Optional[str] = None
     sources: Tuple[str, ...] = ("Farming/Patch locations oldid 6552430",)
 
 
@@ -170,12 +172,14 @@ def _crop(
     sources: Tuple[str, ...] = (GM_SEED, SEEDS_PIN),
     tree_id: Optional[str] = None,
     root_item: Optional[str] = None,
+    harvest_tool: Optional[str] = "Spade",
 ) -> CropDefinition:
     return CropDefinition(
         crop_id, display_name, patch_type, seed_item, output_item, level, seeds,
         planting_xp, harvest_xp, check, stages, stage_minutes, disease_slots,
         base_lives, min_slots, max_slots, fixed_yield, regrowth, regrowth_range,
         protection, immune, secateurs, blocked, sources, tree_id, root_item,
+        harvest_tool,
     )
 
 
@@ -292,6 +296,27 @@ _SPECIAL = (
     _crop("evil_turnip", "Evil turnip", "evil_turnip", "Evil turnip seed", "Evil turnip", 42, 1, 41.0, 46.0, 1, 5, fixed_yield=1, immune=True, sources=(SEEDS_PIN, "Evil turnip oldid 6538769", "Darkan 7e7d67b disease immunity")),
     _crop("spirit_tree", "Spirit tree", "spirit_tree", "Spirit sapling", None, 83, 1, 199.5, 0.0, None, None, check=19301.8, fixed_yield=0, protection=_payment(SEEDS_PIN, **{"Monkey nuts": 5, "Monkey bar": 1, "Ground Suqah tooth": 1}), blocked=("stages", "stage_minutes"), sources=(SEEDS_PIN, "Spirit tree oldid 6549224")),
     _crop("jade_vine", "Jade vine", "jade_vine", "Jade vine seed", "Jade vine branch", 53, 1, 50.0, 30.0, 6, 160, check=1500.0, disease_slots=6, fixed_yield=6, regrowth_range=(30, 60), protection=_payment(SEEDS_PIN, **{"Wildblood hops": 10}), sources=(SEEDS_PIN, "Jade vine oldid 6579442", "Darkan 7e7d67b FarmPatch.java:455-483")),
+    _crop(
+        "white_tree",
+        "White tree",
+        "white_tree",
+        "White tree sapling",
+        "White tree fruit",
+        25,
+        1,
+        0.0,
+        12.0,
+        0,
+        0,
+        fixed_yield=4,
+        regrowth=FARM_MINUTES_PER_ANSWER,
+        immune=True,
+        sources=(
+            "White tree fruit oldid 5838367, 2012-06-26T04:41:55Z",
+            "One fruit per answered card is the disclosed fast-respawn abstraction",
+        ),
+        harvest_tool=None,
+    ),
 )
 
 
@@ -331,8 +356,31 @@ def _all(*gates: AccessGate) -> AccessGate:
     return AccessGate("all", gates=gates)
 
 
-def _patch(patch_id: str, name: str, complex_id: str, patch_type: str, gate: Optional[AccessGate] = None, *, disease_free: bool = False, whitelist: Tuple[str, ...] = (), locations: Tuple[str, ...] = ()) -> PatchDefinition:
-    return PatchDefinition(patch_id, name, complex_id, patch_type, gate, disease_free, whitelist, locations)
+def _patch(
+    patch_id: str,
+    name: str,
+    complex_id: str,
+    patch_type: str,
+    gate: Optional[AccessGate] = None,
+    *,
+    disease_free: bool = False,
+    whitelist: Tuple[str, ...] = (),
+    locations: Tuple[str, ...] = (),
+    fixed_crop_id: Optional[str] = None,
+    sources: Tuple[str, ...] = ("Farming/Patch locations oldid 6552430",),
+) -> PatchDefinition:
+    return PatchDefinition(
+        patch_id,
+        name,
+        complex_id,
+        patch_type,
+        gate,
+        disease_free,
+        whitelist,
+        locations,
+        fixed_crop_id,
+        sources,
+    )
 
 
 _PATCHES = []
@@ -364,6 +412,17 @@ _PATCHES.extend((
     _patch("etceteria_bush", "Etceteria bush", "etceteria", "bush", _quest("throne_of_miscellania")),
     _patch("lumbridge_tree", "West Lumbridge tree", "lumbridge", "tree"),
     _patch("varrock_tree", "Varrock Castle tree", "varrock", "tree"),
+    _patch(
+        "varrock_white_tree",
+        "Varrock Palace White Tree",
+        "varrock",
+        "white_tree",
+        _quest("garden_of_tranquillity"),
+        disease_free=True,
+        whitelist=("white_tree",),
+        fixed_crop_id="white_tree",
+        sources=("White tree fruit oldid 5838367, 2012-06-26T04:41:55Z",),
+    ),
     _patch("falador_tree", "Falador Park tree", "falador_park", "tree"),
     _patch("taverley_tree", "Taverley tree", "taverley", "tree"),
     _patch("gnome_stronghold_tree", "Tree Gnome Stronghold tree", "gnome_stronghold", "tree"),
@@ -407,7 +466,17 @@ COMPOST_TIERS: Mapping[str, CompostTier] = MappingProxyType({
 })
 
 REGULAR_COMPOST_INPUTS = frozenset({"Weeds", "Potato", "Onion", "Cabbage", "Tomato", "Barley", "Hammerstone hops"})
-SUPERCOMPOST_INPUTS = frozenset({"Pineapple", "Watermelon", "Papaya fruit", "Coconut", "Jangerberries", "Poison ivy berries"})
+SUPERCOMPOST_INPUTS = frozenset(
+    {
+        "Pineapple",
+        "Watermelon",
+        "Papaya fruit",
+        "Coconut",
+        "Jangerberries",
+        "Poison ivy berries",
+        "White tree fruit",
+    }
+)
 
 FLOWER_PROTECTION: Mapping[str, frozenset[str]] = MappingProxyType({
     "marigold": frozenset({"potato", "onion", "tomato"}),
@@ -513,6 +582,6 @@ FARMING_COMPOST_VISUAL_ITEMS: Mapping[str, str] = MappingProxyType({
 })
 
 
-assert len(FARMING_PATCHES) == 51
+assert len(FARMING_PATCHES) == 52
 assert len(FARMING_COMPOST_BINS) == 6
 assert "Patch bomb" not in FARMING_ITEM_DATA

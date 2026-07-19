@@ -15921,6 +15921,30 @@
     "source_wiki": "rs3",
     "timestamp": "2022-01-16T09:16:14Z"
   },
+  "farmingitems/white_tree_fruit.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:White_tree_fruit.png",
+    "file_title": "White tree fruit.png",
+    "image_url": "https://runescape.wiki/images/White_tree_fruit.png?b2443",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bb30619c1378fa1503274ca152ca3b1cd3120ad3",
+    "size": 799,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T09:17:42Z"
+  },
+  "farmingitems/white_tree_sapling.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:White_tree_sapling.png",
+    "file_title": "White tree sapling.png",
+    "image_url": "https://runescape.wiki/images/White_tree_sapling.png?c2a8a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4679b07e137d009ca3d6a52fc1e66d408deaee4c",
+    "size": 1124,
+    "source_wiki": "rs3",
+    "timestamp": "2022-01-30T15:46:27Z"
+  },
   "farmingitems/whiteberry_seed.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Whiteberry_seed_5.png",
     "file_title": "Whiteberry seed 5.png",

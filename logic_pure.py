@@ -6653,7 +6653,22 @@ def apply_consumable_pure(player_data, item_name, rng=None):
     prayer_points_restored = 0.0
     summoning_points_restored = 0
     special_move_points_restored = 0
+    run_energy_restored_pct = 0
     message = str(spec.get("message", ""))
+
+    def _restore_run_energy_credit() -> int:
+        restored = _non_negative_int(spec.get("run_energy_pct", 0), 0)
+        if restored <= 0:
+            return 0
+        data["agility_run_energy_credit_pct"] = min(
+            100,
+            _non_negative_int(
+                data.get("agility_run_energy_credit_pct", 0),
+                0,
+            )
+            + restored,
+        )
+        return restored
 
     if spec["kind"] == "kebab_random":
         roll = max(0.0, min(float(rng()) * 100.0, 99.999999))
@@ -6689,6 +6704,12 @@ def apply_consumable_pure(player_data, item_name, rng=None):
         if atk_drain > 0:
             apply_combat_stat_delta_pure(data, "attack", -atk_drain)
             drains["attack"] = atk_drain
+    elif spec["kind"] == "run_energy_food":
+        healed = _consumable_heal(
+            data,
+            _non_negative_int(spec.get("heal", 0), 0),
+        )
+        run_energy_restored_pct = _restore_run_energy_credit()
     elif spec["kind"] == "potion":
         strategy = str(spec.get("strategy", "r"))
         if strategy in {"antifire", "super_antifire"}:
@@ -6779,6 +6800,7 @@ def apply_consumable_pure(player_data, item_name, rng=None):
             _positive_int(spec.get("action_budget", 10), 10),
         )
         boosts["agility"] = boost
+        run_energy_restored_pct = _restore_run_energy_credit()
         leaves = str(spec.get("leaves", ""))
         if leaves:
             inv = dict(data.get("inventory", {}) or {})
@@ -6795,6 +6817,7 @@ def apply_consumable_pure(player_data, item_name, rng=None):
         "prayer_points_restored": prayer_points_restored,
         "summoning_points_restored": summoning_points_restored,
         "special_move_points_restored": special_move_points_restored,
+        "run_energy_restored_pct": run_energy_restored_pct,
         "message": message,
     }
 

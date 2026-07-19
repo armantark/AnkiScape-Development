@@ -884,6 +884,34 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(data["inventory"], {"Juju farming potion (2)": 1})
         self.assertEqual(pd["inventory"], {"Juju farming potion (3)": 1})
 
+    def test_run_energy_food_heals_and_banks_next_trip_credit(self):
+        fruit = {
+            "inventory": {"White tree fruit": 1},
+            "constitution_level": 10,
+            "combat_lifepoints": 40,
+            "agility_run_energy_credit_pct": 0,
+        }
+        after_fruit, fruit_result = apply_consumable_pure(
+            fruit,
+            "White tree fruit",
+        )
+        self.assertTrue(fruit_result["allowed"])
+        self.assertEqual(fruit_result["healed"], 30)
+        self.assertEqual(fruit_result["run_energy_restored_pct"], 17)
+        self.assertEqual(after_fruit["combat_lifepoints"], 70)
+        self.assertEqual(after_fruit["agility_run_energy_credit_pct"], 17)
+
+        pie = {
+            "inventory": {"Summer pie": 1},
+            "constitution_level": 99,
+            "combat_lifepoints": 500,
+            "agility_run_energy_credit_pct": 17,
+        }
+        after_pie, pie_result = apply_consumable_pure(pie, "Summer pie")
+        self.assertEqual(pie_result["run_energy_restored_pct"], 20)
+        self.assertEqual(after_pie["agility_run_energy_credit_pct"], 37)
+        self.assertEqual(after_pie["inventory"]["Half a summer pie"], 1)
+
     def test_consumable_rejects_missing_and_non_consumable_items(self):
         _d, missing = apply_consumable_pure({"inventory": {}}, "Beer")
         self.assertFalse(missing["allowed"])

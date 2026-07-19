@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape White Tree closure</title>
+  <style>
+    :root {
+      --bg: #0c0e12; --surface: #161a21; --surface-2: #1e232c;
+      --border: #2a3040; --text: #e8ecf4; --text-dim: #8b95a8;
+      --accent: #4f8cff; --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c; --green: #4ade80; --amber: #fbbf24;
+      --purple: #a78bfa; --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; color: var(--text); background:
+        radial-gradient(circle at 12% 8%, rgba(74,222,128,.13), transparent 28rem),
+        radial-gradient(circle at 88% 14%, rgba(79,140,255,.12), transparent 24rem),
+        var(--bg);
+      font-family: Outfit, Inter, system-ui, sans-serif;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 42px auto 72px; }
+    .badge {
+      display: inline-flex; padding: 7px 11px; border: 1px solid rgba(74,222,128,.4);
+      border-radius: 99px; color: var(--green); background: rgba(74,222,128,.08);
+      font: 700 11px/1.1 "JetBrains Mono", ui-monospace, monospace;
+      letter-spacing: .1em;
+    }
+    h1 { max-width: 820px; margin: 18px 0 10px; font-size: clamp(34px, 6vw, 67px); line-height: .98; }
+    .lead { max-width: 780px; color: var(--text-dim); font-size: 18px; line-height: 1.55; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; margin-top: 30px; }
+    .card {
+      min-width: 0; padding: 22px; border: 1px solid var(--border);
+      border-radius: var(--radius); background: linear-gradient(150deg, var(--surface), rgba(22,26,33,.78));
+      box-shadow: 0 18px 50px rgba(0,0,0,.18);
+    }
+    .wide { grid-column: 1 / -1; }
+    h2 { margin: 0 0 10px; font-size: 19px; }
+    p { color: var(--text-dim); line-height: 1.55; }
+    .source { color: var(--accent); text-decoration: none; }
+    .source:hover { text-decoration: underline; }
+    .loop { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-top: 18px; }
+    .beat {
+      position: relative; min-height: 118px; padding: 15px 12px;
+      border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2);
+    }
+    .beat:not(:last-child)::after {
+      content: "→"; position: absolute; right: -17px; top: 43px; z-index: 2;
+      color: var(--green); font-weight: 900; font-size: 20px;
+    }
+    .fruit { color: var(--green); font-size: 25px; letter-spacing: 4px; }
+    .micro { color: var(--text-dim); font: 600 11px/1.4 "JetBrains Mono", ui-monospace, monospace; }
+    .num { font: 800 clamp(31px,5vw,52px)/1 "JetBrains Mono", ui-monospace, monospace; color: var(--text); }
+    .statrow { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 18px; }
+    .stat { padding: 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); }
+    .stat strong { display: block; margin-top: 7px; font-size: 23px; }
+    .callout { border-left: 3px solid var(--purple); padding-left: 15px; }
+    .checks { display: grid; gap: 10px; margin-top: 16px; }
+    .check { display: flex; gap: 10px; align-items: flex-start; color: var(--text-dim); }
+    .check b { color: var(--green); }
+    code { font: 12px/1.5 "JetBrains Mono", ui-monospace, monospace; color: #b8c7e8; }
+    footer { margin-top: 28px; color: var(--text-dim); font-size: 12px; }
+    @media (max-width: 760px) {
+      main { margin-top: 24px; }
+      .grid, .statrow { grid-template-columns: 1fr; }
+      .wide { grid-column: auto; }
+      .loop { grid-template-columns: 1fr 1fr; }
+      .beat:nth-child(2)::after { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">COMPLETE · PERIOD HARVEST</span>
+    <h1>The last White Tree is alive.</h1>
+    <p class="lead">Garden of Tranquillity now unlocks a permanent Farming harvest instead of a dead item identity. Its fruit loop, item effects, run-energy representation, queue behavior, assets, undo, and real-Anki surface ship together.</p>
+
+    <section class="grid">
+      <article class="card wide">
+        <h2>One tiny tree, one complete loop</h2>
+        <p>The source gives a four-fruit capacity and calls the respawn “fast,” but never states the hidden timer. AnkiScape uses the smallest disclosed answer-clock abstraction: one fruit returns per answered card.</p>
+        <div class="loop" aria-label="White Tree regrowth loop">
+          <div class="beat"><div class="fruit">●●●●</div><strong>Ready</strong><div class="micro">4 fruit · 48 Farming XP</div></div>
+          <div class="beat"><div class="fruit">○○○○</div><strong>Harvest</strong><div class="micro">Queue full run · one review</div></div>
+          <div class="beat"><div class="fruit">●○○○</div><strong>Next answer</strong><div class="micro">1 fruit regrows</div></div>
+          <div class="beat"><div class="fruit">●●●●</div><strong>Capacity</strong><div class="micro">Capped at four</div></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>The fruit matters</h2>
+        <div class="statrow">
+          <div class="stat"><span class="micro">PER FRUIT</span><strong>12 XP</strong></div>
+          <div class="stat"><span class="micro">HEAL</span><strong>30 LP</strong></div>
+          <div class="stat"><span class="micro">RUN</span><strong>17%</strong></div>
+        </div>
+        <p>White tree fruit also enters the supercompost set. Summer pie’s missing <strong>20% per half</strong> run-energy output now uses the same substrate.</p>
+      </article>
+
+      <article class="card">
+        <h2>No fake energy bar</h2>
+        <p>Run restoration becomes a capped credit against the next moving trip. A stationary route preserves it; 100% waives the trip and continues into the selected action on that answer. This is a labeled AnkiScape representation, not invented RuneScape state.</p>
+        <code>consume → bank credit → next moving trip → atomic undo</code>
+      </article>
+
+      <article class="card">
+        <h2>Permanent means permanent</h2>
+        <div class="checks">
+          <div class="check"><b>✓</b><span>No planting, compost, gardener, watering, curing, replanting, or digging controls.</span></div>
+          <div class="check"><b>✓</b><span>Garden of Tranquillity completion is the existing flattened post-quest gate.</span></div>
+          <div class="check"><b>✓</b><span>The Varrock task and Ube’s Beacon Network service stay with their owning systems.</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Real Anki was the visual gate</h2>
+        <p class="callout">Offscreen Qt found regressions; it did not certify the macOS compositor. A restarted Anki pass exposed duplicate gate copy, title casing, pluralization, locked-state counts, and wrapping. Fable and Kimi K3 reviewed the surface; the final live capture is clean.</p>
+      </article>
+
+      <article class="card wide">
+        <h2>Closure proof</h2>
+        <div class="statrow">
+          <div class="stat"><span class="micro">NON-QT RUNNER</span><strong>1,751</strong><span class="micro">1,528 pass · 223 environment skips</span></div>
+          <div class="stat"><span class="micro">OFFSCREEN QT</span><strong>1,751</strong><span class="micro">all pass</span></div>
+          <div class="stat"><span class="micro">QUALITY GATE</span><strong>0</strong><span class="micro">hard test issues</span></div>
+        </div>
+        <div class="checks">
+          <div class="check"><b>✓</b><span>Pure Farming, consumable, travel, runtime, integration, and exact answer-undo coverage.</span></div>
+          <div class="check"><b>✓</b><span>Documentation, compile, JSON, diff, worktree, and period-asset checks.</span></div>
+          <div class="check"><b>✓</b><span>Known reachability debt remains stable at 283 orphan inputs and 304 blocked actions.</span></div>
+        </div>
+      </article>
+    </section>
+
+    <footer>Source anchor: <a class="source" href="https://runescape.wiki/w/White_tree_fruit?oldid=5838367">White tree fruit oldid 5838367 · 2012-06-26</a>. Exact fruit respawn timing remains source-blocked.</footer>
+  </main>
+</body>
+</html>

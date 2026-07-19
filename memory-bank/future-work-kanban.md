@@ -135,6 +135,13 @@ Labels: none remaining on the core build; trailing acquisition/activity dependen
 - The 2026-07-17 cure-policy follow-up adds a compact per-patch item-first or
   spell-first preference, persists it in presets and queued steps, and uses the
   canonical Cure Plant Magic transaction as the fallback route.
+- The 2026-07-19 White Tree follow-up adds the permanent
+  Garden-of-Tranquillity-gated Varrock Palace tree, four-fruit capacity,
+  12-XP harvest, one-fruit-per-answer disclosed fast-regrowth abstraction,
+  30-LP/17%-run-energy fruit effect, supercompost use, full-run queuing, and
+  atomic answer undo. The medium Varrock task and Ube/Beacon Network service
+  remain with their owning systems. See
+  `memory-bank/source-audits/white-tree-fruit-harvest-2026-07-19.md`.
 - `hunter-habitat-jadinko` remains an owning-activity/acquisition follow-up; core Farming is no longer its dependency.
 
 ### Agility — SHIPPED 2026-07-15

@@ -17,7 +17,12 @@ from agility_logic import (
     default_agility_state_pure,
     sanitize_agility_state_pure,
 )
-from agility_travel import agility_carried_weight_pure, agility_travel_profile_pure, scheduled_travel_reviews_pure
+from agility_travel import (
+    agility_carried_weight_pure,
+    agility_travel_profile_pure,
+    apply_run_energy_credit_pure,
+    scheduled_travel_reviews_pure,
+)
 from logic_pure import fishing_agility_double_catch_chance_pure
 
 
@@ -126,6 +131,32 @@ class TestAgilityCourseData(unittest.TestCase):
         profile = agility_travel_profile_pure("prayer", "dragon_bones_gilded", 99, {"Dragon bones": 28}, {})
         self.assertEqual(scheduled_travel_reviews_pure(profile, 0.0), 3)
         self.assertEqual(scheduled_travel_reviews_pure(profile, 0.999), 2)
+
+    def test_partial_run_energy_restore_reduces_only_a_moving_trip(self):
+        moving = agility_travel_profile_pure(
+            "prayer",
+            "dragon_bones_gilded",
+            1,
+            {"Dragon bones": 28},
+            {},
+        )
+        credited, used = apply_run_energy_credit_pure(moving, 17)
+        self.assertEqual(used, 17)
+        self.assertAlmostEqual(
+            credited.adjusted_reviews,
+            moving.adjusted_reviews * 0.83,
+        )
+
+        stationary = agility_travel_profile_pure(
+            "herblore",
+            "clean_guam",
+            1,
+            {},
+            {},
+        )
+        unchanged, used = apply_run_energy_credit_pure(stationary, 17)
+        self.assertEqual(unchanged, stationary)
+        self.assertEqual(used, 0)
 
     def test_double_catch_is_limited_to_the_three_period_fish(self):
         self.assertEqual(fishing_agility_double_catch_chance_pure("Raw tuna", 35), 0.10)

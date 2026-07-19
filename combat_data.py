@@ -4412,6 +4412,14 @@ CONSUMABLE_DATA: Dict[str, dict] = {
         "attack_drain_pct": 0.07,
         "message": "You drink the beer. You feel slightly reinvigorated... and slightly dizzy.",
     },
+    "White tree fruit": {
+        "kind": "run_energy_food",
+        "verb": "Eat",
+        "heal": 30,
+        "run_energy_pct": 17,
+        "message": "You eat the White tree fruit. It restores 30 LP and 17% run energy.",
+        "source": "White tree fruit oldid 5838367, 2012-06-26T04:41:55Z",
+    },
 }
 
 try:
@@ -4448,6 +4456,7 @@ CONSUMABLE_DATA["Summer pie"] = {
     "boost": 5,
     "action_budget": 10,
     "heal": 110,
+    "run_energy_pct": 20,
     "leaves": "Half a summer pie",
     "message": "You eat half the summer pie. It restores 110 LP and grants a +5 Agility boost.",
     "source": "Summer pie oldid 6358590; action budget is an AnkiScape abstraction",
@@ -4458,6 +4467,7 @@ CONSUMABLE_DATA["Half a summer pie"] = {
     "boost": 5,
     "action_budget": 10,
     "heal": 110,
+    "run_energy_pct": 20,
     "leaves": "Pie dish",
     "message": "You finish the summer pie. It restores 110 LP and grants a +5 Agility boost.",
     "source": "Summer pie oldid 6358590; action budget is an AnkiScape abstraction",

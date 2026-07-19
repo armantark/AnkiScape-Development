@@ -2640,3 +2640,29 @@ Test counts are snapshots; current runs outrank this note.
 - Published
   `status-updates/cheese-wheel-churning-slicing-results-2026-07-19.html`;
   mobile copy: `https://dcxvx0rn6jgx.postplan.dev`.
+
+## White Tree fruit harvest and run-energy substrate — 2026-07-19
+
+- Implemented the owner-settled post–Garden of Tranquillity White Tree card as
+  a permanent special Farming patch with four-fruit capacity, 12 XP per fruit,
+  full-run queue integration, and one-fruit-per-answered-card regrowth.
+- Added the period 30-LP/17%-run-energy fruit effect, supercompost input, and
+  the missing 20%-per-half Summer pie run-energy output.
+- Added a bounded run-energy credit against the next moving travel
+  transaction. It is capped, preserved across stationary actions, consumed
+  atomically, and covered through full answer undo.
+- Added canonical item art with explicit provenance plus focused pure, runtime,
+  integration, Qt, and real-Anki visual coverage. Headless Qt is not treated as
+  proof of macOS Anki rendering.
+- Final verification executes 1,751 non-Qt methods with 1,528 ordinary passes
+  and 223 environment skips, plus 1,751 passing offscreen Qt methods. Test
+  quality, documentation, compile, JSON, diff, and worktree audits are clean;
+  the known reachability ledger remains 283 orphan inputs / 304 blocked
+  actions.
+- Exact fruit regrowth timing remains explicitly source-blocked; diary and
+  Beacon Network consequences remain with their owning systems.
+- Durable audit:
+  `source-audits/white-tree-fruit-harvest-2026-07-19.md`.
+- Published
+  `status-updates/white-tree-fruit-results-2026-07-19.html`;
+  mobile copy: `https://l5sfu4d7m511.postplan.dev`.

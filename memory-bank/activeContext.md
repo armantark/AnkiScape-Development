@@ -1924,3 +1924,32 @@ The visual closure report is
 - Results:
   `status-updates/cheese-wheel-churning-slicing-results-2026-07-19.html`;
   mobile copy: `https://dcxvx0rn6jgx.postplan.dev`.
+
+## White Tree fruit and run-energy restoration — 2026-07-19
+
+- Added the permanent Varrock Palace White Tree after Garden of Tranquillity:
+  four fruit, 12 Farming XP each, full-run queuing, one fruit regrown per
+  answered card, and no inapplicable plan/compost/gardener/water/cure/replant
+  controls.
+- White tree fruit now heals 30 LP, restores 17% run energy, and supplies
+  supercompost. Summer pie's previously omitted 20% run-energy restoration per
+  half uses the same transaction.
+- Because AnkiScape has no continuously simulated run-energy bar, restoration
+  is a disclosed credit against the next moving trip. Stationary actions retain
+  it, accumulated credit caps at 100%, and a fully waived trip continues to the
+  selected action on the same review.
+- Exact White Tree fruit respawn timing remains source-blocked; the
+  one-fruit-per-answer cadence is the smallest owner-approved “fast respawn”
+  abstraction and never reads wall time.
+- Offscreen Qt remains a regression gate only. Visual acceptance was performed
+  in a restarted macOS Anki process; the live compositor exposed and drove the
+  fixes for duplicate labels, quest-title casing, pluralization, locked-state
+  counts, and wrapping.
+- Final verification executes 1,751 non-Qt methods with 1,528 ordinary passes
+  and 223 environment skips, plus 1,751 passing offscreen Qt methods. The
+  test-quality audit reports zero hard issues.
+- Durable evidence:
+  `source-audits/white-tree-fruit-harvest-2026-07-19.md`.
+- Results:
+  `status-updates/white-tree-fruit-results-2026-07-19.html`;
+  mobile copy: `https://l5sfu4d7m511.postplan.dev`.

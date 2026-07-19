@@ -23,6 +23,7 @@ try:
         SUPERCOMPOST_INPUTS,
     )
     from .logic_pure import apply_consumable_pure, best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure
+    from .quest_data import QUEST_DISPLAY_NAMES
 except ImportError:  # pragma: no cover - flat imports used by tests
     from constants import EXP_TABLE, TREE_DATA, WOODCUTTING_AXE_DATA  # type: ignore
     from farming_data import (  # type: ignore
@@ -40,6 +41,7 @@ except ImportError:  # pragma: no cover - flat imports used by tests
         SUPERCOMPOST_INPUTS,
     )
     from logic_pure import apply_consumable_pure, best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure  # type: ignore
+    from quest_data import QUEST_DISPLAY_NAMES  # type: ignore
 
 
 FIELD_STEP_KINDS = frozenset({
@@ -220,6 +222,7 @@ def _sanitize_preset(raw: Any, preset_id: str) -> Optional[dict[str, Any]]:
             crop = FARMING_CROPS_BY_ID.get(plan.get("crop_id")) if plan else None
             if (
                 patch is None
+                or patch.fixed_crop_id is not None
                 or crop is None
                 or crop.patch_type != patch.patch_type
                 or patch.crop_whitelist and crop.id not in patch.crop_whitelist
@@ -291,6 +294,30 @@ def sanitize_farming_state_pure(player_data: Mapping[str, Any]) -> dict[str, Any
     patches: dict[str, Any] = dict(raw_patches) if isinstance(raw_patches, Mapping) else {}
     for patch in FARMING_PATCHES:
         patches[patch.id] = _sanitize_patch_record(patches.get(patch.id))
+        if patch.fixed_crop_id is None:
+            continue
+        record = patches[patch.id]
+        if not farming_access_gate_allows_pure(player_data, patch.access_gate):
+            record.clear()
+            record.update(_default_patch_record())
+            continue
+        crop = FARMING_CROPS_BY_ID[patch.fixed_crop_id]
+        if record.get("crop_id") != crop.id:
+            record.clear()
+            record.update(_default_patch_record())
+            record.update(
+                {
+                    "crop_id": crop.id,
+                    "last_crop_id": crop.id,
+                    "stage": crop.stages or 0,
+                    "lives": crop.base_lives,
+                    "protected": True,
+                    "health_checked": True,
+                    "produce_count": crop.fixed_yield or 0,
+                    "last_regrowth_at": _int(player_data.get("farm_clock_minutes")),
+                }
+            )
+        record["plan"] = None
 
     raw_bins = player_data.get("farm_compost_bins")
     bins: dict[str, Any] = dict(raw_bins) if isinstance(raw_bins, Mapping) else {}
@@ -300,6 +327,12 @@ def sanitize_farming_state_pure(player_data: Mapping[str, Any]) -> dict[str, Any
     raw_plans = player_data.get("farm_plans")
     plans: dict[str, Any] = dict(raw_plans) if isinstance(raw_plans, Mapping) else {}
     for patch_id in list(plans):
+        if (
+            patch_id in FARMING_PATCHES_BY_ID
+            and FARMING_PATCHES_BY_ID[patch_id].fixed_crop_id is not None
+        ):
+            plans.pop(patch_id, None)
+            continue
         clean_plan = _sanitize_plan(plans[patch_id])
         if clean_plan is None:
             plans.pop(patch_id, None)
@@ -531,39 +564,44 @@ def _random_int_inclusive(random_random: Callable[[], float], low: int, high: in
 def _process_patch_boundaries(updated: dict[str, Any], patch_id: str, random_random: Callable[[], float]) -> None:
     record = updated["farm_patches"][patch_id]
     crop = FARMING_CROPS_BY_ID.get(record.get("crop_id"))
-    if crop is None or crop.stages is None or crop.stage_minutes is None or crop.stage_minutes <= 0:
+    if crop is None:
         return
     clock = updated["farm_clock_minutes"]
-    while not record.get("dead") and record["stage"] < crop.stages:
-        boundary = record["planted_at"] + (record["stage"] + 1) * crop.stage_minutes
-        if boundary > clock:
-            break
-        if record.get("diseased"):
-            record["dead"] = True
-            record["diseased"] = False
-            _log(updated, "crop_died", f"{crop.display_name} died at {FARMING_PATCHES_BY_ID[patch_id].display_name}.", patch_id=patch_id, crop_id=crop.id)
-            break
-        record["stage"] += 1
-        if record["stage"] == crop.stages:
-            record["produce_count"] = crop.fixed_yield or 0
-            record["last_regrowth_at"] = boundary
-            if crop.regrowth_range_minutes:
-                record["next_regrowth_at"] = boundary + _random_int_inclusive(random_random, *crop.regrowth_range_minutes)
-            if crop.id == "jade_vine":
-                record["jade_state"] = "prunable"
-                record["jade_prunes"] = 0
-            _log(updated, "crop_ready", f"{crop.display_name} is ready.", patch_id=patch_id, crop_id=crop.id)
-            break
-        # The first completed growth stage is immune. The settled Farming
-        # contract applies GM's one-cycle 0.9 watering factor.
-        if record["stage"] > 1 and not _disease_exempt(updated, patch_id, record, crop):
-            tier = COMPOST_TIERS[record.get("compost_tier", "none")]
-            watering_factor = 0.9 if record.get("watered") else 1.0
-            disease_slots = math.floor(crop.disease_slots * tier.disease_factor * watering_factor)
-            if random_random() < disease_slots / 128:
-                record["diseased"] = True
-                _log(updated, "crop_diseased", f"{crop.display_name} became diseased.", patch_id=patch_id, crop_id=crop.id)
-                continue
+    if (
+        crop.stages is not None
+        and crop.stage_minutes is not None
+        and crop.stage_minutes > 0
+    ):
+        while not record.get("dead") and record["stage"] < crop.stages:
+            boundary = record["planted_at"] + (record["stage"] + 1) * crop.stage_minutes
+            if boundary > clock:
+                break
+            if record.get("diseased"):
+                record["dead"] = True
+                record["diseased"] = False
+                _log(updated, "crop_died", f"{crop.display_name} died at {FARMING_PATCHES_BY_ID[patch_id].display_name}.", patch_id=patch_id, crop_id=crop.id)
+                break
+            record["stage"] += 1
+            if record["stage"] == crop.stages:
+                record["produce_count"] = crop.fixed_yield or 0
+                record["last_regrowth_at"] = boundary
+                if crop.regrowth_range_minutes:
+                    record["next_regrowth_at"] = boundary + _random_int_inclusive(random_random, *crop.regrowth_range_minutes)
+                if crop.id == "jade_vine":
+                    record["jade_state"] = "prunable"
+                    record["jade_prunes"] = 0
+                _log(updated, "crop_ready", f"{crop.display_name} is ready.", patch_id=patch_id, crop_id=crop.id)
+                break
+            # The first completed growth stage is immune. The settled Farming
+            # contract applies GM's one-cycle 0.9 watering factor.
+            if record["stage"] > 1 and not _disease_exempt(updated, patch_id, record, crop):
+                tier = COMPOST_TIERS[record.get("compost_tier", "none")]
+                watering_factor = 0.9 if record.get("watered") else 1.0
+                disease_slots = math.floor(crop.disease_slots * tier.disease_factor * watering_factor)
+                if random_random() < disease_slots / 128:
+                    record["diseased"] = True
+                    _log(updated, "crop_diseased", f"{crop.display_name} became diseased.", patch_id=patch_id, crop_id=crop.id)
+                    continue
 
     if not _is_mature(record, crop) or crop.fixed_yield is None or record.get("jade_state") in {"wild", "killed"}:
         return
@@ -680,6 +718,8 @@ def _reset_patch(record: dict[str, Any]) -> None:
 
 def _plant(updated: dict[str, Any], patch_id: str, patch: Any, crop: Any, step: Mapping[str, Any]) -> tuple[bool, str, dict[str, Any]]:
     record = updated["farm_patches"][patch_id]
+    if patch.fixed_crop_id is not None:
+        return False, "the permanent quest patch cannot be replanted", {}
     if record.get("crop_id") is not None:
         return False, "patch is not empty", {}
     if not crop.runnable:
@@ -771,8 +811,8 @@ def _juju_farming_active(updated: Mapping[str, Any]) -> bool:
 
 def _harvest(updated: dict[str, Any], patch_id: str, crop: Any, random_random: Callable[[], float]) -> tuple[bool, str, dict[str, Any]]:
     record = updated["farm_patches"][patch_id]
-    if _int(updated["inventory"].get("Spade")) <= 0:
-        return False, "missing Spade", {}
+    if crop.harvest_tool and _int(updated["inventory"].get(crop.harvest_tool)) <= 0:
+        return False, f"missing {crop.harvest_tool}", {}
     if not _is_mature(record, crop) or record.get("stump") or record.get("jade_state") in {"wild", "killed"}:
         return False, "crop is not ready", {}
     if crop.check_health_xp is not None and not record.get("health_checked"):
@@ -923,6 +963,8 @@ def _cure(
 
 def _clear(updated: dict[str, Any], patch_id: str, crop: Any) -> tuple[bool, str, dict[str, Any]]:
     record = updated["farm_patches"][patch_id]
+    if FARMING_PATCHES_BY_ID[patch_id].fixed_crop_id is not None:
+        return False, "the permanent quest patch cannot be cleared", {}
     if _int(updated["inventory"].get("Spade")) <= 0:
         return False, "missing Spade", {}
     clearable_scarecrow = crop.id == "scarecrow"
@@ -950,6 +992,8 @@ def _is_regrowth_crop(crop: Any) -> bool:
 
 def _dig_up(updated: dict[str, Any], patch_id: str, crop: Any) -> tuple[bool, str, dict[str, Any]]:
     record = updated["farm_patches"][patch_id]
+    if FARMING_PATCHES_BY_ID[patch_id].fixed_crop_id is not None:
+        return False, "the permanent quest patch cannot be dug up", {}
     if _int(updated["inventory"].get("Spade")) <= 0:
         return False, "missing Spade", {}
     if (
@@ -1070,6 +1114,8 @@ def farming_spell_target_locked_reasons_pure(
     patch = FARMING_PATCHES_BY_ID[target_id]
     if not farming_access_gate_allows_pure(updated, patch.access_gate):
         return ("Farming patch access is locked",)
+    if patch.fixed_crop_id is not None:
+        return ("Permanent quest patches cannot be changed by Farming spells",)
     record = updated["farm_patches"][target_id]
     if spell_id == "cure_plant":
         crop = FARMING_CROPS_BY_ID.get(record.get("crop_id"))
@@ -1194,6 +1240,24 @@ def _planned_patch_steps(updated: Mapping[str, Any], patch_id: str) -> tuple[lis
     if any(step.get("patch_id") == patch_id for step in updated["farm_queue"]):
         return [], None, "patch already has queued work"
     record = updated["farm_patches"][patch_id]
+    if patch.fixed_crop_id is not None:
+        crop = FARMING_CROPS_BY_ID.get(record.get("crop_id"))
+        if crop is None or not _is_mature(record, crop):
+            return [], None, "permanent crop is unavailable"
+        if _int(record.get("produce_count")) <= 0:
+            return [], None, "no produce is ready"
+        return (
+            ["harvest"],
+            {
+                "crop_id": crop.id,
+                "compost_tier": "none",
+                "protection_intent": False,
+                "watering_intent": False,
+                "cure_intent": False,
+                "cure_route_preference": PLANT_CURE_ITEM_FIRST,
+            },
+            "queued",
+        )
     plan = _sanitize_plan(updated["farm_plans"].get(patch_id)) or _sanitize_plan(record.get("plan"))
     if plan is None:
         return [], None, "patch plan is not set"
@@ -1276,6 +1340,8 @@ def queue_harvest_and_replant_same_pure(player_data: Mapping[str, Any], patch_id
     updated = _copy_with_farm_state(player_data)
     if patch_id not in FARMING_PATCHES_BY_ID:
         return updated, (), "unknown patch"
+    if FARMING_PATCHES_BY_ID[patch_id].fixed_crop_id is not None:
+        return updated, (), "the permanent quest patch cannot be replanted"
     kinds, plan, message = _planned_patch_steps(updated, patch_id)
     if not kinds or plan is None:
         return updated, (), message
@@ -1397,6 +1463,8 @@ def set_farm_plan_pure(
         or cure_route_preference not in CURE_ROUTE_PREFERENCES
     ):
         return updated, False, "unknown plan value"
+    if patch.fixed_crop_id is not None:
+        return updated, False, "permanent quest patches do not use crop plans"
     if not farming_access_gate_allows_pure(updated, patch.access_gate):
         return updated, False, "patch access is locked"
     if not crop.runnable:
@@ -1457,6 +1525,8 @@ def save_farm_preset_pure(
     plans: dict[str, dict[str, Any]] = {}
     for patch_id in dict.fromkeys(patch_ids):
         if patch_id not in FARMING_PATCHES_BY_ID:
+            continue
+        if FARMING_PATCHES_BY_ID[patch_id].fixed_crop_id is not None:
             continue
         plan = _preset_plan_snapshot(updated["farm_plans"].get(patch_id))
         if plan is not None:
@@ -1728,7 +1798,9 @@ def farming_status_projection_pure(player_data: Mapping[str, Any]) -> dict[str, 
         if crop is None:
             continue
         active += 1
-        is_ready = _is_mature(record, crop)
+        is_ready = _is_mature(record, crop) and (
+            crop.fixed_yield is None or _int(record.get("produce_count")) > 0
+        )
         ready += int(is_ready)
         diseased += int(record.get("diseased", False))
         dead += int(record.get("dead", False))
@@ -1773,7 +1845,12 @@ def _access_reason(gate: Any) -> str:
     if gate is None:
         return ""
     if gate.kind == "quest":
-        return f"Requires {str(gate.key).replace('_', ' ').title()}."
+        quest_id = str(gate.key)
+        display_name = QUEST_DISPLAY_NAMES.get(
+            quest_id,
+            quest_id.replace("_", " ").title(),
+        )
+        return f"Requires {display_name}."
     if gate.kind == "skill":
         return f"Requires {str(gate.key).replace('_', ' ').title()} level {gate.minimum}."
     if gate.kind == "region":
@@ -1805,6 +1882,23 @@ def _patch_status_view(state: Mapping[str, Any], patch: Any, record: Mapping[str
         return "ready", "Ready to chop", 0
     mature = _is_mature(record, crop)
     if mature:
+        if crop.fixed_yield is not None and _int(record.get("produce_count")) <= 0:
+            elapsed = max(
+                0,
+                _int(state.get("farm_clock_minutes"))
+                - _int(record.get("last_regrowth_at")),
+            )
+            interval = crop.regrowth_minutes or FARM_MINUTES_PER_ANSWER
+            reviews = max(
+                1,
+                math.ceil(max(0, interval - elapsed) / FARM_MINUTES_PER_ANSWER),
+            )
+            review_word = "review" if reviews == 1 else "reviews"
+            return (
+                "growing",
+                f"Regrowing · next produce in about {reviews} {review_word}",
+                reviews,
+            )
         if crop.check_health_xp is not None and not record.get("health_checked"):
             return "ready", "Health check ready", 0
         if crop.patch_type == "tree":
@@ -1875,6 +1969,8 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
 
         crop_options = []
         for option in FARMING_CROPS_BY_ID.values():
+            if patch.fixed_crop_id is not None:
+                break
             if not option.runnable or option.patch_type != patch.patch_type:
                 continue
             if patch.crop_whitelist and option.id not in patch.crop_whitelist:
@@ -1890,7 +1986,10 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
             })
 
         primary_kind = None
-        if crop is None:
+        if patch.fixed_crop_id is not None:
+            if access_allowed and crop is not None and _int(record.get("produce_count")) > 0:
+                primary_kind = "harvest"
+        elif crop is None:
             primary_kind = "plant" if plan else "choose_plan"
         elif status == "diseased":
             primary_kind = "cure"
@@ -1924,7 +2023,9 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
                     f"{item_reason}; Cure Plant: {', '.join(spell_reasons)}"
                 )
         elif not primary_reason and primary_kind in {"harvest", "clear", "dig_up"}:
-            primary_reason = _missing_items_reason(inventory, {"Spade": 1})
+            tool = crop.harvest_tool if primary_kind == "harvest" and crop else "Spade"
+            if tool:
+                primary_reason = _missing_items_reason(inventory, {tool: 1})
 
         primary_labels = {
             "choose_plan": "Choose a crop",
@@ -1944,7 +2045,8 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
         }
         dig_up_action = None
         if (
-            crop is not None
+            patch.fixed_crop_id is None
+            and crop is not None
             and _is_regrowth_crop(crop)
             and _is_mature(record, crop)
             and not record.get("diseased")
@@ -2017,6 +2119,7 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
                 "locked_reason": reason,
             }
 
+        fixed_crop = FARMING_CROPS_BY_ID.get(patch.fixed_crop_id)
         patch_view = {
             "patch_id": patch.id,
             "patch_name": patch.display_name,
@@ -2024,11 +2127,25 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
             "access_allowed": access_allowed,
             "access_reason": access_reason,
             "crop_id": crop.id if crop else None,
-            "crop_name": crop.display_name if crop else "Empty",
+            "crop_name": (
+                crop.display_name
+                if crop
+                else fixed_crop.display_name
+                if fixed_crop
+                else "Empty"
+            ),
             "status": status,
             "status_label": access_reason or status_label,
             "stage_label": status_label,
             "queued_count": queued,
+            "fixed_crop": patch.fixed_crop_id is not None,
+            "produce_count": _int(record.get("produce_count")),
+            "produce_capacity": crop.fixed_yield if crop else fixed_crop.fixed_yield if fixed_crop else None,
+            "fixed_crop_note": (
+                "Permanent post-quest tree · Queue full run harvests all ready fruit · One fruit regrows per answered card."
+                if patch.fixed_crop_id is not None
+                else ""
+            ),
             "current_compost": str(record.get("compost_tier", "none")).replace("_", " ").title(),
             "plan": {
                 "crop_id": plan.get("crop_id") if plan else None,
@@ -2053,13 +2170,17 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
             "protection": protection,
             "primary_action": primary_action,
             "dig_up_action": dig_up_action,
-            "shortcut_action": {
-                "id": "harvest_replant",
-                "label": "Harvest and replant same",
-                "enabled": plan is None or not shortcut_reason,
-                "locked_reason": shortcut_reason,
-                "needs_plan": plan is None,
-            },
+            "shortcut_action": (
+                None
+                if patch.fixed_crop_id is not None
+                else {
+                    "id": "harvest_replant",
+                    "label": "Harvest and replant same",
+                    "enabled": plan is None or not shortcut_reason,
+                    "locked_reason": shortcut_reason,
+                    "needs_plan": plan is None,
+                }
+            ),
             "sapling_action": sapling,
         }
         group = groups.setdefault(patch.complex_id, {
