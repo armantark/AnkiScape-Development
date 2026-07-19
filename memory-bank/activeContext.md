@@ -2,6 +2,16 @@
 
 ## Current Focus
 
+Ganodermic creatures are harvested but remain source- and dependency-blocked.
+Both Darkan combat rows are explicitly `nostats` and generate non-real combat
+levels. The runt has no ordinary drop file. The beast's complete 256-slot
+selector conflicts on Blood/Death runes, Ganodermic flakes, and noted ranarr,
+while its 15–28 LP infestation conflicts with the cutoff 12–27. Darkan's
+neemed form removes infestation but continues attacking, contrary to the
+cutoff temporary suppression. The canonical Neem-oil/resource/context chain
+is not live. No target or asset was added; Duradel/Lapalok remains 14/35. See
+`source-audits/slayer-ganodermic-creatures-combat-2026-07-19.md`.
+
 Dark beast is harvested but remains source-, context-, and
 representation-blocked. The cutoff record closes its level-182 identity,
 2,200 LP, 225.4 Slayer XP, conditional 174-LP Melee/80-LP Magic fight, real

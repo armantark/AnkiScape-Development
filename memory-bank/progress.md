@@ -4,6 +4,24 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Ganodermic-creatures source boundary — 2026-07-19
+
+- Closed the runt/beast identities, Slayer-95/Magic-60 gates, LP, XP, Magic
+  attacks, maxima, fungal hazards, neem interaction, guaranteed drops, visible
+  drop sets, cache forms/defences, and Polypore context.
+- Kept both targets source-blocked because their Darkan rows are explicitly
+  `nostats` and generate non-real combat levels.
+- Kept the runt source-blocked because no Darkan ordinary-drop file exists.
+  Kept the beast source-blocked because its 256-slot selector conflicts on
+  runes, flakes, and noted ranarr, and its 15–28 LP fungal hazard conflicts
+  with the cutoff 12–27.
+- Kept both targets dependency-blocked because Darkan's neem form continues
+  attacking instead of preserving cutoff suppression, while the canonical
+  Neem-oil/resource/context chain is absent from AnkiScape.
+- Duradel/Lapalok remains hidden and unrenormalized at 14/35. No owner-facing
+  design gap emerged. Durable evidence:
+  `source-audits/slayer-ganodermic-creatures-combat-2026-07-19.md`.
+
 ## Slayer Dark beast source boundary — 2026-07-19
 
 - Closed the ordinary level-182 target's 2,200 LP, Slayer-90 gate/225.4 XP,

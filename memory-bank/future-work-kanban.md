@@ -453,6 +453,13 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   The global family feature also cannot distinguish Duradel's Temple route
   from Kuradal's task-only Dungeon context. Duradel/Lapalok remains 14/35.
   See `source-audits/slayer-dark-beast-combat-2026-07-19.md`.
+- Ganodermic creatures remain source- and dependency-blocked. Both combat rows
+  are `nostats`; the runt has no ordinary selector; the beast's 256-slot
+  selector conflicts on runes, flakes, and noted ranarr; and its fungal damage
+  conflicts with the cutoff. Darkan's neem form keeps attacking rather than
+  preserving temporary suppression, while the canonical Neem-oil/resource/
+  context chain is absent. Duradel/Lapalok remains 14/35. See
+  `source-audits/slayer-ganodermic-creatures-combat-2026-07-19.md`.
 - Kuradal remains unencoded despite its source-closed 36-row, 322-point pool.
   The period family ledger now closes ordinary TzHaar as Ket/Xil/Mej/Hur and
   Living rock creatures as patriarch/protector/striker, explicitly excluding
