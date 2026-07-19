@@ -1967,3 +1967,18 @@ Test counts are snapshots; current runs outrank this note.
 - Chaeldar remains hidden and unrenormalized at 25/34. No owner design fork was
   reopened. Durable evidence:
   `source-audits/slayer-grifolic-creatures-combat-2026-07-19.md`.
+
+## Slayer Jungle-strykewyrm source boundary — 2026-07-19
+
+- Closed the period-visible Jungle-strykewyrm identity, Slayer-73
+  assignment-only gate, hybrid attack cadence, poison families, tunnelling
+  concept, client IDs, and named drop set.
+- Kept the target blocked because Darkan's `nostats` row generates non-real
+  combat levels and its custom handler contradicts the cutoff melee-poison and
+  burrow damage/poison consequences.
+- Confirmed the ordinary-drop reconstruction conflicts with visible cutoff
+  coin, Papaya-fruit, and herb quantities, while the current one-channel
+  poison schema cannot represent three attack-conditional poison outcomes.
+- Chaeldar remains hidden and unrenormalized at 25/34. No owner design fork was
+  reopened. Durable evidence:
+  `source-audits/slayer-jungle-strykewyrm-combat-2026-07-19.md`.

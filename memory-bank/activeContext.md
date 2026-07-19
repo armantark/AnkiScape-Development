@@ -2,6 +2,17 @@
 
 ## Current Focus
 
+The Jungle-strykewyrm source pass closed its level-110/1,100-LP identity,
+Slayer-73 assignment-only gate, six-tick hybrid attacks, poison families,
+tunnelling concept, cache IDs, and named drops. It did not activate a Combat
+row. Darkan's only definition is explicitly `nostats`; its handler also
+contradicts the cutoff melee-poison and burrow consequences, and its ordinary
+drop file conflicts on visible quantities. The current single-channel poison
+schema cannot encode the three attack-conditional poison outcomes. Under the
+source standard the family remains `source_blocked`; Chaeldar stays hidden at
+25/34 and no design fork is open. Evidence:
+`source-audits/slayer-jungle-strykewyrm-combat-2026-07-19.md`.
+
 The paired Grifolapine/Grifolaroo source pass closed their period identities,
 Slayer/Magic gates, hybrid attacks, fungal hazards, neem form changes, client
 IDs, and named drops. It did not activate either Combat row. Both Darkan

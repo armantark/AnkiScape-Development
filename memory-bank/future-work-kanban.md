@@ -339,11 +339,16 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   boundary, plus visible LP/damage conflicts, a missing neemed
   Magic-to-Ranged transition, and two duplicated Darkan ordinary-drop stubs
   contradicting the distinct cutoff tables. Keep both families blocked.
+  The Jungle-strykewyrm pass found another `nostats` target plus direct
+  melee-poison, burrow-damage/poison, and ordinary-quantity conflicts; its
+  three attack-conditional poison channels also exceed the current generic
+  poison schema. Keep that family blocked.
   See
   `source-audits/slayer-chaeldar-registry-2026-07-18.md` and
   `source-audits/slayer-fever-spider-combat-2026-07-19.md` and
   `source-audits/slayer-fungal-mage-combat-2026-07-19.md` and
   `source-audits/slayer-grifolic-creatures-combat-2026-07-19.md` and
+  `source-audits/slayer-jungle-strykewyrm-combat-2026-07-19.md` and
   `source-audits/slayer-fire-giant-combat-2026-07-18.md` and
   `source-audits/slayer-blue-dragon-family-combat-2026-07-18.md` and
   `source-audits/slayer-bronze-dragon-combat-2026-07-18.md`,
