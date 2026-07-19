@@ -100,7 +100,11 @@ Implementation closure:
 - The carried summary now receives the canonical stackability registry instead
   of counting every stackable unit as its own slot.
 - Pure, integration/undo, and real offscreen Qt regressions cover these
-  boundaries. Bank search/filtering remains a separate approved enhancement.
+  boundaries.
+- **Search closure, 2026-07-19:** the shared catalog filter now searches Bank
+  item names and category labels, omits nonmatching group headers, reports the
+  visible/total item count, and preserves inventory plus the saved carried-queue
+  order across filtering and clear.
 
 ### Source Gate
 

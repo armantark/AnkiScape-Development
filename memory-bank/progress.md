@@ -2526,3 +2526,15 @@ Test counts are snapshots; current runs outrank this note.
   bounded Sol-high leaf acquired a slot but never established a provider
   session or emitted tool telemetry before the declared 360-second timeout.
   The primary independently reproduced all accepted findings.
+
+## Bank search/filter implementation — 2026-07-19
+
+- Added the shared catalog search bar to Bank with item-name and category
+  matching, matching-header-only rendering, visible/total counts, and a clear
+  empty-result state.
+- Preserved the flat inventory and ordered Custom-pack state: filtering is a
+  presentation-only refresh and cannot reorder or mutate either structure.
+- Added a real offscreen Qt regression that exercises name, category, no-match,
+  and clear transitions while asserting inventory identity.
+- Verified nine focused Bank Qt surfaces plus 163 pure inventory, storage, and
+  integration-smoke tests.

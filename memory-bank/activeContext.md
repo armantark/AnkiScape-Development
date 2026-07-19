@@ -1810,3 +1810,15 @@ The visual closure report is
 - Added no Firemaking, Cooking, warmth, reward, UI, storage, or asset runtime.
   No new creative-design item was opened. Durable evidence is
   `source-audits/bonfire-fire-spirit-source-boundary-2026-07-19.md`.
+
+## Bank catalog search closure — 2026-07-19
+
+- The approved Bank search enhancement now reuses `CatalogFilterBar` and
+  searches both item names and Bank category labels.
+- Filtering omits empty category headers, reports an item-only visible/total
+  count, and presents an explicit no-match row without changing inventory.
+- Search never rewrites the saved Custom-pack dictionary, so the settled
+  first-come-first-served carried-queue order remains unchanged.
+- Focused offscreen Qt coverage verifies name, category, empty, and clear
+  states alongside the existing Bank grouping, carried-slot, and Discard X
+  surfaces. Pure inventory, integration-smoke, and storage suites remain green.

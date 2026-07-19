@@ -5179,6 +5179,52 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertFalse(arrow_row.icon().isNull(), "Arrow shafts row has no icon")
 
+    def test_bank_search_filters_rows_and_categories_without_mutating_state(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {
+            "Logs": 5,
+            "Bronze bar": 2,
+            "Arrow shafts": 30,
+            "Feather": 50,
+            "Bronze arrowtips": 15,
+        }
+        original_inventory = dict(pd["inventory"])
+        dialog = self._open(pd)
+        bank = _find_bank_list(dialog)
+        search = _find_named_line_edit(dialog, "bankSearchInput")
+        summary = _find_named_label(dialog, "bankSearchInputSummary")
+
+        search.setText("arrow shafts")
+        QApplication.processEvents()
+        texts = [bank.item(i).text() for i in range(bank.count())]
+        self.assertIn("Fletched", texts)
+        self.assertIn("Arrow shafts x30", texts)
+        self.assertNotIn("Logs", texts)
+        self.assertNotIn("Bronze bar x2", texts)
+        self.assertEqual(summary.text(), "Showing 1/5")
+        self.assertEqual(pd["inventory"], original_inventory)
+
+        search.setText("materials")
+        QApplication.processEvents()
+        texts = [bank.item(i).text() for i in range(bank.count())]
+        self.assertIn("Materials", texts)
+        self.assertIn("Feather x50", texts)
+        self.assertNotIn("Arrow shafts x30", texts)
+
+        search.setText("nothing-here")
+        QApplication.processEvents()
+        self.assertEqual(bank.count(), 1)
+        self.assertEqual(bank.item(0).text(), "No Bank items match your search.")
+        self.assertEqual(summary.text(), "Showing 0/5")
+
+        search.clear()
+        QApplication.processEvents()
+        texts = [bank.item(i).text() for i in range(bank.count())]
+        self.assertIn("Logs x5", texts)
+        self.assertIn("Arrow shafts x30", texts)
+        self.assertEqual(summary.text(), "Showing 5/5")
+        self.assertEqual(pd["inventory"], original_inventory)
+
     def test_bank_groups_firemaking_logs_and_ashes_with_icons(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {

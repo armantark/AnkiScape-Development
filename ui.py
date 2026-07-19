@@ -7998,6 +7998,13 @@ def show_main_menu(
     bk_layout.addWidget(carried_header)
     bk_layout.addWidget(carried_body)
 
+    bank_filter_bar = CatalogFilterBar(
+        placeholder="Search Bank items or categories…",
+        search_object_name="bankSearchInput",
+        parent=bank_tab,
+    )
+    bk_layout.addWidget(bank_filter_bar)
+
     bank_list = QListWidget()
     bank_list.setIconSize(QSize(28, 28))
     bank_list.setAlternatingRowColors(True)
@@ -8069,13 +8076,23 @@ def show_main_menu(
         bank_list.clear()
         inv = player_data.get("inventory", {}) or {}
         groups = grouped_inventory(inv)
+        total_count = sum(len(rows) for _category_label, rows in groups)
+        visible_count = 0
         if not groups:
             empty = QListWidgetItem("Your bank is empty — train a skill to gather items.")
             empty.setFlags(Qt.ItemFlag.NoItemFlags)
             bank_list.addItem(empty)
         for category_label, rows in groups:
+            filtered_rows = tuple(
+                row
+                for row in rows
+                if bank_filter_bar.matches_text(row[0], category_label)
+            )
+            if not filtered_rows:
+                continue
             bank_list.addItem(_make_header_item(category_label, "__header__"))
-            for item_name, amount, asset_path in rows:
+            for item_name, amount, asset_path in filtered_rows:
+                visible_count += 1
                 li = QListWidgetItem(f"{item_name} x{amount}")
                 icon_path = _bank_icon_path(item_name, asset_path)
                 if icon_path:
@@ -8092,6 +8109,15 @@ def show_main_menu(
                     ok, reason = can_equip_item_pure(item_name, EQUIPMENT_ITEM_DATA, player_data)
                     li.setToolTip(equipment_full_tooltip(item_name, "" if ok else reason))
                 bank_list.addItem(li)
+        if groups and not visible_count:
+            empty = QListWidgetItem("No Bank items match your search.")
+            empty.setFlags(Qt.ItemFlag.NoItemFlags)
+            bank_list.addItem(empty)
+        bank_filter_bar.set_count(visible_count, total_count)
+
+    bank_filter_bar.search_input.textChanged.connect(
+        lambda _text: _populate_bank_list()
+    )
 
     claims_box = QWidget()
     claims_box.setObjectName("bankClaimsBox")
