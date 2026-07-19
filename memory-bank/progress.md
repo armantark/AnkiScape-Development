@@ -2571,3 +2571,24 @@ Test counts are snapshots; current runs outrank this note.
 - Published
   `status-updates/grand-exchange-period-harvest-results-2026-07-19.html`;
   mobile copy: `https://fptne6w8pjqm.postplan.dev`.
+
+## Grand Exchange live market reducer — 2026-07-19
+
+- Implemented the deterministic, wall-clock-free hidden-price reducer with
+  naturalized liquidity, bounded stochastic partial fills, price improvement,
+  directional impact, smooth shocks, buy-limit windows, compact daily VWAP
+  history, ±5% guide-price updates, and cache-derived soft High Alchemy
+  pressure.
+- Added category/required-level/source-role market inputs without changing the
+  strict registered/cache-exchangeable eligibility boundary.
+- Wired the GE immediately after the shared shop market clock on every answer.
+  Existing full review snapshots now make fills, escrow, buy-limit usage,
+  guide/trade state, RNG cursor, and the tick atomic under answer undo.
+- Added regression coverage for economic conservation, deterministic catch-up,
+  offer-creation boundaries, daily windows, dispatch order, and
+  fill -> undo -> identical re-answer.
+- Durable evidence:
+  `source-audits/grand-exchange-market-engine-2026-07-19.md`.
+- Published
+  `status-updates/grand-exchange-market-engine-results-2026-07-19.html`;
+  mobile copy: `https://vngdsej73c0r.postplan.dev`.

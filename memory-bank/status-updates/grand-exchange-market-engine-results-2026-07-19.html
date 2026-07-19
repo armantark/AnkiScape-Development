@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Grand Exchange market engine</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f5eedc;
+      --muted: #b9af9d;
+      --canvas: #11100e;
+      --panel: #1c1915;
+      --panel2: #252018;
+      --line: #493d2b;
+      --gold: #f0bd4f;
+      --green: #75d58a;
+      --blue: #75b7df;
+      --red: #e67c73;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 85% -10%, rgba(240,189,79,.18), transparent 34rem),
+        linear-gradient(155deg, #15120e, var(--canvas) 62%);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 56px 0 72px; }
+    .eyebrow { color: var(--gold); text-transform: uppercase; letter-spacing: .16em; font-size: 12px; font-weight: 800; }
+    h1 { margin: 10px 0 12px; max-width: 900px; font-size: clamp(38px, 7vw, 72px); line-height: .98; letter-spacing: -.045em; }
+    .lede { margin: 0; max-width: 820px; color: var(--muted); font-size: 19px; line-height: 1.55; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 34px 0; }
+    .metric, .card {
+      border: 1px solid var(--line);
+      background: linear-gradient(145deg, rgba(37,32,24,.95), rgba(25,22,18,.94));
+      border-radius: 18px;
+      box-shadow: 0 14px 40px rgba(0,0,0,.22);
+    }
+    .metric { padding: 20px; }
+    .metric b { display: block; color: var(--gold); font-size: 28px; letter-spacing: -.03em; }
+    .metric span { color: var(--muted); font-size: 13px; }
+    .grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 16px; }
+    .card { padding: 24px; }
+    .card h2 { margin: 0 0 16px; font-size: 20px; }
+    .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; align-items: stretch; }
+    .step { padding: 14px 12px; border-radius: 12px; background: #16130f; border: 1px solid #3c3225; }
+    .step small { display: block; color: var(--gold); font-weight: 800; margin-bottom: 5px; }
+    .step span { color: var(--muted); font-size: 13px; line-height: 1.35; }
+    ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    li { position: relative; padding-left: 22px; color: var(--muted); line-height: 1.45; }
+    li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 900; }
+    .proof { margin-top: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .proof .card { min-height: 150px; }
+    .tag { display: inline-block; padding: 5px 9px; border-radius: 999px; background: rgba(117,213,138,.11); color: var(--green); font-size: 12px; font-weight: 800; }
+    .tag.warn { color: var(--red); background: rgba(230,124,115,.10); }
+    code { color: var(--blue); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9em; }
+    .footer { margin-top: 16px; color: #8f8575; font-size: 12px; }
+    @media (max-width: 820px) {
+      main { padding-top: 36px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .grid, .proof { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">Grand Exchange · backend milestone</div>
+  <h1>The market now moves when you study.</h1>
+  <p class="lede">AnkiScape’s GE is no longer a static escrow shell. Every answered card advances a deterministic hidden-price market with authentic offer behavior, bounded economic pressure, and exact undo replay.</p>
+
+  <section class="metrics" aria-label="Verification summary">
+    <div class="metric"><b>1,725</b><span>full non-Qt tests passed</span></div>
+    <div class="metric"><b>8</b><span>maximum touched offer slots</span></div>
+    <div class="metric"><b>0</b><span>wall-clock reads or replay loops</span></div>
+    <div class="metric"><b>0</b><span>test-quality hard issues</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h2>One answer, one atomic market transaction</h2>
+      <div class="flow">
+        <div class="step"><small>01</small><span>Advance the shared answered-card market clock.</span></div>
+        <div class="step"><small>02</small><span>Update only items with live player offers.</span></div>
+        <div class="step"><small>03</small><span>Resolve stochastic partial fills, escrow, limits, and impact.</span></div>
+        <div class="step"><small>04</small><span>Undo restores the whole delta; re-answer replays it exactly.</span></div>
+      </div>
+    </article>
+    <article class="card">
+      <h2>Market texture that stays legible</h2>
+      <ul>
+        <li>Player-favourable execution price and automatic refunds.</li>
+        <li>Four-hour buy-limit windows and daily ±5% guide movement.</li>
+        <li>Smooth hidden shocks, day/week breathing, and item personality.</li>
+        <li>Soft High Alchemy pressure without an invented hard floor.</li>
+        <li>Minimum fill impact prevents infinite zero-consequence dumping.</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="proof">
+    <article class="card">
+      <span class="tag">Economy safe</span>
+      <h2>Escrow is conserved</h2>
+      <p class="lede" style="font-size:14px">Corrupt loaded escrow is clamped or retired safely. Buy items, sell proceeds, refunds, cancellations, and partial collection cannot mint value from an unbacked open order.</p>
+    </article>
+    <article class="card">
+      <span class="tag">Bounded</span>
+      <h2>Catch-up is closed form</h2>
+      <p class="lede" style="font-size:14px">Skipped intervals collapse to bounded drift, shock, and cumulative-fill draws. Work never grows with account age, the item catalog, or a hidden population.</p>
+    </article>
+    <article class="card">
+      <span class="tag warn">Tooling note</span>
+      <h2>Reviewer never started</h2>
+      <p class="lede" style="font-size:14px">Workflow <code>51f1c6f8…</code> reached the app-bundled Sol process but emitted no session, output, tools, or tokens before its explicit timeout. Root verification supplied the closure proof.</p>
+    </article>
+  </section>
+
+  <p class="footer">Next settled slice: the authentic eight-slot Qt surface and Bankstanding selector. No owner design question surfaced.</p>
+</main>
+</body>
+</html>

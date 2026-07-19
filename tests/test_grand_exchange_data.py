@@ -77,6 +77,8 @@ class GrandExchangeDataTest(unittest.TestCase):
             catalog["Logs"]["guide_price_source"],
             "cache_value_fallback",
         )
+        self.assertEqual(catalog["Logs"]["low_alchemy_value"], 1)
+        self.assertEqual(catalog["Logs"]["high_alchemy_value"], 2)
         self.assertIsNone(catalog["Logs"]["buy_limit"])
 
     def test_period_rows_override_cache_values_without_widening_eligibility(self):
@@ -101,6 +103,9 @@ class GrandExchangeDataTest(unittest.TestCase):
         self.assertNotIn("Coins", GE_ITEM_CATALOG)
         self.assertEqual(GE_ITEM_CATALOG["Logs"]["guide_price"], 106)
         self.assertEqual(GE_ITEM_CATALOG["Logs"]["buy_limit"], 25_000)
+        self.assertEqual(GE_ITEM_CATALOG["Logs"]["required_level"], 1)
+        self.assertEqual(GE_ITEM_CATALOG["Logs"]["source_role"], "raw_material")
+        self.assertEqual(GE_ITEM_CATALOG["Yew logs"]["required_level"], 60)
         self.assertEqual(
             GE_ITEM_CATALOG["Logs"]["guide_price_source"],
             "period_grand_exchange_database",

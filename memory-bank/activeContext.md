@@ -1855,3 +1855,24 @@ The visual closure report is
 - Results:
   `status-updates/grand-exchange-period-harvest-results-2026-07-19.html`;
   mobile copy: `https://fptne6w8pjqm.postplan.dev`.
+
+## Grand Exchange live market reducer — 2026-07-19
+
+- The settled hidden true-price market is live on the answered-card clock:
+  stochastic partial fills, price improvement, buy-limit windows, compact
+  matched-trade history, daily ±5% guide movement, player impact/decay, and
+  smooth hidden shocks all advance without wall-clock reads or replay loops.
+  Cache-derived High Alchemy value adds bounded aggregate upward pressure but
+  never becomes a hard floor.
+- Item liquidity is formula-derived from price, category, required level,
+  source role, answered-card day/week phase, and deterministic item/day
+  texture. Per-answer work is bounded by the eight player offer slots.
+- The shop clock advances first on every answer, including Again; the existing
+  review transaction snapshot restores GE tick, RNG cursor, fills, escrow,
+  limits, and market state atomically. Re-answering reproduces the same result.
+- Durable implementation boundary:
+  `source-audits/grand-exchange-market-engine-2026-07-19.md`.
+- Results: `status-updates/grand-exchange-market-engine-results-2026-07-19.html`;
+  mobile copy: `https://vngdsej73c0r.postplan.dev`.
+- The remaining settled GE sequence is the eight-slot Qt surface and
+  Bankstanding selector; no new owner design gap was found.

@@ -45,7 +45,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
         )
         return state
 
-    def test_dispatch_order_is_shop_then_farm(self):
+    def test_dispatch_order_is_shop_then_ge_then_farm(self):
         addon = _load_addon_as_package("ankiscape_farming_dispatch_order")
         self._configure(addon)
         order = []
@@ -55,11 +55,14 @@ class TestFarmingReviewDispatch(unittest.TestCase):
         addon.answer_shown = True
         addon.exp_awarded = False
         addon.advance_shop_market_clock_pure = lambda data: order.append("shop") or dict(data)
+        addon.advance_ge_market_tick_pure = (
+            lambda data, **_kwargs: (order.append("ge") or dict(data), {})
+        )
         addon.runtime_actions.advance_farming_clock_for_review = lambda _ctx: order.append("farm") or {}
 
         addon.on_answer_card(_FakeReviewer(), 1, lambda _self, _ease: "answered")
 
-        self.assertEqual(order, ["shop", "farm"])
+        self.assertEqual(order, ["shop", "ge", "farm"])
 
     def test_summoning_world_tick_runs_on_again_before_farming_clock(self):
         addon = _load_addon_as_package("ankiscape_summoning_world_dispatch")
@@ -110,6 +113,72 @@ class TestFarmingReviewDispatch(unittest.TestCase):
             10,
         )
         self.assertEqual(follower["summoning_point_drain_residual"], 0)
+
+    def test_ge_fill_undo_and_reanswer_replay_the_same_market_transaction(self):
+        addon = _load_addon_as_package("ankiscape_ge_review_dispatch")
+        self._configure(addon)
+        ge_logic = sys.modules[f"{addon.__name__}.grand_exchange_logic"]
+        logs = {
+            "tradeable": True,
+            "exchangeable": True,
+            "guide_price": 100,
+            "buy_limit": 25_000,
+        }
+        initial = {
+            **ge_logic.default_ge_state_pure(),
+            "inventory": {"Coins": 1_000},
+            "shop_market_clock": {"answered_cards": 7, "market_tick": 7},
+            "completed_achievements": [],
+        }
+        initial["ge_market_state"]["last_processed_tick"] = 7
+        initial, placed = ge_logic.place_ge_offer_pure(
+            initial,
+            side="buy",
+            item_name="Logs",
+            quantity=2,
+            unit_price=150,
+            item_spec=logs,
+        )
+        self.assertTrue(placed["ok"])
+        initial = copy.deepcopy(initial)
+
+        def deterministic_tick(data, **_kwargs):
+            draws = iter((0.5, 0.0, 0.5, 1.0))
+            return ge_logic.advance_ge_market_tick_pure(
+                data,
+                item_catalog={"Logs": logs},
+                random_draw=lambda: next(draws),
+            )
+
+        addon.advance_ge_market_tick_pure = deterministic_tick
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "None"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 1, lambda _self, _ease: "answered")
+
+        first_answer = copy.deepcopy(addon.player_data)
+        self.assertEqual(first_answer["shop_market_clock"]["market_tick"], 8)
+        self.assertGreater(
+            first_answer["ge_player_orders"][0]["completed_quantity"],
+            0,
+        )
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="Answer Card")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        addon.on_answer_card(_FakeReviewer(), 1, lambda _self, _ease: "answered")
+
+        self.assertEqual(addon.player_data, first_answer)
 
     def test_success_consumes_one_farm_step_and_preempts_active_skill_multiplier(self):
         addon = _load_addon_as_package("ankiscape_farming_queue_dispatch")

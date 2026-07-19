@@ -1,7 +1,10 @@
 import unittest
+from copy import deepcopy
 
 from grand_exchange_logic import (
+    GE_BUY_LIMIT_WINDOW_CARDS,
     GE_SLOT_COUNT,
+    advance_ge_market_tick_pure,
     cancel_ge_offer_pure,
     collect_all_ge_offers_pure,
     collect_ge_offer_pure,
@@ -30,6 +33,25 @@ def _player(**inventory):
 
 
 class GrandExchangeLogicTest(unittest.TestCase):
+    @staticmethod
+    def _advance(
+        player,
+        *,
+        market_tick,
+        draws=(0.5, 0.0, 0.5, 1.0),
+        item_spec=LOGS,
+    ):
+        player["shop_market_clock"] = {
+            "answered_cards": market_tick,
+            "market_tick": market_tick,
+        }
+        draw_iter = iter(draws)
+        return advance_ge_market_tick_pure(
+            player,
+            item_catalog={"Logs": item_spec},
+            random_draw=lambda: next(draw_iter),
+        )
+
     def test_default_and_sanitized_state_are_bounded(self):
         state = sanitize_ge_state_pure(
             {
@@ -48,6 +70,7 @@ class GrandExchangeLogicTest(unittest.TestCase):
                         "original_quantity": 1,
                         "remaining_quantity": 1,
                         "submitted_unit_price": 100,
+                        "escrow_coins": 100,
                         "status": "open",
                     }
                     for index in range(GE_SLOT_COUNT + 2)
@@ -61,6 +84,127 @@ class GrandExchangeLogicTest(unittest.TestCase):
         self.assertEqual(state["ge_market_state"]["rng_seed"], 9)
         self.assertEqual(len(state["ge_player_orders"]), GE_SLOT_COUNT)
         self.assertEqual(state["ge_next_order_id"], GE_SLOT_COUNT + 1)
+
+    def test_sanitizer_cannot_turn_corrupt_escrow_into_assets(self):
+        state = sanitize_ge_state_pure(
+            {
+                "ge_player_orders": [
+                    {
+                        "id": 1,
+                        "side": "buy",
+                        "item_name": "Logs",
+                        "original_quantity": 1,
+                        "remaining_quantity": 1,
+                        "completed_quantity": 0,
+                        "submitted_unit_price": 100,
+                        "escrow_coins": 999_999,
+                        "escrow_items": 999,
+                        "collectible_coins": 999_999,
+                        "collectible_items": 999,
+                        "status": "open",
+                    },
+                    {
+                        "id": 2,
+                        "side": "sell",
+                        "item_name": "Logs",
+                        "original_quantity": 2,
+                        "remaining_quantity": 2,
+                        "completed_quantity": 0,
+                        "submitted_unit_price": 100,
+                        "escrow_coins": 999_999,
+                        "escrow_items": 999,
+                        "collectible_coins": 999_999,
+                        "collectible_items": 999,
+                        "status": "open",
+                    },
+                ]
+            }
+        )
+
+        buy, sell = state["ge_player_orders"]
+        self.assertEqual(buy["escrow_coins"], 100)
+        self.assertEqual(buy["escrow_items"], 0)
+        self.assertEqual(buy["collectible_coins"], 0)
+        self.assertEqual(buy["collectible_items"], 0)
+        self.assertEqual(sell["escrow_coins"], 0)
+        self.assertEqual(sell["escrow_items"], 2)
+        self.assertEqual(sell["collectible_coins"], 0)
+        self.assertEqual(sell["collectible_items"], 0)
+
+        dropped = sanitize_ge_state_pure(
+            {
+                "ge_player_orders": [
+                    {
+                        "id": 1,
+                        "side": "buy",
+                        "item_name": "Logs",
+                        "original_quantity": 1,
+                        "remaining_quantity": 1,
+                        "submitted_unit_price": 100,
+                        "escrow_coins": 0,
+                        "status": "open",
+                    }
+                ]
+            }
+        )
+        self.assertEqual(dropped["ge_player_orders"], [])
+
+    def test_market_tick_recovers_corrupt_nested_item_state(self):
+        player = _player()
+        player["ge_market_state"].update(
+            {
+                "last_processed_tick": 7,
+                "items": {
+                    "Logs": {
+                        "anchor_price": "bad",
+                        "guide_price": 0,
+                        "player_impact_bps": "bad",
+                        "ambient_bps": None,
+                        "shock_peak_bps": "bad",
+                        "last_processed_tick": 7,
+                    }
+                },
+            }
+        )
+        player, _result = place_ge_offer_pure(
+            player,
+            side="buy",
+            item_name="Logs",
+            quantity=1,
+            unit_price=50,
+            item_spec=LOGS,
+        )
+
+        advanced, result = self._advance(
+            player,
+            market_tick=8,
+            draws=(0.5, 1.0, 0.5, 1.0),
+        )
+
+        self.assertEqual(result["fills"], [])
+        item_state = advanced["ge_market_state"]["items"]["Logs"]
+        self.assertEqual(item_state["anchor_price"], 100)
+        self.assertEqual(item_state["guide_price"], 100)
+        self.assertEqual(item_state["player_impact_bps"], 0)
+        self.assertEqual(item_state["ambient_bps"], 0)
+
+    def test_offer_rejects_values_outside_signed_item_bounds(self):
+        player = _player(Coins=10**30)
+        for quantity, unit_price in (
+            (2_147_483_648, 1),
+            (1, 2_147_483_648),
+        ):
+            with self.subTest(quantity=quantity, unit_price=unit_price):
+                preview = preview_ge_offer_pure(
+                    player,
+                    side="buy",
+                    item_name="Logs",
+                    quantity=quantity,
+                    unit_price=unit_price,
+                    item_spec=LOGS,
+                )
+                self.assertFalse(preview["ok"])
+                self.assertEqual(preview["reason"], "invalid_offer")
 
     def test_preview_rejects_unknown_untradeable_and_unsourced_buy_rows(self):
         player = _player()
@@ -100,6 +244,50 @@ class GrandExchangeLogicTest(unittest.TestCase):
         self.assertEqual(order["escrow_coins"], 550)
         self.assertEqual(order["escrow_items"], 0)
         self.assertEqual(order["created_market_tick"], 7)
+
+    def test_offer_preview_uses_the_persisted_live_guide_price(self):
+        player = _player()
+        player["ge_market_state"]["items"] = {
+            "Logs": {"guide_price": 105}
+        }
+
+        preview = preview_ge_offer_pure(
+            player,
+            side="buy",
+            item_name="Logs",
+            quantity=1,
+            unit_price=105,
+            item_spec=LOGS,
+        )
+
+        self.assertTrue(preview["ok"])
+        self.assertEqual(preview["guide_price"], 105)
+
+    def test_high_alchemy_is_soft_pressure_not_a_hard_price_floor(self):
+        alch_logs = {**LOGS, "high_alchemy_value": 200}
+        player = _player()
+        player["ge_market_state"]["last_processed_tick"] = 7
+        player, _result = place_ge_offer_pure(
+            player,
+            side="buy",
+            item_name="Logs",
+            quantity=1,
+            unit_price=50,
+            item_spec=alch_logs,
+        )
+
+        advanced, result = self._advance(
+            player,
+            market_tick=8,
+            draws=(0.5, 1.0),
+            item_spec=alch_logs,
+        )
+
+        self.assertEqual(result["fills"], [])
+        item_state = advanced["ge_market_state"]["items"]["Logs"]
+        self.assertEqual(item_state["current_alchemy_pressure_bps"], 1_500)
+        self.assertEqual(item_state["true_price"], 115)
+        self.assertLess(item_state["true_price"], 200)
 
     def test_sell_offer_reserves_only_the_selected_quantity(self):
         updated, result = place_ge_offer_pure(
@@ -281,6 +469,263 @@ class GrandExchangeLogicTest(unittest.TestCase):
             item_spec=LOGS,
         )
         self.assertEqual(preview["reason"], "ironman_mode")
+
+    def test_buy_fill_preserves_escrow_and_price_improvement(self):
+        player = _player()
+        player["ge_market_state"]["last_processed_tick"] = 7
+        player, _result = place_ge_offer_pure(
+            player,
+            side="buy",
+            item_name="Logs",
+            quantity=5,
+            unit_price=110,
+            item_spec=LOGS,
+        )
+
+        advanced, result = self._advance(player, market_tick=8)
+
+        self.assertEqual(len(result["fills"]), 1)
+        fill = result["fills"][0]
+        self.assertEqual(fill["unit_price"], 100)
+        self.assertGreater(fill["price_improvement"], 0)
+        quantity = fill["quantity"]
+        order = advanced["ge_player_orders"][0]
+        self.assertEqual(order["completed_quantity"], quantity)
+        self.assertEqual(order["escrow_coins"], 550 - 110 * quantity)
+        self.assertEqual(order["collectible_items"], quantity)
+        self.assertEqual(order["collectible_coins"], 10 * quantity)
+        self.assertEqual(
+            order["escrow_coins"] + order["collectible_coins"],
+            550 - fill["unit_price"] * quantity,
+        )
+        self.assertGreaterEqual(
+            advanced["ge_market_state"]["items"]["Logs"]["player_impact_bps"],
+            25,
+        )
+
+    def test_sell_fill_moves_only_filled_escrow_and_applies_downward_impact(self):
+        player = _player()
+        player["ge_market_state"]["last_processed_tick"] = 7
+        player, _result = place_ge_offer_pure(
+            player,
+            side="sell",
+            item_name="Logs",
+            quantity=5,
+            unit_price=90,
+            item_spec=LOGS,
+        )
+
+        advanced, result = self._advance(player, market_tick=8)
+
+        fill = result["fills"][0]
+        quantity = fill["quantity"]
+        order = advanced["ge_player_orders"][0]
+        self.assertEqual(fill["unit_price"], 100)
+        self.assertEqual(order["escrow_items"], 5 - quantity)
+        self.assertEqual(order["collectible_coins"], 100 * quantity)
+        self.assertLessEqual(
+            advanced["ge_market_state"]["items"]["Logs"]["player_impact_bps"],
+            -25,
+        )
+
+    def test_buy_limit_clamps_fills_and_resets_after_four_market_hours(self):
+        limited_logs = {**LOGS, "buy_limit": 2}
+        player = _player()
+        player["ge_market_state"]["last_processed_tick"] = 7
+        player, _result = place_ge_offer_pure(
+            player,
+            side="buy",
+            item_name="Logs",
+            quantity=5,
+            unit_price=150,
+            item_spec=limited_logs,
+        )
+
+        first, result = self._advance(
+            player,
+            market_tick=8,
+            draws=(0.5, 0.0, 1.0, 0.0),
+            item_spec=limited_logs,
+        )
+        self.assertEqual(result["fills"][0]["quantity"], 2)
+        self.assertEqual(first["ge_buy_limit_usage"]["Logs"]["bought"], 2)
+
+        blocked, result = self._advance(
+            first,
+            market_tick=9,
+            draws=(0.5, 1.0, 0.5, 0.0, 0.5, 1.0),
+            item_spec=limited_logs,
+        )
+        self.assertEqual(result["fills"], [])
+        self.assertEqual(blocked["ge_player_orders"][0]["completed_quantity"], 2)
+
+        reset_tick = 8 + GE_BUY_LIMIT_WINDOW_CARDS
+        reset, result = self._advance(
+            blocked,
+            market_tick=reset_tick,
+            draws=(0.5, 1.0, 0.5, 0.0, 1.0, 0.0),
+            item_spec=limited_logs,
+        )
+        self.assertEqual(result["fills"][0]["quantity"], 2)
+        self.assertEqual(reset["ge_buy_limit_usage"]["Logs"]["bought"], 2)
+        self.assertEqual(
+            reset["ge_buy_limit_usage"]["Logs"]["window_start_tick"],
+            reset_tick,
+        )
+
+    def test_skipped_interval_uses_bounded_draws_and_is_deterministic(self):
+        player = _player()
+        player["ge_market_state"]["last_processed_tick"] = 7
+        player, _result = place_ge_offer_pure(
+            player,
+            side="buy",
+            item_name="Logs",
+            quantity=5,
+            unit_price=80,
+            item_spec=LOGS,
+        )
+        skipped = deepcopy(player)
+        skipped["shop_market_clock"] = {
+            "answered_cards": 107,
+            "market_tick": 107,
+        }
+
+        first, first_result = advance_ge_market_tick_pure(
+            skipped,
+            item_catalog={"Logs": LOGS},
+        )
+        second, second_result = advance_ge_market_tick_pure(
+            deepcopy(skipped),
+            item_catalog={"Logs": LOGS},
+        )
+
+        self.assertEqual(first, second)
+        self.assertEqual(first_result, second_result)
+        self.assertLessEqual(first["ge_market_state"]["rng_cursor"], 6)
+        self.assertEqual(first_result["elapsed_ticks"], 100)
+
+    def test_new_offer_never_receives_market_ticks_from_before_creation(self):
+        player = _player()
+        player["shop_market_clock"] = {
+            "answered_cards": 100,
+            "market_tick": 100,
+        }
+        player["ge_market_state"]["last_processed_tick"] = 0
+        player, _result = place_ge_offer_pure(
+            player,
+            side="buy",
+            item_name="Logs",
+            quantity=2,
+            unit_price=150,
+            item_spec=LOGS,
+        )
+
+        current, result = self._advance(player, market_tick=100, draws=())
+        self.assertEqual(result["fills"], [])
+        self.assertEqual(current["ge_player_orders"][0]["completed_quantity"], 0)
+
+        advanced, result = self._advance(
+            current,
+            market_tick=101,
+            draws=(0.5, 1.0, 0.5, 0.0, 0.5, 1.0),
+        )
+        self.assertEqual(len(result["fills"]), 1)
+        self.assertGreater(
+            advanced["ge_player_orders"][0]["completed_quantity"],
+            0,
+        )
+
+    def test_crossing_day_boundary_updates_guide_from_prior_trade_vwap(self):
+        player = _player()
+        player["shop_market_clock"] = {"answered_cards": 239, "market_tick": 239}
+        player["ge_market_state"].update(
+            {
+                "last_processed_tick": 239,
+                "items": {
+                    "Logs": {
+                        "anchor_price": 100,
+                        "guide_price": 100,
+                        "true_price": 100,
+                        "last_processed_tick": 239,
+                        "last_guide_update_tick": 0,
+                        "item_seed": 1,
+                    }
+                },
+            }
+        )
+        player["ge_trade_history"] = {
+            "Logs": {
+                "window_start_tick": 0,
+                "quantity": 10,
+                "notional": 2_000,
+            }
+        }
+        player, _result = place_ge_offer_pure(
+            player,
+            side="buy",
+            item_name="Logs",
+            quantity=1,
+            unit_price=50,
+            item_spec=LOGS,
+        )
+
+        advanced, result = self._advance(
+            player,
+            market_tick=241,
+            draws=(0.5, 1.0, 0.5, 1.0),
+        )
+
+        self.assertEqual(result["fills"], [])
+        item_state = advanced["ge_market_state"]["items"]["Logs"]
+        self.assertEqual(item_state["guide_price"], 105)
+        self.assertEqual(item_state["last_guide_update_tick"], 240)
+        self.assertEqual(
+            advanced["ge_trade_history"]["Logs"],
+            {"window_start_tick": 240, "quantity": 0, "notional": 0},
+        )
+
+    def test_fill_on_day_boundary_is_recorded_in_the_new_trade_window(self):
+        player = _player()
+        player["shop_market_clock"] = {"answered_cards": 239, "market_tick": 239}
+        player["ge_market_state"].update(
+            {
+                "last_processed_tick": 239,
+                "items": {
+                    "Logs": {
+                        "anchor_price": 100,
+                        "guide_price": 100,
+                        "true_price": 100,
+                        "last_processed_tick": 239,
+                        "last_guide_update_tick": 0,
+                        "item_seed": 1,
+                    }
+                },
+            }
+        )
+        player, _result = place_ge_offer_pure(
+            player,
+            side="buy",
+            item_name="Logs",
+            quantity=2,
+            unit_price=150,
+            item_spec=LOGS,
+        )
+
+        advanced, result = self._advance(
+            player,
+            market_tick=240,
+            draws=(0.5, 1.0, 0.5, 0.0, 0.5, 1.0),
+        )
+
+        quantity = result["fills"][0]["quantity"]
+        self.assertEqual(
+            advanced["ge_trade_history"]["Logs"],
+            {
+                "window_start_tick": 240,
+                "quantity": quantity,
+                "notional": 100 * quantity,
+            },
+        )
 
 
 if __name__ == "__main__":

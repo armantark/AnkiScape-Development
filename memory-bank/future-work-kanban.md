@@ -1019,9 +1019,10 @@ Labels: `IMPLEMENT`, `DESIGN LOCKED`.
   the registered-item catalog intersection, eight-slot offer/escrow lifecycle,
   confirmation gates, Ironman lockout, and save migration are implemented.
   The period price/buy-limit harvest now supplies 1,327 direct prices and 1,637
-  limits, with 19 ambiguous identities fail-closed. Interface harvest plus
-  matching, review ticks/undo, Bankstanding, and Qt remain in the active GE
-  sequence. See
+  limits, with 19 ambiguous identities fail-closed. The bounded hidden-price
+  market, stochastic fills, impact/shocks, live review ticks, and deterministic
+  review undo are also implemented. Interface harvest, Bankstanding, and Qt
+  remain in the active GE sequence. See
   `source-audits/grand-exchange-foundation-boundary-2026-07-19.md`.
 
 ### Level 1-99 time and economy balance — the XP/hour invariant

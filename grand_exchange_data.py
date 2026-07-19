@@ -41,6 +41,16 @@ except ImportError:
         PERIOD_GE_PRICE_PROVENANCE = {}
 
 
+def _market_source_role(category: str) -> str:
+    if category in {"ore", "log", "fish", "runecrafting"}:
+        return "raw_material"
+    if category in {"bar", "food", "crafted", "fletched", "smithed"}:
+        return "processed_good"
+    if category in {"gem", "equipment", "hunter"}:
+        return "rare_or_dependency"
+    return "general"
+
+
 def build_ge_item_catalog_pure(
     item_definitions: Iterable[ItemDefinition],
     *,
@@ -75,6 +85,8 @@ def build_ge_item_catalog_pure(
             "item_id": item.id,
             "source_item_id": item.source_item_id,
             "category": item.category,
+            "required_level": item.required_level,
+            "source_role": _market_source_role(item.category),
             "asset_path": item.asset_path,
             "tradeable": True,
             "exchangeable": True,
@@ -87,6 +99,9 @@ def build_ge_item_catalog_pure(
             "guide_price_provenance": dict(
                 period_price_provenance.get(item_name, {})
             ),
+            "cache_value": cache_value if cache_value > 0 else None,
+            "low_alchemy_value": int(cache_value * 0.4) if cache_value > 0 else None,
+            "high_alchemy_value": int(cache_value * 0.6) if cache_value > 0 else None,
             "buy_limit": buy_limit if buy_limit > 0 else None,
             "buy_limit_source": (
                 dict(period_buy_limit_source) if buy_limit > 0 else None

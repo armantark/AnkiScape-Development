@@ -106,6 +106,8 @@ from .storage import load_player_data as storage_load_player_data, save_player_d
 from .action_registry import is_review_action, review_action_handler_key
 from .skill_registry import get_skill, trainable_skill_definitions
 from .shop_logic import advance_shop_market_clock_pure
+from .grand_exchange_data import GE_ITEM_CATALOG
+from .grand_exchange_logic import advance_ge_market_tick_pure
 from .farming_logic import apply_farming_frontend_action_pure, farming_frontend_projection_pure
 from .agility_logic import apply_agility_command_pure
 from .agility_travel import agility_carried_weight_pure
@@ -1983,6 +1985,14 @@ def on_answer_card(self, ease, _old):
     if review_answered:
         try:
             player_data.update(advance_shop_market_clock_pure(player_data))
+        except Exception:
+            pass
+        try:
+            ge_updated, _ge_events = advance_ge_market_tick_pure(
+                player_data,
+                item_catalog=GE_ITEM_CATALOG,
+            )
+            player_data.update(ge_updated)
         except Exception:
             pass
         try:
