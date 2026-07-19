@@ -416,6 +416,13 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   the matching OSRS fork's exact 5/128 rate and remains labeled
   `provisional/osrs-lineage`. See
   `source-audits/slayer-steel-dragon-combat-2026-07-19.md`.
+- Suqah remains source-blocked despite a complete southern melee-only combat
+  row. The cutoff article explicitly names that form as the common Slayer
+  target, but its intact drop table names Grimy guam and Grimy marrentill while
+  Darkan's exact 129-slot selector substitutes Grimy ranarr and Grimy irit.
+  Numeric cutoff rates do not survive, so the emulator weights cannot be
+  transplanted onto different items. Duradel/Lapalok remains 14/35. See
+  `source-audits/slayer-suqah-combat-2026-07-19.md`.
 - Kuradal remains unencoded despite its source-closed 36-row, 322-point pool.
   The period family ledger now closes ordinary TzHaar as Ket/Xil/Mej/Hur and
   Living rock creatures as patriarch/protector/striker, explicitly excluding

@@ -2,6 +2,16 @@
 
 ## Current Focus
 
+Suqah is harvested but remains source-blocked. The settled registry's single
+`suqah` target aligns with the cutoff article's southern melee-only form,
+explicitly identified as the common Slayer target. Its complete combat state,
+cache defences, guaranteed drops, and tertiary leads are available. The
+ordinary loot transaction is not: the intact cutoff table names Grimy guam and
+Grimy marrentill, while Darkan's exact 129-slot selector substitutes Grimy
+ranarr and Grimy irit. No cutoff rates support renaming the emulator rows.
+No target or asset was added; Duradel/Lapalok remains hidden at 14/35. See
+`source-audits/slayer-suqah-combat-2026-07-19.md`.
+
 Steel dragon is Duradel/Lapalok's fourteenth certifying family. The ordinary
 level-246 target preserves the cutoff LP, XP, six-tick melee, 225-LP maximum,
 the settled metal-dragon dragonfire abstraction, guaranteed bars, a complete

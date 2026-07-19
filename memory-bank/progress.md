@@ -4,6 +4,23 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Suqah source boundary — 2026-07-19
+
+- Closed the settled single target as the cutoff southern melee-only Suqah,
+  explicitly identified by the period article as the common Slayer-task form.
+- Pinned level 111, 1,050 LP, 107.6 Slayer XP, six-tick attacks, the direct
+  109-LP period maximum, complete real combat levels, cache defences, 29-tick
+  respawn, guaranteed Big bones/Suqah hide, and tertiary leads.
+- Kept the target source-blocked because Darkan's otherwise executable
+  129-slot selector uses Grimy ranarr and Grimy irit while two intact cutoff
+  revisions name Grimy guam and Grimy marrentill.
+- Did not transplant emulator probabilities onto different item names. Charm
+  and hard-clue rates remain emulator leads because their historical numeric
+  dependencies were not recovered.
+- Duradel/Lapalok remains hidden and unrenormalized at 14/35. No
+  owner-facing design gap emerged. Durable evidence:
+  `source-audits/slayer-suqah-combat-2026-07-19.md`.
+
 ## Slayer Steel dragon Combat target — 2026-07-19
 
 - Added the ordinary level-246 Steel dragon as Duradel/Lapalok's fourteenth
