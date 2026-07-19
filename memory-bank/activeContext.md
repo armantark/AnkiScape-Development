@@ -2,6 +2,17 @@
 
 ## Current Focus
 
+The final independent Chaeldar source pair is closed without runtime
+activation. Vyrewatch is blocked by an incomplete broad-family registry,
+uncorroborated/conflicting representative data, a conflicting ordinary
+selector, and no executable allowed weapon. Warped tortoise is blocked by a
+`nostats` row, 106/120 maximum conflict, missing Crystal-chime handler, and a
+conflicting/incomplete selector. No design was invented. Chaeldar remains
+hidden at 25/34. Evidence:
+`source-audits/slayer-vyrewatch-combat-2026-07-19.md`,
+`source-audits/slayer-warped-tortoise-combat-2026-07-19.md`, and
+`audits/slayer-vyrewatch-registry-conflict-2026-07-19.md`.
+
 The Chaeldar queue is stopped at Trolls on a direct settled-contract/code
 conflict. The Slayer contract preserves broad assignments as explicit stable
 variant categories, and the Chaeldar pool audit names ordinary mountain, ice,

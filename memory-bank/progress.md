@@ -2009,3 +2009,25 @@ Test counts are snapshots; current runs outrank this note.
 - Made no runtime, variant, asset, or test changes. Chaeldar remains hidden and
   unrenormalized at 25/34. Durable conflict report:
   `audits/slayer-troll-registry-conflict-2026-07-19.md`.
+
+## Slayer Vyrewatch and Warped-tortoise source boundaries — 2026-07-19
+
+- Closed cutoff-visible identities, gates, combat concepts, restricted/chime
+  interactions, cache identities, and named drops for both remaining
+  independent Chaeldar families.
+- Kept Vyrewatch blocked on the incomplete broad-family registry, conflicting
+  level-110 maximum/drop data, uncorroborated hidden levels, and a
+  quest-granted Ivandis flail which is not executable as Combat equipment.
+- Kept Warped tortoise blocked on generated non-real combat levels, the
+  106/120 maximum conflict, absent Crystal-chime handler/acquisition action,
+  and a selector which conflicts with or omits major cutoff rows.
+- Added a second durable registry-authority report for Vyrewatch rather than
+  allowing one representative to falsely certify its multi-variant family.
+- Read-only Workflow `338d915a-364d-4e18-aa81-8ab4531c01b8` was canceled
+  without using either leaf: the Warped-tortoise leaf produced no telemetry,
+  while the Vyrewatch leaf expanded to 135,162 tokens without a final report.
+  The primary independently reproduced every recorded source and code finding.
+- Chaeldar remains hidden and unrenormalized at 25/34. Evidence:
+  `source-audits/slayer-vyrewatch-combat-2026-07-19.md`,
+  `source-audits/slayer-warped-tortoise-combat-2026-07-19.md`, and
+  `audits/slayer-vyrewatch-registry-conflict-2026-07-19.md`.

@@ -354,6 +354,17 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   `audits/slayer-troll-registry-conflict-2026-07-19.md`; do not choose or
   collapse the variant set without resolving which authoritative record is
   wrong.
+  Vyrewatch repeats that authority mismatch: the cutoff task accepts
+  Vyrewatch, Vyreladies, Vyrelords, and Juvinates while the stable registry
+  declares only `("vyrewatch",)`. It is also source-blocked on representative
+  stats/drops and an executable allowed weapon; Legacy of Seergaze grants the
+  Ivandis-flail item but it is not equipable or recognized by Combat. See
+  `audits/slayer-vyrewatch-registry-conflict-2026-07-19.md` and
+  `source-audits/slayer-vyrewatch-combat-2026-07-19.md`.
+  Warped tortoise remains blocked on generated levels, a maximum-hit conflict,
+  missing Crystal-chime execution/acquisition, and conflicting/incomplete
+  drops. See
+  `source-audits/slayer-warped-tortoise-combat-2026-07-19.md`.
   See
   `source-audits/slayer-chaeldar-registry-2026-07-18.md` and
   `source-audits/slayer-fever-spider-combat-2026-07-19.md` and
@@ -361,6 +372,8 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   `source-audits/slayer-grifolic-creatures-combat-2026-07-19.md` and
   `source-audits/slayer-jungle-strykewyrm-combat-2026-07-19.md` and
   `source-audits/slayer-kurask-combat-2026-07-19.md` and
+  `source-audits/slayer-vyrewatch-combat-2026-07-19.md` and
+  `source-audits/slayer-warped-tortoise-combat-2026-07-19.md` and
   `source-audits/slayer-fire-giant-combat-2026-07-18.md` and
   `source-audits/slayer-blue-dragon-family-combat-2026-07-18.md` and
   `source-audits/slayer-bronze-dragon-combat-2026-07-18.md`,
