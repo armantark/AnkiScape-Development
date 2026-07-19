@@ -68,6 +68,49 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_wilderness_combat_requires_current_session_risk_confirmation(self):
+        from combat_data import COMBAT_ENEMY_DATA
+        from combat_session import (
+            confirm_wilderness_combat_risk,
+            reset_wilderness_combat_confirmations,
+            wilderness_combat_risk_fingerprint,
+        )
+
+        reset_wilderness_combat_confirmations()
+        player_data = {
+            "current_combat_target": "earth_warrior",
+            "constitution_level": 99,
+            "combat_lifepoints": 990,
+            "equipment": {
+                "weapon": "Rune sword",
+                "body": "Rune platebody",
+                "head": "Rune full helm",
+                "shield": "Iron kiteshield",
+            },
+        }
+        calls = {"xp": [], "saves": 0, "errors": []}
+
+        self.assertFalse(handle_combat_answer(_context(player_data, calls)))
+        self.assertTrue(calls["deactivated"])
+        self.assertEqual(calls["errors"][0][0], "Wilderness confirmation required")
+
+        fingerprint = wilderness_combat_risk_fingerprint(
+            player_data,
+            "earth_warrior",
+            COMBAT_ENEMY_DATA["earth_warrior"],
+        )
+        confirm_wilderness_combat_risk(fingerprint)
+        player_data["equipment"]["cape"] = "Cape"
+        changed_calls = {"xp": [], "saves": 0, "errors": []}
+
+        self.assertFalse(
+            handle_combat_answer(_context(player_data, changed_calls))
+        )
+        self.assertEqual(
+            changed_calls["errors"][0][0],
+            "Wilderness confirmation required",
+        )
+
     def test_summoning_handler_processes_one_source_recipe(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

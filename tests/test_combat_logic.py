@@ -41,6 +41,7 @@ from combat_data import (
 from constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
 from logic_pure import (
     _combat_apply_pvm_death,
+    _combat_apply_wilderness_ambush,
     _combat_auto_drink_potions,
     _combat_attack_bonus_from_totals,
     _combat_defence_bonus_from_totals,
@@ -69,6 +70,7 @@ from logic_pure import (
     refill_combat_supply_loadout_pure,
     combat_target_locked_reasons_pure,
     combat_target_preview_pure,
+    combat_wilderness_equipment_risk_pure,
     derive_casual_combat_magic_pure,
     reclaim_death_office_items_pure,
     set_combat_auto_eat_food_pure,
@@ -5302,6 +5304,146 @@ class CombatLogicTest(unittest.TestCase):
         self.assertGreater(preview["accuracy"], 0)
         self.assertEqual(preview["enemy_max_lifepoints"], 50)
         self.assertTrue(str(preview["source"]).endswith("giant_rat_level_2.plugin.kts"))
+
+    def test_earth_warrior_preview_exposes_wilderness_retention(self):
+        player = _player(
+            current_combat_target="earth_warrior",
+            constitution_level=99,
+            combat_lifepoints=990,
+            equipment={
+                "weapon": "Rune sword",
+                "body": "Rune platebody",
+                "head": "Rune full helm",
+                "shield": "Iron kiteshield",
+                "cape": "Cape",
+            },
+        )
+
+        preview = combat_target_preview_pure(
+            player,
+            "earth_warrior",
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+        )
+
+        self.assertEqual(preview["state"], "Wilderness risk")
+        self.assertEqual(preview["risk_band"], "Wilderness risk")
+        risk = preview["wilderness_risk"]
+        self.assertEqual(risk["ambush_chance"], 0.01)
+        self.assertEqual(risk["max_hit"], 250)
+        self.assertEqual(len(risk["kept_items"]), 3)
+        self.assertEqual(len(risk["lost_items"]), 2)
+
+    def test_protect_item_keeps_a_fourth_wilderness_equipment_piece(self):
+        player = _player(
+            equipment={
+                "weapon": "Rune sword",
+                "body": "Rune platebody",
+                "head": "Rune full helm",
+                "shield": "Iron kiteshield",
+                "cape": "Cape",
+            },
+            prayer_level=99,
+            combat_prayer_points=990,
+            combat_prayer_uptime="100",
+            combat_selected_prayers=["protect_item"],
+        )
+
+        risk = combat_wilderness_equipment_risk_pure(
+            player,
+            COMBAT_ENEMY_DATA["earth_warrior"],
+        )
+
+        self.assertTrue(risk["protect_item"])
+        self.assertEqual(len(risk["kept_items"]), 4)
+        self.assertEqual(risk["lost_items"], ("Cape",))
+
+    def test_fatal_earth_warrior_ambush_loses_equipment_without_a_grave(self):
+        player = _player(
+            current_combat_target="earth_warrior",
+            constitution_level=99,
+            combat_lifepoints=1,
+            combat_auto_flee=False,
+            equipment={
+                "weapon": "Rune sword",
+                "body": "Rune platebody",
+                "head": "Rune full helm",
+                "shield": "Iron kiteshield",
+                "cape": "Cape",
+            },
+            inventory={"Coins": 500, "Lobster": 3},
+            carried_inventory={"earth_warrior": {"Lobster": 3}},
+        )
+
+        died, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=lambda: 0.0,
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(result["died"])
+        self.assertTrue(result["wilderness_ambush"]["died"])
+        self.assertEqual(len(died["equipment"]), 3)
+        self.assertEqual(died.get("combat_grave", {}), {})
+        self.assertEqual(died["inventory"], {"Coins": 500, "Lobster": 3})
+        self.assertEqual(
+            died["carried_inventory"],
+            {"earth_warrior": {"Lobster": 3}},
+        )
+
+    def test_wilderness_death_honors_the_confirmed_protect_item_preview(self):
+        player = _player(
+            current_combat_target="earth_warrior",
+            constitution_level=99,
+            combat_lifepoints=1,
+            combat_auto_flee=False,
+            equipment={
+                "weapon": "Rune sword",
+                "body": "Rune platebody",
+                "head": "Rune full helm",
+                "shield": "Iron kiteshield",
+                "cape": "Cape",
+            },
+            prayer_level=99,
+            combat_prayer_points=1,
+            combat_prayer_uptime="100",
+            combat_selected_prayers=["protect_item"],
+        )
+
+        confirmed_risk = combat_wilderness_equipment_risk_pure(
+            player,
+            COMBAT_ENEMY_DATA["earth_warrior"],
+        )
+        player["combat_selected_prayers"] = []
+        result = _combat_apply_wilderness_ambush(
+            player,
+            COMBAT_ENEMY_DATA["earth_warrior"],
+            1,
+            990,
+            _rng([0.0, 0.0]),
+            confirmed_risk,
+        )
+
+        self.assertTrue(result["died"])
+        self.assertEqual(len(result["kept_items"]), 4)
+        self.assertEqual(len(player["equipment"]), 4)
+        self.assertEqual(player.get("combat_grave", {}), {})
+
+    def test_safe_review_recovery_discards_wilderness_encounter_progress(self):
+        player = _player(
+            current_combat_target="earth_warrior",
+            combat_encounter={
+                "target_id": "earth_warrior",
+                "enemy_lifepoints": 200,
+            },
+        )
+
+        recovered = apply_safe_combat_recovery_pure(player)
+
+        self.assertEqual(recovered["combat_encounter"], {})
 
     def test_sourced_enemy_max_hits_override_generic_melee_derivation(self):
         for target_id, lifepoints, max_hit, oldid in (

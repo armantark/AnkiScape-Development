@@ -92,6 +92,14 @@ id ambiguity); no spatial world/banking/travel; Anki-undo snapshots.
   28 purchase-slot block, one hit of uniform 1..249 LP (engine landed-hit
   semantics with a declared 250 max), death via the normal PvM grave path,
   rollback-safe. Constants live in `shop_logic.py` `_WILDERNESS_*`.
+- **Wilderness Combat ambush**: declared bounded abstraction (owner Combat
+  contract) — 1% after each successful Wilderness Combat review, one uniform
+  1..249 LP hit under a declared 250 max, then reset the monster encounter.
+  Fatal hits use the separate Wilderness rule: retain the three highest-value
+  equipped items (four with active Protect Item), permanently lose other
+  equipped items, retain ordinary inventory, and create no new grave. Exact
+  live-player PKer frequency is `source_blocked`; see
+  `source-audits/slayer-earth-warrior-wilderness-risk-2026-07-18.md`.
 - **Vendor one-per-click**: dialogue parity replacing the invented quantity
   spinner (`Utils`-free; the engine grants one item per dialogue).
 

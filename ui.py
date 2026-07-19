@@ -241,6 +241,19 @@ except Exception:
     from pack_data import ITEM_PACK_DATA  # type: ignore
 
 try:
+    from .combat_session import (
+        confirm_wilderness_combat_risk,
+        wilderness_combat_risk_confirmed,
+        wilderness_combat_risk_fingerprint,
+    )
+except ImportError:
+    from combat_session import (
+        confirm_wilderness_combat_risk,
+        wilderness_combat_risk_confirmed,
+        wilderness_combat_risk_fingerprint,
+    )
+
+try:
     from .warriors_guild_data import WARRIORS_GUILD_TOKEN_KEYS
     from .warriors_guild_logic import warriors_guild_view_pure
 except ImportError:
@@ -1245,7 +1258,6 @@ _SKILL_TARGET_TABLES = {
     "agility": {target.id: target for target in AGILITY_TARGETS},
     "summoning": SUMMONING_ACTIONS_BY_ID,
 }
-
 
 def current_target_display_name(skill: str, player_data: dict) -> Optional[str]:
     """Return the display name of the skill's currently selected target.
@@ -4994,6 +5006,22 @@ def show_main_menu(
         def _confirm_combat_target(row: TargetRowMetadata) -> bool:
             if not row.requires_confirmation:
                 return True
+            wilderness = bool(
+                (COMBAT_ENEMY_DATA.get(row.target_id, {}) or {}).get(
+                    "wilderness_risk"
+                )
+            )
+            fingerprint = (
+                wilderness_combat_risk_fingerprint(
+                    player_data,
+                    row.target_id,
+                    COMBAT_ENEMY_DATA.get(row.target_id, {}) or {},
+                )
+                if wilderness
+                else ""
+            )
+            if wilderness_combat_risk_confirmed(fingerprint):
+                return True
             answer = QMessageBox.question(
                 container,
                 row.confirmation_title or "Confirm combat target",
@@ -5001,7 +5029,10 @@ def show_main_menu(
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No,
             )
-            return answer == QMessageBox.StandardButton.Yes
+            confirmed = answer == QMessageBox.StandardButton.Yes
+            if confirmed and fingerprint:
+                confirm_wilderness_combat_risk(fingerprint)
+            return confirmed
 
         tree_host = QWidget()
         tree_layout = QVBoxLayout(tree_host)

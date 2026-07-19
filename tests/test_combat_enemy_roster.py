@@ -103,6 +103,7 @@ OPTIONAL_ENEMY_KEYS = {
     "quest_gate",
     "quest_gate_label",
     "interaction_note",
+    "wilderness_risk",
 }
 
 REQUIRED_STAT_KEYS = {"hitpoints", "attack", "strength", "defence", "magic", "ranged"}

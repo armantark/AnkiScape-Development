@@ -814,6 +814,43 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Barbarian is marked Death possible", barbarian.confirmation_message)
         self.assertFalse(safe_chicken.requires_confirmation)
 
+    def test_earth_warrior_row_requires_explicit_wilderness_risk_confirmation(self):
+        rows = combat_target_rows(
+            {
+                "current_combat_target": "chicken",
+                "combat_lifepoints": 990,
+                "constitution_level": 99,
+                "inventory": {},
+                "equipment": {
+                    "weapon": "Rune sword",
+                    "body": "Rune platebody",
+                    "head": "Rune full helm",
+                    "shield": "Iron kiteshield",
+                },
+                "combat_auto_eat_food": ["Shark"],
+                "combat_supply_loadout": {},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+
+        earth_warrior = _row(rows, "earth_warrior")
+
+        self.assertTrue(earth_warrior.requires_confirmation)
+        self.assertEqual(
+            earth_warrior.confirmation_title,
+            "Confirm Wilderness combat",
+        )
+        self.assertIn("1% PKer-ambush risk", earth_warrior.confirmation_message)
+        self.assertIn("creates no grave", earth_warrior.confirmation_message)
+        self.assertIn(
+            "Wilderness risk confirmation required",
+            earth_warrior.tooltip,
+        )
+        self.assertIn("keep 3 equipped", earth_warrior.tooltip)
+
     def test_combat_rows_show_magic_spell_and_rune_supply(self):
         rows = combat_target_rows(
             {

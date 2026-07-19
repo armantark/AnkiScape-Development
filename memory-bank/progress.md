@@ -4,6 +4,27 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Earth warrior Wilderness-risk closure — 2026-07-18
+
+- Applied the owner-approved 1%/250-LP bounded PKer abstraction after each
+  successful Earth-warrior Combat review and reset the encounter on a trigger.
+- Added separate Wilderness death semantics: three highest-value equipped items
+  kept, Protect Item adds one, other equipped items permanently lost, ordinary
+  inventory retained, and no new grave.
+- Added a process-local risk fingerprint so Anki restart or a material
+  kept/lost-set change requires fresh confirmation before any review can
+  advance.
+- Exposed chance, maximum hit, kept/lost counts, no-grave behavior, and the
+  distinct Wilderness-risk state in the Combat target surface.
+- Safe-skill reviews now discard active Wilderness encounter progress.
+- Advanced Vannaka to 27/35 while keeping the incomplete pool hidden and
+  unrenormalized. Eight missing Combat representatives remain. No owner-facing
+  design fork emerged.
+- Durable evidence:
+  `source-audits/slayer-earth-warrior-wilderness-risk-2026-07-18.md`. Results:
+  `status-updates/slayer-earth-warrior-wilderness-results-2026-07-18.html`
+  (<https://73amt4x2o23l.postplan.dev>).
+
 ## Slayer Dust devil Combat closure — 2026-07-18
 
 - Added the ordinary level-93 Dust devil with Slayer 65, 1,050 LP, 105 Slayer

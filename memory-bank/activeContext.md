@@ -2,6 +2,20 @@
 
 ## Current Focus
 
+Earth warrior now carries the owner-approved Wilderness Combat risk instead of
+being a risk-free Vannaka representative. Every successful review has the
+labeled 1%/250-LP bounded ambush chance; a trigger resets the monster
+encounter. Fatal ambushes keep the three highest-value equipped items, add one
+with active Protect Item, retain ordinary inventory, permanently lose the rest
+of the equipped risk set, and create no new grave. A process-local fingerprint
+requires explicit current-risk confirmation after Anki restart or a material
+equipment/protection change. Safe-skill reviews discard Wilderness encounter
+progress. Vannaka advances to 27/35 and remains hidden with eight missing
+Combat representatives. No owner-facing design fork emerged. Evidence:
+`source-audits/slayer-earth-warrior-wilderness-risk-2026-07-18.md`. Results:
+`status-updates/slayer-earth-warrior-wilderness-results-2026-07-18.html`
+(<https://73amt4x2o23l.postplan.dev>).
+
 The ordinary level-93 Dust devil is now an executable Vannaka-family Combat
 target with Slayer 65, 1,050 LP, 105 Slayer XP, six-tick melee, a 90-LP
 maximum hit, and the cutoff's continuous protective-headgear damage gate. The

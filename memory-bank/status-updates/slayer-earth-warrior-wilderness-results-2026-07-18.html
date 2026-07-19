@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Earth warrior Wilderness-risk closure</title>
+  <style>
+    :root{--ink:#ecf3ee;--muted:#aebbb2;--bg:#0b100d;--card:#131b16;--line:#2b3a30;--green:#70d394;--amber:#f1c36c;--red:#ef7777;--blue:#7db7ec}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 0,#173223 0,transparent 34%),var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    main{width:min(1080px,calc(100% - 32px));margin:34px auto 60px}.eyebrow{color:var(--green);font-weight:750;letter-spacing:.11em;text-transform:uppercase;font-size:12px}
+    h1{font-size:clamp(34px,6vw,68px);line-height:.96;margin:12px 0 18px;max-width:900px;letter-spacing:-.045em}h2{font-size:18px;margin:0 0 12px}p{margin:0;color:var(--muted)}
+    .hero{padding:34px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(145deg,rgba(112,211,148,.09),rgba(19,27,22,.9));box-shadow:0 24px 70px rgba(0,0,0,.25)}
+    .hero p{font-size:18px;max-width:790px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:26px}.metric,.card{border:1px solid var(--line);background:rgba(19,27,22,.88);border-radius:16px;padding:18px}
+    .metric b{display:block;font-size:28px;letter-spacing:-.03em}.metric span{color:var(--muted);font-size:13px}.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;margin-top:16px}
+    .flow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.step{padding:14px;border-radius:12px;background:#0f1712;border:1px solid var(--line)}.step b{display:block;margin-bottom:5px}.step small{color:var(--muted)}
+    .risk{border-color:rgba(239,119,119,.45);background:rgba(239,119,119,.055)}.safe{border-color:rgba(112,211,148,.45);background:rgba(112,211,148,.055)}
+    ul{margin:8px 0 0;padding-left:20px;color:var(--muted)}li+li{margin-top:7px}code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;color:#cce7d6}
+    .tag{display:inline-flex;padding:4px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted);font-size:12px;margin:0 6px 7px 0}.ok{color:var(--green);border-color:rgba(112,211,148,.4)}
+    .bar{height:9px;background:#263129;border-radius:99px;overflow:hidden;margin:13px 0 8px}.bar i{display:block;width:77.14%;height:100%;background:linear-gradient(90deg,var(--green),var(--blue))}
+    footer{margin-top:18px;color:#7f8e84;font-size:12px}@media(max-width:760px){.metrics{grid-template-columns:repeat(2,1fr)}.grid,.flow{grid-template-columns:1fr}.hero{padding:24px}}
+  </style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div class="eyebrow">Slayer closure · 18 July 2026</div>
+    <h1>Earth warrior now feels like the Wilderness.</h1>
+    <p>The existing combat target is no longer a risk-free checkbox. It carries a visible, undo-safe PKer abstraction, cutoff-style equipment retention, a real session confirmation boundary, and no wall-clock state.</p>
+    <div class="metrics">
+      <div class="metric"><b>1%</b><span>ambush per successful review</span></div>
+      <div class="metric"><b>250 LP</b><span>declared maximum hit</span></div>
+      <div class="metric"><b>27 / 35</b><span>Vannaka families ready</span></div>
+      <div class="metric"><b>1,628</b><span>full non-Qt tests passed</span></div>
+    </div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h2>One atomic review</h2>
+      <div class="flow">
+        <div class="step"><b>1 · Fight</b><small>The ordinary Earth-warrior burst resolves with normal cadence, supplies, XP, drops, and Slayer credit.</small></div>
+        <div class="step"><b>2 · Risk</b><small>A labeled 1% roll may apply one uniform 1–249 LP ambush hit.</small></div>
+        <div class="step"><b>3 · Reset</b><small>A trigger discards the monster encounter. Anki undo restores the entire review.</small></div>
+      </div>
+    </article>
+    <article class="card risk">
+      <h2>Fatal ambush</h2>
+      <ul>
+        <li>Keep the three highest-value equipped items.</li>
+        <li>Active Protect Item adds one keep.</li>
+        <li>Lose all other equipped items permanently.</li>
+        <li>Retain ordinary inventory and the carried pack.</li>
+        <li>Create no new gravestone.</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="grid">
+    <article class="card safe">
+      <h2>Confirmation cannot go stale</h2>
+      <p>The selector fingerprints the exact kept/lost equipment set, Protect Item state, skull assumption, chance, and maximum hit. Runtime advancement requires that process-local confirmation. Restarting Anki clears it; changing risk forces a fresh preview.</p>
+      <div style="margin-top:14px">
+        <span class="tag ok">restart-safe</span><span class="tag ok">risk-set-aware</span><span class="tag ok">no persisted consent</span><span class="tag ok">no wall clock</span>
+      </div>
+    </article>
+    <article class="card">
+      <h2>Vannaka readiness</h2>
+      <div class="bar"><i></i></div>
+      <p><strong style="color:var(--ink)">27 of 35 families executable.</strong> Earth warriors leave the blocker ledger. Eight missing Combat representatives remain; the incomplete master stays hidden and unrenormalized.</p>
+    </article>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h2>Verification</h2>
+      <ul>
+        <li><strong style="color:var(--ink)">402</strong> focused pure/runtime/metadata/Slayer tests.</li>
+        <li><strong style="color:var(--ink)">1,628</strong> full non-Qt tests; 215 intentional skips; zero failures.</li>
+        <li><strong style="color:var(--ink)">211</strong> complete real offscreen Qt menu tests plus two final focused confirmations.</li>
+        <li>Test quality: 0 hard issues across 73 files.</li>
+        <li>Docs, bytecode, diff, and worktree audits pass.</li>
+      </ul>
+    </article>
+    <article class="card">
+      <h2>Evidence honesty</h2>
+      <p>Earth-warrior NPC data remains source-backed. Exact live-player PKer frequency is <code>source_blocked</code>; 1%/250 LP is explicitly recorded as the owner-approved bounded AnkiScape abstraction, not a fabricated RuneScape constant.</p>
+    </article>
+  </section>
+  <footer>Canonical checkout · main · no worktree · no push · no Summoning or Darkan quest files touched</footer>
+</main>
+</body>
+</html>

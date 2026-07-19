@@ -1472,16 +1472,47 @@ def combat_target_rows(
             )
         else:
             risk_band = str(preview.get("risk_band", "Unknown"))
-            requires_confirmation = risk_band == "Death possible"
-            confirmation_title = "Confirm dangerous combat" if requires_confirmation else ""
+            wilderness = preview.get("wilderness_risk", {}) or {}
+            wilderness = wilderness if isinstance(wilderness, Mapping) else {}
+            requires_confirmation = bool(wilderness) or risk_band == "Death possible"
+            confirmation_title = (
+                "Confirm Wilderness combat"
+                if wilderness
+                else "Confirm dangerous combat"
+                if requires_confirmation
+                else ""
+            )
             confirmation_message = ""
             confirmation_line = ""
-            if requires_confirmation:
+            if wilderness:
+                kept_items = tuple(wilderness.get("kept_items", ()) or ())
+                lost_items = tuple(wilderness.get("lost_items", ()) or ())
+                kept_text = ", ".join(kept_items) if kept_items else "nothing"
+                lost_text = ", ".join(lost_items) if lost_items else "nothing"
+                confirmation_message = (
+                    f"{display_name} is in the Wilderness. Each successful review "
+                    f"has a {float(wilderness.get('ambush_chance', 0.0) or 0.0):.0%} "
+                    f"PKer-ambush risk with a {int(wilderness.get('max_hit', 0) or 0)} "
+                    "LP maximum hit. A fatal ambush creates no grave. "
+                    f"Kept: {kept_text}. Lost: {lost_text}. Select this target anyway?"
+                )
+                confirmation_line = "Wilderness risk confirmation required before selecting this target.\n"
+            elif requires_confirmation:
                 confirmation_message = (
                     f"{display_name} is marked Death possible at your current lifepoints "
                     f"without loaded or banked food. Select this target anyway?"
                 )
                 confirmation_line = "Confirmation required before selecting this target.\n"
+            wilderness_line = ""
+            if wilderness:
+                kept_items = tuple(wilderness.get("kept_items", ()) or ())
+                lost_items = tuple(wilderness.get("lost_items", ()) or ())
+                wilderness_line = (
+                    f"Wilderness: {float(wilderness.get('ambush_chance', 0.0) or 0.0):.0%} "
+                    f"PKer ambush per successful review · maximum hit "
+                    f"{int(wilderness.get('max_hit', 0) or 0)} LP · "
+                    f"keep {len(kept_items)} equipped · lose {len(lost_items)} · no grave\n"
+                )
             poison_line = ""
             poison_damage = int(preview.get("poison_damage", 0) or 0)
             poison_chance = float(preview.get("poison_chance", 0.0) or 0.0)
@@ -1565,6 +1596,7 @@ def combat_target_rows(
                 f"Your LP: {preview.get('player_lifepoints', 0)}/{preview.get('player_max_lifepoints', 0)}\n"
                 f"Enemy LP: {preview.get('enemy_lifepoints', 0)}/{preview.get('enemy_max_lifepoints', stats.get('hitpoints', 0))}\n"
                 f"Enemy max hit: {preview.get('enemy_max_hit', 0)} LP\n"
+                f"{wilderness_line}"
                 f"{protection_line}"
                 f"{weakening_line}"
                 f"{finisher_line}"

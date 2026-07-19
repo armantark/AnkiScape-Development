@@ -3209,12 +3209,7 @@ def _carried_inventory_grave_counts(data, target_id=None):
     return clamp_carried_view_to_bank(view, data.get("inventory"))
 
 
-def _combat_apply_pvm_death(
-    data,
-    max_player_lifepoints,
-    grave_source="combat_death",
-    carried_target_id=None,
-):
+def _combat_apply_follower_death(data):
     try:
         from .summoning_logic import apply_follower_player_death_pure
     except ImportError:
@@ -3226,6 +3221,15 @@ def _combat_apply_pvm_death(
     )
     data.clear()
     data.update(follower_updated)
+
+
+def _combat_apply_pvm_death(
+    data,
+    max_player_lifepoints,
+    grave_source="combat_death",
+    carried_target_id=None,
+):
+    _combat_apply_follower_death(data)
     equipment = dict(data.get("equipment", {}) or {})
     protected_equipment = {}
     if prayer_effect_state_pure(data).get("protect_item") and equipment:
@@ -3286,6 +3290,126 @@ def _combat_apply_pvm_death(
     data["combat_status_effects"] = {}
     data["combat_lifepoints"] = max_player_lifepoints
     return max_player_lifepoints
+
+
+def combat_wilderness_equipment_risk_pure(player_data, enemy):
+    risk = enemy.get("wilderness_risk") if isinstance(enemy, Mapping) else None
+    if not isinstance(risk, Mapping):
+        return {}
+    equipment = dict(player_data.get("equipment", {}) or {})
+    ranked = sorted(
+        (
+            (str(slot), str(item_name))
+            for slot, item_name in equipment.items()
+            if isinstance(slot, str)
+            and slot
+            and isinstance(item_name, str)
+            and item_name
+        ),
+        key=lambda row: (
+            _non_negative_int(ITEM_VALUES.get(row[1], 0), 0),
+            row[1],
+            row[0],
+        ),
+        reverse=True,
+    )
+    skulled = bool(player_data.get("combat_wilderness_skulled", False))
+    keep_count = (
+        0
+        if skulled
+        else _non_negative_int(risk.get("unskulled_items_kept", 3), 3)
+    )
+    protect_item = bool(prayer_effect_state_pure(player_data).get("protect_item"))
+    if protect_item:
+        keep_count += 1
+    kept = ranked[:keep_count]
+    lost = ranked[keep_count:]
+    return {
+        "skulled": skulled,
+        "protect_item": protect_item,
+        "kept_items": tuple(item_name for _slot, item_name in kept),
+        "lost_items": tuple(item_name for _slot, item_name in lost),
+        "kept_slots": dict(kept),
+        "lost_slots": dict(lost),
+    }
+
+
+def _combat_apply_wilderness_death(
+    data,
+    enemy,
+    max_player_lifepoints,
+    confirmed_equipment_risk=None,
+):
+    loss = (
+        dict(confirmed_equipment_risk)
+        if isinstance(confirmed_equipment_risk, Mapping)
+        else combat_wilderness_equipment_risk_pure(data, enemy)
+    )
+    _combat_apply_follower_death(data)
+    data["equipment"] = dict(loss.get("kept_slots", {}) or {})
+    data["combat_encounter"] = {}
+    data["combat_status_effects"] = {}
+    data["combat_lifepoints"] = max_player_lifepoints
+    return loss
+
+
+def _combat_apply_wilderness_ambush(
+    data,
+    enemy,
+    current_lifepoints,
+    max_player_lifepoints,
+    rng,
+    confirmed_equipment_risk=None,
+):
+    risk = enemy.get("wilderness_risk") if isinstance(enemy, Mapping) else None
+    if not isinstance(risk, Mapping):
+        return None
+    chance = max(0.0, min(1.0, float(risk.get("ambush_chance", 0.0) or 0.0)))
+    try:
+        triggered = float(rng()) < chance
+    except (TypeError, ValueError):
+        triggered = False
+    max_hit = _positive_int(risk.get("max_hit", 1), 1)
+    if not triggered:
+        return {"triggered": False, "chance": chance, "max_hit": max_hit}
+    try:
+        damage_roll = max(0.0, min(float(rng()), 0.999999999))
+    except (TypeError, ValueError):
+        damage_roll = 0.0
+    damage = 1 + int(damage_roll * max(1, max_hit - 1))
+    lifepoints_before = max(0, int(current_lifepoints))
+    lifepoints_after = max(0, lifepoints_before - damage)
+    food_event = None
+    died = lifepoints_after <= 0
+    loss = {}
+    if died:
+        loss = _combat_apply_wilderness_death(
+            data,
+            enemy,
+            max_player_lifepoints,
+            confirmed_equipment_risk,
+        )
+    else:
+        lifepoints_after, food_event = _combat_consume_auto_food(
+            data,
+            lifepoints_after,
+            max_player_lifepoints,
+            rng,
+        )
+        data["combat_lifepoints"] = lifepoints_after
+        data["combat_encounter"] = {}
+    return {
+        "triggered": True,
+        "chance": chance,
+        "max_hit": max_hit,
+        "damage": damage,
+        "lifepoints_before": lifepoints_before,
+        "lifepoints_after": 0 if died else lifepoints_after,
+        "died": died,
+        "food_used": food_event,
+        "kept_items": tuple(loss.get("kept_items", ()) or ()),
+        "lost_items": tuple(loss.get("lost_items", ()) or ()),
+    }
 
 
 def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
@@ -6263,6 +6387,28 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         risk = "Food advised"
     else:
         risk = "Death possible"
+    wilderness_spec = (
+        enemy.get("wilderness_risk")
+        if isinstance(enemy.get("wilderness_risk"), Mapping)
+        else None
+    )
+    wilderness_risk = {}
+    if wilderness_spec is not None:
+        wilderness_risk = {
+            **combat_wilderness_equipment_risk_pure(player_data, enemy),
+            "ambush_chance": max(
+                0.0,
+                min(
+                    1.0,
+                    float(wilderness_spec.get("ambush_chance", 0.0) or 0.0),
+                ),
+            ),
+            "max_hit": _positive_int(wilderness_spec.get("max_hit", 1), 1),
+            "source_status": str(
+                wilderness_spec.get("source_status", "") or ""
+            ),
+        }
+        risk = "Wilderness risk"
     poison_damage = _positive_int(enemy.get("poison_damage", 0), 0)
     poison_immunity_ticks = combat_poison_immunity_ticks_pure(player_data)
     poison_lifepoints = 0
@@ -6272,7 +6418,13 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         )
         if risk == "Safe":
             risk = "Food advised"
-    state = "Fighting" if active_encounter else "Ready"
+    state = (
+        "Wilderness risk"
+        if wilderness_spec is not None
+        else "Fighting"
+        if active_encounter
+        else "Ready"
+    )
     protection_warning = (
         str(protective_equipment.get("warning", ""))
         if isinstance(protective_equipment, Mapping) and not protection_active
@@ -6333,6 +6485,7 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         else {},
         "finisher": finisher_state,
         "environmental_hazard": hazard_state,
+        "wilderness_risk": wilderness_risk,
         "source": enemy.get("source", ""),
     }
 
@@ -6340,6 +6493,19 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
 def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data))
+    encounter = data.get("combat_encounter", {}) or {}
+    encounter_target = (
+        encounter.get("target_id") if isinstance(encounter, Mapping) else None
+    )
+    encounter_enemy = (
+        COMBAT_ENEMY_DATA.get(encounter_target)
+        if isinstance(encounter_target, str)
+        else None
+    )
+    if isinstance(encounter_enemy, Mapping) and encounter_enemy.get(
+        "wilderness_risk"
+    ):
+        data["combat_encounter"] = {}
     equipment_data = equipment_data or {}
     max_lp = combat_max_lifepoints_pure(data)
     current_lp = _non_negative_int(data.get("combat_lifepoints", max_lp), max_lp)
@@ -6544,6 +6710,10 @@ def apply_combat_burst_pure(
     if locked_reasons:
         return player_data, False, {"reason": "combat_locked", "locked_reasons": locked_reasons}
     enemy = enemy_data[target_id]
+    wilderness_equipment_risk = combat_wilderness_equipment_risk_pure(
+        data,
+        enemy,
+    )
     finisher = _combat_finisher_spec(enemy)
     hazard = _combat_environmental_hazard_spec(enemy)
     hazard_supply = (
@@ -7494,8 +7664,8 @@ def apply_combat_burst_pure(
         kill_counts[target_id] = _positive_int(kill_counts.get(target_id, 0), 0) + kills
         data["combat_kill_counts"] = kill_counts
 
+    death_burst = 0
     if died:
-        death_burst = 0
         if "wrath" in selected_prayers or "retribution" in selected_prayers:
             cap_multiplier = 2.5 if "wrath" in selected_prayers else .25
             try:
@@ -7564,6 +7734,28 @@ def apply_combat_burst_pure(
     _combat_regenerate_special_attack_energy(
         data, ticks_elapsed, exact=live_cadence
     )
+    wilderness_ambush = None
+    if not died and not fled:
+        wilderness_ambush = _combat_apply_wilderness_ambush(
+            data,
+            enemy,
+            player_lp,
+            max_player_lp,
+            rng,
+            wilderness_equipment_risk,
+        )
+        if wilderness_ambush and wilderness_ambush.get("triggered"):
+            food_event = wilderness_ambush.get("food_used")
+            if food_event:
+                food_used.append(food_event)
+            if wilderness_ambush.get("died"):
+                died = True
+                player_lp = max_player_lp
+            else:
+                player_lp = _non_negative_int(
+                    wilderness_ambush.get("lifepoints_after", player_lp),
+                    player_lp,
+                )
     data["combat_lifepoints"] = player_lp
     result = {
         "reason": "combat_burst",
@@ -7584,6 +7776,7 @@ def apply_combat_burst_pure(
         "died": died,
         "fled": fled,
         "familiar_escape": familiar_escape,
+        "wilderness_ambush": wilderness_ambush or {},
         "stop_reason": (
             "out_of_ammo" if out_of_ammo
             else "out_of_runes" if out_of_runes

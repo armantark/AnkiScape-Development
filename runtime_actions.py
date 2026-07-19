@@ -14,6 +14,17 @@ from dataclasses import dataclass
 from typing import Any, Callable, Optional
 
 try:
+    from .combat_session import (
+        wilderness_combat_risk_confirmed,
+        wilderness_combat_risk_fingerprint,
+    )
+except ImportError:
+    from combat_session import (
+        wilderness_combat_risk_confirmed,
+        wilderness_combat_risk_fingerprint,
+    )
+
+try:
     from .constants import (
         BIRD_NEST_DROP_CHANCE,
         BIRD_NEST_DROP_TABLE,
@@ -1510,6 +1521,23 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         target_id = DEFAULT_COMBAT_TARGET
         player_data["current_combat_target"] = target_id
 
+    enemy = COMBAT_ENEMY_DATA.get(target_id, {})
+    wilderness_fingerprint = wilderness_combat_risk_fingerprint(
+        player_data,
+        target_id,
+        enemy,
+    )
+    if wilderness_fingerprint and not wilderness_combat_risk_confirmed(
+        wilderness_fingerprint
+    ):
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Wilderness confirmation required",
+            "Combat has been switched off. Reopen AnkiScape, review the current "
+            "kept/lost equipment preview, and confirm this Wilderness target.",
+        )
+        return False
+
     locked_reasons = combat_target_locked_reasons_pure(
         player_data,
         target_id,
@@ -1517,7 +1545,6 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         equipment_data=EQUIPMENT_DATA,
     )
     if locked_reasons:
-        enemy = COMBAT_ENEMY_DATA.get(target_id, {})
         ctx.deactivate_current_skill()
         ctx.show_error_message(
             "Combat unavailable",
@@ -1654,7 +1681,10 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         # cannot grave those drops before this runtime-level loot filter decides
         # which ones were actually picked up, so move kept fatal-burst loot into
         # the new grave here instead of recreating a carried view after death.
-        if drops and result.get("died"):
+        wilderness_death = bool(
+            (result.get("wilderness_ambush") or {}).get("died")
+        )
+        if drops and result.get("died") and not wilderness_death:
             grave = dict(player_data.get("combat_grave", {}) or {})
             grave_items = list(grave.get("items", ()) or ())
             inventory = dict(player_data.get("inventory", {}) or {})
@@ -1707,7 +1737,16 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     display_name = str(result.get("display_name") or "enemy")
     kills = int(result.get("kills", 0) or 0)
     kill_phrase = f"{kills} × {display_name}" if kills != 1 else display_name
-    if result.get("died"):
+    wilderness_ambush = result.get("wilderness_ambush") or {}
+    if result.get("died") and wilderness_ambush.get("died"):
+        lost_count = len(wilderness_ambush.get("lost_items", ()) or ())
+        kept_count = len(wilderness_ambush.get("kept_items", ()) or ())
+        ctx.show_activity_gain(
+            "☠ PKER AMBUSH — "
+            f"lost {lost_count} equipped item{'s' if lost_count != 1 else ''}; "
+            f"kept {kept_count}; no grave"
+        )
+    elif result.get("died"):
         if kills > 0:
             ctx.show_activity_gain(f"☠ YOU DIED — defeated {kill_phrase} first; gear moved to grave")
         else:
@@ -1720,6 +1759,12 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         ctx.deactivate_current_skill()
         prefix = f"Defeated {kill_phrase}, then f" if kills > 0 else "F"
         ctx.show_activity_gain(f"{prefix}led {display_name} — out of food; combat switched off to stop you dying")
+    elif wilderness_ambush.get("triggered"):
+        damage = int(wilderness_ambush.get("damage", 0) or 0)
+        ctx.show_activity_gain(
+            f"⚠ PKer ambush — took {damage} LP; "
+            f"{display_name} encounter reset"
+        )
     elif kills > 0:
         slayer_suffix = ""
         if int(slayer_result.get("credited_kills", 0) or 0) > 0:

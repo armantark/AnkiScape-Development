@@ -489,7 +489,9 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def setUp(self) -> None:
         import ui
+        from combat_session import reset_wilderness_combat_confirmations
 
+        reset_wilderness_combat_confirmations()
         self._captured: list = []
         # Records recipe IDs the Smithing list persists via on_set_smith so tests
         # can assert selection wiring without real mouse events.
@@ -2675,6 +2677,46 @@ class MainMenuWidgetTest(unittest.TestCase):
             tree.itemClicked.emit(barbarian, 0)
             QApplication.processEvents()
             self.assertEqual(self._combat_calls[-1], "barbarian_level_10")
+        finally:
+            self._ui.QMessageBox.question = original_question
+
+    def test_wilderness_combat_confirmation_is_cached_for_the_session_risk_set(self) -> None:
+        pd = _make_player_data()
+        pd.update(
+            {
+                "current_combat_target": "chicken",
+                "constitution_level": 99,
+                "combat_lifepoints": 990,
+                "equipment": {
+                    "weapon": "Rune sword",
+                    "body": "Rune platebody",
+                    "head": "Rune full helm",
+                    "shield": "Iron kiteshield",
+                },
+            }
+        )
+        dialog = self._open(pd, current_skill="Combat")
+        tree = _find_tree_with_user_role(dialog, "earth_warrior")
+        earth_warrior = _tree_row(tree, "earth_warrior")
+        original_question = self._ui.QMessageBox.question
+        questions = []
+        try:
+            def _accept(*args, **kwargs):  # type: ignore[no-untyped-def]
+                questions.append(args)
+                return self._ui.QMessageBox.StandardButton.Yes
+
+            self._ui.QMessageBox.question = _accept
+            tree.itemClicked.emit(earth_warrior, 0)
+            tree.itemClicked.emit(earth_warrior, 0)
+            QApplication.processEvents()
+
+            self.assertEqual(len(questions), 1)
+            self.assertEqual(questions[0][1], "Confirm Wilderness combat")
+            self.assertIn("creates no grave", questions[0][2])
+            self.assertEqual(
+                self._combat_calls[-2:],
+                ["earth_warrior", "earth_warrior"],
+            )
         finally:
             self._ui.QMessageBox.question = original_question
 

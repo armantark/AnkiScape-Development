@@ -7497,6 +7497,15 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "display_name": "Earth warrior",
         "level": 51,
         "group": "Warriors",
+        "wilderness_risk": {
+            "ambush_chance": 0.01,
+            "max_hit": 250,
+            "unskulled_items_kept": 3,
+            "source_status": (
+                "owner-approved bounded AnkiScape abstraction; PKer frequency "
+                "was live-player behavior rather than source-static data"
+            ),
+        },
         "attack_style": "melee",
         "attack_speed": 4,
         "respawn_delay": 30,
