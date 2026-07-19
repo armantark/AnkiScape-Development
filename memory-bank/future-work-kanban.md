@@ -767,10 +767,14 @@ Labels: `DESIGN AUDIT`, `MODERN LEAD ONLY`, `NO PARITY CLAIM`.
 
 ### Grand Exchange
 
-Labels: `PARKED`, `DEPENDENCY: SKILL/ITEM BREADTH`.
+Labels: `IMPLEMENT`, `DESIGN LOCKED`.
 
 - Core design is locked in `memory-bank/fake-grand-exchange-design.md`; do not re-grill it.
-- NPC shops are already live. Implement the GE after the skill/item universe is representative enough that prices, limits, and acquisition softness are meaningful.
+- NPC shops are already live. Owner decision 2026-07-19: the item-breadth
+  sequencing gate is removed — GE implementation may proceed now, alongside
+  the ongoing item-universe work, rather than waiting for it. Prices and
+  limits for not-yet-obtainable items simply stay dormant until their items
+  exist.
 
 ### Level 1-99 time and economy balance — the XP/hour invariant
 
