@@ -152,6 +152,14 @@ COOKING: dict[str, Rate] = {
     "cook_shark": Rate(263_000, 263_000, 210.0, 92, ("cooking gauntlets",),
                   "P2P Cooking oldid 6579488 (no urns; gauntlets needed for the quoted burn-stop)"),
     "cook_tuna": Rate(125_000, 125_000, 100.0, 30, (), "P2P Cooking oldid 6579488 (no urns, range)"),
+    "Dairy churn oldid 6474695: 8 game ticks per dairy item": Rate(
+        30_375,
+        30_375,
+        40.5,
+        48,
+        (),
+        "Dairy churn oldid 6474695: 8 game ticks per item and 40.5 XP",
+    ),
 }
 
 FIREMAKING: dict[str, Rate] = {

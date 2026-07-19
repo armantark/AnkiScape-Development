@@ -1897,3 +1897,26 @@ The visual closure report is
 - Results:
   `status-updates/grand-exchange-interface-bankstanding-results-2026-07-19.html`;
   mobile copy: `https://e62v7fq2zr2o.postplan.dev`.
+
+## Cheese-wheel churning and Slice-all — 2026-07-19
+
+- Added the cutoff level-48 Dairy family: milk or butter churns into an
+  untradeable Cheese wheel for 40.5 Cooking XP, milk returns its Bucket, and
+  dairy churns do not fill Cooking urns.
+- Slice-all consumes one wheel in one answered-card action, emits 5-35 Cheese,
+  and awards 4 Cooking XP per actual slice. The exact period distribution is
+  source-blocked; the disclosed bounded model is calibrated to the surviving
+  level-57 and level-99 samples.
+- Churning uses the sourced eight-game-tick cadence. Inventory, variable XP,
+  output telemetry, RNG, and undo remain one review transaction.
+- The required Kimi K3 and Fable pass covered every UI added in the current
+  implementation batch. Accepted fixes include the GE's balanced `3 x 2`
+  slots, truthful Bankstanding/no-wall-clock copy, contextual empty states,
+  clearer safety/collection language, palette-safe status text, and a
+  bold current-target treatment that removes macOS's stray cyan tree
+  gutter block in both light and dark modes.
+- Durable evidence:
+  `source-audits/cheese-wheel-churning-slicing-2026-07-19.md`.
+- Results:
+  `status-updates/cheese-wheel-churning-slicing-results-2026-07-19.html`;
+  mobile copy: `https://dcxvx0rn6jgx.postplan.dev`.

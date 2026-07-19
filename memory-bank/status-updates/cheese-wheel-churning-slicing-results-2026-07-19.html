@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Dairy closure</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 88% 8%, rgba(251,191,36,.10), transparent 28rem),
+        radial-gradient(circle at 10% 44%, rgba(79,140,255,.10), transparent 34rem),
+        var(--bg);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+    main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 54px 0 72px; }
+    .badge {
+      display: inline-flex; gap: 8px; align-items: center;
+      padding: 7px 11px; border: 1px solid rgba(74,222,128,.35);
+      border-radius: 999px; color: var(--green); background: rgba(74,222,128,.08);
+      font: 700 12px/1 JetBrains Mono, ui-monospace, monospace; letter-spacing: .08em;
+    }
+    h1 { max-width: 820px; margin: 20px 0 10px; font-size: clamp(34px, 6vw, 66px); line-height: .98; letter-spacing: -.045em; }
+    .lede { max-width: 760px; margin: 0; color: var(--text-dim); font-size: 17px; line-height: 1.65; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 34px 0; }
+    .metric, .card {
+      border: 1px solid var(--border); border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(30,35,44,.96), rgba(22,26,33,.96));
+    }
+    .metric { padding: 18px; }
+    .metric strong { display: block; color: var(--green); font-size: 27px; }
+    .metric span { color: var(--text-dim); font-size: 12px; letter-spacing: .04em; }
+    .grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 16px; }
+    .card { padding: 22px; overflow: hidden; }
+    .card h2 { margin: 0 0 16px; font-size: 18px; }
+    .eyebrow { margin-bottom: 8px; color: var(--amber); font: 700 11px JetBrains Mono, ui-monospace, monospace; letter-spacing: .12em; text-transform: uppercase; }
+    .flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 9px; }
+    .node { min-height: 116px; padding: 15px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); }
+    .node b { display: block; margin-bottom: 8px; }
+    .node small, .muted { color: var(--text-dim); line-height: 1.5; }
+    .arrow { color: var(--accent); font-size: 22px; }
+    .formula { padding: 16px; border-left: 3px solid var(--purple); border-radius: 4px 10px 10px 4px; background: rgba(167,139,250,.08); }
+    code { color: #d8cfff; font-family: JetBrains Mono, ui-monospace, monospace; }
+    .checks { display: grid; gap: 9px; margin-top: 14px; }
+    .check { display: flex; gap: 10px; align-items: flex-start; color: var(--text-dim); font-size: 14px; line-height: 1.45; }
+    .check::before { content: "✓"; color: var(--green); font-weight: 800; }
+    .taste { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; }
+    .surface { padding: 12px; border-radius: 9px; background: #11151b; border: 1px solid var(--border); }
+    .surface b { display: block; margin-bottom: 5px; font-size: 13px; }
+    .surface span { color: var(--text-dim); font-size: 12px; line-height: 1.4; }
+    .wide { grid-column: 1 / -1; }
+    footer { margin-top: 18px; color: var(--text-dim); font-size: 12px; }
+    @media (max-width: 850px) {
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .grid { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); justify-self: center; }
+      .taste { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 520px) {
+      main { width: min(100% - 20px, 1180px); padding-top: 30px; }
+      .metrics, .taste { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <div class="badge">✓ VERIFIED • 2012 CUTOFF</div>
+  <h1>Cheese wheels are now a real Cooking chain.</h1>
+  <p class="lede">Milk and butter churn into an untradeable wheel; Slice-all turns one wheel into a level-shaped stack of Cheese. The implementation preserves atomic reviews, undo, period cadence, and the churn’s explicit urn exclusion.</p>
+
+  <section class="metrics" aria-label="Verification metrics">
+    <div class="metric"><strong>1,744</strong><span>FULL QT TESTS PASS</span></div>
+    <div class="metric"><strong>218</strong><span>MAIN-MENU TESTS PASS</span></div>
+    <div class="metric"><strong>3</strong><span>NEW COOKING ACTIONS</span></div>
+    <div class="metric"><strong>0</strong><span>NEW REACHABILITY DEBT</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card wide">
+      <div class="eyebrow">Live chain</div>
+      <h2>One compact Dairy family, two authentic routes</h2>
+      <div class="flow">
+        <div class="node"><b>Bucket of milk</b><small>Level 48<br>8 game ticks<br>40.5 Cooking XP</small></div>
+        <div class="arrow">→</div>
+        <div class="node"><b>Cheese wheel</b><small>Untradeable<br>No Cooking-urn progress<br>Milk also returns Bucket</small></div>
+        <div class="arrow">→</div>
+        <div class="node"><b>5–35 Cheese</b><small>One Slice-all review<br>4 XP per actual slice<br>Fully undoable</small></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="eyebrow">Evidence discipline</div>
+      <h2>Exact where the period record survives</h2>
+      <div class="checks">
+        <div class="check">Level, inputs, outputs, churn XP, eight-tick duration, Bucket return, untradeable state, and urn exclusion are pinned to cutoff wiki oldids.</div>
+        <div class="check">Cache identities cover milk, Bucket, butter, wheel, transient sliced wheel, and Cheese.</div>
+        <div class="check">The wheel icon is period-archived artwork with recorded SHA-1 provenance.</div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="eyebrow">Disclosed abstraction</div>
+      <h2>The missing slice formula is not fabricated history</h2>
+      <div class="formula">
+        <code>yield = 5 + Binomial(30, p(level))</code>
+        <p class="muted">The authentic distribution is source-blocked. This bounded model preserves the documented 5 minimum, level scaling, rare 30+ level-99 results, and the surviving level-57 and level-99 sample means.</p>
+      </div>
+    </article>
+
+    <article class="card wide">
+      <div class="eyebrow">Dual taste pass</div>
+      <h2>Kimi K3 + Fable reviewed every UI added in the pass</h2>
+      <div class="taste">
+        <div class="surface"><b>Grand Exchange</b><span>Balanced 3×2 slots and period-correct “per 40 cards” limits.</span></div>
+        <div class="surface"><b>GE states</b><span>Distinct empty, no-owned-stock, no-match, and collectible copy.</span></div>
+        <div class="surface"><b>Bankstanding</b><span>Truthful idle no-op language; no invented output or material-prep claim.</span></div>
+        <div class="surface"><b>Safety controls</b><span>Guide-price reference and confirmation consequence are explained.</span></div>
+        <div class="surface"><b>Theme contrast</b><span>Palette-safe status text replaces a fixed green.</span></div>
+        <div class="surface"><b>Target trees</b><span>Bold current target removes the macOS cyan gutter artifact in light and dark modes.</span></div>
+      </div>
+    </article>
+  </section>
+
+  <footer>Closed 2026-07-19 • Canonical main checkout • No wall-clock gameplay • Quest restoration remains owned by the Darkan loop</footer>
+</main>
+</body>
+</html>

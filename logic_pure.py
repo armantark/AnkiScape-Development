@@ -1,7 +1,7 @@
 # logic_pure.py - Pure logic functions for AnkiScape (no Anki dependencies)
 from __future__ import annotations
 
-from math import floor, sqrt
+from math import comb, floor, sqrt
 from typing import Iterable, Mapping, Optional
 
 try:
@@ -11599,6 +11599,39 @@ def calculate_cooking_success_probability_pure(
     return normalize_review_success_probability_pure(source_chance, minimum, scale, cap)
 
 
+def cheese_wheel_slice_probability_pure(cooking_level):
+    """Return the calibrated per-trial chance for one of 30 bonus slices.
+
+    The period record fixes a five-slice minimum, observes an 8.87 mean at
+    level 57, and reports roughly 695 slices per 27 wheels at level 99. The
+    original formula is source-blocked, so the smallest bounded abstraction is
+    a 30-trial binomial whose probability interpolates those two observations.
+    """
+    level = max(1, min(_positive_int(cooking_level, 1), 99))
+    level_57_probability = (8.87 - 5.0) / 30.0
+    level_99_probability = ((695.0 / 27.0) - 5.0) / 30.0
+    probability = level_57_probability + (
+        (level - 57) * (level_99_probability - level_57_probability) / 42.0
+    )
+    return max(0.0, min(probability, 1.0))
+
+
+def cheese_wheel_slice_yield_pure(cooking_level, roll):
+    """Resolve the period-shaped five-to-thirty-five cheese yield in one roll."""
+    probability = cheese_wheel_slice_probability_pure(cooking_level)
+    value = max(0.0, min(float(roll), 1.0))
+    cumulative = 0.0
+    for bonus_slices in range(31):
+        cumulative += (
+            comb(30, bonus_slices)
+            * (probability ** bonus_slices)
+            * ((1.0 - probability) ** (30 - bonus_slices))
+        )
+        if value < cumulative or bonus_slices == 30:
+            return 5 + bonus_slices
+    return 35
+
+
 def apply_cooking_action_pure(
     target,
     inventory,
@@ -11633,12 +11666,19 @@ def apply_cooking_action_pure(
     if succeeded:
         output_item = spec.get("output_item", target)
         output_qty = _positive_int(spec.get("output_qty", 1), 1)
+        if spec.get("output_quantity_model") == "cheese_wheel_slices":
+            output_qty = cheese_wheel_slice_yield_pure(cooking_level, roll)
         new_inv[output_item] = new_inv.get(output_item, 0) + output_qty
+        for byproduct, amount in (spec.get("byproducts") or {}).items():
+            new_inv[byproduct] = new_inv.get(byproduct, 0) + _positive_int(amount)
         byproduct_item = spec.get("byproduct_item")
         if isinstance(byproduct_item, str) and byproduct_item and byproduct_roll is not None:
             if float(byproduct_roll) <= float(spec.get("byproduct_chance", 0.0)):
                 new_inv[byproduct_item] = new_inv.get(byproduct_item, 0) + 1
-        return new_inv, spec.get("exp", 0), True, output_item, False
+        base_exp = spec.get("exp", 0)
+        if float(spec.get("xp_per_output", 0.0) or 0.0) > 0.0:
+            base_exp = output_qty * float(spec["xp_per_output"])
+        return new_inv, base_exp, True, output_item, False
 
     burnt_item = spec.get("burnt_item")
     if isinstance(burnt_item, str) and burnt_item:

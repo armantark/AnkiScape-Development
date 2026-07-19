@@ -64,6 +64,13 @@ Labels: `SOURCE AUDIT`, then `IMPLEMENT` only when evidence closes.
   review-batch translation remain blocked. Darkan also conflicts at `1/500`
   spirits and on three warmth durations plus multiple reward quantities. See
   `memory-bank/source-audits/bonfire-fire-spirit-source-boundary-2026-07-19.md`.
+- Cheese-wheel churning and Slice-all are implemented from pinned cutoff
+  churn/item/talk revisions. Milk and butter churn at level 48 for 40.5 XP;
+  milk returns its Bucket; churns do not fill Cooking urns; and one wheel
+  slices into a level-shaped 5-35 Cheese at 4 XP each. The exact slice formula
+  remains source-blocked and uses the disclosed bounded sample calibration.
+  See
+  `memory-bank/source-audits/cheese-wheel-churning-slicing-2026-07-19.md`.
 - The next implementation slice must have a pinned pre-EOC contract for its level, XP, inputs, outputs, gates, rates, and state transitions. Split proven sub-slices from blocked families as lava eel, Overload, and cannonballs already demonstrate.
 - Backend acceptance: data, pure behavior, storage/migration, dispatch, acquisition semantics, telemetry, and undo.
 - Frontend acceptance: `TargetRowMetadata`, real enablement/locks, target-local settings/equipment/inventory, icons, tooltips, and offscreen Qt coverage.

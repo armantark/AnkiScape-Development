@@ -70,6 +70,8 @@ from logic_pure import (
     calculate_hunter_success_probability_pure,
     hunter_source_roll_chance_pure,
     cooking_source_roll_chance_pure,
+    cheese_wheel_slice_probability_pure,
+    cheese_wheel_slice_yield_pure,
     calculate_cooking_success_probability_pure,
     cooking_target_locked_reasons_pure,
     can_cook_target_pure,
@@ -2262,6 +2264,56 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(seaweed_output, "Soda ash")
         self.assertEqual(seaweed_exp, 1.0)
         self.assertEqual(seaweed_inv, {"Seaweed": 0, "Soda ash": 1})
+
+    def test_cheese_wheel_churning_and_sample_calibrated_slice_all(self):
+        churned, churn_xp, churn_ok, churn_output, churn_failed = apply_cooking_action_pure(
+            "churn_milk_cheese_wheel",
+            {"Bucket of milk": 1},
+            COOKING_DATA,
+            cooking_level=48,
+            roll=1.0,
+        )
+        self.assertTrue(churn_ok)
+        self.assertFalse(churn_failed)
+        self.assertEqual(churn_output, "Cheese wheel")
+        self.assertEqual(churn_xp, 40.5)
+        self.assertEqual(
+            churned,
+            {"Bucket of milk": 0, "Cheese wheel": 1, "Bucket": 1},
+        )
+
+        minimum, minimum_xp, minimum_ok, output, failed = apply_cooking_action_pure(
+            "slice_cheese_wheel",
+            {"Cheese wheel": 1},
+            COOKING_DATA,
+            cooking_level=48,
+            roll=0.0,
+        )
+        self.assertTrue(minimum_ok)
+        self.assertFalse(failed)
+        self.assertEqual(output, "Cheese")
+        self.assertEqual(minimum, {"Cheese wheel": 0, "Cheese": 5})
+        self.assertEqual(minimum_xp, 20.0)
+
+        maximum, maximum_xp, *_ = apply_cooking_action_pure(
+            "slice_cheese_wheel",
+            {"Cheese wheel": 1},
+            COOKING_DATA,
+            cooking_level=99,
+            roll=1.0,
+        )
+        self.assertEqual(maximum, {"Cheese wheel": 0, "Cheese": 35})
+        self.assertEqual(maximum_xp, 140.0)
+        self.assertEqual(cheese_wheel_slice_yield_pure(48, 0.0), 5)
+        self.assertEqual(cheese_wheel_slice_yield_pure(99, 1.0), 35)
+        self.assertAlmostEqual(
+            5.0 + 30.0 * cheese_wheel_slice_probability_pure(57),
+            8.87,
+        )
+        self.assertAlmostEqual(
+            5.0 + 30.0 * cheese_wheel_slice_probability_pure(99),
+            695.0 / 27.0,
+        )
 
     def test_rune_mysteries_progresses_on_reviews_and_rewards_once(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

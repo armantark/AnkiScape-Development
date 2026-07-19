@@ -97,6 +97,7 @@ class LiveXpHourParityTest(unittest.TestCase):
                 "Woodcutting": 7,
                 "Fishing": 2,
                 "Hunter": 4,
+                "Cooking": 2,
             },
         )
 

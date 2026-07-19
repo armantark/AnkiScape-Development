@@ -3013,9 +3013,10 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
     source_runtime_action = bool(spec.get("source_success_formula") or spec.get("source_always_succeeds"))
     proposed_outcome_success = roll <= source_success if source_runtime_action else roll < source_success
     byproduct_roll = ctx.random_random() if spec.get("byproduct_item") and roll <= expected_success else None
+    inventory_before = dict(player_data.get("inventory", {}) or {})
     new_inv, base_exp, ok, output_item, burned = apply_cooking_action_pure(
         target,
-        player_data.get("inventory", {}),
+        inventory_before,
         COOKING_DATA,
         player_level,
         roll,
@@ -3048,13 +3049,21 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
         return True
 
     _charge_urn_for_action(ctx, "cooking", target, spec, base_exp, output_item)
+    output_items = {
+        item_name: int(amount) - int(inventory_before.get(item_name, 0) or 0)
+        for item_name, amount in new_inv.items()
+        if int(amount) - int(inventory_before.get(item_name, 0) or 0) > 0
+    }
+    tracked_output_items = output_items if spec.get("byproducts") else None
     _record_action(
         ctx,
         "cooking",
         target,
         True,
         expected_success_chance=expected_success,
-        output_item=output_item,
+        output_item=output_item if tracked_output_items is None else None,
+        output_qty=output_items.get(output_item, 1) if output_item else 1,
+        output_items=tracked_output_items,
         primary_xp=base_exp,
         proposed_outcome_success=proposed_outcome_success,
     )
@@ -3064,6 +3073,13 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
     ctx.check_achievements(player_data)
     ctx.save_player_data()
     ctx.refresh_skill_availability()
+    if spec.get("output_quantity_model") or spec.get("byproducts"):
+        ctx.show_activity_gain(
+            " · ".join(
+                f"+{amount} {item_name}"
+                for item_name, amount in output_items.items()
+            )
+        )
     ctx.show_exp(exp_gained)
     return True
 

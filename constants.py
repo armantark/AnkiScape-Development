@@ -359,7 +359,7 @@ UTILITY_ACTIVITY_DATA = {
         "requirements": {},
         "batch_size": 1,
         "no_op": True,
-        "status_message": "Bankstanding — Grand Exchange time advanced.",
+        "status_message": "Bankstanding — no XP gained.",
         "icon_path": os.path.join(current_dir, "combatitems", "coins.png"),
         "group": "economy",
         "source": "memory-bank/fake-grand-exchange-design.md:61-67",
@@ -891,6 +891,7 @@ COOKING_EXTRA_ITEM_DATA = cooking_extra_items_as_dict()
 COOKING_ITEM_IMAGES = {}
 COOKING_SHARED_ITEM_IMAGES = {
     "Lava eel": os.path.join(QUEST_ITEMS_FOLDER, "lava_eel.png"),
+    "Bucket of milk": os.path.join(QUEST_ITEMS_FOLDER, "bucket_of_milk.png"),
 }
 _COOKING_ITEM_NAMES = set(COOKING_EXTRA_ITEM_DATA)
 _COOKING_ITEM_NAMES.update(COOKING_RAW_ITEMS)

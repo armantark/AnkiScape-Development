@@ -2037,7 +2037,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             1,
         )
         self.assertEqual(calls["gains"], [
-            "Bankstanding — Grand Exchange time advanced."
+            "Bankstanding — no XP gained."
         ])
 
     def test_material_exhaustion_falls_back_once_then_bankstands(self):
@@ -2082,7 +2082,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertIn("Bankstanding", calls["errors"][0][1])
         self.assertEqual(
             calls["gains"],
-            ["Bankstanding — Grand Exchange time advanced."],
+            ["Bankstanding — no XP gained."],
         )
         self.assertEqual(
             addon.player_data["shop_market_clock"]["market_tick"],
@@ -3044,6 +3044,62 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["cooking_exp"], 0)
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
         self.assertEqual(calls["xp"], [30.0])
+        self.assertGreaterEqual(calls["save"], 2)
+
+    def test_cheese_wheel_slice_all_reward_rolls_back_on_undo(self):
+        addon = _load_addon_as_package("ankiscape_cheese_wheel_undo_integration")
+
+        calls = {"save": 0, "xp": [], "activity": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon._show_activity_gain = lambda text: calls["activity"].append(text)
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+        addon.player_data = {
+            "inventory": {"Cheese wheel": 1},
+            "cooking_level": 48,
+            "cooking_exp": 0.0,
+            "current_cooking": "slice_cheese_wheel",
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Cooking"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.0
+        try:
+            addon.on_answer_card(
+                _FakeReviewer(),
+                4,
+                lambda _self, _ease: "answered",
+            )
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(
+            addon.player_data["inventory"],
+            {"Cheese wheel": 0, "Cheese": 5},
+        )
+        self.assertEqual(addon.player_data["cooking_exp"], 20.0)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+        self.assertEqual(calls["activity"], ["+5 Cheese"])
+
+        changes = types.SimpleNamespace(
+            operation="Answer Card",
+            changes=types.SimpleNamespace(study_queues=True, card=True),
+        )
+        addon._on_state_did_undo(changes)
+
+        self.assertEqual(addon.player_data["inventory"], {"Cheese wheel": 1})
+        self.assertEqual(addon.player_data["cooking_exp"], 0.0)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+        self.assertEqual(calls["xp"], [20.0])
         self.assertGreaterEqual(calls["save"], 2)
 
     def test_super_prayer_mixing_uses_wyvern_bonemeal_and_rolls_back_on_undo(self):

@@ -693,14 +693,24 @@ def cooking_target_rows(
             failure_line = "Cannot burn or fail.\n"
         else:
             failure_line = f"Burn output: {burnt_item} x1, no XP\n" if burnt_item else "Failure consumes the input, no XP\n"
+        if spec.get("output_quantity_model") == "cheese_wheel_slices":
+            output_line = f"Success output: {output_item} x5-35 (one Slice-all action)\n"
+            xp_line = f"Base XP: {spec.get('xp_per_output', 0):g} per slice\n"
+        else:
+            output_line = f"Success output: {output_item} x{int(spec.get('output_qty', 1) or 1)}\n"
+            xp_line = f"Base XP: {spec.get('exp', 0)} on success\n"
         tooltip = (
             level_line
-            + f"Success output: {output_item} x1\n"
+            + output_line
             + failure_line
-            + f"Base XP: {spec.get('exp', 0)} on success\n"
+            + xp_line
             + f"Success chance: {chance:.0f}% per action\n"
             + f"Materials:\n{_indented_material_lines(requirements, inventory)}"
         )
+        byproducts = spec.get("byproducts")
+        if isinstance(byproducts, Mapping) and byproducts:
+            returned = ", ".join(f"{name} x{qty}" for name, qty in byproducts.items())
+            tooltip += f"\nAlso returns: {returned}"
         if locked_reasons:
             tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
 
@@ -1702,6 +1712,21 @@ def utility_activity_rows(
             if not enabled and "materials" in locked_reasons:
                 tooltip += "\nLocked: cut trees until a bird nest drops."
             elif not enabled:
+                tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
+        elif spec.get("no_op"):
+            tooltip = (
+                "Stand at the Bank. Nothing is produced or consumed; no skill XP.\n"
+                "Grand Exchange offers advance once per answered card, just as "
+                "with every activity."
+            )
+            locked_reasons = utility_activity_locked_reasons_pure(
+                player_data,
+                activity_key,
+                utility_activity_data,
+                quest_unlock_rules,
+            )
+            enabled = not locked_reasons
+            if not enabled:
                 tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
         else:
             outputs_raw = spec.get("outputs", {})

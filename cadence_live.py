@@ -160,6 +160,24 @@ def resolve_live_cadence_route_pure(
             condition="no second live-kernel gate",
         )
 
+    if skill_id == "cooking" and target_id in {
+        "churn_milk_cheese_wheel",
+        "churn_butter_cheese_wheel",
+    }:
+        actions_per_hour = Fraction(750, 1)
+        return CadenceRouteDeclaration(
+            **common,
+            mode=RATE_LIMITED,
+            source_status=SOURCE_READY,
+            source_row="Dairy churn oldid 6474695: 8 game ticks per dairy item",
+            source_reason=(
+                "lower_source_endpoint equals the exact eight-tick source "
+                "endpoint: 750 actions/hour"
+            ),
+            includes=("dairy-churn action time only",),
+            profile=_rate_profile(profile_id, actions_per_hour),
+        )
+
     if skill_id in _SHADOW_SKILLS:
         resolved = resolve_cadence_shadow_rate_pure(skill_id, target_id)
         if resolved["source_status"] != SOURCE_READY:

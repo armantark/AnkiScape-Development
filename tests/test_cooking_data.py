@@ -18,7 +18,7 @@ class TestCookingData(unittest.TestCase):
     def test_source_backed_targets_preserve_2011scape_rows(self):
         data = cooking_targets_as_dict()
 
-        self.assertEqual(len(COOKING_TARGETS), 59)
+        self.assertEqual(len(COOKING_TARGETS), 62)
         self.assertEqual(set(data), set(COOKING_TARGETS_BY_ID))
         self.assertEqual(data["cook_shrimps"]["level"], 1)
         self.assertEqual(data["cook_shrimps"]["exp"], 30.0)

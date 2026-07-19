@@ -28,7 +28,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QPalette, QPushButton, QIcon, QImage, QTabWidget, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QPalette, QPushButton, QIcon, QImage, QTabWidget, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
@@ -1903,6 +1903,14 @@ class MainMenuWidgetTest(unittest.TestCase):
             for index in range(1, GE_SLOT_COUNT + 1)
         ]
         self.assertTrue(all(slot is not None for slot in slots))
+        slots_grid = dialog.findChild(QWidget, "geOfferSlots").layout()
+        self.assertEqual(
+            [
+                slots_grid.getItemPosition(slots_grid.indexOf(slot))[:2]
+                for slot in slots
+            ],
+            [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)],
+        )
         self.assertIsNone(
             dialog.findChild(QToolButton, f"geOfferSlot{GE_SLOT_COUNT + 1}")
         )
@@ -1916,6 +1924,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(
             dialog.findChild(QLabel, "geCoinBalanceLabel").text(),
             "10,000 Coins",
+        )
+        self.assertIn(
+            "guide price",
+            dialog.findChild(QSpinBox, "geLowPricePercentSpin").toolTip(),
+        )
+        self.assertIn(
+            "guide price",
+            dialog.findChild(QSpinBox, "geHighPriceMultiplierSpin").toolTip(),
         )
 
         dialog.findChild(QToolButton, "geOfferSafetyToggle").click()
@@ -1938,6 +1954,16 @@ class MainMenuWidgetTest(unittest.TestCase):
         item_list = dialog.findChild(QListWidget, "geItemList")
         self.assertIsNotNone(item_list)
         self.assertEqual(item_list.count(), 2)
+        self.assertTrue(all("Coins" in text for text in _list_texts(item_list)))
+        search = dialog.findChild(QLineEdit, "geItemSearchInput")
+        search.setText("no such exchange item")
+        QApplication.processEvents()
+        self.assertEqual(
+            item_list.item(0).text(),
+            "No exchangeable items match your search.",
+        )
+        search.clear()
+        QApplication.processEvents()
         logs_row = next(
             index
             for index in range(item_list.count())
@@ -1946,6 +1972,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         item_list.setCurrentRow(logs_row)
         QApplication.processEvents()
+        self.assertIn(
+            "Buy limit per 40 cards: 25,000",
+            dialog.findChild(QLabel, "geSelectedItemMeta").text(),
+        )
         dialog.findChild(QPushButton, "gePricePlus5Button").click()
         self.assertEqual(
             dialog.findChild(QSpinBox, "geOfferPriceSpin").value(),
@@ -2003,6 +2033,42 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(
             item_list.item(0).data(Qt.ItemDataRole.UserRole)["item_name"],
             "Logs",
+        )
+        dialog.deleteLater()
+
+    def test_grand_exchange_empty_sell_side_names_the_owned_item_state(self) -> None:
+        from grand_exchange_logic import ge_frontend_projection_pure
+
+        player = _make_player_data()
+        player["inventory"] = {"Coins": 1_000}
+        catalog = {
+            "Logs": {
+                "guide_price": 100,
+                "buy_limit": 25_000,
+                "tradeable": True,
+                "exchangeable": True,
+                "category": "logs",
+            }
+        }
+        dialog = self._open(
+            player,
+            get_ge_projection=lambda: ge_frontend_projection_pure(
+                player,
+                item_catalog=catalog,
+            ),
+            on_ge_action=lambda _action_id, _payload: {"ok": False},
+        )
+        _open_ge_tab(dialog)
+
+        side = dialog.findChild(QComboBox, "geOfferSideCombo")
+        side.setCurrentIndex(side.findData("sell"))
+        QApplication.processEvents()
+
+        item_list = dialog.findChild(QListWidget, "geItemList")
+        self.assertEqual(item_list.count(), 1)
+        self.assertEqual(
+            item_list.item(0).text(),
+            "You own nothing exchangeable to sell.",
         )
         dialog.deleteLater()
 
@@ -3688,6 +3754,40 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(lava_eel.icon(0).isNull())
         self.assertIn("Cannot burn or fail.", lava_eel.toolTip(0))
         self.assertIn("Success chance: 100%", lava_eel.toolTip(0))
+
+    def test_cheese_wheel_rows_explain_slice_all_and_use_period_art(self) -> None:
+        pd = _make_player_data()
+        pd["cooking_level"] = 48
+        pd["inventory"] = {
+            "Bucket of milk": 1,
+            "Pat of butter": 1,
+            "Cheese wheel": 1,
+        }
+        pd["current_cooking"] = "slice_cheese_wheel"
+        dialog = self._open(pd)
+        tree = _goto_cooking(dialog)
+
+        dairy = _cooking_family_node(tree, "dairy")
+        self.assertEqual(dairy.text(0), "Dairy  (3)")
+        slice_row = _cooking_row(tree, "slice_cheese_wheel")
+        self.assertFalse(slice_row.isDisabled())
+        self.assertFalse(slice_row.icon(0).isNull())
+        self.assertEqual(
+            tree.selectionMode(),
+            QAbstractItemView.SelectionMode.NoSelection,
+        )
+        self.assertTrue(slice_row.font(0).bold())
+        self.assertIn(
+            "Success output: Cheese x5-35 (one Slice-all action)",
+            slice_row.toolTip(0),
+        )
+        self.assertIn("Base XP: 4 per slice", slice_row.toolTip(0))
+        milk_row = _cooking_row(tree, "churn_milk_cheese_wheel")
+        self.assertIn("Also returns: Bucket x1", milk_row.toolTip(0))
+
+        tree.itemClicked.emit(slice_row, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._cooking_calls[-1], "slice_cheese_wheel")
 
     def test_overload_row_has_rs_wiki_icon_inputs_and_vial_byproduct(self) -> None:
         pd = _make_player_data()
@@ -6250,6 +6350,21 @@ class MainMenuWidgetTest(unittest.TestCase):
             f"Utility panel should state it earns no XP; labels={labels}",
         )
 
+    def test_bankstanding_describes_an_idle_no_op_without_fake_output(self) -> None:
+        pd = _make_player_data()
+        pd["current_utility"] = "bankstanding"
+        dialog = self._open(pd)
+        utility_tree = self._open_utility(dialog)
+
+        row = _utility_row(utility_tree, "bankstanding")
+        self.assertIn("Nothing is produced or consumed", row.toolTip(0))
+        self.assertNotIn("Output: Bankstanding", row.toolTip(0))
+
+        hud = self._ui.ReviewHUD(None)
+        hud.set_data(pd, "Utility / Activities")
+        self.assertIn("idle at the Bank", hud.sub_lbl.text())
+        self.assertNotIn("material prep", hud.sub_lbl.text())
+
     def test_utility_rows_use_activity_icon_contract(self) -> None:
         utility_tree = self._open_utility(self.dialog)
         for row in _tree_items(utility_tree):
@@ -6465,7 +6580,10 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         notice = hud.findChild(QLabel, "geOfferNotice")
         self.assertTrue(notice.isVisible())
-        self.assertIn("offers complete", notice.text())
+        self.assertEqual(
+            notice.text(),
+            "Grand Exchange proceeds ready to collect",
+        )
 
     def test_scraped_sprites_are_pretrimmed_on_disk(self) -> None:
         # Sprites are trimmed to their opaque box at build time (tools/trim_icons.py)

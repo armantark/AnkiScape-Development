@@ -31,6 +31,9 @@ SEAWEED_COOKING_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/objs/cookingrange/seawead_cooking.plugin.kts"
 )
+CHEESE_WHEEL_WIKI_SOURCE = "https://runescape.wiki/w/Cheese_wheel?oldid=6288901"
+CHEESE_WHEEL_TALK_SOURCE = "https://runescape.wiki/w/Talk:Cheese_wheel?oldid=5942573"
+DAIRY_CHURN_WIKI_SOURCE = "https://runescape.wiki/w/Dairy_churn?oldid=6474695"
 LAVA_EEL_WIKI_SOURCE = "https://runescape.wiki/w/Lava_eel?oldid=5850408"
 LAVA_EEL_DARKAN_SOURCE = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
@@ -86,6 +89,9 @@ class CookingTarget:
     source_no_level_requirement: bool = False
     byproduct_item: str = ""
     byproduct_chance: float = 0.0
+    byproducts: Mapping[str, int] = ()
+    output_quantity_model: str = ""
+    xp_per_output: float = 0.0
     failure_kind: str = "burn"
 
 
@@ -162,6 +168,9 @@ COOKING_TARGETS: Tuple[CookingTarget, ...] = (
     CookingTarget('gut_leaping_salmon', 'LEAPING_SALMON', 'Gut leaping salmon', 'fish', 'LEAPING_SALMON', 11330, 'Leaping salmon', 'ROE', 11324, 'Roe', '', 0, '', 1, 10.0, 0, 0, source=GUT_FISH_SOURCE_PATH, runtime_source=GUT_FISH_SOURCE_PATH, source_success_formula={'base': 1.25, 'level_multiplier': 98.75, 'level_range': 79.0, 'cap': 100.0, 'divisor': 100.0}, source_no_level_requirement=True, byproduct_item='Fish offcuts', byproduct_chance=0.75, failure_kind='gut'),
     CookingTarget('gut_leaping_sturgeon', 'LEAPING_STURGEON', 'Gut leaping sturgeon', 'fish', 'LEAPING_STURGEON', 11332, 'Leaping sturgeon', 'CAVIAR', 11326, 'Caviar', '', 0, '', 1, 15.0, 0, 0, source=GUT_FISH_SOURCE_PATH, runtime_source=GUT_FISH_SOURCE_PATH, source_success_formula={'base': 1.25, 'level_multiplier': 98.75, 'level_range': 79.0, 'cap': 100.0, 'divisor': 100.0}, source_no_level_requirement=True, byproduct_item='Fish offcuts', byproduct_chance=5.0 / 6.0, failure_kind='gut'),
     CookingTarget('burn_seaweed', 'SEAWEED', 'Burn seaweed', 'materials', 'SEAWEED', 401, 'Seaweed', 'SODA_ASH', 1781, 'Soda ash', '', 0, '', 1, 1.0, 0, 0, source=SEAWEED_COOKING_SOURCE_PATH, runtime_source=SEAWEED_COOKING_SOURCE_PATH, source_always_succeeds=True, source_no_level_requirement=True, failure_kind='burn'),
+    CookingTarget('churn_milk_cheese_wheel', 'CHEESE_WHEEL', 'Churn milk into a cheese wheel', 'dairy', 'BUCKET_OF_MILK', 1927, 'Bucket of milk', 'CHEESE_WHEEL', 18789, 'Cheese wheel', '', 0, '', 48, 40.5, 0, 0, source=CHEESE_WHEEL_WIKI_SOURCE, runtime_source=DAIRY_CHURN_WIKI_SOURCE, source_always_succeeds=True, byproducts={'Bucket': 1}, failure_kind='churn'),
+    CookingTarget('churn_butter_cheese_wheel', 'CHEESE_WHEEL', 'Churn butter into a cheese wheel', 'dairy', 'PAT_OF_BUTTER', 6697, 'Pat of butter', 'CHEESE_WHEEL', 18789, 'Cheese wheel', '', 0, '', 48, 40.5, 0, 0, source=CHEESE_WHEEL_WIKI_SOURCE, runtime_source=DAIRY_CHURN_WIKI_SOURCE, source_always_succeeds=True, failure_kind='churn'),
+    CookingTarget('slice_cheese_wheel', 'CHEESE_WHEEL_SLICED', 'Slice-all cheese wheel', 'dairy', 'CHEESE_WHEEL', 18789, 'Cheese wheel', 'CHEESE', 1985, 'Cheese', '', 0, '', 48, 0.0, 0, 0, source=CHEESE_WHEEL_WIKI_SOURCE, runtime_source=CHEESE_WHEEL_TALK_SOURCE, source_always_succeeds=True, output_quantity_model='cheese_wheel_slices', xp_per_output=4.0, failure_kind='slice'),
 )
 
 COOKING_TARGETS_BY_ID: Dict[str, CookingTarget] = {target.id: target for target in COOKING_TARGETS}
@@ -253,7 +262,10 @@ SOURCE_ITEM_DATA: Dict[str, Tuple[int, bool]] = {
     "Bowl": (1923, True),
     "Bowl of water": (1921, True),
     "Bucket": (1925, True),
+    "Bucket of milk": (1927, True),
     "Bucket of water": (1929, True),
+    "Pat of butter": (6697, True),
+    "Cheese wheel": (18789, False),
     "Potato": (1942, True),
     "Egg": (1944, True),
     "Uncooked egg": (7076, True),
@@ -338,6 +350,9 @@ def cooking_targets_as_dict() -> Dict[str, Dict[str, object]]:
             **({"source_always_succeeds": True} if target.source_always_succeeds else {}),
             **({"source_no_level_requirement": True} if target.source_no_level_requirement else {}),
             **({"byproduct_item": target.byproduct_item, "byproduct_chance": target.byproduct_chance} if target.byproduct_item else {}),
+            **({"byproducts": dict(target.byproducts)} if target.byproducts else {}),
+            **({"output_quantity_model": target.output_quantity_model} if target.output_quantity_model else {}),
+            **({"xp_per_output": target.xp_per_output} if target.xp_per_output else {}),
             **({"failure_kind": target.failure_kind} if target.failure_kind != "burn" else {}),
         }
         for target in COOKING_TARGETS

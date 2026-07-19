@@ -10713,6 +10713,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:54:14Z"
   },
+  "cookingitems/cheese_wheel.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Cheese_wheel.png",
+    "file_title": "Cheese wheel.png",
+    "image_url": "https://runescape.wiki/images/archive/20140422043835%21Cheese_wheel.png?9e14e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "590716023612e9c186a7162ceceab8c17c5fa45d",
+    "size": 368,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T02:01:27Z"
+  },
   "cookingitems/chopped_onion.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Chopped_onion.png",
     "file_title": "Chopped onion.png",

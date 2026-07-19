@@ -43,6 +43,7 @@ try:
         QCheckBox,
         QSpinBox,
         QInputDialog,
+        QAbstractItemView,
         QDesktopServices,
         QUrl,
         QEvent,
@@ -607,6 +608,7 @@ _COOKING_FAMILY_LABELS = {
     "vegetables": "Vegetables",
     "pizza": "Pizza",
     "meat": "Meat",
+    "dairy": "Dairy",
 }
 
 _UTILITY_GROUP_LABELS = {
@@ -1548,7 +1550,7 @@ if HAS_QT:
                 for order in ge_orders
             )
             self.ge_notice_lbl.setText(
-                "1 or more Grand Exchange offers complete" if ge_ready else ""
+                "Grand Exchange proceeds ready to collect" if ge_ready else ""
             )
             self.ge_notice_lbl.setVisible(ge_ready)
             # Enemy bar + chips are combat-only; keep them hidden unless the
@@ -1569,7 +1571,14 @@ if HAS_QT:
                     self.icon_lbl.clear()
                 self.title_lbl.setText(_UTILITY_HUB_NAME)
                 status_suffix = f" • {combat_status}" if combat_status else ""
-                self.sub_lbl.setText(f"{activity_name} • material prep (no XP){status_suffix}")
+                activity_kind = (
+                    "idle at the Bank (no XP)"
+                    if spec.get("no_op")
+                    else "material prep (no XP)"
+                )
+                self.sub_lbl.setText(
+                    f"{activity_name} • {activity_kind}{status_suffix}"
+                )
                 try:
                     self.progress.setVisible(False)
                     self.sub_lbl.setVisible(True)
@@ -2788,11 +2797,11 @@ def show_main_menu(
         tree.setRootIsDecorated(True)
         tree.setIndentation(14)
         tree.setUniformRowHeights(True)
+        tree.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         tree.setStyleSheet(
             "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
             " background: palette(base); color: palette(text); padding: 4px; }"
             " QTreeWidget::item { padding: 5px; border-radius: 6px; }"
-            " QTreeWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
             f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
         )
 
@@ -2832,6 +2841,9 @@ def show_main_menu(
                 child.setToolTip(0, row.tooltip)
                 parent.addChild(child)
                 if row.current:
+                    current_font = child.font(0)
+                    current_font.setBold(True)
+                    child.setFont(0, current_font)
                     selected_child = child
                     group_has_current = True
             parent.setExpanded(group in expanded_groups or group_has_current)
@@ -7086,19 +7098,28 @@ def show_main_menu(
     ge_high_value = QSpinBox()
     ge_high_value.setObjectName("geHighValueConfirmationSpin")
     ge_high_value.setRange(1, 2_147_483_647)
-    ge_high_value.setSuffix(" gp")
+    ge_high_value.setSuffix(" Coins")
+    ge_high_value.setToolTip(
+        "Ask for confirmation when an offer total reaches this many Coins."
+    )
     ge_safety_layout.addWidget(ge_high_value)
     ge_safety_layout.addWidget(QLabel("Low price below"))
     ge_low_price = QSpinBox()
     ge_low_price.setObjectName("geLowPricePercentSpin")
     ge_low_price.setRange(1, 100)
     ge_low_price.setSuffix("%")
+    ge_low_price.setToolTip(
+        "Ask for confirmation below this percentage of the guide price."
+    )
     ge_safety_layout.addWidget(ge_low_price)
     ge_safety_layout.addWidget(QLabel("High price above"))
     ge_high_price = QSpinBox()
     ge_high_price.setObjectName("geHighPriceMultiplierSpin")
     ge_high_price.setRange(1, 100)
     ge_high_price.setSuffix("×")
+    ge_high_price.setToolTip(
+        "Ask for confirmation above this multiple of the guide price."
+    )
     ge_safety_layout.addWidget(ge_high_price)
     ge_apply_safety = QPushButton("Apply")
     ge_apply_safety.setObjectName("geApplyOfferSafetyButton")
@@ -7132,7 +7153,7 @@ def show_main_menu(
             " QToolButton:checked { border: 2px solid #4CAF50;"
             " background: rgba(76,175,80,0.14); }"
         )
-        ge_slots_grid.addWidget(button, slot_index // 4, slot_index % 4)
+        ge_slots_grid.addWidget(button, slot_index // 3, slot_index % 3)
         ge_slot_buttons.append(button)
     ge_layout.addWidget(ge_slots_shell)
 
@@ -7360,7 +7381,8 @@ def show_main_menu(
         limit_text = f"{int(buy_limit):,}" if buy_limit else "unavailable"
         ge_selected_item.setText(str(row["item_name"]))
         ge_item_meta.setText(
-            f"Guide: {guide:,} Coins · 4-hour buy limit: {limit_text} · Bank: {owned:,}"
+            f"Guide: {guide:,} Coins · Buy limit per 40 cards: {limit_text} · "
+            f"Bank: {owned:,}"
         )
         total = int(ge_quantity.value()) * int(ge_price.value())
         ge_preview.setText(
@@ -7388,7 +7410,8 @@ def show_main_menu(
             if query and query not in haystack:
                 continue
             item = QListWidgetItem(
-                f"{row['item_name']}  ·  {int(row.get('guide_price', 0) or 0):,} gp"
+                f"{row['item_name']}  ·  "
+                f"{int(row.get('guide_price', 0) or 0):,} Coins"
             )
             item.setData(Qt.ItemDataRole.UserRole, dict(row))
             icon_path = str(row.get("asset_path") or "")
@@ -7398,7 +7421,13 @@ def show_main_menu(
             if row.get("item_name") == selected_name:
                 selected_widget_item = item
         if ge_item_list.count() == 0:
-            empty = QListWidgetItem("No exchangeable items match your search.")
+            if query:
+                empty_text = "No exchangeable items match your search."
+            elif side == "sell":
+                empty_text = "You own nothing exchangeable to sell."
+            else:
+                empty_text = "No exchangeable items are available."
+            empty = QListWidgetItem(empty_text)
             empty.setFlags(Qt.ItemFlag.NoItemFlags)
             ge_item_list.addItem(empty)
         elif selected_widget_item is not None:
@@ -7505,12 +7534,24 @@ def show_main_menu(
         else:
             collectible_coins = int(order.get("collectible_coins", 0) or 0)
             collectible_items = int(order.get("collectible_items", 0) or 0)
+            collect_parts = []
+            if collectible_items:
+                collect_parts.append(
+                    f"{collectible_items:,} × {order.get('item_name')}"
+                )
+            if collectible_coins:
+                collect_parts.append(f"{collectible_coins:,} Coins")
+            collect_text = (
+                "Collect " + " and ".join(collect_parts)
+                if collect_parts
+                else "Nothing ready to collect"
+            )
             ge_order_detail.setText(
                 f"{str(order.get('side', '')).title()} {order.get('item_name')} · "
                 f"{int(order.get('completed_quantity', 0) or 0):,}/"
                 f"{int(order.get('original_quantity', 0) or 0):,} filled · "
                 f"{int(order.get('remaining_quantity', 0) or 0):,} remaining · "
-                f"Collect {collectible_items:,} item(s) and {collectible_coins:,} Coins"
+                f"{collect_text}"
             )
             ge_collect.setEnabled(bool(collectible_coins or collectible_items))
             ge_edit.setEnabled(str(order.get("status")) in {"open", "partial"})
@@ -7532,8 +7573,8 @@ def show_main_menu(
                 str(projection.get("lock_reason") or "Grand Exchange is disabled in Ironman mode.")
             )
         elif projection.get("has_collectible"):
-            ge_status.setStyleSheet("color: #4CAF50; font-weight: 600;")
-            ge_status.setText("1 or more offers complete — collect when ready.")
+            ge_status.setStyleSheet("color: palette(text); font-weight: 600;")
+            ge_status.setText("Offer proceeds ready to collect.")
         else:
             ge_status.setStyleSheet(f"color: {dim_text_css(ge_status)};")
             ge_status.setText("Offers advance once per answered card. Bankstanding does not accelerate them.")

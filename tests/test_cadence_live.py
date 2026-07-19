@@ -146,6 +146,28 @@ class TestCadenceLiveCoverage(unittest.TestCase):
         )
         self.assertIn("attached 125 Agility XP", declaration.includes)
 
+    def test_cheese_wheel_churning_uses_eight_tick_period_cadence(self):
+        for target_id in (
+            "churn_milk_cheese_wheel",
+            "churn_butter_cheese_wheel",
+        ):
+            with self.subTest(target_id=target_id):
+                declaration = resolve_live_cadence_route_pure(
+                    "cooking",
+                    target_id,
+                    {},
+                )
+                self.assertEqual(declaration.mode, RATE_LIMITED)
+                self.assertEqual(declaration.source_status, "sourced")
+                self.assertEqual(
+                    (
+                        declaration.profile.increment_numerator,
+                        declaration.profile.threshold_denominator,
+                    ),
+                    (3, 4),
+                )
+                self.assertIn("8 game ticks", declaration.source_row)
+
     def test_waits_advance_only_live_residual_and_wait_telemetry(self):
         data = {"cadence_profiles": {}}
         _route, first = advance_live_cadence_route_pure(

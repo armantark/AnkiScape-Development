@@ -2308,6 +2308,73 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertFalse(handle_cooking_answer(_context(ordinary_data, ordinary_calls)))
         self.assertEqual(ordinary_calls["errors"], [("Insufficient level", "You need level 1 Cooking to cook raw shrimps.")])
 
+    def test_cheese_wheel_actions_report_real_outputs_and_do_not_charge_urns(self):
+        churn_calls = {"xp": [], "saves": 0, "errors": []}
+        churn_data = {
+            "inventory": {
+                "Bucket of milk": 1,
+                "Cracked cooking urn (r)": 1,
+            },
+            "cooking_level": 48,
+            "cooking_exp": 0.0,
+            "current_cooking": "churn_milk_cheese_wheel",
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(
+            handle_cooking_answer(
+                _context(churn_data, churn_calls, random_values=[1.0])
+            )
+        )
+        self.assertEqual(
+            churn_data["inventory"],
+            {
+                "Bucket of milk": 0,
+                "Cracked cooking urn (r)": 1,
+                "Cheese wheel": 1,
+                "Bucket": 1,
+            },
+        )
+        self.assertEqual(churn_data["cooking_exp"], 40.5)
+        self.assertEqual(churn_data.get("urn_progress_cooking", 0.0), 0.0)
+        self.assertEqual(churn_calls["xp"], [40.5])
+        self.assertEqual(
+            churn_calls["activity"],
+            ["+1 Cheese wheel · +1 Bucket"],
+        )
+        churn_telemetry = churn_data["action_telemetry"]["actions"][
+            "cooking:churn_milk_cheese_wheel"
+        ]
+        self.assertEqual(
+            churn_telemetry["outputs"],
+            {"Cheese wheel": 1, "Bucket": 1},
+        )
+
+        slice_calls = {"xp": [], "saves": 0, "errors": []}
+        slice_data = {
+            "inventory": {"Cheese wheel": 1},
+            "cooking_level": 48,
+            "cooking_exp": 0.0,
+            "current_cooking": "slice_cheese_wheel",
+            "completed_achievements": [],
+        }
+        self.assertTrue(
+            handle_cooking_answer(
+                _context(slice_data, slice_calls, random_values=[0.0])
+            )
+        )
+        self.assertEqual(
+            slice_data["inventory"],
+            {"Cheese wheel": 0, "Cheese": 5},
+        )
+        self.assertEqual(slice_data["cooking_exp"], 20.0)
+        self.assertEqual(slice_calls["xp"], [20.0])
+        self.assertEqual(slice_calls["activity"], ["+5 Cheese"])
+        slice_telemetry = slice_data["action_telemetry"]["actions"][
+            "cooking:slice_cheese_wheel"
+        ]
+        self.assertEqual(slice_telemetry["outputs"], {"Cheese": 5})
+
     def test_smithing_iron_failure_consumes_ore_and_records_telemetry(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

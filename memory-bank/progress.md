@@ -2613,3 +2613,25 @@ Test counts are snapshots; current runs outrank this note.
 - Published
   `status-updates/grand-exchange-interface-bankstanding-results-2026-07-19.html`;
   mobile copy: `https://e62v7fq2zr2o.postplan.dev`.
+
+## Cheese-wheel churning and slicing — 2026-07-19
+
+- Implemented the level-48 milk and butter churn routes, including 40.5
+  Cooking XP, milk's returned Bucket, the period eight-tick cadence, and the
+  cutoff exclusion from Cooking urns.
+- Implemented one-review Slice-all with 5-35 Cheese, 4 XP per actual slice,
+  level-shaped variable yield, dynamic activity/telemetry output, authentic
+  period art, and full answer undo.
+- Closed a Kimi K3 plus Fable taste review over all five new UI surfaces in
+  this implementation batch. The accepted fixes balance the six GE slots,
+  remove false wall-clock/no-op claims, clarify empty and collectible states,
+  improve theme contrast and control explanations, and replace the macOS
+  grouped-tree gutter artifact with an explicit bold current-target marker.
+- The exact historical yield formula remains source-blocked. The live bounded
+  model is explicitly calibrated to surviving level-57 and level-99 samples
+  rather than presented as recovered game code.
+- Durable evidence:
+  `source-audits/cheese-wheel-churning-slicing-2026-07-19.md`.
+- Published
+  `status-updates/cheese-wheel-churning-slicing-results-2026-07-19.html`;
+  mobile copy: `https://dcxvx0rn6jgx.postplan.dev`.
