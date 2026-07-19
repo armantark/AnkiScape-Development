@@ -222,6 +222,16 @@ does not acquire a post-cutoff restore bonus.
 
 ## Complete activity surface
 
+> **Supersession note (2026-07-18):** the focused activity contracts and
+> `source-audits/activity-cadence-reconciliation-2026-07-18.md` own the
+> review units below and win over this section where they differ: Skullball
+> is one atomic ten-goal review
+> (`source-audits/werewolf-skullball-loop-2026-07-17.md`), Gnome Ball is
+> three grouped match beats (`source-audits/gnome-ball-loop-2026-07-17.md`),
+> and the Circus is one whole performance per review
+> (`source-audits/circus-performance-loop-2026-07-17.md`). The subsections
+> here remain for their sourced values only.
+
 ### Werewolf Skullball
 
 Skullball is a ten-goal Agility activity, not a wall-clock race. Each review

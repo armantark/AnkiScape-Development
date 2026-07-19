@@ -39,6 +39,7 @@ shape stands: live Combat slices inside persistent waves, explicit Leave, no
 timeout, safe death, resumable across reviews.
 
 Harvest work: corroborate the wave table, monster stats, healer/drain
-mechanics, Jad's style-telegraph (its translation to the pressure model needs
-its own design care), TokKul payouts, and the fire cape award against the
-period record.
+mechanics, Jad's telegraph pattern, TokKul payouts, and the fire cape award
+against the period record. Jad's style-telegraph translation is settled in
+`boss-instance-contract-2026-07-18.md`: the result line announces the next
+phase's style and the following review's protection-prayer stance answers it.

@@ -308,18 +308,21 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   `source-audits/slayer-earth-warrior-wilderness-risk-2026-07-18.md`.
 - Chaeldar is now the fourth completely encoded pool. Its 34 master-specific
   rows preserve the provisional 388-point denominator and remain hidden at
-  21/34 readiness. Fire giants now use the ordinary level-86 representative,
+  22/34 readiness. Fire giants now use the ordinary level-86 representative,
   while Blue dragons expose separate adult and baby task choices with
   source-backed dragonfire separation, exact selectors, a Summoning-99 egg
-  gate, and cutoff assets. The thirteen exact blockers are Bronze dragons,
-  Cave horrors, Dagannoths, Elves, Fever spiders, Fungal magi, Grifolapines, Grifolaroos,
+  gate, and cutoff assets. Bronze dragons now preserve metal-dragon
+  dragonfire, the guaranteed bar drop, exact ordinary/charm/plate/clue
+  selectors, and cutoff art. The twelve exact blockers are Cave horrors,
+  Dagannoths, Elves, Fever spiders, Fungal magi, Grifolapines, Grifolaroos,
   Jungle strykewyrms, Kurasks, Trolls, Vyrewatch, and Warped tortoises. Resume from
   `tools/audit_slayer_readiness.py`; do not render or renormalize the pool.
   Fever-spider access remains a partial Rum Deal permission seam rather than a
   false completion gate. See
   `source-audits/slayer-chaeldar-registry-2026-07-18.md` and
   `source-audits/slayer-fire-giant-combat-2026-07-18.md` and
-  `source-audits/slayer-blue-dragon-family-combat-2026-07-18.md`.
+  `source-audits/slayer-blue-dragon-family-combat-2026-07-18.md` and
+  `source-audits/slayer-bronze-dragon-combat-2026-07-18.md`.
 - Darkan ordinary-drop semantics are corrected across eleven live Slayer
   targets. Sibling nonzero JSON rows now share one cumulative selector, while
   rate-zero rows, charms, and explicitly labeled period abstractions remain
@@ -590,9 +593,13 @@ Labels: `COMPLETE`, `SOURCE DEBT`, `DEPENDENCY: COMBAT/ACQUISITION`.
 
 ### Dungeoneering
 
-Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: ALL SKILLS/COMBAT`.
+Labels: `DESIGN CLOSED 2026-07-18`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: ALL SKILLS/COMBAT`.
 
-- Define floor/session generation, solo/party abstraction, rooms, doors, keys, skill checks, combat, deaths, binds, complexity/prestige, tokens/rewards, dungeon-only items, persistence, and resumability.
+- Design is owner-ratified in `dungeoneering-design-contract-2026-07-18.md`
+  (seeded room graph, three-tier choice architecture, authentic binds/kinship/
+  complexity/prestige, closed economy, staged shop). Remaining work is harvest
+  (floor/bind/kinship/reward tables) and implementation of the frozen starter
+  expedition.
 
 ## Wait for a stable Darkan restoration milestone
 
@@ -683,12 +690,14 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
 
 ### Bosses and instanced Combat
 
-Labels: `DEEP GRILL`, `WAIT: DARKAN`, `DEPENDENCY: COMBAT/PRAYER/SUMMONING`.
+Labels: `DESIGN CLOSED 2026-07-18`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/PRAYER/SUMMONING`.
 
-- Fight Caves/Kiln, Barrows, God Wars, Corporeal Beast, Nex, quest bosses, and minigame enemies need authentic context and cannot become ordinary farm-target rows.
-- Grill multi-enemy and ambient-faction aggression as one God Wars/Combat system. That
-  substrate must consume the already-defined mature Zamorak-hawk and Saradomin-owl
-  protection flags; the Guthix raptor intentionally supplies none.
+- Design is owner-settled in `boss-instance-contract-2026-07-18.md`: authentic
+  entry gates, shared session substrate, multi-enemy engaged-target rooms,
+  Kiln extending Fight Caves, God Wars kill-count + ambient-aggression model
+  (consuming the hawk/owl protection flags), and telegraph-as-warning for
+  Jad/Har'Aken. Remaining work is per-boss harvest and implementation; bosses
+  never become ordinary farm-target rows.
 
 ### Acquisition and item/equipment completeness
 

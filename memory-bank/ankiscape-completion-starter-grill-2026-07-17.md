@@ -369,9 +369,9 @@ pattern.
 Skeletal Horror is a weekly four-phase live Combat encounter. Limb thresholds
 automatically pick up and bury the right arm, left arm, and tail in the same
 review transaction, because ignoring them only heals the boss and creates no
-useful AnkiScape choice. Bork's daily source and reward shape are pinned, but
-its Ork-legion encounter remains parked behind the already-parked general
-multi-enemy design rather than receiving a bespoke hidden simulator.
+useful AnkiScape choice. Bork's daily source and reward shape are pinned; its
+Ork-legion encounter, formerly parked, now rides the settled multi-enemy
+engaged-target contract (2026-07-18) rather than a bespoke hidden simulator.
 
 Troll Invasion preserves all twenty Standard or seven Hard wave markers, but a
 wave is not one review. Combat uses the live kernel's six-tick review slices
@@ -632,8 +632,10 @@ Design coverage should name the broader trees even when they are not first:
   Factory, Brimhaven, Fish Flingers, and Gnome Restaurant.
 - **Cooperative/simulated-population:** Pest Control, Barbarian Assault, Fishing
   Trawler, Trouble Brewing, Shades of Mort'ton, Temple Trekking. Scope settled
-  2026-07-18: all receive solo adaptations. Temple Trekking and Shades of
-  Mort'ton are (near-)solo in the period game and need no crew simulation;
+  2026-07-18: all receive solo adaptations. Temple Trekking is solo in the
+  period game and needs no crew simulation; Shades of Mort'ton is solo-capable
+  but was owner-amended to include the shared naturalized population
+  contributing communal temple repairs (see its focused contract);
   Pest Control reuses the Trawler pattern of a fixed competent crowd offset
   around the player's own duty; Barbarian Assault adapts as one role per wave
   with a simulated competent team; Trouble Brewing, the owner's deliberate
