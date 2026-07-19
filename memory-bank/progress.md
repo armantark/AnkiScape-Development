@@ -4,6 +4,32 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Chaeldar hidden registry — 2026-07-18
+
+- Encoded all 34 source-reconciled master rows with their exact current count
+  ranges and provisional 388-point hidden denominator.
+- Added seventeen stable family identities plus source-declared Slayer,
+  Combat-skill, quest, protection, finisher, restricted-weapon,
+  assignment-only, disease, neem-oil, and crystal-chime completeness gates.
+- Registered Chaeldar at Combat 70 behind Lost City while keeping
+  `runtime_enabled=False`; live master selection cannot see or renormalize the
+  partial pool.
+- Derived 19/34 readiness. Fifteen absent target identities each report one
+  deterministic `combat_target` blocker, while Gargoyles and Mutated
+  zygomites reuse their already-live finisher mechanics.
+- Preserved the source-blocked Rum Deal stage boundary for Fever spiders
+  instead of misrepresenting it as quest-completion access.
+- Added focused pool, range, gate, hidden-runtime, blocker, and catalog
+  integrity regressions. Slayer/Combat/metadata coverage passes 89 tests.
+- Full non-Qt discovery passes all 1,663 tests with 215 declared environment
+  skips; full real offscreen Qt discovery passes all 1,663 with no skips,
+  failures, or errors. Documentation, test quality, compilation, diff,
+  readiness, reachability, and worktree-safety checks pass.
+- No owner-facing design fork emerged. Durable evidence:
+  `source-audits/slayer-chaeldar-registry-2026-07-18.md`. Results:
+  `status-updates/slayer-chaeldar-registry-results-2026-07-18.html`; mobile
+  copy: <https://dkvu5eb3h0w8.postplan.dev>.
+
 ## Slayer Turoth Combat closure — 2026-07-18
 
 - Added the ordinary level-83 Turoth with Slayer 55, 760 LP, 76 Slayer XP,

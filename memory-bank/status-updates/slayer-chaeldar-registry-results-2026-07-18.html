@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chaeldar Registry Closure</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090d0b;
+      --panel: #111914;
+      --panel-2: #17231b;
+      --line: #2c3d31;
+      --text: #edf6ef;
+      --muted: #9bb0a0;
+      --green: #53dd79;
+      --amber: #ffc45d;
+      --red: #ff7878;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 10% 0%, #17311e 0, transparent 30rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      line-height: 1.45;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 42px auto 70px; }
+    .eyebrow {
+      color: var(--green); font: 700 12px/1 ui-monospace, monospace;
+      letter-spacing: .13em; text-transform: uppercase;
+    }
+    h1 { margin: 14px 0 8px; font-size: clamp(34px, 6vw, 72px); line-height: .98; }
+    .lede { max-width: 760px; color: var(--muted); font-size: 18px; }
+    .grid { display: grid; gap: 16px; grid-template-columns: repeat(12, 1fr); margin-top: 30px; }
+    .card {
+      grid-column: span 4; background: linear-gradient(150deg, var(--panel-2), var(--panel));
+      border: 1px solid var(--line); border-radius: 18px; padding: 22px;
+      box-shadow: 0 16px 40px #0005;
+    }
+    .wide { grid-column: span 12; }
+    .half { grid-column: span 6; }
+    .metric { font-size: 42px; font-weight: 800; margin: 2px 0; }
+    .metric.green { color: var(--green); }
+    .metric.amber { color: var(--amber); }
+    .label { color: var(--muted); font-size: 14px; }
+    h2 { margin: 0 0 14px; font-size: 22px; }
+    .bar {
+      display: grid; grid-template-columns: 19fr 15fr; overflow: hidden;
+      height: 20px; border-radius: 99px; background: #252b27; margin: 18px 0 10px;
+    }
+    .bar span:first-child { background: linear-gradient(90deg, #2b8f48, var(--green)); }
+    .bar span:last-child { background: linear-gradient(90deg, #8b6125, var(--amber)); }
+    .legend { display: flex; gap: 20px; color: var(--muted); font-size: 13px; }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 7px; }
+    .ready { background: var(--green); }
+    .blocked { background: var(--amber); }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      padding: 7px 10px; border: 1px solid #5f4c26; border-radius: 999px;
+      color: #ffe0a6; background: #2b2214; font-size: 13px;
+    }
+    .rules { display: grid; gap: 10px; }
+    .rule {
+      display: grid; grid-template-columns: 34px 1fr; gap: 11px;
+      align-items: start; padding: 12px 0; border-bottom: 1px solid var(--line);
+    }
+    .rule:last-child { border-bottom: 0; }
+    .icon {
+      width: 30px; height: 30px; display: grid; place-items: center;
+      border-radius: 9px; background: #24422c; color: var(--green); font-weight: 800;
+    }
+    code {
+      color: #b8e8c3; background: #0b120d; border: 1px solid #26352a;
+      border-radius: 6px; padding: 2px 5px;
+    }
+    .callout {
+      border-left: 3px solid var(--amber); padding: 13px 16px;
+      background: #271f13; color: #f7dbab; border-radius: 0 10px 10px 0;
+    }
+    footer { color: var(--muted); margin-top: 26px; font-size: 13px; }
+    @media (max-width: 760px) {
+      main { margin-top: 24px; }
+      .card, .half { grid-column: span 12; }
+      .metric { font-size: 36px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">AnkiScape · Slayer · verified data closure</div>
+  <h1>Chaeldar is whole.<br>And still safely hidden.</h1>
+  <p class="lede">
+    The cutoff pool now exists as one complete, test-pinned registry contract.
+    Players still cannot select Chaeldar until every ordinary family has an
+    executable representative, so no missing row can distort the authentic weights.
+  </p>
+
+  <section class="grid">
+    <article class="card">
+      <div class="label">Master rows encoded</div>
+      <div class="metric green">34 / 34</div>
+      <div class="label">Every reconciled count and weight is present.</div>
+    </article>
+    <article class="card">
+      <div class="label">Provisional denominator</div>
+      <div class="metric">388</div>
+      <div class="label">Preserved whole, never renormalized.</div>
+    </article>
+    <article class="card">
+      <div class="label">Current executable families</div>
+      <div class="metric amber">19 / 34</div>
+      <div class="label">The remaining 15 have exact target blockers.</div>
+    </article>
+
+    <article class="card wide">
+      <h2>Readiness is generated, not maintained by hand</h2>
+      <div class="bar" aria-label="19 ready families and 15 blocked families">
+        <span></span><span></span>
+      </div>
+      <div class="legend">
+        <span><i class="dot ready"></i>19 ready</span>
+        <span><i class="dot blocked"></i>15 blocked</span>
+      </div>
+    </article>
+
+    <article class="card half">
+      <h2>Exact remaining targets</h2>
+      <div class="chips">
+        <span class="chip">Blue dragons</span><span class="chip">Bronze dragons</span>
+        <span class="chip">Cave horrors</span><span class="chip">Dagannoths</span>
+        <span class="chip">Elves</span><span class="chip">Fever spiders</span>
+        <span class="chip">Fire giants</span><span class="chip">Fungal magi</span>
+        <span class="chip">Grifolapines</span><span class="chip">Grifolaroos</span>
+        <span class="chip">Jungle strykewyrms</span><span class="chip">Kurasks</span>
+        <span class="chip">Trolls</span><span class="chip">Vyrewatch</span>
+        <span class="chip">Warped tortoises</span>
+      </div>
+    </article>
+
+    <article class="card half">
+      <h2>Safety invariants</h2>
+      <div class="rules">
+        <div class="rule"><span class="icon">1</span><span><code>runtime_enabled=False</code> keeps Chaeldar out of player selection.</span></div>
+        <div class="rule"><span class="icon">2</span><span>Positive Slayer XP and every special-mechanic key are required for readiness.</span></div>
+        <div class="rule"><span class="icon">3</span><span>The exact 388-point pool becomes live only at 34/34.</span></div>
+      </div>
+    </article>
+
+    <article class="card wide">
+      <h2>The one deliberately unencoded route gate</h2>
+      <div class="callout">
+        Fever spiders require access obtained after starting Rum Deal, but the
+        exact assignment-time stage predicate is source-blocked and the current
+        quest gate represents completion only. The registry does not lie by
+        requiring full completion; the absent Combat target keeps the family
+        safely blocked until a real partial-quest permission exists.
+      </div>
+    </article>
+  </section>
+
+  <footer>
+    Focused closure: 89 tests passed. Full non-Qt and real offscreen Qt
+    discovery each pass all 1,663 tests; the real Qt run has zero skips.
+    Documentation, test quality, catalog integrity, compilation, diff,
+    reachability, and worktree safety passed. No owner design decision emerged.
+  </footer>
+</main>
+</body>
+</html>

@@ -2,6 +2,9 @@ import unittest
 
 from combat_data import COMBAT_ENEMY_DATA
 from slayer_data import (
+    CHAELDAR_FAMILIES,
+    CHAELDAR_FAMILIES_BY_ID,
+    CHAELDAR_MASTER,
     MAZCHNA_FAMILIES,
     MAZCHNA_FAMILIES_BY_ID,
     MAZCHNA_MASTER,
@@ -131,6 +134,99 @@ class SlayerAssignmentDataTest(unittest.TestCase):
             eligible_slayer_families_pure(
                 {"slayer_level": 99, "combat_level": 126, "quests": {}},
                 VANNAKA_MASTER.id,
+            ),
+            (),
+        )
+
+    def test_hidden_chaeldar_pool_preserves_complete_reconciled_rows(self):
+        self.assertEqual(len(CHAELDAR_FAMILIES), 34)
+        self.assertEqual(sum(family.weight for family in CHAELDAR_FAMILIES), 388)
+        expected_ranges = {
+            "bronze_dragons": (30, 60),
+            "elves": (60, 90),
+            "fungal_magi": (83, 136),
+            "grifolapines": (60, 100),
+            "grifolaroos": (60, 100),
+            "grotworms": (72, 109),
+            "jungle_strykewyrms": (80, 110),
+            "mutated_zygomites": (30, 60),
+            "vyrewatch": (89, 106),
+        }
+        for family_id, count_range in expected_ranges.items():
+            with self.subTest(family_id=family_id):
+                family = CHAELDAR_FAMILIES_BY_ID[family_id]
+                self.assertEqual((family.count_min, family.count_max), count_range)
+
+        self.assertEqual(CHAELDAR_MASTER.required_combat_level, 70)
+        self.assertEqual(CHAELDAR_MASTER.required_quest_id, "lost_city")
+        self.assertFalse(CHAELDAR_MASTER.runtime_enabled)
+        self.assertEqual(
+            CHAELDAR_FAMILIES_BY_ID["fungal_magi"].required_skill_levels,
+            (("magic", 50),),
+        )
+        self.assertEqual(
+            CHAELDAR_FAMILIES_BY_ID["grifolapines"].required_skill_levels,
+            (("magic", 60),),
+        )
+        self.assertEqual(
+            CHAELDAR_FAMILIES_BY_ID["vyrewatch"].required_quest_id,
+            "the_branches_of_darkmeyer",
+        )
+        self.assertEqual(
+            CHAELDAR_FAMILIES_BY_ID["warped_tortoises"].required_quest_id,
+            "the_path_of_glouphrie",
+        )
+        self.assertEqual(
+            CHAELDAR_FAMILIES_BY_ID["fever_spiders"].required_quest_id,
+            "",
+        )
+        self.assertEqual(
+            CHAELDAR_FAMILIES_BY_ID["jungle_strykewyrms"].readiness_features,
+            ("assignment_only", "poison_damage"),
+        )
+        self.assertEqual(
+            CHAELDAR_FAMILIES_BY_ID["mutated_zygomites"].target_ids,
+            ("mutated_zygomite_level_74", "mutated_zygomite_level_86"),
+        )
+
+    def test_chaeldar_readiness_is_derived_and_keeps_partial_pool_hidden(self):
+        readiness = slayer_master_readiness_pure(
+            CHAELDAR_MASTER.id, COMBAT_ENEMY_DATA
+        )
+
+        self.assertFalse(readiness["certified"])
+        self.assertFalse(readiness["runtime_enabled"])
+        self.assertEqual(readiness["family_count"], 34)
+        self.assertEqual(readiness["ready_family_count"], 19)
+        self.assertEqual(
+            set(readiness["blockers"]),
+            {
+                "blue_dragons:combat_target",
+                "bronze_dragons:combat_target",
+                "cave_horrors:combat_target",
+                "dagannoths:combat_target",
+                "elves:combat_target",
+                "fever_spiders:combat_target",
+                "fire_giants:combat_target",
+                "fungal_magi:combat_target",
+                "grifolapines:combat_target",
+                "grifolaroos:combat_target",
+                "jungle_strykewyrms:combat_target",
+                "kurasks:combat_target",
+                "trolls:combat_target",
+                "vyrewatch:combat_target",
+                "warped_tortoises:combat_target",
+            },
+        )
+        self.assertEqual(
+            eligible_slayer_families_pure(
+                {
+                    "slayer_level": 99,
+                    "combat_level": 126,
+                    "magic_level": 99,
+                    "quests": {"lost_city": {"completed": True}},
+                },
+                CHAELDAR_MASTER.id,
             ),
             (),
         )

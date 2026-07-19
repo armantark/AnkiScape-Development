@@ -306,6 +306,16 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   `source-audits/slayer-shadow-warrior-combat-2026-07-18.md` and
   `source-audits/slayer-dust-devil-combat-2026-07-18.md` and
   `source-audits/slayer-earth-warrior-wilderness-risk-2026-07-18.md`.
+- Chaeldar is now the fourth completely encoded pool. Its 34 master-specific
+  rows preserve the provisional 388-point denominator and remain hidden at
+  19/34 readiness. The fifteen exact blockers are Blue dragons, Bronze
+  dragons, Cave horrors, Dagannoths, Elves, Fever spiders, Fire giants,
+  Fungal magi, Grifolapines, Grifolaroos, Jungle strykewyrms, Kurasks, Trolls,
+  Vyrewatch, and Warped tortoises. Resume from
+  `tools/audit_slayer_readiness.py`; do not render or renormalize the pool.
+  Fever-spider access remains a partial Rum Deal permission seam rather than a
+  false completion gate. See
+  `source-audits/slayer-chaeldar-registry-2026-07-18.md`.
 - Darkan ordinary-drop semantics are corrected across eleven live Slayer
   targets. Sibling nonzero JSON rows now share one cumulative selector, while
   rate-zero rows, charms, and explicitly labeled period abstractions remain

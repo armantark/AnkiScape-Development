@@ -2,6 +2,26 @@
 
 ## Current Focus
 
+Chaeldar's complete cutoff assignment pool is now encoded as a hidden
+registry contract: 34 stable family rows, the provisional 388-point
+denominator, Combat 70, Lost City access, and every reconciled count range,
+skill/quest gate, and special-mechanic completeness key. Generated readiness
+is 19/34. Fifteen absent Combat identities produce one exact
+`combat_target` blocker each; Chaeldar remains excluded from live assignment
+selection, so the partial denominator is never renormalized or exposed.
+Fever spiders deliberately do not receive a false Rum Deal completion gate:
+the period evidence proves started-quest route access while the exact stage
+predicate and a reusable partial-quest permission remain unresolved
+implementation seams. No owner-facing design fork emerged. Evidence:
+`source-audits/slayer-chaeldar-registry-2026-07-18.md`. Results:
+`status-updates/slayer-chaeldar-registry-results-2026-07-18.html`; mobile
+copy: <https://dkvu5eb3h0w8.postplan.dev>.
+Focused Slayer/Combat/metadata coverage passes 89 tests. Full non-Qt discovery
+passes all 1,663 tests with 215 declared environment skips, and the real
+offscreen Qt interpreter passes all 1,663 with zero skips or failures.
+Documentation, test quality, compilation, diff, readiness, reachability, and
+worktree-safety checks pass.
+
 The ordinary level-83 Turoth now closes the 34th executable Vannaka family.
 Combat enforces Slayer 55 plus one of the actual effective routes before a
 review can be spent: a Leaf-bladed spear or sword, Broad arrows or

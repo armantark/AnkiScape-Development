@@ -3,6 +3,12 @@
 Status: **functional source contract provisionally closed; runtime hidden**.
 Cutoff: `2012-11-20T00:00:00Z`.
 
+Implementation status, 2026-07-18: the complete 34-row pool is now encoded as
+a hidden registry contract. The historical readiness snapshot near the end of
+this audit is preserved as evidence of the 2026-07-17 checkout; current
+readiness is derived in
+`source-audits/slayer-chaeldar-registry-2026-07-18.md`.
+
 ## Finding
 
 Chaeldar's cutoff ordinary pool contains **34 families**:

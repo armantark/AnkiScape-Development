@@ -25,6 +25,9 @@ MAZCHNA_AUDIT_SOURCE = (
 VANNAKA_AUDIT_SOURCE = (
     "memory-bank/source-audits/slayer-vannaka-pool-2026-07-17.md"
 )
+CHAELDAR_AUDIT_SOURCE = (
+    "memory-bank/source-audits/slayer-chaeldar-pool-2026-07-17.md"
+)
 
 
 @dataclass(frozen=True)
@@ -506,6 +509,139 @@ _FAMILIES: Tuple[SlayerFamily, ...] = (
         required_quest_id="priest_in_peril",
         source=VANNAKA_AUDIT_SOURCE,
     ),
+    SlayerFamily(
+        "blue_dragons",
+        "Blue dragons",
+        ("blue_dragon", "baby_blue_dragon"),
+        readiness_features=("dragonfire",),
+        source=CHAELDAR_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "bronze_dragons",
+        "Bronze dragons",
+        ("bronze_dragon",),
+        readiness_features=("dragonfire",),
+        source=CHAELDAR_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "cave_horrors",
+        "Cave horrors",
+        ("cave_horror",),
+        required_slayer_level=58,
+        required_quest_id="cabin_fever",
+        readiness_features=("light_source", "protective_equipment"),
+        source=CHAELDAR_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "dagannoths",
+        "Dagannoths",
+        ("dagannoth",),
+        source=CHAELDAR_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "elves",
+        "Elves",
+        ("elf_warrior",),
+        required_quest_id="regicide",
+        source=CHAELDAR_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "fever_spiders",
+        "Fever spiders",
+        ("fever_spider",),
+        required_slayer_level=42,
+        readiness_features=("protective_equipment", "disease_damage"),
+        source=CHAELDAR_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "fire_giants",
+        "Fire giants",
+        ("fire_giant",),
+        source=CHAELDAR_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "fungal_magi",
+        "Fungal magi",
+        ("fungal_mage",),
+        required_skill_levels=(("magic", 50),),
+        readiness_features=("neem_oil",),
+        source=CHAELDAR_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "gargoyles",
+        "Gargoyles",
+        ("gargoyle",),
+        required_slayer_level=75,
+        readiness_features=("finisher",),
+        source=CHAELDAR_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "grifolapines",
+        "Grifolapines",
+        ("grifolapine",),
+        required_slayer_level=88,
+        required_skill_levels=(("magic", 60),),
+        readiness_features=("neem_oil",),
+        source=CHAELDAR_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "grifolaroos",
+        "Grifolaroos",
+        ("grifolaroo",),
+        required_slayer_level=82,
+        required_skill_levels=(("magic", 60),),
+        readiness_features=("neem_oil",),
+        source=CHAELDAR_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "jungle_strykewyrms",
+        "Jungle strykewyrms",
+        ("jungle_strykewyrm",),
+        required_slayer_level=73,
+        readiness_features=("assignment_only", "poison_damage"),
+        source=CHAELDAR_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "kurasks",
+        "Kurasks",
+        ("kurask",),
+        required_slayer_level=70,
+        readiness_features=("restricted_weapon",),
+        source=CHAELDAR_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "mutated_zygomites",
+        "Mutated zygomites",
+        ("mutated_zygomite_level_74", "mutated_zygomite_level_86"),
+        required_slayer_level=57,
+        required_quest_id="lost_city",
+        readiness_features=("finisher",),
+        source=CHAELDAR_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "trolls",
+        "Trolls",
+        ("troll",),
+        source=CHAELDAR_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "vyrewatch",
+        "Vyrewatch",
+        ("vyrewatch",),
+        required_slayer_level=67,
+        required_quest_id="the_branches_of_darkmeyer",
+        readiness_features=("restricted_weapon",),
+        source=CHAELDAR_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "warped_tortoises",
+        "Warped tortoises",
+        ("warped_tortoise",),
+        required_slayer_level=56,
+        required_quest_id="the_path_of_glouphrie",
+        readiness_features=("crystal_chime",),
+        source=CHAELDAR_AUDIT_SOURCE,
+    ),
 )
 
 SLAYER_FAMILIES_BY_ID: Dict[str, SlayerFamily] = {
@@ -632,6 +768,46 @@ VANNAKA_FAMILIES: Tuple[SlayerAssignmentFamily, ...] = tuple(
     )
 )
 
+CHAELDAR_FAMILIES: Tuple[SlayerAssignmentFamily, ...] = tuple(
+    _assignment(family_id, weight, count_min, count_max, CHAELDAR_AUDIT_SOURCE)
+    for family_id, weight, count_min, count_max in (
+        ("aberrant_spectres", 15, 110, 170),
+        ("banshees", 5, 110, 170),
+        ("basilisks", 15, 110, 170),
+        ("bloodveld", 15, 110, 170),
+        ("blue_dragons", 10, 110, 170),
+        ("brine_rats", 10, 110, 170),
+        ("bronze_dragons", 10, 30, 60),
+        ("cave_crawlers", 5, 110, 170),
+        ("cave_horrors", 15, 110, 170),
+        ("crawling_hands", 5, 110, 170),
+        ("dagannoths", 10, 110, 170),
+        ("dust_devils", 15, 110, 170),
+        ("elves", 10, 60, 90),
+        ("fever_spiders", 10, 110, 170),
+        ("fire_giants", 10, 110, 170),
+        ("fungal_magi", 10, 83, 136),
+        ("gargoyles", 15, 110, 170),
+        ("grifolapines", 8, 60, 100),
+        ("grifolaroos", 8, 60, 100),
+        ("grotworms", 15, 72, 109),
+        ("harpie_bug_swarms", 20, 110, 170),
+        ("jungle_strykewyrms", 12, 80, 110),
+        ("infernal_mages", 10, 110, 170),
+        ("jellies", 15, 110, 170),
+        ("jungle_horrors", 15, 110, 170),
+        ("kalphites", 10, 110, 170),
+        ("kurasks", 15, 110, 170),
+        ("lesser_demons", 10, 110, 170),
+        ("mutated_zygomites", 10, 30, 60),
+        ("shadow_warriors", 10, 110, 170),
+        ("trolls", 10, 110, 170),
+        ("turoth", 15, 110, 170),
+        ("vyrewatch", 10, 89, 106),
+        ("warped_tortoises", 10, 110, 170),
+    )
+)
+
 TURAEL_MASTER = SlayerMaster(
     id="turael_spria",
     display_name="Turael",
@@ -661,8 +837,19 @@ VANNAKA_MASTER = SlayerMaster(
     source=VANNAKA_AUDIT_SOURCE,
 )
 
+CHAELDAR_MASTER = SlayerMaster(
+    id="chaeldar",
+    display_name="Chaeldar",
+    assignments=CHAELDAR_FAMILIES,
+    required_combat_level=70,
+    required_quest_id="lost_city",
+    expected_weight_total=388,
+    source=CHAELDAR_AUDIT_SOURCE,
+)
+
 SLAYER_MASTERS_BY_ID: Dict[str, SlayerMaster] = {
-    master.id: master for master in (TURAEL_MASTER, MAZCHNA_MASTER, VANNAKA_MASTER)
+    master.id: master
+    for master in (TURAEL_MASTER, MAZCHNA_MASTER, VANNAKA_MASTER, CHAELDAR_MASTER)
 }
 LIVE_SLAYER_MASTERS_BY_ID: Dict[str, SlayerMaster] = {
     master_id: master
@@ -678,6 +865,9 @@ MAZCHNA_FAMILIES_BY_ID: Dict[str, SlayerAssignmentFamily] = {
 }
 VANNAKA_FAMILIES_BY_ID: Dict[str, SlayerAssignmentFamily] = {
     family.id: family for family in VANNAKA_FAMILIES
+}
+CHAELDAR_FAMILIES_BY_ID: Dict[str, SlayerAssignmentFamily] = {
+    family.id: family for family in CHAELDAR_FAMILIES
 }
 
 DEFAULT_SLAYER_MASTER_ID = TURAEL_MASTER.id
