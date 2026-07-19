@@ -1532,6 +1532,18 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(reason, "")
 
+        ok, reason = can_equip_item_pure(
+            "Insulated boots", EQUIPMENT_DATA, {"slayer_level": 36}
+        )
+        self.assertFalse(ok)
+        self.assertEqual(reason, "Requires level 37 Slayer")
+
+        ok, reason = can_equip_item_pure(
+            "Insulated boots", EQUIPMENT_DATA, {"slayer_level": 37}
+        )
+        self.assertTrue(ok)
+        self.assertEqual(reason, "")
+
     def test_equip_unequip_returns_displaced_items(self):
         inv = {"Bronze platebody": 1, "Iron platebody": 1}
         new_inv, equipment, ok = equip_item_pure("Bronze platebody", inv, {}, EQUIPMENT_DATA)

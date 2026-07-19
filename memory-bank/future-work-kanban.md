@@ -235,7 +235,7 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   certification.
 - Vannaka is now the third completely encoded pool. Its 35 master-specific
   rows preserve the provisional 460-point denominator and remain hidden at
-  29/35 readiness. Ordinary Ogre closes the Ogres family with its exact nested
+  30/35 readiness. Ordinary Ogre closes the Ogres family with its exact nested
   common-seed and tertiary-bone drops; ordinary Jelly closes Jellies with
   magic-based melee, an exact 128-slot table, and generated Mithril boots;
   ordinary Bloodveld closes Bloodvelds with the same distinct attack channel,
@@ -264,8 +264,12 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   Firemaking 33 lighting and extinguishing chain, exact 100,000-slot ordinary
   selector, and independently derived 202-slot charm selector. Lit item 7053
   is generated equipment but is correctly excluded from cave-light gates.
-  The remaining six blockers are derived by
-  `tools/audit_slayer_readiness.py`: six missing Combat targets, including
+  Ordinary Killerwatt adds its existing Ernest-the-Chicken access, dynamic
+  magical-melee/Ranged channel, Slayer-37 Insulated-boots requirement,
+  explicitly labeled additive 0–140 LP thundercloud abstraction, exact
+  100,000-slot ordinary selector, and derived 303-slot charm selector.
+  The remaining five blockers are derived by
+  `tools/audit_slayer_readiness.py`: five missing Combat targets, including
   the Darkan-owned Mogre quest route. Continue from that generated ledger; do
   not expose or renormalize the partial master. See
   `source-audits/slayer-vannaka-ogre-combat-2026-07-18.md` and
@@ -273,6 +277,7 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   `source-audits/slayer-bloodveld-combat-2026-07-18.md` and
   `source-audits/slayer-infernal-mage-combat-2026-07-18.md`, and
   `source-audits/slayer-harpie-bug-swarm-combat-2026-07-18.md`, plus
+  `source-audits/slayer-killerwatt-combat-2026-07-18.md`, plus
   `source-audits/slayer-basilisk-combat-2026-07-18.md`, plus
   `source-audits/slayer-crocodile-combat-2026-07-18.md` and
   `source-audits/slayer-otherworldly-being-combat-2026-07-18.md` and

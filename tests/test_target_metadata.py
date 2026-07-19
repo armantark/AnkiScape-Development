@@ -925,6 +925,32 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Gold ore x1 (10514/100000)", ready.tooltip)
         self.assertIn("Green charm x1 (11/202)", ready.tooltip)
 
+    def test_killerwatt_row_exposes_quest_boots_and_exact_drops(self):
+        rows = combat_target_rows(
+            {
+                "current_combat_target": "chicken",
+                "slayer_level": 37,
+                "combat_lifepoints": 990,
+                "constitution_level": 99,
+                "quests": {"ernest_the_chicken": {"completed": True}},
+                "inventory": {},
+                "equipment": {},
+                "combat_supply_loadout": {},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+
+        killerwatt = _row(rows, "killerwatt")
+
+        self.assertTrue(killerwatt.enabled)
+        self.assertIn("0–140 LP damage", killerwatt.tooltip)
+        self.assertIn("Impious ashes x1", killerwatt.tooltip)
+        self.assertIn("Grimy guam x1 (12016/100000)", killerwatt.tooltip)
+        self.assertIn("Gold charm x1 (41/303)", killerwatt.tooltip)
+
     def test_combat_rows_show_magic_spell_and_rune_supply(self):
         rows = combat_target_rows(
             {

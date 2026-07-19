@@ -4,6 +4,36 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Killerwatt Combat closure — 2026-07-18
+
+- Added the ordinary level-71 Killerwatt with Slayer 37, existing
+  Ernest-the-Chicken access, 510 LP, 51 Slayer XP, eight-tick attacks, and a
+  64-LP maximum.
+- Preserved its distance-sensitive attack contract: melee play receives
+  magical melee against Magic defence and Protect from Melee, while Ranged and
+  Magic play receive Ranged attacks and Protect from Missiles.
+- Made the same resolved channel drive Casual max-safety prayer selection.
+- Preserved the non-blocking boots consequence. Insulated boots suppress the
+  hazard; without them, one labeled 0–140 LP thundercloud roll is added to each
+  incoming attack. This is a bounded review-native cadence abstraction.
+- Restored the source's Slayer-37 Insulated-boots wear requirement in generated
+  equipment data while retaining the existing 200-coin Slayer-master stock.
+- Added guaranteed Impious ashes, Darkan's exact 100,000-slot ordinary
+  selector, and the independently derived 303-slot charm selector.
+- Made Combat enemy asset fetching cutoff-aware and fetched the 2011 Killerwatt
+  sprite rather than the modern replacement.
+- Advanced Vannaka to 30/35 while leaving the incomplete master hidden and
+  unrenormalized. No quest/catalog work or owner-facing design fork was added.
+- Focused verification passes 747 tests. Full non-Qt discovery passes 1,645
+  tests with 215 expected Qt-environment skips; full real offscreen Qt
+  discovery executes all 1,645 with zero skips, failures, or errors.
+- Documentation, test-quality, generated-data, compilation, JSON, diff,
+  readiness, reachability-ledger, and worktree-safety checks pass.
+- Durable evidence:
+  `source-audits/slayer-killerwatt-combat-2026-07-18.md`. Results:
+  `status-updates/slayer-killerwatt-results-2026-07-18.html`; mobile copy:
+  <https://4wz22cbm89jb.postplan.dev>.
+
 ## Slayer Harpie Bug Swarm Combat closure — 2026-07-18
 
 - Added the ordinary level-46 Harpie Bug Swarm with Slayer 33, 250 LP, 25

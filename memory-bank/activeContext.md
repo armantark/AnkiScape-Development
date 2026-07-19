@@ -2,6 +2,24 @@
 
 ## Current Focus
 
+The level-71 Killerwatt is now the 30th executable Vannaka family: Slayer 37,
+Ernest-the-Chicken access, 510 LP, 51 Slayer XP, eight-tick attacks, a 64-LP
+maximum, Darkan's exact 100,000-slot ordinary selector, and its derived
+303-slot charm selector. Close melee resolves as magical melee; Ranged and
+Magic play resolve the period distance-Ranged channel, including Casual
+max-safety prayer choice. Insulated boots now enforce their period Slayer-37
+wear requirement. Without them, each incoming attack adds one explicitly
+labeled 0–140 LP thundercloud roll; this preserves the sourced consequence
+without inventing a hidden wall-clock cadence. The period enemy sprite is
+pinned at the cutoff by the Combat asset fetcher. Vannaka remains hidden at
+30/35 with five Combat representatives missing. No quest/catalog work or owner
+design fork was added. Evidence:
+`source-audits/slayer-killerwatt-combat-2026-07-18.md`. Focused verification
+passes 747 tests; full non-Qt and real offscreen Qt discovery each pass all
+1,645 tests. Results:
+`status-updates/slayer-killerwatt-results-2026-07-18.html`; mobile copy:
+<https://4wz22cbm89jb.postplan.dev>.
+
 The ordinary level-46 Harpie Bug Swarm is now the 29th executable Vannaka
 family: Slayer 33, 250 LP, 25 Slayer XP, six-tick melee, a 60-LP maximum,
 Darkan's exact 100,000-slot ordinary selector, and its separately derived

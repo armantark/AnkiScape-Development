@@ -7792,6 +7792,145 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "selector; period wiki and Darkan drop contents conflict"
         ),
     },
+    "killerwatt": {
+        "display_name": "Killerwatt",
+        "level": 71,
+        "group": "Slayer",
+        "required_slayer_level": 37,
+        "quest_gate": "ernest_the_chicken",
+        "quest_gate_label": "Complete Ernest the Chicken",
+        "attack_style": "magic_melee",
+        "attack_style_by_player_class": {
+            "melee": "magic_melee",
+            "ranged": "ranged",
+            "magic": "ranged",
+        },
+        "attack_speed": 8,
+        "respawn_delay": 59,
+        "max_hit": 64,
+        "slayer_xp": 51.0,
+        "stats": {
+            "hitpoints": 510,
+            "attack": 50,
+            "strength": 50,
+            "defence": 40,
+            "magic": 67,
+            "ranged": 67,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 10,
+            "defence_slash": 10,
+            "defence_crush": 10,
+            "defence_magic": 20,
+            "defence_ranged": 20,
+            "melee_strength": 0,
+        },
+        "protective_equipment": {
+            "slot": "feet",
+            "items": ("Insulated boots",),
+            "warning": (
+                "Missing Insulated boots: Killerwatt Plane thunderclouds add "
+                "0–140 LP damage to each incoming attack."
+            ),
+            "unprotected_effect": {
+                "damage": {"kind": "uniform_max", "max": 140},
+                "additive_to_attack": True,
+            },
+            "source_status": (
+                "period-exact equipment consequence and 140-LP maximum; one "
+                "additive cloud roll per incoming attack is the bounded "
+                "review-native cadence abstraction"
+            ),
+        },
+        "drops": {
+            "guaranteed": (("Impious ashes", 1),),
+            "tables": (
+                {
+                    "name": "Darkan main",
+                    "total": 100000,
+                    "slots": (
+                        {"item": "Grimy guam", "quantity": 1, "slots": 12016},
+                        {"item": "Grimy marrentill", "quantity": 1, "slots": 12016},
+                        {"item": "Grimy tarromin", "quantity": 1, "slots": 12016},
+                        {"item": "Grimy harralander", "quantity": 1, "slots": 12016},
+                        {
+                            "item": "Fire rune",
+                            "quantity_range": (18, 45),
+                            "slots": 12016,
+                        },
+                        {
+                            "item": "Air rune",
+                            "quantity_range": (5, 17),
+                            "slots": 12016,
+                        },
+                        {
+                            "item": "Coins",
+                            "quantity_range": (11, 200),
+                            "slots": 12016,
+                        },
+                        {"item": "Cannonball", "quantity": 3, "slots": 876},
+                        {"item": "Grimy ranarr", "quantity": 1, "slots": 876},
+                        {"item": "Grimy irit", "quantity": 1, "slots": 876},
+                        {"item": "Grimy avantoe", "quantity": 1, "slots": 876},
+                        {"item": "Grimy kwuarm", "quantity": 1, "slots": 876},
+                        {"item": "Grimy cadantine", "quantity": 1, "slots": 876},
+                        {
+                            "item": "Nature rune",
+                            "quantity_range": (4, 37),
+                            "slots": 876,
+                        },
+                        {"item": "Chaos rune", "quantity": 4, "slots": 876},
+                        {"item": "Fire orb", "quantity": 2, "slots": 876},
+                        {"item": "Staff of air", "quantity": 1, "slots": 876},
+                        {"item": "Staff of fire", "quantity": 1, "slots": 876},
+                        {"item": "Fire battlestaff", "quantity": 1, "slots": 876},
+                        {"item": "Air battlestaff", "quantity": 1, "slots": 876},
+                        {"item": "Mystic fire staff", "quantity": 1, "slots": 876},
+                        {"item": "Soda ash", "quantity": 4, "slots": 876},
+                        {"item": "Steam rune", "quantity": 2, "slots": 876},
+                        {"item": "Grimy dwarf weed", "quantity": 1, "slots": 623},
+                        {"item": "Death rune", "quantity": 2, "slots": 623},
+                        {"item": "Grimy lantadyme", "quantity": 1, "slots": 623},
+                        {"slots": 3},
+                    ),
+                },
+                {
+                    "name": "Darkan charms",
+                    "total": 303,
+                    "slots": (
+                        {"item": "Gold charm", "quantity": 1, "slots": 41},
+                        {"item": "Green charm", "quantity": 1, "slots": 2},
+                        {"item": "Crimson charm", "quantity": 1, "slots": 2},
+                        {"slots": 258},
+                    ),
+                },
+            ),
+        },
+        "source": (
+            "https://runescape.wiki/w/Killerwatt?oldid=6469837; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "killerwatt (noanims).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/developer-information/npcListBonuses.txt; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/killerwatt.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/charmDrops.txt; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/tools/old/CharmDrop.java"
+        ),
+        "source_status": (
+            "period exact identity, LP, Slayer/quest gates, Slayer XP, "
+            "eight-tick magical-melee/ranged styles, maximum hit, guaranteed "
+            "ashes, and uninsulated 140-LP cloud maximum; Darkan exact stats, "
+            "bonuses, respawn, one 100,000-slot ordinary selector, and "
+            "emulator-exact 303-slot charm selector"
+        ),
+    },
     "ogre": {
         "display_name": "Ogre",
         "level": 53,

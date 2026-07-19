@@ -123,6 +123,11 @@ EQUIPMENT_ITEM_NAME_OVERRIDES: Mapping[int, str] = {
     5013: "Mining helmet (lit)",
     5014: "Mining helmet (unlit)",
 }
+EQUIPMENT_REQUIREMENT_OVERRIDES: Mapping[
+    int, Tuple[Tuple[str, int], ...]
+] = {
+    7159: (("slayer", 37),),
+}
 MINING_BONUS_EQUIPMENT_FALLBACKS: Mapping[int, int] = {
     8283: 1704,
 }
@@ -448,7 +453,10 @@ def _equipment_item_from_source_item(source_item: SourceItem, source_note: str) 
     slot = _slot_from_source(block, "weapon")
     bonuses = _bonuses_from_block(block)
     combat_skill = _combat_skill_for_recipe_equipment(slot, bonuses)
-    skill_requirements = _source_skill_requirements(block)
+    skill_requirements = EQUIPMENT_REQUIREMENT_OVERRIDES.get(
+        source_item.item_id,
+        _source_skill_requirements(block),
+    )
     required_level = _source_required_level(combat_skill, skill_requirements)
     return GeneratedEquipmentItem(
         item_name=_canonical_equipment_item_name(source_item),

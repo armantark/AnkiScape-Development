@@ -2711,8 +2711,17 @@ def derive_casual_combat_magic_pure(player_data):
         book = str(data.get("combat_prayer_book", "standard"))
         target = COMBAT_ENEMY_DATA.get(str(data.get("current_combat_target", "")), {})
         if mode == "max_safety":
+            configured_style = COMBAT_ATTACK_STYLE_DATA.get(
+                str(data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE)),
+                COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE],
+            )
             protection_class = (
-                _combat_enemy_protection_class(target) if target else "melee"
+                _combat_enemy_protection_class(
+                    target,
+                    str(configured_style.get("combat_class", "melee")),
+                )
+                if target
+                else "melee"
             )
             protection_effect = {
                 "magic": "protect_magic",
@@ -3792,23 +3801,33 @@ def _combat_melee_max_hit_old_hp(effective_strength, strength_bonus):
 COMBAT_ENEMY_ATTACK_STYLES = ("melee", "ranged", "magic", "magic_melee")
 
 
-def _combat_enemy_attack_class(enemy):
+def _combat_enemy_attack_style(enemy, player_combat_class=None):
+    if not isinstance(enemy, Mapping):
+        return "melee"
+    by_player_class = enemy.get("attack_style_by_player_class")
+    if isinstance(by_player_class, Mapping):
+        resolved = by_player_class.get(player_combat_class)
+        if resolved in COMBAT_ENEMY_ATTACK_STYLES:
+            return resolved
+    style = enemy.get("attack_style", "melee")
+    return style if style in COMBAT_ENEMY_ATTACK_STYLES else "melee"
+
+
+def _combat_enemy_attack_class(enemy, player_combat_class=None):
     """The style the ENEMY attacks with. Determines which of its attack bonuses
     drives its accuracy and which of the player's defence bonuses resists it.
     Magic-based melee rolls against Magic defence while retaining melee damage
     and protection-prayer semantics. Unknown values fall back to melee."""
-    if not isinstance(enemy, Mapping):
-        return "melee"
-    style = enemy.get("attack_style", "melee")
+    style = _combat_enemy_attack_style(enemy, player_combat_class)
     if style == "magic_melee":
         return "magic"
-    return style if style in COMBAT_ENEMY_ATTACK_STYLES else "melee"
+    return style
 
 
-def _combat_enemy_protection_class(enemy):
-    if isinstance(enemy, Mapping) and enemy.get("attack_style") == "magic_melee":
+def _combat_enemy_protection_class(enemy, player_combat_class=None):
+    if _combat_enemy_attack_style(enemy, player_combat_class) == "magic_melee":
         return "melee"
-    return _combat_enemy_attack_class(enemy)
+    return _combat_enemy_attack_class(enemy, player_combat_class)
 
 
 def _combat_enemy_max_hit_old_hp(enemy, effective_strength, strength_bonus, enemy_totals=None):
@@ -3871,10 +3890,19 @@ def _combat_start_equipment_state(player_data, enemy):
     return requirement, equipped_item in required_items
 
 
-def _combat_unprotected_damage_lifepoints(effect, max_lifepoints):
+def _combat_unprotected_damage_lifepoints(effect, max_lifepoints, rng=None):
     damage = effect.get("damage") if isinstance(effect, Mapping) else None
     if not isinstance(damage, Mapping):
         return 0
+    if damage.get("kind") == "uniform_max":
+        maximum = _non_negative_int(damage.get("max", 0), 0)
+        if not callable(rng):
+            return maximum
+        try:
+            roll = max(0.0, min(float(rng()), 0.999999999999))
+        except (TypeError, ValueError):
+            roll = 0.0
+        return int(roll * (maximum + 1))
     if damage.get("kind") != "max_lifepoints_fraction_capped":
         return 0
     numerator = _positive_int(damage.get("numerator", 1), 1)
@@ -6665,6 +6693,12 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
     current_lp = max(0, min(_positive_int(player_data.get("combat_lifepoints", max_lp), max_lp), max_lp))
     enemy_max_lp_hit = (
         _combat_unprotected_damage_lifepoints(unprotected_effect, max_lp)
+        + (
+            int(enemy_max_hit * 10)
+            if isinstance(unprotected_effect, Mapping)
+            and bool(unprotected_effect.get("additive_to_attack"))
+            else 0
+        )
         if isinstance(unprotected_effect, Mapping)
         else int(enemy_max_hit * 10)
     )
@@ -7303,8 +7337,9 @@ def apply_combat_burst_pure(
 
     # The enemy attacks with ITS style: a mage's accuracy comes off its magic
     # level + magic attack bonus, and the player resists with magic defence.
-    enemy_class = _combat_enemy_attack_class(enemy)
-    magic_melee = enemy.get("attack_style") == "magic_melee"
+    enemy_style = _combat_enemy_attack_style(enemy, combat_class)
+    enemy_class = _combat_enemy_attack_class(enemy, combat_class)
+    magic_melee = enemy_style == "magic_melee"
     enemy_attack_stat = (
         "attack"
         if magic_melee
@@ -7722,7 +7757,10 @@ def apply_combat_burst_pure(
                 except (TypeError, ValueError):
                     dragonfire_roll = 0.0
                 damage = int(dragonfire_roll * (dragonfire_max_hit + 1))
-            elif isinstance(unprotected_effect, Mapping):
+            elif (
+                isinstance(unprotected_effect, Mapping)
+                and not bool(unprotected_effect.get("additive_to_attack"))
+            ):
                 damage = _combat_unprotected_damage_lifepoints(unprotected_effect, max_player_lp)
                 unprotected_attacks += 1
                 stat_drain_prayer = unprotected_effect.get(
@@ -7821,7 +7859,9 @@ def apply_combat_burst_pure(
                     )
                 )
             ):
-                protection_class = _combat_enemy_protection_class(enemy)
+                protection_class = _combat_enemy_protection_class(
+                    enemy, combat_class
+                )
                 protection_key = {
                     "magic": "protect_magic",
                     "ranged": "protect_ranged",
@@ -7839,6 +7879,14 @@ def apply_combat_burst_pure(
                         * protection_scale
                     )
                 )
+            if (
+                isinstance(unprotected_effect, Mapping)
+                and bool(unprotected_effect.get("additive_to_attack"))
+            ):
+                damage += _combat_unprotected_damage_lifepoints(
+                    unprotected_effect, max_player_lp, rng
+                )
+                unprotected_attacks += 1
             damage = min(player_lp, damage)
             if dragonfire_attack:
                 dragonfire_damage += damage

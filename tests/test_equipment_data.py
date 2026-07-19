@@ -20,7 +20,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 660)
+        self.assertEqual(len(EQUIPMENT_DATA), 661)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -53,6 +53,13 @@ class TestEquipmentData(unittest.TestCase):
         self.assertEqual(lit_bug_lantern.slot, "shield")
         self.assertEqual(lit_bug_lantern.source_item_id, 7053)
         self.assertEqual(sum(vars(lit_bug_lantern.bonuses).values()), 0)
+        insulated_boots = EQUIPMENT_DATA["Insulated boots"]
+        self.assertEqual(insulated_boots.slot, "feet")
+        self.assertEqual(insulated_boots.source_item_id, 7159)
+        self.assertEqual(
+            insulated_boots.skill_requirements,
+            (("slayer", 37),),
+        )
         anti_dragon = EQUIPMENT_DATA["Anti-dragon shield"]
         self.assertEqual(anti_dragon.slot, "shield")
         self.assertEqual(anti_dragon.source_item_id, 1540)

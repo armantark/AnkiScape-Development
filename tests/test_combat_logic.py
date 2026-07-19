@@ -635,6 +635,27 @@ class CombatEnemyAttackStyleTest(unittest.TestCase):
             ["protect_from_melee"],
         )
 
+    def test_casual_max_safety_tracks_killerwatt_distance_style(self):
+        for attack_style, expected_prayer in (
+            ("melee_accurate", "protect_from_melee"),
+            ("ranged_accurate", "protect_from_missiles"),
+            ("magic_standard", "protect_from_missiles"),
+        ):
+            with self.subTest(attack_style=attack_style):
+                prepared = derive_casual_combat_magic_pure(
+                    _player(
+                        current_combat_target="killerwatt",
+                        combat_attack_style=attack_style,
+                        combat_pack_mode="max_safety",
+                        prayer_level=99,
+                        combat_prayers_enabled=True,
+                    )
+                )
+                self.assertEqual(
+                    prepared["combat_selected_prayers"],
+                    [expected_prayer],
+                )
+
     def test_ranged_enemy_max_hit_uses_its_ranged_stat_not_melee_strength(self):
         weak_melee_strong_bow = self._enemy("ranged", strength=1, ranged=99)["x"]
         same_but_melee = self._enemy("melee", strength=1, ranged=99)["x"]
@@ -6129,6 +6150,76 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(
             _combat_roll_drops(harpie, _rng((0.999999, 3 / 202))),
             {"Green charm": 1},
+        )
+
+    def test_killerwatt_attack_channel_follows_player_distance_style(self):
+        killerwatt = COMBAT_ENEMY_DATA["killerwatt"]
+
+        self.assertEqual(
+            _combat_enemy_attack_class(killerwatt, "melee"), "magic"
+        )
+        self.assertEqual(
+            _combat_enemy_protection_class(killerwatt, "melee"), "melee"
+        )
+        for player_class in ("ranged", "magic"):
+            with self.subTest(player_class=player_class):
+                self.assertEqual(
+                    _combat_enemy_attack_class(killerwatt, player_class),
+                    "ranged",
+                )
+                self.assertEqual(
+                    _combat_enemy_protection_class(killerwatt, player_class),
+                    "ranged",
+                )
+
+    def test_killerwatt_uninsulated_cloud_damage_is_additive(self):
+        base = _player(
+            current_combat_target="killerwatt",
+            slayer_level=37,
+            quests={"ernest_the_chicken": {"completed": True}},
+            combat_attack_style="melee_accurate",
+            combat_lifepoints=990,
+            constitution_level=99,
+        )
+        protected = {
+            **base,
+            "equipment": {"feet": "Insulated boots"},
+        }
+
+        _protected_data, protected_ok, protected_result = apply_combat_burst_pure(
+            protected,
+            COMBAT_ENEMY_DATA,
+            {},
+            rng=lambda: 0.999999,
+            ticks=9,
+        )
+        _unprotected_data, unprotected_ok, unprotected_result = apply_combat_burst_pure(
+            base,
+            COMBAT_ENEMY_DATA,
+            {},
+            rng=lambda: 0.999999,
+            ticks=9,
+        )
+
+        self.assertTrue(protected_ok)
+        self.assertTrue(unprotected_ok)
+        self.assertEqual(protected_result["enemy_damage"], 0)
+        self.assertEqual(unprotected_result["enemy_damage"], 140)
+        self.assertEqual(unprotected_result["unprotected_attacks"], 1)
+        self.assertIn("0–140 LP", unprotected_result["protection_warning"])
+
+    def test_killerwatt_preserves_exact_main_and_charm_selectors(self):
+        killerwatt = COMBAT_ENEMY_DATA["killerwatt"]
+
+        self.assertEqual(killerwatt["attack_speed"], 8)
+        self.assertEqual(killerwatt["slayer_xp"], 51.0)
+        self.assertEqual(
+            _combat_roll_drops(killerwatt, _rng((0.0, 0.0))),
+            {"Impious ashes": 1, "Grimy guam": 1, "Gold charm": 1},
+        )
+        self.assertEqual(
+            _combat_roll_drops(killerwatt, _rng((0.999999, 42 / 303))),
+            {"Impious ashes": 1, "Green charm": 1},
         )
 
     def test_wall_beast_can_continue_after_helmet_swap_but_cannot_chain_a_respawn(self):

@@ -31,6 +31,8 @@ from fetch_assets import (  # noqa: E402
     wiki_title_for_item,
 )
 
+PRE_EOC_CUTOFF = "2012-11-20T23:59:59Z"
+
 
 TITLE_OVERRIDES = {
     "jackal": ("Jackalnew.png", "Jackal.png"),
@@ -76,6 +78,7 @@ TITLE_OVERRIDES = {
     "hobgoblin_armed": ("Hobgoblin.png",),
     "vampyre": ("Vampire (historical) (level 61).png",),
     "harpie_bug_swarm": ("Harpie Bugs Swarm.png",),
+    "killerwatt": ("Killerwatt icon.png",),
 }
 
 
@@ -113,7 +116,7 @@ def _wiki_title_candidates(target_id: str, display_name: str) -> tuple[str, ...]
 
 def fetch_enemy_assets(target_ids: Sequence[str], force: bool = False, size: int = 48) -> int:
     output_dir = REPO_ROOT / "combatenemies"
-    client = HttpWikiClient()
+    client = HttpWikiClient(before_timestamp=PRE_EOC_CUTOFF)
     failures: list[str] = []
     for target_id in target_ids:
         enemy = COMBAT_ENEMY_DATA[target_id]

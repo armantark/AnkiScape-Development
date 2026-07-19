@@ -23,6 +23,7 @@ NEW_COMBAT_ENEMIES = (
     "earth_warrior",
     "green_dragon",
     "harpie_bug_swarm",
+    "killerwatt",
     "ogre",
     "jackal",
     "icefiend",
@@ -87,6 +88,7 @@ REQUIRED_ENEMY_KEYS = {
 }
 
 OPTIONAL_ENEMY_KEYS = {
+    "attack_style_by_player_class",
     "max_hit",
     "poison_damage",
     "poison_immune",
@@ -175,7 +177,9 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                         set(protection),
                         {"slot", "items", "warning", "unprotected_effect", "source_status"},
                     )
-                    self.assertIn(protection["slot"], {"head", "shield", "neck"})
+                    self.assertIn(
+                        protection["slot"], {"head", "shield", "neck", "feet"}
+                    )
                     self.assertTrue(protection["items"])
                     self.assertTrue(protection["warning"])
                     self.assertTrue(protection["unprotected_effect"])
@@ -336,12 +340,18 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("mutated_zygomite_level_86", "Mutated zygomite icon.png"),
             ("green_dragon", "Green dragon.png"),
             ("harpie_bug_swarm", "Harpie Bugs Swarm.png"),
+            ("killerwatt", "Killerwatt icon.png"),
         ):
             with self.subTest(target=target_id):
                 relative_path = f"combatenemies/{target_id}.png"
                 self.assertTrue((root / relative_path).is_file())
                 self.assertIn(relative_path, provenance)
                 self.assertEqual(provenance[relative_path]["file_title"], file_title)
+                if target_id == "killerwatt":
+                    self.assertEqual(
+                        provenance[relative_path]["timestamp"],
+                        "2011-11-23T11:58:22Z",
+                    )
 
     def test_green_dragon_preserves_cutoff_combat_and_drop_selectors(self):
         dragon = COMBAT_ENEMY_DATA["green_dragon"]
