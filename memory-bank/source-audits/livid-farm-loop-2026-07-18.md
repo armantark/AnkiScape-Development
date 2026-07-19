@@ -4,8 +4,9 @@ Date: `2026-07-18`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **period cycle, cadence unit, and under-level duty policy closed;
-reward-ladder and wish design active.**
+Status: **owner-design loop closed; period cycle, cadence unit, distractions,
+spell ladder, Borrowed Power, and wishes are implementation-ready except for
+the explicitly source-blocked hidden rolls and effect magnitudes below.**
 
 ## Pinned period evidence
 
@@ -181,3 +182,148 @@ a fresh cadence residual. Reduced-reward cycles take longer; temporary Magic
 boosts or a pre-existing residual may shift the exact review on which a
 threshold is crossed. The runtime owns the actual cumulative point balance, not
 this explanatory projection.
+
+## Pacing decision
+
+The full progression remains intentionally long. The owner confirmed that
+Livid Farm's notorious slog is part of the activity's identity, so AnkiScape
+does not add a catch-up multiplier, first-clear bonus, streak bonus, or
+accelerated reward mode. At full output, the exact fresh-state path remains 538
+emitted cycles and 449 successful reviews.
+
+The mitigation is legibility rather than compression:
+
+- every cycle grants its substantial source XP and Produce immediately;
+- every spell threshold is visible before it is reached;
+- progress and the next unlock remain visible;
+- leaving and returning preserves points and cadence residual; and
+- no source field, dialogue, or puzzle must be babysat.
+
+## Automatic distractions
+
+The three optional source distractions are folded into the emitted cycle. They
+never become a separate review, dialogue question, or manual reaction:
+
+| Distraction | Required spell | Level | Cost | Magic XP | Successful reward |
+|---|---|---:|---|---:|---|
+| Sick ibis | Monster Examine | 66 | 1 Astral, 1 Cosmic, 1 Mind | 61 | 10 Water, 1 Astral, 16 Earth, 1 Cosmic, 1 Mind |
+| Suqah attack | Energy Transfer | 91 | 3 Astral, 2 Law, 1 Nature | 100 | 10 Water, 3 Astral, 16 Earth, 2 Law, 1 Nature |
+| Murky Pat | Vengeance Other | 93 | 3 Astral, 10 Earth, 2 Death | 108 | 15 Water, 3 Astral, 20 Earth, 2 Death |
+
+The source says each distraction is optional, grants no Produce points, and
+refunds its cast runes plus bonus Earth and Water runes on success. A player
+below the spell level may still complete it for the rune reward but receives
+no Magic XP. The Suqah's half-special-bar cost does not create persistent
+special depletion: the source explicitly says another cannot occur before the
+bar naturally replenishes.
+
+Period evidence does not expose the occurrence rate or relative weights.
+Those hidden rolls remain `source_blocked`. If implementation must proceed
+before stronger evidence appears, use one clearly labeled provisional global
+calibration—one seeded distraction opportunity per twelve emitted cycles,
+uniformly selecting among the three—rather than inventing three separate
+tables. At most one distraction resolves in a cycle. It resolves only when its
+complete rune cost is present; otherwise the distraction is skipped without
+blocking or partially mutating the ordinary cycle. The result line includes
+its exact XP and net rune delta. Undo restores the opportunity roll and every
+delta.
+
+## Spell ladder and claiming
+
+Crossing a cumulative Produce threshold claims the corresponding spell
+automatically. Pauline's source dialogue is presentation, not an AnkiScape
+action, so claiming consumes no review. The first ten claims do not spend
+Produce. Borrowed Power atomically deducts 850,000 points when claimed, and any
+remainder becomes the first wish balance.
+
+Each unlocked spell joins the ordinary Lunar-spell registry with its period
+Magic, rune, XP, target, item, and equipment rules. The focused Livid contract
+owns only its unlock:
+
+- South Falador and North Ardougne Teleports become direct destination
+  transitions;
+- Repair Rune Pouch repairs an essence pouch and gives it five times the
+  ordinary deterioration interval;
+- Remote Farm reads the existing Farming patch state and may cure a diseased
+  patch;
+- Spiritualise Food consumes eligible food through the Summoning familiar
+  heal/stat-boost contract;
+- Make Leather tans up to five hides per cast through the ordinary inventory
+  transaction;
+- Teleport to Trollheim targets the herb-patch destination; and
+- Disruption Shield, Vengeance Group, and Group Teleport to Trollheim remain
+  fully registered source content but naturally have no usable consumer until
+  PvP or multiplayer aid exists. They receive no permanent “future” lock or
+  cleanup-only UI state.
+
+Exact cast costs and effect magnitudes not stated by the pinned Livid Farm
+revision remain owned by the individual spell audit. The activity must not
+invent Livid-only versions of Farming, Summoning, tanning, teleport, PvP, or
+essence-pouch behavior.
+
+## Borrowed Power
+
+`Borrowed Power`, oldid `6587752` (`2012-11-19T14:23:14Z`), closes the capstone:
+
+- it is a level-99 Lunar spell costing three Astral runes per cast;
+- it casts exactly one selected standard-spellbook spell through an equipped
+  Arcane capacitor necklace;
+- charging consumes 1,000 times that spell's normal rune cost and installs
+  exactly 1,000 charges;
+- one account may own only one capacitor and it may hold only one spell;
+- each cast consumes three Astral runes and one charge, awards the borrowed
+  spell's ordinary Magic XP, and cannot autocast;
+- the necklace crumbles when the final charge is consumed or its charges are
+  removed; and
+- the supported list is Wind Wave, Water Wave, Earth Wave, Fire Wave, Magic
+  Dart, Vulnerability, Enfeeble, Entangle, Telekinetic Grab, Teleport to House,
+  High Alchemy, and Bones to Peaches.
+
+The capacitor bypasses the standard-spellbook selection boundary, not the
+borrowed action's target, quest, item, equipment, inventory, or encounter
+requirements unless an individual period source proves otherwise. Charging or
+replacing its binding is an atomic inventory command, not a review. An
+insufficient 1,000-cast rune bundle changes nothing.
+
+## Wishes
+
+After Borrowed Power, Produce continues accumulating from ordinary cycles up
+to the source maximum wallet of 850,000. Wishes are direct commands in the
+Livid Farm reward surface: a valid purchase atomically spends points and
+applies its output without consuming a review or any runes.
+
+| Wish | Cost | AnkiScape behavior |
+|---|---:|---|
+| Vial My Herbs | 5,500 | Convert every clean herb in carried inventory, noted or not, into its unfinished potion, capped at 50 of each herb. Cave nightshade is excluded. |
+| Turn Lunar Lumber Into Runes | 5,500 | Convert all carried Lunar lumber. A 28-lumber batch yields 25 Astral and 10 each Nature, Death, Earth, Cosmic, and Water runes. Partial batches use one deterministic residual so repeated small conversions equal the full-batch ratio rather than rounding free runes into existence. |
+| Give me an Arcane Capacitor | 18,000 | Grant one uncharged capacitor. The one-owned rule rejects the purchase atomically while another exists. |
+| I'd Like a New Patch! | 18,000 | Create the one-time allotment patch; it persists until its first clearing and then disappears. |
+| More Planks Please | 18,000 | For the sourced 20-minute duration, Plank Make has about a 1-in-10 chance to add the source noted plank output; Lunar lumber is excluded. |
+| Gimme Herbs | 18,000 | Grant noted 3 grimy kwuarm, 3 grimy irit, 2 grimy cadantine, 2 grimy avantoe, and 1 grimy lantadyme. |
+| Let it rain seeds | 18,000 | Auto-collect the source watermelon, cactus, poison ivy, strawberry, curry-tree, and orange-tree seed shower through the ordinary inventory/Bank Claim overflow path. Exact quantities remain `source_blocked`. |
+| Reduce The Fish I Burn | 18,000 | Apply the sourced 30-minute non-Daemonheim fish-burn reduction. Its exact magnitude remains `source_blocked`; do not substitute a modern rate. |
+| Protect a Patch for me! | 37,000 | Grant the source scroll. Only one protection may be active; it protects ten trees of the selected ordinary or fruit-tree type. |
+| Let it Rain Awesome Seeds | 55,000 | Auto-collect exactly 4 ranarr, 4 watermelon, 6 curry-tree, 2 pineapple, 2 papaya, and 4 willow seeds through the ordinary inventory/Bank Claim overflow path. |
+
+The two sourced minute durations use the shared short-duration
+answered-card clock, never the wall clock. They preserve the source 20:30
+ratio, advance on every answered card including Again, participate in undo,
+and affect only admitted eligible actions. They project through the shared
+temporary-effect UI rather than creating Livid-specific HUD controls.
+
+Ground-spawn clicking is not retained as a manual seed-pickup minigame. The
+wish purchase already is the meaningful choice; automatic collection preserves
+the sourced reward without introducing an inventory race against a timer.
+
+## Explicitly unresolved
+
+- distraction occurrence rate and relative weights: `source_blocked` hidden
+  rolls, with the single provisional fallback above;
+- the exact seed quantities for `Let it rain seeds`: `source_blocked`;
+- the exact burn-chance magnitude for `Reduce The Fish I Burn`:
+  `source_blocked`; and
+- individual spell cast data not stated on the Livid page: owned by each
+  spell's focused period audit, not guessed here.
+
+These gaps do not reopen the activity's product design. They are bounded source
+tasks for implementation.

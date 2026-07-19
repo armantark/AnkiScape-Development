@@ -305,6 +305,13 @@ half-point/no-Magic-XP duties below level 91; a full-reward-only alternative
 conserves runes without creating per-duty toggles. The pinned cycle and policy
 are recorded in
 `memory-bank/source-audits/livid-farm-loop-2026-07-18.md`.
+The owner explicitly retained its notorious long progression as part of the
+activity's identity: the full-output path remains 538 emitted cycles and 449
+successful reviews, with no invented catch-up multiplier. Automatic
+distractions, all cumulative spell unlocks, the complete Borrowed Power
+capacitor loop, and every period wish are now specified in that focused
+contract; only the named hidden rolls and two undocumented reward magnitudes
+remain source-blocked.
 
 Evil Trees reuse Shooting Stars' review-clock discovery surface without its
 communal-population simulation. About every twenty answered cards, a random
