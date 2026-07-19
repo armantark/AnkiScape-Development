@@ -388,6 +388,15 @@ consequence remain as settled in
 `memory-bank/source-audits/fishing-trawler-computation-reconciliation-2026-07-17.md`,
 which now also records the trip-granularity decision.
 
+Pest Control uses a shared-assault engine: the fixed competent crowd both
+damages the active portal and holds pests off the Void Knight at bounded
+rates, while the player's reviews are live six-tick Combat slices against the
+current portal front or a defense diversion. Attested portal LP stays real —
+the crowd, not rescaled numbers, closes the solo gap — losing the knight
+remains a zero-reward outcome, and the zeal gate is recorded as trivially met
+because reviews are always contribution. The focused record is
+`memory-bank/source-audits/pest-control-game-model-2026-07-18.md`.
+
 Fist of Guthix does not expose opponent selection or difficulty profiles. The
 cutoff game paired waiting-room players randomly regardless of Combat level,
 randomized the first-round roles, and swapped roles for round two. AnkiScape
