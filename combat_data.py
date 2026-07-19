@@ -1194,6 +1194,88 @@ COMBAT_GEM_DROP_TABLE = {
     ),
 }
 
+DARKAN_ABERRANT_HERB_DROP_TABLE = {
+    "name": "Darkan herb",
+    "source": (
+        "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+        "darkan-world-server/data/npcs/drops/special_tables/herb.json"
+    ),
+    "total": 128,
+    "slots": (
+        {"item": "Grimy guam", "quantity": 1, "slots": 32},
+        {"item": "Grimy marrentill", "quantity": 1, "slots": 24},
+        {"item": "Grimy tarromin", "quantity": 1, "slots": 18},
+        {"item": "Grimy harralander", "quantity": 1, "slots": 14},
+        {"item": "Grimy ranarr", "quantity": 1, "slots": 11},
+        {"item": "Grimy irit", "quantity": 1, "slots": 8},
+        {"item": "Grimy avantoe", "quantity": 1, "slots": 6},
+        {"item": "Grimy kwuarm", "quantity": 1, "slots": 5},
+        {"item": "Grimy cadantine", "quantity": 1, "slots": 4},
+        {"item": "Grimy lantadyme", "quantity": 1, "slots": 3},
+        {"item": "Grimy dwarf weed", "quantity": 1, "slots": 3},
+    ),
+}
+
+DARKAN_ABERRANT_RARE_SEED_DROP_TABLE = {
+    "name": "Darkan rare seed",
+    "source": (
+        "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+        "darkan-world-server/data/npcs/drops/special_tables/rare_seeds.json"
+    ),
+    "total": 125,
+    "slots": (
+        {"item": "Toadflax seed", "quantity": 1, "slots": 27},
+        {"item": "Irit seed", "quantity": 1, "slots": 18},
+        {"item": "Belladonna seed", "quantity": 1, "slots": 18},
+        {"item": "Poison ivy seed", "quantity": 1, "slots": 13},
+        {"item": "Cactus seed", "quantity": 1, "slots": 12},
+        {"item": "Avantoe seed", "quantity": 1, "slots": 12},
+        {"item": "Kwuarm seed", "quantity": 1, "slots": 9},
+        {"item": "Snapdragon seed", "quantity": 1, "slots": 6},
+        {"item": "Cadantine seed", "quantity": 1, "slots": 4},
+        {"item": "Lantadyme seed", "quantity": 1, "slots": 3},
+        {"item": "Dwarf weed seed", "quantity": 1, "slots": 2},
+        {"item": "Torstol seed", "quantity": 1, "slots": 1},
+    ),
+}
+
+DARKAN_ABERRANT_MEGA_RARE_DROP_TABLE = {
+    "name": "Darkan mega rare",
+    "source": (
+        "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+        "darkan-world-server/data/npcs/drops/special_tables/rdt_mega_rare.json"
+    ),
+    "total": 256,
+    "slots": (
+        {"item": "Rune spear", "quantity": 1, "slots": 16},
+        {"item": "Shield left half", "quantity": 1, "slots": 8},
+        {"item": "Dragon spear", "quantity": 1, "slots": 6},
+        {"item": "Vecna skull", "quantity": 1, "slots": 1},
+        {"slots": 225},
+    ),
+}
+
+DARKAN_ABERRANT_GEM_DROP_TABLE = {
+    "name": "Darkan gem",
+    "source": (
+        "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+        "darkan-world-server/data/npcs/drops/special_tables/rdt_gem.json"
+    ),
+    "total": 128,
+    "slots": (
+        {"item": "Uncut sapphire", "quantity": 1, "slots": 32},
+        {"item": "Uncut emerald", "quantity": 1, "slots": 16},
+        {"item": "Uncut ruby", "quantity": 1, "slots": 8},
+        {"item": "Chaos talisman", "quantity": 1, "slots": 3},
+        {"item": "Uncut diamond", "quantity": 1, "slots": 2},
+        {"item": "Rune javelin", "quantity": 5, "slots": 1},
+        {"item": "Tooth half of a key", "quantity": 1, "slots": 1},
+        {"item": "Loop half of a key", "quantity": 1, "slots": 1},
+        {"table": DARKAN_ABERRANT_MEGA_RARE_DROP_TABLE, "slots": 1},
+        {"slots": 63},
+    ),
+}
+
 
 COMBAT_RARE_DROP_TABLE = {
     "name": "Rare",
@@ -7889,6 +7971,154 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "Lava battlestaff; charm distribution remains source_blocked"
         ),
     },
+    "aberrant_spectre": {
+        "display_name": "Aberrant spectre",
+        "level": 96,
+        "group": "Slayer",
+        "required_slayer_level": 60,
+        "quest_gate": "priest_in_peril",
+        "quest_gate_label": "Complete Priest in Peril",
+        "attack_style": "magic",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 119,
+        "slayer_xp": 90.0,
+        "protective_equipment": {
+            "slot": "head",
+            "items": (
+                "Nose peg",
+                "Slayer helmet",
+                "Slayer helmet (charged)",
+                "Slayer helmet (e)",
+                "Full slayer helmet",
+                "Full slayer helmet (charged)",
+                "Full slayer helmet (e)",
+            ),
+            "warning": (
+                "Missing Nose peg or a Slayer helmet in the head slot: "
+                "Aberrant spectre stench deals fixed damage and drains one "
+                "combat stat unless Protect from Magic is active."
+            ),
+            "unprotected_effect": {
+                "damage": {
+                    "kind": "max_lifepoints_fraction_capped",
+                    "numerator": 1,
+                    "denominator": 10,
+                    "cap": 160,
+                },
+                "stat_drain_protection_prayer": "protect_magic",
+                "stat_drain": {
+                    "kind": "flat_to_floor",
+                    "skills": (
+                        "attack",
+                        "defense",
+                        "strength",
+                        "ranged",
+                        "prayer",
+                        "magic",
+                    ),
+                    "amount": 5,
+                    "floor": 0,
+                    "selection": "random_one",
+                },
+            },
+            "source_status": (
+                "period exact protective headgear and unavoidable 160-LP "
+                "unprotected maximum; Darkan exact max-LP/10 damage, random "
+                "five-level combat-stat drain, and Protect from Magic drain block"
+            ),
+        },
+        "stats": {
+            "hitpoints": 900,
+            "attack": 1,
+            "strength": 1,
+            "defence": 90,
+            "magic": 105,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 512,
+                    "slots": (
+                        {
+                            "table": DARKAN_ABERRANT_HERB_DROP_TABLE,
+                            "slots": 312,
+                        },
+                        {
+                            "table": DARKAN_ABERRANT_RARE_SEED_DROP_TABLE,
+                            "slots": 76,
+                        },
+                        {
+                            "table": DARKAN_ABERRANT_GEM_DROP_TABLE,
+                            "slots": 20,
+                        },
+                        {"item": "Steel hatchet", "quantity": 1, "slots": 12},
+                        {
+                            "item": "Mithril kiteshield",
+                            "quantity": 1,
+                            "slots": 4,
+                        },
+                        {"item": "Lava battlestaff", "quantity": 1, "slots": 4},
+                        {"item": "Adamant platelegs", "quantity": 1, "slots": 4},
+                        {"item": "Rune full helm", "quantity": 1, "slots": 4},
+                        {"item": "Coins", "quantity": 460, "slots": 4},
+                        {
+                            "item": "Mystic robe bottom (dark)",
+                            "quantity": 1,
+                            "slots": 1,
+                        },
+                        {"slots": 71},
+                    ),
+                },
+                {
+                    "name": "Charms",
+                    "total": 1212,
+                    "slots": (
+                        {"item": "Gold charm", "quantity": 1, "slots": 97},
+                        {"item": "Green charm", "quantity": 1, "slots": 25},
+                        {"item": "Crimson charm", "quantity": 1, "slots": 15},
+                        {"item": "Blue charm", "quantity": 1, "slots": 19},
+                        {"slots": 1056},
+                    ),
+                },
+            ),
+        },
+        "source": (
+            "https://runescape.wiki/w/Aberrant_spectre?oldid=6555339; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/game/content/skills/"
+            "slayer/npcs/combat/AberrantSpectre.java; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "aberrant_spectre.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/aberrant_spectre.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/tools/old/CharmDrop.java"
+        ),
+        "source_status": (
+            "period exact ordinary identity, access, LP, Slayer gate/XP, "
+            "six-tick Magic attack, protected and unprotected maximum hits, "
+            "and protective-headgear behavior; Darkan exact stats, respawn, "
+            "exact 512-slot ordinary selector and nested herb/seed/gem tables, "
+            "and derived exact charm selector; zero defensive bonuses are "
+            "source_blocked pending cutoff-era cache evidence"
+        ),
+    },
     "basilisk": {
         "display_name": "Basilisk",
         "level": 61,
@@ -10415,6 +10645,13 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Grimy lantadyme": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_LANTADYME"},
     "Grimy marrentill": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_MARRENTILL"},
     "Grimy ranarr": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_RANARR"},
+    "Grimy snapdragon": {
+        "category": "material",
+        "source": "Darkan cache item 3051; Darkan herb special table item 3051",
+        "source_item_id": 3051,
+        "stackable": False,
+        "tradeable": True,
+    },
     "Grimy tarromin": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_TARROMIN"},
     "Half an apple pie": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HALF_AN_APPLE_PIE"},
     "Half a summer pie": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HALF_A_SUMMER_PIE"},
@@ -10470,6 +10707,16 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
             "RuneScape Wiki Mystic boots oldid 6315992"
         ),
         "source_item_id": 4107,
+        "stackable": False,
+        "tradeable": True,
+    },
+    "Mystic robe bottom (dark)": {
+        "category": "equipment",
+        "source": (
+            "game-main data/cfg/items.yml item 4103; "
+            "RuneScape Wiki Mystic robe bottom oldid 6436814"
+        ),
+        "source_item_id": 4103,
         "stackable": False,
         "tradeable": True,
     },
@@ -10592,6 +10839,16 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Unicorn horn": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.UNICORN_HORN"},
     "Vial": {"category": "crafted", "source": f"{ITEM_ID_SOURCE_PATH}: Items.VIAL"},
     "Vial of water": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.VIAL_OF_WATER"},
+    "Vecna skull": {
+        "category": "material",
+        "source": (
+            "Darkan cache item 20667; "
+            "Darkan rdt_mega_rare special table item 20667"
+        ),
+        "source_item_id": 20667,
+        "stackable": False,
+        "tradeable": True,
+    },
     "Watering can (8)": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WATERING_CAN_8"},
     "Watermelon seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WATERMELON_SEED"},
     "White bead": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WHITE_BEAD"},

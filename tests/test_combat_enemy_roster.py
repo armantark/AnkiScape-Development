@@ -28,6 +28,7 @@ NEW_COMBAT_ENEMIES = (
     "jelly",
     "bloodveld",
     "infernal_mage",
+    "aberrant_spectre",
     "basilisk",
     "crocodile",
     "otherworldly_being",
@@ -284,6 +285,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("jelly", "Jelly.png"),
             ("bloodveld", "Bloodveld.png"),
             ("infernal_mage", "Infernal Mage.png"),
+            ("aberrant_spectre", "Aberrant spectre.png"),
             ("basilisk", "Basilisk.png"),
             ("crocodile", "Crocodile.png"),
             ("otherworldly_being", "Otherworldly being.png"),
@@ -386,11 +388,17 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("infernal_mage", 45),
             ("bloodveld", 50),
             ("jelly", 52),
+            ("aberrant_spectre", 60),
         ):
             with self.subTest(target_id=target_id):
                 self.assertEqual(
                     combat_target_locked_reasons_pure(
-                        {"slayer_level": required_level - 1},
+                        {
+                            "slayer_level": required_level - 1,
+                            "quests": {
+                                "priest_in_peril": {"completed": True}
+                            },
+                        },
                         target_id,
                         COMBAT_ENEMY_DATA,
                     ),
@@ -398,7 +406,12 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                 )
                 self.assertEqual(
                     combat_target_locked_reasons_pure(
-                        {"slayer_level": required_level},
+                        {
+                            "slayer_level": required_level,
+                            "quests": {
+                                "priest_in_peril": {"completed": True}
+                            },
+                        },
                         target_id,
                         COMBAT_ENEMY_DATA,
                     ),
@@ -515,6 +528,43 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertIn(
             "charm distribution remains source_blocked", basilisk["source_status"]
         )
+
+    def test_aberrant_spectre_preserves_stench_and_exact_tables(self):
+        spectre = COMBAT_ENEMY_DATA["aberrant_spectre"]
+
+        self.assertEqual(spectre["level"], 96)
+        self.assertEqual(spectre["required_slayer_level"], 60)
+        self.assertEqual(spectre["quest_gate"], "priest_in_peril")
+        self.assertEqual(spectre["attack_style"], "magic")
+        self.assertEqual(spectre["attack_speed"], 6)
+        self.assertEqual(spectre["respawn_delay"], 59)
+        self.assertEqual(spectre["slayer_xp"], 90.0)
+        self.assertEqual(spectre["max_hit"], 119)
+        self.assertEqual(spectre["stats"]["hitpoints"], 900)
+        self.assertEqual(spectre["drops"]["guaranteed"], ())
+        self.assertEqual(len(spectre["drops"]["tables"]), 2)
+        for table in spectre["drops"]["tables"]:
+            self.assertEqual(
+                sum(slot["slots"] for slot in table["slots"]), table["total"]
+            )
+        effect = spectre["protective_equipment"]["unprotected_effect"]
+        self.assertEqual(effect["damage"]["cap"], 160)
+        self.assertEqual(effect["stat_drain_protection_prayer"], "protect_magic")
+        self.assertEqual(effect["stat_drain"]["floor"], 0)
+        main, charms = spectre["drops"]["tables"]
+        self.assertEqual(main["total"], 512)
+        self.assertEqual(main["slots"][-1], {"slots": 71})
+        self.assertEqual(
+            charms["slots"][:4],
+            (
+                {"item": "Gold charm", "quantity": 1, "slots": 97},
+                {"item": "Green charm", "quantity": 1, "slots": 25},
+                {"item": "Crimson charm", "quantity": 1, "slots": 15},
+                {"item": "Blue charm", "quantity": 1, "slots": 19},
+            ),
+        )
+        self.assertIn("oldid=6555339", spectre["source"])
+        self.assertIn("exact 512-slot ordinary selector", spectre["source_status"])
 
     def test_crocodile_preserves_the_level_63_desert_variant(self):
         crocodile = COMBAT_ENEMY_DATA["crocodile"]

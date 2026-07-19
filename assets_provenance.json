@@ -635,6 +635,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:53:48Z"
   },
+  "combatenemies/aberrant_spectre.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Aberrant_spectre.png",
+    "file_title": "Aberrant spectre.png",
+    "image_url": "https://runescape.wiki/images/Aberrant_spectre.png?aa3f2",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "112525b01d03a323b876847bfdf58ae2a50737ce",
+    "size": 30816,
+    "source_wiki": "rs3",
+    "timestamp": "2013-02-08T04:52:52Z"
+  },
   "combatenemies/al_kharid_warrior.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Al_Kharid_warrior.png",
     "file_title": "Al Kharid warrior.png",
@@ -2665,6 +2677,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:59:12Z"
   },
+  "combatitems/mystic_robe_bottom_dark.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Dark_mystic_robe_bottom.png",
+    "file_title": "Dark mystic robe bottom.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502055050%21Dark_mystic_robe_bottom.png?870c9",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "65aba9c6c745738ffa66d361465a96a735e4838e",
+    "size": 632,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-06T21:33:56Z"
+  },
   "combatitems/needle.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Needle.png",
     "file_title": "Needle.png",
@@ -2976,6 +3000,18 @@
     "size": 395,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:07:08Z"
+  },
+  "combatitems/vecna_skull.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Vecna_skull.png",
+    "file_title": "Vecna skull.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502090018%21Vecna_skull.png?dd100",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f53df5ff08dacc4748b539d5c6b9e245828f12ae",
+    "size": 807,
+    "source_wiki": "rs3",
+    "timestamp": "2011-03-15T20:01:59Z"
   },
   "combatitems/vial_of_water.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Vial_of_water.png",

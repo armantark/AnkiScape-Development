@@ -163,6 +163,7 @@ LEGACY_EQUIPMENT_ITEMS: Tuple[Tuple[str, int, Optional[str], int, bool, str, str
     ("Obsidian cape", 6568, None, 1, False, "obsidian_cape", "OBSIDIAN_CAPE"),
     ("Lava battlestaff", 3053, "attack", 30, False, "battlestaff", "LAVA_BATTLESTAFF"),
     ("Mystic hat (dark)", 4099, "defense", 20, False, "head", "MYSTIC_HAT_DARK"),
+    ("Mystic robe bottom (dark)", 4103, "defense", 20, False, "legs", "MYSTIC_ROBE_BOTTOM_DARK"),
     ("Mystic boots (dark)", 4107, "defense", 20, False, "boots", "MYSTIC_BOOTS_DARK"),
     ("Mystic hat (light)", 4109, "defense", 20, False, "head", "MYSTIC_HAT_LIGHT"),
     ("Staff", 1379, None, 1, False, "staff", "STAFF"),
@@ -185,6 +186,7 @@ LEGACY_EQUIPMENT_REQUIREMENT_OVERRIDES: Mapping[
     "Fire battlestaff": (("attack", 30), ("magic", 30)),
     "Lava battlestaff": (("attack", 30), ("magic", 30)),
     "Mystic hat (dark)": (("defense", 20), ("magic", 40)),
+    "Mystic robe bottom (dark)": (("defense", 20), ("magic", 40)),
     "Mystic boots (dark)": (("defense", 20), ("magic", 20)),
     "Mystic hat (light)": (("defense", 20), ("magic", 20)),
 }

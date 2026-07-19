@@ -7179,8 +7179,20 @@ def apply_combat_burst_pure(
             if isinstance(unprotected_effect, Mapping):
                 damage = _combat_unprotected_damage_lifepoints(unprotected_effect, max_player_lp)
                 unprotected_attacks += 1
-                attack_drains = _combat_apply_unprotected_stat_drains(
-                    data, unprotected_effect, rng
+                stat_drain_prayer = unprotected_effect.get(
+                    "stat_drain_protection_prayer"
+                )
+                stat_drain_blocked = (
+                    isinstance(stat_drain_prayer, str)
+                    and tick_prayer_uptime > 0
+                    and float(prayer_effects.get(stat_drain_prayer, 0.0)) > 0.0
+                )
+                attack_drains = (
+                    {}
+                    if stat_drain_blocked
+                    else _combat_apply_unprotected_stat_drains(
+                        data, unprotected_effect, rng
+                    )
                 )
                 for skill_id, amount in attack_drains.items():
                     stat_drains[skill_id] = _non_negative_int(stat_drains.get(skill_id, 0), 0) + amount

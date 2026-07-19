@@ -1424,3 +1424,30 @@ Test counts are snapshots; current runs outrank this note.
 - Published
   `status-updates/slayer-feral-vampyre-results-2026-07-18.html`
   (<https://v0w3h4u00jo4.postplan.dev>).
+
+## Aberrant spectre playable Slayer target — 2026-07-18
+
+- Added the ordinary level-96 Aberrant spectre with its Priest in Peril and
+  Slayer-60 gates, 900 LP, 90 Slayer XP, six-tick Magic cadence, and exact
+  protected/unprotected hit behavior.
+- Added a data-declared stench rule: Nose peg and Slayer helmets protect
+  completely; otherwise max-LP/10 damage always lands while Protect from Magic
+  blocks only the random five-level combat-stat drain.
+- Encoded Darkan's ten weighted ordinary rows as its executable 512-slot
+  mutually exclusive selector, plus exact nested herb, rare-seed, gem, and
+  mega-rare tables and the independent 1,212-way charm selector.
+- Generated Mystic robe bottom (dark) as real legs equipment and installed
+  provenanced sprites for the target, Mystic bottom, and Vecna skull.
+  Regeneration also repaired the latent Adamant spear and Black dagger (p)
+  equipment rows from the preceding Shadow-warrior slice.
+- Vannaka now derives at 25/35 ready families. Nine Combat targets plus Earth
+  warrior's Wilderness-risk behavior remain; the master stays hidden and
+  unrenormalized. No quest files were touched and no owner design gap emerged.
+- Durable evidence:
+  `source-audits/slayer-aberrant-spectre-combat-2026-07-18.md`.
+- Focused pure/registry coverage passes 331 checks and the real offscreen Qt
+  picker regression passes. Full discovery runs 1,614 methods: 1,400 ordinary
+  passes and 214 declared skips.
+- Published
+  `status-updates/slayer-aberrant-spectre-results-2026-07-18.html`
+  (<https://fr3fmom6akth.postplan.dev>).

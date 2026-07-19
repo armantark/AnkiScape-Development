@@ -183,11 +183,12 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 self.assertTrue(os.path.exists(definition.asset_path))
                 self.assertEqual(EQUIPMENT_DATA[item_name].required_level, required_level)
 
-    def test_infernal_mage_rare_equipment_has_real_assets(self):
+    def test_slayer_mage_rare_equipment_has_real_assets(self):
         definitions = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         for item_name, item_id, slot in (
             ("Lava battlestaff", 3053, "weapon"),
             ("Mystic hat (dark)", 4099, "head"),
+            ("Mystic robe bottom (dark)", 4103, "legs"),
         ):
             with self.subTest(item_name=item_name):
                 definition = definitions[item_name]

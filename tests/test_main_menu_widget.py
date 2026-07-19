@@ -2292,6 +2292,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         jelly = _tree_row(tree, "jelly")
         bloodveld = _tree_row(tree, "bloodveld")
         infernal_mage = _tree_row(tree, "infernal_mage")
+        aberrant_spectre = _tree_row(tree, "aberrant_spectre")
         basilisk = _tree_row(tree, "basilisk")
         crocodile = _tree_row(tree, "crocodile")
         otherworldly_being = _tree_row(tree, "otherworldly_being")
@@ -2360,6 +2361,17 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Mystic boots (dark) x1 (1/512)", infernal_mage.toolTip(0))
         self.assertIn("Lava battlestaff x1 (1/1000)", infernal_mage.toolTip(0))
         self.assertFalse(infernal_mage.icon(0).isNull())
+        self.assertEqual(
+            aberrant_spectre.text(0), "Aberrant spectre (Lvl 96)"
+        )
+        self.assertIn("Enemy max hit: 10 LP", aberrant_spectre.toolTip(0))
+        self.assertIn("Missing Nose peg", aberrant_spectre.toolTip(0))
+        self.assertIn(
+            "Mystic robe bottom (dark) x1 (1/512)",
+            aberrant_spectre.toolTip(0),
+        )
+        self.assertIn("Gold charm x1 (97/1212)", aberrant_spectre.toolTip(0))
+        self.assertFalse(aberrant_spectre.icon(0).isNull())
         self.assertEqual(basilisk.text(0), "Basilisk (Lvl 61)")
         self.assertIn("Enemy max hit: 10 LP", basilisk.toolTip(0))
         self.assertIn("Missing Mirror shield", basilisk.toolTip(0))

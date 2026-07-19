@@ -1163,3 +1163,30 @@ evidence is
 The visual closure report is
 `status-updates/slayer-feral-vampyre-results-2026-07-18.html`
 (<https://v0w3h4u00jo4.postplan.dev>).
+
+## Slayer Aberrant spectre Combat slice (2026-07-18)
+
+The ordinary level-96 Aberrant spectre is now an executable Vannaka-family
+Combat target behind the existing Priest in Peril gate. It carries the cutoff
+900 LP, Slayer 60/90 XP, six-tick Magic attack, 119-LP protected maximum,
+Nose-peg/Slayer-helmet protection, and 160-LP unprotected maximum. Darkan
+supplies exact combat stats, respawn, stench mechanics, ten independent
+ordinary rows represented by the executable `DropList` semantics as one
+512-slot selector, four nested special tables, and an exact derived charm
+selector.
+
+The live stench rule preserves the unusual prayer split: Protect from Magic
+blocks the random five-level combat-stat drain but does not block max-LP/10
+damage. The new field is data-declared and leaves Basilisk's inverse behavior
+unchanged. Mystic robe bottom (dark) is generated as real legs equipment with
+its source item, bonuses, requirements, and sprite. Regeneration also repaired
+the previously latent Adamant spear and Black dagger (p) Shadow-warrior
+equipment rows.
+
+Vannaka readiness is now 25/35. Nine Combat representatives and Earth
+warrior's Wilderness-risk behavior remain. No quest files were edited and no
+owner design gap emerged. Durable evidence is
+`source-audits/slayer-aberrant-spectre-combat-2026-07-18.md`.
+The visual closure report is
+`status-updates/slayer-aberrant-spectre-results-2026-07-18.html`
+(<https://fr3fmom6akth.postplan.dev>).

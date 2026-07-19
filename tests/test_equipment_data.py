@@ -20,7 +20,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 654)
+        self.assertEqual(len(EQUIPMENT_DATA), 657)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -263,6 +263,7 @@ class TestEquipmentData(unittest.TestCase):
             "Abyssal whip": ("weapon", 4151, 70, 0, 0, 0, 82),
             "Mystic gloves": ("hands", 4095, 20, 0, 0, 0, 0),
             "Mystic hat (dark)": ("head", 4099, 20, 0, 0, 0, 0),
+            "Mystic robe bottom (dark)": ("legs", 4103, 20, 0, 0, 0, 0),
             "Mystic boots (dark)": ("feet", 4107, 20, 0, 0, 0, 0),
             "Black boots": ("feet", 4125, 10, 7, 8, 9, 0),
             "Mithril boots": ("feet", 4127, 20, 8, 9, 10, 0),
@@ -298,6 +299,10 @@ class TestEquipmentData(unittest.TestCase):
         )
         self.assertEqual(
             EQUIPMENT_DATA["Mystic hat (dark)"].skill_requirements,
+            (("defense", 20), ("magic", 40)),
+        )
+        self.assertEqual(
+            EQUIPMENT_DATA["Mystic robe bottom (dark)"].skill_requirements,
             (("defense", 20), ("magic", 40)),
         )
         self.assertEqual(

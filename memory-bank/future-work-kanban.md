@@ -235,7 +235,7 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   certification.
 - Vannaka is now the third completely encoded pool. Its 35 master-specific
   rows preserve the provisional 460-point denominator and remain hidden at
-  24/35 readiness. Ordinary Ogre closes the Ogres family with its exact nested
+  25/35 readiness. Ordinary Ogre closes the Ogres family with its exact nested
   common-seed and tertiary-bone drops; ordinary Jelly closes Jellies with
   magic-based melee, an exact 128-slot table, and generated Mithril boots;
   ordinary Bloodveld closes Bloodvelds with the same distinct attack channel,
@@ -248,8 +248,11 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   duplicating quest work. The Cabin-Fever-gated Jungle horror adds guaranteed
   Bones plus Darkan's exact 32 independent ordinary rolls. The Legends'-Quest-
   gated Shadow warrior adds 14 independent ordinary rolls and Darkan's exact
-  executable charm selector. The remaining 11 blockers are derived by
-  `tools/audit_slayer_readiness.py`: 10 missing Combat targets
+  executable charm selector. The Priest-in-Peril-gated Aberrant spectre adds
+  exact stench damage/drain behavior, a 512-slot ordinary selector, four exact
+  nested Darkan tables, a derived charm selector, and generated dark Mystic
+  legs. The remaining 10 blockers are derived by
+  `tools/audit_slayer_readiness.py`: nine missing Combat targets
   (including the Darkan-owned Mogre quest route) plus Wilderness-risk behavior
   for the already-live Earth warrior. Continue from that generated ledger; do
   not expose or renormalize the partial master. See

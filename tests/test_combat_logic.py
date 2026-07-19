@@ -13,6 +13,10 @@ from combat_data import (
     COMBAT_MAGIC_STAFF_DATA,
     COMBAT_RANGED_AMMO_DATA,
     COMBAT_RANGED_WEAPON_DATA,
+    DARKAN_ABERRANT_GEM_DROP_TABLE,
+    DARKAN_ABERRANT_HERB_DROP_TABLE,
+    DARKAN_ABERRANT_MEGA_RARE_DROP_TABLE,
+    DARKAN_ABERRANT_RARE_SEED_DROP_TABLE,
     HAAKON_DROPS,
     HAM_GUARD_DROPS,
     HILL_GIANT_DROPS,
@@ -2596,6 +2600,46 @@ class CombatLogicTest(unittest.TestCase):
                     ),
                     expected,
                 )
+
+    def test_aberrant_spectre_rolls_exact_main_and_nested_tables(self):
+        spectre = COMBAT_ENEMY_DATA["aberrant_spectre"]
+
+        self.assertEqual(DARKAN_ABERRANT_HERB_DROP_TABLE["total"], 128)
+        self.assertEqual(DARKAN_ABERRANT_RARE_SEED_DROP_TABLE["total"], 125)
+        self.assertEqual(DARKAN_ABERRANT_GEM_DROP_TABLE["total"], 128)
+        self.assertEqual(DARKAN_ABERRANT_MEGA_RARE_DROP_TABLE["total"], 256)
+        for table in (
+            DARKAN_ABERRANT_HERB_DROP_TABLE,
+            DARKAN_ABERRANT_RARE_SEED_DROP_TABLE,
+            DARKAN_ABERRANT_GEM_DROP_TABLE,
+            DARKAN_ABERRANT_MEGA_RARE_DROP_TABLE,
+        ):
+            self.assertEqual(
+                sum(slot["slots"] for slot in table["slots"]), table["total"]
+            )
+
+        herb = _combat_roll_drops(spectre, _rng([0.0, 0.0, 0.999999]))
+        seed = _combat_roll_drops(
+            spectre, _rng([312 / 512, 0.0, 0.999999])
+        )
+        mystic = _combat_roll_drops(
+            spectre, _rng([440 / 512, 0.999999])
+        )
+        self.assertEqual(herb, {"Grimy guam": 1})
+        self.assertEqual(seed, {"Toadflax seed": 1})
+        self.assertEqual(mystic, {"Mystic robe bottom (dark)": 1})
+        vecna = _combat_roll_drops(
+            spectre,
+            _rng(
+                [
+                    388 / 512,
+                    64 / 128,
+                    30 / 256,
+                    0.999999,
+                ]
+            ),
+        )
+        self.assertEqual(vecna, {"Vecna skull": 1})
 
     def test_zombie_drop_rolls_nested_minor_herbs_and_level_25_variant(self):
         herb_drops = _combat_roll_drops(
@@ -5417,6 +5461,64 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(shielded_result["unprotected_attacks"], 0)
         self.assertEqual(shielded_result["stat_drains"], {})
         self.assertEqual(shielded["combat_current_levels"], {})
+
+    def test_aberrant_spectre_prayer_blocks_drain_but_not_stench_damage(self):
+        base = dict(
+            current_combat_target="aberrant_spectre",
+            slayer_level=60,
+            quests={"priest_in_peril": {"completed": True}},
+            attack_level=60,
+            strength_level=60,
+            defense_level=60,
+            ranged_level=60,
+            magic_level=60,
+            prayer_level=99,
+            constitution_level=60,
+            combat_lifepoints=600,
+            combat_auto_flee=False,
+            combat_prayer_uptime="100",
+            combat_prayer_points=990,
+        )
+
+        unprotected, ok, result = apply_combat_burst_pure(
+            _player(**base),
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=13,
+            rng=lambda: 0.999999,
+        )
+        praying, praying_ok, praying_result = apply_combat_burst_pure(
+            _player(
+                **base,
+                combat_selected_prayers=["protect_from_magic"],
+            ),
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=13,
+            rng=lambda: 0.999999,
+        )
+        pegged, pegged_ok, pegged_result = apply_combat_burst_pure(
+            _player(**base, equipment={"head": "Nose peg"}),
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=13,
+            rng=lambda: 0.999999,
+        )
+
+        self.assertTrue(ok, result)
+        self.assertTrue(praying_ok, praying_result)
+        self.assertTrue(pegged_ok, pegged_result)
+        self.assertEqual(result["unprotected_attacks"], 2)
+        self.assertEqual(result["enemy_damage"], 120)
+        self.assertEqual(result["stat_drains"], {"magic": 10})
+        self.assertEqual(unprotected["combat_lifepoints"], 480)
+        self.assertEqual(praying_result["unprotected_attacks"], 2)
+        self.assertEqual(praying_result["enemy_damage"], 120)
+        self.assertEqual(praying_result["stat_drains"], {})
+        self.assertEqual(praying["combat_lifepoints"], 480)
+        self.assertEqual(pegged_result["unprotected_attacks"], 0)
+        self.assertEqual(pegged_result["enemy_damage"], 0)
+        self.assertEqual(pegged["combat_current_levels"], {})
 
     def test_vampyre_requires_morytania_access_and_holy_symbol_weakens_it(self):
         locked = _player(current_combat_target="vampyre")
