@@ -57,6 +57,13 @@ Labels: `SOURCE AUDIT`, then `IMPLEMENT` only when evidence closes.
   values plus approximately `1/4` perfect fur and Jim's `+2` XP, but no partial
   deterministic targets ship. See
   `memory-bank/source-audits/hunter-tracking-pitfall-rabbit-restoration-2026-07-19.md`.
+- Bonfires and Fire spirits were re-audited against the official cutoff update,
+  cutoff article/talk pages, and Darkan. Visible XP, warmth, `1/100` spirit
+  appearance, `10%` Cooking XP, and reward contents are closed, but burned-hand
+  odds, reward weights/log scaling, same-effect warmth refresh, and the
+  review-batch translation remain blocked. Darkan also conflicts at `1/500`
+  spirits and on three warmth durations plus multiple reward quantities. See
+  `memory-bank/source-audits/bonfire-fire-spirit-source-boundary-2026-07-19.md`.
 - The next implementation slice must have a pinned pre-EOC contract for its level, XP, inputs, outputs, gates, rates, and state transitions. Split proven sub-slices from blocked families as lava eel, Overload, and cannonballs already demonstrate.
 - Backend acceptance: data, pure behavior, storage/migration, dispatch, acquisition semantics, telemetry, and undo.
 - Frontend acceptance: `TargetRowMetadata`, real enablement/locks, target-local settings/equipment/inventory, icons, tooltips, and offscreen Qt coverage.
@@ -878,7 +885,7 @@ Labels: `SOURCE AUDIT`, `IMPLEMENT`, `WAIT: DARKAN`.
 
 Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is not already settled.
 
-- Highest-value waits: Runespan; Bonfires/fire spirits; Artisan's Workshop; Blast Furnace/Goldsmith; Shooting Stars/LRC; Fish Flingers/Trawler; Great Orb Project; complex pyres/beacons; Gnome Restaurant; Hunter tracking/pitfall/snaring (reconciled deterministic Darkan ceiling still lacks required rolls); Habitat/Jadinkos.
+- Highest-value waits: Runespan; Bonfires/fire spirits (reconciled; hidden rolls, rewards, warmth refresh, and review-batch mapping remain blocked); Artisan's Workshop; Blast Furnace/Goldsmith; Shooting Stars/LRC; Fish Flingers/Trawler; Great Orb Project; complex pyres/beacons; Gnome Restaurant; Hunter tracking/pitfall/snaring (reconciled deterministic Darkan ceiling still lacks required rolls); Habitat/Jadinkos.
 - Darkan should supply hidden state machines, rolls, currencies, and reward logic; period wiki/cache evidence still establishes cutoff and client identity.
 
 ### Missing skill server behavior

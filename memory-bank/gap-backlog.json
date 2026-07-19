@@ -298,8 +298,9 @@
       "title": "Add bonfires and fire spirits",
       "detail": "Released 2012 pre-EOC. AnkiScape's own audit defers them. Source XP-per-log-on-bonfire + fire spirit rewards from wiki.",
       "source": "wiki:Bonfire",
-      "status": "design_settled_waiting_source",
-      "note": "Owner grill closed 2026-07-10; implement from a pinned November 2012 wiki snapshot reconciled with the Darkan fidelity revamp, while leaving comparative time-to-99 balancing parked.",
+      "status": "source_blocked_after_darkan_reconciliation",
+      "note": "Re-audited 2026-07-19 against cutoff Bonfire, Fire spirit, update, and talk revisions plus Darkan. Period evidence closes visible XP rows, the warmth ladder/durations, 1/100 spirit appearance, 10% Cooking XP, and reward contents. Activation remains blocked by missing burned-hand odds, unweighted/log-scaled spirit rewards, same-effect warmth refresh, the review-batch translation, and material Darkan conflicts (1/500 spirit rate, wrong Teak/Arctic/Mahogany warmth durations, divergent reward quantities).",
+      "source_audit": "memory-bank/source-audits/bonfire-fire-spirit-source-boundary-2026-07-19.md",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#firemaking-bonfires-fire-spirits-and-cooking-heat-sources",
       "decision_summary": {
         "training": "Line fires remain discrete; busy-public-bonfire training uses source-backed automatic feeding batches, full participant bonus, the unified carried inventory, and bank-run cycles.",

@@ -1791,3 +1791,22 @@ The visual closure report is
   `source_blocked`. This produced no owner-facing creative-design gap.
 - Durable evidence:
   `source-audits/hunter-tracking-pitfall-rabbit-restoration-2026-07-19.md`.
+
+## Bonfire and Fire-spirit source boundary — 2026-07-19
+
+- Pinned the official release update plus cutoff Bonfire, Fire spirit, and talk
+  revisions, then reconciled Darkan's executable Bonfire, Fire-spirit, reward,
+  maximum-LP, and Cooking paths.
+- Closed the visible solo XP rows, official `1% / 2% / 3% / 4%` participant
+  ladder, five-log warmth requirement, Firemaking-level LP ladder,
+  log-duration ladder, `10%` Cooking XP, `1/100` spirit appearance, and visible
+  reward contents. The Bonfire article's displayed `5+` XP table is
+  effectively `5%`; the official update and its prose table establish `4%`,
+  and the conflict remains documented rather than averaged.
+- Kept the card source-blocked. Burned-hand odds, Fire-spirit reward weights
+  and log scaling, warmth refresh behavior, and the wall-clock-free
+  review-batch translation remain absent. Darkan conflicts at `1/500` spirits,
+  three warmth durations, and several reward quantities.
+- Added no Firemaking, Cooking, warmth, reward, UI, storage, or asset runtime.
+  No new creative-design item was opened. Durable evidence is
+  `source-audits/bonfire-fire-spirit-source-boundary-2026-07-19.md`.

@@ -2504,3 +2504,25 @@ Test counts are snapshots; current runs outrank this note.
   without a usable report after one leaf spent 225,142 generated tokens on six
   broad search calls and the other emitted no tool telemetry. No partial output
   was used; the primary independently reproduced the accepted findings.
+
+## Bonfire and Fire-spirit source audit — 2026-07-19
+
+- Reconciled `Update:Bonfires` oldid 5590679, `Bonfire` oldid 6532063,
+  `Fire spirit` oldid 6547151, both cutoff talk pages, and Darkan's executable
+  Bonfire/Fire-spirit/Cooking implementation.
+- Closed visible XP, the official `4%` maximum participant bonus, five-log
+  warmth, level-based `1–10%` maximum LP, log durations, `10%` Cooking XP,
+  `1/100` Fire-spirit appearance, and visible reward contents.
+- Recorded rather than hid the numeric conflicts: the article's `5+` XP column
+  computes as `5%` despite its `4%` prose, while Darkan uses `1/500` spirits,
+  shortens Teak/Arctic/Mahogany warmth, and diverges from multiple period reward
+  quantities.
+- Activated no partial runtime because burned-hand odds, spirit reward
+  weights/log scaling, same-effect warmth refresh, and the review-batch
+  translation remain blocked. No owner-facing creative-design gap emerged.
+- Durable evidence:
+  `source-audits/bonfire-fire-spirit-source-boundary-2026-07-19.md`.
+- Workflow `1a2926ee-6dcb-42bc-801c-116d3f7e5af5` returned no review: its
+  bounded Sol-high leaf acquired a slot but never established a provider
+  session or emitted tool telemetry before the declared 360-second timeout.
+  The primary independently reproduced all accepted findings.
