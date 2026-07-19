@@ -2,6 +2,17 @@
 
 ## Current Focus
 
+Skeletal Wyvern is harvested but remains source- and dependency-blocked. Its
+real combat levels, exact cache defences, ordinary 139-LP maximum, shielded
+150-LP and unshielded 500+ breath envelopes, and broad drop selector are
+recoverable. Breath probability/freeze duration are not, and Darkan implements
+only fixed melee. More importantly, the settled shield contract is currently
+unexecutable: Elemental Workshop I grants an Elemental shield item, but none of
+the six valid shields is live equipment, while the only equipped Anti-dragon
+shield is explicitly invalid. No target or asset was added;
+Duradel/Lapalok remains 14/35. See
+`source-audits/slayer-skeletal-wyvern-combat-2026-07-19.md`.
+
 Mithril dragon is harvested but remains source- and representation-blocked.
 The cutoff page closes 2,540 LP, 273 Slayer XP, Melee/Magic/Ranged/dragonfire
 behavior, 289/182/182 maxima, the Ancient Cavern/Barbarian-training route, and

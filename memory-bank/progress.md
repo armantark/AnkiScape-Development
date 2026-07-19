@@ -4,6 +4,25 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Skeletal Wyvern source boundary — 2026-07-19
+
+- Closed the level-198/2,000-LP identity, Slayer-72 gate/210 XP, six-tick
+  Melee/Ranged/ice-breath family, 139 ordinary maximum, shielded 150 and
+  unshielded 500+ breath envelopes, real combat levels, cache defences,
+  respawn, guaranteed Wyvern bones, and broad drop selector.
+- Kept the target source-blocked because the breath probability and freeze
+  duration did not survive, while Darkan implements only fixed melee and no
+  distinctive Wyvern handler.
+- Kept the target dependency-blocked because none of the period-valid
+  Elemental/Mind/Body/Cosmic/Chaos/Dragonfire shields is live equippable
+  equipment. The Elemental Workshop I reward is only a generated item; the
+  equipped Anti-dragon shield is explicitly invalid.
+- Left nested herb/seed leaves and Darkan-only dragon leg/skirt tertiaries
+  uncommitted pending period reconciliation.
+- Duradel/Lapalok remains hidden and unrenormalized at 14/35. No
+  owner-facing design gap emerged. Durable evidence:
+  `source-audits/slayer-skeletal-wyvern-combat-2026-07-19.md`.
+
 ## Slayer Mithril dragon source boundary — 2026-07-19
 
 - Pinned the cutoff level-304 target, 2,540 LP, 273 Slayer XP, six-tick

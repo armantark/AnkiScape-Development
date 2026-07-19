@@ -430,6 +430,13 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   Melee/Magic/Ranged/dragonfire selector or enforce the Ancient
   Cavern/Barbarian-training gate. Duradel/Lapalok remains 14/35. See
   `source-audits/slayer-mithril-dragon-combat-2026-07-19.md`.
+- Skeletal Wyvern remains source- and dependency-blocked. Breath probability
+  and freeze duration are missing, Darkan implements only fixed melee, and the
+  current schema cannot express the settled Melee/Ranged/breath transaction.
+  None of the six period-valid protective shields is live equippable
+  equipment; Anti-dragon shield is explicitly invalid. Duradel/Lapalok remains
+  14/35. See
+  `source-audits/slayer-skeletal-wyvern-combat-2026-07-19.md`.
 - Kuradal remains unencoded despite its source-closed 36-row, 322-point pool.
   The period family ledger now closes ordinary TzHaar as Ket/Xil/Mej/Hur and
   Living rock creatures as patriarch/protector/striker, explicitly excluding
