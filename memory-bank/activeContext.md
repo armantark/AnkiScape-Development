@@ -1754,3 +1754,22 @@ owner design gap emerged. Durable evidence is
 The visual closure report is
 `status-updates/slayer-aberrant-spectre-results-2026-07-18.html`
 (<https://fr3fmom6akth.postplan.dev>).
+
+## Slayer Ice strykewyrm authority stop — 2026-07-19
+
+- Pinned the cutoff level-210, 3,000-LP, Slayer-93, 300-XP Ice strykewyrm,
+  including assignment-only attackability, Tale-of-the-Muspah completion,
+  cape-or-2,000-point eligibility, mixed Melee/Magic/freeze/burrow combat,
+  three distinct maxima, fire/cape multipliers, ice-spell healing, and visible
+  loot contents.
+- Stopped before code because the direct cutoff article and settled Kuradal
+  audit require the quest while the settled Duradel/Lapalok audit and global
+  family row omit it. The shared family schema cannot be changed without
+  superseding authority.
+- Darkan's `nostats` fixed-Ranged row lacks real combat levels and conflicts
+  with the target. Its later handler supplies useful selector leads but
+  conflicts with the direct Fire-cape damage rules; its independent-drop file
+  is incomplete and structurally different.
+- No target, quest, cape, reward-shop flag, family gate, test, or asset changed.
+  Duradel/Lapalok remains hidden at 14/35. No owner-facing creative-design gap
+  emerged.

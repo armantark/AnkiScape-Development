@@ -478,6 +478,16 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   Duradel/Lapalok remains 14/35. See
   `source-audits/slayer-warped-terrorbird-combat-2026-07-19.md` and
   `audits/slayer-warped-terrorbird-gate-conflict-2026-07-19.md`.
+- Ice strykewyrms are stopped on an authority/schema conflict. The direct
+  cutoff article and settled Kuradal audit require Tale-of-the-Muspah
+  completion, while the settled Duradel/Lapalok audit and global family row
+  omit it. Darkan's only combat row is `nostats`, its fixed Ranged/170 model
+  and later fire-cape handler conflict with the cutoff fight, and its
+  independent-drop file is incomplete. The cape, 2,000-point technique, and
+  mixed-style strykewyrm transaction are not live. Duradel/Lapalok remains
+  14/35. See
+  `source-audits/slayer-ice-strykewyrm-combat-2026-07-19.md` and
+  `audits/slayer-ice-strykewyrm-gate-conflict-2026-07-19.md`.
 - Kuradal remains unencoded despite its source-closed 36-row, 322-point pool.
   The period family ledger now closes ordinary TzHaar as Ket/Xil/Mej/Hur and
   Living rock creatures as patriarch/protector/striker, explicitly excluding

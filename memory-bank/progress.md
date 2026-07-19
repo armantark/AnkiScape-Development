@@ -2467,3 +2467,20 @@ Test counts are snapshots; current runs outrank this note.
   and did not infer non-roll content from combat level 112.
 - Sumona remains hidden and unrenormalized at 20/37. No owner-facing design
   gap emerged.
+
+## Slayer Ice strykewyrm source boundary — 2026-07-19
+
+- Source-closed the ordinary cutoff identity, assignment restrictions,
+  quest/cape eligibility, mixed attack families, maxima, spell interactions,
+  and visible drop contents.
+- Recorded an explicit authority stop: direct period evidence and the settled
+  Kuradal audit require Tale-of-the-Muspah completion, while the settled
+  Duradel/Lapalok audit and current global family omit it.
+- Rejected Darkan's `nostats` fixed-Ranged row as a source of real combat
+  levels and documented its custom selector leads, fire/cape conflicts,
+  exact emulator charm enumeration, and incomplete independent-drop table.
+- Added no partial target or dependency. Duradel/Lapalok remains 14/35; Kuradal
+  remains unencoded. Durable evidence is
+  `source-audits/slayer-ice-strykewyrm-combat-2026-07-19.md`, with the
+  authority mismatch isolated in
+  `audits/slayer-ice-strykewyrm-gate-conflict-2026-07-19.md`.
