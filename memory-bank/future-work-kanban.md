@@ -787,6 +787,17 @@ unless something corrects it, but XP/hour is what Jagex actually balanced.
 routes through `cadence_live.py`; `cadence_coverage.py` fails closed when a
 handler or selectable target lacks a classification. Full provenance remains
 `memory-bank/source-audits/xp-hour-provenance-ledger-2026-07-13.md`.
+
+**Reward-XP accounting rule (design note, 2026-07-19).** The packet's 12-B
+staging (XP-multiplying reward rows hidden) closes per consumer with this
+rule: a sourced XP multiplier or bonus (penance horn, volatile clay tools,
+Dungeoneering reward XP, Daily Challenge bonuses) applies **after** cadence
+at its authentic magnitude and charge/duration budget. Because the same item
+multiplied the 2012 XP/hour too, proportionality is preserved by
+construction; what must never happen is an invented magnitude or an uncharged
+permanent multiplier. Each first consumer extends
+`tests/test_xp_hour_parity.py` with a with/without assertion before its shop
+row unhides.
 `tests/test_xp_hour_parity.py` now grades live exact rates, route ordering,
 residual counts, and embedded-probability behavior with no expected failures.
 
