@@ -65,6 +65,7 @@ class TestGeneratedSkillData(unittest.TestCase):
             "Mining helmet (unlit)",
             "Mining helmet (lit)",
             "Lit bug lantern",
+            "Brine sabre",
         ):
             self.assertEqual(
                 _equipment_item_block(generated, item_name),

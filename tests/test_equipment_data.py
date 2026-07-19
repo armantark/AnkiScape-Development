@@ -20,7 +20,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 661)
+        self.assertEqual(len(EQUIPMENT_DATA), 662)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -38,6 +38,14 @@ class TestEquipmentData(unittest.TestCase):
         self.assertEqual(EQUIPMENT_DATA["Dragon chainbody"].slot, "body")
         self.assertEqual(EQUIPMENT_DATA["Dragon chainbody"].required_level, 60)
         self.assertEqual(EQUIPMENT_DATA["Dragon chainbody"].source_item_id, 3140)
+        brine_sabre = EQUIPMENT_DATA["Brine sabre"]
+        self.assertEqual(brine_sabre.slot, "weapon")
+        self.assertEqual(brine_sabre.source_item_id, 11037)
+        self.assertEqual(brine_sabre.skill_requirements, (("attack", 40),))
+        self.assertEqual(brine_sabre.attack_speed, 4)
+        self.assertEqual(brine_sabre.weapon_type, 6)
+        self.assertEqual(brine_sabre.bonuses.attack_slash, 47)
+        self.assertEqual(brine_sabre.bonuses.melee_strength, 46)
         self.assertEqual(EQUIPMENT_DATA["Agile top"].slot, "body")
         self.assertEqual(EQUIPMENT_DATA["Acrobat hood"].slot, "head")
         self.assertEqual(EQUIPMENT_DATA["Mining helmet (unlit)"].source_item_id, 5014)

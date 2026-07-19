@@ -3621,6 +3621,22 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
                     )
                 ),
             )
+    required_items = enemy.get("required_items", {}) or {}
+    if isinstance(required_items, Mapping):
+        inventory = player_data.get("inventory", {}) or {}
+        inventory = inventory if isinstance(inventory, Mapping) else {}
+        missing_required_items = [
+            str(item_name)
+            for item_name, raw_amount in required_items.items()
+            if isinstance(item_name, str)
+            and _non_negative_int(inventory.get(item_name, 0), 0)
+            < max(1, _positive_int(raw_amount, 1))
+        ]
+        if missing_required_items:
+            label = enemy.get("required_items_label")
+            if isinstance(label, str) and label:
+                return (label,)
+            return tuple(f"{item_name} x1" for item_name in missing_required_items)
     start_equipment, start_equipment_active = _combat_start_equipment_state(
         player_data, enemy
     )

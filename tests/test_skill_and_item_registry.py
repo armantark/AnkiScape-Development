@@ -196,6 +196,19 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "2011-04-26T00:12:28Z",
         )
 
+    def test_brine_sabre_keeps_cache_identity_equipment_and_asset(self):
+        definition = item_definitions_by_storage_key(ITEM_DEFINITIONS)[
+            "Brine sabre"
+        ]
+
+        self.assertEqual(definition.source_item_id, 11037)
+        self.assertFalse(definition.stackable)
+        self.assertTrue(definition.tradeable)
+        self.assertEqual(definition.category, "equipment")
+        self.assertEqual(definition.equipment_slot, "weapon")
+        self.assertEqual(definition.asset_path, COMBAT_ITEM_IMAGES["Brine sabre"])
+        self.assertTrue(os.path.exists(definition.asset_path))
+
     def test_slayer_boot_drops_are_real_equipment_with_assets(self):
         definitions = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         for item_name, item_id, required_level in (

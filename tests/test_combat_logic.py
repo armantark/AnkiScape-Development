@@ -6314,6 +6314,118 @@ class CombatLogicTest(unittest.TestCase):
             {"Big bones": 1, "Broad arrows": 4},
         )
 
+    def test_brine_rat_preserves_cutoff_combat_access_and_stats(self):
+        brine_rat = COMBAT_ENEMY_DATA["brine_rat"]
+
+        self.assertEqual(
+            (
+                brine_rat["level"],
+                brine_rat["stats"]["hitpoints"],
+                brine_rat["stats"]["attack"],
+                brine_rat["stats"]["strength"],
+                brine_rat["stats"]["defence"],
+                brine_rat["max_hit"],
+                brine_rat["slayer_xp"],
+            ),
+            (70, 500, 70, 79, 40, 93, 50.0),
+        )
+        self.assertEqual(brine_rat["attack_speed"], 6)
+        self.assertEqual(brine_rat["required_slayer_level"], 47)
+        self.assertEqual(brine_rat["quest_gate"], "olafs_quest")
+        self.assertEqual(brine_rat["partial_quest_access"]["minimum_stage"], 40)
+        self.assertEqual(brine_rat["required_items"], {"Spade": 1})
+
+        underleveled = _player(
+            current_combat_target="brine_rat",
+            slayer_level=46,
+            quests={"olafs_quest": {"completed": True}},
+            inventory={"Spade": 1},
+        )
+        quest_locked = _player(
+            current_combat_target="brine_rat",
+            slayer_level=47,
+            inventory={"Spade": 1},
+        )
+        missing_spade = _player(
+            current_combat_target="brine_rat",
+            slayer_level=47,
+            quests={"olafs_quest": {"completed": True}},
+        )
+        ready = _player(
+            current_combat_target="brine_rat",
+            slayer_level=47,
+            quests={"olafs_quest": {"completed": True}},
+            inventory={"Spade": 1},
+        )
+
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                underleveled, "brine_rat", COMBAT_ENEMY_DATA
+            ),
+            ("Slayer level 47",),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                quest_locked, "brine_rat", COMBAT_ENEMY_DATA
+            ),
+            ("Complete Olaf's Quest",),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                missing_spade, "brine_rat", COMBAT_ENEMY_DATA
+            ),
+            ("Spade x1 for Brine Rat Cavern (the toolbelt does not count)",),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                ready, "brine_rat", COMBAT_ENEMY_DATA
+            ),
+            (),
+        )
+
+    def test_brine_rat_drop_selectors_are_independent_and_exact(self):
+        brine_rat = COMBAT_ENEMY_DATA["brine_rat"]
+
+        for table in brine_rat["drops"]["tables"]:
+            with self.subTest(table=table["name"]):
+                self.assertEqual(
+                    sum(slot["slots"] for slot in table["slots"]),
+                    table["total"],
+                )
+
+        self.assertEqual(
+            _combat_roll_drops(brine_rat, _rng((0.0, 0.0, 0.0))),
+            {
+                "Bones": 1,
+                "Raw rat meat": 1,
+                "Coins": 1,
+                "Gold charm": 1,
+                "Clue scroll (medium)": 1,
+            },
+        )
+        self.assertEqual(
+            _combat_roll_drops(
+                brine_rat,
+                _rng((448.5 / 512, 0.999999, 0.999999)),
+            ),
+            {
+                "Bones": 1,
+                "Raw rat meat": 1,
+                "Brine sabre": 1,
+            },
+        )
+        self.assertEqual(
+            _combat_roll_drops(
+                brine_rat,
+                _rng((0.999999, 133.5 / 606, 0.999999)),
+            ),
+            {
+                "Bones": 1,
+                "Raw rat meat": 1,
+                "Green charm": 1,
+            },
+        )
+
     def test_wall_beast_can_continue_after_helmet_swap_but_cannot_chain_a_respawn(self):
         continuing = _player(
             current_combat_target="wall_beast",

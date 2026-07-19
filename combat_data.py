@@ -2521,6 +2521,63 @@ SEA_SNAKE_YOUNG_DROPS = {
     ),
 }
 
+BRINE_RAT_DROPS = {
+    "guaranteed": (("Bones", 1), ("Raw rat meat", 1)),
+    "tables": (
+        {
+            "name": "Darkan ordinary",
+            "total": 512,
+            "slots": (
+                {"item": "Coins", "quantity": 1, "slots": 84},
+                {"item": "Death rune", "quantity": 7, "slots": 72},
+                {"item": "Coins", "quantity": 2, "slots": 64},
+                {"item": "Coins", "quantity": 4, "slots": 36},
+                {"item": "Earth rune", "quantity": 10, "slots": 24},
+                {"item": "Raw lobster", "quantity": 10, "slots": 24},
+                {"item": "Raw shark", "quantity": 3, "slots": 24},
+                {"item": "Earth rune", "quantity": 36, "slots": 16},
+                {"item": "Water rune", "quantity": 10, "slots": 12},
+                {"item": "Coins", "quantity": 29, "slots": 12},
+                {"item": "Water talisman", "quantity": 1, "slots": 12},
+                {"item": "Air rune", "quantity": 18, "slots": 8},
+                {"item": "Earth rune", "quantity": 18, "slots": 8},
+                {"item": "Water rune", "quantity": 18, "slots": 8},
+                {"item": "Blood rune", "quantity": 4, "slots": 8},
+                {"item": "Raw rat meat", "quantity": 18, "slots": 8},
+                {"item": "Raw pike", "quantity": 18, "slots": 8},
+                {"item": "Raw shark", "quantity": 8, "slots": 8},
+                {"item": "Raw swordfish", "quantity": 9, "slots": 8},
+                {"item": "Raw shark", "quantity": 1, "slots": 4},
+                {
+                    "item": "Brine sabre",
+                    "quantity": 1,
+                    "slots": 1,
+                    "source_item_id": 11037,
+                },
+                {"slots": 63},
+            ),
+        },
+        {
+            "name": "Darkan charms",
+            "total": 606,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 133},
+                {"item": "Green charm", "quantity": 1, "slots": 7},
+                {"item": "Crimson charm", "quantity": 1, "slots": 4},
+                {"slots": 462},
+            ),
+        },
+        {
+            "name": "Medium clue",
+            "total": 128,
+            "slots": (
+                {"item": "Clue scroll (medium)", "quantity": 1, "slots": 1},
+                {"slots": 127},
+            ),
+        },
+    ),
+}
+
 CYCLOPS_WARRIORS_GUILD_DROPS = {
     "guaranteed": (("Big bones", 1),),
     "tables": (
@@ -8141,6 +8198,79 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "independent 1/128 medium clue"
         ),
     },
+    "brine_rat": {
+        "display_name": "Brine rat",
+        "level": 70,
+        "group": "Slayer",
+        "required_slayer_level": 47,
+        "quest_gate": "olafs_quest",
+        "quest_gate_label": "Complete Olaf's Quest",
+        "partial_quest_access": {
+            "quest_id": "olafs_quest",
+            "minimum_stage": 40,
+            "runtime_policy": "conservative_completion",
+        },
+        "required_items": {"Spade": 1},
+        "required_items_label": (
+            "Spade x1 for Brine Rat Cavern (the toolbelt does not count)"
+        ),
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 93,
+        "slayer_xp": 50.0,
+        "stats": {
+            "hitpoints": 500,
+            "attack": 70,
+            "strength": 79,
+            "defence": 40,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": BRINE_RAT_DROPS,
+        "interaction_note": (
+            "Cavern access needs a real Spade. Partial Olaf's Quest access is "
+            "represented conservatively by completion until the quest runtime "
+            "exports its stage-40 permission."
+        ),
+        "source": (
+            "https://runescape.wiki/w/Brine_rat?oldid=6555564; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/game/content/skills/"
+            "slayer/SlayerTaskManager.java:135-139; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "brine_rat.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/brine_rat.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/charmDrops.txt:27; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/tools/old/CharmDrop.java; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/utils/NPCClueDrops.java"
+        ),
+        "source_status": (
+            "period exact identity, LP, Slayer gate/XP, melee style, six-tick "
+            "cadence, maximum hit, passive behavior, cavern Spade requirement, "
+            "partial-quest access, and completion-only Brine sabre rule; Darkan "
+            "exact stats, zero bonuses, respawn, one exact 512-slot ordinary "
+            "selector, emulator-exact 606-slot charm selector, and independent "
+            "1/128 medium clue; partial quest access is conservatively gated on "
+            "completion until Darkan quest stages expose stage 40"
+        ),
+    },
     "ogre": {
         "display_name": "Ogre",
         "level": 53,
@@ -11250,6 +11380,16 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Black sq shield": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BLACK_SQ_SHIELD"},
     "Bones": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BONES"},
     "Brass necklace": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BRASS_NECKLACE"},
+    "Brine sabre": {
+        "category": "equipment",
+        "source": (
+            "game-main data/cfg/items.yml item 11037; "
+            "RuneScape Wiki Brine rat oldid=6555564"
+        ),
+        "source_item_id": 11037,
+        "stackable": False,
+        "tradeable": True,
+    },
     "Bronze javelin": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BRONZE_JAVELIN"},
     "Bronze spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BRONZE_SPEAR"},
     "Buttons": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BUTTONS"},

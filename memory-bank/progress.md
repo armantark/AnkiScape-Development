@@ -4,6 +4,37 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Brine rat Combat closure — 2026-07-18
+
+- Added the ordinary level-70 Brine rat with Slayer 47, 500 LP, 50 Slayer XP,
+  six-tick passive melee, a 93-LP maximum, zero bonuses, and a 59-tick respawn.
+- Added a non-consumed real-Spade cavern gate. The target records the sourced
+  Olaf's Quest stage-40 permission while conservatively consuming stable quest
+  completion until the Darkan thread exports that semantic state.
+- Preserved guaranteed Bones and Raw rat meat, one exact 512-slot cumulative
+  ordinary selector including the 1/512 Brine sabre, the exact 606-slot Darkan
+  charm selector, and an independent 1/128 medium clue.
+- Registered Brine sabre item 11037 and generated its exact Attack-40,
+  one-handed, four-tick equipment block with +7 stab, +47 slash, -2 crush, and
+  +46 melee strength.
+- Pinned cutoff Brine-rat and Brine-sabre assets. The underwater-only Liquefy
+  special remains an explicit future Combat capability rather than a fake
+  ordinary effect.
+- Advanced Vannaka to 32/35 while leaving the partial pool hidden and
+  unrenormalized. Mogres, Molanisks, and Turoth remain.
+- Kept quest ownership clean in
+  `codex-briefs/darkan-quest-handoff-brine-rat-2026-07-18.md`.
+- No owner-facing design fork emerged. Durable evidence:
+  `source-audits/slayer-brine-rat-combat-2026-07-18.md`. Results:
+  `status-updates/slayer-brine-rat-results-2026-07-18.html`.
+- Focused verification passes 614 methods. Full non-Qt discovery passes all
+  1,653 methods with 215 expected Qt-environment skips; full real offscreen Qt
+  discovery executes all 1,653 with zero skips, failures, or errors.
+- Documentation, test-quality, generated-data, diff, readiness, reachability,
+  provenance, and worktree-safety gates pass.
+- Published the mobile closure report at
+  <https://cf55icb0rmwe.postplan.dev>.
+
 ## Slayer Sea snakes Combat closure — 2026-07-18
 
 - Added ordinary Sea Snake Hatchling and Sea Snake Young Combat targets with

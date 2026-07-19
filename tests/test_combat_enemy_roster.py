@@ -26,6 +26,7 @@ NEW_COMBAT_ENEMIES = (
     "killerwatt",
     "sea_snake_hatchling",
     "sea_snake_young",
+    "brine_rat",
     "ogre",
     "jackal",
     "icefiend",
@@ -108,6 +109,9 @@ OPTIONAL_ENEMY_KEYS = {
     "source_status",
     "quest_gate",
     "quest_gate_label",
+    "partial_quest_access",
+    "required_items",
+    "required_items_label",
     "interaction_note",
     "wilderness_risk",
     "dragonfire",
@@ -345,6 +349,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("killerwatt", "Killerwatt icon.png"),
             ("sea_snake_hatchling", "Sea Snake Hatchling.png"),
             ("sea_snake_young", "Sea Snake Young.png"),
+            ("brine_rat", "Brine rat icon.png"),
         ):
             with self.subTest(target=target_id):
                 relative_path = f"combatenemies/{target_id}.png"
@@ -365,6 +370,11 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                     self.assertEqual(
                         provenance[relative_path]["timestamp"],
                         "2012-03-09T03:02:36Z",
+                    )
+                if target_id == "brine_rat":
+                    self.assertEqual(
+                        provenance[relative_path]["timestamp"],
+                        "2010-06-01T15:33:31Z",
                     )
 
     def test_green_dragon_preserves_cutoff_combat_and_drop_selectors(self):

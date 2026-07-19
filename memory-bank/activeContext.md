@@ -2,6 +2,22 @@
 
 ## Current Focus
 
+The ordinary level-70 Brine rat now closes the 32nd executable Vannaka family:
+Slayer 47, 500 LP, 50 Slayer XP, six-tick passive melee, a 93-LP maximum,
+guaranteed Bones and Raw rat meat, one exact 512-slot ordinary selector, the
+emulator-exact 606-slot charm selector, and an independent 1/128 medium clue.
+One real Spade is required but not consumed. Combat records Olaf's Quest stage
+40 as the real partial-access threshold while conservatively enforcing quest
+completion until the Darkan quest-parity thread exports a stable permission;
+that handoff also preserves the completion-only 1/512 Brine-sabre rule.
+Brine sabre item 11037 is generated as real Attack-40 equipment with exact
+bonuses and cutoff art. Vannaka remains hidden at 32/35 with Mogres, Molanisks,
+and Turoth missing. No owner-facing design fork emerged. Evidence:
+`source-audits/slayer-brine-rat-combat-2026-07-18.md`. Results:
+`status-updates/slayer-brine-rat-results-2026-07-18.html`. Focused verification
+passes 614 methods; full non-Qt and real offscreen Qt discovery each pass all
+1,653 methods. Mobile copy: <https://cf55icb0rmwe.postplan.dev>.
+
 The ordinary Sea Snake Hatchling and Sea Snake Young now close the 31st
 executable Vannaka family. They preserve the cutoff levels, LP, Slayer
 requirements/XP, melee maxima, poison consequences, and Royal Trouble route;

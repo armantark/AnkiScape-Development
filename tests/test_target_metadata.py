@@ -981,6 +981,51 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Coins x44 (60/128)", young.tooltip)
         self.assertIn("Long bone x1 (250/100000)", young.tooltip)
 
+    def test_brine_rat_row_exposes_access_and_exact_drop_selectors(self):
+        rows = combat_target_rows(
+            {
+                "current_combat_target": "chicken",
+                "slayer_level": 47,
+                "combat_lifepoints": 990,
+                "constitution_level": 99,
+                "quests": {"olafs_quest": {"completed": True}},
+                "inventory": {"Spade": 1},
+                "equipment": {},
+                "combat_supply_loadout": {},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+
+        brine_rat = _row(rows, "brine_rat")
+
+        self.assertTrue(brine_rat.enabled)
+        self.assertIn("Cavern access needs a real Spade", brine_rat.tooltip)
+        self.assertIn("Coins x1 (84/512)", brine_rat.tooltip)
+        self.assertIn("Brine sabre x1 (1/512)", brine_rat.tooltip)
+        self.assertIn("Gold charm x1 (133/606)", brine_rat.tooltip)
+        self.assertIn("Clue scroll (medium) x1 (1/128)", brine_rat.tooltip)
+
+        missing_spade_rows = combat_target_rows(
+            {
+                "current_combat_target": "chicken",
+                "slayer_level": 47,
+                "quests": {"olafs_quest": {"completed": True}},
+                "inventory": {},
+                "equipment": {},
+                "combat_supply_loadout": {},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+        missing_spade = _row(missing_spade_rows, "brine_rat")
+        self.assertFalse(missing_spade.enabled)
+        self.assertIn("toolbelt does not count", missing_spade.tooltip)
+
     def test_combat_rows_show_magic_spell_and_rune_supply(self):
         rows = combat_target_rows(
             {
