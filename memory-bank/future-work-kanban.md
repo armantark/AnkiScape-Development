@@ -390,6 +390,14 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   Continue from `tools/audit_slayer_readiness.py`; do not expose or renormalize
   the partial master. Governing pool evidence:
   `source-audits/slayer-sumona-pool-2026-07-17.md`.
+- Abyssal-demon teleport interruption and the Nechryael Death-spawn loop have
+  a dedicated follow-up harvest in
+  `source-audits/slayer-abyssal-nechryael-specials-2026-07-19.md`. Do not
+  implement either from qualitative prose alone. Abyssal demon still needs a
+  cutoff trigger rate and owner-set reducer magnitude; Nechryael still needs a
+  summon rate and finite roster lifetime. Darkan's 1/10 summon roll is a
+  lower-tier lead, while its cleanup-on-summoner-death conflicts with cutoff
+  strategy text and cannot be adopted.
 - Darkan ordinary-drop semantics are corrected across eleven live Slayer
   targets. Sibling nonzero JSON rows now share one cumulative selector, while
   rate-zero rows, charms, and explicitly labeled period abstractions remain

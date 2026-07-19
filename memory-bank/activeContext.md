@@ -10,6 +10,14 @@ blocked on missing teleport-interruption behavior and Nechryael blocked on its
 missing Death-spawn hook; 17 other families still lack a certifying Combat
 target. No row is renormalized away and no owner design was reopened.
 
+The next two Sumona mechanic blockers have been harvested without inventing
+values. Abyssal-demon teleport behavior is qualitatively closed, but its cutoff
+trigger rate and reducer magnitude are source-blocked. Nechryael's two-spawn
+pressure-roster shape is closed, but summon probability and lifetime are
+source-blocked; Darkan's cleanup on summoner death conflicts with the cutoff
+strategy text. Both families remain deliberately non-certifying. See
+`source-audits/slayer-abyssal-nechryael-specials-2026-07-19.md`.
+
 The final independent Chaeldar source pair is closed without runtime
 activation. Vyrewatch is blocked by an incomplete broad-family registry,
 uncorroborated/conflicting representative data, a conflicting ordinary

@@ -2062,3 +2062,18 @@ Test counts are snapshots; current runs outrank this note.
 - Results artifact:
   `status-updates/slayer-sumona-hidden-pool-results-2026-07-19.html`
   ([mobile copy](https://c00hpkv6e9ws.postplan.dev)).
+
+## Slayer Abyssal/Nechryael special-mechanic harvest — 2026-07-19
+
+- Pinned the cutoff Abyssal teleport behavior and Nechryael/Death-spawn roster
+  behavior from exact pre-EOC revisions and checked their last relevant
+  pre-cutoff talk revisions.
+- Kept both families non-certifying. Abyssal teleport chance and interruption
+  magnitude remain source-blocked. Nechryael summon probability and spawn
+  lifetime remain source-blocked.
+- Recorded the emulator conflict instead of resolving it: Darkan removes Death
+  spawns when the summoner dies, while the cutoff strategy text describes
+  killing the Nechryael before handling or avoiding the surviving spawn.
+- Located the future implementation inside the pure Combat burst transaction
+  and the settled engaged-target plus pressure-roster contract. No global map,
+  wall clock, partial special loop, or owner design fork was introduced.
