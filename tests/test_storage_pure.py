@@ -199,6 +199,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["ge_player_orders"], [])
         self.assertEqual(data["ge_next_order_id"], 1)
         self.assertEqual(data["ge_market_state"]["last_processed_tick"], 0)
+        self.assertEqual(data["review_context_preferences"], {})
 
     def test_migration_sanitizes_grand_exchange_state(self):
         migrated = migrate_loaded_data(
@@ -227,6 +228,25 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(migrated["ge_next_order_id"], 5)
         self.assertEqual(migrated["ge_player_orders"][0]["escrow_coins"], 200)
+
+    def test_v45_migration_adds_and_sanitizes_review_context_preferences(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 44,
+                "review_context_preferences": {
+                    "pit_reward": "gamble",
+                    "unknown_family": "choice",
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(
+            migrated["review_context_preferences"],
+            {"pit_reward": "gamble"},
+        )
 
     def test_default_player_data_can_seed_registered_items(self):
         data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

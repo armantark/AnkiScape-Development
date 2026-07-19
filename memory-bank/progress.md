@@ -4,6 +4,23 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## The Pit and reviewer-context first slice — 2026-07-19
+
+- Restricted Talent Scout invitations to the sourced nine-course set and added
+  the one default-on global setting, manual familiar confirmation, safe
+  weapon/shield stow, origin persistence, and origin return.
+- Corrected the first-Gorilla-mask transition so later successful challenges do
+  not duplicate the unique reward.
+- Added the generic persisted reviewer-context projection and shared one-row
+  action strip. Pit `Take XP / Gamble` now supports a conservative default,
+  remembered explicit choice, one-answer grace period, direct undo, review
+  undo, and RNG restore without duplicate permanent command buttons.
+- Storage config version 45 sanitizes context-family preferences. Kimi K3 and
+  Fable independently reviewed both new surfaces; confirmed defects were fixed
+  before closure.
+- Exact practice-route and remaining Pit table values stay `source_blocked`;
+  no owner-facing design question remains.
+
 ## Slayer Warped-terrorbird source/authority boundary — 2026-07-19
 
 - Pinned the ordinary level-81 and quest level-143 identities, Slayer 56,

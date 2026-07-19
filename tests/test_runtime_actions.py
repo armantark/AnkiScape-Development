@@ -432,6 +432,9 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertFalse(player_data["agility_pit_offer"])
         self.assertEqual(player_data["agility_course_state"]["stage"], 0)
         self.assertEqual(player_data["combat_grave"]["source"], "agility_wilderness_pker")
+        self.assertEqual(player_data["combat_grave"]["items"], ["Bronze sword"])
+        self.assertNotIn("Bronze sword", player_data["inventory"])
+        self.assertEqual(player_data["current_agility"], "wilderness_course")
         self.assertEqual(calls["xp"], [])
         self.assertIn("died before the lap reward", calls["activity"][0])
 

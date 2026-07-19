@@ -10,6 +10,7 @@ from agility_data import (
     DORGESH_ROUTE_OPTIONS,
 )
 from agility_logic import (
+    PIT_INVITATION_COURSE_IDS,
     agility_failure_probability_pure,
     agility_target_locked_reasons_pure,
     apply_agility_command_pure,
@@ -224,6 +225,204 @@ class TestAgilityPureEngine(unittest.TestCase):
             ("Talent Scout invitation",),
         )
 
+    def test_only_period_eligible_courses_issue_pit_invitations(self):
+        for target_id in ("burthorpe_course",):
+            with self.subTest(target_id=target_id):
+                target = AGILITY_TARGETS_BY_ID[target_id]
+                player = {
+                    **default_agility_state_pure(),
+                    "current_agility": target_id,
+                    "agility_level": 99,
+                    "inventory": {},
+                    "equipment": {},
+                }
+                player["agility_course_state"] = {
+                    "target": target_id,
+                    "stage": len(target.stages) - 1,
+                    "checkpoint": "start",
+                    "flawless": True,
+                    "lap_xp_valid": True,
+                    "requested_item_valid": True,
+                    "status": "",
+                }
+
+                updated, result = apply_agility_review_pure(
+                    player, (0.99, 0.0, 0.99, 0.99)
+                )
+
+                self.assertTrue(result["completed_lap"])
+                self.assertFalse(updated["agility_pit_offer"])
+                self.assertEqual(updated["current_agility"], target_id)
+
+        self.assertEqual(
+            PIT_INVITATION_COURSE_IDS,
+            {
+                "gnome_normal",
+                "gnome_advanced",
+                "barbarian_normal",
+                "barbarian_advanced",
+                "agility_pyramid",
+                "ape_atoll",
+                "wilderness_course",
+                "werewolf_course",
+                "dorgesh_kaan",
+            },
+        )
+
+    def test_eligible_invitation_auto_accepts_and_stows_both_hand_slots(self):
+        target = AGILITY_TARGETS_BY_ID["gnome_normal"]
+        player = {
+            **default_agility_state_pure(),
+            "current_agility": target.id,
+            "agility_level": 99,
+            "inventory": {},
+            "equipment": {
+                "weapon": "Dragon scimitar",
+                "shield": "Dragon defender",
+                "head": "Agile top",
+            },
+        }
+        player["agility_course_state"] = {
+            "target": target.id,
+            "stage": len(target.stages) - 1,
+            "checkpoint": "start",
+            "flawless": True,
+            "lap_xp_valid": True,
+            "requested_item_valid": True,
+            "status": "",
+        }
+
+        updated, result = apply_agility_review_pure(
+            player, (0.99, 0.0, 0.99, 0.99)
+        )
+
+        self.assertTrue(result["completed_lap"])
+        self.assertTrue(updated["agility_pit_offer"])
+        self.assertEqual(updated["agility_pit_origin_course"], target.id)
+        self.assertEqual(updated["current_agility"], "the_pit")
+        self.assertEqual(updated["equipment"], {"head": "Agile top"})
+        self.assertEqual(
+            updated["inventory"],
+            {"Dragon scimitar": 1, "Dragon defender": 1},
+        )
+        self.assertIn("Talent Scout invitation accepted", updated["agility_status"])
+
+    def test_manual_invitation_policy_and_familiar_confirmation(self):
+        player = {
+            **default_agility_state_pure(),
+            "current_agility": "ape_atoll",
+            "agility_pit_offer": True,
+            "agility_pit_origin_course": "ape_atoll",
+            "agility_pit_auto_accept": False,
+            "inventory": {},
+            "equipment": {"weapon": "Dragon scimitar"},
+            "summoning_state": {
+                "active_follower": {
+                    "kind": "familiar",
+                    "entity_id": "spiritwolf",
+                    "remaining_reviews": 10,
+                    "max_reviews": 10,
+                    "storage": {},
+                }
+            },
+        }
+
+        blocked, result = apply_agility_command_pure(player, "accept_pit_offer")
+        self.assertFalse(result["allowed"])
+        self.assertTrue(result["requires_familiar_dismissal"])
+        self.assertEqual(blocked["current_agility"], "ape_atoll")
+
+        accepted, result = apply_agility_command_pure(
+            player,
+            "accept_pit_offer",
+            {"dismiss_familiar": True},
+        )
+        self.assertTrue(result["allowed"])
+        self.assertEqual(accepted["current_agility"], "the_pit")
+        self.assertEqual(accepted["summoning_state"]["active_follower"], {})
+        self.assertEqual(accepted["inventory"]["Dragon scimitar"], 1)
+
+        declined, result = apply_agility_command_pure(
+            player,
+            "decline_pit_offer",
+        )
+        self.assertTrue(result["allowed"])
+        self.assertFalse(declined["agility_pit_offer"])
+        self.assertEqual(declined["agility_pit_origin_course"], "")
+
+    def test_pit_completion_returns_to_origin_and_remembers_reward_choice(self):
+        player = {
+            **default_agility_state_pure(),
+            "current_agility": "the_pit",
+            "agility_level": 50,
+            "agility_pit_offer": True,
+            "agility_pit_origin_course": "ape_atoll",
+            "inventory": {},
+            "equipment": {},
+        }
+        for _ in range(6):
+            player, result = apply_agility_review_pure(
+                player, (0.99, 0.0, 0.99, 0.99)
+            )
+
+        self.assertTrue(result["completed_activity"])
+        self.assertEqual(player["current_agility"], "ape_atoll")
+        self.assertEqual(
+            player["agility_activity_state"]["pit_reward"]["course"],
+            "ape_atoll",
+        )
+        self.assertEqual(player["agility_pit_origin_course"], "")
+
+        player, claimed = apply_agility_command_pure(
+            player,
+            "gamble_pit_reward",
+            {"remember_choice": True},
+            roll=0.99,
+        )
+        self.assertTrue(claimed["allowed"])
+        self.assertEqual(claimed["multiplier"], 2.0)
+        self.assertEqual(
+            player["review_context_preferences"]["pit_reward"],
+            "gamble",
+        )
+
+    def test_leaving_pit_returns_to_origin_and_first_success_mask_does_not_repeat(self):
+        player = {
+            **default_agility_state_pure(),
+            "current_agility": "the_pit",
+            "agility_level": 50,
+            "agility_pit_offer": False,
+            "agility_pit_origin_course": "gnome_normal",
+            "agility_pit_successes": 1,
+            "inventory": {},
+            "equipment": {},
+            "agility_activity_state": {
+                "pit": {
+                    "challenge": "Crate Expectations",
+                    "reviews": 5,
+                    "successes": 4,
+                    "origin_course": "gnome_normal",
+                }
+            },
+        }
+
+        completed, result = apply_agility_review_pure(
+            player, (0.99, 0.0, 0.99, 0.99)
+        )
+        self.assertTrue(result["completed_activity"])
+        self.assertNotIn("Gorilla mask", result["outputs"])
+
+        active = {
+            **player,
+            "agility_pit_successes": 0,
+        }
+        left, result = apply_agility_command_pure(active, "leave_activity")
+        self.assertTrue(result["allowed"])
+        self.assertEqual(left["current_agility"], "gnome_normal")
+        self.assertNotIn("pit", left["agility_activity_state"])
+        self.assertEqual(left["agility_pit_origin_course"], "")
+        self.assertIn("returned to Gnome Stronghold Course", result["message"])
+
     def test_one_review_advances_exactly_one_obstacle(self):
         player = {
             **default_agility_state_pure(),
@@ -381,12 +580,28 @@ class TestAgilityPureEngine(unittest.TestCase):
                 "agility_course_state": {"stage": 999999},
                 "agility_lap_counts": {"total": -8},
                 "agility_activity_currencies": {"brianpoints": "12"},
+                "agility_pit_origin_course": "not_real",
+                "agility_pit_auto_accept": 0,
+                "agility_activity_state": {
+                    "pit": {
+                        "challenge": "Floor Is Lava",
+                        "reviews": 2,
+                        "successes": 1,
+                        "origin_course": "not_real",
+                    }
+                },
                 "unrelated": {"keep": True},
             }
         )
         self.assertEqual(sanitized["current_agility"], "burthorpe_course")
         self.assertEqual(sanitized["agility_lap_counts"]["total"], 0)
         self.assertEqual(sanitized["agility_activity_currencies"]["brianpoints"], 12)
+        self.assertEqual(sanitized["agility_pit_origin_course"], "")
+        self.assertFalse(sanitized["agility_pit_auto_accept"])
+        self.assertEqual(
+            sanitized["agility_activity_state"]["pit"]["origin_course"],
+            "burthorpe_course",
+        )
         self.assertEqual(sanitized["unrelated"], {"keep": True})
 
     def test_course_modifiers_stack_in_order_and_consume_one_charge_each(self):

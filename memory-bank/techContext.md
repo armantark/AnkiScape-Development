@@ -181,5 +181,19 @@ lives in `logic_pure.py`; storage config version 15 adds
   render their own sprites.
 - Run the manifest sequentially because every request updates `assets_provenance.json`.
 
+### Reviewer context actions
+
+- `review_context.py` owns pure, registry-shaped projection and sanitization for
+  short-lived reviewer decisions; Qt never infers a feature's pending state.
+- `ReviewContextActionStrip` is a sibling of ReviewHUD, not a permanent menu
+  setting. It renders at most three actions, collapses additional families
+  behind a queue badge, and hides completely when no context is pending.
+- Explicit choices use the direct-command undo stack. Ignored safe-default or
+  remembered choices resolve inside the next answered card's atomic snapshot,
+  so review undo restores the pending decision and RNG state.
+- Storage config version 45 adds sanitized per-family remembered choices. The
+  first live family is The Pit's `Take XP / Gamble`; stable family IDs allow
+  later contract-owned surfaces without feature-specific Qt inference.
+
 ## Manual Testing Target
 Manual verification should happen inside Anki when runtime behavior changes. Browser-based Pinchtab testing is only relevant if the change introduces browser-rendered surfaces that can be exercised outside Anki.

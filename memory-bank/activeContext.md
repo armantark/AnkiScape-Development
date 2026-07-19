@@ -2,6 +2,19 @@
 
 ## Current Focus
 
+The Pit invitation and reviewer-context first slice are implemented. Only the
+exact nine sourced course variants can invite; default-on automatic acceptance
+stows weapon/shield safely, an active familiar requires explicit confirmation,
+and completion or leave returns to the remembered origin. The shared
+`Take XP / Gamble` reviewer strip owns conservative/remembered next-answer
+resolution plus direct and review undo with RNG restoration. Storage v45
+persists sanitized family preferences. Kimi K3 and Fable reviewed the new
+surfaces; the confirmed silent-accept rerender defect and visual hierarchy
+issues were fixed. The skillcape practice route and exact source-blocked Pit
+tables remain harvest work rather than a design gap. See
+`source-audits/the-pit-loop-2026-07-18.md` and
+`review-hud-context-actions-contract-2026-07-18.md`.
+
 Warped terrorbird is harvested but stopped on an authority/schema conflict
 before implementation. The cutoff article says The Path of Glouphrie need only
 be started before assignment; the registered `required_quest_id` is evaluated

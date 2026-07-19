@@ -176,3 +176,21 @@ Verification:
   and
 - manual Anki QA covering explicit Take, explicit Gamble, remembered ignored
   resolution, and undo of each path.
+
+## First-slice implementation status — 2026-07-19
+
+The generic projection, storage, shared reviewer strip, and complete Pit reward
+family are live. The strip is an interactive sibling above the review HUD,
+collapses later decisions behind a queue badge, hides when empty, and remains
+available when the main HUD is disabled. `Take XP` is the visually safe option;
+the automatic option is separately cued; Gamble's equal odds are disclosed in
+its tooltip and accessible text names each action.
+
+Explicit clicks are direct-command undo entries with RNG restoration. Ignoring
+the row resolves it inside the next answered card's ordinary snapshot,
+including Again, and review undo restores the pending context. Only explicit
+clicks update the family preference. The permanent Agility-panel claim and
+gamble buttons have been removed.
+
+Aksel bronze orders remain the next contract-owned family; this closure does
+not claim that Smithing slice.

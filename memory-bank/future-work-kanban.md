@@ -167,6 +167,11 @@ Labels: trailing `SOURCE AUDIT` and owning-system dependencies only.
 - Exact payout differences among the registered Dorgesh pure/grapple/mixed
   route identities remain `source_blocked`. See
   `memory-bank/source-audits/agility-implementation-verification-2026-07-15.md`.
+- The 2026-07-19 Pit follow-up restricts Talent Scout invitations to the exact
+  nine sourced courses, adds default-on automatic acceptance with explicit
+  familiar handling and origin return, and moves `Take XP / Gamble` into the
+  shared reviewer-context strip with both direct and review undo. Exact
+  source-blocked Pit tables and the practice route remain harvest items.
 
 ### Thieving — SHIPPED 2026-07-13
 

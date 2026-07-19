@@ -4251,6 +4251,108 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
 
+    def test_explicit_pit_reward_choice_is_directly_undoable_with_rng(self):
+        addon = _load_addon_as_package("ankiscape_pit_context_direct_integration")
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_context_action_strip = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        shown_xp = []
+        addon._show_exp = shown_xp.append
+        initial = {
+            "agility_level": 50,
+            "agility_exp": 10.0,
+            "agility_activity_state": {
+                "pit_reward": {"xp": 100.0, "course": "gnome_normal"}
+            },
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "Agility"
+        addon.random.seed(314159)
+        before_rng = addon.random.getstate()
+
+        self.assertTrue(
+            addon.resolve_review_context_action("pit_reward", "gamble")
+        )
+
+        self.assertNotIn(
+            "pit_reward",
+            addon.player_data["agility_activity_state"],
+        )
+        self.assertEqual(
+            addon.player_data["review_context_preferences"]["pit_reward"],
+            "gamble",
+        )
+        self.assertIn(shown_xp[-1], {50.0, 100.0, 200.0})
+        self.assertEqual(
+            addon.player_data["agility_exp"],
+            10.0 + shown_xp[-1],
+        )
+        self.assertNotEqual(addon.random.getstate(), before_rng)
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon.random.getstate(), before_rng)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_ignored_pit_reward_resolves_on_next_answer_and_review_undo_restores_it(self):
+        addon = _load_addon_as_package("ankiscape_pit_context_review_integration")
+        addon.mw = _DummyMW(_DummyCol())
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_context_action_strip = lambda *_args: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        shown_xp = []
+        addon._show_exp = shown_xp.append
+        initial = {
+            "agility_level": 50,
+            "agility_exp": 10.0,
+            "agility_activity_state": {
+                "pit_reward": {"xp": 100.0, "course": "gnome_normal"}
+            },
+            "review_context_preferences": {"pit_reward": "take_xp"},
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "None"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(
+            _FakeReviewer(),
+            1,
+            lambda _self, _ease: "answered",
+        )
+
+        self.assertNotIn(
+            "pit_reward",
+            addon.player_data["agility_activity_state"],
+        )
+        self.assertEqual(addon.player_data["agility_exp"], 110.0)
+        self.assertEqual(shown_xp, [100.0])
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(study_queues=True, card=True),
+            )
+        )
+
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
     def test_unrelated_undo_does_not_consume_review_snapshot(self):
         addon = _load_addon_as_package("ankiscape_unrelated_undo_integration")
 

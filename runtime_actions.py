@@ -188,6 +188,7 @@ try:
     from .agility_data import AGILITY_TARGETS_BY_ID, DEFAULT_AGILITY_TARGET
     from .agility_logic import (
         agility_target_locked_reasons_pure,
+        apply_agility_command_pure,
         apply_agility_review_pure,
         sanitize_agility_state_pure,
     )
@@ -384,6 +385,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from agility_data import AGILITY_TARGETS_BY_ID, DEFAULT_AGILITY_TARGET  # type: ignore
     from agility_logic import (  # type: ignore
         agility_target_locked_reasons_pure,
+        apply_agility_command_pure,
         apply_agility_review_pure,
         sanitize_agility_state_pure,
     )
@@ -3823,6 +3825,10 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
 
     lap_counts_before = dict(sanitize_agility_state_pure(player_data)["agility_lap_counts"])
     pit_offer_before = bool(player_data.get("agility_pit_offer", False))
+    pit_origin_before = str(player_data.get("agility_pit_origin_course", "") or "")
+    current_agility_before = str(player_data.get("current_agility", target_id) or target_id)
+    equipment_before = dict(player_data.get("equipment", {}) or {})
+    inventory_before = dict(player_data.get("inventory", {}) or {})
     xp_charges_before = dict(player_data.get("agility_effect_charges", {}) or {})
     updated, result = apply_agility_review_pure(
         player_data,
@@ -3836,6 +3842,20 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     damage = int(result.get("damage", 0) or 0)
     if damage > 0:
         wilderness_ambush = bool((result.get("wilderness_ambush") or {}).get("triggered"))
+        deferred_pit_accept = bool(
+            wilderness_ambush
+            and result.get("completed_lap")
+            and player_data.get("current_agility") == "the_pit"
+            and player_data.get("agility_pit_offer")
+        )
+        if deferred_pit_accept:
+            # The Wilderness ambush resolves before the lap reward. Restore the
+            # pre-entry carried state so a fatal hit cannot bank-protect hand
+            # equipment by auto-accepting The Pit one transaction too early.
+            player_data["current_agility"] = current_agility_before
+            player_data["agility_pit_origin_course"] = pit_origin_before
+            player_data["equipment"] = equipment_before
+            player_data["inventory"] = inventory_before
         damaged, damage_result = apply_thieving_damage_pure(
             player_data,
             damage,
@@ -3845,11 +3865,22 @@ def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
         player_data.clear()
         player_data.update(damaged)
         result["damage_result"] = damage_result
+        if deferred_pit_accept and not damage_result.get("died"):
+            accepted, accept_result = apply_agility_command_pure(
+                player_data,
+                "accept_pit_offer",
+                {},
+            )
+            if accept_result.get("allowed"):
+                player_data.clear()
+                player_data.update(accepted)
         if damage_result.get("died"):
             ctx.deactivate_current_skill()
             if wilderness_ambush and result.get("completed_lap"):
                 player_data["agility_lap_counts"] = lap_counts_before
                 player_data["agility_pit_offer"] = pit_offer_before
+                player_data["agility_pit_origin_course"] = pit_origin_before
+                player_data["current_agility"] = current_agility_before
                 charges = dict(player_data.get("agility_effect_charges", {}) or {})
                 for modifier in result.get("xp_modifiers", ()) or ():
                     item_name = modifier.get("item") if isinstance(modifier, dict) else None

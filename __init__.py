@@ -91,6 +91,8 @@ from .ui import (
     ensure_review_hud,
     update_review_hud,
     hide_review_hud,
+    ensure_review_context_action_strip,
+    update_review_context_action_strip,
     ensure_farming_hud_badge,
     update_farming_hud_badge,
     hide_farming_hud_badge,
@@ -114,6 +116,10 @@ from .grand_exchange_logic import (
 )
 from .farming_logic import apply_farming_frontend_action_pure, farming_frontend_projection_pure
 from .agility_logic import apply_agility_command_pure
+from .review_context import (
+    PIT_REWARD_CONTEXT_ID,
+    ignored_review_context_choice_pure,
+)
 from .agility_travel import agility_carried_weight_pure
 from .summoning_logic import (
     advance_summoning_world_tick_pure,
@@ -172,6 +178,7 @@ _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY = "ankiscape_review_action_multiplier"
 _CADENCE_KERNEL_CONFIG_KEY = "ankiscape_cadence_kernel"
 _LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
 _REVIEW_FEEDBACK_CONTEXT = None
+_REVIEW_FEEDBACK_INITIAL_XP = 0.0
 
 def show_review_popup():
     ui.show_review_popup()
@@ -303,8 +310,12 @@ def _combine_activity_feedback(messages) -> str:
 
 
 def _begin_review_feedback_context() -> None:
-    global _REVIEW_FEEDBACK_CONTEXT
-    _REVIEW_FEEDBACK_CONTEXT = {"xp": 0.0, "activity": []}
+    global _REVIEW_FEEDBACK_CONTEXT, _REVIEW_FEEDBACK_INITIAL_XP
+    _REVIEW_FEEDBACK_CONTEXT = {
+        "xp": float(_REVIEW_FEEDBACK_INITIAL_XP or 0.0),
+        "activity": [],
+    }
+    _REVIEW_FEEDBACK_INITIAL_XP = 0.0
 
 
 def _finish_review_feedback_context() -> None:
@@ -412,6 +423,97 @@ def _cadence_kernel_enabled() -> bool:
 def _award_skill_exp(exp_key: str, base_exp: float) -> float:
     player_data[exp_key] = player_data.get(exp_key, 0) + base_exp
     return base_exp
+
+
+def _update_review_context_surface() -> None:
+    try:
+        update_review_context_action_strip(
+            player_data,
+            resolve_review_context_action,
+        )
+    except Exception:
+        pass
+
+
+def resolve_review_context_action(family_id: str, option_id: str) -> bool:
+    """Resolve one explicit reviewer-context choice as a direct undoable action."""
+
+    if family_id != PIT_REWARD_CONTEXT_ID or option_id not in {
+        "take_xp",
+        "gamble",
+    }:
+        return False
+    before = {
+        "player_data": copy.deepcopy(player_data),
+        "random_state": random.getstate(),
+    }
+    action_id = (
+        "gamble_pit_reward" if option_id == "gamble" else "claim_pit_reward"
+    )
+    roll = random.random() if option_id == "gamble" else 0.5
+    updated, result = apply_agility_command_pure(
+        player_data,
+        action_id,
+        {"remember_choice": True},
+        roll=roll,
+    )
+    if not result.get("allowed"):
+        random.setstate(before["random_state"])
+        _update_review_context_surface()
+        return False
+    try:
+        mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+    except (AttributeError, RuntimeError):
+        random.setstate(before["random_state"])
+        return False
+    _DIRECT_ACTION_UNDO_STACK.append(before)
+    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+    player_data.clear()
+    player_data.update(updated)
+    xp = float(result.get("xp", 0.0) or 0.0)
+    if xp > 0:
+        gained = _award_skill_exp("agility_exp", xp)
+        level_up_check("Agility", player_data)
+        _show_exp(gained)
+    check_achievements(player_data)
+    save_player_data()
+    _refresh_skill_availability()
+    try:
+        mw.update_undo_actions()
+        update_review_hud(player_data, current_skill)
+    except AttributeError:
+        pass
+    _update_review_context_surface()
+    return True
+
+
+def _resolve_ignored_review_context_for_answer() -> float:
+    pending = ignored_review_context_choice_pure(player_data)
+    if pending is None:
+        return 0.0
+    family_id, option_id = pending
+    if family_id != PIT_REWARD_CONTEXT_ID:
+        return 0.0
+    action_id = (
+        "gamble_pit_reward" if option_id == "gamble" else "claim_pit_reward"
+    )
+    updated, result = apply_agility_command_pure(
+        player_data,
+        action_id,
+        {},
+        roll=random.random() if option_id == "gamble" else 0.5,
+    )
+    if not result.get("allowed"):
+        return 0.0
+    player_data.clear()
+    player_data.update(updated)
+    xp = float(result.get("xp", 0.0) or 0.0)
+    if xp > 0:
+        _award_skill_exp("agility_exp", xp)
+        level_up_check("Agility", player_data)
+        check_achievements(player_data)
+    return xp
 
 
 def _award_hidden_skill_exp(exp_key: str, level_key: str, base_exp: float) -> None:
@@ -612,6 +714,7 @@ def _restore_review_award_snapshot(snapshot) -> None:
     try:
         update_review_hud(player_data, current_skill)
         update_farming_hud_badge(player_data, _open_farming_sheet)
+        _update_review_context_surface()
     except Exception:
         pass
     try:
@@ -627,6 +730,7 @@ def _restore_urn_teleport_snapshot(snapshot) -> None:
     try:
         update_review_hud(player_data, current_skill)
         update_farming_hud_badge(player_data, _open_farming_sheet)
+        _update_review_context_surface()
     except Exception:
         pass
 
@@ -640,10 +744,7 @@ def _restore_direct_action_snapshot(snapshot) -> None:
     save_player_data()
     try:
         update_review_hud(player_data, current_skill)
-        _refresh_skill_availability()
-    except Exception:
-        pass
-    try:
+        _update_review_context_surface()
         _refresh_skill_availability()
     except Exception:
         pass
@@ -1258,6 +1359,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             update_review_hud(player_data, current_skill)
         except AttributeError:
             pass
+        _update_review_context_surface()
         return {"ok": True, **result}
 
     def _apply_warriors_guild_command(action_id, payload):
@@ -2060,10 +2162,13 @@ def _active_review_carried_target():
 
 
 def on_answer_card(self, ease, _old):
-    global card_turned, exp_awarded, answer_shown
+    global card_turned, exp_awarded, answer_shown, _REVIEW_FEEDBACK_INITIAL_XP
     review_answered = card_turned and answer_shown
     successful_answer = ease > 1
     before_state = _capture_player_data_snapshot() if review_answered else None
+    context_xp = (
+        _resolve_ignored_review_context_for_answer() if review_answered else 0.0
+    )
     had_farm_step = bool(player_data.get("farm_queue"))
     farm_preempted = False
     if review_answered:
@@ -2120,17 +2225,22 @@ def on_answer_card(self, ease, _old):
         _remember_review_award_snapshot(before_state)
         exp_awarded = True
     elif successful_answer and review_answered and not exp_awarded and is_review_action(current_skill):
+        _REVIEW_FEEDBACK_INITIAL_XP = context_xp
+        context_xp = 0.0
         _call_on_good_answer_with_snapshot(before_state)
         exp_awarded = True
     elif review_answered and before_state is not None:
         _save_player_data_if_anki_ready()
         _remember_review_award_snapshot(before_state)
+    if context_xp > 0:
+        _show_exp(context_xp)
     card_turned = False
     answer_shown = False  # Reset for the next card
     try:
         update_farming_hud_badge(player_data, _open_farming_sheet)
     except Exception:
         pass
+    _update_review_context_surface()
     return _old(self, ease)
 
 
@@ -2143,6 +2253,8 @@ def on_card_did_show(card):
     try:
         ensure_review_hud()
         update_review_hud(player_data, current_skill)
+        ensure_review_context_action_strip()
+        _update_review_context_surface()
         ensure_farming_hud_badge()
         update_farming_hud_badge(player_data, _open_farming_sheet)
     except Exception:
@@ -2155,6 +2267,7 @@ def on_show_answer(reviewer):
     # Keep HUD in sync when flipping
     try:
         update_review_hud(player_data, current_skill)
+        _update_review_context_surface()
     except Exception:
         pass
 
@@ -2196,6 +2309,8 @@ def _on_rev_show_question(*_args, **_kwargs):
         if get_config_bool("ankiscape_review_hud_enabled", True):
             ensure_review_hud()
             update_review_hud(player_data, current_skill)
+        ensure_review_context_action_strip()
+        _update_review_context_surface()
     except Exception:
         pass
 
@@ -2206,6 +2321,8 @@ def _on_rev_show_answer(*_args, **_kwargs):
         if get_config_bool("ankiscape_review_hud_enabled", True):
             ensure_review_hud()
             update_review_hud(player_data, current_skill)
+        ensure_review_context_action_strip()
+        _update_review_context_surface()
     except Exception:
         pass
 

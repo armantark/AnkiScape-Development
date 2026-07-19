@@ -114,23 +114,29 @@ part of that review's atomic undo snapshot and does not itself change the
 remembered preference. See
 `memory-bank/review-hud-context-actions-contract-2026-07-18.md`.
 
-## Implementation mismatch recorded on 2026-07-18
+## Implementation closure recorded on 2026-07-19
 
-The current implementation is not yet aligned with this contract:
+The live implementation now matches this contract:
 
-- `agility_logic.py:_finish_lap` rolls an invitation after every course target
-  without checking the eligible set, so Burthorpe and Penguin can incorrectly
-  trigger it;
-- no global auto-accept checkbox exists;
-- `_pit_review` records the current target rather than a persisted originating
-  course, so course-scaled reward identity is lost after selecting The Pit; and
-- Pit rewards exist only as always-present Agility-panel commands rather than
-  the contextual review row, with no next-answer default or remembered explicit
-  choice; and
-- existing tests cover active/corrupt invitation state but not the nine
-  eligible and two ineligible course boundaries.
+- `agility_logic.py` limits invitation rolls to the exact nine eligible course
+  variants and explicitly excludes Burthorpe, Penguin, activities, and
+  shortcuts;
+- the Agility surface exposes one default-on automatic-accept setting, while an
+  active familiar preserves a manual offer and requires explicit dismissal;
+- Pit entry safely stows weapon and shield, persists the originating course,
+  and returns there on completion or early leave;
+- the first Gorilla mask is granted once, not once per later successful
+  challenge;
+- `review_context.py` and the shared reviewer strip make `Take XP / Gamble` the
+  canonical reward surface, with conservative defaulting, remembered explicit
+  choices, next-answer resolution, direct undo, review undo, and RNG restore;
+  and
+- targeted pure, integration, storage-migration, and offscreen Qt tests cover
+  eligibility boundaries, entry gates, origin return, reward projection,
+  keyboard-accessible actions, dark styling, queue collapse, and both undo
+  paths.
 
-The implementation pass must fix those concrete mismatches and add targeted
-eligibility, auto-accept, familiar-confirmation, origin-course, return-target,
-context-row, remembered-choice, next-answer resolution, and undo coverage. This
-design thread does not modify the live Agility code.
+The skillcape practice route and exact Pit challenge/reward tables remain
+`source_blocked` where this audit already says the period record is
+insufficient. They are source-harvest work, not an unresolved owner-design
+choice, and no substitute values were introduced in this closure.

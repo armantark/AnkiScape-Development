@@ -49,9 +49,33 @@ try:
 except ImportError:  # pragma: no cover - flat test imports
     from inventory_pure import clamp_carried_view_to_bank  # type: ignore
 
+try:
+    from .review_context import (
+        PIT_REWARD_CONTEXT_ID,
+        remember_review_context_choice_pure,
+    )
+except ImportError:  # pragma: no cover - flat test imports
+    from review_context import (  # type: ignore
+        PIT_REWARD_CONTEXT_ID,
+        remember_review_context_choice_pure,
+    )
+
 
 WILDERNESS_PKER_AMBUSH_CHANCE = 0.01
 WILDERNESS_PKER_MAX_HIT_LP = 250
+PIT_INVITATION_COURSE_IDS = frozenset(
+    {
+        "gnome_normal",
+        "gnome_advanced",
+        "barbarian_normal",
+        "barbarian_advanced",
+        "agility_pyramid",
+        "ape_atoll",
+        "wilderness_course",
+        "werewolf_course",
+        "dorgesh_kaan",
+    }
+)
 
 
 def _int(value: Any, default: int = 0, *, minimum: int = 0, maximum: int = 2_147_483_647) -> int:
@@ -108,6 +132,8 @@ def default_agility_state_pure() -> dict[str, Any]:
         "agility_run_energy_credit_pct": 0,
         "agility_actions_completed": 0,
         "agility_pit_offer": False,
+        "agility_pit_origin_course": "",
+        "agility_pit_auto_accept": True,
         "agility_pit_successes": 0,
         "agility_activity_completions": {},
         "agility_circus_last_week": -1,
@@ -158,10 +184,16 @@ def sanitize_agility_state_pure(player_data: Optional[Mapping[str, Any]]) -> dic
     pit_reviews = _int(raw_pit.get("reviews"), maximum=5) if isinstance(raw_pit, Mapping) else 0
     pit_challenge = str(raw_pit.get("challenge", "")) if isinstance(raw_pit, Mapping) else ""
     if 1 <= pit_reviews <= 5 and pit_challenge in PIT_CHALLENGES:
+        pit_session_origin = str(raw_pit.get("origin_course", "") or "")
         activities["pit"] = {
             "challenge": pit_challenge,
             "reviews": pit_reviews,
             "successes": _int(raw_pit.get("successes"), maximum=pit_reviews),
+            "origin_course": (
+                pit_session_origin
+                if pit_session_origin in PIT_INVITATION_COURSE_IDS
+                else DEFAULT_AGILITY_TARGET
+            ),
         }
     else:
         activities.pop("pit", None)
@@ -190,6 +222,13 @@ def sanitize_agility_state_pure(player_data: Optional[Mapping[str, Any]]) -> dic
     )
     source["agility_actions_completed"] = _int(source.get("agility_actions_completed"))
     source["agility_pit_offer"] = bool(source.get("agility_pit_offer", False))
+    pit_origin = str(source.get("agility_pit_origin_course", "") or "")
+    source["agility_pit_origin_course"] = (
+        pit_origin if pit_origin in PIT_INVITATION_COURSE_IDS else ""
+    )
+    source["agility_pit_auto_accept"] = bool(
+        source.get("agility_pit_auto_accept", True)
+    )
     source["agility_pit_successes"] = _int(source.get("agility_pit_successes"))
     source["agility_circus_last_week"] = _int(
         source.get("agility_circus_last_week"), -1, minimum=-1
@@ -320,6 +359,35 @@ def _failure_damage(stage: AgilityStage, target_id: str, current_lp: int) -> int
     return int(_clamp(math.floor(max(1, current_lp) / 10), 10, 100))
 
 
+def _active_familiar_pure(data: Mapping[str, Any]) -> bool:
+    summoning_state = data.get("summoning_state")
+    follower = (
+        summoning_state.get("active_follower")
+        if isinstance(summoning_state, Mapping)
+        else None
+    )
+    return isinstance(follower, Mapping) and follower.get("kind") == "familiar"
+
+
+def _stow_pit_hand_equipment_pure(data: dict[str, Any]) -> None:
+    equipment = dict(data.get("equipment") or {})
+    inventory = dict(data.get("inventory") or {})
+    for slot_id in ("weapon", "shield"):
+        item_name = equipment.pop(slot_id, None)
+        if item_name:
+            inventory[str(item_name)] = _int(inventory.get(str(item_name))) + 1
+    data["equipment"] = equipment
+    data["inventory"] = inventory
+
+
+def _arm_pit_offer_pure(data: dict[str, Any]) -> None:
+    if not data.get("agility_pit_offer"):
+        return
+    _stow_pit_hand_equipment_pure(data)
+    data["current_agility"] = "the_pit"
+    data["agility_status"] = "The Pit · Talent Scout invitation accepted"
+
+
 def _finish_lap(data: dict[str, Any], target: AgilityTarget, state: dict[str, Any], reward_roll: float) -> dict[str, Any]:
     counts = dict(data["agility_lap_counts"])
     counts["total"] += 1
@@ -333,8 +401,11 @@ def _finish_lap(data: dict[str, Any], target: AgilityTarget, state: dict[str, An
     if counts["barbarian_advanced_flawless"] >= 250:
         counts["agile_top_unlocked"] = True
     data["agility_lap_counts"] = counts
-    if reward_roll < .125:
+    if target.id in PIT_INVITATION_COURSE_IDS and reward_roll < .125:
         data["agility_pit_offer"] = True
+        data["agility_pit_origin_course"] = target.id
+        if data.get("agility_pit_auto_accept", True) and not _active_familiar_pure(data):
+            _arm_pit_offer_pure(data)
     return counts
 
 
@@ -384,7 +455,11 @@ def _standard_course_review(
             result["completed_lap"] = True
             _finish_lap(data, target, state, reward_roll)
             state.update({"stage": 0, "checkpoint": "start", "flawless": True, "lap_xp_valid": True, "requested_item_valid": True})
-            state["status"] = f"{stage.label} · lap complete"
+            state["status"] = (
+                f"{stage.label} · lap complete · Talent Scout invitation accepted"
+                if data.get("current_agility") == "the_pit"
+                else f"{stage.label} · lap complete"
+            )
         else:
             state["stage"] = next_stage
             state["status"] = f"{stage.label} · success · {next_stage}/{len(target.stages)}"
@@ -593,7 +668,19 @@ def _pit_review(data: dict[str, Any], roll: float, reward_roll: float) -> dict[s
     session = _activity_session(data, "pit")
     if not session:
         challenge = PIT_CHALLENGES[min(int(reward_roll * len(PIT_CHALLENGES)), len(PIT_CHALLENGES) - 1)]
-        session.update({"challenge": challenge, "reviews": 0, "successes": 0})
+        origin_course = str(data.get("agility_pit_origin_course", "") or "")
+        session.update(
+            {
+                "challenge": challenge,
+                "reviews": 0,
+                "successes": 0,
+                "origin_course": (
+                    origin_course
+                    if origin_course in PIT_INVITATION_COURSE_IDS
+                    else DEFAULT_AGILITY_TARGET
+                ),
+            }
+        )
         data["agility_pit_offer"] = False
     review = _int(session.get("reviews"), maximum=5) + 1
     successes = _int(session.get("successes"), maximum=6)
@@ -608,13 +695,18 @@ def _pit_review(data: dict[str, Any], roll: float, reward_roll: float) -> dict[s
         level = _int(data.get("agility_level"), 1, minimum=1, maximum=99)
         xp = float(level * (20 if passed else 5))
         if passed:
-            data["agility_pit_successes"] = _int(data.get("agility_pit_successes")) + 1
-            inventory = data.get("inventory") or {}
-            if _int(inventory.get("Gorilla mask")) <= 0:
+            prior_successes = _int(data.get("agility_pit_successes"))
+            data["agility_pit_successes"] = prior_successes + 1
+            if prior_successes == 0:
                 outputs["Gorilla mask"] = 1
         activities = dict(data.get("agility_activity_state") or {})
-        activities["pit_reward"] = {"xp": xp, "course": str(data.get("current_agility", "the_pit"))}
+        origin_course = str(session.get("origin_course", DEFAULT_AGILITY_TARGET))
+        if origin_course not in PIT_INVITATION_COURSE_IDS:
+            origin_course = DEFAULT_AGILITY_TARGET
+        activities["pit_reward"] = {"xp": xp, "course": origin_course}
         data["agility_activity_state"] = activities
+        data["agility_pit_origin_course"] = ""
+        data["current_agility"] = origin_course
         session.clear()
     else:
         session.update({"reviews": review, "successes": successes})
@@ -917,7 +1009,50 @@ def apply_agility_command_pure(
         xp = _float(reward.get("xp")) * multiplier
         activities.pop("pit_reward", None)
         data["agility_activity_state"] = activities
+        if body.get("remember_choice"):
+            data = remember_review_context_choice_pure(
+                data,
+                PIT_REWARD_CONTEXT_ID,
+                "gamble" if action_id == "gamble_pit_reward" else "take_xp",
+            )
         return data, {"allowed": True, "xp": xp, "multiplier": multiplier, "message": f"Claimed {xp:g} Agility XP"}
+    if action_id == "set_pit_auto_accept":
+        data = sanitize_agility_state_pure(copy.deepcopy(player_data))
+        data["agility_pit_auto_accept"] = bool(body.get("enabled", True))
+        state = "enabled" if data["agility_pit_auto_accept"] else "disabled"
+        return data, {
+            "allowed": True,
+            "message": f"Automatic Talent Scout acceptance {state}",
+        }
+    if action_id == "accept_pit_offer":
+        data = sanitize_agility_state_pure(copy.deepcopy(player_data))
+        if not data.get("agility_pit_offer"):
+            return data, {"allowed": False, "message": "No Talent Scout invitation is waiting"}
+        if _active_familiar_pure(data):
+            if not body.get("dismiss_familiar"):
+                return data, {
+                    "allowed": False,
+                    "requires_familiar_dismissal": True,
+                    "message": "Dismiss the active familiar before entering The Pit",
+                }
+            try:
+                from .summoning_logic import dismiss_familiar_pure
+            except ImportError:  # pragma: no cover - flat test imports
+                from summoning_logic import dismiss_familiar_pure  # type: ignore
+            dismissed, ok, _info = dismiss_familiar_pure(data)
+            if not ok:
+                return data, {"allowed": False, "message": "The familiar could not be dismissed"}
+            data = sanitize_agility_state_pure(dismissed)
+        _arm_pit_offer_pure(data)
+        return data, {"allowed": True, "message": data["agility_status"]}
+    if action_id == "decline_pit_offer":
+        data = sanitize_agility_state_pure(copy.deepcopy(player_data))
+        if not data.get("agility_pit_offer"):
+            return data, {"allowed": False, "message": "No Talent Scout invitation is waiting"}
+        data["agility_pit_offer"] = False
+        data["agility_pit_origin_course"] = ""
+        data["agility_status"] = "The Pit · Talent Scout invitation declined"
+        return data, {"allowed": True, "message": data["agility_status"]}
     if action_id == "leave_activity":
         data = sanitize_agility_state_pure(copy.deepcopy(player_data))
         target = AGILITY_TARGETS_BY_ID[data["current_agility"]]
@@ -936,6 +1071,21 @@ def apply_agility_command_pure(
                 message_suffix = f" with {points} Brianpoints"
         elif target.activity_kind == "circus":
             data["agility_circus_last_week"] = _answered_card_week(data)
+        elif target.activity_kind == "pit":
+            origin_course = (
+                str(session.get("origin_course", ""))
+                if isinstance(session, Mapping)
+                else str(data.get("agility_pit_origin_course", ""))
+            )
+            if origin_course not in PIT_INVITATION_COURSE_IDS:
+                origin_course = DEFAULT_AGILITY_TARGET
+            data["current_agility"] = origin_course
+            data["agility_pit_offer"] = False
+            data["agility_pit_origin_course"] = ""
+            message_suffix = (
+                f" and returned to "
+                f"{AGILITY_TARGETS_BY_ID[origin_course].display_name}"
+            )
         activities.pop(target.activity_kind, None)
         data["agility_activity_state"] = activities
         data["agility_status"] = f"Left {target.display_name}{message_suffix}"

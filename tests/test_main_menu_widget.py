@@ -1118,6 +1118,24 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertIsNotNone(dialog.findChild(QLabel, "agilityStatusLine"))
             self.assertIsNotNone(dialog.findChild(QLabel, "agilityBenefitsLine"))
             self.assertIsNotNone(dialog.findChild(QWidget, "agilityRewardControls"))
+            auto_accept = dialog.findChild(
+                QCheckBox, "agilityPitAutoAcceptCheckBox"
+            )
+            self.assertIsNotNone(auto_accept)
+            self.assertTrue(auto_accept.isChecked())
+            auto_accept.click()
+            QApplication.processEvents()
+            self.assertEqual(
+                self._agility_command_calls[-1],
+                ("set_pit_auto_accept", {"enabled": False}),
+            )
+            self.assertFalse(player_data["agility_pit_auto_accept"])
+            self.assertFalse(
+                any(
+                    button.text() in {"Claim Pit XP", "Gamble Pit XP"}
+                    for button in dialog.findChildren(QPushButton)
+                )
+            )
 
             toy_button = dialog.findChild(QPushButton, "agilityCommand::wind_toy_mouse")
             self.assertIsNotNone(toy_button)
@@ -1132,6 +1150,125 @@ class MainMenuWidgetTest(unittest.TestCase):
                 self.assertNotIn("palette(mid)", label.styleSheet().lower())
         finally:
             dialog.deleteLater()
+
+    def test_agility_panel_accepts_or_declines_pending_talent_scout_offer(self) -> None:
+        player_data = _make_player_data()
+        player_data.update(
+            {
+                "agility_level": 99,
+                "current_agility": "gnome_normal",
+                "agility_pit_offer": True,
+                "agility_pit_origin_course": "gnome_normal",
+                "agility_pit_auto_accept": False,
+                "equipment": {"weapon": "Dragon longsword"},
+            }
+        )
+        dialog = self._open(player_data, current_skill="Agility")
+
+        invitation = dialog.findChild(QWidget, "agilityPitInvitationRow")
+        self.assertIsNotNone(invitation)
+        accept = dialog.findChild(QPushButton, "agilityPitAcceptButton")
+        self.assertIsNotNone(accept)
+        accept.click()
+        QApplication.processEvents()
+
+        self.assertEqual(
+            self._agility_command_calls[-1],
+            ("accept_pit_offer", {}),
+        )
+        self.assertEqual(player_data["current_agility"], "the_pit")
+        self.assertEqual(player_data["inventory"]["Dragon longsword"], 1)
+
+        declined_data = _make_player_data()
+        declined_data.update(
+            {
+                "agility_level": 99,
+                "current_agility": "gnome_normal",
+                "agility_pit_offer": True,
+                "agility_pit_origin_course": "gnome_normal",
+                "agility_pit_auto_accept": False,
+            }
+        )
+        declined_dialog = self._open(declined_data, current_skill="Agility")
+        decline = declined_dialog.findChild(
+            QPushButton, "agilityPitDeclineButton"
+        )
+        self.assertIsNotNone(decline)
+        decline.click()
+        QApplication.processEvents()
+
+        self.assertEqual(
+            self._agility_command_calls[-1],
+            ("decline_pit_offer", {}),
+        )
+        self.assertFalse(declined_data["agility_pit_offer"])
+        self.assertIsNone(
+            declined_dialog.findChild(QWidget, "agilityPitInvitationRow")
+        )
+
+    def test_review_context_strip_is_compact_interactive_and_hides_when_empty(self) -> None:
+        parent = QMainWindow()
+        parent.resize(900, 620)
+        parent.show()
+        strip = self._ui.ReviewContextActionStrip(parent)
+        calls = []
+        strip.set_data(
+            {
+                "active": {
+                    "family_id": "pit_reward",
+                    "label": "Pit reward",
+                    "detail": "320 Agility XP",
+                    "options": (
+                        {"id": "take_xp", "label": "Take XP"},
+                        {"id": "gamble", "label": "Gamble"},
+                    ),
+                    "default_option": "take_xp",
+                    "remembered_option": None,
+                },
+                "queued_count": 2,
+            },
+            lambda family_id, option_id: calls.append((family_id, option_id)),
+        )
+        QApplication.processEvents()
+
+        self.assertTrue(strip.isVisible())
+        self.assertLessEqual(
+            len(strip.findChildren(QPushButton)),
+            3,
+        )
+        take = strip.findChild(
+            QPushButton, "reviewContextAction::pit_reward::take_xp"
+        )
+        gamble = strip.findChild(
+            QPushButton, "reviewContextAction::pit_reward::gamble"
+        )
+        self.assertIsNotNone(take)
+        self.assertIsNotNone(gamble)
+        self.assertIn("Pit reward", take.accessibleName())
+        self.assertIn("automatic on next answer", take.accessibleName())
+        self.assertTrue(take.property("safeOption"))
+        self.assertFalse(bool(gamble.property("safeOption")))
+        self.assertNotEqual(take.focusPolicy(), Qt.FocusPolicy.NoFocus)
+        self.assertIn("next card", take.toolTip())
+        self.assertIn("2x, 1x, or 0.5x", gamble.toolTip())
+        queue_badge = strip.findChild(QLabel, "reviewContextQueueBadge")
+        self.assertTrue(queue_badge.isVisible())
+        self.assertEqual(queue_badge.text(), "+2")
+        self.assertEqual(
+            queue_badge.accessibleName(),
+            "Queued reviewer decisions",
+        )
+        gamble.click()
+        QApplication.processEvents()
+        self.assertEqual(calls, [("pit_reward", "gamble")])
+        self.assertGreaterEqual(strip.x(), 8)
+        self.assertGreaterEqual(strip.y(), 8)
+
+        strip.set_data({"active": None, "queued_count": 0})
+        QApplication.processEvents()
+        self.assertFalse(strip.isVisible())
+        strip.deleteLater()
+        parent.deleteLater()
 
     def test_farming_sheet_is_openable_without_train_button_or_target_prompt(self) -> None:
         farming_dialog = self._open(_make_player_data(), current_skill="Mining", initial_skill="Farming")

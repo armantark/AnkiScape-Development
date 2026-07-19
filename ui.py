@@ -461,20 +461,24 @@ try:
         AGILITY_GROUP_ORDER,
         AGILITY_TARGET_IMAGES,
         AGILITY_TARGETS,
+        AGILITY_TARGETS_BY_ID,
         ALL_AGILITY_SHORTCUTS,
         DEFAULT_AGILITY_TARGET,
     )
     from .agility_logic import agility_status_line_pure, agility_target_locked_reasons_pure
+    from .review_context import review_context_projection_pure
 except ImportError:
     from agility_data import (  # type: ignore
         AGILITY_GROUP_LABELS,
         AGILITY_GROUP_ORDER,
         AGILITY_TARGET_IMAGES,
         AGILITY_TARGETS,
+        AGILITY_TARGETS_BY_ID,
         ALL_AGILITY_SHORTCUTS,
         DEFAULT_AGILITY_TARGET,
     )
     from agility_logic import agility_status_line_pure, agility_target_locked_reasons_pure  # type: ignore
+    from review_context import review_context_projection_pure  # type: ignore
 
 try:
     from .shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS, SHOP_PLAYER_BUY_PRICES
@@ -1741,6 +1745,8 @@ if HAS_QT:
                 y = int(ph - h - 72)
                 self.setFixedWidth(w)
                 self.move(x, y)
+                if _REVIEW_CONTEXT_STRIP is not None and _REVIEW_CONTEXT_STRIP.isVisible():
+                    _REVIEW_CONTEXT_STRIP._reposition()
             except Exception:
                 pass
 
@@ -1748,6 +1754,195 @@ if HAS_QT:
             try:
                 et = event.type()
                 if et in (QEvent.Type.Resize, QEvent.Type.Move, QEvent.Type.Show):
+                    self._reposition()
+            except Exception:
+                pass
+            return False
+
+    class ReviewContextActionStrip(QWidget):
+        """One compact, interactive decision created by recent gameplay."""
+
+        def __init__(self, parent=None):
+            super().__init__(parent)
+            self.setObjectName("AnkiScapeReviewContextStrip")
+            self.setWindowFlags(Qt.WindowType.Widget)
+            self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+            self._projection = {}
+            self._action_callback = None
+            root = QHBoxLayout(self)
+            root.setContentsMargins(10, 7, 8, 7)
+            root.setSpacing(7)
+            self.label = QLabel()
+            self.label.setObjectName("reviewContextLabel")
+            self.label.setStyleSheet("color: white; font-weight: 700;")
+            root.addWidget(self.label)
+            self.detail = QLabel()
+            self.detail.setObjectName("reviewContextDetail")
+            self.detail.setStyleSheet("color: rgba(255,255,255,0.72);")
+            root.addWidget(self.detail)
+            root.addStretch(1)
+            self.actions = QWidget()
+            self.actions.setObjectName("reviewContextActions")
+            self.action_layout = QHBoxLayout(self.actions)
+            self.action_layout.setContentsMargins(0, 0, 0, 0)
+            self.action_layout.setSpacing(5)
+            root.addWidget(self.actions)
+            self.queue_badge = QLabel()
+            self.queue_badge.setObjectName("reviewContextQueueBadge")
+            self.queue_badge.setStyleSheet(
+                "color: white; background: rgba(255,255,255,0.16);"
+                " border-radius: 7px; padding: 2px 5px;"
+            )
+            self.queue_badge.setAccessibleName("Queued reviewer decisions")
+            root.addWidget(self.queue_badge)
+            self.setStyleSheet(
+                f"""
+                QWidget#AnkiScapeReviewContextStrip {{
+                    background: {_HUD_BG};
+                    border: 1px solid {_HUD_BORDER};
+                    border-radius: 10px;
+                }}
+                QWidget#reviewContextActions QPushButton {{
+                    color: white;
+                    background: rgba(255,255,255,0.10);
+                    border: 1px solid rgba(255,255,255,0.35);
+                    border-radius: 7px;
+                    padding: 4px 9px;
+                    font-weight: 600;
+                }}
+                QWidget#reviewContextActions QPushButton:hover {{
+                    background: rgba(255,255,255,0.18);
+                }}
+                QWidget#reviewContextActions QPushButton[safeOption="true"] {{
+                    background: rgba(76,175,80,0.28);
+                    border-color: rgba(111,219,120,0.62);
+                }}
+                QWidget#reviewContextActions QPushButton[automaticOption="true"] {{
+                    border-color: rgba(255,193,7,0.85);
+                }}
+                QWidget#reviewContextActions QPushButton[safeOption="true"][automaticOption="true"] {{
+                    background: rgba(76,175,80,0.42);
+                    border-color: rgba(111,219,120,0.85);
+                }}
+                """
+            )
+            try:
+                from aqt.qt import QGraphicsDropShadowEffect  # type: ignore
+                shadow = QGraphicsDropShadowEffect(self)
+                shadow.setBlurRadius(18)
+                shadow.setOffset(0, 2)
+                shadow.setColor(Qt.GlobalColor.black)
+                self.setGraphicsEffect(shadow)
+            except Exception:
+                pass
+            if parent is not None:
+                parent.installEventFilter(self)
+            self.hide()
+
+        def set_data(self, projection: dict, action_callback=None) -> None:
+            self._projection = projection or {}
+            self._action_callback = action_callback
+            active = self._projection.get("active")
+            if not isinstance(active, Mapping):
+                self.hide()
+                return
+            self.label.setText(str(active.get("label", "Decision")))
+            self.detail.setText(str(active.get("detail", "")))
+            while self.action_layout.count():
+                item = self.action_layout.takeAt(0)
+                widget = item.widget()
+                if widget is not None:
+                    widget.deleteLater()
+            family_id = str(active.get("family_id", ""))
+            automatic_option = str(
+                active.get("remembered_option")
+                or active.get("default_option")
+                or ""
+            )
+            for option in tuple(active.get("options", ()))[:3]:
+                if not isinstance(option, Mapping):
+                    continue
+                option_id = str(option.get("id", ""))
+                if not option_id:
+                    continue
+                button = QPushButton(str(option.get("label", option_id)))
+                if family_id == "pit_reward" and option_id == "take_xp":
+                    button.setProperty("safeOption", True)
+                button.setObjectName(
+                    f"reviewContextAction::{family_id}::{option_id}"
+                )
+                button.setAccessibleName(
+                    f"{active.get('label', 'Context action')}: "
+                    f"{option.get('label', option_id)}"
+                )
+                tooltips = []
+                if option_id == automatic_option:
+                    tooltips.append(
+                        "Applies automatically if you answer the next card "
+                        "without choosing."
+                    )
+                    button.setProperty("automaticOption", True)
+                    button.setAccessibleName(
+                        f"{button.accessibleName()}; automatic on next answer"
+                    )
+                if family_id == "pit_reward" and option_id == "gamble":
+                    tooltips.append("Equal odds of 2x, 1x, or 0.5x XP.")
+                if tooltips:
+                    button.setToolTip(" ".join(tooltips))
+                button.setEnabled(action_callback is not None)
+                button.clicked.connect(
+                    lambda _checked=False, fid=family_id, oid=option_id: self._activate(
+                        fid, oid
+                    )
+                )
+                self.action_layout.addWidget(button)
+            queued = max(0, int(self._projection.get("queued_count", 0) or 0))
+            self.queue_badge.setText(f"+{queued}")
+            self.queue_badge.setToolTip(
+                f"{queued} more pending decision{'s' if queued != 1 else ''}"
+            )
+            self.queue_badge.setVisible(queued > 0)
+            self.adjustSize()
+            self._reposition()
+            self.show()
+            self.raise_()
+
+        def _activate(self, family_id: str, option_id: str) -> None:
+            if self._action_callback is not None:
+                self._action_callback(family_id, option_id)
+
+        def _reposition(self) -> None:
+            try:
+                parent = self.parent() or mw
+                if parent is None:
+                    return
+                self.adjustSize()
+                available_width = max(1, parent.width() - 16)
+                hud = _REVIEW_HUD
+                if hud is not None and hud.isVisible():
+                    width = min(
+                        max(self.width(), hud.width()),
+                        620,
+                        available_width,
+                    )
+                    x = hud.x() + (hud.width() - width) // 2
+                    y = hud.y() - self.height() - 8
+                else:
+                    width = min(max(self.width(), 360), 620, available_width)
+                    x = (parent.width() - width) // 2
+                    y = parent.height() - self.height() - 72
+                self.setFixedWidth(width)
+                self.move(max(8, x), max(8, y))
+            except Exception:
+                pass
+
+        def eventFilter(self, obj, event):  # type: ignore[override]
+            try:
+                if event.type() in (
+                    QEvent.Type.Resize,
+                    QEvent.Type.Move,
+                    QEvent.Type.Show,
+                ):
                     self._reposition()
             except Exception:
                 pass
@@ -1887,8 +2082,15 @@ if HAS_QT:
             # Position: centered horizontally, just above the HUD
             try:
                 par = self.parent() if self.parent() is not None else mw
+                context_strip = _REVIEW_CONTEXT_STRIP
                 hud = _REVIEW_HUD
-                base_y = (hud.y() - 14) if (hud and hud.isVisible()) else (par.height() - 140)
+                base_y = (
+                    context_strip.y() - 14
+                    if context_strip and context_strip.isVisible()
+                    else hud.y() - 14
+                    if hud and hud.isVisible()
+                    else par.height() - 140
+                )
                 x = int((par.width() - self.width()) / 2)
                 y = int(base_y)
                 self.move(x, y)
@@ -1933,6 +2135,12 @@ else:
         def set_data(self, player_data: dict, skill: str) -> None:
             pass
 
+    class ReviewContextActionStrip:
+        def __init__(self, parent=None):
+            pass
+        def set_data(self, projection: dict, action_callback=None) -> None:
+            pass
+
     class FarmingHUDBadge:
         def __init__(self, parent=None):
             pass
@@ -1945,6 +2153,7 @@ else:
 
 # --- Review HUD management ---
 _REVIEW_HUD = None  # type: ignore
+_REVIEW_CONTEXT_STRIP = None  # type: ignore
 _FARMING_BADGE = None  # type: ignore
 _FARM_STATUS_DIALOG = None  # type: ignore
 
@@ -1963,8 +2172,14 @@ def _cleanup_extra_huds() -> None:
         if QApplication is not None:
             for w in QApplication.topLevelWidgets():
                 try:
-                    if getattr(w, "objectName", lambda: "")() in {"AnkiScapeReviewHUD", "AnkiScapeFarmingBadge", "farmingStatusDialog"}:
-                        if _REVIEW_HUD is None or w is not _REVIEW_HUD:
+                    name = getattr(w, "objectName", lambda: "")()
+                    if name in {"AnkiScapeReviewHUD", "AnkiScapeReviewContextStrip", "AnkiScapeFarmingBadge", "farmingStatusDialog"}:
+                        current = {
+                            "AnkiScapeReviewHUD": _REVIEW_HUD,
+                            "AnkiScapeReviewContextStrip": _REVIEW_CONTEXT_STRIP,
+                            "AnkiScapeFarmingBadge": _FARMING_BADGE,
+                        }.get(name)
+                        if current is None or w is not current:
                             try:
                                 w.hide()
                             except Exception:
@@ -1986,6 +2201,13 @@ def _cleanup_extra_huds() -> None:
                     except Exception:
                         pass
                     try:
+                        child.deleteLater()
+                    except Exception:
+                        pass
+            for child in par.findChildren(_QW, "AnkiScapeReviewContextStrip"):
+                if _REVIEW_CONTEXT_STRIP is None or child is not _REVIEW_CONTEXT_STRIP:
+                    try:
+                        child.hide()
                         child.deleteLater()
                     except Exception:
                         pass
@@ -2043,6 +2265,43 @@ def update_review_hud(player_data: dict, current_skill: str) -> None:
             _REVIEW_HUD.set_data(player_data, current_skill)
     except Exception:
         pass
+
+
+def ensure_review_context_action_strip() -> None:
+    global _REVIEW_CONTEXT_STRIP
+    if not HAS_QT:
+        return
+    _cleanup_extra_huds()
+    if _REVIEW_CONTEXT_STRIP is None and mw is not None:
+        _REVIEW_CONTEXT_STRIP = ReviewContextActionStrip(mw)
+        _REVIEW_CONTEXT_STRIP.setParent(mw)
+    if _REVIEW_CONTEXT_STRIP is not None:
+        _REVIEW_CONTEXT_STRIP.raise_()
+
+
+def update_review_context_action_strip(
+    player_data: dict,
+    action_callback=None,
+) -> None:
+    if not HAS_QT:
+        return
+    ensure_review_context_action_strip()
+    if _REVIEW_CONTEXT_STRIP is None:
+        return
+    projection = review_context_projection_pure(player_data)
+    if projection.get("active") is None:
+        _REVIEW_CONTEXT_STRIP.hide()
+        return
+    _REVIEW_CONTEXT_STRIP.set_data(projection, action_callback)
+
+
+def hide_review_context_action_strip() -> None:
+    try:
+        if _REVIEW_CONTEXT_STRIP is not None:
+            _REVIEW_CONTEXT_STRIP.hide()
+    except Exception:
+        pass
+
 
 def ensure_farming_hud_badge() -> None:
     global _FARMING_BADGE
@@ -2184,6 +2443,7 @@ def hide_review_hud() -> None:
             _REVIEW_HUD.hide()
     except Exception:
         pass
+    hide_review_context_action_strip()
     hide_farming_hud_badge()
 
 def show_error_message(title: str, message: str):
@@ -4149,6 +4409,33 @@ def show_main_menu(
         status.setStyleSheet("color: palette(text); font-weight: 600;")
         layout.addWidget(status)
 
+        pit_auto_accept = QCheckBox(
+            "Automatically accept Talent Scout invitations"
+        )
+        pit_auto_accept.setObjectName("agilityPitAutoAcceptCheckBox")
+        pit_auto_accept.setChecked(
+            bool(player_data.get("agility_pit_auto_accept", True))
+        )
+        pit_auto_accept.setToolTip(
+            "Eligible completed course laps may immediately enter The Pit. "
+            "An active familiar still requires confirmation."
+        )
+
+        def _set_pit_auto_accept(enabled: bool) -> None:
+            if on_agility_command is None:
+                return
+            result = on_agility_command(
+                "set_pit_auto_accept",
+                {"enabled": bool(enabled)},
+            ) or {}
+            if not result.get("ok", result.get("allowed", False)):
+                pit_auto_accept.blockSignals(True)
+                pit_auto_accept.setChecked(not enabled)
+                pit_auto_accept.blockSignals(False)
+
+        pit_auto_accept.toggled.connect(_set_pit_auto_accept)
+        layout.addWidget(pit_auto_accept)
+
         level = max(1, min(99, int(player_data.get("agility_level", 1) or 1)))
         gain = 11.0 * (level - 1) / 98.0
         equipment = set((player_data.get("equipment") or {}).values())
@@ -4168,7 +4455,11 @@ def show_main_menu(
         route_gain = 100.0 * max(0.0, base_reviews - adjusted_reviews) / base_reviews if base_reviews > 0 else 0.0
         unlocked_routes = sum(1 for row in ALL_AGILITY_SHORTCUTS if row.consumer == "route" and row.level <= level)
         next_shortcut = next((row for row in sorted(ALL_AGILITY_SHORTCUTS, key=lambda item: item.level) if row.level > level), None)
-        next_shortcut_text = f"{next_shortcut.display_name} at {next_shortcut.level}" if next_shortcut else "all milestones unlocked"
+        next_shortcut_text = (
+            f"next: {next_shortcut.display_name} at {next_shortcut.level} · "
+            if next_shortcut
+            else "all milestones unlocked · "
+        )
         travel_summary = (
             f"last route {travel.get('route_label', 'travel')} saved {route_gain:.1f}% · "
             f"effective load {float(travel.get('effective_weight_kg', 0.0) or 0.0):g} kg"
@@ -4176,7 +4467,7 @@ def show_main_menu(
         )
         benefits = QLabel(
             f"Benefits & shortcuts · {travel_summary} · equipped reduction {reduction:g} kg · "
-            f"{unlocked_routes} consuming routes unlocked · next: {next_shortcut_text} · "
+            f"{unlocked_routes} consuming routes unlocked · {next_shortcut_text}"
             f"{int(counts.get('total', 0) or 0)} laps"
         )
         benefits.setObjectName("agilityBenefitsLine")
@@ -4186,6 +4477,93 @@ def show_main_menu(
             "Agility affects only route-local travel reviews. Bank transactions, materials, XP, and stationary methods are unchanged."
         )
         layout.addWidget(benefits)
+
+        def _accept_pit_offer() -> bool:
+            if on_agility_command is None:
+                return False
+            result = on_agility_command("accept_pit_offer", {}) or {}
+            if result.get("requires_familiar_dismissal"):
+                answer = QMessageBox.question(
+                    panel,
+                    "Dismiss familiar and enter The Pit?",
+                    "The Talent Scout does not allow familiars. Dismissing it "
+                    "does not refund its pouch, and any stored cargo is dropped "
+                    "for the normal reclaim window. Continue?",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = on_agility_command(
+                    "accept_pit_offer",
+                    {"dismiss_familiar": True},
+                ) or {}
+            if not result.get("ok", result.get("allowed", False)):
+                agility_feedback["message"] = str(
+                    result.get("message", "Could not enter The Pit")
+                )
+                return False
+            agility_feedback["message"] = str(result.get("message", ""))
+            return True
+
+        if bool(player_data.get("agility_pit_offer", False)):
+            invitation = QWidget()
+            invitation.setObjectName("agilityPitInvitationRow")
+            invitation.setStyleSheet(
+                "QWidget#agilityPitInvitationRow {"
+                " background: palette(base);"
+                " border: 1px solid rgba(76,175,80,0.65);"
+                " border-radius: 8px;"
+                " }"
+            )
+            invitation_layout = QHBoxLayout(invitation)
+            invitation_layout.setContentsMargins(8, 6, 8, 6)
+            origin = str(
+                player_data.get("agility_pit_origin_course", "") or ""
+            )
+            origin_spec = AGILITY_TARGETS_BY_ID.get(origin)
+            invitation_label = QLabel(
+                "Talent Scout invitation"
+                + (
+                    f" · {origin_spec.display_name}"
+                    if origin_spec is not None
+                    else ""
+                )
+            )
+            invitation_label.setStyleSheet(
+                "color: palette(text); font-weight: 600;"
+            )
+            invitation_layout.addWidget(invitation_label)
+            invitation_layout.addStretch(1)
+            accept_invitation = QPushButton("Accept")
+            accept_invitation.setObjectName("agilityPitAcceptButton")
+            accept_invitation.setDefault(True)
+            accept_invitation.setStyleSheet(
+                "QPushButton {"
+                " background: rgba(76,175,80,0.22);"
+                " border: 1px solid rgba(76,175,80,0.72);"
+                " border-radius: 4px;"
+                " padding: 4px 12px;"
+                " }"
+                "QPushButton:hover { background: rgba(76,175,80,0.32); }"
+            )
+            decline_invitation = QPushButton("Decline")
+            decline_invitation.setObjectName("agilityPitDeclineButton")
+            def _accept_pending_pit_offer(_checked=False) -> None:
+                _accept_pit_offer()
+                _render_panel()
+
+            accept_invitation.clicked.connect(_accept_pending_pit_offer)
+
+            def _decline_pit_offer(_checked=False) -> None:
+                if on_agility_command is not None:
+                    on_agility_command("decline_pit_offer", {})
+                _render_panel()
+
+            decline_invitation.clicked.connect(_decline_pit_offer)
+            invitation_layout.addWidget(accept_invitation)
+            invitation_layout.addWidget(decline_invitation)
+            layout.insertWidget(1, invitation)
 
         def _select_agility_target(target_id: str) -> None:
             current = str(player_data.get("current_agility", DEFAULT_AGILITY_TARGET))
@@ -4197,6 +4575,12 @@ def show_main_menu(
                     )
                     _render_panel()
                     return
+            if target_id == "the_pit" and bool(
+                player_data.get("agility_pit_offer", False)
+            ):
+                _accept_pit_offer()
+                _render_panel()
+                return
             if on_set_agility is not None:
                 on_set_agility(target_id)
             _render_panel()
@@ -4259,13 +4643,11 @@ def show_main_menu(
             )
         _command_button("Toadflax (3 tickets)", "redeem_brimhaven_item", {"tickets": 3})
         _command_button("Wergali (5 tickets)", "redeem_brimhaven_item", {"tickets": 5})
-        _command_button("Snapdragon (10 tickets)", "redeem_brimhaven_item", {"tickets": 10})
+        _command_button("Snapdragon (10)", "redeem_brimhaven_item", {"tickets": 10})
         _command_button("Pirate's hook (800)", "redeem_brimhaven_item", {"tickets": 800})
         _command_button("Redeem Brianpoints", "redeem_brianpoints", {"points": "all"})
         for piece in ("Factory mask", "Factory top", "Factory trousers", "Factory gloves", "Factory boots"):
             _command_button(piece, "redeem_factory_piece", {"piece": piece})
-        _command_button("Claim Pit XP", "claim_pit_reward", {})
-        _command_button("Gamble Pit XP", "gamble_pit_reward", {})
         _command_button("Activate Surefooted", "activate_surefooted", {})
         _command_button("Wind Toy mouse", "wind_toy_mouse", {})
         _command_button("Buy Agility cape", "purchase_agility_cape", {})
