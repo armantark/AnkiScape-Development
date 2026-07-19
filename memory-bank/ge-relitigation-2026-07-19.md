@@ -68,6 +68,37 @@ The emergent-flip loop is a first-class supported behavior:
    meaningfully out-earn naive selling; a mindless buy-dump loop should not
    out-earn sourced money-makers. Balance passes test against both.
 
+## Amendment 3 (2026-07-19): naturalized market texture
+
+The GE becomes a consumer of the same shared naturalized-population inputs
+that drive Shooting Stars, Big Chinchompa, and Shades of Mort'ton, instead
+of running on statistically uniform noise:
+
+- **Time-of-day breathing.** The answered-card Quiet/Normal/Busy profile
+  modulates aggregate order flow: busy periods mean deeper liquidity,
+  faster fills, and slightly calmer prices; quiet periods mean thin
+  markets, slower patient-offer fills, and jumpier moves. Amplitude stays
+  modest (bounded modulation, tuning-time constant) so texture never
+  becomes a wall — an aggressive offer still fills at simulated 3 a.m.
+- **Weekend texture.** The answered-card week (already used by Penguin
+  Hide and Seek and the Circus) gives weekends a liquidity bump, matching
+  the 2012 reality of weekend population spikes.
+- **Per-day variation.** Each market day draws bounded parameter jitter
+  (liquidity depth, volatility, order-flow midpoint/steepness) the same way
+  each Shooting Star event randomizes its population curve — no two market
+  days are statistically identical, while cumulative behavior stays
+  well-anchored.
+- **Per-item personality.** Liquidity/volatility profiles remain
+  formula-derived from category/level/price, but each item's coefficients
+  get a small persistent seeded jitter, so two same-category items do not
+  move in lockstep.
+- **Smooth shocks.** Shocks ramp in and decay smoothly over ticks (a "yew
+  log dump" arrives as accelerating pressure, not a step function),
+  consistent with the smooth-phase-jitter convention.
+- All of it stays deterministic from persisted seeds, undo-safe, wall-clock
+  free, and inside the lazy per-item advancement budget. No new player
+  settings.
+
 ## Amendment 2 (standard-mandated sourcing corrections)
 
 The locked design predates the verification standard and sourced from OSRS
