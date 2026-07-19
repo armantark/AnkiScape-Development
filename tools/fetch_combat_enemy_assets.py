@@ -82,6 +82,7 @@ TITLE_OVERRIDES = {
     "sea_snake_hatchling": ("Sea Snake Hatchling.png",),
     "sea_snake_young": ("Sea Snake Young.png",),
     "brine_rat": ("Brine rat icon.png", "Brine rat.png"),
+    "molanisk": ("Molanisk icon.png", "Molanisk.png"),
 }
 
 

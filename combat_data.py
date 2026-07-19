@@ -9,6 +9,11 @@ from __future__ import annotations
 
 from typing import Dict, Tuple
 
+try:
+    from .firemaking_data import LIT_LIGHT_SOURCE_ITEMS
+except ImportError:
+    from firemaking_data import LIT_LIGHT_SOURCE_ITEMS
+
 
 DEFAULT_COMBAT_TARGET = "chicken"
 DEFAULT_COMBAT_ATTACK_STYLE = "accurate"
@@ -2572,6 +2577,59 @@ BRINE_RAT_DROPS = {
             "total": 128,
             "slots": (
                 {"item": "Clue scroll (medium)", "quantity": 1, "slots": 1},
+                {"slots": 127},
+            ),
+        },
+    ),
+}
+
+MOLANISK_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Darkan ordinary",
+            "total": 100000,
+            "slots": (
+                {"item": "Grimy guam", "quantity": 1, "slots": 16791},
+                {"item": "Grimy marrentill", "quantity": 1, "slots": 16791},
+                {"item": "Water rune", "quantity": 1, "slots": 16791},
+                {"item": "Earth rune", "quantity": 1, "slots": 16791},
+                {
+                    "item": "Swamp weed",
+                    "quantity": 1,
+                    "slots": 16791,
+                    "source_item_id": 10978,
+                },
+                {"item": "Grimy tarromin", "quantity": 1, "slots": 1749},
+                {"item": "Grimy harralander", "quantity": 1, "slots": 1749},
+                {"item": "Grimy ranarr", "quantity": 1, "slots": 1749},
+                {"item": "Grimy dwarf weed", "quantity": 1, "slots": 1749},
+                {"item": "Coins", "quantity": 1, "slots": 1749},
+                {"item": "Mud rune", "quantity": 1, "slots": 1749},
+                {"item": "Grimy wergali", "quantity": 1, "slots": 1749},
+                {"item": "Wergali seed", "quantity": 1, "slots": 1749},
+                {"item": "Grimy irit", "quantity": 1, "slots": 207},
+                {"item": "Grimy avantoe", "quantity": 1, "slots": 207},
+                {"item": "Grimy kwuarm", "quantity": 1, "slots": 207},
+                {"item": "Grimy cadantine", "quantity": 1, "slots": 207},
+                {"item": "Nature rune", "quantity": 1, "slots": 207},
+                {"item": "Cosmic rune", "quantity": 1, "slots": 207},
+                {"item": "Grimy lantadyme", "quantity": 1, "slots": 207},
+                {
+                    "item": "Mole claw",
+                    "quantity": 1,
+                    "slots": 207,
+                    "source_item_id": 7416,
+                },
+                {"item": "Death rune", "quantity": 50, "slots": 186},
+                {"slots": 211},
+            ),
+        },
+        {
+            "name": "Easy clue",
+            "total": 128,
+            "slots": (
+                {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1},
                 {"slots": 127},
             ),
         },
@@ -8271,6 +8329,72 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "completion until Darkan quest stages expose stage 40"
         ),
     },
+    "molanisk": {
+        "display_name": "Molanisk",
+        "level": 51,
+        "group": "Slayer",
+        "required_slayer_level": 39,
+        "quest_gate": "death_to_the_dorgeshuun",
+        "quest_gate_label": "Complete Death to the Dorgeshuun",
+        "required_items": {"Slayer bell": 1},
+        "required_items_label": "Slayer bell x1 to lure a Molanisk (not consumed)",
+        "required_item_options": (LIT_LIGHT_SOURCE_ITEMS,),
+        "required_item_options_label": (
+            "One lit light source in inventory or equipped for the "
+            "Dorgesh-Kaan South Dungeon"
+        ),
+        "lure": {"item": "Slayer bell", "consumed": False},
+        "light_source": {"accepted_items": LIT_LIGHT_SOURCE_ITEMS},
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 53,
+        "slayer_xp": 52.0,
+        "stats": {
+            "hitpoints": 520,
+            "attack": 40,
+            "strength": 40,
+            "defence": 50,
+            "magic": 0,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 45,
+            "defence_slash": 45,
+            "defence_crush": 35,
+            "defence_magic": 30,
+            "defence_ranged": 55,
+            "melee_strength": 0,
+        },
+        "drops": MOLANISK_DROPS,
+        "interaction_note": (
+            "Each encounter starts by ringing the non-consumed Slayer bell to "
+            "lure the wall-bound Molanisk; a lit light source remains required."
+        ),
+        "source": (
+            "https://runescape.wiki/w/Molanisk?oldid=6565831; "
+            "https://runescape.wiki/w/Slayer_bell?oldid=6121349; "
+            "https://runescape.wiki/w/Dorgesh-Kaan_South_Dungeon?oldid=6393410; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/molanisk.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/developer-information/npcListBonuses.txt:5753; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/molanisk.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/utils/NPCClueDrops.java:54"
+        ),
+        "source_status": (
+            "period exact identity, LP, Slayer gate/XP, melee style, six-tick "
+            "cadence, maximum hit, passive behavior, bell lure, light-source "
+            "requirement, and quest access; Darkan exact stats, bonuses, respawn, "
+            "one exact 100,000-slot ordinary selector, and independent 1/128 easy "
+            "clue; no Darkan charm row, so no charm selector is manufactured"
+        ),
+    },
     "ogre": {
         "display_name": "Ogre",
         "level": 53,
@@ -11625,6 +11749,13 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
         "tradeable": True,
     },
     "Mithril spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MITHRIL_SPEAR"},
+    "Mole claw": {
+        "category": "material",
+        "source": "Darkan cache item 7416; Darkan Molanisk drop table",
+        "source_item_id": 7416,
+        "stackable": False,
+        "tradeable": True,
+    },
     "Monkey bones": {
         "category": "material",
         "source": "RuneScape Wiki Monkey oldid 6552407; Darkan item config 3183",
@@ -11673,6 +11804,13 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Staff of earth": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_EARTH"},
     "Staff of fire": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_FIRE"},
     "Steel spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STEEL_SPEAR"},
+    "Swamp weed": {
+        "category": "material",
+        "source": "Darkan cache item 10978; Darkan Molanisk drop table",
+        "source_item_id": 10978,
+        "stackable": False,
+        "tradeable": True,
+    },
     "Steel boots": {
         "category": "equipment",
         "source": (

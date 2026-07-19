@@ -4,6 +4,36 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Molanisk Combat closure — 2026-07-18
+
+- Added the ordinary level-51 Molanisk with Slayer 39, 520 LP, 52 Slayer XP,
+  six-tick passive melee, a 53-LP maximum, exact Darkan stats/bonuses, and a
+  59-tick respawn.
+- Reused the completed Death to the Dorgeshuun quest, live 150-coin Slayer bell,
+  and existing Firemaking light-source graph. One bell is required but not
+  consumed; any reachable lit source may be carried or equipped.
+- Flattened the wall interaction into one visible line: each Combat encounter
+  starts by ringing the bell to lure one Molanisk, with no redundant target,
+  wall-clock state, or pseudo-item.
+- Preserved guaranteed Bones, one exact 100,000-slot cumulative Darkan
+  selector with 211 empty slots, and an independent 1/128 easy clue. Darkan
+  has no Molanisk charm row, so none was invented.
+- Added cache-backed Swamp weed and Mole claw identities with period art and
+  pinned the cutoff Molanisk sprite.
+- Advanced Vannaka to 33/35 while leaving the partial pool hidden and
+  unrenormalized. Mogres and Turoth remain.
+- No owner-facing design fork emerged. Durable evidence:
+  `source-audits/slayer-molanisk-combat-2026-07-18.md`. Results:
+  `status-updates/slayer-molanisk-results-2026-07-18.html`.
+- Published the mobile closure report at
+  <https://2a1t6lht0q8n.postplan.dev>.
+- Focused coverage passes 602 methods with 211 expected non-Qt skips; the
+  focused real offscreen Qt picker passes. Full non-Qt and real offscreen Qt
+  discovery each pass all 1,657 methods, with no real-Qt skips. Documentation
+  passes across 326 Markdown and 342 HTML files; test quality reports zero hard
+  issues across 73 files. Compilation, JSON, diff, worktree-safety, readiness,
+  and reachability audits were rerun.
+
 ## Slayer Brine rat Combat closure — 2026-07-18
 
 - Added the ordinary level-70 Brine rat with Slayer 47, 500 LP, 50 Slayer XP,

@@ -1026,6 +1026,51 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertFalse(missing_spade.enabled)
         self.assertIn("toolbelt does not count", missing_spade.tooltip)
 
+    def test_molanisk_row_exposes_lure_light_and_exact_drop_selectors(self):
+        rows = combat_target_rows(
+            {
+                "current_combat_target": "chicken",
+                "slayer_level": 39,
+                "combat_lifepoints": 990,
+                "constitution_level": 99,
+                "quests": {"death_to_the_dorgeshuun": {"completed": True}},
+                "inventory": {"Slayer bell": 1, "Lit torch": 1},
+                "equipment": {},
+                "combat_supply_loadout": {},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+
+        molanisk = _row(rows, "molanisk")
+
+        self.assertTrue(molanisk.enabled)
+        self.assertIn("ringing the non-consumed Slayer bell", molanisk.tooltip)
+        self.assertIn("Grimy guam x1 (16791/100000)", molanisk.tooltip)
+        self.assertIn("Mole claw x1 (207/100000)", molanisk.tooltip)
+        self.assertIn("Death rune x50 (186/100000)", molanisk.tooltip)
+        self.assertIn("Clue scroll (easy) x1 (1/128)", molanisk.tooltip)
+
+        missing_light_rows = combat_target_rows(
+            {
+                "current_combat_target": "chicken",
+                "slayer_level": 39,
+                "quests": {"death_to_the_dorgeshuun": {"completed": True}},
+                "inventory": {"Slayer bell": 1},
+                "equipment": {},
+                "combat_supply_loadout": {},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+        missing_light = _row(missing_light_rows, "molanisk")
+        self.assertFalse(missing_light.enabled)
+        self.assertIn("One lit light source", missing_light.tooltip)
+
     def test_combat_rows_show_magic_spell_and_rune_supply(self):
         rows = combat_target_rows(
             {

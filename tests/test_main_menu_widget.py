@@ -2273,6 +2273,13 @@ class MainMenuWidgetTest(unittest.TestCase):
             "completed": True,
         }
         pd["inventory"]["Spade"] = 1
+        pd["quests"]["death_to_the_dorgeshuun"] = {
+            "started": True,
+            "progress": 1,
+            "completed": True,
+        }
+        pd["inventory"]["Slayer bell"] = 1
+        pd["inventory"]["Lit torch"] = 1
         pd["quests"]["priest_in_peril"] = {
             "started": True,
             "progress": 9,
@@ -2320,6 +2327,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         sea_snake_hatchling = _tree_row(tree, "sea_snake_hatchling")
         sea_snake_young = _tree_row(tree, "sea_snake_young")
         brine_rat = _tree_row(tree, "brine_rat")
+        molanisk = _tree_row(tree, "molanisk")
         aberrant_spectre = _tree_row(tree, "aberrant_spectre")
         basilisk = _tree_row(tree, "basilisk")
         crocodile = _tree_row(tree, "crocodile")
@@ -2428,6 +2436,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Brine sabre x1 (1/512)", brine_rat.toolTip(0))
         self.assertIn("Gold charm x1 (133/606)", brine_rat.toolTip(0))
         self.assertFalse(brine_rat.icon(0).isNull())
+        self.assertEqual(molanisk.text(0), "Molanisk (Lvl 51)")
+        self.assertIn("Mole claw x1 (207/100000)", molanisk.toolTip(0))
+        self.assertIn("Clue scroll (easy) x1 (1/128)", molanisk.toolTip(0))
+        self.assertFalse(molanisk.icon(0).isNull())
         self.assertEqual(
             aberrant_spectre.text(0), "Aberrant spectre (Lvl 96)"
         )

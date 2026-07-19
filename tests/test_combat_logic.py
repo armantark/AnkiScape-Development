@@ -6426,6 +6426,125 @@ class CombatLogicTest(unittest.TestCase):
             },
         )
 
+    def test_molanisk_preserves_cutoff_combat_access_and_lure(self):
+        molanisk = COMBAT_ENEMY_DATA["molanisk"]
+
+        self.assertEqual(
+            (
+                molanisk["level"],
+                molanisk["stats"]["hitpoints"],
+                molanisk["stats"]["attack"],
+                molanisk["stats"]["strength"],
+                molanisk["stats"]["defence"],
+                molanisk["max_hit"],
+                molanisk["slayer_xp"],
+            ),
+            (51, 520, 40, 40, 50, 53, 52.0),
+        )
+        self.assertEqual(molanisk["attack_speed"], 6)
+        self.assertEqual(molanisk["required_slayer_level"], 39)
+        self.assertEqual(molanisk["quest_gate"], "death_to_the_dorgeshuun")
+        self.assertEqual(molanisk["required_items"], {"Slayer bell": 1})
+        self.assertFalse(molanisk["lure"]["consumed"])
+
+        underleveled = _player(
+            current_combat_target="molanisk",
+            slayer_level=38,
+            quests={"death_to_the_dorgeshuun": {"completed": True}},
+            inventory={"Slayer bell": 1, "Lit torch": 1},
+        )
+        quest_locked = _player(
+            current_combat_target="molanisk",
+            slayer_level=39,
+            inventory={"Slayer bell": 1, "Lit torch": 1},
+        )
+        missing_bell = _player(
+            current_combat_target="molanisk",
+            slayer_level=39,
+            quests={"death_to_the_dorgeshuun": {"completed": True}},
+            inventory={"Lit torch": 1},
+        )
+        missing_light = _player(
+            current_combat_target="molanisk",
+            slayer_level=39,
+            quests={"death_to_the_dorgeshuun": {"completed": True}},
+            inventory={"Slayer bell": 1},
+        )
+        ready = _player(
+            current_combat_target="molanisk",
+            slayer_level=39,
+            quests={"death_to_the_dorgeshuun": {"completed": True}},
+            inventory={"Slayer bell": 1},
+            equipment={"head": "Mining helmet (lit)"},
+        )
+
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                underleveled, "molanisk", COMBAT_ENEMY_DATA
+            ),
+            ("Slayer level 39",),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                quest_locked, "molanisk", COMBAT_ENEMY_DATA
+            ),
+            ("Complete Death to the Dorgeshuun",),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                missing_bell, "molanisk", COMBAT_ENEMY_DATA
+            ),
+            ("Slayer bell x1 to lure a Molanisk (not consumed)",),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                missing_light, "molanisk", COMBAT_ENEMY_DATA
+            ),
+            (
+                "One lit light source in inventory or equipped for the "
+                "Dorgesh-Kaan South Dungeon",
+            ),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                ready, "molanisk", COMBAT_ENEMY_DATA
+            ),
+            (),
+        )
+
+    def test_molanisk_drop_selectors_are_independent_and_exact(self):
+        molanisk = COMBAT_ENEMY_DATA["molanisk"]
+
+        for table in molanisk["drops"]["tables"]:
+            with self.subTest(table=table["name"]):
+                self.assertEqual(
+                    sum(slot["slots"] for slot in table["slots"]),
+                    table["total"],
+                )
+
+        self.assertEqual(
+            _combat_roll_drops(molanisk, _rng((0.0, 0.0))),
+            {
+                "Bones": 1,
+                "Grimy guam": 1,
+                "Clue scroll (easy)": 1,
+            },
+        )
+        self.assertEqual(
+            _combat_roll_drops(
+                molanisk,
+                _rng((99396.5 / 100000, 0.999999)),
+            ),
+            {"Bones": 1, "Mole claw": 1},
+        )
+        self.assertEqual(
+            _combat_roll_drops(
+                molanisk,
+                _rng((99603.5 / 100000, 0.999999)),
+            ),
+            {"Bones": 1, "Death rune": 50},
+        )
+
     def test_wall_beast_can_continue_after_helmet_swap_but_cannot_chain_a_respawn(self):
         continuing = _player(
             current_combat_target="wall_beast",

@@ -235,7 +235,9 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   certification.
 - Vannaka is now the third completely encoded pool. Its 35 master-specific
   rows preserve the provisional 460-point denominator and remain hidden at
-  32/35 readiness. Ordinary Brine rat closes Brine rats with its sourced
+  33/35 readiness. Ordinary Molanisk closes Molanisks with its sourced quest,
+  Slayer-bell, and real lit-source gates, exact 100,000-slot Darkan selector,
+  and independent easy clue. Ordinary Brine rat closes Brine rats with its sourced
   Slayer/Olaf's-Quest/Spade gates, exact 512-slot ordinary selector, exact
   Darkan charm selector, independent clue, and generated Brine sabre equipment.
   Ordinary Ogre closes the Ogres family with its exact nested
@@ -278,8 +280,8 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   state. Ordinary Brine rat adds its Slayer/Olaf's-Quest/Spade access,
   exact ordinary/charm/clue selectors, and generated Brine sabre. Olaf's Quest
   completion is conservative until Darkan exports the sourced stage-40 cavern
-  permission. The remaining three blockers are derived by
-  `tools/audit_slayer_readiness.py`: Mogres, Molanisks, and Turoth.
+  permission. The remaining two blockers are derived by
+  `tools/audit_slayer_readiness.py`: Mogres and Turoth.
   Continue from that generated ledger; do not expose or renormalize the
   partial master. See
   `source-audits/slayer-vannaka-ogre-combat-2026-07-18.md` and
@@ -290,6 +292,7 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   `source-audits/slayer-killerwatt-combat-2026-07-18.md`, plus
   `source-audits/slayer-sea-snakes-combat-2026-07-18.md`, plus
   `source-audits/slayer-brine-rat-combat-2026-07-18.md`, plus
+  `source-audits/slayer-molanisk-combat-2026-07-18.md`, plus
   `source-audits/slayer-basilisk-combat-2026-07-18.md`, plus
   `source-audits/slayer-crocodile-combat-2026-07-18.md` and
   `source-audits/slayer-otherworldly-being-combat-2026-07-18.md` and

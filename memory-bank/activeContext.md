@@ -2,6 +2,23 @@
 
 ## Current Focus
 
+The ordinary level-51 Molanisk now closes the 33rd executable Vannaka family.
+Its one-review encounter visibly folds the sourced wall lure into Combat:
+Death to the Dorgeshuun, Slayer 39, one non-consumed Slayer bell, and any real
+lit light source gate the target. The encounter preserves 520 LP, 52 Slayer
+XP, six-tick passive melee, a 53-LP maximum, Darkan stats/bonuses/respawn, one
+exact 100,000-slot cumulative ordinary selector, and an independent 1/128 easy
+clue. No charm distribution is invented. Swamp weed and Mole claw now have
+canonical cache identities and cutoff art beside the Molanisk sprite. Vannaka
+remains hidden at 33/35 with Mogres and Turoth missing. No owner-facing design
+fork emerged. Evidence:
+`source-audits/slayer-molanisk-combat-2026-07-18.md`. Results:
+`status-updates/slayer-molanisk-results-2026-07-18.html`; mobile copy:
+<https://2a1t6lht0q8n.postplan.dev>. Focused verification passes 602 methods;
+full non-Qt and real offscreen Qt discovery each pass all 1,657 methods.
+Documentation, test-quality, compilation, JSON, diff, readiness, reachability,
+and worktree-safety audits were rerun.
+
 The ordinary level-70 Brine rat now closes the 32nd executable Vannaka family:
 Slayer 47, 500 LP, 50 Slayer XP, six-tick passive melee, a 93-LP maximum,
 guaranteed Bones and Raw rat meat, one exact 512-slot ordinary selector, the

@@ -1487,6 +1487,18 @@
     "source_wiki": "osrs",
     "timestamp": "2019-02-05T21:23:54Z"
   },
+  "combatenemies/molanisk.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Molanisk_icon.png",
+    "file_title": "Molanisk icon.png",
+    "image_url": "https://runescape.wiki/images/archive/20240904210643%21Molanisk_icon.png?bf654",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5082e9110b3ca6166dc4f5c61c4faa7ede43fb68",
+    "size": 543,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-26T04:43:26Z"
+  },
   "combatenemies/monk.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Monk.png",
     "file_title": "Monk.png",
@@ -2737,6 +2749,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:59:01Z"
   },
+  "combatitems/mole_claw.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Mole_claw.png",
+    "file_title": "Mole claw.png",
+    "image_url": "https://runescape.wiki/images/archive/20140127162707%21Mole_claw.png?579aa",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "14d9188080da460e3e7cbcc8a9b83a1c53d4b613",
+    "size": 409,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-26T04:43:46Z"
+  },
   "combatitems/muddy_key.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Muddy_key.png",
     "file_title": "Muddy key.png",
@@ -3036,6 +3060,18 @@
     "size": 1077,
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T08:25:00Z"
+  },
+  "combatitems/swamp_weed.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Swamp_weed.png",
+    "file_title": "Swamp weed.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502071024%21Swamp_weed.png?fcf56",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7050271dbe066d1a223b3decd347014827f40534",
+    "size": 416,
+    "source_wiki": "rs3",
+    "timestamp": "2008-10-20T16:36:49Z"
   },
   "combatitems/thread.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Thread.png",

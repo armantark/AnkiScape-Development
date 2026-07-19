@@ -3637,6 +3637,31 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
             if isinstance(label, str) and label:
                 return (label,)
             return tuple(f"{item_name} x1" for item_name in missing_required_items)
+    required_item_options = enemy.get("required_item_options", ()) or ()
+    if isinstance(required_item_options, (tuple, list)):
+        inventory = player_data.get("inventory", {}) or {}
+        inventory = inventory if isinstance(inventory, Mapping) else {}
+        equipment = player_data.get("equipment", {}) or {}
+        equipped_items = (
+            {item_name for item_name in equipment.values() if isinstance(item_name, str)}
+            if isinstance(equipment, Mapping)
+            else set()
+        )
+        for option_group in required_item_options:
+            if not isinstance(option_group, (tuple, list)):
+                continue
+            if not any(
+                isinstance(item_name, str)
+                and (
+                    _non_negative_int(inventory.get(item_name, 0), 0) > 0
+                    or item_name in equipped_items
+                )
+                for item_name in option_group
+            ):
+                label = enemy.get("required_item_options_label")
+                if isinstance(label, str) and label:
+                    return (label,)
+                return ("Required item option missing",)
     start_equipment, start_equipment_active = _combat_start_equipment_state(
         player_data, enemy
     )

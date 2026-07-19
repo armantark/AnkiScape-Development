@@ -209,6 +209,42 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(definition.asset_path, COMBAT_ITEM_IMAGES["Brine sabre"])
         self.assertTrue(os.path.exists(definition.asset_path))
 
+    def test_molanisk_unique_drops_keep_cache_identity_and_assets(self):
+        definitions = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+
+        for item_name, source_item_id in (
+            ("Mole claw", 7416),
+            ("Swamp weed", 10978),
+        ):
+            with self.subTest(item=item_name):
+                definition = definitions[item_name]
+                self.assertEqual(definition.source_item_id, source_item_id)
+                self.assertFalse(definition.stackable)
+                self.assertTrue(definition.tradeable)
+                self.assertEqual(definition.category, "material")
+                self.assertEqual(
+                    definition.asset_path,
+                    COMBAT_ITEM_IMAGES[item_name],
+                )
+                self.assertTrue(os.path.exists(definition.asset_path))
+
+        with open(
+            os.path.join(
+                os.path.dirname(os.path.dirname(__file__)),
+                "assets_provenance.json",
+            ),
+            encoding="utf-8",
+        ) as file_obj:
+            provenance = json.load(file_obj)
+        self.assertEqual(
+            provenance["combatitems/mole_claw.png"]["timestamp"],
+            "2011-11-26T04:43:46Z",
+        )
+        self.assertEqual(
+            provenance["combatitems/swamp_weed.png"]["timestamp"],
+            "2008-10-20T16:36:49Z",
+        )
+
     def test_slayer_boot_drops_are_real_equipment_with_assets(self):
         definitions = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         for item_name, item_id, required_level in (
