@@ -99,6 +99,38 @@ of running on statistically uniform noise:
   free, and inside the lazy per-item advancement budget. No new player
   settings.
 
+## Amendment 4 (2026-07-19): seed-value heuristic beyond history and alch
+
+For items without a mappable historical price, the seeding stack is richer
+than "historical data + high alch":
+
+1. **Cache `value` field — the universal period anchor.** Every item
+   definition in the on-disk 727–742 caches carries Jagex's own hand-authored
+   shop value; high/low alch are just 60%/40% of it. This gives an exact,
+   pinned, period-authentic intrinsic anchor for *every* item, not only
+   alchables — the alch anchor generalizes to its primitive.
+2. **NPC shop brackets.** The already-live shop rows bound rational value
+   from both sides: a market seed should sit between what NPCs pay and what
+   they charge wherever both exist.
+3. **Production-cost rollup over the acquisition graph.** The repo already
+   has the recipe/route graph and, through the cadence audit, sourced
+   reviews-per-unit for gatherables. Value flows up the DAG:
+   `seed(item) ≈ Σ seed(inputs) + shadow_gp_per_review × reviews(processing)`,
+   with raw gatherables seeded purely from their review cost. One global
+   shadow price of a review, not per-item hand numbers.
+4. **Calibration trick.** Fit the shadow price and category margins by
+   regression on the items that DO have Wayback 2012 GE Database prices,
+   then apply the fitted formula to the unpriced remainder. Priced items
+   teach the formula; unpriced items inherit it. Residual outliers (fashion
+   premiums, dead content) fall to the existing manual-override tier.
+5. **OSRS ratios corroborate only.** Cross-item price *ratios* between
+   related items are era-stable and may sanity-check a fitted seed; OSRS
+   absolutes still never supply directly.
+
+Drop-sourced items additionally sanity-check against expected GP per review
+from their sourced drop rates, so no drop table quietly out-earns its
+period shape at seed prices.
+
 ## Amendment 2 (standard-mandated sourcing corrections)
 
 The locked design predates the verification standard and sourced from OSRS
