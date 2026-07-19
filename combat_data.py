@@ -2425,6 +2425,102 @@ OGRE_DROPS = {
     ),
 }
 
+SEA_SNAKE_HATCHLING_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Darkan ordinary",
+            "total": 13000,
+            "slots": (
+                {"item": "Casket", "quantity": 1, "slots": 11700},
+                {"item": "Pearl bolt tips", "quantity": 3, "slots": 1},
+                {"item": "Grimy guam", "quantity": 1, "slots": 1},
+                {"item": "Fishing bait", "quantity": 50, "slots": 1},
+                {"item": "Raw bass", "quantity": 2, "slots": 1},
+                {"item": "Raw lobster", "quantity": 1, "slots": 1},
+                {"item": "Seaweed", "quantity_range": (4, 5), "slots": 1},
+                {"item": "Edible seaweed", "quantity": 1, "slots": 1},
+                {"item": "Oyster pearl", "quantity_range": (1, 2), "slots": 1},
+                {"item": "Water rune", "quantity": 15, "slots": 1},
+                {"item": "Water orb", "quantity": 1, "slots": 1},
+                {"item": "Adamant dart tip", "quantity": 2, "slots": 1},
+                {"item": "Coins", "quantity_range": (2, 144), "slots": 1},
+                {"item": "Mist rune", "quantity": 1, "slots": 1},
+                {"item": "Limpwurt seed", "quantity": 1, "slots": 1},
+                {"item": "Dwellberry seed", "quantity": 1, "slots": 1},
+                {"item": "Jangerberry seed", "quantity": 1, "slots": 1},
+                {"item": "Whiteberry seed", "quantity": 1, "slots": 1},
+                {"item": "Harralander seed", "quantity": 1, "slots": 1},
+                {"item": "Ranarr seed", "quantity": 1, "slots": 1},
+                {"item": "Toadflax seed", "quantity": 1, "slots": 1},
+                {"item": "Kwuarm seed", "quantity": 1, "slots": 1},
+                {"item": "Snapdragon seed", "quantity": 1, "slots": 1},
+                {"item": "Cadantine seed", "quantity": 1, "slots": 1},
+                {"item": "Wildblood seed", "quantity": 1, "slots": 1},
+                {"item": "Strawberry seed", "quantity": 1, "slots": 1},
+                {"item": "Spirit weed seed", "quantity": 1, "slots": 1},
+                {"slots": 1274},
+            ),
+        },
+        {
+            "name": "Medium clue",
+            "total": 128,
+            "slots": (
+                {"item": "Clue scroll (medium)", "quantity": 1, "slots": 1},
+                {"slots": 127},
+            ),
+        },
+    ),
+}
+
+SEA_SNAKE_YOUNG_DROPS = {
+    "guaranteed": (("Big bones", 1),),
+    "tables": (
+        {
+            "name": "Darkan main",
+            "total": 128,
+            "slots": (
+                {"item": "Coins", "quantity": 44, "slots": 60},
+                {"item": "Coins", "quantity": 32, "slots": 11},
+                {"item": "Adamant dart tip", "quantity": 2, "slots": 10},
+                {"item": "Coins", "quantity": 24, "slots": 9},
+                {"item": "Coins", "quantity": 23, "slots": 7},
+                {"item": "Fishing bait", "quantity": 50, "slots": 4},
+                {"item": "Pearl bolt tips", "quantity": 3, "slots": 4},
+                {"item": "Raw bass", "quantity": 2, "slots": 4},
+                {"item": "Water orb", "quantity": 1, "slots": 3},
+                {"item": "Water rune", "quantity": 15, "slots": 2},
+                {"item": "Mist rune", "quantity": 1, "slots": 2},
+                {"item": "Broad arrows", "quantity": 4, "slots": 2},
+                {"item": "Raw lobster", "quantity": 1, "slots": 2},
+                {"item": "Seaweed", "quantity": 5, "slots": 2},
+                {"item": "Edible seaweed", "quantity": 5, "slots": 2},
+                {"item": "Oyster pearl", "quantity": 2, "slots": 1},
+                {"item": "Oyster pearls", "quantity": 1, "slots": 1},
+                {"item": "Casket", "quantity": 1, "slots": 1},
+                {"table": COMBAT_GEM_DROP_TABLE, "slots": 1},
+            ),
+        },
+        {
+            "name": "Long and curved bones",
+            "total": 100000,
+            "slots": (
+                {"item": "Long bone", "quantity": 1, "slots": 250},
+                {"item": "Curved bone", "quantity": 1, "slots": 20},
+                {"slots": 99730},
+            ),
+        },
+        {
+            "name": "Medium clue",
+            "total": 128,
+            "slots": (
+                {"item": "Clue scroll (medium)", "quantity": 1, "slots": 1},
+                {"slots": 127},
+            ),
+        },
+    ),
+}
+
 CYCLOPS_WARRIORS_GUILD_DROPS = {
     "guaranteed": (("Big bones", 1),),
     "tables": (
@@ -7931,6 +8027,120 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "emulator-exact 303-slot charm selector"
         ),
     },
+    "sea_snake_hatchling": {
+        "display_name": "Sea Snake Hatchling",
+        "level": 62,
+        "group": "Slayer",
+        "required_slayer_level": 1,
+        "quest_gate": "royal_trouble",
+        "quest_gate_label": "Complete Royal Trouble",
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 69,
+        "poison_damage": 5,
+        "slayer_xp": 50.0,
+        "stats": {
+            "hitpoints": 500,
+            "attack": 84,
+            "strength": 84,
+            "defence": 84,
+            "magic": 84,
+            "ranged": 84,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": SEA_SNAKE_HATCHLING_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Sea_Snake_Hatchling?oldid=6448392; "
+            "https://runescape.wiki/w/Sea_Snake_Hatchling; "
+            "https://oldschool.runescape.wiki/w/Sea_Snake_Hatchling; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "sea_snake_hatchling (nostats).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/game/model/entity/npc/"
+            "combat/NPCCombatDefinitions.java; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/sea_snake_hatchling.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/utils/drop/DropList.java; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/utils/NPCClueDrops.java"
+        ),
+        "source_status": (
+            "period exact ordinary identity, LP, Slayer XP, melee style, "
+            "69-LP maximum hit, Vannaka membership, 50-LP initial poison, "
+            "and Royal Trouble route; corroborated six-tick attack cadence; "
+            "Darkan generated combat stats, exact respawn, one exact "
+            "13000-slot ordinary selector, and "
+            "independent 1/128 medium clue"
+        ),
+    },
+    "sea_snake_young": {
+        "display_name": "Sea Snake Young",
+        "level": 90,
+        "group": "Slayer",
+        "required_slayer_level": 40,
+        "quest_gate": "royal_trouble",
+        "quest_gate_label": "Complete Royal Trouble",
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 84,
+        "poison_damage": 7,
+        "slayer_xp": 85.0,
+        "stats": {
+            "hitpoints": 850,
+            "attack": 90,
+            "strength": 70,
+            "defence": 70,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": SEA_SNAKE_YOUNG_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Sea_Snake_Young?oldid=5936978; "
+            "https://runescape.wiki/w/Sea_Snake_Young; "
+            "https://oldschool.runescape.wiki/w/Sea_Snake_Young; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "sea_snake_young.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/sea_snake_young.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/src/main/java/com/rs/utils/NPCClueDrops.java"
+        ),
+        "source_status": (
+            "period exact ordinary identity, LP, Slayer gate/XP, melee style, "
+            "84-LP maximum hit, Vannaka membership, post-quest 68-LP initial "
+            "poison, and Royal Trouble route; corroborated six-tick attack "
+            "cadence; nearest representable 70-LP poison abstraction; Darkan "
+            "exact stats, respawn, one "
+            "128-slot main selector, long/curved-bone tertiary selector, and "
+            "independent 1/128 medium clue"
+        ),
+    },
     "ogre": {
         "display_name": "Ogre",
         "level": 53,
@@ -11117,6 +11327,13 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Beer": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BEER"},
     "Dragon spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.DRAGON_SPEAR"},
     "Dwarf weed seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.DWARF_WEED_SEED"},
+    "Edible seaweed": {
+        "category": "food",
+        "source": f"{ITEM_ID_SOURCE_PATH}: Items.EDIBLE_SEAWEED",
+        "source_item_id": 403,
+        "stackable": False,
+        "tradeable": True,
+    },
     "Eye patch": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.EYE_PATCH"},
     "Fire battlestaff": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.FIRE_BATTLESTAFF"},
     "Fungicide": {

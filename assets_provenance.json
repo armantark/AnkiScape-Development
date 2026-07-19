@@ -1739,6 +1739,30 @@
     "source_wiki": "osrs",
     "timestamp": "2016-11-29T12:40:08Z"
   },
+  "combatenemies/sea_snake_hatchling.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Sea_Snake_Hatchling.png",
+    "file_title": "Sea Snake Hatchling.png",
+    "image_url": "https://runescape.wiki/images/archive/20160531204829%21Sea_Snake_Hatchling.png?f3d65",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a4658451176d5380e0fd66c5678cbe4ab9375e21",
+    "size": 30813,
+    "source_wiki": "rs3",
+    "timestamp": "2010-08-07T18:37:31Z"
+  },
+  "combatenemies/sea_snake_young.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Sea_Snake_Young.png",
+    "file_title": "Sea Snake Young.png",
+    "image_url": "https://runescape.wiki/images/archive/20130626220535%21Sea_Snake_Young.png?5bd56",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3db69fa99be068c4dfe65dbc27fb5851056ba242",
+    "size": 479056,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-09T03:02:36Z"
+  },
   "combatenemies/seagull.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Seagull.png",
     "file_title": "Seagull.png",
@@ -2424,6 +2448,18 @@
     "size": 389,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:55:46Z"
+  },
+  "combatitems/edible_seaweed.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Edible_seaweed.png",
+    "file_title": "Edible seaweed.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502031906%21Edible_seaweed.png?ee1e5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "53a04f37cbc0ad58e285f5f784340e633e34e662",
+    "size": 268,
+    "source_wiki": "rs3",
+    "timestamp": "2011-04-26T00:12:28Z"
   },
   "combatitems/fire_battlestaff.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Fire_battlestaff.png",
@@ -16570,16 +16606,16 @@
     "timestamp": "2014-01-06T18:36:19Z"
   },
   "fletcheditems/broad_arrows.png": {
-    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Broad_arrows_5.png",
-    "file_title": "Broad arrows 5.png",
-    "image_url": "https://oldschool.runescape.wiki/images/Broad_arrows_5.png?7488c",
+    "file_page_url": "https://runescape.wiki/wiki/File:Broad_arrow_5.png",
+    "file_title": "Broad arrow 5.png",
+    "image_url": "https://runescape.wiki/images/archive/20140102111933%21Broad_arrow_5.png?94081",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "f9c20f76021576c5248ce71963a9cad5913cfcc8",
-    "size": 403,
-    "source_wiki": "osrs",
-    "timestamp": "2019-11-29T00:59:49Z"
+    "sha1": "d84493269782706946d31270455ea6e09075bba7",
+    "size": 399,
+    "source_wiki": "rs3",
+    "timestamp": "2009-05-06T04:47:34Z"
   },
   "fletcheditems/broad_tipped_bolts.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Broad_bolts_5.png",

@@ -6222,6 +6222,98 @@ class CombatLogicTest(unittest.TestCase):
             {"Impious ashes": 1, "Green charm": 1},
         )
 
+    def test_sea_snake_variants_preserve_cutoff_combat_and_poison(self):
+        hatchling = COMBAT_ENEMY_DATA["sea_snake_hatchling"]
+        young = COMBAT_ENEMY_DATA["sea_snake_young"]
+
+        self.assertEqual(
+            (
+                hatchling["level"],
+                hatchling["stats"]["hitpoints"],
+                hatchling["max_hit"],
+                hatchling["poison_damage"],
+                hatchling["slayer_xp"],
+            ),
+            (62, 500, 69, 5, 50.0),
+        )
+        self.assertEqual(
+            (
+                young["level"],
+                young["stats"]["hitpoints"],
+                young["max_hit"],
+                young["poison_damage"],
+                young["slayer_xp"],
+            ),
+            (90, 850, 84, 7, 85.0),
+        )
+        self.assertEqual(hatchling["attack_speed"], 6)
+        self.assertEqual(young["attack_speed"], 6)
+        self.assertEqual(young["required_slayer_level"], 40)
+        self.assertEqual(hatchling["quest_gate"], "royal_trouble")
+        self.assertEqual(young["quest_gate"], "royal_trouble")
+
+    def test_sea_snake_drop_tables_remain_independent_and_exact(self):
+        hatchling = COMBAT_ENEMY_DATA["sea_snake_hatchling"]
+        young = COMBAT_ENEMY_DATA["sea_snake_young"]
+
+        for enemy in (hatchling, young):
+            for table in enemy["drops"]["tables"]:
+                with self.subTest(enemy=enemy["display_name"], table=table["name"]):
+                    self.assertEqual(
+                        sum(slot["slots"] for slot in table["slots"]),
+                        table["total"],
+                    )
+
+        self.assertEqual(
+            _combat_roll_drops(hatchling, _rng((0.0, 0.0))),
+            {
+                "Bones": 1,
+                "Casket": 1,
+                "Clue scroll (medium)": 1,
+            },
+        )
+        self.assertEqual(
+            _combat_roll_drops(
+                hatchling,
+                _rng((11700.5 / 13000, 0.0)),
+            ),
+            {
+                "Bones": 1,
+                "Pearl bolt tips": 3,
+                "Clue scroll (medium)": 1,
+            },
+        )
+        self.assertEqual(
+            _combat_roll_drops(
+                hatchling,
+                _rng((11725.5 / 13000, 0.999999)),
+            ),
+            {"Bones": 1, "Spirit weed seed": 1},
+        )
+        self.assertEqual(
+            _combat_roll_drops(
+                hatchling,
+                _rng((11726 / 13000, 0.999999)),
+            ),
+            {"Bones": 1},
+        )
+        self.assertEqual(
+            _combat_roll_drops(young, _rng((0.0, 0.0, 0.0))),
+            {
+                "Big bones": 1,
+                "Coins": 44,
+                "Long bone": 1,
+                "Clue scroll (medium)": 1,
+            },
+        )
+        self.assertEqual(
+            _combat_roll_drops(
+                young,
+                _rng((116.5 / 128, 0.999999, 0.999999)),
+            ),
+            {"Big bones": 1, "Broad arrows": 4},
+        )
+
     def test_wall_beast_can_continue_after_helmet_swap_but_cannot_chain_a_respawn(self):
         continuing = _player(
             current_combat_target="wall_beast",

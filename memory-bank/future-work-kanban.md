@@ -235,7 +235,7 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   certification.
 - Vannaka is now the third completely encoded pool. Its 35 master-specific
   rows preserve the provisional 460-point denominator and remain hidden at
-  30/35 readiness. Ordinary Ogre closes the Ogres family with its exact nested
+  31/35 readiness. Ordinary Ogre closes the Ogres family with its exact nested
   common-seed and tertiary-bone drops; ordinary Jelly closes Jellies with
   magic-based melee, an exact 128-slot table, and generated Mithril boots;
   ordinary Bloodveld closes Bloodvelds with the same distinct attack channel,
@@ -268,16 +268,21 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   magical-melee/Ranged channel, Slayer-37 Insulated-boots requirement,
   explicitly labeled additive 0–140 LP thundercloud abstraction, exact
   100,000-slot ordinary selector, and derived 303-slot charm selector.
-  The remaining five blockers are derived by
-  `tools/audit_slayer_readiness.py`: five missing Combat targets, including
-  the Darkan-owned Mogre quest route. Continue from that generated ledger; do
-  not expose or renormalize the partial master. See
+  Ordinary Sea Snake Hatchling and Sea Snake Young add their cutoff
+  combat/poison contracts, pinned sprites, Darkan ordinary/tertiary selectors,
+  and independent medium clues. Royal Trouble completion is a conservative
+  gate until the Darkan quest thread exposes its mid-quest dungeon-permission
+  state. The remaining four blockers are derived by
+  `tools/audit_slayer_readiness.py`: Brine rats, Mogres, Molanisks, and Turoth.
+  Continue from that generated ledger; do not expose or renormalize the
+  partial master. See
   `source-audits/slayer-vannaka-ogre-combat-2026-07-18.md` and
   `source-audits/slayer-jelly-combat-2026-07-18.md`, plus
   `source-audits/slayer-bloodveld-combat-2026-07-18.md` and
   `source-audits/slayer-infernal-mage-combat-2026-07-18.md`, and
   `source-audits/slayer-harpie-bug-swarm-combat-2026-07-18.md`, plus
   `source-audits/slayer-killerwatt-combat-2026-07-18.md`, plus
+  `source-audits/slayer-sea-snakes-combat-2026-07-18.md`, plus
   `source-audits/slayer-basilisk-combat-2026-07-18.md`, plus
   `source-audits/slayer-crocodile-combat-2026-07-18.md` and
   `source-audits/slayer-otherworldly-being-combat-2026-07-18.md` and

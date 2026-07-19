@@ -2,6 +2,25 @@
 
 ## Current Focus
 
+The ordinary Sea Snake Hatchling and Sea Snake Young now close the 31st
+executable Vannaka family. They preserve the cutoff levels, LP, Slayer
+requirements/XP, melee maxima, poison consequences, and Royal Trouble route;
+Darkan supplies generated/exact stats, zero bonuses, 59-tick respawns, exact
+ordinary and tertiary selectors, and independent 1/128 medium clues. The
+young snake's post-quest 68-LP poison uses a visible nearest-representable
+70-LP abstraction, and the corroborated six-tick cadence is not mislabeled as
+period exact. Combat conservatively consumes Royal Trouble completion until
+the Darkan quest-parity thread exposes its stable mid-quest dungeon-permission
+state; the requested seam is recorded in
+`codex-briefs/darkan-quest-handoff-sea-snakes-2026-07-18.md`. Vannaka remains
+hidden at 31/35 with Brine rats, Mogres, Molanisks, and Turoth missing. No
+owner-facing design fork emerged. Evidence:
+`source-audits/slayer-sea-snakes-combat-2026-07-18.md`. Focused verification
+passes 682 tests; full non-Qt and real offscreen Qt discovery each pass all
+1,649 tests. Results:
+`status-updates/slayer-sea-snakes-results-2026-07-18.html`; mobile copy:
+<https://i3lix9qo57d8.postplan.dev>.
+
 The level-71 Killerwatt is now the 30th executable Vannaka family: Slayer 37,
 Ernest-the-Chicken access, 510 LP, 51 Slayer XP, eight-tick attacks, a 64-LP
 maximum, Darkan's exact 100,000-slot ordinary selector, and its derived

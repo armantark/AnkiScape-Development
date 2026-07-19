@@ -4,6 +4,40 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Sea snakes Combat closure — 2026-07-18
+
+- Added ordinary Sea Snake Hatchling and Sea Snake Young Combat targets with
+  their cutoff levels, LP, Slayer gates/XP, melee maxima, poison consequences,
+  and Royal Trouble route.
+- Reconciled Darkan's generated hatchling stats, exact young-snake stats, zero
+  bonuses, 59-tick respawns, complete ordinary tables, tertiary bone table,
+  and independent 1/128 medium-clue rows.
+- Preserved Darkan's exact cumulative 13,000-slot hatchling ordinary selector:
+  11,700 Casket slots, 26 one-slot rares, and 1,274 empty slots. One kill
+  cannot emit both a Casket and a rare row.
+- Represented the young snake's post-quest 68-LP poison as the visible nearest
+  70-LP value required by the integer old-scale poison channel. The six-tick
+  cadence is labeled corroborated rather than period exact.
+- Reused canonical `Broad arrows` item 4160 rather than reviving its retired
+  singular storage alias, registered Edible seaweed item 403 with canonical
+  inventory shape and a real item asset, and pinned both pre-cutoff enemy
+  sprites.
+- Kept quest ownership clean: Combat uses conservative Royal Trouble
+  completion until Darkan exposes a stable mid-quest dungeon-permission state.
+  The follow-up is recorded in
+  `codex-briefs/darkan-quest-handoff-sea-snakes-2026-07-18.md`.
+- Advanced Vannaka to 31/35 while leaving the partial pool hidden and
+  unrenormalized. Brine rats, Mogres, Molanisks, and Turoth remain.
+- Focused verification passes 682 tests. Full non-Qt discovery passes 1,649
+  tests with 215 expected Qt-environment skips; full real offscreen Qt
+  discovery executes all 1,649 with zero skips, failures, or errors.
+- Documentation, test-quality, generated-data, compilation, diff, readiness,
+  reachability-ledger, provenance, and worktree-safety gates pass.
+- No owner-facing design fork emerged. Durable evidence:
+  `source-audits/slayer-sea-snakes-combat-2026-07-18.md`. Results:
+  `status-updates/slayer-sea-snakes-results-2026-07-18.html`; mobile copy:
+  <https://i3lix9qo57d8.postplan.dev>.
+
 ## Slayer Killerwatt Combat closure — 2026-07-18
 
 - Added the ordinary level-71 Killerwatt with Slayer 37, existing

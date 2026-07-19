@@ -24,6 +24,8 @@ NEW_COMBAT_ENEMIES = (
     "green_dragon",
     "harpie_bug_swarm",
     "killerwatt",
+    "sea_snake_hatchling",
+    "sea_snake_young",
     "ogre",
     "jackal",
     "icefiend",
@@ -341,6 +343,8 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("green_dragon", "Green dragon.png"),
             ("harpie_bug_swarm", "Harpie Bugs Swarm.png"),
             ("killerwatt", "Killerwatt icon.png"),
+            ("sea_snake_hatchling", "Sea Snake Hatchling.png"),
+            ("sea_snake_young", "Sea Snake Young.png"),
         ):
             with self.subTest(target=target_id):
                 relative_path = f"combatenemies/{target_id}.png"
@@ -351,6 +355,16 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                     self.assertEqual(
                         provenance[relative_path]["timestamp"],
                         "2011-11-23T11:58:22Z",
+                    )
+                if target_id == "sea_snake_hatchling":
+                    self.assertEqual(
+                        provenance[relative_path]["timestamp"],
+                        "2010-08-07T18:37:31Z",
+                    )
+                if target_id == "sea_snake_young":
+                    self.assertEqual(
+                        provenance[relative_path]["timestamp"],
+                        "2012-03-09T03:02:36Z",
                     )
 
     def test_green_dragon_preserves_cutoff_combat_and_drop_selectors(self):

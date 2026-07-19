@@ -79,6 +79,8 @@ TITLE_OVERRIDES = {
     "vampyre": ("Vampire (historical) (level 61).png",),
     "harpie_bug_swarm": ("Harpie Bugs Swarm.png",),
     "killerwatt": ("Killerwatt icon.png",),
+    "sea_snake_hatchling": ("Sea Snake Hatchling.png",),
+    "sea_snake_young": ("Sea Snake Young.png",),
 }
 
 

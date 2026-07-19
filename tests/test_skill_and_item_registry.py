@@ -163,6 +163,39 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertIsNotNone(definition.asset_path)
         self.assertTrue(os.path.exists(definition.asset_path))
 
+    def test_sea_snake_new_drops_keep_cache_identity_and_assets(self):
+        definitions = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        expected = {
+            "Broad arrows": (4160, True, "fletched", FLETCHED_ITEM_IMAGES),
+            "Edible seaweed": (403, False, "food", COMBAT_ITEM_IMAGES),
+        }
+        for item_name, (item_id, stackable, category, images) in expected.items():
+            with self.subTest(item_name=item_name):
+                definition = definitions[item_name]
+                self.assertEqual(definition.source_item_id, item_id)
+                self.assertEqual(definition.stackable, stackable)
+                self.assertTrue(definition.tradeable)
+                self.assertEqual(definition.category, category)
+                self.assertEqual(definition.asset_path, images[item_name])
+                self.assertTrue(os.path.exists(definition.asset_path))
+
+        with open(
+            os.path.join(
+                os.path.dirname(os.path.dirname(__file__)),
+                "assets_provenance.json",
+            ),
+            encoding="utf-8",
+        ) as file_obj:
+            provenance = json.load(file_obj)
+        self.assertEqual(
+            provenance["fletcheditems/broad_arrows.png"]["timestamp"],
+            "2009-05-06T04:47:34Z",
+        )
+        self.assertEqual(
+            provenance["combatitems/edible_seaweed.png"]["timestamp"],
+            "2011-04-26T00:12:28Z",
+        )
+
     def test_slayer_boot_drops_are_real_equipment_with_assets(self):
         definitions = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         for item_name, item_id, required_level in (

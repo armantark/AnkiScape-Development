@@ -951,6 +951,36 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Grimy guam x1 (12016/100000)", killerwatt.tooltip)
         self.assertIn("Gold charm x1 (41/303)", killerwatt.tooltip)
 
+    def test_sea_snake_rows_expose_quest_slayer_poison_and_drops(self):
+        rows = combat_target_rows(
+            {
+                "current_combat_target": "chicken",
+                "slayer_level": 40,
+                "combat_lifepoints": 990,
+                "constitution_level": 99,
+                "quests": {"royal_trouble": {"completed": True}},
+                "inventory": {},
+                "equipment": {},
+                "combat_supply_loadout": {},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+
+        hatchling = _row(rows, "sea_snake_hatchling")
+        young = _row(rows, "sea_snake_young")
+
+        self.assertTrue(hatchling.enabled)
+        self.assertIn("Poison: 50 LP initial", hatchling.tooltip)
+        self.assertIn("Casket x1 (11700/13000)", hatchling.tooltip)
+        self.assertIn("Pearl bolt tips x3 (1/13000)", hatchling.tooltip)
+        self.assertTrue(young.enabled)
+        self.assertIn("Poison: 70 LP initial", young.tooltip)
+        self.assertIn("Coins x44 (60/128)", young.tooltip)
+        self.assertIn("Long bone x1 (250/100000)", young.tooltip)
+
     def test_combat_rows_show_magic_spell_and_rune_supply(self):
         rows = combat_target_rows(
             {

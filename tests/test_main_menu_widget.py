@@ -2262,6 +2262,11 @@ class MainMenuWidgetTest(unittest.TestCase):
             "progress": 1,
             "completed": True,
         }
+        pd["quests"]["royal_trouble"] = {
+            "started": True,
+            "progress": 1,
+            "completed": True,
+        }
         pd["quests"]["priest_in_peril"] = {
             "started": True,
             "progress": 9,
@@ -2306,6 +2311,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         green_dragon = _tree_row(tree, "green_dragon")
         harpie_bug_swarm = _tree_row(tree, "harpie_bug_swarm")
         killerwatt = _tree_row(tree, "killerwatt")
+        sea_snake_hatchling = _tree_row(tree, "sea_snake_hatchling")
+        sea_snake_young = _tree_row(tree, "sea_snake_young")
         aberrant_spectre = _tree_row(tree, "aberrant_spectre")
         basilisk = _tree_row(tree, "basilisk")
         crocodile = _tree_row(tree, "crocodile")
@@ -2402,6 +2409,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Impious ashes x1", killerwatt.toolTip(0))
         self.assertIn("Gold charm x1 (41/303)", killerwatt.toolTip(0))
         self.assertFalse(killerwatt.icon(0).isNull())
+        self.assertEqual(
+            sea_snake_hatchling.text(0), "Sea Snake Hatchling (Lvl 62)"
+        )
+        self.assertIn("Casket x1 (11700/13000)", sea_snake_hatchling.toolTip(0))
+        self.assertFalse(sea_snake_hatchling.icon(0).isNull())
+        self.assertEqual(sea_snake_young.text(0), "Sea Snake Young (Lvl 90)")
+        self.assertIn("Coins x44 (60/128)", sea_snake_young.toolTip(0))
+        self.assertFalse(sea_snake_young.icon(0).isNull())
         self.assertEqual(
             aberrant_spectre.text(0), "Aberrant spectre (Lvl 96)"
         )
