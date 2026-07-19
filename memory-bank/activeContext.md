@@ -2,6 +2,17 @@
 
 ## Current Focus
 
+Dark beast is harvested but remains source-, context-, and
+representation-blocked. The cutoff record closes its level-182 identity,
+2,200 LP, 225.4 Slayer XP, conditional 174-LP Melee/80-LP Magic fight, real
+levels, cache defences, and guaranteed Big bones. Darkan instead stores a
+fixed Melee row with zero maximum, an ordinary selector that conflicts on
+Coins/runes/herbs/items and Dark-bow rate, and a charm algorithm producing
+about 8% Blue against the cutoff's direct 14%. The shared family context also
+cannot distinguish Duradel's Temple-of-Light route from Kuradal's task-only
+Dungeon variant. No target or asset was added; Duradel/Lapalok remains 14/35.
+See `source-audits/slayer-dark-beast-combat-2026-07-19.md`.
+
 Waterfiend is harvested but remains source- and context-blocked. The ordinary
 level-115 target's LP, XP, dual Magic/magical-Ranged behavior, maximum, real
 levels, cache defences, respawn, guaranteed drop, and visible loot contents are

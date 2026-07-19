@@ -445,6 +445,14 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   level-134 Ghorrock forms remain distinct under Owner decision 20.
   Duradel/Lapalok remains 14/35. See
   `source-audits/slayer-waterfiend-combat-2026-07-19.md`.
+- Dark beast remains source-, context-, and representation-blocked. Darkan's
+  fixed-Melee/zero-maximum combat row cannot preserve the cutoff
+  174-LP Melee/80-LP Magic conditional transaction; its ordinary selector
+  conflicts on Coins, runes, herbs, equipment, and Dark-bow rate; and its
+  charm algorithm gives about 8% Blue against the cutoff's direct 14%.
+  The global family feature also cannot distinguish Duradel's Temple route
+  from Kuradal's task-only Dungeon context. Duradel/Lapalok remains 14/35.
+  See `source-audits/slayer-dark-beast-combat-2026-07-19.md`.
 - Kuradal remains unencoded despite its source-closed 36-row, 322-point pool.
   The period family ledger now closes ordinary TzHaar as Ket/Xil/Mej/Hur and
   Living rock creatures as patriarch/protector/striker, explicitly excluding

@@ -4,6 +4,30 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Dark beast source boundary — 2026-07-19
+
+- Closed the ordinary level-182 target's 2,200 LP, Slayer-90 gate/225.4 XP,
+  six-tick conditional Melee/Magic identity, 174/80-LP maxima, real combat
+  levels, exact cache defences, 59-tick respawn, Slash/Stab weakness, and
+  guaranteed Big bones.
+- Kept the target source-blocked because Darkan's ordinary selector conflicts
+  with cutoff Coins, rune, herb, equipment, and Dark-bow rows. Its charm
+  selector produces about 8% Blue against the cutoff's direct 14%.
+- Kept the target representation-blocked because Darkan stores fixed Melee
+  with zero maximum and current Combat cannot preserve the sourced
+  Magic-opener/Melee-close transaction with distinct maxima.
+- Kept the family context-blocked on the already-recorded global-schema
+  conflict between Duradel's Temple-of-Light route and Kuradal's task-only
+  Dungeon variant.
+- Workflows run `d517a204-c3e0-44c6-b9d3-3882d1ce77cf` was canceled without
+  using a leaf result. The worker held a global slot for five minutes with a
+  live provider process but never established a Codex session or emitted a
+  tool/progress event; the root independently reproduced every accepted
+  finding.
+- Duradel/Lapalok remains hidden and unrenormalized at 14/35. No owner-facing
+  design gap emerged. Durable evidence:
+  `source-audits/slayer-dark-beast-combat-2026-07-19.md`.
+
 ## Slayer Waterfiend source boundary — 2026-07-19
 
 - Closed the ordinary level-115 target's 1,260 LP, 128 Slayer XP, six-tick
