@@ -403,6 +403,14 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   those content values from combat level 112 or substitute another family
   representative. See
   `source-audits/slayer-scabaras-lancer-combat-2026-07-19.md`.
+- Stop at Mutated jadinkos: the three settled master-pool records require baby,
+  guard, and male identities with Slayer gates 80/86/91, while the executable
+  registry contains only the baby and one family-level gate of 80. See
+  `audits/slayer-mutated-jadinko-registry-conflict-2026-07-19.md`; do not let
+  one baby target certify the family or infer a registry correction. The
+  independent combat harvest also found all three Darkan rows explicitly
+  `nostats` and conflicting guaranteed-drop quantities. See
+  `source-audits/slayer-mutated-jadinko-combat-2026-07-19.md`.
 - Iron dragon is source-closed and executable as Sumona's nineteenth ready
   family. The ordinary level-189 target preserves the period 1,650 LP and
   173.2 Slayer XP, reuses the settled metal-dragon dragonfire abstraction,

@@ -25,6 +25,16 @@ combat levels. Attack, Strength, Defence, Magic, and Ranged cannot be inferred
 from combat level 112. See
 `source-audits/slayer-scabaras-lancer-combat-2026-07-19.md`.
 
+The Sumona queue is stopped at Mutated jadinkos on a direct settled-record/code
+conflict. All three owner-settled pool audits name baby, guard, and male with
+Slayer gates 80/86/91, while `slayer_data.py` declares only the baby and one
+family-level gate of 80. A baby Combat row would falsely certify the complete
+family. All three Darkan combat definitions are also explicitly `nostats`, and
+their guaranteed-drop quantities conflict with the cutoff pages. No registry,
+target, asset, or test was changed. See
+`audits/slayer-mutated-jadinko-registry-conflict-2026-07-19.md` and
+`source-audits/slayer-mutated-jadinko-combat-2026-07-19.md`.
+
 Iron dragon is Sumona's nineteenth certifying family. The level-189 ordinary
 target preserves 1,650 LP, 173.2 Slayer XP, the existing metal-dragon
 dragonfire abstraction, exact Darkan combat stats, the 128-slot ordinary

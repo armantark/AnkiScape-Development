@@ -4,6 +4,25 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Mutated-jadinko authority/source stop — 2026-07-19
+
+- Stopped before implementation because all three settled master-pool records
+  define baby, guard, and male variants at Slayer 80/86/91, while the runtime
+  registry contains only the baby behind a family-level Slayer-80 gate.
+- Confirmed the cutoff family page and both rev-727/rev-742 caches independently
+  enumerate all three identities, so a baby-only readiness certificate would
+  be false.
+- Harvested all three cutoff LP/XP/style/speed/maximum envelopes, cache IDs,
+  Darkan definitions, and drop leads without changing runtime.
+- Kept every variant source-blocked: all three Darkan combat definitions are
+  explicitly `nostats`, no independent implementation supplies the five
+  combat levels, and Darkan's guaranteed Mutated-vine/Excrescence quantities
+  conflict with the cutoff pages.
+- Sumona remains hidden and unrenormalized at 20/37. This is an authority
+  conflict plus a source dependency, not a creative-design fork. Evidence:
+  `audits/slayer-mutated-jadinko-registry-conflict-2026-07-19.md` and
+  `source-audits/slayer-mutated-jadinko-combat-2026-07-19.md`.
+
 ## Slayer Fever-spider source boundary — 2026-07-19
 
 - Closed the source-ready Fever-spider identity, route, protection, ordinary
