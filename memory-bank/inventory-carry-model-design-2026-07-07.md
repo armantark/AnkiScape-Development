@@ -8,7 +8,8 @@
 > payout-penalty deaths (Dungeoneering) override it. (3) "Every bank run
 > costs a review everywhere" conflicts with the cadence kernel's
 > do-not-double-apply rule on routes whose sourced rate already includes
-> banking; that replacement is being relitigated separately.
+> banking; replaced by sourced-rate selection — see
+> `carry-and-recovery-relitigation-2026-07-19.md`.
 
 Status: **feature-complete (2026-07-07).** All eight core decisions, both
 casual and advanced modes, the full-cache loot filter, combat-loot integration,

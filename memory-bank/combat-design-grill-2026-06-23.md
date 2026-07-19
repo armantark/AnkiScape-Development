@@ -16,8 +16,9 @@
 > (Fight Caves; Dungeoneering's payout penalty). (6) Combat meta-achievements
 > must live in a diary/bounded set per
 > `achievement-diary-item-grants-design.md` — no free-floating list.
-> Off-route Combat recovery (old decisions around lines 647-671) is being
-> relitigated separately.
+> Off-route Combat recovery (old decisions around lines 647-671) is replaced
+> by world-clock recovery — see
+> `carry-and-recovery-relitigation-2026-07-19.md`.
 
 Status: complete design grill log. The first Combat V1 ordinary-training
 implementation and the recovery/loadout foundation landed on 2026-06-23; see
