@@ -311,9 +311,26 @@ class WarriorsGuildPureTests(unittest.TestCase):
 
     def test_cyclops_drop_table_and_defender_equipment_are_registered(self):
         self.assertEqual(CYCLOPS_WARRIORS_GUILD_DROPS["guaranteed"], (("Big bones", 1),))
+        tertiary, cyclops_main = CYCLOPS_WARRIORS_GUILD_DROPS["tables"]
+        self.assertEqual(tertiary["total"], 100000)
+        self.assertEqual(cyclops_main["total"], 100000)
+        self.assertEqual(
+            sum(slot["slots"] for slot in cyclops_main["slots"]), 100000
+        )
+        self.assertEqual(cyclops_main["slots"][-1], {"slots": 41})
         self.assertEqual(COMBAT_ENEMY_DATA["cyclops"]["max_hit"], 64)
         self.assertEqual(COMBAT_ENEMY_DATA["cyclops"]["slayer_xp"], 75.0)
         self.assertEqual(CYCLOSSUS_WARRIORS_GUILD_DROPS["guaranteed"], (("Big bones", 1),))
+        cyclossus_main, dragon_defender = CYCLOSSUS_WARRIORS_GUILD_DROPS["tables"]
+        self.assertEqual(cyclossus_main["total"], 100000)
+        self.assertEqual(
+            sum(slot["slots"] for slot in cyclossus_main["slots"]), 100000
+        )
+        self.assertEqual(cyclossus_main["slots"][-1], {"slots": 10610})
+        self.assertEqual(
+            dragon_defender["name"],
+            "Period-common abstraction: Dragon defender",
+        )
         self.assertEqual(COMBAT_ENEMY_DATA["cyclossus"]["stats"]["hitpoints"], 3280)
         self.assertEqual(COMBAT_ENEMY_DATA["cyclossus"]["max_hit"], 94)
         self.assertEqual(COMBAT_ENEMY_DATA["cyclossus"]["slayer_xp"], 350.0)

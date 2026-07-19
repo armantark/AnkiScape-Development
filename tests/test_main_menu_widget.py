@@ -2358,8 +2358,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(infernal_mage.text(0), "Infernal Mage (Lvl 66)")
         self.assertIn("Enemy attack: Magic", infernal_mage.toolTip(0))
         self.assertIn("Enemy max hit: 89 LP", infernal_mage.toolTip(0))
-        self.assertIn("Mystic boots (dark) x1 (1/512)", infernal_mage.toolTip(0))
-        self.assertIn("Lava battlestaff x1 (1/1000)", infernal_mage.toolTip(0))
+        self.assertIn(
+            "Mystic boots (dark) x1 (125/64000)", infernal_mage.toolTip(0)
+        )
+        self.assertIn(
+            "Lava battlestaff x1 (64/64000)", infernal_mage.toolTip(0)
+        )
         self.assertFalse(infernal_mage.icon(0).isNull())
         self.assertEqual(
             aberrant_spectre.text(0), "Aberrant spectre (Lvl 96)"
@@ -2375,8 +2379,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(basilisk.text(0), "Basilisk (Lvl 61)")
         self.assertIn("Enemy max hit: 10 LP", basilisk.toolTip(0))
         self.assertIn("Missing Mirror shield", basilisk.toolTip(0))
-        self.assertIn("Mystic hat (light) x1 (1/512)", basilisk.toolTip(0))
-        self.assertIn("Basilisk head x1 (1/2000)", basilisk.toolTip(0))
+        self.assertIn(
+            "Mystic hat (light) x1 (125/64000)", basilisk.toolTip(0)
+        )
+        self.assertIn("Basilisk head x1 (32/64000)", basilisk.toolTip(0))
         self.assertFalse(basilisk.icon(0).isNull())
         self.assertEqual(crocodile.text(0), "Crocodile (Lvl 63)")
         self.assertIn("Enemy max hit: 67 LP", crocodile.toolTip(0))
@@ -2396,7 +2402,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(jungle_horror.text(0), "Jungle horror (Lvl 70)")
         self.assertIn("Enemy max hit: 84 LP", jungle_horror.toolTip(0))
         self.assertIn(
-            "Iron warhammer x1 (1679/20000)", jungle_horror.toolTip(0)
+            "Iron warhammer x1 (8395/100000)", jungle_horror.toolTip(0)
         )
         self.assertFalse(jungle_horror.icon(0).isNull())
         self.assertEqual(shadow_warrior.text(0), "Shadow warrior (Lvl 48)")

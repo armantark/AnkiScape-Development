@@ -23,7 +23,7 @@ The final three missing family representatives are now executable:
 | Target | Period evidence | Live contract |
 |---|---|---|
 | Gelatinous abomination | `Gelatinous abomination` oldid `6079671`, 2012-08-12; `Spiked gauntlets` oldid `5827717`, 2012-06-25 | level 2, 50 LP, maximum hit 16, 5 Slayer XP; cannot die below 1 LP unless Spiked gauntlets are worn |
-| Young grotworm | `Young grotworm` oldid `6490000`, 2012-10-28; Darkan `young_grotworm` combat/drop rows | level 10, 150 LP, Magic attack, maximum hit 20, 15 Slayer XP; reconciled independent Darkan drops |
+| Young grotworm | `Young grotworm` oldid `6490000`, 2012-10-28; Darkan `young_grotworm` combat/drop rows | level 10, 150 LP, Magic attack, maximum hit 20, 15 Slayer XP; one exact 50,000-slot Darkan selector |
 | Monkey | `Monkey` oldid `6552407`, 2012-11-13; Darkan monkey combat/drop rows | level 3, 60 LP, approximate maximum hit 20, 6 Slayer XP, guaranteed Monkey bones |
 
 Gelatinous-abomination non-guaranteed numerical drop rates remain

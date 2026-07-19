@@ -240,14 +240,14 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   magic-based melee, an exact 128-slot table, and generated Mithril boots;
   ordinary Bloodveld closes Bloodvelds with the same distinct attack channel,
   another exact table, and generated Black boots; ordinary Infernal Mage adds
-  four independent tables plus generated Lava battlestaff and dark Mystic
+  one exact Darkan selector plus generated Lava battlestaff and dark Mystic
   equipment; ordinary Basilisk adds its Mirror-shield gaze contract, exact
   tables, and generated light Mystic hat; ordinary level-63 Crocodile reuses
   the live desert-heat loop while rejecting the merged level-89 drop row. The
   Lost-City-gated Otherworldly being adds its exact 128-slot table without
   duplicating quest work. The Cabin-Fever-gated Jungle horror adds guaranteed
-  Bones plus Darkan's exact 32 independent ordinary rolls. The Legends'-Quest-
-  gated Shadow warrior adds 14 independent ordinary rolls and Darkan's exact
+  Bones plus Darkan's exact 100,000-slot ordinary selector. The Legends'-Quest-
+  gated Shadow warrior adds one 128-slot ordinary selector and Darkan's exact
   executable charm selector. The Priest-in-Peril-gated Aberrant spectre adds
   exact stench damage/drain behavior, a 512-slot ordinary selector, four exact
   nested Darkan tables, a derived charm selector, and generated dark Mystic
@@ -265,6 +265,12 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   `source-audits/slayer-otherworldly-being-combat-2026-07-18.md` and
   `source-audits/slayer-jungle-horror-combat-2026-07-18.md` and
   `source-audits/slayer-shadow-warrior-combat-2026-07-18.md`.
+- Darkan ordinary-drop semantics are corrected across eleven live Slayer
+  targets. Sibling nonzero JSON rows now share one cumulative selector, while
+  rate-zero rows, charms, and explicitly labeled period abstractions remain
+  separate channels. This preserves every marginal probability and removes
+  impossible sibling multi-drops. See
+  `source-audits/slayer-darkan-drop-selector-correction-2026-07-18.md`.
 - Mogre combat is source-closed, including its atomic Fishing-explosive lure,
   poison immunity, exact 128-slot Darkan table, tertiary bones, and target
   icon. Keep it marked `DEPENDENCY: QUEST` until the Darkan quest pass adds the
@@ -363,7 +369,7 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   Ice cooler, and Fungicide spray retain their source item IDs and real
   stackability in the shared registry. Desert lizard and the generic
   manual/automatic finisher engine are live with a source level gate,
-  context-correct independent drops, an asset, and review-native Waterskin
+  one exact ordinary drop selector, an asset, and review-native Waterskin
   supply cost. Rockslug and Gargoyle are also live with reconciled Combat/drop
   rows, period finishing windows, source-specific frozen/regeneration behavior,
   and proven assets. Both ordinary Mutated zygomites are now live behind Slayer

@@ -34,7 +34,7 @@ Pinned Darkan sources:
   maximum hit 40, melee/crush combat, Attack 20, Strength 22, Defence 20,
   Magic/Ranged 1, and respawn delay 59.
 - `data/npcs/drops/desert_lizard.json:1-390` supplies guaranteed Bones and 31
-  independent drop rolls. Each generated AnkiScape table retains its original
+  weighted ordinary rows. Each AnkiScape selector entry retains its original
   `7009/100000`, `1401/100000`, or `207/100000` chance and source quantity.
 - `src/main/java/com/rs/game/content/skills/slayer/npcs/ConditionalDeath.java:47-84`
   holds an otherwise lethal target at 1 LP until the required item succeeds.
@@ -52,11 +52,13 @@ the item, consumption, death hold, and quick-finisher shape.
 
 ## Drop-table mapping
 
-Darkan marks `dropOne: false` on every probabilistic row. AnkiScape therefore
-uses 31 independent 100,000-slot tables rather than combining them into one
-mutually exclusive table. Guaranteed Bones remain outside those rolls. Item
-names and quantities are resolved through the pinned item config; regression
-coverage pins the table count, denominators, guaranteed drop, and source row.
+`dropOne: false` controls whether every item inside a selected row drops; it
+does not make sibling rows independent. Darkan's executable `DropList` assigns
+all 31 nonzero rows adjacent intervals under one random draw. AnkiScape now
+uses the resulting exact 100,000-slot selector: 99,981 occupied slots and 19
+empty. Guaranteed Bones remain outside that selector. The earlier independent
+mapping is superseded by
+`slayer-darkan-drop-selector-correction-2026-07-18.md`.
 
 ## Review-native finisher
 

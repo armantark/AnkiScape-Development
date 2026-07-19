@@ -26,7 +26,7 @@ rows:
 Where reconstruction conflicts with a direct cutoff page, the cutoff page wins.
 This changes 2011Scape's Rockslug `50` finishing threshold to `39`, its Gargoyle
 `100` threshold to `89`, and its Gargoyle attack speed `4` to the cutoff
-infobox's `6`. Darkan's respawn value `59` is retained. The Darkan independent
+infobox's `6`. Darkan's respawn value `59` is retained. The Darkan ordinary
 drop rows are used because they preserve cutoff-listed Rune essence for
 Rockslug and Mithril bars for Gargoyle. The 2011Scape charm tables are separate
 Summoning-era rolls.
@@ -51,9 +51,10 @@ use. Lethal damage holds the target at 1 LP until a manual finisher or the
 400-point quick-finisher unlock succeeds. The frozen state is represented by a
 data-driven retaliation stop at 10 LP; it does not use wall-clock state.
 
-The live drop model has 20 independent Darkan rolls plus the 2011Scape charm
-roll. It includes Rune essence and excludes unsupported qualitative-only
-rarities whose exact runtime probability is not available.
+The live drop model has one exact 100,000-slot Darkan selector containing all
+20 accepted rows, with seven empty slots, plus the separately sourced
+2011Scape charm selector. It includes Rune essence and excludes unsupported
+qualitative-only rarities whose exact runtime probability is not available.
 
 ## Gargoyle
 
@@ -76,10 +77,15 @@ so two adjacent Combat reviews equal one combined tick slice. No wall clock is
 read. Manual and automatic finishers retain the one loaded non-stackable Rock
 hammer.
 
-The live drop model has 21 independent item rolls, the Darkan 5/128 global
-table branch, and the 2011Scape charm roll. The Kuradal's-Dungeon-only
-Ferocious ring is explicitly absent from this ordinary target. This preserves
-the existing context-specific exclusion rather than leaking the ring globally.
+The live drop model has one exact 512-slot Darkan selector containing the 21
+item rows, the 5/128 gem-table branch, and one empty slot, plus the separately
+sourced 2011Scape charm selector. The Kuradal's-Dungeon-only Ferocious ring is
+explicitly absent from this ordinary target. This preserves the existing
+context-specific exclusion rather than leaking the ring globally.
+
+The initial independent-row interpretation was incorrect. Both corrected
+selectors follow the executable loader proven in
+`slayer-darkan-drop-selector-correction-2026-07-18.md`.
 
 ## Assets and UI
 

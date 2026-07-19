@@ -30,20 +30,22 @@ Darkan
 corroborates 670 LP and maximum hit 65 and supplies Attack 36, Strength 36,
 Defence 33, Magic/Ranged 0, and a 59-tick respawn.
 
-Darkan `data/npcs/drops/shadow_warrior.json` supplies 14 independent 128-way
-rolls:
+Darkan `data/npcs/drops/shadow_warrior.json` supplies 14 weighted rows in one
+128-way ordinary selector:
 
 - Coins, Cosmic/Blood/Air/Death runes, and a Mithril bar;
 - Adamant spear, Black dagger (p), Black knife, Black longsword, Black robe,
   and Weapon poison; and
 - the shared minor-herb and gem tables.
 
-Each roll is represented as its own hit-or-empty table. Combining these rows
-into one mutually exclusive denominator would change the source behavior and
-is therefore rejected. The cutoff page names additional qualitative drops but
-does not provide exact rates; those rows are not invented. Exact period
-defensive bonuses are `source_blocked`, so the Darkan row's absent bonuses
-remain zero rather than borrowing a modern table.
+Darkan's executable `DropList` places all nonzero rows into adjacent intervals
+and makes one random selection. The corrected selector contains 106 occupied
+slots and 22 empty slots. The initial independent-roll mapping was therefore
+wrong and is superseded by
+`slayer-darkan-drop-selector-correction-2026-07-18.md`. The cutoff page names
+additional qualitative drops but does not provide exact rates; those rows are
+not invented. Exact period defensive bonuses are `source_blocked`, so the
+Darkan row's absent bonuses remain zero rather than borrowing a modern table.
 
 ## Charm derivation
 
@@ -73,7 +75,7 @@ hash are recorded in `assets_provenance.json`.
 ## Live mapping
 
 The standard Combat runtime handles the Legends' Quest gate, Slayer XP,
-six-tick melee, 14 independent ordinary rolls, the charm table, inventory
+six-tick melee, one ordinary selector plus the independent charm selector, inventory
 capacity, food, retreat, death, and undo. The picker exposes the route lock,
 65-LP maximum hit, representative probabilities, and target icon.
 

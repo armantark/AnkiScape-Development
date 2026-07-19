@@ -4,12 +4,34 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Darkan ordinary-drop selector correction — 2026-07-18
+
+- Reproduced Darkan's executable `DropList` behavior: all nonzero sibling rows
+  in one NPC drop JSON share one cumulative random selector; rate-zero always
+  rows and the separately invoked charm path remain distinct.
+- Corrected eleven live targets: Warriors' Guild Cyclops, Cyclossus, Young
+  grotworm, Desert lizard, Rockslug, Gargoyle, Mutated zygomite,
+  Jungle horror, Shadow warrior, Infernal Mage, and Basilisk.
+- Preserved every individual marginal probability while removing impossible
+  sibling multi-drop combinations. Cyclossus's period-common Dragon defender
+  and Mutated zygomite's Fungicide remain separate labeled abstractions rather
+  than being passed off as Darkan rows.
+- Added denominator, boundary-reachability, mutual-exclusion, charm-separation,
+  generated-equipment, and real offscreen Qt regression coverage.
+- Corrected the affected source audits, live Memory Bank summaries, and
+  published status artifacts. No owner design input was required. Durable
+  evidence is
+  `source-audits/slayer-darkan-drop-selector-correction-2026-07-18.md`;
+  results are in
+  `status-updates/slayer-darkan-drop-selector-correction-results-2026-07-18.html`
+  (<https://pk45017w1z2j.postplan.dev>).
+
 ## Slayer Shadow warrior Combat closure — 2026-07-18
 
 - Added the ordinary level-48 Shadow warrior as a Legends'-Quest-gated Combat
   target with 670 LP, 67 Slayer XP, six-tick melee, and maximum hit 65.
-- Preserved Darkan's exact ordinary-drop shape as 14 independent 128-way
-  hit-or-empty tables.
+- Preserved Darkan's executable ordinary-drop shape as one 128-way selector
+  with 106 occupied and 22 empty slots.
 - Derived the exact executable Darkan charm distribution from its inclusive
   threshold-and-uniform-selection algorithm rather than treating the four
   source numbers as independent percentages.
@@ -29,8 +51,8 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
 
 - Added the ordinary level-70 Jungle horror as a Cabin-Fever-gated Combat
   target with 450 LP, 45 Slayer XP, six-tick melee, and maximum hit 84.
-- Preserved Darkan's exact drop shape: guaranteed Bones plus 32 independent
-  hit-or-empty tables rather than one mutually exclusive denominator.
+- Preserved Darkan's executable drop shape: guaranteed Bones plus one exact
+  100,000-slot selector containing all 32 nonzero JSON rows.
 - Reused the existing Cabin Fever completion state without adding or
   duplicating quest stages.
 - Advanced Vannaka from 22/35 to 23/35 without exposing or renormalizing the
@@ -84,8 +106,9 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
 - Reused the equipped Mirror-shield contract while preserving Basilisk's
   distinct source behavior: Protect from Melee blocks the unshielded damage
   but not its random five-level stat drain.
-- Encoded the exact independent 128-slot ordinary, 1/512 light-Mystic, and
-  1/2,000 Basilisk-head tables. Charm distribution remains `source_blocked`.
+- Encoded the exact 64,000-slot Darkan selector containing the 128-based
+  ordinary rows, 1/512 light-Mystic row, and 1/2,000 Basilisk-head row. Charm
+  distribution remains `source_blocked`.
 - Registered Mystic hat (light) as generated Defence-20/Magic-20 equipment and
   corrected Basilisk head to its non-stackable, untradeable item-7977 identity.
 - Advanced Vannaka from 19/35 to 20/35 without exposing or renormalizing the
@@ -102,8 +125,9 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
 - Added the ordinary level-66 Infernal Mage as a Slayer-45 Combat target with
   600 LP, 60 Slayer XP, six-tick Magic attacks, maximum hit 89, and guaranteed
   Bones.
-- Preserved Darkan's exact independent source shape: a 128-slot ordinary table,
-  two 1/512 dark-mystic rolls, and a 1/1,000 Lava battlestaff roll.
+- Preserved Darkan's executable source shape as one exact 64,000-slot
+  selector containing the 128-based ordinary rows, both 1/512 dark-mystic
+  rows, and the 1/1,000 Lava battlestaff row.
 - Registered Lava battlestaff, dark Mystic hat, and dark Mystic boots as
   generated equipment with exact period requirements, bonuses, and weapon
   speed.
@@ -286,7 +310,7 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
   reloads, manual and quick finishing parity, and capacity-safe Combat refills.
 - Registered cache items `7421–7432` with non-stackable/non-tradeable inventory
   shape and shared dose-state icon fallback.
-- Reconciled the independent Darkan drop probabilities only where period
+- Reconciled the Darkan selector probabilities only where period
   identity/quantity evidence allows it; unresolved rows and the 140-LP spore
   frequency remain explicit `source_blocked` omissions.
 - Focused pure, runtime, registry, metadata, provenance, and reachability
@@ -1106,8 +1130,8 @@ Test counts are snapshots; current runs outrank this note.
 ## Slayer Desert lizard and generic finisher runtime — 2026-07-17
 
 - Added the cutoff level-24 Desert lizard with Slayer 22, 250 LP, maximum hit
-  40 LP, 25 Slayer XP, reconciled Darkan stats, guaranteed Bones, and 31
-  independent source-probability drop tables.
+  40 LP, 25 Slayer XP, reconciled Darkan stats, guaranteed Bones, and one exact
+  100,000-slot source-probability drop selector.
 - Added a generic loaded-finisher pack and manual action. Lethal damage holds a
   required target at 1 LP; the valid action atomically spends one Ice cooler,
   awards the kill/drops, clears the encounter, and resets to Attack.
@@ -1141,8 +1165,9 @@ Test counts are snapshots; current runs outrank this note.
   XP, the cutoff below-90 LP reusable Rock-hammer action, and continuous
   regeneration represented as `12/5` LP per gameplay tick with a persisted
   integer residual.
-- Reconciled Darkan independent drop rolls with 2011Scape charm tables. The
-  ordinary Gargoyle target excludes the Kuradal's-Dungeon-only Ferocious ring.
+- Reconciled one Darkan ordinary selector per target with separate 2011Scape
+  charm tables. The ordinary Gargoyle target excludes the
+  Kuradal's-Dungeon-only Ferocious ring.
 - Corrected Combat supply refill so changing targets returns obsolete finisher
   and hazard supplies, loads one copy of a reusable non-stackable tool, and
   counts non-stackable finisher slots accurately.

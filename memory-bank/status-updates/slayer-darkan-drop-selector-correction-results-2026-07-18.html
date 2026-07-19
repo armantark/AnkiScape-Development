@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Darkan drop-selector correction</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1014;
+      --panel: #121a20;
+      --panel-2: #17232a;
+      --ink: #e9f0f2;
+      --muted: #9eb0b7;
+      --line: #293941;
+      --green: #63d392;
+      --amber: #f0bc62;
+      --red: #ff7a78;
+      --blue: #67b7e8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 85% 10%, rgba(103,183,232,.12), transparent 30rem),
+        radial-gradient(circle at 10% 45%, rgba(99,211,146,.08), transparent 28rem),
+        var(--bg);
+      color: var(--ink);
+      font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 44px 0 64px; }
+    h1, h2 { line-height: 1.1; letter-spacing: -.02em; }
+    h1 { max-width: 850px; margin: 10px 0 16px; font-size: clamp(38px, 7vw, 72px); }
+    h2 { margin: 0 0 18px; font-size: 24px; }
+    p { margin: 0; }
+    .eyebrow { color: var(--green); font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    .lede { max-width: 780px; color: var(--muted); font-size: 18px; }
+    .hero { padding-bottom: 38px; border-bottom: 1px solid var(--line); }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 30px;
+    }
+    .metric, .card {
+      background: linear-gradient(145deg, rgba(23,35,42,.96), rgba(18,26,32,.96));
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.18);
+    }
+    .metric { padding: 18px; }
+    .metric strong { display: block; font-size: 28px; color: var(--green); }
+    .metric span { color: var(--muted); font-size: 13px; }
+    section { margin-top: 34px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .card { padding: 24px; }
+    .bad { border-color: rgba(255,122,120,.45); }
+    .good { border-color: rgba(99,211,146,.45); }
+    .label { display: inline-block; margin-bottom: 10px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; }
+    .bad .label { color: var(--red); }
+    .good .label { color: var(--green); }
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 12px;
+      align-items: center;
+      margin-top: 18px;
+    }
+    .node { min-height: 104px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: #10181d; }
+    .node strong { display: block; margin-bottom: 6px; color: var(--blue); }
+    .arrow { color: var(--amber); font-size: 26px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 11px 12px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--muted); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+    .checks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .check { padding: 16px; border-left: 3px solid var(--green); background: rgba(99,211,146,.06); border-radius: 0 12px 12px 0; }
+    .check strong { display: block; margin-bottom: 4px; }
+    .check span { color: var(--muted); }
+    footer { margin-top: 34px; color: var(--muted); font-size: 13px; }
+    @media (max-width: 800px) {
+      .metrics, .checks { grid-template-columns: 1fr 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); justify-self: center; }
+      .table-wrap { overflow-x: auto; }
+    }
+    @media (max-width: 520px) { .metrics, .checks { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <header class="hero">
+    <div class="eyebrow">AnkiScape · verified correction · 18 July 2026</div>
+    <h1>One roll means one ordinary drop.</h1>
+    <p class="lede">Darkan’s executable loader does not independently roll every nonzero JSON row. It builds one cumulative selector, draws once, and returns one ordinary result. Eleven live targets now match that behavior without changing any item’s marginal probability.</p>
+    <div class="metrics">
+      <div class="metric"><strong>11</strong><span>live targets corrected</span></div>
+      <div class="metric"><strong>1,617</strong><span>repository tests passing</span></div>
+      <div class="metric"><strong>0</strong><span>test-quality hard issues</span></div>
+      <div class="metric"><strong>25 / 35</strong><span>Vannaka readiness unchanged</span></div>
+    </div>
+  </header>
+
+  <section class="grid">
+    <article class="card bad">
+      <div class="label">Before · wrong execution model</div>
+      <h2>Every sibling row rolled independently</h2>
+      <p>A single kill could award several mutually exclusive ordinary drops together. Rare-item marginals looked plausible in isolation, which hid the impossible combinations.</p>
+    </article>
+    <article class="card good">
+      <div class="label">After · executable-source parity</div>
+      <h2>One cumulative ordinary selector</h2>
+      <p>Each nonzero row owns an adjacent interval. One random draw selects at most one row; empty space remains an honest no-drop result. Always rows and separately invoked charms retain their own channels.</p>
+    </article>
+  </section>
+
+  <section class="card">
+    <h2>The source path that settles the semantics</h2>
+    <div class="flow">
+      <div class="node"><strong>NPC drop JSON</strong>Sibling nonzero rows describe weights inside one ordinary list.</div>
+      <div class="arrow">→</div>
+      <div class="node"><strong>DropList.java</strong>Rows become adjacent intervals plus the remaining no-drop interval.</div>
+      <div class="arrow">→</div>
+      <div class="node"><strong>NPC.java</strong>The ordinary set is invoked once; charms are invoked separately.</div>
+    </div>
+  </section>
+
+  <section class="card table-wrap">
+    <h2>Corrected selector shapes</h2>
+    <table>
+      <thead><tr><th>Target</th><th>Ordinary selector</th><th>Empty</th><th>Separate channels preserved</th></tr></thead>
+      <tbody>
+        <tr><td>Jungle horror</td><td class="mono">99,858 / 100,000</td><td class="mono">142</td><td>Guaranteed Bones</td></tr>
+        <tr><td>Shadow warrior</td><td class="mono">106 / 128</td><td class="mono">22</td><td>606-way Darkan charm table</td></tr>
+        <tr><td>Infernal Mage</td><td class="mono">53,814 / 64,000</td><td class="mono">10,186</td><td>Guaranteed Bones</td></tr>
+        <tr><td>Basilisk</td><td class="mono">63,657 / 64,000</td><td class="mono">343</td><td>Guaranteed Bones</td></tr>
+        <tr><td>Warriors’ Guild Cyclops</td><td class="mono">99,959 / 100,000</td><td class="mono">41</td><td>Big bones; rate-zero tertiary; progressive defenders</td></tr>
+        <tr><td>Cyclossus</td><td class="mono">89,390 / 100,000</td><td class="mono">10,610</td><td>Labeled Dragon defender abstraction</td></tr>
+        <tr><td>Desert lizard</td><td class="mono">99,981 / 100,000</td><td class="mono">19</td><td>Guaranteed Bones</td></tr>
+        <tr><td>Rockslug</td><td class="mono">99,993 / 100,000</td><td class="mono">7</td><td>Separately sourced charm selector</td></tr>
+        <tr><td>Gargoyle</td><td class="mono">511 / 512</td><td class="mono">1</td><td>Separately sourced charm selector</td></tr>
+        <tr><td>Mutated zygomite</td><td class="mono">99,980 / 100,000</td><td class="mono">20</td><td>Ashes; labeled Fungicide abstraction</td></tr>
+        <tr><td>Young grotworm</td><td class="mono">49,996 / 50,000</td><td class="mono">4</td><td>Guaranteed Bones</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Closure proof</h2>
+    <div class="checks">
+      <div class="check"><strong>351 focused tests</strong><span>Combat, Slayer, Warriors’ Guild, registries, reachability, and generated equipment.</span></div>
+      <div class="check"><strong>3 real Qt checks</strong><span>Combat picker, finisher boundary, and Warriors’ Guild surface under offscreen Qt.</span></div>
+      <div class="check"><strong>1,617 full-suite tests</strong><span>Zero failures and zero errors; 214 intentional skips.</span></div>
+      <div class="check"><strong>Documentation clean</strong><span>314 Markdown and 333 HTML files audited successfully.</span></div>
+      <div class="check"><strong>Generator stable</strong><span>Equipment output is byte-identical across regeneration.</span></div>
+      <div class="check"><strong>No design fork</strong><span>This is a source-semantics correction, not a player-experience choice.</span></div>
+    </div>
+  </section>
+
+  <footer>Durable evidence: memory-bank/source-audits/slayer-darkan-drop-selector-correction-2026-07-18.md</footer>
+</main>
+</body>
+</html>

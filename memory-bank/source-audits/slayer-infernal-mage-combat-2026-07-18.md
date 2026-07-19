@@ -26,17 +26,22 @@ Darkan
 corroborates the source combat identity and supplies Attack 1, Strength 1,
 Defence 60, Magic 75, Ranged 1, and a 59-tick respawn.
 
-Darkan `data/npcs/drops/infernal_mage.json` supplies four independent tables:
+Darkan `data/npcs/drops/infernal_mage.json` supplies one guaranteed row and
+22 nonzero ordinary rows:
 
 - guaranteed Bones;
-- a 128-slot ordinary table with 107 named slots and 21 explicit empty slots;
-- dark Mystic boots and dark Mystic hat as separate 1/512 rolls; and
-- Lava battlestaff as a separate 1/1,000 roll.
+- the rows formerly recognizable as a 107/128 ordinary block;
+- dark Mystic boots and dark Mystic hat at 1/512 each; and
+- Lava battlestaff at 1/1,000.
 
-Keeping the three non-guaranteed rolls independent allows the rare equipment
-to accompany an ordinary table result, matching the source shape. No charm
-distribution is recoverable from the pinned table or cutoff page, so charm
-rates remain `source_blocked` rather than invented.
+Darkan's executable `DropList` combines every nonzero JSON row into one
+mutually exclusive interval selector. The exact common denominator is 64,000:
+the 128-based rows are scaled by 500, each Mystic row occupies 125 slots, the
+Lava battlestaff occupies 64, and 10,186 slots are empty. The initial
+three-table interpretation was incorrect and is superseded by
+`slayer-darkan-drop-selector-correction-2026-07-18.md`. No charm distribution
+is recoverable from the pinned table or cutoff page, so charm rates remain
+`source_blocked` rather than invented.
 
 ## Rare equipment
 
@@ -72,7 +77,7 @@ historical evidence. Exact URLs, timestamps, and hashes are recorded in
 ## Live mapping
 
 The standard Combat runtime handles the Slayer gate/XP, Magic defence roll,
-six-tick pacing, four independent drop selections, inventory capacity, undo,
+six-tick pacing, one guaranteed row and one ordinary selection, inventory capacity, undo,
 and death paths. The Combat picker exposes Magic attacks, maximum hit, all
 four table denominators, the rare equipment, and the target sprite.
 

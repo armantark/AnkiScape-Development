@@ -46,15 +46,21 @@ the standard accuracy and protection-prayer path.
 
 ## Drops and items
 
-Darkan `data/npcs/drops/basilisk.json` supplies three independent tables:
+Darkan `data/npcs/drops/basilisk.json` supplies one guaranteed row and 20
+nonzero ordinary rows:
 
-- a 128-slot ordinary table with 127 named slots and one explicit empty slot;
+- the rows formerly recognizable as a full 127/128 ordinary block;
 - Mystic hat (light) at 1/512; and
 - Basilisk head at 1/2,000.
 
-The ordinary table includes the 35-slot minor-herb roll, five-slot gem roll,
-coins, runes, metal equipment, and Adamantite ore. Guaranteed Bones remain
-separate. No charm row is fabricated.
+Darkan's executable `DropList` combines the nonzero rows into one mutually
+exclusive selector. The exact common denominator is 64,000: the 128-based
+rows are scaled by 500, the Mystic hat occupies 125 slots, the Basilisk head
+occupies 32, and 343 slots are empty. The initial three-table interpretation
+was incorrect and is superseded by
+`slayer-darkan-drop-selector-correction-2026-07-18.md`. The selector includes
+the minor-herb and gem subtables, coins, runes, metal equipment, and
+Adamantite ore. Guaranteed Bones remain separate. No charm row is fabricated.
 
 The primary 2011Scape `data/cfg/items.yml` item 4109 supplies the light Mystic
 hat's Defence-20/Magic-20 requirements and exact bonuses.
@@ -74,7 +80,7 @@ random-one drain consumes one explicit combat RNG draw per unprotected attack,
 so review undo restores the complete LP/stat/RNG outcome atomically.
 
 The Combat picker exposes the shield warning, player-scaled unprotected hit,
-three drop tables, and target icon. `tools/audit_slayer_readiness.py` derives
+the ordinary drop selector, and target icon. `tools/audit_slayer_readiness.py` derives
 Vannaka at 20/35. Fifteen blockers remain: 14 missing Combat representatives
 plus Wilderness-risk behavior for the existing Earth warrior. The incomplete
 role remains hidden and unrenormalized. No owner-facing design fork emerged.

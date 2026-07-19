@@ -2429,109 +2429,107 @@ CYCLOPS_WARRIORS_GUILD_DROPS = {
                 {"slots": 99730},
             ),
         },
-        *tuple(
-            {
-                "name": f"Darkan independent: {item_name}",
-                "total": total,
-                "slots": (
-                    {
-                        "item": item_name,
-                        **(
-                            {"quantity_range": quantity}
-                            if isinstance(quantity, tuple)
-                            else {"quantity": quantity}
-                        ),
-                        "slots": chance,
-                    },
-                    {"slots": total - chance},
-                ),
-            }
-            for item_name, quantity, chance, total in (
-                ("Limpwurt root", 1, 5597, 100000),
-                ("Black knife", (1, 4), 5597, 100000),
-                ("Coins", (1, 5), 5597, 100000),
-                ("Iron chainbody", 1, 5597, 100000),
-                ("Steel chainbody", 1, 5597, 100000),
-                ("Steel dagger", 1, 5597, 100000),
-                ("Black dagger", 1, 5597, 100000),
-                ("Steel sword", 1, 5597, 100000),
-                ("Black sword", 1, 5597, 100000),
-                ("Steel longsword", 1, 5597, 100000),
-                ("Black longsword", 1, 5597, 100000),
-                ("Iron 2h sword", 1, 5597, 100000),
-                ("Steel 2h sword", 1, 5597, 100000),
-                ("Steel battleaxe", 1, 5597, 100000),
-                ("Steel mace", 1, 5597, 100000),
-                ("Bones", 1, 777, 50000),
-                ("Iron full helm", 1, 777, 50000),
-                ("Iron kiteshield", 1, 777, 50000),
-                ("Mithril dagger", 1, 777, 50000),
-                ("Mithril longsword", 1, 777, 50000),
-                ("Black 2h sword", 1, 777, 50000),
-                ("Adamant mace", 1, 777, 50000),
-                ("Fire talisman", 1, 777, 50000),
-                ("Body talisman", 1, 777, 50000),
-                ("Grimy guam", 1, 37, 50000),
-                ("Grimy marrentill", 1, 37, 50000),
-                ("Grimy tarromin", 1, 37, 50000),
-                ("Grimy harralander", 1, 37, 50000),
-                ("Grimy ranarr", 1, 37, 50000),
-                ("Grimy irit", 1, 37, 50000),
-                ("Grimy avantoe", 1, 37, 50000),
-                ("Grimy kwuarm", 1, 37, 50000),
-                ("Grimy cadantine", 1, 37, 50000),
-                ("Grimy dwarf weed", 1, 37, 50000),
-                ("Fire rune", 15, 37, 50000),
-                ("Water rune", 7, 37, 50000),
-                ("Mind rune", (2, 3), 37, 50000),
-                ("Death rune", 2, 37, 50000),
-                ("Nature rune", (2, 3), 37, 50000),
-                ("Law rune", (2, 3), 37, 50000),
-                ("Cosmic rune", (2, 3), 37, 50000),
-                ("Steel arrows", 5, 37, 50000),
-                ("Mithril sq shield", 1, 37, 50000),
-                ("Adamant 2h sword", 1, 37, 50000),
-                ("Grimy lantadyme", 1, 37, 50000),
-                ("Cactus seed", 1, 37, 50000),
-                ("Cadantine seed", 1, 37, 50000),
-                ("Dwarf weed seed", 1, 37, 50000),
-                ("Spirit weed seed", 1, 37, 50000),
-                ("Bones", 1, 7, 100000),
-                ("Rune dagger", 1, 7, 100000),
-                ("Beer", 1, 7, 100000),
-                ("Limpwurt seed", 1, 7, 100000),
-                ("Jangerberry seed", 1, 7, 100000),
-                ("Whiteberry seed", 1, 7, 100000),
-                ("Belladonna seed", 1, 7, 100000),
-                ("Bittercap mushroom spore", 1, 7, 100000),
-                ("Marrentill seed", 1, 7, 100000),
-                ("Tarromin seed", 1, 7, 100000),
-                ("Harralander seed", 1, 7, 100000),
-                ("Ranarr seed", 1, 7, 100000),
-                ("Toadflax seed", 1, 7, 100000),
-                ("Irit seed", 1, 7, 100000),
-                ("Avantoe seed", 1, 7, 100000),
-                ("Snapdragon seed", 1, 7, 100000),
-                ("Lantadyme seed", 1, 7, 100000),
-                ("Yanillian seed", 2, 7, 100000),
-                ("Wildblood seed", 1, 7, 100000),
-                ("Potato seed", 1, 7, 100000),
-                ("Sweetcorn seed", 3, 7, 100000),
-                ("Watermelon seed", 1, 7, 100000),
-                ("Strawberry seed", 1, 7, 100000),
-                ("Cabbage seed", 4, 7, 100000),
+        {
+            "name": "Darkan main",
+            "total": 100000,
+            "slots": tuple(
+                {
+                    "item": item_name,
+                    **(
+                        {"quantity_range": quantity}
+                        if isinstance(quantity, tuple)
+                        else {"quantity": quantity}
+                    ),
+                    "slots": chance * (100000 // total),
+                }
+                for item_name, quantity, chance, total in (
+                    ("Limpwurt root", 1, 5597, 100000),
+                    ("Black knife", (1, 4), 5597, 100000),
+                    ("Coins", (1, 5), 5597, 100000),
+                    ("Iron chainbody", 1, 5597, 100000),
+                    ("Steel chainbody", 1, 5597, 100000),
+                    ("Steel dagger", 1, 5597, 100000),
+                    ("Black dagger", 1, 5597, 100000),
+                    ("Steel sword", 1, 5597, 100000),
+                    ("Black sword", 1, 5597, 100000),
+                    ("Steel longsword", 1, 5597, 100000),
+                    ("Black longsword", 1, 5597, 100000),
+                    ("Iron 2h sword", 1, 5597, 100000),
+                    ("Steel 2h sword", 1, 5597, 100000),
+                    ("Steel battleaxe", 1, 5597, 100000),
+                    ("Steel mace", 1, 5597, 100000),
+                    ("Bones", 1, 777, 50000),
+                    ("Iron full helm", 1, 777, 50000),
+                    ("Iron kiteshield", 1, 777, 50000),
+                    ("Mithril dagger", 1, 777, 50000),
+                    ("Mithril longsword", 1, 777, 50000),
+                    ("Black 2h sword", 1, 777, 50000),
+                    ("Adamant mace", 1, 777, 50000),
+                    ("Fire talisman", 1, 777, 50000),
+                    ("Body talisman", 1, 777, 50000),
+                    ("Grimy guam", 1, 37, 50000),
+                    ("Grimy marrentill", 1, 37, 50000),
+                    ("Grimy tarromin", 1, 37, 50000),
+                    ("Grimy harralander", 1, 37, 50000),
+                    ("Grimy ranarr", 1, 37, 50000),
+                    ("Grimy irit", 1, 37, 50000),
+                    ("Grimy avantoe", 1, 37, 50000),
+                    ("Grimy kwuarm", 1, 37, 50000),
+                    ("Grimy cadantine", 1, 37, 50000),
+                    ("Grimy dwarf weed", 1, 37, 50000),
+                    ("Fire rune", 15, 37, 50000),
+                    ("Water rune", 7, 37, 50000),
+                    ("Mind rune", (2, 3), 37, 50000),
+                    ("Death rune", 2, 37, 50000),
+                    ("Nature rune", (2, 3), 37, 50000),
+                    ("Law rune", (2, 3), 37, 50000),
+                    ("Cosmic rune", (2, 3), 37, 50000),
+                    ("Steel arrows", 5, 37, 50000),
+                    ("Mithril sq shield", 1, 37, 50000),
+                    ("Adamant 2h sword", 1, 37, 50000),
+                    ("Grimy lantadyme", 1, 37, 50000),
+                    ("Cactus seed", 1, 37, 50000),
+                    ("Cadantine seed", 1, 37, 50000),
+                    ("Dwarf weed seed", 1, 37, 50000),
+                    ("Spirit weed seed", 1, 37, 50000),
+                    ("Bones", 1, 7, 100000),
+                    ("Rune dagger", 1, 7, 100000),
+                    ("Beer", 1, 7, 100000),
+                    ("Limpwurt seed", 1, 7, 100000),
+                    ("Jangerberry seed", 1, 7, 100000),
+                    ("Whiteberry seed", 1, 7, 100000),
+                    ("Belladonna seed", 1, 7, 100000),
+                    ("Bittercap mushroom spore", 1, 7, 100000),
+                    ("Marrentill seed", 1, 7, 100000),
+                    ("Tarromin seed", 1, 7, 100000),
+                    ("Harralander seed", 1, 7, 100000),
+                    ("Ranarr seed", 1, 7, 100000),
+                    ("Toadflax seed", 1, 7, 100000),
+                    ("Irit seed", 1, 7, 100000),
+                    ("Avantoe seed", 1, 7, 100000),
+                    ("Snapdragon seed", 1, 7, 100000),
+                    ("Lantadyme seed", 1, 7, 100000),
+                    ("Yanillian seed", 2, 7, 100000),
+                    ("Wildblood seed", 1, 7, 100000),
+                    ("Potato seed", 1, 7, 100000),
+                    ("Sweetcorn seed", 3, 7, 100000),
+                    ("Watermelon seed", 1, 7, 100000),
+                    ("Strawberry seed", 1, 7, 100000),
+                    ("Cabbage seed", 4, 7, 100000),
+                )
             )
-        ),
+            + ({"slots": 41},),
+        },
     ),
 }
 
 CYCLOSSUS_WARRIORS_GUILD_DROPS = {
     "guaranteed": (("Big bones", 1),),
-    "tables": tuple(
+    "tables": (
         {
-            "name": f"Darkan independent: {item_name}",
+            "name": "Darkan main",
             "total": 100000,
-            "slots": (
+            "slots": tuple(
                 {
                     "item": item_name,
                     **(
@@ -2540,40 +2538,47 @@ CYCLOSSUS_WARRIORS_GUILD_DROPS = {
                         else {"quantity": quantity}
                     ),
                     "slots": slots,
-                },
-                {"slots": 100000 - slots},
+                }
+                for item_name, quantity, slots in (
+                    ("Limpwurt root", 5, 11993),
+                    ("Big bones", 2, 11993),
+                    ("Coins", (1, 1901), 11993),
+                    ("Adamant chainbody", 1, 11993),
+                    ("Steel warhammer", 1, 11993),
+                    ("Mithril warhammer", 1, 11993),
+                    ("Cyclopean helmet", 1, 11993),
+                    ("Shark", 1, 777),
+                    ("Adamantite ore", 1, 777),
+                    ("Law rune", 45, 777),
+                    ("Blood rune", (5, 18), 777),
+                    ("Adamant plateskirt", 1, 777),
+                    ("Mithril sq shield", 1, 777),
+                    ("Adamant scimitar", 1, 777),
+                )
+            )
+            + ({"slots": 10610},),
+        },
+        {
+            # The period page calls this common; Darkan omits its unique-drop
+            # handler, so the common-row weight remains a labeled abstraction.
+            "name": "Period-common abstraction: Dragon defender",
+            "total": 100000,
+            "slots": (
+                {"item": "Dragon defender", "quantity": 1, "slots": 11993},
+                {"slots": 88007},
             ),
-        }
-        for item_name, quantity, slots in (
-            ("Limpwurt root", 5, 11993),
-            ("Big bones", 2, 11993),
-            ("Coins", (1, 1901), 11993),
-            ("Adamant chainbody", 1, 11993),
-            ("Steel warhammer", 1, 11993),
-            ("Mithril warhammer", 1, 11993),
-            ("Cyclopean helmet", 1, 11993),
-            # The period page calls this common; Darkan omits the unique-drop
-            # handler, so its common-row weight is the closest executable proxy.
-            ("Dragon defender", 1, 11993),
-            ("Shark", 1, 777),
-            ("Adamantite ore", 1, 777),
-            ("Law rune", 45, 777),
-            ("Blood rune", (5, 18), 777),
-            ("Adamant plateskirt", 1, 777),
-            ("Mithril sq shield", 1, 777),
-            ("Adamant scimitar", 1, 777),
-        )
+        },
     ),
 }
 
 
 DESERT_LIZARD_DROPS = {
     "guaranteed": (("Bones", 1),),
-    "tables": tuple(
+    "tables": (
         {
-            "name": f"Darkan independent: {item_name}",
+            "name": "Darkan main",
             "total": 100000,
-            "slots": (
+            "slots": tuple(
                 {
                     "item": item_name,
                     **(
@@ -2582,53 +2587,53 @@ DESERT_LIZARD_DROPS = {
                         else {"quantity": quantity}
                     ),
                     "slots": chance,
-                },
-                {"slots": 100000 - chance},
-            ),
-        }
-        for item_name, quantity, chance in (
-            ("Grimy tarromin", 1, 7009),
-            ("Grimy harralander", 1, 7009),
-            ("Copper ore", 1, 7009),
-            ("Tin ore", 1, 7009),
-            ("Iron ore", 1, 7009),
-            ("Fire rune", (1, 5), 7009),
-            ("Nature rune", 5, 7009),
-            ("Waterskin (0)", 2, 7009),
-            ("Silver bar", 1, 7009),
-            ("Onion seed", 4, 7009),
-            ("Tomato seed", 3, 7009),
-            ("Cabbage seed", 3, 7009),
-            ("Grimy guam", 1, 1401),
-            ("Grimy marrentill", 1, 1401),
-            ("Grimy ranarr", 1, 1401),
-            ("Grimy irit", 1, 1401),
-            ("Grimy avantoe", 1, 1401),
-            ("Silver ore", 1, 1401),
-            ("Coal", 1, 1401),
-            ("Grimy kwuarm", 1, 1401),
-            ("Potato seed", 4, 1401),
-            ("Strawberry seed", 3, 1401),
-            ("Grimy cadantine", 1, 207),
-            ("Grimy lantadyme", 1, 207),
-            ("Grimy dwarf weed", 1, 207),
-            ("Mithril ore", 1, 207),
-            ("Knife", 1, 207),
-            ("Waterskin (4)", 2, 207),
-            ("Kebab", 1, 207),
-            ("Mystic gloves (light)", 1, 207),
-            ("Watermelon seed", 1, 207),
-        )
+                }
+                for item_name, quantity, chance in (
+                    ("Grimy tarromin", 1, 7009),
+                    ("Grimy harralander", 1, 7009),
+                    ("Copper ore", 1, 7009),
+                    ("Tin ore", 1, 7009),
+                    ("Iron ore", 1, 7009),
+                    ("Fire rune", (1, 5), 7009),
+                    ("Nature rune", 5, 7009),
+                    ("Waterskin (0)", 2, 7009),
+                    ("Silver bar", 1, 7009),
+                    ("Onion seed", 4, 7009),
+                    ("Tomato seed", 3, 7009),
+                    ("Cabbage seed", 3, 7009),
+                    ("Grimy guam", 1, 1401),
+                    ("Grimy marrentill", 1, 1401),
+                    ("Grimy ranarr", 1, 1401),
+                    ("Grimy irit", 1, 1401),
+                    ("Grimy avantoe", 1, 1401),
+                    ("Silver ore", 1, 1401),
+                    ("Coal", 1, 1401),
+                    ("Grimy kwuarm", 1, 1401),
+                    ("Potato seed", 4, 1401),
+                    ("Strawberry seed", 3, 1401),
+                    ("Grimy cadantine", 1, 207),
+                    ("Grimy lantadyme", 1, 207),
+                    ("Grimy dwarf weed", 1, 207),
+                    ("Mithril ore", 1, 207),
+                    ("Knife", 1, 207),
+                    ("Waterskin (4)", 2, 207),
+                    ("Kebab", 1, 207),
+                    ("Mystic gloves (light)", 1, 207),
+                    ("Watermelon seed", 1, 207),
+                )
+            )
+            + ({"slots": 19},),
+        },
     ),
 }
 
 JUNGLE_HORROR_DROPS = {
     "guaranteed": (("Bones", 1),),
-    "tables": tuple(
+    "tables": (
         {
-            "name": f"Darkan independent: {item_name}",
-            "total": denominator,
-            "slots": (
+            "name": "Darkan main",
+            "total": 100000,
+            "slots": tuple(
                 {
                     "item": item_name,
                     **(
@@ -2636,89 +2641,75 @@ JUNGLE_HORROR_DROPS = {
                         if isinstance(quantity, tuple)
                         else {"quantity": quantity}
                     ),
-                    "slots": chance,
-                },
-                {"slots": denominator - chance},
-            ),
-        }
-        for item_name, quantity, chance, denominator in (
-            ("Bones", 1, 1679, 20000),
-            ("Nature rune", (1, 2), 1679, 20000),
-            ("Iron javelin", 5, 1679, 20000),
-            ("Iron kiteshield", 1, 1679, 20000),
-            ("Iron warhammer", 1, 1679, 20000),
-            ("Pineapple", 1, 1679, 20000),
-            ("Potato seed", 1, 1679, 20000),
-            ("Onion seed", 1, 1679, 20000),
-            ("Mahogany logs", 1, 1679, 20000),
-            ("Teak logs", (1, 3), 1679, 20000),
-            ("Grimy guam", 1, 999, 50000),
-            ("Grimy marrentill", 1, 999, 50000),
-            ("Grimy tarromin", 1, 999, 50000),
-            ("Grimy harralander", 1, 999, 50000),
-            ("Big bones", 1, 999, 50000),
-            ("Death rune", 1, 999, 50000),
-            ("Iron spear", 1, 999, 50000),
-            ("Iron ore", 1, 93, 50000),
-            ("Grimy ranarr", 1, 31, 25000),
-            ("Grimy irit", 1, 31, 25000),
-            ("Grimy avantoe", 1, 31, 25000),
-            ("Grimy kwuarm", 1, 31, 25000),
-            ("Grimy cadantine", 1, 31, 25000),
-            ("Grimy dwarf weed", 1, 31, 25000),
-            ("Grimy lantadyme", 1, 31, 25000),
-            ("Sweetcorn seed", 1, 31, 25000),
-            ("Watermelon seed", 1, 31, 25000),
-            ("Tomato seed", 1, 31, 25000),
-            ("Strawberry seed", 1, 31, 25000),
-            ("Cabbage seed", 1, 31, 25000),
-            ("Oak plank", 4, 31, 25000),
-            ("Evil turnip seed", 1, 31, 25000),
-        )
+                    "slots": chance * (100000 // denominator),
+                }
+                for item_name, quantity, chance, denominator in (
+                    ("Bones", 1, 1679, 20000),
+                    ("Nature rune", (1, 2), 1679, 20000),
+                    ("Iron javelin", 5, 1679, 20000),
+                    ("Iron kiteshield", 1, 1679, 20000),
+                    ("Iron warhammer", 1, 1679, 20000),
+                    ("Pineapple", 1, 1679, 20000),
+                    ("Potato seed", 1, 1679, 20000),
+                    ("Onion seed", 1, 1679, 20000),
+                    ("Mahogany logs", 1, 1679, 20000),
+                    ("Teak logs", (1, 3), 1679, 20000),
+                    ("Grimy guam", 1, 999, 50000),
+                    ("Grimy marrentill", 1, 999, 50000),
+                    ("Grimy tarromin", 1, 999, 50000),
+                    ("Grimy harralander", 1, 999, 50000),
+                    ("Big bones", 1, 999, 50000),
+                    ("Death rune", 1, 999, 50000),
+                    ("Iron spear", 1, 999, 50000),
+                    ("Iron ore", 1, 93, 50000),
+                    ("Grimy ranarr", 1, 31, 25000),
+                    ("Grimy irit", 1, 31, 25000),
+                    ("Grimy avantoe", 1, 31, 25000),
+                    ("Grimy kwuarm", 1, 31, 25000),
+                    ("Grimy cadantine", 1, 31, 25000),
+                    ("Grimy dwarf weed", 1, 31, 25000),
+                    ("Grimy lantadyme", 1, 31, 25000),
+                    ("Sweetcorn seed", 1, 31, 25000),
+                    ("Watermelon seed", 1, 31, 25000),
+                    ("Tomato seed", 1, 31, 25000),
+                    ("Strawberry seed", 1, 31, 25000),
+                    ("Cabbage seed", 1, 31, 25000),
+                    ("Oak plank", 4, 31, 25000),
+                    ("Evil turnip seed", 1, 31, 25000),
+                )
+            )
+            + ({"slots": 142},),
+        },
     ),
 }
 
 SHADOW_WARRIOR_DROPS = {
     "guaranteed": (),
-    "tables": tuple(
+    "tables": (
         {
-            "name": f"Darkan independent: {item_name}",
+            "name": "Darkan main",
             "total": 128,
-            "slots": (
-                {"item": item_name, "quantity": quantity, "slots": chance},
-                {"slots": 128 - chance},
-            ),
-        }
-        for item_name, quantity, chance in (
-            ("Coins", 8, 47),
-            ("Cosmic rune", 3, 9),
-            ("Blood rune", 2, 6),
-            ("Air rune", 45, 4),
-            ("Death rune", 2, 4),
-            ("Mithril bar", 1, 4),
-            ("Adamant spear", 1, 1),
-            ("Black dagger (p)", 1, 1),
-            ("Black knife", 1, 1),
-            ("Black longsword", 1, 1),
-            ("Black robe", 1, 1),
-            ("Weapon poison", 1, 1),
-        )
-    )
-    + (
-        {
-            "name": "Darkan independent: Herb table",
-            "total": 128,
-            "slots": (
+            "slots": tuple(
+                {"item": item_name, "quantity": quantity, "slots": chance}
+                for item_name, quantity, chance in (
+                    ("Coins", 8, 47),
+                    ("Cosmic rune", 3, 9),
+                    ("Blood rune", 2, 6),
+                    ("Air rune", 45, 4),
+                    ("Death rune", 2, 4),
+                    ("Mithril bar", 1, 4),
+                    ("Adamant spear", 1, 1),
+                    ("Black dagger (p)", 1, 1),
+                    ("Black knife", 1, 1),
+                    ("Black longsword", 1, 1),
+                    ("Black robe", 1, 1),
+                    ("Weapon poison", 1, 1),
+                )
+            )
+            + (
                 {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 18},
-                {"slots": 110},
-            ),
-        },
-        {
-            "name": "Darkan independent: Gem table",
-            "total": 128,
-            "slots": (
                 {"table": COMBAT_GEM_DROP_TABLE, "slots": 8},
-                {"slots": 120},
+                {"slots": 22},
             ),
         },
         {
@@ -2738,11 +2729,11 @@ SHADOW_WARRIOR_DROPS = {
 
 ROCKSLUG_DROPS = {
     "guaranteed": (),
-    "tables": tuple(
+    "tables": (
         {
-            "name": f"Darkan independent: {item_name}",
-            "total": denominator,
-            "slots": (
+            "name": "Darkan main",
+            "total": 100000,
+            "slots": tuple(
                 {
                     "item": item_name,
                     **(
@@ -2750,35 +2741,33 @@ ROCKSLUG_DROPS = {
                         if isinstance(quantity, tuple)
                         else {"quantity": quantity}
                     ),
-                    "slots": chance,
-                },
-                {"slots": denominator - chance},
-            ),
-        }
-        for item_name, quantity, chance, denominator in (
-            ("Copper ore", 1, 647, 10000),
-            ("Tin ore", 1, 647, 10000),
-            ("Iron ore", 1, 647, 10000),
-            ("Coal", 1, 647, 10000),
-            ("Earth rune", (5, 42), 647, 10000),
-            ("Rune essence", 1, 647, 10000),
-            ("Dwarven stout", 1, 647, 10000),
-            ("Hammer", 1, 647, 10000),
-            ("Bronze bar", 1, 647, 10000),
-            ("Iron bar", 1, 647, 10000),
-            ("Potato seed", 4, 647, 10000),
-            ("Onion seed", 4, 647, 10000),
-            ("Cabbage seed", 4, 647, 10000),
-            ("Mithril ore", 1, 2803, 100000),
-            ("Chaos rune", (2, 5), 2803, 100000),
-            ("Coins", (279, 418), 2803, 100000),
-            ("Tomato seed", 3, 2803, 100000),
-            ("Sweetcorn seed", 3, 2803, 100000),
-            ("Mystic gloves", 1, 467, 50000),
-            ("Strawberry seed", 2, 467, 50000),
-        )
-    )
-    + (
+                    "slots": chance * (100000 // denominator),
+                }
+                for item_name, quantity, chance, denominator in (
+                    ("Copper ore", 1, 647, 10000),
+                    ("Tin ore", 1, 647, 10000),
+                    ("Iron ore", 1, 647, 10000),
+                    ("Coal", 1, 647, 10000),
+                    ("Earth rune", (5, 42), 647, 10000),
+                    ("Rune essence", 1, 647, 10000),
+                    ("Dwarven stout", 1, 647, 10000),
+                    ("Hammer", 1, 647, 10000),
+                    ("Bronze bar", 1, 647, 10000),
+                    ("Iron bar", 1, 647, 10000),
+                    ("Potato seed", 4, 647, 10000),
+                    ("Onion seed", 4, 647, 10000),
+                    ("Cabbage seed", 4, 647, 10000),
+                    ("Mithril ore", 1, 2803, 100000),
+                    ("Chaos rune", (2, 5), 2803, 100000),
+                    ("Coins", (279, 418), 2803, 100000),
+                    ("Tomato seed", 3, 2803, 100000),
+                    ("Sweetcorn seed", 3, 2803, 100000),
+                    ("Mystic gloves", 1, 467, 50000),
+                    ("Strawberry seed", 2, 467, 50000),
+                )
+            )
+            + ({"slots": 7},),
+        },
         {
             "name": "Charms",
             "total": 1000,
@@ -2796,46 +2785,43 @@ ROCKSLUG_DROPS = {
 
 GARGOYLE_DROPS = {
     "guaranteed": (),
-    "tables": tuple(
+    "tables": (
         {
-            "name": f"Darkan independent: {item_name}",
-            "total": denominator,
-            "slots": (
-                {"item": item_name, "quantity": quantity, "slots": chance},
-                {"slots": denominator - chance},
-            ),
-        }
-        for item_name, quantity, chance, denominator in (
-            ("Coins", 11, 27, 128),
-            ("Coins", 22, 20, 128),
-            ("Fire rune", 37, 10, 128),
-            ("Steel hatchet", 1, 10, 128),
-            ("Chaos rune", 15, 8, 128),
-            ("Fire rune", 75, 6, 128),
-            ("Pure essence", 35, 6, 128),
-            ("Steel bar", 3, 6, 128),
-            ("Death rune", 5, 5, 128),
-            ("Coins", 460, 5, 128),
-            ("Adamant platelegs", 1, 4, 128),
-            ("Steel battleaxe", 1, 3, 128),
-            ("Gold bar", 1, 3, 128),
-            ("Steel 2h sword", 1, 2, 128),
-            ("Mithril bar", 3, 2, 128),
-            ("Runite ore", 1, 2, 128),
-            ("Adamant boots", 1, 1, 128),
-            ("Thread", 10, 1, 128),
-            ("Rune full helm", 1, 1, 128),
-            ("Granite maul", 1, 1, 256),
-            ("Mystic robe top", 1, 1, 512),
-        )
-    )
-    + (
-        {
-            "name": "Darkan independent: gem drop table",
-            "total": 128,
-            "slots": (
-                {"table": COMBAT_GEM_DROP_TABLE, "slots": 5},
-                {"slots": 123},
+            "name": "Darkan main",
+            "total": 512,
+            "slots": tuple(
+                {
+                    "item": item_name,
+                    "quantity": quantity,
+                    "slots": chance * (512 // denominator),
+                }
+                for item_name, quantity, chance, denominator in (
+                    ("Coins", 11, 27, 128),
+                    ("Coins", 22, 20, 128),
+                    ("Fire rune", 37, 10, 128),
+                    ("Steel hatchet", 1, 10, 128),
+                    ("Chaos rune", 15, 8, 128),
+                    ("Fire rune", 75, 6, 128),
+                    ("Pure essence", 35, 6, 128),
+                    ("Steel bar", 3, 6, 128),
+                    ("Death rune", 5, 5, 128),
+                    ("Coins", 460, 5, 128),
+                    ("Adamant platelegs", 1, 4, 128),
+                    ("Steel battleaxe", 1, 3, 128),
+                    ("Gold bar", 1, 3, 128),
+                    ("Steel 2h sword", 1, 2, 128),
+                    ("Mithril bar", 3, 2, 128),
+                    ("Runite ore", 1, 2, 128),
+                    ("Adamant boots", 1, 1, 128),
+                    ("Thread", 10, 1, 128),
+                    ("Rune full helm", 1, 1, 128),
+                    ("Granite maul", 1, 1, 256),
+                    ("Mystic robe top", 1, 1, 512),
+                )
+            )
+            + (
+                {"table": COMBAT_GEM_DROP_TABLE, "slots": 20},
+                {"slots": 1},
             ),
         },
         {
@@ -2864,12 +2850,10 @@ MUTATED_ZYGOMITE_DROPS = {
                 {"slots": 7},
             ),
         },
-    )
-    + tuple(
         {
-            "name": f"Darkan independent: {item_name}",
-            "total": denominator,
-            "slots": (
+            "name": "Darkan main",
+            "total": 100000,
+            "slots": tuple(
                 {
                     "item": item_name,
                     **(
@@ -2877,59 +2861,59 @@ MUTATED_ZYGOMITE_DROPS = {
                         if isinstance(quantity, tuple)
                         else {"quantity": quantity}
                     ),
-                    "slots": chance,
-                },
-                {"slots": denominator - chance},
-            ),
-        }
-        for item_name, quantity, chance, denominator in (
-            ("Strawberry seed", (1, 6), 16791, 20000),
-            ("Grimy guam", 1, 233, 50000),
-            ("Grimy marrentill", 1, 233, 50000),
-            ("Grimy tarromin", 1, 233, 50000),
-            ("Grimy harralander", 1, 233, 50000),
-            ("Grimy ranarr", 1, 233, 50000),
-            ("Grimy irit", 1, 233, 50000),
-            ("Grimy avantoe", 1, 233, 50000),
-            ("Grimy kwuarm", 1, 233, 50000),
-            ("Grimy cadantine", 1, 233, 50000),
-            ("Grimy dwarf weed", 1, 233, 50000),
-            ("Grimy lantadyme", 1, 233, 50000),
-            ("Clay", 1, 233, 50000),
-            ("Earth rune", 15, 233, 50000),
-            ("Nature rune", 2, 233, 50000),
-            ("Law rune", (10, 50), 233, 50000),
-            ("Steel 2h sword", 1, 233, 50000),
-            ("Steel hatchet", 1, 233, 50000),
-            ("Mort myre fungus", (1, 3), 233, 50000),
-            ("Limpwurt seed", 1, 233, 50000),
-            ("Jangerberry seed", 1, 233, 50000),
-            ("Whiteberry seed", 1, 233, 50000),
-            ("Poison ivy seed", 1, 233, 50000),
-            ("Bittercap mushroom spore", 1, 233, 50000),
-            ("Toadflax seed", 1, 233, 50000),
-            ("Kwuarm seed", 1, 233, 50000),
-            ("Barley seed", 1, 233, 50000),
-            ("Asgarnian seed", 3, 233, 50000),
-            ("Wildblood seed", 1, 233, 50000),
-            ("Potato seed", 4, 233, 50000),
-            ("Supercompost", (1, 3), 233, 50000),
-            ("Blood rune", 50, 93, 50000),
-            ("Mithril full helm", 1, 93, 50000),
-            ("Rune full helm", 1, 93, 50000),
-            ("Ranarr seed", 1, 93, 50000),
-            ("Snapdragon seed", 1, 93, 50000),
-            ("Torstol seed", 1, 93, 50000),
-            ("Jute seed", 1, 93, 50000),
-            ("Yanillian seed", 1, 93, 50000),
-            ("Watermelon seed", (1, 3), 93, 50000),
-            ("Spirit weed seed", 1, 93, 50000),
-            ("Marigold seed", 1, 37, 100000),
-            ("Woad seed", 1, 37, 100000),
-            ("Onion seed", 4, 37, 100000),
-            ("Tomato seed", 3, 37, 100000),
-            ("Morchella mushroom spore", (1, 3), 37, 100000),
-        )
+                    "slots": chance * (100000 // denominator),
+                }
+                for item_name, quantity, chance, denominator in (
+                    ("Strawberry seed", (1, 6), 16791, 20000),
+                    ("Grimy guam", 1, 233, 50000),
+                    ("Grimy marrentill", 1, 233, 50000),
+                    ("Grimy tarromin", 1, 233, 50000),
+                    ("Grimy harralander", 1, 233, 50000),
+                    ("Grimy ranarr", 1, 233, 50000),
+                    ("Grimy irit", 1, 233, 50000),
+                    ("Grimy avantoe", 1, 233, 50000),
+                    ("Grimy kwuarm", 1, 233, 50000),
+                    ("Grimy cadantine", 1, 233, 50000),
+                    ("Grimy dwarf weed", 1, 233, 50000),
+                    ("Grimy lantadyme", 1, 233, 50000),
+                    ("Clay", 1, 233, 50000),
+                    ("Earth rune", 15, 233, 50000),
+                    ("Nature rune", 2, 233, 50000),
+                    ("Law rune", (10, 50), 233, 50000),
+                    ("Steel 2h sword", 1, 233, 50000),
+                    ("Steel hatchet", 1, 233, 50000),
+                    ("Mort myre fungus", (1, 3), 233, 50000),
+                    ("Limpwurt seed", 1, 233, 50000),
+                    ("Jangerberry seed", 1, 233, 50000),
+                    ("Whiteberry seed", 1, 233, 50000),
+                    ("Poison ivy seed", 1, 233, 50000),
+                    ("Bittercap mushroom spore", 1, 233, 50000),
+                    ("Toadflax seed", 1, 233, 50000),
+                    ("Kwuarm seed", 1, 233, 50000),
+                    ("Barley seed", 1, 233, 50000),
+                    ("Asgarnian seed", 3, 233, 50000),
+                    ("Wildblood seed", 1, 233, 50000),
+                    ("Potato seed", 4, 233, 50000),
+                    ("Supercompost", (1, 3), 233, 50000),
+                    ("Blood rune", 50, 93, 50000),
+                    ("Mithril full helm", 1, 93, 50000),
+                    ("Rune full helm", 1, 93, 50000),
+                    ("Ranarr seed", 1, 93, 50000),
+                    ("Snapdragon seed", 1, 93, 50000),
+                    ("Torstol seed", 1, 93, 50000),
+                    ("Jute seed", 1, 93, 50000),
+                    ("Yanillian seed", 1, 93, 50000),
+                    ("Watermelon seed", (1, 3), 93, 50000),
+                    ("Spirit weed seed", 1, 93, 50000),
+                    ("Marigold seed", 1, 37, 100000),
+                    ("Woad seed", 1, 37, 100000),
+                    ("Onion seed", 4, 37, 100000),
+                    ("Tomato seed", 3, 37, 100000),
+                    ("Morchella mushroom spore", (1, 3), 37, 100000),
+                )
+            )
+            + ({"slots": 20},),
+        },
     ),
 }
 
@@ -7912,46 +7896,40 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "guaranteed": (("Bones", 1),),
             "tables": (
                 {
-                    "name": "Main",
-                    "total": 128,
+                    "name": "Darkan main",
+                    "total": 64000,
                     "slots": (
-                        {"item": "Coins", "quantity": 1, "slots": 19},
-                        {"item": "Death rune", "quantity": 7, "slots": 18},
-                        {"item": "Coins", "quantity": 2, "slots": 14},
-                        {"item": "Staff", "quantity": 1, "slots": 8},
-                        {"item": "Coins", "quantity": 4, "slots": 8},
-                        {"item": "Earth rune", "quantity": 10, "slots": 6},
-                        {"item": "Fire rune", "quantity": 10, "slots": 6},
-                        {"item": "Earth rune", "quantity": 36, "slots": 4},
-                        {"item": "Air rune", "quantity": 10, "slots": 3},
-                        {"item": "Water rune", "quantity": 10, "slots": 3},
-                        {"item": "Coins", "quantity": 29, "slots": 3},
-                        {"item": "Air rune", "quantity": 18, "slots": 2},
-                        {"item": "Water rune", "quantity": 18, "slots": 2},
-                        {"item": "Earth rune", "quantity": 18, "slots": 2},
-                        {"item": "Fire rune", "quantity": 18, "slots": 2},
-                        {"item": "Mind rune", "quantity": 18, "slots": 2},
-                        {"item": "Body rune", "quantity": 18, "slots": 2},
-                        {"item": "Blood rune", "quantity": 4, "slots": 2},
-                        {"item": "Staff of fire", "quantity": 1, "slots": 1},
-                        {"slots": 21},
-                    ),
-                },
-                {
-                    "name": "Dark mystic",
-                    "total": 512,
-                    "slots": (
-                        {"item": "Mystic boots (dark)", "quantity": 1, "slots": 1},
-                        {"item": "Mystic hat (dark)", "quantity": 1, "slots": 1},
-                        {"slots": 510},
-                    ),
-                },
-                {
-                    "name": "Lava battlestaff",
-                    "total": 1000,
-                    "slots": (
-                        {"item": "Lava battlestaff", "quantity": 1, "slots": 1},
-                        {"slots": 999},
+                        {"item": "Coins", "quantity": 1, "slots": 9500},
+                        {"item": "Death rune", "quantity": 7, "slots": 9000},
+                        {"item": "Coins", "quantity": 2, "slots": 7000},
+                        {"item": "Staff", "quantity": 1, "slots": 4000},
+                        {"item": "Coins", "quantity": 4, "slots": 4000},
+                        {"item": "Earth rune", "quantity": 10, "slots": 3000},
+                        {"item": "Fire rune", "quantity": 10, "slots": 3000},
+                        {"item": "Earth rune", "quantity": 36, "slots": 2000},
+                        {"item": "Air rune", "quantity": 10, "slots": 1500},
+                        {"item": "Water rune", "quantity": 10, "slots": 1500},
+                        {"item": "Coins", "quantity": 29, "slots": 1500},
+                        {"item": "Air rune", "quantity": 18, "slots": 1000},
+                        {"item": "Water rune", "quantity": 18, "slots": 1000},
+                        {"item": "Earth rune", "quantity": 18, "slots": 1000},
+                        {"item": "Fire rune", "quantity": 18, "slots": 1000},
+                        {"item": "Mind rune", "quantity": 18, "slots": 1000},
+                        {"item": "Body rune", "quantity": 18, "slots": 1000},
+                        {"item": "Blood rune", "quantity": 4, "slots": 1000},
+                        {"item": "Staff of fire", "quantity": 1, "slots": 500},
+                        {
+                            "item": "Mystic boots (dark)",
+                            "quantity": 1,
+                            "slots": 125,
+                        },
+                        {
+                            "item": "Mystic hat (dark)",
+                            "quantity": 1,
+                            "slots": 125,
+                        },
+                        {"item": "Lava battlestaff", "quantity": 1, "slots": 64},
+                        {"slots": 10186},
                     ),
                 },
             ),
@@ -7967,8 +7945,9 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "source_status": (
             "period exact ordinary identity, LP, Slayer gate/XP, six-tick Magic "
             "attack, maximum hit, and guaranteed Bones; Darkan exact stats, "
-            "respawn, 128-slot main table, 1/512 dark-mystic drops, and 1/1000 "
-            "Lava battlestaff; charm distribution remains source_blocked"
+            "respawn, and one exact 64,000-slot ordinary selector including the "
+            "dark-mystic and Lava battlestaff rows; charm distribution remains "
+            "source_blocked"
         ),
     },
     "aberrant_spectre": {
@@ -8189,44 +8168,38 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "guaranteed": (("Bones", 1),),
             "tables": (
                 {
-                    "name": "Main",
-                    "total": 128,
+                    "name": "Darkan main",
+                    "total": 64000,
                     "slots": (
-                        {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 35},
-                        {"item": "Coins", "quantity": 44, "slots": 28},
-                        {"item": "Coins", "quantity": 200, "slots": 17},
-                        {"item": "Water rune", "quantity": 75, "slots": 8},
-                        {"item": "Nature rune", "quantity": 15, "slots": 5},
-                        {"item": "Coins", "quantity": 132, "slots": 5},
-                        {"item": "Coins", "quantity": 11, "slots": 5},
-                        {"table": COMBAT_GEM_DROP_TABLE, "slots": 5},
-                        {"item": "Mithril hatchet", "quantity": 1, "slots": 3},
-                        {"item": "Steel battleaxe", "quantity": 1, "slots": 3},
-                        {"item": "Law rune", "quantity": 3, "slots": 3},
-                        {"item": "Adamantite ore", "quantity": 1, "slots": 3},
-                        {"item": "Mithril spear", "quantity": 1, "slots": 2},
-                        {"item": "Adamant full helm", "quantity": 1, "slots": 1},
-                        {"item": "Mithril kiteshield", "quantity": 1, "slots": 1},
-                        {"item": "Rune dagger", "quantity": 1, "slots": 1},
-                        {"item": "Nature rune", "quantity": 37, "slots": 1},
-                        {"item": "Coins", "quantity": 440, "slots": 1},
-                        {"slots": 1},
-                    ),
-                },
-                {
-                    "name": "Light mystic",
-                    "total": 512,
-                    "slots": (
-                        {"item": "Mystic hat (light)", "quantity": 1, "slots": 1},
-                        {"slots": 511},
-                    ),
-                },
-                {
-                    "name": "Basilisk head",
-                    "total": 2000,
-                    "slots": (
-                        {"item": "Basilisk head", "quantity": 1, "slots": 1},
-                        {"slots": 1999},
+                        {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 17500},
+                        {"item": "Coins", "quantity": 44, "slots": 14000},
+                        {"item": "Coins", "quantity": 200, "slots": 8500},
+                        {"item": "Water rune", "quantity": 75, "slots": 4000},
+                        {"item": "Nature rune", "quantity": 15, "slots": 2500},
+                        {"item": "Coins", "quantity": 132, "slots": 2500},
+                        {"item": "Coins", "quantity": 11, "slots": 2500},
+                        {"table": COMBAT_GEM_DROP_TABLE, "slots": 2500},
+                        {"item": "Mithril hatchet", "quantity": 1, "slots": 1500},
+                        {"item": "Steel battleaxe", "quantity": 1, "slots": 1500},
+                        {"item": "Law rune", "quantity": 3, "slots": 1500},
+                        {"item": "Adamantite ore", "quantity": 1, "slots": 1500},
+                        {"item": "Mithril spear", "quantity": 1, "slots": 1000},
+                        {"item": "Adamant full helm", "quantity": 1, "slots": 500},
+                        {
+                            "item": "Mithril kiteshield",
+                            "quantity": 1,
+                            "slots": 500,
+                        },
+                        {"item": "Rune dagger", "quantity": 1, "slots": 500},
+                        {"item": "Nature rune", "quantity": 37, "slots": 500},
+                        {"item": "Coins", "quantity": 440, "slots": 500},
+                        {
+                            "item": "Mystic hat (light)",
+                            "quantity": 1,
+                            "slots": 125,
+                        },
+                        {"item": "Basilisk head", "quantity": 1, "slots": 32},
+                        {"slots": 343},
                     ),
                 },
             ),
@@ -8245,9 +8218,9 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "source_status": (
             "period exact ordinary identity, LP, Slayer gate/XP, six-tick melee, "
             "protected and unprotected maximum hits, shield semantics, and "
-            "guaranteed Bones; Darkan exact stats, respawn, 128-slot main table, "
-            "1/512 light-mystic hat, and 1/2000 Basilisk head; charm distribution "
-            "remains source_blocked"
+            "guaranteed Bones; Darkan exact stats, respawn, and one exact "
+            "64,000-slot ordinary selector including the light-mystic hat and "
+            "Basilisk head rows; charm distribution remains source_blocked"
         ),
     },
     "crocodile": {
@@ -8426,8 +8399,8 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "source_status": (
             "period exact ordinary identity, LP, Slayer XP, six-tick melee, "
             "84-LP maximum hit, Vannaka membership, guaranteed Bones, and "
-            "Mos Le'Harmless route; Darkan exact stats, respawn, and 32 "
-            "independent ordinary drop rolls"
+            "Mos Le'Harmless route; Darkan exact stats, respawn, and one "
+            "100,000-slot ordinary selector"
         ),
     },
     "shadow_warrior": {
@@ -8477,8 +8450,8 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "source_status": (
             "period exact ordinary identity, LP, Slayer XP, six-tick melee, "
             "65-LP maximum hit, Vannaka/Chaeldar membership, Legends' Guild "
-            "route, and no guaranteed drop; Darkan exact stats, respawn, 14 "
-            "independent ordinary rolls, and emulator-exact charm selection"
+            "route, and no guaranteed drop; Darkan exact stats, respawn, one "
+            "128-slot ordinary selector, and emulator-exact charm selection"
         ),
     },
     "kalphite_soldier": {
@@ -8697,7 +8670,7 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "source_status": (
             "period level, LP, maximum hit, melee-only Guild immunity, "
             "Slayer XP and guaranteed Big bones; Darkan exact combat stats, "
-            "respawn and independent probability rows; defender drops are "
+            "respawn and one ordinary selector; defender drops are "
             "resolved by the Warriors' Guild progression state"
         ),
     },
@@ -8745,7 +8718,7 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "source_status": (
             "period exact level, LP, maximum hit, speed, Slayer XP, defender "
             "requirement, guaranteed Big bones and common unique rewards; "
-            "Darkan exact respawn and independent probability rows; its absent "
+            "Darkan exact respawn and one ordinary selector; its absent "
             "combat stats are filled from the cache record; the spatial shove "
             "and stun are compressed into the ordinary review combat exchange"
         ),
@@ -8994,22 +8967,37 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "drops": {
             "guaranteed": (("Bones", 1),),
             "tables": (
-                {"name": "Coal", "total": 50000, "slots": ({"item": "Coal", "quantity": 1, "slots": 7009},)},
-                {"name": "Nature rune", "total": 50000, "slots": ({"item": "Nature rune", "quantity": 1, "slots": 7009},)},
-                {"name": "Coins", "total": 50000, "slots": ({"item": "Coins", "quantity": 100, "slots": 7009},)},
-                {"name": "Bronze spear", "total": 50000, "slots": ({"item": "Bronze spear", "quantity": 1, "slots": 7009},)},
-                {"name": "Coral bolts", "total": 50000, "slots": ({"item": "Coral bolts", "quantity": 20, "slots": 7009},)},
-                {"name": "Royal cape", "total": 50000, "slots": ({"item": "Royal cape", "quantity": 1, "slots": 7009},)},
-                {"name": "Cod", "total": 12500, "slots": ({"item": "Cod", "quantity": 1, "slots": 219},)},
-                {"name": "Mackerel", "total": 12500, "slots": ({"item": "Mackerel", "quantity": 1, "slots": 219},)},
-                {"name": "Iron ore", "total": 12500, "slots": ({"item": "Iron ore", "quantity": 1, "slots": 219},)},
-                {"name": "Silver ore", "total": 12500, "slots": ({"item": "Silver ore", "quantity": 1, "slots": 219},)},
-                {"name": "Water rune", "total": 12500, "slots": ({"item": "Water rune", "quantity": 8, "slots": 219},)},
-                {"name": "Earth rune", "total": 12500, "slots": ({"item": "Earth rune", "quantity": 8, "slots": 219},)},
-                {"name": "Mind rune", "total": 12500, "slots": ({"item": "Mind rune", "quantity": 8, "slots": 219},)},
-                {"name": "Flax", "total": 12500, "slots": ({"item": "Flax", "quantity": 4, "slots": 219},)},
-                {"name": "Strength potion (1)", "total": 50000, "slots": ({"item": "Strength potion (1)", "quantity": 1, "slots": 467},)},
-                {"name": "Attack potion (1)", "total": 50000, "slots": ({"item": "Attack potion (1)", "quantity": 1, "slots": 467},)},
+                {
+                    "name": "Darkan main",
+                    "total": 50000,
+                    "slots": (
+                        {"item": "Coal", "quantity": 1, "slots": 7009},
+                        {"item": "Nature rune", "quantity": 1, "slots": 7009},
+                        {"item": "Coins", "quantity": 100, "slots": 7009},
+                        {"item": "Bronze spear", "quantity": 1, "slots": 7009},
+                        {"item": "Coral bolts", "quantity": 20, "slots": 7009},
+                        {"item": "Royal cape", "quantity": 1, "slots": 7009},
+                        {"item": "Cod", "quantity": 1, "slots": 876},
+                        {"item": "Mackerel", "quantity": 1, "slots": 876},
+                        {"item": "Iron ore", "quantity": 1, "slots": 876},
+                        {"item": "Silver ore", "quantity": 1, "slots": 876},
+                        {"item": "Water rune", "quantity": 8, "slots": 876},
+                        {"item": "Earth rune", "quantity": 8, "slots": 876},
+                        {"item": "Mind rune", "quantity": 8, "slots": 876},
+                        {"item": "Flax", "quantity": 4, "slots": 876},
+                        {
+                            "item": "Strength potion (1)",
+                            "quantity": 1,
+                            "slots": 467,
+                        },
+                        {
+                            "item": "Attack potion (1)",
+                            "quantity": 1,
+                            "slots": 467,
+                        },
+                        {"slots": 4},
+                    ),
+                },
             ),
         },
         "source": (
@@ -9021,7 +9009,7 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         ),
         "source_status": (
             "period LP, level, speeds, max hits, Slayer XP, style, and drop "
-            "membership reconciled with Darkan rates; neutral melee/defence "
+            "membership reconciled with one exact Darkan selector; neutral melee/defence "
             "stats are formula-constrained to combat level 10 and the single "
             "runtime style uses the source's ranged magic attack"
         ),
@@ -9292,8 +9280,8 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         ),
         "source_status": (
             "period and Darkan reconcile identity, LP, Slayer XP, magical-melee "
-            "maximum hit, stats, access, finishing behavior, and resolved independent "
-            "drops; four-tick attack speed is the standard bounded combat abstraction; "
+            "maximum hit, stats, access, finishing behavior, and one resolved ordinary "
+            "selector; four-tick attack speed is the standard bounded combat abstraction; "
             "the occasional 140-LP spore attack frequency remains source_blocked"
         ),
     },
@@ -9343,8 +9331,8 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         ),
         "source_status": (
             "period and Darkan reconcile identity, LP, Slayer XP, magical-melee "
-            "maximum hit, stats, access, finishing behavior, and resolved independent "
-            "drops; four-tick attack speed is the standard bounded combat abstraction; "
+            "maximum hit, stats, access, finishing behavior, and one resolved ordinary "
+            "selector; four-tick attack speed is the standard bounded combat abstraction; "
             "the occasional 140-LP spore attack frequency remains source_blocked"
         ),
     },

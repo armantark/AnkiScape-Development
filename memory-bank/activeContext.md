@@ -2,10 +2,26 @@
 
 ## Current Focus
 
+The Darkan ordinary-drop loader is now mapped correctly across every live
+Slayer target that had been treating sibling JSON rows as independent rolls.
+`DropList` makes one cumulative ordinary selection; only rate-zero always
+rows, separately invoked charm tables, and explicitly labeled abstractions
+remain separate. Eleven targets were corrected: Warriors' Guild Cyclops,
+Cyclossus, Young grotworm, Desert lizard, Rockslug, Gargoyle, Mutated
+zygomite, Jungle horror, Shadow warrior, Infernal Mage, and Basilisk.
+Individual marginal probabilities are unchanged, while impossible sibling
+multi-drop combinations are removed. No owner-facing design fork emerged.
+Evidence:
+`source-audits/slayer-darkan-drop-selector-correction-2026-07-18.md`.
+Results:
+`status-updates/slayer-darkan-drop-selector-correction-results-2026-07-18.html`
+(<https://pk45017w1z2j.postplan.dev>).
+
 The ordinary level-48 Shadow warrior is now executable with the existing
-Legends' Quest gate, six-tick melee, 670 LP, 67 Slayer XP, Darkan's 14
-independent ordinary rolls, and the emulator-exact charm selector. This adds
-no quest content and does not overlap the Darkan quest-parity thread. Vannaka
+Legends' Quest gate, six-tick melee, 670 LP, 67 Slayer XP, Darkan's exact
+128-slot ordinary selector, and the separately invoked emulator-exact charm
+selector. This adds no quest content and does not overlap the Darkan
+quest-parity thread. Vannaka
 advances to 24/35 while remaining hidden. Exact period defensive bonuses
 remain `source_blocked`; no owner-facing design fork emerged. Evidence:
 `source-audits/slayer-shadow-warrior-combat-2026-07-18.md`. Results:
@@ -14,7 +30,7 @@ remain `source_blocked`; no owner-facing design fork emerged. Evidence:
 
 The ordinary level-70 Jungle horror is now executable with the existing Cabin
 Fever gate, six-tick melee, 450 LP, 45 Slayer XP, guaranteed Bones, and
-Darkan's exact 32 independent ordinary rolls. This adds no quest content and
+Darkan's exact 100,000-slot ordinary selector. This adds no quest content and
 does not overlap the Darkan quest-parity thread. Vannaka advances to 23/35
 while remaining hidden. Exact period charm distribution remains
 `source_blocked`; no owner-facing design fork emerged. Evidence:
@@ -54,8 +70,8 @@ design fork emerged. Results:
 (<https://12bv7z5x53a2.postplan.dev>).
 
 The ordinary level-66 Infernal Mage is now executable with Slayer 45, six-tick
-Magic attacks, 600 LP, 60 Slayer XP, and four independent source-shaped drop
-tables. Lava battlestaff, dark Mystic hat, and dark Mystic boots are generated
+Magic attacks, 600 LP, 60 Slayer XP, and one exact 64,000-slot ordinary
+selector. Lava battlestaff, dark Mystic hat, and dark Mystic boots are generated
 equipment with their exact period requirements, bonuses, and weapon speed.
 Vannaka advances to 19/35 while remaining hidden; 15 target families plus the
 Earth-warrior Wilderness-risk seam remain. Charm distribution is
@@ -155,7 +171,7 @@ emerged. The closure report is
 Mutated zygomite is now the fourth and final ordinary Slayer finishing-blow
 family. Both cutoff variants are executable at Slayer 57 after Lost City, with
 their distinct 650/750 LP and 65/75 Slayer XP rows, period file-revision
-sprites, guaranteed Ashes, and reconciled independent drops. The charged
+sprites, guaranteed Ashes, and one reconciled ordinary selector. The charged
 Fungicide-spray runtime preserves every remaining dose, reloads an empty spray
 from one loaded canister, supports the quick-finisher unlock without bypassing
 item cost, and respects the shared 28-slot Combat pack. The Combat picker
@@ -259,7 +275,7 @@ finisher-engine blockers. Rockslug preserves the cutoff 1–39 LP Bag-of-salt
 window, consumable salt, and a latched 10-LP frozen/no-retaliation state.
 Gargoyle preserves the below-90 LP reusable Rock-hammer action and carries its
 `12/5` LP-per-game-tick regeneration residual across review boundaries. Both
-use reconciled Darkan independent drops plus Summoning-era charm rolls,
+use one reconciled Darkan ordinary selector plus Summoning-era charm rolls,
 period-source icons, normal manual/quick finisher semantics, and real Combat
 picker surfaces. The ordinary target excludes Kuradal's-Dungeon-only Ferocious
 rings. Core verification passes all 1,504 methods with 204 declared
@@ -361,8 +377,8 @@ an unprotected scream applies the period damage shape and full eight-skill set
 through a deliberately labeled flat-five abstraction; equipped Earmuffs or
 Slayer-helmet-family headgear suppress it. Desert lizard is the first live
 finisher family: Slayer 22, its Ice-cooler 1–30 LP gate, the 400-point
-automatic-finisher flag, independent drops, and a sourced sprite are
-executable. Desert heat is a labeled review-native supply abstraction: each
+automatic-finisher flag, one exact ordinary drop selector, and a sourced
+sprite are executable. Desert heat is a labeled review-native supply abstraction: each
 damaging Combat review consumes one Waterskin dose, preserves the lower-dose
 skin, and uses the ordinary two-review bank refill. Exact cutoff heat
 timing/damage remains `source_blocked`; no wall-clock mechanic was introduced.

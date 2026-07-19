@@ -35,8 +35,9 @@ accuracy, passive aggression, and respawn delay 59:
 - `data/npcs/combatdefs/uncategorized/mutated_zygomite/mutated_zygomite_(74).json:1-30`
 - `data/npcs/combatdefs/uncategorized/mutated_zygomite/mutated_zygomite_(86).json:1-30`
 
-`data/npcs/drops/mutated_zygomite.json` supplies independent numeric
-probabilities. Where its quantities conflict with the higher-tier period page,
+`data/npcs/drops/mutated_zygomite.json` supplies weighted numeric
+probabilities in one executable ordinary selector. Where its quantities
+conflict with the higher-tier period page,
 the period quantity wins. The accepted rows are therefore explicitly
 reconciled probabilities, not claimed period-exact rates. Fungicide, Anagogic
 ort, Coins, Spin ticket, and any row whose identity or quantity cannot be
@@ -45,6 +46,13 @@ Fungicide is the necessary acquisition route for the period-proven canister
 reload mechanic, but no exact rate survives; its period `Common` label is
 represented by a conservative labeled `1/8` abstraction. Anagogic ort, Coins,
 and Spin ticket remain omitted.
+
+The initial implementation incorrectly rolled each accepted Darkan row
+independently. Darkan's executable `DropList` makes one selection across all
+nonzero sibling rows. The corrected 100,000-slot selector has 99,980 occupied
+and 20 empty slots. Guaranteed Ashes and the separately labeled Fungicide
+abstraction remain outside it. See
+`slayer-darkan-drop-selector-correction-2026-07-18.md`.
 
 Darkan's `MutatedZygomite.java:34-76` confirms the `Pick` transformation and
 item-gated conditional-death family, but its inherited ten-percent threshold

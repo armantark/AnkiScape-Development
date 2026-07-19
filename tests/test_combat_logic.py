@@ -2572,31 +2572,83 @@ class CombatLogicTest(unittest.TestCase):
             {"Bones": 1, "Black boots": 1},
         )
 
-    def test_slayer_mage_rare_tables_roll_independently(self):
+    def test_darkan_ordinary_drop_rows_are_mutually_exclusive(self):
         cases = (
             (
                 "infernal_mage",
-                {
-                    "Bones": 1,
-                    "Mystic boots (dark)": 1,
-                    "Lava battlestaff": 1,
-                },
+                53500 / 64000,
+                {"Bones": 1, "Mystic boots (dark)": 1},
             ),
             (
                 "basilisk",
-                {
-                    "Bones": 1,
-                    "Mystic hat (light)": 1,
-                    "Basilisk head": 1,
-                },
+                63500 / 64000,
+                {"Bones": 1, "Mystic hat (light)": 1},
+            ),
+            (
+                "jungle_horror",
+                33580 / 100000,
+                {"Bones": 1, "Iron warhammer": 1},
+            ),
+            (
+                "shadow_warrior",
+                74 / 128,
+                {"Adamant spear": 1},
             ),
         )
-        for target_id, expected in cases:
+        for target_id, roll, expected in cases:
             with self.subTest(target_id=target_id):
                 self.assertEqual(
                     _combat_roll_drops(
                         COMBAT_ENEMY_DATA[target_id],
-                        _rng([0.999999, 0.0, 0.0]),
+                        _rng([roll, 0.999999]),
+                    ),
+                    expected,
+                )
+
+    def test_darkan_rare_rows_remain_reachable_inside_the_main_selector(self):
+        cases = (
+            ("infernal_mage", 53625 / 64000, "Mystic hat (dark)"),
+            ("infernal_mage", 53750 / 64000, "Lava battlestaff"),
+            ("basilisk", 63625 / 64000, "Basilisk head"),
+        )
+        for target_id, roll, rare_item in cases:
+            with self.subTest(target_id=target_id, rare_item=rare_item):
+                self.assertEqual(
+                    _combat_roll_drops(
+                        COMBAT_ENEMY_DATA[target_id],
+                        _rng([roll]),
+                    ),
+                    {"Bones": 1, rare_item: 1},
+                )
+
+    def test_older_darkan_targets_also_use_one_ordinary_selector(self):
+        cases = (
+            ("young_grotworm", [0.0], {"Bones": 1, "Coal": 1}),
+            ("desert_lizard", [0.0], {"Bones": 1, "Grimy tarromin": 1}),
+            ("rockslug", [0.0, 0.999999], {"Copper ore": 1}),
+            ("gargoyle", [0.0, 0.999999], {"Coins": 11}),
+            (
+                "mutated_zygomite_level_74",
+                [0.999999, 0.0, 0.0],
+                {"Ashes": 1, "Strawberry seed": 1},
+            ),
+            (
+                "cyclops",
+                [0.999999, 0.0],
+                {"Big bones": 1, "Limpwurt root": 1},
+            ),
+            (
+                "cyclossus",
+                [0.0, 0.999999],
+                {"Big bones": 1, "Limpwurt root": 5},
+            ),
+        )
+        for target_id, rolls, expected in cases:
+            with self.subTest(target_id=target_id):
+                self.assertEqual(
+                    _combat_roll_drops(
+                        COMBAT_ENEMY_DATA[target_id],
+                        _rng(rolls),
                     ),
                     expected,
                 )

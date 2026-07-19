@@ -474,7 +474,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertIn("oldid=6565794", bloodveld["source"])
         self.assertIn("level-81 God Wars variant excluded", bloodveld["source_status"])
 
-    def test_infernal_mage_preserves_the_cutoff_variant_and_rare_tables(self):
+    def test_infernal_mage_preserves_the_cutoff_variant_and_drop_selector(self):
         mage = COMBAT_ENEMY_DATA["infernal_mage"]
 
         self.assertEqual(mage["level"], 66)
@@ -496,14 +496,27 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             },
         )
         self.assertEqual(mage["drops"]["guaranteed"], (("Bones", 1),))
-        main, dark_mystic, lava = mage["drops"]["tables"]
-        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
-        self.assertEqual(sum(slot["slots"] for slot in dark_mystic["slots"]), 512)
-        self.assertEqual(sum(slot["slots"] for slot in lava["slots"]), 1000)
+        (main,) = mage["drops"]["tables"]
+        self.assertEqual(main["total"], 64000)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 64000)
+        rare_slots = {
+            slot.get("item"): slot["slots"]
+            for slot in main["slots"]
+            if slot.get("item")
+            in {"Mystic boots (dark)", "Mystic hat (dark)", "Lava battlestaff"}
+        }
+        self.assertEqual(
+            rare_slots,
+            {
+                "Mystic boots (dark)": 125,
+                "Mystic hat (dark)": 125,
+                "Lava battlestaff": 64,
+            },
+        )
         self.assertIn("oldid=6446423", mage["source"])
         self.assertIn("charm distribution remains source_blocked", mage["source_status"])
 
-    def test_basilisk_preserves_the_cutoff_variant_and_independent_tables(self):
+    def test_basilisk_preserves_the_cutoff_variant_and_drop_selector(self):
         basilisk = COMBAT_ENEMY_DATA["basilisk"]
 
         self.assertEqual(basilisk["level"], 61)
@@ -515,10 +528,18 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertEqual(basilisk["max_hit"], 59)
         self.assertEqual(basilisk["stats"]["hitpoints"], 750)
         self.assertEqual(basilisk["drops"]["guaranteed"], (("Bones", 1),))
-        main, light_mystic, head = basilisk["drops"]["tables"]
-        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
-        self.assertEqual(sum(slot["slots"] for slot in light_mystic["slots"]), 512)
-        self.assertEqual(sum(slot["slots"] for slot in head["slots"]), 2000)
+        (main,) = basilisk["drops"]["tables"]
+        self.assertEqual(main["total"], 64000)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 64000)
+        rare_slots = {
+            slot.get("item"): slot["slots"]
+            for slot in main["slots"]
+            if slot.get("item") in {"Mystic hat (light)", "Basilisk head"}
+        }
+        self.assertEqual(
+            rare_slots,
+            {"Mystic hat (light)": 125, "Basilisk head": 32},
+        )
         self.assertTrue(
             basilisk["protective_equipment"]["unprotected_effect"][
                 "protection_prayer_applies"
@@ -626,7 +647,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
         self.assertIn("oldid=6554205", being["source"])
 
-    def test_jungle_horror_preserves_route_identity_and_independent_rolls(self):
+    def test_jungle_horror_preserves_route_identity_and_drop_selector(self):
         horror = COMBAT_ENEMY_DATA["jungle_horror"]
 
         self.assertEqual(horror["level"], 70)
@@ -649,14 +670,13 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             },
         )
         self.assertEqual(horror["drops"]["guaranteed"], (("Bones", 1),))
-        self.assertEqual(len(horror["drops"]["tables"]), 32)
-        for table in horror["drops"]["tables"]:
-            self.assertEqual(
-                sum(slot["slots"] for slot in table["slots"]), table["total"]
-            )
+        (main,) = horror["drops"]["tables"]
+        self.assertEqual(main["total"], 100000)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 100000)
+        self.assertEqual(main["slots"][-1], {"slots": 142})
         self.assertIn("oldid=6534099", horror["source"])
 
-    def test_shadow_warrior_preserves_route_identity_and_independent_rolls(self):
+    def test_shadow_warrior_preserves_route_identity_and_drop_selectors(self):
         warrior = COMBAT_ENEMY_DATA["shadow_warrior"]
 
         self.assertEqual(warrior["level"], 48)
@@ -679,13 +699,12 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             },
         )
         self.assertEqual(warrior["drops"]["guaranteed"], ())
-        ordinary_tables = warrior["drops"]["tables"][:-1]
-        self.assertEqual(len(ordinary_tables), 14)
-        for table in ordinary_tables:
-            self.assertEqual(
-                sum(slot["slots"] for slot in table["slots"]), table["total"]
-            )
-        charm_table = warrior["drops"]["tables"][-1]
+        ordinary_table, charm_table = warrior["drops"]["tables"]
+        self.assertEqual(ordinary_table["total"], 128)
+        self.assertEqual(
+            sum(slot["slots"] for slot in ordinary_table["slots"]), 128
+        )
+        self.assertEqual(ordinary_table["slots"][-1], {"slots": 22})
         self.assertEqual(charm_table["total"], 606)
         self.assertEqual(
             tuple(slot.get("slots") for slot in charm_table["slots"]),
@@ -793,6 +812,15 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertEqual(vampyre["bite"]["chance_denominator"], 8)
         self.assertIn("oldid=6545273", vampyre["source"])
 
+    def test_young_grotworm_uses_one_exact_darkan_selector(self):
+        grotworm = COMBAT_ENEMY_DATA["young_grotworm"]
+
+        self.assertEqual(grotworm["drops"]["guaranteed"], (("Bones", 1),))
+        (main,) = grotworm["drops"]["tables"]
+        self.assertEqual(main["total"], 50000)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 50000)
+        self.assertEqual(main["slots"][-1], {"slots": 4})
+
     def test_desert_lizard_preserves_the_period_finisher_variant(self):
         lizard = COMBAT_ENEMY_DATA["desert_lizard"]
 
@@ -848,10 +876,10 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             },
         )
         self.assertIn("oldid=6548273", lizard["source"])
-        self.assertEqual(len(lizard["drops"]["tables"]), 31)
-        self.assertTrue(
-            all(table["total"] == 100000 for table in lizard["drops"]["tables"])
-        )
+        (main,) = lizard["drops"]["tables"]
+        self.assertEqual(main["total"], 100000)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 100000)
+        self.assertEqual(main["slots"][-1], {"slots": 19})
 
     def test_rockslug_preserves_the_period_finisher_and_frozen_state(self):
         rockslug = COMBAT_ENEMY_DATA["rockslug"]
@@ -879,7 +907,11 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertEqual(rockslug["finisher"]["threshold_lifepoints"], 39)
         self.assertTrue(rockslug["finisher"]["consume"])
         self.assertIn("oldid=6530509", rockslug["source"])
-        self.assertEqual(len(rockslug["drops"]["tables"]), 21)
+        main, charms = rockslug["drops"]["tables"]
+        self.assertEqual(main["total"], 100000)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 100000)
+        self.assertEqual(main["slots"][-1], {"slots": 7})
+        self.assertEqual(charms["total"], 1000)
 
     def test_gargoyle_preserves_the_period_reusable_finisher_and_regeneration(self):
         gargoyle = COMBAT_ENEMY_DATA["gargoyle"]
@@ -912,7 +944,11 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             },
         )
         self.assertIn("oldid=6579781", gargoyle["source"])
-        self.assertEqual(len(gargoyle["drops"]["tables"]), 23)
+        main, charms = gargoyle["drops"]["tables"]
+        self.assertEqual(main["total"], 512)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 512)
+        self.assertEqual(main["slots"][-1], {"slots": 1})
+        self.assertEqual(charms["total"], 1000)
 
     def test_mutated_zygomites_preserve_period_variants_and_charged_finisher(self):
         expected = {
@@ -932,8 +968,13 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                 self.assertEqual(zygomite["slayer_xp"], slayer_xp)
                 self.assertEqual(zygomite["max_hit"], 88)
                 self.assertEqual(zygomite["drops"]["guaranteed"], (("Ashes", 1),))
-                fungicide = zygomite["drops"]["tables"][0]
+                fungicide, main = zygomite["drops"]["tables"]
                 self.assertEqual(fungicide["name"], "Period-common abstraction: Fungicide")
+                self.assertEqual(main["total"], 100000)
+                self.assertEqual(
+                    sum(slot["slots"] for slot in main["slots"]), 100000
+                )
+                self.assertEqual(main["slots"][-1], {"slots": 20})
                 self.assertEqual(fungicide["total"], 8)
                 self.assertEqual(
                     fungicide["slots"],

@@ -51,7 +51,7 @@ does not restore Darkan's obsolete shot-put run-energy drain.
 
 Darkan's Cyclossus combat definition preserves 3,280 LP, maximum hit 94,
 seven-tick attack speed, and 59-tick respawn. Its drop JSON supplies exact
-independent weights for the ordinary drop rows. The period page supplies the
+weights for one executable ordinary selector. The period page supplies the
 level-156 identity, 350 Slayer XP, Rune/Dragon-defender requirement, guaranteed
 Big bones, common Dragon defender, and common Cyclopean helmet.
 
@@ -97,7 +97,16 @@ The Cyclossus spatial shove/stun has no useful separate review choice and is
 compressed into the ordinary combat exchange. The Dragon defender uses the
 same `11,993/100,000` weight as Darkan's common Cyclossus rows because Darkan
 omits the unique-drop handler while the period page explicitly calls the drop
-common. These values must not be presented as recovered RuneScape rates.
+common. It remains a separate labeled abstraction rather than being inserted
+into Darkan's ordinary selector. These values must not be presented as
+recovered RuneScape rates.
+
+Darkan's executable `DropList` also proves the ordinary Cyclops/Cyclossus JSON
+rows are mutually exclusive, not independent. Cyclops now has one exact
+100,000-slot selector with 41 empty slots; its rate-zero tertiary table remains
+separate. The accepted Cyclossus ordinary rows occupy 89,390 of 100,000 slots.
+The original interpretation is superseded by
+`slayer-darkan-drop-selector-correction-2026-07-18.md`.
 
 No owner-facing creative-direction fork remains in this closure.
 

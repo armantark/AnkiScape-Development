@@ -29,8 +29,8 @@ Darkan
 corroborates 450 LP and maximum hit 84 and supplies Attack 70, Strength 70,
 Defence 55, Magic/Ranged 1, and a 59-tick respawn.
 
-Darkan `data/npcs/drops/jungle_horror.json` supplies one guaranteed Bones drop
-and 32 independent rolls. The executable model preserves that shape exactly:
+Darkan `data/npcs/drops/jungle_horror.json` supplies one guaranteed Bones row
+and 32 weighted ordinary rows:
 
 - ten common rows at 1,679/20,000, including Nature runes, iron equipment,
   seeds, fruit, and logs;
@@ -38,9 +38,13 @@ and 32 independent rolls. The executable model preserves that shape exactly:
 - Iron ore at 93/50,000; and
 - fourteen rare rows at 31/25,000.
 
-Each row is represented as its own hit-or-empty table. Combining the rows into
-one mutually exclusive denominator would change the source behavior and is
-therefore rejected.
+The initial implementation incorrectly treated those 32 JSON rows as
+independent hit-or-empty rolls. Darkan's executable `DropList` instead sorts
+all nonzero `DropTable` rates into adjacent intervals and makes one random
+selection across the list. The corrected exact common denominator is 100,000:
+the ten common rows each occupy 8,395 slots, the seven uncommon rows 1,998
+each, Iron ore 186, the fourteen rare rows 124 each, and 142 slots yield no
+ordinary drop. The rate-zero Bones row remains guaranteed and separate.
 
 The cutoff page exposes qualitative charm drops but the exact period
 distribution was not recovered. Charm rolls remain `source_blocked` rather
@@ -55,7 +59,7 @@ hash are recorded in `assets_provenance.json`.
 ## Live mapping
 
 The standard Combat runtime handles the Cabin Fever gate, Slayer XP, six-tick
-melee, all 32 independent rolls, guaranteed Bones, inventory capacity, food,
+melee, the one 100,000-slot ordinary selector, guaranteed Bones, inventory capacity, food,
 retreat, death, and undo. The picker exposes the route lock, 84-LP maximum hit,
 drop probabilities, and target icon.
 
@@ -66,11 +70,10 @@ unrenormalized. No owner-facing design fork emerged.
 
 ## Verification
 
-Focused pure coverage passes all 265 checks and the real `.venv-qt` offscreen
-Combat picker regression passes. A bounded read-only Sol-high Codex Workflow
-independently checked the target data, independent-roll shape, asset,
-provenance, readiness delta, and focused assertions and reported no concrete
-defect. Full discovery and final quality, documentation, readiness,
+The original bounded review did not inspect Darkan's Java loader and therefore
+missed the JSON-semantics defect. The cross-target correction is independently
+regression-tested and documented in
+`slayer-darkan-drop-selector-correction-2026-07-18.md`. Full discovery and final quality, documentation, readiness,
 provenance, reachability, compilation, diff, and worktree checks are recorded
 with the results artifact. Full pure discovery passes all 1,610 tests with 214
 declared environment skips. Test quality reports zero hard issues and only the

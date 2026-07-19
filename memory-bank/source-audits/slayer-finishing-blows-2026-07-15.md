@@ -146,8 +146,8 @@ finisher family for runtime admission:
 ## Live implementation follow-up — 2026-07-17
 
 The generic manual/automatic finisher runtime and Desert lizard landed
-together. The target now has a reconciled Combat row, 31 independent Darkan
-drop rolls, period level/XP/finisher gates, a proven sprite, an eight-skin
+together. The target now has a reconciled Combat row, one exact 100,000-slot
+Darkan selector, period level/XP/finisher gates, a proven sprite, an eight-skin
 Desert-heat supply pack, and real Qt selection. See
 `slayer-desert-lizard-combat-2026-07-17.md`.
 
