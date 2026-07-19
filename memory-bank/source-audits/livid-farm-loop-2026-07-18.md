@@ -4,8 +4,8 @@ Date: `2026-07-18`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **period cycle and cadence unit pinned; under-level duty policy grill
-active.**
+Status: **period cycle, cadence unit, and under-level duty policy closed;
+reward-ladder and wish design active.**
 
 ## Pinned period evidence
 
@@ -101,7 +101,7 @@ The cycle grouping is an explicit AnkiScape abstraction. Its source rate and
 contents are exact, while its one-line atomic presentation deliberately removes
 the repetitive field interface.
 
-## Under-level duty fork
+## Under-level duty policy
 
 The entry level of 70 Magic can fully cast only Cure Plant. The remaining
 duties become full-reward at Magic levels 80, 83, 86, and 91, but the source
@@ -111,8 +111,26 @@ still permits them beforehand for:
 - half their Produce points; and
 - no Magic XP, while retaining the real rune cost.
 
-The open owner decision is whether default automation performs every duty for
-maximum Produce and secondary XP or skips reduced-reward duties to conserve
-runes. This must be one standing policy, not five duty checkboxes or a
-Casual/Advanced split.
+One standing **Farm routine** policy applies in both UI modes:
 
+1. **Complete every duty** (default)
+2. **Conserve runes — full-reward duties only**
+
+The default preserves the source's basic strategy and the identity of helping
+with the complete farm routine. At Magic 70, a cycle still performs all five
+duty families, grants 940 Produce points, grants Magic XP only for the fifteen
+Cure Plant casts, and grants every exact secondary-skill reward. Each later
+duty threshold automatically changes its own Magic XP and Produce payout to
+the full row.
+
+The conserve-runes policy omits only duties whose spell level exceeds the
+player's current effective Magic level. It never earns their secondary XP or
+points. Current temporary Magic boosts count exactly as they do for ordinary
+spell eligibility; entry's unboosted requirements remain unchanged.
+
+If the selected policy cannot pay its complete next-cycle rune cost, the
+activity pauses and lists the missing runes. It does not silently switch policy,
+partially execute a cycle, buy runes, or pull them from the Bank.
+
+This is one descriptive dropdown, not five duty checkboxes and not a
+Casual/Advanced split.

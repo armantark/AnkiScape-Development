@@ -300,7 +300,10 @@ cycles per five successful reviews, with the result line explicitly reporting
 the occasional two-cycle emission. Each cycle atomically consumes its literal
 Lunar runes and grants exact Magic, Farming, Construction, Crafting, Agility,
 and Produce-point outputs without simulating plots, dialogue, or sixty-second
-resets. The pinned cycle and remaining under-level-duty fork are recorded in
+resets. One saved Farm routine defaults to every source duty, including
+half-point/no-Magic-XP duties below level 91; a full-reward-only alternative
+conserves runes without creating per-duty toggles. The pinned cycle and policy
+are recorded in
 `memory-bank/source-audits/livid-farm-loop-2026-07-18.md`.
 
 Evil Trees reuse Shooting Stars' review-clock discovery surface without its
