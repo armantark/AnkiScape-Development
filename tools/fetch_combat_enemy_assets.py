@@ -91,7 +91,13 @@ TITLE_OVERRIDES = {
     "cave_horror": ("Cave horror icon.png", "Cave horror.png"),
     "dagannoth": ("Dagannoth ranged.png",),
     "dagannoth_level_92": ("Dagannoth melee.png",),
+    "elf_warrior": ("Elf warrior (Iorwerth ranger) (2010).png",),
+    "elf_warrior_level_108": ("Elf warrior (Iorwerth warrior) (2010).png",),
 }
+
+POST_MIGRATION_HISTORICAL_TARGETS = frozenset(
+    {"elf_warrior", "elf_warrior_level_108"}
+)
 
 
 def _asset_slug(value: str) -> str:
@@ -128,9 +134,15 @@ def _wiki_title_candidates(target_id: str, display_name: str) -> tuple[str, ...]
 
 def fetch_enemy_assets(target_ids: Sequence[str], force: bool = False, size: int = 48) -> int:
     output_dir = REPO_ROOT / "combatenemies"
-    client = HttpWikiClient(before_timestamp=PRE_EOC_CUTOFF)
+    period_client = HttpWikiClient(before_timestamp=PRE_EOC_CUTOFF)
+    archive_client = HttpWikiClient()
     failures: list[str] = []
     for target_id in target_ids:
+        client = (
+            archive_client
+            if target_id in POST_MIGRATION_HISTORICAL_TARGETS
+            else period_client
+        )
         enemy = COMBAT_ENEMY_DATA[target_id]
         display_name = str(enemy.get("display_name", target_id))
         output_path = output_dir / f"{_asset_slug(target_id)}.png"

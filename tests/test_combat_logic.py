@@ -2931,6 +2931,95 @@ class CombatLogicTest(unittest.TestCase):
             },
         )
 
+    def test_elf_warrior_forms_preserve_period_combat_identities_and_gate(self):
+        ranged = COMBAT_ENEMY_DATA["elf_warrior"]
+        melee = COMBAT_ENEMY_DATA["elf_warrior_level_108"]
+
+        self.assertEqual(
+            (
+                ranged["level"],
+                ranged["stats"]["hitpoints"],
+                ranged["attack_style"],
+                ranged["attack_speed"],
+                ranged["max_hit"],
+                ranged["slayer_xp"],
+            ),
+            (90, 1050, "ranged", 6, 116, 105.0),
+        )
+        self.assertEqual(
+            (
+                melee["level"],
+                melee["stats"]["hitpoints"],
+                melee["attack_style"],
+                melee["attack_speed"],
+                melee["max_hit"],
+                melee["slayer_xp"],
+            ),
+            (108, 1060, "melee", 6, 109, 107.5),
+        )
+        self.assertIs(ranged["drops"], melee["drops"])
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                _player(), "elf_warrior", COMBAT_ENEMY_DATA
+            ),
+            ("Complete Regicide",),
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                _player(quests={"regicide": {"completed": True}}),
+                "elf_warrior_level_108",
+                COMBAT_ENEMY_DATA,
+            ),
+            (),
+        )
+        crystal_seed = next(
+            item
+            for item in ITEM_DEFINITIONS
+            if item.storage_key == "Crystal teleport seed"
+        )
+        self.assertEqual(crystal_seed.source_item_id, 6103)
+        self.assertFalse(crystal_seed.stackable)
+        self.assertFalse(crystal_seed.tradeable)
+
+    def test_elf_warrior_drop_selectors_preserve_empty_seed_and_tertiaries(self):
+        elf = COMBAT_ENEMY_DATA["elf_warrior"]
+        ordinary, charms, clue = elf["drops"]["tables"]
+
+        self.assertEqual(
+            sum(slot["slots"] for slot in ordinary["slots"]),
+            ordinary["total"],
+        )
+        self.assertEqual(
+            sum(slot["slots"] for slot in charms["slots"]),
+            charms["total"],
+        )
+        self.assertEqual(
+            _combat_roll_drops(
+                elf,
+                _rng((0.999999, 0.999999, 0.999999)),
+            ),
+            {"Bones": 1},
+        )
+        self.assertEqual(
+            _combat_roll_drops(
+                elf,
+                _rng((29 / 128, 0.999999, 0.999999)),
+            ),
+            {"Bones": 1, "Crystal teleport seed": 1},
+        )
+        self.assertEqual(
+            _combat_roll_drops(
+                elf,
+                _rng((0.0, 0.0, 0.0)),
+            ),
+            {
+                "Bones": 1,
+                "Coins": 44,
+                "Gold charm": 1,
+                "Clue scroll (hard)": 1,
+            },
+        )
+
     def test_bloodveld_drop_roll_can_reach_black_boots(self):
         self.assertEqual(
             _combat_roll_drops(

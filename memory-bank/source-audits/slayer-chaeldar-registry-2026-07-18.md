@@ -37,24 +37,24 @@ The Fire giant, Blue dragon family, and Bronze dragon closures recorded in
 `slayer-blue-dragon-family-combat-2026-07-18.md`, and
 `slayer-bronze-dragon-combat-2026-07-18.md`, followed by the Cave horror and
 Dagannoth closures in `slayer-cave-horror-combat-2026-07-18.md` and
-`slayer-dagannoth-combat-2026-07-18.md`, advance the live ledger to **24/34**.
-The following ten identities remain absent from
+`slayer-dagannoth-combat-2026-07-18.md`, followed by both ordinary Elf-warrior
+forms in `slayer-elf-warrior-combat-2026-07-19.md`, advance the live ledger to
+**25/34**. The following nine identities remain absent from
 `COMBAT_ENEMY_DATA` and each produces one
 stable `combat_target` blocker:
 
-1. Elves
-2. Fever spiders
-3. Fungal magi
-4. Grifolapines
-5. Grifolaroos
-6. Jungle strykewyrms
-7. Kurasks
-8. Trolls
-9. Vyrewatch
-10. Warped tortoises
+1. Fever spiders
+2. Fungal magi
+3. Grifolapines
+4. Grifolaroos
+5. Jungle strykewyrms
+6. Kurasks
+7. Trolls
+8. Vyrewatch
+9. Warped tortoises
 
 Gargoyles and both Mutated-zygomite rows were already complete and now
-certify their families through the shared finisher engine. The twenty-four ready
+certify their families through the shared finisher engine. The twenty-five ready
 families do not make Chaeldar selectable: the runtime registry excludes all
 hidden masters, and catalog integrity rejects a hidden pool only after it is
 fully certified.

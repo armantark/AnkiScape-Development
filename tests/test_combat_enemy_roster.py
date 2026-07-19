@@ -59,6 +59,8 @@ NEW_COMBAT_ENEMIES = (
     "gargoyle",
     "mutated_zygomite_level_74",
     "mutated_zygomite_level_86",
+    "elf_warrior",
+    "elf_warrior_level_108",
     "banshee",
     "shade",
     "ghost_level_77",
@@ -394,6 +396,11 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("cave_horror", "Cave horror icon.png"),
             ("dagannoth", "Dagannoth ranged.png"),
             ("dagannoth_level_92", "Dagannoth melee.png"),
+            ("elf_warrior", "Elf warrior (Iorwerth ranger) (2010).png"),
+            (
+                "elf_warrior_level_108",
+                "Elf warrior (Iorwerth warrior) (2010).png",
+            ),
         ):
             with self.subTest(target=target_id):
                 relative_path = f"combatenemies/{target_id}.png"
@@ -429,6 +436,16 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                     self.assertEqual(
                         provenance[relative_path]["timestamp"],
                         "2011-11-19T18:45:30Z",
+                    )
+                if target_id == "elf_warrior":
+                    self.assertEqual(
+                        provenance[relative_path]["timestamp"],
+                        "2014-08-27T14:36:09Z",
+                    )
+                if target_id == "elf_warrior_level_108":
+                    self.assertEqual(
+                        provenance[relative_path]["timestamp"],
+                        "2014-08-27T14:36:14Z",
                     )
                 if target_id == "molanisk":
                     self.assertEqual(

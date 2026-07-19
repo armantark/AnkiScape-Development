@@ -308,7 +308,7 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   `source-audits/slayer-earth-warrior-wilderness-risk-2026-07-18.md`.
 - Chaeldar is now the fourth completely encoded pool. Its 34 master-specific
   rows preserve the provisional 388-point denominator and remain hidden at
-  24/34 readiness. Fire giants now use the ordinary level-86 representative,
+  25/34 readiness. Fire giants now use the ordinary level-86 representative,
   while Blue dragons expose separate adult and baby task choices with
   source-backed dragonfire separation, exact selectors, a Summoning-99 egg
   gate, and cutoff assets. Bronze dragons now preserve metal-dragon
@@ -317,8 +317,11 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   access, class-aware Witchwood/Slayer-helmet protection, the sourced scream,
   exact selectors, the Black mask route, and cutoff art. Dagannoths now expose
   separate level-74 ranged and level-92 melee ordinary forms, one exact
-  combined selector, charms, a medium clue, and distinct cutoff art. The ten
-  exact blockers are Elves, Fever spiders, Fungal magi, Grifolapines,
+  combined selector, charms, a medium clue, and distinct cutoff art. Elves now
+  expose separate level-90 ranged and level-108 melee ordinary forms behind
+  Regicide, one exact shared ordinary selector, charms, a hard clue, and
+  distinct archived 2010 art. The nine exact blockers are Fever spiders,
+  Fungal magi, Grifolapines,
   Grifolaroos, Jungle strykewyrms, Kurasks, Trolls, Vyrewatch, and Warped
   tortoises. Resume from `tools/audit_slayer_readiness.py`; do not render or
   renormalize the pool.

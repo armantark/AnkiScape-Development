@@ -2,6 +2,27 @@
 
 ## Current Focus
 
+The two ordinary Elf-warrior forms now close Chaeldar's twenty-fifth
+executable family. Level 90 preserves 1,050 LP, 105 Slayer XP, six-tick ranged
+combat, and a 116-LP maximum; level 108 preserves 1,060 LP, 107.5 Slayer XP,
+six-tick melee, and a 109-LP maximum. Both require completed Regicide and
+share guaranteed Bones, Darkan's exact 128-slot ordinary selector, the exact
+1,212-slot charm selector, and an independent 1/128 hard clue. The
+no-position target contract explicitly flattens Lletya crystal-seed drops and
+Elf-Camp charms without claiming one 2012 spawn had both. Distinct archived
+2010 ranged and melee sprites are pinned with their honest post-migration
+provenance dates. Chaeldar remains hidden and unrenormalized at 25/34, with
+nine Combat identities outstanding. No owner-facing design fork emerged.
+Evidence: `source-audits/slayer-elf-warrior-combat-2026-07-19.md`. Focused
+backend verification passes 361 tests and the real offscreen Qt Combat picker
+passes. Full non-Qt discovery passes all 1,679 tests with 215 declared
+environment skips; full real offscreen Qt discovery passes all 1,679 tests
+with zero skips or failures. Test quality reports zero hard issues across 73
+files and 1,679 methods. Documentation, compilation, provenance JSON, diff,
+readiness, declared-baseline reachability, and worktree-safety gates pass.
+Results: `status-updates/slayer-elf-warrior-results-2026-07-19.html`; mobile
+copy: <https://hp6p2ourxwdr.postplan.dev>.
+
 The two ordinary Dagannoth forms now close Chaeldar's twenty-fourth executable
 family. Level 74 preserves 700 LP, 70 Slayer XP, six-tick ranged combat and
 Darkan's exact 80-LP maximum; level 92 preserves 1,200 LP, 120 Slayer XP,
@@ -85,7 +106,7 @@ Chaeldar's complete cutoff assignment pool is now encoded as a hidden
 registry contract: 34 stable family rows, the provisional 388-point
 denominator, Combat 70, Lost City access, and every reconciled count range,
 skill/quest gate, and special-mechanic completeness key. Generated readiness
-is now 24/34. Ten absent Combat identities produce one exact
+is now 25/34. Nine absent Combat identities produce one exact
 `combat_target` blocker each; Chaeldar remains excluded from live assignment
 selection, so the partial denominator is never renormalized or exposed.
 Fever spiders deliberately do not receive a false Rum Deal completion gate:

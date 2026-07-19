@@ -4,6 +4,36 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Elf warrior Combat closure — 2026-07-19
+
+- Added separate ordinary level-90 ranged and level-108 melee Elf-warrior
+  targets with exact period LP, Slayer XP, six-tick cadence, maximum hits, and
+  completed-Regicide access.
+- Preserved Darkan's hidden combat levels, exact defences, 39-tick respawn,
+  guaranteed Bones, one 128-slot ordinary selector, the losslessly enumerated
+  1,212-slot charm selector, and an independent 1/128 hard clue.
+- Registered the unstackable, untradeable Crystal teleport seed and labeled
+  the no-position combination of Lletya crystal drops and Elf-Camp charms as a
+  location-flattening abstraction.
+- Pinned distinct archived 2010 ranged and melee sprites while preserving
+  their honest post-migration upload timestamps in provenance.
+- Advanced Chaeldar to 25/34 while leaving its partial pool hidden and
+  unrenormalized. Nine Combat-family blockers remain.
+- No owner-facing design fork emerged. Durable evidence:
+  `source-audits/slayer-elf-warrior-combat-2026-07-19.md`.
+- Focused Combat/Slayer/metadata coverage passes 361 tests, and the focused
+  real offscreen Qt picker passes.
+- Full non-Qt discovery passes all 1,679 tests with 215 declared environment
+  skips; full real offscreen Qt discovery passes all 1,679 tests with zero
+  skips or failures. Test quality has zero hard issues across 73 files and
+  1,679 methods. Reachability remains at 1,253 actions, 1,866 reachable items,
+  288 orphan inputs, and 313 blocked actions.
+- Documentation, compilation, provenance JSON, diff, readiness,
+  declared-baseline reachability, and worktree-safety gates pass.
+- Results:
+  `status-updates/slayer-elf-warrior-results-2026-07-19.html`; mobile copy:
+  <https://hp6p2ourxwdr.postplan.dev>.
+
 ## Slayer Dagannoth Combat closure — 2026-07-18
 
 - Added separate ordinary level-74 ranged and level-92 melee Dagannoth targets
@@ -154,8 +184,8 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
 - Registered Chaeldar at Combat 70 behind Lost City while keeping
   `runtime_enabled=False`; live master selection cannot see or renormalize the
   partial pool.
-- Derived 24/34 readiness after the Fire giant, Blue dragon, Bronze dragon,
-  Cave horror, and Dagannoth closures. Ten absent target identities each report one
+- Derived 25/34 readiness after the Fire giant, Blue dragon, Bronze dragon,
+  Cave horror, Dagannoth, and Elf-warrior closures. Nine absent target identities each report one
   deterministic `combat_target` blocker, while Gargoyles and Mutated
   zygomites reuse their already-live finisher mechanics.
 - Preserved the source-blocked Rum Deal stage boundary for Fever spiders

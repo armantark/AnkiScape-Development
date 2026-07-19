@@ -2301,6 +2301,11 @@ class MainMenuWidgetTest(unittest.TestCase):
             "progress": 1,
             "completed": True,
         }
+        pd["quests"]["regicide"] = {
+            "started": True,
+            "progress": 1,
+            "completed": True,
+        }
         dialog = self._open(pd, current_skill="Combat")
 
         tree = _find_tree_with_user_role(dialog, "seagull")
@@ -2337,6 +2342,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         cave_horror = _tree_row(tree, "cave_horror")
         dagannoth = _tree_row(tree, "dagannoth")
         dagannoth_melee = _tree_row(tree, "dagannoth_level_92")
+        elf_warrior = _tree_row(tree, "elf_warrior")
+        elf_warrior_melee = _tree_row(tree, "elf_warrior_level_108")
         aberrant_spectre = _tree_row(tree, "aberrant_spectre")
         basilisk = _tree_row(tree, "basilisk")
         crocodile = _tree_row(tree, "crocodile")
@@ -2496,6 +2503,22 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Enemy attack: Melee", dagannoth_melee.toolTip(0))
         self.assertIn("Clue scroll (medium) x1 (1/128)", dagannoth_melee.toolTip(0))
         self.assertFalse(dagannoth_melee.icon(0).isNull())
+        self.assertEqual(
+            elf_warrior.text(0), "Elf warrior (ranged) (Lvl 90)"
+        )
+        self.assertIn(
+            "Crystal teleport seed x1 (25/128)", elf_warrior.toolTip(0)
+        )
+        self.assertIn("Green charm x1 (227/1212)", elf_warrior.toolTip(0))
+        self.assertFalse(elf_warrior.icon(0).isNull())
+        self.assertEqual(
+            elf_warrior_melee.text(0), "Elf warrior (melee) (Lvl 108)"
+        )
+        self.assertIn("Enemy attack: Melee", elf_warrior_melee.toolTip(0))
+        self.assertIn(
+            "Clue scroll (hard) x1 (1/128)", elf_warrior_melee.toolTip(0)
+        )
+        self.assertFalse(elf_warrior_melee.icon(0).isNull())
         self.assertEqual(
             aberrant_spectre.text(0), "Aberrant spectre (Lvl 96)"
         )

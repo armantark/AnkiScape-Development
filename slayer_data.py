@@ -541,7 +541,7 @@ _FAMILIES: Tuple[SlayerFamily, ...] = (
     SlayerFamily(
         "elves",
         "Elves",
-        ("elf_warrior",),
+        ("elf_warrior", "elf_warrior_level_108"),
         required_quest_id="regicide",
         source=CHAELDAR_AUDIT_SOURCE,
     ),

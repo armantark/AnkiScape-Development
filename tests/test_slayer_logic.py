@@ -192,6 +192,10 @@ class SlayerAssignmentDataTest(unittest.TestCase):
             CHAELDAR_FAMILIES_BY_ID["dagannoths"].target_ids,
             ("dagannoth", "dagannoth_level_92"),
         )
+        self.assertEqual(
+            CHAELDAR_FAMILIES_BY_ID["elves"].target_ids,
+            ("elf_warrior", "elf_warrior_level_108"),
+        )
 
     def test_chaeldar_readiness_is_derived_and_keeps_partial_pool_hidden(self):
         readiness = slayer_master_readiness_pure(
@@ -201,11 +205,10 @@ class SlayerAssignmentDataTest(unittest.TestCase):
         self.assertFalse(readiness["certified"])
         self.assertFalse(readiness["runtime_enabled"])
         self.assertEqual(readiness["family_count"], 34)
-        self.assertEqual(readiness["ready_family_count"], 24)
+        self.assertEqual(readiness["ready_family_count"], 25)
         self.assertEqual(
             set(readiness["blockers"]),
             {
-                "elves:combat_target",
                 "fever_spiders:combat_target",
                 "fungal_magi:combat_target",
                 "grifolapines:combat_target",

@@ -1055,6 +1055,30 @@
     "source_wiki": "osrs",
     "timestamp": "2025-12-19T20:56:41Z"
   },
+  "combatenemies/elf_warrior.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Elf_warrior_%28Iorwerth_ranger%29_%282010%29.png",
+    "file_title": "Elf warrior (Iorwerth ranger) (2010).png",
+    "image_url": "https://runescape.wiki/images/Elf_warrior_%28Iorwerth_ranger%29_%282010%29.png?1c75c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c262255a1f590f023bb06de2c2af7e087630ff52",
+    "size": 120751,
+    "source_wiki": "rs3",
+    "timestamp": "2014-08-27T14:36:09Z"
+  },
+  "combatenemies/elf_warrior_level_108.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Elf_warrior_%28Iorwerth_warrior%29_%282010%29.png",
+    "file_title": "Elf warrior (Iorwerth warrior) (2010).png",
+    "image_url": "https://runescape.wiki/images/Elf_warrior_%28Iorwerth_warrior%29_%282010%29.png?2ee9c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c84dbaae917ab317cf1834aa031073ef769d5ca8",
+    "size": 131087,
+    "source_wiki": "rs3",
+    "timestamp": "2014-08-27T14:36:14Z"
+  },
   "combatenemies/farmer.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Farmer.png",
     "file_title": "Farmer.png",

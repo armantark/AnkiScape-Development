@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AnkiScape Elf Warrior Closure</title>
+  <style>
+    :root{color-scheme:dark;--bg:#090d0c;--panel:#111a17;--line:#31453d;--ink:#f1f6f3;--muted:#a5b8b0;--green:#70d49e;--gold:#e3bd70;--red:#d98a79}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 82% 0,#263b31 0,transparent 34%),var(--bg);color:var(--ink);font:16px/1.55 system-ui,sans-serif}
+    main{width:min(1080px,calc(100% - 32px));margin:0 auto;padding:52px 0 72px}
+    .eyebrow{color:var(--green);font-size:.78rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+    h1{font-size:clamp(2.4rem,7vw,5.1rem);line-height:.96;letter-spacing:-.052em;margin:.35rem 0 1rem;max-width:880px}
+    .lead{color:var(--muted);font-size:1.15rem;max-width:790px;margin:0 0 32px}
+    .score{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:28px 0}
+    .card,.panel{border:1px solid var(--line);background:linear-gradient(145deg,rgba(25,38,33,.97),rgba(13,21,18,.97));border-radius:18px}
+    .card{padding:18px}.card b{display:block;font-size:1.65rem;color:var(--green)}.card span{color:var(--muted);font-size:.85rem}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel{padding:24px}
+    h2{font-size:1.25rem;margin:0 0 14px}.forms{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .form{padding:15px;border-radius:13px;background:#0b1210;border:1px solid #30483e}.form strong{color:var(--gold)}.form small{display:block;color:var(--muted);margin-top:5px}
+    ul{padding-left:20px;margin:0}li+li{margin-top:8px}.bar{height:9px;background:#090d0c;border-radius:99px;overflow:hidden;margin:12px 0 6px}
+    .bar i{display:block;height:100%;width:73.5%;background:linear-gradient(90deg,var(--green),var(--gold))}
+    .proof{margin-top:16px}.proof div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+    .proof span,.note{color:var(--muted)}code{color:#c7eed8;font:14px ui-monospace,monospace}.note{font-size:.9rem}
+    .boundary{border-left:3px solid var(--red);padding-left:14px}
+    @media(max-width:760px){main{padding-top:34px}.score{grid-template-columns:1fr 1fr}.grid,.forms{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">AnkiScape · Slayer source harvest · verified</div>
+  <h1>Elf warriors retain both of their fighting identities.</h1>
+  <p class="lead">Chaeldar can now point at the ordinary ranged and melee forms without collapsing their combat profiles, inventing a quest stage, or pretending the game has a location selector it does not.</p>
+
+  <section class="score">
+    <div class="card"><b>25 / 34</b><span>Chaeldar families ready</span></div>
+    <div class="card"><b>1,679</b><span>full-suite tests passed</span></div>
+    <div class="card"><b>128</b><span>exact ordinary drop slots</span></div>
+    <div class="card"><b>0</b><span>owner design gaps</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="panel">
+      <h2>Two ordinary forms</h2>
+      <div class="forms">
+        <div class="form"><strong>Level 90 · Ranged</strong><small>1,050 LP · 105 Slayer XP · six ticks · 116 max hit</small></div>
+        <div class="form"><strong>Level 108 · Melee</strong><small>1,060 LP · 107.5 Slayer XP · six ticks · 109 max hit</small></div>
+      </div>
+      <p class="note">Both require completed Regicide and carry distinct archived 2010 sprites.</p>
+    </article>
+
+    <article class="panel">
+      <h2>Exact executable loot</h2>
+      <ul>
+        <li>Guaranteed Bones.</li>
+        <li>One 128-slot ordinary selector with one explicit empty slot.</li>
+        <li>One losslessly enumerated 1,212-slot charm selector.</li>
+        <li>An independent 1/128 hard clue.</li>
+        <li>An unstackable, untradeable Crystal teleport seed.</li>
+      </ul>
+    </article>
+
+    <article class="panel">
+      <h2>Honest abstraction boundary</h2>
+      <p class="boundary">The app has no position selector, so the shared target combines Lletya crystal-seed drops and Elf-Camp charms. The source record labels that flattening explicitly; it does not claim a single 2012 spawn dropped both.</p>
+      <p class="note">The sprite provenance likewise keeps the archive’s post-migration upload dates instead of relabeling them as pre-cutoff revisions.</p>
+    </article>
+
+    <article class="panel">
+      <h2>Verification</h2>
+      <div class="bar"><i></i></div>
+      <div class="note">Chaeldar readiness: 25 of 34 exact families</div>
+      <div class="proof">
+        <div><span>Focused backend</span><code>361 passed</code></div>
+        <div><span>Focused real Qt</span><code>passed</code></div>
+        <div><span>Full non-Qt</span><code>1,679 passed</code></div>
+        <div><span>Full real Qt</span><code>1,679 passed</code></div>
+        <div><span>Test-quality hard issues</span><code>0</code></div>
+      </div>
+    </article>
+  </section>
+</main>
+</body>
+</html>
