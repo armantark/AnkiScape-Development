@@ -851,6 +851,37 @@ class TargetMetadataTest(unittest.TestCase):
         )
         self.assertIn("keep 3 equipped", earth_warrior.tooltip)
 
+    def test_green_dragon_row_exposes_dragonfire_and_wilderness_risk_together(self):
+        rows = combat_target_rows(
+            {
+                "current_combat_target": "chicken",
+                "combat_lifepoints": 990,
+                "constitution_level": 99,
+                "inventory": {},
+                "equipment": {"shield": "Anti-dragon shield"},
+                "combat_auto_eat_food": ["Shark"],
+                "combat_supply_loadout": {},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+
+        green_dragon = _row(rows, "green_dragon")
+
+        self.assertTrue(green_dragon.requires_confirmation)
+        self.assertIn(
+            "Current dragonfire protection: Partial (maximum 50 LP).",
+            green_dragon.confirmation_message,
+        )
+        self.assertIn(
+            "Dragonfire: Partial protection · maximum hit 50 LP · 1/4 attacks",
+            green_dragon.tooltip,
+        )
+        self.assertIn("Dragon bones x1", green_dragon.tooltip)
+        self.assertIn("Green dragonhide x1", green_dragon.tooltip)
+
     def test_combat_rows_show_magic_spell_and_rune_supply(self):
         rows = combat_target_rows(
             {

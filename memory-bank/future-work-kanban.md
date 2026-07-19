@@ -235,7 +235,7 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   certification.
 - Vannaka is now the third completely encoded pool. Its 35 master-specific
   rows preserve the provisional 460-point denominator and remain hidden at
-  27/35 readiness. Ordinary Ogre closes the Ogres family with its exact nested
+  28/35 readiness. Ordinary Ogre closes the Ogres family with its exact nested
   common-seed and tertiary-bone drops; ordinary Jelly closes Jellies with
   magic-based melee, an exact 128-slot table, and generated Mithril boots;
   ordinary Bloodveld closes Bloodvelds with the same distinct attack channel,
@@ -255,8 +255,13 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   gate, one exact 32,768-slot ordinary selector, and an independent exact
   charm selector. Earth warrior now carries the bounded 1%/250-LP Wilderness
   ambush, current kept/lost-equipment confirmation, encounter reset, and
-  no-grave equipment-retention rule. The remaining eight blockers are derived
-  by `tools/audit_slayer_readiness.py`: eight missing Combat targets, including
+  no-grave equipment-retention rule. Ordinary Green dragon now adds reusable
+  dragonfire tiers, exact review-driven Antifire/Super-antifire durations,
+  wearable Anti-dragon shield item 1540, the existing Wilderness-risk contract,
+  and the pinned ordinary drop selectors. Its hidden 1/4 breath selector is
+  labeled `provisional/darkan`, while charm rates remain `source_blocked`.
+  The remaining seven blockers are derived by
+  `tools/audit_slayer_readiness.py`: seven missing Combat targets, including
   the Darkan-owned Mogre quest route. Continue from that generated ledger; do
   not expose or renormalize the partial master. See
   `source-audits/slayer-vannaka-ogre-combat-2026-07-18.md` and

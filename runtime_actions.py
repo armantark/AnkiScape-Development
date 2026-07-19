@@ -1737,6 +1737,14 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     display_name = str(result.get("display_name") or "enemy")
     kills = int(result.get("kills", 0) or 0)
     kill_phrase = f"{kills} × {display_name}" if kills != 1 else display_name
+    dragonfire_attacks = int(result.get("dragonfire_attacks", 0) or 0)
+    dragonfire_damage = int(result.get("dragonfire_damage", 0) or 0)
+    dragonfire_suffix = (
+        f" · {dragonfire_damage} dragonfire LP from "
+        f"{dragonfire_attacks} breath{'s' if dragonfire_attacks != 1 else ''}"
+        if dragonfire_attacks > 0
+        else ""
+    )
     wilderness_ambush = result.get("wilderness_ambush") or {}
     if result.get("died") and wilderness_ambush.get("died"):
         lost_count = len(wilderness_ambush.get("lost_items", ()) or ())
@@ -1796,6 +1804,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
             guild_suffix += " · tokens depleted; left the Cyclops room"
         ctx.show_activity_gain(
             f"Defeated {kill_phrase}{slayer_suffix}{guild_suffix}"
+            f"{dragonfire_suffix}"
         )
     else:
         enemy_healing = int(result.get("enemy_healing", 0) or 0)
@@ -1812,7 +1821,7 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_activity_gain(
             f"{display_name}: {int(result.get('player_damage', 0) or 0)} damage dealt, "
             f"{int(result.get('enemy_lifepoints', 0) or 0)} LP left"
-            f"{healing_phrase}"
+            f"{healing_phrase}{dragonfire_suffix}"
         )
     return True
 

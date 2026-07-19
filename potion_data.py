@@ -22,6 +22,10 @@ DARKAN_ITEM_CONFIG_SOURCE = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
     "data/items/config.json"
 )
+DARKAN_POTION_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "src/main/java/com/rs/game/content/Potions.kt"
+)
 
 VIAL_ITEM = ("Vial", 229)
 # Potion flasks (1)-(6) are a documented post-baseline exception (released Feb
@@ -72,6 +76,27 @@ POTION_FAMILIES: Dict[str, Dict[str, object]] = {
         "doses": {1: 3030, 2: 3028, 3: 3026, 4: 3024},
         "flask_doses": {1: 23409, 2: 23407, 3: 23405, 4: 23403, 5: 23401, 6: 23399},
     },
+    # Darkan Potions.kt and Antifire oldid=6469134: every dose protects for
+    # exactly six game-minutes (600 ticks). Regular antifire is one protection
+    # layer; super antifire is complete protection by itself.
+    "Antifire": {
+        "skills": (),
+        "strategy": "antifire",
+        "duration_ticks": 600,
+        "protection_level": 1,
+        "source": DARKAN_POTION_SOURCE_PATH,
+        "doses": {1: 2458, 2: 2456, 3: 2454, 4: 2452},
+        "flask_doses": {1: 23373, 2: 23371, 3: 23369, 4: 23367, 5: 23365, 6: 23363},
+    },
+    "Super antifire": {
+        "skills": (),
+        "strategy": "super_antifire",
+        "duration_ticks": 600,
+        "protection_level": 2,
+        "source": DARKAN_POTION_SOURCE_PATH,
+        "doses": {1: 15307, 2: 15306, 3: 15305, 4: 15304},
+        "flask_doses": {1: 23494, 2: 23493, 3: 23492, 4: 23491, 5: 23490, 6: 23489},
+    },
 }
 
 
@@ -93,14 +118,15 @@ def potion_items_as_dict() -> Dict[str, Dict[str, object]]:
         EMPTY_FLASK_ITEM[0]: {"category": "material", "tradeable": True, "item_id": EMPTY_FLASK_ITEM[1], "source": POTION_SOURCE_PATH},
     }
     for base, spec in POTION_FAMILIES.items():
+        source = str(spec.get("source", POTION_SOURCE_PATH))
         for dose, item_id in spec["doses"].items():  # type: ignore[union-attr]
             rows[potion_dose_name(base, dose)] = {
-                "category": "material", "tradeable": True, "item_id": item_id, "source": POTION_SOURCE_PATH,
+                "category": "material", "tradeable": True, "item_id": item_id, "source": source,
             }
         for dose, item_id in spec.get("flask_doses", {}).items():  # type: ignore[union-attr]
             rows[potion_flask_name(base, dose)] = {
                 "category": "material", "tradeable": True, "item_id": item_id,
-                "source": f"{POTION_SOURCE_PATH}; {DARKAN_ITEM_CONFIG_SOURCE}: {base} flask",
+                "source": f"{source}; {DARKAN_ITEM_CONFIG_SOURCE}: {base} flask",
             }
     return rows
 
@@ -110,15 +136,18 @@ def potion_consumables_as_dict() -> Dict[str, Dict[str, object]]:
     boost, and leaves the next-lower dose (an empty Vial / Potion flask at dose 1)."""
     rows: Dict[str, Dict[str, object]] = {}
     for base, spec in POTION_FAMILIES.items():
+        source = str(spec.get("source", POTION_SOURCE_PATH))
         for dose in spec["doses"]:  # type: ignore[union-attr]
             rows[potion_dose_name(base, dose)] = {
                 "kind": "potion",
                 "skills": tuple(spec["skills"]),  # type: ignore[arg-type]
                 "strategy": spec["strategy"],
                 "special_points": spec.get("special_points", 0),
+                "duration_ticks": spec.get("duration_ticks", 0),
+                "protection_level": spec.get("protection_level", 0),
                 "leaves": potion_dose_name(base, dose - 1) if dose > 1 else VIAL_ITEM[0],
                 "message": f"You drink some of your {base.lower()}.",
-                "source": POTION_SOURCE_PATH,
+                "source": source,
             }
         for dose in spec.get("flask_doses", {}):  # type: ignore[union-attr]
             rows[potion_flask_name(base, dose)] = {
@@ -126,9 +155,11 @@ def potion_consumables_as_dict() -> Dict[str, Dict[str, object]]:
                 "skills": tuple(spec["skills"]),  # type: ignore[arg-type]
                 "strategy": spec["strategy"],
                 "special_points": spec.get("special_points", 0),
+                "duration_ticks": spec.get("duration_ticks", 0),
+                "protection_level": spec.get("protection_level", 0),
                 "leaves": potion_flask_name(base, dose - 1) if dose > 1 else EMPTY_FLASK_ITEM[0],
                 "message": f"You drink some of your {base.lower()}.",
-                "source": f"{POTION_SOURCE_PATH}; {DARKAN_ITEM_CONFIG_SOURCE}: {base} flask",
+                "source": f"{source}; {DARKAN_ITEM_CONFIG_SOURCE}: {base} flask",
             }
     return rows
 

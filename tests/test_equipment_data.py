@@ -20,7 +20,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 658)
+        self.assertEqual(len(EQUIPMENT_DATA), 659)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -49,6 +49,19 @@ class TestEquipmentData(unittest.TestCase):
         self.assertEqual(EQUIPMENT_DATA["Catspeak amulet"].slot, "neck")
         self.assertEqual(EQUIPMENT_DATA["Beads of the dead"].slot, "neck")
         self.assertEqual(EQUIPMENT_DATA["Masked earmuffs"].slot, "head")
+        anti_dragon = EQUIPMENT_DATA["Anti-dragon shield"]
+        self.assertEqual(anti_dragon.slot, "shield")
+        self.assertEqual(anti_dragon.source_item_id, 1540)
+        self.assertEqual(
+            (
+                anti_dragon.bonuses.defence_stab,
+                anti_dragon.bonuses.defence_slash,
+                anti_dragon.bonuses.defence_crush,
+                anti_dragon.bonuses.defence_magic,
+                anti_dragon.bonuses.defence_ranged,
+            ),
+            (7, 9, 8, 2, 8),
+        )
         light_mystic_hat = EQUIPMENT_DATA["Mystic hat (light)"]
         self.assertEqual(light_mystic_hat.source_item_id, 4109)
         self.assertEqual(light_mystic_hat.slot, "head")

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AnkiScape · Green dragon closure</title>
+  <style>
+    :root{--bg:#09100c;--panel:#111a14;--panel2:#17231a;--line:#2b3b2f;--ink:#eef7ef;--dim:#a4b4a6;--green:#69dc81;--lime:#b4ee78;--fire:#ffad57;--red:#ff706e;--blue:#7fc7ff}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 82% 0,rgba(105,220,129,.17),transparent 34rem),radial-gradient(circle at 8% 38%,rgba(255,173,87,.08),transparent 29rem),var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    main{width:min(1120px,calc(100% - 32px));margin:auto;padding:46px 0 70px}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border:1px solid #3a6944;border-radius:999px;background:#102118;color:#aef0bb;font:700 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.09em;text-transform:uppercase}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 16px var(--green)}
+    h1{font-size:clamp(42px,7vw,78px);line-height:.94;letter-spacing:-.055em;margin:18px 0 14px;max-width:860px}
+    .lede{max-width:780px;color:var(--dim);font-size:17px}
+    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:30px 0}
+    .metric,.card,.panel{border:1px solid var(--line);background:linear-gradient(145deg,rgba(20,31,23,.96),rgba(11,18,13,.98));box-shadow:0 20px 50px rgba(0,0,0,.18)}
+    .metric{padding:18px;border-radius:13px}.metric b{display:block;font-size:30px;letter-spacing:-.04em;color:var(--lime)}.metric span{color:var(--dim);font-size:12px}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.panel{padding:24px;border-radius:16px;margin-top:14px}.card{padding:18px;border-radius:12px}
+    h2{font-size:25px;letter-spacing:-.025em;margin:0 0 6px}h3{font-size:16px;margin:0 0 7px}.sub,.card p,.card li{color:var(--dim)}
+    .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:17px}.node{padding:14px;border:1px solid var(--line);border-radius:11px;background:var(--panel2);min-height:105px}.node b{display:block;color:var(--green);margin-bottom:4px}.node small{color:var(--dim)}
+    .tier{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}.tier .card b{display:block;font-size:25px;color:var(--fire)}.tier .full b{color:var(--green)}
+    .evidence{display:grid;grid-template-columns:150px 1fr;gap:16px;padding:14px 0;border-top:1px solid var(--line)}.evidence:first-of-type{border-top:0}.tag{width:max-content;height:max-content;padding:6px 8px;border-radius:7px;background:#203225;color:#b6eec1;font:700 10px/1 ui-monospace,monospace;letter-spacing:.05em}.evidence p{margin:0;color:#c7d3c8}
+    .warn{border-left:3px solid var(--fire);background:#251b10;padding:15px 17px;border-radius:0 10px 10px 0;color:#e5cda9;margin-top:16px}.pass{color:var(--green)}.blocked{color:var(--fire)}code{color:#cce7ff;font:12px ui-monospace,SFMono-Regular,Menlo,monospace}
+    footer{margin-top:20px;color:#718276;font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace}
+    @media(max-width:820px){.metrics,.flow{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}@media(max-width:540px){main{width:min(100% - 22px,1120px);padding-top:28px}.metrics,.flow,.tier{grid-template-columns:1fr}.evidence{grid-template-columns:1fr}h1{font-size:43px}}
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge"><span class="dot"></span>verified closure · 2026-07-18</span>
+  <h1>Green dragons now breathe fire.</h1>
+  <p class="lede">The ordinary level-79 Wilderness dragon is a complete Combat and Slayer target: source-shaped dragonfire, exact review-driven antifire durations, a wearable Anti-dragon shield, real drops and sprite, and the already-settled PKer risk in one legible flow.</p>
+
+  <section class="metrics">
+    <div class="metric"><b>28 / 35</b><span>Vannaka families executable</span></div>
+    <div class="metric"><b>500 → 50 → 0</b><span>Dragonfire maximum by tier</span></div>
+    <div class="metric"><b>600 ticks</b><span>Every antifire dose</span></div>
+    <div class="metric"><b>1,636</b><span>Non-Qt tests passing</span></div>
+  </section>
+
+  <section class="panel">
+    <h2>One review-native protection loop</h2>
+    <p class="sub">No wall clock, no separate dragon minigame, and no second confirmation modal.</p>
+    <div class="flow">
+      <div class="node"><b>1 · Load</b><small>Combat banks one highest-dose bottle, preferring Super antifire.</small></div>
+      <div class="node"><b>2 · Drink</b><small>A dose activates only when no antifire timer remains and preserves the next dose.</small></div>
+      <div class="node"><b>3 · Fight</b><small>Breath bypasses melee accuracy and resolves the current flat-damage protection tier.</small></div>
+      <div class="node"><b>4 · Refresh</b><small>A dose can expire and refresh inside the same long cadence review.</small></div>
+    </div>
+    <div class="tier">
+      <div class="card"><h3>No layer</h3><b>0–500 LP</b><p>Unprotected flat dragonfire.</p></div>
+      <div class="card"><h3>One layer</h3><b>0–50 LP</b><p>Shield, regular Antifire, or magic protection.</p></div>
+      <div class="card full"><h3>Complete</h3><b>0 LP</b><p>Super antifire, or regular Antifire plus shield/prayer.</p></div>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Player-facing closure</h2>
+      <div class="evidence"><span class="tag">TARGET</span><p>Level 79, 750 LP, 75 Slayer XP, six-tick attack cadence, and an 85-LP melee maximum.</p></div>
+      <div class="evidence"><span class="tag">LOADOUT</span><p>All vial and six-dose flask states are drinkable; empty containers and every remainder are preserved.</p></div>
+      <div class="evidence"><span class="tag">UI</span><p>The row shows current protection, breath maximum, one-in-four provisional frequency, drops, sprite, and Wilderness consequences.</p></div>
+      <div class="evidence"><span class="tag">RISK</span><p>The one existing modal combines dragonfire state with the 1%/250-LP PKer abstraction and no-grave equipment loss.</p></div>
+    </div>
+    <div class="panel">
+      <h2>Verification</h2>
+      <div class="evidence"><span class="tag">PURE</span><p><span class="pass">515 focused tests passed</span> across cadence, Combat, runtime, metadata, equipment, registries, and Slayer.</p></div>
+      <div class="evidence"><span class="tag">CORE</span><p><span class="pass">1,636 tests passed</span>; 215 declared environment skips; zero failures or errors.</p></div>
+      <div class="evidence"><span class="tag">QT</span><p><span class="pass">2 real offscreen picker tests passed</span> for rendered catalog and process-local risk confirmation.</p></div>
+      <div class="evidence"><span class="tag">GATES</span><p>Docs, test-quality, generated equipment, Slayer readiness, asset provenance, diff, and worktree checks pass.</p></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Evidence honesty</h2>
+    <div class="evidence"><span class="tag">PERIOD WIKI</span><p>Green dragon oldid 6565810; Dragonfire oldid 6534496; Antifire oldid 6469134.</p></div>
+    <div class="evidence"><span class="tag">DARKAN</span><p><code>LeatherDragonCombat.java:34-62</code>, <code>PlayerCombat.kt:878-908</code>, and <code>Potions.kt:306-309,434-435</code>.</p></div>
+    <div class="evidence"><span class="tag">ITEM CFG</span><p>Anti-dragon shield item 1540: shield slot, exact 7/9/8/2/8 defences, 5.4 kg.</p></div>
+    <div class="warn"><strong>Two facts remain deliberately qualified.</strong> Darkan chooses breath on 1/4 attacks while game-main chooses 1/10, so 1/4 is labeled <code>provisional/darkan</code>. Historical Green-dragon charm rates remain <code>source_blocked</code>. The imported main drop table also declares 1,024 rolls but literally overbooks 1,029 slots; AnkiScape preserves that upstream selector rather than inventing five corrected odds.</div>
+  </section>
+
+  <footer>Canonical checkout · main · no quest duplication · no Dungeoneering work · no owner design gap</footer>
+</main>
+</body>
+</html>

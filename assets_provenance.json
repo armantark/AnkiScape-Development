@@ -1175,6 +1175,18 @@
     "source_wiki": "osrs",
     "timestamp": "2025-07-27T10:25:15Z"
   },
+  "combatenemies/green_dragon.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Green_dragon.png",
+    "file_title": "Green dragon.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Green_dragon.png?4657a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "65c613d49cd34d4a968aad4136838dfe4c77f20a",
+    "size": 85302,
+    "source_wiki": "osrs",
+    "timestamp": "2019-05-14T01:28:29Z"
+  },
   "combatenemies/guard_battleaxe.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Guard.png",
     "file_title": "Guard.png",

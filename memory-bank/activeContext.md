@@ -2,6 +2,22 @@
 
 ## Current Focus
 
+The ordinary level-79 Green dragon is now the 28th executable Vannaka family:
+750 LP, 75 Slayer XP, six-tick melee, 85-LP melee maximum, guaranteed Dragon
+bones and Green dragonhide, the exact imported drop selectors, and the existing
+Wilderness-risk contract. Dragonfire now has source-shaped flat-damage tiers:
+500 LP unprotected, 50 LP with one shield/prayer/Antifire layer, and zero with
+Super antifire or regular Antifire plus a shield/prayer layer. Six-minute vial
+and flask doses are review-driven, preserve remainders, load automatically,
+and can expire and refresh inside one long Combat review. Anti-dragon shield is
+wearable with exact item-config bonuses. Exact Green-dragon charm rates remain
+`source_blocked`; the 1/4 breath frequency is labeled `provisional/darkan`
+because game-main conflicts at 1/10. Vannaka remains hidden at 28/35 with seven
+missing representatives. No owner-facing design fork emerged. Evidence:
+`source-audits/slayer-green-dragon-combat-2026-07-18.md`. Results:
+`status-updates/slayer-green-dragon-results-2026-07-18.html`
+(<https://blwhzxpwaa52.postplan.dev>).
+
 Earth warrior now carries the owner-approved Wilderness Combat risk instead of
 being a risk-free Vannaka representative. Every successful review has the
 labeled 1%/250-LP bounded ambush chance; a trigger resets the monster

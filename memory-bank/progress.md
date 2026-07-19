@@ -4,6 +4,30 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Green dragon Combat closure — 2026-07-18
+
+- Added the ordinary Wilderness level-79 Green dragon with 750 LP, 75 Slayer
+  XP, six-tick attacks, an 85-LP melee maximum, guaranteed Dragon bones and
+  Green dragonhide, and the pinned imported drop selectors.
+- Added reusable dragonfire tiers: 500 LP unprotected, 50 LP with one layer,
+  and zero with complete protection. The hidden 1/4 breath frequency is
+  explicitly `provisional/darkan` because game-main conflicts at 1/10.
+- Registered complete Antifire and Super antifire vial/flask families,
+  preserving every remaining dose and exact six-minute/600-game-tick duration.
+  Combat auto-loads one bottle and can refresh it inside a long review without
+  using wall-clock time.
+- Generated Anti-dragon shield item 1540 as wearable shield equipment with its
+  exact cache bonuses and reused the existing Dragon Slayer acquisition path.
+- Combined dragonfire state and Wilderness loss consequences in one target
+  preview and confirmation. Exact charm rates remain `source_blocked`.
+- Advanced Vannaka to 28/35 while leaving the incomplete master hidden and
+  unrenormalized. Seven missing Combat representatives remain. No owner-facing
+  design fork emerged.
+- Durable evidence:
+  `source-audits/slayer-green-dragon-combat-2026-07-18.md`. Results:
+  `status-updates/slayer-green-dragon-results-2026-07-18.html`
+  (<https://blwhzxpwaa52.postplan.dev>).
+
 ## Slayer Earth warrior Wilderness-risk closure — 2026-07-18
 
 - Applied the owner-approved 1%/250-LP bounded PKer abstraction after each

@@ -1201,7 +1201,13 @@ MAGIC_CHARGE_DURATION_TICKS = 700
 TEMPORARY_EFFECT_TICKS_PER_ACTION = 50
 
 
-def advance_temporary_effects_pure(player_data, action_ticks=1, *, elapsed_ticks=None):
+def advance_temporary_effects_pure(
+    player_data,
+    action_ticks=1,
+    *,
+    elapsed_ticks=None,
+    advance_dragonfire=True,
+):
     """Advance review-paced temporary effects without reading wall time."""
     data = dict(player_data)
     ticks = max(0, int(elapsed_ticks)) if elapsed_ticks is not None else (
@@ -1220,6 +1226,15 @@ def advance_temporary_effects_pure(player_data, action_ticks=1, *, elapsed_ticks
     remaining = max(0, remaining - ticks)
     data["magic_charge_ticks_remaining"] = remaining
     data["magic_charge_active"] = remaining > 0
+    if advance_dragonfire:
+        for effect_key in (
+            "combat_antifire_ticks_remaining",
+            "combat_super_antifire_ticks_remaining",
+        ):
+            data[effect_key] = max(
+                0,
+                _non_negative_int(data.get(effect_key, 0), 0) - ticks,
+            )
     return data
 
 
@@ -2570,6 +2585,7 @@ _COMBAT_POTION_FLASK_CAP_BY_MODE = {"max_safety": 2, "balanced": 4, "max_output"
 # One dose cures poison; two cover a trip and refill at every bank run. Mode does
 # not scale this — antipoison is a cure, not a food/damage tradeoff.
 _COMBAT_ANTIPOISON_SLOT_CAP = 2
+_COMBAT_DRAGONFIRE_POTION_SLOT_CAP = 1
 
 
 def _combat_coerce_pack_mode(mode):
@@ -2931,6 +2947,8 @@ def default_combat_state_pure():
         "combat_special_attack_energy": COMBAT_SPECIAL_ATTACK_MAX_ENERGY,
         "combat_current_levels": {},
         "combat_status_effects": {},
+        "combat_antifire_ticks_remaining": 0,
+        "combat_super_antifire_ticks_remaining": 0,
         "combat_recovery_progress": {},
         "combat_bank_run": {},
         "combat_encounter": {},
@@ -2974,7 +2992,10 @@ def _sanitize_combat_supply_loadout(raw_loadout):
             str(item_name): _non_negative_int(amount, 0)
             for item_name, amount in raw_potions.items()
             if isinstance(item_name, str)
-            and item_name in COMBAT_ANTIPOISON_POTION_DATA
+            and (
+                item_name in COMBAT_ANTIPOISON_POTION_DATA
+                or item_name in _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES
+            )
             and _non_negative_int(amount, 0) > 0
         }
     raw_stat_potions = raw_loadout.get("stat_potions", {})
@@ -3495,6 +3516,14 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
         "combat_special_attack_energy": min(COMBAT_SPECIAL_ATTACK_MAX_ENERGY, special_energy),
         "combat_current_levels": _sanitize_combat_current_levels(player_data.get("combat_current_levels")),
         "combat_status_effects": _sanitize_combat_status_effects(player_data.get("combat_status_effects")),
+        "combat_antifire_ticks_remaining": _non_negative_int(
+            player_data.get("combat_antifire_ticks_remaining", 0),
+            0,
+        ),
+        "combat_super_antifire_ticks_remaining": _non_negative_int(
+            player_data.get("combat_super_antifire_ticks_remaining", 0),
+            0,
+        ),
         "combat_recovery_progress": _sanitize_combat_recovery_progress(player_data.get("combat_recovery_progress")),
         "combat_bank_run": _sanitize_combat_bank_run(player_data.get("combat_bank_run")),
         "combat_encounter": dict(encounter),
@@ -4966,7 +4995,11 @@ def _combat_bank_has_runes(data, missing_runes):
 
 def _combat_loaded_antipoison_count(data):
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
-    return sum(_non_negative_int(amount, 0) for amount in (loadout.get("potions", {}) or {}).values())
+    return sum(
+        _non_negative_int(amount, 0)
+        for item_name, amount in (loadout.get("potions", {}) or {}).items()
+        if item_name in COMBAT_ANTIPOISON_POTION_DATA
+    )
 
 
 def _combat_banked_antipoison_count(data):
@@ -4974,6 +5007,25 @@ def _combat_banked_antipoison_count(data):
     if not isinstance(inventory, Mapping):
         return 0
     return sum(_non_negative_int(inventory.get(item_name, 0), 0) for item_name in COMBAT_ANTIPOISON_POTION_DATA)
+
+
+def _combat_loaded_dragonfire_potion_count(data):
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    return sum(
+        _non_negative_int(amount, 0)
+        for item_name, amount in (loadout.get("potions", {}) or {}).items()
+        if item_name in _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES
+    )
+
+
+def _combat_banked_dragonfire_potion_count(data):
+    inventory = data.get("inventory", {}) or {}
+    if not isinstance(inventory, Mapping):
+        return 0
+    return sum(
+        _non_negative_int(inventory.get(item_name, 0), 0)
+        for item_name in _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES
+    )
 
 
 def _combat_custom_layout_view(data, target_id):
@@ -5236,6 +5288,7 @@ def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon
     enemy_lookup = enemy_data or COMBAT_ENEMY_DATA
     enemy = enemy_lookup.get(target_id, {}) if isinstance(target_id, str) and isinstance(enemy_lookup, Mapping) else {}
     _combat_refill_finisher_loadout(data, enemy)
+    _combat_refill_dragonfire_loadout(data, enemy)
     target_poison = _positive_int(enemy.get("poison_damage", 0), 0) if isinstance(enemy, Mapping) else 0
     effects = _sanitize_combat_status_effects(data.get("combat_status_effects"))
     if target_poison > 0 or "poison" in effects:
@@ -5268,6 +5321,21 @@ def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, s
         return True
     enemy_lookup = enemy_data or COMBAT_ENEMY_DATA
     enemy = enemy_lookup.get(target_id, {}) if isinstance(target_id, str) and isinstance(enemy_lookup, Mapping) else {}
+    if (
+        isinstance(enemy, Mapping)
+        and isinstance(enemy.get("dragonfire"), Mapping)
+        and _combat_loaded_dragonfire_potion_count(data) <= 0
+        and _combat_banked_dragonfire_potion_count(data) > 0
+        and _non_negative_int(
+            data.get("combat_antifire_ticks_remaining", 0), 0
+        )
+        <= 0
+        and _non_negative_int(
+            data.get("combat_super_antifire_ticks_remaining", 0), 0
+        )
+        <= 0
+    ):
+        return True
     finisher = _combat_finisher_spec(enemy)
     if finisher is not None:
         item_name = str(finisher.get("item", "") or "")
@@ -5647,6 +5715,72 @@ def _combat_recover_current_levels(data, ticks):
     data["combat_recovery_progress"] = {key: value for key, value in progress.items() if value > 0}
 
 
+def combat_dragonfire_protection_pure(
+    player_data,
+    enemy,
+    *,
+    magic_prayer_active=None,
+):
+    spec = enemy.get("dragonfire") if isinstance(enemy, Mapping) else None
+    if not isinstance(spec, Mapping):
+        return {}
+    equipment = player_data.get("equipment", {}) or {}
+    shield_name = (
+        equipment.get("shield")
+        if isinstance(equipment, Mapping)
+        else None
+    )
+    shield_active = shield_name in tuple(spec.get("shield_items", ()) or ())
+    antifire_active = (
+        _non_negative_int(
+            player_data.get("combat_antifire_ticks_remaining", 0),
+            0,
+        )
+        > 0
+    )
+    super_antifire_active = (
+        _non_negative_int(
+            player_data.get("combat_super_antifire_ticks_remaining", 0),
+            0,
+        )
+        > 0
+    )
+    if magic_prayer_active is None:
+        magic_prayer_active = bool(
+            prayer_effect_state_pure(player_data).get("protect_magic")
+        )
+    full = bool(
+        super_antifire_active
+        or antifire_active and (shield_active or magic_prayer_active)
+    )
+    partial = bool(
+        not full
+        and (
+            shield_active
+            or antifire_active
+            or magic_prayer_active
+        )
+    )
+    protection_level = 2 if full else 1 if partial else 0
+    max_hit = (
+        0
+        if full
+        else _positive_int(spec.get("partial_max_hit", 50), 50)
+        if partial
+        else _positive_int(spec.get("unprotected_max_hit", 500), 500)
+    )
+    return {
+        "protection_level": protection_level,
+        "state": "Full" if full else "Partial" if partial else "None",
+        "max_hit": max_hit,
+        "shield_active": shield_active,
+        "shield_item": shield_name if shield_active else "",
+        "antifire_active": antifire_active,
+        "super_antifire_active": super_antifire_active,
+        "magic_prayer_active": bool(magic_prayer_active),
+    }
+
+
 def combat_poison_immunity_ticks_pure(player_data):
     effects = _sanitize_combat_status_effects(player_data.get("combat_status_effects"))
     immunity = effects.get("poison_immunity", {})
@@ -5662,7 +5796,11 @@ def _combat_refill_antipoison_loadout(data):
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     potion_loadout = dict(loadout.get("potions", {}) or {})
     inventory = dict(data.get("inventory", {}) or {})
-    loaded = sum(_non_negative_int(amount, 0) for amount in potion_loadout.values())
+    loaded = sum(
+        _non_negative_int(amount, 0)
+        for item_name, amount in potion_loadout.items()
+        if item_name in COMBAT_ANTIPOISON_POTION_DATA
+    )
     for item_name in COMBAT_ANTIPOISON_POTION_DATA:
         if loaded >= _COMBAT_ANTIPOISON_SLOT_CAP:
             break
@@ -5676,6 +5814,146 @@ def _combat_refill_antipoison_loadout(data):
     loadout["potions"] = {item_name: amount for item_name, amount in potion_loadout.items() if amount > 0}
     data["inventory"] = inventory
     data["combat_supply_loadout"] = loadout
+
+
+def _combat_refill_dragonfire_loadout(data, enemy):
+    if not isinstance(enemy, Mapping) or not isinstance(
+        enemy.get("dragonfire"), Mapping
+    ):
+        return
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    potion_loadout = dict(loadout.get("potions", {}) or {})
+    inventory = dict(data.get("inventory", {}) or {})
+    loaded = sum(
+        _non_negative_int(amount, 0)
+        for item_name, amount in potion_loadout.items()
+        if item_name in _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES
+    )
+    candidates = sorted(
+        _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
+        key=lambda item_name: (
+            1
+            if _COMBAT_DRAGONFIRE_POTION_BY_DOSE[item_name][2]
+            == "super_antifire"
+            else 0,
+            _COMBAT_DRAGONFIRE_POTION_BY_DOSE[item_name][3],
+        ),
+        reverse=True,
+    )
+    for item_name in candidates:
+        if loaded >= _COMBAT_DRAGONFIRE_POTION_SLOT_CAP:
+            break
+        available = _non_negative_int(inventory.get(item_name, 0), 0)
+        if available <= 0:
+            continue
+        take = min(
+            available,
+            _COMBAT_DRAGONFIRE_POTION_SLOT_CAP - loaded,
+        )
+        inventory[item_name] = available - take
+        potion_loadout[item_name] = (
+            _non_negative_int(potion_loadout.get(item_name, 0), 0) + take
+        )
+        loaded += take
+    loadout["potions"] = {
+        item_name: amount
+        for item_name, amount in potion_loadout.items()
+        if amount > 0
+    }
+    data["inventory"] = inventory
+    data["combat_supply_loadout"] = loadout
+
+
+def _combat_consume_dragonfire_if_needed(data, enemy):
+    if not isinstance(enemy, Mapping) or not isinstance(
+        enemy.get("dragonfire"), Mapping
+    ):
+        return None
+    if (
+        _non_negative_int(
+            data.get("combat_super_antifire_ticks_remaining", 0),
+            0,
+        )
+        > 0
+        or _non_negative_int(
+            data.get("combat_antifire_ticks_remaining", 0),
+            0,
+        )
+        > 0
+    ):
+        return None
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    potion_loadout = dict(loadout.get("potions", {}) or {})
+    candidates = sorted(
+        (
+            item_name
+            for item_name, amount in potion_loadout.items()
+            if item_name in _COMBAT_DRAGONFIRE_POTION_BY_DOSE
+            and _non_negative_int(amount, 0) > 0
+        ),
+        key=lambda item_name: (
+            1
+            if _COMBAT_DRAGONFIRE_POTION_BY_DOSE[item_name][2]
+            == "super_antifire"
+            else 0,
+            _COMBAT_DRAGONFIRE_POTION_BY_DOSE[item_name][3],
+        ),
+        reverse=True,
+    )
+    if not candidates:
+        return None
+    item_name = candidates[0]
+    base_name, _skills, strategy, dose, is_flask = (
+        _COMBAT_DRAGONFIRE_POTION_BY_DOSE[item_name]
+    )
+    potion_loadout[item_name] -= 1
+    if potion_loadout[item_name] <= 0:
+        potion_loadout.pop(item_name, None)
+    if dose > 1:
+        lower = (
+            potion_flask_name(base_name, dose - 1)
+            if is_flask
+            else potion_dose_name(base_name, dose - 1)
+        )
+        potion_loadout[lower] = (
+            _non_negative_int(potion_loadout.get(lower, 0), 0) + 1
+        )
+    else:
+        empty_name = "Potion flask" if is_flask else "Vial"
+        inventory = dict(data.get("inventory", {}) or {})
+        inventory[empty_name] = (
+            _non_negative_int(inventory.get(empty_name, 0), 0) + 1
+        )
+        data["inventory"] = inventory
+    loadout["potions"] = potion_loadout
+    data["combat_supply_loadout"] = loadout
+    effect_key = (
+        "combat_super_antifire_ticks_remaining"
+        if strategy == "super_antifire"
+        else "combat_antifire_ticks_remaining"
+    )
+    duration = _positive_int(
+        POTION_FAMILIES[base_name].get("duration_ticks", 600),
+        600,
+    )
+    data[effect_key] = duration
+    return {
+        "item": item_name,
+        "effect": strategy,
+        "ticks": duration,
+    }
+
+
+def _combat_advance_dragonfire_effects(data, ticks):
+    ticks = max(0, _non_negative_int(ticks, 0))
+    for effect_key in (
+        "combat_antifire_ticks_remaining",
+        "combat_super_antifire_ticks_remaining",
+    ):
+        data[effect_key] = max(
+            0,
+            _non_negative_int(data.get(effect_key, 0), 0) - ticks,
+        )
 
 
 def _combat_consume_antipoison_if_needed(data):
@@ -5944,7 +6222,19 @@ def _build_combat_potion_dose_lookup():
 
 
 _COMBAT_STAT_POTION_BY_DOSE = _build_combat_potion_dose_lookup()
-_COMBAT_STAT_POTION_ITEM_NAMES = frozenset(_COMBAT_STAT_POTION_BY_DOSE)
+_COMBAT_STAT_POTION_ITEM_NAMES = frozenset(
+    item_name
+    for item_name, entry in _COMBAT_STAT_POTION_BY_DOSE.items()
+    if entry[1]
+)
+_COMBAT_DRAGONFIRE_POTION_BY_DOSE = {
+    item_name: entry
+    for item_name, entry in _COMBAT_STAT_POTION_BY_DOSE.items()
+    if entry[2] in {"antifire", "super_antifire"}
+}
+_COMBAT_DRAGONFIRE_POTION_ITEM_NAMES = frozenset(
+    _COMBAT_DRAGONFIRE_POTION_BY_DOSE
+)
 
 
 def _combat_relevant_potion_skills(combat_class):
@@ -6180,6 +6470,16 @@ def apply_consumable_pure(player_data, item_name, rng=None):
             drains["attack"] = atk_drain
     elif spec["kind"] == "potion":
         strategy = str(spec.get("strategy", "r"))
+        if strategy in {"antifire", "super_antifire"}:
+            effect_key = (
+                "combat_super_antifire_ticks_remaining"
+                if strategy == "super_antifire"
+                else "combat_antifire_ticks_remaining"
+            )
+            data[effect_key] = max(
+                _non_negative_int(data.get(effect_key, 0), 0),
+                _positive_int(spec.get("duration_ticks", 600), 600),
+            )
         for skill_id in spec.get("skills", ()):
             base = _combat_base_skill_level(data, skill_id, 1)
             if skill_id == "prayer":
@@ -6368,6 +6668,22 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         if isinstance(unprotected_effect, Mapping)
         else int(enemy_max_hit * 10)
     )
+    dragonfire_state = combat_dragonfire_protection_pure(player_data, enemy)
+    if dragonfire_state:
+        dragonfire_spec = enemy.get("dragonfire", {})
+        dragonfire_state = {
+            **dragonfire_state,
+            "chance_numerator": _positive_int(
+                dragonfire_spec.get("chance_numerator", 1), 1
+            ),
+            "chance_denominator": _positive_int(
+                dragonfire_spec.get("chance_denominator", 1), 1
+            ),
+        }
+        enemy_max_lp_hit = max(
+            enemy_max_lp_hit,
+            _non_negative_int(dragonfire_state.get("max_hit", 0), 0),
+        )
     encounter = player_data.get("combat_encounter", {}) or {}
     active_encounter = isinstance(encounter, Mapping) and encounter.get("target_id") == target_id
     loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
@@ -6485,6 +6801,7 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         else {},
         "finisher": finisher_state,
         "environmental_hazard": hazard_state,
+        "dragonfire": dragonfire_state,
         "wilderness_risk": wilderness_risk,
         "source": enemy.get("source", ""),
     }
@@ -6762,6 +7079,7 @@ def apply_combat_burst_pure(
     # Auto-drink carried stat potions before the rolls are computed, so the boost
     # flows through the effective-level reads into this burst's max-hit/accuracy.
     stat_potion_events = _combat_auto_drink_potions(data, combat_class)
+    dragonfire_potion_event = _combat_consume_dragonfire_if_needed(data, enemy)
 
     max_player_lp = combat_max_lifepoints_pure(data)
     player_lp = max(
@@ -7082,6 +7400,8 @@ def apply_combat_burst_pure(
     enemy_damage = 0
     food_used = []
     potions_used = list(stat_potion_events)
+    if dragonfire_potion_event:
+        potions_used.append(dragonfire_potion_event)
     ammo_used = {}
     runes_used = {}
     for rune_name, amount in supplemental_used.items():
@@ -7095,6 +7415,9 @@ def apply_combat_burst_pure(
     enemy_healing = 0
     vampyre_bites = 0
     vampyre_bite_healing = 0
+    dragonfire_attacks = 0
+    dragonfire_damage = 0
+    dragonfire_effect_tick = 0
     bite_spec = enemy.get("bite") if isinstance(enemy.get("bite"), Mapping) else None
     xp_rewards = {"magic_exp": supplemental_magic_xp} if supplemental_magic_xp > 0 else {}
     drops = {}
@@ -7349,7 +7672,57 @@ def apply_combat_burst_pure(
             retaliation_stopped = True
         if tick >= next_enemy_attack and enemy_lp > 0 and not retaliation_stopped:
             next_enemy_attack += enemy_attack_speed
-            if isinstance(unprotected_effect, Mapping):
+            _combat_advance_dragonfire_effects(
+                data, tick - dragonfire_effect_tick
+            )
+            dragonfire_effect_tick = tick
+            dragonfire_potion_event = _combat_consume_dragonfire_if_needed(
+                data, enemy
+            )
+            if dragonfire_potion_event:
+                potions_used.append(dragonfire_potion_event)
+            dragonfire_spec = (
+                enemy.get("dragonfire")
+                if isinstance(enemy.get("dragonfire"), Mapping)
+                else None
+            )
+            dragonfire_attack = False
+            if dragonfire_spec is not None:
+                try:
+                    dragonfire_attack = float(rng()) < (
+                        _positive_int(
+                            dragonfire_spec.get("chance_numerator", 1), 1
+                        )
+                        / _positive_int(
+                            dragonfire_spec.get("chance_denominator", 1), 1
+                        )
+                    )
+                except (TypeError, ValueError):
+                    dragonfire_attack = False
+            if dragonfire_attack:
+                dragonfire_attacks += 1
+                dragonfire_state = combat_dragonfire_protection_pure(
+                    data,
+                    enemy,
+                    magic_prayer_active=bool(
+                        tick_prayer_uptime > 0
+                        and float(
+                            prayer_effects.get("protect_magic", 0.0)
+                        )
+                        > 0.0
+                    ),
+                )
+                dragonfire_max_hit = _non_negative_int(
+                    dragonfire_state.get("max_hit", 0), 0
+                )
+                try:
+                    dragonfire_roll = max(
+                        0.0, min(float(rng()), 0.999999999999)
+                    )
+                except (TypeError, ValueError):
+                    dragonfire_roll = 0.0
+                damage = int(dragonfire_roll * (dragonfire_max_hit + 1))
+            elif isinstance(unprotected_effect, Mapping):
                 damage = _combat_unprotected_damage_lifepoints(unprotected_effect, max_player_lp)
                 unprotected_attacks += 1
                 stat_drain_prayer = unprotected_effect.get(
@@ -7438,8 +7811,15 @@ def apply_combat_burst_pure(
                 damage = _combat_roll_damage_lifepoints(enemy_max_hit, rng) if landed else 0
             raw_enemy_damage = damage
             if (
-                not isinstance(unprotected_effect, Mapping)
-                or bool(unprotected_effect.get("protection_prayer_applies"))
+                not dragonfire_attack
+                and (
+                    not isinstance(unprotected_effect, Mapping)
+                    or bool(
+                        unprotected_effect.get(
+                            "protection_prayer_applies"
+                        )
+                    )
+                )
             ):
                 protection_class = _combat_enemy_protection_class(enemy)
                 protection_key = {
@@ -7460,6 +7840,8 @@ def apply_combat_burst_pure(
                     )
                 )
             damage = min(player_lp, damage)
+            if dragonfire_attack:
+                dragonfire_damage += damage
             if damage > 0:
                 player_lp -= damage
                 enemy_damage += damage
@@ -7724,11 +8106,15 @@ def apply_combat_burst_pure(
     if live_cadence and prayer_points_after <= 0 and selected_prayers:
         data["combat_selected_prayers"] = []
 
+    _combat_advance_dragonfire_effects(
+        data, ticks_elapsed - dragonfire_effect_tick
+    )
     if live_cadence:
         data.update(
             advance_temporary_effects_pure(
                 data,
                 elapsed_ticks=ticks_elapsed,
+                advance_dragonfire=False,
             )
         )
     _combat_regenerate_special_attack_energy(
@@ -7768,6 +8154,11 @@ def apply_combat_burst_pure(
         "enemy_healing": enemy_healing,
         "vampyre_bites": vampyre_bites,
         "vampyre_bite_healing": vampyre_bite_healing,
+        "dragonfire_attacks": dragonfire_attacks,
+        "dragonfire_damage": dragonfire_damage,
+        "dragonfire_protection": combat_dragonfire_protection_pure(
+            data, enemy
+        ),
         "enemy_retaliation_stopped": retaliation_stopped,
         "enemy_lifepoints": enemy_lp,
         "player_lifepoints": player_lp,
@@ -8012,6 +8403,7 @@ def refill_combat_supply_loadout_pure(player_data, equipment_data=None):
     target_id = data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
     enemy = COMBAT_ENEMY_DATA.get(target_id, {})
     _combat_refill_finisher_loadout(data, enemy)
+    _combat_refill_dragonfire_loadout(data, enemy)
     _combat_refill_hazard_loadout(data, enemy)
     _combat_trim_food_to_capacity(data)
     return data, True, ""

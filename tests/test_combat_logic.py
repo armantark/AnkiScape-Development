@@ -62,6 +62,7 @@ from logic_pure import (
     apply_safe_combat_recovery_pure,
     combat_death_office_reclaim_cost_pure,
     combat_death_office_summary_pure,
+    combat_dragonfire_protection_pure,
     combat_enemy_drop_item_names_pure,
     combat_poison_damage_for_ticks_pure,
     combat_poison_immunity_ticks_pure,
@@ -71,6 +72,7 @@ from logic_pure import (
     combat_target_locked_reasons_pure,
     combat_target_preview_pure,
     combat_wilderness_equipment_risk_pure,
+    apply_consumable_pure,
     derive_casual_combat_magic_pure,
     reclaim_death_office_items_pure,
     set_combat_auto_eat_food_pure,
@@ -285,6 +287,36 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
         out, ok, _ = apply_combat_burst_pure(player, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1, rng=_rng([0.0]))
         self.assertEqual(out["combat_current_levels"]["strength"], 62)
         self.assertEqual(out["combat_supply_loadout"]["stat_potions"], {"Super strength flask (5)": 1})
+
+    def test_antifire_potions_are_registered_and_manually_drinkable(self):
+        from potion_data import potion_items_as_dict, potion_consumables_as_dict
+
+        items = potion_items_as_dict()
+        consumables = potion_consumables_as_dict()
+        self.assertEqual(items["Antifire (4)"]["item_id"], 2452)
+        self.assertEqual(items["Super antifire flask (6)"]["item_id"], 23489)
+        self.assertEqual(consumables["Antifire (4)"]["duration_ticks"], 600)
+        self.assertEqual(
+            consumables["Super antifire (3)"]["protection_level"], 2
+        )
+
+        regular, regular_result = apply_consumable_pure(
+            {"inventory": {"Antifire (4)": 1}},
+            "Antifire (4)",
+        )
+        supered, super_result = apply_consumable_pure(
+            {"inventory": {"Super antifire (3)": 1}},
+            "Super antifire (3)",
+        )
+
+        self.assertTrue(regular_result["allowed"])
+        self.assertEqual(regular["combat_antifire_ticks_remaining"], 600)
+        self.assertEqual(regular["inventory"], {"Antifire (3)": 1})
+        self.assertTrue(super_result["allowed"])
+        self.assertEqual(
+            supered["combat_super_antifire_ticks_remaining"], 600
+        )
+        self.assertEqual(supered["inventory"], {"Super antifire (2)": 1})
 
     def test_full_flask_is_preferred_over_a_vial(self):
         # Carrying both, the fuller flask (6 doses) is drunk before the vial (4).
@@ -5333,6 +5365,153 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(risk["max_hit"], 250)
         self.assertEqual(len(risk["kept_items"]), 3)
         self.assertEqual(len(risk["lost_items"]), 2)
+
+    def test_green_dragon_preview_exposes_current_dragonfire_tier(self):
+        player = _player(
+            current_combat_target="green_dragon",
+            constitution_level=99,
+            combat_lifepoints=990,
+            equipment={"shield": "Anti-dragon shield"},
+        )
+
+        preview = combat_target_preview_pure(
+            player,
+            "green_dragon",
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+        )
+
+        self.assertEqual(preview["state"], "Wilderness risk")
+        self.assertEqual(preview["enemy_max_hit"], 85)
+        self.assertEqual(
+            preview["dragonfire"],
+            {
+                "protection_level": 1,
+                "state": "Partial",
+                "max_hit": 50,
+                "shield_active": True,
+                "shield_item": "Anti-dragon shield",
+                "antifire_active": False,
+                "super_antifire_active": False,
+                "magic_prayer_active": False,
+                "chance_numerator": 1,
+                "chance_denominator": 4,
+            },
+        )
+
+    def test_green_dragon_protection_layers_match_the_sourced_tiers(self):
+        dragon = COMBAT_ENEMY_DATA["green_dragon"]
+
+        none = combat_dragonfire_protection_pure(_player(), dragon)
+        shield = combat_dragonfire_protection_pure(
+            _player(equipment={"shield": "Anti-dragon shield"}), dragon
+        )
+        potion_and_shield = combat_dragonfire_protection_pure(
+            _player(
+                equipment={"shield": "Anti-dragon shield"},
+                combat_antifire_ticks_remaining=1,
+            ),
+            dragon,
+        )
+        super_potion = combat_dragonfire_protection_pure(
+            _player(combat_super_antifire_ticks_remaining=1), dragon
+        )
+        prayer_only = combat_dragonfire_protection_pure(
+            _player(), dragon, magic_prayer_active=True
+        )
+
+        self.assertEqual((none["state"], none["max_hit"]), ("None", 500))
+        self.assertEqual(
+            (shield["state"], shield["max_hit"]), ("Partial", 50)
+        )
+        self.assertEqual(
+            (potion_and_shield["state"], potion_and_shield["max_hit"]),
+            ("Full", 0),
+        )
+        self.assertEqual(
+            (super_potion["state"], super_potion["max_hit"]), ("Full", 0)
+        )
+        self.assertEqual(
+            (prayer_only["state"], prayer_only["max_hit"]), ("Partial", 50)
+        )
+
+    def test_green_dragon_breath_bypasses_melee_accuracy_and_uses_tier_cap(self):
+        dragon = {
+            "green_dragon_test": {
+                **COMBAT_ENEMY_DATA["green_dragon"],
+                "wilderness_risk": {},
+                "attack_speed": 1,
+            }
+        }
+
+        def fight(**overrides):
+            player = _player(
+                current_combat_target="green_dragon_test",
+                constitution_level=99,
+                combat_lifepoints=990,
+                combat_auto_flee=False,
+                **overrides,
+            )
+            return apply_combat_burst_pure(
+                player,
+                dragon,
+                EQUIPMENT_DATA,
+                ticks=2,
+                rng=_rng([1.0, 0.0, 0.999999]),
+            )
+
+        unprotected, ok, result = fight()
+        partial, ok_partial, partial_result = fight(
+            equipment={"shield": "Anti-dragon shield"}
+        )
+        full, ok_full, full_result = fight(
+            combat_super_antifire_ticks_remaining=600
+        )
+
+        self.assertTrue(ok and ok_partial and ok_full)
+        self.assertEqual(result["dragonfire_attacks"], 1)
+        self.assertEqual(result["dragonfire_damage"], 500)
+        self.assertEqual(unprotected["combat_lifepoints"], 490)
+        self.assertEqual(partial_result["dragonfire_damage"], 50)
+        self.assertEqual(partial["combat_lifepoints"], 940)
+        self.assertEqual(full_result["dragonfire_damage"], 0)
+        self.assertEqual(full["combat_lifepoints"], 990)
+
+    def test_antifire_expires_and_auto_refreshes_inside_one_combat_review(self):
+        dragon = {
+            "green_dragon_test": {
+                **COMBAT_ENEMY_DATA["green_dragon"],
+                "wilderness_risk": {},
+                "attack_speed": 1,
+            }
+        }
+        player = _player(
+            current_combat_target="green_dragon_test",
+            constitution_level=99,
+            combat_lifepoints=990,
+            combat_auto_flee=False,
+            equipment={"shield": "Anti-dragon shield"},
+            combat_antifire_ticks_remaining=2,
+            combat_supply_loadout={"potions": {"Antifire (4)": 1}},
+        )
+
+        out, ok, result = apply_combat_burst_pure(
+            player,
+            dragon,
+            EQUIPMENT_DATA,
+            ticks=4,
+            rng=_rng([1.0, 0.0, 0.0, 0.0, 0.0]),
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(
+            result["potions_used"],
+            ({"item": "Antifire (4)", "effect": "antifire", "ticks": 600},),
+        )
+        self.assertEqual(
+            out["combat_supply_loadout"]["potions"], {"Antifire (3)": 1}
+        )
+        self.assertEqual(out["combat_antifire_ticks_remaining"], 598)
 
     def test_protect_item_keeps_a_fourth_wilderness_equipment_piece(self):
         player = _player(

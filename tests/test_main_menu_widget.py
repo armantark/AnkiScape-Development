@@ -2296,6 +2296,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         bloodveld = _tree_row(tree, "bloodveld")
         infernal_mage = _tree_row(tree, "infernal_mage")
         dust_devil = _tree_row(tree, "dust_devil")
+        green_dragon = _tree_row(tree, "green_dragon")
         aberrant_spectre = _tree_row(tree, "aberrant_spectre")
         basilisk = _tree_row(tree, "basilisk")
         crocodile = _tree_row(tree, "crocodile")
@@ -2374,6 +2375,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Dragon chainbody x1 (1/32768)", dust_devil.toolTip(0))
         self.assertIn("Crimson charm x1 (115/606)", dust_devil.toolTip(0))
         self.assertFalse(dust_devil.icon(0).isNull())
+        self.assertEqual(green_dragon.text(0), "Green dragon (Lvl 79)")
+        self.assertIn("Dragonfire: None protection", green_dragon.toolTip(0))
+        self.assertIn("Dragon bones x1", green_dragon.toolTip(0))
+        self.assertFalse(green_dragon.icon(0).isNull())
         self.assertEqual(
             aberrant_spectre.text(0), "Aberrant spectre (Lvl 96)"
         )

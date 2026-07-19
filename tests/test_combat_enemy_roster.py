@@ -21,6 +21,7 @@ NEW_COMBAT_ENEMIES = (
     "werewolf",
     "ice_warrior",
     "earth_warrior",
+    "green_dragon",
     "ogre",
     "jackal",
     "icefiend",
@@ -104,6 +105,7 @@ OPTIONAL_ENEMY_KEYS = {
     "quest_gate_label",
     "interaction_note",
     "wilderness_risk",
+    "dragonfire",
 }
 
 REQUIRED_STAT_KEYS = {"hitpoints", "attack", "strength", "defence", "magic", "ranged"}
@@ -219,6 +221,30 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                     self.assertGreater(bite["max_heal"], 0)
                     self.assertTrue(bite["stat_drain_skills"])
                     self.assertTrue(bite["source_status"])
+                if "dragonfire" in enemy:
+                    dragonfire = enemy["dragonfire"]
+                    self.assertEqual(
+                        set(dragonfire),
+                        {
+                            "chance_numerator",
+                            "chance_denominator",
+                            "unprotected_max_hit",
+                            "partial_max_hit",
+                            "shield_items",
+                            "source",
+                            "source_status",
+                        },
+                    )
+                    self.assertGreater(dragonfire["chance_numerator"], 0)
+                    self.assertGreaterEqual(
+                        dragonfire["chance_denominator"],
+                        dragonfire["chance_numerator"],
+                    )
+                    self.assertGreater(dragonfire["unprotected_max_hit"], 0)
+                    self.assertGreater(dragonfire["partial_max_hit"], 0)
+                    self.assertTrue(dragonfire["shield_items"])
+                    self.assertTrue(dragonfire["source"])
+                    self.assertTrue(dragonfire["source_status"])
                 if "finisher" in enemy:
                     finisher = enemy["finisher"]
                     required_finisher_keys = {
@@ -307,12 +333,50 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("gargoyle", "Gargoyle icon.png"),
             ("mutated_zygomite_level_74", "Mutated zygomite icon.png"),
             ("mutated_zygomite_level_86", "Mutated zygomite icon.png"),
+            ("green_dragon", "Green dragon.png"),
         ):
             with self.subTest(target=target_id):
                 relative_path = f"combatenemies/{target_id}.png"
                 self.assertTrue((root / relative_path).is_file())
                 self.assertIn(relative_path, provenance)
                 self.assertEqual(provenance[relative_path]["file_title"], file_title)
+
+    def test_green_dragon_preserves_cutoff_combat_and_drop_selectors(self):
+        dragon = COMBAT_ENEMY_DATA["green_dragon"]
+
+        self.assertEqual(dragon["level"], 79)
+        self.assertEqual(dragon["attack_speed"], 6)
+        self.assertEqual(dragon["respawn_delay"], 59)
+        self.assertEqual(dragon["max_hit"], 85)
+        self.assertEqual(dragon["slayer_xp"], 75.0)
+        self.assertEqual(
+            dragon["stats"],
+            {
+                "hitpoints": 750,
+                "attack": 68,
+                "strength": 68,
+                "defence": 68,
+                "magic": 68,
+                "ranged": 1,
+            },
+        )
+        self.assertEqual(
+            dragon["drops"]["guaranteed"],
+            (("Dragon bones", 1), ("Green dragonhide", 1)),
+        )
+        main, tertiary = dragon["drops"]["tables"]
+        self.assertEqual(main["total"], 1024)
+        # The pinned emulator table itself overbooks its 1024 selector by five
+        # slots. Preserve that source row instead of silently rewriting odds.
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 1029)
+        self.assertEqual(tertiary["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in tertiary["slots"]), 128)
+        self.assertEqual(dragon["dragonfire"]["chance_numerator"], 1)
+        self.assertEqual(dragon["dragonfire"]["chance_denominator"], 4)
+        self.assertEqual(dragon["dragonfire"]["unprotected_max_hit"], 500)
+        self.assertEqual(dragon["dragonfire"]["partial_max_hit"], 50)
+        self.assertIn("provisional/darkan", dragon["dragonfire"]["source_status"])
+        self.assertNotIn("charms", dragon["drops"])
 
     def test_ogre_preserves_the_cutoff_ordinary_variant_and_exact_seed_roll(self):
         ogre = COMBAT_ENEMY_DATA["ogre"]

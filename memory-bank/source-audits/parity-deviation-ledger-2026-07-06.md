@@ -26,6 +26,7 @@ by design), **declared** (documented simplification of a source mechanic), or
 | Landed-hit damage roll | Darkan rolls `Utils.random(1, maxHit)` = `1 + nextInt(maxHit-1)`: uniform 1..maxHit-1, never 0, never max (verified by bytecode disassembly of core-2.0.5.jar). Ours rolled 0..max-1, allowing 0-damage landed hits — **fixed** in `_combat_roll_damage_lifepoints` and pinned by `test_combat_landed_hit_damage_matches_darkan_random_semantics` (it previously had zero coverage) | fixed invention |
 | Prayer multipliers / combat-mod plugins | Prayer unimplemented => multiplier 1.0 is exact for a prayer-less player; slayer-helm-style modifier plugins out of scope | adaptation |
 | Engagement cadence | Player attacks at tick 0 then every weapon-speed ticks; enemy offset by its own speed; auto-eat is AnkiScape's stand-in for manual eating | adaptation |
+| Ordinary chromatic dragonfire | Green dragon uses Darkan's 1/4 melee-vs-breath selector, inclusive 0–500/0–50/0 flat damage tiers, and exact shield/prayer/Antifire stacking. game-main conflicts at 1/10 and the period wiki does not publish the hidden attack roll, so frequency is `provisional/darkan`; six-minute potion duration is exact 600 review-driven ticks | provisional parity |
 
 ## Gathering and processing source rolls (now source-exact)
 

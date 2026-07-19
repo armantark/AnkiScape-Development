@@ -111,6 +111,62 @@ class TestRuntimeActions(unittest.TestCase):
             "Wilderness confirmation required",
         )
 
+    def test_green_dragon_runtime_feedback_reports_breath_damage(self):
+        from combat_data import COMBAT_ENEMY_DATA
+        from combat_session import (
+            confirm_wilderness_combat_risk,
+            reset_wilderness_combat_confirmations,
+            wilderness_combat_risk_fingerprint,
+        )
+
+        reset_wilderness_combat_confirmations()
+        player_data = {
+            "inventory": {},
+            "equipment": {"shield": "Anti-dragon shield"},
+            "current_combat_target": "green_dragon",
+            "combat_lifepoints": 990,
+            "constitution_level": 99,
+            "slayer_level": 99,
+            "completed_achievements": [],
+        }
+        confirm_wilderness_combat_risk(
+            wilderness_combat_risk_fingerprint(
+                player_data,
+                "green_dragon",
+                COMBAT_ENEMY_DATA["green_dragon"],
+            )
+        )
+        result = {
+            "target_id": "green_dragon",
+            "display_name": "Green dragon",
+            "kills": 0,
+            "died": False,
+            "fled": False,
+            "player_damage": 120,
+            "enemy_lifepoints": 630,
+            "dragonfire_attacks": 2,
+            "dragonfire_damage": 37,
+            "drops": {},
+            "xp_rewards": {},
+        }
+        calls = {"xp": [], "saves": 0, "errors": []}
+
+        with patch.object(
+            runtime_actions,
+            "apply_combat_burst_pure",
+            return_value=(dict(player_data), True, result),
+        ):
+            ok = handle_combat_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(
+            calls["activity"],
+            [
+                "Green dragon: 120 damage dealt, 630 LP left"
+                " · 37 dragonfire LP from 2 breaths"
+            ],
+        )
+
     def test_summoning_handler_processes_one_source_recipe(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

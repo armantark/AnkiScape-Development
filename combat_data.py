@@ -64,6 +64,14 @@ POTION_SOURCE_PATH = (
 POTION_TYPE_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/items/potion/PotionType.kt"
 )
+DRAGONFIRE_FORMULA_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "src/main/java/com/rs/game/content/combat/PlayerCombat.kt"
+)
+LEATHER_DRAGON_COMBAT_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "src/main/java/com/rs/game/content/world/npcs/LeatherDragonCombat.java"
+)
 ITEM_ID_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/api/cfg/Items.kt"
 )
@@ -7546,6 +7554,105 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "source": (
             f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
             "definitions/other/earth_warrior_level_51.plugin.kts"
+        ),
+    },
+    "green_dragon": {
+        "display_name": "Green dragon",
+        "level": 79,
+        "group": "Dragons",
+        "wilderness_risk": {
+            "ambush_chance": 0.01,
+            "max_hit": 250,
+            "unskulled_items_kept": 3,
+            "source_status": (
+                "owner-approved bounded AnkiScape abstraction; PKer frequency "
+                "was live-player behavior rather than source-static data"
+            ),
+        },
+        "dragonfire": {
+            "chance_numerator": 1,
+            "chance_denominator": 4,
+            "unprotected_max_hit": 500,
+            "partial_max_hit": 50,
+            "shield_items": ("Anti-dragon shield", "Dragonfire shield"),
+            "source": (
+                f"{LEATHER_DRAGON_COMBAT_SOURCE_PATH}:45-60; "
+                f"{DRAGONFIRE_FORMULA_SOURCE_PATH}:878-908"
+            ),
+            "source_status": (
+                "provisional/darkan hidden attack-selection roll; damage and "
+                "protection tiers corroborated by Green dragon oldid=6565810 "
+                "and Dragonfire oldid=6534496"
+            ),
+        },
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 85,
+        "slayer_xp": 75.0,
+        "stats": {
+            "hitpoints": 750,
+            "attack": 68,
+            "strength": 68,
+            "defence": 68,
+            "magic": 68,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 20,
+            "defence_slash": 40,
+            "defence_crush": 40,
+            "defence_magic": 30,
+            "defence_ranged": 20,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (("Dragon bones", 1), ("Green dragonhide", 1)),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 1024,
+                    "slots": (
+                        {"item": "Steel platelegs", "quantity": 1, "slots": 32},
+                        {"item": "Steel battleaxe", "quantity": 1, "slots": 24},
+                        {"item": "Mithril hatchet", "quantity": 1, "slots": 24},
+                        {"item": "Mithril spear", "quantity": 1, "slots": 16},
+                        {"item": "Mithril kiteshield", "quantity": 1, "slots": 8},
+                        {"item": "Adamant full helm", "quantity": 1, "slots": 8},
+                        {"item": "Rune dagger", "quantity": 1, "slots": 8},
+                        {"item": "Water rune", "quantity": 75, "slots": 64},
+                        {"item": "Nature rune", "quantity": 15, "slots": 40},
+                        {"item": "Law rune", "quantity": 3, "slots": 24},
+                        {"item": "Fire rune", "quantity": 37, "slots": 8},
+                        {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 120},
+                        {"item": "Coins", "quantity": 44, "slots": 232},
+                        {"item": "Coins", "quantity": 132, "slots": 200},
+                        {"item": "Coins", "quantity": 200, "slots": 80},
+                        {"item": "Coins", "quantity": 11, "slots": 40},
+                        {"item": "Coins", "quantity": 440, "slots": 8},
+                        {"item": "Bass", "quantity": 1, "slots": 24},
+                        {"item": "Adamantite ore", "quantity": 1, "slots": 24},
+                        {"slots": 5},
+                        {"table": COMBAT_GEM_DROP_TABLE, "slots": 40},
+                    ),
+                },
+                {
+                    "name": "Tertiary",
+                    "total": 128,
+                    "slots": (
+                        {"item": "Clue scroll (hard)", "quantity": 1, "slots": 1},
+                        {"slots": 127},
+                    ),
+                },
+            ),
+        },
+        "source": (
+            f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+            "definitions/dragons/green_dragon_level_79.plugin.kts; "
+            f"{LEATHER_DRAGON_COMBAT_SOURCE_PATH}"
         ),
     },
     "ogre": {

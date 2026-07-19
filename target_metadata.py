@@ -1489,11 +1489,19 @@ def combat_target_rows(
                 lost_items = tuple(wilderness.get("lost_items", ()) or ())
                 kept_text = ", ".join(kept_items) if kept_items else "nothing"
                 lost_text = ", ".join(lost_items) if lost_items else "nothing"
+                dragonfire = preview.get("dragonfire", {}) or {}
+                dragonfire_warning = (
+                    f" Current dragonfire protection: "
+                    f"{dragonfire.get('state', 'None')} "
+                    f"(maximum {int(dragonfire.get('max_hit', 0) or 0)} LP)."
+                    if isinstance(dragonfire, Mapping) and dragonfire
+                    else ""
+                )
                 confirmation_message = (
                     f"{display_name} is in the Wilderness. Each successful review "
                     f"has a {float(wilderness.get('ambush_chance', 0.0) or 0.0):.0%} "
                     f"PKer-ambush risk with a {int(wilderness.get('max_hit', 0) or 0)} "
-                    "LP maximum hit. A fatal ambush creates no grave. "
+                    f"LP maximum hit. A fatal ambush creates no grave.{dragonfire_warning} "
                     f"Kept: {kept_text}. Lost: {lost_text}. Select this target anyway?"
                 )
                 confirmation_line = "Wilderness risk confirmation required before selecting this target.\n"
@@ -1520,6 +1528,15 @@ def combat_target_rows(
                 poison_line = f"Poison: {poison_damage} LP initial · {poison_chance:.0%} attack chance\n"
             protection_warning = str(preview.get("protection_warning", "") or "")
             protection_line = f"Protection: {protection_warning}\n" if protection_warning else ""
+            dragonfire = preview.get("dragonfire", {}) or {}
+            dragonfire_line = ""
+            if isinstance(dragonfire, Mapping) and dragonfire:
+                dragonfire_line = (
+                    f"Dragonfire: {dragonfire.get('state', 'None')} protection · "
+                    f"maximum hit {int(dragonfire.get('max_hit', 0) or 0)} LP · "
+                    f"{int(dragonfire.get('chance_numerator', 1) or 1)}/"
+                    f"{int(dragonfire.get('chance_denominator', 1) or 1)} attacks\n"
+                )
             weakening = preview.get("weakening_equipment", {}) or {}
             weakening_line = ""
             if isinstance(weakening, Mapping) and weakening:
@@ -1597,6 +1614,7 @@ def combat_target_rows(
                 f"Enemy LP: {preview.get('enemy_lifepoints', 0)}/{preview.get('enemy_max_lifepoints', stats.get('hitpoints', 0))}\n"
                 f"Enemy max hit: {preview.get('enemy_max_hit', 0)} LP\n"
                 f"{wilderness_line}"
+                f"{dragonfire_line}"
                 f"{protection_line}"
                 f"{weakening_line}"
                 f"{finisher_line}"
