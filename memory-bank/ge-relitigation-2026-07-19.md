@@ -45,6 +45,29 @@ faucet:
   bots repo's account ledgers) is explicitly rejected as unobservable solo
   cost per the computation-budget contract.
 
+## Amendment 1a (owner requirement, 2026-07-19): flipping stays skillful and emergent
+
+Demand-bounded absorption limits *scale*, never the *existence* of the edge.
+The emergent-flip loop is a first-class supported behavior:
+
+1. **Shocks are the opportunity generator.** Unannounced market shocks (the
+   "yew log dump") displace the hidden true price and mean-revert over time.
+   The player-impact drift cap and decay from Amendment 1 bound only
+   **player-caused** impact — market-side shocks may displace prices well
+   beyond ±15%, which is exactly where the big emergent opportunities live.
+2. **Margin-checking is the skill instrument.** Probing with quantity-1
+   aggressive offers reveals the prevailing true price through the
+   execution-price-improvement rule, just like real GE margin checks; fill
+   latency on patient offers is the second signal. No news feed, no shock
+   announcements — discovery through play is the skill.
+3. **The payoff loop:** spot a displaced item → accumulate patiently under
+   the buy limit → hold through reversion → sell into recovery. Profit is
+   bounded by buy limits, capital lockup, slots, the player's own impact,
+   and reversion timing — never by taxes or invented penalties.
+4. **Tuning acceptance criteria:** a patient, attentive flipper should
+   meaningfully out-earn naive selling; a mindless buy-dump loop should not
+   out-earn sourced money-makers. Balance passes test against both.
+
 ## Amendment 2 (standard-mandated sourcing corrections)
 
 The locked design predates the verification standard and sourced from OSRS
