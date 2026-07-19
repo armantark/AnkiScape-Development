@@ -4,6 +4,35 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Blue dragon family Combat closure — 2026-07-18
+
+- Added the ordinary level-111 Blue dragon and level-48 Baby blue dragon as
+  separate, source-backed target choices that both count for the family.
+- Preserved the adult's 1,100 LP, 107.6 Slayer XP, six-tick melee, 110-LP
+  melee maximum, dragonfire, exact emulator defences/respawn, guaranteed Blue
+  dragonhide and Dragon bones, 128-slot ordinary table, 404-slot charm table,
+  1/128 hard clue, and Summoning-99 1/2,000 egg gate.
+- Kept the baby melee-only with 510 LP, 50 Slayer XP, no dragonfire, and
+  guaranteed Baby dragon bones.
+- Added generic player-skill gates to Combat drop tables and integration
+  coverage proving a kill forwards player levels without consuming a gated
+  table's RNG when locked.
+- Pinned both pre-cutoff enemy sprites and their provenance.
+- Advanced Chaeldar to 21/34 while leaving its partial pool hidden and
+  unrenormalized. Thirteen Combat-family blockers remain.
+- Excluded location, quest-route, Daemonheim, and Dungeoneering contexts. No
+  owner-facing design fork emerged. Durable evidence:
+  `source-audits/slayer-blue-dragon-family-combat-2026-07-18.md`.
+- Focused Combat/Slayer/metadata coverage passes 350 tests, and the focused
+  real offscreen Qt picker passes. Full non-Qt and real offscreen Qt discovery
+  each pass all 1,668 tests; the real Qt run has zero skips or failures.
+- Test quality has zero hard issues across 73 files and 1,668 methods.
+  Documentation, compilation, provenance JSON, diff, readiness, reachability,
+  and worktree-safety gates pass.
+- Results:
+  `status-updates/slayer-blue-dragon-family-results-2026-07-18.html`; mobile
+  copy: <https://ez10f8mr9lib.postplan.dev>.
+
 ## Slayer Fire giant Combat closure — 2026-07-18
 
 - Added the ordinary level-86 Fire giant with 1,110 LP, 111 Slayer XP,
@@ -39,7 +68,8 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
 - Registered Chaeldar at Combat 70 behind Lost City while keeping
   `runtime_enabled=False`; live master selection cannot see or renormalize the
   partial pool.
-- Derived 20/34 readiness after the Fire giant closure. Fourteen absent target identities each report one
+- Derived 21/34 readiness after the Fire giant and Blue dragon closures.
+  Thirteen absent target identities each report one
   deterministic `combat_target` blocker, while Gargoyles and Mutated
   zygomites reuse their already-live finisher mechanics.
 - Preserved the source-blocked Rum Deal stage boundary for Fever spiders

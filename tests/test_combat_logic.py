@@ -2655,6 +2655,125 @@ class CombatLogicTest(unittest.TestCase):
             {"Big bones": 1, "Coins": 60, "Curved bone": 1},
         )
 
+    def test_blue_dragon_drops_preserve_nested_rolls_and_summoning_egg_gate(self):
+        dragon = COMBAT_ENEMY_DATA["blue_dragon"]
+        nested_herb = _combat_roll_drops(
+            dragon,
+            _rng([54 / 128, 0.0, 0.999999, 0.999999, 0.999999]),
+            {"summoning_level": 99},
+        )
+        egg_ready = _combat_roll_drops(
+            dragon,
+            _rng([0.0, 0.999999, 0.0, 0.999999]),
+            {"summoning_level": 99},
+        )
+        egg_locked = _combat_roll_drops(
+            dragon,
+            _rng([0.0, 0.999999, 0.999999]),
+            {"summoning_level": 98},
+        )
+
+        self.assertEqual(
+            nested_herb,
+            {"Blue dragonhide": 1, "Dragon bones": 1, "Grimy guam": 1},
+        )
+        self.assertEqual(
+            egg_ready,
+            {
+                "Blue dragonhide": 1,
+                "Dragon bones": 1,
+                "Coins": 44,
+                "Blue dragon egg": 1,
+            },
+        )
+        self.assertEqual(
+            egg_locked,
+            {"Blue dragonhide": 1, "Dragon bones": 1, "Coins": 44},
+        )
+        self.assertEqual(
+            _combat_roll_drops(
+                COMBAT_ENEMY_DATA["baby_blue_dragon"],
+                _rng([]),
+            ),
+            {"Baby dragon bones": 1},
+        )
+
+    def test_combat_kill_forwards_player_levels_to_gated_drop_tables(self):
+        gated_enemy_data = {
+            "gated_enemy": {
+                "display_name": "Gated enemy",
+                "level": 1,
+                "group": "Test",
+                "attack_style": "melee",
+                "attack_speed": 6,
+                "max_hit": 0,
+                "slayer_xp": 1.0,
+                "stats": {
+                    "hitpoints": 1,
+                    "attack": 1,
+                    "strength": 1,
+                    "defence": 1,
+                    "magic": 1,
+                    "ranged": 1,
+                },
+                "bonuses": {},
+                "drops": {
+                    "guaranteed": (),
+                    "tables": (
+                        {
+                            "name": "Summoning-gated drop",
+                            "total": 1,
+                            "required_skill_levels": (("summoning", 99),),
+                            "slots": (
+                                {
+                                    "item": "Blue dragon egg",
+                                    "quantity": 1,
+                                    "slots": 1,
+                                },
+                            ),
+                        },
+                    ),
+                },
+                "source": "test",
+            },
+        }
+
+        ready, ready_ok, ready_result = apply_combat_burst_pure(
+            _player(
+                current_combat_target="gated_enemy",
+                summoning_level=99,
+                combat_encounter={
+                    "target_id": "gated_enemy",
+                    "enemy_lifepoints": 1,
+                },
+            ),
+            gated_enemy_data,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.0, 0.0, 0.0]),
+        )
+        locked, locked_ok, locked_result = apply_combat_burst_pure(
+            _player(
+                current_combat_target="gated_enemy",
+                summoning_level=98,
+                combat_encounter={
+                    "target_id": "gated_enemy",
+                    "enemy_lifepoints": 1,
+                },
+            ),
+            gated_enemy_data,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.0, 0.0]),
+        )
+
+        self.assertTrue(ready_ok, ready_result)
+        self.assertTrue(locked_ok, locked_result)
+        self.assertTrue(ready_result["killed"])
+        self.assertTrue(locked_result["killed"])
+        self.assertEqual(ready["inventory"], {"Blue dragon egg": 1})
+        self.assertEqual(locked["inventory"], {})
+
     def test_bloodveld_drop_roll_can_reach_black_boots(self):
         self.assertEqual(
             _combat_roll_drops(

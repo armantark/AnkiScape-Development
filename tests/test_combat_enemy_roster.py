@@ -30,6 +30,8 @@ NEW_COMBAT_ENEMIES = (
     "molanisk",
     "turoth",
     "fire_giant",
+    "blue_dragon",
+    "baby_blue_dragon",
     "ogre",
     "jackal",
     "icefiend",
@@ -361,6 +363,8 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("molanisk", "Molanisk icon.png"),
             ("turoth", "Turoth icon.png"),
             ("fire_giant", "Fire giant.png"),
+            ("blue_dragon", "Blue dragon.png"),
+            ("baby_blue_dragon", "Baby blue dragon.png"),
         ):
             with self.subTest(target=target_id):
                 relative_path = f"combatenemies/{target_id}.png"
@@ -401,6 +405,16 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                     self.assertEqual(
                         provenance[relative_path]["timestamp"],
                         "2011-11-21T02:39:58Z",
+                    )
+                if target_id == "blue_dragon":
+                    self.assertEqual(
+                        provenance[relative_path]["timestamp"],
+                        "2011-02-01T13:53:37Z",
+                    )
+                if target_id == "baby_blue_dragon":
+                    self.assertEqual(
+                        provenance[relative_path]["timestamp"],
+                        "2012-05-10T09:54:19Z",
                     )
 
     def test_green_dragon_preserves_cutoff_combat_and_drop_selectors(self):
@@ -613,6 +627,57 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             )
         self.assertIn("oldid=6555306", giant["source"])
         self.assertIn("non-Daemonheim", giant["source_status"])
+
+    def test_blue_dragon_family_preserves_adult_and_baby_cutoff_variants(self):
+        adult = COMBAT_ENEMY_DATA["blue_dragon"]
+        baby = COMBAT_ENEMY_DATA["baby_blue_dragon"]
+
+        self.assertEqual(adult["level"], 111)
+        self.assertEqual(adult["attack_speed"], 6)
+        self.assertEqual(adult["max_hit"], 110)
+        self.assertEqual(adult["slayer_xp"], 107.6)
+        self.assertEqual(
+            adult["stats"],
+            {
+                "hitpoints": 1100,
+                "attack": 95,
+                "strength": 95,
+                "defence": 95,
+                "magic": 1,
+                "ranged": 1,
+            },
+        )
+        self.assertEqual(adult["dragonfire"]["chance_numerator"], 1)
+        self.assertEqual(adult["dragonfire"]["chance_denominator"], 4)
+        self.assertEqual(adult["dragonfire"]["unprotected_max_hit"], 500)
+        self.assertEqual(adult["drops"]["guaranteed"], (("Blue dragonhide", 1), ("Dragon bones", 1)))
+        self.assertEqual(
+            [(table["name"], table["total"]) for table in adult["drops"]["tables"]],
+            [
+                ("Darkan ordinary", 128),
+                ("Darkan charms", 404),
+                ("Blue dragon egg (Summoning 99)", 2000),
+                ("Hard clue", 128),
+            ],
+        )
+        for table in adult["drops"]["tables"]:
+            self.assertEqual(
+                sum(slot["slots"] for slot in table["slots"]),
+                table["total"],
+            )
+        self.assertEqual(
+            adult["drops"]["tables"][2]["required_skill_levels"],
+            (("summoning", 99),),
+        )
+
+        self.assertEqual(baby["level"], 48)
+        self.assertEqual(baby["attack_speed"], 6)
+        self.assertEqual(baby["max_hit"], 60)
+        self.assertEqual(baby["slayer_xp"], 50.0)
+        self.assertNotIn("dragonfire", baby)
+        self.assertEqual(baby["drops"]["guaranteed"], (("Baby dragon bones", 1),))
+        self.assertIn("oldid=6506510", adult["source"])
+        self.assertIn("oldid=6516086", baby["source"])
 
     def test_bloodveld_preserves_the_cutoff_level_76_variant_and_drop_table(self):
         bloodveld = COMBAT_ENEMY_DATA["bloodveld"]

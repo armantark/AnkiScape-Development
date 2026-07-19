@@ -4905,8 +4905,29 @@ def combat_enemy_drop_item_names_pure(enemy):
     return tuple(names)
 
 
-def _combat_roll_drop_table(table, rng, drops):
+def _combat_drop_requirements_met(spec, player_data):
+    requirements = spec.get("required_skill_levels", ()) if isinstance(spec, Mapping) else ()
+    if not requirements:
+        return True
+    if not isinstance(player_data, Mapping):
+        return False
+    for requirement in requirements:
+        if not isinstance(requirement, (tuple, list)) or len(requirement) < 2:
+            return False
+        skill_id = requirement[0]
+        if (
+            not isinstance(skill_id, str)
+            or _combat_base_skill_level(player_data, skill_id, 1)
+            < _positive_int(requirement[1], 1)
+        ):
+            return False
+    return True
+
+
+def _combat_roll_drop_table(table, rng, drops, player_data=None):
     if not isinstance(table, Mapping):
+        return
+    if not _combat_drop_requirements_met(table, player_data):
         return
     total = _positive_int(table.get("total", 0), 0)
     slots = tuple(row for row in table.get("slots", ()) or () if isinstance(row, Mapping))
@@ -4924,7 +4945,7 @@ def _combat_roll_drop_table(table, rng, drops):
             continue
         nested_table = slot.get("table")
         if isinstance(nested_table, Mapping):
-            _combat_roll_drop_table(nested_table, rng, drops)
+            _combat_roll_drop_table(nested_table, rng, drops, player_data)
             break
         item_name = slot.get("item")
         if isinstance(item_name, str):
@@ -4932,7 +4953,7 @@ def _combat_roll_drop_table(table, rng, drops):
         break
 
 
-def _combat_roll_drops(enemy, rng):
+def _combat_roll_drops(enemy, rng, player_data=None):
     drops = {}
     drop_spec = enemy.get("drops", {}) if isinstance(enemy, Mapping) else {}
     if not isinstance(drop_spec, Mapping):
@@ -4941,7 +4962,7 @@ def _combat_roll_drops(enemy, rng):
         if isinstance(item_name, str):
             drops[item_name] = drops.get(item_name, 0) + max(1, _positive_int(quantity, 1))
     for table in drop_spec.get("tables", ()) or ():
-        _combat_roll_drop_table(table, rng, drops)
+        _combat_roll_drop_table(table, rng, drops, player_data)
     return drops
 
 
@@ -4995,7 +5016,7 @@ def apply_combat_finisher_pure(player_data, enemy_data=None, rng=None):
         }
 
     kill_drops = _combat_apply_triple_charm_reward(
-        data, _combat_roll_drops(enemy, rng)
+        data, _combat_roll_drops(enemy, rng, data)
     )
     (
         data,
@@ -7819,7 +7840,7 @@ def apply_combat_burst_pure(
                 kills += 1
                 killed = True
                 kill_drops = _combat_apply_triple_charm_reward(
-                    data, _combat_roll_drops(enemy, rng)
+                    data, _combat_roll_drops(enemy, rng, data)
                 )
                 data, kill_drops, passive_prayer_xp, prayer_ticks, _prayer_effects = resolve_prayer_kill_effects_pure(
                     data,
@@ -8182,7 +8203,7 @@ def apply_combat_burst_pure(
                 kills += 1
                 killed = True
                 kill_drops = _combat_apply_triple_charm_reward(
-                    data, _combat_roll_drops(enemy, rng)
+                    data, _combat_roll_drops(enemy, rng, data)
                 )
                 data, kill_drops, passive_prayer_xp, prayer_ticks, _prayer_effects = resolve_prayer_kill_effects_pure(
                     data,

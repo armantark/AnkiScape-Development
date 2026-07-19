@@ -2526,6 +2526,66 @@ FIRE_GIANT_DROPS = {
     ),
 }
 
+BLUE_DRAGON_DROPS = {
+    "guaranteed": (("Blue dragonhide", 1), ("Dragon bones", 1)),
+    "tables": (
+        {
+            "name": "Darkan ordinary",
+            "total": 128,
+            "slots": (
+                {"item": "Coins", "quantity": 44, "slots": 29},
+                {"item": "Coins", "quantity": 132, "slots": 25},
+                {"table": DARKAN_HERB_DROP_TABLE, "slots": 15},
+                {"item": "Coins", "quantity": 200, "slots": 10},
+                {"item": "Water rune", "quantity": 75, "slots": 8},
+                {"item": "Nature rune", "quantity": 15, "slots": 5},
+                {"item": "Coins", "quantity": 11, "slots": 5},
+                {"table": DARKAN_GEM_DROP_TABLE, "slots": 5},
+                {"item": "Steel platelegs", "quantity": 1, "slots": 4},
+                {"item": "Mithril hatchet", "quantity": 1, "slots": 3},
+                {"item": "Mithril spear", "quantity": 1, "slots": 3},
+                {"item": "Law rune", "quantity": 3, "slots": 3},
+                {"item": "Adamantite ore", "quantity": 1, "slots": 3},
+                {"item": "Bass", "quantity": 1, "slots": 3},
+                {"item": "Adamant dagger", "quantity": 1, "slots": 2},
+                {"item": "Adamant full helm", "quantity": 1, "slots": 1},
+                {"item": "Mithril kiteshield", "quantity": 1, "slots": 1},
+                {"item": "Rune dagger", "quantity": 1, "slots": 1},
+                {"item": "Fire rune", "quantity": 37, "slots": 1},
+                {"item": "Coins", "quantity": 440, "slots": 1},
+            ),
+        },
+        {
+            "name": "Darkan charms",
+            "total": 404,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 15},
+                {"item": "Green charm", "quantity": 1, "slots": 79},
+                {"item": "Crimson charm", "quantity": 1, "slots": 15},
+                {"item": "Blue charm", "quantity": 1, "slots": 3},
+                {"slots": 292},
+            ),
+        },
+        {
+            "name": "Blue dragon egg (Summoning 99)",
+            "total": 2000,
+            "required_skill_levels": (("summoning", 99),),
+            "slots": (
+                {"item": "Blue dragon egg", "quantity": 1, "slots": 1},
+                {"slots": 1999},
+            ),
+        },
+        {
+            "name": "Hard clue",
+            "total": 128,
+            "slots": (
+                {"item": "Clue scroll (hard)", "quantity": 1, "slots": 1},
+                {"slots": 127},
+            ),
+        },
+    ),
+}
+
 OGRE_DROPS = {
     "guaranteed": (("Big bones", 1),),
     "tables": (
@@ -8017,6 +8077,112 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "source": (
             f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
             "definitions/other/earth_warrior_level_51.plugin.kts"
+        ),
+    },
+    "blue_dragon": {
+        "display_name": "Blue dragon",
+        "level": 111,
+        "group": "Dragons",
+        "dragonfire": {
+            "chance_numerator": 1,
+            "chance_denominator": 4,
+            "unprotected_max_hit": 500,
+            "partial_max_hit": 50,
+            "shield_items": ("Anti-dragon shield", "Dragonfire shield"),
+            "source": (
+                f"{LEATHER_DRAGON_COMBAT_SOURCE_PATH}:45-60; "
+                f"{DRAGONFIRE_FORMULA_SOURCE_PATH}:878-908"
+            ),
+            "source_status": (
+                "provisional/darkan hidden attack-selection roll; damage and "
+                "protection tiers corroborated by Blue dragon oldid=6506510 "
+                "and Dragonfire oldid=6534496"
+            ),
+        },
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 110,
+        "slayer_xp": 107.6,
+        "stats": {
+            "hitpoints": 1100,
+            "attack": 95,
+            "strength": 95,
+            "defence": 95,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 50,
+            "defence_slash": 70,
+            "defence_crush": 70,
+            "defence_magic": 60,
+            "defence_ranged": 50,
+            "melee_strength": 0,
+        },
+        "drops": BLUE_DRAGON_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Blue_dragon?oldid=6506510; "
+            f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/"
+            "content/npcs/definitions/dragons/blue_dragon_level_111.plugin.kts; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/blue_dragon.json"
+        ),
+        "source_status": (
+            "period exact ordinary level, LP, Slayer XP, six-tick melee, "
+            "110-LP melee maximum, close-range dragonfire, poison behavior, "
+            "guaranteed Dragon bones/Blue dragonhide, and baby substitution; "
+            "game-main exact combat levels/defences; Darkan exact 59-tick "
+            "respawn, 128-slot ordinary selector, nested tables, losslessly "
+            "enumerated charms, 1/128 hard clue, and 1/2000 Summoning-99 egg; "
+            "location and Daemonheim contexts excluded"
+        ),
+    },
+    "baby_blue_dragon": {
+        "display_name": "Baby blue dragon",
+        "level": 48,
+        "group": "Dragons",
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 60,
+        "slayer_xp": 50.0,
+        "stats": {
+            "hitpoints": 510,
+            "attack": 40,
+            "strength": 40,
+            "defence": 40,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 30,
+            "defence_slash": 50,
+            "defence_crush": 50,
+            "defence_magic": 40,
+            "defence_ranged": 30,
+            "melee_strength": 0,
+        },
+        "drops": {"guaranteed": (("Baby dragon bones", 1),), "tables": ()},
+        "source": (
+            "https://runescape.wiki/w/Baby_blue_dragon?oldid=6516086; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "baby_blue_dragon.json"
+        ),
+        "source_status": (
+            "period exact level, LP, Slayer XP, six-tick melee, approximate "
+            "60-LP maximum represented by the corroborating Darkan maximum, "
+            "no dragonfire, poison behavior, guaranteed Baby dragon bones, "
+            "and Blue-dragon Slayer substitution; Darkan exact combat levels, "
+            "defences, and 59-tick respawn; quest-only bone and post-cutoff "
+            "loot excluded"
         ),
     },
     "green_dragon": {

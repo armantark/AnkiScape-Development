@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape — Blue dragon family closure</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07101c;
+      --panel: #0d1b2d;
+      --panel-2: #122640;
+      --ink: #eef7ff;
+      --muted: #a8bdd2;
+      --blue: #55a9ff;
+      --ice: #a8ddff;
+      --gold: #f3cc66;
+      --green: #77dda8;
+      --line: #24486b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 82% -8%, #164e83 0, transparent 34rem),
+        radial-gradient(circle at 4% 56%, #15284c 0, transparent 30rem),
+        linear-gradient(150deg, var(--bg), #091426 58%, #040a12);
+      color: var(--ink);
+      font: 16px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 56px 0 72px; }
+    .eyebrow { color: var(--blue); letter-spacing: .14em; text-transform: uppercase; font-size: .74rem; font-weight: 800; }
+    h1 { margin: 8px 0 12px; font-size: clamp(2.45rem, 7vw, 5.65rem); line-height: .92; letter-spacing: -.055em; }
+    .lead { max-width: 790px; margin: 0; color: var(--muted); font-size: clamp(1.05rem, 2.2vw, 1.35rem); }
+    .hero { position: relative; overflow: hidden; padding: 38px; border: 1px solid var(--line); border-radius: 28px; background: linear-gradient(135deg, #122640f2, #081321f2); box-shadow: 0 28px 80px #0009; }
+    .hero::after { content: "111"; position: absolute; right: 8px; bottom: -42px; color: #55a9ff12; font-size: 14rem; font-weight: 900; line-height: 1; }
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 30px; position: relative; z-index: 1; }
+    .metric { padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: #07111fcc; }
+    .metric strong { display: block; color: var(--ice); font-size: 1.65rem; }
+    .metric span { color: var(--muted); font-size: .82rem; }
+    section { margin-top: 24px; padding: 28px; border: 1px solid var(--line); border-radius: 22px; background: var(--panel); }
+    h2 { margin: 0 0 18px; font-size: 1.25rem; letter-spacing: -.02em; }
+    .grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 24px; }
+    .family { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .dragon { padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel-2); }
+    .dragon b { display: block; color: var(--ice); font-size: 1.05rem; margin-bottom: 5px; }
+    .dragon span { color: var(--muted); font-size: .88rem; }
+    .selector { display: grid; grid-template-columns: 29fr 25fr 15fr 10fr 49fr; height: 24px; overflow: hidden; border-radius: 999px; background: #050b12; }
+    .selector span:nth-child(1) { background: var(--gold); }
+    .selector span:nth-child(2) { background: #df9f47; }
+    .selector span:nth-child(3) { background: #65b979; }
+    .selector span:nth-child(4) { background: var(--blue); }
+    .selector span:nth-child(5) { background: #315a7e; }
+    .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; color: var(--muted); font-size: .83rem; }
+    .legend b { color: var(--ink); }
+    .checks { display: grid; gap: 10px; }
+    .check { display: flex; justify-content: space-between; gap: 16px; padding: 12px 14px; border-radius: 12px; background: var(--panel-2); }
+    .check span:last-child { color: var(--green); font-weight: 750; }
+    .readiness { display: grid; grid-template-columns: repeat(34, 1fr); gap: 5px; margin: 18px 0 10px; }
+    .readiness i { height: 18px; border-radius: 4px; background: #243449; }
+    .readiness i:nth-child(-n+21) { background: linear-gradient(#70beff, #297bd0); box-shadow: 0 0 12px #55a9ff55; }
+    .note { color: var(--muted); }
+    code { color: #c7e8ff; font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    footer { margin-top: 22px; color: #70889f; font-size: .78rem; text-align: center; }
+    @media (max-width: 760px) {
+      main { width: min(100% - 20px, 1120px); padding-top: 20px; }
+      .hero, section { padding: 22px; border-radius: 18px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .grid, .family { grid-template-columns: 1fr; }
+      .readiness { grid-template-columns: repeat(17, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <article class="hero">
+    <div class="eyebrow">Slayer · source-closed · 18 July 2026</div>
+    <h1>Blue dragons<br>are live.</h1>
+    <p class="lead">Adult and baby are separate playable choices with honest dragonfire, exact selectors, cutoff art, and a real Summoning-99 egg gate.</p>
+    <div class="metrics">
+      <div class="metric"><strong>1,100</strong><span>adult life points</span></div>
+      <div class="metric"><strong>500</strong><span>dragonfire ceiling</span></div>
+      <div class="metric"><strong>107.6</strong><span>adult Slayer XP</span></div>
+      <div class="metric"><strong>21 / 34</strong><span>Chaeldar readiness</span></div>
+    </div>
+  </article>
+
+  <div class="grid">
+    <section>
+      <h2>One family, two honest targets</h2>
+      <div class="family">
+        <div class="dragon">
+          <b>Adult · level 111</b>
+          <span>Six-tick melee, close-range dragonfire, Blue dragonhide, Dragon bones, exact ordinary/charm/clue selectors, and the Summoning-99 egg roll.</span>
+        </div>
+        <div class="dragon">
+          <b>Baby · level 48</b>
+          <span>Six-tick melee, no dragonfire, Baby dragon bones, and explicit Blue-dragon-task substitution.</span>
+        </div>
+      </div>
+    </section>
+    <section>
+      <h2>Closure proof</h2>
+      <div class="checks">
+        <div class="check"><span>Focused logic and registry</span><span>350 pass</span></div>
+        <div class="check"><span>Full non-Qt discovery</span><span>1,668 pass</span></div>
+        <div class="check"><span>Full real offscreen Qt</span><span>1,668 pass</span></div>
+        <div class="check"><span>Test-quality hard issues</span><span>0</span></div>
+        <div class="check"><span>Worktree layout</span><span>Safe</span></div>
+      </div>
+    </section>
+  </div>
+
+  <section>
+    <h2>The adult's exact ordinary roll</h2>
+    <div class="selector" aria-label="128-slot ordinary drop distribution">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="legend">
+      <span><b>29</b> coins ×44</span>
+      <span><b>25</b> coins ×132</span>
+      <span><b>15</b> herb table</span>
+      <span><b>10</b> coins ×200</span>
+      <span><b>49</b> remaining exact rows</span>
+    </div>
+    <p class="note">Guaranteed hide and bones, the 404-slot charm selector, the 1/128 hard clue, and the 1/2,000 egg are independent channels. The egg table is skipped before its RNG draw below Summoning 99.</p>
+  </section>
+
+  <section>
+    <h2>Chaeldar stays honest</h2>
+    <div class="readiness" aria-label="21 of 34 Chaeldar families ready">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      <i></i><i></i><i></i><i></i>
+    </div>
+    <p class="note">The hidden master moves from 20/34 to 21/34. The pool remains neither selectable nor renormalized; thirteen missing Combat identities remain deterministic blockers.</p>
+  </section>
+
+  <section>
+    <h2>Evidence boundary</h2>
+    <p class="note">Period authority is RuneScape Wiki <code>oldid=6506510</code> and <code>oldid=6516086</code>. Executable definitions and selectors come from Darkan commit <code>d759fdd77</code>. The adult's 1,100 LP and 107.6 Slayer XP intentionally outrank Darkan's stale 1,050/105 pair. Location, quest-route, Daemonheim, and Dungeoneering behavior are excluded.</p>
+  </section>
+
+  <footer>AnkiScape · frozen 20 November 2012 · no wall-clock gameplay</footer>
+</main>
+</body>
+</html>

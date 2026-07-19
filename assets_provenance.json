@@ -659,6 +659,18 @@
     "source_wiki": "osrs",
     "timestamp": "2020-02-10T05:11:46Z"
   },
+  "combatenemies/baby_blue_dragon.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Baby_blue_dragon.png",
+    "file_title": "Baby blue dragon.png",
+    "image_url": "https://runescape.wiki/images/archive/20130414201731%21Baby_blue_dragon.png?5598f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "de87803872b56269ce0478098763c45601b00397",
+    "size": 299562,
+    "source_wiki": "rs3",
+    "timestamp": "2012-05-10T09:54:19Z"
+  },
   "combatenemies/barbarian.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Barbarian_%28historical%29.png",
     "file_title": "Barbarian (historical).png",
@@ -766,6 +778,18 @@
     "size": 60880,
     "source_wiki": "osrs",
     "timestamp": "2019-06-18T15:37:18Z"
+  },
+  "combatenemies/blue_dragon.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Blue_dragon.png",
+    "file_title": "Blue dragon.png",
+    "image_url": "https://runescape.wiki/images/archive/20130510203256%21Blue_dragon.png?694f7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bc969717f5dcf11dc91835bee02453482bc2a685",
+    "size": 1199051,
+    "source_wiki": "rs3",
+    "timestamp": "2011-02-01T13:53:37Z"
   },
   "combatenemies/brine_rat.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Brine_rat_icon.png",

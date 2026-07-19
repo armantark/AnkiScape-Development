@@ -308,16 +308,18 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   `source-audits/slayer-earth-warrior-wilderness-risk-2026-07-18.md`.
 - Chaeldar is now the fourth completely encoded pool. Its 34 master-specific
   rows preserve the provisional 388-point denominator and remain hidden at
-  20/34 readiness. Fire giants now use the ordinary level-86 representative
-  with exact Combat, nested-drop, charm, tertiary, and cutoff-asset data. The
-  fourteen exact blockers are Blue dragons, Bronze dragons, Cave horrors,
-  Dagannoths, Elves, Fever spiders, Fungal magi, Grifolapines, Grifolaroos,
+  21/34 readiness. Fire giants now use the ordinary level-86 representative,
+  while Blue dragons expose separate adult and baby task choices with
+  source-backed dragonfire separation, exact selectors, a Summoning-99 egg
+  gate, and cutoff assets. The thirteen exact blockers are Bronze dragons,
+  Cave horrors, Dagannoths, Elves, Fever spiders, Fungal magi, Grifolapines, Grifolaroos,
   Jungle strykewyrms, Kurasks, Trolls, Vyrewatch, and Warped tortoises. Resume from
   `tools/audit_slayer_readiness.py`; do not render or renormalize the pool.
   Fever-spider access remains a partial Rum Deal permission seam rather than a
   false completion gate. See
   `source-audits/slayer-chaeldar-registry-2026-07-18.md` and
-  `source-audits/slayer-fire-giant-combat-2026-07-18.md`.
+  `source-audits/slayer-fire-giant-combat-2026-07-18.md` and
+  `source-audits/slayer-blue-dragon-family-combat-2026-07-18.md`.
 - Darkan ordinary-drop semantics are corrected across eleven live Slayer
   targets. Sibling nonzero JSON rows now share one cumulative selector, while
   rate-zero rows, charms, and explicitly labeled period abstractions remain

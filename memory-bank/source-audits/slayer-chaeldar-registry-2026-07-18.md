@@ -32,29 +32,29 @@ XP and every declared feature.
 ## Exact current readiness
 
 The generated readiness ledger originally reported **19/34** families ready.
-The Fire giant closure recorded in
-`slayer-fire-giant-combat-2026-07-18.md` advances the live ledger to
-**20/34**. The following fourteen identities remain absent from
+The Fire giant and Blue dragon family closures recorded in
+`slayer-fire-giant-combat-2026-07-18.md` and
+`slayer-blue-dragon-family-combat-2026-07-18.md` advance the live ledger to
+**21/34**. The following thirteen identities remain absent from
 `COMBAT_ENEMY_DATA` and each produces one
 stable `combat_target` blocker:
 
-1. Blue dragons
-2. Bronze dragons
-3. Cave horrors
-4. Dagannoths
-5. Elves
-6. Fever spiders
-7. Fungal magi
-8. Grifolapines
-9. Grifolaroos
-10. Jungle strykewyrms
-11. Kurasks
-12. Trolls
-13. Vyrewatch
-14. Warped tortoises
+1. Bronze dragons
+2. Cave horrors
+3. Dagannoths
+4. Elves
+5. Fever spiders
+6. Fungal magi
+7. Grifolapines
+8. Grifolaroos
+9. Jungle strykewyrms
+10. Kurasks
+11. Trolls
+12. Vyrewatch
+13. Warped tortoises
 
 Gargoyles and both Mutated-zygomite rows were already complete and now
-certify their families through the shared finisher engine. The twenty ready
+certify their families through the shared finisher engine. The twenty-one ready
 families do not make Chaeldar selectable: the runtime registry excludes all
 hidden masters, and catalog integrity rejects a hidden pool only after it is
 fully certified.
