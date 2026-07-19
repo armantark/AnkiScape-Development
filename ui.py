@@ -454,6 +454,7 @@ DEFAULT_THIEVING_TARGET = str(
     getattr(_thieving_data, "DEFAULT_THIEVING_TARGET", "pickpocket_man")
 )
 THIEVING_ITEM_IMAGES = getattr(_thieving_data, "THIEVING_ITEM_IMAGES", {})
+THIEVING_NPC_IMAGES = getattr(_thieving_data, "THIEVING_NPC_IMAGES", {})
 
 try:
     from .agility_data import (
@@ -1000,6 +1001,13 @@ THIEVING_ITEM_IMAGES = {
     for definition in (_ITEM_DEFS_BY_KEY.get(item_name),)
     if definition is not None and definition.asset_path
 }
+THIEVING_ITEM_IMAGES.update(
+    {
+        target_id: asset_path
+        for target_id, asset_path in THIEVING_NPC_IMAGES.items()
+        if os.path.exists(asset_path)
+    }
+)
 
 def get_config_bool(key: str, default: bool = True) -> bool:
     """Safely read a boolean config from Anki's profile; fallback to default when unavailable.

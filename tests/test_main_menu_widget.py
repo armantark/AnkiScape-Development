@@ -1072,6 +1072,32 @@ class MainMenuWidgetTest(unittest.TestCase):
             if dialog is not None:
                 dialog.deleteLater()
 
+    def test_thieving_live_npc_rows_render_portraits_instead_of_loot_icons(self) -> None:
+        from thieving_data import THIEVING_NPC_TARGET_IDS
+
+        player_data = _make_player_data()
+        player_data["thieving_level"] = 99
+        player_data["current_thieving"] = "pickpocket_man"
+        dialog = self._open(player_data, current_skill="Thieving")
+        try:
+            tree = dialog.findChild(QTreeWidget, "thievingTargetTree")
+            rows = {
+                item.data(0, Qt.ItemDataRole.UserRole): item
+                for item in _tree_items(tree)
+            }
+            self.assertEqual(
+                set(THIEVING_NPC_TARGET_IDS),
+                {target_id for target_id in THIEVING_NPC_TARGET_IDS if target_id in rows},
+            )
+            for target_id in THIEVING_NPC_TARGET_IDS:
+                self.assertFalse(rows[target_id].icon(0).isNull(), target_id)
+                self.assertEqual(
+                    self._ui.THIEVING_ITEM_IMAGES[target_id],
+                    self._ui.THIEVING_NPC_IMAGES[target_id],
+                )
+        finally:
+            dialog.deleteLater()
+
     def test_agility_panel_renders_grouped_targets_locks_icon_and_commands(self) -> None:
         player_data = _make_player_data()
         player_data["agility_level"] = 1

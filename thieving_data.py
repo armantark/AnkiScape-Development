@@ -8,6 +8,10 @@ are labelled explicitly.
 
 from __future__ import annotations
 
+from pathlib import Path
+
+
+_ROOT = Path(__file__).resolve().parent
 
 PICKPOCKET_SOURCE = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/"
@@ -179,6 +183,20 @@ SOURCE_BLOCKED_TARGETS = {
 }
 
 THIEVING_TARGETS = {**PICKPOCKET_TARGETS, **STALL_TARGETS, **BLACKJACK_TARGETS, **SOURCE_BLOCKED_TARGETS}
+
+THIEVING_NPC_TARGET_IDS = frozenset(
+    {
+        target_id
+        for target_id, spec in THIEVING_TARGETS.items()
+        if spec.get("kind") in {"pickpocket", "blackjack"}
+    }
+    | {"pickpocket_lletya_elf"}
+)
+THIEVING_NPC_IMAGES = {
+    target_id: str(_ROOT / "combatenemies" / f"{target_id}.png")
+    for target_id in THIEVING_NPC_TARGET_IDS
+    if (_ROOT / "combatenemies" / f"{target_id}.png").exists()
+}
 
 # Representative outputs for metadata/icon resolution.  Actual paths are owned
 # by the global item registry; the Thieving table remains pure.

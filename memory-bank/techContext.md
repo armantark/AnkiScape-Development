@@ -41,6 +41,11 @@
   - `source .venv-qt/bin/activate && QT_QPA_PLATFORM=offscreen python tests/test_main_menu_widget.py`
 - These tests are skipped automatically under the plain `run_tests.py` env (no `aqt`), so the core suite stays Qt-free.
 - This loop caught the Skills-hub `_select_skill` closure-shadow bug in under a second; prefer it over manual Anki restarts for UI-behavior regressions.
+- Offscreen Qt remains a fast regression harness, not visual acceptance. For
+  asset/UI closure, fully close any modal, confirm the Anki process actually
+  terminates, relaunch, decline unrelated update prompts, and inspect the
+  native compositor result. A modal-blocked quit can leave the old Python
+  process and stale assets looking deceptively current.
 
 ## Testing Coverage
 Existing tests cover:
@@ -180,6 +185,19 @@ lives in `logic_pure.py`; storage config version 15 adds
   row's output item, so clean herbs, unfinished potions, and finished potions
   render their own sprites.
 - Run the manifest sequentially because every request updates `assets_provenance.json`.
+
+### Thieving target portraits
+
+- `tools/fetch_thieving_assets.py` owns the cutoff-aware 19-person manifest and
+  writes portraits into the existing normalized `combatenemies/` family.
+- `THIEVING_NPC_IMAGES` overrides representative loot art only for pickpockets,
+  Menaphite thug, and the locked Lletya elf. Stalls and safes still use their
+  object/output images.
+- The Watchman and locked Lletya elf use explicitly named historical renders
+  uploaded after cutoff; they are presentation-only exceptions and do not
+  establish mechanics.
+- The ordinary top-level alpha-normalization audit covers these files; no
+  Thieving-specific runtime crop or scale helper exists.
 
 ### Reviewer context actions
 

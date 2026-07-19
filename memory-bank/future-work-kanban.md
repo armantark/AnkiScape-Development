@@ -181,6 +181,10 @@ Labels: trailing `SOURCE AUDIT` and owning-activity dependencies only.
   rows, all 18 2011Scape stall-family rows, wall safe, Menaphite blackjacking,
   shared LP/stun/fight-back, storage v35, grouped Qt surface, assets, and exact
   live cadence. See `memory-bank/source-audits/thieving-tables-2026-07-13.md`.
+- The 2026-07-19 asset follow-up gives every person target its own historical
+  portrait while preserving stall/safe object imagery. All 19 are normalized,
+  provenance-tracked, and covered by the live Qt override regression. See
+  `memory-bank/source-audits/thieving-npc-target-assets-2026-07-19.md`.
 - Remaining source debt: Dorgesh-Kaan chests, Lletya elf, Pirates' Hideout, and
   incomplete blackjack variants. Activities exclusions and rogue/Ardougne
   rewards remain on their owning cards.

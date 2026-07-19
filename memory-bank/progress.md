@@ -4,6 +4,24 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Thieving NPC target portraits — 2026-07-19
+
+- Replaced representative loot/Coins icons with dedicated historical NPC art
+  for all 17 pickpockets, Menaphite thug, and the locked Lletya elf.
+- Kept stalls and safes on their existing object/output imagery, so the override
+  remains semantic rather than global.
+- Added a repeatable cutoff-aware manifest and full provenance for all 19
+  portraits. The 2006 Watchman and 2010 Iorwerth files are explicit
+  historical-title exceptions and infer no gameplay.
+- Kimi K3 and Fable both caught the first tiny Watchman interface token; the
+  root replaced it with the matching full-body historical model.
+- Added pure asset-completeness, live Qt override, and shared alpha-normalization
+  regressions. The actual macOS Anki process was fully restarted and the
+  native panel confirmed the portraits after the stale pre-restart Coins view
+  was eliminated. The pure suite passes 1,775 tests; focused asset/metadata and
+  Qt coverage pass 68 and 2 tests respectively; the complete offscreen Qt suite
+  also passes all 1,775 tests. No design gap emerged.
+
 ## The Pit and reviewer-context first slice — 2026-07-19
 
 - Restricted Talent Scout invitations to the sourced nine-course set and added

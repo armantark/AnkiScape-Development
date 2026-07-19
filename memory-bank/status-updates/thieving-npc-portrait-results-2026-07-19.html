@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape — Thieving NPC Portraits</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101311;
+      --panel: #191e1a;
+      --panel-2: #222923;
+      --ink: #f1f4ef;
+      --muted: #9ca89e;
+      --green: #39d16d;
+      --gold: #d9b75d;
+      --line: #303a32;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 86% 5%, rgba(57, 209, 109, .12), transparent 28rem),
+        var(--bg);
+      color: var(--ink);
+      font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 40px auto 64px; }
+    .eyebrow { color: var(--green); font-size: 12px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    h1 { max-width: 760px; margin: 10px 0 12px; font-size: clamp(34px, 6vw, 68px); line-height: .98; letter-spacing: -.045em; }
+    .lede { max-width: 720px; color: var(--muted); font-size: 18px; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 30px 0; }
+    .metric, .card { border: 1px solid var(--line); border-radius: 16px; background: rgba(25, 30, 26, .88); }
+    .metric { padding: 18px; }
+    .metric strong { display: block; color: var(--green); font-size: 30px; }
+    .metric span { color: var(--muted); }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .card { padding: 22px; }
+    h2 { margin: 0 0 14px; font-size: 20px; }
+    .row { display: flex; align-items: center; gap: 12px; min-height: 40px; border-top: 1px solid var(--line); }
+    .row:first-of-type { border-top: 0; }
+    .coin { width: 26px; height: 20px; border-radius: 50%; background: var(--gold); box-shadow: 5px -3px 0 #a9852a; }
+    .person {
+      position: relative; width: 26px; height: 32px; flex: 0 0 26px;
+    }
+    .person::before, .person::after { content: ""; position: absolute; left: 50%; transform: translateX(-50%); }
+    .person::before { top: 1px; width: 9px; height: 9px; border-radius: 50%; background: #d8a57e; }
+    .person::after { top: 10px; width: 15px; height: 20px; border-radius: 5px 5px 3px 3px; background: var(--c, #4e8b60); }
+    .note { margin-top: 18px; padding: 16px 18px; border-left: 3px solid var(--green); background: var(--panel-2); color: var(--muted); }
+    .checks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 24px; margin: 0; padding: 0; list-style: none; }
+    .checks li::before { content: "✓"; color: var(--green); font-weight: 900; margin-right: 9px; }
+    code { color: #c9efd4; }
+    footer { margin-top: 22px; color: var(--muted); font-size: 13px; }
+    @media (max-width: 760px) {
+      .metrics, .split { grid-template-columns: 1fr 1fr; }
+      .checks { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .metrics, .split { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">AnkiScape visual closure · 19 July 2026</div>
+    <h1>People look like people now.</h1>
+    <p class="lede">The Thieving target list no longer represents pickpocket victims with Coins or first-loot placeholders. Every live or deliberately locked person row now has its own period-tracked portrait.</p>
+
+    <section class="metrics" aria-label="Result metrics">
+      <div class="metric"><strong>19</strong><span>person targets covered</span></div>
+      <div class="metric"><strong>17</strong><span>cutoff file revisions</span></div>
+      <div class="metric"><strong>2</strong><span>scoped historical renders</span></div>
+      <div class="metric"><strong>0</strong><span>alpha-normalization failures</span></div>
+    </section>
+
+    <section class="split">
+      <article class="card">
+        <h2>Before · loot stood in for identity</h2>
+        <div class="row"><span class="coin"></span><span>Man / Woman</span></div>
+        <div class="row"><span class="coin"></span><span>Farmer</span></div>
+        <div class="row"><span class="coin"></span><span>Yanille watchman</span></div>
+        <div class="row"><span class="coin"></span><span>Knight of Ardougne</span></div>
+      </article>
+      <article class="card">
+        <h2>After · one recognizable NPC per row</h2>
+        <div class="row"><span class="person" style="--c:#6e573f"></span><span>Man / Woman</span></div>
+        <div class="row"><span class="person" style="--c:#637a55"></span><span>Farmer</span></div>
+        <div class="row"><span class="person" style="--c:#446d89"></span><span>Yanille watchman</span></div>
+        <div class="row"><span class="person" style="--c:#695197"></span><span>Knight of Ardougne</span></div>
+      </article>
+    </section>
+
+    <section class="card" style="margin-top:16px">
+      <h2>Acceptance evidence</h2>
+      <ul class="checks">
+        <li>Kimi K3 taste pass: SHIP</li>
+        <li>Fable taste pass: SHIP</li>
+        <li>Shared 28 px Qt row treatment retained</li>
+        <li>Stalls and safes keep object art</li>
+        <li>Full-body Watchman replaced tiny token</li>
+        <li>Native macOS Anki verified after full restart</li>
+        <li>1775 pure tests pass</li>
+        <li>1775 complete offscreen Qt tests pass</li>
+      </ul>
+      <div class="note">The first native check still showed Coins because the old modal prevented Anki from actually quitting. The process was then closed cleanly, the unrelated update prompt was declined, and the freshly loaded native panel displayed the new portraits. That is why the real-app proof matters.</div>
+    </section>
+
+    <footer>Implementation, source record, provenance, regressions, taste review, and real-runtime verification are attributable to the canonical <code>main</code> checkout.</footer>
+  </main>
+</body>
+</html>

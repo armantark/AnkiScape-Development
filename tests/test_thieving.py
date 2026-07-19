@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 
 from cadence_kernel import (
     CAP_ONE_ACTION,
@@ -26,7 +27,13 @@ from runtime_actions import (
     handle_utility_answer,
 )
 from storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
-from thieving_data import PICKPOCKET_TARGETS, STALL_TARGETS, THIEVING_TARGETS
+from thieving_data import (
+    PICKPOCKET_TARGETS,
+    STALL_TARGETS,
+    THIEVING_NPC_IMAGES,
+    THIEVING_NPC_TARGET_IDS,
+    THIEVING_TARGETS,
+)
 
 
 def _context(player_data, random_values=()):
@@ -94,6 +101,12 @@ def _blackjack_state(*, fight_back=False):
 
 
 class TestThievingPureMechanics(unittest.TestCase):
+    def test_every_npc_target_has_its_own_portrait_asset(self):
+        self.assertEqual(set(THIEVING_NPC_IMAGES), set(THIEVING_NPC_TARGET_IDS))
+        for target_id, path in THIEVING_NPC_IMAGES.items():
+            self.assertTrue(Path(path).is_file(), target_id)
+            self.assertEqual(Path(path).stem, target_id)
+
     def test_equipped_blackjack_satisfies_blackjacking_item_gate(self):
         player = _blackjack_state()
         player["inventory"] = {}

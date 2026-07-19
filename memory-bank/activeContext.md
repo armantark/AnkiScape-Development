@@ -2,6 +2,18 @@
 
 ## Current Focus
 
+All 19 Thieving people targets now use dedicated NPC portraits rather than
+Coins, first-loot placeholders, or empty icons. Seventeen cutoff revisions and
+two explicitly scoped historical-title exceptions are provenance-tracked under
+`combatenemies/`; stalls and safes retain their object/output art. The shared
+64-pixel/tight-alpha pipeline and 28-pixel Qt row renderer remain unchanged.
+Kimi K3 and Fable both rejected the initial tiny Watchman interface token; it
+was replaced with the matching full-body historical model. The actual macOS
+Anki process was then fully restarted and the native dark-mode Thieving panel
+confirmed the portraits, including ordinary locked-row dimming; this was not
+inferred from the offscreen harness. See
+`source-audits/thieving-npc-target-assets-2026-07-19.md`.
+
 The Pit invitation and reviewer-context first slice are implemented. Only the
 exact nine sourced course variants can invite; default-on automatic acceptance
 stows weapon/shield safely, an active familiar requires explicit confirmation,
