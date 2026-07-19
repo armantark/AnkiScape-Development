@@ -1007,7 +1007,7 @@ Labels: `DESIGN AUDIT`, `MODERN LEAD ONLY`, `NO PARITY CLAIM`.
 
 ### Grand Exchange
 
-Labels: `IMPLEMENT`, `DESIGN LOCKED`.
+Labels: `COMPLETE`, `DESIGN LOCKED`.
 
 - Core design is locked in `memory-bank/fake-grand-exchange-design.md`; do not re-grill it.
 - NPC shops are already live. Owner decision 2026-07-19: the item-breadth
@@ -1015,15 +1015,18 @@ Labels: `IMPLEMENT`, `DESIGN LOCKED`.
   the ongoing item-universe work, rather than waiting for it. Prices and
   limits for not-yet-obtainable items simply stay dormant until their items
   exist.
-- **Backend foundation shipped 2026-07-19:** cache `exchangeable` extraction,
-  the registered-item catalog intersection, eight-slot offer/escrow lifecycle,
-  confirmation gates, Ironman lockout, and save migration are implemented.
+- **Full closure shipped 2026-07-19:** cache `exchangeable` extraction,
+  the registered-item catalog intersection, period-six-slot offer/escrow
+  lifecycle, confirmation gates, Ironman lockout, and save migration are
+  implemented.
   The period price/buy-limit harvest now supplies 1,327 direct prices and 1,637
   limits, with 19 ambiguous identities fail-closed. The bounded hidden-price
   market, stochastic fills, impact/shocks, live review ticks, and deterministic
-  review undo are also implemented. Interface harvest, Bankstanding, and Qt
-  remain in the active GE sequence. See
-  `source-audits/grand-exchange-foundation-boundary-2026-07-19.md`.
+  review undo are implemented. The top-level period interface, offer editing,
+  configurable safety controls, persistent completion notice, and no-XP
+  Bankstanding fallback are live. `grand-exchange-slot-count-supersession-2026-07-19.md`
+  supersedes the older eight-slot/±20% clauses. See
+  `source-audits/grand-exchange-interface-bankstanding-2026-07-19.md`.
 
 ### Level 1-99 time and economy balance — the XP/hour invariant
 

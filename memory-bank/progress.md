@@ -2592,3 +2592,24 @@ Test counts are snapshots; current runs outrank this note.
 - Published
   `status-updates/grand-exchange-market-engine-results-2026-07-19.html`;
   mobile copy: `https://vngdsej73c0r.postplan.dev`.
+
+## Grand Exchange interface and Bankstanding — 2026-07-19
+
+- Completed the player-facing market with the cutoff-faithful six offer slots,
+  Guide / ±5% / custom price controls, registered-item buy search,
+  owned-item-only sell search, quantity-one defaults, preview and configurable
+  confirmation, queue-age-resetting offer edits, cancel, partial collect,
+  collect-all, and Ironman lockout.
+- Added the persistent collectible HUD notice and the no-XP Bankstanding
+  Economy activity. Material/source exhaustion now warns once and redirects
+  future reviews without auto-resuming when stock later arrives.
+- Removed the Bankstanding callback's duplicate mid-review save so Farming
+  clock advancement, fallback selection, RNG state, persistence, and answer
+  undo remain one atomic transaction.
+- Superseded every older eight-slot / ±20% clause under
+  `grand-exchange-slot-count-supersession-2026-07-19.md`; full implementation
+  evidence is
+  `source-audits/grand-exchange-interface-bankstanding-2026-07-19.md`.
+- Published
+  `status-updates/grand-exchange-interface-bankstanding-results-2026-07-19.html`;
+  mobile copy: `https://e62v7fq2zr2o.postplan.dev`.

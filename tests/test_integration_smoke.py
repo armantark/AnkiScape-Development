@@ -1632,10 +1632,9 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["gains"], ["Opened 1 bird nest"])
 
-    def test_utility_out_of_materials_switches_off_and_warns(self):
-        # Running a Utility activity with no materials must warn once and switch
-        # the active skill off (current_skill -> "None") so it stops nagging on
-        # every card; the player re-picks from the menu to resume.
+    def test_utility_out_of_materials_switches_to_bankstanding_and_warns(self):
+        # Material exhaustion warns once, then future cards keep the ordinary
+        # market clock moving through the settled no-XP Bankstanding fallback.
         addon = _load_addon_as_package("ankiscape_utility_depleted")
         errors = []
         addon.check_achievements = lambda _d: None
@@ -1648,15 +1647,16 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_utility_answer()
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utility / Activities")
+        self.assertEqual(addon.player_data["current_utility"], "bankstanding")
         self.assertEqual(len(errors), 1)
-        self.assertIn("switched off", errors[0][1])
+        self.assertIn("Bankstanding", errors[0][1])
         self.assertIn("Clay", errors[0][1])
 
-    def test_crafting_missing_intermediate_names_material_and_switches_off(self):
+    def test_crafting_missing_intermediate_names_material_and_uses_bankstanding(self):
         # "Pot" needs an "Unfired pot", not Soft clay directly. The error must name
         # the actual missing item (so a bank full of Soft clay doesn't look like a
-        # bug) and switch Crafting off.
+        # bug) and switch future reviews to Bankstanding.
         addon = _load_addon_as_package("ankiscape_craft_depleted")
         errors = []
         addon.check_achievements = lambda _d: None
@@ -1673,10 +1673,11 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_crafting_answer()
 
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utility / Activities")
+        self.assertEqual(addon.player_data["current_utility"], "bankstanding")
         self.assertEqual(len(errors), 1)
         self.assertIn("Pot (unfired)", errors[0][1])
-        self.assertIn("switched off", errors[0][1])
+        self.assertIn("Bankstanding", errors[0][1])
 
     def test_changing_target_refreshes_review_hud(self):
         # Switching the active Utility activity (or any target) must push the new
@@ -1991,6 +1992,106 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["crafting_exp"], 0)
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["gains"], ["+56 Wool"])
+
+    def test_bankstanding_advances_only_the_normal_review_market_tick(self):
+        addon = _load_addon_as_package("ankiscape_bankstanding_integration")
+
+        calls = {"save": 0, "gains": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__(
+            "save", calls["save"] + 1
+        )
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.mw = _DummyMW(
+            _DummyCol({"ankiscape_review_action_multiplier": 10})
+        )
+        addon.mw.exp_popup = types.SimpleNamespace(
+            show_text=lambda text: calls["gains"].append(text)
+        )
+        inventory = {"Coins": 1_000, "Logs": 4}
+        addon.player_data = {
+            "inventory": copy.deepcopy(inventory),
+            "current_utility": "bankstanding",
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Utility / Activities"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(
+            _FakeReviewer(),
+            4,
+            lambda _self, _ease: "answered",
+        )
+
+        self.assertEqual(addon.player_data["inventory"], inventory)
+        self.assertEqual(
+            addon.player_data["shop_market_clock"]["market_tick"],
+            1,
+        )
+        self.assertEqual(
+            addon.player_data["ge_market_state"]["last_processed_tick"],
+            1,
+        )
+        self.assertEqual(calls["gains"], [
+            "Bankstanding — Grand Exchange time advanced."
+        ])
+
+    def test_material_exhaustion_falls_back_once_then_bankstands(self):
+        addon = _load_addon_as_package(
+            "ankiscape_material_fallback_bankstanding_integration"
+        )
+        calls = {"errors": [], "gains": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda title, message: calls["errors"].append(
+            (title, message)
+        )
+        addon.mw = _DummyMW(
+            _DummyCol({"ankiscape_review_action_multiplier": 1})
+        )
+        addon.mw.exp_popup = types.SimpleNamespace(
+            show_text=lambda text: calls["gains"].append(text)
+        )
+        addon.player_data = {
+            "inventory": {"Soft clay": 20},
+            "crafting_level": 50,
+            "current_craft": "fire_empty_pot",
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Crafting"
+
+        for _review in range(2):
+            addon.card_turned = True
+            addon.answer_shown = True
+            addon.exp_awarded = False
+            addon.on_answer_card(
+                _FakeReviewer(),
+                4,
+                lambda _self, _ease: "answered",
+            )
+
+        self.assertEqual(addon.current_skill, "Utility / Activities")
+        self.assertEqual(addon.player_data["current_utility"], "bankstanding")
+        self.assertEqual(len(calls["errors"]), 1)
+        self.assertIn("Bankstanding", calls["errors"][0][1])
+        self.assertEqual(
+            calls["gains"],
+            ["Bankstanding — Grand Exchange time advanced."],
+        )
+        self.assertEqual(
+            addon.player_data["shop_market_clock"]["market_tick"],
+            2,
+        )
+        self.assertEqual(
+            addon.player_data["ge_market_state"]["last_processed_tick"],
+            2,
+        )
 
     def test_one_shot_utility_purchase_runs_once_and_switches_off(self):
         # No shipped activity uses deactivate_after_run since the
@@ -3780,6 +3881,52 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertTrue(result["ok"])
         self.assertEqual(addon.player_data["slayer_assignment"]["family_id"], "bats")
         self.assertEqual(addon.player_data["slayer_assignment"]["remaining"], 15)
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_grand_exchange_offer_is_a_direct_undoable_action(self):
+        addon = _load_addon_as_package(
+            "ankiscape_grand_exchange_direct_action_integration"
+        )
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.current_skill = "Utility / Activities"
+        initial = {
+            "inventory": {"Coins": 10_000},
+            "smithing_level": 1,
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+
+        addon._on_main_menu()
+        guide_price = int(addon.GE_ITEM_CATALOG["Logs"]["guide_price"])
+        payload = {
+            "side": "buy",
+            "item_name": "Logs",
+            "quantity": 1,
+            "unit_price": guide_price,
+        }
+        preview = captured["on_ge_action"]("preview_offer", payload)
+        self.assertTrue(preview["ok"])
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+        result = captured["on_ge_action"]("place_offer", payload)
+        self.assertTrue(result["ok"])
+        self.assertEqual(
+            addon.player_data["inventory"]["Coins"],
+            10_000 - guide_price,
+        )
+        self.assertEqual(len(addon.player_data["ge_player_orders"]), 1)
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
         self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
 

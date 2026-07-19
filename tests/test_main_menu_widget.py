@@ -438,6 +438,15 @@ def _open_shop_tab(dialog: "QDialog") -> None:
     QApplication.processEvents()
 
 
+def _open_ge_tab(dialog: "QDialog") -> None:
+    tabs = _find_main_tabs(dialog)
+    index = next(
+        i for i in range(tabs.count()) if tabs.tabText(i) == "Grand Exchange"
+    )
+    tabs.setCurrentIndex(index)
+    QApplication.processEvents()
+
+
 def _open_bank_tab(dialog: "QDialog") -> None:
     tabs = _find_main_tabs(dialog)
     index = next(i for i in range(tabs.count()) if tabs.tabText(i) == "Bank")
@@ -1838,6 +1847,221 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         labels = [label.text() for label in dialog.findChildren(QLabel)]
         self.assertIn("Services / Vendor Actions", labels)
+
+    def test_grand_exchange_tab_renders_period_six_slots_and_routes_an_offer(self) -> None:
+        from grand_exchange_logic import (
+            GE_SLOT_COUNT,
+            apply_ge_frontend_action_pure,
+            ge_frontend_projection_pure,
+        )
+
+        player = _make_player_data()
+        player["inventory"] = {"Coins": 10_000, "Logs": 20}
+        catalog = {
+            "Logs": {
+                "guide_price": 100,
+                "buy_limit": 25_000,
+                "tradeable": True,
+                "exchangeable": True,
+                "category": "logs",
+            },
+            "Coal": {
+                "guide_price": 200,
+                "buy_limit": 25_000,
+                "tradeable": True,
+                "exchangeable": True,
+                "category": "ore",
+            },
+        }
+        calls = []
+
+        def projection():
+            return ge_frontend_projection_pure(player, item_catalog=catalog)
+
+        def action(action_id, payload):
+            calls.append((action_id, dict(payload)))
+            updated, info = apply_ge_frontend_action_pure(
+                player,
+                action_id,
+                payload,
+                item_catalog=catalog,
+            )
+            if info.get("ok") and action_id != "preview_offer":
+                player.clear()
+                player.update(updated)
+            return {**info, "projection": projection()}
+
+        dialog = self._open(
+            player,
+            get_ge_projection=projection,
+            on_ge_action=action,
+        )
+        _open_ge_tab(dialog)
+
+        slots = [
+            dialog.findChild(QToolButton, f"geOfferSlot{index}")
+            for index in range(1, GE_SLOT_COUNT + 1)
+        ]
+        self.assertTrue(all(slot is not None for slot in slots))
+        self.assertIsNone(
+            dialog.findChild(QToolButton, f"geOfferSlot{GE_SLOT_COUNT + 1}")
+        )
+        self.assertIsNone(
+            dialog.findChild(QPushButton, "gePriceMinus20Button")
+        )
+        self.assertIsNone(
+            dialog.findChild(QPushButton, "gePricePlus20Button")
+        )
+        self.assertTrue(all("Empty offer" in slot.text() for slot in slots))
+        self.assertEqual(
+            dialog.findChild(QLabel, "geCoinBalanceLabel").text(),
+            "10,000 Coins",
+        )
+
+        dialog.findChild(QToolButton, "geOfferSafetyToggle").click()
+        dialog.findChild(QSpinBox, "geHighValueConfirmationSpin").setValue(
+            500_000
+        )
+        dialog.findChild(QSpinBox, "geLowPricePercentSpin").setValue(20)
+        dialog.findChild(QSpinBox, "geHighPriceMultiplierSpin").setValue(5)
+        dialog.findChild(QPushButton, "geApplyOfferSafetyButton").click()
+        QApplication.processEvents()
+        self.assertEqual(
+            player["ge_settings"],
+            {
+                "high_value_confirmation": 500_000,
+                "low_price_multiplier": 0.2,
+                "high_price_multiplier": 5.0,
+            },
+        )
+
+        item_list = dialog.findChild(QListWidget, "geItemList")
+        self.assertIsNotNone(item_list)
+        self.assertEqual(item_list.count(), 2)
+        logs_row = next(
+            index
+            for index in range(item_list.count())
+            if item_list.item(index).data(Qt.ItemDataRole.UserRole)["item_name"]
+            == "Logs"
+        )
+        item_list.setCurrentRow(logs_row)
+        QApplication.processEvents()
+        dialog.findChild(QPushButton, "gePricePlus5Button").click()
+        self.assertEqual(
+            dialog.findChild(QSpinBox, "geOfferPriceSpin").value(),
+            105,
+        )
+        dialog.findChild(QPushButton, "geSubmitOfferButton").click()
+        QApplication.processEvents()
+
+        self.assertEqual(
+            [action_id for action_id, _payload in calls[-2:]],
+            ["preview_offer", "place_offer"],
+        )
+        self.assertIn("BUY · Logs", slots[0].text())
+        self.assertEqual(player["inventory"]["Coins"], 9_895)
+
+        slots[0].click()
+        dialog.findChild(QPushButton, "geEditOfferButton").click()
+        dialog.findChild(QSpinBox, "geOfferQuantitySpin").setValue(2)
+        dialog.findChild(QPushButton, "gePriceMinus5Button").click()
+        dialog.findChild(QPushButton, "geSubmitOfferButton").click()
+        QApplication.processEvents()
+
+        self.assertEqual(calls[-1][0], "edit_offer")
+        self.assertEqual(
+            player["ge_player_orders"][0]["remaining_quantity"],
+            2,
+        )
+        self.assertEqual(
+            player["ge_player_orders"][0]["submitted_unit_price"],
+            95,
+        )
+        self.assertIn("0/2 filled", slots[0].text())
+
+        coal_row = next(
+            index
+            for index in range(item_list.count())
+            if item_list.item(index).data(Qt.ItemDataRole.UserRole)["item_name"]
+            == "Coal"
+        )
+        item_list.setCurrentRow(coal_row)
+        QApplication.processEvents()
+        self.assertFalse(slots[0].isChecked())
+        self.assertFalse(
+            dialog.findChild(QPushButton, "geCancelOfferButton").isEnabled()
+        )
+        self.assertIn(
+            "Select an occupied slot",
+            dialog.findChild(QLabel, "geOrderDetailLabel").text(),
+        )
+
+        side = dialog.findChild(QComboBox, "geOfferSideCombo")
+        side.setCurrentIndex(side.findData("sell"))
+        QApplication.processEvents()
+        self.assertEqual(item_list.count(), 1)
+        self.assertEqual(
+            item_list.item(0).data(Qt.ItemDataRole.UserRole)["item_name"],
+            "Logs",
+        )
+        dialog.deleteLater()
+
+    def test_grand_exchange_ironman_toggle_locks_only_offer_creation(self) -> None:
+        from grand_exchange_logic import (
+            apply_ge_frontend_action_pure,
+            ge_frontend_projection_pure,
+        )
+
+        player = _make_player_data()
+        player["inventory"] = {"Coins": 1_000}
+        catalog = {
+            "Logs": {
+                "guide_price": 100,
+                "buy_limit": 25_000,
+                "tradeable": True,
+                "exchangeable": True,
+                "category": "logs",
+            }
+        }
+        calls = []
+
+        def projection():
+            return ge_frontend_projection_pure(player, item_catalog=catalog)
+
+        def action(action_id, payload):
+            calls.append((action_id, dict(payload)))
+            updated, info = apply_ge_frontend_action_pure(
+                player,
+                action_id,
+                payload,
+                item_catalog=catalog,
+            )
+            if info.get("ok"):
+                player.clear()
+                player.update(updated)
+            return {**info, "projection": projection()}
+
+        dialog = self._open(
+            player,
+            get_ge_projection=projection,
+            on_ge_action=action,
+        )
+        _open_ge_tab(dialog)
+
+        toggle = dialog.findChild(QCheckBox, "geIronmanToggle")
+        toggle.setChecked(True)
+        QApplication.processEvents()
+
+        self.assertEqual(calls[-1], ("set_ironman", {"enabled": True}))
+        self.assertTrue(player["ironman_mode"])
+        self.assertFalse(dialog.findChild(QListWidget, "geItemList").isEnabled())
+        self.assertFalse(dialog.findChild(QWidget, "geOfferEditor").isEnabled())
+        self.assertTrue(toggle.isEnabled())
+        self.assertIn(
+            "Ironman mode",
+            dialog.findChild(QLabel, "geStatusLabel").text(),
+        )
+        dialog.deleteLater()
 
     def test_shop_opens_browse_first_and_detail_is_collapsible(self) -> None:
         from shop_fixtures import build_shop_frontend_fixtures
@@ -5858,6 +6082,17 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Gather wool", util_texts)
         self.assertIn("Gather grain", util_texts)
         self.assertIn("Make bread dough", util_texts)
+        self.assertIn("Bankstanding", util_texts)
+        economy = next(
+            item
+            for item in _tree_items(utility_tree)
+            if item.data(0, Qt.ItemDataRole.UserRole)
+            == "__utility_group__:economy"
+        )
+        self.assertIn(
+            "Bankstanding",
+            [economy.child(index).text(0) for index in range(economy.childCount())],
+        )
         # Retired 2026-07-06: outputs are live NPC shop stock now.
         self.assertNotIn("Scavenge chicken feathers", util_texts)
         self.assertNotIn("Gather fishing bait", util_texts)
@@ -6215,6 +6450,22 @@ class MainMenuWidgetTest(unittest.TestCase):
         hud.set_data(pd, "Utility / Activities")
         self.assertEqual(hud.title_lbl.text(), "Utility / Activities")
         self.assertIn("no XP", hud.sub_lbl.text())
+
+    def test_hud_persistently_marks_collectible_ge_offers(self) -> None:
+        hud = self._ui.ReviewHUD(None)
+        pd = _make_player_data()
+        pd["ge_player_orders"] = [
+            {
+                "collectible_coins": 0,
+                "collectible_items": 1,
+            }
+        ]
+
+        hud.set_data(pd, "Mining")
+
+        notice = hud.findChild(QLabel, "geOfferNotice")
+        self.assertTrue(notice.isVisible())
+        self.assertIn("offers complete", notice.text())
 
     def test_scraped_sprites_are_pretrimmed_on_disk(self) -> None:
         # Sprites are trimmed to their opaque box at build time (tools/trim_icons.py)

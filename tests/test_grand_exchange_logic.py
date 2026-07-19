@@ -5,13 +5,17 @@ from grand_exchange_logic import (
     GE_BUY_LIMIT_WINDOW_CARDS,
     GE_SLOT_COUNT,
     advance_ge_market_tick_pure,
+    apply_ge_frontend_action_pure,
     cancel_ge_offer_pure,
     collect_all_ge_offers_pure,
     collect_ge_offer_pure,
     default_ge_state_pure,
+    edit_ge_offer_pure,
+    ge_frontend_projection_pure,
     place_ge_offer_pure,
     preview_ge_offer_pure,
     sanitize_ge_state_pure,
+    set_ge_offer_safety_pure,
     set_ironman_mode_pure,
 )
 
@@ -206,6 +210,198 @@ class GrandExchangeLogicTest(unittest.TestCase):
                 self.assertFalse(preview["ok"])
                 self.assertEqual(preview["reason"], "invalid_offer")
 
+    def test_frontend_projection_exposes_period_six_slots_and_live_guide(self):
+        player = _player()
+        player["ge_market_state"]["items"] = {
+            "Logs": {"guide_price": 105}
+        }
+        projection = ge_frontend_projection_pure(
+            player,
+            item_catalog={"Logs": {**LOGS, "category": "log"}},
+        )
+
+        self.assertEqual(len(projection["slots"]), GE_SLOT_COUNT)
+        self.assertTrue(all(slot is None for slot in projection["slots"]))
+        self.assertEqual(projection["items"][0]["guide_price"], 105)
+        self.assertEqual(projection["items"][0]["owned"], 20)
+        self.assertEqual(projection["coins"], 10_000)
+
+    def test_frontend_actions_route_preview_place_collect_and_ironman(self):
+        catalog = {"Logs": LOGS}
+        player, preview = apply_ge_frontend_action_pure(
+            _player(),
+            "preview_offer",
+            {
+                "side": "buy",
+                "item_name": "Logs",
+                "quantity": 1,
+                "unit_price": 100,
+            },
+            item_catalog=catalog,
+        )
+        self.assertTrue(preview["ok"])
+        player, placed = apply_ge_frontend_action_pure(
+            player,
+            "place_offer",
+            {
+                "side": "buy",
+                "item_name": "Logs",
+                "quantity": 1,
+                "unit_price": 100,
+            },
+            item_catalog=catalog,
+        )
+        self.assertTrue(placed["ok"])
+        order_id = placed["order"]["id"]
+        player, edited = apply_ge_frontend_action_pure(
+            player,
+            "edit_offer",
+            {
+                "order_id": order_id,
+                "remaining_quantity": 2,
+                "unit_price": 95,
+            },
+            item_catalog=catalog,
+        )
+        self.assertTrue(edited["ok"])
+        self.assertEqual(edited["order"]["remaining_quantity"], 2)
+        player, cancelled = apply_ge_frontend_action_pure(
+            player,
+            "cancel_offer",
+            {"order_id": order_id},
+            item_catalog=catalog,
+        )
+        self.assertTrue(cancelled["ok"])
+        self.assertTrue(
+            ge_frontend_projection_pure(
+                player,
+                item_catalog=catalog,
+            )["has_collectible"]
+        )
+        player, collected = apply_ge_frontend_action_pure(
+            player,
+            "collect_offer",
+            {"order_id": order_id},
+            item_catalog=catalog,
+        )
+        self.assertTrue(collected["ok"])
+        self.assertFalse(
+            ge_frontend_projection_pure(
+                player,
+                item_catalog=catalog,
+            )["has_collectible"]
+        )
+        player, ironman = apply_ge_frontend_action_pure(
+            player,
+            "set_ironman",
+            {"enabled": True},
+            item_catalog=catalog,
+        )
+        self.assertTrue(ironman["ok"])
+        self.assertTrue(player["ironman_mode"])
+
+    def test_edit_offer_preserves_fills_rebalances_escrow_and_resets_age(self):
+        player, placed = place_ge_offer_pure(
+            _player(),
+            side="buy",
+            item_name="Logs",
+            quantity=10,
+            unit_price=100,
+            item_spec=LOGS,
+        )
+        order = player["ge_player_orders"][0]
+        order.update(
+            {
+                "remaining_quantity": 6,
+                "completed_quantity": 4,
+                "escrow_coins": 600,
+                "collectible_items": 4,
+                "status": "partial",
+            }
+        )
+        player["shop_market_clock"] = {"market_tick": 20}
+
+        updated, result = edit_ge_offer_pure(
+            player,
+            placed["order"]["id"],
+            remaining_quantity=8,
+            unit_price=80,
+            item_spec=LOGS,
+        )
+
+        self.assertTrue(result["ok"])
+        edited = updated["ge_player_orders"][0]
+        self.assertEqual(edited["completed_quantity"], 4)
+        self.assertEqual(edited["collectible_items"], 4)
+        self.assertEqual(edited["remaining_quantity"], 8)
+        self.assertEqual(edited["original_quantity"], 12)
+        self.assertEqual(edited["escrow_coins"], 640)
+        self.assertEqual(updated["inventory"]["Coins"], 8_960)
+        self.assertEqual(edited["status"], "partial")
+        self.assertEqual(edited["created_market_tick"], 20)
+        self.assertEqual(edited["last_updated_market_tick"], 20)
+
+    def test_edit_offer_refunds_reduced_escrow_and_is_atomic_when_unaffordable(self):
+        player, placed = place_ge_offer_pure(
+            _player(),
+            side="buy",
+            item_name="Logs",
+            quantity=10,
+            unit_price=100,
+            item_spec=LOGS,
+        )
+        order_id = placed["order"]["id"]
+        updated, reduced = edit_ge_offer_pure(
+            player,
+            order_id,
+            remaining_quantity=5,
+            unit_price=80,
+            item_spec=LOGS,
+        )
+        self.assertTrue(reduced["ok"])
+        self.assertEqual(updated["inventory"]["Coins"], 9_600)
+        self.assertEqual(updated["ge_player_orders"][0]["escrow_coins"], 400)
+
+        before = deepcopy(updated)
+        unchanged, rejected = edit_ge_offer_pure(
+            updated,
+            order_id,
+            remaining_quantity=1_000,
+            unit_price=100,
+            item_spec=LOGS,
+        )
+        self.assertFalse(rejected["ok"])
+        self.assertEqual(rejected["reason"], "insufficient_coins")
+        self.assertEqual(unchanged, before)
+
+    def test_offer_safety_settings_are_player_configurable_and_sanitized(self):
+        updated, result = set_ge_offer_safety_pure(
+            _player(),
+            high_value_confirmation=500_000,
+            low_price_percent=20,
+            high_price_multiplier=5,
+        )
+        self.assertTrue(result["ok"])
+        self.assertEqual(
+            updated["ge_settings"],
+            {
+                "high_value_confirmation": 500_000,
+                "low_price_multiplier": 0.2,
+                "high_price_multiplier": 5.0,
+            },
+        )
+
+        before = deepcopy(updated)
+        unchanged, rejected = set_ge_offer_safety_pure(
+            updated,
+            high_value_confirmation=0,
+            low_price_percent=0,
+            high_price_multiplier=0,
+        )
+        self.assertFalse(rejected["ok"])
+        self.assertEqual(rejected["reason"], "invalid_settings")
+        self.assertEqual(unchanged, before)
+
     def test_preview_rejects_unknown_untradeable_and_unsourced_buy_rows(self):
         player = _player()
         cases = (
@@ -330,7 +526,7 @@ class GrandExchangeLogicTest(unittest.TestCase):
         self.assertTrue(result["ok"])
         self.assertEqual(accepted["inventory"]["Coins"], 1_000_000)
 
-    def test_eight_uncleared_offers_own_all_slots(self):
+    def test_six_uncleared_offers_own_all_period_slots(self):
         player = _player()
         for _index in range(GE_SLOT_COUNT):
             player, result = place_ge_offer_pure(

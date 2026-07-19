@@ -614,6 +614,21 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(processed, 28)
         self.assertEqual(new_inv["Wool"], 28)
 
+    def test_bankstanding_is_a_true_no_op_utility_action(self):
+        inventory = {"Coins": 1_000, "Logs": 4}
+
+        new_inv, exp, ok, processed = apply_utility_activity_pure(
+            "bankstanding",
+            inventory,
+            UTILITY_ACTIVITY_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual((exp, processed), (0, 1))
+        self.assertEqual(new_inv, inventory)
+        self.assertIsNot(new_inv, inventory)
+        self.assertNotIn("bankstanding", new_inv)
+
     def test_retired_shop_bridge_activities_stay_gone(self):
         # These temporary bridges were retired on 2026-07-06 once their outputs
         # became live NPC shop stock; a reappearance means a data regression.

@@ -354,6 +354,16 @@ CRAFTED_ITEMS_FOLDER = os.path.join(current_dir, "crafteditems")
 
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 UTILITY_ACTIVITY_DATA = {
+    "bankstanding": {
+        "display_name": "Bankstanding",
+        "requirements": {},
+        "batch_size": 1,
+        "no_op": True,
+        "status_message": "Bankstanding — Grand Exchange time advanced.",
+        "icon_path": os.path.join(current_dir, "combatitems", "coins.png"),
+        "group": "economy",
+        "source": "memory-bank/fake-grand-exchange-design.md:61-67",
+    },
     "make_soft_clay": {
         "display_name": "Make soft clay",
         "requirements": {"Clay": 1},

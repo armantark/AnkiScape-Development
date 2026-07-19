@@ -235,6 +235,12 @@ except Exception:
         EQUIPMENT_ITEM_DATA,
         current_dir,
     )
+
+try:
+    from .grand_exchange_logic import GE_SLOT_COUNT
+except Exception:
+    from grand_exchange_logic import GE_SLOT_COUNT  # type: ignore
+
 try:
     from .pack_data import ITEM_PACK_DATA
 except Exception:
@@ -604,6 +610,7 @@ _COOKING_FAMILY_LABELS = {
 }
 
 _UTILITY_GROUP_LABELS = {
+    "economy": "Economy",
     "cooking_prep": "Cooking prep",
     "gathering": "Gathering",
     "material_processing": "Material processing",
@@ -1450,6 +1457,14 @@ if HAS_QT:
             self.target_lbl.setStyleSheet("color: rgba(255,255,255,0.6); font-size: 10px;")
             info.addWidget(self.target_lbl)
 
+            self.ge_notice_lbl = QLabel("")
+            self.ge_notice_lbl.setObjectName("geOfferNotice")
+            self.ge_notice_lbl.setStyleSheet(
+                "color: #6fdb78; font-size: 10px; font-weight: 600;"
+            )
+            self.ge_notice_lbl.setVisible(False)
+            info.addWidget(self.ge_notice_lbl)
+
             # Combat-only: a second health bar for the enemy, and a chip line
             # naming the skills the current attack style trains plus the running
             # kill count. Hidden for every non-combat skill (see set_data).
@@ -1523,6 +1538,19 @@ if HAS_QT:
             """Update HUD content from player data and currently active skill."""
             skill = skill or "None"
             combat_status = combat_status_summary_pure(player_data)
+            ge_orders = player_data.get("ge_player_orders", ()) or ()
+            ge_ready = any(
+                isinstance(order, dict)
+                and (
+                    int(order.get("collectible_coins", 0) or 0) > 0
+                    or int(order.get("collectible_items", 0) or 0) > 0
+                )
+                for order in ge_orders
+            )
+            self.ge_notice_lbl.setText(
+                "1 or more Grand Exchange offers complete" if ge_ready else ""
+            )
+            self.ge_notice_lbl.setVisible(ge_ready)
             # Enemy bar + chips are combat-only; keep them hidden unless the
             # combat branch below explicitly turns them on.
             self.enemy_progress.setVisible(False)
@@ -2387,6 +2415,8 @@ def show_main_menu(
     on_consume_item=None,
     on_open_item_pack=None,
     on_teleport_training_urn=None,
+    get_ge_projection=None,
+    on_ge_action=None,
     get_farming_projection=None,
     on_farming_action=None,
     initial_skill=None,
@@ -7000,6 +7030,740 @@ def show_main_menu(
 
     tabs.addTab(shop_tab, "Shop")
     tabs.setTabToolTip(tabs.indexOf(shop_tab), "Browse source-backed NPC shops and vendor services")
+
+    # ---- Grand Exchange tab ----------------------------------------------
+    # The backend owns prices, limits, escrow, fills, and Ironman access. This
+    # tab only renders its projection and dispatches explicit direct actions.
+    ge_tab = QWidget()
+    ge_tab.setObjectName("grandExchangeTab")
+    ge_layout = QVBoxLayout(ge_tab)
+    ge_layout.setContentsMargins(12, 12, 12, 12)
+    ge_layout.setSpacing(8)
+
+    ge_header = QWidget()
+    ge_header_layout = QHBoxLayout(ge_header)
+    ge_header_layout.setContentsMargins(0, 0, 0, 0)
+    ge_title = QLabel("Grand Exchange")
+    ge_title.setStyleSheet("font-size: 16px; font-weight: 700; color: palette(text);")
+    ge_balance = QLabel("0 Coins")
+    ge_balance.setObjectName("geCoinBalanceLabel")
+    ge_balance.setStyleSheet(f"color: {dim_text_css(ge_balance)};")
+    ge_collect_all = QPushButton("Collect all")
+    ge_collect_all.setObjectName("geCollectAllButton")
+    ge_ironman = QCheckBox("Ironman mode")
+    ge_ironman.setObjectName("geIronmanToggle")
+    ge_ironman.setToolTip("Ironman mode disables only the Grand Exchange.")
+    ge_header_layout.addWidget(ge_title)
+    ge_header_layout.addWidget(ge_balance)
+    ge_header_layout.addStretch(1)
+    ge_header_layout.addWidget(ge_collect_all)
+    ge_header_layout.addWidget(ge_ironman)
+    ge_layout.addWidget(ge_header)
+
+    ge_status = QLabel("")
+    ge_status.setObjectName("geStatusLabel")
+    ge_status.setWordWrap(True)
+    ge_status.setStyleSheet(f"color: {dim_text_css(ge_status)};")
+    ge_layout.addWidget(ge_status)
+
+    ge_safety_toggle = QToolButton()
+    ge_safety_toggle.setObjectName("geOfferSafetyToggle")
+    ge_safety_toggle.setText("Offer safety")
+    ge_safety_toggle.setCheckable(True)
+    ge_safety_toggle.setChecked(False)
+    ge_safety_toggle.setArrowType(Qt.ArrowType.RightArrow)
+    ge_safety_toggle.setToolButtonStyle(
+        Qt.ToolButtonStyle.ToolButtonTextBesideIcon
+    )
+    ge_layout.addWidget(ge_safety_toggle, 0, Qt.AlignmentFlag.AlignLeft)
+
+    ge_safety_panel = QWidget()
+    ge_safety_panel.setObjectName("geOfferSafetyPanel")
+    ge_safety_layout = QHBoxLayout(ge_safety_panel)
+    ge_safety_layout.setContentsMargins(8, 4, 8, 4)
+    ge_safety_layout.setSpacing(6)
+    ge_safety_layout.addWidget(QLabel("Confirm totals from"))
+    ge_high_value = QSpinBox()
+    ge_high_value.setObjectName("geHighValueConfirmationSpin")
+    ge_high_value.setRange(1, 2_147_483_647)
+    ge_high_value.setSuffix(" gp")
+    ge_safety_layout.addWidget(ge_high_value)
+    ge_safety_layout.addWidget(QLabel("Low price below"))
+    ge_low_price = QSpinBox()
+    ge_low_price.setObjectName("geLowPricePercentSpin")
+    ge_low_price.setRange(1, 100)
+    ge_low_price.setSuffix("%")
+    ge_safety_layout.addWidget(ge_low_price)
+    ge_safety_layout.addWidget(QLabel("High price above"))
+    ge_high_price = QSpinBox()
+    ge_high_price.setObjectName("geHighPriceMultiplierSpin")
+    ge_high_price.setRange(1, 100)
+    ge_high_price.setSuffix("×")
+    ge_safety_layout.addWidget(ge_high_price)
+    ge_apply_safety = QPushButton("Apply")
+    ge_apply_safety.setObjectName("geApplyOfferSafetyButton")
+    ge_safety_layout.addWidget(ge_apply_safety)
+    ge_safety_layout.addStretch(1)
+    ge_safety_panel.setVisible(False)
+    ge_layout.addWidget(ge_safety_panel)
+
+    ge_slots_shell = QWidget()
+    ge_slots_shell.setObjectName("geOfferSlots")
+    ge_slots_grid = QGridLayout(ge_slots_shell)
+    ge_slots_grid.setContentsMargins(0, 0, 0, 0)
+    ge_slots_grid.setSpacing(6)
+    ge_slot_buttons = []
+    for slot_index in range(GE_SLOT_COUNT):
+        button = QToolButton()
+        button.setObjectName(f"geOfferSlot{slot_index + 1}")
+        button.setCheckable(True)
+        button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        button.setIconSize(QSize(28, 28))
+        button.setMinimumHeight(54)
+        button.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Fixed,
+        )
+        button.setStyleSheet(
+            "QToolButton { border: 1px solid palette(mid); border-radius: 8px;"
+            " padding: 6px 8px; background: palette(base); color: palette(text);"
+            " text-align: left; }"
+            " QToolButton:hover { border-color: #4CAF50; }"
+            " QToolButton:checked { border: 2px solid #4CAF50;"
+            " background: rgba(76,175,80,0.14); }"
+        )
+        ge_slots_grid.addWidget(button, slot_index // 4, slot_index % 4)
+        ge_slot_buttons.append(button)
+    ge_layout.addWidget(ge_slots_shell)
+
+    ge_body = QWidget()
+    ge_body_layout = QHBoxLayout(ge_body)
+    ge_body_layout.setContentsMargins(0, 0, 0, 0)
+    ge_body_layout.setSpacing(8)
+
+    ge_catalog_shell = QWidget()
+    ge_catalog_layout = QVBoxLayout(ge_catalog_shell)
+    ge_catalog_layout.setContentsMargins(0, 0, 0, 0)
+    ge_catalog_layout.setSpacing(6)
+    ge_filter = CatalogFilterBar(
+        placeholder="Search exchangeable items…",
+        search_object_name="geItemSearchInput",
+    )
+    ge_filter.summary_label.setVisible(False)
+    ge_catalog_layout.addWidget(ge_filter)
+    ge_item_list = QListWidget()
+    ge_item_list.setObjectName("geItemList")
+    ge_item_list.setIconSize(QSize(24, 24))
+    ge_item_list.setAlternatingRowColors(True)
+    ge_item_list.setMinimumWidth(250)
+    ge_item_list.setStyleSheet(
+        "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
+        " background: palette(base); color: palette(text); padding: 3px; }"
+        " QListWidget::item { padding: 5px 7px; border-radius: 6px; }"
+        " QListWidget::item:selected { background: rgba(76,175,80,0.30);"
+        " color: palette(text); }"
+    )
+    ge_catalog_layout.addWidget(ge_item_list, 1)
+    ge_body_layout.addWidget(ge_catalog_shell, 1)
+
+    ge_editor = QWidget()
+    ge_editor.setObjectName("geOfferEditor")
+    ge_editor.setStyleSheet(
+        "QWidget#geOfferEditor { border: 1px solid palette(mid);"
+        " border-radius: 8px; background: palette(base); }"
+    )
+    ge_editor_layout = QVBoxLayout(ge_editor)
+    ge_editor_layout.setContentsMargins(10, 8, 10, 10)
+    ge_editor_layout.setSpacing(6)
+    ge_selected_item = QLabel("Select an item")
+    ge_selected_item.setObjectName("geSelectedItemLabel")
+    ge_selected_item.setStyleSheet("font-weight: 700; color: palette(text);")
+    ge_editor_layout.addWidget(ge_selected_item)
+    ge_item_meta = QLabel("Guide price and buy limit appear here.")
+    ge_item_meta.setObjectName("geSelectedItemMeta")
+    ge_item_meta.setWordWrap(True)
+    ge_item_meta.setSizePolicy(
+        QSizePolicy.Policy.Preferred,
+        QSizePolicy.Policy.Fixed,
+    )
+    ge_item_meta.setStyleSheet(f"color: {dim_text_css(ge_item_meta)};")
+    ge_editor_layout.addWidget(ge_item_meta)
+
+    ge_side_row = QWidget()
+    ge_side_layout = QHBoxLayout(ge_side_row)
+    ge_side_layout.setContentsMargins(0, 0, 0, 0)
+    ge_side_layout.addWidget(QLabel("Offer"))
+    ge_side = QComboBox()
+    ge_side.setObjectName("geOfferSideCombo")
+    ge_side.addItem("Buy", "buy")
+    ge_side.addItem("Sell", "sell")
+    ge_side_layout.addWidget(ge_side, 1)
+    ge_editor_layout.addWidget(ge_side_row)
+
+    ge_quantity_row = QWidget()
+    ge_quantity_layout = QHBoxLayout(ge_quantity_row)
+    ge_quantity_layout.setContentsMargins(0, 0, 0, 0)
+    ge_quantity_caption = QLabel("Quantity")
+    ge_quantity_caption.setObjectName("geOfferQuantityLabel")
+    ge_quantity_layout.addWidget(ge_quantity_caption)
+    ge_quantity = QSpinBox()
+    ge_quantity.setObjectName("geOfferQuantitySpin")
+    ge_quantity.setRange(1, 2_147_483_647)
+    ge_quantity_layout.addWidget(ge_quantity, 1)
+    ge_editor_layout.addWidget(ge_quantity_row)
+
+    ge_price_row = QWidget()
+    ge_price_layout = QHBoxLayout(ge_price_row)
+    ge_price_layout.setContentsMargins(0, 0, 0, 0)
+    ge_price_layout.addWidget(QLabel("Price each"))
+    ge_price = QSpinBox()
+    ge_price.setObjectName("geOfferPriceSpin")
+    ge_price.setRange(1, 2_147_483_647)
+    ge_price_layout.addWidget(ge_price, 1)
+    ge_editor_layout.addWidget(ge_price_row)
+
+    ge_quick_prices = QWidget()
+    ge_quick_layout = QHBoxLayout(ge_quick_prices)
+    ge_quick_layout.setContentsMargins(0, 0, 0, 0)
+    ge_quick_layout.setSpacing(4)
+    ge_price_buttons = {}
+    for label, factor, object_name in (
+        ("-5%", 0.95, "gePriceMinus5Button"),
+        ("Guide", 1.00, "geGuidePriceButton"),
+        ("+5%", 1.05, "gePricePlus5Button"),
+    ):
+        button = QPushButton(label)
+        button.setObjectName(object_name)
+        ge_quick_layout.addWidget(button)
+        ge_price_buttons[factor] = button
+    ge_editor_layout.addWidget(ge_quick_prices)
+
+    ge_preview = QLabel("Choose an item to prepare an offer.")
+    ge_preview.setObjectName("geOfferPreviewLabel")
+    ge_preview.setWordWrap(True)
+    ge_preview.setSizePolicy(
+        QSizePolicy.Policy.Preferred,
+        QSizePolicy.Policy.Fixed,
+    )
+    ge_preview.setStyleSheet(f"color: {dim_text_css(ge_preview)};")
+    ge_editor_layout.addStretch(1)
+    ge_editor_layout.addWidget(ge_preview)
+    ge_submit = QPushButton("Place buy offer")
+    ge_submit.setObjectName("geSubmitOfferButton")
+    ge_submit.setEnabled(False)
+    ge_editor_layout.addWidget(ge_submit)
+    ge_body_layout.addWidget(ge_editor, 1)
+    ge_layout.addWidget(ge_body, 1)
+
+    ge_order_panel = QWidget()
+    ge_order_panel.setObjectName("geOrderDetailPanel")
+    ge_order_layout = QHBoxLayout(ge_order_panel)
+    ge_order_layout.setContentsMargins(8, 6, 8, 6)
+    ge_order_detail = QLabel("Select an occupied slot to collect or cancel.")
+    ge_order_detail.setObjectName("geOrderDetailLabel")
+    ge_order_detail.setWordWrap(True)
+    ge_order_detail.setStyleSheet("color: palette(text);")
+    ge_collect = QPushButton("Collect")
+    ge_collect.setObjectName("geCollectOfferButton")
+    ge_edit = QPushButton("Edit remainder")
+    ge_edit.setObjectName("geEditOfferButton")
+    ge_cancel = QPushButton("Cancel offer")
+    ge_cancel.setObjectName("geCancelOfferButton")
+    ge_order_layout.addWidget(ge_order_detail, 1)
+    ge_order_layout.addWidget(ge_collect)
+    ge_order_layout.addWidget(ge_edit)
+    ge_order_layout.addWidget(ge_cancel)
+    ge_layout.addWidget(ge_order_panel)
+
+    ge_state = {
+        "projection": {
+            "ironman_mode": False,
+            "lock_reason": None,
+            "coins": int((player_data.get("inventory") or {}).get("Coins", 0) or 0),
+            "settings": {
+                "high_value_confirmation": 1_000_000,
+                "low_price_multiplier": 0.1,
+                "high_price_multiplier": 10.0,
+            },
+            "slots": (None,) * GE_SLOT_COUNT,
+            "items": (),
+        },
+        "selected_order_id": None,
+        "selected_item_name": "",
+        "editing_order_id": None,
+    }
+
+    def _ge_reason_message(result) -> str:
+        reason = str((result or {}).get("reason", ""))
+        messages = {
+            "unknown_item": "That item is not available on the Grand Exchange.",
+            "untradeable_item": "That item cannot be traded.",
+            "not_exchangeable": "That item is not Grand Exchange eligible.",
+            "invalid_offer": "Enter a positive quantity and price.",
+            "no_offer_slot": f"All {GE_SLOT_COUNT} offer slots are occupied.",
+            "guide_price_unavailable": "This item has no usable guide price.",
+            "buy_limit_unavailable": "This item has no unambiguous period buy limit.",
+            "insufficient_coins": "You do not have enough Coins for that offer.",
+            "insufficient_items": "Your Bank does not contain that quantity.",
+            "offers_must_be_cleared": "Clear all Grand Exchange slots before enabling Ironman mode.",
+            "nothing_to_collect": "That offer has nothing ready to collect.",
+            "order_not_open": "That offer can no longer be cancelled.",
+            "unknown_order": "That offer no longer exists.",
+            "ironman_mode": "Grand Exchange access is disabled in Ironman mode.",
+            "confirmation_required": "Confirm the unusual offer before continuing.",
+            "invalid_settings": "Enter valid Grand Exchange safety thresholds.",
+            "undo_unavailable": "Anki could not create an undo entry.",
+        }
+        return str((result or {}).get("message") or messages.get(reason) or reason.replace("_", " ").capitalize())
+
+    def _ge_current_item():
+        selected_name = str(ge_state.get("selected_item_name", ""))
+        for row in ge_state["projection"].get("items", ()):
+            if row.get("item_name") == selected_name:
+                return row
+        return None
+
+    def _refresh_ge_preview() -> None:
+        row = _ge_current_item()
+        locked = bool(ge_state["projection"].get("ironman_mode"))
+        editing_order = _selected_ge_order()
+        editing = (
+            editing_order is not None
+            and editing_order.get("id") == ge_state.get("editing_order_id")
+            and editing_order.get("status") in {"open", "partial"}
+        )
+        enabled = (
+            row is not None
+            and callable(on_ge_action)
+            and not locked
+            and (not editing or editing_order is not None)
+        )
+        ge_submit.setEnabled(enabled)
+        for button in ge_price_buttons.values():
+            button.setEnabled(enabled)
+        side = str(ge_side.currentData() or "buy")
+        ge_side.setEnabled(not editing)
+        ge_quantity_caption.setText("Remaining quantity" if editing else "Quantity")
+        ge_submit.setText(
+            "Update offer"
+            if editing
+            else ("Place buy offer" if side == "buy" else "Place sell offer")
+        )
+        if row is None:
+            ge_selected_item.setText("Select an item")
+            ge_item_meta.setText("Guide price and buy limit appear here.")
+            ge_preview.setText("Choose an item to prepare an offer.")
+            return
+        guide = max(int(row.get("guide_price", 1) or 1), 1)
+        owned = max(int(row.get("owned", 0) or 0), 0)
+        buy_limit = row.get("buy_limit")
+        limit_text = f"{int(buy_limit):,}" if buy_limit else "unavailable"
+        ge_selected_item.setText(str(row["item_name"]))
+        ge_item_meta.setText(
+            f"Guide: {guide:,} Coins · 4-hour buy limit: {limit_text} · Bank: {owned:,}"
+        )
+        total = int(ge_quantity.value()) * int(ge_price.value())
+        ge_preview.setText(
+            f"{'Update' if editing else side.title()} "
+            f"{int(ge_quantity.value()):,} × {int(ge_price.value()):,} Coins"
+            f" · Total {total:,} Coins"
+        )
+
+    def _populate_ge_items() -> None:
+        query = ge_filter.search_input.text().strip().casefold()
+        selected_name = str(ge_state.get("selected_item_name", ""))
+        side = str(ge_side.currentData() or "buy")
+        editing = ge_state.get("editing_order_id") is not None
+        ge_item_list.blockSignals(True)
+        ge_item_list.clear()
+        selected_widget_item = None
+        for row in ge_state["projection"].get("items", ()):
+            if (
+                side == "sell"
+                and int(row.get("owned", 0) or 0) <= 0
+                and not (editing and row.get("item_name") == selected_name)
+            ):
+                continue
+            haystack = f"{row.get('item_name', '')} {row.get('category', '')}".casefold()
+            if query and query not in haystack:
+                continue
+            item = QListWidgetItem(
+                f"{row['item_name']}  ·  {int(row.get('guide_price', 0) or 0):,} gp"
+            )
+            item.setData(Qt.ItemDataRole.UserRole, dict(row))
+            icon_path = str(row.get("asset_path") or "")
+            if icon_path and os.path.exists(icon_path):
+                item.setIcon(QIcon(icon_path))
+            ge_item_list.addItem(item)
+            if row.get("item_name") == selected_name:
+                selected_widget_item = item
+        if ge_item_list.count() == 0:
+            empty = QListWidgetItem("No exchangeable items match your search.")
+            empty.setFlags(Qt.ItemFlag.NoItemFlags)
+            ge_item_list.addItem(empty)
+        elif selected_widget_item is not None:
+            ge_item_list.setCurrentItem(selected_widget_item)
+        ge_item_list.blockSignals(False)
+
+    def _selected_ge_order():
+        selected_id = ge_state.get("selected_order_id")
+        for order in ge_state["projection"].get("slots", ()):
+            if isinstance(order, dict) and order.get("id") == selected_id:
+                return order
+        return None
+
+    def _refresh_ge(projection=None, message="") -> None:
+        if isinstance(projection, dict):
+            ge_state["projection"] = projection
+        elif callable(get_ge_projection):
+            try:
+                fetched = get_ge_projection()
+                if isinstance(fetched, dict):
+                    ge_state["projection"] = fetched
+            except Exception:
+                pass
+        projection = ge_state["projection"]
+        locked = bool(projection.get("ironman_mode"))
+        ge_balance.setText(f"{int(projection.get('coins', 0) or 0):,} Coins")
+        settings = projection.get("settings", {}) or {}
+        ge_high_value.setValue(
+            max(int(settings.get("high_value_confirmation", 1_000_000) or 1), 1)
+        )
+        ge_low_price.setValue(
+            max(
+                1,
+                min(
+                    100,
+                    int(
+                        round(
+                            float(settings.get("low_price_multiplier", 0.1) or 0.1)
+                            * 100
+                        )
+                    ),
+                ),
+            )
+        )
+        ge_high_price.setValue(
+            max(
+                1,
+                min(
+                    100,
+                    int(round(float(settings.get("high_price_multiplier", 10.0) or 10.0))),
+                ),
+            )
+        )
+        ge_ironman.blockSignals(True)
+        ge_ironman.setChecked(locked)
+        ge_ironman.blockSignals(False)
+        ge_catalog_shell.setEnabled(not locked and callable(on_ge_action))
+        ge_editor.setEnabled(not locked and callable(on_ge_action))
+        slots = tuple(projection.get("slots", ()))
+        occupied_ids = set()
+        has_collectible = False
+        for index, button in enumerate(ge_slot_buttons):
+            order = slots[index] if index < len(slots) else None
+            if not isinstance(order, dict):
+                button.setText(f"Slot {index + 1}\nEmpty offer")
+                button.setIcon(QIcon())
+                button.setProperty("geOrderId", None)
+                button.setChecked(False)
+                continue
+            order_id = int(order.get("id", 0) or 0)
+            occupied_ids.add(order_id)
+            side = str(order.get("side", "")).upper()
+            item_name = str(order.get("item_name", ""))
+            complete = int(order.get("completed_quantity", 0) or 0)
+            original = int(order.get("original_quantity", 0) or 0)
+            button.setText(
+                f"{side} · {item_name}\n{complete:,}/{original:,} filled · {str(order.get('status', '')).title()}"
+            )
+            button.setProperty("geOrderId", order_id)
+            button.setChecked(order_id == ge_state.get("selected_order_id"))
+            item_row = next(
+                (
+                    row
+                    for row in projection.get("items", ())
+                    if row.get("item_name") == item_name
+                ),
+                None,
+            )
+            icon_path = str((item_row or {}).get("asset_path") or "")
+            button.setIcon(QIcon(icon_path) if icon_path and os.path.exists(icon_path) else QIcon())
+            has_collectible = has_collectible or bool(
+                int(order.get("collectible_coins", 0) or 0)
+                or int(order.get("collectible_items", 0) or 0)
+            )
+        if ge_state.get("selected_order_id") not in occupied_ids:
+            ge_state["selected_order_id"] = None
+            ge_state["editing_order_id"] = None
+        order = _selected_ge_order()
+        if order is None:
+            ge_order_detail.setText("Select an occupied slot to collect or cancel.")
+            ge_collect.setEnabled(False)
+            ge_edit.setEnabled(False)
+            ge_cancel.setEnabled(False)
+        else:
+            collectible_coins = int(order.get("collectible_coins", 0) or 0)
+            collectible_items = int(order.get("collectible_items", 0) or 0)
+            ge_order_detail.setText(
+                f"{str(order.get('side', '')).title()} {order.get('item_name')} · "
+                f"{int(order.get('completed_quantity', 0) or 0):,}/"
+                f"{int(order.get('original_quantity', 0) or 0):,} filled · "
+                f"{int(order.get('remaining_quantity', 0) or 0):,} remaining · "
+                f"Collect {collectible_items:,} item(s) and {collectible_coins:,} Coins"
+            )
+            ge_collect.setEnabled(bool(collectible_coins or collectible_items))
+            ge_edit.setEnabled(str(order.get("status")) in {"open", "partial"})
+            ge_cancel.setEnabled(str(order.get("status")) in {"open", "partial"})
+            if (
+                ge_state.get("editing_order_id") == order.get("id")
+                and str(order.get("status")) not in {"open", "partial"}
+            ):
+                ge_state["editing_order_id"] = None
+        ge_collect_all.setEnabled(has_collectible and callable(on_ge_action))
+        _populate_ge_items()
+        _refresh_ge_preview()
+        if message:
+            ge_status.setStyleSheet(f"color: {dim_text_css(ge_status)};")
+            ge_status.setText(message)
+        elif locked:
+            ge_status.setStyleSheet(f"color: {dim_text_css(ge_status)};")
+            ge_status.setText(
+                str(projection.get("lock_reason") or "Grand Exchange is disabled in Ironman mode.")
+            )
+        elif projection.get("has_collectible"):
+            ge_status.setStyleSheet("color: #4CAF50; font-weight: 600;")
+            ge_status.setText("1 or more offers complete — collect when ready.")
+        else:
+            ge_status.setStyleSheet(f"color: {dim_text_css(ge_status)};")
+            ge_status.setText("Offers advance once per answered card. Bankstanding does not accelerate them.")
+
+    def _run_ge_action(action_id, payload):
+        if not callable(on_ge_action):
+            return {"ok": False, "reason": "unavailable"}
+        try:
+            result = on_ge_action(action_id, payload)
+        except Exception as exc:
+            result = {"ok": False, "message": str(exc)}
+        if not isinstance(result, dict):
+            result = {"ok": bool(result)}
+        if not result.get("ok"):
+            message = _ge_reason_message(result)
+        elif action_id == "set_ironman":
+            message = (
+                str((result.get("projection") or {}).get("lock_reason") or "")
+                if bool(payload.get("enabled"))
+                else "Grand Exchange access enabled."
+            )
+        else:
+            message = {
+                "place_offer": "Offer placed.",
+                "edit_offer": "Offer updated; queue age reset.",
+                "cancel_offer": "Offer cancelled; escrow is ready to collect.",
+                "collect_offer": "Offer proceeds collected.",
+                "collect_all": "All available offer proceeds collected.",
+                "set_offer_safety": "Grand Exchange offer safety updated.",
+            }.get(action_id, "")
+        _refresh_ge(result.get("projection"), message)
+        return result
+
+    def _on_ge_item_selected(current, _previous=None) -> None:
+        row = current.data(Qt.ItemDataRole.UserRole) if current is not None else None
+        if not isinstance(row, dict):
+            return
+        ge_state["selected_item_name"] = str(row.get("item_name", ""))
+        ge_state["selected_order_id"] = None
+        ge_state["editing_order_id"] = None
+        guide = max(int(row.get("guide_price", 1) or 1), 1)
+        ge_price.setValue(guide)
+        ge_quantity.setValue(1)
+        _refresh_ge(ge_state["projection"])
+
+    def _on_ge_side_changed(_index=0) -> None:
+        if ge_state.get("editing_order_id") is not None:
+            _refresh_ge_preview()
+            return
+        if str(ge_side.currentData() or "buy") == "sell":
+            row = _ge_current_item()
+            if row is not None and int(row.get("owned", 0) or 0) <= 0:
+                ge_state["selected_item_name"] = ""
+        _populate_ge_items()
+        _refresh_ge_preview()
+
+    def _on_ge_slot_clicked(index) -> None:
+        slots = tuple(ge_state["projection"].get("slots", ()))
+        order = slots[index] if index < len(slots) else None
+        ge_state["selected_order_id"] = (
+            int(order.get("id", 0) or 0)
+            if isinstance(order, dict)
+            else None
+        )
+        ge_state["editing_order_id"] = None
+        if isinstance(order, dict):
+            ge_state["selected_item_name"] = str(order.get("item_name", ""))
+        _refresh_ge(ge_state["projection"])
+        if not isinstance(order, dict):
+            ge_filter.search_input.setFocus()
+
+    def _set_ge_quick_price(factor) -> None:
+        row = _ge_current_item()
+        if row is None:
+            return
+        guide = max(int(row.get("guide_price", 1) or 1), 1)
+        ge_price.setValue(max(1, int(round(guide * float(factor)))))
+
+    def _submit_ge_offer() -> None:
+        row = _ge_current_item()
+        if row is None:
+            return
+        editing_order = _selected_ge_order()
+        if (
+            editing_order is not None
+            and editing_order.get("id") == ge_state.get("editing_order_id")
+        ):
+            payload = {
+                "order_id": int(editing_order["id"]),
+                "remaining_quantity": int(ge_quantity.value()),
+                "unit_price": int(ge_price.value()),
+            }
+            result = _run_ge_action("edit_offer", payload)
+            if (
+                not result.get("ok")
+                and result.get("reason") == "confirmation_required"
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Confirm Grand Exchange edit",
+                    (
+                        f"Update this offer to {payload['remaining_quantity']:,} "
+                        f"remaining at {payload['unit_price']:,} Coins each?"
+                    ),
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer == QMessageBox.StandardButton.Yes:
+                    payload["confirmed"] = True
+                    result = _run_ge_action("edit_offer", payload)
+            if result.get("ok"):
+                ge_state["editing_order_id"] = None
+                _refresh_ge(result.get("projection"), "Offer updated; queue age reset.")
+            return
+        payload = {
+            "side": str(ge_side.currentData() or "buy"),
+            "item_name": str(row["item_name"]),
+            "quantity": int(ge_quantity.value()),
+            "unit_price": int(ge_price.value()),
+        }
+        preview = _run_ge_action("preview_offer", payload)
+        if not preview.get("ok"):
+            return
+        if preview.get("confirmation_required"):
+            answer = QMessageBox.question(
+                dialog,
+                "Confirm Grand Exchange offer",
+                (
+                    f"Place this {payload['side']} offer for "
+                    f"{payload['quantity']:,} × {payload['unit_price']:,} Coins "
+                    f"({int(preview.get('total_value', 0) or 0):,} Coins total)?"
+                ),
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer != QMessageBox.StandardButton.Yes:
+                ge_status.setText("Offer not placed.")
+                return
+            payload["confirmed"] = True
+        result = _run_ge_action("place_offer", payload)
+        if result.get("ok"):
+            ge_state["selected_order_id"] = int(
+                (result.get("order") or {}).get("id", 0) or 0
+            )
+            _refresh_ge(result.get("projection"), "Offer placed.")
+
+    def _begin_edit_selected_ge_offer() -> None:
+        order = _selected_ge_order()
+        if order is None or str(order.get("status")) not in {"open", "partial"}:
+            return
+        ge_state["editing_order_id"] = int(order["id"])
+        ge_state["selected_item_name"] = str(order["item_name"])
+        side_index = ge_side.findData(str(order["side"]))
+        if side_index >= 0:
+            ge_side.setCurrentIndex(side_index)
+        ge_quantity.setValue(max(int(order.get("remaining_quantity", 1) or 1), 1))
+        ge_price.setValue(max(int(order.get("submitted_unit_price", 1) or 1), 1))
+        _populate_ge_items()
+        _refresh_ge_preview()
+
+    def _collect_selected_ge_offer() -> None:
+        order = _selected_ge_order()
+        if order is not None:
+            _run_ge_action("collect_offer", {"order_id": int(order["id"])})
+
+    def _cancel_selected_ge_offer() -> None:
+        order = _selected_ge_order()
+        if order is not None:
+            _run_ge_action("cancel_offer", {"order_id": int(order["id"])})
+
+    def _toggle_ge_ironman(checked=False) -> None:
+        result = _run_ge_action("set_ironman", {"enabled": bool(checked)})
+        if not result.get("ok"):
+            ge_ironman.blockSignals(True)
+            ge_ironman.setChecked(
+                bool(ge_state["projection"].get("ironman_mode"))
+            )
+            ge_ironman.blockSignals(False)
+
+    def _apply_ge_offer_safety() -> None:
+        _run_ge_action(
+            "set_offer_safety",
+            {
+                "high_value_confirmation": int(ge_high_value.value()),
+                "low_price_percent": int(ge_low_price.value()),
+                "high_price_multiplier": int(ge_high_price.value()),
+            },
+        )
+
+    ge_filter.search_input.textChanged.connect(lambda _text="": _populate_ge_items())
+    ge_item_list.currentItemChanged.connect(_on_ge_item_selected)
+    ge_side.currentIndexChanged.connect(_on_ge_side_changed)
+    ge_quantity.valueChanged.connect(lambda _value=1: _refresh_ge_preview())
+    ge_price.valueChanged.connect(lambda _value=1: _refresh_ge_preview())
+    for factor, button in ge_price_buttons.items():
+        button.clicked.connect(
+            lambda _checked=False, price_factor=factor: _set_ge_quick_price(price_factor)
+        )
+    for index, button in enumerate(ge_slot_buttons):
+        button.clicked.connect(
+            lambda _checked=False, slot_index=index: _on_ge_slot_clicked(slot_index)
+        )
+    ge_submit.clicked.connect(lambda _checked=False: _submit_ge_offer())
+    ge_collect.clicked.connect(lambda _checked=False: _collect_selected_ge_offer())
+    ge_edit.clicked.connect(lambda _checked=False: _begin_edit_selected_ge_offer())
+    ge_cancel.clicked.connect(lambda _checked=False: _cancel_selected_ge_offer())
+    ge_collect_all.clicked.connect(
+        lambda _checked=False: _run_ge_action("collect_all", {})
+    )
+    ge_ironman.toggled.connect(_toggle_ge_ironman)
+    ge_apply_safety.clicked.connect(
+        lambda _checked=False: _apply_ge_offer_safety()
+    )
+    ge_safety_toggle.toggled.connect(
+        lambda expanded=False: (
+            ge_safety_toggle.setArrowType(
+                Qt.ArrowType.DownArrow
+                if expanded
+                else Qt.ArrowType.RightArrow
+            ),
+            ge_safety_panel.setVisible(bool(expanded)),
+        )
+    )
+
+    _refresh_ge()
+    tabs.addTab(ge_tab, "Grand Exchange")
+    tabs.setTabToolTip(
+        tabs.indexOf(ge_tab),
+        "Place and manage review-paced Grand Exchange offers",
+    )
 
     # ---- Quests tab --------------------------------------------------------
     quests_tab = QWidget()

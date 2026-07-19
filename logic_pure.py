@@ -781,6 +781,8 @@ def apply_utility_activity_pure(activity_key, inventory, utility_activity_data):
     spec = utility_activity_data.get(activity_key)
     if not spec:
         return inventory, 0, False, 0
+    if spec.get("no_op"):
+        return dict(inventory), 0, True, 1
     requirements = spec.get("requirements", {})
     batch_size = _positive_int(spec.get("batch_size", 1))
     batch_count = _max_batches_for_requirements(requirements, inventory, batch_size)

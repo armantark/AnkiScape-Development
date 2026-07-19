@@ -107,7 +107,11 @@ from .action_registry import is_review_action, review_action_handler_key
 from .skill_registry import get_skill, trainable_skill_definitions
 from .shop_logic import advance_shop_market_clock_pure
 from .grand_exchange_data import GE_ITEM_CATALOG
-from .grand_exchange_logic import advance_ge_market_tick_pure
+from .grand_exchange_logic import (
+    advance_ge_market_tick_pure,
+    apply_ge_frontend_action_pure,
+    ge_frontend_projection_pure,
+)
 from .farming_logic import apply_farming_frontend_action_pure, farming_frontend_projection_pure
 from .agility_logic import apply_agility_command_pure
 from .agility_travel import agility_carried_weight_pure
@@ -508,6 +512,7 @@ def _runtime_action_context() -> RuntimeActionContext:
         show_activity_gain=_show_activity_gain,
         implemented_exp_keys_snapshot=_implemented_exp_keys_snapshot,
         show_quest_exp_delta=_show_quest_exp_delta,
+        switch_to_bankstanding=_switch_to_bankstanding,
         review_action_multiplier=_review_action_multiplier(),
         cadence_shadow_enabled=False,
         cadence_live_enabled=_cadence_kernel_enabled(),
@@ -669,14 +674,31 @@ def show_skill_selection():
 def _deactivate_current_skill() -> None:
     """Turn the active skill off (current_skill -> "None").
 
-    Processing skills consume materials, so a target whose materials are
-    exhausted would otherwise re-raise the same "out of materials" error on every
-    single card. Switching AnkiScape off stops the nag and matches the intended
-    flow: the player re-opens the menu and picks another target/activity to
-    resume. Persisted + HUD-refreshed so the reviewer reflects the off state.
+    This remains the fallback for level, unlock, death, and configuration
+    failures. Material exhaustion uses Bankstanding instead so the ordinary
+    review-paced market clock keeps moving without repeated warnings.
     """
     global current_skill
     current_skill = "None"
+    try:
+        ui.update_menu_visibility(current_skill)
+    except Exception:
+        pass
+    try:
+        mw.col.set_config("ankiscape_current_skill", current_skill)
+    except Exception:
+        pass
+    try:
+        update_review_hud(player_data, current_skill)
+    except Exception:
+        pass
+
+
+def _switch_to_bankstanding() -> None:
+    """Use the settled no-XP fallback after an action exhausts its inputs."""
+    global current_skill
+    current_skill = "Utility / Activities"
+    player_data["current_utility"] = "bankstanding"
     try:
         ui.update_menu_visibility(current_skill)
     except Exception:
@@ -1086,6 +1108,66 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
     def _get_farming_projection():
         return farming_frontend_projection_pure(player_data)
 
+    def _get_ge_projection():
+        return ge_frontend_projection_pure(
+            player_data,
+            item_catalog=GE_ITEM_CATALOG,
+        )
+
+    def _apply_ge_action(action_id, payload):
+        if action_id == "preview_offer":
+            _unchanged, info = apply_ge_frontend_action_pure(
+                player_data,
+                action_id,
+                payload,
+                item_catalog=GE_ITEM_CATALOG,
+            )
+            return {
+                **info,
+                "projection": _get_ge_projection(),
+            }
+        before = {
+            "player_data": copy.deepcopy(player_data),
+            "random_state": random.getstate(),
+        }
+        updated, info = apply_ge_frontend_action_pure(
+            player_data,
+            action_id,
+            payload,
+            item_catalog=GE_ITEM_CATALOG,
+        )
+        if not info.get("ok"):
+            return {
+                **info,
+                "projection": _get_ge_projection(),
+            }
+        try:
+            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+        except (AttributeError, RuntimeError):
+            return {
+                "ok": False,
+                "reason": "undo_unavailable",
+                "message": "Anki could not create an undo entry.",
+                "projection": _get_ge_projection(),
+            }
+        _DIRECT_ACTION_UNDO_STACK.append(before)
+        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+        player_data.clear()
+        player_data.update(updated)
+        check_achievements(player_data)
+        save_player_data()
+        _refresh_skill_availability()
+        try:
+            mw.update_undo_actions()
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {
+            **info,
+            "projection": _get_ge_projection(),
+        }
+
     def _apply_farming_action(action_id, payload):
         updated, ok, message = apply_farming_frontend_action_pure(player_data, action_id, payload)
         if ok:
@@ -1447,6 +1529,8 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_consume_item=on_consume_item,
         on_open_item_pack=on_open_item_pack,
         on_teleport_training_urn=teleport_training_urn,
+        get_ge_projection=_get_ge_projection,
+        on_ge_action=_apply_ge_action,
         get_farming_projection=_get_farming_projection,
         on_farming_action=_apply_farming_action,
         initial_skill=initial_skill,

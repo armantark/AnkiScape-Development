@@ -9,7 +9,7 @@ from typing import Any, Callable, Dict, Mapping, Optional
 
 
 GE_STATE_VERSION = 1
-GE_SLOT_COUNT = 8
+GE_SLOT_COUNT = 6
 DEFAULT_HIGH_VALUE_CONFIRMATION = 1_000_000
 DEFAULT_LOW_PRICE_MULTIPLIER = 0.1
 DEFAULT_HIGH_PRICE_MULTIPLIER = 10.0
@@ -501,6 +501,117 @@ def place_ge_offer_pure(
     data["ge_player_orders"].append(order)
     data["ge_next_order_id"] = order_id + 1
     return data, {"ok": True, "reason": "offer_placed", "order": copy.deepcopy(order)}
+
+
+def edit_ge_offer_pure(
+    player_data: Mapping[str, Any],
+    order_id: int,
+    *,
+    remaining_quantity: int,
+    unit_price: int,
+    item_spec: Mapping[str, Any] | None,
+    confirmed: bool = False,
+) -> tuple[Dict[str, Any], Dict[str, Any]]:
+    data = ensure_ge_state_pure(player_data)
+    lock_reason = ge_access_lock_reason_pure(data)
+    if lock_reason:
+        return data, {"ok": False, "reason": "ironman_mode", "message": lock_reason}
+    order = next(
+        (
+            candidate
+            for candidate in data["ge_player_orders"]
+            if candidate["id"] == _clean_int(order_id, 0)
+        ),
+        None,
+    )
+    if order is None:
+        return data, {"ok": False, "reason": "unknown_order"}
+    if order["status"] not in {"open", "partial"}:
+        return data, {"ok": False, "reason": "order_not_open"}
+    if not isinstance(item_spec, Mapping):
+        return data, {"ok": False, "reason": "unknown_item"}
+
+    remaining_quantity = _clean_int(remaining_quantity, 0)
+    unit_price = _clean_int(unit_price, 0)
+    completed_quantity = _clean_int(order.get("completed_quantity"), 0)
+    if (
+        remaining_quantity <= 0
+        or completed_quantity + remaining_quantity > GE_MAX_OFFER_QUANTITY
+        or unit_price <= 0
+        or unit_price > GE_MAX_TRADE_PRICE
+    ):
+        return data, {"ok": False, "reason": "invalid_offer"}
+
+    guide_price = _current_guide_price_pure(
+        data,
+        item_name=str(order["item_name"]),
+        item_spec=item_spec,
+    )
+    if guide_price <= 0:
+        return data, {"ok": False, "reason": "guide_price_unavailable"}
+    total_value = remaining_quantity * unit_price
+    confirmation_reason = _offer_confirmation_reason(
+        data["ge_settings"],
+        total_value=total_value,
+        unit_price=unit_price,
+        guide_price=guide_price,
+    )
+    if confirmation_reason is not None and not confirmed:
+        return data, {
+            "ok": False,
+            "reason": "confirmation_required",
+            "confirmation_required": True,
+            "confirmation_reason": confirmation_reason,
+            "total_value": total_value,
+        }
+
+    inventory = data["inventory"]
+    if order["side"] == "buy":
+        old_escrow = _clean_int(order.get("escrow_coins"), 0)
+        new_escrow = total_value
+        delta = new_escrow - old_escrow
+        available = _clean_int(inventory.get("Coins"), 0)
+        if delta > available:
+            return data, {
+                "ok": False,
+                "reason": "insufficient_coins",
+                "required": delta,
+                "owned": available,
+            }
+        inventory["Coins"] = available - max(delta, 0) + max(-delta, 0)
+        order["escrow_coins"] = new_escrow
+    else:
+        old_escrow = _clean_int(order.get("escrow_items"), 0)
+        delta = remaining_quantity - old_escrow
+        item_name = str(order["item_name"])
+        available = _clean_int(inventory.get(item_name), 0)
+        if delta > available:
+            return data, {
+                "ok": False,
+                "reason": "insufficient_items",
+                "required": delta,
+                "owned": available,
+            }
+        inventory[item_name] = available - max(delta, 0) + max(-delta, 0)
+        order["escrow_items"] = remaining_quantity
+
+    market_tick = _clean_int(
+        data.get("shop_market_clock", {}).get("market_tick")
+        if isinstance(data.get("shop_market_clock"), Mapping)
+        else 0,
+        0,
+    )
+    order["original_quantity"] = completed_quantity + remaining_quantity
+    order["remaining_quantity"] = remaining_quantity
+    order["submitted_unit_price"] = unit_price
+    order["status"] = "partial" if completed_quantity > 0 else "open"
+    order["created_market_tick"] = market_tick
+    order["last_updated_market_tick"] = market_tick
+    return data, {
+        "ok": True,
+        "reason": "offer_edited",
+        "order": copy.deepcopy(order),
+    }
 
 
 def cancel_ge_offer_pure(
@@ -1140,7 +1251,7 @@ def advance_ge_market_tick_pure(
 ) -> tuple[Dict[str, Any], Dict[str, Any]]:
     """Advance the local GE to the shared answered-card market clock.
 
-    Work is bounded by the eight player offer slots. A skipped interval is
+    Work is bounded by the six player offer slots. A skipped interval is
     collapsed into one price/fill draw rather than replayed tick by tick.
     """
 
@@ -1231,6 +1342,139 @@ def advance_ge_market_tick_pure(
     }
 
 
+def ge_frontend_projection_pure(
+    player_data: Mapping[str, Any],
+    *,
+    item_catalog: Mapping[str, Mapping[str, Any]],
+) -> Dict[str, Any]:
+    data = ensure_ge_state_pure(player_data)
+    item_rows = []
+    for item_name, item_spec in item_catalog.items():
+        if not isinstance(item_spec, Mapping):
+            continue
+        item_rows.append(
+            {
+                "item_name": str(item_name),
+                "guide_price": _current_guide_price_pure(
+                    data,
+                    item_name=str(item_name),
+                    item_spec=item_spec,
+                ),
+                "buy_limit": _clean_int(item_spec.get("buy_limit"), 0) or None,
+                "owned": _clean_int(data["inventory"].get(item_name), 0),
+                "asset_path": str(item_spec.get("asset_path") or ""),
+                "category": str(item_spec.get("category") or ""),
+            }
+        )
+    item_rows.sort(key=lambda row: row["item_name"].casefold())
+    orders = [copy.deepcopy(order) for order in data["ge_player_orders"]]
+    has_collectible = any(
+        _clean_int(order.get("collectible_coins"), 0) > 0
+        or _clean_int(order.get("collectible_items"), 0) > 0
+        for order in orders
+    )
+    slots = tuple(
+        orders[index] if index < len(orders) else None
+        for index in range(GE_SLOT_COUNT)
+    )
+    return {
+        "ironman_mode": bool(data["ironman_mode"]),
+        "lock_reason": ge_access_lock_reason_pure(data),
+        "coins": _clean_int(data["inventory"].get("Coins"), 0),
+        "settings": copy.deepcopy(data["ge_settings"]),
+        "has_collectible": has_collectible,
+        "slots": slots,
+        "items": tuple(item_rows),
+    }
+
+
+def apply_ge_frontend_action_pure(
+    player_data: Mapping[str, Any],
+    action_id: str,
+    payload: Mapping[str, Any] | None,
+    *,
+    item_catalog: Mapping[str, Mapping[str, Any]],
+) -> tuple[Dict[str, Any], Dict[str, Any]]:
+    payload = dict(payload or {})
+    item_name = str(payload.get("item_name", ""))
+    item_spec = item_catalog.get(item_name)
+    if action_id == "preview_offer":
+        data = ensure_ge_state_pure(player_data)
+        result = preview_ge_offer_pure(
+            data,
+            side=str(payload.get("side", "")),
+            item_name=item_name,
+            quantity=_clean_int(payload.get("quantity"), 0),
+            unit_price=_clean_int(payload.get("unit_price"), 0),
+            item_spec=item_spec,
+        )
+        return data, result
+    if action_id == "place_offer":
+        return place_ge_offer_pure(
+            player_data,
+            side=str(payload.get("side", "")),
+            item_name=item_name,
+            quantity=_clean_int(payload.get("quantity"), 0),
+            unit_price=_clean_int(payload.get("unit_price"), 0),
+            item_spec=item_spec,
+            confirmed=bool(payload.get("confirmed", False)),
+        )
+    if action_id == "edit_offer":
+        order_id = _clean_int(payload.get("order_id"), 0)
+        data = ensure_ge_state_pure(player_data)
+        order = next(
+            (
+                candidate
+                for candidate in data["ge_player_orders"]
+                if candidate["id"] == order_id
+            ),
+            None,
+        )
+        order_item_name = str((order or {}).get("item_name", ""))
+        return edit_ge_offer_pure(
+            data,
+            order_id,
+            remaining_quantity=_clean_int(payload.get("remaining_quantity"), 0),
+            unit_price=_clean_int(payload.get("unit_price"), 0),
+            item_spec=item_catalog.get(order_item_name),
+            confirmed=bool(payload.get("confirmed", False)),
+        )
+    if action_id == "cancel_offer":
+        return cancel_ge_offer_pure(
+            player_data,
+            _clean_int(payload.get("order_id"), 0),
+        )
+    if action_id == "collect_offer":
+        return collect_ge_offer_pure(
+            player_data,
+            _clean_int(payload.get("order_id"), 0),
+        )
+    if action_id == "collect_all":
+        return collect_all_ge_offers_pure(player_data)
+    if action_id == "set_ironman":
+        return set_ironman_mode_pure(
+            player_data,
+            bool(payload.get("enabled", False)),
+        )
+    if action_id == "set_offer_safety":
+        return set_ge_offer_safety_pure(
+            player_data,
+            high_value_confirmation=_clean_int(
+                payload.get("high_value_confirmation"),
+                0,
+            ),
+            low_price_percent=_clean_int(payload.get("low_price_percent"), 0),
+            high_price_multiplier=_clean_int(
+                payload.get("high_price_multiplier"),
+                0,
+            ),
+        )
+    return ensure_ge_state_pure(player_data), {
+        "ok": False,
+        "reason": "unknown_action",
+    }
+
+
 def set_ironman_mode_pure(
     player_data: Mapping[str, Any],
     enabled: bool,
@@ -1241,3 +1485,32 @@ def set_ironman_mode_pure(
         return data, {"ok": False, "reason": "offers_must_be_cleared"}
     data["ironman_mode"] = enabled
     return data, {"ok": True, "reason": "ironman_mode_updated", "enabled": enabled}
+
+
+def set_ge_offer_safety_pure(
+    player_data: Mapping[str, Any],
+    *,
+    high_value_confirmation: int,
+    low_price_percent: int,
+    high_price_multiplier: int,
+) -> tuple[Dict[str, Any], Dict[str, Any]]:
+    data = ensure_ge_state_pure(player_data)
+    high_value_confirmation = _clean_int(high_value_confirmation, 0)
+    low_price_percent = _clean_int(low_price_percent, 0)
+    high_price_multiplier = _clean_int(high_price_multiplier, 0)
+    if (
+        high_value_confirmation <= 0
+        or not 1 <= low_price_percent <= 100
+        or not 1 <= high_price_multiplier <= 100
+    ):
+        return data, {"ok": False, "reason": "invalid_settings"}
+    data["ge_settings"] = {
+        "high_value_confirmation": high_value_confirmation,
+        "low_price_multiplier": low_price_percent / 100.0,
+        "high_price_multiplier": float(high_price_multiplier),
+    }
+    return data, {
+        "ok": True,
+        "reason": "offer_safety_updated",
+        "settings": copy.deepcopy(data["ge_settings"]),
+    }

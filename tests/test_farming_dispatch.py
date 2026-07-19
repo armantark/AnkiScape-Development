@@ -437,7 +437,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
 
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
         first_disease = addon.player_data["farm_patches"]["falador_allotment_north"]["diseased"]
-        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.current_skill, "Utility / Activities")
         self.assertNotEqual(addon.random.getstate(), before_rng)
 
         addon._on_state_did_undo(types.SimpleNamespace(

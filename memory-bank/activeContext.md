@@ -1876,3 +1876,24 @@ The visual closure report is
   mobile copy: `https://vngdsej73c0r.postplan.dev`.
 - The remaining settled GE sequence is the eight-slot Qt surface and
   Bankstanding selector; no new owner design gap was found.
+
+## Grand Exchange interface and Bankstanding closure — 2026-07-19
+
+- Owner supersession now makes period parity explicit: the normal GE has the
+  cutoff member count of six slots and Guide / ±5% / custom controls. Older
+  eight-slot and ±20% clauses are historical only.
+- The top-level Qt surface now owns buy-all-registered and
+  sell-only-currently-owned search, quantity-one defaults, offer preview and
+  safety confirmation, placement, queue-age-resetting edits, cancellation,
+  partial collection, collect-all, Ironman lockout, and a persistent green
+  collectible notice on the review HUD.
+- Bankstanding is live as the no-XP Economy Utility/Activity. Material/source
+  exhaustion warns once and redirects future reviews; level and unlock
+  failures remain deactivation paths. Its state change is persisted once by
+  the enclosing review transaction and remains exactly undoable.
+- Durable authority and evidence:
+  `grand-exchange-slot-count-supersession-2026-07-19.md` and
+  `source-audits/grand-exchange-interface-bankstanding-2026-07-19.md`.
+- Results:
+  `status-updates/grand-exchange-interface-bankstanding-results-2026-07-19.html`;
+  mobile copy: `https://e62v7fq2zr2o.postplan.dev`.

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Grand Exchange closure</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1117;
+      --panel: #151b23;
+      --panel-2: #1c2530;
+      --line: #303b49;
+      --text: #eef4fa;
+      --muted: #9eacbc;
+      --green: #3ddc84;
+      --green-soft: #193c2b;
+      --amber: #f2bd58;
+      --red: #ff746c;
+      --blue: #72b7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 85% 0%, #173025 0, transparent 30rem),
+        var(--bg);
+      color: var(--text);
+      font: 15px/1.55 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 64px; }
+    .eyebrow { color: var(--green); font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { max-width: 830px; margin: 8px 0 12px; font-size: clamp(34px, 6vw, 66px); line-height: .98; letter-spacing: -.045em; }
+    h2 { margin: 0 0 14px; font-size: 22px; }
+    p { margin: 0; }
+    .lede { max-width: 800px; color: var(--muted); font-size: 18px; }
+    .verdict {
+      display: inline-flex; align-items: center; gap: 9px; margin-top: 22px;
+      padding: 9px 13px; border: 1px solid #2d754d; border-radius: 999px;
+      background: var(--green-soft); color: #a9f4c6; font-weight: 700;
+    }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 16px var(--green); }
+    .grid { display: grid; gap: 16px; margin-top: 30px; }
+    .stats { grid-template-columns: repeat(4, 1fr); }
+    .card { border: 1px solid var(--line); border-radius: 16px; background: color-mix(in srgb, var(--panel) 94%, transparent); padding: 20px; }
+    .stat strong { display: block; color: var(--green); font-size: 30px; line-height: 1; }
+    .stat span { display: block; margin-top: 8px; color: var(--muted); }
+    .comparison { grid-template-columns: 1fr 1fr; }
+    .mock { padding: 16px; border-radius: 13px; background: #10161d; border: 1px solid var(--line); }
+    .mock.bad { opacity: .64; }
+    .mock-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-weight: 750; }
+    .tag { padding: 3px 8px; border-radius: 999px; font-size: 12px; background: #352727; color: #ffaaa5; }
+    .tag.good { background: var(--green-soft); color: #9cedbb; }
+    .slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+    .slot { min-height: 46px; border: 1px solid #526071; border-radius: 8px; display: grid; place-items: center; color: #bac5d2; font-size: 12px; text-align: center; }
+    .slots.six .slot:nth-last-child(-n+2) { grid-column: span 1; }
+    .controls { display: flex; gap: 7px; margin-top: 12px; }
+    .control { flex: 1; padding: 8px 5px; border-radius: 7px; border: 1px solid #526071; color: #cbd5e0; text-align: center; font-size: 12px; }
+    .strike { text-decoration: line-through; color: var(--red); }
+    .feature-grid { grid-template-columns: repeat(3, 1fr); }
+    .feature h3 { margin: 0 0 6px; font-size: 16px; }
+    .feature p, .note { color: var(--muted); }
+    .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 12px; }
+    .step { position: relative; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); }
+    .step b { color: var(--blue); }
+    .step:not(:last-child)::after { content: "→"; position: absolute; right: -10px; top: 50%; color: var(--green); font-size: 20px; z-index: 2; }
+    code { color: #c9e6ff; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .audit { display: grid; gap: 8px; margin-top: 12px; }
+    .audit div { display: flex; justify-content: space-between; gap: 16px; padding: 10px 12px; border-radius: 9px; background: #10161d; }
+    .pass { color: var(--green); font-weight: 750; }
+    .baseline { color: var(--amber); font-weight: 750; text-align: right; }
+    footer { margin-top: 26px; color: var(--muted); font-size: 13px; }
+    @media (max-width: 820px) {
+      .stats, .feature-grid { grid-template-columns: 1fr 1fr; }
+      .comparison { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr 1fr; }
+      .step:nth-child(2)::after { display: none; }
+    }
+    @media (max-width: 520px) {
+      main { width: min(100% - 22px, 1120px); padding-top: 28px; }
+      .stats, .feature-grid, .flow { grid-template-columns: 1fr; }
+      .step::after { display: none; }
+      .slots { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">AnkiScape · implementation result · 2026-07-19</div>
+  <h1>The Grand Exchange now looks and behaves like the period system.</h1>
+  <p class="lede">The complete market surface, offer lifecycle, passive collection signal, and no-XP Bankstanding fallback are live. A late source check corrected the interface from an invented eight-slot shape to the 2012 six-slot member layout.</p>
+  <div class="verdict"><span class="dot"></span> Verified and ready to commit</div>
+
+  <section class="grid stats">
+    <div class="card stat"><strong>6</strong><span>period-accurate member offer slots</span></div>
+    <div class="card stat"><strong>1,737</strong><span>non-Qt tests passing</span></div>
+    <div class="card stat"><strong>215</strong><span>offscreen Qt tests passing</span></div>
+    <div class="card stat"><strong>296</strong><span>focused logic and integration tests</span></div>
+  </section>
+
+  <section class="grid comparison">
+    <div class="card">
+      <div class="mock bad">
+        <div class="mock-title">Discarded draft <span class="tag">not period-correct</span></div>
+        <div class="slots">
+          <div class="slot">Slot 1</div><div class="slot">Slot 2</div><div class="slot">Slot 3</div><div class="slot">Slot 4</div>
+          <div class="slot">Slot 5</div><div class="slot">Slot 6</div><div class="slot">Slot 7</div><div class="slot">Slot 8</div>
+        </div>
+        <div class="controls"><div class="control strike">−20%</div><div class="control">−5%</div><div class="control">Guide</div><div class="control">+5%</div><div class="control strike">+20%</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="mock">
+        <div class="mock-title">Final interface <span class="tag good">oldid 6367453</span></div>
+        <div class="slots six">
+          <div class="slot">Slot 1</div><div class="slot">Slot 2</div><div class="slot">Slot 3</div><div class="slot">Slot 4</div>
+          <div class="slot">Slot 5</div><div class="slot">Slot 6</div>
+        </div>
+        <div class="controls"><div class="control">−5%</div><div class="control">Guide</div><div class="control">+5%</div><div class="control">Custom</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:16px">
+    <h2>What is live</h2>
+    <div class="grid feature-grid">
+      <div class="feature"><h3>Complete offer lifecycle</h3><p>Buy and owned-item sell search, previews, placement, price edits, remaining-quantity edits, cancellation, partial collection, and collect-all.</p></div>
+      <div class="feature"><h3>Safe by default</h3><p>Collapsed configurable confirmation thresholds cover high totals and extreme price deviations without making ordinary trades noisy.</p></div>
+      <div class="feature"><h3>Review-driven market</h3><p>Offer age advances once per answered card. No wall clock and no Bankstanding acceleration.</p></div>
+      <div class="feature"><h3>Non-modal collection</h3><p>A persistent green HUD notice appears when any offer has collectible contents and never interrupts review.</p></div>
+      <div class="feature"><h3>Ironman boundary</h3><p>Ironman locks only offer creation and cannot activate while an offer remains open or collectible.</p></div>
+      <div class="feature"><h3>Source restraint</h3><p>No unauthenticated trend graph, visual market chart, eight-slot mode, or ±20% shortcuts were retained.</p></div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:16px">
+    <h2>Atomic material-exhaustion handoff</h2>
+    <div class="flow">
+      <div class="step"><b>1.</b><br>Selected action runs out of required materials.</div>
+      <div class="step"><b>2.</b><br>The player receives one clear warning.</div>
+      <div class="step"><b>3.</b><br>Future reviews switch to no-XP Bankstanding.</div>
+      <div class="step"><b>4.</b><br>The whole answered-card transaction saves once and undoes together.</div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:16px">
+    <h2>Closure checks</h2>
+    <div class="audit">
+      <div><span>Focused GE / pure / integration</span><span class="pass">296 passed</span></div>
+      <div><span>Final six-slot Qt behavior</span><span class="pass">3 passed</span></div>
+      <div><span>Complete non-Qt suite</span><span class="pass">1,737 passed · 219 skipped</span></div>
+      <div><span>Complete offscreen Qt suite</span><span class="pass">215 passed</span></div>
+      <div><span>Docs, test quality, compile, diff, worktree layout</span><span class="pass">passed</span></div>
+      <div><span>Item reachability</span><span class="baseline">existing baseline reproduced · no GE item row added</span></div>
+    </div>
+    <p class="note" style="margin-top:12px">The reachability audit remains nonzero at the repository baseline: 1,253 actions, 1,882 reachable items, 283 orphan inputs, and 304 blocked actions. This interface slice adds no item producer or consumer.</p>
+  </section>
+
+  <footer>Primary period interface evidence: RuneScape Wiki Grand Exchange, oldid <code>6367453</code>, timestamp <code>2012-10-08T01:30:21Z</code>. No owner-facing design gap remains in this slice.</footer>
+</main>
+</body>
+</html>

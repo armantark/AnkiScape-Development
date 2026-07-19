@@ -101,6 +101,7 @@ try:
         prayer_target_locked_reasons_pure,
         apply_quest_progress_pure,
         apply_runecrafting_action_pure,
+        runecrafting_locked_reasons_pure,
         apply_smithing_action_pure,
         apply_stronghold_step_pure,
         apply_knight_waves_step_pure,
@@ -292,6 +293,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         prayer_target_locked_reasons_pure,
         apply_quest_progress_pure,
         apply_runecrafting_action_pure,
+        runecrafting_locked_reasons_pure,
         apply_smithing_action_pure,
         apply_stronghold_step_pure,
         apply_knight_waves_step_pure,
@@ -440,6 +442,7 @@ class RuntimeActionContext:
     # Fired once when the Stronghold of Security is finished, so the UI can pop
     # the boot-choice reward dialog. Optional so older call sites keep working.
     prompt_stronghold_reward: Optional[Callable[[], None]] = None
+    switch_to_bankstanding: Optional[Callable[[], None]] = None
 
 
 # Handler keys that draw from / fill the 28-slot carried inventory, mapped to the
@@ -1228,6 +1231,13 @@ def missing_materials_text(requirements: dict[str, int], inventory: dict[str, An
     return ", ".join(missing) if missing else "materials"
 
 
+def _switch_material_failure_to_bankstanding(ctx: RuntimeActionContext) -> None:
+    if callable(ctx.switch_to_bankstanding):
+        ctx.switch_to_bankstanding()
+    else:
+        ctx.deactivate_current_skill()
+
+
 def fishing_materials_text(method_spec: dict[str, Any], inventory: dict[str, Any]) -> str:
     bait_options = tuple(method_spec.get("bait_options") or ())
     if not bait_options:
@@ -1878,11 +1888,11 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
     required_items.update(spec.get("required_items", {}))
     if not has_crafting_materials_pure(item, player_data["inventory"], CRAFTING_DATA):
         missing = missing_materials_text(required_items, player_data["inventory"])
-        ctx.deactivate_current_skill()
+        _switch_material_failure_to_bankstanding(ctx)
         ctx.show_error_message(
             "Out of materials",
-            f"You need {missing} to craft {display_name}, so Crafting has been switched off. "
-            "Open the AnkiScape menu to pick another target.",
+            f"You need {missing} to craft {display_name}, so AnkiScape switched to "
+            "Bankstanding. Choose another target when you are ready.",
         )
         return False
 
@@ -1890,11 +1900,11 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
     new_inv, base_exp, ok = apply_crafting_pure(item, player_data["inventory"], CRAFTING_DATA, thread_roll)
     if not ok:
         missing = missing_materials_text(required_items, player_data["inventory"])
-        ctx.deactivate_current_skill()
+        _switch_material_failure_to_bankstanding(ctx)
         ctx.show_error_message(
             "Out of materials",
-            f"You need {missing} to craft {display_name}, so Crafting has been switched off. "
-            "Open the AnkiScape menu to pick another target.",
+            f"You need {missing} to craft {display_name}, so AnkiScape switched to "
+            "Bankstanding. Choose another target when you are ready.",
         )
         return False
 
@@ -2139,15 +2149,16 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
 
     if locked_reasons:
         requirements = spec.get("requirements", {})
-        ctx.deactivate_current_skill()
         if requirements:
             missing = missing_materials_text(requirements, player_data.get("inventory", {}))
+            _switch_material_failure_to_bankstanding(ctx)
             ctx.show_error_message(
                 "Out of materials",
-                f"You're out of {missing} for {display_name}, so it's been switched off. "
-                "Open the AnkiScape menu to pick another activity.",
+                f"You're out of {missing} for {display_name}, so AnkiScape switched "
+                "to Bankstanding. Choose another activity when you are ready.",
             )
         else:
+            ctx.deactivate_current_skill()
             ctx.show_error_message(
                 "Activity switched off",
                 f"{display_name} can't run right now, so it's been switched off. "
@@ -2169,7 +2180,11 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
             batch_size=batch_size,
         )
         if not ok:
-            ctx.show_error_message("Unavailable activity", f"{display_name} is not available right now.")
+            _switch_material_failure_to_bankstanding(ctx)
+            ctx.show_error_message(
+                "Unavailable activity",
+                f"{display_name} is out of inputs, so AnkiScape switched to Bankstanding.",
+            )
             return False
         player_data["inventory"] = new_inv
         _record_action(ctx, "utility", activity_key, True, expected_success_chance=1.0, output_items=_outputs)
@@ -2185,7 +2200,11 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         UTILITY_ACTIVITY_DATA,
     )
     if not ok:
-        ctx.show_error_message("Unavailable activity", f"{display_name} is not available right now.")
+        _switch_material_failure_to_bankstanding(ctx)
+        ctx.show_error_message(
+            "Unavailable activity",
+            f"{display_name} is out of inputs, so AnkiScape switched to Bankstanding.",
+        )
         return False
 
     player_data["inventory"] = new_inv
@@ -2197,6 +2216,11 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     ctx.save_player_data()
     ctx.refresh_skill_availability()
 
+    if spec.get("no_op"):
+        ctx.show_activity_gain(
+            str(spec.get("status_message", display_name))
+        )
+        return True
     outputs = spec.get("outputs", {})
     if isinstance(outputs, dict) and outputs:
         if spec.get("deactivate_after_run"):
@@ -2248,11 +2272,11 @@ def handle_fletching_answer(ctx: RuntimeActionContext) -> bool:
     new_inv, base_exp, ok = apply_fletching_pure(target, player_data["inventory"], FLETCHING_DATA)
     if not ok:
         missing = missing_materials_text(spec.get("requirements", {}), player_data["inventory"])
-        ctx.deactivate_current_skill()
+        _switch_material_failure_to_bankstanding(ctx)
         ctx.show_error_message(
             "Out of materials",
-            f"You need {missing} to make {display_name}, so Fletching has been switched off. "
-            "Open the AnkiScape menu to pick another target.",
+            f"You need {missing} to make {display_name}, so AnkiScape switched to "
+            "Bankstanding. Choose another target when you are ready.",
         )
         return False
 
@@ -2297,11 +2321,11 @@ def handle_herblore_answer(ctx: RuntimeActionContext) -> bool:
     new_inv, base_exp, ok = apply_herblore_action_pure(target, player_data["inventory"], HERBLORE_DATA)
     if not ok:
         missing = missing_materials_text(spec.get("requirements", {}), player_data["inventory"])
-        ctx.deactivate_current_skill()
+        _switch_material_failure_to_bankstanding(ctx)
         ctx.show_error_message(
             "Out of materials",
-            f"You need {missing} to make {display_name}, so Herblore has been switched off. "
-            "Open the AnkiScape menu to pick another target.",
+            f"You need {missing} to make {display_name}, so AnkiScape switched to "
+            "Bankstanding. Choose another target when you are ready.",
         )
         return False
 
@@ -2342,7 +2366,7 @@ def handle_summoning_answer(ctx: RuntimeActionContext) -> bool:
         player_data, target
     )
     if not ok:
-        ctx.deactivate_current_skill()
+        _switch_material_failure_to_bankstanding(ctx)
         missing = ", ".join(
             reason.removeprefix("Missing ")
             for reason in result.get("locked_reasons", ())
@@ -2351,7 +2375,7 @@ def handle_summoning_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_error_message(
             "Out of Summoning materials",
             f"You need {missing or 'the source recipe'} for "
-            f"{action.display_name.lower()}, so Summoning has been switched off.",
+            f"{action.display_name.lower()}, so AnkiScape switched to Bankstanding.",
         )
         return False
 
@@ -2387,10 +2411,23 @@ def handle_prayer_answer(ctx: RuntimeActionContext) -> bool:
     display_name = spec.get("display_name", target)
     locked = prayer_target_locked_reasons_pure(player_data, target, PRAYER_DATA)
     if locked:
-        ctx.deactivate_current_skill()
+        material_names = tuple(str(name) for name in spec.get("requirements", {}))
+        materials_only = bool(material_names) and all(
+            any(str(reason).startswith(f"{name} x") for name in material_names)
+            for reason in locked
+        )
+        if materials_only:
+            _switch_material_failure_to_bankstanding(ctx)
+        else:
+            ctx.deactivate_current_skill()
         ctx.show_error_message(
             "Prayer target unavailable",
-            f"{display_name} requires {', '.join(locked)}, so Prayer has been switched off.",
+            f"{display_name} requires {', '.join(locked)}, so "
+            + (
+                "AnkiScape switched to Bankstanding."
+                if materials_only
+                else "Prayer has been switched off."
+            ),
         )
         return False
 
@@ -2436,8 +2473,12 @@ def handle_prayer_answer(ctx: RuntimeActionContext) -> bool:
         return True
     new_inventory, base_exp, ok, outputs = apply_prayer_action_pure(target, player_data.get("inventory", {}), PRAYER_DATA)
     if not ok:
-        ctx.deactivate_current_skill()
-        ctx.show_error_message("Out of materials", f"You no longer have the materials for {display_name}.")
+        _switch_material_failure_to_bankstanding(ctx)
+        ctx.show_error_message(
+            "Out of materials",
+            f"You no longer have the materials for {display_name}, so AnkiScape "
+            "switched to Bankstanding.",
+        )
         return False
     player_data["inventory"] = new_inventory
     player_data["prayer_actions_completed"] = int(player_data.get("prayer_actions_completed", 0) or 0) + 1
@@ -2472,10 +2513,26 @@ def handle_construction_answer(ctx: RuntimeActionContext) -> bool:
         NAIL_DATA, WORKBENCH_TIERS,
     )
     if locked:
-        ctx.deactivate_current_skill()
+        material_names = {
+            str(name)
+            for name in spec.get("requirements", {})
+        } | {"Coins"}
+        materials_only = bool(material_names) and all(
+            any(str(reason).startswith(name) for name in material_names)
+            for reason in locked
+        )
+        if materials_only:
+            _switch_material_failure_to_bankstanding(ctx)
+        else:
+            ctx.deactivate_current_skill()
         ctx.show_error_message(
             "Construction target unavailable",
-            f"{spec.get('display_name', target)} requires {', '.join(locked)}, so Construction has been switched off.",
+            f"{spec.get('display_name', target)} requires {', '.join(locked)}, so "
+            + (
+                "AnkiScape switched to Bankstanding."
+                if materials_only
+                else "Construction has been switched off."
+            ),
         )
         return False
     updated, rewards, ok = apply_construction_action_pure(
@@ -2483,8 +2540,12 @@ def handle_construction_answer(ctx: RuntimeActionContext) -> bool:
         ctx.random_random,
     )
     if not ok:
-        ctx.deactivate_current_skill()
-        ctx.show_error_message("Out of materials", f"You no longer have the materials for {spec.get('display_name', target)}.")
+        _switch_material_failure_to_bankstanding(ctx)
+        ctx.show_error_message(
+            "Out of materials",
+            f"You no longer have the materials for {spec.get('display_name', target)}, "
+            "so AnkiScape switched to Bankstanding.",
+        )
         return False
     player_data.update(updated)
     skill = "magic" if target.startswith("tablet_") else "construction"
@@ -2514,15 +2575,45 @@ def handle_magic_answer(ctx: RuntimeActionContext) -> bool:
         player_data["current_magic"] = target
     spec = MAGIC_DATA[target]
     display_name = str(spec.get("display_name", target))
+
+    def _magic_materials_only(reasons) -> bool:
+        gate_reason = (
+            str(spec.get("quest_gate")).replace("_", " ").title()
+            if spec.get("quest_gate")
+            else ""
+        )
+        for reason in reasons:
+            text = str(reason)
+            if (
+                " level " in f" {text} "
+                or (gate_reason and text == gate_reason)
+                or text.startswith(("Attune ", "Choose "))
+                or (
+                    target in {"cure_plant", "fertile_soil"}
+                    and " x" not in text
+                )
+            ):
+                return False
+        return bool(reasons)
+
     if ctx.cadence_live_enabled:
         locked = magic_target_locked_reasons_pure(
             player_data, target, MAGIC_DATA, _magic_alch_values()
         )
         if locked:
-            ctx.deactivate_current_skill()
+            materials_only = _magic_materials_only(locked)
+            if materials_only:
+                _switch_material_failure_to_bankstanding(ctx)
+            else:
+                ctx.deactivate_current_skill()
             ctx.show_error_message(
                 "Magic target unavailable",
-                f"{display_name} requires {', '.join(locked)}, so Magic has been switched off.",
+                f"{display_name} requires {', '.join(locked)}, so "
+                + (
+                    "AnkiScape switched to Bankstanding."
+                    if materials_only
+                    else "Magic has been switched off."
+                ),
             )
             return False
         ctx, admitted = _admit_live_cadence(ctx, "magic", target)
@@ -2532,9 +2623,21 @@ def handle_magic_answer(ctx: RuntimeActionContext) -> bool:
         player_data, target, MAGIC_DATA, _magic_alch_values(), ctx.random_random
     )
     if not ok:
-        ctx.deactivate_current_skill()
         reasons = magic_target_locked_reasons_pure(player_data, target, MAGIC_DATA, _magic_alch_values())
-        ctx.show_error_message("Magic target unavailable", f"{display_name} requires {', '.join(reasons) or message}, so Magic has been switched off.")
+        materials_only = _magic_materials_only(reasons)
+        if materials_only:
+            _switch_material_failure_to_bankstanding(ctx)
+        else:
+            ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Magic target unavailable",
+            f"{display_name} requires {', '.join(reasons) or message}, so "
+            + (
+                "AnkiScape switched to Bankstanding."
+                if materials_only
+                else "Magic has been switched off."
+            ),
+        )
         return False
 
     player_data.clear()
@@ -2590,11 +2693,11 @@ def handle_firemaking_answer(ctx: RuntimeActionContext) -> bool:
 
     if not has_firemaking_materials_pure(target, player_data.get("inventory", {}), FIREMAKING_DATA):
         missing = missing_materials_text(spec.get("requirements", {}), player_data.get("inventory", {}))
-        ctx.deactivate_current_skill()
+        _switch_material_failure_to_bankstanding(ctx)
         ctx.show_error_message(
             "Out of materials",
-            f"You need {missing} to burn {display_name}, so Firemaking has been switched off. "
-            "Open the AnkiScape menu to pick another target.",
+            f"You need {missing} to burn {display_name}, so AnkiScape switched to "
+            "Bankstanding. Choose another target when you are ready.",
         )
         return False
 
@@ -2676,11 +2779,11 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
 
     if not has_fishing_bait_pure(inventory, spec):
         missing = fishing_materials_text(spec, inventory)
-        ctx.deactivate_current_skill()
+        _switch_material_failure_to_bankstanding(ctx)
         ctx.show_error_message(
             "Out of materials",
-            f"You need {missing} to {str(display_name).lower()}, so Fishing has been switched off. "
-            "Open the AnkiScape menu to pick another target.",
+            f"You need {missing} to {str(display_name).lower()}, so AnkiScape "
+            "switched to Bankstanding. Choose another target when you are ready.",
         )
         return False
 
@@ -2794,11 +2897,11 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
 
     if not has_hunter_materials_pure(target, inventory, HUNTER_DATA):
         missing = missing_materials_text(spec.get("requirements", {}), inventory)
-        ctx.deactivate_current_skill()
+        _switch_material_failure_to_bankstanding(ctx)
         ctx.show_error_message(
             "Out of materials",
-            f"You need {missing} to {str(display_name).lower()}, so Hunter has been switched off. "
-            "Open the AnkiScape menu to pick another target.",
+            f"You need {missing} to {str(display_name).lower()}, so AnkiScape "
+            "switched to Bankstanding. Choose another target when you are ready.",
         )
         return False
 
@@ -2887,11 +2990,11 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
 
     if not has_cooking_materials_pure(target, player_data.get("inventory", {}), COOKING_DATA):
         missing = missing_materials_text(spec.get("requirements", {}), player_data.get("inventory", {}))
-        ctx.deactivate_current_skill()
+        _switch_material_failure_to_bankstanding(ctx)
         ctx.show_error_message(
             "Out of materials",
-            f"You need {missing} to {str(display_name).lower()}, so Cooking has been switched off. "
-            "Open the AnkiScape menu to pick another target.",
+            f"You need {missing} to {str(display_name).lower()}, so AnkiScape "
+            "switched to Bankstanding. Choose another target when you are ready.",
         )
         return False
 
@@ -2990,11 +3093,39 @@ def handle_runecrafting_answer(ctx: RuntimeActionContext) -> bool:
         quest_unlock_rules=QUEST_UNLOCK_RULES,
     )
     if not ok:
-        ctx.deactivate_current_skill()
+        reasons = runecrafting_locked_reasons_pure(
+            player_data,
+            target,
+            RUNECRAFTING_DATA,
+            RUNECRAFTING_POUCH_DATA,
+            QUEST_UNLOCK_RULES,
+        )
+        material_reasons = {
+            "essence",
+            "Pure essence",
+            "Tiara",
+            "Wicked hood",
+            str(spec.get("component_rune", "")),
+            str(spec.get("consumed_talisman", "")),
+            str(spec.get("talisman_item", "")),
+            str(spec.get("input_item", "")),
+        }
+        materials_only = bool(reasons) and all(
+            str(reason) in material_reasons
+            for reason in reasons
+        )
+        if materials_only:
+            _switch_material_failure_to_bankstanding(ctx)
+        else:
+            ctx.deactivate_current_skill()
         ctx.show_error_message(
             "Runecrafting unavailable",
-            f"{display_name} cannot run right now, so Runecrafting has been switched off. "
-            "Open the AnkiScape menu to pick another target.",
+            f"{display_name} cannot run right now, so "
+            + (
+                "AnkiScape switched to Bankstanding."
+                if materials_only
+                else "Runecrafting has been switched off."
+            ),
         )
         return False
 
@@ -3178,11 +3309,11 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
         missing_requirements = dict(spec.get("requirements", {}))
         missing_requirements.update(spec.get("required_items", {}))
         missing = missing_materials_text(missing_requirements, player_data["inventory"])
-        ctx.deactivate_current_skill()
+        _switch_material_failure_to_bankstanding(ctx)
         ctx.show_error_message(
             "Out of materials",
-            f"You need {missing} to make {display_name}, so Smithing has been switched off. "
-            "Open the AnkiScape menu to pick another target.",
+            f"You need {missing} to make {display_name}, so AnkiScape switched to "
+            "Bankstanding. Choose another target when you are ready.",
         )
         return False
 
