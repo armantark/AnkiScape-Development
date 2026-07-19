@@ -346,6 +346,14 @@ or Mean, with a remembered choice and `Clap` default; sub-72 eggs remain
 source-owned items until the shared pet surface can hatch them. The focused
 contract is `memory-bank/source-audits/phoenix-lair-loop-2026-07-18.md`.
 
+Multi-enemy encounters are settled by
+`memory-bank/multi-enemy-encounter-contract-2026-07-18.md`: a visible roster
+with one engaged target fought through live six-tick slices while unengaged
+members deal bounded pressure; Casual auto-picks source-shaped kill priority.
+Fight Caves is the first full consumer, and Bork's Ork legion, Barbarian
+Assault waves, and statless quest multi-encounters unpark onto the same
+pattern.
+
 Skeletal Horror is a weekly four-phase live Combat encounter. Limb thresholds
 automatically pick up and bury the right arm, left arm, and tail in the same
 review transaction, because ignoring them only heals the boss and creates no
