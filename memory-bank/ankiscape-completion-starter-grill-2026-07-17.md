@@ -176,6 +176,11 @@ on the explicit exclusion/nostalgia ledger.
 
 ## Dungeoneering thesis
 
+> **Ratified 2026-07-18:** the owner closed all six forks and the merged
+> Roguelike-Floor/fresh-start model in
+> `memory-bank/dungeoneering-design-contract-2026-07-18.md`, which is now the
+> owning record. This section remains the original thesis.
+
 Dungeoneering is AnkiScape's integration capstone and its renewable "fresh
 account" loop. A floor repeatedly compresses the early-game experience:
 starting with little, gathering and crafting under scarcity, solving gates,

@@ -1,5 +1,10 @@
 # Dungeoneering Product Decision — Deferred
 
+> **Superseded 2026-07-18:** the session model is now owner-ratified in
+> `dungeoneering-design-contract-2026-07-18.md`, which answers the six
+> questions below. The Herblore quarantine holds until that contract's
+> runtime exists.
+
 ## Current Boundary
 
 Dungeoneering is not an overworld Herblore source. The ordinary Herblore catalog therefore excludes all 54 Daemonheim-only targets transcribed from the local source: nine clean herbs, nine unfinished potions, and 36 tiered finished potions. Their source rows and item identities remain registered for save compatibility, but no normal review action can select or process them.
