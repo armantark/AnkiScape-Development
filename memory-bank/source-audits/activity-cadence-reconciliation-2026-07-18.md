@@ -79,6 +79,7 @@ boundary.
 | Fist of Guthix | `combat_ticks` plus `world_clock` | Corrected below: every active round advances six Combat ticks. Stance changes charge and exposure inside those ticks; it does not replace Combat cadence. |
 | Vinesweeper | `source_blocked_activity` | One successful review resolves one bounded source-shaped operation. No grid, field, farmer, rabbit, or timer state exists; exact outcome weights remain blocked pending the implementation source pass. |
 | Big Chinchompa | `activity_group` plus `world_clock` | One activity kernel step resolves one complete fifteen-moth catch-and-feed jar circuit. Multiplier stops at event expiry or communal fullness; crowd pressure advances once per review boundary, never once per moth. |
+| Livid Farm | `activity_group` plus exact `rate_limited` residual | One kernel emission resolves one complete five-round source cycle. The pinned twelve-cycle/hour rate becomes exactly six cycles per five successful reviews; the UI reports whether a review emitted one or two cycles. |
 
 ## Implementation gate
 

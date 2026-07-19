@@ -294,6 +294,15 @@ point cap never stops continued Hunter XP. Competence rewards, the exact cutoff
 shop, and per-success private-ground quota-ticket consumption are recorded in
 `memory-bank/source-audits/big-chinchompa-loop-2026-07-18.md`.
 
+Livid Farm uses its exact five-round source cycle as one finite activity group.
+The source twelve-cycle/hour rate maps cleanly through the live kernel as six
+cycles per five successful reviews, with the result line explicitly reporting
+the occasional two-cycle emission. Each cycle atomically consumes its literal
+Lunar runes and grants exact Magic, Farming, Construction, Crafting, Agility,
+and Produce-point outputs without simulating plots, dialogue, or sixty-second
+resets. The pinned cycle and remaining under-level-duty fork are recorded in
+`memory-bank/source-audits/livid-farm-loop-2026-07-18.md`.
+
 Evil Trees reuse Shooting Stars' review-clock discovery surface without its
 communal-population simulation. About every twenty answered cards, a random
 period tier appears directly in the D&D UI while active, even when its real
