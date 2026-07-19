@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from aqt.qt import QApplication, QColor, QPalette  # type: ignore
 
+from livid_farm_data import LIVID_FARM_UNLOCKS
 from tests.test_main_menu_widget import MainMenuWidgetTest, _make_player_data
 
 
@@ -53,13 +54,14 @@ def render(output_dir: Path) -> tuple[Path, Path]:
     player_data["quests"]["lunar_diplomacy"] = {"completed": True}
     player_data["livid_farm"] = {
         "farm_routine": "complete",
-        "produce_points": 227_900,
-        "lifetime_produce_points": 227_900,
-        "cycles_completed": 145,
-        "unlocked_spells": (
-            "south_falador_teleport",
-            "repair_rune_pouch",
-            "north_ardougne_teleport",
+        "produce_points": 73_000,
+        "lifetime_produce_points": 923_000,
+        "cycles_completed": 584,
+        "borrowed_power_claimed": True,
+        "more_planks_reviews_remaining": 7,
+        "unlocked_spells": tuple(
+            unlock_id
+            for unlock_id, _name, _threshold in LIVID_FARM_UNLOCKS
         ),
     }
     for rune_name in (

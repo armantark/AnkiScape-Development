@@ -704,19 +704,32 @@ class MainMenuWidgetTest(unittest.TestCase):
             return {"ok": ok, "message": info.get("message", info.get("reason", ""))}
 
         def _livid_farm_command(action_id, payload):
-            from livid_farm_logic import set_livid_farm_routine_pure
+            from livid_farm_logic import (
+                apply_livid_farm_wish_pure,
+                set_livid_farm_routine_pure,
+            )
 
             self._livid_farm_calls.append((action_id, dict(payload)))
-            if action_id != "set_routine":
+            if action_id == "set_routine":
+                updated, ok, info = set_livid_farm_routine_pure(
+                    player_data,
+                    payload.get("routine"),
+                )
+            elif action_id == "buy_wish":
+                updated, ok, info = apply_livid_farm_wish_pure(
+                    player_data,
+                    payload.get("wish_id"),
+                )
+            else:
                 return {"ok": False, "message": "Unknown command"}
-            updated, ok, info = set_livid_farm_routine_pure(
-                player_data,
-                payload.get("routine"),
-            )
             if ok:
                 player_data.clear()
                 player_data.update(updated)
-            return {"ok": ok, **info}
+            return {
+                "ok": ok,
+                "message": info.get("message", info.get("reason", "")),
+                **info,
+            }
 
         def _mage_arena_action(action_id, god_id):
             from logic_pure import (
@@ -6768,6 +6781,80 @@ class MainMenuWidgetTest(unittest.TestCase):
             ("set_routine", {"routine": "conserve"}),
         )
         self.assertEqual(pd["livid_farm"]["farm_routine"], "conserve")
+
+    def test_livid_farm_wish_surface_is_compact_honest_and_actionable(self) -> None:
+        pd = _make_player_data()
+        pd.update(
+            {
+                "magic_level": 99,
+                "agility_level": 60,
+                "crafting_level": 60,
+                "farming_level": 60,
+                "construction_level": 50,
+                "current_utility": "livid_farm",
+            }
+        )
+        pd["quests"]["lunar_diplomacy"] = {"completed": True}
+        pd["livid_farm"] = {
+            "borrowed_power_claimed": True,
+            "produce_points": 73_000,
+            "lifetime_produce_points": 900_000,
+            "unlocked_spells": ["borrowed_power"],
+        }
+        dialog = self._open(pd)
+        self._open_utility(dialog)
+        dialog.show()
+        QApplication.processEvents()
+
+        picker = _find_named_widget(dialog, "lividFarmWishPicker")
+        button = _find_named_widget(dialog, "lividFarmWishButton")
+        status = _find_named_label(dialog, "lividFarmStatus")
+        panel = _find_named_widget(dialog, "lividFarmPanel")
+        self.assertIsInstance(picker, QComboBox)
+        self.assertEqual(picker.count(), 10)
+        self.assertTrue(button.isVisible())
+        dialog.resize(900, 560)
+        for _ in range(8):
+            QApplication.processEvents()
+        button_right = button.mapTo(
+            panel,
+            button.rect().bottomRight(),
+        ).x()
+        self.assertLessEqual(button_right, panel.contentsRect().right())
+        button_bottom = button.mapTo(
+            panel,
+            button.rect().bottomRight(),
+        ).y()
+        self.assertLessEqual(button_bottom, panel.contentsRect().bottom())
+        self.assertGreaterEqual(button.height(), 28)
+        self.assertGreaterEqual(picker.height(), 28)
+
+        blocked_index = picker.findData("rain_seeds")
+        picker.setCurrentIndex(blocked_index)
+        QApplication.processEvents()
+        self.assertFalse(button.isEnabled())
+        self.assertIn("not sourced", status.text())
+        self.assertIsNotNone(
+            picker.itemData(
+                blocked_index,
+                Qt.ItemDataRole.ForegroundRole,
+            )
+        )
+
+        ready_index = picker.findData("gimme_herbs")
+        picker.setCurrentIndex(ready_index)
+        QApplication.processEvents()
+        self.assertTrue(button.isEnabled())
+        self.assertIn("18,000", button.text())
+        button.click()
+        QApplication.processEvents()
+
+        self.assertEqual(
+            self._livid_farm_calls[-1],
+            ("buy_wish", {"wish_id": "gimme_herbs"}),
+        )
+        self.assertEqual(pd["inventory"]["Grimy kwuarm"], 3)
+        self.assertEqual(pd["livid_farm"]["produce_points"], 55_000)
 
     def test_wool_gathering_is_enabled_and_selectable_from_utility(self) -> None:
         # gather_wool stands in for the retired scavenge_chicken_feathers

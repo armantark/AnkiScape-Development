@@ -424,6 +424,7 @@ try:
     from .livid_farm_logic import (
         livid_farm_cycle_projection_pure,
         livid_farm_locked_reasons_pure,
+        livid_farm_wish_rows_pure,
         sanitize_livid_farm_state_pure,
     )
 except ImportError:
@@ -431,6 +432,7 @@ except ImportError:
     from livid_farm_logic import (  # type: ignore
         livid_farm_cycle_projection_pure,
         livid_farm_locked_reasons_pure,
+        livid_farm_wish_rows_pure,
         sanitize_livid_farm_state_pure,
     )
 
@@ -5809,13 +5811,17 @@ def show_main_menu(
 
         livid_box = QtFrame()
         livid_box.setObjectName("lividFarmPanel")
+        livid_box.setSizePolicy(
+            QSizePolicy.Policy.Preferred,
+            QSizePolicy.Policy.Minimum,
+        )
         livid_box.setStyleSheet(
             "QFrame#lividFarmPanel { border: 1px solid palette(mid);"
             " border-radius: 8px; background: palette(base); }"
         )
         livid_layout = QVBoxLayout(livid_box)
-        livid_layout.setContentsMargins(10, 8, 10, 8)
-        livid_layout.setSpacing(5)
+        livid_layout.setContentsMargins(10, 6, 10, 6)
+        livid_layout.setSpacing(3)
         livid_top = QWidget()
         livid_top_layout = QHBoxLayout(livid_top)
         livid_top_layout.setContentsMargins(0, 0, 0, 0)
@@ -5824,8 +5830,25 @@ def show_main_menu(
         livid_title.setStyleSheet("font-weight: 700; color: palette(text);")
         livid_routine = QComboBox()
         livid_routine.setObjectName("lividFarmRoutine")
-        livid_routine.addItem("Complete · half Produce below level", "complete")
-        livid_routine.addItem("Conserve · skip duties below level", "conserve")
+        livid_routine.setMinimumHeight(26)
+        livid_routine.addItem(
+            "Complete all",
+            "complete",
+        )
+        livid_routine.addItem(
+            "Conserve runes",
+            "conserve",
+        )
+        livid_routine.setItemData(
+            0,
+            "Run every duty; duties above your Magic level still pay half Produce.",
+            Qt.ItemDataRole.ToolTipRole,
+        )
+        livid_routine.setItemData(
+            1,
+            "Skip duties above your Magic level to conserve their runes.",
+            Qt.ItemDataRole.ToolTipRole,
+        )
         livid_routine.setSizeAdjustPolicy(
             QComboBox.SizeAdjustPolicy.AdjustToContents
         )
@@ -5835,7 +5858,7 @@ def show_main_menu(
         livid_layout.addWidget(livid_top)
         livid_status = QLabel()
         livid_status.setObjectName("lividFarmStatus")
-        livid_status.setWordWrap(False)
+        livid_status.setWordWrap(True)
         livid_status.setStyleSheet("color: palette(text);")
         livid_layout.addWidget(livid_status)
         livid_progress = QProgressBar()
@@ -5849,6 +5872,31 @@ def show_main_menu(
             " border-radius: 3px; }"
         )
         livid_layout.addWidget(livid_progress)
+        livid_wish_row = QWidget()
+        livid_wish_row.setObjectName("lividFarmWishRow")
+        livid_wish_layout = QHBoxLayout(livid_wish_row)
+        livid_wish_layout.setContentsMargins(0, 2, 0, 0)
+        livid_wish_layout.setSpacing(6)
+        livid_wish_picker = QComboBox()
+        livid_wish_picker.setObjectName("lividFarmWishPicker")
+        livid_wish_picker.setMinimumHeight(28)
+        livid_wish_picker.setSizeAdjustPolicy(
+            QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
+        )
+        livid_wish_picker.setMinimumContentsLength(10)
+        livid_wish_button = QPushButton("Make wish")
+        livid_wish_button.setObjectName("lividFarmWishButton")
+        livid_wish_button.setMinimumHeight(28)
+        livid_wish_button.setStyleSheet(
+            "QPushButton { padding: 5px 10px; border: 1px solid #4CAF50;"
+            " border-radius: 6px; color: palette(text); }"
+            " QPushButton:hover { background: rgba(76,175,80,0.18); }"
+            f" QPushButton:disabled {{ color: {dim_text_css(livid_wish_button)};"
+            " border-color: palette(mid); }"
+        )
+        livid_wish_layout.addWidget(livid_wish_picker, 1)
+        livid_wish_layout.addWidget(livid_wish_button)
+        livid_layout.addWidget(livid_wish_row)
         container_layout.addWidget(livid_box)
 
         syncing_livid = {"active": False}
@@ -5878,11 +5926,17 @@ def show_main_menu(
                 livid_status.setText("Locked · " + " · ".join(locked))
                 livid_status.setToolTip("")
             else:
-                livid_status.setText(
+                status_text = (
                     f"{int(projection['points']):,} Produce/cycle · "
                     f"{int(livid_state['produce_points']):,} banked · "
                     f"{int(livid_state['cycles_completed']):,} cycles"
                 )
+                remaining = int(
+                    livid_state["more_planks_reviews_remaining"]
+                )
+                if remaining > 0:
+                    status_text += f" · More Planks {remaining} left"
+                livid_status.setText(status_text)
                 livid_status.setToolTip(
                     f"Runes per cycle after staff substitutions: "
                     f"{rune_text or 'none'}"
@@ -5899,6 +5953,7 @@ def show_main_menu(
                 livid_progress.setRange(0, 1)
                 livid_progress.setValue(1)
                 livid_progress.setFormat("All Livid Farm spells unlocked")
+                livid_progress.setVisible(False)
             else:
                 _unlock_id, unlock_name, threshold = next_unlock
                 lifetime = int(livid_state["lifetime_produce_points"])
@@ -5912,6 +5967,69 @@ def show_main_menu(
                 livid_progress.setFormat(
                     f"Next: {unlock_name} · {lifetime:,}/{threshold:,}"
                 )
+                livid_progress.setVisible(True)
+            selected_wish = str(livid_wish_picker.currentData() or "")
+            wish_rows = livid_farm_wish_rows_pure(player_data)
+            livid_wish_picker.blockSignals(True)
+            livid_wish_picker.clear()
+            for wish in wish_rows:
+                livid_wish_picker.addItem(
+                    str(wish["display_name"]),
+                    wish["id"],
+                )
+                index = livid_wish_picker.count() - 1
+                livid_wish_picker.setItemData(
+                    index,
+                    wish["summary"],
+                    Qt.ItemDataRole.ToolTipRole,
+                )
+                if not wish["enabled"]:
+                    livid_wish_picker.setItemData(
+                        index,
+                        dim_text_color(livid_wish_picker),
+                        Qt.ItemDataRole.ForegroundRole,
+                    )
+            selected_index = livid_wish_picker.findData(selected_wish)
+            if selected_index < 0:
+                selected_index = next(
+                    (
+                        index
+                        for index, wish in enumerate(wish_rows)
+                        if wish["enabled"]
+                    ),
+                    0,
+                )
+            livid_wish_picker.setCurrentIndex(selected_index)
+            livid_wish_picker.blockSignals(False)
+            selected_row = (
+                wish_rows[selected_index]
+                if 0 <= selected_index < len(wish_rows)
+                else None
+            )
+            wish_surface_visible = bool(
+                livid_state["borrowed_power_claimed"]
+            )
+            livid_box.setMinimumHeight(
+                96 if wish_surface_visible else 78
+            )
+            livid_wish_row.setVisible(wish_surface_visible)
+            if wish_surface_visible and selected_row is not None:
+                livid_wish_button.setText(
+                    f"Make wish · {int(selected_row['cost']):,}"
+                )
+                livid_wish_button.setEnabled(
+                    bool(selected_row["enabled"])
+                    and on_livid_farm_command is not None
+                )
+                wish_message = (
+                    selected_row["locked_reason"]
+                    or selected_row["summary"]
+                )
+                if selected_row["locked_reason"]:
+                    livid_status.setText(
+                        "Blocked · " + str(wish_message)
+                    )
+                livid_wish_picker.setToolTip(str(wish_message))
             livid_box.setVisible(
                 not locked
                 or int(livid_state["cycles_completed"]) > 0
@@ -5934,8 +6052,29 @@ def show_main_menu(
                 )
             _refresh_livid_panel()
 
+        def _buy_livid_wish() -> None:
+            if syncing_livid["active"] or on_livid_farm_command is None:
+                return
+            result = on_livid_farm_command(
+                "buy_wish",
+                {"wish_id": str(livid_wish_picker.currentData() or "")},
+            ) or {}
+            if not result.get("ok", False) and result.get("message"):
+                QMessageBox.warning(
+                    container,
+                    "Livid Farm",
+                    str(result["message"]),
+                )
+            _refresh_livid_panel()
+
         livid_routine.currentIndexChanged.connect(
             lambda _index: _set_livid_routine()
+        )
+        livid_wish_picker.currentIndexChanged.connect(
+            lambda _index: _refresh_livid_panel()
+        )
+        livid_wish_button.clicked.connect(
+            lambda _checked=False: _buy_livid_wish()
         )
         _refresh_livid_panel()
 

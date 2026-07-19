@@ -1414,6 +1414,15 @@ def apply_magic_action_pure(
     elif action in {"transform", "produce"}:
         for item, amount in (spec.get("outputs", {}) or {}).items():
             add(str(item), amount)
+        if action == "transform" and target_id.startswith("plank_make_"):
+            livid_state = data.get("livid_farm", {}) or {}
+            if (
+                isinstance(livid_state, Mapping)
+                and bool(livid_state.get("more_planks_active_this_review"))
+                and random_random() < 0.10
+            ):
+                for item, amount in (spec.get("outputs", {}) or {}).items():
+                    add(str(item), amount)
         if spec.get("secondary_skill") and float(spec.get("secondary_exp", 0) or 0) > 0:
             secondary[str(spec["secondary_skill"])] = float(spec["secondary_exp"])
     elif action == "bones_conversion":

@@ -3400,6 +3400,83 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
         self.assertGreaterEqual(calls["save"], 2)
 
+    def test_livid_more_planks_world_tick_advances_on_again_and_undo_restores_it(self):
+        addon = _load_addon_as_package(
+            "ankiscape_livid_wish_world_tick_integration"
+        )
+        addon.mw = _DummyMW(_DummyCol())
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_context_action_strip = lambda *_args: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        initial = {
+            "inventory": {},
+            "livid_farm": {
+                "borrowed_power_claimed": True,
+                "more_planks_reviews_remaining": 1,
+            },
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "None"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(
+            _FakeReviewer(),
+            1,
+            lambda _self, _ease: "answered",
+        )
+
+        state = addon.player_data["livid_farm"]
+        self.assertEqual(state["more_planks_reviews_remaining"], 0)
+        self.assertTrue(state["more_planks_active_this_review"])
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(study_queues=True, card=True),
+            )
+        )
+
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
+    def test_livid_wish_purchase_uses_direct_action_undo(self):
+        addon = _load_addon_as_package(
+            "ankiscape_livid_wish_direct_action_integration"
+        )
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.current_skill = "Utility / Activities"
+        initial = {
+            "inventory": {},
+            "livid_farm": {
+                "borrowed_power_claimed": True,
+                "produce_points": 18_000,
+            },
+        }
+        addon.player_data = copy.deepcopy(initial)
+
+        result = addon.on_livid_farm_wish("gimme_herbs")
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(addon.player_data["inventory"]["Grimy kwuarm"], 3)
+        self.assertEqual(addon.player_data["livid_farm"]["produce_points"], 0)
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
     def test_leather_thread_consumption_rolls_back_on_undo(self):
         addon = _load_addon_as_package("ankiscape_leather_thread_undo_integration")
 

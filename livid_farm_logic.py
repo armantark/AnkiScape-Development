@@ -12,8 +12,10 @@ try:
         LIVID_FARM_DISTRACTIONS,
         LIVID_FARM_DUTIES,
         LIVID_FARM_ENTRY_LEVELS,
+        LIVID_FARM_MORE_PLANKS_REVIEWS,
         LIVID_FARM_UNLOCKS,
         LIVID_FARM_WALLET_CAP,
+        LIVID_FARM_WISHES,
     )
 except ImportError:  # pragma: no cover - flat imports used by tests
     from livid_farm_data import (  # type: ignore
@@ -22,8 +24,10 @@ except ImportError:  # pragma: no cover - flat imports used by tests
         LIVID_FARM_DISTRACTIONS,
         LIVID_FARM_DUTIES,
         LIVID_FARM_ENTRY_LEVELS,
+        LIVID_FARM_MORE_PLANKS_REVIEWS,
         LIVID_FARM_UNLOCKS,
         LIVID_FARM_WALLET_CAP,
+        LIVID_FARM_WISHES,
     )
 
 
@@ -54,6 +58,9 @@ def default_livid_farm_state_pure() -> dict[str, Any]:
         "lifetime_produce_points": 0,
         "unlocked_spells": [],
         "borrowed_power_claimed": False,
+        "lunar_lumber_residual": 0,
+        "more_planks_reviews_remaining": 0,
+        "more_planks_active_this_review": False,
     }
 
 
@@ -88,8 +95,20 @@ def sanitize_livid_farm_state_pure(raw: Any) -> dict[str, Any]:
         if unlock_id in valid_unlocks and unlock_id in set(map(str, unlocked))
     ]
     state["borrowed_power_claimed"] = claimed
-    if claimed and "borrowed_power" not in state["unlocked_spells"]:
-        state["unlocked_spells"].append("borrowed_power")
+    state["lunar_lumber_residual"] = (
+        _non_negative_int(source.get("lunar_lumber_residual", 0)) % 28
+    )
+    state["more_planks_reviews_remaining"] = min(
+        LIVID_FARM_MORE_PLANKS_REVIEWS,
+        _non_negative_int(source.get("more_planks_reviews_remaining", 0)),
+    )
+    state["more_planks_active_this_review"] = bool(
+        source.get("more_planks_active_this_review", False)
+    )
+    if claimed:
+        state["unlocked_spells"] = [
+            unlock_id for unlock_id, _name, _threshold in LIVID_FARM_UNLOCKS
+        ]
     return state
 
 
@@ -427,3 +446,252 @@ def set_livid_farm_routine_pure(
     state["farm_routine"] = selected
     data["livid_farm"] = state
     return data, True, {"routine": selected}
+
+
+def _livid_carried_inventory(
+    player_data: Mapping[str, Any],
+) -> dict[str, int]:
+    carried_root = player_data.get("carried_inventory", {}) or {}
+    raw = (
+        carried_root.get("livid_farm", {})
+        if isinstance(carried_root, Mapping)
+        else {}
+    )
+    inventory = player_data.get("inventory", {}) or {}
+    if not isinstance(raw, Mapping) or not isinstance(inventory, Mapping):
+        return {}
+    return {
+        str(item_name): min(
+            _non_negative_int(amount),
+            _non_negative_int(inventory.get(item_name, 0)),
+        )
+        for item_name, amount in raw.items()
+        if isinstance(item_name, str)
+        and _non_negative_int(amount) > 0
+        and _non_negative_int(inventory.get(item_name, 0)) > 0
+    }
+
+
+def _unfinished_herb_outputs() -> dict[str, str]:
+    try:
+        from .herblore_data import HERBLORE_TARGETS
+    except ImportError:  # pragma: no cover - flat imports used by tests
+        from herblore_data import HERBLORE_TARGETS  # type: ignore
+    outputs: dict[str, str] = {}
+    for target in HERBLORE_TARGETS:
+        if target.group != "unf" or target.subgroup == "dungeoneering":
+            continue
+        requirements = dict(target.requirements)
+        clean_herbs = [
+            item_name
+            for item_name in requirements
+            if item_name.startswith("Clean ") and item_name != "Cave nightshade"
+        ]
+        if len(clean_herbs) == 1:
+            outputs[clean_herbs[0]] = target.output_item
+    return outputs
+
+
+def _wish_material_reason(
+    player_data: Mapping[str, Any],
+    wish_id: str,
+) -> str:
+    carried = _livid_carried_inventory(player_data)
+    if wish_id == "vial_my_herbs":
+        if not any(
+            _non_negative_int(carried.get(herb, 0)) > 0
+            for herb in _unfinished_herb_outputs()
+        ):
+            return "Carry a clean herb in the Livid Farm pack"
+    elif wish_id == "lunar_lumber":
+        if _non_negative_int(carried.get("Lunar lumber", 0)) <= 0:
+            return "Carry Lunar lumber in the Livid Farm pack"
+    return ""
+
+
+def livid_farm_wish_rows_pure(
+    player_data: Mapping[str, Any],
+) -> tuple[dict[str, Any], ...]:
+    state = sanitize_livid_farm_state_pure(player_data.get("livid_farm"))
+    rows = []
+    for wish in LIVID_FARM_WISHES:
+        status = str(wish["status"])
+        reason = ""
+        if not state["borrowed_power_claimed"]:
+            reason = "Unlock Borrowed Power first"
+        elif status == "source_blocked":
+            reason = str(wish["summary"])
+        elif status == "dependency_blocked":
+            reason = str(wish["summary"])
+        elif state["produce_points"] < int(wish["cost"]):
+            reason = f"Need {int(wish['cost']):,} Produce"
+        else:
+            reason = _wish_material_reason(player_data, str(wish["id"]))
+        rows.append(
+            {
+                **wish,
+                "enabled": not reason,
+                "locked_reason": reason,
+            }
+        )
+    return tuple(rows)
+
+
+def _replace_livid_carried(
+    data: dict[str, Any],
+    carried: Mapping[str, int],
+) -> None:
+    carried_root = dict(data.get("carried_inventory", {}) or {})
+    clean = {
+        item_name: _non_negative_int(amount)
+        for item_name, amount in carried.items()
+        if _non_negative_int(amount) > 0
+    }
+    if clean:
+        carried_root["livid_farm"] = clean
+    else:
+        carried_root.pop("livid_farm", None)
+    data["carried_inventory"] = carried_root
+
+
+def _add_inventory_items(
+    inventory: dict[str, Any],
+    outputs: Mapping[str, int],
+) -> None:
+    for item_name, amount in outputs.items():
+        quantity = _non_negative_int(amount)
+        if quantity <= 0:
+            continue
+        inventory[item_name] = (
+            _non_negative_int(inventory.get(item_name, 0)) + quantity
+        )
+
+
+def apply_livid_farm_wish_pure(
+    player_data: Mapping[str, Any],
+    wish_id: Any,
+) -> tuple[dict[str, Any], bool, dict[str, Any]]:
+    selected = str(wish_id)
+    row = next(
+        (
+            wish
+            for wish in livid_farm_wish_rows_pure(player_data)
+            if wish["id"] == selected
+        ),
+        None,
+    )
+    if row is None:
+        return dict(player_data), False, {"reason": "unknown_wish"}
+    if not row["enabled"]:
+        return dict(player_data), False, {
+            "reason": "locked",
+            "message": row["locked_reason"],
+        }
+
+    data = dict(player_data)
+    inventory = dict(data.get("inventory", {}) or {})
+    carried = _livid_carried_inventory(data)
+    state = sanitize_livid_farm_state_pure(data.get("livid_farm"))
+    outputs: dict[str, int] = {}
+
+    if selected == "vial_my_herbs":
+        for herb, unfinished in _unfinished_herb_outputs().items():
+            amount = min(50, _non_negative_int(carried.get(herb, 0)))
+            if amount <= 0:
+                continue
+            herb_remaining = (
+                _non_negative_int(inventory.get(herb, 0)) - amount
+            )
+            if herb_remaining > 0:
+                inventory[herb] = herb_remaining
+            else:
+                inventory.pop(herb, None)
+            carried[herb] = _non_negative_int(carried.get(herb, 0)) - amount
+            inventory[unfinished] = (
+                _non_negative_int(inventory.get(unfinished, 0)) + amount
+            )
+            carried[unfinished] = (
+                _non_negative_int(carried.get(unfinished, 0)) + amount
+            )
+            outputs[unfinished] = amount
+    elif selected == "lunar_lumber":
+        amount = _non_negative_int(carried.get("Lunar lumber", 0))
+        prior = state["lunar_lumber_residual"]
+        total = prior + amount
+        outputs["Astral rune"] = (total * 25 // 28) - (prior * 25 // 28)
+        for rune_name in (
+            "Nature rune",
+            "Death rune",
+            "Earth rune",
+            "Cosmic rune",
+            "Water rune",
+        ):
+            outputs[rune_name] = (total * 10 // 28) - (prior * 10 // 28)
+        outputs = {
+            item_name: quantity
+            for item_name, quantity in outputs.items()
+            if quantity > 0
+        }
+        state["lunar_lumber_residual"] = total % 28
+        lumber_remaining = (
+            _non_negative_int(inventory.get("Lunar lumber", 0)) - amount
+        )
+        if lumber_remaining > 0:
+            inventory["Lunar lumber"] = lumber_remaining
+        else:
+            inventory.pop("Lunar lumber", None)
+        carried.pop("Lunar lumber", None)
+        _add_inventory_items(inventory, outputs)
+        _add_inventory_items(carried, outputs)
+    elif selected == "more_planks":
+        state["more_planks_reviews_remaining"] = (
+            LIVID_FARM_MORE_PLANKS_REVIEWS
+        )
+        state["more_planks_active_this_review"] = False
+    elif selected == "gimme_herbs":
+        outputs = {
+            "Grimy kwuarm": 3,
+            "Grimy irit": 3,
+            "Grimy cadantine": 2,
+            "Grimy avantoe": 2,
+            "Grimy lantadyme": 1,
+        }
+        _add_inventory_items(inventory, outputs)
+    elif selected == "awesome_seeds":
+        outputs = {
+            "Ranarr seed": 4,
+            "Watermelon seed": 4,
+            "Curry tree seed": 6,
+            "Pineapple seed": 2,
+            "Papaya tree seed": 2,
+            "Willow seed": 4,
+        }
+        _add_inventory_items(inventory, outputs)
+    else:  # The projection must keep incomplete rows disabled.
+        return dict(player_data), False, {"reason": "unavailable_wish"}
+
+    state["produce_points"] -= int(row["cost"])
+    data["inventory"] = inventory
+    data["livid_farm"] = state
+    _replace_livid_carried(data, carried)
+    return data, True, {
+        "reason": "wish_applied",
+        "wish_id": selected,
+        "display_name": row["display_name"],
+        "cost": int(row["cost"]),
+        "outputs": outputs,
+    }
+
+
+def advance_livid_farm_wish_effects_pure(
+    player_data: Mapping[str, Any],
+    answered_cards: Any = 1,
+) -> dict[str, Any]:
+    data = dict(player_data)
+    state = sanitize_livid_farm_state_pure(data.get("livid_farm"))
+    cards = _non_negative_int(answered_cards)
+    remaining = state["more_planks_reviews_remaining"]
+    state["more_planks_active_this_review"] = cards > 0 and remaining > 0
+    state["more_planks_reviews_remaining"] = max(0, remaining - cards)
+    data["livid_farm"] = state
+    return data

@@ -1,11 +1,14 @@
 import unittest
 
 from livid_farm_logic import (
+    advance_livid_farm_wish_effects_pure,
     apply_livid_farm_reviews_pure,
+    apply_livid_farm_wish_pure,
     default_livid_farm_state_pure,
     livid_farm_cycle_projection_pure,
     livid_farm_cycles_for_steps_pure,
     livid_farm_locked_reasons_pure,
+    livid_farm_wish_rows_pure,
     sanitize_livid_farm_state_pure,
     set_livid_farm_routine_pure,
 )
@@ -197,11 +200,187 @@ class TestLividFarmLogic(unittest.TestCase):
         self.assertEqual(state["distraction_credit"], 1)
         self.assertEqual(state["cycles_completed"], 0)
         self.assertEqual(state["produce_points"], 850_000)
-        self.assertEqual(state["unlocked_spells"], ["borrowed_power"])
+        self.assertEqual(
+            state["unlocked_spells"],
+            [unlock_id for unlock_id, _name, _threshold in LIVID_FARM_UNLOCKS],
+        )
 
     def test_cadence_helper_is_exact_for_bulk_steps(self):
         self.assertEqual(livid_farm_cycles_for_steps_pure(0, 5), (6, 0))
         self.assertEqual(livid_farm_cycles_for_steps_pure(4, 1), (2, 0))
+
+    def test_wish_rows_keep_source_and_dependency_blocks_visible(self):
+        player = _player()
+        player["livid_farm"].update(
+            {"borrowed_power_claimed": True, "produce_points": 850_000}
+        )
+
+        rows = {row["id"]: row for row in livid_farm_wish_rows_pure(player)}
+
+        self.assertFalse(rows["vial_my_herbs"]["enabled"])
+        self.assertIn("clean herb", rows["vial_my_herbs"]["locked_reason"])
+        self.assertFalse(rows["rain_seeds"]["enabled"])
+        self.assertEqual(rows["rain_seeds"]["status"], "source_blocked")
+        self.assertFalse(rows["arcane_capacitor"]["enabled"])
+        self.assertEqual(
+            rows["arcane_capacitor"]["status"],
+            "dependency_blocked",
+        )
+
+    def test_vial_my_herbs_transforms_only_carried_eligible_herbs_with_cap(self):
+        player = _player()
+        player["livid_farm"].update(
+            {"borrowed_power_claimed": True, "produce_points": 20_000}
+        )
+        player["inventory"].update(
+            {
+                "Clean guam": 70,
+                "Clean erzille": 2,
+                "Clean sagewort": 4,
+                "Cave nightshade": 3,
+            }
+        )
+        player["carried_inventory"] = {
+            "livid_farm": {
+                "Clean guam": 60,
+                "Clean erzille": 2,
+                "Clean sagewort": 4,
+                "Cave nightshade": 3,
+            }
+        }
+
+        updated, ok, result = apply_livid_farm_wish_pure(
+            player,
+            "vial_my_herbs",
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["outputs"], {
+            "Guam potion (unf)": 50,
+            "Erzille potion (unf)": 2,
+        })
+        self.assertEqual(updated["inventory"]["Clean guam"], 20)
+        self.assertNotIn("Clean erzille", updated["inventory"])
+        self.assertEqual(updated["inventory"]["Clean sagewort"], 4)
+        self.assertEqual(updated["inventory"]["Cave nightshade"], 3)
+        carried = updated["carried_inventory"]["livid_farm"]
+        self.assertEqual(carried["Clean guam"], 10)
+        self.assertEqual(carried["Guam potion (unf)"], 50)
+        self.assertEqual(
+            updated["livid_farm"]["produce_points"],
+            14_500,
+        )
+
+    def test_lunar_lumber_chunking_matches_one_full_batch(self):
+        def convert(chunks):
+            player = _player()
+            player["livid_farm"].update(
+                {"borrowed_power_claimed": True, "produce_points": 850_000}
+            )
+            totals = {}
+            for amount in chunks:
+                player["inventory"]["Lunar lumber"] = amount
+                player["carried_inventory"] = {
+                    "livid_farm": {"Lunar lumber": amount}
+                }
+                player, ok, result = apply_livid_farm_wish_pure(
+                    player,
+                    "lunar_lumber",
+                )
+                self.assertTrue(ok)
+                self.assertTrue(all(result["outputs"].values()))
+                self.assertTrue(
+                    all(quantity > 0 for quantity in player["inventory"].values())
+                )
+                self.assertTrue(
+                    all(
+                        quantity > 0
+                        for quantity in player.get(
+                            "carried_inventory", {}
+                        ).get("livid_farm", {}).values()
+                    )
+                )
+                for item_name, quantity in result["outputs"].items():
+                    totals[item_name] = totals.get(item_name, 0) + quantity
+            return totals, player["livid_farm"]["lunar_lumber_residual"]
+
+        whole, whole_residual = convert([28])
+        chunked, chunked_residual = convert([1] * 28)
+
+        self.assertEqual(chunked, whole)
+        self.assertEqual(whole["Astral rune"], 25)
+        self.assertEqual(whole["Nature rune"], 10)
+        self.assertEqual(whole_residual, 0)
+        self.assertEqual(chunked_residual, 0)
+
+    def test_inventory_wishes_spend_atomically_and_preserve_exact_bundles(self):
+        player = _player()
+        player["livid_farm"].update(
+            {"borrowed_power_claimed": True, "produce_points": 73_000}
+        )
+
+        herbs, ok, herb_result = apply_livid_farm_wish_pure(
+            player,
+            "gimme_herbs",
+        )
+        self.assertTrue(ok)
+        self.assertEqual(
+            herb_result["outputs"],
+            {
+                "Grimy kwuarm": 3,
+                "Grimy irit": 3,
+                "Grimy cadantine": 2,
+                "Grimy avantoe": 2,
+                "Grimy lantadyme": 1,
+            },
+        )
+        seeds, ok, seed_result = apply_livid_farm_wish_pure(
+            herbs,
+            "awesome_seeds",
+        )
+        self.assertTrue(ok)
+        self.assertEqual(
+            seed_result["outputs"],
+            {
+                "Ranarr seed": 4,
+                "Watermelon seed": 4,
+                "Curry tree seed": 6,
+                "Pineapple seed": 2,
+                "Papaya tree seed": 2,
+                "Willow seed": 4,
+            },
+        )
+        self.assertEqual(seeds["livid_farm"]["produce_points"], 0)
+
+        unchanged, ok, reason = apply_livid_farm_wish_pure(
+            seeds,
+            "gimme_herbs",
+        )
+        self.assertFalse(ok)
+        self.assertEqual(reason["reason"], "locked")
+        self.assertEqual(unchanged, seeds)
+
+    def test_more_planks_uses_ten_answered_card_world_ticks(self):
+        player = _player()
+        player["livid_farm"].update(
+            {"borrowed_power_claimed": True, "produce_points": 18_000}
+        )
+        player, ok, _ = apply_livid_farm_wish_pure(player, "more_planks")
+        self.assertTrue(ok)
+
+        for remaining in range(9, -1, -1):
+            player = advance_livid_farm_wish_effects_pure(player)
+            self.assertTrue(
+                player["livid_farm"]["more_planks_active_this_review"]
+            )
+            self.assertEqual(
+                player["livid_farm"]["more_planks_reviews_remaining"],
+                remaining,
+            )
+        player = advance_livid_farm_wish_effects_pure(player)
+        self.assertFalse(
+            player["livid_farm"]["more_planks_active_this_review"]
+        )
 
 
 if __name__ == "__main__":

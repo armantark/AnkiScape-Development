@@ -903,6 +903,11 @@ class TestStoragePure(unittest.TestCase):
             migrated["livid_farm"]["unlocked_spells"],
             ["south_falador_teleport"],
         )
+        self.assertEqual(migrated["livid_farm"]["lunar_lumber_residual"], 0)
+        self.assertEqual(
+            migrated["livid_farm"]["more_planks_reviews_remaining"],
+            0,
+        )
 
 
 if __name__ == "__main__":

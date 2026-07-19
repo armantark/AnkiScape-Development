@@ -173,6 +173,82 @@ LIVID_FARM_UNLOCKS: Final = (
 LIVID_FARM_BORROWED_POWER_COST: Final = 850_000
 LIVID_FARM_WALLET_CAP: Final = 850_000
 LIVID_FARM_DISTRACTION_INTERVAL: Final = 12
+LIVID_FARM_MORE_PLANKS_REVIEWS: Final = 10
+
+# Wishes are repeatable direct commands after Borrowed Power. Rows without a
+# complete owning substrate stay visible and honest in the reward surface.
+LIVID_FARM_WISHES: Final = (
+    {
+        "id": "vial_my_herbs",
+        "display_name": "Vial My Herbs",
+        "cost": 5_500,
+        "status": "ready",
+        "summary": "Vial up to 50 of every carried clean herb.",
+    },
+    {
+        "id": "lunar_lumber",
+        "display_name": "Turn Lunar Lumber Into Runes",
+        "cost": 5_500,
+        "status": "ready",
+        "summary": "Convert all carried Lunar lumber with exact residuals.",
+    },
+    {
+        "id": "arcane_capacitor",
+        "display_name": "Give me an Arcane Capacitor",
+        "cost": 18_000,
+        "status": "dependency_blocked",
+        "summary": "Its equipment effect is not implemented yet.",
+    },
+    {
+        "id": "new_patch",
+        "display_name": "I'd Like a New Patch!",
+        "cost": 18_000,
+        "status": "dependency_blocked",
+        "summary": "Its one-use allotment is not implemented yet.",
+    },
+    {
+        "id": "more_planks",
+        "display_name": "More Planks Please",
+        "cost": 18_000,
+        "status": "ready",
+        "summary": "Ten answered cards of a 1-in-10 extra Plank Make output.",
+    },
+    {
+        "id": "gimme_herbs",
+        "display_name": "Gimme Herbs",
+        "cost": 18_000,
+        "status": "ready",
+        "summary": "Receive the exact sourced grimy-herb bundle.",
+    },
+    {
+        "id": "rain_seeds",
+        "display_name": "Let it rain seeds",
+        "cost": 18_000,
+        "status": "source_blocked",
+        "summary": "Exact period seed amounts are not sourced.",
+    },
+    {
+        "id": "reduce_fish_burn",
+        "display_name": "Reduce The Fish I Burn",
+        "cost": 18_000,
+        "status": "source_blocked",
+        "summary": "The period burn-rate change is not sourced.",
+    },
+    {
+        "id": "protect_patch",
+        "display_name": "Protect a Patch for me!",
+        "cost": 37_000,
+        "status": "dependency_blocked",
+        "summary": "Its ten-tree selection is not implemented yet.",
+    },
+    {
+        "id": "awesome_seeds",
+        "display_name": "Let it Rain Awesome Seeds",
+        "cost": 55_000,
+        "status": "ready",
+        "summary": "Receive the exact sourced high-level seed bundle.",
+    },
+)
 
 
 def livid_farm_activity_as_dict(icon_path: str) -> dict[str, dict[str, object]]:

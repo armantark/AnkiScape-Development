@@ -140,7 +140,11 @@ from .warriors_guild_logic import (
     set_warriors_guild_policy_pure,
     show_warriors_guild_defender_pure,
 )
-from .livid_farm_logic import set_livid_farm_routine_pure
+from .livid_farm_logic import (
+    advance_livid_farm_wish_effects_pure,
+    apply_livid_farm_wish_pure,
+    set_livid_farm_routine_pure,
+)
 from .pet_logic import (
     let_out_pet_pure,
     release_pet_pure,
@@ -946,6 +950,43 @@ def show_ore_selection():
         save_player_data()
 
 
+def on_livid_farm_wish(wish_id):
+    before = _capture_player_data_snapshot()
+    updated, ok, info = apply_livid_farm_wish_pure(
+        player_data,
+        wish_id,
+    )
+    if not ok:
+        return {
+            "ok": False,
+            "message": str(
+                info.get(
+                    "message",
+                    info.get("reason", "That wish is unavailable."),
+                )
+            )
+            .replace("_", " ")
+            .capitalize(),
+        }
+    try:
+        mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+    except (AttributeError, RuntimeError):
+        return {"ok": False, "message": "Anki could not create an undo entry."}
+    _DIRECT_ACTION_UNDO_STACK.append(before)
+    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+    player_data.clear()
+    player_data.update(updated)
+    save_player_data()
+    _refresh_skill_availability()
+    try:
+        mw.update_undo_actions()
+        update_review_hud(player_data, current_skill)
+    except AttributeError:
+        pass
+    return {"ok": True, **info}
+
+
 
 def _open_farming_sheet(patch_id=None):
     try:
@@ -1425,23 +1466,27 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
 
     def _apply_livid_farm_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
-        if action_id != "set_routine":
+        if action_id == "set_routine":
+            updated, ok, info = set_livid_farm_routine_pure(
+                player_data,
+                payload.get("routine", "complete"),
+            )
+            if not ok:
+                return {
+                    "ok": False,
+                    "message": str(
+                        info.get("reason", "That routine is unavailable.")
+                    )
+                    .replace("_", " ")
+                    .capitalize(),
+                }
+            player_data.clear()
+            player_data.update(updated)
+            save_player_data()
+            return {"ok": True, **info}
+        if action_id != "buy_wish":
             return {"ok": False, "message": "Unknown Livid Farm command."}
-        updated, ok, info = set_livid_farm_routine_pure(
-            player_data,
-            payload.get("routine", "complete"),
-        )
-        if not ok:
-            return {
-                "ok": False,
-                "message": str(info.get("reason", "That routine is unavailable."))
-                .replace("_", " ")
-                .capitalize(),
-            }
-        player_data.clear()
-        player_data.update(updated)
-        save_player_data()
-        return {"ok": True, **info}
+        return on_livid_farm_wish(payload.get("wish_id", ""))
 
     def _apply_summoning_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
@@ -2194,6 +2239,12 @@ def on_answer_card(self, ease, _old):
     had_farm_step = bool(player_data.get("farm_queue"))
     farm_preempted = False
     if review_answered:
+        player_data.update(
+            advance_livid_farm_wish_effects_pure(
+                player_data,
+                1,
+            )
+        )
         try:
             player_data.update(advance_shop_market_clock_pure(player_data))
         except Exception:

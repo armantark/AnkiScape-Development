@@ -108,11 +108,15 @@ Labels: none remaining on the build itself; trailing `DEPENDENCY` items only.
 - The 2026-07-17 follow-up completes Mage Arena alignment/rewards/attunement,
   god-cape equipment and assets, and Charge's real matching-loadout combat
   effect. Cure Plant is also live as a Farming preset fallback route.
-- The Livid Farm activity core and cumulative unlock ladder are live. Trailing
-  `DEPENDENCY` items are the unlocked spell consumers, Borrowed Power /
-  Arcane-capacitor commands, Livid wishes, Hunter Kit consumers (Hunter), and
-  Bones to Peaches behind a future Mage Training Arena activity. Magic Dart's
-  canonical `Slayer's staff` route is live.
+- The Livid Farm activity core and cumulative unlock ladder are live. Five
+  source-ready wishes are also live with direct undo: Vial My Herbs, exact
+  Lunar-lumber residual conversion, More Planks, Gimme Herbs, and Awesome
+  Seeds. Trailing `DEPENDENCY` items are the unlocked spell consumers,
+  Borrowed Power / Arcane-capacitor commands, the one-use allotment and
+  ten-tree protection wishes, Hunter Kit consumers (Hunter), and Bones to
+  Peaches behind a future Mage Training Arena activity. Exact ordinary
+  seed-shower quantities and fish-burn magnitude remain `SOURCE AUDIT`.
+  Magic Dart's canonical `Slayer's staff` route is live.
 
 ### Construction — SHIPPED 2026-07-11 (commit c628f0d)
 

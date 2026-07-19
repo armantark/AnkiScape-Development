@@ -303,6 +303,42 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
         self.assertEqual(planted_fertile["farm_patches"]["falador_allotment_south"]["compost_tier"], "supercompost")
         self.assertFalse(planted_fertile["farm_plans"]["falador_allotment_south"]["fertile_soil_applied"])
 
+    def test_more_planks_wish_adds_one_extra_output_only_on_its_roll(self):
+        base = {
+            "magic_level": 99,
+            "quests": _quest_state("dream_mentor"),
+            "inventory": {
+                "Astral rune": 4,
+                "Nature rune": 2,
+                "Earth rune": 30,
+                "Coins": 140,
+                "Logs": 2,
+            },
+            "livid_farm": {"more_planks_active_this_review": True},
+        }
+
+        doubled, _xp, _secondary, outputs, ok, _ = apply_magic_action_pure(
+            base,
+            "plank_make_logs",
+            MAGIC_DATA,
+            {},
+            random_random=lambda: 0.099,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(outputs, {"Plank": 2})
+        self.assertEqual(doubled["inventory"]["Plank"], 2)
+
+        ordinary, _xp, _secondary, outputs, ok, _ = apply_magic_action_pure(
+            base,
+            "plank_make_logs",
+            MAGIC_DATA,
+            {},
+            random_random=lambda: 0.10,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(outputs, {"Plank": 1})
+        self.assertEqual(ordinary["inventory"]["Plank"], 1)
+
     def test_quest_gate_and_disabled_metadata_row_block_selection(self):
         player = {"magic_level": 99, "inventory": {"Law rune": 2, "Blood rune": 1}}
         reasons = magic_target_locked_reasons_pure(player, "kharyrll_teleport", MAGIC_DATA, {})

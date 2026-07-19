@@ -2,6 +2,26 @@
 
 ## Current Focus
 
+The source-ready Livid Farm wish slice is live on top of the committed core.
+Vial My Herbs, exact-residual Lunar lumber conversion, More Planks, Gimme
+Herbs, and Awesome Seeds are instantaneous Produce purchases with shared
+direct-action undo. More Planks uses ten answered-card world ticks, advances
+on Again, and adds its approximately-one-in-ten output through ordinary Plank
+Make. Storage v47 persists and sanitizes the new residual/duration state and
+repairs impossible Borrowed-Power saves to the complete prerequisite unlock
+ladder. The compact post-capstone reward selector passed independent Fable and
+Kimi K3 taste review plus authoritative 900×560 geometry checks. Exact ordinary
+seed-shower quantities and fish-burn magnitude remain source-blocked; Arcane
+capacitor and the two Farming wishes remain owning-substrate work. No owner
+design gap emerged. See
+`source-audits/livid-farm-wishes-implementation-2026-07-19.md`.
+The final tree passes 1,802 non-Qt tests, 1,802 real offscreen Qt tests, 269
+focused cross-layer tests, both focused Livid UI states, and the docs,
+test-quality, compilation, diff, reachability, and worktree-safety gates.
+Native Anki was quit and relaunched before closure; the low-level user save
+opened exactly one menu and correctly retained its locked Livid state without
+test-only save mutation.
+
 All 19 Thieving people targets now use dedicated NPC portraits rather than
 Coins, first-loot placeholders, or empty icons. Seventeen cutoff revisions and
 two explicitly scoped historical-title exceptions are provenance-tracked under

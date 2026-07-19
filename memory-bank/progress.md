@@ -4,6 +4,28 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Livid Farm source-ready wishes — 2026-07-19
+
+- Added the five value-complete direct wishes: Vial My Herbs, exact-residual
+  Lunar lumber conversion, More Planks, Gimme Herbs, and Awesome Seeds.
+- Kept source-blocked and dependency-owned rows visible and honest without
+  inventing seed quantities, fish-burn magnitude, capacitor behavior, or
+  Farming substrates.
+- Added shared direct-action undo, Again-sensitive answered-card duration,
+  storage v47 migration/sanitization, ordinary Plank Make integration, and a
+  repaired capstone/unlock-ladder invariant.
+- Fable and Kimi K3 independently reviewed the compact reward surface. The
+  accepted copy, hierarchy, disabled-row, terminal-progress, countdown, and
+  laptop-geometry issues were fixed.
+- Final verification passes 269 focused cross-layer tests, 1,802 non-Qt tests
+  with 229 expected environment skips, and 1,802 real offscreen Qt tests with
+  one intentional skip. Documentation, test quality, compilation, diff,
+  reachability, and guarded-worktree audits pass; native Anki also opened one
+  live menu after a full process restart without modifying the locked user
+  save.
+- Durable implementation record:
+  `source-audits/livid-farm-wishes-implementation-2026-07-19.md`.
+
 ## Thieving NPC target portraits — 2026-07-19
 
 - Replaced representative loot/Coins icons with dedicated historical NPC art
