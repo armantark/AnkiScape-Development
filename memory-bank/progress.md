@@ -2105,3 +2105,32 @@ Test counts are snapshots; current runs outrank this note.
 - Results artifact:
   `status-updates/slayer-iron-dragon-results-2026-07-19.html`
   ([mobile copy](https://za9osdb8btx6.postplan.dev)).
+
+## Slayer Red dragon family Combat targets — 2026-07-19
+
+- Added the ordinary level-152 Red dragon and level-48 Baby red dragon as
+  Sumona's twentieth certifying family, preserving the cutoff substitution
+  relationship and adult-only dragonfire.
+- Preserved the direct period adult maximum of 158 LP and recorded Darkan's
+  conflicting 144-LP value as a rejected lower-tier lead rather than silently
+  selecting the convenient emulator value.
+- Imported exact executable combat levels, defences, respawns, guaranteed
+  drops, the adult's 128-slot ordinary table with three real empty slots,
+  losslessly enumerated charms, Summoning-gated egg, and hard clue.
+- Added both pre-cutoff target images and provenance plus roster, selector,
+  readiness, and real offscreen Qt coverage.
+- Sumona now derives 20/37 families ready and remains hidden and
+  unrenormalized. No owner-facing design gap emerged.
+- Verification: 321 focused Slayer/Combat tests pass; the real offscreen Qt
+  Combat-target/tooltip check passes; the complete core runner passes 1,685
+  tests with 215 environment skips. Documentation, test-quality, compile,
+  provenance JSON, readiness, diff, and worktree audits pass. Reachability
+  improves from 288 orphan inputs / 313 blocked actions to 286 / 309.
+- Read-only Workflow `fe36e1d0-6431-4163-88a3-938428bec3d0` was canceled
+  after roughly nine minutes because both Sol-high leaves remained before
+  session creation: no worker PID, provider session, stdout/stderr path,
+  token, tool, or progress telemetry was ever produced. No partial result was
+  used; the primary independently reproduced and verified the complete slice.
+- Results artifact:
+  `status-updates/slayer-red-dragon-family-results-2026-07-19.html`
+  ([mobile copy](https://2365habrkscc.postplan.dev)).

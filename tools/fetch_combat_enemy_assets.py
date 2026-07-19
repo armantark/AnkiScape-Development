@@ -88,6 +88,8 @@ TITLE_OVERRIDES = {
     "blue_dragon": ("Blue dragon.png",),
     "baby_blue_dragon": ("Baby blue dragon.png",),
     "bronze_dragon": ("Bronze dragon.png",),
+    "red_dragon": ("Red dragon old 5.png",),
+    "baby_red_dragon": ("Baby Red Dragon.png",),
     "cave_horror": ("Cave horror icon.png", "Cave horror.png"),
     "dagannoth": ("Dagannoth ranged.png",),
     "dagannoth_level_92": ("Dagannoth melee.png",),

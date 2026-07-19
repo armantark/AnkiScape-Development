@@ -2849,6 +2849,48 @@ class CombatLogicTest(unittest.TestCase):
             },
         )
 
+    def test_red_dragon_rolls_exact_ordinary_and_independent_tertiaries(self):
+        dragon = COMBAT_ENEMY_DATA["red_dragon"]
+        empty_ordinary = _combat_roll_drops(
+            dragon,
+            _rng([0.999999, 0.999999, 0.999999, 0.999999]),
+            player_data={"summoning_level": 99},
+        )
+        rares = _combat_roll_drops(
+            dragon,
+            _rng([0.0, 0.999999, 0.0, 0.0]),
+            player_data={"summoning_level": 99},
+        )
+        below_egg_level = _combat_roll_drops(
+            dragon,
+            _rng([0.0, 0.999999, 0.0]),
+            player_data={"summoning_level": 98},
+        )
+
+        self.assertEqual(
+            empty_ordinary,
+            {"Dragon bones": 1, "Red dragonhide": 1},
+        )
+        self.assertEqual(
+            rares,
+            {
+                "Dragon bones": 1,
+                "Red dragonhide": 1,
+                "Coins": 196,
+                "Red dragon egg": 1,
+                "Clue scroll (hard)": 1,
+            },
+        )
+        self.assertEqual(
+            below_egg_level,
+            {
+                "Dragon bones": 1,
+                "Red dragonhide": 1,
+                "Coins": 196,
+                "Clue scroll (hard)": 1,
+            },
+        )
+
     def test_cave_horror_rolls_nested_allotments_and_independent_rares(self):
         horror = COMBAT_ENEMY_DATA["cave_horror"]
 

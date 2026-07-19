@@ -381,15 +381,21 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   `source-audits/slayer-dagannoth-combat-2026-07-18.md`.
 - Sumona is now the fifth completely encoded pool. Its complete 37-row table
   preserves the source-settled 407-point denominator and remains hidden at
-  19/37 derived readiness. The existing Abyssal-demon and Nechryael targets
+  20/37 derived readiness. The existing Abyssal-demon and Nechryael targets
   deliberately remain non-certifying until their teleport-interruption and
   Death-spawn loops are executable; Aquanites, Desert strykewyrms, Fungal magi,
-  Grifolapines, Grifolaroos, Jungle strykewyrms, Kurasks, Mutated jadinkos, Red
-  dragons, Scabarites, Spiritual mages, Spiritual warriors, Terror dogs,
-  Trolls, Vyrewatch, and Warped tortoises lack a certifying target.
+  Grifolapines, Grifolaroos, Jungle strykewyrms, Kurasks, Mutated jadinkos,
+  Scabarites, Spiritual mages, Spiritual warriors, Terror dogs, Trolls,
+  Vyrewatch, and Warped tortoises lack a certifying target.
   Continue from `tools/audit_slayer_readiness.py`; do not expose or renormalize
   the partial master. Governing pool evidence:
   `source-audits/slayer-sumona-pool-2026-07-17.md`.
+- Red dragons are source-closed and executable as Sumona's twentieth ready
+  family. The adult and baby representatives preserve the cutoff substitution
+  rule, adult-only dragonfire, exact period maxima, Darkan selectors, and
+  pre-cutoff assets. The direct period 158-LP adult maximum explicitly
+  supersedes Darkan's conflicting 144-LP lead. See
+  `source-audits/slayer-red-dragon-family-combat-2026-07-19.md`.
 - Iron dragon is source-closed and executable as Sumona's nineteenth ready
   family. The ordinary level-189 target preserves the period 1,650 LP and
   173.2 Slayer XP, reuses the settled metal-dragon dragonfire abstraction,

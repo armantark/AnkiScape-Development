@@ -5,10 +5,17 @@
 Sumona is now the fifth completely encoded Slayer pool. Its 37 source-settled
 rows preserve the provisional 407-point denominator, Combat 85, Slayer 35, and
 Smoking Kills gates while remaining runtime-hidden. The live readiness audit
-derives 19/37 families ready. It explicitly keeps the existing Abyssal demon
+derives 20/37 families ready. It explicitly keeps the existing Abyssal demon
 blocked on missing teleport-interruption behavior and Nechryael blocked on its
-missing Death-spawn hook; 16 other families still lack a certifying Combat
+missing Death-spawn hook; 15 other families still lack a certifying Combat
 target. No row is renormalized away and no owner design was reopened.
+
+Red dragons are Sumona's twentieth certifying family. The ordinary level-152
+adult and level-48 baby preserve their cutoff substitution relationship,
+adult-only dragonfire, exact period XP/maxima, Darkan selectors, and pre-cutoff
+assets. The adult's 158-LP period maximum explicitly supersedes Darkan's
+conflicting 144-LP lead under the source hierarchy. See
+`source-audits/slayer-red-dragon-family-combat-2026-07-19.md`.
 
 Iron dragon is Sumona's nineteenth certifying family. The level-189 ordinary
 target preserves 1,650 LP, 173.2 Slayer XP, the existing metal-dragon

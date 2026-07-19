@@ -34,6 +34,8 @@ NEW_COMBAT_ENEMIES = (
     "baby_blue_dragon",
     "bronze_dragon",
     "iron_dragon",
+    "red_dragon",
+    "baby_red_dragon",
     "cave_horror",
     "ogre",
     "jackal",
@@ -395,6 +397,8 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("baby_blue_dragon", "Baby blue dragon.png"),
             ("bronze_dragon", "Bronze dragon.png"),
             ("iron_dragon", "Iron dragon.png"),
+            ("red_dragon", "Red dragon old 5.png"),
+            ("baby_red_dragon", "Baby red dragon.png"),
             ("cave_horror", "Cave horror icon.png"),
             ("dagannoth", "Dagannoth ranged.png"),
             ("dagannoth_level_92", "Dagannoth melee.png"),
@@ -483,6 +487,16 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                     self.assertEqual(
                         provenance[relative_path]["timestamp"],
                         "2010-12-29T13:34:17Z",
+                    )
+                if target_id == "red_dragon":
+                    self.assertEqual(
+                        provenance[relative_path]["timestamp"],
+                        "2010-07-05T19:36:16Z",
+                    )
+                if target_id == "baby_red_dragon":
+                    self.assertEqual(
+                        provenance[relative_path]["timestamp"],
+                        "2011-12-11T10:26:02Z",
                     )
                 if target_id == "cave_horror":
                     self.assertEqual(
@@ -839,6 +853,63 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             )
         self.assertIn("oldid=6530527", dragon["source"])
         self.assertIn("one empty slot", dragon["source_status"])
+
+    def test_red_dragon_family_preserves_cutoff_adult_and_baby_contracts(self):
+        adult = COMBAT_ENEMY_DATA["red_dragon"]
+        baby = COMBAT_ENEMY_DATA["baby_red_dragon"]
+
+        self.assertEqual(adult["level"], 152)
+        self.assertEqual(adult["attack_speed"], 6)
+        self.assertEqual(adult["max_hit"], 158)
+        self.assertEqual(adult["slayer_xp"], 142.5)
+        self.assertEqual(
+            adult["stats"],
+            {
+                "hitpoints": 1400,
+                "attack": 130,
+                "strength": 130,
+                "defence": 130,
+                "magic": 1,
+                "ranged": 1,
+            },
+        )
+        self.assertEqual(adult["dragonfire"]["chance_numerator"], 1)
+        self.assertEqual(adult["dragonfire"]["chance_denominator"], 4)
+        self.assertEqual(adult["dragonfire"]["unprotected_max_hit"], 500)
+        self.assertEqual(
+            adult["drops"]["guaranteed"],
+            (("Dragon bones", 1), ("Red dragonhide", 1)),
+        )
+        self.assertEqual(
+            [(table["name"], table["total"]) for table in adult["drops"]["tables"]],
+            [
+                ("Darkan ordinary", 128),
+                ("Darkan charms", 1212),
+                ("Red dragon egg (Summoning 99)", 2000),
+                ("Hard clue", 128),
+            ],
+        )
+        for table in adult["drops"]["tables"]:
+            self.assertEqual(
+                sum(slot["slots"] for slot in table["slots"]),
+                table["total"],
+            )
+        self.assertIn("oldid=6506523", adult["source"])
+        self.assertIn("three empty slots", adult["source_status"])
+        self.assertIn("144-LP Darkan conflict", adult["source_status"])
+
+        self.assertEqual(baby["level"], 48)
+        self.assertEqual(baby["attack_speed"], 6)
+        self.assertEqual(baby["max_hit"], 54)
+        self.assertEqual(baby["slayer_xp"], 50.0)
+        self.assertEqual(baby["stats"]["hitpoints"], 500)
+        self.assertNotIn("dragonfire", baby)
+        self.assertEqual(
+            baby["drops"],
+            {"guaranteed": (("Baby dragon bones", 1),), "tables": ()},
+        )
+        self.assertIn("oldid=6516030", baby["source"])
+        self.assertIn("level-65 POH", baby["source_status"])
 
     def test_cave_horror_preserves_cutoff_access_scream_and_drop_contract(self):
         horror = COMBAT_ENEMY_DATA["cave_horror"]

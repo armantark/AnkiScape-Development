@@ -281,7 +281,7 @@ class SlayerAssignmentDataTest(unittest.TestCase):
         self.assertFalse(readiness["certified"])
         self.assertFalse(readiness["runtime_enabled"])
         self.assertEqual(readiness["family_count"], 37)
-        self.assertEqual(readiness["ready_family_count"], 19)
+        self.assertEqual(readiness["ready_family_count"], 20)
         self.assertEqual(
             set(readiness["blockers"]),
             {
@@ -295,7 +295,6 @@ class SlayerAssignmentDataTest(unittest.TestCase):
                 "kurasks:combat_target",
                 "mutated_jadinkos:combat_target",
                 "nechryael:death_spawn",
-                "red_dragons:combat_target",
                 "scabarites:combat_target",
                 "spiritual_mages:combat_target",
                 "spiritual_warriors:combat_target",

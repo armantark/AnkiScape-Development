@@ -2605,6 +2605,67 @@ BLUE_DRAGON_DROPS = {
     ),
 }
 
+RED_DRAGON_DROPS = {
+    "guaranteed": (("Dragon bones", 1), ("Red dragonhide", 1)),
+    "tables": (
+        {
+            "name": "Darkan ordinary",
+            "total": 128,
+            "slots": (
+                {"item": "Coins", "quantity": 196, "slots": 39},
+                {"item": "Coins", "quantity": 66, "slots": 28},
+                {"item": "Coins", "quantity": 330, "slots": 9},
+                {"item": "Rune arrows", "quantity": 4, "slots": 8},
+                {"item": "Law rune", "quantity": 4, "slots": 5},
+                {"table": DARKAN_GEM_DROP_TABLE, "slots": 5},
+                {"item": "Mithril 2h sword", "quantity": 1, "slots": 4},
+                {"item": "Blood rune", "quantity": 2, "slots": 4},
+                {"item": "Mithril hatchet", "quantity": 1, "slots": 3},
+                {"item": "Mithril battleaxe", "quantity": 1, "slots": 3},
+                {"item": "Rune dart", "quantity": 8, "slots": 3},
+                {"item": "Death rune", "quantity": 5, "slots": 3},
+                {"item": "Chocolate cake", "quantity": 3, "slots": 3},
+                {"table": DARKAN_HERB_DROP_TABLE, "slots": 2},
+                {"item": "Mithril javelin", "quantity": 20, "slots": 1},
+                {"item": "Mithril kiteshield", "quantity": 1, "slots": 1},
+                {"item": "Adamant platebody", "quantity": 1, "slots": 1},
+                {"item": "Rune longsword", "quantity": 1, "slots": 1},
+                {"item": "Coins", "quantity": 690, "slots": 1},
+                {"item": "Adamant bar", "quantity": 1, "slots": 1},
+                {"slots": 3},
+            ),
+        },
+        {
+            "name": "Darkan charms",
+            "total": 1212,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 73},
+                {"item": "Green charm", "quantity": 1, "slots": 385},
+                {"item": "Crimson charm", "quantity": 1, "slots": 67},
+                {"item": "Blue charm", "quantity": 1, "slots": 15},
+                {"slots": 672},
+            ),
+        },
+        {
+            "name": "Red dragon egg (Summoning 99)",
+            "total": 2000,
+            "required_skill_levels": (("summoning", 99),),
+            "slots": (
+                {"item": "Red dragon egg", "quantity": 1, "slots": 1},
+                {"slots": 1999},
+            ),
+        },
+        {
+            "name": "Hard clue",
+            "total": 128,
+            "slots": (
+                {"item": "Clue scroll (hard)", "quantity": 1, "slots": 1},
+                {"slots": 127},
+            ),
+        },
+    ),
+}
+
 BRONZE_DRAGON_DROPS = {
     "guaranteed": (("Dragon bones", 1), ("Bronze bar", 5)),
     "tables": (
@@ -8703,6 +8764,117 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "independent 1/1024 plate drops, 1/10000 visage, and 1/128 hard "
             "clue; location, quest-only, post-cutoff, pit, and Daemonheim "
             "contexts excluded"
+        ),
+    },
+    "red_dragon": {
+        "display_name": "Red dragon",
+        "level": 152,
+        "group": "Dragons",
+        "dragonfire": {
+            "chance_numerator": 1,
+            "chance_denominator": 4,
+            "unprotected_max_hit": 500,
+            "partial_max_hit": 50,
+            "shield_items": ("Anti-dragon shield", "Dragonfire shield"),
+            "source": (
+                f"{LEATHER_DRAGON_COMBAT_SOURCE_PATH}:45-60; "
+                f"{DRAGONFIRE_FORMULA_SOURCE_PATH}:878-908"
+            ),
+            "source_status": (
+                "provisional/darkan hidden attack-selection roll; damage and "
+                "protection tiers corroborated by Red dragon oldid=6506523 "
+                "and Dragonfire oldid=6534496"
+            ),
+        },
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 158,
+        "slayer_xp": 142.5,
+        "stats": {
+            "hitpoints": 1400,
+            "attack": 130,
+            "strength": 130,
+            "defence": 130,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 50,
+            "defence_slash": 70,
+            "defence_crush": 70,
+            "defence_magic": 60,
+            "defence_ranged": 50,
+            "melee_strength": 0,
+        },
+        "drops": RED_DRAGON_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Red_dragon?oldid=6506523; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "red_dragon/red_dragon_(152).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/red_dragon.json"
+        ),
+        "source_status": (
+            "period exact ordinary level, LP, Slayer XP, six-tick melee, "
+            "158-LP melee maximum, close-range dragonfire, poison behavior, "
+            "guaranteed Dragon bones/Red dragonhide, Sumona assignment, and "
+            "baby substitution; direct period maximum preserves the explicit "
+            "144-LP Darkan conflict; Darkan exact combat levels, defences, "
+            "59-tick respawn, provisional 1/4 dragonfire selector, 128-slot "
+            "ordinary selector including three empty slots, losslessly "
+            "enumerated charms, Summoning-99 1/2000 egg, and 1/128 hard clue; "
+            "location, challenge-only, quest-only, post-cutoff, and Daemonheim "
+            "contexts excluded"
+        ),
+    },
+    "baby_red_dragon": {
+        "display_name": "Baby red dragon",
+        "level": 48,
+        "group": "Dragons",
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 54,
+        "slayer_xp": 50.0,
+        "stats": {
+            "hitpoints": 500,
+            "attack": 40,
+            "strength": 40,
+            "defence": 40,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 30,
+            "defence_slash": 50,
+            "defence_crush": 50,
+            "defence_magic": 40,
+            "defence_ranged": 30,
+            "melee_strength": 0,
+        },
+        "drops": {"guaranteed": (("Baby dragon bones", 1),), "tables": ()},
+        "source": (
+            "https://runescape.wiki/w/Baby_red_dragon?oldid=6516030; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "baby_red_dragon/baby_red_dragon_(48) (noanims).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/baby_red_dragon.json"
+        ),
+        "source_status": (
+            "period exact ordinary level, LP, Slayer XP, six-tick melee, "
+            "54-LP maximum, no dragonfire, poison behavior, guaranteed Baby "
+            "dragon bones, and Red-dragon Slayer substitution; Darkan exact "
+            "combat levels, defences, and 59-tick respawn; level-65 POH, "
+            "challenge-only, quest-only, and post-cutoff contexts excluded"
         ),
     },
     "cave_horror": {

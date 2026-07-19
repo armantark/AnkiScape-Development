@@ -671,6 +671,18 @@
     "source_wiki": "rs3",
     "timestamp": "2012-05-10T09:54:19Z"
   },
+  "combatenemies/baby_red_dragon.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Baby_red_dragon.png",
+    "file_title": "Baby red dragon.png",
+    "image_url": "https://runescape.wiki/images/Baby_red_dragon.png?0da3e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "83cf8e56994cdab47ea1d81364f3c0a22ea16b46",
+    "size": 150634,
+    "source_wiki": "rs3",
+    "timestamp": "2011-12-11T10:26:02Z"
+  },
   "combatenemies/barbarian.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Barbarian_%28historical%29.png",
     "file_title": "Barbarian (historical).png",
@@ -1846,6 +1858,18 @@
     "size": 14337,
     "source_wiki": "osrs",
     "timestamp": "2019-05-14T01:46:04Z"
+  },
+  "combatenemies/red_dragon.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Red_dragon_old_5.png",
+    "file_title": "Red dragon old 5.png",
+    "image_url": "https://runescape.wiki/images/Red_dragon_old_5.png?f018e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "dfd0b198c9534a7667adffaf4191bba26c4b8f81",
+    "size": 118354,
+    "source_wiki": "rs3",
+    "timestamp": "2010-07-05T19:36:16Z"
   },
   "combatenemies/rockslug.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Rock_slug_icon.png",
