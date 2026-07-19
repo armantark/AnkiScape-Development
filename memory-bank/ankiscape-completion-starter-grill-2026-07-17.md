@@ -659,6 +659,16 @@ Design coverage should name the broader trees even when they are not first:
 - **Persistent management:** Managing Miscellania and other source-authentic
   background allocation/collection systems.
 
+The 2026-07-18 recon passes added and settled: Daily Challenges &
+Noticeboard, The Crucible, Court Cases, Varrock Museum Kudos, the Enchanted
+key hunt, Goblin Raids, Queen Black Dragon, Dagannoth Kings, Kalphite Queen,
+Chaos Elemental, Giant Mole, Tormented Wraith, TzHaar Fight Pit, Champion's
+Challenge, Creature Creation, Lava Flow Mine, Sawmill training, Ranging Guild
+competition, Tai Bwo Wannai Cleanup, chompy hunting, Wise Old Man/Keldagrim/
+Dorgesh-Kaan task loops, Stronghold of Player Safety, Ancient Effigies, and
+Oo'glog spa buffs — dispositions in
+`memory-bank/source-audits/recon-coverage-closure-2026-07-18.md`.
+
 Every name still requires cutoff and source verification before its own
 contract. This ledger prevents forgotten trees; it is not evidence that every
 named activity is period-valid or implementation-ready.
