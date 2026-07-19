@@ -4,6 +4,25 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Black dragon Combat target — 2026-07-19
+
+- Added the ordinary level-227 Black dragon as Duradel's thirteenth certifying
+  family and a future Kuradal dependency.
+- Preserved the exact period LP, Slayer XP, six-tick melee, 214-LP maximum,
+  shared leather-dragon dragonfire seam, complete 128-slot ordinary selector,
+  losslessly enumerated quantity-three charms, and independent Summoning-99
+  egg, Draconic-visage, hard-clue, and elite-clue rolls.
+- Added the newest pre-cutoff Black dragon target asset with complete
+  provenance and exact timestamp/checksum assertions.
+- Added source-data, selector-total, drop-RNG, skill-gate, asset, and derived
+  Slayer-readiness regression coverage. Duradel remains hidden and
+  unrenormalized at 13/35.
+- Workflows run `874a9b0e-b075-4283-be39-324d782da75e` was canceled after it
+  acquired a worker slot but never established a Codex session or emitted a
+  tool call; no reviewer output was used.
+- Governing evidence:
+  `source-audits/slayer-black-dragon-combat-2026-07-19.md`.
+
 ## Slayer Kuradal registry-schema stop — 2026-07-19
 
 - Closed the ordinary TzHaar family as Ket, Xil, Mej, and Hur and the Living

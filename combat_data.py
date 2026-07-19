@@ -2666,6 +2666,83 @@ RED_DRAGON_DROPS = {
     ),
 }
 
+BLACK_DRAGON_DROPS = {
+    "guaranteed": (("Dragon bones", 1), ("Black dragonhide", 1)),
+    "tables": (
+        {
+            "name": "game-main ordinary",
+            "total": 128,
+            "slots": (
+                {"item": "Mithril 2h sword", "quantity": 1, "slots": 4},
+                {"item": "Mithril hatchet", "quantity": 1, "slots": 3},
+                {"item": "Mithril battleaxe", "quantity": 1, "slots": 3},
+                {"item": "Rune knife", "quantity": 2, "slots": 3},
+                {"item": "Mithril kiteshield", "quantity": 1, "slots": 1},
+                {"item": "Adamant platebody", "quantity": 1, "slots": 1},
+                {"item": "Rune longsword", "quantity": 1, "slots": 1},
+                {"item": "Adamant javelin", "quantity": 30, "slots": 20},
+                {"item": "Fire rune", "quantity": 50, "slots": 8},
+                {"item": "Adamant dart (p)", "quantity": 16, "slots": 7},
+                {"item": "Law rune", "quantity": 10, "slots": 5},
+                {"item": "Blood rune", "quantity": 15, "slots": 3},
+                {"item": "Air rune", "quantity": 75, "slots": 1},
+                {"item": "Coins", "quantity": 196, "slots": 40},
+                {"item": "Coins", "quantity": 330, "slots": 10},
+                {"item": "Coins", "quantity": 690, "slots": 1},
+                {"item": "Adamant bar", "quantity": 1, "slots": 3},
+                {"item": "Chocolate cake", "quantity": 1, "slots": 3},
+                {"table": DARKAN_GEM_DROP_TABLE, "slots": 3},
+                {"table": DARKAN_STANDARD_RARE_DROP_TABLE, "slots": 2},
+                {"slots": 6},
+            ),
+        },
+        {
+            "name": "Darkan charms",
+            "total": 1212,
+            "slots": (
+                {"item": "Gold charm", "quantity": 3, "slots": 42},
+                {"item": "Green charm", "quantity": 3, "slots": 258},
+                {"item": "Crimson charm", "quantity": 3, "slots": 30},
+                {"item": "Blue charm", "quantity": 3, "slots": 6},
+                {"slots": 876},
+            ),
+        },
+        {
+            "name": "Black dragon egg (Summoning 99)",
+            "total": 2000,
+            "required_skill_levels": (("summoning", 99),),
+            "slots": (
+                {"item": "Black dragon egg", "quantity": 1, "slots": 1},
+                {"slots": 1999},
+            ),
+        },
+        {
+            "name": "Draconic visage",
+            "total": 10000,
+            "slots": (
+                {"item": "Draconic visage", "quantity": 1, "slots": 1},
+                {"slots": 9999},
+            ),
+        },
+        {
+            "name": "Hard clue",
+            "total": 128,
+            "slots": (
+                {"item": "Clue scroll (hard)", "quantity": 1, "slots": 1},
+                {"slots": 127},
+            ),
+        },
+        {
+            "name": "Elite clue",
+            "total": 500,
+            "slots": (
+                {"item": "Clue scroll (elite)", "quantity": 1, "slots": 1},
+                {"slots": 499},
+            ),
+        },
+    ),
+}
+
 BRONZE_DRAGON_DROPS = {
     "guaranteed": (("Dragon bones", 1), ("Bronze bar", 5)),
     "tables": (
@@ -8830,6 +8907,76 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "enumerated charms, Summoning-99 1/2000 egg, and 1/128 hard clue; "
             "location, challenge-only, quest-only, post-cutoff, and Daemonheim "
             "contexts excluded"
+        ),
+    },
+    "black_dragon": {
+        "display_name": "Black dragon",
+        "level": 227,
+        "group": "Dragons",
+        "dragonfire": {
+            "chance_numerator": 1,
+            "chance_denominator": 4,
+            "unprotected_max_hit": 500,
+            "partial_max_hit": 50,
+            "shield_items": ("Anti-dragon shield", "Dragonfire shield"),
+            "source": (
+                f"{LEATHER_DRAGON_COMBAT_SOURCE_PATH}:45-60; "
+                f"{DRAGONFIRE_FORMULA_SOURCE_PATH}:878-908"
+            ),
+            "source_status": (
+                "provisional/darkan hidden attack-selection roll; damage and "
+                "protection tiers corroborated by Black dragon oldid=6580941 "
+                "and Dragonfire oldid=6534496"
+            ),
+        },
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 214,
+        "slayer_xp": 199.4,
+        "stats": {
+            "hitpoints": 1900,
+            "attack": 200,
+            "strength": 200,
+            "defence": 200,
+            "magic": 100,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 50,
+            "defence_slash": 70,
+            "defence_crush": 70,
+            "defence_magic": 60,
+            "defence_ranged": 50,
+            "melee_strength": 0,
+        },
+        "drops": BLACK_DRAGON_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Black_dragon?oldid=6580941; "
+            "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/"
+            "main/kotlin/gg/rsmod/plugins/content/npcs/definitions/dragons/"
+            "black_dragon_level_227.plugin.kts; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "black_dragon/black_dragon_(227).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/black_dragon.json"
+        ),
+        "source_status": (
+            "period exact ordinary level, LP, Slayer XP, six-tick melee, "
+            "214-LP melee maximum, close-range dragonfire, aggression, poison "
+            "behavior, guaranteed Dragon bones/Black dragonhide, Duradel and "
+            "Kuradal assignments, and baby/KBD substitution; game-main exact "
+            "combat levels, defences, and complete 128-slot ordinary selector "
+            "including six empty slots; Darkan exact 59-tick respawn, "
+            "provisional 1/4 dragonfire selector, losslessly enumerated "
+            "quantity-three charms, Summoning-99 1/2000 egg, 1/10000 visage, "
+            "1/128 hard clue, and 1/500 elite clue; KBD, Queen Black Dragon, "
+            "location, quest-only, post-cutoff, and Daemonheim contexts "
+            "excluded"
         ),
     },
     "baby_red_dragon": {

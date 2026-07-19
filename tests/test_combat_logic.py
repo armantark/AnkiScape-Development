@@ -2891,6 +2891,63 @@ class CombatLogicTest(unittest.TestCase):
             },
         )
 
+    def test_black_dragon_rolls_exact_ordinary_and_independent_tertiaries(self):
+        dragon = COMBAT_ENEMY_DATA["black_dragon"]
+        empty_ordinary = _combat_roll_drops(
+            dragon,
+            _rng(
+                [
+                    127 / 128,
+                    0.999999,
+                    0.999999,
+                    0.999999,
+                    0.999999,
+                    0.999999,
+                ]
+            ),
+            player_data={"summoning_level": 99},
+        )
+        rares = _combat_roll_drops(
+            dragon,
+            _rng([0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+            player_data={"summoning_level": 99},
+        )
+        below_egg_level = _combat_roll_drops(
+            dragon,
+            _rng([0.0, 0.0, 0.0, 0.0, 0.0]),
+            player_data={"summoning_level": 98},
+        )
+
+        self.assertEqual(
+            empty_ordinary,
+            {"Dragon bones": 1, "Black dragonhide": 1},
+        )
+        self.assertEqual(
+            rares,
+            {
+                "Dragon bones": 1,
+                "Black dragonhide": 1,
+                "Mithril 2h sword": 1,
+                "Gold charm": 3,
+                "Black dragon egg": 1,
+                "Draconic visage": 1,
+                "Clue scroll (hard)": 1,
+                "Clue scroll (elite)": 1,
+            },
+        )
+        self.assertEqual(
+            below_egg_level,
+            {
+                "Dragon bones": 1,
+                "Black dragonhide": 1,
+                "Mithril 2h sword": 1,
+                "Gold charm": 3,
+                "Draconic visage": 1,
+                "Clue scroll (hard)": 1,
+                "Clue scroll (elite)": 1,
+            },
+        )
+
     def test_cave_horror_rolls_nested_allotments_and_independent_rares(self):
         horror = COMBAT_ENEMY_DATA["cave_horror"]
 

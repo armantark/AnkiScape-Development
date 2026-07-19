@@ -388,13 +388,12 @@ class SlayerAssignmentDataTest(unittest.TestCase):
         self.assertFalse(readiness["certified"])
         self.assertFalse(readiness["runtime_enabled"])
         self.assertEqual(readiness["family_count"], 35)
-        self.assertEqual(readiness["ready_family_count"], 12)
+        self.assertEqual(readiness["ready_family_count"], 13)
         self.assertEqual(
             set(readiness["blockers"]),
             {
                 "abyssal_demons:teleport_interruption",
                 "aquanites:combat_target",
-                "black_dragons:dragonfire",
                 "dark_beasts:combat_target",
                 "desert_strykewyrms:combat_target",
                 "fungal_magi:combat_target",

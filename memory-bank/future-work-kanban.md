@@ -393,13 +393,20 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
 - Duradel/Lapalok is now the sixth completely encoded pool. Its complete
   35-row table preserves the provisional 334-point denominator, Combat 100,
   Slayer 50, Shilo Village access, and the While Guthix Sleeps identity swap
-  while remaining hidden at 12/35 derived readiness. The 23 exact blockers
+  while remaining hidden at 13/35 derived readiness. The 22 exact blockers
   remain visible in `tools/audit_slayer_readiness.py`; they include the
-  existing Abyssal-demon and Nechryael mechanic gaps, incomplete
-  Black-dragon dragonfire, and 20 families without a certifying Combat target.
+  existing Abyssal-demon and Nechryael mechanic gaps and 20 families without
+  a certifying Combat target.
   Continue from that generated ledger; do not expose or renormalize the
   partial role. Governing pool evidence:
   `source-audits/slayer-duradel-lapalok-pool-2026-07-17.md`.
+- Black dragon is source-closed and executable as Duradel's thirteenth ready
+  family. The ordinary level-227 target preserves the cutoff LP/XP/maximum,
+  shared leather-dragon dragonfire, complete lossless ordinary selector,
+  quantity-three charms, independent egg/visage/clue rolls, and pre-cutoff
+  asset. King Black Dragon, Queen Black Dragon, Daemonheim, and
+  location-specific contexts remain separate. See
+  `source-audits/slayer-black-dragon-combat-2026-07-19.md`.
 - Kuradal remains unencoded despite its source-closed 36-row, 322-point pool.
   The period family ledger now closes ordinary TzHaar as Ket/Xil/Mej/Hur and
   Living rock creatures as patriarch/protector/striker, explicitly excluding

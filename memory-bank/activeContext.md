@@ -2,6 +2,14 @@
 
 ## Current Focus
 
+Black dragon is Duradel's thirteenth certifying family. The ordinary
+level-227 target preserves the cutoff LP, XP, six-tick melee, 214-LP maximum,
+leather-dragon dragonfire behavior, a complete lossless 128-slot ordinary
+selector, quantity-three charms, independent egg/visage/clue rolls, and the
+pre-cutoff target asset. King Black Dragon, Queen Black Dragon, Daemonheim,
+and location-specific contexts remain excluded. See
+`source-audits/slayer-black-dragon-combat-2026-07-19.md`.
+
 Kuradal's two remaining family boundaries are now source-closed: ordinary
 TzHaar means Ket, Xil, Mej, and Hur while Living rock creatures means
 patriarch, protector, and striker. The 36-row hidden registry was not encoded
@@ -16,7 +24,7 @@ Duradel/Lapalok is now the sixth completely encoded Slayer pool. Its 35
 source-settled rows preserve the provisional 334-point denominator, Combat
 100, Slayer 50, and Shilo Village gate, plus the While Guthix Sleeps
 Duradel-to-Lapalok presentation swap. The role remains runtime-hidden. The
-live readiness audit derives 12/35 families ready and names all 23 missing
+live readiness audit derives 13/35 families ready and names all 22 missing
 Combat or distinctive-mechanic blockers; no incomplete row is exposed or
 renormalized. Governing evidence:
 `source-audits/slayer-duradel-lapalok-pool-2026-07-17.md`.

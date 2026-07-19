@@ -755,6 +755,18 @@
     "source_wiki": "osrs",
     "timestamp": "2019-06-16T20:25:46Z"
   },
+  "combatenemies/black_dragon.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Black_dragon.png",
+    "file_title": "Black dragon.png",
+    "image_url": "https://runescape.wiki/images/archive/20240511025833%21Black_dragon.png?5f5a2",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "89b2073177dac9d194efecaf4489e856beb0f20b",
+    "size": 104334,
+    "source_wiki": "rs3",
+    "timestamp": "2010-12-28T12:10:25Z"
+  },
   "combatenemies/black_knight.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Black_knight.png",
     "file_title": "Black knight.png",
