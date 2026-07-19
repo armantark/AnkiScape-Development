@@ -872,6 +872,38 @@ class TestStoragePure(unittest.TestCase):
                 self.assertEqual(migrated["thieving_blackjack_phase"], "needs_lure")
                 self.assertEqual(migrated["thieving_blackjack_picks_remaining"], 0)
 
+    def test_migrate_adds_and_sanitizes_livid_farm_progress(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 45,
+                "inventory": {},
+                "livid_farm": {
+                    "farm_routine": "conserve",
+                    "cadence_credit": 8,
+                    "distraction_credit": 14,
+                    "produce_points": -2,
+                    "cycles_completed": 7,
+                    "unlocked_spells": [
+                        "south_falador_teleport",
+                        "future_spell",
+                    ],
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(migrated["livid_farm"]["farm_routine"], "conserve")
+        self.assertEqual(migrated["livid_farm"]["cadence_credit"], 3)
+        self.assertEqual(migrated["livid_farm"]["distraction_credit"], 2)
+        self.assertEqual(migrated["livid_farm"]["produce_points"], 0)
+        self.assertEqual(migrated["livid_farm"]["cycles_completed"], 7)
+        self.assertEqual(
+            migrated["livid_farm"]["unlocked_spells"],
+            ["south_falador_teleport"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

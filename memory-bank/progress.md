@@ -2730,3 +2730,32 @@ Test counts are snapshots; current runs outrank this note.
 - Published
   `status-updates/herblore-ui-assets-results-2026-07-19.html`;
   mobile copy: `https://hhp6on3e5ci5.postplan.dev`.
+
+## Livid Farm source-ready core — 2026-07-19
+
+- Implemented the exact five-round cycle, `6/5` review residual, literal rune
+  costs with ordinary staff substitutions, under-level Complete/Conserve
+  behavior, five-skill XP, Produce wallet/lifetime accounting, cumulative
+  spell unlocks, and the cutoff-correct `850,000` Borrowed Power claim.
+- Added the contract's one-per-twelve source-blocked distraction fallback,
+  fully seeded selection, exact rune refund/bonus rows, and no-partial-cycle
+  funding boundary.
+- Added save schema `46`, Utility dispatch/telemetry, review undo coverage,
+  grouped target metadata, a compact progress/policy panel, real icon reuse,
+  and a deterministic offscreen UI renderer.
+- Fable and Kimi K3 reviewed the new surface. Accepted fixes make progress
+  segment-relative, force native progress text, tighten the policy selector,
+  label the next unlock explicitly, and describe Produce as banked.
+- Final verification passes all `1,793` non-Qt methods with `228` expected
+  environment skips and all `1,793` real-Qt offscreen methods with one
+  intentional skip; test quality reports zero hard issues.
+- Real macOS Anki verification confirmed the reloaded activity row and icon;
+  the user save remained untouched. Full verification and the results URL are
+  recorded in
+  `source-audits/livid-farm-core-implementation-2026-07-19.md`.
+- Published
+  `status-updates/livid-farm-core-results-2026-07-19.html`;
+  mobile copy: `https://psq0dddzao84.postplan.dev`.
+- Spell consumers, Borrowed Power / Arcane-capacitor commands, and wishes are
+  the next settled implementation slices. The two explicitly source-blocked
+  wish magnitudes remain unimplemented.

@@ -20,6 +20,7 @@ from runtime_actions import (
     handle_quest_answer,
     handle_smithing_answer,
     handle_summoning_answer,
+    handle_utility_answer,
     handle_woodcutting_answer,
     run_answer_with_carried_overlay,
 )
@@ -68,6 +69,70 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_livid_farm_runtime_awards_all_cycle_skills_and_reports_progress(self):
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "current_utility": "livid_farm",
+            "inventory": {
+                "Astral rune": 1000,
+                "Nature rune": 1000,
+                "Law rune": 1000,
+                "Earth rune": 1000,
+                "Water rune": 1000,
+            },
+            "equipment": {},
+            "quests": {"lunar_diplomacy": {"completed": True}},
+            "magic_level": 99,
+            "agility_level": 60,
+            "crafting_level": 60,
+            "farming_level": 60,
+            "construction_level": 50,
+            "magic_exp": 0.0,
+            "agility_exp": 0.0,
+            "crafting_exp": 0.0,
+            "farming_exp": 0.0,
+            "construction_exp": 0.0,
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(handle_utility_answer(_context(player_data, calls)))
+
+        self.assertEqual(player_data["livid_farm"]["cycles_completed"], 1)
+        self.assertEqual(player_data["livid_farm"]["produce_points"], 1580)
+        self.assertAlmostEqual(player_data["magic_exp"], 3737.0)
+        self.assertAlmostEqual(player_data["farming_exp"], 2754.0)
+        self.assertAlmostEqual(player_data["construction_exp"], 546.0)
+        self.assertAlmostEqual(player_data["crafting_exp"], 1080.0)
+        self.assertAlmostEqual(player_data["agility_exp"], 509.1)
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertIn("1 cycle · +1,580 Produce", calls["activity"][0])
+        telemetry = player_data["action_telemetry"]["actions"][
+            "utility:livid_farm"
+        ]
+        self.assertEqual(telemetry["successes"], 1)
+
+    def test_livid_farm_runtime_rejects_underfunded_review_atomically(self):
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "current_utility": "livid_farm",
+            "inventory": {"Astral rune": 1},
+            "equipment": {},
+            "quests": {"lunar_diplomacy": {"completed": True}},
+            "magic_level": 99,
+            "agility_level": 60,
+            "crafting_level": 60,
+            "farming_level": 60,
+            "construction_level": 50,
+        }
+
+        self.assertFalse(handle_utility_answer(_context(player_data, calls)))
+
+        self.assertEqual(player_data["inventory"], {"Astral rune": 1})
+        self.assertTrue(calls["deactivated"])
+        self.assertEqual(calls["errors"][0][0], "Out of Livid Farm runes")
+        self.assertEqual(calls["saves"], 0)
+
     def test_wilderness_combat_requires_current_session_risk_confirmation(self):
         from combat_data import COMBAT_ENEMY_DATA
         from combat_session import (

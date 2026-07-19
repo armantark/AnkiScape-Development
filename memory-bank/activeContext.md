@@ -2011,3 +2011,34 @@ The visual closure report is
 - Results:
   `status-updates/herblore-ui-assets-results-2026-07-19.html`;
   mobile copy: `https://hhp6on3e5ci5.postplan.dev`.
+
+## Livid Farm source-ready core — 2026-07-19
+
+- The review-native five-round activity cycle is live under
+  Utility / Activities with the exact `6 cycles / 5 successful reviews`
+  cadence residual, literal duty rune costs, staff substitution, Complete /
+  Conserve policies, exact Magic plus Farming/Construction/Crafting/Agility
+  XP, and source Produce.
+- Entry requires Lunar Diplomacy and the unboosted
+  `70/60/60/60/50` skill gate. Save schema `46` owns the routine, cadence and
+  distraction residuals, cycle count, wallet, lifetime Produce, unlock ladder,
+  and Borrowed Power claim.
+- The single source-bounded distraction calibration is live at one
+  opportunity per twelve emitted cycles. Threshold crossings auto-claim the
+  first ten spells; Borrowed Power spends the cutoff-correct `850,000` Produce
+  while preserving overshoot.
+- The compact progress surface passed Fable and Kimi K3 taste review. A
+  restarted macOS Anki process displayed the new minigame group, locked Livid
+  row, normalized Magic icon, and revised mixed-XP Utility copy without
+  modifying the user's low-level save.
+- Final verification passes all `1,793` non-Qt methods with `228` expected
+  environment skips and all `1,793` real-Qt offscreen methods with one
+  intentional skip. Test quality reports zero hard issues.
+- Durable implementation boundary:
+  `source-audits/livid-farm-core-implementation-2026-07-19.md`.
+- Results:
+  `status-updates/livid-farm-core-results-2026-07-19.html`;
+  mobile copy: `https://psq0dddzao84.postplan.dev`.
+- Remaining implementation is spell consumers, Arcane-capacitor/Borrowed
+  Power commands, and wishes. Exact ordinary seed-shower quantities and fish
+  burn reduction remain source-blocked; no new design question surfaced.

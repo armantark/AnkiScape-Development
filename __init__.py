@@ -140,6 +140,7 @@ from .warriors_guild_logic import (
     set_warriors_guild_policy_pure,
     show_warriors_guild_defender_pure,
 )
+from .livid_farm_logic import set_livid_farm_routine_pure
 from .pet_logic import (
     let_out_pet_pure,
     release_pet_pure,
@@ -1422,6 +1423,26 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             pass
         return {"ok": True, **info}
 
+    def _apply_livid_farm_command(action_id, payload):
+        payload = payload if isinstance(payload, dict) else {}
+        if action_id != "set_routine":
+            return {"ok": False, "message": "Unknown Livid Farm command."}
+        updated, ok, info = set_livid_farm_routine_pure(
+            player_data,
+            payload.get("routine", "complete"),
+        )
+        if not ok:
+            return {
+                "ok": False,
+                "message": str(info.get("reason", "That routine is unavailable."))
+                .replace("_", " ")
+                .capitalize(),
+            }
+        player_data.clear()
+        player_data.update(updated)
+        save_player_data()
+        return {"ok": True, **info}
+
     def _apply_summoning_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         info = {}
@@ -1579,6 +1600,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_slayer_command=_apply_slayer_command,
         on_agility_command=_apply_agility_command,
         on_warriors_guild_command=_apply_warriors_guild_command,
+        on_livid_farm_command=_apply_livid_farm_command,
         on_set_prayer_selection=set_prayer_selection,
         on_set_magic=lambda target: _set_value("current_magic", target),
         on_set_construction=lambda target: _set_value("current_construction", target),

@@ -420,6 +420,21 @@ except Exception:
     )
 
 try:
+    from .livid_farm_data import LIVID_FARM_UNLOCKS
+    from .livid_farm_logic import (
+        livid_farm_cycle_projection_pure,
+        livid_farm_locked_reasons_pure,
+        sanitize_livid_farm_state_pure,
+    )
+except ImportError:
+    from livid_farm_data import LIVID_FARM_UNLOCKS  # type: ignore
+    from livid_farm_logic import (  # type: ignore
+        livid_farm_cycle_projection_pure,
+        livid_farm_locked_reasons_pure,
+        sanitize_livid_farm_state_pure,
+    )
+
+try:
     from .construction_data import NAIL_DATA, ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA, WORKBENCH_TIERS
 except Exception:
     from construction_data import NAIL_DATA, ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA, WORKBENCH_TIERS  # type: ignore
@@ -625,6 +640,7 @@ _UTILITY_GROUP_LABELS = {
     "grinding": "Grinding",
     "light_sources": "Light sources",
     "warriors_guild": "Warriors' Guild",
+    "minigames": "Activities / minigames",
 }
 
 
@@ -2644,6 +2660,7 @@ def show_main_menu(
     on_slayer_command=None,
     on_agility_command=None,
     on_warriors_guild_command=None,
+    on_livid_farm_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
     on_set_construction=None,
@@ -5790,6 +5807,138 @@ def show_main_menu(
         )
         _refresh_guild_panel()
 
+        livid_box = QtFrame()
+        livid_box.setObjectName("lividFarmPanel")
+        livid_box.setStyleSheet(
+            "QFrame#lividFarmPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        livid_layout = QVBoxLayout(livid_box)
+        livid_layout.setContentsMargins(10, 8, 10, 8)
+        livid_layout.setSpacing(5)
+        livid_top = QWidget()
+        livid_top_layout = QHBoxLayout(livid_top)
+        livid_top_layout.setContentsMargins(0, 0, 0, 0)
+        livid_top_layout.setSpacing(8)
+        livid_title = QLabel("Livid Farm")
+        livid_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        livid_routine = QComboBox()
+        livid_routine.setObjectName("lividFarmRoutine")
+        livid_routine.addItem("Complete · half Produce below level", "complete")
+        livid_routine.addItem("Conserve · skip duties below level", "conserve")
+        livid_routine.setSizeAdjustPolicy(
+            QComboBox.SizeAdjustPolicy.AdjustToContents
+        )
+        livid_top_layout.addWidget(livid_title)
+        livid_top_layout.addStretch(1)
+        livid_top_layout.addWidget(livid_routine)
+        livid_layout.addWidget(livid_top)
+        livid_status = QLabel()
+        livid_status.setObjectName("lividFarmStatus")
+        livid_status.setWordWrap(False)
+        livid_status.setStyleSheet("color: palette(text);")
+        livid_layout.addWidget(livid_status)
+        livid_progress = QProgressBar()
+        livid_progress.setObjectName("lividFarmUnlockProgress")
+        livid_progress.setTextVisible(True)
+        livid_progress.setStyleSheet(
+            "QProgressBar { border: 1px solid palette(mid);"
+            " border-radius: 4px; background: palette(base);"
+            " color: palette(text); text-align: center; }"
+            " QProgressBar::chunk { background-color: #4CAF50;"
+            " border-radius: 3px; }"
+        )
+        livid_layout.addWidget(livid_progress)
+        container_layout.addWidget(livid_box)
+
+        syncing_livid = {"active": False}
+
+        def _refresh_livid_panel() -> None:
+            syncing_livid["active"] = True
+            livid_state = sanitize_livid_farm_state_pure(
+                player_data.get("livid_farm")
+            )
+            projection = livid_farm_cycle_projection_pure(
+                player_data,
+                livid_state["farm_routine"],
+            )
+            locked = livid_farm_locked_reasons_pure(player_data)
+            current_index = livid_routine.findData(
+                livid_state["farm_routine"]
+            )
+            livid_routine.setCurrentIndex(max(0, current_index))
+            livid_routine.setEnabled(
+                on_livid_farm_command is not None and not locked
+            )
+            rune_text = ", ".join(
+                f"{name.replace(' rune', '')} {amount}"
+                for name, amount in projection["rune_cost"].items()
+            )
+            if locked:
+                livid_status.setText("Locked · " + " · ".join(locked))
+                livid_status.setToolTip("")
+            else:
+                livid_status.setText(
+                    f"{int(projection['points']):,} Produce/cycle · "
+                    f"{int(livid_state['produce_points']):,} banked · "
+                    f"{int(livid_state['cycles_completed']):,} cycles"
+                )
+                livid_status.setToolTip(
+                    f"Runes per cycle after staff substitutions: "
+                    f"{rune_text or 'none'}"
+                )
+            unlocked = set(livid_state["unlocked_spells"])
+            next_unlock = None
+            previous_threshold = 0
+            for unlock_id, unlock_name, threshold in LIVID_FARM_UNLOCKS:
+                if unlock_id not in unlocked:
+                    next_unlock = (unlock_id, unlock_name, threshold)
+                    break
+                previous_threshold = threshold
+            if next_unlock is None:
+                livid_progress.setRange(0, 1)
+                livid_progress.setValue(1)
+                livid_progress.setFormat("All Livid Farm spells unlocked")
+            else:
+                _unlock_id, unlock_name, threshold = next_unlock
+                lifetime = int(livid_state["lifetime_produce_points"])
+                segment_size = max(1, threshold - previous_threshold)
+                segment_progress = max(
+                    0,
+                    min(lifetime - previous_threshold, segment_size),
+                )
+                livid_progress.setRange(0, segment_size)
+                livid_progress.setValue(segment_progress)
+                livid_progress.setFormat(
+                    f"Next: {unlock_name} · {lifetime:,}/{threshold:,}"
+                )
+            livid_box.setVisible(
+                not locked
+                or int(livid_state["cycles_completed"]) > 0
+                or player_data.get("current_utility") == "livid_farm"
+            )
+            syncing_livid["active"] = False
+
+        def _set_livid_routine() -> None:
+            if syncing_livid["active"] or on_livid_farm_command is None:
+                return
+            result = on_livid_farm_command(
+                "set_routine",
+                {"routine": livid_routine.currentData()},
+            ) or {}
+            if not result.get("ok", False) and result.get("message"):
+                QMessageBox.warning(
+                    container,
+                    "Livid Farm",
+                    str(result["message"]),
+                )
+            _refresh_livid_panel()
+
+        livid_routine.currentIndexChanged.connect(
+            lambda _index: _set_livid_routine()
+        )
+        _refresh_livid_panel()
+
         tree = QTreeWidget()
         tree.setObjectName("utilityActivityTree")
         tree.setHeaderHidden(True)
@@ -6338,7 +6487,8 @@ def show_main_menu(
 
         if is_utility:
             note = QLabel(
-                "Utility activities earn no XP. Select a row for its exact behavior."
+                "Utility rows process items or run activities; each row states "
+                "its exact XP and behavior."
             )
             note.setWordWrap(True)
             # palette(mid) is a border role and renders near-black in dark mode;

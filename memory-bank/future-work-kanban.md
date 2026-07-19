@@ -108,10 +108,11 @@ Labels: none remaining on the build itself; trailing `DEPENDENCY` items only.
 - The 2026-07-17 follow-up completes Mage Arena alignment/rewards/attunement,
   god-cape equipment and assets, and Charge's real matching-loadout combat
   effect. Cure Plant is also live as a Farming preset fallback route.
-- Trailing `DEPENDENCY` items: Livid Farm spell set (its own activity card),
-  Hunter Kit consumers (Hunter), and Bones to Peaches behind a future Mage
-  Training Arena activity. Magic Dart's canonical `Slayer's staff` route is
-  live.
+- The Livid Farm activity core and cumulative unlock ladder are live. Trailing
+  `DEPENDENCY` items are the unlocked spell consumers, Borrowed Power /
+  Arcane-capacitor commands, Livid wishes, Hunter Kit consumers (Hunter), and
+  Bones to Peaches behind a future Mage Training Arena activity. Magic Dart's
+  canonical `Slayer's staff` route is live.
 
 ### Construction — SHIPPED 2026-07-11 (commit c628f0d)
 
@@ -161,9 +162,10 @@ Labels: trailing `SOURCE AUDIT` and owning-system dependencies only.
 - Answered cards and Agility actions are the only cadence inputs. Agility
   gameplay modules have a static no-wall-clock regression test.
 - Remaining dependency owners: Summoning familiars, Slayer routes,
-  Daemonheim/Dungeoneering, full Blast Furnace, Livid Farm, diary acquisition,
-  Barbarian Assault, and quest-owned stages. They have stable ownership
-  boundaries but no fake partial implementation.
+  Daemonheim/Dungeoneering, full Blast Furnace, diary acquisition, Barbarian
+  Assault, and quest-owned stages. Livid Farm's Energy Transfer hook is now
+  live as exact cross-skill Agility XP; its spell/reward consumers remain
+  Magic- and owning-system follow-ups rather than Agility work.
 - Exact payout differences among the registered Dorgesh pure/grapple/mixed
   route identities remain `source_blocked`. See
   `memory-bank/source-audits/agility-implementation-verification-2026-07-15.md`.

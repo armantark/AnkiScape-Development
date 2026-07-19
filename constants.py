@@ -133,6 +133,7 @@ try:
     from .thieving_data import thieving_extra_items_as_dict
     from .urn_data import URN_TIERS, urn_extra_items_as_dict
     from .warriors_guild_data import WARRIORS_GUILD_ACTIVITIES
+    from .livid_farm_data import livid_farm_activity_as_dict
     from .magic_data import (
         DEFAULT_MAGIC_TARGET,
         MAGIC_GROUP_ORDER,
@@ -272,6 +273,7 @@ except ImportError:
     from thieving_data import thieving_extra_items_as_dict
     from urn_data import URN_TIERS, urn_extra_items_as_dict
     from warriors_guild_data import WARRIORS_GUILD_ACTIVITIES
+    from livid_farm_data import livid_farm_activity_as_dict
     from magic_data import (
         DEFAULT_MAGIC_TARGET,
         MAGIC_GROUP_ORDER,
@@ -521,6 +523,11 @@ UTILITY_ACTIVITY_DATA.update(light_source_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(input_preparation_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(prayer_utility_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(WARRIORS_GUILD_ACTIVITIES)
+UTILITY_ACTIVITY_DATA.update(
+    livid_farm_activity_as_dict(
+        os.path.join(current_dir, "icon", "magic_icon.png")
+    )
+)
 for _activity_id in WARRIORS_GUILD_ACTIVITIES:
     _activity_icon = os.path.join(
         UTILITY_ACTIVITY_ICONS_FOLDER,

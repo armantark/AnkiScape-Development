@@ -538,6 +538,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._slayer_command_calls: list = []
         self._agility_command_calls: list = []
         self._warriors_guild_calls: list = []
+        self._livid_farm_calls: list = []
         self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
         self._mage_arena_calls: list = []
@@ -702,6 +703,21 @@ class MainMenuWidgetTest(unittest.TestCase):
                 player_data.update(updated)
             return {"ok": ok, "message": info.get("message", info.get("reason", ""))}
 
+        def _livid_farm_command(action_id, payload):
+            from livid_farm_logic import set_livid_farm_routine_pure
+
+            self._livid_farm_calls.append((action_id, dict(payload)))
+            if action_id != "set_routine":
+                return {"ok": False, "message": "Unknown command"}
+            updated, ok, info = set_livid_farm_routine_pure(
+                player_data,
+                payload.get("routine"),
+            )
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return {"ok": ok, **info}
+
         def _mage_arena_action(action_id, god_id):
             from logic_pure import (
                 apply_mage_arena_cape_action_pure,
@@ -759,6 +775,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_slayer_command=_slayer_command,
             on_agility_command=_agility_command,
             on_warriors_guild_command=_warriors_guild_command,
+            on_livid_farm_command=_livid_farm_command,
             on_set_prayer_selection=_set_prayer_selection,
             on_set_magic=lambda target: _set_target("current_magic", self._magic_calls, target),
             on_set_construction=lambda target: _set_target("current_construction", self._construction_calls, target),
@@ -6588,16 +6605,17 @@ class MainMenuWidgetTest(unittest.TestCase):
         # Unrelated families stay collapsed to tame the panel.
         self.assertFalse(_craft_family_node(tree, "gems").isExpanded())
 
-    def test_utility_panel_uses_no_xp_language(self) -> None:
+    def test_utility_panel_describes_mixed_xp_and_no_xp_rows_truthfully(self) -> None:
         utility_tree = self._open_utility(self.dialog)
         labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
-        self.assertTrue(
-            any("no XP" in t for t in labels),
-            f"Utility panel should state it earns no XP; labels={labels}",
-        )
         self.assertIn(
-            "Utility activities earn no XP. Select a row for its exact behavior.",
+            "Utility rows process items or run activities; each row states its exact XP and behavior.",
             labels,
+        )
+        livid_row = _utility_row(utility_tree, "livid_farm")
+        self.assertIn(
+            "exactly six cycles per five successful reviews",
+            livid_row.toolTip(0),
         )
         self.assertIn(
             "QTreeWidget::branch:selected { background: transparent; }",
@@ -6697,6 +6715,59 @@ class MainMenuWidgetTest(unittest.TestCase):
             "set_policy",
         )
         self.assertEqual(pd["warriors_guild"]["automation_mode"], "advanced")
+
+    def test_livid_farm_panel_exposes_progress_and_persists_routine(self) -> None:
+        pd = _make_player_data()
+        pd.update(
+            {
+                "magic_level": 99,
+                "agility_level": 60,
+                "crafting_level": 60,
+                "farming_level": 60,
+                "construction_level": 50,
+                "current_utility": "livid_farm",
+            }
+        )
+        pd["quests"]["lunar_diplomacy"] = {"completed": True}
+        pd["livid_farm"] = {
+            "farm_routine": "complete",
+            "produce_points": 227_900,
+            "lifetime_produce_points": 227_900,
+            "cycles_completed": 8,
+            "unlocked_spells": [
+                "south_falador_teleport",
+                "repair_rune_pouch",
+                "north_ardougne_teleport",
+            ],
+        }
+        dialog = self._open(pd)
+        utility_tree = self._open_utility(dialog)
+        dialog.show()
+        QApplication.processEvents()
+
+        panel = _find_named_widget(dialog, "lividFarmPanel")
+        self.assertTrue(panel.isVisible())
+        status = _find_named_label(dialog, "lividFarmStatus")
+        self.assertIn("227,900 banked", status.text())
+        self.assertIn("8 cycles", status.text())
+        progress = _find_named_widget(dialog, "lividFarmUnlockProgress")
+        self.assertEqual(progress.maximum(), 87_360)
+        self.assertEqual(progress.value(), 780)
+        self.assertIn("Next: Remote Farm", progress.format())
+        self.assertIn("text-align: center", progress.styleSheet())
+        row = _utility_row(utility_tree, "livid_farm")
+        self.assertFalse(row.icon(0).isNull())
+
+        routine = _find_named_widget(dialog, "lividFarmRoutine")
+        self.assertIsInstance(routine, QComboBox)
+        routine.setCurrentIndex(routine.findData("conserve"))
+        QApplication.processEvents()
+
+        self.assertEqual(
+            self._livid_farm_calls[-1],
+            ("set_routine", {"routine": "conserve"}),
+        )
+        self.assertEqual(pd["livid_farm"]["farm_routine"], "conserve")
 
     def test_wool_gathering_is_enabled_and_selectable_from_utility(self) -> None:
         # gather_wool stands in for the retired scavenge_chicken_feathers

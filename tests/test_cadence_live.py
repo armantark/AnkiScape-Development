@@ -65,6 +65,19 @@ class TestCadenceLiveCoverage(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "missing=.*slayer_live"):
             validate_cadence_coverage_pure({*ANSWER_HANDLERS, "slayer_live"})
 
+    def test_livid_farm_declares_its_exact_activity_owned_residual(self):
+        row = next(
+            row
+            for row in cadence_coverage_rows_pure()
+            if row["handler_key"] == "utility"
+            and row["action_id"] == "livid_farm"
+        )
+
+        self.assertEqual(row["mode"], "rate_limited")
+        self.assertEqual(row["source_status"], "sourced")
+        self.assertEqual(row["profile"]["increment_numerator"], 6)
+        self.assertEqual(row["profile"]["threshold_denominator"], 5)
+
     def test_declared_multiplier_behavior_matches_single_step_exemptions(self):
         thieving = resolve_live_cadence_route_pure(
             "thieving", "stall_silver", {}

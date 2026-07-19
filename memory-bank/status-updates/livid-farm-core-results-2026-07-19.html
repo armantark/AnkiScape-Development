@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape — Livid Farm core activation</title>
+  <style>
+    :root {
+      --bg: #090d0f;
+      --surface: #131a1d;
+      --surface-2: #1b2529;
+      --border: #2b3a40;
+      --text: #edf5f2;
+      --dim: #94a6a0;
+      --green: #63e68d;
+      --mint: #83f0cc;
+      --purple: #b799ff;
+      --amber: #ffc861;
+      --blue: #67b7ff;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 0%, rgba(99, 230, 141, .14), transparent 31rem),
+        radial-gradient(circle at 92% 14%, rgba(183, 153, 255, .14), transparent 34rem),
+        var(--bg);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1160px, calc(100% - 32px)); margin: 0 auto; padding: 42px 0 64px; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 10px; border: 1px solid rgba(99, 230, 141, .4);
+      border-radius: 999px; color: var(--green); background: rgba(99, 230, 141, .08);
+      font: 700 11px/1.2 "JetBrains Mono", ui-monospace, monospace;
+      letter-spacing: .12em; text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 14px var(--green); }
+    h1 { max-width: 900px; margin: 18px 0 12px; font-size: clamp(2.35rem, 6.5vw, 4.8rem); line-height: .96; letter-spacing: -.06em; }
+    .lead { max-width: 790px; margin: 0; color: var(--dim); font-size: 1.05rem; line-height: 1.7; }
+    .metrics { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 30px 0; }
+    .metric { min-height: 112px; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius); background: linear-gradient(145deg, rgba(255,255,255,.025), transparent), var(--surface); }
+    .metric strong { display: block; font-size: clamp(1.45rem, 3vw, 2.25rem); letter-spacing: -.045em; }
+    .metric span { display: block; margin-top: 8px; color: var(--dim); font-size: .74rem; line-height: 1.4; }
+    .metric:nth-child(1) strong, .metric:nth-child(2) strong { color: var(--mint); }
+    .metric:nth-child(3) strong, .metric:nth-child(4) strong { color: var(--purple); }
+    .metric:nth-child(5) strong, .metric:nth-child(6) strong { color: var(--blue); }
+    .grid { display: grid; grid-template-columns: 1.08fr .92fr; gap: 16px; }
+    .card { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
+    .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+    .card-head h2 { margin: 0; font-size: 1rem; }
+    .label { color: var(--purple); font: 700 10px/1.2 "JetBrains Mono", ui-monospace, monospace; letter-spacing: .11em; text-transform: uppercase; }
+    .card-body { padding: 20px; }
+    .cycle { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .review { position: relative; min-height: 118px; padding: 14px; border: 1px solid var(--border); border-radius: 11px; background: var(--surface-2); overflow: hidden; }
+    .review::after { content: ""; position: absolute; inset: auto 0 0; height: 4px; background: var(--green); }
+    .review.double::after { height: 8px; background: linear-gradient(var(--green) 0 45%, transparent 45% 55%, var(--mint) 55%); }
+    .review small { color: var(--dim); font: 700 9px/1.2 ui-monospace, monospace; letter-spacing: .1em; }
+    .review strong { display: block; margin-top: 16px; font-size: 1.8rem; color: var(--mint); }
+    .review span { color: var(--dim); font-size: .75rem; }
+    .totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-top: 12px; }
+    .total { padding: 11px 12px; border-left: 2px solid var(--purple); background: rgba(183,153,255,.06); }
+    .total b { display: block; font-size: .84rem; }
+    .total span { color: var(--dim); font-size: .72rem; }
+    .ladder { display: grid; gap: 9px; }
+    .rung { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 11px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); }
+    .rung b { font-size: .82rem; }
+    .rung span { color: var(--dim); font: 700 10px/1 ui-monospace, monospace; }
+    .rung.cap { border-color: rgba(255,200,97,.45); background: rgba(255,200,97,.06); }
+    .rung.cap b, .rung.cap span { color: var(--amber); }
+    .full { grid-column: 1 / -1; }
+    .proof-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .proof { padding: 15px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); }
+    .proof .status { color: var(--green); font: 700 10px/1 ui-monospace, monospace; letter-spacing: .09em; }
+    .proof h3 { margin: 8px 0 6px; font-size: .9rem; }
+    .proof p { margin: 0; color: var(--dim); font-size: .76rem; line-height: 1.45; }
+    .remaining { margin-top: 16px; padding: 16px 18px; border: 1px solid rgba(255,200,97,.32); border-radius: var(--radius); background: rgba(255,200,97,.055); }
+    .remaining b { color: var(--amber); }
+    .remaining p { margin: 6px 0 0; color: var(--dim); font-size: .82rem; line-height: 1.55; }
+    .footer { display: flex; justify-content: space-between; gap: 16px; margin-top: 18px; padding: 16px 4px; color: var(--dim); font-size: .76rem; }
+    code { color: #bdd3cb; font-family: "JetBrains Mono", ui-monospace, monospace; }
+    @media (max-width: 980px) {
+      .metrics { grid-template-columns: repeat(3, 1fr); }
+      .grid { grid-template-columns: 1fr; }
+      .proof-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 620px) {
+      main { width: min(100% - 20px, 1160px); padding-top: 26px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .cycle { grid-template-columns: 1fr 1fr; }
+      .review.double { grid-column: 1 / -1; }
+      .totals, .proof-grid { grid-template-columns: 1fr; }
+      .footer { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">Source-ready core live</div>
+    <h1>The slog survived.<br>The clicking did not.</h1>
+    <p class="lead">Livid Farm is now a real review-native activity: the complete five-round source cycle, exact 6:5 cadence, literal rune economy, all five XP outputs, cumulative spell ladder, and the cutoff-correct 850,000 Produce capstone. Repetitive field choreography is flattened into one truthful line per emitted cycle.</p>
+
+    <section class="metrics" aria-label="Implementation metrics">
+      <div class="metric"><strong>6 / 5</strong><span>exact cycles per successful reviews</span></div>
+      <div class="metric"><strong>1,580</strong><span>full-reward Produce per cycle</span></div>
+      <div class="metric"><strong>5</strong><span>skills awarded atomically</span></div>
+      <div class="metric"><strong>11</strong><span>cumulative spell unlocks</span></div>
+      <div class="metric"><strong>1,793</strong><span>repository tests in final corpus</span></div>
+      <div class="metric"><strong>2</strong><span>independent UI taste reviews</span></div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <header class="card-head">
+          <h2>Five successful reviews</h2>
+          <span class="label">Six complete cycles</span>
+        </header>
+        <div class="card-body">
+          <div class="cycle">
+            <div class="review"><small>REVIEW 01</small><strong>1</strong><span>cycle emitted</span></div>
+            <div class="review"><small>REVIEW 02</small><strong>1</strong><span>cycle emitted</span></div>
+            <div class="review"><small>REVIEW 03</small><strong>1</strong><span>cycle emitted</span></div>
+            <div class="review"><small>REVIEW 04</small><strong>1</strong><span>cycle emitted</span></div>
+            <div class="review double"><small>REVIEW 05</small><strong>2</strong><span>cycles emitted</span></div>
+          </div>
+          <div class="totals">
+            <div class="total"><b>3,737 Magic XP</b><span>at Magic 91+</span></div>
+            <div class="total"><b>2,754 Farming XP</b><span>exact secondary output</span></div>
+            <div class="total"><b>509.1 Agility XP</b><span>Energy Transfer live</span></div>
+            <div class="total"><b>1,080 Crafting XP</b><span>String Jewellery live</span></div>
+            <div class="total"><b>546 Construction XP</b><span>fence repair live</span></div>
+            <div class="total"><b>97 / 43 / 6</b><span>Astral / Nature / Law before substitutions</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <header class="card-head">
+          <h2>Progression that stays long</h2>
+          <span class="label">Legible, not compressed</span>
+        </header>
+        <div class="card-body ladder">
+          <div class="rung"><b>South Falador Teleport</b><span>69,840</span></div>
+          <div class="rung"><b>Repair Rune Pouch</b><span>139,760</span></div>
+          <div class="rung"><b>Remote Farm</b><span>314,480</span></div>
+          <div class="rung"><b>Disruption Shield</b><span>576,560</span></div>
+          <div class="rung"><b>Group Teleport to Trollheim</b><span>806,400</span></div>
+          <div class="rung cap"><b>Borrowed Power</b><span>850,000 · 449 reviews</span></div>
+        </div>
+      </article>
+
+      <article class="card full">
+        <header class="card-head">
+          <h2>Closure proof</h2>
+          <span class="label">No new design gap</span>
+        </header>
+        <div class="card-body proof-grid">
+          <div class="proof"><span class="status">EXACT</span><h3>Cycle and cadence</h3><p>Duty counts, rune costs, XP, Produce, under-level behavior, and 6:5 residual are pinned to the owning contract.</p></div>
+          <div class="proof"><span class="status">ATOMIC</span><h3>Review transaction</h3><p>Underfunded batches mutate nothing. Inventory, five XP tracks, residuals, unlocks, RNG, and target state restore together on undo.</p></div>
+          <div class="proof"><span class="status">SHIP × 2</span><h3>UI taste</h3><p>Fable and Kimi K3 drove compact controls, native progress text, segment-relative progress, and clearer banked-Produce copy.</p></div>
+          <div class="proof"><span class="status">REAL ANKI</span><h3>Runtime proof</h3><p>A fully relaunched macOS Anki displayed the new minigame group, locked Livid row, normalized icon, and revised Utility language.</p></div>
+        </div>
+      </article>
+    </section>
+
+    <aside class="remaining">
+      <b>What is deliberately next.</b>
+      <p>The activity core is complete, not the entire Livid ecosystem. Spell consumers, Arcane capacitor and Borrowed Power commands, and source-ready wishes remain separate settled implementation slices. Ordinary seed-shower quantities and the fish-burn reduction magnitude remain explicitly source-blocked.</p>
+    </aside>
+
+    <div class="footer">
+      <span>Authority: <code>memory-bank/source-audits/livid-farm-core-implementation-2026-07-19.md</code></span>
+      <span>Cutoff: 2012-11-20 · completed 2026-07-19</span>
+    </div>
+  </main>
+</body>
+</html>

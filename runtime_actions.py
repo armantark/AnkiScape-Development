@@ -221,6 +221,11 @@ try:
         sanitize_warriors_guild_state_pure,
         warriors_guild_activity_locked_reasons_pure,
     )
+    from .livid_farm_data import LIVID_FARM_ACTIVITY_ID
+    from .livid_farm_logic import (
+        apply_livid_farm_reviews_pure,
+        livid_farm_locked_reasons_pure,
+    )
 except ImportError:  # pragma: no cover - flat import path used by tests
     from constants import (  # type: ignore
         BIRD_NEST_DROP_CHANCE,
@@ -417,6 +422,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         consume_warriors_guild_cyclops_tokens_pure,
         sanitize_warriors_guild_state_pure,
         warriors_guild_activity_locked_reasons_pure,
+    )
+    from livid_farm_data import LIVID_FARM_ACTIVITY_ID  # type: ignore
+    from livid_farm_logic import (  # type: ignore
+        apply_livid_farm_reviews_pure,
+        livid_farm_locked_reasons_pure,
     )
 
 try:
@@ -2052,6 +2062,86 @@ def _handle_mage_arena_attunement_answer(
     return True
 
 
+def _handle_livid_farm_answer(ctx: RuntimeActionContext) -> bool:
+    updated, ok, result = apply_livid_farm_reviews_pure(
+        ctx.player_data,
+        ctx.review_action_multiplier,
+        rng=ctx.random_random,
+    )
+    if not ok:
+        locked = tuple(result.get("locked_reasons", ()))
+        missing = dict(result.get("missing_runes", {}) or {})
+        if locked:
+            ctx.deactivate_current_skill()
+            ctx.show_error_message(
+                "Livid Farm locked",
+                "Livid Farm requires " + ", ".join(map(str, locked)) + ".",
+            )
+        elif missing:
+            _switch_material_failure_to_bankstanding(ctx)
+            missing_text = ", ".join(
+                f"{amount} {rune_name}"
+                for rune_name, amount in missing.items()
+            )
+            ctx.show_error_message(
+                "Out of Livid Farm runes",
+                f"The next atomic review needs {missing_text}. "
+                "Nothing was consumed, and AnkiScape switched to Bankstanding.",
+            )
+        return False
+
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    xp_rewards = dict(result.get("xp_rewards", {}) or {})
+    xp_reward_rows = tuple(
+        {"skill_id": skill_id, "amount": amount}
+        for skill_id, amount in xp_rewards.items()
+    )
+    primary_xp = _award_action_xp_rewards(ctx, xp_reward_rows, "magic")
+    _record_action(
+        ctx,
+        "utility",
+        LIVID_FARM_ACTIVITY_ID,
+        True,
+        expected_success_chance=1.0,
+        primary_xp=primary_xp,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    cycles = int(result.get("cycles", 0) or 0)
+    points = int(result.get("points", 0) or 0)
+    parts = [
+        f"Livid Farm · {cycles} cycle{'s' if cycles != 1 else ''}",
+        f"+{points:,} Produce",
+    ]
+    distractions = tuple(result.get("distractions", ()))
+    completed_distractions = [
+        row for row in distractions if row.get("completed")
+    ]
+    skipped_distractions = [
+        row for row in distractions if not row.get("completed")
+    ]
+    if completed_distractions:
+        parts.append(
+            "distraction: "
+            + ", ".join(str(row.get("display_name", "")) for row in completed_distractions)
+        )
+    if skipped_distractions:
+        parts.append(
+            "skipped unfunded "
+            + ", ".join(str(row.get("display_name", "")) for row in skipped_distractions)
+        )
+    unlocks = tuple(result.get("new_unlocks", ()))
+    if unlocks:
+        parts.append(
+            "unlocked "
+            + ", ".join(str(row.get("display_name", "")) for row in unlocks)
+        )
+    ctx.show_activity_gain(" · ".join(parts))
+    return True
+
+
 def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
@@ -2063,6 +2153,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_mage_arena_answer(ctx)
     if str(activity_key).startswith(MAGE_ARENA_ATTUNE_PREFIX):
         return _handle_mage_arena_attunement_answer(ctx, str(activity_key))
+    if activity_key == LIVID_FARM_ACTIVITY_ID:
+        return _handle_livid_farm_answer(ctx)
     if activity_key in WARRIORS_GUILD_ACTIVITIES:
         selected = (
             activity_key
@@ -4079,6 +4171,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
             god_id,
         )
         return ok
+    if activity_key == LIVID_FARM_ACTIVITY_ID:
+        return not livid_farm_locked_reasons_pure(ctx.player_data)
     return not utility_activity_locked_reasons_pure(
         ctx.player_data,
         activity_key,

@@ -107,6 +107,39 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
             rows.append(row)
 
     for action_id, spec in UTILITY_ACTIVITY_DATA.items():
+        if str(action_id) == "livid_farm":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "livid_farm",
+                    "mode": "rate_limited",
+                    "source_status": "sourced",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "The source twelve-cycle/hour rate maps exactly to "
+                        "six cycles per five successful reviews."
+                    ),
+                    "includes": ("five-round source cycle",),
+                    "multiplier_behavior": (
+                        "M successful reviews advance one persisted 6/5 residual"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": (
+                        "Livid Farm retains its source-owned 6/5 activity residual"
+                    ),
+                    "profile": {
+                        "profile_id": "utility:livid_farm",
+                        "mode": "rate_limited",
+                        "increment_numerator": 6,
+                        "threshold_denominator": 5,
+                        "cadence_version": 1,
+                        "overflow_policy": None,
+                    },
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         rows.append(
             {
                 "handler_key": "utility",

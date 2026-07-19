@@ -110,6 +110,21 @@ except ImportError:
         summoning_action_requirements_pure,
     )
 
+try:
+    from .livid_farm_data import LIVID_FARM_UNLOCKS
+    from .livid_farm_logic import (
+        livid_farm_cycle_projection_pure,
+        livid_farm_locked_reasons_pure,
+        sanitize_livid_farm_state_pure,
+    )
+except ImportError:
+    from livid_farm_data import LIVID_FARM_UNLOCKS  # type: ignore
+    from livid_farm_logic import (  # type: ignore
+        livid_farm_cycle_projection_pure,
+        livid_farm_locked_reasons_pure,
+        sanitize_livid_farm_state_pure,
+    )
+
 
 @dataclass(frozen=True)
 class TargetRowMetadata:
@@ -1676,7 +1691,48 @@ def utility_activity_rows(
         icon_path = activity_icon if isinstance(activity_icon, str) and activity_icon else None
         openable_items = spec.get("openable_items")
 
-        if spec.get("warriors_guild_activity"):
+        if spec.get("livid_farm_activity"):
+            state = sanitize_livid_farm_state_pure(
+                player_data.get("livid_farm")
+            )
+            projection = livid_farm_cycle_projection_pure(
+                player_data,
+                state["farm_routine"],
+            )
+            locked_reasons = livid_farm_locked_reasons_pure(player_data)
+            enabled = not locked_reasons
+            next_unlock = next(
+                (
+                    (name, threshold)
+                    for unlock_id, name, threshold in LIVID_FARM_UNLOCKS
+                    if unlock_id not in set(state["unlocked_spells"])
+                ),
+                None,
+            )
+            next_text = (
+                f"{next_unlock[0]} at {next_unlock[1]:,} lifetime Produce"
+                if next_unlock
+                else "All Livid Farm spells unlocked"
+            )
+            rune_text = ", ".join(
+                f"{name} x{amount}"
+                for name, amount in projection["rune_cost"].items()
+            )
+            tooltip = (
+                "One complete five-round source cycle per cadence emission; "
+                "exactly six cycles per five successful reviews.\n"
+                f"Routine: {state['farm_routine'].title()} · "
+                f"{int(projection['points']):,} Produce per cycle\n"
+                f"Wallet: {int(state['produce_points']):,} · "
+                f"Lifetime: {int(state['lifetime_produce_points']):,} · "
+                f"Cycles: {int(state['cycles_completed']):,}\n"
+                f"Next: {next_text}\n"
+                f"Runes per cycle after staff substitutions: {rune_text or 'None'}"
+            )
+            if locked_reasons:
+                tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
+            tooltip += f"\nSource: {spec.get('source', '')}"
+        elif spec.get("warriors_guild_activity"):
             state = sanitize_warriors_guild_state_pure(
                 player_data.get("warriors_guild")
             )

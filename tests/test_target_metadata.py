@@ -1858,6 +1858,58 @@ class TargetMetadataTest(unittest.TestCase):
         )
         self.assertTrue(_row(unlocked_rows, "gather_lean_snails").enabled)
 
+    def test_utility_rows_expose_livid_farm_progress_policy_and_entry_gate(self):
+        locked_rows = utility_activity_rows(
+            {"inventory": {}, "current_utility": "livid_farm"},
+            UTILITY_ACTIVITY_DATA,
+            UTILITY_ITEM_IMAGES,
+            BIRD_NEST_OPEN_TABLES,
+            DEFAULT_UTILITY_ACTIVITY,
+        )
+        locked = _row(locked_rows, "livid_farm")
+        self.assertFalse(locked.enabled)
+        self.assertIn("Lunar Diplomacy", locked.tooltip)
+        self.assertIsNotNone(locked.icon_path)
+
+        player_data = {
+            "inventory": {
+                "Astral rune": 100,
+                "Nature rune": 100,
+                "Law rune": 100,
+                "Earth rune": 600,
+                "Water rune": 100,
+            },
+            "equipment": {},
+            "current_utility": "livid_farm",
+            "quests": {"lunar_diplomacy": {"completed": True}},
+            "magic_level": 99,
+            "agility_level": 60,
+            "crafting_level": 60,
+            "farming_level": 60,
+            "construction_level": 50,
+            "livid_farm": {
+                "farm_routine": "complete",
+                "produce_points": 12_345,
+                "lifetime_produce_points": 12_345,
+                "cycles_completed": 8,
+            },
+        }
+        rows = utility_activity_rows(
+            player_data,
+            UTILITY_ACTIVITY_DATA,
+            UTILITY_ITEM_IMAGES,
+            BIRD_NEST_OPEN_TABLES,
+            DEFAULT_UTILITY_ACTIVITY,
+        )
+        livid = _row(rows, "livid_farm")
+
+        self.assertTrue(livid.enabled)
+        self.assertTrue(livid.current)
+        self.assertIn("Routine: Complete", livid.tooltip)
+        self.assertIn("1,580 Produce per cycle", livid.tooltip)
+        self.assertIn("Wallet: 12,345", livid.tooltip)
+        self.assertIn("South Falador Teleport", livid.tooltip)
+
 
 if __name__ == "__main__":
     unittest.main()

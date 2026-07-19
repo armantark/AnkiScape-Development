@@ -3332,6 +3332,74 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
         self.assertGreaterEqual(calls["save"], 2)
 
+    def test_livid_farm_cycle_and_cross_skill_xp_roll_back_as_one_review(self):
+        addon = _load_addon_as_package("ankiscape_livid_farm_undo_integration")
+
+        calls = {"save": 0}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__(
+            "save",
+            calls["save"] + 1,
+        )
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_exp = lambda _xp: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.player_data = {
+            "inventory": {
+                "Astral rune": 1_000,
+                "Nature rune": 1_000,
+                "Law rune": 1_000,
+                "Earth rune": 1_000,
+                "Water rune": 1_000,
+            },
+            "equipment": {},
+            "quests": {"lunar_diplomacy": {"completed": True}},
+            "magic_level": 99,
+            "agility_level": 60,
+            "crafting_level": 60,
+            "farming_level": 60,
+            "construction_level": 50,
+            "magic_exp": 0.0,
+            "agility_exp": 0.0,
+            "crafting_exp": 0.0,
+            "farming_exp": 0.0,
+            "construction_exp": 0.0,
+            "current_utility": "livid_farm",
+            "completed_achievements": [],
+        }
+        before = copy.deepcopy(addon.player_data)
+        addon.current_skill = "Utility / Activities"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(
+            _FakeReviewer(),
+            4,
+            lambda _self, _ease: "answered",
+        )
+
+        self.assertEqual(addon.player_data["livid_farm"]["cycles_completed"], 1)
+        self.assertEqual(addon.player_data["livid_farm"]["produce_points"], 1_580)
+        self.assertAlmostEqual(addon.player_data["magic_exp"], 3_737.0)
+        self.assertAlmostEqual(addon.player_data["agility_exp"], 509.1)
+        self.assertAlmostEqual(addon.player_data["crafting_exp"], 1_080.0)
+        self.assertAlmostEqual(addon.player_data["farming_exp"], 2_754.0)
+        self.assertAlmostEqual(addon.player_data["construction_exp"], 546.0)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        changes = types.SimpleNamespace(
+            operation="Answer Card",
+            changes=types.SimpleNamespace(study_queues=True, card=True),
+        )
+        addon._on_state_did_undo(changes)
+
+        self.assertEqual(addon.player_data, before)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+        self.assertGreaterEqual(calls["save"], 2)
+
     def test_leather_thread_consumption_rolls_back_on_undo(self):
         addon = _load_addon_as_package("ankiscape_leather_thread_undo_integration")
 

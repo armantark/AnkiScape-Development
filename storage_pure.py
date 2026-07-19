@@ -65,6 +65,10 @@ try:
     from .slayer_logic import sanitize_slayer_state_pure
     from .thieving_data import THIEVING_TARGETS
     from .agility_logic import default_agility_state_pure, sanitize_agility_state_pure
+    from .livid_farm_logic import (
+        default_livid_farm_state_pure,
+        sanitize_livid_farm_state_pure,
+    )
     from .review_context import (
         default_review_context_state_pure,
         sanitize_review_context_state_pure,
@@ -141,6 +145,10 @@ except ImportError:
     from slayer_logic import sanitize_slayer_state_pure
     from thieving_data import THIEVING_TARGETS
     from agility_logic import default_agility_state_pure, sanitize_agility_state_pure
+    from livid_farm_logic import (  # type: ignore
+        default_livid_farm_state_pure,
+        sanitize_livid_farm_state_pure,
+    )
     from review_context import (  # type: ignore
         default_review_context_state_pure,
         sanitize_review_context_state_pure,
@@ -155,7 +163,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 45
+CURRENT_CONFIG_VERSION = 46
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -378,6 +386,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_ge_state_pure())
     data.update(default_farming_state_pure())
     data.update(default_agility_state_pure())
+    data["livid_farm"] = default_livid_farm_state_pure()
     data.update(default_review_context_state_pure())
     data["warriors_guild"] = default_warriors_guild_state_pure()
     data["current_summoning"] = DEFAULT_SUMMONING_TARGET
@@ -1141,6 +1150,9 @@ def migrate_loaded_data(
     data.update(sanitize_urn_state_pure(data))
     data.update(sanitize_farming_state_pure(data))
     data.update(sanitize_agility_state_pure(data))
+    data["livid_farm"] = sanitize_livid_farm_state_pure(
+        data.get("livid_farm")
+    )
     data.update(sanitize_review_context_state_pure(data))
     current_summoning = str(
         data.get("current_summoning", DEFAULT_SUMMONING_TARGET)
