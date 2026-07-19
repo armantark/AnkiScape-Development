@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dungeoneering — Pick the Big Picture</title>
+<style>
+:root {
+    --bg: #0c0e12;
+    --surface: #161a21;
+    --surface-2: #1e232c;
+    --border: #2a3040;
+    --text: #e8ecf4;
+    --text-dim: #8b95a8;
+    --accent: #4f8cff;
+    --accent-glow: rgba(79, 140, 255, 0.15);
+    --red: #ff5c5c;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --purple: #a78bfa;
+    --radius: 12px;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans: "Outfit", -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.55; padding: 2.5rem 1.25rem 4rem; }
+.wrap { max-width: 1100px; margin: 0 auto; }
+.badge { display: inline-block; font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.12em; color: var(--accent); background: var(--accent-glow); border: 1px solid var(--accent); border-radius: 999px; padding: 0.3rem 0.9rem; margin-bottom: 1rem; }
+h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+.sub { color: var(--text-dim); font-size: 0.95rem; max-width: 62ch; margin-bottom: 1.75rem; }
+.context { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.3rem; margin-bottom: 2rem; font-size: 0.9rem; }
+.context strong { color: var(--accent); }
+.context ul { list-style: none; margin-top: 0.5rem; }
+.context li { padding-left: 1.2rem; position: relative; margin-top: 0.35rem; color: var(--text-dim); }
+.context li::before { content: "▸"; position: absolute; left: 0; color: var(--accent); }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; margin-bottom: 2rem; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.3rem; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s; position: relative; }
+.card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(0,0,0,0.45); }
+.card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 8px 28px var(--accent-glow); }
+.card.selected::after { content: "SELECTED"; position: absolute; top: 0.9rem; right: 1rem; font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.1em; color: var(--accent); }
+.card h2 { font-size: 1.1rem; margin-bottom: 0.2rem; padding-right: 4.5rem; }
+.pitch { color: var(--text-dim); font-size: 0.85rem; font-style: italic; margin-bottom: 0.8rem; }
+.rec { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.1em; color: var(--green); border: 1px solid var(--green); border-radius: 999px; padding: 0.15rem 0.55rem; vertical-align: 2px; margin-left: 0.4rem; }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 0.25rem 0.75rem; font-size: 0.82rem; margin-bottom: 0.9rem; }
+.facts dt { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.06em; color: var(--accent); text-transform: uppercase; padding-top: 0.15rem; }
+.facts dd { color: var(--text); }
+.keeps { font-size: 0.8rem; margin-bottom: 0.9rem; }
+.keeps .k { color: var(--green); }
+.keeps .l { color: var(--red); }
+.meters { display: flex; gap: 1.25rem; }
+.meter { flex: 1; }
+.meter label { display: block; font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.08em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 0.3rem; }
+.bar { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+.bar span { display: block; height: 100%; border-radius: 3px; }
+.tbl-wrap { overflow-x: auto; margin-bottom: 2rem; }
+table { border-collapse: collapse; width: 100%; font-size: 0.8rem; min-width: 640px; }
+th, td { text-align: left; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
+td:first-child { font-weight: 600; }
+.pickbar { position: sticky; bottom: 1rem; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.9rem 1.2rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; box-shadow: 0 -4px 24px rgba(0,0,0,0.4); }
+.pickbar .current { font-size: 0.85rem; color: var(--text-dim); flex: 1; min-width: 200px; }
+.pickbar .current b { color: var(--text); }
+button.copy { font-family: var(--mono); font-size: 0.75rem; background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 0.55rem 1rem; cursor: pointer; }
+button.copy:hover { filter: brightness(1.15); }
+h3.section { font-size: 1rem; font-family: var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); margin: 0 0 0.8rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <span class="badge">DECISION — PICK ONE, THEN WE DRILL DOWN</span>
+    <h1>What <em>is</em> Dungeoneering in AnkiScape?</h1>
+    <p class="sub">The source in one breath: Daemonheim is a 60-floor dungeon skill. You walk in with <b>nothing</b>, scavenge and craft gear from what the floor gives you, get past locked doors and skill gates, kill the floor boss, and walk out with Dungeoneering XP and tokens. Nothing you found comes out with you. Then you do it again, deeper.</p>
+
+    <div class="context">
+        <strong>Where we stand:</strong>
+        <ul>
+            <li>Every other activity is now design-closed. Dungeoneering is the last one, and it's the capstone skill — the one that uses everything else.</li>
+            <li>Six technical sub-questions are queued behind this page. They all become obvious once you pick a model here, so pick the shape first.</li>
+            <li>All models obey the house rules: one successful review = one meaningful beat, nothing runs on wall-clock, Again advances only the world.</li>
+        </ul>
+    </div>
+
+    <h3 class="section">Six models — click to select</h3>
+    <div class="grid">
+        <div class="card" data-model="The Roguelike Floor">
+            <h2>1 · The Roguelike Floor<span class="rec">RECOMMENDED</span></h2>
+            <p class="pitch">A floor is a little dungeon map you actually explore, one room per review.</p>
+            <dl class="facts">
+                <dt>A review is</dt><dd>One room: fight it, skill it, or unlock it — "Cleared the frozen room: cut the roots, cooked the eel, beat the ranger."</dd>
+                <dt>Persists</dt><dd>The whole floor, indefinitely. Come back tomorrow, it's waiting.</dd>
+                <dt>Death</dt><dd>Respawn at floor start; the end-of-floor payout shrinks. Never erases the floor.</dd>
+                <dt>Payout</dt><dd>XP + tokens when the boss falls, scaled by depth, deaths, and completeness.</dd>
+            </dl>
+            <p class="keeps"><span class="k">Keeps:</span> exploration, keys, branching, scarcity, binds, complexity, prestige. <span class="l">Loses:</span> only the literal map screen.</p>
+            <div class="meters">
+                <div class="meter"><label>Fidelity</label><div class="bar"><span style="width:92%;background:var(--green)"></span></div></div>
+                <div class="meter"><label>Build cost</label><div class="bar"><span style="width:70%;background:var(--amber)"></span></div></div>
+            </div>
+        </div>
+
+        <div class="card" data-model="The Fresh-Start Run">
+            <h2>2 · The Fresh-Start Run</h2>
+            <p class="pitch">Same engine as #1, tuned so every floor feels like starting a new save file.</p>
+            <dl class="facts">
+                <dt>A review is</dt><dd>Same room beats — but floors are shorter and scarcity is cranked: gear hunger drives every choice.</dd>
+                <dt>Persists</dt><dd>The floor, same as #1.</dd>
+                <dt>Death</dt><dd>Same as #1 but stings more, since gear is scarcer.</dd>
+                <dt>Payout</dt><dd>Same, with more frequent floor completions.</dd>
+            </dl>
+            <p class="keeps"><span class="k">Keeps:</span> everything #1 keeps, plus the "fresh account" thrill named in the packet thesis. <span class="l">Loses:</span> longer strategic floors.</p>
+            <div class="meters">
+                <div class="meter"><label>Fidelity</label><div class="bar"><span style="width:85%;background:var(--green)"></span></div></div>
+                <div class="meter"><label>Build cost</label><div class="bar"><span style="width:70%;background:var(--amber)"></span></div></div>
+            </div>
+        </div>
+
+        <div class="card" data-model="The Boss Ladder">
+            <h2>3 · The Boss Ladder</h2>
+            <p class="pitch">No map. Each floor is a fixed short arc: gear up → pass the gate → fight the boss.</p>
+            <dl class="facts">
+                <dt>A review is</dt><dd>One of 3–5 fixed beats per floor, always in the same shape.</dd>
+                <dt>Persists</dt><dd>Your rung on the 60-floor ladder.</dd>
+                <dt>Death</dt><dd>Retry the boss beat; payout shrinks.</dd>
+                <dt>Payout</dt><dd>XP + tokens per rung, bosses get real mechanics via the multi-enemy contract.</dd>
+            </dl>
+            <p class="keeps"><span class="k">Keeps:</span> depth ladder, bosses, binds. <span class="l">Loses:</span> exploration, keys, branching, room variety — the dungeon part of the dungeon.</p>
+            <div class="meters">
+                <div class="meter"><label>Fidelity</label><div class="bar"><span style="width:48%;background:var(--amber)"></span></div></div>
+                <div class="meter"><label>Build cost</label><div class="bar"><span style="width:35%;background:var(--green)"></span></div></div>
+            </div>
+        </div>
+
+        <div class="card" data-model="The Descent">
+            <h2>4 · The Descent</h2>
+            <p class="pitch">One continuous dive with no floor boundaries — go deep until you die or leave.</p>
+            <dl class="facts">
+                <dt>A review is</dt><dd>One room, but rooms just keep coming, harder and harder.</dd>
+                <dt>Persists</dt><dd>Your current depth and kit, until the run ends.</dd>
+                <dt>Death</dt><dd>Ends the run — that IS the game. Payout scales with depth reached.</dd>
+                <dt>Payout</dt><dd>Banked on exit; deeper = disproportionately more.</dd>
+            </dl>
+            <p class="keeps"><span class="k">Keeps:</span> tension, scarcity. <span class="l">Loses:</span> the actual floor/prestige structure — this invents a mode the 2012 game didn't have. Weakest source claim.</p>
+            <div class="meters">
+                <div class="meter"><label>Fidelity</label><div class="bar"><span style="width:30%;background:var(--red)"></span></div></div>
+                <div class="meter"><label>Build cost</label><div class="bar"><span style="width:55%;background:var(--amber)"></span></div></div>
+            </div>
+        </div>
+
+        <div class="card" data-model="The Expedition Campaign">
+            <h2>5 · The Expedition Campaign</h2>
+            <p class="pitch">Model #1 wrapped in chapters: Frozen floors, then Abandoned, then Furnished… like a story campaign.</p>
+            <dl class="facts">
+                <dt>A review is</dt><dd>Same room beats as #1.</dd>
+                <dt>Persists</dt><dd>Floor + a visible campaign map of themes, milestones, and journal pages.</dd>
+                <dt>Death</dt><dd>Same as #1.</dd>
+                <dt>Payout</dt><dd>Same, plus chapter-completion milestones (sagas, journals) surfaced as campaign beats.</dd>
+            </dl>
+            <p class="keeps"><span class="k">Keeps:</span> everything #1 keeps + long-arc motivation. <span class="l">Loses:</span> nothing — but it's #1 plus a whole presentation layer. Biggest build.</p>
+            <div class="meters">
+                <div class="meter"><label>Fidelity</label><div class="bar"><span style="width:92%;background:var(--green)"></span></div></div>
+                <div class="meter"><label>Build cost</label><div class="bar"><span style="width:95%;background:var(--red)"></span></div></div>
+            </div>
+        </div>
+
+        <div class="card" data-model="The Training Hall">
+            <h2>6 · The Training Hall</h2>
+            <p class="pitch">The honest anti-model: Dungeoneering as plain skill rows — "clear rooms," earn XP and a token trickle.</p>
+            <dl class="facts">
+                <dt>A review is</dt><dd>An abstract room-clear row, like a Smithing target.</dd>
+                <dt>Persists</dt><dd>Nothing but your XP and tokens.</dd>
+                <dt>Death</dt><dd>Doesn't exist.</dd>
+                <dt>Payout</dt><dd>Flat drip, cadence-calibrated.</dd>
+            </dl>
+            <p class="keeps"><span class="k">Keeps:</span> the XP curve and token shop. <span class="l">Loses:</span> the entire skill identity — this is what "just ship something" looks like, included so the floor of the decision is visible.</p>
+            <div class="meters">
+                <div class="meter"><label>Fidelity</label><div class="bar"><span style="width:12%;background:var(--red)"></span></div></div>
+                <div class="meter"><label>Build cost</label><div class="bar"><span style="width:10%;background:var(--green)"></span></div></div>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="section">Side by side</h3>
+    <div class="tbl-wrap">
+    <table>
+        <tr><th>Model</th><th>Reviews per floor</th><th>Exploration</th><th>Death matters</th><th>Source shape</th><th>Starter slice cost</th></tr>
+        <tr><td>1 · Roguelike Floor</td><td>~8–15</td><td>Real map, revealed as you go</td><td>Payout penalty</td><td>Authentic floors + prestige</td><td>Medium</td></tr>
+        <tr><td>2 · Fresh-Start Run</td><td>~5–8</td><td>Real, smaller</td><td>Payout penalty, sharper</td><td>Authentic, tuned short</td><td>Medium</td></tr>
+        <tr><td>3 · Boss Ladder</td><td>3–5 fixed</td><td>None</td><td>Retry beat</td><td>Ladder only</td><td>Low</td></tr>
+        <tr><td>4 · Descent</td><td>Open-ended run</td><td>Linear feed</td><td>Run-ending</td><td>Invented mode</td><td>Medium</td></tr>
+        <tr><td>5 · Campaign</td><td>~8–15</td><td>Real + chapter map</td><td>Payout penalty</td><td>Authentic + wrapper</td><td>High</td></tr>
+        <tr><td>6 · Training Hall</td><td>1 = 1 row</td><td>None</td><td>None</td><td>XP curve only</td><td>Trivial</td></tr>
+    </table>
+    </div>
+
+    <div class="context" style="margin-bottom:2rem">
+        <strong>My recommendation:</strong> #1, with #2's tuning applied to the starter slice (one small frozen floor, so your first floors are short anyway), and #5's campaign wrapper kept in the back pocket as a later presentation layer on top — it changes nothing underneath. #3/#4/#6 each delete or invent structure the source actually had. Once you pick, the six queued technical questions (how binds work, what death costs, how the token shop opens, etc.) get answered inside whichever model you chose — most already have obvious answers under it.
+    </div>
+
+    <div class="pickbar">
+        <div class="current">Your pick: <b id="pick">none yet — click a card</b></div>
+        <button class="copy" id="copyBtn">Copy decision as prompt</button>
+    </div>
+</div>
+<script>
+(function () {
+    var pick = document.getElementById("pick");
+    var current = "";
+    document.querySelectorAll(".card").forEach(function (c) {
+        c.addEventListener("click", function () {
+            document.querySelectorAll(".card").forEach(function (x) { x.classList.remove("selected"); });
+            c.classList.add("selected");
+            current = c.getAttribute("data-model");
+            pick.textContent = current;
+        });
+    });
+    document.getElementById("copyBtn").addEventListener("click", function () {
+        var msg = current
+            ? "Dungeoneering big-picture decision: " + current + ". Drill down from there."
+            : "No model selected yet.";
+        navigator.clipboard.writeText(msg).then(function () {
+            document.getElementById("copyBtn").textContent = "Copied!";
+            setTimeout(function () { document.getElementById("copyBtn").textContent = "Copy decision as prompt"; }, 1500);
+        });
+    });
+})();
+</script>
+</body>
+</html>

@@ -346,6 +346,13 @@ or Mean, with a remembered choice and `Clap` default; sub-72 eggs remain
 source-owned items until the shared pet surface can hatch them. The focused
 contract is `memory-bank/source-audits/phoenix-lair-loop-2026-07-18.md`.
 
+Dominion Tower is pattern-determined (2026-07-18): a persistent boss-replay
+context whose roster is fed by playable quest completions, with Climber and
+Endurance sessions riding the shared session substrate (resumable per source
+rules), bosses as live encounters under the multi-enemy engaged-target
+contract, and Dominion factor funding the period reward catalog. Its focused
+audit happens at harvest time; no owner fork remains.
+
 Multi-enemy encounters are settled by
 `memory-bank/multi-enemy-encounter-contract-2026-07-18.md`: a visible roster
 with one engaged target fought through live six-tick slices while unengaged
