@@ -31,6 +31,9 @@ CHAELDAR_AUDIT_SOURCE = (
 SUMONA_AUDIT_SOURCE = (
     "memory-bank/source-audits/slayer-sumona-pool-2026-07-17.md"
 )
+DURADEL_AUDIT_SOURCE = (
+    "memory-bank/source-audits/slayer-duradel-lapalok-pool-2026-07-17.md"
+)
 
 
 @dataclass(frozen=True)
@@ -746,6 +749,94 @@ _FAMILIES: Tuple[SlayerFamily, ...] = (
         readiness_features=("prayer_drain_context",),
         source=SUMONA_AUDIT_SOURCE,
     ),
+    SlayerFamily(
+        "black_dragons",
+        "Black dragons",
+        ("black_dragon", "baby_black_dragon", "king_black_dragon"),
+        readiness_features=("dragonfire",),
+        source=DURADEL_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "dark_beasts",
+        "Dark beasts",
+        ("dark_beast", "revenant_dark_beast"),
+        required_slayer_level=90,
+        readiness_features=("temple_of_light_context",),
+        source=DURADEL_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "ganodermic_creatures",
+        "Ganodermic creatures",
+        ("ganodermic_runt", "ganodermic_beast"),
+        required_slayer_level=95,
+        required_skill_levels=(("magic", 60),),
+        readiness_features=("polypore_context",),
+        source=DURADEL_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "goraks",
+        "Goraks",
+        ("gorak_fairy_ring", "gorak_god_wars"),
+        readiness_features=("location_context",),
+        source=DURADEL_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "ice_strykewyrms",
+        "Ice strykewyrms",
+        ("ice_strykewyrm",),
+        required_slayer_level=93,
+        readiness_features=(
+            "assignment_only",
+            "strykewyrm_special",
+            "fire_cape_or_reward",
+        ),
+        source=DURADEL_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "mithril_dragons",
+        "Mithril dragons",
+        ("mithril_dragon",),
+        readiness_features=("dragonfire", "ancient_cavern_context"),
+        source=DURADEL_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "skeletal_wyverns",
+        "Skeletal wyverns",
+        ("skeletal_wyvern",),
+        required_slayer_level=72,
+        readiness_features=("wyvern_breath", "protective_equipment"),
+        source=DURADEL_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "steel_dragons",
+        "Steel dragons",
+        ("steel_dragon",),
+        readiness_features=("dragonfire",),
+        source=DURADEL_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "suqahs",
+        "Suqahs",
+        ("suqah",),
+        required_quest_id="lunar_diplomacy",
+        source=DURADEL_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "warped_terrorbirds",
+        "Warped terrorbirds",
+        ("warped_terrorbird",),
+        required_slayer_level=56,
+        required_quest_id="the_path_of_glouphrie",
+        readiness_features=("crystal_chime",),
+        source=DURADEL_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "waterfiends",
+        "Waterfiends",
+        ("waterfiend",),
+        readiness_features=("location_context",),
+        source=DURADEL_AUDIT_SOURCE,
+    ),
 )
 
 SLAYER_FAMILIES_BY_ID: Dict[str, SlayerFamily] = {
@@ -955,6 +1046,47 @@ SUMONA_FAMILIES: Tuple[SlayerAssignmentFamily, ...] = tuple(
     )
 )
 
+DURADEL_FAMILIES: Tuple[SlayerAssignmentFamily, ...] = tuple(
+    _assignment(family_id, weight, count_min, count_max, DURADEL_AUDIT_SOURCE)
+    for family_id, weight, count_min, count_max in (
+        ("aberrant_spectres", 10, 130, 200),
+        ("abyssal_demons", 15, 130, 200),
+        ("aquanites", 9, 130, 200),
+        ("black_demons", 10, 130, 200),
+        ("black_dragons", 9, 40, 80),
+        ("bloodveld", 20, 130, 200),
+        ("dagannoths", 10, 130, 200),
+        ("dark_beasts", 15, 130, 200),
+        ("desert_strykewyrms", 11, 90, 140),
+        ("dust_devils", 10, 130, 200),
+        ("fire_giants", 10, 130, 200),
+        ("fungal_magi", 8, 100, 200),
+        ("ganodermic_creatures", 6, 55, 70),
+        ("gargoyles", 10, 130, 200),
+        ("goraks", 5, 40, 80),
+        ("greater_demons", 11, 130, 200),
+        ("grifolapines", 10, 65, 80),
+        ("grifolaroos", 10, 65, 80),
+        ("grotworms", 10, 80, 120),
+        ("hellhounds", 9, 130, 200),
+        ("ice_strykewyrms", 8, 100, 200),
+        ("iron_dragons", 9, 40, 80),
+        ("jungle_strykewyrms", 10, 90, 120),
+        ("kalphites", 10, 130, 200),
+        ("mithril_dragons", 7, 4, 11),
+        ("mutated_jadinkos", 8, 120, 200),
+        ("nechryael", 10, 130, 200),
+        ("scabarites", 10, 40, 79),
+        ("skeletal_wyverns", 5, 40, 80),
+        ("spiritual_mages", 10, 130, 200),
+        ("steel_dragons", 7, 40, 80),
+        ("suqahs", 5, 40, 80),
+        ("vyrewatch", 8, 98, 118),
+        ("warped_terrorbirds", 9, 130, 200),
+        ("waterfiends", 10, 130, 200),
+    )
+)
+
 TURAEL_MASTER = SlayerMaster(
     id="turael_spria",
     display_name="Turael",
@@ -1005,6 +1137,19 @@ SUMONA_MASTER = SlayerMaster(
     source=SUMONA_AUDIT_SOURCE,
 )
 
+DURADEL_MASTER = SlayerMaster(
+    id="duradel_lapalok",
+    display_name="Duradel",
+    assignments=DURADEL_FAMILIES,
+    required_slayer_level=50,
+    required_combat_level=100,
+    required_quest_id="shilo_village",
+    alternate_display_name="Lapalok",
+    alternate_display_condition="while_guthix_sleeps_completed",
+    expected_weight_total=334,
+    source=DURADEL_AUDIT_SOURCE,
+)
+
 SLAYER_MASTERS_BY_ID: Dict[str, SlayerMaster] = {
     master.id: master
     for master in (
@@ -1013,6 +1158,7 @@ SLAYER_MASTERS_BY_ID: Dict[str, SlayerMaster] = {
         VANNAKA_MASTER,
         CHAELDAR_MASTER,
         SUMONA_MASTER,
+        DURADEL_MASTER,
     )
 }
 LIVE_SLAYER_MASTERS_BY_ID: Dict[str, SlayerMaster] = {
@@ -1035,6 +1181,9 @@ CHAELDAR_FAMILIES_BY_ID: Dict[str, SlayerAssignmentFamily] = {
 }
 SUMONA_FAMILIES_BY_ID: Dict[str, SlayerAssignmentFamily] = {
     family.id: family for family in SUMONA_FAMILIES
+}
+DURADEL_FAMILIES_BY_ID: Dict[str, SlayerAssignmentFamily] = {
+    family.id: family for family in DURADEL_FAMILIES
 }
 
 DEFAULT_SLAYER_MASTER_ID = TURAEL_MASTER.id

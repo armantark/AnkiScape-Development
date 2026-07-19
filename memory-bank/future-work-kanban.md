@@ -390,6 +390,16 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   Continue from `tools/audit_slayer_readiness.py`; do not expose or renormalize
   the partial master. Governing pool evidence:
   `source-audits/slayer-sumona-pool-2026-07-17.md`.
+- Duradel/Lapalok is now the sixth completely encoded pool. Its complete
+  35-row table preserves the provisional 334-point denominator, Combat 100,
+  Slayer 50, Shilo Village access, and the While Guthix Sleeps identity swap
+  while remaining hidden at 12/35 derived readiness. The 23 exact blockers
+  remain visible in `tools/audit_slayer_readiness.py`; they include the
+  existing Abyssal-demon and Nechryael mechanic gaps, incomplete
+  Black-dragon dragonfire, and 20 families without a certifying Combat target.
+  Continue from that generated ledger; do not expose or renormalize the
+  partial role. Governing pool evidence:
+  `source-audits/slayer-duradel-lapalok-pool-2026-07-17.md`.
 - Aquanite and Desert strykewyrm remain source-blocked. Both Darkan definitions
   generate non-real levels. Aquanite lacks its prayer-negating special and has
   visible Water-rune/Seaweed/Soul-rune conflicts. Desert strykewyrm's 1/21

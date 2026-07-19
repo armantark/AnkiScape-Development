@@ -5,6 +5,9 @@ from slayer_data import (
     CHAELDAR_FAMILIES,
     CHAELDAR_FAMILIES_BY_ID,
     CHAELDAR_MASTER,
+    DURADEL_FAMILIES,
+    DURADEL_FAMILIES_BY_ID,
+    DURADEL_MASTER,
     MAZCHNA_FAMILIES,
     MAZCHNA_FAMILIES_BY_ID,
     MAZCHNA_MASTER,
@@ -314,6 +317,131 @@ class SlayerAssignmentDataTest(unittest.TestCase):
                 SUMONA_MASTER.id,
             ),
             (),
+        )
+
+    def test_hidden_duradel_pool_preserves_complete_reconciled_rows(self):
+        expected_rows = (
+            ("aberrant_spectres", 10, 130, 200),
+            ("abyssal_demons", 15, 130, 200),
+            ("aquanites", 9, 130, 200),
+            ("black_demons", 10, 130, 200),
+            ("black_dragons", 9, 40, 80),
+            ("bloodveld", 20, 130, 200),
+            ("dagannoths", 10, 130, 200),
+            ("dark_beasts", 15, 130, 200),
+            ("desert_strykewyrms", 11, 90, 140),
+            ("dust_devils", 10, 130, 200),
+            ("fire_giants", 10, 130, 200),
+            ("fungal_magi", 8, 100, 200),
+            ("ganodermic_creatures", 6, 55, 70),
+            ("gargoyles", 10, 130, 200),
+            ("goraks", 5, 40, 80),
+            ("greater_demons", 11, 130, 200),
+            ("grifolapines", 10, 65, 80),
+            ("grifolaroos", 10, 65, 80),
+            ("grotworms", 10, 80, 120),
+            ("hellhounds", 9, 130, 200),
+            ("ice_strykewyrms", 8, 100, 200),
+            ("iron_dragons", 9, 40, 80),
+            ("jungle_strykewyrms", 10, 90, 120),
+            ("kalphites", 10, 130, 200),
+            ("mithril_dragons", 7, 4, 11),
+            ("mutated_jadinkos", 8, 120, 200),
+            ("nechryael", 10, 130, 200),
+            ("scabarites", 10, 40, 79),
+            ("skeletal_wyverns", 5, 40, 80),
+            ("spiritual_mages", 10, 130, 200),
+            ("steel_dragons", 7, 40, 80),
+            ("suqahs", 5, 40, 80),
+            ("vyrewatch", 8, 98, 118),
+            ("warped_terrorbirds", 9, 130, 200),
+            ("waterfiends", 10, 130, 200),
+        )
+        self.assertEqual(
+            tuple(
+                (family.id, family.weight, family.count_min, family.count_max)
+                for family in DURADEL_FAMILIES
+            ),
+            expected_rows,
+        )
+        self.assertEqual(sum(family.weight for family in DURADEL_FAMILIES), 334)
+
+        self.assertEqual(DURADEL_MASTER.required_slayer_level, 50)
+        self.assertEqual(DURADEL_MASTER.required_combat_level, 100)
+        self.assertEqual(DURADEL_MASTER.required_quest_id, "shilo_village")
+        self.assertEqual(DURADEL_MASTER.alternate_display_name, "Lapalok")
+        self.assertFalse(DURADEL_MASTER.runtime_enabled)
+        self.assertEqual(
+            DURADEL_FAMILIES_BY_ID["ganodermic_creatures"].target_ids,
+            ("ganodermic_runt", "ganodermic_beast"),
+        )
+        self.assertEqual(
+            DURADEL_FAMILIES_BY_ID["ice_strykewyrms"].readiness_features,
+            ("assignment_only", "strykewyrm_special", "fire_cape_or_reward"),
+        )
+
+    def test_duradel_readiness_is_derived_and_keeps_partial_pool_hidden(self):
+        readiness = slayer_master_readiness_pure(
+            DURADEL_MASTER.id, COMBAT_ENEMY_DATA
+        )
+
+        self.assertFalse(readiness["certified"])
+        self.assertFalse(readiness["runtime_enabled"])
+        self.assertEqual(readiness["family_count"], 35)
+        self.assertEqual(readiness["ready_family_count"], 12)
+        self.assertEqual(
+            set(readiness["blockers"]),
+            {
+                "abyssal_demons:teleport_interruption",
+                "aquanites:combat_target",
+                "black_dragons:dragonfire",
+                "dark_beasts:combat_target",
+                "desert_strykewyrms:combat_target",
+                "fungal_magi:combat_target",
+                "ganodermic_creatures:combat_target",
+                "goraks:combat_target",
+                "grifolapines:combat_target",
+                "grifolaroos:combat_target",
+                "ice_strykewyrms:combat_target",
+                "jungle_strykewyrms:combat_target",
+                "mithril_dragons:combat_target",
+                "mutated_jadinkos:combat_target",
+                "nechryael:death_spawn",
+                "scabarites:combat_target",
+                "skeletal_wyverns:combat_target",
+                "spiritual_mages:combat_target",
+                "steel_dragons:combat_target",
+                "suqahs:combat_target",
+                "vyrewatch:combat_target",
+                "warped_terrorbirds:combat_target",
+                "waterfiends:combat_target",
+            },
+        )
+        self.assertEqual(
+            eligible_slayer_families_pure(
+                {
+                    "slayer_level": 99,
+                    "combat_level": 126,
+                    "magic_level": 99,
+                    "quests": {
+                        "shilo_village": {"completed": True},
+                        "while_guthix_sleeps": {"completed": True},
+                    },
+                },
+                DURADEL_MASTER.id,
+            ),
+            (),
+        )
+        self.assertEqual(
+            slayer_master_display_name_pure(
+                {
+                    "quests": {
+                        "while_guthix_sleeps": {"completed": True},
+                    }
+                },
+                DURADEL_MASTER.id,
+            ),
+            "Lapalok",
         )
 
     def test_slayer_catalog_integrity_rejects_no_live_or_stale_master_state(self):

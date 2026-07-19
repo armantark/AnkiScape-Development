@@ -2,6 +2,15 @@
 
 ## Current Focus
 
+Duradel/Lapalok is now the sixth completely encoded Slayer pool. Its 35
+source-settled rows preserve the provisional 334-point denominator, Combat
+100, Slayer 50, and Shilo Village gate, plus the While Guthix Sleeps
+Duradel-to-Lapalok presentation swap. The role remains runtime-hidden. The
+live readiness audit derives 12/35 families ready and names all 23 missing
+Combat or distinctive-mechanic blockers; no incomplete row is exposed or
+renormalized. Governing evidence:
+`source-audits/slayer-duradel-lapalok-pool-2026-07-17.md`.
+
 Sumona is now the fifth completely encoded Slayer pool. Its 37 source-settled
 rows preserve the provisional 407-point denominator, Combat 85, Slayer 35, and
 Smoking Kills gates while remaining runtime-hidden. The live readiness audit

@@ -60,7 +60,15 @@ def slayer_master_display_name_pure(
     ):
         return "Spria"
     master = SLAYER_MASTERS_BY_ID.get(master_id)
-    return master.display_name if master else str(master_id)
+    if master is None:
+        return str(master_id)
+    if (
+        master.alternate_display_name
+        and master.alternate_display_condition == "while_guthix_sleeps_completed"
+        and _quest_completed(player_data, "while_guthix_sleeps")
+    ):
+        return master.alternate_display_name
+    return master.display_name
 
 
 def slayer_family_locked_reasons_pure(

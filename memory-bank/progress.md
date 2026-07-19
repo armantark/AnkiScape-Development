@@ -4,6 +4,25 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Duradel/Lapalok hidden registry — 2026-07-19
+
+- Encoded all 35 reconciled assignment rows with their exact family order,
+  provisional weights, count ranges, and 334-point denominator.
+- Added the hidden Combat-100, Slayer-50, Shilo-Village-gated master role and
+  the While Guthix Sleeps Duradel-to-Lapalok presentation swap.
+- Added eleven stable family definitions needed by the pool without adding
+  unsupported Combat targets or pretending missing mechanics are ready.
+- Derived readiness remains 12/35 with 23 exact blockers. The incomplete role
+  returns no eligible families and stays absent from the live master picker.
+- Added an exact full-table transcription oracle, exact blocker oracle,
+  succession regression, direct-action integration check, and real offscreen
+  Qt hidden-surface verification.
+- Workflows review run `30379395-e4a3-4c32-b1b0-23118a5d563f` was canceled
+  after it acquired a slot but never established a Codex session or emitted a
+  tool call; no reviewer output was used.
+- Governing evidence:
+  `source-audits/slayer-duradel-lapalok-pool-2026-07-17.md`.
+
 ## Slayer Aquanite/Desert-strykewyrm source boundary — 2026-07-19
 
 - Closed both period identities, LP, Slayer gates/XP, attack families,
