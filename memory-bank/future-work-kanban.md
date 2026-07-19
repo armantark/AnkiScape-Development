@@ -437,6 +437,14 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   equipment; Anti-dragon shield is explicitly invalid. Duradel/Lapalok remains
   14/35. See
   `source-audits/slayer-skeletal-wyvern-combat-2026-07-19.md`.
+- Waterfiend remains source- and context-blocked. Darkan's complete 128-slot
+  ordinary selector conflicts with the cutoff Coins, rune, herb, fish,
+  ore/bar, and other quantities and applies a Ghorrock-only Coal row
+  name-wide. The settled location-context transaction is absent, so a metadata
+  flag must not falsely certify the target. The ordinary level-115 and
+  level-134 Ghorrock forms remain distinct under Owner decision 20.
+  Duradel/Lapalok remains 14/35. See
+  `source-audits/slayer-waterfiend-combat-2026-07-19.md`.
 - Kuradal remains unencoded despite its source-closed 36-row, 322-point pool.
   The period family ledger now closes ordinary TzHaar as Ket/Xil/Mej/Hur and
   Living rock creatures as patriarch/protector/striker, explicitly excluding

@@ -4,6 +4,24 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Waterfiend source boundary — 2026-07-19
+
+- Closed the ordinary level-115 target's 1,260 LP, 128 Slayer XP, six-tick
+  Magic/magical-Ranged identity, 119-LP maximum, real combat levels, exact
+  cache defences, 59-tick respawn, Crush weakness, and guaranteed Water rune.
+- Kept the target source-blocked because Darkan's exact 128-slot ordinary
+  selector conflicts with the cutoff Coins, rune, herb, fish, ore/bar, and
+  other quantities. Its name-wide Coal row also leaks Ghorrock-only content.
+- Kept the target context-blocked because the settled Ancient
+  Cavern/Chaos-Tunnels/Ghorrock distinction has no player-selectable runtime
+  transaction. A metadata-only flag would falsely satisfy readiness.
+- Preserved the level-134 Ghorrock form as separately named implementation
+  debt under Slayer Owner decision 20 rather than folding its quantity-two
+  charms or location-only drops into the ordinary target.
+- Duradel/Lapalok remains hidden and unrenormalized at 14/35. No owner-facing
+  design gap emerged. Durable evidence:
+  `source-audits/slayer-waterfiend-combat-2026-07-19.md`.
+
 ## Slayer Skeletal Wyvern source boundary — 2026-07-19
 
 - Closed the level-198/2,000-LP identity, Slayer-72 gate/210 XP, six-tick

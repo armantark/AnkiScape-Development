@@ -2,6 +2,18 @@
 
 ## Current Focus
 
+Waterfiend is harvested but remains source- and context-blocked. The ordinary
+level-115 target's LP, XP, dual Magic/magical-Ranged behavior, maximum, real
+levels, cache defences, respawn, guaranteed drop, and visible loot contents are
+recoverable. Darkan's exact 128-slot selector conflicts with the cutoff Coins,
+rune, herb, fish, ore/bar, and other quantities; it also leaks a Ghorrock-only
+Coal row through a name-wide table. The level-134 Ghorrock form remains a
+separate qualifying variant with its own charm/drop context under Slayer Owner
+decision 20. The required player-selectable location transaction is not live,
+and a truthy metadata flag would falsely certify it. No target or asset was
+added; Duradel/Lapalok remains 14/35. See
+`source-audits/slayer-waterfiend-combat-2026-07-19.md`.
+
 Skeletal Wyvern is harvested but remains source- and dependency-blocked. Its
 real combat levels, exact cache defences, ordinary 139-LP maximum, shielded
 150-LP and unshielded 500+ breath envelopes, and broad drop selector are
