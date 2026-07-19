@@ -108,6 +108,26 @@ Completing a successful Pit challenge creates a persisted reward context:
 
 This first slice does not add an **Automatically gamble Pit XP** checkbox.
 
+## Second settled family: Aksel bronze orders (2026-07-18)
+
+While Artisan's Workshop is the active target, Aksel's random bronze
+ceremonial-sword orders (oldid `6547352`: 2–4 offers per source hour, less
+frequent during a stay, cut diamond at 90%+ performance) surface as:
+
+**Bronze order — `Accept bronze order` / `Ignore`**
+
+- The conservative default is expiry: ignoring means no action and the offer
+  disappears. There is no stored order backlog — the source offer is transient,
+  and its decaying frequency exists so orders cannot be banked.
+- The family is rememberable. An explicit `Accept` or `Ignore` click resolves
+  later ignored offers, so habitual accepters get auto-accept without a
+  settings checkbox.
+- Accepting replaces the next successful Workshop action with the bronze-sword
+  attempt inside the ordinary review transaction; XP, Respect, performance, and
+  the diamond award ride the same undo snapshot.
+- Owning decision record:
+  `gap-grill-decisions-2026-07-10.md#smithing-artisans-workshop-burial-armour-and-ceremonial-swords`.
+
 ## Candidate harvest for later passes
 
 These existing or designed families should be evaluated against the

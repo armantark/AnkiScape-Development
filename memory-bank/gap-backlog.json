@@ -319,13 +319,13 @@
       "title": "Add Artisan's Workshop + burial armour + ceremonial swords",
       "detail": "Major 2010 Smithing progression surface absent from emulator plugin.",
       "source": "wiki:Artisan's Workshop",
-      "status": "design_partially_reopened_waiting_source",
-      "note": "The 2026-07-10 pre-EOC audit found that ordinary Grade-IV/Egil ceremonial swords are deliberate training, while random Aksel bronze orders are a separate diversion. Re-grill only the Aksel-order scheduling question; exact pipe timing still waits for stronger evidence or Darkan fidelity work.",
+      "status": "design_settled_waiting_source",
+      "note": "Aksel-order scheduling settled 2026-07-18: orders surface through the reviewer contextual action row (Accept bronze order / Ignore), no modal and no backlog; ignored offers expire, an explicit prior click becomes the remembered resolution, and accepting replaces the next successful Workshop action with the bronze-sword attempt. Exact pipe timing still waits for stronger evidence or Darkan fidelity work.",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#smithing-artisans-workshop-burial-armour-and-ceremonial-swords",
       "decision_summary": {
         "surface": "Use a compact Smithing sub-UI showing metal/ingot grade, current assignment or plan, Respect, and a deep link to Activity Rewards.",
         "burial": "Automatically follow source-assigned armour pieces while the player chooses metal and ingot grade; abstract bank, Workshop storage, and ingot movement without erasing authentic costs or caps.",
-        "ceremonial": "Ordinary level-70 Grade-IV ceremonial swords are a separately selected Egil-plan method, not random burial interruptions. Aksel's random bronze orders are a distinct diversion whose AnkiScape scheduling remains an owner question.",
+        "ceremonial": "Ordinary level-70 Grade-IV ceremonial swords are a separately selected Egil-plan method, not random burial interruptions. Aksel's random bronze orders are the second contextual-action-row family: a transient Accept/Ignore row at the source 2-4/hour decaying rate, expiring when ignored, rememberable after an explicit click, with acceptance replacing the next successful Workshop action and 90%+ performance awarding the attested cut diamond.",
         "pipes": "Fold quick pipe repairs into an ordinary action slice unless historical evidence shows a repair consumed roughly a full slice; apply Quick Repairs and Repair Expert from recovered source timing and XP.",
         "rewards": "Respect purchases are manual in a distinct Activity Rewards shop. Hide incomplete individual rewards, including cannon unlocks, until they function end to end.",
         "visibility": "Reserve disabled rows for authentic player-state locks on working content. Confirmed future activity shops may use curated shop-level Coming later cards, but never inert individual reward rows.",
@@ -568,7 +568,7 @@
       "verdict": {
         "approved": true,
         "blocking": [],
-        "notes": "Approved for fold. The branch faithfully ports all 23 requested runtime-bound Crafting rows with exact game-main levels, XP, inputs, canonical output names, and IDs\u2014including the source's Silvthrill rod/Silvthril chain spelling split\u2014while documenting the CRAFT_ROS and all-skills milestone-cape gates without inventing systems; NOT_URNS, BARB_HARPOON, Combat, and Prayer remain untouched. Item-specific icons and provenance replace the rejected fallback art, with Candle lantern (empty) as the sole new title override. The 9 focused data tests, 2 registry/icon tests, grouped-target check, 4 Crafting logic checks, and full 932-test suite pass under /opt/homebrew/bin/python3.11, and crafting_data imports cleanly there; the literal python command cannot launch only because this environment has no python executable."
+        "notes": "Approved for fold. The branch faithfully ports all 23 requested runtime-bound Crafting rows with exact game-main levels, XP, inputs, canonical output names, and IDs—including the source's Silvthrill rod/Silvthril chain spelling split—while documenting the CRAFT_ROS and all-skills milestone-cape gates without inventing systems; NOT_URNS, BARB_HARPOON, Combat, and Prayer remain untouched. Item-specific icons and provenance replace the rejected fallback art, with Candle lantern (empty) as the sole new title override. The 9 focused data tests, 2 registry/icon tests, grouped-target check, 4 Crafting logic checks, and full 932-test suite pass under /opt/homebrew/bin/python3.11, and crafting_data imports cleanly there; the literal python command cannot launch only because this environment has no python executable."
       }
     },
     {
