@@ -1,6 +1,11 @@
 # Fake Grand Exchange Design Checkpoint
 
-> **Status: PARKED (design locked, implementation deferred).** The design below is fully grilled and considered final for v1; do not re-grill the decision tree. NPC Shops are already live. The GE remains blocked on representative skill/item/economy breadth; use `memory-bank/future-work-kanban.md` for the current sequencing gate and resume here when that gate is cleared.
+> **Status: IMPLEMENT (2026-07-19), amended.** The item-breadth gate was
+> removed by owner decision 2026-07-19, and an owner relitigation the same
+> day amended this design: `ge-relitigation-2026-07-19.md` wins where they
+> differ — sell-side demand-bounded absorption replaces the unbounded-GP
+> clauses, and period-first sourcing (Wayback 2012 GE Database, period buy
+> limits) replaces the OSRS-first scrapes below.
 
 ## Purpose
 
