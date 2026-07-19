@@ -2,11 +2,28 @@
 
 ## Current Focus
 
+The ordinary level-86 Fire giant now closes Chaeldar's twentieth executable
+family. It preserves the cutoff 1,110 LP, 111 Slayer XP, five-tick melee,
+116-LP maximum, poison behavior, and guaranteed Big bones; Darkan supplies the
+exact combat stats/respawn, one 128-slot ordinary selector with exact nested
+herb/gem/standard-rare rolls, a losslessly enumerated 404-slot charm selector,
+and independent Long/Curved-bone tertiaries. The pre-cutoff enemy sprite is
+pinned with provenance. Chaeldar remains hidden and unrenormalized at 20/34,
+with fourteen Combat identities outstanding. No location-only quest,
+Wilderness, Smoke Dungeon, Daemonheim, or Dungeoneering behavior was folded
+into the ordinary representative, and no owner-facing design fork emerged.
+Evidence: `source-audits/slayer-fire-giant-combat-2026-07-18.md`.
+Focused backend/integration verification passes 347 tests and the real
+offscreen Qt Combat picker passes. Full non-Qt and real offscreen Qt discovery
+each pass all 1,665 tests. Results:
+`status-updates/slayer-fire-giant-results-2026-07-18.html`; mobile copy:
+<https://6v3lhweptj0p.postplan.dev>.
+
 Chaeldar's complete cutoff assignment pool is now encoded as a hidden
 registry contract: 34 stable family rows, the provisional 388-point
 denominator, Combat 70, Lost City access, and every reconciled count range,
 skill/quest gate, and special-mechanic completeness key. Generated readiness
-is 19/34. Fifteen absent Combat identities produce one exact
+is now 20/34. Fourteen absent Combat identities produce one exact
 `combat_target` blocker each; Chaeldar remains excluded from live assignment
 selection, so the partial denominator is never renormalized or exposed.
 Fever spiders deliberately do not receive a false Rum Deal completion gate:

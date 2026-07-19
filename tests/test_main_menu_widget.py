@@ -2330,6 +2330,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         brine_rat = _tree_row(tree, "brine_rat")
         molanisk = _tree_row(tree, "molanisk")
         turoth = _tree_row(tree, "turoth")
+        fire_giant = _tree_row(tree, "fire_giant")
         aberrant_spectre = _tree_row(tree, "aberrant_spectre")
         basilisk = _tree_row(tree, "basilisk")
         crocodile = _tree_row(tree, "crocodile")
@@ -2449,6 +2450,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertIn("Green charm x1 (214/1212)", turoth.toolTip(0))
         self.assertFalse(turoth.icon(0).isNull())
+        self.assertEqual(fire_giant.text(0), "Fire giant (Lvl 86)")
+        self.assertIn("Enemy max hit: 116 LP", fire_giant.toolTip(0))
+        self.assertIn("Big bones x1", fire_giant.toolTip(0))
+        self.assertIn("Gold charm x1 (207/404)", fire_giant.toolTip(0))
+        self.assertFalse(fire_giant.icon(0).isNull())
         self.assertEqual(
             aberrant_spectre.text(0), "Aberrant spectre (Lvl 96)"
         )

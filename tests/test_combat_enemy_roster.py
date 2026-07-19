@@ -29,6 +29,7 @@ NEW_COMBAT_ENEMIES = (
     "brine_rat",
     "molanisk",
     "turoth",
+    "fire_giant",
     "ogre",
     "jackal",
     "icefiend",
@@ -359,6 +360,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
             ("brine_rat", "Brine rat icon.png"),
             ("molanisk", "Molanisk icon.png"),
             ("turoth", "Turoth icon.png"),
+            ("fire_giant", "Fire giant.png"),
         ):
             with self.subTest(target=target_id):
                 relative_path = f"combatenemies/{target_id}.png"
@@ -394,6 +396,11 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
                     self.assertEqual(
                         provenance[relative_path]["timestamp"],
                         "2011-11-30T02:42:28Z",
+                    )
+                if target_id == "fire_giant":
+                    self.assertEqual(
+                        provenance[relative_path]["timestamp"],
+                        "2011-11-21T02:39:58Z",
                     )
 
     def test_green_dragon_preserves_cutoff_combat_and_drop_selectors(self):
@@ -569,6 +576,43 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
         self.assertIn("oldid=6530513", jelly["source"])
         self.assertIn("Soul Wars variant excluded", jelly["source_status"])
+
+    def test_fire_giant_preserves_the_cutoff_ordinary_variant_and_selectors(self):
+        giant = COMBAT_ENEMY_DATA["fire_giant"]
+
+        self.assertEqual(giant["level"], 86)
+        self.assertEqual(giant["attack_style"], "melee")
+        self.assertEqual(giant["attack_speed"], 5)
+        self.assertEqual(giant["respawn_delay"], 59)
+        self.assertEqual(giant["max_hit"], 116)
+        self.assertEqual(giant["slayer_xp"], 111.0)
+        self.assertEqual(
+            giant["stats"],
+            {
+                "hitpoints": 1110,
+                "attack": 65,
+                "strength": 65,
+                "defence": 65,
+                "magic": 1,
+                "ranged": 1,
+            },
+        )
+        self.assertEqual(giant["drops"]["guaranteed"], (("Big bones", 1),))
+        self.assertEqual(
+            [(table["name"], table["total"]) for table in giant["drops"]["tables"]],
+            [
+                ("Darkan ordinary", 128),
+                ("Darkan charms", 404),
+                ("Long and curved bones", 100000),
+            ],
+        )
+        for table in giant["drops"]["tables"]:
+            self.assertEqual(
+                sum(slot["slots"] for slot in table["slots"]),
+                table["total"],
+            )
+        self.assertIn("oldid=6555306", giant["source"])
+        self.assertIn("non-Daemonheim", giant["source_status"])
 
     def test_bloodveld_preserves_the_cutoff_level_76_variant_and_drop_table(self):
         bloodveld = COMBAT_ENEMY_DATA["bloodveld"]

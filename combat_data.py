@@ -1325,6 +1325,36 @@ DARKAN_GEM_DROP_TABLE = {
     ),
 }
 
+DARKAN_STANDARD_RARE_DROP_TABLE = {
+    "name": "Darkan standard rare",
+    "source": (
+        "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+        "darkan-world-server/data/npcs/drops/special_tables/rdt_standard.json"
+    ),
+    "total": 128,
+    "slots": (
+        {"table": DARKAN_GEM_DROP_TABLE, "slots": 20},
+        {"table": DARKAN_MEGA_RARE_DROP_TABLE, "slots": 15},
+        {"item": "Coins", "quantity": 3000, "slots": 21},
+        {"item": "Loop half of a key", "quantity": 1, "slots": 20},
+        {"item": "Tooth half of a key", "quantity": 1, "slots": 20},
+        {"item": "Rune bar", "quantity": 1, "slots": 5},
+        {"item": "Dragonstone", "quantity": 1, "slots": 2},
+        {"item": "Silver ore", "quantity": 100, "slots": 2},
+        {"item": "Nature rune", "quantity": 67, "slots": 3},
+        {"item": "Law rune", "quantity": 45, "slots": 2},
+        {"item": "Death rune", "quantity": 45, "slots": 2},
+        {"item": "Steel arrows", "quantity": 150, "slots": 2},
+        {"item": "Rune arrows", "quantity": 42, "slots": 2},
+        {"item": "Adamant javelin", "quantity": 20, "slots": 2},
+        {"item": "Rune 2h sword", "quantity": 1, "slots": 3},
+        {"item": "Rune battleaxe", "quantity": 1, "slots": 3},
+        {"item": "Rune sq shield", "quantity": 1, "slots": 2},
+        {"item": "Dragon med helm", "quantity": 1, "slots": 1},
+        {"item": "Rune kiteshield", "quantity": 1, "slots": 1},
+    ),
+}
+
 
 COMBAT_RARE_DROP_TABLE = {
     "name": "Rare",
@@ -2438,6 +2468,59 @@ ICE_GIANT_DROPS = {
                 {"item": "Curved bone", "quantity": 1, "slots": 20},
                 {"item": "Champion's scroll", "quantity": 1, "slots": 20},
                 {"slots": 99710},
+            ),
+        },
+    ),
+}
+
+FIRE_GIANT_DROPS = {
+    "guaranteed": (("Big bones", 1),),
+    "tables": (
+        {
+            "name": "Darkan ordinary",
+            "total": 128,
+            "slots": (
+                {"item": "Coins", "quantity": 60, "slots": 40},
+                {"table": DARKAN_HERB_DROP_TABLE, "slots": 19},
+                {"table": DARKAN_GEM_DROP_TABLE, "slots": 11},
+                {"item": "Fire rune", "quantity": 150, "slots": 10},
+                {"item": "Chaos rune", "quantity": 5, "slots": 7},
+                {"item": "Coins", "quantity": 15, "slots": 7},
+                {"item": "Coins", "quantity": 25, "slots": 6},
+                {"item": "Rune arrows", "quantity": 12, "slots": 5},
+                {"item": "Blood rune", "quantity": 5, "slots": 4},
+                {"item": "Steel hatchet", "quantity": 1, "slots": 3},
+                {"item": "Lobster", "quantity": 1, "slots": 3},
+                {"item": "Mithril sq shield", "quantity": 1, "slots": 2},
+                {"item": "Coins", "quantity": 300, "slots": 2},
+                {"item": "Steel bar", "quantity": 1, "slots": 2},
+                {"item": "Fire battlestaff", "quantity": 1, "slots": 1},
+                {"item": "Rune scimitar", "quantity": 1, "slots": 1},
+                {"item": "Fire rune", "quantity": 37, "slots": 1},
+                {"item": "Law rune", "quantity": 2, "slots": 1},
+                {"item": "Coins", "quantity": 50, "slots": 1},
+                {"item": "Strength potion (2)", "quantity": 1, "slots": 1},
+                {"table": DARKAN_STANDARD_RARE_DROP_TABLE, "slots": 1},
+            ),
+        },
+        {
+            "name": "Darkan charms",
+            "total": 404,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 207},
+                {"item": "Green charm", "quantity": 1, "slots": 11},
+                {"item": "Crimson charm", "quantity": 1, "slots": 7},
+                {"item": "Blue charm", "quantity": 1, "slots": 3},
+                {"slots": 176},
+            ),
+        },
+        {
+            "name": "Long and curved bones",
+            "total": 100000,
+            "slots": (
+                {"item": "Long bone", "quantity": 1, "slots": 250},
+                {"item": "Curved bone", "quantity": 1, "slots": 20},
+                {"slots": 99730},
             ),
         },
     ),
@@ -5007,6 +5090,52 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             f"{ICE_GIANT_SOURCE_PATH}: ids Npcs.ICE_GIANT/Npcs.ICE_GIANT_3072/Npcs.ICE_GIANT_4685/"
             "Npcs.ICE_GIANT_4686/Npcs.ICE_GIANT_4687; SlayerAssignment.ICE_GIANT level 1 "
             "xp 70.0; attackStyle SLASH; attackBonus/strengthBonus; aggro radius 5"
+        ),
+    },
+    "fire_giant": {
+        "display_name": "Fire giant",
+        "level": 86,
+        "group": "Giants",
+        "attack_style": "melee",
+        "attack_speed": 5,
+        "respawn_delay": 59,
+        "max_hit": 116,
+        "slayer_xp": 111.0,
+        "stats": {
+            "hitpoints": 1110,
+            "attack": 65,
+            "strength": 65,
+            "defence": 65,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": FIRE_GIANT_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Fire_giant?oldid=6555306; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/fire_giant/"
+            "fire_giant_(86).json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/fire_giant.json"
+        ),
+        "source_status": (
+            "period exact ordinary non-Daemonheim level, LP, Slayer XP, melee "
+            "style, five-tick attack speed, poison susceptibility, maximum hit, "
+            "and guaranteed Big bones; Darkan exact stats, 59-tick respawn, "
+            "128-slot ordinary selector, nested tables, independent exact charm "
+            "selector, and long/curved-bone tertiaries; location-only quest, "
+            "Wilderness, Smoke Dungeon, and Dungeoneering contexts excluded"
         ),
     },
     "ghost": {

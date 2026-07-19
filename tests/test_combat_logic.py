@@ -2627,6 +2627,34 @@ class CombatLogicTest(unittest.TestCase):
             {"Mithril boots": 1},
         )
 
+    def test_fire_giant_drop_selectors_are_independent_and_exact(self):
+        giant = COMBAT_ENEMY_DATA["fire_giant"]
+        ordinary = _combat_roll_drops(
+            giant,
+            _rng([127 / 128, 0.0, 0.0, 0.999999, 0.999999]),
+        )
+        charms = _combat_roll_drops(
+            giant,
+            _rng([0.0, 207 / 404, 0.999999]),
+        )
+        bones = _combat_roll_drops(
+            giant,
+            _rng([0.0, 0.999999, 250 / 100000]),
+        )
+
+        self.assertEqual(
+            ordinary,
+            {"Big bones": 1, "Uncut sapphire": 1},
+        )
+        self.assertEqual(
+            charms,
+            {"Big bones": 1, "Coins": 60, "Green charm": 1},
+        )
+        self.assertEqual(
+            bones,
+            {"Big bones": 1, "Coins": 60, "Curved bone": 1},
+        )
+
     def test_bloodveld_drop_roll_can_reach_black_boots(self):
         self.assertEqual(
             _combat_roll_drops(

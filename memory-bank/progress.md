@@ -4,6 +4,31 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Fire giant Combat closure — 2026-07-18
+
+- Added the ordinary level-86 Fire giant with 1,110 LP, 111 Slayer XP,
+  five-tick melee, a 116-LP maximum, period poison behavior, guaranteed Big
+  bones, exact Darkan stats, and a 59-tick respawn.
+- Preserved one exact 128-slot ordinary selector, including nested herb, gem,
+  and standard-rare tables; losslessly enumerated Darkan's inclusive charm
+  behavior into 404 slots; and kept Long/Curved bones independent at 1/400 and
+  1/5,000.
+- Pinned the pre-cutoff `Fire giant.png` revision and its provenance.
+- Advanced Chaeldar to 20/34 while leaving its partial pool hidden and
+  unrenormalized. Fourteen Combat-family blockers remain.
+- Excluded location-only quest/Wilderness/Smoke-Dungeon contexts and all
+  Daemonheim/Dungeoneering variants from the ordinary representative.
+- No owner-facing design fork emerged. Durable evidence:
+  `source-audits/slayer-fire-giant-combat-2026-07-18.md`.
+- Focused Combat/Slayer/metadata coverage passes 347 tests, and the focused
+  real offscreen Qt picker passes. Full non-Qt and real offscreen Qt discovery
+  each pass all 1,665 tests; the real Qt run has zero skips or failures.
+- Test quality has zero hard issues across 73 files and 1,665 methods.
+  Compilation, diff, readiness, reachability, and worktree-safety audits pass
+  or match their declared baseline.
+- Results: `status-updates/slayer-fire-giant-results-2026-07-18.html`; mobile
+  copy: <https://6v3lhweptj0p.postplan.dev>.
+
 ## Slayer Chaeldar hidden registry — 2026-07-18
 
 - Encoded all 34 source-reconciled master rows with their exact current count
@@ -14,7 +39,7 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
 - Registered Chaeldar at Combat 70 behind Lost City while keeping
   `runtime_enabled=False`; live master selection cannot see or renormalize the
   partial pool.
-- Derived 19/34 readiness. Fifteen absent target identities each report one
+- Derived 20/34 readiness after the Fire giant closure. Fourteen absent target identities each report one
   deterministic `combat_target` blocker, while Gargoyles and Mutated
   zygomites reuse their already-live finisher mechanics.
 - Preserved the source-blocked Rum Deal stage boundary for Fever spiders

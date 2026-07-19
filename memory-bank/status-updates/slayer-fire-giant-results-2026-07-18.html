@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape — Fire giant closure</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #100b09;
+      --panel: #1c1310;
+      --panel-2: #261713;
+      --ink: #fff4e9;
+      --muted: #c9aa98;
+      --ember: #ff6a2b;
+      --gold: #f7c95b;
+      --green: #78d69b;
+      --line: #4a2b20;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 78% 0%, #4c170e 0, transparent 34rem),
+        linear-gradient(145deg, #100b09, #160d0a 55%, #090706);
+      color: var(--ink);
+      font: 16px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 56px 0 72px; }
+    .eyebrow { color: var(--ember); letter-spacing: .14em; text-transform: uppercase; font-size: .74rem; font-weight: 800; }
+    h1 { margin: 8px 0 12px; font-size: clamp(2.45rem, 7vw, 5.7rem); line-height: .92; letter-spacing: -.055em; }
+    .lead { max-width: 760px; margin: 0; color: var(--muted); font-size: clamp(1.05rem, 2.2vw, 1.35rem); }
+    .hero { position: relative; overflow: hidden; padding: 38px; border: 1px solid var(--line); border-radius: 28px; background: linear-gradient(135deg, rgba(38,23,19,.96), rgba(19,12,10,.96)); box-shadow: 0 28px 80px #0008; }
+    .hero::after { content: "86"; position: absolute; right: 22px; bottom: -48px; color: #ff6a2b13; font-size: 16rem; font-weight: 900; line-height: 1; }
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 30px; position: relative; z-index: 1; }
+    .metric { padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: #130d0bcc; }
+    .metric strong { display: block; color: var(--gold); font-size: 1.65rem; }
+    .metric span { color: var(--muted); font-size: .82rem; }
+    section { margin-top: 24px; padding: 28px; border: 1px solid var(--line); border-radius: 22px; background: var(--panel); }
+    h2 { margin: 0 0 18px; font-size: 1.25rem; letter-spacing: -.02em; }
+    .grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 24px; }
+    .selector { display: grid; grid-template-columns: 40fr 19fr 11fr 10fr 48fr; height: 24px; overflow: hidden; border-radius: 999px; background: #0b0807; }
+    .selector span:nth-child(1) { background: var(--gold); }
+    .selector span:nth-child(2) { background: #6bbd72; }
+    .selector span:nth-child(3) { background: #70a7d8; }
+    .selector span:nth-child(4) { background: var(--ember); }
+    .selector span:nth-child(5) { background: #784331; }
+    .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; color: var(--muted); font-size: .83rem; }
+    .legend b { color: var(--ink); }
+    .checks { display: grid; gap: 10px; }
+    .check { display: flex; justify-content: space-between; gap: 16px; padding: 12px 14px; border-radius: 12px; background: var(--panel-2); }
+    .check span:last-child { color: var(--green); font-weight: 750; }
+    .readiness { display: grid; grid-template-columns: repeat(34, 1fr); gap: 5px; margin: 18px 0 10px; }
+    .readiness i { height: 18px; border-radius: 4px; background: #3a2721; }
+    .readiness i:nth-child(-n+20) { background: linear-gradient(#ff8a42, #e94c20); box-shadow: 0 0 12px #ff6a2b55; }
+    .note { color: var(--muted); }
+    code { color: #ffd8c0; font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    footer { margin-top: 22px; color: #936f60; font-size: .78rem; text-align: center; }
+    @media (max-width: 760px) {
+      main { width: min(100% - 20px, 1120px); padding-top: 20px; }
+      .hero, section { padding: 22px; border-radius: 18px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .grid { grid-template-columns: 1fr; }
+      .readiness { grid-template-columns: repeat(17, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <article class="hero">
+    <div class="eyebrow">Slayer · source-closed · 18 July 2026</div>
+    <h1>Fire giant<br>is live.</h1>
+    <p class="lead">The ordinary pre-EOC giant is now a playable Combat target with exact nested drop semantics, period art, and no invented location or Dungeoneering rules.</p>
+    <div class="metrics">
+      <div class="metric"><strong>1,110</strong><span>life points</span></div>
+      <div class="metric"><strong>116</strong><span>maximum hit</span></div>
+      <div class="metric"><strong>111</strong><span>Slayer XP</span></div>
+      <div class="metric"><strong>20 / 34</strong><span>Chaeldar readiness</span></div>
+    </div>
+  </article>
+
+  <div class="grid">
+    <section>
+      <h2>One exact ordinary roll</h2>
+      <div class="selector" aria-label="128-slot ordinary drop distribution">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="legend">
+        <span><b>40</b> coins ×60</span>
+        <span><b>19</b> herb table</span>
+        <span><b>11</b> gem table</span>
+        <span><b>10</b> fire runes</span>
+        <span><b>48</b> remaining exact rows</span>
+      </div>
+      <p class="note">Guaranteed Big bones, the 404-slot charm selector, and Long/Curved bones are independent channels. The nested standard rare table remains a real nested roll, not a flattened approximation.</p>
+    </section>
+    <section>
+      <h2>Closure proof</h2>
+      <div class="checks">
+        <div class="check"><span>Focused logic and registry</span><span>347 pass</span></div>
+        <div class="check"><span>Full non-Qt discovery</span><span>1,665 pass</span></div>
+        <div class="check"><span>Full real offscreen Qt</span><span>1,665 pass</span></div>
+        <div class="check"><span>Test-quality hard issues</span><span>0</span></div>
+        <div class="check"><span>Worktree layout</span><span>Safe</span></div>
+      </div>
+    </section>
+  </div>
+
+  <section>
+    <h2>Chaeldar stays honest</h2>
+    <div class="readiness" aria-label="20 of 34 Chaeldar families ready">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      <i></i><i></i><i></i><i></i>
+    </div>
+    <p class="note">Fire giants move the hidden master from 19/34 to 20/34. The pool is still neither selectable nor renormalized. Fourteen missing Combat identities remain visible as deterministic readiness blockers.</p>
+  </section>
+
+  <section>
+    <h2>Evidence boundary</h2>
+    <p class="note">Period authority is RuneScape Wiki <code>oldid=6555306</code>. Executable stats and selectors come from Darkan commit <code>d759fdd77</code>. The enemy raster is the pre-cutoff <code>Fire giant.png</code> revision from 2011-11-21, SHA-1 <code>ce3de1d4…</code>. Daemonheim variants and location-specific quest, Wilderness, and Smoke Dungeon behavior are deliberately excluded.</p>
+  </section>
+
+  <footer>AnkiScape · frozen 20 November 2012 · no wall-clock gameplay</footer>
+</main>
+</body>
+</html>

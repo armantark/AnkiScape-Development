@@ -995,6 +995,18 @@
     "source_wiki": "rs3",
     "timestamp": "2022-07-10T15:22:46Z"
   },
+  "combatenemies/fire_giant.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fire_giant.png",
+    "file_title": "Fire giant.png",
+    "image_url": "https://runescape.wiki/images/archive/20130110141254%21Fire_giant.png?8ba44",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ce3de1d4ee5883da4ffab4d45576a643aa8c319b",
+    "size": 67196,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-21T02:39:58Z"
+  },
   "combatenemies/gargoyle.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Gargoyle_icon.png",
     "file_title": "Gargoyle icon.png",
