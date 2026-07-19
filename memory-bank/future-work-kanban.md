@@ -844,6 +844,11 @@ Labels: `PARKED` until feature closure, then `IMPLEMENT`.
 - Close asset redistribution provenance, migration fixtures, manual Anki review
   QA, performance/accessibility, packaging, export/recovery, documentation, and
   post-upload verification.
+- **Final Fable simplification gate:** after the complete implementation diff is
+  feature-closed and verified, ask Fable exactly: “how can we simplify this? How
+  can we make this entire code update as minimal and elegant as possible while
+  still achieving our goals?” Apply only behavior-preserving reductions, then
+  rerun the affected validation before packaging the release candidate.
 - When all 25 pre-EOC skill surfaces are complete or explicitly excluded,
   publish a celebratory, interactive skill-milestone postmortem before moving on
   as though it were an ordinary card. Cover the build timeline and commit
