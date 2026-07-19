@@ -1773,3 +1773,21 @@ The visual closure report is
 - No target, quest, cape, reward-shop flag, family gate, test, or asset changed.
   Duradel/Lapalok remains hidden at 14/35. No owner-facing creative-design gap
   emerged.
+
+## Hunter restoration source boundary — 2026-07-19
+
+- Reconciled the owner-settled tracking, pitfall, and rabbit-snaring card after
+  Darkan restored five tracking targets, three pitfalls, and White rabbit.
+- The cutoff Hunter record closes visible levels, XP, inputs, outputs, quest
+  gates, approximately `1/4` perfect pitfall fur, Jim's `+2` XP, and the direct
+  Rabbit-foot/Long-kebbit-spike chains.
+- Darkan's restoration is explicitly incomplete for AnkiScape's contract: it
+  omits Penguin tracking, makes every restored catch deterministic, removes
+  pitfall damage, emits only tatty fur, preserves neither Rabbit-snare nor
+  Ferret loss, and directly gates White rabbit behind Eagles' Peak instead of
+  gating Ferret acquisition.
+- No partial target shipped. Exact catch curves, pitfall damage, snare/Ferret
+  loss, Penguin's result selector, and the rabbit-foot nest modifier remain
+  `source_blocked`. This produced no owner-facing creative-design gap.
+- Durable evidence:
+  `source-audits/hunter-tracking-pitfall-rabbit-restoration-2026-07-19.md`.

@@ -2484,3 +2484,23 @@ Test counts are snapshots; current runs outrank this note.
   `source-audits/slayer-ice-strykewyrm-combat-2026-07-19.md`, with the
   authority mismatch isolated in
   `audits/slayer-ice-strykewyrm-gate-conflict-2026-07-19.md`.
+
+## Hunter tracking/pitfall/rabbit restoration audit — 2026-07-19
+
+- Re-ran the settled Hunter card against Darkan's newly restored tracking,
+  pitfall, and White-rabbit implementations plus exact cutoff Hunter, Penguin,
+  Jim, and talk-page revisions.
+- Closed the visible target tables, tool/item requirements, reward identities,
+  authentic quest boundary, approximately `1/4` perfect-fur probability, Jim's
+  `+2` Hunter XP, Rabbit-foot stringing XP, and six-bolt Long-kebbit-spike
+  conversion.
+- Kept the card source-blocked because Darkan provides deterministic ceilings,
+  not the required hidden behavior: it omits Penguin tracking, all catch
+  curves, pitfall attacks/damage, snare and Ferret loss, and perfect fur.
+- Added no Hunter rows, assets, UI, storage, or runtime behavior and introduced
+  no creative-design question. The exact boundary is
+  `source-audits/hunter-tracking-pitfall-rabbit-restoration-2026-07-19.md`.
+- Read-only Workflow `287714b0-bed1-488d-a085-91ad641ede97` was canceled
+  without a usable report after one leaf spent 225,142 generated tokens on six
+  broad search calls and the other emitted no tool telemetry. No partial output
+  was used; the primary independently reproduced the accepted findings.

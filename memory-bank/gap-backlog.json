@@ -197,8 +197,9 @@
       "title": "Add tracking, pitfall trapping, rabbit snaring",
       "detail": "game-main has ZERO hunter files. Source kebbit tracking trails, pitfall (larupia/graahk/kyatt), rabbit snaring from wiki pinned pre-EOC. Explicitly deferred in AnkiScape's own hunter audit.",
       "source": "wiki:Hunter",
-      "status": "design_settled_waiting_source",
-      "note": "Owner grill closed 2026-07-10; implement after the November 2012 Darkan fidelity revamp provides source-grade mechanics and rates.",
+      "status": "source_blocked_after_darkan_reconciliation",
+      "note": "Re-audited 2026-07-19 after the Darkan restoration landed. The restoration supplies deterministic ceilings for five tracking targets, three pitfalls, and White rabbit, but omits Penguin tracking, catch curves, pitfall damage, snare/Ferret loss, and authentic perfect/tatty selection. The period record closes visible levels, XP, inputs, outputs, the approximately 1/4 perfect-fur rate, Jim's +2 XP, and direct reward chains, but not the remaining hidden selectors. Do not activate a deterministic partial substitute.",
+      "source_audit": "memory-bank/source-audits/hunter-tracking-pitfall-rabbit-restoration-2026-07-19.md",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#hunter-tracking-pitfall-and-rabbit-snaring",
       "decision_summary": {
         "scope": "Full non-Jadinko pre-EOC parity: six tracking targets, three pitfall targets, rabbit snaring, the quest-gated penguin and Jim hand-in, direct reward transformations, and source-authentic equipment effects.",
