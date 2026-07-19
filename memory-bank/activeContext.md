@@ -2,6 +2,16 @@
 
 ## Current Focus
 
+Mithril dragon is harvested but remains source- and representation-blocked.
+The cutoff page closes 2,540 LP, 273 Slayer XP, Melee/Magic/Ranged/dragonfire
+behavior, 289/182/182 maxima, the Ancient Cavern/Barbarian-training route, and
+the named drop set. Darkan conflicts at 2,550 LP and 250 Ranged/Magic maxima;
+its 127-slot ordinary selector narrows or omits period quantities. The current
+fixed-style Combat enemy schema also cannot express the settled multi-style
+selector or enforce the Ancient Cavern gate. No target or asset was added;
+Duradel/Lapalok remains hidden at 14/35. See
+`source-audits/slayer-mithril-dragon-combat-2026-07-19.md`.
+
 Suqah is harvested but remains source-blocked. The settled registry's single
 `suqah` target aligns with the cutoff article's southern melee-only form,
 explicitly identified as the common Slayer target. Its complete combat state,

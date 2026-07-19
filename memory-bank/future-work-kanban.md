@@ -423,6 +423,13 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   Numeric cutoff rates do not survive, so the emulator weights cannot be
   transplanted onto different items. Duradel/Lapalok remains 14/35. See
   `source-audits/slayer-suqah-combat-2026-07-19.md`.
+- Mithril dragon remains source- and representation-blocked. Darkan conflicts
+  with the cutoff 2,540 LP and 182-LP Ranged/Magic maxima, while its 127-slot
+  ordinary selector narrows or omits period-visible quantities. The current
+  fixed-style Combat schema cannot encode the settled
+  Melee/Magic/Ranged/dragonfire selector or enforce the Ancient
+  Cavern/Barbarian-training gate. Duradel/Lapalok remains 14/35. See
+  `source-audits/slayer-mithril-dragon-combat-2026-07-19.md`.
 - Kuradal remains unencoded despite its source-closed 36-row, 322-point pool.
   The period family ledger now closes ordinary TzHaar as Ket/Xil/Mej/Hur and
   Living rock creatures as patriarch/protector/striker, explicitly excluding

@@ -4,6 +4,31 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Mithril dragon source boundary — 2026-07-19
+
+- Pinned the cutoff level-304 target, 2,540 LP, 273 Slayer XP, six-tick
+  Melee/Magic/Ranged/dragonfire identity, 289/182/182 maxima, Ancient
+  Cavern/Barbarian-training gate, guaranteed Dragon bones/Mithril bars ×3,
+  named drop set, and four-charm quantity.
+- Closed the real 268/268/268/168/168 combat levels, exact cache defences, and
+  59-tick respawn while rejecting Darkan's conflicting 2,550 LP and
+  250-LP Ranged/Magic maxima.
+- Kept the target source-blocked because Darkan's 127-slot ordinary selector
+  narrows Runite-bolt, Rune-knife, and Rune-arrow quantities and omits several
+  cutoff rows.
+- Kept the target representation-blocked because the current fixed-style
+  Combat schema cannot encode the settled multi-style selector or enforce the
+  Ancient Cavern/Barbarian-training route.
+- Workflows run `5a0150f7-23ba-4b6e-a030-db1d9e1bfd89` was canceled without
+  using a leaf result. Despite two free global slots, the job remained
+  `pending` with attempts `0`, no queue or slot assignment, no session, and
+  zero tool/progress telemetry. This is a distinct post-start scheduler
+  failure signature; the root independently reproduced every accepted
+  finding.
+- Duradel/Lapalok remains hidden and unrenormalized at 14/35. No
+  owner-facing design gap emerged. Durable evidence:
+  `source-audits/slayer-mithril-dragon-combat-2026-07-19.md`.
+
 ## Slayer Suqah source boundary — 2026-07-19
 
 - Closed the settled single target as the cutoff southern melee-only Suqah,
