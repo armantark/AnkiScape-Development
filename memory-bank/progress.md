@@ -4,6 +4,23 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Aquanite/Desert-strykewyrm source boundary — 2026-07-19
+
+- Closed both period identities, LP, Slayer gates/XP, attack families,
+  maxima, assignment rules, named drops, cache IDs/bonuses, and target-local
+  special shapes.
+- Kept both targets absent because their Darkan definitions explicitly
+  generate non-real combat levels.
+- Kept Aquanite blocked on its absent prayer-negating handler/rate and direct
+  Water-rune, Seaweed, and Soul-rune quantity conflicts.
+- Kept Desert strykewyrm blocked on Darkan's conflicting 1/21 burrow,
+  unconditional double hit, Potato-cactus/herb/Coin quantities, and 1/512
+  Focus-sight lead which does not independently close the period 1/484
+  estimate.
+- Sumona remains hidden and unrenormalized at 20/37; no owner-facing design
+  decision was opened. Durable evidence:
+  `source-audits/slayer-aquanite-desert-strykewyrm-combat-2026-07-19.md`.
+
 ## Slayer Spiritual-family authority stop — 2026-07-19
 
 - Stopped before source-to-runtime implementation because the settled Sumona,

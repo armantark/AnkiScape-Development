@@ -10,6 +10,15 @@ blocked on missing teleport-interruption behavior and Nechryael blocked on its
 missing Death-spawn hook; 15 other families still lack a certifying Combat
 target. No row is renormalized away and no owner design was reopened.
 
+Aquanite and Desert strykewyrm are harvested but remain source-blocked. Both
+Darkan definitions are explicitly `nostats` and generate non-real combat
+levels. Aquanite lacks its prayer-negating handler/trigger and conflicts on
+Water-rune, Seaweed, and Soul-rune quantities. Desert strykewyrm conflicts on
+burrow frequency, conditional double-hit semantics, Potato-cactus/herb/Coin
+quantities, while its Focus-sight rate remains source-unclosed. Neither target
+or asset was added; Sumona remains 20/37. See
+`source-audits/slayer-aquanite-desert-strykewyrm-combat-2026-07-19.md`.
+
 Terror dogs are harvested but remain source-blocked. The cutoff record and
 Darkan close the level-110 representative, real combat levels, route,
 two-tick target-local Prayer drain, Big-bones split, Granite helm, and named

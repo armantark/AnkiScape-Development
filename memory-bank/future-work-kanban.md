@@ -390,6 +390,13 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   Continue from `tools/audit_slayer_readiness.py`; do not expose or renormalize
   the partial master. Governing pool evidence:
   `source-audits/slayer-sumona-pool-2026-07-17.md`.
+- Aquanite and Desert strykewyrm remain source-blocked. Both Darkan definitions
+  generate non-real levels. Aquanite lacks its prayer-negating special and has
+  visible Water-rune/Seaweed/Soul-rune conflicts. Desert strykewyrm's 1/21
+  burrow and unconditional double-hit implementation conflict with the period
+  frequency/consequence, and its Potato-cactus/herb/Coin selector is
+  incompatible. See
+  `source-audits/slayer-aquanite-desert-strykewyrm-combat-2026-07-19.md`.
 - Terror dogs remain source-blocked despite source-ready level-110 stats,
   Haunted Mine access, target-local one-Prayer-point-per-two-ticks drain,
   Big-bones split, and Granite-helm data. Darkan's executable 128-slot
