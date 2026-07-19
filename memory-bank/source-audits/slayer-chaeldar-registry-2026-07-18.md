@@ -54,7 +54,7 @@ stable `combat_target` blocker:
 10. Warped tortoises
 
 Gargoyles and both Mutated-zygomite rows were already complete and now
-certify their families through the shared finisher engine. The twenty-three ready
+certify their families through the shared finisher engine. The twenty-four ready
 families do not make Chaeldar selectable: the runtime registry excludes all
 hidden masters, and catalog integrity rejects a hidden pool only after it is
 fully certified.
