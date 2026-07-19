@@ -400,6 +400,16 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   Continue from that generated ledger; do not expose or renormalize the
   partial role. Governing pool evidence:
   `source-audits/slayer-duradel-lapalok-pool-2026-07-17.md`.
+- Kuradal remains unencoded despite its source-closed 36-row, 322-point pool.
+  The period family ledger now closes ordinary TzHaar as Ket/Xil/Mej/Hur and
+  Living rock creatures as patriarch/protector/striker, explicitly excluding
+  Fight Cave `Tok-` creatures from the ordinary TzHaar family. Stop before
+  registry work: the current global family-gate schema cannot represent
+  Kuradal-only Aquanite and Ice-strykewyrm eligibility, the
+  Kuradal-Dungeon-specific Dark-beast route, or Barbarian Training master
+  access without contradicting settled records. See
+  `source-audits/slayer-kuradal-family-boundaries-2026-07-19.md` and
+  `audits/slayer-kuradal-registry-schema-conflict-2026-07-19.md`.
 - Aquanite and Desert strykewyrm remain source-blocked. Both Darkan definitions
   generate non-real levels. Aquanite lacks its prayer-negating special and has
   visible Water-rune/Seaweed/Soul-rune conflicts. Desert strykewyrm's 1/21

@@ -4,6 +4,24 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Kuradal registry-schema stop — 2026-07-19
+
+- Closed the ordinary TzHaar family as Ket, Xil, Mej, and Hur and the Living
+  rock creature family as patriarch, protector, and striker from cutoff
+  `Slayer assignment` oldid `6303852`.
+- Rejected Darkan's broad `tok-` name prefix as ordinary-family membership
+  because the period contract keeps Fight Cave creatures in Kuradal's separate
+  280-kill challenge.
+- Stopped before registering Kuradal because global family gates cannot encode
+  her master-specific Aquanite and Ice-strykewyrm requirements or
+  Kuradal-Dungeon Dark-beast route, while the master model cannot encode
+  Barbarian Training activity access.
+- No runtime data or test oracle was changed. This is a settled-contract/code
+  representation conflict, not an owner-facing design gap.
+- Evidence:
+  `source-audits/slayer-kuradal-family-boundaries-2026-07-19.md` and
+  `audits/slayer-kuradal-registry-schema-conflict-2026-07-19.md`.
+
 ## Slayer Duradel/Lapalok hidden registry — 2026-07-19
 
 - Encoded all 35 reconciled assignment rows with their exact family order,

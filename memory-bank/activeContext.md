@@ -2,6 +2,16 @@
 
 ## Current Focus
 
+Kuradal's two remaining family boundaries are now source-closed: ordinary
+TzHaar means Ket, Xil, Mej, and Hur while Living rock creatures means
+patriarch, protector, and striker. The 36-row hidden registry was not encoded
+because the current schema cannot represent Kuradal's master-specific
+Aquanite/Ice-strykewyrm gates, its non-quest Barbarian Training access, or its
+Kuradal-Dungeon Dark-beast context without contradicting the settled
+contracts. This is an implementation-schema stop, not a design question. See
+`source-audits/slayer-kuradal-family-boundaries-2026-07-19.md` and
+`audits/slayer-kuradal-registry-schema-conflict-2026-07-19.md`.
+
 Duradel/Lapalok is now the sixth completely encoded Slayer pool. Its 35
 source-settled rows preserve the provisional 334-point denominator, Combat
 100, Slayer 50, and Shilo Village gate, plus the While Guthix Sleeps
