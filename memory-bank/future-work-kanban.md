@@ -379,6 +379,17 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   `source-audits/slayer-bronze-dragon-combat-2026-07-18.md`,
   `source-audits/slayer-cave-horror-combat-2026-07-18.md`, and
   `source-audits/slayer-dagannoth-combat-2026-07-18.md`.
+- Sumona is now the fifth completely encoded pool. Its complete 37-row table
+  preserves the source-settled 407-point denominator and remains hidden at
+  18/37 derived readiness. The existing Abyssal-demon and Nechryael targets
+  deliberately remain non-certifying until their teleport-interruption and
+  Death-spawn loops are executable; Aquanites, Desert strykewyrms, Fungal magi,
+  Grifolapines, Grifolaroos, Iron dragons, Jungle strykewyrms, Kurasks, Mutated
+  jadinkos, Red dragons, Scabarites, Spiritual mages, Spiritual warriors,
+  Terror dogs, Trolls, Vyrewatch, and Warped tortoises lack a certifying target.
+  Continue from `tools/audit_slayer_readiness.py`; do not expose or renormalize
+  the partial master. Governing pool evidence:
+  `source-audits/slayer-sumona-pool-2026-07-17.md`.
 - Darkan ordinary-drop semantics are corrected across eleven live Slayer
   targets. Sibling nonzero JSON rows now share one cumulative selector, while
   rate-zero rows, charms, and explicitly labeled period abstractions remain

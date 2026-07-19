@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sumona hidden-pool closure</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-2: #1d2430;
+      --ink: #f0f6fc;
+      --muted: #9da7b3;
+      --line: #30363d;
+      --green: #3fb950;
+      --amber: #d29922;
+      --blue: #58a6ff;
+      --red: #f85149;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 85% 5%, rgba(63,185,80,.13), transparent 32rem),
+        radial-gradient(circle at 10% 95%, rgba(88,166,255,.1), transparent 28rem),
+        var(--bg);
+      color: var(--ink);
+      font: 15px/1.55 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 64px; }
+    header { display: grid; gap: 16px; margin-bottom: 28px; }
+    .eyebrow {
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 0; font-size: clamp(32px, 6vw, 62px); line-height: 1.02; letter-spacing: -.04em; }
+    .lede { max-width: 760px; margin: 0; color: var(--muted); font-size: 18px; }
+    .badge {
+      width: fit-content;
+      padding: 7px 11px;
+      border: 1px solid rgba(63,185,80,.55);
+      border-radius: 999px;
+      background: rgba(63,185,80,.1);
+      color: #7ee787;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .05em;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 28px 0;
+    }
+    .metric, .card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(29,36,48,.95), rgba(22,27,34,.95));
+      box-shadow: 0 16px 45px rgba(0,0,0,.18);
+    }
+    .metric { padding: 18px; }
+    .metric strong { display: block; font-size: 29px; line-height: 1.1; }
+    .metric span { color: var(--muted); font-size: 13px; }
+    .progress {
+      overflow: hidden;
+      height: 14px;
+      margin: 12px 0 7px;
+      border-radius: 999px;
+      background: #252b34;
+    }
+    .progress > div {
+      width: 48.65%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), #7ee787);
+    }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .card { padding: 22px; }
+    .card h2 { margin: 0 0 8px; font-size: 18px; }
+    .card p { margin: 0 0 12px; color: var(--muted); }
+    ul { margin: 0; padding-left: 20px; }
+    li + li { margin-top: 6px; }
+    code {
+      padding: 2px 5px;
+      border-radius: 5px;
+      background: #0d1117;
+      color: #c9d1d9;
+      font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .ok { color: #7ee787; }
+    .hold { color: #e3b341; }
+    .proof {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .footer { margin-top: 22px; color: var(--muted); font-size: 12px; }
+    @media (max-width: 760px) {
+      main { padding-top: 28px; }
+      .metrics, .grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 500px) {
+      .metrics, .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">AnkiScape · Slayer implementation</div>
+      <h1>Sumona is complete on paper<br>and safely hidden in play.</h1>
+      <p class="lede">The full period-settled assignment pool is now executable data, while the readiness gate prevents incomplete families from leaking into live assignment rolls.</p>
+      <div class="badge">IMPLEMENTATION CHECKPOINT COMPLETE</div>
+    </header>
+
+    <section class="metrics" aria-label="Closure metrics">
+      <div class="metric"><strong>37</strong><span>assignment rows encoded</span></div>
+      <div class="metric"><strong>407</strong><span>total source-settled weight</span></div>
+      <div class="metric"><strong>18</strong><span>families currently ready</span></div>
+      <div class="metric"><strong>1,681</strong><span>real offscreen Qt tests passing</span></div>
+    </section>
+
+    <section class="card" style="margin-bottom:14px">
+      <h2>Derived readiness: 48.6%</h2>
+      <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="37" aria-valuenow="18"><div></div></div>
+      <p>Readiness is computed from the current Combat registry and required mechanics. It is not a hand-maintained status claim.</p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2 class="ok">What is closed</h2>
+        <ul>
+          <li>All 37 assignment families and exact count ranges.</li>
+          <li>The provisional 407-point denominator, without renormalization.</li>
+          <li>Combat 85, Slayer 35, and <em>Smoking Kills</em> gates.</li>
+          <li>Stable family identities for the 14 Sumona-era additions.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2 class="hold">What remains deliberately blocked</h2>
+        <ul>
+          <li><strong>Abyssal demons:</strong> teleport interruption is not executable.</li>
+          <li><strong>Nechryael:</strong> the Death-spawn combat hook is absent.</li>
+          <li><strong>17 families:</strong> no qualifying Combat target yet certifies the family.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Safety invariants</h2>
+        <ul>
+          <li>Sumona remains absent from the live master registry.</li>
+          <li>Eligible-family generation returns no partial assignment pool.</li>
+          <li>Missing mechanics stay named blockers instead of being treated as generic combat.</li>
+          <li>No settled design clause was reopened or interpreted.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Verification ledger</h2>
+        <ul>
+          <li><code>tests.test_slayer_logic</code>: 17 passing.</li>
+          <li>Focused Slayer/quest integration: 19 passing.</li>
+          <li>Real focused offscreen Qt: 2 passing.</li>
+          <li>Full core runner: 1,681 passing, 215 environment skips.</li>
+          <li>Full real offscreen Qt discovery: 1,681 passing, no skips.</li>
+        </ul>
+        <div class="proof">Docs, test-quality, compilation, readiness, diff, and worktree checks pass. The global reachability audit retains its known repository backlog and exposes no new Sumona item surface.</div>
+      </article>
+    </section>
+
+    <p class="footer">Source authority: <code>memory-bank/source-audits/slayer-sumona-pool-2026-07-17.md</code> · Implementation date: 2026-07-19</p>
+  </main>
+</body>
+</html>

@@ -8,6 +8,9 @@ from slayer_data import (
     MAZCHNA_FAMILIES,
     MAZCHNA_FAMILIES_BY_ID,
     MAZCHNA_MASTER,
+    SUMONA_FAMILIES,
+    SUMONA_FAMILIES_BY_ID,
+    SUMONA_MASTER,
     TURAEL_FAMILIES,
     TURAEL_FAMILIES_BY_ID,
     VANNAKA_FAMILIES,
@@ -229,6 +232,88 @@ class SlayerAssignmentDataTest(unittest.TestCase):
                     "quests": {"lost_city": {"completed": True}},
                 },
                 CHAELDAR_MASTER.id,
+            ),
+            (),
+        )
+
+    def test_hidden_sumona_pool_preserves_complete_reconciled_rows(self):
+        self.assertEqual(len(SUMONA_FAMILIES), 37)
+        self.assertEqual(sum(family.weight for family in SUMONA_FAMILIES), 407)
+        expected_ranges = {
+            "blue_dragons": (120, 189),
+            "dagannoths": (120, 192),
+            "desert_strykewyrms": (90, 110),
+            "fungal_magi": (90, 150),
+            "grifolapines": (55, 75),
+            "grifolaroos": (55, 75),
+            "grotworms": (70, 115),
+            "iron_dragons": (30, 85),
+            "kalphites": (120, 189),
+            "red_dragons": (30, 79),
+            "scabarites": (30, 60),
+            "terror_dogs": (30, 60),
+            "trolls": (120, 191),
+            "vyrewatch": (96, 105),
+        }
+        for family_id, count_range in expected_ranges.items():
+            with self.subTest(family_id=family_id):
+                family = SUMONA_FAMILIES_BY_ID[family_id]
+                self.assertEqual((family.count_min, family.count_max), count_range)
+
+        self.assertEqual(SUMONA_MASTER.required_slayer_level, 35)
+        self.assertEqual(SUMONA_MASTER.required_combat_level, 85)
+        self.assertEqual(SUMONA_MASTER.required_quest_id, "smoking_kills")
+        self.assertFalse(SUMONA_MASTER.runtime_enabled)
+        self.assertEqual(
+            SUMONA_FAMILIES_BY_ID["abyssal_demons"].required_slayer_level,
+            85,
+        )
+        self.assertEqual(
+            SUMONA_FAMILIES_BY_ID["mutated_jadinkos"].required_slayer_level,
+            80,
+        )
+
+    def test_sumona_readiness_is_derived_and_keeps_partial_pool_hidden(self):
+        readiness = slayer_master_readiness_pure(
+            SUMONA_MASTER.id, COMBAT_ENEMY_DATA
+        )
+
+        self.assertFalse(readiness["certified"])
+        self.assertFalse(readiness["runtime_enabled"])
+        self.assertEqual(readiness["family_count"], 37)
+        self.assertEqual(readiness["ready_family_count"], 18)
+        self.assertEqual(
+            set(readiness["blockers"]),
+            {
+                "abyssal_demons:teleport_interruption",
+                "aquanites:combat_target",
+                "desert_strykewyrms:combat_target",
+                "fungal_magi:combat_target",
+                "grifolapines:combat_target",
+                "grifolaroos:combat_target",
+                "iron_dragons:combat_target",
+                "jungle_strykewyrms:combat_target",
+                "kurasks:combat_target",
+                "mutated_jadinkos:combat_target",
+                "nechryael:death_spawn",
+                "red_dragons:combat_target",
+                "scabarites:combat_target",
+                "spiritual_mages:combat_target",
+                "spiritual_warriors:combat_target",
+                "terror_dogs:combat_target",
+                "trolls:combat_target",
+                "vyrewatch:combat_target",
+                "warped_tortoises:combat_target",
+            },
+        )
+        self.assertEqual(
+            eligible_slayer_families_pure(
+                {
+                    "slayer_level": 99,
+                    "combat_level": 126,
+                    "quests": {"smoking_kills": {"completed": True}},
+                },
+                SUMONA_MASTER.id,
             ),
             (),
         )

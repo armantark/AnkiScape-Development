@@ -2031,3 +2031,34 @@ Test counts are snapshots; current runs outrank this note.
   `source-audits/slayer-vyrewatch-combat-2026-07-19.md`,
   `source-audits/slayer-warped-tortoise-combat-2026-07-19.md`, and
   `audits/slayer-vyrewatch-registry-conflict-2026-07-19.md`.
+
+## Slayer Sumona hidden-pool encoding — 2026-07-19
+
+- Encoded all 37 source-settled Sumona rows and their provisional 407-point
+  denominator without activating the incomplete master.
+- Added stable family identities for the 14 families first needed above
+  Chaeldar, preserving Slayer gates and distinctive readiness features rather
+  than allowing generic Combat rows to certify missing mechanics.
+- Derived 18/37 families ready from current Combat data. Abyssal demon remains
+  blocked on teleport interruption and Nechryael on Death spawns; 17 other
+  families still report `combat_target`.
+- Preserved Combat 85, Slayer 35, and the playable Smoking Kills completion
+  gate. Eligible-family generation remains empty while Sumona is hidden, so no
+  partial table can be rolled or silently renormalized.
+- Added regression coverage for the complete row count, denominator, unusual
+  count ranges, master gates, exact blocker ledger, and hidden-role behavior.
+- Verification: `tests.test_slayer_logic` passes 17 tests; the focused
+  Slayer/quest integration slice passes 19 tests; real offscreen Qt coverage
+  passes 2 focused tests and the complete 1,681-test discovery suite. The core
+  runner passes 1,681 tests with 215 environment skips. Documentation,
+  test-quality, compile, readiness, diff, and worktree audits pass. The
+  repository-wide reachability audit retains its pre-existing orphan/action
+  backlog and reports no Sumona-specific item regression.
+- Codex Workflows run `9e94a9cc-ea1b-448b-b432-19cce62202b5` produced no
+  review result: one Sol-high leaf timed out after 540 seconds and the second
+  never established a session before the 600-second run timeout. Its telemetry
+  was not used as evidence; the root independently reproduced and verified the
+  complete slice.
+- Results artifact:
+  `status-updates/slayer-sumona-hidden-pool-results-2026-07-19.html`
+  ([mobile copy](https://c00hpkv6e9ws.postplan.dev)).

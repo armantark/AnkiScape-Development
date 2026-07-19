@@ -2,6 +2,14 @@
 
 ## Current Focus
 
+Sumona is now the fifth completely encoded Slayer pool. Its 37 source-settled
+rows preserve the provisional 407-point denominator, Combat 85, Slayer 35, and
+Smoking Kills gates while remaining runtime-hidden. The live readiness audit
+derives 18/37 families ready. It explicitly keeps the existing Abyssal demon
+blocked on missing teleport-interruption behavior and Nechryael blocked on its
+missing Death-spawn hook; 17 other families still lack a certifying Combat
+target. No row is renormalized away and no owner design was reopened.
+
 The final independent Chaeldar source pair is closed without runtime
 activation. Vyrewatch is blocked by an incomplete broad-family registry,
 uncorroborated/conflicting representative data, a conflicting ordinary
@@ -800,12 +808,11 @@ ordinary families and a provisional 407-point denominator. Darkan supplies 35
 executable rows totaling 387; cutoff evidence restores its commented
 Scabarite and Terror-dog families with explicit 10-point common-baseline
 abstractions. The cutoff master and quest pages close Combat 85, Slayer 35,
-Smoking Kills, and the 12/60/180 point schedule. End-to-end readiness remains
-0/37 because no family registry or assignment runtime exists, only four
-ordinary families have complete Combat targets, and the remaining rows need
-missing targets or complete protection, identity, interruption, and summon
-behavior. The same pass removed incorrect Slayer XP from the temporary Death
-spawn. No owner design question emerged.
+  Smoking Kills, and the 12/60/180 point schedule. At that harvest checkpoint,
+  end-to-end readiness was 0/37 because no family registry or assignment
+  runtime existed. The current derived ledger at the top of this file
+  supersedes that historical snapshot. The same pass removed incorrect Slayer
+  XP from the temporary Death spawn. No owner design question emerged.
 
 The settled design keeps assignments and exact qualifying Combat variants
 source-shaped, places `Assignment`, `Masters`, and `Rewards` in one Slayer page,

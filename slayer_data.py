@@ -28,6 +28,9 @@ VANNAKA_AUDIT_SOURCE = (
 CHAELDAR_AUDIT_SOURCE = (
     "memory-bank/source-audits/slayer-chaeldar-pool-2026-07-17.md"
 )
+SUMONA_AUDIT_SOURCE = (
+    "memory-bank/source-audits/slayer-sumona-pool-2026-07-17.md"
+)
 
 
 @dataclass(frozen=True)
@@ -642,6 +645,107 @@ _FAMILIES: Tuple[SlayerFamily, ...] = (
         readiness_features=("crystal_chime",),
         source=CHAELDAR_AUDIT_SOURCE,
     ),
+    SlayerFamily(
+        "abyssal_demons",
+        "Abyssal demons",
+        ("abyssal_demon",),
+        required_slayer_level=85,
+        readiness_features=("teleport_interruption",),
+        source=SUMONA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "aquanites",
+        "Aquanites",
+        ("aquanite",),
+        required_slayer_level=78,
+        readiness_features=("prayer_negation",),
+        source=SUMONA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "black_demons",
+        "Black demons",
+        ("black_demon",),
+        source=SUMONA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "desert_strykewyrms",
+        "Desert strykewyrms",
+        ("desert_strykewyrm",),
+        required_slayer_level=77,
+        readiness_features=("assignment_only", "strykewyrm_special"),
+        source=SUMONA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "greater_demons",
+        "Greater demons",
+        ("greater_demon",),
+        source=SUMONA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "hellhounds",
+        "Hellhounds",
+        ("hellhound",),
+        source=SUMONA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "iron_dragons",
+        "Iron dragons",
+        ("iron_dragon",),
+        readiness_features=("dragonfire",),
+        source=SUMONA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "mutated_jadinkos",
+        "Mutated jadinkos",
+        ("mutated_jadinko_baby",),
+        required_slayer_level=80,
+        source=SUMONA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "nechryael",
+        "Nechryael",
+        ("nechryael",),
+        required_slayer_level=80,
+        readiness_features=("death_spawn",),
+        source=SUMONA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "red_dragons",
+        "Red dragons",
+        ("red_dragon", "baby_red_dragon"),
+        readiness_features=("dragonfire",),
+        source=SUMONA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "scabarites",
+        "Scabarites",
+        ("scabaras_lancer",),
+        source=SUMONA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "spiritual_mages",
+        "Spiritual mages",
+        ("spiritual_mage_saradomin",),
+        required_slayer_level=83,
+        readiness_features=("god_wars_context",),
+        source=SUMONA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "spiritual_warriors",
+        "Spiritual warriors",
+        ("spiritual_warrior_saradomin",),
+        required_slayer_level=68,
+        readiness_features=("god_wars_context",),
+        source=SUMONA_AUDIT_SOURCE,
+    ),
+    SlayerFamily(
+        "terror_dogs",
+        "Terror dogs",
+        ("terror_dog",),
+        required_slayer_level=40,
+        readiness_features=("prayer_drain_context",),
+        source=SUMONA_AUDIT_SOURCE,
+    ),
 )
 
 SLAYER_FAMILIES_BY_ID: Dict[str, SlayerFamily] = {
@@ -808,6 +912,49 @@ CHAELDAR_FAMILIES: Tuple[SlayerAssignmentFamily, ...] = tuple(
     )
 )
 
+SUMONA_FAMILIES: Tuple[SlayerAssignmentFamily, ...] = tuple(
+    _assignment(family_id, weight, count_min, count_max, SUMONA_AUDIT_SOURCE)
+    for family_id, weight, count_min, count_max in (
+        ("aberrant_spectres", 15, 120, 185),
+        ("abyssal_demons", 10, 120, 185),
+        ("aquanites", 10, 120, 185),
+        ("banshees", 15, 120, 185),
+        ("basilisks", 15, 120, 185),
+        ("black_demons", 10, 120, 185),
+        ("bloodveld", 10, 120, 185),
+        ("blue_dragons", 8, 120, 189),
+        ("cave_crawlers", 15, 120, 185),
+        ("cave_horrors", 15, 120, 185),
+        ("dagannoths", 10, 120, 192),
+        ("desert_strykewyrms", 14, 90, 110),
+        ("dust_devils", 15, 120, 185),
+        ("elves", 10, 60, 90),
+        ("fire_giants", 10, 120, 185),
+        ("fungal_magi", 10, 90, 150),
+        ("gargoyles", 10, 120, 185),
+        ("greater_demons", 10, 120, 185),
+        ("grifolapines", 8, 55, 75),
+        ("grifolaroos", 8, 55, 75),
+        ("grotworms", 15, 70, 115),
+        ("hellhounds", 10, 120, 185),
+        ("iron_dragons", 7, 30, 85),
+        ("jungle_strykewyrms", 12, 90, 120),
+        ("kalphites", 10, 120, 189),
+        ("kurasks", 15, 120, 185),
+        ("mutated_jadinkos", 10, 80, 130),
+        ("nechryael", 10, 120, 185),
+        ("red_dragons", 5, 30, 79),
+        ("scabarites", 10, 30, 60),
+        ("spiritual_mages", 10, 120, 185),
+        ("spiritual_warriors", 10, 120, 185),
+        ("terror_dogs", 10, 30, 60),
+        ("trolls", 10, 120, 191),
+        ("turoth", 15, 120, 185),
+        ("vyrewatch", 10, 96, 105),
+        ("warped_tortoises", 10, 120, 185),
+    )
+)
+
 TURAEL_MASTER = SlayerMaster(
     id="turael_spria",
     display_name="Turael",
@@ -847,9 +994,26 @@ CHAELDAR_MASTER = SlayerMaster(
     source=CHAELDAR_AUDIT_SOURCE,
 )
 
+SUMONA_MASTER = SlayerMaster(
+    id="sumona",
+    display_name="Sumona",
+    assignments=SUMONA_FAMILIES,
+    required_slayer_level=35,
+    required_combat_level=85,
+    required_quest_id="smoking_kills",
+    expected_weight_total=407,
+    source=SUMONA_AUDIT_SOURCE,
+)
+
 SLAYER_MASTERS_BY_ID: Dict[str, SlayerMaster] = {
     master.id: master
-    for master in (TURAEL_MASTER, MAZCHNA_MASTER, VANNAKA_MASTER, CHAELDAR_MASTER)
+    for master in (
+        TURAEL_MASTER,
+        MAZCHNA_MASTER,
+        VANNAKA_MASTER,
+        CHAELDAR_MASTER,
+        SUMONA_MASTER,
+    )
 }
 LIVE_SLAYER_MASTERS_BY_ID: Dict[str, SlayerMaster] = {
     master_id: master
@@ -868,6 +1032,9 @@ VANNAKA_FAMILIES_BY_ID: Dict[str, SlayerAssignmentFamily] = {
 }
 CHAELDAR_FAMILIES_BY_ID: Dict[str, SlayerAssignmentFamily] = {
     family.id: family for family in CHAELDAR_FAMILIES
+}
+SUMONA_FAMILIES_BY_ID: Dict[str, SlayerAssignmentFamily] = {
+    family.id: family for family in SUMONA_FAMILIES
 }
 
 DEFAULT_SLAYER_MASTER_ID = TURAEL_MASTER.id
