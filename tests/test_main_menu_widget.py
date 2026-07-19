@@ -6132,6 +6132,9 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_hud_recognizes_fletching_as_active_skill(self) -> None:
         hud = self._ui.ReviewHUD(None)
+        self.assertTrue(
+            hud.testAttribute(Qt.WidgetAttribute.WA_StyledBackground)
+        )
         hud.set_data(_make_player_data(), "Fletching")
         self.assertTrue(
             hud.title_lbl.text().startswith("Fletching"),
@@ -6343,12 +6346,44 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(_craft_family_node(tree, "gems").isExpanded())
 
     def test_utility_panel_uses_no_xp_language(self) -> None:
-        self._open_utility(self.dialog)
+        utility_tree = self._open_utility(self.dialog)
         labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
         self.assertTrue(
             any("no XP" in t for t in labels),
             f"Utility panel should state it earns no XP; labels={labels}",
         )
+        self.assertIn(
+            "Utility activities earn no XP. Select a row for its exact behavior.",
+            labels,
+        )
+        self.assertIn(
+            "QTreeWidget::branch:selected { background: transparent; }",
+            utility_tree.styleSheet(),
+        )
+
+    def test_live_theme_controls_use_palette_text_and_style_the_review_link(self) -> None:
+        utility_button = next(
+            button
+            for button in self.dialog.findChildren(QPushButton)
+            if button.text() == "Utility / Activities"
+        )
+        utility_button.click()
+        QApplication.processEvents()
+        self.assertIn("color: palette(text)", utility_button.styleSheet())
+
+        stop_button = next(
+            button
+            for button in self.dialog.findChildren(QPushButton)
+            if button.text() == "Stop training"
+        )
+        self.assertIn("color: palette(text)", stop_button.styleSheet())
+
+        review_link = next(
+            label
+            for label in self.dialog.findChildren(QLabel)
+            if "ankiweb.net/shared/review" in label.text()
+        )
+        self.assertIn('style="color:#4CAF50;', review_link.text())
 
     def test_bankstanding_describes_an_idle_no_op_without_fake_output(self) -> None:
         pd = _make_player_data()

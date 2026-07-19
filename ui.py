@@ -1401,6 +1401,7 @@ if HAS_QT:
         def __init__(self, parent=None):
             super().__init__(parent)
             self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
+            self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
             # Important: keep this as a child widget inside Anki's main window.
             # Avoid ToolTip/Window flags that would make it a top-level, always-on-top window
             # and leak over other macOS apps.
@@ -1760,6 +1761,7 @@ if HAS_QT:
             self.setObjectName("AnkiScapeFarmingBadge")
             self.setWindowFlags(Qt.WindowType.Widget)
             self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
+            self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
             self._projection = {}
             self._open_callback = None
             root = QHBoxLayout(self)
@@ -2476,7 +2478,7 @@ def show_main_menu(
     stop_btn.setToolTip("Stop training (no skill earns progress during reviews)")
     stop_btn.setStyleSheet(
         "QPushButton { padding: 5px 12px; border: 1px solid #ff5c5c;"
-        " border-radius: 6px; color: #ff8a8a; background: rgba(255,92,92,0.12); }"
+        " border-radius: 6px; color: palette(text); background: rgba(255,92,92,0.12); }"
         " QPushButton:hover { background: rgba(255,92,92,0.22); }"
         # Disabled: dim_text_css for the label (palette(mid) is a border role and
         # vanishes in dark mode); palette(mid) stays only on the border.
@@ -5330,6 +5332,7 @@ def show_main_menu(
             " background: palette(base); color: palette(text); padding: 4px; }"
             " QTreeWidget::item { padding: 5px; border-radius: 6px; }"
             " QTreeWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
+            " QTreeWidget::branch:selected { background: transparent; }"
             f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
         )
         rows = utility_activity_rows(
@@ -5633,7 +5636,7 @@ def show_main_menu(
         "Summoning": "Select a pouch to infuse or scrolls to create",
         "Slayer": "Manage assignments, masters, and rewards",
         _COMBAT_HUB_NAME: "Select Enemy",
-        _UTILITY_HUB_NAME: "Select an Activity (no XP)",
+        _UTILITY_HUB_NAME: "Select an Activity",
     }
 
     def _skill_icon_path(display_name: str) -> str:
@@ -5654,7 +5657,7 @@ def show_main_menu(
     _CAT_STYLE_SEL = (
         "QPushButton { text-align: left; padding: 8px 10px;"
         " border: 2px solid #4CAF50; border-radius: 8px;"
-        " font-weight: 600; color: #d6ffe5; background: rgba(76,175,80,0.18); }"
+        " font-weight: 600; color: palette(text); background: rgba(76,175,80,0.18); }"
     )
 
     cat_col = QWidget()
@@ -5864,7 +5867,9 @@ def show_main_menu(
         panel_layout.addWidget(header)
 
         if is_utility:
-            note = QLabel("Material prep — earns no XP. Each successful review processes a batch.")
+            note = QLabel(
+                "Utility activities earn no XP. Select a row for its exact behavior."
+            )
             note.setWordWrap(True)
             # palette(mid) is a border role and renders near-black in dark mode;
             # use palette(text) (smaller/italic) so the note stays readable.
@@ -10517,7 +10522,10 @@ def show_main_menu(
     f_layout.setContentsMargins(0, 8, 0, 0)
     f_layout.setSpacing(8)
     hint = QLabel("Enjoying AnkiScape?")
-    link = QLabel('<a href="https://ankiweb.net/shared/review/1808450369">Leave a review</a>')
+    link = QLabel(
+        '<a style="color:#4CAF50; text-decoration:none" '
+        'href="https://ankiweb.net/shared/review/1808450369">Leave a review</a>'
+    )
     link.setOpenExternalLinks(True)
     link.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)
     hint.setStyleSheet("color: #666;")

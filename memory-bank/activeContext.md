@@ -1915,6 +1915,10 @@ The visual closure report is
   clearer safety/collection language, palette-safe status text, and a
   bold current-target treatment that removes macOS's stray cyan tree
   gutter block in both light and dark modes.
+- The final visual check was performed in the restarted macOS Anki application,
+  not inferred from offscreen Qt. Cooking, Utility/Bankstanding, and the review
+  HUD render correctly there; Fable's recheck of those live captures returned
+  SHIP. Offscreen verification remains a separate 1,745-test regression gate.
 - Durable evidence:
   `source-audits/cheese-wheel-churning-slicing-2026-07-19.md`.
 - Results:

@@ -89,6 +89,7 @@ class FarmingHUDTest(unittest.TestCase):
         self.assertIs(review_hud.parentWidget(), self.parent)
         self.assertTrue(review_hud.testAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents))
         self.assertFalse(first.testAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents))
+        self.assertTrue(first.testAttribute(Qt.WidgetAttribute.WA_StyledBackground))
         self.assertEqual(len(self.parent.findChildren(QWidget, "AnkiScapeFarmingBadge")), 1)
         self.assertNotIn(first, QApplication.topLevelWidgets())
 

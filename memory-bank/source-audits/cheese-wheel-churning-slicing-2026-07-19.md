@@ -136,6 +136,14 @@ The primary agent reproduced and fixed those concrete findings:
   block in the grouped-tree indentation gutter. Grouped targets now use a
   bold current-target marker without native row selection, removing the
   artifact while leaving item activation and the current-item API intact.
+- A second Fable pass inspected screenshots from the actual restarted macOS
+  Anki application rather than the offscreen harness. It initially held on a
+  stale synthetic HUD capture, the remaining Utility-tree branch selection,
+  and dark-mode-tuned literals. The live pass shipped after the HUD containers
+  opted into styled backgrounds, the Utility branch gutter became transparent,
+  selected-category and Stop-training text used the live palette, the review
+  anchor received its own green color, and the adjacent Utility no-XP copy was
+  condensed.
 
 Kimi's suggestion to hide Bank's unfiltered item count was not adopted because
 the count remains useful inventory information and is not misleading. Fable's
@@ -150,9 +158,15 @@ presentation defect.
 - 37 source-row, cadence, and Cooking-data parity tests pass.
 - The complete non-Qt suite passes: 1,744 tests, including 222 intentional
   skips.
-- The complete Qt-enabled offscreen suite passes: 1,744 tests with no skips.
-  The 218-test main-menu surface also passes independently after the dual taste
-  review.
+- The complete Qt-enabled offscreen suite passes: 1,745 tests with no skips.
+  The 219-test main-menu surface and four Farming-HUD tests also pass together
+  as a 223-test focused gate after the dual taste review.
+- The actual restarted macOS Anki application was inspected directly. Cooking
+  and Utility render without the cyan gutter artifact; the selected category,
+  Stop-training control, and review link remain legible; and the live reviewer
+  shows a painted rounded HUD with readable text and a separate Farming badge.
+  The reviewer was exited without answering a card. Offscreen Qt remains
+  regression evidence, not a substitute for this live compositor check.
 - The item-reachability audit now reports 1,256 actions, 1,883 reachable items,
   283 orphan inputs, and 304 blocked actions. Compared with the preceding GE
   closure this slice adds three Cooking actions and one reachable item without

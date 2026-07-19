@@ -2627,6 +2627,11 @@ Test counts are snapshots; current runs outrank this note.
   remove false wall-clock/no-op claims, clarify empty and collectible states,
   improve theme contrast and control explanations, and replace the macOS
   grouped-tree gutter artifact with an explicit bold current-target marker.
+- Restarted the real macOS Anki application and inspected Cooking,
+  Utility/Bankstanding, and the reviewer HUD directly. The live compositor
+  confirms the selection, contrast, link, and painted-HUD fixes; Fable's
+  recheck of those live captures returned SHIP. The separate offscreen gates
+  pass 223 focused UI tests and all 1,745 repository tests.
 - The exact historical yield formula remains source-blocked. The live bounded
   model is explicitly calibrated to surviving level-57 and level-99 samples
   rather than presented as recovered game code.
