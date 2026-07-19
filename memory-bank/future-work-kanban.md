@@ -71,6 +71,11 @@ Labels: `SOURCE AUDIT`, then `IMPLEMENT` only when evidence closes.
   remains source-blocked and uses the disclosed bounded sample calibration.
   See
   `memory-bank/source-audits/cheese-wheel-churning-slicing-2026-07-19.md`.
+- Shrink-me-quick is restored as the cutoff level-52, 6-XP Herblore recipe
+  using Tarromin potion (unf) plus Shrunk ogleroot. The recipe is material-gated;
+  ogleroot acquisition and potion use remain Grim Tales/Darkan-owned rather
+  than duplicated in the skill runtime. See
+  `memory-bank/source-audits/herblore-shrink-me-quick-2026-07-19.md`.
 - The next implementation slice must have a pinned pre-EOC contract for its level, XP, inputs, outputs, gates, rates, and state transitions. Split proven sub-slices from blocked families as lava eel, Overload, and cannonballs already demonstrate.
 - Backend acceptance: data, pure behavior, storage/migration, dispatch, acquisition semantics, telemetry, and undo.
 - Frontend acceptance: `TargetRowMetadata`, real enablement/locks, target-local settings/equipment/inventory, icons, tooltips, and offscreen Qt coverage.
@@ -1033,7 +1038,7 @@ Labels: `COMPLETE`, `DESIGN LOCKED`.
   the registered-item catalog intersection, period-six-slot offer/escrow
   lifecycle, confirmation gates, Ironman lockout, and save migration are
   implemented.
-  The period price/buy-limit harvest now supplies 1,327 direct prices and 1,637
+  The period price/buy-limit harvest now supplies 1,328 direct prices and 1,638
   limits, with 19 ambiguous identities fail-closed. The bounded hidden-price
   market, stochastic fills, impact/shocks, live review ticks, and deterministic
   review undo are implemented. The top-level period interface, offer editing,
@@ -1128,6 +1133,11 @@ methods are already open. Model the respawn, ship the inversion.
 
 Labels: `PARKED` until feature closure, then `IMPLEMENT`.
 
+- **UI asset normalization closed 2026-07-19:** all 29 top-level UI PNG
+  families now share the tight-alpha small-sprite invariant, the fetch pipeline
+  preserves it, and Fable plus Kimi K3 approved the cross-surface result.
+  Sixty-five larger/full-frame images are explicitly outside that rule. See
+  `memory-bank/audits/ui-asset-normalization-2026-07-19.md`.
 - **Product disposition settled 2026-07-17:** prepare a separately named public
   derivative release under
   `public-release-lineage-and-license-2026-07-17.md`; do not upload until its

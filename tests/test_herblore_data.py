@@ -23,6 +23,48 @@ class HerbloreDataTests(unittest.TestCase):
         self.assertEqual(target.requirements, (("Magic essence (2)", 1), ("Caviar", 1)))
         self.assertEqual(herblore_extra_items_as_dict()["Magic essence mix (2)"]["item_id"], 11489)
 
+    def test_shrink_me_quick_is_a_live_period_quest_recipe(self):
+        target = next(target for target in FINISHED_TARGETS if target.id == "finished_shrink_me_quick")
+        self.assertEqual(target.level, 52)
+        self.assertEqual(target.exp, 6.0)
+        self.assertEqual(
+            target.requirements,
+            (("Tarromin potion (unf)", 1), ("Shrunk ogleroot", 1)),
+        )
+        self.assertEqual(target.output_item, "Shrink-me-quick")
+
+        items = herblore_extra_items_as_dict()
+        self.assertEqual(items["Shrink-me-quick"]["item_id"], 11204)
+        self.assertFalse(items["Shrink-me-quick"]["tradeable"])
+        self.assertFalse(items["Shrink-me-quick"]["stackable"])
+        self.assertEqual(items["Shrunk ogleroot"]["item_id"], 11205)
+        self.assertTrue(items["Shrunk ogleroot"]["stackable"])
+
+        inventory = {"Tarromin potion (unf)": 1, "Shrunk ogleroot": 1}
+        self.assertTrue(
+            can_herblore_target_pure(
+                52,
+                inventory,
+                "finished_shrink_me_quick",
+                herblore_targets_as_dict(),
+            )
+        )
+        result, exp, ok = apply_herblore_action_pure(
+            "finished_shrink_me_quick",
+            inventory,
+            herblore_targets_as_dict(),
+        )
+        self.assertTrue(ok)
+        self.assertEqual(exp, 6.0)
+        self.assertEqual(
+            result,
+            {
+                "Tarromin potion (unf)": 0,
+                "Shrunk ogleroot": 0,
+                "Shrink-me-quick": 1,
+            },
+        )
+
     def test_daemonheim_target_family_is_not_in_overworld_catalog(self):
         herb_ids = {
             "sagawort",
@@ -56,7 +98,7 @@ class HerbloreDataTests(unittest.TestCase):
 
         self.assertEqual(len(CLEAN_TARGETS), 22)
         self.assertEqual(len(UNF_TARGETS), 22)
-        self.assertEqual(len(FINISHED_TARGETS), 69)
+        self.assertEqual(len(FINISHED_TARGETS), 70)
 
     def test_daemonheim_item_identities_remain_registered_for_old_saves(self):
         registered_items = herblore_extra_items_as_dict()

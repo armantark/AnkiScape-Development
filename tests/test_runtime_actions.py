@@ -525,6 +525,36 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(telemetry["outputs"], {"Super prayer (3)": 1})
         self.assertEqual(calls["xp"], [270.0])
 
+    def test_shrink_me_quick_handler_consumes_period_recipe_and_records_output(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {
+                "Tarromin potion (unf)": 1,
+                "Shrunk ogleroot": 1,
+            },
+            "herblore_level": 52,
+            "herblore_exp": 0.0,
+            "current_herblore": "finished_shrink_me_quick",
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(handle_herblore_answer(_context(player_data, calls)))
+
+        self.assertEqual(
+            player_data["inventory"],
+            {
+                "Tarromin potion (unf)": 0,
+                "Shrunk ogleroot": 0,
+                "Shrink-me-quick": 1,
+            },
+        )
+        self.assertEqual(player_data["herblore_exp"], 6.0)
+        telemetry = player_data["action_telemetry"]["actions"][
+            "herblore:finished_shrink_me_quick"
+        ]
+        self.assertEqual(telemetry["outputs"], {"Shrink-me-quick": 1})
+        self.assertEqual(calls["xp"], [6.0])
+
     def test_woodcutting_inferno_adze_incinerates_logs_for_firemaking_xp(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

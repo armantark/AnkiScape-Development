@@ -122,8 +122,8 @@ class GrandExchangeDataTest(unittest.TestCase):
     def test_generated_period_rows_are_registered_and_cutoff_safe(self):
         self.assertLessEqual(set(PERIOD_GE_GUIDE_PRICES), set(GE_ITEM_CATALOG))
         self.assertLessEqual(set(PERIOD_GE_BUY_LIMITS), set(GE_ITEM_CATALOG))
-        self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_327)
-        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_637)
+        self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_328)
+        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_638)
         self.assertEqual(PERIOD_GE_BUY_LIMIT_SOURCE["oldid"], 6_457_777)
         self.assertTrue(PERIOD_GE_PRICE_PROVENANCE)
         self.assertTrue(

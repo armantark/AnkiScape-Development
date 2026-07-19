@@ -2,6 +2,7 @@ import importlib.util
 import sys
 import tempfile
 import unittest
+from io import BytesIO
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
@@ -13,6 +14,13 @@ fetch_assets = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
 sys.modules["fetch_assets_tool"] = fetch_assets
 SPEC.loader.exec_module(fetch_assets)
+
+try:
+    from PIL import Image
+
+    HAS_PIL = True
+except Exception:
+    HAS_PIL = False
 
 
 class FakeWikiClient:
@@ -44,6 +52,23 @@ class FakeWikiClient:
 
 
 class TestFetchAssets(unittest.TestCase):
+    @unittest.skipUnless(HAS_PIL, "Pillow is required for PNG normalization")
+    def test_write_png_limits_visible_art_without_reintroducing_padding(self):
+        source = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+        for x in range(22, 42):
+            for y in range(18, 47):
+                source.putpixel((x, y), (255, 0, 0, 255))
+        source.putpixel((0, 0), (255, 255, 255, 1))
+        source_bytes = BytesIO()
+        source.save(source_bytes, format="PNG")
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            output_path = Path(tmp_dir) / "normalized.png"
+            fetch_assets.write_png(source_bytes.getvalue(), output_path, size=64)
+            with Image.open(output_path) as output:
+                self.assertEqual(output.size, (20, 29))
+                self.assertEqual(output.getchannel("A").getbbox(), (0, 0, 20, 29))
+
     def test_historical_lookup_requests_newest_revision_before_cutoff(self):
         class RecordingClient(fetch_assets.HttpWikiClient):
             def __init__(self):

@@ -1,5 +1,6 @@
 import json
 import os
+import struct
 import unittest
 from pathlib import Path
 
@@ -20,6 +21,17 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class HerbloreAssetTest(unittest.TestCase):
+    def test_shrink_me_quick_assets_are_normalized_to_their_visible_bounds(self):
+        expected_dimensions = {
+            "shrink_me_quick.png": (20, 29),
+            "shrunk_ogleroot.png": (23, 29),
+        }
+        for filename, dimensions in expected_dimensions.items():
+            with self.subTest(filename=filename):
+                data = (ROOT / "herbloreitems" / filename).read_bytes()
+                self.assertEqual(data[:8], b"\x89PNG\r\n\x1a\n")
+                self.assertEqual(struct.unpack(">II", data[16:24]), dimensions)
+
     def test_manifest_is_skill_icon_plus_every_live_herblore_output(self):
         manifest = asset_manifest()
         live_targets = CLEAN_TARGETS + UNF_TARGETS + FINISHED_TARGETS
@@ -28,13 +40,17 @@ class HerbloreAssetTest(unittest.TestCase):
             + DUNGEONEERING_UNF_TARGETS
             + DUNGEONEERING_FINISHED_TARGETS
         )
-        expected_items = {"Herblore skill icon", *(target.output_item for target in live_targets)}
+        expected_items = {
+            "Herblore skill icon",
+            "Shrunk ogleroot",
+            *(target.output_item for target in live_targets),
+        }
         live_items = {target.output_item for target in live_targets}
         deferred_only_items = {target.output_item for target in deferred_targets} - live_items
 
         self.assertEqual({request.item_name for request in manifest}, expected_items)
         self.assertTrue(deferred_only_items.isdisjoint(request.item_name for request in manifest))
-        self.assertEqual(len(manifest), len(live_targets) + 1)
+        self.assertEqual(len(manifest), len(live_targets) + 2)
         self.assertTrue(all(request.output_path.is_relative_to(ROOT) for request in manifest))
         manifest_by_item = {request.item_name: request for request in manifest}
         self.assertEqual(
@@ -44,6 +60,10 @@ class HerbloreAssetTest(unittest.TestCase):
         self.assertEqual(
             manifest_by_item["Anti-p supermix (2)"].wiki_title,
             "Super antipoison mix (2).png",
+        )
+        self.assertEqual(
+            manifest_by_item["Shrunk ogleroot"].wiki_title,
+            "Shrunk ogleroot.png",
         )
 
     def test_every_live_row_has_an_existing_provenanced_icon(self):
@@ -68,6 +88,13 @@ class HerbloreAssetTest(unittest.TestCase):
             + DUNGEONEERING_FINISHED_TARGETS
         ):
             self.assertNotIn(target.id, rows_by_id)
+
+        root_path = ROOT / "herbloreitems" / "shrunk_ogleroot.png"
+        self.assertTrue(root_path.is_file())
+        self.assertEqual(
+            provenance[str(root_path.relative_to(ROOT))]["source_wiki"],
+            "rs3",
+        )
 
     def test_herblore_skill_icon_is_real_and_provenanced(self):
         icon_path = ROOT / "icon" / "herblore_icon.png"

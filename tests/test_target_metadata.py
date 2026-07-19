@@ -245,6 +245,27 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Byproduct: Vial x4", overload.tooltip)
         self.assertIn("Extreme ranging (3) x1", overload.tooltip)
 
+    def test_shrink_me_quick_row_is_material_gated_and_source_backed(self):
+        rows = herblore_target_rows(
+            {
+                "current_herblore": "finished_shrink_me_quick",
+                "herblore_level": 52,
+                "inventory": {
+                    "Tarromin potion (unf)": 1,
+                    "Shrunk ogleroot": 1,
+                },
+            },
+            HERBLORE_DATA,
+            HERBLORE_ITEM_IMAGES,
+        )
+        row = _row(rows, "finished_shrink_me_quick")
+        self.assertTrue(row.enabled)
+        self.assertTrue(row.current)
+        self.assertIsNotNone(row.icon_path)
+        self.assertIn("Base XP: 6.0", row.tooltip)
+        self.assertIn("Tarromin potion (unf) x1", row.tooltip)
+        self.assertIn("Shrunk ogleroot x1", row.tooltip)
+
     def test_combat_rows_expose_enabled_source_backed_enemy_targets(self):
         rows = combat_target_rows(
             {

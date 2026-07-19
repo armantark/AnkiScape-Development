@@ -19401,6 +19401,30 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T07:34:58Z"
   },
+  "herbloreitems/shrink_me_quick.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Shrink-me-quick.png",
+    "file_title": "Shrink-me-quick.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511082605%21Shrink-me-quick.png?e6cd4",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4c2988720b0f5d1ce2eb829d33db7773b426fc63",
+    "size": 754,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-28T14:50:13Z"
+  },
+  "herbloreitems/shrunk_ogleroot.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Shrunk_ogleroot_3.png",
+    "file_title": "Shrunk ogleroot 3.png",
+    "image_url": "https://runescape.wiki/images/archive/20140501234654%21Shrunk_ogleroot_3.png?89286",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "288258f7f4b292389d59fc35bff9c8e42e673a5d",
+    "size": 710,
+    "source_wiki": "rs3",
+    "timestamp": "2011-05-15T07:34:53Z"
+  },
   "herbloreitems/snapdragon_potion_unf.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Snapdragon_potion_%28unfinished%29.png",
     "file_title": "Snapdragon potion (unfinished).png",

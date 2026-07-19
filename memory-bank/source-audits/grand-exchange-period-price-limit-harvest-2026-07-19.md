@@ -8,7 +8,7 @@ buy-limit blocked and use no invented value.**
 ## Scope and cutoff
 
 This pass pins the nearest useful pre-EOC Grand Exchange guide-price and
-four-hour buy-limit rows for the 1,656 registered, cache-exchangeable AnkiScape
+four-hour buy-limit rows for the 1,657 registered, cache-exchangeable AnkiScape
 items. The cutoff is `2012-11-20T00:00:00Z`.
 
 The reproducible harvester is `tools/generate_ge_period_data.py`. It resolves
@@ -48,7 +48,7 @@ Representative rows:
 | Yew logs | 494 | 25,000 | 6563500 | 2012-11-16T06:22:26Z |
 | Basket | 2 | 1,000 | 6540082 | 2012-11-07T02:25:59Z |
 
-The item-level `Limit` field agrees with the October aggregate table for 1,318
+The item-level `Limit` field agrees with the October aggregate table for 1,319
 generated price rows. Nine rows conflict. The later item-level revision wins
 under the nearest-pre-cutoff rule:
 
@@ -63,7 +63,7 @@ under the nearest-pre-cutoff rule:
 - Wolf bones: `1,000` over `10,000`.
 
 The historical Exchange template's cache-value field exactly matches the
-rev-727/742-lineage cache value for 1,196 of 1,327 resolved rows. The remaining
+rev-727/742-lineage cache value for 1,197 of 1,328 resolved rows. The remaining
 131 value-field differences are retained as dated evidence of period
 configuration drift; the Exchange price itself is never replaced by either
 cache value.
@@ -76,8 +76,8 @@ record, not an OSRS or modern RS3 substitution.
 
 ## Coverage and fail-closed boundary
 
-- 1,327 registered items have a direct dated period Exchange price.
-- 1,637 registered items have a period buy limit.
+- 1,328 registered items have a direct dated period Exchange price.
+- 1,638 registered items have a period buy limit.
 - The other 329 items retain the explicitly authorized cache-value fallback;
   they do not claim a historical GE price.
 - Nineteen registered identities collapse multiple period item variants and

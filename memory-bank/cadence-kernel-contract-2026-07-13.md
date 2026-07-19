@@ -213,8 +213,8 @@ Shadow state remains observational history only and is never promoted into
 
 ### 5.1 Complete coverage matrix
 
-The 2026-07-17 closure validates 20 implemented handler families and 2,207
-declarations: 2,197 selectable foreground routes plus ten handler-level
+The 2026-07-19 catalog validates 20 implemented handler families and 2,208
+declarations: 2,198 selectable foreground routes plus ten handler-level
 exemptions or future-attachment rows. `source_blocked` is an evidence status,
 not a disabled action: those 212 routes preserve their approved handler behavior
 without pretending an incompatible rate is exact.
@@ -231,7 +231,7 @@ without pretending an incompatible rate is exact.
 | Firemaking | 13 | 1 embedded probability; 12 source blocked |
 | Fishing | 19 | 2 rate limited; 17 source blocked |
 | Fletching | 96 | 96 passthrough |
-| Herblore | 113 | 113 passthrough |
+| Herblore | 114 | 114 passthrough |
 | Hunter | 59 | 4 rate limited; 55 source blocked |
 | Magic | 94 | 92 passthrough; 2 rate limited |
 | Mining | 18 | 2 rate limited; 16 source blocked |

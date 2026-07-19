@@ -519,6 +519,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._cooking_calls: list = []
         # Same seam for Runecrafting target selection.
         self._runecrafting_calls: list = []
+        self._herblore_calls: list = []
         # Same seams for Combat target/style/spell selection.
         self._combat_calls: list = []
         self._combat_action_calls: list = []
@@ -746,6 +747,9 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_hunter=lambda target: self._hunter_calls.append(target),
             on_set_cooking=lambda target: self._cooking_calls.append(target),
             on_set_runecrafting=lambda target: self._runecrafting_calls.append(target),
+            on_set_herblore=lambda target: _set_target(
+                "current_herblore", self._herblore_calls, target
+            ),
             on_set_thieving=lambda target: _set_target("current_thieving", self._thieving_calls, target),
             on_set_thieving_fight_back=_set_thieving_fight_back,
             on_set_agility=lambda target: _set_target("current_agility", self._agility_calls, target),
@@ -3874,18 +3878,72 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertEqual(clean_group.childCount(), 22)
         self.assertEqual(unf_group.childCount(), 22)
-        self.assertEqual(finished_group.childCount(), 69)
+        self.assertEqual(finished_group.childCount(), 70)
         action_rows = [
             item
             for item in _smith_tree_items(tree)
             if not str(item.data(0, Qt.ItemDataRole.UserRole)).startswith("__herblore_group__:")
         ]
-        self.assertEqual(len(action_rows), 113)
+        self.assertEqual(len(action_rows), 114)
         self.assertTrue(all(not item.icon(0).isNull() for item in action_rows))
         self.assertNotIn(
             "clean_sagawort",
             {item.data(0, Qt.ItemDataRole.UserRole) for item in _smith_tree_items(tree)},
         )
+
+    def test_shrink_me_quick_row_exposes_recipe_lock_icon_and_selection(self) -> None:
+        pd = _make_player_data()
+        pd["herblore_level"] = 52
+        pd["current_herblore"] = "clean_guam"
+        dialog = self._open(pd, current_skill="Herblore")
+        artisan = next(button for button in dialog.findChildren(QPushButton) if button.text() == "Artisan")
+        artisan.click()
+        QApplication.processEvents()
+        skill_list = _find_artisan_skill_list(dialog)
+        herblore_item = next(
+            skill_list.item(index)
+            for index in range(skill_list.count())
+            if skill_list.item(index).text() == "Herblore"
+        )
+        skill_list.setCurrentItem(herblore_item)
+        QApplication.processEvents()
+        tree = _find_tree_with_user_role(dialog, "finished_shrink_me_quick")
+        row = _tree_row(tree, "finished_shrink_me_quick")
+
+        self.assertTrue(row.isDisabled())
+        self.assertFalse(row.icon(0).isNull())
+        self.assertIn("Base XP: 6.0", row.toolTip(0))
+        self.assertIn("Tarromin potion (unf) x1", row.toolTip(0))
+        self.assertIn("Shrunk ogleroot x1", row.toolTip(0))
+
+        before = list(self._herblore_calls)
+        tree.itemClicked.emit(row, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._herblore_calls, before)
+
+        pd["inventory"] = {
+            "Tarromin potion (unf)": 1,
+            "Shrunk ogleroot": 1,
+        }
+        dialog = self._open(pd, current_skill="Herblore")
+        artisan = next(button for button in dialog.findChildren(QPushButton) if button.text() == "Artisan")
+        artisan.click()
+        QApplication.processEvents()
+        skill_list = _find_artisan_skill_list(dialog)
+        herblore_item = next(
+            skill_list.item(index)
+            for index in range(skill_list.count())
+            if skill_list.item(index).text() == "Herblore"
+        )
+        skill_list.setCurrentItem(herblore_item)
+        QApplication.processEvents()
+        tree = _find_tree_with_user_role(dialog, "finished_shrink_me_quick")
+        row = _tree_row(tree, "finished_shrink_me_quick")
+        self.assertFalse(row.isDisabled())
+
+        tree.itemClicked.emit(row, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._herblore_calls[-1], "finished_shrink_me_quick")
 
     def test_summoning_uses_canonical_icon_and_complete_surface_target_tree(self) -> None:
         pd = _make_player_data()

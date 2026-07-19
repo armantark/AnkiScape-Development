@@ -951,6 +951,19 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(overload["byproducts"], {"Vial": 4})
         self.assertEqual(HERBLORE_EXTRA_ITEM_DATA["Overload (3)"]["item_id"], 15333)
         self.assertFalse(HERBLORE_EXTRA_ITEM_DATA["Overload (3)"]["tradeable"])
+        shrink = HERBLORE_DATA["finished_shrink_me_quick"]
+        self.assertEqual(
+            shrink["requirements"],
+            {"Tarromin potion (unf)": 1, "Shrunk ogleroot": 1},
+        )
+        self.assertEqual(shrink["output_item"], "Shrink-me-quick")
+        self.assertEqual(HERBLORE_EXTRA_ITEM_DATA["Shrink-me-quick"]["item_id"], 11204)
+        self.assertFalse(HERBLORE_EXTRA_ITEM_DATA["Shrink-me-quick"]["tradeable"])
+        self.assertFalse(HERBLORE_EXTRA_ITEM_DATA["Shrink-me-quick"]["stackable"])
+        self.assertEqual(HERBLORE_EXTRA_ITEM_DATA["Shrunk ogleroot"]["item_id"], 11205)
+        self.assertTrue(HERBLORE_EXTRA_ITEM_DATA["Shrunk ogleroot"]["stackable"])
+        self.assertIsNotNone(by_storage_key["Shrink-me-quick"].asset_path)
+        self.assertIsNotNone(by_storage_key["Shrunk ogleroot"].asset_path)
         for item in (
             "Extreme attack (3)",
             "Extreme strength (3)",

@@ -34,6 +34,7 @@ EXTREME_STRENGTH_WIKI_SOURCE = "https://runescape.wiki/w/Extreme_strength?oldid=
 EXTREME_DEFENCE_WIKI_SOURCE = "https://runescape.wiki/w/Extreme_defence?oldid=6462607"
 EXTREME_MAGIC_WIKI_SOURCE = "https://runescape.wiki/w/Extreme_magic?oldid=6462609"
 EXTREME_RANGING_WIKI_SOURCE = "https://runescape.wiki/w/Extreme_ranging?oldid=6462610"
+SHRINK_ME_QUICK_WIKI_SOURCE = "https://runescape.wiki/w/Shrink-me-quick?oldid=6333484"
 PESTLE_AND_MORTAR_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/items/pestle_and_mortar/PestleAndMortarData.kt"
@@ -177,6 +178,7 @@ _SOURCE_FINISHED_TARGETS: Tuple[HerbloreTarget, ...] = (
     HerbloreTarget('finished_super_antipoison', 'Super antipoison (3)', "finished", 'standard', 48, 106.3, (('Irit potion (unf)', 1), ('Unicorn horn dust', 1)), 'Super antipoison (3)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_fishing_potion', 'Fishing potion (3)', "finished", 'standard', 50, 112.5, (('Avantoe potion (unf)', 1), ('Snape grass', 1)), 'Fishing potion (3)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_super_energy', 'Super energy (3)', "finished", 'standard', 52, 117.5, (('Avantoe potion (unf)', 1), ('Mort myre fungus', 1)), 'Super energy (3)', source=POTION_DATA_SOURCE_PATH),
+    HerbloreTarget('finished_shrink_me_quick', 'Shrink-me-quick', "finished", 'standard', 52, 6.0, (('Tarromin potion (unf)', 1), ('Shrunk ogleroot', 1)), 'Shrink-me-quick', source=SHRINK_ME_QUICK_WIKI_SOURCE),
     HerbloreTarget('finished_hunter_potion', 'Hunter potion (3)', "finished", 'standard', 53, 120.0, (('Avantoe potion (unf)', 1), ('Kebbit teeth dust', 1)), 'Hunter potion (3)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_super_strength', 'Super strength (3)', "finished", 'standard', 55, 125.0, (('Kwuarm potion (unf)', 1), ('Limpwurt root', 1)), 'Super strength (3)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_fletching_potion', 'Fletching potion (3)', "finished", 'standard', 58, 132.0, (('Wergali potion (unf)', 1), ('Wimpy feather', 1)), 'Fletching potion (3)', source=POTION_DATA_SOURCE_PATH),
@@ -494,6 +496,8 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Agility potion (3)": 3034,
         "Agility potion (2)": 3036,
         "Agility mix (2)": 11461,
+        "Shrink-me-quick": 11204,
+        "Shrunk ogleroot": 11205,
     }
     result = {}
     for name in herblore_item_names():
@@ -521,6 +525,11 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             item["tradeable"] = False
         elif name == "Magic essence mix (2)":
             item["item_id"] = 11489
+        elif name == "Shrink-me-quick":
+            item["tradeable"] = False
+            item["stackable"] = False
+        elif name == "Shrunk ogleroot":
+            item["stackable"] = True
         elif name.startswith("Juju farming potion ("):
             dose = int(name.removeprefix("Juju farming potion (").removesuffix(")"))
             item["item_id"] = {1: 20014, 2: 20013, 3: 20012, 4: 20011}[dose]

@@ -22,6 +22,15 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   for mechanical integrity, including local Markdown links and HTML resources,
   without rewriting historical prose.
 
+## Asset provenance writes are serialized
+
+Asset fetchers update the shared `assets_provenance.json` manifest by reading,
+modifying, and replacing the whole document. Do not run two fetch commands
+that target that manifest concurrently: both downloads can succeed while the
+last writer silently drops the other provenance entry. Fetch shared-manifest
+assets serially, or rerun the missing entry with `--force`, then assert every
+expected file and provenance key in the asset test.
+
 ## Important Modules
 - `__init__.py`: runtime orchestration, global player state, review hooks, answer handling, menu callbacks, save/HUD/UI bridge callbacks, and compatibility review-action wrappers.
 - `runtime_actions.py`: Anki-free runtime review-action handlers and handler-keyed can-start checks for the complete skill surfaces, unified Combat, Quests, and Utility/Activities. It mutates `player_data` through a callback/context contract supplied by `__init__.py`.

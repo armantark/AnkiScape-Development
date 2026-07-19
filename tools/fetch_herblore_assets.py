@@ -54,6 +54,12 @@ def asset_manifest() -> tuple[AssetRequest, ...]:
             output_path=ROOT / "icon" / "herblore_icon.png",
             provenance_path=ROOT / "assets_provenance.json",
         ),
+        AssetRequest(
+            item_name="Shrunk ogleroot",
+            wiki_title="Shrunk ogleroot.png",
+            output_path=ROOT / "herbloreitems" / "shrunk_ogleroot.png",
+            provenance_path=ROOT / "assets_provenance.json",
+        ),
         *live_outputs,
     )
 

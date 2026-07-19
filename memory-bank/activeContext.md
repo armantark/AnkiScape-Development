@@ -1842,8 +1842,8 @@ The visual closure report is
 
 ## Grand Exchange period price/limit harvest — 2026-07-19
 
-- A checkpointed period-wiki harvester now generates 1,327 dated pre-EOC
-  Exchange prices and 1,637 four-hour buy limits for the 1,656 registered GE
+- A checkpointed period-wiki harvester now generates 1,328 dated pre-EOC
+  Exchange prices and 1,638 four-hour buy limits for the 1,657 registered GE
   rows. Later item revisions resolve nine conflicts with the October aggregate
   limit table.
 - Nineteen collapsed multi-variant identities retain `buy_limit=None`, so their
@@ -1953,3 +1953,36 @@ The visual closure report is
 - Results:
   `status-updates/white-tree-fruit-results-2026-07-19.html`;
   mobile copy: `https://l5sfu4d7m511.postplan.dev`.
+
+## Shrink-me-quick and all-UI asset normalization — 2026-07-19
+
+- Restored the cutoff level-52 Shrink-me-quick recipe as the ordinary
+  two-stage Herblore path: Tarromin potion (unf) plus Shrunk ogleroot yields
+  the untradeable potion for 6 XP. Ingredient acquisition and quest use remain
+  Darkan-owned.
+- Extended the generated period GE corpus with Shrunk ogleroot's dated
+  39-coin guide price and 100-item four-hour buy limit.
+- Reachability is now 284 orphan inputs / 305 blocked actions because Shrunk
+  ogleroot acquisition is intentionally quest-owned and not duplicated in the
+  Herblore lane.
+- Audited all 3,273 UI PNGs across 29 top-level families and tightly cropped
+  1,747 padded small sprites without rescaling their art. Sixty-five
+  larger/full-frame images remain intentionally exempt.
+- Fixed the fetch pipeline so trimming is no longer undone by transparent
+  re-padding. The full-corpus regression runs through Pillow or Qt and cannot
+  silently skip when Pillow is absent.
+- Fable and Kimi K3 both returned `SHIP` with no family exclusions. Their
+  concrete findings drove the fetcher, alpha-threshold, help-text, and
+  backend-independent oracle corrections.
+- Offscreen Qt remains a regression gate only. A fully quit and freshly
+  relaunched macOS Anki process rendered representative Skills, Combat, Shop,
+  Bank, and Equipment assets correctly.
+- Final verification passes 1,760 non-Qt methods (1,536 ordinary passes and 224
+  environment skips) plus all 1,760 offscreen Qt methods. Test quality,
+  documentation, compile, JSON, diff, and worktree checks are clean.
+- Durable evidence:
+  `source-audits/herblore-shrink-me-quick-2026-07-19.md` and
+  `audits/ui-asset-normalization-2026-07-19.md`.
+- Results:
+  `status-updates/herblore-ui-assets-results-2026-07-19.html`;
+  mobile copy: `https://hhp6on3e5ci5.postplan.dev`.

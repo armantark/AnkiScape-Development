@@ -2543,7 +2543,7 @@ Test counts are snapshots; current runs outrank this note.
 
 - Extended the reproducible Darkan item-value pipeline with cache
   `canExchange()` extraction and generated 3,271 direct exchangeable identities.
-  The live registered intersection currently contains 1,656 rows.
+  The live registered intersection currently contains 1,657 rows.
 - Added source-provenance catalog construction plus pure eight-slot offer
   placement, escrow, confirmation, cancellation, collection, collect-all, and
   Ironman reducers.
@@ -2560,7 +2560,7 @@ Test counts are snapshots; current runs outrank this note.
 - Added a resumable, retrying historical-wiki generator and committed generated
   per-item price, limit, oldid, timestamp, source date, item-ID, and cache-value
   provenance.
-- The live catalog now prefers 1,327 dated period prices and exposes 1,637
+- The live catalog now prefers 1,328 dated period prices and exposes 1,638
   sourced limits. It keeps the cache anchor for 329 unresolved prices and
   refuses buy offers for the 19 identities that collapse multiple period
   variants.
@@ -2666,3 +2666,32 @@ Test counts are snapshots; current runs outrank this note.
 - Published
   `status-updates/white-tree-fruit-results-2026-07-19.html`;
   mobile copy: `https://l5sfu4d7m511.postplan.dev`.
+
+## Shrink-me-quick and repository-wide UI asset normalization — 2026-07-19
+
+- Implemented the period level-52, 6-XP Shrink-me-quick recipe with authentic
+  item identities, inventory transaction, telemetry, undo, grouped Herblore
+  row, registry coverage, and sprites. Grim Tales acquisition and use stay
+  with the Darkan quest lane.
+- Regenerated the period GE maps so the newly registered Shrunk ogleroot uses
+  its dated 39-coin guide price and 100-item four-hour buy limit.
+- The reachability ledger is 284 orphan inputs / 305 blocked actions; the one
+  new row is the intentionally Darkan-owned Shrunk ogleroot acquisition path.
+- Normalized 1,747 padded small sprites across every one of the 29 UI asset
+  families. The operation preserves pixel art and aspect ratio; 65 large
+  full-frame images remain untouched by design.
+- Hardened the download pipeline and added a backend-independent full-corpus
+  regression so future fetches cannot recreate padded icon canvases or skip the
+  invariant when Pillow is unavailable.
+- Fable and Kimi K3 independently returned `SHIP` with no family exclusions.
+  A freshly relaunched real Anki process confirmed representative Skills,
+  Combat, Shop, Bank, and Equipment rendering after the rewrite.
+- Final verification passes 1,760 non-Qt methods (1,536 ordinary passes and 224
+  environment skips) and all 1,760 offscreen Qt methods. The test-quality
+  audit reports zero hard issues.
+- Durable evidence:
+  `source-audits/herblore-shrink-me-quick-2026-07-19.md` and
+  `audits/ui-asset-normalization-2026-07-19.md`.
+- Published
+  `status-updates/herblore-ui-assets-results-2026-07-19.html`;
+  mobile copy: `https://hhp6on3e5ci5.postplan.dev`.

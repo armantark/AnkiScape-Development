@@ -17,7 +17,7 @@ Backends: prefers Pillow; falls back to PyQt6's ``QImage`` so it runs in the Qt
 test venv (``.venv-qt``) without extra dependencies. This is a developer-only
 tool and is never imported by the add-on runtime.
 
-Usage (default trims crafteditems/ and fletcheditems/ under the add-on root):
+Usage (default audits/trims every top-level UI asset family under the add-on root):
     .venv-qt/bin/python tools/trim_icons.py
     .venv-qt/bin/python tools/trim_icons.py --dry-run
     .venv-qt/bin/python tools/trim_icons.py crafteditems
@@ -30,7 +30,37 @@ import sys
 from typing import List, Optional, Sequence, Tuple
 
 ADDON_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DEFAULT_DIRS = ("crafteditems", "fletcheditems")
+DEFAULT_DIRS = (
+    "activityicons",
+    "agilityitems",
+    "bars",
+    "combatenemies",
+    "combatitems",
+    "constructionitems",
+    "cookingitems",
+    "crafteditems",
+    "equipment_slots",
+    "farmingitems",
+    "firemakingitems",
+    "fishingitems",
+    "fletcheditems",
+    "gems",
+    "herbloreitems",
+    "hunteritems",
+    "icon",
+    "magicitems",
+    "miningitems",
+    "ores",
+    "petitems",
+    "prayeritems",
+    "questitems",
+    "runecraftingitems",
+    "shopitems",
+    "smithingitems",
+    "summoningitems",
+    "trees",
+    "woodcuttingitems",
+)
 # Only small padded sprites need trimming; large full-frame photos are left as-is.
 MAX_DIM = 256
 # Alpha at or below this is treated as transparent padding.
@@ -158,7 +188,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "dirs",
         nargs="*",
         default=list(DEFAULT_DIRS),
-        help="Folders (relative to the add-on root) to trim. Defaults to crafteditems and fletcheditems.",
+        help="Folders (relative to the add-on root) to trim. Defaults to every top-level UI asset family.",
     )
     parser.add_argument("--dry-run", action="store_true", help="Report changes without writing.")
     args = parser.parse_args(argv)

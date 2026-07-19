@@ -11,8 +11,8 @@ path so Anki never performs network calls or imports optional image tooling.
 Two conventions worth knowing (see memory-bank/techContext.md "Asset Scraping"):
 - Skill icons: fetch the higher-res ``File:<Skill>_icon_(detail).png`` variant so
   new skills match the original four; the plain interface icon looks undersized.
-- Item icons: this tool now trims the alpha bounding box before ``--size`` pads,
-  so fetched sprites fill the frame and the UI can show them with a plain
+- Item icons: this tool trims the alpha bounding box before ``--size`` limits
+  the visible art, so fetched sprites fill the frame and the UI can show them with a plain
   ``QIcon(path)`` (no runtime cropping). For sprites added before that trim
   existed, run ``tools/trim_icons.py`` once to bake the same fix into the file.
 """
@@ -70,6 +70,7 @@ RS3_WIKI = WikiSource(
 )
 DEFAULT_WIKI_SOURCES: Tuple[WikiSource, ...] = (OSRS_WIKI, RS3_WIKI)
 WIKI_SOURCES_BY_NAME = {source.name: source for source in DEFAULT_WIKI_SOURCES}
+ALPHA_THRESHOLD = 8
 
 
 @dataclass(frozen=True)
@@ -351,19 +352,17 @@ def write_png(image_bytes: bytes, output_path: Path, size: Optional[int]) -> Non
         # survives resize and the icon renders small inside its box (the Flax /
         # Soft clay case). Cropping to the alpha bounding box is lossless — it
         # only removes invisible pixels. This makes ui.icon_filled_to_box() a
-        # no-op for freshly fetched icons (it stays as a runtime safety net for
-        # older padded assets).
-        alpha_bbox = image.getchannel("A").getbbox()
+        # no-op for freshly fetched icons.
+        alpha_mask = image.getchannel("A").point(
+            lambda alpha: 255 if alpha > ALPHA_THRESHOLD else 0
+        )
+        alpha_bbox = alpha_mask.getbbox()
         if alpha_bbox is not None:
             image = image.crop(alpha_bbox)
         if size is not None:
             if size <= 0:
                 raise AssetFetchError("--size must be a positive integer.")
             image.thumbnail((size, size))
-            canvas = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-            offset = ((size - image.width) // 2, (size - image.height) // 2)
-            canvas.alpha_composite(image, dest=offset)
-            image = canvas
         with NamedTemporaryFile("wb", delete=False, dir=str(output_path.parent), suffix=".png") as temp_file:
             temp_name = temp_file.name
             image.save(temp_file, format="PNG")
