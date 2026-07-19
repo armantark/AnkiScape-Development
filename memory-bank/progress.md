@@ -4,6 +4,33 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Bronze dragon Combat closure — 2026-07-18
+
+- Added the ordinary level-131 Bronze dragon with 1,220 LP, 125 Slayer XP,
+  six-tick melee plus metal-dragon dragonfire, a 123-LP melee maximum, and a
+  conservative 500-LP dragonfire maximum.
+- Reused shared shield/antifire protection and labeled Darkan's exact adjacent
+  1/2 melee-versus-fire selector as the no-position encounter abstraction.
+- Preserved exact Darkan levels, defences, respawn, guaranteed Dragon bones
+  and five Bronze bars, the 128-slot ordinary selector including its empty
+  slot, the losslessly enumerated 1,212-slot charm selector, independent
+  1/2,048 plate drops, and 1/128 hard plus 1/500 elite clues.
+- Pinned the pre-cutoff Bronze dragon sprite and its provenance.
+- Advanced Chaeldar to 22/34 while leaving its partial pool hidden and
+  unrenormalized. Twelve Combat-family blockers remain.
+- Excluded location, route, quest-only, post-cutoff, and Dungeoneering
+  contexts. No owner-facing design fork emerged. Durable evidence:
+  `source-audits/slayer-bronze-dragon-combat-2026-07-18.md`.
+- Focused Combat/Slayer/metadata coverage passes 352 tests, and the focused
+  real offscreen Qt picker passes.
+- Full non-Qt and real offscreen Qt discovery each pass all 1,670 tests; the
+  real Qt run has zero skips or failures. Test quality has zero hard issues
+  across 73 files and 1,670 methods. Documentation, compilation, provenance
+  JSON, diff, readiness, reachability, and worktree-safety gates pass.
+- Results:
+  `status-updates/slayer-bronze-dragon-results-2026-07-18.html`; mobile copy:
+  <https://pbdlptcksw7s.postplan.dev>.
+
 ## Slayer Blue dragon family Combat closure — 2026-07-18
 
 - Added the ordinary level-111 Blue dragon and level-48 Baby blue dragon as
@@ -68,8 +95,8 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
 - Registered Chaeldar at Combat 70 behind Lost City while keeping
   `runtime_enabled=False`; live master selection cannot see or renormalize the
   partial pool.
-- Derived 21/34 readiness after the Fire giant and Blue dragon closures.
-  Thirteen absent target identities each report one
+- Derived 22/34 readiness after the Fire giant, Blue dragon, and Bronze dragon
+  closures. Twelve absent target identities each report one
   deterministic `combat_target` blocker, while Gargoyles and Mutated
   zygomites reuse their already-live finisher mechanics.
 - Preserved the source-blocked Rum Deal stage boundary for Fever spiders

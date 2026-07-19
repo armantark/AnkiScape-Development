@@ -2774,6 +2774,43 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(ready["inventory"], {"Blue dragon egg": 1})
         self.assertEqual(locked["inventory"], {})
 
+    def test_bronze_dragon_rolls_exact_ordinary_and_independent_tertiaries(self):
+        dragon = COMBAT_ENEMY_DATA["bronze_dragon"]
+        empty_ordinary = _combat_roll_drops(
+            dragon,
+            _rng(
+                [
+                    127 / 128,
+                    0.999999,
+                    0.999999,
+                    0.999999,
+                    0.999999,
+                    0.999999,
+                ]
+            ),
+        )
+        plates_and_clues = _combat_roll_drops(
+            dragon,
+            _rng([0.0, 0.999999, 0.0, 0.0, 0.0, 0.0]),
+        )
+
+        self.assertEqual(
+            empty_ordinary,
+            {"Dragon bones": 1, "Bronze bar": 5},
+        )
+        self.assertEqual(
+            plates_and_clues,
+            {
+                "Dragon bones": 1,
+                "Bronze bar": 5,
+                "Coins": 196,
+                "Dragon plateskirt": 1,
+                "Dragon platelegs": 1,
+                "Clue scroll (hard)": 1,
+                "Clue scroll (elite)": 1,
+            },
+        )
+
     def test_bloodveld_drop_roll_can_reach_black_boots(self):
         self.assertEqual(
             _combat_roll_drops(

@@ -87,6 +87,7 @@ TITLE_OVERRIDES = {
     "fire_giant": ("Fire giant.png",),
     "blue_dragon": ("Blue dragon.png",),
     "baby_blue_dragon": ("Baby blue dragon.png",),
+    "bronze_dragon": ("Bronze dragon.png",),
 }
 
 

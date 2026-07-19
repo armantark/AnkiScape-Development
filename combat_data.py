@@ -2586,6 +2586,88 @@ BLUE_DRAGON_DROPS = {
     ),
 }
 
+BRONZE_DRAGON_DROPS = {
+    "guaranteed": (("Dragon bones", 1), ("Bronze bar", 5)),
+    "tables": (
+        {
+            "name": "Darkan ordinary",
+            "total": 128,
+            "slots": (
+                {"item": "Coins", "quantity": 196, "slots": 39},
+                {"item": "Adamant javelin", "quantity": 30, "slots": 20},
+                {"item": "Coins", "quantity": 330, "slots": 10},
+                {"item": "Fire rune", "quantity": 50, "slots": 8},
+                {"item": "Adamant dart (p)", "quantity": 16, "slots": 7},
+                {
+                    "item": "Mithril bolts",
+                    "quantity_range": (2, 12),
+                    "slots": 6,
+                },
+                {"item": "Law rune", "quantity": 10, "slots": 5},
+                {"item": "Mithril 2h sword", "quantity": 1, "slots": 4},
+                {"table": DARKAN_GEM_DROP_TABLE, "slots": 4},
+                {"item": "Mithril hatchet", "quantity": 1, "slots": 3},
+                {"item": "Mithril battleaxe", "quantity": 1, "slots": 3},
+                {"item": "Rune knife", "quantity": 2, "slots": 3},
+                {"item": "Blood rune", "quantity": 15, "slots": 3},
+                {"item": "Adamant bar", "quantity": 1, "slots": 3},
+                {"item": "Swordfish", "quantity": 2, "slots": 2},
+                {"item": "Mithril kiteshield", "quantity": 1, "slots": 1},
+                {"item": "Adamant platebody", "quantity": 1, "slots": 1},
+                {"item": "Rune longsword", "quantity": 1, "slots": 1},
+                {"item": "Death rune", "quantity": 25, "slots": 1},
+                {"item": "Coins", "quantity": 690, "slots": 1},
+                {"item": "Swordfish", "quantity": 1, "slots": 1},
+                {"table": DARKAN_STANDARD_RARE_DROP_TABLE, "slots": 1},
+                {"slots": 1},
+            ),
+        },
+        {
+            "name": "Darkan charms",
+            "total": 1212,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 60},
+                {"item": "Green charm", "quantity": 1, "slots": 264},
+                {"item": "Crimson charm", "quantity": 1, "slots": 48},
+                {"item": "Blue charm", "quantity": 1, "slots": 12},
+                {"slots": 828},
+            ),
+        },
+        {
+            "name": "Dragon plateskirt",
+            "total": 2048,
+            "slots": (
+                {"item": "Dragon plateskirt", "quantity": 1, "slots": 1},
+                {"slots": 2047},
+            ),
+        },
+        {
+            "name": "Dragon platelegs",
+            "total": 2048,
+            "slots": (
+                {"item": "Dragon platelegs", "quantity": 1, "slots": 1},
+                {"slots": 2047},
+            ),
+        },
+        {
+            "name": "Hard clue",
+            "total": 128,
+            "slots": (
+                {"item": "Clue scroll (hard)", "quantity": 1, "slots": 1},
+                {"slots": 127},
+            ),
+        },
+        {
+            "name": "Elite clue",
+            "total": 500,
+            "slots": (
+                {"item": "Clue scroll (elite)", "quantity": 1, "slots": 1},
+                {"slots": 499},
+            ),
+        },
+    ),
+}
+
 OGRE_DROPS = {
     "guaranteed": (("Big bones", 1),),
     "tables": (
@@ -8183,6 +8265,74 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "and Blue-dragon Slayer substitution; Darkan exact combat levels, "
             "defences, and 59-tick respawn; quest-only bone and post-cutoff "
             "loot excluded"
+        ),
+    },
+    "bronze_dragon": {
+        "display_name": "Bronze dragon",
+        "level": 131,
+        "group": "Dragons",
+        "dragonfire": {
+            "chance_numerator": 1,
+            "chance_denominator": 2,
+            "unprotected_max_hit": 500,
+            "partial_max_hit": 50,
+            "shield_items": ("Anti-dragon shield", "Dragonfire shield"),
+            "source": (
+                "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+                "darkan-world-server/src/main/java/com/rs/game/content/world/"
+                "npcs/MetalDragonCombat.java:41-61; "
+                f"{DRAGONFIRE_FORMULA_SOURCE_PATH}:878-908"
+            ),
+            "source_status": (
+                "bounded no-position abstraction using Darkan's exact adjacent "
+                "1/2 attack-selection roll and protection tiers; long-range "
+                "dragonfire, damage envelope, and metal-dragon protection "
+                "behavior corroborated by Bronze dragon oldid=6550367 and "
+                "Dragonfire oldid=6534496"
+            ),
+        },
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 59,
+        "max_hit": 123,
+        "slayer_xp": 125.0,
+        "stats": {
+            "hitpoints": 1220,
+            "attack": 112,
+            "strength": 112,
+            "defence": 112,
+            "magic": 100,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 50,
+            "defence_slash": 70,
+            "defence_crush": 70,
+            "defence_magic": 30,
+            "defence_ranged": 90,
+            "melee_strength": 0,
+        },
+        "drops": BRONZE_DRAGON_DROPS,
+        "source": (
+            "https://runescape.wiki/w/Bronze_dragon?oldid=6550367; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/"
+            "bronze_dragon.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/bronze_dragon.json"
+        ),
+        "source_status": (
+            "period exact level, LP, Slayer XP, six-tick melee/long-range "
+            "dragonfire, approximate maxima, aggression, poison behavior, "
+            "guaranteed Dragon bones/five Bronze bars, and Chaeldar assignment; "
+            "Darkan exact combat levels, defences, 59-tick respawn, 128-slot "
+            "ordinary selector including one empty slot, nested tables, "
+            "losslessly enumerated charms, independent 1/2048 plate drops, "
+            "1/128 hard clue, and 1/500 elite clue; location, quest-only, "
+            "post-cutoff, and Daemonheim contexts excluded"
         ),
     },
     "green_dragon": {

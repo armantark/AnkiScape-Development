@@ -2333,6 +2333,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         fire_giant = _tree_row(tree, "fire_giant")
         blue_dragon = _tree_row(tree, "blue_dragon")
         baby_blue_dragon = _tree_row(tree, "baby_blue_dragon")
+        bronze_dragon = _tree_row(tree, "bronze_dragon")
         aberrant_spectre = _tree_row(tree, "aberrant_spectre")
         basilisk = _tree_row(tree, "basilisk")
         crocodile = _tree_row(tree, "crocodile")
@@ -2467,6 +2468,13 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Baby dragon bones x1", baby_blue_dragon.toolTip(0))
         self.assertNotIn("Dragonfire:", baby_blue_dragon.toolTip(0))
         self.assertFalse(baby_blue_dragon.icon(0).isNull())
+        self.assertEqual(bronze_dragon.text(0), "Bronze dragon (Lvl 131)")
+        self.assertIn("Enemy max hit: 500 LP", bronze_dragon.toolTip(0))
+        self.assertIn("Dragonfire: None", bronze_dragon.toolTip(0))
+        self.assertIn("Bronze bar x5", bronze_dragon.toolTip(0))
+        self.assertIn("Dragon plateskirt x1 (1/2048)", bronze_dragon.toolTip(0))
+        self.assertIn("Clue scroll (elite) x1 (1/500)", bronze_dragon.toolTip(0))
+        self.assertFalse(bronze_dragon.icon(0).isNull())
         self.assertEqual(
             aberrant_spectre.text(0), "Aberrant spectre (Lvl 96)"
         )

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape — Bronze dragon closure</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #100d09;
+      --panel: #1b1610;
+      --panel-2: #292016;
+      --ink: #fff5e9;
+      --muted: #c7b39d;
+      --bronze: #c88746;
+      --bright: #f0b76f;
+      --ember: #e65d2e;
+      --green: #77dda8;
+      --line: #523a26;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 82% -8%, #633214 0, transparent 34rem),
+        radial-gradient(circle at 3% 65%, #3a2012 0, transparent 28rem),
+        linear-gradient(150deg, var(--bg), #171006 60%, #080604);
+      color: var(--ink);
+      font: 16px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 56px 0 72px; }
+    .eyebrow { color: var(--bright); letter-spacing: .14em; text-transform: uppercase; font-size: .74rem; font-weight: 800; }
+    h1 { margin: 8px 0 12px; font-size: clamp(2.45rem, 7vw, 5.65rem); line-height: .92; letter-spacing: -.055em; }
+    .lead { max-width: 800px; margin: 0; color: var(--muted); font-size: clamp(1.05rem, 2.2vw, 1.35rem); }
+    .hero { position: relative; overflow: hidden; padding: 38px; border: 1px solid var(--line); border-radius: 28px; background: linear-gradient(135deg, #2b2016f2, #120d08f2); box-shadow: 0 28px 80px #0009; }
+    .hero::after { content: "131"; position: absolute; right: 8px; bottom: -42px; color: #d18a4412; font-size: 14rem; font-weight: 900; line-height: 1; }
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 30px; position: relative; z-index: 1; }
+    .metric { padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: #100b07cc; }
+    .metric strong { display: block; color: var(--bright); font-size: 1.65rem; }
+    .metric span { color: var(--muted); font-size: .82rem; }
+    section { margin-top: 24px; padding: 28px; border: 1px solid var(--line); border-radius: 22px; background: var(--panel); }
+    h2 { margin: 0 0 18px; font-size: 1.25rem; letter-spacing: -.02em; }
+    .grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 24px; }
+    .selector { display: grid; grid-template-columns: 39fr 20fr 10fr 8fr 51fr; height: 24px; overflow: hidden; border-radius: 999px; background: #090704; }
+    .selector span:nth-child(1) { background: #efc15d; }
+    .selector span:nth-child(2) { background: #bc7543; }
+    .selector span:nth-child(3) { background: #dca14e; }
+    .selector span:nth-child(4) { background: var(--ember); }
+    .selector span:nth-child(5) { background: #765136; }
+    .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; color: var(--muted); font-size: .83rem; }
+    .legend b { color: var(--ink); }
+    .checks { display: grid; gap: 10px; }
+    .check { display: flex; justify-content: space-between; gap: 16px; padding: 12px 14px; border-radius: 12px; background: var(--panel-2); }
+    .check span:last-child { color: var(--green); font-weight: 750; }
+    .fire { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .tier { padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel-2); }
+    .tier strong { display: block; color: var(--bright); font-size: 1.25rem; }
+    .tier span { color: var(--muted); font-size: .84rem; }
+    .readiness { display: grid; grid-template-columns: repeat(34, 1fr); gap: 5px; margin: 18px 0 10px; }
+    .readiness i { height: 18px; border-radius: 4px; background: #382c20; }
+    .readiness i:nth-child(-n+22) { background: linear-gradient(#ebb36b, #a65e28); box-shadow: 0 0 12px #d18a4455; }
+    .note { color: var(--muted); }
+    code { color: #ffdcb7; font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    footer { margin-top: 22px; color: #8e755f; font-size: .78rem; text-align: center; }
+    @media (max-width: 760px) {
+      main { width: min(100% - 20px, 1120px); padding-top: 20px; }
+      .hero, section { padding: 22px; border-radius: 18px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .grid, .fire { grid-template-columns: 1fr; }
+      .readiness { grid-template-columns: repeat(17, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <article class="hero">
+    <div class="eyebrow">Slayer · source-closed · 18 July 2026</div>
+    <h1>Bronze dragon<br>is live.</h1>
+    <p class="lead">The first metal dragon is now playable with honest long-range dragonfire, exact selectors, guaranteed bars, cutoff art, and an explicit no-position abstraction.</p>
+    <div class="metrics">
+      <div class="metric"><strong>1,220</strong><span>life points</span></div>
+      <div class="metric"><strong>123</strong><span>melee maximum</span></div>
+      <div class="metric"><strong>500</strong><span>dragonfire ceiling</span></div>
+      <div class="metric"><strong>22 / 34</strong><span>Chaeldar readiness</span></div>
+    </div>
+  </article>
+
+  <div class="grid">
+    <section>
+      <h2>One exact 128-slot ordinary roll</h2>
+      <div class="selector" aria-label="128-slot ordinary drop distribution">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="legend">
+        <span><b>39</b> coins ×196</span>
+        <span><b>20</b> adamant javelins</span>
+        <span><b>10</b> coins ×330</span>
+        <span><b>8</b> fire runes</span>
+        <span><b>51</b> exact remaining rows</span>
+      </div>
+      <p class="note">The source rows total 127/128, so the missing probability is represented as a real empty slot. Guaranteed bones/bars, charms, both plate pieces, and both clue tiers stay independent.</p>
+    </section>
+    <section>
+      <h2>Closure proof</h2>
+      <div class="checks">
+        <div class="check"><span>Focused logic and registry</span><span>352 pass</span></div>
+        <div class="check"><span>Full non-Qt discovery</span><span>1,670 pass</span></div>
+        <div class="check"><span>Full real offscreen Qt</span><span>1,670 pass</span></div>
+        <div class="check"><span>Test-quality hard issues</span><span>0</span></div>
+        <div class="check"><span>Worktree layout</span><span>Safe</span></div>
+      </div>
+    </section>
+  </div>
+
+  <section>
+    <h2>Dragonfire stays legible</h2>
+    <div class="fire">
+      <div class="tier"><strong>0–500 LP</strong><span>no shield or antifire layer</span></div>
+      <div class="tier"><strong>0–50 LP</strong><span>one shield or ordinary antifire layer</span></div>
+      <div class="tier"><strong>0 LP</strong><span>shield plus antifire, or super antifire</span></div>
+    </div>
+    <p class="note">The game has no distance model. Darkan's exact adjacent 1/2 melee-versus-fire selector is therefore used as a labeled bounded abstraction; the long-range identity and protection rules remain visible.</p>
+  </section>
+
+  <section>
+    <h2>Chaeldar stays honest</h2>
+    <div class="readiness" aria-label="22 of 34 Chaeldar families ready">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      <i></i><i></i><i></i><i></i>
+    </div>
+    <p class="note">Bronze dragons move the hidden master from 21/34 to 22/34. The pool remains neither selectable nor renormalized; twelve missing Combat identities remain deterministic blockers.</p>
+  </section>
+
+  <section>
+    <h2>Evidence boundary</h2>
+    <p class="note">Period authority is RuneScape Wiki <code>oldid=6550367</code>, Metal dragons <code>oldid=6098088</code>, and Dragonfire <code>oldid=6534496</code>. Executable definitions and selectors come from Darkan commit <code>d759fdd77</code>. Location, access-route, quest-only, post-cutoff, and Dungeoneering behavior are excluded.</p>
+  </section>
+
+  <footer>AnkiScape · frozen 20 November 2012 · no wall-clock gameplay</footer>
+</main>
+</body>
+</html>
