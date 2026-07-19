@@ -26,6 +26,9 @@ below is source-closed yet.
   Barrows/Troll Invasion/Pest Control precedent.
 - The companion is persisted ally state; companion death fails the trek. That
   is the real risk of escorting a frailer, better-paying companion.
+- The companion's LP is always visible as a health bar in the activity UI
+  (owner requirement 2026-07-18), both during ambush encounters and between
+  nodes — the protection stakes must never be hidden state.
 - Reward tokens pay at the destination, per route/companion tier.
 
 ## Harvest work
