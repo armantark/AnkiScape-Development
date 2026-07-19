@@ -596,7 +596,15 @@ Design coverage should name the broader trees even when they are not first:
   Training Arena, Rogues' Den, Sorceress's Garden, Pyramid Plunder, Flash Powder
   Factory, Brimhaven, Fish Flingers, and Gnome Restaurant.
 - **Cooperative/simulated-population:** Pest Control, Barbarian Assault, Fishing
-  Trawler, Trouble Brewing, Shades of Mort'ton, Temple Trekking.
+  Trawler, Trouble Brewing, Shades of Mort'ton, Temple Trekking. Scope settled
+  2026-07-18: all receive solo adaptations. Temple Trekking and Shades of
+  Mort'ton are (near-)solo in the period game and need no crew simulation;
+  Pest Control reuses the Trawler pattern of a fixed competent crowd offset
+  around the player's own duty; Barbarian Assault adapts as one role per wave
+  with a simulated competent team; Trouble Brewing, the owner's deliberate
+  breadth call past the individual-agency bar, adapts last with a bounded
+  opposing-team pressure model. Each still requires its own contract and
+  source audit before implementation.
 - **Competitive:** Fist of Guthix, Great Orb Project, Stealing Creation, Castle
   Wars, Soul Wars, Conquest, Clan Wars, Duel Arena, and Mobilising Armies.
   Only content with meaningful individual agency under a bounded opponent model
