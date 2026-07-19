@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Grand Exchange foundation</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 14% -10%, rgba(251, 191, 36, .12), transparent 35%),
+        radial-gradient(circle at 90% 8%, var(--accent-glow), transparent 30%),
+        var(--bg);
+      font-family: Outfit, Inter, system-ui, sans-serif;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 44px 0 64px; }
+    .badge, .eyebrow, code, .metric-label, .file {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+    }
+    .badge {
+      display: inline-flex;
+      color: var(--green);
+      border: 1px solid rgba(74, 222, 128, .35);
+      background: rgba(74, 222, 128, .08);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: .68rem;
+      letter-spacing: .12em;
+    }
+    h1 { margin: 18px 0 8px; font-size: clamp(2rem, 5vw, 3.8rem); line-height: .98; max-width: 850px; }
+    .subtitle { max-width: 760px; color: var(--text-dim); line-height: 1.6; }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 28px 0;
+    }
+    .metric, .card {
+      background: linear-gradient(145deg, rgba(30,35,44,.95), rgba(22,26,33,.95));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .metric { padding: 16px; }
+    .metric strong { display: block; font-size: 1.55rem; color: var(--amber); }
+    .metric-label { color: var(--text-dim); font-size: .64rem; text-transform: uppercase; letter-spacing: .08em; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .card { padding: 20px; min-height: 230px; }
+    .eyebrow { color: var(--accent); font-size: .68rem; letter-spacing: .1em; }
+    h2 { margin: 8px 0 14px; font-size: 1.2rem; }
+    p, li { color: var(--text-dim); line-height: 1.55; font-size: .9rem; }
+    ul { margin: 0; padding-left: 20px; }
+    .funnel { display: grid; gap: 8px; margin-top: 18px; }
+    .bar {
+      padding: 9px 12px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      border-left: 3px solid var(--accent);
+      font-size: .78rem;
+    }
+    .bar span { float: right; color: var(--amber); font-weight: 700; }
+    .flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 8px; align-items: center; margin-top: 22px; }
+    .node { padding: 13px 8px; text-align: center; border-radius: 9px; background: var(--surface-2); font-size: .75rem; }
+    .arrow { color: var(--accent); }
+    .proof { display: grid; gap: 8px; }
+    .check { padding: 10px 12px; background: rgba(74,222,128,.06); border: 1px solid rgba(74,222,128,.18); border-radius: 8px; }
+    .check::before { content: "✓"; color: var(--green); margin-right: 9px; font-weight: 800; }
+    .remaining { border-color: rgba(251,191,36,.28); }
+    .remaining .eyebrow { color: var(--amber); }
+    .files { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .file { padding: 5px 7px; border-radius: 6px; background: var(--surface-2); color: var(--text-dim); font-size: .62rem; }
+    footer { margin-top: 20px; color: var(--text-dim); font-size: .75rem; }
+    @media (max-width: 760px) {
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); text-align: center; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">FOUNDATION VERIFIED · 2026-07-19</span>
+  <h1>The Grand Exchange now has a real economic boundary.</h1>
+  <p class="subtitle">The backend can safely own eight offers, escrow value, cancel and collect without minting or stranding assets. Eligibility comes from the period cache’s exchangeable flag, while unsourced buy limits remain closed rather than guessed.</p>
+
+  <section class="metrics" aria-label="Verification metrics">
+    <div class="metric"><strong>3,271</strong><span class="metric-label">cache exchangeable identities</span></div>
+    <div class="metric"><strong>1,656</strong><span class="metric-label">registered market rows</span></div>
+    <div class="metric"><strong>276</strong><span class="metric-label">focused + adjacent tests</span></div>
+    <div class="metric"><strong>0</strong><span class="metric-label">test-quality hard issues</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <span class="eyebrow">SOURCE FUNNEL</span>
+      <h2>No giant foreign item dump</h2>
+      <p>The catalog narrows the local item universe through explicit, reproducible gates.</p>
+      <div class="funnel">
+        <div class="bar">Cache definitions <span>30k IDs scanned</span></div>
+        <div class="bar">Direct <code>canExchange()</code> <span>3,271</span></div>
+        <div class="bar">Registered + tradeable + priced <span>1,656</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <span class="eyebrow">ATOMIC LIFECYCLE</span>
+      <h2>Assets always have one owner</h2>
+      <p>Coins or items move into escrow at placement, into the collection box at fills/cancellation, and back into the Bank only on collection.</p>
+      <div class="flow" aria-label="Offer lifecycle">
+        <div class="node">Bank</div><div class="arrow">→</div>
+        <div class="node">Escrow</div><div class="arrow">→</div>
+        <div class="node">Collect</div>
+      </div>
+      <div class="files"><span class="file">grand_exchange_logic.py</span><span class="file">storage_pure.py</span></div>
+    </article>
+
+    <article class="card">
+      <span class="eyebrow">PROOF</span>
+      <h2>Boundaries exercised, not asserted decoratively</h2>
+      <div class="proof">
+        <div class="check">Eight uncleared offers consume all eight slots.</div>
+        <div class="check">Partial collection preserves the open remainder.</div>
+        <div class="check">Ironman cannot activate over escrow or collectibles.</div>
+        <div class="check">Save migration repairs IDs and malformed state.</div>
+      </div>
+    </article>
+
+    <article class="card remaining">
+      <span class="eyebrow">NEXT LAYERS</span>
+      <h2>Deliberately not overclaimed</h2>
+      <ul>
+        <li>Period Wayback prices, buy limits, and interface details</li>
+        <li>Deterministic stochastic fills and price improvement</li>
+        <li>Demand-bounded impact, guide updates, and naturalized texture</li>
+        <li>Review tick + undo integration, Bankstanding, and eight-slot Qt</li>
+      </ul>
+      <div class="files"><span class="file">grand_exchange_data.py</span><span class="file">item_values_generated.py</span><span class="file">source audit</span></div>
+    </article>
+  </section>
+  <footer>Source-ready foundation only. Missing historical values fail closed; no wall-clock gameplay and no hidden order book.</footer>
+</main>
+</body>
+</html>

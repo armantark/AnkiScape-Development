@@ -1822,3 +1822,20 @@ The visual closure report is
 - Focused offscreen Qt coverage verifies name, category, empty, and clear
   states alongside the existing Bank grouping, carried-slot, and Discard X
   surfaces. Pure inventory, integration-smoke, and storage suites remain green.
+
+## Grand Exchange backend foundation — 2026-07-19
+
+- The item cache dump now carries the authentic `canExchange()` flag in
+  addition to store value and stackability. The registered GE catalog is the
+  strict intersection of registered, tradeable, cache-exchangeable, non-Coin
+  items with a positive price anchor.
+- Pure reducers now own eight slots, stable IDs, buy/sell escrow, confirmation
+  thresholds, cancellation, partial/complete collection, collect-all, and the
+  Ironman access lock. Save version 44 persists and sanitizes the complete
+  foundation state.
+- Buy offers fail closed until a period buy limit is present. No live prices,
+  buy limits, fills, review ticks, Bankstanding, or Qt surface are claimed yet.
+- Durable scope and verification:
+  `source-audits/grand-exchange-foundation-boundary-2026-07-19.md`.
+- Results: `status-updates/grand-exchange-foundation-results-2026-07-19.html`;
+  mobile copy: `https://svzfn2ylt4dw.postplan.dev`.

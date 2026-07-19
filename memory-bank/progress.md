@@ -2538,3 +2538,19 @@ Test counts are snapshots; current runs outrank this note.
   and clear transitions while asserting inventory identity.
 - Verified nine focused Bank Qt surfaces plus 163 pure inventory, storage, and
   integration-smoke tests.
+
+## Grand Exchange backend foundation — 2026-07-19
+
+- Extended the reproducible Darkan item-value pipeline with cache
+  `canExchange()` extraction and generated 3,271 direct exchangeable identities.
+  The live registered intersection currently contains 1,656 rows.
+- Added source-provenance catalog construction plus pure eight-slot offer
+  placement, escrow, confirmation, cancellation, collection, collect-all, and
+  Ironman reducers.
+- Added save-version-44 defaults and migration for deterministic market state,
+  orders, settings, buy-limit usage, and compact trade-history ownership.
+- Buy offers remain fail-closed without period buy-limit data; the remaining
+  market tick, review undo, UI, and period harvest work is explicitly recorded
+  in `source-audits/grand-exchange-foundation-boundary-2026-07-19.md`.
+- Published `status-updates/grand-exchange-foundation-results-2026-07-19.html`;
+  mobile copy: `https://svzfn2ylt4dw.postplan.dev`.

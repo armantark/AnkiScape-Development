@@ -50,6 +50,7 @@ try:
         sanitize_stronghold_state_pure,
     )
     from .shop_logic import default_shop_state_pure, sanitize_shop_state_pure
+    from .grand_exchange_logic import default_ge_state_pure, sanitize_ge_state_pure
     from .farming_logic import default_farming_state_pure, sanitize_farming_state_pure
     from .mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from .smithing_data import (
@@ -121,6 +122,7 @@ except ImportError:
         sanitize_stronghold_state_pure,
     )
     from shop_logic import default_shop_state_pure, sanitize_shop_state_pure
+    from grand_exchange_logic import default_ge_state_pure, sanitize_ge_state_pure
     from farming_logic import default_farming_state_pure, sanitize_farming_state_pure
     from mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from smithing_data import (
@@ -145,7 +147,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 43
+CURRENT_CONFIG_VERSION = 44
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -365,6 +367,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["unlocked_abilities"] = []
     data.update(inventory_pure.default_carried_state())
     data.update(default_shop_state_pure())
+    data.update(default_ge_state_pure())
     data.update(default_farming_state_pure())
     data.update(default_agility_state_pure())
     data["warriors_guild"] = default_warriors_guild_state_pure()
@@ -937,6 +940,7 @@ def migrate_loaded_data(
     _migrate_toolbelt(data)
     _migrate_equipment(data)
     data.update(sanitize_shop_state_pure(data))
+    data.update(sanitize_ge_state_pure(data))
 
     # Ensure inventory exists and has registered item keys while preserving
     # arbitrary existing entries from older or experimental saves.
@@ -1086,6 +1090,9 @@ def migrate_loaded_data(
     # v43: the first complete Slayer master pool and its flat assignment state.
     if loaded_config_version < 43:
         data.update(sanitize_slayer_state_pure(data))
+    # v44: deterministic Grand Exchange state and the Ironman access toggle.
+    if loaded_config_version < 44:
+        data.update(sanitize_ge_state_pure(data))
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1136,6 +1143,7 @@ def migrate_loaded_data(
     )
     data["pet_auto_care"] = bool(data.get("pet_auto_care", True))
     data.update(sanitize_slayer_state_pure(data))
+    data.update(sanitize_ge_state_pure(data))
     _sanitize_thieving_state(data)
     data["cadence_profiles"] = sanitize_cadence_kernel_state_pure(
         data.get("cadence_profiles")

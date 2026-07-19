@@ -1,7 +1,12 @@
+import json
+import runpy
+import tempfile
 import unittest
+from pathlib import Path
 
-from item_values import ITEM_VALUES, item_store_value
+from item_values import EXCHANGEABLE_ITEM_NAMES, ITEM_VALUES, item_store_value
 from inventory_pure import loot_should_pick_up
+from tools.gen_item_values import build
 
 
 class TestItemValues(unittest.TestCase):
@@ -20,6 +25,40 @@ class TestItemValues(unittest.TestCase):
         value = item_store_value("Spirit shards")
         self.assertFalse(loot_should_pick_up("Spirit shards", value, 50, set()))
         self.assertTrue(loot_should_pick_up("Spirit shards", value, 50, {"Spirit shards"}))
+
+    def test_generated_table_exposes_cache_exchangeability(self):
+        self.assertIn("Logs", EXCHANGEABLE_ITEM_NAMES)
+        self.assertNotIn("Coins", EXCHANGEABLE_ITEM_NAMES)
+
+    def test_generator_preserves_exchangeable_names(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            raw = root / "raw.json"
+            output = root / "generated.py"
+            raw.write_text(
+                json.dumps(
+                    {
+                        "items": {
+                            "1": {
+                                "name": "Logs",
+                                "value": 4,
+                                "stackable": False,
+                                "exchangeable": True,
+                            }
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            counts = build(raw, output)
+            generated = runpy.run_path(str(output))
+
+            self.assertEqual(counts, (1, 0, 1))
+            self.assertEqual(
+                generated["EXCHANGEABLE_ITEM_NAMES_GENERATED"],
+                frozenset({"Logs"}),
+            )
 
 
 if __name__ == "__main__":

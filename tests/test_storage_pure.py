@@ -122,6 +122,14 @@ class TestStoragePure(unittest.TestCase):
             "shop_stock_state",
             "shop_events",
             "shop_next_event_id",
+            "ge_state_version",
+            "ironman_mode",
+            "ge_settings",
+            "ge_market_state",
+            "ge_player_orders",
+            "ge_next_order_id",
+            "ge_buy_limit_usage",
+            "ge_trade_history",
         ]:
             self.assertIn(key, data)
         # Inventory uses real item names; Mining targets use stable IDs.
@@ -187,6 +195,38 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["shop_stock_state"], {})
         self.assertEqual(data["shop_events"], [])
         self.assertEqual(data["shop_next_event_id"], 1)
+        self.assertFalse(data["ironman_mode"])
+        self.assertEqual(data["ge_player_orders"], [])
+        self.assertEqual(data["ge_next_order_id"], 1)
+        self.assertEqual(data["ge_market_state"]["last_processed_tick"], 0)
+
+    def test_migration_sanitizes_grand_exchange_state(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 43,
+                "inventory": {"Coins": 1_000},
+                "ironman_mode": False,
+                "ge_player_orders": [
+                    {
+                        "id": 4,
+                        "side": "buy",
+                        "item_name": "Logs",
+                        "original_quantity": 2,
+                        "remaining_quantity": 2,
+                        "submitted_unit_price": 100,
+                        "escrow_coins": 200,
+                        "status": "open",
+                    }
+                ],
+                "ge_next_order_id": 2,
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(migrated["ge_next_order_id"], 5)
+        self.assertEqual(migrated["ge_player_orders"][0]["escrow_coins"], 200)
 
     def test_default_player_data_can_seed_registered_items(self):
         data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

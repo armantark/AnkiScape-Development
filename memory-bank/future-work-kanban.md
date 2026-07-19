@@ -1015,6 +1015,12 @@ Labels: `IMPLEMENT`, `DESIGN LOCKED`.
   the ongoing item-universe work, rather than waiting for it. Prices and
   limits for not-yet-obtainable items simply stay dormant until their items
   exist.
+- **Backend foundation shipped 2026-07-19:** cache `exchangeable` extraction,
+  the registered-item catalog intersection, eight-slot offer/escrow lifecycle,
+  confirmation gates, Ironman lockout, and save migration are implemented.
+  Period price/buy-limit/interface harvest plus matching, review ticks/undo,
+  Bankstanding, and Qt remain in the active GE sequence. See
+  `source-audits/grand-exchange-foundation-boundary-2026-07-19.md`.
 
 ### Level 1-99 time and economy balance — the XP/hour invariant
 
