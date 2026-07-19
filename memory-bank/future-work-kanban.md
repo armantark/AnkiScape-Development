@@ -390,6 +390,13 @@ Labels: `DESIGN CLOSED`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/QUE
   Continue from `tools/audit_slayer_readiness.py`; do not expose or renormalize
   the partial master. Governing pool evidence:
   `source-audits/slayer-sumona-pool-2026-07-17.md`.
+- Terror dogs remain source-blocked despite source-ready level-110 stats,
+  Haunted Mine access, target-local one-Prayer-point-per-two-ticks drain,
+  Big-bones split, and Granite-helm data. Darkan's executable 128-slot
+  selector includes five Coins ×11 slots, while the complete pre-cutoff
+  article history permits only ×44–200 and ×440. Do not cherry-pick that row
+  away or implement a consumerless Prayer helper. See
+  `source-audits/slayer-terror-dog-combat-2026-07-19.md`.
 - Red dragons are source-closed and executable as Sumona's twentieth ready
   family. The adult and baby representatives preserve the cutoff substitution
   rule, adult-only dragonfire, exact period maxima, Darkan selectors, and

@@ -10,6 +10,15 @@ blocked on missing teleport-interruption behavior and Nechryael blocked on its
 missing Death-spawn hook; 15 other families still lack a certifying Combat
 target. No row is renormalized away and no owner design was reopened.
 
+Terror dogs are harvested but remain source-blocked. The cutoff record and
+Darkan close the level-110 representative, real combat levels, route,
+two-tick target-local Prayer drain, Big-bones split, Granite helm, and named
+drop set. Darkan's executable selector nevertheless assigns five of 128 slots
+to Coins ×11, while all 329 pre-cutoff article revisions permit only ×44–200
+and later ×440. The talk history does not repair the conflict. No target,
+Prayer helper, item, or asset was added; Sumona remains 20/37. See
+`source-audits/slayer-terror-dog-combat-2026-07-19.md`.
+
 Red dragons are Sumona's twentieth certifying family. The ordinary level-152
 adult and level-48 baby preserve their cutoff substitution relationship,
 adult-only dragonfire, exact period XP/maxima, Darkan selectors, and pre-cutoff

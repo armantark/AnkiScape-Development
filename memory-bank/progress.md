@@ -4,6 +4,24 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Slayer Terror-dog source boundary — 2026-07-19
+
+- Closed the ordinary level-110 identity, real combat levels, Slayer-40 gate
+  and 87 XP, six-tick melee, 150 approximate maximum, Haunted Mine route,
+  target-local Prayer drain, Big-bones split, Granite helm, cache IDs, and
+  named drop set.
+- Reproduced Darkan's exact 128-slot selector and found a material conflict:
+  five slots yield Coins ×11, while every quantity-bearing pre-cutoff article
+  revision permits only ×44–200 and later ×440.
+- Inspected all 329 pre-cutoff article revisions plus the cutoff talk record;
+  neither supplies or validates ×11. The talk page independently confirms the
+  level-110 Big-bones split.
+- Left `terror_dog`, its two-tick Prayer residual, Granite-helm item/asset, and
+  all tests untouched rather than cherry-picking around the conflict. Sumona
+  remains hidden and unrenormalized at 20/37.
+- No owner-facing design decision is pending. Durable evidence:
+  `source-audits/slayer-terror-dog-combat-2026-07-19.md`.
+
 ## Slayer Mutated-jadinko authority/source stop — 2026-07-19
 
 - Stopped before implementation because all three settled master-pool records
