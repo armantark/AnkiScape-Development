@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape — Livid Farm Magic consumers</title>
+  <style>
+    :root {
+      --bg: #0c0e12; --surface: #161a21; --surface-2: #1e232c;
+      --border: #2a3040; --text: #e8ecf4; --text-dim: #8b95a8;
+      --accent: #4f8cff; --green: #4ade80; --amber: #fbbf24;
+      --purple: #a78bfa; --cyan: #66e3d2; --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; color: var(--text); background:
+        radial-gradient(circle at 12% 0%, rgba(102,227,210,.13), transparent 30rem),
+        radial-gradient(circle at 88% 10%, rgba(167,139,250,.14), transparent 32rem),
+        var(--bg);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    main { width: min(1120px, calc(100% - 28px)); margin: auto; padding: 40px 0 60px; }
+    .badge {
+      display: inline-flex; gap: 8px; align-items: center; padding: 6px 10px;
+      border: 1px solid rgba(74,222,128,.42); border-radius: 999px;
+      color: var(--green); background: rgba(74,222,128,.08);
+      font: 700 10px/1.2 "JetBrains Mono", ui-monospace, monospace;
+      letter-spacing: .12em; text-transform: uppercase;
+    }
+    .badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px var(--green); }
+    h1 { max-width: 850px; margin: 18px 0 12px; font-size: clamp(2.25rem, 6vw, 4.5rem); line-height: .98; letter-spacing: -.055em; }
+    .lead { max-width: 800px; margin: 0; color: var(--text-dim); font-size: 1.02rem; line-height: 1.65; }
+    .metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 28px 0 16px; }
+    .metric { padding: 16px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+    .metric strong { display: block; color: var(--cyan); font-size: 1.8rem; letter-spacing: -.04em; }
+    .metric span { display: block; margin-top: 6px; color: var(--text-dim); font-size: .72rem; line-height: 1.35; }
+    .grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 14px; }
+    .card { overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+    .card.full { grid-column: 1 / -1; }
+    .head { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 17px 18px; border-bottom: 1px solid var(--border); }
+    .head h2 { margin: 0; font-size: .98rem; }
+    .label { color: var(--purple); font: 700 9px/1.2 "JetBrains Mono", ui-monospace, monospace; letter-spacing: .11em; text-transform: uppercase; }
+    .body { padding: 18px; }
+    .spell-list { display: grid; gap: 7px; }
+    .spell {
+      display: grid; grid-template-columns: 32px 1fr auto; gap: 10px; align-items: center;
+      min-height: 44px; padding: 7px 10px; border: 1px solid var(--border);
+      border-radius: 9px; background: var(--surface-2);
+    }
+    .icon { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 7px; background: rgba(102,227,210,.12); color: var(--cyan); font-size: 15px; }
+    .spell b { display: block; font-size: .78rem; }
+    .spell small { display: block; margin-top: 2px; color: var(--text-dim); font-size: .65rem; }
+    .spell em { color: var(--green); font: normal 700 9px/1 ui-monospace, monospace; }
+    .spell.blocked em { color: var(--amber); }
+    .flow { display: grid; gap: 11px; }
+    .flow-row { display: grid; grid-template-columns: 1fr 34px 1fr; align-items: center; gap: 8px; }
+    .node { padding: 12px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface-2); }
+    .node b { display: block; font-size: .78rem; }
+    .node span { color: var(--text-dim); font-size: .68rem; }
+    .arrow { color: var(--accent); text-align: center; font-size: 1.25rem; }
+    .proofs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .proof { padding: 14px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface-2); }
+    .proof strong { color: var(--green); font: 700 9px/1 ui-monospace, monospace; letter-spacing: .08em; }
+    .proof h3 { margin: 8px 0 5px; font-size: .84rem; }
+    .proof p { margin: 0; color: var(--text-dim); font-size: .7rem; line-height: 1.45; }
+    .boundary { margin-top: 14px; padding: 14px 16px; border: 1px solid rgba(251,191,36,.35); border-radius: var(--radius); background: rgba(251,191,36,.055); }
+    .boundary b { color: var(--amber); }
+    .boundary p { margin: 5px 0 0; color: var(--text-dim); font-size: .78rem; line-height: 1.5; }
+    footer { margin-top: 16px; color: var(--text-dim); font-size: .7rem; line-height: 1.55; }
+    code { color: #bdc9dc; font-family: "JetBrains Mono", ui-monospace, monospace; }
+    @media (max-width: 900px) {
+      .metrics { grid-template-columns: repeat(3, 1fr); }
+      .grid { grid-template-columns: 1fr; }
+      .proofs { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 560px) {
+      main { width: min(100% - 18px, 1120px); padding-top: 24px; }
+      .metrics, .proofs { grid-template-columns: 1fr 1fr; }
+      .flow-row { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="badge">Completed · source-ready slice</div>
+    <h1>Livid rewards now do things.</h1>
+    <p class="lead">The first ten Livid Farm spell unlocks have joined ordinary Magic. Five have real single-player consumers now; five remain visible and honest about the exact missing substrate instead of pretending to work.</p>
+
+    <section class="metrics" aria-label="Closure metrics">
+      <div class="metric"><strong>10</strong><span>cumulative spell unlocks registered</span></div>
+      <div class="metric"><strong>7</strong><span>supported Make Leather outputs</span></div>
+      <div class="metric"><strong>1,810</strong><span>non-Qt methods passed</span></div>
+      <div class="metric"><strong>1,810</strong><span>real offscreen Qt methods passed</span></div>
+      <div class="metric"><strong>SHIP × 2</strong><span>Kimi K3 and Fable taste verdicts</span></div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <header class="head"><h2>What a player can use now</h2><span class="label">Ordinary Lunar list</span></header>
+        <div class="body spell-list">
+          <div class="spell"><span class="icon">⌁</span><div><b>South Falador Teleport</b><small>Direct destination · exact runes and XP</small></div><em>LIVE</em></div>
+          <div class="spell"><span class="icon">⌁</span><div><b>North Ardougne Teleport</b><small>Direct destination · exact runes and XP</small></div><em>LIVE</em></div>
+          <div class="spell"><span class="icon">✦</span><div><b>Remote Farm</b><small>Checks every active patch · cures every diseased crop</small></div><em>LIVE</em></div>
+          <div class="spell"><span class="icon">◩</span><div><b>Make Leather</b><small>Soft, hard, snakeskin, and four dragon leathers · up to five</small></div><em>7 ROWS</em></div>
+          <div class="spell"><span class="icon">⌁</span><div><b>Trollheim Farm Teleport</b><small>Direct destination · focuses the herb patch</small></div><em>LIVE</em></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <header class="head"><h2>Atomic consumer flow</h2><span class="label">One review</span></header>
+        <div class="body flow">
+          <div class="flow-row"><div class="node"><b>Unlock + gate</b><span>Livid threshold, quest, level</span></div><div class="arrow">→</div><div class="node"><b>Exact cost</b><span>Runes and selected material</span></div></div>
+          <div class="flow-row"><div class="node"><b>Consumer</b><span>Teleport, patches, or hides</span></div><div class="arrow">→</div><div class="node"><b>Result</b><span>XP, telemetry, destination</span></div></div>
+          <div class="flow-row"><div class="node"><b>Answer undo</b><span>Full pre-review snapshot</span></div><div class="arrow">←</div><div class="node"><b>Everything</b><span>Inventory, Farming, XP, selection</span></div></div>
+        </div>
+      </article>
+
+      <article class="card full">
+        <header class="head"><h2>Closure proof</h2><span class="label">No owner fork invented</span></header>
+        <div class="body proofs">
+          <div class="proof"><strong>PERIOD PINNED</strong><h3>Literal spell rows</h3><p>Levels, XP, rune costs, destinations, quest gates, and purposes come from pre-cutoff oldids plus the frozen Darkan enum evidence.</p></div>
+          <div class="proof"><strong>PLAYER-FACING</strong><h3>Taste corrected</h3><p>Destinations and hide inputs are visible, output icons resolve, runtime copy no longer says “requires Requires,” and the longest group is exercised at 720×540.</p></div>
+          <div class="proof"><strong>REAL ANKI</strong><h3>Loaded once</h3><p>A restarted macOS Anki loaded one dialog with Training: Magic, the normalized icon, Teleports — Lunar (12), and Lunar skilling (21). Exact expanded rows remain covered by shown-dialog Qt.</p></div>
+          <div class="proof"><strong>AUDITED</strong><h3>Repository gates</h3><p>Full non-Qt and offscreen Qt pass. Test-quality reports zero hard issues; docs, compile, diff, and worktree checks are clean.</p></div>
+        </div>
+      </article>
+    </section>
+
+    <aside class="boundary">
+      <b>Deliberately not faked.</b>
+      <p>Repair Rune Pouch waits on the unresolved base durability conflict. Spiritualise Food waits on exact familiar-food semantics. Disruption Shield, Vengeance Group, and Tele-group Trollheim Farm wait on PvP or multiplayer. Royal dragonhide waits on its absent item substrate. Current reachability remains explicit at 283 orphan inputs and 300 blocked actions.</p>
+    </aside>
+
+    <footer>
+      Authority: <code>memory-bank/source-audits/livid-farm-spell-consumers-2026-07-19.md</code><br>
+      Cutoff: 2012-11-20 · completed 2026-07-19
+    </footer>
+  </main>
+</body>
+</html>

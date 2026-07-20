@@ -29,6 +29,7 @@ from farming_logic import (
     PLANT_CURE_ITEM_FIRST,
     activate_juju_farming_potion_pure,
     add_farm_queue_step_pure,
+    apply_remote_farm_pure,
     apply_farming_frontend_action_pure,
     farming_frontend_projection_pure,
     advance_farm_clock_pure,
@@ -643,6 +644,39 @@ class TestFarmingClockAndActions(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(info["outputs"], {"Oak roots": 1})
         self.assertIsNone(cleared["farm_patches"]["lumbridge_tree"]["crop_id"])
+
+    def test_remote_farm_cures_every_live_diseased_patch_atomically(self):
+        data = _state()
+        first = _plant_ready(data, "falador_allotment_north", "potato")
+        first["inventory"]["Potato seed"] = 3
+        planted, ok, _ = execute_farm_field_step_pure(
+            first,
+            {
+                "kind": "plant",
+                "patch_id": "falador_allotment_south",
+                "crop_id": "potato",
+            },
+        )
+        self.assertTrue(ok)
+        planted["farm_patches"]["falador_allotment_north"]["diseased"] = True
+        planted["farm_patches"]["falador_allotment_south"]["diseased"] = True
+
+        updated, info = apply_remote_farm_pure(planted)
+
+        self.assertEqual(
+            info["cured_patch_ids"],
+            ("falador_allotment_north", "falador_allotment_south"),
+        )
+        self.assertEqual(info["cured_count"], 2)
+        self.assertEqual(info["active_patch_count"], 2)
+        self.assertFalse(
+            updated["farm_patches"]["falador_allotment_north"]["diseased"]
+        )
+        self.assertFalse(
+            updated["farm_patches"]["falador_allotment_south"]["diseased"]
+        )
+        self.assertEqual(updated["farming_counters"]["cures"], 2)
+        self.assertTrue(planted["farm_patches"]["falador_allotment_north"]["diseased"])
 
 
 class TestFarmingQueueAndTransactions(unittest.TestCase):

@@ -2697,6 +2697,11 @@ def handle_magic_answer(ctx: RuntimeActionContext) -> bool:
             if (
                 " level " in f" {text} "
                 or (gate_reason and text == gate_reason)
+                or text == "Unlock at Livid Farm"
+                or (
+                    spec.get("consumer_unavailable")
+                    and text == str(spec["consumer_unavailable"])
+                )
                 or text.startswith(("Attune ", "Choose "))
                 or (
                     target in {"cure_plant", "fertile_soil"}
@@ -2718,7 +2723,7 @@ def handle_magic_answer(ctx: RuntimeActionContext) -> bool:
                 ctx.deactivate_current_skill()
             ctx.show_error_message(
                 "Magic target unavailable",
-                f"{display_name} requires {', '.join(locked)}, so "
+                f"{display_name} is unavailable: {', '.join(locked)}. "
                 + (
                     "AnkiScape switched to Bankstanding."
                     if materials_only
@@ -2769,6 +2774,19 @@ def handle_magic_answer(ctx: RuntimeActionContext) -> bool:
         examined = player_data.get("magic_last_examine", {}) or {}
         stats = examined.get("stats", {}) or {}
         ctx.show_activity_gain(f"{examined.get('display_name', 'Target')}: {stats}")
+    elif str(spec.get("action", "")) == "teleport":
+        teleport = player_data.get("magic_last_teleport", {}) or {}
+        ctx.show_activity_gain(
+            f"Teleported to {teleport.get('destination', display_name)}."
+        )
+    elif target == "remote_farm":
+        remote = player_data.get("magic_last_remote_farm", {}) or {}
+        cured = int(remote.get("cured_count", 0) or 0)
+        active = int(remote.get("active_patch_count", 0) or 0)
+        ctx.show_activity_gain(
+            f"Remote Farm checked {active} active patch{'es' if active != 1 else ''}"
+            f" and cured {cured}."
+        )
     return True
 
 

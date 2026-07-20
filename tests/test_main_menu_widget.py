@@ -7363,6 +7363,74 @@ class MainMenuWidgetTest(unittest.TestCase):
         tree = dialog.findChild(QTreeWidget, "magicTargetTree")
         self.assertFalse(_tree_row(tree, "low_alchemy").isDisabled())
 
+    def test_magic_surface_projects_livid_unlocks_and_real_consumer_blocks(self) -> None:
+        pd = _make_player_data()
+        pd.update({
+            "magic_level": 99,
+            "current_magic": "make_black_dragon_leather",
+            "inventory": {
+                "Astral rune": 100,
+                "Law rune": 100,
+                "Cosmic rune": 100,
+                "Air rune": 100,
+                "Water rune": 100,
+                "Earth rune": 100,
+                "Nature rune": 100,
+                "Fire rune": 100,
+                "Body rune": 100,
+                "Black dragonhide": 5,
+            },
+            "quests": {
+                "lunar_diplomacy": {"completed": True},
+                "dream_mentor": {"completed": True},
+                "my_arms_big_adventure": {"completed": True},
+            },
+            "livid_farm": {
+                "unlocked_spells": [
+                    "south_falador_teleport",
+                    "repair_rune_pouch",
+                    "north_ardougne_teleport",
+                    "remote_farm",
+                    "spiritualise_food",
+                    "make_leather",
+                ],
+            },
+        })
+        dialog = self._open(pd, current_skill="Magic")
+        tree = dialog.findChild(QTreeWidget, "magicTargetTree")
+
+        self.assertFalse(_tree_row(tree, "south_falador_teleport").isDisabled())
+        self.assertFalse(_tree_row(tree, "remote_farm").isDisabled())
+        self.assertFalse(
+            _tree_row(tree, "make_black_dragon_leather").isDisabled()
+        )
+        repair = _tree_row(tree, "repair_rune_pouch")
+        spiritualise = _tree_row(tree, "spiritualise_food")
+        self.assertTrue(repair.isDisabled())
+        self.assertTrue(spiritualise.isDisabled())
+        self.assertIn(
+            "Pouch strengthening is not available yet",
+            repair.toolTip(0),
+        )
+        self.assertIn(
+            "Familiar food effects are not available yet",
+            spiritualise.toolTip(0),
+        )
+        self.assertIn(
+            "Destination: South Falador gate",
+            _tree_row(tree, "south_falador_teleport").toolTip(0),
+        )
+
+        dialog.show()
+        dialog.resize(720, 540)
+        for _ in range(6):
+            QApplication.processEvents()
+        leather_row = _tree_row(tree, "make_black_dragon_leather")
+        self.assertIn("Input: Black dragonhide x1–5", leather_row.toolTip(0))
+        self.assertFalse(leather_row.icon(0).isNull())
+        self.assertGreater(tree.viewport().height(), 0)
+        self.assertEqual(tree.horizontalScrollBar().maximum(), 0)
+
     def test_construction_house_sheet_and_locked_click_guard(self) -> None:
         pd = _make_player_data()
         pd.update({

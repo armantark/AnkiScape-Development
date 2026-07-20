@@ -150,7 +150,7 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
         )
 
     def test_three_books_and_stable_ids_are_complete(self):
-        self.assertEqual(len(MAGIC_TARGETS), 94)
+        self.assertEqual(len(MAGIC_TARGETS), 110)
         self.assertEqual(len(MAGIC_TARGETS), len(set(MAGIC_TARGETS)))
         books = {row["spellbook"] for row in MAGIC_TARGETS.values()}
         self.assertEqual(books, {"standard", "ancient", "lunar"})
@@ -159,6 +159,234 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
         self.assertEqual({spell.id for spell in ancient_combat if spell.id.startswith("miasmic_")}, {
             "miasmic_rush", "miasmic_burst", "miasmic_blitz", "miasmic_barrage",
         })
+
+    def test_livid_spell_rows_pin_exact_period_levels_xp_and_runes(self):
+        expected = {
+            "south_falador_teleport": (72, 70, {"Astral rune": 2, "Law rune": 1, "Air rune": 2}),
+            "repair_rune_pouch": (75, 75, {"Astral rune": 2, "Law rune": 1, "Cosmic rune": 1}),
+            "north_ardougne_teleport": (76, 76, {"Astral rune": 2, "Law rune": 1, "Water rune": 5}),
+            "remote_farm": (78, 79, {"Astral rune": 2, "Earth rune": 2, "Nature rune": 3}),
+            "spiritualise_food": (80, 81, {"Astral rune": 2, "Cosmic rune": 3, "Body rune": 5}),
+            "make_soft_leather": (83, 87, {"Astral rune": 2, "Fire rune": 2, "Body rune": 2}),
+            "disruption_shield": (90, 97, {"Astral rune": 3, "Blood rune": 3, "Body rune": 10}),
+            "vengeance_group": (95, 120, {"Astral rune": 4, "Death rune": 3, "Earth rune": 11}),
+            "teleport_to_trollheim": (92, 101, {"Astral rune": 3, "Law rune": 3, "Water rune": 10}),
+            "group_teleport_to_trollheim": (93, 102, {"Astral rune": 3, "Law rune": 3, "Water rune": 20}),
+        }
+        for target_id, (level, xp, runes) in expected.items():
+            with self.subTest(target_id=target_id):
+                spec = MAGIC_TARGETS[target_id]
+                self.assertEqual((spec["level"], spec["exp"]), (level, float(xp)))
+                self.assertEqual(spec["rune_cost"], runes)
+                expected_unlock = (
+                    "make_leather"
+                    if target_id == "make_soft_leather"
+                    else target_id
+                )
+                self.assertEqual(spec["livid_unlock"], expected_unlock)
+
+    def test_make_leather_exposes_every_supported_period_output(self):
+        expected = {
+            "make_soft_leather": ("Cowhide", "Leather"),
+            "make_hard_leather": ("Cowhide", "Hard leather"),
+            "make_snakeskin": ("Snake hide", "Snakeskin"),
+            "make_green_dragon_leather": (
+                "Green dragonhide",
+                "Green dragon leather",
+            ),
+            "make_blue_dragon_leather": (
+                "Blue dragonhide",
+                "Blue dragon leather",
+            ),
+            "make_red_dragon_leather": (
+                "Red dragonhide",
+                "Red dragon leather",
+            ),
+            "make_black_dragon_leather": (
+                "Black dragonhide",
+                "Black dragon leather",
+            ),
+        }
+        for target_id, pair in expected.items():
+            with self.subTest(target_id=target_id):
+                spec = MAGIC_TARGETS[target_id]
+                self.assertEqual(
+                    (spec["leather_input"], spec["leather_output"]),
+                    pair,
+                )
+                self.assertEqual(spec["livid_unlock"], "make_leather")
+        self.assertNotIn("make_royal_dragon_leather", MAGIC_TARGETS)
+
+    def test_livid_unlock_gate_and_unavailable_consumers_are_explicit(self):
+        base = {
+            "magic_level": 99,
+            "quests": _quest_state(
+                "lunar_diplomacy",
+                "dream_mentor",
+                "my_arms_big_adventure",
+            ),
+            "inventory": {
+                "Astral rune": 100,
+                "Law rune": 100,
+                "Cosmic rune": 100,
+                "Body rune": 100,
+                "Blood rune": 100,
+                "Death rune": 100,
+                "Earth rune": 100,
+                "Water rune": 100,
+            },
+        }
+        self.assertIn(
+            "Unlock at Livid Farm",
+            magic_target_locked_reasons_pure(
+                base,
+                "south_falador_teleport",
+                MAGIC_DATA,
+                {},
+            ),
+        )
+        for target_id in (
+            "repair_rune_pouch",
+            "spiritualise_food",
+            "disruption_shield",
+            "vengeance_group",
+            "group_teleport_to_trollheim",
+        ):
+            with self.subTest(target_id=target_id):
+                player = {
+                    **base,
+                    "livid_farm": {"unlocked_spells": [target_id]},
+                }
+                reason = MAGIC_DATA[target_id]["consumer_unavailable"]
+                self.assertIn(
+                    reason,
+                    magic_target_locked_reasons_pure(
+                        player,
+                        target_id,
+                        MAGIC_DATA,
+                        {},
+                    ),
+                )
+                unchanged, xp, secondary, outputs, ok, _ = apply_magic_action_pure(
+                    player,
+                    target_id,
+                    MAGIC_DATA,
+                    {},
+                )
+                self.assertFalse(ok)
+                self.assertEqual((xp, secondary, outputs), (0.0, {}, {}))
+                self.assertEqual(unchanged, player)
+
+    def test_source_ready_livid_spells_use_existing_skill_substrates(self):
+        quests = _quest_state(
+            "lunar_diplomacy",
+            "dream_mentor",
+            "my_arms_big_adventure",
+        )
+        unlocked = [
+            "south_falador_teleport",
+            "north_ardougne_teleport",
+            "remote_farm",
+            "make_leather",
+            "teleport_to_trollheim",
+        ]
+        teleports = {
+            "south_falador_teleport": "South Falador gate",
+            "north_ardougne_teleport": "North of East Ardougne bank",
+        }
+        for target_id, destination in teleports.items():
+            spec = MAGIC_DATA[target_id]
+            player = {
+                "magic_level": 99,
+                "quests": quests,
+                "livid_farm": {"unlocked_spells": unlocked},
+                "inventory": dict(spec["rune_cost"]),
+            }
+            result, xp, _secondary, _outputs, ok, _ = apply_magic_action_pure(
+                player,
+                target_id,
+                MAGIC_DATA,
+                {},
+            )
+            self.assertTrue(ok)
+            self.assertEqual(xp, spec["exp"])
+            self.assertEqual(result["magic_last_teleport"]["destination"], destination)
+
+        farm = {
+            "magic_level": 99,
+            "quests": quests,
+            "livid_farm": {"unlocked_spells": unlocked},
+            "inventory": {
+                "Astral rune": 2,
+                "Earth rune": 2,
+                "Nature rune": 3,
+            },
+        }
+        farm.update(default_farming_state_pure())
+        farm["farm_patches"]["falador_allotment_north"].update(
+            {"crop_id": "potato", "last_crop_id": "potato", "diseased": True}
+        )
+        farm["farm_patches"]["falador_allotment_south"].update(
+            {"crop_id": "potato", "last_crop_id": "potato", "diseased": True}
+        )
+        remote, xp, _secondary, _outputs, ok, _ = apply_magic_action_pure(
+            farm,
+            "remote_farm",
+            MAGIC_DATA,
+            {},
+        )
+        self.assertTrue(ok)
+        self.assertEqual(xp, 79.0)
+        self.assertEqual(remote["magic_last_remote_farm"]["cured_count"], 2)
+        self.assertFalse(
+            remote["farm_patches"]["falador_allotment_north"]["diseased"]
+        )
+        self.assertFalse(
+            remote["farm_patches"]["falador_allotment_south"]["diseased"]
+        )
+
+        leather = {
+            "magic_level": 99,
+            "quests": quests,
+            "livid_farm": {"unlocked_spells": unlocked},
+            "inventory": {
+                "Astral rune": 2,
+                "Fire rune": 2,
+                "Body rune": 2,
+                "Black dragonhide": 7,
+            },
+        }
+        tanned, xp, _secondary, outputs, ok, _ = apply_magic_action_pure(
+            leather,
+            "make_black_dragon_leather",
+            MAGIC_DATA,
+            {},
+        )
+        self.assertTrue(ok)
+        self.assertEqual(xp, 87.0)
+        self.assertEqual(outputs, {"Black dragon leather": 5})
+        self.assertEqual(tanned["inventory"]["Black dragonhide"], 2)
+
+        trollheim_spec = MAGIC_DATA["teleport_to_trollheim"]
+        trollheim = {
+            "magic_level": 99,
+            "quests": quests,
+            "livid_farm": {"unlocked_spells": unlocked},
+            "inventory": dict(trollheim_spec["rune_cost"]),
+        }
+        focused, xp, _secondary, _outputs, ok, _ = apply_magic_action_pure(
+            trollheim,
+            "teleport_to_trollheim",
+            MAGIC_DATA,
+            {},
+        )
+        self.assertTrue(ok)
+        self.assertEqual(xp, 101.0)
+        self.assertEqual(focused["farming_spell_patch"], "trollheim_herb")
+        self.assertEqual(
+            focused["magic_last_teleport"]["destination"],
+            "Troll Stronghold herb patch",
+        )
 
     def test_elemental_staff_waives_only_covered_runes(self):
         cost = effective_magic_rune_cost_pure(
@@ -655,7 +883,7 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
         self.assertEqual(migrated["equipment"]["neck"], "Gold amulet")
 
     def test_every_magic_manifest_asset_exists(self):
-        self.assertEqual(len(MAGIC_ITEM_IMAGES), 130)
+        self.assertEqual(len(MAGIC_ITEM_IMAGES), 137)
         for path in MAGIC_ITEM_IMAGES.values():
             self.assertTrue(os.path.exists(path), path)
 

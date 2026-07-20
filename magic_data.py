@@ -27,6 +27,11 @@ CHARGE_WIKI = "RuneScape Wiki Charge (spell) oldid=6593039 (2012-11-20)"
 DREAM_WIKI = "RuneScape Wiki Dream oldid=6587759 (2012-11-19)"
 SWAP_WIKI = "RuneScape Wiki Spellbook Swap oldid=5827653 (2012-06-25)"
 VENGEANCE_WIKI = "RuneScape Wiki Vengeance oldid=6587400 (2012-11-19)"
+LIVID_FARM_WIKI = "RuneScape Wiki Livid Farm oldid=6569596 (2012-11-17)"
+LIVID_DARKAN = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "src/main/java/com/rs/game/content/skills/magic/lunar/LunarDefs.kt"
+)
 
 DEFAULT_MAGIC_TARGET = "low_alchemy"
 MAGIC_GROUP_ORDER = (
@@ -44,6 +49,11 @@ def _spell(
     batch: str = "one", secondary_skill: Optional[str] = None,
     secondary_xp: float = 0.0, secondary_level: int = 1, coin_cost: int = 0,
     reachability_inputs: Tuple[str, ...] = (),
+    livid_unlock: Optional[str] = None,
+    consumer_unavailable: Optional[str] = None,
+    destination: Optional[str] = None,
+    leather_input: Optional[str] = None,
+    leather_output: Optional[str] = None,
 ) -> dict:
     return {
         "id": target_id, "display_name": name, "spellbook": book, "group": group,
@@ -54,6 +64,11 @@ def _spell(
         "secondary_level": int(secondary_level),
         "coin_cost": int(coin_cost),
         "reachability_inputs": tuple(reachability_inputs),
+        "livid_unlock": livid_unlock,
+        "consumer_unavailable": consumer_unavailable,
+        "destination": destination,
+        "leather_input": leather_input,
+        "leather_output": leather_output,
     }
 
 
@@ -100,8 +115,7 @@ for target_id, name, level, xp, runes in (
 ):
     _add(_spell(target_id, name, "ancient", "Teleports — Ancient", level, xp, runes, quest_gate="desert_treasure", source=ANCIENT_WIKI))
 
-# Lunar solo teleports; group/other-player variants and Livid Farm rows are
-# intentionally absent per the closed contract.
+# Lunar solo teleports outside the Livid Farm reward ladder.
 for target_id, name, level, xp, runes, gate in (
     ("moonclan_teleport", "Moonclan Teleport", 69, 66, {"Astral rune": 2, "Law rune": 1, "Earth rune": 2}, "lunar_diplomacy"),
     ("ourania_teleport", "Ourania Teleport", 71, 69, {"Astral rune": 2, "Law rune": 1, "Earth rune": 6}, "lunar_diplomacy"),
@@ -113,6 +127,194 @@ for target_id, name, level, xp, runes, gate in (
     ("ice_plateau_teleport", "Ice Plateau Teleport", 89, 96, {"Astral rune": 3, "Law rune": 3, "Water rune": 8}, "lunar_diplomacy"),
 ):
     _add(_spell(target_id, name, "lunar", "Teleports — Lunar", level, xp, runes, quest_gate=gate, source=LUNAR_WIKI))
+
+
+# Livid Farm's first ten cumulative unlocks join the ordinary Lunar registry.
+# Rows without an admitted AnkiScape consumer remain visible with their exact
+# source-owned reason instead of disappearing into a generic future bucket.
+_add(
+    _spell(
+        "south_falador_teleport",
+        "South Falador Teleport",
+        "lunar",
+        "Teleports — Lunar",
+        72,
+        70,
+        {"Astral rune": 2, "Law rune": 1, "Air rune": 2},
+        "teleport",
+        quest_gate="lunar_diplomacy",
+        source=f"RuneScape Wiki South Falador Teleport oldid=6587582 (2012-11-19); {LIVID_DARKAN}:20",
+        livid_unlock="south_falador_teleport",
+        destination="South Falador gate",
+    ),
+    _spell(
+        "repair_rune_pouch",
+        "Repair Rune Pouch",
+        "lunar",
+        "Lunar skilling",
+        75,
+        75,
+        {"Astral rune": 2, "Law rune": 1, "Cosmic rune": 1},
+        "repair_rune_pouch",
+        quest_gate="lunar_diplomacy",
+        source=f"RuneScape Wiki Repair Rune Pouch oldid=6587602 (2012-11-19); {LIVID_DARKAN}:23",
+        livid_unlock="repair_rune_pouch",
+        consumer_unavailable="Pouch strengthening is not available yet",
+    ),
+    _spell(
+        "north_ardougne_teleport",
+        "North Ardougne Teleport",
+        "lunar",
+        "Teleports — Lunar",
+        76,
+        76,
+        {"Astral rune": 2, "Law rune": 1, "Water rune": 5},
+        "teleport",
+        quest_gate="lunar_diplomacy",
+        source=f"RuneScape Wiki North Ardougne Teleport oldid=6587632 (2012-11-19); {LIVID_DARKAN}:26",
+        livid_unlock="north_ardougne_teleport",
+        destination="North of East Ardougne bank",
+    ),
+    _spell(
+        "remote_farm",
+        "Remote Farm",
+        "lunar",
+        "Lunar skilling",
+        78,
+        79,
+        {"Astral rune": 2, "Earth rune": 2, "Nature rune": 3},
+        "remote_farm",
+        quest_gate="lunar_diplomacy",
+        source=f"RuneScape Wiki Remote Farm oldid=6587680 (2012-11-19); {LIVID_DARKAN}:29",
+        livid_unlock="remote_farm",
+    ),
+    _spell(
+        "spiritualise_food",
+        "Spiritualise Food",
+        "lunar",
+        "Lunar skilling",
+        80,
+        81,
+        {"Astral rune": 2, "Cosmic rune": 3, "Body rune": 5},
+        "spiritualise_food",
+        quest_gate="lunar_diplomacy",
+        source=f"{LIVID_FARM_WIKI}; {LIVID_DARKAN}:33",
+        livid_unlock="spiritualise_food",
+        consumer_unavailable="Familiar food effects are not available yet",
+    ),
+    _spell(
+        "disruption_shield",
+        "Disruption Shield",
+        "lunar",
+        "Pure casts",
+        90,
+        97,
+        {"Astral rune": 3, "Blood rune": 3, "Body rune": 10},
+        "disruption_shield",
+        quest_gate="lunar_diplomacy",
+        source=f"RuneScape Wiki Disruption Shield oldid=6587745 (2012-11-19); {LIVID_DARKAN}:48",
+        livid_unlock="disruption_shield",
+        consumer_unavailable="Requires PvP combat",
+    ),
+    _spell(
+        "vengeance_group",
+        "Vengeance Group",
+        "lunar",
+        "Pure casts",
+        95,
+        120,
+        {"Astral rune": 4, "Death rune": 3, "Earth rune": 11},
+        "vengeance_group",
+        quest_gate="lunar_diplomacy",
+        source=f"RuneScape Wiki Vengeance Group oldid=6587416 (2012-11-19); {LIVID_DARKAN}:55",
+        livid_unlock="vengeance_group",
+        consumer_unavailable="Requires other players",
+    ),
+    _spell(
+        "teleport_to_trollheim",
+        "Trollheim Farm Teleport",
+        "lunar",
+        "Teleports — Lunar",
+        92,
+        101,
+        {"Astral rune": 3, "Law rune": 3, "Water rune": 10},
+        "teleport",
+        quest_gate="my_arms_big_adventure",
+        source=f"RuneScape Wiki Trollheim Farm Teleport oldid=6587747 (2012-11-19); {LIVID_DARKAN}:51",
+        livid_unlock="teleport_to_trollheim",
+        destination="Troll Stronghold herb patch",
+    ),
+    _spell(
+        "group_teleport_to_trollheim",
+        "Tele-group Trollheim Farm",
+        "lunar",
+        "Teleports — Lunar",
+        93,
+        102,
+        {"Astral rune": 3, "Law rune": 3, "Water rune": 20},
+        "group_teleport",
+        quest_gate="my_arms_big_adventure",
+        source=f"RuneScape Wiki Tele-group Trollheim Farm oldid=6587750 (2012-11-19); {LIVID_DARKAN}:52",
+        livid_unlock="group_teleport_to_trollheim",
+        consumer_unavailable="Requires other players",
+        destination="Troll Stronghold herb patch",
+    ),
+)
+
+# Make Leather's selected hide type is explicit, matching the established
+# per-output Plank Make and Superheat target pattern. The ordinary and swamp
+# snake hides share AnkiScape's existing Snake hide item identity.
+for target_id, name, hide, leather in (
+    ("make_soft_leather", "Make Leather — Leather", "Cowhide", "Leather"),
+    ("make_hard_leather", "Make Leather — Hard leather", "Cowhide", "Hard leather"),
+    ("make_snakeskin", "Make Leather — Snakeskin", "Snake hide", "Snakeskin"),
+    (
+        "make_green_dragon_leather",
+        "Make Leather — Green dragon leather",
+        "Green dragonhide",
+        "Green dragon leather",
+    ),
+    (
+        "make_blue_dragon_leather",
+        "Make Leather — Blue dragon leather",
+        "Blue dragonhide",
+        "Blue dragon leather",
+    ),
+    (
+        "make_red_dragon_leather",
+        "Make Leather — Red dragon leather",
+        "Red dragonhide",
+        "Red dragon leather",
+    ),
+    (
+        "make_black_dragon_leather",
+        "Make Leather — Black dragon leather",
+        "Black dragonhide",
+        "Black dragon leather",
+    ),
+):
+    _add(
+        _spell(
+            target_id,
+            name,
+            "lunar",
+            "Lunar skilling",
+            83,
+            87,
+            {"Astral rune": 2, "Fire rune": 2, "Body rune": 2},
+            "tan_leather",
+            outputs={leather: 5},
+            quest_gate="dream_mentor",
+            source=(
+                "RuneScape Wiki Make Leather oldid=6587732 (2012-11-19); "
+                f"{LIVID_DARKAN}:37"
+            ),
+            batch="five",
+            livid_unlock="make_leather",
+            leather_input=hide,
+            leather_output=leather,
+        )
+    )
 
 
 # Jewellery: all six gem tiers x four jewellery forms from EnchantmentData.kt.
@@ -183,7 +385,7 @@ _add(
     _spell("humidify", "Humidify", "lunar", "Lunar skilling", 68, 65, {"Astral rune": 1, "Water rune": 3, "Fire rune": 1}, "humidify", quest_gate="dream_mentor", source=f"{LUNAR_WIKI}; RuneScape Wiki Humidify oldid=6587438", batch="all"),
     _spell("hunter_kit", "Hunter Kit", "lunar", "Lunar skilling", 71, 70, {"Astral rune": 2, "Earth rune": 2}, "produce", outputs={"Noose wand": 1, "Butterfly net": 1, "Bird snare": 1, "Rabbit snare": 1, "Teasing stick": 1, "Unlit torch": 1, "Box trap": 1}, quest_gate="dream_mentor", source=f"{LUNAR_WIKI}; RuneScape Wiki Hunter Kit (spell) oldid=6587781"),
     _spell("superglass_make", "Superglass Make", "lunar", "Lunar skilling", 77, 78, {"Astral rune": 2, "Air rune": 10, "Fire rune": 6}, "superglass", quest_gate="lunar_diplomacy", source=f"{LUNAR_WIKI}; RuneScape Wiki Superglass Make oldid=6587788", batch="all", secondary_skill="crafting", secondary_xp=10),
-    _spell("tan_leather", "Tan Leather", "lunar", "Lunar skilling", 78, 81, {"Astral rune": 2, "Fire rune": 5, "Body rune": 1}, "tan_leather", quest_gate="lunar_diplomacy", source=f"{LUNAR_WIKI}; RuneScape Wiki Make Leather oldid=6587732; closed contract batch of five", batch="five"),
+    _spell("tan_leather", "Tan Leather", "lunar", "Lunar skilling", 78, 81, {"Astral rune": 2, "Fire rune": 5, "Body rune": 1}, "tan_leather", quest_gate="lunar_diplomacy", source=f"{LUNAR_WIKI}; {LIVID_DARKAN}: ordinary Tan Leather row", batch="five"),
     _spell("string_jewellery", "String Jewellery", "lunar", "Lunar skilling", 80, 87, {"Astral rune": 2, "Earth rune": 10, "Water rune": 5}, "string_jewellery", quest_gate="lunar_diplomacy", source=f"{LUNAR_WIKI}; RuneScape Wiki String Jewellery oldid=6587350", batch="all", secondary_skill="crafting", secondary_xp=4),
     _spell("magic_imbue", "Magic Imbue", "lunar", "Lunar skilling", 82, 86, {"Astral rune": 2, "Fire rune": 7, "Water rune": 7}, "magic_imbue", quest_gate="lunar_diplomacy", source=f"{LUNAR_WIKI}; RuneScape Wiki Magic Imbue oldid=6587782"),
 )
@@ -209,8 +411,10 @@ MAGIC_NOT_APPLICABLE = (
     "Energy Transfer", "Vengeance Other", "Teleport Block",
 )
 MAGIC_DEPENDENCY_BLOCKED = (
-    "Livid Farm spell set", "Cure Plant real Farming function",
-    "Fertile Soil real Farming function", "Plank consumers", "Hunter Kit consumers",
+    "Repair Rune Pouch base durability reconciliation",
+    "Spiritualise Food period familiar-effect semantics",
+    "Livid Farm multiplayer and PvP consumers",
+    "Plank consumers", "Hunter Kit consumers",
 )
 
 

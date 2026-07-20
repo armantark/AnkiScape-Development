@@ -597,6 +597,10 @@ def magic_target_rows(
             f"{spec.get('spellbook', 'standard').title()} · Magic level {spec.get('level', 1)}\n"
             f"Magic XP: {spec.get('exp', 0):g} per cast\nRunes: {rune_text}"
         )
+        if spec.get("destination"):
+            tooltip += f"\nDestination: {spec['destination']}"
+        if spec.get("leather_input"):
+            tooltip += f"\nInput: {spec['leather_input']} x1–5"
         if reasons:
             tooltip += "\nLocked due to: " + ", ".join(reasons)
         icon_name = next(iter((spec.get("outputs", {}) or {})), name)

@@ -1199,6 +1199,25 @@ def _apply_farming_spell_pure(player_data, target_id, patch_id=None):
     return apply_farming_spell_pure(player_data, target_id, patch_id)
 
 
+def _apply_remote_farm_pure(player_data):
+    try:
+        from .farming_logic import apply_remote_farm_pure
+    except ImportError:  # pragma: no cover - flat imports used by tests
+        from farming_logic import apply_remote_farm_pure  # type: ignore
+    return apply_remote_farm_pure(player_data)
+
+
+def _livid_spell_locked_reasons_pure(player_data, unlock_id):
+    try:
+        from .livid_farm_logic import sanitize_livid_farm_state_pure
+    except ImportError:  # pragma: no cover - flat imports used by tests
+        from livid_farm_logic import sanitize_livid_farm_state_pure  # type: ignore
+    state = sanitize_livid_farm_state_pure(player_data.get("livid_farm"))
+    if str(unlock_id) in set(map(str, state["unlocked_spells"])):
+        return ()
+    return ("Unlock at Livid Farm",)
+
+
 MAGIC_CHARGE_DURATION_TICKS = 700
 TEMPORARY_EFFECT_TICKS_PER_ACTION = 50
 
@@ -1283,7 +1302,14 @@ def _magic_dynamic_requirements_pure(
         if _non_negative_int(inventory.get("Bucket of sand", 0), 0) <= 0 or not any(_non_negative_int(inventory.get(item, 0), 0) > 0 for item in ("Soda ash", "Seaweed", "Swamp weed")):
             return requirements, ("Bucket of sand + soda ash/seaweed",)
     elif action == "tan_leather":
-        if not any(_non_negative_int(inventory.get(item, 0), 0) > 0 for item in ("Cowhide", "Green dragonhide", "Blue dragonhide", "Red dragonhide", "Black dragonhide")):
+        selected_hide = str(spec.get("leather_input", "") or "")
+        if selected_hide:
+            if _non_negative_int(inventory.get(selected_hide, 0), 0) <= 0:
+                return requirements, (selected_hide,)
+        elif not any(
+            _non_negative_int(inventory.get(item, 0), 0) > 0
+            for item in _LEATHER_OUTPUTS
+        ):
             return requirements, ("Hide",)
     elif action == "string_jewellery":
         if not any(_non_negative_int(inventory.get(item, 0), 0) > 0 for item in _STRINGABLE_AMULETS):
@@ -1320,6 +1346,12 @@ def magic_target_locked_reasons_pure(
     gate = spec.get("quest_gate")
     if gate and not _magic_quest_gate_complete_pure(player_data, gate):
         reasons.append(str(gate).replace("_", " ").title())
+    livid_unlock = spec.get("livid_unlock")
+    if livid_unlock:
+        reasons.extend(_livid_spell_locked_reasons_pure(player_data, livid_unlock))
+    consumer_unavailable = spec.get("consumer_unavailable")
+    if consumer_unavailable:
+        reasons.append(str(consumer_unavailable))
     god_id = MAGE_ARENA_SPELL_TO_GOD.get(target_id)
     if god_id:
         state = sanitize_mage_arena_state_pure(player_data.get("mage_arena"))
@@ -1459,10 +1491,17 @@ def apply_magic_action_pure(
         add("Molten glass", count + sum(1 for _ in range(count) if random_random() < 0.30))
         secondary["crafting"] = 10.0 * count
     elif action == "tan_leather":
-        hide = next(item for item in _LEATHER_OUTPUTS if _non_negative_int(inventory.get(item, 0), 0) > 0)
+        hide = str(spec.get("leather_input", "") or "")
+        if not hide:
+            hide = next(
+                item
+                for item in _LEATHER_OUTPUTS
+                if _non_negative_int(inventory.get(item, 0), 0) > 0
+            )
+        leather = str(spec.get("leather_output", "") or _LEATHER_OUTPUTS[hide])
         count = min(5, _non_negative_int(inventory.get(hide, 0), 0))
         inventory[hide] -= count
-        add(_LEATHER_OUTPUTS[hide], count)
+        add(leather, count)
     elif action == "string_jewellery":
         total = 0
         for item, strung_item in _STRINGABLE_AMULETS.items():
@@ -1477,6 +1516,17 @@ def apply_magic_action_pure(
     elif action == "charge":
         data["magic_charge_active"] = True
         data["magic_charge_ticks_remaining"] = MAGIC_CHARGE_DURATION_TICKS
+    elif action == "teleport":
+        destination = str(spec.get("destination", "") or "")
+        data["magic_last_teleport"] = {
+            "target_id": target_id,
+            "destination": destination,
+        }
+        if target_id == "teleport_to_trollheim":
+            data["farming_spell_patch"] = "trollheim_herb"
+    elif action == "remote_farm":
+        data, remote_info = _apply_remote_farm_pure(data)
+        data["magic_last_remote_farm"] = remote_info
     elif target_id in {"cure_plant", "fertile_soil"}:
         data, applied, message = _apply_farming_spell_pure(
             data,

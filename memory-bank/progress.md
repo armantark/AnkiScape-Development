@@ -2781,3 +2781,28 @@ Test counts are snapshots; current runs outrank this note.
 - Spell consumers, Borrowed Power / Arcane-capacitor commands, and wishes are
   the next settled implementation slices. The two explicitly source-blocked
   wish magnitudes remain unimplemented.
+
+## Livid Farm ordinary Magic consumers — 2026-07-19
+
+- Added exact ordinary Lunar rows for the first ten cumulative Livid Farm
+  spell unlocks, including the supported Make Leather output variants.
+- Implemented direct South Falador, North Ardougne, and Trollheim Farm
+  destinations, Trollheim herb-patch focus, all-patch Remote Farm curing, and
+  exact five-hide Make Leather inventory transactions with answer undo.
+- Kept Repair Rune Pouch, Spiritualise Food, Disruption Shield, Vengeance
+  Group, and Group Trollheim visible but honestly disabled on their unresolved
+  pouch, familiar, PvP, or multiplayer consumers.
+- Added pure, runtime-integration, Farming-helper, target-metadata, and real
+  offscreen Qt coverage. Kimi K3 and Fable reviewed the complete changed
+  surface; accepted fixes cover destination/input legibility, output icons,
+  disabled-copy language, shown-dialog geometry, and runtime error copy.
+- The current reachability ledger is 283 orphan inputs and 300 blocked actions;
+  these remain explicit dependency/source boundaries rather than fabricated
+  acquisition paths.
+- Durable audit:
+  `source-audits/livid-farm-spell-consumers-2026-07-19.md`.
+- Final verification passes 1,810 non-Qt methods with 230 expected environment
+  skips and all 1,810 real offscreen Qt methods with one intentional skip.
+  Published
+  `status-updates/livid-farm-magic-consumers-results-2026-07-19.html`;
+  mobile copy: `https://hbqtpi53phuh.postplan.dev`.

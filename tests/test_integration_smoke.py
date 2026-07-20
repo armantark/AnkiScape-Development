@@ -3761,6 +3761,113 @@ class TestIntegrationSmoke(unittest.TestCase):
         ))
         self.assertEqual(addon.player_data, before)
 
+    def test_livid_remote_farm_cast_cures_all_patches_and_undoes_atomically(self):
+        addon = _load_addon_as_package("ankiscape_livid_remote_farm_integration")
+        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
+        calls = {"save": 0, "gains": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_exp = lambda _xp: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        state = {
+            "inventory": {
+                "Astral rune": 2,
+                "Earth rune": 2,
+                "Nature rune": 3,
+            },
+            "magic_level": 99,
+            "magic_exp": 0.0,
+            "current_magic": "remote_farm",
+            "quests": {"lunar_diplomacy": {"completed": True}},
+            "livid_farm": {"unlocked_spells": ["remote_farm"]},
+            "completed_achievements": [],
+        }
+        state.update(farming_logic.default_farming_state_pure())
+        for patch_id in ("falador_allotment_north", "falador_allotment_south"):
+            state["farm_patches"][patch_id].update(
+                {
+                    "crop_id": "potato",
+                    "last_crop_id": "potato",
+                    "diseased": True,
+                }
+            )
+        before = copy.deepcopy(state)
+        addon.player_data = state
+        addon.current_skill = "Magic"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertFalse(
+            addon.player_data["farm_patches"]["falador_allotment_north"][
+                "diseased"
+            ]
+        )
+        self.assertFalse(
+            addon.player_data["farm_patches"]["falador_allotment_south"][
+                "diseased"
+            ]
+        )
+        self.assertEqual(addon.player_data["magic_exp"], 79.0)
+        self.assertEqual(
+            calls["gains"],
+            ["Remote Farm checked 2 active patches and cured 2."],
+        )
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(study_queues=True, card=True),
+            )
+        )
+        self.assertEqual(addon.player_data, before)
+
+    def test_livid_consumer_block_message_is_player_facing(self):
+        addon = _load_addon_as_package("ankiscape_livid_block_message_integration")
+        calls = {"errors": []}
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = (
+            lambda title, message: calls["errors"].append((title, message))
+        )
+        addon.player_data = {
+            "inventory": {
+                "Astral rune": 3,
+                "Blood rune": 3,
+                "Body rune": 10,
+            },
+            "magic_level": 99,
+            "current_magic": "disruption_shield",
+            "quests": {"lunar_diplomacy": {"completed": True}},
+            "livid_farm": {"unlocked_spells": ["disruption_shield"]},
+        }
+        addon.current_skill = "Magic"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(
+            calls["errors"],
+            [
+                (
+                    "Magic target unavailable",
+                    "Disruption Shield is unavailable: Requires PvP combat. "
+                    "Magic has been switched off.",
+                )
+            ],
+        )
+
     def test_queued_farming_dig_up_preempts_one_review_and_undoes_atomically(self):
         addon = _load_addon_as_package("ankiscape_farming_dig_up_undo_integration")
         farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]

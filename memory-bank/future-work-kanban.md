@@ -111,11 +111,16 @@ Labels: none remaining on the build itself; trailing `DEPENDENCY` items only.
 - The Livid Farm activity core and cumulative unlock ladder are live. Five
   source-ready wishes are also live with direct undo: Vial My Herbs, exact
   Lunar-lumber residual conversion, More Planks, Gimme Herbs, and Awesome
-  Seeds. Trailing `DEPENDENCY` items are the unlocked spell consumers,
+  Seeds. The first ten ordinary spell unlocks are now registered; direct
+  Falador/Ardougne/Trollheim teleports, Trollheim patch focus, Remote Farm, and
+  all supported Make Leather outputs are live. Repair Rune Pouch,
+  Spiritualise Food, Disruption Shield, Vengeance Group, and Group Trollheim
+  remain explicit consumer dependencies. Other trailing `DEPENDENCY` items are
   Borrowed Power / Arcane-capacitor commands, the one-use allotment and
   ten-tree protection wishes, Hunter Kit consumers (Hunter), and Bones to
   Peaches behind a future Mage Training Arena activity. Exact ordinary
   seed-shower quantities and fish-burn magnitude remain `SOURCE AUDIT`.
+  See `memory-bank/source-audits/livid-farm-spell-consumers-2026-07-19.md`.
   Magic Dart's canonical `Slayer's staff` route is live.
 
 ### Construction — SHIPPED 2026-07-11 (commit c628f0d)

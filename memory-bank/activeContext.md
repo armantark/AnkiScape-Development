@@ -2062,3 +2062,32 @@ The visual closure report is
 - Remaining implementation is spell consumers, Arcane-capacitor/Borrowed
   Power commands, and wishes. Exact ordinary seed-shower quantities and fish
   burn reduction remain source-blocked; no new design question surfaced.
+
+## Livid Farm ordinary Magic consumers — 2026-07-19
+
+- Registered the first ten cumulative Livid unlocks in the ordinary Lunar
+  target list with exact cutoff levels, XP, rune costs, quest gates, and
+  player-facing lock reasons.
+- South Falador, North Ardougne, and Trollheim Farm teleports now record their
+  direct destination; Trollheim also focuses the existing herb patch. Remote
+  Farm atomically inspects every accessible active patch and cures all diseased
+  crops in one cast.
+- Make Leather exposes the seven supported item-substrate outputs as explicit
+  per-output targets and tans up to five selected hides. Royal dragonhide waits
+  on its absent item substrate, and Yak-hide remains source-excluded.
+- Repair Rune Pouch waits on the unresolved base pouch-degradation conflict;
+  Spiritualise Food waits on exact familiar-food semantics; Disruption Shield,
+  Vengeance Group, and Group Trollheim remain registered but disabled until
+  their PvP or multiplayer consumers exist.
+- Kimi K3 and Fable reviewed the player surface. Their findings added visible
+  destinations and hide inputs, preserved output icons, replaced audit jargon
+  with player language, exercised shown-dialog geometry, and removed a doubled
+  “requires” runtime message.
+- Durable evidence:
+  `source-audits/livid-farm-spell-consumers-2026-07-19.md`. No new owner design
+  question surfaced.
+- Final verification passes all 1,810 non-Qt methods with 230 expected
+  environment skips and all 1,810 real offscreen Qt methods with one
+  intentional skip. Results:
+  `status-updates/livid-farm-magic-consumers-results-2026-07-19.html`;
+  mobile copy: `https://hbqtpi53phuh.postplan.dev`.

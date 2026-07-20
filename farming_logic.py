@@ -1167,6 +1167,42 @@ def apply_farming_spell_pure(
     return updated, True, message
 
 
+def apply_remote_farm_pure(
+    player_data: Mapping[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """View every admitted patch and cure all live diseased crops in one cast."""
+
+    updated = _copy_with_farm_state(player_data)
+    active_patch_count = 0
+    cured_patch_ids: list[str] = []
+    for patch in FARMING_PATCHES:
+        if not farming_access_gate_allows_pure(updated, patch.access_gate):
+            continue
+        record = updated["farm_patches"][patch.id]
+        crop = FARMING_CROPS_BY_ID.get(record.get("crop_id"))
+        if crop is None:
+            continue
+        active_patch_count += 1
+        if record.get("dead") or not record.get("diseased"):
+            continue
+        record["diseased"] = False
+        cured_patch_ids.append(patch.id)
+        _increment(updated, "cures")
+        _log(
+            updated,
+            "farming_spell",
+            f"Remote Farm cured {crop.display_name}.",
+            spell_id="remote_farm",
+            patch_id=patch.id,
+            crop_id=crop.id,
+        )
+    return updated, {
+        "active_patch_count": active_patch_count,
+        "cured_patch_ids": tuple(cured_patch_ids),
+        "cured_count": len(cured_patch_ids),
+    }
+
+
 def _step_id(updated: dict[str, Any]) -> str:
     value = updated["farm_next_step_id"]
     updated["farm_next_step_id"] = value + 1
