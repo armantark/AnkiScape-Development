@@ -1,7 +1,8 @@
 # AnkiScape help-system contract (settled 2026-07-16)
 
-Status: **Help Center implemented 2026-07-20; the settled `Details` boundary
-remains separately sequenced.**
+Status: **Help Center and target-level `Details` implemented 2026-07-20.
+Fable taste sign-off remains externally blocked by the mandatory live quota
+probe.**
 
 ## Problem
 
@@ -119,6 +120,20 @@ The Help Center portion of this contract is live:
 - missing IDs fail visibly in developer mode and fall back to Help home in
   production.
 
-The reusable target-level `Details` surface is not part of this Help Center
-closure. Its behavior above remains owner-settled and should be implemented as
-its own registry-backed slice without copying values into Help prose.
+The reusable target-level `Details` surface remains a separate implementation
+slice from Help prose and is now live:
+
+- a collapsed-by-default disclosure appears for registry-backed skill targets;
+- flat and grouped target lists project the current row's live mechanics
+  without copying or recalculating gameplay values;
+- locked rows expose their requirements and blockers without becoming
+  selectable;
+- provenance lines and internal implementation concepts are removed from the
+  player-facing projection; and
+- a bounded scroll region keeps dense Combat mechanics from consuming the
+  target list.
+
+Farming retains its existing patch-specific progressive Details sheet. Shops
+remain stock/price surfaces. Durable verification and the outstanding Fable
+QA/auth gate are recorded in
+`source-audits/target-details-implementation-2026-07-20.md`.

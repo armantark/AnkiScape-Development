@@ -29,7 +29,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMessageBox, QPalette, QPushButton, QIcon, QImage, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMessageBox, QPalette, QPushButton, QIcon, QImage, QScrollArea, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
@@ -4142,7 +4142,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(wild.isDisabled())
         self.assertFalse(wild.icon(0).isNull(), "Hunter target row has no icon")
         self.assertIn("Outputs: Bones x1, Kebbit claws x1", wild.toolTip(0))
-        self.assertIn("Base XP: 128.0 per successful catch", wild.toolTip(0))
+        self.assertIn("Base XP: 128 per successful catch", wild.toolTip(0))
         self.assertIn("Success chance:", wild.toolTip(0))
         self.assertIn("Logs x1 (you have 1)", wild.toolTip(0))
         self.assertTrue(ferret.isDisabled())
@@ -4256,7 +4256,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             if target_list.item(i).data(Qt.ItemDataRole.UserRole) == "oak_logs"
         )
         self.assertEqual(target_list.currentItem().data(Qt.ItemDataRole.UserRole), "oak_logs")
-        self.assertIn("Base XP: 40.0", logs_row.toolTip())
+        self.assertIn("Base XP: 40", logs_row.toolTip())
         self.assertIn("Input: Logs x1 (you have 2)", logs_row.toolTip())
         self.assertIn("Output: Ashes x1", logs_row.toolTip())
         self.assertIn("Success chance:", logs_row.toolTip())
@@ -4386,6 +4386,86 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(self._cooking_calls[-1], "cook_shrimps")
         self.assertTrue(_cooking_family_node(tree, "fish").isExpanded())
 
+    def test_target_details_are_optional_live_and_provenance_free(self) -> None:
+        pd = _make_player_data()
+        pd["cooking_level"] = 33
+        pd["inventory"] = {"Raw shrimps": 2, "Raw beef": 1}
+        pd["current_cooking"] = "cook_shrimps"
+        dialog = self._open(pd, current_skill="Cooking")
+        dialog.show()
+        QApplication.processEvents()
+
+        tree = _goto_cooking(dialog)
+        toggle = dialog.findChild(QToolButton, "targetDetailsToggle")
+        panel = dialog.findChild(QWidget, "targetDetailsPanel")
+        title = dialog.findChild(QLabel, "targetDetailsTitle")
+        body = dialog.findChild(QLabel, "targetDetailsBody")
+        details_scroll = dialog.findChild(QScrollArea, "targetDetailsScroll")
+
+        self.assertTrue(toggle.isVisibleTo(dialog))
+        self.assertFalse(panel.isVisibleTo(dialog))
+        self.assertEqual(details_scroll.maximumHeight(), 190)
+        self.assertEqual(title.text(), "Cook raw shrimps (Lvl 1)")
+        self.assertIn("Success output: Shrimps x1", body.text())
+        self.assertIn("Success chance:", body.text())
+        self.assertNotIn("Source:", body.text())
+
+        toggle.click()
+        QApplication.processEvents()
+        self.assertTrue(panel.isVisibleTo(dialog))
+        self.assertEqual(toggle.arrowType(), Qt.ArrowType.DownArrow)
+
+        beef = _cooking_row(tree, "cook_beef")
+        tree.setCurrentItem(beef)
+        QApplication.processEvents()
+        self.assertEqual(title.text(), "Cook raw beef (Lvl 1)")
+        self.assertIn("Success output: Cooked meat x1", body.text())
+        self.assertTrue(panel.isVisibleTo(dialog))
+
+        calls_before_locked_click = list(self._cooking_calls)
+        shark = _cooking_row(tree, "cook_shark")
+        tree.itemClicked.emit(shark, 0)
+        QApplication.processEvents()
+        self.assertEqual(title.text(), "Cook raw shark (Lvl 80)")
+        self.assertIn("Locked due to:", body.text())
+        self.assertEqual(self._cooking_calls, calls_before_locked_click)
+
+        self._ui._MAIN_MENU_CTX["open_farming"]()
+        QApplication.processEvents()
+        farming_panel = dialog.findChild(QWidget, "targetDetailsPanel")
+        self.assertFalse(farming_panel.isVisibleTo(dialog))
+        dialog.deleteLater()
+
+    def test_flat_target_details_use_the_current_registry_row(self) -> None:
+        pd = _make_player_data()
+        pd["mining_level"] = 33
+        pd["current_ore"] = "copper"
+        dialog = self._open(pd, current_skill="Mining")
+        dialog.show()
+        QApplication.processEvents()
+
+        toggle = dialog.findChild(QToolButton, "targetDetailsToggle")
+        title = dialog.findChild(QLabel, "targetDetailsTitle")
+        body = dialog.findChild(QLabel, "targetDetailsBody")
+
+        self.assertTrue(toggle.isVisibleTo(dialog))
+        self.assertIn("Copper", title.text())
+        self.assertIn("Output: Copper ore x1", body.text())
+        self.assertIn("Best usable pickaxe: Bronze pickaxe", body.text())
+        self.assertNotIn("Source:", body.text())
+
+        ore_list = _find_list_with_user_role(dialog, "copper")
+        runite = next(
+            ore_list.item(index)
+            for index in range(ore_list.count())
+            if ore_list.item(index).data(Qt.ItemDataRole.UserRole) == "runite"
+        )
+        ore_list.itemClicked.emit(runite)
+        QApplication.processEvents()
+        self.assertIn("Runite", title.text())
+        self.assertIn("Locked due to:", body.text())
+        dialog.deleteLater()
+
     def test_cooking_locked_rows_are_inert(self) -> None:
         pd = _make_player_data()
         pd["cooking_level"] = 1
@@ -4474,7 +4554,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         self.assertFalse(overload.isDisabled())
         self.assertFalse(overload.icon(0).isNull())
-        self.assertIn("Base XP: 1000.0", overload.toolTip(0))
+        self.assertIn("Base XP: 1000", overload.toolTip(0))
         self.assertIn("Byproduct: Vial x4", overload.toolTip(0))
         self.assertIn("Extreme ranging (3) x1", overload.toolTip(0))
 
@@ -4544,7 +4624,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         self.assertTrue(row.isDisabled())
         self.assertFalse(row.icon(0).isNull())
-        self.assertIn("Base XP: 6.0", row.toolTip(0))
+        self.assertIn("Base XP: 6", row.toolTip(0))
         self.assertIn("Tarromin potion (unf) x1", row.toolTip(0))
         self.assertIn("Shrunk ogleroot x1", row.toolTip(0))
 

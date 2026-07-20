@@ -2243,6 +2243,32 @@ The visual closure report is
   The known reachability ledger remains 1,268 actions, 1,889 reachable items,
   284 orphan inputs, and 302 blocked actions.
 - Durable implementation record:
-  `source-audits/help-center-implementation-2026-07-20.md`. The separately
-  settled target-level `Details` surface remains the next Help-contract slice;
-  no new owner design gap surfaced.
+  `source-audits/help-center-implementation-2026-07-20.md`. Its separately
+  settled target-level `Details` slice is recorded below; no new owner design
+  gap surfaced.
+
+## Target-level mechanics Details — 2026-07-20
+
+- Implemented the Help contract's separate optional `Details` surface for
+  registry-backed skill targets. It is collapsed by default and reuses each
+  live row's current chance, output/damage, XP, requirements, modifiers, and
+  blockers without exposing provenance, ticks, RNG state, or invented
+  precision.
+- Flat and grouped targets update the sheet in place. Locked targets may show
+  blockers but remain inert. The open state survives same-skill rerenders,
+  resets across skill/category changes and direct Farming navigation, and a
+  190-pixel scroll bound preserves the target list under dense Combat copy.
+- Kimi K3's concrete findings drove the Combat height bound, locked-row path,
+  Farming reset, integer-XP cleanup, and player-facing empty copy. Dark, light,
+  constrained Combat, and fully restarted native macOS Anki evidence are
+  clean.
+- The required Fable taste pass remains externally blocked because the
+  mandatory fresh quota probe cannot read Claude Code OAuth from macOS
+  Keychain (`security` exit 51). This is a QA/auth gate, not a design gap.
+- Full verification passes 1,899 non-Qt tests with 250 expected environment
+  skips and all 1,899 offscreen Qt tests with one intentional skip. Durable
+  evidence:
+  `source-audits/target-details-implementation-2026-07-20.md`.
+- Published
+  `status-updates/target-details-results-2026-07-20.html`;
+  mobile copy: `https://0vdjdlyrmky3.postplan.dev`.

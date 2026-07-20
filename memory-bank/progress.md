@@ -2996,8 +2996,8 @@ Test counts are snapshots; current runs outrank this note.
   guarded-worktree checks are clean.
 - The Help Center is implemented and committed at `b475397`; its required
   Fable sign-off remains blocked by Claude Code's macOS Keychain credential.
-  The separate owner-settled target-level `Details` surface remains
-  implementation backlog.
+  The separate owner-settled target-level `Details` implementation is recorded
+  below and carries the same external Fable QA/auth gate.
 
 ## Dungeoneering source-ready backend substrate — 2026-07-20
 
@@ -3032,3 +3032,26 @@ Test counts are snapshots; current runs outrank this note.
 - Published
   `status-updates/dungeoneering-starter-backend-results-2026-07-20.html`;
   mobile copy: `https://pgbwaae8lohy.postplan.dev`.
+
+## Target-level mechanics Details — 2026-07-20
+
+- Added a collapsed `Details` disclosure to registry-backed skill targets in
+  both flat and grouped selectors. It projects the live target row instead of
+  duplicating or recalculating mechanics.
+- Preserved provenance and implementation boundaries: source lines, audit
+  classifications, equations, ticks, RNG state, and fabricated precision are
+  not shown. Locked rows expose requirements without becoming selectable.
+- Added a bounded scroll sheet for long Combat mechanics, same-skill open-state
+  persistence, cross-skill/Farming reset, and normalized integer XP copy.
+- Added pure and real-Qt coverage for provenance removal, grouped and flat
+  rows, locked-row behavior, Farming reset, and the Combat height invariant.
+- Kimi K3's taste pass is incorporated. A fully quit/relaunched native Anki
+  process loaded one add-on dialog and verified live Cooking and locked-target
+  behavior. Fable remains pending only because its mandatory fresh quota probe
+  is blocked by macOS Keychain.
+- Complete verification passes 1,899 non-Qt tests with 250 expected
+  environment skips and 1,899 offscreen Qt tests with one intentional skip.
+  See `source-audits/target-details-implementation-2026-07-20.md`.
+- Published
+  `status-updates/target-details-results-2026-07-20.html`;
+  mobile copy: `https://0vdjdlyrmky3.postplan.dev`.

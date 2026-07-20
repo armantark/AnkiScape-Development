@@ -48,6 +48,7 @@ from constants import (
 )
 from target_metadata import (
     TargetRowMetadata,
+    target_details_from_row_pure,
     agility_target_rows,
     combat_target_rows,
     cooking_target_rows,
@@ -82,6 +83,33 @@ def _row(rows, target_id):
 
 
 class TargetMetadataTest(unittest.TestCase):
+    def test_target_details_reuse_live_values_without_exposing_provenance(self):
+        row = TargetRowMetadata(
+            target_id="giant_rat",
+            label="Giant rat (Lvl 2)",
+            tooltip=(
+                "Accuracy: 83%\n"
+                "Your max hit: 41 LP\n"
+                "Drops:\n"
+                "  Raw rat meat x1\n"
+                "Source: giant_rat_level_2.plugin.kts"
+            ),
+        )
+
+        details = target_details_from_row_pure(row)
+
+        self.assertEqual(details.title, "Giant rat (Lvl 2)")
+        self.assertEqual(
+            details.lines,
+            (
+                "Accuracy: 83%",
+                "Your max hit: 41 LP",
+                "Drops:",
+                "  Raw rat meat x1",
+            ),
+        )
+        self.assertNotIn("plugin.kts", "\n".join(details.lines))
+
     def test_summoning_rows_expose_all_targets_and_exact_recipe_state(self):
         rows = summoning_target_rows(
             {
@@ -241,7 +269,7 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertTrue(overload.enabled)
         self.assertTrue(overload.current)
         self.assertIsNotNone(overload.icon_path)
-        self.assertIn("Base XP: 1000.0", overload.tooltip)
+        self.assertIn("Base XP: 1000", overload.tooltip)
         self.assertIn("Byproduct: Vial x4", overload.tooltip)
         self.assertIn("Extreme ranging (3) x1", overload.tooltip)
 
@@ -262,7 +290,7 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertTrue(row.enabled)
         self.assertTrue(row.current)
         self.assertIsNotNone(row.icon_path)
-        self.assertIn("Base XP: 6.0", row.tooltip)
+        self.assertIn("Base XP: 6", row.tooltip)
         self.assertIn("Tarromin potion (unf) x1", row.tooltip)
         self.assertIn("Shrunk ogleroot x1", row.tooltip)
 
@@ -1535,7 +1563,7 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertTrue(logs.current)
         self.assertTrue(oak.enabled)
         self.assertEqual(logs.icon_path, FIREMAKING_ITEM_IMAGES["Logs"])
-        self.assertIn("Base XP: 40.0 per successful burn", logs.tooltip)
+        self.assertIn("Base XP: 40 per successful burn", logs.tooltip)
         self.assertIn("Input: Logs x1 (you have 2)", logs.tooltip)
         self.assertIn("Output: Ashes x1", logs.tooltip)
         self.assertIn("Success chance:", logs.tooltip)
@@ -1646,7 +1674,7 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertTrue(wild_kebbit.enabled)
         self.assertEqual(wild_kebbit.icon_path, HUNTER_ITEM_IMAGES["Kebbit claws"])
         self.assertIn("Outputs: Bones x1, Kebbit claws x1", wild_kebbit.tooltip)
-        self.assertIn("Base XP: 128.0 per successful catch", wild_kebbit.tooltip)
+        self.assertIn("Base XP: 128 per successful catch", wild_kebbit.tooltip)
         self.assertIn("Success chance:", wild_kebbit.tooltip)
         self.assertIn("Logs x1 (you have 1)", wild_kebbit.tooltip)
         self.assertIn("Reusable tools:", wild_kebbit.tooltip)

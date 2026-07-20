@@ -144,6 +144,34 @@ class TargetRowMetadata:
     confirmation_message: str = ""
 
 
+@dataclass(frozen=True)
+class TargetDetails:
+    """Player-facing mechanics copied from one live target row."""
+
+    target_id: str
+    title: str
+    lines: tuple[str, ...]
+    enabled: bool
+
+
+def target_details_from_row_pure(row: TargetRowMetadata) -> TargetDetails:
+    """Build optional details without exposing provenance or inventing values."""
+
+    lines = tuple(
+        line.rstrip()
+        for line in row.tooltip.splitlines()
+        if line.strip() and not line.strip().startswith("Source:")
+    )
+    if not lines:
+        lines = ("No extra mechanics to show for this target.",)
+    return TargetDetails(
+        target_id=row.target_id,
+        title=row.label,
+        lines=lines,
+        enabled=row.enabled,
+    )
+
+
 def summoning_target_rows(
     player_data: Mapping[str, object],
     actions: Sequence[object],
@@ -454,7 +482,7 @@ def smithing_target_rows(
         tooltip = (
             f"{station_word} · requires Smithing level {lvl_req}. You have {lvl_have}.\n"
             f"Output: {output_item} x{output_qty}\n"
-            f"Base XP: {spec.get('exp', 0)} per action\n"
+            f"Base XP: {spec.get('exp', 0):g} per action\n"
             f"Materials:\n{_indented_material_lines(requirements, inventory)}"
         )
         required_items = spec.get("required_items", {}) or {}
@@ -652,7 +680,7 @@ def crafting_target_rows(
         tooltip = (
             f"Requires Crafting level {lvl_req}. You have {lvl_have}.\n"
             f"Output: {output_item} x{output_qty}\n"
-            f"Base XP: {spec.get('exp', 0)} per action\n"
+            f"Base XP: {spec.get('exp', 0):g} per action\n"
             f"Materials:\n{_indented_material_lines(requirements, inventory)}"
         )
         byproducts = spec.get("byproducts") or {}
@@ -717,7 +745,7 @@ def cooking_target_rows(
             xp_line = f"Base XP: {spec.get('xp_per_output', 0):g} per slice\n"
         else:
             output_line = f"Success output: {output_item} x{int(spec.get('output_qty', 1) or 1)}\n"
-            xp_line = f"Base XP: {spec.get('exp', 0)} on success\n"
+            xp_line = f"Base XP: {spec.get('exp', 0):g} on success\n"
         tooltip = (
             level_line
             + output_line
@@ -807,7 +835,7 @@ def mining_target_rows(
         tooltip = (
             f"Requires Mining level {lvl_req}. You have {lvl_have}.\n"
             f"{output_line}\n"
-            f"Base XP: {data.get('exp', 0)} per ore\n"
+            f"Base XP: {data.get('exp', 0):g} per ore\n"
             f"Best usable pickaxe: {best_pick_name or 'none — get a pickaxe'}"
         )
         note = data.get("notes")
@@ -872,7 +900,7 @@ def woodcutting_target_rows(
         tooltip = (
             f"Requires Woodcutting level {lvl_req}. You have {lvl_have}.\n"
             f"{output_line}\n"
-            f"Base XP: {data.get('exp', 0)} per chop\n"
+            f"Base XP: {data.get('exp', 0):g} per chop\n"
             f"Best usable hatchet: {best_axe_name or 'none — get a hatchet'}"
         )
         enabled = can_chop_woodcutting_target_pure(lvl_have, target_id, tree_data, inventory, tools, axe_data)
@@ -981,7 +1009,7 @@ def herblore_target_rows(
         _materials_ok, mat_text = _material_lines(reqs, inventory)
         tooltip = (
             f"Requires Herblore level {lvl_req}. You have {lvl_have}.\n"
-            f"Base XP: {base_xp} per action\n"
+            f"Base XP: {base_xp:g} per action\n"
             f"{output_text}\nMaterials:\n{mat_text}"
         )
         locked_reasons = herblore_target_locked_reasons_pure(
@@ -1037,7 +1065,7 @@ def firemaking_target_rows(
         chance = calculate_firemaking_success_probability_pure(lvl_have, spec)
         tooltip = (
             f"Requires Firemaking level {lvl_req}. You have {lvl_have}.\n"
-            f"Base XP: {base_xp} per successful burn\n"
+            f"Base XP: {base_xp:g} per successful burn\n"
             f"Input: {input_item} x{input_qty} (you have {owned})\n"
             f"Output: {output_item} x{output_qty}\n"
             f"Success chance: {chance:.0%} per attempt"
@@ -1257,7 +1285,7 @@ def hunter_target_rows(
         tooltip = (
             f"Requires Hunter level {lvl_req}. You have {lvl_have}.\n"
             f"Outputs: {_hunter_output_text(outputs)}\n"
-            f"Base XP: {spec.get('exp', 0)} per successful catch\n"
+            f"Base XP: {spec.get('exp', 0):g} per successful catch\n"
             f"Success chance: {chance:.0%} per attempt\n"
             f"Materials:\n{_indented_material_lines(reqs, inventory)}\n"
             f"Reusable tools:\n{_indented_material_lines(tools, inventory, 'No reusable tools required')}"

@@ -437,6 +437,7 @@ except Exception:
 try:
     from .target_metadata import (
         TargetRowMetadata,
+        target_details_from_row_pure,
         combat_target_rows,
         cooking_target_rows,
         crafting_target_rows,
@@ -460,6 +461,7 @@ try:
 except Exception:
     from target_metadata import (  # type: ignore
         TargetRowMetadata,
+        target_details_from_row_pure,
         combat_target_rows,
         cooking_target_rows,
         crafting_target_rows,
@@ -3371,7 +3373,9 @@ def show_main_menu(
         "category": first_category_id(hub),
         "skill": "",
         "active": current_skill if current_skill in _active_choices else "None",
+        "details_open": False,
     }
+    target_details_context = {"display_row": None}
 
     # ---- availability + active-skill helpers ----
     def _craft_available() -> bool:
@@ -3590,7 +3594,18 @@ def show_main_menu(
             if row.current:
                 target_list.setCurrentItem(item)
 
+        rows_by_target = {row.target_id: row for row in rows}
+
+        def _show_target_details(item: Optional[QListWidgetItem]) -> None:
+            if item is None:
+                return
+            row = rows_by_target.get(item.data(Qt.ItemDataRole.UserRole))
+            display_row = target_details_context.get("display_row")
+            if row is not None and callable(display_row):
+                display_row(row)
+
         def _on_target_selected(item: QListWidgetItem):
+            _show_target_details(item)
             # Skip locked rows: Qt still emits clicks/activations for disabled
             # items even though selection is blocked.
             if item and on_select is not None and (item.flags() & Qt.ItemFlag.ItemIsEnabled):
@@ -3598,6 +3613,10 @@ def show_main_menu(
 
         target_list.itemClicked.connect(_on_target_selected)
         target_list.itemActivated.connect(_on_target_selected)
+        target_list.currentItemChanged.connect(
+            lambda current, _previous: _show_target_details(current)
+        )
+        _show_target_details(target_list.currentItem())
         return target_list
 
     def _item_asset_paths() -> dict:
@@ -3678,13 +3697,18 @@ def show_main_menu(
             tree.setCurrentItem(selected_child)
 
         def _on_target_clicked(item: "QTreeWidgetItem", _column: int = 0):
-            if item is None or item.isDisabled():
+            if item is None:
                 return
             target_id = item.data(0, Qt.ItemDataRole.UserRole)
             if not target_id or str(target_id).startswith(group_role_prefix):
                 return
+            display_row = target_details_context.get("display_row")
+            row = rows_by_target.get(target_id)
+            if row is not None and callable(display_row):
+                display_row(row)
+            if item.isDisabled():
+                return
             if on_select is not None:
-                row = rows_by_target.get(target_id)
                 if confirm_select is not None and row is not None and not confirm_select(row):
                     return
                 on_select(target_id)
@@ -3697,9 +3721,20 @@ def show_main_menu(
 
         tree.itemClicked.connect(_on_target_clicked)
         tree.itemActivated.connect(_on_target_clicked)
+        def _show_current_target(item: Optional["QTreeWidgetItem"], _previous=None) -> None:
+            if item is None:
+                return
+            target_id = item.data(0, Qt.ItemDataRole.UserRole)
+            row = rows_by_target.get(target_id)
+            display_row = target_details_context.get("display_row")
+            if row is not None and callable(display_row):
+                display_row(row)
+
+        tree.currentItemChanged.connect(_show_current_target)
         if set_group_expanded is not None:
             tree.itemExpanded.connect(lambda it: (_group_id(it) and set_group_expanded(_group_id(it), True)))
             tree.itemCollapsed.connect(lambda it: (_group_id(it) and set_group_expanded(_group_id(it), False)))
+        _show_current_target(tree.currentItem())
         return tree
 
     def _build_ore_list() -> QListWidget:
@@ -7991,6 +8026,7 @@ def show_main_menu(
 
     def _render_panel() -> None:
         _clear_layout(panel_layout)
+        target_details_context["display_row"] = None
         # Drop stale references before rebuild; repopulated if Smithing/Crafting
         # is the visible panel so the live availability hook can re-enable them.
         _MAIN_MENU_CTX["smith_btn"] = None
@@ -8029,6 +8065,27 @@ def show_main_menu(
         title.setStyleSheet("font-size: 14px; font-weight: 700; color: palette(text);")
         hl.addWidget(title)
         hl.addStretch(1)
+
+        details_toggle = QToolButton()
+        details_toggle.setObjectName("targetDetailsToggle")
+        details_toggle.setText("Details")
+        details_toggle.setCheckable(True)
+        details_toggle.setArrowType(Qt.ArrowType.RightArrow)
+        details_toggle.setToolButtonStyle(
+            Qt.ToolButtonStyle.ToolButtonTextBesideIcon
+        )
+        details_toggle.setToolTip(
+            "Show the selected target's current mechanics."
+        )
+        details_toggle.setAccessibleName("Target mechanics details")
+        details_toggle.setChecked(bool(state["details_open"]))
+        details_toggle.setArrowType(
+            Qt.ArrowType.DownArrow
+            if state["details_open"]
+            else Qt.ArrowType.RightArrow
+        )
+        details_toggle.setVisible(False)
+        hl.addWidget(details_toggle)
 
         if card.implemented and card.selectable_for_review:
             train_btn = QPushButton()
@@ -8096,6 +8153,75 @@ def show_main_menu(
                 _MAIN_MENU_CTX["runecrafting_btn"] = train_btn
         panel_layout.addWidget(header)
 
+        details_panel = QWidget()
+        details_panel.setObjectName("targetDetailsPanel")
+        details_panel.setStyleSheet(
+            "QWidget#targetDetailsPanel {"
+            " border: 1px solid palette(mid); border-radius: 8px;"
+            " background: palette(base); }"
+        )
+        target_details_layout = QVBoxLayout(details_panel)
+        target_details_layout.setContentsMargins(12, 10, 12, 10)
+        target_details_layout.setSpacing(4)
+        details_title = QLabel()
+        details_title.setObjectName("targetDetailsTitle")
+        details_title.setWordWrap(True)
+        details_title.setStyleSheet(
+            "font-weight: 700; color: palette(text);"
+        )
+        target_details_layout.addWidget(details_title)
+        details_body = QLabel()
+        details_body.setObjectName("targetDetailsBody")
+        details_body.setWordWrap(True)
+        details_body.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse
+        )
+        details_body.setStyleSheet("color: palette(text);")
+        details_body.setAlignment(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop
+        )
+        details_scroll = QScrollArea()
+        details_scroll.setObjectName("targetDetailsScroll")
+        details_scroll.setWidgetResizable(True)
+        details_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+        details_scroll.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        details_scroll.setSizeAdjustPolicy(
+            QScrollArea.SizeAdjustPolicy.AdjustToContents
+        )
+        details_scroll.setMaximumHeight(190)
+        details_scroll.setAutoFillBackground(False)
+        details_scroll.viewport().setAutoFillBackground(False)
+        details_scroll.setWidget(details_body)
+        target_details_layout.addWidget(details_scroll)
+        details_panel.setVisible(bool(state["details_open"]))
+        panel_layout.addWidget(details_panel)
+
+        def _display_target_details(row: TargetRowMetadata) -> None:
+            details = target_details_from_row_pure(row)
+            details_title.setText(details.title)
+            details_body.setText("\n".join(details.lines))
+            details_toggle.setToolTip(
+                "Show the selected target's current mechanics."
+                if details.enabled
+                else "Show the selected target's requirements and current blockers."
+            )
+            details_toggle.setVisible(True)
+            details_toggle.setEnabled(True)
+
+        target_details_context["display_row"] = _display_target_details
+        def _set_target_details_open(checked: bool) -> None:
+            state["details_open"] = bool(checked)
+            details_panel.setVisible(checked)
+            details_toggle.setArrowType(
+                Qt.ArrowType.DownArrow
+                if checked
+                else Qt.ArrowType.RightArrow
+            )
+
+        details_toggle.toggled.connect(_set_target_details_open)
+
         if is_utility:
             note = QLabel(
                 "Utility rows process items or run activities; each row states "
@@ -8143,11 +8269,15 @@ def show_main_menu(
         # binding would shadow this one, silently routing hub clicks into the
         # Stats selector and leaving the hub panel stale.
         _debug_log(f"hub.select_skill: {name!r}")
+        if name != state["skill"]:
+            state["details_open"] = False
         state["skill"] = name
         _render_panel()
 
     def _select_category(category_id: str) -> None:
         _debug_log(f"hub.select_category: {category_id!r}")
+        if category_id != state["category"]:
+            state["details_open"] = False
         state["category"] = category_id
         _update_cat_btn_styles()
         cards = _cards_for(category_id)
@@ -8173,6 +8303,7 @@ def show_main_menu(
     def _open_farming_in_dialog(patch_id=None) -> None:
         close_farming_status_dialog()
         farming_ui_state["focus_patch"] = patch_id
+        state["details_open"] = False
         state["category"] = "gathering"
         _update_cat_btn_styles()
         state["skill"] = "Farming"

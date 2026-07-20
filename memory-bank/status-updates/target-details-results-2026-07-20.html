@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Target Details — Results</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101411;
+      --panel: #182019;
+      --panel-2: #202a21;
+      --line: #334236;
+      --text: #edf5ee;
+      --muted: #aebcaf;
+      --green: #73d77e;
+      --amber: #f0c76e;
+      --blue: #84b8ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 82% 0%, rgba(83, 163, 93, .16), transparent 30rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    main { width: min(1080px, calc(100% - 32px)); margin: 0 auto; padding: 52px 0 72px; }
+    .eyebrow { color: var(--green); font-size: 12px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    h1 { max-width: 760px; margin: 10px 0 12px; font-size: clamp(36px, 6vw, 68px); line-height: .98; letter-spacing: -.045em; }
+    .lede { max-width: 760px; margin: 0; color: var(--muted); font-size: clamp(17px, 2.4vw, 22px); }
+    .status-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 24px 0 34px; }
+    .pill { border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; background: rgba(255,255,255,.025); font-size: 13px; font-weight: 700; }
+    .pill.good { color: var(--green); }
+    .pill.pending { color: var(--amber); }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
+    .card { grid-column: span 4; min-height: 170px; padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(150deg, var(--panel-2), var(--panel)); }
+    .card.wide { grid-column: span 8; }
+    .card.full { grid-column: 1 / -1; }
+    .kicker { color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .metric { margin-top: 8px; font-size: 34px; font-weight: 850; letter-spacing: -.04em; }
+    .metric.green { color: var(--green); }
+    .metric.blue { color: var(--blue); }
+    .card p { margin: 9px 0 0; color: var(--muted); }
+    h2 { margin: 0 0 12px; font-size: 22px; }
+    ol, ul { margin: 0; padding-left: 22px; color: var(--muted); }
+    li + li { margin-top: 8px; }
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .compare section { border: 1px solid var(--line); border-radius: 12px; padding: 15px; background: rgba(0,0,0,.12); }
+    .compare h3 { margin: 0 0 8px; font-size: 15px; }
+    .compare .before h3 { color: var(--amber); }
+    .compare .after h3 { color: var(--green); }
+    code { color: #d8ebdb; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .92em; }
+    footer { margin-top: 24px; color: var(--muted); font-size: 13px; }
+    @media (max-width: 760px) {
+      main { width: min(100% - 22px, 1080px); padding-top: 30px; }
+      .card, .card.wide { grid-column: 1 / -1; }
+      .compare { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">AnkiScape · implementation result · 20 July 2026</div>
+    <h1>Mechanics when you want them. Quiet when you don’t.</h1>
+    <p class="lede">The Skills hub now has a compact, optional Details sheet powered by the same live target rows that drive selection and tooltips.</p>
+    <div class="status-row">
+      <span class="pill good">Implementation verified</span>
+      <span class="pill good">Kimi K3 findings closed</span>
+      <span class="pill good">Native Anki restart passed</span>
+      <span class="pill pending">Fable blocked by Keychain quota probe</span>
+    </div>
+
+    <div class="grid">
+      <article class="card">
+        <div class="kicker">Non-Qt suite</div>
+        <div class="metric green">1,899</div>
+        <p>Passing tests, with 250 expected environment skips.</p>
+      </article>
+      <article class="card">
+        <div class="kicker">Offscreen Qt suite</div>
+        <div class="metric green">1,899</div>
+        <p>Passing tests, with one intentional skip.</p>
+      </article>
+      <article class="card">
+        <div class="kicker">Native runtime</div>
+        <div class="metric blue">1 dialog</div>
+        <p>A fully restarted Anki loaded one add-on menu and the current player state.</p>
+      </article>
+
+      <article class="card wide">
+        <h2>What shipped</h2>
+        <ul>
+          <li>Collapsed-by-default Details for flat and grouped skill targets.</li>
+          <li>Live chance, output/damage, XP, requirements, modifiers, and blockers.</li>
+          <li>Locked-row inspection without selecting or starting that target.</li>
+          <li>Same-skill persistence with clean resets across skill, category, and Farming navigation.</li>
+          <li>A bounded scroll sheet so long Combat mechanics cannot crush the target list.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h2>What stays hidden</h2>
+        <ul>
+          <li>Source files and audit labels</li>
+          <li>Equations and RNG state</li>
+          <li>Internal ticks</li>
+          <li>Fabricated precision</li>
+        </ul>
+      </article>
+
+      <article class="card full">
+        <h2>Fresh-eyes correction pass</h2>
+        <div class="compare">
+          <section class="before">
+            <h3>Review found</h3>
+            <ul>
+              <li>Dense Combat text could consume nearly the whole target list.</li>
+              <li>Locked blockers were present in data but unreachable through clicks.</li>
+              <li>Direct Farming navigation could inherit an empty open panel.</li>
+              <li>Integer XP appeared as player-facing values such as <code>60.0</code>.</li>
+            </ul>
+          </section>
+          <section class="after">
+            <h3>Final behavior</h3>
+            <ul>
+              <li>Combat Details scroll within a 190-pixel body.</li>
+              <li>Locked rows explain themselves while gameplay callbacks stay inert.</li>
+              <li>Farming owns its existing patch-specific Details sheet cleanly.</li>
+              <li>Integer XP renders naturally as <code>60</code>.</li>
+            </ul>
+          </section>
+        </div>
+      </article>
+
+      <article class="card full">
+        <h2>Only remaining gate</h2>
+        <p>Fable’s required taste pass could not be invoked because the mandatory fresh quota probe cannot read Claude Code OAuth from macOS Keychain (<code>security</code> exit 51). Stale quota data was not used and the guard was not bypassed. This is an external QA/auth gate, not an unresolved product-design decision.</p>
+      </article>
+    </div>
+    <footer>Durable record: <code>memory-bank/source-audits/target-details-implementation-2026-07-20.md</code></footer>
+  </main>
+</body>
+</html>

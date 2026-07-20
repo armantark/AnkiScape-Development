@@ -18,6 +18,7 @@ from aqt.qt import (  # type: ignore
     QListWidget,
     QPalette,
     QPushButton,
+    QToolButton,
     Qt,
     QTreeWidget,
     QTreeWidgetItem,
@@ -36,6 +37,20 @@ def _dark_palette() -> QPalette:
     palette.setColor(QPalette.ColorRole.Button, QColor(55, 55, 55))
     palette.setColor(QPalette.ColorRole.ButtonText, QColor(238, 238, 238))
     palette.setColor(QPalette.ColorRole.Highlight, QColor(55, 130, 70))
+    palette.setColor(QPalette.ColorRole.HighlightedText, QColor(255, 255, 255))
+    return palette
+
+
+def _light_palette() -> QPalette:
+    palette = QPalette()
+    palette.setColor(QPalette.ColorRole.Window, QColor(245, 245, 245))
+    palette.setColor(QPalette.ColorRole.WindowText, QColor(28, 28, 28))
+    palette.setColor(QPalette.ColorRole.Base, QColor(255, 255, 255))
+    palette.setColor(QPalette.ColorRole.AlternateBase, QColor(242, 242, 242))
+    palette.setColor(QPalette.ColorRole.Text, QColor(28, 28, 28))
+    palette.setColor(QPalette.ColorRole.Button, QColor(245, 245, 245))
+    palette.setColor(QPalette.ColorRole.ButtonText, QColor(28, 28, 28))
+    palette.setColor(QPalette.ColorRole.Highlight, QColor(74, 143, 84))
     palette.setColor(QPalette.ColorRole.HighlightedText, QColor(255, 255, 255))
     return palette
 
@@ -70,7 +85,9 @@ def render(args: argparse.Namespace) -> Path:
     app = QApplication.instance()
     if app is None:
         raise RuntimeError("QApplication was not created by the Qt test harness")
-    app.setPalette(_dark_palette())
+    app.setPalette(
+        _dark_palette() if args.theme == "dark" else _light_palette()
+    )
 
     player_data = _make_player_data()
     player_data[f"{args.skill.casefold()}_level"] = args.level
@@ -137,6 +154,13 @@ def render(args: argparse.Namespace) -> Path:
     dialog.resize(args.width, args.height)
     for _ in range(8):
         app.processEvents()
+    if args.open_details:
+        details = dialog.findChild(QToolButton, "targetDetailsToggle")
+        if details is None or not details.isVisibleTo(dialog):
+            raise RuntimeError("The selected skill has no visible target Details control")
+        details.click()
+        for _ in range(4):
+            app.processEvents()
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     if not dialog.grab().save(str(args.output)):
@@ -156,6 +180,8 @@ def main() -> int:
     parser.add_argument("--inventory", action="append", default=[])
     parser.add_argument("--width", type=int, default=900)
     parser.add_argument("--height", type=int, default=560)
+    parser.add_argument("--theme", choices=("dark", "light"), default="dark")
+    parser.add_argument("--open-details", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     print(render(args))

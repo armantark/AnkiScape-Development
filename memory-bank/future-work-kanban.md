@@ -1004,7 +1004,7 @@ Labels: `SHIPPED: SEARCH SEAM`, `DEPENDENCY: SLAYER RUNTIME`.
 
 ### In-product help and mechanics reference
 
-Labels: `SHIPPED: HELP CENTER`, `IMPLEMENT: DETAILS`.
+Labels: `SHIPPED: HELP CENTER`, `SHIPPED: DETAILS`, `QA: FABLE BLOCKED`.
 
 - The single-source Help Center from `help-system-contract-2026-07-16.md` is
   shipped: 18 offline versioned topics, contextual `?` entry from all nine
@@ -1012,10 +1012,14 @@ Labels: `SHIPPED: HELP CENTER`, `IMPLEMENT: DETAILS`.
 - `CatalogFilterBar` remains the shared Qt search seam; Help owns only its
   corpus adapter and does not duplicate contextual copy or maintain an
   independent wiki.
-- Implement the separately settled optional `Details` surface against live
-  registry values. Show exact chance/range/breakdown only when genuinely
-  resolved, use qualitative wording otherwise, and never expose internal
-  equations, ticks, audit classifications, or fabricated precision.
+- The separately settled optional `Details` surface is implemented against
+  live target-registry rows. It is collapsed by default, supports flat and
+  grouped skill targets, shows locked requirements without selecting them,
+  and bounds dense Combat text in a scrollable sheet.
+- Kimi K3's taste findings and native-Anki restart proof are closed. Fable
+  sign-off remains an external QA/auth gate because its mandatory fresh quota
+  probe cannot read Claude Code OAuth from macOS Keychain; this is not a
+  product-design gap.
 
 ### Activities, minigames, D&Ds, and reward shops
 
