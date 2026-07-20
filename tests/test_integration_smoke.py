@@ -407,6 +407,36 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["equipment"], {})
         self.assertEqual(calls["save"], 2)
 
+    def test_equipment_callbacks_move_degradable_instance_with_the_item(self):
+        addon = _load_addon_as_package("ankiscape_equipment_instance_callbacks")
+        addon.save_player_data = lambda: None
+        addon.player_data = {
+            "inventory": {"Combat hood 100": 1},
+            "equipment": {},
+            "defense_level": 20,
+            "magic_level": 10,
+            "equipment_instances": {
+                "equipment-1": {
+                    "family_id": "combat_hood",
+                    "item_name": "Combat hood 100",
+                    "condition": 80_000,
+                    "location": "bank",
+                }
+            },
+            "equipment_instance_next_id": 2,
+        }
+
+        self.assertTrue(addon.on_equip_item("Combat hood 100"))
+        self.assertEqual(
+            addon.player_data["equipment_instances"]["equipment-1"]["location"],
+            "equipped:head",
+        )
+        self.assertTrue(addon.on_unequip_slot("head"))
+        self.assertEqual(
+            addon.player_data["equipment_instances"]["equipment-1"]["location"],
+            "bank",
+        )
+
     def test_utility_answer_batches_inventory_without_skill_xp(self):
         addon = _load_addon_as_package("ankiscape_utility_integration")
 
@@ -4579,6 +4609,41 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_bank_discard_x_removes_and_undoes_exact_degradable_instance(self):
+        addon = _load_addon_as_package("ankiscape_condition_discard_integration")
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.current_skill = "Combat"
+        initial = {
+            "inventory": {"Combat hood 100": 2},
+            "equipment": {},
+            "equipment_instances": {
+                "equipment-1": {
+                    "family_id": "combat_hood",
+                    "item_name": "Combat hood 100",
+                    "condition": 89_000,
+                    "location": "bank",
+                },
+                "equipment-2": {
+                    "family_id": "combat_hood",
+                    "item_name": "Combat hood 100",
+                    "condition": 80_000,
+                    "location": "bank",
+                },
+            },
+            "equipment_instance_next_id": 3,
+        }
+        addon.player_data = copy.deepcopy(initial)
+
+        self.assertTrue(addon.on_discard_item("Combat hood 100", 1))
+        self.assertEqual(addon.player_data["inventory"]["Combat hood 100"], 1)
+        self.assertNotIn("equipment-2", addon.player_data["equipment_instances"])
+        addon._on_state_did_undo(types.SimpleNamespace(operation="AnkiScape direct action"))
+        self.assertEqual(addon.player_data, initial)
 
     def test_reward_claim_recomputes_level_before_achievements_and_is_undoable(self):
         addon = _load_addon_as_package("ankiscape_reward_claim_direct_action_integration")

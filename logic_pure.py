@@ -10,6 +10,21 @@ except ImportError:
     from equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 
 try:
+    from .equipment_instance_logic import (
+        advance_equipped_condition_pure,
+        discharge_equipped_on_unsafe_death_pure,
+        sanitize_equipment_instance_state_pure,
+    )
+    from .fist_of_guthix_data import FIST_OF_GUTHIX_CONDITION_DATA
+except ImportError:
+    from equipment_instance_logic import (
+        advance_equipped_condition_pure,
+        discharge_equipped_on_unsafe_death_pure,
+        sanitize_equipment_instance_state_pure,
+    )
+    from fist_of_guthix_data import FIST_OF_GUTHIX_CONDITION_DATA
+
+try:
     from .inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure, carried_slots_used, clamp_carried_view_to_bank
 except ImportError:
     from inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure, carried_slots_used, clamp_carried_view_to_bank
@@ -3410,14 +3425,29 @@ def _combat_apply_pvm_death(
     carried_target_id=None,
 ):
     _combat_apply_follower_death(data)
-    equipment = dict(data.get("equipment", {}) or {})
-    protected_equipment = {}
-    if prayer_effect_state_pure(data).get("protect_item") and equipment:
+    original_equipment = dict(data.get("equipment", {}) or {})
+    protected_slot = None
+    if prayer_effect_state_pure(data).get("protect_item") and original_equipment:
         protected_slot = max(
-            equipment,
-            key=lambda slot: (_non_negative_int(ITEM_VALUES.get(equipment[slot], 0), 0), str(equipment[slot]), str(slot)),
+            original_equipment,
+            key=lambda slot: (_non_negative_int(ITEM_VALUES.get(original_equipment[slot], 0), 0), str(original_equipment[slot]), str(slot)),
         )
-        protected_equipment[protected_slot] = equipment.pop(protected_slot)
+    discharged, _condition_events = discharge_equipped_on_unsafe_death_pure(
+        data, FIST_OF_GUTHIX_CONDITION_DATA
+    )
+    data.clear()
+    data.update(discharged)
+    discharged_equipment = dict(data.get("equipment", {}) or {})
+    protected_equipment = (
+        {protected_slot: discharged_equipment[protected_slot]}
+        if protected_slot in discharged_equipment
+        else {}
+    )
+    equipment = {
+        slot: item_name
+        for slot, item_name in discharged_equipment.items()
+        if slot != protected_slot
+    }
     grave_items = [item_name for item_name in equipment.values() if isinstance(item_name, str)]
     # Carried items are a view over the flat store: remove them from the bank and
     # drop them into the grave, expanded one grave entry per unit. Only the view of
@@ -3469,6 +3499,11 @@ def _combat_apply_pvm_death(
     data["combat_encounter"] = {}
     data["combat_status_effects"] = {}
     data["combat_lifepoints"] = max_player_lifepoints
+    synced = sanitize_equipment_instance_state_pure(
+        data, FIST_OF_GUTHIX_CONDITION_DATA
+    )
+    data.clear()
+    data.update(synced)
     return max_player_lifepoints
 
 
@@ -3525,11 +3560,28 @@ def _combat_apply_wilderness_death(
         if isinstance(confirmed_equipment_risk, Mapping)
         else combat_wilderness_equipment_risk_pure(data, enemy)
     )
+    discharged, _condition_events = discharge_equipped_on_unsafe_death_pure(
+        data, FIST_OF_GUTHIX_CONDITION_DATA
+    )
+    data.clear()
+    data.update(discharged)
+    discharged_equipment = data.get("equipment", {}) or {}
+    kept_slots = {
+        slot: discharged_equipment.get(slot, item_name)
+        for slot, item_name in dict(loss.get("kept_slots", {}) or {}).items()
+    }
+    loss["kept_slots"] = kept_slots
+    loss["kept_items"] = tuple(kept_slots.values())
     _combat_apply_follower_death(data)
-    data["equipment"] = dict(loss.get("kept_slots", {}) or {})
+    data["equipment"] = kept_slots
     data["combat_encounter"] = {}
     data["combat_status_effects"] = {}
     data["combat_lifepoints"] = max_player_lifepoints
+    synced = sanitize_equipment_instance_state_pure(
+        data, FIST_OF_GUTHIX_CONDITION_DATA
+    )
+    data.clear()
+    data.update(synced)
     return loss
 
 
@@ -7321,6 +7373,11 @@ def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
             data["combat_grave"] = {}
         else:
             data["combat_grave"] = grave
+    data.update(
+        sanitize_equipment_instance_state_pure(
+            data, FIST_OF_GUTHIX_CONDITION_DATA
+        )
+    )
     return data
 
 
@@ -7365,6 +7422,11 @@ def reclaim_death_office_items_pure(player_data):
         _combat_stored_loadout(data.get("death_office", {}) or {}),
     )
     data["death_office"] = {}
+    data.update(
+        sanitize_equipment_instance_state_pure(
+            data, FIST_OF_GUTHIX_CONDITION_DATA
+        )
+    )
     return data, True, ""
 
 
@@ -8504,6 +8566,9 @@ def apply_combat_burst_pure(
                         if potion_event:
                             potions_used.append(potion_event)
 
+    data, equipment_condition_events = advance_equipped_condition_pure(
+        data, ticks_elapsed, FIST_OF_GUTHIX_CONDITION_DATA
+    )
     inventory = data.get("inventory", {}) or {}
     for item_name, amount in drops.items():
         inventory[item_name] = inventory.get(item_name, 0) + amount
@@ -8700,6 +8765,7 @@ def apply_combat_burst_pure(
             if combat_class == "magic"
             else MELEE_STRATEGY_SOURCE_PATH
         ),
+        "equipment_condition_events": equipment_condition_events,
     }
     data["combat_last_result"] = result
     return data, True, result

@@ -1,5 +1,17 @@
 # System Patterns
 
+## Per-copy condition state overlays flat item holders
+
+Most Bank items remain flat name-to-count entries, but degradable non-stackable
+equipment uses `equipment_instances` as its exact per-copy condition ledger.
+Each stable instance records its family, canonical condition identity, exact
+remaining condition, and holder (`bank`, `equipped:<slot>`, `grave`, or
+`death_office`). The existing Bank counts, equipment slots, and recovery item
+lists remain the visible holders; sanitation reconciles the ledger to them while
+preserving already-valid assignments first. This avoids a global inventory
+rewrite while ensuring two visually identical copies can retain different hidden
+durability through equip, death, recovery, discard, and undo.
+
 ## Architecture Snapshot
 The add-on is a small Python package loaded by Anki. It separates pure game contracts from Anki-aware orchestration for review dispatch, runtime actions, target rows, and achievements, though some skill behavior still lives in UI, storage, stats, and icon-registration surfaces.
 

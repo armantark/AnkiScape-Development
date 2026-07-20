@@ -1053,6 +1053,25 @@ def _stronghold_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[Genera
     return tuple(generated)
 
 
+def _fist_of_guthix_equipment_items(
+    items: Mapping[int, SourceItem],
+) -> Tuple[GeneratedEquipmentItem, ...]:
+    generated = []
+    for item_id in (*range(12964, 12970), 12985, 12986):
+        source_item = items.get(item_id)
+        if source_item is None:
+            continue
+        equipment_item = _equipment_item_from_source_item(
+            source_item,
+            "Fist of Guthix reward; cutoff Wiki reward and condition audits",
+        )
+        if equipment_item is not None:
+            generated.append(
+                replace(equipment_item, equipment_type="fist_of_guthix_reward")
+            )
+    return tuple(generated)
+
+
 def _mage_arena_equipment_items(
     items: Mapping[int, SourceItem],
 ) -> Tuple[GeneratedEquipmentItem, ...]:
@@ -1233,6 +1252,7 @@ def generate(game_root: Path, output_path: Path) -> None:
         + tuple(_legacy_equipment_items(items))
         + tuple(_quest_equipment_items(items))
         + tuple(_stronghold_equipment_items(items))
+        + tuple(_fist_of_guthix_equipment_items(items))
         + tuple(_mage_arena_equipment_items(items))
         + tuple(_warriors_guild_equipment_items(items))
         + tuple(_crafting_equipment_items(items, items_by_name))

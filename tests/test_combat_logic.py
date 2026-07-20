@@ -4864,6 +4864,86 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(died["death_office"]["items"], ["Cape", "Bronze sword"])
         self.assertEqual(died["death_office"]["reclaim_cost"], 200)
 
+    def test_combat_ticks_degrade_only_the_equipped_condition_instance(self):
+        enemy_data = {
+            "training_dummy": {
+                "display_name": "Training dummy",
+                "level": 1,
+                "group": "Test",
+                "stats": {
+                    "attack": 1,
+                    "strength": 1,
+                    "defence": 999,
+                    "hitpoints": 100_000,
+                },
+                "bonuses": {},
+                "attack_speed": 4,
+                "drops": {"guaranteed": (), "tables": ()},
+                "source": "test",
+            }
+        }
+        player = _player(
+            current_combat_target="training_dummy",
+            equipment={"head": "Combat hood 100"},
+            equipment_instances={
+                "equipment-1": {
+                    "family_id": "combat_hood",
+                    "item_name": "Combat hood 100",
+                    "condition": 72_001,
+                    "location": "equipped:head",
+                    "last_slot": "head",
+                }
+            },
+            equipment_instance_next_id=2,
+            combat_auto_eat_food=[],
+        )
+
+        updated, ok, result = apply_combat_burst_pure(
+            player,
+            enemy_data,
+            EQUIPMENT_DATA,
+            ticks=6,
+            rng=lambda: 0.999999,
+            live_cadence=True,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["ticks_elapsed"], 6)
+        self.assertEqual(updated["equipment"]["head"], "Combat hood 80")
+        self.assertEqual(updated["equipment_instances"]["equipment-1"]["condition"], 71_995)
+        self.assertEqual(result["equipment_condition_events"][0]["after_name"], "Combat hood 80")
+
+    def test_unsafe_death_discharges_gauntlets_and_grave_reclaim_keeps_instance(self):
+        player = _player(
+            equipment={"hands": "Bronze gauntlets"},
+            equipment_instances={
+                "equipment-1": {
+                    "family_id": "bronze_gauntlets",
+                    "item_name": "Bronze gauntlets",
+                    "condition": 1,
+                    "location": "equipped:hands",
+                    "last_slot": "hands",
+                }
+            },
+            equipment_instance_next_id=2,
+        )
+
+        _combat_apply_pvm_death(player, 100)
+
+        self.assertEqual(player["combat_grave"]["items"], ["Worn-out bronze gauntlets"])
+        self.assertEqual(
+            player["equipment_instances"]["equipment-1"]["location"], "grave"
+        )
+        self.assertEqual(player["equipment_instances"]["equipment-1"]["condition"], 0)
+        recovered = player
+        for _ in range(5):
+            recovered = apply_safe_combat_recovery_pure(recovered)
+        self.assertEqual(recovered["equipment"], {"hands": "Worn-out bronze gauntlets"})
+        self.assertEqual(
+            recovered["equipment_instances"]["equipment-1"]["location"],
+            "equipped:hands",
+        )
+
     def test_combat_death_drops_only_the_fought_targets_loot_not_dormant_packs(self):
         # Only the trip you are ON is in hand. `carried_inventory` also holds a saved
         # pack per skilling target; those are loadouts resting in the bank. Draining

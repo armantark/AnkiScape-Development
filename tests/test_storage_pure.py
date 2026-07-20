@@ -656,6 +656,41 @@ class TestStoragePure(unittest.TestCase):
             {"items": ["Iron sword"], "reviews_remaining": 5, "source": "combat_death"},
         )
 
+    def test_equipment_condition_instances_are_added_and_sanitized(self):
+        default = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        self.assertEqual(default["equipment_instances"], {})
+        self.assertEqual(default["equipment_instance_next_id"], 1)
+
+        migrated = migrate_loaded_data(
+            {
+                "inventory": {"Combat hood 80": 1},
+                "equipment": {"hands": "Bronze gauntlets"},
+                "equipment_instances": {
+                    "bad": {"family_id": "missing", "location": "bank"},
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+        self.assertEqual(len(migrated["equipment_instances"]), 2)
+        records = list(migrated["equipment_instances"].values())
+        self.assertIn(
+            {
+                "family_id": "combat_hood",
+                "item_name": "Combat hood 80",
+                "condition": 72_000,
+                "location": "bank",
+            },
+            records,
+        )
+        self.assertTrue(
+            any(
+                record["family_id"] == "bronze_gauntlets"
+                and record["location"] == "equipped:hands"
+                for record in records
+            )
+        )
+
     def test_migrate_legacy_target_names_without_losing_inventory(self):
         cases = (
             ("mining", {"current_ore": "Iron ore", "inventory": {"Iron ore": 2}}, "current_ore", "iron", "Iron ore", 2),

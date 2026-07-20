@@ -101,6 +101,12 @@ from .ui import (
 )
 from . import ui
 from . import inventory_pure
+from .equipment_instance_logic import (
+    is_condition_item_pure,
+    remove_bank_equipment_instances_pure,
+    sync_equipment_instances_pure,
+)
+from .fist_of_guthix_data import FIST_OF_GUTHIX_CONDITION_DATA
 from .injectors import inject_reviewer_floating_button as _inject_reviewer_floating_button
 from .injectors import inject_overview_floating_button as _inject_overview_floating_button
 from .injectors import register_deck_browser_button as _register_deck_browser_button
@@ -2237,6 +2243,7 @@ def on_equip_item(item_name):
     if not ok:
         show_error_message("Cannot equip item", reason)
         return False
+    before_equipment = dict(player_data.get("equipment", {}) or {})
     new_inventory, new_equipment, equipped = equip_item_pure(
         item_name,
         player_data.get("inventory", {}) or {},
@@ -2248,11 +2255,17 @@ def on_equip_item(item_name):
         return False
     player_data["inventory"] = new_inventory
     player_data["equipment"] = new_equipment
+    player_data.update(
+        sync_equipment_instances_pure(
+            player_data, before_equipment, FIST_OF_GUTHIX_CONDITION_DATA
+        )
+    )
     save_player_data()
     return True
 
 
 def on_unequip_slot(slot):
+    before_equipment = dict(player_data.get("equipment", {}) or {})
     new_inventory, new_equipment, unequipped = unequip_item_pure(
         slot,
         player_data.get("inventory", {}) or {},
@@ -2263,17 +2276,31 @@ def on_unequip_slot(slot):
         return False
     player_data["inventory"] = new_inventory
     player_data["equipment"] = new_equipment
+    player_data.update(
+        sync_equipment_instances_pure(
+            player_data, before_equipment, FIST_OF_GUTHIX_CONDITION_DATA
+        )
+    )
     save_player_data()
     return True
 
 
 def on_discard_item(item_name, quantity):
     """Discard an exact Bank quantity as one separately undoable direct action."""
-    inventory, ok = inventory_pure.discard_inventory_quantity_pure(
-        player_data.get("inventory", {}) or {},
-        item_name,
-        quantity,
-    )
+    if is_condition_item_pure(item_name, FIST_OF_GUTHIX_CONDITION_DATA):
+        updated = remove_bank_equipment_instances_pure(
+            player_data, item_name, quantity, FIST_OF_GUTHIX_CONDITION_DATA
+        )
+        before_count = int((player_data.get("inventory", {}) or {}).get(item_name, 0) or 0)
+        after_count = int((updated.get("inventory", {}) or {}).get(item_name, 0) or 0)
+        inventory, ok = updated.get("inventory", {}), after_count == before_count - int(quantity)
+    else:
+        updated = None
+        inventory, ok = inventory_pure.discard_inventory_quantity_pure(
+            player_data.get("inventory", {}) or {},
+            item_name,
+            quantity,
+        )
     if not ok:
         return False
     before = {"player_data": copy.deepcopy(player_data), "random_state": random.getstate()}
@@ -2284,7 +2311,10 @@ def on_discard_item(item_name, quantity):
     _DIRECT_ACTION_UNDO_STACK.append(before)
     if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
         del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
-    player_data["inventory"] = inventory
+    if updated is not None:
+        player_data.update(updated)
+    else:
+        player_data["inventory"] = inventory
     save_player_data()
     _refresh_skill_availability()
     try:

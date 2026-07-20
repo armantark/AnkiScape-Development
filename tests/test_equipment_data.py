@@ -20,7 +20,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 667)
+        self.assertEqual(len(EQUIPMENT_DATA), 681)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -396,9 +396,17 @@ class TestEquipmentData(unittest.TestCase):
         for item_name in expected.values():
             self.assertEqual(EQUIPMENT_DATA[item_name].slot, "ammunition")
 
-    def test_fist_of_guthix_metal_gauntlets_remain_unobtainable(self):
+    def test_fist_of_guthix_breadth_rewards_are_equippable(self):
+        hood = EQUIPMENT_DATA["Combat hood 100"]
+        self.assertEqual(hood.slot, "head")
+        self.assertEqual(hood.source_item_id, 12964)
+        self.assertEqual(hood.skill_requirements, (("defense", 20), ("magic", 10)))
+        self.assertEqual(hood.equipment_type, "fist_of_guthix_reward")
+        gauntlets = EQUIPMENT_DATA["Bronze gauntlets"]
+        self.assertEqual(gauntlets.slot, "hands")
+        self.assertEqual(gauntlets.source_item_id, 12985)
+        self.assertEqual(EQUIPMENT_DATA["Worn-out bronze gauntlets"].source_item_id, 12986)
         for item_name in (
-            "Bronze gauntlets",
             "Iron gauntlets",
             "Steel gauntlets",
             "Mithril gauntlets",

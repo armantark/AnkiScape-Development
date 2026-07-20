@@ -13,6 +13,11 @@ try:
         LEGACY_CRAFTING_TARGETS,
     )
     from .item_registry import ItemDefinition
+    from .equipment_instance_logic import (
+        default_equipment_instance_state_pure,
+        sanitize_equipment_instance_state_pure,
+    )
+    from .fist_of_guthix_data import FIST_OF_GUTHIX_CONDITION_DATA
     from .urn_data import URN_PLAIN_TO_RUNED_ITEM, default_urn_state_pure, sanitize_urn_state_pure
     from .constants import (
         BAR_DATA,
@@ -111,6 +116,11 @@ except ImportError:
         LEGACY_CRAFTING_TARGETS,
     )
     from item_registry import ItemDefinition
+    from equipment_instance_logic import (
+        default_equipment_instance_state_pure,
+        sanitize_equipment_instance_state_pure,
+    )
+    from fist_of_guthix_data import FIST_OF_GUTHIX_CONDITION_DATA
     from urn_data import URN_PLAIN_TO_RUNED_ITEM, default_urn_state_pure, sanitize_urn_state_pure
     from constants import (
         BAR_DATA,
@@ -199,7 +209,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 52
+CURRENT_CONFIG_VERSION = 53
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -402,6 +412,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["action_telemetry"] = default_action_telemetry_pure()
     data["toolbelt"] = _default_toolbelt()
     data["equipment"] = {}
+    data.update(default_equipment_instance_state_pure())
     data["quests"] = default_quest_states()
     data["quest_points"] = 0
     data["quest_combat_config"] = default_quest_combat_config_pure()
@@ -1260,6 +1271,11 @@ def migrate_loaded_data(
             # A disabled optional observer must never make an existing save unloadable.
             pass
     data.update(sanitize_combat_state_pure(data))
+    data.update(
+        sanitize_equipment_instance_state_pure(
+            data, FIST_OF_GUTHIX_CONDITION_DATA
+        )
+    )
     combat_current_levels = data.get("combat_current_levels")
     if isinstance(combat_current_levels, dict) and "prayer" in combat_current_levels:
         try:

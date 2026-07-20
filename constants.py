@@ -7,6 +7,10 @@ try:
     from .agility_data import AGILITY_EXTRA_ITEM_DATA, AGILITY_ITEM_IMAGES, AGILITY_TARGETS
 except ImportError:
     from agility_data import AGILITY_EXTRA_ITEM_DATA, AGILITY_ITEM_IMAGES, AGILITY_TARGETS  # type: ignore
+try:
+    from .fist_of_guthix_data import fist_of_guthix_extra_items_as_dict
+except ImportError:
+    from fist_of_guthix_data import fist_of_guthix_extra_items_as_dict  # type: ignore
 
 try:
     from .construction_data import (
@@ -1210,6 +1214,7 @@ for _target_id in COMBAT_ENEMY_DATA:
     if os.path.exists(_path):
         COMBAT_ENEMY_IMAGES[_target_id] = _path
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict()
+FIST_OF_GUTHIX_EXTRA_ITEM_DATA = fist_of_guthix_extra_items_as_dict()
 SHOP_EXTRA_ITEM_DATA = shop_extra_items_as_dict()
 SHOP_ITEM_IMAGES = {}
 for _item_name in SHOP_EXTRA_ITEM_DATA:
@@ -1503,6 +1508,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **HERBLORE_EXTRA_ITEM_DATA,
     **PRAYER_EXTRA_ITEM_DATA,
     **COMBAT_EXTRA_ITEM_DATA,
+    **FIST_OF_GUTHIX_EXTRA_ITEM_DATA,
     **potion_items_as_dict(),
     **SHOP_ONLY_EXTRA_ITEM_DATA,
 })
