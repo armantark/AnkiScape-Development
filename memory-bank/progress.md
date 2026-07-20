@@ -2847,3 +2847,30 @@ Test counts are snapshots; current runs outrank this note.
   Published
   `status-updates/livid-farm-magic-consumers-results-2026-07-19.html`;
   mobile copy: `https://hbqtpi53phuh.postplan.dev`.
+
+## Long kebbit bolt reward chain — 2026-07-19
+
+- Added the level-42 Chisel route: one Long kebbit spike becomes six Long
+  kebbit bolts for `7.98` Fletching XP while preserving the tool.
+- Added Leon's period 40-Coin, no-XP alternative as a batchable instantaneous
+  Shop service with atomic clamping and direct undo.
+- Registered the bolts as level-42 ammunition with `+38` Ranged Strength and
+  added exact period Exchange rows for both the bolts and spike.
+- Added canonical provenance-tracked sprites and reusable real-Qt renderers
+  that follow the repository's shown-dialog/laptop-height capture rule.
+- Fixed generic Shop service batching/copy, generic item-conversion
+  reachability, and quest-overlay loss of existing non-stackable item
+  metadata.
+- Fable and Kimi K3 passed the final Fletching and Leon surfaces. The full
+  verification and results URL are recorded in
+  `source-audits/long-kebbit-bolts-implementation-2026-07-19.md`.
+- Complete verification passes all 1,838 non-Qt methods with 235 expected
+  environment skips and all 1,838 real offscreen Qt methods with one
+  intentional skip. A freshly relaunched macOS Anki process opened one
+  AnkiScape dialog and rendered Leon's disabled missing-spike service state
+  without invoking a service or review action.
+- Published
+  `status-updates/long-kebbit-bolts-results-2026-07-19.html`;
+  mobile copy: `https://jgg95o5s47si.postplan.dev`.
+- Razor-backed kebbit tracking remains source-blocked; no Hunter target or
+  free acquisition shortcut was added, and no owner design gap emerged.

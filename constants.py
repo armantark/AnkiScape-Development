@@ -1337,15 +1337,22 @@ def _apply_equipment_metadata(extra_item_data):
     return enriched
 
 
-EXTRA_ITEM_DATA = _apply_equipment_metadata({
-    # Magic references many existing cross-skill items. Put its generic
-    # fallback rows first so the owning skill's category/stackability wins.
+_QUEST_MERGED_EXTRA_ITEM_DATA = {
     **SUMMONING_EXTRA_ITEM_DATA,
     **THIEVING_EXTRA_ITEM_DATA,
     **AGILITY_EXTRA_ITEM_DATA,
     **CONSTRUCTION_EXTRA_ITEM_DATA,
     **MAGIC_EXTRA_ITEM_DATA,
-    **QUEST_REWARD_ITEM_DATA,
+}
+for _item_name, _quest_spec in QUEST_REWARD_ITEM_DATA.items():
+    # Quest catalog rows often carry only a category and provenance. Overlay
+    # those fields without erasing an owning system's item identity metadata.
+    _QUEST_MERGED_EXTRA_ITEM_DATA.setdefault(_item_name, {}).update(
+        _quest_spec
+    )
+
+EXTRA_ITEM_DATA = _apply_equipment_metadata({
+    **_QUEST_MERGED_EXTRA_ITEM_DATA,
     **FARMING_ITEM_DATA,
     **WOODCUTTING_EXTRA_ITEM_DATA,
     **MINING_EXTRA_ITEM_DATA,

@@ -11571,7 +11571,13 @@ def fletching_material_requirements_pure(target, inventory, fletching_data):
 
 def has_fletching_materials_pure(target, inventory, fletching_data):
     """Return True when inventory satisfies a Fletching target's material needs."""
-    return fletching_material_requirements_pure(target, inventory, fletching_data) is not None
+    spec = fletching_data.get(target)
+    if not spec or fletching_material_requirements_pure(target, inventory, fletching_data) is None:
+        return False
+    for item_name, amount in spec.get("required_items", {}).items():
+        if inventory.get(item_name, 0) < amount:
+            return False
+    return True
 
 
 def can_fletch_item_pure(fletching_level, inventory, target, fletching_data):

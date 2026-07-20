@@ -973,6 +973,15 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         ):
             self.assertFalse(HERBLORE_EXTRA_ITEM_DATA[item]["tradeable"])
 
+    def test_quest_catalog_overlay_preserves_existing_item_identity_metadata(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        self.assertFalse(by_storage_key["Chisel"].stackable)
+        self.assertFalse(by_storage_key["Hammer"].stackable)
+        self.assertEqual(
+            by_storage_key["Boots of lightness"].equipment_slot,
+            "feet",
+        )
+
     def test_crossbow_combination_items_register_as_fletching_items(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         for item_name in (

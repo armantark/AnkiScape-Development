@@ -38,6 +38,18 @@ class TestItemReachabilityAudit(unittest.TestCase):
         )
         self.assertNotIn("Bird's nest", {row["item"] for row in report["orphan_inputs"]})
 
+        long_kebbit_spike = next(
+            row for row in report["orphan_inputs"]
+            if row["item"] == "Long kebbit spike"
+        )
+        self.assertEqual(
+            long_kebbit_spike["consumers"],
+            [
+                "Fletching:fletch_long_kebbit_bolts",
+                "Shop service:leon_fletch_long_kebbit_bolts",
+            ],
+        )
+
         agility_four = next(
             row for row in report["orphan_inputs"]
             if row["item"] == "Agility potion (4)"

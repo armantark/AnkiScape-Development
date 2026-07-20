@@ -2,6 +2,24 @@
 
 ## Current Focus
 
+The isolated Long kebbit reward chain is live. Fletching 42 consumes one Long
+kebbit spike, preserves a carried Chisel, produces six Long kebbit bolts, and
+awards the internally consistent `7.98` XP. Leon now exposes the period
+40-Coin alternative as a batchable instantaneous Shop service with no XP and
+direct-event undo. The bolts are registered level-42 ammunition with `+38`
+Ranged Strength; both item identities have exact period Exchange rows and
+canonical tight-alpha art. A generic quest-catalog overlay defect that had
+made the Chisel stackable was fixed without discarding newer quest
+provenance. Fable and Kimi K3 passed both new Qt surfaces after copy and
+hierarchy fixes. Razor-backed kebbit acquisition remains honestly
+source-blocked, so the transformations are visible but material-starved. See
+`source-audits/long-kebbit-bolts-implementation-2026-07-19.md`. Complete
+verification passes 1,838 non-Qt methods with 235 expected environment skips
+and all 1,838 real offscreen Qt methods with one intentional skip. A fully
+restarted macOS Anki process opened exactly one dialog, found Leon through
+live Shop search, rendered the missing-spike disabled state correctly, and
+returned to the deck screen without changing the save.
+
 The complete source-ready Livid Farm reward substrate is live. The Arcane
 capacitor enforces one-owned across every persisted storage surface, loads
 exactly 1,000 native spell rune bundles without staff substitution, refunds

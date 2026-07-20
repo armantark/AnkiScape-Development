@@ -1485,6 +1485,39 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertTrue(headless_arrows.enabled)
         self.assertIn("Orange feather x15 (you have 15)", headless_arrows.tooltip)
 
+    def test_fletching_rows_show_long_kebbit_spike_and_reusable_chisel(self):
+        player_data = {
+            "fletching_level": 42,
+            "inventory": {"Long kebbit spike": 1},
+            "current_fletch": "fletch_long_kebbit_bolts",
+        }
+
+        locked = _row(
+            fletching_target_rows(
+                player_data,
+                FLETCHING_DATA,
+                FLETCHED_ITEM_IMAGES,
+                QUEST_UNLOCK_RULES,
+            ),
+            "fletch_long_kebbit_bolts",
+        )
+        self.assertFalse(locked.enabled)
+        self.assertIn("Long kebbit spike x1 (you have 1)", locked.tooltip)
+        self.assertIn("Required tools:", locked.tooltip)
+        self.assertIn("Chisel x1 (you have 0)", locked.tooltip)
+
+        player_data["inventory"]["Chisel"] = 1
+        enabled = _row(
+            fletching_target_rows(
+                player_data,
+                FLETCHING_DATA,
+                FLETCHED_ITEM_IMAGES,
+                QUEST_UNLOCK_RULES,
+            ),
+            "fletch_long_kebbit_bolts",
+        )
+        self.assertTrue(enabled.enabled)
+
     def test_firemaking_rows_preserve_success_tooltip_and_default_current_target(self):
         rows = firemaking_target_rows(
             {

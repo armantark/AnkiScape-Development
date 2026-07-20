@@ -21,7 +21,41 @@
       "visibility": "visible"
     },
     {
+      "action_type": "item_conversion",
+      "batchable": true,
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Fletch long kebbit bolts",
+      "icon_item_name": "Long kebbit bolts",
+      "id": "leon_fletch_long_kebbit_bolts",
+      "inputs": [
+        {
+          "item_id": 10107,
+          "item_name": "Long kebbit spike",
+          "quantity": 1,
+          "tradeable": true
+        }
+      ],
+      "location": "Yanille",
+      "lock_reason": "",
+      "outputs": [
+        {
+          "item_id": 10159,
+          "item_name": "Long kebbit bolts",
+          "quantity": 6,
+          "tradeable": true
+        }
+      ],
+      "price": 40,
+      "provider": "Leon",
+      "source": "RuneScape Wiki Hunter oldid 6484443, 2012-10-27",
+      "visibility": "visible"
+    },
+    {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -57,6 +91,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -92,6 +127,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -127,6 +163,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -162,6 +199,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -197,6 +235,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -232,6 +271,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -267,6 +307,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -302,6 +343,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -337,6 +379,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -372,6 +415,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -407,6 +451,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -442,6 +487,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -477,6 +523,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -512,6 +559,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -547,6 +595,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -582,6 +631,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -617,6 +667,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -652,6 +703,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -687,6 +739,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -722,6 +775,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -757,6 +811,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -792,6 +847,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -827,6 +883,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -862,6 +919,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -897,6 +955,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -932,6 +991,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -967,6 +1027,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1002,6 +1063,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1037,6 +1099,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1072,6 +1135,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1107,6 +1171,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1142,6 +1207,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1177,6 +1243,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1212,6 +1279,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1247,6 +1315,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1282,6 +1351,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1317,6 +1387,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1352,6 +1423,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1387,6 +1459,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1422,6 +1495,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1457,6 +1531,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1492,6 +1567,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1527,6 +1603,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1562,6 +1639,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1597,6 +1675,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1632,6 +1711,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1667,6 +1747,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1702,6 +1783,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1737,6 +1819,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1772,6 +1855,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1807,6 +1891,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1842,6 +1927,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1877,6 +1963,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1912,6 +1999,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1947,6 +2035,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -1982,6 +2071,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2017,6 +2107,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2052,6 +2143,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2087,6 +2179,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2122,6 +2215,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2157,6 +2251,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2192,6 +2287,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2227,6 +2323,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2262,6 +2359,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2297,6 +2395,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2332,6 +2431,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2367,6 +2467,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2402,6 +2503,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2437,6 +2539,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2472,6 +2575,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2507,6 +2611,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2542,6 +2647,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2577,6 +2683,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2612,6 +2719,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2647,6 +2755,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2682,6 +2791,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -2717,6 +2827,7 @@
     },
     {
       "action_type": "bogrog_pouch_exchange",
+      "batchable": true,
       "currency_id": 995,
       "currency_implemented": true,
       "currency_item_name": "Coins",
@@ -33014,7 +33125,7 @@
     "locked_stock_row_count": 60,
     "player_sell_price_count": 6820,
     "runtime_shop_count": 273,
-    "service_count": 79,
+    "service_count": 80,
     "source_shop_count": 274,
     "stock_row_count": 2771,
     "vendor_action_count": 4,

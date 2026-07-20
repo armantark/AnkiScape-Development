@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Long kebbit bolt chain — closure report</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f5f0df;
+      --muted: #aaa894;
+      --panel: #171a18;
+      --panel-2: #202520;
+      --line: #3c463b;
+      --green: #79c267;
+      --gold: #e8b95d;
+      --red: #e47b6d;
+      --blue: #79b7cf;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 8% 0%, rgba(121,194,103,.14), transparent 34rem),
+        #0e100f;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      line-height: 1.5;
+    }
+    main { width: min(1100px, calc(100% - 32px)); margin: 0 auto; padding: 56px 0 80px; }
+    .eyebrow { color: var(--green); font-size: 12px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    h1 { max-width: 790px; margin: 10px 0 12px; font-size: clamp(38px, 7vw, 72px); line-height: .98; letter-spacing: -.045em; }
+    .lede { max-width: 760px; margin: 0; color: var(--muted); font-size: 18px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px; margin-top: 24px;
+      padding: 8px 12px; border: 1px solid rgba(121,194,103,.5); border-radius: 999px;
+      background: rgba(121,194,103,.1); color: #b9eba9; font-weight: 700;
+    }
+    .badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 16px var(--green); }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-top: 42px; }
+    .card {
+      grid-column: span 4; padding: 22px; border: 1px solid var(--line); border-radius: 16px;
+      background: linear-gradient(145deg, rgba(255,255,255,.025), transparent), var(--panel);
+      box-shadow: 0 20px 60px rgba(0,0,0,.18);
+    }
+    .card.wide { grid-column: span 8; }
+    .card.full { grid-column: 1 / -1; }
+    h2 { margin: 0 0 14px; font-size: 20px; letter-spacing: -.02em; }
+    h3 { margin: 0 0 6px; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .metric { font-size: 38px; font-weight: 820; letter-spacing: -.045em; }
+    .metric small { font-size: 14px; color: var(--muted); letter-spacing: 0; }
+    .flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 12px; align-items: center; margin-top: 18px; }
+    .node { min-height: 112px; padding: 16px; border-radius: 13px; background: var(--panel-2); border: 1px solid var(--line); }
+    .node strong { display: block; margin-bottom: 5px; font-size: 18px; }
+    .arrow { color: var(--gold); font-size: 28px; font-weight: 800; }
+    .routes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+    .route { padding: 16px; border-radius: 12px; background: #111411; border-left: 4px solid var(--blue); }
+    .route.shop { border-left-color: var(--gold); }
+    code { color: #c8e7ba; background: #111411; border: 1px solid #30382f; border-radius: 5px; padding: 2px 6px; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    li + li { margin-top: 7px; }
+    .truth { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .truth > div { padding: 16px; border-radius: 12px; background: var(--panel-2); }
+    .truth .blocked { border: 1px solid rgba(228,123,109,.38); }
+    .truth .live { border: 1px solid rgba(121,194,103,.38); }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-variant-numeric: tabular-nums; }
+    th, td { padding: 11px 10px; text-align: left; border-bottom: 1px solid var(--line); }
+    th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .07em; }
+    .check { color: var(--green); font-weight: 800; }
+    .note { color: var(--muted); font-size: 13px; }
+    footer { margin-top: 28px; color: #777b70; font-size: 13px; }
+    @media (max-width: 800px) {
+      main { width: min(100% - 20px, 680px); padding-top: 34px; }
+      .card, .card.wide { grid-column: 1 / -1; }
+      .flow { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); justify-self: center; }
+      .routes, .truth { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">AnkiScape · 2012-11-20 parity</div>
+  <h1>The long kebbit bolt chain is no longer inert.</h1>
+  <p class="lede">Both period transformations are live, the ammunition is real equipment, the Exchange rows are dated, and the unavailable Hunter acquisition remains visibly honest.</p>
+  <div class="badge">Verified implementation closure</div>
+
+  <section class="grid">
+    <article class="card">
+      <h3>Fletching output</h3>
+      <div class="metric">6 <small>bolts per spike</small></div>
+      <p>Level 42, Chisel preserved, <strong>7.98 XP</strong>.</p>
+    </article>
+    <article class="card">
+      <h3>Leon service</h3>
+      <div class="metric">40 <small>Coins per spike</small></div>
+      <p>Instantaneous, batchable, zero XP, directly undoable.</p>
+    </article>
+    <article class="card">
+      <h3>Full regression tree</h3>
+      <div class="metric">1,838 <small>tests</small></div>
+      <p>Pure and real offscreen-Qt discoveries at closure.</p>
+    </article>
+
+    <article class="card full">
+      <h2>One source item, two period routes</h2>
+      <div class="flow">
+        <div class="node">
+          <strong>Long kebbit spike</strong>
+          Item 10107 · source-blocked acquisition
+        </div>
+        <div class="arrow">→</div>
+        <div class="node">
+          <strong>Choose the authentic route</strong>
+          Review-paced skill or direct NPC service
+        </div>
+        <div class="arrow">→</div>
+        <div class="node">
+          <strong>6 × Long kebbit bolts</strong>
+          Item 10159 · ammunition
+        </div>
+      </div>
+      <div class="routes">
+        <div class="route">
+          <strong>Chisel route</strong><br>
+          Fletching 42 · reusable Chisel · 7.98 XP · answer undo
+        </div>
+        <div class="route shop">
+          <strong>Leon route</strong><br>
+          Yanille · 40 Coins · no XP · direct-event undo
+        </div>
+      </div>
+    </article>
+
+    <article class="card wide">
+      <h2>The 7.89 → 7.98 reconciliation</h2>
+      <p>Darkan's restored row says <code>1.33 XP per bolt</code> and produces six bolts, while a separate runtime constant says <code>7.89</code>. The coherent calculation is:</p>
+      <div class="metric">6 × 1.33 = 7.98</div>
+      <p class="note">The implementation records the transposition conflict rather than laundering it into “source-exact” data.</p>
+    </article>
+    <article class="card">
+      <h2>Ammunition identity</h2>
+      <div class="metric">+38 <small>Ranged Strength</small></div>
+      <p>Ranged 42 · ammunition slot · period item 10159.</p>
+    </article>
+
+    <article class="card full">
+      <h2>Exact period Exchange continuation</h2>
+      <table>
+        <thead><tr><th>Item</th><th>Guide price</th><th>Four-hour limit</th><th>Oldid</th><th>Timestamp</th></tr></thead>
+        <tbody>
+          <tr><td>Long kebbit bolts</td><td>392</td><td>1,000</td><td>6562614</td><td>2012-11-16</td></tr>
+          <tr><td>Long kebbit spike</td><td>2,070</td><td>5,000</td><td>6570835</td><td>2012-11-18</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Generated totals: 1,330 direct period prices · 1,640 period limits · 1,659 registered items.</p>
+    </article>
+
+    <article class="card full">
+      <h2>Honest closure boundary</h2>
+      <div class="truth">
+        <div class="live">
+          <h3 class="check">Live and verified</h3>
+          <ul>
+            <li>Fletching recipe, requirements, telemetry, and undo</li>
+            <li>Leon batching, atomic clamping, price, output, and undo</li>
+            <li>Equipment, Exchange, registry, provenance, and tight-alpha assets</li>
+            <li>Fable + Kimi review of every new Qt surface</li>
+          </ul>
+        </div>
+        <div class="blocked">
+          <h3>Still source-blocked</h3>
+          <p>Razor-backed kebbit tracking lacks its hidden catch/trail model. The spike is therefore an intentional orphan input. No free seed, deterministic fake catch, or new owner decision was invented.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="card full">
+      <h2>Closure gates</h2>
+      <table>
+        <tbody>
+          <tr><td>Complete non-Qt discovery</td><td class="check">1,838 / 1,838</td></tr>
+          <tr><td>Complete real offscreen-Qt discovery</td><td class="check">1,838 / 1,838</td></tr>
+          <tr><td>Fresh macOS Anki smoke</td><td class="check">One dialog · Leon visible · no action invoked</td></tr>
+          <tr><td>Test-quality hard issues</td><td class="check">0</td></tr>
+          <tr><td>Docs / compile / JSON / diff / worktree</td><td class="check">Pass</td></tr>
+          <tr><td>Reachability ledger</td><td>1,268 actions · 284 orphan inputs · 302 blocked</td></tr>
+          <tr><td>Creative design gaps</td><td class="check">None</td></tr>
+        </tbody>
+      </table>
+    </article>
+  </section>
+  <footer>Generated from the canonical main checkout · AnkiScape source-harvest and implementation program · 2026-07-19</footer>
+</main>
+</body>
+</html>

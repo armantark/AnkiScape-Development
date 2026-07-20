@@ -1746,6 +1746,30 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(exp, 0.0)
         self.assertEqual(inventory, {"Bronze limbs": 0, "Wooden stock": 0, "Bronze c'bow (u)": 0, "Crossbow string": 0, "Bronze crossbow": 1})
 
+    def test_long_kebbit_bolts_require_but_do_not_consume_the_chisel(self):
+        without_tool = {"Long kebbit spike": 1}
+        self.assertFalse(
+            can_fletch_item_pure(
+                42,
+                without_tool,
+                "fletch_long_kebbit_bolts",
+                FLETCHING_DATA,
+            )
+        )
+
+        inventory, exp, ok = apply_fletching_pure(
+            "fletch_long_kebbit_bolts",
+            {"Long kebbit spike": 1, "Chisel": 1},
+            FLETCHING_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertAlmostEqual(exp, 7.98)
+        self.assertEqual(
+            inventory,
+            {"Long kebbit spike": 0, "Chisel": 1, "Long kebbit bolts": 6},
+        )
+
     def test_fletching_coloured_feathers_select_and_consume_one_exact_available_type(self):
         blue_inventory = {"Arrow shafts": 15, "Blue feather": 15}
         self.assertTrue(can_fletch_item_pure(1, blue_inventory, "headless_arrows", FLETCHING_DATA))

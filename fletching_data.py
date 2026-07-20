@@ -36,6 +36,7 @@ SLAYER_REWARDS_SOURCE_PATH = (
 ITEMS_SOURCE_PATH = "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml"
 PRE_EOC_BOLTS_SOURCE = "https://www.2011.rs/kb/fletching_making_bolts"
 PRE_EOC_DARTS_SOURCE = "https://www.2011.rs/kb/fletching_making_darts"
+PRE_EOC_HUNTER_SOURCE = "https://runescape.wiki/w/Hunter?oldid=6484443"
 
 BROAD_FLETCHING_ABILITY = "broad_fletching"
 DEFAULT_FLETCHING_TARGET = "arrow_shafts"
@@ -80,6 +81,7 @@ class FletchingTarget:
     notes: str = ""
     tradeable: bool = True
     sort_order: int = 0
+    required_items: Tuple[Tuple[str, int], ...] = ()
 
 
 def _req(*pairs: Tuple[str, int]) -> Tuple[Tuple[str, int], ...]:
@@ -102,6 +104,7 @@ def _target(
     unlock_abilities: Tuple[str, ...] = (),
     notes: str = "",
     sort_order: int = 0,
+    required_items: Tuple[Tuple[str, int], ...] = (),
 ) -> FletchingTarget:
     return FletchingTarget(
         id=id,
@@ -119,6 +122,7 @@ def _target(
         unlock_abilities=unlock_abilities,
         notes=notes,
         sort_order=sort_order,
+        required_items=required_items,
     )
 
 
@@ -196,6 +200,23 @@ FLETCHING_TARGETS: Tuple[FletchingTarget, ...] = (
     _target("tip_jade_bolts", "Tip jade bolts", "bolts", "tip_bolt", 26, 24.0, _req(("Blurite bolts", 10), ("Jade bolt tips", 10)), "Jade bolts", 10, PRE_EOC_BOLTS_SOURCE, sort_order=125),
     _target("cut_pearl_bolt_tips", "Cut pearl bolt tips", "bolts", "cut_tip", 41, 3.0, _req(("Oyster pearl", 1)), "Pearl bolt tips", 6, PRE_EOC_BOLTS_SOURCE, sort_order=130),
     _target("tip_pearl_bolts", "Tip pearl bolts", "bolts", "tip_bolt", 41, 32.0, _req(("Iron bolts", 10), ("Pearl bolt tips", 10)), "Pearl bolts", 10, PRE_EOC_BOLTS_SOURCE, sort_order=135),
+    _target(
+        "fletch_long_kebbit_bolts",
+        "Fletch long kebbit bolts",
+        "bolts",
+        "chisel",
+        42,
+        7.98,
+        _req(("Long kebbit spike", 1)),
+        "Long kebbit bolts",
+        6,
+        PRE_EOC_HUNTER_SOURCE,
+        "LONG_KEBBIT_BOLTS",
+        10159,
+        notes="One Long kebbit spike produces six bolts at 1.33 Fletching XP each.",
+        sort_order=138,
+        required_items=_req(("Chisel", 1)),
+    ),
     _target("cut_red_topaz_bolt_tips", "Cut red topaz bolt tips", "bolts", "cut_tip", 48, 3.0, _req(("Red topaz", 1)), "Topaz bolt tips", 12, PRE_EOC_BOLTS_SOURCE, sort_order=140),
     _target("tip_topaz_bolts", "Tip topaz bolts", "bolts", "tip_bolt", 48, 39.0, _req(("Steel bolts", 10), ("Topaz bolt tips", 10)), "Topaz bolts", 10, PRE_EOC_BOLTS_SOURCE, sort_order=145),
     _target("tip_barbed_bolts", "Tip barbed bolts", "bolts", "tip_bolt", 51, 95.0, _req(("Bronze bolts", 10), ("Barb bolttips", 10)), "Barbed bolts", 10, PRE_EOC_BOLTS_SOURCE, sort_order=150),
@@ -255,6 +276,7 @@ def _target_as_dict(target: FletchingTarget) -> Dict[str, object]:
         "exp": target.base_exp,
         "base_exp": target.base_exp,
         "requirements": dict(target.requirements),
+        "required_items": dict(target.required_items),
         "output_item": target.output_item,
         "output_qty": target.output_qty,
         "xp_rewards": _xp_rewards(target),

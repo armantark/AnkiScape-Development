@@ -197,3 +197,18 @@ six broad repository-search calls without returning a bounded report; the
 other established a session but emitted no token or tool telemetry. The
 primary pass independently reproduced every accepted source and integration
 finding, and no partial leaf output was used.
+
+## Isolated reward-chain continuation — 2026-07-19
+
+The source-ready Long kebbit transformation has now shipped independently:
+Fletching 42 consumes one Long kebbit spike, requires and preserves a Chisel,
+produces six Long kebbit bolts, and awards the internally consistent
+`6 × 1.33 = 7.98` XP. Leon's instantaneous Shop service provides the period
+alternative for 40 Coins with no Fletching XP and direct-event undo. The bolts
+are registered ammunition and both spike/bolt Exchange rows and canonical
+assets are live.
+
+This does not activate or claim completion of any Hunter tracking target.
+Razor-backed kebbit acquisition remains source-blocked on the hidden tracking
+rolls above. See
+`long-kebbit-bolts-implementation-2026-07-19.md`.

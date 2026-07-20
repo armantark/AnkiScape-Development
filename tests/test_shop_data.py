@@ -124,7 +124,7 @@ class TestShopData(unittest.TestCase):
             self.assertEqual(shop["lock_reason"], "currency_not_implemented")
 
     def test_services_vendor_actions_and_extra_items_are_exported(self):
-        self.assertEqual(len(SHOP_SERVICES), 79)
+        self.assertEqual(len(SHOP_SERVICES), 80)
         self.assertEqual(
             {
                 service_id
@@ -145,12 +145,42 @@ class TestShopData(unittest.TestCase):
         self.assertEqual(bob["default_target_dose"], 4)
         self.assertEqual(bob["price"], 0)
         self.assertIn("oldid 6222086", bob["source"])
+        leon = SHOP_SERVICES["leon_fletch_long_kebbit_bolts"]
+        self.assertEqual(leon["provider"], "Leon")
+        self.assertEqual(leon["location"], "Yanille")
+        self.assertEqual(leon["price"], 40)
+        self.assertEqual(
+            leon["inputs"],
+            [
+                {
+                    "item_id": 10107,
+                    "quantity": 1,
+                    "item_name": "Long kebbit spike",
+                    "tradeable": True,
+                }
+            ],
+        )
+        self.assertEqual(
+            leon["outputs"],
+            [
+                {
+                    "item_id": 10159,
+                    "quantity": 6,
+                    "item_name": "Long kebbit bolts",
+                    "tradeable": True,
+                }
+            ],
+        )
+        self.assertEqual(leon["action_type"], "item_conversion")
+        self.assertTrue(leon["batchable"])
+        self.assertIn("oldid 6484443", leon["source"])
         for pouch in SUMMONING_POUCHES:
             service = SHOP_SERVICES.get(f"bogrog_exchange_{pouch.id}")
             if pouch.bogrog_level is None or pouch.bogrog_shards is None:
                 self.assertIsNone(service)
                 continue
             self.assertEqual(service["provider"], "Bogrog")
+            self.assertTrue(service["batchable"])
             self.assertEqual(service["required_level"], pouch.bogrog_level)
             self.assertEqual(
                 service["inputs"][0]["item_name"], pouch.pouch_name

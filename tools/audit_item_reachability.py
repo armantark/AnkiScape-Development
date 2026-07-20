@@ -171,6 +171,32 @@ def build_reachability_report() -> dict[str, Any]:
             for item in outputs:
                 producers[item].add(key)
 
+    for service_id, service in shop_data.SHOP_SERVICES.items():
+        if (
+            service.get("visibility") != "visible"
+            or service.get("action_type") != "item_conversion"
+        ):
+            continue
+        required = _names(service.get("inputs"))
+        if int(service.get("price", 0) or 0) > 0:
+            required.add(str(service.get("currency_item_name", "Coins")))
+        outputs = _names(service.get("outputs"))
+        if not outputs:
+            continue
+        key = f"Shop service:{service_id}"
+        actions.append(
+            {
+                "id": key,
+                "required": required,
+                "alternatives": (),
+                "outputs": outputs,
+            }
+        )
+        for item in required:
+            consumers[item].add(key)
+        for item in outputs:
+            producers[item].add(key)
+
     seen_charge_families: set[tuple[tuple[tuple[str, int], ...], str, str]] = set()
     for enemy_id, enemy in combat_data.COMBAT_ENEMY_DATA.items():
         finisher = enemy.get("finisher", {})

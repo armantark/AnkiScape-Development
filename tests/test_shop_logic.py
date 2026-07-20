@@ -346,6 +346,55 @@ class TestShopLogic(unittest.TestCase):
         self.assertEqual(restored["inventory"]["Pack yak pouch"], 3)
         self.assertEqual(restored["inventory"]["Spirit shards"], 10)
 
+    def test_leon_fletches_spikes_without_fletching_xp_and_is_atomic(self):
+        player = build_shop_fixture_player_data()
+        player["fletching_exp"] = 1234.5
+        player["inventory"].update(
+            {
+                "Coins": 100,
+                "Long kebbit spike": 3,
+                "Long kebbit bolts": 4,
+            }
+        )
+        before_clock = dict(player["shop_market_clock"])
+
+        denied = preview_shop_service_pure(
+            {**player, "inventory": {**player["inventory"], "Coins": 39}},
+            "leon_fletch_long_kebbit_bolts",
+            1,
+        )
+        self.assertFalse(denied["allowed"])
+        self.assertEqual(denied["reason"], "missing_requirements")
+        self.assertEqual(
+            denied["missing_requirements"][0]["item_name"],
+            "Coins",
+        )
+
+        fletched, result = apply_shop_service_pure(
+            player,
+            "leon_fletch_long_kebbit_bolts",
+            3,
+        )
+
+        self.assertTrue(result["allowed"])
+        self.assertTrue(result["clamped"])
+        self.assertEqual(result["quantity"], 2)
+        self.assertEqual(result["total_price"], 80)
+        self.assertEqual(fletched["inventory"]["Coins"], 20)
+        self.assertEqual(fletched["inventory"]["Long kebbit spike"], 1)
+        self.assertEqual(fletched["inventory"]["Long kebbit bolts"], 16)
+        self.assertEqual(fletched["fletching_exp"], 1234.5)
+        self.assertEqual(fletched["shop_market_clock"], before_clock)
+
+        restored, undo = rollback_shop_event_pure(
+            fletched, result["event_id"]
+        )
+        self.assertTrue(undo["allowed"])
+        self.assertEqual(restored["inventory"]["Coins"], 100)
+        self.assertEqual(restored["inventory"]["Long kebbit spike"], 3)
+        self.assertEqual(restored["inventory"]["Long kebbit bolts"], 4)
+        self.assertEqual(restored["fletching_exp"], 1234.5)
+
     def test_bogrog_exception_rows_use_pinned_table_levels(self):
         player = build_shop_fixture_player_data()
         player["summoning_level"] = 46

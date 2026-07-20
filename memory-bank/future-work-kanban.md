@@ -55,7 +55,9 @@ Labels: `SOURCE AUDIT`, then `IMPLEMENT` only when evidence closes.
   tracking, catch curves, pitfall damage, snare/Ferret loss, and authentic
   perfect/tatty selection remain absent. The period record closes visible
   values plus approximately `1/4` perfect fur and Jim's `+2` XP, but no partial
-  deterministic targets ship. See
+  deterministic targets ship. The fully sourced isolated Long kebbit reward
+  chain is now live through both Chisel/Fletching and Leon's Shop service;
+  its spike acquisition remains blocked with Razor-backed tracking. See
   `memory-bank/source-audits/hunter-tracking-pitfall-rabbit-restoration-2026-07-19.md`.
 - Bonfires and Fire spirits were re-audited against the official cutoff update,
   cutoff article/talk pages, and Darkan. Visible XP, warmth, `1/100` spirit
@@ -1064,8 +1066,9 @@ Labels: `COMPLETE`, `DESIGN LOCKED`.
   the registered-item catalog intersection, period-six-slot offer/escrow
   lifecycle, confirmation gates, Ironman lockout, and save migration are
   implemented.
-  The period price/buy-limit harvest now supplies 1,328 direct prices and 1,638
-  limits, with 19 ambiguous identities fail-closed. The bounded hidden-price
+  The period price/buy-limit harvest now supplies 1,330 direct prices and 1,640
+  limits across 1,659 registered items, with 19 ambiguous identities
+  fail-closed. The bounded hidden-price
   market, stochastic fills, impact/shocks, live review ticks, and deterministic
   review undo are implemented. The top-level period interface, offer editing,
   configurable safety controls, persistent completion notice, and no-XP

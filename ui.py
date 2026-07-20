@@ -7276,7 +7276,7 @@ def show_main_menu(
     # Hug the content: in provider mode this panel is the only section, and
     # without a cap it stretches and floats its rows mid-air.
     services_panel.setMaximumHeight(190)
-    services_header = QLabel("Services / Vendor Actions")
+    services_header = QLabel("Services")
     services_header.setObjectName("shopServicesHeader")
     services_header.setStyleSheet("font-weight: 600; color: palette(text);")
     services_panel_layout.addWidget(services_header)
@@ -7437,7 +7437,9 @@ def show_main_menu(
             item_name = str(row.get("item_name", "Item"))
             owned = int(row.get("owned_quantity", 0) or 0)
             required = int(row.get("required_quantity", 0) or 0)
-            parts.append(f"{item_name} {owned:,}/{required:,}")
+            parts.append(
+                f"{item_name}: {owned:,} owned, {required:,} needed"
+            )
         return "; ".join(parts)
 
     def _preview_denial_text(preview: dict, fallback: str = "") -> str:
@@ -7754,12 +7756,24 @@ def show_main_menu(
         label = "Service" if kind == "service" else "Vendor"
         provider = str(row.get("provider", ""))
         price = _format_shop_price(row.get("price", 0), str(row.get("currency_item_name", "Coins")))
+        inputs = ", ".join(
+            f"{item.get('quantity', 1)} × {item.get('item_name')}"
+            for item in row.get("inputs", [])[:2]
+        )
         outputs = ", ".join(
-            f"{item.get('item_name')} x{item.get('quantity', 1)}"
+            f"{item.get('quantity', 1)} × {item.get('item_name')}"
             for item in row.get("outputs", [])[:2]
         )
-        right = f" -> {outputs}" if outputs else ""
-        return f"{label}: {row.get('display_name', row.get('id'))} · {provider} · {price}{right}"
+        right = f" → {outputs}" if outputs else ""
+        cost_parts = [part for part in (inputs, price) if part != "Free"]
+        cost = " + ".join(cost_parts) if cost_parts else "Free"
+        provider_selected = bool(shop_state.get("provider"))
+        prefix = "" if provider_selected else f"{label}: "
+        provider_suffix = "" if provider_selected else f" · {provider}"
+        return (
+            f"{prefix}{row.get('display_name', row.get('id'))}"
+            f"{provider_suffix} · {cost}{right}"
+        )
 
     def _populate_services() -> None:
         current_id = shop_state.get("service_id", "")
@@ -7805,7 +7819,7 @@ def show_main_menu(
         row_changed = service_qty.property("serviceRowId") != row_id
         action_type = row.get("action_type")
         is_decant = action_type == "decant_potions_to_dose"
-        has_quantity = action_type == "bogrog_pouch_exchange"
+        has_quantity = bool(row.get("batchable", False))
         service_qty.blockSignals(True)
         if is_decant:
             if service_qty.minimum() != 2 or service_qty.maximum() != 4:
@@ -7848,9 +7862,25 @@ def show_main_menu(
             total = int(preview.get("total_price", 0) or 0)
             currency = str(preview.get("currency_item_name", row.get("currency_item_name", "Coins")))
             suffix = " (clamped)" if preview.get("clamped") else ""
-            requirement_text = _format_requirement_rows(preview.get("requirements", []) if isinstance(preview.get("requirements"), list) else [])
-            requirement_suffix = f" Have: {requirement_text}." if requirement_text else ""
-            service_preview.setText(f"Use {row.get('display_name', row.get('id'))} {amount:,} time(s) for {total:,} {currency}.{requirement_suffix}{suffix}")
+            requirements = (
+                preview.get("requirements", [])
+                if isinstance(preview.get("requirements"), list)
+                else []
+            )
+            requirement_text = _format_requirement_rows(
+                [
+                    requirement
+                    for requirement in requirements
+                    if requirement.get("kind") != "currency"
+                ]
+            )
+            requirement_suffix = f" {requirement_text}." if requirement_text else ""
+            repetitions = "once" if amount == 1 else f"{amount:,} times"
+            cost = "free" if total == 0 else f"{total:,} {currency}"
+            service_preview.setText(
+                f"{row.get('display_name', row.get('id'))} {repetitions} "
+                f"for {cost}.{requirement_suffix}{suffix}"
+            )
             service_use_btn.setEnabled(True)
         else:
             service_preview.setText(_preview_denial_text(preview, str(row.get("lock_reason", ""))))

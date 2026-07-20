@@ -55,6 +55,18 @@ class TestFletchingData(unittest.TestCase):
         self.assertEqual(FLETCHING_DATA["fletch_dragon_darts"]["level"], 95)
         self.assertEqual(FLETCHING_DATA["fletch_dragon_darts"]["requirements"], {"Dragon dart tip": 10, "Feather": 10})
 
+    def test_long_kebbit_bolts_preserve_the_source_batch_and_reusable_tool(self):
+        target = FLETCHING_DATA["fletch_long_kebbit_bolts"]
+
+        self.assertEqual(target["level"], 42)
+        self.assertEqual(target["requirements"], {"Long kebbit spike": 1})
+        self.assertEqual(target["required_items"], {"Chisel": 1})
+        self.assertEqual(target["output_item"], "Long kebbit bolts")
+        self.assertEqual(target["output_qty"], 6)
+        self.assertAlmostEqual(target["exp"], 7.98)
+        self.assertEqual(target["source_item_id"], 10159)
+        self.assertEqual(target["source"], "https://runescape.wiki/w/Hunter?oldid=6484443")
+
     def test_live_feathering_rows_accept_every_source_feather_without_changing_their_values(self):
         feathering_rows = [
             row for row in FLETCHING_DATA.values()

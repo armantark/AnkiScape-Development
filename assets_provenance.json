@@ -17553,6 +17553,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:58:42Z"
   },
+  "fletcheditems/long_kebbit_bolts.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Long_kebbit_bolts.png",
+    "file_title": "Long kebbit bolts.png",
+    "image_url": "https://runescape.wiki/images/Long_kebbit_bolts.png?b2883",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2bc75070fa3e43736725b6232b16d995b9e6e6a8",
+    "size": 455,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T05:13:39Z"
+  },
+  "fletcheditems/long_kebbit_spike.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Long_kebbit_spike.png",
+    "file_title": "Long kebbit spike.png",
+    "image_url": "https://runescape.wiki/images/Long_kebbit_spike.png?33b13",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e36a589648f7b9ae63176e341f3ec345fc21c70a",
+    "size": 729,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T05:13:41Z"
+  },
   "fletcheditems/longbow.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Longbow.png",
     "file_title": "Longbow.png",

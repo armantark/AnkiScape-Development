@@ -2181,7 +2181,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("No visible shop", selector.item(0).text())
 
         labels = [label.text() for label in dialog.findChildren(QLabel)]
-        self.assertIn("Services / Vendor Actions", labels)
+        self.assertIn("Services", labels)
 
     def test_grand_exchange_tab_renders_period_six_slots_and_routes_an_offer(self) -> None:
         from grand_exchange_logic import (
@@ -2747,7 +2747,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = fixtures["fixture_player_data"]
         pd["inventory"].update({"Agility potion (1)": 4, "Agility potion (3)": 4})
         pd["summoning_level"] = 99
+        pd["fletching_exp"] = 1234.5
         pd["inventory"]["Pack yak pouch"] = 3
+        pd["inventory"]["Long kebbit spike"] = 2
         vendor_action_id = fixtures["vendor_action_transaction"]["action_id"]
         dialog = self._open(pd)
         _open_shop_tab(dialog)
@@ -2838,6 +2840,35 @@ class MainMenuWidgetTest(unittest.TestCase):
             pd["inventory"]["Spirit shards"],
             before_shards + (2 * 148),
         )
+
+        leon_item = _select_service_row("leon_fletch_long_kebbit_bolts")
+        self.assertFalse(leon_item.icon().isNull())
+        self.assertNotIn("Service:", leon_item.text())
+        self.assertNotIn("· Leon", leon_item.text())
+        self.assertIn(
+            "1 × Long kebbit spike + 40 Coins → 6 × Long kebbit bolts",
+            leon_item.text(),
+        )
+        quantity_spin = dialog.findChild(QSpinBox, "shopServiceQuantitySpin")
+        self.assertTrue(quantity_spin.isVisibleTo(dialog))
+        quantity_spin.setValue(2)
+        QApplication.processEvents()
+        preview_label = _find_named_label(dialog, "shopServicePreviewLabel")
+        self.assertIn("80 Coins", preview_label.text())
+        self.assertIn(
+            "Long kebbit spike: 2 owned, 2 needed",
+            preview_label.text(),
+        )
+        before_coins = pd["inventory"]["Coins"]
+        before_fletching_exp = pd["fletching_exp"]
+        use_button = _find_named_button(dialog, "shopServiceUseButton")
+        self.assertTrue(use_button.isEnabled(), preview_label.text())
+        use_button.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["inventory"]["Coins"], before_coins - 80)
+        self.assertEqual(pd["inventory"]["Long kebbit spike"], 0)
+        self.assertEqual(pd["inventory"]["Long kebbit bolts"], 12)
+        self.assertEqual(pd["fletching_exp"], before_fletching_exp)
 
         global_button = _find_named_button(dialog, "shopGlobalHistoryButton")
         global_button.click()
@@ -3920,7 +3951,13 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_fletching_is_selectable_and_shows_grouped_target_tree(self) -> None:
         pd = _make_player_data()
         pd["fletching_level"] = 99
-        pd["inventory"] = {"Logs": 1, "Headless arrows": 15, "Broad arrow heads": 15}
+        pd["inventory"] = {
+            "Logs": 1,
+            "Headless arrows": 15,
+            "Broad arrow heads": 15,
+            "Long kebbit spike": 1,
+            "Chisel": 1,
+        }
         pd["current_fletch"] = "arrow_shafts"
         dialog = self._open(pd)
 
@@ -3947,6 +3984,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         broad = _fletching_row(tree, "broad_arrows")
         self.assertTrue(broad.isDisabled())
         self.assertIn("Broad Fletching", broad.toolTip(0))
+        long_kebbit = _fletching_row(tree, "fletch_long_kebbit_bolts")
+        self.assertFalse(long_kebbit.isDisabled())
+        self.assertIn("Long kebbit spike x1", long_kebbit.toolTip(0))
+        self.assertIn("Chisel x1", long_kebbit.toolTip(0))
 
     def test_firemaking_is_selectable_and_shows_source_backed_target_list(self) -> None:
         pd = _make_player_data()

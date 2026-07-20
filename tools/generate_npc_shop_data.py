@@ -104,6 +104,32 @@ SERVICE_ROWS: list[dict[str, Any]] = [
             "Death Hats, Draynor and Upgrades, 2011-05-25; Darkan BobBarter.java"
         ),
     },
+    {
+        "id": "leon_fletch_long_kebbit_bolts",
+        "display_name": "Fletch long kebbit bolts",
+        "provider": "Leon",
+        "location": "Yanille",
+        "currency_id": 995,
+        "price": 40,
+        "inputs": [
+            {
+                "item_id": 10107,
+                "quantity": 1,
+                "item_name": "Long kebbit spike",
+            }
+        ],
+        "outputs": [
+            {
+                "item_id": 10159,
+                "quantity": 6,
+                "item_name": "Long kebbit bolts",
+            }
+        ],
+        "icon_item_name": "Long kebbit bolts",
+        "action_type": "item_conversion",
+        "batchable": True,
+        "source": "RuneScape Wiki Hunter oldid 6484443, 2012-10-27",
+    },
 ]
 
 
@@ -142,6 +168,7 @@ def _bogrog_exchange_service_rows() -> list[dict[str, Any]]:
                 ],
                 "icon_item_name": str(pouch["pouch_name"]),
                 "action_type": "bogrog_pouch_exchange",
+                "batchable": True,
                 "required_skill": "summoning",
                 "required_level": int(required_level),
                 "familiar_id": str(pouch["id"]),

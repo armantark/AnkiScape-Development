@@ -2381,7 +2381,9 @@ def handle_fletching_answer(ctx: RuntimeActionContext) -> bool:
 
     new_inv, base_exp, ok = apply_fletching_pure(target, player_data["inventory"], FLETCHING_DATA)
     if not ok:
-        missing = missing_materials_text(spec.get("requirements", {}), player_data["inventory"])
+        missing_requirements = dict(spec.get("requirements", {}))
+        missing_requirements.update(spec.get("required_items", {}))
+        missing = missing_materials_text(missing_requirements, player_data["inventory"])
         _switch_material_failure_to_bankstanding(ctx)
         ctx.show_error_message(
             "Out of materials",

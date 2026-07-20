@@ -114,3 +114,17 @@ tradeable, cache-exchangeable, non-Coin items.
   `failed to refresh available models: timeout waiting for child process to
   exit`. The primary cancelled it and independently reproduced the contract
   and code seams.
+
+## Registered-item continuation — 2026-07-19
+
+The Long kebbit reward-chain implementation registered two additional exact
+period Exchange identities:
+
+| Item | Price | Limit | Page oldid | Revision timestamp |
+|---|---:|---:|---:|---|
+| Long kebbit bolts | 392 | 1,000 | 6562614 | 2012-11-16T04:14:14Z |
+| Long kebbit spike | 2,070 | 5,000 | 6570835 | 2012-11-18T04:24:48Z |
+
+The generated catalog now has 1,330 direct period prices and 1,640 period buy
+limits for 1,659 registered items. The original 1,328/1,638 counts above are
+the historical closure checkpoint, not the current generated totals.

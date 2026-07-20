@@ -667,6 +667,26 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"], [])
 
+    def test_fletching_handler_makes_six_long_kebbit_bolts_and_keeps_chisel(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Long kebbit spike": 1, "Chisel": 1},
+            "fletching_level": 42,
+            "fletching_exp": 0,
+            "current_fletch": "fletch_long_kebbit_bolts",
+            "completed_achievements": [],
+        }
+
+        ok = handle_fletching_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["inventory"]["Long kebbit spike"], 0)
+        self.assertEqual(player_data["inventory"]["Chisel"], 1)
+        self.assertEqual(player_data["inventory"]["Long kebbit bolts"], 6)
+        self.assertAlmostEqual(player_data["fletching_exp"], 7.98)
+        self.assertEqual(calls["xp"], [7.98])
+        self.assertEqual(calls["errors"], [])
+
     def test_fletching_handler_and_carried_overlay_consume_selected_coloured_feathers(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
@@ -2870,6 +2890,38 @@ class TestProcessingPackOverlay(unittest.TestCase):
         # only the 1 log actually consumed leaves the real bank (99 stay banked).
         self.assertEqual(player_data["inventory"]["Logs"], 99)
         self.assertEqual(player_data["carried_inventory"]["logs"], {"Logs": 5})
+
+    def test_advanced_fletching_pack_carries_and_preserves_reusable_chisel(self):
+        player_data = {
+            "inventory": {"Long kebbit spike": 2, "Chisel": 1},
+            "fletching_level": 42,
+            "fletching_exp": 0,
+            "current_fletch": "fletch_long_kebbit_bolts",
+            "completed_achievements": [],
+            "carried_advanced_targets": {"fletch_long_kebbit_bolts": True},
+            "carried_layout": {
+                "fletch_long_kebbit_bolts": {
+                    "Long kebbit spike": 2,
+                    "Chisel": 1,
+                }
+            },
+        }
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+
+        result = run_answer_with_carried_overlay(
+            _context(player_data, calls),
+            "fletching",
+            handle_fletching_answer,
+        )
+
+        self.assertTrue(result)
+        self.assertEqual(player_data["inventory"]["Long kebbit spike"], 1)
+        self.assertEqual(player_data["inventory"]["Chisel"], 1)
+        self.assertEqual(player_data["inventory"]["Long kebbit bolts"], 6)
+        self.assertEqual(
+            player_data["carried_inventory"]["fletch_long_kebbit_bolts"],
+            {"Long kebbit spike": 1, "Chisel": 1},
+        )
 
 
 if __name__ == "__main__":
