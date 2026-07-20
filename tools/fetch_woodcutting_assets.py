@@ -71,6 +71,7 @@ SEEDS = [
     "Spirit seed", "Magic seed",
 ]
 NESTS = ["Bird's nest (seeds)", "Bird's nest (ring)", "Bird's nest (empty)"]
+ACTIVITY_ITEMS = ["Evil tree kindling"]
 
 MANIFEST: List[Tuple[str, str]] = (
     [
@@ -80,6 +81,7 @@ MANIFEST: List[Tuple[str, str]] = (
     ]
     + [(name, _wc_item(name)) for name in HATCHETS]
     + [(name, _wc_item(name)) for name in NESTS]
+    + [(name, _wc_item(name)) for name in ACTIVITY_ITEMS]
     + [(name, _wc_item(name)) for name in SEEDS]
 )
 

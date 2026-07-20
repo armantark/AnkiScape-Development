@@ -2040,6 +2040,62 @@ class TestIntegrationSmoke(unittest.TestCase):
             "Bankstanding — no XP gained."
         ])
 
+    def test_evil_tree_spawns_on_shared_review_clock_and_undo_restores_world(self):
+        addon = _load_addon_as_package("ankiscape_evil_tree_clock_integration")
+        from ankiscape_evil_tree_clock_integration.evil_tree_logic import (
+            default_evil_tree_state_pure,
+        )
+
+        addon.mw = _DummyMW(_DummyCol())
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_context_action_strip = lambda *_args: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda _text: None
+        initial = {
+            "inventory": {},
+            "shop_market_clock": {
+                "answered_cards": 19,
+                "market_tick": 19,
+            },
+            "evil_tree": default_evil_tree_state_pure(),
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "None"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.0
+        try:
+            addon.on_answer_card(
+                _FakeReviewer(),
+                4,
+                lambda _self, _ease: "answered",
+            )
+        finally:
+            addon.random.random = original_random
+
+        event = addon.player_data["evil_tree"]["active_event"]
+        self.assertEqual(event["tier_id"], "normal")
+        self.assertEqual(event["reviews_remaining"], 5)
+        self.assertEqual(
+            addon.player_data["shop_market_clock"]["answered_cards"], 20
+        )
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(
+                    study_queues=True,
+                    card=True,
+                ),
+            )
+        )
+        self.assertEqual(addon.player_data, initial)
+
     def test_material_exhaustion_falls_back_once_then_bankstands(self):
         addon = _load_addon_as_package(
             "ankiscape_material_fallback_bankstanding_integration"

@@ -78,6 +78,13 @@ Labels: `SOURCE AUDIT`, then `IMPLEMENT` only when evidence closes.
   ogleroot acquisition and potion use remain Grim Tales/Darkan-owned rather
   than duplicated in the skill runtime. See
   `memory-bank/source-audits/herblore-shrink-me-quick-2026-07-19.md`.
+- Evil Tree is implemented as the settled review-native D&D: seven exact
+  period tier gates/XP rows, five-review availability, nurture-only entry,
+  three atomic Nurture/Prepare/Fell reviews, bounded period-ceiling rewards,
+  and the eligible Woodcutting blessing. The unrecovered tier/reward/nest
+  formulas remain explicitly labeled abstractions; no design wait remains.
+  See
+  `memory-bank/source-audits/evil-tree-implementation-harvest-2026-07-19.md`.
 - Skeletal Horror's continuous phase thresholds are now pinned at `2,750`,
   `2,000`, and `1,250` LP, alongside its phase levels, maximum hits, styles,
   limb identities, rewards, clue chance, and weekly cadence. Implementation

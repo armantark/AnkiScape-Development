@@ -212,6 +212,12 @@ try:
         summoning_action_requirements_pure,
     )
     from .slayer_logic import apply_slayer_kills_pure
+    from .evil_tree_data import (
+        EVIL_TREE_ELIGIBLE_BLESSING_TARGETS,
+        EVIL_TREE_NEST_MULTIPLIER,
+        EVIL_TREE_UTILITY_ID,
+    )
+    from .evil_tree_logic import apply_evil_tree_review_pure
     from .warriors_guild_data import WARRIORS_GUILD_ACTIVITIES
     from .warriors_guild_logic import (
         apply_warriors_guild_activity_pure,
@@ -414,6 +420,12 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         summoning_action_requirements_pure,
     )
     from slayer_logic import apply_slayer_kills_pure  # type: ignore
+    from evil_tree_data import (  # type: ignore
+        EVIL_TREE_ELIGIBLE_BLESSING_TARGETS,
+        EVIL_TREE_NEST_MULTIPLIER,
+        EVIL_TREE_UTILITY_ID,
+    )
+    from evil_tree_logic import apply_evil_tree_review_pure  # type: ignore
     from warriors_guild_data import WARRIORS_GUILD_ACTIVITIES  # type: ignore
     from warriors_guild_logic import (  # type: ignore
         apply_warriors_guild_activity_pure,
@@ -865,6 +877,17 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
 
     player_data = ctx.player_data
     target_id = str(player_data.get(target_key, ""))
+    evil_tree_state = player_data.get("evil_tree")
+    if not isinstance(evil_tree_state, dict):
+        evil_tree_state = {}
+    evil_tree_overflow = bool(
+        handler_key == "woodcutting"
+        and target_id in EVIL_TREE_ELIGIBLE_BLESSING_TARGETS
+        and int(
+            evil_tree_state.get("blessing_reviews_remaining", 0) or 0
+        )
+        > 0
+    )
     is_processing = handler_key in _PROCESSING_HANDLER_KEYS
     is_agility = handler_key == "agility"
     # Keep/Drop is a gathering-only choice; processing always draws from (and
@@ -1014,7 +1037,14 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             )
         else:
             winter_storage_before = None
-    trip_due = bool(keep and (active_run or churn >= capacity or force))
+    trip_due = bool(
+        keep
+        and (
+            active_run
+            or (churn >= capacity and not evil_tree_overflow)
+            or force
+        )
+    )
     travel_profile = None
     run_energy_credit_used = 0
     reviews_cost = inventory_pure.SKILLING_BANK_RUN_REVIEWS
@@ -1062,10 +1092,13 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             is_processing, advanced, layout, bank, requirements, capacity, casual_layout
         )
     else:
+        gate_churn = min(int(churn or 0), capacity - 1) if evil_tree_overflow and not active_run else churn
         new_state, new_view, new_churn, event, act = inventory_pure.carried_bank_run_gate_pure(
-            view, churn, keep, _OVERLAY_STACKABLE_NAMES, target_id, bank_run,
+            view, gate_churn, keep, _OVERLAY_STACKABLE_NAMES, target_id, bank_run,
             max(1, reviews_cost), capacity, force,
         )
+        if evil_tree_overflow and act:
+            new_churn = int(churn or 0)
         if event.get("started") and new_state:
             new_state["reviews_total"] = max(1, reviews_cost)
             new_state["route_label"] = travel_profile.route_label if travel_profile else "Running to the bank"
@@ -1230,13 +1263,35 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
                 _without_urn_substitutions(inv_after),
                 _OVERLAY_STACKABLE_NAMES,
             )
-            post_handler_view = inventory_pure.carried_fold_gains_pure(
-                post_handler_view,
-                gains,
-                _OVERLAY_STACKABLE_NAMES,
-            )
+            overflow_items: dict[str, int] = {}
+            if evil_tree_overflow:
+                post_handler_view, overflow_items = (
+                    inventory_pure.carried_fold_gains_with_overflow_pure(
+                        post_handler_view,
+                        gains,
+                        _OVERLAY_STACKABLE_NAMES,
+                        capacity,
+                    )
+                )
+            else:
+                post_handler_view = inventory_pure.carried_fold_gains_pure(
+                    post_handler_view,
+                    gains,
+                    _OVERLAY_STACKABLE_NAMES,
+                )
             _set_carried_target_map(player_data, "carried_inventory", target_id, post_handler_view)
-            _set_carried_target_map(player_data, "carried_churn", target_id, new_churn + churn_delta)
+            _set_carried_target_map(
+                player_data,
+                "carried_churn",
+                target_id,
+                min(capacity, new_churn + churn_delta)
+                if evil_tree_overflow
+                else new_churn + churn_delta,
+            )
+            if overflow_items:
+                ctx.show_activity_gain(
+                    "Evil Tree blessing: full-pack gains sent directly to the Bank"
+                )
         elif gains:
             # Drop is power-gathering: ordinary gains are destroyed, while an urn's
             # carried runed/active/full substitution remains a physical carried item.
@@ -2142,9 +2197,114 @@ def _handle_livid_farm_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _handle_evil_tree_answer(ctx: RuntimeActionContext) -> bool:
+    player_data = ctx.player_data
+    woodcutting_level = int(player_data.get("woodcutting_level", 1) or 1)
+    has_hatchet = best_woodcutting_axe_pure(
+        woodcutting_level,
+        player_data.get("inventory", {}),
+        player_data.get("toolbelt", {}),
+        WOODCUTTING_AXE_DATA,
+    ) is not None
+    state = player_data.get("evil_tree")
+    session = state.get("session") if isinstance(state, dict) else None
+    reward_rolls = (
+        tuple(ctx.random_random() for _ in range(4))
+        if isinstance(session, dict) and session.get("phase") == "fell"
+        else ()
+    )
+    updated, ok, result = apply_evil_tree_review_pure(
+        player_data,
+        has_usable_hatchet=has_hatchet,
+        reward_rolls=reward_rolls,
+    )
+    if not ok:
+        ctx.show_error_message(
+            "Evil Tree unavailable",
+            str(result.get("reason", "This Evil Tree can no longer be trained.")),
+        )
+        ctx.deactivate_current_skill()
+        return False
+
+    player_data.clear()
+    player_data.update(updated)
+    phase = str(result.get("phase", ""))
+    xp = result.get("xp", {}) or {}
+    outputs = result.get("outputs", {}) or {}
+    if phase == "nurture":
+        _record_action(
+            ctx,
+            "farming",
+            "evil_tree_nurture",
+            True,
+            expected_success_chance=1.0,
+            primary_xp=float(xp.get("Farming", 0.0) or 0.0),
+        )
+    elif phase == "prepare":
+        _record_action(
+            ctx,
+            "woodcutting",
+            "evil_tree_roots",
+            True,
+            expected_success_chance=1.0,
+            output_items=outputs,
+            primary_xp=float(xp.get("Woodcutting", 0.0) or 0.0),
+        )
+    elif phase == "fell":
+        _record_action(
+            ctx,
+            "woodcutting",
+            "evil_tree_fell",
+            True,
+            expected_success_chance=1.0,
+            output_items=outputs,
+            primary_xp=float(xp.get("Woodcutting", 0.0) or 0.0),
+        )
+        _record_action(
+            ctx,
+            "firemaking",
+            "evil_tree_kindling",
+            True,
+            expected_success_chance=1.0,
+            primary_xp=float(xp.get("Firemaking", 0.0) or 0.0),
+        )
+
+    for skill_name in xp:
+        ctx.level_up_check(str(skill_name), player_data)
+    ctx.check_achievements(player_data)
+    ctx.save_player_data()
+
+    xp_text = " · ".join(
+        f"+{float(amount):,.6g} {skill_name} XP"
+        for skill_name, amount in xp.items()
+    )
+    if result.get("completed") and result.get("partial"):
+        message = f"Nurtured {result['tier_name']} · {xp_text} · nurture-only visit complete"
+    elif result.get("completed"):
+        reward_text = ", ".join(
+            f"{int(amount):,} {item_name}"
+            for item_name, amount in outputs.items()
+        )
+        message = (
+            f"Felled {result['tier_name']} · {xp_text} · {reward_text} · "
+            f"blessing {int(result.get('blessing_reviews', 0))} reviews"
+        )
+    elif phase == "nurture":
+        message = f"Nurtured {result['tier_name']} · {xp_text} · next: chop roots"
+    else:
+        message = f"Prepared {result['tier_name']} · {xp_text} · next: fell and burn"
+    ctx.show_activity_gain(message)
+
+    if result.get("completed"):
+        ctx.deactivate_current_skill()
+    return True
+
+
 def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
+    if activity_key == EVIL_TREE_UTILITY_ID:
+        return _handle_evil_tree_answer(ctx)
     if activity_key == STRONGHOLD_UTILITY_KEY:
         return _handle_stronghold_answer(ctx)
     if activity_key == KNIGHT_WAVES_UTILITY_KEY:
@@ -3536,6 +3696,21 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
     r_nest_drop = ctx.random_random()
     r_nest_type = ctx.random_random()
     r_inferno_adze = ctx.random_random() if axe_spec.get("incinerates_logs", False) and spec.get("output_item") else None
+    evil_tree_state = player_data.get("evil_tree")
+    if not isinstance(evil_tree_state, dict):
+        evil_tree_state = {}
+    blessing_active = bool(
+        tree in EVIL_TREE_ELIGIBLE_BLESSING_TARGETS
+        and int(
+            evil_tree_state.get("blessing_reviews_remaining", 0) or 0
+        )
+        > 0
+    )
+    nest_drop_chance = min(
+        1.0,
+        BIRD_NEST_DROP_CHANCE
+        * (EVIL_TREE_NEST_MULTIPLIER if blessing_active else 1.0),
+    )
     expected_success = (
         1.0
         if ctx.cadence_forced_opportunity
@@ -3553,20 +3728,80 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
         r_nest_drop,
         r_nest_type,
         BIRD_NEST_DROP_TABLE,
-        BIRD_NEST_DROP_CHANCE,
+        nest_drop_chance,
         r_inferno_adze,
         success_level,
     )
     if ok:
+        successful_actions = 1
+        total_base_exp = float(base_exp)
+        action_outputs = [(output_item, nest_item, float(base_exp))]
+        continuation_succeeded = False
+        if blessing_active:
+            continuation_inv, continuation_exp, continuation_succeeded, continuation_output, continuation_nest = (
+                apply_woodcutting_action_pure(
+                    tree,
+                    new_inv,
+                    TREE_DATA,
+                    player_level,
+                    axe_spec,
+                    ctx.random_random(),
+                    ctx.random_random(),
+                    ctx.random_random(),
+                    BIRD_NEST_DROP_TABLE,
+                    nest_drop_chance,
+                    (
+                        ctx.random_random()
+                        if axe_spec.get("incinerates_logs", False)
+                        and spec.get("output_item")
+                        else None
+                    ),
+                    success_level,
+                )
+            )
+            if continuation_succeeded:
+                new_inv = continuation_inv
+                successful_actions += 1
+                total_base_exp += float(continuation_exp)
+                action_outputs.append(
+                    (
+                        continuation_output,
+                        continuation_nest,
+                        float(continuation_exp),
+                    )
+                )
         if "logs_cut_today" not in player_data:
             player_data["logs_cut_today"] = 0
-        player_data["logs_cut_today"] += 1
+        player_data["logs_cut_today"] += successful_actions
         player_data["inventory"] = new_inv
-        _charge_urn_for_action(ctx, "woodcutting", tree, spec, base_exp, output_item)
         output_items: dict[str, int] = {}
-        for item_name in (output_item, nest_item):
-            if item_name:
-                output_items[item_name] = output_items.get(item_name, 0) + 1
+        incinerated_xp = 0.0
+        incinerated_count = 0
+        for action_output, action_nest, action_exp in action_outputs:
+            _charge_urn_for_action(
+                ctx,
+                "woodcutting",
+                tree,
+                spec,
+                action_exp,
+                action_output,
+            )
+            for item_name in (action_output, action_nest):
+                if item_name:
+                    output_items[item_name] = output_items.get(item_name, 0) + 1
+            if (
+                action_output is None
+                and spec.get("output_item")
+                and axe_spec.get("incinerates_logs", False)
+            ):
+                incinerated_xp += action_exp
+                incinerated_count += 1
+        achievement_outputs = dict(output_items)
+        if incinerated_count and spec.get("output_item"):
+            source_output = str(spec["output_item"])
+            achievement_outputs[source_output] = (
+                achievement_outputs.get(source_output, 0) + incinerated_count
+            )
         _record_action(
             ctx,
             "woodcutting",
@@ -3574,20 +3809,22 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
             True,
             expected_success_chance=expected_success,
             output_items=output_items,
-            achievement_output_items=(
-                output_items
-                if output_item is not None or not spec.get("output_item")
-                else {str(spec.get("output_item")): 1, **output_items}
-            ),
-            primary_xp=base_exp,
+            achievement_output_items=achievement_outputs,
+            primary_xp=total_base_exp,
         )
-        exp_gained = ctx.award_skill_exp("woodcutting_exp", base_exp)
+        exp_gained = ctx.award_skill_exp("woodcutting_exp", total_base_exp)
         ctx.level_up_check("Woodcutting", player_data)
-        if output_item is None and spec.get("output_item") and axe_spec.get("incinerates_logs", False):
-            ctx.award_skill_exp("firemaking_exp", base_exp)
+        if incinerated_xp:
+            ctx.award_skill_exp("firemaking_exp", incinerated_xp)
             ctx.level_up_check("Firemaking", player_data)
         ctx.check_achievements(player_data)
         ctx.save_player_data()
+        if blessing_active:
+            ctx.show_activity_gain(
+                "Evil Tree blessing: one non-chaining continuation chop succeeded"
+                if continuation_succeeded
+                else "Evil Tree blessing: the continuation chop yielded no log"
+            )
     else:
         _record_action(ctx, "woodcutting", tree, False, expected_success_chance=expected_success, failure_kind="dry")
         ctx.save_player_data()
@@ -4177,6 +4414,11 @@ def _can_start_smithing_action(ctx: RuntimeActionContext) -> bool:
 
 def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
     activity_key = ctx.player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
+    if activity_key == EVIL_TREE_UTILITY_ID:
+        state = ctx.player_data.get("evil_tree")
+        if not isinstance(state, dict):
+            return False
+        return bool(state.get("active_event") or state.get("session"))
     if activity_key == STRONGHOLD_UTILITY_KEY:
         state = ctx.player_data.get("stronghold_of_security") or {}
         return not state.get("completed")

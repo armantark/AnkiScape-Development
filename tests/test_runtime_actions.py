@@ -69,6 +69,133 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_evil_tree_runtime_completes_three_review_phases(self):
+        from evil_tree_logic import (
+            advance_evil_tree_world_clock_pure,
+            default_evil_tree_state_pure,
+        )
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "current_utility": "evil_tree",
+            "inventory": {},
+            "toolbelt": {"woodcutting": ["bronze_hatchet"]},
+            "shop_market_clock": {"answered_cards": 20},
+            "woodcutting_level": 99,
+            "farming_level": 99,
+            "firemaking_level": 99,
+            "woodcutting_exp": 0.0,
+            "farming_exp": 0.0,
+            "firemaking_exp": 0.0,
+            "evil_tree": default_evil_tree_state_pure(),
+        }
+        player_data, _ = advance_evil_tree_world_clock_pure(player_data)
+
+        self.assertTrue(handle_utility_answer(_context(player_data, calls)))
+        self.assertEqual(player_data["evil_tree"]["session"]["phase"], "prepare")
+        self.assertTrue(handle_utility_answer(_context(player_data, calls)))
+        self.assertEqual(player_data["evil_tree"]["session"]["phase"], "fell")
+        self.assertTrue(
+            handle_utility_answer(
+                _context(
+                    player_data,
+                    calls,
+                    random_values=(0.0, 0.0, 0.0, 0.0),
+                )
+            )
+        )
+
+        self.assertEqual(player_data["current_utility"], "make_soft_clay")
+        self.assertEqual(player_data["inventory"]["Logs"], 6)
+        self.assertEqual(player_data["inventory"]["Coins"], 92)
+        self.assertEqual(player_data["evil_tree"]["active_event"], {})
+        self.assertEqual(calls["saves"], 3)
+        self.assertTrue(calls["deactivated"])
+        self.assertIn("Felled Normal evil tree", calls["activity"][-1])
+        self.assertEqual(
+            player_data["action_telemetry"]["actions"][
+                "woodcutting:evil_tree_fell"
+            ]["successes"],
+            1,
+        )
+
+    def test_evil_tree_blessing_doubles_nest_roll_and_adds_one_continuation(self):
+        from constants import BIRD_NEST_DROP_CHANCE
+
+        player_data = {
+            "inventory": {},
+            "toolbelt": {"woodcutting": ["bronze_hatchet"]},
+            "current_tree": "tree",
+            "woodcutting_level": 99,
+            "woodcutting_exp": 0.0,
+            "evil_tree": {
+                "blessing_reviews_remaining": 1,
+                "blessing_tier": "normal",
+            },
+            "completed_achievements": [],
+        }
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+
+        self.assertTrue(
+            handle_woodcutting_answer(
+                _context(
+                    player_data,
+                    calls,
+                    random_values=(
+                        0.0,
+                        BIRD_NEST_DROP_CHANCE * 1.5,
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.0,
+                    ),
+                )
+            )
+        )
+
+        self.assertEqual(player_data["inventory"]["Logs"], 2)
+        self.assertEqual(player_data["inventory"]["Bird's nest (seeds)"], 1)
+        self.assertIn("continuation chop succeeded", calls["activity"][-1])
+
+    def test_evil_tree_full_pack_banks_overflow_without_starting_a_trip(self):
+        player_data = {
+            "inventory": {"Logs": 100},
+            "current_tree": "tree",
+            "woodcutting_level": 99,
+            "agility_level": 1,
+            "carried_inventory": {"tree": {"Logs": 28}},
+            "carried_churn": {"tree": 28},
+            "carried_keep_drop": {},
+            "skilling_bank_run": {},
+            "evil_tree": {"blessing_reviews_remaining": 2},
+        }
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+
+        def handler(ctx):
+            ctx.player_data["inventory"]["Logs"] += 2
+            return True
+
+        with patch.object(
+            runtime_actions,
+            "_admit_live_cadence",
+            side_effect=lambda ctx, _handler_key, _target_id: (ctx, True),
+        ):
+            self.assertTrue(
+                run_answer_with_carried_overlay(
+                    _context(player_data, calls),
+                    "woodcutting",
+                    handler,
+                )
+            )
+
+        self.assertEqual(player_data["carried_inventory"]["tree"], {"Logs": 28})
+        self.assertEqual(player_data["carried_churn"]["tree"], 28)
+        self.assertFalse(player_data["skilling_bank_run"])
+        self.assertIn(
+            "full-pack gains sent directly to the Bank",
+            calls["activity"][-1],
+        )
+
     def test_livid_farm_runtime_awards_all_cycle_skills_and_reports_progress(self):
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         player_data = {

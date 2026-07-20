@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Evil Tree — implementation results</title>
+  <style>
+    :root {
+      --ink: #18251c;
+      --muted: #657069;
+      --paper: #f4f0e5;
+      --panel: rgba(255, 253, 246, 0.92);
+      --forest: #244b34;
+      --moss: #527d45;
+      --lime: #a8c66c;
+      --amber: #d99b43;
+      --bark: #76543b;
+      --line: rgba(36, 75, 52, 0.18);
+      --shadow: 0 24px 70px rgba(42, 54, 36, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      background:
+        radial-gradient(circle at 15% 5%, rgba(168, 198, 108, 0.24), transparent 32rem),
+        radial-gradient(circle at 90% 30%, rgba(217, 155, 67, 0.14), transparent 27rem),
+        var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    body { margin: 0; }
+
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 44px 0 72px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(28px, 6vw, 64px);
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background: linear-gradient(135deg, #183d2b 0%, #285d3e 58%, #3f6b40 100%);
+      color: #f8f5e9;
+      box-shadow: var(--shadow);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 360px;
+      height: 360px;
+      right: -115px;
+      bottom: -180px;
+      border: 42px solid rgba(168, 198, 108, 0.15);
+      border-radius: 50%;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 20px;
+      padding: 7px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #d8e7c2;
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #b6d872;
+      box-shadow: 0 0 0 5px rgba(182, 216, 114, 0.12);
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      max-width: 760px;
+      margin-bottom: 16px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.7rem, 7vw, 5.7rem);
+      font-weight: 500;
+      letter-spacing: -0.055em;
+      line-height: 0.96;
+    }
+
+    .hero p {
+      max-width: 720px;
+      margin-bottom: 0;
+      color: rgba(248, 245, 233, 0.78);
+      font-size: clamp(1rem, 2vw, 1.2rem);
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 30px;
+    }
+
+    .metric {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 19px;
+      background: var(--panel);
+      box-shadow: 0 10px 30px rgba(42, 54, 36, 0.06);
+    }
+
+    .metric strong {
+      display: block;
+      color: var(--forest);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 2rem;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 750;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    section {
+      margin-top: 22px;
+      padding: clamp(24px, 5vw, 42px);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--panel);
+      box-shadow: 0 13px 42px rgba(42, 54, 36, 0.06);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 26px;
+    }
+
+    h2 {
+      margin-bottom: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.7rem, 3vw, 2.5rem);
+      font-weight: 500;
+      letter-spacing: -0.025em;
+    }
+
+    .section-head p {
+      max-width: 520px;
+      margin-bottom: 2px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      text-align: right;
+    }
+
+    .phases {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .phase {
+      position: relative;
+      min-height: 190px;
+      padding: 22px;
+      border-radius: 18px;
+      background: #eef0df;
+    }
+
+    .phase:nth-child(2) { background: #e5ead7; }
+    .phase:nth-child(3) { background: #dde6d2; }
+
+    .phase .number {
+      display: inline-grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      margin-bottom: 28px;
+      border-radius: 11px;
+      background: var(--forest);
+      color: white;
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .phase h3 {
+      margin-bottom: 7px;
+      color: var(--forest);
+      font-size: 1.1rem;
+    }
+
+    .phase p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .ledger {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .ledger-card {
+      padding: 24px;
+      border-radius: 18px;
+      background: #f4f3e9;
+    }
+
+    .ledger-card.source { border-top: 5px solid var(--moss); }
+    .ledger-card.abstract { border-top: 5px solid var(--amber); }
+
+    .ledger-card h3 {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      font-size: 1rem;
+    }
+
+    .tag {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(82, 125, 69, 0.12);
+      color: var(--moss);
+      font-size: 0.66rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .abstract .tag {
+      background: rgba(217, 155, 67, 0.14);
+      color: #9b5d14;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
+    li + li { margin-top: 8px; }
+
+    .proof-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+    }
+
+    .native-proof {
+      padding: 25px;
+      border-radius: 18px;
+      background: #15261b;
+      color: #f5f0e3;
+    }
+
+    .native-proof .window {
+      margin-top: 20px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 14px;
+      background: #242724;
+    }
+
+    .window-bar {
+      display: flex;
+      gap: 7px;
+      margin-bottom: 18px;
+    }
+
+    .window-bar span {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #7c817d;
+    }
+
+    .tree-card {
+      display: grid;
+      grid-template-columns: 32px 1fr auto;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .tree-token {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: #31543c;
+      color: #d4e997;
+      font-size: 1.15rem;
+    }
+
+    .tree-card strong { display: block; font-size: 0.92rem; }
+    .tree-card small { color: #aeb5af; }
+
+    .disabled {
+      padding: 7px 10px;
+      border-radius: 8px;
+      background: #303431;
+      color: #8b918c;
+      font-size: 0.72rem;
+    }
+
+    .checks {
+      display: grid;
+      gap: 10px;
+    }
+
+    .check {
+      display: flex;
+      gap: 11px;
+      padding: 14px;
+      border-radius: 14px;
+      background: #eef0e5;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .check b {
+      flex: 0 0 24px;
+      display: grid;
+      place-items: center;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--forest);
+      color: white;
+    }
+
+    .defects {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .defect {
+      padding: 18px;
+      border-left: 4px solid var(--bark);
+      border-radius: 4px 14px 14px 4px;
+      background: #f4eee3;
+    }
+
+    .defect strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #654731;
+    }
+
+    .defect span {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-top: 22px;
+      padding: 20px 5px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .verdict {
+      color: var(--forest);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    a { color: inherit; text-underline-offset: 3px; }
+
+    @media (max-width: 780px) {
+      main { width: min(100% - 20px, 1120px); padding-top: 10px; }
+      .hero { border-radius: 22px; }
+      .status-row { grid-template-columns: 1fr 1fr; }
+      .phases, .ledger, .proof-grid, .defects { grid-template-columns: 1fr; }
+      .section-head { align-items: start; flex-direction: column; }
+      .section-head p { text-align: left; }
+      .footer { align-items: start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <div class="eyebrow">Implementation closure · 19 July 2026</div>
+      <h1>The Evil Tree is alive.</h1>
+      <p>
+        AnkiScape now turns the period Distraction &amp; Diversion into a quiet,
+        three-review world event with exact tier XP, honest bounded reward
+        abstractions, atomic undo, and a native Anki surface that stays out of
+        the study flow.
+      </p>
+    </header>
+
+    <div class="status-row" aria-label="Key results">
+      <div class="metric"><strong>7</strong><span>real tree tiers</span></div>
+      <div class="metric"><strong>3</strong><span>atomic review phases</span></div>
+      <div class="metric"><strong>1,853</strong><span>non-Qt tests passed</span></div>
+      <div class="metric"><strong>1,853</strong><span>real Qt tests passed</span></div>
+    </div>
+
+    <section>
+      <div class="section-head">
+        <h2>One event. Three reviews.</h2>
+        <p>
+          The compressed loop keeps the source fantasy legible without turning
+          Anki into a second real-time game.
+        </p>
+      </div>
+      <div class="phases">
+        <article class="phase">
+          <div class="number">01</div>
+          <h3>Nurture</h3>
+          <p>Apply the exact tier Farming action XP. Farming-only players can participate here.</p>
+        </article>
+        <article class="phase">
+          <div class="number">02</div>
+          <h3>Prepare</h3>
+          <p>Chop one root for its exact Woodcutting XP and carry one real piece of kindling.</p>
+        </article>
+        <article class="phase">
+          <div class="number">03</div>
+          <h3>Fell</h3>
+          <p>Spend the kindling, earn exact tree and Firemaking XP, then resolve the bounded reward.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Evidence stays visible.</h2>
+        <p>
+          The implementation never presents a chosen compression value as a
+          recovered RuneScape formula.
+        </p>
+      </div>
+      <div class="ledger">
+        <article class="ledger-card source">
+          <h3>Period-pinned <span class="tag">oldid 6569638</span></h3>
+          <ul>
+            <li>All seven Farming, Woodcutting, and Firemaking gates.</li>
+            <li>Every nurture, root, tree, and fire XP value.</li>
+            <li>Reported tier reward ceilings and blessing limits.</li>
+            <li>Five nurture stages, kindling fires, contribution, and blessing behavior.</li>
+          </ul>
+        </article>
+        <article class="ledger-card abstract">
+          <h3>Disclosed abstractions <span class="tag">source blocked</span></h3>
+          <ul>
+            <li>Uniform tier draw and five-review active opportunity.</li>
+            <li>50–100% reward-ceiling distribution by contribution.</li>
+            <li>Even seed/nest ordinary-item slot.</li>
+            <li>Review-counted blessing and doubled nest opportunity.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Proof in the real app.</h2>
+        <p>
+          The final check used the installed macOS Anki process after a full
+          restart, not merely a headless widget harness.
+        </p>
+      </div>
+      <div class="proof-grid">
+        <article class="native-proof">
+          <h3>Native Anki · dark mode</h3>
+          <p>Exactly one AnkiScape dialog opened from the canonical add-on.</p>
+          <div class="window" aria-label="Stylized Evil Tree Utility card">
+            <div class="window-bar"><span></span><span></span><span></span></div>
+            <div class="tree-card">
+              <div class="tree-token">♣</div>
+              <div>
+                <strong>Evil Tree · Next review</strong>
+                <small>A tainted sapling will emerge as you review. · 0/2 interactions used this review day</small>
+              </div>
+              <div class="disabled">No active tree</div>
+            </div>
+          </div>
+        </article>
+        <div class="checks">
+          <div class="check"><b>✓</b><span>Normalized kindling art rendered at the intended interface scale.</span></div>
+          <div class="check"><b>✓</b><span>The final copy uses the simulated review day, never the wall clock.</span></div>
+          <div class="check"><b>✓</b><span>The dialog returned to the deck screen without selecting an activity.</span></div>
+          <div class="check"><b>✓</b><span>No user-save mutation was introduced during the smoke check.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Fresh eyes found real defects.</h2>
+        <p>Every accepted review finding was reproduced and fixed by Codex.</p>
+      </div>
+      <div class="defects">
+        <div class="defect">
+          <strong>Undo boundary</strong>
+          <span>World-state advancement originally happened after snapshot finalization; it now rolls back atomically with the review.</span>
+        </div>
+        <div class="defect">
+          <strong>Cross-skill overflow gate</strong>
+          <span>A blessing condition had landed in Agility pack construction; regression coverage now pins the correct Woodcutting boundary.</span>
+        </div>
+        <div class="defect">
+          <strong>Theme and hierarchy</strong>
+          <span>Fable caught light-theme contrast, inactive hierarchy, stale HUD wording, and target-selection synchronization.</span>
+        </div>
+        <div class="defect">
+          <strong>Review-native language</strong>
+          <span>Kimi K3 caught the last “today” label and confirmed the final compact density and normalized icon treatment.</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Verification ledger</h2>
+        <p>No owner-facing design gap emerged.</p>
+      </div>
+      <div class="ledger">
+        <article class="ledger-card source">
+          <h3>Automated proof <span class="tag">green</span></h3>
+          <ul>
+            <li>149 final focused pure, runtime, and integration methods.</li>
+            <li>4 focused real offscreen Qt behavior methods.</li>
+            <li>1,853 complete non-Qt methods; 239 expected environment skips.</li>
+            <li>1,853 complete real Qt methods; one intentional skip.</li>
+          </ul>
+        </article>
+        <article class="ledger-card abstract">
+          <h3>Repository proof <span class="tag">clean</span></h3>
+          <ul>
+            <li>Documentation, compilation, diff, test-quality, and reachability checks.</li>
+            <li>Asset provenance and tight-alpha normalization checks.</li>
+            <li>Guarded-worktree audit with the canonical checkout preserved.</li>
+            <li>Two timed-out read-only workflow leaves were discarded; root evidence is independent.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <div class="footer">
+      <span>
+        Source record:
+        <a href="../source-audits/evil-tree-implementation-harvest-2026-07-19.md">evil-tree-implementation-harvest-2026-07-19.md</a>
+      </span>
+      <span class="verdict">Verified · ready to ship</span>
+    </div>
+  </main>
+</body>
+</html>

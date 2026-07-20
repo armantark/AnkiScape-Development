@@ -484,6 +484,50 @@ def carried_fold_gains_pure(
     return view
 
 
+def carried_fold_gains_with_overflow_pure(
+    view: Any,
+    produced: Any,
+    stackable_names: set[str] | frozenset[str],
+    capacity: int = CARRIED_CAPACITY,
+) -> tuple[dict[str, int], dict[str, int]]:
+    """Fill remaining carried slots and return the excess sent to the Bank.
+
+    The flat inventory already owns every produced item; this helper only
+    projects which gains still fit in the physical carried view. It is used by
+    the Evil Tree blessing's source behavior when eligible logs are banked from
+    a full pack.
+    """
+
+    carried = dict(view) if isinstance(view, Mapping) else {}
+    overflow: dict[str, int] = {}
+    remaining_slots = max(
+        0,
+        _clean_int(capacity, CARRIED_CAPACITY, minimum=1)
+        - carried_slots_used(carried, stackable_names),
+    )
+    if not isinstance(produced, Mapping):
+        return carried, overflow
+
+    for item_name, raw_quantity in produced.items():
+        if not isinstance(item_name, str) or item_name == COIN_ITEM_NAME:
+            continue
+        quantity = _clean_int(raw_quantity, 0, minimum=0)
+        if quantity <= 0:
+            continue
+        if item_name in stackable_names:
+            fits = quantity if item_name in carried or remaining_slots > 0 else 0
+            if fits and item_name not in carried:
+                remaining_slots -= 1
+        else:
+            fits = min(quantity, remaining_slots)
+            remaining_slots -= fits
+        if fits:
+            carried[item_name] = carried.get(item_name, 0) + fits
+        if quantity > fits:
+            overflow[item_name] = quantity - fits
+    return carried, overflow
+
+
 def layout_to_grid_cells_pure(
     layout: Any,
     stackable_names: set[str] | frozenset[str],

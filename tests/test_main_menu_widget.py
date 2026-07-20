@@ -6920,6 +6920,152 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("idle at the Bank", hud.sub_lbl.text())
         self.assertNotIn("material prep", hud.sub_lbl.text())
 
+    def test_evil_tree_panel_reports_countdown_and_selects_active_event(self) -> None:
+        from evil_tree_logic import (
+            advance_evil_tree_world_clock_pure,
+            default_evil_tree_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd["shop_market_clock"] = {"answered_cards": 0}
+        pd["evil_tree"] = default_evil_tree_state_pure()
+        countdown_dialog = self._open(pd)
+        self._open_utility(countdown_dialog)
+        self.assertEqual(
+            _find_named_label(countdown_dialog, "evilTreeStatusChip").text(),
+            "Next in 20 reviews",
+        )
+        self.assertFalse(
+            _find_named_button(
+                countdown_dialog, "evilTreeSelectButton"
+            ).isEnabled()
+        )
+        due = copy.deepcopy(pd)
+        due["shop_market_clock"]["answered_cards"] = 100
+        due_dialog = self._open(due)
+        self._open_utility(due_dialog)
+        self.assertEqual(
+            _find_named_label(due_dialog, "evilTreeStatusChip").text(),
+            "Next review",
+        )
+
+        pd["shop_market_clock"]["answered_cards"] = 20
+        active, _ = advance_evil_tree_world_clock_pure(pd)
+        pd.clear()
+        pd.update(active)
+        active_dialog = self._open(pd)
+        utility_tree = self._open_utility(active_dialog)
+        button = _find_named_button(active_dialog, "evilTreeSelectButton")
+        self.assertEqual(button.text(), "Select full event")
+        self.assertTrue(button.isEnabled())
+        self.assertIn(
+            "Nurture → Prepare → Fell",
+            _find_named_label(active_dialog, "evilTreeDetail").text(),
+        )
+
+        button.click()
+        QApplication.processEvents()
+        self.assertEqual(self._utility_calls[-1], "evil_tree")
+        self.assertEqual(pd["current_utility"], "evil_tree")
+        self.assertEqual(button.text(), "Selected for reviews")
+        self.assertFalse(button.isEnabled())
+        bankstanding = _utility_row(utility_tree, "bankstanding")
+        utility_tree.itemClicked.emit(bankstanding, 0)
+        QApplication.processEvents()
+        self.assertEqual(pd["current_utility"], "bankstanding")
+        self.assertEqual(button.text(), "Select full event")
+        self.assertTrue(button.isEnabled())
+
+    def test_evil_tree_panel_makes_nurture_only_gate_explicit(self) -> None:
+        from evil_tree_logic import (
+            advance_evil_tree_world_clock_pure,
+            default_evil_tree_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "woodcutting_level": 1,
+                "firemaking_level": 1,
+                "farming_level": 99,
+                "shop_market_clock": {"answered_cards": 20},
+                "evil_tree": default_evil_tree_state_pure(),
+            }
+        )
+        active, _ = advance_evil_tree_world_clock_pure(
+            pd, tier_roll=0.8, location_roll=0.0
+        )
+        pd.clear()
+        pd.update(active)
+        dialog = self._open(pd)
+        self._open_utility(dialog)
+
+        button = _find_named_button(dialog, "evilTreeSelectButton")
+        detail = _find_named_label(dialog, "evilTreeDetail").text()
+        self.assertEqual(button.text(), "Select nurture only")
+        self.assertTrue(button.isEnabled())
+        self.assertIn("cannot fell", detail)
+        self.assertIn("75 Woodcutting", detail)
+        self.assertIn("75 Firemaking", detail)
+
+    def test_evil_tree_panel_disables_daily_limit_with_reason(self) -> None:
+        from evil_tree_logic import (
+            advance_evil_tree_world_clock_pure,
+            default_evil_tree_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "shop_market_clock": {"answered_cards": 20},
+                "evil_tree": default_evil_tree_state_pure(),
+            }
+        )
+        active, _ = advance_evil_tree_world_clock_pure(pd)
+        active["evil_tree"]["participations_today"] = 2
+        dialog = self._open(active)
+        self._open_utility(dialog)
+
+        button = _find_named_button(dialog, "evilTreeSelectButton")
+        self.assertEqual(button.text(), "Unavailable")
+        self.assertFalse(button.isEnabled())
+        self.assertIn(
+            "Two Evil Tree interactions used this review day",
+            _find_named_label(dialog, "evilTreeDetail").text(),
+        )
+
+    def test_review_hud_surfaces_active_evil_tree_and_blessing(self) -> None:
+        from evil_tree_logic import (
+            advance_evil_tree_world_clock_pure,
+            default_evil_tree_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "current_utility": "evil_tree",
+                "shop_market_clock": {"answered_cards": 20},
+                "evil_tree": default_evil_tree_state_pure(),
+            }
+        )
+        active, _ = advance_evil_tree_world_clock_pure(pd)
+        active["evil_tree"]["blessing_reviews_remaining"] = 2
+        active["evil_tree"]["blessing_tier"] = "normal"
+        hud = self._ui.ReviewHUD(None)
+
+        hud.set_data(active, "Utility / Activities")
+
+        notice = hud.findChild(QLabel, "reviewWorldNotice")
+        self.assertTrue(notice.isVisible())
+        self.assertIn("Normal evil tree · 5 reviews left", notice.text())
+        self.assertIn("Evil Tree blessing · 2 reviews left", notice.text())
+        self.assertIn("Nurture phase", hud.sub_lbl.text())
+
+        active["evil_tree"]["active_event"] = {}
+        active["evil_tree"]["session"] = {}
+        hud.set_data(active, "Utility / Activities")
+        self.assertIn("awaiting an active tree", hud.sub_lbl.text())
+
     def test_utility_rows_use_activity_icon_contract(self) -> None:
         utility_tree = self._open_utility(self.dialog)
         for row in _tree_items(utility_tree):

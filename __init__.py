@@ -133,6 +133,11 @@ from .summoning_logic import (
     summon_familiar_pure,
 )
 from .slayer_logic import get_slayer_assignment_pure
+from .evil_tree_data import EVIL_TREE_UTILITY_ID
+from .evil_tree_logic import (
+    advance_evil_tree_world_clock_pure,
+    evil_tree_spawn_due_pure,
+)
 from .warriors_guild_logic import (
     enter_warriors_guild_cyclops_room_pure,
     leave_warriors_guild_cyclops_room_pure,
@@ -2188,6 +2193,34 @@ def _apply_safe_combat_recovery_after_review(save_callback=save_player_data) -> 
         pass
 
 
+def _advance_evil_tree_after_review() -> None:
+    """Advance the Evil Tree world state inside the answer transaction."""
+
+    spawn_due = evil_tree_spawn_due_pure(player_data)
+    updated, events = advance_evil_tree_world_clock_pure(
+        player_data,
+        tier_roll=random.random() if spawn_due else 0.0,
+        location_roll=random.random() if spawn_due else 0.0,
+    )
+    player_data.update(updated)
+    spawned = next(
+        (
+            event
+            for event in events
+            if event.get("kind") == "spawned"
+        ),
+        None,
+    )
+    if spawned:
+        tier_id = str(spawned.get("tier_id", "")).replace("_", " ")
+        _show_activity_gain(
+            f"Evil Tree discovered: {tier_id.title()} near "
+            f"{spawned.get('location', 'an unrestricted location')}"
+        )
+    elif any(event.get("kind") == "expired" for event in events):
+        _show_activity_gain("The active Evil Tree withered.")
+
+
 def on_good_answer(before_state=None):
     global current_skill, exp_awarded
     if exp_awarded:
@@ -2213,6 +2246,11 @@ def on_good_answer(before_state=None):
                 action_ticks = (
                     1
                     if handler_key in {"thieving", "agility"}
+                    or (
+                        handler_key == "utility"
+                        and player_data.get("current_utility")
+                        == EVIL_TREE_UTILITY_ID
+                    )
                     or (handler_key == "quest" and _cadence_kernel_enabled())
                     else _review_action_multiplier()
                 )
@@ -2232,6 +2270,7 @@ def on_good_answer(before_state=None):
             _finish_review_feedback_context()
             # The background clock and active action form one persisted review
             # transaction, including rejected handlers and safe recovery.
+            _advance_evil_tree_after_review()
             _save_player_data_if_anki_ready()
             _remember_review_award_snapshot(before_state)
 
@@ -2318,6 +2357,8 @@ def on_answer_card(self, ease, _old):
         else:
             runtime_actions.advance_farming_clock_for_review(_runtime_action_context())
     if successful_answer and review_answered and not exp_awarded and farm_preempted:
+        _advance_evil_tree_after_review()
+        _save_player_data_if_anki_ready()
         _remember_review_award_snapshot(before_state)
         exp_awarded = True
     elif successful_answer and review_answered and not exp_awarded and is_review_action(current_skill):
@@ -2326,6 +2367,7 @@ def on_answer_card(self, ease, _old):
         _call_on_good_answer_with_snapshot(before_state)
         exp_awarded = True
     elif review_answered and before_state is not None:
+        _advance_evil_tree_after_review()
         _save_player_data_if_anki_ready()
         _remember_review_award_snapshot(before_state)
     if context_xp > 0:

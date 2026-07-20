@@ -4,6 +4,38 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Evil Tree D&D implementation — 2026-07-19
+
+- Implemented the owner-settled three-review Nurture → Prepare → Fell event
+  on the shared answered-card clock, including a five-review active window,
+  two interactions per 240-review day, and nurture-only participation.
+- Pinned all seven period tier gates and XP rows. Unrecovered tier/reward/nest
+  formulas use the explicitly disclosed bounded abstractions in the source
+  audit rather than fabricated parity claims.
+- Added versioned storage, exact cross-skill XP, kindling, bounded rewards,
+  telemetry, atomic review undo, a compact Utility card, global review-HUD
+  notices, normalized art/provenance, and a repeatable Qt renderer.
+- Added the post-event Woodcutting blessing: one non-chaining ordinary
+  continuation, doubled nest chance, and eligible full-pack overflow banking
+  without spending a review on a fake Bank trip.
+- Fixed two cross-layer defects caught by the new tests: an overflow gate
+  accidentally placed in Agility pack construction and world-state mutation
+  occurring after review-snapshot finalization.
+- Fable's independent UI pass caught and closed light-theme status contrast,
+  stale inactive-HUD wording, state hierarchy, and target-selection sync
+  defects. Kimi K3 independently confirmed those findings and caught the
+  remaining `today` wording, which now says `this review day`.
+- Focused pure/runtime/integration verification passes 287 tests. The complete
+  non-Qt runner passes 1,853 methods with 239 expected environment skips, and
+  complete real offscreen Qt passes all 1,853 methods with one intentional
+  skip. Repository results are recorded in
+  `source-audits/evil-tree-implementation-harvest-2026-07-19.md`.
+- A fully restarted native Anki process opened exactly one menu and rendered
+  the final dark-mode Evil Tree card with `Next review`, the normalized
+  kindling art, and `this review day`; it closed without selecting an activity
+  or changing the save.
+- No owner-facing design gap emerged.
+
 ## Skeletal Horror implementation harvest — 2026-07-19
 
 - Recovered the exact continuous phase thresholds: `2,750`, `2,000`, and

@@ -2,6 +2,30 @@
 
 ## Current Focus
 
+The owner-settled Evil Tree D&D is live as a review-native three-phase event.
+Every twenty answered cards selects one of the seven real tiers and an
+unrestricted location; the event remains active for five review
+opportunities and allows two interactions per simulated 240-review day.
+Nurture-only entry remains available when the Farming gate is met but the
+Woodcutting/Firemaking/hatchet/full-window gates are not. A full visit performs
+Nurture, Prepare, and Fell as three atomic reviews, uses the exact period
+tier XP table, produces and consumes real Evil tree kindling, grants bounded
+period-ceiling rewards, and starts the review-counted Woodcutting blessing.
+That blessing adds one non-chaining ordinary continuation roll, doubles the
+eligible bird-nest chance, and banks only full-pack overflow without inventing
+a Bank trip. Storage schema 49, telemetry, review undo, normalized art,
+Utility card, global review-HUD notice, and repeatable real-Qt renders are
+included. The focused cross-layer suite passes 287 tests; complete repository
+verification passes all 1,853 non-Qt methods with 239 expected environment
+skips and all 1,853 real offscreen Qt methods with one intentional skip.
+After a full process restart, the canonical add-on opened exactly one native
+AnkiScape dialog; the dark-mode Utility card showed the final `Next review`
+and `this review day` copy with the kindling art, then returned to the deck
+screen without selecting an activity or changing the save.
+Complete evidence is recorded in
+`source-audits/evil-tree-implementation-harvest-2026-07-19.md`. No owner design
+gap emerged.
+
 The Skeletal Horror implementation harvest closed the previously missing
 continuous LP thresholds at `2,750`, `2,000`, and `1,250` from period Wiki,
 talk-history, dated Tip.It, and rev-727/rev-742 cache evidence. Phase levels,

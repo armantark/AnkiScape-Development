@@ -248,6 +248,16 @@ except Exception:
     from pack_data import ITEM_PACK_DATA  # type: ignore
 
 try:
+    from .evil_tree_data import EVIL_TREE_KINDLING, EVIL_TREE_UTILITY_ID
+    from .evil_tree_logic import evil_tree_view_pure
+except Exception:
+    from evil_tree_data import (  # type: ignore
+        EVIL_TREE_KINDLING,
+        EVIL_TREE_UTILITY_ID,
+    )
+    from evil_tree_logic import evil_tree_view_pure  # type: ignore
+
+try:
     from .combat_session import (
         confirm_wilderness_combat_risk,
         wilderness_combat_risk_confirmed,
@@ -1510,6 +1520,14 @@ if HAS_QT:
             self.ge_notice_lbl.setVisible(False)
             info.addWidget(self.ge_notice_lbl)
 
+            self.world_notice_lbl = QLabel("")
+            self.world_notice_lbl.setObjectName("reviewWorldNotice")
+            self.world_notice_lbl.setStyleSheet(
+                "color: #f0c75e; font-size: 10px; font-weight: 600;"
+            )
+            self.world_notice_lbl.setVisible(False)
+            info.addWidget(self.world_notice_lbl)
+
             # Combat-only: a second health bar for the enemy, and a chip line
             # naming the skills the current attack style trains plus the running
             # kill count. Hidden for every non-combat skill (see set_data).
@@ -1596,6 +1614,34 @@ if HAS_QT:
                 "Grand Exchange proceeds ready to collect" if ge_ready else ""
             )
             self.ge_notice_lbl.setVisible(ge_ready)
+            has_hatchet = (
+                best_woodcutting_axe_pure(
+                    int(player_data.get("woodcutting_level", 1) or 1),
+                    player_data.get("inventory", {}) or {},
+                    player_data.get("toolbelt", {}) or {},
+                    WOODCUTTING_AXE_DATA,
+                )
+                is not None
+            )
+            evil_tree_view = evil_tree_view_pure(
+                player_data,
+                has_usable_hatchet=has_hatchet,
+            )
+            world_notices = []
+            if evil_tree_view["active"]:
+                world_notices.append(
+                    f"{evil_tree_view['tier_name']} · "
+                    f"{evil_tree_view['reviews_remaining']} reviews left"
+                )
+            blessing_reviews = int(
+                evil_tree_view.get("blessing_reviews_remaining", 0) or 0
+            )
+            if blessing_reviews > 0:
+                world_notices.append(
+                    f"Evil Tree blessing · {blessing_reviews} reviews left"
+                )
+            self.world_notice_lbl.setText(" • ".join(world_notices))
+            self.world_notice_lbl.setVisible(bool(world_notices))
             # Enemy bar + chips are combat-only; keep them hidden unless the
             # combat branch below explicitly turns them on.
             self.enemy_progress.setVisible(False)
@@ -1605,7 +1651,27 @@ if HAS_QT:
                 # and make the no-XP nature explicit instead of a progress bar.
                 activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
                 spec = UTILITY_ACTIVITY_DATA.get(activity_key, {})
-                activity_name = str(spec.get("display_name", "Material prep"))
+                if activity_key == EVIL_TREE_UTILITY_ID:
+                    activity_name = str(
+                        evil_tree_view.get("tier_name", "Evil Tree")
+                    )
+                    if evil_tree_view["active"]:
+                        phase = str(
+                            evil_tree_view.get("phase", "nurture")
+                            or "nurture"
+                        )
+                        activity_kind = (
+                            f"{phase.replace('_', ' ').title()} phase"
+                        )
+                    else:
+                        activity_kind = "awaiting an active tree"
+                else:
+                    activity_name = str(spec.get("display_name", "Material prep"))
+                    activity_kind = (
+                        "idle at the Bank (no XP)"
+                        if spec.get("no_op")
+                        else "material prep (no XP)"
+                    )
                 ip = skill_icon_path_for(skill) or self._placeholder_icon_path()
                 if ip:
                     pm = QPixmap(ip)
@@ -1614,11 +1680,6 @@ if HAS_QT:
                     self.icon_lbl.clear()
                 self.title_lbl.setText(_UTILITY_HUB_NAME)
                 status_suffix = f" • {combat_status}" if combat_status else ""
-                activity_kind = (
-                    "idle at the Bank (no XP)"
-                    if spec.get("no_op")
-                    else "material prep (no XP)"
-                )
                 self.sub_lbl.setText(
                     f"{activity_name} • {activity_kind}{status_suffix}"
                 )
@@ -5782,6 +5843,208 @@ def show_main_menu(
         container_layout.setContentsMargins(0, 0, 0, 0)
         container_layout.setSpacing(8)
 
+        evil_box = QtFrame()
+        evil_box.setObjectName("evilTreePanel")
+        evil_box.setStyleSheet(
+            "QFrame#evilTreePanel { border: 1px solid #6c8f3d;"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        evil_layout = QVBoxLayout(evil_box)
+        evil_layout.setContentsMargins(10, 8, 10, 8)
+        evil_layout.setSpacing(5)
+
+        evil_top = QWidget()
+        evil_top_layout = QHBoxLayout(evil_top)
+        evil_top_layout.setContentsMargins(0, 0, 0, 0)
+        evil_top_layout.setSpacing(8)
+        evil_icon = QLabel()
+        evil_icon.setObjectName("evilTreeIcon")
+        evil_icon.setFixedSize(28, 28)
+        evil_icon_path = os.path.join(
+            current_dir,
+            "woodcuttingitems",
+            "evil_tree_kindling.png",
+        )
+        if os.path.exists(evil_icon_path):
+            evil_icon.setPixmap(
+                QPixmap(evil_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+        evil_title = QLabel("Evil Tree")
+        evil_title.setObjectName("evilTreeTitle")
+        evil_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        evil_status = QLabel()
+        evil_status.setObjectName("evilTreeStatusChip")
+        evil_status.setStyleSheet(
+            "font-size: 11px; font-weight: 700;"
+        )
+        evil_top_layout.addWidget(evil_icon)
+        evil_top_layout.addWidget(evil_title)
+        evil_top_layout.addStretch(1)
+        evil_top_layout.addWidget(evil_status)
+        evil_layout.addWidget(evil_top)
+
+        evil_summary = QLabel()
+        evil_summary.setObjectName("evilTreeSummary")
+        evil_summary.setWordWrap(True)
+        evil_summary.setStyleSheet("color: palette(text);")
+        evil_layout.addWidget(evil_summary)
+
+        evil_detail = QLabel()
+        evil_detail.setObjectName("evilTreeDetail")
+        evil_detail.setWordWrap(True)
+        evil_detail.setStyleSheet(
+            f"color: {dim_text_css(evil_detail)}; font-size: 11px;"
+        )
+        evil_layout.addWidget(evil_detail)
+
+        evil_action = QPushButton()
+        evil_action.setObjectName("evilTreeSelectButton")
+        evil_action.setMinimumHeight(28)
+        evil_action.setStyleSheet(
+            "QPushButton { padding: 5px 10px; border: 1px solid #6c8f3d;"
+            " border-radius: 6px; color: palette(text); }"
+            " QPushButton:hover { background: rgba(108,143,61,0.18); }"
+            f" QPushButton:disabled {{ color: {dim_text_css(evil_action)};"
+            " border-color: palette(mid); }"
+        )
+        evil_layout.addWidget(evil_action)
+        container_layout.addWidget(evil_box)
+
+        def _evil_tree_has_hatchet() -> bool:
+            return (
+                best_woodcutting_axe_pure(
+                    int(player_data.get("woodcutting_level", 1) or 1),
+                    player_data.get("inventory", {}) or {},
+                    player_data.get("toolbelt", {}) or {},
+                    WOODCUTTING_AXE_DATA,
+                )
+                is not None
+            )
+
+        def _refresh_evil_tree_panel() -> None:
+            view = evil_tree_view_pure(
+                player_data,
+                has_usable_hatchet=_evil_tree_has_hatchet(),
+            )
+            selected = (
+                player_data.get("current_utility") == EVIL_TREE_UTILITY_ID
+            )
+            blessing = int(
+                view.get("blessing_reviews_remaining", 0) or 0
+            )
+            if not view["active"]:
+                evil_box.setStyleSheet(
+                    "QFrame#evilTreePanel { border: 1px solid palette(mid);"
+                    " border-radius: 8px; background: palette(base); }"
+                )
+                evil_status.setStyleSheet(
+                    f"color: {dim_text_css(evil_status)};"
+                    " font-size: 11px; font-weight: 700;"
+                )
+                evil_title.setText("Evil Tree")
+                next_reviews = int(view["next_reviews"])
+                evil_status.setText(
+                    "Next review"
+                    if next_reviews <= 0
+                    else f"Next in {next_reviews} reviews"
+                )
+                evil_summary.setText(
+                    "A tainted sapling will emerge as you review."
+                )
+                detail = (
+                    f"{int(view['participations_today'])}/"
+                    f"{int(view['interaction_limit'])} interactions used "
+                    "this review day"
+                )
+                if blessing > 0:
+                    detail += f" · blessing {blessing} reviews left"
+                evil_detail.setText(detail)
+                evil_action.setText("No active tree")
+                evil_action.setEnabled(False)
+                return
+
+            evil_box.setStyleSheet(
+                "QFrame#evilTreePanel { border: 1px solid #6c8f3d;"
+                " border-radius: 8px; background: palette(base); }"
+            )
+            base_color = evil_status.palette().color(
+                QPalette.ColorRole.Base
+            )
+            active_color = (
+                "#3f6e1e" if base_color.lightness() > 128 else "#85c54b"
+            )
+            evil_status.setStyleSheet(
+                f"color: {active_color};"
+                " font-size: 11px; font-weight: 700;"
+            )
+            requirements = view["requirements"]
+            evil_title.setText(str(view["tier_name"]))
+            evil_status.setText(
+                f"{int(view['reviews_remaining'])} reviews left"
+            )
+            evil_summary.setText(
+                f"{view['location']} · Farming {requirements['Farming']} · "
+                f"Woodcutting {requirements['Woodcutting']} · "
+                f"Firemaking {requirements['Firemaking']}"
+            )
+            mode = str(view["entry_mode"])
+            if view["session_active"]:
+                phase = str(view["phase"]).replace("_", " ").title()
+                detail = (
+                    f"In progress · {phase} · "
+                    f"{int(view['contribution_percent'])}% contribution"
+                )
+            elif mode == "full":
+                detail = "Full event · Nurture → Prepare → Fell"
+            elif mode == "nurture_only":
+                detail = (
+                    "Nurture only · cannot fell · full route needs "
+                    + ", ".join(view["entry_reasons"])
+                )
+            else:
+                detail = "Unavailable · " + ", ".join(
+                    view["entry_reasons"]
+                )
+            detail += (
+                f" · {int(view['participations_today'])}/"
+                f"{int(view['interaction_limit'])} interactions used "
+                "this review day"
+            )
+            if blessing > 0:
+                detail += f" · blessing {blessing} reviews left"
+            evil_detail.setText(detail)
+
+            if selected:
+                evil_action.setText("Selected for reviews")
+                evil_action.setEnabled(False)
+            elif mode == "full":
+                evil_action.setText("Select full event")
+                evil_action.setEnabled(on_set_utility is not None)
+            elif mode == "nurture_only":
+                evil_action.setText("Select nurture only")
+                evil_action.setEnabled(on_set_utility is not None)
+            else:
+                evil_action.setText("Unavailable")
+                evil_action.setEnabled(False)
+
+        def _select_evil_tree() -> None:
+            if on_set_utility is None:
+                return
+            on_set_utility(EVIL_TREE_UTILITY_ID)
+            player_data["current_utility"] = EVIL_TREE_UTILITY_ID
+            tree.clearSelection()
+            _refresh_evil_tree_panel()
+
+        evil_action.clicked.connect(
+            lambda _checked=False: _select_evil_tree()
+        )
+        _refresh_evil_tree_panel()
+
         guild_box = QtFrame()
         guild_box.setObjectName("warriorsGuildPanel")
         guild_box.setStyleSheet(
@@ -6644,6 +6907,13 @@ def show_main_menu(
         if selected_child is not None:
             tree.setCurrentItem(selected_child)
 
+        def _set_utility_selection(activity_id: str) -> None:
+            if on_set_utility is None:
+                return
+            on_set_utility(activity_id)
+            player_data["current_utility"] = activity_id
+            _refresh_evil_tree_panel()
+
         def _on_utility_clicked(item: "QTreeWidgetItem", _column: int = 0):
             if item is None or item.isDisabled():
                 return
@@ -6656,16 +6926,13 @@ def show_main_menu(
                     if state.get("boots_choice") is None and on_claim_stronghold_reward is not None:
                         on_claim_stronghold_reward()
                     return
-                if on_set_utility is not None:
-                    on_set_utility(activity_id)
+                _set_utility_selection(activity_id)
                 return
             if activity_id == _KNIGHT_WAVES_UTILITY_KEY:
-                if on_set_utility is not None:
-                    on_set_utility(activity_id)
+                _set_utility_selection(activity_id)
                 return
             if activity_id == _MAGE_ARENA_UTILITY_KEY:
-                if on_set_utility is not None:
-                    on_set_utility(activity_id)
+                _set_utility_selection(activity_id)
                 return
             if str(activity_id).startswith("__mage_alignment__:"):
                 god_id = str(activity_id).removeprefix("__mage_alignment__:")
@@ -6674,7 +6941,7 @@ def show_main_menu(
                     and on_mage_arena_action("select_alignment", god_id)
                     and on_set_utility is not None
                 ):
-                    on_set_utility(_MAGE_ARENA_UTILITY_KEY)
+                    _set_utility_selection(_MAGE_ARENA_UTILITY_KEY)
                 return
             if str(activity_id).startswith("__mage_cape__:"):
                 god_id = str(activity_id).removeprefix("__mage_cape__:")
@@ -6682,11 +6949,9 @@ def show_main_menu(
                     on_mage_arena_action("cape", god_id)
                 return
             if str(activity_id).startswith("mage_arena_attune:"):
-                if on_set_utility is not None:
-                    on_set_utility(str(activity_id))
+                _set_utility_selection(str(activity_id))
                 return
-            if on_set_utility is not None:
-                on_set_utility(activity_id)
+            _set_utility_selection(activity_id)
 
         tree.itemClicked.connect(_on_utility_clicked)
         tree.itemActivated.connect(_on_utility_clicked)

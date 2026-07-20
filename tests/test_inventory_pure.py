@@ -13,6 +13,7 @@ from inventory_pure import (
     bank_run_progress_pure,
     carried_bank_run_gate_pure,
     carried_fold_gains_pure,
+    carried_fold_gains_with_overflow_pure,
     carried_action_churn_pure,
     carried_advanced_for,
     carried_keep_for,
@@ -97,6 +98,24 @@ class TestInventoryPure(unittest.TestCase):
         unchanged, ok = discard_inventory_quantity_pure(updated, "Shrimps", 4)
         self.assertFalse(ok)
         self.assertEqual(unchanged["Shrimps"], 3)
+
+    def test_overflow_fold_preserves_stack_cost_and_banks_only_the_excess(self):
+        view = {"Air rune": 500, "Maple logs": 25}
+        carried, overflow = carried_fold_gains_with_overflow_pure(
+            view,
+            {"Air rune": 100, "Maple logs": 5, "Bird's nest (seeds)": 1},
+            {"Air rune"},
+            28,
+        )
+
+        self.assertEqual(
+            carried,
+            {"Air rune": 600, "Maple logs": 27},
+        )
+        self.assertEqual(
+            overflow,
+            {"Maple logs": 3, "Bird's nest (seeds)": 1},
+        )
 
     def test_high_alch_value_floors_and_loot_filter_branches(self):
         self.assertEqual(high_alch_value(99), 59)

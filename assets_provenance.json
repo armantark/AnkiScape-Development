@@ -38171,6 +38171,18 @@
     "source_wiki": "rs3",
     "timestamp": "2023-02-02T05:37:02Z"
   },
+  "woodcuttingitems/evil_tree_kindling.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Evil_tree_kindling.png",
+    "file_title": "Evil tree kindling.png",
+    "image_url": "https://runescape.wiki/images/Evil_tree_kindling.png?3b368",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "49873163f87703a492676e4c0853605d95fcff83",
+    "size": 812,
+    "source_wiki": "rs3",
+    "timestamp": "2020-11-24T10:56:22Z"
+  },
   "woodcuttingitems/inferno_adze.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Inferno_adze.png",
     "file_title": "Inferno adze.png",

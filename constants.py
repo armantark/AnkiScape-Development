@@ -53,6 +53,7 @@ try:
     )
     from .crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, tanning_activities_as_dict
     from .equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
+    from .evil_tree_data import evil_tree_extra_items_as_dict
     from .firemaking_data import (
         DEFAULT_FIREMAKING_TARGET,
         firemaking_extra_items_as_dict,
@@ -193,6 +194,7 @@ except ImportError:
     )
     from crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, tanning_activities_as_dict
     from equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
+    from evil_tree_data import evil_tree_extra_items_as_dict
     from firemaking_data import (
         DEFAULT_FIREMAKING_TARGET,
         firemaking_extra_items_as_dict,
@@ -633,6 +635,7 @@ MINING_OUTPUT_ITEMS = mining_output_items()
 TREE_DATA = woodcutting_targets_as_dict()
 WOODCUTTING_AXE_DATA = woodcutting_axes_as_dict()
 WOODCUTTING_EXTRA_ITEM_DATA = woodcutting_extra_items_as_dict()
+WOODCUTTING_EXTRA_ITEM_DATA.update(evil_tree_extra_items_as_dict())
 BIRD_NEST_DROP_TABLE = tuple({"item": item.item, "weight": item.weight} for item in SOURCE_BIRD_NEST_DROP_TABLE)
 INCIDENTAL_GEM_DROP_TABLE = tuple({"item": item.item, "weight": item.weight} for item in SOURCE_INCIDENTAL_GEM_DROP_TABLE)
 BIRD_NEST_OPEN_TABLES = {
