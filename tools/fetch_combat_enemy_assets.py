@@ -35,6 +35,7 @@ PRE_EOC_CUTOFF = "2012-11-20T23:59:59Z"
 
 
 TITLE_OVERRIDES = {
+    "goat": ("Desert Goat.png",),
     "jackal": ("Jackalnew.png", "Jackal.png"),
     "desert_lizard": ("Desert lizard (green).png", "Desert lizard icon.png"),
     "rockslug": ("Rock slug icon.png", "Rock slug.png"),

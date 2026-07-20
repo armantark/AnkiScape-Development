@@ -1045,12 +1045,13 @@ Labels: `DESIGN CLOSED 2026-07-18`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY:
 Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 
 - Maintain `tools/audit_item_reachability.py`; the current run finds 1,342
-  actions, 1,982 reachable items, and 253 orphan inputs (98 root, 155 cascade)
+  actions, 1,989 reachable items, and 247 orphan inputs (97 root, 150 cascade)
   across planned skills, activities, Combat/world acquisition, Farming, and
   potion-state plumbing. Bob Barter's quantity-free decant routes make potion
   dose variants known-producer cascades; live Farming sapling, harvest, and
-  tree-root routes now prevent ordinary produce from appearing as false root
-  gaps. See the dated audits for method and `activeContext.md` for the live
+  tree-root routes prevent ordinary produce from appearing as false root gaps;
+  the level-23 Goat now closes the Desert-goat-horn -> dust -> Combat-potion
+  chain. See the dated audits for method and `activeContext.md` for the live
   count.
 - Close every live-but-unobtainable material through authentic drops, ground spawns, shops, claims, quests, skills, activities, or transformations. Do not seed free items or fake recipe gates.
 - The source-backed Woodcutting nest → empty nest → crushed nest route is repaired and regression-covered.

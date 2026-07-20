@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Desert Goat Acquisition Closure</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+      --sand: #d7ad68;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 85% 5%, rgba(215, 173, 104, .12), transparent 30rem),
+        radial-gradient(circle at 5% 75%, var(--accent-glow), transparent 32rem),
+        var(--bg);
+      font-family: Outfit, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 42px auto 64px; }
+    .badge, .eyebrow, code {
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+    }
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 11px;
+      border: 1px solid rgba(74, 222, 128, .35);
+      border-radius: 999px;
+      color: var(--green);
+      background: rgba(74, 222, 128, .08);
+      font-size: .72rem;
+      letter-spacing: .08em;
+    }
+    .badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 12px currentColor; }
+    h1 { margin: 18px 0 8px; max-width: 790px; font-size: clamp(2rem, 5vw, 4.2rem); line-height: .98; letter-spacing: -.055em; }
+    .subtitle { max-width: 760px; color: var(--text-dim); font-size: 1.02rem; }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 32px 0;
+    }
+    .metric, .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(30, 35, 44, .92), rgba(22, 26, 33, .92));
+      box-shadow: 0 14px 42px rgba(0, 0, 0, .18);
+    }
+    .metric { padding: 18px; }
+    .metric strong { display: block; font-size: 1.8rem; line-height: 1; }
+    .metric span { display: block; margin-top: 7px; color: var(--text-dim); font-size: .78rem; }
+    .metric.green strong { color: var(--green); }
+    .metric.sand strong { color: var(--sand); }
+    .metric.blue strong { color: var(--accent); }
+    .metric.purple strong { color: var(--purple); }
+    .grid { display: grid; grid-template-columns: 1.12fr .88fr; gap: 16px; }
+    .card { padding: 22px; }
+    .eyebrow { color: var(--sand); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; }
+    h2 { margin: 7px 0 16px; font-size: 1.18rem; }
+    .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; align-items: stretch; }
+    .node {
+      position: relative;
+      min-height: 110px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(12, 14, 18, .62);
+    }
+    .node:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -10px;
+      top: 38px;
+      z-index: 2;
+      color: var(--sand);
+      font-size: 1.2rem;
+    }
+    .node b { display: block; margin-bottom: 6px; font-size: .88rem; }
+    .node span { color: var(--text-dim); font-size: .74rem; }
+    .proof { display: grid; gap: 9px; }
+    .proof-row { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: center; padding: 11px 12px; border-radius: 9px; background: rgba(12, 14, 18, .5); }
+    .check { display: grid; place-items: center; width: 20px; height: 20px; color: #071109; background: var(--green); border-radius: 50%; font-weight: 800; font-size: .74rem; }
+    .proof-row b { font-size: .82rem; }
+    .proof-row small { color: var(--text-dim); font-family: "JetBrains Mono", monospace; }
+    .native {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 18px;
+      align-items: center;
+      border-color: rgba(215, 173, 104, .35);
+    }
+    .mock {
+      height: 130px;
+      padding: 12px;
+      border: 1px solid #3a404d;
+      border-radius: 10px;
+      background: #22262c;
+    }
+    .search { height: 18px; border-radius: 5px; background: #2c3139; color: #bfc6d2; font: 8px monospace; padding: 4px 7px; }
+    .group { margin: 12px 0 6px; color: #dadde3; font-size: 8px; font-weight: 700; }
+    .goat { display: flex; gap: 7px; align-items: center; color: #777d88; font-size: 8px; }
+    .sprite { width: 22px; height: 22px; border-radius: 7px 9px 5px 9px; background: linear-gradient(135deg, #88693d, #c7a974 55%, #72502b); opacity: .7; }
+    .native p { margin: 6px 0 0; color: var(--text-dim); }
+    .tag { display: inline-block; margin: 8px 5px 0 0; padding: 4px 7px; border-radius: 6px; background: var(--surface-2); color: #b7c0d1; font: .66rem "JetBrains Mono", monospace; }
+    footer { margin-top: 24px; color: var(--text-dim); font-size: .75rem; text-align: center; }
+    @media (max-width: 840px) {
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .grid { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: repeat(2, 1fr); }
+      .node:nth-child(2)::after { display: none; }
+    }
+    @media (max-width: 520px) {
+      main { width: min(100% - 20px, 1120px); margin-top: 24px; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .metric strong { font-size: 1.35rem; }
+      .flow, .native { grid-template-columns: 1fr; }
+      .node::after { display: none; }
+      .proof-row { grid-template-columns: 22px 1fr; }
+      .proof-row small { grid-column: 2; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">VERIFIED &amp; READY TO COMMIT</span>
+    <h1>Desert goat horn is no longer conjured from nowhere.</h1>
+    <p class="subtitle">The period level-23 Goat now closes the live Combat → Herblore acquisition chain, with authentic drops, desert risk, canonical item identities, and normalized source art.</p>
+
+    <section class="metrics" aria-label="Verification metrics">
+      <article class="metric green"><strong>1,903</strong><span>non-Qt tests passed</span></article>
+      <article class="metric blue"><strong>1,903</strong><span>offscreen Qt tests passed</span></article>
+      <article class="metric sand"><strong>+7</strong><span>newly reachable items</span></article>
+      <article class="metric purple"><strong>−8</strong><span>unresolved actions</span></article>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <div class="eyebrow">Acquisition chain</div>
+        <h2>One sourced route, end to end</h2>
+        <div class="flow">
+          <div class="node"><b>Goat</b><span>Level 23 · 210 LP · 47 max hit · desert heat</span></div>
+          <div class="node"><b>Desert goat horn</b><span>Guaranteed x1 · item 9735 · non-stackable</span></div>
+          <div class="node"><b>Goat horn dust</b><span>No-XP grind · item 9736 · preserved remainder</span></div>
+          <div class="node"><b>Combat potion</b><span>Level 36 recipe now has a real input route</span></div>
+        </div>
+        <span class="tag">combat_data.py</span>
+        <span class="tag">herblore_data.py</span>
+        <span class="tag">constants.py</span>
+      </article>
+
+      <article class="card">
+        <div class="eyebrow">Closure gates</div>
+        <h2>Proof, not optimistic inference</h2>
+        <div class="proof">
+          <div class="proof-row"><span class="check">✓</span><b>Focused behavior</b><small>425 passed</small></div>
+          <div class="proof-row"><span class="check">✓</span><b>Native target row</b><small>restarted Anki</small></div>
+          <div class="proof-row"><span class="check">✓</span><b>Asset normalization</b><small>0 padded sprites</small></div>
+          <div class="proof-row"><span class="check">✓</span><b>Docs and test quality</b><small>0 hard issues</small></div>
+          <div class="proof-row"><span class="check">✓</span><b>Worktree safety</b><small>canonical copy only</small></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="card native">
+      <div class="mock" aria-hidden="true">
+        <div class="search">Goat</div>
+        <div class="group">⌄ Animals (1)</div>
+        <div class="goat"><span class="sprite"></span><span>Goat (Lvl 23)</span></div>
+      </div>
+      <div>
+        <div class="eyebrow">Native Anki confirmation</div>
+        <h2>Real host, real portrait, correct gate</h2>
+        <p>After a full Anki restart, the live add-on displayed exactly one disabled Goat row under Animals with the period-pinned portrait. The existing save had no filled waterskin, so the disabled state was correct. No target was selected and no save data changed.</p>
+        <span class="tag">combatenemies/goat.png</span>
+        <span class="tag">assets_provenance.json</span>
+      </div>
+    </section>
+
+    <footer>Cutoff: 2012-11-20 · No Billy Goat duplication · No invented shop or seed route · No new design gap</footer>
+  </main>
+</body>
+</html>

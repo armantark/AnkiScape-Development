@@ -116,6 +116,25 @@ class HerbloreAssetTest(unittest.TestCase):
                 self.assertTrue(path.is_file())
                 self.assertEqual(provenance[str(path.relative_to(ROOT))]["source_wiki"], "rs3")
 
+    def test_goat_horn_chain_uses_period_pinned_provenanced_art(self):
+        provenance = json.loads((ROOT / "assets_provenance.json").read_text(encoding="utf-8"))
+        expected = {
+            "herbloreitems/desert_goat_horn.png": (
+                "Desert goat horn.png",
+                "2010-07-23T21:54:03Z",
+            ),
+            "summoningitems/goat_horn_dust.png": (
+                "Goat horn dust.png",
+                "2009-03-04T15:50:47Z",
+            ),
+        }
+
+        for relative_path, (file_title, timestamp) in expected.items():
+            with self.subTest(path=relative_path):
+                self.assertTrue((ROOT / relative_path).is_file())
+                self.assertEqual(provenance[relative_path]["file_title"], file_title)
+                self.assertEqual(provenance[relative_path]["timestamp"], timestamp)
+
 
 if __name__ == "__main__":
     unittest.main()

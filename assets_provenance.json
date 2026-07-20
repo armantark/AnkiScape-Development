@@ -1259,6 +1259,18 @@
     "source_wiki": "osrs",
     "timestamp": "2019-02-02T18:49:42Z"
   },
+  "combatenemies/goat.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Desert_Goat.png",
+    "file_title": "Desert Goat.png",
+    "image_url": "https://runescape.wiki/images/archive/20150909013339%21Desert_Goat.png?683b1",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ff6637fafe0fa8c190f821efe3a31c8e12a07bcf",
+    "size": 51052,
+    "source_wiki": "rs3",
+    "timestamp": "2010-06-06T13:57:45Z"
+  },
   "combatenemies/goblin_level_11.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Goblin.png",
     "file_title": "Goblin.png",
@@ -19065,6 +19077,18 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T02:53:27Z"
   },
+  "herbloreitems/desert_goat_horn.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Desert_goat_horn.png",
+    "file_title": "Desert goat horn.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174107%21Desert_goat_horn.png?b0307",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "09321ceca7cb20daa331e38b6bc252cf3fc612e4",
+    "size": 1471,
+    "source_wiki": "rs3",
+    "timestamp": "2010-07-23T21:54:03Z"
+  },
   "herbloreitems/dwarf_weed_potion_unf.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Dwarf_weed_potion_%28unfinished%29.png",
     "file_title": "Dwarf weed potion (unfinished).png",
@@ -36242,14 +36266,14 @@
   "summoningitems/goat_horn_dust.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Goat_horn_dust.png",
     "file_title": "Goat horn dust.png",
-    "image_url": "https://runescape.wiki/images/Goat_horn_dust.png?3db1d",
+    "image_url": "https://runescape.wiki/images/archive/20140502071242%21Goat_horn_dust.png?44d69",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "120420ab31c0daf04c847465f7e168076162546e",
-    "size": 497,
+    "sha1": "3a164761f2c992aa1188efbb7ae28c465babe31b",
+    "size": 1340,
     "source_wiki": "rs3",
-    "timestamp": "2019-12-06T21:19:18Z"
+    "timestamp": "2009-03-04T15:50:47Z"
   },
   "summoningitems/gold_charm.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Gold_charm.png",

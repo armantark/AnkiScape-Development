@@ -378,9 +378,10 @@ HERBLORE_GROUP_LABELS: Dict[str, str] = {
     "finished": "Finished potions",
 }
 
-# Item 6810 is Super prayer's distinct Wyvern-bonemeal secondary. Herblore
-# registers the identity here without adding a migration or acquisition route.
-_HERBLORE_UNCACHED_ITEMS = ("Wyvern bonemeal",)
+# Item 6810 is Super prayer's distinct Wyvern-bonemeal secondary. Desert goat
+# horn is the source item for the legacy grinding action declared in constants.
+# Register both identities here even though neither is a Herblore target output.
+_HERBLORE_AUXILIARY_ITEMS = ("Wyvern bonemeal", "Desert goat horn")
 
 
 def _target_as_dict(target: HerbloreTarget) -> Dict[str, object]:
@@ -433,7 +434,7 @@ def herblore_item_names() -> Tuple[str, ...]:
         names.extend((activity.source_item, activity.output_item))
     for activity in INPUT_PREPARATION_ACTIVITIES:
         names.extend((activity.source_item, activity.output_item))
-    names.extend(_HERBLORE_UNCACHED_ITEMS)
+    names.extend(_HERBLORE_AUXILIARY_ITEMS)
     return tuple(dict.fromkeys(names))
 
 
@@ -496,8 +497,14 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Agility potion (3)": 3034,
         "Agility potion (2)": 3036,
         "Agility mix (2)": 11461,
+        "Desert goat horn": 9735,
+        "Goat horn dust": 9736,
         "Shrink-me-quick": 11204,
         "Shrunk ogleroot": 11205,
+    }
+    canonical_item_sources = {
+        "Desert goat horn": "RuneScape Wiki Desert goat horn oldid=6555637",
+        "Goat horn dust": "RuneScape Wiki Goat horn dust oldid=6404814",
     }
     result = {}
     for name in herblore_item_names():
@@ -509,7 +516,10 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "source": (
                 PESTLE_AND_MORTAR_SOURCE_PATH
                 if name in pestle_item_ids
-                else input_preparation_item_data.get(name, (0, HERB_DATA_SOURCE_PATH))[1]
+                else canonical_item_sources.get(
+                    name,
+                    input_preparation_item_data.get(name, (0, HERB_DATA_SOURCE_PATH))[1],
+                )
             ),
             "category": "material",
             "tradeable": True,
@@ -543,6 +553,8 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             item["tradeable"] = False
         if name in canonical_item_ids:
             item["item_id"] = canonical_item_ids[name]
+        if name in {"Desert goat horn", "Goat horn dust"}:
+            item["stackable"] = False
         result[name] = item
     for dose, item_id in {1: 20014, 2: 20013, 3: 20012, 4: 20011}.items():
         name = f"Juju farming potion ({dose})"

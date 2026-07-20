@@ -1204,6 +1204,7 @@ for _item_name, _finished_item in {
 # UTILITY_ITEM_IMAGES rather than leave those rows iconless.
 _grind_image_sources = (
     HERBLORE_ITEM_IMAGES,
+    SUMMONING_ITEM_IMAGES,
     SHOP_ITEM_IMAGES,
     COMBAT_ITEM_IMAGES,
     HUNTER_ITEM_IMAGES,

@@ -5,6 +5,7 @@ from constants import (
     BIRD_NEST_OPEN_TABLES,
     BAR_IMAGES,
     COMBAT_ENEMY_DATA,
+    COMBAT_ENEMY_IMAGES,
     COOKING_DATA,
     COOKING_ITEM_IMAGES,
     CRAFTED_ITEM_IMAGES,
@@ -653,6 +654,54 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Poison spider · combat level 64", poison_spider_level_64.tooltip)
         self.assertIn("Poison: 60 LP", poison_spider_level_64.tooltip)
         self.assertIn("poison_spider_lvl_64.plugin.kts", poison_spider_level_64.tooltip)
+
+    def test_goat_row_exposes_desert_gate_guaranteed_horn_and_enemy_icon(self):
+        player = {
+            "current_combat_target": "goat",
+            "combat_attack_style": "accurate",
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 99,
+            "combat_lifepoints": 990,
+            "inventory": {},
+            "equipment": {},
+            "combat_supply_loadout": {},
+        }
+        blocked_rows = combat_target_rows(
+            player,
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+            COMBAT_ENEMY_IMAGES,
+        )
+        blocked = _row(blocked_rows, "goat")
+        self.assertFalse(blocked.enabled)
+        self.assertEqual(
+            blocked.locked_reasons,
+            ("Desert heat: filled Waterskin",),
+        )
+
+        player["inventory"] = {"Waterskin (4)": 1}
+        ready_rows = combat_target_rows(
+            player,
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+            COMBAT_ENEMY_IMAGES,
+        )
+        ready = _row(ready_rows, "goat")
+        self.assertTrue(ready.enabled)
+        self.assertEqual(ready.group, "Animals")
+        self.assertTrue(ready.icon_path.endswith("combatenemies/goat.png"))
+        self.assertIn("Enemy max hit: 47 LP", ready.tooltip)
+        self.assertIn("Desert goat horn x1", ready.tooltip)
+        self.assertIn(
+            "Desert heat: 1 Waterskin dose per Combat review",
+            ready.tooltip,
+        )
 
     def test_mutated_zygomite_rows_show_access_and_charged_spray_state(self):
         player = {

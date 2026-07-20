@@ -10302,6 +10302,72 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "data/npcs/drops/jackal.json"
         ),
     },
+    "goat": {
+        "display_name": "Goat",
+        "level": 23,
+        "group": "Animals",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 59,
+        "max_hit": 47,
+        "slayer_xp": 21.0,
+        "desert_context": True,
+        "environmental_hazard": {
+            "display_name": "Desert heat",
+            "dose_items": (
+                "Waterskin (4)",
+                "Waterskin (3)",
+                "Waterskin (2)",
+                "Waterskin (1)",
+            ),
+            "empty_item": "Waterskin (0)",
+            "reviews_per_dose": 1,
+            "loadout_cap": 8,
+            "source_status": (
+                "period-exact Kharidian Desert heat/water requirement and dose "
+                "preservation; one dose per damaging Combat review is the existing "
+                "bounded review-native desert abstraction"
+            ),
+        },
+        "stats": {
+            "hitpoints": 210,
+            "attack": 20,
+            "strength": 20,
+            "defence": 20,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (("Bones", 1), ("Desert goat horn", 1)),
+            "tables": (),
+        },
+        "source": (
+            "https://runescape.wiki/w/Goat?oldid=5795580; "
+            "https://runescape.wiki/w/Desert_goat_horn?oldid=6555637; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/combatdefs/uncategorized/goat.json; "
+            "/Users/ArmanTarkhanian1/Documents/2012scape with bots/"
+            "darkan-world-server/data/npcs/drops/goat.json; "
+            "OpenRS2 rev-742 NPC 4930 and items 9735/9736"
+        ),
+        "source_status": (
+            "period exact level, LP, passive melee, 47-LP maximum hit, guaranteed "
+            "Bones and Desert goat horn, Kharidian Desert location, and heat risk; "
+            "Darkan exact combat stats and respawn; four-tick attack speed is the "
+            "standard bounded combat abstraction"
+        ),
+    },
     "icefiend": {
         "display_name": "Icefiend",
         "level": 13,
@@ -13391,6 +13457,16 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
         "source_item_id": 6103,
         "stackable": False,
         "tradeable": False,
+    },
+    "Desert goat horn": {
+        "category": "material",
+        "source": (
+            "RuneScape Wiki Desert goat horn oldid=6555637; "
+            "OpenRS2 rev-742 item 9735"
+        ),
+        "source_item_id": 9735,
+        "stackable": False,
+        "tradeable": True,
     },
     "Curved bone": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CURVED_BONE"},
     **{

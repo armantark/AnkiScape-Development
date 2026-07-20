@@ -3068,3 +3068,24 @@ Test counts are snapshots; current runs outrank this note.
 - Published
   `status-updates/target-details-results-2026-07-20.html`;
   mobile copy: `https://0vdjdlyrmky3.postplan.dev`.
+
+## Desert goat horn acquisition closure — 2026-07-20
+
+- Added one source-admitted level-23 Goat Combat target with the exact
+  period/Darkan-reconciled LP, maximum, passive melee behavior, guaranteed
+  Bones and horn, executable combat levels, respawn, and existing desert heat.
+- Closed the complete live Goat -> horn -> dust -> Combat potion chain without
+  a seeded item, invented drop rate, or duplicate Billy Goat target.
+- Corrected source IDs and non-stackability for Desert goat horn and Goat horn
+  dust, replaced the dust's generic soft-clay fallback with period-pinned art,
+  and added a normalized period Goat target sprite.
+- Focused verification passes 425 tests plus the offscreen Goat-row check.
+  Complete non-Qt and offscreen Qt discoveries each pass all 1,903 tests.
+  A restarted native Anki smoke confirms the disabled Animals/Goat row and
+  real portrait without mutating the save. Reachability is now 1,989 items
+  with 247 orphan inputs and 260 unresolved actions.
+- Published
+  `status-updates/desert-goat-acquisition-results-2026-07-20.html`;
+  mobile copy: `https://mibheiehz0uy.postplan.dev`.
+- Durable evidence:
+  `source-audits/desert-goat-combat-acquisition-2026-07-20.md`.

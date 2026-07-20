@@ -973,6 +973,22 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         ):
             self.assertFalse(HERBLORE_EXTRA_ITEM_DATA[item]["tradeable"])
 
+    def test_goat_horn_chain_keeps_period_item_identity_and_real_assets(self):
+        definitions = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        expected = {
+            "Desert goat horn": (9735, "desert_goat_horn.png"),
+            "Goat horn dust": (9736, "goat_horn_dust.png"),
+        }
+
+        for item_name, (item_id, asset_name) in expected.items():
+            with self.subTest(item=item_name):
+                definition = definitions[item_name]
+                self.assertEqual(definition.source_item_id, item_id)
+                self.assertFalse(definition.stackable)
+                self.assertTrue(definition.tradeable)
+                self.assertEqual(os.path.basename(definition.asset_path or ""), asset_name)
+                self.assertTrue(os.path.isfile(definition.asset_path or ""))
+
     def test_quest_catalog_overlay_preserves_existing_item_identity_metadata(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         self.assertFalse(by_storage_key["Chisel"].stackable)

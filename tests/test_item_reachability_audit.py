@@ -49,6 +49,7 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Fungicide"],
             "combat:mutated_zygomite_level_74",
         )
+        self.assertEqual(report["routes"]["Desert goat horn"], "combat:goat")
         self.assertNotIn("Bird's nest", {row["item"] for row in report["orphan_inputs"]})
 
         long_kebbit_spike = next(

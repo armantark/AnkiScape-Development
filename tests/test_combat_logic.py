@@ -6301,11 +6301,12 @@ class CombatLogicTest(unittest.TestCase):
     def test_sourced_enemy_max_hits_override_generic_melee_derivation(self):
         for target_id, lifepoints, max_hit, oldid in (
             ("jackal", 270, 80, "oldid=6493724"),
+            ("goat", 210, 47, "oldid=5795580"),
             ("icefiend", 150, 20, "oldid=6419875"),
         ):
             with self.subTest(target=target_id):
                 preview = combat_target_preview_pure(
-                    _player(),
+                    _player(inventory={"Waterskin (4)": 1}),
                     target_id,
                     COMBAT_ENEMY_DATA,
                     EQUIPMENT_DATA,
@@ -6314,6 +6315,17 @@ class CombatLogicTest(unittest.TestCase):
                 self.assertEqual(preview["enemy_max_lifepoints"], lifepoints)
                 self.assertEqual(preview["enemy_max_hit"], max_hit)
                 self.assertIn(oldid, preview["source"])
+
+    def test_goat_preserves_guaranteed_horn_drop_and_desert_context(self):
+        goat = COMBAT_ENEMY_DATA["goat"]
+
+        self.assertEqual(
+            _combat_roll_drops(goat, _rng([])),
+            {"Bones": 1, "Desert goat horn": 1},
+        )
+        self.assertTrue(goat["desert_context"])
+        self.assertEqual(goat["environmental_hazard"]["display_name"], "Desert heat")
+        self.assertIn("oldid=6555637", goat["source"])
 
     def test_combat_preview_marks_poison_enemies_as_food_advised(self):
         preview = combat_target_preview_pure(_player(), "poison_scorpion", COMBAT_ENEMY_DATA, EQUIPMENT_DATA)

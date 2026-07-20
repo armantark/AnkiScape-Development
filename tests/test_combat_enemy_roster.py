@@ -41,6 +41,7 @@ NEW_COMBAT_ENEMIES = (
     "cave_horror",
     "ogre",
     "jackal",
+    "goat",
     "icefiend",
     "pyrefiend",
     "jelly",
@@ -363,6 +364,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
 
         for target_id, file_title in (
             ("jackal", "Jackal.png"),
+            ("goat", "Desert Goat.png"),
             ("ogre", "Ogre.png"),
             ("icefiend", "Icefiend.png"),
             ("pyrefiend", "Pyrefiend.png"),

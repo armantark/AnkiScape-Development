@@ -3209,6 +3209,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         barbarian_level_10 = _tree_row(tree, "barbarian_level_10")
         ogre = _tree_row(tree, "ogre")
         jackal = _tree_row(tree, "jackal")
+        goat = _tree_row(tree, "goat")
         icefiend = _tree_row(tree, "icefiend")
         pyrefiend = _tree_row(tree, "pyrefiend")
         jelly = _tree_row(tree, "jelly")
@@ -3268,6 +3269,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Allotment seed table (27/128)", farmer.toolTip(0))
         self.assertEqual(highwayman.text(0), "Highwayman (Lvl 5)")
         self.assertIn("Cape x1", highwayman.toolTip(0))
+        self.assertEqual(goat.text(0), "Goat (Lvl 23)")
+        self.assertIn("Enemy max hit: 47 LP", goat.toolTip(0))
+        self.assertIn("Desert goat horn x1", goat.toolTip(0))
+        self.assertIn(
+            "Desert heat: 1 Waterskin dose per Combat review",
+            goat.toolTip(0),
+        )
+        self.assertFalse(goat.icon(0).isNull())
         self.assertIn("Iron bolts x2-12 (1/20)", highwayman.toolTip(0))
         self.assertEqual(barbarian_level_10.text(0), "Barbarian (Lvl 10)")
         self.assertIn("Enemy LP: 180/180", barbarian_level_10.toolTip(0))

@@ -2283,3 +2283,31 @@ The visual closure report is
 - Published
   `status-updates/target-details-results-2026-07-20.html`;
   mobile copy: `https://0vdjdlyrmky3.postplan.dev`.
+
+## Desert goat horn acquisition closure — 2026-07-20
+
+- Added the period level-23 Goat as an ordinary Combat target with 210 LP,
+  47 maximum, passive melee, guaranteed Bones plus one Desert goat horn, and
+  the existing Kharidian desert-heat/waterskin contract.
+- Preserved Darkan's exact executable 20/20/20/1/1 combat levels and 59-tick
+  respawn. The four-tick attack cadence is explicitly the standard bounded
+  Combat abstraction because the period page does not state it.
+- Corrected Desert goat horn and Goat horn dust to IDs 9735/9736,
+  non-stackable tradeable items. Both now use real period-pinned sprites;
+  Goat horn dust no longer renders as the generic soft-clay fallback.
+- The live chain is now Goat Combat -> Desert goat horn -> no-XP grinding ->
+  Goat horn dust -> level-36 Combat potion.
+- Reachability improves from 1,982 to 1,989 reachable items, 253 to 247 orphan
+  inputs (98/155 to 97/150 root/cascade), and 268 to 260 unresolved actions.
+- Focused Combat/registry/Herblore/reachability/asset/metadata verification
+  passes 425 tests; the focused offscreen Goat-row test passes. Complete
+  non-Qt and offscreen Qt discoveries each pass all 1,903 tests.
+- A restarted native Anki smoke shows exactly one disabled Goat row under
+  Animals with the real goat portrait on the existing no-waterskin save; no
+  target was selected and no save state changed.
+- Published
+  `status-updates/desert-goat-acquisition-results-2026-07-20.html`;
+  mobile copy: `https://mibheiehz0uy.postplan.dev`.
+- No new UI or owner-facing design gap emerged.
+- Durable evidence:
+  `source-audits/desert-goat-combat-acquisition-2026-07-20.md`.
