@@ -2342,3 +2342,19 @@ The visual closure report is
   mobile copy: `https://jzn1gbktyze8.postplan.dev`.
 - Durable evidence:
   `source-audits/swamp-toad-acquisition-2026-07-20.md`.
+
+## Cooking byproduct reachability correction — 2026-07-20
+
+- Corrected the graph auditor to recognize Cooking's singular
+  `byproduct_item` output shape. The three shipped gut-leaping-fish actions
+  already produced Fish offcuts correctly; no gameplay action or probability
+  changed.
+- The new route assertion fails before the fix and passes afterward.
+  `Fish offcuts` now resolves through `Cooking:gut_leaping_trout`.
+- Focused reachability, Cooking, Fishing, and runtime verification passes 284
+  tests; complete non-Qt discovery passes all 1,905 tests with 250 expected
+  environment skips. The live graph now reports 1,998 reachable items and 238
+  orphan inputs (95 root and 143 cascade), with 1,343 actions and 250
+  unresolved actions.
+- No UI or owner design gap is involved. Durable evidence:
+  `source-audits/item-reachability-cooking-byproduct-correction-2026-07-20.md`.

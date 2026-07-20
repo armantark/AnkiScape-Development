@@ -1045,15 +1045,16 @@ Labels: `DESIGN CLOSED 2026-07-18`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY:
 Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 
 - Maintain `tools/audit_item_reachability.py`; the current run finds 1,343
-  actions, 1,997 reachable items, and 239 orphan inputs (96 root, 143 cascade)
+  actions, 1,998 reachable items, and 238 orphan inputs (95 root, 143 cascade)
   across planned skills, activities, Combat/world acquisition, Farming, and
   potion-state plumbing. Bob Barter's quantity-free decant routes make potion
   dose variants known-producer cascades; live Farming sapling, harvest, and
   tree-root routes prevent ordinary produce from appearing as false root gaps;
   the level-23 Goat now closes the Desert-goat-horn -> dust -> Combat-potion
   chain; the ordinary Stronghold gathering route now closes Swamp toad ->
-  Toad's legs -> Agility potion. See the dated audits for method and
-  `activeContext.md` for the live count.
+  Toad's legs -> Agility potion; Cooking's singular byproduct shape now
+  correctly exposes the already-live Fish-offcuts route. See the dated audits
+  for method and `activeContext.md` for the live count.
 - Close every live-but-unobtainable material through authentic drops, ground spawns, shops, claims, quests, skills, activities, or transformations. Do not seed free items or fake recipe gates.
 - The source-backed Woodcutting nest → empty nest → crushed nest route is repaired and regression-covered.
 - Finish equipment requirements, special attacks, poison, charges/degradation, set effects, jewellery, consumables, and source-specific use actions without creating fake recipes.

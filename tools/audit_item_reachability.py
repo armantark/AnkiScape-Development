@@ -44,6 +44,7 @@ def _names(value: Any) -> set[str]:
 def _outputs(spec: Mapping[str, Any]) -> set[str]:
     outputs = _names(spec.get("outputs")) | _names(spec.get("byproducts"))
     outputs |= _names(spec.get("output_item")) | _names(spec.get("alternate_output_item"))
+    outputs |= _names(spec.get("byproduct_item"))
     for fish in spec.get("fish", ()) or ():
         if isinstance(fish, Mapping):
             outputs |= _names(fish.get("output_item"))

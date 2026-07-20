@@ -3114,3 +3114,18 @@ Test counts are snapshots; current runs outrank this note.
   mobile copy: `https://jzn1gbktyze8.postplan.dev`.
 - Durable evidence:
   `source-audits/swamp-toad-acquisition-2026-07-20.md`.
+
+## Cooking byproduct reachability correction — 2026-07-20
+
+- Fixed the deterministic item graph to include the already-live singular
+  `byproduct_item` field used by the gut-leaping-fish actions.
+- Fish offcuts are now correctly reachable through
+  `Cooking:gut_leaping_trout`; no product behavior, probability, UI, or save
+  state changed.
+- The regression fails before the correction and the focused four-module run
+  passes 284 tests afterward. Complete non-Qt discovery passes all 1,905 tests
+  with 250 expected environment skips.
+- Reachability now reports 1,998 reachable items, 238 orphan inputs
+  (95 root/143 cascade), 1,343 actions, and 250 unresolved actions.
+- Durable evidence:
+  `source-audits/item-reachability-cooking-byproduct-correction-2026-07-20.md`.

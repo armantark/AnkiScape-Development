@@ -58,6 +58,10 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Toad's legs"],
             "Utility:remove_swamp_toad_legs",
         )
+        self.assertEqual(
+            report["routes"]["Fish offcuts"],
+            "Cooking:gut_leaping_trout",
+        )
         self.assertNotIn("Bird's nest", {row["item"] for row in report["orphan_inputs"]})
 
         long_kebbit_spike = next(
