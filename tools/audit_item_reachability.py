@@ -95,6 +95,7 @@ def _drop_names(value: Any) -> set[str]:
 def build_reachability_report() -> dict[str, Any]:
     import combat_data
     import constants
+    import farming_data
     import pack_data
     import shop_data
     import shop_logic
@@ -136,6 +137,69 @@ def build_reachability_report() -> dict[str, Any]:
                 consumers[item].add(key)
             for item in outputs:
                 producers[item].add(key)
+
+    for crop_id, (seed, seedling, sapling) in farming_data.SAPLING_RECIPES.items():
+        crop = farming_data.FARMING_CROPS_BY_ID[crop_id]
+        if not crop.runnable:
+            continue
+        required = {seed, "Plant pot", "Gardening trowel"}
+        alternatives = ({"Watering can", "Watering can (8)"},)
+        outputs = {seedling, sapling}
+        key = f"Farming:sapling:{crop_id}"
+        actions.append(
+            {
+                "id": key,
+                "required": required,
+                "alternatives": alternatives,
+                "outputs": outputs,
+            }
+        )
+        for item in required | alternatives[0]:
+            consumers[item].add(key)
+        for item in outputs:
+            producers[item].add(key)
+
+    hatchets = {axe.display_name for axe in woodcutting_data.WOODCUTTING_AXES}
+    for crop in farming_data.FARMING_CROPS:
+        if not crop.runnable:
+            continue
+        plant_tool = (
+            "Spade"
+            if crop.patch_type in {"tree", "fruit_tree", "calquat", "spirit_tree"}
+            else "Seed dibber"
+        )
+        required = {crop.seed_item, "Rake", plant_tool}
+        if crop.harvest_tool:
+            required.add(crop.harvest_tool)
+        if crop.output_item:
+            key = f"Farming:{crop.id}"
+            outputs = {crop.output_item}
+            actions.append(
+                {
+                    "id": key,
+                    "required": required,
+                    "alternatives": (),
+                    "outputs": outputs,
+                }
+            )
+            for item in required:
+                consumers[item].add(key)
+            producers[crop.output_item].add(key)
+        if crop.root_item:
+            key = f"Farming:clear:{crop.id}"
+            root_requirements = required | {"Spade"}
+            alternatives = (hatchets,)
+            actions.append(
+                {
+                    "id": key,
+                    "required": root_requirements,
+                    "alternatives": alternatives,
+                    "outputs": {crop.root_item},
+                }
+            )
+            for item in root_requirements | hatchets:
+                consumers[item].add(key)
+            producers[crop.root_item].add(key)
 
     for item_name, spec in constants.CONSUMABLE_DATA.items():
         if not isinstance(spec, Mapping):

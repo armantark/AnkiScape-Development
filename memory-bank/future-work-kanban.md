@@ -1044,12 +1044,14 @@ Labels: `DESIGN CLOSED 2026-07-18`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY:
 
 Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 
-- Maintain `tools/audit_item_reachability.py`; the current run finds 1,200
-  actions and 273 orphan inputs (110 root, 163 cascade) across planned skills,
-  activities, Combat/world acquisition, and potion-state plumbing. Bob Barter's
-  quantity-free decant routes make potion dose variants known-producer cascades;
-  their remaining availability follows upstream herb and secondary acquisition.
-  See the dated audits for method and `activeContext.md` for the live count.
+- Maintain `tools/audit_item_reachability.py`; the current run finds 1,342
+  actions, 1,982 reachable items, and 253 orphan inputs (98 root, 155 cascade)
+  across planned skills, activities, Combat/world acquisition, Farming, and
+  potion-state plumbing. Bob Barter's quantity-free decant routes make potion
+  dose variants known-producer cascades; live Farming sapling, harvest, and
+  tree-root routes now prevent ordinary produce from appearing as false root
+  gaps. See the dated audits for method and `activeContext.md` for the live
+  count.
 - Close every live-but-unobtainable material through authentic drops, ground spawns, shops, claims, quests, skills, activities, or transformations. Do not seed free items or fake recipe gates.
 - The source-backed Woodcutting nest → empty nest → crushed nest route is repaired and regression-covered.
 - Finish equipment requirements, special attacks, poison, charges/degradation, set effects, jewellery, consumables, and source-specific use actions without creating fake recipes.

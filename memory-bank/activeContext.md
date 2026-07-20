@@ -2,6 +2,17 @@
 
 ## Current Focus
 
+The item-reachability audit now represents the live Farming acquisition graph
+instead of falsely classifying harvest outputs as root orphans. Runnable
+sapling preparation, ordinary harvests, and tree-root clearing contribute
+quantity-free routes with their real seed and tool dependencies. The report
+now contains 1,342 actions, 1,982 reachable items, 253 orphan inputs
+(98 root, 155 cascade), and 268 blocked actions, down from 284/302 without
+inventing any producer. Focused coverage pins Sweetcorn, Strawberry,
+Watermelon, Jangerberries, Morchella mushroom, Papaya sapling/fruit, and Oak
+roots. See
+`source-audits/item-reachability-farming-routes-2026-07-20.md`.
+
 The owner-ratified Dungeoneering starter expedition now has a source-backed
 backend substrate without being falsely exposed as a live skill. Exact
 floor/theme/size/complexity, bind/ammo, Ring-of-kinship, Frozen-boss, door,

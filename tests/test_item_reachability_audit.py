@@ -24,6 +24,19 @@ class TestItemReachabilityAudit(unittest.TestCase):
         self.assertEqual(report["routes"]["Wine of zamorak"], "Magic:telegrab_wine_of_zamorak")
         self.assertEqual(report["routes"]["Ecto-token"], "Prayer:ectofuntus_impious_ashes")
         self.assertEqual(report["routes"]["Juju vial"], "Item action:open:Juju vial pack")
+        self.assertEqual(report["routes"]["Sweetcorn"], "Farming:sweetcorn")
+        self.assertEqual(report["routes"]["Strawberry"], "Farming:strawberry")
+        self.assertEqual(report["routes"]["Watermelon"], "Farming:watermelon")
+        self.assertEqual(report["routes"]["Jangerberries"], "Farming:jangerberry")
+        self.assertEqual(
+            report["routes"]["Morchella mushroom"],
+            "Farming:morchella",
+        )
+        self.assertEqual(
+            report["routes"]["Papaya sapling"],
+            "Farming:sapling:papaya",
+        )
+        self.assertEqual(report["routes"]["Papaya fruit"], "Farming:papaya")
         self.assertEqual(
             report["routes"]["Fungicide spray 9"],
             "Combat finisher:mutated_zygomite_level_74:Fungicide spray 10",

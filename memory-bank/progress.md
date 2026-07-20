@@ -4,6 +4,19 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Farming reachability routes — 2026-07-20
+
+- Added the existing runnable Farming sapling, harvest, and tree-root paths to
+  the quantity-free item-acquisition graph.
+- Removed false root-orphan reports for live produce without changing Farming
+  gameplay or manufacturing fake seed/tool sources.
+- Reachability improves from 1,268 actions / 1,889 reachable items / 284
+  orphans / 302 blocked actions to 1,342 / 1,982 / 253 / 268.
+- Focused regression coverage passes and pins representative allotment, bush,
+  mushroom, fruit-tree, sapling, and root routes.
+- Durable record:
+  `source-audits/item-reachability-farming-routes-2026-07-20.md`.
+
 ## Easy Treasure Trails source boundary — 2026-07-19
 
 - Pinned the one-to-five easy trail length, simple/emote/map/cryptic families,
