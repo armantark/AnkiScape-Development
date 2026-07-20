@@ -8907,7 +8907,6 @@ QUEST_UNLOCK_RULES: Tuple[QuestUnlockRule, ...] = (
         "Priest in Peril",
         PRIEST_IN_PERIL_SOURCE,
     ),
-    QuestUnlockRule(THE_FREMENNIK_ISLES_ID, "target", "firemaking", ("arctic_pine_logs",), "The Fremennik Isles", THE_FREMENNIK_ISLES_SOURCE),
     QuestUnlockRule(THE_FREMENNIK_ISLES_ID, "target", "cooking", ("cook_yak",), "The Fremennik Isles", THE_FREMENNIK_ISLES_SOURCE),
     QuestUnlockRule(DWARF_CANNON_ID, "target", "smithing", ("forge_cannonballs",), "Dwarf Cannon", "https://runescape.wiki/w/Cannonball?oldid=6541276"),
     # scavenge_raw_yak_meat retired 2026-07-07 (Raw yak meat is live shop
@@ -8948,6 +8947,32 @@ def _quest_target_unlock_rule(rule: QuestUnlockRule) -> TargetUnlockRule:
 TARGET_UNLOCK_RULES: Tuple[TargetUnlockRule, ...] = tuple(
     _quest_target_unlock_rule(rule) for rule in QUEST_UNLOCK_RULES
 ) + (
+    TargetUnlockRule(
+        gate_kind="target",
+        skill_id="firemaking",
+        target_ids=("arctic_pine_logs",),
+        requirements=(
+            TargetUnlockRequirement(
+                kind="quest_started",
+                reason="Start The Fremennik Isles",
+                source=THE_FREMENNIK_ISLES_SOURCE,
+                quest_id=THE_FREMENNIK_ISLES_ID,
+            ),
+        ),
+    ),
+    TargetUnlockRule(
+        gate_kind="target",
+        skill_id="woodcutting",
+        target_ids=("split_arctic_pine_logs",),
+        requirements=(
+            TargetUnlockRequirement(
+                kind="quest_started",
+                reason="Start The Fremennik Isles",
+                source=THE_FREMENNIK_ISLES_SOURCE,
+                quest_id=THE_FREMENNIK_ISLES_ID,
+            ),
+        ),
+    ),
     TargetUnlockRule(
         gate_kind="target",
         skill_id="fletching",

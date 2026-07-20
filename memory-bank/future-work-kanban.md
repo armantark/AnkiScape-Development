@@ -78,6 +78,12 @@ Labels: `SOURCE AUDIT`, then `IMPLEMENT` only when evidence closes.
   ogleroot acquisition and potion use remain Grim Tales/Darkan-owned rather
   than duplicated in the skill runtime. See
   `memory-bank/source-audits/herblore-shrink-me-quick-2026-07-19.md`.
+- The isolated Arctic-pine splitting sub-slice is live: level 54, one carried
+  Arctic pine log to one Split log, 42.5 Woodcutting XP, quest-start gating,
+  processing-aware carried packs, and period GE/item/art identity. Arctic-pine
+  chopping remains `SOURCE AUDIT` because its success, depletion, and respawn
+  mechanics are not closed. See
+  `memory-bank/source-audits/woodcutting-split-log-implementation-2026-07-20.md`.
 - Evil Tree is implemented as the settled review-native D&D: seven exact
   period tier gates/XP rows, five-review availability, nurture-only entry,
   three atomic Nurture/Prepare/Fell reviews, bounded period-ceiling rewards,

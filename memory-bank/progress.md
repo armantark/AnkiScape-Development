@@ -4,6 +4,37 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Woodcutting Split log processing — 2026-07-20
+
+- Added the settled level-54 `Split Arctic pine logs` processing target: one
+  carried Arctic pine log becomes one Split log for 42.5 Woodcutting XP.
+- Kept the action distinct from chopping: no hatchet, nest, Inferno-adze,
+  log-counter, or urn behavior.
+- Added processing-aware carried-pack semantics, atomic Bank reconciliation,
+  target metadata, telemetry, period art/provenance, and a generic
+  `quest_started` unlock requirement used by both splitting and Arctic-pine
+  Firemaking.
+- Registered non-stackable tradeable Split log ID `10812`, plus its cutoff
+  30-coin guide price and 1,000-item buy limit from Exchange oldid `6563176`.
+- Preserved the explicit source boundary: Arctic-pine chopping still waits on
+  success, depletion, and respawn evidence, so Arctic pine logs remain a
+  truthful root orphan rather than receiving invented odds.
+- Kimi K3 approved the row hierarchy and period icon weight after three small
+  copy/tooltip corrections. The final screenshot also confirms that Utilities
+  and Activities remain separate categories. Fable's required taste pass is
+  externally blocked by the fresh quota probe's macOS Keychain failure
+  (`security` exit 51), not by a design gap.
+- The complete non-Qt and real offscreen-Qt universes each pass all 1,936
+  tests (252 expected environment skips and one intentional skip
+  respectively); focused coverage passes 195 tests plus the real-Qt row and
+  both global asset checks. Documentation, test quality, compilation, JSON,
+  diff, reachability, and worktree-safety audits pass.
+- Durable record:
+  `source-audits/woodcutting-split-log-implementation-2026-07-20.md`.
+- Results:
+  `status-updates/woodcutting-split-log-results-2026-07-20.html`; mobile copy:
+  `https://g5v7ucswdk1k.postplan.dev`.
+
 ## Potion flask acquisition and no-XP surface split — 2026-07-20
 
 - Added the authentic `As a First Resort...` chain: level-81/70-XP Red

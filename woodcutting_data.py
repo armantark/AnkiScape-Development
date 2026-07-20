@@ -27,6 +27,7 @@ BIRD_NEST_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/items/birdnests/bird_nest.plugin.kts"
 )
+SPLIT_LOG_SOURCE = "https://runescape.wiki/w/Split_log?oldid=5505475"
 
 
 @dataclass(frozen=True)
@@ -43,6 +44,11 @@ class WoodcuttingTarget:
     high_chance: int
     source: str = TREE_SOURCE_PATH
     status: str = "implemented"
+    action_type: str = "gathering"
+    requirements: Tuple[Tuple[str, int], ...] = ()
+    output_quantity: int = 1
+    output_stackable: bool = False
+    output_tradeable: bool = True
 
 
 @dataclass(frozen=True)
@@ -82,6 +88,21 @@ WOODCUTTING_TARGETS: Tuple[WoodcuttingTarget, ...] = (
     WoodcuttingTarget("maple", "Maple", 45, 100.0, "Maple logs", 1517, 8, 59, 8, 25),
     WoodcuttingTarget("hollow", "Hollow", 45, 82.0, "Bark", 3239, 8, 44, 18, 26),
     WoodcuttingTarget("mahogany", "Mahogany", 50, 125.0, "Mahogany logs", 6332, 8, 14, 8, 25),
+    WoodcuttingTarget(
+        "split_arctic_pine_logs",
+        "Split Arctic pine logs",
+        54,
+        42.5,
+        "Split log",
+        10812,
+        0,
+        0,
+        0,
+        0,
+        source=SPLIT_LOG_SOURCE,
+        action_type="processing",
+        requirements=(("Arctic pine logs", 1),),
+    ),
     WoodcuttingTarget("yew", "Yew", 60, 175.0, "Yew logs", 1515, 8, 99, 4, 12),
     WoodcuttingTarget("ivy", "Ivy", 68, 332.5, None, None, 8, 36, 7, 11),
     WoodcuttingTarget("magic", "Magic", 75, 250.0, "Magic logs", 1513, 8, 199, 6, 6),
@@ -211,6 +232,11 @@ def woodcutting_targets_as_dict() -> Dict[str, Dict[str, object]]:
             "high_chance": target.high_chance,
             "source": target.source,
             "status": target.status,
+            "action_type": target.action_type,
+            "requirements": dict(target.requirements),
+            "output_quantity": target.output_quantity,
+            "stackable": target.output_stackable,
+            "tradeable": target.output_tradeable,
         }
         for target in WOODCUTTING_TARGETS
     }

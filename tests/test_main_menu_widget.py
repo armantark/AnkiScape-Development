@@ -8361,6 +8361,24 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertIn("no usable hatchet", tree.toolTip())
 
+    def test_woodcutting_split_row_uses_material_gate_and_period_icon(self) -> None:
+        pd = _make_player_data()
+        pd["woodcutting_level"] = 54
+        pd["inventory"] = {"Arctic pine logs": 1}
+        pd["toolbelt"] = {"woodcutting": []}
+        pd["quests"]["the_fremennik_isles"] = {"started": True}
+        dialog = self._open(pd)
+        tree_list = self._open_woodcutting(dialog)
+        split = self._wc_row(tree_list, "Split Arctic pine logs ")
+        self.assertTrue(bool(split.flags() & Qt.ItemFlag.ItemIsEnabled))
+        self.assertIn("Arctic pine logs x1 (you have 1)", split.toolTip())
+        self.assertNotIn("hatchet", split.toolTip().lower())
+        self.assertFalse(split.icon().isNull())
+        self.assertIn(
+            "Select what to Chop or Split",
+            [label.text() for label in dialog.findChildren(QLabel)],
+        )
+
     # ---- Mining 2011Scape parity frontend ---------------------------------
     def _open_mining(self, dialog: "QDialog") -> "QListWidget":
         skill_list = _find_skill_list(dialog)

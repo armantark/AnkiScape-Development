@@ -21,6 +21,7 @@ class TestWoodcuttingData(unittest.TestCase):
             "maple",
             "hollow",
             "mahogany",
+            "split_arctic_pine_logs",
             "yew",
             "ivy",
             "magic",
@@ -28,6 +29,10 @@ class TestWoodcuttingData(unittest.TestCase):
         self.assertNotIn("redwood", WOODCUTTING_TARGETS_BY_ID)
         self.assertEqual(WOODCUTTING_TARGETS_BY_ID["tree"].output_item, "Logs")
         self.assertEqual(WOODCUTTING_TARGETS_BY_ID["hollow"].output_item, "Bark")
+        self.assertEqual(
+            WOODCUTTING_TARGETS_BY_ID["split_arctic_pine_logs"].requirements,
+            (("Arctic pine logs", 1),),
+        )
         self.assertIsNone(WOODCUTTING_TARGETS_BY_ID["ivy"].output_item)
         self.assertEqual(WOODCUTTING_TARGETS_BY_ID["magic"].base_exp, 250.0)
 

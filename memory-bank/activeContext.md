@@ -2,6 +2,37 @@
 
 ## Current Focus
 
+The owner-settled Arctic-pine processing sub-slice is now live. Woodcutting
+level 54 exposes `Split Arctic pine logs` once The Fremennik Isles has started;
+one review consumes one carried Arctic pine log, produces one non-stackable
+tradeable Split log, and awards 42.5 XP without requiring a hatchet, rolling a
+nest, invoking the Inferno adze, counting a chop, or charging an urn. The
+carried-inventory wrapper treats it as processing and reconciles its real input
+pack atomically. The shared unlock engine now supports quest-start gates, so
+the existing Arctic-pine Firemaking row follows the same newer contract.
+
+Split log uses cache ID `10812`, a cutoff guide price of 30, a four-hour buy
+limit of 1,000 from Exchange oldid `6563176`, and normalized
+2011-uploaded art with provenance. The Woodcutting row exposes exact material,
+output, XP, and lock state under the truthful prompt `Select what to Chop or
+Split`. Arctic-pine chopping remains honestly source-blocked on success,
+depletion, and respawn mechanics; the reachability report retains Arctic pine
+logs as a root orphan. No owner design gap emerged. See
+`source-audits/woodcutting-split-log-implementation-2026-07-20.md`.
+
+Kimi K3 approved the final row hierarchy and icon weight; its three concrete
+copy/tooltip nits are corrected and the final offscreen screenshot preserves
+the already-settled separate Utilities and Activities categories. The complete
+non-Qt and real offscreen-Qt universes each pass all 1,936 tests (252 expected
+environment skips and one intentional skip respectively), the focused slice
+passes 195 tests plus its real-Qt row and global asset checks, and documentation,
+test-quality, compilation, JSON, diff, reachability, and worktree audits pass.
+The required Fable taste pass remains externally blocked by the fresh quota
+probe's macOS Keychain failure (`security` exit 51), not by an owner design
+question. Results:
+`status-updates/woodcutting-split-log-results-2026-07-20.html`; mobile copy:
+`https://g5v7ucswdk1k.postplan.dev`.
+
 The complete cutoff Potion flask acquisition chain is now live. After
 `As a First Resort...`, level-81 Mining exposes Red sandstone at 70 XP using
 Darkan's `30/145` success endpoints, no gem roll, and a successful-output-only

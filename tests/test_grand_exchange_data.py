@@ -122,8 +122,8 @@ class GrandExchangeDataTest(unittest.TestCase):
     def test_generated_period_rows_are_registered_and_cutoff_safe(self):
         self.assertLessEqual(set(PERIOD_GE_GUIDE_PRICES), set(GE_ITEM_CATALOG))
         self.assertLessEqual(set(PERIOD_GE_BUY_LIMITS), set(GE_ITEM_CATALOG))
-        self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_330)
-        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_640)
+        self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_331)
+        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_641)
         self.assertEqual(PERIOD_GE_BUY_LIMIT_SOURCE["oldid"], 6_457_777)
         self.assertTrue(PERIOD_GE_PRICE_PROVENANCE)
         self.assertTrue(
@@ -138,6 +138,12 @@ class GrandExchangeDataTest(unittest.TestCase):
         self.assertEqual(
             PERIOD_GE_PRICE_PROVENANCE["Basket"]["oldid"],
             6_540_082,
+        )
+        self.assertEqual(PERIOD_GE_GUIDE_PRICES["Split log"], 30)
+        self.assertEqual(PERIOD_GE_BUY_LIMITS["Split log"], 1_000)
+        self.assertEqual(
+            PERIOD_GE_PRICE_PROVENANCE["Split log"]["oldid"],
+            6_563_176,
         )
 
     def test_only_ambiguous_collapsed_identities_remain_buy_limit_blocked(self):

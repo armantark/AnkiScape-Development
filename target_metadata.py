@@ -40,6 +40,7 @@ try:
         runecrafting_locked_reasons_pure,
         smithing_target_locked_reasons_pure,
         utility_activity_locked_reasons_pure,
+        woodcutting_target_locked_reasons_pure,
     )
 except Exception:
     from logic_pure import (  # type: ignore
@@ -75,6 +76,7 @@ except Exception:
         runecrafting_locked_reasons_pure,
         smithing_target_locked_reasons_pure,
         utility_activity_locked_reasons_pure,
+        woodcutting_target_locked_reasons_pure,
     )
 
 try:
@@ -883,6 +885,7 @@ def woodcutting_target_rows(
     tree_images: Mapping[str, str],
     axe_data: Mapping[str, Mapping[str, object]],
     default_target: str,
+    quest_unlock_rules: Sequence[Mapping[str, object]] = (),
 ) -> tuple[TargetRowMetadata, ...]:
     rows = []
     lvl_have = int(player_data.get("woodcutting_level", 1) or 1)
@@ -898,36 +901,57 @@ def woodcutting_target_rows(
         display = str(data.get("display_name", target_id))
         output_item = data.get("output_item")
         lvl_req = int(data.get("level", 1) or 1)
+        processing = data.get("action_type") == "processing"
         xp_only = output_item is None
         label = f"{display} (Lvl {lvl_req})"
         if xp_only:
             label += " — XP only"
 
-        output_line = "XP only — produces no logs." if xp_only else f"Output: {output_item} x1"
-        tooltip = (
-            f"Requires Woodcutting level {lvl_req}. You have {lvl_have}.\n"
-            f"{output_line}\n"
-            f"Base XP: {data.get('exp', 0):g} per chop\n"
-            f"Best usable hatchet: {best_axe_name or 'none — get a hatchet'}"
+        output_qty = max(1, int(data.get("output_quantity", 1) or 1))
+        output_line = (
+            "XP only — produces no logs."
+            if xp_only
+            else f"Output: {output_item} x{output_qty}"
         )
-        enabled = can_chop_woodcutting_target_pure(lvl_have, target_id, tree_data, inventory, tools, axe_data)
-        if not enabled:
-            reason = []
-            if lvl_have < lvl_req:
-                reason.append(f"level {lvl_req}")
-            if best_axe is None:
-                reason.append("no usable hatchet")
-            if reason:
-                tooltip += "\nLocked due to: " + ", ".join(reason)
+        if processing:
+            requirements = data.get("requirements", {})
+            requirement_lines = (
+                _indented_material_lines(requirements, inventory)
+                if isinstance(requirements, Mapping)
+                else "  None"
+            )
+            tooltip = (
+                f"Requires Woodcutting level {lvl_req}. You have {lvl_have}.\n"
+                f"Materials:\n{requirement_lines}\n"
+                f"{output_line}\n"
+                f"Base XP: {data.get('exp', 0):g} per split"
+            )
+        else:
+            tooltip = (
+                f"Requires Woodcutting level {lvl_req}. You have {lvl_have}.\n"
+                f"{output_line}\n"
+                f"Base XP: {data.get('exp', 0):g} per chop\n"
+                f"Best usable hatchet: {best_axe_name or 'none — get a hatchet'}"
+            )
+        locked_reasons = woodcutting_target_locked_reasons_pure(
+            player_data,
+            target_id,
+            tree_data,
+            axe_data,
+            quest_unlock_rules,
+        )
+        if locked_reasons:
+            tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
 
         rows.append(
             TargetRowMetadata(
                 target_id=target_id,
                 label=label,
                 tooltip=tooltip,
-                enabled=enabled,
+                enabled=not locked_reasons,
                 current=target_id == current_target,
                 icon_path=tree_images.get(display),
+                locked_reasons=locked_reasons,
             )
         )
     return tuple(rows)

@@ -6823,7 +6823,16 @@ class TestLogic(unittest.TestCase):
                 FIREMAKING_DATA,
                 QUEST_UNLOCK_RULES,
             ),
-            ("The Fremennik Isles",),
+            ("Start The Fremennik Isles",),
+        )
+        player_data["quests"]["the_fremennik_isles"] = {"started": True}
+        self.assertFalse(
+            firemaking_target_locked_reasons_pure(
+                player_data,
+                "arctic_pine_logs",
+                FIREMAKING_DATA,
+                QUEST_UNLOCK_RULES,
+            )
         )
         self.assertEqual(
             cooking_target_locked_reasons_pure(player_data, "cook_yak", COOKING_DATA, QUEST_UNLOCK_RULES),

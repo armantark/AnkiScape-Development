@@ -3830,6 +3830,7 @@ def show_main_menu(
                 TREE_IMAGES,
                 WOODCUTTING_AXE_DATA,
                 DEFAULT_WOODCUTTING_TARGET,
+                QUEST_UNLOCK_RULES,
             ),
             on_set_tree,
         )
@@ -8008,7 +8009,7 @@ def show_main_menu(
     }
     _TARGET_PROMPTS = {
         "Mining": "Select Ore to Mine",
-        "Woodcutting": "Select Tree to Cut",
+        "Woodcutting": "Select what to Chop or Split",
         "Smithing": "Select what to Smelt or Forge",
         "Crafting": "Select Item to Craft",
         "Fletching": "Select Item to Fletch",
@@ -13244,7 +13245,7 @@ def show_tree_selection_dialog(current_tree: str, woodcutting_level: int, TREE_D
     dialog.setMinimumWidth(400)
     layout = QVBoxLayout()
 
-    title_label = QLabel("Select Tree to Cut")
+    title_label = QLabel("Select what to Chop or Split")
     title_label.setStyleSheet("font-size: 18px; font-weight: bold; color: #4CAF50; margin-bottom: 15px;")
     layout.addWidget(title_label, alignment=Qt.AlignmentFlag.AlignCenter)
 

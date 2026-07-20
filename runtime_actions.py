@@ -111,6 +111,7 @@ try:
         mage_arena_locked_reasons_pure,
         apply_utility_activity_pure,
         apply_woodcutting_action_pure,
+        apply_woodcutting_processing_action_pure,
         best_mining_pickaxe_pure,
         best_woodcutting_axe_pure,
         calculate_cooking_success_probability_pure,
@@ -160,6 +161,7 @@ try:
         smithing_success_probability_pure,
         smithing_target_locked_reasons_pure,
         utility_activity_locked_reasons_pure,
+        woodcutting_target_locked_reasons_pure,
         thieving_blackjack_threshold_pure,
         apply_thieving_damage_pure,
         thieving_loot_roll_pure,
@@ -326,6 +328,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         mage_arena_locked_reasons_pure,
         apply_utility_activity_pure,
         apply_woodcutting_action_pure,
+        apply_woodcutting_processing_action_pure,
         best_mining_pickaxe_pure,
         best_woodcutting_axe_pure,
         calculate_cooking_success_probability_pure,
@@ -375,6 +378,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         smithing_success_probability_pure,
         smithing_target_locked_reasons_pure,
         utility_activity_locked_reasons_pure,
+        woodcutting_target_locked_reasons_pure,
         thieving_blackjack_threshold_pure,
         apply_thieving_damage_pure,
         thieving_loot_roll_pure,
@@ -522,6 +526,7 @@ _PROCESSING_HANDLER_KEYS = frozenset(
     {"cooking", "crafting", "fletching", "firemaking", "smithing", "runecrafting", "herblore", "prayer", "summoning"}
 )
 _PROCESSING_DATA_TABLES = {
+    "woodcutting": (TREE_DATA, "current_tree", DEFAULT_WOODCUTTING_TARGET),
     "cooking": (COOKING_DATA, "current_cooking", DEFAULT_COOKING_TARGET),
     "crafting": (CRAFTING_DATA, "current_craft", "form_pot_unfired"),
     "fletching": (FLETCHING_DATA, "current_fletch", DEFAULT_FLETCHING_TARGET),
@@ -902,7 +907,11 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         )
         > 0
     )
-    is_processing = handler_key in _PROCESSING_HANDLER_KEYS
+    target_spec = TREE_DATA.get(target_id, {}) if handler_key == "woodcutting" else {}
+    is_processing = (
+        handler_key in _PROCESSING_HANDLER_KEYS
+        or target_spec.get("action_type") == "processing"
+    )
     is_agility = handler_key == "agility"
     # Keep/Drop is a gathering-only choice; processing always draws from (and
     # refills) its pack — there is no "drop the product" for a recipe's inputs.
@@ -3755,6 +3764,53 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Woodcutting to chop {spec.get('display_name', tree)}.")
         return False
 
+    if spec.get("action_type") == "processing":
+        locked_reasons = woodcutting_target_locked_reasons_pure(
+            player_data,
+            tree,
+            TREE_DATA,
+            WOODCUTTING_AXE_DATA,
+            QUEST_UNLOCK_RULES,
+        )
+        if locked_reasons:
+            ctx.deactivate_current_skill()
+            ctx.show_error_message(
+                "Woodcutting target locked",
+                f"{spec.get('display_name', tree)} requires "
+                f"{', '.join(locked_reasons)}, so Woodcutting has been switched off.",
+            )
+            return False
+        new_inv, base_exp, ok, output_item = (
+            apply_woodcutting_processing_action_pure(
+                tree,
+                player_data.get("inventory", {}),
+                TREE_DATA,
+                player_level,
+            )
+        )
+        if not ok:
+            return False
+        player_data["inventory"] = new_inv
+        output_quantity = max(1, int(spec.get("output_quantity", 1) or 1))
+        _record_action(
+            ctx,
+            "woodcutting",
+            tree,
+            True,
+            expected_success_chance=1.0,
+            output_items={str(output_item): output_quantity},
+            primary_xp=base_exp,
+        )
+        exp_gained = ctx.award_skill_exp("woodcutting_exp", base_exp)
+        ctx.level_up_check("Woodcutting", player_data)
+        ctx.check_achievements(player_data)
+        ctx.save_player_data()
+        ctx.show_activity_gain(
+            f"Split 1 Arctic pine log into {output_quantity} Split log"
+        )
+        ctx.show_exp(exp_gained)
+        return True
+
     axe_spec = best_woodcutting_axe_pure(
         player_level,
         player_data.get("inventory", {}),
@@ -4539,13 +4595,12 @@ def _can_start_agility_action(ctx: RuntimeActionContext) -> bool:
 
 
 def _can_start_woodcutting_action(ctx: RuntimeActionContext) -> bool:
-    return can_chop_woodcutting_target_pure(
-        ctx.player_data.get("woodcutting_level", 1),
+    return not woodcutting_target_locked_reasons_pure(
+        ctx.player_data,
         ctx.player_data.get("current_tree", DEFAULT_WOODCUTTING_TARGET),
         TREE_DATA,
-        ctx.player_data.get("inventory", {}),
-        ctx.player_data.get("toolbelt", {}),
         WOODCUTTING_AXE_DATA,
+        QUEST_UNLOCK_RULES,
     )
 
 

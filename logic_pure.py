@@ -10024,6 +10024,13 @@ def target_unlock_locked_reasons_pure(player_data, skill_id, target_id, target_u
                     continue
                 reason = requirement.get("reason") or quest_id.replace("_", " ").title()
                 reasons.append(str(reason))
+            elif kind == "quest_started":
+                quest_id = requirement.get("quest_id")
+                state = quest_state_pure(player_data, quest_id) if isinstance(quest_id, str) else {}
+                if state.get("started") or state.get("completed"):
+                    continue
+                reason = requirement.get("reason") or str(quest_id).replace("_", " ").title()
+                reasons.append(str(reason))
             elif kind == "ability_unlocked":
                 ability_id = requirement.get("ability_id")
                 if not isinstance(ability_id, str) or ability_unlocked_pure(player_data, ability_id):
@@ -11042,6 +11049,82 @@ def can_chop_woodcutting_target_pure(woodcutting_level, target_id, tree_data, in
     if woodcutting_level < spec.get("level", 1):
         return False
     return best_woodcutting_axe_pure(woodcutting_level, inventory, toolbelt, axe_data) is not None
+
+
+def woodcutting_target_locked_reasons_pure(
+    player_data,
+    target_id,
+    tree_data,
+    axe_data,
+    target_unlock_rules=(),
+):
+    spec = tree_data.get(target_id)
+    if not isinstance(spec, Mapping):
+        return ("Unknown Woodcutting target",)
+
+    reasons = []
+    level = _positive_int(player_data.get("woodcutting_level", 1), 1)
+    required_level = _positive_int(spec.get("level", 1), 1)
+    if level < required_level:
+        reasons.append(f"level {required_level}")
+    reasons.extend(
+        target_unlock_locked_reasons_pure(
+            player_data,
+            "woodcutting",
+            target_id,
+            target_unlock_rules,
+        )
+    )
+
+    if spec.get("action_type") == "processing":
+        inventory = player_data.get("inventory", {}) or {}
+        requirements = spec.get("requirements", {})
+        if isinstance(inventory, Mapping) and isinstance(requirements, Mapping):
+            for item_name, amount in requirements.items():
+                need = max(0, _positive_int(amount, 0))
+                if _positive_int(inventory.get(item_name, 0), 0) < need:
+                    reasons.append(f"missing {item_name} x{need}")
+    elif best_woodcutting_axe_pure(
+        level,
+        player_data.get("inventory", {}),
+        player_data.get("toolbelt", {}),
+        axe_data,
+    ) is None:
+        reasons.append("no usable hatchet")
+    return tuple(dict.fromkeys(reasons))
+
+
+def apply_woodcutting_processing_action_pure(
+    target_id,
+    inventory,
+    tree_data,
+    woodcutting_level,
+):
+    spec = tree_data.get(target_id)
+    if (
+        not isinstance(spec, Mapping)
+        or spec.get("action_type") != "processing"
+        or woodcutting_level < spec.get("level", 1)
+    ):
+        return inventory, 0.0, False, None
+
+    requirements = spec.get("requirements", {})
+    if not isinstance(requirements, Mapping):
+        return inventory, 0.0, False, None
+    for item_name, amount in requirements.items():
+        if inventory.get(item_name, 0) < amount:
+            return inventory, 0.0, False, None
+
+    output_item = spec.get("output_item")
+    if not isinstance(output_item, str) or not output_item:
+        return inventory, 0.0, False, None
+
+    updated = dict(inventory)
+    for item_name, amount in requirements.items():
+        updated[item_name] = max(0, updated.get(item_name, 0) - amount)
+    output_quantity = max(1, _positive_int(spec.get("output_quantity", 1), 1))
+    updated[output_item] = updated.get(output_item, 0) + output_quantity
+    return updated, float(spec.get("exp", 0.0) or 0.0), True, output_item
 
 
 def apply_woodcutting_action_pure(
