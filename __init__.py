@@ -133,6 +133,13 @@ from .summoning_logic import (
     summon_familiar_pure,
 )
 from .slayer_logic import get_slayer_assignment_pure
+from .big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID
+from .big_chinchompa_logic import (
+    advance_big_chinchompa_world_clock_pure,
+    apply_big_chinchompa_reward_purchase_pure,
+    set_hunter_private_ground_pure,
+    set_world_population_profile_pure,
+)
 from .evil_tree_data import EVIL_TREE_UTILITY_ID
 from .evil_tree_logic import (
     advance_evil_tree_world_clock_pure,
@@ -1475,6 +1482,84 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             pass
         return {"ok": True, **info}
 
+    def _apply_big_chinchompa_command(action_id, payload):
+        payload = payload if isinstance(payload, dict) else {}
+        if action_id == "set_population_profile":
+            updated, ok, info = set_world_population_profile_pure(
+                player_data,
+                str(payload.get("profile", "normal")),
+            )
+            if not ok:
+                return {
+                    "ok": False,
+                    "message": str(info.get("reason", "Unknown profile.")),
+                }
+            player_data.clear()
+            player_data.update(updated)
+            save_player_data()
+            return {"ok": True, **info}
+        if action_id == "set_private_ground":
+            updated, ok, info = set_hunter_private_ground_pure(
+                player_data,
+                str(payload.get("target_id", "")),
+                bool(payload.get("enabled", False)),
+            )
+            if not ok:
+                return {
+                    "ok": False,
+                    "message": str(
+                        info.get("reason", "That private ground is unavailable.")
+                    ),
+                }
+            player_data.clear()
+            player_data.update(updated)
+            save_player_data()
+            return {"ok": True, **info}
+        if action_id != "buy_reward":
+            return {
+                "ok": False,
+                "message": "Unknown Big Chinchompa command.",
+            }
+
+        before = _capture_player_data_snapshot()
+        old_hunter_level = int(player_data.get("hunter_level", 1) or 1)
+        updated, ok, info = apply_big_chinchompa_reward_purchase_pure(
+            player_data,
+            str(payload.get("reward_id", "")),
+            exp_table=EXP_TABLE,
+        )
+        if not ok:
+            return {
+                "ok": False,
+                "message": str(info.get("reason", "That reward is unavailable.")),
+            }
+        try:
+            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+        except (AttributeError, RuntimeError):
+            return {
+                "ok": False,
+                "message": "Anki could not create an undo entry.",
+            }
+        _DIRECT_ACTION_UNDO_STACK.append(before)
+        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+        player_data.clear()
+        player_data.update(updated)
+        hunter_xp = float(info.get("hunter_xp", 0.0) or 0.0)
+        if hunter_xp > 0:
+            player_data["hunter_level"] = old_hunter_level
+            level_up_check("Hunter", player_data)
+            _show_exp(hunter_xp)
+        check_achievements(player_data)
+        save_player_data()
+        _refresh_skill_availability()
+        try:
+            mw.update_undo_actions()
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_livid_farm_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         if action_id == "set_routine":
@@ -1673,6 +1758,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_slayer_command=_apply_slayer_command,
         on_agility_command=_apply_agility_command,
         on_warriors_guild_command=_apply_warriors_guild_command,
+        on_big_chinchompa_command=_apply_big_chinchompa_command,
         on_livid_farm_command=_apply_livid_farm_command,
         on_set_prayer_selection=set_prayer_selection,
         on_set_magic=lambda target: _set_value("current_magic", target),
@@ -2193,8 +2279,8 @@ def _apply_safe_combat_recovery_after_review(save_callback=save_player_data) -> 
         pass
 
 
-def _advance_evil_tree_after_review() -> None:
-    """Advance the Evil Tree world state inside the answer transaction."""
+def _advance_world_events_after_review() -> None:
+    """Advance all review-clock world events inside the answer transaction."""
 
     spawn_due = evil_tree_spawn_due_pure(player_data)
     updated, events = advance_evil_tree_world_clock_pure(
@@ -2219,6 +2305,32 @@ def _advance_evil_tree_after_review() -> None:
         )
     elif any(event.get("kind") == "expired" for event in events):
         _show_activity_gain("The active Evil Tree withered.")
+
+    big_updated, big_events = advance_big_chinchompa_world_clock_pure(
+        player_data
+    )
+    player_data.update(big_updated)
+    big_spawned = next(
+        (
+            event
+            for event in big_events
+            if event.get("kind") == "spawned"
+        ),
+        None,
+    )
+    if big_spawned:
+        _show_activity_gain(
+            "Big Chinchompa discovered: "
+            f"{big_spawned.get('location', 'a Hunter area')}"
+        )
+    elif any(event.get("kind") == "resolved" for event in big_events):
+        result = str(
+            (player_data.get("big_chinchompa") or {}).get(
+                "last_result",
+                "The Big Chinchompa event ended.",
+            )
+        )
+        _show_activity_gain(result)
 
 
 def on_good_answer(before_state=None):
@@ -2249,7 +2361,10 @@ def on_good_answer(before_state=None):
                     or (
                         handler_key == "utility"
                         and player_data.get("current_utility")
-                        == EVIL_TREE_UTILITY_ID
+                        in {
+                            EVIL_TREE_UTILITY_ID,
+                            BIG_CHINCHOMPA_UTILITY_ID,
+                        }
                     )
                     or (handler_key == "quest" and _cadence_kernel_enabled())
                     else _review_action_multiplier()
@@ -2270,7 +2385,7 @@ def on_good_answer(before_state=None):
             _finish_review_feedback_context()
             # The background clock and active action form one persisted review
             # transaction, including rejected handlers and safe recovery.
-            _advance_evil_tree_after_review()
+            _advance_world_events_after_review()
             _save_player_data_if_anki_ready()
             _remember_review_award_snapshot(before_state)
 
@@ -2357,7 +2472,7 @@ def on_answer_card(self, ease, _old):
         else:
             runtime_actions.advance_farming_clock_for_review(_runtime_action_context())
     if successful_answer and review_answered and not exp_awarded and farm_preempted:
-        _advance_evil_tree_after_review()
+        _advance_world_events_after_review()
         _save_player_data_if_anki_ready()
         _remember_review_award_snapshot(before_state)
         exp_awarded = True
@@ -2367,7 +2482,7 @@ def on_answer_card(self, ease, _old):
         _call_on_good_answer_with_snapshot(before_state)
         exp_awarded = True
     elif review_answered and before_state is not None:
-        _advance_evil_tree_after_review()
+        _advance_world_events_after_review()
         _save_player_data_if_anki_ready()
         _remember_review_award_snapshot(before_state)
     if context_xp > 0:

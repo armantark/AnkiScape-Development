@@ -4,6 +4,44 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Big Chinchompa D&D implementation — 2026-07-19
+
+- Implemented both owner-settled event windows on the shared 240-review world
+  day, with six source minutes per review, twenty source minutes of maximum
+  availability, late entry, and communal early completion.
+- Added all eight exact moth tiers, fifteen-moth jar circuits, the 1,500
+  personal point cap, continued Hunter XP after that cap, one-for-one
+  Competence conversion, and the exact 20,000-point wallet cap.
+- Added the complete period reward shop, direct 5-XP-per-point purchase,
+  quiet/normal/busy seeded crowd profiles, storage schema 50, telemetry, and
+  atomic review/direct undo.
+- Added five quota-ticket items and four executable private-ground routes.
+  Tickets must be carried for the selected Hunter target and are consumed only
+  after a successful catch. Polar-kebbit use remains dependency-blocked on the
+  ordinary source-blocked tracking target.
+- Added provenance-pinned period art, standard 28-pixel display boxes, a global
+  Review HUD notice, a compact scroll-safe Utility card, and the contextual
+  Hunter private-ground control. Fable's independent review caught and closed
+  progress-text, wallet, disabled-toggle, hierarchy, copy, and laptop-height
+  problems. The first Kimi K3 call was rejected with a provider-overload 429
+  and was retried rather than treated as evidence; the completed retry caught
+  and closed stale sibling-card state, disabled-buy guidance, carried-ticket
+  consistency, renderer ordering, and dark period-icon legibility.
+- Focused pure/runtime/integration verification passes 282 tests. The complete
+  non-Qt runner executes 1,874 methods with 243 expected environment skips.
+  Complete real offscreen Qt executes all 1,874 methods with one intentional
+  skip. A fully restarted native Anki process opened exactly one menu and
+  verified the dark-mode card and scroll behavior without changing the save
+  before the last reviewer polish. The final native recheck was unavailable
+  because the Mac was locked; focused Qt and a fresh final render verify the
+  accepted tooltip, sibling-refresh, carried-ticket, and icon changes.
+- The final diff audit caught and fixed a review-boundary error before closure:
+  the twenty-source-minute window now exposes exactly three complete
+  six-minute review opportunities, never a fourth action that would finish
+  after the event ends.
+- No owner-facing design gap emerged. Durable implementation record:
+  `source-audits/big-chinchompa-implementation-harvest-2026-07-19.md`.
+
 ## Evil Tree D&D implementation — 2026-07-19
 
 - Implemented the owner-settled three-review Nurture → Prepare → Fell event

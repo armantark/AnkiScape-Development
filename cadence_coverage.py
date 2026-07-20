@@ -107,6 +107,31 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
             rows.append(row)
 
     for action_id, spec in UTILITY_ACTIVITY_DATA.items():
+        if str(action_id) == "big_chinchompa":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "big_chinchompa",
+                    "mode": "activity_group",
+                    "source_status": "sourced",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One activity step is the owner-approved complete "
+                        "fifteen-moth catch-and-feed jar circuit."
+                    ),
+                    "includes": ("fifteen-moth jar circuit", "world boundary"),
+                    "multiplier_behavior": (
+                        "M resolves up to M whole circuits before the one "
+                        "per-review crowd boundary"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same grouped activity handler",
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         if str(action_id) == "livid_farm":
             rows.append(
                 {

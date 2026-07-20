@@ -218,6 +218,12 @@ try:
         EVIL_TREE_UTILITY_ID,
     )
     from .evil_tree_logic import apply_evil_tree_review_pure
+    from .big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID
+    from .big_chinchompa_logic import (
+        apply_big_chinchompa_review_pure,
+        big_chinchompa_event_active_pure,
+        consume_hunter_quota_ticket_pure,
+    )
     from .warriors_guild_data import WARRIORS_GUILD_ACTIVITIES
     from .warriors_guild_logic import (
         apply_warriors_guild_activity_pure,
@@ -426,6 +432,12 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         EVIL_TREE_UTILITY_ID,
     )
     from evil_tree_logic import apply_evil_tree_review_pure  # type: ignore
+    from big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID  # type: ignore
+    from big_chinchompa_logic import (  # type: ignore
+        apply_big_chinchompa_review_pure,
+        big_chinchompa_event_active_pure,
+        consume_hunter_quota_ticket_pure,
+    )
     from warriors_guild_data import WARRIORS_GUILD_ACTIVITIES  # type: ignore
     from warriors_guild_logic import (  # type: ignore
         apply_warriors_guild_activity_pure,
@@ -2300,11 +2312,59 @@ def _handle_evil_tree_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _handle_big_chinchompa_answer(ctx: RuntimeActionContext) -> bool:
+    updated, ok, result = apply_big_chinchompa_review_pure(
+        ctx.player_data,
+        circuits=max(1, int(ctx.review_action_multiplier or 1)),
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Big Chinchompa unavailable",
+            str(result.get("reason", "No Big Chinchompa event is active.")),
+        )
+        return False
+
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    hunter_xp = float(result.get("hunter_xp", 0.0) or 0.0)
+    _record_action(
+        ctx,
+        "utility",
+        BIG_CHINCHOMPA_UTILITY_ID,
+        True,
+        expected_success_chance=1.0,
+        primary_xp=hunter_xp,
+    )
+    gained = _award_action_xp_rewards(
+        ctx,
+        ({"skill_id": "hunter", "amount": hunter_xp},),
+        "hunter",
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_exp(gained)
+    point_text = (
+        "point cap reached"
+        if result.get("personal_cap_reached")
+        else f"+{int(result.get('event_points', 0) or 0)} event points"
+    )
+    ctx.show_activity_gain(
+        f"Released {int(result.get('moths', 0) or 0)} "
+        f"{str(result.get('tier_name', 'soporith moth')).lower()}s · "
+        f"{point_text} · {float(result.get('fullness_percent', 0.0)):.0f}% full"
+    )
+    return True
+
+
 def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
     if activity_key == EVIL_TREE_UTILITY_ID:
         return _handle_evil_tree_answer(ctx)
+    if activity_key == BIG_CHINCHOMPA_UTILITY_ID:
+        return _handle_big_chinchompa_answer(ctx)
     if activity_key == STRONGHOLD_UTILITY_KEY:
         return _handle_stronghold_answer(ctx)
     if activity_key == KNIGHT_WAVES_UTILITY_KEY:
@@ -3227,6 +3287,12 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         for item_name, amount in bonecrusher_info["consumed"].items():
             inventory[item_name] = max(0, int(inventory.get(item_name, 0) or 0) - int(amount))
         player_data["inventory"] = inventory
+    ticketed, quota_ticket = consume_hunter_quota_ticket_pure(
+        player_data,
+        str(target),
+    )
+    player_data.clear()
+    player_data.update(ticketed)
     _record_action(
         ctx,
         "hunter",
@@ -3249,6 +3315,15 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
     ctx.save_player_data()
     ctx.refresh_skill_availability()
     ctx.show_exp(exp_gained)
+    if quota_ticket:
+        remaining = int(
+            (player_data.get("inventory", {}) or {}).get(quota_ticket, 0)
+            or 0
+        )
+        ctx.show_activity_gain(
+            f"Private ground catch · used 1 {quota_ticket} · "
+            f"{remaining} remaining"
+        )
     return True
 
 
@@ -4419,6 +4494,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         if not isinstance(state, dict):
             return False
         return bool(state.get("active_event") or state.get("session"))
+    if activity_key == BIG_CHINCHOMPA_UTILITY_ID:
+        return big_chinchompa_event_active_pure(ctx.player_data)
     if activity_key == STRONGHOLD_UTILITY_KEY:
         state = ctx.player_data.get("stronghold_of_security") or {}
         return not state.get("completed")

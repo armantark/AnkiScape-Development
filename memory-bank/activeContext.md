@@ -2,6 +2,34 @@
 
 ## Current Focus
 
+The owner-settled Big Chinchompa D&D is live as a review-native communal
+Hunter event. Two deterministic windows open at reviews 60 and 180 of each
+240-review world day; each answered review maps to six source minutes, late
+entry is allowed, and the event closes after twenty source minutes or when the
+seeded aggregate crowd plus player jars fill the Plutonial Chinchompa. Each
+selected review performs the configured number of complete fifteen-moth jar
+circuits, awards the exact eligible moth XP, continues XP after the 1,500
+event-point cap, and resolves event points one-for-one into a capped 20,000
+Competence wallet. The complete period reward shop, quiet/normal/busy
+population preference, five quota tickets, successful-catch-only private
+ground consumption, storage schema 50, telemetry, review/direct undo, global
+HUD notice, normalized period art, and compact scroll-safe Utility/Hunter
+surfaces are included. Fable and Kimi K3 independently reviewed the new
+surfaces; progress contrast, card hierarchy, wallet copy, stale sibling-card
+state, carried-ticket consistency, disabled-buy guidance, laptop geometry, and
+dark period-icon legibility were corrected before closure.
+Focused cross-layer verification passes 282 tests; the complete non-Qt runner
+executes 1,874 methods with 243 expected environment skips, and complete real
+offscreen Qt executes all 1,874 with one intentional skip. A fully restarted
+native Anki process opened exactly one AnkiScape dialog and verified the
+dark-mode card and scroll behavior before the last reviewer polish. The
+post-review native recheck was unavailable because the Mac was locked; focused
+Qt and a fresh final render cover the tooltip, sibling refresh, carried-ticket
+gate, and icon backdrop. Polar-kebbit ticket use remains dependency-blocked on
+the source-blocked ordinary tracking target; this is not an owner design gap.
+Complete evidence is recorded in
+`source-audits/big-chinchompa-implementation-harvest-2026-07-19.md`.
+
 The owner-settled Evil Tree D&D is live as a review-native three-phase event.
 Every twenty answered cards selects one of the seven real tiers and an
 unrestricted location; the event remains active for five review

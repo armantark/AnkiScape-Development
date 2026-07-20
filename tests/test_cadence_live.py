@@ -78,6 +78,22 @@ class TestCadenceLiveCoverage(unittest.TestCase):
         self.assertEqual(row["profile"]["increment_numerator"], 6)
         self.assertEqual(row["profile"]["threshold_denominator"], 5)
 
+    def test_big_chinchompa_declares_grouped_jar_and_world_boundary(self):
+        row = next(
+            row
+            for row in cadence_coverage_rows_pure()
+            if row["handler_key"] == "utility"
+            and row["action_id"] == "big_chinchompa"
+        )
+
+        self.assertEqual(row["mode"], "activity_group")
+        self.assertEqual(row["source_status"], "sourced")
+        self.assertEqual(
+            row["includes"],
+            ("fifteen-moth jar circuit", "world boundary"),
+        )
+        self.assertIn("up to M whole circuits", row["multiplier_behavior"])
+
     def test_declared_multiplier_behavior_matches_single_step_exemptions(self):
         thieving = resolve_live_cadence_route_pure(
             "thieving", "stall_silver", {}

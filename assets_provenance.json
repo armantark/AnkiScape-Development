@@ -1,4 +1,16 @@
 {
+  "activityicons/big_chinchompa.png": {
+    "file_page_url": "https://runescape.wiki/w/File:Moth_jar.png",
+    "file_title": "Moth jar.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502054607%21Moth_jar.png?3bf24",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "159bc57a6e75522b196645b6990e340248e6dcc5",
+    "size": 512,
+    "source_wiki": "rs3-period",
+    "timestamp": "2012-08-28T18:20:27Z"
+  },
   "activityicons/desert_phoenix.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Desert_Phoenix.png",
     "file_title": "Desert Phoenix.png",
@@ -20133,6 +20145,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-23T20:43:24Z"
   },
+  "hunteritems/carnivorous_chinchompa_quota_ticket.png": {
+    "file_page_url": "https://runescape.wiki/w/File:Carnivorous_chinchompa_quota_ticket.png",
+    "file_title": "Carnivorous chinchompa quota ticket.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502021045%21Carnivorous_chinchompa_quota_ticket.png?242c0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0e91a14200ab008714c69e175ccda8bc5584561a",
+    "size": 677,
+    "source_wiki": "rs3-period",
+    "timestamp": "2012-08-28T18:20:26Z"
+  },
   "hunteritems/chinchompa.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Chinchompa.png",
     "file_title": "Chinchompa.png",
@@ -20240,6 +20264,18 @@
     "size": 973,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:57:29Z"
+  },
+  "hunteritems/grenwall_quota_ticket.png": {
+    "file_page_url": "https://runescape.wiki/w/File:Grenwall_quota_ticket.png",
+    "file_title": "Grenwall quota ticket.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502041808%21Grenwall_quota_ticket.png?e4ecf",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1a24c5c0576da0c6e72ef9db07973f2637f259dc",
+    "size": 681,
+    "source_wiki": "rs3-period",
+    "timestamp": "2012-08-28T19:01:23Z"
   },
   "hunteritems/grenwall_spikes.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Grenwall_spikes_5.png",
@@ -20349,6 +20385,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:58:54Z"
   },
+  "hunteritems/moth_jar.png": {
+    "file_page_url": "https://runescape.wiki/w/File:Moth_jar.png",
+    "file_title": "Moth jar.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502054607%21Moth_jar.png?3bf24",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "159bc57a6e75522b196645b6990e340248e6dcc5",
+    "size": 512,
+    "source_wiki": "rs3-period",
+    "timestamp": "2012-08-28T18:20:27Z"
+  },
   "hunteritems/nature_impling_jar.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Nature_impling_jar.png",
     "file_title": "Nature impling jar.png",
@@ -20409,6 +20457,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:02:41Z"
   },
+  "hunteritems/pawya_quota_ticket.png": {
+    "file_page_url": "https://runescape.wiki/w/File:Pawya_quota_ticket.png",
+    "file_title": "Pawya quota ticket.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502062038%21Pawya_quota_ticket.png?b7990",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3c51977ee107826c0c22ca8edacf18f50620526e",
+    "size": 1440,
+    "source_wiki": "rs3-period",
+    "timestamp": "2012-08-28T23:04:00Z"
+  },
   "hunteritems/pirate_impling_jar.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Pirate_impling_jar.png",
     "file_title": "Pirate impling jar.png",
@@ -20420,6 +20480,30 @@
     "size": 1052,
     "source_wiki": "rs3",
     "timestamp": "2022-03-24T21:26:53Z"
+  },
+  "hunteritems/polar_kebbit_quota_ticket.png": {
+    "file_page_url": "https://runescape.wiki/w/File:Polar_kebbit_quota_ticket.png",
+    "file_title": "Polar kebbit quota ticket.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502063325%21Polar_kebbit_quota_ticket.png?55c2d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "76fb07e2e91cb68ef05db41ce95fed217bdc34dc",
+    "size": 671,
+    "source_wiki": "rs3-period",
+    "timestamp": "2012-08-28T19:01:22Z"
+  },
+  "hunteritems/protea_flower.png": {
+    "file_page_url": "https://runescape.wiki/w/File:Protea_flower.png",
+    "file_title": "Protea flower.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502064541%21Protea_flower.png?f8aae",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "29a0f344d88e1a5f4e60f8c889896ccc5bf441a5",
+    "size": 805,
+    "source_wiki": "rs3-period",
+    "timestamp": "2012-08-28T15:34:55Z"
   },
   "hunteritems/rabbit_snare.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rabbit_snare.png",
@@ -20600,6 +20684,18 @@
     "size": 263,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:06:42Z"
+  },
+  "hunteritems/swamp_lizard_quota_ticket.png": {
+    "file_page_url": "https://runescape.wiki/w/File:Green_salamander_quota_ticket.png",
+    "file_title": "Green salamander quota ticket.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502083021%21Green_salamander_quota_ticket.png?0d1dc",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "12a676f0abfbb81925ba598a31b25bea52f63d48",
+    "size": 660,
+    "source_wiki": "rs3-period",
+    "timestamp": "2012-08-28T18:36:30Z"
   },
   "hunteritems/teasing_stick.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Teasing_stick.png",

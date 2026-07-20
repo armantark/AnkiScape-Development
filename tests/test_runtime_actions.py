@@ -69,6 +69,46 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_big_chinchompa_runtime_groups_multiplier_into_whole_jars(self):
+        from big_chinchompa_logic import (
+            advance_big_chinchompa_world_clock_pure,
+            default_big_chinchompa_state_pure,
+        )
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "current_utility": "big_chinchompa",
+            "inventory": {},
+            "shop_market_clock": {"answered_cards": 60},
+            "hunter_level": 1,
+            "hunter_exp": 0.0,
+            "completed_achievements": [],
+            "world_population_profile": "quiet",
+            "big_chinchompa": default_big_chinchompa_state_pure(),
+        }
+        player_data, _ = advance_big_chinchompa_world_clock_pure(player_data)
+
+        self.assertTrue(
+            handle_utility_answer(
+                _context(
+                    player_data,
+                    calls,
+                    review_action_multiplier=2,
+                )
+            )
+        )
+
+        event = player_data["big_chinchompa"]["active_event"]
+        self.assertEqual(event["circuits_completed"], 2)
+        self.assertEqual(event["event_points"], 30)
+        self.assertAlmostEqual(player_data["hunter_exp"], 450.0)
+        self.assertEqual(calls["xp"], [450.0])
+        self.assertIn("Released 30 red soporith moths", calls["activity"][-1])
+        telemetry = player_data["action_telemetry"]["actions"][
+            "utility:big_chinchompa"
+        ]
+        self.assertEqual(telemetry["successes"], 1)
+
     def test_evil_tree_runtime_completes_three_review_phases(self):
         from evil_tree_logic import (
             advance_evil_tree_world_clock_pure,
@@ -2395,6 +2435,48 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["xp"], [128.0])
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"], [])
+
+    def test_hunter_quota_ticket_is_consumed_only_after_success(self):
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        ticket = "Swamp lizard quota ticket"
+        player_data = {
+            "inventory": {
+                ticket: 2,
+                "Small fishing net": 1,
+                "Rope": 1,
+            },
+            "carried_inventory": {"catch_swamp_lizard": {ticket: 2}},
+            "hunter_private_ground_targets": ["catch_swamp_lizard"],
+            "hunter_level": 99,
+            "hunter_exp": 0,
+            "current_hunter": "catch_swamp_lizard",
+            "hunter_success_count": 0,
+            "quests": {"priest_in_peril": {"completed": True}},
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(
+            handle_hunter_answer(
+                _context(player_data, calls, random_values=(1.0,))
+            )
+        )
+        self.assertEqual(player_data["inventory"][ticket], 2)
+        self.assertEqual(
+            player_data["carried_inventory"]["catch_swamp_lizard"][ticket],
+            2,
+        )
+
+        self.assertTrue(
+            handle_hunter_answer(
+                _context(player_data, calls, random_values=(0.0,))
+            )
+        )
+        self.assertEqual(player_data["inventory"][ticket], 1)
+        self.assertEqual(
+            player_data["carried_inventory"]["catch_swamp_lizard"][ticket],
+            1,
+        )
+        self.assertIn("Private ground catch", calls["activity"][-1])
 
     def test_hunter_quest_lock_deactivates_review_target(self):
         calls = {"xp": [], "saves": 0, "errors": []}

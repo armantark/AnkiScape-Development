@@ -540,6 +540,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._agility_command_calls: list = []
         self._warriors_guild_calls: list = []
         self._livid_farm_calls: list = []
+        self._big_chinchompa_calls: list = []
         self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
         self._mage_arena_calls: list = []
@@ -745,6 +746,41 @@ class MainMenuWidgetTest(unittest.TestCase):
                 **info,
             }
 
+        def _big_chinchompa_command(action_id, payload):
+            from big_chinchompa_logic import (
+                apply_big_chinchompa_reward_purchase_pure,
+                set_hunter_private_ground_pure,
+                set_world_population_profile_pure,
+            )
+
+            self._big_chinchompa_calls.append((action_id, dict(payload)))
+            if action_id == "set_population_profile":
+                updated, ok, info = set_world_population_profile_pure(
+                    player_data, payload.get("profile", "normal")
+                )
+            elif action_id == "set_private_ground":
+                updated, ok, info = set_hunter_private_ground_pure(
+                    player_data,
+                    payload.get("target_id", ""),
+                    bool(payload.get("enabled", False)),
+                )
+            elif action_id == "buy_reward":
+                updated, ok, info = (
+                    apply_big_chinchompa_reward_purchase_pure(
+                        player_data, payload.get("reward_id", "")
+                    )
+                )
+            else:
+                return {"ok": False, "message": "Unknown command"}
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return {
+                "ok": ok,
+                "message": info.get("message", info.get("reason", "")),
+                **info,
+            }
+
         def _mage_arena_action(action_id, god_id):
             from logic_pure import (
                 apply_mage_arena_cape_action_pure,
@@ -803,6 +839,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_agility_command=_agility_command,
             on_warriors_guild_command=_warriors_guild_command,
             on_livid_farm_command=_livid_farm_command,
+            on_big_chinchompa_command=_big_chinchompa_command,
             on_set_prayer_selection=_set_prayer_selection,
             on_set_magic=lambda target: _set_target("current_magic", self._magic_calls, target),
             on_set_construction=lambda target: _set_target("current_construction", self._construction_calls, target),
@@ -7065,6 +7102,198 @@ class MainMenuWidgetTest(unittest.TestCase):
         active["evil_tree"]["session"] = {}
         hud.set_data(active, "Utility / Activities")
         self.assertIn("awaiting an active tree", hud.sub_lbl.text())
+
+    def test_big_chinchompa_panel_selects_event_and_runs_reward_shop(self) -> None:
+        from big_chinchompa_logic import (
+            advance_big_chinchompa_world_clock_pure,
+            default_big_chinchompa_state_pure,
+        )
+        from evil_tree_logic import (
+            advance_evil_tree_world_clock_pure,
+            default_evil_tree_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "hunter_level": 99,
+                "shop_market_clock": {"answered_cards": 60},
+                "world_population_profile": "quiet",
+                "big_chinchompa": default_big_chinchompa_state_pure(),
+                "evil_tree": default_evil_tree_state_pure(),
+            }
+        )
+        pd["big_chinchompa"]["competence_points"] = 100
+        active, _ = advance_evil_tree_world_clock_pure(pd)
+        active, _ = advance_big_chinchompa_world_clock_pure(active)
+        pd.clear()
+        pd.update(active)
+        dialog = self._open(pd)
+        utility_tree = self._open_utility(dialog)
+
+        status = _find_named_label(dialog, "bigChinchompaStatusChip")
+        button = _find_named_button(dialog, "bigChinchompaSelectButton")
+        fullness = _find_named_widget(dialog, "bigChinchompaFullness")
+        self.assertIn("source min left", status.text())
+        self.assertEqual(button.text(), "Select active event")
+        self.assertFalse(fullness.isHidden())
+
+        button.click()
+        QApplication.processEvents()
+        self.assertEqual(self._utility_calls[-1], "big_chinchompa")
+        self.assertEqual(pd["current_utility"], "big_chinchompa")
+        self.assertEqual(button.text(), "Selected for reviews")
+
+        evil_button = _find_named_button(dialog, "evilTreeSelectButton")
+        self.assertTrue(evil_button.isEnabled())
+        evil_button.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["current_utility"], "evil_tree")
+        self.assertEqual(button.text(), "Select active event")
+        self.assertTrue(button.isEnabled())
+
+        button.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["current_utility"], "big_chinchompa")
+
+        population = dialog.findChild(
+            QComboBox, "bigChinchompaPopulationProfile"
+        )
+        population.setCurrentIndex(population.findData("busy"))
+        QApplication.processEvents()
+        self.assertEqual(pd["world_population_profile"], "busy")
+        self.assertEqual(
+            self._big_chinchompa_calls[-1],
+            ("set_population_profile", {"profile": "busy"}),
+        )
+
+        buy = _find_named_button(dialog, "bigChinchompaRewardBuyButton")
+        self.assertTrue(buy.isEnabled())
+        self.assertIn("4 Competence", buy.toolTip())
+        buy.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["inventory"]["Swamp lizard quota ticket"], 1)
+        self.assertEqual(pd["big_chinchompa"]["competence_points"], 96)
+
+        bankstanding = _utility_row(utility_tree, "bankstanding")
+        utility_tree.itemClicked.emit(bankstanding, 0)
+        QApplication.processEvents()
+        self.assertEqual(button.text(), "Select active event")
+
+    def test_utility_cards_scroll_instead_of_compressing_at_real_height(self) -> None:
+        from big_chinchompa_logic import (
+            advance_big_chinchompa_world_clock_pure,
+            default_big_chinchompa_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "hunter_level": 99,
+                "shop_market_clock": {"answered_cards": 60},
+                "big_chinchompa": default_big_chinchompa_state_pure(),
+            }
+        )
+        pd, _ = advance_big_chinchompa_world_clock_pure(pd)
+        dialog = self._open(pd)
+        self._open_utility(dialog)
+        dialog.resize(1000, 560)
+        dialog.show()
+        for _ in range(8):
+            QApplication.processEvents()
+
+        cards_scroll = _find_named_widget(
+            dialog, "utilityActivityCardsScroll"
+        )
+        big_panel = _find_named_widget(dialog, "bigChinchompaPanel")
+        self.assertGreater(cards_scroll.verticalScrollBar().maximum(), 0)
+        visible_rows = [
+            child
+            for child in big_panel.findChildren(
+                QWidget,
+                options=Qt.FindChildOption.FindDirectChildrenOnly,
+            )
+            if child.isVisible()
+        ]
+        self.assertTrue(visible_rows)
+        self.assertLessEqual(
+            max(child.geometry().bottom() for child in visible_rows),
+            big_panel.contentsRect().bottom(),
+        )
+
+    def test_hunter_private_ground_control_uses_carried_ticket_count(self) -> None:
+        ticket = "Swamp lizard quota ticket"
+        pd = _make_player_data()
+        pd.update(
+            {
+                "hunter_level": 99,
+                "current_hunter": "catch_swamp_lizard",
+                "carried_inventory": {
+                    "catch_swamp_lizard": {ticket: 2},
+                },
+                "hunter_private_ground_targets": [],
+            }
+        )
+        pd["inventory"][ticket] = 2
+        dialog = self._open(pd)
+        _goto_hunter(dialog)
+
+        control = dialog.findChild(QCheckBox, "hunterPrivateGroundCheck")
+        hint = _find_named_label(dialog, "hunterPrivateGroundHint")
+        self.assertFalse(control.isHidden())
+        self.assertTrue(control.isEnabled())
+        self.assertIn("2 carried", control.text())
+        self.assertIn("only after a successful catch", hint.text())
+
+        control.setChecked(True)
+        QApplication.processEvents()
+        self.assertEqual(
+            pd["hunter_private_ground_targets"],
+            ["catch_swamp_lizard"],
+        )
+        self.assertEqual(
+            self._big_chinchompa_calls[-1],
+            (
+                "set_private_ground",
+                {"target_id": "catch_swamp_lizard", "enabled": True},
+            ),
+        )
+
+        pd["carried_inventory"]["catch_swamp_lizard"] = {}
+        empty_dialog = self._open(pd)
+        _goto_hunter(empty_dialog)
+        configured_without_tickets = empty_dialog.findChild(
+            QCheckBox, "hunterPrivateGroundCheck"
+        )
+        self.assertTrue(configured_without_tickets.isChecked())
+        self.assertTrue(
+            configured_without_tickets.isEnabled(),
+            "A configured target must remain possible to uncheck after tickets run out.",
+        )
+
+    def test_review_hud_surfaces_active_big_chinchompa(self) -> None:
+        from big_chinchompa_logic import (
+            advance_big_chinchompa_world_clock_pure,
+            default_big_chinchompa_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "current_utility": "big_chinchompa",
+                "shop_market_clock": {"answered_cards": 60},
+                "big_chinchompa": default_big_chinchompa_state_pure(),
+            }
+        )
+        active, _ = advance_big_chinchompa_world_clock_pure(pd)
+        hud = self._ui.ReviewHUD(None)
+
+        hud.set_data(active, "Utility / Activities")
+
+        notice = hud.findChild(QLabel, "reviewWorldNotice")
+        self.assertIn("Big Chinchompa", notice.text())
+        self.assertIn("source min", notice.text())
+        self.assertIn("soporith moth", hud.sub_lbl.text())
 
     def test_utility_rows_use_activity_icon_contract(self) -> None:
         utility_tree = self._open_utility(self.dialog)

@@ -2,7 +2,7 @@
 
 import os
 from collections.abc import Mapping
-from typing import Optional
+from typing import Any, Optional
 import datetime
 
 try:
@@ -256,6 +256,29 @@ except Exception:
         EVIL_TREE_UTILITY_ID,
     )
     from evil_tree_logic import evil_tree_view_pure  # type: ignore
+
+try:
+    from .big_chinchompa_data import (
+        BIG_CHINCHOMPA_REWARDS,
+        BIG_CHINCHOMPA_TICKET_BY_TARGET,
+        BIG_CHINCHOMPA_UTILITY_ID,
+        WORLD_POPULATION_PROFILE_LABELS,
+    )
+    from .big_chinchompa_logic import (
+        big_chinchompa_view_pure,
+        hunter_private_ground_status_pure,
+    )
+except Exception:
+    from big_chinchompa_data import (  # type: ignore
+        BIG_CHINCHOMPA_REWARDS,
+        BIG_CHINCHOMPA_TICKET_BY_TARGET,
+        BIG_CHINCHOMPA_UTILITY_ID,
+        WORLD_POPULATION_PROFILE_LABELS,
+    )
+    from big_chinchompa_logic import (  # type: ignore
+        big_chinchompa_view_pure,
+        hunter_private_ground_status_pure,
+    )
 
 try:
     from .combat_session import (
@@ -1640,6 +1663,13 @@ if HAS_QT:
                 world_notices.append(
                     f"Evil Tree blessing · {blessing_reviews} reviews left"
                 )
+            big_chinchompa_view = big_chinchompa_view_pure(player_data)
+            if big_chinchompa_view["active"]:
+                world_notices.append(
+                    "Big Chinchompa · "
+                    f"{int(big_chinchompa_view['minutes_remaining'])} source min · "
+                    f"{int(big_chinchompa_view['fullness_percent'])}% full"
+                )
             self.world_notice_lbl.setText(" • ".join(world_notices))
             self.world_notice_lbl.setVisible(bool(world_notices))
             # Enemy bar + chips are combat-only; keep them hidden unless the
@@ -1665,6 +1695,15 @@ if HAS_QT:
                         )
                     else:
                         activity_kind = "awaiting an active tree"
+                elif activity_key == BIG_CHINCHOMPA_UTILITY_ID:
+                    activity_name = "Big Chinchompa"
+                    if big_chinchompa_view["active"]:
+                        activity_kind = (
+                            f"{big_chinchompa_view['tier_name']} · "
+                            f"{int(big_chinchompa_view['fullness_percent'])}% full"
+                        )
+                    else:
+                        activity_kind = "awaiting an active event"
                 else:
                     activity_name = str(spec.get("display_name", "Material prep"))
                     activity_kind = (
@@ -2736,6 +2775,7 @@ def show_main_menu(
     on_agility_command=None,
     on_warriors_guild_command=None,
     on_livid_farm_command=None,
+    on_big_chinchompa_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
     on_set_construction=None,
@@ -4438,8 +4478,82 @@ def show_main_menu(
             on_set_fishing,
         )
 
-    def _build_hunter_list() -> QTreeWidget:
-        return _build_grouped_target_tree(
+    def _build_hunter_list() -> QWidget:
+        panel = QWidget()
+        panel.setObjectName("hunterSkillPanel")
+        panel_layout = QVBoxLayout(panel)
+        panel_layout.setContentsMargins(0, 0, 0, 0)
+        panel_layout.setSpacing(8)
+
+        private_ground = QCheckBox()
+        private_ground.setObjectName("hunterPrivateGroundCheck")
+        private_ground.setStyleSheet("color: palette(text);")
+        private_ground.setToolTip(
+            "Use one carried quota ticket only after a successful ordinary "
+            "catch. Failed catches preserve the ticket."
+        )
+        private_hint = QLabel()
+        private_hint.setObjectName("hunterPrivateGroundHint")
+        private_hint.setWordWrap(True)
+        private_hint.setStyleSheet(
+            f"color: {dim_text_css(private_hint)}; font-size: 11px;"
+        )
+
+        def _carried_inventory_for_target(target_id: str) -> Mapping[str, Any]:
+            carried = player_data.get("carried_inventory")
+            if isinstance(carried, Mapping) and target_id in carried:
+                value = carried.get(target_id)
+                return value if isinstance(value, Mapping) else {}
+            advanced = bool(
+                (player_data.get("carried_advanced_targets") or {}).get(
+                    target_id, False
+                )
+            )
+            if advanced:
+                layouts = player_data.get("carried_layout") or {}
+                value = layouts.get(target_id) if isinstance(layouts, Mapping) else {}
+                return value if isinstance(value, Mapping) else {}
+            return {}
+
+        def _refresh_private_ground() -> None:
+            target_id = str(
+                player_data.get("current_hunter", DEFAULT_HUNTER_TARGET)
+            )
+            status = hunter_private_ground_status_pure(
+                player_data,
+                target_id,
+                inventory_override=_carried_inventory_for_target(target_id),
+            )
+            private_ground.blockSignals(True)
+            private_ground.setChecked(bool(status["configured"]))
+            private_ground.blockSignals(False)
+            private_ground.setVisible(bool(status["available"]))
+            private_hint.setVisible(bool(status["available"]))
+            if not status["available"]:
+                return
+            ticket_name = str(status["ticket"])
+            ticket_count = int(status["tickets"])
+            private_ground.setText(f"Use private hunting ground · {ticket_count} carried")
+            private_ground.setEnabled(
+                on_big_chinchompa_command is not None
+                and (ticket_count > 0 or bool(status["configured"]))
+            )
+            if ticket_count > 0:
+                private_hint.setText(
+                    f"{ticket_name} is consumed only after a successful catch."
+                )
+            else:
+                private_hint.setText(
+                    f"Add {ticket_name} to this target's Bank carried pack."
+                )
+
+        def _set_hunter_target(target_id: str) -> None:
+            if on_set_hunter is not None:
+                on_set_hunter(target_id)
+            player_data["current_hunter"] = target_id
+            _refresh_private_ground()
+
+        tree = _build_grouped_target_tree(
             hunter_target_rows(
                 player_data,
                 HUNTER_DATA,
@@ -4449,9 +4563,34 @@ def show_main_menu(
             ),
             HUNTER_GROUP_LABELS,
             "__hunter_group__:",
-            on_set_hunter,
+            _set_hunter_target,
             group_order=list(HUNTER_GROUP_ORDER),
         )
+        tree.setObjectName("hunterTargetTree")
+        panel_layout.addWidget(tree, 1)
+        panel_layout.addWidget(private_ground)
+        panel_layout.addWidget(private_hint)
+
+        def _toggle_private_ground(enabled: bool) -> None:
+            if on_big_chinchompa_command is None:
+                return
+            target_id = str(
+                player_data.get("current_hunter", DEFAULT_HUNTER_TARGET)
+            )
+            result = on_big_chinchompa_command(
+                "set_private_ground",
+                {"target_id": target_id, "enabled": bool(enabled)},
+            )
+            if not result.get("ok", False):
+                show_error_message(
+                    "Private hunting ground",
+                    str(result.get("message", "Could not update private hunting ground.")),
+                )
+            _refresh_private_ground()
+
+        private_ground.toggled.connect(_toggle_private_ground)
+        _refresh_private_ground()
+        return panel
 
     def _build_cooking_list() -> QTreeWidget:
         images = dict(COOKING_ITEM_IMAGES)
@@ -5843,6 +5982,20 @@ def show_main_menu(
         container_layout.setContentsMargins(0, 0, 0, 0)
         container_layout.setSpacing(8)
 
+        cards_scroll = QScrollArea()
+        cards_scroll.setObjectName("utilityActivityCardsScroll")
+        cards_scroll.setWidgetResizable(True)
+        cards_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+        cards_scroll.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        cards_scroll.setMinimumHeight(190)
+        cards_scroll.setMaximumHeight(360)
+        cards_host = QWidget()
+        cards_layout = QVBoxLayout(cards_host)
+        cards_layout.setContentsMargins(0, 0, 0, 0)
+        cards_layout.setSpacing(8)
+
         evil_box = QtFrame()
         evil_box.setObjectName("evilTreePanel")
         evil_box.setStyleSheet(
@@ -5913,7 +6066,7 @@ def show_main_menu(
             " border-color: palette(mid); }"
         )
         evil_layout.addWidget(evil_action)
-        container_layout.addWidget(evil_box)
+        cards_layout.addWidget(evil_box)
 
         def _evil_tree_has_hatchet() -> bool:
             return (
@@ -6039,11 +6192,295 @@ def show_main_menu(
             player_data["current_utility"] = EVIL_TREE_UTILITY_ID
             tree.clearSelection()
             _refresh_evil_tree_panel()
+            _refresh_big_chinchompa_panel()
 
         evil_action.clicked.connect(
             lambda _checked=False: _select_evil_tree()
         )
         _refresh_evil_tree_panel()
+
+        big_box = QtFrame()
+        big_box.setObjectName("bigChinchompaPanel")
+        big_box.setStyleSheet(
+            "QFrame#bigChinchompaPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        big_layout = QVBoxLayout(big_box)
+        big_layout.setContentsMargins(10, 8, 10, 8)
+        big_layout.setSpacing(6)
+
+        big_top = QWidget()
+        big_top_layout = QHBoxLayout(big_top)
+        big_top_layout.setContentsMargins(0, 0, 0, 0)
+        big_top_layout.setSpacing(8)
+        big_icon = QLabel()
+        big_icon.setObjectName("bigChinchompaIcon")
+        big_icon.setFixedSize(28, 28)
+        big_icon.setStyleSheet(
+            "background: rgba(255,255,255,0.06);"
+            " border: 1px solid palette(mid); border-radius: 4px;"
+        )
+        big_icon_path = os.path.join(
+            current_dir, "activityicons", "big_chinchompa.png"
+        )
+        if os.path.exists(big_icon_path):
+            big_icon.setPixmap(
+                QPixmap(big_icon_path).scaled(
+                    24,
+                    24,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+        big_title = QLabel("Big Chinchompa")
+        big_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        big_status = QLabel()
+        big_status.setObjectName("bigChinchompaStatusChip")
+        big_status.setStyleSheet("font-size: 11px; font-weight: 700;")
+        big_top_layout.addWidget(big_icon)
+        big_top_layout.addWidget(big_title)
+        big_top_layout.addStretch(1)
+        big_top_layout.addWidget(big_status)
+        big_layout.addWidget(big_top)
+
+        big_summary = QLabel()
+        big_summary.setObjectName("bigChinchompaSummary")
+        big_summary.setWordWrap(True)
+        big_summary.setStyleSheet("color: palette(text);")
+        big_layout.addWidget(big_summary)
+
+        big_detail = QLabel()
+        big_detail.setObjectName("bigChinchompaDetail")
+        big_detail.setWordWrap(True)
+        big_detail.setStyleSheet(
+            f"color: {dim_text_css(big_detail)}; font-size: 11px;"
+        )
+        big_layout.addWidget(big_detail)
+
+        big_fullness = QProgressBar()
+        big_fullness.setObjectName("bigChinchompaFullness")
+        big_fullness.setRange(0, 100)
+        big_fullness.setFormat("%p% full")
+        big_fullness.setTextVisible(True)
+        big_fullness.setFixedHeight(17)
+        big_fullness.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 3px; }"
+            " QProgressBar::chunk { background: #9c6bce; }"
+        )
+        big_layout.addWidget(big_fullness)
+
+        big_controls = QWidget()
+        big_controls_layout = QHBoxLayout(big_controls)
+        big_controls_layout.setContentsMargins(0, 0, 0, 0)
+        big_controls_layout.setSpacing(6)
+        big_action = QPushButton()
+        big_action.setObjectName("bigChinchompaSelectButton")
+        big_action.setMinimumHeight(28)
+        big_action.setStyleSheet(
+            "QPushButton { padding: 5px 10px; border: 1px solid #9c6bce;"
+            " border-radius: 6px; color: palette(text); }"
+            " QPushButton:hover { background: rgba(156,107,206,0.18); }"
+            f" QPushButton:disabled {{ color: {dim_text_css(big_action)};"
+            " border-color: palette(mid); }"
+        )
+        population_combo = QComboBox()
+        population_combo.setObjectName("bigChinchompaPopulationProfile")
+        population_combo.setToolTip(
+            "Sets how busy the simulated world feels. A busy world can fill "
+            "the Plutonial Chinchompa sooner; progress still comes only from "
+            "answered reviews."
+        )
+        for profile, label in WORLD_POPULATION_PROFILE_LABELS.items():
+            population_combo.addItem(f"{label} world", profile)
+        big_controls_layout.addWidget(big_action, 2)
+        big_controls_layout.addWidget(population_combo, 1)
+        big_layout.addWidget(big_controls)
+
+        reward_row = QWidget()
+        reward_layout = QHBoxLayout(reward_row)
+        reward_layout.setContentsMargins(0, 0, 0, 0)
+        reward_layout.setSpacing(6)
+        reward_combo = QComboBox()
+        reward_combo.setObjectName("bigChinchompaRewardCombo")
+        for reward in BIG_CHINCHOMPA_REWARDS:
+            point_label = "pt" if reward.competence_cost == 1 else "pts"
+            if reward.hunter_xp > 0:
+                label = (
+                    f"{reward.display_name} ({int(reward.hunter_xp)} XP) · "
+                    f"{reward.competence_cost:,} {point_label}"
+                )
+            else:
+                level_label = (
+                    f" · Hunter {reward.hunter_level}"
+                    if reward.hunter_level > 1
+                    else ""
+                )
+                label = (
+                    f"{reward.display_name} · {reward.competence_cost:,} "
+                    f"{point_label}{level_label}"
+                )
+            reward_combo.addItem(label, reward.id)
+        reward_buy = QPushButton("Buy")
+        reward_buy.setObjectName("bigChinchompaRewardBuyButton")
+        reward_layout.addWidget(reward_combo, 1)
+        reward_layout.addWidget(reward_buy)
+        big_layout.addWidget(reward_row)
+        cards_layout.addWidget(big_box)
+
+        def _selected_big_reward():
+            reward_id = str(reward_combo.currentData() or "")
+            return next(
+                (
+                    reward
+                    for reward in BIG_CHINCHOMPA_REWARDS
+                    if reward.id == reward_id
+                ),
+                BIG_CHINCHOMPA_REWARDS[0],
+            )
+
+        def _refresh_big_chinchompa_panel() -> None:
+            view = big_chinchompa_view_pure(player_data)
+            active = bool(view["active"])
+            selected = (
+                player_data.get("current_utility")
+                == BIG_CHINCHOMPA_UTILITY_ID
+            )
+            profile_index = population_combo.findData(
+                view["population_profile"]
+            )
+            population_combo.blockSignals(True)
+            if profile_index >= 0:
+                population_combo.setCurrentIndex(profile_index)
+            population_combo.blockSignals(False)
+            big_fullness.setVisible(active)
+            big_fullness.setValue(int(round(view["fullness_percent"])))
+            if active:
+                big_box.setStyleSheet(
+                    "QFrame#bigChinchompaPanel { border: 1px solid #9c6bce;"
+                    " border-radius: 8px; background: palette(base); }"
+                )
+                base_color = big_status.palette().color(QPalette.ColorRole.Base)
+                accent = "#6f3fa4" if base_color.lightness() > 128 else "#c69aef"
+                big_status.setStyleSheet(
+                    f"color: {accent}; font-size: 11px; font-weight: 700;"
+                )
+                big_status.setText(
+                    f"{int(view['minutes_remaining'])} source min left"
+                )
+                big_summary.setText(
+                    f"{view['location']} · {view['tier_name']} · "
+                    f"{int(view['reviews_remaining'])} review opportunities"
+                )
+                big_detail.setText(
+                    f"{int(view['event_points']):,}/{int(view['point_cap']):,} "
+                    f"event points · {int(view['tier_points_per_jar']):,} points "
+                    f"and {int(view['tier_xp_per_jar']):,} Hunter XP per 15-moth jar "
+                    f"· {int(view['competence_points']):,}/"
+                    f"{int(view['competence_cap']):,} Competence"
+                )
+                if selected:
+                    big_action.setText("Selected for reviews")
+                    big_action.setEnabled(False)
+                else:
+                    big_action.setText("Select active event")
+                    big_action.setEnabled(on_set_utility is not None)
+            else:
+                big_box.setStyleSheet(
+                    "QFrame#bigChinchompaPanel { border: 1px solid palette(mid);"
+                    " border-radius: 8px; background: palette(base); }"
+                )
+                big_status.setStyleSheet(
+                    f"color: {dim_text_css(big_status)};"
+                    " font-size: 11px; font-weight: 700;"
+                )
+                big_status.setText(
+                    f"Next in {int(view['next_reviews'])} reviews"
+                )
+                big_summary.setText(
+                    f"Best moth: {view['tier_name']} · "
+                    f"{int(view['competence_points']):,}/"
+                    f"{int(view['competence_cap']):,} Competence points"
+                )
+                last_result = str(view.get("last_result", "")).strip()
+                big_detail.setText(
+                    last_result
+                    or "Nyriki's portal appears twice each review day."
+                )
+                big_action.setText("No active event")
+                big_action.setEnabled(False)
+
+            reward = _selected_big_reward()
+            can_buy = (
+                on_big_chinchompa_command is not None
+                and int(player_data.get("hunter_level", 1) or 1)
+                >= reward.hunter_level
+                and int(view["competence_points"]) >= reward.competence_cost
+            )
+            reward_buy.setEnabled(can_buy)
+            reward_buy.setText("Buy")
+            if int(player_data.get("hunter_level", 1) or 1) < reward.hunter_level:
+                reward_buy.setToolTip(f"Requires Hunter level {reward.hunter_level}.")
+            elif int(view["competence_points"]) < reward.competence_cost:
+                reward_buy.setToolTip(
+                    f"Needs {reward.competence_cost:,} Competence; "
+                    f"you have {int(view['competence_points']):,}."
+                )
+            else:
+                reward_buy.setToolTip(
+                    f"Buy for {reward.competence_cost:,} Competence."
+                )
+
+        def _select_big_chinchompa() -> None:
+            if on_set_utility is None:
+                return
+            on_set_utility(BIG_CHINCHOMPA_UTILITY_ID)
+            player_data["current_utility"] = BIG_CHINCHOMPA_UTILITY_ID
+            tree.clearSelection()
+            _refresh_evil_tree_panel()
+            _refresh_big_chinchompa_panel()
+
+        def _set_population_profile(profile: str) -> None:
+            if on_big_chinchompa_command is None:
+                return
+            result = on_big_chinchompa_command(
+                "set_population_profile", {"profile": profile}
+            )
+            if not result.get("ok", False):
+                show_error_message(
+                    "World population",
+                    str(result.get("message", "Could not update the profile.")),
+                )
+            _refresh_big_chinchompa_panel()
+
+        def _buy_big_chinchompa_reward() -> None:
+            if on_big_chinchompa_command is None:
+                return
+            result = on_big_chinchompa_command(
+                "buy_reward", {"reward_id": str(reward_combo.currentData() or "")}
+            )
+            if not result.get("ok", False):
+                show_error_message(
+                    "Big Chinchompa rewards",
+                    str(result.get("message", "Could not buy that reward.")),
+                )
+            _refresh_big_chinchompa_panel()
+
+        big_action.clicked.connect(
+            lambda _checked=False: _select_big_chinchompa()
+        )
+        population_combo.currentIndexChanged.connect(
+            lambda _index: _set_population_profile(
+                str(population_combo.currentData() or "normal")
+            )
+        )
+        reward_combo.currentIndexChanged.connect(
+            lambda _index: _refresh_big_chinchompa_panel()
+        )
+        reward_buy.clicked.connect(
+            lambda _checked=False: _buy_big_chinchompa_reward()
+        )
+        _refresh_big_chinchompa_panel()
 
         guild_box = QtFrame()
         guild_box.setObjectName("warriorsGuildPanel")
@@ -6101,7 +6538,7 @@ def show_main_menu(
         action_layout.addStretch(1)
         guild_layout.addWidget(next_label)
         guild_layout.addWidget(action_row)
-        container_layout.addWidget(guild_box)
+        cards_layout.addWidget(guild_box)
 
         syncing_guild = {"active": False}
 
@@ -6319,7 +6756,7 @@ def show_main_menu(
         livid_capacitor_layout.addWidget(livid_capacitor_charge)
         livid_capacitor_layout.addWidget(livid_capacitor_remove)
         livid_layout.addWidget(livid_capacitor_row)
-        container_layout.addWidget(livid_box)
+        cards_layout.addWidget(livid_box)
 
         syncing_livid = {"active": False}
 
@@ -6913,6 +7350,7 @@ def show_main_menu(
             on_set_utility(activity_id)
             player_data["current_utility"] = activity_id
             _refresh_evil_tree_panel()
+            _refresh_big_chinchompa_panel()
 
         def _on_utility_clicked(item: "QTreeWidgetItem", _column: int = 0):
             if item is None or item.isDisabled():
@@ -6952,6 +7390,11 @@ def show_main_menu(
                 _set_utility_selection(str(activity_id))
                 return
             _set_utility_selection(activity_id)
+
+        cards_layout.addStretch(1)
+        cards_host.setMinimumHeight(cards_host.sizeHint().height())
+        cards_scroll.setWidget(cards_host)
+        container_layout.addWidget(cards_scroll)
 
         tree.itemClicked.connect(_on_utility_clicked)
         tree.itemActivated.connect(_on_utility_clicked)

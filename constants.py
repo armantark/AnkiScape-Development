@@ -53,6 +53,11 @@ try:
     )
     from .crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, tanning_activities_as_dict
     from .equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
+    from .big_chinchompa_data import (
+        BIG_CHINCHOMPA_UTILITY_ID,
+        big_chinchompa_activity_as_dict,
+        big_chinchompa_extra_items_as_dict,
+    )
     from .evil_tree_data import evil_tree_extra_items_as_dict
     from .firemaking_data import (
         DEFAULT_FIREMAKING_TARGET,
@@ -194,6 +199,11 @@ except ImportError:
     )
     from crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, tanning_activities_as_dict
     from equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
+    from big_chinchompa_data import (  # type: ignore
+        BIG_CHINCHOMPA_UTILITY_ID,
+        big_chinchompa_activity_as_dict,
+        big_chinchompa_extra_items_as_dict,
+    )
     from evil_tree_data import evil_tree_extra_items_as_dict
     from firemaking_data import (
         DEFAULT_FIREMAKING_TARGET,
@@ -525,6 +535,7 @@ UTILITY_ACTIVITY_DATA.update(light_source_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(input_preparation_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(prayer_utility_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(WARRIORS_GUILD_ACTIVITIES)
+UTILITY_ACTIVITY_DATA.update(big_chinchompa_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(
     livid_farm_activity_as_dict(
         os.path.join(current_dir, "icon", "magic_icon.png")
@@ -537,6 +548,14 @@ for _activity_id in WARRIORS_GUILD_ACTIVITIES:
     )
     if os.path.exists(_activity_icon):
         UTILITY_ACTIVITY_DATA[_activity_id]["icon_path"] = _activity_icon
+_big_chinchompa_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "big_chinchompa.png",
+)
+if os.path.exists(_big_chinchompa_icon):
+    UTILITY_ACTIVITY_DATA[BIG_CHINCHOMPA_UTILITY_ID]["icon_path"] = (
+        _big_chinchompa_icon
+    )
 
 CRAFTING_DATA = crafting_recipes_as_dict()
 CRAFTING_REQUIRED_ITEM_DATA = crafting_required_items_as_dict()
@@ -887,6 +906,7 @@ for _item_name in set(FISHING_OUTPUT_ITEMS) | set(FISHING_EXTRA_ITEM_DATA):
         FISHING_ITEM_IMAGES[_item_name] = _path
 
 HUNTER_EXTRA_ITEM_DATA = hunter_extra_items_as_dict()
+HUNTER_EXTRA_ITEM_DATA.update(big_chinchompa_extra_items_as_dict())
 HUNTER_ITEM_IMAGES = {}
 for _item_name in set(hunter_item_names()) | set(HUNTER_OUTPUT_ITEMS) | set(HUNTER_EXTRA_ITEM_DATA):
     _path = os.path.join(HUNTER_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")

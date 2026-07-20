@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Big Chinchompa — implementation closure</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f4f3ef;
+      --muted: #a8aaa5;
+      --panel: #161a18;
+      --panel-2: #202622;
+      --line: #354139;
+      --green: #77d68e;
+      --lime: #c9ed78;
+      --amber: #efc96d;
+      --red: #f0877b;
+      --blue: #83b8df;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 12% -10%, #29432f 0, transparent 34rem),
+        linear-gradient(160deg, #0c100e 0%, #131814 50%, #0b0e0d 100%);
+      color: var(--ink);
+      font: 15px/1.55 ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 64px; }
+    .eyebrow { color: var(--green); font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 8px 0 10px; max-width: 850px; font-size: clamp(38px, 7vw, 74px); line-height: .98; letter-spacing: -.045em; }
+    .lede { max-width: 790px; color: #d2d4cf; font-size: 18px; }
+    .status {
+      display: inline-flex; gap: 8px; align-items: center; margin-top: 16px; padding: 7px 11px;
+      border: 1px solid #477d55; border-radius: 99px; background: #1a3622; color: #bff1c9; font-weight: 700;
+    }
+    .status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 16px var(--green); }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-top: 32px; }
+    .card { grid-column: span 4; padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(145deg, rgba(32,38,34,.95), rgba(19,23,21,.96)); box-shadow: 0 18px 50px rgba(0,0,0,.2); }
+    .wide { grid-column: span 8; }
+    .full { grid-column: 1 / -1; }
+    .metric { font-size: 38px; font-weight: 800; letter-spacing: -.04em; color: var(--lime); }
+    .label { color: var(--muted); }
+    h2 { margin: 0 0 14px; font-size: 20px; }
+    h3 { margin: 0 0 7px; font-size: 15px; }
+    p { margin: 0; }
+    .timeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 18px; }
+    .beat { min-height: 116px; padding: 13px; border: 1px solid var(--line); border-radius: 13px; background: #111512; }
+    .beat strong { display: block; color: var(--amber); font-size: 13px; }
+    .beat b { display: block; margin: 7px 0 4px; }
+    .beat span { color: var(--muted); font-size: 13px; }
+    .beat.closed { opacity: .62; border-style: dashed; }
+    .bar { height: 10px; margin: 18px 0 8px; border-radius: 99px; background: #303933; overflow: hidden; }
+    .bar > i { display: block; width: 78%; height: 100%; background: linear-gradient(90deg, var(--green), var(--lime)); }
+    .surface { display: grid; gap: 12px; margin-top: 14px; }
+    .row { display: flex; align-items: center; gap: 13px; padding: 12px 14px; border: 1px solid #3b463f; border-radius: 13px; background: #151a17; }
+    .sprite { display: grid; place-items: center; width: 34px; height: 34px; flex: 0 0 34px; border-radius: 9px; background: #d7ddd7; color: #223326; font-size: 20px; }
+    .row small { display: block; color: var(--muted); }
+    .pill { margin-left: auto; padding: 5px 9px; border-radius: 8px; background: #2d663b; color: #cdf2d4; font-size: 12px; font-weight: 700; }
+    .legend { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .evidence { padding: 16px; border-left: 4px solid var(--green); background: rgba(119,214,142,.06); border-radius: 7px; }
+    .evidence.abstract { border-color: var(--amber); background: rgba(239,201,109,.06); }
+    .evidence.blocked { border-color: var(--red); background: rgba(240,135,123,.06); }
+    .evidence p { color: var(--muted); font-size: 13px; }
+    ul { margin: 8px 0 0; padding-left: 20px; color: #d7d9d5; }
+    li + li { margin-top: 5px; }
+    footer { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); }
+    code { color: var(--blue); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    @media (max-width: 800px) {
+      main { width: min(100% - 20px, 700px); padding-top: 28px; }
+      .card, .wide { grid-column: 1 / -1; }
+      .timeline, .legend { grid-template-columns: 1fr; }
+      .beat { min-height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">AnkiScape · Hunter D&amp;D · 19 July 2026</div>
+    <h1>The Big Chinchompa is live.</h1>
+    <p class="lede">The period event is now a complete review-native loop: discover it, catch exact moth tiers, fill fifteen-moth jars, race the communal crowd, bank Competence points, and spend the full reward shop.</p>
+    <div class="status">Implementation closed · no owner design gap</div>
+
+    <section class="grid" aria-label="Implementation metrics">
+      <article class="card"><div class="metric">2</div><div class="label">deterministic event windows per 240-review world day</div></article>
+      <article class="card"><div class="metric">8</div><div class="label">period moth tiers with exact gates, XP, and points</div></article>
+      <article class="card"><div class="metric">20k</div><div class="label">Competence-point wallet cap, matching the period source</div></article>
+
+      <article class="card wide">
+        <h2>The boundary that mattered</h2>
+        <p>A slot is discovered after the boundary review has already resolved. With six source minutes per answered card, a fresh twenty-minute window can admit three complete future actions—not four.</p>
+        <div class="timeline">
+          <div class="beat"><strong>Review 60</strong><b>Event appears</b><span>The selected action has already run.</span></div>
+          <div class="beat"><strong>Review 61</strong><b>Jar circuit 1</b><span>6 source minutes elapsed.</span></div>
+          <div class="beat"><strong>Review 62</strong><b>Jar circuit 2</b><span>12 source minutes elapsed.</span></div>
+          <div class="beat"><strong>Review 63</strong><b>Jar circuit 3</b><span>18 source minutes elapsed.</span></div>
+          <div class="beat closed"><strong>Review 64</strong><b>Too late</b><span>Would finish beyond the 20-minute window.</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Communal progress</h2>
+        <p class="label">Seeded crowd behavior stays deterministic across undo and reload.</p>
+        <div class="bar"><i></i></div>
+        <p><strong>Quiet · Normal · Busy</strong></p>
+        <p class="label">Three owner-settled population profiles; player jars add one point each.</p>
+      </article>
+
+      <article class="card">
+        <h2>Utility surface</h2>
+        <div class="surface">
+          <div class="row"><div class="sprite">🦋</div><div><strong>Big Chinchompa</strong><small>3 review opportunities remain</small></div><span class="pill">Selected</span></div>
+          <div class="row"><div><strong>Competence points</strong><small>Reward shop and 5 XP per point</small></div><span class="pill">12,450</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Hunter private grounds</h2>
+        <div class="surface">
+          <div class="row"><div class="sprite">🎟</div><div><strong>Pawya ticket</strong><small>Must be in the Pawya carried pack</small></div><span class="pill">Ready</span></div>
+          <div class="row"><div><strong>Consumption</strong><small>Only after a successful catch</small></div></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Verification</h2>
+        <ul>
+          <li><strong>282</strong> focused pure/runtime/storage/cadence/integration tests</li>
+          <li><strong>1,874</strong> complete non-Qt methods</li>
+          <li><strong>1,874</strong> complete real offscreen Qt methods</li>
+          <li>Fable and Kimi K3 independent taste passes</li>
+          <li>Native Anki restart proof before final polish</li>
+        </ul>
+      </article>
+
+      <article class="card full">
+        <h2>Evidence boundary</h2>
+        <div class="legend">
+          <div class="evidence"><h3>Period-pinned</h3><p>Eight moth rows, jar capacity, event and wallet caps, complete reward shop, five quota tickets, item identities, and period art.</p></div>
+          <div class="evidence abstract"><h3>Disclosed abstractions</h3><p>Review slots, six-minute review mapping, and deterministic quiet/normal/busy crowd curves. None are presented as recovered server constants.</p></div>
+          <div class="evidence blocked"><h3>One dependency</h3><p>Polar-kebbit ticket use waits for the ordinary Polar tracking target’s source recovery. The item and shop reward still exist; no substitute target was invented.</p></div>
+        </div>
+      </article>
+    </section>
+
+    <footer>
+      Durable record: <code>memory-bank/source-audits/big-chinchompa-implementation-harvest-2026-07-19.md</code>
+    </footer>
+  </main>
+</body>
+</html>

@@ -130,6 +130,9 @@ class TestStoragePure(unittest.TestCase):
             "ge_next_order_id",
             "ge_buy_limit_usage",
             "ge_trade_history",
+            "world_population_profile",
+            "hunter_private_ground_targets",
+            "big_chinchompa",
         ]:
             self.assertIn(key, data)
         # Inventory uses real item names; Mining targets use stable IDs.
@@ -151,6 +154,9 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["current_runecrafting"], "craft_air_runes")
         self.assertEqual(data["current_hunter"], "catch_crimson_swift")
         self.assertEqual(data["hunter_success_count"], 0)
+        self.assertEqual(data["world_population_profile"], "normal")
+        self.assertEqual(data["hunter_private_ground_targets"], [])
+        self.assertEqual(data["big_chinchompa"]["competence_points"], 0)
         self.assertEqual(data["action_telemetry"], {"version": 1, "actions": {}})
         self.assertEqual(data["achievement_progress"], {"version": 1, "skills": {}})
         self.assertEqual(data["current_combat_target"], "chicken")
@@ -200,6 +206,35 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["ge_next_order_id"], 1)
         self.assertEqual(data["ge_market_state"]["last_processed_tick"], 0)
         self.assertEqual(data["review_context_preferences"], {})
+
+    def test_migration_sanitizes_big_chinchompa_preferences_and_wallet(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 49,
+                "world_population_profile": "crowded",
+                "hunter_private_ground_targets": [
+                    "catch_swamp_lizard",
+                    "not_a_hunter_target",
+                    "catch_swamp_lizard",
+                ],
+                "big_chinchompa": {
+                    "competence_points": 99_999,
+                    "active_event": {"event_id": "invalid"},
+                },
+            },
+            ORE_DATA,
+        )
+
+        self.assertEqual(migrated["world_population_profile"], "normal")
+        self.assertEqual(
+            migrated["hunter_private_ground_targets"],
+            ["catch_swamp_lizard"],
+        )
+        self.assertEqual(
+            migrated["big_chinchompa"]["competence_points"],
+            20_000,
+        )
+        self.assertEqual(migrated["big_chinchompa"]["active_event"], {})
 
     def test_migration_sanitizes_grand_exchange_state(self):
         migrated = migrate_loaded_data(

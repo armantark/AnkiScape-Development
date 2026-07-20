@@ -51,6 +51,14 @@ try:
     )
     from .shop_logic import default_shop_state_pure, sanitize_shop_state_pure
     from .grand_exchange_logic import default_ge_state_pure, sanitize_ge_state_pure
+    from .big_chinchompa_data import (
+        BIG_CHINCHOMPA_TICKET_BY_TARGET,
+        WORLD_POPULATION_PROFILES,
+    )
+    from .big_chinchompa_logic import (
+        default_big_chinchompa_state_pure,
+        sanitize_big_chinchompa_state_pure,
+    )
     from .evil_tree_logic import (
         default_evil_tree_state_pure,
         sanitize_evil_tree_state_pure,
@@ -135,6 +143,14 @@ except ImportError:
     )
     from shop_logic import default_shop_state_pure, sanitize_shop_state_pure
     from grand_exchange_logic import default_ge_state_pure, sanitize_ge_state_pure
+    from big_chinchompa_data import (  # type: ignore
+        BIG_CHINCHOMPA_TICKET_BY_TARGET,
+        WORLD_POPULATION_PROFILES,
+    )
+    from big_chinchompa_logic import (  # type: ignore
+        default_big_chinchompa_state_pure,
+        sanitize_big_chinchompa_state_pure,
+    )
     from evil_tree_logic import (  # type: ignore
         default_evil_tree_state_pure,
         sanitize_evil_tree_state_pure,
@@ -171,7 +187,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 49
+CURRENT_CONFIG_VERSION = 50
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -392,6 +408,9 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(inventory_pure.default_carried_state())
     data.update(default_shop_state_pure())
     data.update(default_ge_state_pure())
+    data["world_population_profile"] = "normal"
+    data["hunter_private_ground_targets"] = []
+    data["big_chinchompa"] = default_big_chinchompa_state_pure()
     data["evil_tree"] = default_evil_tree_state_pure()
     data.update(default_farming_state_pure())
     data.update(default_agility_state_pure())
@@ -968,6 +987,29 @@ def migrate_loaded_data(
     _migrate_equipment(data)
     data.update(sanitize_shop_state_pure(data))
     data.update(sanitize_ge_state_pure(data))
+    population_profile = str(
+        data.get("world_population_profile", "normal")
+    ).lower()
+    data["world_population_profile"] = (
+        population_profile
+        if population_profile in WORLD_POPULATION_PROFILES
+        else "normal"
+    )
+    private_targets = data.get("hunter_private_ground_targets")
+    data["hunter_private_ground_targets"] = (
+        [
+            target_id
+            for target_id in dict.fromkeys(
+                str(value) for value in private_targets
+            )
+            if target_id in BIG_CHINCHOMPA_TICKET_BY_TARGET
+        ]
+        if isinstance(private_targets, (list, tuple))
+        else []
+    )
+    data["big_chinchompa"] = sanitize_big_chinchompa_state_pure(
+        data.get("big_chinchompa")
+    )
     data["evil_tree"] = sanitize_evil_tree_state_pure(data.get("evil_tree"))
 
     # Ensure inventory exists and has registered item keys while preserving

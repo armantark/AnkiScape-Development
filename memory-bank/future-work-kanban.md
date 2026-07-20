@@ -85,6 +85,14 @@ Labels: `SOURCE AUDIT`, then `IMPLEMENT` only when evidence closes.
   formulas remain explicitly labeled abstractions; no design wait remains.
   See
   `memory-bank/source-audits/evil-tree-implementation-harvest-2026-07-19.md`.
+- Big Chinchompa is implemented as the settled review-native communal Hunter
+  D&D: two windows per 240-review day, exact moth tiers and reward shop,
+  grouped fifteen-moth jars, seeded aggregate crowd profiles, capped event and
+  Competence points, complete undo, and successful-catch-only private-ground
+  ticket consumption. Four tickets have executable ordinary Hunter targets.
+  Polar-kebbit ticket use remains `WAIT: SOURCE` on that ordinary tracking
+  target; no design wait remains. See
+  `memory-bank/source-audits/big-chinchompa-implementation-harvest-2026-07-19.md`.
 - Skeletal Horror's continuous phase thresholds are now pinned at `2,750`,
   `2,000`, and `1,250` LP, alongside its phase levels, maximum hits, styles,
   limb identities, rewards, clue chance, and weekly cadence. Implementation
