@@ -3171,3 +3171,17 @@ Test counts are snapshots; current runs outrank this note.
   pass. No product behavior or UI changed.
 - Durable evidence:
   `source-audits/item-reachability-thieving-loot-correction-2026-07-20.md`.
+
+## Potion-container stackability correction — 2026-07-20
+
+- Potion item generation now marks Vials, Potion flasks, ordinary potion
+  doses, and flask doses explicitly unstackable instead of inheriting the
+  registry's permissive default.
+- The correction reconciles canonical item metadata with the cache-derived
+  runtime stackability set and existing one-slot-per-potion carried behavior.
+- Focused registry, cache-value, inventory, Combat, and Shop verification
+  passes 416 tests; complete non-Qt discovery passes all 1,910 tests with 251
+  expected environment skips. Documentation, test-quality, compilation, diff,
+  and worktree-safety audits pass. No UI or owner-design behavior changed.
+- Durable evidence:
+  `source-audits/potion-container-stackability-correction-2026-07-20.md`.

@@ -2410,3 +2410,18 @@ The visual closure report is
   changed.
 - Durable evidence:
   `source-audits/item-reachability-thieving-loot-correction-2026-07-20.md`.
+
+## Potion-container stackability correction — 2026-07-20
+
+- Corrected the canonical item registry so empty Vials, empty Potion flasks,
+  every ordinary potion-dose item, and every six-dose flask-family item are
+  explicitly unstackable.
+- This aligns item metadata with the generated cache stackability set and the
+  already-live carried-slot model; it does not alter quantities, potion
+  effects, dose transitions, decanting, UI, or save state.
+- Focused registry, cache-value, inventory, Combat, and Shop verification
+  passes 416 tests; complete non-Qt discovery passes all 1,910 tests with 251
+  expected environment skips. Documentation, test-quality, compilation, diff,
+  and worktree-safety audits pass. No owner design gap surfaced.
+- Durable evidence:
+  `source-audits/potion-container-stackability-correction-2026-07-20.md`.

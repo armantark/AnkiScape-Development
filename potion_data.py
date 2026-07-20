@@ -114,18 +114,37 @@ def potion_items_as_dict() -> Dict[str, Dict[str, object]]:
     """Every vial + flask dose variant plus the empty Vial and Potion flask, for
     item-registry registration."""
     rows: Dict[str, Dict[str, object]] = {
-        VIAL_ITEM[0]: {"category": "material", "tradeable": True, "item_id": VIAL_ITEM[1], "source": POTION_SOURCE_PATH},
-        EMPTY_FLASK_ITEM[0]: {"category": "material", "tradeable": True, "item_id": EMPTY_FLASK_ITEM[1], "source": POTION_SOURCE_PATH},
+        VIAL_ITEM[0]: {
+            "category": "material",
+            "tradeable": True,
+            "stackable": False,
+            "item_id": VIAL_ITEM[1],
+            "source": POTION_SOURCE_PATH,
+        },
+        EMPTY_FLASK_ITEM[0]: {
+            "category": "material",
+            "tradeable": True,
+            "stackable": False,
+            "item_id": EMPTY_FLASK_ITEM[1],
+            "source": POTION_SOURCE_PATH,
+        },
     }
     for base, spec in POTION_FAMILIES.items():
         source = str(spec.get("source", POTION_SOURCE_PATH))
         for dose, item_id in spec["doses"].items():  # type: ignore[union-attr]
             rows[potion_dose_name(base, dose)] = {
-                "category": "material", "tradeable": True, "item_id": item_id, "source": source,
+                "category": "material",
+                "tradeable": True,
+                "stackable": False,
+                "item_id": item_id,
+                "source": source,
             }
         for dose, item_id in spec.get("flask_doses", {}).items():  # type: ignore[union-attr]
             rows[potion_flask_name(base, dose)] = {
-                "category": "material", "tradeable": True, "item_id": item_id,
+                "category": "material",
+                "tradeable": True,
+                "stackable": False,
+                "item_id": item_id,
                 "source": f"{source}; {DARKAN_ITEM_CONFIG_SOURCE}: {base} flask",
             }
     return rows

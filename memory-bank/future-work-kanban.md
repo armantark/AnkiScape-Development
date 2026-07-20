@@ -1064,6 +1064,10 @@ Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
   reachable items, 237 orphan inputs, and 249 blocked actions; see
   `source-audits/farming-willow-branch-acquisition-2026-07-20.md`.
 - Close every live-but-unobtainable material through authentic drops, ground spawns, shops, claims, quests, skills, activities, or transformations. Do not seed free items or fake recipe gates.
+- **Closed 2026-07-20:** canonical registry metadata now marks empty vial/flask
+  containers and every vial/flask potion dose unstackable, matching the
+  cache-derived runtime set and the established carried-slot model. See
+  `source-audits/potion-container-stackability-correction-2026-07-20.md`.
 - The source-backed Woodcutting nest → empty nest → crushed nest route is repaired and regression-covered.
 - Finish equipment requirements, special attacks, poison, charges/degradation, set effects, jewellery, consumables, and source-specific use actions without creating fake recipes.
 - **Closed 2026-07-15:** barehand butterfly catching now ships as the distinct

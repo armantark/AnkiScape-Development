@@ -81,6 +81,21 @@ from skill_registry import (
 
 
 class TestSkillAndItemRegistry(unittest.TestCase):
+    def test_potion_vials_and_flasks_are_unstackable_registry_items(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for item_name in (
+            "Vial",
+            "Potion flask",
+            "Attack potion (1)",
+            "Attack potion (4)",
+            "Attack flask (1)",
+            "Attack flask (6)",
+            "Prayer potion (4)",
+            "Prayer flask (6)",
+        ):
+            with self.subTest(item_name=item_name):
+                self.assertFalse(by_storage_key[item_name].stackable)
+
     def test_mage_arena_capes_keep_cache_identity_and_economy_rules(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         for item_name, item_id in {
