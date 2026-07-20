@@ -31,6 +31,7 @@ try:
         QPixmap,
         QPalette,
         QColor,
+        QBrush,
         QApplication,
         QMenu,
         QGridLayout,
@@ -123,6 +124,8 @@ try:
         FISHING_OUTPUT_ITEMS,
         RUNECRAFTING_GROUP_LABELS,
         UTILITY_ACTIVITY_DATA,
+        UTILITY_SURFACE_ID,
+        ACTIVITY_SURFACE_ID,
         DEFAULT_FIREMAKING_TARGET,
         DEFAULT_FISHING_TARGET,
         DEFAULT_HUNTER_TARGET,
@@ -213,6 +216,8 @@ except Exception:
         FISHING_OUTPUT_ITEMS,
         RUNECRAFTING_GROUP_LABELS,
         UTILITY_ACTIVITY_DATA,
+        UTILITY_SURFACE_ID,
+        ACTIVITY_SURFACE_ID,
         DEFAULT_FIREMAKING_TARGET,
         DEFAULT_FISHING_TARGET,
         DEFAULT_HUNTER_TARGET,
@@ -718,17 +723,29 @@ _UTILITY_GROUP_LABELS = {
     "grinding": "Grinding",
     "light_sources": "Light sources",
     "warriors_guild": "Warriors' Guild",
-    "minigames": "Activities / minigames",
+    "minigames": "Minigames",
 }
 
 
 def skill_icon_path_for(display_name: str) -> Optional[str]:
-    """Resolve a skill's icon by registry id (icon/<id>_icon.png), else None.
+    """Resolve a skill or no-XP surface icon, else return ``None``.
 
     Falls back to the lowercased display name so skills added before their id is
     wired still find a matching file. Returns None when no asset exists, letting
     callers degrade gracefully instead of showing a broken image.
     """
+    surface_icons = {
+        _UTILITIES_HUB_NAME: os.path.join(
+            current_dir, "questitems", "toolkit.png"
+        ),
+        _ACTIVITIES_HUB_NAME: os.path.join(
+            current_dir, "agilityitems", "agility_arena_ticket.png"
+        ),
+    }
+    surface_icon = surface_icons.get(display_name)
+    if surface_icon and os.path.exists(surface_icon):
+        return surface_icon
+
     candidates = []
     skill = get_skill(display_name)
     if skill is not None:
@@ -977,11 +994,18 @@ def equipment_full_tooltip(item_name: str, lock_reason: str = "") -> str:
     return "\n".join(lines)
 
 
-# Utility / Activities is intentionally NOT a registry skill: it has no XP, level,
-# or exp key. The backend routes it through these display names + `current_utility`,
-# so the hub surfaces it as a synthetic, visually-distinct entry.
-_UTILITY_HUB_NAME = "Utility / Activities"
-_UTILITY_SKILL_NAMES = {"Utility", _UTILITY_HUB_NAME}
+# Utilities and Activities are intentionally NOT registry skills: neither has an
+# XP or level key. They share the review handler and persisted target id, but are
+# distinct navigation surfaces.
+_UTILITIES_HUB_NAME = "Utilities"
+_ACTIVITIES_HUB_NAME = "Activities"
+_LEGACY_UTILITY_HUB_NAME = "Utility / Activities"
+_UTILITY_SKILL_NAMES = {
+    "Utility",
+    _UTILITIES_HUB_NAME,
+    _ACTIVITIES_HUB_NAME,
+    _LEGACY_UTILITY_HUB_NAME,
+}
 # The Stronghold of Security is a one-time landmark rather than a repeatable
 # materials-conversion activity, so it lives outside UTILITY_ACTIVITY_DATA and is
 # injected into the hub as its own "Landmarks" group. This key doubles as the
@@ -989,6 +1013,25 @@ _UTILITY_SKILL_NAMES = {"Utility", _UTILITY_HUB_NAME}
 _STRONGHOLD_UTILITY_KEY = "stronghold_of_security"
 _KNIGHT_WAVES_UTILITY_KEY = "knight_waves"
 _MAGE_ARENA_UTILITY_KEY = "mage_arena"
+_SPECIAL_ACTIVITY_TARGETS = {
+    _STRONGHOLD_UTILITY_KEY,
+    _KNIGHT_WAVES_UTILITY_KEY,
+    _MAGE_ARENA_UTILITY_KEY,
+    EVIL_TREE_UTILITY_ID,
+    BIG_CHINCHOMPA_UTILITY_ID,
+}
+
+
+def _utility_surface_name_for_target(activity_key: object) -> str:
+    target_id = str(activity_key or "")
+    if (
+        target_id in _SPECIAL_ACTIVITY_TARGETS
+        or target_id.startswith("mage_arena_attune:")
+        or UTILITY_ACTIVITY_DATA.get(target_id, {}).get("surface")
+        == ACTIVITY_SURFACE_ID
+    ):
+        return _ACTIVITIES_HUB_NAME
+    return _UTILITIES_HUB_NAME
 _COMBAT_HUB_NAME = "Combat"
 # The individual skills a combat burst can train, with their player_data level
 # and exp keys. Constitution defaults to level 10 (RS classic); everything else
@@ -2086,9 +2129,14 @@ if HAS_QT:
             self.enemy_progress.setVisible(False)
             self.chips_lbl.setVisible(False)
             if skill in _UTILITY_SKILL_NAMES:
-                # Utility / Activities has no level or XP; show the active activity
-                # and make the no-XP nature explicit instead of a progress bar.
+                # Utilities and Activities have no level or XP; show the active
+                # target and make the no-XP nature explicit instead of a bar.
                 activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
+                surface_name = (
+                    skill
+                    if skill in {_UTILITIES_HUB_NAME, _ACTIVITIES_HUB_NAME}
+                    else _utility_surface_name_for_target(activity_key)
+                )
                 spec = UTILITY_ACTIVITY_DATA.get(activity_key, {})
                 if activity_key == EVIL_TREE_UTILITY_ID:
                     activity_name = str(
@@ -2118,15 +2166,19 @@ if HAS_QT:
                     activity_kind = (
                         "idle at the Bank (no XP)"
                         if spec.get("no_op")
-                        else "material prep (no XP)"
+                        else (
+                            "activity (no XP)"
+                            if surface_name == _ACTIVITIES_HUB_NAME
+                            else "utility (no XP)"
+                        )
                     )
-                ip = skill_icon_path_for(skill) or self._placeholder_icon_path()
+                ip = skill_icon_path_for(surface_name) or self._placeholder_icon_path()
                 if ip:
                     pm = QPixmap(ip)
                     self.icon_lbl.setPixmap(pm.scaled(28, 28, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
                 else:
                     self.icon_lbl.clear()
-                self.title_lbl.setText(_UTILITY_HUB_NAME)
+                self.title_lbl.setText(surface_name)
                 status_suffix = f" • {combat_status}" if combat_status else ""
                 self.sub_lbl.setText(
                     f"{activity_name} • {activity_kind}{status_suffix}"
@@ -2134,7 +2186,7 @@ if HAS_QT:
                 try:
                     self.progress.setVisible(False)
                     self.sub_lbl.setVisible(True)
-                    # Activity name already shown in sub_lbl for Utility.
+                    # The target name already appears in sub_lbl.
                     self.target_lbl.setText("")
                     self.target_lbl.setVisible(False)
                 except Exception:
@@ -2620,7 +2672,7 @@ if HAS_QT:
 
         def show_text(self, text: str):
             # Generic floating "ghost" indicator. Used for XP gains and, for no-XP
-            # Utility/Activities, for item gains like "+28 Flax" so the player gets
+            # Utilities/Activities, for item gains like "+28 Flax" so the player gets
             # the same confirmation that a review action actually happened.
             self.setText(str(text))
             self.adjustSize()
@@ -3350,20 +3402,37 @@ def show_main_menu(
         combat_hub.append(CategoryView(category_id="combat", display_name=_COMBAT_HUB_NAME, skills=(combat_card,)))
     hub = tuple(combat_hub)
 
-    # Append a synthetic Utility / Activities category. It is not a registry
-    # skill (no XP/level), so it is injected at the view layer and rendered with
-    # its own no-XP target list rather than the level-based skill panel.
+    # Append distinct no-XP Utilities and Activities categories. They share a
+    # backend action registry but not navigation or target presentation.
     utility_card = SkillCardView(
         skill_id="utility",
-        display_name=_UTILITY_HUB_NAME,
+        display_name=_UTILITIES_HUB_NAME,
         category="utility",
         implemented=True,
         selectable_for_review=True,
         surface_state="complete",
-        training_source="Utility / Activities",
+        training_source=_UTILITIES_HUB_NAME,
+    )
+    activity_card = SkillCardView(
+        skill_id="activities",
+        display_name=_ACTIVITIES_HUB_NAME,
+        category="activities",
+        implemented=True,
+        selectable_for_review=True,
+        surface_state="complete",
+        training_source=_ACTIVITIES_HUB_NAME,
     )
     hub = hub + (
-        CategoryView(category_id="utility", display_name=_UTILITY_HUB_NAME, skills=(utility_card,)),
+        CategoryView(
+            category_id="utility",
+            display_name=_UTILITIES_HUB_NAME,
+            skills=(utility_card,),
+        ),
+        CategoryView(
+            category_id="activities",
+            display_name=_ACTIVITIES_HUB_NAME,
+            skills=(activity_card,),
+        ),
     )
 
     _active_choices = set(playable_review_skill_names()) | {_COMBAT_HUB_NAME, "Quests"} | _UTILITY_SKILL_NAMES
@@ -3506,8 +3575,7 @@ def show_main_menu(
             return _thieving_available()
         if display_name == "Agility":
             return _agility_available()
-        # Utility / Activities is always trainable: gather_* activities need no
-        # inputs, so there is always at least one runnable activity.
+        # Both no-XP surfaces always have at least one runnable target.
         return True
 
     def _refresh_active_label() -> None:
@@ -3689,6 +3757,9 @@ def show_main_menu(
                     current_font = child.font(0)
                     current_font.setBold(True)
                     child.setFont(0, current_font)
+                    child.setBackground(
+                        0, QBrush(QColor(76, 175, 80, 76))
+                    )
                     selected_child = child
                     group_has_current = True
             parent.setExpanded(group in expanded_groups or group_has_current)
@@ -6459,7 +6530,8 @@ def show_main_menu(
         layout.addWidget(tree_host, 1)
         return container
 
-    def _build_utility_list() -> QWidget:
+    def _build_utility_list(surface_name: str) -> QWidget:
+        is_activities = surface_name == _ACTIVITIES_HUB_NAME
         container = QWidget()
         container_layout = QVBoxLayout(container)
         container_layout.setContentsMargins(0, 0, 0, 0)
@@ -6473,7 +6545,7 @@ def show_main_menu(
             Qt.ScrollBarPolicy.ScrollBarAlwaysOff
         )
         cards_scroll.setMinimumHeight(190)
-        cards_scroll.setMaximumHeight(360)
+        cards_scroll.setMaximumHeight(220)
         cards_host = QWidget()
         cards_layout = QVBoxLayout(cards_host)
         cards_layout.setContentsMargins(0, 0, 0, 0)
@@ -7624,6 +7696,13 @@ def show_main_menu(
             DEFAULT_UTILITY_ACTIVITY,
             QUEST_UNLOCK_RULES,
         )
+        surface_id = ACTIVITY_SURFACE_ID if is_activities else UTILITY_SURFACE_ID
+        rows = tuple(
+            row
+            for row in rows
+            if UTILITY_ACTIVITY_DATA.get(row.target_id, {}).get("surface")
+            == surface_id
+        )
         current = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
         ordered_groups = list(_UTILITY_GROUP_LABELS)
         groups = {group: [] for group in ordered_groups}
@@ -7690,7 +7769,8 @@ def show_main_menu(
         lm_font = landmark_parent.font(0)
         lm_font.setBold(True)
         landmark_parent.setFont(0, lm_font)
-        tree.addTopLevelItem(landmark_parent)
+        if is_activities:
+            tree.addTopLevelItem(landmark_parent)
         sh_child = QTreeWidgetItem([sh_label])
         sh_child.setData(0, Qt.ItemDataRole.UserRole, _STRONGHOLD_UTILITY_KEY)
         sh_child.setToolTip(0, sh_tooltip)
@@ -7832,6 +7912,10 @@ def show_main_menu(
                 return
             on_set_utility(activity_id)
             player_data["current_utility"] = activity_id
+            if state["active"] in _UTILITY_SKILL_NAMES and state["active"] != surface_name:
+                state["active"] = surface_name
+                on_save_skill(surface_name)
+                _refresh_active_label()
             _refresh_evil_tree_panel()
             _refresh_big_chinchompa_panel()
 
@@ -7877,10 +7961,24 @@ def show_main_menu(
         cards_layout.addStretch(1)
         cards_host.setMinimumHeight(cards_host.sizeHint().height())
         cards_scroll.setWidget(cards_host)
+        event_status_label = QLabel("Event status")
+        event_status_label.setObjectName("activityEventStatusLabel")
+        event_status_label.setStyleSheet(
+            "font-weight: 600; color: palette(text);"
+        )
+        container_layout.addWidget(event_status_label)
         container_layout.addWidget(cards_scroll)
+        event_status_label.setVisible(is_activities)
+        cards_scroll.setVisible(is_activities)
 
         tree.itemClicked.connect(_on_utility_clicked)
         tree.itemActivated.connect(_on_utility_clicked)
+        tree.setMinimumHeight(140)
+        activity_picker_label = QLabel("Select an activity")
+        activity_picker_label.setObjectName("activityPickerLabel")
+        activity_picker_label.setStyleSheet("color: palette(text);")
+        activity_picker_label.setVisible(is_activities)
+        container_layout.addWidget(activity_picker_label)
         container_layout.addWidget(tree, 1)
         return container
 
@@ -7905,7 +8003,8 @@ def show_main_menu(
         "Summoning": _build_summoning_list,
         "Slayer": _build_slayer_list,
         _COMBAT_HUB_NAME: _build_combat_list,
-        _UTILITY_HUB_NAME: _build_utility_list,
+        _UTILITIES_HUB_NAME: lambda: _build_utility_list(_UTILITIES_HUB_NAME),
+        _ACTIVITIES_HUB_NAME: lambda: _build_utility_list(_ACTIVITIES_HUB_NAME),
     }
     _TARGET_PROMPTS = {
         "Mining": "Select Ore to Mine",
@@ -7925,7 +8024,8 @@ def show_main_menu(
         "Summoning": "Select a pouch to infuse or scrolls to create",
         "Slayer": "Manage assignments, masters, and rewards",
         _COMBAT_HUB_NAME: "Select Enemy",
-        _UTILITY_HUB_NAME: "Select an Activity",
+        _UTILITIES_HUB_NAME: "Select a utility",
+        _ACTIVITIES_HUB_NAME: "Select an activity",
     }
 
     def _skill_icon_path(display_name: str) -> str:
@@ -7972,14 +8072,18 @@ def show_main_menu(
     skill_col_layout = QVBoxLayout(skill_col)
     skill_col_layout.setContentsMargins(0, 0, 0, 0)
     skill_col_layout.setSpacing(6)
-    lbl2 = QLabel("Skills")
-    lbl2.setStyleSheet("font-weight: 600; color: palette(text);")
-    skill_col_layout.addWidget(lbl2)
+    skill_column_label = QLabel("Skills")
+    skill_column_label.setObjectName("skillColumnLabel")
+    skill_column_label.setStyleSheet(
+        "font-weight: 600; color: palette(text);"
+    )
+    skill_col_layout.addWidget(skill_column_label)
     # A QListWidget handles clicking, keyboard nav, selection highlight, and
     # disabled rows natively. Earlier hand-rolled QToolButtons were unreliable
     # (stale signals / overlay hit-testing), so we lean on the proven pattern
     # already used by the target lists below.
     skill_list_widget = QListWidget()
+    skill_list_widget.setObjectName("skillListWidget")
     skill_list_widget.setIconSize(QSize(28, 28))
     skill_list_widget.setStyleSheet(
         "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
@@ -8124,7 +8228,12 @@ def show_main_menu(
                 )
             else:
                 available = _skill_available(name)
-                train_btn.setText("Start activity" if is_utility else "Train this skill")
+                if name == _UTILITIES_HUB_NAME:
+                    train_btn.setText("Start utility")
+                elif name == _ACTIVITIES_HUB_NAME:
+                    train_btn.setText("Start activity")
+                else:
+                    train_btn.setText("Train this skill")
                 train_btn.setEnabled(available)
                 train_btn.setStyleSheet(
                     # Use the base/text palette pairing (same as the category and
@@ -8248,8 +8357,9 @@ def show_main_menu(
 
         if is_utility:
             note = QLabel(
-                "Utility rows process items or run activities; each row states "
-                "its exact XP and behavior."
+                "Utilities process, prepare, gather, or open items. They award no XP."
+                if name == _UTILITIES_HUB_NAME
+                else "Activities contain minigames, world events, and landmarks. Each row states its rewards."
             )
             note.setWordWrap(True)
             # palette(mid) is a border role and renders near-black in dark mode;
@@ -8271,7 +8381,7 @@ def show_main_menu(
 
         builder = _TARGET_BUILDERS.get(name)
         if builder is not None:
-            if name != "Farming":
+            if name not in {"Farming", _ACTIVITIES_HUB_NAME}:
                 prompt_lbl = QLabel(_TARGET_PROMPTS.get(name, "Select a target"))
                 prompt_lbl.setStyleSheet("color: palette(text);")
                 panel_layout.addWidget(prompt_lbl)
@@ -8304,6 +8414,11 @@ def show_main_menu(
             state["details_open"] = False
         state["category"] = category_id
         _update_cat_btn_styles()
+        skill_column_label.setText(
+            "Selection"
+            if category_id in {"utility", "activities"}
+            else "Skills"
+        )
         cards = _cards_for(category_id)
         first = next(
             (c.display_name for c in cards if c.display_name == state["active"] and c.implemented),

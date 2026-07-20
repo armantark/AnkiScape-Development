@@ -23,8 +23,9 @@ except ImportError:  # pragma: no cover - flat import path used by the test runn
 
 
 # Display order is fixed so the hub layout stays stable across renders.
-# ``utility`` is forward-looking: the registry has no Utility/Activities skills
-# yet, so the category simply stays hidden until material-only actions exist.
+# No-XP Utilities and Activities are injected by ``ui.py`` because neither is a
+# registry skill. The retained utility slot keeps future registry grouping
+# deterministic without merging the two live surfaces.
 CATEGORY_ORDER: Tuple[str, ...] = ("combat", "gathering", "artisan", "support", "utility")
 
 CATEGORY_DISPLAY_NAMES: Dict[str, str] = {
@@ -32,7 +33,7 @@ CATEGORY_DISPLAY_NAMES: Dict[str, str] = {
     "gathering": "Gathering",
     "artisan": "Artisan",
     "support": "Support",
-    "utility": "Utility / Activities",
+    "utility": "Utilities",
 }
 
 

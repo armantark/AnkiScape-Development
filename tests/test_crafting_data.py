@@ -242,8 +242,9 @@ class TestCraftingData(unittest.TestCase):
             "glass_unpowered_orb": "Glassblowing pipe",
             "glass_lantern_lens": "Glassblowing pipe",
             "glass_empty_light_orb": "Glassblowing pipe",
+            "glass_potion_flask": "Glassblowing pipe",
         }
-        self.assertEqual(len(expected), 46)
+        self.assertEqual(len(expected), 47)
         for recipe_id, item_name in expected.items():
             self.assertEqual(data[recipe_id]["required_items"], {item_name: 1})
 
@@ -253,6 +254,7 @@ class TestCraftingData(unittest.TestCase):
         for item_name, source_item_id in CRAFTING_REQUIRED_ITEM_SOURCE_IDS.items():
             self.assertEqual(extras[item_name]["item_id"], source_item_id)
             self.assertEqual(extras[item_name]["category"], "tool")
+            self.assertFalse(extras[item_name]["stackable"])
         self.assertEqual(
             {
                 item_name: (extras[item_name]["item_id"], extras[item_name]["tradeable"])

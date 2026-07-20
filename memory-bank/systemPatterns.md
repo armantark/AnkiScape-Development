@@ -33,9 +33,9 @@ expected file and provenance key in the asset test.
 
 ## Important Modules
 - `__init__.py`: runtime orchestration, global player state, review hooks, answer handling, menu callbacks, save/HUD/UI bridge callbacks, and compatibility review-action wrappers.
-- `runtime_actions.py`: Anki-free runtime review-action handlers and handler-keyed can-start checks for the complete skill surfaces, unified Combat, Quests, and Utility/Activities. It mutates `player_data` through a callback/context contract supplied by `__init__.py`.
+- `runtime_actions.py`: Anki-free runtime review-action handlers and handler-keyed can-start checks for the complete skill surfaces, unified Combat, Quests, Utilities, and Activities. It mutates `player_data` through a callback/context contract supplied by `__init__.py`.
 - `constants.py`: item data, skill source data, image paths, XP table, and compatibility exports.
-- `logic_pure.py`: pure helpers for XP/level math, probabilities, crafting, Utility/Activities, mining, woodcutting, fishing, hunter, smithing, quests, claims, and runecrafting operations.
+- `logic_pure.py`: pure helpers for XP/level math, probabilities, crafting, Utilities/Activities, mining, woodcutting, fishing, hunter, smithing, quests, claims, and runecrafting operations.
 - `cadence_kernel.py`: pure foreground-action cadence contracts. It declares
   `R = 1000`, exact integer residual scheduling, four admission modes, overflow
   validation, and resource/actor lock shapes.
@@ -56,8 +56,8 @@ expected file and provenance key in the asset test.
 - `storage.py`: Anki config persistence.
 - `storage_pure.py`: default player shape and migrations.
 - `skill_registry.py`: pure skill catalog for current and planned skills, including stable IDs, categories, save keys, and review eligibility.
-- `action_registry.py`: pure review-action dispatch metadata. It resolves levelled skills and no-XP Utility/Activities to handler keys without adding Utility as a fake skill.
-- `target_metadata.py`: pure target-row metadata for the Skills hub. It builds labels, tooltips, icon paths, enabled/current state, groups, sort order, and lock reasons for the registered skill targets, Combat, and Utility/Activities without creating Qt widgets.
+- `action_registry.py`: pure review-action dispatch metadata. It resolves levelled skills and both no-XP surfaces to handler keys without adding fake registry skills.
+- `target_metadata.py`: pure target-row metadata for the Skills hub. It builds labels, tooltips, icon paths, enabled/current state, groups, sort order, and lock reasons for registered skill targets, Combat, Utilities, and Activities without creating Qt widgets.
 - `achievement_metadata.py`: pure achievement definitions, difficulty order, grouped row view models, and progress-count helpers while preserving the legacy completed-achievement name contract.
 - `hunter_data.py`: source-backed Hunter target data. It uses 2011.rs guide rows for levels/XP/rewards, local 2011Scape cache item names/ids for storage keys, and local 2012scape/Darkan Hunter code only as mechanics/id parity because the local 2011Scape checkout has no Hunter mechanics plugin.
 - `item_registry.py`: pure item manifest helpers for current economy items, including stable IDs, storage keys, categories, assets, and source/license notes.
@@ -236,10 +236,30 @@ expected file and provenance key in the asset test.
   action do not spend a review. They use an inventory/equipment context action,
   enforce their quest/item/coin requirements, persist the transformation, and
   enter the same undo-safe save contract as other non-review inventory changes.
-- Utility/Activities are backend actions, not skills. They use stable activity IDs in `UTILITY_ACTIVITY_DATA`, mutate inventory through pure helpers, award zero skill XP, and can batch up to an inventory-sized cap when they represent fast material preparation.
-- Utility/Activities can also represent one-shot acquisition bridges while the full shop/GE interface is deferred. These activities declare an `outputs` mapping instead of a single `output_item`, can set `deactivate_after_run = True`, and the runtime switches AnkiScape off after the successful review so the action multiplier cannot repeat the purchase inside the same card.
-- Utility/Activities should stay outside `skill_registry.py` unless they gain real level/XP semantics. Runtime dispatch handles them through `action_registry.py` and the handler key `utility`, while the UI may still surface them as a synthetic Skills-hub category.
-- Utility/Activities now have a small row-icon contract: each existing `UTILITY_ACTIVITY_DATA` entry can expose an `icon_path` pointing at a dedicated `activityicons/<activity>.png` asset. The Qt target list prefers that activity-level icon and falls back to the old output-item image map if the path is missing. This keeps no-XP activity presentation first-class without adding Utility to the skill registry or changing reward logic.
+- Utilities and Activities are separate Skills-hub navigation surfaces but share
+  one no-XP backend action family. Stable target IDs remain in
+  `UTILITY_ACTIVITY_DATA`/`current_utility`; every row carries an exhaustive
+  `surface = utilities|activities` classification. Utilities contain gathering,
+  preparation, processing, opening, and Bankstanding rows. Activities contain
+  minigames and Warriors' Guild rows, plus the injected world-event and landmark
+  panels.
+- Both no-XP surfaces stay outside `skill_registry.py` unless they gain real
+  level/XP semantics. `action_registry.py` maps `Utilities`, `Activities`, and
+  the legacy `Utility / Activities` name to the same `utility` review handler.
+  Legacy active-skill saves normalize to the surface that owns
+  `current_utility`.
+- The Skills hub presents those surfaces as distinct categories with separate
+  existing toolkit/ticket sprites. Activities gives its primary target
+  picker guaranteed height beneath a bounded, separately labeled event-status
+  region; Utilities never renders those event cards.
+- No-XP rows can batch up to an inventory-sized cap when they represent fast
+  material preparation. One-shot acquisition bridges may declare an `outputs`
+  mapping and `deactivate_after_run = True`, so the action multiplier cannot
+  repeat them inside one card.
+- No-XP rows have a first-class icon contract: each
+  `UTILITY_ACTIVITY_DATA` entry can expose an `icon_path` pointing at a
+  dedicated `activityicons/<activity>.png` asset. The Qt target list prefers
+  that icon and falls back to output-item art without changing reward logic.
 - Crafting recipe data stores source XP only. Runtime reward handling awards base XP per action tick; review pacing is controlled by the actions-per-review multiplier rather than by inflating a single action's XP.
 - Crafting now follows the source-data-module pattern at the backend layer (`crafting_data.py`). `current_craft` stores stable recipe IDs, inventory stores real item names, and the data intentionally includes live input-starved recipes so missing acquisition loops light up later without reshaping the recipe. XP-bearing Crafting ignores recipe `batch_size`; only no-XP Utility/Activities batch material prep.
 - Woodcutting now has a focused source-data module (`woodcutting_data.py`) rather than only ad hoc `constants.py` rows. Its stable target IDs are persisted in `current_tree`, while inventory uses real item output names such as `Logs` and `Oak logs`.
@@ -582,7 +602,10 @@ expected file and provenance key in the asset test.
   Rocking Out gates Hunter pirate implings. Ability gates are flat
   `player_data["unlocked_abilities"]` ids, currently including
   `broad_fletching` and `barbarian_fishing`.
-- Utility/Activities can now be grouped by `group` metadata in the Qt tree when an action family gets large. Cooking prep uses this to separate gathering, material processing, container/opening, and Cooking prep actions while staying outside the XP skill registry.
+- Utilities and Activities are grouped independently by `group` metadata in
+  their own Qt trees. Group metadata also feeds the explicit surface
+  classification; tests require every registered no-XP row to belong to exactly
+  one side.
 - Mining now follows the same source-data-module pattern (`mining_data.py`). Its stable target IDs are persisted in `current_ore`, while inventory continues to use real item output names such as `Iron ore`, `Pure essence`, `Sandstone (10kg)`, and `Uncut opal`.
 - Smithing now follows the source-data-module pattern too (`smithing_data.py`). It is the first skill with two XP-bearing stations under one skill: smelt and forge are both recipes in `SMITHING_DATA`, selected by stable `current_smith` IDs, while `BAR_DATA` is only a compatibility view for old smelt-only UI paths. Runtime uses one pure processing helper for both stations and keeps hammer/tool requirements implicit; level and inventory materials are the only backend gates. Iron bar smelting is the only source-backed random smelt action: after a valid action starts it consumes `Iron ore`, then either produces `Iron bar` and XP or records a `smelt_fail` telemetry failure with no output/XP. Other smelt bars and forge rows stay deterministic unless a source audit proves another post-start failure.
 - Gathering tool progression is starting with a hybrid model: source tool items remain ordinary registered items for future acquisition/trading, but review logic can also resolve bound toolbelt IDs. Existing saves get a bound Bronze hatchet so introducing tool requirements does not brick Woodcutting. Reuse this for Mining pickaxes if the pattern holds.

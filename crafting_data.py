@@ -22,6 +22,12 @@ DEFAULT_CRAFTING_TARGET = "form_pot_unfired"
 LIMESTONE_BRICK_SOURCE = "RuneScape Wiki Limestone brick oldid=6308408 (2012-09-27)"
 OIL_LANTERN_SOURCE = "https://runescape.wiki/w/Oil_lantern?oldid=5372911"
 SAPPHIRE_LANTERN_SOURCE = "https://runescape.wiki/w/Sapphire_lantern_(lit)?oldid=6092552"
+ROBUST_GLASS_SOURCE = "https://runescape.wiki/w/Robust_glass?oldid=6504157"
+POTION_FLASK_SOURCE = "https://runescape.wiki/w/Potion_flask?oldid=6394714"
+DARKAN_GLASSBLOWING_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "src/main/java/com/rs/game/content/skills/crafting/GlassBlowing.java"
+)
 
 
 @dataclass(frozen=True)
@@ -161,6 +167,17 @@ CRAFTING_REQUIRED_ITEM_NONTRADEABLE = frozenset(
         "Chain link mould",
     }
 )
+CRAFTING_SPECIAL_ITEMS: Dict[str, Dict[str, object]] = {
+    "Robust glass": {
+        "level": 1,
+        "exp": 0.0,
+        "category": "material",
+        "source": ROBUST_GLASS_SOURCE,
+        "item_id": 23193,
+        "tradeable": False,
+        "stackable": False,
+    },
+}
 
 
 CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
@@ -289,6 +306,21 @@ CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
     CraftingRecipe("glass_unpowered_orb", "Unpowered orb", "glass", "glassblowing", 46, 52.5, _req(("Molten glass", 1)), "Unpowered orb", source=GLASS_SOURCE, source_enum="UNPOWERED_ORB", required_items=_req(("Glassblowing pipe", 1))),
     CraftingRecipe("glass_lantern_lens", "Lantern lens", "glass", "glassblowing", 49, 55.0, _req(("Molten glass", 1)), "Lantern lens", source=GLASS_SOURCE, source_enum="LANTERN_LENS", source_item_id=4542, required_items=_req(("Glassblowing pipe", 1))),
     CraftingRecipe("glass_empty_light_orb", "Empty light orb", "glass", "glassblowing", 87, 70.0, _req(("Molten glass", 1)), "Empty light orb", source=GLASS_SOURCE, source_enum="EMPTY_LIGHT_ORB", tradeable=False, source_item_id=10980, required_items=_req(("Glassblowing pipe", 1))),
+    CraftingRecipe(
+        "glass_potion_flask",
+        "Potion flask",
+        "glass",
+        "glassblowing",
+        89,
+        100.0,
+        _req(("Robust glass", 1)),
+        "Potion flask",
+        source=POTION_FLASK_SOURCE,
+        source_enum="POTION_FLASK",
+        source_item_id=23191,
+        required_items=_req(("Glassblowing pipe", 1)),
+        notes=f"Darkan action parity: {DARKAN_GLASSBLOWING_SOURCE}.",
+    ),
     CraftingRecipe("battlestaff_water_battlestaff", "Water battlestaff", "battlestaff", "attach_orb", 54, 100.0, _req(("Battlestaff", 1), ("Water orb", 1)), "Water battlestaff", source=BATTLESTAFF_SOURCE, source_enum="WATER_BATTLESTAFF", notes="The charged orb is supplied by the live Magic Charge Orb action."),
     CraftingRecipe("battlestaff_earth_battlestaff", "Earth battlestaff", "battlestaff", "attach_orb", 58, 112.5, _req(("Battlestaff", 1), ("Earth orb", 1)), "Earth battlestaff", source=BATTLESTAFF_SOURCE, source_enum="EARTH_BATTLESTAFF", notes="The charged orb is supplied by the live Magic Charge Orb action."),
     CraftingRecipe("battlestaff_fire_battlestaff", "Fire battlestaff", "battlestaff", "attach_orb", 62, 125.0, _req(("Battlestaff", 1), ("Fire orb", 1)), "Fire battlestaff", source=BATTLESTAFF_SOURCE, source_enum="FIRE_BATTLESTAFF", notes="The charged orb is supplied by the live Magic Charge Orb action."),
@@ -455,14 +487,19 @@ def crafting_required_items_as_dict() -> Dict[str, Dict[str, object]]:
             "source": GLASSBLOWING_ACTION_SOURCE if item == "Glassblowing pipe" else MOULD_ITEMS_SOURCE,
             "item_id": item_id,
             "tradeable": item not in CRAFTING_REQUIRED_ITEM_NONTRADEABLE,
+            "stackable": False,
         }
         for item, item_id in CRAFTING_REQUIRED_ITEM_SOURCE_IDS.items()
     }
 
 
+def crafting_special_items_as_dict() -> Dict[str, Dict[str, object]]:
+    return {name: dict(spec) for name, spec in CRAFTING_SPECIAL_ITEMS.items()}
+
+
 def crafting_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
     outputs = set(crafting_output_items())
-    extras: Dict[str, Dict[str, object]] = {}
+    extras = crafting_special_items_as_dict()
     required_items = crafting_required_items_as_dict()
     for recipe in CRAFTING_RECIPES:
         for material, _amount in recipe.requirements:

@@ -2,6 +2,50 @@
 
 ## Current Focus
 
+The complete cutoff Potion flask acquisition chain is now live. After
+`As a First Resort...`, level-81 Mining exposes Red sandstone at 70 XP using
+Darkan's `30/145` success endpoints, no gem roll, and a successful-output-only
+50-block allowance per 240-review world day. Utilities converts carried Red
+sandstone one-for-one into Robust glass with no XP, and level-89 Crafting uses
+a held Glassblowing pipe to turn each Robust glass into an empty Potion flask
+for 100 XP. The three items carry exact cache identities, tradeability, and
+non-stackable semantics; Red sandstone and Robust glass have normalized,
+provenance-tracked art, while Potion flask reuses its canonical Herblore
+sprite.
+
+The owner's correction is authoritative: Utilities and Activities are
+separate Skills-hub navigation surfaces. They retain one atomic no-XP backend,
+one persisted `current_utility` key, and one undo/telemetry contract, but every
+registered row has exactly one explicit surface. Utilities contains item
+preparation, gathering, opening, and Bankstanding. Activities contains
+minigames, world events, Warriors' Guild, and one-time landmarks. Legacy
+`Utility` / `Utility / Activities` saves normalize from their selected target.
+The final UI gives both surfaces distinct provenance-tracked sprites and copy;
+Activities reserves the picker beneath a bounded, labeled event-status region.
+
+Kimi K3 reviewed all new Mining, Crafting, Utilities, and Activities surfaces,
+then verified its six concrete findings were resolved in dark and light themes
+with no remaining P0-P2 defect. The final label-position polish is regression
+covered. A fully quit and freshly relaunched native Anki process verified one
+dialog, one Utilities category, one Activities category, and their separate
+content before that reviewer polish. The mandatory Fable pass remains
+externally blocked because its fresh quota probe cannot read Claude Code OAuth
+from macOS Keychain (`security` exit 51); this is not a design gap.
+
+Focused verification passes 212 non-Qt and 29 real offscreen Qt tests. The
+complete non-Qt and offscreen-Qt universes each execute all 1,928 methods
+(251 expected environment skips and one intentional skip respectively); the
+final hub module passes all 247 methods, plus three post-review targeted tests.
+Test quality has zero hard issues. Documentation, compilation, diff, asset
+normalization, reachability, and worktree safety pass. Reachability reports
+1,412 actions, 2,081 reachable items, 168 orphan inputs (76 root, 92 cascade),
+and 188 unresolved actions; Potion flask is now reachable through
+`Crafting:glass_potion_flask`. See
+`source-audits/potion-flask-acquisition-2026-07-20.md`.
+Results:
+`status-updates/potion-flask-acquisition-and-surface-split-results-2026-07-20.html`;
+mobile copy: `https://56ivo4cbqqvn.postplan.dev`.
+
 Teplin Macagan now provides the cutoff Oo'glog potion-flask service through
 two free, instantaneous Shop actions after `As a First Resort...`: fill new
 six-dose flasks from eligible one- through four-dose vial/partial-flask doses,

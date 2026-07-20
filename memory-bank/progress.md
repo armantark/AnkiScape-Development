@@ -4,6 +4,41 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Potion flask acquisition and no-XP surface split — 2026-07-20
+
+- Added the authentic `As a First Resort...` chain: level-81/70-XP Red
+  sandstone with Darkan's `30/145` endpoints and a 50-success review-day cap;
+  free no-XP one-for-one Robust glass conversion; and
+  level-89/100-XP Potion flask glassblowing with a held pipe.
+- Added exact item IDs `23194`, `23193`, and `23191`, tradeability and
+  non-stackable metadata, storage schema 51, successful-output-only cap
+  accounting, quest gates, tooltips, reachability, normalized art, provenance,
+  and focused cross-layer tests.
+- Split the old combined no-XP hub into distinct Utilities and Activities
+  categories while retaining the shared atomic handler, target key, telemetry,
+  and undo path. Every data row has exactly one surface; special events and
+  landmarks remain Activities-only; legacy active-skill saves normalize from
+  the selected target.
+- Added distinct surface sprites, separate copy and start actions, a bounded
+  labeled event-status viewport, guaranteed picker height, a picker-local
+  prompt, and consistent current-target highlighting.
+- Kimi K3's six findings were corrected and its final dark/light review reports
+  no remaining P0-P2 defect. The required Fable review remains externally
+  blocked by the fresh quota probe's macOS Keychain failure (`security` exit
+  51); no owner design gap surfaced.
+- Focused checks pass 212 non-Qt and 29 offscreen-Qt tests. Both complete test
+  universes execute 1,928 methods; the final hub module passes all 247 methods,
+  plus three post-review targeted tests. Test quality, docs, compilation, diff,
+  asset normalization, reachability, and worktree safety pass.
+- Reachability now reports 1,412 actions, 2,081 reachable items, 168 orphan
+  inputs (76 root and 92 cascade), and 188 unresolved actions. Red sandstone,
+  Robust glass, and Potion flask each have an authentic producer route.
+- Durable record:
+  `source-audits/potion-flask-acquisition-2026-07-20.md`.
+- Results:
+  `status-updates/potion-flask-acquisition-and-surface-split-results-2026-07-20.html`;
+  mobile copy: `https://56ivo4cbqqvn.postplan.dev`.
+
 ## Teplin potion-flask decanting — 2026-07-20
 
 - Added the period Oo'glog NPC service after `As a First Resort...`: Teplin

@@ -51,7 +51,7 @@ try:
         DEFAULT_COMBAT_SPELL,
         DEFAULT_COMBAT_TARGET,
     )
-    from .crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, tanning_activities_as_dict
+    from .crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, crafting_special_items_as_dict, tanning_activities_as_dict
     from .equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
     from .big_chinchompa_data import (
         BIG_CHINCHOMPA_UTILITY_ID,
@@ -197,7 +197,7 @@ except ImportError:
         DEFAULT_COMBAT_SPELL,
         DEFAULT_COMBAT_TARGET,
     )
-    from crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, tanning_activities_as_dict
+    from crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, crafting_special_items_as_dict, tanning_activities_as_dict
     from equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
     from big_chinchompa_data import (  # type: ignore
         BIG_CHINCHOMPA_UTILITY_ID,
@@ -388,6 +388,16 @@ UTILITY_ACTIVITY_DATA = {
         "group": "material_processing",
         "source": "OSRS Soft clay > Creation > Container",
     },
+    "make_robust_glass": {
+        "display_name": "Make robust glass",
+        "requirements": {"Red sandstone": 1},
+        "output_item": "Robust glass",
+        "output_qty": 1,
+        "batch_size": 28,
+        "icon_path": os.path.join(CRAFTED_ITEMS_FOLDER, "robust_glass.png"),
+        "group": "material_processing",
+        "source": "https://runescape.wiki/w/Robust_glass?oldid=6504157",
+    },
     "convert_logs_to_planks": {
         "display_name": "Convert logs to planks",
         "requirements": {"Logs": 1, "Coins": 100},
@@ -566,12 +576,37 @@ if os.path.exists(_big_chinchompa_icon):
         _big_chinchompa_icon
     )
 
+UTILITY_SURFACE_ID = "utilities"
+ACTIVITY_SURFACE_ID = "activities"
+UTILITY_ACTIVITY_GROUPS = frozenset(
+    {
+        "economy",
+        "cooking_prep",
+        "gathering",
+        "material_processing",
+        "containers_opening",
+        "grinding",
+        "light_sources",
+        "input_preparation",
+        "prayer_preparation",
+    }
+)
+ACTIVITY_GROUPS = frozenset({"warriors_guild", "minigames"})
+for _activity_spec in UTILITY_ACTIVITY_DATA.values():
+    _activity_group = str(_activity_spec.get("group", "material_processing"))
+    if _activity_group in ACTIVITY_GROUPS:
+        _activity_spec["surface"] = ACTIVITY_SURFACE_ID
+    elif _activity_group in UTILITY_ACTIVITY_GROUPS:
+        _activity_spec["surface"] = UTILITY_SURFACE_ID
+
 CRAFTING_DATA = crafting_recipes_as_dict()
 CRAFTING_REQUIRED_ITEM_DATA = crafting_required_items_as_dict()
+CRAFTING_SPECIAL_ITEM_DATA = crafting_special_items_as_dict()
 
 CRAFTED_ITEM_IMAGES = {}
 UTILITY_ITEM_IMAGES = {
     "Soft clay": os.path.join(CRAFTED_ITEMS_FOLDER, "soft_clay.png"),
+    "Robust glass": os.path.join(CRAFTED_ITEMS_FOLDER, "robust_glass.png"),
     "Wool": os.path.join(CRAFTED_ITEMS_FOLDER, "wool.png"),
     "Flax": os.path.join(CRAFTED_ITEMS_FOLDER, "flax.png"),
     "Swamp toad": os.path.join(SUMMONING_ITEMS_FOLDER, "swamp_toad.png"),
@@ -618,6 +653,7 @@ for _item_name, _filename in {
     "Granite (500g)": "granite_500g.png",
     "Granite (2kg)": "granite_2kg.png",
     "Granite (5kg)": "granite_5kg.png",
+    "Red sandstone": "red_sandstone.png",
 }.items():
     _path = os.path.join(ores_folder, _filename)
     if os.path.exists(_path):
@@ -989,6 +1025,11 @@ for _item_name in (
     if _path and os.path.exists(_path):
         HERBLORE_ITEM_IMAGES[_item_name] = _path
 
+# Potion flasks are blown through Crafting but already have one canonical
+# Herblore container sprite. Share it instead of fetching a duplicate asset.
+if HERBLORE_ITEM_IMAGES.get("Potion flask"):
+    CRAFTED_ITEM_IMAGES["Potion flask"] = HERBLORE_ITEM_IMAGES["Potion flask"]
+
 URN_ITEM_DATA = urn_extra_items_as_dict()
 PRAYER_PASSIVE_ITEM_DATA = prayer_passive_items_as_dict()
 PRAYER_EXTRA_ITEM_DATA = {
@@ -1264,6 +1305,7 @@ def _known_non_shop_item_names():
         HUNTER_EXTRA_ITEM_DATA,
         COOKING_EXTRA_ITEM_DATA,
         CRAFTING_REQUIRED_ITEM_DATA,
+        CRAFTING_SPECIAL_ITEM_DATA,
         RUNECRAFTING_EXTRA_ITEM_DATA,
         HERBLORE_EXTRA_ITEM_DATA,
         COMBAT_EXTRA_ITEM_DATA,
@@ -1338,6 +1380,7 @@ def _known_non_shop_item_ids(names):
         HUNTER_EXTRA_ITEM_DATA,
         COOKING_EXTRA_ITEM_DATA,
         CRAFTING_REQUIRED_ITEM_DATA,
+        CRAFTING_SPECIAL_ITEM_DATA,
         RUNECRAFTING_EXTRA_ITEM_DATA,
         HERBLORE_EXTRA_ITEM_DATA,
         COMBAT_EXTRA_ITEM_DATA,
@@ -1401,6 +1444,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **HUNTER_EXTRA_ITEM_DATA,
     **COOKING_EXTRA_ITEM_DATA,
     **CRAFTING_REQUIRED_ITEM_DATA,
+    **CRAFTING_SPECIAL_ITEM_DATA,
     **RUNECRAFTING_EXTRA_ITEM_DATA,
     **HERBLORE_EXTRA_ITEM_DATA,
     **PRAYER_EXTRA_ITEM_DATA,

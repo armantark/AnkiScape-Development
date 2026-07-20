@@ -1647,7 +1647,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_utility_answer()
 
-        self.assertEqual(addon.current_skill, "Utility / Activities")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
         self.assertEqual(len(errors), 1)
         self.assertIn("Bankstanding", errors[0][1])
@@ -1673,7 +1673,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_crafting_answer()
 
-        self.assertEqual(addon.current_skill, "Utility / Activities")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
         self.assertEqual(len(errors), 1)
         self.assertIn("Pot (unfired)", errors[0][1])
@@ -1702,7 +1702,27 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertIs(addon._registered_answer_handler("Fishing"), addon.runtime_actions.handle_fishing_answer)
         self.assertIs(addon._registered_answer_handler("Utility / Activities"), addon.runtime_actions.handle_utility_answer)
         self.assertIs(addon._registered_answer_handler("Utility"), addon.runtime_actions.handle_utility_answer)
+        self.assertIs(addon._registered_answer_handler("Utilities"), addon.runtime_actions.handle_utility_answer)
+        self.assertIs(addon._registered_answer_handler("Activities"), addon.runtime_actions.handle_utility_answer)
         self.assertIs(addon._registered_answer_handler("Thieving"), addon.runtime_actions.handle_thieving_answer)
+
+    def test_legacy_combined_no_xp_skill_normalizes_from_its_selected_target(self):
+        addon = _load_addon_as_package("ankiscape_legacy_no_xp_surface")
+        addon.player_data = {"current_utility": "make_soft_clay"}
+        self.assertEqual(
+            addon._normalize_legacy_utility_skill("Utility / Activities"),
+            "Utilities",
+        )
+        addon.player_data["current_utility"] = "livid_farm"
+        self.assertEqual(
+            addon._normalize_legacy_utility_skill("Utility / Activities"),
+            "Activities",
+        )
+        addon.player_data["current_utility"] = "mage_arena_attune:guthix"
+        self.assertEqual(
+            addon._normalize_legacy_utility_skill("Utility"),
+            "Activities",
+        )
 
     def test_can_start_current_action_uses_handler_keyed_readiness_checks(self):
         addon = _load_addon_as_package("ankiscape_action_dispatch_readiness")
@@ -2188,7 +2208,7 @@ class TestIntegrationSmoke(unittest.TestCase):
                 lambda _self, _ease: "answered",
             )
 
-        self.assertEqual(addon.current_skill, "Utility / Activities")
+        self.assertEqual(addon.current_skill, "Utilities")
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
         self.assertEqual(len(calls["errors"]), 1)
         self.assertIn("Bankstanding", calls["errors"][0][1])

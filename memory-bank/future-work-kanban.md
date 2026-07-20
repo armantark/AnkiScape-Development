@@ -1044,8 +1044,8 @@ Labels: `DESIGN CLOSED 2026-07-18`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY:
 
 Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 
-- Maintain `tools/audit_item_reachability.py`; the current run finds 1,409
-  actions, 2,012 reachable items, and 235 orphan inputs (76 root, 159 cascade)
+- Maintain `tools/audit_item_reachability.py`; the current run finds 1,412
+  actions, 2,081 reachable items, and 168 orphan inputs (76 root, 92 cascade)
   across planned skills, activities, Combat/world acquisition, Farming, and
   potion-state plumbing. Bob Barter's vial decant routes and Teplin Macagan's
   vial/flask conversions make potion dose variants known-producer cascades;
@@ -1072,9 +1072,14 @@ Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 - **Closed 2026-07-20:** Teplin Macagan now fills new six-dose flasks and
   reverses eligible partial flasks after the authentic quest gate, with exact
   dose/container conservation, direct undo, complete registered potion art,
-  and native-Anki UI proof. Empty Potion flask acquisition remains a truthful
-  root dependency for its own period route. See
+  and native-Anki UI proof. See
   `source-audits/teplin-potion-flask-decanting-2026-07-20.md`.
+- **Closed 2026-07-20:** the complete empty Potion flask chain is live:
+  quest-gated level-81 Red sandstone mining with a 50-success review-day cap,
+  free no-XP Robust glass conversion under Utilities, and level-89/100-XP
+  Potion flask glassblowing with a held pipe. Utilities and Activities are
+  distinct navigation surfaces over the shared no-XP runtime. See
+  `source-audits/potion-flask-acquisition-2026-07-20.md`.
 - The source-backed Woodcutting nest → empty nest → crushed nest route is repaired and regression-covered.
 - Finish equipment requirements, special attacks, poison, charges/degradation, set effects, jewellery, consumables, and source-specific use actions without creating fake recipes.
 - **Closed 2026-07-15:** barehand butterfly catching now ships as the distinct

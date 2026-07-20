@@ -39,6 +39,7 @@ try:
         MAGE_ARENA_GOD_DATA,
         default_quest_combat_active_encounters_pure,
         default_quest_combat_config_pure,
+        default_red_sandstone_daily_state_pure,
         default_stronghold_state_pure,
         calculate_new_level,
         sanitize_action_telemetry_pure,
@@ -47,6 +48,7 @@ try:
         sanitize_mage_arena_state_pure,
         sanitize_quest_combat_active_encounters_pure,
         sanitize_quest_combat_config_pure,
+        red_sandstone_daily_state_pure,
         sanitize_stronghold_state_pure,
     )
     from .shop_logic import default_shop_state_pure, sanitize_shop_state_pure
@@ -131,6 +133,7 @@ except ImportError:
         MAGE_ARENA_GOD_DATA,
         default_quest_combat_active_encounters_pure,
         default_quest_combat_config_pure,
+        default_red_sandstone_daily_state_pure,
         default_stronghold_state_pure,
         calculate_new_level,
         sanitize_action_telemetry_pure,
@@ -139,6 +142,7 @@ except ImportError:
         sanitize_mage_arena_state_pure,
         sanitize_quest_combat_active_encounters_pure,
         sanitize_quest_combat_config_pure,
+        red_sandstone_daily_state_pure,
         sanitize_stronghold_state_pure,
     )
     from shop_logic import default_shop_state_pure, sanitize_shop_state_pure
@@ -187,7 +191,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 50
+CURRENT_CONFIG_VERSION = 51
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -407,6 +411,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["unlocked_abilities"] = []
     data.update(inventory_pure.default_carried_state())
     data.update(default_shop_state_pure())
+    data["red_sandstone_daily"] = default_red_sandstone_daily_state_pure()
     data.update(default_ge_state_pure())
     data["world_population_profile"] = "normal"
     data["hunter_private_ground_targets"] = []
@@ -986,6 +991,9 @@ def migrate_loaded_data(
     _migrate_toolbelt(data)
     _migrate_equipment(data)
     data.update(sanitize_shop_state_pure(data))
+    # v51: Red sandstone's source daily allowance is translated onto the
+    # established 240-answer world day; no wall-clock value is persisted.
+    data["red_sandstone_daily"] = red_sandstone_daily_state_pure(data)
     data.update(sanitize_ge_state_pure(data))
     population_profile = str(
         data.get("world_population_profile", "normal")

@@ -29,6 +29,7 @@ try:
         herblore_target_locked_reasons_pure,
         hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
+        red_sandstone_daily_remaining_pure,
         magic_target_locked_reasons_pure,
         prayer_target_locked_reasons_pure,
         owned_gilded_altar_access_reasons_pure,
@@ -63,6 +64,7 @@ except Exception:
         herblore_target_locked_reasons_pure,
         hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
+        red_sandstone_daily_remaining_pure,
         magic_target_locked_reasons_pure,
         prayer_target_locked_reasons_pure,
         owned_gilded_altar_access_reasons_pure,
@@ -841,6 +843,11 @@ def mining_target_rows(
         note = data.get("notes")
         if note:
             tooltip += f"\nNote: {note}"
+        if target_id == "red_sandstone":
+            tooltip += (
+                "\nReview-day allowance: "
+                f"{red_sandstone_daily_remaining_pure(player_data)} of 50 remaining"
+            )
         deferred_note = (deferred_notes or {}).get(target_id)
         if deferred_note:
             tooltip += f"\nNote: {deferred_note}"

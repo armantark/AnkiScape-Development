@@ -19,6 +19,7 @@ from .constants import (
     QUEST_UNLOCK_RULES,
     CLAIM_DATA,
     UTILITY_ACTIVITY_DATA,
+    ACTIVITY_SURFACE_ID,
     DEFAULT_UTILITY_ACTIVITY,
     EXP_TABLE,
     ORE_IMAGES,
@@ -105,7 +106,12 @@ from .injectors import inject_overview_floating_button as _inject_overview_float
 from .injectors import register_deck_browser_button as _register_deck_browser_button
 from .injectors import force_deck_browser_refresh as _force_deck_browser_refresh
 from .storage import load_player_data as storage_load_player_data, save_player_data as storage_save_player_data
-from .action_registry import is_review_action, review_action_handler_key
+from .action_registry import (
+    ACTIVITY_REVIEW_ACTION_DISPLAY_NAME,
+    UTILITY_REVIEW_ACTION_DISPLAY_NAME,
+    is_review_action,
+    review_action_handler_key,
+)
 from .skill_registry import get_skill, trainable_skill_definitions
 from .shop_logic import advance_shop_market_clock_pure
 from .grand_exchange_data import GE_ITEM_CATALOG
@@ -175,6 +181,35 @@ exp_awarded = False
 
 current_skill = "None"
 
+_SPECIAL_ACTIVITY_TARGETS = {
+    "stronghold_of_security",
+    "knight_waves",
+    "mage_arena",
+    EVIL_TREE_UTILITY_ID,
+    BIG_CHINCHOMPA_UTILITY_ID,
+}
+
+
+def _utility_surface_for_target(activity_id) -> str:
+    target = str(activity_id or "")
+    if (
+        target in _SPECIAL_ACTIVITY_TARGETS
+        or target.startswith("mage_arena_attune:")
+        or UTILITY_ACTIVITY_DATA.get(target, {}).get("surface")
+        == ACTIVITY_SURFACE_ID
+    ):
+        return ACTIVITY_REVIEW_ACTION_DISPLAY_NAME
+    return UTILITY_REVIEW_ACTION_DISPLAY_NAME
+
+
+def _normalize_legacy_utility_skill(skill) -> str:
+    name = str(skill or "None")
+    if name in {"Utility", "Utility / Activities"}:
+        return _utility_surface_for_target(
+            player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
+        )
+    return name
+
 # --- Debug logging (centralized) ---
 from .debug import debug_log  # size-rotated, disabled by default unless ANKISCAPE_DEBUG=1
 try:
@@ -213,6 +248,7 @@ def save_player_data():
 def load_player_data():
     global player_data, current_skill
     player_data, current_skill = storage_load_player_data()
+    current_skill = _normalize_legacy_utility_skill(current_skill)
     ui.update_menu_visibility(current_skill)
 
 ## Removed legacy get_exp_to_next_level stub; use logic_pure.get_exp_to_next_level in tests/pure logic.
@@ -222,6 +258,10 @@ def load_player_data():
 def initialize_skill():
     global current_skill
     current_skill = mw.col.get_config("ankiscape_current_skill", default="None")
+    normalized_skill = _normalize_legacy_utility_skill(current_skill)
+    if normalized_skill != current_skill:
+        current_skill = normalized_skill
+        mw.col.set_config("ankiscape_current_skill", current_skill)
     ui.update_menu_visibility(current_skill)
 
 
@@ -272,7 +312,7 @@ def _show_exp(exp_gained) -> None:
 
 
 def _show_activity_gain(text: str) -> None:
-    """Floating 'ghost' confirmation for no-XP Utility/Activities (e.g. "+28 Flax").
+    """Floating confirmation for no-XP Utilities/Activities (for example, "+28 Flax").
 
     Reuses the floating XP popup so utility actions get the same lightweight
     feedback as XP skills, and respects the same floating-notification setting.
@@ -817,7 +857,7 @@ def _deactivate_current_skill() -> None:
 def _switch_to_bankstanding() -> None:
     """Use the settled no-XP fallback after an action exhausts its inputs."""
     global current_skill
-    current_skill = "Utility / Activities"
+    current_skill = UTILITY_REVIEW_ACTION_DISPLAY_NAME
     player_data["current_utility"] = "bankstanding"
     try:
         ui.update_menu_visibility(current_skill)
@@ -1863,7 +1903,7 @@ def _set_value(key: str, value):
     save_player_data()
     # Reflect target/activity changes on the in-review HUD immediately. For XP
     # skills the HUD shows level/progress (so the target swap is not visible
-    # there), but for Utility/Activities the HUD shows the active activity name,
+    # there), but for Utilities/Activities the HUD shows the active target name,
     # so switching e.g. "Gather flax" -> "Make soft clay" must update the study
     # screen right away rather than waiting for the next card.
     try:

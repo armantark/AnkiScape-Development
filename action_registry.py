@@ -2,7 +2,7 @@
 
 Skill identity stays in ``skill_registry``. This module only answers the runtime
 question "which review handler should this active training name use?", including
-no-XP Utility/Activities without pretending it is a levelled skill.
+no-XP Utilities and Activities without pretending either is a levelled skill.
 """
 
 from __future__ import annotations
@@ -16,8 +16,15 @@ except ImportError:  # pragma: no cover - flat import path used by the test runn
 
 
 UTILITY_REVIEW_ACTION_ID = "utility"
-UTILITY_REVIEW_ACTION_DISPLAY_NAME = "Utility / Activities"
-UTILITY_REVIEW_ACTION_ALIASES: Tuple[str, ...] = ("Utility", UTILITY_REVIEW_ACTION_DISPLAY_NAME)
+UTILITY_REVIEW_ACTION_DISPLAY_NAME = "Utilities"
+ACTIVITY_REVIEW_ACTION_DISPLAY_NAME = "Activities"
+LEGACY_UTILITY_REVIEW_ACTION_DISPLAY_NAME = "Utility / Activities"
+UTILITY_REVIEW_ACTION_ALIASES: Tuple[str, ...] = (
+    "Utility",
+    UTILITY_REVIEW_ACTION_DISPLAY_NAME,
+    ACTIVITY_REVIEW_ACTION_DISPLAY_NAME,
+    LEGACY_UTILITY_REVIEW_ACTION_DISPLAY_NAME,
+)
 QUEST_REVIEW_ACTION_ID = "quest"
 QUEST_REVIEW_ACTION_DISPLAY_NAME = "Quests"
 QUEST_REVIEW_ACTION_ALIASES: Tuple[str, ...] = ("Quest", QUEST_REVIEW_ACTION_DISPLAY_NAME)
@@ -31,7 +38,7 @@ _COMBAT_REVIEW_ACTION_KEYS = {name.strip().lower() for name in COMBAT_REVIEW_ACT
 
 
 def is_utility_review_action(identifier: str) -> bool:
-    """Return True for the canonical Utility label and its legacy alias."""
+    """Return True for either no-XP surface and their legacy aliases."""
     return str(identifier or "").strip().lower() in _UTILITY_REVIEW_ACTION_KEYS
 
 
@@ -67,4 +74,5 @@ def review_action_display_names() -> Tuple[str, ...]:
         COMBAT_REVIEW_ACTION_DISPLAY_NAME,
         QUEST_REVIEW_ACTION_DISPLAY_NAME,
         UTILITY_REVIEW_ACTION_DISPLAY_NAME,
+        ACTIVITY_REVIEW_ACTION_DISPLAY_NAME,
     )

@@ -136,9 +136,15 @@ lives in `logic_pure.py`; storage config version 15 adds
 - **Hatchets / nests / seeds live in `woodcuttingitems/`**, keyed by `constants._asset_slug(name)` and wired via `WOODCUTTING_EXTRA_ITEM_IMAGES`. Both `LOG_IMAGES` and that map are existence-guarded so `missing_required_asset_paths()` (asserted empty by tests) never trips on an unfetched item.
 - **Ivy uses the Choking ivy interface icon.** Ivy has no inventory/log item, and `File:Ivy.png` (OSRS) is a full castle-wall *screenshot*, not an icon. The usable art is `File:Choking ivy icon.png` (RS3) — fetched into `trees/Ivy.png` so the (XP-only, no-output) row still shows a vine icon. Egg bird-nests and bird's eggs stay iconless (wiki titles don't resolve; vanishingly rare drops). Nest *ring* contents reuse the existing crafted ring sprites.
 
-### Utility/Activities row icons
+### Utilities and Activities row icons
 - Existing no-XP activity rows now use dedicated `activityicons/` PNGs instead of relying only on output-item material art. The row contract is `UTILITY_ACTIVITY_DATA[activity_id]["icon_path"]`.
-- The Qt Utility target list prefers `icon_path` and falls back to `UTILITY_ITEM_IMAGES` for output-producing rows. Missing activity icons therefore degrade to the older output icon or text-only row, without changing action behavior.
+- The Qt Utilities and Activities target lists prefer `icon_path` and fall back
+  to `UTILITY_ITEM_IMAGES` for output-producing rows. Missing icons therefore
+  degrade to output art or a text-only row without changing action behavior.
+- The distinct surface cards reuse the provenance-tracked
+  `questitems/toolkit.png` and `agilityitems/agility_arena_ticket.png` sprites.
+  Qt scales both through the same 28-by-28 `KeepAspectRatio` contract as skill
+  and target icons; no duplicate synthesized artwork is checked in.
 - Fetch activity-row icons with `uv run tools/fetch_assets.py <item> --out activityicons/<activity_id>.png --wiki-title <File title> --size 64`, then confirm `assets_provenance.json` contains the `activityicons/` key. Do provenance-affecting fetches sequentially because the current JSON writer is not concurrency-safe.
 - Current activity icon provenance: Soft clay, Wool, and Flax from OSRS wiki art; Open bird nests uses runescape.wiki `Bird's nest (seeds).png` because that title resolved there.
 

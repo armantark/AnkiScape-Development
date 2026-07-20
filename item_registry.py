@@ -180,12 +180,14 @@ def build_item_definitions(
         if isinstance(output_name, str):
             output_spec = dict(spec)
             output_spec["tradeable"] = spec.get("output_tradeable", spec.get("tradeable", True))
+            output_spec["stackable"] = spec.get("output_stackable", spec.get("stackable", True))
             add_definition(_definition(output_name, "ore", "Mining", {output_name: output_spec}, ore_images))
         alternate_output = spec.get("alternate_output_item")
         if isinstance(alternate_output, str):
             alternate_spec = dict(spec)
             alternate_spec["level"] = spec.get("alternate_output_level", spec.get("level", 1))
             alternate_spec["tradeable"] = spec.get("alternate_output_tradeable", True)
+            alternate_spec["stackable"] = spec.get("alternate_output_stackable", True)
             add_definition(_definition(alternate_output, "ore", "Mining", {alternate_output: alternate_spec}, ore_images))
         for weighted_output in spec.get("weighted_outputs", ()):
             if not isinstance(weighted_output, Mapping):

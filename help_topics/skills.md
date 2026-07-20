@@ -21,7 +21,9 @@ A target must satisfy its level, quest, material, and equipment requirements bef
 - Gathering targets usually roll for one sourced action.
 - Processing targets consume carried materials and create outputs.
 - Combat keeps an encounter across reviews and uses the selected loadout.
-- Utility/Activities may prepare materials, run a bounded activity beat, or manage a skill-adjacent system without pretending to be an XP skill.
+- Utilities prepare, gather, process, or open items without pretending to be an
+  XP skill. Activities separately contain minigames, world events, and
+  landmarks; both advance through successful reviews.
 
 ## Live skill catalog
 

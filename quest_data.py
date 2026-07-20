@@ -712,6 +712,8 @@ BARBARIAN_FISHING_SOURCE = (
 )
 HUNTER_EAGLES_PEAK_SOURCE = "https://www.2011.rs/kb/hunter_box_trapping_level_27"
 HUNTER_AS_A_FIRST_RESORT_SOURCE = "https://www.2011.rs/kb/hunter_locations"
+RED_SANDSTONE_SOURCE = "https://runescape.wiki/w/Red_sandstone?oldid=6438865"
+ROBUST_GLASS_SOURCE = "https://runescape.wiki/w/Robust_glass?oldid=6504157"
 HUNTER_ROCKING_OUT_SOURCE = "https://www.2011.rs/kb/hunter_butterfly_netting_level_15"
 KNIGHTS_SWORD_QUEST_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
@@ -8912,6 +8914,8 @@ QUEST_UNLOCK_RULES: Tuple[QuestUnlockRule, ...] = (
     # stock); the cook_yak Cooking rule below keeps the Fremennik Isles gate.
     QuestUnlockRule(EAGLES_PEAK_ID, "target", "hunter", ("catch_ferret",), "Eagles' Peak", HUNTER_EAGLES_PEAK_SOURCE),
     QuestUnlockRule(AS_A_FIRST_RESORT_ID, "target", "hunter", ("catch_wimpy_bird",), "As a First Resort", HUNTER_AS_A_FIRST_RESORT_SOURCE),
+    QuestUnlockRule(AS_A_FIRST_RESORT_ID, "target", "mining", ("red_sandstone",), "As a First Resort", RED_SANDSTONE_SOURCE),
+    QuestUnlockRule(AS_A_FIRST_RESORT_ID, "target", "utility", ("make_robust_glass",), "As a First Resort", ROBUST_GLASS_SOURCE),
     QuestUnlockRule(ROCKING_OUT_ID, "target", "hunter", ("catch_pirate_impling_puro_puro", "catch_pirate_impling_world"), "Rocking Out", HUNTER_ROCKING_OUT_SOURCE),
     QuestUnlockRule(PRIEST_IN_PERIL_ID, "target", "hunter", ("catch_swamp_lizard",), "Priest in Peril", HUNTER_PRIEST_IN_PERIL_SOURCE),
     QuestUnlockRule(

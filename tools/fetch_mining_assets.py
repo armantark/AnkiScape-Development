@@ -66,6 +66,7 @@ ORES: List[Tuple[str, str]] = [
     ("Granite (500g)", "ores/granite_500g.png"),
     ("Granite (2kg)", "ores/granite_2kg.png"),
     ("Granite (5kg)", "ores/granite_5kg.png"),
+    ("Red sandstone", "ores/red_sandstone.png"),
 ]
 
 # Gem-rock outputs. Sapphire/emerald/ruby/diamond already ship in gems/; opal,

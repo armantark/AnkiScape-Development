@@ -27,6 +27,13 @@ MINING_RUNTIME_SOURCE_PATH = (
 ITEMS_SOURCE_PATH = "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml"
 HISTORICAL_MINING_SOURCE = "https://runescape.wiki/w/Mining_(Historical)"
 OSRS_GEM_ROCK_SOURCE = "https://oldschool.runescape.wiki/w/Gem_rocks"
+RED_SANDSTONE_SOURCE = "https://runescape.wiki/w/Red_sandstone?oldid=6438865"
+RED_SANDSTONE_RUNTIME_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "src/main/java/com/rs/game/content/skills/mining/Ore.java"
+)
+RED_SANDSTONE_DAILY_CAP = 50
+MINING_REVIEW_DAY_CARDS = 240
 
 
 @dataclass(frozen=True)
@@ -58,7 +65,9 @@ class MiningTarget:
     allows_random_gems: bool = True
     notes: str = ""
     output_tradeable: bool = True
+    output_stackable: bool = True
     alternate_output_tradeable: bool = True
+    alternate_output_stackable: bool = True
 
 
 @dataclass(frozen=True)
@@ -246,6 +255,28 @@ MINING_TARGETS: Tuple[MiningTarget, ...] = (
         allows_random_gems=False,
         notes="Living Rock Caverns deposit; the source rock stays available after a success, while AnkiScape's review-paced loop does not model rock depletion.",
     ),
+    _target(
+        "red_sandstone",
+        "Red sandstone",
+        81,
+        70.0,
+        "Red sandstone",
+        23194,
+        30,
+        145,
+        -1,
+        None,
+        source=RED_SANDSTONE_SOURCE,
+        allows_random_gems=False,
+        output_tradeable=False,
+        output_stackable=False,
+        notes=(
+            "After As a First Resort...; capped at 50 successful blocks per "
+            "240-review world day. Darkan Ore.java supplies the 30/145 success "
+            f"curve ({RED_SANDSTONE_RUNTIME_SOURCE}); exact depletion and "
+            "respawn timing are source-blocked and not modeled."
+        ),
+    ),
     _target("runite", "Runite", 85, 125.0, "Runite ore", 451, 1, 18, 1200, 4),
 )
 
@@ -405,6 +436,7 @@ def mining_targets_as_dict() -> Dict[str, Dict[str, object]]:
             "exp": target.base_exp,
             "output_item": target.output_item,
             "output_tradeable": target.output_tradeable,
+            "output_stackable": target.output_stackable,
             "source_item_id": target.source_item_id,
             "low_chance": target.low_chance,
             "high_chance": target.high_chance,
@@ -415,6 +447,7 @@ def mining_targets_as_dict() -> Dict[str, Dict[str, object]]:
             "alternate_output_item": target.alternate_output_item,
             "alternate_output_level": target.alternate_output_level,
             "alternate_output_tradeable": target.alternate_output_tradeable,
+            "alternate_output_stackable": target.alternate_output_stackable,
             "weighted_outputs": tuple(
                 {
                     "item": output.item,
@@ -479,6 +512,7 @@ def mining_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
                     "source": target.source,
                     "item_id": target.source_item_id,
                     "tradeable": target.output_tradeable,
+                    "stackable": target.output_stackable,
                 },
             )
         if target.alternate_output_item:
@@ -490,6 +524,7 @@ def mining_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
                     "exp": target.base_exp,
                     "source": target.source,
                     "tradeable": target.alternate_output_tradeable,
+                    "stackable": target.alternate_output_stackable,
                 },
             )
         for output in target.weighted_outputs:

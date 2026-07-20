@@ -13929,6 +13929,18 @@
     "source_wiki": "rs3",
     "timestamp": "2023-04-28T14:58:07Z"
   },
+  "crafteditems/robust_glass.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Robust_glass.png",
+    "file_title": "Robust glass.png",
+    "image_url": "https://runescape.wiki/images/Robust_glass.png?40faa",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "067c5037c8ddf02e6a48c08b61ddf87822ef2b9f",
+    "size": 13662,
+    "source_wiki": "rs3",
+    "timestamp": "2021-01-10T17:22:38Z"
+  },
   "crafteditems/rope.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rope.png",
     "file_title": "Rope.png",
@@ -24296,6 +24308,18 @@
     "size": 864,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:03:00Z"
+  },
+  "ores/red_sandstone.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Red_sandstone.png",
+    "file_title": "Red sandstone.png",
+    "image_url": "https://runescape.wiki/images/Red_sandstone.png?ab0ea",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "941ac08de2b49b671160caf55076e98133b3cae5",
+    "size": 846,
+    "source_wiki": "rs3",
+    "timestamp": "2020-12-20T00:08:45Z"
   },
   "ores/sandstone_10kg.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Sandstone_%2810kg%29.png",

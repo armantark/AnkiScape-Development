@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Potion Flask Route and Surface Split</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f5f2e9;
+      --muted: #aaa99f;
+      --panel: #191a17;
+      --panel2: #23251f;
+      --line: #3b4036;
+      --green: #7bd88f;
+      --sand: #e58d67;
+      --glass: #7fd6d9;
+      --gold: #f0c96e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 82% 8%, rgba(83, 177, 147, .20), transparent 30rem),
+        radial-gradient(circle at 8% 88%, rgba(198, 92, 63, .19), transparent 30rem),
+        #0d0f0c;
+      font: 16px/1.55 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 42px 0 64px; }
+    header { display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: end; }
+    .eyebrow { color: var(--green); font-weight: 800; letter-spacing: .13em; text-transform: uppercase; font-size: .76rem; }
+    h1 { margin: 8px 0 10px; font-size: clamp(2.35rem, 6.5vw, 5.2rem); line-height: .94; letter-spacing: -.055em; }
+    .lede { max-width: 760px; margin: 0; color: var(--muted); font-size: 1.08rem; }
+    .stamp {
+      min-width: 190px; padding: 15px 18px; border: 1px solid rgba(123, 216, 143, .44);
+      border-radius: 16px; background: rgba(123, 216, 143, .08);
+    }
+    .stamp strong { display: block; color: var(--green); font-size: 1.12rem; }
+    .stamp span { color: var(--muted); font-size: .82rem; }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-top: 28px; }
+    .card {
+      grid-column: span 4; padding: 22px; border: 1px solid var(--line);
+      border-radius: 20px; background: linear-gradient(145deg, rgba(36, 38, 32, .98), rgba(20, 22, 18, .98));
+      box-shadow: 0 16px 42px rgba(0, 0, 0, .22);
+    }
+    .wide { grid-column: span 8; }
+    .full { grid-column: 1 / -1; }
+    h2 { margin: 0 0 14px; font-size: 1rem; letter-spacing: .02em; }
+    p { margin: 0; }
+    .sub { color: var(--muted); margin-top: 8px; }
+    .metric { font-size: clamp(2rem, 5vw, 3.7rem); line-height: 1; font-weight: 850; letter-spacing: -.05em; }
+    .green { color: var(--green); }
+    .glass { color: var(--glass); }
+    .gold { color: var(--gold); }
+    .chain { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 12px; align-items: stretch; }
+    .step {
+      min-height: 154px; display: flex; flex-direction: column; justify-content: center;
+      padding: 18px; border: 1px solid var(--line); border-radius: 16px;
+      background: rgba(0, 0, 0, .18);
+    }
+    .step small { color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .step b { margin: 8px 0 4px; font-size: 1.13rem; }
+    .arrow { align-self: center; color: var(--green); font-size: 1.9rem; font-weight: 900; }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .surface { padding: 18px; border-radius: 16px; border: 1px solid var(--line); background: var(--panel2); }
+    .surface b { display: block; margin-bottom: 6px; font-size: 1.08rem; }
+    .surface span { color: var(--muted); }
+    .checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px 20px; margin: 0; padding: 0; list-style: none; }
+    .checks li { position: relative; padding-left: 24px; }
+    .checks li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 900; }
+    .review { display: flex; gap: 12px; align-items: flex-start; padding: 14px 0; border-top: 1px solid var(--line); }
+    .review:first-of-type { border-top: 0; padding-top: 0; }
+    .badge { flex: 0 0 auto; padding: 3px 9px; border-radius: 999px; font-size: .72rem; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+    .done { color: #0c1b10; background: var(--green); }
+    .external { color: #231805; background: var(--gold); }
+    .review p { color: var(--muted); }
+    .review strong { color: var(--ink); }
+    code { color: var(--glass); font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    footer { margin-top: 22px; color: var(--muted); font-size: .83rem; text-align: right; }
+    @media (max-width: 760px) {
+      main { width: min(100% - 20px, 680px); padding-top: 24px; }
+      header { grid-template-columns: 1fr; }
+      .stamp { width: 100%; }
+      .card, .wide { grid-column: 1 / -1; }
+      .chain { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); text-align: center; }
+      .split, .checks { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <div class="eyebrow">AnkiScape · verified implementation</div>
+        <h1>One real flask route.<br>Two real surfaces.</h1>
+        <p class="lede">The missing Potion flask acquisition loop is complete, and the old combined no-XP hub is now the owner-requested pair: Utilities for item work, Activities for events and minigames.</p>
+      </div>
+      <div class="stamp">
+        <strong>Source-ready slice closed</strong>
+        <span>20 July 2026 · canonical main</span>
+      </div>
+    </header>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Complete test universes</h2>
+        <div class="metric green">1,928</div>
+        <p class="sub">non-Qt methods and 1,928 real offscreen Qt methods</p>
+      </article>
+      <article class="card">
+        <h2>Reachable item identities</h2>
+        <div class="metric glass">2,081</div>
+        <p class="sub">across 1,412 modeled acquisition actions</p>
+      </article>
+      <article class="card">
+        <h2>Kimi final defects</h2>
+        <div class="metric gold">0</div>
+        <p class="sub">remaining P0–P2 issues across every new UI in both themes</p>
+      </article>
+
+      <article class="card full">
+        <h2>The authentic chain</h2>
+        <div class="chain">
+          <div class="step">
+            <small>Mining · level 81</small>
+            <b style="color:var(--sand)">Red sandstone</b>
+            <span class="sub">70 XP · 30/145 endpoints · 50 successful blocks per review day</span>
+          </div>
+          <div class="arrow">→</div>
+          <div class="step">
+            <small>Utilities · no XP</small>
+            <b style="color:var(--glass)">Robust glass</b>
+            <span class="sub">Free Oo'glog machine · one-for-one carried conversion</span>
+          </div>
+          <div class="arrow">→</div>
+          <div class="step">
+            <small>Crafting · level 89</small>
+            <b>Potion flask</b>
+            <span class="sub">100 XP · held Glassblowing pipe · canonical item ID 23191</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card wide">
+        <h2>The navigation contract</h2>
+        <div class="split">
+          <div class="surface">
+            <b>Utilities</b>
+            <span>Preparation, gathering, processing, opening, and Bankstanding. No event cards.</span>
+          </div>
+          <div class="surface">
+            <b>Activities</b>
+            <span>Minigames, world events, Warriors' Guild, and landmarks. Bounded event status above the picker.</span>
+          </div>
+        </div>
+        <p class="sub">One shared atomic no-XP handler remains underneath, but every row owns exactly one visible surface and legacy saves migrate cleanly.</p>
+      </article>
+
+      <article class="card">
+        <h2>Hard invariants</h2>
+        <ul class="checks">
+          <li>No wall clock</li>
+          <li>Quest gates preserved</li>
+          <li>Unstackables stay unstackable</li>
+          <li>Cap spends on success only</li>
+          <li>One dialog after restart</li>
+          <li>Icons normalized to 28×28</li>
+        </ul>
+      </article>
+
+      <article class="card full">
+        <h2>Verification and review</h2>
+        <div class="review">
+          <span class="badge done">Passed</span>
+          <p><strong>Runtime and UI:</strong> 212 focused non-Qt tests, 29 focused real-Qt tests, both complete 1,928-method universes, the final 247-test hub module, and three post-review targeted checks.</p>
+        </div>
+        <div class="review">
+          <span class="badge done">Passed</span>
+          <p><strong>Native restarted Anki:</strong> the canonical add-on opened exactly one dialog and showed distinct Utilities and Activities categories with their correct content. Final reviewer polish is covered by dark/light renders and real-Qt interaction tests.</p>
+        </div>
+        <div class="review">
+          <span class="badge done">Passed</span>
+          <p><strong>Repository gates:</strong> test quality has zero hard issues; docs, compilation, diff, asset normalization, reachability, and worktree safety are clean.</p>
+        </div>
+        <div class="review">
+          <span class="badge external">External</span>
+          <p><strong>Fable taste pass:</strong> the mandatory fresh quota probe still cannot read Claude Code OAuth from macOS Keychain (<code>security</code> exit 51). This is an external authentication gate, not a product or design gap.</p>
+        </div>
+      </article>
+    </section>
+
+    <footer>Durable source record: <code>memory-bank/source-audits/potion-flask-acquisition-2026-07-20.md</code></footer>
+  </main>
+</body>
+</html>

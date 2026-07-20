@@ -421,16 +421,22 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         )
         self.assertIn("Farming", [skill.display_name for skill in CURRENT_SKILLS])
 
-    def test_review_action_registry_includes_quests_and_utility_without_making_them_skills(self):
+    def test_review_action_registry_includes_quests_utilities_and_activities_without_fake_skills(self):
         self.assertFalse(is_review_skill("Utility / Activities"))
+        self.assertFalse(is_review_skill("Utilities"))
+        self.assertFalse(is_review_skill("Activities"))
         self.assertFalse(is_review_skill("Quests"))
         self.assertFalse(is_review_skill("Combat"))
         self.assertTrue(is_review_action("Utility / Activities"))
+        self.assertTrue(is_review_action("Utilities"))
+        self.assertTrue(is_review_action("Activities"))
         self.assertTrue(is_review_action("Quests"))
         self.assertTrue(is_review_action("Combat"))
         self.assertTrue(is_utility_review_action("Utility"))
         self.assertTrue(is_combat_review_action("Combat"))
         self.assertEqual(review_action_handler_key("Utility / Activities"), "utility")
+        self.assertEqual(review_action_handler_key("Utilities"), "utility")
+        self.assertEqual(review_action_handler_key("Activities"), "utility")
         self.assertEqual(review_action_handler_key("Quests"), "quest")
         self.assertEqual(review_action_handler_key("Combat"), "combat")
         self.assertEqual(review_action_handler_key("Fishing"), "fishing")
@@ -463,8 +469,31 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "Summoning",
                 "Combat",
                 "Quests",
-                "Utility / Activities",
+                "Utilities",
+                "Activities",
             ),
+        )
+
+    def test_every_no_xp_action_has_exactly_one_navigation_surface(self):
+        self.assertEqual(
+            {spec.get("surface") for spec in UTILITY_ACTIVITY_DATA.values()},
+            {"utilities", "activities"},
+        )
+        self.assertEqual(
+            {
+                key
+                for key, spec in UTILITY_ACTIVITY_DATA.items()
+                if spec.get("surface") == "activities"
+            },
+            {
+                "warriors_guild_animated_armour",
+                "warriors_guild_attack_dummy",
+                "warriors_guild_catapult",
+                "warriors_guild_shot_put",
+                "warriors_guild_keg_balance",
+                "big_chinchompa",
+                "livid_farm",
+            },
         )
 
     def test_planned_catalog_contains_2011_era_targets_without_enabling_them(self):

@@ -5,11 +5,14 @@ AnkiScape adds a lightweight, game-like experience layer to Anki:
 - Floating XP or material toasts, achievement popups, and level-up popups.
 - A Skills hub with 18 complete pre-EOC skill surfaces, plus unified Combat
   training for five additional skills.
-- Utility / Activities for no-XP material prep such as soft clay, wool, flax, bird nests, and feathers.
+- Separate Utilities and Activities surfaces for no-XP item preparation,
+  minigames, world events, and landmarks.
 - Bank, Stats, Equipment, Achievements, and Settings tabs in the floating widget.
 - Undo-aware review rewards with an `Actions per review` pacing control.
 
-This development checkout tracks the local fork's current playable loop: study cards, run a selected skill or Utility activity, grow the inventory, and inspect progress from the widget.
+This development checkout tracks the local fork's current playable loop: study
+cards, run a selected skill, utility, or activity, grow the inventory, and
+inspect progress from the widget.
 
 Current scope and priorities live in
 `memory-bank/future-work-kanban.md`; dated audits and status artifacts are
@@ -76,7 +79,8 @@ For the Qt behavior suite, run the tests through the checked-in Qt virtual envir
 QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests
 ```
 
-- Confirms widget, Skills hub, Bank, Stats, Equipment, Settings, and Utility row behavior in an offscreen Qt runtime.
+- Confirms widget, Skills hub, Bank, Stats, Equipment, Settings, Utilities, and
+  Activities behavior in an offscreen Qt runtime.
 - Keeps UI contracts covered without requiring a visible Anki window.
 
 ### Audit documentation

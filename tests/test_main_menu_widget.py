@@ -7169,13 +7169,32 @@ class MainMenuWidgetTest(unittest.TestCase):
                 self.assertFalse(hud.icon_lbl.pixmap().isNull(), f"HUD has no {skill} icon")
 
     # ---- Crafting/Utility rework surfaces ---------------------------------
-    def _open_utility(self, dialog: "QDialog") -> "QTreeWidget":
+    def _open_no_xp_surface(
+        self, dialog: "QDialog", surface_name: str
+    ) -> "QTreeWidget":
         cat = next(
-            b for b in dialog.findChildren(QPushButton) if b.text() == "Utility / Activities"
+            b for b in dialog.findChildren(QPushButton) if b.text() == surface_name
         )
         cat.click()
         QApplication.processEvents()
-        return _find_utility_tree(dialog)
+        expected_target = (
+            "livid_farm" if surface_name == "Activities" else "make_soft_clay"
+        )
+        for tree in dialog.findChildren(QTreeWidget):
+            if any(
+                item.data(0, Qt.ItemDataRole.UserRole) == expected_target
+                for item in _tree_items(tree)
+            ):
+                return tree
+        raise AssertionError(
+            f"{surface_name} tree with {expected_target!r} was not found"
+        )
+
+    def _open_utility(self, dialog: "QDialog") -> "QTreeWidget":
+        return self._open_no_xp_surface(dialog, "Utilities")
+
+    def _open_activities(self, dialog: "QDialog") -> "QTreeWidget":
+        return self._open_no_xp_surface(dialog, "Activities")
 
     def test_soft_clay_left_crafting_and_is_now_a_utility_activity(self) -> None:
         # Open Crafting target tree and assert Soft clay is no longer a target.
@@ -7185,8 +7204,14 @@ class MainMenuWidgetTest(unittest.TestCase):
             any(t.startswith("Soft clay") for t in craft_texts),
             f"Soft clay should not be a Crafting target anymore: {craft_texts}",
         )
-        # And it now lives under Utility / Activities.
+        # And it now lives under Utilities, not Activities.
         utility_tree = self._open_utility(self.dialog)
+        skill_column_label = _find_named_widget(
+            self.dialog, "skillColumnLabel"
+        )
+        self.assertEqual(skill_column_label.text(), "Selection")
+        skill_list = _find_named_widget(self.dialog, "skillListWidget")
+        utility_icon = skill_list.item(0).icon()
         util_texts = [it.text(0) for it in _tree_items(utility_tree)]
         self.assertIn("Make soft clay", util_texts)
         self.assertIn("Gather wool", util_texts)
@@ -7207,6 +7232,19 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertNotIn("Scavenge chicken feathers", util_texts)
         self.assertNotIn("Gather fishing bait", util_texts)
         self.assertNotIn("Buy Hunter supplies", util_texts)
+        activities_tree = self._open_activities(self.dialog)
+        activity_icon = skill_list.item(0).icon()
+        self.assertFalse(utility_icon.isNull())
+        self.assertFalse(activity_icon.isNull())
+        self.assertNotEqual(utility_icon.cacheKey(), activity_icon.cacheKey())
+        activity_texts = [it.text(0) for it in _tree_items(activities_tree)]
+        self.assertNotIn("Make soft clay", activity_texts)
+        self.assertIn("Livid Farm", activity_texts)
+        self.assertIn("Minigames  (2)", activity_texts)
+        self.assertNotIn("Activities / minigames  (2)", activity_texts)
+        self.assertTrue(
+            any(text.startswith("Warriors' Guild") for text in activity_texts)
+        )
 
     # ---- Crafting parity (family-grouped CRAFTING_DATA recipe tree) --------
     def test_crafting_groups_recipes_by_family(self) -> None:
@@ -7347,16 +7385,20 @@ class MainMenuWidgetTest(unittest.TestCase):
         current = tree.currentItem()
         self.assertIsNotNone(current)
         self.assertEqual(current.data(0, Qt.ItemDataRole.UserRole), "jewellery_gold_ring")
+        self.assertEqual(
+            current.background(0).color(),
+            QColor(76, 175, 80, 76),
+        )
         # The family holding the current target opens so the selection is visible.
         self.assertTrue(_craft_family_node(tree, "jewellery").isExpanded())
         # Unrelated families stay collapsed to tame the panel.
         self.assertFalse(_craft_family_node(tree, "gems").isExpanded())
 
-    def test_utility_panel_describes_mixed_xp_and_no_xp_rows_truthfully(self) -> None:
-        utility_tree = self._open_utility(self.dialog)
+    def test_activities_panel_describes_rewards_and_no_xp_rows_truthfully(self) -> None:
+        utility_tree = self._open_activities(self.dialog)
         labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
         self.assertIn(
-            "Utility rows process items or run activities; each row states its exact XP and behavior.",
+            "Activities contain minigames, world events, and landmarks. Each row states its rewards.",
             labels,
         )
         livid_row = _utility_row(utility_tree, "livid_farm")
@@ -7373,7 +7415,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         utility_button = next(
             button
             for button in self.dialog.findChildren(QPushButton)
-            if button.text() == "Utility / Activities"
+            if button.text() == "Utilities"
         )
         utility_button.click()
         QApplication.processEvents()
@@ -7418,7 +7460,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["shop_market_clock"] = {"answered_cards": 0}
         pd["evil_tree"] = default_evil_tree_state_pure()
         countdown_dialog = self._open(pd)
-        self._open_utility(countdown_dialog)
+        self._open_activities(countdown_dialog)
         self.assertEqual(
             _find_named_label(countdown_dialog, "evilTreeStatusChip").text(),
             "Next in 20 reviews",
@@ -7431,7 +7473,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         due = copy.deepcopy(pd)
         due["shop_market_clock"]["answered_cards"] = 100
         due_dialog = self._open(due)
-        self._open_utility(due_dialog)
+        self._open_activities(due_dialog)
         self.assertEqual(
             _find_named_label(due_dialog, "evilTreeStatusChip").text(),
             "Next review",
@@ -7442,7 +7484,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd.clear()
         pd.update(active)
         active_dialog = self._open(pd)
-        utility_tree = self._open_utility(active_dialog)
+        utility_tree = self._open_activities(active_dialog)
         button = _find_named_button(active_dialog, "evilTreeSelectButton")
         self.assertEqual(button.text(), "Select full event")
         self.assertTrue(button.isEnabled())
@@ -7457,10 +7499,13 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["current_utility"], "evil_tree")
         self.assertEqual(button.text(), "Selected for reviews")
         self.assertFalse(button.isEnabled())
+        utility_tree = self._open_utility(active_dialog)
         bankstanding = _utility_row(utility_tree, "bankstanding")
         utility_tree.itemClicked.emit(bankstanding, 0)
         QApplication.processEvents()
         self.assertEqual(pd["current_utility"], "bankstanding")
+        self._open_activities(active_dialog)
+        button = _find_named_button(active_dialog, "evilTreeSelectButton")
         self.assertEqual(button.text(), "Select full event")
         self.assertTrue(button.isEnabled())
 
@@ -7486,7 +7531,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd.clear()
         pd.update(active)
         dialog = self._open(pd)
-        self._open_utility(dialog)
+        self._open_activities(dialog)
 
         button = _find_named_button(dialog, "evilTreeSelectButton")
         detail = _find_named_label(dialog, "evilTreeDetail").text()
@@ -7512,7 +7557,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         active, _ = advance_evil_tree_world_clock_pure(pd)
         active["evil_tree"]["participations_today"] = 2
         dialog = self._open(active)
-        self._open_utility(dialog)
+        self._open_activities(dialog)
 
         button = _find_named_button(dialog, "evilTreeSelectButton")
         self.assertEqual(button.text(), "Unavailable")
@@ -7580,7 +7625,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd.clear()
         pd.update(active)
         dialog = self._open(pd)
-        utility_tree = self._open_utility(dialog)
+        utility_tree = self._open_activities(dialog)
 
         status = _find_named_label(dialog, "bigChinchompaStatusChip")
         button = _find_named_button(dialog, "bigChinchompaSelectButton")
@@ -7626,12 +7671,15 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["inventory"]["Swamp lizard quota ticket"], 1)
         self.assertEqual(pd["big_chinchompa"]["competence_points"], 96)
 
+        utility_tree = self._open_utility(dialog)
         bankstanding = _utility_row(utility_tree, "bankstanding")
         utility_tree.itemClicked.emit(bankstanding, 0)
         QApplication.processEvents()
+        self._open_activities(dialog)
+        button = _find_named_button(dialog, "bigChinchompaSelectButton")
         self.assertEqual(button.text(), "Select active event")
 
-    def test_utility_cards_scroll_instead_of_compressing_at_real_height(self) -> None:
+    def test_activity_cards_scroll_instead_of_compressing_at_real_height(self) -> None:
         from big_chinchompa_logic import (
             advance_big_chinchompa_world_clock_pure,
             default_big_chinchompa_state_pure,
@@ -7647,7 +7695,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         pd, _ = advance_big_chinchompa_world_clock_pure(pd)
         dialog = self._open(pd)
-        self._open_utility(dialog)
+        self._open_activities(dialog)
         dialog.resize(1000, 560)
         dialog.show()
         for _ in range(8):
@@ -7656,8 +7704,20 @@ class MainMenuWidgetTest(unittest.TestCase):
         cards_scroll = _find_named_widget(
             dialog, "utilityActivityCardsScroll"
         )
+        activity_tree = _find_named_widget(dialog, "utilityActivityTree")
+        status_label = _find_named_widget(dialog, "activityEventStatusLabel")
+        picker_label = _find_named_widget(dialog, "activityPickerLabel")
         big_panel = _find_named_widget(dialog, "bigChinchompaPanel")
         self.assertGreater(cards_scroll.verticalScrollBar().maximum(), 0)
+        self.assertEqual(cards_scroll.maximumHeight(), 220)
+        self.assertEqual(activity_tree.minimumHeight(), 140)
+        self.assertTrue(status_label.isVisible())
+        self.assertTrue(picker_label.isVisible())
+        surface_layout = picker_label.parentWidget().layout()
+        self.assertLess(
+            surface_layout.indexOf(cards_scroll),
+            surface_layout.indexOf(picker_label),
+        )
         visible_rows = [
             child
             for child in big_panel.findChildren(
@@ -7766,7 +7826,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             }
         )
         dialog = self._open(pd)
-        utility_tree = self._open_utility(dialog)
+        utility_tree = self._open_activities(dialog)
         dialog.show()
         QApplication.processEvents()
 
@@ -7842,7 +7902,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             ],
         }
         dialog = self._open(pd)
-        utility_tree = self._open_utility(dialog)
+        utility_tree = self._open_activities(dialog)
         dialog.show()
         QApplication.processEvents()
 
@@ -7890,7 +7950,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             "unlocked_spells": ["borrowed_power"],
         }
         dialog = self._open(pd)
-        self._open_utility(dialog)
+        self._open_activities(dialog)
         dialog.show()
         QApplication.processEvents()
 
@@ -7976,7 +8036,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             "unlocked_spells": ["borrowed_power"],
         }
         dialog = self._open(pd)
-        self._open_utility(dialog)
+        self._open_activities(dialog)
         dialog.show()
         QApplication.processEvents()
 
@@ -8073,7 +8133,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["stronghold_of_security"] = {"step": 1, "completed": False, "boots_choice": None}
         dialog = self._open(pd)
-        utility_tree = self._open_utility(dialog)
+        utility_tree = self._open_activities(dialog)
 
         row = _utility_row(utility_tree, "stronghold_of_security")
         self.assertTrue(row.flags() & Qt.ItemFlag.ItemIsEnabled)
@@ -8090,7 +8150,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["stronghold_of_security"] = {"step": 4, "completed": True, "boots_choice": None}
         dialog = self._open(pd)
-        utility_tree = self._open_utility(dialog)
+        utility_tree = self._open_activities(dialog)
 
         row = _utility_row(utility_tree, "stronghold_of_security")
         self.assertIn("Claim", row.text(0))
@@ -8107,7 +8167,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["stronghold_of_security"] = {"step": 4, "completed": True, "boots_choice": "Fancy boots"}
         dialog = self._open(pd)
-        utility_tree = self._open_utility(dialog)
+        utility_tree = self._open_activities(dialog)
 
         row = _utility_row(utility_tree, "stronghold_of_security")
         self.assertFalse(row.flags() & Qt.ItemFlag.ItemIsEnabled)
@@ -8128,7 +8188,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             "attuned_spells": [],
         }
         pending_dialog = self._open(pending)
-        pending_tree = self._open_utility(pending_dialog)
+        pending_tree = self._open_activities(pending_dialog)
         alignment = _utility_row(
             pending_tree,
             "__mage_alignment__:guthix",
@@ -8152,7 +8212,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             "attuned_spells": ["saradomin_strike"],
         }
         completed_dialog = self._open(completed)
-        completed_tree = self._open_utility(completed_dialog)
+        completed_tree = self._open_activities(completed_dialog)
         attune = _utility_row(completed_tree, "mage_arena_attune:guthix")
         self.assertTrue(attune.flags() & Qt.ItemFlag.ItemIsEnabled)
         completed_tree.itemClicked.emit(attune, 0)
@@ -8189,13 +8249,17 @@ class MainMenuWidgetTest(unittest.TestCase):
         unlocked_tree = self._open_utility(unlocked_dialog)
         self.assertTrue(_utility_row(unlocked_tree, "gather_lean_snails").flags() & Qt.ItemFlag.ItemIsEnabled)
 
-    def test_hud_shows_utility_activity_without_xp(self) -> None:
+    def test_hud_labels_legacy_no_xp_selection_with_its_real_surface(self) -> None:
         hud = self._ui.ReviewHUD(None)
         pd = _make_player_data()
         pd["current_utility"] = "gather_flax"
         hud.set_data(pd, "Utility / Activities")
-        self.assertEqual(hud.title_lbl.text(), "Utility / Activities")
+        self.assertEqual(hud.title_lbl.text(), "Utilities")
         self.assertIn("no XP", hud.sub_lbl.text())
+
+        pd["current_utility"] = "livid_farm"
+        hud.set_data(pd, "Utility / Activities")
+        self.assertEqual(hud.title_lbl.text(), "Activities")
 
     def test_hud_persistently_marks_collectible_ge_offers(self) -> None:
         hud = self._ui.ReviewHUD(None)

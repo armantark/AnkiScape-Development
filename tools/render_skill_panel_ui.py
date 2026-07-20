@@ -90,8 +90,13 @@ def render(args: argparse.Namespace) -> Path:
     )
 
     player_data = _make_player_data()
-    player_data[f"{args.skill.casefold()}_level"] = args.level
+    if args.skill:
+        player_data[f"{args.skill.casefold()}_level"] = args.level
     player_data["inventory"].update(_inventory(args.inventory))
+    for quest_id in args.complete_quest:
+        player_data.setdefault("quests", {}).setdefault(quest_id, {})[
+            "completed"
+        ] = True
     if args.target_key and args.target_id:
         player_data[args.target_key] = args.target_id
 
@@ -109,25 +114,30 @@ def render(args: argparse.Namespace) -> Path:
     category.click()
     app.processEvents()
 
-    skill_list = next(
-        (
-            widget
-            for widget in dialog.findChildren(QListWidget)
-            if any(widget.item(index).text() == args.skill for index in range(widget.count()))
-        ),
-        None,
-    )
-    if skill_list is None:
-        raise RuntimeError(f"Skill row {args.skill!r} was not found")
-    skill_row = next(
-        index
-        for index in range(skill_list.count())
-        if skill_list.item(index).text() == args.skill
-    )
-    skill_list.setCurrentRow(skill_row)
-    app.processEvents()
+    if args.skill:
+        skill_list = next(
+            (
+                widget
+                for widget in dialog.findChildren(QListWidget)
+                if any(
+                    widget.item(index).text() == args.skill
+                    for index in range(widget.count())
+                )
+            ),
+            None,
+        )
+        if skill_list is None:
+            raise RuntimeError(f"Skill row {args.skill!r} was not found")
+        skill_row = next(
+            index
+            for index in range(skill_list.count())
+            if skill_list.item(index).text() == args.skill
+        )
+        skill_list.setCurrentRow(skill_row)
+        app.processEvents()
 
     if args.target_id:
+        target_selected = False
         for tree in dialog.findChildren(QTreeWidget):
             target_item = next(
                 (
@@ -148,7 +158,30 @@ def render(args: argparse.Namespace) -> Path:
                 target_item,
                 QAbstractItemView.ScrollHint.PositionAtCenter,
             )
+            target_selected = True
             break
+        if not target_selected:
+            for item_list in dialog.findChildren(QListWidget):
+                target_row = next(
+                    (
+                        index
+                        for index in range(item_list.count())
+                        if item_list.item(index).data(Qt.ItemDataRole.UserRole)
+                        == args.target_id
+                    ),
+                    None,
+                )
+                if target_row is None:
+                    continue
+                item_list.setCurrentRow(target_row)
+                item_list.scrollToItem(
+                    item_list.item(target_row),
+                    QAbstractItemView.ScrollHint.PositionAtCenter,
+                )
+                target_selected = True
+                break
+        if not target_selected:
+            raise RuntimeError(f"Target row {args.target_id!r} was not found")
 
     dialog.show()
     dialog.resize(args.width, args.height)
@@ -172,12 +205,13 @@ def render(args: argparse.Namespace) -> Path:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--skill", required=True)
+    parser.add_argument("--skill")
     parser.add_argument("--category", required=True)
     parser.add_argument("--level", type=int, default=99)
     parser.add_argument("--target-key")
     parser.add_argument("--target-id")
     parser.add_argument("--inventory", action="append", default=[])
+    parser.add_argument("--complete-quest", action="append", default=[])
     parser.add_argument("--width", type=int, default=900)
     parser.add_argument("--height", type=int, default=560)
     parser.add_argument("--theme", choices=("dark", "light"), default="dark")

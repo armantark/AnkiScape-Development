@@ -147,6 +147,7 @@ try:
         has_ring_of_forging_pure,
         hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
+        red_sandstone_daily_state_pure,
         magic_target_locked_reasons_pure,
         normalize_xp_rewards_pure,
         quest_current_stage_blocker_reasons_pure,
@@ -361,6 +362,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         has_ring_of_forging_pure,
         hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
+        red_sandstone_daily_state_pure,
         magic_target_locked_reasons_pure,
         normalize_xp_rewards_pure,
         quest_current_stage_blocker_reasons_pure,
@@ -3979,6 +3981,10 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
         if "ores_mined_today" not in player_data:
             player_data["ores_mined_today"] = 0
         player_data["ores_mined_today"] += 1
+        if ore == "red_sandstone":
+            daily_state = red_sandstone_daily_state_pure(player_data)
+            daily_state["mined"] = int(daily_state["mined"]) + 1
+            player_data["red_sandstone_daily"] = daily_state
         player_data["inventory"] = new_inv
         _charge_urn_for_action(ctx, "mining", ore, ore_spec, base_exp, output_item)
         output_items: dict[str, int] = {}

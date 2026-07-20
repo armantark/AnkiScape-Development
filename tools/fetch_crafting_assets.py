@@ -134,7 +134,9 @@ WIKI_TITLE_OVERRIDES.update(
 
 def _build_manifest() -> List[Tuple[str, str, Optional[str]]]:
     """(item_name, out_rel, wiki_override) for every crafting icon we need."""
-    want: set = set(crafting_output_items()) | _UTILITY_CRAFTED
+    # Potion flask shares the canonical Herblore container sprite wired by
+    # constants; do not create a duplicate crafteditems copy.
+    want: set = (set(crafting_output_items()) - {"Potion flask"}) | _UTILITY_CRAFTED
     for spec in CRAFTING_DATA.values():
         for material in spec.get("requirements", {}):
             name = str(material)

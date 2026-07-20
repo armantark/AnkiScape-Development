@@ -34,6 +34,7 @@ class TestMiningData(unittest.TestCase):
                 "adamantite",
                 "concentrated_coal",
                 "concentrated_gold",
+                "red_sandstone",
                 "runite",
             },
         )

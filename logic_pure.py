@@ -29,6 +29,11 @@ except ImportError:
     from skill_registry import get_skill, trainable_skill_definitions
 
 try:
+    from .mining_data import MINING_REVIEW_DAY_CARDS, RED_SANDSTONE_DAILY_CAP
+except ImportError:
+    from mining_data import MINING_REVIEW_DAY_CARDS, RED_SANDSTONE_DAILY_CAP
+
+try:
     from .warriors_guild_logic import (
         warriors_guild_cyclops_damage_multiplier_pure,
         warriors_guild_cyclops_locked_reasons_pure,
@@ -408,6 +413,44 @@ def _non_negative_int(value, default=0):
     except (TypeError, ValueError):
         return default
     return parsed if parsed >= 0 else default
+
+
+def default_red_sandstone_daily_state_pure():
+    return {"review_day": 0, "mined": 0}
+
+
+def red_sandstone_review_day_pure(player_data):
+    clock = player_data.get("shop_market_clock")
+    answered = (
+        _non_negative_int(clock.get("answered_cards"), 0)
+        if isinstance(clock, Mapping)
+        else 0
+    )
+    return answered // MINING_REVIEW_DAY_CARDS
+
+
+def sanitize_red_sandstone_daily_state_pure(raw_state, current_review_day=0):
+    current_day = _non_negative_int(current_review_day, 0)
+    source = raw_state if isinstance(raw_state, Mapping) else {}
+    saved_day = _non_negative_int(source.get("review_day"), 0)
+    mined = (
+        min(_non_negative_int(source.get("mined"), 0), RED_SANDSTONE_DAILY_CAP)
+        if saved_day == current_day
+        else 0
+    )
+    return {"review_day": current_day, "mined": mined}
+
+
+def red_sandstone_daily_state_pure(player_data):
+    return sanitize_red_sandstone_daily_state_pure(
+        player_data.get("red_sandstone_daily"),
+        red_sandstone_review_day_pure(player_data),
+    )
+
+
+def red_sandstone_daily_remaining_pure(player_data):
+    state = red_sandstone_daily_state_pure(player_data)
+    return max(RED_SANDSTONE_DAILY_CAP - int(state["mined"]), 0)
 
 
 def _non_negative_float(value, default=0.0):
@@ -10944,6 +10987,13 @@ def mining_target_locked_reasons_pure(player_data, target_id, ore_data, pickaxe_
             quest_unlock_rules,
         )
     )
+    if (
+        target_id == "red_sandstone"
+        and red_sandstone_daily_remaining_pure(player_data) <= 0
+    ):
+        reasons.append(
+            f"{RED_SANDSTONE_DAILY_CAP} Red sandstone already mined this review day"
+        )
     return tuple(dict.fromkeys(reasons))
 
 
