@@ -4,6 +4,23 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Skeletal Horror implementation harvest — 2026-07-19
+
+- Recovered the exact continuous phase thresholds: `2,750`, `2,000`, and
+  `1,250` LP remaining before the right arm, left arm, and tail transitions.
+- Cross-checked all five boss NPCs, three ground limbs, and three buryable limb
+  items in both rev 727 and rev 742.
+- Confirmed that period evidence closes total LP, phase levels, maximum hits,
+  attack speed/styles, rewards, clue chance, and weekly cadence.
+- Did not ship guessed Combat rows. Darkan's files are explicitly `nostats`,
+  contradict the phase maximum hits/styles, and do not supply the
+  Attack/Magic or Defence levels required by live Combat accuracy.
+- Recorded the second dependency: the generated quest catalog has ordinary
+  quest completion but no authentic post-quest wish-list state. That remains
+  with the Darkan quest-parity program and is not an owner design fork.
+- Durable record:
+  `source-audits/skeletal-horror-implementation-harvest-2026-07-19.md`.
+
 ## Borrowed Power and Arcane capacitor — 2026-07-19
 
 - Implemented the complete cutoff capacitor lifecycle: one-owned wish,

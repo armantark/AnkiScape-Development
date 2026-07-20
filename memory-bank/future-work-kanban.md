@@ -78,6 +78,14 @@ Labels: `SOURCE AUDIT`, then `IMPLEMENT` only when evidence closes.
   ogleroot acquisition and potion use remain Grim Tales/Darkan-owned rather
   than duplicated in the skill runtime. See
   `memory-bank/source-audits/herblore-shrink-me-quick-2026-07-19.md`.
+- Skeletal Horror's continuous phase thresholds are now pinned at `2,750`,
+  `2,000`, and `1,250` LP, alongside its phase levels, maximum hits, styles,
+  limb identities, rewards, clue chance, and weekly cadence. Implementation
+  remains `SOURCE AUDIT` / `WAIT: DARKAN`: the available combat rows are
+  explicitly `nostats` and contradict the sourced phase damage/styles, while
+  the quest catalog does not yet represent the two required post-quest wish
+  lists. See
+  `memory-bank/source-audits/skeletal-horror-implementation-harvest-2026-07-19.md`.
 - The next implementation slice must have a pinned pre-EOC contract for its level, XP, inputs, outputs, gates, rates, and state transitions. Split proven sub-slices from blocked families as lava eel, Overload, and cannonballs already demonstrate.
 - Backend acceptance: data, pure behavior, storage/migration, dispatch, acquisition semantics, telemetry, and undo.
 - Frontend acceptance: `TargetRowMetadata`, real enablement/locks, target-local settings/equipment/inventory, icons, tooltips, and offscreen Qt coverage.

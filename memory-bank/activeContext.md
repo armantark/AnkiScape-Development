@@ -2,6 +2,19 @@
 
 ## Current Focus
 
+The Skeletal Horror implementation harvest closed the previously missing
+continuous LP thresholds at `2,750`, `2,000`, and `1,250` from period Wiki,
+talk-history, dated Tip.It, and rev-727/rev-742 cache evidence. Phase levels,
+maximum hits, styles, limb identities/options, rewards, clue chance, and
+weekly cadence are also pinned. The boss is not admitted yet: Darkan's four
+combat rows are explicitly `nostats` and incorrectly copy the initial LP,
+maximum hit, and Melee style across every form, while no source supplies the
+Attack/Magic and Defence levels the live accuracy kernel requires. The current
+quest catalog also tracks quest completion but not the two post-quest wish
+lists that actually gate the boss. Those are source and Darkan quest-program
+dependencies, not owner design gaps. See
+`source-audits/skeletal-horror-implementation-harvest-2026-07-19.md`.
+
 The isolated Long kebbit reward chain is live. Fletching 42 consumes one Long
 kebbit spike, preserves a carried Chisel, produces six Long kebbit bolts, and
 awards the internally consistent `7.98` XP. Leon now exposes the period
