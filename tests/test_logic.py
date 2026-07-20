@@ -600,21 +600,22 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(lit["Bullseye lantern (unlit)"], 0)
         self.assertEqual(lit["Bullseye lantern (lit)"], 1)
 
-    def test_apply_utility_activity_can_generate_batch_without_inputs(self):
-        utility_data = {
-            "gather_wool": {
-                "requirements": {},
-                "output_item": "Wool",
-                "output_qty": 1,
-                "batch_size": 28,
-            }
-        }
-        new_inv, exp, ok, processed = apply_utility_activity_pure("gather_wool", {}, utility_data)
+    def test_source_gathering_actions_generate_full_inventory_batches_without_xp(self):
+        for action_id, output_item in (
+            ("gather_wool", "Wool"),
+            ("gather_swamp_toads", "Swamp toad"),
+        ):
+            with self.subTest(action_id=action_id):
+                new_inv, exp, ok, processed = apply_utility_activity_pure(
+                    action_id,
+                    {},
+                    UTILITY_ACTIVITY_DATA,
+                )
 
-        self.assertTrue(ok)
-        self.assertEqual(exp, 0)
-        self.assertEqual(processed, 28)
-        self.assertEqual(new_inv["Wool"], 28)
+                self.assertTrue(ok)
+                self.assertEqual(exp, 0)
+                self.assertEqual(processed, 28)
+                self.assertEqual(new_inv, {output_item: 28})
 
     def test_bankstanding_is_a_true_no_op_utility_action(self):
         inventory = {"Coins": 1_000, "Logs": 4}

@@ -50,6 +50,14 @@ class TestItemReachabilityAudit(unittest.TestCase):
             "combat:mutated_zygomite_level_74",
         )
         self.assertEqual(report["routes"]["Desert goat horn"], "combat:goat")
+        self.assertEqual(
+            report["routes"]["Swamp toad"],
+            "Utility:gather_swamp_toads",
+        )
+        self.assertEqual(
+            report["routes"]["Toad's legs"],
+            "Utility:remove_swamp_toad_legs",
+        )
         self.assertNotIn("Bird's nest", {row["item"] for row in report["orphan_inputs"]})
 
         long_kebbit_spike = next(
@@ -64,14 +72,9 @@ class TestItemReachabilityAudit(unittest.TestCase):
             ],
         )
 
-        agility_four = next(
-            row for row in report["orphan_inputs"]
-            if row["item"] == "Agility potion (4)"
-        )
-        self.assertEqual(agility_four["kind"], "cascade")
-        self.assertIn(
+        self.assertEqual(
+            report["routes"]["Agility potion (4)"],
             "Shop service:bob_barter_decant_four:Agility potion",
-            agility_four["known_producers"],
         )
 
         orphan_items = {row["item"] for row in report["orphan_inputs"]}

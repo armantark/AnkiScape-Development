@@ -27,6 +27,8 @@ from tools.fetch_assets import (
     wiki_title_for_item,
 )
 
+PRE_EOC_CUTOFF = "2012-11-20T00:00:00Z"
+
 
 def _slug(name: str) -> str:
     return "_".join(
@@ -92,15 +94,23 @@ def asset_manifest() -> tuple[AssetRequest, ...]:
 
 def main() -> int:
     client = HttpWikiClient(min_interval_seconds=0.15, retries=4)
+    period_client = HttpWikiClient(
+        min_interval_seconds=0.15,
+        retries=4,
+        before_timestamp=PRE_EOC_CUTOFF,
+    )
     unresolved: list[AssetRequest] = []
     for request in asset_manifest():
         if request.output_path.exists():
             print(f"{request.item_name}: existing -> {request.output_path}")
             continue
         try:
+            request_client = (
+                period_client if request.item_name == "Swamp toad" else client
+            )
             outcome = fetch_asset(
                 request,
-                client,
+                request_client,
                 size=64,
                 sources=(RS3_WIKI, OSRS_WIKI),
             )

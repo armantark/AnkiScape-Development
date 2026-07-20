@@ -138,6 +138,9 @@ class SummoningDataTests(unittest.TestCase):
         self.assertEqual(items["Spirit wolf pouch"]["source_item_id"], 12047)
         self.assertEqual(items["Howl scroll"]["source_item_id"], 12425)
         self.assertEqual(items["Ghast pouch"]["source_item_id"], 21444)
+        self.assertEqual(items["Swamp toad"]["source_item_id"], 2150)
+        self.assertFalse(items["Swamp toad"]["stackable"])
+        self.assertTrue(items["Swamp toad"]["tradeable"])
 
 
 if __name__ == "__main__":

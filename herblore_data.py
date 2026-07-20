@@ -51,6 +51,8 @@ SWAMP_TOAD_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/items/swamp_toad.plugin.kts"
 )
+SWAMP_TOAD_WIKI_SOURCE = "https://runescape.wiki/w/Swamp_toad?oldid=6088673"
+TOADS_LEGS_WIKI_SOURCE = "https://runescape.wiki/w/Toad%27s_legs?oldid=6065573"
 
 DEFAULT_HERBLORE_TARGET = "clean_guam"
 VIAL_OF_WATER_ITEM = "Vial of water"
@@ -362,6 +364,7 @@ INPUT_PREPARATION_ACTIVITIES: Tuple[InputPreparationActivity, ...] = (
         2150,
         "Toad's legs",
         2152,
+        f'{SWAMP_TOAD_WIKI_SOURCE}; {TOADS_LEGS_WIKI_SOURCE}; '
         f'{SWAMP_TOAD_SOURCE_PATH}: Remove-legs',
     ),
 )
@@ -553,7 +556,12 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             item["tradeable"] = False
         if name in canonical_item_ids:
             item["item_id"] = canonical_item_ids[name]
-        if name in {"Desert goat horn", "Goat horn dust"}:
+        if name in {
+            "Desert goat horn",
+            "Goat horn dust",
+            "Swamp toad",
+            "Toad's legs",
+        }:
             item["stackable"] = False
         result[name] = item
     for dose, item_id in {1: 20014, 2: 20013, 3: 20012, 4: 20011}.items():

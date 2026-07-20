@@ -3955,42 +3955,56 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
         self.assertGreaterEqual(calls["save"], 2)
 
-    def test_wool_gathering_rolls_back_on_undo(self):
-        addon = _load_addon_as_package("ankiscape_wool_undo_integration")
-
-        calls = {"save": 0}
-        addon.check_achievements = lambda _data: None
-        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
-        addon.update_review_hud = lambda _data, _skill: None
-        addon._refresh_skill_availability = lambda: None
-        addon.show_error_message = lambda _title, message: self.fail(message)
-        addon.player_data = {
-            "inventory": {},
-            "crafting_exp": 0,
-            "current_utility": "gather_wool",
-            "completed_achievements": [],
-        }
-        addon.current_skill = "Utility / Activities"
-        addon.card_turned = True
-        addon.answer_shown = True
-        addon.exp_awarded = False
-
-        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
-
-        self.assertEqual(addon.player_data["inventory"], {"Wool": 28})
-        self.assertEqual(addon.player_data["crafting_exp"], 0)
-        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
-
-        changes = types.SimpleNamespace(
-            operation="Answer Card",
-            changes=types.SimpleNamespace(study_queues=True, card=True),
+    def test_source_gathering_actions_roll_back_on_answer_undo(self):
+        cases = (
+            ("gather_wool", "Wool"),
+            ("gather_swamp_toads", "Swamp toad"),
         )
-        addon._on_state_did_undo(changes)
+        for action_id, output_item in cases:
+            with self.subTest(action_id=action_id):
+                addon = _load_addon_as_package(
+                    f"ankiscape_{action_id}_undo_integration"
+                )
+                calls = {"save": 0}
+                addon.check_achievements = lambda _data: None
+                addon.save_player_data = lambda: calls.__setitem__(
+                    "save",
+                    calls["save"] + 1,
+                )
+                addon.update_review_hud = lambda _data, _skill: None
+                addon._refresh_skill_availability = lambda: None
+                addon.show_error_message = lambda _title, message: self.fail(message)
+                addon.player_data = {
+                    "inventory": {},
+                    "crafting_exp": 0,
+                    "current_utility": action_id,
+                    "completed_achievements": [],
+                }
+                addon.current_skill = "Utility / Activities"
+                addon.card_turned = True
+                addon.answer_shown = True
+                addon.exp_awarded = False
 
-        self.assertEqual(addon.player_data["inventory"], {})
-        self.assertEqual(addon.player_data["crafting_exp"], 0)
-        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
-        self.assertGreaterEqual(calls["save"], 2)
+                addon.on_answer_card(
+                    _FakeReviewer(),
+                    4,
+                    lambda _self, _ease: "answered",
+                )
+
+                self.assertEqual(addon.player_data["inventory"], {output_item: 28})
+                self.assertEqual(addon.player_data["crafting_exp"], 0)
+                self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+                changes = types.SimpleNamespace(
+                    operation="Answer Card",
+                    changes=types.SimpleNamespace(study_queues=True, card=True),
+                )
+                addon._on_state_did_undo(changes)
+
+                self.assertEqual(addon.player_data["inventory"], {})
+                self.assertEqual(addon.player_data["crafting_exp"], 0)
+                self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+                self.assertGreaterEqual(calls["save"], 2)
 
     def test_cure_plant_runtime_cast_and_answer_undo_are_atomic(self):
         addon = _load_addon_as_package("ankiscape_cure_plant_undo_integration")

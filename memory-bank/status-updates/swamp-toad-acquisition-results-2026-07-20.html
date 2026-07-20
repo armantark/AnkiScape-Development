@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AnkiScape · Swamp toad acquisition closure</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f3f5ec;
+      --muted: #aab2a4;
+      --panel: #17221c;
+      --panel-2: #1d2d23;
+      --line: #33493b;
+      --moss: #77d37d;
+      --lime: #b5ef86;
+      --amber: #f1c96d;
+      --water: #81c9d6;
+      --bg: #0c120f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 78% 8%, rgba(91, 155, 106, .20), transparent 31rem),
+        linear-gradient(155deg, #0b110e, #101a14 58%, #0a100d);
+      color: var(--ink);
+      font: 16px/1.55 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 42px 0 64px; }
+    .eyebrow {
+      color: var(--lime);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 10px 0 12px; max-width: 800px; font-size: clamp(2.35rem, 7vw, 5.3rem); line-height: .96; letter-spacing: -.055em; }
+    h2 { margin: 0 0 8px; font-size: 1.15rem; }
+    p { margin: 0; }
+    .lede { max-width: 720px; color: #cbd2c6; font-size: 1.08rem; }
+    .hero { display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: end; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+    .sprites {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-width: 182px;
+      padding: 21px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(23,34,28,.82);
+      box-shadow: 0 24px 70px rgba(0,0,0,.28);
+    }
+    .sprites img { width: 58px; height: 58px; object-fit: contain; image-rendering: pixelated; }
+    .arrow { color: var(--amber); font-size: 1.55rem; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 24px 0; }
+    .metric, .card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(145deg, rgba(29,45,35,.94), rgba(18,29,23,.92));
+      box-shadow: inset 0 1px rgba(255,255,255,.025);
+    }
+    .metric { padding: 20px; }
+    .metric strong { display: block; color: var(--lime); font-size: 2rem; letter-spacing: -.04em; }
+    .metric span { color: var(--muted); font-size: .84rem; }
+    .grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 14px; }
+    .card { padding: 24px; }
+    .card p, li { color: #c4ccc0; }
+    ul { margin: 14px 0 0; padding-left: 20px; }
+    li + li { margin-top: 8px; }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .step { position: relative; padding: 16px; border-radius: 13px; background: #101a14; border: 1px solid #2d4234; min-height: 104px; }
+    .step small { display: block; color: var(--water); font-weight: 750; letter-spacing: .05em; text-transform: uppercase; }
+    .step b { display: block; margin-top: 7px; }
+    .note { margin-top: 14px; padding: 16px 18px; border-left: 3px solid var(--amber); border-radius: 0 12px 12px 0; background: rgba(241,201,109,.075); color: #e6d7ab; }
+    .ok { color: var(--moss); }
+    .gate { color: var(--amber); }
+    code { color: #c8edf2; font: .88em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    footer { margin-top: 22px; color: #7f897d; font-size: .82rem; }
+    @media (max-width: 800px) {
+      .hero, .grid { grid-template-columns: 1fr; }
+      .hero { align-items: start; }
+      .sprites { width: fit-content; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .flow { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      main { width: min(100% - 22px, 1120px); padding-top: 26px; }
+      .metrics, .flow { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Acquisition closure · 20 July 2026</div>
+      <h1>The swamp finally has toads.</h1>
+      <p class="lede">A period-grounded Stronghold gathering route now closes the intact-toad, Toad’s-legs, and Agility-potion chain without a fake shop, free seed, wall-clock respawn, or ambient-combat invention.</p>
+    </div>
+    <div class="sprites" aria-label="Swamp toad becomes Toad's legs">
+      <img alt="Swamp toad" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAAaCAYAAABPY4eKAAADRklEQVR4nL1WPWgUQRh9O7v3s3dZY5BYaJEDW8EgiIogNgFRBBtFGwsLWwsFwcI+RQoLGwsLmwQstFECQRBBCBjCGbUUciZRUMzFXC73s7e78mZ27i65vc1dSHwwt8PtzLzv533frDGay6Eb8ouFgM/R3IiBfYCIIz5/O4NztzJNI/4bOZGwDSTSBi7cye6LAUZU2El06YEDv6H4vAbk/O2TMvYyDaLbi0TKQCor5JPec1y8N4ATl9N7FgURRy6s1pzer/3wsLRQx76GnWj3buzuANxKgMX5OhbnXERhN6mw4l4y7241kMTFFU8SU/3OsMBm0UelFKCy5mOj6CM/Vwi0Ab2kZTQ3YkSSa8FpYj6HjpoyAsw9xZdyBBK24mi4wZa9Z27acA6bch33M2WeG6DOuQt49QD5mUIQ67lGZkhIUtMEPE/9x4N5UNJWwmwHyQhhGUjYgAgzlQRQcQN8malJz0WvxBRdkzQ8nHO+S2YMHB9LSa9PXbPlu4FD4T6OsF/Q80+vq019xJKns4owlVWh3u61Br03k2otw8vx8tG63EejTQuolnzMv2oRx5IzxC1idHhNcE49yJQkgJNX01vOoAFW2kDpt4/ZyUpHRYhu5NzEYZqhR6HXcu4qQ4gPzzeRdgzlfcJQggqjQjIawDVRpWhFEatNqlyujw9CeIApW+zWdQwvUS0Fkpw5ZQTaUxJX/yLqTwqH9cySEabynsrlYP5IoEGBvXtalqVHzzl6hbWdVM///vRw7GxKtlh63s17NhkNGsYIfJut9U6eD0l5f8tG0IA84PSNLMpFv4NQg2urZWXvzOMN2YTY/1eX/J7arQEYAW8rfW0yX1QwRaJzTnK3FqhRDeS68qqPtCOk2JhzlhIV3U+ft/hjDwrUyjyUXQlY/9Umbal0RagVzpZ58IiqRRrDvv/ne6PvC0bocjgwbDbv7vZmQIM4dKmRmOGentjA8oKLla+u7FrLnxt932yWtnbqfkGGn1GI8lp7SWUTOr8fX3Q2j77ICR4wPdH5tarF9ma81FxHgdIg2zFkOc5Otq7TPfmYiPt85n9XHjpNATIV759Fd7E4WDst6HagbDqeujDYE3aDHT3vhu1fK7sJ+z9GQukK3jqf3gAAAABJRU5ErkJggg==">
+      <span class="arrow">→</span>
+      <img alt="Toad's legs" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAaCAYAAABCfffNAAACY0lEQVR4nLVWTWsUQRB91fOxM7tGgj9DVBQVPYkgiBBFEBFBPIsnf4Enf4EnjyJePHgJ6kUIiBAiSCBEUAgiKB6UEJHNZje7O9Ml1Z3pmYwx6R3Mg2Z6e7rrdb36mCV4QXE514QJ4XFA8bErKcZ9jWGf8WVhNDFR6LMpiAC0lRifxHZ5Td+NcUqI2gqHLyY1+ZwpLkcTT0JyRIKjMwk+vNrkUjbFRy4loMD+su8KaPKUi5CP2TxjAHkGHL+aYml24IhURFBbupy4llpqRVh83mcvuaiyK0oJcaoQtggnr7eddFGLzCXMCO34uTLyjYmmd083DFE+ZowHDBVaMiE6fVOIYNZkyJoQdX/k+L6cmfPegRewBrIhY+HJhpEiSizR2dsdY1jmQjToaqy8HbpU94qJuWlAUAGgNUOCPP+4Z9bP351CNirjLPPlF4NttfQPT6rpaDUXn8OYzNCuXDS9ebSO1gEFFdp3Im29WF0KVhfP3OrYl5UryDxKFIY9jfXVHB9fb1aM7d52JFx87s5U6UPNtzrRUGKT1+tt9zYTFoZFAp3xX42jIJGUlLnOGZ/myqD6wN0zjK3moq3LpBFDSxZW8P5Zv1mDNPkdE3IFKM3gkAxJoOXJZi4BbgoXuMv3p016ys3FaGE8z+xThki6+nnUVC5NLx/8NtkjBSaekbKpWsjWW8vx6+sYa9+ypp44zh1auG2GBZZmtxeaD2oVXz+s+NQN25sE4lUT7NlWpB81NV5gzwbZORRspTbM2AcSTXMPu0gOKte3msDreyJEcVu5z/A+QvGFe9M7/lH470RNTv0BqN3s9I/cSL8AAAAASUVORK5CYII=">
+    </div>
+  </section>
+
+  <section class="metrics" aria-label="Closure metrics">
+    <div class="metric"><strong>1,997</strong><span>reachable items</span></div>
+    <div class="metric"><strong>239</strong><span>orphan inputs, down from 247</span></div>
+    <div class="metric"><strong>1,905 × 2</strong><span>non-Qt and real-Qt tests passing</span></div>
+    <div class="metric"><strong>0</strong><span>hard test-quality issues</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <div class="eyebrow">Live chain</div>
+      <h2>One authentic root unlocks three consumers</h2>
+      <div class="flow">
+        <div class="step"><small>Utility</small><b>Gather swamp toads</b><span>Up to 28, no XP</span></div>
+        <div class="step"><small>Preparation</small><b>Remove legs</b><span>Exact 1:1 action</span></div>
+        <div class="step"><small>Herblore</small><b>Agility potion</b><span>Ingredient now reachable</span></div>
+        <div class="step"><small>Summoning</small><b>Barker toad</b><span>Intact tertiary preserved</span></div>
+      </div>
+      <p class="note">The avoidable Stronghold gnome attack is not converted into ambient damage. The source describes the competent safe route: disable auto-retaliate and collect.</p>
+    </article>
+
+    <article class="card">
+      <div class="eyebrow">Proof</div>
+      <h2>Source, pixels, and runtime agree</h2>
+      <ul>
+        <li>Period Wiki revisions pin the no-quest ground spawns, tradeability, non-stackability, and leg-removal use.</li>
+        <li>2011Scape reconciles exact item IDs <code>2150 → 2152</code> and the one-to-one transition.</li>
+        <li>Both sprites are distinct, pre-cutoff, provenance-tracked, and tight-cropped.</li>
+        <li>Complete non-Qt and real offscreen Qt discoveries each pass all 1,905 tests.</li>
+        <li>A fully restarted native Anki showed exactly one menu and the enabled Gathering row without changing the save.</li>
+        <li><span class="ok">Kimi K3: ship.</span> No concrete defect was introduced by the row.</li>
+        <li><span class="gate">Fable: pending external QA/auth.</span> The required fresh quota probe cannot access the Claude Code OAuth keychain credential.</li>
+      </ul>
+    </article>
+  </section>
+
+  <footer>Durable record: <code>memory-bank/source-audits/swamp-toad-acquisition-2026-07-20.md</code> · No owner design gap surfaced.</footer>
+</main>
+</body>
+</html>

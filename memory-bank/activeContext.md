@@ -2311,3 +2311,34 @@ The visual closure report is
 - No new UI or owner-facing design gap emerged.
 - Durable evidence:
   `source-audits/desert-goat-combat-acquisition-2026-07-20.md`.
+
+## Swamp toad acquisition closure — 2026-07-20
+
+- Added the ordinary no-requirement Tree Gnome Stronghold collection route as
+  the zero-XP `Gather swamp toads` Utility action. One successful review uses
+  the established full-inventory gathering translation and yields up to 28
+  intact toads without wall-clock respawn or ambient-combat simulation.
+- Reconciled the existing one-to-one `Remove swamp toad's legs` preparation
+  action against period Wiki revisions and the 2011Scape item action. Swamp
+  toad and Toad's legs are now exact non-stackable, tradeable IDs 2150/2152
+  with distinct pre-cutoff normalized sprites.
+- Reachability improves to 1,997 reachable items with 239 orphan inputs
+  (96 root and 143 cascade) and 250 unresolved actions. The intact toad,
+  Toad's legs, and Agility-potion dose chain are all live routes.
+- Focused verification passes 408 non-Qt tests plus the targeted offscreen Qt
+  row test. Complete non-Qt discovery passes all 1,905 tests with 250 expected
+  environment skips, and complete real offscreen Qt discovery passes all 1,905
+  tests with one intentional platform skip; documentation and test-quality
+  gates are clean.
+- A restarted native macOS Anki process displayed one enabled Gathering row
+  with its normalized period sprite and no duplicate menu. The activity was
+  not started and the save was not changed.
+- Kimi K3 returned a ship verdict on the native row. The mandatory Fable taste
+  pass remains externally blocked by the Claude Code OAuth keychain probe
+  (`security` exit 51), matching the existing Help/Details QA gate; no new
+  owner design gap surfaced.
+- Published
+  `status-updates/swamp-toad-acquisition-results-2026-07-20.html`;
+  mobile copy: `https://jzn1gbktyze8.postplan.dev`.
+- Durable evidence:
+  `source-audits/swamp-toad-acquisition-2026-07-20.md`.

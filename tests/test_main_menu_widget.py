@@ -7878,23 +7878,29 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["inventory"]["Earth rune"], 1_000)
         self.assertEqual(pd["inventory"]["Law rune"], 1_000)
 
-    def test_wool_gathering_is_enabled_and_selectable_from_utility(self) -> None:
+    def test_source_gathering_rows_are_enabled_and_selectable_from_utility(self) -> None:
         # gather_wool stands in for the retired scavenge_chicken_feathers
         # bridge (feathers are live NPC shop stock now).
         utility_tree = self._open_utility(self.dialog)
-        wool_row = _utility_row(utility_tree, "gather_wool")
-
-        self.assertTrue(wool_row.flags() & Qt.ItemFlag.ItemIsEnabled)
-        self.assertFalse(wool_row.icon(0).isNull())
-        self.assertIn("No skill XP", wool_row.toolTip(0))
-        self.assertIn("Output: Wool x1", wool_row.toolTip(0))
-        self.assertIn("No materials required", wool_row.toolTip(0))
-
         self._utility_calls.clear()
-        utility_tree.itemClicked.emit(wool_row, 0)
-        QApplication.processEvents()
+        for action_id, output_item in (
+            ("gather_wool", "Wool"),
+            ("gather_swamp_toads", "Swamp toad"),
+        ):
+            with self.subTest(action_id=action_id):
+                row = _utility_row(utility_tree, action_id)
+                self.assertTrue(row.flags() & Qt.ItemFlag.ItemIsEnabled)
+                self.assertFalse(row.icon(0).isNull())
+                self.assertIn("No skill XP", row.toolTip(0))
+                self.assertIn(f"Output: {output_item} x1", row.toolTip(0))
+                self.assertIn("No materials required", row.toolTip(0))
+                utility_tree.itemClicked.emit(row, 0)
+                QApplication.processEvents()
 
-        self.assertEqual(self._utility_calls, ["gather_wool"])
+        self.assertEqual(
+            self._utility_calls,
+            ["gather_wool", "gather_swamp_toads"],
+        )
 
     def test_stronghold_landmark_row_selects_activity_when_unfinished(self) -> None:
         pd = _make_player_data()

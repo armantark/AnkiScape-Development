@@ -3089,3 +3089,28 @@ Test counts are snapshots; current runs outrank this note.
   mobile copy: `https://mibheiehz0uy.postplan.dev`.
 - Durable evidence:
   `source-audits/desert-goat-combat-acquisition-2026-07-20.md`.
+
+## Swamp toad acquisition closure — 2026-07-20
+
+- Added a source-backed, no-requirement Utility collection row for intact
+  Swamp toads and preserved the existing zero-XP one-to-one leg-removal action.
+- Corrected the two item definitions to period IDs 2150/2152, non-stackable
+  tradeable metadata, and distinct normalized pre-cutoff sprites with complete
+  provenance.
+- The live acquisition chain now reaches Swamp toad, Toad's legs, and Agility
+  potion dose variants without a seeded item or invented shop/drop.
+- Focused logic, registry, metadata, integration, asset, reachability, and Qt
+  checks pass. Complete non-Qt discovery passes all 1,905 tests with 250
+  environment skips, and complete real offscreen Qt discovery passes all 1,905
+  tests with one intentional platform skip; docs and test quality are clean.
+- A fully restarted native Anki smoke rendered exactly one enabled row and one
+  menu without starting the activity or mutating the save. Kimi K3 returned a
+  ship verdict. Fable remains pending only because its required live quota
+  probe cannot access the Claude Code OAuth keychain credential.
+- Reachability now reports 1,343 actions, 1,997 reachable items, 239 orphan
+  inputs, and 250 unresolved actions.
+- Published
+  `status-updates/swamp-toad-acquisition-results-2026-07-20.html`;
+  mobile copy: `https://jzn1gbktyze8.postplan.dev`.
+- Durable evidence:
+  `source-audits/swamp-toad-acquisition-2026-07-20.md`.

@@ -24,6 +24,8 @@ from tools.fetch_assets import (
     fetch_asset,
 )
 
+PRE_EOC_CUTOFF = "2012-11-20T00:00:00Z"
+
 
 def _slug(name: str) -> str:
     return "_".join(part for part in "".join(ch.lower() if ch.isalnum() else " " for ch in name).split())
@@ -60,19 +62,32 @@ def asset_manifest() -> tuple[AssetRequest, ...]:
             output_path=ROOT / "herbloreitems" / "shrunk_ogleroot.png",
             provenance_path=ROOT / "assets_provenance.json",
         ),
+        AssetRequest(
+            item_name="Toad's legs",
+            wiki_title="Toad's legs.png",
+            output_path=ROOT / "herbloreitems" / "toad_s_legs.png",
+            provenance_path=ROOT / "assets_provenance.json",
+        ),
         *live_outputs,
     )
 
 
 def main() -> int:
     client = HttpWikiClient(min_interval_seconds=1.1)
+    period_client = HttpWikiClient(
+        min_interval_seconds=1.1,
+        before_timestamp=PRE_EOC_CUTOFF,
+    )
     failures = []
     for request in asset_manifest():
         try:
             is_skill_icon = request.item_name == "Herblore skill icon"
+            request_client = (
+                period_client if request.item_name == "Toad's legs" else client
+            )
             outcome = fetch_asset(
                 request,
-                client,
+                request_client,
                 size=64,
                 force=is_skill_icon,
                 sources=(OSRS_WIKI,) if is_skill_icon else (RS3_WIKI,),

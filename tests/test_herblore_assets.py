@@ -43,6 +43,7 @@ class HerbloreAssetTest(unittest.TestCase):
         expected_items = {
             "Herblore skill icon",
             "Shrunk ogleroot",
+            "Toad's legs",
             *(target.output_item for target in live_targets),
         }
         live_items = {target.output_item for target in live_targets}
@@ -50,7 +51,7 @@ class HerbloreAssetTest(unittest.TestCase):
 
         self.assertEqual({request.item_name for request in manifest}, expected_items)
         self.assertTrue(deferred_only_items.isdisjoint(request.item_name for request in manifest))
-        self.assertEqual(len(manifest), len(live_targets) + 2)
+        self.assertEqual(len(manifest), len(live_targets) + 3)
         self.assertTrue(all(request.output_path.is_relative_to(ROOT) for request in manifest))
         manifest_by_item = {request.item_name: request for request in manifest}
         self.assertEqual(
@@ -64,6 +65,10 @@ class HerbloreAssetTest(unittest.TestCase):
         self.assertEqual(
             manifest_by_item["Shrunk ogleroot"].wiki_title,
             "Shrunk ogleroot.png",
+        )
+        self.assertEqual(
+            manifest_by_item["Toad's legs"].wiki_title,
+            "Toad's legs.png",
         )
 
     def test_every_live_row_has_an_existing_provenanced_icon(self):
@@ -134,6 +139,29 @@ class HerbloreAssetTest(unittest.TestCase):
                 self.assertTrue((ROOT / relative_path).is_file())
                 self.assertEqual(provenance[relative_path]["file_title"], file_title)
                 self.assertEqual(provenance[relative_path]["timestamp"], timestamp)
+
+    def test_swamp_toad_chain_uses_distinct_period_pinned_art(self):
+        provenance = json.loads((ROOT / "assets_provenance.json").read_text(encoding="utf-8"))
+        expected = {
+            "summoningitems/swamp_toad.png": (
+                "Swamp toad.png",
+                "2008-05-03T20:30:01Z",
+            ),
+            "herbloreitems/toad_s_legs.png": (
+                "Toad's legs.png",
+                "2011-11-29T20:20:05Z",
+            ),
+        }
+        payloads = []
+        for relative_path, (file_title, timestamp) in expected.items():
+            with self.subTest(path=relative_path):
+                path = ROOT / relative_path
+                self.assertTrue(path.is_file())
+                self.assertEqual(provenance[relative_path]["file_title"], file_title)
+                self.assertEqual(provenance[relative_path]["timestamp"], timestamp)
+                self.assertLessEqual(timestamp, "2012-11-20T00:00:00Z")
+                payloads.append(path.read_bytes())
+        self.assertNotEqual(payloads[0], payloads[1])
 
 
 if __name__ == "__main__":

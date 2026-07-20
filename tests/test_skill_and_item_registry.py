@@ -806,6 +806,32 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(by_storage_key["Mining helmet (lit)"].category, "equipment")
         self.assertEqual(by_storage_key["Lit bug lantern"].equipment_slot, "shield")
 
+    def test_swamp_toad_acquisition_preserves_period_item_identity(self):
+        action = UTILITY_ACTIVITY_DATA["gather_swamp_toads"]
+        self.assertEqual(action["requirements"], {})
+        self.assertEqual(action["output_item"], "Swamp toad")
+        self.assertEqual(action["batch_size"], 28)
+        self.assertEqual(action["group"], "gathering")
+        self.assertIn("oldid=6088673", action["source"])
+
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        expected = {
+            "Swamp toad": (2150, "swamp_toad.png"),
+            "Toad's legs": (2152, "toad_s_legs.png"),
+        }
+        for item_name, (item_id, filename) in expected.items():
+            with self.subTest(item_name=item_name):
+                item = by_storage_key[item_name]
+                self.assertEqual(item.source_item_id, item_id)
+                self.assertFalse(item.stackable)
+                self.assertTrue(item.tradeable)
+                self.assertEqual(os.path.basename(item.asset_path or ""), filename)
+                self.assertTrue(os.path.isfile(item.asset_path or ""))
+        self.assertNotEqual(
+            by_storage_key["Swamp toad"].asset_path,
+            by_storage_key["Toad's legs"].asset_path,
+        )
+
     def test_fishing_items_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         for item_name in (

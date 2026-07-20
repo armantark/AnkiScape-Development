@@ -19953,6 +19953,18 @@
     "source_wiki": "rs3",
     "timestamp": "2025-05-07T18:05:20Z"
   },
+  "herbloreitems/toad_s_legs.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Toad%27s_legs.png",
+    "file_title": "Toad's legs.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502084307%21Toad%27s_legs.png?d5a2b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ed0d9f43bc7d0f9520a8e7acf084cdd72d84e24a",
+    "size": 950,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-29T20:20:05Z"
+  },
   "herbloreitems/toadflax_potion_unf.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Toadflax_potion_%28unfinished%29.png",
     "file_title": "Toadflax potion (unfinished).png",
@@ -37682,14 +37694,14 @@
   "summoningitems/swamp_toad.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Swamp_toad.png",
     "file_title": "Swamp toad.png",
-    "image_url": "https://runescape.wiki/images/Swamp_toad.png?496d9",
+    "image_url": "https://runescape.wiki/images/archive/20140502070709%21Swamp_toad.png?e00ed",
     "license_string": "unknown",
     "mediatype": "BITMAP",
     "mime": "image/png",
-    "sha1": "6698fd56b166f807a89ce671656b339221e0c705",
-    "size": 662,
+    "sha1": "569042c9f2884031a43eae0d3e20b6797db3996c",
+    "size": 448,
     "source_wiki": "rs3",
-    "timestamp": "2023-02-02T06:33:02Z"
+    "timestamp": "2008-05-03T20:30:01Z"
   },
   "summoningitems/talon_beast_charm.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Talon_beast_charm.png",

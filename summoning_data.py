@@ -258,6 +258,9 @@ def summoning_extra_items_as_dict() -> dict[str, dict[str, object]]:
                     "source": pouch.source,
                 },
             )
+    if "Swamp toad" in items:
+        items["Swamp toad"]["stackable"] = False
+        items["Swamp toad"]["tradeable"] = True
     return items
 
 
