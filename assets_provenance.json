@@ -15825,6 +15825,18 @@
     "source_wiki": "rs3",
     "timestamp": "2021-10-27T23:24:24Z"
   },
+  "farmingitems/patch_protection_scroll.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Patch_protection_scroll.png",
+    "file_title": "Patch protection scroll.png",
+    "image_url": "https://runescape.wiki/images/Patch_protection_scroll.png?44bc8",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "74b8e03e2142dda231e88374938fb3c66c259c66",
+    "size": 826,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:20:18Z"
+  },
   "farmingitems/pineapple_sapling.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Pineapple_sapling.png",
     "file_title": "Pineapple sapling.png",
@@ -20924,6 +20936,30 @@
     "size": 757,
     "source_wiki": "rs3",
     "timestamp": "2024-11-20T10:56:19Z"
+  },
+  "magicitems/arcane_capacitor_amulet_u.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Arcane_capacitor_amulet_%28u%29.png",
+    "file_title": "Arcane capacitor amulet (u).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502005410%21Arcane_capacitor_amulet_%28u%29.png?cb485",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6cd1015913370d5bddf7416c094935607c2f36d8",
+    "size": 1456,
+    "source_wiki": "rs3",
+    "timestamp": "2011-08-24T00:01:32Z"
+  },
+  "magicitems/arcane_capacitor_c.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Arcane_capacitor_%28c%29.png",
+    "file_title": "Arcane capacitor (c).png",
+    "image_url": "https://runescape.wiki/images/archive/20160502005408%21Arcane_capacitor_%28c%29.png?59bc9",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "eaab4f78d3882904c8184e6f3f27bdfaa249248f",
+    "size": 580,
+    "source_wiki": "rs3",
+    "timestamp": "2011-12-30T13:20:08Z"
   },
   "magicitems/astral_rune.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Astral_rune.png",

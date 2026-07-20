@@ -116,3 +116,11 @@ Results:
 
 - `memory-bank/status-updates/livid-farm-wishes-results-2026-07-19.html`
 - <https://r3408ncs6wyw.postplan.dev>
+
+## 2026-07-19 continuation
+
+The newer
+`memory-bank/source-audits/livid-farm-farming-wishes-implementation-2026-07-19.md`
+closes the one-use allotment and selected ten-tree protection dependencies
+listed above. The two ordinary seed/fish magnitude rows remain
+`source_blocked`.

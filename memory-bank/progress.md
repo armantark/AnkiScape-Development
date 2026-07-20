@@ -4,6 +4,47 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Borrowed Power and Arcane capacitor — 2026-07-19
+
+- Implemented the complete cutoff capacitor lifecycle: one-owned wish,
+  Magic-99 loading, exact 1,000-cast native rune cost without staff
+  substitution, one spell binding, 1,000 charges, exact remainder refund,
+  +10 Magic attack equipment, and crumble on removal or final use.
+- Added all twelve period-supported Borrowed Power routes. Four noncombat
+  wrappers preserve native actions, XP, and gates; eight Combat spells are
+  one explicitly armed manual cast and return to ordinary autocast.
+- Added two compact player surfaces, direct-action/review undo coverage,
+  normalized cutoff assets and provenance, generated equipment rows, and
+  cross-storage ownership enforcement.
+- Focused affected verification passes 553 pure/runtime/integration tests and
+  focused real offscreen Qt behavior. The full non-Qt run executes 1,830
+  methods with 235 expected environment skips; complete real offscreen Qt
+  executes all 1,830 methods with one intentional skip.
+- Kimi K3 and Fable independently reviewed every new Borrowed Power and
+  capacitor surface. Confirmed laptop hierarchy, live-refresh, destructive
+  confirmation, disabled-state, naming, and status-copy defects were fixed.
+- Durable implementation record:
+  `source-audits/borrowed-power-arcane-capacitor-implementation-2026-07-19.md`.
+
+## Livid Farm Farming-owned wishes — 2026-07-19
+
+- Added the hidden-by-default 53rd Farming patch. It uses the ordinary Farming
+  plan and queue systems, identifies itself as one-use, and disappears after
+  the first successful harvest or explicit clear while refunding stale prepaid
+  gardener work.
+- Added the canonical Patch protection scroll item and contextual action. One
+  scroll protects the current ordinary tree or fruit tree plus the next nine
+  matching plantings; other crops and prepaid gardener protection do not spend
+  a use.
+- Storage v48 sanitizes the patch flag, selected crop, and remaining uses.
+  Assets, provenance, registry reachability, direct undo, and review undo
+  remain within the existing Farming/Livid contracts.
+- Fable and Kimi K3 independently reviewed the wide and laptop surfaces.
+  Confirmed discoverability, naming, copy, alignment, and geometry issues were
+  fixed; no owner-design decision was needed.
+- Durable implementation record:
+  `source-audits/livid-farm-farming-wishes-implementation-2026-07-19.md`.
+
 ## Livid Farm source-ready wishes — 2026-07-19
 
 - Added the five value-complete direct wishes: Vial My Herbs, exact-residual

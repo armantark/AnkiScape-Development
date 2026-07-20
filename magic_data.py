@@ -11,6 +11,23 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, Mapping, Optional, Tuple
 
+try:
+    from .livid_farm_data import (
+        ARCANE_CAPACITOR_CHARGED,
+        ARCANE_CAPACITOR_SOURCE,
+        ARCANE_CAPACITOR_UNCHARGED,
+        BORROWED_POWER_NONCOMBAT_SPELLS,
+        BORROWED_POWER_SOURCE,
+    )
+except ImportError:  # pragma: no cover - flat imports used by tests
+    from livid_farm_data import (  # type: ignore
+        ARCANE_CAPACITOR_CHARGED,
+        ARCANE_CAPACITOR_SOURCE,
+        ARCANE_CAPACITOR_UNCHARGED,
+        BORROWED_POWER_NONCOMBAT_SPELLS,
+        BORROWED_POWER_SOURCE,
+    )
+
 
 GAME_MAGIC = "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/magic"
 SPELLBOOK_SOURCE = f"{GAME_MAGIC}/SpellbookData.kt"
@@ -37,7 +54,7 @@ DEFAULT_MAGIC_TARGET = "low_alchemy"
 MAGIC_GROUP_ORDER = (
     "Alchemy", "Teleports — Standard", "Teleports — Ancient", "Teleports — Lunar",
     "Enchant jewellery", "Enchant bolts", "Charge orbs", "Conversions",
-    "Lunar skilling", "Pure casts",
+    "Lunar skilling", "Pure casts", "Borrowed Power",
 )
 ELEMENTAL_RUNES = ("Air rune", "Water rune", "Earth rune", "Fire rune")
 
@@ -402,6 +419,33 @@ for target_id, name, level, xp, runes, gate, action, source in (
     _add(_spell(target_id, name, "lunar", "Pure casts", level, xp, runes, action, quest_gate=gate, source=f"{LUNAR_WIKI}; {source}"))
 
 
+# Borrowed Power casts one selected standard spell through an equipped charged
+# Arcane capacitor. These rows preserve the native action and item semantics,
+# while the wrapper owns the level-99 Lunar gate, three-Astral cast cost, and
+# single capacitor charge.
+for native_spell_id in BORROWED_POWER_NONCOMBAT_SPELLS:
+    native = dict(MAGIC_TARGETS[native_spell_id])
+    native_gate = native.get("quest_gate")
+    native.update(
+        {
+            "id": f"borrowed_{native_spell_id}",
+            "display_name": f"Borrowed Power — {native['display_name']}",
+            "spellbook": "lunar",
+            "group": "Borrowed Power",
+            "level": 99,
+            "rune_cost": {"Astral rune": 3},
+            "quest_gate": "lunar_diplomacy",
+            "livid_unlock": "borrowed_power",
+            "borrowed_spell_id": native_spell_id,
+            "borrowed_native_quest_gate": native_gate,
+            "source": (
+                f"{BORROWED_POWER_SOURCE}; native spell: {native['source']}"
+            ),
+        }
+    )
+    _add(native)
+
+
 MAGIC_NOT_APPLICABLE = (
     "Teleother Lumbridge", "Teleother Falador", "Teleother Camelot",
     "Tele Group Moonclan", "Tele Group Waterbirth", "Tele Group Barbarian",
@@ -433,7 +477,7 @@ def magic_extra_items_as_dict() -> Dict[str, dict]:
     )
     names.update({"Dragonstone ammy", "Dragonstone ammy (u)"})
     names.update({"Peach"})
-    return {
+    data = {
         name: {
             "category": "material",
             "source": "Magic target input/output; source is recorded on MAGIC_TARGETS",
@@ -441,6 +485,21 @@ def magic_extra_items_as_dict() -> Dict[str, dict]:
         }
         for name in sorted(names)
     }
+    data[ARCANE_CAPACITOR_UNCHARGED] = {
+        "category": "equipment",
+        "source": ARCANE_CAPACITOR_SOURCE,
+        "source_item_id": 21513,
+        "stackable": False,
+        "tradeable": False,
+    }
+    data[ARCANE_CAPACITOR_CHARGED] = {
+        "category": "equipment",
+        "source": ARCANE_CAPACITOR_SOURCE,
+        "source_item_id": 21514,
+        "stackable": False,
+        "tradeable": False,
+    }
+    return data
 
 
 @dataclass(frozen=True)

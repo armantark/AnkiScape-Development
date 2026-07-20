@@ -420,16 +420,26 @@ except Exception:
     )
 
 try:
-    from .livid_farm_data import LIVID_FARM_UNLOCKS
+    from .livid_farm_data import (
+        BORROWED_POWER_COMBAT_SPELLS,
+        LIVID_FARM_UNLOCKS,
+    )
     from .livid_farm_logic import (
+        arcane_capacitor_spell_rows_pure,
+        arcane_capacitor_status_pure,
         livid_farm_cycle_projection_pure,
         livid_farm_locked_reasons_pure,
         livid_farm_wish_rows_pure,
         sanitize_livid_farm_state_pure,
     )
 except ImportError:
-    from livid_farm_data import LIVID_FARM_UNLOCKS  # type: ignore
+    from livid_farm_data import (  # type: ignore
+        BORROWED_POWER_COMBAT_SPELLS,
+        LIVID_FARM_UNLOCKS,
+    )
     from livid_farm_logic import (  # type: ignore
+        arcane_capacitor_spell_rows_pure,
+        arcane_capacitor_status_pure,
         livid_farm_cycle_projection_pure,
         livid_farm_locked_reasons_pure,
         livid_farm_wish_rows_pure,
@@ -542,12 +552,14 @@ except Exception:
     import inventory_pure  # type: ignore
 
 try:
+    from .farming_data import LIVID_FARM_ALLOTMENT_PATCH_ID
     from .farming_logic import (
         CURE_PLANT_SPELL_FIRST,
         PLANT_CURE_ITEM_FIRST,
         farming_frontend_projection_pure,
     )
 except Exception:
+    from farming_data import LIVID_FARM_ALLOTMENT_PATCH_ID  # type: ignore
     from farming_logic import (  # type: ignore
         CURE_PLANT_SPELL_FIRST,
         PLANT_CURE_ITEM_FIRST,
@@ -3745,6 +3757,21 @@ def show_main_menu(
             )
             run_row.addWidget(juju_button)
             bulk_layout.addLayout(run_row)
+            livid_protection = projection.get("livid_protection", {})
+            livid_protection_label = QLabel(
+                str(livid_protection.get("label", ""))
+            )
+            livid_protection_label.setObjectName(
+                "farmingLividProtectionStatus"
+            )
+            livid_protection_label.setVisible(
+                bool(livid_protection.get("label"))
+            )
+            livid_protection_label.setWordWrap(True)
+            livid_protection_label.setStyleSheet(
+                f"color: {dim_text_css(livid_protection_label)};"
+            )
+            bulk_layout.addWidget(livid_protection_label)
             sheet_layout.addWidget(bulk)
 
             toast = QLabel(message)
@@ -3805,6 +3832,8 @@ def show_main_menu(
                     summary_text = (
                         f"{status_mark} {identity} · {patch['status_label']}"
                     )
+                    if patch_id == LIVID_FARM_ALLOTMENT_PATCH_ID:
+                        summary_text += " · one-use"
                     if patch.get("queued_count"):
                         summary_text += f" · {patch['queued_count']} queued"
                     patch_summary = QLabel(summary_text.strip())
@@ -4073,6 +4102,31 @@ def show_main_menu(
                         pay.setToolTip(protection_action["locked_reason"])
                         pay.clicked.connect(lambda _=False, pid=patch_id: _run_action("pay_protection", {"patch_id": pid}))
                         actions.addWidget(pay)
+                    livid_action = patch.get("livid_protection_action")
+                    if livid_action:
+                        use_livid = QPushButton(livid_action["label"])
+                        use_livid.setObjectName(
+                            f"farmingPatchLividProtectionButton::{patch_id}"
+                        )
+                        use_livid.setEnabled(
+                            bool(livid_action["enabled"])
+                            and on_farming_action is not None
+                        )
+                        use_livid.setToolTip(
+                            livid_action["locked_reason"]
+                            or (
+                                "Consumes one Patch protection scroll. "
+                                "This tree and the next nine plantings of "
+                                "the same type will be protected."
+                            )
+                        )
+                        use_livid.clicked.connect(
+                            lambda _=False, pid=patch_id: _run_action(
+                                "activate_livid_protection",
+                                {"patch_id": pid},
+                            )
+                        )
+                        actions.addWidget(use_livid)
                     actions.addStretch(1)
                     detail_layout.addLayout(actions)
                     sapling = patch.get("sapling_action")
@@ -4868,6 +4922,82 @@ def show_main_menu(
         layout.addWidget(spell_row)
         spell_row.setVisible(_combat_mode_text().lower().startswith("magic"))
 
+        borrowed_row = QWidget()
+        borrowed_row.setObjectName("combatBorrowedPowerRow")
+        borrowed_layout = QVBoxLayout(borrowed_row)
+        borrowed_layout.setContentsMargins(0, 0, 0, 0)
+        borrowed_layout.setSpacing(4)
+        borrowed_name = QLabel()
+        borrowed_name.setObjectName("combatBorrowedPowerSpell")
+        borrowed_name.setStyleSheet("color: palette(text);")
+        borrowed_layout.addWidget(borrowed_name)
+        borrowed_button = QPushButton()
+        borrowed_button.setObjectName("combatBorrowedPowerButton")
+        borrowed_button.setCheckable(True)
+        borrowed_button.setToolTip(
+            "The next Combat review performs one manual Borrowed Power cast, "
+            "then returns to the selected autocast."
+        )
+        borrowed_layout.addWidget(borrowed_button)
+        layout.addWidget(borrowed_row)
+        borrowed_spell_ref = {"id": ""}
+
+        def _set_borrowed_power_armed(checked: bool) -> None:
+            spell_id = borrowed_spell_ref["id"]
+            if on_set_combat_prayer_config is not None:
+                on_set_combat_prayer_config(
+                    "combat_borrowed_power_spell",
+                    spell_id if checked else "",
+                )
+            borrowed_button.setText(
+                "One cast armed"
+                if checked
+                else "Cast once next review"
+            )
+
+        borrowed_button.clicked.connect(_set_borrowed_power_armed)
+
+        def _refresh_borrowed_power_row() -> None:
+            current = arcane_capacitor_status_pure(player_data)
+            spell_id = str(current["spell_id"])
+            borrowed_spell_ref["id"] = spell_id
+            spell_name = str(
+                COMBAT_MAGIC_SPELL_DATA.get(
+                    spell_id,
+                    {},
+                ).get("display_name", spell_id)
+            )
+            charges = int(current["charges"])
+            borrowed_name.setText(
+                f"Borrowed Power · {spell_name} · {charges:,} charges"
+            )
+            borrowed_name.setToolTip(
+                f"{charges:,} Arcane capacitor charges remaining."
+            )
+            visible = bool(
+                current["equipped"]
+                and spell_id in BORROWED_POWER_COMBAT_SPELLS
+                and _combat_mode_text().lower().startswith("magic")
+            )
+            armed = bool(
+                visible
+                and player_data.get("combat_borrowed_power_spell") == spell_id
+            )
+            borrowed_button.blockSignals(True)
+            borrowed_button.setChecked(armed)
+            borrowed_button.setText(
+                "One cast armed"
+                if armed
+                else "Cast once next review"
+            )
+            borrowed_button.setEnabled(
+                visible and on_set_combat_prayer_config is not None
+            )
+            borrowed_button.blockSignals(False)
+            borrowed_row.setVisible(visible)
+
+        _refresh_borrowed_power_row()
+
         casual_toggles = QWidget()
         casual_toggles.setObjectName("combatMagicCasualControls")
         casual_layout = QHBoxLayout(casual_toggles)
@@ -5257,6 +5387,7 @@ def show_main_menu(
             mode_label.setText(f"Combat mode: {_combat_mode_text()}")
             _rebuild_style_combo()
             _refresh_combat_action()
+            _refresh_borrowed_power_row()
 
         _combat_setup_refreshers.append(_refresh_combat_setup_panel)
 
@@ -5704,7 +5835,8 @@ def show_main_menu(
         next_label.setStyleSheet("color: palette(text);")
         action_layout.addWidget(room_button)
         action_layout.addWidget(show_button)
-        action_layout.addWidget(next_label, 1)
+        action_layout.addStretch(1)
+        guild_layout.addWidget(next_label)
         guild_layout.addWidget(action_row)
         container_layout.addWidget(guild_box)
 
@@ -5897,6 +6029,33 @@ def show_main_menu(
         livid_wish_layout.addWidget(livid_wish_picker, 1)
         livid_wish_layout.addWidget(livid_wish_button)
         livid_layout.addWidget(livid_wish_row)
+
+        livid_capacitor_row = QWidget()
+        livid_capacitor_row.setObjectName("lividFarmCapacitorRow")
+        livid_capacitor_layout = QHBoxLayout(livid_capacitor_row)
+        livid_capacitor_layout.setContentsMargins(0, 2, 0, 0)
+        livid_capacitor_layout.setSpacing(6)
+        livid_capacitor_status = QLabel()
+        livid_capacitor_status.setObjectName("lividFarmCapacitorStatus")
+        livid_capacitor_status.setStyleSheet("color: palette(text);")
+        livid_capacitor_spell = QComboBox()
+        livid_capacitor_spell.setObjectName("lividFarmCapacitorSpell")
+        livid_capacitor_spell.setMinimumContentsLength(12)
+        livid_capacitor_spell.setSizeAdjustPolicy(
+            QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
+        )
+        livid_capacitor_charge = QPushButton("Charge")
+        livid_capacitor_charge.setObjectName("lividFarmCapacitorCharge")
+        livid_capacitor_remove = QPushButton("Remove charge")
+        livid_capacitor_remove.setObjectName("lividFarmCapacitorRemove")
+        livid_capacitor_remove.setToolTip(
+            "Destroy the necklace and refund the unused loaded spell runes."
+        )
+        livid_capacitor_layout.addWidget(livid_capacitor_status)
+        livid_capacitor_layout.addWidget(livid_capacitor_spell, 1)
+        livid_capacitor_layout.addWidget(livid_capacitor_charge)
+        livid_capacitor_layout.addWidget(livid_capacitor_remove)
+        livid_layout.addWidget(livid_capacitor_row)
         container_layout.addWidget(livid_box)
 
         syncing_livid = {"active": False}
@@ -6009,8 +6168,133 @@ def show_main_menu(
             wish_surface_visible = bool(
                 livid_state["borrowed_power_claimed"]
             )
+            capacitor = arcane_capacitor_status_pure(player_data)
+            selected_capacitor_spell = str(
+                livid_capacitor_spell.currentData() or ""
+            )
+            capacitor_rows = arcane_capacitor_spell_rows_pure(player_data)
+            livid_capacitor_spell.blockSignals(True)
+            livid_capacitor_spell.clear()
+            for row in capacitor_rows:
+                livid_capacitor_spell.addItem(
+                    str(row["display_name"]),
+                    row["id"],
+                )
+                index = livid_capacitor_spell.count() - 1
+                cost_text = ", ".join(
+                    f"{name} x{amount:,}"
+                    for name, amount in row["rune_cost"].items()
+                )
+                livid_capacitor_spell.setItemData(
+                    index,
+                    cost_text,
+                    Qt.ItemDataRole.ToolTipRole,
+                )
+                if not row["enabled"]:
+                    livid_capacitor_spell.setItemData(
+                        index,
+                        dim_text_color(livid_capacitor_spell),
+                        Qt.ItemDataRole.ForegroundRole,
+                    )
+            capacitor_index = livid_capacitor_spell.findData(
+                str(capacitor["spell_id"])
+                if capacitor["charged_owned"]
+                else selected_capacitor_spell
+            )
+            if capacitor_index < 0:
+                capacitor_index = next(
+                    (
+                        index
+                        for index, row in enumerate(capacitor_rows)
+                        if row["enabled"]
+                    ),
+                    0,
+                )
+            livid_capacitor_spell.setCurrentIndex(capacitor_index)
+            livid_capacitor_spell.blockSignals(False)
+            selected_capacitor_row = (
+                capacitor_rows[capacitor_index]
+                if 0 <= capacitor_index < len(capacitor_rows)
+                else None
+            )
+            bound_name = next(
+                (
+                    str(row["display_name"])
+                    for row in capacitor_rows
+                    if row["id"] == capacitor["spell_id"]
+                ),
+                str(capacitor["spell_id"]),
+            )
+            if capacitor["charged_owned"]:
+                livid_capacitor_status.setText(
+                    f"Capacitor · {int(capacitor['charges']):,}"
+                )
+                livid_capacitor_status.setToolTip(
+                    f"{bound_name} loaded · "
+                    f"{int(capacitor['charges']):,} charges remaining."
+                )
+            elif capacitor["uncharged_owned"]:
+                livid_capacitor_status.setText("Capacitor · Uncharged")
+                livid_capacitor_status.setToolTip(
+                    "Uncharged capacitor ready to load."
+                )
+            elif capacitor["owned"]:
+                livid_capacitor_status.setText("Capacitor · Stored")
+                livid_capacitor_status.setToolTip(
+                    "The capacitor is stored outside the Bank or equipment."
+                )
+            else:
+                livid_capacitor_status.setText("Capacitor · None")
+                livid_capacitor_status.setToolTip(
+                    "Purchase an Arcane capacitor wish first."
+                )
+            magic_ready = (
+                int(player_data.get("magic_level", 1) or 1) >= 99
+            )
+            can_charge = bool(
+                livid_state["borrowed_power_claimed"]
+                and capacitor["uncharged_owned"]
+                and magic_ready
+                and selected_capacitor_row
+                and selected_capacitor_row["enabled"]
+                and on_livid_farm_command is not None
+            )
+            charge_tooltip = ""
+            if not livid_state["borrowed_power_claimed"]:
+                charge_tooltip = "Unlock Borrowed Power first."
+            elif not capacitor["uncharged_owned"]:
+                charge_tooltip = "Carry an uncharged Arcane capacitor."
+            elif not magic_ready:
+                charge_tooltip = "Requires Magic level 99."
+            elif (
+                selected_capacitor_row
+                and selected_capacitor_row["missing_runes"]
+            ):
+                charge_tooltip = "Missing " + ", ".join(
+                    f"{name} x{amount:,}"
+                    for name, amount in
+                    selected_capacitor_row["missing_runes"].items()
+                )
+            livid_capacitor_charge.setToolTip(charge_tooltip)
+            livid_capacitor_spell.setEnabled(
+                bool(livid_state["borrowed_power_claimed"])
+                and bool(capacitor["uncharged_owned"])
+                and on_livid_farm_command is not None
+            )
+            livid_capacitor_charge.setEnabled(can_charge)
+            livid_capacitor_remove.setEnabled(
+                bool(capacitor["charged_owned"])
+                and on_livid_farm_command is not None
+            )
+            livid_capacitor_row.setVisible(
+                wish_surface_visible or bool(capacitor["owned"])
+            )
             livid_box.setMinimumHeight(
-                96 if wish_surface_visible else 78
+                132
+                if livid_capacitor_row.isVisible()
+                else 96
+                if wish_surface_visible
+                else 78
             )
             livid_wish_row.setVisible(wish_surface_visible)
             if wish_surface_visible and selected_row is not None:
@@ -6067,6 +6351,53 @@ def show_main_menu(
                 )
             _refresh_livid_panel()
 
+        def _charge_livid_capacitor() -> None:
+            if syncing_livid["active"] or on_livid_farm_command is None:
+                return
+            result = on_livid_farm_command(
+                "charge_capacitor",
+                {
+                    "spell_id": str(
+                        livid_capacitor_spell.currentData() or ""
+                    )
+                },
+            ) or {}
+            if not result.get("ok", False) and result.get("message"):
+                QMessageBox.warning(
+                    container,
+                    "Arcane capacitor",
+                    str(result["message"]),
+                )
+            _refresh_livid_panel()
+
+        def _remove_livid_capacitor_charge() -> None:
+            if syncing_livid["active"] or on_livid_farm_command is None:
+                return
+            answer = QMessageBox.question(
+                container,
+                "Remove Arcane capacitor charge?",
+                (
+                    "This refunds the unused loaded runes but destroys the "
+                    "Arcane capacitor necklace. Continue?"
+                ),
+                QMessageBox.StandardButton.Yes
+                | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer != QMessageBox.StandardButton.Yes:
+                return
+            result = on_livid_farm_command(
+                "remove_capacitor_charge",
+                {},
+            ) or {}
+            if not result.get("ok", False) and result.get("message"):
+                QMessageBox.warning(
+                    container,
+                    "Arcane capacitor",
+                    str(result["message"]),
+                )
+            _refresh_livid_panel()
+
         livid_routine.currentIndexChanged.connect(
             lambda _index: _set_livid_routine()
         )
@@ -6075,6 +6406,15 @@ def show_main_menu(
         )
         livid_wish_button.clicked.connect(
             lambda _checked=False: _buy_livid_wish()
+        )
+        livid_capacitor_spell.currentIndexChanged.connect(
+            lambda _index: _refresh_livid_panel()
+        )
+        livid_capacitor_charge.clicked.connect(
+            lambda _checked=False: _charge_livid_capacitor()
+        )
+        livid_capacitor_remove.clicked.connect(
+            lambda _checked=False: _remove_livid_capacitor_charge()
         )
         _refresh_livid_panel()
 

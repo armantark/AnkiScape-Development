@@ -142,6 +142,8 @@ from .warriors_guild_logic import (
 )
 from .livid_farm_logic import (
     advance_livid_farm_wish_effects_pure,
+    apply_arcane_capacitor_charge_pure,
+    apply_arcane_capacitor_remove_charge_pure,
     apply_livid_farm_wish_pure,
     set_livid_farm_routine_pure,
 )
@@ -950,19 +952,14 @@ def show_ore_selection():
         save_player_data()
 
 
-def on_livid_farm_wish(wish_id):
-    before = _capture_player_data_snapshot()
-    updated, ok, info = apply_livid_farm_wish_pure(
-        player_data,
-        wish_id,
-    )
+def _save_livid_farm_direct_action(before, updated, ok, info):
     if not ok:
         return {
             "ok": False,
             "message": str(
                 info.get(
                     "message",
-                    info.get("reason", "That wish is unavailable."),
+                    info.get("reason", "That Livid Farm action is unavailable."),
                 )
             )
             .replace("_", " ")
@@ -985,6 +982,15 @@ def on_livid_farm_wish(wish_id):
     except AttributeError:
         pass
     return {"ok": True, **info}
+
+
+def on_livid_farm_wish(wish_id):
+    before = _capture_player_data_snapshot()
+    updated, ok, info = apply_livid_farm_wish_pure(
+        player_data,
+        wish_id,
+    )
+    return _save_livid_farm_direct_action(before, updated, ok, info)
 
 
 
@@ -1484,9 +1490,26 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             player_data.update(updated)
             save_player_data()
             return {"ok": True, **info}
-        if action_id != "buy_wish":
+        if action_id == "buy_wish":
+            return on_livid_farm_wish(payload.get("wish_id", ""))
+        before = _capture_player_data_snapshot()
+        if action_id == "charge_capacitor":
+            updated, ok, info = apply_arcane_capacitor_charge_pure(
+                player_data,
+                payload.get("spell_id", ""),
+            )
+        elif action_id == "remove_capacitor_charge":
+            updated, ok, info = apply_arcane_capacitor_remove_charge_pure(
+                player_data,
+            )
+        else:
             return {"ok": False, "message": "Unknown Livid Farm command."}
-        return on_livid_farm_wish(payload.get("wish_id", ""))
+        return _save_livid_farm_direct_action(
+            before,
+            updated,
+            ok,
+            info,
+        )
 
     def _apply_summoning_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}

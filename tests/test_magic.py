@@ -25,6 +25,10 @@ from logic_pure import (
 )
 from farming_logic import default_farming_state_pure, execute_farm_field_step_pure, set_farm_plan_pure
 from magic_data import CHARGE_WIKI, COMBAT_MAGIC_ADDITIONS, MAGIC_TARGETS
+from livid_farm_data import (
+    ARCANE_CAPACITOR_CHARGED,
+    ARCANE_CAPACITOR_UNCHARGED,
+)
 from runtime_actions import (
     RuntimeActionContext,
     answer_handler_for_key,
@@ -150,7 +154,7 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
         )
 
     def test_three_books_and_stable_ids_are_complete(self):
-        self.assertEqual(len(MAGIC_TARGETS), 110)
+        self.assertEqual(len(MAGIC_TARGETS), 114)
         self.assertEqual(len(MAGIC_TARGETS), len(set(MAGIC_TARGETS)))
         books = {row["spellbook"] for row in MAGIC_TARGETS.values()}
         self.assertEqual(books, {"standard", "ancient", "lunar"})
@@ -159,6 +163,93 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
         self.assertEqual({spell.id for spell in ancient_combat if spell.id.startswith("miasmic_")}, {
             "miasmic_rush", "miasmic_burst", "miasmic_blitz", "miasmic_barrage",
         })
+
+    def test_borrowed_power_noncombat_rows_reuse_native_actions(self):
+        expected = {
+            "borrowed_telegrab_wine_of_zamorak": "produce",
+            "borrowed_teleport_to_house": "pure",
+            "borrowed_high_alchemy": "alchemy",
+            "borrowed_bones_to_peaches": "bones_conversion",
+        }
+        for target_id, action in expected.items():
+            with self.subTest(target_id=target_id):
+                spec = MAGIC_TARGETS[target_id]
+                self.assertEqual(spec["level"], 99)
+                self.assertEqual(spec["spellbook"], "lunar")
+                self.assertEqual(spec["group"], "Borrowed Power")
+                self.assertEqual(spec["rune_cost"], {"Astral rune": 3})
+                self.assertEqual(spec["action"], action)
+
+    def test_borrowed_high_alchemy_uses_native_value_and_one_capacitor_charge(self):
+        player = {
+            "magic_level": 99,
+            "magic_alchemy_item": "Logs",
+            "inventory": {"Astral rune": 3, "Logs": 1},
+            "equipment": {"neck": ARCANE_CAPACITOR_CHARGED},
+            "quests": {"lunar_diplomacy": {"completed": True}},
+            "livid_farm": {
+                "borrowed_power_claimed": True,
+                "arcane_capacitor_spell": "high_alchemy",
+                "arcane_capacitor_charges": 2,
+            },
+        }
+
+        result, xp, _secondary, outputs, ok, _message = (
+            apply_magic_action_pure(
+                player,
+                "borrowed_high_alchemy",
+                MAGIC_DATA,
+                {"Logs": 100},
+            )
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(xp, 65.0)
+        self.assertEqual(outputs, {"Coins": 60})
+        self.assertEqual(result["inventory"]["Astral rune"], 0)
+        self.assertEqual(result["inventory"]["Logs"], 0)
+        self.assertEqual(
+            result["livid_farm"]["arcane_capacitor_charges"],
+            1,
+        )
+        self.assertEqual(
+            result["equipment"]["neck"],
+            ARCANE_CAPACITOR_CHARGED,
+        )
+
+    def test_borrowed_power_requires_matching_equipped_capacitor(self):
+        player = {
+            "magic_level": 99,
+            "magic_alchemy_item": "Logs",
+            "inventory": {"Astral rune": 3, "Logs": 1},
+            "equipment": {},
+            "quests": {"lunar_diplomacy": {"completed": True}},
+            "livid_farm": {
+                "borrowed_power_claimed": True,
+                "arcane_capacitor_spell": "teleport_to_house",
+                "arcane_capacitor_charges": 1_000,
+            },
+        }
+
+        reasons = magic_target_locked_reasons_pure(
+            player,
+            "borrowed_high_alchemy",
+            MAGIC_DATA,
+            {"Logs": 100},
+        )
+
+        self.assertIn("Equip the charged Arcane capacitor", reasons)
+        self.assertIn("Charge the capacitor with this spell", reasons)
+
+    def test_arcane_capacitor_equipment_rows_preserve_period_stats(self):
+        uncharged = EQUIPMENT_DATA[ARCANE_CAPACITOR_UNCHARGED]
+        charged = EQUIPMENT_DATA[ARCANE_CAPACITOR_CHARGED]
+
+        self.assertEqual(uncharged.slot, "neck")
+        self.assertEqual(uncharged.bonuses.attack_magic, 0)
+        self.assertEqual(charged.slot, "neck")
+        self.assertEqual(charged.bonuses.attack_magic, 10)
+        self.assertEqual(charged.source_item_id, 21514)
 
     def test_livid_spell_rows_pin_exact_period_levels_xp_and_runes(self):
         expected = {
@@ -883,7 +974,7 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
         self.assertEqual(migrated["equipment"]["neck"], "Gold amulet")
 
     def test_every_magic_manifest_asset_exists(self):
-        self.assertEqual(len(MAGIC_ITEM_IMAGES), 137)
+        self.assertEqual(len(MAGIC_ITEM_IMAGES), 139)
         for path in MAGIC_ITEM_IMAGES.values():
             self.assertTrue(os.path.exists(path), path)
 

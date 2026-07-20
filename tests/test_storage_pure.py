@@ -908,6 +908,9 @@ class TestStoragePure(unittest.TestCase):
             migrated["livid_farm"]["more_planks_reviews_remaining"],
             0,
         )
+        self.assertFalse(migrated["farm_livid_patch_active"])
+        self.assertIsNone(migrated["farm_livid_protection_crop_id"])
+        self.assertEqual(migrated["farm_livid_protection_uses_remaining"], 0)
 
 
 if __name__ == "__main__":

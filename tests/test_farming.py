@@ -23,6 +23,8 @@ from farming_data import (
     FARMING_ITEM_DATA,
     FARMING_PATCHES,
     FARMING_SOURCE_BLOCKED,
+    LIVID_FARM_ALLOTMENT_PATCH_ID,
+    LIVID_FARM_PROTECTION_SCROLL,
 )
 from farming_logic import (
     CURE_PLANT_SPELL_FIRST,
@@ -93,8 +95,8 @@ def _plant_ready(data, patch_id="falador_allotment_north", crop_id="potato", com
 
 class TestFarmingData(unittest.TestCase):
     def test_repeatable_inventory_is_exact_and_stable(self):
-        self.assertEqual(len(FARMING_PATCHES), 52)
-        self.assertEqual(len({row.id for row in FARMING_PATCHES}), 52)
+        self.assertEqual(len(FARMING_PATCHES), 53)
+        self.assertEqual(len({row.id for row in FARMING_PATCHES}), 53)
         self.assertEqual(len(FARMING_COMPOST_BINS), 6)
         self.assertEqual(len({row.id for row in FARMING_COMPOST_BINS}), 6)
         spirit_slots = [row for row in FARMING_PATCHES if row.patch_type == "spirit_tree"]
@@ -197,7 +199,7 @@ class TestFarmingStorageAndRegistry(unittest.TestCase):
                     if key in {row.id for row in FARMING_PATCHES}
                 ]
             ),
-            52,
+            53,
         )
         self.assertEqual(
             len(
@@ -271,15 +273,28 @@ class TestFarmingStorageAndRegistry(unittest.TestCase):
     def test_sanitation_repairs_known_rows_without_dropping_unknown_rows(self):
         state = sanitize_farming_state_pure({
             "farm_clock_minutes": -5,
-            "farm_patches": {"falador_allotment_north": {"crop_id": "bogus", "stage": "bad"}, "future": {"x": 1}},
+            "farm_patches": {
+                "falador_allotment_north": {"crop_id": "bogus", "stage": "bad"},
+                "lumbridge_tree": {
+                    "crop_id": "oak",
+                    "livid_protected": True,
+                    "protected": False,
+                },
+                "future": {"x": 1},
+            },
             "farm_compost_bins": {"falador_bin": {"status": "bogus"}, "future": {"x": 2}},
             "farm_queue": [None, {"id": "x", "kind": "future_action", "future": True}],
+            "farm_livid_protection_crop_id": "potato",
+            "farm_livid_protection_uses_remaining": 999,
         })
         self.assertEqual(state["farm_clock_minutes"], 0)
         self.assertIsNone(state["farm_patches"]["falador_allotment_north"]["crop_id"])
+        self.assertTrue(state["farm_patches"]["lumbridge_tree"]["protected"])
         self.assertEqual(state["farm_patches"]["future"], {"x": 1})
         self.assertEqual(state["farm_compost_bins"]["future"], {"x": 2})
         self.assertEqual(state["farm_queue"], [{"id": "x", "kind": "future_action", "future": True}])
+        self.assertIsNone(state["farm_livid_protection_crop_id"])
+        self.assertEqual(state["farm_livid_protection_uses_remaining"], 0)
 
     def test_v38_migration_adds_preset_state_and_plan_policy_defaults(self):
         migrated = migrate_loaded_data(
@@ -452,6 +467,83 @@ class TestFarmingClockAndActions(unittest.TestCase):
         self.assertEqual(info["farming_xp"], 43.0)
         safe, _ = advance_farm_clock_pure(planted, 20, lambda: 0.0)
         self.assertFalse(safe["farm_patches"]["falador_allotment_north"]["dead"])
+
+    def test_livid_scroll_protects_current_tree_and_nine_matching_plantings(self):
+        state = _state()
+        state["inventory"].update({
+            "Rake": 1,
+            "Spade": 1,
+            "Oak sapling": 10,
+            "Willow sapling": 1,
+            LIVID_FARM_PROTECTION_SCROLL: 2,
+        })
+        state, ok, _ = execute_farm_field_step_pure(
+            state,
+            {"kind": "plant", "patch_id": "lumbridge_tree", "crop_id": "oak"},
+        )
+        self.assertTrue(ok)
+
+        state, ok, message = apply_farming_frontend_action_pure(
+            state,
+            "activate_livid_protection",
+            {"patch_id": "lumbridge_tree"},
+        )
+
+        self.assertTrue(ok)
+        self.assertIn("9 more", message)
+        self.assertTrue(
+            state["farm_patches"]["lumbridge_tree"]["livid_protected"]
+        )
+        self.assertEqual(state["farm_livid_protection_crop_id"], "oak")
+        self.assertEqual(state["farm_livid_protection_uses_remaining"], 9)
+        self.assertEqual(state["inventory"][LIVID_FARM_PROTECTION_SCROLL], 1)
+
+        state, ok, _ = execute_farm_field_step_pure(
+            state,
+            {"kind": "plant", "patch_id": "varrock_tree", "crop_id": "willow"},
+        )
+        self.assertTrue(ok)
+        self.assertFalse(
+            state["farm_patches"]["varrock_tree"]["livid_protected"]
+        )
+        self.assertEqual(state["farm_livid_protection_uses_remaining"], 9)
+
+        unchanged, ok, message = apply_farming_frontend_action_pure(
+            state,
+            "activate_livid_protection",
+            {"patch_id": "varrock_tree"},
+        )
+        self.assertFalse(ok)
+        self.assertIn("already active", message)
+        self.assertEqual(unchanged, state)
+
+        for expected in range(8, -1, -1):
+            state["farm_patches"]["varrock_tree"] = {}
+            state, ok, info = execute_farm_field_step_pure(
+                state,
+                {"kind": "plant", "patch_id": "varrock_tree", "crop_id": "oak"},
+            )
+            self.assertTrue(ok)
+            self.assertTrue(info["livid_protected"])
+            self.assertTrue(
+                state["farm_patches"]["varrock_tree"]["livid_protected"]
+            )
+            self.assertEqual(
+                state["farm_livid_protection_uses_remaining"],
+                expected,
+            )
+
+        self.assertIsNone(state["farm_livid_protection_crop_id"])
+        self.assertEqual(
+            farming_frontend_projection_pure(state)["livid_protection"],
+            {
+                "scroll_count": 1,
+                "crop_id": None,
+                "crop_name": None,
+                "uses_remaining": 0,
+                "label": "Patch protection scroll · 1",
+            },
+        )
 
     def test_plant_bundle_consumes_materials_adds_weeds_and_cure_awards_zero_xp(self):
         planted = _plant_ready(_state(), compost="compost")
@@ -1481,6 +1573,30 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
 
 
 class TestFarmingFrontendProjection(unittest.TestCase):
+    def test_livid_scroll_action_stays_hidden_until_relevant(self):
+        state = _state()
+        state["inventory"].update(
+            {"Rake": 1, "Spade": 1, "Oak sapling": 1}
+        )
+        state, ok, _ = execute_farm_field_step_pure(
+            state,
+            {
+                "kind": "plant",
+                "patch_id": "lumbridge_tree",
+                "crop_id": "oak",
+            },
+        )
+        self.assertTrue(ok)
+        tree = next(
+            patch
+            for location in farming_frontend_projection_pure(state)[
+                "locations"
+            ]
+            for patch in location["patches"]
+            if patch["patch_id"] == "lumbridge_tree"
+        )
+        self.assertIsNone(tree["livid_protection_action"])
+
     def test_projection_groups_all_patches_and_bins_with_stable_ids(self):
         view = farming_frontend_projection_pure(_state())
         patches = [patch for location in view["locations"] for patch in location["patches"]]
@@ -1492,6 +1608,24 @@ class TestFarmingFrontendProjection(unittest.TestCase):
         self.assertEqual(view["hud"]["priority"], "none")
         self.assertNotIn("input-starved", repr(view).lower())
         self.assertNotIn("source-blocked", repr(view).lower())
+
+        active = _state()
+        active["farm_livid_patch_active"] = True
+        active_view = farming_frontend_projection_pure(active)
+        active_patches = [
+            patch
+            for location in active_view["locations"]
+            for patch in location["patches"]
+        ]
+        self.assertEqual(len(active_patches), 53)
+        self.assertEqual(
+            [
+                patch["patch_name"]
+                for patch in active_patches
+                if patch["patch_id"] == LIVID_FARM_ALLOTMENT_PATCH_ID
+            ],
+            ["Livid Farm allotment"],
+        )
 
     def test_white_tree_projection_is_a_single_permanent_harvest_surface(self):
         state = _state(level=25)
@@ -1667,10 +1801,15 @@ class TestFarmingFrontendProjection(unittest.TestCase):
     def test_location_groups_preserve_canonical_patch_and_bin_order(self):
         view = farming_frontend_projection_pure(_state())
         locations = view["locations"]
+        visible_patch_rows = [
+            patch
+            for patch in FARMING_PATCHES
+            if patch.id != LIVID_FARM_ALLOTMENT_PATCH_ID
+        ]
         self.assertEqual(
             [location["location_id"] for location in locations],
             list(dict.fromkeys(
-                [patch.complex_id for patch in FARMING_PATCHES]
+                [patch.complex_id for patch in visible_patch_rows]
                 + [compost_bin.complex_id for compost_bin in FARMING_COMPOST_BINS]
             )),
         )
@@ -1689,7 +1828,7 @@ class TestFarmingFrontendProjection(unittest.TestCase):
             [
                 patch.id
                 for location_id in [location["location_id"] for location in locations]
-                for patch in FARMING_PATCHES
+                for patch in visible_patch_rows
                 if patch.complex_id == location_id
             ],
         )

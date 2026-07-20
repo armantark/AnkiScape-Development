@@ -89,6 +89,11 @@ except ImportError:
     from magic_data import CASUAL_MAGIC_DIAL, DREAM_COST, SPELLBOOK_SWAP_COST, VENGEANCE_COST
 
 try:
+    from .livid_farm_data import BORROWED_POWER_COMBAT_SPELLS
+except ImportError:
+    from livid_farm_data import BORROWED_POWER_COMBAT_SPELLS
+
+try:
     from .combat_data import (
         COMBAT_ATTACK_STYLE_DATA,
         COMBAT_ANTIPOISON_POTION_DATA,
@@ -1346,12 +1351,27 @@ def magic_target_locked_reasons_pure(
     gate = spec.get("quest_gate")
     if gate and not _magic_quest_gate_complete_pure(player_data, gate):
         reasons.append(str(gate).replace("_", " ").title())
+    native_gate = spec.get("borrowed_native_quest_gate")
+    if native_gate and not _magic_quest_gate_complete_pure(player_data, native_gate):
+        reasons.append(str(native_gate).replace("_", " ").title())
     livid_unlock = spec.get("livid_unlock")
     if livid_unlock:
         reasons.extend(_livid_spell_locked_reasons_pure(player_data, livid_unlock))
     consumer_unavailable = spec.get("consumer_unavailable")
     if consumer_unavailable:
         reasons.append(str(consumer_unavailable))
+    borrowed_spell_id = spec.get("borrowed_spell_id")
+    if borrowed_spell_id:
+        try:
+            from .livid_farm_logic import borrowed_power_locked_reasons_pure
+        except ImportError:  # pragma: no cover - flat imports used by tests
+            from livid_farm_logic import borrowed_power_locked_reasons_pure  # type: ignore
+        reasons.extend(
+            borrowed_power_locked_reasons_pure(
+                player_data,
+                borrowed_spell_id,
+            )
+        )
     god_id = MAGE_ARENA_SPELL_TO_GOD.get(target_id)
     if god_id:
         state = sanitize_mage_arena_state_pure(player_data.get("mage_arena"))
@@ -1430,6 +1450,7 @@ def apply_magic_action_pure(
         inventory[item_name] = _non_negative_int(inventory.get(item_name, 0), 0) - amount
 
     action = str(spec.get("action", "pure"))
+    effect_target_id = str(spec.get("borrowed_spell_id", target_id) or target_id)
     outputs = {}
     secondary = {}
 
@@ -1442,7 +1463,7 @@ def apply_magic_action_pure(
     if action == "alchemy":
         item = str(data.get("magic_alchemy_item", ""))
         value = _non_negative_int(alch_values.get(item, 0), 0)
-        add("Coins", int(value * (.6 if target_id == "high_alchemy" else .4)))
+        add("Coins", int(value * (.6 if effect_target_id == "high_alchemy" else .4)))
     elif action in {"transform", "produce"}:
         for item, amount in (spec.get("outputs", {}) or {}).items():
             add(str(item), amount)
@@ -1458,7 +1479,7 @@ def apply_magic_action_pure(
         if spec.get("secondary_skill") and float(spec.get("secondary_exp", 0) or 0) > 0:
             secondary[str(spec["secondary_skill"])] = float(spec["secondary_exp"])
     elif action == "bones_conversion":
-        eligible = ("Bones",) if target_id == "bones_to_bananas" else ("Bones", "Big bones")
+        eligible = ("Bones",) if effect_target_id == "bones_to_bananas" else ("Bones", "Big bones")
         output = next(iter((spec.get("outputs", {}) or {"Banana": 1})))
         total = 0
         for item in eligible:
@@ -1522,7 +1543,7 @@ def apply_magic_action_pure(
             "target_id": target_id,
             "destination": destination,
         }
-        if target_id == "teleport_to_trollheim":
+        if effect_target_id == "teleport_to_trollheim":
             data["farming_spell_patch"] = "trollheim_herb"
     elif action == "remote_farm":
         data, remote_info = _apply_remote_farm_pure(data)
@@ -1544,6 +1565,18 @@ def apply_magic_action_pure(
         enemy = COMBAT_ENEMY_DATA.get(target, {})
         stats = enemy.get("stats", {}) if isinstance(enemy, Mapping) else {}
         data["magic_last_examine"] = {"target_id": target, "display_name": enemy.get("display_name", target), "stats": dict(stats or {})}
+
+    if spec.get("borrowed_spell_id"):
+        try:
+            from .livid_farm_logic import consume_arcane_capacitor_charge_pure
+        except ImportError:  # pragma: no cover - flat imports used by tests
+            from livid_farm_logic import consume_arcane_capacitor_charge_pure  # type: ignore
+        data, consumed, _charge_info = consume_arcane_capacitor_charge_pure(
+            data,
+            effect_target_id,
+        )
+        if not consumed:
+            return player_data, 0.0, {}, {}, False, "Arcane capacitor charge is unavailable"
 
     return data, float(spec.get("exp", 0.0) or 0.0), secondary, outputs, True, str(spec.get("display_name", target_id))
 
@@ -3007,6 +3040,7 @@ def default_combat_state_pure():
         "combat_attack_style": DEFAULT_COMBAT_ATTACK_STYLE,
         "combat_attack_style_type": "auto",
         "current_combat_spell": DEFAULT_COMBAT_SPELL,
+        "combat_borrowed_power_spell": "",
         "combat_lifepoints": 100,
         "combat_auto_eat_threshold_percent": 40,
         "combat_auto_flee": True,
@@ -3521,6 +3555,9 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
     spell = player_data.get("current_combat_spell", defaults["current_combat_spell"])
     if spell not in COMBAT_MAGIC_SPELL_DATA:
         spell = defaults["current_combat_spell"]
+    borrowed_spell = str(player_data.get("combat_borrowed_power_spell", "") or "")
+    if borrowed_spell not in BORROWED_POWER_COMBAT_SPELLS:
+        borrowed_spell = ""
     max_lp = combat_max_lifepoints_pure(player_data)
     current_lp = _non_negative_int(player_data.get("combat_lifepoints", max_lp), max_lp)
     auto_food_raw = player_data.get("combat_auto_eat_food", defaults["combat_auto_eat_food"])
@@ -3573,6 +3610,7 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
         "combat_attack_style": style,
         "combat_attack_style_type": style_type,
         "current_combat_spell": spell,
+        "combat_borrowed_power_spell": borrowed_spell,
         "combat_lifepoints": max(0, min(current_lp, max_lp + COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS)),
         "combat_auto_eat_threshold_percent": max(
             1,
@@ -4679,6 +4717,20 @@ def _combat_ranged_locked_reasons(player_data, target_id, equipment_data):
 
 
 def _combat_selected_magic_spell(player_data):
+    borrowed_spell_id = str(
+        player_data.get("combat_borrowed_power_spell", "") or ""
+    )
+    if borrowed_spell_id in BORROWED_POWER_COMBAT_SPELLS:
+        borrowed_spec = COMBAT_MAGIC_SPELL_DATA.get(borrowed_spell_id)
+        if isinstance(borrowed_spec, Mapping):
+            manual_spec = dict(borrowed_spec)
+            manual_spec["display_name"] = (
+                "Borrowed Power — "
+                + str(borrowed_spec.get("display_name", borrowed_spell_id))
+            )
+            manual_spec["rune_cost"] = {"Astral rune": 3}
+            manual_spec["borrowed_spell_id"] = borrowed_spell_id
+            return borrowed_spell_id, manual_spec
     spell_id = str(player_data.get("current_combat_spell", DEFAULT_COMBAT_SPELL))
     spell_spec = COMBAT_MAGIC_SPELL_DATA.get(spell_id)
     if isinstance(spell_spec, Mapping):
@@ -4826,6 +4878,18 @@ def _combat_magic_locked_reasons(player_data, target_id, equipment_data=None):
         enemy_name = str(COMBAT_ENEMY_DATA.get(target_id, {}).get("display_name", target_id)).lower()
         if not any(token in enemy_name for token in ("skeleton", "zombie", "ghost", "shade", "undead")):
             return ("Undead target",)
+    borrowed_spell_id = spell_spec.get("borrowed_spell_id")
+    if borrowed_spell_id:
+        try:
+            from .livid_farm_logic import borrowed_power_locked_reasons_pure
+        except ImportError:  # pragma: no cover - flat imports used by tests
+            from livid_farm_logic import borrowed_power_locked_reasons_pure  # type: ignore
+        borrowed_reasons = borrowed_power_locked_reasons_pure(
+            player_data,
+            borrowed_spell_id,
+        )
+        if borrowed_reasons:
+            return borrowed_reasons
     preset_reasons = combat_magic_preset_locked_reasons_pure(player_data)
     if preset_reasons:
         return preset_reasons
@@ -7320,6 +7384,7 @@ def apply_combat_burst_pure(
         melee_xp_style_id = _COMBAT_XP_MODE_TO_STYLE_ID[_melee_slot["xp_mode"]]
     weapon_name, weapon_spec, ranged_weapon_spec = _combat_ranged_weapon_spec(data, equipment_data)
     spell_id, spell_spec = _combat_selected_magic_spell(data)
+    borrowed_manual_cast = bool(spell_spec.get("borrowed_spell_id"))
     locked_reasons = combat_target_locked_reasons_pure(data, target_id, enemy_data, equipment_data=equipment_data)
     bank_run_result = _combat_progress_or_start_bank_run(
         data,
@@ -7451,7 +7516,19 @@ def apply_combat_burst_pure(
         if live_cadence and selected_prayers
         else prayer_uptime_fraction_pure(data)
     )
-    total_ticks = max(1, _positive_int(ticks, COMBAT_BURST_TICKS))
+    total_ticks = (
+        1
+        + (
+            _non_negative_int(
+                encounter.get("player_attack_ticks_remaining", 0),
+                0,
+            )
+            if borrowed_manual_cast and live_cadence and active_encounter
+            else 0
+        )
+        if borrowed_manual_cast
+        else max(1, _positive_int(ticks, COMBAT_BURST_TICKS))
+    )
     prayer_points_before = _non_negative_int(data.get("combat_prayer_points", 0), 0)
     prayer_counter_before = data.get("combat_prayer_drain_counter", 0.0)
     prayer_points_after, prayer_counter, prayer_uptime = (
@@ -7821,6 +7898,21 @@ def apply_combat_burst_pure(
                     break
                 for rune_name, amount in used.items():
                     runes_used[rune_name] = _non_negative_int(runes_used.get(rune_name, 0), 0) + amount
+                if borrowed_manual_cast:
+                    try:
+                        from .livid_farm_logic import consume_arcane_capacitor_charge_pure
+                    except ImportError:  # pragma: no cover - flat imports used by tests
+                        from livid_farm_logic import consume_arcane_capacitor_charge_pure  # type: ignore
+                    data, charge_used, _charge_info = (
+                        consume_arcane_capacitor_charge_pure(
+                            data,
+                            spell_spec["borrowed_spell_id"],
+                        )
+                    )
+                    if not charge_used:
+                        out_of_runes = True
+                        break
+                    data["combat_borrowed_power_spell"] = ""
             landed = False
             live_enemy_drain, live_self_boost = (
                 _live_curse_adjustments(tick_prayer_uptime)
@@ -8538,6 +8630,7 @@ def apply_combat_burst_pure(
         "ammo": selected_ammo or "",
         "spell_id": spell_id if combat_class == "magic" else "",
         "spell": spell_spec.get("display_name", "") if combat_class == "magic" and isinstance(spell_spec, Mapping) else "",
+        "borrowed_power": borrowed_manual_cast and bool(runes_used),
         "formula_source": (
             RANGED_FORMULA_SOURCE_PATH
             if combat_class == "ranged"

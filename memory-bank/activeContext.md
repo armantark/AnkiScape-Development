@@ -2,25 +2,38 @@
 
 ## Current Focus
 
-The source-ready Livid Farm wish slice is live on top of the committed core.
-Vial My Herbs, exact-residual Lunar lumber conversion, More Planks, Gimme
-Herbs, and Awesome Seeds are instantaneous Produce purchases with shared
-direct-action undo. More Planks uses ten answered-card world ticks, advances
-on Again, and adds its approximately-one-in-ten output through ordinary Plank
-Make. Storage v47 persists and sanitizes the new residual/duration state and
-repairs impossible Borrowed-Power saves to the complete prerequisite unlock
-ladder. The compact post-capstone reward selector passed independent Fable and
-Kimi K3 taste review plus authoritative 900×560 geometry checks. Exact ordinary
-seed-shower quantities and fish-burn magnitude remain source-blocked; Arcane
-capacitor and the two Farming wishes remain owning-substrate work. No owner
-design gap emerged. See
-`source-audits/livid-farm-wishes-implementation-2026-07-19.md`.
-The final tree passes 1,802 non-Qt tests, 1,802 real offscreen Qt tests, 269
-focused cross-layer tests, both focused Livid UI states, and the docs,
-test-quality, compilation, diff, reachability, and worktree-safety gates.
-Native Anki was quit and relaunched before closure; the low-level user save
-opened exactly one menu and correctly retained its locked Livid state without
-test-only save mutation.
+The complete source-ready Livid Farm reward substrate is live. The Arcane
+capacitor enforces one-owned across every persisted storage surface, loads
+exactly 1,000 native spell rune bundles without staff substitution, refunds
+the exact remainder while destroying the necklace, and crumbles on the final
+cast. All twelve cutoff-supported Borrowed Power spells preserve their native
+gates and effects while spending three Astral runes and one charge; Combat
+arms exactly one next-review cast and then returns to ordinary autocast.
+
+Both Farming-owned wishes are also live. `I'd Like a New Patch!` creates the
+53rd patch only until its first successful harvest or clear, using the
+ordinary plan, queue, compost, gardener, watering, cure, and preset machinery.
+`Protect a Patch for me!` grants the canonical Patch protection scroll; one
+activation protects the current ordinary tree or fruit tree plus the next nine
+matching plantings, without spending uses on other crops or prepaid gardener
+protection. Storage v48 persists and sanitizes the new patch/protection state.
+
+Fable and Kimi K3 independently reviewed every new surface. Confirmed issues
+were fixed: destructive charge removal now requires confirmation, the scroll
+action is contextual, real item names and singular counts are used, the
+one-use lifecycle is visible, protection copy is not duplicated, Borrowed
+Power follows the Combat panel's left scan line, and the adjacent Warriors'
+Guild row no longer clips at 900×560. The final affected suite passes 553
+pure/runtime/integration tests and focused real-Qt behavior passes. The
+complete tree executes 1,830 non-Qt tests with 235 expected environment skips
+and 1,830 real offscreen Qt tests with one intentional skip. Exact ordinary
+seed-shower quantities and fish-burn magnitude remain source-blocked; no owner
+design gap emerged. Anki was fully quit and relaunched after the final UI
+changes; the canonical add-on opened exactly one native AnkiScape dialog and
+returned cleanly to the deck screen without changing the user's save. See
+`source-audits/borrowed-power-arcane-capacitor-implementation-2026-07-19.md`,
+`source-audits/livid-farm-wishes-implementation-2026-07-19.md`, and
+`source-audits/livid-farm-farming-wishes-implementation-2026-07-19.md`.
 
 All 19 Thieving people targets now use dedicated NPC portraits rather than
 Coins, first-loot placeholders, or empty icons. Seventeen cutoff revisions and

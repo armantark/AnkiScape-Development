@@ -831,6 +831,41 @@ def _legacy_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedE
     generated.extend(
         (
             GeneratedEquipmentItem(
+                item_name="Arcane capacitor amulet (u)",
+                slot="neck",
+                combat_skill=None,
+                required_level=1,
+                two_handed=False,
+                equipment_type="arcane_capacitor",
+                bonuses={field: 0 for field in BONUS_FIELDS},
+                attack_speed=4,
+                source_item_id=21513,
+                source=(
+                    "RuneScape Wiki Arcane capacitor amulet (u) "
+                    "oldid 6587262; cache rev 742 item 21513"
+                ),
+                source_status="period manual slot and zero bonuses",
+            ),
+            GeneratedEquipmentItem(
+                item_name="Arcane capacitor (c)",
+                slot="neck",
+                combat_skill=None,
+                required_level=1,
+                two_handed=False,
+                equipment_type="arcane_capacitor",
+                bonuses={
+                    **{field: 0 for field in BONUS_FIELDS},
+                    "attack_magic": 10,
+                },
+                attack_speed=4,
+                source_item_id=21514,
+                source=(
+                    "RuneScape Wiki Arcane capacitor amulet (u) "
+                    "oldid 6587262; cache rev 742 item 21514"
+                ),
+                source_status="period manual slot and +10 Magic attack",
+            ),
+            GeneratedEquipmentItem(
                 item_name="Coral bolts",
                 slot="ammunition",
                 combat_skill=None,

@@ -110,8 +110,9 @@ These are implementation dependencies, not design questions:
 1. register and connect the ten ordinary Livid spell consumers through their
    owning Magic, Farming, Summoning, inventory, teleport, and multiplayer
    boundaries;
-2. implement Arcane capacitor acquisition, binding, 1,000-cast charging,
-   Borrowed Power casting, charge removal, and crumble behavior;
+2. Arcane capacitor acquisition, binding, 1,000-cast charging, Borrowed Power
+   casting, charge removal, and crumble behavior are now live; see
+   `borrowed-power-arcane-capacitor-implementation-2026-07-19.md`;
 3. implement the source-ready direct wish commands and their owning-system
    effects; and
 4. leave `Let it rain seeds` exact quantities and `Reduce The Fish I Burn`

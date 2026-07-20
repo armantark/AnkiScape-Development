@@ -18,6 +18,7 @@ import re
 import sys
 import unittest
 from types import SimpleNamespace
+from unittest.mock import patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
@@ -28,7 +29,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QPalette, QPushButton, QIcon, QImage, QTabWidget, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMessageBox, QPalette, QPushButton, QIcon, QImage, QTabWidget, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
@@ -705,6 +706,8 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         def _livid_farm_command(action_id, payload):
             from livid_farm_logic import (
+                apply_arcane_capacitor_charge_pure,
+                apply_arcane_capacitor_remove_charge_pure,
                 apply_livid_farm_wish_pure,
                 set_livid_farm_routine_pure,
             )
@@ -719,6 +722,17 @@ class MainMenuWidgetTest(unittest.TestCase):
                 updated, ok, info = apply_livid_farm_wish_pure(
                     player_data,
                     payload.get("wish_id"),
+                )
+            elif action_id == "charge_capacitor":
+                updated, ok, info = apply_arcane_capacitor_charge_pure(
+                    player_data,
+                    payload.get("spell_id"),
+                )
+            elif action_id == "remove_capacitor_charge":
+                updated, ok, info = (
+                    apply_arcane_capacitor_remove_charge_pure(
+                        player_data
+                    )
                 )
             else:
                 return {"ok": False, "message": "Unknown command"}
@@ -1366,6 +1380,25 @@ class MainMenuWidgetTest(unittest.TestCase):
             "Current: Locked",
         )
 
+    def test_farming_livid_allotment_identifies_its_one_use_lifecycle(self) -> None:
+        player_data = _make_player_data()
+        player_data["farm_livid_patch_active"] = True
+        dialog = self._open(
+            player_data,
+            current_skill="Mining",
+            initial_skill="Farming",
+        )
+        dialog.show()
+        QApplication.processEvents()
+
+        summary = dialog.findChild(
+            QLabel,
+            "farmingPatchSummary::livid_farm_allotment",
+        )
+        self.assertIsNotNone(summary)
+        self.assertIn("one-use", summary.text())
+        dialog.deleteLater()
+
     def test_farming_plan_change_calls_unified_callback_immediately(self) -> None:
         farming_dialog = self._open(_make_player_data(), current_skill="Mining", initial_skill="Farming")
         farming_dialog.show()
@@ -1722,6 +1755,89 @@ class MainMenuWidgetTest(unittest.TestCase):
             QApplication.processEvents()
         self.assertEqual(player_data["inventory"]["Potato"], 0)
         self.assertEqual(player_data["farm_compost_bins"]["falador_bin"]["status"], "filling")
+        dialog.deleteLater()
+
+    def test_farming_livid_scroll_button_activates_and_reports_remaining_uses(self) -> None:
+        from farming_data import LIVID_FARM_PROTECTION_SCROLL
+        from farming_logic import execute_farm_field_step_pure
+
+        player_data = _make_player_data()
+        player_data["farming_level"] = 99
+        player_data["inventory"] = {
+            "Rake": 1,
+            "Spade": 1,
+            "Oak sapling": 1,
+            LIVID_FARM_PROTECTION_SCROLL: 1,
+        }
+        updated, ok, _ = execute_farm_field_step_pure(
+            player_data,
+            {
+                "kind": "plant",
+                "patch_id": "lumbridge_tree",
+                "crop_id": "oak",
+            },
+        )
+        self.assertTrue(ok)
+        player_data.clear()
+        player_data.update(updated)
+
+        dialog = self._open(
+            player_data,
+            current_skill="Mining",
+            initial_skill="Farming",
+        )
+        dialog.show()
+        dialog.resize(900, 560)
+        for _ in range(5):
+            QApplication.processEvents()
+        location = dialog.findChild(
+            QToolButton,
+            "farmingLocationToggle::lumbridge",
+        )
+        if not location.isChecked():
+            location.click()
+            QApplication.processEvents()
+        expand = dialog.findChild(
+            QToolButton,
+            "farmingPatchExpandButton::lumbridge_tree",
+        )
+        if not expand.isChecked():
+            expand.click()
+            QApplication.processEvents()
+
+        button = dialog.findChild(
+            QPushButton,
+            "farmingPatchLividProtectionButton::lumbridge_tree",
+        )
+        self.assertIsNotNone(button)
+        self.assertTrue(button.isEnabled())
+        self.assertGreaterEqual(button.width(), button.sizeHint().width())
+        self.assertIn("next nine plantings", button.toolTip())
+        button.click()
+        for _ in range(5):
+            QApplication.processEvents()
+
+        self.assertTrue(
+            player_data["farm_patches"]["lumbridge_tree"]["livid_protected"]
+        )
+        self.assertEqual(
+            player_data["farm_livid_protection_uses_remaining"],
+            9,
+        )
+        status = dialog.findChild(QLabel, "farmingLividProtectionStatus")
+        self.assertTrue(status.isVisible())
+        self.assertIn("Oak", status.text())
+        self.assertIn("9 plantings left", status.text())
+        current = dialog.findChild(
+            QLabel,
+            "farmingPatchCurrent::lumbridge_tree",
+        )
+        self.assertIn("Protection: Livid scroll", current.text())
+        refreshed = dialog.findChild(
+            QPushButton,
+            "farmingPatchLividProtectionButton::lumbridge_tree",
+        )
+        self.assertFalse(refreshed.isEnabled())
         dialog.deleteLater()
 
     def test_farming_patch_actions_keep_readable_widths_at_supported_dialog_sizes(self) -> None:
@@ -3456,6 +3572,56 @@ class MainMenuWidgetTest(unittest.TestCase):
         spell_combo.setCurrentIndex(fire_wave_index)
         QApplication.processEvents()
         self.assertEqual(self._combat_spell_calls[-1], "fire_wave")
+
+    def test_combat_exposes_bound_borrowed_power_as_one_manual_cast(self) -> None:
+        from livid_farm_data import ARCANE_CAPACITOR_CHARGED
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "current_combat_target": "chicken",
+                "combat_attack_style": "magic_standard",
+                "current_combat_spell": "wind_strike",
+                "magic_level": 99,
+                "equipment": {
+                    "weapon": "Staff of air",
+                    "neck": ARCANE_CAPACITOR_CHARGED,
+                },
+                "livid_farm": {
+                    "borrowed_power_claimed": True,
+                    "arcane_capacitor_spell": "wind_wave",
+                    "arcane_capacitor_charges": 12,
+                },
+            }
+        )
+        dialog = self._open(pd, current_skill="Combat")
+        _open_equipment_tab(dialog)
+        dialog.show()
+        QApplication.processEvents()
+
+        row = dialog.findChild(QWidget, "combatBorrowedPowerRow")
+        spell = dialog.findChild(QLabel, "combatBorrowedPowerSpell")
+        button = dialog.findChild(QPushButton, "combatBorrowedPowerButton")
+        self.assertTrue(row.isVisible())
+        self.assertEqual(
+            spell.text(),
+            "Borrowed Power · Wind Wave · 12 charges",
+        )
+        self.assertEqual(button.text(), "Cast once next review")
+        self.assertEqual(
+            button.geometry().left(),
+            spell.geometry().left(),
+        )
+
+        button.click()
+        QApplication.processEvents()
+
+        self.assertEqual(
+            self._prayer_config_calls[-1],
+            ("combat_borrowed_power_spell", "wind_wave"),
+        )
+        self.assertEqual(pd["combat_borrowed_power_spell"], "wind_wave")
+        self.assertEqual(button.text(), "One cast armed")
 
     def test_ranged_weapon_exposes_attack_style_selector_and_wires_it(self) -> None:
         pd = _make_player_data()
@@ -6333,6 +6499,45 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["equipment"], {"weapon": "Shortbow"})
         self.assertIn("Ranged Accurate", mode_label.text())
 
+    def test_equipping_and_removing_capacitor_refreshes_borrowed_power_row(self) -> None:
+        from livid_farm_data import ARCANE_CAPACITOR_CHARGED
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "combat_attack_style": "magic_standard",
+                "magic_level": 99,
+                "inventory": {ARCANE_CAPACITOR_CHARGED: 1},
+                "equipment": {"weapon": "Staff of air"},
+                "livid_farm": {
+                    "borrowed_power_claimed": True,
+                    "arcane_capacitor_spell": "wind_wave",
+                    "arcane_capacitor_charges": 12,
+                },
+            }
+        )
+        dialog = self._open_with_equip(pd)
+        _open_equipment_tab(dialog)
+        dialog.show()
+        QApplication.processEvents()
+        row = dialog.findChild(QWidget, "combatBorrowedPowerRow")
+        self.assertFalse(row.isVisible())
+
+        equip_menu = dialog._ankiscape_equip_menu_for(
+            ARCANE_CAPACITOR_CHARGED
+        )
+        equip_menu.actions()[0].trigger()
+        QApplication.processEvents()
+
+        self.assertTrue(row.isVisible())
+        self.assertIn("12 charges", row.findChild(QLabel).text())
+
+        unequip_menu = dialog._ankiscape_unequip_menu_for("neck")
+        self.assertIsNotNone(unequip_menu)
+        unequip_menu.actions()[0].trigger()
+        QApplication.processEvents()
+        self.assertFalse(row.isVisible())
+
     def test_unequip_returns_item_to_inventory(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {}
@@ -6728,6 +6933,22 @@ class MainMenuWidgetTest(unittest.TestCase):
             "set_policy",
         )
         self.assertEqual(pd["warriors_guild"]["automation_mode"], "advanced")
+        dialog.resize(900, 560)
+        for _ in range(5):
+            QApplication.processEvents()
+        show_button = _find_named_button(
+            dialog,
+            "warriorsGuildShowDefender",
+        )
+        self.assertGreaterEqual(
+            show_button.width(),
+            show_button.sizeHint().width(),
+        )
+        next_label = _find_named_label(dialog, "warriorsGuildNextDefender")
+        self.assertGreaterEqual(
+            next_label.width(),
+            next_label.sizeHint().width(),
+        )
 
     def test_livid_farm_panel_exposes_progress_and_persists_routine(self) -> None:
         pd = _make_player_data()
@@ -6855,6 +7076,107 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertEqual(pd["inventory"]["Grimy kwuarm"], 3)
         self.assertEqual(pd["livid_farm"]["produce_points"], 55_000)
+
+    def test_livid_farm_capacitor_surface_charges_and_removes_atomically(self) -> None:
+        from livid_farm_data import (
+            ARCANE_CAPACITOR_CHARGED,
+            ARCANE_CAPACITOR_UNCHARGED,
+        )
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "magic_level": 98,
+                "agility_level": 60,
+                "crafting_level": 60,
+                "farming_level": 60,
+                "construction_level": 50,
+                "current_utility": "livid_farm",
+            }
+        )
+        pd["quests"]["lunar_diplomacy"] = {"completed": True}
+        pd["inventory"].update(
+            {
+                ARCANE_CAPACITOR_UNCHARGED: 1,
+                "Air rune": 1_000,
+                "Earth rune": 1_000,
+                "Law rune": 1_000,
+            }
+        )
+        pd["livid_farm"] = {
+            "borrowed_power_claimed": True,
+            "produce_points": 0,
+            "unlocked_spells": ["borrowed_power"],
+        }
+        dialog = self._open(pd)
+        self._open_utility(dialog)
+        dialog.show()
+        QApplication.processEvents()
+
+        row = _find_named_widget(dialog, "lividFarmCapacitorRow")
+        status = _find_named_label(dialog, "lividFarmCapacitorStatus")
+        picker = _find_named_widget(dialog, "lividFarmCapacitorSpell")
+        charge = _find_named_widget(dialog, "lividFarmCapacitorCharge")
+        remove = _find_named_widget(dialog, "lividFarmCapacitorRemove")
+        self.assertTrue(row.isVisible())
+        self.assertEqual(status.text(), "Capacitor · Uncharged")
+        house_index = picker.findData("teleport_to_house")
+        self.assertGreaterEqual(house_index, 0)
+        picker.setCurrentIndex(house_index)
+        QApplication.processEvents()
+        self.assertFalse(charge.isEnabled())
+        self.assertEqual(charge.toolTip(), "Requires Magic level 99.")
+
+        pd["magic_level"] = 99
+        picker.setCurrentIndex((house_index + 1) % picker.count())
+        picker.setCurrentIndex(house_index)
+        QApplication.processEvents()
+        self.assertTrue(charge.isEnabled())
+        self.assertEqual(charge.toolTip(), "")
+
+        charge.click()
+        QApplication.processEvents()
+
+        self.assertEqual(
+            self._livid_farm_calls[-1],
+            (
+                "charge_capacitor",
+                {"spell_id": "teleport_to_house"},
+            ),
+        )
+        self.assertEqual(pd["inventory"][ARCANE_CAPACITOR_CHARGED], 1)
+        self.assertNotIn(ARCANE_CAPACITOR_UNCHARGED, pd["inventory"])
+        self.assertEqual(status.text(), "Capacitor · 1,000")
+        self.assertIn("1,000 charges remaining", status.toolTip())
+        self.assertTrue(remove.isEnabled())
+
+        calls_before_cancel = len(self._livid_farm_calls)
+        with patch.object(
+            QMessageBox,
+            "question",
+            return_value=QMessageBox.StandardButton.No,
+        ):
+            remove.click()
+        QApplication.processEvents()
+        self.assertEqual(len(self._livid_farm_calls), calls_before_cancel)
+        self.assertEqual(pd["inventory"][ARCANE_CAPACITOR_CHARGED], 1)
+
+        with patch.object(
+            QMessageBox,
+            "question",
+            return_value=QMessageBox.StandardButton.Yes,
+        ):
+            remove.click()
+        QApplication.processEvents()
+
+        self.assertEqual(
+            self._livid_farm_calls[-1],
+            ("remove_capacitor_charge", {}),
+        )
+        self.assertNotIn(ARCANE_CAPACITOR_CHARGED, pd["inventory"])
+        self.assertEqual(pd["inventory"]["Air rune"], 1_000)
+        self.assertEqual(pd["inventory"]["Earth rune"], 1_000)
+        self.assertEqual(pd["inventory"]["Law rune"], 1_000)
 
     def test_wool_gathering_is_enabled_and_selectable_from_utility(self) -> None:
         # gather_wool stands in for the retired scavenge_chicken_feathers

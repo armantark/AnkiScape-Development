@@ -7,6 +7,12 @@ from typing import Any
 
 try:
     from .livid_farm_data import (
+        ARCANE_CAPACITOR_CHARGED,
+        ARCANE_CAPACITOR_MAX_CHARGES,
+        ARCANE_CAPACITOR_UNCHARGED,
+        BORROWED_POWER_COMBAT_SPELLS,
+        BORROWED_POWER_NONCOMBAT_SPELLS,
+        BORROWED_POWER_SPELLS,
         LIVID_FARM_BORROWED_POWER_COST,
         LIVID_FARM_DISTRACTION_INTERVAL,
         LIVID_FARM_DISTRACTIONS,
@@ -19,6 +25,12 @@ try:
     )
 except ImportError:  # pragma: no cover - flat imports used by tests
     from livid_farm_data import (  # type: ignore
+        ARCANE_CAPACITOR_CHARGED,
+        ARCANE_CAPACITOR_MAX_CHARGES,
+        ARCANE_CAPACITOR_UNCHARGED,
+        BORROWED_POWER_COMBAT_SPELLS,
+        BORROWED_POWER_NONCOMBAT_SPELLS,
+        BORROWED_POWER_SPELLS,
         LIVID_FARM_BORROWED_POWER_COST,
         LIVID_FARM_DISTRACTION_INTERVAL,
         LIVID_FARM_DISTRACTIONS,
@@ -58,6 +70,8 @@ def default_livid_farm_state_pure() -> dict[str, Any]:
         "lifetime_produce_points": 0,
         "unlocked_spells": [],
         "borrowed_power_claimed": False,
+        "arcane_capacitor_spell": "",
+        "arcane_capacitor_charges": 0,
         "lunar_lumber_residual": 0,
         "more_planks_reviews_remaining": 0,
         "more_planks_active_this_review": False,
@@ -95,6 +109,16 @@ def sanitize_livid_farm_state_pure(raw: Any) -> dict[str, Any]:
         if unlock_id in valid_unlocks and unlock_id in set(map(str, unlocked))
     ]
     state["borrowed_power_claimed"] = claimed
+    bound_spell = str(source.get("arcane_capacitor_spell", "") or "")
+    state["arcane_capacitor_spell"] = (
+        bound_spell if bound_spell in BORROWED_POWER_SPELLS else ""
+    )
+    state["arcane_capacitor_charges"] = min(
+        ARCANE_CAPACITOR_MAX_CHARGES,
+        _non_negative_int(source.get("arcane_capacitor_charges", 0)),
+    )
+    if not state["arcane_capacitor_spell"]:
+        state["arcane_capacitor_charges"] = 0
     state["lunar_lumber_residual"] = (
         _non_negative_int(source.get("lunar_lumber_residual", 0)) % 28
     )
@@ -506,7 +530,316 @@ def _wish_material_reason(
     elif wish_id == "lunar_lumber":
         if _non_negative_int(carried.get("Lunar lumber", 0)) <= 0:
             return "Carry Lunar lumber in the Livid Farm pack"
+    elif wish_id == "arcane_capacitor":
+        if arcane_capacitor_owned_pure(player_data):
+            return "Only one Arcane capacitor may be owned"
+    elif wish_id == "new_patch":
+        if bool(player_data.get("farm_livid_patch_active")):
+            return "Clear the active Livid Farm allotment first"
     return ""
+
+
+def _stored_item_count(
+    player_data: Mapping[str, Any],
+    item_name: str,
+) -> int:
+    total = 0
+    inventory = player_data.get("inventory", {}) or {}
+    if isinstance(inventory, Mapping):
+        total += _non_negative_int(inventory.get(item_name, 0))
+    equipment = player_data.get("equipment", {}) or {}
+    if isinstance(equipment, Mapping):
+        total += sum(1 for equipped in equipment.values() if equipped == item_name)
+    for store_key in ("combat_grave", "death_office"):
+        store = player_data.get(store_key, {}) or {}
+        items = store.get("items", {}) if isinstance(store, Mapping) else {}
+        if isinstance(items, Mapping):
+            total += _non_negative_int(items.get(item_name, 0))
+        elif isinstance(items, (list, tuple)):
+            total += sum(1 for stored in items if stored == item_name)
+    summoning = player_data.get("summoning", {}) or {}
+    if isinstance(summoning, Mapping):
+        follower = summoning.get("active_follower", {}) or {}
+        storage = (
+            follower.get("storage", {})
+            if isinstance(follower, Mapping)
+            else {}
+        )
+        if isinstance(storage, Mapping):
+            total += _non_negative_int(storage.get(item_name, 0))
+        cargo_events = summoning.get("cargo_events", ()) or ()
+        if isinstance(cargo_events, (list, tuple)):
+            for event in cargo_events:
+                items = event.get("items", {}) if isinstance(event, Mapping) else {}
+                if isinstance(items, Mapping):
+                    total += _non_negative_int(items.get(item_name, 0))
+    return total
+
+
+def _accessible_item_count(
+    player_data: Mapping[str, Any],
+    item_name: str,
+) -> int:
+    inventory = player_data.get("inventory", {}) or {}
+    equipment = player_data.get("equipment", {}) or {}
+    return (
+        _non_negative_int(
+            inventory.get(item_name, 0)
+            if isinstance(inventory, Mapping)
+            else 0
+        )
+        + sum(
+            1
+            for equipped in (
+                equipment.values()
+                if isinstance(equipment, Mapping)
+                else ()
+            )
+            if equipped == item_name
+        )
+    )
+
+
+def arcane_capacitor_owned_pure(
+    player_data: Mapping[str, Any],
+) -> bool:
+    return any(
+        _stored_item_count(player_data, item_name) > 0
+        for item_name in (
+            ARCANE_CAPACITOR_UNCHARGED,
+            ARCANE_CAPACITOR_CHARGED,
+        )
+    )
+
+
+def _borrowed_spell_specs() -> dict[str, Mapping[str, Any]]:
+    try:
+        from .combat_data import COMBAT_MAGIC_SPELL_DATA
+        from .magic_data import MAGIC_TARGETS
+    except ImportError:  # pragma: no cover - flat imports used by tests
+        from combat_data import COMBAT_MAGIC_SPELL_DATA  # type: ignore
+        from magic_data import MAGIC_TARGETS  # type: ignore
+    specs: dict[str, Mapping[str, Any]] = {}
+    for spell_id in BORROWED_POWER_COMBAT_SPELLS:
+        spec = COMBAT_MAGIC_SPELL_DATA.get(spell_id)
+        if isinstance(spec, Mapping):
+            specs[spell_id] = spec
+    for spell_id in BORROWED_POWER_NONCOMBAT_SPELLS:
+        spec = MAGIC_TARGETS.get(spell_id)
+        if isinstance(spec, Mapping):
+            specs[spell_id] = spec
+    return specs
+
+
+def arcane_capacitor_spell_rows_pure(
+    player_data: Mapping[str, Any],
+) -> tuple[dict[str, Any], ...]:
+    specs = _borrowed_spell_specs()
+    inventory = player_data.get("inventory", {}) or {}
+    if not isinstance(inventory, Mapping):
+        inventory = {}
+    rows = []
+    for spell_id in BORROWED_POWER_SPELLS:
+        spec = specs.get(spell_id, {})
+        rune_cost = {
+            str(name): _non_negative_int(amount) * ARCANE_CAPACITOR_MAX_CHARGES
+            for name, amount in (spec.get("rune_cost", {}) or {}).items()
+            if isinstance(name, str) and _non_negative_int(amount) > 0
+        }
+        missing = {
+            name: amount - _non_negative_int(inventory.get(name, 0))
+            for name, amount in rune_cost.items()
+            if _non_negative_int(inventory.get(name, 0)) < amount
+        }
+        rows.append(
+            {
+                "id": spell_id,
+                "display_name": str(spec.get("display_name", spell_id)),
+                "rune_cost": rune_cost,
+                "missing_runes": missing,
+                "enabled": bool(spec) and not missing,
+            }
+        )
+    return tuple(rows)
+
+
+def arcane_capacitor_status_pure(
+    player_data: Mapping[str, Any],
+) -> dict[str, Any]:
+    state = sanitize_livid_farm_state_pure(player_data.get("livid_farm"))
+    equipment = player_data.get("equipment", {}) or {}
+    equipped = (
+        equipment.get("neck")
+        if isinstance(equipment, Mapping)
+        else None
+    )
+    return {
+        "owned": arcane_capacitor_owned_pure(player_data),
+        "uncharged_owned": (
+            _accessible_item_count(player_data, ARCANE_CAPACITOR_UNCHARGED) > 0
+        ),
+        "charged_owned": (
+            _accessible_item_count(player_data, ARCANE_CAPACITOR_CHARGED) > 0
+        ),
+        "equipped": equipped == ARCANE_CAPACITOR_CHARGED,
+        "spell_id": state["arcane_capacitor_spell"],
+        "charges": state["arcane_capacitor_charges"],
+    }
+
+
+def _replace_capacitor_item(
+    data: dict[str, Any],
+    old_name: str,
+    new_name: str | None,
+) -> bool:
+    inventory = dict(data.get("inventory", {}) or {})
+    if _non_negative_int(inventory.get(old_name, 0)) > 0:
+        remaining = _non_negative_int(inventory.get(old_name, 0)) - 1
+        if remaining > 0:
+            inventory[old_name] = remaining
+        else:
+            inventory.pop(old_name, None)
+        if new_name:
+            inventory[new_name] = _non_negative_int(inventory.get(new_name, 0)) + 1
+        data["inventory"] = inventory
+        return True
+    equipment = dict(data.get("equipment", {}) or {})
+    if equipment.get("neck") == old_name:
+        if new_name:
+            equipment["neck"] = new_name
+        else:
+            equipment.pop("neck", None)
+        data["equipment"] = equipment
+        return True
+    return False
+
+
+def apply_arcane_capacitor_charge_pure(
+    player_data: Mapping[str, Any],
+    spell_id: Any,
+) -> tuple[dict[str, Any], bool, dict[str, Any]]:
+    selected = str(spell_id)
+    state = sanitize_livid_farm_state_pure(player_data.get("livid_farm"))
+    if not state["borrowed_power_claimed"]:
+        return dict(player_data), False, {"reason": "Unlock Borrowed Power first"}
+    if _non_negative_int(player_data.get("magic_level", 1), 1) < 99:
+        return dict(player_data), False, {"reason": "Magic level 99"}
+    if _accessible_item_count(player_data, ARCANE_CAPACITOR_UNCHARGED) <= 0:
+        return dict(player_data), False, {"reason": "Equip or bank an uncharged capacitor"}
+    row = next(
+        (row for row in arcane_capacitor_spell_rows_pure(player_data) if row["id"] == selected),
+        None,
+    )
+    if row is None:
+        return dict(player_data), False, {"reason": "Unsupported borrowed spell"}
+    if row["missing_runes"]:
+        missing = ", ".join(
+            f"{name} x{amount}" for name, amount in row["missing_runes"].items()
+        )
+        return dict(player_data), False, {"reason": f"Missing {missing}"}
+    data = dict(player_data)
+    inventory = dict(data.get("inventory", {}) or {})
+    for rune_name, amount in row["rune_cost"].items():
+        inventory[rune_name] = _non_negative_int(inventory.get(rune_name, 0)) - amount
+    data["inventory"] = inventory
+    if not _replace_capacitor_item(
+        data,
+        ARCANE_CAPACITOR_UNCHARGED,
+        ARCANE_CAPACITOR_CHARGED,
+    ):
+        return dict(player_data), False, {"reason": "Uncharged capacitor is unavailable"}
+    state["arcane_capacitor_spell"] = selected
+    state["arcane_capacitor_charges"] = ARCANE_CAPACITOR_MAX_CHARGES
+    data["livid_farm"] = state
+    return data, True, {
+        "reason": "capacitor_charged",
+        "spell_id": selected,
+        "display_name": row["display_name"],
+        "charges": ARCANE_CAPACITOR_MAX_CHARGES,
+        "runes_used": dict(row["rune_cost"]),
+    }
+
+
+def apply_arcane_capacitor_remove_charge_pure(
+    player_data: Mapping[str, Any],
+) -> tuple[dict[str, Any], bool, dict[str, Any]]:
+    state = sanitize_livid_farm_state_pure(player_data.get("livid_farm"))
+    spell_id = state["arcane_capacitor_spell"]
+    charges = state["arcane_capacitor_charges"]
+    if not spell_id or charges <= 0:
+        return dict(player_data), False, {"reason": "Charged capacitor is unavailable"}
+    specs = _borrowed_spell_specs()
+    spec = specs.get(spell_id)
+    if not isinstance(spec, Mapping):
+        return dict(player_data), False, {"reason": "Bound spell is unavailable"}
+    data = dict(player_data)
+    if not _replace_capacitor_item(data, ARCANE_CAPACITOR_CHARGED, None):
+        return dict(player_data), False, {"reason": "Charged capacitor is unavailable"}
+    refund = {
+        str(name): _non_negative_int(amount) * charges
+        for name, amount in (spec.get("rune_cost", {}) or {}).items()
+        if isinstance(name, str) and _non_negative_int(amount) > 0
+    }
+    inventory = dict(data.get("inventory", {}) or {})
+    _add_inventory_items(inventory, refund)
+    data["inventory"] = inventory
+    state["arcane_capacitor_spell"] = ""
+    state["arcane_capacitor_charges"] = 0
+    data["livid_farm"] = state
+    return data, True, {
+        "reason": "capacitor_removed",
+        "spell_id": spell_id,
+        "charges_removed": charges,
+        "runes_refunded": refund,
+    }
+
+
+def borrowed_power_locked_reasons_pure(
+    player_data: Mapping[str, Any],
+    spell_id: Any,
+) -> tuple[str, ...]:
+    selected = str(spell_id)
+    state = sanitize_livid_farm_state_pure(player_data.get("livid_farm"))
+    reasons: list[str] = []
+    if selected not in BORROWED_POWER_SPELLS:
+        reasons.append("Supported Borrowed Power spell")
+    if not state["borrowed_power_claimed"]:
+        reasons.append("Unlock Borrowed Power at Livid Farm")
+    if _non_negative_int(player_data.get("magic_level", 1), 1) < 99:
+        reasons.append("Magic level 99")
+    equipment = player_data.get("equipment", {}) or {}
+    if not isinstance(equipment, Mapping) or equipment.get("neck") != ARCANE_CAPACITOR_CHARGED:
+        reasons.append("Equip the charged Arcane capacitor")
+    if state["arcane_capacitor_spell"] != selected:
+        reasons.append("Charge the capacitor with this spell")
+    if state["arcane_capacitor_charges"] <= 0:
+        reasons.append("Arcane capacitor charge")
+    return tuple(dict.fromkeys(reasons))
+
+
+def consume_arcane_capacitor_charge_pure(
+    player_data: Mapping[str, Any],
+    spell_id: Any,
+) -> tuple[dict[str, Any], bool, dict[str, Any]]:
+    reasons = borrowed_power_locked_reasons_pure(player_data, spell_id)
+    if reasons:
+        return dict(player_data), False, {"reason": reasons[0]}
+    data = dict(player_data)
+    state = sanitize_livid_farm_state_pure(data.get("livid_farm"))
+    state["arcane_capacitor_charges"] -= 1
+    crumbled = state["arcane_capacitor_charges"] <= 0
+    if crumbled:
+        if not _replace_capacitor_item(data, ARCANE_CAPACITOR_CHARGED, None):
+            return dict(player_data), False, {"reason": "Charged capacitor is unavailable"}
+        state["arcane_capacitor_spell"] = ""
+        state["arcane_capacitor_charges"] = 0
+    data["livid_farm"] = state
+    return data, True, {
+        "reason": "borrowed_power_cast",
+        "spell_id": str(spell_id),
+        "charges_remaining": state["arcane_capacitor_charges"],
+        "crumbled": crumbled,
+    }
 
 
 def livid_farm_wish_rows_pure(
@@ -643,6 +976,36 @@ def apply_livid_farm_wish_pure(
         carried.pop("Lunar lumber", None)
         _add_inventory_items(inventory, outputs)
         _add_inventory_items(carried, outputs)
+    elif selected == "arcane_capacitor":
+        inventory[ARCANE_CAPACITOR_UNCHARGED] = (
+            _non_negative_int(inventory.get(ARCANE_CAPACITOR_UNCHARGED, 0)) + 1
+        )
+        outputs = {ARCANE_CAPACITOR_UNCHARGED: 1}
+        state["arcane_capacitor_spell"] = ""
+        state["arcane_capacitor_charges"] = 0
+    elif selected == "new_patch":
+        try:
+            from .farming_logic import activate_livid_farm_allotment_pure
+        except ImportError:  # pragma: no cover - flat imports used by tests
+            from farming_logic import activate_livid_farm_allotment_pure  # type: ignore
+        data, activated, message = activate_livid_farm_allotment_pure(data)
+        if not activated:
+            return dict(player_data), False, {
+                "reason": "locked",
+                "message": message,
+            }
+        inventory = dict(data.get("inventory", {}) or {})
+        state = sanitize_livid_farm_state_pure(data.get("livid_farm"))
+    elif selected == "protect_patch":
+        try:
+            from .farming_data import LIVID_FARM_PROTECTION_SCROLL
+        except ImportError:  # pragma: no cover - flat imports used by tests
+            from farming_data import LIVID_FARM_PROTECTION_SCROLL  # type: ignore
+        inventory[LIVID_FARM_PROTECTION_SCROLL] = (
+            _non_negative_int(inventory.get(LIVID_FARM_PROTECTION_SCROLL, 0))
+            + 1
+        )
+        outputs = {LIVID_FARM_PROTECTION_SCROLL: 1}
     elif selected == "more_planks":
         state["more_planks_reviews_remaining"] = (
             LIVID_FARM_MORE_PLANKS_REVIEWS

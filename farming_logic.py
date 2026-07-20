@@ -18,6 +18,8 @@ try:
         FARMING_PATCHES,
         FARMING_PATCHES_BY_ID,
         FLOWER_PROTECTION,
+        LIVID_FARM_ALLOTMENT_PATCH_ID,
+        LIVID_FARM_PROTECTION_SCROLL,
         REGULAR_COMPOST_INPUTS,
         SAPLING_RECIPES,
         SUPERCOMPOST_INPUTS,
@@ -36,6 +38,8 @@ except ImportError:  # pragma: no cover - flat imports used by tests
         FARMING_PATCHES,
         FARMING_PATCHES_BY_ID,
         FLOWER_PROTECTION,
+        LIVID_FARM_ALLOTMENT_PATCH_ID,
+        LIVID_FARM_PROTECTION_SCROLL,
         REGULAR_COMPOST_INPUTS,
         SAPLING_RECIPES,
         SUPERCOMPOST_INPUTS,
@@ -119,6 +123,7 @@ def _default_patch_record() -> dict[str, Any]:
         "diseased": False,
         "dead": False,
         "protected": False,
+        "livid_protected": False,
         "watered": False,
         "health_checked": False,
         "stump": False,
@@ -154,6 +159,9 @@ def default_farming_state_pure() -> dict[str, Any]:
         "farm_selected_preset": None,
         "farm_next_preset_id": 1,
         "farm_last_full_run_skips": [],
+        "farm_livid_patch_active": False,
+        "farm_livid_protection_crop_id": None,
+        "farm_livid_protection_uses_remaining": 0,
         "farm_queue": [],
         "farm_next_step_id": 1,
         "farm_sapling_jobs": [],
@@ -252,8 +260,11 @@ def _sanitize_patch_record(raw: Any) -> dict[str, Any]:
     tier = record.get("compost_tier", "none")
     record["compost_tier"] = tier if tier in COMPOST_TIERS else "none"
     record["lives"] = _int(record.get("lives"))
-    for key in ("diseased", "dead", "protected", "watered", "health_checked", "stump"):
+    for key in ("diseased", "dead", "protected", "livid_protected", "watered", "health_checked", "stump"):
         record[key] = bool(record.get(key, False))
+    record["protected"] = bool(
+        record["protected"] or record["livid_protected"]
+    )
     record["produce_count"] = _int(record.get("produce_count"))
     record["last_regrowth_at"] = _int(record.get("last_regrowth_at"))
     record["next_regrowth_at"] = _int(record.get("next_regrowth_at"))
@@ -261,7 +272,7 @@ def _sanitize_patch_record(raw: Any) -> dict[str, Any]:
     record["jade_prunes"] = _int(record.get("jade_prunes"))
     record["plan"] = _sanitize_plan(record.get("plan"))
     if crop_id is None:
-        for key in ("diseased", "dead", "protected", "watered", "health_checked", "stump"):
+        for key in ("diseased", "dead", "protected", "livid_protected", "watered", "health_checked", "stump"):
             record[key] = False
         record["stage"] = 0
         record["lives"] = 0
@@ -426,14 +437,34 @@ def sanitize_farming_state_pure(player_data: Mapping[str, Any]) -> dict[str, Any
     for key, value in FARM_COUNTER_DEFAULTS.items():
         counters[key] = _int(counters.get(key, value))
 
+    livid_patch_active = bool(player_data.get("farm_livid_patch_active", False))
+    livid_protection_crop_id = player_data.get("farm_livid_protection_crop_id")
+    livid_protection_crop = FARMING_CROPS_BY_ID.get(livid_protection_crop_id)
+    livid_protection_uses = min(
+        10,
+        _int(player_data.get("farm_livid_protection_uses_remaining"), minimum=0),
+    )
+    if (
+        livid_protection_crop is None
+        or livid_protection_crop.patch_type not in {"tree", "fruit_tree"}
+        or livid_protection_uses <= 0
+    ):
+        livid_protection_crop_id = None
+        livid_protection_uses = 0
+    farming_spell_patch = player_data.get("farming_spell_patch")
+    if (
+        farming_spell_patch not in FARMING_PATCHES_BY_ID
+        or (
+            farming_spell_patch == LIVID_FARM_ALLOTMENT_PATCH_ID
+            and not livid_patch_active
+        )
+    ):
+        farming_spell_patch = None
+
     return {
         "farming_exp": _number(player_data.get("farming_exp", 0.0)),
         "farming_level": _int(player_data.get("farming_level", 1), default=1, minimum=1),
-        "farming_spell_patch": (
-            player_data.get("farming_spell_patch")
-            if player_data.get("farming_spell_patch") in FARMING_PATCHES_BY_ID
-            else None
-        ),
+        "farming_spell_patch": farming_spell_patch,
         "farm_clock_minutes": _int(player_data.get("farm_clock_minutes", defaults["farm_clock_minutes"])),
         "farm_patches": patches,
         "farm_compost_bins": bins,
@@ -446,6 +477,9 @@ def sanitize_farming_state_pure(player_data: Mapping[str, Any]) -> dict[str, Any
             _int(player_data.get("farm_next_preset_id", 1), default=1, minimum=1),
         ),
         "farm_last_full_run_skips": list(full_run_skips),
+        "farm_livid_patch_active": livid_patch_active,
+        "farm_livid_protection_crop_id": livid_protection_crop_id,
+        "farm_livid_protection_uses_remaining": livid_protection_uses,
         "farm_queue": queue,
         "farm_next_step_id": max(
             highest_step_id + 1,
@@ -518,6 +552,8 @@ def farming_access_gate_allows_pure(player_data: Mapping[str, Any], gate: Any) -
         if _flag_enabled(player_data, str(gate.key), "unlocked_regions", "region_access"):
             return True
         return gate.key == "morytania" and _quest_completed(player_data, "priest_in_peril")
+    if gate.kind == "state":
+        return bool(gate.key and player_data.get(gate.key))
     if gate.kind == "all":
         return all(farming_access_gate_allows_pure(player_data, child) for child in gate.gates)
     return False
@@ -716,6 +752,111 @@ def _reset_patch(record: dict[str, Any]) -> None:
     record["last_crop_id"] = last_crop
 
 
+def activate_livid_farm_allotment_pure(
+    player_data: Mapping[str, Any],
+) -> tuple[dict[str, Any], bool, str]:
+    updated = _copy_with_farm_state(player_data)
+    if updated["farm_livid_patch_active"]:
+        return updated, False, "The Livid Farm allotment is already active"
+    record = updated["farm_patches"][LIVID_FARM_ALLOTMENT_PATCH_ID]
+    record.clear()
+    record.update(_default_patch_record())
+    updated["farm_plans"].pop(LIVID_FARM_ALLOTMENT_PATCH_ID, None)
+    for step in updated["farm_queue"]:
+        if step.get("patch_id") == LIVID_FARM_ALLOTMENT_PATCH_ID:
+            _refund_queued_protection(updated, step)
+    updated["farm_queue"] = [
+        step
+        for step in updated["farm_queue"]
+        if step.get("patch_id") != LIVID_FARM_ALLOTMENT_PATCH_ID
+    ]
+    if updated.get("farming_spell_patch") == LIVID_FARM_ALLOTMENT_PATCH_ID:
+        updated["farming_spell_patch"] = None
+    updated["farm_livid_patch_active"] = True
+    _log(
+        updated,
+        "livid_patch_created",
+        "The one-use Livid Farm allotment is ready.",
+        patch_id=LIVID_FARM_ALLOTMENT_PATCH_ID,
+    )
+    return updated, True, "Livid Farm allotment created"
+
+
+def activate_livid_farm_patch_protection_pure(
+    player_data: Mapping[str, Any],
+    patch_id: str,
+) -> tuple[dict[str, Any], bool, str]:
+    updated = _copy_with_farm_state(player_data)
+    if _int(updated.get("farm_livid_protection_uses_remaining")) > 0:
+        return updated, False, "Another Livid Farm patch protection is already active"
+    patch = FARMING_PATCHES_BY_ID.get(patch_id)
+    if patch is None:
+        return updated, False, "Unknown Farming patch"
+    if patch.patch_type not in {"tree", "fruit_tree"}:
+        return updated, False, "Choose an ordinary tree or fruit-tree patch"
+    if not farming_access_gate_allows_pure(updated, patch.access_gate):
+        return updated, False, "Patch access is locked"
+    record = updated["farm_patches"][patch_id]
+    crop = FARMING_CROPS_BY_ID.get(record.get("crop_id"))
+    if crop is None or crop.patch_type not in {"tree", "fruit_tree"}:
+        return updated, False, "Plant a tree in this patch first"
+    if (
+        _is_mature(record, crop)
+        or record.get("diseased")
+        or record.get("dead")
+        or record.get("stump")
+    ):
+        return updated, False, "Choose a healthy tree that is still growing"
+    if record.get("protected"):
+        return updated, False, "This tree is already protected"
+    if _int(updated["inventory"].get(LIVID_FARM_PROTECTION_SCROLL)) <= 0:
+        return updated, False, "No Patch protection scroll is available"
+
+    updated["inventory"][LIVID_FARM_PROTECTION_SCROLL] = (
+        _int(updated["inventory"].get(LIVID_FARM_PROTECTION_SCROLL)) - 1
+    )
+    if updated["inventory"][LIVID_FARM_PROTECTION_SCROLL] <= 0:
+        updated["inventory"].pop(LIVID_FARM_PROTECTION_SCROLL, None)
+    record["protected"] = True
+    record["livid_protected"] = True
+    updated["farm_livid_protection_crop_id"] = crop.id
+    updated["farm_livid_protection_uses_remaining"] = 9
+    _log(
+        updated,
+        "livid_patch_protection_activated",
+        f"Patch protection now covers 9 more {crop.display_name} plantings.",
+        patch_id=patch_id,
+        crop_id=crop.id,
+        uses_remaining=9,
+    )
+    return updated, True, f"Protected this tree and 9 more {crop.display_name} plantings"
+
+
+def _expire_livid_farm_allotment(updated: dict[str, Any]) -> None:
+    if not updated.get("farm_livid_patch_active"):
+        return
+    for step in updated["farm_queue"]:
+        if step.get("patch_id") == LIVID_FARM_ALLOTMENT_PATCH_ID:
+            _refund_queued_protection(updated, step)
+    updated["farm_queue"] = [
+        step
+        for step in updated["farm_queue"]
+        if step.get("patch_id") != LIVID_FARM_ALLOTMENT_PATCH_ID
+    ]
+    updated["farm_plans"].pop(LIVID_FARM_ALLOTMENT_PATCH_ID, None)
+    record = updated["farm_patches"][LIVID_FARM_ALLOTMENT_PATCH_ID]
+    record["plan"] = None
+    updated["farm_livid_patch_active"] = False
+    if updated.get("farming_spell_patch") == LIVID_FARM_ALLOTMENT_PATCH_ID:
+        updated["farming_spell_patch"] = None
+    _log(
+        updated,
+        "livid_patch_expired",
+        "The one-use Livid Farm allotment disappeared after clearing.",
+        patch_id=LIVID_FARM_ALLOTMENT_PATCH_ID,
+    )
+
+
 def _plant(updated: dict[str, Any], patch_id: str, patch: Any, crop: Any, step: Mapping[str, Any]) -> tuple[bool, str, dict[str, Any]]:
     record = updated["farm_patches"][patch_id]
     if patch.fixed_crop_id is not None:
@@ -752,6 +893,11 @@ def _plant(updated: dict[str, Any], patch_id: str, patch: Any, crop: Any, step: 
     paid = bool(step.get("protection_paid")) or bool(
         matching_plan and matching_plan.get("protection_paid")
     )
+    livid_protected = bool(
+        not paid
+        and updated.get("farm_livid_protection_crop_id") == crop.id
+        and _int(updated.get("farm_livid_protection_uses_remaining")) > 0
+    )
     watering_intent = True if matching_plan is None else bool(matching_plan.get("watering_intent"))
     if matching_plan:
         matching_plan["protection_paid"] = False
@@ -767,7 +913,8 @@ def _plant(updated: dict[str, Any], patch_id: str, patch: Any, crop: Any, step: 
         "lives": crop.base_lives + tier.extra_lives,
         "diseased": False,
         "dead": False,
-        "protected": paid,
+        "protected": paid or livid_protected,
+        "livid_protected": livid_protected,
         "watered": (
             watering_intent
             and crop.patch_type in {"allotment", "flower", "hops"}
@@ -781,10 +928,35 @@ def _plant(updated: dict[str, Any], patch_id: str, patch: Any, crop: Any, step: 
         "jade_state": "prunable" if crop.id == "jade_vine" else None,
         "jade_prunes": 0,
     })
+    if livid_protected:
+        uses_remaining = (
+            _int(updated.get("farm_livid_protection_uses_remaining")) - 1
+        )
+        updated["farm_livid_protection_uses_remaining"] = uses_remaining
+        if uses_remaining <= 0:
+            updated["farm_livid_protection_crop_id"] = None
+        _log(
+            updated,
+            "livid_patch_protection_applied",
+            (
+                f"Patch protection applied to {crop.display_name}; "
+                f"{uses_remaining} use{'s' if uses_remaining != 1 else ''} remain."
+            ),
+            patch_id=patch_id,
+            crop_id=crop.id,
+            uses_remaining=uses_remaining,
+        )
     xp = float(crop.planting_xp or 0.0) + tier.application_xp
     _award_xp(updated, "farming", xp)
     _increment(updated, "plants")
-    return True, f"Planted {crop.display_name}.", {"farming_xp": xp, "outputs": {"Weeds": 3}}
+    return True, f"Planted {crop.display_name}.", {
+        "farming_xp": xp,
+        "outputs": {"Weeds": 3},
+        "livid_protected": livid_protected,
+        "livid_protection_uses_remaining": _int(
+            updated.get("farm_livid_protection_uses_remaining")
+        ),
+    }
 
 
 def harvest_save_slots_pure(crop: Any, farming_level: int, magic_secateurs: bool) -> int:
@@ -1083,8 +1255,18 @@ def _execute_farm_field_step_in_place(
         "chop": lambda: _chop(updated, patch_id, crop),
     }
     ok, message, details = handlers[kind]()
+    livid_patch_expired = bool(
+        ok
+        and patch_id == LIVID_FARM_ALLOTMENT_PATCH_ID
+        and kind in {"harvest", "clear"}
+        and updated["farm_patches"][patch_id].get("crop_id") is None
+    )
+    if livid_patch_expired:
+        _expire_livid_farm_allotment(updated)
     info = {"message": message, "kind": kind, "patch_id": patch_id, "crop_id": crop.id}
     info.update(details)
+    if livid_patch_expired:
+        info["livid_patch_expired"] = True
     if ok:
         _log(updated, "queue_step_executed", message, kind=kind, patch_id=patch_id, crop_id=crop.id)
     return ok, info
@@ -1891,6 +2073,8 @@ def _access_reason(gate: Any) -> str:
         return f"Requires {str(gate.key).replace('_', ' ').title()} level {gate.minimum}."
     if gate.kind == "region":
         return f"Requires access to {str(gate.key).replace('_', ' ').title()}."
+    if gate.kind == "state":
+        return "This one-use patch is unavailable."
     if gate.kind == "all":
         return " ".join(reason for reason in (_access_reason(child) for child in gate.gates) if reason)
     return "This patch is locked."
@@ -1974,12 +2158,24 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
     state = _copy_with_farm_state(player_data)
     inventory = state["inventory"]
     farming_level = _int(state.get("farming_level", 1), default=1, minimum=1)
+    livid_scroll_count = _int(inventory.get(LIVID_FARM_PROTECTION_SCROLL))
+    livid_protection_crop = FARMING_CROPS_BY_ID.get(
+        state.get("farm_livid_protection_crop_id")
+    )
+    livid_protection_uses = _int(
+        state.get("farm_livid_protection_uses_remaining")
+    )
     queued_patch_ids = {step.get("patch_id") for step in state["farm_queue"]}
     groups: dict[str, dict[str, Any]] = {}
     active = ready = urgent = 0
     compact_rows: list[dict[str, Any]] = []
 
     for patch in FARMING_PATCHES:
+        if (
+            patch.id == LIVID_FARM_ALLOTMENT_PATCH_ID
+            and not state["farm_livid_patch_active"]
+        ):
+            continue
         record = state["farm_patches"][patch.id]
         crop = FARMING_CROPS_BY_ID.get(record.get("crop_id"))
         status, status_label, reviews = _patch_status_view(state, patch, record, crop)
@@ -2117,7 +2313,9 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
 
         protection = {"state": "Unavailable", "intent": bool(plan and plan.get("protection_intent")), "action": None}
         payment_crop = crop or planned_crop
-        if crop is not None and (record.get("protected") or crop.disease_immune or patch.disease_free):
+        if crop is not None and record.get("livid_protected"):
+            protection["state"] = "Livid scroll"
+        elif crop is not None and (record.get("protected") or crop.disease_immune or patch.disease_free):
             protection["state"] = "Protected"
         elif plan and plan.get("protection_paid"):
             protection["state"] = "Protected"
@@ -2129,7 +2327,7 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
             protection["state"] = (
                 "Gardener planned for full run"
                 if crop is None and plan and plan.get("protection_intent")
-                else "Protection not paid"
+                else "Not paid"
             )
             protection["requirements"] = payment_requirements
             if crop is not None:
@@ -2139,6 +2337,44 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
                     "enabled": not payment_reason and access_allowed,
                     "locked_reason": access_reason or payment_reason,
                 }
+
+        livid_protection_action = None
+        if (
+            crop is not None
+            and patch.patch_type in {"tree", "fruit_tree"}
+            and (livid_scroll_count > 0 or livid_protection_uses > 0)
+        ):
+            livid_reason = access_reason
+            if not livid_reason and livid_protection_uses > 0:
+                livid_reason = (
+                    f"Protection for {livid_protection_crop.display_name} is already active."
+                    if livid_protection_crop is not None
+                    else "Another Livid Farm protection is already active."
+                )
+            if not livid_reason and livid_scroll_count <= 0:
+                livid_reason = "No Patch protection scroll is available."
+            if not livid_reason and (
+                status == "ready"
+                or record.get("diseased")
+                or record.get("dead")
+                or record.get("stump")
+            ):
+                livid_reason = "Choose a healthy tree that is still growing."
+            if not livid_reason and record.get("protected"):
+                livid_reason = "This tree is already protected."
+            livid_protection_action = {
+                "id": "activate_livid_protection",
+                "label": (
+                    f"Use {LIVID_FARM_PROTECTION_SCROLL}"
+                    if livid_scroll_count <= 1
+                    else (
+                        f"Use {LIVID_FARM_PROTECTION_SCROLL} "
+                        f"({livid_scroll_count})"
+                    )
+                ),
+                "enabled": not livid_reason,
+                "locked_reason": livid_reason,
+            }
 
         sapling = None
         sapling_crop = planned_crop if planned_crop and planned_crop.id in SAPLING_RECIPES else None
@@ -2204,6 +2440,7 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
             "crop_options": tuple(crop_options),
             "compost_options": tuple({"id": tier_id, "label": tier_id.replace("_", " ").title(), "enabled": True, "locked_reason": ""} for tier_id in COMPOST_TIERS),
             "protection": protection,
+            "livid_protection_action": livid_protection_action,
             "primary_action": primary_action,
             "dig_up_action": dig_up_action,
             "shortcut_action": (
@@ -2372,6 +2609,29 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
                 else ""
             ),
         },
+        "livid_protection": {
+            "scroll_count": livid_scroll_count,
+            "crop_id": livid_protection_crop.id if livid_protection_crop else None,
+            "crop_name": (
+                livid_protection_crop.display_name
+                if livid_protection_crop
+                else None
+            ),
+            "uses_remaining": livid_protection_uses,
+            "label": (
+                f"Livid protection · {livid_protection_crop.display_name} · "
+                f"{livid_protection_uses} planting"
+                f"{'s' if livid_protection_uses != 1 else ''} left"
+                if livid_protection_crop and livid_protection_uses
+                else (
+                    f"Patch protection scroll"
+                    f"{'s' if livid_scroll_count != 1 else ''} · "
+                    f"{livid_scroll_count}"
+                )
+                if livid_scroll_count
+                else ""
+            ),
+        },
         "compact_rows": tuple(compact_rows),
         "hud": {
             "priority": priority,
@@ -2413,6 +2673,19 @@ def apply_farming_frontend_action_pure(
         )
     if action_id == "pay_protection":
         return pay_farming_protection_pure(player_data, patch_id)
+    if action_id == "activate_livid_protection":
+        action = (patch_view or {}).get("livid_protection_action")
+        if not action or not action.get("enabled"):
+            return (
+                _copy_with_farm_state(player_data),
+                False,
+                (action or {}).get("locked_reason")
+                or "Livid Farm protection is unavailable for this patch.",
+            )
+        return activate_livid_farm_patch_protection_pure(
+            player_data,
+            patch_id,
+        )
     if action_id == "activate_juju_farming_potion":
         return activate_juju_farming_potion_pure(
             player_data, str(data.get("item_name", "Juju farming potion (3)"))

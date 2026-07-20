@@ -3477,6 +3477,133 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
+    def test_livid_protection_wish_flows_into_the_farming_action_surface(self):
+        addon = _load_addon_as_package(
+            "ankiscape_livid_protection_farming_integration"
+        )
+        farming_data = sys.modules[f"{addon.__name__}.farming_data"]
+        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon.mw = _DummyMW(_DummyCol())
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon.current_skill = "Utility / Activities"
+        state = {
+            "inventory": {
+                "Rake": 1,
+                "Spade": 1,
+                "Oak sapling": 1,
+            },
+            "farming_level": 99,
+            "farming_exp": 0.0,
+            "smithing_level": 1,
+            "livid_farm": {
+                "borrowed_power_claimed": True,
+                "produce_points": 37_000,
+            },
+        }
+        state.update(farming_logic.default_farming_state_pure())
+        state, ok, _ = farming_logic.execute_farm_field_step_pure(
+            state,
+            {
+                "kind": "plant",
+                "patch_id": "lumbridge_tree",
+                "crop_id": "oak",
+            },
+        )
+        self.assertTrue(ok)
+        addon.player_data = state
+
+        purchased = addon.on_livid_farm_wish("protect_patch")
+        self.assertTrue(purchased["ok"])
+        self.assertEqual(
+            addon.player_data["inventory"][
+                farming_data.LIVID_FARM_PROTECTION_SCROLL
+            ],
+            1,
+        )
+
+        addon._on_main_menu(initial_skill="Farming")
+        activated = captured["on_farming_action"](
+            "activate_livid_protection",
+            {"patch_id": "lumbridge_tree"},
+        )
+
+        self.assertTrue(activated["ok"])
+        self.assertTrue(
+            addon.player_data["farm_patches"]["lumbridge_tree"][
+                "livid_protected"
+            ]
+        )
+        self.assertEqual(
+            addon.player_data["farm_livid_protection_uses_remaining"],
+            9,
+        )
+        self.assertNotIn(
+            farming_data.LIVID_FARM_PROTECTION_SCROLL,
+            addon.player_data["inventory"],
+        )
+
+    def test_arcane_capacitor_charge_uses_direct_action_undo(self):
+        from livid_farm_data import (
+            ARCANE_CAPACITOR_CHARGED,
+            ARCANE_CAPACITOR_UNCHARGED,
+        )
+
+        addon = _load_addon_as_package(
+            "ankiscape_arcane_capacitor_direct_action_integration"
+        )
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.current_skill = "Utility / Activities"
+        initial = {
+            "inventory": {
+                ARCANE_CAPACITOR_UNCHARGED: 1,
+                "Air rune": 1_000,
+                "Earth rune": 1_000,
+                "Law rune": 1_000,
+            },
+            "equipment": {},
+            "magic_level": 99,
+            "quests": {"lunar_diplomacy": {"completed": True}},
+            "livid_farm": {"borrowed_power_claimed": True},
+            "smithing_level": 1,
+        }
+        addon.player_data = copy.deepcopy(initial)
+
+        addon._on_main_menu()
+        result = captured["on_livid_farm_command"](
+            "charge_capacitor",
+            {"spell_id": "teleport_to_house"},
+        )
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(
+            addon.player_data["inventory"][ARCANE_CAPACITOR_CHARGED],
+            1,
+        )
+        self.assertEqual(
+            addon.player_data["livid_farm"]["arcane_capacitor_charges"],
+            1_000,
+        )
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
     def test_leather_thread_consumption_rolls_back_on_undo(self):
         addon = _load_addon_as_package("ankiscape_leather_thread_undo_integration")
 

@@ -15,6 +15,8 @@ from typing import Mapping, Optional, Tuple
 
 FARM_MINUTES_PER_ANSWER = 6
 COMPOST_BIN_CAPACITY = 15
+LIVID_FARM_ALLOTMENT_PATCH_ID = "livid_farm_allotment"
+LIVID_FARM_PROTECTION_SCROLL = "Patch protection scroll"
 
 
 @dataclass(frozen=True)
@@ -356,6 +358,10 @@ def _all(*gates: AccessGate) -> AccessGate:
     return AccessGate("all", gates=gates)
 
 
+def _state(key: str) -> AccessGate:
+    return AccessGate("state", key)
+
+
 def _patch(
     patch_id: str,
     name: str,
@@ -401,6 +407,14 @@ _PATCHES.extend((
     _patch("wilderness_limpwurt", "Wilderness western ruins flower", "wilderness", "flower", _quest("spirit_of_summer"), whitelist=("limpwurt",)),
     _patch("harmony_allotment", "Harmony Island allotment", "harmony", "allotment", _quest("the_great_brain_robbery")),
     _patch("taverley_potato", "Taverley potato patch", "taverley", "allotment", disease_free=True, whitelist=("potato",)),
+    _patch(
+        LIVID_FARM_ALLOTMENT_PATCH_ID,
+        "Livid Farm allotment",
+        "livid_farm",
+        "allotment",
+        _state("farm_livid_patch_active"),
+        sources=("Livid Farm oldid 6569596, 2012-11-17T21:40:18Z",),
+    ),
     _patch("trollheim_herb", "Troll Stronghold herb", "trollheim", "herb", _quest("my_arms_big_adventure"), disease_free=True),
     _patch("lumbridge_hops", "North Lumbridge hops", "lumbridge", "hops"),
     _patch("mcgrubor_hops", "North McGrubor's Wood hops", "mcgrubor", "hops"),
@@ -511,6 +525,7 @@ def _slug(name: str) -> str:
 _item_names = {
     "Rake", "Seed dibber", "Spade", "Gardening trowel", "Watering can", "Watering can (8)",
     "Plant cure", "Magic secateurs", "Plant pot", "Bucket", "Compost", "Supercompost", "Weeds",
+    LIVID_FARM_PROTECTION_SCROLL,
 }
 for _crop_row in FARMING_CROPS:
     _item_names.add(_crop_row.seed_item)
@@ -528,7 +543,11 @@ FARMING_ITEMS: Tuple[FarmingItem, ...] = tuple(
         f"farming_{_slug(name)}",
         name,
         "tool" if name in {"Rake", "Seed dibber", "Spade", "Gardening trowel", "Watering can", "Watering can (8)", "Magic secateurs"} else "material",
-        "Farming ledger oldids 6565109/6565110 and cited crop rows",
+        (
+            "Livid Farm oldid 6569596; OpenRS2 rev 736/741/742 item 21515"
+            if name == LIVID_FARM_PROTECTION_SCROLL
+            else "Farming ledger oldids 6565109/6565110 and cited crop rows"
+        ),
         name not in {"Magic secateurs"},
     )
     for name in sorted(_item_names)
@@ -582,6 +601,6 @@ FARMING_COMPOST_VISUAL_ITEMS: Mapping[str, str] = MappingProxyType({
 })
 
 
-assert len(FARMING_PATCHES) == 52
+assert len(FARMING_PATCHES) == 53
 assert len(FARMING_COMPOST_BINS) == 6
 assert "Patch bomb" not in FARMING_ITEM_DATA

@@ -115,12 +115,18 @@ Labels: none remaining on the build itself; trailing `DEPENDENCY` items only.
   Falador/Ardougne/Trollheim teleports, Trollheim patch focus, Remote Farm, and
   all supported Make Leather outputs are live. Repair Rune Pouch,
   Spiritualise Food, Disruption Shield, Vengeance Group, and Group Trollheim
-  remain explicit consumer dependencies. Other trailing `DEPENDENCY` items are
-  Borrowed Power / Arcane-capacitor commands, the one-use allotment and
-  ten-tree protection wishes, Hunter Kit consumers (Hunter), and Bones to
-  Peaches behind a future Mage Training Arena activity. Exact ordinary
-  seed-shower quantities and fish-burn magnitude remain `SOURCE AUDIT`.
-  See `memory-bank/source-audits/livid-farm-spell-consumers-2026-07-19.md`.
+  remain explicit consumer dependencies. Borrowed Power and the complete
+  Arcane-capacitor lifecycle are live for all twelve cutoff-supported spells.
+  The one-use Livid allotment and selected ten-tree Patch protection scroll are
+  live through the ordinary Farming sheet. Other trailing `DEPENDENCY` items
+  are Hunter Kit consumers (Hunter) and the native Bones to Peaches unlock
+  behind a future Mage Training Arena activity. Exact ordinary seed-shower
+  quantities and fish-burn magnitude remain `SOURCE AUDIT`.
+  See `memory-bank/source-audits/livid-farm-spell-consumers-2026-07-19.md`
+  and
+  `memory-bank/source-audits/borrowed-power-arcane-capacitor-implementation-2026-07-19.md`
+  and
+  `memory-bank/source-audits/livid-farm-farming-wishes-implementation-2026-07-19.md`.
   Magic Dart's canonical `Slayer's staff` route is live.
 
 ### Construction — SHIPPED 2026-07-11 (commit c628f0d)

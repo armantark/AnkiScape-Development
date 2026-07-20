@@ -40,6 +40,7 @@ from combat_data import (
     ZOMBIE_LEVEL_25_DROPS,
 )
 from constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
+from livid_farm_data import ARCANE_CAPACITOR_CHARGED
 from logic_pure import (
     _combat_apply_pvm_death,
     _combat_apply_wilderness_ambush,
@@ -3956,6 +3957,76 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(new_data["ranged_exp"], 0.0)
         self.assertGreater(new_data["magic_exp"], 5.5)
         self.assertGreater(new_data["constitution_exp"], 0.0)
+
+    def test_borrowed_power_is_one_manual_combat_cast_not_autocast(self):
+        player = _player(
+            combat_attack_style="magic_standard",
+            current_combat_spell="wind_strike",
+            combat_borrowed_power_spell="wind_wave",
+            equipment={
+                "weapon": "Staff of air",
+                "neck": ARCANE_CAPACITOR_CHARGED,
+            },
+            combat_supply_loadout={"runes": {"Astral rune": 3}},
+            quests={"lunar_diplomacy": {"completed": True}},
+            livid_farm={
+                "borrowed_power_claimed": True,
+                "arcane_capacitor_spell": "wind_wave",
+                "arcane_capacitor_charges": 2,
+            },
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=50,
+            rng=_rng([0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["ticks"], 1)
+        self.assertTrue(result["borrowed_power"])
+        self.assertEqual(result["spell_id"], "wind_wave")
+        self.assertEqual(result["runes_used"], {"Astral rune": 3})
+        self.assertEqual(new_data["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(new_data["combat_borrowed_power_spell"], "")
+        self.assertEqual(
+            new_data["livid_farm"]["arcane_capacitor_charges"],
+            1,
+        )
+        self.assertEqual(
+            new_data["equipment"]["neck"],
+            ARCANE_CAPACITOR_CHARGED,
+        )
+        self.assertGreater(new_data["magic_exp"], 0.0)
+
+    def test_borrowed_power_combat_cast_requires_the_bound_equipped_capacitor(self):
+        player = _player(
+            combat_attack_style="magic_standard",
+            combat_borrowed_power_spell="fire_wave",
+            equipment={"weapon": "Staff of fire"},
+            combat_supply_loadout={"runes": {"Astral rune": 3}},
+            quests={"lunar_diplomacy": {"completed": True}},
+            livid_farm={
+                "borrowed_power_claimed": True,
+                "arcane_capacitor_spell": "wind_wave",
+                "arcane_capacitor_charges": 1_000,
+            },
+        )
+
+        self.assertEqual(
+            combat_target_locked_reasons_pure(
+                player,
+                "chicken",
+                COMBAT_ENEMY_DATA,
+                equipment_data=EQUIPMENT_DATA,
+            ),
+            (
+                "Equip the charged Arcane capacitor",
+                "Charge the capacitor with this spell",
+            ),
+        )
 
     def test_magic_staff_substitution_does_not_load_or_consume_covered_rune(self):
         player = _player(

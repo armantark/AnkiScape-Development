@@ -2,8 +2,12 @@ import unittest
 
 from livid_farm_logic import (
     advance_livid_farm_wish_effects_pure,
+    apply_arcane_capacitor_charge_pure,
+    apply_arcane_capacitor_remove_charge_pure,
     apply_livid_farm_reviews_pure,
     apply_livid_farm_wish_pure,
+    arcane_capacitor_owned_pure,
+    consume_arcane_capacitor_charge_pure,
     default_livid_farm_state_pure,
     livid_farm_cycle_projection_pure,
     livid_farm_cycles_for_steps_pure,
@@ -12,7 +16,12 @@ from livid_farm_logic import (
     sanitize_livid_farm_state_pure,
     set_livid_farm_routine_pure,
 )
-from livid_farm_data import LIVID_FARM_UNLOCKS
+from livid_farm_data import (
+    ARCANE_CAPACITOR_CHARGED,
+    ARCANE_CAPACITOR_UNCHARGED,
+    LIVID_FARM_UNLOCKS,
+)
+from farming_data import LIVID_FARM_PROTECTION_SCROLL
 
 
 def _player(magic_level=99, rune_quantity=100_000):
@@ -25,6 +34,9 @@ def _player(magic_level=99, rune_quantity=100_000):
         "Cosmic rune": rune_quantity,
         "Mind rune": rune_quantity,
         "Death rune": rune_quantity,
+        "Air rune": rune_quantity,
+        "Fire rune": rune_quantity,
+        "Blood rune": rune_quantity,
     }
     return {
         "inventory": inventory,
@@ -221,11 +233,161 @@ class TestLividFarmLogic(unittest.TestCase):
         self.assertIn("clean herb", rows["vial_my_herbs"]["locked_reason"])
         self.assertFalse(rows["rain_seeds"]["enabled"])
         self.assertEqual(rows["rain_seeds"]["status"], "source_blocked")
-        self.assertFalse(rows["arcane_capacitor"]["enabled"])
+        self.assertTrue(rows["arcane_capacitor"]["enabled"])
         self.assertEqual(
             rows["arcane_capacitor"]["status"],
-            "dependency_blocked",
+            "ready",
         )
+        self.assertTrue(rows["protect_patch"]["enabled"])
+        self.assertEqual(rows["protect_patch"]["status"], "ready")
+
+    def test_protect_patch_wish_grants_the_real_scroll_item(self):
+        player = _player()
+        player["livid_farm"].update(
+            {"borrowed_power_claimed": True, "produce_points": 74_000}
+        )
+
+        granted, ok, result = apply_livid_farm_wish_pure(
+            player,
+            "protect_patch",
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["cost"], 37_000)
+        self.assertEqual(
+            result["outputs"],
+            {LIVID_FARM_PROTECTION_SCROLL: 1},
+        )
+        self.assertEqual(
+            granted["inventory"][LIVID_FARM_PROTECTION_SCROLL],
+            1,
+        )
+        self.assertEqual(granted["livid_farm"]["produce_points"], 37_000)
+
+    def test_arcane_capacitor_wish_enforces_one_owned_across_storage(self):
+        player = _player()
+        player["livid_farm"].update(
+            {"borrowed_power_claimed": True, "produce_points": 36_000}
+        )
+
+        granted, ok, result = apply_livid_farm_wish_pure(
+            player,
+            "arcane_capacitor",
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(
+            result["outputs"],
+            {ARCANE_CAPACITOR_UNCHARGED: 1},
+        )
+        self.assertEqual(granted["livid_farm"]["produce_points"], 18_000)
+        unchanged, ok, reason = apply_livid_farm_wish_pure(
+            granted,
+            "arcane_capacitor",
+        )
+        self.assertFalse(ok)
+        self.assertEqual(reason["reason"], "locked")
+        self.assertEqual(unchanged, granted)
+
+        grave = _player()
+        grave["combat_grave"] = {"items": [ARCANE_CAPACITOR_CHARGED]}
+        self.assertTrue(arcane_capacitor_owned_pure(grave))
+        cargo = _player()
+        cargo["summoning"] = {
+            "active_follower": {
+                "storage": {ARCANE_CAPACITOR_UNCHARGED: 1}
+            }
+        }
+        self.assertTrue(arcane_capacitor_owned_pure(cargo))
+
+    def test_arcane_capacitor_charge_is_atomic_and_ignores_staff_substitution(self):
+        player = _player()
+        player["livid_farm"].update(
+            {"borrowed_power_claimed": True, "produce_points": 18_000}
+        )
+        player, ok, _result = apply_livid_farm_wish_pure(
+            player,
+            "arcane_capacitor",
+        )
+        self.assertTrue(ok)
+        player["equipment"] = {"weapon": "Staff of air"}
+        before = dict(player["inventory"])
+
+        charged, ok, result = apply_arcane_capacitor_charge_pure(
+            player,
+            "wind_wave",
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(
+            result["runes_used"],
+            {"Air rune": 5_000, "Blood rune": 1_000},
+        )
+        self.assertEqual(
+            charged["inventory"]["Air rune"],
+            before["Air rune"] - 5_000,
+        )
+        self.assertNotIn(ARCANE_CAPACITOR_UNCHARGED, charged["inventory"])
+        self.assertEqual(charged["inventory"][ARCANE_CAPACITOR_CHARGED], 1)
+        self.assertEqual(
+            charged["livid_farm"]["arcane_capacitor_charges"],
+            1_000,
+        )
+
+        underfunded = _player()
+        underfunded["livid_farm"]["borrowed_power_claimed"] = True
+        underfunded["inventory"] = {
+            ARCANE_CAPACITOR_UNCHARGED: 1,
+            "Air rune": 4_999,
+            "Blood rune": 1_000,
+        }
+        unchanged, ok, _reason = apply_arcane_capacitor_charge_pure(
+            underfunded,
+            "wind_wave",
+        )
+        self.assertFalse(ok)
+        self.assertEqual(unchanged, underfunded)
+
+    def test_removing_or_spending_final_charge_destroys_capacitor(self):
+        player = _player()
+        player["inventory"] = {ARCANE_CAPACITOR_CHARGED: 1}
+        player["livid_farm"].update(
+            {
+                "borrowed_power_claimed": True,
+                "arcane_capacitor_spell": "teleport_to_house",
+                "arcane_capacitor_charges": 7,
+            }
+        )
+
+        removed, ok, result = apply_arcane_capacitor_remove_charge_pure(
+            player,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(
+            result["runes_refunded"],
+            {"Air rune": 7, "Earth rune": 7, "Law rune": 7},
+        )
+        self.assertNotIn(ARCANE_CAPACITOR_CHARGED, removed["inventory"])
+        self.assertEqual(removed["livid_farm"]["arcane_capacitor_charges"], 0)
+
+        final = _player()
+        final["equipment"] = {"neck": ARCANE_CAPACITOR_CHARGED}
+        final["livid_farm"].update(
+            {
+                "borrowed_power_claimed": True,
+                "arcane_capacitor_spell": "high_alchemy",
+                "arcane_capacitor_charges": 1,
+            }
+        )
+        crumbled, ok, info = consume_arcane_capacitor_charge_pure(
+            final,
+            "high_alchemy",
+        )
+        self.assertTrue(ok)
+        self.assertTrue(info["crumbled"])
+        self.assertNotIn("neck", crumbled["equipment"])
+        self.assertEqual(crumbled["livid_farm"]["arcane_capacitor_spell"], "")
 
     def test_vial_my_herbs_transforms_only_carried_eligible_herbs_with_cap(self):
         player = _player()
@@ -359,6 +521,89 @@ class TestLividFarmLogic(unittest.TestCase):
         self.assertFalse(ok)
         self.assertEqual(reason["reason"], "locked")
         self.assertEqual(unchanged, seeds)
+
+    def test_new_patch_wish_lasts_for_exactly_one_allotment_clearing(self):
+        from farming_data import LIVID_FARM_ALLOTMENT_PATCH_ID
+        from farming_logic import (
+            advance_farm_clock_pure,
+            consume_next_farm_queue_step_pure,
+            execute_farm_field_step_pure,
+            farming_frontend_projection_pure,
+            queue_harvest_and_replant_same_pure,
+            set_farm_plan_pure,
+        )
+
+        player = _player()
+        player["livid_farm"].update(
+            {"borrowed_power_claimed": True, "produce_points": 36_000}
+        )
+
+        player, ok, result = apply_livid_farm_wish_pure(player, "new_patch")
+
+        self.assertTrue(ok)
+        self.assertEqual(result["cost"], 18_000)
+        self.assertTrue(player["farm_livid_patch_active"])
+        self.assertEqual(player["livid_farm"]["produce_points"], 18_000)
+        visible_patch_ids = {
+            patch["patch_id"]
+            for location in farming_frontend_projection_pure(player)["locations"]
+            for patch in location["patches"]
+        }
+        self.assertIn(LIVID_FARM_ALLOTMENT_PATCH_ID, visible_patch_ids)
+
+        unchanged, ok, reason = apply_livid_farm_wish_pure(player, "new_patch")
+        self.assertFalse(ok)
+        self.assertEqual(reason["message"], "Clear the active Livid Farm allotment first")
+        self.assertEqual(unchanged, player)
+
+        player["inventory"].update(
+            {
+                "Rake": 1,
+                "Seed dibber": 1,
+                "Spade": 1,
+                "Potato seed": 6,
+            }
+        )
+        player, ok, _ = set_farm_plan_pure(
+            player,
+            LIVID_FARM_ALLOTMENT_PATCH_ID,
+            "potato",
+        )
+        self.assertTrue(ok)
+        player, ok, _ = execute_farm_field_step_pure(
+            player,
+            {
+                "kind": "plant",
+                "patch_id": LIVID_FARM_ALLOTMENT_PATCH_ID,
+                "crop_id": "potato",
+            },
+        )
+        self.assertTrue(ok)
+        player, _ = advance_farm_clock_pure(player, 7, lambda: 1.0)
+        player, step_ids, message = queue_harvest_and_replant_same_pure(
+            player,
+            LIVID_FARM_ALLOTMENT_PATCH_ID,
+        )
+        self.assertEqual(message, "queued")
+        self.assertEqual(len(step_ids), 2)
+
+        player, consumed, info = consume_next_farm_queue_step_pure(
+            player,
+            lambda: 1.0,
+        )
+
+        self.assertTrue(consumed)
+        self.assertEqual(info["kind"], "harvest")
+        self.assertTrue(info["livid_patch_expired"])
+        self.assertFalse(player["farm_livid_patch_active"])
+        self.assertEqual(player["farm_queue"], [])
+        self.assertNotIn(LIVID_FARM_ALLOTMENT_PATCH_ID, player["farm_plans"])
+        hidden_patch_ids = {
+            patch["patch_id"]
+            for location in farming_frontend_projection_pure(player)["locations"]
+            for patch in location["patches"]
+        }
+        self.assertNotIn(LIVID_FARM_ALLOTMENT_PATCH_ID, hidden_patch_ids)
 
     def test_more_planks_uses_ten_answered_card_world_ticks(self):
         player = _player()

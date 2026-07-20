@@ -174,6 +174,36 @@ LIVID_FARM_BORROWED_POWER_COST: Final = 850_000
 LIVID_FARM_WALLET_CAP: Final = 850_000
 LIVID_FARM_DISTRACTION_INTERVAL: Final = 12
 LIVID_FARM_MORE_PLANKS_REVIEWS: Final = 10
+ARCANE_CAPACITOR_UNCHARGED: Final = "Arcane capacitor amulet (u)"
+ARCANE_CAPACITOR_CHARGED: Final = "Arcane capacitor (c)"
+ARCANE_CAPACITOR_MAX_CHARGES: Final = 1_000
+ARCANE_CAPACITOR_SOURCE: Final = (
+    "RuneScape Wiki Arcane capacitor amulet (u) oldid=6587262 "
+    "(2012-11-19T08:44:38Z); cache rev 742 item ids 21513/21514"
+)
+BORROWED_POWER_SOURCE: Final = (
+    "RuneScape Wiki Borrowed Power oldid=6587752 "
+    "(2012-11-19T14:23:14Z)"
+)
+BORROWED_POWER_NONCOMBAT_SPELLS: Final = (
+    "telegrab_wine_of_zamorak",
+    "teleport_to_house",
+    "high_alchemy",
+    "bones_to_peaches",
+)
+BORROWED_POWER_COMBAT_SPELLS: Final = (
+    "wind_wave",
+    "water_wave",
+    "earth_wave",
+    "fire_wave",
+    "magic_dart",
+    "vulnerability",
+    "enfeeble",
+    "entangle",
+)
+BORROWED_POWER_SPELLS: Final = (
+    BORROWED_POWER_COMBAT_SPELLS + BORROWED_POWER_NONCOMBAT_SPELLS
+)
 
 # Wishes are repeatable direct commands after Borrowed Power. Rows without a
 # complete owning substrate stay visible and honest in the reward surface.
@@ -196,15 +226,15 @@ LIVID_FARM_WISHES: Final = (
         "id": "arcane_capacitor",
         "display_name": "Give me an Arcane Capacitor",
         "cost": 18_000,
-        "status": "dependency_blocked",
-        "summary": "Its equipment effect is not implemented yet.",
+        "status": "ready",
+        "summary": "Receive one uncharged capacitor if none is already owned.",
     },
     {
         "id": "new_patch",
         "display_name": "I'd Like a New Patch!",
         "cost": 18_000,
-        "status": "dependency_blocked",
-        "summary": "Its one-use allotment is not implemented yet.",
+        "status": "ready",
+        "summary": "Create a one-use allotment that disappears after clearing.",
     },
     {
         "id": "more_planks",
@@ -238,8 +268,8 @@ LIVID_FARM_WISHES: Final = (
         "id": "protect_patch",
         "display_name": "Protect a Patch for me!",
         "cost": 37_000,
-        "status": "dependency_blocked",
-        "summary": "Its ten-tree selection is not implemented yet.",
+        "status": "ready",
+        "summary": "Receive a scroll that protects ten selected trees.",
     },
     {
         "id": "awesome_seeds",
