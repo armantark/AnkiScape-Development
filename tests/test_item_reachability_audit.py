@@ -78,6 +78,14 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Cadavaberry seed"],
             "Thieving:pickpocket_master_farmer",
         )
+        self.assertEqual(
+            report["routes"]["Stardust"],
+            "Activity:shooting_stars:mine",
+        )
+        self.assertNotIn(
+            "Activity:shooting_stars:exchange",
+            {action["id"] for action in report["unresolved_actions"]},
+        )
         self.assertNotIn("Bird's nest", {row["item"] for row in report["orphan_inputs"]})
 
         long_kebbit_spike = next(

@@ -2,6 +2,65 @@
 
 ## Current Focus
 
+Shooting Stars now satisfies horizontal breadth level one. The Mining-owned
+world event uses the 20-review shared slot clock, all nine sourced layers,
+first-finder tags, visible level waiting, communal naturalized depletion, the
+200-dust cap, persistent Stardust, a two-review sprite window, one manual
+exchange per 240-review day, scaled period rewards, incidental gems, and the
+exact 1,500-tick 25% extra-ore effect. Casual follows the natural event and
+waits; Advanced stores a preferred size range and the shared Quiet / Normal /
+Busy population policy. Review and direct-action mutations are independently
+undoable, migrated state is sanitized, and no gameplay path reads wall time.
+
+The owner-refined Activities UI is no longer a crowded scroll of dashboards.
+One `QStackedWidget` page is selected by the grouped activity tree; group
+headers clear the page, dynamic labels refit it, rows without a rich page show
+only the picker, and Utilities remains separate. Kimi K3's two taste passes
+found and closed stale-page, page-height, Skills-glyph, and later-RS3 Combat
+icon defects. The final global vocabulary uses distinct legacy OSRS Skills,
+Stats, and Combat sprites in standard boxes, with tight-alpha assets and
+provenance. A fully restarted native Anki process verified the real dark-theme
+icons, compact picker, and one-menu behavior. The required Fable pass remains
+externally blocked because its fresh quota probe cannot read Claude Code OAuth
+from macOS Keychain (`security` exit 51); it was not bypassed.
+
+The follow-up navigation audit now reserves the green compass for Achievement
+Diaries, uses yellow and red compasses only for D&D and Minigame group headers,
+and moves Familiarisation out of Equipment into a dedicated four-review
+Activities > D&D card. Big Chinchompa is likewise correctly classified as a
+D&D; Livid Farm remains a Minigame. Shop uses period coin art instead of the
+Bond-like Store orb, Skills uses a period Max cape, and Stats retains the bar
+graph. All 25 skills now share one pinned 2012 highscores icon family across
+Stats, Training, and Combat XP rows, including clean frameless Summoning and
+Dungeoneering glyphs. Stats uses the period three-column order in a fixed left
+selector, includes Dungeoneering, shows live current/base levels for temporary
+boosts and drains, and keeps its selected metrics compact at wide sizes.
+All 114 Magic targets now use real spellbook glyphs instead of output-item
+art, with nine source-explicit visual fallbacks where no cutoff file revision
+survives. Artificial white/neutral backing discs were removed so transparent
+Combat, activity, and target art renders directly. Every skill, Utility, and
+Activity target tree now shares crisp DPR-aware 28-pixel scaling and 32-pixel
+rows, including its hand-injected Landmarks. A native macOS
+selection-color defect was also reproduced and fixed. See
+`source-audits/navigation-and-activity-icon-audit-2026-07-20.md`.
+Kimi K3 and Fable both returned `SHIP` for the final spell-icon and
+direct-transparency delta; the later Fable call used a fresh healthy quota
+preflight rather than the earlier stale/blocked path.
+
+The exact final state passes all 1,961 non-Qt tests with 260 expected
+environment skips and all 1,961 real offscreen-Qt tests with one intentional
+skip. Documentation, hard test-quality, compilation, diff, asset, JSON,
+reachability, and worktree-safety gates pass. The deterministic graph now
+contains 1,415 actions, 2,082 reachable items, 168 orphan inputs, and 189
+unresolved actions; Stardust resolves through
+`Activity:shooting_stars:mine` and its exchange is unblocked. No owner design
+gap emerged. Durable record:
+`source-audits/shooting-star-implementation-harvest-2026-07-20.md`.
+Results:
+`status-updates/shooting-stars-horizontal-mvp-results-2026-07-20.html`; mobile
+copy: `https://uhov58kni1bj.postplan.dev`. The next breadth-one frontier is
+Fist of Guthix; Tears of Guthix remains honestly source-blocked.
+
 The owner-settled Arctic-pine processing sub-slice is now live. Woodcutting
 level 54 exposes `Split Arctic pine logs` once The Fremennik Isles has started;
 one review consumes one carried Arctic pine log, produces one non-stackable

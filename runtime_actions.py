@@ -227,6 +227,14 @@ try:
         big_chinchompa_event_active_pure,
         consume_hunter_quota_ticket_pure,
     )
+    from .shooting_star_data import (
+        SHOOTING_STAR_ACTIVITY_ID,
+        SHOOTING_STAR_ORE_BONUS_CHANCE,
+    )
+    from .shooting_star_logic import (
+        apply_shooting_star_review_pure,
+        shooting_star_event_mineable_pure,
+    )
     from .warriors_guild_data import WARRIORS_GUILD_ACTIVITIES
     from .warriors_guild_logic import (
         apply_warriors_guild_activity_pure,
@@ -443,6 +451,14 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         apply_big_chinchompa_review_pure,
         big_chinchompa_event_active_pure,
         consume_hunter_quota_ticket_pure,
+    )
+    from shooting_star_data import (  # type: ignore
+        SHOOTING_STAR_ACTIVITY_ID,
+        SHOOTING_STAR_ORE_BONUS_CHANCE,
+    )
+    from shooting_star_logic import (  # type: ignore
+        apply_shooting_star_review_pure,
+        shooting_star_event_mineable_pure,
     )
     from warriors_guild_data import WARRIORS_GUILD_ACTIVITIES  # type: ignore
     from warriors_guild_logic import (  # type: ignore
@@ -2369,6 +2385,111 @@ def _handle_big_chinchompa_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _handle_shooting_star_answer(ctx: RuntimeActionContext) -> bool:
+    mining_level = int(ctx.player_data.get("mining_level", 1) or 1)
+    pickaxe = best_mining_pickaxe_pure(
+        mining_level,
+        ctx.player_data.get("inventory", {}),
+        ctx.player_data.get("toolbelt", {}),
+        MINING_PICKAXE_DATA,
+    )
+    bonus_state = equipment_bonus_state_pure(
+        ctx.player_data.get("equipment", {}) or {},
+        MINING_BONUS_ITEM_DATA,
+    )
+    gem_chance = (
+        GLORY_GEM_DROP_CHANCE
+        if bonus_state["has_glory"]
+        else INCIDENTAL_GEM_DROP_CHANCE
+    )
+    updated, ok, result = apply_shooting_star_review_pure(
+        ctx.player_data,
+        has_usable_pickaxe=pickaxe is not None,
+        gem_roll=ctx.random_random(),
+        gem_pick_roll=ctx.random_random(),
+        gem_drop_chance=gem_chance,
+        gem_drop_table=INCIDENTAL_GEM_DROP_TABLE,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Shooting Star unavailable",
+            str(result.get("reason", "No mineable Shooting Star is active.")),
+        )
+        return False
+
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    mining_xp = float(result.get("mining_xp", 0.0) or 0.0)
+    outputs: dict[str, int] = {}
+    dust_added = int(result.get("dust_added", 0) or 0)
+    if dust_added > 0:
+        outputs["Stardust"] = dust_added
+    gem = str(result.get("gem", "") or "")
+    if gem:
+        outputs[gem] = outputs.get(gem, 0) + 1
+    if result.get("waiting"):
+        _record_action(
+            ctx,
+            "mining",
+            SHOOTING_STAR_ACTIVITY_ID,
+            False,
+            expected_success_chance=1.0,
+            failure_kind="waiting_for_layer",
+            primary_xp=mining_xp,
+        )
+    else:
+        _record_action(
+            ctx,
+            "mining",
+            SHOOTING_STAR_ACTIVITY_ID,
+            True,
+            expected_success_chance=1.0,
+            output_items=outputs,
+            primary_xp=mining_xp,
+        )
+    gained = ctx.award_skill_exp("mining_exp", mining_xp)
+    ctx.level_up_check("Mining", ctx.player_data)
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if gained > 0:
+        ctx.show_exp(gained)
+
+    if result.get("waiting"):
+        ctx.show_activity_gain(
+            f"Size {int(result.get('current_size', 0))} requires "
+            f"level {int(result.get('required_level', 0))} · "
+            "waiting for public miners to expose a lower layer"
+        )
+    elif result.get("tag_only"):
+        ctx.show_activity_gain(
+            f"First-finder tag · +{mining_xp:,.6g} Mining XP · "
+            "bring a pickaxe to mine stardust"
+        )
+        ctx.deactivate_current_skill()
+    else:
+        parts = [
+            f"Mined size {int(result.get('mined_size', 0))} stardust",
+            f"+{mining_xp:,.6g} Mining XP",
+        ]
+        if result.get("tag_xp"):
+            parts.append("first-finder tag")
+        if dust_added:
+            parts.append(
+                f"{int(result.get('dust_total', 0))}/200 stardust"
+            )
+        elif result.get("dust_cap_reached"):
+            parts.append("stardust cap reached; XP continues")
+        if gem:
+            parts.append(f"+1 {gem}")
+        if result.get("sprite_released"):
+            parts.append("Star sprite released")
+            ctx.deactivate_current_skill()
+        ctx.show_activity_gain(" · ".join(parts))
+    return True
+
+
 def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
@@ -2376,6 +2497,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_evil_tree_answer(ctx)
     if activity_key == BIG_CHINCHOMPA_UTILITY_ID:
         return _handle_big_chinchompa_answer(ctx)
+    if activity_key == SHOOTING_STAR_ACTIVITY_ID:
+        return _handle_shooting_star_answer(ctx)
     if activity_key == STRONGHOLD_UTILITY_KEY:
         return _handle_stronghold_answer(ctx)
     if activity_key == KNIGHT_WAVES_UTILITY_KEY:
@@ -4033,6 +4156,28 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
         bonus_state["varrock_armour_tier"],
         success_level,
     )
+    shooting_star_state = player_data.get("shooting_star")
+    ore_bonus_active = bool(
+        isinstance(shooting_star_state, dict)
+        and int(
+            shooting_star_state.get("ore_bonus_ticks_remaining", 0) or 0
+        )
+        > 0
+    )
+    ore_bonus_output = None
+    output_label = str(output_item or "")
+    if (
+        ok
+        and ore_bonus_active
+        and output_label
+        and (
+            " ore" in output_label.lower()
+            or output_label == "Red sandstone"
+        )
+        and ctx.random_random() < SHOOTING_STAR_ORE_BONUS_CHANCE
+    ):
+        ore_bonus_output = output_label
+        new_inv[output_label] = int(new_inv.get(output_label, 0) or 0) + 1
     if ok:
         if "ores_mined_today" not in player_data:
             player_data["ores_mined_today"] = 0
@@ -4044,7 +4189,12 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
         player_data["inventory"] = new_inv
         _charge_urn_for_action(ctx, "mining", ore, ore_spec, base_exp, output_item)
         output_items: dict[str, int] = {}
-        for item_name in (output_item, gem, extra_output):
+        for item_name in (
+            output_item,
+            gem,
+            extra_output,
+            ore_bonus_output,
+        ):
             if item_name:
                 output_items[item_name] = output_items.get(item_name, 0) + 1
         _record_action(
@@ -4063,6 +4213,10 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
 
         ctx.refresh_skill_availability()
         ctx.show_exp(exp_gained)
+        if ore_bonus_output:
+            ctx.show_activity_gain(
+                f"Star sprite bonus: +1 {ore_bonus_output}"
+            )
     else:
         _record_action(ctx, "mining", ore, False, expected_success_chance=expected_success, failure_kind="dry")
         ctx.save_player_data()
@@ -4558,6 +4712,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return bool(state.get("active_event") or state.get("session"))
     if activity_key == BIG_CHINCHOMPA_UTILITY_ID:
         return big_chinchompa_event_active_pure(ctx.player_data)
+    if activity_key == SHOOTING_STAR_ACTIVITY_ID:
+        return shooting_star_event_mineable_pure(ctx.player_data)
     if activity_key == STRONGHOLD_UTILITY_KEY:
         state = ctx.player_data.get("stronghold_of_security") or {}
         return not state.get("completed")

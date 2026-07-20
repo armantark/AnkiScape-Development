@@ -72,9 +72,7 @@ def _fletching_item(name: str) -> str:
 
 
 def _manifest() -> List[Tuple[str, str, str, Optional[int]]]:
-    manifest: List[Tuple[str, str, str, Optional[int]]] = [
-        ("Fletching", WIKI_TITLE_OVERRIDES["Fletching"], "icon/fletching_icon.png", 64),
-    ]
+    manifest: List[Tuple[str, str, str, Optional[int]]] = []
     seen = set()
     for target in FLETCHING_TARGETS:
         seen.add(target.output_item)

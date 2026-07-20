@@ -100,12 +100,6 @@ def asset_manifest():
             provenance_path=ROOT / "assets_provenance.json",
         )
         for name in construction_asset_items_as_dict()
-    ) + (
-        AssetRequest(
-            item_name="Construction skill icon", wiki_title="Construction icon (detail).png",
-            output_path=ROOT / "icon" / "construction_icon.png",
-            provenance_path=ROOT / "assets_provenance.json",
-        ),
     )
 
 

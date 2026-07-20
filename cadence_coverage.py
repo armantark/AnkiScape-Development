@@ -107,6 +107,34 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
             rows.append(row)
 
     for action_id, spec in UTILITY_ACTIVITY_DATA.items():
+        if str(action_id) == "shooting_stars":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "shooting_stars",
+                    "mode": "activity_group",
+                    "source_status": "sourced",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One successful review is one visible Mining attempt; "
+                        "the shared answered-card clock advances the public crowd."
+                    ),
+                    "includes": (
+                        "one stardust attempt",
+                        "one public-crowd boundary",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; each answered card "
+                        "preserves one communal depletion boundary"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same single-attempt activity handler",
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         if str(action_id) == "big_chinchompa":
             rows.append(
                 {

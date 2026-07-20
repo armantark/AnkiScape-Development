@@ -69,9 +69,7 @@ WIKI_TITLE_OVERRIDES: Dict[str, str] = {
 
 
 def _manifest() -> List[Tuple[str, str, str, Optional[int]]]:
-    manifest: List[Tuple[str, str, str, Optional[int]]] = [
-        ("Cooking", WIKI_TITLE_OVERRIDES["Cooking"], "icon/cooking_icon.png", 64),
-    ]
+    manifest: List[Tuple[str, str, str, Optional[int]]] = []
     for item_name in sorted(COOKING_EXTRA_ITEM_DATA):
         if item_name in _COVERED_ELSEWHERE:
             continue

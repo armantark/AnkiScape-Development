@@ -17,6 +17,7 @@ from runtime_actions import (
     handle_hunter_answer,
     handle_agility_answer,
     handle_herblore_answer,
+    handle_mining_answer,
     handle_quest_answer,
     handle_smithing_answer,
     handle_summoning_answer,
@@ -69,6 +70,76 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_shooting_star_runtime_mines_one_dust_and_awards_layer_xp(self):
+        from shooting_star_logic import (
+            advance_shooting_star_world_clock_pure,
+            default_shooting_star_state_pure,
+        )
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "current_utility": "shooting_stars",
+            "inventory": {},
+            "toolbelt": {"mining": ["bronze_pickaxe"]},
+            "equipment": {},
+            "shop_market_clock": {"answered_cards": 20},
+            "mining_level": 99,
+            "mining_exp": 0.0,
+            "completed_achievements": [],
+            "world_population_profile": "normal",
+            "shooting_star": default_shooting_star_state_pure(),
+        }
+        player_data, _ = advance_shooting_star_world_clock_pure(
+            player_data
+        )
+        size = player_data["shooting_star"]["active_event"][
+            "current_size"
+        ]
+
+        self.assertTrue(
+            handle_utility_answer(
+                _context(player_data, calls, random_values=(1.0, 0.0))
+            )
+        )
+
+        self.assertEqual(player_data["inventory"]["Stardust"], 1)
+        self.assertGreater(player_data["mining_exp"], 0)
+        self.assertIn(f"Mined size {size} stardust", calls["activity"][-1])
+        telemetry = player_data["action_telemetry"]["actions"][
+            "mining:shooting_stars"
+        ]
+        self.assertEqual(telemetry["successes"], 1)
+        self.assertEqual(telemetry["outputs"]["Stardust"], 1)
+
+    def test_star_sprite_bonus_adds_one_ore_and_stacks_with_mining(self):
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "current_ore": "copper",
+            "inventory": {},
+            "toolbelt": {"mining": ["bronze_pickaxe"]},
+            "equipment": {},
+            "mining_level": 99,
+            "mining_exp": 0.0,
+            "completed_achievements": [],
+            "shooting_star": {"ore_bonus_ticks_remaining": 1_500},
+        }
+
+        self.assertTrue(
+            handle_mining_answer(
+                _context(
+                    player_data,
+                    calls,
+                    random_values=(0.0, 0.0, 1.0, 0.0, 0.0),
+                )
+            )
+        )
+
+        self.assertEqual(player_data["inventory"]["Copper ore"], 2)
+        self.assertIn(
+            "Star sprite bonus: +1 Copper ore",
+            calls["activity"][-1],
+        )
+
     def test_big_chinchompa_runtime_groups_multiplier_into_whole_jars(self):
         from big_chinchompa_logic import (
             advance_big_chinchompa_world_clock_pure,

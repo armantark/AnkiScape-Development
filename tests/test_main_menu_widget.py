@@ -29,7 +29,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMessageBox, QPalette, QPushButton, QIcon, QImage, QScrollArea, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from aqt.qt import QApplication, QAbstractItemView, QCheckBox, QColor, QComboBox, QDialog, QEvent, QLabel, QLineEdit, QListWidget, QMainWindow, QMessageBox, QPalette, QPushButton, QIcon, QImage, QProgressBar, QScrollArea, QStackedWidget, QTabWidget, QToolButton, QTextBrowser, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
@@ -122,6 +122,13 @@ def _find_tool_button(dialog: "QDialog", text: str) -> "QToolButton":
         if btn.text() == text:
             return btn
     raise AssertionError(f"no tool button labeled {text!r}")
+
+
+def _find_stats_button(dialog: "QDialog", skill_id: str) -> "QToolButton":
+    button = dialog.findChild(QToolButton, f"statsSkillButton_{skill_id}")
+    if button is None:
+        raise AssertionError(f"no Stats button for {skill_id!r}")
+    return button
 
 
 def _icon_pixels(icon: "QIcon") -> bytes:
@@ -541,6 +548,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._warriors_guild_calls: list = []
         self._livid_farm_calls: list = []
         self._big_chinchompa_calls: list = []
+        self._shooting_star_calls: list = []
         self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
         self._mage_arena_calls: list = []
@@ -781,6 +789,41 @@ class MainMenuWidgetTest(unittest.TestCase):
                 **info,
             }
 
+        def _shooting_star_command(action_id, payload):
+            from shooting_star_logic import (
+                apply_shooting_star_exchange_pure,
+                set_shooting_star_preferences_pure,
+            )
+
+            self._shooting_star_calls.append((action_id, dict(payload)))
+            if action_id == "set_preferences":
+                updated, ok, info = set_shooting_star_preferences_pure(
+                    player_data,
+                    automation_mode=payload.get(
+                        "automation_mode", "casual"
+                    ),
+                    preferred_sizes=payload.get(
+                        "preferred_sizes", tuple(range(1, 10))
+                    ),
+                    population_profile=payload.get(
+                        "population_profile", "normal"
+                    ),
+                )
+            elif action_id == "exchange":
+                updated, ok, info = apply_shooting_star_exchange_pure(
+                    player_data
+                )
+            else:
+                return {"ok": False, "message": "Unknown command"}
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return {
+                "ok": ok,
+                "message": info.get("reason", ""),
+                **info,
+            }
+
         def _mage_arena_action(action_id, god_id):
             from logic_pure import (
                 apply_mage_arena_cape_action_pure,
@@ -840,6 +883,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_warriors_guild_command=_warriors_guild_command,
             on_livid_farm_command=_livid_farm_command,
             on_big_chinchompa_command=_big_chinchompa_command,
+            on_shooting_star_command=_shooting_star_command,
             on_set_prayer_selection=_set_prayer_selection,
             on_set_magic=lambda target: _set_target("current_magic", self._magic_calls, target),
             on_set_construction=lambda target: _set_target("current_construction", self._construction_calls, target),
@@ -884,6 +928,33 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_initial_panel_shows_a_gathering_skill(self) -> None:
         title = _panel_title(self.dialog)
         self.assertTrue(title.startswith("Mining"), f"unexpected initial panel: {title!r}")
+
+    def test_global_tabs_use_unique_semantic_icons(self) -> None:
+        tabs = _find_main_tabs(self.dialog)
+        expected = {
+            "Skills": "skills_icon.png",
+            "Shop": "shop_icon.png",
+            "Grand Exchange": "grand_exchange_icon.png",
+            "Quests": "quest_icon.png",
+            "Bank": "bank_icon.png",
+            "Equipment": "equipment_icon.png",
+            "Stats": "stats_icon.png",
+            "Achievements": "achievement_icon.png",
+            "Settings": "settings_icon.png",
+        }
+        rendered = {}
+        for index in range(tabs.count()):
+            label = tabs.tabText(index)
+            icon = tabs.tabIcon(index)
+            self.assertFalse(icon.isNull(), f"{label} has no tab icon")
+            self.assertEqual(
+                _icon_pixels(icon),
+                _icon_pixels(
+                    QIcon(os.path.join(_ADDON_DIR, "icon", expected[label]))
+                ),
+            )
+            rendered[label] = _icon_pixels(icon)
+        self.assertEqual(len(set(rendered.values())), len(expected))
 
     def test_contextual_help_maps_every_primary_tab_without_changing_page(self) -> None:
         expected_titles = {
@@ -1173,6 +1244,17 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertIsNotNone(giant_bat.parent())
         self.assertTrue(giant_bat.parent().isExpanded())
+        from constants import COMBAT_ENEMY_IMAGES
+
+        self.assertEqual(
+            _icon_pixels(giant_bat.icon(0)),
+            _icon_pixels(
+                self._ui._pixel_path_icon(
+                    COMBAT_ENEMY_IMAGES["giant_bat"],
+                    28,
+                )
+            ),
+        )
 
     def test_slayer_task_filter_empty_state_explains_recovery(self) -> None:
         data = _make_player_data()
@@ -1784,8 +1866,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertGreater(player_data["farm_juju_active_until"], 0)
 
     def test_farming_stats_selector_is_present_but_farming_is_not_review_active(self) -> None:
-        farming_buttons = [button for button in self.dialog.findChildren(QToolButton) if button.text() == "Farming"]
-        self.assertTrue(farming_buttons, "Farming should use the ordinary Stats selector")
+        farming_button = _find_stats_button(self.dialog, "farming")
+        self.assertEqual(
+            farming_button.accessibleName(),
+            "Farming, current level 33, base level 33",
+        )
         skill_list = _find_skill_list(self.dialog)
         farming_item = next(skill_list.item(i) for i in range(skill_list.count()) if skill_list.item(i).text() == "Farming")
         self.assertTrue(bool(farming_item.flags() & Qt.ItemFlag.ItemIsEnabled))
@@ -3880,6 +3965,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         charged_dialog.deleteLater()
 
     def test_combat_sidebar_hides_combat_only_stat_skills(self) -> None:
+        import ui
+
         combat_button = next(b for b in self.dialog.findChildren(QPushButton) if b.text() == "Combat")
         combat_button.click()
         QApplication.processEvents()
@@ -3890,8 +3977,46 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         texts = [skill_list.item(i).text() for i in range(skill_list.count())]
         self.assertEqual(texts, ["Combat", "Prayer", "Magic", "Summoning"])
+        combat_item = next(
+            skill_list.item(i)
+            for i in range(skill_list.count())
+            if skill_list.item(i).text() == "Combat"
+        )
+        self.assertEqual(
+            _icon_pixels(combat_item.icon()),
+            _icon_pixels(
+                QIcon(
+                    os.path.join(_ADDON_DIR, "icon", "combat_icon.png")
+                )
+            ),
+        )
         for hidden in ("Attack", "Constitution", "Defense", "Ranged", "Strength"):
             self.assertNotIn(hidden, texts)
+
+    def test_combat_xp_bars_use_each_combat_skill_icon(self) -> None:
+        dialog = self._open(_make_player_data(), current_skill="Combat")
+        expected = {
+            "Attack": "attack_icon.png",
+            "Strength": "strength_icon.png",
+            "Defence": "defense_icon.png",
+            "Ranged": "ranged_icon.png",
+            "Magic": "magic_icon.png",
+            "Constitution": "constitution_icon.png",
+        }
+        rendered = {}
+        for skill, filename in expected.items():
+            label = dialog.findChild(
+                QLabel, f"combatXpIcon{skill.replace(' ', '')}"
+            )
+            self.assertIsNotNone(label)
+            self.assertIsNotNone(label.pixmap())
+            icon = QIcon(label.pixmap())
+            self.assertEqual(
+                self._ui.skill_icon_path_for(skill),
+                os.path.join(_ADDON_DIR, "icon", filename),
+            )
+            rendered[skill] = _icon_pixels(icon)
+        self.assertEqual(len(set(rendered.values())), len(expected))
 
     def test_combat_death_possible_target_requires_confirmation(self) -> None:
         pd = _make_player_data()
@@ -4928,6 +5053,62 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(calls, [("summon", {"familiar_id": "spiritwolf"})])
         self.assertIn("Spirit wolf", summary.text())
         self.assertIn("review(s) remain", summary.text())
+        self.assertIsNone(
+            panel.findChild(
+                QPushButton, "summoningStartFamiliarisationButton"
+            )
+        )
+        dialog.deleteLater()
+
+    def test_familiarisation_lives_in_activities_and_runs_its_session(self) -> None:
+        from summoning_logic import (
+            default_summoning_state_pure,
+            start_familiarisation_pure,
+        )
+
+        pd = _make_player_data()
+        pd["current_utility"] = "bankstanding"
+        pd["summoning_state"] = default_summoning_state_pure()
+        calls = []
+
+        def command(action_id, payload):
+            calls.append((action_id, dict(payload)))
+            if action_id != "start_familiarisation":
+                return {"ok": False}
+            updated, ok = start_familiarisation_pure(pd)
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok}
+
+        dialog = self._open(
+            pd,
+            current_skill="Activities",
+            on_summoning_command=command,
+        )
+        dialog.show()
+        tree = self._open_activities(dialog)
+        row = _utility_row(tree, "familiarisation")
+        tree.setCurrentItem(row)
+        QApplication.processEvents()
+
+        panel = _find_named_widget(dialog, "familiarisationPanel")
+        start = _find_named_button(
+            dialog, "summoningStartFamiliarisationButton"
+        )
+        self.assertTrue(panel.isVisible())
+        self.assertEqual(pd["current_utility"], "bankstanding")
+
+        start.click()
+        QApplication.processEvents()
+        self.assertEqual(calls, [("start_familiarisation", {})])
+        self.assertTrue(
+            pd["summoning_state"]["familiarisation"]["active"]
+        )
+        self.assertIn(
+            "0/4 segments",
+            _find_named_label(dialog, "familiarisationSummary").text(),
+        )
         dialog.deleteLater()
 
     def test_pack_yak_panel_exposes_target_priority_and_advanced_threshold(self) -> None:
@@ -5279,17 +5460,86 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     # ---- Stats / Bank / HUD registry-driven surfaces ----------------------
     def test_stats_tab_shows_registered_skill_details(self) -> None:
-        for skill in ("Fletching", "Firemaking", "Fishing", "Runecrafting"):
-            with self.subTest(skill):
+        for skill_id, skill_name in (
+            ("fletching", "Fletching"),
+            ("firemaking", "Firemaking"),
+            ("fishing", "Fishing"),
+            ("runecrafting", "Runecrafting"),
+        ):
+            with self.subTest(skill=skill_name):
                 dialog = self._open(_make_player_data(), current_skill="Mining")
                 try:
-                    _find_tool_button(dialog, skill).click()
+                    _find_stats_button(dialog, skill_id).click()
                     QApplication.processEvents()
                     labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-                    self.assertIn(f"{skill} Stats", labels)
-                    self.assertIn(f"{skill} Level:", labels)
+                    self.assertIn(f"{skill_name} Stats", labels)
+                    self.assertIn("Current / Base Level:", labels)
                 finally:
                     dialog.deleteLater()
+
+    def test_stats_tab_uses_period_three_column_grid_with_dungeoneering(self) -> None:
+        stats_grid = self.dialog.findChild(QWidget, "statsSkillGrid")
+        selector_scroll = self.dialog.findChild(QScrollArea, "statsSkillSelectorScroll")
+        total_level = self.dialog.findChild(QLabel, "statsTotalLevel")
+        self.assertIsNotNone(stats_grid)
+        self.assertIsNotNone(selector_scroll)
+        self.assertIsNotNone(total_level)
+        self.assertEqual(selector_scroll.horizontalScrollBarPolicy(), Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+
+        buttons = [
+            button
+            for button in stats_grid.findChildren(QToolButton)
+            if button.objectName().startswith("statsSkillButton_")
+        ]
+        self.assertEqual(len(buttons), 25)
+        positions = {
+            button.accessibleName().split(",", 1)[0]: stats_grid.layout().getItemPosition(
+                stats_grid.layout().indexOf(button)
+            )[:2]
+            for button in buttons
+        }
+        self.assertEqual(positions["Attack"], (0, 0))
+        self.assertEqual(positions["Constitution"], (0, 1))
+        self.assertEqual(positions["Mining"], (0, 2))
+        self.assertEqual(positions["Summoning"], (7, 2))
+        self.assertEqual(positions["Dungeoneering"], (8, 0))
+        self.assertEqual(total_level.text(), "Total level: 569")
+
+        dungeoneering = _find_stats_button(self.dialog, "dungeoneering")
+        self.assertFalse(dungeoneering.icon().isNull())
+        dungeoneering.click()
+        QApplication.processEvents()
+        labels = [label.text() for label in self.dialog.findChildren(QLabel)]
+        self.assertIn("Dungeoneering Stats", labels)
+        self.assertIn("Current / Base Level:", labels)
+        progress_bar = self.dialog.findChild(QProgressBar, "statsSkillProgress")
+        metrics = self.dialog.findChild(QWidget, "statsSkillMetrics")
+        self.assertIsNotNone(progress_bar)
+        self.assertIsNotNone(metrics)
+        self.assertEqual(progress_bar.maximumWidth(), 320)
+        self.assertEqual(metrics.maximumWidth(), 520)
+
+    def test_stats_grid_shows_live_current_level_over_base_level(self) -> None:
+        player_data = _make_player_data()
+        player_data["combat_current_levels"] = {
+            "attack": 40,
+            "strength": 29,
+        }
+        player_data["agility_effective_boost"] = 5
+        player_data["agility_boost_actions_remaining"] = 4
+        dialog = self._open(player_data)
+        try:
+            self.assertEqual(_find_stats_button(dialog, "attack").text(), "40 / 1")
+            self.assertEqual(_find_stats_button(dialog, "strength").text(), "29 / 1")
+            self.assertEqual(_find_stats_button(dialog, "agility").text(), "38 / 33")
+            self.assertEqual(_find_stats_button(dialog, "mining").text(), "33 / 33")
+            _find_stats_button(dialog, "attack").click()
+            QApplication.processEvents()
+            labels = [label.text() for label in dialog.findChildren(QLabel)]
+            self.assertIn("Current / Base Level:", labels)
+            self.assertIn("40 / 1", labels)
+        finally:
+            dialog.deleteLater()
 
     def test_quests_tab_starts_rune_mysteries_via_quest_action(self) -> None:
         pd = _make_player_data()
@@ -7240,8 +7490,42 @@ class MainMenuWidgetTest(unittest.TestCase):
         activity_texts = [it.text(0) for it in _tree_items(activities_tree)]
         self.assertNotIn("Make soft clay", activity_texts)
         self.assertIn("Livid Farm", activity_texts)
-        self.assertIn("Minigames  (2)", activity_texts)
+        self.assertIn("Minigames  (1)", activity_texts)
+        self.assertIn("Distractions and Diversions  (3)", activity_texts)
         self.assertNotIn("Activities / minigames  (2)", activity_texts)
+        minigames = _utility_row(
+            activities_tree, "__utility_group__:minigames"
+        )
+        dnds = _utility_row(
+            activities_tree,
+            "__utility_group__:distractions_and_diversions",
+        )
+        self.assertFalse(minigames.icon(0).isNull())
+        self.assertFalse(dnds.icon(0).isNull())
+        self.assertNotEqual(
+            _icon_pixels(minigames.icon(0)),
+            _icon_pixels(dnds.icon(0)),
+        )
+        self.assertEqual(
+            {
+                minigames.child(index).data(
+                    0, Qt.ItemDataRole.UserRole
+                )
+                for index in range(minigames.childCount())
+            },
+            {"livid_farm"},
+        )
+        self.assertEqual(
+            {
+                dnds.child(index).data(0, Qt.ItemDataRole.UserRole)
+                for index in range(dnds.childCount())
+            },
+            {
+                "big_chinchompa",
+                "familiarisation",
+                "shooting_stars",
+            },
+        )
         self.assertTrue(
             any(text.startswith("Warriors' Guild") for text in activity_texts)
         )
@@ -7398,7 +7682,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         utility_tree = self._open_activities(self.dialog)
         labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
         self.assertIn(
-            "Activities contain minigames, world events, and landmarks. Each row states its rewards.",
+            "Activities contain D&Ds, minigames, and landmarks. Each row states its rewards.",
             labels,
         )
         livid_row = _utility_row(utility_tree, "livid_farm")
@@ -7406,10 +7690,12 @@ class MainMenuWidgetTest(unittest.TestCase):
             "exactly six cycles per five successful reviews",
             livid_row.toolTip(0),
         )
-        self.assertIn(
-            "QTreeWidget::branch:selected { background: transparent; }",
+        selected_colors = re.findall(
+            r"QTreeWidget::(?:item|branch):selected \{ background: (#[0-9a-f]{6});",
             utility_tree.styleSheet(),
         )
+        self.assertEqual(len(selected_colors), 2)
+        self.assertEqual(selected_colors[0], selected_colors[1])
 
     def test_live_theme_controls_use_palette_text_and_style_the_review_link(self) -> None:
         utility_button = next(
@@ -7679,7 +7965,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         button = _find_named_button(dialog, "bigChinchompaSelectButton")
         self.assertEqual(button.text(), "Select active event")
 
-    def test_activity_cards_scroll_instead_of_compressing_at_real_height(self) -> None:
+    def test_activity_details_are_paginated_instead_of_scrolled(self) -> None:
         from big_chinchompa_logic import (
             advance_big_chinchompa_world_clock_pure,
             default_big_chinchompa_state_pure,
@@ -7689,6 +7975,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd.update(
             {
                 "hunter_level": 99,
+                "current_utility": "big_chinchompa",
                 "shop_market_clock": {"answered_cards": 60},
                 "big_chinchompa": default_big_chinchompa_state_pure(),
             }
@@ -7701,21 +7988,22 @@ class MainMenuWidgetTest(unittest.TestCase):
         for _ in range(8):
             QApplication.processEvents()
 
-        cards_scroll = _find_named_widget(
-            dialog, "utilityActivityCardsScroll"
+        details_stack = _find_named_widget(
+            dialog, "utilityActivityDetailsStack"
         )
         activity_tree = _find_named_widget(dialog, "utilityActivityTree")
         status_label = _find_named_widget(dialog, "activityEventStatusLabel")
         picker_label = _find_named_widget(dialog, "activityPickerLabel")
         big_panel = _find_named_widget(dialog, "bigChinchompaPanel")
-        self.assertGreater(cards_scroll.verticalScrollBar().maximum(), 0)
-        self.assertEqual(cards_scroll.maximumHeight(), 220)
+        self.assertIsInstance(details_stack, QStackedWidget)
+        self.assertEqual(details_stack.currentWidget(), big_panel)
+        self.assertTrue(details_stack.isVisible())
         self.assertEqual(activity_tree.minimumHeight(), 140)
         self.assertTrue(status_label.isVisible())
         self.assertTrue(picker_label.isVisible())
         surface_layout = picker_label.parentWidget().layout()
         self.assertLess(
-            surface_layout.indexOf(cards_scroll),
+            surface_layout.indexOf(details_stack),
             surface_layout.indexOf(picker_label),
         )
         visible_rows = [
@@ -7731,6 +8019,183 @@ class MainMenuWidgetTest(unittest.TestCase):
             max(child.geometry().bottom() for child in visible_rows),
             big_panel.contentsRect().bottom(),
         )
+
+        original_height = details_stack.height()
+        big_detail = _find_named_label(dialog, "bigChinchompaDetail")
+        big_detail.setMinimumHeight(big_detail.sizeHint().height() + 40)
+        population = dialog.findChild(
+            QComboBox, "bigChinchompaPopulationProfile"
+        )
+        population.setCurrentIndex(population.findData("busy"))
+        QApplication.processEvents()
+        self.assertGreater(details_stack.height(), original_height)
+
+        group_header = next(
+            item
+            for item in _tree_items(activity_tree)
+            if str(
+                item.data(0, Qt.ItemDataRole.UserRole) or ""
+            ).startswith("__utility_group__")
+        )
+        activity_tree.setCurrentItem(group_header)
+        QApplication.processEvents()
+        self.assertFalse(details_stack.isVisible())
+        self.assertFalse(status_label.isVisible())
+
+    def test_shooting_star_panel_selects_configures_and_exchanges(self) -> None:
+        from shooting_star_logic import (
+            advance_shooting_star_world_clock_pure,
+            default_shooting_star_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "mining_level": 99,
+                "shop_market_clock": {"answered_cards": 20},
+                "shooting_star": default_shooting_star_state_pure(),
+            }
+        )
+        active, _ = advance_shooting_star_world_clock_pure(pd)
+        pd.clear()
+        pd.update(active)
+        dialog = self._open(pd)
+        self._open_activities(dialog)
+
+        status = _find_named_label(dialog, "shootingStarStatusChip")
+        select = _find_named_button(dialog, "shootingStarSelectButton")
+        self.assertTrue(status.text().startswith("Size "))
+        self.assertEqual(select.text(), "Select active star")
+        self.assertTrue(select.isEnabled())
+
+        select.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["current_utility"], "shooting_stars")
+        self.assertEqual(self._utility_calls[-1], "shooting_stars")
+        self.assertEqual(select.text(), "Selected for reviews")
+
+        mode = dialog.findChild(
+            QComboBox, "shootingStarAutomationMode"
+        )
+        minimum = dialog.findChild(
+            QComboBox, "shootingStarMinimumSize"
+        )
+        maximum = dialog.findChild(
+            QComboBox, "shootingStarMaximumSize"
+        )
+        population = dialog.findChild(
+            QComboBox, "shootingStarPopulationProfile"
+        )
+        mode.setCurrentIndex(mode.findData("advanced"))
+        minimum.setCurrentIndex(minimum.findData(3))
+        maximum.setCurrentIndex(maximum.findData(5))
+        population.setCurrentIndex(population.findData("busy"))
+        QApplication.processEvents()
+        self.assertEqual(
+            pd["shooting_star"]["preferred_sizes"], [3, 4, 5]
+        )
+        self.assertEqual(pd["world_population_profile"], "busy")
+        self.assertEqual(
+            self._shooting_star_calls[-1][0],
+            "set_preferences",
+        )
+
+        event = pd["shooting_star"]["active_event"]
+        event.update(
+            {
+                "current_size": 0,
+                "layer_remaining": 0,
+                "sprite_released": True,
+                "sprite_expires_card": 22,
+            }
+        )
+        pd["inventory"]["Stardust"] = 200
+        reward_dialog = self._open(pd)
+        self._open_activities(reward_dialog)
+        exchange = _find_named_button(
+            reward_dialog, "shootingStarExchangeButton"
+        )
+        self.assertTrue(exchange.isEnabled())
+        exchange.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["inventory"]["Cosmic rune"], 152)
+        self.assertEqual(pd["inventory"]["Astral rune"], 52)
+        self.assertEqual(pd["inventory"]["Gold ore"], 20)
+        self.assertEqual(pd["inventory"]["Coins"], 50_002)
+        self.assertEqual(pd["inventory"]["Stardust"], 0)
+        self.assertEqual(
+            pd["shooting_star"]["ore_bonus_ticks_remaining"], 1_500
+        )
+
+    def test_activities_show_only_the_selected_rich_detail_card(self) -> None:
+        from shooting_star_logic import (
+            advance_shooting_star_world_clock_pure,
+            default_shooting_star_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "current_utility": "shooting_stars",
+                "mining_level": 99,
+                "shop_market_clock": {"answered_cards": 20},
+                "shooting_star": default_shooting_star_state_pure(),
+            }
+        )
+        active, _ = advance_shooting_star_world_clock_pure(pd)
+        dialog = self._open(active)
+        activity_tree = self._open_activities(dialog)
+        dialog.show()
+        QApplication.processEvents()
+
+        star_panel = _find_named_widget(dialog, "shootingStarPanel")
+        big_panel = _find_named_widget(dialog, "bigChinchompaPanel")
+        evil_panel = _find_named_widget(dialog, "evilTreePanel")
+        self.assertTrue(star_panel.isVisible())
+        self.assertFalse(big_panel.isVisible())
+        self.assertFalse(evil_panel.isVisible())
+
+        big_row = _utility_row(activity_tree, "big_chinchompa")
+        activity_tree.setCurrentItem(big_row)
+        QApplication.processEvents()
+        self.assertFalse(star_panel.isVisible())
+        self.assertTrue(big_panel.isVisible())
+        self.assertFalse(evil_panel.isVisible())
+
+    def test_review_hud_surfaces_active_shooting_star_and_sprite(self) -> None:
+        from shooting_star_logic import (
+            advance_shooting_star_world_clock_pure,
+            default_shooting_star_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "current_utility": "shooting_stars",
+                "mining_level": 99,
+                "shop_market_clock": {"answered_cards": 20},
+                "shooting_star": default_shooting_star_state_pure(),
+            }
+        )
+        active, _ = advance_shooting_star_world_clock_pure(pd)
+        hud = self._ui.ReviewHUD(None)
+        hud.set_data(active, "Activities")
+        notice = hud.findChild(QLabel, "reviewWorldNotice")
+        self.assertIn("Shooting Star size", notice.text())
+        self.assertIn("stardust", hud.sub_lbl.text())
+
+        event = active["shooting_star"]["active_event"]
+        event.update(
+            {
+                "current_size": 0,
+                "layer_remaining": 0,
+                "sprite_released": True,
+                "sprite_expires_card": 22,
+            }
+        )
+        hud.set_data(active, "Activities")
+        self.assertIn("Star sprite", notice.text())
+        self.assertIn("ready for exchange", hud.sub_lbl.text())
 
     def test_hunter_private_ground_control_uses_carried_ticket_count(self) -> None:
         ticket = "Swamp lizard quota ticket"
@@ -7818,6 +8283,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["attack_level"] = 99
         pd["strength_level"] = 99
+        pd["current_utility"] = "warriors_guild_animated_armour"
         pd["inventory"].update(
             {
                 "Rune full helm": 1,
@@ -8595,6 +9061,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.deleteLater()
 
     def test_magic_surface_has_bank_alchemy_picker_and_locked_click_guard(self) -> None:
+        from constants import MAGIC_SPELL_IMAGES
+
         pd = _make_player_data()
         pd["magic_level"] = 99
         pd["inventory"] = {"Rune platebody": 1, "Air rune": 3, "Fire rune": 1, "Law rune": 1}
@@ -8609,6 +9077,17 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertGreaterEqual(picker.findData("Rune platebody"), 0)
         self.assertEqual(farming_picker.currentData(), "falador_allotment_north")
         self.assertEqual(farming_picker.count(), 53)
+        low_alchemy = _tree_row(tree, "low_alchemy")
+        self.assertFalse(low_alchemy.icon(0).isNull())
+        self.assertEqual(
+            _icon_pixels(low_alchemy.icon(0)),
+            _icon_pixels(
+                self._ui._pixel_path_icon(
+                    MAGIC_SPELL_IMAGES["low_alchemy"],
+                    28,
+                )
+            ),
+        )
         farming_picker.setCurrentIndex(farming_picker.findData("falador_allotment_south"))
         QApplication.processEvents()
         self.assertEqual(self._farming_spell_patch_calls[-1], "falador_allotment_south")

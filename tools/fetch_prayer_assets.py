@@ -34,14 +34,7 @@ def asset_manifest() -> tuple[AssetRequest, ...]:
         )
         for name in item_names
     )
-    return requests + (
-        AssetRequest(
-            item_name="Prayer skill icon",
-            wiki_title="Prayer icon (detail).png",
-            output_path=ROOT / "icon" / "prayer_icon.png",
-            provenance_path=ROOT / "assets_provenance.json",
-        ),
-    )
+    return requests
 
 
 def main() -> int:

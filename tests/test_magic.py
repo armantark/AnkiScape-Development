@@ -1,8 +1,17 @@
+import json
 import os
 import unittest
+from pathlib import Path
 
 from combat_data import COMBAT_ENEMY_DATA
-from constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, MAGIC_DATA, MAGIC_ITEM_IMAGES, ORE_DATA
+from constants import (
+    EQUIPMENT_DATA,
+    ITEM_DEFINITIONS,
+    MAGIC_DATA,
+    MAGIC_ITEM_IMAGES,
+    MAGIC_SPELL_IMAGES,
+    ORE_DATA,
+)
 from logic_pure import (
     MAGIC_CHARGE_DURATION_TICKS,
     MAGE_ARENA_GOD_DATA,
@@ -977,6 +986,59 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
         self.assertEqual(len(MAGIC_ITEM_IMAGES), 139)
         for path in MAGIC_ITEM_IMAGES.values():
             self.assertTrue(os.path.exists(path), path)
+
+    def test_every_magic_target_uses_a_provenanced_spell_icon(self):
+        root = Path(__file__).resolve().parents[1]
+        provenance = json.loads(
+            (root / "assets_provenance.json").read_text(encoding="utf-8")
+        )
+        visual_fallback_sources = {
+            "mobilising_armies_teleport": "rs3-fandom-visual-fallback",
+            "tan_leather": "osrs-visual-fallback",
+            "magic_imbue": "osrs-visual-fallback",
+            "cure_plant": "osrs-visual-fallback",
+            "fertile_soil": "osrs-visual-fallback",
+            "borrowed_telegrab_wine_of_zamorak": (
+                "rs3-fandom-visual-fallback"
+            ),
+            "borrowed_teleport_to_house": (
+                "rs3-fandom-visual-fallback"
+            ),
+            "borrowed_high_alchemy": "rs3-fandom-visual-fallback",
+            "borrowed_bones_to_peaches": (
+                "rs3-fandom-visual-fallback"
+            ),
+        }
+        self.assertEqual(set(MAGIC_SPELL_IMAGES), set(MAGIC_DATA))
+        rows = magic_target_rows(
+            {"magic_level": 99, "inventory": {}},
+            MAGIC_DATA,
+            MAGIC_ITEM_IMAGES,
+            "low_alchemy",
+            {},
+            MAGIC_SPELL_IMAGES,
+        )
+        self.assertEqual(len(rows), len(MAGIC_DATA))
+        for row in rows:
+            with self.subTest(target=row.target_id):
+                path = Path(MAGIC_SPELL_IMAGES[row.target_id])
+                self.assertTrue(path.is_file())
+                self.assertEqual(row.icon_path, str(path))
+                asset = provenance[str(path.relative_to(root))]
+                if row.target_id in visual_fallback_sources:
+                    self.assertEqual(
+                        asset["source_wiki"],
+                        visual_fallback_sources[row.target_id],
+                    )
+                else:
+                    self.assertIn(
+                        asset["source_wiki"],
+                        {"rs3-period", "rs3-fandom-period"},
+                    )
+                    self.assertLessEqual(
+                        asset["timestamp"],
+                        "2012-11-20T23:59:59Z",
+                    )
 
 
 if __name__ == "__main__":

@@ -16,7 +16,6 @@ if str(ROOT) not in sys.path:
 
 from herblore_data import CLEAN_TARGETS, FINISHED_TARGETS, UNF_TARGETS
 from tools.fetch_assets import (
-    OSRS_WIKI,
     RS3_WIKI,
     AssetFetchError,
     AssetRequest,
@@ -51,12 +50,6 @@ def asset_manifest() -> tuple[AssetRequest, ...]:
     )
     return (
         AssetRequest(
-            item_name="Herblore skill icon",
-            wiki_title="Herblore icon (detail).png",
-            output_path=ROOT / "icon" / "herblore_icon.png",
-            provenance_path=ROOT / "assets_provenance.json",
-        ),
-        AssetRequest(
             item_name="Shrunk ogleroot",
             wiki_title="Shrunk ogleroot.png",
             output_path=ROOT / "herbloreitems" / "shrunk_ogleroot.png",
@@ -81,7 +74,6 @@ def main() -> int:
     failures = []
     for request in asset_manifest():
         try:
-            is_skill_icon = request.item_name == "Herblore skill icon"
             request_client = (
                 period_client if request.item_name == "Toad's legs" else client
             )
@@ -89,8 +81,7 @@ def main() -> int:
                 request,
                 request_client,
                 size=64,
-                force=is_skill_icon,
-                sources=(OSRS_WIKI,) if is_skill_icon else (RS3_WIKI,),
+                sources=(RS3_WIKI,),
             )
             print(f"{outcome.item_name}: {outcome.source_wiki} -> {outcome.output_path}")
         except AssetFetchError as exc:

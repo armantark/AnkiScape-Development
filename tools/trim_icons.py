@@ -49,6 +49,7 @@ DEFAULT_DIRS = (
     "hunteritems",
     "icon",
     "magicitems",
+    "magicspells",
     "miningitems",
     "ores",
     "petitems",

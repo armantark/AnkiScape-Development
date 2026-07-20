@@ -98,6 +98,7 @@ def build_reachability_report() -> dict[str, Any]:
     import constants
     import farming_data
     import pack_data
+    import shooting_star_data
     import shop_data
     import shop_logic
     import thieving_data
@@ -229,6 +230,37 @@ def build_reachability_report() -> dict[str, Any]:
             consumers[item].add(key)
         for item in outputs:
             producers[item].add(key)
+
+    star_mining_key = "Activity:shooting_stars:mine"
+    actions.append(
+        {
+            "id": star_mining_key,
+            "required": set(),
+            "alternatives": (),
+            "outputs": {shooting_star_data.SHOOTING_STAR_STARDUST},
+        }
+    )
+    producers[shooting_star_data.SHOOTING_STAR_STARDUST].add(
+        star_mining_key
+    )
+
+    star_exchange_key = "Activity:shooting_stars:exchange"
+    star_exchange_outputs = set(
+        shooting_star_data.SHOOTING_STAR_REWARD_MAXIMA
+    )
+    actions.append(
+        {
+            "id": star_exchange_key,
+            "required": {shooting_star_data.SHOOTING_STAR_STARDUST},
+            "alternatives": (),
+            "outputs": star_exchange_outputs,
+        }
+    )
+    consumers[shooting_star_data.SHOOTING_STAR_STARDUST].add(
+        star_exchange_key
+    )
+    for item in star_exchange_outputs:
+        producers[item].add(star_exchange_key)
 
     for item_name, spec in constants.CONSUMABLE_DATA.items():
         if not isinstance(spec, Mapping):

@@ -475,8 +475,8 @@
       "title": "Add Living Rock Caverns + Shooting Stars",
       "detail": "LRC living minerals mining loop; Shooting Stars communal mining activity + rewards.",
       "source": "wiki:Living Rock Caverns",
-      "status": "design_settled_waiting_source",
-      "note": "owner design settled 2026-07-10; Shooting Stars use the shared answered-card clock for roughly 20-review arrivals and 240-review reward days, with no map or scouting phase; exact remains yield and star rolls wait for reconciled evidence",
+      "status": "split_scope",
+      "note": "Shooting Stars are mechanic-complete with a compact period-qualified data set; hidden distributions remain declared data debt. Living Rock remains still wait on the reconciled 5-20 versus 5-24 Living-mineral yield.",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#mining-living-rock-caverns-and-shooting-stars",
       "decision_summary": {
         "living_remains": "Add a level-73 corpse-processing Mining target after reconciling the period 5-20 versus 5-24 Living-mineral conflict; public remains keep Combat useful but not mandatory.",

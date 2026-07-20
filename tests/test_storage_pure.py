@@ -133,6 +133,7 @@ class TestStoragePure(unittest.TestCase):
             "world_population_profile",
             "hunter_private_ground_targets",
             "big_chinchompa",
+            "shooting_star",
         ]:
             self.assertIn(key, data)
         # Inventory uses real item names; Mining targets use stable IDs.
@@ -157,6 +158,8 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["world_population_profile"], "normal")
         self.assertEqual(data["hunter_private_ground_targets"], [])
         self.assertEqual(data["big_chinchompa"]["competence_points"], 0)
+        self.assertEqual(data["shooting_star"]["active_event"], {})
+        self.assertEqual(data["shooting_star"]["last_exchange_day"], -1)
         self.assertEqual(data["action_telemetry"], {"version": 1, "actions": {}})
         self.assertEqual(data["achievement_progress"], {"version": 1, "skills": {}})
         self.assertEqual(data["current_combat_target"], "chicken")
@@ -235,6 +238,30 @@ class TestStoragePure(unittest.TestCase):
             20_000,
         )
         self.assertEqual(migrated["big_chinchompa"]["active_event"], {})
+
+    def test_migration_sanitizes_shooting_star_preferences_and_bonus(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 51,
+                "shooting_star": {
+                    "automation_mode": "ADVANCED",
+                    "preferred_sizes": [0, 3, 3, 50],
+                    "ore_bonus_ticks_remaining": -20,
+                    "active_event": {"event_id": "invalid"},
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(
+            migrated["shooting_star"]["preferred_sizes"], [1, 3, 9]
+        )
+        self.assertEqual(
+            migrated["shooting_star"]["ore_bonus_ticks_remaining"], 0
+        )
+        self.assertEqual(migrated["shooting_star"]["active_event"], {})
 
     def test_migration_sanitizes_grand_exchange_state(self):
         migrated = migrate_loaded_data(

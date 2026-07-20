@@ -296,8 +296,10 @@ DEFERRED_MINING_CONTENT: Tuple[DeferredMiningContent, ...] = (
     DeferredMiningContent(
         "shooting_stars",
         "Shooting Stars",
-        "future_content",
-        "Distraction and Diversion with world timing, stardust, and reward exchange; needs its own activity design.",
+        "implemented_activity",
+        "Mechanic-complete activity with review-clock spawning, layered mining, "
+        "population depletion, Stardust persistence, sprite exchange, and the "
+        "temporary extra-ore reward.",
         HISTORICAL_MINING_SOURCE,
     ),
     DeferredMiningContent(

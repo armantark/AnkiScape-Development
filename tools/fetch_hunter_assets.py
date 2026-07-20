@@ -53,9 +53,7 @@ def _hunter_item(name: str) -> str:
 
 
 def _manifest() -> List[Tuple[str, str, str, Optional[int]]]:
-    manifest: List[Tuple[str, str, str, Optional[int]]] = [
-        ("Hunter", WIKI_TITLE_OVERRIDES["Hunter"], "icon/hunter_icon.png", 64),
-    ]
+    manifest: List[Tuple[str, str, str, Optional[int]]] = []
     for item_name in sorted(set(hunter_item_names()) - SHARED_ITEM_ART):
         manifest.append(
             (

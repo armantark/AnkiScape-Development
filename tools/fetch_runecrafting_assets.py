@@ -27,12 +27,10 @@ class AssetSpec:
 
 
 RUNECRAFTING_ITEMS = REPO_ROOT / "runecraftingitems"
-ICON_DIR = REPO_ROOT / "icon"
 PROVENANCE = REPO_ROOT / "assets_provenance.json"
 
 
 MANIFEST: tuple[AssetSpec, ...] = (
-    AssetSpec("Runecrafting icon", ICON_DIR / "runecrafting_icon.png", "Runecraft icon (detail).png"),
     AssetSpec("Air rune", RUNECRAFTING_ITEMS / "air_rune.png"),
     AssetSpec("Mind rune", RUNECRAFTING_ITEMS / "mind_rune.png"),
     AssetSpec("Water rune", RUNECRAFTING_ITEMS / "water_rune.png"),

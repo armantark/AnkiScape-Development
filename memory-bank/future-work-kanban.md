@@ -978,7 +978,11 @@ Labels: `SOURCE AUDIT`, `IMPLEMENT`, `WAIT: DARKAN`.
 
 Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is not already settled.
 
-- Highest-value waits: Runespan; Bonfires/fire spirits (reconciled; hidden rolls, rewards, warmth refresh, and review-batch mapping remain blocked); Artisan's Workshop; Blast Furnace/Goldsmith; Shooting Stars/LRC; Fish Flingers/Trawler; Great Orb Project; complex pyres/beacons; Gnome Restaurant; Hunter tracking/pitfall/snaring (reconciled deterministic Darkan ceiling still lacks required rolls); Habitat/Jadinkos.
+- Highest-value waits: Runespan; Bonfires/fire spirits (reconciled; hidden rolls, rewards, warmth refresh, and review-batch mapping remain blocked); Artisan's Workshop; Blast Furnace/Goldsmith; Living Rock remains; Fish Flingers/Trawler; Great Orb Project; complex pyres/beacons; Gnome Restaurant; Hunter tracking/pitfall/snaring (reconciled deterministic Darkan ceiling still lacks required rolls); Habitat/Jadinkos.
+- Shooting Stars are mechanic-complete as an Activities-only communal Mining
+  event with a compact period-qualified location set. Exact hidden initial-size,
+  first-finder, crowd, gem, and sub-200 reward-rounding distributions remain
+  data-depth work and do not block the breadth-first frontier.
 - Darkan should supply hidden state machines, rolls, currencies, and reward logic; period wiki/cache evidence still establishes cutoff and client identity.
 
 ### Missing skill server behavior

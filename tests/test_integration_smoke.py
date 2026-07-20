@@ -2172,6 +2172,62 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         self.assertEqual(addon.player_data, initial)
 
+    def test_shooting_star_spawns_on_review_clock_and_undo_restores_world(self):
+        addon = _load_addon_as_package(
+            "ankiscape_shooting_star_clock_integration"
+        )
+        from ankiscape_shooting_star_clock_integration.shooting_star_logic import (
+            default_shooting_star_state_pure,
+        )
+
+        addon.mw = _DummyMW(_DummyCol())
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_context_action_strip = lambda *_args: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda _text: None
+        initial = {
+            "inventory": {},
+            "shop_market_clock": {
+                "answered_cards": 19,
+                "market_tick": 19,
+            },
+            "world_population_profile": "normal",
+            "shooting_star": default_shooting_star_state_pure(),
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "None"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(
+            _FakeReviewer(),
+            4,
+            lambda _self, _ease: "answered",
+        )
+
+        event = addon.player_data["shooting_star"]["active_event"]
+        self.assertEqual(event["slot_card"], 20)
+        self.assertIn(event["starting_size"], range(1, 10))
+        self.assertEqual(
+            addon.player_data["shop_market_clock"]["answered_cards"],
+            20,
+        )
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(
+                    study_queues=True,
+                    card=True,
+                ),
+            )
+        )
+        self.assertEqual(addon.player_data, initial)
+
     def test_material_exhaustion_falls_back_once_then_bankstands(self):
         addon = _load_addon_as_package(
             "ankiscape_material_fallback_bankstanding_integration"
@@ -4630,6 +4686,59 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["mage_arena"]["alignment"], "guthix")
         self.assertEqual(addon.player_data["inventory"]["Saradomin cape"], 0)
         self.assertEqual(addon.player_data["inventory"]["Guthix cape"], 1)
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_shooting_star_exchange_is_a_direct_undoable_action(self):
+        addon = _load_addon_as_package(
+            "ankiscape_shooting_star_exchange_integration"
+        )
+        star_logic = sys.modules[
+            f"{addon.__name__}.shooting_star_logic"
+        ]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(
+            kwargs
+        )
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.current_skill = "Activities"
+        initial = {
+            "inventory": {"Stardust": 200},
+            "shop_market_clock": {"answered_cards": 20},
+            "world_population_profile": "normal",
+            "shooting_star": star_logic.default_shooting_star_state_pure(),
+            "smithing_level": 1,
+        }
+        initial, _ = star_logic.advance_shooting_star_world_clock_pure(
+            initial
+        )
+        initial["shooting_star"]["active_event"].update(
+            {
+                "current_size": 0,
+                "layer_remaining": 0,
+                "sprite_released": True,
+                "sprite_expires_card": 22,
+            }
+        )
+        addon.player_data = copy.deepcopy(initial)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+
+        addon._on_main_menu()
+        result = captured["on_shooting_star_command"]("exchange", {})
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(addon.player_data["inventory"]["Stardust"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Coins"], 50_002)
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
         self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
 

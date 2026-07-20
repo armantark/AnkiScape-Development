@@ -53,12 +53,6 @@ def asset_manifest() -> tuple[AssetRequest, ...]:
     provenance = ROOT / "assets_provenance.json"
     common = (
         AssetRequest(
-            item_name="Thieving skill icon",
-            wiki_title="Thieving-icon.png",
-            output_path=ROOT / "icon" / "thieving_icon.png",
-            provenance_path=provenance,
-        ),
-        AssetRequest(
             item_name="Desert Phoenix",
             wiki_title="Desert Phoenix.png",
             output_path=ROOT / "activityicons" / "desert_phoenix.png",

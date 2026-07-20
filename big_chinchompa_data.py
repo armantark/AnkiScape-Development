@@ -157,7 +157,7 @@ def big_chinchompa_activity_as_dict() -> Dict[str, Dict[str, object]]:
             "display_name": "Big Chinchompa",
             "requirements": {},
             "batch_size": 1,
-            "group": "minigames",
+            "group": "distractions_and_diversions",
             "source": BIG_CHINCHOMPA_SOURCE,
         }
     }

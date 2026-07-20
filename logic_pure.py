@@ -1295,6 +1295,18 @@ def advance_temporary_effects_pure(
     remaining = max(0, remaining - ticks)
     data["magic_charge_ticks_remaining"] = remaining
     data["magic_charge_active"] = remaining > 0
+    shooting_star = data.get("shooting_star")
+    if isinstance(shooting_star, dict):
+        shooting_star = dict(shooting_star)
+        shooting_star["ore_bonus_ticks_remaining"] = max(
+            0,
+            _non_negative_int(
+                shooting_star.get("ore_bonus_ticks_remaining", 0),
+                0,
+            )
+            - ticks,
+        )
+        data["shooting_star"] = shooting_star
     if advance_dragonfire:
         for effect_key in (
             "combat_antifire_ticks_remaining",

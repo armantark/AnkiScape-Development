@@ -44,12 +44,6 @@ def main() -> int:
         )
         for name in magic_extra_items_as_dict()
     ]
-    requests.append(AssetRequest(
-        item_name="Magic skill icon",
-        wiki_title="Magic icon (detail).png",
-        output_path=ROOT / "icon" / "magic_icon.png",
-        provenance_path=ROOT / "assets_provenance.json",
-    ))
     for request in requests:
         try:
             outcome = fetch_asset(request, client, size=64, sources=(RS3_WIKI, OSRS_WIKI))

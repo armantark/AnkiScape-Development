@@ -41,7 +41,6 @@ def _request(item_name: str, wiki_title: str, relative_path: str) -> AssetReques
 
 def asset_manifest() -> tuple[AssetRequest, ...]:
     rows = (
-        ("Agility skill icon", "Agility-icon.png", "icon/agility_icon.png"),
         ("Agility arena ticket", "Agility Arena ticket.png", "agilityitems/agility_arena_ticket.png"),
         ("Pyramid top", "Pyramid top.png", "agilityitems/pyramid_top.png"),
         ("Agile top", "Agile top.png", "agilityitems/agile_top.png"),

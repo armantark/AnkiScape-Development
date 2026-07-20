@@ -249,9 +249,29 @@ expected file and provenance key in the asset test.
   Legacy active-skill saves normalize to the surface that owns
   `current_utility`.
 - The Skills hub presents those surfaces as distinct categories with separate
-  existing toolkit/ticket sprites. Activities gives its primary target
+  toolkit and period Activity-compass sprites. Activities gives its primary target
   picker guaranteed height beneath a bounded, separately labeled event-status
   region; Utilities never renders those event cards.
+- Activity group icons are semantic, not decorative fallbacks:
+  `distractions_and_diversions` uses the yellow compass and `minigames` uses
+  the red compass. The green compass is reserved for Achievement Diaries.
+  Familiarisation is an Activities > D&D session, not follower equipment.
+- Global tabs must use unique semantic icons. Stats owns the bar graph; Skills
+  uses the all-skills Max cape; Shop uses period coin art; Equipment uses worn
+  equipment. Transparent source art renders directly; do not synthesize
+  backing circles merely to increase contrast. Stats uses the period
+  three-column grid rather than a horizontal strip, shows `current / base`,
+  and projects temporary levels through the same current-level helper used by
+  its selected detail pane.
+- Magic target rows use `MAGIC_SPELL_IMAGES`, not their output-item art. A
+  family action may intentionally share one authentic spell glyph across
+  multiple item variants. Cutoff-pinned files remain the default; any exact
+  classic sprite without surviving cutoff file evidence must be labeled
+  `visual-fallback` in provenance rather than presented as period proof.
+- Fixed-size target rows call `_pixel_path_icon(path, size)`, which performs
+  cached, DPR-aware, aspect-preserving nearest-neighbor scaling while retaining
+  alpha. Do not reintroduce raw target-tree `QIcon(path)` calls or synthesized
+  contrast backings.
 - No-XP rows can batch up to an inventory-sized cap when they represent fast
   material preparation. One-shot acquisition bridges may declare an `outputs`
   mapping and `deactivate_after_run = True`, so the action multiplier cannot
@@ -726,3 +746,20 @@ verification gate remains open.
 
 ## UI Gotcha: dark-mode text colors (`palette(mid)` is NOT a text role)
 Recurring bug: greyed/disabled/placeholder text rendered with `palette(mid)` / `QPalette.Mid` becomes **invisible in dark mode**, because `mid` is a frame/border role that resolves to a near-black grey. It has bitten the Skills-hub train button, the Smithing locked rows, and the Equipment empty slots. Fix at the root: `ui.dim_text_color(widget)` (for `setForeground`) and `ui.dim_text_css(widget)` (for stylesheet `color:`), which derive the color from the theme's real `Text` role and drop the alpha so contrast holds in both themes. `palette(mid)` is fine for borders only. Also prefer `palette(text)`/`palette(base)` over `buttonText`/`button` for button labels (the button face renders light on macOS dark mode). Enforced going forward by `.cursor/rules/qt-dark-mode-text.mdc` and the regression test `test_empty_slot_text_is_dark_mode_safe_not_palette_mid`. When changing UI colors, verify in dark mode, not just light.
+
+## Skill-icon and Stats projection pattern
+
+Every skill-facing UI reads the same canonical `icon/<skill>_icon.png` file
+through `skill_icon_path_for`; do not create a second Stats-only, Training-only,
+or Combat-only art family. Canonical skill sprites are cutoff-pinned,
+provenance-recorded, tightly cropped, and scaled by Qt with aspect ratio
+preserved plus `FastTransformation` so small pixel art stays crisp. Asset
+normalization is a source-file invariant, while each surface owns only its
+display size.
+
+Stats projects `current / base`, not `level / cap`. Base levels come from the
+skill registry's save keys. Temporary Combat boosts and drains come from
+`combat_current_levels`, while action-bounded non-Combat boosts must be
+projected from their owning settled state. The same calculation must feed both
+the three-column cell and the selected detail block so those two surfaces
+cannot disagree.

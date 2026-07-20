@@ -4,6 +4,65 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Shooting Stars horizontal mechanic closure — 2026-07-20
+
+- Completed the follow-up navigation and activity-category audit: green
+  compass is Achievement-only; D&D and Minigame headings use yellow and red
+  compasses; Familiarisation and Big Chinchompa are D&Ds; Livid Farm remains a
+  Minigame; Familiarisation now runs from its own Activities card rather than
+  Equipment.
+- Replaced the Bond-like Shop orb and bordered Summoning badge with period
+  coin art and a clean frameless glyph. Skills now uses a period Max cape while
+  Stats keeps the bar graph, preserving unique global-tab meanings.
+- Replaced the remaining mixed skill art with one period highscores family for
+  all 25 skills across Stats, Training, and Combat XP rows. Every source sprite
+  is pinned to a pre-cutoff revision, provenance-recorded, tight-cropped, and
+  rendered with one normalized pixel-art policy.
+- Rebuilt Stats as the period three-column scan order in a compact left
+  selector, added Dungeoneering, total level, and live `current / base`
+  projection for temporary boosts/drains, and bounded the selected metrics at
+  wide window sizes. Native Anki reproduced the finished grid and also closed
+  the macOS branch-cell selection-color mismatch.
+- Added dedicated spellbook art for all 114 Magic targets. Authentic shared
+  spell families reuse one glyph across their output variants; 105 targets
+  have cutoff-pinned files and nine exact visual fallbacks are labeled
+  honestly in provenance. Removed the synthetic white/neutral circles from
+  Combat targets, Combat XP rows, Shooting Stars, and other transparent art.
+- Normalized every skill, Utility, and Activity target row through the same
+  crisp DPR-aware 28-pixel scaler and 32-pixel row rhythm; hand-injected
+  Landmark rows no longer bypass that policy.
+- Implemented the complete settled world-event graph with all nine sourced
+  layers, communal crowd depletion, first-finder tags, level waiting,
+  persistent Stardust, daily manual sprite exchange, gems, and a live
+  1,500-tick extra-ore reward.
+- Added Casual and Advanced policies, shared world-population logic, versioned
+  state migration, review/direct-action undo, cadence declarations, Review HUD
+  notices, and ordinary Mining bonus integration without using wall time.
+- Replaced the crowded Activities dashboard scroll with a selected
+  `QStackedWidget` page. Group headers clear stale pages, live text refits page
+  height, and Utilities remains a separate surface.
+- Added period Star sprite and Stardust art, normalized the wider global
+  navigation vocabulary, and replaced the later detailed RS3 Combat render
+  with the compact legacy OSRS glyph.
+- Added deterministic reachability edges for mining Stardust and exchanging
+  it. The graph reports 1,415 actions, 2,082 reachable items, 168 orphan
+  inputs, and 189 unresolved actions.
+- Kimi K3's earlier UI passes found four concrete defects and all four are
+  fixed. Kimi and Fable both returned `SHIP` for the final Magic
+  spell-icon/direct-transparency delta. A fresh native-Anki restart verified
+  one menu, the real dark-theme icons, and the compact Activities picker.
+- The exact final state passes all 1,961 non-Qt tests with 260 expected skips
+  and all 1,961 real offscreen-Qt tests with one intentional skip.
+  Documentation, test quality, compilation, diff, asset, JSON, reachability,
+  and worktree-safety gates pass.
+- Durable record:
+  `source-audits/shooting-star-implementation-harvest-2026-07-20.md`.
+  Navigation record:
+  `source-audits/navigation-and-activity-icon-audit-2026-07-20.md`.
+- Results:
+  `status-updates/shooting-stars-horizontal-mvp-results-2026-07-20.html`;
+  mobile copy: `https://uhov58kni1bj.postplan.dev`.
+
 ## Woodcutting Split log processing — 2026-07-20
 
 - Added the settled level-54 `Split Arctic pine logs` processing target: one

@@ -32,7 +32,7 @@ class HerbloreAssetTest(unittest.TestCase):
                 self.assertEqual(data[:8], b"\x89PNG\r\n\x1a\n")
                 self.assertEqual(struct.unpack(">II", data[16:24]), dimensions)
 
-    def test_manifest_is_skill_icon_plus_every_live_herblore_output(self):
+    def test_manifest_contains_every_live_herblore_output(self):
         manifest = asset_manifest()
         live_targets = CLEAN_TARGETS + UNF_TARGETS + FINISHED_TARGETS
         deferred_targets = (
@@ -41,7 +41,6 @@ class HerbloreAssetTest(unittest.TestCase):
             + DUNGEONEERING_FINISHED_TARGETS
         )
         expected_items = {
-            "Herblore skill icon",
             "Shrunk ogleroot",
             "Toad's legs",
             *(target.output_item for target in live_targets),
@@ -51,7 +50,7 @@ class HerbloreAssetTest(unittest.TestCase):
 
         self.assertEqual({request.item_name for request in manifest}, expected_items)
         self.assertTrue(deferred_only_items.isdisjoint(request.item_name for request in manifest))
-        self.assertEqual(len(manifest), len(live_targets) + 3)
+        self.assertEqual(len(manifest), len(live_targets) + 2)
         self.assertTrue(all(request.output_path.is_relative_to(ROOT) for request in manifest))
         manifest_by_item = {request.item_name: request for request in manifest}
         self.assertEqual(
@@ -106,10 +105,17 @@ class HerbloreAssetTest(unittest.TestCase):
         provenance = json.loads((ROOT / "assets_provenance.json").read_text(encoding="utf-8"))
 
         self.assertTrue(icon_path.is_file())
-        self.assertEqual(provenance["icon/herblore_icon.png"]["source_wiki"], "osrs")
+        self.assertEqual(
+            provenance["icon/herblore_icon.png"]["source_wiki"],
+            "rs3-period",
+        )
         self.assertEqual(
             provenance["icon/herblore_icon.png"]["file_title"],
-            "Herblore icon (detail).png",
+            "Herblore icon highscores.png",
+        )
+        self.assertEqual(
+            provenance["icon/herblore_icon.png"]["timestamp"],
+            "2012-01-21T22:40:07Z",
         )
         self.assertNotEqual(icon_path.read_bytes(), (ROOT / "icon" / "achievement_icon.png").read_bytes())
 

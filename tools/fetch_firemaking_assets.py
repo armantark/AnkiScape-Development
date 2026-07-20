@@ -104,7 +104,6 @@ def _fm_item(name: str) -> str:
 
 def _manifest() -> List[Tuple[str, str, str, Optional[int]]]:
     manifest: List[Tuple[str, str, str, Optional[int]]] = [
-        ("Firemaking", WIKI_TITLE_OVERRIDES["Firemaking"], "icon/firemaking_icon.png", 64),
         ("Ashes", "Ashes.png", _fm_item("Ashes"), None),
     ]
     seen = {"Ashes"}

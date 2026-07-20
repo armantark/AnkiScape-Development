@@ -65,6 +65,10 @@ try:
         default_evil_tree_state_pure,
         sanitize_evil_tree_state_pure,
     )
+    from .shooting_star_logic import (
+        default_shooting_star_state_pure,
+        sanitize_shooting_star_state_pure,
+    )
     from .farming_logic import default_farming_state_pure, sanitize_farming_state_pure
     from .mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from .smithing_data import (
@@ -159,6 +163,10 @@ except ImportError:
         default_evil_tree_state_pure,
         sanitize_evil_tree_state_pure,
     )
+    from shooting_star_logic import (  # type: ignore
+        default_shooting_star_state_pure,
+        sanitize_shooting_star_state_pure,
+    )
     from farming_logic import default_farming_state_pure, sanitize_farming_state_pure
     from mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from smithing_data import (
@@ -191,7 +199,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 51
+CURRENT_CONFIG_VERSION = 52
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -417,6 +425,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["hunter_private_ground_targets"] = []
     data["big_chinchompa"] = default_big_chinchompa_state_pure()
     data["evil_tree"] = default_evil_tree_state_pure()
+    data["shooting_star"] = default_shooting_star_state_pure()
     data.update(default_farming_state_pure())
     data.update(default_agility_state_pure())
     data["livid_farm"] = default_livid_farm_state_pure()
@@ -1019,6 +1028,9 @@ def migrate_loaded_data(
         data.get("big_chinchompa")
     )
     data["evil_tree"] = sanitize_evil_tree_state_pure(data.get("evil_tree"))
+    data["shooting_star"] = sanitize_shooting_star_state_pure(
+        data.get("shooting_star")
+    )
 
     # Ensure inventory exists and has registered item keys while preserving
     # arbitrary existing entries from older or experimental saves.

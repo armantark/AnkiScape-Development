@@ -56,7 +56,6 @@ def _fishing_item(name: str) -> str:
 
 def _manifest() -> List[Tuple[str, str, str, Optional[int]]]:
     manifest: List[Tuple[str, str, str, Optional[int]]] = [
-        ("Fishing", WIKI_TITLE_OVERRIDES["Fishing"], "icon/fishing_icon.png", 64),
         ("Fishing bait", wiki_title_for_item("Fishing bait"), _fishing_item("Fishing bait"), None),
     ]
     seen = {"Fishing bait"}

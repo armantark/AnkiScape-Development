@@ -492,7 +492,9 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "warriors_guild_shot_put",
                 "warriors_guild_keg_balance",
                 "big_chinchompa",
+                "familiarisation",
                 "livid_farm",
+                "shooting_stars",
             },
         )
 

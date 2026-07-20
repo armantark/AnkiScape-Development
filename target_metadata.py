@@ -611,6 +611,7 @@ def magic_target_rows(
     magic_item_images: Mapping[str, str],
     default_target: str,
     alch_values: Mapping[str, int],
+    magic_spell_images: Mapping[str, str] | None = None,
 ) -> tuple[TargetRowMetadata, ...]:
     rows = []
     current = player_data.get("current_magic", default_target)
@@ -636,13 +637,14 @@ def magic_target_rows(
         if reasons:
             tooltip += "\nLocked due to: " + ", ".join(reasons)
         icon_name = next(iter((spec.get("outputs", {}) or {})), name)
+        spell_icon_path = (magic_spell_images or {}).get(target_id)
         rows.append(TargetRowMetadata(
             target_id=target_id,
             label=f"{name} — {spec.get('exp', 0):g} XP",
             tooltip=tooltip,
             enabled=not reasons,
             current=target_id == current,
-            icon_path=magic_item_images.get(str(icon_name)),
+            icon_path=spell_icon_path or magic_item_images.get(str(icon_name)),
             group=group,
             locked_reasons=reasons,
             sort_key=(group_order.get(group, 99), int(spec.get("level", 1) or 1), name),

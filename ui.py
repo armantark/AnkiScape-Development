@@ -93,6 +93,7 @@ try:
         DEFAULT_MAGIC_TARGET,
         MAGIC_GROUP_ORDER,
         MAGIC_ITEM_IMAGES,
+        MAGIC_SPELL_IMAGES,
         CONSTRUCTION_DATA,
         DEFAULT_CONSTRUCTION_TARGET,
         CONSTRUCTION_ITEM_IMAGES,
@@ -126,6 +127,7 @@ try:
         UTILITY_ACTIVITY_DATA,
         UTILITY_SURFACE_ID,
         ACTIVITY_SURFACE_ID,
+        FAMILIARISATION_ACTIVITY_ID,
         DEFAULT_FIREMAKING_TARGET,
         DEFAULT_FISHING_TARGET,
         DEFAULT_HUNTER_TARGET,
@@ -185,6 +187,7 @@ except Exception:
         DEFAULT_MAGIC_TARGET,
         MAGIC_GROUP_ORDER,
         MAGIC_ITEM_IMAGES,
+        MAGIC_SPELL_IMAGES,
         CONSTRUCTION_DATA,
         DEFAULT_CONSTRUCTION_TARGET,
         CONSTRUCTION_ITEM_IMAGES,
@@ -218,6 +221,7 @@ except Exception:
         UTILITY_ACTIVITY_DATA,
         UTILITY_SURFACE_ID,
         ACTIVITY_SURFACE_ID,
+        FAMILIARISATION_ACTIVITY_ID,
         DEFAULT_FIREMAKING_TARGET,
         DEFAULT_FISHING_TARGET,
         DEFAULT_HUNTER_TARGET,
@@ -290,6 +294,13 @@ except Exception:
     )
 
 try:
+    from .shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
+    from .shooting_star_logic import shooting_star_view_pure
+except Exception:
+    from shooting_star_data import SHOOTING_STAR_ACTIVITY_ID  # type: ignore
+    from shooting_star_logic import shooting_star_view_pure  # type: ignore
+
+try:
     from .combat_session import (
         confirm_wilderness_combat_risk,
         wilderness_combat_risk_confirmed,
@@ -303,10 +314,16 @@ except ImportError:
     )
 
 try:
-    from .warriors_guild_data import WARRIORS_GUILD_TOKEN_KEYS
+    from .warriors_guild_data import (
+        WARRIORS_GUILD_ACTIVITY_IDS,
+        WARRIORS_GUILD_TOKEN_KEYS,
+    )
     from .warriors_guild_logic import warriors_guild_view_pure
 except ImportError:
-    from warriors_guild_data import WARRIORS_GUILD_TOKEN_KEYS  # type: ignore
+    from warriors_guild_data import (  # type: ignore
+        WARRIORS_GUILD_ACTIVITY_IDS,
+        WARRIORS_GUILD_TOKEN_KEYS,
+    )
     from warriors_guild_logic import warriors_guild_view_pure  # type: ignore
 try:
     from .summoning_data import (
@@ -491,6 +508,7 @@ except Exception:
 try:
     from .livid_farm_data import (
         BORROWED_POWER_COMBAT_SPELLS,
+        LIVID_FARM_ACTIVITY_ID,
         LIVID_FARM_UNLOCKS,
     )
     from .livid_farm_logic import (
@@ -504,6 +522,7 @@ try:
 except ImportError:
     from livid_farm_data import (  # type: ignore
         BORROWED_POWER_COMBAT_SPELLS,
+        LIVID_FARM_ACTIVITY_ID,
         LIVID_FARM_UNLOCKS,
     )
     from livid_farm_logic import (  # type: ignore
@@ -724,6 +743,13 @@ _UTILITY_GROUP_LABELS = {
     "light_sources": "Light sources",
     "warriors_guild": "Warriors' Guild",
     "minigames": "Minigames",
+    "distractions_and_diversions": "Distractions and Diversions",
+}
+_ACTIVITY_GROUP_ICONS = {
+    "minigames": os.path.join(current_dir, "icon", "minigame_icon.png"),
+    "distractions_and_diversions": os.path.join(
+        current_dir, "icon", "dnd_icon.png"
+    ),
 }
 
 
@@ -735,11 +761,14 @@ def skill_icon_path_for(display_name: str) -> Optional[str]:
     callers degrade gracefully instead of showing a broken image.
     """
     surface_icons = {
+        _COMBAT_HUB_NAME: os.path.join(
+            current_dir, "icon", "combat_icon.png"
+        ),
         _UTILITIES_HUB_NAME: os.path.join(
             current_dir, "questitems", "toolkit.png"
         ),
         _ACTIVITIES_HUB_NAME: os.path.join(
-            current_dir, "agilityitems", "agility_arena_ticket.png"
+            current_dir, "icon", "activities_icon.png"
         ),
     }
     surface_icon = surface_icons.get(display_name)
@@ -1049,9 +1078,9 @@ _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY = "ankiscape_review_action_multiplier"
 _LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
 
 # Item sprites are pre-trimmed at build time (see tools/trim_icons.py and the
-# fetch_assets.py alpha-trim step), so the UI just uses plain QIcon(path) — no
-# runtime cropping. Re-run tools/trim_icons.py if a freshly added sprite ever
-# looks small in its icon box.
+# fetch_assets.py alpha-trim step). Fixed-size UI slots use
+# `_pixel_path_icon()` for crisp DPR-aware scaling without changing the source
+# transparency.
 
 
 def _item_def_for(storage_key: str) -> Optional["ItemDefinition"]:
@@ -1073,9 +1102,8 @@ def _item_icon_path(item_name: str) -> Optional[str]:
 _PIXEL_ICON_CACHE: dict = {}
 
 
-def _pixel_item_icon(item_name: str, size: int) -> Optional["QIcon"]:
-    icon_path = _item_icon_path(item_name)
-    if not icon_path:
+def _pixel_path_icon(icon_path: str, size: int) -> Optional["QIcon"]:
+    if not icon_path or not os.path.exists(icon_path):
         return None
     key = (icon_path, size)
     icon = _PIXEL_ICON_CACHE.get(key)
@@ -1099,6 +1127,11 @@ def _pixel_item_icon(item_name: str, size: int) -> Optional["QIcon"]:
     icon = QIcon(pixmap)
     _PIXEL_ICON_CACHE[key] = icon
     return icon
+
+
+def _pixel_item_icon(item_name: str, size: int) -> Optional["QIcon"]:
+    icon_path = _item_icon_path(item_name)
+    return _pixel_path_icon(icon_path, size) if icon_path else None
 
 
 def grouped_inventory(inventory: dict) -> list:
@@ -2122,6 +2155,28 @@ if HAS_QT:
                     f"{int(big_chinchompa_view['minutes_remaining'])} source min · "
                     f"{int(big_chinchompa_view['fullness_percent'])}% full"
                 )
+            star_view = shooting_star_view_pure(
+                player_data,
+                has_usable_pickaxe=(
+                    best_mining_pickaxe_pure(
+                        int(player_data.get("mining_level", 1) or 1),
+                        player_data.get("inventory", {}) or {},
+                        player_data.get("toolbelt", {}) or {},
+                        MINING_PICKAXE_DATA,
+                    )
+                    is not None
+                ),
+            )
+            if star_view["active"]:
+                world_notices.append(
+                    f"Shooting Star size {int(star_view['current_size'])} · "
+                    f"{int(star_view['layer_remaining']):,} layer dust left"
+                )
+            elif star_view["sprite_available"]:
+                world_notices.append(
+                    "Star sprite · "
+                    f"{int(star_view['sprite_reviews_remaining'])} reviews left"
+                )
             self.world_notice_lbl.setText(" • ".join(world_notices))
             self.world_notice_lbl.setVisible(bool(world_notices))
             # Enemy bar + chips are combat-only; keep them hidden unless the
@@ -2161,6 +2216,18 @@ if HAS_QT:
                         )
                     else:
                         activity_kind = "awaiting an active event"
+                elif activity_key == SHOOTING_STAR_ACTIVITY_ID:
+                    activity_name = "Shooting Stars"
+                    if star_view["active"]:
+                        activity_kind = (
+                            f"Size {int(star_view['current_size'])} · "
+                            f"{int(star_view['dust'])}/"
+                            f"{int(star_view['dust_cap'])} stardust"
+                        )
+                    elif star_view["sprite_available"]:
+                        activity_kind = "Star sprite ready for exchange"
+                    else:
+                        activity_kind = "awaiting an active star"
                 else:
                     activity_name = str(spec.get("display_name", "Material prep"))
                     activity_kind = (
@@ -2240,7 +2307,7 @@ if HAS_QT:
                 total = int(quest.get("stages", 1) if isinstance(quest, dict) else 1)
                 progress = int(state.get("progress", 0) or 0)
                 quest_name = str(quest.get("display_name", "Quest") if isinstance(quest, dict) else "Quest")
-                ip = os.path.join(current_dir, "icon", "achievement_icon.png")
+                ip = os.path.join(current_dir, "icon", "quest_icon.png")
                 if os.path.exists(ip):
                     pm = QPixmap(ip)
                     self.icon_lbl.setPixmap(pm.scaled(28, 28, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
@@ -3254,6 +3321,7 @@ def show_main_menu(
     on_warriors_guild_command=None,
     on_livid_farm_command=None,
     on_big_chinchompa_command=None,
+    on_shooting_star_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
     on_set_construction=None,
@@ -3333,6 +3401,12 @@ def show_main_menu(
 
     tabs = QTabWidget()
     tabs.setDocumentMode(True)
+    tabs.setIconSize(QSize(18, 18))
+
+    def _set_global_tab_icon(tab: QWidget, filename: str) -> None:
+        icon_path = os.path.join(current_dir, "icon", filename)
+        if os.path.exists(icon_path):
+            tabs.setTabIcon(tabs.indexOf(tab), QIcon(icon_path))
 
     # ---- Skills hub (registry-driven) -------------------------------------
     # The top bar now holds global sections only. Skill navigation lives inside
@@ -3654,7 +3728,9 @@ def show_main_menu(
             item = QListWidgetItem(row.label)
             item.setData(Qt.ItemDataRole.UserRole, row.target_id)
             if row.icon_path and os.path.exists(row.icon_path):
-                item.setIcon(QIcon(row.icon_path))
+                icon = _pixel_path_icon(row.icon_path, 28)
+                if icon is not None:
+                    item.setIcon(icon)
             if not row.enabled:
                 item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
             item.setToolTip(row.tooltip)
@@ -3714,7 +3790,8 @@ def show_main_menu(
         tree.setStyleSheet(
             "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
             " background: palette(base); color: palette(text); padding: 4px; }"
-            " QTreeWidget::item { padding: 5px; border-radius: 6px; }"
+            " QTreeWidget::item { min-height: 32px; padding: 5px;"
+            " border-radius: 6px; }"
             f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
         )
 
@@ -3738,6 +3815,11 @@ def show_main_menu(
             parent = QTreeWidgetItem([f"{label}  ({len(group_rows)})"])
             parent.setData(0, Qt.ItemDataRole.UserRole, f"{group_role_prefix}{group}")
             parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
+            group_icon = _ACTIVITY_GROUP_ICONS.get(group)
+            if group_icon and os.path.exists(group_icon):
+                icon = _pixel_path_icon(group_icon, 28)
+                if icon is not None:
+                    parent.setIcon(0, icon)
             font = parent.font(0)
             font.setBold(True)
             parent.setFont(0, font)
@@ -3748,7 +3830,9 @@ def show_main_menu(
                 child = QTreeWidgetItem([row.label])
                 child.setData(0, Qt.ItemDataRole.UserRole, row.target_id)
                 if row.icon_path and os.path.exists(row.icon_path):
-                    child.setIcon(0, QIcon(row.icon_path))
+                    icon = _pixel_path_icon(row.icon_path, 28)
+                    if icon is not None:
+                        child.setIcon(0, icon)
                 if not row.enabled:
                     child.setDisabled(True)
                 child.setToolTip(0, row.tooltip)
@@ -4999,7 +5083,14 @@ def show_main_menu(
             if item.tradeable and item.storage_key in SHOP_PLAYER_BUY_PRICES
         }
         tree = _build_grouped_target_tree(
-            magic_target_rows(player_data, MAGIC_DATA, MAGIC_ITEM_IMAGES, DEFAULT_MAGIC_TARGET, alch_values),
+            magic_target_rows(
+                player_data,
+                MAGIC_DATA,
+                MAGIC_ITEM_IMAGES,
+                DEFAULT_MAGIC_TARGET,
+                alch_values,
+                MAGIC_SPELL_IMAGES,
+            ),
             {group: group for group in MAGIC_GROUP_ORDER},
             "__magic_group__:",
             on_set_magic,
@@ -6165,13 +6256,28 @@ def show_main_menu(
         grid.setContentsMargins(0, 0, 0, 0)
         grid.setHorizontalSpacing(8)
         grid.setVerticalSpacing(4)
-        grid.setColumnStretch(1, 1)
+        grid.setColumnStretch(2, 1)
         for row, (display, level_key, exp_key, default_level) in enumerate(_COMBAT_SKILL_BARS):
             level = int(player_data.get(level_key, default_level) or default_level)
             exp = round(player_data.get(exp_key, 0) or 0, 1)
             pct, remain, target_lv = compute_level_progress(level, exp, EXP_TABLE)
             name_lbl = QLabel(f"{display} Lv {level}")
             name_lbl.setStyleSheet("color: palette(text); font-size: 11px;")
+            icon_lbl = QLabel()
+            icon_lbl.setObjectName(
+                f"combatXpIcon{display.replace(' ', '')}"
+            )
+            icon_lbl.setFixedSize(20, 20)
+            icon_path = skill_icon_path_for(display)
+            if icon_path:
+                icon_lbl.setPixmap(
+                    QPixmap(icon_path).scaled(
+                        18,
+                        18,
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.FastTransformation,
+                    )
+                )
             bar = QProgressBar()
             bar.setTextVisible(False)
             bar.setFixedHeight(10)
@@ -6181,8 +6287,9 @@ def show_main_menu(
                 f"{display}: level {level} • {exp:,.0f} XP"
                 + (f" • {remain:,.0f} to Lv {target_lv}" if level < 99 else " • max level")
             )
-            grid.addWidget(name_lbl, row, 0)
-            grid.addWidget(bar, row, 1)
+            grid.addWidget(icon_lbl, row, 0)
+            grid.addWidget(name_lbl, row, 1)
+            grid.addWidget(bar, row, 2)
         box_layout.addLayout(grid)
         return box
 
@@ -6538,19 +6645,214 @@ def show_main_menu(
         container_layout.setContentsMargins(0, 0, 0, 0)
         container_layout.setSpacing(8)
 
-        cards_scroll = QScrollArea()
-        cards_scroll.setObjectName("utilityActivityCardsScroll")
-        cards_scroll.setWidgetResizable(True)
-        cards_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
-        cards_scroll.setHorizontalScrollBarPolicy(
-            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        cards_stack = QStackedWidget()
+        cards_stack.setObjectName("utilityActivityDetailsStack")
+        cards_stack.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Fixed,
         )
-        cards_scroll.setMinimumHeight(190)
-        cards_scroll.setMaximumHeight(220)
-        cards_host = QWidget()
-        cards_layout = QVBoxLayout(cards_host)
-        cards_layout.setContentsMargins(0, 0, 0, 0)
-        cards_layout.setSpacing(8)
+
+        def _fit_current_activity_detail() -> None:
+            current_card = cards_stack.currentWidget()
+            if current_card is not None:
+                cards_stack.setFixedHeight(
+                    max(96, current_card.sizeHint().height())
+                )
+
+        star_panel_refresher = {"call": lambda: None}
+
+        familiarisation_box = QtFrame()
+        familiarisation_box.setObjectName("familiarisationPanel")
+        familiarisation_box.setStyleSheet(
+            "QFrame#familiarisationPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        familiarisation_layout = QVBoxLayout(familiarisation_box)
+        familiarisation_layout.setContentsMargins(10, 8, 10, 8)
+        familiarisation_layout.setSpacing(6)
+
+        familiarisation_top = QWidget()
+        familiarisation_top_layout = QHBoxLayout(familiarisation_top)
+        familiarisation_top_layout.setContentsMargins(0, 0, 0, 0)
+        familiarisation_top_layout.setSpacing(8)
+        familiarisation_icon = QLabel()
+        familiarisation_icon.setObjectName("familiarisationIcon")
+        familiarisation_icon.setFixedSize(28, 28)
+        familiarisation_icon_path = os.path.join(
+            current_dir, "icon", "summoning_icon.png"
+        )
+        if os.path.exists(familiarisation_icon_path):
+            familiarisation_icon.setPixmap(
+                QPixmap(familiarisation_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+        familiarisation_title = QLabel("Familiarisation")
+        familiarisation_title.setStyleSheet(
+            "font-weight: 700; color: palette(text);"
+        )
+        familiarisation_status = QLabel()
+        familiarisation_status.setObjectName("familiarisationStatusChip")
+        familiarisation_status.setStyleSheet(
+            f"color: {dim_text_css(familiarisation_status)};"
+            " font-size: 11px; font-weight: 700;"
+        )
+        familiarisation_top_layout.addWidget(familiarisation_icon)
+        familiarisation_top_layout.addWidget(familiarisation_title)
+        familiarisation_top_layout.addStretch(1)
+        familiarisation_top_layout.addWidget(familiarisation_status)
+        familiarisation_layout.addWidget(familiarisation_top)
+
+        familiarisation_summary = QLabel()
+        familiarisation_summary.setObjectName("familiarisationSummary")
+        familiarisation_summary.setWordWrap(True)
+        familiarisation_summary.setStyleSheet("color: palette(text);")
+        familiarisation_layout.addWidget(familiarisation_summary)
+
+        familiarisation_detail = QLabel(
+            "Start once, then the next four successful reviews advance the "
+            "session. Completion offers an ingredient box or triple charms."
+        )
+        familiarisation_detail.setObjectName("familiarisationDetail")
+        familiarisation_detail.setWordWrap(True)
+        familiarisation_detail.setStyleSheet(
+            f"color: {dim_text_css(familiarisation_detail)}; font-size: 11px;"
+        )
+        familiarisation_layout.addWidget(familiarisation_detail)
+
+        familiarisation_actions = QWidget()
+        familiarisation_actions_layout = QHBoxLayout(
+            familiarisation_actions
+        )
+        familiarisation_actions_layout.setContentsMargins(0, 0, 0, 0)
+        familiarisation_actions_layout.setSpacing(6)
+        familiarisation_start = QPushButton("Start Familiarisation")
+        familiarisation_start.setObjectName(
+            "summoningStartFamiliarisationButton"
+        )
+        familiarisation_ingredients = QPushButton("Ingredient box")
+        familiarisation_ingredients.setObjectName(
+            "summoningIngredientRewardButton"
+        )
+        familiarisation_charms = QPushButton("Triple charms")
+        familiarisation_charms.setObjectName(
+            "summoningCharmRewardButton"
+        )
+        for widget in (
+            familiarisation_start,
+            familiarisation_ingredients,
+            familiarisation_charms,
+        ):
+            familiarisation_actions_layout.addWidget(widget)
+        familiarisation_actions_layout.addStretch(1)
+        familiarisation_layout.addWidget(familiarisation_actions)
+        cards_stack.addWidget(familiarisation_box)
+
+        def _refresh_familiarisation_panel() -> None:
+            state_value = player_data.get("summoning_state", {}) or {}
+            summoning_state = (
+                state_value if isinstance(state_value, dict) else {}
+            )
+            activity = summoning_state.get("familiarisation", {}) or {}
+            charm_reviews = max(
+                0,
+                int(
+                    summoning_state.get(
+                        "triple_charm_reviews_remaining", 0
+                    )
+                    or 0
+                ),
+            )
+            active = bool(activity.get("active"))
+            awaiting_reward = bool(activity.get("awaiting_reward"))
+            cooldown = max(
+                0,
+                int(activity.get("cooldown_reviews_remaining", 0) or 0),
+            )
+            if active:
+                familiarisation_status.setText("IN PROGRESS")
+                familiarisation_summary.setText(
+                    f"{int(activity.get('segments', 0))}/4 segments · "
+                    f"{int(activity.get('focus', 0))} focus · "
+                    f"{int(activity.get('raw_shards', 0))}/60 shards"
+                )
+            elif awaiting_reward:
+                familiarisation_status.setText("REWARD READY")
+                familiarisation_summary.setText(
+                    "The session is complete. Choose one reward."
+                )
+            else:
+                familiarisation_status.setText(
+                    "READY" if cooldown <= 0 else "COOLDOWN"
+                )
+                familiarisation_summary.setText(
+                    "Ready to start."
+                    if cooldown <= 0
+                    else f"{cooldown} review(s) until the next session."
+                )
+            if charm_reviews:
+                familiarisation_summary.setText(
+                    familiarisation_summary.text()
+                    + f" · Triple charms: {charm_reviews} review(s)"
+                )
+            familiarisation_start.setVisible(
+                not active and not awaiting_reward
+            )
+            familiarisation_start.setEnabled(
+                on_summoning_command is not None and cooldown <= 0
+            )
+            familiarisation_ingredients.setVisible(awaiting_reward)
+            familiarisation_charms.setVisible(awaiting_reward)
+            familiarisation_ingredients.setEnabled(
+                on_summoning_command is not None
+            )
+            familiarisation_charms.setEnabled(
+                on_summoning_command is not None
+            )
+            _fit_current_activity_detail()
+
+        def _run_familiarisation_command(
+            action_id: str, payload: Optional[dict] = None
+        ) -> None:
+            if on_summoning_command is None:
+                return
+            result = on_summoning_command(action_id, payload or {})
+            ok = (
+                bool(result.get("ok"))
+                if isinstance(result, dict)
+                else bool(result)
+            )
+            if (
+                not ok
+                and isinstance(result, dict)
+                and result.get("message")
+            ):
+                QMessageBox.information(
+                    dialog,
+                    "Familiarisation unavailable",
+                    str(result["message"]),
+                )
+            _refresh_familiarisation_panel()
+
+        familiarisation_start.clicked.connect(
+            lambda _checked=False: _run_familiarisation_command(
+                "start_familiarisation"
+            )
+        )
+        familiarisation_ingredients.clicked.connect(
+            lambda _checked=False: _run_familiarisation_command(
+                "claim_familiarisation", {"choice": "ingredients"}
+            )
+        )
+        familiarisation_charms.clicked.connect(
+            lambda _checked=False: _run_familiarisation_command(
+                "claim_familiarisation", {"choice": "triple_charms"}
+            )
+        )
+        _refresh_familiarisation_panel()
 
         evil_box = QtFrame()
         evil_box.setObjectName("evilTreePanel")
@@ -6622,7 +6924,7 @@ def show_main_menu(
             " border-color: palette(mid); }"
         )
         evil_layout.addWidget(evil_action)
-        cards_layout.addWidget(evil_box)
+        cards_stack.addWidget(evil_box)
 
         def _evil_tree_has_hatchet() -> bool:
             return (
@@ -6675,6 +6977,7 @@ def show_main_menu(
                 evil_detail.setText(detail)
                 evil_action.setText("No active tree")
                 evil_action.setEnabled(False)
+                _fit_current_activity_detail()
                 return
 
             evil_box.setStyleSheet(
@@ -6740,6 +7043,7 @@ def show_main_menu(
             else:
                 evil_action.setText("Unavailable")
                 evil_action.setEnabled(False)
+            _fit_current_activity_detail()
 
         def _select_evil_tree() -> None:
             if on_set_utility is None:
@@ -6749,6 +7053,7 @@ def show_main_menu(
             tree.clearSelection()
             _refresh_evil_tree_panel()
             _refresh_big_chinchompa_panel()
+            star_panel_refresher["call"]()
 
         evil_action.clicked.connect(
             lambda _checked=False: _select_evil_tree()
@@ -6882,7 +7187,7 @@ def show_main_menu(
         reward_layout.addWidget(reward_combo, 1)
         reward_layout.addWidget(reward_buy)
         big_layout.addWidget(reward_row)
-        cards_layout.addWidget(big_box)
+        cards_stack.addWidget(big_box)
 
         def _selected_big_reward():
             reward_id = str(reward_combo.currentData() or "")
@@ -6986,6 +7291,7 @@ def show_main_menu(
                 reward_buy.setToolTip(
                     f"Buy for {reward.competence_cost:,} Competence."
                 )
+            _fit_current_activity_detail()
 
         def _select_big_chinchompa() -> None:
             if on_set_utility is None:
@@ -6995,6 +7301,7 @@ def show_main_menu(
             tree.clearSelection()
             _refresh_evil_tree_panel()
             _refresh_big_chinchompa_panel()
+            star_panel_refresher["call"]()
 
         def _set_population_profile(profile: str) -> None:
             if on_big_chinchompa_command is None:
@@ -7008,6 +7315,7 @@ def show_main_menu(
                     str(result.get("message", "Could not update the profile.")),
                 )
             _refresh_big_chinchompa_panel()
+            star_panel_refresher["call"]()
 
         def _buy_big_chinchompa_reward() -> None:
             if on_big_chinchompa_command is None:
@@ -7037,6 +7345,319 @@ def show_main_menu(
             lambda _checked=False: _buy_big_chinchompa_reward()
         )
         _refresh_big_chinchompa_panel()
+
+        star_box = QtFrame()
+        star_box.setObjectName("shootingStarPanel")
+        star_box.setStyleSheet(
+            "QFrame#shootingStarPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        star_layout = QVBoxLayout(star_box)
+        star_layout.setContentsMargins(10, 8, 10, 8)
+        star_layout.setSpacing(6)
+
+        star_top = QWidget()
+        star_top_layout = QHBoxLayout(star_top)
+        star_top_layout.setContentsMargins(0, 0, 0, 0)
+        star_top_layout.setSpacing(8)
+        star_icon = QLabel()
+        star_icon.setObjectName("shootingStarIcon")
+        star_icon.setFixedSize(28, 28)
+        star_icon_path = os.path.join(
+            current_dir, "activityicons", "shooting_stars.png"
+        )
+        if os.path.exists(star_icon_path):
+            star_icon.setPixmap(
+                QPixmap(star_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        star_title = QLabel("Shooting Stars")
+        star_title.setObjectName("shootingStarTitle")
+        star_title.setStyleSheet(
+            "font-weight: 700; color: palette(text);"
+        )
+        star_status = QLabel()
+        star_status.setObjectName("shootingStarStatusChip")
+        star_status.setStyleSheet(
+            f"color: {dim_text_css(star_status)};"
+            " font-size: 11px; font-weight: 700;"
+        )
+        star_top_layout.addWidget(star_icon)
+        star_top_layout.addWidget(star_title)
+        star_top_layout.addStretch(1)
+        star_top_layout.addWidget(star_status)
+        star_layout.addWidget(star_top)
+
+        star_summary = QLabel()
+        star_summary.setObjectName("shootingStarSummary")
+        star_summary.setWordWrap(True)
+        star_summary.setStyleSheet("color: palette(text);")
+        star_layout.addWidget(star_summary)
+
+        star_detail = QLabel()
+        star_detail.setObjectName("shootingStarDetail")
+        star_detail.setWordWrap(True)
+        star_detail.setStyleSheet(
+            f"color: {dim_text_css(star_detail)}; font-size: 11px;"
+        )
+        star_layout.addWidget(star_detail)
+
+        star_policy = QWidget()
+        star_policy_layout = QHBoxLayout(star_policy)
+        star_policy_layout.setContentsMargins(0, 0, 0, 0)
+        star_policy_layout.setSpacing(6)
+        star_mode = QComboBox()
+        star_mode.setObjectName("shootingStarAutomationMode")
+        star_mode.addItem("Casual · natural stars", "casual")
+        star_mode.addItem("Advanced · preferred sizes", "advanced")
+        star_mode.setToolTip(
+            "Casual accepts natural stars; Advanced prefers a saved size range."
+        )
+        star_population = QComboBox()
+        star_population.setObjectName("shootingStarPopulationProfile")
+        for profile, label in WORLD_POPULATION_PROFILE_LABELS.items():
+            star_population.addItem(f"Population · {label}", profile)
+        star_population.setToolTip(
+            "World population changes how quickly public miners clear layers."
+        )
+        star_min_size = QComboBox()
+        star_min_size.setObjectName("shootingStarMinimumSize")
+        star_min_size.setToolTip("Smallest star size preferred in Advanced mode.")
+        star_max_size = QComboBox()
+        star_max_size.setObjectName("shootingStarMaximumSize")
+        star_max_size.setToolTip("Largest star size preferred in Advanced mode.")
+        for size in range(1, 10):
+            star_min_size.addItem(f"Min {size}", size)
+            star_max_size.addItem(f"Max {size}", size)
+        star_policy_layout.addWidget(star_mode, 2)
+        star_policy_layout.addWidget(star_population, 1)
+        star_policy_layout.addWidget(star_min_size, 1)
+        star_policy_layout.addWidget(star_max_size, 1)
+        star_layout.addWidget(star_policy)
+
+        star_actions = QWidget()
+        star_actions_layout = QHBoxLayout(star_actions)
+        star_actions_layout.setContentsMargins(0, 0, 0, 0)
+        star_actions_layout.setSpacing(6)
+        star_select = QPushButton()
+        star_select.setObjectName("shootingStarSelectButton")
+        star_exchange = QPushButton("Exchange stardust")
+        star_exchange.setObjectName("shootingStarExchangeButton")
+        star_actions_layout.addWidget(star_select, 1)
+        star_actions_layout.addWidget(star_exchange, 1)
+        star_layout.addWidget(star_actions)
+        cards_stack.addWidget(star_box)
+
+        syncing_star = {"active": False}
+
+        def _shooting_star_has_pickaxe() -> bool:
+            return (
+                best_mining_pickaxe_pure(
+                    int(player_data.get("mining_level", 1) or 1),
+                    player_data.get("inventory", {}) or {},
+                    player_data.get("toolbelt", {}) or {},
+                    MINING_PICKAXE_DATA,
+                )
+                is not None
+            )
+
+        def _refresh_shooting_star_panel() -> None:
+            syncing_star["active"] = True
+            view = shooting_star_view_pure(
+                player_data,
+                has_usable_pickaxe=_shooting_star_has_pickaxe(),
+            )
+            selected = (
+                player_data.get("current_utility")
+                == SHOOTING_STAR_ACTIVITY_ID
+            )
+            preferred = tuple(view["preferred_sizes"]) or tuple(range(1, 10))
+            star_mode.setCurrentIndex(
+                max(0, star_mode.findData(view["automation_mode"]))
+            )
+            star_population.setCurrentIndex(
+                max(
+                    0,
+                    star_population.findData(view["population_profile"]),
+                )
+            )
+            star_min_size.setCurrentIndex(
+                max(0, star_min_size.findData(min(preferred)))
+            )
+            star_max_size.setCurrentIndex(
+                max(0, star_max_size.findData(max(preferred)))
+            )
+            advanced = view["automation_mode"] == "advanced"
+            star_min_size.setEnabled(advanced)
+            star_max_size.setEnabled(advanced)
+            star_mode.setEnabled(on_shooting_star_command is not None)
+            star_population.setEnabled(
+                on_shooting_star_command is not None
+            )
+
+            if view["active"]:
+                star_status.setText(f"Size {int(view['current_size'])}")
+                star_summary.setText(
+                    f"{view['location']} · {int(view['layer_remaining']):,} "
+                    f"dust left in this layer · "
+                    f"{int(view['dust'])}/{int(view['dust_cap'])} owned"
+                )
+                if view["waiting_for_layer"]:
+                    star_detail.setText(
+                        f"Waiting for public miners · current layer needs "
+                        f"Mining {int(view['required_level'])}"
+                    )
+                elif view["tag_available"]:
+                    star_detail.setText(
+                        f"First-finder tag available · "
+                        f"{float(view['xp_per_dust']):,.6g} XP per stardust"
+                    )
+                else:
+                    star_detail.setText(
+                        f"Mining {int(view['required_level'])} · "
+                        f"{float(view['xp_per_dust']):,.6g} XP per stardust · "
+                        f"{int(view['player_dust_mined']):,} personally mined"
+                    )
+                if selected:
+                    star_select.setText("Selected for reviews")
+                    star_select.setEnabled(False)
+                else:
+                    star_select.setText(
+                        "Select tag only"
+                        if not view["has_usable_pickaxe"]
+                        and view["tag_available"]
+                        else "Select active star"
+                    )
+                    star_select.setEnabled(
+                        on_set_utility is not None and view["can_select"]
+                    )
+            elif view["sprite_available"]:
+                star_status.setText(
+                    f"Sprite · {int(view['sprite_reviews_remaining'])} reviews"
+                )
+                star_summary.setText(
+                    f"{int(view['dust'])}/{int(view['dust_cap'])} stardust · "
+                    "manual exchange available"
+                )
+                star_detail.setText(
+                    "Rewards scale with stardust and include a 25% "
+                    "temporary extra-ore chance."
+                )
+                star_select.setText("Star fully mined")
+                star_select.setEnabled(False)
+            else:
+                star_status.setText(
+                    f"Next in {int(view['next_reviews'])} reviews"
+                )
+                star_summary.setText(
+                    f"{int(view['dust'])}/{int(view['dust_cap'])} stardust "
+                    "saved for the next released sprite"
+                )
+                bonus_ticks = int(view["ore_bonus_ticks_remaining"])
+                star_detail.setText(
+                    f"Extra-ore bonus: {bonus_ticks:,} ticks remaining"
+                    if bonus_ticks > 0
+                    else "A communal star falls about every 20 answered cards."
+                )
+                star_select.setText("No active star")
+                star_select.setEnabled(False)
+            star_exchange.setEnabled(
+                on_shooting_star_command is not None
+                and bool(view["can_exchange"])
+            )
+            star_exchange.setToolTip(
+                ""
+                if view["can_exchange"]
+                else "A released sprite, stardust, and an unused review-day reward are required."
+            )
+            syncing_star["active"] = False
+            _fit_current_activity_detail()
+
+        star_panel_refresher["call"] = _refresh_shooting_star_panel
+
+        def _select_shooting_star() -> None:
+            if on_set_utility is None:
+                return
+            on_set_utility(SHOOTING_STAR_ACTIVITY_ID)
+            player_data["current_utility"] = SHOOTING_STAR_ACTIVITY_ID
+            tree.clearSelection()
+            _refresh_evil_tree_panel()
+            _refresh_big_chinchompa_panel()
+            _refresh_shooting_star_panel()
+
+        def _set_shooting_star_preferences() -> None:
+            if syncing_star["active"] or on_shooting_star_command is None:
+                return
+            minimum = int(star_min_size.currentData() or 1)
+            maximum = int(star_max_size.currentData() or 9)
+            if minimum > maximum:
+                maximum = minimum
+            result = on_shooting_star_command(
+                "set_preferences",
+                {
+                    "automation_mode": str(
+                        star_mode.currentData() or "casual"
+                    ),
+                    "population_profile": str(
+                        star_population.currentData() or "normal"
+                    ),
+                    "preferred_sizes": list(
+                        range(minimum, maximum + 1)
+                    ),
+                },
+            ) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Shooting Star preferences",
+                    str(
+                        result.get(
+                            "message",
+                            "Could not save Shooting Star preferences.",
+                        )
+                    ),
+                )
+            _refresh_shooting_star_panel()
+            _refresh_big_chinchompa_panel()
+
+        def _exchange_shooting_star_dust() -> None:
+            if on_shooting_star_command is None:
+                return
+            result = on_shooting_star_command("exchange", {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Star sprite",
+                    str(
+                        result.get(
+                            "message",
+                            "The Star sprite cannot reward you.",
+                        )
+                    ),
+                )
+            _refresh_shooting_star_panel()
+
+        star_select.clicked.connect(
+            lambda _checked=False: _select_shooting_star()
+        )
+        star_exchange.clicked.connect(
+            lambda _checked=False: _exchange_shooting_star_dust()
+        )
+        star_mode.currentIndexChanged.connect(
+            lambda _index: _set_shooting_star_preferences()
+        )
+        star_population.currentIndexChanged.connect(
+            lambda _index: _set_shooting_star_preferences()
+        )
+        star_min_size.currentIndexChanged.connect(
+            lambda _index: _set_shooting_star_preferences()
+        )
+        star_max_size.currentIndexChanged.connect(
+            lambda _index: _set_shooting_star_preferences()
+        )
+        _refresh_shooting_star_panel()
 
         guild_box = QtFrame()
         guild_box.setObjectName("warriorsGuildPanel")
@@ -7094,7 +7715,7 @@ def show_main_menu(
         action_layout.addStretch(1)
         guild_layout.addWidget(next_label)
         guild_layout.addWidget(action_row)
-        cards_layout.addWidget(guild_box)
+        cards_stack.addWidget(guild_box)
 
         syncing_guild = {"active": False}
 
@@ -7151,6 +7772,7 @@ def show_main_menu(
                 else f"Next drop: {view['next_defender']}"
             )
             syncing_guild["active"] = False
+            _fit_current_activity_detail()
 
         def _guild_command(action_id: str, payload=None) -> None:
             if on_warriors_guild_command is None:
@@ -7312,7 +7934,7 @@ def show_main_menu(
         livid_capacitor_layout.addWidget(livid_capacitor_charge)
         livid_capacitor_layout.addWidget(livid_capacitor_remove)
         livid_layout.addWidget(livid_capacitor_row)
-        cards_layout.addWidget(livid_box)
+        cards_stack.addWidget(livid_box)
 
         syncing_livid = {"active": False}
 
@@ -7576,6 +8198,7 @@ def show_main_menu(
                 or player_data.get("current_utility") == "livid_farm"
             )
             syncing_livid["active"] = False
+            _fit_current_activity_detail()
 
         def _set_livid_routine() -> None:
             if syncing_livid["active"] or on_livid_farm_command is None:
@@ -7681,12 +8304,20 @@ def show_main_menu(
         tree.setRootIsDecorated(True)
         tree.setIndentation(14)
         tree.setUniformRowHeights(True)
+        tree_base = tree.palette().color(QPalette.ColorRole.Base)
+        activity_selection = QColor(
+            round((tree_base.red() * 0.70) + (76 * 0.30)),
+            round((tree_base.green() * 0.70) + (175 * 0.30)),
+            round((tree_base.blue() * 0.70) + (80 * 0.30)),
+        ).name()
         tree.setStyleSheet(
             "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
             " background: palette(base); color: palette(text); padding: 4px; }"
-            " QTreeWidget::item { padding: 5px; border-radius: 6px; }"
-            " QTreeWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
-            " QTreeWidget::branch:selected { background: transparent; }"
+            " QTreeWidget::item { min-height: 32px; padding: 5px;"
+            " border-radius: 6px; }"
+            f" QTreeWidget::item:selected {{ background: {activity_selection};"
+            " color: palette(text); }"
+            f" QTreeWidget::branch:selected {{ background: {activity_selection}; }}"
             f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
         )
         rows = utility_activity_rows(
@@ -7724,6 +8355,11 @@ def show_main_menu(
             parent = QTreeWidgetItem([f"{label}  ({len(group_rows)})"])
             parent.setData(0, Qt.ItemDataRole.UserRole, f"__utility_group__:{group}")
             parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
+            group_icon = _ACTIVITY_GROUP_ICONS.get(group)
+            if group_icon and os.path.exists(group_icon):
+                icon = _pixel_path_icon(group_icon, 28)
+                if icon is not None:
+                    parent.setIcon(0, icon)
             font = parent.font(0)
             font.setBold(True)
             parent.setFont(0, font)
@@ -7733,7 +8369,9 @@ def show_main_menu(
                 child = QTreeWidgetItem([row.label])
                 child.setData(0, Qt.ItemDataRole.UserRole, row.target_id)
                 if row.icon_path and os.path.exists(row.icon_path):
-                    child.setIcon(0, QIcon(row.icon_path))
+                    icon = _pixel_path_icon(row.icon_path, 28)
+                    if icon is not None:
+                        child.setIcon(0, icon)
                 if not row.enabled:
                     child.setDisabled(True)
                 child.setToolTip(0, row.tooltip)
@@ -7777,7 +8415,9 @@ def show_main_menu(
         sh_child.setToolTip(0, sh_tooltip)
         sh_icon = os.path.join(current_dir, "icon", "attack_icon.png")
         if os.path.exists(sh_icon):
-            sh_child.setIcon(0, QIcon(sh_icon))
+            icon = _pixel_path_icon(sh_icon, 28)
+            if icon is not None:
+                sh_child.setIcon(0, icon)
         if sh_completed and sh_claimed:
             sh_child.setDisabled(True)
         landmark_parent.addChild(sh_child)
@@ -7796,7 +8436,9 @@ def show_main_menu(
         )
         kw_icon = os.path.join(current_dir, "icon", "prayer_icon.png")
         if os.path.exists(kw_icon):
-            kw_child.setIcon(0, QIcon(kw_icon))
+            icon = _pixel_path_icon(kw_icon, 28)
+            if icon is not None:
+                kw_child.setIcon(0, icon)
         if kw_completed or kw_locked:
             kw_child.setDisabled(True)
         landmark_parent.addChild(kw_child)
@@ -7821,7 +8463,9 @@ def show_main_menu(
                             + (f"\nLocked due to: {', '.join(ma_locked)}" if ma_locked and not ma_completed else ""))
         ma_icon = os.path.join(current_dir, "icon", "magic_icon.png")
         if os.path.exists(ma_icon):
-            ma_child.setIcon(0, QIcon(ma_icon))
+            icon = _pixel_path_icon(ma_icon, 28)
+            if icon is not None:
+                ma_child.setIcon(0, icon)
         if ma_completed or ma_locked:
             ma_child.setDisabled(True)
         landmark_parent.addChild(ma_child)
@@ -7919,6 +8563,8 @@ def show_main_menu(
                 _refresh_active_label()
             _refresh_evil_tree_panel()
             _refresh_big_chinchompa_panel()
+            _refresh_shooting_star_panel()
+            _show_activity_detail(activity_id)
 
         def _on_utility_clicked(item: "QTreeWidgetItem", _column: int = 0):
             if item is None or item.isDisabled():
@@ -7957,23 +8603,61 @@ def show_main_menu(
             if str(activity_id).startswith("mage_arena_attune:"):
                 _set_utility_selection(str(activity_id))
                 return
+            if activity_id == FAMILIARISATION_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
             _set_utility_selection(activity_id)
 
-        cards_layout.addStretch(1)
-        cards_host.setMinimumHeight(cards_host.sizeHint().height())
-        cards_scroll.setWidget(cards_host)
-        event_status_label = QLabel("Event status")
+        event_status_label = QLabel("Activity details")
         event_status_label.setObjectName("activityEventStatusLabel")
         event_status_label.setStyleSheet(
             "font-weight: 600; color: palette(text);"
         )
+        detail_cards = {
+            EVIL_TREE_UTILITY_ID: ("Evil Tree", evil_box),
+            BIG_CHINCHOMPA_UTILITY_ID: ("Big Chinchompa", big_box),
+            SHOOTING_STAR_ACTIVITY_ID: ("Shooting Stars", star_box),
+            FAMILIARISATION_ACTIVITY_ID: (
+                "Familiarisation",
+                familiarisation_box,
+            ),
+            LIVID_FARM_ACTIVITY_ID: ("Livid Farm", livid_box),
+            **{
+                activity_id: ("Warriors' Guild", guild_box)
+                for activity_id in WARRIORS_GUILD_ACTIVITY_IDS
+            },
+        }
+
+        def _show_activity_detail(activity_id: object) -> None:
+            selected = detail_cards.get(str(activity_id or ""))
+            selected_widget = selected[1] if selected else None
+            show_detail = is_activities and selected_widget is not None
+            event_status_label.setVisible(show_detail)
+            cards_stack.setVisible(show_detail)
+            if selected is not None:
+                event_status_label.setText(f"{selected[0]} details")
+                cards_stack.setCurrentWidget(selected_widget)
+                _fit_current_activity_detail()
+
+        def _show_current_activity_detail(current_item, _previous=None) -> None:
+            if current_item is None or current_item.isDisabled():
+                return
+            activity_id = current_item.data(0, Qt.ItemDataRole.UserRole)
+            if activity_id and str(activity_id).startswith(
+                "__utility_group__"
+            ):
+                _show_activity_detail("")
+                return
+            if activity_id:
+                _show_activity_detail(activity_id)
+
         container_layout.addWidget(event_status_label)
-        container_layout.addWidget(cards_scroll)
-        event_status_label.setVisible(is_activities)
-        cards_scroll.setVisible(is_activities)
+        container_layout.addWidget(cards_stack)
 
         tree.itemClicked.connect(_on_utility_clicked)
         tree.itemActivated.connect(_on_utility_clicked)
+        tree.currentItemChanged.connect(_show_current_activity_detail)
+        _show_activity_detail(current if selected_child is not None else "")
         tree.setMinimumHeight(140)
         activity_picker_label = QLabel("Select an activity")
         activity_picker_label.setObjectName("activityPickerLabel")
@@ -8030,7 +8714,9 @@ def show_main_menu(
     }
 
     def _skill_icon_path(display_name: str) -> str:
-        return skill_icon_path_for(display_name) or os.path.join(current_dir, "icon", "achievement_icon.png")
+        return skill_icon_path_for(display_name) or os.path.join(
+            current_dir, "icon", "stats_icon.png"
+        )
 
     # ---- three-pane layout: categories | skills | target panel ----
     panes = QWidget()
@@ -8360,7 +9046,7 @@ def show_main_menu(
             note = QLabel(
                 "Utilities process, prepare, gather, or open items. They award no XP."
                 if name == _UTILITIES_HUB_NAME
-                else "Activities contain minigames, world events, and landmarks. Each row states its rewards."
+                else "Activities contain D&Ds, minigames, and landmarks. Each row states its rewards."
             )
             note.setWordWrap(True)
             # palette(mid) is a border role and renders near-black in dark mode;
@@ -8494,6 +9180,7 @@ def show_main_menu(
         panel_layout.addWidget(QLabel("No skills available."))
 
     tabs.addTab(skills_tab, "Skills")
+    _set_global_tab_icon(skills_tab, "skills_icon.png")
     tabs.setTabToolTip(tabs.indexOf(skills_tab), "Pick a category, choose a skill, then select what to train on")
 
     # ---- Shop tab ---------------------------------------------------------
@@ -9654,6 +10341,7 @@ def show_main_menu(
     _render_shop_detail()
 
     tabs.addTab(shop_tab, "Shop")
+    _set_global_tab_icon(shop_tab, "shop_icon.png")
     tabs.setTabToolTip(tabs.indexOf(shop_tab), "Browse source-backed NPC shops and vendor services")
 
     # ---- Grand Exchange tab ----------------------------------------------
@@ -10414,6 +11102,7 @@ def show_main_menu(
 
     _refresh_ge()
     tabs.addTab(ge_tab, "Grand Exchange")
+    _set_global_tab_icon(ge_tab, "grand_exchange_icon.png")
     tabs.setTabToolTip(
         tabs.indexOf(ge_tab),
         "Place and manage review-paced Grand Exchange offers",
@@ -10829,48 +11518,159 @@ def show_main_menu(
     quest_scroll.setWidget(quest_content)
     q_layout.addWidget(quest_scroll, 1)
     tabs.addTab(quests_tab, "Quests")
-    if os.path.exists(ach_icon_path := os.path.join(current_dir, "icon", "achievement_icon.png")):
-        tabs.setTabIcon(tabs.indexOf(quests_tab), QIcon(ach_icon_path))
+    _set_global_tab_icon(quests_tab, "quest_icon.png")
     tabs.setTabToolTip(tabs.indexOf(quests_tab), "View quest journals and active quest progress")
 
-    # Stats tab (inline, single-skill view with icon selectors)
+    # Stats tab (period-style three-column skill grid + selected detail)
     stats_tab = QWidget()
     st_layout = QVBoxLayout(stats_tab)
     st_layout.setContentsMargins(12, 12, 12, 12)
     st_layout.setSpacing(8)
 
-    # Skill selectors with icons
-    selector = QWidget()
-    sel_layout = QHBoxLayout(selector)
-    sel_layout.setSpacing(12)
-    sel_layout.setContentsMargins(0, 0, 0, 0)
+    stats_body = QWidget()
+    stats_body_layout = QHBoxLayout(stats_body)
+    stats_body_layout.setContentsMargins(0, 0, 0, 0)
+    stats_body_layout.setSpacing(12)
 
-    _stats_skill_defs = {skill.display_name: skill for skill in implemented_skill_definitions()}
+    # The 2012 Stats interface uses a fixed three-column order. Keep that
+    # familiar scan pattern while letting Qt provide native focus, selection,
+    # tooltips, and short-window scrolling.
+    stats_skill_order = (
+        "Attack", "Constitution", "Mining",
+        "Strength", "Agility", "Smithing",
+        "Defence", "Herblore", "Fishing",
+        "Ranged", "Thieving", "Cooking",
+        "Prayer", "Crafting", "Firemaking",
+        "Magic", "Fletching", "Woodcutting",
+        "Runecrafting", "Slayer", "Farming",
+        "Construction", "Hunter", "Summoning",
+        "Dungeoneering",
+    )
+    selector = QWidget()
+    selector.setObjectName("statsSkillGrid")
+    sel_layout = QGridLayout(selector)
+    sel_layout.setHorizontalSpacing(4)
+    sel_layout.setVerticalSpacing(2)
+    sel_layout.setContentsMargins(8, 8, 8, 8)
+    for column in range(3):
+        sel_layout.setColumnStretch(column, 1)
+
+    _stats_skill_defs = {
+        name: get_skill(name)
+        for name in stats_skill_order
+    }
+
+    def _stats_current_level(
+        skill_name: str,
+        skill_def: Any,
+        base_level: int,
+    ) -> int:
+        current_level = base_level
+        current_levels = player_data.get("combat_current_levels", {}) or {}
+        skill_id = (
+            skill_def.id
+            if skill_def is not None
+            else skill_name.lower()
+        )
+        if isinstance(current_levels, Mapping):
+            try:
+                current_level = max(
+                    1,
+                    int(current_levels.get(skill_id, base_level)),
+                )
+            except (TypeError, ValueError):
+                current_level = base_level
+        if (
+            skill_id == "agility"
+            and int(
+                player_data.get("agility_boost_actions_remaining", 0) or 0
+            )
+            > 0
+        ):
+            current_level = max(
+                current_level,
+                base_level
+                + max(
+                    0,
+                    int(
+                        player_data.get(
+                            "agility_effective_boost",
+                            0,
+                        )
+                        or 0
+                    ),
+                ),
+            )
+        return current_level
 
     # Helper to create a details panel for a specific skill
     def _mk_skill_details(skill_name: str) -> QWidget:
         block = QWidget()
         b_layout = QVBoxLayout(block)
+        b_layout.setContentsMargins(0, 0, 0, 0)
         b_layout.setSpacing(8)
+        title_row = QHBoxLayout()
+        title_row.setSpacing(8)
+        icon_path = skill_icon_path_for(skill_name)
+        if icon_path and os.path.exists(icon_path):
+            title_icon = QLabel()
+            title_icon.setObjectName("statsSelectedSkillIcon")
+            title_icon.setFixedSize(40, 40)
+            title_icon.setPixmap(
+                QPixmap(icon_path).scaled(
+                    36,
+                    36,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+            title_row.addWidget(title_icon)
         title = QLabel(f"{skill_name} Stats")
-        title.setStyleSheet("font-size: 14px; font-weight: bold;")
-        b_layout.addWidget(title)
-        grid = QGridLayout()
+        title.setObjectName("statsSelectedSkillTitle")
+        title.setStyleSheet("font-size: 16px; font-weight: bold;")
+        title_row.addWidget(title)
+        title_row.addStretch(1)
+        b_layout.addLayout(title_row)
+        metrics = QWidget()
+        metrics.setObjectName("statsSkillMetrics")
+        metrics.setMaximumWidth(520)
+        grid = QGridLayout(metrics)
+        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setHorizontalSpacing(12)
+        grid.setVerticalSpacing(8)
         grid.setColumnStretch(1, 1)
         skill_def = _stats_skill_defs.get(skill_name)
         level_key = skill_def.level_key if skill_def is not None else f"{skill_name.lower()}_level"
         exp_key = skill_def.exp_key if skill_def is not None else f"{skill_name.lower()}_exp"
-        level = player_data.get(level_key, 1)
+        level = int(player_data.get(level_key, 1) or 1)
+        current_level = _stats_current_level(
+            skill_name,
+            skill_def,
+            level,
+        )
         exp = round(player_data.get(exp_key, 0), 1)
-        grid.addWidget(QLabel(f"{skill_name} Level:"), 0, 0)
-        grid.addWidget(QLabel(str(level)), 0, 1)
+        exp_text = (
+            f"{int(exp):,}"
+            if float(exp).is_integer()
+            else f"{exp:,.1f}"
+        )
+        grid.addWidget(QLabel("Current / Base Level:"), 0, 0)
+        grid.addWidget(QLabel(f"{current_level} / {level}"), 0, 1)
         grid.addWidget(QLabel("Total Experience:"), 1, 0)
-        grid.addWidget(QLabel(f"{exp:,}"), 1, 1)
+        grid.addWidget(QLabel(exp_text), 1, 1)
         if level < 99:
             exp_to_next = round(max(0, EXP_TABLE[level] - exp), 1)
+            exp_to_next_text = (
+                f"{int(exp_to_next):,}"
+                if float(exp_to_next).is_integer()
+                else f"{exp_to_next:,.1f}"
+            )
             grid.addWidget(QLabel("Experience to Next Level:"), 2, 0)
-            grid.addWidget(QLabel(f"{exp_to_next:,}"), 2, 1)
+            grid.addWidget(QLabel(exp_to_next_text), 2, 1)
         prog = QProgressBar()
+        prog.setObjectName("statsSkillProgress")
+        prog.setMinimumWidth(240)
+        prog.setMaximumWidth(320)
         try:
             progress_percentage = (exp - EXP_TABLE[level - 1]) / (EXP_TABLE[level] - EXP_TABLE[level - 1]) * 100
             prog.setValue(int(max(0, min(100, progress_percentage))))
@@ -10878,7 +11678,11 @@ def show_main_menu(
             prog.setValue(0)
         grid.addWidget(QLabel("Level Progress:"), 3, 0)
         grid.addWidget(prog, 3, 1)
-        b_layout.addLayout(grid)
+        b_layout.addWidget(
+            metrics,
+            0,
+            Qt.AlignmentFlag.AlignLeft,
+        )
         return block
 
     # Details container (will switch based on selected skill)
@@ -10886,13 +11690,16 @@ def show_main_menu(
     details_layout = QVBoxLayout(details_container)
     details_layout.setContentsMargins(0, 0, 0, 0)
 
-    # Skill selectors come from the registry so every playable skill (Fletching
-    # and any future skill) gets a Stats panel automatically. Icons resolve by
-    # convention; the achievement icon is a safe fallback for skills lacking art.
-    _ach_fallback = os.path.join(current_dir, "icon", "achievement_icon.png")
+    # The registry remains authoritative for save keys. The period ordering
+    # intentionally includes Combat's separately tracked component skills and
+    # Dungeoneering's existing stat row even before its training surface ships.
+    _stats_fallback = os.path.join(current_dir, "icon", "stats_icon.png")
     skills_info = [
-        (skill.display_name, skill_icon_path_for(skill.display_name) or _ach_fallback)
-        for skill in implemented_skill_definitions()
+        (
+            name,
+            skill_icon_path_for(name) or _stats_fallback,
+        )
+        for name in stats_skill_order
     ]
 
     # Import here to keep headless safety for static analyzers
@@ -10905,30 +11712,76 @@ def show_main_menu(
     button_group.setExclusive(True)
     buttons = {}
     for idx, (name, icon_path) in enumerate(skills_info):
+        skill_def = _stats_skill_defs.get(name)
+        level_key = (
+            skill_def.level_key
+            if skill_def is not None
+            else f"{name.lower()}_level"
+        )
+        exp_key = (
+            skill_def.exp_key
+            if skill_def is not None
+            else f"{name.lower()}_exp"
+        )
+        level = int(player_data.get(level_key, 1) or 1)
+        exp = float(player_data.get(exp_key, 0) or 0)
+        current_level = _stats_current_level(name, skill_def, level)
         btn = StatsToolButton()
+        btn.setObjectName(
+            f"statsSkillButton_{skill_def.id if skill_def else name.lower()}"
+        )
         btn.setCheckable(True)
-        btn.setToolTip(name)
+        btn.setToolTip(
+            f"{name} — current {current_level} / base {level} — {exp:,.0f} XP"
+        )
+        btn.setAccessibleName(
+            f"{name}, current level {current_level}, base level {level}"
+        )
         if os.path.exists(icon_path):
-            btn.setIcon(QIcon(icon_path))
-        # Small label under icon
-        btn.setText(name)
+            btn.setIcon(
+                QIcon(
+                    QPixmap(icon_path).scaled(
+                        24,
+                        24,
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.FastTransformation,
+                    )
+                )
+            )
+        btn.setText(f"{current_level} / {level}")
         if hasattr(btn, "setToolButtonStyle"):
             try:
-                btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)  # type: ignore[attr-defined]
+                btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)  # type: ignore[attr-defined]
             except Exception:
                 pass
-        btn.setIconSize(QSize(48, 48))
+        btn.setIconSize(QSize(24, 24))
+        btn.setFixedHeight(38)
+        btn.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Fixed,
+        )
         btn.setAutoRaise(True)
-        # Visual feedback styles
         btn.setStyleSheet(
             """
-            QToolButton { border: 1px solid #cccccc; border-radius: 8px; padding: 6px; }
-            QToolButton:hover { border-color: #999999; }
-            QToolButton:checked { border: 2px solid #4CAF50; background-color: #e8f5e9; }
+            QToolButton {
+                border: 1px solid palette(mid);
+                border-radius: 4px;
+                padding: 2px 6px;
+                color: palette(text);
+                background: palette(base);
+                font-weight: 600;
+            }
+            QToolButton:hover { border-color: palette(dark); }
+            QToolButton:checked {
+                border: 2px solid #4CAF50;
+                color: palette(text);
+                background: rgba(76, 175, 80, 0.18);
+            }
             """
         )
         button_group.addButton(btn, idx)
-        sel_layout.addWidget(btn)
+        row, column = divmod(idx, 3)
+        sel_layout.addWidget(btn, row, column)
         buttons[name] = btn
         # Connect per-button click to select and persist
         btn.clicked.connect(lambda _checked=False, n=name: (
@@ -10936,7 +11789,40 @@ def show_main_menu(
             (mw and getattr(mw, 'col', None) and mw.col.set_config("ankiscape_stats_selected_skill", n))
         ))
 
-    st_layout.addWidget(selector)
+    total_level = sum(
+        int(
+            player_data.get(
+                skill_def.level_key if skill_def is not None else "",
+                1,
+            )
+            or 1
+        )
+        for skill_def in _stats_skill_defs.values()
+    )
+    total_level_label = QLabel(f"Total level: {total_level:,}")
+    total_level_label.setObjectName("statsTotalLevel")
+    total_level_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    total_level_label.setStyleSheet(
+        "font-weight: 700; color: palette(text); padding: 4px;"
+    )
+    final_row = (len(skills_info) + 2) // 3
+    sel_layout.addWidget(total_level_label, final_row, 0, 1, 3)
+    sel_layout.setRowStretch(final_row + 1, 1)
+
+    selector_scroll = QScrollArea()
+    selector_scroll.setObjectName("statsSkillSelectorScroll")
+    selector_scroll.setFrameShape(QtFrame.Shape.NoFrame)
+    selector_scroll.setWidgetResizable(True)
+    selector_scroll.setHorizontalScrollBarPolicy(
+        Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+    )
+    selector_scroll.setVerticalScrollBarPolicy(
+        Qt.ScrollBarPolicy.ScrollBarAsNeeded
+    )
+    selector_scroll.setWidget(selector)
+    selector_scroll.setFixedWidth(344)
+    stats_body_layout.addWidget(selector_scroll)
+    stats_body_layout.addWidget(details_container, 1)
 
     # Update details when a skill is selected
     def _select_skill(skill_name: str):
@@ -10953,6 +11839,7 @@ def show_main_menu(
             child = details_layout.takeAt(0)
         # Add new details
         details_layout.addWidget(_mk_skill_details(skill_name))
+        details_layout.addStretch(1)
 
     # No idClicked usage; handled per-button above
 
@@ -10969,7 +11856,7 @@ def show_main_menu(
     button_group.button(initial_index).setChecked(True)
     _select_skill(initial_skill)
 
-    st_layout.addWidget(details_container)
+    st_layout.addWidget(stats_body, 1)
     # Defer adding Stats tab until after Bank to satisfy desired ordering (Bank then Stats)
     ach_icon_path = os.path.join(current_dir, "icon", "achievement_icon.png")
 
@@ -12048,6 +12935,7 @@ def show_main_menu(
     gear_list.setFixedHeight(_gear_h)
     bk_layout.addWidget(gear_list)
     tabs.addTab(bank_tab, "Bank")
+    _set_global_tab_icon(bank_tab, "bank_icon.png")
     tabs.setTabToolTip(tabs.indexOf(bank_tab), "View all your items")
 
     # ---- Equipment tab (dedicated worn-slot list + summed stat totals) ----
@@ -12116,36 +13004,16 @@ def show_main_menu(
     follower_resources.setStyleSheet(f"color: {dim_text_css(follower_resources)};")
     follower_layout.addWidget(follower_resources)
 
-    familiarisation_summary = QLabel()
-    familiarisation_summary.setObjectName("summoningFamiliarisationSummary")
-    familiarisation_summary.setWordWrap(True)
-    familiarisation_summary.setStyleSheet(
-        f"color: {dim_text_css(familiarisation_summary)};"
-    )
-    follower_layout.addWidget(familiarisation_summary)
     follower_action_row = QWidget()
     follower_action_layout = QHBoxLayout(follower_action_row)
     follower_action_layout.setContentsMargins(0, 0, 0, 0)
     follower_action_layout.setSpacing(6)
     restore_points_button = QPushButton("Visit obelisk")
     restore_points_button.setObjectName("summoningRestorePointsButton")
-    start_familiarisation_button = QPushButton("Start Familiarisation")
-    start_familiarisation_button.setObjectName(
-        "summoningStartFamiliarisationButton"
-    )
-    ingredient_reward_button = QPushButton("Ingredient box")
-    ingredient_reward_button.setObjectName(
-        "summoningIngredientRewardButton"
-    )
-    charm_reward_button = QPushButton("Triple charms")
-    charm_reward_button.setObjectName("summoningCharmRewardButton")
     reclaim_cargo_button = QPushButton("Reclaim cargo")
     reclaim_cargo_button.setObjectName("summoningReclaimCargoButton")
     for widget in (
         restore_points_button,
-        start_familiarisation_button,
-        ingredient_reward_button,
-        charm_reward_button,
         reclaim_cargo_button,
     ):
         follower_action_layout.addWidget(widget)
@@ -12254,54 +13122,9 @@ def show_main_menu(
             f"Summoning points: {current_points}/{level}  •  "
             f"Special-move points: {special_points}/60"
         )
-        activity = summoning_state.get("familiarisation", {}) or {}
-        charm_reviews = max(
-            0,
-            int(
-                summoning_state.get(
-                    "triple_charm_reviews_remaining", 0
-                )
-                or 0
-            ),
-        )
-        if activity.get("active"):
-            familiarisation_summary.setText(
-                "Familiarisation: "
-                f"{int(activity.get('segments', 0))}/4 segments • "
-                f"{int(activity.get('focus', 0))} focus • "
-                f"{int(activity.get('raw_shards', 0))}/60 shards"
-            )
-        elif activity.get("awaiting_reward"):
-            familiarisation_summary.setText(
-                "Familiarisation complete — choose the ingredient box or "
-                "triple-charm reward."
-            )
-        else:
-            cooldown = max(
-                0, int(activity.get("cooldown_reviews_remaining", 0) or 0)
-            )
-            familiarisation_summary.setText(
-                f"Familiarisation: {'ready' if cooldown <= 0 else f'{cooldown} review(s) until ready'}"
-                + (
-                    f" • Triple charms: {charm_reviews} review(s)"
-                    if charm_reviews
-                    else ""
-                )
-            )
         restore_points_button.setEnabled(
             on_summoning_command is not None and current_points < level
         )
-        start_familiarisation_button.setVisible(
-            not activity.get("active") and not activity.get("awaiting_reward")
-        )
-        start_familiarisation_button.setEnabled(
-            on_summoning_command is not None
-            and int(activity.get("cooldown_reviews_remaining", 0) or 0) <= 0
-        )
-        ingredient_reward_button.setVisible(bool(activity.get("awaiting_reward")))
-        charm_reward_button.setVisible(bool(activity.get("awaiting_reward")))
-        ingredient_reward_button.setEnabled(on_summoning_command is not None)
-        charm_reward_button.setEnabled(on_summoning_command is not None)
         cargo_events = summoning_state.get("cargo_events", []) or []
         reclaim_cargo_button.setVisible(bool(cargo_events))
         reclaim_cargo_button.setEnabled(
@@ -12500,20 +13323,6 @@ def show_main_menu(
     restore_points_button.clicked.connect(
         lambda _checked=False: _run_summoning_command("restore_points")
     )
-    start_familiarisation_button.clicked.connect(
-        lambda _checked=False: _run_summoning_command("start_familiarisation")
-    )
-    ingredient_reward_button.clicked.connect(
-        lambda _checked=False: _run_summoning_command(
-            "claim_familiarisation", {"choice": "ingredients"}
-        )
-    )
-    charm_reward_button.clicked.connect(
-        lambda _checked=False: _run_summoning_command(
-            "claim_familiarisation", {"choice": "triple_charms"}
-        )
-    )
-
     def _reclaim_oldest_cargo(_checked=False) -> None:
         state_value = player_data.get("summoning_state", {}) or {}
         events = state_value.get("cargo_events", []) or []
@@ -12694,6 +13503,7 @@ def show_main_menu(
     _populate_equipment()
 
     tabs.addTab(equipment_tab, "Equipment")
+    _set_global_tab_icon(equipment_tab, "equipment_icon.png")
     tabs.setTabToolTip(tabs.indexOf(equipment_tab), "View and manage your worn equipment")
 
     # Test seams: expose the menu builders so offscreen tests can assert the
@@ -12705,8 +13515,7 @@ def show_main_menu(
 
     # Now add the Stats tab (after Bank) and set its icon/tooltip
     tabs.addTab(stats_tab, "Stats")
-    if os.path.exists(ach_icon_path):
-        tabs.setTabIcon(tabs.indexOf(stats_tab), QIcon(ach_icon_path))
+    _set_global_tab_icon(stats_tab, "stats_icon.png")
     tabs.setTabToolTip(tabs.indexOf(stats_tab), "View your skill stats")
 
     # Achievements tab (inline, themed)
@@ -12792,8 +13601,7 @@ def show_main_menu(
     a_layout.addWidget(progress_row)
 
     tabs.addTab(ach_tab, "Achievements")
-    if os.path.exists(ach_icon_path):
-        tabs.setTabIcon(tabs.indexOf(ach_tab), QIcon(ach_icon_path))
+    _set_global_tab_icon(ach_tab, "achievement_icon.png")
     tabs.setTabToolTip(tabs.indexOf(ach_tab), "Review your achievements")
 
     # Settings tab (controls)
@@ -13113,13 +13921,7 @@ def show_main_menu(
     set_layout.addWidget(dev_block)
 
     tabs.addTab(settings_tab, "Settings")
-    # Set Settings icon if present
-    try:
-        settings_icon = os.path.join(current_dir, "icon", "settings_icon.png")
-        if os.path.exists(settings_icon):
-            tabs.setTabIcon(tabs.indexOf(settings_tab), QIcon(settings_icon))
-    except Exception:
-        pass
+    _set_global_tab_icon(settings_tab, "settings_icon.png")
     tabs.setTabToolTip(tabs.indexOf(settings_tab), "Configure widget, experience HUD, notifications, and developer tools")
 
     help_topics = load_help_topics()

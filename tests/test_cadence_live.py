@@ -94,6 +94,24 @@ class TestCadenceLiveCoverage(unittest.TestCase):
         )
         self.assertIn("up to M whole circuits", row["multiplier_behavior"])
 
+    def test_shooting_star_declares_one_attempt_and_crowd_boundary(self):
+        row = next(
+            row
+            for row in cadence_coverage_rows_pure()
+            if row["handler_key"] == "utility"
+            and row["action_id"] == "shooting_stars"
+        )
+
+        self.assertEqual(row["mode"], "activity_group")
+        self.assertEqual(
+            row["includes"],
+            ("one stardust attempt", "one public-crowd boundary"),
+        )
+        self.assertIn(
+            "Never foreground-multiplied",
+            row["multiplier_behavior"],
+        )
+
     def test_declared_multiplier_behavior_matches_single_step_exemptions(self):
         thieving = resolve_live_cadence_route_pure(
             "thieving", "stall_silver", {}

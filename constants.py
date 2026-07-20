@@ -59,6 +59,11 @@ try:
         big_chinchompa_extra_items_as_dict,
     )
     from .evil_tree_data import evil_tree_extra_items_as_dict
+    from .shooting_star_data import (
+        SHOOTING_STAR_ACTIVITY_ID,
+        shooting_star_activity_as_dict,
+        shooting_star_extra_items_as_dict,
+    )
     from .firemaking_data import (
         DEFAULT_FIREMAKING_TARGET,
         firemaking_extra_items_as_dict,
@@ -205,6 +210,11 @@ except ImportError:
         big_chinchompa_extra_items_as_dict,
     )
     from evil_tree_data import evil_tree_extra_items_as_dict
+    from shooting_star_data import (  # type: ignore
+        SHOOTING_STAR_ACTIVITY_ID,
+        shooting_star_activity_as_dict,
+        shooting_star_extra_items_as_dict,
+    )
     from firemaking_data import (
         DEFAULT_FIREMAKING_TARGET,
         firemaking_extra_items_as_dict,
@@ -357,6 +367,7 @@ COMBAT_ENEMIES_FOLDER = os.path.join(current_dir, "combatenemies")
 SHOP_ITEMS_FOLDER = os.path.join(current_dir, "shopitems")
 PRAYER_ITEMS_FOLDER = os.path.join(current_dir, "prayeritems")
 MAGIC_ITEMS_FOLDER = os.path.join(current_dir, "magicitems")
+MAGIC_SPELLS_FOLDER = os.path.join(current_dir, "magicspells")
 CONSTRUCTION_ITEMS_FOLDER = os.path.join(current_dir, "constructionitems")
 SUMMONING_ITEMS_FOLDER = os.path.join(current_dir, "summoningitems")
 FARMING_ITEMS_FOLDER = os.path.join(current_dir, "farmingitems")
@@ -555,6 +566,18 @@ UTILITY_ACTIVITY_DATA.update(input_preparation_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(prayer_utility_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(WARRIORS_GUILD_ACTIVITIES)
 UTILITY_ACTIVITY_DATA.update(big_chinchompa_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(shooting_star_activity_as_dict())
+FAMILIARISATION_ACTIVITY_ID = "familiarisation"
+UTILITY_ACTIVITY_DATA[FAMILIARISATION_ACTIVITY_ID] = {
+    "display_name": "Familiarisation",
+    "requirements": {},
+    "batch_size": 1,
+    "group": "distractions_and_diversions",
+    "source": (
+        "memory-bank/summoning-skill-contract-2026-07-17.md "
+        "(owner-settled review-driven session)"
+    ),
+}
 UTILITY_ACTIVITY_DATA.update(
     livid_farm_activity_as_dict(
         os.path.join(current_dir, "icon", "magic_icon.png")
@@ -575,6 +598,23 @@ if os.path.exists(_big_chinchompa_icon):
     UTILITY_ACTIVITY_DATA[BIG_CHINCHOMPA_UTILITY_ID]["icon_path"] = (
         _big_chinchompa_icon
     )
+_shooting_star_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "shooting_stars.png",
+)
+if os.path.exists(_shooting_star_icon):
+    UTILITY_ACTIVITY_DATA[SHOOTING_STAR_ACTIVITY_ID]["icon_path"] = (
+        _shooting_star_icon
+    )
+_familiarisation_icon = os.path.join(
+    current_dir,
+    "icon",
+    "summoning_icon.png",
+)
+if os.path.exists(_familiarisation_icon):
+    UTILITY_ACTIVITY_DATA[FAMILIARISATION_ACTIVITY_ID]["icon_path"] = (
+        _familiarisation_icon
+    )
 
 UTILITY_SURFACE_ID = "utilities"
 ACTIVITY_SURFACE_ID = "activities"
@@ -591,7 +631,9 @@ UTILITY_ACTIVITY_GROUPS = frozenset(
         "prayer_preparation",
     }
 )
-ACTIVITY_GROUPS = frozenset({"warriors_guild", "minigames"})
+ACTIVITY_GROUPS = frozenset(
+    {"warriors_guild", "minigames", "distractions_and_diversions"}
+)
 for _activity_spec in UTILITY_ACTIVITY_DATA.values():
     _activity_group = str(_activity_spec.get("group", "material_processing"))
     if _activity_group in ACTIVITY_GROUPS:
@@ -696,6 +738,7 @@ ORE_DATA = mining_targets_as_dict()
 MINING_PICKAXE_DATA = mining_pickaxes_as_dict()
 MINING_BONUS_ITEM_DATA = mining_bonus_items_as_dict()
 MINING_EXTRA_ITEM_DATA = mining_extra_items_as_dict()
+MINING_EXTRA_ITEM_DATA.update(shooting_star_extra_items_as_dict())
 MINING_OUTPUT_ITEMS = mining_output_items()
 
 TREE_DATA = woodcutting_targets_as_dict()
@@ -1057,6 +1100,17 @@ for _item_name in MAGIC_EXTRA_ITEM_DATA:
     )
     if _path and os.path.exists(_path):
         MAGIC_ITEM_IMAGES[_item_name] = _path
+
+MAGIC_SPELL_IMAGES = {
+    _target_id: _path
+    for _target_id in MAGIC_DATA
+    if os.path.exists(
+        _path := os.path.join(
+            MAGIC_SPELLS_FOLDER,
+            f"{_target_id}.png",
+        )
+    )
+}
 
 CONSTRUCTION_EXTRA_ITEM_DATA = construction_extra_items_as_dict()
 CONSTRUCTION_ASSET_ITEM_DATA = construction_asset_items_as_dict()

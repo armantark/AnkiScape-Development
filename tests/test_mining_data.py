@@ -130,7 +130,7 @@ class TestMiningData(unittest.TestCase):
         deferred = {entry.id: entry.status for entry in DEFERRED_MINING_CONTENT}
         self.assertNotIn("concentrated_coal", deferred)
         self.assertNotIn("concentrated_gold", deferred)
-        self.assertEqual(deferred["shooting_stars"], "future_content")
+        self.assertEqual(deferred["shooting_stars"], "implemented_activity")
         # Ring of wealth's gem-rock double-gem/speed bonus is earmarked for the
         # future Enchanting/Magic system that produces the ring.
         self.assertEqual(deferred["ring_of_wealth_gem_bonus"], "deferred_dependency")

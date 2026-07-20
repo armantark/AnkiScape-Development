@@ -151,6 +151,12 @@ from .evil_tree_logic import (
     advance_evil_tree_world_clock_pure,
     evil_tree_spawn_due_pure,
 )
+from .shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
+from .shooting_star_logic import (
+    advance_shooting_star_world_clock_pure,
+    apply_shooting_star_exchange_pure,
+    set_shooting_star_preferences_pure,
+)
 from .warriors_guild_logic import (
     enter_warriors_guild_cyclops_room_pure,
     leave_warriors_guild_cyclops_room_pure,
@@ -1600,6 +1606,69 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             pass
         return {"ok": True, **info}
 
+    def _apply_shooting_star_command(action_id, payload):
+        payload = payload if isinstance(payload, dict) else {}
+        if action_id == "set_preferences":
+            updated, ok, info = set_shooting_star_preferences_pure(
+                player_data,
+                automation_mode=str(
+                    payload.get("automation_mode", "casual")
+                ),
+                preferred_sizes=tuple(
+                    payload.get("preferred_sizes", tuple(range(1, 10)))
+                ),
+                population_profile=str(
+                    payload.get("population_profile", "normal")
+                ),
+            )
+            if not ok:
+                return {
+                    "ok": False,
+                    "message": str(
+                        info.get("reason", "Could not save star preferences.")
+                    ),
+                }
+            player_data.clear()
+            player_data.update(updated)
+            save_player_data()
+            return {"ok": True, **info}
+        if action_id != "exchange":
+            return {
+                "ok": False,
+                "message": "Unknown Shooting Star command.",
+            }
+
+        before = _capture_player_data_snapshot()
+        updated, ok, info = apply_shooting_star_exchange_pure(player_data)
+        if not ok:
+            return {
+                "ok": False,
+                "message": str(
+                    info.get("reason", "The Star sprite cannot reward you.")
+                ),
+            }
+        try:
+            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+        except (AttributeError, RuntimeError):
+            return {
+                "ok": False,
+                "message": "Anki could not create an undo entry.",
+            }
+        _DIRECT_ACTION_UNDO_STACK.append(before)
+        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+        player_data.clear()
+        player_data.update(updated)
+        check_achievements(player_data)
+        save_player_data()
+        _refresh_skill_availability()
+        try:
+            mw.update_undo_actions()
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_livid_farm_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         if action_id == "set_routine":
@@ -1799,6 +1868,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_agility_command=_apply_agility_command,
         on_warriors_guild_command=_apply_warriors_guild_command,
         on_big_chinchompa_command=_apply_big_chinchompa_command,
+        on_shooting_star_command=_apply_shooting_star_command,
         on_livid_farm_command=_apply_livid_farm_command,
         on_set_prayer_selection=set_prayer_selection,
         on_set_magic=lambda target: _set_value("current_magic", target),
@@ -2372,6 +2442,32 @@ def _advance_world_events_after_review() -> None:
         )
         _show_activity_gain(result)
 
+    star_updated, star_events = advance_shooting_star_world_clock_pure(
+        player_data
+    )
+    player_data.update(star_updated)
+    star_spawned = next(
+        (
+            event
+            for event in star_events
+            if event.get("kind") == "spawned"
+        ),
+        None,
+    )
+    if star_spawned:
+        _show_activity_gain(
+            f"Size {int(star_spawned.get('starting_size', 1))} "
+            "Shooting Star discovered at "
+            f"{star_spawned.get('location', 'an unrestricted mine')}"
+        )
+    elif any(
+        event.get("kind") == "sprite_released"
+        for event in star_events
+    ):
+        _show_activity_gain(
+            "A Star sprite has been released; exchange stardust in Activities."
+        )
+
 
 def on_good_answer(before_state=None):
     global current_skill, exp_awarded
@@ -2404,6 +2500,7 @@ def on_good_answer(before_state=None):
                         in {
                             EVIL_TREE_UTILITY_ID,
                             BIG_CHINCHOMPA_UTILITY_ID,
+                            SHOOTING_STAR_ACTIVITY_ID,
                         }
                     )
                     or (handler_key == "quest" and _cadence_kernel_enabled())

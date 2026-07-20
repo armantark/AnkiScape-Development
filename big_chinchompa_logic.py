@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import copy
-import math
 from typing import Any, Mapping, Sequence
 
 try:
@@ -23,6 +22,10 @@ try:
         WORLD_POPULATION_BASE_CEILINGS,
         WORLD_POPULATION_PROFILES,
     )
+    from .world_population_logic import (
+        naturalized_population_target_bps_pure,
+        seeded_unit_pure,
+    )
 except ImportError:  # pragma: no cover - flat test imports
     from big_chinchompa_data import (  # type: ignore
         BIG_CHINCHOMPA_COMPETENCE_CAP,
@@ -39,6 +42,10 @@ except ImportError:  # pragma: no cover - flat test imports
         BIG_CHINCHOMPA_WORLD_MINUTES_PER_REVIEW,
         WORLD_POPULATION_BASE_CEILINGS,
         WORLD_POPULATION_PROFILES,
+    )
+    from world_population_logic import (  # type: ignore
+        naturalized_population_target_bps_pure,
+        seeded_unit_pure,
     )
 
 
@@ -97,12 +104,6 @@ def _has_future_review_window(answered_cards: int, end_world_minute: int) -> boo
 
 def _event_seed(slot_card: int) -> int:
     return (slot_card * 1_103_515_245 + 12_345) & 0x7FFFFFFF
-
-
-def _seed_unit(seed: int, stream: int) -> float:
-    value = (seed ^ (stream * 0x9E3779B9)) & 0xFFFFFFFF
-    value = (value * 1_664_525 + 1_013_904_223) & 0xFFFFFFFF
-    return value / 0xFFFFFFFF
 
 
 def _profile(player_data: Mapping[str, Any]) -> str:
@@ -209,20 +210,6 @@ def _event_total_fullness_bps(event: Mapping[str, Any]) -> int:
     )
 
 
-def _normalized_logistic(phase: float, midpoint: float, steepness: float) -> float:
-    phase = max(0.0, min(1.0, phase))
-
-    def sigmoid(value: float) -> float:
-        return 1.0 / (1.0 + math.exp(-value))
-
-    start = sigmoid(-steepness * midpoint)
-    end = sigmoid(steepness * (1.0 - midpoint))
-    current = sigmoid(steepness * (phase - midpoint))
-    if end <= start:
-        return phase
-    return max(0.0, min(1.0, (current - start) / (end - start)))
-
-
 def big_chinchompa_crowd_target_bps_pure(
     *,
     slot_card: int,
@@ -236,35 +223,20 @@ def big_chinchompa_crowd_target_bps_pure(
     phase = (
         _world_minutes(answered_cards) - start_minute
     ) / BIG_CHINCHOMPA_EVENT_MINUTES
-    phase = max(0.0, min(1.0, phase))
-
-    # `phase + a*sin(pi*phase)` remains monotonic for |a| <= .1 because its
-    # derivative stays positive. It gives the shared smooth ±10% phase jitter
-    # without allowing aggregate hunters to disappear.
-    jitter = (_seed_unit(seed, 4) * 0.2) - 0.1
-    natural_phase = max(
-        0.0,
-        min(1.0, phase + jitter * math.sin(math.pi * phase)),
+    return naturalized_population_target_bps_pure(
+        phase=phase,
+        day_phase=(slot_card % 240) / 240.0,
+        seed=seed,
+        profile=profile,
+        base_ceilings=WORLD_POPULATION_BASE_CEILINGS,
+        default_profile=DEFAULT_WORLD_POPULATION_PROFILE,
     )
-    midpoint = 0.5 + ((_seed_unit(seed, 2) * 0.2) - 0.1)
-    steepness = 8.0 * (0.85 + _seed_unit(seed, 3) * 0.3)
-    curve = _normalized_logistic(natural_phase, midpoint, steepness)
-
-    day_phase = (slot_card % 240) / 240.0
-    day_envelope = 1.0 + 0.25 * math.sin(2.0 * math.pi * day_phase)
-    base_ceiling = WORLD_POPULATION_BASE_CEILINGS.get(
-        profile,
-        WORLD_POPULATION_BASE_CEILINGS[DEFAULT_WORLD_POPULATION_PROFILE],
-    )
-    seeded_ceiling = base_ceiling * (0.8 + _seed_unit(seed, 1) * 0.4)
-    ceiling = seeded_ceiling * day_envelope
-    return min(10_000, max(0, int(round(curve * ceiling * 10_000))))
 
 
 def _spawn_event(slot_card: int) -> dict[str, Any]:
     seed = _event_seed(slot_card)
     location = BIG_CHINCHOMPA_LOCATIONS[
-        int(_seed_unit(seed, 0) * len(BIG_CHINCHOMPA_LOCATIONS))
+        int(seeded_unit_pure(seed, 0) * len(BIG_CHINCHOMPA_LOCATIONS))
         % len(BIG_CHINCHOMPA_LOCATIONS)
     ]
     return {

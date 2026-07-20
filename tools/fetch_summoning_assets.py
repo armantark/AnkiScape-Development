@@ -3,7 +3,7 @@
 # requires-python = ">=3.9"
 # dependencies = ["pillow>=10"]
 # ///
-"""Fetch the complete surface Summoning item manifest and skill icon."""
+"""Fetch the complete surface Summoning item manifest."""
 
 from __future__ import annotations
 
@@ -81,15 +81,7 @@ def asset_manifest() -> tuple[AssetRequest, ...]:
         )
         for item_name in summoning_extra_items_as_dict()
     )
-    return (
-        AssetRequest(
-            item_name="Summoning skill icon",
-            wiki_title="Summoning-icon.png",
-            output_path=ROOT / "icon" / "summoning_icon.png",
-            provenance_path=ROOT / "assets_provenance.json",
-        ),
-        *items,
-    )
+    return items
 
 
 def main() -> int:
