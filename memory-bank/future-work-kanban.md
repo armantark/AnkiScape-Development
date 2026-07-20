@@ -995,15 +995,18 @@ Labels: `SHIPPED: SEARCH SEAM`, `DEPENDENCY: SLAYER RUNTIME`.
 
 ### In-product help and mechanics reference
 
-Labels: `PARKED`; promote to `IMPLEMENT` when sequenced.
+Labels: `SHIPPED: HELP CENTER`, `IMPLEMENT: DETAILS`.
 
-- Build the single-source architecture proposed in
-  `help-system-contract-2026-07-16.md`: an offline searchable Help Center backed
-  by versioned topic files, with each page's consistent `?` control deep-linking
-  into the same corpus. Do not maintain separate contextual copy and wiki prose.
-- Reuse one modular Qt search component for Help and the addon pages whose large
-  catalogs already need filtering; preserve page-specific result adapters rather
-  than cloning search widgets and keyboard behavior.
+- The single-source Help Center from `help-system-contract-2026-07-16.md` is
+  shipped: 18 offline versioned topics, contextual `?` entry from all nine
+  primary pages, shared search, All topics, related links, and history.
+- `CatalogFilterBar` remains the shared Qt search seam; Help owns only its
+  corpus adapter and does not duplicate contextual copy or maintain an
+  independent wiki.
+- Implement the separately settled optional `Details` surface against live
+  registry values. Show exact chance/range/breakdown only when genuinely
+  resolved, use qualitative wording otherwise, and never expose internal
+  equations, ticks, audit classifications, or fabricated precision.
 
 ### Activities, minigames, D&Ds, and reward shops
 

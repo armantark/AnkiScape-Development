@@ -2975,3 +2975,26 @@ Test counts are snapshots; current runs outrank this note.
   mobile copy: `https://jgg95o5s47si.postplan.dev`.
 - Razor-backed kebbit tracking remains source-blocked; no Hunter target or
   free acquisition shortcut was added, and no owner design gap emerged.
+
+## In-product Help Center — 2026-07-20
+
+- Added 18 runtime-readable Markdown topics with stable IDs, structured
+  metadata, aliases, tags, related-topic links, internal anchors, and a live
+  implemented-skills registry block.
+- Added pure corpus validation/search/rendering plus a non-modal Qt Help panel
+  shared by Skills, Shop, Grand Exchange, Quests, Bank, Equipment, Stats,
+  Achievements, and Settings.
+- Reused `CatalogFilterBar` for search and implemented query-preserving
+  Back/Forward history, All topics, internal links, missing-ID fallback,
+  `F1`, `Alt+Left`, `Alt+Right`, Down-arrow result focus, and two-stage Escape.
+- Kimi K3 reviewed the complete UI and every accepted issue was corrected.
+  Fable review is still pending because its required fresh quota probe cannot
+  access Claude Code's macOS Keychain credential; this is a QA/auth blocker,
+  not a design gap.
+- A complete Anki quit/relaunch confirmed the real macOS add-on surface and
+  interaction path. Full verification passes 1,884 non-Qt methods and 1,884
+  offscreen Qt methods; docs, test quality, UI asset normalization, diff, and
+  guarded-worktree checks are clean.
+- The Help Center is implemented; its required Fable sign-off, results
+  artifact, and commit remain closure work. The separate owner-settled
+  target-level `Details` surface remains implementation backlog.

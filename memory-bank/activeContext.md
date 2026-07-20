@@ -2200,3 +2200,32 @@ The visual closure report is
   intentional skip. Results:
   `status-updates/livid-farm-magic-consumers-results-2026-07-19.html`;
   mobile copy: `https://hbqtpi53phuh.postplan.dev`.
+
+## In-product Help Center — 2026-07-20
+
+- Implemented the settled offline Help architecture with 18 canonical Markdown
+  topics, structured front matter, registry-backed blocks, pure validation,
+  search, internal links, related topics, and production/developer missing-ID
+  behavior.
+- Added one contextual `?` control for all nine primary menu tabs. The
+  non-modal panel preserves the active page and supports All topics, Back,
+  Forward, `F1`, `Alt+Left`, `Alt+Right`, keyboard result entry, and two-stage
+  Escape.
+- Kimi K3's taste pass drove concrete search-history, Escape, screen-clamping,
+  empty-state, light-link, keyboard, and hierarchy corrections. The required
+  Fable pass remains an external closure gate because the mandatory live quota
+  probe cannot read Claude Code OAuth from macOS Keychain (`security` exit 51);
+  no unverified Claude call was made.
+- A fully quit and freshly relaunched macOS Anki process loaded the dirty
+  add-on once and passed Skills/Bank contextual mapping, search, result
+  navigation, Back restoration, and Escape behavior. Headless Qt is not used
+  as a substitute for this check.
+- Full verification passes all 1,884 non-Qt methods with 248 environment skips
+  and all 1,884 offscreen Qt methods with one intentional skip. Documentation,
+  test-quality, global UI-asset normalization, diff, and worktree audits pass.
+  The known reachability ledger remains 1,268 actions, 1,889 reachable items,
+  284 orphan inputs, and 302 blocked actions.
+- Durable implementation record:
+  `source-audits/help-center-implementation-2026-07-20.md`. The separately
+  settled target-level `Details` surface remains the next Help-contract slice;
+  no new owner design gap surfaced.

@@ -49,6 +49,10 @@ try:
         QEvent,
         QLineEdit,
         QToolButton,
+        QTextBrowser,
+        QStackedWidget,
+        QShortcut,
+        QKeySequence,
         QFrame as QtFrame,
     )
     HAS_QT = True
@@ -389,6 +393,31 @@ try:
     from .skill_registry import implemented_skill_definitions, implemented_review_skill_names, get_skill
 except Exception:
     from skill_registry import implemented_skill_definitions, implemented_review_skill_names, get_skill  # type: ignore
+
+try:
+    from .help_system import (
+        HELP_HOME_ID,
+        PRIMARY_HELP_TOPIC_BY_TAB_LABEL,
+        HelpRegistryTable,
+        HelpTopic,
+        load_help_topics,
+        render_help_topic_html,
+        resolve_help_topic,
+        search_help_topics,
+        topics_by_id,
+    )
+except Exception:
+    from help_system import (  # type: ignore
+        HELP_HOME_ID,
+        PRIMARY_HELP_TOPIC_BY_TAB_LABEL,
+        HelpRegistryTable,
+        HelpTopic,
+        load_help_topics,
+        render_help_topic_html,
+        resolve_help_topic,
+        search_help_topics,
+        topics_by_id,
+    )
 
 try:
     from .achievement_metadata import (
@@ -1468,6 +1497,384 @@ if HAS_QT:
         def set_count(self, visible: int, total: int) -> None:
             self.summary_label.setText(f"Showing {int(visible)}/{int(total)}")
             self.summary_label.setMinimumWidth(self.summary_label.sizeHint().width())
+
+    class HelpCenterPanel(QWidget):
+        """Searchable, contextual Help Center embedded in the main menu."""
+
+        def __init__(
+            self,
+            *,
+            topics: tuple[HelpTopic, ...],
+            developer_mode: bool,
+            registry_tables: Mapping[str, HelpRegistryTable],
+            on_close,
+            parent=None,
+        ):
+            super().__init__(parent)
+            self.setObjectName("helpCenterPanel")
+            self.setMinimumWidth(330)
+            self.setMaximumWidth(410)
+            self.setStyleSheet(
+                "QWidget#helpCenterPanel {"
+                " background: palette(base); border: 1px solid palette(mid);"
+                " border-radius: 8px; }"
+            )
+            self._topics = tuple(topics)
+            self._topics_by_id = topics_by_id(topics)
+            self._developer_mode = developer_mode
+            self._registry_tables = dict(registry_tables)
+            self._on_close = on_close
+            self._history: list[tuple[str, str]] = []
+            self._history_index = -1
+            self._ignore_search = False
+
+            root = QVBoxLayout(self)
+            root.setContentsMargins(12, 12, 12, 12)
+            root.setSpacing(10)
+
+            header = QHBoxLayout()
+            header.setContentsMargins(0, 0, 0, 0)
+            header.setSpacing(6)
+            title = QLabel("Help Center")
+            title.setObjectName("helpCenterHeading")
+            title.setStyleSheet(
+                "font-size: 15px; font-weight: 700; color: palette(text);"
+            )
+            header.addWidget(title)
+            header.addStretch(1)
+
+            self.back_button = QToolButton()
+            self.back_button.setObjectName("helpBackButton")
+            self.back_button.setText("←")
+            self.back_button.setToolTip("Back")
+            self.back_button.setAccessibleName("Back")
+            self.back_button.clicked.connect(self.go_back)
+            header.addWidget(self.back_button)
+
+            self.forward_button = QToolButton()
+            self.forward_button.setObjectName("helpForwardButton")
+            self.forward_button.setText("→")
+            self.forward_button.setToolTip("Forward")
+            self.forward_button.setAccessibleName("Forward")
+            self.forward_button.clicked.connect(self.go_forward)
+            header.addWidget(self.forward_button)
+
+            close_button = QToolButton()
+            close_button.setObjectName("helpCloseButton")
+            close_button.setText("×")
+            close_button.setToolTip("Close Help Center")
+            close_button.setAccessibleName("Close Help Center")
+            close_button.clicked.connect(self._close)
+            header.addWidget(close_button)
+            root.addLayout(header)
+
+            self.filter_bar = CatalogFilterBar(
+                placeholder="Search help",
+                search_object_name="helpSearch",
+                parent=self,
+            )
+            self.filter_bar.search_input.textChanged.connect(self._on_search_changed)
+            root.addWidget(self.filter_bar)
+
+            self.all_topics_button = QPushButton("All topics")
+            self.all_topics_button.setObjectName("helpAllTopicsButton")
+            self.all_topics_button.setFlat(True)
+            self.all_topics_button.setStyleSheet(
+                "QPushButton { color: palette(link); border: none; padding: 3px 0;"
+                " text-align: left; background: transparent; }"
+                "QPushButton:hover { text-decoration: underline; }"
+            )
+            self.all_topics_button.setSizePolicy(
+                QSizePolicy.Policy.Maximum,
+                QSizePolicy.Policy.Fixed,
+            )
+            self.all_topics_button.clicked.connect(self.show_all_topics)
+            root.addWidget(
+                self.all_topics_button,
+                0,
+                Qt.AlignmentFlag.AlignLeft,
+            )
+
+            self.stack = QStackedWidget()
+            self.stack.setObjectName("helpPageStack")
+
+            list_page = QWidget()
+            list_layout = QVBoxLayout(list_page)
+            list_layout.setContentsMargins(0, 0, 0, 0)
+            list_layout.setSpacing(6)
+            self.list_heading = QLabel("All topics")
+            self.list_heading.setObjectName("helpListHeading")
+            self.list_heading.setStyleSheet(
+                "font-weight: 600; color: palette(text);"
+            )
+            list_layout.addWidget(self.list_heading)
+            self.topic_list = QListWidget()
+            self.topic_list.setObjectName("helpTopicList")
+            self.topic_list.setAlternatingRowColors(True)
+            self.topic_list.itemActivated.connect(self._open_topic_item)
+            self.topic_list.itemClicked.connect(self._open_topic_item)
+            self.results_stack = QStackedWidget()
+            self.results_stack.setObjectName("helpResultsStack")
+            self.results_stack.addWidget(self.topic_list)
+            self.empty_label = QLabel("")
+            self.empty_label.setObjectName("helpEmptyState")
+            self.empty_label.setWordWrap(True)
+            self.empty_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.empty_label.setStyleSheet(
+                f"color: {dim_text_css(self.empty_label)}; padding: 12px 4px;"
+            )
+            empty_page = QWidget()
+            empty_layout = QVBoxLayout(empty_page)
+            empty_layout.setContentsMargins(0, 0, 0, 0)
+            empty_layout.addStretch(1)
+            empty_layout.addWidget(self.empty_label)
+            empty_layout.addStretch(1)
+            self.results_stack.addWidget(empty_page)
+            self._empty_page = empty_page
+            list_layout.addWidget(self.results_stack, 1)
+            self.stack.addWidget(list_page)
+            self._list_page = list_page
+
+            topic_page = QWidget()
+            topic_layout = QVBoxLayout(topic_page)
+            topic_layout.setContentsMargins(0, 0, 0, 0)
+            topic_layout.setSpacing(8)
+            self.topic_title = QLabel("")
+            self.topic_title.setObjectName("helpTopicTitle")
+            self.topic_title.setWordWrap(True)
+            self.topic_title.setStyleSheet(
+                "font-size: 17px; font-weight: 700; color: palette(text);"
+            )
+            topic_layout.addWidget(self.topic_title)
+            self.topic_body = QTextBrowser()
+            self.topic_body.setObjectName("helpTopicBody")
+            self.topic_body.setOpenLinks(False)
+            self.topic_body.setOpenExternalLinks(False)
+            self.topic_body.setFrameShape(QtFrame.Shape.NoFrame)
+            self.topic_body.setStyleSheet(
+                "QTextBrowser { color: palette(text); background: palette(base);"
+                " border: none; padding: 0; }"
+            )
+            link_color = self.topic_body.palette().color(
+                QPalette.ColorRole.Link
+            ).name()
+            self.topic_body.document().setDefaultStyleSheet(
+                "body { color: inherit; }"
+                "h1 { margin-top: 14px; margin-bottom: 7px; font-size: 17px; }"
+                "h2 { margin-top: 14px; margin-bottom: 6px; font-size: 15px; }"
+                "h3 { margin-top: 12px; margin-bottom: 5px; font-size: 13px; }"
+                "p { margin-top: 5px; margin-bottom: 8px; line-height: 1.35; }"
+                "ul, ol { margin-top: 4px; margin-bottom: 8px; }"
+                "li { margin-bottom: 3px; }"
+                f"a {{ color: {link_color}; text-decoration: underline; }}"
+                "code { font-family: monospace; }"
+                "table { border-collapse: collapse; margin-top: 6px; }"
+                "th, td { border: 1px solid #777; padding: 4px 6px; }"
+            )
+            self.topic_body.anchorClicked.connect(self._open_help_url)
+            topic_layout.addWidget(self.topic_body, 1)
+            self.stack.addWidget(topic_page)
+            self._topic_page = topic_page
+
+            root.addWidget(self.stack, 1)
+            self.filter_bar.search_input.installEventFilter(self)
+            self._escape_shortcut = QShortcut(
+                QKeySequence(Qt.Key.Key_Escape),
+                self,
+            )
+            self._escape_shortcut.setContext(
+                Qt.ShortcutContext.WidgetWithChildrenShortcut
+            )
+            self._escape_shortcut.activated.connect(self._handle_escape)
+            self._back_shortcut = QShortcut(QKeySequence("Alt+Left"), self)
+            self._back_shortcut.setContext(
+                Qt.ShortcutContext.WidgetWithChildrenShortcut
+            )
+            self._back_shortcut.activated.connect(self.go_back)
+            self._forward_shortcut = QShortcut(QKeySequence("Alt+Right"), self)
+            self._forward_shortcut.setContext(
+                Qt.ShortcutContext.WidgetWithChildrenShortcut
+            )
+            self._forward_shortcut.activated.connect(self.go_forward)
+            self._update_history_buttons()
+
+        def show_context(self, reference: str) -> None:
+            self.setVisible(True)
+            self._ignore_search = True
+            self.filter_bar.search_input.clear()
+            self._ignore_search = False
+            self.open_topic(reference)
+            self.filter_bar.search_input.setFocus()
+
+        def open_topic(self, reference: str, *, add_history: bool = True) -> bool:
+            try:
+                topic, anchor = resolve_help_topic(
+                    self._topics_by_id,
+                    reference,
+                    developer_mode=self._developer_mode,
+                )
+            except KeyError as exc:
+                self._show_developer_error(str(exc))
+                return False
+
+            canonical_reference = topic.help_id + (f"#{anchor}" if anchor else "")
+            if add_history:
+                self._record_history_state(("topic", canonical_reference))
+
+            self.filter_bar.summary_label.clear()
+            self.topic_title.setText(topic.title)
+            html = render_help_topic_html(
+                topic,
+                registry_tables=self._registry_tables,
+            )
+            if topic.related:
+                related_links = "".join(
+                    "<li><a href=\"help:"
+                    + related_id
+                    + "\">"
+                    + self._topics_by_id[related_id].title
+                    + "</a></li>"
+                    for related_id in topic.related
+                )
+                html += f"<h2>Related topics</h2><ul>{related_links}</ul>"
+            self.topic_body.setHtml(html)
+            if anchor:
+                self.topic_body.scrollToAnchor(anchor)
+            else:
+                self.topic_body.verticalScrollBar().setValue(0)
+            self.stack.setCurrentWidget(self._topic_page)
+            self._update_history_buttons()
+            return True
+
+        def show_all_topics(self) -> None:
+            self._ignore_search = True
+            self.filter_bar.search_input.clear()
+            self._ignore_search = False
+            self._populate_topic_list("", heading="All topics")
+            self._record_history_state(("list", ""))
+            self.filter_bar.search_input.setFocus()
+
+        def go_back(self) -> None:
+            if self._history_index <= 0:
+                return
+            self._history_index -= 1
+            self._show_history_state(self._history[self._history_index])
+
+        def go_forward(self) -> None:
+            if self._history_index + 1 >= len(self._history):
+                return
+            self._history_index += 1
+            self._show_history_state(self._history[self._history_index])
+
+        def eventFilter(self, watched, event):  # type: ignore[no-untyped-def]
+            if (
+                watched is self.filter_bar.search_input
+                and event.type() == QEvent.Type.KeyPress
+                and event.key() == Qt.Key.Key_Down
+                and self.stack.currentWidget() is self._list_page
+                and self.results_stack.currentWidget() is self.topic_list
+                and self.topic_list.count()
+            ):
+                self.topic_list.setCurrentRow(0)
+                self.topic_list.setFocus()
+                event.accept()
+                return True
+            return super().eventFilter(watched, event)
+
+        def _record_history_state(self, state: tuple[str, str]) -> None:
+            if self._history_index + 1 < len(self._history):
+                self._history = self._history[: self._history_index + 1]
+            if self._history and self._history[-1] == state:
+                self._history_index = len(self._history) - 1
+                self._update_history_buttons()
+                return
+            self._history.append(state)
+            self._history_index = len(self._history) - 1
+            self._update_history_buttons()
+
+        def _show_history_state(self, state: tuple[str, str]) -> None:
+            kind, value = state
+            if kind == "topic":
+                self.open_topic(value, add_history=False)
+            else:
+                self._ignore_search = True
+                self.filter_bar.search_input.setText(value)
+                self._ignore_search = False
+                self._populate_topic_list(
+                    value,
+                    heading="Search results" if value else "All topics",
+                )
+            self._update_history_buttons()
+
+        def _update_history_buttons(self) -> None:
+            self.back_button.setEnabled(self._history_index > 0)
+            self.forward_button.setEnabled(
+                0 <= self._history_index < len(self._history) - 1
+            )
+
+        def _on_search_changed(self, query: str) -> None:
+            if self._ignore_search:
+                return
+            heading = "Search results" if query.strip() else "All topics"
+            self._populate_topic_list(query, heading=heading)
+            state = ("list", query)
+            if (
+                0 <= self._history_index < len(self._history)
+                and self._history[self._history_index][0] == "list"
+            ):
+                self._history[self._history_index] = state
+                self._history = self._history[: self._history_index + 1]
+                self._update_history_buttons()
+            else:
+                self._record_history_state(state)
+
+        def _populate_topic_list(self, query: str, *, heading: str) -> None:
+            matches = search_help_topics(self._topics, query)
+            self.topic_list.clear()
+            for topic in matches:
+                item = QListWidgetItem(topic.title)
+                item.setData(Qt.ItemDataRole.UserRole, topic.help_id)
+                self.topic_list.addItem(item)
+            self.list_heading.setText(heading)
+            self.filter_bar.set_count(len(matches), len(self._topics))
+            self.empty_label.setText(
+                f'No help topics match “{query.strip()}”.'
+                if query.strip()
+                else "No help topics are available."
+            )
+            self.results_stack.setCurrentWidget(
+                self.topic_list if matches else self._empty_page
+            )
+            self.stack.setCurrentWidget(self._list_page)
+
+        def _open_topic_item(self, item: QListWidgetItem) -> None:
+            topic_id = item.data(Qt.ItemDataRole.UserRole)
+            if isinstance(topic_id, str):
+                self.open_topic(topic_id)
+
+        def _open_help_url(self, url: QUrl) -> None:
+            reference = url.toString()
+            if reference.startswith("help:"):
+                self.open_topic(reference)
+
+        def _show_developer_error(self, message: str) -> None:
+            self.topic_title.setText("Broken Help reference")
+            self.topic_body.setHtml(
+                "<p><strong>"
+                + message.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                + "</strong></p><p>Fix the stable topic ID or anchor in the bundled corpus.</p>"
+            )
+            self.stack.setCurrentWidget(self._topic_page)
+            self._update_history_buttons()
+
+        def _handle_escape(self) -> None:
+            if self.filter_bar.search_input.text():
+                self.filter_bar.search_input.clear()
+            else:
+                self._close()
+
+        def _close(self) -> None:
+            self._on_close()
 
     class ReviewHUD(QWidget):
         """A compact overlay shown on the review screen (lower center).
@@ -2747,6 +3154,23 @@ def _combat_loadout_summary_text(player_data: dict) -> str:
         f"Finishers: {_mapping_text(summary.get('finishers_loaded'))}\n"
         f"Hazard supplies: {_mapping_text(summary.get('hazards_loaded'))}"
     )
+
+
+def _help_registry_tables() -> dict[str, HelpRegistryTable]:
+    """Build volatile Help reference rows from their owning live registries."""
+
+    skills = sorted(
+        implemented_skill_definitions(),
+        key=lambda skill: (skill.category, skill.display_name.casefold()),
+    )
+    return {
+        "implemented_skills": HelpRegistryTable(
+            headers=("Skill", "Group"),
+            rows=tuple(
+                (skill.display_name, skill.category.title()) for skill in skills
+            ),
+        )
+    }
 
 
 def show_main_menu(
@@ -12351,7 +12775,94 @@ def show_main_menu(
         pass
     tabs.setTabToolTip(tabs.indexOf(settings_tab), "Configure widget, experience HUD, notifications, and developer tools")
 
-    layout.addWidget(tabs)
+    help_topics = load_help_topics()
+    help_width_state: dict[str, int | None] = {"before_open": None}
+
+    def _close_help_panel() -> None:
+        help_panel.setVisible(False)
+        previous_width = help_width_state["before_open"]
+        if previous_width is not None:
+            dialog.resize(previous_width, dialog.height())
+            help_width_state["before_open"] = None
+        help_button.setFocus()
+
+    help_panel = HelpCenterPanel(
+        topics=help_topics,
+        developer_mode=include_planned,
+        registry_tables=_help_registry_tables(),
+        on_close=_close_help_panel,
+        parent=dialog,
+    )
+    help_panel.setVisible(False)
+
+    help_button = QToolButton(tabs)
+    help_button.setObjectName("mainMenuHelpButton")
+    help_button.setText("?")
+    help_button.setAccessibleName("Open contextual Help Center")
+    help_button.setShortcut(QKeySequence.StandardKey.HelpContents)
+    help_button.setStyleSheet(
+        "QToolButton { min-width: 24px; min-height: 24px; font-weight: 700;"
+        " color: palette(text); background: palette(base);"
+        " border: 1px solid palette(mid); border-radius: 12px; }"
+        "QToolButton:hover { background: palette(alternate-base); }"
+    )
+    tabs.setCornerWidget(help_button, Qt.Corner.TopRightCorner)
+
+    def _current_help_topic_id() -> str:
+        label = tabs.tabText(tabs.currentIndex())
+        topic_id = PRIMARY_HELP_TOPIC_BY_TAB_LABEL.get(label)
+        if topic_id is None and include_planned:
+            raise KeyError(f"No contextual Help topic is registered for tab {label!r}")
+        return topic_id or HELP_HOME_ID
+
+    def _update_help_button_tooltip(_index: int = -1) -> None:
+        label = tabs.tabText(tabs.currentIndex())
+        help_button.setToolTip(f"Help for {label} (F1)")
+
+    def _open_contextual_help() -> None:
+        if help_panel.isHidden():
+            help_width_state["before_open"] = dialog.width()
+            screen = dialog.screen() or QApplication.primaryScreen()
+            available_width = (
+                screen.availableGeometry().width() if screen is not None else 1360
+            )
+            maximum_width = max(dialog.minimumWidth(), available_width - 80)
+            desired_width = max(
+                dialog.width(),
+                min(
+                    max(dialog.width() + help_panel.minimumWidth() + 12, 1380),
+                    maximum_width,
+                ),
+            )
+            dialog.resize(desired_width, dialog.height())
+            if screen is not None:
+                available = screen.availableGeometry()
+                max_x = max(
+                    available.left(),
+                    available.right() - dialog.width() + 1,
+                )
+                max_y = max(
+                    available.top(),
+                    available.bottom() - dialog.height() + 1,
+                )
+                dialog.move(
+                    min(max(dialog.x(), available.left()), max_x),
+                    min(max(dialog.y(), available.top()), max_y),
+                )
+        help_panel.show_context(_current_help_topic_id())
+
+    help_button.clicked.connect(_open_contextual_help)
+    tabs.currentChanged.connect(_update_help_button_tooltip)
+    _update_help_button_tooltip()
+
+    content = QWidget()
+    content.setObjectName("mainMenuContent")
+    content_layout = QHBoxLayout(content)
+    content_layout.setContentsMargins(0, 0, 0, 0)
+    content_layout.setSpacing(12)
+    content_layout.addWidget(tabs, 1)
+    content_layout.addWidget(help_panel)
+    layout.addWidget(content, 1)
 
     # Footer with a subtle review link
     footer = QWidget()

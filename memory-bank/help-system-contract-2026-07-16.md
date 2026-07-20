@@ -1,6 +1,7 @@
 # AnkiScape help-system contract (settled 2026-07-16)
 
-Status: **owner-settled architecture; implementation deliberately parked.**
+Status: **Help Center implemented 2026-07-20; the settled `Details` boundary
+remains separately sequenced.**
 
 ## Problem
 
@@ -100,3 +101,24 @@ registry-backed values with Help rather than copying them into prose.
 The combined model is settled: an in-product searchable Help Center and contextual
 page-level entry points share one versioned content corpus. Any future hosted manual is
 generated from that corpus rather than edited independently.
+
+## Implementation record — 2026-07-20
+
+The Help Center portion of this contract is live:
+
+- `help_topics/` contains 18 canonical Markdown topics with JSON front matter
+  (a YAML-compatible structured subset) for stable IDs, titles, surfaces,
+  aliases, tags, related topics, and registry-backed blocks;
+- `help_system.py` loads, validates, searches, and renders that corpus without
+  network access or a new runtime dependency;
+- the nine primary menu tabs share one contextual `?` control and open their
+  stable topics inside a non-modal right-side panel;
+- Search and All topics use the existing `CatalogFilterBar` seam, while topic
+  history supports Back, Forward, internal links, `F1`, `Alt+Left`,
+  `Alt+Right`, and two-stage Escape behavior; and
+- missing IDs fail visibly in developer mode and fall back to Help home in
+  production.
+
+The reusable target-level `Details` surface is not part of this Help Center
+closure. Its behavior above remains owner-settled and should be implemented as
+its own registry-backed slice without copying values into Help prose.

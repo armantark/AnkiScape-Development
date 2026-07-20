@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Help Center — implementation report</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0c100d;
+      --panel: #151b17;
+      --panel2: #1d261f;
+      --ink: #f2f5ee;
+      --muted: #a9b2aa;
+      --line: #344239;
+      --green: #69c66f;
+      --blue: #75bfe0;
+      --amber: #e4b85e;
+      --red: #e28276;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 12% -8%, rgba(105,198,111,.18), transparent 34rem),
+        radial-gradient(circle at 95% 10%, rgba(117,191,224,.11), transparent 28rem),
+        var(--bg);
+      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.5;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: auto; padding: 56px 0 80px; }
+    .eyebrow { color: var(--green); font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    h1 { max-width: 850px; margin: 10px 0 14px; font-size: clamp(40px, 7vw, 76px); line-height: .96; letter-spacing: -.05em; }
+    .lede { max-width: 790px; margin: 0; color: var(--muted); font-size: 18px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 9px; margin-top: 24px;
+      padding: 9px 13px; border: 1px solid rgba(228,184,94,.5); border-radius: 999px;
+      background: rgba(228,184,94,.1); color: #f4d58d; font-weight: 750;
+    }
+    .badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 16px var(--amber); }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-top: 42px; }
+    .card {
+      grid-column: span 4; padding: 22px; border: 1px solid var(--line);
+      border-radius: 16px; background: linear-gradient(145deg, rgba(255,255,255,.025), transparent), var(--panel);
+      box-shadow: 0 18px 56px rgba(0,0,0,.18);
+    }
+    .card.wide { grid-column: span 8; }
+    .card.full { grid-column: 1 / -1; }
+    h2 { margin: 0 0 13px; font-size: 21px; letter-spacing: -.025em; }
+    h3 { margin: 0 0 7px; color: var(--muted); font-size: 12px; letter-spacing: .09em; text-transform: uppercase; }
+    p { margin: 9px 0 0; }
+    .metric { font-size: 42px; font-weight: 850; line-height: 1; letter-spacing: -.05em; }
+    .metric small { color: var(--muted); font-size: 14px; letter-spacing: 0; }
+    .map { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 12px; align-items: center; margin-top: 16px; }
+    .node { min-height: 118px; padding: 16px; border: 1px solid var(--line); border-radius: 13px; background: var(--panel2); }
+    .node strong { display: block; margin-bottom: 6px; font-size: 18px; }
+    .arrow { color: var(--amber); font-size: 26px; font-weight: 900; }
+    .kbd { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
+    code { padding: 3px 7px; border: 1px solid #3b4a3f; border-radius: 6px; background: #0f1411; color: #c5e9c6; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    li + li { margin-top: 7px; }
+    .truth { display: grid; grid-template-columns: 1.3fr .7fr; gap: 14px; }
+    .truth > div { padding: 17px; border-radius: 13px; background: var(--panel2); }
+    .ready { border: 1px solid rgba(105,198,111,.4); }
+    .blocked { border: 1px solid rgba(228,184,94,.42); }
+    .good { color: var(--green); font-weight: 800; }
+    .pending { color: var(--amber); font-weight: 800; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-variant-numeric: tabular-nums; }
+    th, td { padding: 11px 10px; text-align: left; border-bottom: 1px solid var(--line); }
+    th { color: var(--muted); font-size: 12px; letter-spacing: .07em; text-transform: uppercase; }
+    .note { color: var(--muted); font-size: 13px; }
+    footer { margin-top: 28px; color: #7b857e; font-size: 13px; }
+    @media (max-width: 820px) {
+      main { width: min(100% - 20px, 700px); padding-top: 34px; }
+      .card, .card.wide { grid-column: 1 / -1; }
+      .map { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); justify-self: center; }
+      .truth { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">AnkiScape · implementation report</div>
+  <h1>Help now lives where the game does.</h1>
+  <p class="lede">A single offline corpus now powers contextual help, full-text search, related topics, and navigation across every primary AnkiScape page—without a second wiki to drift out of date.</p>
+  <div class="badge">Implementation verified · Fable taste sign-off pending</div>
+
+  <section class="grid">
+    <article class="card">
+      <h3>Canonical corpus</h3>
+      <div class="metric">18 <small>offline topics</small></div>
+      <p>Concepts live in prose; volatile tables come from registries.</p>
+    </article>
+    <article class="card">
+      <h3>Contextual coverage</h3>
+      <div class="metric">9/9 <small>primary pages</small></div>
+      <p>One predictable <strong>?</strong> control, never row-level icon noise.</p>
+    </article>
+    <article class="card">
+      <h3>Regression tree</h3>
+      <div class="metric">1,884 <small>methods × 2</small></div>
+      <p>Complete pure and real-Qt offscreen discoveries are green.</p>
+    </article>
+
+    <article class="card full">
+      <h2>One corpus, three ways in</h2>
+      <div class="map">
+        <div class="node"><strong>Current page</strong>Skills, Shop, GE, Quests, Bank, Equipment, Stats, Achievements, or Settings.</div>
+        <div class="arrow">→</div>
+        <div class="node"><strong>Contextual Help panel</strong>The selected page stays visible and untouched underneath.</div>
+        <div class="arrow">↔</div>
+        <div class="node"><strong>Canonical topics</strong>Search, All topics, related links, registry blocks, and stable internal anchors.</div>
+      </div>
+    </article>
+
+    <article class="card wide">
+      <h2>Keyboard behavior is first-class</h2>
+      <p>Search results retain their query in history, and Escape cannot accidentally close the AnkiScape menu.</p>
+      <div class="kbd">
+        <code>F1 · contextual help</code>
+        <code>↓ · first result</code>
+        <code>Alt+← / Alt+→ · history</code>
+        <code>Esc · clear, then close Help</code>
+      </div>
+    </article>
+    <article class="card">
+      <h2>Theme-safe</h2>
+      <div class="metric">2 <small>themes</small></div>
+      <p>Palette links, readable secondary text, structured empty states.</p>
+    </article>
+
+    <article class="card full">
+      <h2>Taste pass findings that changed the product</h2>
+      <table>
+        <thead><tr><th>Finding</th><th>Correction</th><th>Proof</th></tr></thead>
+        <tbody>
+          <tr><td>Search context was discarded</td><td>Query-bearing list states now live in history</td><td class="good">Qt + native Anki</td></tr>
+          <tr><td>Escape could reject the parent dialog</td><td>Clear first, close only Help second</td><td class="good">Qt + native Anki</td></tr>
+          <tr><td>Drawer could leave the screen</td><td>Resize and reposition within available geometry</td><td class="good">Qt</td></tr>
+          <tr><td>Empty results lacked structure</td><td>Dedicated centered empty state</td><td class="good">Rendered both themes</td></tr>
+          <tr><td>Light links and hierarchy were weak</td><td>Palette Link role, underline, quieter All topics</td><td class="good">Rendered light theme</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article class="card full">
+      <h2>Real Anki, not just headless Qt</h2>
+      <div class="truth">
+        <div class="ready">
+          <h3 class="good">Native smoke passed</h3>
+          <ul>
+            <li>Fully quit and relaunched Anki before opening the add-on.</li>
+            <li>Exactly one contextual control appeared.</li>
+            <li>Skills and Bank opened the correct topics without changing tabs.</li>
+            <li><code>familiar duration</code> found Simulated time and Summoning.</li>
+            <li>Back restored search results; Escape left the main menu open.</li>
+          </ul>
+        </div>
+        <div class="blocked">
+          <h3 class="pending">One external QA gate</h3>
+          <p>Fable could not be called because the mandatory fresh quota probe cannot read Claude Code OAuth from macOS Keychain (<code>security</code> exit 51).</p>
+          <p class="note">The stale cache shows quota, but the review skill correctly forbids bypassing freshness. This is not a product-design gap.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="card full">
+      <h2>Verification ledger</h2>
+      <table>
+        <tbody>
+          <tr><td>Complete non-Qt suite</td><td class="good">1,884 passed · 248 environment skips</td></tr>
+          <tr><td>Complete real-Qt offscreen suite</td><td class="good">1,884 passed · 1 intentional skip</td></tr>
+          <tr><td>Documentation</td><td class="good">426 Markdown · 375 HTML after this artifact</td></tr>
+          <tr><td>Test-quality hard issues</td><td class="good">0</td></tr>
+          <tr><td>Global UI asset normalization</td><td class="good">Pass</td></tr>
+          <tr><td>Diff and worktree safety</td><td class="good">Pass</td></tr>
+          <tr><td>Reachability ledger</td><td>1,268 actions · 284 known orphan inputs · 302 blocked</td></tr>
+          <tr><td>New owner design gaps</td><td class="good">None</td></tr>
+          <tr><td>Separate settled backlog</td><td>Registry-backed target-level Details surface</td></tr>
+        </tbody>
+      </table>
+    </article>
+  </section>
+
+  <footer>Canonical main checkout · 2026-07-20 · Help Center implementation complete; required Fable taste sign-off remains pending external OAuth recovery.</footer>
+</main>
+</body>
+</html>

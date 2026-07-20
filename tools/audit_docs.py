@@ -138,7 +138,9 @@ def _audit_markdown(path: Path, root: Path, text: str, issues: list[DocIssue]) -
     for line_number, line in enumerate(visible_lines, 1):
         for match in MARKDOWN_LINK_RE.finditer(line):
             target = match.group(1).strip("<>")
-            if not target or target.startswith(("#", "http://", "https://", "mailto:", "data:", "/")):
+            if not target or target.startswith(
+                ("#", "http://", "https://", "mailto:", "data:", "help:", "/")
+            ):
                 continue
             target_path = unquote(target.split("#", 1)[0].split("?", 1)[0])
             if not target_path:

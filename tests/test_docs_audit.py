@@ -50,7 +50,9 @@ class DocumentationAuditTests(unittest.TestCase):
         self._track(
             root,
             "README.md",
-            "# Docs\n\n```markdown\n[Example](missing.md)\n```\n\n[Outside repo](/private/tmp/evidence.md)\n",
+            "# Docs\n\n```markdown\n[Example](missing.md)\n```\n\n"
+            "[Outside repo](/private/tmp/evidence.md)\n"
+            "[Runtime Help topic](help:skills#choosing-training)\n",
         )
 
         self.assertTrue(AUDIT_DOCS.audit_docs(root).ok)
