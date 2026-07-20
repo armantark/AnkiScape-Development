@@ -619,7 +619,11 @@ def _process_patch_boundaries(updated: dict[str, Any], patch_id: str, random_ran
                 break
             record["stage"] += 1
             if record["stage"] == crop.stages:
-                record["produce_count"] = crop.fixed_yield or 0
+                # Willow branches begin accumulating only after the one-time
+                # health check; elapsed mature time does not backfill them.
+                record["produce_count"] = (
+                    0 if crop.id == "willow" else crop.fixed_yield or 0
+                )
                 record["last_regrowth_at"] = boundary
                 if crop.regrowth_range_minutes:
                     record["next_regrowth_at"] = boundary + _random_int_inclusive(random_random, *crop.regrowth_range_minutes)
@@ -639,7 +643,12 @@ def _process_patch_boundaries(updated: dict[str, Any], patch_id: str, random_ran
                     _log(updated, "crop_diseased", f"{crop.display_name} became diseased.", patch_id=patch_id, crop_id=crop.id)
                     continue
 
-    if not _is_mature(record, crop) or crop.fixed_yield is None or record.get("jade_state") in {"wild", "killed"}:
+    if (
+        not _is_mature(record, crop)
+        or crop.fixed_yield is None
+        or record.get("jade_state") in {"wild", "killed"}
+        or (crop.id == "willow" and not record.get("health_checked"))
+    ):
         return
     if crop.regrowth_range_minutes:
         while record["produce_count"] < crop.fixed_yield and record["next_regrowth_at"] and record["next_regrowth_at"] <= clock:
@@ -981,10 +990,27 @@ def _juju_farming_active(updated: Mapping[str, Any]) -> bool:
     return deadline > 0 and _int(updated.get("farm_clock_minutes")) <= deadline + 1
 
 
+def _harvest_tool_options(crop: Any) -> tuple[str, ...]:
+    if crop.id == "willow":
+        return ("Secateurs", "Magic secateurs")
+    return (crop.harvest_tool,) if crop.harvest_tool else ()
+
+
+def _missing_harvest_tool_reason(
+    inventory: Mapping[str, Any],
+    crop: Any,
+) -> str:
+    options = _harvest_tool_options(crop)
+    if not options or any(_int(inventory.get(tool)) > 0 for tool in options):
+        return ""
+    return f"Needs {' or '.join(options)} in your Bank."
+
+
 def _harvest(updated: dict[str, Any], patch_id: str, crop: Any, random_random: Callable[[], float]) -> tuple[bool, str, dict[str, Any]]:
     record = updated["farm_patches"][patch_id]
-    if crop.harvest_tool and _int(updated["inventory"].get(crop.harvest_tool)) <= 0:
-        return False, f"missing {crop.harvest_tool}", {}
+    missing_tool = _missing_harvest_tool_reason(updated["inventory"], crop)
+    if missing_tool:
+        return False, f"missing {' or '.join(_harvest_tool_options(crop))}", {}
     if not _is_mature(record, crop) or record.get("stump") or record.get("jade_state") in {"wild", "killed"}:
         return False, "crop is not ready", {}
     if crop.check_health_xp is not None and not record.get("health_checked"):
@@ -1041,6 +1067,9 @@ def _check_health(updated: dict[str, Any], patch_id: str, crop: Any) -> tuple[bo
     if not _is_mature(record, crop) or crop.check_health_xp is None or record.get("health_checked"):
         return False, "health cannot be checked", {}
     record["health_checked"] = True
+    if crop.id == "willow":
+        record["produce_count"] = 0
+        record["last_regrowth_at"] = updated["farm_clock_minutes"]
     _award_xp(updated, "farming", crop.check_health_xp)
     _increment(updated, "health_checks")
     if crop.patch_type in {"tree", "fruit_tree", "calquat"}:
@@ -1159,7 +1188,10 @@ def _clear(updated: dict[str, Any], patch_id: str, crop: Any) -> tuple[bool, str
 
 
 def _is_regrowth_crop(crop: Any) -> bool:
-    return bool(crop.regrowth_minutes or crop.regrowth_range_minutes)
+    return bool(
+        crop.patch_type != "tree"
+        and (crop.regrowth_minutes or crop.regrowth_range_minutes)
+    )
 
 
 def _dig_up(updated: dict[str, Any], patch_id: str, crop: Any) -> tuple[bool, str, dict[str, Any]]:
@@ -1501,6 +1533,8 @@ def _planned_patch_steps(updated: Mapping[str, Any], patch_id: str) -> tuple[lis
         return ["dig_up", "plant"], plan, "queued"
     if crop.patch_type == "tree":
         kinds = [] if record.get("health_checked") else ["check_health"]
+        if crop.id == "willow":
+            kinds.append("harvest")
         kinds.extend(("chop", "clear", "plant"))
         return kinds, plan, "queued"
     kinds: list[str] = []
@@ -2102,6 +2136,8 @@ def _patch_status_view(state: Mapping[str, Any], patch: Any, record: Mapping[str
         return "ready", "Ready to chop", 0
     mature = _is_mature(record, crop)
     if mature:
+        if crop.check_health_xp is not None and not record.get("health_checked"):
+            return "ready", "Health check ready", 0
         if crop.fixed_yield is not None and _int(record.get("produce_count")) <= 0:
             elapsed = max(
                 0,
@@ -2119,9 +2155,15 @@ def _patch_status_view(state: Mapping[str, Any], patch: Any, record: Mapping[str
                 f"Regrowing · next produce in about {reviews} {review_word}",
                 reviews,
             )
-        if crop.check_health_xp is not None and not record.get("health_checked"):
-            return "ready", "Health check ready", 0
         if crop.patch_type == "tree":
+            if crop.id == "willow":
+                count = _int(record.get("produce_count"))
+                branch_word = "branch" if count == 1 else "branches"
+                return (
+                    "ready",
+                    f"{count}/{crop.fixed_yield} {branch_word} ready · Ready to chop",
+                    0,
+                )
             return "ready", "Ready to chop", 0
         return "ready", "Ready now", 0
     stages = crop.stages or 0
@@ -2298,6 +2340,36 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
                 "locked_reason": dig_up_reason,
             }
 
+        branch_action = None
+        if (
+            crop is not None
+            and crop.id == "willow"
+            and _is_mature(record, crop)
+            and record.get("health_checked")
+            and not record.get("diseased")
+            and not record.get("dead")
+            and not record.get("stump")
+        ):
+            branch_count = _int(record.get("produce_count"))
+            branch_reason = access_reason
+            if not branch_reason and patch.id in queued_patch_ids:
+                branch_reason = "This patch already has queued work."
+            if not branch_reason and branch_count <= 0:
+                branch_reason = "No willow branches are ready."
+            if not branch_reason:
+                branch_reason = _missing_harvest_tool_reason(inventory, crop)
+            branch_action = {
+                "id": "harvest",
+                "label": (
+                    f"Queue prune {branch_count} "
+                    f"{'branch' if branch_count == 1 else 'branches'}"
+                    if branch_count > 0
+                    else "Queue prune branches"
+                ),
+                "enabled": not branch_reason,
+                "locked_reason": branch_reason,
+            }
+
         shortcut_reason = access_reason
         if not shortcut_reason and status != "ready":
             shortcut_reason = "This crop is not ready."
@@ -2442,6 +2514,7 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
             "protection": protection,
             "livid_protection_action": livid_protection_action,
             "primary_action": primary_action,
+            "branch_action": branch_action,
             "dig_up_action": dig_up_action,
             "shortcut_action": (
                 None
@@ -2696,6 +2769,8 @@ def apply_farming_frontend_action_pure(
         action = (
             primary
             if primary and primary.get("id") == kind
+            else (patch_view or {}).get("branch_action")
+            if kind == "harvest"
             else (patch_view or {}).get("dig_up_action")
             if kind == "dig_up"
             else None

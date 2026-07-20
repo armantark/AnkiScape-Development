@@ -4632,6 +4632,30 @@ def show_main_menu(
                                 )
                             )
                         actions.addWidget(primary_button)
+                    branch_action = patch.get("branch_action")
+                    if branch_action:
+                        branch_button = QPushButton(branch_action["label"])
+                        branch_button.setObjectName(
+                            f"farmingPatchBranchButton::{patch_id}"
+                        )
+                        branch_button.setEnabled(
+                            bool(branch_action["enabled"])
+                            and on_farming_action is not None
+                        )
+                        branch_button.setToolTip(
+                            branch_action["locked_reason"]
+                        )
+                        branch_button.clicked.connect(
+                            lambda _=False, pid=patch_id: _run_action(
+                                "queue_action",
+                                {
+                                    "patch_id": pid,
+                                    "kind": "harvest",
+                                    "details": {},
+                                },
+                            )
+                        )
+                        actions.addWidget(branch_button)
                     dig_up = patch.get("dig_up_action")
                     if dig_up:
                         dig_up_button = QPushButton(dig_up["label"])

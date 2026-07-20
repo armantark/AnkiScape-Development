@@ -3129,3 +3129,30 @@ Test counts are snapshots; current runs outrank this note.
   (95 root/143 cascade), 1,343 actions, and 250 unresolved actions.
 - Durable evidence:
   `source-audits/item-reachability-cooking-byproduct-correction-2026-07-20.md`.
+
+## Willow branch acquisition — 2026-07-20
+
+- Pinned the 2012 Willow-branch page, OpenRS2 item identities, and Darkan
+  executable lineage for the health-check gate, five-minute branch interval,
+  six-branch cap, tool alternatives, and zero XP.
+- Implemented post-health-check branch accrual on the settled review clock,
+  whole-patch pruning, regrowth, full-run queue participation, and a distinct
+  contextual Farming button that leaves Chop primary.
+- Corrected Willow branch, Secateurs, and Magic secateurs metadata to exact
+  IDs and non-stackability.
+- Added pure lifecycle, runtime queue, registry, reachability, projection, and
+  real offscreen Qt regression coverage. Focused logic/integration passes 430
+  tests; three targeted Qt checks pass. Complete non-Qt discovery passes all
+  1,909 tests, and complete real offscreen Qt discovery passes all 1,909 tests
+  with one intentional platform skip.
+- Kimi K3 returned SHIP and its laptop-height geometry concern is now pinned.
+  Fable remains blocked by the required live quota probe's macOS Keychain
+  failure, and native-Anki restart proof remains blocked while the Mac is
+  locked. These are external QA gates, not design gaps.
+- The acquisition graph now reports 1,344 actions, 1,999 reachable items,
+  237 orphan inputs, and 249 blocked actions.
+- No owner design gap emerged. Durable record:
+  `source-audits/farming-willow-branch-acquisition-2026-07-20.md`.
+- Published
+  `status-updates/farming-willow-branch-results-2026-07-20.html`;
+  mobile copy: `https://uhyf9le1jwo1.postplan.dev`.

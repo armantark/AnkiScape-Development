@@ -1631,6 +1631,118 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("one-use", summary.text())
         dialog.deleteLater()
 
+    def test_farming_willow_branch_action_is_visible_enabled_and_queueable(
+        self,
+    ) -> None:
+        from farming_logic import (
+            advance_farm_clock_pure,
+            default_farming_state_pure,
+            execute_farm_field_step_pure,
+        )
+
+        player_data = _make_player_data()
+        player_data["farming_level"] = 99
+        player_data.update(default_farming_state_pure())
+        player_data["inventory"] = {
+            "Rake": 1,
+            "Spade": 1,
+            "Magic secateurs": 1,
+            "Willow sapling": 1,
+        }
+        player_data, ok, _ = execute_farm_field_step_pure(
+            player_data,
+            {
+                "kind": "plant",
+                "patch_id": "lumbridge_tree",
+                "crop_id": "willow",
+            },
+        )
+        self.assertTrue(ok)
+        player_data, _ = advance_farm_clock_pure(
+            player_data, 40, lambda: 1.0
+        )
+        player_data, ok, _ = execute_farm_field_step_pure(
+            player_data,
+            {"kind": "check_health", "patch_id": "lumbridge_tree"},
+        )
+        self.assertTrue(ok)
+        player_data, _ = advance_farm_clock_pure(
+            player_data, 5, lambda: 1.0
+        )
+
+        dialog = self._open(
+            player_data,
+            current_skill="Mining",
+            initial_skill="Farming",
+        )
+        dialog.show()
+        dialog.resize(900, 560)
+        for _ in range(5):
+            QApplication.processEvents()
+        location = dialog.findChild(
+            QToolButton,
+            "farmingLocationToggle::lumbridge",
+        )
+        if not location.isChecked():
+            location.click()
+            QApplication.processEvents()
+        expand = dialog.findChild(
+            QToolButton,
+            "farmingPatchExpandButton::lumbridge_tree",
+        )
+        if not expand.isChecked():
+            expand.click()
+            QApplication.processEvents()
+
+        branch = dialog.findChild(
+            QPushButton,
+            "farmingPatchBranchButton::lumbridge_tree",
+        )
+        primary = dialog.findChild(
+            QPushButton,
+            "farmingPatchPrimaryAction::lumbridge_tree",
+        )
+        self.assertIsNotNone(branch)
+        self.assertTrue(branch.isVisible())
+        self.assertTrue(branch.isEnabled())
+        self.assertEqual(branch.text(), "Queue prune 6 branches")
+        self.assertEqual(primary.text(), "Queue chop")
+        scroll = dialog.findChild(QScrollArea, "farmingFarmScroll")
+        self.assertIsNotNone(scroll)
+        scroll.ensureWidgetVisible(branch)
+        for _ in range(3):
+            QApplication.processEvents()
+        branch_top = branch.mapTo(
+            scroll.viewport(),
+            branch.rect().topLeft(),
+        ).y()
+        branch_bottom = branch.mapTo(
+            scroll.viewport(),
+            branch.rect().bottomLeft(),
+        ).y()
+        self.assertGreaterEqual(branch_top, 0)
+        self.assertLess(branch_bottom, scroll.viewport().height())
+
+        branch.click()
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertEqual(
+            self._farming_calls[-1],
+            (
+                "queue_action",
+                {
+                    "patch_id": "lumbridge_tree",
+                    "kind": "harvest",
+                    "details": {},
+                },
+            ),
+        )
+        self.assertEqual(
+            player_data["farm_queue"][0]["kind"],
+            "harvest",
+        )
+        dialog.deleteLater()
+
     def test_farming_plan_change_calls_unified_callback_immediately(self) -> None:
         farming_dialog = self._open(_make_player_data(), current_skill="Mining", initial_skill="Farming")
         farming_dialog.show()

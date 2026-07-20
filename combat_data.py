@@ -13712,7 +13712,16 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
         "stackable": False,
         "tradeable": False,
     },
-    "Secateurs": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SECATEURS"},
+    "Secateurs": {
+        "category": "tool",
+        "source_item_id": 5329,
+        "stackable": False,
+        "tradeable": True,
+        "source": (
+            f"{ITEM_ID_SOURCE_PATH}: Items.SECATEURS; "
+            "OpenRS2 rev-742 item 5329; Willow branch oldid 6092914"
+        ),
+    },
     "Seed dibber": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SEED_DIBBER"},
     "Shears": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SHEARS"},
     "Shield left half": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SHIELD_LEFT_HALF"},

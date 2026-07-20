@@ -2358,3 +2358,37 @@ The visual closure report is
   unresolved actions.
 - No UI or owner design gap is involved. Durable evidence:
   `source-audits/item-reachability-cooking-byproduct-correction-2026-07-20.md`.
+
+## Willow branch acquisition closure — 2026-07-20
+
+- Added the period-accurate player-grown Willow route for Willow branches:
+  the tree must be mature and health-checked, branches accrue every five
+  era-minutes to a cap of six, either Secateurs variant works, and pruning
+  awards no Farming XP.
+- Preserved the review-native Farming clock without rounding the source
+  interval away. One answer advances six era-minutes and exposes one branch;
+  five answers advance thirty era-minutes and expose all six through the
+  existing boundary loop.
+- Chop remains the primary tree action. A separate contextual
+  `Queue prune N branch(es)` button collects the current whole-patch yield,
+  while full runs use the established health check → prune → chop → clear →
+  replant review queue.
+- Corrected Willow branch, Secateurs, and Magic secateurs to their exact
+  5933/5329/7409 IDs and non-stackable metadata.
+- Reachability improves to 1,344 actions, 1,999 reachable items, 237 orphan
+  inputs, and 249 blocked actions. `Willow branch` now resolves through
+  `Farming:willow`.
+- Focused pure/integration checks pass 430 tests and the three targeted
+  offscreen Qt checks pass. Complete non-Qt discovery passes all 1,909 tests.
+  Complete real offscreen Qt discovery also passes all 1,909 tests with one
+  intentional platform skip. Kimi K3 returned a SHIP verdict; its one concrete
+  geometry recommendation is now regression-covered at 900×560.
+- The mandatory Fable review is externally blocked because the required fresh
+  Claude quota probe cannot read the macOS Keychain credential (`security`
+  exit 51). A restarted native-Anki check is also externally blocked while the
+  Mac is locked. Neither is a product-design gap.
+- No owner design gap surfaced. Durable evidence:
+  `source-audits/farming-willow-branch-acquisition-2026-07-20.md`.
+- Published
+  `status-updates/farming-willow-branch-results-2026-07-20.html`;
+  mobile copy: `https://uhyf9le1jwo1.postplan.dev`.

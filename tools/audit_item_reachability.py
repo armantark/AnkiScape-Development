@@ -170,7 +170,10 @@ def build_reachability_report() -> dict[str, Any]:
             else "Seed dibber"
         )
         required = {crop.seed_item, "Rake", plant_tool}
-        if crop.harvest_tool:
+        alternatives: tuple[set[str], ...] = ()
+        if crop.id == "willow":
+            alternatives = ({"Secateurs", "Magic secateurs"},)
+        elif crop.harvest_tool:
             required.add(crop.harvest_tool)
         if crop.output_item:
             key = f"Farming:{crop.id}"
@@ -179,11 +182,11 @@ def build_reachability_report() -> dict[str, Any]:
                 {
                     "id": key,
                     "required": required,
-                    "alternatives": (),
+                    "alternatives": alternatives,
                     "outputs": outputs,
                 }
             )
-            for item in required:
+            for item in required | set().union(*alternatives) if alternatives else required:
                 consumers[item].add(key)
             producers[crop.output_item].add(key)
         if crop.root_item:

@@ -133,6 +133,7 @@ class FarmingInterfaceAsset:
 GM_SEED = "2011Scape rev-667 Seed.kt and SeedType.kt"
 GM_HARVEST = "2011Scape rev-667 HarvestingHandler.kt"
 SEEDS_PIN = "Seeds oldid 6565109"
+WILLOW_BRANCH_PIN = "Willow branch oldid 6092914 (2012-08-14T16:12:52Z)"
 FARMING_PIN = "Farming oldid 6565110"
 HABITAT_PIN = "Herblore Habitat oldid 6513740"
 
@@ -267,7 +268,34 @@ def _tree(crop_id: str, name: str, seed: str, level: int, plant: float, check: f
 
 _TREES = (
     _tree("oak", "Oak", "Acorn", 15, 14.0, 467.3, 5, 17, _payment(SEEDS_PIN, **{"Tomatoes (5)": 1})),
-    _tree("willow", "Willow", "Willow seed", 30, 25.0, 1456.3, 6, 15, _payment(SEEDS_PIN, **{"Apples (5)": 1})),
+    _crop(
+        "willow",
+        "Willow",
+        "tree",
+        "Willow sapling",
+        "Willow branch",
+        30,
+        1,
+        25.0,
+        0.0,
+        6,
+        40,
+        check=1456.3,
+        disease_slots=15,
+        fixed_yield=6,
+        regrowth=5,
+        protection=_payment(SEEDS_PIN, **{"Apples (5)": 1}),
+        sources=(
+            GM_SEED,
+            "Tree patch oldid 6531843",
+            SEEDS_PIN,
+            WILLOW_BRANCH_PIN,
+            "Darkan FarmPatch.java / HarvestPatch.java @ ee180fe",
+        ),
+        tree_id="willow",
+        root_item="Willow roots",
+        harvest_tool="Secateurs",
+    ),
     _tree("maple", "Maple", "Maple seed", 45, 45.0, 3403.4, 8, 13, _payment(SEEDS_PIN, **{"Oranges (5)": 1})),
     _tree("yew", "Yew", "Yew seed", 60, 81.0, 7069.9, 10, 11, _payment(SEEDS_PIN, **{"Cactus spine": 10})),
     _tree("magic", "Magic", "Magic seed", 75, 145.5, 13768.3, 12, 9, _payment(SEEDS_PIN, Coconut=25)),
@@ -524,7 +552,7 @@ def _slug(name: str) -> str:
 
 _item_names = {
     "Rake", "Seed dibber", "Spade", "Gardening trowel", "Watering can", "Watering can (8)",
-    "Plant cure", "Magic secateurs", "Plant pot", "Bucket", "Compost", "Supercompost", "Weeds",
+    "Plant cure", "Secateurs", "Magic secateurs", "Plant pot", "Bucket", "Compost", "Supercompost", "Weeds",
     LIVID_FARM_PROTECTION_SCROLL,
 }
 for _crop_row in FARMING_CROPS:
@@ -542,7 +570,7 @@ FARMING_ITEMS: Tuple[FarmingItem, ...] = tuple(
     FarmingItem(
         f"farming_{_slug(name)}",
         name,
-        "tool" if name in {"Rake", "Seed dibber", "Spade", "Gardening trowel", "Watering can", "Watering can (8)", "Magic secateurs"} else "material",
+        "tool" if name in {"Rake", "Seed dibber", "Spade", "Gardening trowel", "Watering can", "Watering can (8)", "Secateurs", "Magic secateurs"} else "material",
         (
             "Livid Farm oldid 6569596; OpenRS2 rev 736/741/742 item 21515"
             if name == LIVID_FARM_PROTECTION_SCROLL
@@ -552,12 +580,42 @@ FARMING_ITEMS: Tuple[FarmingItem, ...] = tuple(
     )
     for name in sorted(_item_names)
 )
+_FARMING_ITEM_OVERRIDES: Mapping[str, Mapping[str, object]] = MappingProxyType(
+    {
+        "Secateurs": MappingProxyType(
+            {
+                "source_item_id": 5329,
+                "stackable": False,
+                "tradeable": True,
+                "source": "OpenRS2 rev-742 item 5329; Willow branch oldid 6092914",
+            }
+        ),
+        "Magic secateurs": MappingProxyType(
+            {
+                "source_item_id": 7409,
+                "stackable": False,
+                "tradeable": False,
+                "source": "OpenRS2 rev-742 item 7409; Willow branch oldid 6092914",
+            }
+        ),
+        "Willow branch": MappingProxyType(
+            {
+                "source_item_id": 5933,
+                "stackable": False,
+                "tradeable": True,
+                "source": "Willow branch oldid 6092914; OpenRS2 rev-742 item 5933",
+            }
+        ),
+    }
+)
+
 FARMING_ITEM_DATA: Mapping[str, Mapping[str, object]] = MappingProxyType({
     item.display_name: MappingProxyType({
         "category": item.category,
         "tradeable": item.tradeable,
         "source": item.source,
         "farming_item_id": item.id,
+        **_FARMING_ITEM_OVERRIDES.get(item.display_name, {}),
     })
     for item in FARMING_ITEMS
 })

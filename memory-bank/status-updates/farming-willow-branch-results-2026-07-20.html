@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape · Willow branch acquisition closure</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #eef6ed;
+      --muted: #9fb29e;
+      --panel: rgba(21, 34, 25, .88);
+      --panel-2: rgba(31, 51, 36, .78);
+      --line: rgba(169, 207, 157, .2);
+      --green: #98d77f;
+      --gold: #e7c76f;
+      --blue: #8ecad9;
+      --warn: #e7a46f;
+      --shadow: 0 28px 80px rgba(0, 0, 0, .35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(79, 127, 69, .32), transparent 34rem),
+        radial-gradient(circle at 100% 25%, rgba(61, 102, 82, .22), transparent 32rem),
+        #0d1510;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 54px 0 72px; }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.5fr .75fr;
+      gap: 28px;
+      padding: 36px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(31, 54, 36, .94), rgba(13, 24, 17, .94));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .eyebrow { margin: 0 0 9px; color: var(--green); font-weight: 800; letter-spacing: .14em; text-transform: uppercase; font-size: 12px; }
+    h1 { margin: 0; font-size: clamp(38px, 7vw, 74px); line-height: .98; letter-spacing: -.055em; max-width: 760px; }
+    .lede { max-width: 720px; margin: 22px 0 0; color: #c7d7c5; font-size: 18px; }
+    .tree {
+      align-self: center;
+      justify-self: center;
+      width: min(240px, 100%);
+      filter: drop-shadow(0 24px 20px rgba(0,0,0,.3));
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+    .badge { padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.04); color: #dbe8d8; font-size: 13px; font-weight: 700; }
+    .badge.good { border-color: rgba(152,215,127,.45); color: var(--green); }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 22px 0; }
+    .stat, section {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--panel);
+      box-shadow: 0 16px 46px rgba(0,0,0,.18);
+    }
+    .stat { padding: 19px; }
+    .stat strong { display: block; font-size: 27px; letter-spacing: -.04em; color: var(--green); }
+    .stat span { color: var(--muted); font-size: 13px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    section { padding: 26px; }
+    section.full { grid-column: 1 / -1; }
+    h2 { margin: 0 0 16px; font-size: 22px; letter-spacing: -.025em; }
+    h3 { margin: 18px 0 7px; font-size: 15px; color: var(--gold); }
+    p { margin: 0 0 12px; }
+    ul { margin: 0; padding-left: 20px; }
+    li + li { margin-top: 8px; }
+    code { color: #d9efcf; background: rgba(152,215,127,.1); border: 1px solid rgba(152,215,127,.16); padding: 2px 6px; border-radius: 7px; }
+    .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; align-items: stretch; }
+    .step { position: relative; padding: 16px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel-2); min-height: 106px; }
+    .step b { display: block; color: var(--green); margin-bottom: 7px; }
+    .step small { color: var(--muted); }
+    .step:not(:last-child)::after { content: "›"; position: absolute; right: -10px; top: 34px; color: var(--gold); font-size: 24px; z-index: 2; }
+    .gate { display: flex; gap: 13px; align-items: flex-start; padding: 14px 15px; border-radius: 14px; border: 1px solid rgba(231,164,111,.3); background: rgba(231,164,111,.08); }
+    .gate + .gate { margin-top: 10px; }
+    .gate strong { color: var(--warn); white-space: nowrap; }
+    .ship { border-color: rgba(152,215,127,.38); background: rgba(152,215,127,.08); }
+    .ship strong { color: var(--green); }
+    .footer { margin-top: 22px; color: var(--muted); font-size: 13px; text-align: center; }
+    a { color: var(--blue); }
+    @media (max-width: 780px) {
+      main { padding-top: 20px; }
+      .hero, .grid { grid-template-columns: 1fr; }
+      .tree { width: 150px; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .step:not(:last-child)::after { content: "↓"; right: 18px; top: auto; bottom: -19px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Farming acquisition closure · 20 July 2026</p>
+      <h1>Willow branches are live.</h1>
+      <p class="lede">A player-grown Willow now produces its real secondary resource through the existing review queue: health-check the tree, let branches accrue, prune the current yield, or keep Chop as the primary action.</p>
+      <div class="badge-row">
+        <span class="badge good">Source pinned</span>
+        <span class="badge good">Kimi: SHIP</span>
+        <span class="badge good">No design gap</span>
+        <span class="badge">No wall clock</span>
+      </div>
+    </div>
+    <svg class="tree" viewBox="0 0 260 280" role="img" aria-label="Stylized willow tree">
+      <defs>
+        <linearGradient id="trunk" x1="0" x2="1"><stop stop-color="#73533a"/><stop offset="1" stop-color="#b88956"/></linearGradient>
+        <radialGradient id="leaf"><stop stop-color="#b6df82"/><stop offset="1" stop-color="#4f8c4c"/></radialGradient>
+      </defs>
+      <ellipse cx="130" cy="259" rx="86" ry="15" fill="rgba(0,0,0,.25)"/>
+      <path d="M118 242c8-47 1-93 18-133 8 41 17 89 12 133z" fill="url(#trunk)"/>
+      <path d="M136 146c-26-30-35-60-38-90M137 152c29-37 38-73 42-109M130 166c-38-11-62-31-78-59" fill="none" stroke="#9a704b" stroke-width="9" stroke-linecap="round"/>
+      <g fill="url(#leaf)">
+        <circle cx="89" cy="71" r="51"/><circle cx="151" cy="61" r="57"/><circle cx="195" cy="99" r="44"/>
+        <circle cx="62" cy="120" r="42"/><circle cx="124" cy="116" r="61"/><circle cx="169" cy="133" r="54"/>
+      </g>
+      <g fill="none" stroke="#8ecf75" stroke-width="5" stroke-linecap="round" opacity=".9">
+        <path d="M49 106c-4 52 5 84 21 111M80 92c-9 58-5 99 7 137M166 86c12 51 7 101-1 145M197 111c8 39 3 76-9 107"/>
+      </g>
+    </svg>
+  </header>
+
+  <div class="stats" aria-label="Verification summary">
+    <div class="stat"><strong>1,909</strong><span>non-Qt tests passed</span></div>
+    <div class="stat"><strong>1,909</strong><span>offscreen Qt tests passed</span></div>
+    <div class="stat"><strong>237</strong><span>orphan inputs remaining, down 1</span></div>
+    <div class="stat"><strong>0 XP</strong><span>awarded by pruning</span></div>
+  </div>
+
+  <div class="grid">
+    <section class="full">
+      <h2>The complete player loop</h2>
+      <div class="flow">
+        <div class="step"><b>1 · Grow</b><small>Plant the ordinary Willow sapling and advance the existing Farming clock.</small></div>
+        <div class="step"><b>2 · Check</b><small>Branches remain at zero until the one-time health check.</small></div>
+        <div class="step"><b>3 · Accrue</b><small>One branch per five era-minutes, capped at six after thirty.</small></div>
+        <div class="step"><b>4 · Prune</b><small>Collect the whole current yield with either Secateurs variant.</small></div>
+        <div class="step"><b>5 · Regrow</b><small>The Willow stays standing; Chop remains a separate primary action.</small></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Parity kept intact</h2>
+      <ul>
+        <li>RuneScape Wiki oldid <a href="https://runescape.wiki/w/Willow_branch?oldid=6092914">6092914</a>, dated 2012-08-14, pins the health-check gate, tools, zero XP, five-minute interval, and six-branch cap.</li>
+        <li>OpenRS2 revision 742 pins Willow branch, Secateurs, and Magic secateurs to item IDs <code>5933</code>, <code>5329</code>, and <code>7409</code>.</li>
+        <li>Darkan commit <code>ee180fe</code> independently corroborates checked-tree accumulation and the output identity.</li>
+        <li>The six-era-minute review clock preserves the five-minute boundary loop instead of replacing it with a rounded fake rate.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>UI and queue behavior</h2>
+      <ul>
+        <li><code>Queue chop</code> remains first and primary.</li>
+        <li><code>Queue prune N branches</code> appears only when a mature, checked Willow can support the action.</li>
+        <li>A full run executes health check → prune → chop → clear → replant over successive answered reviews.</li>
+        <li>The final geometry test proves the branch action is reachable at the supported 900×560 laptop layout.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Verification ledger</h2>
+      <div class="gate ship"><strong>PASS</strong><span>430 focused logic, registry, reachability, runtime-integration, and adjacent regression tests.</span></div>
+      <div class="gate ship"><strong>PASS</strong><span>Three targeted real offscreen Qt checks, including dark theme, readable widths, click wiring, and viewport reachability.</span></div>
+      <div class="gate ship"><strong>PASS</strong><span>Complete 1,909-test non-Qt and 1,909-test offscreen Qt matrices; the Qt run has one intentional platform skip.</span></div>
+      <div class="gate ship"><strong>SHIP</strong><span>Kimi K3 found no blocking taste defect; its one concrete geometry concern was converted into regression coverage.</span></div>
+    </section>
+
+    <section>
+      <h2>External QA gates</h2>
+      <div class="gate"><strong>Fable</strong><span>The mandatory fresh quota probe cannot read Claude Code’s macOS Keychain credential (<code>security</code> exit 51), so no unverified call was made.</span></div>
+      <div class="gate"><strong>Native Anki</strong><span>The Mac is locked, preventing a quit/relaunch inspection of the user’s real Anki process. Headless Qt is explicitly not presented as a substitute.</span></div>
+      <h3>Design status</h3>
+      <p>No owner decision is needed. Both remaining gates are environmental verification tasks, not product-design questions.</p>
+    </section>
+  </div>
+
+  <p class="footer">Durable source record: <code>memory-bank/source-audits/farming-willow-branch-acquisition-2026-07-20.md</code></p>
+</main>
+</body>
+</html>

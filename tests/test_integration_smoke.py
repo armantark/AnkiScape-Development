@@ -4269,6 +4269,78 @@ class TestIntegrationSmoke(unittest.TestCase):
         ))
         self.assertEqual(addon.player_data, before)
 
+    def test_willow_full_run_health_checks_then_prunes_on_successive_reviews(self):
+        addon = _load_addon_as_package("ankiscape_willow_full_run_integration")
+        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_exp = lambda _xp: None
+        addon._show_activity_gain = lambda _message: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        state = {
+            "inventory": {
+                "Rake": 1,
+                "Spade": 1,
+                "Secateurs": 1,
+                "Willow sapling": 2,
+            },
+            "farming_level": 99,
+            "farming_exp": 0.0,
+            "woodcutting_level": 99,
+            "woodcutting_exp": 0.0,
+            "agility_level": 99,
+            "completed_achievements": [],
+        }
+        state.update(farming_logic.default_farming_state_pure())
+        state, ok, _ = farming_logic.set_farm_plan_pure(
+            state,
+            "lumbridge_tree",
+            "willow",
+        )
+        self.assertTrue(ok)
+        state, ok, _ = farming_logic.execute_farm_field_step_pure(
+            state,
+            {
+                "kind": "plant",
+                "patch_id": "lumbridge_tree",
+                "crop_id": "willow",
+            },
+        )
+        self.assertTrue(ok)
+        state, _ = farming_logic.advance_farm_clock_pure(
+            state,
+            40,
+            lambda: 1.0,
+        )
+        state, step_ids = farming_logic.queue_full_run_pure(state)
+        self.assertEqual(len(step_ids), 5)
+        addon.player_data = state
+        addon.current_skill = "Mining"
+
+        for _ in range(2):
+            addon.card_turned = True
+            addon.answer_shown = True
+            addon.exp_awarded = False
+            addon.on_answer_card(
+                _FakeReviewer(),
+                4,
+                lambda _self, _ease: "answered",
+            )
+
+        patch = addon.player_data["farm_patches"]["lumbridge_tree"]
+        self.assertTrue(patch["health_checked"])
+        self.assertEqual(patch["produce_count"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Willow branch"], 1)
+        self.assertEqual(
+            [step["kind"] for step in addon.player_data["farm_queue"]],
+            ["chop", "clear", "plant"],
+        )
+        self.assertEqual(addon.player_data["farming_exp"], 1481.3)
+
     def test_prayer_composite_selection_persists_once_and_rejection_has_no_side_effects(self):
         addon = _load_addon_as_package("ankiscape_prayer_selection_integration")
         calls = {"save": 0, "hud": 0}

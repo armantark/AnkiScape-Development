@@ -112,7 +112,21 @@ class TestFarmingData(unittest.TestCase):
         self.assertEqual(dict(FARMING_CROPS_BY_ID["watermelon"].protection.items), {"Curry leaf": 10})
         self.assertEqual(FARMING_CROPS_BY_ID["jute"].seeds, 3)
         self.assertEqual(FARMING_CROPS_BY_ID["scarecrow"].level, 23)
-        self.assertEqual(FARMING_CROPS_BY_ID["willow"].check_health_xp, 1456.3)
+        willow = FARMING_CROPS_BY_ID["willow"]
+        self.assertEqual(willow.check_health_xp, 1456.3)
+        self.assertEqual(
+            (
+                willow.output_item,
+                willow.harvest_xp,
+                willow.fixed_yield,
+                willow.regrowth_minutes,
+                willow.harvest_tool,
+            ),
+            ("Willow branch", 0.0, 6, 5, "Secateurs"),
+        )
+        self.assertTrue(
+            any("oldid 6092914" in source for source in willow.sources)
+        )
         self.assertEqual(FARMING_CROPS_BY_ID["lantadyme"].planting_xp, 134.5)
         fruit_checks = [FARMING_CROPS_BY_ID[key].check_health_xp for key in ("apple", "banana", "orange", "curry", "pineapple", "papaya", "palm")]
         self.assertEqual(fruit_checks, [1199.5, 1750.5, 2470.2, 2906.9, 4605.7, 6146.4, 10150.1])
@@ -137,6 +151,23 @@ class TestFarmingData(unittest.TestCase):
             (4, 12.0, 6),
         )
         self.assertIsNone(white_tree.harvest_tool)
+        willow_branch = item_definitions_by_storage_key(ITEM_DEFINITIONS)[
+            "Willow branch"
+        ]
+        self.assertEqual(willow_branch.source_item_id, 5933)
+        self.assertFalse(willow_branch.stackable)
+        self.assertTrue(willow_branch.tradeable)
+        secateurs = item_definitions_by_storage_key(ITEM_DEFINITIONS)[
+            "Secateurs"
+        ]
+        magic_secateurs = item_definitions_by_storage_key(ITEM_DEFINITIONS)[
+            "Magic secateurs"
+        ]
+        self.assertEqual(secateurs.source_item_id, 5329)
+        self.assertFalse(secateurs.stackable)
+        self.assertEqual(FARMING_ITEM_DATA["Secateurs"]["category"], "tool")
+        self.assertEqual(magic_secateurs.source_item_id, 7409)
+        self.assertFalse(magic_secateurs.stackable)
 
     def test_unresolved_rows_are_explicitly_non_runnable(self):
         expected = {
@@ -737,6 +768,81 @@ class TestFarmingClockAndActions(unittest.TestCase):
         self.assertEqual(info["outputs"], {"Oak roots": 1})
         self.assertIsNone(cleared["farm_patches"]["lumbridge_tree"]["crop_id"])
 
+    def test_willow_branches_unlock_after_health_check_regrow_and_prune_without_xp(self):
+        data = _state()
+        data["inventory"].update(
+            {
+                "Rake": 1,
+                "Spade": 1,
+                "Willow sapling": 1,
+                "Magic secateurs": 1,
+            }
+        )
+        planted, ok, _ = execute_farm_field_step_pure(
+            data,
+            {
+                "kind": "plant",
+                "patch_id": "lumbridge_tree",
+                "crop_id": "willow",
+            },
+        )
+        self.assertTrue(ok)
+        mature, _ = advance_farm_clock_pure(planted, 40, lambda: 1.0)
+        self.assertEqual(
+            mature["farm_patches"]["lumbridge_tree"]["produce_count"],
+            0,
+        )
+
+        blocked, ok, info = execute_farm_field_step_pure(
+            mature,
+            {"kind": "harvest", "patch_id": "lumbridge_tree"},
+        )
+        self.assertFalse(ok)
+        self.assertEqual(info["message"], "check the crop's health first")
+        self.assertEqual(blocked["farming_exp"], 25.0)
+
+        checked, ok, info = execute_farm_field_step_pure(
+            mature,
+            {"kind": "check_health", "patch_id": "lumbridge_tree"},
+        )
+        self.assertTrue(ok)
+        self.assertEqual(info["farming_xp"], 1456.3)
+        self.assertEqual(
+            checked["farm_patches"]["lumbridge_tree"]["produce_count"],
+            0,
+        )
+
+        first, _ = advance_farm_clock_pure(checked, 1, lambda: 1.0)
+        self.assertEqual(
+            first["farm_patches"]["lumbridge_tree"]["produce_count"],
+            1,
+        )
+        full, _ = advance_farm_clock_pure(first, 4, lambda: 1.0)
+        self.assertEqual(
+            full["farm_patches"]["lumbridge_tree"]["produce_count"],
+            6,
+        )
+        xp_before = full["farming_exp"]
+        harvested, ok, info = execute_farm_field_step_pure(
+            full,
+            {"kind": "harvest", "patch_id": "lumbridge_tree"},
+        )
+        self.assertTrue(ok)
+        self.assertEqual(info["outputs"], {"Willow branch": 6})
+        self.assertEqual(info["farming_xp"], 0.0)
+        self.assertEqual(harvested["inventory"]["Willow branch"], 6)
+        self.assertEqual(harvested["farming_exp"], xp_before)
+        self.assertEqual(
+            harvested["farm_patches"]["lumbridge_tree"]["produce_count"],
+            0,
+        )
+
+        regrown, _ = advance_farm_clock_pure(harvested, 1, lambda: 1.0)
+        self.assertEqual(
+            regrown["farm_patches"]["lumbridge_tree"]["produce_count"],
+            1,
+        )
+
     def test_remote_farm_cures_every_live_diseased_patch_atomically(self):
         data = _state()
         first = _plant_ready(data, "falador_allotment_north", "potato")
@@ -1033,6 +1139,35 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         tree, _ = advance_farm_clock_pure(tree, 34, lambda: 1.0)
         tree_run, _ = queue_full_run_pure(tree)
         self.assertEqual([step["kind"] for step in tree_run["farm_queue"]], ["check_health", "chop", "clear", "plant"])
+
+        willow = _state()
+        willow["inventory"].update(
+            {
+                "Rake": 1,
+                "Spade": 1,
+                "Secateurs": 1,
+                "Willow sapling": 1,
+            }
+        )
+        willow, ok, _ = set_farm_plan_pure(
+            willow, "lumbridge_tree", "willow"
+        )
+        self.assertTrue(ok)
+        willow, ok, _ = execute_farm_field_step_pure(
+            willow,
+            {
+                "kind": "plant",
+                "patch_id": "lumbridge_tree",
+                "crop_id": "willow",
+            },
+        )
+        self.assertTrue(ok)
+        willow, _ = advance_farm_clock_pure(willow, 40, lambda: 1.0)
+        willow_run, _ = queue_full_run_pure(willow)
+        self.assertEqual(
+            [step["kind"] for step in willow_run["farm_queue"]],
+            ["check_health", "harvest", "chop", "clear", "plant"],
+        )
         tree["farm_patches"]["lumbridge_tree"]["dead"] = True
         dead_run, _ = queue_full_run_pure(tree)
         self.assertEqual([step["kind"] for step in dead_run["farm_queue"]], ["clear", "plant"])
@@ -1665,6 +1800,50 @@ class TestFarmingFrontendProjection(unittest.TestCase):
             regrowing_patch["status_label"],
             "Regrowing · next produce in about 1 review",
         )
+
+    def test_willow_projection_keeps_chop_primary_and_exposes_pruning(self):
+        state = _state()
+        state["inventory"].update(
+            {
+                "Rake": 1,
+                "Spade": 1,
+                "Secateurs": 1,
+                "Willow sapling": 1,
+            }
+        )
+        state, ok, _ = execute_farm_field_step_pure(
+            state,
+            {
+                "kind": "plant",
+                "patch_id": "lumbridge_tree",
+                "crop_id": "willow",
+            },
+        )
+        self.assertTrue(ok)
+        state, _ = advance_farm_clock_pure(state, 40, lambda: 1.0)
+        state, ok, _ = execute_farm_field_step_pure(
+            state,
+            {"kind": "check_health", "patch_id": "lumbridge_tree"},
+        )
+        self.assertTrue(ok)
+        state, _ = advance_farm_clock_pure(state, 5, lambda: 1.0)
+
+        patch = next(
+            patch
+            for location in farming_frontend_projection_pure(state)[
+                "locations"
+            ]
+            for patch in location["patches"]
+            if patch["patch_id"] == "lumbridge_tree"
+        )
+        self.assertEqual(patch["primary_action"]["id"], "chop")
+        self.assertEqual(patch["branch_action"]["id"], "harvest")
+        self.assertEqual(
+            patch["branch_action"]["label"],
+            "Queue prune 6 branches",
+        )
+        self.assertTrue(patch["branch_action"]["enabled"])
+        self.assertIn("6/6 branches ready", patch["status_label"])
 
     def test_hud_precedence_is_alert_then_ready_then_queue_then_none(self):
         queued, step_id, _ = add_farm_queue_step_pure(_state(), "plant", "falador_allotment_north", crop_id="potato")
