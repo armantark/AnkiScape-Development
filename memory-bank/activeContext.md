@@ -2,6 +2,19 @@
 
 ## Current Focus
 
+Easy Treasure Trails has been source-harvested to a hard implementation
+boundary. Period revisions close the one-to-five step count, simple/emote/map/
+cryptic families, no-coordinate/no-combat/no-Wilderness easy-tier rules,
+human-readable clue content, item identities/options, and reward membership.
+The settled contract's one-clue-per-tier claim conflicts with the 2012 global
+one-clue ownership rule; later RuneScape history dates per-tier ownership to
+2015. Exact clue-selection and casket reward rolls also remain source-blocked:
+Darkan's one-to-three step roll is period-wrong, its `1/12` rare table lacks an
+independent pre-EOC-lineage match, and rev-667 has no executable Treasure
+Trails behavior. No product code was changed. The ownership conflict is ranked
+in `design-gaps-implementation-2026-07-19.md`; the complete boundary is
+`source-audits/treasure-trails-easy-source-boundary-2026-07-19.md`.
+
 The owner-settled Big Chinchompa D&D is live as a review-native communal
 Hunter event. Two deterministic windows open at reviews 60 and 180 of each
 240-review world day; each answered review maps to six source minutes, late

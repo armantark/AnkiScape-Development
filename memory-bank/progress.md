@@ -4,6 +4,20 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Easy Treasure Trails source boundary — 2026-07-19
+
+- Pinned the one-to-five easy trail length, simple/emote/map/cryptic families,
+  no-coordinate/no-combat/no-Wilderness rules, reward membership, and clue,
+  casket, and scroll-box client identities.
+- Rejected Darkan's conflicting one-to-three step roll.
+- Stopped implementation because the settled per-tier ownership clause
+  conflicts with the period global one-clue rule and because exact clue and
+  reward selection rolls lack independent pre-EOC-lineage corroboration.
+- Recorded the recommended period-faithful ownership resolution in
+  `design-gaps-implementation-2026-07-19.md`; no product code was changed.
+- Durable source record:
+  `source-audits/treasure-trails-easy-source-boundary-2026-07-19.md`.
+
 ## Big Chinchompa D&D implementation — 2026-07-19
 
 - Implemented both owner-settled event windows on the shared 240-review world

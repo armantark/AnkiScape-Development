@@ -93,6 +93,14 @@ Labels: `SOURCE AUDIT`, then `IMPLEMENT` only when evidence closes.
   Polar-kebbit ticket use remains `WAIT: SOURCE` on that ordinary tracking
   target; no design wait remains. See
   `memory-bank/source-audits/big-chinchompa-implementation-harvest-2026-07-19.md`.
+- Easy Treasure Trails is harvested but not admitted. The period record closes
+  its one-to-five steps, clue families, content, item identities, and reward
+  membership, but the settled per-tier ownership clause conflicts with the
+  cutoff's global one-clue rule. Darkan's one-to-three step roll is rejected,
+  and its clue/reward selection tables lack independent pre-EOC-lineage
+  corroboration. See
+  `memory-bank/source-audits/treasure-trails-easy-source-boundary-2026-07-19.md`
+  and `memory-bank/design-gaps-implementation-2026-07-19.md`.
 - Skeletal Horror's continuous phase thresholds are now pinned at `2,750`,
   `2,000`, and `1,250` LP, alongside its phase levels, maximum hits, styles,
   limb identities, rewards, clue chance, and weekly cadence. Implementation
