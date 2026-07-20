@@ -2,6 +2,39 @@
 
 ## Current Focus
 
+Teplin Macagan now provides the cutoff Oo'glog potion-flask service through
+two free, instantaneous Shop actions after `As a First Resort...`: fill new
+six-dose flasks from eligible one- through four-dose vial/partial-flask doses,
+and decant one- through four-dose flasks back into four-dose vials plus an
+exact remainder. The implementation conserves every dose, returns emptied
+Vials, destroys emptied source flasks, never tops up or consumes five-/six-dose
+flasks, creates one directly undoable Shop event, and advances no market or
+wall clock. All 151 registered potion-container states now have canonical
+icons and provenance; 135 previously missing PNGs were added and all 256
+Herblore item sprites remain tight-cropped.
+
+The Shop surface exposes distinct fill/reverse icons, `Free` pricing, exact
+inventory previews, the authentic quest lock, and a non-scrolling two-row
+service list. Kimi K3's seven concrete taste findings are corrected. A fully
+quit and freshly relaunched native macOS Anki process verified the final
+96-pixel list, icons, pricing, lock, and disabled action in the real dark
+theme. The required Fable taste pass remains externally blocked because its
+fresh quota probe cannot read Claude Code OAuth from macOS Keychain
+(`security` exit 51); this is not a design gap.
+
+Focused verification passes 57 non-Qt tests and one real-Qt interaction test.
+Complete non-Qt discovery executes all 1,918 methods with 251 expected
+environment skips; complete real offscreen Qt discovery executes all 1,918
+methods with one intentional skip. Test quality has zero hard issues.
+Documentation, compilation, JSON, diff, asset normalization, reachability,
+and worktree-safety checks pass. Reachability now reports 1,409 actions,
+2,012 reachable items, 235 orphan inputs (76 root and 159 cascade), and 276
+blocked actions. Empty Potion flask acquisition remains a truthful root
+dependency. See
+`source-audits/teplin-potion-flask-decanting-2026-07-20.md`. Results:
+`status-updates/teplin-potion-flask-decanting-results-2026-07-20.html`;
+mobile copy: `https://uryuvjirpis2.postplan.dev`.
+
 The item-reachability audit now represents the live Farming acquisition graph
 instead of falsely classifying harvest outputs as root orphans. Runnable
 sapling preparation, ordinary harvests, and tree-root clearing contribute

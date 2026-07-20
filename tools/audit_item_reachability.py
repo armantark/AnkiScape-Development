@@ -264,6 +264,56 @@ def build_reachability_report() -> dict[str, Any]:
             for item in outputs:
                 producers[item].add(key)
 
+    teplin_fill = shop_data.SHOP_SERVICES.get(
+        "teplin_fill_potion_flasks", {}
+    )
+    teplin_decant = shop_data.SHOP_SERVICES.get(
+        "teplin_decant_flasks_to_vials", {}
+    )
+    if (
+        teplin_fill.get("visibility") == "visible"
+        and teplin_fill.get("action_type") == "fill_potion_flasks"
+        and teplin_decant.get("visibility") == "visible"
+        and teplin_decant.get("action_type") == "decant_flasks_to_vials"
+    ):
+        for base in shop_logic.DECANTABLE_FLASK_POTION_BASES:
+            fill_required = {f"{base} (3)", "Potion flask"}
+            fill_output = {shop_logic.potion_flask_name(base, 6)}
+            fill_key = f"Shop service:teplin_fill_potion_flasks:{base}"
+            actions.append(
+                {
+                    "id": fill_key,
+                    "required": fill_required,
+                    "alternatives": (),
+                    "outputs": fill_output,
+                }
+            )
+            for item in fill_required:
+                consumers[item].add(fill_key)
+            for item in fill_output:
+                producers[item].add(fill_key)
+
+            decant_required = {shop_logic.potion_flask_name(base, 3)}
+            decant_outputs = {
+                f"{base} ({dose})"
+                for dose in (1, 2, 4)
+            }
+            decant_key = (
+                f"Shop service:teplin_decant_flasks_to_vials:{base}"
+            )
+            actions.append(
+                {
+                    "id": decant_key,
+                    "required": decant_required,
+                    "alternatives": (),
+                    "outputs": decant_outputs,
+                }
+            )
+            for item in decant_required:
+                consumers[item].add(decant_key)
+            for item in decant_outputs:
+                producers[item].add(decant_key)
+
     for service_id, service in shop_data.SHOP_SERVICES.items():
         if (
             service.get("visibility") != "visible"

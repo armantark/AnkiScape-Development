@@ -976,7 +976,11 @@ for _item_name in set(RUNECRAFTING_OUTPUT_ITEMS) | set(RUNECRAFTING_ACCESS_ITEMS
 # so an unfetched icon leaves the row text-only instead of a dead path.
 HERBLORE_EXTRA_ITEM_DATA = herblore_extra_items_as_dict()
 HERBLORE_ITEM_IMAGES = {}
-for _item_name in set(HERBLORE_OUTPUT_ITEMS) | set(HERBLORE_EXTRA_ITEM_DATA):
+for _item_name in (
+    set(HERBLORE_OUTPUT_ITEMS)
+    | set(HERBLORE_EXTRA_ITEM_DATA)
+    | set(potion_item_names())
+):
     _path = (
         ORE_IMAGES.get(_item_name)
         or CRAFTED_ITEM_IMAGES.get(_item_name)

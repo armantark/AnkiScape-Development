@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teplin Potion-Flask Closure</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f6f1e8;
+      --muted: #aea99f;
+      --panel: #171815;
+      --panel-2: #22231f;
+      --line: #3a3d34;
+      --green: #75d68a;
+      --cyan: #6fd6d2;
+      --amber: #f2c76e;
+      --red: #ef8b7d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 85% 8%, rgba(60, 150, 122, .22), transparent 32rem),
+        radial-gradient(circle at 10% 90%, rgba(54, 125, 160, .18), transparent 30rem),
+        #0d0e0c;
+      font: 16px/1.55 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 44px 0 64px; }
+    header { display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: end; }
+    .eyebrow { color: var(--green); font-weight: 750; letter-spacing: .13em; text-transform: uppercase; font-size: .76rem; }
+    h1 { margin: 8px 0 8px; font-size: clamp(2.2rem, 6vw, 5rem); line-height: .96; letter-spacing: -.055em; }
+    .lede { max-width: 720px; margin: 0; color: var(--muted); font-size: 1.08rem; }
+    .stamp {
+      min-width: 176px;
+      padding: 15px 18px;
+      border: 1px solid rgba(117, 214, 138, .42);
+      border-radius: 16px;
+      background: rgba(117, 214, 138, .08);
+    }
+    .stamp strong { display: block; color: var(--green); font-size: 1.12rem; }
+    .stamp span { color: var(--muted); font-size: .82rem; }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-top: 28px; }
+    .card {
+      grid-column: span 4;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: linear-gradient(145deg, rgba(35, 37, 32, .98), rgba(20, 21, 18, .98));
+      box-shadow: 0 16px 40px rgba(0, 0, 0, .22);
+    }
+    .wide { grid-column: span 8; }
+    .full { grid-column: 1 / -1; }
+    .metric { font-size: clamp(2rem, 5vw, 3.7rem); line-height: 1; font-weight: 800; letter-spacing: -.05em; }
+    .metric.green { color: var(--green); }
+    .metric.cyan { color: var(--cyan); }
+    .metric.amber { color: var(--amber); }
+    h2 { margin: 0 0 14px; font-size: 1rem; letter-spacing: .02em; }
+    p { margin: 0; }
+    .sub { color: var(--muted); margin-top: 8px; }
+    .flow { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: center; }
+    .vessel {
+      min-height: 148px;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      text-align: center;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(0, 0, 0, .18);
+    }
+    .vessel b { display: block; margin-top: 8px; }
+    .icon { font-size: 2.5rem; }
+    .arrow { color: var(--green); font-size: 2rem; font-weight: 900; }
+    .checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px 20px; margin: 0; padding: 0; list-style: none; }
+    .checks li { position: relative; padding-left: 24px; }
+    .checks li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 900; }
+    .review { display: flex; gap: 12px; align-items: flex-start; padding: 14px 0; border-top: 1px solid var(--line); }
+    .review:first-of-type { border-top: 0; padding-top: 0; }
+    .badge { flex: 0 0 auto; padding: 3px 9px; border-radius: 999px; font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    .done { color: #0d190f; background: var(--green); }
+    .blocked { color: #211405; background: var(--amber); }
+    .review p { color: var(--muted); }
+    .review strong { color: var(--ink); }
+    footer { margin-top: 22px; color: var(--muted); font-size: .83rem; text-align: right; }
+    code { color: var(--cyan); font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    @media (max-width: 760px) {
+      main { width: min(100% - 20px, 680px); padding-top: 24px; }
+      header { grid-template-columns: 1fr; }
+      .stamp { width: 100%; }
+      .card, .wide { grid-column: 1 / -1; }
+      .flow { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); text-align: center; }
+      .checks { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <div class="eyebrow">AnkiScape · implementation closure</div>
+        <h1>Six doses.<br>Zero leaks.</h1>
+        <p class="lede">Teplin Macagan now performs the period Oo'glog flask service as two free, instantaneous, dose-conserving Shop actions, with the real quest gate and no wall-clock gameplay.</p>
+      </div>
+      <div class="stamp">
+        <strong>Source-ready slice closed</strong>
+        <span>20 July 2026 · main checkout</span>
+      </div>
+    </header>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Complete test universes</h2>
+        <div class="metric green">1,918</div>
+        <p class="sub">non-Qt methods and 1,918 real offscreen Qt methods</p>
+      </article>
+      <article class="card">
+        <h2>Registered potion art</h2>
+        <div class="metric cyan">151</div>
+        <p class="sub">container states with resolvable, provenance-backed icons</p>
+      </article>
+      <article class="card">
+        <h2>Native UI defects closed</h2>
+        <div class="metric amber">7</div>
+        <p class="sub">concrete Kimi findings, all fixed and regression-covered</p>
+      </article>
+
+      <article class="card wide">
+        <h2>Inventory-wide service flow</h2>
+        <div class="flow">
+          <div class="vessel">
+            <div><span class="icon">🧪</span><b>1–4 dose vials and partial flasks</b><span class="sub">plus one empty Potion flask per output</span></div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="vessel">
+            <div><span class="icon">⚗️</span><b>New six-dose flask</b><span class="sub">exact remainders retained; emptied containers handled authentically</span></div>
+          </div>
+        </div>
+      </article>
+      <article class="card">
+        <h2>Hard invariants</h2>
+        <ul class="checks">
+          <li>Every dose conserved</li>
+          <li>5/6-dose sources untouched</li>
+          <li>Used flasks never topped up</li>
+          <li>Direct Shop-history undo</li>
+          <li>No market-clock tick</li>
+          <li>No wall clock</li>
+        </ul>
+      </article>
+
+      <article class="card full">
+        <h2>Verification and review</h2>
+        <div class="review">
+          <span class="badge done">Passed</span>
+          <p><strong>Native restarted Anki:</strong> final 96-pixel two-row list has no scrollbar; distinct icons, <em>Free</em> pricing, the authentic quest lock, and disabled locked action all render correctly in the real dark theme.</p>
+        </div>
+        <div class="review">
+          <span class="badge done">Passed</span>
+          <p><strong>Repository gates:</strong> 57 focused pure/integration tests, one focused real-Qt interaction, both complete test universes, test-quality, docs, compilation, JSON, diff, icon normalization, reachability, and worktree safety.</p>
+        </div>
+        <div class="review">
+          <span class="badge blocked">External</span>
+          <p><strong>Fable taste pass:</strong> still unavailable because the mandatory fresh quota probe cannot read Claude Code OAuth from macOS Keychain (<code>security</code> exit 51). This is an authentication/QA gate, not a product or design gap.</p>
+        </div>
+      </article>
+
+      <article class="card full">
+        <h2>What remains truthful</h2>
+        <p>Reachability now models 1,409 actions and Teplin's two conversion families. Empty Potion flask acquisition remains a visible root dependency instead of being hidden behind a seeded item or invented shop source. That is the next implementation-ready harvest target.</p>
+      </article>
+    </section>
+
+    <footer>Source record: <code>memory-bank/source-audits/teplin-potion-flask-decanting-2026-07-20.md</code></footer>
+  </main>
+</body>
+</html>

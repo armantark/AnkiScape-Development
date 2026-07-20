@@ -124,7 +124,7 @@ class TestShopData(unittest.TestCase):
             self.assertEqual(shop["lock_reason"], "currency_not_implemented")
 
     def test_services_vendor_actions_and_extra_items_are_exported(self):
-        self.assertEqual(len(SHOP_SERVICES), 80)
+        self.assertEqual(len(SHOP_SERVICES), 82)
         self.assertEqual(
             {
                 service_id
@@ -145,6 +145,26 @@ class TestShopData(unittest.TestCase):
         self.assertEqual(bob["default_target_dose"], 4)
         self.assertEqual(bob["price"], 0)
         self.assertIn("oldid 6222086", bob["source"])
+        for service_id, action_type in (
+            ("teplin_fill_potion_flasks", "fill_potion_flasks"),
+            ("teplin_decant_flasks_to_vials", "decant_flasks_to_vials"),
+        ):
+            with self.subTest(service_id=service_id):
+                teplin = SHOP_SERVICES[service_id]
+                self.assertEqual(teplin["provider"], "Teplin Macagan")
+                self.assertEqual(teplin["location"], "Oo'glog")
+                self.assertEqual(teplin["action_type"], action_type)
+                self.assertEqual(teplin["price"], 0)
+                self.assertEqual(
+                    teplin["access"],
+                    {
+                        "kind": "quest",
+                        "quest_id": "as_a_first_resort",
+                        "label": "As a First Resort",
+                    },
+                )
+                self.assertIn("oldid 6225976", teplin["source"])
+                self.assertIn("oldid 6394714", teplin["source"])
         leon = SHOP_SERVICES["leon_fletch_long_kebbit_bolts"]
         self.assertEqual(leon["provider"], "Leon")
         self.assertEqual(leon["location"], "Yanille")

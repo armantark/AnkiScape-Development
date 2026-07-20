@@ -8573,7 +8573,7 @@ def show_main_menu(
     service_row_layout.setSpacing(8)
     service_list = QListWidget()
     service_list.setObjectName("shopServiceList")
-    service_list.setMaximumHeight(72)
+    service_list.setMaximumHeight(96)
     service_list.setIconSize(QSize(24, 24))
     service_list.setAlternatingRowColors(True)
     service_list.setStyleSheet(
@@ -8758,6 +8758,15 @@ def show_main_menu(
             return f"Decanting to {dose} doses needs {required:,} empty vial(s); you have {owned:,}."
         if reason == "unsupported_decant_dose":
             return "Bob can decant vial potions to 2, 3, or 4 doses."
+        if reason == "missing_empty_potion_flask":
+            return "Teplin needs at least one empty Potion flask."
+        if reason == "insufficient_flask_doses":
+            return (
+                "You do not have six doses in 1–4 dose vials or partial "
+                "flasks for Teplin to fill a flask."
+            )
+        if reason == "no_partial_flasks_to_decant":
+            return "You have no 1–4 dose potion flasks for Teplin to decant."
         return fallback or reason
 
     def _service_icon_item_name(row: dict) -> str:
@@ -9042,7 +9051,14 @@ def show_main_menu(
     def _service_text(kind: str, row: dict) -> str:
         label = "Service" if kind == "service" else "Vendor"
         provider = str(row.get("provider", ""))
-        price = _format_shop_price(row.get("price", 0), str(row.get("currency_item_name", "Coins")))
+        price = (
+            "Free"
+            if int(row.get("price", 0) or 0) == 0
+            else _format_shop_price(
+                row.get("price", 0),
+                str(row.get("currency_item_name", "Coins")),
+            )
+        )
         inputs = ", ".join(
             f"{item.get('quantity', 1)} × {item.get('item_name')}"
             for item in row.get("inputs", [])[:2]
@@ -9052,7 +9068,9 @@ def show_main_menu(
             for item in row.get("outputs", [])[:2]
         )
         right = f" → {outputs}" if outputs else ""
-        cost_parts = [part for part in (inputs, price) if part != "Free"]
+        cost_parts = [
+            part for part in (inputs, price) if part and part != "Free"
+        ]
         cost = " + ".join(cost_parts) if cost_parts else "Free"
         provider_selected = bool(shop_state.get("provider"))
         prefix = "" if provider_selected else f"{label}: "
@@ -9131,8 +9149,50 @@ def show_main_menu(
         if preview.get("allowed"):
             if preview.get("family_count") is not None:
                 family_count = int(preview.get("family_count", 0) or 0)
-                target_dose = int(preview.get("target_dose", 4) or 4)
                 total_doses = int(preview.get("total_doses", 0) or 0)
+                if action_type == "fill_potion_flasks":
+                    flasks_created = int(preview.get("flasks_created", 0) or 0)
+                    returned_vials = int(preview.get("returned_vials", 0) or 0)
+                    destroyed_flasks = int(preview.get("destroyed_flasks", 0) or 0)
+                    detail_parts = []
+                    if returned_vials:
+                        detail_parts.append(
+                            f"{returned_vials:,} empty "
+                            f"vial{'s' if returned_vials != 1 else ''} returned"
+                        )
+                    if destroyed_flasks:
+                        detail_parts.append(
+                            f"{destroyed_flasks:,} emptied partial "
+                            f"flask{'s' if destroyed_flasks != 1 else ''} destroyed"
+                        )
+                    detail = (
+                        f" {'; '.join(detail_parts)}."
+                        if detail_parts
+                        else ""
+                    )
+                    service_preview.setText(
+                        f"Teplin will fill {flasks_created:,} empty Potion "
+                        f"flask{'s' if flasks_created != 1 else ''} with "
+                        f"{total_doses:,} doses from {family_count:,} potion "
+                        f"type{'s' if family_count != 1 else ''} for free.{detail}"
+                    )
+                    service_use_btn.setEnabled(True)
+                    return
+                if action_type == "decant_flasks_to_vials":
+                    destroyed_flasks = int(preview.get("destroyed_flasks", 0) or 0)
+                    created_vials = int(preview.get("created_vials", 0) or 0)
+                    service_preview.setText(
+                        f"Teplin will transfer {total_doses:,} doses across "
+                        f"{family_count:,} potion "
+                        f"type{'s' if family_count != 1 else ''} into "
+                        f"{created_vials:,} vial"
+                        f"{'s' if created_vials != 1 else ''} for free, "
+                        f"destroying {destroyed_flasks:,} emptied "
+                        f"flask{'s' if destroyed_flasks != 1 else ''}."
+                    )
+                    service_use_btn.setEnabled(True)
+                    return
+                target_dose = int(preview.get("target_dose", 4) or 4)
                 returned_vials = int(preview.get("returned_vials", 0) or 0)
                 required_vials = int(preview.get("required_vials", 0) or 0)
                 vial_suffix = f" Bob returns {returned_vials:,} empty vial(s)." if returned_vials else ""
@@ -9187,7 +9247,14 @@ def show_main_menu(
             return
         _replace_player_data(new_data)
         _persist_shop_state()
-        _refresh_after_shop_mutation(f"Used {row.get('display_name', 'vendor action')} {int(result.get('quantity', 0) or 0):,} time(s).")
+        display_name = row.get("display_name", "vendor action")
+        amount = int(result.get("quantity", 0) or 0)
+        suffix = (
+            f" {amount:,} times."
+            if row.get("batchable") and amount != 1
+            else "."
+        )
+        _refresh_after_shop_mutation(f"Used {display_name}{suffix}")
         _refresh_service_preview()
 
     def _populate_shop_history() -> None:
@@ -9281,7 +9348,16 @@ def show_main_menu(
             return f"{result.get('item_name')} · {result.get('shop_name')} · Stock {stock} · {price}{lock}"
         label = "Service" if kind == "service" else "Vendor"
         lock = f" · {result.get('lock_reason')}" if result.get("lock_reason") else ""
-        return f"{label}: {result.get('display_name')} · {result.get('provider')} · {result.get('price', 0):,} {result.get('currency_item_name', 'Coins')}{lock}"
+        price = int(result.get("price", 0) or 0)
+        cost = (
+            "Free"
+            if price == 0
+            else f"{price:,} {result.get('currency_item_name', 'Coins')}"
+        )
+        return (
+            f"{label}: {result.get('display_name')} · "
+            f"{result.get('provider')} · {cost}{lock}"
+        )
 
     def _populate_shop_selector() -> None:
         current_shop_id = shop_state.get("shop_id", "")

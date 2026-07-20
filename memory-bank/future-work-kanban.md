@@ -1044,11 +1044,12 @@ Labels: `DESIGN CLOSED 2026-07-18`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY:
 
 Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 
-- Maintain `tools/audit_item_reachability.py`; the current run finds 1,379
-  actions, 2,012 reachable items, and 234 orphan inputs (91 root, 143 cascade)
+- Maintain `tools/audit_item_reachability.py`; the current run finds 1,409
+  actions, 2,012 reachable items, and 235 orphan inputs (76 root, 159 cascade)
   across planned skills, activities, Combat/world acquisition, Farming, and
-  potion-state plumbing. Bob Barter's quantity-free decant routes make potion
-  dose variants known-producer cascades; live Farming sapling, harvest, and
+  potion-state plumbing. Bob Barter's vial decant routes and Teplin Macagan's
+  vial/flask conversions make potion dose variants known-producer cascades;
+  live Farming sapling, harvest, and
   tree-root routes prevent ordinary produce from appearing as false root gaps;
   the level-23 Goat now closes the Desert-goat-horn -> dust -> Combat-potion
   chain; the ordinary Stronghold gathering route now closes Swamp toad ->
@@ -1068,6 +1069,12 @@ Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
   containers and every vial/flask potion dose unstackable, matching the
   cache-derived runtime set and the established carried-slot model. See
   `source-audits/potion-container-stackability-correction-2026-07-20.md`.
+- **Closed 2026-07-20:** Teplin Macagan now fills new six-dose flasks and
+  reverses eligible partial flasks after the authentic quest gate, with exact
+  dose/container conservation, direct undo, complete registered potion art,
+  and native-Anki UI proof. Empty Potion flask acquisition remains a truthful
+  root dependency for its own period route. See
+  `source-audits/teplin-potion-flask-decanting-2026-07-20.md`.
 - The source-backed Woodcutting nest → empty nest → crushed nest route is repaired and regression-covered.
 - Finish equipment requirements, special attacks, poison, charges/degradation, set effects, jewellery, consumables, and source-specific use actions without creating fake recipes.
 - **Closed 2026-07-15:** barehand butterfly catching now ships as the distinct

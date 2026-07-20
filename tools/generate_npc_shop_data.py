@@ -105,6 +105,48 @@ SERVICE_ROWS: list[dict[str, Any]] = [
         ),
     },
     {
+        "id": "teplin_fill_potion_flasks",
+        "display_name": "Fill 6-dose potion flasks",
+        "provider": "Teplin Macagan",
+        "location": "Oo'glog",
+        "currency_id": 995,
+        "price": 0,
+        "inputs": [],
+        "outputs": [],
+        "icon_item_name": "Attack flask (6)",
+        "action_type": "fill_potion_flasks",
+        "access": {
+            "kind": "quest",
+            "quest_id": "as_a_first_resort",
+            "label": "As a First Resort",
+        },
+        "source": (
+            "RuneScape Wiki Teplin Macagan oldid 6225976, 2012-09-09; "
+            "Potion flask oldid 6394714, 2012-10-13"
+        ),
+    },
+    {
+        "id": "teplin_decant_flasks_to_vials",
+        "display_name": "Decant flasks into 4-dose vials",
+        "provider": "Teplin Macagan",
+        "location": "Oo'glog",
+        "currency_id": 995,
+        "price": 0,
+        "inputs": [],
+        "outputs": [],
+        "icon_item_name": "Attack potion (4)",
+        "action_type": "decant_flasks_to_vials",
+        "access": {
+            "kind": "quest",
+            "quest_id": "as_a_first_resort",
+            "label": "As a First Resort",
+        },
+        "source": (
+            "RuneScape Wiki Teplin Macagan oldid 6225976, 2012-09-09; "
+            "Potion flask oldid 6394714, 2012-10-13"
+        ),
+    },
+    {
         "id": "leon_fletch_long_kebbit_bolts",
         "display_name": "Fletch long kebbit bolts",
         "provider": "Leon",

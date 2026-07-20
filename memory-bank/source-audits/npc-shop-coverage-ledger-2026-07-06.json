@@ -21,6 +21,52 @@
       "visibility": "visible"
     },
     {
+      "access": {
+        "kind": "quest",
+        "label": "As a First Resort",
+        "quest_id": "as_a_first_resort"
+      },
+      "action_type": "fill_potion_flasks",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Fill 6-dose potion flasks",
+      "icon_item_name": "Attack flask (6)",
+      "id": "teplin_fill_potion_flasks",
+      "inputs": [],
+      "location": "Oo'glog",
+      "lock_reason": "",
+      "outputs": [],
+      "price": 0,
+      "provider": "Teplin Macagan",
+      "source": "RuneScape Wiki Teplin Macagan oldid 6225976, 2012-09-09; Potion flask oldid 6394714, 2012-10-13",
+      "visibility": "visible"
+    },
+    {
+      "access": {
+        "kind": "quest",
+        "label": "As a First Resort",
+        "quest_id": "as_a_first_resort"
+      },
+      "action_type": "decant_flasks_to_vials",
+      "currency_id": 995,
+      "currency_implemented": true,
+      "currency_item_name": "Coins",
+      "currency_name": "Coins",
+      "display_name": "Decant flasks into 4-dose vials",
+      "icon_item_name": "Attack potion (4)",
+      "id": "teplin_decant_flasks_to_vials",
+      "inputs": [],
+      "location": "Oo'glog",
+      "lock_reason": "",
+      "outputs": [],
+      "price": 0,
+      "provider": "Teplin Macagan",
+      "source": "RuneScape Wiki Teplin Macagan oldid 6225976, 2012-09-09; Potion flask oldid 6394714, 2012-10-13",
+      "visibility": "visible"
+    },
+    {
       "action_type": "item_conversion",
       "batchable": true,
       "currency_id": 995,
@@ -33125,7 +33171,7 @@
     "locked_stock_row_count": 60,
     "player_sell_price_count": 6820,
     "runtime_shop_count": 273,
-    "service_count": 80,
+    "service_count": 82,
     "source_shop_count": 274,
     "stock_row_count": 2771,
     "vendor_action_count": 4,

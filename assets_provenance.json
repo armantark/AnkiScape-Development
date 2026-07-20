@@ -18645,6 +18645,30 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T00:49:30Z"
   },
+  "herbloreitems/antifire_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Antifire_%281%29.png",
+    "file_title": "Antifire (1).png",
+    "image_url": "https://runescape.wiki/images/Antifire_%281%29.png?989ee",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bf56b78c6dddbada0c0dec43ba18c48319456140",
+    "size": 919,
+    "source_wiki": "rs3",
+    "timestamp": "2025-07-26T07:34:32Z"
+  },
+  "herbloreitems/antifire_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Antifire_%282%29.png",
+    "file_title": "Antifire (2).png",
+    "image_url": "https://runescape.wiki/images/Antifire_%282%29.png?b5288",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "957a95d8c17c81c6636171473f49e2fe037005ae",
+    "size": 845,
+    "source_wiki": "rs3",
+    "timestamp": "2025-07-26T07:34:55Z"
+  },
   "herbloreitems/antifire_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Antifire_%283%29.png",
     "file_title": "Antifire (3).png",
@@ -18656,6 +18680,90 @@
     "size": 821,
     "source_wiki": "rs3",
     "timestamp": "2025-07-26T07:35:10Z"
+  },
+  "herbloreitems/antifire_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Antifire_%284%29.png",
+    "file_title": "Antifire (4).png",
+    "image_url": "https://runescape.wiki/images/Antifire_%284%29.png?0f3a6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ba41ef624d4685ab8c5b1bd9e99c77cdb90d457d",
+    "size": 764,
+    "source_wiki": "rs3",
+    "timestamp": "2025-07-26T07:35:54Z"
+  },
+  "herbloreitems/antifire_flask_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Antifire_flask_%281%29.png",
+    "file_title": "Antifire flask (1).png",
+    "image_url": "https://runescape.wiki/images/Antifire_flask_%281%29.png?78580",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d8de50676e4effe1caa221c257813382da71b488",
+    "size": 1013,
+    "source_wiki": "rs3",
+    "timestamp": "2025-07-26T07:38:07Z"
+  },
+  "herbloreitems/antifire_flask_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Antifire_flask_%282%29.png",
+    "file_title": "Antifire flask (2).png",
+    "image_url": "https://runescape.wiki/images/Antifire_flask_%282%29.png?472cf",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "df99539348ee22df24aa00ff199fc0354a18d9f4",
+    "size": 1014,
+    "source_wiki": "rs3",
+    "timestamp": "2025-07-26T07:37:46Z"
+  },
+  "herbloreitems/antifire_flask_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Antifire_flask_%283%29.png",
+    "file_title": "Antifire flask (3).png",
+    "image_url": "https://runescape.wiki/images/Antifire_flask_%283%29.png?e8738",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e50998e3554d269cba8d106f4b16a489932257d4",
+    "size": 987,
+    "source_wiki": "rs3",
+    "timestamp": "2025-07-26T07:37:29Z"
+  },
+  "herbloreitems/antifire_flask_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Antifire_flask_%284%29.png",
+    "file_title": "Antifire flask (4).png",
+    "image_url": "https://runescape.wiki/images/Antifire_flask_%284%29.png?28ae3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a51c013d72607c14431cf61719bcd55920dc61b6",
+    "size": 991,
+    "source_wiki": "rs3",
+    "timestamp": "2025-07-26T07:37:13Z"
+  },
+  "herbloreitems/antifire_flask_5.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Antifire_flask_%285%29.png",
+    "file_title": "Antifire flask (5).png",
+    "image_url": "https://runescape.wiki/images/Antifire_flask_%285%29.png?6630a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "527029787f4fe3bf769297e9f6fe2b656c44e296",
+    "size": 876,
+    "source_wiki": "rs3",
+    "timestamp": "2025-07-26T07:37:00Z"
+  },
+  "herbloreitems/antifire_flask_6.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Antifire_flask_%286%29.png",
+    "file_title": "Antifire flask (6).png",
+    "image_url": "https://runescape.wiki/images/Antifire_flask_%286%29.png?7da70",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "92b6615271529a050d9a058111403c2aece8499e",
+    "size": 787,
+    "source_wiki": "rs3",
+    "timestamp": "2025-07-26T07:36:47Z"
   },
   "herbloreitems/antifire_mix_2.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Antifire_mix_%282%29.png",
@@ -18705,6 +18813,78 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T00:56:56Z"
   },
+  "herbloreitems/attack_flask_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Attack_flask_%281%29.png",
+    "file_title": "Attack flask (1).png",
+    "image_url": "https://runescape.wiki/images/Attack_flask_%281%29.png?25ba5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "41a1f01287b11630fa6999837e915899aa0afad4",
+    "size": 1061,
+    "source_wiki": "rs3",
+    "timestamp": "2023-10-25T06:51:51Z"
+  },
+  "herbloreitems/attack_flask_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Attack_flask_%282%29.png",
+    "file_title": "Attack flask (2).png",
+    "image_url": "https://runescape.wiki/images/Attack_flask_%282%29.png?73d58",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "90f34bd8c7320b9e6eb53ba687964ada31bc4124",
+    "size": 1119,
+    "source_wiki": "rs3",
+    "timestamp": "2023-10-25T06:52:12Z"
+  },
+  "herbloreitems/attack_flask_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Attack_flask_%283%29.png",
+    "file_title": "Attack flask (3).png",
+    "image_url": "https://runescape.wiki/images/Attack_flask_%283%29.png?7b150",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "958882ddd12a76616e0e3e700f28cf2df6138df2",
+    "size": 1105,
+    "source_wiki": "rs3",
+    "timestamp": "2023-10-25T06:52:37Z"
+  },
+  "herbloreitems/attack_flask_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Attack_flask_%284%29.png",
+    "file_title": "Attack flask (4).png",
+    "image_url": "https://runescape.wiki/images/Attack_flask_%284%29.png?f4f64",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8df02bc79c3df5a8161e0cdf497ffb3b68da90b7",
+    "size": 1123,
+    "source_wiki": "rs3",
+    "timestamp": "2023-10-25T06:52:53Z"
+  },
+  "herbloreitems/attack_flask_5.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Attack_flask_%285%29.png",
+    "file_title": "Attack flask (5).png",
+    "image_url": "https://runescape.wiki/images/Attack_flask_%285%29.png?413da",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "dcee40b04e5c854af467c725b13e26953caa78c3",
+    "size": 1062,
+    "source_wiki": "rs3",
+    "timestamp": "2023-10-25T06:53:12Z"
+  },
+  "herbloreitems/attack_flask_6.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Attack_flask_%286%29.png",
+    "file_title": "Attack flask (6).png",
+    "image_url": "https://runescape.wiki/images/Attack_flask_%286%29.png?235bb",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c703922e5d113ea3eb634987319748e40fd16038",
+    "size": 946,
+    "source_wiki": "rs3",
+    "timestamp": "2023-10-25T06:53:43Z"
+  },
   "herbloreitems/attack_mix_2.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Attack_mix_%282%29.png",
     "file_title": "Attack mix (2).png",
@@ -18717,6 +18897,30 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T01:01:59Z"
   },
+  "herbloreitems/attack_potion_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Attack_potion_%281%29.png",
+    "file_title": "Attack potion (1).png",
+    "image_url": "https://runescape.wiki/images/Attack_potion_%281%29.png?db080",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c4f3830c02507b5e4baf9576468e88f53566f3ac",
+    "size": 944,
+    "source_wiki": "rs3",
+    "timestamp": "2023-10-25T06:29:31Z"
+  },
+  "herbloreitems/attack_potion_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Attack_potion_%282%29.png",
+    "file_title": "Attack potion (2).png",
+    "image_url": "https://runescape.wiki/images/Attack_potion_%282%29.png?2f3b5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e0b1ad8b9d27de968f37f73248a9d4c454150b20",
+    "size": 914,
+    "source_wiki": "rs3",
+    "timestamp": "2023-10-25T06:30:03Z"
+  },
   "herbloreitems/attack_potion_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Attack_potion_%283%29.png",
     "file_title": "Attack potion (3).png",
@@ -18728,6 +18932,18 @@
     "size": 924,
     "source_wiki": "rs3",
     "timestamp": "2023-10-25T06:30:24Z"
+  },
+  "herbloreitems/attack_potion_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Attack_potion_%284%29.png",
+    "file_title": "Attack potion (4).png",
+    "image_url": "https://runescape.wiki/images/Attack_potion_%284%29.png?68657",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3ccba8bdb68aed0357b8913d6717c9aeebcc1052",
+    "size": 838,
+    "source_wiki": "rs3",
+    "timestamp": "2023-03-20T19:55:22Z"
   },
   "herbloreitems/avantoe_potion_unf.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Avantoe_potion_%28unfinished%29.png",
@@ -19017,6 +19233,78 @@
     "source_wiki": "rs3",
     "timestamp": "2025-05-06T19:42:01Z"
   },
+  "herbloreitems/combat_flask_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Combat_flask_%281%29.png",
+    "file_title": "Combat flask (1).png",
+    "image_url": "https://runescape.wiki/images/Combat_flask_%281%29.png?82c96",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e1bba0fdb6437b084a118a1eecf7263b52b0166f",
+    "size": 1136,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:27:39Z"
+  },
+  "herbloreitems/combat_flask_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Combat_flask_%282%29.png",
+    "file_title": "Combat flask (2).png",
+    "image_url": "https://runescape.wiki/images/Combat_flask_%282%29.png?1cfaa",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0c3e0087cd14c7a7da03e04eafbac58cadda59e3",
+    "size": 1186,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:27:40Z"
+  },
+  "herbloreitems/combat_flask_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Combat_flask_%283%29.png",
+    "file_title": "Combat flask (3).png",
+    "image_url": "https://runescape.wiki/images/Combat_flask_%283%29.png?3c404",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5f6241fb26a8d1192456c4f190ecfa9654da5a4e",
+    "size": 1213,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:27:42Z"
+  },
+  "herbloreitems/combat_flask_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Combat_flask_%284%29.png",
+    "file_title": "Combat flask (4).png",
+    "image_url": "https://runescape.wiki/images/Combat_flask_%284%29.png?b81d3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "95ddc57eae38bdacaa9ffeeb5697b3d3edc47a39",
+    "size": 1218,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:27:44Z"
+  },
+  "herbloreitems/combat_flask_5.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Combat_flask_%285%29.png",
+    "file_title": "Combat flask (5).png",
+    "image_url": "https://runescape.wiki/images/Combat_flask_%285%29.png?2715f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "961d5ebf1fe784071a5afebeba50840ec5e7d8a7",
+    "size": 1230,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:27:45Z"
+  },
+  "herbloreitems/combat_flask_6.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Combat_flask_%286%29.png",
+    "file_title": "Combat flask (6).png",
+    "image_url": "https://runescape.wiki/images/Combat_flask_%286%29.png?6c639",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5953598776195d5c056c8410632ff87808d47189",
+    "size": 1215,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:27:47Z"
+  },
   "herbloreitems/combat_mix_2.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Combat_mix_%282%29.png",
     "file_title": "Combat mix (2).png",
@@ -19028,6 +19316,30 @@
     "size": 986,
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T02:28:10Z"
+  },
+  "herbloreitems/combat_potion_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Combat_potion_%281%29.png",
+    "file_title": "Combat potion (1).png",
+    "image_url": "https://runescape.wiki/images/Combat_potion_%281%29.png?d56c2",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "766472fb3af657c243e39a5e5e48b011e4ff804a",
+    "size": 1007,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:28:14Z"
+  },
+  "herbloreitems/combat_potion_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Combat_potion_%282%29.png",
+    "file_title": "Combat potion (2).png",
+    "image_url": "https://runescape.wiki/images/Combat_potion_%282%29.png?c5fca",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0361c02008cd1835996e9f94a15715804b4e4b95",
+    "size": 1057,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:28:15Z"
   },
   "herbloreitems/combat_potion_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Combat_potion_%283%29.png",
@@ -19041,6 +19353,18 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T02:28:17Z"
   },
+  "herbloreitems/combat_potion_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Combat_potion_%284%29.png",
+    "file_title": "Combat potion (4).png",
+    "image_url": "https://runescape.wiki/images/Combat_potion_%284%29.png?94fae",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "10b279468cf8bccc25bb381f1cec2ccce61f72f6",
+    "size": 1063,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:28:18Z"
+  },
   "herbloreitems/crafting_potion_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Crafting_potion_%283%29.png",
     "file_title": "Crafting potion (3).png",
@@ -19052,6 +19376,78 @@
     "size": 1058,
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T02:39:22Z"
+  },
+  "herbloreitems/defence_flask_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Defence_flask_%281%29.png",
+    "file_title": "Defence flask (1).png",
+    "image_url": "https://runescape.wiki/images/Defence_flask_%281%29.png?328d3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "89e83b4a787d223d8497bf7b7d3d24239ae7df2a",
+    "size": 1225,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:53:06Z"
+  },
+  "herbloreitems/defence_flask_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Defence_flask_%282%29.png",
+    "file_title": "Defence flask (2).png",
+    "image_url": "https://runescape.wiki/images/Defence_flask_%282%29.png?f54d4",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bec6064ecae9d46d9bf2ef0f7f0c4c1c0b5f9a97",
+    "size": 1219,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:53:07Z"
+  },
+  "herbloreitems/defence_flask_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Defence_flask_%283%29.png",
+    "file_title": "Defence flask (3).png",
+    "image_url": "https://runescape.wiki/images/Defence_flask_%283%29.png?b2972",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "192ca9de0ff4cc9e6fbcf301a0fabdff9a721b7b",
+    "size": 1188,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:53:09Z"
+  },
+  "herbloreitems/defence_flask_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Defence_flask_%284%29.png",
+    "file_title": "Defence flask (4).png",
+    "image_url": "https://runescape.wiki/images/Defence_flask_%284%29.png?04711",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e6bdd605b167a4205c73558ac8cf58fcc61d3e58",
+    "size": 1122,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:53:10Z"
+  },
+  "herbloreitems/defence_flask_5.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Defence_flask_%285%29.png",
+    "file_title": "Defence flask (5).png",
+    "image_url": "https://runescape.wiki/images/Defence_flask_%285%29.png?69593",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "191ebf31774bead2570d118902b0c5b690c82d37",
+    "size": 1079,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:53:12Z"
+  },
+  "herbloreitems/defence_flask_6.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Defence_flask_%286%29.png",
+    "file_title": "Defence flask (6).png",
+    "image_url": "https://runescape.wiki/images/Defence_flask_%286%29.png?59800",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6941d8702064f571de9badbefe717fbd56cf0d92",
+    "size": 960,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:53:14Z"
   },
   "herbloreitems/defence_mix_2.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Defence_mix_%282%29.png",
@@ -19065,6 +19461,30 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T02:53:22Z"
   },
+  "herbloreitems/defence_potion_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Defence_potion_%281%29.png",
+    "file_title": "Defence potion (1).png",
+    "image_url": "https://runescape.wiki/images/Defence_potion_%281%29.png?21966",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7243b2e1c2521bd218f71a95ec68cba622262547",
+    "size": 1081,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:53:23Z"
+  },
+  "herbloreitems/defence_potion_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Defence_potion_%282%29.png",
+    "file_title": "Defence potion (2).png",
+    "image_url": "https://runescape.wiki/images/Defence_potion_%282%29.png?93dcb",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ffe13dc7a4c31121ac46ea015e6f37e49bd2a9b7",
+    "size": 1060,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:53:25Z"
+  },
   "herbloreitems/defence_potion_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Defence_potion_%283%29.png",
     "file_title": "Defence potion (3).png",
@@ -19076,6 +19496,18 @@
     "size": 1000,
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T02:53:27Z"
+  },
+  "herbloreitems/defence_potion_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Defence_potion_%284%29.png",
+    "file_title": "Defence potion (4).png",
+    "image_url": "https://runescape.wiki/images/Defence_potion_%284%29.png?f1f69",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "45ae1c671fa8b2465d7a3019419c7866544e5871",
+    "size": 750,
+    "source_wiki": "rs3",
+    "timestamp": "2023-03-20T19:59:00Z"
   },
   "herbloreitems/desert_goat_horn.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Desert_goat_horn.png",
@@ -19461,6 +19893,78 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T05:19:54Z"
   },
+  "herbloreitems/magic_flask_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Magic_flask_%281%29.png",
+    "file_title": "Magic flask (1).png",
+    "image_url": "https://runescape.wiki/images/Magic_flask_%281%29.png?6f9ea",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d2c76686c626d508508e609de563d5541ba6313f",
+    "size": 1206,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T05:19:56Z"
+  },
+  "herbloreitems/magic_flask_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Magic_flask_%282%29.png",
+    "file_title": "Magic flask (2).png",
+    "image_url": "https://runescape.wiki/images/Magic_flask_%282%29.png?39d6e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c34b55d13c3c753e0c0ac9e09d55a096fc63b538",
+    "size": 1180,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T05:19:58Z"
+  },
+  "herbloreitems/magic_flask_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Magic_flask_%283%29.png",
+    "file_title": "Magic flask (3).png",
+    "image_url": "https://runescape.wiki/images/Magic_flask_%283%29.png?9da28",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a4b8157d492579a96949a9b09f220bd07bc16692",
+    "size": 1137,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T05:19:59Z"
+  },
+  "herbloreitems/magic_flask_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Magic_flask_%284%29.png",
+    "file_title": "Magic flask (4).png",
+    "image_url": "https://runescape.wiki/images/Magic_flask_%284%29.png?9da8b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6a7086af8e9dab7a057d1997922749d88be0cb1b",
+    "size": 1111,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T05:20:01Z"
+  },
+  "herbloreitems/magic_flask_5.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Magic_flask_%285%29.png",
+    "file_title": "Magic flask (5).png",
+    "image_url": "https://runescape.wiki/images/Magic_flask_%285%29.png?a5fb5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "dcebbc9aef7238352e3cc1ed6d885c88bf1d0512",
+    "size": 1036,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T05:20:03Z"
+  },
+  "herbloreitems/magic_flask_6.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Magic_flask_%286%29.png",
+    "file_title": "Magic flask (6).png",
+    "image_url": "https://runescape.wiki/images/Magic_flask_%286%29.png?eaffe",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "19c0a5dd2c5b760743cb6be2abd6d44d78f468dd",
+    "size": 945,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T05:20:05Z"
+  },
   "herbloreitems/magic_mix_2.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Magic_mix_%282%29.png",
     "file_title": "Magic mix (2).png",
@@ -19472,6 +19976,18 @@
     "size": 969,
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T05:20:41Z"
+  },
+  "herbloreitems/magic_potion_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Magic_potion_%281%29.png",
+    "file_title": "Magic potion (1).png",
+    "image_url": "https://runescape.wiki/images/Magic_potion_%281%29.png?bb147",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5980c8aae078bd95ad78471e556ec60764ac4553",
+    "size": 940,
+    "source_wiki": "rs3",
+    "timestamp": "2025-06-01T07:51:11Z"
   },
   "herbloreitems/magic_potion_2.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Magic_potion_%282%29.png",
@@ -19497,6 +20013,18 @@
     "source_wiki": "rs3",
     "timestamp": "2025-06-01T07:50:50Z"
   },
+  "herbloreitems/magic_potion_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Magic_potion_%284%29.png",
+    "file_title": "Magic potion (4).png",
+    "image_url": "https://runescape.wiki/images/Magic_potion_%284%29.png?99b46",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ce563f8fac05bee8f6db91e8fd7886b3a5ba8a80",
+    "size": 729,
+    "source_wiki": "rs3",
+    "timestamp": "2025-06-01T07:50:37Z"
+  },
   "herbloreitems/marrentill_potion_unf.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Marrentill_potion_%28unfinished%29.png",
     "file_title": "Marrentill potion (unfinished).png",
@@ -19521,6 +20049,90 @@
     "source_wiki": "rs3",
     "timestamp": "2021-12-05T21:38:13Z"
   },
+  "herbloreitems/potion_flask.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Potion_flask.png",
+    "file_title": "Potion flask.png",
+    "image_url": "https://runescape.wiki/images/Potion_flask.png?47870",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a2e7007a4e095f0a4dd09c25fdc8df8118792730",
+    "size": 917,
+    "source_wiki": "rs3",
+    "timestamp": "2026-05-22T03:16:03Z"
+  },
+  "herbloreitems/prayer_flask_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Prayer_flask_%281%29.png",
+    "file_title": "Prayer flask (1).png",
+    "image_url": "https://runescape.wiki/images/Prayer_flask_%281%29.png?2afb8",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "add861f9595942d65e861f0f39362130a85dc2fb",
+    "size": 1268,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:38:46Z"
+  },
+  "herbloreitems/prayer_flask_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Prayer_flask_%282%29.png",
+    "file_title": "Prayer flask (2).png",
+    "image_url": "https://runescape.wiki/images/Prayer_flask_%282%29.png?be209",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b3efa6c78bf0942b4c8c24c9bb1f27d34483a61a",
+    "size": 1272,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:38:47Z"
+  },
+  "herbloreitems/prayer_flask_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Prayer_flask_%283%29.png",
+    "file_title": "Prayer flask (3).png",
+    "image_url": "https://runescape.wiki/images/Prayer_flask_%283%29.png?67fc1",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7ff6d18f9cf44091859659cb5e1dd010e07a5366",
+    "size": 1254,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:38:49Z"
+  },
+  "herbloreitems/prayer_flask_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Prayer_flask_%284%29.png",
+    "file_title": "Prayer flask (4).png",
+    "image_url": "https://runescape.wiki/images/Prayer_flask_%284%29.png?fe216",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "589c904428c1e1a9e3e0f88eaba7f74d707cb038",
+    "size": 1228,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:38:50Z"
+  },
+  "herbloreitems/prayer_flask_5.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Prayer_flask_%285%29.png",
+    "file_title": "Prayer flask (5).png",
+    "image_url": "https://runescape.wiki/images/Prayer_flask_%285%29.png?0a72d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9b8ece7137215341dc7d57cc15eab01ea23db8ae",
+    "size": 1208,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:38:52Z"
+  },
+  "herbloreitems/prayer_flask_6.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Prayer_flask_%286%29.png",
+    "file_title": "Prayer flask (6).png",
+    "image_url": "https://runescape.wiki/images/Prayer_flask_%286%29.png?7a01d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "acf61b1f11b5f2202422a28ea253897699bd9b0b",
+    "size": 1134,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:38:54Z"
+  },
   "herbloreitems/prayer_mix_2.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Prayer_mix_%282%29.png",
     "file_title": "Prayer mix (2).png",
@@ -19533,6 +20145,30 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T06:39:03Z"
   },
+  "herbloreitems/prayer_potion_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Prayer_potion_%281%29.png",
+    "file_title": "Prayer potion (1).png",
+    "image_url": "https://runescape.wiki/images/Prayer_potion_%281%29.png?6d0d9",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f16e1e3270fe84e4cd21b78649efa7bd08e7f30e",
+    "size": 946,
+    "source_wiki": "rs3",
+    "timestamp": "2023-10-25T05:44:42Z"
+  },
+  "herbloreitems/prayer_potion_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Prayer_potion_%282%29.png",
+    "file_title": "Prayer potion (2).png",
+    "image_url": "https://runescape.wiki/images/Prayer_potion_%282%29.png?707b5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3e3ed39cdb247893e22cdeb87fe13f425b8ab2ed",
+    "size": 900,
+    "source_wiki": "rs3",
+    "timestamp": "2023-10-25T05:44:57Z"
+  },
   "herbloreitems/prayer_potion_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Prayer_potion_%283%29.png",
     "file_title": "Prayer potion (3).png",
@@ -19544,6 +20180,18 @@
     "size": 899,
     "source_wiki": "rs3",
     "timestamp": "2023-10-25T05:45:22Z"
+  },
+  "herbloreitems/prayer_potion_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Prayer_potion_%284%29.png",
+    "file_title": "Prayer potion (4).png",
+    "image_url": "https://runescape.wiki/images/Prayer_potion_%284%29.png?b1bfb",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "588929312e0593986d54ea61411800ed3654c060",
+    "size": 1063,
+    "source_wiki": "rs3",
+    "timestamp": "2023-10-25T05:25:23Z"
   },
   "herbloreitems/prayer_renewal_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Prayer_renewal_%283%29.png",
@@ -19569,6 +20217,78 @@
     "source_wiki": "rs3",
     "timestamp": "2025-05-07T18:06:56Z"
   },
+  "herbloreitems/ranging_flask_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ranging_flask_%281%29.png",
+    "file_title": "Ranging flask (1).png",
+    "image_url": "https://runescape.wiki/images/Ranging_flask_%281%29.png?9d54a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e7b53043be2bdd4946aa7c08146bd5b8aad97c6d",
+    "size": 1234,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:50:24Z"
+  },
+  "herbloreitems/ranging_flask_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ranging_flask_%282%29.png",
+    "file_title": "Ranging flask (2).png",
+    "image_url": "https://runescape.wiki/images/Ranging_flask_%282%29.png?ef48a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "82e45d7c56e715b5eea338426e65b0048a375a1d",
+    "size": 1224,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:50:26Z"
+  },
+  "herbloreitems/ranging_flask_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ranging_flask_%283%29.png",
+    "file_title": "Ranging flask (3).png",
+    "image_url": "https://runescape.wiki/images/Ranging_flask_%283%29.png?52e25",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "eca3104d7683c3dd077bb490a7d01086d8004cf1",
+    "size": 1195,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:50:28Z"
+  },
+  "herbloreitems/ranging_flask_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ranging_flask_%284%29.png",
+    "file_title": "Ranging flask (4).png",
+    "image_url": "https://runescape.wiki/images/Ranging_flask_%284%29.png?46a0f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ff8f7764de52529fd826bf1844302ad7f355fb35",
+    "size": 1178,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:50:31Z"
+  },
+  "herbloreitems/ranging_flask_5.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ranging_flask_%285%29.png",
+    "file_title": "Ranging flask (5).png",
+    "image_url": "https://runescape.wiki/images/Ranging_flask_%285%29.png?85d85",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "65e31b16cbb45983bcfbb98c0718649fc48ad181",
+    "size": 1114,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:50:32Z"
+  },
+  "herbloreitems/ranging_flask_6.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ranging_flask_%286%29.png",
+    "file_title": "Ranging flask (6).png",
+    "image_url": "https://runescape.wiki/images/Ranging_flask_%286%29.png?e311c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "60581c178adc62a1f0f8d31bed276b5a1bab4958",
+    "size": 1055,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:50:35Z"
+  },
   "herbloreitems/ranging_mix_2.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Ranging_mix_%282%29.png",
     "file_title": "Ranging mix (2).png",
@@ -19581,6 +20301,30 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T06:50:43Z"
   },
+  "herbloreitems/ranging_potion_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ranging_potion_%281%29.png",
+    "file_title": "Ranging potion (1).png",
+    "image_url": "https://runescape.wiki/images/Ranging_potion_%281%29.png?0b02c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3969afd283aba27081fffc3734042e9ef8cc215f",
+    "size": 1059,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:50:44Z"
+  },
+  "herbloreitems/ranging_potion_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ranging_potion_%282%29.png",
+    "file_title": "Ranging potion (2).png",
+    "image_url": "https://runescape.wiki/images/Ranging_potion_%282%29.png?a8aa6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f8a8f9d6ec8de215e910b489e87794021917c199",
+    "size": 1041,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:50:46Z"
+  },
   "herbloreitems/ranging_potion_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Ranging_potion_%283%29.png",
     "file_title": "Ranging potion (3).png",
@@ -19592,6 +20336,18 @@
     "size": 1027,
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T06:50:48Z"
+  },
+  "herbloreitems/ranging_potion_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ranging_potion_%284%29.png",
+    "file_title": "Ranging potion (4).png",
+    "image_url": "https://runescape.wiki/images/Ranging_potion_%284%29.png?45aa6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "596f644b159f02050dd466488941b683efd12068",
+    "size": 966,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:50:49Z"
   },
   "herbloreitems/recover_special_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Recover_special_%283%29.png",
@@ -19749,6 +20505,78 @@
     "source_wiki": "rs3",
     "timestamp": "2025-05-07T18:28:17Z"
   },
+  "herbloreitems/strength_flask_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Strength_flask_%281%29.png",
+    "file_title": "Strength flask (1).png",
+    "image_url": "https://runescape.wiki/images/Strength_flask_%281%29.png?16493",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7dd9ce833b052ce1ed56bf7f896426733c093a65",
+    "size": 1252,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:14:28Z"
+  },
+  "herbloreitems/strength_flask_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Strength_flask_%282%29.png",
+    "file_title": "Strength flask (2).png",
+    "image_url": "https://runescape.wiki/images/Strength_flask_%282%29.png?108f1",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "572c4ab885245817f36b9913c8e8a42c740816dd",
+    "size": 1259,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:14:30Z"
+  },
+  "herbloreitems/strength_flask_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Strength_flask_%283%29.png",
+    "file_title": "Strength flask (3).png",
+    "image_url": "https://runescape.wiki/images/Strength_flask_%283%29.png?497b8",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "08723f8bf93da377a069b7fdd3cbefee80ece2f4",
+    "size": 1244,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:14:33Z"
+  },
+  "herbloreitems/strength_flask_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Strength_flask_%284%29.png",
+    "file_title": "Strength flask (4).png",
+    "image_url": "https://runescape.wiki/images/Strength_flask_%284%29.png?16e5a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b2ce550d3c05344f3bf576007bd19820f12b0163",
+    "size": 1211,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:14:35Z"
+  },
+  "herbloreitems/strength_flask_5.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Strength_flask_%285%29.png",
+    "file_title": "Strength flask (5).png",
+    "image_url": "https://runescape.wiki/images/Strength_flask_%285%29.png?5a263",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "dccb07ee6224d0cf93d092449fb769e4226de404",
+    "size": 1192,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:14:38Z"
+  },
+  "herbloreitems/strength_flask_6.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Strength_flask_%286%29.png",
+    "file_title": "Strength flask (6).png",
+    "image_url": "https://runescape.wiki/images/Strength_flask_%286%29.png?0da79",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c5aa89263d9255b832392d25049a47ef52a6c20a",
+    "size": 1108,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:14:40Z"
+  },
   "herbloreitems/strength_mix_2.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Strength_mix_%282%29.png",
     "file_title": "Strength mix (2).png",
@@ -19760,6 +20588,30 @@
     "size": 980,
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T08:14:48Z"
+  },
+  "herbloreitems/strength_potion_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Strength_potion_%281%29.png",
+    "file_title": "Strength potion (1).png",
+    "image_url": "https://runescape.wiki/images/Strength_potion_%281%29.png?8d030",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "96f33c01c02ff0ffabfba69aec893c763462f443",
+    "size": 1091,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:14:50Z"
+  },
+  "herbloreitems/strength_potion_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Strength_potion_%282%29.png",
+    "file_title": "Strength potion (2).png",
+    "image_url": "https://runescape.wiki/images/Strength_potion_%282%29.png?87e9a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b1d773e0184afc16e40f6b93a830f29c10a2de2b",
+    "size": 1092,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:14:52Z"
   },
   "herbloreitems/strength_potion_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Strength_potion_%283%29.png",
@@ -19773,6 +20625,114 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T08:14:53Z"
   },
+  "herbloreitems/strength_potion_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Strength_potion_%284%29.png",
+    "file_title": "Strength potion (4).png",
+    "image_url": "https://runescape.wiki/images/Strength_potion_%284%29.png?57de3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "cd175f6542ca98c855da78b4e795a98c28ebe339",
+    "size": 840,
+    "source_wiki": "rs3",
+    "timestamp": "2023-03-20T20:03:41Z"
+  },
+  "herbloreitems/summoning_flask_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Summoning_flask_%281%29.png",
+    "file_title": "Summoning flask (1).png",
+    "image_url": "https://runescape.wiki/images/Summoning_flask_%281%29.png?126ee",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1224dcf89062fad11f80dcb617d9fd669ca850a4",
+    "size": 1031,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:19:05Z"
+  },
+  "herbloreitems/summoning_flask_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Summoning_flask_%282%29.png",
+    "file_title": "Summoning flask (2).png",
+    "image_url": "https://runescape.wiki/images/Summoning_flask_%282%29.png?50ed2",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1055c9ed46d754b546c64b6df62d2b24fc2f6d8a",
+    "size": 1064,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:19:06Z"
+  },
+  "herbloreitems/summoning_flask_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Summoning_flask_%283%29.png",
+    "file_title": "Summoning flask (3).png",
+    "image_url": "https://runescape.wiki/images/Summoning_flask_%283%29.png?95113",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5d28e44ff247af3dde808dcb2dd17dcda4d4f31e",
+    "size": 1050,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:19:08Z"
+  },
+  "herbloreitems/summoning_flask_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Summoning_flask_%284%29.png",
+    "file_title": "Summoning flask (4).png",
+    "image_url": "https://runescape.wiki/images/Summoning_flask_%284%29.png?770ff",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "dddb3e2f600d08ea83fedfb2148f8b120ffad6ad",
+    "size": 964,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:19:10Z"
+  },
+  "herbloreitems/summoning_flask_5.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Summoning_flask_%285%29.png",
+    "file_title": "Summoning flask (5).png",
+    "image_url": "https://runescape.wiki/images/Summoning_flask_%285%29.png?7d1d6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "cfe9c697c3cd9f36d49eeca2db76c937ef428852",
+    "size": 1005,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:19:12Z"
+  },
+  "herbloreitems/summoning_flask_6.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Summoning_flask_%286%29.png",
+    "file_title": "Summoning flask (6).png",
+    "image_url": "https://runescape.wiki/images/Summoning_flask_%286%29.png?e52c7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9d32395c04fc9de3fcf5f7318ccdf89b54e12c56",
+    "size": 1138,
+    "source_wiki": "rs3",
+    "timestamp": "2019-04-05T15:34:53Z"
+  },
+  "herbloreitems/summoning_potion_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Summoning_potion_%281%29.png",
+    "file_title": "Summoning potion (1).png",
+    "image_url": "https://runescape.wiki/images/Summoning_potion_%281%29.png?ffee1",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1aba02a912268d6a88b8764e2d6032ad65fd3902",
+    "size": 938,
+    "source_wiki": "rs3",
+    "timestamp": "2026-05-22T23:30:10Z"
+  },
+  "herbloreitems/summoning_potion_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Summoning_potion_%282%29.png",
+    "file_title": "Summoning potion (2).png",
+    "image_url": "https://runescape.wiki/images/Summoning_potion_%282%29.png?7d32f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6e7402250d64d65c33501ab817cd18d24d82713f",
+    "size": 852,
+    "source_wiki": "rs3",
+    "timestamp": "2026-05-22T23:30:25Z"
+  },
   "herbloreitems/summoning_potion_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Summoning_potion_%283%29.png",
     "file_title": "Summoning potion (3).png",
@@ -19784,6 +20744,42 @@
     "size": 849,
     "source_wiki": "rs3",
     "timestamp": "2026-05-22T23:30:35Z"
+  },
+  "herbloreitems/summoning_potion_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Summoning_potion_%284%29.png",
+    "file_title": "Summoning potion (4).png",
+    "image_url": "https://runescape.wiki/images/Summoning_potion_%284%29.png?166b2",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "08d51bdbb7ae12c5c001ab59169d7d11fef5b309",
+    "size": 1051,
+    "source_wiki": "rs3",
+    "timestamp": "2023-07-01T10:12:30Z"
+  },
+  "herbloreitems/super_antifire_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_antifire_%281%29.png",
+    "file_title": "Super antifire (1).png",
+    "image_url": "https://runescape.wiki/images/Super_antifire_%281%29.png?0a3d5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "057af7dbadf7707fdb826212b9bcfb908dbe8dd5",
+    "size": 925,
+    "source_wiki": "rs3",
+    "timestamp": "2023-11-23T06:05:45Z"
+  },
+  "herbloreitems/super_antifire_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_antifire_%282%29.png",
+    "file_title": "Super antifire (2).png",
+    "image_url": "https://runescape.wiki/images/Super_antifire_%282%29.png?ad706",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "92297d9a1671bbf97cc1b21ad61431d2d27b50df",
+    "size": 916,
+    "source_wiki": "rs3",
+    "timestamp": "2023-11-23T06:05:34Z"
   },
   "herbloreitems/super_antifire_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Super_antifire_%283%29.png",
@@ -19797,6 +20793,90 @@
     "source_wiki": "rs3",
     "timestamp": "2023-11-23T06:05:20Z"
   },
+  "herbloreitems/super_antifire_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_antifire_%284%29.png",
+    "file_title": "Super antifire (4).png",
+    "image_url": "https://runescape.wiki/images/Super_antifire_%284%29.png?8f9b5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6cec79523e6d29a296b73d0873b794868b319c3b",
+    "size": 848,
+    "source_wiki": "rs3",
+    "timestamp": "2023-11-23T06:04:57Z"
+  },
+  "herbloreitems/super_antifire_flask_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_antifire_flask_%281%29.png",
+    "file_title": "Super antifire flask (1).png",
+    "image_url": "https://runescape.wiki/images/Super_antifire_flask_%281%29.png?d0957",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ff2a40d8d9c1705299e53ab56c158de11ff85ac7",
+    "size": 1254,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:21:17Z"
+  },
+  "herbloreitems/super_antifire_flask_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_antifire_flask_%282%29.png",
+    "file_title": "Super antifire flask (2).png",
+    "image_url": "https://runescape.wiki/images/Super_antifire_flask_%282%29.png?fdb76",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ba9b57830be164f6a83e2ff35110436c180f9d48",
+    "size": 1240,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:21:19Z"
+  },
+  "herbloreitems/super_antifire_flask_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_antifire_flask_%283%29.png",
+    "file_title": "Super antifire flask (3).png",
+    "image_url": "https://runescape.wiki/images/Super_antifire_flask_%283%29.png?4d435",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "abd9812d00c95b0618f2c9dba74248adbf66243d",
+    "size": 1221,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:21:20Z"
+  },
+  "herbloreitems/super_antifire_flask_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_antifire_flask_%284%29.png",
+    "file_title": "Super antifire flask (4).png",
+    "image_url": "https://runescape.wiki/images/Super_antifire_flask_%284%29.png?6e33b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "604841960c112df7d5d65ca2f57a2b2e3d10f7c4",
+    "size": 1222,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:21:22Z"
+  },
+  "herbloreitems/super_antifire_flask_5.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_antifire_flask_%285%29.png",
+    "file_title": "Super antifire flask (5).png",
+    "image_url": "https://runescape.wiki/images/Super_antifire_flask_%285%29.png?e2e4c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5cb1bf6f865a9b6a4cd4015da035108f566b6ec6",
+    "size": 1164,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:21:23Z"
+  },
+  "herbloreitems/super_antifire_flask_6.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_antifire_flask_%286%29.png",
+    "file_title": "Super antifire flask (6).png",
+    "image_url": "https://runescape.wiki/images/Super_antifire_flask_%286%29.png?9aa47",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4952e18a2e2eb9cd7852383a70f49198c976509b",
+    "size": 1119,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:21:25Z"
+  },
   "herbloreitems/super_antipoison_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Super_antipoison_%283%29.png",
     "file_title": "Super antipoison (3).png",
@@ -19808,6 +20888,30 @@
     "size": 893,
     "source_wiki": "rs3",
     "timestamp": "2025-06-01T07:22:14Z"
+  },
+  "herbloreitems/super_attack_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_attack_%281%29.png",
+    "file_title": "Super attack (1).png",
+    "image_url": "https://runescape.wiki/images/Super_attack_%281%29.png?178cd",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "68af43f74694a4010b4e659653a5f68f5acdaa82",
+    "size": 5083,
+    "source_wiki": "rs3",
+    "timestamp": "2023-03-08T22:00:56Z"
+  },
+  "herbloreitems/super_attack_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_attack_%282%29.png",
+    "file_title": "Super attack (2).png",
+    "image_url": "https://runescape.wiki/images/Super_attack_%282%29.png?5445c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9291d2dd36bd2f0509bc537fae4f4c67909ca04d",
+    "size": 5029,
+    "source_wiki": "rs3",
+    "timestamp": "2023-03-08T22:00:58Z"
   },
   "herbloreitems/super_attack_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Super_attack_%283%29.png",
@@ -19821,6 +20925,90 @@
     "source_wiki": "rs3",
     "timestamp": "2023-03-08T22:01:00Z"
   },
+  "herbloreitems/super_attack_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_attack_%284%29.png",
+    "file_title": "Super attack (4).png",
+    "image_url": "https://runescape.wiki/images/Super_attack_%284%29.png?310d3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "86cac40823579495043f94100d1a0776f384b1b9",
+    "size": 4935,
+    "source_wiki": "rs3",
+    "timestamp": "2023-03-08T22:01:02Z"
+  },
+  "herbloreitems/super_attack_flask_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_attack_flask_%281%29.png",
+    "file_title": "Super attack flask (1).png",
+    "image_url": "https://runescape.wiki/images/Super_attack_flask_%281%29.png?55976",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0e9bf00a23dd4b98d01f7f0666b09e4587c08994",
+    "size": 1211,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:21:51Z"
+  },
+  "herbloreitems/super_attack_flask_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_attack_flask_%282%29.png",
+    "file_title": "Super attack flask (2).png",
+    "image_url": "https://runescape.wiki/images/Super_attack_flask_%282%29.png?5fff0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1b916735f2952f658317605fc0692cb608ad5d29",
+    "size": 1194,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:21:52Z"
+  },
+  "herbloreitems/super_attack_flask_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_attack_flask_%283%29.png",
+    "file_title": "Super attack flask (3).png",
+    "image_url": "https://runescape.wiki/images/Super_attack_flask_%283%29.png?f1642",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7b0878347efa371bf881d6ffd7294dc319ad735b",
+    "size": 1171,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:21:54Z"
+  },
+  "herbloreitems/super_attack_flask_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_attack_flask_%284%29.png",
+    "file_title": "Super attack flask (4).png",
+    "image_url": "https://runescape.wiki/images/Super_attack_flask_%284%29.png?31fbf",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bce30c8e9e9673b96e25fe83dc4b2143c1e43850",
+    "size": 1108,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:21:55Z"
+  },
+  "herbloreitems/super_attack_flask_5.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_attack_flask_%285%29.png",
+    "file_title": "Super attack flask (5).png",
+    "image_url": "https://runescape.wiki/images/Super_attack_flask_%285%29.png?9dd7e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3caf796db5b2b808b0bcb8c87117f347e09c6cf8",
+    "size": 1066,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:21:57Z"
+  },
+  "herbloreitems/super_attack_flask_6.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_attack_flask_%286%29.png",
+    "file_title": "Super attack flask (6).png",
+    "image_url": "https://runescape.wiki/images/Super_attack_flask_%286%29.png?f9edc",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a99982efc6015d061a62a308173ccf51747b3fdb",
+    "size": 914,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:21:58Z"
+  },
   "herbloreitems/super_attack_mix_2.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Super_attack_mix_%282%29.png",
     "file_title": "Super attack mix (2).png",
@@ -19833,6 +21021,30 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T08:22:02Z"
   },
+  "herbloreitems/super_defence_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_defence_%281%29.png",
+    "file_title": "Super defence (1).png",
+    "image_url": "https://runescape.wiki/images/Super_defence_%281%29.png?97c2b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bc1efca758a8fad9336109cd6807cc7ddbbd333c",
+    "size": 1091,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:22:12Z"
+  },
+  "herbloreitems/super_defence_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_defence_%282%29.png",
+    "file_title": "Super defence (2).png",
+    "image_url": "https://runescape.wiki/images/Super_defence_%282%29.png?f1d0b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "613fb2b0c528b51984ebaab60958f428aae9a1b2",
+    "size": 1093,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:22:13Z"
+  },
   "herbloreitems/super_defence_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Super_defence_%283%29.png",
     "file_title": "Super defence (3).png",
@@ -19844,6 +21056,90 @@
     "size": 1081,
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T08:22:15Z"
+  },
+  "herbloreitems/super_defence_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_defence_%284%29.png",
+    "file_title": "Super defence (4).png",
+    "image_url": "https://runescape.wiki/images/Super_defence_%284%29.png?2c645",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8527a3cd542c17bf1bc79d940c43f98ecaad3f45",
+    "size": 1021,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:22:17Z"
+  },
+  "herbloreitems/super_defence_flask_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_defence_flask_%281%29.png",
+    "file_title": "Super defence flask (1).png",
+    "image_url": "https://runescape.wiki/images/Super_defence_flask_%281%29.png?3a188",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c993ffe441ca324bfd330b0017d7e3504b587d8c",
+    "size": 1263,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:22:18Z"
+  },
+  "herbloreitems/super_defence_flask_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_defence_flask_%282%29.png",
+    "file_title": "Super defence flask (2).png",
+    "image_url": "https://runescape.wiki/images/Super_defence_flask_%282%29.png?351a6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "344cd24532c05cba0aba554a5982445226e5f4e8",
+    "size": 1268,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:22:19Z"
+  },
+  "herbloreitems/super_defence_flask_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_defence_flask_%283%29.png",
+    "file_title": "Super defence flask (3).png",
+    "image_url": "https://runescape.wiki/images/Super_defence_flask_%283%29.png?9f529",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a803698d907359e7ff3b7519a72cd3934c3a85cd",
+    "size": 1257,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:22:22Z"
+  },
+  "herbloreitems/super_defence_flask_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_defence_flask_%284%29.png",
+    "file_title": "Super defence flask (4).png",
+    "image_url": "https://runescape.wiki/images/Super_defence_flask_%284%29.png?0efe9",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "adde04518c78b6ae15d6f039169b19798c0c3541",
+    "size": 1233,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:22:24Z"
+  },
+  "herbloreitems/super_defence_flask_5.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_defence_flask_%285%29.png",
+    "file_title": "Super defence flask (5).png",
+    "image_url": "https://runescape.wiki/images/Super_defence_flask_%285%29.png?6d55c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "80fd8c1613965d261eda96a3b3eed6e8a82b0633",
+    "size": 1207,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:22:25Z"
+  },
+  "herbloreitems/super_defence_flask_6.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_defence_flask_%286%29.png",
+    "file_title": "Super defence flask (6).png",
+    "image_url": "https://runescape.wiki/images/Super_defence_flask_%286%29.png?adfbb",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2d81262c9ac272f746c114276d53e8febba02adf",
+    "size": 1128,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:22:27Z"
   },
   "herbloreitems/super_defence_mix_2.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Super_defence_mix_%282%29.png",
@@ -19881,6 +21177,30 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T08:22:58Z"
   },
+  "herbloreitems/super_prayer_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_prayer_%281%29.png",
+    "file_title": "Super prayer (1).png",
+    "image_url": "https://runescape.wiki/images/Super_prayer_%281%29.png?33a70",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "36a995a6ecc9234e563abb3bd69993f9152b2dcb",
+    "size": 1089,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:23:47Z"
+  },
+  "herbloreitems/super_prayer_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_prayer_%282%29.png",
+    "file_title": "Super prayer (2).png",
+    "image_url": "https://runescape.wiki/images/Super_prayer_%282%29.png?830e5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2801d9d53f1500d216d4d79dce4c98aa03542ce4",
+    "size": 1059,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:23:49Z"
+  },
   "herbloreitems/super_prayer_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Super_prayer_%283%29.png",
     "file_title": "Super prayer (3).png",
@@ -19892,6 +21212,114 @@
     "size": 988,
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T08:23:50Z"
+  },
+  "herbloreitems/super_prayer_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_prayer_%284%29.png",
+    "file_title": "Super prayer (4).png",
+    "image_url": "https://runescape.wiki/images/Super_prayer_%284%29.png?d8643",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0ef5935bd9f24e393b18459f3f72eb37de450d8d",
+    "size": 919,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:23:52Z"
+  },
+  "herbloreitems/super_prayer_flask_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_prayer_flask_%281%29.png",
+    "file_title": "Super prayer flask (1).png",
+    "image_url": "https://runescape.wiki/images/Super_prayer_flask_%281%29.png?05787",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ec9c803020595a19e7d5045725d9c1bcdd2344e5",
+    "size": 1225,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:23:54Z"
+  },
+  "herbloreitems/super_prayer_flask_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_prayer_flask_%282%29.png",
+    "file_title": "Super prayer flask (2).png",
+    "image_url": "https://runescape.wiki/images/Super_prayer_flask_%282%29.png?2096b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2d27c5df67e9f1581490ade9d860221a28b012a5",
+    "size": 1225,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:23:55Z"
+  },
+  "herbloreitems/super_prayer_flask_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_prayer_flask_%283%29.png",
+    "file_title": "Super prayer flask (3).png",
+    "image_url": "https://runescape.wiki/images/Super_prayer_flask_%283%29.png?1d039",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8854f8025d932a66843b1738794ac43350bb9190",
+    "size": 1174,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:23:57Z"
+  },
+  "herbloreitems/super_prayer_flask_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_prayer_flask_%284%29.png",
+    "file_title": "Super prayer flask (4).png",
+    "image_url": "https://runescape.wiki/images/Super_prayer_flask_%284%29.png?43046",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "dcb8f59ef29e30ccd3d57b77092820beefa083bb",
+    "size": 1139,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:23:58Z"
+  },
+  "herbloreitems/super_prayer_flask_5.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_prayer_flask_%285%29.png",
+    "file_title": "Super prayer flask (5).png",
+    "image_url": "https://runescape.wiki/images/Super_prayer_flask_%285%29.png?181d3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c20e16ebc0d461710bfd55a94d66551b407d4289",
+    "size": 1094,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:24:00Z"
+  },
+  "herbloreitems/super_prayer_flask_6.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_prayer_flask_%286%29.png",
+    "file_title": "Super prayer flask (6).png",
+    "image_url": "https://runescape.wiki/images/Super_prayer_flask_%286%29.png?9c741",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4cfe2afe58e13efcef4c86f99ebbcff088d2026c",
+    "size": 972,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:24:02Z"
+  },
+  "herbloreitems/super_restore_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_restore_%281%29.png",
+    "file_title": "Super restore (1).png",
+    "image_url": "https://runescape.wiki/images/Super_restore_%281%29.png?b5eaf",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "17b4e803aac057524f6404dbb2c56c61ad73a2f7",
+    "size": 957,
+    "source_wiki": "rs3",
+    "timestamp": "2023-10-25T05:42:00Z"
+  },
+  "herbloreitems/super_restore_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_restore_%282%29.png",
+    "file_title": "Super restore (2).png",
+    "image_url": "https://runescape.wiki/images/Super_restore_%282%29.png?40008",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7a72990aefb746be5eafc0b6ea8a4c37a98af19b",
+    "size": 910,
+    "source_wiki": "rs3",
+    "timestamp": "2023-10-25T05:42:04Z"
   },
   "herbloreitems/super_restore_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Super_restore_%283%29.png",
@@ -19905,6 +21333,90 @@
     "source_wiki": "rs3",
     "timestamp": "2023-10-25T05:42:55Z"
   },
+  "herbloreitems/super_restore_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_restore_%284%29.png",
+    "file_title": "Super restore (4).png",
+    "image_url": "https://runescape.wiki/images/Super_restore_%284%29.png?3335f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a8e55e2d3caee592b76fb9f782990afe94aaebc1",
+    "size": 827,
+    "source_wiki": "rs3",
+    "timestamp": "2023-10-25T05:43:57Z"
+  },
+  "herbloreitems/super_restore_flask_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_restore_flask_%281%29.png",
+    "file_title": "Super restore flask (1).png",
+    "image_url": "https://runescape.wiki/images/Super_restore_flask_%281%29.png?ae724",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "fae7f0e0548734e9ef85fb963b79a7a5c05b1ce3",
+    "size": 1243,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:24:47Z"
+  },
+  "herbloreitems/super_restore_flask_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_restore_flask_%282%29.png",
+    "file_title": "Super restore flask (2).png",
+    "image_url": "https://runescape.wiki/images/Super_restore_flask_%282%29.png?84a37",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7c2739c25d3519e3cbcd1ee2d159b9397372840a",
+    "size": 1227,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:24:49Z"
+  },
+  "herbloreitems/super_restore_flask_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_restore_flask_%283%29.png",
+    "file_title": "Super restore flask (3).png",
+    "image_url": "https://runescape.wiki/images/Super_restore_flask_%283%29.png?7fb9d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "652b6171d439f416b73d279e3a0a0844f8e1326a",
+    "size": 1194,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:24:50Z"
+  },
+  "herbloreitems/super_restore_flask_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_restore_flask_%284%29.png",
+    "file_title": "Super restore flask (4).png",
+    "image_url": "https://runescape.wiki/images/Super_restore_flask_%284%29.png?53394",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d3d571d6e7e9a866582accf7024544a654cf0173",
+    "size": 1165,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:24:52Z"
+  },
+  "herbloreitems/super_restore_flask_5.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_restore_flask_%285%29.png",
+    "file_title": "Super restore flask (5).png",
+    "image_url": "https://runescape.wiki/images/Super_restore_flask_%285%29.png?114a0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a0658946cf93bd336bcf9b8da508113b2701862a",
+    "size": 1110,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:24:54Z"
+  },
+  "herbloreitems/super_restore_flask_6.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_restore_flask_%286%29.png",
+    "file_title": "Super restore flask (6).png",
+    "image_url": "https://runescape.wiki/images/Super_restore_flask_%286%29.png?e52c7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e92a1085c11bf0eaf7ef91aaa61598ff48ac2920",
+    "size": 907,
+    "source_wiki": "rs3",
+    "timestamp": "2019-04-05T15:34:53Z"
+  },
   "herbloreitems/super_restore_mix_2.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Super_restore_mix_%282%29.png",
     "file_title": "Super restore mix (2).png",
@@ -19917,6 +21429,30 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T08:24:58Z"
   },
+  "herbloreitems/super_strength_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_strength_%281%29.png",
+    "file_title": "Super strength (1).png",
+    "image_url": "https://runescape.wiki/images/Super_strength_%281%29.png?27625",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b5d4fbdf3a228039bc91b9ceff23f0b02973bb9e",
+    "size": 1077,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:25:00Z"
+  },
+  "herbloreitems/super_strength_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_strength_%282%29.png",
+    "file_title": "Super strength (2).png",
+    "image_url": "https://runescape.wiki/images/Super_strength_%282%29.png?b28cf",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "87d651cd219a339548879dfe270481072404f98e",
+    "size": 1107,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:25:02Z"
+  },
   "herbloreitems/super_strength_3.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Super_strength_%283%29.png",
     "file_title": "Super strength (3).png",
@@ -19928,6 +21464,90 @@
     "size": 1145,
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T08:25:04Z"
+  },
+  "herbloreitems/super_strength_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_strength_%284%29.png",
+    "file_title": "Super strength (4).png",
+    "image_url": "https://runescape.wiki/images/Super_strength_%284%29.png?95283",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6ba008baff39eaa6ff98f6647d02a793a19c5ce1",
+    "size": 1348,
+    "source_wiki": "rs3",
+    "timestamp": "2023-07-01T10:13:37Z"
+  },
+  "herbloreitems/super_strength_flask_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_strength_flask_%281%29.png",
+    "file_title": "Super strength flask (1).png",
+    "image_url": "https://runescape.wiki/images/Super_strength_flask_%281%29.png?301d7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c1e869af2cc38a994c79673fc47ef32fd79c4339",
+    "size": 1279,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:25:07Z"
+  },
+  "herbloreitems/super_strength_flask_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_strength_flask_%282%29.png",
+    "file_title": "Super strength flask (2).png",
+    "image_url": "https://runescape.wiki/images/Super_strength_flask_%282%29.png?69bd3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "85cbe583a5faf8d359c6d69d083eff799525dc88",
+    "size": 1292,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:25:09Z"
+  },
+  "herbloreitems/super_strength_flask_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_strength_flask_%283%29.png",
+    "file_title": "Super strength flask (3).png",
+    "image_url": "https://runescape.wiki/images/Super_strength_flask_%283%29.png?0bfd5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "df768fe348376a0aae48b61a18f0f22dce766081",
+    "size": 1306,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:25:11Z"
+  },
+  "herbloreitems/super_strength_flask_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_strength_flask_%284%29.png",
+    "file_title": "Super strength flask (4).png",
+    "image_url": "https://runescape.wiki/images/Super_strength_flask_%284%29.png?9859a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8e373b1bdbc69fed2502ae6e4f5d6be3d8d0bedf",
+    "size": 1314,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:25:12Z"
+  },
+  "herbloreitems/super_strength_flask_5.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_strength_flask_%285%29.png",
+    "file_title": "Super strength flask (5).png",
+    "image_url": "https://runescape.wiki/images/Super_strength_flask_%285%29.png?36e04",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a30e8c140d43afcda22fba4f79828d33cb4b402b",
+    "size": 1284,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:25:14Z"
+  },
+  "herbloreitems/super_strength_flask_6.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_strength_flask_%286%29.png",
+    "file_title": "Super strength flask (6).png",
+    "image_url": "https://runescape.wiki/images/Super_strength_flask_%286%29.png?eeace",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "df81f6b391585b1b563240d34c9048b01f09273a",
+    "size": 1262,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:25:15Z"
   },
   "herbloreitems/super_strength_mix_2.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Super_strength_mix_%282%29.png",

@@ -3,6 +3,7 @@ import unittest
 from shop_data import SHOP_DATA
 from shop_fixtures import build_shop_fixture_player_data, build_shop_frontend_fixtures
 from shop_logic import (
+    DECANTABLE_FLASK_POTION_BASES,
     DECANTABLE_FOUR_DOSE_POTION_BASES,
     advance_shop_market_clock_pure,
     apply_shop_buy_pure,
@@ -530,6 +531,167 @@ class TestShopLogic(unittest.TestCase):
         preview = preview_shop_service_pure(data, "bob_barter_decant_four", 4)
         self.assertFalse(preview["allowed"])
         self.assertEqual(preview["reason"], "no_potions_to_decant")
+
+    def test_teplin_requires_as_a_first_resort_for_both_flask_services(self):
+        data = build_shop_fixture_player_data()
+        data["inventory"].update(
+            {
+                "Potion flask": 1,
+                "Attack potion (3)": 2,
+                "Attack flask (2)": 1,
+            }
+        )
+
+        fill = preview_shop_service_pure(
+            data, "teplin_fill_potion_flasks", 999
+        )
+        decant = preview_shop_service_pure(
+            data, "teplin_decant_flasks_to_vials", 999
+        )
+
+        self.assertFalse(fill["allowed"])
+        self.assertEqual(fill["reason"], "Requires As a First Resort")
+        self.assertFalse(decant["allowed"])
+        self.assertEqual(decant["reason"], "Requires As a First Resort")
+
+    def test_teplin_fills_only_new_six_dose_flasks_and_preserves_remainders(self):
+        self.assertIn("Attack potion", DECANTABLE_FLASK_POTION_BASES)
+        data = build_shop_fixture_player_data()
+        data["quests"] = {"as_a_first_resort": {"completed": True}}
+        data["inventory"].update(
+            {
+                "Potion flask": 2,
+                "Attack potion (4)": 2,
+                "Attack flask (5)": 1,
+                "Attack flask (6)": 1,
+                "Strength flask (3)": 1,
+                "Strength flask (4)": 1,
+            }
+        )
+        before = dict(data["inventory"])
+        before_clock = dict(data["shop_market_clock"])
+
+        preview = preview_shop_service_pure(
+            data, "teplin_fill_potion_flasks", 999
+        )
+
+        self.assertTrue(preview["allowed"])
+        self.assertEqual(preview["quantity"], 1)
+        self.assertEqual(
+            preview["decanted_families"],
+            ["Attack potion", "Strength potion"],
+        )
+        self.assertEqual(preview["total_doses"], 12)
+        self.assertEqual(preview["flasks_created"], 2)
+        self.assertEqual(preview["returned_vials"], 1)
+        self.assertEqual(preview["destroyed_flasks"], 1)
+
+        updated, result = apply_shop_service_pure(
+            data, "teplin_fill_potion_flasks", 999
+        )
+
+        self.assertTrue(result["allowed"])
+        self.assertEqual(updated["inventory"]["Potion flask"], 0)
+        self.assertEqual(updated["inventory"]["Attack potion (4)"], 0)
+        self.assertEqual(updated["inventory"]["Attack potion (2)"], 1)
+        self.assertEqual(
+            updated["inventory"]["Vial"],
+            before.get("Vial", 0) + 1,
+        )
+        self.assertEqual(updated["inventory"]["Attack flask (5)"], 1)
+        self.assertEqual(updated["inventory"]["Attack flask (6)"], 2)
+        self.assertEqual(updated["inventory"]["Strength flask (3)"], 0)
+        self.assertEqual(updated["inventory"]["Strength flask (4)"], 0)
+        self.assertEqual(updated["inventory"]["Strength flask (1)"], 1)
+        self.assertEqual(updated["inventory"]["Strength flask (6)"], 1)
+        self.assertEqual(updated["shop_market_clock"], before_clock)
+
+        restored, undo = rollback_shop_event_pure(
+            updated, result["event_id"]
+        )
+        self.assertTrue(undo["allowed"])
+        for item_name, quantity in before.items():
+            self.assertEqual(restored["inventory"].get(item_name, 0), quantity)
+
+    def test_teplin_fill_requires_an_empty_flask_and_six_eligible_doses(self):
+        data = build_shop_fixture_player_data()
+        data["quests"] = {"as_a_first_resort": {"completed": True}}
+        data["inventory"]["Attack potion (4)"] = 2
+
+        missing_flask = preview_shop_service_pure(
+            data, "teplin_fill_potion_flasks"
+        )
+        self.assertFalse(missing_flask["allowed"])
+        self.assertEqual(missing_flask["reason"], "missing_empty_potion_flask")
+
+        data["inventory"]["Potion flask"] = 1
+        data["inventory"]["Attack potion (4)"] = 1
+        data["inventory"]["Attack flask (5)"] = 4
+        insufficient = preview_shop_service_pure(
+            data, "teplin_fill_potion_flasks"
+        )
+        self.assertFalse(insufficient["allowed"])
+        self.assertEqual(insufficient["reason"], "insufficient_flask_doses")
+
+    def test_teplin_decants_only_one_to_four_dose_flasks_into_vials(self):
+        data = build_shop_fixture_player_data()
+        data["quests"] = {"as_a_first_resort": {"completed": True}}
+        data["inventory"].update(
+            {
+                "Prayer flask (1)": 1,
+                "Prayer flask (3)": 1,
+                "Prayer flask (4)": 1,
+                "Prayer flask (5)": 1,
+                "Prayer flask (6)": 1,
+                "Magic flask (2)": 1,
+            }
+        )
+        before_clock = dict(data["shop_market_clock"])
+
+        preview = preview_shop_service_pure(
+            data, "teplin_decant_flasks_to_vials"
+        )
+
+        self.assertTrue(preview["allowed"])
+        self.assertEqual(
+            preview["decanted_families"],
+            ["Magic potion", "Prayer potion"],
+        )
+        self.assertEqual(preview["total_doses"], 10)
+        self.assertEqual(preview["destroyed_flasks"], 4)
+        self.assertEqual(preview["created_vials"], 3)
+
+        updated, result = apply_shop_service_pure(
+            data, "teplin_decant_flasks_to_vials"
+        )
+
+        self.assertTrue(result["allowed"])
+        self.assertEqual(updated["inventory"]["Magic flask (2)"], 0)
+        self.assertEqual(updated["inventory"]["Magic potion (2)"], 1)
+        self.assertEqual(updated["inventory"]["Prayer flask (1)"], 0)
+        self.assertEqual(updated["inventory"]["Prayer flask (3)"], 0)
+        self.assertEqual(updated["inventory"]["Prayer flask (4)"], 0)
+        self.assertEqual(updated["inventory"]["Prayer potion (4)"], 2)
+        self.assertEqual(updated["inventory"]["Prayer flask (5)"], 1)
+        self.assertEqual(updated["inventory"]["Prayer flask (6)"], 1)
+        self.assertEqual(updated["shop_market_clock"], before_clock)
+
+    def test_teplin_rejects_inventory_with_only_five_and_six_dose_flasks(self):
+        data = build_shop_fixture_player_data()
+        data["quests"] = {"as_a_first_resort": {"completed": True}}
+        data["inventory"].update(
+            {
+                "Attack flask (5)": 1,
+                "Attack flask (6)": 1,
+            }
+        )
+
+        preview = preview_shop_service_pure(
+            data, "teplin_decant_flasks_to_vials"
+        )
+
+        self.assertFalse(preview["allowed"])
+        self.assertEqual(preview["reason"], "no_partial_flasks_to_decant")
 
     def test_shop_access_gates_evaluate_against_the_save(self):
         # Owner-grilled hybrid gating: quest walls lock buys/sells with a

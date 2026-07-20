@@ -96,6 +96,21 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Agility potion (4)"],
             "Shop service:bob_barter_decant_four:Agility potion",
         )
+        attack_flask_six = next(
+            row for row in report["orphan_inputs"]
+            if row["item"] == "Attack flask (6)"
+        )
+        self.assertEqual(attack_flask_six["kind"], "cascade")
+        self.assertIn(
+            "Shop service:teplin_fill_potion_flasks:Attack potion",
+            attack_flask_six["known_producers"],
+        )
+        attack_flask_three = next(
+            action for action in report["unresolved_actions"]
+            if action["id"]
+            == "Shop service:teplin_decant_flasks_to_vials:Attack potion"
+        )
+        self.assertEqual(attack_flask_three["missing"], ["Attack flask (3)"])
 
         orphan_items = {row["item"] for row in report["orphan_inputs"]}
         for item_name in (

@@ -4,6 +4,40 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Teplin potion-flask decanting — 2026-07-20
+
+- Added the period Oo'glog NPC service after `As a First Resort...`: Teplin
+  fills new six-dose potion flasks and decants eligible partial flasks back
+  into four-dose vials plus an exact remainder.
+- Preserved dose and container conservation, excluded five-/six-dose source
+  flasks, returned emptied Vials, destroyed emptied flasks, and kept both
+  actions instantaneous, inventory-wide, free, and directly undoable without
+  advancing any gameplay clock.
+- Added canonical registry art and provenance for all 151 registered
+  potion-container states. The 135 newly checked-in PNGs and all 256
+  Herblore item sprites pass the shared tight-alpha normalizer.
+- Added source-generated service rows, quest-aware preview/application,
+  deterministic reachability edges, focused pure/integration/Qt coverage, and
+  native restarted-Anki proof.
+- Kimi K3 found and closed seven concrete UI defects covering preview
+  completeness, pluralization, icon identity, list geometry, free pricing,
+  completion copy, and denial copy. The mandatory Fable pass remains
+  externally blocked by the fresh quota probe's macOS Keychain failure
+  (`security` exit 51); no owner design gap surfaced.
+- Focused checks pass 57 non-Qt tests and one real-Qt interaction test.
+  Complete non-Qt discovery executes all 1,918 methods with 251 expected
+  environment skips; complete real offscreen Qt executes all 1,918 methods
+  with one intentional skip. Documentation, test-quality, compilation, JSON,
+  diff, normalization, reachability, and worktree-safety checks pass.
+- Reachability now reports 1,409 actions, 2,012 reachable items, 235 orphan
+  inputs (76 root and 159 cascade), and 276 blocked actions. Empty Potion
+  flask acquisition remains the next authentic root dependency.
+- Durable record:
+  `source-audits/teplin-potion-flask-decanting-2026-07-20.md`.
+- Results:
+  `status-updates/teplin-potion-flask-decanting-results-2026-07-20.html`;
+  mobile copy: `https://uryuvjirpis2.postplan.dev`.
+
 ## Farming reachability routes — 2026-07-20
 
 - Added the existing runnable Farming sapling, harvest, and tree-root paths to

@@ -3090,6 +3090,16 @@ class MainMenuWidgetTest(unittest.TestCase):
         fixtures = build_shop_frontend_fixtures()
         pd = fixtures["fixture_player_data"]
         pd["inventory"].update({"Agility potion (1)": 4, "Agility potion (3)": 4})
+        pd["inventory"].update(
+            {
+                "Potion flask": 1,
+                "Attack potion (3)": 2,
+                "Attack flask (2)": 1,
+            }
+        )
+        pd["quests"] = {
+            "as_a_first_resort": {"completed": True}
+        }
         pd["summoning_level"] = 99
         pd["fletching_exp"] = 1234.5
         pd["inventory"]["Pack yak pouch"] = 3
@@ -3143,6 +3153,41 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["inventory"]["Agility potion (3)"], 5)
         self.assertEqual(pd["inventory"].get("Agility potion (4)", 0), 0)
         self.assertEqual(pd["inventory"]["Vial"], 2)
+
+        teplin_fill = _select_service_row("teplin_fill_potion_flasks")
+        self.assertFalse(teplin_fill.icon().isNull())
+        self.assertIn("Free", teplin_fill.text())
+        self.assertNotIn("+ 0 Coins", teplin_fill.text())
+        self.assertEqual(service_list.maximumHeight(), 96)
+        self.assertFalse(dose_spin.isVisibleTo(dialog))
+        preview_label = _find_named_label(dialog, "shopServicePreviewLabel")
+        self.assertIn("6 doses", preview_label.text())
+        self.assertIn("1 empty Potion flask", preview_label.text())
+        use_button = _find_named_button(dialog, "shopServiceUseButton")
+        self.assertTrue(use_button.isEnabled(), preview_label.text())
+        use_button.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["inventory"]["Potion flask"], 0)
+        self.assertEqual(pd["inventory"]["Attack potion (3)"], 0)
+        self.assertEqual(pd["inventory"]["Attack flask (2)"], 1)
+        self.assertEqual(pd["inventory"]["Attack flask (6)"], 1)
+        self.assertEqual(pd["inventory"]["Vial"], 4)
+
+        teplin_decant = _select_service_row(
+            "teplin_decant_flasks_to_vials"
+        )
+        self.assertFalse(teplin_decant.icon().isNull())
+        self.assertFalse(dose_spin.isVisibleTo(dialog))
+        preview_label = _find_named_label(dialog, "shopServicePreviewLabel")
+        self.assertIn("2 doses", preview_label.text())
+        self.assertIn("1 vial for free", preview_label.text())
+        use_button = _find_named_button(dialog, "shopServiceUseButton")
+        self.assertTrue(use_button.isEnabled(), preview_label.text())
+        use_button.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["inventory"]["Attack flask (2)"], 0)
+        self.assertEqual(pd["inventory"]["Attack flask (6)"], 1)
+        self.assertEqual(pd["inventory"]["Attack potion (2)"], 1)
 
         _select_service_row("bartender_sell_beer_glass")
         use_button = _find_named_button(dialog, "shopServiceUseButton")
@@ -3220,6 +3265,16 @@ class MainMenuWidgetTest(unittest.TestCase):
         global_history = _find_named_list(dialog, "shopGlobalHistoryList")
         history_texts = _list_texts(global_history)
         self.assertTrue(any("Completed" in text for text in history_texts), history_texts)
+
+        search = dialog.findChild(QLineEdit, "shopSearchInput")
+        search.setText("Teplin")
+        QApplication.processEvents()
+        search_rows = _list_texts(
+            _find_named_list(dialog, "shopSelectionList")
+        )
+        self.assertEqual(len(search_rows), 2)
+        self.assertTrue(all("Free" in text for text in search_rows))
+        self.assertTrue(all("0 Coins" not in text for text in search_rows))
 
     def test_achievement_tab_renders_metadata_counts_and_completed_rows(self) -> None:
         pd = _make_player_data()
