@@ -2,6 +2,23 @@
 
 ## Current Focus
 
+The owner-ratified Dungeoneering starter expedition now has a source-backed
+backend substrate without being falsely exposed as a live skill. Exact
+floor/theme/size/complexity, bind/ammo, Ring-of-kinship, Frozen-boss, door,
+proof-chain, Coal-bag, prestige, and token rules are recorded in
+`source-audits/dungeoneering-starter-harvest-2026-07-20.md`.
+`dungeoneering_data.py` and `dungeoneering_logic.py` provide deterministic
+small-floor graph/session mechanics plus explicit-input payout arithmetic. The
+live surface remains planned because the active/prestige floor-XP curve, death
+coefficient, generated room-count distribution, and skill-door failure
+numbers remain source-blocked; no owner design gap emerged. The new code adds
+no UI, uses no wall clock, and does not let Daemonheim items escape into the
+ordinary Bank or Herblore surface.
+Focused verification passes 70 tests, and the complete non-Qt discovery passes
+all 1,896 tests with 248 expected environment skips. Results:
+`status-updates/dungeoneering-starter-backend-results-2026-07-20.html`;
+mobile copy: `https://pgbwaae8lohy.postplan.dev`.
+
 Easy Treasure Trails has been source-harvested to a hard implementation
 boundary. Period revisions close the one-to-five step count, simple/emote/map/
 cryptic families, no-coordinate/no-combat/no-Wilderness easy-tier rules,
@@ -1351,10 +1368,10 @@ them.
 
 ## Current Truth
 
-- `skill_registry.py` has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills.
-- Complete: Mining, Woodcutting, Farming, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Hunter, Herblore, Prayer, Magic, Construction, Thieving, and Agility.
+- `skill_registry.py` has 19 complete skill surfaces, five partial Combat-trained skills, and one planned skill.
+- Complete: Mining, Woodcutting, Farming, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Hunter, Herblore, Prayer, Magic, Construction, Thieving, Agility, Slayer, and Summoning.
 - Partial through unified Combat: Attack, Strength, Defence, Constitution, and Ranged.
-- Planned: Dungeoneering and Slayer.
+- Planned: Dungeoneering.
 - Farming is shipped (`9a88c56`), not the next build.
 - The 194-row quest catalog remains coverage scaffolding rather than full quest parity.
 - NPC Shops are live; the fake GE remains parked until the item/acquisition universe is representative.

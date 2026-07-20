@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dungeoneering starter backend — closure report</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f6f2e8;
+      --muted: #aaa99e;
+      --panel: #17191c;
+      --panel-2: #20242a;
+      --line: #3b414a;
+      --ice: #79c9dc;
+      --green: #80c873;
+      --gold: #e7b967;
+      --red: #e27b71;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 10% -5%, rgba(121, 201, 220, .15), transparent 34rem),
+        #0d0f12;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      line-height: 1.5;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 56px 0 80px; }
+    .eyebrow { color: var(--ice); font-size: 12px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    h1 { max-width: 850px; margin: 10px 0 12px; font-size: clamp(40px, 7vw, 72px); line-height: .98; letter-spacing: -.045em; }
+    .lede { max-width: 820px; margin: 0; color: var(--muted); font-size: 18px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px; margin-top: 24px;
+      padding: 8px 12px; border: 1px solid rgba(128, 200, 115, .5); border-radius: 999px;
+      background: rgba(128, 200, 115, .1); color: #c0ecb7; font-weight: 700;
+    }
+    .badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 16px var(--green); }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-top: 42px; }
+    .card {
+      grid-column: span 4; padding: 22px; border: 1px solid var(--line); border-radius: 16px;
+      background: linear-gradient(145deg, rgba(255,255,255,.025), transparent), var(--panel);
+      box-shadow: 0 20px 60px rgba(0,0,0,.18);
+    }
+    .card.wide { grid-column: span 8; }
+    .card.full { grid-column: 1 / -1; }
+    h2 { margin: 0 0 14px; font-size: 20px; letter-spacing: -.02em; }
+    h3 { margin: 0 0 6px; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .metric { font-size: 38px; font-weight: 820; letter-spacing: -.045em; }
+    .metric small { font-size: 14px; color: var(--muted); letter-spacing: 0; }
+    .truth { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .truth > div { padding: 17px; border-radius: 13px; background: var(--panel-2); }
+    .truth .live { border: 1px solid rgba(128, 200, 115, .4); }
+    .truth .blocked { border: 1px solid rgba(226, 123, 113, .4); }
+    .map {
+      display: grid; grid-template-columns: repeat(4, minmax(56px, 1fr)); gap: 9px;
+      max-width: 690px; margin: 20px auto 8px;
+    }
+    .room {
+      min-height: 76px; display: grid; place-items: center; padding: 8px;
+      border: 1px solid var(--line); border-radius: 11px; background: var(--panel-2);
+      color: var(--muted); text-align: center; font-size: 12px;
+    }
+    .room.path { border-color: rgba(121, 201, 220, .7); color: var(--ink); background: rgba(121, 201, 220, .08); }
+    .room.start { border-color: var(--green); color: #c0ecb7; }
+    .room.boss { border-color: var(--gold); color: #f2d39a; }
+    .room.empty { opacity: .28; border-style: dashed; background: transparent; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-variant-numeric: tabular-nums; }
+    th, td { padding: 11px 10px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .07em; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    li + li { margin-top: 7px; }
+    code { color: #c8e8ef; background: #101318; border: 1px solid #303741; border-radius: 5px; padding: 2px 6px; }
+    .check { color: var(--green); font-weight: 800; }
+    .warn { color: var(--gold); font-weight: 750; }
+    .note { color: var(--muted); font-size: 13px; }
+    footer { margin-top: 28px; color: #777b80; font-size: 13px; }
+    @media (max-width: 800px) {
+      main { width: min(100% - 20px, 680px); padding-top: 34px; }
+      .card, .card.wide { grid-column: 1 / -1; }
+      .truth { grid-template-columns: 1fr; }
+      .map { grid-template-columns: repeat(4, minmax(42px, 1fr)); }
+      .room { min-height: 60px; font-size: 10px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">AnkiScape · 2012-11-20 parity</div>
+  <h1>Daemonheim now has an honest foundation.</h1>
+  <p class="lede">The period tables and pure floor engine are implemented without pretending the skill is ready to play. Unknown XP and failure coefficients remain explicit inputs instead of invented history.</p>
+  <div class="badge">Backend substrate verified · player surface still gated</div>
+
+  <section class="grid">
+    <article class="card">
+      <h3>Period floors</h3>
+      <div class="metric">60 <small>across 6 themes</small></div>
+      <p>Frozen through Warped, with the exact <code>2f-1</code> access rule.</p>
+    </article>
+    <article class="card">
+      <h3>Kinship roles</h3>
+      <div class="metric">12 <small>complete tier tables</small></div>
+      <p>All four categories, exact effects, upgrade costs, and role identities.</p>
+    </article>
+    <article class="card">
+      <h3>Full non-Qt suite</h3>
+      <div class="metric">1,896 <small>tests passed</small></div>
+      <p>49.0 seconds; 248 expected environment skips.</p>
+    </article>
+
+    <article class="card full">
+      <h2>The starter floor is deterministic, not fictionalized</h2>
+      <p>The period source proves a 4×4 Small grid with at most sixteen rooms and usually fewer. The owner-approved review translation uses a labelled eight-room budget, builds one connected critical path, and resolves exactly one revealed-frontier room per review.</p>
+      <div class="map" aria-label="Illustrative four by four starter floor grid">
+        <div class="room start">Start</div>
+        <div class="room path">Guardian</div>
+        <div class="room path">Key</div>
+        <div class="room empty">unused</div>
+        <div class="room empty">unused</div>
+        <div class="room path">Resource</div>
+        <div class="room path">Guardian</div>
+        <div class="room empty">unused</div>
+        <div class="room empty">unused</div>
+        <div class="room path">Key</div>
+        <div class="room path">Guardian</div>
+        <div class="room boss">Boss</div>
+        <div class="room empty">unused</div>
+        <div class="room empty">unused</div>
+        <div class="room empty">unused</div>
+        <div class="room empty">unused</div>
+      </div>
+      <p class="note">Illustrative seeded shape, not a claim about RuneScape’s room-count distribution. Death returns the session to Start and increments the externally priced death count without erasing floor progress. No wall clock participates.</p>
+    </article>
+
+    <article class="card wide">
+      <h2>Source-backed substrate</h2>
+      <table>
+        <thead><tr><th>System</th><th>Closed period behavior</th></tr></thead>
+        <tbody>
+          <tr><td>Complexity</td><td>C1–C6 groups and exact 50/45/40/35/30/0% penalties</td></tr>
+          <tr><td>Prestige</td><td><code>max(current, previous)</code>, active/prestige average, same-theme substitution</td></tr>
+          <tr><td>Binding</td><td>1/20/50/90/120 ladder, three loadouts, 125/225 ammo tiers</td></tr>
+          <tr><td>Doors</td><td>Basic, guardian, key, and skill semantics; skill XP is level × 5</td></tr>
+          <tr><td>Rewards</td><td>One token per ten final XP; Coal bag identity, gates, capacity, and cost</td></tr>
+          <tr><td>Starter chains</td><td>Raw heim crab → Heim crab; Valerian → Weak ranged potion</td></tr>
+        </tbody>
+      </table>
+    </article>
+    <article class="card">
+      <h2>Truthful registry state</h2>
+      <div class="metric">Planned</div>
+      <p>No incomplete target, zero-XP expedition, menu row, or fake acquisition path was exposed.</p>
+    </article>
+
+    <article class="card full">
+      <h2>Closure boundary</h2>
+      <div class="truth">
+        <div class="live">
+          <h3 class="check">Implemented and verified</h3>
+          <ul>
+            <li>Immutable period data tables and cache identities</li>
+            <li>Pure floor, theme, access, bind, prestige, payout, and boss helpers</li>
+            <li>Seeded connected Small-floor graph and one-room progression</li>
+            <li>Focused data, logic, Herblore, and registry integration coverage</li>
+          </ul>
+        </div>
+        <div class="blocked">
+          <h3>Still source-blocked</h3>
+          <ul>
+            <li>Numeric active/prestige floor-XP curve</li>
+            <li>Death-penalty coefficient</li>
+            <li>Exact generated room-count distribution</li>
+            <li>Skill-door failure probability and damage magnitude</li>
+          </ul>
+        </div>
+      </div>
+    </article>
+
+    <article class="card full">
+      <h2>Verification ledger</h2>
+      <table>
+        <tbody>
+          <tr><td>Focused backend + integration slice</td><td class="check">70 / 70</td></tr>
+          <tr><td>Complete non-Qt discovery</td><td class="check">1,896 / 1,896</td></tr>
+          <tr><td>Test-quality hard issues</td><td class="check">0</td></tr>
+          <tr><td>Docs / compile / diff / guarded worktree</td><td class="check">Pass</td></tr>
+          <tr><td>Reachability ledger</td><td>1,268 actions · 284 orphan inputs · 302 blocked actions</td></tr>
+          <tr><td>New UI / assets</td><td class="warn">None; dual taste and native-Anki gates remain for the future live surface</td></tr>
+          <tr><td>Owner design gaps</td><td class="check">None</td></tr>
+        </tbody>
+      </table>
+    </article>
+  </section>
+  <footer>Canonical main checkout · AnkiScape source-harvest and implementation program · 2026-07-20</footer>
+</main>
+</body>
+</html>

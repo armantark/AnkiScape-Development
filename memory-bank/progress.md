@@ -1690,11 +1690,10 @@ Unified Combat trains Attack, Strength, Defence, Constitution, and Ranged. They 
 ## Planned Skills
 
 - Dungeoneering
-- Slayer
 
-Dungeoneering and Slayer remain the two planned registry surfaces. Their active
-design/source work is tracked independently and must be merged into the
-canonical checkout before this ledger treats either as live.
+Dungeoneering remains the one planned registry surface. Slayer is complete.
+Dungeoneering's source-ready backend substrate is implemented, but the live
+surface waits on the source-blocked floor-XP curve and death coefficient.
 
 ## Thieving closure
 
@@ -2995,6 +2994,41 @@ Test counts are snapshots; current runs outrank this note.
   interaction path. Full verification passes 1,884 non-Qt methods and 1,884
   offscreen Qt methods; docs, test quality, UI asset normalization, diff, and
   guarded-worktree checks are clean.
-- The Help Center is implemented; its required Fable sign-off, results
-  artifact, and commit remain closure work. The separate owner-settled
-  target-level `Details` surface remains implementation backlog.
+- The Help Center is implemented and committed at `b475397`; its required
+  Fable sign-off remains blocked by Claude Code's macOS Keychain credential.
+  The separate owner-settled target-level `Details` surface remains
+  implementation backlog.
+
+## Dungeoneering source-ready backend substrate — 2026-07-20
+
+- Pinned the exact 60-floor theme bands, `2f-1` access rule, size grids and
+  room maxima, complexity penalties/skill groups, bind ladder and ammo slot,
+  all twelve Ring-of-kinship roles and tier costs, Frozen boss gates, door
+  families, prestige substitution, and one-token-per-ten-XP rule from literal
+  pre-cutoff revisions.
+- Added source-backed Heim-crab and Valerian/Weak-ranged starter chains plus
+  the complete Coal-bag proof-purchase contract and rev-727/rev-742 item
+  identities.
+- Added pure deterministic small-floor graphs, one-frontier-room progression,
+  death-to-start respawn without erasing floor progress, floor/theme/bind
+  helpers, same-theme replay handling, Frozen-boss eligibility, and
+  explicit-input payout arithmetic. No wall clock or overworld item leakage is
+  involved.
+- The skill remains planned. The active/prestige floor-XP curve, death
+  coefficient, exact generated room-count distribution, and skill-door
+  failure rate/damage remain honestly source-blocked. The eight-room starter
+  budget is an explicitly labelled owner-authorised review translation.
+- The period Weak-magic row says 21 XP while the quarantined game-main row
+  says 23 XP. The starter uses the independently agreeing Weak-ranged chain;
+  the conflict is recorded rather than silently resolved.
+- Durable evidence:
+  `source-audits/dungeoneering-starter-harvest-2026-07-20.md`. No owner design
+  gap emerged and no new UI was added.
+- Focused verification passes 70 tests; complete non-Qt discovery passes all
+  1,896 tests with 248 expected environment skips. Test quality,
+  documentation, compile, diff, and guarded-worktree checks are clean. The
+  reachability audit retains its intentional nonzero backlog result at 284
+  orphan inputs and 302 blocked actions.
+- Published
+  `status-updates/dungeoneering-starter-backend-results-2026-07-20.html`;
+  mobile copy: `https://pgbwaae8lohy.postplan.dev`.

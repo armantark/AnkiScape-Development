@@ -916,13 +916,22 @@ Labels: `COMPLETE`, `SOURCE DEBT`, `DEPENDENCY: COMBAT/ACQUISITION`.
 
 ### Dungeoneering
 
-Labels: `DESIGN CLOSED 2026-07-18`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: ALL SKILLS/COMBAT`.
+Labels: `DESIGN CLOSED 2026-07-18`, `BACKEND SUBSTRATE 2026-07-20`, `SOURCE BLOCKED`, `DEPENDENCY: ALL SKILLS/COMBAT`.
 
 - Design is owner-ratified in `dungeoneering-design-contract-2026-07-18.md`
   (seeded room graph, three-tier choice architecture, authentic binds/kinship/
-  complexity/prestige, closed economy, staged shop). Remaining work is harvest
-  (floor/bind/kinship/reward tables) and implementation of the frozen starter
-  expedition.
+  complexity/prestige, closed economy, staged shop).
+- The 2026-07-20 starter harvest has pinned the floor, size, complexity, bind,
+  kinship, Frozen-boss, door, proof-chain, reward, prestige, and token tables.
+  Pure data/progression/session modules and focused tests are implemented.
+- Keep the registry surface planned until the active/prestige floor-XP curve
+  and death coefficient are source-closed. Exact generated room counts and
+  skill-door failure values also remain source-blocked. The eight-room starter
+  graph budget is explicitly
+  `provisional/owner-approved-review-translation`, not a historical claim.
+- The first live UI still requires both Kimi K3 and Fable taste review plus a
+  fully restarted native Anki check. No incomplete zero-XP surface should be
+  exposed while the core payout is unresolved.
 
 ## Wait for a stable Darkan restoration milestone
 
