@@ -2392,3 +2392,21 @@ The visual closure report is
 - Published
   `status-updates/farming-willow-branch-results-2026-07-20.html`;
   mobile copy: `https://uhyf9le1jwo1.postplan.dev`.
+
+## Thieving loot reachability correction — 2026-07-20
+
+- Corrected the deterministic item graph to include the already-live
+  guaranteed and weighted loot rows from every non-source-blocked Thieving
+  target.
+- Master Farmer now correctly supplies Nasturtium, Redberry, and Cadavaberry
+  seeds. Existing preferred routes remain stable, including ordinary Swamp
+  toad gathering.
+- Reachability improves to 1,379 actions, 2,012 reachable items, 234 orphan
+  inputs (91 root and 143 cascade), and 246 blocked actions.
+- Focused reachability/Thieving verification passes 20 tests; complete
+  non-Qt discovery passes all 1,909 tests with 251 expected environment skips.
+  Documentation, test-quality, compilation, diff, and worktree-safety audits
+  pass. No gameplay, UI, probability, save-state, or owner-design behavior
+  changed.
+- Durable evidence:
+  `source-audits/item-reachability-thieving-loot-correction-2026-07-20.md`.

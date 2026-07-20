@@ -1044,8 +1044,8 @@ Labels: `DESIGN CLOSED 2026-07-18`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY:
 
 Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 
-- Maintain `tools/audit_item_reachability.py`; the current run finds 1,344
-  actions, 1,999 reachable items, and 237 orphan inputs (94 root, 143 cascade)
+- Maintain `tools/audit_item_reachability.py`; the current run finds 1,379
+  actions, 2,012 reachable items, and 234 orphan inputs (91 root, 143 cascade)
   across planned skills, activities, Combat/world acquisition, Farming, and
   potion-state plumbing. Bob Barter's quantity-free decant routes make potion
   dose variants known-producer cascades; live Farming sapling, harvest, and
@@ -1054,8 +1054,9 @@ Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
   chain; the ordinary Stronghold gathering route now closes Swamp toad ->
   Toad's legs -> Agility potion; Cooking's singular byproduct shape now
   correctly exposes the already-live Fish-offcuts route; the player-grown
-  Willow route closes Willow branch. See the dated audits for method and
-  `activeContext.md` for the live count.
+  Willow route closes Willow branch; live Thieving loot now exposes the
+  Master Farmer seed routes instead of false root gaps. See the dated audits
+  for method and `activeContext.md` for the live count.
 - **Closed 2026-07-20:** the period player-grown Willow route now exposes
   post-health-check branches every five era-minutes to a six-branch cap,
   accepts either Secateurs variant, awards zero pruning XP, and preserves Chop

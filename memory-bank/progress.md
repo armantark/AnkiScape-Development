@@ -3156,3 +3156,18 @@ Test counts are snapshots; current runs outrank this note.
 - Published
   `status-updates/farming-willow-branch-results-2026-07-20.html`;
   mobile copy: `https://uhyf9le1jwo1.postplan.dev`.
+
+## Thieving loot reachability correction — 2026-07-20
+
+- Added the live non-source-blocked Thieving loot tables to the deterministic
+  acquisition graph.
+- Nasturtium, Redberry, and Cadavaberry seeds now resolve through the Master
+  Farmer instead of appearing as false root orphans.
+- The graph improves to 1,379 actions, 2,012 reachable items, 234 orphan
+  inputs (91 root/143 cascade), and 246 blocked actions.
+- Focused reachability and Thieving verification passes 20 tests; complete
+  non-Qt discovery passes all 1,909 tests with 251 expected environment skips.
+  Documentation, test-quality, compilation, diff, and worktree-safety audits
+  pass. No product behavior or UI changed.
+- Durable evidence:
+  `source-audits/item-reachability-thieving-loot-correction-2026-07-20.md`.

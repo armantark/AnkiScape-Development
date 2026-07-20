@@ -100,6 +100,7 @@ def build_reachability_report() -> dict[str, Any]:
     import pack_data
     import shop_data
     import shop_logic
+    import thieving_data
     import woodcutting_data
 
     registered_items = {definition.storage_key for definition in constants.ITEM_DEFINITIONS}
@@ -204,6 +205,30 @@ def build_reachability_report() -> dict[str, Any]:
             for item in root_requirements | hatchets:
                 consumers[item].add(key)
             producers[crop.root_item].add(key)
+
+    for target_id, spec in thieving_data.THIEVING_TARGETS.items():
+        if spec.get("source_blocked"):
+            continue
+        outputs = _names(spec.get("guaranteed")) | _names(spec.get("loot"))
+        if not outputs:
+            continue
+        alternatives: tuple[set[str], ...] = ()
+        required_items_any = _names(spec.get("required_items_any"))
+        if required_items_any:
+            alternatives = (required_items_any,)
+        key = f"Thieving:{target_id}"
+        actions.append(
+            {
+                "id": key,
+                "required": set(),
+                "alternatives": alternatives,
+                "outputs": outputs,
+            }
+        )
+        for item in set().union(*alternatives) if alternatives else ():
+            consumers[item].add(key)
+        for item in outputs:
+            producers[item].add(key)
 
     for item_name, spec in constants.CONSUMABLE_DATA.items():
         if not isinstance(spec, Mapping):
