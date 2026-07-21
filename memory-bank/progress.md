@@ -4,6 +4,36 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Fish Flingers horizontal mechanic closure — 2026-07-21
+
+- Implemented the complete six-review Fishing event with automatic
+  50/75/100% tackle discovery, catch/weight rolls, stock rotation, big fish,
+  public assists, terminal XP, tokens, medals, and completion credit.
+- Added two tickets per answered-card day, a ten-ticket cap, atomic entry,
+  explicit leave/forfeit, persistent activity ownership, schema-64 migration,
+  cadence coverage, telemetry, whole-answer undo, and direct-action undo.
+- Added the exact token formula, four medal channels, four-piece Fishing outfit,
+  five cumulative-medal tackle-box upgrades, previous-box consumption, and the
+  outfit's ordinary-Fishing plus event XP effects.
+- Added nine normalized period reward sprites, the activity icon, reproducible
+  provenance-aware fetching, item/equipment registration, asset-path coverage,
+  and a compact no-nested-scroll card on the paginated D&D page.
+- Opus's read-only taste pass found five concrete UI defects. Root reproduced
+  and fixed the hidden disabled-purchase reason, weak state legibility,
+  over-emphasized shop frame, ambiguous progress wording, and misleading fresh
+  ticket-claim copy. Fable stayed reserved.
+- The exact post-July-2012 XP equation and hidden event distributions remain
+  clearly labeled data-depth work, not missing mechanics. No owner design gap
+  emerged. See `source-audits/fish-flingers-loop-2026-07-17.md`.
+- Verification: all 2,160 non-Qt tests pass with 283 expected skips and all
+  2,160 real offscreen-Qt tests pass with one intentional skip. Test quality,
+  docs, compilation, JSON, diff, normalized assets, reachability, a fully
+  restarted native Anki dark-mode pass, and worktree safety pass. Reachability
+  reports 1,438 actions, 2,128 reachable items, 168 known orphan inputs, and
+  189 unresolved actions.
+- Results: `status-updates/fish-flingers-horizontal-results-2026-07-21.html`;
+  mobile copy: `https://t47kaw10p3pp.postplan.dev`.
+
 ## Gnome Ball horizontal mechanic closure — 2026-07-21
 
 - Replaced the invented five-review Agility stub with the settled three-beat

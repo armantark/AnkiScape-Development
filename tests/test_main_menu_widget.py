@@ -556,6 +556,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._fight_caves_calls: list = []
         self._barrows_calls: list = []
         self._stealing_creation_calls: list = []
+        self._fish_flingers_calls: list = []
         self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
         self._mage_arena_calls: list = []
@@ -915,6 +916,18 @@ class MainMenuWidgetTest(unittest.TestCase):
                 player_data.update(updated)
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
+        def _fish_flingers_command(action_id, payload):
+            from fish_flingers_logic import apply_fish_flingers_command_pure
+
+            self._fish_flingers_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_fish_flingers_command_pure(
+                player_data, action_id, payload
+            )
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
         def _mage_arena_action(action_id, god_id):
             from logic_pure import (
                 apply_mage_arena_cape_action_pure,
@@ -982,6 +995,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_fight_caves_command=_fight_caves_command,
             on_barrows_command=_barrows_command,
             on_stealing_creation_command=_stealing_creation_command,
+            on_fish_flingers_command=_fish_flingers_command,
             on_set_prayer_selection=_set_prayer_selection,
             on_set_magic=lambda target: _set_target("current_magic", self._magic_calls, target),
             on_set_construction=lambda target: _set_target("current_construction", self._construction_calls, target),
@@ -7671,6 +7685,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "familiarisation",
                 "penguin_hide_and_seek",
                 "shooting_stars",
+                "fish_flingers",
             },
         )
         self.assertTrue(
@@ -9285,6 +9300,80 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("only a Gnomeball is allowed", summary.text())
         self.assertFalse(primary.isEnabled())
         self.assertEqual(pd["current_utility"], "bankstanding")
+
+    def test_fish_flingers_card_enters_shops_and_leaves_without_nested_scroll(self) -> None:
+        pd = _make_player_data()
+        pd.update(
+            {
+                "current_utility": "bankstanding",
+                "activity_session": {"active_id": ""},
+                "shop_market_clock": {"answered_cards": 0, "market_tick": 0},
+                "fish_flingers_tokens": 140,
+                "fish_flingers_medals": 0,
+                "fish_flingers_last_ticket_day": -1,
+            }
+        )
+        dialog = self._open(pd)
+        activity_tree = self._open_activities(dialog)
+        row = _utility_row(activity_tree, "fish_flingers")
+        activity_tree.setCurrentItem(row)
+        activity_tree.itemActivated.emit(row, 0)
+        QApplication.processEvents()
+
+        panel = _find_named_widget(dialog, "fishFlingersPanel")
+        summary = _find_named_label(dialog, "fishFlingersSummary")
+        currency = _find_named_label(dialog, "fishFlingersCurrencyChip")
+        primary = _find_named_button(dialog, "fishFlingersPrimaryButton")
+        leave = _find_named_button(dialog, "fishFlingersLeaveButton")
+        progress = panel.findChild(QProgressBar, "fishFlingersProgress")
+        reward = panel.findChild(QComboBox, "fishFlingersRewardCombo")
+        buy = _find_named_button(dialog, "fishFlingersBuyButton")
+        self.assertIsNone(panel.findChild(QScrollArea))
+        self.assertIn("READY · 2 tickets", currency.text())
+        self.assertIn("Six successful reviews", summary.text())
+        self.assertNotIn("claim", summary.text())
+        self.assertTrue(progress.isHidden())
+        self.assertEqual(reward.currentData(), "fishing_hat")
+        self.assertTrue(buy.isEnabled())
+        basic_index = reward.findData("basic_tackle_box")
+        self.assertIn("upgrade Beginner's tackle box", reward.itemText(basic_index))
+
+        buy.click()
+        QApplication.processEvents()
+        self.assertEqual(
+            self._fish_flingers_calls[-1],
+            ("buy_fish_flingers_reward", {"reward_id": "fishing_hat"}),
+        )
+        self.assertEqual(pd["inventory"]["Fishing hat"], 1)
+        self.assertIn("0 tokens", currency.text())
+        self.assertIn("Requires 140 Fishing tokens", buy.toolTip())
+
+        primary.click()
+        QApplication.processEvents()
+        self.assertEqual(
+            self._fish_flingers_calls[-1],
+            ("enter_fish_flingers", {}),
+        )
+        self.assertEqual(pd["current_utility"], "fish_flingers")
+        self.assertEqual(primary.text(), "Selected for reviews")
+        self.assertIn("ACTIVE", currency.text())
+        self.assertEqual(progress.format(), "%v of 6 landed")
+        self.assertFalse(progress.isHidden())
+        self.assertFalse(leave.isHidden())
+
+        with patch.object(
+            QMessageBox,
+            "question",
+            return_value=QMessageBox.StandardButton.Yes,
+        ):
+            leave.click()
+        QApplication.processEvents()
+        self.assertEqual(
+            self._fish_flingers_calls[-1],
+            ("leave_fish_flingers", {}),
+        )
+        self.assertTrue(leave.isHidden())
+        self.assertIn("forfeited", summary.text())
 
     def test_switching_from_gnome_ball_requires_and_honours_leave_confirmation(self) -> None:
         from gnome_ball_logic import enter_gnome_ball_pure

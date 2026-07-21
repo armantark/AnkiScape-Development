@@ -311,6 +311,18 @@
     "source_wiki": "rs3",
     "timestamp": "2024-03-14T12:48:08Z"
   },
+  "activityicons/fish_flingers.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fishing_hat.png",
+    "file_title": "Fishing hat.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502034143%21Fishing_hat.png?45f9c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ef733b2a17944b46a31c5754a21dbd2f5e1ed747",
+    "size": 951,
+    "source_wiki": "rs3",
+    "timestamp": "2012-06-06T12:11:10Z"
+  },
   "activityicons/fist_of_guthix.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Fist_of_Guthix_token.png",
     "file_title": "Fist of Guthix token.png",
@@ -551,6 +563,30 @@
     "source_wiki": "rs3",
     "timestamp": "2010-10-06T02:06:29Z"
   },
+  "activityitems/basic_tackle_box.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Basic_tackle_box.png",
+    "file_title": "Basic tackle box.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081830%21Basic_tackle_box.png?9e8f6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "530b1a58d128ce5f0b95af4752b5a0b0780183e4",
+    "size": 258,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-06T01:48:11Z"
+  },
+  "activityitems/beginner_s_tackle_box.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Beginner%27s_tackle_box.png",
+    "file_title": "Beginner's tackle box.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502073014%21Beginner%27s_tackle_box.png?9367f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "acee9a25b9279e552bd8c306d5ddb53281d825e5",
+    "size": 1236,
+    "source_wiki": "rs3",
+    "timestamp": "2010-03-27T14:33:42Z"
+  },
   "activityitems/black_ibis_body.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Black_ibis_body.png",
     "file_title": "Black ibis body.png",
@@ -599,6 +635,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-08-23T14:56:42Z"
   },
+  "activityitems/champion_s_tackle_box.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Champion%27s_tackle_box.png",
+    "file_title": "Champion's tackle box.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081831%21Champion%27s_tackle_box.png?a0f30",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d8f4f2bf83decb1d2068a574cc60b01ed3820941",
+    "size": 422,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-06T01:48:58Z"
+  },
   "activityitems/compost_potion_1.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Compost_potion_%281%29.png",
     "file_title": "Compost potion (1).png",
@@ -646,6 +694,54 @@
     "size": 1514,
     "source_wiki": "rs3",
     "timestamp": "2010-03-21T15:12:42Z"
+  },
+  "activityitems/fishing_boots.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fishing_boots.png",
+    "file_title": "Fishing boots.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502034123%21Fishing_boots.png?7534b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "650528bdfa623b3519eeb5de102be7c793a3aa53",
+    "size": 669,
+    "source_wiki": "rs3",
+    "timestamp": "2012-06-06T13:54:17Z"
+  },
+  "activityitems/fishing_hat.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fishing_hat.png",
+    "file_title": "Fishing hat.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502034143%21Fishing_hat.png?45f9c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ef733b2a17944b46a31c5754a21dbd2f5e1ed747",
+    "size": 951,
+    "source_wiki": "rs3",
+    "timestamp": "2012-06-06T12:11:10Z"
+  },
+  "activityitems/fishing_jacket.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fishing_jacket.png",
+    "file_title": "Fishing jacket.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502034147%21Fishing_jacket.png?d7ac7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "af8281a5b9fa523350a4ed9a45ff66a32618a8ea",
+    "size": 694,
+    "source_wiki": "rs3",
+    "timestamp": "2012-06-06T13:54:16Z"
+  },
+  "activityitems/fishing_waders.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fishing_waders.png",
+    "file_title": "Fishing waders.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502034227%21Fishing_waders.png?d7ac7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4d1b4f6e66924d0a72c6886f4f80b6970851ddb0",
+    "size": 973,
+    "source_wiki": "rs3",
+    "timestamp": "2012-06-06T13:54:16Z"
   },
   "activityitems/gold_seal.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Gold_seal.png",
@@ -791,6 +887,30 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-27T06:50:02Z"
   },
+  "activityitems/professional_s_tackle_box.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Professional_tackle_box.png",
+    "file_title": "Professional tackle box.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081832%21Professional_tackle_box.png?06a4f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a2e91a172ef3c9c111294479cee35adbe07d8de1",
+    "size": 408,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-06T01:49:37Z"
+  },
+  "activityitems/professional_tackle_box.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Professional_tackle_box.png",
+    "file_title": "Professional tackle box.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081832%21Professional_tackle_box.png?06a4f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a2e91a172ef3c9c111294479cee35adbe07d8de1",
+    "size": 408,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-06T01:49:37Z"
+  },
   "activityitems/proto_tool.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Proto-tool.png",
     "file_title": "Proto-tool.png",
@@ -874,6 +994,18 @@
     "size": 868,
     "source_wiki": "rs3",
     "timestamp": "2010-10-06T02:05:33Z"
+  },
+  "activityitems/standard_tackle_box.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Standard_tackle_box.png",
+    "file_title": "Standard tackle box.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081834%21Standard_tackle_box.png?c5e69",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ab405213caf58e70012093d89dbf0c5208dd5b52",
+    "size": 304,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-06T01:50:07Z"
   },
   "activityitems/stone_scarab.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Stone_scarab.png",

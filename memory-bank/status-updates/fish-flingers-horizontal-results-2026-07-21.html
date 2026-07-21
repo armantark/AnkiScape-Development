@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fish Flingers — Horizontal Closure</title>
+  <style>
+    :root {
+      --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040;
+      --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff;
+      --cyan:#57c7d4; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa;
+      --red:#ff5c5c; --radius:12px;
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0; color:var(--text);
+      background:
+        radial-gradient(circle at 12% 0%, rgba(87,199,212,.16), transparent 34rem),
+        radial-gradient(circle at 95% 22%, rgba(79,140,255,.12), transparent 30rem),
+        var(--bg);
+      font:15px/1.55 Outfit, Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+    main { width:min(1120px, calc(100% - 30px)); margin:auto; padding:46px 0 64px; }
+    .badge {
+      display:inline-flex; padding:5px 10px; border:1px solid rgba(87,199,212,.38);
+      border-radius:999px; color:var(--cyan); background:rgba(87,199,212,.08);
+      font:700 11px/1.2 "JetBrains Mono", ui-monospace, monospace; letter-spacing:.11em;
+    }
+    h1 { margin:15px 0 8px; font-size:clamp(2.2rem, 5vw, 4rem); line-height:1; }
+    .lede { max-width:820px; margin:0; color:var(--text-dim); font-size:1.05rem; }
+    .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:30px 0 16px; }
+    .metric,.card {
+      border:1px solid var(--border); border-radius:var(--radius);
+      background:linear-gradient(145deg, rgba(30,35,44,.97), rgba(22,26,33,.97));
+      box-shadow:0 16px 42px rgba(0,0,0,.2);
+    }
+    .metric { padding:18px; }
+    .metric strong { display:block; color:var(--cyan); font-size:1.75rem; }
+    .metric span { color:var(--text-dim); font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; }
+    .grid { display:grid; grid-template-columns:1.08fr .92fr; gap:16px; }
+    .card { padding:22px; }
+    .card h2 { margin:0 0 14px; font-size:1.05rem; }
+    .route { display:grid; grid-template-columns:repeat(6,1fr); gap:7px; }
+    .catch {
+      min-height:94px; padding:12px 8px; text-align:center; border:1px solid var(--border);
+      border-radius:9px; background:rgba(12,14,18,.35);
+    }
+    .catch b { display:block; color:var(--cyan); font-size:1.2rem; }
+    .catch span { display:block; color:var(--text-dim); font-size:.75rem; line-height:1.35; }
+    .catch.perfect { border-color:rgba(74,222,128,.42); }
+    .catch.perfect b { color:var(--green); }
+    .economy { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+    .fact { padding:12px; border:1px solid var(--border); border-radius:9px; background:rgba(12,14,18,.28); }
+    .fact b { display:block; color:var(--amber); }
+    .fact span { color:var(--text-dim); font-size:.86rem; }
+    .checks { display:grid; gap:10px; }
+    .check { display:flex; gap:9px; color:var(--text-dim); }
+    .check::before { content:"✓"; color:var(--green); font-weight:900; }
+    .honesty {
+      margin-top:14px; padding:12px 13px; border-left:3px solid var(--purple);
+      color:var(--text-dim); background:rgba(167,139,250,.06);
+    }
+    code {
+      color:var(--text-dim); background:var(--surface-2); border:1px solid var(--border);
+      border-radius:6px; padding:2px 6px; font:12px "JetBrains Mono", ui-monospace, monospace;
+    }
+    .footer { margin-top:18px; display:flex; justify-content:space-between; gap:16px; color:var(--text-dim); font-size:.84rem; }
+    @media (max-width:860px) {
+      .metrics{grid-template-columns:1fr 1fr} .grid{grid-template-columns:1fr}
+      .route{grid-template-columns:repeat(3,1fr)}
+    }
+    @media (max-width:500px) {
+      main{width:calc(100% - 20px); padding-top:28px} .metric{padding:14px}
+      .metric strong{font-size:1.35rem} .economy{grid-template-columns:1fr}
+      .route{grid-template-columns:1fr 1fr} .footer{flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">MECHANIC-COMPLETE · 2026-07-21</span>
+  <h1>Fish Flingers is live.</h1>
+  <p class="lede">A six-review public Fishing event now carries its full horizontal loop: simulated-day tickets, automatic tackle discovery, catches and communal assists, terminal XP and currencies, the reward shop, outfit bonuses, persistence, undo, assets, and a compact paginated Activities card.</p>
+
+  <section class="metrics" aria-label="Closure metrics">
+    <div class="metric"><strong>2,160</strong><span>Non-Qt tests passed</span></div>
+    <div class="metric"><strong>2,160</strong><span>Qt tests passed</span></div>
+    <div class="metric"><strong>9</strong><span>Reward items live</span></div>
+    <div class="metric"><strong>0</strong><span>Owner design gaps</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h2>The review-sized event</h2>
+      <div class="route">
+        <div class="catch"><b>1</b><span>Bait found<br>50% efficiency</span></div>
+        <div class="catch"><b>2</b><span>Hook found<br>75% efficiency</span></div>
+        <div class="catch perfect"><b>3</b><span>Weight found<br>100% efficiency</span></div>
+        <div class="catch perfect"><b>4</b><span>Perfect tackle<br>stock rotates</span></div>
+        <div class="catch perfect"><b>5</b><span>Perfect tackle<br>public assist</span></div>
+        <div class="catch perfect"><b>6</b><span>Cash out<br>XP and rewards</span></div>
+      </div>
+      <div class="honesty">The six-review event and 50/75/100% ramp are disclosed AnkiScape pacing. No wall clock or simulated competitors were introduced.</div>
+    </article>
+
+    <article class="card">
+      <h2>Economy and rewards</h2>
+      <div class="economy">
+        <div class="fact"><b>2 tickets/day</b><span>Answered-card calendar, ten-ticket cap, one consumed atomically at entry.</span></div>
+        <div class="fact"><b>Exact token formula</b><span>Fish, big fish, assists, and perfect tackles feed the period reward equation.</span></div>
+        <div class="fact"><b>5 tackle boxes</b><span>Cumulative medal gates plus previous-box upgrades and direct-action undo.</span></div>
+        <div class="fact"><b>Fishing outfit</b><span>Four 1% pieces and the extra 1% full-set bonus affect ordinary Fishing and the event.</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Closure proof</h2>
+      <div class="checks">
+        <div class="check">Exact-state non-Qt discovery passed with 283 expected environment skips.</div>
+        <div class="check">Exact-state real offscreen-Qt discovery passed with one intentional skip.</div>
+        <div class="check">Restarted native Anki showed one menu, the paginated D&amp;D row, and the polished dark-mode detail card.</div>
+        <div class="check">Opus findings were reproduced and fixed; Fable quota remained untouched.</div>
+        <div class="check">Docs, test quality, syntax, JSON, diff, assets, reachability, and worktree safety passed.</div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Bounded source honesty</h2>
+      <p>The cutoff contract is pinned to RuneScape Wiki oldid <code>6529096</code> and OpenRS2 cache revision <code>742</code>. The post-July-2012 XP equation and hidden catch, weight, and communal distributions remain named data-depth debt.</p>
+      <p>That debt does not hide a missing state transition, reward channel, persistence boundary, or player-facing control. The durable audit is <code>source-audits/fish-flingers-loop-2026-07-17.md</code>.</p>
+    </article>
+  </section>
+
+  <div class="footer">
+    <span>AnkiScape breadth-first implementation program</span>
+    <span>1,438 actions · 2,128 reachable items · 168 known orphans · 189 blocked</span>
+  </div>
+</main>
+</body>
+</html>

@@ -978,7 +978,7 @@ Labels: `SOURCE AUDIT`, `IMPLEMENT`, `WAIT: DARKAN`.
 
 Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is not already settled.
 
-- Highest-value waits: Runespan; Bonfires/fire spirits (reconciled; hidden rolls, rewards, warmth refresh, and review-batch mapping remain blocked); Artisan's Workshop; Blast Furnace/Goldsmith; Living Rock remains; Fish Flingers/Trawler; Great Orb Project; complex pyres/beacons; Gnome Restaurant; Hunter tracking/pitfall/snaring (reconciled deterministic Darkan ceiling still lacks required rolls); Habitat/Jadinkos.
+- Highest-value waits: Runespan; Bonfires/fire spirits (reconciled; hidden rolls, rewards, warmth refresh, and review-batch mapping remain blocked); Artisan's Workshop; Blast Furnace/Goldsmith; Living Rock remains; Fishing Trawler; Great Orb Project; complex pyres/beacons; Gnome Restaurant; Hunter tracking/pitfall/snaring (reconciled deterministic Darkan ceiling still lacks required rolls); Habitat/Jadinkos.
 - Shooting Stars are mechanic-complete as an Activities-only communal Mining
   event with a compact period-qualified location set. Exact hidden initial-size,
   first-finder, crowd, gem, and sub-200 reward-rounding distributions remain
@@ -1055,6 +1055,14 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   normalized art, and a compact card. Exact score/pass/throw/tackle server
   rolls remain data-depth source gaps. See
   `memory-bank/source-audits/gnome-ball-loop-2026-07-17.md`.
+- Fish Flingers is mechanic-complete as an Activities-only six-review Fishing
+  event. It ships answered-card ticket accrual, automatic tackle discovery,
+  catches/weight/stock rotation, big fish and assists, terminal XP/tokens/
+  medals, the complete outfit and tackle-box shop, ordinary-Fishing outfit
+  effects, persistence, activity arbitration, undo, cadence, normalized art,
+  and a compact dark-safe card. The exact post-July-2012 XP equation and hidden
+  event distributions remain data-depth source gaps. See
+  `memory-bank/source-audits/fish-flingers-loop-2026-07-17.md`.
 - Darkan should supply hidden state machines, rolls, currencies, and reward logic; period wiki/cache evidence still establishes cutoff and client identity.
 
 ### Missing skill server behavior
@@ -1111,7 +1119,7 @@ Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
 - The horizontal breadth wave has shipped Shooting Stars, Fist of Guthix,
   Sorceress's Garden, Penguin Hide and Seek, Vinesweeper, Fight Caves,
   Stealing Creation, Barrows, Flash Powder Factory, Pyramid Plunder, and
-  Werewolf Skullball, and Gnome Ball with
+  Werewolf Skullball, Gnome Ball, and Fish Flingers with
   complete mechanics, persistence, undo, UI, assets, and compact period-
   qualified data sets.
 - Flash Powder Factory and Pyramid Plunder are closed. Tears of Guthix and Shattered Heart remain explicit

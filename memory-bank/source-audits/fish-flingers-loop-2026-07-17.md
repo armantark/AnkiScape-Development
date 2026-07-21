@@ -55,3 +55,67 @@ workers. All changes are answered-card-driven and undoable.
 The six-review length is an AnkiScape pacing abstraction, not a conversion of
 the source duration into wall-clock or answered-card minutes. It provides one
 compact sweep matching the source's six-species structure.
+
+## Horizontal implementation harvest (`2026-07-21`)
+
+The literal archived wikitext from oldid `6529096` pins the following reward
+mechanics used by the first mechanic-complete slice:
+
+- tokens are `floor(fish caught / 4)`, plus one per big fish (maximum three),
+  one per two assists (maximum three), and one per two perfect tackles (maximum
+  three), with a 2,000-token cap;
+- Junior Angler, Master Angler, Whopper, and Team Player medals require three
+  perfect tackles, six perfect tackles, three big fish, and six assists;
+- each fishing-outfit piece costs 140 tokens and gives 1% extra Fishing XP,
+  while the complete set gives a further 1%; and
+- the five cumulative-medal tackle-box upgrades cost respectively
+  `110/20`, `230/50`, `470/110`, `900/230`, and `1860/500` tokens/medals.
+
+OpenRS2 cache revision `742` (`2012-11-07`) pins item definitions `15666` to
+`15670` for the five tackle boxes and wearable definitions `24427` to `24430`
+for the fishing outfit. The item definitions and pre-cutoff RuneScape Wiki
+images are recorded by `tools/fetch_fish_flingers_assets.py` and
+`assets_provenance.json`.
+
+The automatic tackle ramp counts only catches made at full efficiency as
+perfect-tackle credits. Because the settled six-review compression discovers
+the final component on catch three, one event can earn four such credits; it
+does not fabricate a six-perfect Master Angler medal during the two partial
+efficiency catches.
+
+The implemented event XP curve remains a disclosed balance translation:
+oldid `6529096` says XP scales with score and Fishing level and approaches
+20,000 at high level, but explicitly marks its displayed XP table obsolete
+after the `2012-07-24` update. Recovering the exact post-update equation, raw
+fish exchange rewards, and the original hidden catch/weight distributions is
+remaining data-depth work, not a missing mechanic.
+
+Implementation ownership:
+
+- `fish_flingers_data.py` pins the activity, reward shop, equipment, and item
+  identities;
+- `fish_flingers_logic.py` owns ticket accrual, event progress, terminal
+  rewards, outfit XP, leave semantics, and the shop;
+- `runtime_actions.py`, `storage_pure.py`, and `__init__.py` connect answered
+  reviews, persistence, atomic activity ownership, and direct-action undo; and
+- `ui.py` exposes the paginated Activities detail card and compact manual
+  reward shop without a nested scroll surface.
+
+## UI and native-runtime closure (`2026-07-21`)
+
+An Opus read-only taste pass found five bounded presentation defects, all
+reproduced in the real card: the disabled Buy button hid its unmet gate, the
+currency string displaced the usual activity state, the reward frame competed
+with the primary action, the progress wording appeared off by one, and the
+fresh-state copy implied a ticket-claim action that does not exist. The compact
+card now exposes READY/ACTIVE state, keeps the shop frame neutral, preserves the
+full reward label and the first unmet purchase requirement in tooltips, labels
+progress as landed catches, and uses plain player-facing idle copy with event
+history only after something has happened.
+
+A fully restarted native Anki instance showed one AnkiScape menu, the separate
+Utilities and Activities categories, Fish Flingers on the paginated
+Distractions and Diversions page, and the updated dark-mode detail card. The
+disabled purchase control exposed `Requires 140 Fishing tokens` through the
+native accessibility tree. The check did not enter an event or mutate the real
+player save.

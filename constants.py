@@ -158,6 +158,12 @@ try:
         gnome_ball_activity_as_dict,
         gnome_ball_extra_items_as_dict,
     )
+    from .fish_flingers_data import (
+        FISH_FLINGERS_ACTIVITY_ID,
+        fish_flingers_activity_as_dict,
+        fish_flingers_equipment_data_as_dict,
+        fish_flingers_extra_items_as_dict,
+    )
     from .barrows_data import (
         BARROWS_ACTIVITY_ID,
         barrows_activity_as_dict,
@@ -334,6 +340,12 @@ except ImportError:
         GNOME_BALL_ACTIVITY_ID,
         gnome_ball_activity_as_dict,
         gnome_ball_extra_items_as_dict,
+    )
+    from fish_flingers_data import (  # type: ignore
+        FISH_FLINGERS_ACTIVITY_ID,
+        fish_flingers_activity_as_dict,
+        fish_flingers_equipment_data_as_dict,
+        fish_flingers_extra_items_as_dict,
     )
     from barrows_data import (  # type: ignore
         BARROWS_ACTIVITY_ID,
@@ -712,6 +724,7 @@ UTILITY_ACTIVITY_DATA.update(flash_powder_factory_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(pyramid_plunder_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(werewolf_skullball_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(gnome_ball_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(fish_flingers_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(sorceress_garden_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(penguin_hide_and_seek_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(vinesweeper_activity_as_dict())
@@ -808,6 +821,14 @@ _gnome_ball_icon = os.path.join(
 )
 if os.path.exists(_gnome_ball_icon):
     UTILITY_ACTIVITY_DATA[GNOME_BALL_ACTIVITY_ID]["icon_path"] = _gnome_ball_icon
+_fish_flingers_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "fish_flingers.png",
+)
+if os.path.exists(_fish_flingers_icon):
+    UTILITY_ACTIVITY_DATA[FISH_FLINGERS_ACTIVITY_ID]["icon_path"] = (
+        _fish_flingers_icon
+    )
 _sorceress_garden_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
     "sorceress_garden.png",
@@ -1445,6 +1466,7 @@ for _target_id in COMBAT_ENEMY_DATA:
     if os.path.exists(_path):
         COMBAT_ENEMY_IMAGES[_target_id] = _path
 EQUIPMENT_DATA.update(barrows_equipment_data_as_dict())
+EQUIPMENT_DATA.update(fish_flingers_equipment_data_as_dict())
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict()
 FIST_OF_GUTHIX_EXTRA_ITEM_DATA = fist_of_guthix_extra_items_as_dict()
 SORCERESS_GARDEN_EXTRA_ITEM_DATA = sorceress_garden_extra_items_as_dict()
@@ -1456,6 +1478,16 @@ FLASH_POWDER_FACTORY_EXTRA_ITEM_DATA = flash_powder_factory_extra_items_as_dict(
 PYRAMID_PLUNDER_EXTRA_ITEM_DATA = pyramid_plunder_extra_items_as_dict()
 WEREWOLF_SKULLBALL_EXTRA_ITEM_DATA = werewolf_skullball_extra_items_as_dict()
 GNOME_BALL_EXTRA_ITEM_DATA = gnome_ball_extra_items_as_dict()
+FISH_FLINGERS_EXTRA_ITEM_DATA = fish_flingers_extra_items_as_dict()
+FISH_FLINGERS_ITEM_IMAGES = {}
+for _item_name in FISH_FLINGERS_EXTRA_ITEM_DATA:
+    _path = os.path.join(
+        current_dir,
+        "activityitems",
+        f"{_asset_slug(_item_name)}.png",
+    )
+    if os.path.exists(_path):
+        FISH_FLINGERS_ITEM_IMAGES[_item_name] = _path
 VINESWEEPER_ITEM_IMAGES = {}
 for _item_name in VINESWEEPER_EXTRA_ITEM_DATA:
     _path = os.path.join(
@@ -1689,6 +1721,7 @@ def _known_non_shop_item_names():
         CONSTRUCTION_EXTRA_ITEM_DATA,
         FARMING_ITEM_DATA,
         THIEVING_EXTRA_ITEM_DATA,
+        FISH_FLINGERS_EXTRA_ITEM_DATA,
     ):
         names.update(mapping)
     names.update(MINING_OUTPUT_ITEMS)
@@ -1764,6 +1797,7 @@ def _known_non_shop_item_ids(names):
         CONSTRUCTION_EXTRA_ITEM_DATA,
         THIEVING_EXTRA_ITEM_DATA,
         FARMING_ITEM_DATA,
+        FISH_FLINGERS_EXTRA_ITEM_DATA,
     ):
         for item_name, spec in mapping.items():
             ids.add(slugify_item_id(_extra_item_category(spec), item_name))
@@ -1836,6 +1870,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **PYRAMID_PLUNDER_EXTRA_ITEM_DATA,
     **WEREWOLF_SKULLBALL_EXTRA_ITEM_DATA,
     **GNOME_BALL_EXTRA_ITEM_DATA,
+    **FISH_FLINGERS_EXTRA_ITEM_DATA,
     **potion_items_as_dict(),
     **SHOP_ONLY_EXTRA_ITEM_DATA,
 })
@@ -1866,6 +1901,7 @@ EXTRA_ITEM_IMAGES = {
     **BARROWS_ITEM_IMAGES,
     **PYRAMID_PLUNDER_ITEM_IMAGES,
     **WEREWOLF_SKULLBALL_ITEM_IMAGES,
+    **FISH_FLINGERS_ITEM_IMAGES,
     **SHOP_ITEM_IMAGES,
 }
 

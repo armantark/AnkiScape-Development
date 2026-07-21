@@ -2,6 +2,38 @@
 
 ## Current Focus
 
+Fish Flingers now satisfies horizontal breadth level one as an Activities-only
+Fishing D&D. Two tickets accrue per answered-card day to a ten-ticket cap; one
+is consumed atomically at entry. Each six-review event automatically discovers
+bait, hook, and weight at the disclosed 50/75/100% ramp, rotates depleted
+stocks, resolves catches, weight, big fish, and public assists, then cashes out
+Fishing XP, the exact token formula, medals, and completion credit.
+
+The complete compact reward shop is live: four equippable Fishing-outfit pieces
+apply their period 1% per-piece and extra 1% full-set bonus to ordinary Fishing
+and Fish Flingers, while five tackle boxes enforce cumulative medal gates and
+consume the previous box on upgrade. Schema 64 persistence, activity-session
+arbitration, direct and review undo, cadence coverage, normalized period art,
+provenance, item/equipment registration, and the paginated Activities card are
+closed. The unrecovered post-July-2012 XP equation and hidden catch, weight, and
+communal distributions remain explicit data-depth debt; no owner design gap
+emerged.
+
+Opus's bounded taste pass drove truthful fresh-state copy, READY/ACTIVE
+legibility, a neutral shop hierarchy, landed-catch progress wording, full reward
+tooltips, and first-unmet purchase explanations. Fable remained fully reserved.
+The exact final state passes all 2,160 non-Qt tests with 283 expected environment
+skips and all 2,160 real offscreen-Qt tests with one intentional skip. Test
+quality, documentation, compilation, JSON, diff, normalized assets,
+reachability, fully restarted native Anki, and worktree safety pass. Native
+Anki showed one menu, separate Utilities/Activities, Fish Flingers on the
+paginated D&D page, and the updated dark-mode detail card without consuming a
+ticket. Reachability remains 1,438 actions, 2,128 reachable items, 168 known
+orphan inputs, and 189 unresolved actions. Durable record:
+`source-audits/fish-flingers-loop-2026-07-17.md`. Results:
+`status-updates/fish-flingers-horizontal-results-2026-07-21.html`; mobile copy:
+`https://t47kaw10p3pp.postplan.dev`.
+
 Gnome Ball now satisfies horizontal breadth level one as an Activities-only,
 dangerous three-beat Agility/Ranged match. Entry enforces the period weapon-slot
 restriction, prepares the shared Auto or Custom carried pack, and arbitrates the

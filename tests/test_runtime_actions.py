@@ -814,6 +814,32 @@ class TestRuntimeActions(unittest.TestCase):
         telemetry = player_data["action_telemetry"]["actions"]["fishing:catch_sharks"]
         self.assertEqual(telemetry["outputs"], {"Raw shark": 2})
 
+    def test_full_fishing_outfit_applies_its_source_five_percent_xp_bonus(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "equipment": {
+                "head": "Fishing hat",
+                "body": "Fishing jacket",
+                "legs": "Fishing waders",
+                "feet": "Fishing boots",
+            },
+            "fishing_level": 99,
+            "fishing_exp": 0.0,
+            "agility_level": 1,
+            "current_fishing": "catch_sharks",
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(
+            handle_fishing_answer(
+                _context(player_data, calls, random_values=(0.0,))
+            )
+        )
+
+        self.assertAlmostEqual(player_data["fishing_exp"], 115.5)
+        self.assertEqual(calls["xp"], [115.5])
+
     def test_overload_handler_records_primary_output_and_four_vials(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         inputs = {

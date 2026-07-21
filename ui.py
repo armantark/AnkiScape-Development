@@ -417,6 +417,13 @@ except Exception:
     from gnome_ball_logic import gnome_ball_view_pure  # type: ignore
 
 try:
+    from .fish_flingers_data import FISH_FLINGERS_ACTIVITY_ID
+    from .fish_flingers_logic import fish_flingers_view_pure
+except Exception:
+    from fish_flingers_data import FISH_FLINGERS_ACTIVITY_ID  # type: ignore
+    from fish_flingers_logic import fish_flingers_view_pure  # type: ignore
+
+try:
     from .stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
     from .stealing_creation_logic import stealing_creation_view_pure
 except Exception:
@@ -3475,6 +3482,7 @@ def show_main_menu(
     on_fight_caves_command=None,
     on_barrows_command=None,
     on_stealing_creation_command=None,
+    on_fish_flingers_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
     on_set_construction=None,
@@ -10521,6 +10529,258 @@ def show_main_menu(
         _refresh_gnome_ball_panel()
         cards_stack.addWidget(gnome_ball_box)
 
+        fish_flingers_box = QtFrame()
+        fish_flingers_box.setObjectName("fishFlingersPanel")
+        fish_flingers_box.setStyleSheet(
+            "QFrame#fishFlingersPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        fish_flingers_layout = QVBoxLayout(fish_flingers_box)
+        fish_flingers_layout.setContentsMargins(10, 8, 10, 8)
+        fish_flingers_layout.setSpacing(7)
+
+        fish_flingers_top = QWidget()
+        fish_flingers_top_layout = QHBoxLayout(fish_flingers_top)
+        fish_flingers_top_layout.setContentsMargins(0, 0, 0, 0)
+        fish_flingers_top_layout.setSpacing(8)
+        fish_flingers_icon = QLabel()
+        fish_flingers_icon.setObjectName("fishFlingersIcon")
+        fish_flingers_icon.setFixedSize(28, 28)
+        fish_flingers_icon_path = os.path.join(
+            current_dir, "activityicons", "fish_flingers.png"
+        )
+        if os.path.exists(fish_flingers_icon_path):
+            fish_flingers_icon.setPixmap(
+                QPixmap(fish_flingers_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        fish_flingers_title = QLabel("Fish Flingers")
+        fish_flingers_title.setStyleSheet(
+            "font-weight: 700; color: palette(text);"
+        )
+        fish_flingers_currency = QLabel()
+        fish_flingers_currency.setObjectName("fishFlingersCurrencyChip")
+        fish_flingers_top_layout.addWidget(fish_flingers_icon)
+        fish_flingers_top_layout.addWidget(fish_flingers_title)
+        fish_flingers_top_layout.addStretch(1)
+        fish_flingers_top_layout.addWidget(fish_flingers_currency)
+        fish_flingers_layout.addWidget(fish_flingers_top)
+
+        fish_flingers_summary = QLabel()
+        fish_flingers_summary.setObjectName("fishFlingersSummary")
+        fish_flingers_summary.setWordWrap(True)
+        fish_flingers_summary.setStyleSheet("color: palette(text);")
+        fish_flingers_layout.addWidget(fish_flingers_summary)
+
+        fish_flingers_progress = QProgressBar()
+        fish_flingers_progress.setObjectName("fishFlingersProgress")
+        fish_flingers_progress.setRange(0, 6)
+        fish_flingers_progress.setTextVisible(True)
+        fish_flingers_progress.setFormat("%v of 6 landed")
+        fish_flingers_progress.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 4px; }"
+            "QProgressBar::chunk { background: #4e9fb5; }"
+        )
+        fish_flingers_layout.addWidget(fish_flingers_progress)
+
+        fish_flingers_shop = QtFrame()
+        fish_flingers_shop.setObjectName("fishFlingersRewardShop")
+        fish_flingers_shop.setStyleSheet(
+            "QFrame#fishFlingersRewardShop { border: 1px solid palette(mid);"
+            " border-radius: 6px; background: palette(window); }"
+        )
+        fish_flingers_shop_layout = QHBoxLayout(fish_flingers_shop)
+        fish_flingers_shop_layout.setContentsMargins(8, 6, 8, 6)
+        fish_flingers_shop_layout.setSpacing(6)
+        fish_flingers_shop_label = QLabel("Reward shop")
+        fish_flingers_shop_label.setStyleSheet(
+            "font-weight: 600; color: palette(text);"
+        )
+        fish_flingers_reward = QComboBox()
+        fish_flingers_reward.setObjectName("fishFlingersRewardCombo")
+        fish_flingers_reward.setAccessibleName("Fish Flingers reward")
+        fish_flingers_buy = QPushButton("Buy")
+        fish_flingers_buy.setObjectName("fishFlingersBuyButton")
+        fish_flingers_buy.setAccessibleName("Buy Fish Flingers reward")
+        fish_flingers_shop_layout.addWidget(fish_flingers_shop_label)
+        fish_flingers_shop_layout.addWidget(fish_flingers_reward, 1)
+        fish_flingers_shop_layout.addWidget(fish_flingers_buy)
+        fish_flingers_layout.addWidget(fish_flingers_shop)
+
+        fish_flingers_actions = QWidget()
+        fish_flingers_actions_layout = QHBoxLayout(fish_flingers_actions)
+        fish_flingers_actions_layout.setContentsMargins(0, 0, 0, 0)
+        fish_flingers_actions_layout.setSpacing(6)
+        fish_flingers_primary = QPushButton()
+        fish_flingers_primary.setObjectName("fishFlingersPrimaryButton")
+        fish_flingers_leave = QPushButton("Leave event")
+        fish_flingers_leave.setObjectName("fishFlingersLeaveButton")
+        fish_flingers_actions_layout.addWidget(fish_flingers_primary, 1)
+        fish_flingers_actions_layout.addWidget(fish_flingers_leave)
+        fish_flingers_layout.addWidget(fish_flingers_actions)
+
+        def _run_fish_flingers_command(
+            action_id: str, payload: Optional[dict[str, Any]] = None
+        ) -> dict[str, Any]:
+            if on_fish_flingers_command is None:
+                return {"ok": False, "message": "Fish Flingers actions are unavailable."}
+            result = on_fish_flingers_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Fish Flingers",
+                    str(result.get("message", "That action is unavailable.")),
+                )
+            _refresh_fish_flingers_panel()
+            return result
+
+        def _refresh_fish_flingers_panel() -> None:
+            view = fish_flingers_view_pure(player_data)
+            active = bool(view["active"])
+            fish_flingers_currency.setText(
+                f"{'ACTIVE' if active else 'READY'} · "
+                f"{int(view['tickets'])} tickets · {int(view['tokens'])} tokens · "
+                f"{int(view['medals'])} medals"
+            )
+            fish_flingers_currency.setStyleSheet(
+                "color: palette(text); font-size: 11px; font-weight: 600;"
+            )
+            if active:
+                fish_flingers_summary.setText(
+                    f"Catch {int(view['review']) + 1}/6 · "
+                    f"{float(view['efficiency']) * 100:g}% efficiency · "
+                    f"{int(view['fish_caught'])} fish · {int(view['big_fish'])} big · "
+                    f"{int(view['assists'])} assists\nNext: {view['next_discovery']}"
+                )
+            else:
+                summary_lines = [
+                    "Six successful reviews · tackle discovery improves every catch · "
+                    "fish stocks rotate automatically · big-fish help and rewards at the finish"
+                ]
+                completed = int(view["events_completed"])
+                history = str(view["last_result"])
+                if completed or history:
+                    summary_lines.append(
+                        " · ".join(
+                            part
+                            for part in (
+                                f"{completed} event{'s' if completed != 1 else ''} completed"
+                                if completed
+                                else "",
+                                history,
+                            )
+                            if part
+                        )
+                    )
+                fish_flingers_summary.setText("\n".join(summary_lines))
+            fish_flingers_summary.setToolTip(str(view["last_result"]))
+            fish_flingers_progress.setValue(int(view["review"]) if active else 0)
+            fish_flingers_progress.setVisible(active)
+            selected = (
+                active
+                and player_data.get("current_utility") == FISH_FLINGERS_ACTIVITY_ID
+            )
+            fish_flingers_primary.setText(
+                "Selected for reviews"
+                if selected
+                else "Select for reviews"
+                if active
+                else "Enter event — 1 ticket"
+            )
+            fish_flingers_primary.setEnabled(
+                on_fish_flingers_command is not None
+                and not selected
+                and (active or int(view["tickets"]) > 0)
+            )
+            fish_flingers_leave.setVisible(active)
+            fish_flingers_leave.setEnabled(on_fish_flingers_command is not None)
+            current_reward = fish_flingers_reward.currentData()
+            fish_flingers_reward.blockSignals(True)
+            fish_flingers_reward.clear()
+            for reward in view["rewards"]:
+                medals = int(reward["medals"])
+                label = f"{reward['item']} — {int(reward['tokens'])} tokens"
+                if medals:
+                    label += f" · {medals} medals"
+                if reward.get("previous"):
+                    label += f" · upgrade {reward['previous']}"
+                fish_flingers_reward.addItem(label, reward["id"])
+            index = fish_flingers_reward.findData(current_reward)
+            fish_flingers_reward.setCurrentIndex(index if index >= 0 else 0)
+            fish_flingers_reward.blockSignals(False)
+            selected_reward = next(
+                (
+                    reward
+                    for reward in view["rewards"]
+                    if reward["id"] == fish_flingers_reward.currentData()
+                ),
+                None,
+            )
+            fish_flingers_buy.setEnabled(
+                on_fish_flingers_command is not None
+                and selected_reward is not None
+                and bool(selected_reward["affordable"])
+            )
+            current_reward_text = fish_flingers_reward.currentText()
+            fish_flingers_reward.setToolTip(current_reward_text)
+            buy_hint = ""
+            if selected_reward is not None:
+                if int(view["tokens"]) < int(selected_reward["tokens"]):
+                    buy_hint = f"Requires {int(selected_reward['tokens'])} Fishing tokens."
+                elif int(view["medals"]) < int(selected_reward["medals"]):
+                    buy_hint = (
+                        f"Requires {int(selected_reward['medals'])} cumulative medals."
+                    )
+                elif not selected_reward["affordable"] and selected_reward.get(
+                    "previous"
+                ):
+                    buy_hint = f"Requires {selected_reward['previous']} to upgrade."
+            fish_flingers_buy.setToolTip(buy_hint)
+            _fit_current_activity_detail()
+
+        def _select_or_enter_fish_flingers() -> None:
+            view = fish_flingers_view_pure(player_data)
+            if not view["active"]:
+                result = _run_fish_flingers_command("enter_fish_flingers")
+                if not result.get("ok", False):
+                    return
+            elif not _request_utility_selection(FISH_FLINGERS_ACTIVITY_ID):
+                return
+            _refresh_fish_flingers_panel()
+
+        def _confirm_fish_flingers_leave() -> None:
+            answer = QMessageBox.question(
+                dialog,
+                "Leave Fish Flingers?",
+                "Leave the current event? The entry ticket and unfinished score are forfeited.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_fish_flingers_command("leave_fish_flingers")
+
+        fish_flingers_primary.clicked.connect(
+            lambda _checked=False: _select_or_enter_fish_flingers()
+        )
+        fish_flingers_leave.clicked.connect(
+            lambda _checked=False: _confirm_fish_flingers_leave()
+        )
+        fish_flingers_reward.currentIndexChanged.connect(
+            lambda _index: _refresh_fish_flingers_panel()
+        )
+        fish_flingers_buy.clicked.connect(
+            lambda _checked=False: _run_fish_flingers_command(
+                "buy_fish_flingers_reward",
+                {"reward_id": fish_flingers_reward.currentData()},
+            )
+        )
+        _refresh_fish_flingers_panel()
+        cards_stack.addWidget(fish_flingers_box)
+
         stealing_creation_box = QtFrame()
         stealing_creation_box.setObjectName("stealingCreationPanel")
         stealing_creation_box.setStyleSheet(
@@ -12094,6 +12354,30 @@ def show_main_menu(
                         str((result or {}).get("message", "Could not leave the match.")),
                     )
                     return False
+            if (
+                activity_id != FISH_FLINGERS_ACTIVITY_ID
+                and fish_flingers_view_pure(player_data)["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave Fish Flingers?",
+                    "Switch activities? The entry ticket and unfinished event score are forfeited.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_fish_flingers_command("leave_fish_flingers", {})
+                    if on_fish_flingers_command is not None
+                    else {"ok": False, "message": "Fish Flingers actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Fish Flingers",
+                        str((result or {}).get("message", "Could not leave the event.")),
+                    )
+                    return False
             on_set_utility(activity_id)
             player_data["current_utility"] = activity_id
             if state["active"] in _UTILITY_SKILL_NAMES and state["active"] != surface_name:
@@ -12112,6 +12396,7 @@ def show_main_menu(
             _refresh_pyramid_plunder_panel()
             _refresh_skullball_panel()
             _refresh_gnome_ball_panel()
+            _refresh_fish_flingers_panel()
             _refresh_stealing_creation_panel()
             _show_activity_detail(activity_id)
             return True
@@ -12185,6 +12470,9 @@ def show_main_menu(
             if activity_id == GNOME_BALL_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == FISH_FLINGERS_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
             if activity_id == STEALING_CREATION_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
@@ -12219,6 +12507,10 @@ def show_main_menu(
                 skullball_box,
             ),
             GNOME_BALL_ACTIVITY_ID: ("Gnome Ball", gnome_ball_box),
+            FISH_FLINGERS_ACTIVITY_ID: (
+                "Fish Flingers",
+                fish_flingers_box,
+            ),
             STEALING_CREATION_ACTIVITY_ID: (
                 "Stealing Creation",
                 stealing_creation_box,

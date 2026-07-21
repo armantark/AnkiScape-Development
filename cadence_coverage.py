@@ -333,6 +333,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "fish_flingers":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "fish_flingers",
+                    "mode": "source_blocked_activity",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One successful review resolves one productive catch in the "
+                        "settled six-review event. The three-step tackle ramp and event "
+                        "XP curve are disclosed pacing translations of the source event."
+                    ),
+                    "includes": (
+                        "one productive catch and automatic communal pressure",
+                        "one terminal XP, token, and medal payout after six catches",
+                    ),
+                    "multiplier_behavior": (
+                        "M catches within the current event, stopping after its sixth; "
+                        "the same answer cannot begin another event"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same six-catch event handler",
+                    "profile": None,
+                    "condition": "disclosed finite-event and XP translations",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "penguin_hide_and_seek":
             rows.append(
                 {
