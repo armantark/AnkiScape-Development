@@ -102,6 +102,7 @@ def build_reachability_report() -> dict[str, Any]:
     import shooting_star_data
     import shop_data
     import shop_logic
+    import sorceress_garden_data
     import thieving_data
     import woodcutting_data
 
@@ -333,6 +334,27 @@ def build_reachability_report() -> dict[str, Any]:
             )
             consumers[current].add(degrade_key)
             producers[remainder].add(degrade_key)
+
+    garden_key = "Activity:sorceress_garden:harvest"
+    garden_outputs = set(sorceress_garden_data.SORCERESS_GARDEN_HERB_POOL)
+    garden_outputs.update(
+        season.fruit
+        for season in sorceress_garden_data.SORCERESS_GARDEN_SEASONS
+    )
+    garden_outputs.update(
+        season.juice
+        for season in sorceress_garden_data.SORCERESS_GARDEN_SEASONS
+    )
+    actions.append(
+        {
+            "id": garden_key,
+            "required": set(),
+            "alternatives": (),
+            "outputs": garden_outputs,
+        }
+    )
+    for item in garden_outputs:
+        producers[item].add(garden_key)
 
     for item_name, spec in constants.CONSUMABLE_DATA.items():
         if not isinstance(spec, Mapping):

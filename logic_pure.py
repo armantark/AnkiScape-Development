@@ -6940,6 +6940,18 @@ def apply_consumable_pure(player_data, item_name, rng=None):
             _non_negative_int(spec.get("heal", 0), 0),
         )
         run_energy_restored_pct = _restore_run_energy_credit()
+    elif spec["kind"] == "skill_boost_run_energy":
+        skill_id = str(spec.get("skill_id", ""))
+        boost = _non_negative_int(spec.get("boost", 0), 0)
+        if skill_id and boost > 0:
+            apply_combat_stat_boost_to_pure(data, skill_id, boost)
+            boosts[skill_id] = boost
+        run_energy_restored_pct = _restore_run_energy_credit()
+        leaves = str(spec.get("leaves", ""))
+        if leaves:
+            inv = dict(data.get("inventory", {}) or {})
+            inv[leaves] = _non_negative_int(inv.get(leaves, 0), 0) + 1
+            data["inventory"] = inv
     elif spec["kind"] == "potion":
         strategy = str(spec.get("strategy", "r"))
         if strategy in {"antifire", "super_antifire"}:

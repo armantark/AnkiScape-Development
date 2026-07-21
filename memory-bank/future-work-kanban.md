@@ -991,6 +991,13 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   winner-token magnitude, and rating delta remain labeled data-depth
   abstractions rather than design or mechanic gaps. See
   `memory-bank/source-audits/fist-of-guthix-horizontal-mvp-harvest-2026-07-20.md`.
+- Sorceress's Garden is mechanic-complete as an Activities-only seasonal
+  stealth abstraction. All four gardens, exact gates/XP/fruit thresholds,
+  fruit-versus-herb policy, automatic squeezing, Osman-versus-keep policy,
+  juice effects, persistence, undo, cadence, assets, reachability, and compact
+  card are live. Hidden herb weights remain data-depth source work and do not
+  block the breadth-first frontier. See
+  `memory-bank/source-audits/sorceress-garden-loop-2026-07-18.md`.
 - Darkan should supply hidden state machines, rolls, currencies, and reward logic; period wiki/cache evidence still establishes cutoff and client identity.
 
 ### Missing skill server behavior
@@ -1062,8 +1069,8 @@ Labels: `DESIGN CLOSED 2026-07-18`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY:
 
 Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 
-- Maintain `tools/audit_item_reachability.py`; the current run finds 1,412
-  actions, 2,081 reachable items, and 168 orphan inputs (76 root, 92 cascade)
+- Maintain `tools/audit_item_reachability.py`; the current run finds 1,433
+  actions, 2,099 reachable items, and 168 orphan inputs (76 root, 92 cascade)
   across planned skills, activities, Combat/world acquisition, Farming, and
   potion-state plumbing. Bob Barter's vial decant routes and Teplin Macagan's
   vial/flask conversions make potion dose variants known-producer cascades;

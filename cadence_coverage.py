@@ -164,6 +164,31 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "sorceress_garden":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "sorceress_garden",
+                    "mode": "passthrough",
+                    "source_status": "sourced",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One successful review is one complete seasonal garden "
+                        "attempt and harvest; Again owns the caught outcome."
+                    ),
+                    "includes": ("one seasonal route", "one harvest"),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains "
+                        "one complete garden attempt"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same single-attempt activity handler",
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         if str(action_id) == "big_chinchompa":
             rows.append(
                 {

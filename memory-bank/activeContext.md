@@ -2,6 +2,37 @@
 
 ## Current Focus
 
+Sorceress's Garden now satisfies horizontal breadth level one. The four exact
+season gates, fruit thresholds, Farming and Osman XP, one-fruit/two-herb
+harvests, Fruit/Herbs/Alternate policy, automatic squeezing, Osman/Keep policy,
+juice consumption, Diamond in the Rough introduction, persistence, direct and
+review undo, cadence declaration, period art, and reachability edges are live.
+One successful review resolves one route; `Again` remains the caught-player
+outcome and never advances activity state. The bounded equal ordinary-herb
+distribution is labeled honestly because the period source does not publish
+weights.
+
+Activities now shows one category per page instead of compressing every group
+into a scroll window. Previous/next controls preserve the selected activity,
+the page height is measured from content, and group headers no longer imitate
+expandable tree rows. Kimi K3 and Fable independently reviewed the Garden card
+and the final pager; their concrete hierarchy, clipping, selection, disclosure,
+and accessibility findings are closed. A fully restarted native Anki dark-mode
+smoke verified the card and one-menu behavior before the final manifest fixes;
+the final post-fix native smoke is recorded in the results artifact.
+
+All 1,998 non-Qt tests pass with 264 expected environment skips. The full
+offscreen-Qt universe passes all 1,996 tests with one intentional skip, and the
+final Garden/runtime delta passes nine focused real-Qt tests. Test quality reports zero hard issues;
+docs, compilation, JSON, diff, tight-alpha assets, and worktree safety pass.
+The reachability graph contains 1,433 actions, 2,099 reachable items, 168
+orphan inputs, and 189 unresolved actions; all four sq'irkjuice items resolve
+through the Garden harvest route. No owner design gap emerged. Durable record:
+`source-audits/sorceress-garden-loop-2026-07-18.md`.
+Results:
+`status-updates/sorceress-garden-horizontal-mvp-results-2026-07-20.html`;
+mobile copy: `https://mo77ybvazx38.postplan.dev`.
+
 Fist of Guthix now satisfies horizontal breadth level one. Fiara gates the
 tutorial, pairing is automatic and unbanded, one review advances exactly six
 Combat ticks, and one match preserves a seeded opponent across two sourced

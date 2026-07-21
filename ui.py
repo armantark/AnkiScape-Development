@@ -314,6 +314,13 @@ except Exception:
     from fist_of_guthix_logic import fist_of_guthix_view_pure  # type: ignore
 
 try:
+    from .sorceress_garden_data import SORCERESS_GARDEN_ACTIVITY_ID
+    from .sorceress_garden_logic import sorceress_garden_view_pure
+except Exception:
+    from sorceress_garden_data import SORCERESS_GARDEN_ACTIVITY_ID  # type: ignore
+    from sorceress_garden_logic import sorceress_garden_view_pure  # type: ignore
+
+try:
     from .combat_session import (
         confirm_wilderness_combat_risk,
         wilderness_combat_risk_confirmed,
@@ -3359,6 +3366,7 @@ def show_main_menu(
     on_big_chinchompa_command=None,
     on_shooting_star_command=None,
     on_fist_of_guthix_command=None,
+    on_sorceress_garden_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
     on_set_construction=None,
@@ -8040,6 +8048,270 @@ def show_main_menu(
         fog_panel_refresher["call"] = _refresh_fist_of_guthix_panel
         _refresh_fist_of_guthix_panel()
 
+        garden_box = QtFrame()
+        garden_box.setObjectName("sorceressGardenPanel")
+        garden_box.setStyleSheet(
+            "QFrame#sorceressGardenPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        garden_layout = QVBoxLayout(garden_box)
+        garden_layout.setContentsMargins(10, 8, 10, 8)
+        garden_layout.setSpacing(6)
+
+        garden_top = QWidget()
+        garden_top_layout = QHBoxLayout(garden_top)
+        garden_top_layout.setContentsMargins(0, 0, 0, 0)
+        garden_top_layout.setSpacing(8)
+        garden_icon = QLabel()
+        garden_icon.setObjectName("sorceressGardenIcon")
+        garden_icon.setFixedSize(28, 28)
+        garden_icon_path = os.path.join(
+            current_dir, "activityicons", "sorceress_garden.png"
+        )
+        if os.path.exists(garden_icon_path):
+            garden_icon.setPixmap(
+                QPixmap(garden_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        garden_title = QLabel("Sorceress's Garden")
+        garden_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        garden_status = QLabel()
+        garden_status.setObjectName("sorceressGardenStatusChip")
+        garden_status.setStyleSheet(
+            f"color: {dim_text_css(garden_status)};"
+            " font-size: 11px; font-weight: 700;"
+        )
+        garden_top_layout.addWidget(garden_icon)
+        garden_top_layout.addWidget(garden_title)
+        garden_top_layout.addStretch(1)
+        garden_top_layout.addWidget(garden_status)
+        garden_layout.addWidget(garden_top)
+
+        garden_summary = QLabel()
+        garden_summary.setObjectName("sorceressGardenSummary")
+        garden_summary.setWordWrap(True)
+        garden_summary.setStyleSheet("color: palette(text);")
+        garden_layout.addWidget(garden_summary)
+
+        garden_detail = QLabel()
+        garden_detail.setObjectName("sorceressGardenDetail")
+        garden_detail.setWordWrap(True)
+        garden_detail.setStyleSheet(
+            f"color: {dim_text_css(garden_detail)}; font-size: 11px;"
+        )
+        garden_layout.addWidget(garden_detail)
+
+        garden_controls = QWidget()
+        garden_controls_layout = QHBoxLayout(garden_controls)
+        garden_controls_layout.setContentsMargins(0, 0, 0, 0)
+        garden_controls_layout.setSpacing(6)
+        garden_season = QComboBox()
+        garden_season.setObjectName("sorceressGardenSeason")
+        garden_season.setAccessibleName("Seasonal garden")
+        garden_season.setToolTip(
+            "Choose a seasonal garden. Each season has its own Thieving gate and fruit threshold."
+        )
+        garden_harvest = QComboBox()
+        garden_harvest.setObjectName("sorceressGardenHarvest")
+        garden_harvest.setAccessibleName("Harvest per successful trip")
+        garden_harvest.setToolTip("Choose what a successful garden crossing harvests.")
+        garden_harvest.addItem("Harvest fruit", "fruit")
+        garden_harvest.addItem("Harvest herbs", "herbs")
+        garden_harvest.addItem("Alternate evenly", "alternate")
+        garden_juice = QComboBox()
+        garden_juice.setObjectName("sorceressGardenJuice")
+        garden_juice.setAccessibleName("Completed juice handling")
+        garden_juice.addItem("Hand to Osman automatically", "osman")
+        garden_juice.addItem("Keep completed juice", "keep")
+        garden_controls_layout.addWidget(garden_season, 1)
+        garden_controls_layout.addWidget(garden_harvest, 1)
+        garden_controls_layout.addWidget(garden_juice, 1)
+        garden_layout.addWidget(garden_controls)
+
+        garden_primary = QPushButton()
+        garden_primary.setObjectName("sorceressGardenPrimaryButton")
+        garden_primary.setAccessibleName("Sorceress's Garden action")
+        garden_layout.addWidget(garden_primary)
+        cards_stack.addWidget(garden_box)
+
+        syncing_garden = {"active": False}
+
+        def _refresh_sorceress_garden_panel() -> None:
+            syncing_garden["active"] = True
+            view = sorceress_garden_view_pure(player_data)
+            selected = (
+                player_data.get("current_utility")
+                == SORCERESS_GARDEN_ACTIVITY_ID
+            )
+            garden_season.clear()
+            for row in view["seasons"]:
+                label = (
+                    f"{row['display_name']} · Thieving {row['thieving_level']}"
+                )
+                if row["locked_reasons"]:
+                    label += " · locked"
+                garden_season.addItem(label, row["id"])
+                index = garden_season.count() - 1
+                garden_season.setItemData(
+                    index,
+                    f"{row['fruit_per_juice']} fruit per completed juice",
+                    Qt.ItemDataRole.ToolTipRole,
+                )
+                if row["locked_reasons"]:
+                    garden_season.setItemData(
+                        index,
+                        "Requires " + ", ".join(row["locked_reasons"]),
+                        Qt.ItemDataRole.ToolTipRole,
+                    )
+                    garden_season.setItemData(
+                        index,
+                        dim_text_color(garden_season),
+                        Qt.ItemDataRole.ForegroundRole,
+                    )
+            season_index = garden_season.findData(view["season_id"])
+            garden_season.setCurrentIndex(max(0, season_index))
+            garden_harvest.setCurrentIndex(
+                max(0, garden_harvest.findData(view["harvest_mode"]))
+            )
+            garden_juice.setCurrentIndex(
+                max(0, garden_juice.findData(view["juice_mode"]))
+            )
+
+            locked = tuple(view["locked_reasons"])
+            detail_parts = [
+                "One successful review crosses the garden and harvests; an 'Again' answer is an elemental catch."
+            ]
+            if view["harvest_mode"] != "herbs":
+                detail_parts.append(
+                    f"{view['fruit_progress']}/{view['fruit_per_juice']} "
+                    f"{view['selected_fruit']} toward juice."
+                )
+            if view["harvest_mode"] == "alternate":
+                detail_parts.append(f"Next harvest: {view['alternate_next']}.")
+            garden_detail.setText(" ".join(detail_parts))
+            garden_harvest.setToolTip(
+                "Choose what a successful garden crossing harvests."
+                + (
+                    f" Alternation advances only after success; next: {view['alternate_next']}."
+                    if view["harvest_mode"] == "alternate"
+                    else ""
+                )
+            )
+            if not view["quest_complete"]:
+                garden_status.setText("LOCKED")
+                garden_summary.setText(
+                    "Complete Diamond in the Rough to meet Osman and the apprentice."
+                )
+                garden_primary.setText("Diamond in the Rough required")
+                garden_primary.setEnabled(False)
+            elif not view["introduced"]:
+                garden_status.setText("INTRODUCTION")
+                garden_summary.setText(
+                    "Speak to Osman once, then the apprentice can send you to any unlocked garden."
+                )
+                garden_primary.setText("Talk to Osman")
+                garden_primary.setEnabled(
+                    on_sorceress_garden_command is not None
+                )
+            elif locked:
+                garden_status.setText("LOCKED")
+                selected_name = next(
+                    (
+                        row["display_name"]
+                        for row in view["seasons"]
+                        if row["id"] == view["season_id"]
+                    ),
+                    "Selected",
+                )
+                garden_summary.setText(
+                    f"{selected_name} garden requires " + ", ".join(locked)
+                )
+                garden_primary.setText("Garden locked")
+                garden_primary.setEnabled(False)
+            else:
+                garden_status.setText("ACTIVE" if selected else "READY")
+                garden_summary.setText(
+                    view["last_result"]
+                    or "Choose a seasonal garden and harvest plan."
+                )
+                garden_primary.setText(
+                    "Selected for reviews" if selected else "Select activity"
+                )
+                garden_primary.setEnabled(
+                    not selected and on_set_utility is not None
+                )
+            controls_enabled = bool(
+                view["introduced"] and on_sorceress_garden_command is not None
+            )
+            garden_season.setEnabled(controls_enabled)
+            garden_harvest.setEnabled(controls_enabled)
+            juice_relevant = view["harvest_mode"] != "herbs"
+            garden_juice.setEnabled(controls_enabled and juice_relevant)
+            garden_juice.setToolTip(
+                "Osman pays the source Thieving XP automatically. Kept juice is a drinkable temporary Thieving and run-energy boost."
+                if juice_relevant
+                else "Juice handling applies when harvesting fruit or alternating harvests."
+            )
+            syncing_garden["active"] = False
+            _fit_current_activity_detail()
+
+        def _run_sorceress_garden_command(action_id: str, payload=None) -> bool:
+            if on_sorceress_garden_command is None:
+                return False
+            result = on_sorceress_garden_command(
+                action_id, payload or {}
+            ) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Sorceress's Garden",
+                    str(result.get("message", "That Garden action is unavailable.")),
+                )
+                return False
+            _refresh_sorceress_garden_panel()
+            return True
+
+        def _set_sorceress_garden_preferences() -> None:
+            if syncing_garden["active"]:
+                return
+            _run_sorceress_garden_command(
+                "set_preferences",
+                {
+                    "season_id": str(garden_season.currentData() or "winter"),
+                    "harvest_mode": str(garden_harvest.currentData() or "fruit"),
+                    "juice_mode": str(garden_juice.currentData() or "osman"),
+                },
+            )
+
+        def _select_sorceress_garden() -> None:
+            view = sorceress_garden_view_pure(player_data)
+            if not view["introduced"]:
+                _run_sorceress_garden_command("introduce")
+                return
+            if view["locked_reasons"] or on_set_utility is None:
+                return
+            on_set_utility(SORCERESS_GARDEN_ACTIVITY_ID)
+            player_data["current_utility"] = SORCERESS_GARDEN_ACTIVITY_ID
+            tree.clearSelection()
+            _refresh_sorceress_garden_panel()
+
+        garden_season.currentIndexChanged.connect(
+            lambda _index: _set_sorceress_garden_preferences()
+        )
+        garden_harvest.currentIndexChanged.connect(
+            lambda _index: _set_sorceress_garden_preferences()
+        )
+        garden_juice.currentIndexChanged.connect(
+            lambda _index: _set_sorceress_garden_preferences()
+        )
+        garden_primary.clicked.connect(
+            lambda _checked=False: _select_sorceress_garden()
+        )
+        _refresh_sorceress_garden_panel()
+
         guild_box = QtFrame()
         guild_box.setObjectName("warriorsGuildPanel")
         guild_box.setStyleSheet(
@@ -8682,7 +8954,7 @@ def show_main_menu(
         tree.setObjectName("utilityActivityTree")
         tree.setHeaderHidden(True)
         tree.setIconSize(QSize(28, 28))
-        tree.setRootIsDecorated(True)
+        tree.setRootIsDecorated(not is_activities)
         tree.setIndentation(14)
         tree.setUniformRowHeights(True)
         tree_base = tree.palette().color(QPalette.ColorRole.Base)
@@ -8728,12 +9000,15 @@ def show_main_menu(
             groups[group].append(row)
 
         selected_child = None
+        activity_page_items = []
+        activity_page_labels = []
         for group in ordered_groups:
             group_rows = groups.get(group, [])
             if not group_rows:
                 continue
             label = _UTILITY_GROUP_LABELS.get(group, group.replace("_", " ").title())
-            parent = QTreeWidgetItem([f"{label}  ({len(group_rows)})"])
+            parent_text = label if is_activities else f"{label}  ({len(group_rows)})"
+            parent = QTreeWidgetItem([parent_text])
             parent.setData(0, Qt.ItemDataRole.UserRole, f"__utility_group__:{group}")
             parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
             group_icon = _ACTIVITY_GROUP_ICONS.get(group)
@@ -8745,6 +9020,9 @@ def show_main_menu(
             font.setBold(True)
             parent.setFont(0, font)
             tree.addTopLevelItem(parent)
+            if is_activities:
+                activity_page_items.append(parent)
+                activity_page_labels.append(label)
             group_has_current = False
             for row in group_rows:
                 child = QTreeWidgetItem([row.label])
@@ -8783,7 +9061,9 @@ def show_main_menu(
                 "A one-time landmark. Set it as your activity and each review clears "
                 "one level. No XP along the way, but coins and boots at the end."
             )
-        landmark_parent = QTreeWidgetItem(["Landmarks  (3)"])
+        landmark_parent = QTreeWidgetItem(
+            ["Landmarks" if is_activities else "Landmarks  (3)"]
+        )
         landmark_parent.setData(0, Qt.ItemDataRole.UserRole, "__utility_group__:landmarks")
         landmark_parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
         lm_font = landmark_parent.font(0)
@@ -8791,6 +9071,8 @@ def show_main_menu(
         landmark_parent.setFont(0, lm_font)
         if is_activities:
             tree.addTopLevelItem(landmark_parent)
+            activity_page_items.append(landmark_parent)
+            activity_page_labels.append("Landmarks")
         sh_child = QTreeWidgetItem([sh_label])
         sh_child.setData(0, Qt.ItemDataRole.UserRole, _STRONGHOLD_UTILITY_KEY)
         sh_child.setToolTip(0, sh_tooltip)
@@ -8933,6 +9215,111 @@ def show_main_menu(
         if selected_child is not None:
             tree.setCurrentItem(selected_child)
 
+        activity_pager = QWidget()
+        activity_pager.setObjectName("activityPickerPager")
+        activity_pager_layout = QHBoxLayout(activity_pager)
+        activity_pager_layout.setContentsMargins(0, 0, 0, 0)
+        activity_pager_layout.setSpacing(8)
+        activity_previous = QPushButton("‹ Previous")
+        activity_previous.setObjectName("activityPickerPreviousButton")
+        activity_previous.setAccessibleName("Previous activity category")
+        activity_page_label = QLabel()
+        activity_page_label.setObjectName("activityPickerPageLabel")
+        activity_page_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        activity_page_label.setStyleSheet(
+            "font-weight: 600; color: palette(text);"
+        )
+        activity_next = QPushButton("Next ›")
+        activity_next.setObjectName("activityPickerNextButton")
+        activity_next.setAccessibleName("Next activity category")
+        activity_pager_layout.addWidget(activity_previous)
+        activity_pager_layout.addWidget(activity_page_label, 1)
+        activity_pager_layout.addWidget(activity_next)
+        activity_pager.setVisible(is_activities)
+
+        def _top_level_item(item):
+            current_item = item
+            while current_item is not None and current_item.parent() is not None:
+                current_item = current_item.parent()
+            return current_item
+
+        initial_activity_page = 0
+        selected_parent = _top_level_item(selected_child)
+        if selected_parent in activity_page_items:
+            initial_activity_page = activity_page_items.index(selected_parent)
+        activity_page = {"index": initial_activity_page}
+
+        def _visible_activity_rows(item) -> int:
+            total = 1
+            if item.isExpanded():
+                for child_index in range(item.childCount()):
+                    total += _visible_activity_rows(item.child(child_index))
+            return total
+
+        def _show_activity_page(index: int, *, focus_header: bool = False) -> None:
+            if not activity_page_items:
+                activity_pager.setVisible(False)
+                return
+            bounded = max(0, min(int(index), len(activity_page_items) - 1))
+            activity_page["index"] = bounded
+            for page_index, item in enumerate(activity_page_items):
+                item.setHidden(page_index != bounded)
+                if page_index == bounded:
+                    item.setExpanded(True)
+            page_item = activity_page_items[bounded]
+            activity_page_label.setText(
+                f"{activity_page_labels[bounded]} · {bounded + 1} of {len(activity_page_items)}"
+            )
+            activity_previous.setEnabled(bounded > 0)
+            activity_next.setEnabled(bounded + 1 < len(activity_page_items))
+            activity_previous.setToolTip(
+                "Previous: " + activity_page_labels[bounded - 1]
+                if bounded > 0
+                else "This is the first activity category."
+            )
+            activity_next.setToolTip(
+                "Next: " + activity_page_labels[bounded + 1]
+                if bounded + 1 < len(activity_page_items)
+                else "This is the last activity category."
+            )
+            tree.doItemsLayout()
+            row_height = max(1, tree.sizeHintForRow(0))
+            row_count = _visible_activity_rows(page_item)
+            tree.setFixedHeight(max(140, (row_count * row_height) + 12))
+            if focus_header:
+                page_selection = (
+                    selected_child
+                    if _top_level_item(selected_child) is page_item
+                    else page_item
+                )
+                tree.setCurrentItem(page_selection)
+                tree.scrollToItem(page_selection)
+
+        if is_activities:
+            tree.setVerticalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            )
+            tree.setHorizontalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            )
+            activity_previous.clicked.connect(
+                lambda _checked=False: _show_activity_page(
+                    activity_page["index"] - 1, focus_header=True
+                )
+            )
+            activity_next.clicked.connect(
+                lambda _checked=False: _show_activity_page(
+                    activity_page["index"] + 1, focus_header=True
+                )
+            )
+            tree.itemExpanded.connect(
+                lambda _item: _show_activity_page(activity_page["index"])
+            )
+            tree.itemCollapsed.connect(
+                lambda _item: _show_activity_page(activity_page["index"])
+            )
+            _show_activity_page(initial_activity_page)
+
         def _set_utility_selection(activity_id: str) -> None:
             if on_set_utility is None:
                 return
@@ -8946,6 +9333,7 @@ def show_main_menu(
             _refresh_big_chinchompa_panel()
             _refresh_shooting_star_panel()
             _refresh_fist_of_guthix_panel()
+            _refresh_sorceress_garden_panel()
             _show_activity_detail(activity_id)
 
         def _on_utility_clicked(item: "QTreeWidgetItem", _column: int = 0):
@@ -8988,6 +9376,9 @@ def show_main_menu(
             if activity_id == FAMILIARISATION_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == SORCERESS_GARDEN_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
             _set_utility_selection(activity_id)
 
         event_status_label = QLabel("Activity details")
@@ -9000,6 +9391,10 @@ def show_main_menu(
             BIG_CHINCHOMPA_UTILITY_ID: ("Big Chinchompa", big_box),
             SHOOTING_STAR_ACTIVITY_ID: ("Shooting Stars", star_box),
             FIST_OF_GUTHIX_ACTIVITY_ID: ("Fist of Guthix", fog_box),
+            SORCERESS_GARDEN_ACTIVITY_ID: (
+                "Sorceress's Garden",
+                garden_box,
+            ),
             FAMILIARISATION_ACTIVITY_ID: (
                 "Familiarisation",
                 familiarisation_box,
@@ -9041,12 +9436,14 @@ def show_main_menu(
         tree.itemActivated.connect(_on_utility_clicked)
         tree.currentItemChanged.connect(_show_current_activity_detail)
         _show_activity_detail(current if selected_child is not None else "")
-        tree.setMinimumHeight(140)
+        if not is_activities:
+            tree.setMinimumHeight(140)
         activity_picker_label = QLabel("Select an activity")
         activity_picker_label.setObjectName("activityPickerLabel")
         activity_picker_label.setStyleSheet("color: palette(text);")
         activity_picker_label.setVisible(is_activities)
         container_layout.addWidget(activity_picker_label)
+        container_layout.addWidget(activity_pager)
         container_layout.addWidget(tree, 1)
         return container
 

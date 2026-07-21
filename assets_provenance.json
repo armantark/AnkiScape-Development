@@ -371,6 +371,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-01-15T23:07:03Z"
   },
+  "activityicons/sorceress_garden.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Summer_sq%27irk.png",
+    "file_title": "Summer sq'irk.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081840%21Summer_sq%27irk.png?4bad2",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bbbd21f4d07452293291bc22222bf32b787cb246",
+    "size": 506,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-06T02:04:16Z"
+  },
   "activityicons/warriors_guild_animated_armour.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Animated_Bronze_Armour.png",
     "file_title": "Animated Bronze Armour.png",
@@ -430,6 +442,102 @@
     "size": 163597,
     "source_wiki": "osrs",
     "timestamp": "2024-08-27T11:52:29Z"
+  },
+  "activityitems/autumn_sq_irk.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Autumn_sq%27irk.png",
+    "file_title": "Autumn sq'irk.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081847%21Autumn_sq%27irk.png?43c77",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "47fdd6b26b973ffe18a5255a5a028f474ef3ee80",
+    "size": 435,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-06T02:06:04Z"
+  },
+  "activityitems/autumn_sq_irkjuice.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Autumn_sq%27irkjuice.png",
+    "file_title": "Autumn sq'irkjuice.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502011502%21Autumn_sq%27irkjuice.png?da6e7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1868b72429192939765ad4dda2fbd561f22fdff4",
+    "size": 852,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-06T02:06:29Z"
+  },
+  "activityitems/spring_sq_irk.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Spring_sq%27irk.png",
+    "file_title": "Spring sq'irk.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081842%21Spring_sq%27irk.png?a087e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a2e6fb18bb4d68935118a6c79997586e15480c71",
+    "size": 511,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-06T02:05:11Z"
+  },
+  "activityitems/spring_sq_irkjuice.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Spring_sq%27irkjuice.png",
+    "file_title": "Spring sq'irkjuice.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081846%21Spring_sq%27irkjuice.png?51403",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7f7d2c4fb8bb19d1289f52549e18d6f02fac64a6",
+    "size": 868,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-06T02:05:33Z"
+  },
+  "activityitems/summer_sq_irk.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Summer_sq%27irk.png",
+    "file_title": "Summer sq'irk.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081840%21Summer_sq%27irk.png?4bad2",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bbbd21f4d07452293291bc22222bf32b787cb246",
+    "size": 506,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-06T02:04:16Z"
+  },
+  "activityitems/summer_sq_irkjuice.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Summer_sq%27irkjuice.png",
+    "file_title": "Summer sq'irkjuice.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081841%21Summer_sq%27irkjuice.png?da8de",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "910bdbb20145094135fdc5379b788375bc5c19a0",
+    "size": 825,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-06T02:04:39Z"
+  },
+  "activityitems/winter_sq_irk.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Winter_sq%27irk.png",
+    "file_title": "Winter sq'irk.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081837%21Winter_sq%27irk.png?a2086",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "87e2e8ecd5f183e3015882e9df2711eedf58c869",
+    "size": 500,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-06T02:03:26Z"
+  },
+  "activityitems/winter_sq_irkjuice.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Winter_sq%27irkjuice.png",
+    "file_title": "Winter sq'irkjuice.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511081838%21Winter_sq%27irkjuice.png?72a0e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "18908ec194c1b3a0448c78a0d45fbbabb7b56b5f",
+    "size": 884,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-06T02:03:49Z"
   },
   "agilityitems/acrobat_hood.png": {
     "file_page_url": "https://runescape.wiki/w/File:Acrobat_hood_(male).png",

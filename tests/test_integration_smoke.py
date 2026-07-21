@@ -3595,6 +3595,77 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
         self.assertGreaterEqual(calls["save"], 2)
 
+    def test_sorceress_garden_trip_and_cross_skill_reward_roll_back_together(self):
+        addon = _load_addon_as_package("ankiscape_garden_undo_integration")
+        garden_logic = sys.modules[
+            "ankiscape_garden_undo_integration.sorceress_garden_logic"
+        ]
+
+        calls = {"save": 0}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__(
+            "save", calls["save"] + 1
+        )
+        addon.update_review_hud = lambda _data, _skill: None
+        addon.update_review_context_action_strip = lambda *_args: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_exp = lambda _xp: None
+        addon._show_activity_gain = lambda _text: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+        garden_state = garden_logic.default_sorceress_garden_state_pure()
+        garden_state["introduced"] = True
+        addon.player_data = {
+            "inventory": {},
+            "current_utility": "sorceress_garden",
+            "farming_level": 1,
+            "farming_exp": 0.0,
+            "thieving_level": 1,
+            "thieving_exp": 0.0,
+            "quests": {
+                "diamond_in_the_rough": {
+                    "completed": True,
+                }
+            },
+            "sorceress_garden": garden_state,
+            "completed_achievements": [],
+        }
+        initial = copy.deepcopy(addon.player_data)
+        addon.current_skill = "Activities"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(
+            _FakeReviewer(),
+            4,
+            lambda _self, _ease: "answered",
+        )
+
+        self.assertEqual(addon.player_data["inventory"]["Winter sq'irk"], 1)
+        self.assertEqual(addon.player_data["farming_exp"], 30.0)
+        self.assertEqual(
+            addon.player_data["sorceress_garden"]["successful_trips"],
+            1,
+        )
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(
+                    study_queues=True,
+                    card=True,
+                ),
+            )
+        )
+
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+        self.assertGreaterEqual(calls["save"], 2)
+
     def test_livid_farm_cycle_and_cross_skill_xp_roll_back_as_one_review(self):
         addon = _load_addon_as_package("ankiscape_livid_farm_undo_integration")
 

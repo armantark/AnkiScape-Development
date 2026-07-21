@@ -114,3 +114,32 @@ the activity requires completion of `Diamond in the Rough` followed by its
 one-time Osman/apprentice introduction state. The replacement gate is
 owner-resolved as described above and indexed in
 `activity-entry-gate-ledger-2026-07-18.md`.
+
+## Implementation closure — 2026-07-20
+
+The complete settled review loop is live in `sorceress_garden_data.py`,
+`sorceress_garden_logic.py`, `runtime_actions.py`, and `ui.py`. Storage schema
+55 persists the one-time introduction, season, harvest policy, juice policy,
+fruit staging counts, and alternation state. The ordinary herb pool stops at
+dwarf weed and deliberately excludes Dungeoneering herbs. Because the pinned
+source provides no herb weights, the equal distribution remains the labeled
+bounded abstraction recorded above rather than fabricated parity.
+
+The item registry contains all four fruits and juices. Kept juice restores the
+exact sourced run-energy percentage, applies its sourced temporary Thieving
+boost, and leaves a beer glass. Automatic Osman hand-in awards the exact
+Thieving XP. Review and direct commands use their established independent undo
+paths, and the cadence ledger declares one complete route per successful
+review without applying the foreground multiplier.
+
+The Activities surface uses a compact selected card and a one-category pager;
+Utilities remains separate. Kimi K3 and Fable reviewed both new surfaces. The
+accepted fixes cover locked-row legibility, persistent mechanics/tradeoff copy,
+fruit progress, visible-but-disabled juice policy, selection restoration,
+content-measured height, false disclosure affordances, and accessibility.
+
+Verification covers pure mechanics, runtime dispatch, migration, undo,
+registry, cadence, reachability, focused real Qt, full non-Qt, full offscreen
+Qt, and a fully restarted native Anki dark-mode smoke. The exact closure counts
+and screenshot result live in
+`status-updates/sorceress-garden-horizontal-mvp-results-2026-07-20.html`.

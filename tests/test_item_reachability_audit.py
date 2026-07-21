@@ -98,6 +98,10 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Bronze gauntlets"],
             "Activity:fist_of_guthix:buy:bronze_gauntlets",
         )
+        self.assertEqual(
+            report["routes"]["Summer sq'irkjuice"],
+            "Activity:sorceress_garden:harvest",
+        )
         self.assertNotIn(
             "Activity:shooting_stars:exchange",
             {action["id"] for action in report["unresolved_actions"]},

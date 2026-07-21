@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sorceress's Garden — Horizontal Closure</title>
+  <style>
+    :root{--ink:#f7f1df;--muted:#bdb6a4;--panel:#1a211d;--line:#34453b;--green:#72d68f;--gold:#f0c56b;--red:#ef786e;--bg:#0d1210}
+    *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 80% 0,#23352a 0,transparent 35%),var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;line-height:1.5}
+    main{max-width:1120px;margin:auto;padding:48px 24px 72px}.eyebrow{color:var(--green);font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+    h1{font-size:clamp(40px,7vw,76px);line-height:.98;margin:12px 0 18px;max-width:900px;letter-spacing:-.045em} .lede{color:var(--muted);font-size:20px;max-width:780px}
+    .status{display:inline-flex;gap:9px;align-items:center;margin-top:24px;padding:9px 13px;border:1px solid #3d6d4d;border-radius:999px;background:#17251c;color:#aaf0ba;font-weight:750}.dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 14px var(--green)}
+    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:40px 0}.metric,.card{background:linear-gradient(145deg,#1b231e,#141a17);border:1px solid var(--line);border-radius:18px;padding:20px}.metric strong{display:block;font-size:30px;letter-spacing:-.04em}.metric span{color:var(--muted);font-size:13px}
+    section{margin-top:44px}h2{font-size:28px;letter-spacing:-.025em;margin:0 0 16px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.card h3{margin:0 0 8px;font-size:18px}.card p,.card li{color:var(--muted)}ul{margin:10px 0 0;padding-left:20px}
+    .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.step{position:relative;padding:17px 14px;border-radius:14px;background:#18201b;border:1px solid var(--line);min-height:120px}.step b{display:block;color:var(--gold);margin-bottom:7px}.step:not(:last-child)::after{content:"→";position:absolute;right:-12px;top:43px;z-index:2;color:var(--green);font-weight:900}
+    .season{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.season div{padding:16px;border-radius:14px;background:#131a16;border:1px solid var(--line)}.season b{display:block}.season small{color:var(--muted)}
+    .proof{width:100%;border-collapse:collapse;background:#121815;border:1px solid var(--line);border-radius:16px;overflow:hidden}.proof th,.proof td{text-align:left;padding:13px 15px;border-bottom:1px solid #29352e}.proof th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.09em}.pass{color:var(--green);font-weight:800}.honest{border-color:#6f5b2b;background:linear-gradient(145deg,#292315,#181712)}
+    footer{margin-top:44px;color:#777f78;font-size:13px}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#d9d1bd}
+    @media(max-width:800px){.metrics,.grid,.season{grid-template-columns:1fr 1fr}.flow{grid-template-columns:1fr}.step:not(:last-child)::after{content:"↓";right:18px;top:auto;bottom:-18px}.proof{display:block;overflow-x:auto}}
+    @media(max-width:520px){.metrics,.grid,.season{grid-template-columns:1fr}main{padding:32px 16px 56px}}
+  </style>
+</head>
+<body><main>
+  <div class="eyebrow">AnkiScape · breadth-first implementation</div>
+  <h1>Sorceress's Garden is mechanic-complete.</h1>
+  <p class="lede">Four seasonal gardens now form one review-native loop with real gates, fruit and herb choices, juice handling, cross-skill rewards, persistence, undo, period art, and a compact paginated Activities surface.</p>
+  <div class="status"><span class="dot"></span> Verified and ready to commit</div>
+
+  <div class="metrics">
+    <div class="metric"><strong>4</strong><span>seasonal gardens</span></div>
+    <div class="metric"><strong>1,998</strong><span>full non-Qt tests passed</span></div>
+    <div class="metric"><strong>1,996</strong><span>full offscreen-Qt tests passed</span></div>
+    <div class="metric"><strong>9 / 9</strong><span>final focused real-Qt checks</span></div>
+  </div>
+
+  <section><h2>The complete review loop</h2><div class="flow">
+    <div class="step"><b>1 · Enter</b>Diamond in the Rough, one Osman introduction, and the selected Thieving gate.</div>
+    <div class="step"><b>2 · Review</b>A successful answer crosses one complete garden route. Again is the caught outcome.</div>
+    <div class="step"><b>3 · Harvest</b>Fruit, two ordinary herbs, or an even success-driven alternation.</div>
+    <div class="step"><b>4 · Squeeze</b>At 5 / 4 / 3 / 2 fruit, ambient glass and tool-belt setup produce real juice.</div>
+    <div class="step"><b>5 · Resolve</b>Hand to Osman for exact Thieving XP, or keep and drink for boost + run credit.</div>
+  </div></section>
+
+  <section><h2>Period-shaped seasons</h2><div class="season">
+    <div><b>Winter · 1</b><small>5 fruit · 30 Farming XP · 350 Osman XP · 10% run</small></div>
+    <div><b>Spring · 25</b><small>4 fruit · 40 Farming XP · 1,350 Osman XP · +1 / 20%</small></div>
+    <div><b>Autumn · 45</b><small>3 fruit · 50 Farming XP · 2,350 Osman XP · +2 / 30%</small></div>
+    <div><b>Summer · 65</b><small>2 fruit · 60 Farming XP · 3,000 Osman XP · +3 / 40%</small></div>
+  </div></section>
+
+  <section><h2>What changed beyond the activity</h2><div class="grid">
+    <article class="card"><h3>Activities stopped feeling crowded</h3><p>The picker now shows one semantic category per page. Previous/next navigation preserves the selected activity, height is measured from live rows, and the tree has no internal scroll window or false disclosure arrow.</p></article>
+    <article class="card"><h3>Inventory is real</h3><p>All four fruits and juices are registered, persisted, undoable, asset-backed items. Drinking returns a Beer glass. Dungeoneering herbs are deliberately absent.</p></article>
+    <article class="card"><h3>Undo is atomic</h3><p>A review trip, output, Farming XP, Osman Thieving XP, telemetry, and Garden state restore together. Introduction uses direct-action undo; preference changes remain ordinary settings.</p></article>
+    <article class="card"><h3>UI taste was independently checked</h3><p>Kimi K3 and Fable reviewed both the Garden card and pager. Confirmed issues in hierarchy, selection restoration, clipping, disclosure, copy, progress legibility, and accessibility were fixed.</p></article>
+  </div></section>
+
+  <section><h2>Honest evidence boundary</h2><article class="card honest"><h3>No invented hidden weights</h3><p>The cutoff source establishes two random grimy herbs through dwarf weed but does not publish their weights. AnkiScape uses an explicitly equal bounded distribution until better period evidence arrives. That is data-depth work, not a missing mechanic or owner design gap.</p></article></section>
+
+  <section><h2>Verification matrix</h2><table class="proof">
+    <tr><th>Gate</th><th>Result</th><th>Coverage</th></tr>
+    <tr><td>Pure + runtime + storage</td><td class="pass">PASS</td><td>Gates, harvests, juice, RNG discipline, migration, cadence</td></tr>
+    <tr><td>Integration / end-to-end</td><td class="pass">PASS</td><td>Review dispatch and exact cross-skill review undo</td></tr>
+    <tr><td>Native Anki restart</td><td class="pass">PASS</td><td>One menu, dark mode, unclipped pager, visible locked Garden row</td></tr>
+    <tr><td>Assets + provenance</td><td class="pass">PASS</td><td>9 period images; all 8 item sprites tight-alpha</td></tr>
+    <tr><td>Reachability</td><td class="pass">PASS</td><td>1,433 actions; 2,099 reachable items; all juices have a route</td></tr>
+    <tr><td>Quality / docs / safety</td><td class="pass">PASS</td><td>0 hard test issues; docs, JSON, diff, and worktree guard clean</td></tr>
+  </table></section>
+
+  <footer>Durable source record: <span class="mono">memory-bank/source-audits/sorceress-garden-loop-2026-07-18.md</span><br>Generated 2026-07-20 · No gameplay path uses the wall clock.</footer>
+</main></body></html>

@@ -264,6 +264,10 @@ expected file and provenance key in the asset test.
   toolkit and period Activity-compass sprites. Activities gives its primary target
   picker guaranteed height beneath a bounded, separately labeled event-status
   region; Utilities never renders those event cards.
+- The Activities picker paginates by semantic group instead of scrolling all
+  groups at once. Previous/next navigation preserves the selected activity,
+  page height is measured from the current rows, and group labels are plain
+  headings rather than false expandable-tree affordances.
 - Activity group icons are semantic, not decorative fallbacks:
   `distractions_and_diversions` uses the yellow compass and `minigames` uses
   the red compass. The green compass is reserved for Achievement Diaries.

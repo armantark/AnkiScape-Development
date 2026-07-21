@@ -550,6 +550,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._big_chinchompa_calls: list = []
         self._shooting_star_calls: list = []
         self._fist_of_guthix_calls: list = []
+        self._sorceress_garden_calls: list = []
         self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
         self._mage_arena_calls: list = []
@@ -837,6 +838,18 @@ class MainMenuWidgetTest(unittest.TestCase):
                 player_data.update(updated)
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
+        def _sorceress_garden_command(action_id, payload):
+            from sorceress_garden_logic import apply_sorceress_garden_command_pure
+
+            self._sorceress_garden_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_sorceress_garden_command_pure(
+                player_data, action_id, payload
+            )
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
         def _mage_arena_action(action_id, god_id):
             from logic_pure import (
                 apply_mage_arena_cape_action_pure,
@@ -898,6 +911,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_big_chinchompa_command=_big_chinchompa_command,
             on_shooting_star_command=_shooting_star_command,
             on_fist_of_guthix_command=_fist_of_guthix_command,
+            on_sorceress_garden_command=_sorceress_garden_command,
             on_set_prayer_selection=_set_prayer_selection,
             on_set_magic=lambda target: _set_target("current_magic", self._magic_calls, target),
             on_set_construction=lambda target: _set_target("current_construction", self._construction_calls, target),
@@ -7504,8 +7518,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         activity_texts = [it.text(0) for it in _tree_items(activities_tree)]
         self.assertNotIn("Make soft clay", activity_texts)
         self.assertIn("Livid Farm", activity_texts)
-        self.assertIn("Minigames  (2)", activity_texts)
-        self.assertIn("Distractions and Diversions  (3)", activity_texts)
+        self.assertIn("Minigames", activity_texts)
+        self.assertIn("Distractions and Diversions", activity_texts)
         self.assertNotIn("Activities / minigames  (2)", activity_texts)
         minigames = _utility_row(
             activities_tree, "__utility_group__:minigames"
@@ -7527,7 +7541,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 )
                 for index in range(minigames.childCount())
             },
-            {"fist_of_guthix", "livid_farm"},
+            {"fist_of_guthix", "sorceress_garden", "livid_farm"},
         )
         self.assertEqual(
             {
@@ -8012,7 +8026,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIsInstance(details_stack, QStackedWidget)
         self.assertEqual(details_stack.currentWidget(), big_panel)
         self.assertTrue(details_stack.isVisible())
-        self.assertEqual(activity_tree.minimumHeight(), 140)
+        self.assertGreaterEqual(activity_tree.minimumHeight(), 140)
+        self.assertEqual(
+            activity_tree.minimumHeight(), activity_tree.maximumHeight()
+        )
         self.assertTrue(status_label.isVisible())
         self.assertTrue(picker_label.isVisible())
         surface_layout = picker_label.parentWidget().layout()
@@ -8055,6 +8072,66 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertFalse(details_stack.isVisible())
         self.assertFalse(status_label.isVisible())
+
+    def test_activity_picker_pages_one_category_without_a_scroll_window(self) -> None:
+        pd = _make_player_data()
+        pd["current_utility"] = "fist_of_guthix"
+        dialog = self._open(pd)
+        activity_tree = self._open_activities(dialog)
+        dialog.show()
+        QApplication.processEvents()
+
+        pager = _find_named_widget(dialog, "activityPickerPager")
+        page_label = _find_named_label(dialog, "activityPickerPageLabel")
+        previous = _find_named_button(dialog, "activityPickerPreviousButton")
+        next_button = _find_named_button(dialog, "activityPickerNextButton")
+        top_levels = [
+            activity_tree.topLevelItem(index)
+            for index in range(activity_tree.topLevelItemCount())
+        ]
+        visible = [item for item in top_levels if not item.isHidden()]
+
+        self.assertFalse(pager.isHidden())
+        self.assertEqual(len(visible), 1)
+        self.assertEqual(
+            visible[0].data(0, Qt.ItemDataRole.UserRole),
+            "__utility_group__:minigames",
+        )
+        self.assertEqual(page_label.text(), "Minigames · 2 of 4")
+        self.assertEqual(
+            activity_tree.verticalScrollBarPolicy(),
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff,
+        )
+        self.assertEqual(
+            activity_tree.horizontalScrollBarPolicy(),
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff,
+        )
+        last_minigame = visible[0].child(visible[0].childCount() - 1)
+        self.assertLessEqual(
+            activity_tree.visualItemRect(last_minigame).bottom(),
+            activity_tree.viewport().rect().bottom(),
+        )
+
+        next_button.click()
+        QApplication.processEvents()
+        visible = [item for item in top_levels if not item.isHidden()]
+        self.assertEqual(len(visible), 1)
+        self.assertEqual(
+            visible[0].data(0, Qt.ItemDataRole.UserRole),
+            "__utility_group__:distractions_and_diversions",
+        )
+        self.assertEqual(
+            page_label.text(), "Distractions and Diversions · 3 of 4"
+        )
+        self.assertTrue(previous.isEnabled())
+        self.assertTrue(next_button.isEnabled())
+
+        previous.click()
+        QApplication.processEvents()
+        self.assertEqual(
+            activity_tree.currentItem().data(0, Qt.ItemDataRole.UserRole),
+            "fist_of_guthix",
+        )
 
     def test_shooting_star_panel_selects_configures_and_exchanges(self) -> None:
         from shooting_star_logic import (
@@ -8220,6 +8297,54 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(charge.isHidden())
         self.assertEqual(charge.value(), 1_240)
         self.assertIsNone(panel.findChild(QScrollArea))
+
+    def test_sorceress_garden_card_introduction_gates_and_compact_policies(self) -> None:
+        from sorceress_garden_logic import default_sorceress_garden_state_pure
+
+        pd = _make_player_data()
+        pd["thieving_level"] = 65
+        pd["quests"]["diamond_in_the_rough"]["completed"] = True
+        pd["sorceress_garden"] = default_sorceress_garden_state_pure()
+        dialog = self._open(pd)
+        activity_tree = self._open_activities(dialog)
+        row = _utility_row(activity_tree, "sorceress_garden")
+        activity_tree.setCurrentItem(row)
+        QApplication.processEvents()
+
+        details = _find_named_widget(dialog, "utilityActivityDetailsStack")
+        panel = _find_named_widget(dialog, "sorceressGardenPanel")
+        primary = _find_named_button(dialog, "sorceressGardenPrimaryButton")
+        self.assertEqual(details.currentWidget(), panel)
+        self.assertEqual(primary.text(), "Talk to Osman")
+        self.assertIsNone(panel.findChild(QScrollArea))
+
+        primary.click()
+        QApplication.processEvents()
+        self.assertTrue(pd["sorceress_garden"]["introduced"])
+        season = panel.findChild(QComboBox, "sorceressGardenSeason")
+        harvest = panel.findChild(QComboBox, "sorceressGardenHarvest")
+        juice = panel.findChild(QComboBox, "sorceressGardenJuice")
+        season.setCurrentIndex(season.findData("summer"))
+        harvest.setCurrentIndex(harvest.findData("alternate"))
+        juice.setCurrentIndex(juice.findData("keep"))
+        QApplication.processEvents()
+        self.assertEqual(pd["sorceress_garden"]["season_id"], "summer")
+        self.assertEqual(pd["sorceress_garden"]["harvest_mode"], "alternate")
+        self.assertEqual(pd["sorceress_garden"]["juice_mode"], "keep")
+
+        harvest.setCurrentIndex(harvest.findData("herbs"))
+        QApplication.processEvents()
+        self.assertFalse(juice.isHidden())
+        self.assertFalse(juice.isEnabled())
+        harvest.setCurrentIndex(harvest.findData("alternate"))
+        QApplication.processEvents()
+        self.assertTrue(juice.isEnabled())
+
+        primary.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["current_utility"], "sorceress_garden")
+        self.assertEqual(self._utility_calls[-1], "sorceress_garden")
+        self.assertEqual(primary.text(), "Selected for reviews")
 
     def test_activities_show_only_the_selected_rich_detail_card(self) -> None:
         from shooting_star_logic import (

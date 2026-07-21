@@ -32,6 +32,7 @@ from typing import List, Optional, Sequence, Tuple
 ADDON_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_DIRS = (
     "activityicons",
+    "activityitems",
     "agilityitems",
     "bars",
     "combatenemies",

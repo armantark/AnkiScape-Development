@@ -4,6 +4,37 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Sorceress's Garden horizontal mechanic closure — 2026-07-20
+
+- Implemented all four seasonal gardens with exact Thieving gates, fruit
+  thresholds, Farming XP, Osman XP, and juice effects.
+- Added the settled Fruit / Herbs / Alternate harvest policy and Osman / Keep
+  completed-juice policy. Automatic squeezing preserves real fruit and juice
+  inventory while treating the free beer glass and tool-belt pestle as ambient
+  setup.
+- Added the Diamond in the Rough entry gate and one-time introduction, review
+  and direct undo, schema-55 migration, cadence coverage, HUD feedback, and a
+  complete dark-mode-safe Activities card.
+- Registered eight fruit/juice items, four consumables, nine normalized period
+  assets with provenance, and a reproducible asset-fetch helper. Dungeoneering
+  herbs remain excluded.
+- Replaced the crowded Activities scroll with a one-category pager that
+  preserves selection, measures content height, exposes accessible navigation,
+  and leaves Utilities untouched.
+- Kimi K3 and Fable independently reviewed both the Garden card and pager. All
+  confirmed hierarchy, selection, clipping, false-disclosure, tradeoff-copy,
+  and accessibility findings were fixed.
+- Verification: 1,998 full non-Qt tests pass with 264 expected skips; the full
+  offscreen-Qt universe passes 1,996 tests with one intentional skip, and the
+  final delta passes nine focused real-Qt tests. A fully restarted native Anki
+  process confirms one menu, the unclipped pager, and the disabled Garden row.
+- Reachability now models the Garden as a producer: 1,433 actions, 2,099
+  reachable items, 168 orphan inputs, and 189 unresolved actions. See
+  `source-audits/sorceress-garden-loop-2026-07-18.md`.
+- Results:
+  `status-updates/sorceress-garden-horizontal-mvp-results-2026-07-20.html`;
+  mobile copy: `https://mo77ybvazx38.postplan.dev`.
+
 ## Fist of Guthix horizontal mechanic closure — 2026-07-20
 
 - Implemented the complete two-round safe PvP abstraction: Fiara tutorial,

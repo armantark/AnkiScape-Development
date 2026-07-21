@@ -4427,6 +4427,11 @@ try:
 except ImportError:
     from potion_data import potion_consumables_as_dict
 CONSUMABLE_DATA.update(potion_consumables_as_dict())
+try:
+    from .sorceress_garden_data import sorceress_garden_consumables_as_dict
+except ImportError:
+    from sorceress_garden_data import sorceress_garden_consumables_as_dict
+CONSUMABLE_DATA.update(sorceress_garden_consumables_as_dict())
 
 # Agility boosts are deliberately action-budgeted. RuneScape's minute-based
 # decay cannot use the wall clock in AnkiScape, so one dose holds for ten

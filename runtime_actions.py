@@ -240,6 +240,12 @@ try:
         apply_fist_of_guthix_review_pure,
         fist_of_guthix_can_review_pure,
     )
+    from .sorceress_garden_data import SORCERESS_GARDEN_ACTIVITY_ID
+    from .sorceress_garden_logic import (
+        apply_sorceress_garden_review_pure,
+        sorceress_garden_locked_reasons_pure,
+        sorceress_garden_view_pure,
+    )
     from .warriors_guild_data import WARRIORS_GUILD_ACTIVITIES
     from .warriors_guild_logic import (
         apply_warriors_guild_activity_pure,
@@ -469,6 +475,12 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from fist_of_guthix_logic import (  # type: ignore
         apply_fist_of_guthix_review_pure,
         fist_of_guthix_can_review_pure,
+    )
+    from sorceress_garden_data import SORCERESS_GARDEN_ACTIVITY_ID  # type: ignore
+    from sorceress_garden_logic import (  # type: ignore
+        apply_sorceress_garden_review_pure,
+        sorceress_garden_locked_reasons_pure,
+        sorceress_garden_view_pure,
     )
     from warriors_guild_data import WARRIORS_GUILD_ACTIVITIES  # type: ignore
     from warriors_guild_logic import (  # type: ignore
@@ -2565,6 +2577,54 @@ def _handle_fist_of_guthix_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _handle_sorceress_garden_answer(ctx: RuntimeActionContext) -> bool:
+    view = sorceress_garden_view_pure(ctx.player_data)
+    harvest = str(view.get("harvest_mode", "fruit"))
+    if harvest == "alternate":
+        harvest = str(view.get("alternate_next", "fruit"))
+    herb_rolls = (
+        (ctx.random_random(), ctx.random_random())
+        if harvest == "herbs"
+        else ()
+    )
+    updated, result = apply_sorceress_garden_review_pure(
+        ctx.player_data,
+        herb_rolls,
+    )
+    if not result.get("allowed"):
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Sorceress's Garden locked",
+            "Requires " + ", ".join(result.get("locked_reasons", ())),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    farming_xp = float(result.get("farming_xp", 0.0) or 0.0)
+    thieving_xp = float(result.get("thieving_xp", 0.0) or 0.0)
+    gained = ctx.award_skill_exp("farming_exp", farming_xp)
+    ctx.level_up_check("Farming", ctx.player_data)
+    if thieving_xp > 0:
+        ctx.award_skill_exp("thieving_exp", thieving_xp)
+        ctx.level_up_check("Thieving", ctx.player_data)
+    _record_action(
+        ctx,
+        "farming",
+        str(result.get("action_id", SORCERESS_GARDEN_ACTIVITY_ID)),
+        True,
+        expected_success_chance=1.0,
+        output_items=dict(result.get("outputs", {}) or {}),
+        primary_xp=farming_xp,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if gained > 0:
+        ctx.show_exp(gained)
+    ctx.show_activity_gain(str(result.get("status", "Garden trip complete")))
+    return True
+
+
 def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
@@ -2576,6 +2636,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_shooting_star_answer(ctx)
     if activity_key == FIST_OF_GUTHIX_ACTIVITY_ID:
         return _handle_fist_of_guthix_answer(ctx)
+    if activity_key == SORCERESS_GARDEN_ACTIVITY_ID:
+        return _handle_sorceress_garden_answer(ctx)
     if activity_key == STRONGHOLD_UTILITY_KEY:
         return _handle_stronghold_answer(ctx)
     if activity_key == KNIGHT_WAVES_UTILITY_KEY:
@@ -4809,6 +4871,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return ok
     if activity_key == LIVID_FARM_ACTIVITY_ID:
         return not livid_farm_locked_reasons_pure(ctx.player_data)
+    if activity_key == SORCERESS_GARDEN_ACTIVITY_ID:
+        return not sorceress_garden_locked_reasons_pure(ctx.player_data)
     return not utility_activity_locked_reasons_pure(
         ctx.player_data,
         activity_key,
