@@ -4,6 +4,40 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Stealing Creation horizontal mechanic closure — 2026-07-20
+
+- Implemented one complete twenty-review safe match with five sacred-clay
+  classes, exact gather/process/deposit scoring, a closed session inventory,
+  temporary hatchet/scimitar/platebody/barrier, bounded opposing production,
+  six-tick raiders, safe death, winner bonus and exact point conversion.
+- Added Casual's complete loadout/deposit planner and Advanced duty, gathering
+  route, class and kiln-recipe policy. Terminal flee/death/failure boundaries
+  cannot wedge the session, and temporary Combat explicitly excludes outside
+  supplies, effects, passive healing and XP.
+- Added 20-point morphic and volatile tools with seven matching forms, 200% and
+  220% total XP, bonus-XP charge budgets, level-40 volatile gating and random
+  transformations at crossed 10% segments. Matching selected skill families
+  are required, so lamps and side rewards do not spend charge.
+- Added schema-59 persistence, sanitation, direct/review undo boundaries,
+  item/activity registration, reachability, three normalized period assets and
+  a reproducible provenance-aware fetch helper.
+- Added the compact paginated Activities card, then fixed the contradiction
+  found only in restarted native Anki where Casual mode displayed stale locked
+  Advanced choices. The final real UI shows truthful automatic duty, route,
+  class and kiln labels at 900x560 without clipping.
+- Opus independently reviewed the full slice; every reproduced correctness and
+  taste finding is fixed. Fable was deliberately reserved. One Kimi K3 call
+  returned no response headers for roughly 25 minutes and was stopped without a
+  quota-burning retry; no Kimi sign-off is claimed.
+- Verification: all 2,057 non-Qt tests pass with 268 expected skips and all
+  2,057 real offscreen-Qt tests pass with one intentional skip. Hard
+  test-quality, docs, compilation, JSON, diff, assets, reachability, native
+  Anki and worktree safety pass. No design gap emerged.
+  See `source-audits/stealing-creation-horizontal-mvp-2026-07-20.md`.
+- Results:
+  `status-updates/stealing-creation-horizontal-mvp-results-2026-07-20.html`;
+  mobile copy: `https://tougys8r35za.postplan.dev`.
+
 ## Fight Caves horizontal mechanic closure — 2026-07-20
 
 - Implemented the exact persistent 63-wave Fight Cave with stable roster

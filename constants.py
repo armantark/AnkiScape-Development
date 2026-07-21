@@ -32,6 +32,19 @@ except ImportError:
     )
 
 try:
+    from .stealing_creation_data import (
+        STEALING_CREATION_ACTIVITY_ID,
+        stealing_creation_activity_as_dict,
+        stealing_creation_extra_items_as_dict,
+    )
+except ImportError:
+    from stealing_creation_data import (  # type: ignore
+        STEALING_CREATION_ACTIVITY_ID,
+        stealing_creation_activity_as_dict,
+        stealing_creation_extra_items_as_dict,
+    )
+
+try:
     from .sorceress_garden_data import (
         SORCERESS_GARDEN_ACTIVITY_ID,
         sorceress_garden_activity_as_dict,
@@ -633,6 +646,7 @@ UTILITY_ACTIVITY_DATA.update(big_chinchompa_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(shooting_star_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fist_of_guthix_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(stealing_creation_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(sorceress_garden_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(penguin_hide_and_seek_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(vinesweeper_activity_as_dict())
@@ -687,6 +701,14 @@ if os.path.exists(_fist_of_guthix_icon):
 _fight_caves_icon = os.path.join(current_dir, "constructionitems", "fire_cape.png")
 if os.path.exists(_fight_caves_icon):
     UTILITY_ACTIVITY_DATA[FIGHT_CAVES_ACTIVITY_ID]["icon_path"] = _fight_caves_icon
+_stealing_creation_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "stealing_creation.png",
+)
+if os.path.exists(_stealing_creation_icon):
+    UTILITY_ACTIVITY_DATA[STEALING_CREATION_ACTIVITY_ID]["icon_path"] = (
+        _stealing_creation_icon
+    )
 _sorceress_garden_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
     "sorceress_garden.png",
@@ -1328,6 +1350,7 @@ FIST_OF_GUTHIX_EXTRA_ITEM_DATA = fist_of_guthix_extra_items_as_dict()
 SORCERESS_GARDEN_EXTRA_ITEM_DATA = sorceress_garden_extra_items_as_dict()
 VINESWEEPER_EXTRA_ITEM_DATA = vinesweeper_extra_items_as_dict()
 FIGHT_CAVES_EXTRA_ITEM_DATA = fight_caves_extra_items_as_dict()
+STEALING_CREATION_EXTRA_ITEM_DATA = stealing_creation_extra_items_as_dict()
 VINESWEEPER_ITEM_IMAGES = {}
 for _item_name in VINESWEEPER_EXTRA_ITEM_DATA:
     _path = os.path.join(
@@ -1341,6 +1364,15 @@ FIGHT_CAVES_ITEM_IMAGES = {
     "Fire cape": os.path.join(current_dir, "constructionitems", "fire_cape.png"),
     "Tokkul": os.path.join(current_dir, "combatitems", "tokkul.png"),
 }
+STEALING_CREATION_ITEM_IMAGES = {}
+for _item_name in STEALING_CREATION_EXTRA_ITEM_DATA:
+    _path = os.path.join(
+        current_dir,
+        "activityitems",
+        f"{_asset_slug(_item_name)}.png",
+    )
+    if os.path.exists(_path):
+        STEALING_CREATION_ITEM_IMAGES[_item_name] = _path
 FIGHT_CAVES_ITEM_IMAGES = {
     item_name: path
     for item_name, path in FIGHT_CAVES_ITEM_IMAGES.items()
@@ -1669,6 +1701,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **SORCERESS_GARDEN_EXTRA_ITEM_DATA,
     **VINESWEEPER_EXTRA_ITEM_DATA,
     **FIGHT_CAVES_EXTRA_ITEM_DATA,
+    **STEALING_CREATION_EXTRA_ITEM_DATA,
     **potion_items_as_dict(),
     **SHOP_ONLY_EXTRA_ITEM_DATA,
 })
@@ -1695,6 +1728,7 @@ EXTRA_ITEM_IMAGES = {
     **SORCERESS_GARDEN_ITEM_IMAGES,
     **VINESWEEPER_ITEM_IMAGES,
     **FIGHT_CAVES_ITEM_IMAGES,
+    **STEALING_CREATION_ITEM_IMAGES,
     **SHOP_ITEM_IMAGES,
 }
 

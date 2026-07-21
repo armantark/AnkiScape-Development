@@ -26,6 +26,10 @@ try:
         default_fight_caves_state_pure,
         sanitize_fight_caves_state_pure,
     )
+    from .stealing_creation_logic import (
+        default_stealing_creation_state_pure,
+        sanitize_stealing_creation_state_pure,
+    )
     from .urn_data import URN_PLAIN_TO_RUNED_ITEM, default_urn_state_pure, sanitize_urn_state_pure
     from .constants import (
         BAR_DATA,
@@ -149,6 +153,10 @@ except ImportError:
         default_fight_caves_state_pure,
         sanitize_fight_caves_state_pure,
     )
+    from stealing_creation_logic import (  # type: ignore
+        default_stealing_creation_state_pure,
+        sanitize_stealing_creation_state_pure,
+    )
     from urn_data import URN_PLAIN_TO_RUNED_ITEM, default_urn_state_pure, sanitize_urn_state_pure
     from constants import (
         BAR_DATA,
@@ -249,7 +257,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 58
+CURRENT_CONFIG_VERSION = 59
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -479,6 +487,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["shooting_star"] = default_shooting_star_state_pure()
     data["fist_of_guthix"] = default_fist_of_guthix_state_pure()
     data["fight_caves"] = default_fight_caves_state_pure()
+    data["stealing_creation"] = default_stealing_creation_state_pure()
     data["activity_session"] = {"active_id": ""}
     data["sorceress_garden"] = default_sorceress_garden_state_pure()
     data["penguin_hide_and_seek"] = default_penguin_state_pure()
@@ -1094,6 +1103,9 @@ def migrate_loaded_data(
     data["fight_caves"] = sanitize_fight_caves_state_pure(
         data.get("fight_caves")
     )
+    data["stealing_creation"] = sanitize_stealing_creation_state_pure(
+        data.get("stealing_creation")
+    )
     raw_activity_session = data.get("activity_session")
     active_session_id = (
         str(raw_activity_session.get("active_id", ""))[:80]
@@ -1102,6 +1114,9 @@ def migrate_loaded_data(
     )
     if data["fight_caves"]["active"]:
         active_session_id = "fight_caves"
+        data["stealing_creation"]["active_session"] = {}
+    elif data["stealing_creation"]["active_session"]:
+        active_session_id = "stealing_creation"
     data["activity_session"] = {"active_id": active_session_id}
     data["sorceress_garden"] = sanitize_sorceress_garden_state_pure(
         data.get("sorceress_garden")

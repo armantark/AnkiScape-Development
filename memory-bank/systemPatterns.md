@@ -736,6 +736,22 @@ where the source says the activity is safe, and own explicit leave/resume
 rather than leaking ordinary Combat target or Bank-trip state. Fight Caves is
 the reference implementation.
 
+Closed-economy combat activities must also close the actor, not just the item
+ledger. Build the temporary combat input from the minimum session-owned stats,
+lifepoints, equipment, and encounter state; explicitly neutralize ordinary
+inventory supplies, auto-flee, prayers, spell effects, and passive healing;
+then merge back only the session consequences named by the activity contract.
+A terminal flee, death, or failed burst must clear or reschedule the encounter
+so one bad combat result cannot wedge the session. Stealing Creation is the
+reference implementation.
+
+Persistent XP multipliers belong on the shared XP-award seam, but that seam is
+a hot path. Guard it with a cheap pure applicability predicate before copying
+player state, and require the selected review-action family to match the tool
+form before charging it. This prevents lamps, quests, and activity side rewards
+from draining a skill tool while keeping the actual XP award and tool charge in
+one review-undo delta.
+
 In a shared canonical checkout, a whole-suite result is valid only for the
 source/test snapshot imported when discovery began. Before recording or
 committing a long verification run, compare source and test modification times

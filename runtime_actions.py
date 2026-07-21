@@ -245,6 +245,11 @@ try:
         apply_fight_caves_review_pure,
         fight_caves_view_pure,
     )
+    from .stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
+    from .stealing_creation_logic import (
+        apply_stealing_creation_review_pure,
+        stealing_creation_view_pure,
+    )
     from .sorceress_garden_data import SORCERESS_GARDEN_ACTIVITY_ID
     from .sorceress_garden_logic import (
         apply_sorceress_garden_review_pure,
@@ -499,6 +504,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from fight_caves_logic import (  # type: ignore
         apply_fight_caves_review_pure,
         fight_caves_view_pure,
+    )
+    from stealing_creation_data import STEALING_CREATION_ACTIVITY_ID  # type: ignore
+    from stealing_creation_logic import (  # type: ignore
+        apply_stealing_creation_review_pure,
+        stealing_creation_view_pure,
     )
     from sorceress_garden_data import SORCERESS_GARDEN_ACTIVITY_ID  # type: ignore
     from sorceress_garden_logic import (  # type: ignore
@@ -2654,6 +2664,38 @@ def _handle_fight_caves_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _handle_stealing_creation_answer(ctx: RuntimeActionContext) -> bool:
+    updated, ok, result = apply_stealing_creation_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Stealing Creation unavailable",
+            str(result.get("reason", "Enter Stealing Creation before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    _record_action(
+        ctx,
+        "utility",
+        STEALING_CREATION_ACTIVITY_ID,
+        True,
+        expected_success_chance=1.0,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if result.get("complete"):
+        ctx.deactivate_current_skill()
+    ctx.show_activity_gain(
+        str(result.get("status", "Stealing Creation duty complete"))
+    )
+    return True
+
+
 def _handle_sorceress_garden_answer(ctx: RuntimeActionContext) -> bool:
     view = sorceress_garden_view_pure(ctx.player_data)
     harvest = str(view.get("harvest_mode", "fruit"))
@@ -2784,6 +2826,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_fist_of_guthix_answer(ctx)
     if activity_key == FIGHT_CAVES_ACTIVITY_ID:
         return _handle_fight_caves_answer(ctx)
+    if activity_key == STEALING_CREATION_ACTIVITY_ID:
+        return _handle_stealing_creation_answer(ctx)
     if activity_key == SORCERESS_GARDEN_ACTIVITY_ID:
         return _handle_sorceress_garden_answer(ctx)
     if activity_key == PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID:
@@ -5037,6 +5081,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return fist_of_guthix_can_review_pure(ctx.player_data)
     if activity_key == FIGHT_CAVES_ACTIVITY_ID:
         return bool(fight_caves_view_pure(ctx.player_data).get("active", False))
+    if activity_key == STEALING_CREATION_ACTIVITY_ID:
+        return bool(stealing_creation_view_pure(ctx.player_data).get("active", False))
     if activity_key == STRONGHOLD_UTILITY_KEY:
         state = ctx.player_data.get("stronghold_of_security") or {}
         return not state.get("completed")

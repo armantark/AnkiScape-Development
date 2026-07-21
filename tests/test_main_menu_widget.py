@@ -554,6 +554,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._penguin_calls: list = []
         self._vinesweeper_calls: list = []
         self._fight_caves_calls: list = []
+        self._stealing_creation_calls: list = []
         self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
         self._mage_arena_calls: list = []
@@ -889,6 +890,18 @@ class MainMenuWidgetTest(unittest.TestCase):
                 player_data.update(updated)
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
+        def _stealing_creation_command(action_id, payload):
+            from stealing_creation_logic import apply_stealing_creation_command_pure
+
+            self._stealing_creation_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_stealing_creation_command_pure(
+                player_data, action_id, payload, rng=lambda: 0.5
+            )
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
         def _mage_arena_action(action_id, god_id):
             from logic_pure import (
                 apply_mage_arena_cape_action_pure,
@@ -954,6 +967,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_penguin_command=_penguin_command,
             on_vinesweeper_command=_vinesweeper_command,
             on_fight_caves_command=_fight_caves_command,
+            on_stealing_creation_command=_stealing_creation_command,
             on_set_prayer_selection=_set_prayer_selection,
             on_set_magic=lambda target: _set_target("current_magic", self._magic_calls, target),
             on_set_construction=lambda target: _set_target("current_construction", self._construction_calls, target),
@@ -7590,6 +7604,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "livid_farm",
                 "vinesweeper",
                 "fight_caves",
+                "stealing_creation",
             },
         )
         self.assertEqual(
@@ -8665,6 +8680,114 @@ class MainMenuWidgetTest(unittest.TestCase):
             dialog, activity_tree.rect().bottomRight()
         ).y()
         self.assertLessEqual(tree_bottom, dialog.contentsRect().bottom())
+
+    def test_stealing_creation_card_exposes_session_policy_and_reward_tools(self) -> None:
+        from stealing_creation_logic import default_stealing_creation_state_pure
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "attack_level": 80,
+                "defense_level": 80,
+                "woodcutting_level": 80,
+                "construction_level": 80,
+                "stealing_creation": default_stealing_creation_state_pure(),
+                "activity_session": {"active_id": ""},
+            }
+        )
+        pd["stealing_creation"]["points"] = 40
+        dialog = self._open(pd)
+        activity_tree = self._open_activities(dialog)
+        row = _utility_row(activity_tree, "stealing_creation")
+        activity_tree.setCurrentItem(row)
+        activity_tree.itemActivated.emit(row, 0)
+        QApplication.processEvents()
+
+        panel = _find_named_widget(dialog, "stealingCreationPanel")
+        status = _find_named_label(dialog, "stealingCreationStatusChip")
+        summary = _find_named_label(dialog, "stealingCreationSummary")
+        primary = _find_named_button(dialog, "stealingCreationPrimaryButton")
+        leave = _find_named_button(dialog, "stealingCreationLeaveButton")
+        mode = panel.findChild(QComboBox, "stealingCreationModeCombo")
+        duty = panel.findChild(QComboBox, "stealingCreationDutyCombo")
+        method = panel.findChild(QComboBox, "stealingCreationGatherMethodCombo")
+        clay_class = panel.findChild(QComboBox, "stealingCreationClassCombo")
+        recipe = panel.findChild(QComboBox, "stealingCreationRecipeCombo")
+        form = panel.findChild(QComboBox, "stealingCreationRewardFormCombo")
+        morphic = _find_named_button(dialog, "stealingCreationMorphicButton")
+        volatile = _find_named_button(dialog, "stealingCreationVolatileButton")
+        active_tool = panel.findChild(QComboBox, "stealingCreationActiveToolCombo")
+        self.assertIsNone(panel.findChild(QScrollArea))
+        self.assertEqual(status.text(), "READY")
+        self.assertIn("40 reward points", summary.text())
+        self.assertTrue(leave.isHidden())
+        self.assertEqual(duty.currentText(), "Automatic duty rotation")
+        self.assertTrue(method.currentText().startswith("Automatic route · "))
+        self.assertTrue(clay_class.currentText().startswith("Automatic · Class "))
+        self.assertEqual(recipe.currentText(), "Automatic kiln loadout")
+        self.assertEqual(method.currentData(), "chop")
+        self.assertEqual(clay_class.currentData(), 5)
+        self.assertEqual(recipe.currentData(), "scimitar")
+
+        primary.click()
+        QApplication.processEvents()
+        self.assertEqual(self._stealing_creation_calls[-1], ("enter", {}))
+        self.assertEqual(pd["current_utility"], "stealing_creation")
+        self.assertEqual(self._utility_calls[-1], "stealing_creation")
+        self.assertEqual(status.text(), "ACTIVE")
+        self.assertIn("Review 0/20", summary.text())
+        self.assertFalse(leave.isHidden())
+
+        mode.setCurrentIndex(mode.findData("advanced"))
+        QApplication.processEvents()
+        self.assertTrue(duty.isEnabled())
+        duty.setCurrentIndex(duty.findData("process"))
+        method.setCurrentIndex(method.findData("mine"))
+        clay_class.setCurrentIndex(clay_class.findData(3))
+        recipe.setCurrentIndex(recipe.findData("platebody"))
+        QApplication.processEvents()
+        action_id, payload = self._stealing_creation_calls[-1]
+        self.assertEqual(action_id, "set_policy")
+        self.assertEqual(payload["selected_duty"], "process")
+        self.assertEqual(payload["selected_gather_method"], "mine")
+        self.assertEqual(payload["selected_class"], 3)
+        self.assertEqual(payload["selected_recipe"], "platebody")
+
+        form.setCurrentIndex(form.findData("needle"))
+        morphic.click()
+        QApplication.processEvents()
+        self.assertEqual(self._stealing_creation_calls[-1][0], "buy_tool")
+        self.assertEqual(pd["inventory"]["Proto-tool"], 1)
+        self.assertEqual(pd["stealing_creation"]["points"], 20)
+        self.assertEqual(active_tool.findData("morphic") >= 0, True)
+
+        volatile.click()
+        QApplication.processEvents()
+        self.assertEqual(self._stealing_creation_calls[-1][0], "buy_tool")
+        self.assertEqual(pd["inventory"]["Volatile clay tool"], 1)
+        self.assertEqual(pd["stealing_creation"]["points"], 0)
+        self.assertEqual(pd["stealing_creation"]["active_reward_tool"], "volatile")
+
+        with patch.object(
+            QMessageBox,
+            "question",
+            return_value=QMessageBox.StandardButton.Yes,
+        ):
+            leave.click()
+        QApplication.processEvents()
+        self.assertEqual(self._stealing_creation_calls[-1], ("leave", {}))
+        self.assertFalse(pd["stealing_creation"]["active_session"])
+        self.assertEqual(status.text(), "READY")
+
+        dialog.show()
+        dialog.resize(900, 560)
+        for _ in range(8):
+            QApplication.processEvents()
+        self.assertTrue(panel.isVisible())
+        self.assertLessEqual(
+            panel.mapTo(dialog, panel.rect().bottomRight()).y(),
+            dialog.contentsRect().bottom(),
+        )
 
     def test_activities_show_only_the_selected_rich_detail_card(self) -> None:
         from shooting_star_logic import (

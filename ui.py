@@ -356,6 +356,13 @@ except Exception:
     from fight_caves_logic import fight_caves_view_pure  # type: ignore
 
 try:
+    from .stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
+    from .stealing_creation_logic import stealing_creation_view_pure
+except Exception:
+    from stealing_creation_data import STEALING_CREATION_ACTIVITY_ID  # type: ignore
+    from stealing_creation_logic import stealing_creation_view_pure  # type: ignore
+
+try:
     from .combat_session import (
         confirm_wilderness_combat_risk,
         wilderness_combat_risk_confirmed,
@@ -3405,6 +3412,7 @@ def show_main_menu(
     on_penguin_command=None,
     on_vinesweeper_command=None,
     on_fight_caves_command=None,
+    on_stealing_creation_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
     on_set_construction=None,
@@ -9174,6 +9182,464 @@ def show_main_menu(
         _refresh_fight_caves_panel()
         cards_stack.addWidget(fight_caves_box)
 
+        stealing_creation_box = QtFrame()
+        stealing_creation_box.setObjectName("stealingCreationPanel")
+        stealing_creation_box.setStyleSheet(
+            "QFrame#stealingCreationPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        stealing_creation_layout = QVBoxLayout(stealing_creation_box)
+        stealing_creation_layout.setContentsMargins(10, 8, 10, 8)
+        stealing_creation_layout.setSpacing(6)
+
+        stealing_creation_top = QWidget()
+        stealing_creation_top_layout = QHBoxLayout(stealing_creation_top)
+        stealing_creation_top_layout.setContentsMargins(0, 0, 0, 0)
+        stealing_creation_top_layout.setSpacing(8)
+        stealing_creation_icon = QLabel()
+        stealing_creation_icon.setObjectName("stealingCreationIcon")
+        stealing_creation_icon.setFixedSize(28, 28)
+        stealing_creation_icon_path = os.path.join(
+            current_dir, "activityicons", "stealing_creation.png"
+        )
+        if os.path.exists(stealing_creation_icon_path):
+            stealing_creation_icon.setPixmap(
+                QPixmap(stealing_creation_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        stealing_creation_title = QLabel("Stealing Creation")
+        stealing_creation_title.setStyleSheet(
+            "font-weight: 700; color: palette(text);"
+        )
+        stealing_creation_status = QLabel()
+        stealing_creation_status.setObjectName("stealingCreationStatusChip")
+        stealing_creation_status.setStyleSheet(
+            f"color: {dim_text_css(stealing_creation_status)};"
+            " font-size: 11px; font-weight: 700;"
+        )
+        stealing_creation_top_layout.addWidget(stealing_creation_icon)
+        stealing_creation_top_layout.addWidget(stealing_creation_title)
+        stealing_creation_top_layout.addStretch(1)
+        stealing_creation_top_layout.addWidget(stealing_creation_status)
+        stealing_creation_layout.addWidget(stealing_creation_top)
+
+        stealing_creation_summary = QLabel()
+        stealing_creation_summary.setObjectName("stealingCreationSummary")
+        stealing_creation_summary.setWordWrap(True)
+        stealing_creation_summary.setStyleSheet("color: palette(text);")
+        stealing_creation_layout.addWidget(stealing_creation_summary)
+        stealing_creation_loadout = QLabel()
+        stealing_creation_loadout.setObjectName("stealingCreationLoadout")
+        stealing_creation_loadout.setWordWrap(True)
+        stealing_creation_loadout.setStyleSheet(
+            f"color: {dim_text_css(stealing_creation_loadout)};"
+        )
+        stealing_creation_layout.addWidget(stealing_creation_loadout)
+
+        stealing_creation_policy_row = QWidget()
+        stealing_creation_policy_layout = QHBoxLayout(stealing_creation_policy_row)
+        stealing_creation_policy_layout.setContentsMargins(0, 0, 0, 0)
+        stealing_creation_policy_layout.setSpacing(6)
+        stealing_creation_mode = QComboBox()
+        stealing_creation_mode.setObjectName("stealingCreationModeCombo")
+        stealing_creation_mode.setAccessibleName("Stealing Creation automation mode")
+        stealing_creation_mode.addItem("Casual · balanced plan", "casual")
+        stealing_creation_mode.addItem("Advanced · choose duty", "advanced")
+        stealing_creation_duty = QComboBox()
+        stealing_creation_duty.setObjectName("stealingCreationDutyCombo")
+        stealing_creation_duty.setAccessibleName("Stealing Creation duty")
+        stealing_creation_duty.addItem("Gather", "gather")
+        stealing_creation_duty.addItem("Process at kiln", "process")
+        stealing_creation_duty.addItem("Deposit clay", "deposit")
+        stealing_creation_policy_layout.addWidget(stealing_creation_mode, 1)
+        stealing_creation_policy_layout.addWidget(stealing_creation_duty, 1)
+        stealing_creation_layout.addWidget(stealing_creation_policy_row)
+
+        stealing_creation_detail_row = QWidget()
+        stealing_creation_detail_layout = QHBoxLayout(stealing_creation_detail_row)
+        stealing_creation_detail_layout.setContentsMargins(0, 0, 0, 0)
+        stealing_creation_detail_layout.setSpacing(6)
+        stealing_creation_method = QComboBox()
+        stealing_creation_method.setObjectName("stealingCreationGatherMethodCombo")
+        stealing_creation_method.setAccessibleName("Sacred clay gathering route")
+        stealing_creation_class = QComboBox()
+        stealing_creation_class.setObjectName("stealingCreationClassCombo")
+        stealing_creation_class.setAccessibleName("Sacred clay class")
+        for clay_class in range(1, 6):
+            stealing_creation_class.addItem(f"Class {clay_class}", clay_class)
+        stealing_creation_recipe = QComboBox()
+        stealing_creation_recipe.setObjectName("stealingCreationRecipeCombo")
+        stealing_creation_recipe.setAccessibleName("Creation kiln recipe")
+        stealing_creation_detail_layout.addWidget(stealing_creation_method, 1)
+        stealing_creation_detail_layout.addWidget(stealing_creation_class)
+        stealing_creation_detail_layout.addWidget(stealing_creation_recipe, 1)
+        stealing_creation_layout.addWidget(stealing_creation_detail_row)
+
+        stealing_creation_primary = QPushButton()
+        stealing_creation_primary.setObjectName("stealingCreationPrimaryButton")
+        stealing_creation_leave = QPushButton("Leave session")
+        stealing_creation_leave.setObjectName("stealingCreationLeaveButton")
+        stealing_creation_action_row = QWidget()
+        stealing_creation_action_layout = QHBoxLayout(stealing_creation_action_row)
+        stealing_creation_action_layout.setContentsMargins(0, 0, 0, 0)
+        stealing_creation_action_layout.setSpacing(6)
+        stealing_creation_action_layout.addWidget(stealing_creation_primary, 1)
+        stealing_creation_action_layout.addWidget(stealing_creation_leave, 1)
+        stealing_creation_layout.addWidget(stealing_creation_action_row)
+
+        stealing_creation_reward_row = QWidget()
+        stealing_creation_reward_layout = QHBoxLayout(stealing_creation_reward_row)
+        stealing_creation_reward_layout.setContentsMargins(0, 0, 0, 0)
+        stealing_creation_reward_layout.setSpacing(6)
+        stealing_creation_form = QComboBox()
+        stealing_creation_form.setObjectName("stealingCreationRewardFormCombo")
+        stealing_creation_form.setAccessibleName("Morphic proto-tool form")
+        stealing_creation_form.setToolTip(
+            "Choose the form for a morphic tool. Transforming preserves charge."
+        )
+        stealing_creation_morphic = QPushButton()
+        stealing_creation_morphic.setObjectName("stealingCreationMorphicButton")
+        stealing_creation_morphic.setToolTip(
+            "Morphic tools cost 20 points and give 200% total XP in the matching skill."
+        )
+        stealing_creation_volatile = QPushButton()
+        stealing_creation_volatile.setObjectName("stealingCreationVolatileButton")
+        stealing_creation_volatile.setToolTip(
+            "Volatile tools cost 20 points, require level 40, give 220% total XP, and randomize every 10% charge."
+        )
+        stealing_creation_reward_layout.addWidget(stealing_creation_form, 1)
+        stealing_creation_reward_layout.addWidget(stealing_creation_morphic)
+        stealing_creation_reward_layout.addWidget(stealing_creation_volatile)
+        stealing_creation_layout.addWidget(stealing_creation_reward_row)
+
+        stealing_creation_active_tool = QComboBox()
+        stealing_creation_active_tool.setObjectName("stealingCreationActiveToolCombo")
+        stealing_creation_active_tool.setAccessibleName("Active Stealing Creation XP tool")
+        stealing_creation_active_tool.setToolTip(
+            "Only the active tool boosts matching review actions; side rewards do not spend charge."
+        )
+        stealing_creation_layout.addWidget(stealing_creation_active_tool)
+        syncing_stealing_creation = {"active": False}
+
+        def _refresh_stealing_creation_panel() -> None:
+            view = stealing_creation_view_pure(player_data)
+            syncing_stealing_creation["active"] = True
+            active = bool(view["active"])
+            session = view.get("active_session", {}) or {}
+            stealing_creation_status.setText("ACTIVE" if active else "READY")
+            if active:
+                stealing_creation_summary.setText(
+                    f"Review {int(session.get('review', 0))}/20 · "
+                    f"score {int(session.get('player_score', 0)):,}–"
+                    f"{int(session.get('opponent_score', 0)):,} · "
+                    f"{int(view['reviews_remaining'])} duties remain · "
+                    f"{int(view['points'])} pt banked"
+                )
+                equipment = session.get("equipment", {}) or {}
+                clay_total = sum(int(value or 0) for value in (session.get("clay", {}) or {}).values())
+                raider = session.get("raider", {}) or {}
+                raid_text = (
+                    f"raider: {raider.get('display_name', 'engaged')}"
+                    if raider
+                    else f"next raid near review {int(session.get('next_raid_review', 0))}"
+                )
+                stealing_creation_loadout.setText(
+                    f"Clay {clay_total} · barrier C{int(equipment.get('barrier', 0))} · {raid_text}\n"
+                    f"Loadout · tool C{int(equipment.get('tool', 0))} · "
+                    f"weapon C{int(equipment.get('weapon', 0))} · "
+                    f"armour C{int(equipment.get('armour', 0))}"
+                )
+            else:
+                stealing_creation_summary.setText(
+                    f"{int(view['points'])} reward points · {int(view['wins'])} wins · "
+                    "20 review-driven duties per safe match"
+                )
+                stealing_creation_loadout.setText(
+                    str(view.get("last_result", "Gather, process, defend, and deposit sacred clay."))
+                    or "Gather, process, defend, and deposit sacred clay."
+                )
+
+            for combo, value in (
+                (stealing_creation_mode, str(view["automation_mode"])),
+                (stealing_creation_duty, str(view["selected_duty"])),
+                (stealing_creation_class, int(view["selected_class"])),
+                (stealing_creation_recipe, str(view["selected_recipe"])),
+            ):
+                index = combo.findData(value)
+                if index >= 0:
+                    combo.setCurrentIndex(index)
+            for duty_id, label in (
+                ("gather", "Gather"),
+                ("process", "Process at kiln"),
+                ("deposit", "Deposit clay"),
+            ):
+                duty_index = stealing_creation_duty.findData(duty_id)
+                if duty_index >= 0:
+                    stealing_creation_duty.setItemText(duty_index, label)
+
+            selected_method = str(view["selected_gather_method"])
+            stealing_creation_method.clear()
+            for method in view["gather_methods"]:
+                stealing_creation_method.addItem(
+                    f"{method['display_name']} · C{int(method['available_class'])}",
+                    method["id"],
+                )
+            method_index = stealing_creation_method.findData(selected_method)
+            if method_index >= 0:
+                stealing_creation_method.setCurrentIndex(method_index)
+            selected_method_view = next(
+                (
+                    method
+                    for method in view["gather_methods"]
+                    if method["id"] == selected_method
+                ),
+                None,
+            )
+            class_cap = int(selected_method_view["available_class"]) if selected_method_view else 1
+            for index in range(stealing_creation_class.count()):
+                clay_class = int(stealing_creation_class.itemData(index))
+                stealing_creation_class.setItemText(
+                    index,
+                    f"Class {clay_class}"
+                    if clay_class <= class_cap
+                    else f"Class {clay_class} · locked",
+                )
+
+            selected_recipe = str(view["selected_recipe"])
+            stealing_creation_recipe.clear()
+            for recipe in view["recipes"]:
+                stealing_creation_recipe.addItem(
+                    f"{recipe['display_name']} · C{int(recipe['available_class'])}",
+                    recipe["id"],
+                )
+            recipe_index = stealing_creation_recipe.findData(selected_recipe)
+            if recipe_index >= 0:
+                stealing_creation_recipe.setCurrentIndex(recipe_index)
+
+            selected_form = str(stealing_creation_form.currentData() or "hammer")
+            stealing_creation_form.clear()
+            for form in view["reward_forms"]:
+                stealing_creation_form.addItem(form["display_name"], form["id"])
+            form_index = stealing_creation_form.findData(selected_form)
+            if form_index < 0:
+                form_index = stealing_creation_form.findData("hammer")
+            stealing_creation_form.setCurrentIndex(max(0, form_index))
+
+            active_tool = str(view["active_reward_tool"])
+            stealing_creation_active_tool.clear()
+            stealing_creation_active_tool.addItem("XP tool · none active", "")
+            tool_by_kind = {tool["kind"]: tool for tool in view["tools"]}
+            for kind in ("morphic", "volatile"):
+                tool = tool_by_kind[kind]
+                if tool["owned"]:
+                    stealing_creation_active_tool.addItem(
+                        f"{tool['display_name']} · {tool['form_name']} · {int(tool['charge_percent'])}%",
+                        kind,
+                    )
+            tool_index = stealing_creation_active_tool.findData(active_tool)
+            stealing_creation_active_tool.setCurrentIndex(max(0, tool_index))
+
+            morphic = tool_by_kind["morphic"]
+            volatile = tool_by_kind["volatile"]
+            stealing_creation_morphic.setText(
+                "Morph owned tool" if morphic["owned"] else "Buy morphic · 20 pt"
+            )
+            stealing_creation_volatile.setText(
+                "Use volatile"
+                if volatile["owned"] and not volatile["active"]
+                else "Volatile active"
+                if volatile["active"]
+                else "Buy volatile · 20 pt"
+            )
+            can_buy = int(view["points"]) >= int(view["reward_cost"])
+            stealing_creation_morphic.setEnabled(
+                on_stealing_creation_command is not None
+                and (morphic["owned"] or can_buy)
+            )
+            stealing_creation_volatile.setEnabled(
+                on_stealing_creation_command is not None
+                and (volatile["owned"] or can_buy)
+                and not volatile["active"]
+            )
+            current_utility = str(player_data.get("current_utility", ""))
+            selected_for_reviews = active and current_utility == STEALING_CREATION_ACTIVITY_ID
+            stealing_creation_primary.setText(
+                "Selected for reviews"
+                if selected_for_reviews
+                else "Select for reviews"
+                if active
+                else "Enter Stealing Creation"
+            )
+            stealing_creation_primary.setEnabled(
+                on_stealing_creation_command is not None
+                and (not selected_for_reviews or not active)
+            )
+            stealing_creation_leave.setVisible(active)
+            stealing_creation_leave.setEnabled(on_stealing_creation_command is not None)
+            advanced = str(view["automation_mode"]) == "advanced"
+            casual_plan = view["casual_plan"]
+            if not advanced:
+                stealing_creation_duty.setItemText(
+                    stealing_creation_duty.currentIndex(), "Automatic duty rotation"
+                )
+                stealing_creation_method.setItemText(
+                    stealing_creation_method.currentIndex(),
+                    f"Automatic route · {casual_plan['method_name']} · C{int(casual_plan['clay_class'])}",
+                )
+                stealing_creation_class.setItemText(
+                    stealing_creation_class.currentIndex(),
+                    f"Automatic · Class {int(casual_plan['clay_class'])}",
+                )
+                stealing_creation_recipe.setItemText(
+                    stealing_creation_recipe.currentIndex(), "Automatic kiln loadout"
+                )
+            stealing_creation_mode.setToolTip(
+                "Casual automatically gathers "
+                f"class {int(casual_plan['clay_class'])} clay via "
+                f"{casual_plan['method_name']}, builds a full loadout and barrier, then deposits."
+                if not advanced
+                else "Advanced mode follows the selected duty, route, class, and kiln recipe."
+            )
+            for widget in (
+                stealing_creation_duty,
+                stealing_creation_method,
+                stealing_creation_class,
+                stealing_creation_recipe,
+            ):
+                widget.setEnabled(advanced and on_stealing_creation_command is not None)
+            stealing_creation_mode.setEnabled(on_stealing_creation_command is not None)
+            stealing_creation_active_tool.setEnabled(
+                on_stealing_creation_command is not None
+                and stealing_creation_active_tool.count() > 1
+            )
+            syncing_stealing_creation["active"] = False
+            _fit_current_activity_detail()
+
+        def _run_stealing_creation_command(
+            action_id: str,
+            payload=None,
+            *,
+            show_failure: bool = True,
+        ) -> dict[str, Any]:
+            if on_stealing_creation_command is None:
+                return {"ok": False}
+            result = on_stealing_creation_command(action_id, payload or {}) or {}
+            if not result.get("ok", False) and show_failure:
+                show_error_message(
+                    "Stealing Creation",
+                    str(result.get("message", "That Stealing Creation action is unavailable.")),
+                )
+            _refresh_stealing_creation_panel()
+            return result
+
+        def _set_stealing_creation_policy() -> None:
+            if syncing_stealing_creation["active"]:
+                return
+            _run_stealing_creation_command(
+                "set_policy",
+                {
+                    "automation_mode": str(stealing_creation_mode.currentData() or "casual"),
+                    "selected_duty": str(stealing_creation_duty.currentData() or "gather"),
+                    "selected_gather_method": str(stealing_creation_method.currentData() or "chop"),
+                    "selected_class": int(stealing_creation_class.currentData() or 1),
+                    "selected_recipe": str(stealing_creation_recipe.currentData() or "scimitar"),
+                },
+            )
+
+        def _select_stealing_creation_for_reviews() -> None:
+            view = stealing_creation_view_pure(player_data)
+            if not view["active"]:
+                result = _run_stealing_creation_command("enter", show_failure=False)
+                if result.get("requires_confirmation"):
+                    answer = QMessageBox.question(
+                        stealing_creation_box,
+                        "Dismiss active follower?",
+                        "Stealing Creation uses a closed temporary economy. Dismiss the active follower and enter?",
+                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                        QMessageBox.StandardButton.No,
+                    )
+                    if answer == QMessageBox.StandardButton.Yes:
+                        result = _run_stealing_creation_command(
+                            "enter", {"confirm_dismiss_follower": True}
+                        )
+                elif not result.get("ok", False):
+                    show_error_message(
+                        "Stealing Creation",
+                        str(result.get("message", "The minigame is unavailable.")),
+                    )
+                if not result.get("ok", False):
+                    return
+            if on_set_utility is not None:
+                on_set_utility(STEALING_CREATION_ACTIVITY_ID)
+                player_data["current_utility"] = STEALING_CREATION_ACTIVITY_ID
+                tree.clearSelection()
+            _refresh_stealing_creation_panel()
+
+        def _leave_stealing_creation() -> None:
+            answer = QMessageBox.question(
+                stealing_creation_box,
+                "Leave Stealing Creation?",
+                "Temporary clay, equipment, and the unfinished score are discarded.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_stealing_creation_command("leave")
+
+        def _buy_or_morph_stealing_creation_tool() -> None:
+            view = stealing_creation_view_pure(player_data)
+            morphic = next(tool for tool in view["tools"] if tool["kind"] == "morphic")
+            form_id = str(stealing_creation_form.currentData() or "hammer")
+            _run_stealing_creation_command(
+                "morph_tool" if morphic["owned"] else "buy_tool",
+                {"kind": "morphic", "form_id": form_id},
+            )
+
+        def _buy_or_activate_volatile_tool() -> None:
+            view = stealing_creation_view_pure(player_data)
+            volatile = next(tool for tool in view["tools"] if tool["kind"] == "volatile")
+            _run_stealing_creation_command(
+                "activate_tool" if volatile["owned"] else "buy_tool",
+                {"kind": "volatile"},
+            )
+
+        stealing_creation_primary.clicked.connect(
+            lambda _checked=False: _select_stealing_creation_for_reviews()
+        )
+        stealing_creation_leave.clicked.connect(
+            lambda _checked=False: _leave_stealing_creation()
+        )
+        for combo in (
+            stealing_creation_mode,
+            stealing_creation_duty,
+            stealing_creation_method,
+            stealing_creation_class,
+            stealing_creation_recipe,
+        ):
+            combo.currentIndexChanged.connect(
+                lambda _index: _set_stealing_creation_policy()
+            )
+        stealing_creation_morphic.clicked.connect(
+            lambda _checked=False: _buy_or_morph_stealing_creation_tool()
+        )
+        stealing_creation_volatile.clicked.connect(
+            lambda _checked=False: _buy_or_activate_volatile_tool()
+        )
+        stealing_creation_active_tool.currentIndexChanged.connect(
+            lambda _index: None
+            if syncing_stealing_creation["active"]
+            else _run_stealing_creation_command(
+                "activate_tool",
+                {"kind": str(stealing_creation_active_tool.currentData() or "")},
+            )
+        )
+        _refresh_stealing_creation_panel()
+        cards_stack.addWidget(stealing_creation_box)
+
         guild_box = QtFrame()
         guild_box.setObjectName("warriorsGuildPanel")
         guild_box.setStyleSheet(
@@ -10199,6 +10665,7 @@ def show_main_menu(
             _refresh_penguin_panel()
             _refresh_vinesweeper_panel()
             _refresh_fight_caves_panel()
+            _refresh_stealing_creation_panel()
             _show_activity_detail(activity_id)
 
         def _on_utility_clicked(item: "QTreeWidgetItem", _column: int = 0):
@@ -10253,6 +10720,9 @@ def show_main_menu(
             if activity_id == FIGHT_CAVES_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == STEALING_CREATION_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
             _set_utility_selection(activity_id)
 
         detail_cards = {
@@ -10270,6 +10740,10 @@ def show_main_menu(
             ),
             VINESWEEPER_ACTIVITY_ID: ("Vinesweeper", vinesweeper_box),
             FIGHT_CAVES_ACTIVITY_ID: ("TzHaar Fight Cave", fight_caves_box),
+            STEALING_CREATION_ACTIVITY_ID: (
+                "Stealing Creation",
+                stealing_creation_box,
+            ),
             FAMILIARISATION_ACTIVITY_ID: (
                 "Familiarisation",
                 familiarisation_box,

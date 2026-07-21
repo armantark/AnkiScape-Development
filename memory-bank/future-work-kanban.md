@@ -1073,10 +1073,19 @@ Labels: `SHIPPED: HELP CENTER`, `SHIPPED: DETAILS`, `QA: FABLE BLOCKED`.
 
 ### Activities, minigames, D&Ds, and reward shops
 
-Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
+Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
 
 - Platform seed: `memory-bank/minigames-activities-design-seed.md`.
-- Grill each family separately for entry/run state, review cost, event variance, currency, rewards, reward shop, persistence, expiry, and undo.
+- The horizontal breadth wave has shipped Shooting Stars, Fist of Guthix,
+  Sorceress's Garden, Penguin Hide and Seek, Vinesweeper, Fight Caves, and
+  Stealing Creation with complete mechanics, persistence, undo, UI, assets,
+  and compact period-qualified data sets.
+- Barrows is the next source/implementation frontier. Its nine-room session
+  shape is settled; pin the smallest honest brother and chest-reward set before
+  implementation. Tears of Guthix and Shattered Heart remain explicit source
+  readiness skips, not design questions.
+- Harvest each remaining family for entry/run state, review cost, event
+  variance, currency, rewards, reward shop, persistence, expiry, and undo.
 - Include the split activity cards from `gap-backlog.json`, bosses/instances, and wider pre-EOC reward activities. Never expose individual reward stubs before they work end to end.
 
 ### Bosses and instanced Combat
@@ -1099,8 +1108,8 @@ Labels: `DESIGN CLOSED 2026-07-18`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY:
 
 Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 
-- Maintain `tools/audit_item_reachability.py`; the current run finds 1,435
-  actions, 2,100 reachable items, and 168 orphan inputs (76 root, 92 cascade)
+- Maintain `tools/audit_item_reachability.py`; the current run finds 1,436
+  actions, 2,102 reachable items, and 168 orphan inputs (76 root, 92 cascade)
   across planned skills, activities, Combat/world acquisition, Farming, and
   potion-state plumbing. Bob Barter's vial decant routes and Teplin Macagan's
   vial/flask conversions make potion dose variants known-producer cascades;

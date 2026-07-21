@@ -395,6 +395,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-10-06T02:04:16Z"
   },
+  "activityicons/stealing_creation.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Sacred_clay_%28class_5%29.png",
+    "file_title": "Sacred clay (class 5).png",
+    "image_url": "https://runescape.wiki/images/archive/20140502180124%21Sacred_clay_%28class_5%29.png?803f8",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f40d8be7d6a49778e2666fee832107f6b037f519",
+    "size": 1488,
+    "source_wiki": "rs3",
+    "timestamp": "2010-05-23T15:50:59Z"
+  },
   "activityicons/vinesweeper.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Flag.png",
     "file_title": "Flag.png",
@@ -539,6 +551,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-03-21T15:12:42Z"
   },
+  "activityitems/proto_tool.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Proto-tool.png",
+    "file_title": "Proto-tool.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511082038%21Proto-tool.png?a3a92",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "17d7522924cf355c8414a7a1bf140119e491b950",
+    "size": 175,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-08T04:44:35Z"
+  },
   "activityitems/spring_sq_irk.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Spring_sq%27irk.png",
     "file_title": "Spring sq'irk.png",
@@ -586,6 +610,18 @@
     "size": 825,
     "source_wiki": "rs3",
     "timestamp": "2010-10-06T02:04:39Z"
+  },
+  "activityitems/volatile_clay_tool.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Volatile_clay_tool.png",
+    "file_title": "Volatile clay tool.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502180854%21Volatile_clay_tool.png?712e2",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2faa6e3550bf34c56117a46a1af9e74ebbb23fa0",
+    "size": 189,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-30T11:20:25Z"
   },
   "activityitems/winter_sq_irk.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Winter_sq%27irk.png",

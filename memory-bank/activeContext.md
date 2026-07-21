@@ -2,6 +2,45 @@
 
 ## Current Focus
 
+Stealing Creation now satisfies horizontal breadth level one. One safe,
+review-driven twenty-duty match owns a closed temporary economy: five sacred
+clay classes, gather/process/deposit scoring, session-only hatchet, scimitar,
+platebody and four-piece barrier, a bounded opposing score, and jittered raiders
+resolved through the shared six-tick Combat reducer. Casual builds a complete
+loadout and then deposits; Advanced exposes duty, route, class and kiln recipe.
+Safe death transfers carried clay to the opposing score, applies period Protect
+Item semantics through the labeled class-first fallback, and never leaks clay,
+gear, outside supplies, prayers, healing, XP, or Bank state.
+
+The exact period point curve and winner's 10% score bonus are live. Persistent
+morphic and volatile tools cost 20 points, preserve their authentic seven
+forms, award 200% and 220% total matching-skill XP, consume charge from bonus XP,
+and keep volatile's level-40 and 10%-segment transformation rules. The shared XP
+hot path uses a cheap applicability predicate and selected-action-family gate,
+so unrelated side XP neither copies the save nor drains charge.
+
+The paginated Minigames page now exposes a compact dark-mode Stealing Creation
+card with truthful Casual summaries, Advanced controls, reward purchases and
+active-tool selection. Opus's independent review found and closed temporary-
+actor leakage, terminal raid stalls, casual tier livelock, side-XP charge,
+sanitation and UI hierarchy defects. The reserved Fable quota was not used; the
+single Kimi K3 request was stopped after roughly 25 minutes without response
+headers, so no Kimi approval is claimed. A fully restarted native Anki process
+showed one launcher, one menu, the visible Minigames row, and the final unclipped
+READY card; the native pass also found and fixed stale Advanced values displayed
+inside Casual mode.
+
+The exact final state passes all 2,057 non-Qt tests with 268 expected
+environment skips and all 2,057 real offscreen-Qt tests with one intentional
+skip. Test quality has zero hard issues; documentation, compilation, JSON,
+diff, normalized assets, reachability and worktree safety pass. Reachability now
+contains 1,436 actions, 2,102 reachable items, 168 orphan inputs and 189 blocked
+actions. No owner design gap emerged. Durable record:
+`source-audits/stealing-creation-horizontal-mvp-2026-07-20.md`. Barrows is the
+next BFS frontier after its minimal brother/chest reward harvest. Results:
+`status-updates/stealing-creation-horizontal-mvp-results-2026-07-20.html`;
+mobile copy: `https://tougys8r35za.postplan.dev`.
+
 TzHaar Fight Cave now satisfies horizontal breadth level one. The exact
 63-wave roster persists across reviews; each successful review resolves one
 engaged six-tick Combat slice, then bounded pressure from the visible

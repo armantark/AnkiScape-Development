@@ -83,8 +83,7 @@ The owner-settled activity wave remains the current breadth frontier:
 
 1. Tears of Guthix;
 2. Barrows;
-3. Stealing Creation;
-4. Shattered Heart.
+3. Shattered Heart.
 
 Tears of Guthix is currently skipped, not removed: its exact post-refresh
 reward magnitude and session beat count remain `source_blocked`.
@@ -97,8 +96,9 @@ HUD, normalized period art, and focused proof. The initial-size, first-finder,
 crowd, gem, and reward-rounding distributions are explicitly bounded data debt,
 not missing mechanics.
 
-Fist of Guthix, Sorceress's Garden, Penguin Hide and Seek, Vinesweeper, and
-TzHaar Fight Cave now also satisfy breadth level one. Fight Caves ships the
+Fist of Guthix, Sorceress's Garden, Penguin Hide and Seek, Vinesweeper,
+TzHaar Fight Cave, and Stealing Creation now also satisfy breadth level one.
+Fight Caves ships the
 exact persistent 63-wave roster, engaged-target Combat, unengaged pressure,
 creature mechanics, Jad telegraph/healers, safe death, leave/resume, partial
 and completion rewards, follower/session gates, undo, and a compact activity
@@ -107,12 +107,20 @@ point, Farming-XP, and literal cutoff reward-shop graph without inventing a
 board or wall-clock simulation. Its bounded one-roll field outcome is labeled
 abstraction; exact hidden outcome rates remain later data depth. The newly
 reachable Compost potion chain also has its period shop, dose, conversion,
-item, price, and buy-limit seams. Tears of Guthix remains skipped until its
-source-blocked post-refresh reward magnitude and session beat count are
-resolved. Barrows and Shattered Heart remain data-readiness skips rather than
-permission to flatten their missing combat/reward or qualifying-action
-mechanics. Stealing Creation is therefore the next source- and design-ready
-breadth-one frontier.
+item, price, and buy-limit seams. Stealing Creation ships its complete closed
+temporary economy, five clay classes, gather/process/deposit score race,
+session-only loadout and barrier, six-tick raiders, safe death, review budget,
+exact point conversion, and morphic/volatile reward-tool loop. Its compact
+Activities card keeps Casual automation truthful while Advanced exposes every
+policy axis.
+
+Tears of Guthix remains skipped until its source-blocked post-refresh reward
+magnitude and session beat count are resolved. Shattered Heart remains a
+data-readiness skip until a minimal qualifying-action set and bounded rock roll
+can be pinned without pretending all fifteen skill families are equivalent.
+Barrows is now the next frontier: its settled nine-room graph and Combat shape
+are ready, while the implementation harvest must still pin the smallest honest
+brother and chest-reward data set before code begins.
 
 After each accepted slice, recompute the frontier from live source/runtime
 evidence. Any newly discovered owner-facing fork goes into the current

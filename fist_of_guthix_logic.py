@@ -263,6 +263,14 @@ def _generate_opponent(player_data: Mapping[str, Any], rng: Callable[[], float] 
     }
 
 
+def generate_fist_of_guthix_opponent_pure(
+    player_data: Mapping[str, Any],
+    rng: Callable[[], float] | None = None,
+) -> dict[str, Any]:
+    """Expose the bounded period-shaped opponent pool to sibling minigames."""
+    return _generate_opponent(player_data, rng)
+
+
 def _casual_stance(player_data: Mapping[str, Any], opponent: Mapping[str, Any]) -> str:
     player_level = _player_combat_level(player_data)
     opponent_level = _int(opponent.get("combat_level"), 3, minimum=3)
