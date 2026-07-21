@@ -138,3 +138,14 @@ from one through four doses. It also recovered the previously registered
 `Combat hood 0` record at `3,111` coins and a limit of `10`; that identity no
 longer belongs in the fail-closed set. The generated catalog now has `1,336`
 direct period prices and `1,646` period buy limits for `1,665` registered items.
+
+## Registered-item continuation — 2026-07-21
+
+The Barrows horizontal breadth slice registered seven representative weapons
+across their full, first-degraded, `75`, `50`, `25`, and broken identities.
+Regeneration recovered the exact period limit for all fourteen exchangeable
+full/broken identities: `10` each except Karil's crossbow and Karil's crossbow
+0 at `1`. Six full weapons also recovered dated pre-cutoff Exchange prices;
+Torag's hammers retains the cache-value fallback. The generated catalog now has
+`1,342` direct period prices and `1,660` period buy limits for `1,679`
+registered items, while the explicit nineteen-row unresolved set is unchanged.

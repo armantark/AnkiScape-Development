@@ -2,6 +2,46 @@
 
 ## Current Focus
 
+Barrows now satisfies horizontal breadth level one. One dangerous, resumable
+run owns the six original brothers plus Ritual-of-the-Mahjarrat-gated Akrisae,
+six tunnel creatures, a complete 3×3 tunnel graph, one locked perimeter door,
+one central route, review-driven six-tick Combat, brother specials, prayer
+drain, early chests, exact reward potential, the ordinary reward ladder, and a
+representative weapon from every brother. Casual chooses the shortest route
+and claims the chest; Advanced exposes mound and door choices without changing
+the underlying run.
+
+Suspension preserves the exact graph and encounter, dangerous death resets the
+run, and every terminal path restores the pre-run Combat target. Rewarded
+weapons are per-copy equipment instances with 90,000-tick condition,
+100/75/50/25/0 names, proportional value, Combat degradation, and instant
+prorated repair at Bob. The cutoff Grand Exchange rows, item identities,
+reachability edges, schema-60 migration, direct/review undo, cadence coverage,
+normalized activity/weapon art, and reproducible asset helpers are live.
+
+The closure review caught and closed an emulator-indexing defect that made an
+early equipment roll depend on a brother's absolute list position, plus stale
+synthetic Combat-target cleanup on empty prior targets. Opus then found and
+closed an Advanced chest eligibility mismatch that could deactivate training
+with a modal error; it accepted the final slice after the intentional shared
+run-energy-credit mapping was documented and made truthful at zero credit. The
+completed 3×3 map and compact dark-mode card were exercised in a fully restarted native Anki
+process: one launcher opened one menu, the paginated Minigames row was visible,
+enter/leave/resume worked, and a field-scoped cleanup restored the synthetic
+smoke run to READY without changing unrelated player state. Fable remained on
+reserve at the owner's request; Kimi was unavailable at its remaining quota,
+so Opus was used for the external review lane.
+
+The exact final state passes all 2,083 non-Qt tests with 269 expected
+environment skips and all 2,083 real offscreen-Qt tests with one intentional
+skip. Test quality has zero hard issues; documentation, compilation, JSON,
+diff, normalized assets, reachability, and worktree safety pass. Reachability
+now contains 1,437 actions, 2,109 reachable items, 168 orphan inputs, and 189
+blocked actions. No owner design gap emerged. Durable record:
+`source-audits/barrows-horizontal-mvp-2026-07-21.md`. Results:
+`status-updates/barrows-horizontal-mvp-results-2026-07-21.html`; mobile copy:
+`https://xpd3hsr4ybb4.postplan.dev`.
+
 Stealing Creation now satisfies horizontal breadth level one. One safe,
 review-driven twenty-duty match owns a closed temporary economy: five sacred
 clay classes, gather/process/deposit scoring, session-only hatchet, scimitar,
@@ -36,8 +76,8 @@ skip. Test quality has zero hard issues; documentation, compilation, JSON,
 diff, normalized assets, reachability and worktree safety pass. Reachability now
 contains 1,436 actions, 2,102 reachable items, 168 orphan inputs and 189 blocked
 actions. No owner design gap emerged. Durable record:
-`source-audits/stealing-creation-horizontal-mvp-2026-07-20.md`. Barrows is the
-next BFS frontier after its minimal brother/chest reward harvest. Results:
+`source-audits/stealing-creation-horizontal-mvp-2026-07-20.md`. Barrows has
+since shipped as the next BFS slice. Results:
 `status-updates/stealing-creation-horizontal-mvp-results-2026-07-20.html`;
 mobile copy: `https://tougys8r35za.postplan.dev`.
 

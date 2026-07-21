@@ -4,6 +4,48 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Barrows horizontal mechanic closure — 2026-07-21
+
+- Implemented the complete dangerous Barrows run: the six original brothers,
+  Ritual-gated Akrisae, six tunnel creatures, a persistent 3×3 graph with one
+  locked perimeter door, one central approach, mound and tunnel combat,
+  brother specials, early chest access, reward potential, and the ordinary
+  reward ladder.
+- Added Casual shortest-route/chest automation and Advanced mound/door choices.
+  One successful review resolves the door plus its attached six-tick Combat
+  beat; suspension preserves the exact run while death resets it.
+- Registered one representative weapon for every brother as an independently
+  degrading equipment instance. The 90,000-tick condition cycle,
+  100/75/50/25/0 names, value aliases, combat degradation, unsafe-death state,
+  and prorated Bob repair are live through Bank, Equipment, GE, persistence,
+  and undo seams.
+- Corrected the emulator's absolute-brother-index equipment-roll defect so an
+  early chest gives exactly one eligible equipment roll per slain brother,
+  independent of identity. Exit, chest, and death also restore the saved
+  Combat target even when that target was empty.
+- Opus's bounded final review found and closed the Advanced chest eligibility
+  mismatch that could route a review into a manual-only action and deactivate
+  training. Its run-energy concern was reconciled against the settled shared
+  trip-credit abstraction; Torag now reports the actual credit removed and a
+  truthful no-op at zero. Opus accepted the final slice.
+- Added schema-60 persistence, cadence coverage, activity/item registration,
+  cutoff GE prices and limits, reachability, seven weapon icons, one activity
+  icon, reproducible fetch/render helpers, and the compact dark-safe Activities
+  card with its complete always-visible 3×3 map and repair row.
+- Native Anki proof used a full application restart and verified one launcher,
+  one menu, Activities pagination, the visible Barrows row, enter/leave/resume,
+  and the final READY state. Synthetic smoke state was removed through an exact
+  field-scoped cleanup after Anki's own undo history was exhausted.
+- Fable remained reserved under the owner's quota instruction. Kimi was not
+  retried at 4% remaining quota; Opus supplied the external review lane.
+- Verification: all 2,083 non-Qt tests pass with 269 expected skips and all
+  2,083 real offscreen-Qt tests pass with one intentional skip. Hard
+  test-quality, docs, compilation, JSON, diff, normalized assets,
+  reachability, native Anki, and worktree safety pass. No design gap emerged.
+  See `source-audits/barrows-horizontal-mvp-2026-07-21.md`.
+- Results: `status-updates/barrows-horizontal-mvp-results-2026-07-21.html`;
+  mobile copy: `https://xpd3hsr4ybb4.postplan.dev`.
+
 ## Stealing Creation horizontal mechanic closure — 2026-07-20
 
 - Implemented one complete twenty-review safe match with five sacred-clay

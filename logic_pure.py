@@ -15,14 +15,14 @@ try:
         discharge_equipped_on_unsafe_death_pure,
         sanitize_equipment_instance_state_pure,
     )
-    from .fist_of_guthix_data import FIST_OF_GUTHIX_CONDITION_DATA
+    from .equipment_condition_data import EQUIPMENT_CONDITION_DATA
 except ImportError:
     from equipment_instance_logic import (
         advance_equipped_condition_pure,
         discharge_equipped_on_unsafe_death_pure,
         sanitize_equipment_instance_state_pure,
     )
-    from fist_of_guthix_data import FIST_OF_GUTHIX_CONDITION_DATA
+    from equipment_condition_data import EQUIPMENT_CONDITION_DATA
 
 try:
     from .inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure, carried_slots_used, clamp_carried_view_to_bank
@@ -3438,7 +3438,7 @@ def _combat_apply_pvm_death(
             key=lambda slot: (_non_negative_int(ITEM_VALUES.get(original_equipment[slot], 0), 0), str(original_equipment[slot]), str(slot)),
         )
     discharged, _condition_events = discharge_equipped_on_unsafe_death_pure(
-        data, FIST_OF_GUTHIX_CONDITION_DATA
+        data, EQUIPMENT_CONDITION_DATA
     )
     data.clear()
     data.update(discharged)
@@ -3505,7 +3505,7 @@ def _combat_apply_pvm_death(
     data["combat_status_effects"] = {}
     data["combat_lifepoints"] = max_player_lifepoints
     synced = sanitize_equipment_instance_state_pure(
-        data, FIST_OF_GUTHIX_CONDITION_DATA
+        data, EQUIPMENT_CONDITION_DATA
     )
     data.clear()
     data.update(synced)
@@ -3566,7 +3566,7 @@ def _combat_apply_wilderness_death(
         else combat_wilderness_equipment_risk_pure(data, enemy)
     )
     discharged, _condition_events = discharge_equipped_on_unsafe_death_pure(
-        data, FIST_OF_GUTHIX_CONDITION_DATA
+        data, EQUIPMENT_CONDITION_DATA
     )
     data.clear()
     data.update(discharged)
@@ -3583,7 +3583,7 @@ def _combat_apply_wilderness_death(
     data["combat_status_effects"] = {}
     data["combat_lifepoints"] = max_player_lifepoints
     synced = sanitize_equipment_instance_state_pure(
-        data, FIST_OF_GUTHIX_CONDITION_DATA
+        data, EQUIPMENT_CONDITION_DATA
     )
     data.clear()
     data.update(synced)
@@ -7468,7 +7468,7 @@ def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
             data["combat_grave"] = grave
     data.update(
         sanitize_equipment_instance_state_pure(
-            data, FIST_OF_GUTHIX_CONDITION_DATA
+            data, EQUIPMENT_CONDITION_DATA
         )
     )
     return data
@@ -7517,7 +7517,7 @@ def reclaim_death_office_items_pure(player_data):
     data["death_office"] = {}
     data.update(
         sanitize_equipment_instance_state_pure(
-            data, FIST_OF_GUTHIX_CONDITION_DATA
+            data, EQUIPMENT_CONDITION_DATA
         )
     )
     return data, True, ""
@@ -8201,6 +8201,8 @@ def apply_combat_burst_pure(
                 landed = float(rng()) < live_player_accuracy
             except (TypeError, ValueError):
                 landed = False
+            if enemy.get("protect_from_player_class") == combat_class:
+                landed = False
             damage = _combat_roll_damage_lifepoints(live_player_max_hit, rng) if landed else 0
             if live_cadence:
                 curse_attack_count += 1
@@ -8691,7 +8693,7 @@ def apply_combat_burst_pure(
                             potions_used.append(potion_event)
 
     data, equipment_condition_events = advance_equipped_condition_pure(
-        data, ticks_elapsed, FIST_OF_GUTHIX_CONDITION_DATA
+        data, ticks_elapsed, EQUIPMENT_CONDITION_DATA
     )
     inventory = data.get("inventory", {}) or {}
     for item_name, amount in drops.items():

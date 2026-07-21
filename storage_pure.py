@@ -17,7 +17,8 @@ try:
         default_equipment_instance_state_pure,
         sanitize_equipment_instance_state_pure,
     )
-    from .fist_of_guthix_data import FIST_OF_GUTHIX_CONDITION_DATA
+    from .equipment_condition_data import EQUIPMENT_CONDITION_DATA
+    from .barrows_logic import default_barrows_state_pure, sanitize_barrows_state_pure
     from .fist_of_guthix_logic import (
         default_fist_of_guthix_state_pure,
         sanitize_fist_of_guthix_state_pure,
@@ -144,7 +145,8 @@ except ImportError:
         default_equipment_instance_state_pure,
         sanitize_equipment_instance_state_pure,
     )
-    from fist_of_guthix_data import FIST_OF_GUTHIX_CONDITION_DATA
+    from equipment_condition_data import EQUIPMENT_CONDITION_DATA
+    from barrows_logic import default_barrows_state_pure, sanitize_barrows_state_pure  # type: ignore
     from fist_of_guthix_logic import (  # type: ignore
         default_fist_of_guthix_state_pure,
         sanitize_fist_of_guthix_state_pure,
@@ -257,7 +259,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 59
+CURRENT_CONFIG_VERSION = 60
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -488,6 +490,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["fist_of_guthix"] = default_fist_of_guthix_state_pure()
     data["fight_caves"] = default_fight_caves_state_pure()
     data["stealing_creation"] = default_stealing_creation_state_pure()
+    data["barrows"] = default_barrows_state_pure()
     data["activity_session"] = {"active_id": ""}
     data["sorceress_garden"] = default_sorceress_garden_state_pure()
     data["penguin_hide_and_seek"] = default_penguin_state_pure()
@@ -1106,6 +1109,7 @@ def migrate_loaded_data(
     data["stealing_creation"] = sanitize_stealing_creation_state_pure(
         data.get("stealing_creation")
     )
+    data["barrows"] = sanitize_barrows_state_pure(data.get("barrows"))
     raw_activity_session = data.get("activity_session")
     active_session_id = (
         str(raw_activity_session.get("active_id", ""))[:80]
@@ -1115,8 +1119,14 @@ def migrate_loaded_data(
     if data["fight_caves"]["active"]:
         active_session_id = "fight_caves"
         data["stealing_creation"]["active_session"] = {}
+        data["barrows"]["active"] = False
+        data["barrows"]["suspended"] = True
     elif data["stealing_creation"]["active_session"]:
         active_session_id = "stealing_creation"
+        data["barrows"]["active"] = False
+        data["barrows"]["suspended"] = True
+    elif data["barrows"]["active"]:
+        active_session_id = "barrows"
     data["activity_session"] = {"active_id": active_session_id}
     data["sorceress_garden"] = sanitize_sorceress_garden_state_pure(
         data.get("sorceress_garden")
@@ -1358,7 +1368,7 @@ def migrate_loaded_data(
     data.update(sanitize_combat_state_pure(data))
     data.update(
         sanitize_equipment_instance_state_pure(
-            data, FIST_OF_GUTHIX_CONDITION_DATA
+            data, EQUIPMENT_CONDITION_DATA
         )
     )
     combat_current_levels = data.get("combat_current_levels")

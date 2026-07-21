@@ -356,6 +356,13 @@ except Exception:
     from fight_caves_logic import fight_caves_view_pure  # type: ignore
 
 try:
+    from .barrows_data import BARROWS_ACTIVITY_ID, BARROWS_BROTHER_DATA
+    from .barrows_logic import barrows_view_pure
+except Exception:
+    from barrows_data import BARROWS_ACTIVITY_ID, BARROWS_BROTHER_DATA  # type: ignore
+    from barrows_logic import barrows_view_pure  # type: ignore
+
+try:
     from .stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
     from .stealing_creation_logic import stealing_creation_view_pure
 except Exception:
@@ -3412,6 +3419,7 @@ def show_main_menu(
     on_penguin_command=None,
     on_vinesweeper_command=None,
     on_fight_caves_command=None,
+    on_barrows_command=None,
     on_stealing_creation_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
@@ -9182,6 +9190,288 @@ def show_main_menu(
         _refresh_fight_caves_panel()
         cards_stack.addWidget(fight_caves_box)
 
+        barrows_box = QtFrame()
+        barrows_box.setObjectName("barrowsPanel")
+        barrows_box.setStyleSheet(
+            "QFrame#barrowsPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        barrows_layout = QVBoxLayout(barrows_box)
+        barrows_layout.setContentsMargins(10, 8, 10, 8)
+        barrows_layout.setSpacing(6)
+
+        barrows_top = QWidget()
+        barrows_top_layout = QHBoxLayout(barrows_top)
+        barrows_top_layout.setContentsMargins(0, 0, 0, 0)
+        barrows_top_layout.setSpacing(8)
+        barrows_icon = QLabel()
+        barrows_icon.setObjectName("barrowsIcon")
+        barrows_icon.setFixedSize(28, 28)
+        barrows_icon_path = os.path.join(current_dir, "activityicons", "barrows.png")
+        if os.path.exists(barrows_icon_path):
+            barrows_icon.setPixmap(
+                QPixmap(barrows_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        barrows_title = QLabel("Barrows")
+        barrows_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        barrows_status = QLabel()
+        barrows_status.setObjectName("barrowsStatusChip")
+        barrows_status.setStyleSheet(
+            f"color: {dim_text_css(barrows_status)}; font-size: 11px; font-weight: 700;"
+        )
+        barrows_top_layout.addWidget(barrows_icon)
+        barrows_top_layout.addWidget(barrows_title)
+        barrows_top_layout.addStretch(1)
+        barrows_top_layout.addWidget(barrows_status)
+        barrows_layout.addWidget(barrows_top)
+
+        barrows_summary = QLabel()
+        barrows_summary.setObjectName("barrowsSummary")
+        barrows_summary.setWordWrap(True)
+        barrows_summary.setStyleSheet("color: palette(text);")
+        barrows_layout.addWidget(barrows_summary)
+
+        barrows_encounter = QLabel()
+        barrows_encounter.setObjectName("barrowsEncounter")
+        barrows_encounter.setWordWrap(True)
+        barrows_encounter.setStyleSheet(
+            "QLabel { color: palette(highlighted-text); background: palette(highlight);"
+            " border-radius: 5px; padding: 5px; font-weight: 700; }"
+        )
+        barrows_layout.addWidget(barrows_encounter)
+
+        barrows_controls = QWidget()
+        barrows_controls_layout = QHBoxLayout(barrows_controls)
+        barrows_controls_layout.setContentsMargins(0, 0, 0, 0)
+        barrows_controls_layout.setSpacing(6)
+        barrows_mode = QComboBox()
+        barrows_mode.setObjectName("barrowsModeCombo")
+        barrows_mode.setAccessibleName("Barrows automation mode")
+        barrows_mode.addItem("Casual · route and loot", "casual")
+        barrows_mode.addItem("Advanced · choose doors", "advanced")
+        barrows_brother = QComboBox()
+        barrows_brother.setObjectName("barrowsBrotherCombo")
+        barrows_brother.setAccessibleName("Barrows mound target")
+        barrows_controls_layout.addWidget(barrows_mode, 1)
+        barrows_controls_layout.addWidget(barrows_brother, 1)
+        barrows_layout.addWidget(barrows_controls)
+
+        barrows_map = QWidget()
+        barrows_map.setObjectName("barrowsRoomGrid")
+        barrows_map_layout = QGridLayout(barrows_map)
+        barrows_map_layout.setContentsMargins(0, 0, 0, 0)
+        barrows_map_layout.setSpacing(4)
+        barrows_room_buttons = []
+        for room in range(9):
+            button = QPushButton("Chest" if room == 4 else str(room + 1))
+            button.setObjectName(f"barrowsRoom{room}Button")
+            button.setAccessibleName(
+                "Barrows central chest" if room == 4 else f"Barrows tunnel room {room + 1}"
+            )
+            button.setCheckable(True)
+            button.setMinimumHeight(25)
+            barrows_map_layout.addWidget(button, room // 3, room % 3)
+            barrows_room_buttons.append(button)
+        barrows_layout.addWidget(barrows_map)
+
+        barrows_action_row = QWidget()
+        barrows_action_layout = QHBoxLayout(barrows_action_row)
+        barrows_action_layout.setContentsMargins(0, 0, 0, 0)
+        barrows_action_layout.setSpacing(6)
+        barrows_primary = QPushButton()
+        barrows_primary.setObjectName("barrowsPrimaryButton")
+        barrows_leave = QPushButton("Leave · preserve run")
+        barrows_leave.setObjectName("barrowsLeaveButton")
+        barrows_chest = QPushButton("Open chest")
+        barrows_chest.setObjectName("barrowsChestButton")
+        barrows_action_layout.addWidget(barrows_primary, 1)
+        barrows_action_layout.addWidget(barrows_leave, 1)
+        barrows_action_layout.addWidget(barrows_chest, 1)
+        barrows_layout.addWidget(barrows_action_row)
+
+        barrows_repair_row = QWidget()
+        barrows_repair_layout = QHBoxLayout(barrows_repair_row)
+        barrows_repair_layout.setContentsMargins(0, 0, 0, 0)
+        barrows_repair_layout.setSpacing(6)
+        barrows_repair = QComboBox()
+        barrows_repair.setObjectName("barrowsRepairCombo")
+        barrows_repair.setAccessibleName("Damaged Barrows item")
+        barrows_repair_button = QPushButton("Repair at Bob")
+        barrows_repair_button.setObjectName("barrowsRepairButton")
+        barrows_repair_layout.addWidget(barrows_repair, 1)
+        barrows_repair_layout.addWidget(barrows_repair_button)
+        barrows_layout.addWidget(barrows_repair_row)
+
+        syncing_barrows = {"active": False}
+
+        def _refresh_barrows_panel() -> None:
+            view = barrows_view_pure(player_data)
+            syncing_barrows["active"] = True
+            active = bool(view["active"])
+            suspended = bool(view["suspended"])
+            mode = str(view["automation_mode"])
+            mode_index = barrows_mode.findData(mode)
+            if mode_index >= 0:
+                barrows_mode.setCurrentIndex(mode_index)
+            barrows_status.setText("ACTIVE" if active else "SUSPENDED" if suspended else "READY")
+            phase = str(view["phase"]).title()
+            barrows_summary.setText(
+                f"{phase} · {len(view['slain_brothers'])}/{len(view['available_brothers'])} brothers · "
+                f"{int(view['tunnel_kill_count'])} crypt kills · "
+                f"{int(view['reward_potential']):,}/1,012 reward potential"
+                if active or suspended
+                else f"{int(view['chests_opened'])} chests opened · dangerous death · leaving keeps your run"
+            )
+            barrows_summary.setToolTip(str(view["last_result"]))
+            encounter_name = str(view["encounter_name"])
+            barrows_encounter.setVisible(bool(encounter_name))
+            barrows_encounter.setText(
+                f"{encounter_name} · {int(view['encounter_lifepoints']):,}/"
+                f"{int(view['encounter_max_lifepoints']):,} LP"
+                if encounter_name else ""
+            )
+
+            selected_brother = str(view["selected_brother"])
+            barrows_brother.clear()
+            for brother_id in view["surface_queue"]:
+                barrows_brother.addItem(
+                    str(BARROWS_BROTHER_DATA[brother_id]["display_name"]),
+                    brother_id,
+                )
+            brother_index = barrows_brother.findData(selected_brother)
+            if brother_index >= 0:
+                barrows_brother.setCurrentIndex(brother_index)
+            barrows_brother.setVisible(
+                active and view["phase"] == "mounds" and mode == "advanced"
+            )
+            barrows_brother.setEnabled(
+                on_barrows_command is not None and not bool(view["active_encounter"])
+            )
+
+            current_room = int(view["current_room"])
+            revealed = set(int(value) for value in view["revealed_rooms"])
+            doors = set(int(value) for value in view["available_doors"])
+            selected_room = int(view["selected_room"])
+            show_map = active and view["phase"] in {"tunnels", "chest"}
+            barrows_map.setVisible(show_map)
+            for room, button in enumerate(barrows_room_buttons):
+                room_revealed = room in revealed or room == current_room or room == 4
+                marker = "◆ " if room == current_room else ""
+                button.setText(
+                    marker + ("Chest" if room == 4 else str(room + 1))
+                    if room_revealed
+                    else "?"
+                )
+                button.setVisible(True)
+                button.setEnabled(
+                    active
+                    and mode == "advanced"
+                    and not bool(view["active_encounter"])
+                    and room in doors
+                    and on_barrows_command is not None
+                )
+                button.setChecked(room == selected_room)
+
+            barrows_repair.clear()
+            for row in view["repair_rows"]:
+                percent = int(100 * row["condition"] / max(1, row["maximum"]))
+                barrows_repair.addItem(
+                    f"{row['item_name']} · {percent}% · {int(row['cost']):,} coins",
+                    row["instance_id"],
+                )
+            barrows_repair_row.setVisible(barrows_repair.count() > 0)
+            barrows_repair_button.setEnabled(
+                on_barrows_command is not None and barrows_repair.count() > 0
+            )
+
+            current_utility = str(player_data.get("current_utility", ""))
+            selected_for_reviews = active and current_utility == BARROWS_ACTIVITY_ID
+            barrows_primary.setText(
+                "Selected for reviews"
+                if selected_for_reviews
+                else "Select for reviews"
+                if active
+                else "Resume Barrows"
+                if suspended
+                else "Enter Barrows"
+            )
+            barrows_primary.setEnabled(
+                on_barrows_command is not None and not selected_for_reviews
+            )
+            barrows_leave.setVisible(active)
+            barrows_leave.setEnabled(on_barrows_command is not None)
+            barrows_chest.setVisible(active and view["phase"] == "chest" and mode == "advanced")
+            barrows_chest.setEnabled(on_barrows_command is not None)
+            barrows_mode.setEnabled(on_barrows_command is not None)
+            syncing_barrows["active"] = False
+            _fit_current_activity_detail()
+
+        def _run_barrows_command(action_id: str, payload=None) -> dict[str, Any]:
+            if on_barrows_command is None:
+                return {"ok": False}
+            result = on_barrows_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Barrows",
+                    str(result.get("message", "That Barrows action is unavailable.")),
+                )
+            _refresh_barrows_panel()
+            return result
+
+        def _select_barrows_for_reviews() -> None:
+            view = barrows_view_pure(player_data)
+            if not view["active"]:
+                result = _run_barrows_command("enter")
+                if not result.get("ok", False):
+                    return
+            if on_set_utility is not None:
+                on_set_utility(BARROWS_ACTIVITY_ID)
+                player_data["current_utility"] = BARROWS_ACTIVITY_ID
+                tree.clearSelection()
+            _refresh_barrows_panel()
+
+        barrows_primary.clicked.connect(
+            lambda _checked=False: _select_barrows_for_reviews()
+        )
+        barrows_leave.clicked.connect(
+            lambda _checked=False: _run_barrows_command("leave")
+        )
+        barrows_chest.clicked.connect(
+            lambda _checked=False: _run_barrows_command("claim_chest")
+        )
+        barrows_mode.currentIndexChanged.connect(
+            lambda _index: _run_barrows_command(
+                "set_mode",
+                {"automation_mode": str(barrows_mode.currentData() or "casual")},
+            )
+            if not syncing_barrows["active"] else None
+        )
+        barrows_brother.currentIndexChanged.connect(
+            lambda _index: _run_barrows_command(
+                "select_brother",
+                {"brother_id": str(barrows_brother.currentData() or "")},
+            )
+            if not syncing_barrows["active"] and barrows_brother.currentData() else None
+        )
+        for room, button in enumerate(barrows_room_buttons):
+            button.clicked.connect(
+                lambda _checked=False, selected_room=room: _run_barrows_command(
+                    "select_room", {"room": selected_room}
+                )
+            )
+        barrows_repair_button.clicked.connect(
+            lambda _checked=False: _run_barrows_command(
+                "repair", {"instance_id": str(barrows_repair.currentData() or "")}
+            )
+        )
+        _refresh_barrows_panel()
+        cards_stack.addWidget(barrows_box)
+
         stealing_creation_box = QtFrame()
         stealing_creation_box.setObjectName("stealingCreationPanel")
         stealing_creation_box.setStyleSheet(
@@ -10720,6 +11010,9 @@ def show_main_menu(
             if activity_id == FIGHT_CAVES_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == BARROWS_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
             if activity_id == STEALING_CREATION_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
@@ -10740,6 +11033,7 @@ def show_main_menu(
             ),
             VINESWEEPER_ACTIVITY_ID: ("Vinesweeper", vinesweeper_box),
             FIGHT_CAVES_ACTIVITY_ID: ("TzHaar Fight Cave", fight_caves_box),
+            BARROWS_ACTIVITY_ID: ("Barrows", barrows_box),
             STEALING_CREATION_ACTIVITY_ID: (
                 "Stealing Creation",
                 stealing_creation_box,

@@ -130,6 +130,12 @@ try:
     )
     from .crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, crafting_special_items_as_dict, tanning_activities_as_dict
     from .equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
+    from .barrows_data import (
+        BARROWS_ACTIVITY_ID,
+        barrows_activity_as_dict,
+        barrows_equipment_data_as_dict,
+        barrows_extra_items_as_dict,
+    )
     from .big_chinchompa_data import (
         BIG_CHINCHOMPA_UTILITY_ID,
         big_chinchompa_activity_as_dict,
@@ -281,6 +287,12 @@ except ImportError:
     )
     from crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, crafting_special_items_as_dict, tanning_activities_as_dict
     from equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
+    from barrows_data import (  # type: ignore
+        BARROWS_ACTIVITY_ID,
+        barrows_activity_as_dict,
+        barrows_equipment_data_as_dict,
+        barrows_extra_items_as_dict,
+    )
     from big_chinchompa_data import (  # type: ignore
         BIG_CHINCHOMPA_UTILITY_ID,
         big_chinchompa_activity_as_dict,
@@ -647,6 +659,7 @@ UTILITY_ACTIVITY_DATA.update(shooting_star_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fist_of_guthix_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(stealing_creation_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(barrows_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(sorceress_garden_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(penguin_hide_and_seek_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(vinesweeper_activity_as_dict())
@@ -709,6 +722,9 @@ if os.path.exists(_stealing_creation_icon):
     UTILITY_ACTIVITY_DATA[STEALING_CREATION_ACTIVITY_ID]["icon_path"] = (
         _stealing_creation_icon
     )
+_barrows_icon = os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "barrows.png")
+if os.path.exists(_barrows_icon):
+    UTILITY_ACTIVITY_DATA[BARROWS_ACTIVITY_ID]["icon_path"] = _barrows_icon
 _sorceress_garden_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
     "sorceress_garden.png",
@@ -1345,12 +1361,14 @@ for _target_id in COMBAT_ENEMY_DATA:
     _path = os.path.join(COMBAT_ENEMIES_FOLDER, f"{_asset_slug(_target_id)}.png")
     if os.path.exists(_path):
         COMBAT_ENEMY_IMAGES[_target_id] = _path
+EQUIPMENT_DATA.update(barrows_equipment_data_as_dict())
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict()
 FIST_OF_GUTHIX_EXTRA_ITEM_DATA = fist_of_guthix_extra_items_as_dict()
 SORCERESS_GARDEN_EXTRA_ITEM_DATA = sorceress_garden_extra_items_as_dict()
 VINESWEEPER_EXTRA_ITEM_DATA = vinesweeper_extra_items_as_dict()
 FIGHT_CAVES_EXTRA_ITEM_DATA = fight_caves_extra_items_as_dict()
 STEALING_CREATION_EXTRA_ITEM_DATA = stealing_creation_extra_items_as_dict()
+BARROWS_EXTRA_ITEM_DATA = barrows_extra_items_as_dict()
 VINESWEEPER_ITEM_IMAGES = {}
 for _item_name in VINESWEEPER_EXTRA_ITEM_DATA:
     _path = os.path.join(
@@ -1373,6 +1391,12 @@ for _item_name in STEALING_CREATION_EXTRA_ITEM_DATA:
     )
     if os.path.exists(_path):
         STEALING_CREATION_ITEM_IMAGES[_item_name] = _path
+BARROWS_ITEM_IMAGES = {}
+for _item_name in BARROWS_EXTRA_ITEM_DATA:
+    _base_name = re.sub(r" (?:100|75|50|25|0)$", "", _item_name)
+    _path = os.path.join(COMBAT_ITEMS_FOLDER, f"{_asset_slug(_base_name)}.png")
+    if os.path.exists(_path):
+        BARROWS_ITEM_IMAGES[_item_name] = _path
 FIGHT_CAVES_ITEM_IMAGES = {
     item_name: path
     for item_name, path in FIGHT_CAVES_ITEM_IMAGES.items()
@@ -1702,6 +1726,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **VINESWEEPER_EXTRA_ITEM_DATA,
     **FIGHT_CAVES_EXTRA_ITEM_DATA,
     **STEALING_CREATION_EXTRA_ITEM_DATA,
+    **BARROWS_EXTRA_ITEM_DATA,
     **potion_items_as_dict(),
     **SHOP_ONLY_EXTRA_ITEM_DATA,
 })
@@ -1729,6 +1754,7 @@ EXTRA_ITEM_IMAGES = {
     **VINESWEEPER_ITEM_IMAGES,
     **FIGHT_CAVES_ITEM_IMAGES,
     **STEALING_CREATION_ITEM_IMAGES,
+    **BARROWS_ITEM_IMAGES,
     **SHOP_ITEM_IMAGES,
 }
 

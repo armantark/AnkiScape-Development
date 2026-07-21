@@ -275,6 +275,18 @@
     "source_wiki": "osrs",
     "timestamp": "2022-01-19T13:54:36Z"
   },
+  "activityicons/barrows.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Dharok%27s_greataxe.png",
+    "file_title": "Dharok's greataxe.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502025722%21Dharok%27s_greataxe.png?939c0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "89bc45fcd158c9e117519064c57d627d7d0b6ee0",
+    "size": 859,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-17T16:12:26Z"
+  },
   "activityicons/big_chinchompa.png": {
     "file_page_url": "https://runescape.wiki/w/File:Moth_jar.png",
     "file_title": "Moth jar.png",
@@ -3131,6 +3143,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:51:45Z"
   },
+  "combatitems/ahrim_s_staff.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ahrim%27s_staff.png",
+    "file_title": "Ahrim's staff.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502004117%21Ahrim%27s_staff.png?489ce",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "946df80c0db3e51e4d8a710712de7d67bcfbee58",
+    "size": 650,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-17T16:12:25Z"
+  },
+  "combatitems/akrisae_s_war_mace.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Akrisae%27s_war_mace.png",
+    "file_title": "Akrisae's war mace.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502004257%21Akrisae%27s_war_mace.png?47cc0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a1d40902ff1066228526de6d636aa5e70e98d13b",
+    "size": 644,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-10T01:47:56Z"
+  },
   "combatitems/banana.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Banana.png",
     "file_title": "Banana.png",
@@ -3433,6 +3469,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:55:30Z"
   },
+  "combatitems/dharok_s_greataxe.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Dharok%27s_greataxe.png",
+    "file_title": "Dharok's greataxe.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502025722%21Dharok%27s_greataxe.png?939c0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "89bc45fcd158c9e117519064c57d627d7d0b6ee0",
+    "size": 859,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-17T16:12:26Z"
+  },
   "combatitems/dragon_defender.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Dragon_defender.png",
     "file_title": "Dragon defender.png",
@@ -3516,6 +3564,18 @@
     "size": 874,
     "source_wiki": "rs3",
     "timestamp": "2023-02-02T06:07:20Z"
+  },
+  "combatitems/guthan_s_warspear.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Guthan%27s_warspear.png",
+    "file_title": "Guthan's warspear.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502042231%21Guthan%27s_warspear.png?d5807",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c96ea32358d33be38e579c5a20a56d655fa07a6c",
+    "size": 1100,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-27T01:45:43Z"
   },
   "combatitems/guthix_cape.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Guthix_cape.png",
@@ -3684,6 +3744,18 @@
     "size": 747,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:58:28Z"
+  },
+  "combatitems/karil_s_crossbow.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Karil%27s_crossbow.png",
+    "file_title": "Karil's crossbow.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502045612%21Karil%27s_crossbow.png?d5807",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5a9fc20cb13127c3efa097d398b4331a1c3711a5",
+    "size": 932,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-27T01:45:43Z"
   },
   "combatitems/leaf_bladed_sword.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Leaf-bladed_sword.png",
@@ -4129,6 +4201,18 @@
     "source_wiki": "rs3",
     "timestamp": "2021-12-01T18:45:07Z"
   },
+  "combatitems/torag_s_hammers.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Torag%27s_hammers_0.png",
+    "file_title": "Torag's hammers 0.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Torag%27s_hammers_0.png?942ca",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c8fd9981cf71d1c243bc4a3d28e2451140ea2208",
+    "size": 590,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:06:44Z"
+  },
   "combatitems/tzhaar_ket_om.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Tzhaar-ket-om.png",
     "file_title": "Tzhaar-ket-om.png",
@@ -4152,6 +4236,18 @@
     "size": 807,
     "source_wiki": "rs3",
     "timestamp": "2011-03-15T20:01:59Z"
+  },
+  "combatitems/verac_s_flail.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Verac%27s_flail.png",
+    "file_title": "Verac's flail.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502090052%21Verac%27s_flail.png?d5807",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3808f567e6ecabe03efadfdc00243f45d797e6e3",
+    "size": 615,
+    "source_wiki": "rs3",
+    "timestamp": "2012-02-27T01:45:43Z"
   },
   "combatitems/vial_of_water.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Vial_of_water.png",

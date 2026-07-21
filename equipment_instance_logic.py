@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import copy
-import math
 from collections import Counter
 from collections.abc import Mapping
 from typing import Any
@@ -27,6 +26,8 @@ def _clean_int(value: Any, default: int = 0, *, minimum: int = 0) -> int:
 
 def _family_for_item(item_name: str, condition_data: Mapping[str, Mapping[str, Any]]) -> str | None:
     for family_id, spec in condition_data.items():
+        if item_name == spec.get("full_name"):
+            return family_id
         names = spec.get("names_by_percent", {})
         if isinstance(names, Mapping) and item_name in names.values():
             return family_id
@@ -41,6 +42,8 @@ def is_condition_item_pure(
 
 def _condition_for_name(item_name: str, spec: Mapping[str, Any]) -> int:
     maximum = max(1, _clean_int(spec.get("max_condition"), 1, minimum=1))
+    if item_name == spec.get("full_name"):
+        return maximum
     names = spec.get("names_by_percent", {})
     if isinstance(names, Mapping):
         for raw_percent, name in names.items():
@@ -58,15 +61,14 @@ def condition_name_pure(family_id: str, condition: Any, condition_data: Mapping[
     names = spec.get("names_by_percent", {})
     if not isinstance(names, Mapping) or not names:
         return str(spec.get("display_name", family_id))
-    if remaining <= 0:
-        percent = 0
-    else:
-        percent = int(math.ceil((remaining / maximum) * 5.0) * 20)
     available = sorted((_clean_int(value, 0), str(name)) for value, name in names.items())
-    matching = [name for value, name in available if value == percent]
-    if matching:
-        return matching[0]
-    return min(available, key=lambda row: abs(row[0] - percent))[1]
+    if remaining == maximum and spec.get("full_name"):
+        return str(spec["full_name"])
+    percent = (remaining * 100) / maximum
+    for threshold, name in available:
+        if percent <= threshold:
+            return name
+    return available[-1][1]
 
 
 def _clean_location(value: Any) -> str | None:

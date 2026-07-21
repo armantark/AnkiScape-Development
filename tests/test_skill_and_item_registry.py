@@ -501,6 +501,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "vinesweeper",
                 "fight_caves",
                 "stealing_creation",
+                "barrows",
             },
         )
 

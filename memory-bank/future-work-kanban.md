@@ -1023,6 +1023,14 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   outside Jad and precise multi-NPC positional timing remain labeled data
   depth, not missing mechanics. See
   `memory-bank/source-audits/fight-caves-horizontal-mvp-2026-07-20.md`.
+- Barrows is mechanic-complete as a persistent Activities-only dangerous
+  Combat run. Its original brothers, Ritual-gated Akrisae, tunnel creatures,
+  complete 3×3 graph, six-tick encounters, brother specials, suspension,
+  dangerous death, early chest, reward-potential ladder, per-copy degrading
+  weapons, Bob repair, persistence, undo, cadence, period art, reachability,
+  and compact card are live. Exact exhaustive armour breadth and rare reward
+  precision remain data-depth work. See
+  `memory-bank/source-audits/barrows-horizontal-mvp-2026-07-21.md`.
 - Darkan should supply hidden state machines, rolls, currencies, and reward logic; period wiki/cache evidence still establishes cutoff and client identity.
 
 ### Missing skill server behavior
@@ -1078,12 +1086,12 @@ Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
 - Platform seed: `memory-bank/minigames-activities-design-seed.md`.
 - The horizontal breadth wave has shipped Shooting Stars, Fist of Guthix,
   Sorceress's Garden, Penguin Hide and Seek, Vinesweeper, Fight Caves, and
-  Stealing Creation with complete mechanics, persistence, undo, UI, assets,
-  and compact period-qualified data sets.
-- Barrows is the next source/implementation frontier. Its nine-room session
-  shape is settled; pin the smallest honest brother and chest-reward set before
-  implementation. Tears of Guthix and Shattered Heart remain explicit source
-  readiness skips, not design questions.
+  Stealing Creation, and Barrows with complete mechanics, persistence, undo,
+  UI, assets, and compact period-qualified data sets.
+- Barrows is closed. Tears of Guthix and Shattered Heart remain explicit
+  source-readiness skips, not design questions. Continue breadth-first with the
+  next settled activity whose smallest honest entry/state/reward data set is
+  already source-ready; do not stall the wave on exhaustive catalogs.
 - Harvest each remaining family for entry/run state, review cost, event
   variance, currency, rewards, reward shop, persistence, expiry, and undo.
 - Include the split activity cards from `gap-backlog.json`, bosses/instances, and wider pre-EOC reward activities. Never expose individual reward stubs before they work end to end.
@@ -1108,8 +1116,8 @@ Labels: `DESIGN CLOSED 2026-07-18`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY:
 
 Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 
-- Maintain `tools/audit_item_reachability.py`; the current run finds 1,436
-  actions, 2,102 reachable items, and 168 orphan inputs (76 root, 92 cascade)
+- Maintain `tools/audit_item_reachability.py`; the current run finds 1,437
+  actions, 2,109 reachable items, and 168 orphan inputs (76 root, 92 cascade)
   across planned skills, activities, Combat/world acquisition, Farming, and
   potion-state plumbing. Bob Barter's vial decant routes and Teplin Macagan's
   vial/flask conversions make potion dose variants known-producer cascades;

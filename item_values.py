@@ -86,6 +86,12 @@ def _build_item_tables() -> "tuple[Dict[str, int], FrozenSet[str], FrozenSet[str
             if row.get("stackable"):
                 stackable.add(name)
     values.update(ITEM_VALUES_GENERATED)  # real cache getValue() wins over the proxy
+    # The server dump calls the first degradable tier ``(deg)`` while the
+    # period client CS2 names the same item ``100``. Keep both identities
+    # valuable so unsafe-death selection does not treat a newly worn item as 0.
+    for name, value in list(values.items()):
+        if name.endswith(" (deg)"):
+            values.setdefault(f"{name.removesuffix(' (deg)')} 100", value)
     stackable |= set(STACKABLE_ITEM_NAMES_GENERATED)
     _add_plural_aliases(values, stackable, exchangeable)
     return values, frozenset(stackable), frozenset(exchangeable)

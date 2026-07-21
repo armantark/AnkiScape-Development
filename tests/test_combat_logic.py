@@ -4121,6 +4121,37 @@ class CombatLogicTest(unittest.TestCase):
         self.assertAlmostEqual(new_data["magic_exp"], 5.5)
         self.assertEqual(new_data["constitution_exp"], 0.0)
 
+    def test_enemy_class_protection_blocks_the_matching_player_style(self):
+        enemy = {
+            "warded_dummy": {
+                "display_name": "Warded dummy",
+                "level": 1,
+                "group": "Test",
+                "stats": {
+                    "attack": 1,
+                    "strength": 1,
+                    "defence": 1,
+                    "hitpoints": 10_000,
+                },
+                "bonuses": {},
+                "attack_speed": 4,
+                "drops": {"guaranteed": (), "tables": ()},
+                "source": "test",
+            }
+        }
+        player = _player(current_combat_target="warded_dummy")
+        _control, control_ok, control = apply_combat_burst_pure(
+            player, enemy, EQUIPMENT_DATA, ticks=1, rng=_rng([0.0, 0.999999, 0.999999])
+        )
+        enemy["warded_dummy"]["protect_from_player_class"] = "melee"
+        _blocked, blocked_ok, blocked = apply_combat_burst_pure(
+            player, enemy, EQUIPMENT_DATA, ticks=1, rng=_rng([0.0, 0.999999, 0.999999])
+        )
+        self.assertTrue(control_ok)
+        self.assertTrue(blocked_ok)
+        self.assertGreater(control["player_damage"], 0)
+        self.assertEqual(blocked["player_damage"], 0)
+
     def test_active_magic_encounter_does_not_refill_runes_mid_fight(self):
         player = _player(
             combat_attack_style="magic_standard",
