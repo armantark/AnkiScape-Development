@@ -246,6 +246,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "pyramid_plunder":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "pyramid_plunder",
+                    "mode": "activity_group",
+                    "source_status": "sourced_with_fallbacks",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One successful review resolves one complete room bundle. "
+                        "Published room XP and Darkan object curves are pinned; hidden "
+                        "hazard trigger rates use disclosed bounded abstractions."
+                    ),
+                    "includes": (
+                        "one room's selected chest, urn, and sarcophagus policy",
+                        "hazards, carried-pack pressure, banking, and terminal exits",
+                    ),
+                    "multiplier_behavior": (
+                        "Foreground multiplier resolves up to M rooms and stops at the "
+                        "first death, full-pack exit, sceptre expulsion, or completed run"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same bounded room-resolution handler",
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "penguin_hide_and_seek":
             rows.append(
                 {

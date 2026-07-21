@@ -202,6 +202,11 @@ try:
         factory_outfit_four_dose_eligible_pure,
         flash_powder_factory_view_pure,
     )
+    from .pyramid_plunder_data import PYRAMID_PLUNDER_ACTIVITY_ID
+    from .pyramid_plunder_logic import (
+        apply_pyramid_plunder_review_pure,
+        pyramid_plunder_view_pure,
+    )
     from .agility_travel import (
         agility_travel_profile_pure,
         apply_run_energy_credit_pure,
@@ -472,6 +477,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         apply_factory_outfit_herblore_bonus_pure,
         factory_outfit_four_dose_eligible_pure,
         flash_powder_factory_view_pure,
+    )
+    from pyramid_plunder_data import PYRAMID_PLUNDER_ACTIVITY_ID  # type: ignore
+    from pyramid_plunder_logic import (  # type: ignore
+        apply_pyramid_plunder_review_pure,
+        pyramid_plunder_view_pure,
     )
     from agility_travel import (  # type: ignore
         agility_travel_profile_pure,
@@ -2909,6 +2919,52 @@ def handle_flash_powder_factory_answer(
     return True
 
 
+def _handle_pyramid_plunder_answer(ctx: RuntimeActionContext) -> bool:
+    updated, result = apply_pyramid_plunder_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+        rooms=max(1, int(ctx.review_action_multiplier or 1)),
+    )
+    if not result.get("allowed"):
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Pyramid Plunder unavailable",
+            str(result.get("reason", "Enter Pyramid Plunder before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    xp = result.get("xp") or {}
+    gained = 0.0
+    for skill_id, label in (
+        ("thieving", "Thieving"),
+        ("strength", "Strength"),
+        ("runecrafting", "Runecrafting"),
+    ):
+        amount = float(xp.get(skill_id, 0.0) or 0.0)
+        if amount > 0:
+            gained += ctx.award_skill_exp(f"{skill_id}_exp", amount)
+            ctx.level_up_check(label, ctx.player_data)
+    _record_action(
+        ctx,
+        "utility",
+        PYRAMID_PLUNDER_ACTIVITY_ID,
+        True,
+        expected_success_chance=1.0,
+        primary_xp=float(xp.get("thieving", 0.0) or 0.0),
+        output_items=result.get("outputs") or {},
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if gained > 0:
+        ctx.show_exp(gained)
+    ctx.show_activity_gain(str(result.get("status", "Pyramid Plunder room resolved")))
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
 def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
@@ -2934,6 +2990,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_vinesweeper_answer(ctx)
     if activity_key == FLASH_POWDER_FACTORY_ACTIVITY_ID:
         return handle_flash_powder_factory_answer(ctx)
+    if activity_key == PYRAMID_PLUNDER_ACTIVITY_ID:
+        return _handle_pyramid_plunder_answer(ctx)
     if activity_key == STRONGHOLD_UTILITY_KEY:
         return _handle_stronghold_answer(ctx)
     if activity_key == KNIGHT_WAVES_UTILITY_KEY:
@@ -5239,6 +5297,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return bool(
             flash_powder_factory_view_pure(ctx.player_data).get("can_review", False)
         )
+    if activity_key == PYRAMID_PLUNDER_ACTIVITY_ID:
+        return bool(pyramid_plunder_view_pure(ctx.player_data).get("can_review", False))
     return not utility_activity_locked_reasons_pure(
         ctx.player_data,
         activity_key,

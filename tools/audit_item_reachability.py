@@ -99,6 +99,7 @@ def build_reachability_report() -> dict[str, Any]:
     import farming_data
     import fist_of_guthix_data
     import pack_data
+    import pyramid_plunder_data
     import shooting_star_data
     import shop_data
     import shop_logic
@@ -355,6 +356,24 @@ def build_reachability_report() -> dict[str, Any]:
     )
     for item in garden_outputs:
         producers[item].add(garden_key)
+
+    pyramid_key = "Activity:pyramid_plunder:loot"
+    pyramid_outputs = {
+        *pyramid_plunder_data.PYRAMID_PLUNDER_ARTIFACT_VALUES,
+        *pyramid_plunder_data.PYRAMID_PLUNDER_BLACK_IBIS,
+        *pyramid_plunder_data.PYRAMID_PLUNDER_PHARAOH_SCEPTRES,
+        "Sceptre of the gods",
+    }
+    actions.append(
+        {
+            "id": pyramid_key,
+            "required": set(),
+            "alternatives": (),
+            "outputs": pyramid_outputs,
+        }
+    )
+    for item in pyramid_outputs:
+        producers[item].add(pyramid_key)
 
     for item_name, spec in constants.CONSUMABLE_DATA.items():
         if not isinstance(spec, Mapping):

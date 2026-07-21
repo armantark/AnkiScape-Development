@@ -36,6 +36,19 @@ except ImportError:  # pragma: no cover - flat test imports
     )
 
 try:
+    from .pyramid_plunder_logic import (
+        enter_pyramid_plunder_pure,
+        leave_pyramid_plunder_pure,
+        set_pyramid_plunder_priority_pure,
+    )
+except ImportError:  # pragma: no cover - flat test imports
+    from pyramid_plunder_logic import (  # type: ignore
+        enter_pyramid_plunder_pure,
+        leave_pyramid_plunder_pure,
+        set_pyramid_plunder_priority_pure,
+    )
+
+try:
     from .agility_travel import agility_carried_weight_pure
 except ImportError:  # pragma: no cover - flat test imports
     from agility_travel import agility_carried_weight_pure  # type: ignore
@@ -936,6 +949,18 @@ def apply_agility_command_pure(
     """Apply one explicit non-review Agility operation."""
 
     body = dict(payload or {})
+    if action_id == "enter_pyramid_plunder":
+        updated, ok, info = enter_pyramid_plunder_pure(player_data)
+        return updated, {"allowed": ok, **info}
+    if action_id == "set_pyramid_plunder_priority":
+        updated, ok, info = set_pyramid_plunder_priority_pure(
+            player_data,
+            body.get("priority"),
+        )
+        return updated, {"allowed": ok, **info}
+    if action_id == "leave_pyramid_plunder":
+        updated, ok, info = leave_pyramid_plunder_pure(player_data)
+        return updated, {"allowed": ok, **info}
     if action_id == "enter_flash_powder_factory":
         updated, ok, info = enter_flash_powder_factory_pure(
             player_data,

@@ -95,6 +95,10 @@ try:
         default_penguin_state_pure,
         sanitize_penguin_state_pure,
     )
+    from .pyramid_plunder_logic import (
+        default_pyramid_plunder_state_pure,
+        sanitize_pyramid_plunder_state_pure,
+    )
     from .vinesweeper_logic import (
         default_vinesweeper_state_pure,
         sanitize_vinesweeper_state_pure,
@@ -223,6 +227,10 @@ except ImportError:
         default_penguin_state_pure,
         sanitize_penguin_state_pure,
     )
+    from pyramid_plunder_logic import (  # type: ignore
+        default_pyramid_plunder_state_pure,
+        sanitize_pyramid_plunder_state_pure,
+    )
     from vinesweeper_logic import (  # type: ignore
         default_vinesweeper_state_pure,
         sanitize_vinesweeper_state_pure,
@@ -259,7 +267,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 60
+CURRENT_CONFIG_VERSION = 61
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -491,6 +499,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["fight_caves"] = default_fight_caves_state_pure()
     data["stealing_creation"] = default_stealing_creation_state_pure()
     data["barrows"] = default_barrows_state_pure()
+    data.update(default_pyramid_plunder_state_pure())
     data["activity_session"] = {"active_id": ""}
     data["sorceress_garden"] = default_sorceress_garden_state_pure()
     data["penguin_hide_and_seek"] = default_penguin_state_pure()
@@ -1110,6 +1119,7 @@ def migrate_loaded_data(
         data.get("stealing_creation")
     )
     data["barrows"] = sanitize_barrows_state_pure(data.get("barrows"))
+    data.update(sanitize_pyramid_plunder_state_pure(data))
     raw_activity_session = data.get("activity_session")
     active_session_id = (
         str(raw_activity_session.get("active_id", ""))[:80]
@@ -1121,12 +1131,17 @@ def migrate_loaded_data(
         data["stealing_creation"]["active_session"] = {}
         data["barrows"]["active"] = False
         data["barrows"]["suspended"] = True
+        data["pyramid_plunder"] = {}
     elif data["stealing_creation"]["active_session"]:
         active_session_id = "stealing_creation"
         data["barrows"]["active"] = False
         data["barrows"]["suspended"] = True
+        data["pyramid_plunder"] = {}
     elif data["barrows"]["active"]:
         active_session_id = "barrows"
+        data["pyramid_plunder"] = {}
+    elif data["pyramid_plunder"]:
+        active_session_id = "pyramid_plunder"
     data["activity_session"] = {"active_id": active_session_id}
     data["sorceress_garden"] = sanitize_sorceress_garden_state_pure(
         data.get("sorceress_garden")
@@ -1293,6 +1308,11 @@ def migrate_loaded_data(
     if loaded_config_version < 45:
         for key, value in default_review_context_state_pure().items():
             data.setdefault(key, value)
+    # v61: Pyramid Plunder becomes a persistent dangerous activity. The
+    # sanitizer below repairs a partial run without disturbing future fields.
+    if loaded_config_version < 61:
+        for key, value in default_pyramid_plunder_state_pure().items():
+            data.setdefault(key, value)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1328,6 +1348,7 @@ def migrate_loaded_data(
     data.update(sanitize_urn_state_pure(data))
     data.update(sanitize_farming_state_pure(data))
     data.update(sanitize_agility_state_pure(data))
+    data.update(sanitize_pyramid_plunder_state_pure(data))
     data["livid_farm"] = sanitize_livid_farm_state_pure(
         data.get("livid_farm")
     )

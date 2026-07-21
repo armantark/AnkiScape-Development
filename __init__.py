@@ -1200,6 +1200,12 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         handler_key = review_action_handler_key(current_skill)
         if handler_key == "combat":
             target_id = player_data.get("current_combat_target")
+        elif (
+            handler_key == "utility"
+            and player_data.get("current_utility")
+            == runtime_actions.PYRAMID_PLUNDER_ACTIVITY_ID
+        ):
+            target_id = runtime_actions.PYRAMID_PLUNDER_ACTIVITY_ID
         else:
             target_key = runtime_actions._OVERLAY_TARGET_KEYS.get(handler_key)
             target_id = player_data.get(target_key) if target_key else None
@@ -2891,6 +2897,7 @@ def on_good_answer(before_state=None):
                             SORCERESS_GARDEN_ACTIVITY_ID,
                             PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID,
                             runtime_actions.FLASH_POWDER_FACTORY_ACTIVITY_ID,
+                            runtime_actions.PYRAMID_PLUNDER_ACTIVITY_ID,
                         }
                     )
                     or (handler_key == "quest" and _cadence_kernel_enabled())

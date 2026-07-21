@@ -384,6 +384,19 @@ except Exception:
     )
 
 try:
+    from .pyramid_plunder_data import (
+        PYRAMID_PLUNDER_ACTIVITY_ID,
+        PYRAMID_PLUNDER_PRIORITIES,
+    )
+    from .pyramid_plunder_logic import pyramid_plunder_view_pure
+except Exception:
+    from pyramid_plunder_data import (  # type: ignore
+        PYRAMID_PLUNDER_ACTIVITY_ID,
+        PYRAMID_PLUNDER_PRIORITIES,
+    )
+    from pyramid_plunder_logic import pyramid_plunder_view_pure  # type: ignore
+
+try:
     from .stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
     from .stealing_creation_logic import stealing_creation_view_pure
 except Exception:
@@ -9760,6 +9773,8 @@ def show_main_menu(
 
         def _select_or_enter_flash_factory() -> None:
             view = flash_powder_factory_view_pure(player_data)
+            if not _request_utility_selection(FLASH_POWDER_FACTORY_ACTIVITY_ID):
+                return
             if not view["active"]:
                 result = _run_flash_factory_command(
                     "enter_flash_powder_factory",
@@ -9780,8 +9795,6 @@ def show_main_menu(
                         )
                 if not result.get("ok"):
                     return
-            if not _request_utility_selection(FLASH_POWDER_FACTORY_ACTIVITY_ID):
-                return
             _refresh_flash_factory_panel()
 
         def _set_flash_factory_policy() -> None:
@@ -9847,6 +9860,235 @@ def show_main_menu(
         )
         _refresh_flash_factory_panel()
         cards_stack.addWidget(flash_factory_box)
+
+        pyramid_plunder_box = QtFrame()
+        pyramid_plunder_box.setObjectName("pyramidPlunderPanel")
+        pyramid_plunder_box.setStyleSheet(
+            "QFrame#pyramidPlunderPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        pyramid_plunder_layout = QVBoxLayout(pyramid_plunder_box)
+        pyramid_plunder_layout.setContentsMargins(10, 8, 10, 8)
+        pyramid_plunder_layout.setSpacing(6)
+
+        pyramid_plunder_top = QWidget()
+        pyramid_plunder_top_layout = QHBoxLayout(pyramid_plunder_top)
+        pyramid_plunder_top_layout.setContentsMargins(0, 0, 0, 0)
+        pyramid_plunder_top_layout.setSpacing(8)
+        pyramid_plunder_icon = QLabel()
+        pyramid_plunder_icon.setObjectName("pyramidPlunderIcon")
+        pyramid_plunder_icon.setFixedSize(28, 28)
+        pyramid_plunder_icon_path = os.path.join(
+            current_dir, "activityicons", "pyramid_plunder.png"
+        )
+        if os.path.exists(pyramid_plunder_icon_path):
+            pyramid_plunder_icon.setPixmap(
+                QPixmap(pyramid_plunder_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        pyramid_plunder_title = QLabel("Pyramid Plunder")
+        pyramid_plunder_title.setStyleSheet(
+            "font-weight: 700; color: palette(text);"
+        )
+        pyramid_plunder_status = QLabel()
+        pyramid_plunder_status.setObjectName("pyramidPlunderStatusChip")
+        pyramid_plunder_status.setStyleSheet(
+            f"color: {dim_text_css(pyramid_plunder_status)};"
+            " font-size: 11px; font-weight: 700;"
+        )
+        pyramid_plunder_top_layout.addWidget(pyramid_plunder_icon)
+        pyramid_plunder_top_layout.addWidget(pyramid_plunder_title)
+        pyramid_plunder_top_layout.addStretch(1)
+        pyramid_plunder_top_layout.addWidget(pyramid_plunder_status)
+        pyramid_plunder_layout.addWidget(pyramid_plunder_top)
+
+        pyramid_plunder_summary = QLabel()
+        pyramid_plunder_summary.setObjectName("pyramidPlunderSummary")
+        pyramid_plunder_summary.setWordWrap(True)
+        pyramid_plunder_summary.setStyleSheet("color: palette(text);")
+        pyramid_plunder_layout.addWidget(pyramid_plunder_summary)
+
+        pyramid_plunder_priority = QComboBox()
+        pyramid_plunder_priority.setObjectName("pyramidPlunderPriorityCombo")
+        pyramid_plunder_priority.setAccessibleName("Pyramid Plunder priority")
+        for priority_id, label in PYRAMID_PLUNDER_PRIORITIES.items():
+            pyramid_plunder_priority.addItem(label, priority_id)
+        pyramid_plunder_priority_row = QWidget()
+        pyramid_plunder_priority_layout = QHBoxLayout(
+            pyramid_plunder_priority_row
+        )
+        pyramid_plunder_priority_layout.setContentsMargins(0, 0, 0, 0)
+        pyramid_plunder_priority_layout.setSpacing(6)
+        pyramid_plunder_priority_label = QLabel("Priority")
+        pyramid_plunder_priority_label.setObjectName(
+            "pyramidPlunderPriorityLabel"
+        )
+        pyramid_plunder_priority_label.setStyleSheet(
+            f"color: {dim_text_css(pyramid_plunder_priority_label)};"
+        )
+        pyramid_plunder_priority_layout.addWidget(
+            pyramid_plunder_priority_label
+        )
+        pyramid_plunder_priority_layout.addWidget(
+            pyramid_plunder_priority,
+            1,
+        )
+        pyramid_plunder_layout.addWidget(pyramid_plunder_priority_row)
+
+        pyramid_plunder_actions = QWidget()
+        pyramid_plunder_actions_layout = QHBoxLayout(pyramid_plunder_actions)
+        pyramid_plunder_actions_layout.setContentsMargins(0, 0, 0, 0)
+        pyramid_plunder_actions_layout.setSpacing(6)
+        pyramid_plunder_primary = QPushButton()
+        pyramid_plunder_primary.setObjectName("pyramidPlunderPrimaryButton")
+        pyramid_plunder_leave = QPushButton("Leave & bank haul")
+        pyramid_plunder_leave.setObjectName("pyramidPlunderLeaveButton")
+        pyramid_plunder_actions_layout.addWidget(pyramid_plunder_primary, 1)
+        pyramid_plunder_actions_layout.addWidget(pyramid_plunder_leave, 1)
+        pyramid_plunder_layout.addWidget(pyramid_plunder_actions)
+
+        syncing_pyramid_plunder = {"active": False}
+
+        def _run_pyramid_plunder_command(action_id: str, payload=None) -> dict[str, Any]:
+            if on_agility_command is None:
+                return {"ok": False, "message": "Pyramid Plunder actions are unavailable."}
+            result = on_agility_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Pyramid Plunder",
+                    str(result.get("message", result.get("reason", "That action is unavailable."))),
+                )
+            _refresh_pyramid_plunder_panel()
+            return result
+
+        def _refresh_pyramid_plunder_panel() -> None:
+            view = pyramid_plunder_view_pure(player_data)
+            syncing_pyramid_plunder["active"] = True
+            active = bool(view["active"])
+            locked = tuple(view["locked_reasons"])
+            pyramid_plunder_status.setText(
+                "ACTIVE" if active else "LOCKED" if locked else "READY"
+            )
+            if active:
+                status_base = pyramid_plunder_status.palette().color(
+                    QPalette.ColorRole.Base
+                )
+                status_color = (
+                    "#3f6e1e"
+                    if status_base.lightness() > 128
+                    else "#85c54b"
+                )
+            elif locked:
+                status_color = dim_text_css(pyramid_plunder_status)
+            else:
+                status_color = "palette(text)"
+            pyramid_plunder_status.setStyleSheet(
+                f"color: {status_color};"
+                " font-size: 11px; font-weight: 700;"
+            )
+            last_result = str(view.get("last_result", "") or "").strip()
+            if active:
+                poison_status = (
+                    "poisoned"
+                    if view["poisoned"]
+                    else "immune"
+                    if int(view["poison_immunity_ticks"]) > 0
+                    else "not poisoned"
+                )
+                pyramid_plunder_summary.setText(
+                    f"Room {int(view['room'])}/{int(view['max_room'])} · "
+                    f"{view['priority_label']}\n"
+                    f"Pack {int(view['pack_slots'])}/28 · food {int(view['food'])} · "
+                    f"antipoison {int(view['antipoison'])}\n"
+                    f"LP {int(view['lifepoints'])} · {poison_status} · "
+                    f"{sum(int(value) for value in view['haul'].values())} artefacts"
+                )
+            elif locked:
+                pyramid_plunder_summary.setText(
+                    "Eight dangerous rooms\nEntry: "
+                    + ", ".join(str(reason) for reason in locked)
+                    + (f"\n{last_result}" if last_result else "")
+                )
+            else:
+                pyramid_plunder_summary.setText(
+                    f"Rooms 1–{int(view['max_room'])} · dangerous · "
+                    f"{int(view['runs_completed'])} completed runs"
+                    + (f"\n{last_result}" if last_result else "")
+                )
+            pyramid_plunder_summary.setToolTip(last_result)
+            priority_index = pyramid_plunder_priority.findData(view["priority"])
+            if priority_index >= 0:
+                pyramid_plunder_priority.setCurrentIndex(priority_index)
+            selected = (
+                active
+                and player_data.get("current_utility")
+                == PYRAMID_PLUNDER_ACTIVITY_ID
+            )
+            pyramid_plunder_primary.setText(
+                "Selected for reviews"
+                if selected
+                else "Select for reviews"
+                if active
+                else "Enter pyramid"
+            )
+            pyramid_plunder_primary.setEnabled(
+                on_agility_command is not None
+                and not selected
+                and (active or not locked)
+            )
+            pyramid_plunder_leave.setVisible(active)
+            pyramid_plunder_leave.setEnabled(on_agility_command is not None)
+            pyramid_plunder_priority.setEnabled(
+                on_agility_command is not None and not active
+            )
+            syncing_pyramid_plunder["active"] = False
+            _fit_current_activity_detail()
+
+        def _select_or_enter_pyramid_plunder() -> None:
+            view = pyramid_plunder_view_pure(player_data)
+            if not view["active"]:
+                result = _run_pyramid_plunder_command("enter_pyramid_plunder", {})
+                if not result.get("ok", False):
+                    return
+            elif not _request_utility_selection(PYRAMID_PLUNDER_ACTIVITY_ID):
+                return
+            _refresh_pyramid_plunder_panel()
+
+        def _set_pyramid_plunder_priority() -> None:
+            if syncing_pyramid_plunder["active"]:
+                return
+            _run_pyramid_plunder_command(
+                "set_pyramid_plunder_priority",
+                {"priority": pyramid_plunder_priority.currentData()},
+            )
+
+        def _confirm_pyramid_plunder_leave() -> None:
+            answer = QMessageBox.question(
+                dialog,
+                "Leave Pyramid Plunder?",
+                "Leave now, forfeit the remaining rooms in this run, and bank "
+                "the retained artefacts?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_pyramid_plunder_command("leave_pyramid_plunder", {})
+
+        pyramid_plunder_primary.clicked.connect(
+            lambda _checked=False: _select_or_enter_pyramid_plunder()
+        )
+        pyramid_plunder_leave.clicked.connect(
+            lambda _checked=False: _confirm_pyramid_plunder_leave()
+        )
+        pyramid_plunder_priority.currentIndexChanged.connect(
+            lambda _index: _set_pyramid_plunder_priority()
+        )
+        _refresh_pyramid_plunder_panel()
+        cards_stack.addWidget(pyramid_plunder_box)
 
         stealing_creation_box = QtFrame()
         stealing_creation_box.setObjectName("stealingCreationPanel")
@@ -11341,6 +11583,30 @@ def show_main_menu(
                         str((result or {}).get("message", "Could not leave the factory.")),
                     )
                     return False
+            if (
+                activity_id != PYRAMID_PLUNDER_ACTIVITY_ID
+                and pyramid_plunder_view_pure(player_data)["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave Pyramid Plunder?",
+                    "Switching activities leaves the pyramid and banks the retained artefacts.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_agility_command("leave_pyramid_plunder", {})
+                    if on_agility_command is not None
+                    else {"ok": False, "message": "Pyramid Plunder actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Pyramid Plunder",
+                        str((result or {}).get("message", "Could not leave the pyramid.")),
+                    )
+                    return False
             on_set_utility(activity_id)
             player_data["current_utility"] = activity_id
             if state["active"] in _UTILITY_SKILL_NAMES and state["active"] != surface_name:
@@ -11356,6 +11622,7 @@ def show_main_menu(
             _refresh_vinesweeper_panel()
             _refresh_fight_caves_panel()
             _refresh_flash_factory_panel()
+            _refresh_pyramid_plunder_panel()
             _refresh_stealing_creation_panel()
             _show_activity_detail(activity_id)
             return True
@@ -11420,6 +11687,9 @@ def show_main_menu(
             if activity_id == FLASH_POWDER_FACTORY_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == PYRAMID_PLUNDER_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
             if activity_id == STEALING_CREATION_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
@@ -11444,6 +11714,10 @@ def show_main_menu(
             FLASH_POWDER_FACTORY_ACTIVITY_ID: (
                 "Flash Powder Factory",
                 flash_factory_box,
+            ),
+            PYRAMID_PLUNDER_ACTIVITY_ID: (
+                "Pyramid Plunder",
+                pyramid_plunder_box,
             ),
             STEALING_CREATION_ACTIVITY_ID: (
                 "Stealing Creation",

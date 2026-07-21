@@ -2,6 +2,41 @@
 
 ## Current Focus
 
+Pyramid Plunder now satisfies horizontal breadth level one as an Activities-
+only dangerous Thieving minigame. Its exact entry alternatives, eight room
+gates, period XP rows, priority-shaped room bundles, shared LP/poison/grave
+hazards, real carried-slot pressure, retention policies, direct protected
+rewards, terminal banking, schema-61 persistence, direct/review undo, cadence
+coverage, normalized cutoff art, and compact paginated Activities card are
+live. One successful review owns one room; foreground multiplication stops at
+the first terminal boundary and Again performs no Pyramid action.
+
+The period room-four 215 urn XP deliberately wins over Darkan's computed 210.
+Darkan supplies the exact object success curves, ordinary loot tiers, rare
+denominators, sarcophagus failure damage, and equipment modifiers. Snake,
+scarab, and mummy trigger/damage rows that neither source exposes remain
+explicitly named bounded abstractions, not period claims. Dangerous death now
+reports ordinary haul sent to the grave rather than falsely claiming it was
+banked. Durable record:
+`source-audits/pyramid-plunder-horizontal-mvp-2026-07-21.md`.
+
+The cutoff Exchange harvest also closes guide prices and buy limits for all
+registered tradeable artefacts. Opus's bounded taste pass found one material
+state defect: a rejected entry could change the selected review activity before
+the run existed. Entry now commits first, with selection preserved on failure;
+locked-state explanation, status contrast, the visible Priority label, prior-
+result copy, immunity wording, and leave-cost copy are also closed. Fable
+remained reserved at the owner's request, and Kimi was not retried at 4% quota.
+
+The exact final state passes all 2,118 non-Qt tests with 275 expected platform
+skips and all 2,118 real offscreen-Qt tests with one intentional skip. Test
+quality, documentation, compilation, JSON, diff, normalized assets, focused
+reachability coverage, a fully restarted native Anki pass, and worktree safety
+pass. Reachability now contains 1,438 actions, 2,128 reachable items, 168 known
+orphan inputs, and 189 unresolved actions. No owner design gap emerged.
+Results: `status-updates/pyramid-plunder-horizontal-mvp-results-2026-07-21.html`;
+mobile copy: `https://8tc4efyc7zls.postplan.dev`.
+
 Flash Powder Factory now satisfies horizontal breadth level one as an
 Activities-only, finite Agility/Thieving session. Entry enforces the exact
 75 Agility, 75 Thieving, and 50 Herblore gates plus the period skull and

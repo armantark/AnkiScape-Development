@@ -4,6 +4,41 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Pyramid Plunder horizontal mechanic closure — 2026-07-21
+
+- Implemented the complete one-to-eight-room dangerous run with exact entry
+  alternatives, room/Strength/Runecrafting gates, period object XP, exact
+  artefact values, emulator object curves, rare rewards, and priority routes.
+- Added shared Thieving LP damage, poison/antipoison, food, dangerous death and
+  grave behavior without manufacturing Combat encounters or wall-clock state.
+- Added Max XP, Balanced, and Treasure retention, real 28-slot carried pressure,
+  direct protected rewards, terminal banking, Pharaoh-sceptre expulsion, and
+  explicit leave. Foreground multiplication stops at terminal; Again does
+  nothing.
+- Added schema-61 persistence/session arbitration, runtime multi-skill XP,
+  direct/review undo, cadence coverage, Activities-only registration, twenty
+  reward sprites, a period activity icon, reproducible provenance-aware asset
+  fetching, and a compact dark-safe card.
+- Regenerated exact cutoff Grand Exchange guide prices and buy limits for the
+  registered artefacts and Pharaoh's sceptres instead of leaving newly
+  reachable tradeable rewards unresolved.
+- Opus found and root reproduced/fixed failed entry changing the selected
+  review activity. The same bounded taste pass drove clearer locked-state,
+  status, priority, result, immunity, and leave-cost presentation. Fable stayed
+  reserved under owner instruction; Kimi was unavailable at 4% quota.
+- Exact unrecovered hazard rates and the absent Darkan golden-chest ordinary
+  table remain clearly labeled data depth. No owner design gap emerged. See
+  `source-audits/pyramid-plunder-horizontal-mvp-2026-07-21.md`.
+- Verification: all 2,118 non-Qt tests pass with 275 expected skips and all
+  2,118 real offscreen-Qt tests pass with one intentional skip. Test quality,
+  docs, compilation, JSON, diff, normalized assets, focused reachability,
+  fully restarted native Anki, and worktree-safety checks pass. Reachability
+  reports 1,438 actions, 2,128 reachable items, 168 known orphan inputs, and
+  189 unresolved actions.
+- Results:
+  `status-updates/pyramid-plunder-horizontal-mvp-results-2026-07-21.html`;
+  mobile copy: `https://8tc4efyc7zls.postplan.dev`.
+
 ## Flash Powder Factory horizontal mechanic closure — 2026-07-21
 
 - Implemented the complete finite factory session: exact entry gates, eight or

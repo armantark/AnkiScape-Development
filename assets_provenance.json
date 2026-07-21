@@ -395,6 +395,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-10-13T03:24:23Z"
   },
+  "activityicons/pyramid_plunder.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Pharaoh%27s_sceptre.png",
+    "file_title": "Pharaoh's sceptre.png",
+    "image_url": "https://runescape.wiki/images/archive/20141213113559%21Pharaoh%27s_sceptre.png?47c83",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6f5418a7f8d0932083dac365b3ce515a3e3f6450",
+    "size": 548,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-04T05:41:20Z"
+  },
   "activityicons/shooting_stars.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Star_sprite.png",
     "file_title": "Star sprite.png",
@@ -527,6 +539,54 @@
     "source_wiki": "rs3",
     "timestamp": "2010-10-06T02:06:29Z"
   },
+  "activityitems/black_ibis_body.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Black_ibis_body.png",
+    "file_title": "Black ibis body.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502013453%21Black_ibis_body.png?9a780",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ddc9c5c281e78ce76675b8cf3009799c24945033",
+    "size": 1133,
+    "source_wiki": "rs3",
+    "timestamp": "2011-08-23T14:56:38Z"
+  },
+  "activityitems/black_ibis_boots.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Black_ibis_boots.png",
+    "file_title": "Black ibis boots.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502013455%21Black_ibis_boots.png?bf87a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8a034df33f561450d68622bdb7143923760111c3",
+    "size": 829,
+    "source_wiki": "rs3",
+    "timestamp": "2011-08-23T14:56:39Z"
+  },
+  "activityitems/black_ibis_legs.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Black_ibis_legs.png",
+    "file_title": "Black ibis legs.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502013457%21Black_ibis_legs.png?51401",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "23fc31a2bcfb923da0993f3240f53aa03f1facc2",
+    "size": 803,
+    "source_wiki": "rs3",
+    "timestamp": "2011-08-23T14:56:41Z"
+  },
+  "activityitems/black_ibis_mask.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Black_ibis_mask.png",
+    "file_title": "Black ibis mask.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502013458%21Black_ibis_mask.png?507fa",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "faca48d5fd1db41ef0ac742e62d453c85bfb9b94",
+    "size": 1165,
+    "source_wiki": "rs3",
+    "timestamp": "2011-08-23T14:56:42Z"
+  },
   "activityitems/compost_potion_1.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Compost_potion_%281%29.png",
     "file_title": "Compost potion (1).png",
@@ -575,6 +635,150 @@
     "source_wiki": "rs3",
     "timestamp": "2010-03-21T15:12:42Z"
   },
+  "activityitems/gold_seal.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Gold_seal.png",
+    "file_title": "Gold seal.png",
+    "image_url": "https://runescape.wiki/images/archive/20150329230442%21Gold_seal.png?c5c4e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9090a32a38f2b6cfcfaf31185e3ec521934d9d5a",
+    "size": 978,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-22T04:34:19Z"
+  },
+  "activityitems/golden_scarab.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Golden_scarab.png",
+    "file_title": "Golden scarab.png",
+    "image_url": "https://runescape.wiki/images/archive/20150329230122%21Golden_scarab.png?460cc",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2fb7e9328c5375d247735f4c23e800f145ca2228",
+    "size": 688,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-22T04:30:46Z"
+  },
+  "activityitems/golden_statuette.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Golden_statuette.png",
+    "file_title": "Golden statuette.png",
+    "image_url": "https://runescape.wiki/images/archive/20150329230355%21Golden_statuette.png?55d54",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5b5e80c8baa85cea820cdbd9c35336cca5af6f93",
+    "size": 792,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-22T04:33:42Z"
+  },
+  "activityitems/ivory_comb.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ivory_comb.png",
+    "file_title": "Ivory comb.png",
+    "image_url": "https://runescape.wiki/images/archive/20150329233449%21Ivory_comb.png?bab3d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "76696c5fad8d43a6332e9d7c7ce05fc6cde3c114",
+    "size": 918,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-23T02:27:11Z"
+  },
+  "activityitems/jewelled_diamond_statuette.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Jewelled_diamond_statuette.png",
+    "file_title": "Jewelled diamond statuette.png",
+    "image_url": "https://runescape.wiki/images/archive/20150329233633%21Jewelled_diamond_statuette.png?43eae",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "af1ffab6bb90bb41d7d85126f510bd67e1171440",
+    "size": 1528,
+    "source_wiki": "rs3",
+    "timestamp": "2011-08-23T23:18:26Z"
+  },
+  "activityitems/jewelled_golden_statuette.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Jewelled_golden_statuette.png",
+    "file_title": "Jewelled golden statuette.png",
+    "image_url": "https://runescape.wiki/images/archive/20150329231338%21Jewelled_golden_statuette.png?ed003",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1726ae40bb1adaa3af6e5bea1e2a3bfae312bad5",
+    "size": 658,
+    "source_wiki": "rs3",
+    "timestamp": "2011-03-15T20:00:25Z"
+  },
+  "activityitems/pharaoh_s_sceptre.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Pharaoh%27s_sceptre.png",
+    "file_title": "Pharaoh's sceptre.png",
+    "image_url": "https://runescape.wiki/images/archive/20141213113559%21Pharaoh%27s_sceptre.png?47c83",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6f5418a7f8d0932083dac365b3ce515a3e3f6450",
+    "size": 548,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-04T05:41:20Z"
+  },
+  "activityitems/pharaoh_s_sceptre_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Pharaoh%27s_sceptre.png",
+    "file_title": "Pharaoh's sceptre.png",
+    "image_url": "https://runescape.wiki/images/archive/20141213113559%21Pharaoh%27s_sceptre.png?47c83",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6f5418a7f8d0932083dac365b3ce515a3e3f6450",
+    "size": 548,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-04T05:41:20Z"
+  },
+  "activityitems/pharaoh_s_sceptre_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Pharaoh%27s_sceptre.png",
+    "file_title": "Pharaoh's sceptre.png",
+    "image_url": "https://runescape.wiki/images/archive/20141213113559%21Pharaoh%27s_sceptre.png?47c83",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6f5418a7f8d0932083dac365b3ce515a3e3f6450",
+    "size": 548,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-04T05:41:20Z"
+  },
+  "activityitems/pharaoh_s_sceptre_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Pharaoh%27s_sceptre.png",
+    "file_title": "Pharaoh's sceptre.png",
+    "image_url": "https://runescape.wiki/images/archive/20141213113559%21Pharaoh%27s_sceptre.png?47c83",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6f5418a7f8d0932083dac365b3ce515a3e3f6450",
+    "size": 548,
+    "source_wiki": "rs3",
+    "timestamp": "2012-03-04T05:41:20Z"
+  },
+  "activityitems/pottery_scarab.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Pottery_scarab.png",
+    "file_title": "Pottery scarab.png",
+    "image_url": "https://runescape.wiki/images/archive/20150329231508%21Pottery_scarab.png?42a4e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e1651c7c58f2e9806cf057a876efc0f22e1b6b6c",
+    "size": 767,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-27T06:48:09Z"
+  },
+  "activityitems/pottery_statuette.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Pottery_statuette.png",
+    "file_title": "Pottery statuette.png",
+    "image_url": "https://runescape.wiki/images/archive/20150329231434%21Pottery_statuette.png?e81ab",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2834274c00b1536c3b4d1e42215e6217e463b9c0",
+    "size": 824,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-27T06:50:02Z"
+  },
   "activityitems/proto_tool.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Proto-tool.png",
     "file_title": "Proto-tool.png",
@@ -586,6 +790,18 @@
     "size": 175,
     "source_wiki": "rs3",
     "timestamp": "2010-10-08T04:44:35Z"
+  },
+  "activityitems/sceptre_of_the_gods.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Sceptre_of_the_gods.png",
+    "file_title": "Sceptre of the gods.png",
+    "image_url": "https://runescape.wiki/images/archive/20130426161550%21Sceptre_of_the_gods.png?8ff7d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0e53f3c28e145f03c3fc6d48eb32ba0dd9fc373f",
+    "size": 481,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-28T10:00:54Z"
   },
   "activityitems/spring_sq_irk.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Spring_sq%27irk.png",
@@ -610,6 +826,42 @@
     "size": 868,
     "source_wiki": "rs3",
     "timestamp": "2010-10-06T02:05:33Z"
+  },
+  "activityitems/stone_scarab.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Stone_scarab.png",
+    "file_title": "Stone scarab.png",
+    "image_url": "https://runescape.wiki/images/archive/20150329230543%21Stone_scarab.png?c82bf",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "354f02bd20be37a0562de30dbf415bf5d2b4dcbc",
+    "size": 715,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-29T06:25:25Z"
+  },
+  "activityitems/stone_seal.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Stone_seal.png",
+    "file_title": "Stone seal.png",
+    "image_url": "https://runescape.wiki/images/archive/20150329231253%21Stone_seal.png?c6540",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "eb75fb665e767f42212df1f00afc62fdd5136654",
+    "size": 788,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-29T06:40:55Z"
+  },
+  "activityitems/stone_statuette.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Stone_statuette.png",
+    "file_title": "Stone statuette.png",
+    "image_url": "https://runescape.wiki/images/archive/20150329230240%21Stone_statuette.png?8623f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d196bef7c8654a96032df3d5eb311804251e10ae",
+    "size": 689,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-29T06:32:19Z"
   },
   "activityitems/summer_sq_irk.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Summer_sq%27irk.png",

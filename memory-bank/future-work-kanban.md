@@ -1094,9 +1094,10 @@ Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
 - Platform seed: `memory-bank/minigames-activities-design-seed.md`.
 - The horizontal breadth wave has shipped Shooting Stars, Fist of Guthix,
   Sorceress's Garden, Penguin Hide and Seek, Vinesweeper, Fight Caves,
-  Stealing Creation, Barrows, and Flash Powder Factory with complete mechanics,
-  persistence, undo, UI, assets, and compact period-qualified data sets.
-- Flash Powder Factory is closed. Tears of Guthix and Shattered Heart remain explicit
+  Stealing Creation, Barrows, Flash Powder Factory, and Pyramid Plunder with
+  complete mechanics, persistence, undo, UI, assets, and compact period-
+  qualified data sets.
+- Flash Powder Factory and Pyramid Plunder are closed. Tears of Guthix and Shattered Heart remain explicit
   source-readiness skips, not design questions. Continue breadth-first with the
   next settled activity whose smallest honest entry/state/reward data set is
   already source-ready; do not stall the wave on exhaustive catalogs.
@@ -1124,8 +1125,8 @@ Labels: `DESIGN CLOSED 2026-07-18`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY:
 
 Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 
-- Maintain `tools/audit_item_reachability.py`; the current run finds 1,437
-  actions, 2,109 reachable items, and 168 orphan inputs (76 root, 92 cascade)
+- Maintain `tools/audit_item_reachability.py`; the current run finds 1,438
+  actions, 2,128 reachable items, and 168 orphan inputs (76 root, 92 cascade)
   across planned skills, activities, Combat/world acquisition, Farming, and
   potion-state plumbing. Bob Barter's vial decant routes and Teplin Macagan's
   vial/flask conversions make potion dose variants known-producer cascades;
