@@ -321,6 +321,27 @@ except Exception:
     from sorceress_garden_logic import sorceress_garden_view_pure  # type: ignore
 
 try:
+    from .penguin_hide_and_seek_data import (
+        PENGUIN_COINS_PER_POINT,
+        PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID,
+        PENGUIN_XP_PER_LEVEL_POINT,
+    )
+    from .penguin_hide_and_seek_logic import (
+        penguin_reward_skills_pure,
+        penguin_view_pure,
+    )
+except Exception:
+    from penguin_hide_and_seek_data import (  # type: ignore
+        PENGUIN_COINS_PER_POINT,
+        PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID,
+        PENGUIN_XP_PER_LEVEL_POINT,
+    )
+    from penguin_hide_and_seek_logic import (  # type: ignore
+        penguin_reward_skills_pure,
+        penguin_view_pure,
+    )
+
+try:
     from .combat_session import (
         confirm_wilderness_combat_risk,
         wilderness_combat_risk_confirmed,
@@ -3367,6 +3388,7 @@ def show_main_menu(
     on_shooting_star_command=None,
     on_fist_of_guthix_command=None,
     on_sorceress_garden_command=None,
+    on_penguin_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
     on_set_construction=None,
@@ -8312,6 +8334,273 @@ def show_main_menu(
         )
         _refresh_sorceress_garden_panel()
 
+        penguin_box = QtFrame()
+        penguin_box.setObjectName("penguinHideAndSeekPanel")
+        penguin_box.setStyleSheet(
+            "QFrame#penguinHideAndSeekPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        penguin_layout = QVBoxLayout(penguin_box)
+        penguin_layout.setContentsMargins(10, 8, 10, 8)
+        penguin_layout.setSpacing(6)
+
+        penguin_top = QWidget()
+        penguin_top_layout = QHBoxLayout(penguin_top)
+        penguin_top_layout.setContentsMargins(0, 0, 0, 0)
+        penguin_top_layout.setSpacing(8)
+        penguin_icon = QLabel()
+        penguin_icon.setObjectName("penguinHideAndSeekIcon")
+        penguin_icon.setFixedSize(28, 28)
+        penguin_icon_path = os.path.join(
+            current_dir, "activityicons", "penguin_hide_and_seek.png"
+        )
+        if os.path.exists(penguin_icon_path):
+            penguin_icon.setPixmap(
+                QPixmap(penguin_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        penguin_title = QLabel("Penguin Hide and Seek")
+        penguin_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        penguin_status = QLabel()
+        penguin_status.setObjectName("penguinHideAndSeekStatusChip")
+        penguin_status.setStyleSheet(
+            f"color: {dim_text_css(penguin_status)};"
+            " font-size: 11px; font-weight: 700;"
+        )
+        penguin_top_layout.addWidget(penguin_icon)
+        penguin_top_layout.addWidget(penguin_title)
+        penguin_top_layout.addStretch(1)
+        penguin_top_layout.addWidget(penguin_status)
+        penguin_layout.addWidget(penguin_top)
+
+        penguin_summary = QLabel()
+        penguin_summary.setObjectName("penguinHideAndSeekSummary")
+        penguin_summary.setWordWrap(True)
+        penguin_summary.setStyleSheet("color: palette(text);")
+        penguin_layout.addWidget(penguin_summary)
+
+        penguin_roster = QComboBox()
+        penguin_roster.setObjectName("penguinHideAndSeekRoster")
+        penguin_roster.setAccessibleName("This week's penguin roster")
+        penguin_roster.setToolTip(
+            "Every row names the current source location and disguise. "
+            "Choose one unspotted entry for the next successful Activity review."
+        )
+        penguin_layout.addWidget(penguin_roster)
+
+        penguin_primary = QPushButton()
+        penguin_primary.setObjectName("penguinHideAndSeekPrimaryButton")
+        penguin_primary.setAccessibleName("Select penguin for the next review")
+        penguin_layout.addWidget(penguin_primary)
+
+        penguin_detail = QLabel()
+        penguin_detail.setObjectName("penguinHideAndSeekDetail")
+        penguin_detail.setWordWrap(True)
+        penguin_detail.setStyleSheet(
+            f"color: {dim_text_css(penguin_detail)}; font-size: 11px;"
+        )
+        penguin_layout.addWidget(penguin_detail)
+
+        penguin_reward_row = QWidget()
+        penguin_reward_layout = QHBoxLayout(penguin_reward_row)
+        penguin_reward_layout.setContentsMargins(0, 0, 0, 0)
+        penguin_reward_layout.setSpacing(6)
+        penguin_reward_skill = QComboBox()
+        penguin_reward_skill.setObjectName("penguinRewardSkill")
+        penguin_reward_skill.setAccessibleName("Penguin Point XP skill")
+        for reward_skill in penguin_reward_skills_pure():
+            penguin_reward_skill.addItem(
+                reward_skill["display_name"], reward_skill["id"]
+            )
+        penguin_redeem_xp = QPushButton("Redeem all for XP")
+        penguin_redeem_xp.setObjectName("penguinRedeemXpButton")
+        penguin_redeem_coins = QPushButton("Redeem all for coins")
+        penguin_redeem_coins.setObjectName("penguinRedeemCoinsButton")
+        penguin_reward_layout.addWidget(penguin_reward_skill, 1)
+        penguin_reward_layout.addWidget(penguin_redeem_xp)
+        penguin_reward_layout.addWidget(penguin_redeem_coins)
+        penguin_layout.addWidget(penguin_reward_row)
+        cards_stack.addWidget(penguin_box)
+
+        syncing_penguin = {"active": False}
+
+        def _refresh_penguin_panel() -> None:
+            syncing_penguin["active"] = True
+            view = penguin_view_pure(player_data)
+            previous_row = penguin_roster.currentData()
+            penguin_roster.clear()
+            for row in view["roster"]:
+                marker = "✓" if row["spotted"] else "•"
+                label = (
+                    f"{marker} {row['location']} · {row['disguise']} · "
+                    f"{row['points']} pt"
+                    + ("s" if int(row["points"]) != 1 else "")
+                )
+                penguin_roster.addItem(label, row["id"])
+                index = penguin_roster.count() - 1
+                penguin_roster.setItemData(
+                    index,
+                    str(row["detail"]),
+                    Qt.ItemDataRole.ToolTipRole,
+                )
+                if row["spotted"]:
+                    penguin_roster.setItemData(
+                        index,
+                        dim_text_color(penguin_roster),
+                        Qt.ItemDataRole.ForegroundRole,
+                    )
+            preferred_id = (
+                str(previous_row or "")
+                or view["selected_id"]
+                or next(
+                    (row["id"] for row in view["roster"] if not row["spotted"]),
+                    "",
+                )
+            )
+            roster_index = penguin_roster.findData(preferred_id)
+            penguin_roster.setCurrentIndex(max(0, roster_index))
+
+            selected_id = str(penguin_roster.currentData() or "")
+            selected_row = next(
+                (row for row in view["roster"] if row["id"] == selected_id),
+                None,
+            )
+            active = (
+                player_data.get("current_utility")
+                == PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID
+                and view["selected_id"]
+            )
+            complete = int(view["spotted_count"]) == int(view["roster_count"])
+            penguin_status.setText(
+                "COMPLETE" if complete else "ACTIVE" if view["selected_id"] else "READY"
+            )
+            penguin_status.setToolTip(
+                f"Answered-card week {int(view['week_index']) + 1}"
+            )
+            summary = (
+                f"{int(view['spotted_count'])}/{int(view['roster_count'])} spied · "
+                f"{int(view['points'])}/50 Penguin Points"
+            )
+            if view["last_result"]:
+                summary += "\n" + str(view["last_result"])
+            penguin_summary.setText(summary)
+            unlocks = [
+                "Cold War bonus " + ("active" if view["cold_war_bonus"] else "locked"),
+                "Polar bear " + ("active" if view["polar_bear_unlocked"] else "locked"),
+                "Invisible penguin " + ("active" if view["invisible_unlocked"] else "locked"),
+            ]
+            penguin_detail.setText(
+                "Next successful review handles travel and spying · "
+                + " · ".join(unlocks)
+            )
+            row_spotted = bool(selected_row and selected_row["spotted"])
+            row_is_active = bool(active and selected_id == view["selected_id"])
+            penguin_primary.setText(
+                "Selected for next review"
+                if row_is_active
+                else "Already spied this week"
+                if row_spotted
+                else "Select for next review"
+            )
+            penguin_primary.setAccessibleName(penguin_primary.text())
+            penguin_primary.setEnabled(
+                bool(
+                    selected_row
+                    and not row_spotted
+                    and not row_is_active
+                    and on_penguin_command is not None
+                    and on_set_utility is not None
+                )
+            )
+            has_points = int(view["points"]) > 0
+            penguin_reward_skill.setEnabled(True)
+            penguin_redeem_xp.setEnabled(
+                has_points and on_penguin_command is not None
+            )
+            penguin_redeem_coins.setEnabled(
+                has_points and on_penguin_command is not None
+            )
+            points = int(view["points"])
+            penguin_redeem_coins.setToolTip(
+                (
+                    f"Redeem all {points} points for "
+                    f"{points * PENGUIN_COINS_PER_POINT:,} coins."
+                )
+                if points
+                else "Spy a penguin to earn points before redeeming coins."
+            )
+            reward_skill_id = str(penguin_reward_skill.currentData() or "")
+            reward_skill = next(
+                (row for row in penguin_reward_skills_pure() if row["id"] == reward_skill_id),
+                None,
+            )
+            if reward_skill:
+                level = int(player_data.get(reward_skill["level_key"], 1) or 1)
+                penguin_redeem_xp.setToolTip(
+                    (
+                        f"Redeem all {points} points for "
+                        f"{points * level * PENGUIN_XP_PER_LEVEL_POINT:,} "
+                        f"{reward_skill['display_name']} XP at level {level}."
+                    )
+                    if points
+                    else "Spy a penguin to earn points before redeeming XP."
+                )
+            syncing_penguin["active"] = False
+            _fit_current_activity_detail()
+
+        def _run_penguin_command(action_id: str, payload=None) -> bool:
+            if on_penguin_command is None:
+                return False
+            result = on_penguin_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Penguin Hide and Seek",
+                    str(result.get("message", "That Penguin action is unavailable.")),
+                )
+                return False
+            _refresh_penguin_panel()
+            return True
+
+        def _select_penguin_for_review() -> None:
+            spawn_id = str(penguin_roster.currentData() or "")
+            if not spawn_id:
+                return
+            if not _run_penguin_command("select_spy", {"spawn_id": spawn_id}):
+                return
+            if on_set_utility is not None:
+                on_set_utility(PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID)
+                player_data["current_utility"] = PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID
+                tree.clearSelection()
+            _refresh_penguin_panel()
+
+        penguin_roster.currentIndexChanged.connect(
+            lambda _index: _refresh_penguin_panel()
+            if not syncing_penguin["active"]
+            else None
+        )
+        penguin_reward_skill.currentIndexChanged.connect(
+            lambda _index: _refresh_penguin_panel()
+            if not syncing_penguin["active"]
+            else None
+        )
+        penguin_primary.clicked.connect(
+            lambda _checked=False: _select_penguin_for_review()
+        )
+        penguin_redeem_xp.clicked.connect(
+            lambda _checked=False: _run_penguin_command(
+                "redeem_xp",
+                {"skill_id": str(penguin_reward_skill.currentData() or "")},
+            )
+        )
+        penguin_redeem_coins.clicked.connect(
+            lambda _checked=False: _run_penguin_command("redeem_coins")
+        )
+        _refresh_penguin_panel()
+
         guild_box = QtFrame()
         guild_box.setObjectName("warriorsGuildPanel")
         guild_box.setStyleSheet(
@@ -9334,6 +9623,7 @@ def show_main_menu(
             _refresh_shooting_star_panel()
             _refresh_fist_of_guthix_panel()
             _refresh_sorceress_garden_panel()
+            _refresh_penguin_panel()
             _show_activity_detail(activity_id)
 
         def _on_utility_clicked(item: "QTreeWidgetItem", _column: int = 0):
@@ -9379,6 +9669,9 @@ def show_main_menu(
             if activity_id == SORCERESS_GARDEN_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
             _set_utility_selection(activity_id)
 
         event_status_label = QLabel("Activity details")
@@ -9394,6 +9687,10 @@ def show_main_menu(
             SORCERESS_GARDEN_ACTIVITY_ID: (
                 "Sorceress's Garden",
                 garden_box,
+            ),
+            PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID: (
+                "Penguin Hide and Seek",
+                penguin_box,
             ),
             FAMILIARISATION_ACTIVITY_ID: (
                 "Familiarisation",

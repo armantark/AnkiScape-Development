@@ -2652,3 +2652,32 @@ The visual closure report is
   and worktree-safety audits pass. No owner design gap surfaced.
 - Durable evidence:
   `source-audits/potion-container-stackability-correction-2026-07-20.md`.
+
+## Penguin Hide and Seek horizontal closure — 2026-07-20
+
+- Added a mechanic-complete, review-native weekly Penguin Hide and Seek loop:
+  deterministic five-of-six rotations for each ordinary tier, one selected spy
+  per successful Activity review, persistent spotted state, the 50-point cap,
+  and answered-card-week rollover on the shared shop/world clock.
+- The base activity exposes ten one-point spies without a quest gate. Cold War
+  upgrades five rows to two points; Hunt for Red Raktuber adds the polar bear;
+  Some Like It Cold plus a started Desert Treasure and a carried/equipped Ring
+  of visibility adds the three-point invisible penguin.
+- Larry redemption is an all-points direct action: 6,500 coins per point or
+  `25 × chosen skill level × points` XP. Review spying and both redemption
+  paths restore atomically through the established undo channels.
+- Added a compact paginated D&D card with live READY/ACTIVE/COMPLETE state,
+  roster switching, progress, reward choice, normalized period art, and
+  player-facing lock copy. Fable and Kimi K3 reviewed the surface; every
+  reproduced issue was corrected before closure.
+- Complete non-Qt discovery passes all 2,008 tests with 265 expected
+  environment skips. Complete real offscreen Qt discovery passes all 2,008
+  tests with one intentional platform skip. A fully quit/relaunched native
+  Anki smoke confirms one add-on menu, the D&D pager, Penguin row, and compact
+  zero-state card without changing the save.
+- Reachability remains stable at 1,433 actions, 2,099 reachable items, 168
+  orphan inputs, and 189 unresolved actions; Penguin introduces no item orphan.
+  The remaining full location catalog is data-depth work, not a missing
+  mechanic or owner-design gap.
+- Durable evidence:
+  `source-audits/penguin-hide-and-seek-loop-2026-07-17.md`.

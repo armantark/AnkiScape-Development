@@ -82,6 +82,10 @@ try:
         default_sorceress_garden_state_pure,
         sanitize_sorceress_garden_state_pure,
     )
+    from .penguin_hide_and_seek_logic import (
+        default_penguin_state_pure,
+        sanitize_penguin_state_pure,
+    )
     from .farming_logic import default_farming_state_pure, sanitize_farming_state_pure
     from .mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from .smithing_data import (
@@ -193,6 +197,10 @@ except ImportError:
         default_sorceress_garden_state_pure,
         sanitize_sorceress_garden_state_pure,
     )
+    from penguin_hide_and_seek_logic import (  # type: ignore
+        default_penguin_state_pure,
+        sanitize_penguin_state_pure,
+    )
     from farming_logic import default_farming_state_pure, sanitize_farming_state_pure
     from mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from smithing_data import (
@@ -225,7 +233,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 55
+CURRENT_CONFIG_VERSION = 56
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -455,6 +463,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["shooting_star"] = default_shooting_star_state_pure()
     data["fist_of_guthix"] = default_fist_of_guthix_state_pure()
     data["sorceress_garden"] = default_sorceress_garden_state_pure()
+    data["penguin_hide_and_seek"] = default_penguin_state_pure()
     data.update(default_farming_state_pure())
     data.update(default_agility_state_pure())
     data["livid_farm"] = default_livid_farm_state_pure()
@@ -1065,6 +1074,9 @@ def migrate_loaded_data(
     )
     data["sorceress_garden"] = sanitize_sorceress_garden_state_pure(
         data.get("sorceress_garden")
+    )
+    data["penguin_hide_and_seek"] = sanitize_penguin_state_pure(
+        data.get("penguin_hide_and_seek")
     )
 
     # Ensure inventory exists and has registered item keys while preserving

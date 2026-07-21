@@ -32,6 +32,17 @@ except ImportError:
     )
 
 try:
+    from .penguin_hide_and_seek_data import (
+        PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID,
+        penguin_hide_and_seek_activity_as_dict,
+    )
+except ImportError:
+    from penguin_hide_and_seek_data import (  # type: ignore
+        PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID,
+        penguin_hide_and_seek_activity_as_dict,
+    )
+
+try:
     from .construction_data import (
         CONSTRUCTION_DATA,
         DEFAULT_CONSTRUCTION_TARGET,
@@ -592,6 +603,7 @@ UTILITY_ACTIVITY_DATA.update(big_chinchompa_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(shooting_star_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fist_of_guthix_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(sorceress_garden_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(penguin_hide_and_seek_activity_as_dict())
 FAMILIARISATION_ACTIVITY_ID = "familiarisation"
 UTILITY_ACTIVITY_DATA[FAMILIARISATION_ACTIVITY_ID] = {
     "display_name": "Familiarisation",
@@ -646,6 +658,14 @@ _sorceress_garden_icon = os.path.join(
 if os.path.exists(_sorceress_garden_icon):
     UTILITY_ACTIVITY_DATA[SORCERESS_GARDEN_ACTIVITY_ID]["icon_path"] = (
         _sorceress_garden_icon
+    )
+_penguin_hide_and_seek_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "penguin_hide_and_seek.png",
+)
+if os.path.exists(_penguin_hide_and_seek_icon):
+    UTILITY_ACTIVITY_DATA[PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID]["icon_path"] = (
+        _penguin_hide_and_seek_icon
     )
 _familiarisation_icon = os.path.join(
     current_dir,

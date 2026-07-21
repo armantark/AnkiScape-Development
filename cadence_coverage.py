@@ -189,6 +189,31 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "penguin_hide_and_seek":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "penguin_hide_and_seek",
+                    "mode": "passthrough",
+                    "source_status": "sourced",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One successful review abstracts travel to and spying on "
+                        "one selected weekly-roster penguin."
+                    ),
+                    "includes": ("one roster entry", "one point award"),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains "
+                        "one selected spy action"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same single-spy activity handler",
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         if str(action_id) == "big_chinchompa":
             rows.append(
                 {

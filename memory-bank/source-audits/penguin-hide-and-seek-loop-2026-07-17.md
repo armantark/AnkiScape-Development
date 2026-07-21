@@ -2,8 +2,8 @@
 
 Date: 2026-07-17
 
-Status: **period structure pinned; search and travel abstraction owner-settled;
-implementation corroboration and roster harvest remain open.**
+Status: **period structure pinned; owner-settled breadth-one implementation
+complete; exhaustive roster harvest remains open data depth.**
 
 ## Pinned evidence
 
@@ -29,8 +29,7 @@ Source:
 - <https://runescape.wiki/w/Penguin_Hide_and_Seek?oldid=6569778>
 
 The revision was resolved and inspected as literal wikitext with
-`tools/wiki_parity.py`. The values and cutoff roster still require an
-independent period-lineage corroboration pass before implementation.
+`tools/wiki_parity.py`.
 
 ## Owner-settled AnkiScape abstraction
 
@@ -52,12 +51,64 @@ remain source-shaped. Weekly eligibility follows AnkiScape's answered-card
 calendar and never the wall clock. Every successful spy and redemption remains
 an atomic undoable delta.
 
-## Still open for source harvest
+## Breadth-one implementation closure — 2026-07-20
 
-- Corroborate the weekly counts, quest upgrades, point values, point cap, and
-  redemption formulas against an independent period-lineage source.
+The live implementation uses the owner-settled flattened search loop without
+dropping any mechanic:
+
+- one answered-card week is `1,680` reviews on the shared
+  `shop_market_clock`; no wall clock is consulted;
+- each weekly roster contains five ordinary one-point locations and five
+  ordinary locations upgraded to two points by `Cold War`;
+- `Hunt for Red Raktuber` adds the rotating one-point polar-bear well;
+- `Some Like It Cold`, started `Desert Treasure`, and a carried or equipped
+  Ring of visibility add the three-point invisible penguin;
+- the player selects any unspotted roster entry, one successful Activity
+  review spies exactly that entry, and review undo restores the selection,
+  points, weekly progress, telemetry, and world clock atomically;
+- points clamp at 50 without preventing the selected spy from being marked;
+  all held points redeem directly for either `6,500 × points` coins or
+  `25 × current level × points` XP in a trainable skill; and
+- selection is a saved policy change, while each redemption has its own Anki
+  direct-action undo entry.
+
+The compact breadth-one location corpus is deliberately six source-qualified
+rows per ordinary tier, rotated five at a time, plus the six period polar-bear
+wells. This preserves weekly roster generation and every point tier while
+deferring only catalog depth. The activity registry, save migration v56,
+cadence coverage, runtime dispatch, paginated Activities card, dark/light-safe
+period icon, and pure/integration/real-Qt coverage are live.
+
+Current Darkan reconstruction corroborates the ten-spy count, `Cold War`
+point upgrade, polar-bear completion gate, 50-point cap, all-points redemption,
+`6,500 × points` coins, and `25 × level × points` XP:
+
+- `darkan-world-server` commit
+  `758b41e8c16f1ad424b98aa5812e8f9d06dab541`,
+  `src/main/java/com/rs/game/content/dnds/penguins/PenguinHASController.kt`;
+- commit `61c5ab917ce0632088d74be698bbdd4a1e57cc34`,
+  `src/main/java/com/rs/game/content/items/Lamps.java:189-205`; and
+- commit `166fced5187dd6f2539d52e23bf21a9ab92660f7`,
+  `src/main/java/com/rs/game/content/world/areas/ardougne/npcs/east_ardougne/Larry.kt:130-151`.
+
+Darkan currently gates the base activity behind completed `Cold War`, which
+conflicts with the pinned pre-cutoff page and the newer owner-settled entry-gate
+ledger. AnkiScape therefore keeps the base ten-point roster available and uses
+`Cold War` only for the five two-point upgrades. Darkan is reconstruction
+evidence here, not authority over the pinned period page.
+
+Asset provenance:
+
+- `activityicons/penguin_hide_and_seek.png` is the tight-alpha normalized
+  `Rock (Penguin Hide and Seek).png`, timestamped `2010-10-13T03:24:23Z` in
+  `assets_provenance.json` and fetched through
+  `tools/fetch_penguin_hide_and_seek_assets.py` with the pre-EOC cutoff.
+
+## Remaining data depth
+
 - Transcribe the complete cutoff location and disguise pools.
-- Reconcile any cutoff weekly-location dependency pages and historical
+- Reconcile the remaining cutoff weekly-location dependency pages and historical
   templates used by the article.
-- Map chosen-skill XP redemption through the shared reward-choice interface
-  without changing the source formula.
+- Recover a period-lineage server implementation if one survives; current
+  Darkan corroboration remains reconstruction evidence and carries the base
+  entry-gate conflict recorded above.

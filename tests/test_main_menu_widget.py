@@ -551,6 +551,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._shooting_star_calls: list = []
         self._fist_of_guthix_calls: list = []
         self._sorceress_garden_calls: list = []
+        self._penguin_calls: list = []
         self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
         self._mage_arena_calls: list = []
@@ -850,6 +851,18 @@ class MainMenuWidgetTest(unittest.TestCase):
                 player_data.update(updated)
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
+        def _penguin_command(action_id, payload):
+            from penguin_hide_and_seek_logic import apply_penguin_command_pure
+
+            self._penguin_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_penguin_command_pure(
+                player_data, action_id, payload
+            )
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
         def _mage_arena_action(action_id, god_id):
             from logic_pure import (
                 apply_mage_arena_cape_action_pure,
@@ -912,6 +925,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_shooting_star_command=_shooting_star_command,
             on_fist_of_guthix_command=_fist_of_guthix_command,
             on_sorceress_garden_command=_sorceress_garden_command,
+            on_penguin_command=_penguin_command,
             on_set_prayer_selection=_set_prayer_selection,
             on_set_magic=lambda target: _set_target("current_magic", self._magic_calls, target),
             on_set_construction=lambda target: _set_target("current_construction", self._construction_calls, target),
@@ -7551,6 +7565,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             {
                 "big_chinchompa",
                 "familiarisation",
+                "penguin_hide_and_seek",
                 "shooting_stars",
             },
         )
@@ -8345,6 +8360,69 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["current_utility"], "sorceress_garden")
         self.assertEqual(self._utility_calls[-1], "sorceress_garden")
         self.assertEqual(primary.text(), "Selected for reviews")
+
+    def test_penguin_card_selects_spy_and_redeems_points_without_scroll(self) -> None:
+        from penguin_hide_and_seek_logic import default_penguin_state_pure
+
+        pd = _make_player_data()
+        pd["shop_market_clock"] = {"answered_cards": 0}
+        pd["penguin_hide_and_seek"] = default_penguin_state_pure()
+        pd["penguin_hide_and_seek"]["points"] = 2
+        dialog = self._open(pd)
+        activity_tree = self._open_activities(dialog)
+        activity_tree.setCurrentItem(
+            _utility_row(activity_tree, "penguin_hide_and_seek")
+        )
+        QApplication.processEvents()
+
+        panel = _find_named_widget(dialog, "penguinHideAndSeekPanel")
+        roster = panel.findChild(QComboBox, "penguinHideAndSeekRoster")
+        primary = _find_named_button(dialog, "penguinHideAndSeekPrimaryButton")
+        redeem_coins = _find_named_button(dialog, "penguinRedeemCoinsButton")
+        status = _find_named_label(dialog, "penguinHideAndSeekStatusChip")
+        self.assertEqual(roster.count(), 10)
+        self.assertIsNone(panel.findChild(QScrollArea))
+        self.assertEqual(status.text(), "READY")
+        self.assertEqual(status.toolTip(), "Answered-card week 1")
+
+        selected_id = str(roster.currentData())
+        primary.click()
+        QApplication.processEvents()
+        self.assertEqual(
+            self._penguin_calls[-1],
+            ("select_spy", {"spawn_id": selected_id}),
+        )
+        self.assertEqual(pd["current_utility"], "penguin_hide_and_seek")
+        self.assertEqual(self._utility_calls[-1], "penguin_hide_and_seek")
+        self.assertEqual(primary.text(), "Selected for next review")
+        self.assertEqual(status.text(), "ACTIVE")
+
+        next_index = 1 if roster.currentIndex() == 0 else 0
+        next_id = str(roster.itemData(next_index))
+        roster.setCurrentIndex(next_index)
+        QApplication.processEvents()
+        self.assertEqual(str(roster.currentData()), next_id)
+        self.assertEqual(primary.text(), "Select for next review")
+        self.assertEqual(primary.accessibleName(), primary.text())
+
+        redeem_coins.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["inventory"]["Coins"], 13_000)
+        self.assertEqual(pd["penguin_hide_and_seek"]["points"], 0)
+        self.assertFalse(redeem_coins.isEnabled())
+        self.assertTrue(
+            panel.findChild(QComboBox, "penguinRewardSkill").isEnabled()
+        )
+        self.assertNotIn("0 points for 0 coins", redeem_coins.toolTip())
+
+        dialog.resize(900, 560)
+        for _ in range(6):
+            QApplication.processEvents()
+        panel_bottom = panel.mapTo(
+            dialog,
+            panel.rect().bottomRight(),
+        ).y()
+        self.assertLessEqual(panel_bottom, dialog.contentsRect().bottom())
 
     def test_activities_show_only_the_selected_rich_detail_card(self) -> None:
         from shooting_star_logic import (

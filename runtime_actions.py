@@ -246,6 +246,11 @@ try:
         sorceress_garden_locked_reasons_pure,
         sorceress_garden_view_pure,
     )
+    from .penguin_hide_and_seek_data import PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID
+    from .penguin_hide_and_seek_logic import (
+        apply_penguin_review_pure,
+        penguin_view_pure,
+    )
     from .warriors_guild_data import WARRIORS_GUILD_ACTIVITIES
     from .warriors_guild_logic import (
         apply_warriors_guild_activity_pure,
@@ -481,6 +486,13 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         apply_sorceress_garden_review_pure,
         sorceress_garden_locked_reasons_pure,
         sorceress_garden_view_pure,
+    )
+    from penguin_hide_and_seek_data import (  # type: ignore
+        PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID,
+    )
+    from penguin_hide_and_seek_logic import (  # type: ignore
+        apply_penguin_review_pure,
+        penguin_view_pure,
     )
     from warriors_guild_data import WARRIORS_GUILD_ACTIVITIES  # type: ignore
     from warriors_guild_logic import (  # type: ignore
@@ -2625,6 +2637,31 @@ def _handle_sorceress_garden_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _handle_penguin_answer(ctx: RuntimeActionContext) -> bool:
+    updated, ok, result = apply_penguin_review_pure(ctx.player_data)
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Penguin Hide and Seek unavailable",
+            str(result.get("reason", "Select an unspotted penguin first.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    _record_action(
+        ctx,
+        "utility",
+        str(result.get("action_id", PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID)),
+        True,
+        expected_success_chance=1.0,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_activity_gain(str(result.get("status", "Penguin spied")))
+    return True
+
+
 def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
@@ -2638,6 +2675,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_fist_of_guthix_answer(ctx)
     if activity_key == SORCERESS_GARDEN_ACTIVITY_ID:
         return _handle_sorceress_garden_answer(ctx)
+    if activity_key == PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID:
+        return _handle_penguin_answer(ctx)
     if activity_key == STRONGHOLD_UTILITY_KEY:
         return _handle_stronghold_answer(ctx)
     if activity_key == KNIGHT_WAVES_UTILITY_KEY:
@@ -4873,6 +4912,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return not livid_farm_locked_reasons_pure(ctx.player_data)
     if activity_key == SORCERESS_GARDEN_ACTIVITY_ID:
         return not sorceress_garden_locked_reasons_pure(ctx.player_data)
+    if activity_key == PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID:
+        return bool(penguin_view_pure(ctx.player_data).get("can_review", False))
     return not utility_activity_locked_reasons_pure(
         ctx.player_data,
         activity_key,

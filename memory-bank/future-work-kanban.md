@@ -998,6 +998,13 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   card are live. Hidden herb weights remain data-depth source work and do not
   block the breadth-first frontier. See
   `memory-bank/source-audits/sorceress-garden-loop-2026-07-18.md`.
+- Penguin Hide and Seek is mechanic-complete as an Activities-only weekly
+  roster. It ships the base ten-spy loop, all three quest-shaped upgrades,
+  direct roster selection, one-review spying, 50-point cap, exact coin/XP
+  redemptions, persistence, both undo boundaries, cadence, normalized period
+  art, and a compact paginated card. The complete cutoff location/disguise pool
+  remains data-depth work. See
+  `memory-bank/source-audits/penguin-hide-and-seek-loop-2026-07-17.md`.
 - Darkan should supply hidden state machines, rolls, currencies, and reward logic; period wiki/cache evidence still establishes cutoff and client identity.
 
 ### Missing skill server behavior

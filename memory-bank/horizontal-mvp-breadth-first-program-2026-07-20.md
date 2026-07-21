@@ -79,15 +79,13 @@ Grand Exchange, Shops, Help/Details, Farming, Livid Farm, Big Chinchompa, Evil
 Tree, Warriors' Guild, and the other explicitly shipped systems already satisfy
 or exceed breadth level one.
 
-The owner-settled architecture wave remains the first unrepresented breadth
-frontier:
+The owner-settled activity wave remains the current breadth frontier:
 
 1. Tears of Guthix;
-2. Shooting Stars;
-3. Fist of Guthix;
-4. Barrows;
-5. Fight Caves;
-6. Stealing Creation.
+2. Barrows;
+3. Fight Caves;
+4. Stealing Creation;
+5. Shattered Heart.
 
 Tears of Guthix is currently skipped, not removed: its exact post-refresh
 reward magnitude and session beat count remain `source_blocked`.
@@ -100,10 +98,14 @@ HUD, normalized period art, and focused proof. The initial-size, first-finder,
 crowd, gem, and reward-rounding distributions are explicitly bounded data debt,
 not missing mechanics.
 
-Fist of Guthix is the next active breadth-one candidate, followed by Barrows,
-Fight Caves, and Stealing Creation. Tears of Guthix remains the earlier skipped
-candidate until its source-blocked post-refresh reward magnitude and session
-beat count are resolved.
+Fist of Guthix, Sorceress's Garden, and Penguin Hide and Seek now also satisfy
+breadth level one. Penguin ships the complete weekly roster, quest-upgrade,
+selection, spying, point-cap, redemption, persistence, undo, cadence, UI, and
+asset graph with a compact period-qualified spawn corpus; only exhaustive
+location data remains. Tears of Guthix remains skipped until its source-blocked
+post-refresh reward magnitude and session beat count are resolved. Barrows and
+Shattered Heart remain data-readiness skips rather than permission to flatten
+their missing combat/reward or qualifying-action mechanics.
 
 After each accepted slice, recompute the frontier from live source/runtime
 evidence. Any newly discovered owner-facing fork goes into the current

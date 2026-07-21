@@ -3405,3 +3405,26 @@ Test counts are snapshots; current runs outrank this note.
   and worktree-safety audits pass. No UI or owner-design behavior changed.
 - Durable evidence:
   `source-audits/potion-container-stackability-correction-2026-07-20.md`.
+
+## Penguin Hide and Seek horizontal MVP — 2026-07-20
+
+- Implemented the complete weekly spy loop, quest-gated bonus spies, point
+  cap, direct selection, all-points Larry redemption, persistence, review undo,
+  direct-action undo, cadence registration, and the Activities UI.
+- Corrected the live week source to the shared `shop_market_clock`; the first
+  version's nonexistent `simulation_clock` would never have rotated in real
+  Anki. Added a regression at the exact 1,680-review boundary.
+- Added a normalized pre-cutoff rock-penguin activity icon with provenance and
+  a reusable cutoff-safe fetch pipeline. No item sprites or item routes are
+  required by this activity.
+- Fable and Kimi K3 independently reviewed the new card. Confirmed issues in
+  roster switching, sticky result copy, zero-point affordances, accessibility,
+  hierarchy, and player-facing language were fixed and regression-covered.
+- Final verification passes 2,008 non-Qt tests with 265 expected skips and
+  2,008 real offscreen Qt tests with one intentional skip. Focused logic,
+  integration, asset-normalization, registry, and geometry checks pass; the
+  restarted native Anki process shows one menu and the complete Penguin card.
+- No owner design gap surfaced. Exhaustive period spawn-location expansion is
+  explicitly deferred data depth under the breadth-first program.
+- Durable record:
+  `source-audits/penguin-hide-and-seek-loop-2026-07-17.md`.
