@@ -128,3 +128,13 @@ period Exchange identities:
 The generated catalog now has 1,330 direct period prices and 1,640 period buy
 limits for 1,659 registered items. The original 1,328/1,638 counts above are
 the historical closure checkpoint, not the current generated totals.
+
+## Registered-item continuation — 2026-07-20
+
+The Vinesweeper breadth slice registered all four exact Compost-potion dose
+identities. Regeneration recovered a `1,000` four-hour limit for every dose and
+direct period Exchange prices of `1,858`, `3,447`, `7,174`, and `12,282` coins
+from one through four doses. It also recovered the previously registered
+`Combat hood 0` record at `3,111` coins and a limit of `10`; that identity no
+longer belongs in the fail-closed set. The generated catalog now has `1,336`
+direct period prices and `1,646` period buy limits for `1,665` registered items.

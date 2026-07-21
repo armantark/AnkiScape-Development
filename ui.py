@@ -342,6 +342,13 @@ except Exception:
     )
 
 try:
+    from .vinesweeper_data import VINESWEEPER_ACTIVITY_ID
+    from .vinesweeper_logic import vinesweeper_view_pure
+except Exception:
+    from vinesweeper_data import VINESWEEPER_ACTIVITY_ID  # type: ignore
+    from vinesweeper_logic import vinesweeper_view_pure  # type: ignore
+
+try:
     from .combat_session import (
         confirm_wilderness_combat_risk,
         wilderness_combat_risk_confirmed,
@@ -3389,6 +3396,7 @@ def show_main_menu(
     on_fist_of_guthix_command=None,
     on_sorceress_garden_command=None,
     on_penguin_command=None,
+    on_vinesweeper_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
     on_set_construction=None,
@@ -8601,6 +8609,284 @@ def show_main_menu(
         )
         _refresh_penguin_panel()
 
+        vinesweeper_box = QtFrame()
+        vinesweeper_box.setObjectName("vinesweeperPanel")
+        vinesweeper_box.setStyleSheet(
+            "QFrame#vinesweeperPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        vinesweeper_layout = QVBoxLayout(vinesweeper_box)
+        vinesweeper_layout.setContentsMargins(10, 8, 10, 8)
+        vinesweeper_layout.setSpacing(6)
+
+        vinesweeper_top = QWidget()
+        vinesweeper_top_layout = QHBoxLayout(vinesweeper_top)
+        vinesweeper_top_layout.setContentsMargins(0, 0, 0, 0)
+        vinesweeper_top_layout.setSpacing(8)
+        vinesweeper_icon = QLabel()
+        vinesweeper_icon.setObjectName("vinesweeperIcon")
+        vinesweeper_icon.setFixedSize(28, 28)
+        vinesweeper_icon_path = os.path.join(
+            current_dir, "activityicons", "vinesweeper.png"
+        )
+        if os.path.exists(vinesweeper_icon_path):
+            vinesweeper_icon.setPixmap(
+                QPixmap(vinesweeper_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        vinesweeper_title = QLabel("Vinesweeper")
+        vinesweeper_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        vinesweeper_status = QLabel()
+        vinesweeper_status.setObjectName("vinesweeperStatusChip")
+        vinesweeper_status.setStyleSheet(
+            f"color: {dim_text_css(vinesweeper_status)};"
+            " font-size: 11px; font-weight: 700;"
+        )
+        vinesweeper_top_layout.addWidget(vinesweeper_icon)
+        vinesweeper_top_layout.addWidget(vinesweeper_title)
+        vinesweeper_top_layout.addStretch(1)
+        vinesweeper_top_layout.addWidget(vinesweeper_status)
+        vinesweeper_layout.addWidget(vinesweeper_top)
+
+        vinesweeper_summary = QLabel()
+        vinesweeper_summary.setObjectName("vinesweeperSummary")
+        vinesweeper_summary.setWordWrap(True)
+        vinesweeper_summary.setStyleSheet("color: palette(text);")
+        vinesweeper_layout.addWidget(vinesweeper_summary)
+
+        vinesweeper_primary = QPushButton()
+        vinesweeper_primary.setObjectName("vinesweeperPrimaryButton")
+        vinesweeper_xp = QPushButton()
+        vinesweeper_xp.setObjectName("vinesweeperRedeemXpButton")
+        vinesweeper_action_row = QWidget()
+        vinesweeper_action_layout = QHBoxLayout(vinesweeper_action_row)
+        vinesweeper_action_layout.setContentsMargins(0, 0, 0, 0)
+        vinesweeper_action_layout.setSpacing(6)
+        vinesweeper_action_layout.addWidget(vinesweeper_primary, 1)
+        vinesweeper_action_layout.addWidget(vinesweeper_xp, 1)
+        vinesweeper_layout.addWidget(vinesweeper_action_row)
+
+        vinesweeper_shop_row = QWidget()
+        vinesweeper_shop_layout = QHBoxLayout(vinesweeper_shop_row)
+        vinesweeper_shop_layout.setContentsMargins(0, 0, 0, 0)
+        vinesweeper_shop_layout.setSpacing(6)
+        vinesweeper_reward = QComboBox()
+        vinesweeper_reward.setObjectName("vinesweeperRewardCombo")
+        vinesweeper_reward.setSizeAdjustPolicy(
+            QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
+        )
+        vinesweeper_reward.setMinimumContentsLength(22)
+        vinesweeper_reward.setAccessibleName("Vinesweeper reward")
+        vinesweeper_reward.setToolTip("Choose a reward from Mrs Winkin's point shop.")
+        vinesweeper_quantity = QSpinBox()
+        vinesweeper_quantity.setObjectName("vinesweeperRewardQuantity")
+        vinesweeper_quantity.setRange(1, 1_000)
+        vinesweeper_quantity.setValue(1)
+        vinesweeper_quantity.setPrefix("× ")
+        vinesweeper_quantity.setAccessibleName("Reward quantity")
+        vinesweeper_quantity.setToolTip("Choose how many rewards to buy.")
+        vinesweeper_buy = QPushButton("Buy")
+        vinesweeper_buy.setObjectName("vinesweeperBuyRewardButton")
+        vinesweeper_shop_layout.addWidget(vinesweeper_reward, 1)
+        vinesweeper_shop_layout.addWidget(vinesweeper_quantity)
+        vinesweeper_shop_layout.addWidget(vinesweeper_buy)
+        vinesweeper_layout.addWidget(vinesweeper_shop_row)
+        syncing_vinesweeper = {"active": False}
+
+        def _refresh_vinesweeper_panel() -> None:
+            view = vinesweeper_view_pure(player_data)
+            syncing_vinesweeper["active"] = True
+            selected_reward = str(vinesweeper_reward.currentData() or "")
+            if vinesweeper_reward.count() != len(view["rewards"]):
+                vinesweeper_reward.clear()
+                for reward in view["rewards"]:
+                    vinesweeper_reward.addItem(
+                        f"{reward['display_name']} · {int(reward['point_price']):,} pt",
+                        reward["id"],
+                    )
+            selected_index = vinesweeper_reward.findData(selected_reward)
+            if selected_index >= 0:
+                vinesweeper_reward.setCurrentIndex(selected_index)
+
+            active = bool(view["active"])
+            has_spade = bool(view["has_spade"])
+            vinesweeper_status.setText(
+                "ACTIVE"
+                if active
+                else "PAUSED"
+                if view["paused_reason"]
+                else "READY"
+                if has_spade
+                else "NEEDS SPADE"
+            )
+            vinesweeper_status.setToolTip(
+                str(view["paused_reason"]) if view["paused_reason"] else ""
+            )
+            summary = (
+                f"{int(view['points']):,} points · "
+                f"{int(view['flags'])}/{int(view['flag_cap'])} flags · "
+                f"{int(view['ogleroots'])} Ogleroots"
+            )
+            vinesweeper_summary.setText(summary)
+            vinesweeper_summary.setToolTip(
+                (
+                    str(view["last_result"]) + "\n"
+                    if view["last_result"]
+                    else ""
+                )
+                + "Each review resolves one field operation. Flags refill from coins, "
+                "then points; excess Ogleroots refund on leaving."
+            )
+            vinesweeper_primary.setText(
+                "Leave Winkin's Farm" if active else "Enter Winkin's Farm"
+            )
+            vinesweeper_primary.setAccessibleName(vinesweeper_primary.text())
+            vinesweeper_primary.setEnabled(
+                on_vinesweeper_command is not None and (active or has_spade)
+            )
+            vinesweeper_primary.setToolTip(
+                ""
+                if active or has_spade
+                else "Carry a spade or add one to the tool belt before entering."
+            )
+
+            reward_id = str(vinesweeper_reward.currentData() or "")
+            reward = next(
+                (row for row in view["rewards"] if row["id"] == reward_id),
+                None,
+            )
+            quantity = int(vinesweeper_quantity.value())
+            flag_room = int(view["flag_cap"]) - int(view["flags"])
+            effective_quantity = (
+                min(quantity, flag_room)
+                if reward_id == "flag"
+                else quantity
+            )
+            cost = (
+                int(reward["point_price"]) * effective_quantity
+                if reward
+                else 0
+            )
+            can_buy = bool(
+                reward
+                and effective_quantity > 0
+                and int(view["points"]) >= cost
+                and on_vinesweeper_command is not None
+            )
+            vinesweeper_buy.setEnabled(can_buy)
+            vinesweeper_buy.setText(f"Buy · {cost:,} pt" if reward else "Buy")
+            vinesweeper_buy.setToolTip(
+                ""
+                if can_buy
+                else (
+                    f"Flags are capped at {int(view['flag_cap'])}."
+                    if reward_id == "flag" and flag_room <= 0
+                    else f"This purchase requires {cost:,} Vinesweeper points."
+                    if reward
+                    else "Choose a Vinesweeper reward."
+                )
+            )
+            points = int(view["points"])
+            point_cost = float(view["xp_point_cost"])
+            xp = points / point_cost if points else 0.0
+            xp_text = f"{xp:,.0f}" if xp.is_integer() else f"{xp:,.1f}"
+            vinesweeper_xp.setText(
+                f"Redeem all for {xp_text} Farming XP"
+                if points
+                else "Redeem points for Farming XP"
+            )
+            vinesweeper_xp.setEnabled(
+                points > 0 and on_vinesweeper_command is not None
+            )
+            vinesweeper_xp.setToolTip(
+                f"Level {int(view['farming_level'])}: {point_cost:.2f} points per Farming XP."
+            )
+            syncing_vinesweeper["active"] = False
+            _fit_current_activity_detail()
+
+        def _run_vinesweeper_command(
+            action_id: str,
+            payload=None,
+            *,
+            show_failure: bool = True,
+        ) -> dict[str, Any]:
+            if on_vinesweeper_command is None:
+                return {"ok": False}
+            result = on_vinesweeper_command(action_id, payload or {}) or {}
+            if not result.get("ok", False) and show_failure:
+                show_error_message(
+                    "Vinesweeper",
+                    str(result.get("message", "That Vinesweeper action is unavailable.")),
+                )
+            _refresh_vinesweeper_panel()
+            return result
+
+        def _toggle_vinesweeper() -> None:
+            view = vinesweeper_view_pure(player_data)
+            if view["active"]:
+                _run_vinesweeper_command("leave")
+                return
+            result = _run_vinesweeper_command("enter", show_failure=False)
+            if result.get("requires_confirmation"):
+                answer = QMessageBox.question(
+                    vinesweeper_box,
+                    "Dismiss active follower?",
+                    "Vinesweeper does not allow familiars or pets. Dismiss the active "
+                    "follower and enter Winkin's Farm?",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer == QMessageBox.StandardButton.Yes:
+                    result = _run_vinesweeper_command(
+                        "enter",
+                        {"confirm_dismiss_follower": True},
+                    )
+            elif not result.get("ok", False):
+                show_error_message(
+                    "Vinesweeper",
+                    str(result.get("message", "Winkin's Farm is unavailable.")),
+                )
+            if result.get("ok", False) and on_set_utility is not None:
+                on_set_utility(VINESWEEPER_ACTIVITY_ID)
+                player_data["current_utility"] = VINESWEEPER_ACTIVITY_ID
+                tree.clearSelection()
+            _refresh_vinesweeper_panel()
+
+        vinesweeper_primary.clicked.connect(
+            lambda _checked=False: _toggle_vinesweeper()
+        )
+        vinesweeper_reward.currentIndexChanged.connect(
+            lambda _index: _refresh_vinesweeper_panel()
+            if not syncing_vinesweeper["active"]
+            else None
+        )
+        vinesweeper_quantity.valueChanged.connect(
+            lambda _value: _refresh_vinesweeper_panel()
+            if not syncing_vinesweeper["active"]
+            else None
+        )
+        vinesweeper_buy.clicked.connect(
+            lambda _checked=False: _run_vinesweeper_command(
+                "buy_reward",
+                {
+                    "reward_id": str(vinesweeper_reward.currentData() or ""),
+                    "quantity": int(vinesweeper_quantity.value()),
+                },
+            )
+        )
+        vinesweeper_xp.clicked.connect(
+            lambda _checked=False: _run_vinesweeper_command(
+                "redeem_farming_xp",
+                {"points": int(vinesweeper_view_pure(player_data)["points"])},
+            )
+        )
+        _refresh_vinesweeper_panel()
+        cards_stack.addWidget(vinesweeper_box)
+
         guild_box = QtFrame()
         guild_box.setObjectName("warriorsGuildPanel")
         guild_box.setStyleSheet(
@@ -9624,6 +9910,7 @@ def show_main_menu(
             _refresh_fist_of_guthix_panel()
             _refresh_sorceress_garden_panel()
             _refresh_penguin_panel()
+            _refresh_vinesweeper_panel()
             _show_activity_detail(activity_id)
 
         def _on_utility_clicked(item: "QTreeWidgetItem", _column: int = 0):
@@ -9672,13 +9959,11 @@ def show_main_menu(
             if activity_id == PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == VINESWEEPER_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
             _set_utility_selection(activity_id)
 
-        event_status_label = QLabel("Activity details")
-        event_status_label.setObjectName("activityEventStatusLabel")
-        event_status_label.setStyleSheet(
-            "font-weight: 600; color: palette(text);"
-        )
         detail_cards = {
             EVIL_TREE_UTILITY_ID: ("Evil Tree", evil_box),
             BIG_CHINCHOMPA_UTILITY_ID: ("Big Chinchompa", big_box),
@@ -9692,6 +9977,7 @@ def show_main_menu(
                 "Penguin Hide and Seek",
                 penguin_box,
             ),
+            VINESWEEPER_ACTIVITY_ID: ("Vinesweeper", vinesweeper_box),
             FAMILIARISATION_ACTIVITY_ID: (
                 "Familiarisation",
                 familiarisation_box,
@@ -9703,43 +9989,33 @@ def show_main_menu(
             },
         }
 
+        activity_change_button = QPushButton("‹ Choose another activity")
+        activity_change_button.setObjectName("activityChooseAnotherButton")
+        activity_change_button.setAccessibleName("Choose another activity")
+
         def _show_activity_detail(activity_id: object) -> None:
             selected = detail_cards.get(str(activity_id or ""))
             selected_widget = selected[1] if selected else None
             show_detail = is_activities and selected_widget is not None
-            event_status_label.setVisible(show_detail)
             cards_stack.setVisible(show_detail)
+            activity_change_button.setVisible(show_detail)
+            activity_pager.setVisible(is_activities and not show_detail)
+            tree.setVisible(not show_detail)
             if selected is not None:
-                event_status_label.setText(f"{selected[0]} details")
                 cards_stack.setCurrentWidget(selected_widget)
                 _fit_current_activity_detail()
 
-        def _show_current_activity_detail(current_item, _previous=None) -> None:
-            if current_item is None or current_item.isDisabled():
-                return
-            activity_id = current_item.data(0, Qt.ItemDataRole.UserRole)
-            if activity_id and str(activity_id).startswith(
-                "__utility_group__"
-            ):
-                _show_activity_detail("")
-                return
-            if activity_id:
-                _show_activity_detail(activity_id)
-
-        container_layout.addWidget(event_status_label)
         container_layout.addWidget(cards_stack)
+        container_layout.addWidget(activity_change_button)
+        activity_change_button.clicked.connect(
+            lambda _checked=False: _show_activity_detail("")
+        )
 
         tree.itemClicked.connect(_on_utility_clicked)
         tree.itemActivated.connect(_on_utility_clicked)
-        tree.currentItemChanged.connect(_show_current_activity_detail)
         _show_activity_detail(current if selected_child is not None else "")
         if not is_activities:
             tree.setMinimumHeight(140)
-        activity_picker_label = QLabel("Select an activity")
-        activity_picker_label.setObjectName("activityPickerLabel")
-        activity_picker_label.setStyleSheet("color: palette(text);")
-        activity_picker_label.setVisible(is_activities)
-        container_layout.addWidget(activity_picker_label)
         container_layout.addWidget(activity_pager)
         container_layout.addWidget(tree, 1)
         return container

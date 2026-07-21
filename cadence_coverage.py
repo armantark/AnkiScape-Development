@@ -214,6 +214,33 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "vinesweeper":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "vinesweeper",
+                    "mode": "source_blocked_activity",
+                    "source_status": "source_blocked",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "The period outcome set is pinned, but hidden field "
+                        "probabilities remain unpublished and absent from local emulators."
+                    ),
+                    "includes": (
+                        "one bounded automatic field operation",
+                        "one atomic supply and reward transaction",
+                    ),
+                    "multiplier_behavior": (
+                        "M complete operations, stopping at an unaffordable flag boundary"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same bounded activity handler",
+                    "profile": None,
+                    "condition": "owner-approved bounded hidden-roll abstraction",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         if str(action_id) == "big_chinchompa":
             rows.append(
                 {

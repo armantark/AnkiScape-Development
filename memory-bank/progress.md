@@ -4,6 +4,37 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Vinesweeper horizontal mechanic closure — 2026-07-20
+
+- Implemented the complete review-driven field loop: Spade entry, familiar
+  dismissal confirmation, ten free flags, bounded safe/correct/mistake/rabbit
+  outcomes, Ogleroot discovery and consumption, coin/point flag refills,
+  Hunter defence XP, direct leave/refund, multiplier batching, persistence,
+  cadence declaration, and both undo boundaries.
+- Added the literal 46-row cutoff Mrs Winkin shop with direct Farming-XP
+  redemption. The interface correctly excludes Fellstalk and Morchella.
+- Closed the Compost potion seam exposed by the shop: all four cache-identified
+  doses, normalized period art, dose preservation, Compost-to-Supercompost
+  Utility action, Vial return, and cutoff Grand Exchange prices/buy limits are
+  live and reachable.
+- Added the Vinesweeper card and Review HUD feedback, then changed Activities
+  to an explicit master/detail flow so the paginated category catalog and rich
+  cards never compete for vertical space. `Choose another activity` returns to
+  the catalog, while keyboard browsing and page navigation stay in it.
+- Kimi K3 and Fable independently reviewed the card. Confirmed price,
+  hierarchy, clipping, accessibility, pause-reason, numeric-copy, and
+  keyboard-navigation defects were fixed and regression-covered.
+- No owner design gap surfaced. Exact hidden field-outcome rates remain labeled
+  data-depth debt rather than missing mechanics. See
+  `source-audits/vinesweeper-loop-2026-07-18.md`.
+- Verification: all 2,024 non-Qt tests pass with 266 expected environment
+  skips, and all 2,024 real offscreen-Qt tests pass with one intentional skip.
+  The restarted native Anki process shows one launcher, one menu, the paginated
+  Minigames catalog, and the unclipped Vinesweeper card without save mutation.
+  Results:
+  `status-updates/vinesweeper-horizontal-mvp-results-2026-07-20.html`; mobile
+  copy: `https://21nc8cd2r6ok.postplan.dev`.
+
 ## Sorceress's Garden horizontal mechanic closure — 2026-07-20
 
 - Implemented all four seasonal gardens with exact Thieving gates, fruit

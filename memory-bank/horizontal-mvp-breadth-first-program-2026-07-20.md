@@ -98,14 +98,17 @@ HUD, normalized period art, and focused proof. The initial-size, first-finder,
 crowd, gem, and reward-rounding distributions are explicitly bounded data debt,
 not missing mechanics.
 
-Fist of Guthix, Sorceress's Garden, and Penguin Hide and Seek now also satisfy
-breadth level one. Penguin ships the complete weekly roster, quest-upgrade,
-selection, spying, point-cap, redemption, persistence, undo, cadence, UI, and
-asset graph with a compact period-qualified spawn corpus; only exhaustive
-location data remains. Tears of Guthix remains skipped until its source-blocked
-post-refresh reward magnitude and session beat count are resolved. Barrows and
-Shattered Heart remain data-readiness skips rather than permission to flatten
-their missing combat/reward or qualifying-action mechanics.
+Fist of Guthix, Sorceress's Garden, Penguin Hide and Seek, and Vinesweeper now
+also satisfy breadth level one. Vinesweeper ships the complete entry/leave,
+flag, Ogleroot, rabbit, point, Farming-XP, and literal cutoff reward-shop graph
+without inventing a board or wall-clock simulation. Its bounded one-roll field
+outcome is labeled abstraction; exact hidden outcome rates remain later data
+depth. The newly reachable Compost potion chain also has its period shop,
+dose, conversion, item, price, and buy-limit seams. Tears of Guthix remains
+skipped until its source-blocked post-refresh reward magnitude and session beat
+count are resolved. Barrows and Shattered Heart remain data-readiness skips
+rather than permission to flatten their missing combat/reward or
+qualifying-action mechanics.
 
 After each accepted slice, recompute the frontier from live source/runtime
 evidence. Any newly discovered owner-facing fork goes into the current

@@ -1005,6 +1005,15 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   art, and a compact paginated card. The complete cutoff location/disguise pool
   remains data-depth work. See
   `memory-bank/source-audits/penguin-hide-and-seek-loop-2026-07-17.md`.
+- Vinesweeper is mechanic-complete as an Activities-only Farming minigame. Its
+  Spade/familiar entry, flag and Ogleroot economy, bounded one-roll review
+  outcomes, rabbit pressure, Hunter defence XP, direct leave/refund, literal
+  cutoff reward shop, Farming-XP redemption, persistence, undo, cadence,
+  normalized period art, and compact card are live. Exact hidden field-outcome
+  rates remain labeled data-depth work. The shop-discovered Compost potion
+  chain is also reachable through all four doses, its instantaneous Utility
+  conversion, and cutoff Grand Exchange rows. See
+  `memory-bank/source-audits/vinesweeper-loop-2026-07-18.md`.
 - Darkan should supply hidden state machines, rolls, currencies, and reward logic; period wiki/cache evidence still establishes cutoff and client identity.
 
 ### Missing skill server behavior

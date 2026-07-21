@@ -43,6 +43,23 @@ except ImportError:
     )
 
 try:
+    from .vinesweeper_data import (
+        COMPOST_POTION_ACTIVITY_ID,
+        VINESWEEPER_ACTIVITY_ID,
+        compost_potion_activities_as_dict,
+        vinesweeper_activity_as_dict,
+        vinesweeper_extra_items_as_dict,
+    )
+except ImportError:
+    from vinesweeper_data import (  # type: ignore
+        COMPOST_POTION_ACTIVITY_ID,
+        VINESWEEPER_ACTIVITY_ID,
+        compost_potion_activities_as_dict,
+        vinesweeper_activity_as_dict,
+        vinesweeper_extra_items_as_dict,
+    )
+
+try:
     from .construction_data import (
         CONSTRUCTION_DATA,
         DEFAULT_CONSTRUCTION_TARGET,
@@ -604,6 +621,8 @@ UTILITY_ACTIVITY_DATA.update(shooting_star_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fist_of_guthix_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(sorceress_garden_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(penguin_hide_and_seek_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(vinesweeper_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(compost_potion_activities_as_dict())
 FAMILIARISATION_ACTIVITY_ID = "familiarisation"
 UTILITY_ACTIVITY_DATA[FAMILIARISATION_ACTIVITY_ID] = {
     "display_name": "Familiarisation",
@@ -666,6 +685,23 @@ _penguin_hide_and_seek_icon = os.path.join(
 if os.path.exists(_penguin_hide_and_seek_icon):
     UTILITY_ACTIVITY_DATA[PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID]["icon_path"] = (
         _penguin_hide_and_seek_icon
+    )
+_vinesweeper_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "vinesweeper.png",
+)
+if os.path.exists(_vinesweeper_icon):
+    UTILITY_ACTIVITY_DATA[VINESWEEPER_ACTIVITY_ID]["icon_path"] = (
+        _vinesweeper_icon
+    )
+_compost_potion_icon = os.path.join(
+    current_dir,
+    "activityitems",
+    "compost_potion_4.png",
+)
+if os.path.exists(_compost_potion_icon):
+    UTILITY_ACTIVITY_DATA[COMPOST_POTION_ACTIVITY_ID]["icon_path"] = (
+        _compost_potion_icon
     )
 _familiarisation_icon = os.path.join(
     current_dir,
@@ -1273,6 +1309,16 @@ for _target_id in COMBAT_ENEMY_DATA:
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict()
 FIST_OF_GUTHIX_EXTRA_ITEM_DATA = fist_of_guthix_extra_items_as_dict()
 SORCERESS_GARDEN_EXTRA_ITEM_DATA = sorceress_garden_extra_items_as_dict()
+VINESWEEPER_EXTRA_ITEM_DATA = vinesweeper_extra_items_as_dict()
+VINESWEEPER_ITEM_IMAGES = {}
+for _item_name in VINESWEEPER_EXTRA_ITEM_DATA:
+    _path = os.path.join(
+        current_dir,
+        "activityitems",
+        f"{_asset_slug(_item_name)}.png",
+    )
+    if os.path.exists(_path):
+        VINESWEEPER_ITEM_IMAGES[_item_name] = _path
 SORCERESS_GARDEN_ITEM_IMAGES = {}
 for _item_name in SORCERESS_GARDEN_EXTRA_ITEM_DATA:
     _path = os.path.join(
@@ -1594,6 +1640,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **COMBAT_EXTRA_ITEM_DATA,
     **FIST_OF_GUTHIX_EXTRA_ITEM_DATA,
     **SORCERESS_GARDEN_EXTRA_ITEM_DATA,
+    **VINESWEEPER_EXTRA_ITEM_DATA,
     **potion_items_as_dict(),
     **SHOP_ONLY_EXTRA_ITEM_DATA,
 })
@@ -1618,6 +1665,7 @@ EXTRA_ITEM_IMAGES = {
     **QUEST_ITEM_IMAGES,
     **COMBAT_ITEM_IMAGES,
     **SORCERESS_GARDEN_ITEM_IMAGES,
+    **VINESWEEPER_ITEM_IMAGES,
     **SHOP_ITEM_IMAGES,
 }
 

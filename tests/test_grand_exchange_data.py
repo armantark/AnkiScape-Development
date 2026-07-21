@@ -122,8 +122,8 @@ class GrandExchangeDataTest(unittest.TestCase):
     def test_generated_period_rows_are_registered_and_cutoff_safe(self):
         self.assertLessEqual(set(PERIOD_GE_GUIDE_PRICES), set(GE_ITEM_CATALOG))
         self.assertLessEqual(set(PERIOD_GE_BUY_LIMITS), set(GE_ITEM_CATALOG))
-        self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_331)
-        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_641)
+        self.assertEqual(len(PERIOD_GE_GUIDE_PRICES), 1_336)
+        self.assertEqual(len(PERIOD_GE_BUY_LIMITS), 1_646)
         self.assertEqual(PERIOD_GE_BUY_LIMIT_SOURCE["oldid"], 6_457_777)
         self.assertTrue(PERIOD_GE_PRICE_PROVENANCE)
         self.assertTrue(
@@ -145,6 +145,12 @@ class GrandExchangeDataTest(unittest.TestCase):
             PERIOD_GE_PRICE_PROVENANCE["Split log"]["oldid"],
             6_563_176,
         )
+        self.assertEqual(PERIOD_GE_GUIDE_PRICES["Compost potion (4)"], 12_282)
+        self.assertEqual(PERIOD_GE_BUY_LIMITS["Compost potion (4)"], 1_000)
+        self.assertEqual(
+            PERIOD_GE_PRICE_PROVENANCE["Compost potion (4)"]["oldid"],
+            6_561_561,
+        )
 
     def test_only_audited_unresolved_identities_remain_buy_limit_blocked(self):
         blocked = {
@@ -156,7 +162,6 @@ class GrandExchangeDataTest(unittest.TestCase):
             blocked,
             {
                 "Black warlock",
-                "Combat hood 0",
                 "Cape",
                 "Feather headdress",
                 "Flowers",

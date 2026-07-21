@@ -86,6 +86,10 @@ try:
         default_penguin_state_pure,
         sanitize_penguin_state_pure,
     )
+    from .vinesweeper_logic import (
+        default_vinesweeper_state_pure,
+        sanitize_vinesweeper_state_pure,
+    )
     from .farming_logic import default_farming_state_pure, sanitize_farming_state_pure
     from .mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from .smithing_data import (
@@ -201,6 +205,10 @@ except ImportError:
         default_penguin_state_pure,
         sanitize_penguin_state_pure,
     )
+    from vinesweeper_logic import (  # type: ignore
+        default_vinesweeper_state_pure,
+        sanitize_vinesweeper_state_pure,
+    )
     from farming_logic import default_farming_state_pure, sanitize_farming_state_pure
     from mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from smithing_data import (
@@ -233,7 +241,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 56
+CURRENT_CONFIG_VERSION = 57
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -464,6 +472,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["fist_of_guthix"] = default_fist_of_guthix_state_pure()
     data["sorceress_garden"] = default_sorceress_garden_state_pure()
     data["penguin_hide_and_seek"] = default_penguin_state_pure()
+    data["vinesweeper"] = default_vinesweeper_state_pure()
     data.update(default_farming_state_pure())
     data.update(default_agility_state_pure())
     data["livid_farm"] = default_livid_farm_state_pure()
@@ -1077,6 +1086,9 @@ def migrate_loaded_data(
     )
     data["penguin_hide_and_seek"] = sanitize_penguin_state_pure(
         data.get("penguin_hide_and_seek")
+    )
+    data["vinesweeper"] = sanitize_vinesweeper_state_pure(
+        data.get("vinesweeper")
     )
 
     # Ensure inventory exists and has registered item keys while preserving

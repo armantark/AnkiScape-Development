@@ -800,7 +800,12 @@ def can_perform_utility_activity_pure(inventory, activity_key, utility_activity_
         return any(inventory.get(item_name, 0) > 0 for item_name in openable_items)
     requirements = spec.get("requirements", {})
     batch_size = _positive_int(spec.get("batch_size", 1))
-    return _max_batches_for_requirements(requirements, inventory, batch_size) > 0
+    if _max_batches_for_requirements(requirements, inventory, batch_size) <= 0:
+        return False
+    any_requirements = spec.get("any_requirements")
+    if isinstance(any_requirements, (list, tuple, set)) and any_requirements:
+        return any(inventory.get(str(item_name), 0) > 0 for item_name in any_requirements)
+    return True
 
 
 def utility_activity_locked_reasons_pure(player_data, activity_key, utility_activity_data, quest_unlock_rules=()):

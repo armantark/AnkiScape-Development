@@ -395,6 +395,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-10-06T02:04:16Z"
   },
+  "activityicons/vinesweeper.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Flag.png",
+    "file_title": "Flag.png",
+    "image_url": "https://runescape.wiki/images/archive/20130315140805%21Flag.png?4abf3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b5514dfcad65669b18819f590ff82e38454024c6",
+    "size": 355,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-21T04:07:01Z"
+  },
   "activityicons/warriors_guild_animated_armour.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Animated_Bronze_Armour.png",
     "file_title": "Animated Bronze Armour.png",
@@ -478,6 +490,54 @@
     "size": 852,
     "source_wiki": "rs3",
     "timestamp": "2010-10-06T02:06:29Z"
+  },
+  "activityitems/compost_potion_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Compost_potion_%281%29.png",
+    "file_title": "Compost potion (1).png",
+    "image_url": "https://runescape.wiki/images/archive/20130518201100%21Compost_potion_%281%29.png?75877",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5f3b1b790c551828f2dd1d6627d6723ecd0b6880",
+    "size": 630,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T10:59:25Z"
+  },
+  "activityitems/compost_potion_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Compost_potion_%282%29.png",
+    "file_title": "Compost potion (2).png",
+    "image_url": "https://runescape.wiki/images/archive/20130518201127%21Compost_potion_%282%29.png?36de1",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "38c30cd2eaa86026403a4f21eb6ae1fc59410652",
+    "size": 718,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T10:59:36Z"
+  },
+  "activityitems/compost_potion_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Compost_potion_%283%29.png",
+    "file_title": "Compost potion (3).png",
+    "image_url": "https://runescape.wiki/images/archive/20130518200917%21Compost_potion_%283%29.png?58000",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3646e0284725f25941bde4a72712f4ae79c907ad",
+    "size": 636,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T10:59:48Z"
+  },
+  "activityitems/compost_potion_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Compost_potion_%284%29.png",
+    "file_title": "Compost potion (4).png",
+    "image_url": "https://runescape.wiki/images/archive/20130518191206%21Compost_potion_%284%29.png?4eef1",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7c9f64504f100e52ffcfa7314f4a033586cf04f1",
+    "size": 1514,
+    "source_wiki": "rs3",
+    "timestamp": "2010-03-21T15:12:42Z"
   },
   "activityitems/spring_sq_irk.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Spring_sq%27irk.png",

@@ -37,8 +37,77 @@ Source:
 The revision itself says the correct-flag and Ogleroot point awards appear
 random and does not publish their distribution. It also does not provide
 probabilities for safe digs, destroyed seeds, correct flags, rabbit threats, or
-found Ogleroots. Those weights remain `source_blocked`; implementation may use a
-clearly labeled bounded abstraction only after one final emulator/cache search.
+found Ogleroots.
+
+The final local implementation search on `2026-07-20` was negative for server
+mechanics:
+
+- Darkan's
+  `src/main/java/com/rs/game/content/minigames/vinesweeper/Vinesweeper.java`
+  is an empty interface-ID stub; its Tool Leprechaun handler explicitly says
+  Vinesweeper is not available yet. Its item configs prove only the period
+  Ogleroot identity, item `12624`.
+- the local 2011Scape baseline contains only generated `Items.kt`/`Npcs.kt`
+  identity constants for the searched terms and no Vinesweeper handler.
+- the period client caches can prove interfaces, sprites, and item identity,
+  but not the missing server-side outcome probabilities.
+
+Those weights therefore remain `source_blocked`. The owner-approved breadth
+slice uses one labeled bounded roll: 45% safe uncover, 35% correct flag, 10%
+mistaken dig, 5% mistaken flag, and 5% rabbit pressure. The first five
+percentage points of the safe-uncover band also find one activity-local
+Ogleroot. Correct-flag and defended-rabbit awards use a level-related 100-325
+point band derived from that same roll. This keeps the period outcome set and
+one-roll atomicity without pretending the hidden distribution is recovered.
+
+Below level 40, the exact point-per-XP curve is likewise absent from the pinned
+revision. The implementation linearly interpolates the two sourced endpoints:
+`7.75` points/XP at level 1 and `1` point/XP at level 40, clamping to `1` at
+level 40+. This is a labeled bounded pacing abstraction, not a period formula.
+
+## Cutoff reward shop
+
+The literal `Farming Seeds (and other items)` table in oldid `6288368` pins the
+executable shop rows and prices:
+
+- Flag 50; cabbage 10; tomato 10; sweetcorn 150; strawberry 165; watermelon
+  680; guam 10; marrentill 10; tarromin 10;
+- avantoe 1,250; wergali 3,800; ranarr 4,000; kwuarm 1,000; cadantine 1,000;
+  snapdragon 16,000; lantadyme 7,500; dwarf weed 9,000; torstol 45,000;
+- rosemary 10; nasturtium 10; woad 30; limpwurt 70; cactus 1,200; bittercap
+  mushroom spore 800; belladonna 300;
+- asgarnian 5; jute 50; yanillian 60; krandorian 20; wildblood 100;
+- redberry 5; cadavaberry 5; dwellberry 5; jangerberry 10; whiteberry 25;
+  poison ivy 30;
+- acorn 100; willow 1,800; maple 12,000; yew 29,000; pineapple 10,000;
+  papaya tree 20,000; palm tree 35,000; calquat tree 35,000; spirit tree
+  55,000; and compost potion (4) 5,000.
+
+The same revision's later `Making money` comparison table mentions Fellstalk
+and Morchella, but the literal shop interface table does not. They are excluded
+from the cutoff shop rather than promoted from commentary into executable stock.
+
+### Compost-potion reward seam
+
+Making the 5,000-point reward reachable exposed one downstream item chain that
+the shop table alone did not settle. `Compost potion`, oldid `6357928`
+(`2012-10-06T19:39:59Z`), pins that the potion cannot be made through Herblore,
+one dose converts one bucket of Compost into Supercompost, and the four-dose
+version is bought from Vinesweeper for 5,000 points. OpenRS2 revision 742 pins
+the four non-stackable item identities: `6470` (4), `6472` (3), `6474` (2), and
+`6476` (1). The executable utility therefore consumes exactly one dose,
+preserves the next lower-dose potion or an empty Vial, and grants no XP.
+
+The generated cutoff Exchange records also close their ordinary market edge:
+all four doses have a four-hour buy limit of `1,000`; their pinned guide prices
+are `1,858`, `3,447`, `7,174`, and `12,282` coins from one through four doses.
+The four-dose record is `Exchange:Compost potion (4)` oldid `6561561`
+(`2012-11-16T03:00:21Z`). The other three exact oldids and timestamps remain in
+`grand_exchange_period_generated.py` beside the executable rows.
+
+Source:
+
+- <https://runescape.wiki/w/Compost_potion?oldid=6357928>
 
 ## Deliberate flattening
 
@@ -141,3 +210,24 @@ The implementation pass must prove:
 8. familiar/pet entry invokes the shared confirmation rather than creating a
    Vinesweeper-only follower rule.
 
+## Implementation closure — 2026-07-20
+
+All eight acceptance points are implemented. The saved state contains only
+scalar activity state and no board, tile, actor, or timer simulation. Review
+and direct mutations use their established independent undo paths; schema 57
+migrates and sanitizes the new state. The complete literal shop is registered,
+and every item reward resolves through the ordinary item graph.
+
+The shop-discovered Compost potion edge is also closed rather than left as an
+inert reward. All four doses are registered with exact cache IDs, normalized
+period sprites, dose preservation, a zero-XP Compost-to-Supercompost Utility
+action, and cutoff Grand Exchange price/limit rows.
+
+Fable and Kimi K3 independently reviewed the new card. Confirmed defects in
+effective flag pricing, hierarchy, compact-height clipping, pause disclosure,
+numeric copy, accessible names, and catalog keyboard behavior were reproduced
+and fixed. A fully quit and freshly relaunched native Anki process then proved
+one launcher, one menu, the paginated Minigames catalog, and the unclipped
+Vinesweeper card without entering the activity or mutating the player save.
+The exact closure passes all 2,024 non-Qt tests (266 expected environment
+skips) and all 2,024 real offscreen-Qt tests (one intentional skip).

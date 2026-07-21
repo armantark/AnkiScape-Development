@@ -552,6 +552,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._fist_of_guthix_calls: list = []
         self._sorceress_garden_calls: list = []
         self._penguin_calls: list = []
+        self._vinesweeper_calls: list = []
         self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
         self._mage_arena_calls: list = []
@@ -863,6 +864,18 @@ class MainMenuWidgetTest(unittest.TestCase):
                 player_data.update(updated)
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
+        def _vinesweeper_command(action_id, payload):
+            from vinesweeper_logic import apply_vinesweeper_command_pure
+
+            self._vinesweeper_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_vinesweeper_command_pure(
+                player_data, action_id, payload
+            )
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
         def _mage_arena_action(action_id, god_id):
             from logic_pure import (
                 apply_mage_arena_cape_action_pure,
@@ -926,6 +939,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_fist_of_guthix_command=_fist_of_guthix_command,
             on_sorceress_garden_command=_sorceress_garden_command,
             on_penguin_command=_penguin_command,
+            on_vinesweeper_command=_vinesweeper_command,
             on_set_prayer_selection=_set_prayer_selection,
             on_set_magic=lambda target: _set_target("current_magic", self._magic_calls, target),
             on_set_construction=lambda target: _set_target("current_construction", self._construction_calls, target),
@@ -5132,6 +5146,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         tree = self._open_activities(dialog)
         row = _utility_row(tree, "familiarisation")
         tree.setCurrentItem(row)
+        tree.itemActivated.emit(row, 0)
         QApplication.processEvents()
 
         panel = _find_named_widget(dialog, "familiarisationPanel")
@@ -7555,7 +7570,12 @@ class MainMenuWidgetTest(unittest.TestCase):
                 )
                 for index in range(minigames.childCount())
             },
-            {"fist_of_guthix", "sorceress_garden", "livid_farm"},
+            {
+                "fist_of_guthix",
+                "sorceress_garden",
+                "livid_farm",
+                "vinesweeper",
+            },
         )
         self.assertEqual(
             {
@@ -8035,22 +8055,25 @@ class MainMenuWidgetTest(unittest.TestCase):
             dialog, "utilityActivityDetailsStack"
         )
         activity_tree = _find_named_widget(dialog, "utilityActivityTree")
-        status_label = _find_named_widget(dialog, "activityEventStatusLabel")
-        picker_label = _find_named_widget(dialog, "activityPickerLabel")
+        pager = _find_named_widget(dialog, "activityPickerPager")
+        choose_another = _find_named_button(
+            dialog, "activityChooseAnotherButton"
+        )
         big_panel = _find_named_widget(dialog, "bigChinchompaPanel")
         self.assertIsInstance(details_stack, QStackedWidget)
         self.assertEqual(details_stack.currentWidget(), big_panel)
         self.assertTrue(details_stack.isVisible())
+        self.assertTrue(choose_another.isVisible())
+        self.assertFalse(activity_tree.isVisible())
+        self.assertFalse(pager.isVisible())
         self.assertGreaterEqual(activity_tree.minimumHeight(), 140)
         self.assertEqual(
             activity_tree.minimumHeight(), activity_tree.maximumHeight()
         )
-        self.assertTrue(status_label.isVisible())
-        self.assertTrue(picker_label.isVisible())
-        surface_layout = picker_label.parentWidget().layout()
+        surface_layout = pager.parentWidget().layout()
         self.assertLess(
             surface_layout.indexOf(details_stack),
-            surface_layout.indexOf(picker_label),
+            surface_layout.indexOf(pager),
         )
         visible_rows = [
             child
@@ -8076,17 +8099,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertGreater(details_stack.height(), original_height)
 
-        group_header = next(
-            item
-            for item in _tree_items(activity_tree)
-            if str(
-                item.data(0, Qt.ItemDataRole.UserRole) or ""
-            ).startswith("__utility_group__")
-        )
-        activity_tree.setCurrentItem(group_header)
+        choose_another.click()
         QApplication.processEvents()
         self.assertFalse(details_stack.isVisible())
-        self.assertFalse(status_label.isVisible())
+        self.assertFalse(choose_another.isVisible())
+        self.assertTrue(activity_tree.isVisible())
+        self.assertTrue(pager.isVisible())
 
     def test_activity_picker_pages_one_category_without_a_scroll_window(self) -> None:
         pd = _make_player_data()
@@ -8094,6 +8112,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog = self._open(pd)
         activity_tree = self._open_activities(dialog)
         dialog.show()
+        QApplication.processEvents()
+
+        _find_named_button(dialog, "activityChooseAnotherButton").click()
         QApplication.processEvents()
 
         pager = _find_named_widget(dialog, "activityPickerPager")
@@ -8147,6 +8168,8 @@ class MainMenuWidgetTest(unittest.TestCase):
             activity_tree.currentItem().data(0, Qt.ItemDataRole.UserRole),
             "fist_of_guthix",
         )
+        self.assertTrue(activity_tree.isVisible())
+        self.assertTrue(pager.isVisible())
 
     def test_shooting_star_panel_selects_configures_and_exchanges(self) -> None:
         from shooting_star_logic import (
@@ -8252,6 +8275,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         activity_tree = self._open_activities(dialog)
         fog_row = _utility_row(activity_tree, "fist_of_guthix")
         activity_tree.setCurrentItem(fog_row)
+        activity_tree.itemActivated.emit(fog_row, 0)
         QApplication.processEvents()
 
         details = _find_named_widget(dialog, "utilityActivityDetailsStack")
@@ -8264,9 +8288,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         primary.click()
         QApplication.processEvents()
         self.assertTrue(pd["fist_of_guthix"]["tutorial_complete"])
-        self.assertEqual(primary.text(), "Select activity")
-        primary.click()
-        QApplication.processEvents()
+        self.assertEqual(primary.text(), "Selected for reviews")
         self.assertEqual(pd["current_utility"], "fist_of_guthix")
         self.assertEqual(self._utility_calls[-1], "fist_of_guthix")
 
@@ -8302,7 +8324,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd.update(active)
         live_dialog = self._open(pd)
         live_tree = self._open_activities(live_dialog)
-        live_tree.setCurrentItem(_utility_row(live_tree, "fist_of_guthix"))
+        live_fog_row = _utility_row(live_tree, "fist_of_guthix")
+        live_tree.setCurrentItem(live_fog_row)
+        live_tree.itemActivated.emit(live_fog_row, 0)
         QApplication.processEvents()
         status = _find_named_label(live_dialog, "fistOfGuthixStatusChip")
         charge = live_dialog.findChild(
@@ -8324,6 +8348,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         activity_tree = self._open_activities(dialog)
         row = _utility_row(activity_tree, "sorceress_garden")
         activity_tree.setCurrentItem(row)
+        activity_tree.itemActivated.emit(row, 0)
         QApplication.processEvents()
 
         details = _find_named_widget(dialog, "utilityActivityDetailsStack")
@@ -8424,6 +8449,94 @@ class MainMenuWidgetTest(unittest.TestCase):
         ).y()
         self.assertLessEqual(panel_bottom, dialog.contentsRect().bottom())
 
+    def test_vinesweeper_card_enters_buys_real_rewards_and_redeems_xp(self) -> None:
+        from vinesweeper_logic import default_vinesweeper_state_pure
+
+        pd = _make_player_data()
+        pd["inventory"]["Spade"] = 1
+        pd["farming_level"] = 40
+        farming_exp_before = float(pd["farming_exp"])
+        pd["vinesweeper"] = default_vinesweeper_state_pure()
+        pd["vinesweeper"]["points"] = 200
+        dialog = self._open(pd)
+        activity_tree = self._open_activities(dialog)
+        vinesweeper_row = _utility_row(activity_tree, "vinesweeper")
+        activity_tree.setCurrentItem(vinesweeper_row)
+        activity_tree.itemActivated.emit(vinesweeper_row, 0)
+        QApplication.processEvents()
+
+        panel = _find_named_widget(dialog, "vinesweeperPanel")
+        status = _find_named_label(dialog, "vinesweeperStatusChip")
+        primary = _find_named_button(dialog, "vinesweeperPrimaryButton")
+        reward = panel.findChild(QComboBox, "vinesweeperRewardCombo")
+        quantity = panel.findChild(QSpinBox, "vinesweeperRewardQuantity")
+        buy = _find_named_button(dialog, "vinesweeperBuyRewardButton")
+        redeem = _find_named_button(dialog, "vinesweeperRedeemXpButton")
+        self.assertIsNone(panel.findChild(QScrollArea))
+        self.assertEqual(status.text(), "READY")
+        self.assertEqual(reward.count(), 46)
+        self.assertEqual(reward.accessibleName(), "Vinesweeper reward")
+        self.assertEqual(quantity.accessibleName(), "Reward quantity")
+
+        primary.click()
+        QApplication.processEvents()
+        self.assertEqual(self._vinesweeper_calls[-1], ("enter", {}))
+        self.assertEqual(pd["current_utility"], "vinesweeper")
+        self.assertEqual(self._utility_calls[-1], "vinesweeper")
+        self.assertEqual(pd["vinesweeper"]["flags"], 10)
+        self.assertEqual(status.text(), "ACTIVE")
+        self.assertEqual(primary.accessibleName(), "Leave Winkin's Farm")
+
+        pd["vinesweeper"]["flags"] = 7
+        flag_index = reward.findData("flag")
+        reward.setCurrentIndex(flag_index)
+        quantity.setValue(10)
+        QApplication.processEvents()
+        self.assertTrue(buy.isEnabled())
+        self.assertEqual(buy.text(), "Buy · 150 pt")
+        buy.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["vinesweeper"]["flags"], 10)
+        self.assertEqual(pd["vinesweeper"]["points"], 50)
+
+        cabbage_index = reward.findData("cabbage_seed")
+        reward.setCurrentIndex(cabbage_index)
+        quantity.setValue(2)
+        QApplication.processEvents()
+        buy.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["inventory"]["Cabbage seed"], 2)
+        self.assertEqual(pd["vinesweeper"]["points"], 30)
+
+        redeem.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["vinesweeper"]["points"], 0)
+        self.assertEqual(pd["farming_exp"], farming_exp_before + 30.0)
+        self.assertFalse(redeem.isEnabled())
+
+        dialog.show()
+        dialog.resize(900, 560)
+        for _ in range(8):
+            QApplication.processEvents()
+        pager = _find_named_widget(dialog, "activityPickerPager")
+        choose_another = _find_named_button(
+            dialog, "activityChooseAnotherButton"
+        )
+        self.assertTrue(panel.isVisible())
+        self.assertTrue(choose_another.isVisible())
+        self.assertFalse(pager.isVisible())
+        self.assertFalse(activity_tree.isVisible())
+        choose_another.click()
+        QApplication.processEvents()
+        self.assertFalse(panel.isVisible())
+        self.assertFalse(choose_another.isVisible())
+        self.assertTrue(pager.isVisible())
+        self.assertTrue(activity_tree.isVisible())
+        tree_bottom = activity_tree.mapTo(
+            dialog, activity_tree.rect().bottomRight()
+        ).y()
+        self.assertLessEqual(tree_bottom, dialog.contentsRect().bottom())
+
     def test_activities_show_only_the_selected_rich_detail_card(self) -> None:
         from shooting_star_logic import (
             advance_shooting_star_world_clock_pure,
@@ -8454,6 +8567,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         big_row = _utility_row(activity_tree, "big_chinchompa")
         activity_tree.setCurrentItem(big_row)
+        activity_tree.itemActivated.emit(big_row, 0)
         QApplication.processEvents()
         self.assertFalse(star_panel.isVisible())
         self.assertTrue(big_panel.isVisible())

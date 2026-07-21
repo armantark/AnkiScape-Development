@@ -2,6 +2,38 @@
 
 ## Current Focus
 
+Vinesweeper now satisfies horizontal breadth level one. Entry requires a
+Spade, dismisses or stores an active familiar through the established
+confirmation path, grants the one-time ten free flags, and resolves exactly
+one bounded field operation per successful review. Correct flags, rabbit
+pressure, mistaken actions, Ogleroot discovery, automatic flag payment, Hunter
+defence XP, direct leave/refund, and multiplier batching are atomic and
+undoable. The complete 46-row cutoff shop is live, including direct Farming-XP
+redemption and the period Compost potion (4) reward; Fellstalk and Morchella
+remain correctly excluded from the cutoff interface.
+
+The Compost potion chain is now reachable end to end. Four non-stackable dose
+items have exact cache identities, period art/provenance, cutoff Grand Exchange
+prices and buy limits, and an instantaneous Utility action that consumes one
+dose to turn Compost into Supercompost while preserving the lower-dose potion
+or empty Vial. Activities now uses an explicit master/detail transition:
+opening a card hides the category pager, and `Choose another activity` returns
+to it without keyboard selection or page changes reopening a card. Kimi K3 and
+Fable independently reviewed the new card; their confirmed hierarchy,
+clipping, price, pause-copy, accessibility, and keyboard-navigation findings
+are closed. Durable record:
+`source-audits/vinesweeper-loop-2026-07-18.md`.
+
+The final repository state passes all 2,024 non-Qt tests with 266 expected
+environment skips and all 2,024 real offscreen-Qt tests with one intentional
+skip. Test quality has zero hard issues; documentation, compilation, JSON,
+diff, tight-alpha assets, and worktree safety pass. Reachability contains 1,434
+actions, 2,099 reachable items, 168 orphan inputs, and 189 blocked actions; the
+orphan/blocked sets are unchanged while the Vinesweeper producer is now
+registered. Results:
+`status-updates/vinesweeper-horizontal-mvp-results-2026-07-20.html`; mobile
+copy: `https://21nc8cd2r6ok.postplan.dev`.
+
 Sorceress's Garden now satisfies horizontal breadth level one. The four exact
 season gates, fruit thresholds, Farming and Osman XP, one-fruit/two-herb
 harvests, Fruit/Herbs/Alternate policy, automatic squeezing, Osman/Keep policy,

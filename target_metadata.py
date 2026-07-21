@@ -1869,6 +1869,13 @@ def utility_activity_rows(
             requirements = spec.get("requirements", {})
             reqs = requirements if isinstance(requirements, Mapping) else {}
             _, mat_text = _material_lines(reqs, inventory)
+            any_requirements = spec.get("any_requirements")
+            if isinstance(any_requirements, (list, tuple, set)) and any_requirements:
+                names = [str(item_name) for item_name in any_requirements]
+                mat_text += "\nOne of: " + ", ".join(
+                    f"{name} ({int(inventory.get(name, 0) or 0)})"
+                    for name in names
+                )
             run_text = (
                 "Runs once, then switches off. No skill XP."
                 if spec.get("deactivate_after_run")

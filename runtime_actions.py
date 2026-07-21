@@ -251,6 +251,15 @@ try:
         apply_penguin_review_pure,
         penguin_view_pure,
     )
+    from .vinesweeper_data import (
+        COMPOST_POTION_ACTIVITY_ID,
+        VINESWEEPER_ACTIVITY_ID,
+    )
+    from .vinesweeper_logic import (
+        apply_compost_potion_pure,
+        apply_vinesweeper_review_pure,
+        vinesweeper_view_pure,
+    )
     from .warriors_guild_data import WARRIORS_GUILD_ACTIVITIES
     from .warriors_guild_logic import (
         apply_warriors_guild_activity_pure,
@@ -493,6 +502,15 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from penguin_hide_and_seek_logic import (  # type: ignore
         apply_penguin_review_pure,
         penguin_view_pure,
+    )
+    from vinesweeper_data import (  # type: ignore
+        COMPOST_POTION_ACTIVITY_ID,
+        VINESWEEPER_ACTIVITY_ID,
+    )
+    from vinesweeper_logic import (  # type: ignore
+        apply_compost_potion_pure,
+        apply_vinesweeper_review_pure,
+        vinesweeper_view_pure,
     )
     from warriors_guild_data import WARRIORS_GUILD_ACTIVITIES  # type: ignore
     from warriors_guild_logic import (  # type: ignore
@@ -2662,6 +2680,50 @@ def _handle_penguin_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _handle_vinesweeper_answer(ctx: RuntimeActionContext) -> bool:
+    operations = max(1, int(ctx.review_action_multiplier or 1))
+    updated, result = apply_vinesweeper_review_pure(
+        ctx.player_data,
+        tuple(ctx.random_random() for _ in range(operations)),
+        operations=operations,
+    )
+    if not result.get("allowed"):
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Vinesweeper unavailable",
+            str(result.get("reason", "Enter Winkin's Farm before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    hunter_xp = float(result.get("hunter_xp", 0.0) or 0.0)
+    gained = 0.0
+    if hunter_xp > 0:
+        gained = ctx.award_skill_exp("hunter_exp", hunter_xp)
+        ctx.level_up_check("Hunter", ctx.player_data)
+    completed = int(result.get("completed_operations", 0) or 0)
+    if completed:
+        _record_action(
+            ctx,
+            "utility",
+            VINESWEEPER_ACTIVITY_ID,
+            True,
+            expected_success_chance=1.0,
+            primary_xp=hunter_xp,
+        )
+    if result.get("paused"):
+        ctx.deactivate_current_skill()
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if gained > 0:
+        ctx.show_exp(gained)
+    ctx.show_activity_gain(
+        str(result.get("status", "Vinesweeper operation complete"))
+    )
+    return True
+
+
 def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
@@ -2677,6 +2739,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_sorceress_garden_answer(ctx)
     if activity_key == PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID:
         return _handle_penguin_answer(ctx)
+    if activity_key == VINESWEEPER_ACTIVITY_ID:
+        return _handle_vinesweeper_answer(ctx)
     if activity_key == STRONGHOLD_UTILITY_KEY:
         return _handle_stronghold_answer(ctx)
     if activity_key == KNIGHT_WAVES_UTILITY_KEY:
@@ -2807,6 +2871,34 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
                 "Open the AnkiScape menu to pick another activity.",
             )
         return False
+
+    if activity_key == COMPOST_POTION_ACTIVITY_ID:
+        new_inv, ok, compost_result = apply_compost_potion_pure(
+            player_data.get("inventory", {})
+        )
+        if not ok:
+            _switch_material_failure_to_bankstanding(ctx)
+            ctx.show_error_message(
+                "Unavailable activity",
+                str(compost_result.get("reason", "Compost potion inputs are missing.")),
+            )
+            return False
+        player_data["inventory"] = new_inv
+        _record_action(
+            ctx,
+            "utility",
+            activity_key,
+            True,
+            expected_success_chance=1.0,
+            output_items=dict(compost_result.get("outputs", {}) or {}),
+        )
+        ctx.check_achievements(player_data)
+        ctx.save_player_data()
+        ctx.refresh_skill_availability()
+        ctx.show_activity_gain(
+            f"Upgraded 1 Compost to Supercompost · {compost_result['remainder']} remains"
+        )
+        return True
 
     if activity_key == "open_bird_nest":
         batch_size = 28
@@ -4914,6 +5006,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return not sorceress_garden_locked_reasons_pure(ctx.player_data)
     if activity_key == PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID:
         return bool(penguin_view_pure(ctx.player_data).get("can_review", False))
+    if activity_key == VINESWEEPER_ACTIVITY_ID:
+        return bool(vinesweeper_view_pure(ctx.player_data).get("active", False))
     return not utility_activity_locked_reasons_pure(
         ctx.player_data,
         activity_key,
