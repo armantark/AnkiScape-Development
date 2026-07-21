@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Court Cases horizontal closure</title>
+  <style>
+    :root {
+      --ink: #221d18;
+      --muted: #746a60;
+      --paper: #f5efe3;
+      --panel: #fffaf0;
+      --line: #d9cbb7;
+      --red: #8f2f35;
+      --gold: #b98025;
+      --green: #356746;
+      --shadow: rgba(66, 45, 27, .13);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        linear-gradient(rgba(117, 83, 43, .045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(117, 83, 43, .045) 1px, transparent 1px),
+        var(--paper);
+      background-size: 24px 24px;
+      color: var(--ink);
+      font-family: ui-serif, Georgia, serif;
+      line-height: 1.52;
+    }
+    main { width: min(1100px, calc(100% - 32px)); margin: 34px auto 70px; }
+    .hero, .card {
+      background: color-mix(in srgb, var(--panel) 94%, transparent);
+      border: 1px solid var(--line);
+      box-shadow: 0 18px 50px var(--shadow);
+    }
+    .hero { padding: clamp(28px, 6vw, 64px); position: relative; overflow: hidden; }
+    .hero::after {
+      content: "CASE CLOSED";
+      position: absolute;
+      right: -26px;
+      top: 31px;
+      color: rgba(143, 47, 53, .12);
+      border: 7px double rgba(143, 47, 53, .12);
+      padding: 8px 20px;
+      font: 800 28px/1 ui-monospace, monospace;
+      transform: rotate(10deg);
+      letter-spacing: .12em;
+    }
+    .eyebrow, .tag, code, .metric span {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+    }
+    .eyebrow { color: var(--red); font-size: 12px; font-weight: 800; }
+    h1 { margin: 14px 0 12px; max-width: 760px; font-size: clamp(42px, 8vw, 86px); line-height: .92; letter-spacing: -.05em; }
+    .lede { max-width: 760px; margin: 0; color: var(--muted); font-size: clamp(17px, 2.2vw, 22px); }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 34px; }
+    .metric { border-top: 3px solid var(--gold); padding-top: 12px; }
+    .metric strong { display: block; font-size: 30px; }
+    .metric span { color: var(--muted); font-size: 10px; }
+    .grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 18px; margin-top: 18px; }
+    .card { padding: 24px; }
+    .card h2 { margin: 0 0 14px; font-size: 26px; }
+    .card p { color: var(--muted); }
+    .flow { display: grid; gap: 10px; }
+    .step { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; padding: 12px; background: rgba(185, 128, 37, .07); border-left: 3px solid var(--gold); }
+    .step b { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: var(--panel); }
+    .step strong { display: block; }
+    .step small { color: var(--muted); }
+    .verdict { border-left: 5px solid var(--green); }
+    .checks { display: grid; gap: 9px; }
+    .check { display: flex; gap: 10px; align-items: baseline; }
+    .check::before { content: "✓"; color: var(--green); font-weight: 900; }
+    .note { margin-top: 18px; padding: 15px; border: 1px dashed var(--line); background: rgba(143, 47, 53, .035); }
+    .tag { display: inline-block; padding: 4px 8px; border: 1px solid var(--line); color: var(--red); font-size: 10px; margin: 3px 3px 0 0; }
+    code { font-size: .83em; color: var(--red); }
+    footer { margin-top: 18px; color: var(--muted); font-size: 13px; text-align: center; }
+    @media (max-width: 760px) {
+      .grid, .metrics { grid-template-columns: 1fr 1fr; }
+      .hero::after { display: none; }
+    }
+    @media (max-width: 520px) {
+      main { width: min(100% - 20px, 1100px); margin-top: 10px; }
+      .grid, .metrics { grid-template-columns: 1fr; }
+      .hero, .card { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="eyebrow">AnkiScape · horizontal breadth program · 2026-07-21</div>
+      <h1>Court Cases is playable.</h1>
+      <p class="lede">The activity now has a complete review-driven legal loop, period entry rules, both courtroom roles, summons ownership, authentic rewards, retry and forfeiture, and a real Anki surface that survived native inspection.</p>
+      <div class="metrics">
+        <div class="metric"><strong>3</strong><span>representative cases</span></div>
+        <div class="metric"><strong>3,360</strong><span>answers per batch-2 wait</span></div>
+        <div class="metric"><strong>2,227</strong><span>tests in each full suite</span></div>
+        <div class="metric"><strong>0</strong><span>new item orphans</span></div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card verdict">
+        <h2>The complete mechanic path</h2>
+        <div class="flow">
+          <div class="step"><b>1</b><div><strong>Qualify and take a case</strong><small>King's Ransom, role level 65, one free starter, then one held Court summons.</small></div></div>
+          <div class="step"><b>2</b><div><strong>Prepare the evidence</strong><small>Reports, fingerprints, interviews, and crime-scene work each consume one answered review.</small></div></div>
+          <div class="step"><b>3</b><div><strong>Argue either side</strong><small>Casual follows the sourced route. Advanced exposes exactly the current evidence, witness, or jury choice.</small></div></div>
+          <div class="step"><b>4</b><div><strong>Receive the verdict</strong><small>Win exact Attack or Defence XP and items; an undecided case retries without replaying preparation; giving up loses the case.</small></div></div>
+          <div class="step"><b>5</b><div><strong>Respect the world clock</strong><small>Party Pete exercises the sourced fourteen-day Batch 2 rule as 3,360 answered cards, never wall time.</small></div></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Representative breadth</h2>
+        <p><strong>Mugger v. Roger Murray</strong> proves the free starter, reports, fingerprint, both legal routes, and 2,000 XP.</p>
+        <p><strong>River troll v. The People</strong> proves summons consumption, a no-fingerprint route, and 3,500 XP plus twenty Sharks.</p>
+        <p><strong>Party Pete v. His Neighbours</strong> proves Batch 2, interview and crime-scene preparation, unequal role paths, and 9,000 XP plus the wearable Rainbow afro.</p>
+        <div>
+          <span class="tag">starter + summons</span>
+          <span class="tag">batch 1 + batch 2</span>
+          <span class="tag">prosecute + defend</span>
+          <span class="tag">casual + advanced</span>
+        </div>
+        <div class="note">The remaining thirteen cases, alternate winning routes, and Barrister equipment milestones are data depth. Their addition does not require a new state machine.</div>
+      </section>
+
+      <section class="card">
+        <h2>Verification record</h2>
+        <div class="checks">
+          <div class="check">2,227 non-Qt tests pass; 292 expected dependency skips.</div>
+          <div class="check">2,227 real offscreen-Qt tests pass; one intentional platform skip.</div>
+          <div class="check">Native Anki restart shows one launcher, one menu, pagination, normalized art, and an unclipped locked card.</div>
+          <div class="check">Docs, test quality, compilation, JSON, diff, asset normalization, reachability, and worktree safety pass.</div>
+          <div class="check">Combat and Thieving share the one-summons acquisition gate; review and direct-action undo are covered.</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Fresh-eye findings closed</h2>
+        <p>The first broad pass caught missing navigation and equipment registry entries. Isolating the afro then uncovered a pre-existing import-order mutation in generated equipment data. Runtime extensions now use an explicit copy, while the generated roster remains stable and reproducible.</p>
+        <p>Opus supplied the independent UI taste pass. Duplicate progress, internal catalog wording, noisy mode labels, and repeated starter copy were removed. Fable stayed on reserve; Kimi was not called after its quota safety gate had closed.</p>
+        <p><code>1,442 actions · 2,133 reachable items · 166 known orphans · 187 unresolved actions</code></p>
+      </section>
+    </div>
+
+    <footer>Source record: memory-bank/source-audits/court-cases-horizontal-implementation-2026-07-21.md</footer>
+  </main>
+</body>
+</html>

@@ -3011,6 +3011,21 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         skill_requirements=(),
         weapon_type=-1,
     ),
+    'Rainbow afro': EquipmentItem(
+        item_name='Rainbow afro',
+        slot='head',
+        combat_skill=None,
+        required_level=1,
+        two_handed=False,
+        equipment_type='cosmetic_reward',
+        bonuses=EquipmentBonuses(attack_stab=0, attack_slash=0, attack_crush=0, attack_magic=0, attack_ranged=0, defence_stab=0, defence_slash=0, defence_crush=0, defence_magic=0, defence_ranged=0, melee_strength=0, ranged_strength=0, magic_damage=0, prayer=0),
+        attack_speed=4,
+        source_item_id=19747,
+        source='OpenRS2 cache rev 742 item 19747; RuneScape Wiki Party Pete v. His Neighbours oldid=6447758',
+        source_status='period manual head slot; cache equipment block unavailable; bonuses zeroed',
+        skill_requirements=(),
+        weapon_type=-1,
+    ),
     'Arcane capacitor amulet (u)': EquipmentItem(
         item_name='Arcane capacitor amulet (u)',
         slot='neck',
@@ -10364,7 +10379,10 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
 }
 
 
-def equipment_items_as_dict() -> Dict[str, Dict[str, object]]:
+def equipment_items_as_dict(
+    equipment_data: Optional[Dict[str, EquipmentItem]] = None,
+) -> Dict[str, Dict[str, object]]:
+    equipment_data = EQUIPMENT_DATA if equipment_data is None else equipment_data
     return {
         item_name: {
             "item_name": item.item_name,
@@ -10381,5 +10399,5 @@ def equipment_items_as_dict() -> Dict[str, Dict[str, object]]:
             "skill_requirements": item.skill_requirements,
             "weapon_type": item.weapon_type,
         }
-        for item_name, item in EQUIPMENT_DATA.items()
+        for item_name, item in equipment_data.items()
     }

@@ -299,6 +299,18 @@
     "source_wiki": "rs3-period",
     "timestamp": "2012-08-28T18:20:27Z"
   },
+  "activityicons/court_cases.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Court_summons.png",
+    "file_title": "Court summons.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511082541%21Court_summons.png?a2acc",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6016c2d42fd59d3d1454770560df40c0bdd14ff4",
+    "size": 397,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-02T04:04:25Z"
+  },
   "activityicons/desert_phoenix.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Desert_Phoenix.png",
     "file_title": "Desert Phoenix.png",
@@ -958,6 +970,18 @@
     "size": 175,
     "source_wiki": "rs3",
     "timestamp": "2010-10-08T04:44:35Z"
+  },
+  "activityitems/rainbow_afro.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Rainbow_afro.png",
+    "file_title": "Rainbow afro.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511082220%21Rainbow_afro.png?e9891",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2d04c033587309e5c81f473986ddeae63ddcd558",
+    "size": 909,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-27T12:38:52Z"
   },
   "activityitems/ring_of_charos.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Ring_of_charos.png",

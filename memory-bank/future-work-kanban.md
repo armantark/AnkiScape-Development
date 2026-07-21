@@ -177,6 +177,28 @@ Labels: none remaining on the build itself; trailing `DEPENDENCY` items only.
 - Conservative calls: nail bend rates are an era-compatible 2009scape numeric gap-fill (the pre-EOC pins are qualitative only, cited per row); two Darkan typos corrected with citations (TEAKTOYBOX level 968 → 68, Fremennik style 20,000 → 25,000, both also in the restoration handoff).
 - Trailing `DEPENDENCY` items: Menagerie pet function (pet system), whetstone/armour-stand repairs (equipment degradation), consumable-producing builds whose outputs stay orphaned until their systems exist, and spicy stew on the RFD/Evil Dave side.
 
+## Court Cases horizontal closure — 2026-07-21
+
+- Added the King's Ransom/65-role gates, free starter, one-summons ownership,
+  preparation, role-specific trial routes, undecided retry, give-up loss,
+  exact XP/item rewards, and the answered-card Batch 2 cooldown.
+- The live representative catalog is Mugger, River troll, and Party Pete. It
+  covers Batch 1/2, fingerprint/no-fingerprint, crime-scene preparation,
+  unequal role route lengths, and no-item/item rewards without inventing
+  hidden rates.
+- Schema 69, runtime dispatch, cadence, telemetry, review/direct undo, Combat
+  and Thieving summons gates, normalized period art, a zero-bonus wearable
+  Rainbow afro, and a compact Activities card are wired. Remaining cases,
+  alternate routes, acquisition families, and Barrister milestones are data
+  depth.
+- Daily Challenges is blocked by the five-slot period queue versus the older
+  single-task/skip contract conflict recorded in
+  `design-gaps-implementation-2026-07-19.md`.
+- Durable audit:
+  `source-audits/court-cases-horizontal-implementation-2026-07-21.md`.
+- Results: `status-updates/court-cases-horizontal-results-2026-07-21.html`;
+  mobile copy: `https://nvblmw2z0ddz.postplan.dev`.
+
 ## Deep-grill queue — missing or incomplete skill surfaces
 
 Each skill receives its own grill before implementation. Source-shaped facts should be resolved autonomously; grill only materially different AnkiScape choices.

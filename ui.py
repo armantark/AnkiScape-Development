@@ -456,6 +456,13 @@ except Exception:
     from great_orb_project_logic import great_orb_project_view_pure  # type: ignore
 
 try:
+    from .court_cases_data import COURT_CASES_ACTIVITY_ID, COURT_ROLE_LABELS
+    from .court_cases_logic import court_cases_view_pure
+except Exception:
+    from court_cases_data import COURT_CASES_ACTIVITY_ID, COURT_ROLE_LABELS  # type: ignore
+    from court_cases_logic import court_cases_view_pure  # type: ignore
+
+try:
     from .managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
     from .managing_miscellania_logic import managing_miscellania_view_pure
 except Exception:
@@ -3524,6 +3531,7 @@ def show_main_menu(
     on_fish_flingers_command=None,
     on_fishing_trawler_command=None,
     on_great_orb_project_command=None,
+    on_court_cases_command=None,
     on_managing_miscellania_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
@@ -11525,6 +11533,256 @@ def show_main_menu(
         _refresh_great_orb_project_panel()
         cards_stack.addWidget(great_orb_box)
 
+        court_box = QtFrame()
+        court_box.setObjectName("courtCasesPanel")
+        court_box.setStyleSheet(
+            "QFrame#courtCasesPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        court_layout = QVBoxLayout(court_box)
+        court_layout.setContentsMargins(10, 8, 10, 8)
+        court_layout.setSpacing(7)
+
+        court_header = QWidget()
+        court_header_layout = QHBoxLayout(court_header)
+        court_header_layout.setContentsMargins(0, 0, 0, 0)
+        court_header_layout.setSpacing(8)
+        court_icon = QLabel()
+        court_icon.setObjectName("courtCasesIcon")
+        court_icon.setFixedSize(28, 28)
+        court_icon_path = os.path.join(current_dir, "activityicons", "court_cases.png")
+        if os.path.exists(court_icon_path):
+            court_icon.setPixmap(
+                QPixmap(court_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+        court_title = QLabel("Court Cases")
+        court_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        court_status = QLabel()
+        court_status.setObjectName("courtCasesStatusChip")
+        court_status.setStyleSheet(
+            f"color: {dim_text_css(court_status)}; font-size: 11px; font-weight: 700;"
+        )
+        court_header_layout.addWidget(court_icon)
+        court_header_layout.addWidget(court_title)
+        court_header_layout.addStretch(1)
+        court_header_layout.addWidget(court_status)
+        court_layout.addWidget(court_header)
+
+        court_case_name = QLabel()
+        court_case_name.setObjectName("courtCasesCaseName")
+        court_case_name.setStyleSheet("font-weight: 700; color: palette(text);")
+        court_layout.addWidget(court_case_name)
+        court_summary = QLabel()
+        court_summary.setObjectName("courtCasesSummary")
+        court_summary.setWordWrap(True)
+        court_summary.setStyleSheet("color: palette(text);")
+        court_layout.addWidget(court_summary)
+
+        court_progress = QLabel()
+        court_progress.setObjectName("courtCasesProgress")
+        court_progress.setStyleSheet(f"color: {dim_text_css(court_progress)};")
+        court_layout.addWidget(court_progress)
+
+        court_policy_row = QWidget()
+        court_policy_layout = QHBoxLayout(court_policy_row)
+        court_policy_layout.setContentsMargins(0, 0, 0, 0)
+        court_policy_layout.setSpacing(8)
+        court_role = QComboBox()
+        court_role.setObjectName("courtCasesRoleCombo")
+        court_role.setAccessibleName("Court role")
+        for role_id, role_label in COURT_ROLE_LABELS.items():
+            court_role.addItem(role_label, role_id)
+        court_mode = QComboBox()
+        court_mode.setObjectName("courtCasesModeCombo")
+        court_mode.setAccessibleName("Court automation mode")
+        court_mode.addItem("Casual", "casual")
+        court_mode.addItem("Advanced", "advanced")
+        court_mode.setToolTip(
+            "Casual follows the sourced route; Advanced lets you choose each courtroom beat."
+        )
+        court_policy_layout.addWidget(court_role, 1)
+        court_policy_layout.addWidget(court_mode, 1)
+        court_layout.addWidget(court_policy_row)
+
+        court_beat = QLabel()
+        court_beat.setObjectName("courtCasesCurrentBeat")
+        court_beat.setWordWrap(True)
+        court_beat.setStyleSheet("font-weight: 600; color: palette(text);")
+        court_layout.addWidget(court_beat)
+        court_choice = QComboBox()
+        court_choice.setObjectName("courtCasesTrialChoiceCombo")
+        court_choice.setAccessibleName("Next courtroom action")
+        court_layout.addWidget(court_choice)
+
+        court_buttons = QWidget()
+        court_buttons_layout = QHBoxLayout(court_buttons)
+        court_buttons_layout.setContentsMargins(0, 0, 0, 0)
+        court_buttons_layout.setSpacing(8)
+        court_primary = QPushButton()
+        court_primary.setObjectName("courtCasesPrimaryButton")
+        court_leave = QPushButton("Give up case")
+        court_leave.setObjectName("courtCasesLeaveButton")
+        court_buttons_layout.addWidget(court_primary)
+        court_buttons_layout.addWidget(court_leave)
+        court_buttons_layout.addStretch(1)
+        court_layout.addWidget(court_buttons)
+
+        syncing_court = {"active": False}
+
+        def _run_court_cases_command(action_id: str, payload=None) -> dict[str, Any]:
+            if on_court_cases_command is None:
+                return {"ok": False, "message": "Court Cases actions are unavailable."}
+            result = on_court_cases_command(action_id, payload or {}) or {}
+            if not result.get("ok", False) and result.get("message"):
+                QMessageBox.warning(dialog, "Court Cases", str(result["message"]))
+            _refresh_court_cases_panel()
+            return result
+
+        def _refresh_court_cases_panel() -> None:
+            syncing_court["active"] = True
+            view = court_cases_view_pure(player_data)
+            active = bool(view["active"])
+            current_utility = str(
+                player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
+            )
+            selected = active and current_utility == COURT_CASES_ACTIVITY_ID
+            court_status.setText(
+                "ACTIVE"
+                if active
+                else "COMPLETE"
+                if not view["case_id"]
+                else "STARTER"
+                if view["starter"]
+                else "SUMMONS"
+            )
+            court_case_name.setText(str(view["case_name"]))
+            court_summary.setText(str(view["case_summary"]))
+            court_progress.setText(f"{view['progress']}\n{view['last_result']}")
+            court_beat.setText(str(view["current_beat"]))
+            role_index = court_role.findData(view["role"])
+            court_role.setCurrentIndex(max(0, role_index))
+            mode_index = court_mode.findData(view["automation_mode"])
+            court_mode.setCurrentIndex(max(0, mode_index))
+            court_role.setEnabled(not active and on_court_cases_command is not None)
+            court_mode.setEnabled(not active and on_court_cases_command is not None)
+
+            court_choice.clear()
+            court_choice.addItem("Choose the next courtroom action…", "")
+            for choice in view["trial_choices"]:
+                court_choice.addItem(str(choice), str(choice))
+            pending_index = court_choice.findData(view["pending_choice"])
+            court_choice.setCurrentIndex(max(0, pending_index))
+            show_choice = bool(
+                active
+                and view["phase"] == "trial"
+                and view["automation_mode"] == "advanced"
+            )
+            court_choice.setVisible(show_choice)
+            court_choice.setEnabled(show_choice and on_court_cases_command is not None)
+            court_beat.setVisible(active)
+
+            if active:
+                court_primary.setText(
+                    "Selected for reviews"
+                    if selected
+                    else "Select case for reviews"
+                )
+                court_primary.setEnabled(
+                    bool(view["can_review"])
+                    and not selected
+                    and on_court_cases_command is not None
+                )
+            else:
+                court_primary.setText(
+                    "Take the case"
+                    if view["starter"]
+                    else "Use Court summons"
+                    if view["case_id"]
+                    else "Court Cases complete"
+                )
+                court_primary.setEnabled(
+                    bool(view["case_id"])
+                    and not view["locked_reasons"]
+                    and on_court_cases_command is not None
+                )
+            court_primary.setToolTip(
+                ", ".join(view["locked_reasons"])
+                if view["locked_reasons"]
+                else "Advance one preparation or trial beat per answered review."
+            )
+            court_leave.setVisible(active)
+            court_leave.setEnabled(active and on_court_cases_command is not None)
+            syncing_court["active"] = False
+            _fit_current_activity_detail()
+
+        def _save_court_policy() -> None:
+            if syncing_court["active"]:
+                return
+            _run_court_cases_command(
+                "set_policy",
+                {
+                    "role": str(court_role.currentData() or "prosecution"),
+                    "automation_mode": str(court_mode.currentData() or "casual"),
+                },
+            )
+
+        def _select_or_enter_court_case() -> None:
+            view = court_cases_view_pure(player_data)
+            if not view["active"]:
+                result = _run_court_cases_command(
+                    "enter",
+                    {
+                        "role": str(court_role.currentData() or "prosecution"),
+                        "automation_mode": str(court_mode.currentData() or "casual"),
+                    },
+                )
+                if not result.get("ok", False):
+                    return
+            if not _request_utility_selection(COURT_CASES_ACTIVITY_ID):
+                return
+            _refresh_court_cases_panel()
+
+        def _select_court_choice() -> None:
+            if syncing_court["active"]:
+                return
+            choice = str(court_choice.currentData() or "")
+            if choice:
+                _run_court_cases_command("select_choice", {"choice": choice})
+
+        def _confirm_court_leave() -> None:
+            answer = QMessageBox.question(
+                dialog,
+                "Give up court case?",
+                "Preparation is lost and a consumed Court summons is not returned.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_court_cases_command("leave")
+
+        court_role.currentIndexChanged.connect(
+            lambda _index: _save_court_policy()
+        )
+        court_mode.currentIndexChanged.connect(
+            lambda _index: _save_court_policy()
+        )
+        court_choice.currentIndexChanged.connect(
+            lambda _index: _select_court_choice()
+        )
+        court_primary.clicked.connect(
+            lambda _checked=False: _select_or_enter_court_case()
+        )
+        court_leave.clicked.connect(
+            lambda _checked=False: _confirm_court_leave()
+        )
+        _refresh_court_cases_panel()
+        cards_stack.addWidget(court_box)
+
         miscellania_box = QtFrame()
         miscellania_box.setObjectName("managingMiscellaniaPanel")
         miscellania_box.setStyleSheet(
@@ -13647,6 +13905,30 @@ def show_main_menu(
                         str((result or {}).get("message", "Could not leave the match.")),
                     )
                     return False
+            if (
+                activity_id != COURT_CASES_ACTIVITY_ID
+                and court_cases_view_pure(player_data)["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Give up court case?",
+                    "Switch activities? Preparation is lost and a consumed Court summons is not returned.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_court_cases_command("leave", {})
+                    if on_court_cases_command is not None
+                    else {"ok": False, "message": "Court Cases actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Court Cases",
+                        str((result or {}).get("message", "Could not leave the case.")),
+                    )
+                    return False
             on_set_utility(activity_id)
             player_data["current_utility"] = activity_id
             if state["active"] in _UTILITY_SKILL_NAMES and state["active"] != surface_name:
@@ -13668,6 +13950,7 @@ def show_main_menu(
             _refresh_fish_flingers_panel()
             _refresh_fishing_trawler_panel()
             _refresh_great_orb_project_panel()
+            _refresh_court_cases_panel()
             _refresh_miscellania_panel()
             _refresh_stealing_creation_panel()
             _show_activity_detail(activity_id)
@@ -13751,6 +14034,9 @@ def show_main_menu(
             if activity_id == GREAT_ORB_PROJECT_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == COURT_CASES_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
             if activity_id == MANAGING_MISCELLANIA_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
@@ -13800,6 +14086,7 @@ def show_main_menu(
                 "Great Orb Project",
                 great_orb_box,
             ),
+            COURT_CASES_ACTIVITY_ID: ("Court Cases", court_box),
             MANAGING_MISCELLANIA_ACTIVITY_ID: (
                 "Managing Miscellania",
                 miscellania_box,

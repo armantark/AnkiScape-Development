@@ -74,6 +74,29 @@ but it does not control the frontier.
 
 ## Current frontier
 
+### Live frontier update — 2026-07-21
+
+The traversal narrative below is retained as history; it no longer names the
+live frontier. Since that checkpoint, Barrows, Flash Powder Factory, Pyramid
+Plunder, Werewolf Skullball, Gnome Ball, Fish Flingers, Fishing Trawler, Great
+Orb Project, Managing Miscellania, Jade Vine, and Court Cases reached breadth
+level one.
+
+Court Cases now exercises the complete shared mechanic graph with three
+period-pinned cases: free starter and summons entry, both legal roles,
+preparation and trial choices, undecided retry, give-up loss, exact XP/items,
+and the fourteen-day Batch 2 cadence on the answered-card world clock. The
+other thirteen cases and Barrister milestones are data depth.
+
+Daily Challenges is not the next implementation slice until the five-slot
+period queue versus single-challenge/skip contract conflict in
+`design-gaps-implementation-2026-07-19.md` is resolved. Troll Invasion remains
+source-blocked on aggregate wave combat values. The next source-ready family
+must therefore be selected from the remaining settled, unrepresented families
+without re-harvesting quest work owned by the Darkan restoration lane.
+
+### Traversal history
+
 The eighteen shipped skill surfaces, the unified partial-Combat stat surfaces,
 Grand Exchange, Shops, Help/Details, Farming, Livid Farm, Big Chinchompa, Evil
 Tree, Warriors' Guild, and the other explicitly shipped systems already satisfy

@@ -30,6 +30,11 @@ except ImportError:
     from inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure, carried_slots_used, clamp_carried_view_to_bank
 
 try:
+    from .court_cases_logic import filter_court_summons_outputs_pure
+except ImportError:
+    from court_cases_logic import filter_court_summons_outputs_pure
+
+try:
     from .item_values import ITEM_VALUES, STACKABLE_ITEM_NAMES
 except ImportError:
     try:
@@ -5237,7 +5242,11 @@ def _combat_roll_drops(enemy, rng, player_data=None):
             drops[item_name] = drops.get(item_name, 0) + max(1, _positive_int(quantity, 1))
     for table in drop_spec.get("tables", ()) or ():
         _combat_roll_drop_table(table, rng, drops, player_data)
-    return drops
+    return (
+        filter_court_summons_outputs_pure(player_data, drops)
+        if isinstance(player_data, Mapping)
+        else drops
+    )
 
 
 def _combat_apply_triple_charm_reward(data, drops):

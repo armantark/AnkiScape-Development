@@ -3828,3 +3828,35 @@ Test counts are snapshots; current runs outrank this note.
   reachability, diff, worktree safety, and a fresh native-Anki singleton smoke.
 - Results: `status-updates/jade-vine-horizontal-results-2026-07-21.html`;
   mobile copy: `https://rdcwhc5livaj.postplan.dev`.
+
+## Court Cases horizontal MVP — 2026-07-21
+
+- Implemented the complete shared Court Cases loop with three period-pinned
+  cases: authentic entry gates, free starter, summons ownership/consumption,
+  preparation, both legal roles, Casual/Advanced policy, decided and undecided
+  verdicts, retry, give-up loss, XP, and item rewards.
+- Added the exact fourteen-day Batch 2 rule as `3,360` answered cards, plus
+  schema-69 persistence, review/direct undo, cadence, telemetry, Combat and
+  Thieving summons filtering, normalized period art, a live zero-bonus
+  wearable Rainbow afro, and a compact Activities card.
+- Opus reviewed the new UI because Fable was reserved and Kimi's quota gate was
+  closed. The duplicate counter, internal catalog wording, mode noise, and
+  repeated starter copy were removed.
+- Remaining thirteen cases, alternate winning routes, additional summons
+  acquisition sources, and Barrister milestones are data depth. Daily
+  Challenges is separately blocked on a newly recorded source/contract
+  conflict; no design was silently reinterpreted.
+- The complete non-Qt suite passes 2,227 methods with 292 expected dependency
+  skips; the complete real offscreen-Qt suite passes the same 2,227 methods
+  with one intentional skip. A fully restarted native Anki process showed one
+  launcher, one menu, the paginated Court Cases row, and an unclipped locked
+  starter card without mutating the owner save.
+- Broad verification also repaired a pre-existing generated-equipment
+  import-order mutation. Docs, hard test quality, compilation, JSON, diff,
+  normalized assets, reachability, and worktree safety pass. Reachability is
+  1,442 actions, 2,133 reachable items, 166 known orphan inputs, and 187
+  unresolved actions; the slice adds no orphan.
+- Durable audit:
+  `source-audits/court-cases-horizontal-implementation-2026-07-21.md`.
+- Results: `status-updates/court-cases-horizontal-results-2026-07-21.html`;
+  mobile copy: `https://nvblmw2z0ddz.postplan.dev`.

@@ -2,7 +2,7 @@
 
 Date: 2026-07-19
 
-Status: **one open source/contract conflict.**
+Status: **two open source/contract conflicts.**
 
 ## 1. Grand Exchange offer-slot count
 
@@ -52,3 +52,26 @@ can be opened normally.
 Separate source blocker: the exact easy-clue selection and casket reward rolls
 remain `source_blocked`; see
 `source-audits/treasure-trails-easy-source-boundary-2026-07-19.md`.
+
+## 3. Daily Challenges queue and reroll policy
+
+Priority: **high — blocks the Daily Challenges horizontal slice**
+
+The settled recon record calls for one assigned challenge per 240-card day and
+a source-authentic skip/reroll:
+
+- `source-audits/recon-coverage-closure-2026-07-18.md:17-23`
+
+The cutoff page instead documents a five-slot active list, one new challenge
+per day, removal of the oldest entry when a sixth would be added, one pinned
+challenge at a time, and per-skill blocking only for maxed skills. The revision
+does not establish a general skip or reroll action:
+
+- RuneScape Wiki `Challenge System (historical)`, oldid `6579729`, timestamp
+  `2012-11-19T02:58:19Z`
+- <https://runescape.wiki/w/Challenge_System_(historical)?oldid=6579729>
+
+Recommended resolution: **use the period five-slot queue, oldest-expiry rule,
+pinning, and maxed-skill blocks; remove the unsupported skip/reroll clause.**
+One new assignment still arrives every 240 answered cards. Implementation has
+stopped rather than silently collapse the five-slot queue into a single task.

@@ -451,6 +451,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "court_cases":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "court_cases",
+                    "mode": "activity_group",
+                    "source_status": "sourced",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One review resolves one preparation or courtroom beat. "
+                        "The verdict boundary stops the session on success or "
+                        "returns the retained case files to trial beat one."
+                    ),
+                    "includes": (
+                        "one case-report, fingerprint, evidence, witness, or jury beat",
+                        "one atomic retry or reward boundary",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains "
+                        "one consequential court beat"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same one-beat court handler",
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "penguin_hide_and_seek":
             rows.append(
                 {

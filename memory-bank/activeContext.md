@@ -3125,3 +3125,35 @@ The visual closure report is
   blocked actions; this slice adds no item orphan.
 - Results: `status-updates/jade-vine-horizontal-results-2026-07-21.html`;
   mobile copy: `https://rdcwhc5livaj.postplan.dev`.
+
+## Court Cases horizontal closure — 2026-07-21
+
+- Added a three-case period-pinned Activities slice covering the Mugger free
+  starter, River troll Batch 1 summons case, and Party Pete Batch 2 case.
+- The shared state machine now covers reports, fingerprints, interviews,
+  crime-scene work, role-specific evidence/witness/jury beats, Casual guided
+  play, one-choice Advanced play, undecided retry, give-up loss, and exact
+  Attack/Defence XP and item rewards.
+- The fourteen-day Batch 2 wait is `3,360` answered cards on the existing world
+  clock. No wall-clock input exists. Court summons remains one-at-a-time and is
+  gated across live Combat and Thieving output paths.
+- Added schema-69 persistence, cadence/telemetry/runtime/undo seams, normalized
+  Court summons and Rainbow afro art, a zero-bonus wearable afro record, and a
+  compact Activities card. Remaining cases and Barrister milestones are data
+  depth.
+- The complete non-Qt suite passes all 2,227 methods with 292 expected skips.
+  The real offscreen-Qt suite passes the same 2,227 methods with one intentional
+  skip. A fresh native Anki restart showed one launcher, one menu, the
+  paginated Court Cases row, and the unclipped locked starter card without
+  changing the owner save.
+- Broad verification caught and closed the activity-surface oracle,
+  wearable-afro registry, and generated-equipment import-order defects. Docs,
+  hard test quality, compilation, JSON, diff, asset normalization,
+  reachability, and worktree safety pass. Reachability is 1,442 actions, 2,133
+  reachable items, 166 known orphan inputs, and 187 unresolved actions.
+- Daily Challenges is paused on the period five-slot queue versus older
+  single-task/skip contract conflict. Troll Invasion remains source-blocked.
+- Durable evidence:
+  `source-audits/court-cases-horizontal-implementation-2026-07-21.md`.
+- Results: `status-updates/court-cases-horizontal-results-2026-07-21.html`;
+  mobile copy: `https://nvblmw2z0ddz.postplan.dev`.

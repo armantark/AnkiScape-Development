@@ -5620,6 +5620,92 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
+    def test_court_case_entry_is_a_direct_undoable_action(self):
+        addon = _load_addon_as_package("ankiscape_court_entry_integration")
+        logic = sys.modules[f"{addon.__name__}.court_cases_logic"]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon.current_skill = "Activities"
+        initial = {
+            "inventory": {},
+            "quests": {"kings_ransom": {"completed": True}},
+            "attack_level": 65,
+            "defense_level": 65,
+            "shop_market_clock": {"answered_cards": 0},
+            "current_utility": "make_soft_clay",
+            "activity_session": {"active_id": ""},
+            "smithing_level": 1,
+        }
+        initial.update(logic.default_court_cases_state_pure())
+        addon.player_data = copy.deepcopy(initial)
+
+        addon._on_main_menu()
+        result = captured["on_court_cases_command"](
+            "enter", {"role": "prosecution", "automation_mode": "casual"}
+        )
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(addon.player_data["court_cases"]["case_id"], "mugger")
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_court_case_review_and_world_clock_undo_together(self):
+        addon = _load_addon_as_package("ankiscape_court_review_integration")
+        logic = sys.modules[f"{addon.__name__}.court_cases_logic"]
+        addon.mw = _DummyMW(_DummyCol())
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_context_action_strip = lambda *_args: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda _text: None
+        base = {
+            "inventory": {},
+            "quests": {"kings_ransom": {"completed": True}},
+            "attack_level": 65,
+            "attack_exp": 0.0,
+            "defense_level": 65,
+            "defense_exp": 0.0,
+            "shop_market_clock": {"answered_cards": 41, "market_tick": 41},
+            "activity_session": {"active_id": ""},
+        }
+        base.update(logic.default_court_cases_state_pure())
+        entered, ok, _info = logic.enter_court_case_pure(base)
+        self.assertTrue(ok)
+        addon.player_data = copy.deepcopy(entered)
+        initial = copy.deepcopy(entered)
+        addon.current_skill = "Activities"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 3, lambda _self, _ease: "answered")
+
+        self.assertEqual(addon.player_data["shop_market_clock"]["answered_cards"], 42)
+        self.assertEqual(addon.player_data["court_cases"]["prep_index"], 1)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(study_queues=True, card=True),
+            )
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -124,6 +124,11 @@ try:
         default_great_orb_project_state_pure,
         sanitize_great_orb_project_player_state_pure,
     )
+    from .court_cases_data import COURT_CASES_ACTIVITY_ID
+    from .court_cases_logic import (
+        default_court_cases_state_pure,
+        sanitize_court_cases_state_pure,
+    )
     from .managing_miscellania_logic import (
         default_managing_miscellania_state_pure,
         sanitize_managing_miscellania_player_state_pure,
@@ -288,6 +293,11 @@ except ImportError:
         default_great_orb_project_state_pure,
         sanitize_great_orb_project_player_state_pure,
     )
+    from court_cases_data import COURT_CASES_ACTIVITY_ID  # type: ignore
+    from court_cases_logic import (  # type: ignore
+        default_court_cases_state_pure,
+        sanitize_court_cases_state_pure,
+    )
     from managing_miscellania_logic import (  # type: ignore
         default_managing_miscellania_state_pure,
         sanitize_managing_miscellania_player_state_pure,
@@ -329,7 +339,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 68
+CURRENT_CONFIG_VERSION = 69
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -567,6 +577,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_fish_flingers_state_pure())
     data.update(default_fishing_trawler_state_pure())
     data.update(default_great_orb_project_state_pure())
+    data.update(default_court_cases_state_pure())
     data.update(default_managing_miscellania_state_pure())
     data["activity_session"] = {"active_id": ""}
     data["sorceress_garden"] = default_sorceress_garden_state_pure()
@@ -1193,6 +1204,7 @@ def migrate_loaded_data(
     data.update(sanitize_fish_flingers_state_pure(data))
     data.update(sanitize_fishing_trawler_state_pure(data))
     data.update(sanitize_great_orb_project_player_state_pure(data))
+    data.update(sanitize_court_cases_state_pure(data))
     data.update(sanitize_managing_miscellania_player_state_pure(data))
     raw_activity_session = data.get("activity_session")
     active_session_id = (
@@ -1258,6 +1270,13 @@ def migrate_loaded_data(
             active_session_id = ""
     elif great_orb_state["active"]:
         active_session_id = GREAT_ORB_PROJECT_ACTIVITY_ID
+    if active_session_id:
+        if active_session_id != COURT_CASES_ACTIVITY_ID:
+            data["court_cases"] = {}
+        elif not data["court_cases"]:
+            active_session_id = ""
+    elif data["court_cases"]:
+        active_session_id = COURT_CASES_ACTIVITY_ID
     data["activity_session"] = {"active_id": active_session_id}
     data["sorceress_garden"] = sanitize_sorceress_garden_state_pure(
         data.get("sorceress_garden")
@@ -1507,6 +1526,11 @@ def migrate_loaded_data(
                 jade["produce_count"] = 0
                 jade["last_regrowth_at"] = farm_clock
                 jade["next_regrowth_at"] = farm_clock + 30
+    # v69: Court Cases adds a persistent preparation/trial state, saved role
+    # and automation policy, and representative-case completion ledger.
+    if loaded_config_version < 69:
+        for key, value in default_court_cases_state_pure().items():
+            data.setdefault(key, value)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1548,6 +1572,7 @@ def migrate_loaded_data(
     data.update(sanitize_fish_flingers_state_pure(data))
     data.update(sanitize_fishing_trawler_state_pure(data))
     data.update(sanitize_great_orb_project_player_state_pure(data))
+    data.update(sanitize_court_cases_state_pure(data))
     data.update(sanitize_managing_miscellania_player_state_pure(data))
     data["livid_farm"] = sanitize_livid_farm_state_pure(
         data.get("livid_farm")

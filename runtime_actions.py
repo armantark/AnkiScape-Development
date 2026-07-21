@@ -233,6 +233,12 @@ try:
         apply_great_orb_project_review_pure,
         great_orb_project_view_pure,
     )
+    from .court_cases_data import COURT_CASES_ACTIVITY_ID
+    from .court_cases_logic import (
+        apply_court_case_review_pure,
+        court_cases_view_pure,
+        filter_court_summons_outputs_pure,
+    )
     from .managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
     from .managing_miscellania_logic import (
         apply_managing_miscellania_review_pure,
@@ -539,6 +545,12 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from great_orb_project_logic import (  # type: ignore
         apply_great_orb_project_review_pure,
         great_orb_project_view_pure,
+    )
+    from court_cases_data import COURT_CASES_ACTIVITY_ID  # type: ignore
+    from court_cases_logic import (  # type: ignore
+        apply_court_case_review_pure,
+        court_cases_view_pure,
+        filter_court_summons_outputs_pure,
     )
     from managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID  # type: ignore
     from managing_miscellania_logic import (  # type: ignore
@@ -3254,6 +3266,50 @@ def _handle_great_orb_project_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _handle_court_cases_answer(ctx: RuntimeActionContext) -> bool:
+    updated, result = apply_court_case_review_pure(ctx.player_data)
+    if not result.get("allowed"):
+        ctx.show_error_message(
+            "Court Cases awaiting a choice",
+            str(result.get("reason", "Open a court case before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    base_xp = float(result.get("xp", 0.0) or 0.0)
+    gained = 0.0
+    xp_skill = str(result.get("xp_skill", ""))
+    if base_xp > 0 and xp_skill in {"attack", "defense"}:
+        gained = ctx.award_skill_exp(f"{xp_skill}_exp", base_xp)
+        ctx.level_up_check(
+            "Attack" if xp_skill == "attack" else "Defence",
+            ctx.player_data,
+        )
+    _record_action(
+        ctx,
+        "utility",
+        COURT_CASES_ACTIVITY_ID,
+        bool(result.get("success")),
+        expected_success_chance=float(
+            result.get("expected_success_chance", 1.0) or 0.0
+        ),
+        output_items={
+            str(item): int(amount)
+            for item, amount in dict(result.get("rewards") or {}).items()
+        },
+        primary_xp=base_xp,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if gained > 0:
+        ctx.show_exp(gained)
+    ctx.show_activity_gain(str(result.get("status", "Court case advanced")))
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
 def _handle_managing_miscellania_answer(ctx: RuntimeActionContext) -> bool:
     updated, result = apply_managing_miscellania_review_pure(ctx.player_data)
     if not result.get("allowed"):
@@ -3324,6 +3380,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_fishing_trawler_answer(ctx)
     if activity_key == GREAT_ORB_PROJECT_ACTIVITY_ID:
         return _handle_great_orb_project_answer(ctx)
+    if activity_key == COURT_CASES_ACTIVITY_ID:
+        return _handle_court_cases_answer(ctx)
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:
         return _handle_managing_miscellania_answer(ctx)
     if activity_key == STRONGHOLD_UTILITY_KEY:
@@ -5143,6 +5201,7 @@ def _thieving_rng_index(ctx: RuntimeActionContext, size: int) -> int:
 
 
 def _thieving_grant_outputs(player_data: dict[str, Any], outputs: dict[str, int]) -> None:
+    outputs = filter_court_summons_outputs_pure(player_data, outputs)
     inventory = dict(player_data.get("inventory", {}) or {})
     for item_name, amount in outputs.items():
         inventory[item_name] = int(inventory.get(item_name, 0) or 0) + max(int(amount), 0)
@@ -5657,6 +5716,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return bool(fishing_trawler_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == GREAT_ORB_PROJECT_ACTIVITY_ID:
         return bool(great_orb_project_view_pure(ctx.player_data).get("can_review", False))
+    if activity_key == COURT_CASES_ACTIVITY_ID:
+        return bool(court_cases_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:
         return bool(managing_miscellania_view_pure(ctx.player_data).get("can_train", False))
     return not utility_activity_locked_reasons_pure(
