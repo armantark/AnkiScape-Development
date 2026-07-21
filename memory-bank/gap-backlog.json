@@ -456,14 +456,15 @@
       "detail": "ZMI random-output altar; GOP minigame; Wicked hood daily essence/runes/teleports/reclaim beyond one-time claim.",
       "source": "wiki:Ourania Altar",
       "status": "split_scope",
-      "note": "Ourania and Wicked hood design settled 2026-07-10; hood allowances reset every 240 answered cards on the shared market clock rather than wall-clock UTC, exact Ourania rolls wait for source evidence, and GOP moves to the minigame pass",
+      "note": "Ourania and Wicked hood design settled 2026-07-10; hood allowances reset every 240 answered cards on the shared market clock rather than wall-clock UTC; exact Ourania rolls wait for source evidence. Great Orb Project became mechanic-complete 2026-07-21, with only hidden distributions and the full reward catalog remaining as data depth.",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#runecrafting-ourania-wicked-hood-and-great-orb-project",
       "decision_summary": {
         "ourania_loop": "Use the established multi-review altar route with Pure essence only, random single-rune output, double base rune XP, and no altar-entry or rune-level gate.",
         "ourania_routes": "Casual uses the long safe route and Eniola banking; Advanced may save either long safe or short dangerous routing plus its carried inventory and banking configuration for this target.",
         "hood_actions": "Expose manual Essence, Runes, and altar Teleport actions from the carried or equipped Wicked hood; the allowance pool resets without stacking at each 240-answered-card simulated day boundary.",
         "hood_teleport": "A charged altar teleport skips the outbound-travel phase of the selected altar run rather than creating a world-map location.",
-        "gop_scope": "Great Orb Project is a separate multiplayer activity/minigame design seed with its own token shop, not part of the Ourania target or Wicked hood interface."
+        "gop_scope": "Great Orb Project is a separate multiplayer activity/minigame with its own eight-round score loop and token shop, not part of the Ourania target or Wicked hood interface.",
+        "gop_implementation": "Mechanic-complete 2026-07-21 with representative easy-source rewards; exact hidden score/essence distributions and the full period shop remain vertical data depth."
       }
     },
     {

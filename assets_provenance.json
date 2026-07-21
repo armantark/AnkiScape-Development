@@ -383,6 +383,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:14:02Z"
   },
+  "activityicons/great_orb_project.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:The_Great_Orb_Project.png",
+    "file_title": "The Great Orb Project.png",
+    "image_url": "https://runescape.wiki/images/archive/20150607161026%21The_Great_Orb_Project.png?337fe",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "011a3f121aa15cfcaaf0f973cdac2c0bbe33c928",
+    "size": 103444,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-29T16:30:12Z"
+  },
   "activityicons/make_soft_clay.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Soft_clay.png",
     "file_title": "Soft clay.png",

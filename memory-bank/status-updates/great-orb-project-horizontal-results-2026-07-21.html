@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Great Orb Project — horizontal closure</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 0%, rgba(79,140,255,.16), transparent 32rem),
+        radial-gradient(circle at 90% 8%, rgba(167,139,250,.12), transparent 28rem),
+        var(--bg);
+      font-family: Outfit, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1180px, calc(100% - 32px)); margin: 42px auto 64px; }
+    .badge, .mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .badge {
+      display: inline-flex; padding: 6px 10px; border: 1px solid rgba(74,222,128,.42);
+      border-radius: 999px; color: var(--green); background: rgba(74,222,128,.08);
+      font-size: .72rem; letter-spacing: .08em; text-transform: uppercase;
+    }
+    h1 { margin: 14px 0 8px; font-size: clamp(2.1rem, 5vw, 4.2rem); line-height: .98; letter-spacing: -.045em; }
+    .lede { max-width: 820px; color: var(--text-dim); font-size: 1.04rem; line-height: 1.65; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 28px 0; }
+    .metric, .card {
+      border: 1px solid var(--border); border-radius: var(--radius); background: rgba(22,26,33,.92);
+      box-shadow: 0 18px 50px rgba(0,0,0,.2);
+    }
+    .metric { padding: 18px; }
+    .metric strong { display: block; font-size: 1.75rem; letter-spacing: -.04em; }
+    .metric span { color: var(--text-dim); font-size: .78rem; text-transform: uppercase; letter-spacing: .07em; }
+    .grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 14px; }
+    .card { padding: 22px; }
+    .card h2 { margin: 0 0 14px; font-size: 1.05rem; }
+    .flow { display: grid; grid-template-columns: repeat(8, 1fr); gap: 7px; }
+    .altar {
+      min-height: 88px; padding: 10px 8px; display: flex; flex-direction: column;
+      justify-content: space-between; border: 1px solid var(--border); border-radius: 9px;
+      background: var(--surface-2);
+    }
+    .altar b { font-size: .83rem; }
+    .altar small { color: var(--text-dim); font-size: .66rem; }
+    .altar:last-child { border-color: rgba(74,222,128,.55); box-shadow: inset 0 0 0 1px rgba(74,222,128,.1); }
+    .checks { display: grid; gap: 9px; }
+    .check { display: flex; gap: 10px; align-items: flex-start; color: var(--text-dim); line-height: 1.42; }
+    .check::before { content: "✓"; color: var(--green); font-weight: 800; }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .pane { padding: 16px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border); }
+    .pane .label { font-size: .67rem; color: var(--accent); letter-spacing: .08em; text-transform: uppercase; }
+    .pane h3 { margin: 8px 0; font-size: 1rem; }
+    .pane p, .note { margin: 0; color: var(--text-dim); font-size: .84rem; line-height: 1.55; }
+    .full { grid-column: 1 / -1; }
+    .source { border-left: 3px solid var(--purple); }
+    .quota { border-left: 3px solid var(--amber); }
+    .footer { margin-top: 18px; color: var(--text-dim); font-size: .78rem; }
+    @media (max-width: 880px) {
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .grid, .split { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: repeat(4, 1fr); }
+    }
+    @media (max-width: 520px) {
+      main { width: min(100% - 20px, 1180px); margin-top: 22px; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .metric strong { font-size: 1.35rem; }
+      .flow { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Mechanic-complete · 2026-07-21</span>
+    <h1>Great Orb Project is live.</h1>
+    <p class="lede">One complete eight-review match now spans entry, authentic altar order, competitive duties, essence decisions, double Runecrafting XP, token settlement, early exit, Wizard Elriss purchases, persistence, undo, UI, and assets.</p>
+
+    <section class="metrics" aria-label="Closure metrics">
+      <div class="metric"><strong>8</strong><span>altar rounds</span></div>
+      <div class="metric"><strong>2,184</strong><span>non-Qt methods</span></div>
+      <div class="metric"><strong>2,184</strong><span>real Qt methods</span></div>
+      <div class="metric"><strong>0</strong><span>design gaps</span></div>
+    </section>
+
+    <section class="grid">
+      <article class="card full">
+        <h2>The match, one review at a time</h2>
+        <div class="flow" aria-label="Great Orb Project altar route">
+          <div class="altar"><b>Air</b><small>round 1</small></div>
+          <div class="altar"><b>Mind</b><small>round 2</small></div>
+          <div class="altar"><b>Water</b><small>round 3</small></div>
+          <div class="altar"><b>Earth</b><small>round 4</small></div>
+          <div class="altar"><b>Fire</b><small>round 5</small></div>
+          <div class="altar"><b>Body</b><small>round 6</small></div>
+          <div class="altar"><b>Chaos</b><small>round 7</small></div>
+          <div class="altar"><b>Nature</b><small>settlement</small></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Complete horizontal loop</h2>
+        <div class="checks">
+          <div class="check">Level-50 entry gate and one-active-activity arbitration.</div>
+          <div class="check">Casual balanced play; Advanced attract, repel, barrier, and crafting policy.</div>
+          <div class="check">Temporary 28-essence capacity, overflow, ordinary rune multipliers, and double XP.</div>
+          <div class="check">Participation-aware pending tokens, majority bonus, and early-leave forfeiture.</div>
+          <div class="check">Buy-X Pure essence, one-at-a-time talisman, save migration, achievements, telemetry, and undo.</div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Verification stack</h2>
+        <div class="checks">
+          <div class="check">1,897 ordinary non-Qt passes; 287 expected dependency skips.</div>
+          <div class="check">2,183 ordinary offscreen-Qt passes; one intentional skip.</div>
+          <div class="check">Native dark-mode Anki: one launcher, one menu, paginated row, normalized icon, unclipped locked card.</div>
+          <div class="check">Docs, hard test-quality, compilation, JSON, diff, asset normalization, and worktree safety all pass.</div>
+          <div class="check">1,440 actions and 2,132 reachable items; no new orphan introduced.</div>
+        </div>
+      </article>
+
+      <article class="card full">
+        <h2>Player-facing policy</h2>
+        <div class="split">
+          <div class="pane">
+            <span class="label mono">Casual</span>
+            <h3>Balanced and immediate</h3>
+            <p>Works both orb directions and crafts after each altar. It is legible, reliable, and needs no match administration.</p>
+          </div>
+          <div class="pane">
+            <span class="label mono">Advanced</span>
+            <h3>Doctrine and payoff timing</h3>
+            <p>Choose balanced, attract, repel, or barrier duty, then craft each round or bank temporary essence for Nature.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="card source">
+        <h2>Period anchor</h2>
+        <p class="note">RuneScape Wiki <span class="mono">The Great Orb Project</span>, oldid <span class="mono">6564759</span>, dated <span class="mono">2012-11-17T03:12:07Z</span>. Ordinary rune XP and multiple-rune thresholds reuse the existing pinned Runecrafting table.</p>
+      </article>
+
+      <article class="card quota">
+        <h2>Taste review routing</h2>
+        <p class="note">Kimi K3 was unavailable at its fresh quota gate. Opus reviewed both new UI states; every reproduced finding was corrected. Fable remained on reserve and was not called.</p>
+      </article>
+    </section>
+
+    <p class="footer mono">Deferred depth: exact hidden score/essence distributions and the full period reward catalog. These are data expansion, not missing mechanics.</p>
+  </main>
+</body>
+</html>

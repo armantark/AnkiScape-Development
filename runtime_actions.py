@@ -228,6 +228,11 @@ try:
         apply_fishing_trawler_review_pure,
         fishing_trawler_view_pure,
     )
+    from .great_orb_project_data import GREAT_ORB_PROJECT_ACTIVITY_ID
+    from .great_orb_project_logic import (
+        apply_great_orb_project_review_pure,
+        great_orb_project_view_pure,
+    )
     from .agility_travel import (
         agility_travel_profile_pure,
         apply_run_energy_credit_pure,
@@ -524,6 +529,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from fishing_trawler_logic import (  # type: ignore
         apply_fishing_trawler_review_pure,
         fishing_trawler_view_pure,
+    )
+    from great_orb_project_data import GREAT_ORB_PROJECT_ACTIVITY_ID  # type: ignore
+    from great_orb_project_logic import (  # type: ignore
+        apply_great_orb_project_review_pure,
+        great_orb_project_view_pure,
     )
     from agility_travel import (  # type: ignore
         agility_travel_profile_pure,
@@ -3172,6 +3182,53 @@ def _handle_fishing_trawler_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _handle_great_orb_project_answer(ctx: RuntimeActionContext) -> bool:
+    updated, result = apply_great_orb_project_review_pure(
+        ctx.player_data,
+        ctx.random_random(),
+        ctx.random_random(),
+    )
+    if not result.get("allowed"):
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Great Orb Project unavailable",
+            str(result.get("reason", "Enter the Great Orb Project before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    base_xp = float(result.get("xp", 0.0) or 0.0)
+    gained = 0.0
+    if base_xp > 0:
+        gained = ctx.award_skill_exp("runecrafting_exp", base_xp)
+        ctx.level_up_check("Runecrafting", ctx.player_data)
+    output_item = str(result.get("output_item", ""))
+    output_quantity = int(result.get("output_quantity", 0) or 0)
+    outputs = {output_item: output_quantity} if output_item and output_quantity else {}
+    _record_action(
+        ctx,
+        "utility",
+        GREAT_ORB_PROJECT_ACTIVITY_ID,
+        bool(result.get("success")),
+        expected_success_chance=float(
+            result.get("expected_success_chance", 0.5) or 0.0
+        ),
+        output_items=outputs,
+        primary_xp=base_xp,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if gained > 0:
+        ctx.show_exp(gained)
+    ctx.show_activity_gain(
+        str(result.get("status", "Great Orb Project round resolved"))
+    )
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
 def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
@@ -3207,6 +3264,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_fish_flingers_answer(ctx)
     if activity_key == FISHING_TRAWLER_ACTIVITY_ID:
         return _handle_fishing_trawler_answer(ctx)
+    if activity_key == GREAT_ORB_PROJECT_ACTIVITY_ID:
+        return _handle_great_orb_project_answer(ctx)
     if activity_key == STRONGHOLD_UTILITY_KEY:
         return _handle_stronghold_answer(ctx)
     if activity_key == KNIGHT_WAVES_UTILITY_KEY:
@@ -5536,6 +5595,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return bool(fish_flingers_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == FISHING_TRAWLER_ACTIVITY_ID:
         return bool(fishing_trawler_view_pure(ctx.player_data).get("can_review", False))
+    if activity_key == GREAT_ORB_PROJECT_ACTIVITY_ID:
+        return bool(great_orb_project_view_pure(ctx.player_data).get("can_review", False))
     return not utility_activity_locked_reasons_pure(
         ctx.player_data,
         activity_key,

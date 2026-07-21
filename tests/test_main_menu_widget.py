@@ -558,6 +558,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._stealing_creation_calls: list = []
         self._fish_flingers_calls: list = []
         self._fishing_trawler_calls: list = []
+        self._great_orb_project_calls: list = []
         self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
         self._mage_arena_calls: list = []
@@ -941,6 +942,18 @@ class MainMenuWidgetTest(unittest.TestCase):
                 player_data.update(updated)
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
+        def _great_orb_project_command(action_id, payload):
+            from great_orb_project_logic import apply_great_orb_project_command_pure
+
+            self._great_orb_project_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_great_orb_project_command_pure(
+                player_data, action_id, payload
+            )
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
         def _mage_arena_action(action_id, god_id):
             from logic_pure import (
                 apply_mage_arena_cape_action_pure,
@@ -1010,6 +1023,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_stealing_creation_command=_stealing_creation_command,
             on_fish_flingers_command=_fish_flingers_command,
             on_fishing_trawler_command=_fishing_trawler_command,
+            on_great_orb_project_command=_great_orb_project_command,
             on_set_prayer_selection=_set_prayer_selection,
             on_set_magic=lambda target: _set_target("current_magic", self._magic_calls, target),
             on_set_construction=lambda target: _set_target("current_construction", self._construction_calls, target),
@@ -7688,6 +7702,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "werewolf_skullball",
                 "gnome_ball",
                 "fishing_trawler",
+                "great_orb_project",
             },
         )
         self.assertEqual(
@@ -9517,6 +9532,140 @@ class MainMenuWidgetTest(unittest.TestCase):
         primary = _find_named_button(dialog, "fishingTrawlerPrimaryButton")
         self.assertEqual(status.text(), "LOCKED · 0 landed · 0 sunk")
         self.assertIn("Requires level 15 Fishing", summary.text())
+        self.assertFalse(primary.isEnabled())
+
+    def test_great_orb_project_card_saves_buys_enters_and_leaves(self) -> None:
+        pd = _make_player_data()
+        pd.update(
+            {
+                "current_utility": "bankstanding",
+                "activity_session": {"active_id": ""},
+                "runecrafting_level": 50,
+                "great_orb_project": {
+                    "tokens": 200,
+                    "games_completed": 0,
+                    "games_won": 0,
+                    "automation_mode": "casual",
+                    "doctrine": "balanced",
+                    "crafting_policy": "craft_each_round",
+                    "active": {},
+                },
+            }
+        )
+        dialog = self._open(pd)
+        activity_tree = self._open_activities(dialog)
+        row = _utility_row(activity_tree, "great_orb_project")
+        activity_tree.setCurrentItem(row)
+        activity_tree.itemActivated.emit(row, 0)
+        QApplication.processEvents()
+
+        panel = _find_named_widget(dialog, "greatOrbProjectPanel")
+        status = _find_named_label(dialog, "greatOrbProjectStatusChip")
+        summary = _find_named_label(dialog, "greatOrbProjectSummary")
+        mode = panel.findChild(QComboBox, "greatOrbProjectModeCombo")
+        doctrine = panel.findChild(QComboBox, "greatOrbProjectDoctrineCombo")
+        crafting = panel.findChild(QComboBox, "greatOrbProjectCraftingCombo")
+        reward = panel.findChild(QComboBox, "greatOrbProjectRewardCombo")
+        quantity = panel.findChild(QSpinBox, "greatOrbProjectRewardQuantity")
+        progress = panel.findChild(QProgressBar, "greatOrbProjectProgress")
+        currency = _find_named_label(dialog, "greatOrbProjectCurrencyLabel")
+        save = _find_named_button(dialog, "greatOrbProjectSaveButton")
+        buy = _find_named_button(dialog, "greatOrbProjectBuyButton")
+        primary = _find_named_button(dialog, "greatOrbProjectPrimaryButton")
+        leave = _find_named_button(dialog, "greatOrbProjectLeaveButton")
+        self.assertIsNone(panel.findChild(QScrollArea))
+        self.assertIn("GUILD · 0/0 matches won", status.text())
+        self.assertEqual(currency.text(), "200 tokens")
+        self.assertIn("Eight altar rounds", summary.text())
+        self.assertTrue(progress.isHidden())
+
+        mode.setCurrentIndex(mode.findData("advanced"))
+        doctrine.setCurrentIndex(doctrine.findData("repel"))
+        crafting.setCurrentIndex(crafting.findData("save_for_nature"))
+        save.click()
+        QApplication.processEvents()
+        self.assertEqual(
+            self._great_orb_project_calls[-1],
+            (
+                "set_great_orb_project_policy",
+                {
+                    "automation_mode": "advanced",
+                    "doctrine": "repel",
+                    "crafting_policy": "save_for_nature",
+                },
+            ),
+        )
+
+        reward.setCurrentIndex(reward.findData("pure_essence"))
+        quantity.setValue(25)
+        buy.click()
+        QApplication.processEvents()
+        self.assertEqual(
+            self._great_orb_project_calls[-1],
+            (
+                "buy_great_orb_project_reward",
+                {"reward_id": "pure_essence", "quantity": 25},
+            ),
+        )
+        self.assertEqual(pd["inventory"]["Pure essence"], 25)
+        self.assertEqual(currency.text(), "175 tokens")
+
+        primary.click()
+        QApplication.processEvents()
+        self.assertEqual(
+            self._great_orb_project_calls[-1],
+            (
+                "enter_great_orb_project",
+                {
+                    "automation_mode": "advanced",
+                    "doctrine": "repel",
+                    "crafting_policy": "save_for_nature",
+                },
+            ),
+        )
+        self.assertEqual(pd["current_utility"], "great_orb_project")
+        self.assertIn("IN MATCH", status.text())
+        self.assertIn("Round 1/8", summary.text())
+        self.assertEqual(progress.value(), 1)
+        self.assertFalse(progress.isHidden())
+        self.assertTrue(panel.findChild(QWidget, "greatOrbProjectPolicy").isHidden())
+        self.assertFalse(leave.isHidden())
+
+        with patch.object(
+            QMessageBox,
+            "question",
+            return_value=QMessageBox.StandardButton.Yes,
+        ):
+            leave.click()
+        QApplication.processEvents()
+        self.assertEqual(
+            self._great_orb_project_calls[-1],
+            ("leave_great_orb_project", {}),
+        )
+        self.assertTrue(leave.isHidden())
+        self.assertIn("pending tokens forfeited", summary.text())
+
+    def test_great_orb_project_level_gate_is_visible_without_hover(self) -> None:
+        pd = _make_player_data()
+        pd.update(
+            {
+                "current_utility": "bankstanding",
+                "activity_session": {"active_id": ""},
+                "runecrafting_level": 49,
+            }
+        )
+        dialog = self._open(pd)
+        activity_tree = self._open_activities(dialog)
+        row = _utility_row(activity_tree, "great_orb_project")
+        self.assertFalse(row.isDisabled())
+        activity_tree.setCurrentItem(row)
+        activity_tree.itemActivated.emit(row, 0)
+        QApplication.processEvents()
+        status = _find_named_label(dialog, "greatOrbProjectStatusChip")
+        summary = _find_named_label(dialog, "greatOrbProjectSummary")
+        primary = _find_named_button(dialog, "greatOrbProjectPrimaryButton")
+        self.assertIn("LOCKED", status.text())
+        self.assertIn("Requires level 50 Runecrafting", summary.text())
         self.assertFalse(primary.isEnabled())
 
     def test_switching_from_gnome_ball_requires_and_honours_leave_confirmation(self) -> None:

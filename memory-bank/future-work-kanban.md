@@ -978,7 +978,15 @@ Labels: `SOURCE AUDIT`, `IMPLEMENT`, `WAIT: DARKAN`.
 
 Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is not already settled.
 
-- Highest-value waits: Runespan; Bonfires/fire spirits (reconciled; hidden rolls, rewards, warmth refresh, and review-batch mapping remain blocked); Artisan's Workshop; Blast Furnace/Goldsmith; Living Rock remains; Great Orb Project; complex pyres/beacons; Gnome Restaurant; Hunter tracking/pitfall/snaring (reconciled deterministic Darkan ceiling still lacks required rolls); Habitat/Jadinkos.
+- Highest-value waits: Runespan; Bonfires/fire spirits (reconciled; hidden rolls, rewards, warmth refresh, and review-batch mapping remain blocked); Artisan's Workshop; Blast Furnace/Goldsmith; Living Rock remains; complex pyres/beacons; Gnome Restaurant; Hunter tracking/pitfall/snaring (reconciled deterministic Darkan ceiling still lacks required rolls); Habitat/Jadinkos.
+- Great Orb Project is mechanic-complete as an Activities-only eight-round
+  Runecrafting match. It ships the level-50 gate, bounded team score, distinct
+  orb/barrier participation, round essence, ordinary rune multipliers, double
+  XP, pending and majority token settlement, early-leave forfeiture,
+  Casual/Advanced policy, persistence, undo, cadence, period art, and a manual
+  Wizard Elriss shop with Pure essence Buy X. Exact hidden score/essence rolls
+  and the full reward catalog remain labeled data depth. See
+  `memory-bank/source-audits/great-orb-project-horizontal-implementation-2026-07-21.md`.
 - Fishing Trawler is mechanic-complete as an Activities-only ten-review
   pressure trip. It ships the level-15 gate, source supplies and stack-aware
   28-slot activity pack, Casual urgency, Advanced duty/layout policy, fixed

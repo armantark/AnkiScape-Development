@@ -439,6 +439,23 @@ except Exception:
     from fishing_trawler_logic import fishing_trawler_view_pure  # type: ignore
 
 try:
+    from .great_orb_project_data import (
+        GREAT_ORB_PROJECT_ACTIVITY_ID,
+        GREAT_ORB_PROJECT_CRAFTING_POLICIES,
+        GREAT_ORB_PROJECT_DOCTRINES,
+        GREAT_ORB_PROJECT_ROUNDS,
+    )
+    from .great_orb_project_logic import great_orb_project_view_pure
+except Exception:
+    from great_orb_project_data import (  # type: ignore
+        GREAT_ORB_PROJECT_ACTIVITY_ID,
+        GREAT_ORB_PROJECT_CRAFTING_POLICIES,
+        GREAT_ORB_PROJECT_DOCTRINES,
+        GREAT_ORB_PROJECT_ROUNDS,
+    )
+    from great_orb_project_logic import great_orb_project_view_pure  # type: ignore
+
+try:
     from .stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
     from .stealing_creation_logic import stealing_creation_view_pure
 except Exception:
@@ -3499,6 +3516,7 @@ def show_main_menu(
     on_stealing_creation_command=None,
     on_fish_flingers_command=None,
     on_fishing_trawler_command=None,
+    on_great_orb_project_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
     on_set_construction=None,
@@ -11090,6 +11108,346 @@ def show_main_menu(
         _refresh_fishing_trawler_panel()
         cards_stack.addWidget(fishing_trawler_box)
 
+        great_orb_box = QtFrame()
+        great_orb_box.setObjectName("greatOrbProjectPanel")
+        great_orb_box.setStyleSheet(
+            "QFrame#greatOrbProjectPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        great_orb_layout = QVBoxLayout(great_orb_box)
+        great_orb_layout.setContentsMargins(10, 8, 10, 8)
+        great_orb_layout.setSpacing(7)
+
+        great_orb_top = QWidget()
+        great_orb_top_layout = QHBoxLayout(great_orb_top)
+        great_orb_top_layout.setContentsMargins(0, 0, 0, 0)
+        great_orb_top_layout.setSpacing(8)
+        great_orb_icon = QLabel()
+        great_orb_icon.setObjectName("greatOrbProjectIcon")
+        great_orb_icon.setFixedSize(28, 28)
+        great_orb_icon_path = os.path.join(
+            current_dir, "activityicons", "great_orb_project.png"
+        )
+        if os.path.exists(great_orb_icon_path):
+            great_orb_icon.setPixmap(
+                QPixmap(great_orb_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        great_orb_title = QLabel("Great Orb Project")
+        great_orb_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        great_orb_status = QLabel()
+        great_orb_status.setObjectName("greatOrbProjectStatusChip")
+        great_orb_top_layout.addWidget(great_orb_icon)
+        great_orb_top_layout.addWidget(great_orb_title)
+        great_orb_top_layout.addStretch(1)
+        great_orb_top_layout.addWidget(great_orb_status)
+        great_orb_layout.addWidget(great_orb_top)
+
+        great_orb_summary = QLabel()
+        great_orb_summary.setObjectName("greatOrbProjectSummary")
+        great_orb_summary.setWordWrap(True)
+        great_orb_summary.setStyleSheet("color: palette(text);")
+        great_orb_layout.addWidget(great_orb_summary)
+
+        great_orb_progress = QProgressBar()
+        great_orb_progress.setObjectName("greatOrbProjectProgress")
+        great_orb_progress.setRange(0, GREAT_ORB_PROJECT_ROUNDS)
+        great_orb_progress.setTextVisible(True)
+        great_orb_progress.setFormat("Round %v of 8")
+        great_orb_progress.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 4px; }"
+            "QProgressBar::chunk { background: #6b5fa8; }"
+        )
+        great_orb_layout.addWidget(great_orb_progress)
+
+        great_orb_policy = QtFrame()
+        great_orb_policy.setObjectName("greatOrbProjectPolicy")
+        great_orb_policy.setStyleSheet(
+            "QFrame#greatOrbProjectPolicy { border: 1px solid palette(mid);"
+            " border-radius: 6px; background: palette(window); }"
+        )
+        great_orb_policy_layout = QHBoxLayout(great_orb_policy)
+        great_orb_policy_layout.setContentsMargins(8, 6, 8, 6)
+        great_orb_policy_layout.setSpacing(6)
+        great_orb_mode = QComboBox()
+        great_orb_mode.setObjectName("greatOrbProjectModeCombo")
+        great_orb_mode.setAccessibleName("Great Orb Project automation mode")
+        great_orb_mode.addItem("Casual · balanced", "casual")
+        great_orb_mode.addItem("Advanced · saved plan", "advanced")
+        great_orb_doctrine = QComboBox()
+        great_orb_doctrine.setObjectName("greatOrbProjectDoctrineCombo")
+        great_orb_doctrine.setAccessibleName("Great Orb Project doctrine")
+        for doctrine_id, label in GREAT_ORB_PROJECT_DOCTRINES:
+            great_orb_doctrine.addItem(label, doctrine_id)
+        great_orb_crafting = QComboBox()
+        great_orb_crafting.setObjectName("greatOrbProjectCraftingCombo")
+        great_orb_crafting.setAccessibleName("Great Orb Project essence policy")
+        for policy_id, label in GREAT_ORB_PROJECT_CRAFTING_POLICIES:
+            great_orb_crafting.addItem(label, policy_id)
+        great_orb_save = QPushButton("Save plan")
+        great_orb_save.setObjectName("greatOrbProjectSaveButton")
+        great_orb_save.setAccessibleName("Save Great Orb Project plan")
+        great_orb_policy_layout.addWidget(great_orb_mode, 1)
+        great_orb_policy_layout.addWidget(great_orb_doctrine, 1)
+        great_orb_policy_layout.addWidget(great_orb_crafting, 1)
+        great_orb_policy_layout.addWidget(great_orb_save)
+        great_orb_layout.addWidget(great_orb_policy)
+
+        great_orb_shop = QtFrame()
+        great_orb_shop.setObjectName("greatOrbProjectShop")
+        great_orb_shop.setStyleSheet(
+            "QFrame#greatOrbProjectShop { border: 1px solid palette(mid);"
+            " border-radius: 6px; background: palette(window); }"
+        )
+        great_orb_shop_layout = QHBoxLayout(great_orb_shop)
+        great_orb_shop_layout.setContentsMargins(8, 6, 8, 6)
+        great_orb_shop_layout.setSpacing(6)
+        great_orb_currency = QLabel()
+        great_orb_currency.setObjectName("greatOrbProjectCurrencyLabel")
+        great_orb_currency.setStyleSheet("color: palette(text); font-weight: 600;")
+        great_orb_reward = QComboBox()
+        great_orb_reward.setObjectName("greatOrbProjectRewardCombo")
+        great_orb_reward.setAccessibleName("Great Orb Project reward")
+        for reward in great_orb_project_view_pure(player_data)["rewards"]:
+            great_orb_reward.addItem(
+                f"{reward['item']} · {int(reward['tokens'])} tokens",
+                reward["id"],
+            )
+        great_orb_quantity = QSpinBox()
+        great_orb_quantity.setObjectName("greatOrbProjectRewardQuantity")
+        great_orb_quantity.setAccessibleName("Great Orb Project reward quantity")
+        great_orb_quantity.setRange(1, 1000)
+        great_orb_quantity.setPrefix("Qty ")
+        great_orb_buy = QPushButton("Buy")
+        great_orb_buy.setObjectName("greatOrbProjectBuyButton")
+        great_orb_shop_layout.addWidget(great_orb_currency)
+        great_orb_shop_layout.addWidget(great_orb_reward, 1)
+        great_orb_shop_layout.addWidget(great_orb_quantity)
+        great_orb_shop_layout.addWidget(great_orb_buy)
+        great_orb_layout.addWidget(great_orb_shop)
+
+        great_orb_actions = QWidget()
+        great_orb_actions_layout = QHBoxLayout(great_orb_actions)
+        great_orb_actions_layout.setContentsMargins(0, 0, 0, 0)
+        great_orb_actions_layout.setSpacing(6)
+        great_orb_primary = QPushButton()
+        great_orb_primary.setObjectName("greatOrbProjectPrimaryButton")
+        great_orb_leave = QPushButton("Leave match")
+        great_orb_leave.setObjectName("greatOrbProjectLeaveButton")
+        great_orb_actions_layout.addWidget(great_orb_primary, 1)
+        great_orb_actions_layout.addWidget(great_orb_leave)
+        great_orb_layout.addWidget(great_orb_actions)
+
+        syncing_great_orb = {"active": False}
+
+        def _run_great_orb_project_command(
+            action_id: str, payload: Optional[dict[str, Any]] = None
+        ) -> dict[str, Any]:
+            if on_great_orb_project_command is None:
+                return {"ok": False, "message": "Great Orb Project actions are unavailable."}
+            result = on_great_orb_project_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Great Orb Project",
+                    str(result.get("message", "That action is unavailable.")),
+                )
+            _refresh_great_orb_project_panel()
+            return result
+
+        def _great_orb_policy_payload() -> dict[str, Any]:
+            return {
+                "automation_mode": str(great_orb_mode.currentData() or "casual"),
+                "doctrine": str(great_orb_doctrine.currentData() or "balanced"),
+                "crafting_policy": str(
+                    great_orb_crafting.currentData() or "craft_each_round"
+                ),
+            }
+
+        def _refresh_great_orb_project_panel() -> None:
+            view = great_orb_project_view_pure(player_data)
+            active = bool(view["active"])
+            syncing_great_orb["active"] = True
+            state_label = "IN MATCH" if active else "LOCKED" if not view["eligible"] else "GUILD"
+            great_orb_status.setText(
+                f"{state_label} · "
+                f"{int(view['games_won'])}/{int(view['games_completed'])} matches won"
+            )
+            great_orb_status.setStyleSheet(
+                f"color: {dim_text_css(great_orb_status)};"
+                " font-size: 11px; font-weight: 700;"
+            )
+            if active:
+                great_orb_summary.setText(
+                    f"Round {int(view['round_number'])}/8 · {view['altar']} · "
+                    f"score {int(view['rounds_won'])}W / {int(view['rounds_lost'])}L / "
+                    f"{int(view['rounds_tied'])}T\n"
+                    f"{int(view['tokens'])} banked · "
+                    f"{int(view['pending_tokens'])} pending tokens · "
+                    f"{int(view['saved_essence'])}/28 essence held · "
+                    f"{float(view['xp_earned']):g} Runecrafting XP this match"
+                )
+            else:
+                gate = "Requires level 50 Runecrafting.\n" if not view["eligible"] else ""
+                summary = (
+                    gate
+                    + "Eight altar rounds across eight reviews · work orb or barrier duties · "
+                    "win more tokens · crafted essence earns double Runecrafting XP\n"
+                    "Wizard Elriss's reward shop is available between matches."
+                )
+                if view["last_result"]:
+                    summary += "\n" + str(view["last_result"])
+                great_orb_summary.setText(summary)
+            great_orb_summary.setToolTip(str(view["last_result"]))
+            great_orb_progress.setValue(int(view["round_number"]))
+            great_orb_progress.setVisible(active)
+            mode_index = great_orb_mode.findData(view["automation_mode"])
+            great_orb_mode.setCurrentIndex(max(0, mode_index))
+            doctrine_index = great_orb_doctrine.findData(view["doctrine"])
+            great_orb_doctrine.setCurrentIndex(max(0, doctrine_index))
+            crafting_index = great_orb_crafting.findData(view["crafting_policy"])
+            great_orb_crafting.setCurrentIndex(max(0, crafting_index))
+            advanced = great_orb_mode.currentData() == "advanced"
+            great_orb_doctrine.setEnabled(advanced and not active)
+            great_orb_crafting.setEnabled(advanced and not active)
+            inactive_plan_reason = (
+                "Plan controls are locked during a match."
+                if active
+                else "Casual mode always uses the balanced doctrine."
+            )
+            great_orb_doctrine.setToolTip(
+                "Choose the saved Advanced orb or barrier doctrine."
+                if advanced and not active
+                else inactive_plan_reason
+            )
+            great_orb_crafting.setToolTip(
+                "Choose when the Advanced plan crafts its round essence."
+                if advanced and not active
+                else (
+                    "Plan controls are locked during a match."
+                    if active
+                    else "Casual mode crafts essence after every round."
+                )
+            )
+            great_orb_mode.setEnabled(not active)
+            great_orb_save.setEnabled(on_great_orb_project_command is not None and not active)
+            great_orb_policy.setVisible(not active)
+            great_orb_shop.setVisible(not active)
+            great_orb_currency.setText(f"{int(view['tokens'])} tokens")
+            rewards = {str(row["id"]): row for row in view["rewards"]}
+            selected_reward = rewards.get(str(great_orb_reward.currentData() or ""))
+            essence_bulk = great_orb_reward.currentData() == "pure_essence"
+            great_orb_quantity.setEnabled(essence_bulk)
+            great_orb_quantity.setToolTip(
+                "Buy X is available only for Pure essence."
+            )
+            if not essence_bulk and great_orb_quantity.value() != 1:
+                signals_blocked = great_orb_quantity.blockSignals(True)
+                great_orb_quantity.setValue(1)
+                great_orb_quantity.blockSignals(signals_blocked)
+            quantity = great_orb_quantity.value()
+            cost = int(selected_reward["tokens"]) * quantity if selected_reward else 0
+            affordable = selected_reward is not None and int(view["tokens"]) >= cost
+            great_orb_buy.setEnabled(
+                on_great_orb_project_command is not None and affordable and not active
+            )
+            great_orb_buy.setToolTip(
+                "" if affordable else f"Requires {cost} Runecrafting Guild tokens."
+            )
+            selected = active and player_data.get("current_utility") == GREAT_ORB_PROJECT_ACTIVITY_ID
+            great_orb_primary.setText(
+                "Selected for reviews"
+                if selected
+                else "Select for reviews"
+                if active
+                else "Enter match"
+            )
+            great_orb_primary.setEnabled(
+                on_great_orb_project_command is not None
+                and not selected
+                and (active or bool(view["eligible"]))
+            )
+            great_orb_primary.setToolTip(
+                "Requires level 50 Runecrafting." if not view["eligible"] else ""
+            )
+            great_orb_leave.setVisible(active)
+            great_orb_leave.setEnabled(on_great_orb_project_command is not None)
+            syncing_great_orb["active"] = False
+            _fit_current_activity_detail()
+
+        def _save_great_orb_project_policy() -> None:
+            if syncing_great_orb["active"]:
+                return
+            _run_great_orb_project_command(
+                "set_great_orb_project_policy", _great_orb_policy_payload()
+            )
+
+        def _select_or_enter_great_orb_project() -> None:
+            view = great_orb_project_view_pure(player_data)
+            if not view["active"]:
+                result = _run_great_orb_project_command(
+                    "enter_great_orb_project", _great_orb_policy_payload()
+                )
+                if not result.get("ok", False):
+                    return
+            elif not _request_utility_selection(GREAT_ORB_PROJECT_ACTIVITY_ID):
+                return
+            _refresh_great_orb_project_panel()
+
+        def _confirm_great_orb_project_leave() -> None:
+            answer = QMessageBox.question(
+                dialog,
+                "Leave Great Orb Project?",
+                "Leave the current match? Pending tokens and saved essence are forfeited.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_great_orb_project_command("leave_great_orb_project")
+
+        great_orb_mode.currentIndexChanged.connect(
+            lambda _index: (
+                great_orb_doctrine.setEnabled(
+                    great_orb_mode.currentData() == "advanced"
+                    and not great_orb_project_view_pure(player_data)["active"]
+                ),
+                great_orb_crafting.setEnabled(
+                    great_orb_mode.currentData() == "advanced"
+                    and not great_orb_project_view_pure(player_data)["active"]
+                ),
+            )
+        )
+        great_orb_reward.currentIndexChanged.connect(
+            lambda _index: _refresh_great_orb_project_panel()
+        )
+        great_orb_quantity.valueChanged.connect(
+            lambda _value: _refresh_great_orb_project_panel()
+        )
+        great_orb_save.clicked.connect(
+            lambda _checked=False: _save_great_orb_project_policy()
+        )
+        great_orb_buy.clicked.connect(
+            lambda _checked=False: _run_great_orb_project_command(
+                "buy_great_orb_project_reward",
+                {
+                    "reward_id": great_orb_reward.currentData(),
+                    "quantity": great_orb_quantity.value(),
+                },
+            )
+        )
+        great_orb_primary.clicked.connect(
+            lambda _checked=False: _select_or_enter_great_orb_project()
+        )
+        great_orb_leave.clicked.connect(
+            lambda _checked=False: _confirm_great_orb_project_leave()
+        )
+        _refresh_great_orb_project_panel()
+        cards_stack.addWidget(great_orb_box)
+
         stealing_creation_box = QtFrame()
         stealing_creation_box.setObjectName("stealingCreationPanel")
         stealing_creation_box.setStyleSheet(
@@ -12274,6 +12632,7 @@ def show_main_menu(
                         WEREWOLF_SKULLBALL_ACTIVITY_ID,
                         GNOME_BALL_ACTIVITY_ID,
                         FISHING_TRAWLER_ACTIVITY_ID,
+                        GREAT_ORB_PROJECT_ACTIVITY_ID,
                     }
                 ):
                     child.setDisabled(True)
@@ -12712,6 +13071,30 @@ def show_main_menu(
                         str((result or {}).get("message", "Could not leave the trip.")),
                     )
                     return False
+            if (
+                activity_id != GREAT_ORB_PROJECT_ACTIVITY_ID
+                and great_orb_project_view_pure(player_data)["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave Great Orb Project?",
+                    "Switch activities? Pending tokens and saved essence are forfeited.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_great_orb_project_command("leave_great_orb_project", {})
+                    if on_great_orb_project_command is not None
+                    else {"ok": False, "message": "Great Orb Project actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Great Orb Project",
+                        str((result or {}).get("message", "Could not leave the match.")),
+                    )
+                    return False
             on_set_utility(activity_id)
             player_data["current_utility"] = activity_id
             if state["active"] in _UTILITY_SKILL_NAMES and state["active"] != surface_name:
@@ -12732,6 +13115,7 @@ def show_main_menu(
             _refresh_gnome_ball_panel()
             _refresh_fish_flingers_panel()
             _refresh_fishing_trawler_panel()
+            _refresh_great_orb_project_panel()
             _refresh_stealing_creation_panel()
             _show_activity_detail(activity_id)
             return True
@@ -12811,6 +13195,9 @@ def show_main_menu(
             if activity_id == FISHING_TRAWLER_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == GREAT_ORB_PROJECT_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
             if activity_id == STEALING_CREATION_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
@@ -12852,6 +13239,10 @@ def show_main_menu(
             FISHING_TRAWLER_ACTIVITY_ID: (
                 "Fishing Trawler",
                 fishing_trawler_box,
+            ),
+            GREAT_ORB_PROJECT_ACTIVITY_ID: (
+                "Great Orb Project",
+                great_orb_box,
             ),
             STEALING_CREATION_ACTIVITY_ID: (
                 "Stealing Creation",

@@ -168,6 +168,10 @@ try:
         FISHING_TRAWLER_ACTIVITY_ID,
         fishing_trawler_activity_as_dict,
     )
+    from .great_orb_project_data import (
+        GREAT_ORB_PROJECT_ACTIVITY_ID,
+        great_orb_project_activity_as_dict,
+    )
     from .barrows_data import (
         BARROWS_ACTIVITY_ID,
         barrows_activity_as_dict,
@@ -354,6 +358,10 @@ except ImportError:
     from fishing_trawler_data import (  # type: ignore
         FISHING_TRAWLER_ACTIVITY_ID,
         fishing_trawler_activity_as_dict,
+    )
+    from great_orb_project_data import (  # type: ignore
+        GREAT_ORB_PROJECT_ACTIVITY_ID,
+        great_orb_project_activity_as_dict,
     )
     from barrows_data import (  # type: ignore
         BARROWS_ACTIVITY_ID,
@@ -734,6 +742,7 @@ UTILITY_ACTIVITY_DATA.update(werewolf_skullball_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(gnome_ball_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fish_flingers_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fishing_trawler_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(great_orb_project_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(sorceress_garden_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(penguin_hide_and_seek_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(vinesweeper_activity_as_dict())
@@ -845,6 +854,14 @@ _fishing_trawler_icon = os.path.join(
 if os.path.exists(_fishing_trawler_icon):
     UTILITY_ACTIVITY_DATA[FISHING_TRAWLER_ACTIVITY_ID]["icon_path"] = (
         _fishing_trawler_icon
+    )
+_great_orb_project_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "great_orb_project.png",
+)
+if os.path.exists(_great_orb_project_icon):
+    UTILITY_ACTIVITY_DATA[GREAT_ORB_PROJECT_ACTIVITY_ID]["icon_path"] = (
+        _great_orb_project_icon
     )
 _sorceress_garden_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,

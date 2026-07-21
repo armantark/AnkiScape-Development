@@ -392,6 +392,36 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "great_orb_project":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "great_orb_project",
+                    "mode": "source_blocked_activity",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One successful review resolves one complete altar round: "
+                        "one orb/barrier duty beat, one bounded opposing-team score, "
+                        "and the round's essence decision. Source wall-clock round "
+                        "lengths are intentionally not gameplay inputs."
+                    ),
+                    "includes": (
+                        "one altar-score race and participation check",
+                        "one temporary-essence craft/save decision and terminal payout",
+                    ),
+                    "multiplier_behavior": (
+                        "M sequential altar rounds, stopping after the eighth; the "
+                        "same answer cannot begin another match"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same eight-round activity handler",
+                    "profile": None,
+                    "condition": "owner-settled bounded-opponent and event-count translation",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "penguin_hide_and_seek":
             rows.append(
                 {

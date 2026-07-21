@@ -3025,3 +3025,38 @@ The visual closure report is
 - Published
   `status-updates/fishing-trawler-horizontal-results-2026-07-21.html`;
   mobile copy: `https://t2fu1j1wdxe1.postplan.dev`.
+
+## Great Orb Project horizontal closure — 2026-07-21
+
+- Replaced the Great Orb Project design seed with a complete Activities-only
+  eight-review match: level-50 entry, authentic altar order, bounded team
+  score, orb/barrier doctrine, per-round essence, ordinary rune multipliers,
+  double Runecrafting XP, participation-aware pending tokens, majority bonus,
+  and early-leave forfeiture.
+- Added Casual balanced play and Advanced doctrine/crafting policy, temporary
+  28-essence capacity, persistent session arbitration, schema-66 migration,
+  cadence, telemetry, achievements, review/direct undo, and terminal stopping.
+- Added a manual Wizard Elriss shop with source-authentic Pure essence Buy X
+  and an Air talisman representative row. The full period reward catalog and
+  hidden score/essence distributions remain explicit data depth.
+- Added normalized pre-cutoff activity art, provenance/fetch tooling, a compact
+  docked/active Activities card, and pure/integration/migration/asset/real-Qt
+  regression coverage. No owner-design gap surfaced.
+- Opus reviewed the new docked and active UI after Kimi K3 failed its fresh
+  quota gate. Tooltips, permanent shop explanation, player-facing copy,
+  progress display, and state labels were corrected. Fable remained on reserve
+  and was not called.
+- Full closure passes: 2,184 non-Qt methods (1,897 ordinary passes, 287 expected
+  skips), 2,184 real offscreen-Qt methods (2,183 ordinary passes, one
+  intentional skip), docs, hard test quality, compilation, JSON, diff, global
+  asset normalization, and worktree safety. Reachability is 1,440 actions,
+  2,132 reachable items, 166 known orphan inputs, and 187 unresolved actions;
+  Great Orb Project added no orphan.
+- A fully restarted native Anki process showed exactly one launcher and menu,
+  the paginated Minigames page, normalized Great Orb Project art, and the
+  unclipped level-50 locked card without entering a match or mutating the save.
+- Durable evidence:
+  `source-audits/great-orb-project-horizontal-implementation-2026-07-21.md`.
+- Published
+  `status-updates/great-orb-project-horizontal-results-2026-07-21.html`;
+  mobile copy: `https://afe87qn0iefl.postplan.dev`.

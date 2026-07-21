@@ -3746,3 +3746,28 @@ Test counts are snapshots; current runs outrank this note.
 - Published
   `status-updates/fishing-trawler-horizontal-results-2026-07-21.html`;
   mobile copy: `https://t2fu1j1wdxe1.postplan.dev`.
+
+## Great Orb Project horizontal MVP — 2026-07-21
+
+- Implemented the complete eight-round review loop, level gate, team scoring,
+  participation distinction, essence decisions, authentic rune output/XP,
+  token settlement, early leave, persistence, undo, cadence, telemetry, and
+  representative manual reward shop.
+- Added Casual and Advanced policy, 28-slot temporary essence capacity,
+  schema-66 migration and activity arbitration, normalized period art, a
+  compact paginated Activities card, and meaningful pure/integration/Qt tests.
+- Exact hidden score and essence distributions plus the full period reward
+  catalog are deferred data depth. No wall clock or new design fork exists.
+- Opus performed the new-UI taste pass after Kimi K3 was unavailable at its
+  quota gate; all reproduced findings were corrected and Fable was not called.
+- Verification: all 2,184 non-Qt methods pass with 287 expected dependency
+  skips and all 2,184 real offscreen-Qt methods pass with one intentional skip.
+  Docs, hard test quality, compilation, JSON, diff, global asset normalization,
+  reachability, restarted native Anki, and worktree safety pass. Reachability
+  is 1,440 actions, 2,132 reachable items, 166 known orphan inputs, and 187
+  unresolved actions; the slice adds no new orphan.
+- Durable record:
+  `source-audits/great-orb-project-horizontal-implementation-2026-07-21.md`.
+- Results:
+  `status-updates/great-orb-project-horizontal-results-2026-07-21.html`;
+  mobile copy: `https://afe87qn0iefl.postplan.dev`.
