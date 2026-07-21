@@ -74,9 +74,10 @@ def _bool_value(spec: Mapping[str, object], key: str, default: bool) -> bool:
 
 
 def _source_item_id(spec: Mapping[str, object]) -> Optional[int]:
-    value = spec.get("source_item_id", spec.get("item_id"))
-    if isinstance(value, int) and not isinstance(value, bool):
-        return value
+    for key in ("source_item_id", "item_id"):
+        value = spec.get(key)
+        if isinstance(value, int) and not isinstance(value, bool):
+            return value
     return None
 
 

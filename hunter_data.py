@@ -893,5 +893,6 @@ def hunter_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "source": _hunter_extra_source(item_name),
             "item_id": item_id,
             "tradeable": True,
+            "stackable": item_name != "Rope",
         }
     return rows

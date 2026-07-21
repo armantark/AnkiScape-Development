@@ -116,6 +116,7 @@ from .stealing_creation_logic import (
     stealing_creation_tool_can_apply_pure,
 )
 from .fish_flingers_logic import apply_fish_flingers_command_pure
+from .fishing_trawler_logic import apply_fishing_trawler_command_pure
 from .sorceress_garden_data import SORCERESS_GARDEN_ACTIVITY_ID
 from .sorceress_garden_logic import apply_sorceress_garden_command_pure
 from .penguin_hide_and_seek_data import PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID
@@ -2042,6 +2043,42 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             pass
         return {"ok": True, **info}
 
+    def _apply_fishing_trawler_command(action_id, payload):
+        before = _capture_player_data_snapshot()
+        updated, ok, info = apply_fishing_trawler_command_pure(
+            player_data,
+            str(action_id),
+            payload if isinstance(payload, dict) else {},
+        )
+        if not ok:
+            return {
+                "ok": False,
+                "message": str(info.get("reason", "Fishing Trawler action failed.")),
+            }
+        try:
+            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+        except (AttributeError, RuntimeError):
+            return {
+                "ok": False,
+                "message": "Anki could not create an undo entry.",
+            }
+        _DIRECT_ACTION_UNDO_STACK.append(before)
+        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+        player_data.clear()
+        player_data.update(updated)
+        check_achievements(player_data)
+        save_player_data()
+        _refresh_skill_availability()
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            mw.update_undo_actions()
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_livid_farm_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         if action_id == "set_routine":
@@ -2250,6 +2287,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_barrows_command=_apply_barrows_command,
         on_stealing_creation_command=_apply_stealing_creation_command,
         on_fish_flingers_command=_apply_fish_flingers_command,
+        on_fishing_trawler_command=_apply_fishing_trawler_command,
         on_livid_farm_command=_apply_livid_farm_command,
         on_set_prayer_selection=set_prayer_selection,
         on_set_magic=lambda target: _set_value("current_magic", target),

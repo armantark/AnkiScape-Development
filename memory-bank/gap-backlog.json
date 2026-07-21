@@ -495,8 +495,8 @@
       "title": "Add Fishing Trawler + Fish Flingers/Dungeoneering fishing",
       "detail": "Trawler rewards (turtles/manta rays) + trawler catches; Fish Flingers and Dungeoneering fishing as separate activity systems.",
       "source": "wiki:Fishing Trawler",
-      "status": "split_scope",
-      "note": "Fishing Trawler and the six-review Fish Flingers automatic-discovery loop are settled; Daemonheim fish move to the Dungeoneering expansion",
+      "status": "mechanic_complete_split",
+      "note": "Fishing Trawler and the six-review Fish Flingers automatic-discovery loop are mechanic-complete; Daemonheim fish remain owned by the future Dungeoneering session and temporary inventory",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#fishing-trawler-fish-flingers-and-daemonheim-fishing",
       "decision_summary": {
         "trawler": "Use a persistent activity session with boat water, leaks, net state, activity contribution, source supplies, success/failure, and a level-shaped catch at 40 percent normal Fishing XP. Apply one fixed automatic public-crew pressure offset without persisting crew actors or contribution.",

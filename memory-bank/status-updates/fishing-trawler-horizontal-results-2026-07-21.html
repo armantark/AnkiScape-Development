@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fishing Trawler — Horizontal Closure</title>
+  <style>
+    :root {
+      --bg: #0c0e12; --surface: #161a21; --surface-2: #1e232c;
+      --border: #2a3040; --text: #e8ecf4; --text-dim: #8b95a8;
+      --accent: #4f8cff; --accent-glow: rgba(79, 140, 255, .15);
+      --red: #ff5c5c; --green: #4ade80; --amber: #fbbf24;
+      --purple: #a78bfa; --water: #38bdf8; --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; color: var(--text); background:
+        radial-gradient(circle at 20% 0%, rgba(56,189,248,.16), transparent 34rem),
+        radial-gradient(circle at 90% 22%, rgba(79,140,255,.12), transparent 30rem),
+        var(--bg);
+      font: 15px/1.55 Outfit, Inter, system-ui, sans-serif;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 64px; }
+    .badge {
+      display: inline-flex; border: 1px solid rgba(74,222,128,.35);
+      color: var(--green); background: rgba(74,222,128,.08); border-radius: 999px;
+      padding: 5px 10px; font: 700 11px/1.2 "JetBrains Mono", monospace;
+      letter-spacing: .12em;
+    }
+    h1 { margin: 16px 0 8px; font-size: clamp(2rem, 5vw, 3.6rem); line-height: 1.02; }
+    .lede { max-width: 780px; color: var(--text-dim); font-size: 1.05rem; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 30px 0; }
+    .metric, .card {
+      border: 1px solid var(--border); border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(30,35,44,.96), rgba(22,26,33,.96));
+      box-shadow: 0 16px 44px rgba(0,0,0,.18);
+    }
+    .metric { padding: 18px; }
+    .metric strong { display: block; font-size: 1.75rem; color: var(--water); }
+    .metric span { color: var(--text-dim); font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; }
+    .grid { display: grid; grid-template-columns: 1.08fr .92fr; gap: 16px; }
+    .card { padding: 22px; }
+    .card h2 { margin: 0 0 14px; font-size: 1.05rem; }
+    .flow { display: grid; gap: 10px; }
+    .step { display: flex; gap: 12px; align-items: flex-start; }
+    .n {
+      flex: 0 0 28px; height: 28px; display: grid; place-items: center;
+      border-radius: 8px; color: var(--bg); background: var(--water); font-weight: 800;
+    }
+    .step b { display: block; }
+    .step span, .muted { color: var(--text-dim); }
+    .gauge { height: 12px; overflow: hidden; border-radius: 999px; background: #26313a; margin: 16px 0 8px; }
+    .gauge span { display: block; width: 64%; height: 100%; background: linear-gradient(90deg, var(--water), var(--amber)); }
+    .duty { display: grid; grid-template-columns: 1fr auto; gap: 4px 14px; padding: 11px 0; border-top: 1px solid var(--border); }
+    .duty:first-of-type { border-top: 0; }
+    .duty b { color: var(--purple); }
+    .duty code, .file {
+      font: 12px "JetBrains Mono", monospace; color: var(--text-dim);
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 6px; padding: 2px 6px;
+    }
+    .checks { display: grid; gap: 10px; }
+    .check { display: flex; gap: 9px; color: var(--text-dim); }
+    .check::before { content: "✓"; color: var(--green); font-weight: 900; }
+    .note { margin-top: 16px; border-left: 3px solid var(--amber); padding: 10px 12px; color: var(--text-dim); background: rgba(251,191,36,.06); }
+    .footer { margin-top: 18px; display: flex; justify-content: space-between; gap: 16px; color: var(--text-dim); font-size: .85rem; }
+    @media (max-width: 820px) { .metrics { grid-template-columns: repeat(2, 1fr); } .grid { grid-template-columns: 1fr; } }
+    @media (max-width: 480px) { main { width: min(100% - 20px, 1120px); padding-top: 28px; } .metrics { gap: 8px; } .metric { padding: 14px; } .metric strong { font-size: 1.35rem; } .footer { flex-direction: column; } }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">MECHANIC-COMPLETE · 2026-07-21</span>
+  <h1>Fishing Trawler has left port.</h1>
+  <p class="lede">The former ledger stub is now a complete review-driven group trip: supplies are reserved, pressure and useful duties resolve, the boat docks or sinks, and every consequence persists and undoes atomically.</p>
+
+  <section class="metrics" aria-label="Verification metrics">
+    <div class="metric"><strong>2,172</strong><span>Non-Qt tests passed</span></div>
+    <div class="metric"><strong>2,172</strong><span>Qt tests passed</span></div>
+    <div class="metric"><strong>10</strong><span>Review events per trip</span></div>
+    <div class="metric"><strong>0</strong><span>Design gaps opened</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h2>The review-sized voyage</h2>
+      <div class="flow">
+        <div class="step"><span class="n">1</span><div><b>Plan the pack</b><span>Paste stacks; Rope and buckets each occupy a real slot inside the 28-slot activity pack.</span></div></div>
+        <div class="step"><span class="n">2</span><div><b>Reserve supplies</b><span>Boarding atomically saves the visible plan and moves the available quantities out of the bank.</span></div></div>
+        <div class="step"><span class="n">3</span><div><b>Work ten events</b><span>Each successful review adds pressure, applies the public-crew offset, and resolves one useful repair, bail, or fishing duty.</span></div></div>
+        <div class="step"><span class="n">4</span><div><b>Dock or sink</b><span>Success banks a level-shaped haul at 40% ordinary Fishing XP; sinking awards no haul. Unused supplies always return.</span></div></div>
+      </div>
+      <div class="gauge" aria-label="Illustrative water pressure"><span></span></div>
+      <p class="muted">No wall clock, crew-management screen, background simulation, or extra claim review was introduced.</p>
+    </article>
+
+    <article class="card">
+      <h2>Player policy</h2>
+      <div class="duty"><div><b>Casual</b><br><span class="muted">Most urgent useful duty</span></div><code>automatic</code></div>
+      <div class="duty"><div><b>Balanced</b><br><span class="muted">Default Advanced order</span></div><code>safe</code></div>
+      <div class="duty"><div><b>Bail early</b><br><span class="muted">Water-first priority</span></div><code>defensive</code></div>
+      <div class="duty"><div><b>Repair first</b><br><span class="muted">Leak and net priority</span></div><code>steady</code></div>
+      <div class="duty"><div><b>Fish aggressively</b><br><span class="muted">Accepts more pressure</span></div><code>haul</code></div>
+      <div class="note">Exact hidden pressure and catch distributions, plus Tiger shark eligibility, remain labeled data depth rather than missing mechanics.</div>
+    </article>
+
+    <article class="card">
+      <h2>Closure proof</h2>
+      <div class="checks">
+        <div class="check">Full non-Qt discovery passed with 285 expected environment skips.</div>
+        <div class="check">Full offscreen Qt discovery passed with one intentional platform skip.</div>
+        <div class="check">Fresh native Anki showed one menu, paginated Minigames, and an inspectable locked Trawler card.</div>
+        <div class="check">The native pass caught and closed the locked-row reachability gap missed by the initial synthetic check.</div>
+        <div class="check">Opus taste findings were reproduced and fixed; Fable quota remained untouched.</div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Durable handoff</h2>
+      <p>Fishing Trawler and Fish Flingers are now both mechanic-complete. Daemonheim fish remain cleanly isolated to the future Dungeoneering session and temporary inventory.</p>
+      <p><span class="file">source-audits/fishing-trawler-horizontal-implementation-2026-07-21.md</span></p>
+      <p><span class="file">future-work-kanban.md</span> <span class="file">gap-backlog.json</span></p>
+      <p class="muted">The breadth-first program can move to the next smallest source-ready, design-settled family without revisiting this interaction model.</p>
+    </article>
+  </section>
+
+  <div class="footer">
+    <span>AnkiScape breadth-first implementation program</span>
+    <span>Reachability: 1,439 actions · 2,132 reachable items · 166 known orphans · 187 unresolved</span>
+  </div>
+</main>
+</body>
+</html>

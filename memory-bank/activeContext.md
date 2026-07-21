@@ -2988,3 +2988,40 @@ The visual closure report is
 - Published
   `status-updates/werewolf-skullball-horizontal-results-2026-07-21.html`;
   mobile copy: `https://tbpw3iuzbn4k.postplan.dev`.
+
+## Fishing Trawler horizontal closure — 2026-07-21
+
+- Added the complete Activities-only Trawler loop: level-15 entry, a
+  stack-aware 28-slot activity pack, ten pressure/duty reviews, Casual urgency,
+  Advanced saved priority/layout, fixed public-crew offset, water/leaks/net
+  state, sinking for zero haul, direct-banked catch, and exactly 40% of each
+  fish's ordinary Fishing XP.
+- Entry reserves the selected available Swamp paste, Rope, and reusable Bailing
+  buckets. Every unused item returns on leave, sinking, or docking; Rope's
+  canonical item metadata is now correctly non-stackable with source ID 954.
+- The persistent session, schema-65 migration, activity arbitration, cadence,
+  telemetry, review/direct undo, terminal stopping, reachability, and compact
+  docked/at-sea UI are live. No wall clock, crew actors, claim review, or
+  Dungeoneering inventory leaked into the feature.
+- Literal cutoff evidence pins oldid 6288357 plus Sea turtle oldid 6454456 and
+  Manta ray oldid 6487890. The ten-event pressure values, hidden haul roll, and
+  reduced catch pool are disclosed horizontal translations; Tiger shark remains
+  data-depth `source_blocked`.
+- Opus reviewed both rendered states while Fable remained on owner-requested
+  reserve. All reproduced findings were corrected. Kimi was not called because
+  its required fresh quota snapshot lacked the rolling window.
+- Reachability is now 1,439 actions, 2,132 reachable items, 166 orphan inputs
+  (74 root / 92 cascade), and 187 unresolved actions.
+- Final verification passes all 2,172 non-Qt tests with 285 expected
+  environment skips and all 2,172 real offscreen Qt tests with one intentional
+  skip. A fully quit and freshly relaunched native Anki process showed one menu,
+  paginated Minigames, and an inspectable level-14 Trawler card with its visible
+  level-15 gate. That native pass caught and closed the locked-row reachability
+  gap missed by the initial synthetic card test.
+- Documentation, test-quality, syntax, JSON, reachability, global UI-asset
+  normalization, diff, and worktree-safety gates pass.
+- Durable evidence:
+  `source-audits/fishing-trawler-horizontal-implementation-2026-07-21.md`.
+- Published
+  `status-updates/fishing-trawler-horizontal-results-2026-07-21.html`;
+  mobile copy: `https://t2fu1j1wdxe1.postplan.dev`.

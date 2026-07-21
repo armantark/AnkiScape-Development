@@ -978,7 +978,16 @@ Labels: `SOURCE AUDIT`, `IMPLEMENT`, `WAIT: DARKAN`.
 
 Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is not already settled.
 
-- Highest-value waits: Runespan; Bonfires/fire spirits (reconciled; hidden rolls, rewards, warmth refresh, and review-batch mapping remain blocked); Artisan's Workshop; Blast Furnace/Goldsmith; Living Rock remains; Fishing Trawler; Great Orb Project; complex pyres/beacons; Gnome Restaurant; Hunter tracking/pitfall/snaring (reconciled deterministic Darkan ceiling still lacks required rolls); Habitat/Jadinkos.
+- Highest-value waits: Runespan; Bonfires/fire spirits (reconciled; hidden rolls, rewards, warmth refresh, and review-batch mapping remain blocked); Artisan's Workshop; Blast Furnace/Goldsmith; Living Rock remains; Great Orb Project; complex pyres/beacons; Gnome Restaurant; Hunter tracking/pitfall/snaring (reconciled deterministic Darkan ceiling still lacks required rolls); Habitat/Jadinkos.
+- Fishing Trawler is mechanic-complete as an Activities-only ten-review
+  pressure trip. It ships the level-15 gate, source supplies and stack-aware
+  28-slot activity pack, Casual urgency, Advanced duty/layout policy, fixed
+  public-crew offset, leak/water/net pressure, real sinking loss, direct-banked
+  level-shaped haul, 40%-ordinary Fishing XP, persistence, undo, cadence,
+  normalized period art, and the compact docked/at-sea card. Exact hidden
+  pressure/catch distributions and the Tiger shark row remain labeled
+  data-depth work. See
+  `memory-bank/source-audits/fishing-trawler-horizontal-implementation-2026-07-21.md`.
 - Shooting Stars are mechanic-complete as an Activities-only communal Mining
   event with a compact period-qualified location set. Exact hidden initial-size,
   first-finder, crowd, gem, and sub-200 reward-rounding distributions remain

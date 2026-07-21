@@ -362,6 +362,36 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "fishing_trawler":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "fishing_trawler",
+                    "mode": "source_blocked_activity",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One successful review resolves one useful duty and one "
+                        "pressure event in the owner-settled ten-review trip. The "
+                        "source twelve-minute presentation is intentionally not "
+                        "mapped to wall-clock time."
+                    ),
+                    "includes": (
+                        "one player duty plus the fixed public-crew pressure offset",
+                        "one terminal banked haul or sinking loss after ten events",
+                    ),
+                    "multiplier_behavior": (
+                        "M duties within the current trip, stopping at sinking or "
+                        "the tenth event; the same answer cannot board another trip"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same ten-event trip handler",
+                    "profile": None,
+                    "condition": "disclosed event-count and pressure compression",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "penguin_hide_and_seek":
             rows.append(
                 {

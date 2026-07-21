@@ -504,6 +504,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "pyramid_plunder",
                 "werewolf_skullball",
                 "fish_flingers",
+                "fishing_trawler",
                 "gnome_ball",
                 "stealing_creation",
                 "barrows",

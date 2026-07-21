@@ -114,6 +114,11 @@ try:
         default_fish_flingers_state_pure,
         sanitize_fish_flingers_state_pure,
     )
+    from .fishing_trawler_data import FISHING_TRAWLER_ACTIVITY_ID
+    from .fishing_trawler_logic import (
+        default_fishing_trawler_state_pure,
+        sanitize_fishing_trawler_state_pure,
+    )
     from .vinesweeper_logic import (
         default_vinesweeper_state_pure,
         sanitize_vinesweeper_state_pure,
@@ -264,6 +269,11 @@ except ImportError:
         default_fish_flingers_state_pure,
         sanitize_fish_flingers_state_pure,
     )
+    from fishing_trawler_data import FISHING_TRAWLER_ACTIVITY_ID  # type: ignore
+    from fishing_trawler_logic import (  # type: ignore
+        default_fishing_trawler_state_pure,
+        sanitize_fishing_trawler_state_pure,
+    )
     from vinesweeper_logic import (  # type: ignore
         default_vinesweeper_state_pure,
         sanitize_vinesweeper_state_pure,
@@ -301,7 +311,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 64
+CURRENT_CONFIG_VERSION = 65
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -537,6 +547,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_werewolf_skullball_state_pure())
     data.update(default_gnome_ball_state_pure())
     data.update(default_fish_flingers_state_pure())
+    data.update(default_fishing_trawler_state_pure())
     data["activity_session"] = {"active_id": ""}
     data["sorceress_garden"] = default_sorceress_garden_state_pure()
     data["penguin_hide_and_seek"] = default_penguin_state_pure()
@@ -1160,6 +1171,7 @@ def migrate_loaded_data(
     data.update(sanitize_werewolf_skullball_state_pure(data))
     data.update(sanitize_gnome_ball_state_pure(data))
     data.update(sanitize_fish_flingers_state_pure(data))
+    data.update(sanitize_fishing_trawler_state_pure(data))
     raw_activity_session = data.get("activity_session")
     active_session_id = (
         str(raw_activity_session.get("active_id", ""))[:80]
@@ -1209,6 +1221,13 @@ def migrate_loaded_data(
         FISH_FLINGERS_ACTIVITY_ID,
     }:
         active_session_id = ""
+    if active_session_id:
+        if active_session_id != FISHING_TRAWLER_ACTIVITY_ID:
+            data["fishing_trawler"] = {}
+        elif not data["fishing_trawler"]:
+            active_session_id = ""
+    elif data["fishing_trawler"]:
+        active_session_id = FISHING_TRAWLER_ACTIVITY_ID
     data["activity_session"] = {"active_id": active_session_id}
     data["sorceress_garden"] = sanitize_sorceress_garden_state_pure(
         data.get("sorceress_garden")
@@ -1415,6 +1434,11 @@ def migrate_loaded_data(
     if loaded_config_version < 64:
         for key, value in default_fish_flingers_state_pure().items():
             data.setdefault(key, value)
+    # v65: Fishing Trawler adds a ten-review persistent pressure trip, saved
+    # duty/layout policy, and completed/sunk ledgers.
+    if loaded_config_version < 65:
+        for key, value in default_fishing_trawler_state_pure().items():
+            data.setdefault(key, value)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1454,6 +1478,7 @@ def migrate_loaded_data(
     data.update(sanitize_werewolf_skullball_state_pure(data))
     data.update(sanitize_gnome_ball_state_pure(data))
     data.update(sanitize_fish_flingers_state_pure(data))
+    data.update(sanitize_fishing_trawler_state_pure(data))
     data["livid_farm"] = sanitize_livid_farm_state_pure(
         data.get("livid_farm")
     )

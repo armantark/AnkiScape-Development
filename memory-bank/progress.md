@@ -3716,3 +3716,33 @@ Test counts are snapshots; current runs outrank this note.
 - Published
   `status-updates/werewolf-skullball-horizontal-results-2026-07-21.html`;
   mobile copy: `https://tbpw3iuzbn4k.postplan.dev`.
+
+## Fishing Trawler horizontal MVP — 2026-07-21
+
+- Implemented the complete source-shaped trip: level gate, finite persistent
+  pressure, four useful duties, source supplies, stack-aware carried layout,
+  Casual/Advanced policies, fixed crew offset, sinking, direct-banked haul,
+  and the 40% ordinary Fishing XP rule.
+- Added schema-65 persistence/arbitration, review and direct-action undo,
+  cadence/telemetry, terminal stop, exact high-level XP evidence, period art,
+  reachability output registration, and a compact Activities card.
+- Opus's independent taste pass found and closed unsaved-board-plan loss,
+  invisible lock copy, dead duplicate at-sea controls, pluralization, and risk
+  legibility issues. Fable remained reserved; Kimi's incomplete fresh quota
+  telemetry was not bypassed.
+- Focused pure/integration/registry/reachability/asset checks pass. Full
+  discovery passes 2,172 non-Qt tests with 285 expected environment skips and
+  2,172 real offscreen Qt tests with one intentional skip. The live graph
+  reports 1,439 actions, 2,132 reachable items, 166 orphan inputs, and 187
+  unresolved actions.
+- A clean native Anki restart confirms one add-on menu, paginated Minigames,
+  and an inspectable locked Trawler card. This check exposed and closed a real
+  disabled-row reachability gap that the first synthetic UI test missed.
+- Documentation, test-quality, syntax, JSON, reachability, global asset
+  normalization, diff, and worktree-safety gates pass.
+- No owner design gap emerged. Exact pressure/catch distributions and Tiger
+  shark are explicit data-depth work. Durable record:
+  `source-audits/fishing-trawler-horizontal-implementation-2026-07-21.md`.
+- Published
+  `status-updates/fishing-trawler-horizontal-results-2026-07-21.html`;
+  mobile copy: `https://t2fu1j1wdxe1.postplan.dev`.

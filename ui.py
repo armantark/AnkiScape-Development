@@ -424,6 +424,21 @@ except Exception:
     from fish_flingers_logic import fish_flingers_view_pure  # type: ignore
 
 try:
+    from .fishing_trawler_data import (
+        FISHING_TRAWLER_ACTIVITY_ID,
+        FISHING_TRAWLER_DUTIES,
+        FISHING_TRAWLER_SINK_WATER,
+    )
+    from .fishing_trawler_logic import fishing_trawler_view_pure
+except Exception:
+    from fishing_trawler_data import (  # type: ignore
+        FISHING_TRAWLER_ACTIVITY_ID,
+        FISHING_TRAWLER_DUTIES,
+        FISHING_TRAWLER_SINK_WATER,
+    )
+    from fishing_trawler_logic import fishing_trawler_view_pure  # type: ignore
+
+try:
     from .stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
     from .stealing_creation_logic import stealing_creation_view_pure
 except Exception:
@@ -3483,6 +3498,7 @@ def show_main_menu(
     on_barrows_command=None,
     on_stealing_creation_command=None,
     on_fish_flingers_command=None,
+    on_fishing_trawler_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
     on_set_construction=None,
@@ -10781,6 +10797,299 @@ def show_main_menu(
         _refresh_fish_flingers_panel()
         cards_stack.addWidget(fish_flingers_box)
 
+        fishing_trawler_box = QtFrame()
+        fishing_trawler_box.setObjectName("fishingTrawlerPanel")
+        fishing_trawler_box.setStyleSheet(
+            "QFrame#fishingTrawlerPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        fishing_trawler_layout = QVBoxLayout(fishing_trawler_box)
+        fishing_trawler_layout.setContentsMargins(10, 8, 10, 8)
+        fishing_trawler_layout.setSpacing(7)
+
+        fishing_trawler_top = QWidget()
+        fishing_trawler_top_layout = QHBoxLayout(fishing_trawler_top)
+        fishing_trawler_top_layout.setContentsMargins(0, 0, 0, 0)
+        fishing_trawler_top_layout.setSpacing(8)
+        fishing_trawler_icon = QLabel()
+        fishing_trawler_icon.setObjectName("fishingTrawlerIcon")
+        fishing_trawler_icon.setFixedSize(28, 28)
+        fishing_trawler_icon_path = os.path.join(
+            current_dir, "activityicons", "fishing_trawler.png"
+        )
+        if os.path.exists(fishing_trawler_icon_path):
+            fishing_trawler_icon.setPixmap(
+                QPixmap(fishing_trawler_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        fishing_trawler_title = QLabel("Fishing Trawler")
+        fishing_trawler_title.setStyleSheet(
+            "font-weight: 700; color: palette(text);"
+        )
+        fishing_trawler_status = QLabel()
+        fishing_trawler_status.setObjectName("fishingTrawlerStatusChip")
+        fishing_trawler_status.setStyleSheet(
+            "color: palette(text); font-size: 11px; font-weight: 600;"
+        )
+        fishing_trawler_top_layout.addWidget(fishing_trawler_icon)
+        fishing_trawler_top_layout.addWidget(fishing_trawler_title)
+        fishing_trawler_top_layout.addStretch(1)
+        fishing_trawler_top_layout.addWidget(fishing_trawler_status)
+        fishing_trawler_layout.addWidget(fishing_trawler_top)
+
+        fishing_trawler_summary = QLabel()
+        fishing_trawler_summary.setObjectName("fishingTrawlerSummary")
+        fishing_trawler_summary.setWordWrap(True)
+        fishing_trawler_summary.setStyleSheet("color: palette(text);")
+        fishing_trawler_layout.addWidget(fishing_trawler_summary)
+
+        fishing_trawler_water = QProgressBar()
+        fishing_trawler_water.setObjectName("fishingTrawlerWater")
+        fishing_trawler_water.setRange(0, FISHING_TRAWLER_SINK_WATER)
+        fishing_trawler_water.setTextVisible(True)
+        fishing_trawler_water.setFormat("Water %v%")
+        fishing_trawler_water.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 4px; }"
+            "QProgressBar::chunk { background: #397ea6; }"
+        )
+        fishing_trawler_layout.addWidget(fishing_trawler_water)
+
+        fishing_trawler_plan = QtFrame()
+        fishing_trawler_plan.setObjectName("fishingTrawlerPlan")
+        fishing_trawler_plan.setStyleSheet(
+            "QFrame#fishingTrawlerPlan { border: 1px solid palette(mid);"
+            " border-radius: 6px; background: palette(window); }"
+        )
+        fishing_trawler_plan_layout = QVBoxLayout(fishing_trawler_plan)
+        fishing_trawler_plan_layout.setContentsMargins(8, 6, 8, 6)
+        fishing_trawler_plan_layout.setSpacing(5)
+        fishing_trawler_policy_row = QWidget()
+        fishing_trawler_policy_layout = QHBoxLayout(fishing_trawler_policy_row)
+        fishing_trawler_policy_layout.setContentsMargins(0, 0, 0, 0)
+        fishing_trawler_policy_layout.setSpacing(6)
+        fishing_trawler_mode = QComboBox()
+        fishing_trawler_mode.setObjectName("fishingTrawlerModeCombo")
+        fishing_trawler_mode.setAccessibleName("Fishing Trawler automation mode")
+        fishing_trawler_mode.addItem("Casual · urgent duty", "casual")
+        fishing_trawler_mode.addItem("Advanced · saved priority", "advanced")
+        fishing_trawler_priority = QComboBox()
+        fishing_trawler_priority.setObjectName("fishingTrawlerPriorityCombo")
+        fishing_trawler_priority.setAccessibleName("Fishing Trawler duty priority")
+        for priority_id, label in FISHING_TRAWLER_DUTIES:
+            fishing_trawler_priority.addItem(label, priority_id)
+        fishing_trawler_policy_layout.addWidget(fishing_trawler_mode, 1)
+        fishing_trawler_policy_layout.addWidget(fishing_trawler_priority, 1)
+        fishing_trawler_plan_layout.addWidget(fishing_trawler_policy_row)
+
+        fishing_trawler_supply_row = QWidget()
+        fishing_trawler_supply_layout = QHBoxLayout(fishing_trawler_supply_row)
+        fishing_trawler_supply_layout.setContentsMargins(0, 0, 0, 0)
+        fishing_trawler_supply_layout.setSpacing(6)
+        fishing_trawler_supply_spins: dict[str, QSpinBox] = {}
+        for item, label, maximum in (
+            ("Swamp paste", "Paste", 999),
+            ("Rope", "Rope", 99),
+            ("Bailing bucket", "Buckets", 28),
+        ):
+            spin = QSpinBox()
+            spin.setObjectName("fishingTrawler" + label + "Spin")
+            spin.setAccessibleName("Fishing Trawler " + label.lower())
+            spin.setRange(0, maximum)
+            spin.setPrefix(label + " ")
+            fishing_trawler_supply_layout.addWidget(spin, 1)
+            fishing_trawler_supply_spins[item] = spin
+        fishing_trawler_save = QPushButton("Save plan")
+        fishing_trawler_save.setObjectName("fishingTrawlerSavePlanButton")
+        fishing_trawler_save.setAccessibleName("Save Fishing Trawler plan")
+        fishing_trawler_supply_layout.addWidget(fishing_trawler_save)
+        fishing_trawler_plan_layout.addWidget(fishing_trawler_supply_row)
+        fishing_trawler_layout.addWidget(fishing_trawler_plan)
+
+        fishing_trawler_actions = QWidget()
+        fishing_trawler_actions_layout = QHBoxLayout(fishing_trawler_actions)
+        fishing_trawler_actions_layout.setContentsMargins(0, 0, 0, 0)
+        fishing_trawler_actions_layout.setSpacing(6)
+        fishing_trawler_primary = QPushButton()
+        fishing_trawler_primary.setObjectName("fishingTrawlerPrimaryButton")
+        fishing_trawler_leave = QPushButton("Leave trip")
+        fishing_trawler_leave.setObjectName("fishingTrawlerLeaveButton")
+        fishing_trawler_actions_layout.addWidget(fishing_trawler_primary, 1)
+        fishing_trawler_actions_layout.addWidget(fishing_trawler_leave)
+        fishing_trawler_layout.addWidget(fishing_trawler_actions)
+
+        syncing_fishing_trawler = {"active": False}
+
+        def _run_fishing_trawler_command(
+            action_id: str, payload: Optional[dict[str, Any]] = None
+        ) -> dict[str, Any]:
+            if on_fishing_trawler_command is None:
+                return {"ok": False, "message": "Fishing Trawler actions are unavailable."}
+            result = on_fishing_trawler_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Fishing Trawler",
+                    str(result.get("message", "That action is unavailable.")),
+                )
+            _refresh_fishing_trawler_panel()
+            return result
+
+        def _refresh_fishing_trawler_panel() -> None:
+            view = fishing_trawler_view_pure(player_data)
+            active = bool(view["active"])
+            syncing_fishing_trawler["active"] = True
+            fishing_trawler_status.setText(
+                f"{'AT SEA' if active else 'LOCKED' if not view['eligible'] else 'DOCKED'} · "
+                f"{int(view['trips_completed'])} landed · {int(view['trips_sunk'])} sunk"
+            )
+            fishing_trawler_status.setStyleSheet(
+                f"color: {dim_text_css(fishing_trawler_status)};"
+                " font-size: 11px; font-weight: 700;"
+            )
+            if active:
+                supplies = view["supplies"]
+                bucket_count = int(supplies.get("Bailing bucket", 0))
+                fishing_trawler_summary.setText(
+                    f"Duty {int(view['review']) + 1}/10 · {int(view['leaks'])} leaks · "
+                    f"net {'sound' if view['net_intact'] else 'torn'} · "
+                    f"contribution {int(view['contribution'])}\n"
+                    f"Carried: {int(supplies.get('Swamp paste', 0))} paste · "
+                    f"{int(supplies.get('Rope', 0))} rope · "
+                    f"{bucket_count} bucket{'s' if bucket_count != 1 else ''} · "
+                    f"{str(view['automation_mode']).title()} mode"
+                )
+            else:
+                bank = view["bank_supplies"]
+                bucket_count = int(bank["Bailing bucket"])
+                summary = (
+                    ("Requires level 15 Fishing.\n" if not view["eligible"] else "")
+                    +
+                    "Ten useful duties · public crew pressure is automatic · "
+                    "sinking loses the haul · success banks fish and awards 40% ordinary XP\n"
+                    f"Bank: {int(bank['Swamp paste'])} paste · {int(bank['Rope'])} rope · "
+                    f"{bucket_count} bucket{'s' if bucket_count != 1 else ''} · "
+                    f"saved pack {int(view['layout_slots'])}/{int(view['layout_capacity'])} slots"
+                )
+                if view["last_result"]:
+                    summary += "\n" + str(view["last_result"])
+                fishing_trawler_summary.setText(summary)
+            fishing_trawler_summary.setToolTip(str(view["last_result"]))
+            fishing_trawler_water.setValue(int(view["water"]))
+            fishing_trawler_water.setVisible(active)
+            water = int(view["water"])
+            water_color = "#c23b4a" if water >= 85 else "#d08a28" if water >= 70 else "#397ea6"
+            fishing_trawler_water.setStyleSheet(
+                "QProgressBar { color: palette(text); text-align: center;"
+                " border: 1px solid palette(mid); border-radius: 4px; }"
+                f"QProgressBar::chunk {{ background: {water_color}; }}"
+            )
+            mode_index = fishing_trawler_mode.findData(view["automation_mode"])
+            fishing_trawler_mode.setCurrentIndex(max(0, mode_index))
+            priority_index = fishing_trawler_priority.findData(view["priority"])
+            fishing_trawler_priority.setCurrentIndex(max(0, priority_index))
+            for item, spin in fishing_trawler_supply_spins.items():
+                spin.setValue(int(view["layout"].get(item, 0)))
+            advanced = fishing_trawler_mode.currentData() == "advanced"
+            fishing_trawler_priority.setEnabled(advanced and not active)
+            fishing_trawler_priority.setToolTip(
+                "Casual mode always answers the most urgent useful duty."
+                if not advanced
+                else "Choose the saved Advanced duty preference."
+            )
+            fishing_trawler_mode.setEnabled(not active)
+            for spin in fishing_trawler_supply_spins.values():
+                spin.setEnabled(not active)
+            fishing_trawler_save.setEnabled(
+                on_fishing_trawler_command is not None and not active
+            )
+            fishing_trawler_plan.setVisible(not active)
+            selected = active and player_data.get("current_utility") == FISHING_TRAWLER_ACTIVITY_ID
+            fishing_trawler_primary.setText(
+                "Selected for reviews"
+                if selected
+                else "Select for reviews"
+                if active
+                else "Board trawler"
+            )
+            fishing_trawler_primary.setEnabled(
+                on_fishing_trawler_command is not None
+                and not selected
+                and (active or bool(view["eligible"]))
+            )
+            fishing_trawler_primary.setToolTip(
+                "Requires level 15 Fishing. Supplies are loaded from the bank."
+                if not view["eligible"]
+                else ""
+            )
+            fishing_trawler_leave.setVisible(active)
+            fishing_trawler_leave.setEnabled(on_fishing_trawler_command is not None)
+            syncing_fishing_trawler["active"] = False
+            _fit_current_activity_detail()
+
+        def _fishing_trawler_plan_payload() -> dict[str, Any]:
+            return {
+                "automation_mode": str(fishing_trawler_mode.currentData() or "casual"),
+                "priority": str(fishing_trawler_priority.currentData() or "balanced"),
+                "layout": {
+                    item: spin.value()
+                    for item, spin in fishing_trawler_supply_spins.items()
+                },
+            }
+
+        def _save_fishing_trawler_plan() -> None:
+            if syncing_fishing_trawler["active"]:
+                return
+            _run_fishing_trawler_command(
+                "set_fishing_trawler_policy",
+                _fishing_trawler_plan_payload(),
+            )
+
+        def _select_or_enter_fishing_trawler() -> None:
+            view = fishing_trawler_view_pure(player_data)
+            if not view["active"]:
+                result = _run_fishing_trawler_command(
+                    "enter_fishing_trawler",
+                    _fishing_trawler_plan_payload(),
+                )
+                if not result.get("ok", False):
+                    return
+            elif not _request_utility_selection(FISHING_TRAWLER_ACTIVITY_ID):
+                return
+            _refresh_fishing_trawler_panel()
+
+        def _confirm_fishing_trawler_leave() -> None:
+            answer = QMessageBox.question(
+                dialog,
+                "Leave Fishing Trawler?",
+                "Leave the current trip? Unused supplies return to the bank, but the haul is forfeited.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_fishing_trawler_command("leave_fishing_trawler")
+
+        fishing_trawler_mode.currentIndexChanged.connect(
+            lambda _index: fishing_trawler_priority.setEnabled(
+                fishing_trawler_mode.currentData() == "advanced"
+                and not fishing_trawler_view_pure(player_data)["active"]
+            )
+        )
+        fishing_trawler_save.clicked.connect(
+            lambda _checked=False: _save_fishing_trawler_plan()
+        )
+        fishing_trawler_primary.clicked.connect(
+            lambda _checked=False: _select_or_enter_fishing_trawler()
+        )
+        fishing_trawler_leave.clicked.connect(
+            lambda _checked=False: _confirm_fishing_trawler_leave()
+        )
+        _refresh_fishing_trawler_panel()
+        cards_stack.addWidget(fishing_trawler_box)
+
         stealing_creation_box = QtFrame()
         stealing_creation_box.setObjectName("stealingCreationPanel")
         stealing_creation_box.setStyleSheet(
@@ -11964,6 +12273,7 @@ def show_main_menu(
                     not in {
                         WEREWOLF_SKULLBALL_ACTIVITY_ID,
                         GNOME_BALL_ACTIVITY_ID,
+                        FISHING_TRAWLER_ACTIVITY_ID,
                     }
                 ):
                     child.setDisabled(True)
@@ -12378,6 +12688,30 @@ def show_main_menu(
                         str((result or {}).get("message", "Could not leave the event.")),
                     )
                     return False
+            if (
+                activity_id != FISHING_TRAWLER_ACTIVITY_ID
+                and fishing_trawler_view_pure(player_data)["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave Fishing Trawler?",
+                    "Switch activities? Unused supplies return to the bank, but the unfinished haul is forfeited.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_fishing_trawler_command("leave_fishing_trawler", {})
+                    if on_fishing_trawler_command is not None
+                    else {"ok": False, "message": "Fishing Trawler actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Fishing Trawler",
+                        str((result or {}).get("message", "Could not leave the trip.")),
+                    )
+                    return False
             on_set_utility(activity_id)
             player_data["current_utility"] = activity_id
             if state["active"] in _UTILITY_SKILL_NAMES and state["active"] != surface_name:
@@ -12397,6 +12731,7 @@ def show_main_menu(
             _refresh_skullball_panel()
             _refresh_gnome_ball_panel()
             _refresh_fish_flingers_panel()
+            _refresh_fishing_trawler_panel()
             _refresh_stealing_creation_panel()
             _show_activity_detail(activity_id)
             return True
@@ -12473,6 +12808,9 @@ def show_main_menu(
             if activity_id == FISH_FLINGERS_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == FISHING_TRAWLER_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
             if activity_id == STEALING_CREATION_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
@@ -12510,6 +12848,10 @@ def show_main_menu(
             FISH_FLINGERS_ACTIVITY_ID: (
                 "Fish Flingers",
                 fish_flingers_box,
+            ),
+            FISHING_TRAWLER_ACTIVITY_ID: (
+                "Fishing Trawler",
+                fishing_trawler_box,
             ),
             STEALING_CREATION_ACTIVITY_ID: (
                 "Stealing Creation",

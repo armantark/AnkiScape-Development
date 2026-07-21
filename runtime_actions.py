@@ -223,6 +223,11 @@ try:
         fish_flingers_view_pure,
         fishing_outfit_multiplier_pure,
     )
+    from .fishing_trawler_data import FISHING_TRAWLER_ACTIVITY_ID
+    from .fishing_trawler_logic import (
+        apply_fishing_trawler_review_pure,
+        fishing_trawler_view_pure,
+    )
     from .agility_travel import (
         agility_travel_profile_pure,
         apply_run_energy_credit_pure,
@@ -514,6 +519,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         apply_fish_flingers_review_pure,
         fish_flingers_view_pure,
         fishing_outfit_multiplier_pure,
+    )
+    from fishing_trawler_data import FISHING_TRAWLER_ACTIVITY_ID  # type: ignore
+    from fishing_trawler_logic import (  # type: ignore
+        apply_fishing_trawler_review_pure,
+        fishing_trawler_view_pure,
     )
     from agility_travel import (  # type: ignore
         agility_travel_profile_pure,
@@ -3119,6 +3129,49 @@ def _handle_fish_flingers_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _handle_fishing_trawler_answer(ctx: RuntimeActionContext) -> bool:
+    updated, result = apply_fishing_trawler_review_pure(
+        ctx.player_data,
+        ctx.random_random(),
+    )
+    if not result.get("allowed"):
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Fishing Trawler unavailable",
+            str(result.get("reason", "Board the trawler before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    base_xp = float(result.get("xp", 0.0) or 0.0)
+    awarded_xp = base_xp * fishing_outfit_multiplier_pure(ctx.player_data)
+    gained = 0.0
+    if awarded_xp > 0:
+        gained = ctx.award_skill_exp("fishing_exp", awarded_xp)
+        ctx.level_up_check("Fishing", ctx.player_data)
+    _record_action(
+        ctx,
+        "utility",
+        FISHING_TRAWLER_ACTIVITY_ID,
+        bool(result.get("success")),
+        expected_success_chance=1.0,
+        output_items=result.get("outputs") or {},
+        failure_kind="sunk" if result.get("sunk") else None,
+        primary_xp=awarded_xp,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if gained > 0:
+        ctx.show_exp(gained)
+    ctx.show_activity_gain(
+        str(result.get("status", "Fishing Trawler duty resolved"))
+    )
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
 def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
@@ -3152,6 +3205,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_gnome_ball_answer(ctx)
     if activity_key == FISH_FLINGERS_ACTIVITY_ID:
         return _handle_fish_flingers_answer(ctx)
+    if activity_key == FISHING_TRAWLER_ACTIVITY_ID:
+        return _handle_fishing_trawler_answer(ctx)
     if activity_key == STRONGHOLD_UTILITY_KEY:
         return _handle_stronghold_answer(ctx)
     if activity_key == KNIGHT_WAVES_UTILITY_KEY:
@@ -5479,6 +5534,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return bool(gnome_ball_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == FISH_FLINGERS_ACTIVITY_ID:
         return bool(fish_flingers_view_pure(ctx.player_data).get("can_review", False))
+    if activity_key == FISHING_TRAWLER_ACTIVITY_ID:
+        return bool(fishing_trawler_view_pure(ctx.player_data).get("can_review", False))
     return not utility_activity_locked_reasons_pure(
         ctx.player_data,
         activity_key,
