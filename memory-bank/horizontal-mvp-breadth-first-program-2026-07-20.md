@@ -83,9 +83,8 @@ The owner-settled activity wave remains the current breadth frontier:
 
 1. Tears of Guthix;
 2. Barrows;
-3. Fight Caves;
-4. Stealing Creation;
-5. Shattered Heart.
+3. Stealing Creation;
+4. Shattered Heart.
 
 Tears of Guthix is currently skipped, not removed: its exact post-refresh
 reward magnitude and session beat count remain `source_blocked`.
@@ -98,17 +97,22 @@ HUD, normalized period art, and focused proof. The initial-size, first-finder,
 crowd, gem, and reward-rounding distributions are explicitly bounded data debt,
 not missing mechanics.
 
-Fist of Guthix, Sorceress's Garden, Penguin Hide and Seek, and Vinesweeper now
-also satisfy breadth level one. Vinesweeper ships the complete entry/leave,
-flag, Ogleroot, rabbit, point, Farming-XP, and literal cutoff reward-shop graph
-without inventing a board or wall-clock simulation. Its bounded one-roll field
-outcome is labeled abstraction; exact hidden outcome rates remain later data
-depth. The newly reachable Compost potion chain also has its period shop,
-dose, conversion, item, price, and buy-limit seams. Tears of Guthix remains
-skipped until its source-blocked post-refresh reward magnitude and session beat
-count are resolved. Barrows and Shattered Heart remain data-readiness skips
-rather than permission to flatten their missing combat/reward or
-qualifying-action mechanics.
+Fist of Guthix, Sorceress's Garden, Penguin Hide and Seek, Vinesweeper, and
+TzHaar Fight Cave now also satisfy breadth level one. Fight Caves ships the
+exact persistent 63-wave roster, engaged-target Combat, unengaged pressure,
+creature mechanics, Jad telegraph/healers, safe death, leave/resume, partial
+and completion rewards, follower/session gates, undo, and a compact activity
+surface. Vinesweeper ships the complete entry/leave, flag, Ogleroot, rabbit,
+point, Farming-XP, and literal cutoff reward-shop graph without inventing a
+board or wall-clock simulation. Its bounded one-roll field outcome is labeled
+abstraction; exact hidden outcome rates remain later data depth. The newly
+reachable Compost potion chain also has its period shop, dose, conversion,
+item, price, and buy-limit seams. Tears of Guthix remains skipped until its
+source-blocked post-refresh reward magnitude and session beat count are
+resolved. Barrows and Shattered Heart remain data-readiness skips rather than
+permission to flatten their missing combat/reward or qualifying-action
+mechanics. Stealing Creation is therefore the next source- and design-ready
+breadth-one frontier.
 
 After each accepted slice, recompute the frontier from live source/runtime
 evidence. Any newly discovered owner-facing fork goes into the current

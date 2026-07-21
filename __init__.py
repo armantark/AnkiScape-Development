@@ -108,6 +108,7 @@ from .equipment_instance_logic import (
 )
 from .fist_of_guthix_data import FIST_OF_GUTHIX_CONDITION_DATA
 from .fist_of_guthix_logic import apply_fist_of_guthix_command_pure
+from .fight_caves_logic import apply_fight_caves_command_pure
 from .sorceress_garden_data import SORCERESS_GARDEN_ACTIVITY_ID
 from .sorceress_garden_logic import apply_sorceress_garden_command_pure
 from .penguin_hide_and_seek_data import PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID
@@ -1843,6 +1844,48 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             pass
         return {"ok": True, **info}
 
+    def _apply_fight_caves_command(action_id, payload):
+        payload = payload if isinstance(payload, dict) else {}
+        before = _capture_player_data_snapshot()
+        updated, ok, info = apply_fight_caves_command_pure(
+            player_data,
+            str(action_id),
+            payload,
+        )
+        if not ok:
+            return {
+                "ok": False,
+                "message": str(info.get("reason", "Fight Cave action failed.")),
+                **{
+                    key: info[key]
+                    for key in ("requires_confirmation", "follower_kind")
+                    if key in info
+                },
+            }
+        try:
+            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+        except (AttributeError, RuntimeError):
+            return {
+                "ok": False,
+                "message": "Anki could not create an undo entry.",
+            }
+        _DIRECT_ACTION_UNDO_STACK.append(before)
+        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+        player_data.clear()
+        player_data.update(updated)
+        check_achievements(player_data)
+        save_player_data()
+        _refresh_skill_availability()
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            mw.update_undo_actions()
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_livid_farm_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         if action_id == "set_routine":
@@ -2047,6 +2090,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_sorceress_garden_command=_apply_sorceress_garden_command,
         on_penguin_command=_apply_penguin_command,
         on_vinesweeper_command=_apply_vinesweeper_command,
+        on_fight_caves_command=_apply_fight_caves_command,
         on_livid_farm_command=_apply_livid_farm_command,
         on_set_prayer_selection=set_prayer_selection,
         on_set_magic=lambda target: _set_value("current_magic", target),

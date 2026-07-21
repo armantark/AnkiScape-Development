@@ -553,6 +553,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._sorceress_garden_calls: list = []
         self._penguin_calls: list = []
         self._vinesweeper_calls: list = []
+        self._fight_caves_calls: list = []
         self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
         self._mage_arena_calls: list = []
@@ -876,6 +877,18 @@ class MainMenuWidgetTest(unittest.TestCase):
                 player_data.update(updated)
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
+        def _fight_caves_command(action_id, payload):
+            from fight_caves_logic import apply_fight_caves_command_pure
+
+            self._fight_caves_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_fight_caves_command_pure(
+                player_data, action_id, payload
+            )
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
         def _mage_arena_action(action_id, god_id):
             from logic_pure import (
                 apply_mage_arena_cape_action_pure,
@@ -940,6 +953,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_sorceress_garden_command=_sorceress_garden_command,
             on_penguin_command=_penguin_command,
             on_vinesweeper_command=_vinesweeper_command,
+            on_fight_caves_command=_fight_caves_command,
             on_set_prayer_selection=_set_prayer_selection,
             on_set_magic=lambda target: _set_target("current_magic", self._magic_calls, target),
             on_set_construction=lambda target: _set_target("current_construction", self._construction_calls, target),
@@ -7575,6 +7589,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "sorceress_garden",
                 "livid_farm",
                 "vinesweeper",
+                "fight_caves",
             },
         )
         self.assertEqual(
@@ -8513,6 +8528,120 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["vinesweeper"]["points"], 0)
         self.assertEqual(pd["farming_exp"], farming_exp_before + 30.0)
         self.assertFalse(redeem.isEnabled())
+
+    def test_fight_caves_card_enters_targets_and_leaves_without_nested_scroll(self) -> None:
+        from fight_caves_logic import default_fight_caves_state_pure
+
+        pd = _make_player_data()
+        pd["fight_caves"] = default_fight_caves_state_pure()
+        pd["activity_session"] = {"active_id": ""}
+        pd["combat_encounter"] = {}
+        dialog = self._open(pd)
+        activity_tree = self._open_activities(dialog)
+        row = _utility_row(activity_tree, "fight_caves")
+        activity_tree.setCurrentItem(row)
+        activity_tree.itemActivated.emit(row, 0)
+        QApplication.processEvents()
+
+        panel = _find_named_widget(dialog, "fightCavesPanel")
+        status = _find_named_label(dialog, "fightCavesStatusChip")
+        summary = _find_named_label(dialog, "fightCavesSummary")
+        telegraph = _find_named_label(dialog, "fightCavesJadTelegraph")
+        primary = _find_named_button(dialog, "fightCavesPrimaryButton")
+        leave = _find_named_button(dialog, "fightCavesLeaveButton")
+        roster = panel.findChild(QListWidget, "fightCavesRoster")
+        mode = panel.findChild(QComboBox, "fightCavesModeCombo")
+        target = panel.findChild(QComboBox, "fightCavesTargetCombo")
+        self.assertIsNone(panel.findChild(QScrollArea))
+        self.assertEqual(status.text(), "READY")
+        self.assertTrue(telegraph.isHidden())
+        self.assertTrue(leave.isHidden())
+        self.assertEqual(roster.accessibleName(), "Fight Cave wave roster")
+        self.assertEqual(roster.focusPolicy(), Qt.FocusPolicy.TabFocus)
+
+        primary.click()
+        QApplication.processEvents()
+        self.assertEqual(self._fight_caves_calls[-1], ("enter", {}))
+        self.assertTrue(pd["fight_caves"]["active"])
+        self.assertEqual(pd["current_utility"], "fight_caves")
+        self.assertEqual(self._utility_calls[-1], "fight_caves")
+        self.assertEqual(status.text(), "ACTIVE")
+        self.assertIn("Wave 1/63", summary.text())
+        self.assertEqual(roster.count(), 1)
+        self.assertIn("Tz-Kih", roster.item(0).text())
+        self.assertFalse(leave.isHidden())
+        self.assertEqual(leave.text(), "Leave · claim 0 TokKul")
+
+        advanced_index = mode.findData("advanced")
+        mode.setCurrentIndex(advanced_index)
+        QApplication.processEvents()
+        self.assertEqual(
+            self._fight_caves_calls[-1],
+            ("set_mode", {"automation_mode": "advanced"}),
+        )
+        self.assertTrue(target.isEnabled())
+        self.assertEqual(target.count(), 1)
+        self.assertEqual(target.accessibleName(), "Fight Cave engaged target")
+
+        pd["fight_caves"]["wave"] = 59
+        pd["fight_caves"]["engaged_instance_id"] = ""
+        pd["fight_caves"]["next_instance_id"] = 8
+        pd["fight_caves"]["roster"] = []
+        for index, enemy_id, lifepoints in (
+            (1, "ket_zek", 1600),
+            (2, "yt_mejkot", 800),
+            (3, "tok_xil", 400),
+            (4, "tz_kek_small", 100),
+            (5, "tz_kek_small", 100),
+            (6, "tz_kek_small", 100),
+            (7, "tz_kek_small", 100),
+        ):
+            pd["fight_caves"]["roster"].append(
+                {
+                    "instance_id": f"fight-caves-{index}",
+                    "enemy_id": enemy_id,
+                    "lifepoints": lifepoints,
+                    "encounter": {
+                        "target_id": "fight_caves",
+                        "enemy_lifepoints": lifepoints,
+                    },
+                    "heal_counter": 0,
+                }
+            )
+        mode.setCurrentIndex(mode.findData("casual"))
+        dialog.show()
+        dialog.resize(900, 560)
+        for _ in range(6):
+            QApplication.processEvents()
+        self.assertEqual(roster.count(), 7)
+        self.assertEqual(roster.verticalScrollBar().maximum(), 0)
+        engaged_rows = [
+            roster.item(index).text()
+            for index in range(roster.count())
+            if roster.item(index).text().startswith("▶")
+        ]
+        self.assertEqual(len(engaged_rows), 1)
+        self.assertIn("Tok-Xil", engaged_rows[0])
+
+        with patch.object(
+            QMessageBox,
+            "question",
+            return_value=QMessageBox.StandardButton.No,
+        ):
+            leave.click()
+        QApplication.processEvents()
+        self.assertTrue(pd["fight_caves"]["active"])
+        with patch.object(
+            QMessageBox,
+            "question",
+            return_value=QMessageBox.StandardButton.Yes,
+        ):
+            leave.click()
+        QApplication.processEvents()
+        self.assertEqual(self._fight_caves_calls[-1], ("leave", {}))
+        self.assertFalse(pd["fight_caves"]["active"])
+        self.assertEqual(status.text(), "READY")
+        self.assertTrue(leave.isHidden())
 
         dialog.show()
         dialog.resize(900, 560)

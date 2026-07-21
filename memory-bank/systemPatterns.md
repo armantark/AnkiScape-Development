@@ -724,6 +724,18 @@ stop at terminal boundaries, and never replay hidden subactions or add a second
 skill cadence gate. The complete reconciliation table is
 `memory-bank/source-audits/activity-cadence-reconciliation-2026-07-18.md`.
 
+Persistent multi-enemy activities use one sealed session plus one visible
+roster. A successful review applies the ordinary live six-tick Combat reducer
+to exactly one engaged member, stops at a terminal boundary, then resolves one
+bounded pressure pass from the remaining roster through the same player
+Defence and protection-prayer state. Preserve the player's full data mapping
+when sanitizing Combat state for pressure; replacing it with the sanitizer's
+Combat-only projection silently discards skill levels and disables protection
+prayers. Sealed instances pass `allow_bank_run=False`, use `safe_death=True`
+where the source says the activity is safe, and own explicit leave/resume
+rather than leaking ordinary Combat target or Bank-trip state. Fight Caves is
+the reference implementation.
+
 In a shared canonical checkout, a whole-suite result is valid only for the
 source/test snapshot imported when discovery began. Before recording or
 committing a long verification run, compare source and test modification times

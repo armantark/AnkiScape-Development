@@ -22,6 +22,10 @@ try:
         default_fist_of_guthix_state_pure,
         sanitize_fist_of_guthix_state_pure,
     )
+    from .fight_caves_logic import (
+        default_fight_caves_state_pure,
+        sanitize_fight_caves_state_pure,
+    )
     from .urn_data import URN_PLAIN_TO_RUNED_ITEM, default_urn_state_pure, sanitize_urn_state_pure
     from .constants import (
         BAR_DATA,
@@ -141,6 +145,10 @@ except ImportError:
         default_fist_of_guthix_state_pure,
         sanitize_fist_of_guthix_state_pure,
     )
+    from fight_caves_logic import (  # type: ignore
+        default_fight_caves_state_pure,
+        sanitize_fight_caves_state_pure,
+    )
     from urn_data import URN_PLAIN_TO_RUNED_ITEM, default_urn_state_pure, sanitize_urn_state_pure
     from constants import (
         BAR_DATA,
@@ -241,7 +249,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 57
+CURRENT_CONFIG_VERSION = 58
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -470,6 +478,8 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["evil_tree"] = default_evil_tree_state_pure()
     data["shooting_star"] = default_shooting_star_state_pure()
     data["fist_of_guthix"] = default_fist_of_guthix_state_pure()
+    data["fight_caves"] = default_fight_caves_state_pure()
+    data["activity_session"] = {"active_id": ""}
     data["sorceress_garden"] = default_sorceress_garden_state_pure()
     data["penguin_hide_and_seek"] = default_penguin_state_pure()
     data["vinesweeper"] = default_vinesweeper_state_pure()
@@ -1081,6 +1091,18 @@ def migrate_loaded_data(
     data["fist_of_guthix"] = sanitize_fist_of_guthix_state_pure(
         data.get("fist_of_guthix")
     )
+    data["fight_caves"] = sanitize_fight_caves_state_pure(
+        data.get("fight_caves")
+    )
+    raw_activity_session = data.get("activity_session")
+    active_session_id = (
+        str(raw_activity_session.get("active_id", ""))[:80]
+        if isinstance(raw_activity_session, dict)
+        else ""
+    )
+    if data["fight_caves"]["active"]:
+        active_session_id = "fight_caves"
+    data["activity_session"] = {"active_id": active_session_id}
     data["sorceress_garden"] = sanitize_sorceress_garden_state_pure(
         data.get("sorceress_garden")
     )

@@ -1014,6 +1014,15 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   chain is also reachable through all four doses, its instantaneous Utility
   conversion, and cutoff Grand Exchange rows. See
   `memory-bank/source-audits/vinesweeper-loop-2026-07-18.md`.
+- TzHaar Fight Cave is mechanic-complete as a persistent Activities-only
+  Combat challenge. Its exact 63 waves, engaged-target six-tick reviews,
+  bounded unengaged pressure, creature mechanics, Jad telegraph/healers, safe
+  death, partial TokKul, exact completion reward, follower/session gates,
+  resume/leave, persistence, undo, cadence, Fire cape equipment, normalized
+  art, Review HUD, and compact card are live. Hidden attack-style sequencing
+  outside Jad and precise multi-NPC positional timing remain labeled data
+  depth, not missing mechanics. See
+  `memory-bank/source-audits/fight-caves-horizontal-mvp-2026-07-20.md`.
 - Darkan should supply hidden state machines, rolls, currencies, and reward logic; period wiki/cache evidence still establishes cutoff and client identity.
 
 ### Missing skill server behavior
@@ -1080,13 +1089,18 @@ Labels: `DESIGN CLOSED 2026-07-18`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY:
   (consuming the hawk/owl protection flags), and telegraph-as-warning for
   Jad/Har'Aken. Remaining work is per-boss harvest and implementation; bosses
   never become ordinary farm-target rows.
+- The Fight Cave breadth slice now proves the persistent multi-enemy substrate:
+  one visible roster, one engaged target, bounded ordinary-Combat pressure from
+  unengaged enemies, safe death, sealed supplies, resume, and explicit leave.
+  Reuse it for the Kiln and compatible instances; do not duplicate its session
+  or pressure engine inside boss-specific code.
 
 ### Acquisition and item/equipment completeness
 
 Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 
-- Maintain `tools/audit_item_reachability.py`; the current run finds 1,433
-  actions, 2,099 reachable items, and 168 orphan inputs (76 root, 92 cascade)
+- Maintain `tools/audit_item_reachability.py`; the current run finds 1,435
+  actions, 2,100 reachable items, and 168 orphan inputs (76 root, 92 cascade)
   across planned skills, activities, Combat/world acquisition, Farming, and
   potion-state plumbing. Bob Barter's vial decant routes and Teplin Macagan's
   vial/flask conversions make potion dose variants known-producer cascades;

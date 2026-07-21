@@ -4,6 +4,35 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Fight Caves horizontal mechanic closure — 2026-07-20
+
+- Implemented the exact persistent 63-wave Fight Cave with stable roster
+  identities, one engaged six-tick Combat slice per successful review, Casual
+  threat priority, Advanced target selection, and ordinary protection-prayer
+  and Defence resolution for bounded unengaged pressure.
+- Added Tz-Kih prayer drain, Tz-Kek melee recoil and split spawns, Yt-MejKot
+  healing, Jad attack telegraphs and four healers, safe death, partial TokKul,
+  explicit confirmed leave, and exact 16,064 TokKul plus Fire cape completion.
+- Added the reusable sealed-activity constraints: one active session identity,
+  follower dismissal confirmation, no mid-instance Bank trip, persistent
+  resume, schema-58 migration, direct/review undo, and cadence coverage.
+- Registered TokKul and Fire cape, including the cape's exact equipment stats
+  and existing normalized period art. The acquisition path is included in the
+  live reachability graph.
+- Added the compact Activities card and Review HUD feedback. Kimi K3 and the
+  completed Fable taste pass surfaced three reproducible risks; confirmed leave
+  confirmation, Casual-display, and maximum-roster defects are fixed and
+  regression-covered.
+- Verification: all 2,040 non-Qt tests pass with 267 expected skips; all 2,040
+  real offscreen-Qt tests pass with one intentional skip. A fully restarted
+  native Anki process showed one menu and the unclipped READY card without
+  entering the cave or changing gameplay state. Test quality, docs,
+  compilation, JSON, diff, assets, reachability, and worktree safety pass. See
+  `source-audits/fight-caves-horizontal-mvp-2026-07-20.md`.
+- Results:
+  `status-updates/fight-caves-horizontal-mvp-results-2026-07-20.html`; mobile
+  copy: `https://4r52o2zq3kzv.postplan.dev`.
+
 ## Vinesweeper horizontal mechanic closure — 2026-07-20
 
 - Implemented the complete review-driven field loop: Spade entry, familiar

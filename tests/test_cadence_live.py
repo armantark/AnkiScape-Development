@@ -112,6 +112,24 @@ class TestCadenceLiveCoverage(unittest.TestCase):
             row["multiplier_behavior"],
         )
 
+    def test_fight_caves_declares_one_live_combat_and_roster_pressure_boundary(self):
+        row = next(
+            row
+            for row in cadence_coverage_rows_pure()
+            if row["handler_key"] == "utility"
+            and row["action_id"] == "fight_caves"
+        )
+        self.assertEqual(row["mode"], "activity_group")
+        self.assertEqual(row["source_status"], "sourced")
+        self.assertEqual(
+            row["includes"],
+            (
+                "one engaged six-tick Combat slice",
+                "one unengaged-roster pressure boundary",
+                "one atomic wave-state transaction",
+            ),
+        )
+
     def test_declared_multiplier_behavior_matches_single_step_exemptions(self):
         thieving = resolve_live_cadence_route_pure(
             "thieving", "stall_silver", {}

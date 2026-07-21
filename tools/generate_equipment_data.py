@@ -828,6 +828,33 @@ def _legacy_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedE
             source_status="period manual slot and bonuses",
         )
     )
+    generated.append(
+        GeneratedEquipmentItem(
+            item_name="Fire cape",
+            slot="cape",
+            combat_skill=None,
+            required_level=1,
+            two_handed=False,
+            equipment_type="fire_cape",
+            bonuses={
+                **{field: 0 for field in BONUS_FIELDS},
+                "defence_stab": 11,
+                "defence_slash": 11,
+                "defence_crush": 11,
+                "defence_magic": 11,
+                "defence_ranged": 11,
+                "melee_strength": 4,
+                "prayer": 2,
+            },
+            attack_speed=4,
+            source_item_id=6570,
+            source=(
+                "RuneScape Wiki Fire cape oldid=6591500; "
+                "TzHaar Fight Cave oldid=6584235"
+            ),
+            source_status="period exact cape slot and pre-EOC bonuses",
+        )
+    )
     generated.extend(
         (
             GeneratedEquipmentItem(

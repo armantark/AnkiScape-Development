@@ -136,6 +136,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "fight_caves":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "fight_caves",
+                    "mode": "activity_group",
+                    "source_status": "sourced",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One review advances exactly six live Combat ticks against "
+                        "the engaged roster target, then resolves bounded pressure."
+                    ),
+                    "includes": (
+                        "one engaged six-tick Combat slice",
+                        "one unengaged-roster pressure boundary",
+                        "one atomic wave-state transaction",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains "
+                        "one six-tick Fight Cave interval"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same six-tick activity handler",
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "shooting_stars":
             rows.append(
                 {

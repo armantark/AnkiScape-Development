@@ -2,6 +2,36 @@
 
 ## Current Focus
 
+TzHaar Fight Cave now satisfies horizontal breadth level one. The exact
+63-wave roster persists across reviews; each successful review resolves one
+engaged six-tick Combat slice, then bounded pressure from the visible
+unengaged roster. Casual chooses the settled threat priority, Advanced chooses
+an explicit target, and ordinary Defence plus protection prayer resolve every
+attack channel. Tz-Kih prayer drain, Tz-Kek recoil and split spawns,
+Yt-MejKot healing, Jad telegraphs and healers, safe death, partial TokKul,
+explicit leave, follower dismissal, and the exact 16,064-TokKul plus Fire-cape
+completion reward are live without wall-clock or mid-instance Bank trips.
+
+The activity owns one resumable sealed-session identity, independent direct
+undo for entry/policy/target/leave, review undo for Combat progress, schema-58
+migration, cadence declaration, normalized existing period art, Fire-cape
+equipment stats, reachability, Review HUD feedback, and a compact dark-mode
+Activities card. Kimi K3 and the already-completed Fable taste pass converged
+on leave confirmation, truthful Casual targeting, and bounded roster height;
+all reproduced findings are closed. A fully restarted native Anki process
+showed one launcher, one menu, the paginated Minigames page, and the unclipped
+READY card without entering the cave or mutating gameplay state.
+
+The exact final state passes all 2,040 non-Qt tests with 267 expected
+environment skips and all 2,040 real offscreen-Qt tests with one intentional
+skip. Test quality has zero hard issues; documentation, compilation, JSON,
+diff, asset normalization, reachability, and worktree safety pass. The graph
+now contains 1,435 actions, 2,100 reachable items, 168 orphan inputs, and 189
+blocked actions. No owner design gap emerged. Durable record:
+`source-audits/fight-caves-horizontal-mvp-2026-07-20.md`. Results:
+`status-updates/fight-caves-horizontal-mvp-results-2026-07-20.html`; mobile
+copy: `https://4r52o2zq3kzv.postplan.dev`.
+
 Vinesweeper now satisfies horizontal breadth level one. Entry requires a
 Spade, dismisses or stores an active familiar through the established
 confirmation path, grants the one-time ten free flags, and resolves exactly

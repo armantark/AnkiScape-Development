@@ -240,6 +240,11 @@ try:
         apply_fist_of_guthix_review_pure,
         fist_of_guthix_can_review_pure,
     )
+    from .fight_caves_data import FIGHT_CAVES_ACTIVITY_ID
+    from .fight_caves_logic import (
+        apply_fight_caves_review_pure,
+        fight_caves_view_pure,
+    )
     from .sorceress_garden_data import SORCERESS_GARDEN_ACTIVITY_ID
     from .sorceress_garden_logic import (
         apply_sorceress_garden_review_pure,
@@ -489,6 +494,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from fist_of_guthix_logic import (  # type: ignore
         apply_fist_of_guthix_review_pure,
         fist_of_guthix_can_review_pure,
+    )
+    from fight_caves_data import FIGHT_CAVES_ACTIVITY_ID  # type: ignore
+    from fight_caves_logic import (  # type: ignore
+        apply_fight_caves_review_pure,
+        fight_caves_view_pure,
     )
     from sorceress_garden_data import SORCERESS_GARDEN_ACTIVITY_ID  # type: ignore
     from sorceress_garden_logic import (  # type: ignore
@@ -2607,6 +2617,43 @@ def _handle_fist_of_guthix_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _handle_fight_caves_answer(ctx: RuntimeActionContext) -> bool:
+    updated, ok, result = apply_fight_caves_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+        equipment_data=EQUIPMENT_DATA,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Fight Cave unavailable",
+            str(result.get("reason", "Enter the Fight Cave before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    xp_rewards = dict(result.get("xp_rewards", {}) or {})
+    total_xp = sum(float(amount or 0.0) for amount in xp_rewards.values())
+    _record_action(
+        ctx,
+        "utility",
+        FIGHT_CAVES_ACTIVITY_ID,
+        True,
+        expected_success_chance=1.0,
+        primary_xp=total_xp,
+    )
+    _refresh_combat_levels(ctx, xp_rewards)
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if total_xp > 0:
+        ctx.show_exp(total_xp)
+    if result.get("outcome"):
+        ctx.deactivate_current_skill()
+    ctx.show_activity_gain(str(result.get("status", "Fight Cave review complete")))
+    return True
+
+
 def _handle_sorceress_garden_answer(ctx: RuntimeActionContext) -> bool:
     view = sorceress_garden_view_pure(ctx.player_data)
     harvest = str(view.get("harvest_mode", "fruit"))
@@ -2735,6 +2782,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_shooting_star_answer(ctx)
     if activity_key == FIST_OF_GUTHIX_ACTIVITY_ID:
         return _handle_fist_of_guthix_answer(ctx)
+    if activity_key == FIGHT_CAVES_ACTIVITY_ID:
+        return _handle_fight_caves_answer(ctx)
     if activity_key == SORCERESS_GARDEN_ACTIVITY_ID:
         return _handle_sorceress_garden_answer(ctx)
     if activity_key == PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID:
@@ -4986,6 +5035,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return shooting_star_event_mineable_pure(ctx.player_data)
     if activity_key == FIST_OF_GUTHIX_ACTIVITY_ID:
         return fist_of_guthix_can_review_pure(ctx.player_data)
+    if activity_key == FIGHT_CAVES_ACTIVITY_ID:
+        return bool(fight_caves_view_pure(ctx.player_data).get("active", False))
     if activity_key == STRONGHOLD_UTILITY_KEY:
         state = ctx.player_data.get("stronghold_of_security") or {}
         return not state.get("completed")

@@ -7306,6 +7306,82 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
     }
 
 
+def combat_enemy_pressure_attack_pure(
+    player_data,
+    enemy,
+    equipment_data=None,
+    rng=None,
+):
+    """Resolve one bounded incoming-only attack through ordinary Combat maths."""
+    equipment_data = equipment_data or {}
+    rng = rng or (lambda: 0.0)
+    data = _copy_player_data_with_nested(player_data)
+    data.update(sanitize_combat_state_pure(data, {"pressure": enemy}))
+    player_totals = equipment_stat_totals_pure(
+        data.get("equipment", {}) or {}, equipment_data
+    )
+    enemy_totals = _combat_enemy_bonuses(enemy)
+    style_id = combat_attack_style_for_equipment_pure(data, equipment_data)
+    player_style = COMBAT_ATTACK_STYLE_DATA.get(
+        style_id, COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE]
+    )
+    player_class = str(player_style.get("combat_class", "melee"))
+    enemy_style = _combat_enemy_attack_style(enemy, player_class)
+    enemy_class = _combat_enemy_attack_class(enemy, player_class)
+    enemy_attack_stat = (
+        "attack"
+        if enemy_style == "magic_melee"
+        else {"magic": "magic", "ranged": "ranged"}.get(enemy_class, "attack")
+    )
+    enemy_attack_bonus = (
+        _combat_attack_bonus_from_totals(enemy_totals, "melee", style_type="stab")
+        if enemy_style == "magic_melee"
+        else _combat_attack_bonus_from_totals(enemy_totals, enemy_class)
+    )
+    prayer_effects = prayer_effect_state_pure(data)
+    enemy_attack_roll = (
+        _positive_int(enemy.get("stats", {}).get(enemy_attack_stat, 1), 1) + 8
+    ) * (enemy_attack_bonus + 64)
+    player_defence_roll = (
+        _combat_effective_player_defence_level(data, style_id)
+        * float(prayer_effects.get("defence", 1.0))
+        * (_combat_defence_bonus_from_totals(player_totals, enemy_class) + 64)
+    )
+    accuracy = _combat_accuracy(enemy_attack_roll, player_defence_roll)
+    try:
+        landed = float(rng()) < accuracy
+    except (TypeError, ValueError):
+        landed = False
+    raw_damage = (
+        _combat_roll_damage_lifepoints(
+            _combat_enemy_max_hit_old_hp(
+                enemy,
+                _positive_int(enemy.get("stats", {}).get("strength", 1), 1) + 8,
+                _equipment_bonus_value(enemy_totals, "melee_strength"),
+                enemy_totals,
+            ),
+            rng,
+        )
+        if landed
+        else 0
+    )
+    protection_class = _combat_enemy_protection_class(enemy, player_class)
+    protection_key = {
+        "magic": "protect_magic",
+        "ranged": "protect_ranged",
+    }.get(protection_class, "protect_melee")
+    damage = int(
+        raw_damage * (1.0 - float(prayer_effects.get(protection_key, 0.0)))
+    )
+    return {
+        "attack_style": protection_class,
+        "accuracy": accuracy,
+        "landed": landed,
+        "raw_damage": raw_damage,
+        "damage": max(0, damage),
+    }
+
+
 def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data))
@@ -7456,6 +7532,8 @@ def apply_combat_burst_pure(
     *,
     live_cadence=False,
     stop_after_first_kill=False,
+    safe_death=False,
+    allow_bank_run=True,
 ):
     enemy_data = enemy_data or COMBAT_ENEMY_DATA
     equipment_data = equipment_data or {}
@@ -7520,14 +7598,18 @@ def apply_combat_burst_pure(
     spell_id, spell_spec = _combat_selected_magic_spell(data)
     borrowed_manual_cast = bool(spell_spec.get("borrowed_spell_id"))
     locked_reasons = combat_target_locked_reasons_pure(data, target_id, enemy_data, equipment_data=equipment_data)
-    bank_run_result = _combat_progress_or_start_bank_run(
-        data,
-        target_id,
-        combat_class,
-        ranged_weapon_spec,
-        spell_spec,
-        equipment_data,
-        enemy_data,
+    bank_run_result = (
+        _combat_progress_or_start_bank_run(
+            data,
+            target_id,
+            combat_class,
+            ranged_weapon_spec,
+            spell_spec,
+            equipment_data,
+            enemy_data,
+        )
+        if allow_bank_run
+        else None
     )
     if bank_run_result is not None:
         if not _combat_locks_can_bank_run(locked_reasons):
@@ -7942,6 +8024,8 @@ def apply_combat_burst_pure(
     vampyre_bite_healing = 0
     dragonfire_attacks = 0
     dragonfire_damage = 0
+    melee_recoil_damage = 0
+    enemy_prayer_drain = 0
     dragonfire_effect_tick = 0
     bite_spec = enemy.get("bite") if isinstance(enemy.get("bite"), Mapping) else None
     xp_rewards = {"magic_exp": supplemental_magic_xp} if supplemental_magic_xp > 0 else {}
@@ -8128,6 +8212,16 @@ def apply_combat_burst_pure(
             if damage > 0:
                 enemy_lp -= damage
                 player_damage += damage
+                if combat_class == "melee":
+                    recoil = min(
+                        player_lp,
+                        _non_negative_int(enemy.get("melee_recoil_damage", 0), 0),
+                    )
+                    if recoil > 0:
+                        player_lp -= recoil
+                        melee_recoil_damage += recoil
+                        if player_lp <= 0:
+                            died = True
                 if combat_class == "magic" and landed:
                     if spell_effect == "blood_heal":
                         player_lp = min(max_player_lp, player_lp + int(damage * spell_effect_value))
@@ -8170,6 +8264,8 @@ def apply_combat_burst_pure(
                 _combat_apply_magic_xp(xp_rewards, spell_spec, damage, npc_xp_multiplier)
             elif damage > 0:
                 _combat_apply_xp(xp_rewards, melee_xp_style_id, damage, npc_xp_multiplier)
+            if died and enemy_lp > 0:
+                break
             if enemy_lp <= 0:
                 kills += 1
                 killed = True
@@ -8353,6 +8449,17 @@ def apply_combat_burst_pure(
                     landed = False
                 damage = _combat_roll_damage_lifepoints(enemy_max_hit, rng) if landed else 0
             raw_enemy_damage = damage
+            prayer_drain_base = _non_negative_int(
+                enemy.get("prayer_drain_base", 0), 0
+            )
+            if prayer_drain_base > 0:
+                prayer_drain = prayer_drain_base
+                if bool(enemy.get("prayer_drain_damage", False)):
+                    prayer_drain += max(0, raw_enemy_damage)
+                prayer_drain = min(prayer_points_after, prayer_drain)
+                prayer_points_after -= prayer_drain
+                enemy_prayer_drain += prayer_drain
+                data["combat_prayer_points"] = prayer_points_after
             if (
                 not dragonfire_attack
                 and (
@@ -8625,7 +8732,12 @@ def apply_combat_burst_pure(
                 automatic_finishers += 1
             enemy_lp -= death_burst
             player_damage += death_burst
-        player_lp = _combat_apply_pvm_death(data, max_player_lp)
+        if safe_death:
+            data["combat_encounter"] = {}
+            data["combat_status_effects"] = {}
+            player_lp = max_player_lp
+        else:
+            player_lp = _combat_apply_pvm_death(data, max_player_lp)
     elif fled or enemy_lp <= 0 or (enemy_lp >= enemy_max_lp and not live_cadence):
         # No partial progress to carry: the player fled, nothing was fought, or the
         # burst ended right after a kill respawned a fresh full-LP enemy.
@@ -8712,6 +8824,9 @@ def apply_combat_burst_pure(
         "vampyre_bite_healing": vampyre_bite_healing,
         "dragonfire_attacks": dragonfire_attacks,
         "dragonfire_damage": dragonfire_damage,
+        "melee_recoil_damage": melee_recoil_damage,
+        "enemy_prayer_drain": enemy_prayer_drain,
+        "safe_death": bool(died and safe_death),
         "dragonfire_protection": combat_dragonfire_protection_pure(
             data, enemy
         ),
@@ -12312,6 +12427,7 @@ def apply_thieving_damage_pure(
     *,
     source="thieving_failure",
     carried_target_id=None,
+    safe_death=False,
 ):
     """Apply a Thieving failure through Combat's food and death substrate."""
     data = _copy_player_data_with_nested(player_data)
@@ -12325,12 +12441,17 @@ def apply_thieving_damage_pure(
     food_event = None
     died = current_lifepoints <= 0 and applied_damage > 0
     if died:
-        current_lifepoints = _combat_apply_pvm_death(
-            data,
-            max_lifepoints,
-            source,
-            carried_target_id=carried_target_id,
-        )
+        if safe_death:
+            data["combat_encounter"] = {}
+            data["combat_status_effects"] = {}
+            current_lifepoints = max_lifepoints
+        else:
+            current_lifepoints = _combat_apply_pvm_death(
+                data,
+                max_lifepoints,
+                source,
+                carried_target_id=carried_target_id,
+            )
     elif applied_damage > 0:
         if isinstance(carried_target_id, str):
             current_lifepoints, food_event = _consume_carried_auto_food_pure(
@@ -12347,6 +12468,7 @@ def apply_thieving_damage_pure(
     return data, {
         "damage": applied_damage,
         "died": died,
+        "safe_death": bool(died and safe_death),
         "food_used": food_event,
     }
 

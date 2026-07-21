@@ -349,6 +349,13 @@ except Exception:
     from vinesweeper_logic import vinesweeper_view_pure  # type: ignore
 
 try:
+    from .fight_caves_data import FIGHT_CAVES_ACTIVITY_ID
+    from .fight_caves_logic import fight_caves_view_pure
+except Exception:
+    from fight_caves_data import FIGHT_CAVES_ACTIVITY_ID  # type: ignore
+    from fight_caves_logic import fight_caves_view_pure  # type: ignore
+
+try:
     from .combat_session import (
         confirm_wilderness_combat_risk,
         wilderness_combat_risk_confirmed,
@@ -3397,6 +3404,7 @@ def show_main_menu(
     on_sorceress_garden_command=None,
     on_penguin_command=None,
     on_vinesweeper_command=None,
+    on_fight_caves_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
     on_set_construction=None,
@@ -8887,6 +8895,285 @@ def show_main_menu(
         _refresh_vinesweeper_panel()
         cards_stack.addWidget(vinesweeper_box)
 
+        fight_caves_box = QtFrame()
+        fight_caves_box.setObjectName("fightCavesPanel")
+        fight_caves_box.setStyleSheet(
+            "QFrame#fightCavesPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        fight_caves_layout = QVBoxLayout(fight_caves_box)
+        fight_caves_layout.setContentsMargins(10, 8, 10, 8)
+        fight_caves_layout.setSpacing(6)
+
+        fight_caves_top = QWidget()
+        fight_caves_top_layout = QHBoxLayout(fight_caves_top)
+        fight_caves_top_layout.setContentsMargins(0, 0, 0, 0)
+        fight_caves_top_layout.setSpacing(8)
+        fight_caves_icon = QLabel()
+        fight_caves_icon.setObjectName("fightCavesIcon")
+        fight_caves_icon.setFixedSize(28, 28)
+        fight_caves_icon_path = os.path.join(
+            current_dir, "constructionitems", "fire_cape.png"
+        )
+        if os.path.exists(fight_caves_icon_path):
+            fight_caves_icon.setPixmap(
+                QPixmap(fight_caves_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        fight_caves_title = QLabel("TzHaar Fight Cave")
+        fight_caves_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        fight_caves_status = QLabel()
+        fight_caves_status.setObjectName("fightCavesStatusChip")
+        fight_caves_status.setStyleSheet(
+            f"color: {dim_text_css(fight_caves_status)};"
+            " font-size: 11px; font-weight: 700;"
+        )
+        fight_caves_top_layout.addWidget(fight_caves_icon)
+        fight_caves_top_layout.addWidget(fight_caves_title)
+        fight_caves_top_layout.addStretch(1)
+        fight_caves_top_layout.addWidget(fight_caves_status)
+        fight_caves_layout.addWidget(fight_caves_top)
+
+        fight_caves_summary = QLabel()
+        fight_caves_summary.setObjectName("fightCavesSummary")
+        fight_caves_summary.setWordWrap(True)
+        fight_caves_summary.setStyleSheet("color: palette(text);")
+        fight_caves_layout.addWidget(fight_caves_summary)
+
+        fight_caves_telegraph = QLabel()
+        fight_caves_telegraph.setObjectName("fightCavesJadTelegraph")
+        fight_caves_telegraph.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        fight_caves_telegraph.setStyleSheet(
+            "QLabel { color: palette(highlighted-text);"
+            " background: palette(highlight); border-radius: 5px;"
+            " padding: 6px; font-weight: 800; }"
+        )
+        fight_caves_layout.addWidget(fight_caves_telegraph)
+
+        fight_caves_roster = QListWidget()
+        fight_caves_roster.setObjectName("fightCavesRoster")
+        fight_caves_roster.setAccessibleName("Fight Cave wave roster")
+        fight_caves_roster.setSelectionMode(
+            QAbstractItemView.SelectionMode.NoSelection
+        )
+        fight_caves_roster.setFocusPolicy(Qt.FocusPolicy.TabFocus)
+        fight_caves_roster.setAlternatingRowColors(True)
+        fight_caves_roster.setMaximumHeight(122)
+        fight_caves_layout.addWidget(fight_caves_roster)
+
+        fight_caves_policy_row = QWidget()
+        fight_caves_policy_layout = QHBoxLayout(fight_caves_policy_row)
+        fight_caves_policy_layout.setContentsMargins(0, 0, 0, 0)
+        fight_caves_policy_layout.setSpacing(6)
+        fight_caves_mode = QComboBox()
+        fight_caves_mode.setObjectName("fightCavesModeCombo")
+        fight_caves_mode.setAccessibleName("Fight Cave targeting mode")
+        fight_caves_mode.addItem("Casual · automatic priority", "casual")
+        fight_caves_mode.addItem("Advanced · choose target", "advanced")
+        fight_caves_target = QComboBox()
+        fight_caves_target.setObjectName("fightCavesTargetCombo")
+        fight_caves_target.setAccessibleName("Fight Cave engaged target")
+        fight_caves_target.setSizeAdjustPolicy(
+            QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
+        )
+        fight_caves_target.setMinimumContentsLength(18)
+        fight_caves_policy_layout.addWidget(fight_caves_mode, 1)
+        fight_caves_policy_layout.addWidget(fight_caves_target, 1)
+        fight_caves_layout.addWidget(fight_caves_policy_row)
+
+        fight_caves_primary = QPushButton()
+        fight_caves_primary.setObjectName("fightCavesPrimaryButton")
+        fight_caves_leave = QPushButton("Leave and claim partial TokKul")
+        fight_caves_leave.setObjectName("fightCavesLeaveButton")
+        fight_caves_action_row = QWidget()
+        fight_caves_action_layout = QHBoxLayout(fight_caves_action_row)
+        fight_caves_action_layout.setContentsMargins(0, 0, 0, 0)
+        fight_caves_action_layout.setSpacing(6)
+        fight_caves_action_layout.addWidget(fight_caves_primary, 1)
+        fight_caves_action_layout.addWidget(fight_caves_leave, 1)
+        fight_caves_layout.addWidget(fight_caves_action_row)
+        syncing_fight_caves = {"active": False}
+
+        def _refresh_fight_caves_panel() -> None:
+            view = fight_caves_view_pure(player_data)
+            syncing_fight_caves["active"] = True
+            active = bool(view["active"])
+            current_mode = str(view["automation_mode"])
+            mode_index = fight_caves_mode.findData(current_mode)
+            if mode_index >= 0:
+                fight_caves_mode.setCurrentIndex(mode_index)
+
+            selected_target = str(view["engaged_instance_id"])
+            fight_caves_target.clear()
+            for member in view["roster_view"]:
+                fight_caves_target.addItem(
+                    f"{member['display_name']} · {int(member['lifepoints']):,} LP",
+                    member["instance_id"],
+                )
+            target_index = fight_caves_target.findData(selected_target)
+            if target_index >= 0:
+                fight_caves_target.setCurrentIndex(target_index)
+
+            fight_caves_roster.clear()
+            for member in view["roster_view"]:
+                engaged = "▶ " if member["engaged"] else ""
+                style = str(member["attack_style"]).replace("_", " /").title()
+                fight_caves_roster.addItem(
+                    f"{engaged}{member['display_name']}  "
+                    f"{int(member['lifepoints']):,}/{int(member['max_lifepoints']):,} LP  ·  {style}"
+                )
+            if not view["roster_view"]:
+                fight_caves_roster.addItem(
+                    "Enter to begin the persistent 63-wave challenge."
+                )
+
+            roster_count = len(view["roster_view"])
+            fight_caves_status.setText("ACTIVE" if active else "READY")
+            fight_caves_summary.setText(
+                f"Wave {int(view['wave'])}/63 · {roster_count} "
+                f"{'enemy' if roster_count == 1 else 'enemies'} · "
+                f"leave reward {int(view['partial_tokkul']):,} TokKul"
+                if active
+                else f"{int(view['clears'])} clears · safe death · progress resumes until you leave"
+            )
+            fight_caves_summary.setToolTip(str(view["last_result"]))
+
+            jad_alive = any(
+                member["enemy_id"] == "tztok_jad"
+                for member in view["roster_view"]
+            )
+            fight_caves_telegraph.setVisible(active and jad_alive)
+            fight_caves_telegraph.setText(
+                f"NEXT JAD ATTACK · {str(view['jad_next_style']).upper()}"
+            )
+
+            current_utility = str(player_data.get("current_utility", ""))
+            selected_for_reviews = active and current_utility == FIGHT_CAVES_ACTIVITY_ID
+            fight_caves_primary.setText(
+                "Selected for reviews"
+                if selected_for_reviews
+                else "Select for reviews"
+                if active
+                else "Enter Fight Cave"
+            )
+            fight_caves_primary.setEnabled(
+                on_fight_caves_command is not None
+                and (not selected_for_reviews or not active)
+            )
+            fight_caves_leave.setVisible(active)
+            fight_caves_leave.setEnabled(on_fight_caves_command is not None)
+            fight_caves_leave.setText(
+                f"Leave · claim {int(view['partial_tokkul']):,} TokKul"
+            )
+            fight_caves_mode.setEnabled(on_fight_caves_command is not None)
+            fight_caves_target.setEnabled(
+                active
+                and current_mode == "advanced"
+                and on_fight_caves_command is not None
+                and fight_caves_target.count() > 0
+            )
+            fight_caves_target.setToolTip(
+                "Choose the enemy engaged by the next review."
+                if current_mode == "advanced"
+                else "Switch to Advanced mode to choose a target."
+            )
+            syncing_fight_caves["active"] = False
+            _fit_current_activity_detail()
+
+        def _run_fight_caves_command(
+            action_id: str,
+            payload=None,
+            *,
+            show_failure: bool = True,
+        ) -> dict[str, Any]:
+            if on_fight_caves_command is None:
+                return {"ok": False}
+            result = on_fight_caves_command(action_id, payload or {}) or {}
+            if not result.get("ok", False) and show_failure:
+                show_error_message(
+                    "TzHaar Fight Cave",
+                    str(result.get("message", "That Fight Cave action is unavailable.")),
+                )
+            _refresh_fight_caves_panel()
+            return result
+
+        def _select_fight_caves_for_reviews() -> None:
+            view = fight_caves_view_pure(player_data)
+            if not view["active"]:
+                result = _run_fight_caves_command("enter", show_failure=False)
+                if result.get("requires_confirmation"):
+                    answer = QMessageBox.question(
+                        fight_caves_box,
+                        "Dismiss active follower?",
+                        "The Fight Cave does not allow familiars or pets. Dismiss the "
+                        "active follower and enter?",
+                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                        QMessageBox.StandardButton.No,
+                    )
+                    if answer == QMessageBox.StandardButton.Yes:
+                        result = _run_fight_caves_command(
+                            "enter", {"confirm_dismiss_follower": True}
+                        )
+                elif not result.get("ok", False):
+                    show_error_message(
+                        "TzHaar Fight Cave",
+                        str(result.get("message", "The Fight Cave is unavailable.")),
+                    )
+                if not result.get("ok", False):
+                    return
+            if on_set_utility is not None:
+                on_set_utility(FIGHT_CAVES_ACTIVITY_ID)
+                player_data["current_utility"] = FIGHT_CAVES_ACTIVITY_ID
+                tree.clearSelection()
+            _refresh_fight_caves_panel()
+
+        def _confirm_fight_caves_leave() -> None:
+            view = fight_caves_view_pure(player_data)
+            if not view["active"]:
+                return
+            answer = QMessageBox.question(
+                fight_caves_box,
+                "Leave the Fight Cave?",
+                f"Leave wave {int(view['wave'])} and claim "
+                f"{int(view['partial_tokkul']):,} TokKul? "
+                "Your next run will restart at wave 1.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_fight_caves_command("leave")
+
+        fight_caves_primary.clicked.connect(
+            lambda _checked=False: _select_fight_caves_for_reviews()
+        )
+        fight_caves_leave.clicked.connect(
+            lambda _checked=False: _confirm_fight_caves_leave()
+        )
+        fight_caves_mode.currentIndexChanged.connect(
+            lambda _index: _run_fight_caves_command(
+                "set_mode",
+                {"automation_mode": str(fight_caves_mode.currentData() or "casual")},
+            )
+            if not syncing_fight_caves["active"]
+            else None
+        )
+        fight_caves_target.currentIndexChanged.connect(
+            lambda _index: _run_fight_caves_command(
+                "select_target",
+                {"instance_id": str(fight_caves_target.currentData() or "")},
+            )
+            if not syncing_fight_caves["active"]
+            and str(fight_caves_mode.currentData() or "casual") == "advanced"
+            and fight_caves_target.currentData()
+            else None
+        )
+        _refresh_fight_caves_panel()
+        cards_stack.addWidget(fight_caves_box)
+
         guild_box = QtFrame()
         guild_box.setObjectName("warriorsGuildPanel")
         guild_box.setStyleSheet(
@@ -9911,6 +10198,7 @@ def show_main_menu(
             _refresh_sorceress_garden_panel()
             _refresh_penguin_panel()
             _refresh_vinesweeper_panel()
+            _refresh_fight_caves_panel()
             _show_activity_detail(activity_id)
 
         def _on_utility_clicked(item: "QTreeWidgetItem", _column: int = 0):
@@ -9962,6 +10250,9 @@ def show_main_menu(
             if activity_id == VINESWEEPER_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == FIGHT_CAVES_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
             _set_utility_selection(activity_id)
 
         detail_cards = {
@@ -9978,6 +10269,7 @@ def show_main_menu(
                 penguin_box,
             ),
             VINESWEEPER_ACTIVITY_ID: ("Vinesweeper", vinesweeper_box),
+            FIGHT_CAVES_ACTIVITY_ID: ("TzHaar Fight Cave", fight_caves_box),
             FAMILIARISATION_ACTIVITY_ID: (
                 "Familiarisation",
                 familiarisation_box,

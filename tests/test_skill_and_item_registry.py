@@ -499,6 +499,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "sorceress_garden",
                 "penguin_hide_and_seek",
                 "vinesweeper",
+                "fight_caves",
             },
         )
 
