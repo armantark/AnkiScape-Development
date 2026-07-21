@@ -153,6 +153,11 @@ try:
         werewolf_skullball_activity_as_dict,
         werewolf_skullball_extra_items_as_dict,
     )
+    from .gnome_ball_data import (
+        GNOME_BALL_ACTIVITY_ID,
+        gnome_ball_activity_as_dict,
+        gnome_ball_extra_items_as_dict,
+    )
     from .barrows_data import (
         BARROWS_ACTIVITY_ID,
         barrows_activity_as_dict,
@@ -324,6 +329,11 @@ except ImportError:
         WEREWOLF_SKULLBALL_ACTIVITY_ID,
         werewolf_skullball_activity_as_dict,
         werewolf_skullball_extra_items_as_dict,
+    )
+    from gnome_ball_data import (  # type: ignore
+        GNOME_BALL_ACTIVITY_ID,
+        gnome_ball_activity_as_dict,
+        gnome_ball_extra_items_as_dict,
     )
     from barrows_data import (  # type: ignore
         BARROWS_ACTIVITY_ID,
@@ -701,6 +711,7 @@ UTILITY_ACTIVITY_DATA.update(barrows_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(flash_powder_factory_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(pyramid_plunder_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(werewolf_skullball_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(gnome_ball_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(sorceress_garden_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(penguin_hide_and_seek_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(vinesweeper_activity_as_dict())
@@ -790,6 +801,13 @@ if os.path.exists(_werewolf_skullball_icon):
     UTILITY_ACTIVITY_DATA[WEREWOLF_SKULLBALL_ACTIVITY_ID]["icon_path"] = (
         _werewolf_skullball_icon
     )
+_gnome_ball_icon = os.path.join(
+    current_dir,
+    "agilityitems",
+    "gnomeball.png",
+)
+if os.path.exists(_gnome_ball_icon):
+    UTILITY_ACTIVITY_DATA[GNOME_BALL_ACTIVITY_ID]["icon_path"] = _gnome_ball_icon
 _sorceress_garden_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
     "sorceress_garden.png",
@@ -1437,6 +1455,7 @@ BARROWS_EXTRA_ITEM_DATA = barrows_extra_items_as_dict()
 FLASH_POWDER_FACTORY_EXTRA_ITEM_DATA = flash_powder_factory_extra_items_as_dict()
 PYRAMID_PLUNDER_EXTRA_ITEM_DATA = pyramid_plunder_extra_items_as_dict()
 WEREWOLF_SKULLBALL_EXTRA_ITEM_DATA = werewolf_skullball_extra_items_as_dict()
+GNOME_BALL_EXTRA_ITEM_DATA = gnome_ball_extra_items_as_dict()
 VINESWEEPER_ITEM_IMAGES = {}
 for _item_name in VINESWEEPER_EXTRA_ITEM_DATA:
     _path = os.path.join(
@@ -1816,6 +1835,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **FLASH_POWDER_FACTORY_EXTRA_ITEM_DATA,
     **PYRAMID_PLUNDER_EXTRA_ITEM_DATA,
     **WEREWOLF_SKULLBALL_EXTRA_ITEM_DATA,
+    **GNOME_BALL_EXTRA_ITEM_DATA,
     **potion_items_as_dict(),
     **SHOP_ONLY_EXTRA_ITEM_DATA,
 })

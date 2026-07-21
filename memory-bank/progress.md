@@ -4,6 +4,36 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Gnome Ball horizontal mechanic closure — 2026-07-21
+
+- Replaced the invented five-review Agility stub with the settled three-beat
+  Activities match: goals `1–2`, goals `3–4`, then goal `5` and the completion
+  bonus. Exact period XP awards `9`, `13`, and `30` to both Agility and Ranged.
+- Added the period weapon-slot restriction, item `751` equipment identity,
+  carried-only referee reward check, explicit entry/leave, persistent session
+  arbitration, completion counters, telemetry, cadence stopping, schema-63
+  migration, and atomic direct/review undo.
+- Added one disclosed level-scaled tackle abstraction per beat. Survived tackles
+  retain the score; lethal tackles award no beat XP and use the shared Auto or
+  Custom food pack, LP, grave, equipment-loss, terminal-stop, and rollback
+  channels.
+- Added Activities-only registration, the normalized period Gnomeball sprite,
+  a compact dark-safe card, visible READY/ACTIVE/LOCKED state, tackle risk and
+  LP, switch/leave confirmation, and the existing four-page Activities pager.
+- Opus's bounded taste pass drove theme-aware active state, concise danger and
+  leave copy, visible prior results, and clearer action wording. Fable remained
+  reserved; Kimi was not called after its live quota guard failed.
+- Verification: all 2,146 non-Qt tests pass with 282 expected skips and all
+  2,146 real offscreen-Qt tests pass with one intentional skip. Test quality,
+  docs, compilation, JSON, diff, normalized assets, reachability, fully
+  restarted native Anki, and worktree safety pass. Native Anki showed one menu,
+  separate Utilities/Activities, the four-page pager, and Gnome Ball on the
+  Minigames page. Reachability remains 1,438 actions, 2,128 reachable items,
+  168 known orphan inputs, and 189 unresolved actions. No owner design gap
+  emerged. See `source-audits/gnome-ball-loop-2026-07-17.md`.
+- Results: `status-updates/gnome-ball-horizontal-results-2026-07-21.html`;
+  mobile copy: `https://d1b1zg22hfo7.postplan.dev`.
+
 ## Pyramid Plunder horizontal mechanic closure — 2026-07-21
 
 - Implemented the complete one-to-eight-room dangerous run with exact entry

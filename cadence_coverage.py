@@ -304,6 +304,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "gnome_ball":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "gnome_ball",
+                    "mode": "source_blocked_activity",
+                    "source_status": "source_blocked",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One successful review resolves one of three settled match beats. "
+                        "Period goal XP is pinned; the hidden tackle rate uses the "
+                        "owner-approved bounded Agility fallback."
+                    ),
+                    "includes": (
+                        "one grouped match beat covering one or two goals",
+                        "one optional dangerous tackle and the beat's fixed XP",
+                    ),
+                    "multiplier_behavior": (
+                        "M match beats, stopping at death or the terminal fifth goal; "
+                        "the same answer cannot begin a second match"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same three-beat match handler",
+                    "profile": None,
+                    "condition": "owner-approved bounded hidden-roll abstraction",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "penguin_hide_and_seek":
             rows.append(
                 {

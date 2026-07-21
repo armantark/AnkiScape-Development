@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gnome Ball — Horizontal Closure</title>
+  <style>
+    :root {
+      --bg:#0b0d10; --panel:#161a1f; --panel2:#1d232a; --line:#2c343e;
+      --text:#edf2f7; --muted:#98a4b3; --green:#70d67c; --lime:#b9e769;
+      --amber:#f0bd5b; --red:#ef7272; --ink:#11150f; --radius:13px;
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0; color:var(--text); background:
+        radial-gradient(circle at 14% 0%, rgba(112,214,124,.16), transparent 32rem),
+        radial-gradient(circle at 92% 18%, rgba(240,189,91,.10), transparent 30rem),
+        var(--bg);
+      font:15px/1.55 Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+    main { width:min(1120px, calc(100% - 30px)); margin:auto; padding:46px 0 64px; }
+    .badge {
+      display:inline-flex; padding:5px 10px; border:1px solid rgba(112,214,124,.38);
+      border-radius:999px; color:var(--green); background:rgba(112,214,124,.08);
+      font:700 11px/1.2 ui-monospace, monospace; letter-spacing:.11em;
+    }
+    h1 { margin:15px 0 8px; font-size:clamp(2.2rem, 5vw, 4rem); line-height:1; }
+    .lede { max-width:790px; margin:0; color:var(--muted); font-size:1.05rem; }
+    .metrics { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin:30px 0 16px; }
+    .metric, .card {
+      border:1px solid var(--line); border-radius:var(--radius);
+      background:linear-gradient(145deg, rgba(29,35,42,.97), rgba(22,26,31,.97));
+      box-shadow:0 16px 42px rgba(0,0,0,.2);
+    }
+    .metric { padding:18px; }
+    .metric strong { display:block; color:var(--lime); font-size:1.75rem; }
+    .metric span { color:var(--muted); font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; }
+    .grid { display:grid; grid-template-columns:1.08fr .92fr; gap:16px; }
+    .card { padding:22px; }
+    .card h2 { margin:0 0 14px; font-size:1.05rem; }
+    .flow { display:grid; gap:10px; }
+    .step { display:grid; grid-template-columns:34px 1fr auto; gap:10px; align-items:start; }
+    .ball {
+      width:30px; height:30px; display:grid; place-items:center; border-radius:50%;
+      background:var(--lime); color:var(--ink); font-weight:900;
+      box-shadow:inset 0 0 0 5px rgba(0,0,0,.13);
+    }
+    .step b { display:block; }
+    .step span { color:var(--muted); }
+    .xp { color:var(--lime); font:700 12px ui-monospace, monospace; white-space:nowrap; }
+    .risk {
+      margin-top:16px; padding:12px 13px; border-left:3px solid var(--red);
+      color:var(--muted); background:rgba(239,114,114,.06);
+    }
+    .checks { display:grid; gap:10px; }
+    .check { display:flex; gap:9px; color:var(--muted); }
+    .check::before { content:"✓"; color:var(--green); font-weight:900; }
+    .facts { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+    .fact { padding:11px; border:1px solid var(--line); border-radius:9px; background:rgba(11,13,16,.25); }
+    .fact b { display:block; color:var(--amber); }
+    .fact span { color:var(--muted); font-size:.88rem; }
+    code {
+      color:var(--muted); background:var(--panel2); border:1px solid var(--line);
+      border-radius:6px; padding:2px 6px; font:12px ui-monospace, monospace;
+    }
+    .footer { margin-top:18px; display:flex; justify-content:space-between; gap:16px; color:var(--muted); font-size:.84rem; }
+    @media (max-width:820px) { .metrics{grid-template-columns:1fr 1fr} .grid{grid-template-columns:1fr} }
+    @media (max-width:500px) {
+      main{width:calc(100% - 20px); padding-top:28px} .metric{padding:14px}
+      .metric strong{font-size:1.35rem} .facts{grid-template-columns:1fr}
+      .step{grid-template-columns:32px 1fr} .xp{grid-column:2} .footer{flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">MECHANIC-COMPLETE · 2026-07-21</span>
+  <h1>Gnome Ball is live.</h1>
+  <p class="lede">The old invented Agility stub is now a dangerous, three-review Activities match with exact dual-skill XP, real carried-risk handling, period item identity, persistence, undo, and a compact paginated surface.</p>
+
+  <section class="metrics" aria-label="Verification metrics">
+    <div class="metric"><strong>2,146</strong><span>Pure tests passed</span></div>
+    <div class="metric"><strong>2,146</strong><span>Qt tests passed</span></div>
+    <div class="metric"><strong>3</strong><span>Match beats</span></div>
+    <div class="metric"><strong>0</strong><span>Owner design gaps</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h2>The review-sized match</h2>
+      <div class="flow">
+        <div class="step"><span class="ball">1</span><div><b>Opening</b><span>Score goals one and two. One bounded tackle check may deal real LP damage.</span></div><span class="xp">9 + 9 XP</span></div>
+        <div class="step"><span class="ball">2</span><div><b>Middle</b><span>Score goals three and four. A survived tackle never erases the milestone.</span></div><span class="xp">13 + 13 XP</span></div>
+        <div class="step"><span class="ball">3</span><div><b>Final</b><span>Score goal five, add the completion bonus, and resolve the carried-only referee reward.</span></div><span class="xp">30 + 30 XP</span></div>
+      </div>
+      <div class="risk">A lethal tackle awards no beat XP, ends the match, and uses the shared food, grave, equipment-loss, and whole-answer undo transaction.</div>
+    </article>
+
+    <article class="card">
+      <h2>Period facts kept intact</h2>
+      <div class="facts">
+        <div class="fact"><b>Weapon gate</b><span>Only an empty weapon slot or an equipped Gnomeball may enter.</span></div>
+        <div class="fact"><b>Item 751</b><span>Tradeable, nonstackable, equipable weapon with zero combat bonuses.</span></div>
+        <div class="fact"><b>52 XP each</b><span>Exact five-goal ladder plus the period 25 XP completion bonus.</span></div>
+        <div class="fact"><b>Reward rule</b><span>Carried or equipped blocks a duplicate; a banked ball does not.</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Closure proof</h2>
+      <div class="checks">
+        <div class="check">Full non-Qt discovery passed with 282 expected environment skips.</div>
+        <div class="check">Full real offscreen-Qt discovery passed with one intentional skip.</div>
+        <div class="check">Fresh native Anki restart showed one menu, separate Utilities/Activities, the four-page pager, and the Gnome Ball row.</div>
+        <div class="check">Docs, test quality, syntax, JSON, diff, asset normalization, reachability, and worktree safety passed.</div>
+        <div class="check">Opus taste findings were reproduced and fixed; Fable quota stayed untouched.</div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Bounded honesty</h2>
+      <p>Historical score, pass, throw-XP, tackle-rate, and tackle-damage rolls were not recovered. They remain <code>source_blocked</code>; the live tackle curve is explicitly labeled AnkiScape policy.</p>
+      <p>The durable contract is <code>source-audits/gnome-ball-loop-2026-07-17.md</code>. Remaining work is data depth, not a missing mechanic or owner decision.</p>
+    </article>
+  </section>
+
+  <div class="footer">
+    <span>AnkiScape breadth-first implementation program</span>
+    <span>1,438 actions · 2,128 reachable items · 168 known orphans · 189 blocked</span>
+  </div>
+</main>
+</body>
+</html>

@@ -1203,9 +1203,12 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         elif (
             handler_key == "utility"
             and player_data.get("current_utility")
-            == runtime_actions.PYRAMID_PLUNDER_ACTIVITY_ID
+            in {
+                runtime_actions.PYRAMID_PLUNDER_ACTIVITY_ID,
+                runtime_actions.GNOME_BALL_ACTIVITY_ID,
+            }
         ):
-            target_id = runtime_actions.PYRAMID_PLUNDER_ACTIVITY_ID
+            target_id = player_data.get("current_utility")
         else:
             target_key = runtime_actions._OVERLAY_TARGET_KEYS.get(handler_key)
             target_id = player_data.get(target_key) if target_key else None
@@ -2934,6 +2937,15 @@ def _active_review_carried_target():
     handler_key = review_action_handler_key(current_skill)
     if handler_key == "combat":
         target_id = player_data.get("current_combat_target")
+    elif (
+        handler_key == "utility"
+        and player_data.get("current_utility")
+        in {
+            runtime_actions.PYRAMID_PLUNDER_ACTIVITY_ID,
+            runtime_actions.GNOME_BALL_ACTIVITY_ID,
+        }
+    ):
+        target_id = player_data.get("current_utility")
     else:
         target_key = runtime_actions._OVERLAY_TARGET_KEYS.get(handler_key)
         target_id = player_data.get(target_key) if target_key else None

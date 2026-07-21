@@ -410,6 +410,13 @@ except Exception:
     from werewolf_skullball_logic import werewolf_skullball_view_pure  # type: ignore
 
 try:
+    from .gnome_ball_data import GNOME_BALL_ACTIVITY_ID
+    from .gnome_ball_logic import gnome_ball_view_pure
+except Exception:
+    from gnome_ball_data import GNOME_BALL_ACTIVITY_ID  # type: ignore
+    from gnome_ball_logic import gnome_ball_view_pure  # type: ignore
+
+try:
     from .stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
     from .stealing_creation_logic import stealing_creation_view_pure
 except Exception:
@@ -10331,6 +10338,189 @@ def show_main_menu(
         _refresh_skullball_panel()
         cards_stack.addWidget(skullball_box)
 
+        gnome_ball_box = QtFrame()
+        gnome_ball_box.setObjectName("gnomeBallPanel")
+        gnome_ball_box.setStyleSheet(
+            "QFrame#gnomeBallPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        gnome_ball_layout = QVBoxLayout(gnome_ball_box)
+        gnome_ball_layout.setContentsMargins(10, 8, 10, 8)
+        gnome_ball_layout.setSpacing(6)
+
+        gnome_ball_top = QWidget()
+        gnome_ball_top_layout = QHBoxLayout(gnome_ball_top)
+        gnome_ball_top_layout.setContentsMargins(0, 0, 0, 0)
+        gnome_ball_top_layout.setSpacing(8)
+        gnome_ball_icon = QLabel()
+        gnome_ball_icon.setObjectName("gnomeBallIcon")
+        gnome_ball_icon.setFixedSize(28, 28)
+        gnome_ball_icon_path = os.path.join(
+            current_dir,
+            "agilityitems",
+            "gnomeball.png",
+        )
+        if os.path.exists(gnome_ball_icon_path):
+            gnome_ball_icon.setPixmap(
+                QPixmap(gnome_ball_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        gnome_ball_title = QLabel("Gnome Ball")
+        gnome_ball_title.setStyleSheet(
+            "font-weight: 700; color: palette(text);"
+        )
+        gnome_ball_status = QLabel()
+        gnome_ball_status.setObjectName("gnomeBallStatusChip")
+        gnome_ball_top_layout.addWidget(gnome_ball_icon)
+        gnome_ball_top_layout.addWidget(gnome_ball_title)
+        gnome_ball_top_layout.addStretch(1)
+        gnome_ball_top_layout.addWidget(gnome_ball_status)
+        gnome_ball_layout.addWidget(gnome_ball_top)
+
+        gnome_ball_summary = QLabel()
+        gnome_ball_summary.setObjectName("gnomeBallSummary")
+        gnome_ball_summary.setWordWrap(True)
+        gnome_ball_summary.setStyleSheet("color: palette(text);")
+        gnome_ball_layout.addWidget(gnome_ball_summary)
+
+        gnome_ball_risk = QLabel(
+            "Dangerous · tackles can damage you\n"
+            "Death ends the match and risks carried items."
+        )
+        gnome_ball_risk.setObjectName("gnomeBallRisk")
+        gnome_ball_risk.setWordWrap(True)
+        gnome_ball_risk.setStyleSheet(
+            f"color: {dim_text_css(gnome_ball_risk)}; font-size: 11px;"
+        )
+        gnome_ball_layout.addWidget(gnome_ball_risk)
+
+        gnome_ball_actions = QWidget()
+        gnome_ball_actions_layout = QHBoxLayout(gnome_ball_actions)
+        gnome_ball_actions_layout.setContentsMargins(0, 0, 0, 0)
+        gnome_ball_actions_layout.setSpacing(6)
+        gnome_ball_primary = QPushButton()
+        gnome_ball_primary.setObjectName("gnomeBallPrimaryButton")
+        gnome_ball_leave = QPushButton("Leave match")
+        gnome_ball_leave.setObjectName("gnomeBallLeaveButton")
+        gnome_ball_actions_layout.addWidget(gnome_ball_primary, 1)
+        gnome_ball_actions_layout.addWidget(gnome_ball_leave)
+        gnome_ball_layout.addWidget(gnome_ball_actions)
+
+        def _run_gnome_ball_command(action_id: str) -> dict[str, Any]:
+            if on_agility_command is None:
+                return {"ok": False, "message": "Gnome Ball actions are unavailable."}
+            result = on_agility_command(action_id, {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Gnome Ball",
+                    str(
+                        result.get(
+                            "message",
+                            result.get("reason", "That action is unavailable."),
+                        )
+                    ),
+                )
+            _refresh_gnome_ball_panel()
+            return result
+
+        def _refresh_gnome_ball_panel() -> None:
+            view = gnome_ball_view_pure(player_data)
+            active = bool(view["active"])
+            locked = tuple(view["locked_reasons"])
+            gnome_ball_status.setText(
+                "ACTIVE" if active else "LOCKED" if locked else "READY"
+            )
+            status_base = gnome_ball_status.palette().color(
+                QPalette.ColorRole.Base
+            )
+            active_color = (
+                "#3f6e1e" if status_base.lightness() > 128 else "#85c54b"
+            )
+            gnome_ball_status.setStyleSheet(
+                f"color: {active_color if active else dim_text_css(gnome_ball_status) if locked else 'palette(text)'};"
+                " font-size: 11px; font-weight: 700;"
+            )
+            last_result = str(view.get("last_result", "") or "").strip()
+            visible_result = (
+                last_result if last_result and last_result != "Ready to enter" else ""
+            )
+            if active:
+                gnome_ball_summary.setText(
+                    f"Beat {int(view['beat_number'])}/3 · {int(view['score'])}/5 goals · "
+                    f"{round(float(view['tackle_chance']) * 100, 1):g}% tackle risk · "
+                    f"{int(view['lifepoints'])} LP"
+                )
+            elif locked:
+                gnome_ball_summary.setText(
+                    "Three successful reviews · five goals · 52 Agility + 52 Ranged XP · "
+                    f"{int(view['runs_completed'])} completed matches\nEntry: "
+                    + ", ".join(str(reason) for reason in locked)
+                    + (f"\n{visible_result}" if visible_result else "")
+                )
+            else:
+                gnome_ball_summary.setText(
+                    "Three successful reviews · five goals · 52 Agility + 52 Ranged XP · "
+                    f"{float(view['tackle_chance']) * 100:.1f}% tackle risk · "
+                    f"{int(view['runs_completed'])} completed matches"
+                    + (f"\n{visible_result}" if visible_result else "")
+                )
+            gnome_ball_summary.setToolTip(last_result)
+            selected = (
+                active
+                and player_data.get("current_utility") == GNOME_BALL_ACTIVITY_ID
+            )
+            gnome_ball_primary.setText(
+                "Selected for reviews"
+                if selected
+                else "Select for reviews"
+                if active
+                else "Enter match"
+            )
+            gnome_ball_primary.setEnabled(
+                on_agility_command is not None
+                and not selected
+                and (active or not locked)
+            )
+            gnome_ball_leave.setVisible(active)
+            gnome_ball_leave.setEnabled(on_agility_command is not None)
+            _fit_current_activity_detail()
+
+        def _select_or_enter_gnome_ball() -> None:
+            view = gnome_ball_view_pure(player_data)
+            if not view["active"]:
+                result = _run_gnome_ball_command("enter_gnome_ball")
+                if not result.get("ok", False):
+                    return
+            elif not _request_utility_selection(GNOME_BALL_ACTIVITY_ID):
+                return
+            _refresh_gnome_ball_panel()
+
+        def _confirm_gnome_ball_leave() -> None:
+            score = int(gnome_ball_view_pure(player_data)["score"])
+            answer = QMessageBox.question(
+                dialog,
+                "Leave Gnome Ball?",
+                f"Leave at {score}/5 goals? Scored XP stays; the unfinished "
+                "goals and referee reward are forfeited.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_gnome_ball_command("leave_gnome_ball")
+
+        gnome_ball_primary.clicked.connect(
+            lambda _checked=False: _select_or_enter_gnome_ball()
+        )
+        gnome_ball_leave.clicked.connect(
+            lambda _checked=False: _confirm_gnome_ball_leave()
+        )
+        _refresh_gnome_ball_panel()
+        cards_stack.addWidget(gnome_ball_box)
+
         stealing_creation_box = QtFrame()
         stealing_creation_box.setObjectName("stealingCreationPanel")
         stealing_creation_box.setStyleSheet(
@@ -11510,7 +11700,11 @@ def show_main_menu(
                         child.setIcon(0, icon)
                 if (
                     not row.enabled
-                    and row.target_id != WEREWOLF_SKULLBALL_ACTIVITY_ID
+                    and row.target_id
+                    not in {
+                        WEREWOLF_SKULLBALL_ACTIVITY_ID,
+                        GNOME_BALL_ACTIVITY_ID,
+                    }
                 ):
                     child.setDisabled(True)
                 child.setToolTip(0, row.tooltip)
@@ -11875,6 +12069,31 @@ def show_main_menu(
                         str((result or {}).get("message", "Could not leave the course.")),
                     )
                     return False
+            if (
+                activity_id != GNOME_BALL_ACTIVITY_ID
+                and gnome_ball_view_pure(player_data)["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave Gnome Ball?",
+                    "Switch activities? Scored XP stays; the unfinished goals "
+                    "and referee reward are forfeited.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_agility_command("leave_gnome_ball", {})
+                    if on_agility_command is not None
+                    else {"ok": False, "message": "Gnome Ball actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Gnome Ball",
+                        str((result or {}).get("message", "Could not leave the match.")),
+                    )
+                    return False
             on_set_utility(activity_id)
             player_data["current_utility"] = activity_id
             if state["active"] in _UTILITY_SKILL_NAMES and state["active"] != surface_name:
@@ -11892,6 +12111,7 @@ def show_main_menu(
             _refresh_flash_factory_panel()
             _refresh_pyramid_plunder_panel()
             _refresh_skullball_panel()
+            _refresh_gnome_ball_panel()
             _refresh_stealing_creation_panel()
             _show_activity_detail(activity_id)
             return True
@@ -11962,6 +12182,9 @@ def show_main_menu(
             if activity_id == WEREWOLF_SKULLBALL_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == GNOME_BALL_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
             if activity_id == STEALING_CREATION_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
@@ -11995,6 +12218,7 @@ def show_main_menu(
                 "Werewolf Skullball",
                 skullball_box,
             ),
+            GNOME_BALL_ACTIVITY_ID: ("Gnome Ball", gnome_ball_box),
             STEALING_CREATION_ACTIVITY_ID: (
                 "Stealing Creation",
                 stealing_creation_box,

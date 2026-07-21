@@ -320,7 +320,12 @@ ACTIVITY_TARGETS: Tuple[AgilityTarget, ...] = (
 AGILITY_TARGETS: Tuple[AgilityTarget, ...] = COURSE_TARGETS + tuple(
     target
     for target in ACTIVITY_TARGETS
-    if target.id not in {FLASH_POWDER_FACTORY_ACTIVITY_ID, "werewolf_skullball"}
+    if target.id
+    not in {
+        FLASH_POWDER_FACTORY_ACTIVITY_ID,
+        "werewolf_skullball",
+        "gnome_ball",
+    }
 )
 AGILITY_TARGETS_BY_ID = {
     target.id: target for target in COURSE_TARGETS + ACTIVITY_TARGETS
@@ -349,7 +354,6 @@ BRIMHAVEN_XP_EXCHANGES = {1: 240.0, 10: 2480.0, 25: 6500.0, 100: 28000.0, 1000: 
 BRIMHAVEN_ITEM_EXCHANGES = {3: "Grimy toadflax", 5: "Grimy wergali", 10: "Grimy snapdragon", 800: "Pirate's hook"}
 
 
-GNOME_BALL_XP = (4.0, 5.0, 6.0, 7.0, 30.0)
 FPF_OBJECTIVES = ("Collect reagent A", "Collect reagent B", "Obtain catalyst", "Mix the powder", "Deposit the mixture")
 PIT_CHALLENGES = ("Crate Expectations", "Floor Is Lava", "High-low", "Karaoke", "Hungry Sheep", "Block matching")
 CIRCUS_TRICKS = (
@@ -538,7 +542,7 @@ AGILITY_ITEM_IMAGES = {
 }
 
 _AGILITY_EQUIPMENT = {
-    "Agile top", "Agile legs", "Gorilla mask", "Factory mask", "Factory top",
+    "Gnomeball", "Agile top", "Agile legs", "Gorilla mask", "Factory mask", "Factory top",
     "Factory trousers", "Factory gloves", "Factory boots", "Rogue mask", "Rogue top",
     "Rogue trousers", "Rogue gloves", "Rogue boots", "Pirate's hook", "Acrobat hood",
     "Acrobat shirt", "Acrobat pants", "Acrobat shoes",
@@ -571,7 +575,12 @@ AGILITY_EXTRA_ITEM_DATA = {
             item_name in {"Pyramid top", "Gnomeball", "Toy mouse", "Mith grapple"}
             or item_name in _AGILITY_CONSUMABLE_IDS
         ),
-        "source_item_id": {"Agile top": 14936, "Agile legs": 14938, **_AGILITY_CONSUMABLE_IDS}.get(item_name),
+        "source_item_id": {
+            "Agile top": 14936,
+            "Agile legs": 14938,
+            "Gnomeball": 751,
+            **_AGILITY_CONSUMABLE_IDS,
+        }.get(item_name),
     }
     for item_name in AGILITY_ITEM_FILENAMES
 }

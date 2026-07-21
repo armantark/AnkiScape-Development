@@ -212,6 +212,11 @@ try:
         apply_werewolf_skullball_review_pure,
         werewolf_skullball_view_pure,
     )
+    from .gnome_ball_data import GNOME_BALL_ACTIVITY_ID
+    from .gnome_ball_logic import (
+        apply_gnome_ball_review_pure,
+        gnome_ball_view_pure,
+    )
     from .agility_travel import (
         agility_travel_profile_pure,
         apply_run_energy_credit_pure,
@@ -492,6 +497,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from werewolf_skullball_logic import (  # type: ignore
         apply_werewolf_skullball_review_pure,
         werewolf_skullball_view_pure,
+    )
+    from gnome_ball_data import GNOME_BALL_ACTIVITY_ID  # type: ignore
+    from gnome_ball_logic import (  # type: ignore
+        apply_gnome_ball_review_pure,
+        gnome_ball_view_pure,
     )
     from agility_travel import (  # type: ignore
         agility_travel_profile_pure,
@@ -3008,6 +3018,52 @@ def _handle_werewolf_skullball_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _handle_gnome_ball_answer(ctx: RuntimeActionContext) -> bool:
+    updated, result = apply_gnome_ball_review_pure(
+        ctx.player_data,
+        ctx.random_random(),
+    )
+    if not result.get("allowed"):
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Gnome Ball unavailable",
+            str(result.get("reason", "Enter Gnome Ball before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    agility_xp = float(result.get("agility_xp", 0.0) or 0.0)
+    ranged_xp = float(result.get("ranged_xp", 0.0) or 0.0)
+    gained = 0.0
+    if agility_xp > 0:
+        gained += ctx.award_skill_exp("agility_exp", agility_xp)
+        ctx.level_up_check("Agility", ctx.player_data)
+    if ranged_xp > 0:
+        gained += ctx.award_skill_exp("ranged_exp", ranged_xp)
+        ctx.level_up_check("Ranged", ctx.player_data)
+    _record_action(
+        ctx,
+        "utility",
+        GNOME_BALL_ACTIVITY_ID,
+        bool(result.get("success")),
+        expected_success_chance=float(
+            result.get("expected_success_chance", 1.0) or 0.0
+        ),
+        output_items=result.get("outputs") or {},
+        failure_kind="death" if result.get("died") else None,
+        primary_xp=agility_xp,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if gained > 0:
+        ctx.show_exp(gained)
+    ctx.show_activity_gain(str(result.get("status", "Gnome Ball beat resolved")))
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
 def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
@@ -3037,6 +3093,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_pyramid_plunder_answer(ctx)
     if activity_key == WEREWOLF_SKULLBALL_ACTIVITY_ID:
         return _handle_werewolf_skullball_answer(ctx)
+    if activity_key == GNOME_BALL_ACTIVITY_ID:
+        return _handle_gnome_ball_answer(ctx)
     if activity_key == STRONGHOLD_UTILITY_KEY:
         return _handle_stronghold_answer(ctx)
     if activity_key == KNIGHT_WAVES_UTILITY_KEY:
@@ -5346,6 +5404,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return bool(pyramid_plunder_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == WEREWOLF_SKULLBALL_ACTIVITY_ID:
         return bool(werewolf_skullball_view_pure(ctx.player_data).get("can_review", False))
+    if activity_key == GNOME_BALL_ACTIVITY_ID:
+        return bool(gnome_ball_view_pure(ctx.player_data).get("can_review", False))
     return not utility_activity_locked_reasons_pure(
         ctx.player_data,
         activity_key,

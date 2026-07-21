@@ -1047,6 +1047,14 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   card. Historical route-error RNG and the exact post-four-minute server curve
   remain data-depth source gaps. See
   `memory-bank/source-audits/werewolf-skullball-loop-2026-07-17.md`.
+- Gnome Ball is mechanic-complete as an Activities-only dangerous three-beat
+  Agility/Ranged match. It ships exact five-goal XP grouping, weapon-only entry
+  restriction, owner-approved tackle fallback, shared grave/item-loss death,
+  Auto/Custom food packs, carried-only referee reward, period item/equipment
+  identity, persistence, migration, multiplier stopping, undo, cadence,
+  normalized art, and a compact card. Exact score/pass/throw/tackle server
+  rolls remain data-depth source gaps. See
+  `memory-bank/source-audits/gnome-ball-loop-2026-07-17.md`.
 - Darkan should supply hidden state machines, rolls, currencies, and reward logic; period wiki/cache evidence still establishes cutoff and client identity.
 
 ### Missing skill server behavior
@@ -1103,7 +1111,7 @@ Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
 - The horizontal breadth wave has shipped Shooting Stars, Fist of Guthix,
   Sorceress's Garden, Penguin Hide and Seek, Vinesweeper, Fight Caves,
   Stealing Creation, Barrows, Flash Powder Factory, Pyramid Plunder, and
-  Werewolf Skullball with
+  Werewolf Skullball, and Gnome Ball with
   complete mechanics, persistence, undo, UI, assets, and compact period-
   qualified data sets.
 - Flash Powder Factory and Pyramid Plunder are closed. Tears of Guthix and Shattered Heart remain explicit

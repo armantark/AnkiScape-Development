@@ -252,13 +252,11 @@ manual direction interface.
 
 ### Gnome Ball
 
-A match is five ordered scoring possessions. Each review attempts the current
-possession; success scores the next goal and awards its period Agility/Ranged
-XP, while failure applies the sourced tackle branch or the global failure
-fallback and retries the possession. The fifth goal awards its completion
-bonus, and a win supplies one gnomeball only if none is owned. The player never
-controls a second avatar or waits for other players; this is the labeled solo
-match abstraction.
+This older five-possession sketch is superseded by the owner-settled three-beat
+contract and 2026-07-21 closure in
+`source-audits/gnome-ball-loop-2026-07-17.md`: goals `1–2`, goals `3–4`, then
+goal `5` plus the completion bonus and carried-only referee reward. The focused
+record owns the current tackle/death, reward, cadence, and persistence details.
 
 ### Flash Powder Factory
 

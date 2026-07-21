@@ -15,7 +15,6 @@ try:
         CIRCUS_ACROBAT_REWARDS,
         CIRCUS_TRICKS,
         DEFAULT_AGILITY_TARGET,
-        GNOME_BALL_XP,
         PIT_CHALLENGES,
         AgilityStage,
         AgilityTarget,
@@ -29,7 +28,6 @@ except ImportError:  # pragma: no cover - flat test imports
         CIRCUS_ACROBAT_REWARDS,
         CIRCUS_TRICKS,
         DEFAULT_AGILITY_TARGET,
-        GNOME_BALL_XP,
         PIT_CHALLENGES,
         AgilityStage,
         AgilityTarget,
@@ -47,6 +45,11 @@ except ImportError:  # pragma: no cover - flat test imports
         leave_pyramid_plunder_pure,
         set_pyramid_plunder_priority_pure,
     )
+
+try:
+    from .gnome_ball_logic import enter_gnome_ball_pure, leave_gnome_ball_pure
+except ImportError:  # pragma: no cover - flat test imports
+    from gnome_ball_logic import enter_gnome_ball_pure, leave_gnome_ball_pure  # type: ignore
 
 try:
     from .werewolf_skullball_logic import (
@@ -633,28 +636,6 @@ def _activity_session(data: dict[str, Any], activity_id: str) -> dict[str, Any]:
     return session
 
 
-def _gnome_ball_review(data: dict[str, Any], roll: float) -> dict[str, Any]:
-    session = _activity_session(data, "gnome_ball")
-    goal = _int(session.get("goal"), maximum=4)
-    success = roll >= .25
-    xp = GNOME_BALL_XP[goal] if success else 0.0
-    outputs = {}
-    completed = False
-    if success:
-        goal += 1
-        if goal >= 5:
-            completed = True
-            inventory = data.get("inventory") or {}
-            if _int(inventory.get("Gnomeball")) <= 0:
-                outputs["Gnomeball"] = 1
-            session.clear()
-        else:
-            session["goal"] = goal
-    status = f"Gnome Ball · {'scored' if success else 'tackled'} · {goal}/5 goals"
-    data["agility_status"] = status
-    return {"target_id": "gnome_ball", "action_id": f"possession_{goal or 1}", "success": success, "expected_success_chance": .75, "xp": xp, "damage": 0 if success else 10, "outputs": outputs, "cross_skill_rewards": [("ranged", xp)] if xp else [], "completed_activity": completed, "failure_kind": None if success else "tackle", "status": status}
-
-
 def _next_missing_reward(data: Mapping[str, Any], rewards: tuple[str, ...]) -> Optional[str]:
     return next((item for item in rewards if not _owns_item(data, item)), None)
 
@@ -834,7 +815,11 @@ def apply_agility_review_pure(player_data: Mapping[str, Any], rolls: tuple[float
             "message": "Werewolf Skullball has moved to Activities.",
         }
     elif target.activity_kind == "gnome_ball":
-        result = _gnome_ball_review(data, normalized[0])
+        return data, {
+            "allowed": False,
+            "target_id": target_id,
+            "message": "Gnome Ball has moved to Activities.",
+        }
     elif target.activity_kind == "flash_powder_factory":
         data, result = apply_flash_powder_factory_review_pure(data, normalized)
         if not result.get("allowed"):
@@ -946,6 +931,12 @@ def apply_agility_command_pure(
     """Apply one explicit non-review Agility operation."""
 
     body = dict(payload or {})
+    if action_id == "enter_gnome_ball":
+        updated, ok, info = enter_gnome_ball_pure(player_data)
+        return updated, {"allowed": ok, **info}
+    if action_id == "leave_gnome_ball":
+        updated, ok, info = leave_gnome_ball_pure(player_data)
+        return updated, {"allowed": ok, **info}
     if action_id == "enter_werewolf_skullball":
         updated, ok, info = enter_werewolf_skullball_pure(player_data)
         return updated, {"allowed": ok, **info}

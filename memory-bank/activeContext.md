@@ -2,6 +2,37 @@
 
 ## Current Focus
 
+Gnome Ball now satisfies horizontal breadth level one as an Activities-only,
+dangerous three-beat Agility/Ranged match. Entry enforces the period weapon-slot
+restriction, prepares the shared Auto or Custom carried pack, and arbitrates the
+persistent activity session. Successful reviews resolve goals `1–2`, `3–4`, and
+`5`; the exact period goal ladder and fifth-goal bonus award `9`, `13`, and `30`
+XP to both skills. One source-blocked tackle roll per beat uses the disclosed
+level-scaled fallback, survived tackles preserve the score, and lethal tackles
+use shared food, LP, grave, terminal-stop, and whole-answer undo behavior.
+
+The referee reward checks only the activity's carried pack or equipped weapon,
+so a banked Gnomeball does not block the next reward. Item `751` is registered
+as a nonstackable, tradeable, zero-bonus weapon without shifting existing
+synthetic equipment IDs. Schema 63 migration, cadence coverage, telemetry,
+completion counters, compact paginated Activities UI, dark-safe status copy,
+normalized period art, and Bank/Equipment pack reachability are live. Exact
+historical score, pass, throw-XP, tackle-rate, and tackle-damage rolls remain
+explicit data depth under `source_blocked`; no owner design gap emerged.
+
+Opus supplied the bounded UI taste pass; Fable remained fully reserved and
+Kimi was not called after its live quota guard failed. The final state passes
+all 2,146 non-Qt tests with 282 expected environment skips and all 2,146 real
+offscreen-Qt tests with one intentional skip. Test quality, documentation,
+compilation, JSON, diff, normalized assets, reachability, a fully restarted
+native Anki inspection, and worktree safety pass. Native Anki showed one menu,
+separate Utilities/Activities categories, the four-page Activities pager, and
+the Gnome Ball row on Minigames. Reachability remains 1,438 actions, 2,128
+reachable items, 168 known orphan inputs, and 189 unresolved actions. Durable
+record: `source-audits/gnome-ball-loop-2026-07-17.md`.
+Results: `status-updates/gnome-ball-horizontal-results-2026-07-21.html`;
+mobile copy: `https://d1b1zg22hfo7.postplan.dev`.
+
 Pyramid Plunder now satisfies horizontal breadth level one as an Activities-
 only dangerous Thieving minigame. Its exact entry alternatives, eight room
 gates, period XP rows, priority-shaped room bundles, shared LP/poison/grave

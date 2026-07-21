@@ -20,7 +20,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 727)
+        self.assertEqual(len(EQUIPMENT_DATA), 728)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -31,6 +31,7 @@ class TestEquipmentData(unittest.TestCase):
         self.assertEqual(EQUIPMENT_DATA["Leather boots"].slot, "feet")
         self.assertEqual(EQUIPMENT_DATA["Bronze arrows"].slot, "ammunition")
         self.assertEqual(EQUIPMENT_DATA["Gold ring"].slot, "ring")
+        self.assertEqual(EQUIPMENT_DATA["Gnomeball"].slot, "weapon")
         # Smithable-but-undropped wieldable tools reach the roster via the
         # smithing-recipe source, not the type-based armour/weapon selector.
         self.assertEqual(EQUIPMENT_DATA["Rune hatchet"].slot, "weapon")

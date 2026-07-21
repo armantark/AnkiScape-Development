@@ -1032,6 +1032,9 @@ def _agility_equipment_items(
         ("Prized pendant of Agility", "neck", None, ()),
         ("Agility cape", "cape", None, (("agility", 99),)),
         ("Agility hood", "head", None, (("agility", 99),)),
+        # Keep sourced-ID additions after synthetic-ID rows so existing
+        # generated fallback identities remain stable.
+        ("Gnomeball", "weapon", 751, ()),
     )
     generated = []
     for index, (name, fallback_slot, item_id, requirements) in enumerate(definitions):

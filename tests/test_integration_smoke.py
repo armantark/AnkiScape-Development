@@ -5181,6 +5181,25 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertIn("Weight: 1.2 kg carried", summary)
         self.assertEqual(captured["get_carried_bank_run_summary"](), "Bank run: ready")
 
+    def test_gnome_ball_activity_exposes_its_dangerous_carried_pack_in_main_menu(self):
+        addon = _load_addon_as_package("ankiscape_gnome_ball_carried_target_integration")
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        addon.mw = _DummyMW(_DummyCol())
+        addon.current_skill = "Utility / Activities"
+        addon.player_data = {
+            "current_utility": "gnome_ball",
+            "inventory": {"Shark": 2},
+            "carried_inventory": {"gnome_ball": {"Shark": 2}},
+            "smithing_level": 1,
+        }
+
+        addon._on_main_menu()
+
+        self.assertTrue(captured["carried_pack_target_active"])
+        self.assertEqual(captured["active_carried_target_id"], "gnome_ball")
+        self.assertIn("gnome_ball Auto pack", captured["get_carried_auto_summary"]())
+
     def test_agility_main_menu_summary_ignores_stale_carried_items(self):
         addon = _load_addon_as_package("ankiscape_agility_stale_carried_summary")
         captured = {}
