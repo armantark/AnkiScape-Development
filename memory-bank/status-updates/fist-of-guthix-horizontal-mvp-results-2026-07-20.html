@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape — Fist of Guthix Horizontal Closure</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090c0b; --surface: #121815; --surface-2: #19221d;
+      --border: #304238; --text: #edf6f0; --text-dim: #9aaca1;
+      --green: #63d28b; --green-soft: rgba(99,210,139,.12);
+      --gold: #efc15b; --red: #ef7c72; --blue: #77b7e8;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--text); font: 15px/1.5 Outfit, system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 76% 0, rgba(99,210,139,.14), transparent 31rem),
+                  radial-gradient(circle at 8% 70%, rgba(239,193,91,.08), transparent 25rem), var(--bg); }
+    main { width: min(1120px, calc(100% - 28px)); margin: auto; padding: 42px 0 62px; }
+    .badge { display: inline-block; padding: 6px 10px; border: 1px solid #3f7753; border-radius: 999px;
+      color: #bdf1ce; background: var(--green-soft); font: 700 11px ui-monospace, monospace; letter-spacing: .12em; }
+    h1 { max-width: 850px; margin: 12px 0 10px; font-size: clamp(38px, 7vw, 72px); line-height: .98; }
+    .lede { max-width: 820px; color: var(--text-dim); font-size: 19px; }
+    .arena { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: center; margin: 30px 0; }
+    .round, .card { border: 1px solid var(--border); border-radius: var(--radius);
+      background: linear-gradient(145deg, var(--surface-2), var(--surface)); }
+    .round { padding: 20px; min-height: 176px; }
+    .round small, .label { color: var(--text-dim); font: 700 11px ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase; }
+    .role { margin: 8px 0 14px; font-size: 25px; font-weight: 800; }
+    .charge { height: 11px; overflow: hidden; border-radius: 99px; background: #26312b; }
+    .charge::after { content: ""; display: block; width: var(--fill); height: 100%; background: linear-gradient(90deg, var(--green), var(--gold)); }
+    .score { margin-top: 10px; color: var(--gold); font-weight: 700; }
+    .swap { color: var(--green); font-size: 28px; font-weight: 900; }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .card { padding: 20px; }
+    .card h2 { margin: 5px 0 12px; font-size: 20px; }
+    ul { margin: 0; padding-left: 19px; } li + li { margin-top: 6px; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; margin: 15px 0; }
+    .metric { padding: 14px; border: 1px solid #2c3b33; border-radius: 11px; background: #0d1310; }
+    .metric strong { display: block; color: var(--green); font-size: 25px; }
+    .metric span { color: var(--text-dim); font-size: 12px; }
+    .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+    .node { padding: 8px 10px; border: 1px solid #41584a; border-radius: 8px; background: #111a15; }
+    .arrow { color: var(--gold); }
+    .boundary { border-color: #705d32; }
+    code { color: #c9e9d3; font: 12px ui-monospace, SFMono-Regular, monospace; }
+    footer { margin-top: 20px; color: var(--text-dim); font-size: 12px; }
+    @media (max-width: 760px) {
+      .arena, .grid, .metrics { grid-template-columns: 1fr; }
+      .swap { transform: rotate(90deg); justify-self: center; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="badge">COMPLETED · HORIZONTAL MECHANIC CLOSURE</div>
+    <h1>Fist of Guthix is a match now, not a menu placeholder.</h1>
+    <p class="lede">The breadth-first slice closes the entire playable loop with a deliberately small reward catalog: tutorial, pairing, two roles, real Combat, charge tactics, outcomes, persistence, undo, condition-bearing equipment, and one compact Activities card.</p>
+
+    <section class="arena" aria-label="Two-round match flow">
+      <article class="round">
+        <small>Round one</small><div class="role">HUNTED</div>
+        <div class="charge" style="--fill:68%"></div><div class="score">3,400 charges</div>
+        <p>Stone equipped. Survive, heal, and choose Centre, Hybrid, or Evasive.</p>
+      </article>
+      <div class="swap">⇄</div>
+      <article class="round">
+        <small>Round two</small><div class="role">HUNTER</div>
+        <div class="charge" style="--fill:52%"></div><div class="score">2,600 rival charges</div>
+        <p>Roles swap, stats restore, and the same seeded opponent remains.</p>
+      </article>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <div class="label">Match engine</div><h2>Every settled state is executable</h2>
+        <ul>
+          <li>Fiara tutorial and automatic unbanded pairing.</li>
+          <li>Exactly six Combat ticks per review; no wall clock or foreground multiplier.</li>
+          <li>Death, 5,000 charges, round limit, Tele-orb, and forfeit endpoints.</li>
+          <li>Temporary runes, Bandages, Stone, and Tele-orb never leak into the Bank.</li>
+          <li>All Combat XP, including fixed Magic cast XP, is halved once.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <div class="label">Equipment substrate</div><h2>Condition belongs to each copy</h2>
+        <ul>
+          <li>Combat hood degrades independently while equipped.</li>
+          <li>Bronze gauntlets discharge only on unsafe death.</li>
+          <li>Bank, equipment, migration, recharge, uncharge, and undo preserve identity.</li>
+          <li>Cutoff correction: 10 Defence / 20 Magic; only the spent hood is tradeable.</li>
+        </ul>
+        <div class="flow"><span class="node">Match</span><span class="arrow">→</span><span class="node">Tokens</span><span class="arrow">→</span><span class="node">Reward</span><span class="arrow">→</span><span class="node">Condition states</span></div>
+      </article>
+      <article class="card">
+        <div class="label">User surface</div><h2>One stable Activities page</h2>
+        <ul>
+          <li>Tutorial, policy, role/round, charges, supplies, exits, and shop share one card.</li>
+          <li>The reward shop stays disclosed until requested.</li>
+          <li>The Review HUD echoes the live round and scoreline.</li>
+          <li>Kimi K3 and Fable independently shaped the final hierarchy.</li>
+          <li>A fully restarted native Anki dark-mode process rendered one correct menu.</li>
+        </ul>
+      </article>
+      <article class="card boundary">
+        <div class="label">Honest boundary</div><h2>Mechanics complete; hidden curves replaceable</h2>
+        <p>Opponent population, stance exposure, winner-token magnitude, and rating delta remain explicitly labeled bounded abstractions. They are data rows behind the settled loop, not missing gameplay or owner decisions.</p>
+      </article>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <div class="label">Closure proof</div><h2>Green through the real gates</h2>
+      <div class="metrics">
+        <div class="metric"><strong>1,988</strong><span>full non-Qt tests</span></div>
+        <div class="metric"><strong>1,988</strong><span>full offscreen-Qt tests</span></div>
+        <div class="metric"><strong>350</strong><span>focused tests</span></div>
+        <div class="metric"><strong>0</strong><span>hard quality issues</span></div>
+      </div>
+      <p>Docs, compilation, JSON, diff, tight-alpha assets, reachability, native Anki, and worktree safety pass. The graph has 1,428 actions and 2,091 reachable items with no FoG-created orphan.</p>
+    </section>
+    <footer>Durable record: <code>memory-bank/source-audits/fist-of-guthix-horizontal-mvp-harvest-2026-07-20.md</code></footer>
+  </main>
+</body>
+</html>

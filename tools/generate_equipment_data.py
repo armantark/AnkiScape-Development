@@ -1066,6 +1066,13 @@ def _fist_of_guthix_equipment_items(
             "Fist of Guthix reward; cutoff Wiki reward and condition audits",
         )
         if equipment_item is not None:
+            if 12964 <= item_id <= 12969:
+                equipment_item = replace(
+                    equipment_item,
+                    combat_skill="defense",
+                    required_level=10,
+                    skill_requirements=(("defense", 10), ("magic", 20)),
+                )
             generated.append(
                 replace(equipment_item, equipment_type="fist_of_guthix_reward")
             )

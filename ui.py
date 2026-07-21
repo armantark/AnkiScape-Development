@@ -301,6 +301,19 @@ except Exception:
     from shooting_star_logic import shooting_star_view_pure  # type: ignore
 
 try:
+    from .fist_of_guthix_data import (
+        FIST_OF_GUTHIX_ACTIVITY_ID,
+        FIST_OF_GUTHIX_CHARGE_CAP,
+    )
+    from .fist_of_guthix_logic import fist_of_guthix_view_pure
+except Exception:
+    from fist_of_guthix_data import (  # type: ignore
+        FIST_OF_GUTHIX_ACTIVITY_ID,
+        FIST_OF_GUTHIX_CHARGE_CAP,
+    )
+    from fist_of_guthix_logic import fist_of_guthix_view_pure  # type: ignore
+
+try:
     from .combat_session import (
         confirm_wilderness_combat_risk,
         wilderness_combat_risk_confirmed,
@@ -2177,6 +2190,15 @@ if HAS_QT:
                     "Star sprite · "
                     f"{int(star_view['sprite_reviews_remaining'])} reviews left"
                 )
+            fog_view = fist_of_guthix_view_pure(player_data)
+            if fog_view["active"]:
+                fog_match = fog_view["match"]
+                world_notices.append(
+                    f"Fist of Guthix round {int(fog_match['round_index'])}/2 · "
+                    f"{str(fog_match['player_role']).title()} · "
+                    f"{int(fog_match['player_charges']):,}–"
+                    f"{int(fog_match['opponent_charges']):,} charges"
+                )
             self.world_notice_lbl.setText(" • ".join(world_notices))
             self.world_notice_lbl.setVisible(bool(world_notices))
             # Enemy bar + chips are combat-only; keep them hidden unless the
@@ -2228,6 +2250,20 @@ if HAS_QT:
                         activity_kind = "Star sprite ready for exchange"
                     else:
                         activity_kind = "awaiting an active star"
+                elif activity_key == FIST_OF_GUTHIX_ACTIVITY_ID:
+                    activity_name = "Fist of Guthix"
+                    if fog_view["active"]:
+                        fog_match = fog_view["match"]
+                        activity_kind = (
+                            f"Round {int(fog_match['round_index'])}/2 · "
+                            f"{str(fog_match['player_role']).title()} · "
+                            f"{int(fog_match['player_charges']):,}–"
+                            f"{int(fog_match['opponent_charges']):,} charges"
+                        )
+                    elif fog_view["tutorial_complete"]:
+                        activity_kind = "waiting for random pairing"
+                    else:
+                        activity_kind = "talk to Fiara"
                 else:
                     activity_name = str(spec.get("display_name", "Material prep"))
                     activity_kind = (
@@ -3322,6 +3358,7 @@ def show_main_menu(
     on_livid_farm_command=None,
     on_big_chinchompa_command=None,
     on_shooting_star_command=None,
+    on_fist_of_guthix_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
     on_set_construction=None,
@@ -6660,6 +6697,7 @@ def show_main_menu(
                 )
 
         star_panel_refresher = {"call": lambda: None}
+        fog_panel_refresher = {"call": lambda: None}
 
         familiarisation_box = QtFrame()
         familiarisation_box.setObjectName("familiarisationPanel")
@@ -7659,6 +7697,349 @@ def show_main_menu(
         )
         _refresh_shooting_star_panel()
 
+        fog_box = QtFrame()
+        fog_box.setObjectName("fistOfGuthixPanel")
+        fog_box.setStyleSheet(
+            "QFrame#fistOfGuthixPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        fog_layout = QVBoxLayout(fog_box)
+        fog_layout.setContentsMargins(10, 8, 10, 8)
+        fog_layout.setSpacing(6)
+
+        fog_top = QWidget()
+        fog_top_layout = QHBoxLayout(fog_top)
+        fog_top_layout.setContentsMargins(0, 0, 0, 0)
+        fog_top_layout.setSpacing(8)
+        fog_icon = QLabel()
+        fog_icon.setObjectName("fistOfGuthixIcon")
+        fog_icon.setFixedSize(28, 28)
+        fog_icon_path = os.path.join(
+            current_dir, "activityicons", "fist_of_guthix.png"
+        )
+        if os.path.exists(fog_icon_path):
+            fog_icon.setPixmap(
+                QPixmap(fog_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        fog_title = QLabel("Fist of Guthix")
+        fog_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        fog_status = QLabel()
+        fog_status.setObjectName("fistOfGuthixStatusChip")
+        fog_status.setStyleSheet(
+            f"color: {dim_text_css(fog_status)};"
+            " font-size: 11px; font-weight: 700;"
+        )
+        fog_top_layout.addWidget(fog_icon)
+        fog_top_layout.addWidget(fog_title)
+        fog_top_layout.addStretch(1)
+        fog_top_layout.addWidget(fog_status)
+        fog_layout.addWidget(fog_top)
+
+        fog_summary = QLabel()
+        fog_summary.setObjectName("fistOfGuthixSummary")
+        fog_summary.setWordWrap(True)
+        fog_summary.setStyleSheet("color: palette(text);")
+        fog_layout.addWidget(fog_summary)
+
+        fog_detail = QLabel()
+        fog_detail.setObjectName("fistOfGuthixDetail")
+        fog_detail.setWordWrap(True)
+        fog_detail.setStyleSheet(
+            f"color: {dim_text_css(fog_detail)}; font-size: 11px;"
+        )
+        fog_layout.addWidget(fog_detail)
+
+        fog_charge = QProgressBar()
+        fog_charge.setObjectName("fistOfGuthixChargeProgress")
+        fog_charge.setRange(0, FIST_OF_GUTHIX_CHARGE_CAP)
+        fog_charge.setTextVisible(True)
+        fog_charge.setFixedHeight(17)
+        fog_charge.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 3px; }"
+            " QProgressBar::chunk { background: #4CAF50; }"
+        )
+        fog_layout.addWidget(fog_charge)
+
+        fog_policy = QWidget()
+        fog_policy_layout = QHBoxLayout(fog_policy)
+        fog_policy_layout.setContentsMargins(0, 0, 0, 0)
+        fog_policy_layout.setSpacing(6)
+        fog_mode = QComboBox()
+        fog_mode.setObjectName("fistOfGuthixAutomationMode")
+        fog_mode.addItem("Casual · auto stance", "casual")
+        fog_mode.addItem("Advanced · chosen stance", "advanced")
+        fog_stance = QComboBox()
+        fog_stance.setObjectName("fistOfGuthixStance")
+        fog_stance.addItem("Centre · 28/s · exposed", "centre")
+        fog_stance.addItem("Hybrid · 10/s", "hybrid")
+        fog_stance.addItem("Evasive · 3/s · safer", "evasive")
+        fog_stance.setToolTip(
+            "Charge rates are sourced. Exposure is a bounded, monotonic abstraction."
+        )
+        fog_policy_layout.addWidget(fog_mode, 1)
+        fog_policy_layout.addWidget(fog_stance, 1)
+        fog_layout.addWidget(fog_policy)
+
+        fog_actions = QWidget()
+        fog_actions_layout = QHBoxLayout(fog_actions)
+        fog_actions_layout.setContentsMargins(0, 0, 0, 0)
+        fog_actions_layout.setSpacing(6)
+        fog_primary = QPushButton()
+        fog_primary.setObjectName("fistOfGuthixPrimaryButton")
+        fog_tele_orb = QPushButton("Use Tele-orb")
+        fog_tele_orb.setObjectName("fistOfGuthixTeleOrbButton")
+        fog_forfeit = QPushButton("Forfeit")
+        fog_forfeit.setObjectName("fistOfGuthixForfeitButton")
+        fog_actions_layout.addWidget(fog_primary, 1)
+        fog_actions_layout.addWidget(fog_tele_orb)
+        fog_actions_layout.addWidget(fog_forfeit)
+        fog_layout.addWidget(fog_actions)
+
+        fog_shop_toggle = QToolButton()
+        fog_shop_toggle.setObjectName("fistOfGuthixShopToggle")
+        fog_shop_toggle.setCheckable(True)
+        fog_shop_toggle.setChecked(False)
+        fog_shop_toggle.setText("▸ Reggie's reward shop")
+        fog_shop_toggle.setToolButtonStyle(
+            Qt.ToolButtonStyle.ToolButtonTextOnly
+        )
+        fog_layout.addWidget(fog_shop_toggle)
+
+        fog_shop = QWidget()
+        fog_shop.setObjectName("fistOfGuthixShop")
+        fog_shop_layout = QHBoxLayout(fog_shop)
+        fog_shop_layout.setContentsMargins(0, 0, 0, 0)
+        fog_shop_layout.setSpacing(6)
+        fog_reward = QComboBox()
+        fog_reward.setObjectName("fistOfGuthixReward")
+        fog_buy = QPushButton("Buy")
+        fog_buy.setObjectName("fistOfGuthixBuyButton")
+        fog_recharge = QPushButton("Recharge")
+        fog_recharge.setObjectName("fistOfGuthixRechargeButton")
+        fog_uncharge = QPushButton("Uncharge free")
+        fog_uncharge.setObjectName("fistOfGuthixUnchargeButton")
+        fog_shop_layout.addWidget(fog_reward, 1)
+        fog_shop_layout.addWidget(fog_buy)
+        fog_shop_layout.addWidget(fog_recharge)
+        fog_shop_layout.addWidget(fog_uncharge)
+        fog_shop.setVisible(False)
+        fog_layout.addWidget(fog_shop)
+        cards_stack.addWidget(fog_box)
+
+        syncing_fog = {"active": False}
+
+        def _selected_fog_reward(view: dict) -> dict:
+            reward_id = str(fog_reward.currentData() or "")
+            return next(
+                (
+                    row
+                    for row in view.get("rewards", ())
+                    if row.get("reward_id") == reward_id
+                ),
+                {},
+            )
+
+        def _refresh_fist_of_guthix_panel() -> None:
+            syncing_fog["active"] = True
+            view = fist_of_guthix_view_pure(player_data)
+            selected = (
+                player_data.get("current_utility")
+                == FIST_OF_GUTHIX_ACTIVITY_ID
+            )
+            mode_index = fog_mode.findData(view["automation_mode"])
+            stance_index = fog_stance.findData(view["selected_stance"])
+            fog_mode.setCurrentIndex(max(0, mode_index))
+            fog_stance.setCurrentIndex(max(0, stance_index))
+            existing_reward = str(fog_reward.currentData() or "")
+            fog_reward.clear()
+            for reward in view["rewards"]:
+                owned = ", ".join(reward["bank_items"]) or "not owned"
+                fog_reward.addItem(
+                    f"{reward['display_name']} · {reward['buy_tokens']} tokens · {owned}",
+                    reward["reward_id"],
+                )
+            reward_index = fog_reward.findData(existing_reward)
+            if reward_index >= 0:
+                fog_reward.setCurrentIndex(reward_index)
+
+            active = bool(view["active"])
+            tutorial = bool(view["tutorial_complete"])
+            match = view.get("match", {}) or {}
+            if active:
+                role = str(match.get("player_role", "")).title()
+                round_index = int(match.get("round_index", 1))
+                fog_status.setText(f"{role.upper()} · ROUND {round_index}/2")
+                fog_box.setStyleSheet(
+                    "QFrame#fistOfGuthixPanel { border: 1px solid #4CAF50;"
+                    " border-radius: 8px; background: palette(base); }"
+                )
+                opponent = match.get("opponent", {}) or {}
+                fog_summary.setText(
+                    f"{opponent.get('display_name', 'Arena rival')} · "
+                    f"you {int(match.get('player_charges', 0)):,} vs "
+                    f"{int(match.get('opponent_charges', 0)):,} charges · "
+                    f"{int(match.get('round_ticks_remaining', 0))} ticks left"
+                )
+                supplies = match.get("temporary_supplies", {}) or {}
+                fog_detail.setText(
+                    f"{match.get('stance', 'hybrid').title()} stance · "
+                    f"{int(supplies.get('Bandages', 0))} bandages · "
+                    f"{int(view['tokens'])} tokens · rating {int(view['rating'])}"
+                )
+                hunted = str(match.get("player_role")) == "hunted"
+                fog_charge.setVisible(hunted)
+                fog_charge.setValue(int(match.get("player_charges", 0)))
+                fog_charge.setFormat("%v / 5,000 charges")
+                fog_tele_orb.setVisible(hunted)
+                fog_tele_orb.setEnabled(
+                    int(supplies.get("Tele-orb", 0)) > 0
+                    and on_fist_of_guthix_command is not None
+                )
+                fog_forfeit.setVisible(True)
+                fog_primary.setText("Selected for reviews" if selected else "Select match")
+                fog_primary.setEnabled(not selected and on_set_utility is not None)
+            elif not tutorial:
+                fog_status.setText("TUTORIAL")
+                fog_box.setStyleSheet(
+                    "QFrame#fistOfGuthixPanel { border: 1px solid palette(mid);"
+                    " border-radius: 8px; background: palette(base); }"
+                )
+                fog_summary.setText("Fiara must explain the two-round hunt first.")
+                fog_detail.setText(
+                    f"{int(view['tokens'])} tokens · rating {int(view['rating'])}"
+                )
+                fog_charge.setVisible(False)
+                fog_tele_orb.setVisible(False)
+                fog_forfeit.setVisible(False)
+                fog_primary.setText("Talk to Fiara")
+                fog_primary.setEnabled(on_fist_of_guthix_command is not None)
+            else:
+                fog_status.setText("WAITING")
+                fog_box.setStyleSheet(
+                    "QFrame#fistOfGuthixPanel { border: 1px solid palette(mid);"
+                    " border-radius: 8px; background: palette(base); }"
+                )
+                record = view["record"]
+                fog_summary.setText(
+                    f"{int(view['tokens'])} tokens · rating {int(view['rating'])} · "
+                    f"{int(record['wins'])}W {int(record['losses'])}L {int(record['ties'])}T"
+                )
+                penalty = " · next win pays fewer tokens" if view["forfeit_penalty"] else ""
+                fog_detail.setText(
+                    "Two rounds, roles swap · win by hunted charges · "
+                    "loss or tie pays 1 token" + penalty
+                )
+                fog_charge.setVisible(False)
+                fog_tele_orb.setVisible(False)
+                fog_forfeit.setVisible(False)
+                fog_primary.setText("Selected for reviews" if selected else "Select activity")
+                fog_primary.setEnabled(not selected and on_set_utility is not None)
+
+            fog_policy.setVisible(tutorial)
+            can_change_policy = not active or int(match.get("round_ticks", 0)) == 0
+            fog_mode.setEnabled(
+                can_change_policy and on_fist_of_guthix_command is not None
+            )
+            fog_stance.setEnabled(
+                can_change_policy
+                and view["automation_mode"] == "advanced"
+                and on_fist_of_guthix_command is not None
+            )
+            reward = _selected_fog_reward(view)
+            fog_buy.setEnabled(bool(reward.get("can_buy")))
+            fog_recharge.setEnabled(bool(reward.get("can_recharge")))
+            fog_uncharge.setEnabled(bool(reward.get("can_uncharge")))
+            fog_detail.setToolTip(
+                "Opponent generation, rating deltas, and winner-token magnitude "
+                "are bounded abstractions anchored to the period game."
+            )
+            syncing_fog["active"] = False
+            _fit_current_activity_detail()
+
+        def _run_fist_of_guthix_command(action_id: str, payload=None) -> None:
+            if on_fist_of_guthix_command is None:
+                return
+            result = on_fist_of_guthix_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Fist of Guthix",
+                    str(result.get("message", "That arena action is unavailable.")),
+                )
+            _refresh_fist_of_guthix_panel()
+
+        def _select_fist_of_guthix() -> None:
+            view = fist_of_guthix_view_pure(player_data)
+            if not view["tutorial_complete"]:
+                _run_fist_of_guthix_command("talk_fiara")
+                return
+            if on_set_utility is not None:
+                on_set_utility(FIST_OF_GUTHIX_ACTIVITY_ID)
+                player_data["current_utility"] = FIST_OF_GUTHIX_ACTIVITY_ID
+                tree.clearSelection()
+            _refresh_fist_of_guthix_panel()
+
+        def _set_fist_of_guthix_policy() -> None:
+            if syncing_fog["active"]:
+                return
+            _run_fist_of_guthix_command(
+                "set_policy",
+                {
+                    "automation_mode": str(fog_mode.currentData() or "casual"),
+                    "stance": str(fog_stance.currentData() or "hybrid"),
+                },
+            )
+
+        def _run_fog_reward(action_id: str) -> None:
+            _run_fist_of_guthix_command(
+                action_id,
+                {"reward_id": str(fog_reward.currentData() or "")},
+            )
+
+        fog_primary.clicked.connect(lambda _checked=False: _select_fist_of_guthix())
+        fog_tele_orb.clicked.connect(
+            lambda _checked=False: _run_fist_of_guthix_command("tele_orb")
+        )
+        fog_forfeit.clicked.connect(
+            lambda _checked=False: _run_fist_of_guthix_command("forfeit")
+        )
+        fog_mode.currentIndexChanged.connect(
+            lambda _index: _set_fist_of_guthix_policy()
+        )
+        fog_stance.currentIndexChanged.connect(
+            lambda _index: _set_fist_of_guthix_policy()
+        )
+        fog_shop_toggle.toggled.connect(
+            lambda checked: (
+                fog_shop.setVisible(bool(checked)),
+                fog_shop_toggle.setText(
+                    "▾ Reggie's reward shop"
+                    if checked
+                    else "▸ Reggie's reward shop"
+                ),
+                _fit_current_activity_detail(),
+            )
+        )
+        fog_reward.currentIndexChanged.connect(
+            lambda _index: _refresh_fist_of_guthix_panel()
+            if not syncing_fog["active"]
+            else None
+        )
+        fog_buy.clicked.connect(lambda _checked=False: _run_fog_reward("buy_reward"))
+        fog_recharge.clicked.connect(
+            lambda _checked=False: _run_fog_reward("recharge_reward")
+        )
+        fog_uncharge.clicked.connect(
+            lambda _checked=False: _run_fog_reward("uncharge_reward")
+        )
+        fog_panel_refresher["call"] = _refresh_fist_of_guthix_panel
+        _refresh_fist_of_guthix_panel()
+
         guild_box = QtFrame()
         guild_box.setObjectName("warriorsGuildPanel")
         guild_box.setStyleSheet(
@@ -8564,6 +8945,7 @@ def show_main_menu(
             _refresh_evil_tree_panel()
             _refresh_big_chinchompa_panel()
             _refresh_shooting_star_panel()
+            _refresh_fist_of_guthix_panel()
             _show_activity_detail(activity_id)
 
         def _on_utility_clicked(item: "QTreeWidgetItem", _column: int = 0):
@@ -8617,6 +8999,7 @@ def show_main_menu(
             EVIL_TREE_UTILITY_ID: ("Evil Tree", evil_box),
             BIG_CHINCHOMPA_UTILITY_ID: ("Big Chinchompa", big_box),
             SHOOTING_STAR_ACTIVITY_ID: ("Shooting Stars", star_box),
+            FIST_OF_GUTHIX_ACTIVITY_ID: ("Fist of Guthix", fog_box),
             FAMILIARISATION_ACTIVITY_ID: (
                 "Familiarisation",
                 familiarisation_box,

@@ -495,6 +495,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "familiarisation",
                 "livid_farm",
                 "shooting_stars",
+                "fist_of_guthix",
             },
         )
 
@@ -1885,6 +1886,15 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         )
         self.assertEqual(iconless, [], f"Hunter outputs missing icons: {iconless}")
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
+
+    def test_fist_of_guthix_rewards_keep_condition_tradeability(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for percent in (100, 80, 60, 40, 20):
+            self.assertFalse(by_storage_key[f"Combat hood {percent}"].tradeable)
+        self.assertTrue(by_storage_key["Combat hood 0"].tradeable)
+        self.assertFalse(by_storage_key["Bronze gauntlets"].tradeable)
+        self.assertFalse(by_storage_key["Worn-out bronze gauntlets"].tradeable)
+        self.assertFalse(by_storage_key["Fist of guthix token"].tradeable)
 
 
 if __name__ == "__main__":

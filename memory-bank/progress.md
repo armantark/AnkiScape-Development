@@ -4,6 +4,36 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Fist of Guthix horizontal mechanic closure — 2026-07-20
+
+- Implemented the complete two-round safe PvP abstraction: Fiara tutorial,
+  automatic random pairing, persistent opponent, randomized role order, role
+  swap/restoration, exact six-tick reviews, authentic charge endpoints, and
+  direct Tele-orb/forfeit controls.
+- Added temporary arena-owned Bandages, generic Elemental/Catalytic runes,
+  Stone of power, and Tele-orb. Consumption remains isolated from the Bank;
+  all Combat XP channels are halved after the shared reducer.
+- Persisted stance policy, exact charge residuals, rating, tokens, forfeit
+  carryover, record, and bounded history under storage schema 54. Review and
+  direct mutations use their established independent undo paths.
+- Added the generic per-copy condition substrate and exercised it through
+  Combat hood and Bronze gauntlets across equipment, Bank, unsafe/safe death,
+  recharge, manual uncharge, migration, and undo. Corrected the hood to 10
+  Defence / 20 Magic and made only its fully spent identity tradeable.
+- Added a compact one-page Activities surface and live Review HUD scoreline.
+  Kimi K3 and Fable shaped the stable status/charge/shop hierarchy; native Anki
+  and focused offscreen Qt both verified the accepted result.
+- Added three normalized provenance-tracked sprites, explicit cadence coverage,
+  and match -> token -> purchase -> condition reachability. The graph reports
+  1,428 actions, 2,091 reachable items, 168 orphan inputs, and 189 unresolved
+  actions.
+- Verification: 350 focused pure/runtime/storage/integration/registry tests,
+  focused real Qt, 1,988 full non-Qt tests (262 expected skips), and 1,988 full
+  offscreen-Qt tests (one intentional skip) pass. Test quality, docs,
+  compilation, JSON, diff, asset normalization, and worktree safety also pass.
+  See
+  `source-audits/fist-of-guthix-horizontal-mvp-harvest-2026-07-20.md`.
+
 ## Shooting Stars horizontal mechanic closure — 2026-07-20
 
 - Completed the follow-up navigation and activity-category audit: green

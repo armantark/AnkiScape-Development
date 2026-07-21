@@ -414,7 +414,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             "inventory": {"Combat hood 100": 1},
             "equipment": {},
             "defense_level": 20,
-            "magic_level": 10,
+            "magic_level": 20,
             "equipment_instances": {
                 "equipment-1": {
                     "family_id": "combat_hood",
@@ -4804,6 +4804,48 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertTrue(result["ok"])
         self.assertEqual(addon.player_data["inventory"]["Stardust"], 0)
         self.assertEqual(addon.player_data["inventory"]["Coins"], 50_002)
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_fist_of_guthix_reward_purchase_is_a_direct_undoable_action(self):
+        addon = _load_addon_as_package(
+            "ankiscape_fist_of_guthix_reward_integration"
+        )
+        fog_logic = sys.modules[f"{addon.__name__}.fist_of_guthix_logic"]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.current_skill = "Activities"
+        initial = {
+            "inventory": {},
+            "equipment": {},
+            "equipment_instances": {},
+            "equipment_instance_next_id": 1,
+            "fist_of_guthix": fog_logic.default_fist_of_guthix_state_pure(),
+            "smithing_level": 1,
+        }
+        initial["fist_of_guthix"]["tokens"] = 100
+        addon.player_data = copy.deepcopy(initial)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+
+        addon._on_main_menu()
+        result = captured["on_fist_of_guthix_command"](
+            "buy_reward", {"reward_id": "combat_hood"}
+        )
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(addon.player_data["inventory"]["Combat hood 100"], 1)
+        self.assertEqual(addon.player_data["fist_of_guthix"]["tokens"], 50)
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
         self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
 

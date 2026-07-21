@@ -82,6 +82,22 @@ class TestItemReachabilityAudit(unittest.TestCase):
             report["routes"]["Stardust"],
             "Activity:shooting_stars:mine",
         )
+        self.assertEqual(
+            report["routes"]["Fist of guthix token"],
+            "Activity:fist_of_guthix:match",
+        )
+        self.assertEqual(
+            report["routes"]["Combat hood 100"],
+            "Activity:fist_of_guthix:buy:combat_hood",
+        )
+        self.assertEqual(
+            report["routes"]["Combat hood 0"],
+            "Activity:fist_of_guthix:uncharge:combat_hood",
+        )
+        self.assertEqual(
+            report["routes"]["Bronze gauntlets"],
+            "Activity:fist_of_guthix:buy:bronze_gauntlets",
+        )
         self.assertNotIn(
             "Activity:shooting_stars:exchange",
             {action["id"] for action in report["unresolved_actions"]},

@@ -549,6 +549,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._livid_farm_calls: list = []
         self._big_chinchompa_calls: list = []
         self._shooting_star_calls: list = []
+        self._fist_of_guthix_calls: list = []
         self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
         self._mage_arena_calls: list = []
@@ -824,6 +825,18 @@ class MainMenuWidgetTest(unittest.TestCase):
                 **info,
             }
 
+        def _fist_of_guthix_command(action_id, payload):
+            from fist_of_guthix_logic import apply_fist_of_guthix_command_pure
+
+            self._fist_of_guthix_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_fist_of_guthix_command_pure(
+                player_data, action_id, payload
+            )
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
         def _mage_arena_action(action_id, god_id):
             from logic_pure import (
                 apply_mage_arena_cape_action_pure,
@@ -884,6 +897,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_livid_farm_command=_livid_farm_command,
             on_big_chinchompa_command=_big_chinchompa_command,
             on_shooting_star_command=_shooting_star_command,
+            on_fist_of_guthix_command=_fist_of_guthix_command,
             on_set_prayer_selection=_set_prayer_selection,
             on_set_magic=lambda target: _set_target("current_magic", self._magic_calls, target),
             on_set_construction=lambda target: _set_target("current_construction", self._construction_calls, target),
@@ -7490,7 +7504,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         activity_texts = [it.text(0) for it in _tree_items(activities_tree)]
         self.assertNotIn("Make soft clay", activity_texts)
         self.assertIn("Livid Farm", activity_texts)
-        self.assertIn("Minigames  (1)", activity_texts)
+        self.assertIn("Minigames  (2)", activity_texts)
         self.assertIn("Distractions and Diversions  (3)", activity_texts)
         self.assertNotIn("Activities / minigames  (2)", activity_texts)
         minigames = _utility_row(
@@ -7513,7 +7527,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 )
                 for index in range(minigames.childCount())
             },
-            {"livid_farm"},
+            {"fist_of_guthix", "livid_farm"},
         )
         self.assertEqual(
             {
@@ -8127,6 +8141,86 @@ class MainMenuWidgetTest(unittest.TestCase):
             pd["shooting_star"]["ore_bonus_ticks_remaining"], 1_500
         )
 
+    def test_fist_of_guthix_card_tutorial_policy_live_state_and_shop(self) -> None:
+        from fist_of_guthix_logic import (
+            default_fist_of_guthix_state_pure,
+            start_fist_of_guthix_match_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "fist_of_guthix": default_fist_of_guthix_state_pure(),
+                "equipment_instances": {},
+                "equipment_instance_next_id": 1,
+            }
+        )
+        pd["fist_of_guthix"]["tokens"] = 100
+        dialog = self._open(pd)
+        activity_tree = self._open_activities(dialog)
+        fog_row = _utility_row(activity_tree, "fist_of_guthix")
+        activity_tree.setCurrentItem(fog_row)
+        QApplication.processEvents()
+
+        details = _find_named_widget(dialog, "utilityActivityDetailsStack")
+        panel = _find_named_widget(dialog, "fistOfGuthixPanel")
+        primary = _find_named_button(dialog, "fistOfGuthixPrimaryButton")
+        self.assertEqual(details.currentWidget(), panel)
+        self.assertEqual(primary.text(), "Talk to Fiara")
+        self.assertFalse(panel.findChild(QProgressBar, "fistOfGuthixChargeProgress").isVisible())
+
+        primary.click()
+        QApplication.processEvents()
+        self.assertTrue(pd["fist_of_guthix"]["tutorial_complete"])
+        self.assertEqual(primary.text(), "Select activity")
+        primary.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["current_utility"], "fist_of_guthix")
+        self.assertEqual(self._utility_calls[-1], "fist_of_guthix")
+
+        mode = dialog.findChild(QComboBox, "fistOfGuthixAutomationMode")
+        stance = dialog.findChild(QComboBox, "fistOfGuthixStance")
+        mode.setCurrentIndex(mode.findData("advanced"))
+        stance.setCurrentIndex(stance.findData("centre"))
+        QApplication.processEvents()
+        self.assertEqual(pd["fist_of_guthix"]["automation_mode"], "advanced")
+        self.assertEqual(pd["fist_of_guthix"]["selected_stance"], "centre")
+
+        shop_toggle = dialog.findChild(QToolButton, "fistOfGuthixShopToggle")
+        shop_toggle.click()
+        QApplication.processEvents()
+        shop = _find_named_widget(dialog, "fistOfGuthixShop")
+        self.assertFalse(shop.isHidden())
+        buy = _find_named_button(dialog, "fistOfGuthixBuyButton")
+        self.assertTrue(buy.isEnabled())
+        buy.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["inventory"]["Combat hood 100"], 1)
+
+        active, ok, _ = start_fist_of_guthix_match_pure(
+            pd, iter((0.3, 0.5, 0.2, 0.8, 0.1)).__next__
+        )
+        self.assertTrue(ok)
+        match = active["fist_of_guthix"]["active_match"]
+        match["first_player_role"] = "hunted"
+        match["player_role"] = "hunted"
+        match["player_stance"] = "centre"
+        match["player_charges"] = 1_240
+        pd.clear()
+        pd.update(active)
+        live_dialog = self._open(pd)
+        live_tree = self._open_activities(live_dialog)
+        live_tree.setCurrentItem(_utility_row(live_tree, "fist_of_guthix"))
+        QApplication.processEvents()
+        status = _find_named_label(live_dialog, "fistOfGuthixStatusChip")
+        charge = live_dialog.findChild(
+            QProgressBar, "fistOfGuthixChargeProgress"
+        )
+        self.assertEqual(status.text(), "HUNTED · ROUND 1/2")
+        self.assertFalse(charge.isHidden())
+        self.assertEqual(charge.value(), 1_240)
+        self.assertIsNone(panel.findChild(QScrollArea))
+
     def test_activities_show_only_the_selected_rich_detail_card(self) -> None:
         from shooting_star_logic import (
             advance_shooting_star_world_clock_pure,
@@ -8196,6 +8290,33 @@ class MainMenuWidgetTest(unittest.TestCase):
         hud.set_data(active, "Activities")
         self.assertIn("Star sprite", notice.text())
         self.assertIn("ready for exchange", hud.sub_lbl.text())
+
+    def test_review_hud_surfaces_active_fist_of_guthix_match(self) -> None:
+        from fist_of_guthix_logic import (
+            default_fist_of_guthix_state_pure,
+            start_fist_of_guthix_match_pure,
+        )
+
+        pd = _make_player_data()
+        pd["current_utility"] = "fist_of_guthix"
+        pd["fist_of_guthix"] = default_fist_of_guthix_state_pure()
+        pd["fist_of_guthix"]["tutorial_complete"] = True
+        active, ok, _ = start_fist_of_guthix_match_pure(
+            pd, iter((0.3, 0.5, 0.2, 0.8, 0.1)).__next__
+        )
+        self.assertTrue(ok)
+        match = active["fist_of_guthix"]["active_match"]
+        match["player_charges"] = 1_240
+        match["opponent_charges"] = 760
+        hud = self._ui.ReviewHUD(None)
+
+        hud.set_data(active, "Activities")
+
+        notice = hud.findChild(QLabel, "reviewWorldNotice")
+        self.assertTrue(notice.isVisible())
+        self.assertIn("Fist of Guthix round 1/2", notice.text())
+        self.assertIn("1,240–760 charges", notice.text())
+        self.assertIn("Round 1/2", hud.sub_lbl.text())
 
     def test_hunter_private_ground_control_uses_carried_ticket_count(self) -> None:
         ticket = "Swamp lizard quota ticket"

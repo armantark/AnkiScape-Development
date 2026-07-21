@@ -983,6 +983,14 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   event with a compact period-qualified location set. Exact hidden initial-size,
   first-finder, crowd, gem, and sub-200 reward-rounding distributions remain
   data-depth work and do not block the breadth-first frontier.
+- Fist of Guthix is mechanic-complete as an Activities-only safe two-round
+  Combat minigame. Its tutorial, random pairing, role swap, exact six-tick
+  cadence, temporary supplies, charge tactics, endpoints, token/rating economy,
+  Reggie shop, per-copy condition substrate, undo, persistence, HUD, assets,
+  and compact selected card are live. Opponent population, stance exposure,
+  winner-token magnitude, and rating delta remain labeled data-depth
+  abstractions rather than design or mechanic gaps. See
+  `memory-bank/source-audits/fist-of-guthix-horizontal-mvp-harvest-2026-07-20.md`.
 - Darkan should supply hidden state machines, rolls, currencies, and reward logic; period wiki/cache evidence still establishes cutoff and client identity.
 
 ### Missing skill server behavior

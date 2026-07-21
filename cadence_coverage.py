@@ -107,7 +107,36 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
             rows.append(row)
 
     for action_id, spec in UTILITY_ACTIVITY_DATA.items():
-        if str(action_id) == "shooting_stars":
+        if str(action_id) == "fist_of_guthix":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "fist_of_guthix",
+                    "mode": "activity_group",
+                    "source_status": "sourced",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One review advances exactly six Combat ticks and stops "
+                        "at a kill, death, charge cap, or round boundary."
+                    ),
+                    "includes": (
+                        "six combat ticks",
+                        "one hunted-charge residual boundary",
+                        "one safe arena-state transaction",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains "
+                        "one six-tick arena interval"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same six-tick activity handler",
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
+        elif str(action_id) == "shooting_stars":
             rows.append(
                 {
                     "handler_key": "utility",

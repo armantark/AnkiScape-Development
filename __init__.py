@@ -107,6 +107,7 @@ from .equipment_instance_logic import (
     sync_equipment_instances_pure,
 )
 from .fist_of_guthix_data import FIST_OF_GUTHIX_CONDITION_DATA
+from .fist_of_guthix_logic import apply_fist_of_guthix_command_pure
 from .injectors import inject_reviewer_floating_button as _inject_reviewer_floating_button
 from .injectors import inject_overview_floating_button as _inject_overview_floating_button
 from .injectors import register_deck_browser_button as _register_deck_browser_button
@@ -1675,6 +1676,42 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             pass
         return {"ok": True, **info}
 
+    def _apply_fist_of_guthix_command(action_id, payload):
+        payload = payload if isinstance(payload, dict) else {}
+        before = _capture_player_data_snapshot()
+        updated, ok, info = apply_fist_of_guthix_command_pure(
+            player_data,
+            str(action_id),
+            payload,
+        )
+        if not ok:
+            return {
+                "ok": False,
+                "message": str(info.get("reason", "Fist of Guthix action failed.")),
+            }
+        if action_id != "set_policy":
+            try:
+                mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+            except (AttributeError, RuntimeError):
+                return {
+                    "ok": False,
+                    "message": "Anki could not create an undo entry.",
+                }
+            _DIRECT_ACTION_UNDO_STACK.append(before)
+            if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+                del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+        player_data.clear()
+        player_data.update(updated)
+        check_achievements(player_data)
+        save_player_data()
+        _refresh_skill_availability()
+        try:
+            mw.update_undo_actions()
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_livid_farm_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         if action_id == "set_routine":
@@ -1875,6 +1912,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_warriors_guild_command=_apply_warriors_guild_command,
         on_big_chinchompa_command=_apply_big_chinchompa_command,
         on_shooting_star_command=_apply_shooting_star_command,
+        on_fist_of_guthix_command=_apply_fist_of_guthix_command,
         on_livid_farm_command=_apply_livid_farm_command,
         on_set_prayer_selection=set_prayer_selection,
         on_set_magic=lambda target: _set_value("current_magic", target),

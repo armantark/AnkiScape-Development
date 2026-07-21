@@ -97,6 +97,7 @@ def build_reachability_report() -> dict[str, Any]:
     import combat_data
     import constants
     import farming_data
+    import fist_of_guthix_data
     import pack_data
     import shooting_star_data
     import shop_data
@@ -261,6 +262,77 @@ def build_reachability_report() -> dict[str, Any]:
     )
     for item in star_exchange_outputs:
         producers[item].add(star_exchange_key)
+
+    fog_match_key = "Activity:fist_of_guthix:match"
+    fog_token = "Fist of guthix token"
+    actions.append(
+        {
+            "id": fog_match_key,
+            "required": set(),
+            "alternatives": (),
+            "outputs": {fog_token},
+        }
+    )
+    producers[fog_token].add(fog_match_key)
+    for reward_id, reward in fist_of_guthix_data.FIST_OF_GUTHIX_REWARDS.items():
+        family = fist_of_guthix_data.FIST_OF_GUTHIX_CONDITION_DATA[
+            reward["family_id"]
+        ]
+        names_by_percent = family["names_by_percent"]
+        charged = names_by_percent[max(names_by_percent)]
+        spent = names_by_percent[min(names_by_percent)]
+        buy_key = f"Activity:fist_of_guthix:buy:{reward_id}"
+        actions.append(
+            {
+                "id": buy_key,
+                "required": {fog_token},
+                "alternatives": (),
+                "outputs": {charged},
+            }
+        )
+        consumers[fog_token].add(buy_key)
+        producers[charged].add(buy_key)
+        uncharge_key = f"Activity:fist_of_guthix:uncharge:{reward_id}"
+        actions.append(
+            {
+                "id": uncharge_key,
+                "required": {charged},
+                "alternatives": (),
+                "outputs": {spent},
+            }
+        )
+        consumers[charged].add(uncharge_key)
+        producers[spent].add(uncharge_key)
+        recharge_key = f"Activity:fist_of_guthix:recharge:{reward_id}"
+        actions.append(
+            {
+                "id": recharge_key,
+                "required": {spent, fog_token},
+                "alternatives": (),
+                "outputs": {charged},
+            }
+        )
+        consumers[spent].add(recharge_key)
+        consumers[fog_token].add(recharge_key)
+        producers[charged].add(recharge_key)
+        ordered_names = [
+            names_by_percent[percent]
+            for percent in sorted(names_by_percent, reverse=True)
+        ]
+        for current, remainder in zip(ordered_names, ordered_names[1:]):
+            degrade_key = (
+                f"Activity:fist_of_guthix:degrade:{reward_id}:{current}"
+            )
+            actions.append(
+                {
+                    "id": degrade_key,
+                    "required": {current},
+                    "alternatives": (),
+                    "outputs": {remainder},
+                }
+            )
+            consumers[current].add(degrade_key)
+            producers[remainder].add(degrade_key)
 
     for item_name, spec in constants.CONSUMABLE_DATA.items():
         if not isinstance(spec, Mapping):

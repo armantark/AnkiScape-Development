@@ -235,6 +235,11 @@ try:
         apply_shooting_star_review_pure,
         shooting_star_event_mineable_pure,
     )
+    from .fist_of_guthix_data import FIST_OF_GUTHIX_ACTIVITY_ID
+    from .fist_of_guthix_logic import (
+        apply_fist_of_guthix_review_pure,
+        fist_of_guthix_can_review_pure,
+    )
     from .warriors_guild_data import WARRIORS_GUILD_ACTIVITIES
     from .warriors_guild_logic import (
         apply_warriors_guild_activity_pure,
@@ -459,6 +464,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from shooting_star_logic import (  # type: ignore
         apply_shooting_star_review_pure,
         shooting_star_event_mineable_pure,
+    )
+    from fist_of_guthix_data import FIST_OF_GUTHIX_ACTIVITY_ID  # type: ignore
+    from fist_of_guthix_logic import (  # type: ignore
+        apply_fist_of_guthix_review_pure,
+        fist_of_guthix_can_review_pure,
     )
     from warriors_guild_data import WARRIORS_GUILD_ACTIVITIES  # type: ignore
     from warriors_guild_logic import (  # type: ignore
@@ -2490,6 +2500,71 @@ def _handle_shooting_star_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _handle_fist_of_guthix_answer(ctx: RuntimeActionContext) -> bool:
+    updated, ok, result = apply_fist_of_guthix_review_pure(
+        ctx.player_data,
+        rng=ctx.random_random,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Fist of Guthix unavailable",
+            str(result.get("reason", "Talk to Fiara before entering the arena.")),
+        )
+        return False
+
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    xp_rewards = dict(result.get("xp_rewards", {}) or {})
+    total_xp = sum(float(amount or 0.0) for amount in xp_rewards.values())
+    _record_action(
+        ctx,
+        "utility",
+        FIST_OF_GUTHIX_ACTIVITY_ID,
+        True,
+        expected_success_chance=1.0,
+        primary_xp=total_xp,
+    )
+    skill_names = {
+        "attack_exp": "Attack",
+        "strength_exp": "Strength",
+        "defense_exp": "Defence",
+        "constitution_exp": "Constitution",
+        "magic_exp": "Magic",
+        "ranged_exp": "Ranged",
+    }
+    for exp_key, skill_name in skill_names.items():
+        if float(xp_rewards.get(exp_key, 0.0) or 0.0) > 0:
+            ctx.level_up_check(skill_name, ctx.player_data)
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if total_xp > 0:
+        ctx.show_exp(total_xp)
+
+    if result.get("match_complete"):
+        match = result.get("match_result", {}) or {}
+        ctx.show_activity_gain(
+            f"Fist of Guthix {str(match.get('outcome', 'complete'))} · "
+            f"{int(match.get('player_charges', 0)):,}–"
+            f"{int(match.get('opponent_charges', 0)):,} charges · "
+            f"+{int(match.get('tokens', 0))} tokens"
+        )
+    elif result.get("round_complete"):
+        ctx.show_activity_gain(
+            f"Round {int(result.get('round', 0))} complete · "
+            f"{int(result.get('charges', 0)):,} charges · "
+            f"now {str(result.get('next_role', '')).title()}"
+        )
+    else:
+        ctx.show_activity_gain(
+            f"FoG {str(result.get('player_role', '')).title()} · "
+            f"+{int(result.get('charge_gained', 0))} charges · "
+            f"{int(result.get('charge_total', 0)):,}/5,000"
+        )
+    return True
+
+
 def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
@@ -2499,6 +2574,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_big_chinchompa_answer(ctx)
     if activity_key == SHOOTING_STAR_ACTIVITY_ID:
         return _handle_shooting_star_answer(ctx)
+    if activity_key == FIST_OF_GUTHIX_ACTIVITY_ID:
+        return _handle_fist_of_guthix_answer(ctx)
     if activity_key == STRONGHOLD_UTILITY_KEY:
         return _handle_stronghold_answer(ctx)
     if activity_key == KNIGHT_WAVES_UTILITY_KEY:
@@ -4714,6 +4791,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return big_chinchompa_event_active_pure(ctx.player_data)
     if activity_key == SHOOTING_STAR_ACTIVITY_ID:
         return shooting_star_event_mineable_pure(ctx.player_data)
+    if activity_key == FIST_OF_GUTHIX_ACTIVITY_ID:
+        return fist_of_guthix_can_review_pure(ctx.player_data)
     if activity_key == STRONGHOLD_UTILITY_KEY:
         state = ctx.player_data.get("stronghold_of_security") or {}
         return not state.get("completed")

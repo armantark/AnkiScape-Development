@@ -2,6 +2,35 @@
 
 ## Current Focus
 
+Fist of Guthix now satisfies horizontal breadth level one. Fiara gates the
+tutorial, pairing is automatic and unbanded, one review advances exactly six
+Combat ticks, and one match preserves a seeded opponent across two sourced
+hunter/hunted rounds. Centre / Hybrid / Evasive charge residuals, temporary
+arena supplies, bandage healing, safe death, role restoration, Tele-orb,
+forfeit carryover, token/rating outcomes, match history, and the global 50%
+Combat-XP rule are live without wall-clock or foreground-multiplier leakage.
+
+Reggie's compact shop proves the generic per-copy equipment-condition
+substrate with Combat hood and Bronze gauntlets: multiple non-stackable copies
+retain independent condition through Bank/equipment moves, unsafe/safe death,
+save migration, direct/review undo, recharge, and free uncharge. Only the spent
+hood is tradeable, and its cutoff gate is 10 Defence / 20 Magic. The Activities
+page uses one stable selected card with tutorial, policy, scoreline, supplies,
+direct exits, and a disclosed shop; the Review HUD repeats the live round and
+charges. Kimi K3 and Fable independently shaped the final hierarchy, and a
+fully restarted native Anki dark-theme process verified one menu and the real
+FoG tutorial card without mutating the save.
+
+All 1,988 non-Qt tests pass with 262 expected environment skips and all 1,988
+real offscreen-Qt tests pass with one intentional skip. Test quality reports
+zero hard issues; docs, compilation, JSON, diff, tight-alpha assets,
+reachability, and worktree safety pass. The graph now contains 1,428 actions,
+2,091 reachable items, 168 orphan inputs, and 189 unresolved actions. No owner
+design gap emerged. Durable record:
+`source-audits/fist-of-guthix-horizontal-mvp-harvest-2026-07-20.md`.
+Results: `status-updates/fist-of-guthix-horizontal-mvp-results-2026-07-20.html`.
+Mobile copy: `https://h9vvkp6arl98.postplan.dev`.
+
 Shooting Stars now satisfies horizontal breadth level one. The Mining-owned
 world event uses the 20-review shared slot clock, all nine sourced layers,
 first-finder tags, visible level waiting, communal naturalized depletion, the
@@ -58,8 +87,8 @@ gap emerged. Durable record:
 `source-audits/shooting-star-implementation-harvest-2026-07-20.md`.
 Results:
 `status-updates/shooting-stars-horizontal-mvp-results-2026-07-20.html`; mobile
-copy: `https://uhov58kni1bj.postplan.dev`. The next breadth-one frontier is
-Fist of Guthix; Tears of Guthix remains honestly source-blocked.
+copy: `https://uhov58kni1bj.postplan.dev`. Fist of Guthix is now the next closed
+breadth slice; Tears of Guthix remains honestly source-blocked.
 
 The owner-settled Arctic-pine processing sub-slice is now live. Woodcutting
 level 54 exposes `Split Arctic pine logs` once The Fremennik Isles has started;

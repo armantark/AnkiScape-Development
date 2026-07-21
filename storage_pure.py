@@ -18,6 +18,10 @@ try:
         sanitize_equipment_instance_state_pure,
     )
     from .fist_of_guthix_data import FIST_OF_GUTHIX_CONDITION_DATA
+    from .fist_of_guthix_logic import (
+        default_fist_of_guthix_state_pure,
+        sanitize_fist_of_guthix_state_pure,
+    )
     from .urn_data import URN_PLAIN_TO_RUNED_ITEM, default_urn_state_pure, sanitize_urn_state_pure
     from .constants import (
         BAR_DATA,
@@ -121,6 +125,10 @@ except ImportError:
         sanitize_equipment_instance_state_pure,
     )
     from fist_of_guthix_data import FIST_OF_GUTHIX_CONDITION_DATA
+    from fist_of_guthix_logic import (  # type: ignore
+        default_fist_of_guthix_state_pure,
+        sanitize_fist_of_guthix_state_pure,
+    )
     from urn_data import URN_PLAIN_TO_RUNED_ITEM, default_urn_state_pure, sanitize_urn_state_pure
     from constants import (
         BAR_DATA,
@@ -209,7 +217,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 53
+CURRENT_CONFIG_VERSION = 54
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -437,6 +445,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["big_chinchompa"] = default_big_chinchompa_state_pure()
     data["evil_tree"] = default_evil_tree_state_pure()
     data["shooting_star"] = default_shooting_star_state_pure()
+    data["fist_of_guthix"] = default_fist_of_guthix_state_pure()
     data.update(default_farming_state_pure())
     data.update(default_agility_state_pure())
     data["livid_farm"] = default_livid_farm_state_pure()
@@ -1041,6 +1050,9 @@ def migrate_loaded_data(
     data["evil_tree"] = sanitize_evil_tree_state_pure(data.get("evil_tree"))
     data["shooting_star"] = sanitize_shooting_star_state_pure(
         data.get("shooting_star")
+    )
+    data["fist_of_guthix"] = sanitize_fist_of_guthix_state_pure(
+        data.get("fist_of_guthix")
     )
 
     # Ensure inventory exists and has registered item keys while preserving

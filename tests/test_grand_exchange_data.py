@@ -146,7 +146,7 @@ class GrandExchangeDataTest(unittest.TestCase):
             6_563_176,
         )
 
-    def test_only_ambiguous_collapsed_identities_remain_buy_limit_blocked(self):
+    def test_only_audited_unresolved_identities_remain_buy_limit_blocked(self):
         blocked = {
             name
             for name, row in GE_ITEM_CATALOG.items()
@@ -156,6 +156,7 @@ class GrandExchangeDataTest(unittest.TestCase):
             blocked,
             {
                 "Black warlock",
+                "Combat hood 0",
                 "Cape",
                 "Feather headdress",
                 "Flowers",

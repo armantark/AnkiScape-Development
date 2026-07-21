@@ -299,6 +299,18 @@
     "source_wiki": "rs3",
     "timestamp": "2024-03-14T12:48:08Z"
   },
+  "activityicons/fist_of_guthix.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fist_of_Guthix_token.png",
+    "file_title": "Fist of Guthix token.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502034233%21Fist_of_Guthix_token.png?11908",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "11ac5f67e0978e3f0ea6351c0154d54816552463",
+    "size": 377,
+    "source_wiki": "rs3",
+    "timestamp": "2011-07-25T18:09:41Z"
+  },
   "activityicons/gather_flax.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Flax.png",
     "file_title": "Flax.png",
@@ -3013,6 +3025,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:53:59Z"
   },
+  "combatitems/bronze_gauntlets.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Bronze_gauntlets.png",
+    "file_title": "Bronze gauntlets.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502015749%21Bronze_gauntlets.png?ec07f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a207fc5772b6c6c847e41ed729bdd7b4ca405daf",
+    "size": 534,
+    "source_wiki": "rs3",
+    "timestamp": "2012-08-15T23:55:42Z"
+  },
   "combatitems/bronze_spear.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bronze_spear.png",
     "file_title": "Bronze spear.png",
@@ -3120,6 +3144,18 @@
     "size": 423,
     "source_wiki": "osrs",
     "timestamp": "2020-07-22T17:46:31Z"
+  },
+  "combatitems/combat_hood.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Combat_hood_100.png",
+    "file_title": "Combat hood 100.png",
+    "image_url": "https://runescape.wiki/images/Combat_hood_100.png?bab1d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "cd5efb3069372deef7816b7e128e6fe6bd5c75f5",
+    "size": 762,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T02:27:49Z"
   },
   "combatitems/coral_bolts.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Coral_bolts_5.png",

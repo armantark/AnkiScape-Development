@@ -9,6 +9,52 @@ FIST_OF_GUTHIX_SOURCE = (
     "RuneScape Wiki Fist of Guthix oldid 6472973; Guide oldid 6538347; "
     "Reward Shop oldid 6392982"
 )
+FIST_OF_GUTHIX_ACTIVITY_ID = "fist_of_guthix"
+FIST_OF_GUTHIX_ROUND_TICKS = 1_000
+FIST_OF_GUTHIX_CHARGE_CAP = 5_000
+FIST_OF_GUTHIX_COMBAT_TICKS_PER_REVIEW = 6
+FIST_OF_GUTHIX_INITIAL_RATING = 1_000
+FIST_OF_GUTHIX_INITIAL_SUPPLIES = {
+    "Bandages": 5,
+    "Catalytic rune": 300,
+    "Elemental rune": 1_000,
+    "Stone of power": 1,
+    "Tele-orb": 1,
+}
+FIST_OF_GUTHIX_STANCES: dict[str, dict[str, Any]] = {
+    "centre": {
+        "display_name": "Centre",
+        "charges_per_second": 28,
+        "exposure_multiplier": 1.0,
+        "source_status": "charge sourced; exposure bounded abstraction",
+    },
+    "hybrid": {
+        "display_name": "Hybrid",
+        "charges_per_second": 10,
+        "exposure_multiplier": 0.72,
+        "source_status": "charge sourced; exposure bounded abstraction",
+    },
+    "evasive": {
+        "display_name": "Evasive",
+        "charges_per_second": 3,
+        "exposure_multiplier": 0.45,
+        "source_status": "charge sourced; exposure bounded abstraction",
+    },
+}
+FIST_OF_GUTHIX_REWARDS = {
+    "combat_hood": {
+        "display_name": "Combat hood",
+        "family_id": "combat_hood",
+        "buy_tokens": 50,
+        "recharge_tokens": 5,
+    },
+    "bronze_gauntlets": {
+        "display_name": "Bronze gauntlets",
+        "family_id": "bronze_gauntlets",
+        "buy_tokens": 15,
+        "recharge_tokens": 3,
+    },
+}
 
 FIST_OF_GUTHIX_CONDITION_DATA: dict[str, dict[str, Any]] = {
     "combat_hood": {
@@ -47,35 +93,35 @@ FIST_OF_GUTHIX_REWARD_ITEMS: dict[str, dict[str, Any]] = {
         "category": "equipment",
         "item_id": 12964,
         "stackable": False,
-        "tradeable": True,
+        "tradeable": False,
         "source": FIST_OF_GUTHIX_CONDITION_DATA["combat_hood"]["source"],
     },
     "Combat hood 80": {
         "category": "equipment",
         "item_id": 12965,
         "stackable": False,
-        "tradeable": True,
+        "tradeable": False,
         "source": FIST_OF_GUTHIX_CONDITION_DATA["combat_hood"]["source"],
     },
     "Combat hood 60": {
         "category": "equipment",
         "item_id": 12966,
         "stackable": False,
-        "tradeable": True,
+        "tradeable": False,
         "source": FIST_OF_GUTHIX_CONDITION_DATA["combat_hood"]["source"],
     },
     "Combat hood 40": {
         "category": "equipment",
         "item_id": 12967,
         "stackable": False,
-        "tradeable": True,
+        "tradeable": False,
         "source": FIST_OF_GUTHIX_CONDITION_DATA["combat_hood"]["source"],
     },
     "Combat hood 20": {
         "category": "equipment",
         "item_id": 12968,
         "stackable": False,
-        "tradeable": True,
+        "tradeable": False,
         "source": FIST_OF_GUTHIX_CONDITION_DATA["combat_hood"]["source"],
     },
     "Combat hood 0": {
@@ -111,3 +157,15 @@ FIST_OF_GUTHIX_REWARD_ITEMS: dict[str, dict[str, Any]] = {
 
 def fist_of_guthix_extra_items_as_dict() -> dict[str, dict[str, Any]]:
     return {name: dict(spec) for name, spec in FIST_OF_GUTHIX_REWARD_ITEMS.items()}
+
+
+def fist_of_guthix_activity_as_dict() -> dict[str, dict[str, Any]]:
+    return {
+        FIST_OF_GUTHIX_ACTIVITY_ID: {
+            "display_name": "Fist of Guthix",
+            "requirements": {},
+            "batch_size": 1,
+            "group": "minigames",
+            "source": FIST_OF_GUTHIX_SOURCE,
+        }
+    }

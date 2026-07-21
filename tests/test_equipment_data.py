@@ -400,7 +400,8 @@ class TestEquipmentData(unittest.TestCase):
         hood = EQUIPMENT_DATA["Combat hood 100"]
         self.assertEqual(hood.slot, "head")
         self.assertEqual(hood.source_item_id, 12964)
-        self.assertEqual(hood.skill_requirements, (("defense", 20), ("magic", 10)))
+        self.assertEqual(hood.required_level, 10)
+        self.assertEqual(hood.skill_requirements, (("defense", 10), ("magic", 20)))
         self.assertEqual(hood.equipment_type, "fist_of_guthix_reward")
         gauntlets = EQUIPMENT_DATA["Bronze gauntlets"]
         self.assertEqual(gauntlets.slot, "hands")

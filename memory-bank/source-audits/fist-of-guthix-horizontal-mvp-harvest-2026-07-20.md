@@ -104,7 +104,7 @@ Horizontal breadth needs two reward families, not the complete shop:
 | Combat hood | 50 tokens | 5 tokens when fully spent | equipped-use degradation, partial/full recharge, free manual uncharge, charged/broken equipment identity |
 | Bronze gauntlets | 15 tokens | 3 tokens | unsafe-death discharge, safe-minigame exemption, free manual uncharge, charged/worn-out identity |
 
-`Combat hood` requires 20 Defence and 10 Magic. Its period page says it degrades
+`Combat hood` requires 10 Defence and 20 Magic. Its period page says it degrades
 with use like Barrows equipment; the cutoff Barrows repair template closes that
 shared lifetime at fifteen hours of Combat, or `90,000` game ticks. Performance
 does not fall before the terminal broken state. The local config provides the
@@ -125,6 +125,11 @@ Inventory counts alone therefore cannot own durability. A durable per-instance
 record must survive bank/equipment moves, save sanitation, direct undo, review
 undo, unsafe death, repair, and free uncharge. FoG is the first consumer and
 Barrows is the next.
+
+`Combat hood 0` is the only tradeable condition identity. Its cutoff Grand
+Exchange buy limit was not recovered in the period aggregate, so it remains
+honestly unavailable to the GE runtime (`buy_limit = None`) rather than
+receiving an invented market limit.
 
 ## Bounded data abstractions
 
@@ -176,3 +181,63 @@ read-only Sol-high seam reviews. Both remained before session creation with zero
 tokens, tool calls, or session IDs for more than five minutes and were canceled
 normally. No delegated evidence or edits were accepted; this audit is based on
 the repository and immutable period sources above.
+
+## Implemented horizontal slice
+
+The mechanic-complete breadth slice is now live:
+
+- Fiara owns the one-time tutorial gate; selecting the activity after that
+  enters automatic, unbanded random pairing.
+- One review advances exactly six Combat ticks, regardless of foreground
+  Actions per Review. The two-round state retains one seeded opponent, swaps
+  hunter/hunted roles, restores player state at the boundary, and ends at the
+  sourced death, charge-cap, tick-limit, Tele-orb, or forfeit endpoints.
+- The arena inventory is activity-owned: five Bandages, 300 Catalytic runes,
+  1,000 Elemental runes, one Stone of power, and one Tele-orb. Its reducer
+  reconciles consumption without ever merging temporary supplies into the
+  player's Bank.
+- Centre, Hybrid, and Evasive preserve exact charge residuals. Combat uses the
+  live engine, applies the bounded exposure multipliers, and halves every XP
+  channel after the generic reducer so Magic's fixed cast XP is not missed.
+- Tokens, rating, next-match forfeit penalty, record, and bounded match history
+  persist under storage schema 54. Review mutations use the ordinary review
+  undo transaction; tutorial, Tele-orb, forfeit, buy, recharge, and uncharge
+  use the direct-action undo stack. Policy selection is an inert setting.
+- Reggie exposes the two source-ready reward families. The generic per-copy
+  condition substrate preserves separately degraded non-stackable copies
+  across Bank/equipment moves, saves, undo, unsafe death, recharge, and manual
+  uncharge. Only `Combat hood 0` is tradeable; hood requirements are the
+  period-correct 10 Defence and 20 Magic.
+- Activities renders one compact selected page with tutorial, policy, live
+  role/round/charges/supplies, direct exits, and a disclosed reward shop. The
+  review HUD echoes the live scoreline. Kimi K3 and Fable independently shaped
+  the stable card, concise status hierarchy, charge emphasis, and collapsed
+  reward shop; Codex reproduced and verified every accepted recommendation.
+- The explicit reachability chain is match -> token -> reward purchase ->
+  degradation/uncharge/recharge. The deterministic graph now contains 1,428
+  actions, 2,091 reachable items, 168 orphan inputs, and 189 unresolved
+  actions, with no new orphan introduced by FoG.
+
+The three new sprites are provenance-recorded and tight to their opaque bounds.
+The Combat-hood sprite is a documented current-file preservation because the
+cutoff file revision cannot be resolved; the token and gauntlet sprites are
+cutoff-qualified.
+
+## Verification closure
+
+- 350 focused pure, runtime, storage, integration, registry, equipment, GE, and
+  reachability tests pass.
+- Focused real offscreen Qt proves the tutorial/policy/live/shop card, selected
+  page behavior, HUD scoreline, and correct Minigames grouping.
+- The complete non-Qt universe passes all 1,988 methods with 262 expected
+  environment skips.
+- The complete real offscreen-Qt universe passes all 1,988 methods with one
+  intentional skip.
+- A fully quit and relaunched native Anki process rendered exactly one dark-mode
+  menu and the FoG tutorial card; no direct action was invoked, so the live save
+  was not mutated.
+- Test-quality, documentation, compilation, provenance JSON, diff, tight-alpha
+  asset, deterministic reachability, and worktree-safety gates pass.
+
+No unresolved creative-direction question emerged. Remaining source-blocked
+values are replaceable data rows behind the settled mechanics above.

@@ -70,6 +70,41 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_fist_of_guthix_runtime_persists_one_six_tick_review(self):
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "current_utility": "fist_of_guthix",
+            "attack_exp": 0.0,
+            "attack_level": 1,
+            "completed_achievements": [],
+        }
+        updated = dict(player_data)
+        updated["attack_exp"] = 5.0
+        updated["fist_of_guthix"] = {"active_match": {"round_ticks": 6}}
+        result = {
+            "ticks_elapsed": 6,
+            "player_role": "hunter",
+            "charge_gained": 18,
+            "charge_total": 18,
+            "xp_rewards": {"attack_exp": 5.0},
+        }
+        with patch.object(
+            runtime_actions,
+            "apply_fist_of_guthix_review_pure",
+            return_value=(updated, True, result),
+        ) as apply_review:
+            self.assertTrue(handle_utility_answer(_context(player_data, calls)))
+
+        apply_review.assert_called_once()
+        self.assertEqual(player_data["attack_exp"], 5.0)
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["xp"], [5.0])
+        self.assertIn("+18 charges", calls["activity"][-1])
+        self.assertIn(
+            "utility:fist_of_guthix",
+            player_data["action_telemetry"]["actions"],
+        )
+
     def test_shooting_star_runtime_mines_one_dust_and_awards_layer_xp(self):
         from shooting_star_logic import (
             advance_shooting_star_world_clock_pure,

@@ -8,9 +8,15 @@ try:
 except ImportError:
     from agility_data import AGILITY_EXTRA_ITEM_DATA, AGILITY_ITEM_IMAGES, AGILITY_TARGETS  # type: ignore
 try:
-    from .fist_of_guthix_data import fist_of_guthix_extra_items_as_dict
+    from .fist_of_guthix_data import (
+        fist_of_guthix_activity_as_dict,
+        fist_of_guthix_extra_items_as_dict,
+    )
 except ImportError:
-    from fist_of_guthix_data import fist_of_guthix_extra_items_as_dict  # type: ignore
+    from fist_of_guthix_data import (  # type: ignore
+        fist_of_guthix_activity_as_dict,
+        fist_of_guthix_extra_items_as_dict,
+    )
 
 try:
     from .construction_data import (
@@ -571,6 +577,7 @@ UTILITY_ACTIVITY_DATA.update(prayer_utility_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(WARRIORS_GUILD_ACTIVITIES)
 UTILITY_ACTIVITY_DATA.update(big_chinchompa_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(shooting_star_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(fist_of_guthix_activity_as_dict())
 FAMILIARISATION_ACTIVITY_ID = "familiarisation"
 UTILITY_ACTIVITY_DATA[FAMILIARISATION_ACTIVITY_ID] = {
     "display_name": "Familiarisation",
@@ -609,6 +616,14 @@ _shooting_star_icon = os.path.join(
 if os.path.exists(_shooting_star_icon):
     UTILITY_ACTIVITY_DATA[SHOOTING_STAR_ACTIVITY_ID]["icon_path"] = (
         _shooting_star_icon
+    )
+_fist_of_guthix_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "fist_of_guthix.png",
+)
+if os.path.exists(_fist_of_guthix_icon):
+    UTILITY_ACTIVITY_DATA["fist_of_guthix"]["icon_path"] = (
+        _fist_of_guthix_icon
     )
 _familiarisation_icon = os.path.join(
     current_dir,
@@ -1215,6 +1230,23 @@ for _target_id in COMBAT_ENEMY_DATA:
         COMBAT_ENEMY_IMAGES[_target_id] = _path
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict()
 FIST_OF_GUTHIX_EXTRA_ITEM_DATA = fist_of_guthix_extra_items_as_dict()
+for _item_name, _file_name in {
+    **{
+        f"Combat hood {_percent}": "combat_hood.png"
+        for _percent in (100, 80, 60, 40, 20, 0)
+    },
+    "Bronze gauntlets": "bronze_gauntlets.png",
+    "Worn-out bronze gauntlets": "bronze_gauntlets.png",
+    "Fist of guthix token": "fist_of_guthix.png",
+}.items():
+    _folder = (
+        UTILITY_ACTIVITY_ICONS_FOLDER
+        if _item_name == "Fist of guthix token"
+        else COMBAT_ITEMS_FOLDER
+    )
+    _path = os.path.join(_folder, _file_name)
+    if os.path.exists(_path):
+        COMBAT_ITEM_IMAGES[_item_name] = _path
 SHOP_EXTRA_ITEM_DATA = shop_extra_items_as_dict()
 SHOP_ITEM_IMAGES = {}
 for _item_name in SHOP_EXTRA_ITEM_DATA:

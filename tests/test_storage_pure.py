@@ -134,6 +134,7 @@ class TestStoragePure(unittest.TestCase):
             "hunter_private_ground_targets",
             "big_chinchompa",
             "shooting_star",
+            "fist_of_guthix",
         ]:
             self.assertIn(key, data)
         # Inventory uses real item names; Mining targets use stable IDs.
@@ -160,6 +161,8 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["big_chinchompa"]["competence_points"], 0)
         self.assertEqual(data["shooting_star"]["active_event"], {})
         self.assertEqual(data["shooting_star"]["last_exchange_day"], -1)
+        self.assertFalse(data["fist_of_guthix"]["tutorial_complete"])
+        self.assertEqual(data["fist_of_guthix"]["rating"], 1_000)
         self.assertEqual(data["action_telemetry"], {"version": 1, "actions": {}})
         self.assertEqual(data["achievement_progress"], {"version": 1, "skills": {}})
         self.assertEqual(data["current_combat_target"], "chicken")
@@ -262,6 +265,29 @@ class TestStoragePure(unittest.TestCase):
             migrated["shooting_star"]["ore_bonus_ticks_remaining"], 0
         )
         self.assertEqual(migrated["shooting_star"]["active_event"], {})
+
+    def test_migration_sanitizes_fist_of_guthix_state(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 53,
+                "fist_of_guthix": {
+                    "tutorial_complete": True,
+                    "tokens": -2,
+                    "rating": "bad",
+                    "selected_stance": "teleport",
+                    "active_match": {"opponent": "invalid"},
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertTrue(migrated["fist_of_guthix"]["tutorial_complete"])
+        self.assertEqual(migrated["fist_of_guthix"]["tokens"], 0)
+        self.assertEqual(migrated["fist_of_guthix"]["rating"], 1_000)
+        self.assertEqual(migrated["fist_of_guthix"]["selected_stance"], "hybrid")
+        self.assertEqual(migrated["fist_of_guthix"]["active_match"], {})
 
     def test_migration_sanitizes_grand_exchange_state(self):
         migrated = migrate_loaded_data(
