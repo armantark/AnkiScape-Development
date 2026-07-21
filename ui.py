@@ -456,6 +456,13 @@ except Exception:
     from great_orb_project_logic import great_orb_project_view_pure  # type: ignore
 
 try:
+    from .managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
+    from .managing_miscellania_logic import managing_miscellania_view_pure
+except Exception:
+    from managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID  # type: ignore
+    from managing_miscellania_logic import managing_miscellania_view_pure  # type: ignore
+
+try:
     from .stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
     from .stealing_creation_logic import stealing_creation_view_pure
 except Exception:
@@ -3517,6 +3524,7 @@ def show_main_menu(
     on_fish_flingers_command=None,
     on_fishing_trawler_command=None,
     on_great_orb_project_command=None,
+    on_managing_miscellania_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
     on_set_construction=None,
@@ -11448,6 +11456,466 @@ def show_main_menu(
         _refresh_great_orb_project_panel()
         cards_stack.addWidget(great_orb_box)
 
+        miscellania_box = QtFrame()
+        miscellania_box.setObjectName("managingMiscellaniaPanel")
+        miscellania_box.setStyleSheet(
+            "QFrame#managingMiscellaniaPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        miscellania_layout = QVBoxLayout(miscellania_box)
+        miscellania_layout.setContentsMargins(10, 8, 10, 8)
+        miscellania_layout.setSpacing(7)
+
+        miscellania_top = QWidget()
+        miscellania_top_layout = QHBoxLayout(miscellania_top)
+        miscellania_top_layout.setContentsMargins(0, 0, 0, 0)
+        miscellania_top_layout.setSpacing(8)
+        miscellania_icon = QLabel()
+        miscellania_icon.setObjectName("managingMiscellaniaIcon")
+        miscellania_icon.setFixedSize(28, 28)
+        miscellania_icon_path = os.path.join(
+            current_dir, "activityicons", "managing_miscellania.png"
+        )
+        if os.path.exists(miscellania_icon_path):
+            miscellania_icon.setPixmap(
+                QPixmap(miscellania_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        miscellania_title = QLabel("Managing Miscellania")
+        miscellania_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        miscellania_status = QLabel()
+        miscellania_status.setObjectName("managingMiscellaniaStatusChip")
+        miscellania_status.setStyleSheet(
+            f"color: {dim_text_css(miscellania_status)};"
+            " font-size: 11px; font-weight: 700;"
+        )
+        miscellania_top_layout.addWidget(miscellania_icon)
+        miscellania_top_layout.addWidget(miscellania_title)
+        miscellania_top_layout.addStretch(1)
+        miscellania_top_layout.addWidget(miscellania_status)
+        miscellania_layout.addWidget(miscellania_top)
+
+        miscellania_summary = QLabel()
+        miscellania_summary.setObjectName("managingMiscellaniaSummary")
+        miscellania_summary.setWordWrap(True)
+        miscellania_summary.setStyleSheet(f"color: {dim_text_css(miscellania_summary)};")
+        miscellania_layout.addWidget(miscellania_summary)
+
+        miscellania_clock = QLabel()
+        miscellania_clock.setObjectName("managingMiscellaniaClock")
+        miscellania_clock.setStyleSheet("color: palette(text); font-weight: 600;")
+        miscellania_layout.addWidget(miscellania_clock)
+
+        miscellania_approval = QProgressBar()
+        miscellania_approval.setObjectName("managingMiscellaniaApproval")
+        miscellania_approval.setRange(0, 10000)
+        miscellania_approval.setTextVisible(True)
+        miscellania_approval.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 4px; }"
+            "QProgressBar::chunk { background: #4f8b57; }"
+        )
+        miscellania_layout.addWidget(miscellania_approval)
+
+        miscellania_chore_row = QWidget()
+        miscellania_chore_layout = QHBoxLayout(miscellania_chore_row)
+        miscellania_chore_layout.setContentsMargins(0, 0, 0, 0)
+        miscellania_chore_layout.setSpacing(6)
+        miscellania_chore_label = QLabel("Approval work")
+        miscellania_chore_label.setStyleSheet("color: palette(text); font-weight: 600;")
+        miscellania_chore = QComboBox()
+        miscellania_chore.setObjectName("managingMiscellaniaApprovalChore")
+        miscellania_chore.setAccessibleName("Kingdom approval work")
+        miscellania_chore_layout.addWidget(miscellania_chore_label)
+        miscellania_chore_layout.addWidget(miscellania_chore, 1)
+        miscellania_layout.addWidget(miscellania_chore_row)
+
+        miscellania_coffer = QtFrame()
+        miscellania_coffer.setObjectName("managingMiscellaniaCoffer")
+        miscellania_coffer.setStyleSheet(
+            "QFrame#managingMiscellaniaCoffer { border: 1px solid palette(mid);"
+            " border-radius: 6px; background: palette(window); }"
+        )
+        miscellania_coffer_layout = QGridLayout(miscellania_coffer)
+        miscellania_coffer_layout.setContentsMargins(8, 6, 8, 6)
+        miscellania_coffer_layout.setSpacing(6)
+        miscellania_coffer_label = QLabel()
+        miscellania_coffer_label.setObjectName("managingMiscellaniaCofferLabel")
+        miscellania_coffer_label.setStyleSheet("color: palette(text); font-weight: 600;")
+        miscellania_coin_quantity = QSpinBox()
+        miscellania_coin_quantity.setObjectName("managingMiscellaniaCoinQuantity")
+        miscellania_coin_quantity.setAccessibleName("Kingdom coffer coin quantity")
+        miscellania_coin_quantity.setRange(1, 7_500_000)
+        miscellania_coin_quantity.setSingleStep(50_000)
+        miscellania_coin_quantity.setValue(50_000)
+        miscellania_coin_quantity.setGroupSeparatorShown(True)
+        miscellania_deposit = QPushButton("Deposit")
+        miscellania_deposit.setObjectName("managingMiscellaniaDepositButton")
+        miscellania_withdraw = QPushButton("Withdraw")
+        miscellania_withdraw.setObjectName("managingMiscellaniaWithdrawButton")
+        miscellania_coffer_layout.addWidget(miscellania_coffer_label, 0, 0, 1, 4)
+        miscellania_coffer_layout.addWidget(miscellania_coin_quantity, 1, 0, 1, 2)
+        miscellania_coffer_layout.addWidget(miscellania_deposit, 1, 2)
+        miscellania_coffer_layout.addWidget(miscellania_withdraw, 1, 3)
+        miscellania_fund_buttons = {}
+        for column, (label, days) in enumerate(
+            (("Fund 1 day", 1), ("7 days", 7), ("30 days", 30))
+        ):
+            button = QPushButton(label)
+            button.setObjectName(f"managingMiscellaniaFund{days}Button")
+            button.clicked.connect(
+                lambda _checked=False, value=days: _run_miscellania_command(
+                    "fund_days", {"days": value}
+                )
+            )
+            miscellania_fund_buttons[days] = button
+            miscellania_coffer_layout.addWidget(button, 2, column)
+        miscellania_fund_max = QPushButton("Maximum")
+        miscellania_fund_max.setObjectName("managingMiscellaniaFundMaximumButton")
+        miscellania_coffer_layout.addWidget(miscellania_fund_max, 2, 3)
+        miscellania_layout.addWidget(miscellania_coffer)
+
+        miscellania_workers = QtFrame()
+        miscellania_workers.setObjectName("managingMiscellaniaWorkers")
+        miscellania_workers.setStyleSheet(
+            "QFrame#managingMiscellaniaWorkers { border: 1px solid palette(mid);"
+            " border-radius: 6px; background: palette(window); }"
+        )
+        miscellania_workers_layout = QGridLayout(miscellania_workers)
+        miscellania_workers_layout.setContentsMargins(8, 6, 8, 6)
+        miscellania_workers_layout.setSpacing(6)
+        miscellania_workers_title = QLabel("Worker allocation")
+        miscellania_workers_title.setStyleSheet("color: palette(text); font-weight: 600;")
+        miscellania_workers_count = QLabel()
+        miscellania_workers_count.setObjectName("managingMiscellaniaWorkersCount")
+        miscellania_workers_count.setStyleSheet(f"color: {dim_text_css(miscellania_workers_count)};")
+        miscellania_workers_layout.addWidget(miscellania_workers_title, 0, 0)
+        miscellania_workers_layout.addWidget(miscellania_workers_count, 0, 1, 1, 2)
+        miscellania_worker_spins = {}
+        miscellania_worker_pips = {}
+        miscellania_worker_max_buttons = {}
+        miscellania_variant_combos = {}
+        for row_index, resource in enumerate(
+            managing_miscellania_view_pure(player_data)["resources"], start=1
+        ):
+            family_id = str(resource["id"])
+            label = QLabel(str(resource["label"]))
+            label.setStyleSheet("color: palette(text);")
+            spin = QSpinBox()
+            spin.setObjectName(f"managingMiscellaniaWorkers_{family_id}")
+            spin.setAccessibleName(f"{resource['label']} workers")
+            spin.setRange(0, 10)
+            combo = QComboBox()
+            combo.setObjectName(f"managingMiscellaniaVariant_{family_id}")
+            combo.setAccessibleName(f"{resource['label']} output")
+            for variant in resource["variants"]:
+                combo.addItem(str(variant["label"]), str(variant["id"]))
+            combo.setVisible(combo.count() > 1)
+            pips = QLabel()
+            pips.setObjectName(f"managingMiscellaniaPips_{family_id}")
+            pips.setAccessibleName(f"{resource['label']} worker pips")
+            pips.setStyleSheet(f"color: {dim_text_css(pips)}; font-size: 11px;")
+            maximum = QPushButton("Max")
+            maximum.setObjectName(f"managingMiscellaniaMax_{family_id}")
+            maximum.setAccessibleName(f"Maximum {resource['label']} workers")
+            miscellania_worker_spins[family_id] = spin
+            miscellania_worker_pips[family_id] = pips
+            miscellania_worker_max_buttons[family_id] = maximum
+            miscellania_variant_combos[family_id] = combo
+            miscellania_workers_layout.addWidget(label, row_index, 0)
+            miscellania_workers_layout.addWidget(spin, row_index, 1)
+            miscellania_workers_layout.addWidget(pips, row_index, 2)
+            miscellania_workers_layout.addWidget(combo, row_index, 3)
+            miscellania_workers_layout.addWidget(maximum, row_index, 4)
+        miscellania_layout.addWidget(miscellania_workers)
+
+        miscellania_preview = QLabel()
+        miscellania_preview.setObjectName("managingMiscellaniaPreview")
+        miscellania_preview.setWordWrap(True)
+        miscellania_preview.setStyleSheet("color: palette(text);")
+        miscellania_layout.addWidget(miscellania_preview)
+
+        miscellania_catalog_note = QLabel(
+            "Horizontal catalog: Mining, Maple, and Hardwood. Other source families remain data depth."
+        )
+        miscellania_catalog_note.setObjectName("managingMiscellaniaCatalogNote")
+        miscellania_catalog_note.setWordWrap(True)
+        miscellania_catalog_note.setStyleSheet(
+            f"color: {dim_text_css(miscellania_catalog_note)}; font-size: 11px;"
+        )
+        miscellania_layout.addWidget(miscellania_catalog_note)
+
+        miscellania_actions = QWidget()
+        miscellania_actions_layout = QHBoxLayout(miscellania_actions)
+        miscellania_actions_layout.setContentsMargins(0, 0, 0, 0)
+        miscellania_actions_layout.setSpacing(6)
+        miscellania_select = QPushButton("Select approval work")
+        miscellania_select.setObjectName("managingMiscellaniaSelectButton")
+        miscellania_collect = QPushButton("Collect resources")
+        miscellania_collect.setObjectName("managingMiscellaniaCollectButton")
+        miscellania_actions_layout.addWidget(miscellania_select, 1)
+        miscellania_actions_layout.addWidget(miscellania_collect)
+        miscellania_layout.addWidget(miscellania_actions)
+
+        miscellania_result = QLabel()
+        miscellania_result.setObjectName("managingMiscellaniaLastResult")
+        miscellania_result.setWordWrap(True)
+        miscellania_result.setStyleSheet(
+            f"color: {dim_text_css(miscellania_result)}; font-size: 11px;"
+        )
+        miscellania_layout.addWidget(miscellania_result)
+
+        syncing_miscellania = {"active": False}
+
+        def _run_miscellania_command(
+            action_id: str, payload: Optional[dict[str, Any]] = None
+        ) -> dict[str, Any]:
+            if on_managing_miscellania_command is None:
+                return {"ok": False, "message": "Kingdom actions are unavailable."}
+            result = on_managing_miscellania_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Managing Miscellania",
+                    str(result.get("message", "That kingdom action is unavailable.")),
+                )
+            _refresh_miscellania_panel()
+            return result
+
+        def _refresh_miscellania_panel() -> None:
+            view = managing_miscellania_view_pure(player_data)
+            syncing_miscellania["active"] = True
+            miscellania_status.setText(
+                "LOCKED"
+                if not view["eligible"]
+                else "FULLY ASSIGNED"
+                if not int(view["idle_subjects"])
+                else f"{int(view['idle_subjects'])} IDLE"
+            )
+            gate = (
+                f"Requires {', '.join(view['locked_reasons'])}.\n"
+                if view["locked_reasons"]
+                else ""
+            )
+            miscellania_summary.setText(
+                gate
+                + "Fund the coffer, assign subjects, and collect whenever you choose. "
+                "Unclaimed production follows the allocation shown at collection. "
+                "Approval work stops automatically at 100%."
+                + (
+                    " Horizontal catalog: Mining, Maple, and Hardwood."
+                    if not view["eligible"]
+                    else ""
+                )
+            )
+            eligible = bool(view["eligible"])
+            for widget in (
+                miscellania_clock,
+                miscellania_approval,
+                miscellania_chore_row,
+                miscellania_coffer,
+                miscellania_workers,
+                miscellania_preview,
+                miscellania_catalog_note,
+                miscellania_actions,
+            ):
+                widget.setVisible(eligible)
+            miscellania_result.setText(str(view["last_result"]))
+            miscellania_result.setVisible(eligible and bool(view["last_result"]))
+            miscellania_clock.setText(
+                f"Next kingdom day in {int(view['reviews_to_next_day'])} reviews · "
+                f"approval falls {float(view['approval_decay_percent']):g}% per day"
+            )
+            approval = int(round(float(view["approval_percent"]) * 100))
+            miscellania_approval.setValue(approval)
+            miscellania_approval.setFormat(f"Approval · {float(view['approval_percent']):g}%")
+            miscellania_coffer_label.setText(
+                f"Coffer · {int(view['coffer']):,} / {int(view['coffer_cap']):,} coins "
+                f"· up to {int(view['salary_cap']):,} per day"
+                + (
+                    " · Royal Trouble raises this to 15 subjects and 7,500,000 coins"
+                    if view["eligible"] and not view["royal_trouble_completed"]
+                    else ""
+                )
+            )
+            miscellania_coin_quantity.setMaximum(int(view["coffer_cap"]))
+            for days, button in miscellania_fund_buttons.items():
+                target = min(
+                    (int(days) + 9) * int(view["salary_cap"]),
+                    int(view["coffer_cap"]),
+                )
+                needed = max(0, target - int(view["coffer"]))
+                available = min(needed, int(view["bank_coins"]))
+                label = "Fund 1 day" if days == 1 else f"{days} days"
+                button.setText(
+                    f"{label} · funded"
+                    if not needed
+                    else f"{label} · +{available:,}"
+                )
+                button.setToolTip(
+                    f"Target balance {target:,} coins; {needed:,} more needed."
+                )
+            miscellania_workers_count.setText(
+                f"{int(view['assigned_subjects'])}/{int(view['subjects'])} assigned"
+            )
+            resources = {str(row["id"]): row for row in view["resources"]}
+            miscellania_chore.blockSignals(True)
+            miscellania_chore.clear()
+            for chore in view["approval_chores"]:
+                miscellania_chore.addItem(
+                    f"{chore['label']} · Lv {int(chore['level'])} {chore['skill_label']}",
+                    str(chore["id"]),
+                )
+            miscellania_chore.setCurrentIndex(
+                max(0, miscellania_chore.findData(view["approval_chore"]["id"]))
+            )
+            miscellania_chore.blockSignals(False)
+            for family_id, spin in miscellania_worker_spins.items():
+                spin.blockSignals(True)
+                spin.setMaximum(
+                    min(
+                        10,
+                        int(resources[family_id]["workers"])
+                        + int(view["idle_subjects"]),
+                    )
+                )
+                spin.setValue(int(resources[family_id]["workers"]))
+                spin.blockSignals(False)
+                combo = miscellania_variant_combos[family_id]
+                combo.blockSignals(True)
+                combo.setCurrentIndex(max(0, combo.findData(resources[family_id]["variant"])))
+                combo.blockSignals(False)
+                workers = int(resources[family_id]["workers"])
+                miscellania_worker_pips[family_id].setText(
+                    "●" * workers + "○" * (10 - workers)
+                )
+            preview = view["preview"]
+            preview_text = (
+                " · ".join(f"{item} ×{int(quantity):,}" for item, quantity in preview.items())
+                if preview
+                else "No whole resources ready. Assign subjects and keep the coffer funded."
+            )
+            miscellania_preview.setText(
+                f"Unclaimed production · {float(view['production_days']):.2f} full-output days\n"
+                f"Collection preview · {preview_text}"
+            )
+            enabled = bool(eligible and on_managing_miscellania_command is not None)
+            for widget in (
+                miscellania_coin_quantity,
+                miscellania_deposit,
+                miscellania_withdraw,
+                miscellania_fund_max,
+                *miscellania_fund_buttons.values(),
+                miscellania_chore,
+                *miscellania_worker_spins.values(),
+                *miscellania_worker_max_buttons.values(),
+                *miscellania_variant_combos.values(),
+            ):
+                widget.setEnabled(enabled)
+            for days, button in miscellania_fund_buttons.items():
+                target = min(
+                    (int(days) + 9) * int(view["salary_cap"]),
+                    int(view["coffer_cap"]),
+                )
+                button.setEnabled(
+                    enabled
+                    and int(view["coffer"]) < target
+                    and int(view["bank_coins"]) > 0
+                )
+            miscellania_collect.setEnabled(enabled and bool(view["can_collect"]))
+            selected = player_data.get("current_utility") == MANAGING_MISCELLANIA_ACTIVITY_ID
+            miscellania_select.setText(
+                "Selected for reviews" if selected else "Select approval work"
+            )
+            miscellania_select.setEnabled(bool(view["can_train"] and not selected))
+            miscellania_select.setToolTip(
+                "Requires level 45 Woodcutting for the Maple approval chore."
+                if view["eligible"] and not view["approval_chore_eligible"]
+                else "Approval work is unavailable at 100% approval."
+                if view["eligible"] and not view["can_train"]
+                else ""
+            )
+            syncing_miscellania["active"] = False
+            _fit_current_activity_detail()
+
+        miscellania_deposit.clicked.connect(
+            lambda _checked=False: _run_miscellania_command(
+                "deposit", {"quantity": miscellania_coin_quantity.value()}
+            )
+        )
+        miscellania_withdraw.clicked.connect(
+            lambda _checked=False: _run_miscellania_command(
+                "withdraw", {"quantity": miscellania_coin_quantity.value()}
+            )
+        )
+        miscellania_fund_max.clicked.connect(
+            lambda _checked=False: _run_miscellania_command("deposit_maximum")
+        )
+        for family_id, spin in miscellania_worker_spins.items():
+            spin.valueChanged.connect(
+                lambda workers, resource_id=family_id: (
+                    None
+                    if syncing_miscellania["active"]
+                    else _run_miscellania_command(
+                        "set_workers",
+                        {"family_id": resource_id, "workers": workers},
+                    )
+                )
+            )
+        for family_id, button in miscellania_worker_max_buttons.items():
+            button.clicked.connect(
+                lambda _checked=False, resource_id=family_id: _run_miscellania_command(
+                    "set_workers",
+                    {
+                        "family_id": resource_id,
+                        "workers": min(
+                            10,
+                            int(
+                                managing_miscellania_view_pure(player_data)[
+                                    "idle_subjects"
+                                ]
+                            )
+                            + miscellania_worker_spins[resource_id].value(),
+                        ),
+                    },
+                )
+            )
+        for family_id, combo in miscellania_variant_combos.items():
+            combo.currentIndexChanged.connect(
+                lambda _index, resource_id=family_id, chooser=combo: (
+                    None
+                    if syncing_miscellania["active"]
+                    else _run_miscellania_command(
+                        "set_variant",
+                        {"family_id": resource_id, "variant_id": chooser.currentData()},
+                    )
+                )
+            )
+        miscellania_chore.currentIndexChanged.connect(
+            lambda _index: (
+                None
+                if syncing_miscellania["active"] or miscellania_chore.currentData() is None
+                else _run_miscellania_command(
+                    "set_approval_chore",
+                    {"chore_id": miscellania_chore.currentData()},
+                )
+            )
+        )
+        miscellania_collect.clicked.connect(
+            lambda _checked=False: _run_miscellania_command("collect")
+        )
+        miscellania_select.clicked.connect(
+            lambda _checked=False: (
+                _request_utility_selection(MANAGING_MISCELLANIA_ACTIVITY_ID),
+                _refresh_miscellania_panel(),
+            )
+        )
+        _refresh_miscellania_panel()
+        cards_stack.addWidget(miscellania_box)
+
         stealing_creation_box = QtFrame()
         stealing_creation_box.setObjectName("stealingCreationPanel")
         stealing_creation_box.setStyleSheet(
@@ -12598,7 +13066,7 @@ def show_main_menu(
         activity_page_labels = []
         for group in ordered_groups:
             group_rows = groups.get(group, [])
-            if not group_rows:
+            if not group_rows or (is_activities and group == "landmarks"):
                 continue
             label = _UTILITY_GROUP_LABELS.get(group, group.replace("_", " ").title())
             parent_text = label if is_activities else f"{label}  ({len(group_rows)})"
@@ -12633,6 +13101,7 @@ def show_main_menu(
                         GNOME_BALL_ACTIVITY_ID,
                         FISHING_TRAWLER_ACTIVITY_ID,
                         GREAT_ORB_PROJECT_ACTIVITY_ID,
+                        MANAGING_MISCELLANIA_ACTIVITY_ID,
                     }
                 ):
                     child.setDisabled(True)
@@ -12664,8 +13133,10 @@ def show_main_menu(
                 "A one-time landmark. Set it as your activity and each review clears "
                 "one level. No XP along the way, but coins and boots at the end."
             )
+        landmark_rows = groups.get("landmarks", []) if is_activities else []
+        landmark_count = 3 + len(landmark_rows)
         landmark_parent = QTreeWidgetItem(
-            ["Landmarks" if is_activities else "Landmarks  (3)"]
+            ["Landmarks" if is_activities else f"Landmarks  ({landmark_count})"]
         )
         landmark_parent.setData(0, Qt.ItemDataRole.UserRole, "__utility_group__:landmarks")
         landmark_parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
@@ -12687,6 +13158,18 @@ def show_main_menu(
         if sh_completed and sh_claimed:
             sh_child.setDisabled(True)
         landmark_parent.addChild(sh_child)
+        for row in landmark_rows:
+            child = QTreeWidgetItem([row.label])
+            child.setData(0, Qt.ItemDataRole.UserRole, row.target_id)
+            if row.icon_path and os.path.exists(row.icon_path):
+                icon = _pixel_path_icon(row.icon_path, 28)
+                if icon is not None:
+                    child.setIcon(0, icon)
+            child.setToolTip(0, row.tooltip)
+            landmark_parent.addChild(child)
+            if row.target_id == current:
+                selected_child = child
+                landmark_parent.setExpanded(True)
 
         kw_state = player_data.get("knight_waves") or {}
         kw_step = max(0, min(int(kw_state.get("step", 0) or 0), KNIGHT_WAVES_TOTAL_STEPS))
@@ -13116,6 +13599,7 @@ def show_main_menu(
             _refresh_fish_flingers_panel()
             _refresh_fishing_trawler_panel()
             _refresh_great_orb_project_panel()
+            _refresh_miscellania_panel()
             _refresh_stealing_creation_panel()
             _show_activity_detail(activity_id)
             return True
@@ -13198,6 +13682,9 @@ def show_main_menu(
             if activity_id == GREAT_ORB_PROJECT_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == MANAGING_MISCELLANIA_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
             if activity_id == STEALING_CREATION_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
@@ -13243,6 +13730,10 @@ def show_main_menu(
             GREAT_ORB_PROJECT_ACTIVITY_ID: (
                 "Great Orb Project",
                 great_orb_box,
+            ),
+            MANAGING_MISCELLANIA_ACTIVITY_ID: (
+                "Managing Miscellania",
+                miscellania_box,
             ),
             STEALING_CREATION_ACTIVITY_ID: (
                 "Stealing Creation",

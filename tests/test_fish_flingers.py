@@ -221,7 +221,7 @@ class FishFlingersStorageTests(unittest.TestCase):
             constants.ORE_DATA,
             constants.ITEM_DEFINITIONS,
         )
-        self.assertEqual(migrated["config_version"], 66)
+        self.assertEqual(migrated["config_version"], 67)
         self.assertEqual(migrated["fish_flingers"]["review"], 5)
         self.assertEqual(migrated["fish_flingers"]["fish_caught"], 0)
 

@@ -987,6 +987,14 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   Wizard Elriss shop with Pure essence Buy X. Exact hidden score/essence rolls
   and the full reward catalog remain labeled data depth. See
   `memory-bank/source-audits/great-orb-project-horizontal-implementation-2026-07-21.md`.
+- Managing Miscellania is mechanic-complete as an Activities-only persistent
+  kingdom surface. It ships the Throne/Royal Trouble gates and upgrades,
+  review-day approval/salary/production clock, explicit coffer funding,
+  individual worker allocation, retroactive collection, one exact Maple
+  approval chore, persistence, undo, cadence, normalized period art, and the
+  compact Landmarks card. The remaining resource families and hidden bonus
+  selectors are catalog depth. See
+  `memory-bank/source-audits/managing-miscellania-horizontal-implementation-2026-07-21.md`.
 - Fishing Trawler is mechanic-complete as an Activities-only ten-review
   pressure trip. It ships the level-15 gate, source supplies and stack-aware
   28-slot activity pack, Casual urgency, Advanced duty/layout policy, fixed
@@ -1136,7 +1144,8 @@ Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
 - The horizontal breadth wave has shipped Shooting Stars, Fist of Guthix,
   Sorceress's Garden, Penguin Hide and Seek, Vinesweeper, Fight Caves,
   Stealing Creation, Barrows, Flash Powder Factory, Pyramid Plunder, and
-  Werewolf Skullball, Gnome Ball, and Fish Flingers with
+  Werewolf Skullball, Gnome Ball, Fish Flingers, Fishing Trawler, Great Orb
+  Project, and Managing Miscellania with
   complete mechanics, persistence, undo, UI, assets, and compact period-
   qualified data sets.
 - Flash Powder Factory and Pyramid Plunder are closed. Tears of Guthix and Shattered Heart remain explicit

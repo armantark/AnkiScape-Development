@@ -70,6 +70,33 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_managing_miscellania_review_raises_approval_and_woodcutting_xp(self):
+        from managing_miscellania_logic import default_managing_miscellania_state_pure
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "current_utility": "managing_miscellania",
+            "quests": {"throne_of_miscellania": {"completed": True}},
+            "shop_market_clock": {"answered_cards": 0},
+            "woodcutting_level": 45,
+            "woodcutting_exp": 0.0,
+            "completed_achievements": [],
+        }
+        player_data.update(default_managing_miscellania_state_pure())
+        player_data["managing_miscellania"]["approval_basis_points"] = 9_900
+
+        self.assertTrue(handle_utility_answer(_context(player_data, calls)))
+
+        self.assertEqual(
+            player_data["managing_miscellania"]["approval_basis_points"], 10_000
+        )
+        self.assertEqual(player_data["woodcutting_exp"], 100.0)
+        self.assertEqual(calls["xp"], [100.0])
+        self.assertEqual(calls["saves"], 1)
+        self.assertTrue(calls.get("deactivated"))
+        telemetry = player_data["action_telemetry"]["actions"]
+        self.assertIn("utility:managing_miscellania", telemetry)
+
     def test_fist_of_guthix_runtime_persists_one_six_tick_review(self):
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         player_data = {

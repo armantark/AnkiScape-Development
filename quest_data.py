@@ -8925,6 +8925,14 @@ QUEST_UNLOCK_RULES: Tuple[QuestUnlockRule, ...] = (
         "The Golem",
         "https://runescape.wiki/w/Desert_Phoenix?oldid=6295341",
     ),
+    QuestUnlockRule(
+        "throne_of_miscellania",
+        "target",
+        "utility",
+        ("managing_miscellania",),
+        "Throne of Miscellania",
+        "https://runescape.wiki/w/Managing_Miscellania?oldid=6500793",
+    ),
 )
 
 

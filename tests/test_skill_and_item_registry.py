@@ -506,6 +506,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "fish_flingers",
                 "fishing_trawler",
                 "great_orb_project",
+                "managing_miscellania",
                 "gnome_ball",
                 "stealing_creation",
                 "barrows",

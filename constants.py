@@ -172,6 +172,10 @@ try:
         GREAT_ORB_PROJECT_ACTIVITY_ID,
         great_orb_project_activity_as_dict,
     )
+    from .managing_miscellania_data import (
+        MANAGING_MISCELLANIA_ACTIVITY_ID,
+        managing_miscellania_activity_as_dict,
+    )
     from .barrows_data import (
         BARROWS_ACTIVITY_ID,
         barrows_activity_as_dict,
@@ -362,6 +366,10 @@ except ImportError:
     from great_orb_project_data import (  # type: ignore
         GREAT_ORB_PROJECT_ACTIVITY_ID,
         great_orb_project_activity_as_dict,
+    )
+    from managing_miscellania_data import (  # type: ignore
+        MANAGING_MISCELLANIA_ACTIVITY_ID,
+        managing_miscellania_activity_as_dict,
     )
     from barrows_data import (  # type: ignore
         BARROWS_ACTIVITY_ID,
@@ -743,6 +751,7 @@ UTILITY_ACTIVITY_DATA.update(gnome_ball_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fish_flingers_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fishing_trawler_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(great_orb_project_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(managing_miscellania_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(sorceress_garden_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(penguin_hide_and_seek_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(vinesweeper_activity_as_dict())
@@ -863,6 +872,14 @@ if os.path.exists(_great_orb_project_icon):
     UTILITY_ACTIVITY_DATA[GREAT_ORB_PROJECT_ACTIVITY_ID]["icon_path"] = (
         _great_orb_project_icon
     )
+_managing_miscellania_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "managing_miscellania.png",
+)
+if os.path.exists(_managing_miscellania_icon):
+    UTILITY_ACTIVITY_DATA[MANAGING_MISCELLANIA_ACTIVITY_ID]["icon_path"] = (
+        _managing_miscellania_icon
+    )
 _sorceress_garden_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
     "sorceress_garden.png",
@@ -922,7 +939,7 @@ UTILITY_ACTIVITY_GROUPS = frozenset(
     }
 )
 ACTIVITY_GROUPS = frozenset(
-    {"warriors_guild", "minigames", "distractions_and_diversions"}
+    {"warriors_guild", "minigames", "distractions_and_diversions", "landmarks"}
 )
 for _activity_spec in UTILITY_ACTIVITY_DATA.values():
     _activity_group = str(_activity_spec.get("group", "material_processing"))

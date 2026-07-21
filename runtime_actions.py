@@ -233,6 +233,11 @@ try:
         apply_great_orb_project_review_pure,
         great_orb_project_view_pure,
     )
+    from .managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
+    from .managing_miscellania_logic import (
+        apply_managing_miscellania_review_pure,
+        managing_miscellania_view_pure,
+    )
     from .agility_travel import (
         agility_travel_profile_pure,
         apply_run_energy_credit_pure,
@@ -534,6 +539,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from great_orb_project_logic import (  # type: ignore
         apply_great_orb_project_review_pure,
         great_orb_project_view_pure,
+    )
+    from managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID  # type: ignore
+    from managing_miscellania_logic import (  # type: ignore
+        apply_managing_miscellania_review_pure,
+        managing_miscellania_view_pure,
     )
     from agility_travel import (  # type: ignore
         agility_travel_profile_pure,
@@ -3229,6 +3239,39 @@ def _handle_great_orb_project_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _handle_managing_miscellania_answer(ctx: RuntimeActionContext) -> bool:
+    updated, result = apply_managing_miscellania_review_pure(ctx.player_data)
+    if not result.get("allowed"):
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Managing Miscellania unavailable",
+            str(result.get("reason", "No approval work is available.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    base_xp = float(result.get("xp", 0.0) or 0.0)
+    gained = ctx.award_skill_exp("woodcutting_exp", base_xp)
+    ctx.level_up_check("Woodcutting", ctx.player_data)
+    _record_action(
+        ctx,
+        "utility",
+        MANAGING_MISCELLANIA_ACTIVITY_ID,
+        True,
+        expected_success_chance=1.0,
+        primary_xp=base_xp,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if gained > 0:
+        ctx.show_exp(gained)
+    ctx.show_activity_gain(str(result.get("status", "Kingdom approval increased")))
+    if not managing_miscellania_view_pure(ctx.player_data).get("can_train", False):
+        ctx.deactivate_current_skill()
+    return True
+
+
 def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
@@ -3266,6 +3309,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_fishing_trawler_answer(ctx)
     if activity_key == GREAT_ORB_PROJECT_ACTIVITY_ID:
         return _handle_great_orb_project_answer(ctx)
+    if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:
+        return _handle_managing_miscellania_answer(ctx)
     if activity_key == STRONGHOLD_UTILITY_KEY:
         return _handle_stronghold_answer(ctx)
     if activity_key == KNIGHT_WAVES_UTILITY_KEY:
@@ -5597,6 +5642,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return bool(fishing_trawler_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == GREAT_ORB_PROJECT_ACTIVITY_ID:
         return bool(great_orb_project_view_pure(ctx.player_data).get("can_review", False))
+    if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:
+        return bool(managing_miscellania_view_pure(ctx.player_data).get("can_train", False))
     return not utility_activity_locked_reasons_pure(
         ctx.player_data,
         activity_key,

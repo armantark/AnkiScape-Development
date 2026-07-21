@@ -3771,3 +3771,35 @@ Test counts are snapshots; current runs outrank this note.
 - Results:
   `status-updates/great-orb-project-horizontal-results-2026-07-21.html`;
   mobile copy: `https://afe87qn0iefl.postplan.dev`.
+
+## Managing Miscellania horizontal MVP — 2026-07-21
+
+- Implemented the complete kingdom-management substrate: quest gates and
+  upgrades, 240-review days, approval, coffer salary, deferred production,
+  individual subject allocation, retroactive collection, direct banking,
+  saved approval work, persistence, undo, cadence, telemetry, and activity
+  arbitration.
+- Added a compact period-qualified catalog covering fixed output, derived
+  bonus output, and player-selected sub-output through Mining, Maple, and
+  Hardwood. Remaining families and hidden bonus distributions are explicit
+  data depth; no mechanic is deferred.
+- Added normalized period interface art, provenance/fetch tooling, the fourth
+  Landmarks activity page, and meaningful pure, runtime, integration,
+  migration, registry, asset, and real-Qt regressions.
+- Opus's taste pass closed collection affordance, over-allocation, funding,
+  clock, lock-copy, hierarchy, and geometry problems. Fable stayed reserved;
+  Kimi did not pass its fresh quota gate.
+- Verification passes all 2,201 non-Qt methods with 289 expected dependency
+  skips and all 2,201 real offscreen-Qt methods with one intentional skip.
+  Native Anki confirmed one menu, four paginated activity categories, the
+  period icon, and a reachable locked card. The native pass caught and closed
+  a real bottom-label overlap hidden by the initial synthetic assertion.
+- Docs, hard test quality, compilation, JSON, diff, global activity-icon
+  normalization, reachability, and worktree safety pass. The graph reports
+  1,441 actions, 2,132 reachable items, 166 known orphan inputs, and 187
+  unresolved actions; this slice adds no orphan and no design gap.
+- Durable record:
+  `source-audits/managing-miscellania-horizontal-implementation-2026-07-21.md`.
+- Results:
+  `status-updates/managing-miscellania-horizontal-results-2026-07-21.html`;
+  mobile copy: `https://juwv1i05slff.postplan.dev`.

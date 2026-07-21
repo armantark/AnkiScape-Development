@@ -3060,3 +3060,37 @@ The visual closure report is
 - Published
   `status-updates/great-orb-project-horizontal-results-2026-07-21.html`;
   mobile copy: `https://afe87qn0iefl.postplan.dev`.
+
+## Managing Miscellania horizontal closure — 2026-07-21
+
+- Added the complete persistent kingdom loop: Throne of Miscellania entry,
+  Royal Trouble upgrades, review-paced kingdom days, approval decay, salary,
+  deferred production credit, explicit coffer controls, individual worker
+  allocation, collection-time conversion, direct-banked output, and one exact
+  Maple approval chore.
+- Added schema-67 migration without retroactive production, activity
+  arbitration, cadence/telemetry registration, review and direct-action undo,
+  normalized period art, and a compact Landmarks card inside the existing
+  four-page Activities picker. No wall clock or new quest implementation was
+  introduced.
+- The horizontal catalog uses exact Mining, Maple, and Hardwood full-day rows
+  from oldid 6500793. Generic gems and nest identity use disclosed
+  representatives; the remaining resource families and hidden selectors are
+  data depth, not missing mechanics.
+- Opus reviewed the UI while Fable remained on reserve. All reproduced issues
+  were fixed. Kimi was not called because its fresh quota gate did not return a
+  usable rolling-window reading.
+- Full verification passes 2,201 non-Qt methods with 289 expected dependency
+  skips and 2,201 real offscreen-Qt methods with one intentional skip. A clean
+  native Anki restart confirms one menu, four activity pages, the period icon,
+  and an inspectable locked card without mutating the save. Native QA exposed
+  and closed one card-overlap defect missed by the first geometry assertion.
+- Documentation, hard test quality, compilation, JSON, diff, icon
+  normalization, reachability, and worktree safety pass. Reachability is 1,441
+  actions, 2,132 reachable items, 166 known orphan inputs, and 187 unresolved
+  actions, with no new item orphan. No owner design gap surfaced.
+- Durable evidence:
+  `source-audits/managing-miscellania-horizontal-implementation-2026-07-21.md`.
+- Published
+  `status-updates/managing-miscellania-horizontal-results-2026-07-21.html`;
+  mobile copy: `https://juwv1i05slff.postplan.dev`.

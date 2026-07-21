@@ -124,6 +124,10 @@ try:
         default_great_orb_project_state_pure,
         sanitize_great_orb_project_player_state_pure,
     )
+    from .managing_miscellania_logic import (
+        default_managing_miscellania_state_pure,
+        sanitize_managing_miscellania_player_state_pure,
+    )
     from .vinesweeper_logic import (
         default_vinesweeper_state_pure,
         sanitize_vinesweeper_state_pure,
@@ -284,6 +288,10 @@ except ImportError:
         default_great_orb_project_state_pure,
         sanitize_great_orb_project_player_state_pure,
     )
+    from managing_miscellania_logic import (  # type: ignore
+        default_managing_miscellania_state_pure,
+        sanitize_managing_miscellania_player_state_pure,
+    )
     from vinesweeper_logic import (  # type: ignore
         default_vinesweeper_state_pure,
         sanitize_vinesweeper_state_pure,
@@ -321,7 +329,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 66
+CURRENT_CONFIG_VERSION = 67
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -559,6 +567,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_fish_flingers_state_pure())
     data.update(default_fishing_trawler_state_pure())
     data.update(default_great_orb_project_state_pure())
+    data.update(default_managing_miscellania_state_pure())
     data["activity_session"] = {"active_id": ""}
     data["sorceress_garden"] = default_sorceress_garden_state_pure()
     data["penguin_hide_and_seek"] = default_penguin_state_pure()
@@ -1184,6 +1193,7 @@ def migrate_loaded_data(
     data.update(sanitize_fish_flingers_state_pure(data))
     data.update(sanitize_fishing_trawler_state_pure(data))
     data.update(sanitize_great_orb_project_player_state_pure(data))
+    data.update(sanitize_managing_miscellania_player_state_pure(data))
     raw_activity_session = data.get("activity_session")
     active_session_id = (
         str(raw_activity_session.get("active_id", ""))[:80]
@@ -1464,6 +1474,20 @@ def migrate_loaded_data(
     if loaded_config_version < 66:
         for key, value in default_great_orb_project_state_pure().items():
             data.setdefault(key, value)
+    # v67: Managing Miscellania adds review-day approval, coffer, worker
+    # allocation, and unclaimed-production state without retroactive accrual.
+    if loaded_config_version < 67:
+        answered_cards = 0
+        clock = data.get("shop_market_clock")
+        if isinstance(clock, dict):
+            try:
+                answered_cards = max(0, int(clock.get("answered_cards", 0) or 0))
+            except (TypeError, ValueError, OverflowError):
+                answered_cards = 0
+        for key, value in default_managing_miscellania_state_pure(
+            answered_cards
+        ).items():
+            data.setdefault(key, value)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1505,6 +1529,7 @@ def migrate_loaded_data(
     data.update(sanitize_fish_flingers_state_pure(data))
     data.update(sanitize_fishing_trawler_state_pure(data))
     data.update(sanitize_great_orb_project_player_state_pure(data))
+    data.update(sanitize_managing_miscellania_player_state_pure(data))
     data["livid_farm"] = sanitize_livid_farm_state_pure(
         data.get("livid_farm")
     )

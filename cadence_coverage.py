@@ -422,6 +422,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "managing_miscellania":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "managing_miscellania",
+                    "mode": "passthrough",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "Foreground reviews perform one exact approval chore. "
+                        "Kingdom salary and production advance once per 240 answered "
+                        "cards from the shared review clock, never wall time."
+                    ),
+                    "includes": (
+                        "one Maple approval chore and its Woodcutting XP",
+                        "one answered-card transaction while selected",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; passive kingdom days are owned "
+                        "by the answered-card world clock"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same approval-work handler",
+                    "profile": None,
+                    "condition": "review-day translation disclosed in the activity contract",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "penguin_hide_and_seek":
             rows.append(
                 {

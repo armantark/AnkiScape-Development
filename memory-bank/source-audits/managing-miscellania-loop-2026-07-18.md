@@ -4,9 +4,9 @@ Date: `2026-07-18`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **owner-design loop closed; collection-time allocation, bespoke
-Activity surface, approval maintenance, explicit coffer funding, and authentic
-worker allocation are settled. Exact source-table harvesting remains.**
+Status: **owner-design loop closed; the mechanic-complete horizontal slice is
+implemented as of 2026-07-21. Remaining resource families, hidden bonus
+selectors, and additional approval chores are catalog depth.**
 
 ## Pinned period evidence
 
@@ -155,3 +155,54 @@ requirements and outcomes, storage ceiling, Fremennik-task effects, flatpack
 coffer values, and independent period-lineage corroboration named above. Any
 missing row remains source work rather than permission to invent a second
 management model.
+
+## Horizontal implementation harvest — 2026-07-21
+
+The same immutable revision, oldid `6500793` at
+`2012-10-30T06:29:55Z`, closes the smallest exact collection catalog needed to
+exercise all distinct kingdom mechanics:
+
+- ten Mining subjects produce `546 Coal` plus `3 gems` per fully funded,
+  100%-approval source day;
+- ten Woodcutting subjects produce `892 Maple logs`, with one bird nest per
+  complete `100` logs;
+- ten Hardwood subjects produce either `301 Teak logs`, `204 Mahogany logs`,
+  or the mixed `121 Teak logs + 121 Mahogany logs`; and
+- chopping maple trees at level `45 Woodcutting` gives `100 XP` and one
+  approval point per recognized log.
+
+Source: <https://runescape.wiki/w/Managing_Miscellania?oldid=6500793>.
+
+The horizontal catalog deliberately uses those three families and the Maple
+approval chore. They prove fixed output, derived bonus output, player-selected
+sub-output, eligible foreground approval work, the individual-subject cap,
+and retroactive collection-time allocation without waiting for every herb,
+seed, fish, flax, or bonus table.
+
+The period row names only `3 gems`, not the hidden gem selector. The live
+horizontal row therefore uses `3 Uncut sapphire` as a disclosed lowest-value
+representative, not as a historical claim about the selector. Bird nests use
+the existing `Bird's nest (seeds)` representative identity while preserving
+the exact `floor(Maple logs / 100)` count. Those two identity choices remain
+data-depth abstractions; the quantities and the surrounding collection
+mechanics are source-shaped.
+
+The review translation is the already owner-settled global calendar:
+`240 answered cards = one source day`. A migrated save anchors the new kingdom
+state to its current review day, so installing the slice never creates
+retroactive salary or production. The 2011-11-25 period interface art revision
+is normalized under `activityicons/managing_miscellania.png`; its immutable
+source identity is recorded in `assets_provenance.json`.
+
+Remaining source depth:
+
+- exact herb, flax, fishing, and Farming output tables;
+- the hidden gem, seed, ring, casket, clue, and nest-type selectors;
+- additional approval chores and any recognition rolls;
+- the source storage ceiling, Fremennik-task modifiers, and flatpack coffer
+  values; and
+- independent period-lineage corroboration beyond the pinned cutoff wiki
+  revision.
+
+None of those rows changes the implemented entry, coffer, salary, approval,
+worker-allocation, collection, persistence, undo, cadence, or UI mechanics.

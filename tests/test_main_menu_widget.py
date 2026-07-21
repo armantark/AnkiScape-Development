@@ -559,6 +559,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._fish_flingers_calls: list = []
         self._fishing_trawler_calls: list = []
         self._great_orb_project_calls: list = []
+        self._managing_miscellania_calls: list = []
         self._thieving_fight_back_calls: list = []
         self._farming_calls: list = []
         self._mage_arena_calls: list = []
@@ -954,6 +955,18 @@ class MainMenuWidgetTest(unittest.TestCase):
                 player_data.update(updated)
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
+        def _managing_miscellania_command(action_id, payload):
+            from managing_miscellania_logic import apply_managing_miscellania_command_pure
+
+            self._managing_miscellania_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_managing_miscellania_command_pure(
+                player_data, action_id, payload
+            )
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
         def _mage_arena_action(action_id, god_id):
             from logic_pure import (
                 apply_mage_arena_cape_action_pure,
@@ -1024,6 +1037,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_fish_flingers_command=_fish_flingers_command,
             on_fishing_trawler_command=_fishing_trawler_command,
             on_great_orb_project_command=_great_orb_project_command,
+            on_managing_miscellania_command=_managing_miscellania_command,
             on_set_prayer_selection=_set_prayer_selection,
             on_set_magic=lambda target: _set_target("current_magic", self._magic_calls, target),
             on_set_construction=lambda target: _set_target("current_construction", self._construction_calls, target),
@@ -9667,6 +9681,168 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("LOCKED", status.text())
         self.assertIn("Requires level 50 Runecrafting", summary.text())
         self.assertFalse(primary.isEnabled())
+
+    def test_managing_miscellania_card_funds_allocates_collects_and_selects(self) -> None:
+        from managing_miscellania_logic import default_managing_miscellania_state_pure
+
+        pd = _make_player_data()
+        pd.update(default_managing_miscellania_state_pure())
+        pd.update(
+            {
+                "current_utility": "bankstanding",
+                "woodcutting_level": 45,
+                "inventory": {"Coins": 1_000_000},
+                "shop_market_clock": {"answered_cards": 0},
+            }
+        )
+        pd["quests"]["throne_of_miscellania"] = {"completed": True}
+        pd["managing_miscellania"]["approval_basis_points"] = 9_900
+        pd["managing_miscellania"]["production_credit"] = 1_000_000
+        dialog = self._open(pd)
+        activity_tree = self._open_activities(dialog)
+        row = _utility_row(activity_tree, "managing_miscellania")
+        self.assertFalse(row.isDisabled())
+        self.assertFalse(row.icon(0).isNull())
+        activity_tree.setCurrentItem(row)
+        activity_tree.itemActivated.emit(row, 0)
+        QApplication.processEvents()
+
+        panel = _find_named_widget(dialog, "managingMiscellaniaPanel")
+        self.assertIsNone(panel.findChild(QScrollArea))
+        self.assertFalse(
+            panel.findChild(QLabel, "managingMiscellaniaIcon").pixmap().isNull()
+        )
+        approval = panel.findChild(QProgressBar, "managingMiscellaniaApproval")
+        chore = panel.findChild(QComboBox, "managingMiscellaniaApprovalChore")
+        clock = panel.findChild(QLabel, "managingMiscellaniaClock")
+        summary = panel.findChild(QLabel, "managingMiscellaniaSummary")
+        preview = panel.findChild(QLabel, "managingMiscellaniaPreview")
+        self.assertEqual(approval.value(), 9_900)
+        self.assertEqual(chore.count(), 1)
+        self.assertEqual(chore.currentData(), "chop_maple")
+        self.assertIn("240 reviews", clock.text())
+        self.assertIn("2.5% per day", clock.text())
+        self.assertIn("Unclaimed production follows", summary.text())
+
+        fund = _find_named_button(dialog, "managingMiscellaniaFund7Button")
+        self.assertEqual(fund.text(), "7 days · +800,000")
+        fund.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["managing_miscellania"]["coffer"], 800_000)
+        self.assertEqual(pd["inventory"]["Coins"], 200_000)
+
+        wood = panel.findChild(QSpinBox, "managingMiscellaniaWorkers_wood")
+        _find_named_button(dialog, "managingMiscellaniaMax_wood").click()
+        QApplication.processEvents()
+        self.assertEqual(wood.value(), 10)
+        self.assertEqual(pd["managing_miscellania"]["allocations"]["wood"], 10)
+        self.assertEqual(
+            panel.findChild(QLabel, "managingMiscellaniaPips_wood").text(),
+            "●" * 10,
+        )
+        self.assertEqual(
+            _find_named_label(dialog, "managingMiscellaniaStatusChip").text(),
+            "FULLY ASSIGNED",
+        )
+        self.assertIn("Maple logs ×892", preview.text())
+
+        collect = _find_named_button(dialog, "managingMiscellaniaCollectButton")
+        self.assertTrue(collect.isEnabled())
+        collect.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["inventory"]["Maple logs"], 892)
+        self.assertEqual(pd["inventory"]["Bird's nest (seeds)"], 8)
+        self.assertIn("0.00 full-output days", preview.text())
+
+        select = _find_named_button(dialog, "managingMiscellaniaSelectButton")
+        select.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["current_utility"], "managing_miscellania")
+        self.assertEqual(select.text(), "Selected for reviews")
+
+        activity_tree = _find_named_widget(dialog, "utilityActivityTree")
+        landmark_groups = [
+            item
+            for item in (
+                activity_tree.topLevelItem(index)
+                for index in range(activity_tree.topLevelItemCount())
+            )
+            if item.data(0, Qt.ItemDataRole.UserRole)
+            == "__utility_group__:landmarks"
+        ]
+        self.assertEqual(len(landmark_groups), 1)
+
+        dialog.resize(1000, 560)
+        dialog.show()
+        for _ in range(8):
+            QApplication.processEvents()
+        visible_children = [
+            child
+            for child in panel.findChildren(
+                QWidget,
+                options=Qt.FindChildOption.FindDirectChildrenOnly,
+            )
+            if child.isVisible()
+        ]
+        self.assertTrue(visible_children)
+        self.assertLessEqual(
+            max(child.geometry().bottom() for child in visible_children),
+            panel.contentsRect().bottom(),
+        )
+
+    def test_managing_miscellania_quest_gate_is_visible_without_hover(self) -> None:
+        from managing_miscellania_logic import default_managing_miscellania_state_pure
+
+        pd = _make_player_data()
+        pd.update(default_managing_miscellania_state_pure())
+        pd["current_utility"] = "bankstanding"
+        pd["quests"]["throne_of_miscellania"] = {"completed": False}
+        dialog = self._open(pd)
+        activity_tree = self._open_activities(dialog)
+        row = _utility_row(activity_tree, "managing_miscellania")
+        self.assertFalse(row.isDisabled())
+        activity_tree.itemActivated.emit(row, 0)
+        QApplication.processEvents()
+
+        self.assertEqual(
+            _find_named_label(dialog, "managingMiscellaniaStatusChip").text(),
+            "LOCKED",
+        )
+        self.assertIn(
+            "Requires Throne of Miscellania",
+            _find_named_label(dialog, "managingMiscellaniaSummary").text(),
+        )
+        self.assertIn(
+            "Horizontal catalog: Mining, Maple, and Hardwood",
+            _find_named_label(dialog, "managingMiscellaniaSummary").text(),
+        )
+        panel = _find_named_widget(dialog, "managingMiscellaniaPanel")
+        self.assertFalse(
+            _find_named_widget(dialog, "managingMiscellaniaCoffer").isVisible()
+        )
+        self.assertFalse(
+            _find_named_button(dialog, "managingMiscellaniaDepositButton").isEnabled()
+        )
+        self.assertFalse(
+            _find_named_button(dialog, "managingMiscellaniaSelectButton").isEnabled()
+        )
+        dialog.resize(1186, 768)
+        dialog.show()
+        for _ in range(8):
+            QApplication.processEvents()
+        visible_children = [
+            child
+            for child in panel.findChildren(
+                QWidget,
+                options=Qt.FindChildOption.FindDirectChildrenOnly,
+            )
+            if child.isVisible()
+        ]
+        self.assertTrue(visible_children)
+        self.assertLessEqual(
+            max(child.geometry().bottom() for child in visible_children),
+            panel.contentsRect().bottom(),
+        )
 
     def test_switching_from_gnome_ball_requires_and_honours_leave_confirmation(self) -> None:
         from gnome_ball_logic import enter_gnome_ball_pure

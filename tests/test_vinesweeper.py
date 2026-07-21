@@ -318,8 +318,8 @@ class VinesweeperIntegrationTests(unittest.TestCase):
 
     def test_storage_migration_adds_only_flat_vinesweeper_state(self):
         migrated = migrate_loaded_data({"config_version": 56}, {}, ())
-        self.assertEqual(CURRENT_CONFIG_VERSION, 66)
-        self.assertEqual(migrated["config_version"], 66)
+        self.assertEqual(CURRENT_CONFIG_VERSION, 67)
+        self.assertEqual(migrated["config_version"], 67)
         self.assertIn("vinesweeper", migrated)
         self.assertNotIn("board", migrated["vinesweeper"])
 

@@ -5433,6 +5433,84 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["fletching_exp"], 5.0)
         self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
 
+    def test_miscellania_day_tick_and_review_undo_share_one_transaction(self):
+        addon = _load_addon_as_package("ankiscape_miscellania_clock_integration")
+        logic = sys.modules[f"{addon.__name__}.managing_miscellania_logic"]
+        addon.mw = _DummyMW(_DummyCol())
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_context_action_strip = lambda *_args: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda _text: None
+        initial = {
+            "inventory": {},
+            "quests": {"throne_of_miscellania": {"completed": True}},
+            "shop_market_clock": {"answered_cards": 239, "market_tick": 239},
+        }
+        initial.update(logic.default_managing_miscellania_state_pure(239))
+        initial["managing_miscellania"]["coffer"] = 500_000
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "None"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        state = addon.player_data["managing_miscellania"]
+        self.assertEqual(addon.player_data["shop_market_clock"]["answered_cards"], 240)
+        self.assertEqual(state["approval_basis_points"], 9_750)
+        self.assertEqual(state["coffer"], 450_000)
+        self.assertEqual(state["production_credit"], 975_000)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(study_queues=True, card=True),
+            )
+        )
+        self.assertEqual(addon.player_data, initial)
+
+    def test_miscellania_direct_command_is_atomic_and_undoable(self):
+        addon = _load_addon_as_package("ankiscape_miscellania_command_integration")
+        logic = sys.modules[f"{addon.__name__}.managing_miscellania_logic"]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon.current_skill = "Activities"
+        initial = {
+            "inventory": {"Coins": 1_000_000},
+            "quests": {"throne_of_miscellania": {"completed": True}},
+            "shop_market_clock": {"answered_cards": 0},
+            "smithing_level": 1,
+        }
+        initial.update(logic.default_managing_miscellania_state_pure())
+        addon.player_data = copy.deepcopy(initial)
+
+        addon._on_main_menu()
+        result = captured["on_managing_miscellania_command"](
+            "fund_days", {"days": 7}
+        )
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(addon.player_data["managing_miscellania"]["coffer"], 800_000)
+        self.assertEqual(addon.player_data["inventory"]["Coins"], 200_000)
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
 
 if __name__ == "__main__":
     unittest.main()
