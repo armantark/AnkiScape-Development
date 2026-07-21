@@ -4,6 +4,38 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Flash Powder Factory horizontal mechanic closure — 2026-07-21
+
+- Implemented the complete finite factory session: exact entry gates, eight or
+  nine answered-card slots, productive and Again-idle resolution, atomic
+  completion/early exit, Brianpoint conversion, long-stay bonus, cap, and the
+  proportionally translated published penalty curve.
+- Added Max-points, Rogue-equipment, and Balanced route policies; catalyst,
+  apparatus, residue, charge, obstacle delay, rubble, Rogue-piece rewards, and
+  the sourced Factory outfit effects. Hidden server weights remain explicitly
+  labeled data-depth abstractions.
+- Added exact Agility/Thieving XP lots and Factory-piece prices plus stackable
+  Rogue kits, all through instantaneous direct-action undo. Bank converts one
+  kit to the chosen Chisel, Rope, Tinderbox, or Spade without a review.
+- Integrated the three-piece four-dose Herblore chance and full-set unfinished
+  potion XP, including period exclusions, Weapon poison special values, and
+  Prayer-renewal stacking with Morytania legs 4.
+- Added Activities-only registration, durable Activity Circuit completion,
+  cadence coverage, normalized period assets and provenance, reachability,
+  save repair, a compact paginated card, and real offscreen Qt coverage.
+- Opus found and root reproduced/fixed cap-state apparatus loss, foreground
+  multiplication, alternate-dispatch double loot, ignored switch rejection,
+  pre-gate follower dismissal, status leakage, and potion-output telemetry.
+  Fable stayed reserved under the owner's quota instruction.
+- Verification: all 2,102 non-Qt tests pass with 272 expected skips and all
+  2,102 real offscreen-Qt tests pass with one intentional skip. Test-quality,
+  docs, compilation, JSON, diff, normalized assets, reachability, native Anki,
+  and worktree-safety checks pass. No design gap emerged. See
+  `source-audits/flash-powder-factory-horizontal-mvp-2026-07-21.md`.
+- Results:
+  `status-updates/flash-powder-factory-horizontal-mvp-results-2026-07-21.html`;
+  mobile copy: `https://qo7av1788kwa.postplan.dev`.
+
 ## Barrows horizontal mechanic closure — 2026-07-21
 
 - Implemented the complete dangerous Barrows run: the six original brothers,

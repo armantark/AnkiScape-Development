@@ -15,8 +15,6 @@ try:
         CIRCUS_ACROBAT_REWARDS,
         CIRCUS_TRICKS,
         DEFAULT_AGILITY_TARGET,
-        FACTORY_REWARD_COSTS,
-        FPF_OBJECTIVES,
         GNOME_BALL_XP,
         PIT_CHALLENGES,
         AgilityStage,
@@ -31,8 +29,6 @@ except ImportError:  # pragma: no cover - flat test imports
         CIRCUS_ACROBAT_REWARDS,
         CIRCUS_TRICKS,
         DEFAULT_AGILITY_TARGET,
-        FACTORY_REWARD_COSTS,
-        FPF_OBJECTIVES,
         GNOME_BALL_XP,
         PIT_CHALLENGES,
         AgilityStage,
@@ -48,6 +44,35 @@ try:
     from .inventory_pure import clamp_carried_view_to_bank
 except ImportError:  # pragma: no cover - flat test imports
     from inventory_pure import clamp_carried_view_to_bank  # type: ignore
+
+try:
+    from .flash_powder_factory_data import FLASH_POWDER_FACTORY_ACTIVITY_ID
+    from .flash_powder_factory_logic import (
+        apply_flash_powder_factory_review_pure,
+        enter_flash_powder_factory_pure,
+        flash_powder_factory_locked_reasons_pure,
+        leave_flash_powder_factory_pure,
+        redeem_flash_powder_factory_item_pure,
+        redeem_flash_powder_factory_xp_pure,
+        sanitize_flash_powder_factory_policy_pure,
+        sanitize_flash_powder_factory_session_pure,
+        set_flash_powder_factory_policy_pure,
+    )
+except ImportError:  # pragma: no cover - flat test imports
+    from flash_powder_factory_data import (  # type: ignore
+        FLASH_POWDER_FACTORY_ACTIVITY_ID,
+    )
+    from flash_powder_factory_logic import (  # type: ignore
+        apply_flash_powder_factory_review_pure,
+        enter_flash_powder_factory_pure,
+        flash_powder_factory_locked_reasons_pure,
+        leave_flash_powder_factory_pure,
+        redeem_flash_powder_factory_item_pure,
+        redeem_flash_powder_factory_xp_pure,
+        sanitize_flash_powder_factory_policy_pure,
+        sanitize_flash_powder_factory_session_pure,
+        set_flash_powder_factory_policy_pure,
+    )
 
 try:
     from .review_context import (
@@ -125,6 +150,12 @@ def default_agility_state_pure() -> dict[str, Any]:
             "brianpoints": 0,
             "circus_audience": 0,
         },
+        "agility_flash_powder_factory_policy": {
+            "version": 1,
+            "automation_mode": "casual",
+            "strategy": "max_points",
+            "apparatus_policy": "ignore",
+        },
         "agility_shortcut_options": {},
         "agility_effect_charges": {},
         "agility_effective_boost": 0,
@@ -197,6 +228,23 @@ def sanitize_agility_state_pure(player_data: Optional[Mapping[str, Any]]) -> dic
         }
     else:
         activities.pop("pit", None)
+    flash_powder_session = sanitize_flash_powder_factory_session_pure(
+        activities.get(FLASH_POWDER_FACTORY_ACTIVITY_ID)
+    )
+    if flash_powder_session:
+        activities[FLASH_POWDER_FACTORY_ACTIVITY_ID] = flash_powder_session
+        persistent_session = source.get("activity_session")
+        persistent_id = (
+            str(persistent_session.get("active_id", ""))
+            if isinstance(persistent_session, Mapping)
+            else ""
+        )
+        if not persistent_id:
+            source["activity_session"] = {
+                "active_id": FLASH_POWDER_FACTORY_ACTIVITY_ID
+            }
+    else:
+        activities.pop(FLASH_POWDER_FACTORY_ACTIVITY_ID, None)
     source["agility_activity_state"] = activities
     raw_currencies = source.get("agility_activity_currencies")
     raw_currencies = raw_currencies if isinstance(raw_currencies, Mapping) else {}
@@ -204,6 +252,11 @@ def sanitize_agility_state_pure(player_data: Optional[Mapping[str, Any]]) -> dic
         "brianpoints": _int(raw_currencies.get("brianpoints")),
         "circus_audience": _int(raw_currencies.get("circus_audience")),
     }
+    source["agility_flash_powder_factory_policy"] = (
+        sanitize_flash_powder_factory_policy_pure(
+            source.get("agility_flash_powder_factory_policy")
+        )
+    )
     raw_shortcuts = source.get("agility_shortcut_options")
     source["agility_shortcut_options"] = copy.deepcopy(raw_shortcuts) if isinstance(raw_shortcuts, Mapping) else {}
     raw_charges = source.get("agility_effect_charges")
@@ -287,11 +340,12 @@ def agility_target_locked_reasons_pure(player_data: Mapping[str, Any], target_id
     for item_options in target.required_item_options:
         if not any(_owns_item(player_data, item_name) for item_name in item_options):
             reasons.append(f"{item_options[0]} or another valid alternative")
-    if target.id == "flash_powder_factory":
-        if _int(player_data.get("thieving_level"), 1, minimum=1) < 75:
-            reasons.append("Thieving level 75")
-        if _int(player_data.get("herblore_level"), 1, minimum=1) < 50:
-            reasons.append("Herblore level 50")
+    if target.id == FLASH_POWDER_FACTORY_ACTIVITY_ID:
+        reasons.extend(
+            reason
+            for reason in flash_powder_factory_locked_reasons_pure(player_data)
+            if reason not in reasons
+        )
     pit_session = (player_data.get("agility_activity_state") or {}).get("pit")
     if (
         target.id == "the_pit"
@@ -599,71 +653,6 @@ def _next_missing_reward(data: Mapping[str, Any], rewards: tuple[str, ...]) -> O
     return next((item for item in rewards if not _owns_item(data, item)), None)
 
 
-def _fpf_review(data: dict[str, Any], rolls: tuple[float, ...]) -> dict[str, Any]:
-    session = _activity_session(data, "flash_powder_factory")
-    outfit = set(data.get("equipment", {}).values()) if isinstance(data.get("equipment"), Mapping) else set()
-    budget = 27 if "Factory top" in outfit else 24
-    if not session:
-        session.update({
-            "reviews": 0,
-            "objective": 0,
-            "deposits": 0,
-            "charge": 0,
-            "residue": 0,
-            "catalyst_charges": 3 if "Factory trousers" in outfit else 0,
-        })
-    review = _int(session.get("reviews"), maximum=budget - 1) + 1
-    objective_index = _int(session.get("objective"), maximum=4)
-    deposits = _int(session.get("deposits"))
-    catalyst_charges = _int(session.get("catalyst_charges"), maximum=99)
-    fail_chance = .15
-    if "Factory boots" in outfit:
-        fail_chance *= .70
-    if objective_index == 2 and "Factory gloves" in outfit:
-        fail_chance = max(0.0, fail_chance - .10)
-    used_catalyst = objective_index == 2 and catalyst_charges > 0
-    success = used_catalyst or rolls[0] >= fail_chance
-    outputs: dict[str, int] = {}
-    if success:
-        if used_catalyst:
-            catalyst_charges -= 1
-        elif objective_index == 2 and rolls[2] < (.35 if "Factory gloves" in outfit else .25):
-            catalyst_charges += 1
-        objective_index += 1
-        if objective_index >= len(FPF_OBJECTIVES):
-            objective_index = 0
-            deposits += 1
-            session["residue"] = _int(session.get("residue")) + 1
-            chance = .25 if "Factory mask" in outfit else .15
-            rogue_piece = _next_missing_reward(
-                data,
-                ("Rogue mask", "Rogue top", "Rogue trousers", "Rogue gloves", "Rogue boots"),
-            )
-            if rogue_piece and rolls[1] < chance:
-                outputs[rogue_piece] = 1
-    session["charge"] = objective_index
-    session["catalyst_charges"] = catalyst_charges
-    done = review >= budget
-    score = deposits * 30
-    full_set = {"Factory mask", "Factory top", "Factory trousers", "Factory gloves", "Factory boots"}.issubset(outfit)
-    if done and full_set and score >= 120:
-        score = int(math.floor(score * 1.10))
-    points = score if done else 0
-    if done:
-        currencies = dict(data["agility_activity_currencies"])
-        currencies["brianpoints"] += points
-        data["agility_activity_currencies"] = currencies
-        session.clear()
-    else:
-        session.update({"reviews": review, "objective": objective_index, "deposits": deposits})
-    status = (
-        f"Flash Powder Factory · {FPF_OBJECTIVES[objective_index]} · {review}/{budget} actions · "
-        f"{deposits} deposits · {catalyst_charges} catalyst"
-    )
-    data["agility_status"] = status
-    return {"target_id": "flash_powder_factory", "action_id": f"objective_{objective_index}", "success": success, "expected_success_chance": 1 - fail_chance, "xp": 0.0, "damage": 0, "outputs": outputs, "cross_skill_rewards": [], "completed_activity": done, "failure_kind": None if success else "obstacle", "status": status, "brianpoints": points}
-
-
 def _pit_review(data: dict[str, Any], roll: float, reward_roll: float) -> dict[str, Any]:
     session = _activity_session(data, "pit")
     if not session:
@@ -837,7 +826,9 @@ def apply_agility_review_pure(player_data: Mapping[str, Any], rolls: tuple[float
     elif target.activity_kind == "gnome_ball":
         result = _gnome_ball_review(data, normalized[0])
     elif target.activity_kind == "flash_powder_factory":
-        result = _fpf_review(data, normalized)
+        data, result = apply_flash_powder_factory_review_pure(data, normalized)
+        if not result.get("allowed"):
+            return data, result
     elif target.activity_kind == "pit":
         result = _pit_review(data, normalized[0], normalized[1])
     elif target.activity_kind == "circus":
@@ -910,34 +901,6 @@ def redeem_brimhaven_tickets_pure(player_data: Mapping[str, Any], ticket_count: 
     return data, {"allowed": True, "xp": xp}
 
 
-def redeem_brianpoints_pure(player_data: Mapping[str, Any], points: int) -> tuple[dict[str, Any], dict[str, Any]]:
-    data = sanitize_agility_state_pure(copy.deepcopy(player_data))
-    currencies = dict(data["agility_activity_currencies"])
-    amount = max(0, int(points))
-    if amount <= 0 or currencies["brianpoints"] < amount:
-        return data, {"allowed": False, "xp": 0.0}
-    currencies["brianpoints"] -= amount
-    data["agility_activity_currencies"] = currencies
-    return data, {"allowed": True, "xp": amount * 95.0}
-
-
-def redeem_factory_piece_pure(player_data: Mapping[str, Any], piece: str) -> tuple[dict[str, Any], dict[str, Any]]:
-    data = sanitize_agility_state_pure(copy.deepcopy(player_data))
-    cost = FACTORY_REWARD_COSTS.get(piece)
-    currencies = dict(data["agility_activity_currencies"])
-    if cost is None or currencies["brianpoints"] < cost:
-        return data, {"allowed": False, "message": "Not enough Brianpoints"}
-    inventory = dict(data.get("inventory") or {})
-    equipment = data.get("equipment") or {}
-    if _int(inventory.get(piece)) > 0 or piece in equipment.values():
-        return data, {"allowed": False, "message": f"You already own {piece}"}
-    currencies["brianpoints"] -= cost
-    inventory[piece] = 1
-    data["agility_activity_currencies"] = currencies
-    data["inventory"] = inventory
-    return data, {"allowed": True, "item": piece, "message": f"Redeemed {piece}"}
-
-
 def claim_agile_piece_pure(player_data: Mapping[str, Any], piece: str) -> tuple[dict[str, Any], bool]:
     data = sanitize_agility_state_pure(copy.deepcopy(player_data))
     unlock_key = {"Agile top": "agile_top_unlocked", "Agile legs": "agile_legs_unlocked"}.get(piece)
@@ -973,6 +936,36 @@ def apply_agility_command_pure(
     """Apply one explicit non-review Agility operation."""
 
     body = dict(payload or {})
+    if action_id == "enter_flash_powder_factory":
+        updated, ok, info = enter_flash_powder_factory_pure(
+            player_data,
+            confirm_dismiss_follower=bool(body.get("confirm_dismiss_follower", False)),
+        )
+        return updated, {"allowed": ok, **info}
+    if action_id == "set_flash_powder_factory_policy":
+        updated, ok, info = set_flash_powder_factory_policy_pure(
+            player_data,
+            automation_mode=body.get("automation_mode"),
+            strategy=body.get("strategy"),
+            apparatus_policy=body.get("apparatus_policy"),
+        )
+        return updated, {"allowed": ok, **info}
+    if action_id == "leave_flash_powder_factory":
+        updated, ok, info = leave_flash_powder_factory_pure(player_data)
+        return updated, {"allowed": ok, **info}
+    if action_id == "redeem_flash_powder_factory_xp":
+        updated, ok, info = redeem_flash_powder_factory_xp_pure(
+            player_data,
+            str(body.get("skill_id", "")),
+            body.get("points"),
+        )
+        return updated, {"allowed": ok, **info}
+    if action_id == "redeem_flash_powder_factory_item":
+        updated, ok, info = redeem_flash_powder_factory_item_pure(
+            player_data,
+            str(body.get("item_name", "")),
+        )
+        return updated, {"allowed": ok, **info}
     if action_id == "sell_pyramid_top":
         updated, ok = sell_pyramid_top_pure(player_data, _int(body.get("count"), 1, minimum=1))
         return updated, {"allowed": ok, "message": "Sold Pyramid top" if ok else "No Pyramid top to sell"}
@@ -988,15 +981,6 @@ def apply_agility_command_pure(
         updated, result = redeem_brimhaven_tickets_pure(player_data, _int(body.get("tickets"), minimum=1), item_reward=True)
         result.setdefault("message", "Redeemed arena tickets" if result.get("allowed") else "Not enough arena tickets")
         return updated, result
-    if action_id == "redeem_brianpoints":
-        currencies = (player_data.get("agility_activity_currencies") or {}) if isinstance(player_data, Mapping) else {}
-        raw_points = body.get("points")
-        amount = _int(currencies.get("brianpoints")) if raw_points == "all" else _int(raw_points)
-        updated, result = redeem_brianpoints_pure(player_data, amount)
-        result.setdefault("message", "Redeemed Brianpoints" if result.get("allowed") else "No Brianpoints to redeem")
-        return updated, result
-    if action_id == "redeem_factory_piece":
-        return redeem_factory_piece_pure(player_data, str(body.get("piece", "")))
     if action_id in {"claim_pit_reward", "gamble_pit_reward"}:
         data = sanitize_agility_state_pure(copy.deepcopy(player_data))
         activities = dict(data.get("agility_activity_state") or {})
@@ -1058,18 +1042,13 @@ def apply_agility_command_pure(
         target = AGILITY_TARGETS_BY_ID[data["current_agility"]]
         if not target.activity_kind:
             return data, {"allowed": False, "message": "The selected target is not an activity"}
+        if target.id == FLASH_POWDER_FACTORY_ACTIVITY_ID:
+            updated, ok, info = leave_flash_powder_factory_pure(data)
+            return updated, {"allowed": ok, **info}
         activities = dict(data.get("agility_activity_state") or {})
         session = activities.get(target.activity_kind)
         message_suffix = ""
-        if target.activity_kind == "flash_powder_factory" and isinstance(session, Mapping):
-            # Leaving early retains half of the compact accumulated score.
-            points = (_int(session.get("deposits")) * 30) // 2
-            if points > 0:
-                currencies = dict(data["agility_activity_currencies"])
-                currencies["brianpoints"] += points
-                data["agility_activity_currencies"] = currencies
-                message_suffix = f" with {points} Brianpoints"
-        elif target.activity_kind == "circus":
+        if target.activity_kind == "circus":
             data["agility_circus_last_week"] = _answered_card_week(data)
         elif target.activity_kind == "pit":
             origin_course = (

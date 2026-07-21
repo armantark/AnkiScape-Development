@@ -195,6 +195,13 @@ try:
         apply_agility_review_pure,
         sanitize_agility_state_pure,
     )
+    from .flash_powder_factory_data import FLASH_POWDER_FACTORY_ACTIVITY_ID
+    from .flash_powder_factory_logic import (
+        apply_flash_powder_factory_review_pure,
+        apply_factory_outfit_herblore_bonus_pure,
+        factory_outfit_four_dose_eligible_pure,
+        flash_powder_factory_view_pure,
+    )
     from .agility_travel import (
         agility_travel_profile_pure,
         apply_run_energy_credit_pure,
@@ -456,6 +463,15 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         apply_agility_command_pure,
         apply_agility_review_pure,
         sanitize_agility_state_pure,
+    )
+    from flash_powder_factory_data import (  # type: ignore
+        FLASH_POWDER_FACTORY_ACTIVITY_ID,
+    )
+    from flash_powder_factory_logic import (  # type: ignore
+        apply_flash_powder_factory_review_pure,
+        apply_factory_outfit_herblore_bonus_pure,
+        factory_outfit_four_dose_eligible_pure,
+        flash_powder_factory_view_pure,
     )
     from agility_travel import (  # type: ignore
         agility_travel_profile_pure,
@@ -2855,6 +2871,44 @@ def _handle_vinesweeper_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def handle_flash_powder_factory_answer(
+    ctx: RuntimeActionContext,
+    *,
+    productive: bool = True,
+) -> bool:
+    updated, result = apply_flash_powder_factory_review_pure(
+        ctx.player_data,
+        tuple(ctx.random_random() for _ in range(4)) if productive else (),
+        productive=productive,
+    )
+    if not result.get("allowed"):
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Flash Powder Factory unavailable",
+            str(result.get("reason", "Enter the factory before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    _record_action(
+        ctx,
+        "utility",
+        FLASH_POWDER_FACTORY_ACTIVITY_ID,
+        bool(result.get("success", False)),
+        expected_success_chance=1.0,
+        output_items=result.get("outputs") or {},
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_activity_gain(
+        str(result.get("status", "Flash powder circuit complete"))
+    )
+    if result.get("completed_activity"):
+        ctx.deactivate_current_skill()
+    return True
+
+
 def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
@@ -2878,6 +2932,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_penguin_answer(ctx)
     if activity_key == VINESWEEPER_ACTIVITY_ID:
         return _handle_vinesweeper_answer(ctx)
+    if activity_key == FLASH_POWDER_FACTORY_ACTIVITY_ID:
+        return handle_flash_powder_factory_answer(ctx)
     if activity_key == STRONGHOLD_UTILITY_KEY:
         return _handle_stronghold_answer(ctx)
     if activity_key == KNIGHT_WAVES_UTILITY_KEY:
@@ -3202,8 +3258,34 @@ def handle_herblore_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
+    equipment = player_data.get("equipment") or {}
+    bonus_roll = (
+        ctx.random_random()
+        if factory_outfit_four_dose_eligible_pure(target, spec, equipment)
+        else 0.5
+    )
+    new_inv, base_exp, factory_bonus = apply_factory_outfit_herblore_bonus_pure(
+        target,
+        new_inv,
+        base_exp,
+        spec,
+        equipment,
+        bonus_roll,
+        HERBLORE_DATA,
+    )
+
     player_data["inventory"] = new_inv
-    _record_action(ctx, "herblore", target, True, expected_success_chance=1.0, output_items=_spec_output_items(spec))
+    output_items = _spec_output_items(spec)
+    if factory_bonus.get("four_dose"):
+        three_dose = str(spec.get("output_item", target))
+        remaining = int(output_items.get(three_dose, 0) or 0) - 1
+        if remaining > 0:
+            output_items[three_dose] = remaining
+        else:
+            output_items.pop(three_dose, None)
+        four_dose = str(factory_bonus["output_item"])
+        output_items[four_dose] = int(output_items.get(four_dose, 0) or 0) + 1
+    _record_action(ctx, "herblore", target, True, expected_success_chance=1.0, output_items=output_items)
     xp_rewards = normalize_xp_rewards_pure(spec, "herblore", base_exp)
     exp_gained = _award_action_xp_rewards(ctx, xp_rewards, "herblore")
     ctx.check_achievements(player_data)
@@ -4858,6 +4940,8 @@ def handle_thieving_answer(ctx: RuntimeActionContext) -> bool:
 def handle_agility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target_id = str(player_data.get("current_agility", DEFAULT_AGILITY_TARGET))
+    if target_id == FLASH_POWDER_FACTORY_ACTIVITY_ID:
+        return handle_flash_powder_factory_answer(ctx)
     if target_id not in AGILITY_TARGETS_BY_ID:
         target_id = DEFAULT_AGILITY_TARGET
         player_data["current_agility"] = target_id
@@ -5151,6 +5235,10 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return bool(penguin_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == VINESWEEPER_ACTIVITY_ID:
         return bool(vinesweeper_view_pure(ctx.player_data).get("active", False))
+    if activity_key == FLASH_POWDER_FACTORY_ACTIVITY_ID:
+        return bool(
+            flash_powder_factory_view_pure(ctx.player_data).get("can_review", False)
+        )
     return not utility_activity_locked_reasons_pure(
         ctx.player_data,
         activity_key,

@@ -142,6 +142,7 @@ from .grand_exchange_logic import (
 )
 from .farming_logic import apply_farming_frontend_action_pure, farming_frontend_projection_pure
 from .agility_logic import apply_agility_command_pure
+from .flash_powder_factory_logic import convert_rogue_kit_pure
 from .review_context import (
     PIT_REWARD_CONTEXT_ID,
     ignored_review_context_choice_pure,
@@ -1492,8 +1493,10 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         player_data.update(updated)
         xp = float(result.get("xp", 0.0) or 0.0)
         if xp > 0:
-            gained = _award_skill_exp("agility_exp", xp)
-            level_up_check("Agility", player_data)
+            skill_id = str(result.get("skill_id", "agility")).lower()
+            skill_name = skill_id.replace("_", " ").title()
+            gained = _award_skill_exp(f"{skill_id}_exp", xp)
+            level_up_check(skill_name, player_data)
             _show_exp(gained)
         check_achievements(player_data)
         save_player_data()
@@ -2252,6 +2255,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_discard_item=on_discard_item,
         on_consume_item=on_consume_item,
         on_open_item_pack=on_open_item_pack,
+        on_convert_rogue_kit=on_convert_rogue_kit,
         on_teleport_training_urn=teleport_training_urn,
         get_ge_projection=_get_ge_projection,
         on_ge_action=_apply_ge_action,
@@ -2708,6 +2712,34 @@ def on_open_item_pack(item_name, open_all=False):
     return result
 
 
+def on_convert_rogue_kit(output_item):
+    """Convert one Rogue kit into its chosen tool as an undoable Bank action."""
+    before = {
+        "player_data": copy.deepcopy(player_data),
+        "random_state": random.getstate(),
+    }
+    updated, ok, info = convert_rogue_kit_pure(player_data, str(output_item))
+    if not ok:
+        return None
+    try:
+        mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+    except (AttributeError, RuntimeError):
+        return None
+    _DIRECT_ACTION_UNDO_STACK.append(before)
+    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+    player_data.clear()
+    player_data.update(updated)
+    save_player_data()
+    _refresh_skill_availability()
+    try:
+        update_review_hud(player_data, current_skill)
+        mw.update_undo_actions()
+    except AttributeError:
+        pass
+    return info
+
+
 def _can_start_current_action() -> bool:
     handler_key = review_action_handler_key(current_skill)
     return runtime_actions.can_start_action(_runtime_action_context(), handler_key)
@@ -2858,6 +2890,7 @@ def on_good_answer(before_state=None):
                             SHOOTING_STAR_ACTIVITY_ID,
                             SORCERESS_GARDEN_ACTIVITY_ID,
                             PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID,
+                            runtime_actions.FLASH_POWDER_FACTORY_ACTIVITY_ID,
                         }
                     )
                     or (handler_key == "quest" and _cadence_kernel_enabled())
@@ -2976,6 +3009,29 @@ def on_answer_card(self, ease, _old):
         _call_on_good_answer_with_snapshot(before_state)
         exp_awarded = True
     elif review_answered and before_state is not None:
+        activity_state = player_data.get("agility_activity_state") or {}
+        if (
+            (
+                (
+                    review_action_handler_key(current_skill) == "utility"
+                    and player_data.get("current_utility")
+                    == runtime_actions.FLASH_POWDER_FACTORY_ACTIVITY_ID
+                )
+                or (
+                    review_action_handler_key(current_skill) == "agility"
+                    and player_data.get("current_agility")
+                    == runtime_actions.FLASH_POWDER_FACTORY_ACTIVITY_ID
+                )
+            )
+            and isinstance(activity_state, dict)
+            and activity_state.get(
+                runtime_actions.FLASH_POWDER_FACTORY_ACTIVITY_ID
+            )
+        ):
+            runtime_actions.handle_flash_powder_factory_answer(
+                _runtime_action_context(),
+                productive=False,
+            )
         _advance_world_events_after_review()
         _save_player_data_if_anki_ready()
         _remember_review_award_snapshot(before_state)

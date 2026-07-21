@@ -819,6 +819,23 @@ def utility_activity_locked_reasons_pure(player_data, activity_key, utility_acti
     firemaking_level = spec.get("firemaking_level")
     if isinstance(firemaking_level, int) and player_data.get("firemaking_level", 1) < firemaking_level:
         reasons.append(f"Firemaking {firemaking_level}")
+    skill_requirements = spec.get("skill_requirements")
+    if isinstance(skill_requirements, Mapping):
+        for skill_id, required_level in skill_requirements.items():
+            level = _positive_int(required_level)
+            if _positive_int(player_data.get(f"{skill_id}_level", 1), 1) < level:
+                reasons.append(f"{str(skill_id).title()} {level}")
+    if spec.get("requires_unskulled") and player_data.get("combat_wilderness_skulled"):
+        reasons.append("remove Wilderness skull")
+    if spec.get("requires_no_follower"):
+        summoning_state = player_data.get("summoning_state")
+        follower = (
+            summoning_state.get("active_follower")
+            if isinstance(summoning_state, Mapping)
+            else None
+        )
+        if isinstance(follower, Mapping) and follower:
+            reasons.append("dismiss active follower")
     reasons.extend(
         quest_unlock_locked_reasons_pure(
             player_data,

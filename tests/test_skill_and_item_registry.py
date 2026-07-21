@@ -500,6 +500,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "penguin_hide_and_seek",
                 "vinesweeper",
                 "fight_caves",
+                "flash_powder_factory",
                 "stealing_creation",
                 "barrows",
             },

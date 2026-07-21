@@ -1031,6 +1031,14 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   and compact card are live. Exact exhaustive armour breadth and rare reward
   precision remain data-depth work. See
   `memory-bank/source-audits/barrows-horizontal-mvp-2026-07-21.md`.
+- Flash Powder Factory is mechanic-complete as an Activities-only finite
+  Agility/Thieving session. Its exact gates, eight/nine-slot run, productive
+  and Again-idle circuits, scoring/cashout, strategy policies, catalyst,
+  apparatus, residue, rubble, Factory/Rogue rewards, direct XP shop, Rogue-kit
+  conversion, outfit Herblore effects, persistence, undo, cadence, normalized
+  period art, Activity Circuit credit, and compact card are live. Exhaustive
+  hidden-roll recovery remains data-depth work. See
+  `memory-bank/source-audits/flash-powder-factory-horizontal-mvp-2026-07-21.md`.
 - Darkan should supply hidden state machines, rolls, currencies, and reward logic; period wiki/cache evidence still establishes cutoff and client identity.
 
 ### Missing skill server behavior
@@ -1085,10 +1093,10 @@ Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
 
 - Platform seed: `memory-bank/minigames-activities-design-seed.md`.
 - The horizontal breadth wave has shipped Shooting Stars, Fist of Guthix,
-  Sorceress's Garden, Penguin Hide and Seek, Vinesweeper, Fight Caves, and
-  Stealing Creation, and Barrows with complete mechanics, persistence, undo,
-  UI, assets, and compact period-qualified data sets.
-- Barrows is closed. Tears of Guthix and Shattered Heart remain explicit
+  Sorceress's Garden, Penguin Hide and Seek, Vinesweeper, Fight Caves,
+  Stealing Creation, Barrows, and Flash Powder Factory with complete mechanics,
+  persistence, undo, UI, assets, and compact period-qualified data sets.
+- Flash Powder Factory is closed. Tears of Guthix and Shattered Heart remain explicit
   source-readiness skips, not design questions. Continue breadth-first with the
   next settled activity whose smallest honest entry/state/reward data set is
   already source-ready; do not stall the wave on exhaustive catalogs.

@@ -4,9 +4,17 @@ import os
 import re
 
 try:
-    from .agility_data import AGILITY_EXTRA_ITEM_DATA, AGILITY_ITEM_IMAGES, AGILITY_TARGETS
+    from .agility_data import (
+        AGILITY_EXTRA_ITEM_DATA,
+        AGILITY_ITEM_IMAGES,
+        AGILITY_TARGETS_BY_ID,
+    )
 except ImportError:
-    from agility_data import AGILITY_EXTRA_ITEM_DATA, AGILITY_ITEM_IMAGES, AGILITY_TARGETS  # type: ignore
+    from agility_data import (  # type: ignore
+        AGILITY_EXTRA_ITEM_DATA,
+        AGILITY_ITEM_IMAGES,
+        AGILITY_TARGETS_BY_ID,
+    )
 try:
     from .fist_of_guthix_data import (
         fist_of_guthix_activity_as_dict,
@@ -130,6 +138,11 @@ try:
     )
     from .crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, crafting_special_items_as_dict, tanning_activities_as_dict
     from .equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
+    from .flash_powder_factory_data import (
+        FLASH_POWDER_FACTORY_ACTIVITY_ID,
+        flash_powder_factory_activity_as_dict,
+        flash_powder_factory_extra_items_as_dict,
+    )
     from .barrows_data import (
         BARROWS_ACTIVITY_ID,
         barrows_activity_as_dict,
@@ -287,6 +300,11 @@ except ImportError:
     )
     from crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, crafting_special_items_as_dict, tanning_activities_as_dict
     from equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
+    from flash_powder_factory_data import (  # type: ignore
+        FLASH_POWDER_FACTORY_ACTIVITY_ID,
+        flash_powder_factory_activity_as_dict,
+        flash_powder_factory_extra_items_as_dict,
+    )
     from barrows_data import (  # type: ignore
         BARROWS_ACTIVITY_ID,
         barrows_activity_as_dict,
@@ -660,6 +678,7 @@ UTILITY_ACTIVITY_DATA.update(fist_of_guthix_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(stealing_creation_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(barrows_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(flash_powder_factory_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(sorceress_garden_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(penguin_hide_and_seek_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(vinesweeper_activity_as_dict())
@@ -725,6 +744,14 @@ if os.path.exists(_stealing_creation_icon):
 _barrows_icon = os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "barrows.png")
 if os.path.exists(_barrows_icon):
     UTILITY_ACTIVITY_DATA[BARROWS_ACTIVITY_ID]["icon_path"] = _barrows_icon
+_flash_powder_factory_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "flash_powder_factory.png",
+)
+if os.path.exists(_flash_powder_factory_icon):
+    UTILITY_ACTIVITY_DATA[FLASH_POWDER_FACTORY_ACTIVITY_ID]["icon_path"] = (
+        _flash_powder_factory_icon
+    )
 _sorceress_garden_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
     "sorceress_garden.png",
@@ -1369,6 +1396,7 @@ VINESWEEPER_EXTRA_ITEM_DATA = vinesweeper_extra_items_as_dict()
 FIGHT_CAVES_EXTRA_ITEM_DATA = fight_caves_extra_items_as_dict()
 STEALING_CREATION_EXTRA_ITEM_DATA = stealing_creation_extra_items_as_dict()
 BARROWS_EXTRA_ITEM_DATA = barrows_extra_items_as_dict()
+FLASH_POWDER_FACTORY_EXTRA_ITEM_DATA = flash_powder_factory_extra_items_as_dict()
 VINESWEEPER_ITEM_IMAGES = {}
 for _item_name in VINESWEEPER_EXTRA_ITEM_DATA:
     _path = os.path.join(
@@ -1727,6 +1755,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **FIGHT_CAVES_EXTRA_ITEM_DATA,
     **STEALING_CREATION_EXTRA_ITEM_DATA,
     **BARROWS_EXTRA_ITEM_DATA,
+    **FLASH_POWDER_FACTORY_EXTRA_ITEM_DATA,
     **potion_items_as_dict(),
     **SHOP_ONLY_EXTRA_ITEM_DATA,
 })
@@ -1831,6 +1860,10 @@ ACHIEVEMENT_DEFINITIONS = build_achievement_definitions(
     BAR_DATA,
     FISHING_OUTPUT_ITEMS,
     HERBLORE_FINISHED_OUTPUT_ITEMS,
-    (target.activity_kind for target in AGILITY_TARGETS if target.activity_kind),
+    (
+        target.activity_kind
+        for target in AGILITY_TARGETS_BY_ID.values()
+        if target.activity_kind
+    ),
 )
 ACHIEVEMENTS = achievements_as_dict(ACHIEVEMENT_DEFINITIONS)

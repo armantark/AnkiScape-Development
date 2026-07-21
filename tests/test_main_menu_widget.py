@@ -7023,6 +7023,41 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(opened, [("Vial pack", True)])
 
+    def test_bank_converts_a_rogue_kit_to_any_period_tool(self) -> None:
+        from flash_powder_factory_logic import convert_rogue_kit_pure
+
+        pd = _make_player_data()
+        pd["inventory"] = {"Rogue kit": 2}
+        converted: list[str] = []
+
+        def _convert(output_item: str) -> bool:
+            updated, ok, _info = convert_rogue_kit_pure(pd, output_item)
+            if ok:
+                pd.clear()
+                pd.update(updated)
+                converted.append(output_item)
+            return ok
+
+        dialog = self._open(pd, on_convert_rogue_kit=_convert)
+        menu = dialog._ankiscape_equip_menu_for("Rogue kit")
+        convert_action = next(
+            action for action in menu.actions()
+            if action.text() == "Convert Rogue kit to"
+        )
+        convert_menu = convert_action.menu()
+        self.assertIsNotNone(convert_menu)
+        self.assertEqual(
+            [action.text() for action in convert_menu.actions()],
+            ["Chisel", "Rope", "Tinderbox", "Spade"],
+        )
+        next(
+            action for action in convert_menu.actions() if action.text() == "Rope"
+        ).trigger()
+        QApplication.processEvents()
+        self.assertEqual(converted, ["Rope"])
+        self.assertEqual(pd["inventory"]["Rogue kit"], 1)
+        self.assertEqual(pd["inventory"]["Rope"], 1)
+
     def test_full_urn_bank_action_uses_stable_id_order_and_refreshes_immediately(self) -> None:
         from logic_pure import teleport_full_urn_pure
         from urn_data import URN_TIERS_BY_ID
@@ -7620,6 +7655,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "fight_caves",
                 "stealing_creation",
                 "barrows",
+                "flash_powder_factory",
             },
         )
         self.assertEqual(
@@ -8794,6 +8830,142 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(self._barrows_calls[-1], ("leave", {}))
         self.assertEqual(status.text(), "SUSPENDED")
         self.assertTrue(pd["barrows"]["suspended"])
+
+    def test_flash_powder_factory_card_enters_configures_rewards_and_cashes_out_without_nested_scroll(self) -> None:
+        from agility_logic import default_agility_state_pure
+
+        pd = _make_player_data()
+        pd.update(default_agility_state_pure())
+        pd.update(
+            {
+                "agility_level": 99,
+                "thieving_level": 99,
+                "herblore_level": 99,
+                "current_utility": "flash_powder_factory",
+                "activity_session": {"active_id": ""},
+                "summoning_state": {"active_follower": {}},
+            }
+        )
+        pd["agility_activity_currencies"]["brianpoints"] = 5_000
+        dialog = self._open(pd)
+        activity_tree = self._open_activities(dialog)
+        row = _utility_row(activity_tree, "flash_powder_factory")
+        activity_tree.setCurrentItem(row)
+        activity_tree.itemActivated.emit(row, 0)
+        QApplication.processEvents()
+
+        panel = _find_named_widget(dialog, "flashPowderFactoryPanel")
+        status = _find_named_label(dialog, "flashPowderFactoryStatusChip")
+        summary = _find_named_label(dialog, "flashPowderFactorySummary")
+        primary = _find_named_button(dialog, "flashPowderFactoryPrimaryButton")
+        leave = _find_named_button(dialog, "flashPowderFactoryLeaveButton")
+        mode = panel.findChild(QComboBox, "flashPowderFactoryModeCombo")
+        strategy = panel.findChild(QComboBox, "flashPowderFactoryStrategyCombo")
+        apparatus = panel.findChild(QComboBox, "flashPowderFactoryApparatusCombo")
+        rewards = panel.findChild(QComboBox, "flashPowderFactoryRewardCombo")
+        buy = _find_named_button(dialog, "flashPowderFactoryRewardButton")
+        self.assertIsNone(panel.findChild(QScrollArea))
+        self.assertEqual(status.text(), "READY")
+        self.assertIn("Eight circuits", summary.text())
+        self.assertTrue(leave.isHidden())
+
+        primary.click()
+        QApplication.processEvents()
+        self.assertEqual(
+            self._agility_command_calls[-1],
+            ("enter_flash_powder_factory", {}),
+        )
+        self.assertEqual(pd["current_utility"], "flash_powder_factory")
+        self.assertEqual(status.text(), "ACTIVE")
+        self.assertEqual(primary.text(), "Selected for reviews")
+        self.assertFalse(leave.isHidden())
+
+        mode.setCurrentIndex(mode.findData("advanced"))
+        QApplication.processEvents()
+        self.assertFalse(apparatus.isHidden())
+        strategy.setCurrentIndex(strategy.findData("rogue_equipment"))
+        apparatus.setCurrentIndex(apparatus.findData("opportunistic"))
+        QApplication.processEvents()
+        self.assertEqual(
+            pd["agility_flash_powder_factory_policy"]["strategy"],
+            "rogue_equipment",
+        )
+        self.assertEqual(
+            pd["agility_flash_powder_factory_policy"]["apparatus_policy"],
+            "opportunistic",
+        )
+
+        rewards.setCurrentIndex(rewards.findData("Rogue kit"))
+        QApplication.processEvents()
+        self.assertTrue(buy.isEnabled())
+        buy.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["inventory"]["Rogue kit"], 1)
+
+        with patch.object(
+            QMessageBox,
+            "question",
+            return_value=QMessageBox.StandardButton.Yes,
+        ):
+            leave.click()
+        QApplication.processEvents()
+        self.assertEqual(
+            self._agility_command_calls[-1],
+            ("leave_flash_powder_factory", {}),
+        )
+        self.assertEqual(status.text(), "READY")
+        self.assertTrue(leave.isHidden())
+
+    def test_switching_from_flash_powder_factory_requires_and_honours_cashout_confirmation(self) -> None:
+        from agility_logic import default_agility_state_pure
+        from flash_powder_factory_logic import enter_flash_powder_factory_pure
+
+        pd = _make_player_data()
+        pd.update(default_agility_state_pure())
+        pd.update(
+            {
+                "agility_level": 99,
+                "thieving_level": 99,
+                "herblore_level": 99,
+                "activity_session": {"active_id": ""},
+                "summoning_state": {"active_follower": {}},
+            }
+        )
+        pd, ok, _info = enter_flash_powder_factory_pure(pd)
+        self.assertTrue(ok)
+        dialog = self._open(pd)
+        utility_tree = self._open_utility(dialog)
+        bankstanding = _utility_row(utility_tree, "bankstanding")
+
+        with patch.object(
+            QMessageBox,
+            "question",
+            return_value=QMessageBox.StandardButton.No,
+        ):
+            utility_tree.itemClicked.emit(bankstanding, 0)
+        QApplication.processEvents()
+        self.assertEqual(pd["current_utility"], "flash_powder_factory")
+        self.assertIn(
+            "flash_powder_factory",
+            pd["agility_activity_state"],
+        )
+
+        with patch.object(
+            QMessageBox,
+            "question",
+            return_value=QMessageBox.StandardButton.Yes,
+        ):
+            utility_tree.itemClicked.emit(bankstanding, 0)
+        QApplication.processEvents()
+        self.assertEqual(
+            self._agility_command_calls[-1],
+            ("leave_flash_powder_factory", {}),
+        )
+        self.assertEqual(pd["current_utility"], "bankstanding")
+        self.assertNotIn(
+            "flash_powder_factory",
+            pd["agility_activity_state"],
+        )
 
     def test_stealing_creation_card_exposes_session_policy_and_reward_tools(self) -> None:
         from stealing_creation_logic import default_stealing_creation_state_pure

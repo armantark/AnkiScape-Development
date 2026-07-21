@@ -2,6 +2,44 @@
 
 ## Current Focus
 
+Flash Powder Factory now satisfies horizontal breadth level one as an
+Activities-only, finite Agility/Thieving session. Entry enforces the exact
+75 Agility, 75 Thieving, and 50 Herblore gates plus the period skull and
+follower exclusions. Each answered card consumes exactly one of eight base
+slots, or nine with an eligible top: a non-Again answer resolves one complete
+production circuit, while Again consumes one RNG-free idle slot. Completion
+and confirmed early exit cash out atomically through the exact nonlinear
+Brianpoint formula, cap, long-stay bonus, and proportional source penalty.
+
+Max-points, Rogue-equipment, and Balanced strategies now own authentic route
+tradeoffs without persisting a fake map or multiplayer world. Catalyst,
+apparatus, residue, obstacle delay, fallen rubble, Rogue-piece discovery,
+Factory-mask redistribution, Factory-boot protection, and Factory-glove
+pickpocketing are live. The period reward shop supports exact Agility and
+Thieving XP lots, unique Factory outfit pieces, and stackable Rogue kits that
+convert instantly and undoably to Chisel, Rope, Tinderbox, or Spade from Bank.
+Three-piece and full-set Herblore effects are integrated, including four-dose
+results, exclusions, unfinished-potion XP, Weapon poison special values, and
+Prayer-renewal stacking with Morytania legs 4.
+
+The compact dark-safe Minigames card, period icon and Rogue-kit sprite use the
+shared normalized asset path. The closure review found and fixed cap-state
+apparatus loss, multiplied sessions, alternate-dispatch double loot, rejected
+activity switches that still switched, pre-gate follower dismissal, stale
+Agility status, incomplete potion telemetry, and missing durable Activity
+Circuit credit. Fable remained reserved at the owner's request; Opus supplied
+the bounded independent implementation and taste review.
+
+The exact final state passes all 2,102 non-Qt tests with 272 expected
+environment skips and all 2,102 real offscreen-Qt tests with one intentional
+skip. Test quality, documentation, compilation, JSON, diff, normalized assets,
+reachability, native Anki, and worktree safety pass. Reachability remains 1,437
+actions, 2,109 reachable items, 168 orphan inputs, and 189 blocked actions. No
+owner design gap emerged. Durable record:
+`source-audits/flash-powder-factory-horizontal-mvp-2026-07-21.md`. Results:
+`status-updates/flash-powder-factory-horizontal-mvp-results-2026-07-21.html`;
+mobile copy: `https://qo7av1788kwa.postplan.dev`.
+
 Barrows now satisfies horizontal breadth level one. One dangerous, resumable
 run owns the six original brothers plus Ritual-of-the-Mahjarrat-gated Akrisae,
 six tunnel creatures, a complete 3×3 tunnel graph, one locked perimeter door,

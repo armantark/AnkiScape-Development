@@ -652,31 +652,6 @@ class TestAgilityPureEngine(unittest.TestCase):
         self.assertEqual(player["agility_effect_charges"]["surefooted_reviews"], 332)
         self.assertEqual(player["agility_effect_charges"]["surefooted_cooldown_reviews"], 1999)
 
-    def test_flash_powder_outfit_passives_and_early_exit_are_review_native(self):
-        player = {
-            **default_agility_state_pure(),
-            "current_agility": "flash_powder_factory",
-            "agility_level": 99,
-            "thieving_level": 99,
-            "herblore_level": 99,
-            "equipment": {
-                "head": "Factory mask", "body": "Factory top", "legs": "Factory trousers",
-                "hands": "Factory gloves", "feet": "Factory boots",
-            },
-            "inventory": {},
-        }
-        for _ in range(5):
-            player, result = apply_agility_review_pure(player, (0.99, 0.0, 0.0, 0.99))
-        session = player["agility_activity_state"]["flash_powder_factory"]
-        self.assertEqual(session["reviews"], 5)
-        self.assertEqual(session["deposits"], 1)
-        self.assertEqual(session["catalyst_charges"], 2)
-        self.assertEqual(result["expected_success_chance"], 0.895)
-        self.assertTrue(result["outputs"])
-        player, command = apply_agility_command_pure(player, "leave_activity")
-        self.assertTrue(command["allowed"])
-        self.assertEqual(player["agility_activity_currencies"]["brianpoints"], 15)
-
     def test_circus_closes_for_the_answered_card_week_and_reopens_next_week(self):
         player = {
             **default_agility_state_pure(),

@@ -363,6 +363,27 @@ except Exception:
     from barrows_logic import barrows_view_pure  # type: ignore
 
 try:
+    from .flash_powder_factory_data import (
+        FLASH_POWDER_FACTORY_ACTIVITY_ID,
+        FLASH_POWDER_FACTORY_APPARATUS_POLICIES,
+        FLASH_POWDER_FACTORY_STRATEGIES,
+        FLASH_POWDER_FACTORY_XP_LOTS,
+        ROGUE_KIT_OUTPUTS,
+    )
+    from .flash_powder_factory_logic import flash_powder_factory_view_pure
+except Exception:
+    from flash_powder_factory_data import (  # type: ignore
+        FLASH_POWDER_FACTORY_ACTIVITY_ID,
+        FLASH_POWDER_FACTORY_APPARATUS_POLICIES,
+        FLASH_POWDER_FACTORY_STRATEGIES,
+        FLASH_POWDER_FACTORY_XP_LOTS,
+        ROGUE_KIT_OUTPUTS,
+    )
+    from flash_powder_factory_logic import (  # type: ignore
+        flash_powder_factory_view_pure,
+    )
+
+try:
     from .stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
     from .stealing_creation_logic import stealing_creation_view_pure
 except Exception:
@@ -3470,6 +3491,7 @@ def show_main_menu(
     on_discard_item=None,
     on_consume_item=None,
     on_open_item_pack=None,
+    on_convert_rogue_kit=None,
     on_teleport_training_urn=None,
     get_ge_projection=None,
     on_ge_action=None,
@@ -5671,9 +5693,6 @@ def show_main_menu(
         _command_button("Wergali (5 tickets)", "redeem_brimhaven_item", {"tickets": 5})
         _command_button("Snapdragon (10)", "redeem_brimhaven_item", {"tickets": 10})
         _command_button("Pirate's hook (800)", "redeem_brimhaven_item", {"tickets": 800})
-        _command_button("Redeem Brianpoints", "redeem_brianpoints", {"points": "all"})
-        for piece in ("Factory mask", "Factory top", "Factory trousers", "Factory gloves", "Factory boots"):
-            _command_button(piece, "redeem_factory_piece", {"piece": piece})
         _command_button("Activate Surefooted", "activate_surefooted", {})
         _command_button("Wind Toy mouse", "wind_toy_mouse", {})
         _command_button("Buy Agility cape", "purchase_agility_cape", {})
@@ -6954,6 +6973,18 @@ def show_main_menu(
         )
         _refresh_familiarisation_panel()
 
+        utility_selection_handler = {"call": None}
+
+        def _request_utility_selection(activity_id: str) -> bool:
+            handler = utility_selection_handler.get("call")
+            if callable(handler):
+                return bool(handler(activity_id))
+            if on_set_utility is None:
+                return False
+            on_set_utility(activity_id)
+            player_data["current_utility"] = activity_id
+            return True
+
         evil_box = QtFrame()
         evil_box.setObjectName("evilTreePanel")
         evil_box.setStyleSheet(
@@ -7148,8 +7179,8 @@ def show_main_menu(
         def _select_evil_tree() -> None:
             if on_set_utility is None:
                 return
-            on_set_utility(EVIL_TREE_UTILITY_ID)
-            player_data["current_utility"] = EVIL_TREE_UTILITY_ID
+            if not _request_utility_selection(EVIL_TREE_UTILITY_ID):
+                return
             tree.clearSelection()
             _refresh_evil_tree_panel()
             _refresh_big_chinchompa_panel()
@@ -7396,8 +7427,8 @@ def show_main_menu(
         def _select_big_chinchompa() -> None:
             if on_set_utility is None:
                 return
-            on_set_utility(BIG_CHINCHOMPA_UTILITY_ID)
-            player_data["current_utility"] = BIG_CHINCHOMPA_UTILITY_ID
+            if not _request_utility_selection(BIG_CHINCHOMPA_UTILITY_ID):
+                return
             tree.clearSelection()
             _refresh_evil_tree_panel()
             _refresh_big_chinchompa_panel()
@@ -7682,8 +7713,8 @@ def show_main_menu(
         def _select_shooting_star() -> None:
             if on_set_utility is None:
                 return
-            on_set_utility(SHOOTING_STAR_ACTIVITY_ID)
-            player_data["current_utility"] = SHOOTING_STAR_ACTIVITY_ID
+            if not _request_utility_selection(SHOOTING_STAR_ACTIVITY_ID):
+                return
             tree.clearSelection()
             _refresh_evil_tree_panel()
             _refresh_big_chinchompa_panel()
@@ -8041,8 +8072,8 @@ def show_main_menu(
                 _run_fist_of_guthix_command("talk_fiara")
                 return
             if on_set_utility is not None:
-                on_set_utility(FIST_OF_GUTHIX_ACTIVITY_ID)
-                player_data["current_utility"] = FIST_OF_GUTHIX_ACTIVITY_ID
+                if not _request_utility_selection(FIST_OF_GUTHIX_ACTIVITY_ID):
+                    return
                 tree.clearSelection()
             _refresh_fist_of_guthix_panel()
 
@@ -8347,8 +8378,8 @@ def show_main_menu(
                 return
             if view["locked_reasons"] or on_set_utility is None:
                 return
-            on_set_utility(SORCERESS_GARDEN_ACTIVITY_ID)
-            player_data["current_utility"] = SORCERESS_GARDEN_ACTIVITY_ID
+            if not _request_utility_selection(SORCERESS_GARDEN_ACTIVITY_ID):
+                return
             tree.clearSelection()
             _refresh_sorceress_garden_panel()
 
@@ -8604,8 +8635,8 @@ def show_main_menu(
             if not _run_penguin_command("select_spy", {"spawn_id": spawn_id}):
                 return
             if on_set_utility is not None:
-                on_set_utility(PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID)
-                player_data["current_utility"] = PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID
+                if not _request_utility_selection(PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID):
+                    return
                 tree.clearSelection()
             _refresh_penguin_panel()
 
@@ -8875,8 +8906,8 @@ def show_main_menu(
                     str(result.get("message", "Winkin's Farm is unavailable.")),
                 )
             if result.get("ok", False) and on_set_utility is not None:
-                on_set_utility(VINESWEEPER_ACTIVITY_ID)
-                player_data["current_utility"] = VINESWEEPER_ACTIVITY_ID
+                if not _request_utility_selection(VINESWEEPER_ACTIVITY_ID):
+                    return
                 tree.clearSelection()
             _refresh_vinesweeper_panel()
 
@@ -9142,8 +9173,8 @@ def show_main_menu(
                 if not result.get("ok", False):
                     return
             if on_set_utility is not None:
-                on_set_utility(FIGHT_CAVES_ACTIVITY_ID)
-                player_data["current_utility"] = FIGHT_CAVES_ACTIVITY_ID
+                if not _request_utility_selection(FIGHT_CAVES_ACTIVITY_ID):
+                    return
                 tree.clearSelection()
             _refresh_fight_caves_panel()
 
@@ -9430,8 +9461,8 @@ def show_main_menu(
                 if not result.get("ok", False):
                     return
             if on_set_utility is not None:
-                on_set_utility(BARROWS_ACTIVITY_ID)
-                player_data["current_utility"] = BARROWS_ACTIVITY_ID
+                if not _request_utility_selection(BARROWS_ACTIVITY_ID):
+                    return
                 tree.clearSelection()
             _refresh_barrows_panel()
 
@@ -9471,6 +9502,351 @@ def show_main_menu(
         )
         _refresh_barrows_panel()
         cards_stack.addWidget(barrows_box)
+
+        flash_factory_box = QtFrame()
+        flash_factory_box.setObjectName("flashPowderFactoryPanel")
+        flash_factory_box.setStyleSheet(
+            "QFrame#flashPowderFactoryPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        flash_factory_layout = QVBoxLayout(flash_factory_box)
+        flash_factory_layout.setContentsMargins(10, 8, 10, 8)
+        flash_factory_layout.setSpacing(6)
+
+        flash_factory_top = QWidget()
+        flash_factory_top_layout = QHBoxLayout(flash_factory_top)
+        flash_factory_top_layout.setContentsMargins(0, 0, 0, 0)
+        flash_factory_top_layout.setSpacing(8)
+        flash_factory_icon = QLabel()
+        flash_factory_icon.setObjectName("flashPowderFactoryIcon")
+        flash_factory_icon.setFixedSize(28, 28)
+        flash_factory_icon_path = os.path.join(
+            current_dir,
+            "activityicons",
+            "flash_powder_factory.png",
+        )
+        if not os.path.exists(flash_factory_icon_path):
+            flash_factory_icon_path = os.path.join(
+                current_dir,
+                "agilityitems",
+                "factory_mask.png",
+            )
+        if os.path.exists(flash_factory_icon_path):
+            flash_factory_icon.setPixmap(
+                QPixmap(flash_factory_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        flash_factory_title = QLabel("Flash Powder Factory")
+        flash_factory_title.setStyleSheet(
+            "font-weight: 700; color: palette(text);"
+        )
+        flash_factory_status = QLabel()
+        flash_factory_status.setObjectName("flashPowderFactoryStatusChip")
+        flash_factory_status.setStyleSheet(
+            f"color: {dim_text_css(flash_factory_status)}; font-size: 11px; font-weight: 700;"
+        )
+        flash_factory_top_layout.addWidget(flash_factory_icon)
+        flash_factory_top_layout.addWidget(flash_factory_title)
+        flash_factory_top_layout.addStretch(1)
+        flash_factory_top_layout.addWidget(flash_factory_status)
+        flash_factory_layout.addWidget(flash_factory_top)
+
+        flash_factory_summary = QLabel()
+        flash_factory_summary.setObjectName("flashPowderFactorySummary")
+        flash_factory_summary.setWordWrap(True)
+        flash_factory_summary.setStyleSheet("color: palette(text);")
+        flash_factory_layout.addWidget(flash_factory_summary)
+
+        flash_factory_policy_row = QWidget()
+        flash_factory_policy_layout = QHBoxLayout(flash_factory_policy_row)
+        flash_factory_policy_layout.setContentsMargins(0, 0, 0, 0)
+        flash_factory_policy_layout.setSpacing(6)
+        flash_factory_mode = QComboBox()
+        flash_factory_mode.setObjectName("flashPowderFactoryModeCombo")
+        flash_factory_mode.setAccessibleName("Factory automation mode")
+        flash_factory_mode.addItem("Casual", "casual")
+        flash_factory_mode.addItem("Advanced", "advanced")
+        flash_factory_strategy = QComboBox()
+        flash_factory_strategy.setObjectName("flashPowderFactoryStrategyCombo")
+        flash_factory_strategy.setAccessibleName("Factory route strategy")
+        for strategy_id, label in FLASH_POWDER_FACTORY_STRATEGIES.items():
+            flash_factory_strategy.addItem(label, strategy_id)
+        flash_factory_apparatus = QComboBox()
+        flash_factory_apparatus.setObjectName("flashPowderFactoryApparatusCombo")
+        flash_factory_apparatus.setAccessibleName("Factory apparatus contests")
+        for policy_id, label in FLASH_POWDER_FACTORY_APPARATUS_POLICIES.items():
+            flash_factory_apparatus.addItem(label, policy_id)
+        flash_factory_policy_layout.addWidget(flash_factory_mode, 1)
+        flash_factory_policy_layout.addWidget(flash_factory_strategy, 2)
+        flash_factory_policy_layout.addWidget(flash_factory_apparatus, 2)
+        flash_factory_layout.addWidget(flash_factory_policy_row)
+
+        flash_factory_actions = QWidget()
+        flash_factory_actions_layout = QHBoxLayout(flash_factory_actions)
+        flash_factory_actions_layout.setContentsMargins(0, 0, 0, 0)
+        flash_factory_actions_layout.setSpacing(6)
+        flash_factory_primary = QPushButton()
+        flash_factory_primary.setObjectName("flashPowderFactoryPrimaryButton")
+        flash_factory_leave = QPushButton("Leave & cash out")
+        flash_factory_leave.setObjectName("flashPowderFactoryLeaveButton")
+        flash_factory_actions_layout.addWidget(flash_factory_primary, 1)
+        flash_factory_actions_layout.addWidget(flash_factory_leave, 1)
+        flash_factory_layout.addWidget(flash_factory_actions)
+
+        flash_factory_rewards = QtFrame()
+        flash_factory_rewards.setObjectName("flashPowderFactoryRewards")
+        flash_factory_rewards.setStyleSheet(
+            "QFrame#flashPowderFactoryRewards { border: 1px solid palette(mid);"
+            " border-radius: 6px; }"
+        )
+        flash_factory_rewards_layout = QGridLayout(flash_factory_rewards)
+        flash_factory_rewards_layout.setContentsMargins(8, 6, 8, 6)
+        flash_factory_rewards_layout.setSpacing(6)
+        flash_factory_points = QLabel()
+        flash_factory_points.setObjectName("flashPowderFactoryPoints")
+        flash_factory_points.setStyleSheet(
+            "color: palette(text); font-weight: 700;"
+        )
+        flash_factory_rewards_layout.addWidget(flash_factory_points, 0, 0, 1, 4)
+        flash_factory_xp_skill = QComboBox()
+        flash_factory_xp_skill.setObjectName("flashPowderFactoryXpSkillCombo")
+        flash_factory_xp_skill.addItem("Agility XP", "agility")
+        flash_factory_xp_skill.addItem("Thieving XP", "thieving")
+        flash_factory_xp_lot = QComboBox()
+        flash_factory_xp_lot.setObjectName("flashPowderFactoryXpLotCombo")
+        for point_lot in FLASH_POWDER_FACTORY_XP_LOTS:
+            flash_factory_xp_lot.addItem(f"{point_lot:,} points", point_lot)
+        flash_factory_xp_redeem = QPushButton("Redeem XP")
+        flash_factory_xp_redeem.setObjectName("flashPowderFactoryXpRedeemButton")
+        flash_factory_rewards_layout.addWidget(flash_factory_xp_skill, 1, 0)
+        flash_factory_rewards_layout.addWidget(flash_factory_xp_lot, 1, 1)
+        flash_factory_rewards_layout.addWidget(flash_factory_xp_redeem, 1, 2, 1, 2)
+        flash_factory_item = QComboBox()
+        flash_factory_item.setObjectName("flashPowderFactoryRewardCombo")
+        flash_factory_item.setAccessibleName("Factory item reward")
+        flash_factory_item_redeem = QPushButton("Buy reward")
+        flash_factory_item_redeem.setObjectName(
+            "flashPowderFactoryRewardButton"
+        )
+        flash_factory_rewards_layout.addWidget(flash_factory_item, 2, 0, 1, 3)
+        flash_factory_rewards_layout.addWidget(
+            flash_factory_item_redeem,
+            2,
+            3,
+        )
+        flash_factory_layout.addWidget(flash_factory_rewards)
+
+        syncing_flash_factory = {"active": False}
+
+        def _run_flash_factory_command(action_id: str, payload=None) -> dict[str, Any]:
+            if on_agility_command is None:
+                return {"ok": False, "message": "Factory actions are unavailable."}
+            result = on_agility_command(action_id, payload or {}) or {}
+            if (
+                not result.get("ok", False)
+                and not result.get("requires_follower_dismissal", False)
+            ):
+                show_error_message(
+                    "Flash Powder Factory",
+                    str(result.get("message", result.get("reason", "That action is unavailable."))),
+                )
+            _refresh_flash_factory_panel()
+            return result
+
+        def _refresh_flash_factory_panel() -> None:
+            view = flash_powder_factory_view_pure(player_data)
+            syncing_flash_factory["active"] = True
+            active = bool(view["active"])
+            locked = tuple(view["locked_reasons"])
+            flash_factory_status.setText(
+                "ACTIVE" if active else "LOCKED" if locked else "READY"
+            )
+            if active:
+                flash_factory_summary.setText(
+                    f"Circuit {int(view['slots_used'])}/{int(view['total_slots'])} · "
+                    f"{int(view['score']):,} score · {int(view['residue'])}% residue · "
+                    f"{int(view['apparatus'])}/6 apparatus · {int(view['catalyst'])} catalyst"
+                )
+            elif locked:
+                flash_factory_summary.setText(
+                    "Entry: " + ", ".join(str(reason) for reason in locked)
+                )
+            else:
+                flash_factory_summary.setText(
+                    "Eight circuits; nine with a Rogue or Factory top. Correct reviews always finish a batch."
+                )
+            flash_factory_summary.setToolTip(str(view["last_result"]))
+
+            for combo, value in (
+                (flash_factory_mode, view["automation_mode"]),
+                (flash_factory_strategy, view["strategy"]),
+                (flash_factory_apparatus, view["apparatus_policy"]),
+            ):
+                index = combo.findData(value)
+                if index >= 0:
+                    combo.setCurrentIndex(index)
+            flash_factory_apparatus.setVisible(
+                view["automation_mode"] == "advanced"
+            )
+
+            selected = (
+                active
+                and player_data.get("current_utility")
+                == FLASH_POWDER_FACTORY_ACTIVITY_ID
+            )
+            flash_factory_primary.setText(
+                "Selected for reviews"
+                if selected
+                else "Select for reviews"
+                if active
+                else "Enter factory"
+            )
+            non_follower_locks = tuple(
+                reason
+                for reason in locked
+                if reason != "dismiss your active follower"
+            )
+            flash_factory_primary.setEnabled(
+                on_agility_command is not None
+                and not selected
+                and (active or not non_follower_locks)
+            )
+            flash_factory_leave.setVisible(active)
+            flash_factory_leave.setEnabled(on_agility_command is not None)
+            flash_factory_mode.setEnabled(on_agility_command is not None)
+            flash_factory_strategy.setEnabled(on_agility_command is not None)
+            flash_factory_apparatus.setEnabled(on_agility_command is not None)
+
+            flash_factory_points.setText(
+                f"{int(view['brianpoints']):,} Brianpoints"
+            )
+            lot = int(flash_factory_xp_lot.currentData() or 0)
+            flash_factory_xp_redeem.setEnabled(
+                on_agility_command is not None
+                and int(view["brianpoints"]) >= lot
+            )
+            selected_item = str(flash_factory_item.currentData() or "")
+            flash_factory_item.clear()
+            for row in view["reward_rows"]:
+                suffix = " · owned" if row["owned"] else ""
+                flash_factory_item.addItem(
+                    f"{row['item_name']} · {int(row['cost']):,}{suffix}",
+                    row["item_name"],
+                )
+            item_index = flash_factory_item.findData(selected_item)
+            if item_index >= 0:
+                flash_factory_item.setCurrentIndex(item_index)
+            current_item = str(flash_factory_item.currentData() or "")
+            current_row = next(
+                (
+                    row
+                    for row in view["reward_rows"]
+                    if row["item_name"] == current_item
+                ),
+                None,
+            )
+            flash_factory_item_redeem.setEnabled(
+                on_agility_command is not None
+                and bool(current_row)
+                and bool(current_row["affordable"])
+                and not bool(current_row["owned"])
+            )
+            syncing_flash_factory["active"] = False
+            _fit_current_activity_detail()
+
+        def _select_or_enter_flash_factory() -> None:
+            view = flash_powder_factory_view_pure(player_data)
+            if not view["active"]:
+                result = _run_flash_factory_command(
+                    "enter_flash_powder_factory",
+                    {},
+                )
+                if not result.get("ok") and result.get("requires_follower_dismissal"):
+                    answer = QMessageBox.question(
+                        dialog,
+                        "Dismiss active follower?",
+                        "The factory does not admit followers. Dismiss the active follower and enter?",
+                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                        QMessageBox.StandardButton.No,
+                    )
+                    if answer == QMessageBox.StandardButton.Yes:
+                        result = _run_flash_factory_command(
+                            "enter_flash_powder_factory",
+                            {"confirm_dismiss_follower": True},
+                        )
+                if not result.get("ok"):
+                    return
+            if not _request_utility_selection(FLASH_POWDER_FACTORY_ACTIVITY_ID):
+                return
+            _refresh_flash_factory_panel()
+
+        def _set_flash_factory_policy() -> None:
+            if syncing_flash_factory["active"]:
+                return
+            _run_flash_factory_command(
+                "set_flash_powder_factory_policy",
+                {
+                    "automation_mode": flash_factory_mode.currentData(),
+                    "strategy": flash_factory_strategy.currentData(),
+                    "apparatus_policy": flash_factory_apparatus.currentData(),
+                },
+            )
+
+        def _confirm_flash_factory_leave() -> None:
+            answer = QMessageBox.question(
+                dialog,
+                "Leave Flash Powder Factory?",
+                "Cash out the current score now? An early-exit penalty may apply.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_flash_factory_command("leave_flash_powder_factory", {})
+
+        flash_factory_primary.clicked.connect(
+            lambda _checked=False: _select_or_enter_flash_factory()
+        )
+        flash_factory_leave.clicked.connect(
+            lambda _checked=False: _confirm_flash_factory_leave()
+        )
+        flash_factory_mode.currentIndexChanged.connect(
+            lambda _index: _set_flash_factory_policy()
+        )
+        flash_factory_strategy.currentIndexChanged.connect(
+            lambda _index: _set_flash_factory_policy()
+        )
+        flash_factory_apparatus.currentIndexChanged.connect(
+            lambda _index: _set_flash_factory_policy()
+        )
+        flash_factory_xp_lot.currentIndexChanged.connect(
+            lambda _index: _refresh_flash_factory_panel()
+        )
+        flash_factory_item.currentIndexChanged.connect(
+            lambda _index: _refresh_flash_factory_panel()
+            if not syncing_flash_factory["active"]
+            else None
+        )
+        flash_factory_xp_redeem.clicked.connect(
+            lambda _checked=False: _run_flash_factory_command(
+                "redeem_flash_powder_factory_xp",
+                {
+                    "skill_id": flash_factory_xp_skill.currentData(),
+                    "points": flash_factory_xp_lot.currentData(),
+                },
+            )
+        )
+        flash_factory_item_redeem.clicked.connect(
+            lambda _checked=False: _run_flash_factory_command(
+                "redeem_flash_powder_factory_item",
+                {"item_name": flash_factory_item.currentData()},
+            )
+        )
+        _refresh_flash_factory_panel()
+        cards_stack.addWidget(flash_factory_box)
 
         stealing_creation_box = QtFrame()
         stealing_creation_box.setObjectName("stealingCreationPanel")
@@ -9864,8 +10240,8 @@ def show_main_menu(
                 if not result.get("ok", False):
                     return
             if on_set_utility is not None:
-                on_set_utility(STEALING_CREATION_ACTIVITY_ID)
-                player_data["current_utility"] = STEALING_CREATION_ACTIVITY_ID
+                if not _request_utility_selection(STEALING_CREATION_ACTIVITY_ID):
+                    return
                 tree.clearSelection()
             _refresh_stealing_creation_panel()
 
@@ -10938,9 +11314,33 @@ def show_main_menu(
             )
             _show_activity_page(initial_activity_page)
 
-        def _set_utility_selection(activity_id: str) -> None:
+        def _set_utility_selection(activity_id: str) -> bool:
             if on_set_utility is None:
-                return
+                return False
+            if (
+                activity_id != FLASH_POWDER_FACTORY_ACTIVITY_ID
+                and flash_powder_factory_view_pure(player_data)["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave Flash Powder Factory?",
+                    "Switching activities cashes out the current factory score with the early-exit penalty.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_agility_command("leave_flash_powder_factory", {})
+                    if on_agility_command is not None
+                    else {"ok": False, "message": "Factory actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Flash Powder Factory",
+                        str((result or {}).get("message", "Could not leave the factory.")),
+                    )
+                    return False
             on_set_utility(activity_id)
             player_data["current_utility"] = activity_id
             if state["active"] in _UTILITY_SKILL_NAMES and state["active"] != surface_name:
@@ -10955,8 +11355,12 @@ def show_main_menu(
             _refresh_penguin_panel()
             _refresh_vinesweeper_panel()
             _refresh_fight_caves_panel()
+            _refresh_flash_factory_panel()
             _refresh_stealing_creation_panel()
             _show_activity_detail(activity_id)
+            return True
+
+        utility_selection_handler["call"] = _set_utility_selection
 
         def _on_utility_clicked(item: "QTreeWidgetItem", _column: int = 0):
             if item is None or item.isDisabled():
@@ -11013,6 +11417,9 @@ def show_main_menu(
             if activity_id == BARROWS_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == FLASH_POWDER_FACTORY_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
             if activity_id == STEALING_CREATION_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
@@ -11034,6 +11441,10 @@ def show_main_menu(
             VINESWEEPER_ACTIVITY_ID: ("Vinesweeper", vinesweeper_box),
             FIGHT_CAVES_ACTIVITY_ID: ("TzHaar Fight Cave", fight_caves_box),
             BARROWS_ACTIVITY_ID: ("Barrows", barrows_box),
+            FLASH_POWDER_FACTORY_ACTIVITY_ID: (
+                "Flash Powder Factory",
+                flash_factory_box,
+            ),
             STEALING_CREATION_ACTIVITY_ID: (
                 "Stealing Creation",
                 stealing_creation_box,
@@ -15239,6 +15650,29 @@ def show_main_menu(
                 open_all_action.setEnabled(on_open_item_pack is not None)
                 open_all_action.setToolTip(f"Receive {amount * per_pack:,} {content_item}.")
                 open_all_action.triggered.connect(lambda _checked=False: _do_open(open_all=True))
+            menu.addSeparator()
+
+        if item_name == "Rogue kit":
+            convert_menu = menu.addMenu("Convert Rogue kit to")
+            convert_menu.setEnabled(
+                amount > 0 and on_convert_rogue_kit is not None
+            )
+            for output_item in ROGUE_KIT_OUTPUTS:
+                convert_action = convert_menu.addAction(output_item)
+                convert_action.setObjectName(
+                    "rogueKit" + output_item.replace(" ", "") + "Action"
+                )
+
+                def _do_convert(
+                    _checked: bool = False,
+                    chosen_item: str = output_item,
+                ) -> None:
+                    if on_convert_rogue_kit is None:
+                        return
+                    if on_convert_rogue_kit(chosen_item):
+                        _refresh_equipment_views()
+
+                convert_action.triggered.connect(_do_convert)
             menu.addSeparator()
 
         urn_info = full_urn_teleport_info_pure(player_data, item_name)

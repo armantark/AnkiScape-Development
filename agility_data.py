@@ -8,8 +8,14 @@ from typing import Optional, Tuple
 
 try:
     from .firemaking_data import LIT_LIGHT_SOURCE_ITEMS
+    from .flash_powder_factory_data import (
+        FLASH_POWDER_FACTORY_ACTIVITY_ID,
+    )
 except ImportError:  # pragma: no cover
     from firemaking_data import LIT_LIGHT_SOURCE_ITEMS  # type: ignore
+    from flash_powder_factory_data import (  # type: ignore
+        FLASH_POWDER_FACTORY_ACTIVITY_ID,
+    )
 
 
 _ROOT = Path(__file__).resolve().parent
@@ -311,8 +317,14 @@ ACTIVITY_TARGETS: Tuple[AgilityTarget, ...] = (
     AgilityTarget("circus_agility", "Circus Agility Performance", "activities", 1, (), source_status="period_candidate", activity_kind="circus"),
 )
 
-AGILITY_TARGETS: Tuple[AgilityTarget, ...] = COURSE_TARGETS + ACTIVITY_TARGETS
-AGILITY_TARGETS_BY_ID = {target.id: target for target in AGILITY_TARGETS}
+AGILITY_TARGETS: Tuple[AgilityTarget, ...] = COURSE_TARGETS + tuple(
+    target
+    for target in ACTIVITY_TARGETS
+    if target.id != FLASH_POWDER_FACTORY_ACTIVITY_ID
+)
+AGILITY_TARGETS_BY_ID = {
+    target.id: target for target in COURSE_TARGETS + ACTIVITY_TARGETS
+}
 DEFAULT_AGILITY_TARGET = "burthorpe_course"
 
 
@@ -336,13 +348,6 @@ BRIMHAVEN_OBSTACLES = (
 BRIMHAVEN_XP_EXCHANGES = {1: 240.0, 10: 2480.0, 25: 6500.0, 100: 28000.0, 1000: 320000.0}
 BRIMHAVEN_ITEM_EXCHANGES = {3: "Grimy toadflax", 5: "Grimy wergali", 10: "Grimy snapdragon", 800: "Pirate's hook"}
 
-FACTORY_REWARD_COSTS = {
-    "Factory mask": 2250,
-    "Factory top": 3500,
-    "Factory trousers": 2750,
-    "Factory gloves": 1750,
-    "Factory boots": 1750,
-}
 
 GNOME_BALL_XP = (4.0, 5.0, 6.0, 7.0, 30.0)
 FPF_OBJECTIVES = ("Collect reagent A", "Collect reagent B", "Obtain catalyst", "Mix the powder", "Deposit the mixture")
@@ -473,7 +478,7 @@ AGILITY_REWARD_ITEMS = (
     "Agility arena ticket", "Pyramid top", "Agile top", "Agile legs", "Gnomeball",
     "Gorilla mask", "Factory mask", "Factory top", "Factory trousers", "Factory gloves",
     "Factory boots", "Rogue mask", "Rogue top", "Rogue trousers", "Rogue gloves",
-    "Rogue boots", "Pirate's hook", "Werewolf stick", "Generator part",
+    "Rogue boots", "Rogue kit", "Pirate's hook", "Werewolf stick", "Generator part",
     *CIRCUS_ACROBAT_REWARDS,
 )
 
@@ -494,6 +499,7 @@ AGILITY_ITEM_FILENAMES = {
     "Rogue trousers": "rogue_trousers.png",
     "Rogue gloves": "rogue_gloves.png",
     "Rogue boots": "rogue_boots.png",
+    "Rogue kit": "rogue_kit.png",
     "Pirate's hook": "pirates_hook.png",
     "Werewolf stick": "werewolf_stick.png",
     "Generator part": "generator_part.png",
@@ -560,7 +566,7 @@ AGILITY_EXTRA_ITEM_DATA = {
             else "material"
         ),
         "source": "Agility",
-        "stackable": item_name == "Agility arena ticket",
+        "stackable": item_name in {"Agility arena ticket", "Rogue kit"},
         "tradeable": (
             item_name in {"Pyramid top", "Gnomeball", "Toy mouse", "Mith grapple"}
             or item_name in _AGILITY_CONSUMABLE_IDS

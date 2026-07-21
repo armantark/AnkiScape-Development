@@ -323,6 +323,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-07-25T18:09:41Z"
   },
+  "activityicons/flash_powder_factory.png": {
+    "file_page_url": "https://runescape.wiki/w/File:Factory_mask.png",
+    "file_title": "Factory mask.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502033315%21Factory_mask.png?5242d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "947b997dd3f697e75dbec14dbc5ad71bb927694d",
+    "size": 1588,
+    "source_wiki": "rs3-period",
+    "timestamp": "2011-12-14T15:35:47Z"
+  },
   "activityicons/gather_flax.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Flax.png",
     "file_title": "Flax.png",
@@ -1042,6 +1054,18 @@
     "size": 348,
     "source_wiki": "rs3-period",
     "timestamp": "2010-03-07T22:06:23Z"
+  },
+  "agilityitems/rogue_kit.png": {
+    "file_page_url": "https://runescape.wiki/w/File:Rogue_kit.png",
+    "file_title": "Rogue kit.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502173653%21Rogue_kit.png?3b6e7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "febb3f20f3f688461f1c4e59db023e5645e8c3a5",
+    "size": 736,
+    "source_wiki": "rs3-period",
+    "timestamp": "2010-10-30T23:31:20Z"
   },
   "agilityitems/rogue_mask.png": {
     "file_page_url": "https://runescape.wiki/w/File:Rogue_mask.png",

@@ -218,6 +218,34 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "flash_powder_factory":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "flash_powder_factory",
+                    "mode": "activity_group",
+                    "source_status": "sourced",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One review resolves one complete reagent, catalyst, route, "
+                        "and mixer production circuit inside the finite factory session."
+                    ),
+                    "includes": (
+                        "one production circuit",
+                        "one bounded obstacle and public-floor boundary",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains "
+                        "one consequential factory circuit"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same single-circuit activity handler",
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "penguin_hide_and_seek":
             rows.append(
                 {
