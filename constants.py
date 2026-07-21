@@ -148,6 +148,11 @@ try:
         pyramid_plunder_activity_as_dict,
         pyramid_plunder_extra_items_as_dict,
     )
+    from .werewolf_skullball_data import (
+        WEREWOLF_SKULLBALL_ACTIVITY_ID,
+        werewolf_skullball_activity_as_dict,
+        werewolf_skullball_extra_items_as_dict,
+    )
     from .barrows_data import (
         BARROWS_ACTIVITY_ID,
         barrows_activity_as_dict,
@@ -314,6 +319,11 @@ except ImportError:
         PYRAMID_PLUNDER_ACTIVITY_ID,
         pyramid_plunder_activity_as_dict,
         pyramid_plunder_extra_items_as_dict,
+    )
+    from werewolf_skullball_data import (  # type: ignore
+        WEREWOLF_SKULLBALL_ACTIVITY_ID,
+        werewolf_skullball_activity_as_dict,
+        werewolf_skullball_extra_items_as_dict,
     )
     from barrows_data import (  # type: ignore
         BARROWS_ACTIVITY_ID,
@@ -690,6 +700,7 @@ UTILITY_ACTIVITY_DATA.update(stealing_creation_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(barrows_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(flash_powder_factory_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(pyramid_plunder_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(werewolf_skullball_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(sorceress_garden_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(penguin_hide_and_seek_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(vinesweeper_activity_as_dict())
@@ -770,6 +781,14 @@ _pyramid_plunder_icon = os.path.join(
 if os.path.exists(_pyramid_plunder_icon):
     UTILITY_ACTIVITY_DATA[PYRAMID_PLUNDER_ACTIVITY_ID]["icon_path"] = (
         _pyramid_plunder_icon
+    )
+_werewolf_skullball_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "werewolf_skullball.png",
+)
+if os.path.exists(_werewolf_skullball_icon):
+    UTILITY_ACTIVITY_DATA[WEREWOLF_SKULLBALL_ACTIVITY_ID]["icon_path"] = (
+        _werewolf_skullball_icon
     )
 _sorceress_garden_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
@@ -1417,6 +1436,7 @@ STEALING_CREATION_EXTRA_ITEM_DATA = stealing_creation_extra_items_as_dict()
 BARROWS_EXTRA_ITEM_DATA = barrows_extra_items_as_dict()
 FLASH_POWDER_FACTORY_EXTRA_ITEM_DATA = flash_powder_factory_extra_items_as_dict()
 PYRAMID_PLUNDER_EXTRA_ITEM_DATA = pyramid_plunder_extra_items_as_dict()
+WEREWOLF_SKULLBALL_EXTRA_ITEM_DATA = werewolf_skullball_extra_items_as_dict()
 VINESWEEPER_ITEM_IMAGES = {}
 for _item_name in VINESWEEPER_EXTRA_ITEM_DATA:
     _path = os.path.join(
@@ -1468,6 +1488,15 @@ for _item_name in PYRAMID_PLUNDER_EXTRA_ITEM_DATA:
     )
     if os.path.exists(_path):
         PYRAMID_PLUNDER_ITEM_IMAGES[_item_name] = _path
+WEREWOLF_SKULLBALL_ITEM_IMAGES = {}
+for _item_name in WEREWOLF_SKULLBALL_EXTRA_ITEM_DATA:
+    _path = os.path.join(
+        current_dir,
+        "activityitems",
+        f"{_asset_slug(_item_name)}.png",
+    )
+    if os.path.exists(_path):
+        WEREWOLF_SKULLBALL_ITEM_IMAGES[_item_name] = _path
 for _item_name, _file_name in {
     **{
         f"Combat hood {_percent}": "combat_hood.png"
@@ -1786,6 +1815,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **BARROWS_EXTRA_ITEM_DATA,
     **FLASH_POWDER_FACTORY_EXTRA_ITEM_DATA,
     **PYRAMID_PLUNDER_EXTRA_ITEM_DATA,
+    **WEREWOLF_SKULLBALL_EXTRA_ITEM_DATA,
     **potion_items_as_dict(),
     **SHOP_ONLY_EXTRA_ITEM_DATA,
 })
@@ -1815,6 +1845,7 @@ EXTRA_ITEM_IMAGES = {
     **STEALING_CREATION_ITEM_IMAGES,
     **BARROWS_ITEM_IMAGES,
     **PYRAMID_PLUNDER_ITEM_IMAGES,
+    **WEREWOLF_SKULLBALL_ITEM_IMAGES,
     **SHOP_ITEM_IMAGES,
 }
 

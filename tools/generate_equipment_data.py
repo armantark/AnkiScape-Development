@@ -119,6 +119,7 @@ NORMALIZED_MINING_BONUS_SLOTS: Mapping[str, SlotId] = {
     "chest": "body",
 }
 EQUIPMENT_ITEM_NAME_OVERRIDES: Mapping[int, str] = {
+    4202: "Ring of Charos",
     4600: "Willow blackjack",
     5013: "Mining helmet (lit)",
     5014: "Mining helmet (unlit)",
@@ -213,11 +214,14 @@ QUEST_EQUIPMENT_ITEMS: Tuple[Tuple[int, str], ...] = (
     (589, "Gnome amulet"),
     (616, "Beads of the dead"),
     (1540, "Anti-dragon shield"),
+    (4202, "Ring of Charos"),
     (4677, "Catspeak amulet"),
+    (6465, "Ring of charos (a)"),
     (10282, "Yew comp bow"),
     (10284, "Magic comp bow"),
     (11235, "Dark bow"),
     (13277, "Masked earmuffs"),
+    (15016, "Ring of charos (a)(i)"),
 )
 WARRIORS_GUILD_DEFENDERS: Tuple[Tuple[str, int, int], ...] = (
     ("Bronze defender", 8844, 1),

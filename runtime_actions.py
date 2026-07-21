@@ -207,6 +207,11 @@ try:
         apply_pyramid_plunder_review_pure,
         pyramid_plunder_view_pure,
     )
+    from .werewolf_skullball_data import WEREWOLF_SKULLBALL_ACTIVITY_ID
+    from .werewolf_skullball_logic import (
+        apply_werewolf_skullball_review_pure,
+        werewolf_skullball_view_pure,
+    )
     from .agility_travel import (
         agility_travel_profile_pure,
         apply_run_energy_credit_pure,
@@ -482,6 +487,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from pyramid_plunder_logic import (  # type: ignore
         apply_pyramid_plunder_review_pure,
         pyramid_plunder_view_pure,
+    )
+    from werewolf_skullball_data import WEREWOLF_SKULLBALL_ACTIVITY_ID  # type: ignore
+    from werewolf_skullball_logic import (  # type: ignore
+        apply_werewolf_skullball_review_pure,
+        werewolf_skullball_view_pure,
     )
     from agility_travel import (  # type: ignore
         agility_travel_profile_pure,
@@ -2965,6 +2975,39 @@ def _handle_pyramid_plunder_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _handle_werewolf_skullball_answer(ctx: RuntimeActionContext) -> bool:
+    updated, result = apply_werewolf_skullball_review_pure(ctx.player_data)
+    if not result.get("allowed"):
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Werewolf Skullball unavailable",
+            str(result.get("reason", "Enter Werewolf Skullball before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    xp = float(result.get("xp", 0.0) or 0.0)
+    gained = ctx.award_skill_exp("agility_exp", xp) if xp > 0 else 0.0
+    if xp > 0:
+        ctx.level_up_check("Agility", ctx.player_data)
+    _record_action(
+        ctx,
+        "utility",
+        WEREWOLF_SKULLBALL_ACTIVITY_ID,
+        True,
+        expected_success_chance=1.0,
+        primary_xp=xp,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if gained > 0:
+        ctx.show_exp(gained)
+    ctx.show_activity_gain(str(result.get("status", "Werewolf Skullball run complete")))
+    ctx.deactivate_current_skill()
+    return True
+
+
 def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
@@ -2992,6 +3035,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return handle_flash_powder_factory_answer(ctx)
     if activity_key == PYRAMID_PLUNDER_ACTIVITY_ID:
         return _handle_pyramid_plunder_answer(ctx)
+    if activity_key == WEREWOLF_SKULLBALL_ACTIVITY_ID:
+        return _handle_werewolf_skullball_answer(ctx)
     if activity_key == STRONGHOLD_UTILITY_KEY:
         return _handle_stronghold_answer(ctx)
     if activity_key == KNIGHT_WAVES_UTILITY_KEY:
@@ -5299,6 +5344,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         )
     if activity_key == PYRAMID_PLUNDER_ACTIVITY_ID:
         return bool(pyramid_plunder_view_pure(ctx.player_data).get("can_review", False))
+    if activity_key == WEREWOLF_SKULLBALL_ACTIVITY_ID:
+        return bool(werewolf_skullball_view_pure(ctx.player_data).get("can_review", False))
     return not utility_activity_locked_reasons_pure(
         ctx.player_data,
         activity_key,

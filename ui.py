@@ -397,6 +397,19 @@ except Exception:
     from pyramid_plunder_logic import pyramid_plunder_view_pure  # type: ignore
 
 try:
+    from .werewolf_skullball_data import (
+        WEREWOLF_SKULLBALL_ACTIVITY_ID,
+        WEREWOLF_SKULLBALL_ROUTE_PRESETS,
+    )
+    from .werewolf_skullball_logic import werewolf_skullball_view_pure
+except Exception:
+    from werewolf_skullball_data import (  # type: ignore
+        WEREWOLF_SKULLBALL_ACTIVITY_ID,
+        WEREWOLF_SKULLBALL_ROUTE_PRESETS,
+    )
+    from werewolf_skullball_logic import werewolf_skullball_view_pure  # type: ignore
+
+try:
     from .stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
     from .stealing_creation_logic import stealing_creation_view_pure
 except Exception:
@@ -10090,6 +10103,234 @@ def show_main_menu(
         _refresh_pyramid_plunder_panel()
         cards_stack.addWidget(pyramid_plunder_box)
 
+        skullball_box = QtFrame()
+        skullball_box.setObjectName("werewolfSkullballPanel")
+        skullball_box.setStyleSheet(
+            "QFrame#werewolfSkullballPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        skullball_layout = QVBoxLayout(skullball_box)
+        skullball_layout.setContentsMargins(10, 8, 10, 8)
+        skullball_layout.setSpacing(6)
+
+        skullball_top = QWidget()
+        skullball_top_layout = QHBoxLayout(skullball_top)
+        skullball_top_layout.setContentsMargins(0, 0, 0, 0)
+        skullball_top_layout.setSpacing(8)
+        skullball_icon = QLabel()
+        skullball_icon.setObjectName("werewolfSkullballIcon")
+        skullball_icon.setFixedSize(28, 28)
+        skullball_icon_path = os.path.join(
+            current_dir, "activityicons", "werewolf_skullball.png"
+        )
+        if os.path.exists(skullball_icon_path):
+            skullball_icon.setPixmap(
+                QPixmap(skullball_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        skullball_title = QLabel("Werewolf Skullball")
+        skullball_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        skullball_status = QLabel()
+        skullball_status.setObjectName("werewolfSkullballStatusChip")
+        skullball_top_layout.addWidget(skullball_icon)
+        skullball_top_layout.addWidget(skullball_title)
+        skullball_top_layout.addStretch(1)
+        skullball_top_layout.addWidget(skullball_status)
+        skullball_layout.addWidget(skullball_top)
+
+        skullball_summary = QLabel()
+        skullball_summary.setObjectName("werewolfSkullballSummary")
+        skullball_summary.setWordWrap(True)
+        skullball_summary.setStyleSheet("color: palette(text);")
+        skullball_layout.addWidget(skullball_summary)
+
+        skullball_policy_row = QWidget()
+        skullball_policy_layout = QHBoxLayout(skullball_policy_row)
+        skullball_policy_layout.setContentsMargins(0, 0, 0, 0)
+        skullball_policy_layout.setSpacing(6)
+        skullball_mode = QComboBox()
+        skullball_mode.setObjectName("werewolfSkullballModeCombo")
+        skullball_mode.setAccessibleName("Werewolf Skullball route mode")
+        skullball_mode.addItem("Casual", "casual")
+        skullball_mode.addItem("Advanced", "advanced")
+        skullball_route = QComboBox()
+        skullball_route.setObjectName("werewolfSkullballRouteCombo")
+        skullball_route.setAccessibleName("Werewolf Skullball route")
+        for route_id, route_spec in WEREWOLF_SKULLBALL_ROUTE_PRESETS.items():
+            move_count = len(str(route_spec["plan"]).split())
+            skullball_route.addItem(
+                f"{route_spec['label']} · {move_count} moves",
+                route_id,
+            )
+            skullball_route.setItemData(
+                skullball_route.count() - 1,
+                f"{route_spec['character'].capitalize()}; {route_spec['notable']}. "
+                "Awards 750 Agility XP.",
+                Qt.ItemDataRole.ToolTipRole,
+            )
+        skullball_policy_layout.addWidget(skullball_mode, 1)
+        skullball_policy_layout.addWidget(skullball_route, 1)
+        skullball_layout.addWidget(skullball_policy_row)
+
+        skullball_plan = QLineEdit()
+        skullball_plan.setObjectName("werewolfSkullballPlanEdit")
+        skullball_plan.setAccessibleName("Custom Werewolf Skullball move plan")
+        skullball_plan.setPlaceholderText("Advanced plan: T K S … (10–80 moves)")
+        skullball_plan.setToolTip(
+            "T = Tap, K = Kick, S = Shoot. Use 10–80 moves; every move past "
+            "30 reduces the 750 Agility XP award by 8."
+        )
+        skullball_layout.addWidget(skullball_plan)
+
+        skullball_actions = QWidget()
+        skullball_actions_layout = QHBoxLayout(skullball_actions)
+        skullball_actions_layout.setContentsMargins(0, 0, 0, 0)
+        skullball_actions_layout.setSpacing(6)
+        skullball_primary = QPushButton()
+        skullball_primary.setObjectName("werewolfSkullballPrimaryButton")
+        skullball_leave = QPushButton("Leave run")
+        skullball_leave.setObjectName("werewolfSkullballLeaveButton")
+        skullball_actions_layout.addWidget(skullball_primary, 1)
+        skullball_actions_layout.addWidget(skullball_leave)
+        skullball_layout.addWidget(skullball_actions)
+
+        syncing_skullball = {"active": False}
+
+        def _run_skullball_command(action_id: str, payload=None) -> dict[str, Any]:
+            if on_agility_command is None:
+                return {"ok": False, "message": "Skullball actions are unavailable."}
+            result = on_agility_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Werewolf Skullball",
+                    str(result.get("message", result.get("reason", "That action is unavailable."))),
+                )
+            if result.get("ok", False):
+                _refresh_skullball_panel()
+            return result
+
+        def _refresh_skullball_panel() -> None:
+            view = werewolf_skullball_view_pure(player_data)
+            syncing_skullball["active"] = True
+            active = bool(view["active"])
+            locked = tuple(view["locked_reasons"])
+            skullball_status.setText("ACTIVE" if active else "LOCKED" if locked else "READY")
+            status_base = skullball_status.palette().color(QPalette.ColorRole.Base)
+            active_color = "#3f6e1e" if status_base.lightness() > 128 else "#85c54b"
+            skullball_status.setStyleSheet(
+                f"color: {active_color if active else dim_text_css(skullball_status) if locked else 'palette(text)'};"
+                " font-size: 11px; font-weight: 700;"
+            )
+            last_result = str(view.get("last_result", "") or "").strip()
+            if active:
+                skullball_summary.setText(
+                    f"{view['route_label']} route · {int(view['active_move_count'])} moves\n"
+                    f"One successful review completes all 10 goals · {int(view['projected_xp'])} Agility XP."
+                )
+            elif locked:
+                skullball_summary.setText(
+                    "One review · 10 goals · up to 750 Agility XP\nEntry: "
+                    + ", ".join(str(reason) for reason in locked)
+                    + (f"\n{last_result}" if last_result else "")
+                )
+            else:
+                award = int(view["projected_xp"])
+                skullball_summary.setText(
+                    f"One review · 10 goals · {int(view['active_move_count'])} moves · "
+                    f"{award} Agility XP · "
+                    f"{int(view['runs_completed'])} completed runs"
+                    + (f"\n{last_result}" if last_result else "")
+                )
+            skullball_summary.setToolTip(last_result)
+            mode_index = skullball_mode.findData(view["automation_mode"])
+            if mode_index >= 0:
+                skullball_mode.setCurrentIndex(mode_index)
+            route_index = skullball_route.findData(view["route"])
+            if route_index >= 0:
+                skullball_route.setCurrentIndex(route_index)
+            skullball_plan.setText(str(view["advanced_plan"]))
+            advanced = skullball_mode.currentData() == "advanced"
+            skullball_plan.setVisible(advanced)
+            skullball_route.setEnabled(not advanced and not active and on_agility_command is not None)
+            skullball_mode.setEnabled(not active and on_agility_command is not None)
+            skullball_plan.setEnabled(not active and on_agility_command is not None)
+            selected = active and player_data.get("current_utility") == WEREWOLF_SKULLBALL_ACTIVITY_ID
+            skullball_primary.setText(
+                "Selected for reviews" if selected else "Select for reviews" if active else "Enter course"
+            )
+            skullball_primary.setEnabled(
+                on_agility_command is not None and not selected and (active or not locked)
+            )
+            skullball_leave.setVisible(active)
+            skullball_leave.setEnabled(on_agility_command is not None)
+            syncing_skullball["active"] = False
+            _fit_current_activity_detail()
+
+        def _update_skullball_policy_visibility() -> None:
+            if syncing_skullball["active"]:
+                return
+            advanced = skullball_mode.currentData() == "advanced"
+            skullball_plan.setVisible(advanced)
+            skullball_route.setEnabled(
+                not advanced and on_agility_command is not None
+            )
+            _fit_current_activity_detail()
+
+        def _set_skullball_policy() -> dict[str, Any]:
+            if syncing_skullball["active"]:
+                return {"ok": False}
+            return _run_skullball_command(
+                "set_werewolf_skullball_policy",
+                {
+                    "automation_mode": skullball_mode.currentData(),
+                    "route": skullball_route.currentData(),
+                    "advanced_plan": skullball_plan.text(),
+                },
+            )
+
+        def _select_or_enter_skullball() -> None:
+            view = werewolf_skullball_view_pure(player_data)
+            if not view["active"]:
+                policy = _set_skullball_policy()
+                if not policy.get("ok", False):
+                    return
+                result = _run_skullball_command("enter_werewolf_skullball", {})
+                if not result.get("ok", False):
+                    _refresh_skullball_panel()
+                    return
+            elif not _request_utility_selection(WEREWOLF_SKULLBALL_ACTIVITY_ID):
+                return
+            _refresh_skullball_panel()
+
+        def _confirm_skullball_leave() -> None:
+            answer = QMessageBox.question(
+                dialog,
+                "Leave Werewolf Skullball?",
+                "Leave the course before completing this run?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_skullball_command("leave_werewolf_skullball", {})
+
+        def _on_skullball_mode_changed(_index: int) -> None:
+            _update_skullball_policy_visibility()
+            _set_skullball_policy()
+
+        skullball_mode.currentIndexChanged.connect(_on_skullball_mode_changed)
+        skullball_route.currentIndexChanged.connect(
+            lambda _index: _set_skullball_policy()
+        )
+        skullball_plan.editingFinished.connect(_set_skullball_policy)
+        skullball_primary.clicked.connect(lambda _checked=False: _select_or_enter_skullball())
+        skullball_leave.clicked.connect(lambda _checked=False: _confirm_skullball_leave())
+        _refresh_skullball_panel()
+        cards_stack.addWidget(skullball_box)
+
         stealing_creation_box = QtFrame()
         stealing_creation_box.setObjectName("stealingCreationPanel")
         stealing_creation_box.setStyleSheet(
@@ -11267,7 +11508,10 @@ def show_main_menu(
                     icon = _pixel_path_icon(row.icon_path, 28)
                     if icon is not None:
                         child.setIcon(0, icon)
-                if not row.enabled:
+                if (
+                    not row.enabled
+                    and row.target_id != WEREWOLF_SKULLBALL_ACTIVITY_ID
+                ):
                     child.setDisabled(True)
                 child.setToolTip(0, row.tooltip)
                 parent.addChild(child)
@@ -11607,6 +11851,30 @@ def show_main_menu(
                         str((result or {}).get("message", "Could not leave the pyramid.")),
                     )
                     return False
+            if (
+                activity_id != WEREWOLF_SKULLBALL_ACTIVITY_ID
+                and werewolf_skullball_view_pure(player_data)["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave Werewolf Skullball?",
+                    "Switching activities leaves the current Skullball run.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_agility_command("leave_werewolf_skullball", {})
+                    if on_agility_command is not None
+                    else {"ok": False, "message": "Skullball actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Werewolf Skullball",
+                        str((result or {}).get("message", "Could not leave the course.")),
+                    )
+                    return False
             on_set_utility(activity_id)
             player_data["current_utility"] = activity_id
             if state["active"] in _UTILITY_SKILL_NAMES and state["active"] != surface_name:
@@ -11623,6 +11891,7 @@ def show_main_menu(
             _refresh_fight_caves_panel()
             _refresh_flash_factory_panel()
             _refresh_pyramid_plunder_panel()
+            _refresh_skullball_panel()
             _refresh_stealing_creation_panel()
             _show_activity_detail(activity_id)
             return True
@@ -11690,6 +11959,9 @@ def show_main_menu(
             if activity_id == PYRAMID_PLUNDER_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == WEREWOLF_SKULLBALL_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
             if activity_id == STEALING_CREATION_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
@@ -11718,6 +11990,10 @@ def show_main_menu(
             PYRAMID_PLUNDER_ACTIVITY_ID: (
                 "Pyramid Plunder",
                 pyramid_plunder_box,
+            ),
+            WEREWOLF_SKULLBALL_ACTIVITY_ID: (
+                "Werewolf Skullball",
+                skullball_box,
             ),
             STEALING_CREATION_ACTIVITY_ID: (
                 "Stealing Creation",

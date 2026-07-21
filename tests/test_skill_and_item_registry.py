@@ -502,6 +502,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "fight_caves",
                 "flash_powder_factory",
                 "pyramid_plunder",
+                "werewolf_skullball",
                 "stealing_creation",
                 "barrows",
             },

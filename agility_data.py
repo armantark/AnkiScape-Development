@@ -320,7 +320,7 @@ ACTIVITY_TARGETS: Tuple[AgilityTarget, ...] = (
 AGILITY_TARGETS: Tuple[AgilityTarget, ...] = COURSE_TARGETS + tuple(
     target
     for target in ACTIVITY_TARGETS
-    if target.id != FLASH_POWDER_FACTORY_ACTIVITY_ID
+    if target.id not in {FLASH_POWDER_FACTORY_ACTIVITY_ID, "werewolf_skullball"}
 )
 AGILITY_TARGETS_BY_ID = {
     target.id: target for target in COURSE_TARGETS + ACTIVITY_TARGETS

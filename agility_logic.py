@@ -49,6 +49,19 @@ except ImportError:  # pragma: no cover - flat test imports
     )
 
 try:
+    from .werewolf_skullball_logic import (
+        enter_werewolf_skullball_pure,
+        leave_werewolf_skullball_pure,
+        set_werewolf_skullball_policy_pure,
+    )
+except ImportError:  # pragma: no cover - flat test imports
+    from werewolf_skullball_logic import (  # type: ignore
+        enter_werewolf_skullball_pure,
+        leave_werewolf_skullball_pure,
+        set_werewolf_skullball_policy_pure,
+    )
+
+try:
     from .agility_travel import agility_carried_weight_pure
 except ImportError:  # pragma: no cover - flat test imports
     from agility_travel import agility_carried_weight_pure  # type: ignore
@@ -620,26 +633,6 @@ def _activity_session(data: dict[str, Any], activity_id: str) -> dict[str, Any]:
     return session
 
 
-def _skullball_review(data: dict[str, Any], roll: float) -> dict[str, Any]:
-    session = _activity_session(data, "skullball")
-    goals = _int(session.get("goals"), maximum=10)
-    attempts = _int(session.get("attempts"), maximum=30) + 1
-    success = roll >= .20
-    if success:
-        goals += 1
-    done = goals >= 10 or attempts >= 30
-    xp = 0.0
-    if done:
-        performance = max(.50, 1.0 - .025 * max(0, attempts - 10))
-        xp = 750.0 * (goals / 10) * performance
-        session.clear()
-    else:
-        session.update({"goals": goals, "attempts": attempts})
-    status = f"Skullball · {'goal' if success else 'miss'} · {goals}/10 goals · {attempts}/30 attempts"
-    data["agility_status"] = status
-    return {"target_id": "werewolf_skullball", "action_id": f"goal_{goals + (0 if success else 1)}", "success": success, "expected_success_chance": .80, "xp": xp, "damage": 0, "outputs": {}, "cross_skill_rewards": [], "completed_activity": done, "failure_kind": None if success else "retry", "status": status}
-
-
 def _gnome_ball_review(data: dict[str, Any], roll: float) -> dict[str, Any]:
     session = _activity_session(data, "gnome_ball")
     goal = _int(session.get("goal"), maximum=4)
@@ -835,7 +828,11 @@ def apply_agility_review_pure(player_data: Mapping[str, Any], rolls: tuple[float
             "modifier_eligible": False,
         }
     elif target.activity_kind == "skullball":
-        result = _skullball_review(data, normalized[0])
+        return data, {
+            "allowed": False,
+            "target_id": target_id,
+            "message": "Werewolf Skullball has moved to Activities.",
+        }
     elif target.activity_kind == "gnome_ball":
         result = _gnome_ball_review(data, normalized[0])
     elif target.activity_kind == "flash_powder_factory":
@@ -949,6 +946,18 @@ def apply_agility_command_pure(
     """Apply one explicit non-review Agility operation."""
 
     body = dict(payload or {})
+    if action_id == "enter_werewolf_skullball":
+        updated, ok, info = enter_werewolf_skullball_pure(player_data)
+        return updated, {"allowed": ok, **info}
+    if action_id == "set_werewolf_skullball_policy":
+        updated, ok, info = set_werewolf_skullball_policy_pure(
+            player_data,
+            body,
+        )
+        return updated, {"allowed": ok, **info}
+    if action_id == "leave_werewolf_skullball":
+        updated, ok, info = leave_werewolf_skullball_pure(player_data)
+        return updated, {"allowed": ok, **info}
     if action_id == "enter_pyramid_plunder":
         updated, ok, info = enter_pyramid_plunder_pure(player_data)
         return updated, {"allowed": ok, **info}

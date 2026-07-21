@@ -2898,6 +2898,7 @@ def on_good_answer(before_state=None):
                             PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID,
                             runtime_actions.FLASH_POWDER_FACTORY_ACTIVITY_ID,
                             runtime_actions.PYRAMID_PLUNDER_ACTIVITY_ID,
+                            runtime_actions.WEREWOLF_SKULLBALL_ACTIVITY_ID,
                         }
                     )
                     or (handler_key == "quest" and _cadence_kernel_enabled())

@@ -3631,3 +3631,28 @@ Test counts are snapshots; current runs outrank this note.
   explicitly deferred data depth under the breadth-first program.
 - Durable record:
   `source-audits/penguin-hide-and-seek-loop-2026-07-17.md`.
+
+## Werewolf Skullball horizontal MVP — 2026-07-21
+
+- Implemented the complete Activities-only Skullball loop: authentic entry
+  gates, equipped Ring-of-Charos variants, source-route presets, Advanced
+  T/K/S plans, one-review completion, XP, persistence, migration, activity
+  arbitration, direct leave, cadence, telemetry, achievements, and exact undo.
+- Removed the former partial Agility-course stub while preserving legacy save
+  migration and historical completion counts.
+- Added exact equipment metadata, normalized period art and provenance, a
+  compact Activities card, registry/reachability coverage, and meaningful
+  pure, runtime, integration, migration, asset, and real-Qt regressions.
+- Opus supplied the independent taste pass because Fable is intentionally held
+  in reserve. Confirmed contrast, sticky-input, auto-commit, enablement,
+  result-legibility, and route-character issues were corrected before closure.
+- Final verification passes all 2,131 non-Qt tests with 279 expected skips and
+  all 2,131 real offscreen Qt tests with one intentional skip. A clean native
+  Anki restart confirms one add-on menu and a selectable locked Skullball row.
+  Documentation, test-quality, syntax, JSON, diff, asset-normalization, and
+  worktree audits pass; reachability is unchanged and no design gap emerged.
+- Durable record:
+  `source-audits/werewolf-skullball-loop-2026-07-17.md`.
+- Published
+  `status-updates/werewolf-skullball-horizontal-results-2026-07-21.html`;
+  mobile copy: `https://tbpw3iuzbn4k.postplan.dev`.

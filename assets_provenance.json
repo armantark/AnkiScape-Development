@@ -515,6 +515,18 @@
     "source_wiki": "osrs",
     "timestamp": "2024-08-27T11:52:29Z"
   },
+  "activityicons/werewolf_skullball.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Werewolf_Skullball_icon.png",
+    "file_title": "Werewolf Skullball icon.png",
+    "image_url": "https://runescape.wiki/images/archive/20170716133227%21Werewolf_Skullball_icon.png?c3977",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "748357833d0fc0c1ea718a714973e5ded1519e6b",
+    "size": 1533,
+    "source_wiki": "rs3",
+    "timestamp": "2010-02-16T14:19:09Z"
+  },
   "activityitems/autumn_sq_irk.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Autumn_sq%27irk.png",
     "file_title": "Autumn sq'irk.png",
@@ -790,6 +802,42 @@
     "size": 175,
     "source_wiki": "rs3",
     "timestamp": "2010-10-08T04:44:35Z"
+  },
+  "activityitems/ring_of_charos.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ring_of_charos.png",
+    "file_title": "Ring of charos.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502071429%21Ring_of_charos.png?cec14",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7e6fea16208c6f335b90011cda36f5c3f8641336",
+    "size": 696,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-27T18:10:40Z"
+  },
+  "activityitems/ring_of_charos_a.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ring_of_charos_%28a%29.png",
+    "file_title": "Ring of charos (a).png",
+    "image_url": "https://runescape.wiki/images/archive/20130917113813%21Ring_of_charos_%28a%29.png?496d7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3e59f459289306d5c2c7e266881623e5b60b139d",
+    "size": 827,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-02T03:11:22Z"
+  },
+  "activityitems/ring_of_charos_a_i.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ring_of_charos_%28a%29%28i%29.png",
+    "file_title": "Ring of charos (a)(i).png",
+    "image_url": "https://runescape.wiki/images/archive/20140502071503%21Ring_of_charos_%28a%29%28i%29.png?f7f55",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "cbebe6fabafa271f64c5702c060bf743f2881cd0",
+    "size": 1022,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-27T18:12:20Z"
   },
   "activityitems/sceptre_of_the_gods.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Sceptre_of_the_gods.png",

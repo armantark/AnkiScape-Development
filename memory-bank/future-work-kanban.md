@@ -1039,6 +1039,14 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   period art, Activity Circuit credit, and compact card are live. Exhaustive
   hidden-roll recovery remains data-depth work. See
   `memory-bank/source-audits/flash-powder-factory-horizontal-mvp-2026-07-21.md`.
+- Werewolf Skullball is mechanic-complete as an Activities-only atomic Agility
+  run. It ships exact entry gates, equipped Ring-of-Charos variants, three
+  source-route presets, Advanced T/K/S plans, deterministic ten-goal completion,
+  the disclosed move-count XP translation, persistence/migration, whole-answer
+  undo, cadence, equipment integration, normalized period art, and a compact
+  card. Historical route-error RNG and the exact post-four-minute server curve
+  remain data-depth source gaps. See
+  `memory-bank/source-audits/werewolf-skullball-loop-2026-07-17.md`.
 - Darkan should supply hidden state machines, rolls, currencies, and reward logic; period wiki/cache evidence still establishes cutoff and client identity.
 
 ### Missing skill server behavior
@@ -1094,7 +1102,8 @@ Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
 - Platform seed: `memory-bank/minigames-activities-design-seed.md`.
 - The horizontal breadth wave has shipped Shooting Stars, Fist of Guthix,
   Sorceress's Garden, Penguin Hide and Seek, Vinesweeper, Fight Caves,
-  Stealing Creation, Barrows, Flash Powder Factory, and Pyramid Plunder with
+  Stealing Creation, Barrows, Flash Powder Factory, Pyramid Plunder, and
+  Werewolf Skullball with
   complete mechanics, persistence, undo, UI, assets, and compact period-
   qualified data sets.
 - Flash Powder Factory and Pyramid Plunder are closed. Tears of Guthix and Shattered Heart remain explicit

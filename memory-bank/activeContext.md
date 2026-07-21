@@ -2895,3 +2895,33 @@ The visual closure report is
   mechanic or owner-design gap.
 - Durable evidence:
   `source-audits/penguin-hide-and-seek-loop-2026-07-17.md`.
+
+## Werewolf Skullball horizontal closure — 2026-07-21
+
+- Moved Werewolf Skullball out of the ordinary Agility target list and into
+  Activities as one atomic ten-goal run per successful review. Entry now
+  enforces level 25 Agility, Creature of Fenkenstrain completion, and an
+  equipped regular, activated, or imbued Ring of Charos.
+- Added three period-route presets plus Advanced T/K/S plans, deterministic
+  completion, the disclosed move-count XP translation, persistent policy and
+  completion state, activity arbitration, direct leave, cadence registration,
+  telemetry, achievements, save migration, and whole-answer undo.
+- Added exact Ring of Charos equipment identities, normalized pre-cutoff
+  activity/item art, provenance, a cutoff-safe fetcher, and a compact
+  dark/light-safe Activities card. Opus reviewed the new surface while Fable
+  remained on owner-requested reserve; every reproduced finding was fixed.
+- Focused pure/integration verification passes 339 tests and the four targeted
+  real-Qt interaction checks pass. Complete non-Qt discovery passes all 2,131
+  tests with 279 expected environment skips; complete offscreen Qt discovery
+  passes all 2,131 tests with one intentional platform skip. A fully restarted
+  native Anki process confirms one menu and a selectable Skullball row without
+  mutating the locked owner save.
+- Documentation, test-quality, syntax, JSON, diff, icon-normalization, and
+  worktree-safety audits pass. Reachability remains at the established
+  1,438-action / 2,128-item / 168-orphan / 189-blocked baseline, so Skullball
+  adds no item orphan. No owner design gap surfaced.
+- Durable evidence:
+  `source-audits/werewolf-skullball-loop-2026-07-17.md`.
+- Published
+  `status-updates/werewolf-skullball-horizontal-results-2026-07-21.html`;
+  mobile copy: `https://tbpw3iuzbn4k.postplan.dev`.

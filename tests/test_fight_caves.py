@@ -190,8 +190,8 @@ class FightCavesStateAndCommandTests(unittest.TestCase):
         self.assertNotIn("timer", sanitized)
         self.assertEqual(sanitized["roster"][0]["lifepoints"], 50)
         migrated = migrate_loaded_data({"fight_caves": raw}, {}, ())
-        self.assertEqual(CURRENT_CONFIG_VERSION, 61)
-        self.assertEqual(migrated["config_version"], 61)
+        self.assertEqual(CURRENT_CONFIG_VERSION, 62)
+        self.assertEqual(migrated["config_version"], 62)
         self.assertEqual(migrated["activity_session"], {"active_id": "fight_caves"})
 
 

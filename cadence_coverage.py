@@ -275,6 +275,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "werewolf_skullball":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "werewolf_skullball",
+                    "mode": "activity_group",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One successful review resolves one complete sourced ten-goal "
+                        "route. Custom route length translates the sourced post-four-minute "
+                        "XP decay without simulating wall-clock time."
+                    ),
+                    "includes": (
+                        "one ten-goal Tap, Kick, and Shoot route",
+                        "one terminal Agility XP award",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card completes exactly "
+                        "one run and cannot begin a second run"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same atomic ten-goal run handler",
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "penguin_hide_and_seek":
             rows.append(
                 {
