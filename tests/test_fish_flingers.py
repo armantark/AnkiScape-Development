@@ -22,7 +22,7 @@ from fish_flingers_logic import (
     sync_fish_flingers_tickets_pure,
 )
 from logic_pure import equip_item_pure
-from storage_pure import default_player_data, migrate_loaded_data
+from storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
 from tests.test_integration_smoke import _install_runtime_fakes, _load_addon_as_package
 
 
@@ -221,7 +221,7 @@ class FishFlingersStorageTests(unittest.TestCase):
             constants.ORE_DATA,
             constants.ITEM_DEFINITIONS,
         )
-        self.assertEqual(migrated["config_version"], 67)
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(migrated["fish_flingers"]["review"], 5)
         self.assertEqual(migrated["fish_flingers"]["fish_caught"], 0)
 

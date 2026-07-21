@@ -7,7 +7,7 @@ import math
 from typing import Any, Callable, Iterable, Mapping, Optional
 
 try:
-    from .constants import EXP_TABLE, TREE_DATA, WOODCUTTING_AXE_DATA
+    from .constants import EQUIPMENT_DATA, EXP_TABLE, TREE_DATA, WOODCUTTING_AXE_DATA
     from .farming_data import (
         COMPOST_BIN_CAPACITY,
         COMPOST_TIERS,
@@ -24,10 +24,10 @@ try:
         SAPLING_RECIPES,
         SUPERCOMPOST_INPUTS,
     )
-    from .logic_pure import apply_consumable_pure, best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure
+    from .logic_pure import apply_combat_burst_pure, apply_consumable_pure, best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure
     from .quest_data import QUEST_DISPLAY_NAMES
 except ImportError:  # pragma: no cover - flat imports used by tests
-    from constants import EXP_TABLE, TREE_DATA, WOODCUTTING_AXE_DATA  # type: ignore
+    from constants import EQUIPMENT_DATA, EXP_TABLE, TREE_DATA, WOODCUTTING_AXE_DATA  # type: ignore
     from farming_data import (  # type: ignore
         COMPOST_BIN_CAPACITY,
         COMPOST_TIERS,
@@ -44,7 +44,7 @@ except ImportError:  # pragma: no cover - flat imports used by tests
         SAPLING_RECIPES,
         SUPERCOMPOST_INPUTS,
     )
-    from logic_pure import apply_consumable_pure, best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure  # type: ignore
+    from logic_pure import apply_combat_burst_pure, apply_consumable_pure, best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure  # type: ignore
     from quest_data import QUEST_DISPLAY_NAMES  # type: ignore
 
 
@@ -72,6 +72,57 @@ HABITAT_TRAVERSAL_PHASES = (
 )
 HABITAT_TRAVERSAL_XP = 10.0
 FARM_EVENT_LOG_LIMIT = 200
+JADE_VINE_PATCH_ID = "handelmort_jade_vine"
+JADE_POLICY_KEEP_TAME = "keep_tame"
+JADE_POLICY_TRAIN_SLAYER = "train_slayer"
+JADE_POLICY_TRAIN_FARMING = "train_farming"
+JADE_VINE_POLICIES = (
+    JADE_POLICY_KEEP_TAME,
+    JADE_POLICY_TRAIN_SLAYER,
+    JADE_POLICY_TRAIN_FARMING,
+)
+JADE_VINE_COMBAT_TARGET_ID = "wild_jade_vine"
+JADE_VINE_COMBAT_TICKS = 6
+JADE_VINE_WILD_BRANCH = 6
+JADE_VINE_VISIBLE_BRANCHES = 5
+JADE_VINE_REPLANT_PAYMENT = {"Coconut": 5, "Watermelon": 5}
+JADE_VINE_ENEMY = {
+    "display_name": "Wild jade vine",
+    "level": 167,
+    "attack_style": "melee",
+    "attack_speed": 6,
+    "respawn_delay": 0,
+    "required_slayer_level": 59,
+    "slayer_xp": 0.0,
+    "stats": {
+        "hitpoints": 2500,
+        "attack": 120,
+        "strength": 120,
+        "defence": 120,
+        "magic": 120,
+        "ranged": 120,
+    },
+    "bonuses": {
+        "attack_stab": 0,
+        "attack_slash": 0,
+        "attack_crush": 0,
+        "defence_stab": 0,
+        "defence_slash": 0,
+        "defence_crush": 0,
+        "defence_magic": 0,
+        "defence_ranged": 0,
+        "melee_strength": 0,
+    },
+    "max_hit": 158,
+    # The shared Combat engine stores poison in old-HP points; 7 emits the
+    # sourced 70-LP opening poison hit.
+    "poison_damage": 7,
+    "drops": {},
+    "source": (
+        "Jade vine oldid 6579442; Wild jade vine oldid 6457741; "
+        "source_blocked combat stats use a bounded level-120 neutral abstraction"
+    ),
+}
 MORYTANIA_MEDIUM_TASK_KEYS = ("morytania_medium", "medium_morytania_tasks")
 FARM_COUNTER_DEFAULTS = {
     "plants": 0,
@@ -132,6 +183,9 @@ def _default_patch_record() -> dict[str, Any]:
         "next_regrowth_at": 0,
         "jade_state": None,
         "jade_prunes": 0,
+        "jade_combat_encounter": {},
+        "jade_bound_reviews_remaining": 0,
+        "jade_attack_style_index": 0,
         "plan": None,
     }
 
@@ -150,6 +204,7 @@ def _default_bin_record() -> dict[str, Any]:
 def default_farming_state_pure() -> dict[str, Any]:
     return {
         "farming_spell_patch": None,
+        "farm_jade_vine_policy": JADE_POLICY_KEEP_TAME,
         "farm_clock_minutes": 0,
         "farm_patches": {patch.id: _default_patch_record() for patch in FARMING_PATCHES},
         "farm_compost_bins": {row.id: _default_bin_record() for row in FARMING_COMPOST_BINS},
@@ -268,8 +323,12 @@ def _sanitize_patch_record(raw: Any) -> dict[str, Any]:
     record["produce_count"] = _int(record.get("produce_count"))
     record["last_regrowth_at"] = _int(record.get("last_regrowth_at"))
     record["next_regrowth_at"] = _int(record.get("next_regrowth_at"))
-    record["jade_state"] = record.get("jade_state") if record.get("jade_state") in {None, "prunable", "wild", "killed"} else None
+    record["jade_state"] = record.get("jade_state") if record.get("jade_state") in {None, "prunable", "wild"} else None
     record["jade_prunes"] = _int(record.get("jade_prunes"))
+    encounter = record.get("jade_combat_encounter")
+    record["jade_combat_encounter"] = dict(encounter) if isinstance(encounter, Mapping) else {}
+    record["jade_bound_reviews_remaining"] = _int(record.get("jade_bound_reviews_remaining"))
+    record["jade_attack_style_index"] = _int(record.get("jade_attack_style_index")) % 3
     record["plan"] = _sanitize_plan(record.get("plan"))
     if crop_id is None:
         for key in ("diseased", "dead", "protected", "livid_protected", "watered", "health_checked", "stump"):
@@ -280,6 +339,9 @@ def _sanitize_patch_record(raw: Any) -> dict[str, Any]:
         record["next_regrowth_at"] = 0
         record["jade_state"] = None
         record["jade_prunes"] = 0
+        record["jade_combat_encounter"] = {}
+        record["jade_bound_reviews_remaining"] = 0
+        record["jade_attack_style_index"] = 0
     return record
 
 
@@ -465,6 +527,11 @@ def sanitize_farming_state_pure(player_data: Mapping[str, Any]) -> dict[str, Any
         "farming_exp": _number(player_data.get("farming_exp", 0.0)),
         "farming_level": _int(player_data.get("farming_level", 1), default=1, minimum=1),
         "farming_spell_patch": farming_spell_patch,
+        "farm_jade_vine_policy": (
+            player_data.get("farm_jade_vine_policy")
+            if player_data.get("farm_jade_vine_policy") in JADE_VINE_POLICIES
+            else JADE_POLICY_KEEP_TAME
+        ),
         "farm_clock_minutes": _int(player_data.get("farm_clock_minutes", defaults["farm_clock_minutes"])),
         "farm_patches": patches,
         "farm_compost_bins": bins,
@@ -597,6 +664,56 @@ def _random_int_inclusive(random_random: Callable[[], float], low: int, high: in
     return low + int(roll * (high - low + 1))
 
 
+def _remove_jade_prune_steps(updated: dict[str, Any]) -> None:
+    updated["farm_queue"] = [
+        step
+        for step in updated.get("farm_queue", ())
+        if not (
+            step.get("patch_id") == JADE_VINE_PATCH_ID
+            and step.get("kind") == "harvest"
+            and step.get("jade_auto_prune")
+        )
+    ]
+
+
+def _queue_jade_prune(updated: dict[str, Any]) -> None:
+    updated["farm_queue"].append({
+        "id": _step_id(updated),
+        "kind": "harvest",
+        "patch_id": JADE_VINE_PATCH_ID,
+        "jade_auto_prune": True,
+    })
+
+
+def _jade_replant_plan(updated: Mapping[str, Any], record: Mapping[str, Any]) -> dict[str, Any]:
+    return _sanitize_plan(updated.get("farm_plans", {}).get(JADE_VINE_PATCH_ID)) or _sanitize_plan(record.get("plan")) or {
+        "crop_id": "jade_vine",
+        "compost_tier": "none",
+        "protection_intent": False,
+        "watering_intent": False,
+        "cure_intent": True,
+        "cure_route_preference": PLANT_CURE_ITEM_FIRST,
+    }
+
+
+def _try_horacio_replant(updated: dict[str, Any], record: dict[str, Any]) -> bool:
+    if not _has_items(updated["inventory"], JADE_VINE_REPLANT_PAYMENT):
+        return False
+    plan = _jade_replant_plan(updated, record)
+    _consume(updated["inventory"], JADE_VINE_REPLANT_PAYMENT)
+    _reset_patch(record)
+    if not _owns_jade_seed_anywhere(updated):
+        updated["inventory"]["Jade vine seed"] = 1
+    _append_planned_steps(updated, JADE_VINE_PATCH_ID, ["plant"], plan)
+    _log(
+        updated,
+        "jade_vine_horacio_replant",
+        "Horacio removed the Jade vine and queued its Plant step.",
+        patch_id=JADE_VINE_PATCH_ID,
+    )
+    return True
+
+
 def _process_patch_boundaries(updated: dict[str, Any], patch_id: str, random_random: Callable[[], float]) -> None:
     record = updated["farm_patches"][patch_id]
     crop = FARMING_CROPS_BY_ID.get(record.get("crop_id"))
@@ -622,10 +739,10 @@ def _process_patch_boundaries(updated: dict[str, Any], patch_id: str, random_ran
                 # Willow branches begin accumulating only after the one-time
                 # health check; elapsed mature time does not backfill them.
                 record["produce_count"] = (
-                    0 if crop.id == "willow" else crop.fixed_yield or 0
+                    0 if crop.id in {"willow", "jade_vine"} else crop.fixed_yield or 0
                 )
                 record["last_regrowth_at"] = boundary
-                if crop.regrowth_range_minutes:
+                if crop.regrowth_range_minutes and crop.id != "jade_vine":
                     record["next_regrowth_at"] = boundary + _random_int_inclusive(random_random, *crop.regrowth_range_minutes)
                 if crop.id == "jade_vine":
                     record["jade_state"] = "prunable"
@@ -646,9 +763,39 @@ def _process_patch_boundaries(updated: dict[str, Any], patch_id: str, random_ran
     if (
         not _is_mature(record, crop)
         or crop.fixed_yield is None
-        or record.get("jade_state") in {"wild", "killed"}
+        or record.get("jade_state") == "wild"
         or (crop.id == "willow" and not record.get("health_checked"))
     ):
+        return
+    if crop.id == "jade_vine":
+        if not record.get("health_checked") or not record.get("next_regrowth_at"):
+            return
+        if (
+            updated.get("farm_jade_vine_policy") == JADE_POLICY_TRAIN_FARMING
+            and _try_horacio_replant(updated, record)
+        ):
+            return
+        while record["next_regrowth_at"] <= clock:
+            record["produce_count"] += 1
+            record["last_regrowth_at"] = record["next_regrowth_at"]
+            if record["produce_count"] >= JADE_VINE_WILD_BRANCH:
+                record["jade_state"] = "wild"
+                record["produce_count"] = 0
+                record["next_regrowth_at"] = 0
+                _remove_jade_prune_steps(updated)
+                _log(
+                    updated,
+                    "jade_vine_wild",
+                    "The unseen sixth branch turned the Jade vine wild.",
+                    patch_id=patch_id,
+                    crop_id=crop.id,
+                )
+                break
+            record["next_regrowth_at"] += _random_int_inclusive(
+                random_random, *crop.regrowth_range_minutes
+            )
+            if updated.get("farm_jade_vine_policy") == JADE_POLICY_KEEP_TAME:
+                _queue_jade_prune(updated)
         return
     if crop.regrowth_range_minutes:
         while record["produce_count"] < crop.fixed_yield and record["next_regrowth_at"] and record["next_regrowth_at"] <= clock:
@@ -991,7 +1138,7 @@ def _juju_farming_active(updated: Mapping[str, Any]) -> bool:
 
 
 def _harvest_tool_options(crop: Any) -> tuple[str, ...]:
-    if crop.id == "willow":
+    if crop.id in {"willow", "jade_vine"}:
         return ("Secateurs", "Magic secateurs")
     return (crop.harvest_tool,) if crop.harvest_tool else ()
 
@@ -1011,11 +1158,11 @@ def _harvest(updated: dict[str, Any], patch_id: str, crop: Any, random_random: C
     missing_tool = _missing_harvest_tool_reason(updated["inventory"], crop)
     if missing_tool:
         return False, f"missing {' or '.join(_harvest_tool_options(crop))}", {}
-    if not _is_mature(record, crop) or record.get("stump") or record.get("jade_state") in {"wild", "killed"}:
+    if not _is_mature(record, crop) or record.get("stump") or record.get("jade_state") == "wild":
         return False, "crop is not ready", {}
     if crop.check_health_xp is not None and not record.get("health_checked"):
         return False, "check the crop's health first", {}
-    if not crop.output_item or crop.harvest_xp is None:
+    if (not crop.output_item and crop.id != "jade_vine") or crop.harvest_xp is None:
         return False, "crop has no runnable harvest", {}
     if crop.id == "jade_vine":
         if _int(record.get("produce_count")) <= 0:
@@ -1036,22 +1183,20 @@ def _harvest(updated: dict[str, Any], patch_id: str, crop: Any, random_random: C
     if crop.patch_type in {"herb", "vine_herb"} and _juju_farming_active(updated):
         bonus = sum(1 for _ in range(amount) if random_random() < (1.0 / 3.0))
     total_output = amount + bonus
-    updated["inventory"][crop.output_item] = _int(updated["inventory"].get(crop.output_item)) + total_output
     xp = amount * crop.harvest_xp
     _award_xp(updated, "farming", xp)
     _increment(updated, "harvests")
-    _increment(updated, "produce_harvested", total_output)
     if crop.id == "jade_vine":
         record["produce_count"] -= 1
         record["jade_prunes"] += 1
-        record["last_regrowth_at"] = updated["farm_clock_minutes"]
-        if record["jade_prunes"] >= 6:
-            record["jade_state"] = "wild"
-            record["produce_count"] = 0
-            record["next_regrowth_at"] = 0
-        elif crop.regrowth_range_minutes:
-            record["next_regrowth_at"] = updated["farm_clock_minutes"] + _random_int_inclusive(random_random, *crop.regrowth_range_minutes)
-    elif crop.regrowth_minutes or crop.regrowth_range_minutes:
+        return True, "Pruned one Jade vine branch.", {
+            "farming_xp": xp,
+            "outputs": {},
+            "juju_bonus": 0,
+        }
+    updated["inventory"][crop.output_item] = _int(updated["inventory"].get(crop.output_item)) + total_output
+    _increment(updated, "produce_harvested", total_output)
+    if crop.regrowth_minutes or crop.regrowth_range_minutes:
         record["produce_count"] = 0
         record["last_regrowth_at"] = updated["farm_clock_minutes"]
         if crop.regrowth_range_minutes:
@@ -1062,7 +1207,12 @@ def _harvest(updated: dict[str, Any], patch_id: str, crop: Any, random_random: C
     return True, f"Harvested {total_output} {crop.output_item}.", {"farming_xp": xp, "outputs": outputs, "juju_bonus": bonus}
 
 
-def _check_health(updated: dict[str, Any], patch_id: str, crop: Any) -> tuple[bool, str, dict[str, Any]]:
+def _check_health(
+    updated: dict[str, Any],
+    patch_id: str,
+    crop: Any,
+    random_random: Callable[[], float],
+) -> tuple[bool, str, dict[str, Any]]:
     record = updated["farm_patches"][patch_id]
     if not _is_mature(record, crop) or crop.check_health_xp is None or record.get("health_checked"):
         return False, "health cannot be checked", {}
@@ -1070,11 +1220,24 @@ def _check_health(updated: dict[str, Any], patch_id: str, crop: Any) -> tuple[bo
     if crop.id == "willow":
         record["produce_count"] = 0
         record["last_regrowth_at"] = updated["farm_clock_minutes"]
+    elif crop.id == "jade_vine":
+        record["jade_state"] = "prunable"
+        record["produce_count"] = 0
+        record["last_regrowth_at"] = updated["farm_clock_minutes"]
+        record["next_regrowth_at"] = updated["farm_clock_minutes"] + _random_int_inclusive(
+            random_random, *crop.regrowth_range_minutes
+        )
     _award_xp(updated, "farming", crop.check_health_xp)
     _increment(updated, "health_checks")
     if crop.patch_type in {"tree", "fruit_tree", "calquat"}:
         _increment(updated, "tree_health_checks")
-    return True, f"Checked the health of {crop.display_name}.", {"farming_xp": crop.check_health_xp}
+    message = f"Checked the health of {crop.display_name}."
+    if crop.id == "jade_vine" and updated.get("farm_jade_vine_policy") == JADE_POLICY_TRAIN_FARMING:
+        if _try_horacio_replant(updated, record):
+            message += " Horacio removed it for 5 coconuts and 5 watermelons and queued its Plant step."
+        else:
+            message += " Replant blocked: Horacio needs 5 coconuts and 5 watermelons; branch growth continues."
+    return True, message, {"farming_xp": crop.check_health_xp}
 
 
 def _cure_spell_locked_reasons(
@@ -1169,8 +1332,7 @@ def _clear(updated: dict[str, Any], patch_id: str, crop: Any) -> tuple[bool, str
     if _int(updated["inventory"].get("Spade")) <= 0:
         return False, "missing Spade", {}
     clearable_scarecrow = crop.id == "scarecrow"
-    clearable_jade = crop.id == "jade_vine" and record.get("jade_state") == "killed"
-    if not record.get("dead") and not record.get("stump") and not clearable_scarecrow and not clearable_jade:
+    if not record.get("dead") and not record.get("stump") and not clearable_scarecrow:
         return False, "patch has no clearable crop or stump", {}
     outputs: dict[str, int] = {}
     if record.get("stump") and crop.root_item:
@@ -1179,9 +1341,6 @@ def _clear(updated: dict[str, Any], patch_id: str, crop: Any) -> tuple[bool, str
     if clearable_scarecrow:
         updated["inventory"]["Scarecrow"] = _int(updated["inventory"].get("Scarecrow")) + 1
         outputs["Scarecrow"] = 1
-    if clearable_jade:
-        updated["inventory"]["Jade vine seed"] = _int(updated["inventory"].get("Jade vine seed")) + 1
-        outputs["Jade vine seed"] = 1
     _reset_patch(record)
     _increment(updated, "clears")
     return True, f"Cleared {FARMING_PATCHES_BY_ID[patch_id].display_name}.", {"outputs": outputs}
@@ -1206,7 +1365,7 @@ def _dig_up(updated: dict[str, Any], patch_id: str, crop: Any) -> tuple[bool, st
         or record.get("diseased")
         or record.get("dead")
         or record.get("stump")
-        or record.get("jade_state") in {"wild", "killed"}
+        or record.get("jade_state") == "wild"
     ):
         return False, "patch has no healthy mature regrowth crop", {}
     _reset_patch(record)
@@ -1214,14 +1373,164 @@ def _dig_up(updated: dict[str, Any], patch_id: str, crop: Any) -> tuple[bool, st
     return True, f"Dug up {crop.display_name}.", {"farming_xp": 0.0, "outputs": {}}
 
 
-def _chop(updated: dict[str, Any], patch_id: str, crop: Any) -> tuple[bool, str, dict[str, Any]]:
+def _toolbelt_has_secateurs(toolbelt: Any) -> bool:
+    if not isinstance(toolbelt, Mapping):
+        return False
+    for raw_items in toolbelt.values():
+        items = (raw_items,) if isinstance(raw_items, str) else raw_items
+        if not isinstance(items, (tuple, list, set)):
+            continue
+        if any(str(item).replace("_", " ").casefold() in {"secateurs", "magic secateurs"} for item in items):
+            return True
+    return False
+
+
+def _equipped_usable_hatchet(updated: Mapping[str, Any]) -> Optional[str]:
+    equipment = updated.get("equipment")
+    weapon = equipment.get("weapon") if isinstance(equipment, Mapping) else None
+    if not isinstance(weapon, str):
+        return None
+    axe = next(
+        (
+            row
+            for row in WOODCUTTING_AXE_DATA.values()
+            if row.get("display_name") == weapon
+        ),
+        None,
+    )
+    if not isinstance(axe, Mapping):
+        return None
+    if _int(updated.get("woodcutting_level", 1), default=1, minimum=1) < _int(axe.get("level", 1), default=1, minimum=1):
+        return None
+    return weapon
+
+
+def _jade_vine_combat(
+    updated: dict[str, Any],
+    patch_id: str,
+    step: Mapping[str, Any],
+    random_random: Callable[[], float],
+) -> tuple[bool, str, dict[str, Any]]:
+    record = updated["farm_patches"][patch_id]
+    if _int(updated.get("slayer_level", 1), default=1, minimum=1) < 59:
+        return False, "requires Slayer level 59", {}
+    if _equipped_usable_hatchet(updated) is None:
+        return False, "equip a usable hatchet", {}
+    inventory = updated["inventory"]
+    if not (
+        _int(inventory.get("Secateurs")) > 0
+        or _int(inventory.get("Magic secateurs")) > 0
+        or _toolbelt_has_secateurs(updated.get("toolbelt"))
+    ):
+        return False, "requires Secateurs in your Bank or toolbelt", {}
+    if _int(record.get("jade_bound_reviews_remaining")) > 0:
+        record["jade_bound_reviews_remaining"] -= 1
+        return True, "The Wild jade vine's bind holds you for this review.", {
+            "repeat_queue_step": True,
+            "combat_continuing": True,
+            "ticks_elapsed": 0,
+            "outputs": {},
+        }
+
+    ordinary_target = updated.get("current_combat_target")
+    ordinary_encounter = copy.deepcopy(updated.get("combat_encounter", {}))
+    updated["current_combat_target"] = JADE_VINE_COMBAT_TARGET_ID
+    updated["combat_encounter"] = copy.deepcopy(record.get("jade_combat_encounter", {}))
+    style_index = _int(record.get("jade_attack_style_index")) % 3
+    enemy = dict(JADE_VINE_ENEMY)
+    enemy["attack_style"] = ("melee", "magic", "ranged")[style_index]
+    fought, ok, result = apply_combat_burst_pure(
+        updated,
+        {JADE_VINE_COMBAT_TARGET_ID: enemy},
+        EQUIPMENT_DATA,
+        ticks=_int(
+            step.get("jade_combat_ticks", JADE_VINE_COMBAT_TICKS),
+            default=JADE_VINE_COMBAT_TICKS,
+            minimum=1,
+        ),
+        rng=random_random,
+        live_cadence=True,
+        stop_after_first_kill=True,
+        safe_death=False,
+        allow_bank_run=False,
+    )
+    if not ok:
+        updated["current_combat_target"] = ordinary_target
+        updated["combat_encounter"] = ordinary_encounter
+        reasons = result.get("locked_reasons", ()) if isinstance(result, Mapping) else ()
+        return False, ", ".join(str(reason) for reason in reasons) or "Wild jade vine combat is unavailable", {}
+
+    synthetic_encounter = copy.deepcopy(fought.get("combat_encounter", {}))
+    fought["current_combat_target"] = ordinary_target
+    fought["combat_encounter"] = ordinary_encounter
+    updated.clear()
+    updated.update(fought)
+    record = updated["farm_patches"][patch_id]
+    record["jade_attack_style_index"] = (style_index + 1) % 3
+    killed = bool(result.get("killed"))
+    died = bool(result.get("died"))
+    fled = bool(result.get("fled"))
+    details = {
+        "combat_result": dict(result),
+        "xp_rewards": dict(result.get("xp_rewards", {}) or {}),
+        "ticks_elapsed": _int(result.get("ticks_elapsed")),
+        "outputs": {},
+    }
+    if killed:
+        _award_xp(updated, "slayer", 2500.0)
+        _award_xp(updated, "woodcutting", 202.0)
+        updated["inventory"]["Jade vine seed"] = _int(updated["inventory"].get("Jade vine seed")) + 1
+        _reset_patch(record)
+        if step.get("replant_after"):
+            plan = _sanitize_plan(step.get("replant_plan"))
+            if plan is not None:
+                plant_step = {
+                    "id": _step_id(updated),
+                    "kind": "plant",
+                    "patch_id": patch_id,
+                    "crop_id": plan["crop_id"],
+                    "compost_tier": plan["compost_tier"],
+                }
+                updated["farm_queue"].insert(0, plant_step)
+        _increment(updated, "chops")
+        details.update({
+            "slayer_xp": 2500.0,
+            "woodcutting_xp": 202.0,
+            "outputs": {"Jade vine seed": 1},
+        })
+        return True, "Killed the Wild jade vine and cut its stump for a replacement seed.", details
+    if died:
+        updated["combat_encounter"] = {}
+        record["jade_combat_encounter"] = {}
+        record["jade_bound_reviews_remaining"] = 0
+        return True, "You died; the Wild jade vine remains and will be at full health next time.", details
+    if fled:
+        record["jade_combat_encounter"] = {}
+        record["jade_bound_reviews_remaining"] = 0
+        return True, "You fled; the Wild jade vine returned to full health.", details
+
+    record["jade_combat_encounter"] = synthetic_encounter
+    if _int(result.get("enemy_damage")) > 0 and random_random() < (1.0 / 6.0):
+        record["jade_bound_reviews_remaining"] = 1
+        details["bound"] = True
+    details["repeat_queue_step"] = True
+    details["combat_continuing"] = True
+    enemy_lp = _int(result.get("enemy_lifepoints"), default=2500)
+    return True, f"Fought the Wild jade vine; {enemy_lp}/2500 LP remain.", details
+
+
+def _chop(
+    updated: dict[str, Any],
+    patch_id: str,
+    crop: Any,
+    step: Mapping[str, Any],
+    random_random: Callable[[], float],
+) -> tuple[bool, str, dict[str, Any]]:
     record = updated["farm_patches"][patch_id]
     if crop.id == "jade_vine":
         if record.get("jade_state") != "wild":
             return False, "jade vine is not wild", {}
-        record["jade_state"] = "killed"
-        _increment(updated, "chops")
-        return True, "Killed the wild jade vine.", {"outputs": {}}
+        return _jade_vine_combat(updated, patch_id, step, random_random)
     if crop.patch_type != "tree" or not _is_mature(record, crop) or record.get("stump"):
         return False, "tree is not ready to chop", {}
     if crop.check_health_xp is not None and not record.get("health_checked"):
@@ -1280,11 +1589,11 @@ def _execute_farm_field_step_in_place(
     handlers = {
         "plant": lambda: _plant(updated, patch_id, patch, crop, step),
         "harvest": lambda: _harvest(updated, patch_id, crop, random_random),
-        "check_health": lambda: _check_health(updated, patch_id, crop),
+        "check_health": lambda: _check_health(updated, patch_id, crop, random_random),
         "cure": lambda: _cure(updated, patch_id, crop, step),
         "clear": lambda: _clear(updated, patch_id, crop),
         "dig_up": lambda: _dig_up(updated, patch_id, crop),
-        "chop": lambda: _chop(updated, patch_id, crop),
+        "chop": lambda: _chop(updated, patch_id, crop, step, random_random),
     }
     ok, message, details = handlers[kind]()
     livid_patch_expired = bool(
@@ -1517,10 +1826,10 @@ def _planned_patch_steps(updated: Mapping[str, Any], patch_id: str) -> tuple[lis
     crop = FARMING_CROPS_BY_ID.get(record.get("crop_id"))
     if crop is None:
         return ["plant"], plan, "queued"
-    if record.get("dead") or record.get("stump") or record.get("jade_state") == "killed" or crop.id == "scarecrow":
+    if record.get("dead") or record.get("stump") or crop.id == "scarecrow":
         return ["clear", "plant"], plan, "queued"
     if record.get("jade_state") == "wild":
-        return ["chop", "clear", "plant"], plan, "queued"
+        return ["chop"], plan, "queued"
     if record.get("diseased"):
         return (
             (["cure"], plan, "queued")
@@ -1583,6 +1892,9 @@ def _append_planned_steps(
                 step["protection_payment"] = dict(protection_payment)
         elif kind == "cure":
             step["cure_route_preference"] = plan["cure_route_preference"]
+        elif kind == "chop" and patch_id == JADE_VINE_PATCH_ID:
+            step["replant_after"] = True
+            step["replant_plan"] = copy.deepcopy(plan)
         updated["farm_queue"].append(step)
         ids.append(step_id)
     return ids
@@ -1652,15 +1964,26 @@ def queue_full_run_pure(player_data: Mapping[str, Any]) -> tuple[dict[str, Any],
 def _consume_next_farm_queue_step_in_place(
     updated: dict[str, Any],
     random_random: Callable[[], float],
+    review_multiplier: int = 1,
 ) -> tuple[bool, dict[str, Any]]:
     if not updated["farm_queue"]:
         return False, {"status": "empty", "message": "farm queue is empty"}
     step = updated["farm_queue"].pop(0)
-    ok, info = _execute_farm_field_step_in_place(updated, step, random_random)
+    execution_step = step
+    if step.get("kind") == "chop" and step.get("patch_id") == JADE_VINE_PATCH_ID:
+        execution_step = dict(step)
+        execution_step["jade_combat_ticks"] = JADE_VINE_COMBAT_TICKS * max(
+            1, _int(review_multiplier, default=1, minimum=1)
+        )
+    ok, info = _execute_farm_field_step_in_place(updated, execution_step, random_random)
     info["step_id"] = step["id"]
-    info["status"] = "executed" if ok else "skipped"
+    continuing = bool(ok and info.get("repeat_queue_step"))
+    info["status"] = "continuing" if continuing else "executed" if ok else "skipped"
+    if continuing:
+        updated["farm_queue"].insert(0, step)
     if ok:
-        _increment(updated, "queue_steps_executed")
+        if not continuing:
+            _increment(updated, "queue_steps_executed")
     else:
         _refund_queued_protection(updated, step)
         _increment(updated, "queue_steps_skipped")
@@ -1671,15 +1994,19 @@ def _consume_next_farm_queue_step_in_place(
 def consume_next_farm_queue_step_pure(
     player_data: Mapping[str, Any],
     random_random: Callable[[], float] = lambda: 1.0,
+    review_multiplier: int = 1,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     updated = _copy_with_farm_state(player_data)
-    consumed, info = _consume_next_farm_queue_step_in_place(updated, random_random)
+    consumed, info = _consume_next_farm_queue_step_in_place(
+        updated, random_random, review_multiplier
+    )
     return updated, consumed, info
 
 
 def apply_farming_review_with_queue_pure(
     player_data: Mapping[str, Any],
     random_random: Callable[[], float] = lambda: 1.0,
+    review_multiplier: int = 1,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     """Advance one successful review and consume its queued detour with one copy."""
 
@@ -1687,11 +2014,11 @@ def apply_farming_review_with_queue_pure(
     queue = updated["farm_queue"]
     cure_first = bool(queue and queue[0].get("kind") == "cure")
     if cure_first:
-        consumed, info = _consume_next_farm_queue_step_in_place(updated, random_random)
+        consumed, info = _consume_next_farm_queue_step_in_place(updated, random_random, review_multiplier)
         _advance_one_farm_card(updated, random_random)
     else:
         _advance_one_farm_card(updated, random_random)
-        consumed, info = _consume_next_farm_queue_step_in_place(updated, random_random)
+        consumed, info = _consume_next_farm_queue_step_in_place(updated, random_random, review_multiplier)
     return updated, consumed, info
 
 
@@ -2133,11 +2460,28 @@ def _patch_status_view(state: Mapping[str, Any], patch: Any, record: Mapping[str
     if record.get("stump"):
         return "stump", "Stump — queue clearing", 0
     if crop.id == "jade_vine" and record.get("jade_state") == "wild":
-        return "ready", "Ready to chop", 0
+        encounter = record.get("jade_combat_encounter")
+        enemy_lp = _int(encounter.get("enemy_lifepoints"), default=2500) if isinstance(encounter, Mapping) and encounter else 2500
+        return "ready", f"Wild encounter · {enemy_lp}/2500 LP", 0
     mature = _is_mature(record, crop)
     if mature:
         if crop.check_health_xp is not None and not record.get("health_checked"):
             return "ready", "Health check ready", 0
+        if crop.id == "jade_vine":
+            branches = _int(record.get("produce_count"))
+            next_at = _int(record.get("next_regrowth_at"))
+            if not next_at:
+                return "growing", "Branch clock not armed", 0
+            reviews = max(
+                1,
+                math.ceil(max(0, next_at - _int(state.get("farm_clock_minutes"))) / FARM_MINUTES_PER_ANSWER),
+            )
+            review_word = "review" if reviews == 1 else "reviews"
+            branch_word = "branch" if branches == 1 else "branches"
+            warning = " · next branch makes it wild" if branches == JADE_VINE_VISIBLE_BRANCHES else ""
+            if branches:
+                return "ready", f"{branches}/{JADE_VINE_VISIBLE_BRANCHES} {branch_word} ready{warning} · next in {reviews} {review_word}", 0
+            return "growing", f"0/{JADE_VINE_VISIBLE_BRANCHES} branches · next in {reviews} {review_word}", reviews
         if crop.fixed_yield is not None and _int(record.get("produce_count")) <= 0:
             elapsed = max(
                 0,
@@ -2181,10 +2525,100 @@ def _queue_step_label(step: Mapping[str, Any]) -> str:
         label = HABITAT_TRAVERSAL_PHASES[phase] if phase < len(HABITAT_TRAVERSAL_PHASES) else "Traverse to the east camp"
         return f"{label} · Herblore Habitat"
     patch = FARMING_PATCHES_BY_ID.get(step.get("patch_id"))
+    if step.get("kind") == "chop" and step.get("patch_id") == JADE_VINE_PATCH_ID:
+        return "Fight Wild jade vine · Handelmort Mansion"
     verb = str(step.get("kind", "work")).replace("_", " ").title()
     crop = FARMING_CROPS_BY_ID.get(step.get("crop_id"))
     crop_suffix = f" {crop.display_name}" if crop is not None and step.get("kind") == "plant" else ""
     return f"{verb}{crop_suffix} · {patch.display_name if patch else 'Unknown patch'}"
+
+
+def _jade_policy_label(policy: str) -> str:
+    return {
+        JADE_POLICY_KEEP_TAME: "Keep tame",
+        JADE_POLICY_TRAIN_SLAYER: "Train Slayer",
+        JADE_POLICY_TRAIN_FARMING: "Train Farming",
+    }.get(policy, "Keep tame")
+
+
+def _owns_jade_seed_anywhere(player_data: Mapping[str, Any]) -> bool:
+    def contains(value: Any) -> bool:
+        if isinstance(value, Mapping):
+            if _int(value.get("Jade vine seed")) > 0:
+                return True
+            if value.get("item") == "Jade vine seed" and _int(value.get("quantity", value.get("amount", 1))) > 0:
+                return True
+            return any(contains(child) for child in value.values())
+        if isinstance(value, (tuple, list)):
+            return any(contains(child) for child in value)
+        return False
+
+    return any(
+        contains(player_data.get(key))
+        for key in (
+            "inventory",
+            "carried_inventory",
+            "combat_grave",
+            "death_office",
+        )
+    )
+
+
+def set_jade_vine_policy_pure(
+    player_data: Mapping[str, Any], policy: str
+) -> tuple[dict[str, Any], bool, str]:
+    updated = _copy_with_farm_state(player_data)
+    if not farming_access_gate_allows_pure(
+        updated, FARMING_PATCHES_BY_ID[JADE_VINE_PATCH_ID].access_gate
+    ):
+        return updated, False, "Complete Back to my Roots first."
+    if policy not in JADE_VINE_POLICIES:
+        return updated, False, "Unknown Jade Vine policy."
+    changed = updated.get("farm_jade_vine_policy") != policy
+    updated["farm_jade_vine_policy"] = policy
+    _remove_jade_prune_steps(updated)
+    record = updated["farm_patches"][JADE_VINE_PATCH_ID]
+    if policy == JADE_POLICY_KEEP_TAME and record.get("jade_state") == "prunable":
+        queued = sum(
+            1
+            for step in updated["farm_queue"]
+            if step.get("patch_id") == JADE_VINE_PATCH_ID and step.get("kind") == "harvest"
+        )
+        for _ in range(max(0, _int(record.get("produce_count")) - queued)):
+            _queue_jade_prune(updated)
+    elif (
+        policy == JADE_POLICY_TRAIN_FARMING
+        and record.get("crop_id") == "jade_vine"
+        and record.get("health_checked")
+        and record.get("jade_state") == "prunable"
+        and _try_horacio_replant(updated, record)
+    ):
+        return updated, True, "Horacio removed the Jade vine and queued its Plant step."
+    if (
+        policy == JADE_POLICY_TRAIN_FARMING
+        and record.get("crop_id") == "jade_vine"
+        and record.get("health_checked")
+        and record.get("jade_state") == "prunable"
+    ):
+        return updated, changed, "Replant blocked: Horacio needs 5 coconuts and 5 watermelons."
+    return updated, changed, f"Jade Vine policy: {_jade_policy_label(policy)}."
+
+
+def claim_jade_vine_seed_pure(
+    player_data: Mapping[str, Any]
+) -> tuple[dict[str, Any], bool, str]:
+    updated = _copy_with_farm_state(player_data)
+    if not farming_access_gate_allows_pure(
+        updated, FARMING_PATCHES_BY_ID[JADE_VINE_PATCH_ID].access_gate
+    ):
+        return updated, False, "Complete Back to my Roots first."
+    record = updated["farm_patches"][JADE_VINE_PATCH_ID]
+    if record.get("crop_id") is not None and not record.get("dead"):
+        return updated, False, "A living Jade vine already occupies the patch."
+    if _owns_jade_seed_anywhere(updated):
+        return updated, False, "You already own a Jade vine seed."
+    updated["inventory"]["Jade vine seed"] = 1
+    return updated, True, "Horacio gave you a replacement Jade vine seed."
 
 
 def _farm_preset_modified(state: Mapping[str, Any], preset: Mapping[str, Any]) -> bool:
@@ -2297,9 +2731,21 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
                     f"{item_reason}; Cure Plant: {', '.join(spell_reasons)}"
                 )
         elif not primary_reason and primary_kind in {"harvest", "clear", "dig_up"}:
-            tool = crop.harvest_tool if primary_kind == "harvest" and crop else "Spade"
-            if tool:
-                primary_reason = _missing_items_reason(inventory, {tool: 1})
+            if primary_kind == "harvest" and crop:
+                primary_reason = _missing_harvest_tool_reason(inventory, crop)
+            else:
+                primary_reason = _missing_items_reason(inventory, {"Spade": 1})
+        elif not primary_reason and primary_kind == "chop" and crop and crop.id == "jade_vine":
+            if _int(state.get("slayer_level", 1), default=1, minimum=1) < 59:
+                primary_reason = "Requires Slayer level 59."
+            elif _equipped_usable_hatchet(state) is None:
+                primary_reason = "Equip a usable hatchet."
+            elif not (
+                _int(inventory.get("Secateurs")) > 0
+                or _int(inventory.get("Magic secateurs")) > 0
+                or _toolbelt_has_secateurs(state.get("toolbelt"))
+            ):
+                primary_reason = "Needs Secateurs in your Bank or toolbelt."
 
         primary_labels = {
             "choose_plan": "Choose a crop",
@@ -2313,7 +2759,13 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
         }
         primary_action = None if primary_kind is None else {
             "id": primary_kind,
-            "label": primary_labels[primary_kind],
+            "label": (
+                "Queue Wild Vine fight"
+                if primary_kind == "chop" and crop and crop.id == "jade_vine"
+                else "Queue prune branch"
+                if primary_kind == "harvest" and crop and crop.id == "jade_vine"
+                else primary_labels[primary_kind]
+            ),
             "enabled": primary_kind == "choose_plan" or not primary_reason,
             "locked_reason": primary_reason,
         }
@@ -2326,7 +2778,7 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
             and not record.get("diseased")
             and not record.get("dead")
             and not record.get("stump")
-            and record.get("jade_state") not in {"wild", "killed"}
+            and record.get("jade_state") != "wild"
         ):
             dig_up_reason = access_reason
             if not dig_up_reason and patch.id in queued_patch_ids:
@@ -2464,6 +2916,24 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
             }
 
         fixed_crop = FARMING_CROPS_BY_ID.get(patch.fixed_crop_id)
+        jade_policy = str(state.get("farm_jade_vine_policy", JADE_POLICY_KEEP_TAME))
+        jade_status = f"{_jade_policy_label(jade_policy)} · {status_label}"
+        if (
+            patch.id == JADE_VINE_PATCH_ID
+            and jade_policy == JADE_POLICY_TRAIN_FARMING
+            and record.get("health_checked")
+            and record.get("jade_state") == "prunable"
+            and not _has_items(inventory, JADE_VINE_REPLANT_PAYMENT)
+        ):
+            jade_status = f"Train Farming · Replant blocked: needs 5 coconuts and 5 watermelons · {status_label}"
+        jade_seed_claim_reason = ""
+        if patch.id == JADE_VINE_PATCH_ID:
+            if not access_allowed:
+                jade_seed_claim_reason = access_reason
+            elif record.get("crop_id") is not None and not record.get("dead"):
+                jade_seed_claim_reason = "A living Jade vine occupies the patch."
+            elif _owns_jade_seed_anywhere(state):
+                jade_seed_claim_reason = "You already own a Jade vine seed."
         patch_view = {
             "patch_id": patch.id,
             "patch_name": patch.display_name,
@@ -2518,7 +2988,7 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
             "dig_up_action": dig_up_action,
             "shortcut_action": (
                 None
-                if patch.fixed_crop_id is not None
+                if patch.fixed_crop_id is not None or patch.id == JADE_VINE_PATCH_ID
                 else {
                     "id": "harvest_replant",
                     "label": "Harvest and replant same",
@@ -2528,6 +2998,31 @@ def farming_frontend_projection_pure(player_data: Mapping[str, Any]) -> dict[str
                 }
             ),
             "sapling_action": sapling,
+            "jade_vine": (
+                {
+                    "policy": jade_policy,
+                    "policy_options": (
+                        {"id": JADE_POLICY_KEEP_TAME, "label": "Keep tame — prune branches"},
+                        {"id": JADE_POLICY_TRAIN_SLAYER, "label": "Train Slayer — let it grow wild"},
+                        {
+                            "id": JADE_POLICY_TRAIN_FARMING,
+                            "label": "Train Farming — Horacio: 5 coconuts + 5 watermelons",
+                        },
+                    ),
+                    "policy_enabled": access_allowed,
+                    "policy_locked_reason": access_reason,
+                    "confirm_train_farming": bool(
+                        record.get("crop_id") == "jade_vine"
+                        and record.get("health_checked")
+                        and record.get("jade_state") == "prunable"
+                        and _has_items(inventory, JADE_VINE_REPLANT_PAYMENT)
+                    ),
+                    "status": jade_status,
+                    "claim_seed": {} if not jade_seed_claim_reason else None,
+                }
+                if patch.id == JADE_VINE_PATCH_ID
+                else None
+            ),
         }
         group = groups.setdefault(patch.complex_id, {
             "location_id": patch.complex_id,
@@ -2733,6 +3228,12 @@ def apply_farming_frontend_action_pure(
         ),
         None,
     )
+    if action_id == "set_jade_vine_policy":
+        return set_jade_vine_policy_pure(
+            player_data, str(data.get("policy", ""))
+        )
+    if action_id == "claim_jade_vine_seed":
+        return claim_jade_vine_seed_pure(player_data)
     if action_id == "set_plan":
         crop_id = str(data.get("crop_id", ""))
         option = next((row for row in (patch_view or {}).get("crop_options", ()) if row["id"] == crop_id), None)
@@ -2781,7 +3282,7 @@ def apply_farming_frontend_action_pure(
         updated, step_id, message = add_farm_queue_step_pure(player_data, kind, patch_id, **details)
         return updated, step_id is not None, "Added 1 step to the queue." if step_id else message
     if action_id == "harvest_replant":
-        shortcut = (patch_view or {}).get("shortcut_action", {})
+        shortcut = (patch_view or {}).get("shortcut_action") or {}
         if not shortcut.get("enabled") or shortcut.get("needs_plan"):
             return _copy_with_farm_state(player_data), False, shortcut.get("locked_reason") or "Choose a crop, compost tier, and protection plan first."
         updated, ids, message = queue_harvest_and_replant_same_pure(player_data, patch_id)

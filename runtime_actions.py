@@ -1698,12 +1698,13 @@ def _apply_farming_queue_result(
         return False
     ctx.player_data.clear()
     ctx.player_data.update(updated)
-    if info.get("status") == "executed":
+    if info.get("status") in {"executed", "continuing"}:
         for skill, xp_key in (
             ("Farming", "farming_xp"),
             ("Woodcutting", "woodcutting_xp"),
             ("Agility", "agility_xp"),
             ("Magic", "magic_xp"),
+            ("Slayer", "slayer_xp"),
         ):
             if float(info.get(xp_key, 0.0) or 0.0) <= 0:
                 continue
@@ -1715,6 +1716,8 @@ def _apply_farming_queue_result(
                 awarded_level,
                 int(ctx.player_data.get(level_key, old_levels[skill]) or old_levels[skill]),
             )
+        combat_rewards = info.get("xp_rewards", {})
+        _refresh_combat_levels(ctx, combat_rewards)
         gained = sum(
             float(info.get(key, 0.0) or 0.0)
             for key in (
@@ -1722,8 +1725,11 @@ def _apply_farming_queue_result(
                 "woodcutting_xp",
                 "agility_xp",
                 "magic_xp",
+                "slayer_xp",
             )
         )
+        if isinstance(combat_rewards, dict):
+            gained += sum(float(value or 0.0) for value in combat_rewards.values())
         if gained > 0:
             ctx.show_exp(gained)
     else:
@@ -1739,6 +1745,7 @@ def _farming_levels_before_answer(ctx: RuntimeActionContext) -> dict[str, int]:
         "Woodcutting": int(ctx.player_data.get("woodcutting_level", 1) or 1),
         "Agility": int(ctx.player_data.get("agility_level", 1) or 1),
         "Magic": int(ctx.player_data.get("magic_level", 1) or 1),
+        "Slayer": int(ctx.player_data.get("slayer_level", 1) or 1),
     }
 
 
@@ -1746,7 +1753,11 @@ def handle_farming_queue_answer(ctx: RuntimeActionContext) -> bool:
     """Consume and persist one queued field step, including an invalid skip."""
 
     old_levels = _farming_levels_before_answer(ctx)
-    updated, consumed, info = consume_next_farm_queue_step_pure(ctx.player_data, ctx.random_random)
+    updated, consumed, info = consume_next_farm_queue_step_pure(
+        ctx.player_data,
+        ctx.random_random,
+        ctx.review_action_multiplier,
+    )
     consumed = _apply_farming_queue_result(ctx, old_levels, updated, consumed, info)
     if consumed:
         ctx.save_player_data()
@@ -1757,7 +1768,11 @@ def handle_farming_review_answer(ctx: RuntimeActionContext) -> bool:
     """Apply one successful review's queued detour and eager clock tick once."""
 
     old_levels = _farming_levels_before_answer(ctx)
-    updated, consumed, info = apply_farming_review_with_queue_pure(ctx.player_data, ctx.random_random)
+    updated, consumed, info = apply_farming_review_with_queue_pure(
+        ctx.player_data,
+        ctx.random_random,
+        ctx.review_action_multiplier,
+    )
     consumed = _apply_farming_queue_result(ctx, old_levels, updated, consumed, info)
     if consumed:
         ctx.save_player_data()

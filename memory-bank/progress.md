@@ -3803,3 +3803,28 @@ Test counts are snapshots; current runs outrank this note.
 - Results:
   `status-updates/managing-miscellania-horizontal-results-2026-07-21.html`;
   mobile copy: `https://juwv1i05slff.postplan.dev`.
+
+## Jade Vine horizontal MVP — 2026-07-21
+
+- Implemented the complete health-check branch clock, saved policy triad,
+  review-priced pruning, sixth-branch Wild transition, Horacio replant loop,
+  persistent shared-engine Combat, dangerous failure, atomic XP/seed reward,
+  and free replacement-seed recovery.
+- Added schema-68 save repair, exact review/direct undo boundaries, a compact
+  Jade-only policy/status surface, and pure, runtime, integration, migration,
+  and real-Qt regression coverage.
+- The exact Wild Vine combat stats and style/bind distributions remain
+  explicit data depth behind a disclosed bounded implementation. No owner
+  design question remains.
+- Opus reviewed the new policy surface and runtime seams. Every reproduced
+  defect was fixed, including safe migration of legacy mature vines,
+  Secateurs-aware pruning, disclosed and confirmed Horacio payment, hidden
+  unavailable seed recovery, both cadence entry paths, and true direct-action
+  undo. Fable stayed reserved and Kimi was not used after its quota probe could
+  not establish a fresh rolling window.
+- Closure is green: 2,210 non-Qt methods (291 expected dependency skips), 2,209
+  real offscreen-Qt methods (one intentional skip), 17 final Qt/runtime delta
+  methods, docs, hard test quality, compilation, asset normalization,
+  reachability, diff, worktree safety, and a fresh native-Anki singleton smoke.
+- Results: `status-updates/jade-vine-horizontal-results-2026-07-21.html`;
+  mobile copy: `https://rdcwhc5livaj.postplan.dev`.

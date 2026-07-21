@@ -3,7 +3,13 @@ import sys
 import types
 import unittest
 
-from tests.test_integration_smoke import _FakeReviewer, _install_runtime_fakes, _load_addon_as_package
+from tests.test_integration_smoke import (
+    _DummyCol,
+    _DummyMW,
+    _FakeReviewer,
+    _install_runtime_fakes,
+    _load_addon_as_package,
+)
 
 
 class TestFarmingReviewDispatch(unittest.TestCase):
@@ -16,6 +22,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
         sys.modules.update(self._orig_modules)
 
     def _configure(self, addon):
+        addon.mw = _DummyMW(_DummyCol())
         addon.level_up_check = lambda _skill, _data: None
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None

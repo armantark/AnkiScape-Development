@@ -181,8 +181,7 @@ class GreatOrbProjectLogicTests(unittest.TestCase):
 class GreatOrbProjectStorageTests(unittest.TestCase):
     def test_default_and_v66_migration_sanitize_state(self):
         default = default_player_data(constants.ORE_DATA, constants.ITEM_DEFINITIONS)
-        self.assertEqual(CURRENT_CONFIG_VERSION, 67)
-        self.assertEqual(default["config_version"], 67)
+        self.assertEqual(default["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(default["great_orb_project"]["tokens"], 0)
         migrated = migrate_loaded_data(
             {
@@ -198,7 +197,7 @@ class GreatOrbProjectStorageTests(unittest.TestCase):
             constants.ORE_DATA,
             constants.ITEM_DEFINITIONS,
         )
-        self.assertEqual(migrated["config_version"], 67)
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(migrated["great_orb_project"]["tokens"], 0)
         self.assertEqual(migrated["great_orb_project"]["automation_mode"], "casual")
         self.assertEqual(migrated["great_orb_project"]["active"]["round"], 7)

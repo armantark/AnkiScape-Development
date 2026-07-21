@@ -1867,6 +1867,134 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("one-use", summary.text())
         dialog.deleteLater()
 
+    def test_farming_jade_vine_policy_and_seed_recovery_are_visible_direct_actions(self) -> None:
+        player_data = _make_player_data()
+        player_data["quests"]["back_to_my_roots"] = {"completed": True}
+        player_data["farming_level"] = 53
+        player_data["inventory"]["Jade vine seed"] = 0
+        dialog = self._open(
+            player_data,
+            current_skill="Mining",
+            initial_skill="Farming",
+        )
+        dialog.show()
+        for _ in range(5):
+            QApplication.processEvents()
+        dialog.findChild(
+            QToolButton, "farmingLocationToggle::ardougne"
+        ).click()
+        QApplication.processEvents()
+        dialog.findChild(
+            QToolButton,
+            "farmingPatchExpandButton::handelmort_jade_vine",
+        ).click()
+        QApplication.processEvents()
+        policy = dialog.findChild(
+            QComboBox,
+            "farmingJadeVinePolicyCombo::handelmort_jade_vine",
+        )
+        status = dialog.findChild(
+            QLabel,
+            "farmingJadeVineStatus::handelmort_jade_vine",
+        )
+        claim = dialog.findChild(
+            QPushButton,
+            "farmingJadeVineClaimSeed::handelmort_jade_vine",
+        )
+        self.assertIsNotNone(policy)
+        self.assertEqual(policy.count(), 3)
+        self.assertIn("Keep tame", status.text())
+        self.assertTrue(claim.isEnabled())
+
+        policy.setCurrentIndex(policy.findData("train_slayer"))
+        for _ in range(5):
+            QApplication.processEvents()
+        self.assertEqual(player_data["farm_jade_vine_policy"], "train_slayer")
+        claim = dialog.findChild(
+            QPushButton,
+            "farmingJadeVineClaimSeed::handelmort_jade_vine",
+        )
+        claim.click()
+        for _ in range(5):
+            QApplication.processEvents()
+        self.assertEqual(player_data["inventory"]["Jade vine seed"], 1)
+        dialog.deleteLater()
+
+    def test_farming_jade_vine_horacio_payment_is_disclosed_and_confirmed(self) -> None:
+        from farming_logic import default_farming_state_pure
+
+        player_data = _make_player_data()
+        player_data.update(default_farming_state_pure())
+        player_data["quests"]["back_to_my_roots"] = {"completed": True}
+        player_data["farming_level"] = 53
+        player_data["inventory"].update({
+            "Coconut": 5,
+            "Watermelon": 5,
+        })
+        player_data["farm_patches"]["handelmort_jade_vine"].update({
+            "crop_id": "jade_vine",
+            "last_crop_id": "jade_vine",
+            "stage": 6,
+            "health_checked": True,
+            "jade_state": "prunable",
+            "produce_count": 0,
+            "next_regrowth_at": 60,
+            "plan": {
+                "crop_id": "jade_vine",
+                "compost_tier": "none",
+                "protection_intent": False,
+                "watering_intent": False,
+                "cure_intent": True,
+                "cure_route_preference": "item_first",
+            },
+        })
+        dialog = self._open(
+            player_data,
+            current_skill="Mining",
+            initial_skill="Farming",
+        )
+        dialog.show()
+        for _ in range(5):
+            QApplication.processEvents()
+        dialog.findChild(QToolButton, "farmingLocationToggle::ardougne").click()
+        QApplication.processEvents()
+        dialog.findChild(
+            QToolButton,
+            "farmingPatchExpandButton::handelmort_jade_vine",
+        ).click()
+        QApplication.processEvents()
+        policy = dialog.findChild(
+            QComboBox,
+            "farmingJadeVinePolicyCombo::handelmort_jade_vine",
+        )
+        self.assertIn("5 coconuts + 5 watermelons", policy.itemText(2))
+
+        original_question = self._ui.QMessageBox.question
+        try:
+            self._ui.QMessageBox.question = (
+                lambda *a, **k: self._ui.QMessageBox.StandardButton.No
+            )
+            policy.setCurrentIndex(policy.findData("train_farming"))
+            QApplication.processEvents()
+            self.assertEqual(player_data["farm_jade_vine_policy"], "keep_tame")
+            self.assertEqual(player_data["inventory"]["Coconut"], 5)
+
+            self._ui.QMessageBox.question = (
+                lambda *a, **k: self._ui.QMessageBox.StandardButton.Yes
+            )
+            policy.setCurrentIndex(policy.findData("train_farming"))
+            for _ in range(5):
+                QApplication.processEvents()
+            self.assertEqual(player_data["farm_jade_vine_policy"], "train_farming")
+            self.assertEqual(player_data["inventory"]["Coconut"], 0)
+            self.assertEqual(player_data["inventory"]["Watermelon"], 0)
+            self.assertIsNone(
+                player_data["farm_patches"]["handelmort_jade_vine"]["crop_id"]
+            )
+        finally:
+            self._ui.QMessageBox.question = original_question
+            dialog.deleteLater()
+
     def test_farming_willow_branch_action_is_visible_enabled_and_queueable(
         self,
     ) -> None:

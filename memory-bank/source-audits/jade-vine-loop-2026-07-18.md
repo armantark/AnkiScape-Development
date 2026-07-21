@@ -4,8 +4,8 @@ Date: `2026-07-18`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **source shape pinned and owner-delegated design closed; current runtime
-gaps recorded.**
+Status: **source shape pinned, owner-delegated design closed, and horizontal
+runtime implemented 2026-07-21.**
 
 ## Pinned period evidence
 
@@ -141,26 +141,34 @@ the patch exposes Horacio's sourced replacement-seed claim as a free direct
 command. It never consumes a review and never duplicates a seed while one
 already exists or a living vine occupies the patch.
 
-## Current implementation mismatches
+## Horizontal implementation — 2026-07-21
 
-The existing Farming slice has Jade Vine data but does not implement this
-complete loop:
+The mismatch list above is closed in the live Farming substrate:
 
-- `farming_logic.py:_process_patch_boundaries` makes all six outputs available
-  at maturity before health check, rather than starting 30–60-minute branch
-  growth after the check;
-- `farming_logic.py:_harvest` creates a carried `Jade vine branch` item, while
-  the pinned source only awards pruning XP;
-- `farming_logic.py:_chop` instantly marks the level-167 monster killed with no
-  Combat, Slayer XP, Woodcutting XP, poison, or requirements;
-- seed recovery is deferred to a separate generic clear review;
-- no saved policy or Horacio five-coconut/five-watermelon service exists; and
-- `tests/test_farming.py` currently locks in the instant six-prune and
-  instant-chop behavior.
+- maturity exposes only the 1,500-XP health check; that check arms independently
+  rolled 30–60-minute branch boundaries;
+- Keep tame queues one review-priced prune per visible branch, Train Slayer
+  leaves the five visible branches alone, and the unseen sixth branch enters a
+  persistent Wild Vine encounter;
+- pruning awards 30 Farming XP and no fabricated branch item;
+- Train Farming retries Horacio's atomic five-coconut/five-watermelon service
+  when the goods become available, recovers the replacement seed, and queues
+  the ordinary Plant step;
+- Wild Vine reviews use the shared live Combat engine for `6 × M` ticks,
+  persistent LP/attack phases/status, ordinary damage XP, dangerous death,
+  flee reset, and kill-stop behavior; the killing review also awards 2,500
+  Slayer XP, 202 Woodcutting XP, and the replacement seed while clearing the
+  stump atomically; and
+- free seed recovery, the one saved policy control, exact review undo,
+  schema-68 migration, and focused pure/integration/real-Qt coverage are live.
 
-The later implementation pass must replace those assertions, attach the
-encounter to live cadence coverage, and preserve the rest of the Farming queue
-and disease contract.
+The exact hidden Wild Vine stats and style/bind distributions remain
+`source_blocked`. The horizontal implementation discloses a neutral level-120
+combat-stat row, deterministic melee/Magic/Ranged review rotation, and a
+bounded one-in-six one-review bind roll. The sourced 158 maximum hit and 70-LP
+opening poison are exact; the shared Combat engine stores that poison as seven
+old-HP points before converting it to LP. These are later data-depth targets,
+not missing mechanics.
 
 ## Fable consultation
 
@@ -170,3 +178,24 @@ Its constrained critique correctly identified that policy timing needed clearer
 language and recommended surfacing branch progress. The integrated design keeps
 one descriptive policy dropdown and the visible branch/status line, while
 rejecting its proposed second toggle and every invented mechanic.
+
+## Implementation review and closure
+
+The 2026-07-21 Opus review was read-only and independently reproduced before
+integration. It identified a legacy-save branch that could turn a mature vine
+wild immediately, a UI gate that required a Spade instead of Secateurs, an
+undisclosed destructive Horacio selection, a permanently disabled recovery
+button, a fallback path that ignored the review multiplier, and unreachable
+`killed` state. All were corrected. The Horacio option now names its exact
+payment and asks for confirmation only when selection would spend it
+immediately; recovery appears only when it can succeed.
+
+The implementation also closes the direct-action transaction boundary: policy,
+seed recovery, and the rest of the Farming command surface register an Anki
+direct undo entry before mutation, while queued prune/fight actions remain
+review undo. Full closure passes 2,210 non-Qt methods, 2,209 real offscreen-Qt
+methods, a 17-method post-fix delta suite, documentation and test-quality
+audits, global small-asset normalization, reachability, and a restarted native
+Anki singleton smoke. Fable was held in reserve for this implementation pass;
+Kimi was not called because its fresh quota check could not establish the
+rolling-window reading required by its fail-closed launcher.

@@ -4861,6 +4861,74 @@ def show_main_menu(
                     current_label.setWordWrap(True)
                     detail_layout.addWidget(current_label)
 
+                    jade_vine = patch.get("jade_vine")
+                    if jade_vine:
+                        jade_row = QGridLayout()
+                        jade_status = QLabel(jade_vine["status"])
+                        jade_status.setObjectName(
+                            f"farmingJadeVineStatus::{patch_id}"
+                        )
+                        jade_status.setWordWrap(True)
+                        jade_policy = QComboBox()
+                        jade_policy.setObjectName(
+                            f"farmingJadeVinePolicyCombo::{patch_id}"
+                        )
+                        for option in jade_vine["policy_options"]:
+                            jade_policy.addItem(option["label"], option["id"])
+                        jade_policy.setCurrentIndex(
+                            max(0, jade_policy.findData(jade_vine["policy"]))
+                        )
+                        jade_policy.setEnabled(
+                            bool(jade_vine["policy_enabled"])
+                            and on_farming_action is not None
+                        )
+                        jade_policy.setToolTip(jade_vine["policy_locked_reason"])
+
+                        def _set_jade_policy(
+                            _index: int,
+                            combo=jade_policy,
+                            view=jade_vine,
+                        ) -> None:
+                            policy = combo.currentData()
+                            if policy == "train_farming" and view["confirm_train_farming"]:
+                                answer = QMessageBox.question(
+                                    panel,
+                                    "Pay Horacio and replant?",
+                                    "Spend 5 coconuts and 5 watermelons now to remove the "
+                                    "Jade vine and queue its Plant step?",
+                                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                                    QMessageBox.StandardButton.No,
+                                )
+                                if answer != QMessageBox.StandardButton.Yes:
+                                    combo.blockSignals(True)
+                                    combo.setCurrentIndex(
+                                        max(0, combo.findData(view["policy"]))
+                                    )
+                                    combo.blockSignals(False)
+                                    return
+                            _run_action(
+                                "set_jade_vine_policy",
+                                {"policy": policy},
+                            )
+
+                        jade_policy.currentIndexChanged.connect(_set_jade_policy)
+                        jade_row.addWidget(QLabel("Jade Vine policy"), 0, 0)
+                        jade_row.addWidget(jade_policy, 0, 1)
+                        jade_row.addWidget(jade_status, 1, 0, 1, 2)
+                        if jade_vine["claim_seed"] is not None:
+                            claim_seed = QPushButton("Claim replacement seed")
+                            claim_seed.setObjectName(
+                                f"farmingJadeVineClaimSeed::{patch_id}"
+                            )
+                            claim_seed.setEnabled(on_farming_action is not None)
+                            claim_seed.clicked.connect(
+                                lambda _=False: _run_action(
+                                    "claim_jade_vine_seed", {}
+                                )
+                            )
+                            jade_row.addWidget(claim_seed, 2, 0, 1, 2)
+                        detail_layout.addLayout(jade_row)
+
                     plan_grid = QGridLayout()
                     crop_combo = QComboBox()
                     crop_combo.setObjectName(f"farmingPatchCropCombo::{patch_id}")
@@ -5030,15 +5098,16 @@ def show_main_menu(
                         )
                         actions.addWidget(dig_up_button)
                     shortcut = patch["shortcut_action"]
-                    shortcut_button = QPushButton(shortcut["label"])
-                    shortcut_button.setObjectName(f"farmingPatchHarvestReplantButton::{patch_id}")
-                    shortcut_button.setEnabled(bool(shortcut["enabled"]) and on_farming_action is not None)
-                    shortcut_button.setToolTip(shortcut["locked_reason"])
-                    if shortcut.get("needs_plan"):
-                        shortcut_button.clicked.connect(lambda _=False, combo=crop_combo: combo.setFocus())
-                    else:
-                        shortcut_button.clicked.connect(lambda _=False, pid=patch_id: _run_action("harvest_replant", {"patch_id": pid}))
-                    actions.addWidget(shortcut_button)
+                    if shortcut:
+                        shortcut_button = QPushButton(shortcut["label"])
+                        shortcut_button.setObjectName(f"farmingPatchHarvestReplantButton::{patch_id}")
+                        shortcut_button.setEnabled(bool(shortcut["enabled"]) and on_farming_action is not None)
+                        shortcut_button.setToolTip(shortcut["locked_reason"])
+                        if shortcut.get("needs_plan"):
+                            shortcut_button.clicked.connect(lambda _=False, combo=crop_combo: combo.setFocus())
+                        else:
+                            shortcut_button.clicked.connect(lambda _=False, pid=patch_id: _run_action("harvest_replant", {"patch_id": pid}))
+                        actions.addWidget(shortcut_button)
                     if protection_action:
                         pay = QPushButton(protection_action["label"])
                         pay.setObjectName(f"farmingPatchProtectionButton::{patch_id}")

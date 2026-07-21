@@ -19,7 +19,7 @@ from fishing_trawler_logic import (
     leave_fishing_trawler_pure,
     set_fishing_trawler_policy_pure,
 )
-from storage_pure import default_player_data, migrate_loaded_data
+from storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
 from tests.test_integration_smoke import _install_runtime_fakes, _load_addon_as_package
 
 
@@ -200,7 +200,7 @@ class FishingTrawlerLogicTests(unittest.TestCase):
 class FishingTrawlerStorageTests(unittest.TestCase):
     def test_default_and_v65_migration_include_sanitized_trawler_state(self):
         default = default_player_data(constants.ORE_DATA, constants.ITEM_DEFINITIONS)
-        self.assertEqual(default["config_version"], 67)
+        self.assertEqual(default["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(default["fishing_trawler"], {})
         migrated = migrate_loaded_data(
             {
@@ -216,7 +216,7 @@ class FishingTrawlerStorageTests(unittest.TestCase):
             constants.ORE_DATA,
             constants.ITEM_DEFINITIONS,
         )
-        self.assertEqual(migrated["config_version"], 67)
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(migrated["fishing_trawler"]["review"], 9)
         self.assertEqual(migrated["fishing_trawler"]["water"], 100)
         self.assertEqual(

@@ -202,6 +202,12 @@ Labels: none remaining on the core build; trailing acquisition/activity dependen
   atomic answer undo. The medium Varrock task and Ube/Beacon Network service
   remain with their owning systems. See
   `memory-bank/source-audits/white-tree-fruit-harvest-2026-07-19.md`.
+- The 2026-07-21 Jade Vine follow-up replaces the retired instant-six-branch
+  shortcut with the health-check-armed branch clock, three saved policies,
+  Horacio replanting, persistent shared-engine Wild Vine Combat, atomic
+  stump/seed settlement, recovery claim, migration, undo, and compact policy
+  UI. Hidden combat stats plus style/bind distributions remain labeled data
+  depth. See `memory-bank/source-audits/jade-vine-loop-2026-07-18.md`.
 - `hunter-habitat-jadinko` remains an owning-activity/acquisition follow-up; core Farming is no longer its dependency.
 
 ### Agility — SHIPPED 2026-07-15

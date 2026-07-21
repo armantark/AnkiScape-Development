@@ -9,7 +9,7 @@ from managing_miscellania_logic import (
     sanitize_managing_miscellania_player_state_pure,
 )
 from constants import ORE_DATA
-from storage_pure import migrate_loaded_data
+from storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
 
 
 def _player(*, royal: bool = False, answered_cards: int = 0):
@@ -202,7 +202,7 @@ class ManagingMiscellaniaLogicTest(unittest.TestCase):
             ORE_DATA,
         )
 
-        self.assertEqual(migrated["config_version"], 67)
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(migrated["managing_miscellania"]["last_world_day"], 20)
         self.assertEqual(migrated["managing_miscellania"]["production_credit"], 0)
 

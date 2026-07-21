@@ -855,6 +855,7 @@ def _restore_direct_action_snapshot(snapshot) -> None:
     save_player_data()
     try:
         update_review_hud(player_data, current_skill)
+        update_farming_hud_badge(player_data, _open_farming_sheet)
         _update_review_context_surface()
         _refresh_skill_availability()
     except Exception:
@@ -1431,12 +1432,31 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         }
 
     def _apply_farming_action(action_id, payload):
+        before = {
+            "player_data": copy.deepcopy(player_data),
+            "random_state": random.getstate(),
+        }
         updated, ok, message = apply_farming_frontend_action_pure(player_data, action_id, payload)
         if ok:
+            try:
+                mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+            except (AttributeError, RuntimeError):
+                return {
+                    "ok": False,
+                    "message": "Anki could not create an undo entry.",
+                    "projection": farming_frontend_projection_pure(player_data),
+                }
+            _DIRECT_ACTION_UNDO_STACK.append(before)
+            if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+                del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
             player_data.clear()
             player_data.update(updated)
             check_achievements(player_data)
             save_player_data()
+            try:
+                mw.update_undo_actions()
+            except AttributeError:
+                pass
         try:
             update_farming_hud_badge(player_data, _open_farming_sheet)
         except Exception:

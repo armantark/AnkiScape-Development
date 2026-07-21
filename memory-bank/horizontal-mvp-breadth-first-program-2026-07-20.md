@@ -79,6 +79,12 @@ Grand Exchange, Shops, Help/Details, Farming, Livid Farm, Big Chinchompa, Evil
 Tree, Warriors' Guild, and the other explicitly shipped systems already satisfy
 or exceed breadth level one.
 
+Farming's Jade Vine subfamily now also satisfies breadth level one: its
+health-check branch clock, saved tame/Slayer/Farming policies, Horacio service,
+persistent shared-engine Wild Vine fight, dangerous failure, atomic rewards,
+seed recovery, migration, undo, and compact UI are live. Only hidden combat
+stats and style/bind distributions remain later data depth.
+
 The owner-settled activity wave remains the current breadth frontier:
 
 1. Tears of Guthix;

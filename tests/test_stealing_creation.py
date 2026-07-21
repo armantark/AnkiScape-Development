@@ -441,8 +441,7 @@ class StealingCreationMigrationAndRuntimeTests(unittest.TestCase):
         sanitized = sanitize_stealing_creation_state_pure(raw)
         self.assertNotIn("wall_clock_started", sanitized["active_session"])
         migrated = migrate_loaded_data({"stealing_creation": raw}, {}, ())
-        self.assertEqual(CURRENT_CONFIG_VERSION, 67)
-        self.assertEqual(migrated["config_version"], 67)
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(migrated["activity_session"], {"active_id": "stealing_creation"})
 
         malformed = sanitize_stealing_creation_state_pure(

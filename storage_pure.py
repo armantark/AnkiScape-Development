@@ -329,7 +329,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 67
+CURRENT_CONFIG_VERSION = 68
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -1488,6 +1488,25 @@ def migrate_loaded_data(
             answered_cards
         ).items():
             data.setdefault(key, value)
+    # v68: Jade Vine gains a saved policy plus persistent branch and Wild Vine
+    # encounter state. The Farming sanitizer supplies non-retroactive defaults.
+    if loaded_config_version < 68:
+        data.setdefault("farm_jade_vine_policy", "keep_tame")
+        patches = data.get("farm_patches")
+        jade = patches.get("handelmort_jade_vine") if isinstance(patches, dict) else None
+        if isinstance(jade, dict) and jade.get("crop_id") == "jade_vine":
+            if not bool(jade.get("health_checked")):
+                jade["produce_count"] = 0
+                jade["next_regrowth_at"] = 0
+            else:
+                try:
+                    farm_clock = max(0, int(data.get("farm_clock_minutes", 0) or 0))
+                except (TypeError, ValueError, OverflowError):
+                    farm_clock = 0
+                jade["jade_state"] = "prunable"
+                jade["produce_count"] = 0
+                jade["last_regrowth_at"] = farm_clock
+                jade["next_regrowth_at"] = farm_clock + 30
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")

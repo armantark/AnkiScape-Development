@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jade Vine horizontal closure</title>
+  <style>
+    :root {
+      --bg: #0c0e12; --surface: #161a21; --surface-2: #1e232c;
+      --border: #2a3040; --text: #e8ecf4; --text-dim: #8b95a8;
+      --accent: #4f8cff; --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c; --green: #4ade80; --amber: #fbbf24;
+      --purple: #a78bfa; --vine: #55c878; --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; color: var(--text); background:
+        radial-gradient(circle at 8% 0%, rgba(85,200,120,.14), transparent 28rem),
+        radial-gradient(circle at 95% 12%, var(--accent-glow), transparent 32rem),
+        var(--bg);
+      font-family: Outfit, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 46px 0 60px; }
+    .badge {
+      display: inline-flex; gap: 8px; align-items: center; padding: 7px 11px;
+      border: 1px solid rgba(85,200,120,.4); border-radius: 999px;
+      color: var(--vine); background: rgba(85,200,120,.08);
+      font: 700 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .12em;
+    }
+    h1 { margin: 16px 0 8px; font-size: clamp(2rem, 5vw, 4.2rem); line-height: .98; letter-spacing: -.045em; }
+    .lead { max-width: 780px; color: var(--text-dim); font-size: 1.03rem; line-height: 1.6; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 28px 0; }
+    .metric, .card { border: 1px solid var(--border); background: rgba(22,26,33,.92); border-radius: var(--radius); }
+    .metric { padding: 17px; }
+    .metric strong { display: block; font: 800 1.7rem/1 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--green); }
+    .metric span { display: block; margin-top: 8px; color: var(--text-dim); font-size: .78rem; }
+    .grid { display: grid; grid-template-columns: 1.12fr .88fr; gap: 14px; }
+    .card { padding: 20px; }
+    .card h2 { margin: 0 0 14px; font-size: 1.03rem; }
+    .eyebrow { color: var(--text-dim); font: 700 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .12em; text-transform: uppercase; }
+    .flow { display: grid; grid-template-columns: repeat(6, 1fr); align-items: stretch; gap: 7px; margin-top: 14px; }
+    .node { position: relative; min-height: 92px; padding: 12px 9px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); }
+    .node b { display: block; font-size: .78rem; }
+    .node small { color: var(--text-dim); font-size: .67rem; line-height: 1.35; }
+    .node.hot { border-color: rgba(255,92,92,.5); background: rgba(255,92,92,.07); }
+    .node.done { border-color: rgba(85,200,120,.45); background: rgba(85,200,120,.07); }
+    .policy { display: grid; gap: 8px; margin-top: 12px; }
+    .policy div { display: grid; grid-template-columns: 22px 1fr; gap: 9px; padding: 10px; background: var(--surface-2); border-radius: 9px; }
+    .policy i { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: rgba(79,140,255,.13); color: var(--accent); font-style: normal; font: 700 11px/1 monospace; }
+    .policy b { font-size: .8rem; }
+    .policy span { display: block; margin-top: 3px; color: var(--text-dim); font-size: .72rem; line-height: 1.35; }
+    .combat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+    .combat div { padding: 12px; border-left: 2px solid var(--purple); background: var(--surface-2); border-radius: 8px; }
+    .combat b { display: block; font: 700 .75rem/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .combat span { display: block; margin-top: 5px; color: var(--text-dim); font-size: .7rem; line-height: 1.4; }
+    .findings { display: grid; gap: 7px; margin-top: 12px; }
+    .finding { display: grid; grid-template-columns: 8px 1fr auto; gap: 10px; align-items: start; padding: 9px 11px; border-radius: 8px; background: var(--surface-2); }
+    .dot { width: 8px; height: 8px; margin-top: 4px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px rgba(74,222,128,.45); }
+    .finding b { font-size: .76rem; }
+    .finding small { color: var(--text-dim); font-size: .68rem; }
+    .finding code, .tags code { font: 600 .62rem/1 ui-monospace, SFMono-Regular, Menlo, monospace; color: #b6c8ff; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+    .tags code { padding: 6px 8px; border-radius: 7px; background: var(--surface-2); border: 1px solid var(--border); }
+    .depth { margin-top: 14px; border-color: rgba(251,191,36,.36); }
+    .depth p { color: var(--text-dim); line-height: 1.55; font-size: .84rem; margin-bottom: 0; }
+    footer { margin-top: 17px; padding-top: 17px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: .72rem; display: flex; justify-content: space-between; gap: 12px; }
+    @media (max-width: 900px) {
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .grid { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 520px) {
+      main { width: min(100% - 20px, 1180px); padding-top: 24px; }
+      .flow, .combat { grid-template-columns: 1fr 1fr; }
+      footer { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="badge">COMPLETED · BREADTH LEVEL ONE</div>
+    <h1>Jade Vine is a real loop now.</h1>
+    <p class="lead">The old instant six-branch shortcut is gone. Health checking arms review-paced growth, one saved policy controls the route, the sixth branch becomes persistent shared-engine Combat, and every costly or dangerous boundary is explicit and undoable.</p>
+  </header>
+
+  <section class="metrics" aria-label="Verification summary">
+    <div class="metric"><strong>2,210</strong><span>non-Qt methods green</span></div>
+    <div class="metric"><strong>2,209</strong><span>real offscreen-Qt methods green</span></div>
+    <div class="metric"><strong>0</strong><span>hard test-quality issues</span></div>
+    <div class="metric"><strong>1</strong><span>fresh native Anki dialog</span></div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">Review-native state machine</div>
+    <div class="flow">
+      <div class="node"><b>Plant</b><small>50 Farming XP<br>ordinary patch rules</small></div>
+      <div class="node"><b>Grow</b><small>160 reviews<br>no wall clock</small></div>
+      <div class="node done"><b>Health check</b><small>1,500 XP<br>arms branch clock</small></div>
+      <div class="node"><b>Branches 1–5</b><small>5–10 reviews each<br>30 XP per prune</small></div>
+      <div class="node hot"><b>Hidden sixth</b><small>unpruned arrival<br>turns the vine wild</small></div>
+      <div class="node done"><b>Settlement</b><small>2,500 Slayer<br>202 Woodcutting + seed</small></div>
+    </div>
+  </section>
+
+  <section class="grid" style="margin-top:14px">
+    <article class="card">
+      <div class="eyebrow">One control, three outcomes</div>
+      <h2>Saved Jade Vine policy</h2>
+      <div class="policy">
+        <div><i>1</i><p><b>Keep tame</b><span>Each visible branch queues one review-priced prune. Repeated Again answers can still let the sixth branch arrive.</span></p></div>
+        <div><i>2</i><p><b>Train Slayer</b><span>No automatic pruning. Five branches accumulate, then the persistent Wild Vine encounter opens.</span></p></div>
+        <div><i>3</i><p><b>Train Farming</b><span>Horacio’s exact 5-coconut + 5-watermelon cost is visible and confirmed before immediate payment.</span></p></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="eyebrow">Shared substrate</div>
+      <h2>Wild Vine Combat</h2>
+      <div class="combat">
+        <div><b>6 × M ticks</b><span>Both review entry paths preserve the live cadence multiplier.</span></div>
+        <div><b>Persistent state</b><span>Enemy LP, style rotation, poison, bind, supplies, flee, and death survive correctly.</span></div>
+        <div><b>Atomic kill</b><span>No second cycle starts. Stump, XP, and replacement seed settle together.</span></div>
+      </div>
+      <div class="tags">
+        <code>Slayer 59</code><code>equipped hatchet</code><code>Secateurs</code><code>dangerous PvM</code><code>direct + review undo</code>
+      </div>
+    </article>
+  </section>
+
+  <section class="grid" style="margin-top:14px">
+    <article class="card">
+      <div class="eyebrow">Independent review</div>
+      <h2>Concrete defects closed</h2>
+      <div class="findings">
+        <div class="finding"><span class="dot"></span><div><b>Legacy migration</b><small>Old mature saves no longer become wild on their next review.</small></div><code>v68</code></div>
+        <div class="finding"><span class="dot"></span><div><b>Correct tool gate</b><small>Jade pruning accepts Secateurs or Magic secateurs, never a Spade substitute.</small></div><code>UI + pure</code></div>
+        <div class="finding"><span class="dot"></span><div><b>Honest payment affordance</b><small>Cost is in the option label and immediate spending requires confirmation.</small></div><code>Opus</code></div>
+        <div class="finding"><span class="dot"></span><div><b>No dead clutter</b><small>Seed recovery appears only when it can succeed; unreachable killed-state code is gone.</small></div><code>simplified</code></div>
+        <div class="finding"><span class="dot"></span><div><b>Real undo boundary</b><small>Farming direct commands now create Anki direct-action undo entries before mutation.</small></div><code>integration</code></div>
+      </div>
+    </article>
+
+    <article class="card depth">
+      <div class="eyebrow" style="color:var(--amber)">Later data depth</div>
+      <h2>No mechanic is missing</h2>
+      <p>The hidden Wild Vine combat-stat row and exact style/bind distributions remain explicitly source-blocked. The live horizontal slice uses a disclosed neutral level-120 stat abstraction, deterministic three-style rotation, and a bounded one-in-six one-review bind. These can be replaced by better period evidence without redesigning the mechanic graph.</p>
+      <div class="tags">
+        <code>farming_logic.py</code><code>runtime_actions.py</code><code>storage_pure.py</code><code>ui.py</code><code>tests/</code>
+      </div>
+    </article>
+  </section>
+
+  <footer>
+    <span>Sources: Jade vine oldid 6579442 · Wild jade vine oldid 6457741</span>
+    <span>Fable reserved · Kimi fail-closed · Opus review integrated</span>
+  </footer>
+</main>
+</body>
+</html>

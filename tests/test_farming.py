@@ -28,6 +28,9 @@ from farming_data import (
 )
 from farming_logic import (
     CURE_PLANT_SPELL_FIRST,
+    JADE_POLICY_KEEP_TAME,
+    JADE_POLICY_TRAIN_FARMING,
+    JADE_POLICY_TRAIN_SLAYER,
     PLANT_CURE_ITEM_FIRST,
     activate_juju_farming_potion_pure,
     add_farm_queue_step_pure,
@@ -357,6 +360,32 @@ class TestFarmingStorageAndRegistry(unittest.TestCase):
             migrated["farm_plans"]["falador_allotment_north"]["cure_route_preference"],
             PLANT_CURE_ITEM_FIRST,
         )
+
+    def test_v68_migration_retires_instant_jade_branches_without_retroactive_wild_state(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 67,
+                "inventory": {},
+                "farm_clock_minutes": 240,
+                "farm_patches": {
+                    "handelmort_jade_vine": {
+                        "crop_id": "jade_vine",
+                        "stage": 6,
+                        "health_checked": True,
+                        "produce_count": 6,
+                    },
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        record = migrated["farm_patches"]["handelmort_jade_vine"]
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(migrated["farm_jade_vine_policy"], JADE_POLICY_KEEP_TAME)
+        self.assertEqual(record["produce_count"], 0)
+        self.assertEqual(record["next_regrowth_at"], 270)
+        self.assertEqual(record["jade_state"], "prunable")
 
     def test_registry_and_every_farming_item_are_registered_without_a_target(self):
         farming = get_skill("farming")
@@ -1571,26 +1600,56 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         immune, _ = advance_farm_clock_pure(mushroom, 14, lambda: 0.0)
         self.assertFalse(immune["farm_patches"]["canifis_mushroom"]["diseased"])
 
-    def test_jade_vine_prunes_six_times_turns_wild_and_returns_seed_after_kill_clear(self):
+    def test_jade_vine_branch_clock_prunes_without_items_and_sixth_branch_turns_wild(self):
         data = _state()
         data["quests"] = {"back_to_my_roots": {"completed": True}}
-        data["inventory"].update({"Rake": 1, "Seed dibber": 1, "Spade": 1, "Jade vine seed": 1})
+        data["inventory"].update({"Rake": 1, "Seed dibber": 1, "Spade": 1, "Secateurs": 1, "Jade vine seed": 1})
         planted, ok, _ = execute_farm_field_step_pure(data, {"kind": "plant", "patch_id": "handelmort_jade_vine", "crop_id": "jade_vine"})
         self.assertTrue(ok)
         ready, _ = advance_farm_clock_pure(planted, 160, lambda: 1.0)
-        ready, ok, _ = execute_farm_field_step_pure(ready, {"kind": "check_health", "patch_id": "handelmort_jade_vine"})
+        self.assertEqual(ready["farm_patches"]["handelmort_jade_vine"]["produce_count"], 0)
+        ready, ok, _ = execute_farm_field_step_pure(ready, {"kind": "check_health", "patch_id": "handelmort_jade_vine"}, lambda: 0.0)
         self.assertTrue(ok)
-        for _ in range(6):
-            ready, ok, info = execute_farm_field_step_pure(ready, {"kind": "harvest", "patch_id": "handelmort_jade_vine"}, lambda: 0.0)
-            self.assertTrue(ok)
-            self.assertEqual(info["outputs"], {"Jade vine branch": 1})
-        self.assertEqual(ready["farm_patches"]["handelmort_jade_vine"]["jade_state"], "wild")
-        killed, ok, _ = execute_farm_field_step_pure(ready, {"kind": "chop", "patch_id": "handelmort_jade_vine"})
+        ready, _ = advance_farm_clock_pure(ready, 5, lambda: 0.0)
+        record = ready["farm_patches"]["handelmort_jade_vine"]
+        self.assertEqual(record["produce_count"], 1)
+        self.assertEqual([step["kind"] for step in ready["farm_queue"]], ["harvest"])
+        pruned, ok, info = execute_farm_field_step_pure(ready, {"kind": "harvest", "patch_id": "handelmort_jade_vine"}, lambda: 0.0)
         self.assertTrue(ok)
-        cleared, ok, info = execute_farm_field_step_pure(killed, {"kind": "clear", "patch_id": "handelmort_jade_vine"})
+        self.assertEqual(info["outputs"], {})
+        self.assertEqual(pruned["inventory"].get("Jade vine branch", 0), 0)
+
+        slayer_policy, ok, _ = apply_farming_frontend_action_pure(
+            pruned, "set_jade_vine_policy", {"policy": JADE_POLICY_TRAIN_SLAYER}
+        )
         self.assertTrue(ok)
-        self.assertEqual(info["outputs"], {"Jade vine seed": 1})
-        self.assertIsNone(cleared["farm_patches"]["handelmort_jade_vine"]["crop_id"])
+        wild, _ = advance_farm_clock_pure(slayer_policy, 30, lambda: 0.0)
+        self.assertEqual(wild["farm_patches"]["handelmort_jade_vine"]["jade_state"], "wild")
+        self.assertFalse(any(step.get("jade_auto_prune") for step in wild["farm_queue"]))
+
+    def test_jade_prune_projection_accepts_secateurs_without_a_spade(self):
+        data = _state()
+        data["quests"] = {"back_to_my_roots": {"completed": True}}
+        data["inventory"]["Secateurs"] = 1
+        data["farm_patches"]["handelmort_jade_vine"].update({
+            "crop_id": "jade_vine",
+            "last_crop_id": "jade_vine",
+            "stage": 6,
+            "health_checked": True,
+            "jade_state": "prunable",
+            "produce_count": 1,
+            "next_regrowth_at": 60,
+        })
+
+        patch = next(
+            patch
+            for location in farming_frontend_projection_pure(data)["locations"]
+            for patch in location["patches"]
+            if patch["patch_id"] == "handelmort_jade_vine"
+        )
+
+        self.assertEqual(patch["primary_action"]["label"], "Queue prune branch")
+        self.assertTrue(patch["primary_action"]["enabled"])
 
     def test_limpwurt_uses_level_scaled_extra_root_roll_without_extra_xp_rules(self):
         data = _state(99)
@@ -1651,11 +1710,145 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         vine, ok, _ = execute_farm_field_step_pure(vine, {"kind": "plant", "patch_id": "handelmort_jade_vine", "crop_id": "jade_vine"})
         self.assertTrue(ok)
         vine, _ = advance_farm_clock_pure(vine, 160, lambda: 1.0)
-        vine, ok, _ = execute_farm_field_step_pure(vine, {"kind": "check_health", "patch_id": "handelmort_jade_vine"})
-        self.assertTrue(ok)
-        vine, ok, _ = execute_farm_field_step_pure(vine, {"kind": "harvest", "patch_id": "handelmort_jade_vine"}, lambda: 0.0)
+        vine, ok, _ = execute_farm_field_step_pure(vine, {"kind": "check_health", "patch_id": "handelmort_jade_vine"}, lambda: 0.0)
         self.assertTrue(ok)
         self.assertEqual(vine["farm_patches"]["handelmort_jade_vine"]["next_regrowth_at"], vine["farm_clock_minutes"] + 30)
+
+    def test_jade_train_farming_and_seed_claim_are_atomic_direct_actions(self):
+        data = _state()
+        data["quests"] = {"back_to_my_roots": {"completed": True}}
+        data["inventory"].update({
+            "Rake": 1,
+            "Seed dibber": 1,
+            "Spade": 1,
+            "Jade vine seed": 1,
+        })
+        data, ok, _ = set_farm_plan_pure(data, "handelmort_jade_vine", "jade_vine")
+        self.assertTrue(ok)
+        data, ok, _ = apply_farming_frontend_action_pure(
+            data, "set_jade_vine_policy", {"policy": JADE_POLICY_TRAIN_FARMING}
+        )
+        self.assertTrue(ok)
+        data, ok, _ = execute_farm_field_step_pure(
+            data, {"kind": "plant", "patch_id": "handelmort_jade_vine", "crop_id": "jade_vine"}
+        )
+        self.assertTrue(ok)
+        data, _ = advance_farm_clock_pure(data, 160, lambda: 1.0)
+        data, ok, message = execute_farm_field_step_pure(
+            data, {"kind": "check_health", "patch_id": "handelmort_jade_vine"}, lambda: 0.0
+        )
+        self.assertTrue(ok)
+        self.assertIn("Replant blocked", message["message"])
+        self.assertEqual(data["farm_patches"]["handelmort_jade_vine"]["crop_id"], "jade_vine")
+        data["inventory"].update({"Coconut": 5, "Watermelon": 5})
+        data, _ = advance_farm_clock_pure(data, 1, lambda: 1.0)
+        self.assertEqual(data["inventory"]["Coconut"], 0)
+        self.assertEqual(data["inventory"]["Watermelon"], 0)
+        self.assertIsNone(data["farm_patches"]["handelmort_jade_vine"]["crop_id"])
+        self.assertEqual(data["farm_queue"][0]["kind"], "plant")
+
+        data["farm_queue"] = []
+        data["inventory"]["Jade vine seed"] = 0
+        claimed, ok, message = apply_farming_frontend_action_pure(data, "claim_jade_vine_seed")
+        self.assertTrue(ok, message)
+        self.assertEqual(claimed["inventory"]["Jade vine seed"], 1)
+        duplicate, ok, _ = apply_farming_frontend_action_pure(claimed, "claim_jade_vine_seed")
+        self.assertFalse(ok)
+        self.assertEqual(duplicate["inventory"]["Jade vine seed"], 1)
+
+    def test_wild_jade_vine_reuses_persistent_combat_and_kill_is_atomic(self):
+        data = _state()
+        data.update({
+            "slayer_level": 99,
+            "slayer_exp": 0.0,
+            "attack_level": 99,
+            "attack_exp": 0.0,
+            "equipment": {"weapon": "Bronze hatchet"},
+            "current_combat_target": "chicken",
+            "combat_encounter": {"target_id": "chicken", "enemy_lifepoints": 12},
+            "quests": {"back_to_my_roots": {"completed": True}},
+        })
+        data["inventory"]["Secateurs"] = 1
+        record = data["farm_patches"]["handelmort_jade_vine"]
+        record.update({
+            "crop_id": "jade_vine",
+            "last_crop_id": "jade_vine",
+            "stage": 6,
+            "health_checked": True,
+            "jade_state": "wild",
+        })
+        queued, step_id, _ = add_farm_queue_step_pure(
+            data, "chop", "handelmort_jade_vine"
+        )
+        self.assertIsNotNone(step_id)
+
+        def partial(player, *_args, **_kwargs):
+            result = copy.deepcopy(player)
+            result["combat_encounter"] = {
+                "target_id": "wild_jade_vine",
+                "enemy_lifepoints": 1800,
+            }
+            result["attack_exp"] = 40.0
+            return result, True, {
+                "killed": False,
+                "died": False,
+                "fled": False,
+                "enemy_lifepoints": 1800,
+                "enemy_damage": 0,
+                "ticks_elapsed": 6,
+                "xp_rewards": {"attack_exp": 40.0},
+            }
+
+        with patch("farming_logic.apply_combat_burst_pure", side_effect=partial) as burst:
+            fighting, consumed, info = apply_farming_review_with_queue_pure(
+                queued, lambda: 1.0, 3
+            )
+        self.assertTrue(consumed)
+        self.assertEqual(info["status"], "continuing")
+        self.assertEqual(fighting["farm_queue"][0]["id"], step_id)
+        self.assertEqual(
+            fighting["farm_patches"]["handelmort_jade_vine"]["jade_combat_encounter"]["enemy_lifepoints"],
+            1800,
+        )
+        self.assertEqual(fighting["current_combat_target"], "chicken")
+        self.assertEqual(fighting["combat_encounter"]["enemy_lifepoints"], 12)
+        self.assertEqual(burst.call_args.kwargs["ticks"], 18)
+        self.assertTrue(burst.call_args.kwargs["stop_after_first_kill"])
+
+        with patch("farming_logic.apply_combat_burst_pure", side_effect=partial) as burst:
+            _, consumed, info = consume_next_farm_queue_step_pure(
+                queued, lambda: 1.0, 4
+            )
+        self.assertTrue(consumed)
+        self.assertEqual(info["status"], "continuing")
+        self.assertEqual(burst.call_args.kwargs["ticks"], 24)
+
+        def killed(player, *_args, **_kwargs):
+            result = copy.deepcopy(player)
+            result["combat_encounter"] = {}
+            result["strength_exp"] = 80.0
+            return result, True, {
+                "killed": True,
+                "died": False,
+                "fled": False,
+                "enemy_lifepoints": 0,
+                "enemy_damage": 0,
+                "ticks_elapsed": 4,
+                "xp_rewards": {"strength_exp": 80.0},
+            }
+
+        with patch("farming_logic.apply_combat_burst_pure", side_effect=killed):
+            finished, consumed, info = consume_next_farm_queue_step_pure(
+                fighting, lambda: 1.0
+            )
+        self.assertTrue(consumed)
+        self.assertEqual(info["status"], "executed")
+        self.assertEqual(finished["farm_queue"], [])
+        self.assertIsNone(finished["farm_patches"]["handelmort_jade_vine"]["crop_id"])
+        self.assertEqual(finished["inventory"]["Jade vine seed"], 1)
+        self.assertEqual(info["slayer_xp"], 2500.0)
+        self.assertEqual(info["woodcutting_xp"], 202.0)
+        self.assertEqual(finished["current_combat_target"], "chicken")
 
     def test_harvest_and_clear_require_spade_and_scarecrow_can_be_removed(self):
         ready, _ = advance_farm_clock_pure(_plant_ready(_state()), 7, lambda: 1.0)
@@ -1844,6 +2037,45 @@ class TestFarmingFrontendProjection(unittest.TestCase):
         )
         self.assertTrue(patch["branch_action"]["enabled"])
         self.assertIn("6/6 branches ready", patch["status_label"])
+
+    def test_jade_projection_uses_one_policy_surface_and_names_combat_as_combat(self):
+        state = _state()
+        state.update({
+            "quests": {"back_to_my_roots": {"completed": True}},
+            "slayer_level": 59,
+            "equipment": {"weapon": "Bronze hatchet"},
+        })
+        state["inventory"]["Secateurs"] = 1
+        record = state["farm_patches"]["handelmort_jade_vine"]
+        record.update({
+            "crop_id": "jade_vine",
+            "last_crop_id": "jade_vine",
+            "stage": 6,
+            "health_checked": True,
+            "jade_state": "wild",
+            "jade_combat_encounter": {
+                "target_id": "wild_jade_vine",
+                "enemy_lifepoints": 1800,
+            },
+        })
+
+        patch = next(
+            patch
+            for location in farming_frontend_projection_pure(state)["locations"]
+            for patch in location["patches"]
+            if patch["patch_id"] == "handelmort_jade_vine"
+        )
+        self.assertEqual(len(patch["jade_vine"]["policy_options"]), 3)
+        self.assertIn(
+            "5 coconuts + 5 watermelons",
+            patch["jade_vine"]["policy_options"][2]["label"],
+        )
+        self.assertIsNone(patch["jade_vine"]["claim_seed"])
+        self.assertTrue(patch["jade_vine"]["policy_enabled"])
+        self.assertIn("1800/2500 LP", patch["status_label"])
+        self.assertEqual(patch["primary_action"]["label"], "Queue Wild Vine fight")
+        self.assertTrue(patch["primary_action"]["enabled"])
+        self.assertIsNone(patch["shortcut_action"])
 
     def test_hud_precedence_is_alert_then_ready_then_queue_then_none(self):
         queued, step_id, _ = add_farm_queue_step_pure(_state(), "plant", "falador_allotment_north", crop_id="potato")

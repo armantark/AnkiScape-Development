@@ -3094,3 +3094,34 @@ The visual closure report is
 - Published
   `status-updates/managing-miscellania-horizontal-results-2026-07-21.html`;
   mobile copy: `https://juwv1i05slff.postplan.dev`.
+
+## Jade Vine horizontal closure — 2026-07-21
+
+- Replaced the retired instant-six-branch Farming shortcut with the sourced
+  health-check-armed 5–10-review branch clock. Keep tame queues one paid prune
+  per branch, Train Slayer admits the unseen sixth branch, and Train Farming
+  retries Horacio's five-coconut/five-watermelon replant service.
+- The Wild Vine is now persistent ordinary Combat: equipped usable hatchet,
+  Secateurs and Slayer-59 preflight, `6 × M` live ticks, carried enemy LP and
+  status, dangerous death, flee reset, ordinary Combat XP, and an atomic
+  2,500-Slayer-XP / 202-Woodcutting-XP / replacement-seed kill settlement.
+- Added schema-68 migration, free no-duplicate seed recovery, review/direct
+  undo coverage, and a compact one-dropdown policy surface. Exact hidden combat
+  stats and style/bind distributions remain labeled data depth; no owner design
+  gap surfaced.
+- Opus's independent pass found and closed the unsafe pre-v68 migration,
+  incorrect Spade-only prune gate, undisclosed Horacio payment, persistent
+  recovery-button clutter, fallback cadence mismatch, and stale dead state.
+  Fable remained on reserve; Kimi's fresh rolling-window quota telemetry was
+  unavailable, so its fail-closed gate was not bypassed.
+- Full verification passes 2,210 non-Qt methods with 291 expected dependency
+  skips and 2,209 real offscreen-Qt methods with one intentional skip. A final
+  17-method Qt/runtime delta suite passes after the direct-undo fix. A clean
+  native Anki restart showed one launcher and exactly one AnkiScape dialog,
+  with Utilities and Activities still distinct.
+- Documentation, hard test quality, compilation, diff, global small-asset
+  normalization, reachability, and worktree safety pass. Reachability remains
+  1,441 actions, 2,132 reachable items, 166 known orphan inputs, and 187
+  blocked actions; this slice adds no item orphan.
+- Results: `status-updates/jade-vine-horizontal-results-2026-07-21.html`;
+  mobile copy: `https://rdcwhc5livaj.postplan.dev`.

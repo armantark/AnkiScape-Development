@@ -4512,6 +4512,115 @@ class TestIntegrationSmoke(unittest.TestCase):
         ))
         self.assertEqual(addon.player_data, before)
 
+    def test_jade_branch_from_again_waits_for_a_successful_review_and_undoes(self):
+        addon = _load_addon_as_package("ankiscape_jade_vine_queue_integration")
+        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_exp = lambda _xp: None
+        addon._show_activity_gain = lambda _message: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        state = {
+            "inventory": {"Secateurs": 1},
+            "farming_level": 99,
+            "farming_exp": 0.0,
+            "woodcutting_level": 99,
+            "woodcutting_exp": 0.0,
+            "agility_level": 99,
+            "slayer_level": 99,
+            "slayer_exp": 0.0,
+            "quests": {"back_to_my_roots": {"completed": True}},
+            "completed_achievements": [],
+        }
+        state.update(farming_logic.default_farming_state_pure())
+        record = state["farm_patches"]["handelmort_jade_vine"]
+        record.update({
+            "crop_id": "jade_vine",
+            "last_crop_id": "jade_vine",
+            "stage": 6,
+            "health_checked": True,
+            "jade_state": "prunable",
+            "next_regrowth_at": 6,
+        })
+        addon.player_data = state
+        addon.current_skill = "Mining"
+
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        addon.on_answer_card(_FakeReviewer(), 1, lambda _self, _ease: "again")
+        self.assertEqual(
+            addon.player_data["farm_patches"]["handelmort_jade_vine"]["produce_count"],
+            1,
+        )
+        self.assertEqual(
+            [step["kind"] for step in addon.player_data["farm_queue"]],
+            ["harvest"],
+        )
+
+        before_prune = copy.deepcopy(addon.player_data)
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+        self.assertEqual(
+            addon.player_data["farm_patches"]["handelmort_jade_vine"]["produce_count"],
+            0,
+        )
+        self.assertEqual(addon.player_data["farm_queue"], [])
+        self.assertEqual(addon.player_data["inventory"].get("Jade vine branch", 0), 0)
+
+        addon._on_state_did_undo(types.SimpleNamespace(
+            operation="Answer Card",
+            changes=types.SimpleNamespace(study_queues=True, card=True),
+        ))
+        self.assertEqual(addon.player_data, before_prune)
+
+    def test_jade_seed_claim_is_a_direct_undoable_farming_action(self):
+        addon = _load_addon_as_package(
+            "ankiscape_jade_vine_direct_action_integration"
+        )
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon.current_skill = "Farming"
+        state = {
+            "inventory": {},
+            "farming_level": 53,
+            "farming_exp": 0.0,
+            "smithing_level": 1,
+            "quests": {"back_to_my_roots": {"completed": True}},
+        }
+        state.update(addon.farming_logic.default_farming_state_pure())
+        addon.player_data = copy.deepcopy(state)
+
+        addon._on_main_menu(initial_skill="Farming")
+        claimed = captured["on_farming_action"](
+            "claim_jade_vine_seed",
+            {},
+        )
+
+        self.assertTrue(claimed["ok"])
+        self.assertEqual(addon.player_data["inventory"]["Jade vine seed"], 1)
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, state)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
     def test_willow_full_run_health_checks_then_prunes_on_successive_reviews(self):
         addon = _load_addon_as_package("ankiscape_willow_full_run_integration")
         farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
