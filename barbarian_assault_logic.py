@@ -555,20 +555,31 @@ def barbarian_assault_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any
     session = state["barbarian_assault"]
     points = state["barbarian_assault_points"]
     active = bool(session)
+    locked_reasons: list[str] = []
+    if not state["barbarian_assault_tutorial_complete"]:
+        locked_reasons.append("Complete Captain Cain's tutorial")
+    if not active:
+        activity_session = player_data.get("activity_session")
+        active_id = (
+            str(activity_session.get("active_id", ""))
+            if isinstance(activity_session, Mapping)
+            else ""
+        )
+        if active_id and active_id != BARBARIAN_ASSAULT_ACTIVITY_ID:
+            locked_reasons.append("Finish the active persistent activity")
+        encounter = player_data.get("combat_encounter")
+        if isinstance(encounter, Mapping) and encounter:
+            locked_reasons.append("Finish or leave the current Combat encounter")
     return {
         **state,
         "active": active,
         "session": session,
-        "can_enter": bool(state["barbarian_assault_tutorial_complete"]) and not active,
+        "can_enter": not active and not locked_reasons,
         "can_buy_runner_boots": (
             not active
             and all(value >= RUNNER_BOOTS_COST_PER_ROLE for value in points.values())
         ),
-        "locked_reasons": (
-            []
-            if state["barbarian_assault_tutorial_complete"]
-            else ["Complete Captain Cain's tutorial"]
-        ),
+        "locked_reasons": locked_reasons,
     }
 
 

@@ -256,6 +256,11 @@ try:
         apply_pest_control_review_pure,
         pest_control_view_pure,
     )
+    from .barbarian_assault_data import BARBARIAN_ASSAULT_ACTIVITY_ID
+    from .barbarian_assault_logic import (
+        apply_barbarian_assault_review_pure,
+        barbarian_assault_view_pure,
+    )
     from .varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
     from .varrock_museum_logic import (
         apply_varrock_museum_review_pure,
@@ -604,6 +609,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from pest_control_logic import (  # type: ignore
         apply_pest_control_review_pure,
         pest_control_view_pure,
+    )
+    from barbarian_assault_data import BARBARIAN_ASSAULT_ACTIVITY_ID  # type: ignore
+    from barbarian_assault_logic import (  # type: ignore
+        apply_barbarian_assault_review_pure,
+        barbarian_assault_view_pure,
     )
     from varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID  # type: ignore
     from varrock_museum_logic import (  # type: ignore
@@ -3719,6 +3729,57 @@ def handle_pest_control_answer(
     return True
 
 
+def handle_barbarian_assault_answer(
+    ctx: RuntimeActionContext,
+    *,
+    productive: bool = True,
+) -> bool:
+    updated, ok, result = apply_barbarian_assault_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+        productive=productive,
+        equipment_data=EQUIPMENT_DATA,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Barbarian Assault unavailable",
+            str(result.get("reason", "Enter Barbarian Assault before training.")),
+        )
+        return False
+    xp_rewards = dict(result.get("xp_rewards") or {})
+    for exp_key, amount in xp_rewards.items():
+        updated[exp_key] = float(updated.get(exp_key, 0.0) or 0.0) + float(amount)
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    _record_action(
+        ctx,
+        "utility",
+        BARBARIAN_ASSAULT_ACTIVITY_ID,
+        productive,
+        expected_success_chance=1.0,
+        failure_kind="safe_death" if result.get("died") else None,
+        primary_xp=sum(float(amount or 0.0) for amount in xp_rewards.values()),
+    )
+    _refresh_combat_levels(ctx, xp_rewards)
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    xp_total = sum(float(amount or 0.0) for amount in xp_rewards.values())
+    if xp_total > 0:
+        ctx.show_exp(xp_total)
+    ctx.show_activity_gain(
+        str(
+            result.get("message")
+            or result.get("status")
+            or "Barbarian Assault beat resolved"
+        )
+    )
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
 def handle_varrock_museum_answer(ctx: RuntimeActionContext) -> bool:
     updated, ok, result = apply_varrock_museum_review_pure(ctx.player_data)
     if not ok:
@@ -3830,6 +3891,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return handle_castle_wars_answer(ctx)
     if activity_key == PEST_CONTROL_ACTIVITY_ID:
         return handle_pest_control_answer(ctx)
+    if activity_key == BARBARIAN_ASSAULT_ACTIVITY_ID:
+        return handle_barbarian_assault_answer(ctx)
     if activity_key == VARROCK_MUSEUM_ACTIVITY_ID:
         return handle_varrock_museum_answer(ctx)
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:
@@ -6178,6 +6241,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return bool(castle_wars_view_pure(ctx.player_data).get("active", False))
     if activity_key == PEST_CONTROL_ACTIVITY_ID:
         return bool(pest_control_view_pure(ctx.player_data).get("active", False))
+    if activity_key == BARBARIAN_ASSAULT_ACTIVITY_ID:
+        return bool(barbarian_assault_view_pure(ctx.player_data).get("active", False))
     if activity_key == VARROCK_MUSEUM_ACTIVITY_ID:
         return bool(varrock_museum_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:

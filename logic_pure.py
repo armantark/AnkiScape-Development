@@ -5337,7 +5337,14 @@ def _combat_apply_triple_charm_reward(data, drops):
         ) <= 0
     ):
         return drops
-    eligible = {"Gold charm", "Green charm", "Crimson charm", "Blue charm"}
+    eligible = {
+        "Gold charm",
+        "Green charm",
+        "Crimson charm",
+        "Blue charm",
+        "Obsidian charm",
+        "Abyssal charm",
+    }
     return {
         item_name: amount * 3 if item_name in eligible else amount
         for item_name, amount in drops.items()

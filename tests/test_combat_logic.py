@@ -150,15 +150,28 @@ _KILLER_ENEMY_DATA = {
 
 
 class CombatStatPotionAutoDrinkTest(unittest.TestCase):
-    def test_familiarisation_triples_only_eligible_ordinary_charm_drops(self):
+    def test_familiarisation_triples_all_eligible_period_charm_drops(self):
         data = {
             "summoning_state": {"triple_charm_reviews_remaining": 2}
         }
         self.assertEqual(
             _combat_apply_triple_charm_reward(
-                data, {"Gold charm": 1, "Obsidian charm": 2, "Bones": 1}
+                data,
+                {
+                    "Gold charm": 1,
+                    "Obsidian charm": 2,
+                    "Abyssal charm": 1,
+                    "Talon beast charm": 1,
+                    "Bones": 1,
+                },
             ),
-            {"Gold charm": 3, "Obsidian charm": 2, "Bones": 1},
+            {
+                "Gold charm": 3,
+                "Obsidian charm": 6,
+                "Abyssal charm": 3,
+                "Talon beast charm": 1,
+                "Bones": 1,
+            },
         )
 
     def test_pack_yak_winter_storage_only_commits_when_it_avoids_bank_run(self):

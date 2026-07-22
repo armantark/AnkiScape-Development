@@ -4,6 +4,32 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Barbarian Assault horizontal mechanic closure — 2026-07-22
+
+- Integrated Captain Cain's tutorial, Casual wallet balancing, Advanced fixed
+  roles, all ten waves, safe restart/leave, four Honour-point wallets, the
+  persistent eight-Omega-egg Queen front, exact terminal points, and one
+  non-stacking Queen credit.
+- Attacker duties reuse one live six-tick Combat slice. Collector, Defender,
+  and Healer resolve sourced call-following duties through the competent-team
+  abstraction; `Again` idles on ordinary waves and applies bounded Queen
+  pressure without advancing an egg.
+- Added the exact Runner-boots four-wallet purchase and period equipment block,
+  schema 77 migration/repair, shared activity ownership, generic Utility
+  dispatch, cadence/telemetry, direct/review undo, registry reachability,
+  normalized assets/provenance, and reproducible fetch/render tools.
+- Added a compact Activities card for tutorial, plan, wallets, wave/Queen
+  progress, purchase, selection, and leave. Root inspected ready and Queen
+  dark-palette renders; the real offscreen interaction path passes.
+- A bounded Workflows audit found two concrete pure-boundary defects: entry
+  could overwrite an active Combat encounter and malformed saves could enter
+  the Queen before wave 10. Both have regressions and are fixed. Focused
+  cross-family verification passes 710 tests.
+- Kimi review was denied at the external-data boundary, Opus authentication
+  could not refresh, and Fable stayed reserved. No design question emerged.
+  Remaining armour, horn, gamble, and hidden-rate rows are data depth. Durable
+  audit: `source-audits/barbarian-assault-role-model-2026-07-18.md`.
+
 ## Varrock Museum horizontal mechanic closure — 2026-07-22
 
 - Added a persistent derived Kudos ledger with fourteen quiz displays, five

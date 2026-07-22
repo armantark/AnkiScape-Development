@@ -628,6 +628,36 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "barbarian_assault":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "barbarian_assault",
+                    "mode": "activity_group",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One review resolves one sourced role duty or one persistent "
+                        "Omega-egg handoff beat; Attacker duties include one live "
+                        "six-tick Combat slice. Source wall-clock duration is not a "
+                        "gameplay input."
+                    ),
+                    "includes": (
+                        "one productive duty or explicit Again idle/Queen-pressure beat",
+                        "wave points, safe restart, and terminal Queen settlement",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains one "
+                        "wave or Queen beat and cannot begin a second run"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same ten-wave and eight-egg activity handler",
+                    "profile": None,
+                    "condition": "disclosed event-count and competent-team abstractions",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "varrock_museum":
             rows.append(
                 {

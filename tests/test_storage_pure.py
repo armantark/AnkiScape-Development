@@ -1107,6 +1107,46 @@ class TestStoragePure(unittest.TestCase):
             ["kudos_51"],
         )
 
+    def test_migrate_adds_and_sanitizes_barbarian_assault_state(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 76,
+                "inventory": {},
+                "activity_session": {"active_id": "barbarian_assault"},
+                "barbarian_assault": {
+                    "wave": 3,
+                    "phase": "queen",
+                    "queen_lifepoints": 1,
+                    "omega_eggs": 7,
+                    "role": "unknown",
+                },
+                "barbarian_assault_policy": {
+                    "automation_mode": "unknown",
+                    "role": "unknown",
+                },
+                "barbarian_assault_points": {
+                    "attacker": -3,
+                    "collector": 7,
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(migrated["barbarian_assault"]["wave"], 3)
+        self.assertEqual(migrated["barbarian_assault"]["phase"], "wave")
+        self.assertEqual(migrated["barbarian_assault"]["queen_lifepoints"], 2_500)
+        self.assertEqual(migrated["barbarian_assault"]["omega_eggs"], 0)
+        self.assertEqual(
+            migrated["barbarian_assault_policy"],
+            {"automation_mode": "casual", "role": "attacker"},
+        )
+        self.assertEqual(
+            migrated["barbarian_assault_points"],
+            {"attacker": 0, "collector": 7, "defender": 0, "healer": 0},
+        )
+
     def test_migrate_idempotent(self):
         base = {"mining_exp": 10, "inventory": {}}
         first = migrate_loaded_data(base, ORE_DATA)

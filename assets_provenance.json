@@ -275,6 +275,18 @@
     "source_wiki": "osrs",
     "timestamp": "2022-01-19T13:54:36Z"
   },
+  "activityicons/barbarian_assault.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Omega_egg.png",
+    "file_title": "Omega egg.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502072700%21Omega_egg.png?caf69",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "27e018570b6328f4f7a4f5f0fb99b39f43ca2505",
+    "size": 942,
+    "source_wiki": "rs3",
+    "timestamp": "2010-03-12T02:04:32Z"
+  },
   "activityicons/barrows.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Dharok%27s_greataxe.png",
     "file_title": "Dharok's greataxe.png",
@@ -682,6 +694,18 @@
     "size": 852,
     "source_wiki": "rs3",
     "timestamp": "2010-10-06T02:06:29Z"
+  },
+  "activityitems/barbarian_assault_runner_boots.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Runner_boots.png",
+    "file_title": "Runner boots.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502073318%21Runner_boots.png?6ed50",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6743ed9b39bce7e8c774365cadd78de9573a7536",
+    "size": 1632,
+    "source_wiki": "rs3",
+    "timestamp": "2010-04-09T11:35:20Z"
   },
   "activityitems/basic_tackle_box.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Basic_tackle_box.png",

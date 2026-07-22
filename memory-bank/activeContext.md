@@ -2,6 +2,32 @@
 
 ## Current Focus
 
+Barbarian Assault now satisfies horizontal breadth level one as a persistent,
+Activities-only cooperative assault. Captain Cain's tutorial gates entry;
+Casual mode balances the four Honour-point wallets and Advanced mode fixes one
+role. Waves 1–9 use one sourced role-duty beat, wave 10 adds the ordinary front
+and eight persistent Omega-egg handoffs, Attacker reuses one live six-tick
+Combat slice, and a competent simulated team covers the other sourced duties.
+Safe death restarts the current wave, Queen pressure can restart all of wave
+10, explicit leave forfeits only pending progress, and no wall clock is used.
+
+The exact regular-wave formulas and `80 + 5/5/5` wave-10 settlement are live,
+with one non-stacking Queen credit and a representative Runner-boots purchase
+for 100 points in every role. Schema 77, storage repair, cadence/telemetry,
+activity arbitration, direct/review undo, equipment/item registration,
+normalized cutoff assets, and the compact tutorial/plan/wallet/progress card
+are integrated. A bounded Workflows audit found and root fixed active-Combat
+overwrite and impossible early-Queen save states before shared wiring.
+
+Focused 710-test cross-family verification and the real offscreen Qt interaction
+test pass; root inspected ready and Queen 1200×760 dark-palette renders. Kimi's
+external-data review was denied by execution policy, Opus could not refresh
+Claude authentication, and Fable remained reserved. No owner design gap
+surfaced. Durable record:
+`source-audits/barbarian-assault-role-model-2026-07-18.md`. The next source-ready
+unrepresented activity is Soul Wars, followed by the already-harvested shared
+integration for Shades of Mort'ton.
+
 Varrock Museum now satisfies horizontal breadth level one as an Activities-only
 Landmark with a derived persistent Kudos meter. The natural-history quiz uses
 fourteen one-review display landmarks for the sourced 28 Kudos and unlocks

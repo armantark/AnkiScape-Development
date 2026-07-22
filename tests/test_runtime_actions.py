@@ -71,6 +71,46 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_barbarian_assault_routes_full_run_through_utility(self):
+        from barbarian_assault_logic import (
+            complete_barbarian_assault_tutorial_pure,
+            enter_barbarian_assault_pure,
+        )
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data, ok, info = complete_barbarian_assault_tutorial_pure(
+            {
+                "current_utility": "barbarian_assault",
+                "activity_session": {"active_id": ""},
+                "combat_encounter": {},
+                "combat_supply_loadout": {},
+                "current_combat_target": "chicken",
+                "inventory": {},
+                "equipment": {},
+                "completed_achievements": [],
+            }
+        )
+        self.assertTrue(ok, info)
+        player_data, ok, info = enter_barbarian_assault_pure(
+            player_data,
+            {"automation_mode": "advanced", "role": "defender"},
+        )
+        self.assertTrue(ok, info)
+
+        for _ in range(18):
+            self.assertTrue(handle_utility_answer(_context(player_data, calls)))
+            if not player_data["barbarian_assault"]:
+                break
+
+        self.assertEqual(player_data["barbarian_assault"], {})
+        self.assertEqual(player_data["barbarian_assault_queen_kills"], 1)
+        self.assertTrue(player_data["barbarian_assault_queen_credit"])
+        self.assertTrue(calls.get("deactivated"))
+        self.assertIn(
+            "utility:barbarian_assault",
+            player_data["action_telemetry"]["actions"],
+        )
+
     def test_varrock_museum_routes_one_landmark_through_utility(self):
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         player_data = {

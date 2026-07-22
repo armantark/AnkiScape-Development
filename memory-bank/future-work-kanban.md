@@ -1264,9 +1264,16 @@ Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
   Sorceress's Garden, Penguin Hide and Seek, Vinesweeper, Fight Caves,
   Stealing Creation, Barrows, Flash Powder Factory, Pyramid Plunder, and
   Werewolf Skullball, Gnome Ball, Fish Flingers, Fishing Trawler, Great Orb
-  Project, Managing Miscellania, Big Top Bonanza, and Trouble Brewing with
+  Project, Managing Miscellania, Big Top Bonanza, Trouble Brewing, Castle Wars,
+  Pest Control, Varrock Museum, and Barbarian Assault with
   complete mechanics, persistence, undo, UI, assets, and compact period-
   qualified data sets.
+- Barbarian Assault now owns the complete tutorial → ten-wave → persistent
+  eight-egg Queen → four-wallet settlement loop, Runner-boots purchase,
+  persistence, arbitration, cadence, undo, UI, and normalized assets. Its
+  remaining armour/horn/gamble catalog and source-blocked Attacker XP multiplier
+  are data depth. Continue with the already-harvested Soul Wars horizontal
+  slice, then Shades of Mort'ton shared integration.
 - Flash Powder Factory and Pyramid Plunder are closed. Tears of Guthix and Shattered Heart remain explicit
   source-readiness skips, not design questions. Continue breadth-first with the
   next settled activity whose smallest honest entry/state/reward data set is

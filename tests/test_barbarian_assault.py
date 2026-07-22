@@ -15,6 +15,7 @@ from barbarian_assault_data import (
 )
 from barbarian_assault_logic import (
     apply_barbarian_assault_review_pure,
+    barbarian_assault_view_pure,
     buy_runner_boots_pure,
     complete_barbarian_assault_tutorial_pure,
     enter_barbarian_assault_pure,
@@ -163,6 +164,23 @@ class BarbarianAssaultStateTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("combat encounter", info["reason"].lower())
         self.assertEqual(unchanged, original)
+
+    def test_view_explains_foreign_activity_and_combat_entry_locks(self):
+        view = barbarian_assault_view_pure(
+            _ready(
+                activity_session={"active_id": "barrows"},
+                combat_encounter={"target_id": "chicken", "enemy_lifepoints": 17},
+            )
+        )
+
+        self.assertFalse(view["can_enter"])
+        self.assertEqual(
+            view["locked_reasons"],
+            [
+                "Finish the active persistent activity",
+                "Finish or leave the current Combat encounter",
+            ],
+        )
 
     def test_casual_rotates_to_the_lowest_wallet_and_advanced_keeps_role(self):
         data = _entered()

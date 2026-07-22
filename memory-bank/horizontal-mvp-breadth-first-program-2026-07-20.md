@@ -74,6 +74,21 @@ but it does not control the frontier.
 
 ## Current frontier
 
+### Live frontier update — 2026-07-22
+
+Barbarian Assault now satisfies breadth level one. Its mandatory tutorial,
+Casual/Advanced role policy, ten sourced wave duties, four Honour-point
+wallets, safe restart/leave, live Attacker Combat, persistent eight-beat Queen,
+exact wave-10 settlement, representative Runner-boots purchase, schema,
+cadence, undo, registry, assets, and compact Activities card are live. The
+remaining reward catalog and hidden performance values are data depth.
+
+The next source-ready unrepresented family is Soul Wars under
+`source-audits/soul-wars-horizontal-readiness-2026-07-21.md`. The following
+shared integration is Shades of Mort'ton under
+`source-audits/shades-of-mortton-horizontal-readiness-2026-07-21.md`. Neither
+requires an owner design decision before implementation.
+
 ### Live frontier update — 2026-07-21
 
 The traversal narrative below is retained as history; it no longer names the

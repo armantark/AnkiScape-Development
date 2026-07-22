@@ -4,9 +4,8 @@ Date: `2026-07-18`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **owner-settled role and call model; period horizontal tables are
-source-closed and the isolated pure state machine is implemented. Shared
-runtime/UI integration remains.**
+Status: **owner-settled, period horizontal tables source-closed, and horizontal
+breadth level one live end to end.**
 
 ## Evidence position
 
@@ -90,10 +89,10 @@ feet-slot, Defence-40, attack/defence/strength equipment block.
   shop says a Queen kill is required per eligible item and kills do not stack.
   Runner boots exercise the four-wallet purchase without consuming that credit.
 
-## Isolated pure substrate — 2026-07-21
+## Live horizontal closure — 2026-07-22
 
-`barbarian_assault_data.py`, `barbarian_assault_logic.py`, and
-`tests/test_barbarian_assault.py` now implement and verify:
+`barbarian_assault_data.py`, `barbarian_assault_logic.py`, and the shared
+runtime now implement and verify:
 
 - mandatory one-time tutorial, persistent activity ownership, Casual and
   Advanced role policy, all ten waves, four wallets, safe death
@@ -109,10 +108,21 @@ closed two persistence-boundary defects before shared wiring: entry now refuses
 to overwrite an existing Combat encounter, and malformed saved data cannot
 reach the Queen phase before wave 10. Both repairs have focused regressions.
 
-This is an atomic backend checkpoint, not a claim that the activity is live.
-Storage migration, runtime dispatch, direct/review undo, cadence, registry,
-assets, compact Activities UI, and integration/Qt coverage remain the next
-shared-file batch.
+Schema 77 now owns migration and repair. The generic Utility review dispatcher,
+telemetry, cadence ledger, activity-session arbitration, direct-action undo,
+and whole-review undo all preserve the ten-wave/eight-egg boundary. The
+Activities-only card exposes the tutorial, Casual/Advanced role plan, four
+wallets, wave/Queen progress, Runner-boots purchase, selection, and explicit
+leave. Normalized cutoff Omega-egg and Runner-boots art, immutable provenance,
+and reproducible fetch/render tools are live.
+
+Focused pure, runtime, migration, cadence, registry, direct-undo, Combat/
+Familiarisation, and real offscreen Qt interaction checks pass. Root inspected
+the 1200×760 ready and Queen dark-palette renders. The requested external taste
+pair was unavailable without weakening provider boundaries: Kimi's external
+repository-data transfer was denied by the execution policy, Opus could not
+refresh local Claude authentication, and Fable remained reserved. This is a
+recorded QA availability gap, not a product-design gap.
 
 ## Explicit source blocks and omissions
 

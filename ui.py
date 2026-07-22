@@ -534,6 +534,21 @@ except Exception:
     from pest_control_logic import pest_control_view_pure  # type: ignore
 
 try:
+    from .barbarian_assault_data import (
+        BARBARIAN_ASSAULT_ACTIVITY_ID,
+        BARBARIAN_ASSAULT_QUEEN_EGGS,
+        BARBARIAN_ASSAULT_ROLES,
+    )
+    from .barbarian_assault_logic import barbarian_assault_view_pure
+except Exception:
+    from barbarian_assault_data import (  # type: ignore
+        BARBARIAN_ASSAULT_ACTIVITY_ID,
+        BARBARIAN_ASSAULT_QUEEN_EGGS,
+        BARBARIAN_ASSAULT_ROLES,
+    )
+    from barbarian_assault_logic import barbarian_assault_view_pure  # type: ignore
+
+try:
     from .varrock_museum_data import (
         QUIZ_DISPLAYS,
         SPECIMEN_DISPLAYS,
@@ -3626,6 +3641,7 @@ def show_main_menu(
     on_trouble_brewing_command=None,
     on_castle_wars_command=None,
     on_pest_control_command=None,
+    on_barbarian_assault_command=None,
     on_varrock_museum_command=None,
     on_managing_miscellania_command=None,
     on_set_prayer_selection=None,
@@ -13654,6 +13670,276 @@ def show_main_menu(
         pest_leave.clicked.connect(lambda _checked=False: _confirm_pest_leave())
         _refresh_pest_panel()
 
+        barbarian_box = QtFrame()
+        barbarian_box.setObjectName("barbarianAssaultPanel")
+        barbarian_box.setStyleSheet(
+            "QFrame#barbarianAssaultPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        barbarian_layout = QVBoxLayout(barbarian_box)
+        barbarian_layout.setContentsMargins(10, 8, 10, 8)
+        barbarian_layout.setSpacing(7)
+
+        barbarian_header = QWidget()
+        barbarian_header_layout = QHBoxLayout(barbarian_header)
+        barbarian_header_layout.setContentsMargins(0, 0, 0, 0)
+        barbarian_header_layout.setSpacing(8)
+        barbarian_icon = QLabel()
+        barbarian_icon.setObjectName("barbarianAssaultIcon")
+        barbarian_icon.setFixedSize(28, 28)
+        barbarian_icon_path = os.path.join(
+            current_dir, "activityicons", "barbarian_assault.png"
+        )
+        if os.path.exists(barbarian_icon_path):
+            barbarian_icon.setPixmap(
+                QPixmap(barbarian_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+        barbarian_title = QLabel("Barbarian Assault")
+        barbarian_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        barbarian_status = QLabel()
+        barbarian_status.setObjectName("barbarianAssaultStatusChip")
+        barbarian_status.setStyleSheet(
+            f"color: {dim_text_css(barbarian_status)}; font-size: 11px; font-weight: 700;"
+        )
+        barbarian_header_layout.addWidget(barbarian_icon)
+        barbarian_header_layout.addWidget(barbarian_title)
+        barbarian_header_layout.addStretch(1)
+        barbarian_header_layout.addWidget(barbarian_status)
+        barbarian_layout.addWidget(barbarian_header)
+
+        barbarian_summary = QLabel()
+        barbarian_summary.setObjectName("barbarianAssaultSummary")
+        barbarian_summary.setWordWrap(True)
+        barbarian_summary.setStyleSheet("color: palette(text);")
+        barbarian_layout.addWidget(barbarian_summary)
+
+        barbarian_progress = QProgressBar()
+        barbarian_progress.setObjectName("barbarianAssaultProgress")
+        barbarian_progress.setTextVisible(True)
+        barbarian_progress.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 4px; }"
+            "QProgressBar::chunk { background: #7b5131; }"
+        )
+        barbarian_layout.addWidget(barbarian_progress)
+
+        barbarian_plan = QWidget()
+        barbarian_plan_layout = QGridLayout(barbarian_plan)
+        barbarian_plan_layout.setContentsMargins(0, 0, 0, 0)
+        barbarian_plan_layout.setHorizontalSpacing(6)
+        barbarian_plan_layout.setVerticalSpacing(5)
+        barbarian_mode = QComboBox()
+        barbarian_mode.setObjectName("barbarianAssaultModeCombo")
+        barbarian_mode.setAccessibleName("Barbarian Assault automation mode")
+        barbarian_mode.addItem("Casual · balance Honour points", "casual")
+        barbarian_mode.addItem("Advanced · fixed role", "advanced")
+        barbarian_role = QComboBox()
+        barbarian_role.setObjectName("barbarianAssaultRoleCombo")
+        barbarian_role.setAccessibleName("Barbarian Assault fixed role")
+        for role_id, label in BARBARIAN_ASSAULT_ROLES:
+            barbarian_role.addItem(label, role_id)
+        barbarian_save = QPushButton("Save plan")
+        barbarian_save.setObjectName("barbarianAssaultSavePlanButton")
+        barbarian_plan_layout.addWidget(barbarian_mode, 0, 0)
+        barbarian_plan_layout.addWidget(barbarian_role, 0, 1)
+        barbarian_plan_layout.addWidget(barbarian_save, 0, 2)
+        barbarian_layout.addWidget(barbarian_plan)
+
+        barbarian_actions = QWidget()
+        barbarian_actions_layout = QHBoxLayout(barbarian_actions)
+        barbarian_actions_layout.setContentsMargins(0, 0, 0, 0)
+        barbarian_actions_layout.setSpacing(6)
+        barbarian_primary = QPushButton()
+        barbarian_primary.setObjectName("barbarianAssaultPrimaryButton")
+        barbarian_tutorial = QPushButton("Captain Cain tutorial")
+        barbarian_tutorial.setObjectName("barbarianAssaultTutorialButton")
+        barbarian_buy = QPushButton("Buy Runner boots · 100 per role")
+        barbarian_buy.setObjectName("barbarianAssaultBuyBootsButton")
+        barbarian_leave = QPushButton("Leave run")
+        barbarian_leave.setObjectName("barbarianAssaultLeaveButton")
+        barbarian_actions_layout.addWidget(barbarian_primary, 1)
+        barbarian_actions_layout.addWidget(barbarian_tutorial)
+        barbarian_actions_layout.addWidget(barbarian_buy)
+        barbarian_actions_layout.addWidget(barbarian_leave)
+        barbarian_layout.addWidget(barbarian_actions)
+        cards_stack.addWidget(barbarian_box)
+
+        syncing_barbarian = {"active": False}
+
+        def _run_barbarian_command(action_id: str, payload=None) -> dict[str, Any]:
+            if on_barbarian_assault_command is None:
+                return {
+                    "ok": False,
+                    "message": "Barbarian Assault actions are unavailable.",
+                }
+            result = on_barbarian_assault_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Barbarian Assault",
+                    str(result.get("message", "That action is unavailable.")),
+                )
+            _refresh_barbarian_panel()
+            return result
+
+        def _barbarian_policy_payload() -> dict[str, str]:
+            return {
+                "automation_mode": str(barbarian_mode.currentData() or "casual"),
+                "role": str(barbarian_role.currentData() or "attacker"),
+            }
+
+        def _refresh_barbarian_panel() -> None:
+            syncing_barbarian["active"] = True
+            view = barbarian_assault_view_pure(player_data)
+            session = view["barbarian_assault"]
+            active = bool(view["active"])
+            policy = session if active else view["barbarian_assault_policy"]
+            barbarian_mode.setCurrentIndex(
+                max(0, barbarian_mode.findData(policy["automation_mode"]))
+            )
+            barbarian_role.setCurrentIndex(
+                max(0, barbarian_role.findData(policy["role"]))
+            )
+            points = view["barbarian_assault_points"]
+            wallet = " · ".join(
+                f"{label} {int(points[role_id])}"
+                for role_id, label in BARBARIAN_ASSAULT_ROLES
+            )
+            if active:
+                if session["phase"] == "queen":
+                    barbarian_status.setText("PENANCE QUEEN")
+                    barbarian_summary.setText(
+                        f"{str(session['role']).title()} · {wallet}\n"
+                        f"Queen {int(session['queen_lifepoints']):,} LP · "
+                        f"Omega eggs {int(session['omega_eggs'])}/{BARBARIAN_ASSAULT_QUEEN_EGGS}"
+                    )
+                    barbarian_progress.setRange(0, BARBARIAN_ASSAULT_QUEEN_EGGS)
+                    barbarian_progress.setValue(int(session["omega_eggs"]))
+                    barbarian_progress.setFormat("Omega eggs %v of 8")
+                else:
+                    barbarian_status.setText(f"WAVE {int(session['wave'])}/10")
+                    barbarian_summary.setText(
+                        f"{str(session['role']).title()} · calls auto-followed\n{wallet}"
+                    )
+                    barbarian_progress.setRange(0, 10)
+                    barbarian_progress.setValue(int(session["wave"]) - 1)
+                    barbarian_progress.setFormat("Waves cleared %v of 10")
+            else:
+                tutorial_complete = bool(view["barbarian_assault_tutorial_complete"])
+                barbarian_status.setText("READY" if tutorial_complete else "TUTORIAL")
+                history = str(view["barbarian_assault_last_result"])
+                lock = " · ".join(view["locked_reasons"])
+                barbarian_summary.setText(
+                    f"{wallet}\n"
+                    + (
+                        "Ten role waves plus eight persistent Omega-egg beats"
+                        if tutorial_complete and not lock
+                        else lock
+                    )
+                    + (f"\n{history}" if history else "")
+                )
+                barbarian_progress.setRange(0, 10)
+                barbarian_progress.setValue(0)
+            barbarian_progress.setVisible(active)
+            selected = (
+                active
+                and player_data.get("current_utility")
+                == BARBARIAN_ASSAULT_ACTIVITY_ID
+            )
+            barbarian_primary.setText(
+                "Selected for reviews"
+                if selected
+                else "Select for reviews"
+                if active
+                else "Enter wave 1"
+            )
+            barbarian_primary.setEnabled(
+                on_barbarian_assault_command is not None
+                and not selected
+                and (active or not view["locked_reasons"])
+            )
+            barbarian_leave.setVisible(active)
+            barbarian_leave.setEnabled(on_barbarian_assault_command is not None)
+            barbarian_plan.setVisible(not active)
+            barbarian_mode.setEnabled(
+                not active and on_barbarian_assault_command is not None
+            )
+            barbarian_role.setEnabled(
+                not active
+                and barbarian_mode.currentData() == "advanced"
+                and on_barbarian_assault_command is not None
+            )
+            barbarian_save.setEnabled(
+                not active and on_barbarian_assault_command is not None
+            )
+            barbarian_tutorial.setVisible(
+                not bool(view["barbarian_assault_tutorial_complete"])
+            )
+            barbarian_tutorial.setEnabled(on_barbarian_assault_command is not None)
+            barbarian_buy.setVisible(not active)
+            barbarian_buy.setEnabled(
+                on_barbarian_assault_command is not None
+                and bool(view["can_buy_runner_boots"])
+            )
+            syncing_barbarian["active"] = False
+            _fit_current_activity_detail()
+
+        def _select_or_enter_barbarian() -> None:
+            view = barbarian_assault_view_pure(player_data)
+            if not view["active"]:
+                result = _run_barbarian_command(
+                    "enter", _barbarian_policy_payload()
+                )
+                if not result.get("ok", False):
+                    return
+            elif not _request_utility_selection(BARBARIAN_ASSAULT_ACTIVITY_ID):
+                return
+            _refresh_barbarian_panel()
+
+        def _confirm_barbarian_leave() -> None:
+            answer = QMessageBox.question(
+                dialog,
+                "Leave Barbarian Assault?",
+                "Leave the current run? The current wave is restarted and its pending points are forfeited.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_barbarian_command("leave")
+
+        barbarian_mode.currentIndexChanged.connect(
+            lambda _index: (
+                None
+                if syncing_barbarian["active"]
+                else barbarian_role.setEnabled(
+                    barbarian_mode.currentData() == "advanced"
+                    and on_barbarian_assault_command is not None
+                )
+            )
+        )
+        barbarian_save.clicked.connect(
+            lambda _checked=False: _run_barbarian_command(
+                "set_policy", _barbarian_policy_payload()
+            )
+        )
+        barbarian_primary.clicked.connect(
+            lambda _checked=False: _select_or_enter_barbarian()
+        )
+        barbarian_tutorial.clicked.connect(
+            lambda _checked=False: _run_barbarian_command("tutorial")
+        )
+        barbarian_buy.clicked.connect(
+            lambda _checked=False: _run_barbarian_command("buy_runner_boots")
+        )
+        barbarian_leave.clicked.connect(
+            lambda _checked=False: _confirm_barbarian_leave()
+        )
+        _refresh_barbarian_panel()
+
         museum_box = QtFrame()
         museum_box.setObjectName("varrockMuseumPanel")
         museum_box.setStyleSheet(
@@ -16036,6 +16322,37 @@ def show_main_menu(
                     )
                     return False
             if (
+                activity_id != BARBARIAN_ASSAULT_ACTIVITY_ID
+                and barbarian_assault_view_pure(player_data)["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave Barbarian Assault?",
+                    "Switch activities? The current wave restarts and its pending points are forfeited.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_barbarian_assault_command("leave", {})
+                    if on_barbarian_assault_command is not None
+                    else {
+                        "ok": False,
+                        "message": "Barbarian Assault actions are unavailable.",
+                    }
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Barbarian Assault",
+                        str(
+                            (result or {}).get(
+                                "message", "Could not leave the run."
+                            )
+                        ),
+                    )
+                    return False
+            if (
                 activity_id != GREAT_ORB_PROJECT_ACTIVITY_ID
                 and great_orb_project_view_pure(player_data)["active"]
             ):
@@ -16133,6 +16450,7 @@ def show_main_menu(
             _refresh_court_cases_panel()
             _refresh_circus_panel()
             _refresh_trouble_panel()
+            _refresh_barbarian_panel()
             _refresh_miscellania_panel()
             _refresh_stealing_creation_panel()
             _show_activity_detail(activity_id)
@@ -16234,6 +16552,10 @@ def show_main_menu(
                 _refresh_pest_panel()
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == BARBARIAN_ASSAULT_ACTIVITY_ID:
+                _refresh_barbarian_panel()
+                _show_activity_detail(activity_id)
+                return
             if activity_id == VARROCK_MUSEUM_ACTIVITY_ID:
                 _refresh_museum_panel()
                 _show_activity_detail(activity_id)
@@ -16293,6 +16615,7 @@ def show_main_menu(
             TROUBLE_BREWING_ACTIVITY_ID: ("Trouble Brewing", trouble_box),
             CASTLE_WARS_ACTIVITY_ID: ("Castle Wars", castle_box),
             PEST_CONTROL_ACTIVITY_ID: ("Pest Control", pest_box),
+            BARBARIAN_ASSAULT_ACTIVITY_ID: ("Barbarian Assault", barbarian_box),
             VARROCK_MUSEUM_ACTIVITY_ID: ("Varrock Museum", museum_box),
             MANAGING_MISCELLANIA_ACTIVITY_ID: (
                 "Managing Miscellania",

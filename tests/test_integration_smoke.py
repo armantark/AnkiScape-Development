@@ -5931,6 +5931,51 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
+    def test_barbarian_assault_entry_is_a_direct_undoable_action(self):
+        addon = _load_addon_as_package("ankiscape_barbarian_assault_integration")
+        logic = sys.modules[f"{addon.__name__}.barbarian_assault_logic"]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon.current_skill = "Activities"
+        initial = {
+            "inventory": {},
+            "equipment": {},
+            "combat_encounter": {},
+            "combat_supply_loadout": {},
+            "shop_market_clock": {"answered_cards": 0},
+            "current_combat_target": "chicken",
+            "current_utility": "make_soft_clay",
+            "activity_session": {"active_id": ""},
+            "smithing_level": 1,
+        }
+        initial.update(logic.default_barbarian_assault_state_pure())
+        initial["barbarian_assault_tutorial_complete"] = True
+        addon.player_data = copy.deepcopy(initial)
+
+        addon._on_main_menu()
+        result = captured["on_barbarian_assault_command"](
+            "enter",
+            {"automation_mode": "advanced", "role": "defender"},
+        )
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(addon.player_data["current_utility"], "barbarian_assault")
+        self.assertEqual(addon.player_data["barbarian_assault"]["role"], "defender")
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
     def test_varrock_museum_kit_is_a_direct_undoable_action(self):
         addon = _load_addon_as_package("ankiscape_varrock_museum_integration")
         logic = sys.modules[f"{addon.__name__}.varrock_museum_logic"]

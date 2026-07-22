@@ -130,6 +130,25 @@ class TestCadenceLiveCoverage(unittest.TestCase):
             ),
         )
 
+    def test_barbarian_assault_declares_one_duty_or_persistent_queen_beat(self):
+        row = next(
+            row
+            for row in cadence_coverage_rows_pure()
+            if row["handler_key"] == "utility"
+            and row["action_id"] == "barbarian_assault"
+        )
+
+        self.assertEqual(row["mode"], "activity_group")
+        self.assertEqual(row["source_status"], "sourced_with_disclosed_translation")
+        self.assertEqual(
+            row["includes"],
+            (
+                "one productive duty or explicit Again idle/Queen-pressure beat",
+                "wave points, safe restart, and terminal Queen settlement",
+            ),
+        )
+        self.assertIn("Never foreground-multiplied", row["multiplier_behavior"])
+
     def test_declared_multiplier_behavior_matches_single_step_exemptions(self):
         thieving = resolve_live_cadence_route_pure(
             "thieving", "stall_silver", {}

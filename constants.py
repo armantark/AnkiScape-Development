@@ -98,6 +98,21 @@ except ImportError:
     )
 
 try:
+    from .barbarian_assault_data import (
+        BARBARIAN_ASSAULT_ACTIVITY_ID,
+        barbarian_assault_activity_as_dict,
+        barbarian_assault_equipment_data_as_dict,
+        barbarian_assault_extra_items_as_dict,
+    )
+except ImportError:
+    from barbarian_assault_data import (  # type: ignore
+        BARBARIAN_ASSAULT_ACTIVITY_ID,
+        barbarian_assault_activity_as_dict,
+        barbarian_assault_equipment_data_as_dict,
+        barbarian_assault_extra_items_as_dict,
+    )
+
+try:
     from .varrock_museum_data import (
         VARROCK_MUSEUM_ACTIVITY_ID,
         varrock_museum_activity_as_dict,
@@ -843,6 +858,7 @@ UTILITY_ACTIVITY_DATA.update(circus_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(trouble_brewing_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(castle_wars_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(pest_control_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(barbarian_assault_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(varrock_museum_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(phoenix_lair_activity_as_dict())
@@ -941,6 +957,14 @@ _pest_control_icon = os.path.join(
 )
 if os.path.exists(_pest_control_icon):
     UTILITY_ACTIVITY_DATA[PEST_CONTROL_ACTIVITY_ID]["icon_path"] = _pest_control_icon
+_barbarian_assault_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "barbarian_assault.png",
+)
+if os.path.exists(_barbarian_assault_icon):
+    UTILITY_ACTIVITY_DATA[BARBARIAN_ASSAULT_ACTIVITY_ID]["icon_path"] = (
+        _barbarian_assault_icon
+    )
 _varrock_museum_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
     "varrock_museum.png",
@@ -1671,6 +1695,7 @@ EQUIPMENT_DATA.update(fish_flingers_equipment_data_as_dict())
 EQUIPMENT_DATA.update(trouble_brewing_equipment_data_as_dict())
 EQUIPMENT_DATA.update(castle_wars_equipment_data_as_dict())
 EQUIPMENT_DATA.update(pest_control_equipment_data_as_dict())
+EQUIPMENT_DATA.update(barbarian_assault_equipment_data_as_dict())
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict(EQUIPMENT_DATA)
 FIST_OF_GUTHIX_EXTRA_ITEM_DATA = fist_of_guthix_extra_items_as_dict()
 COURT_CASES_EXTRA_ITEM_DATA = court_cases_extra_items_as_dict()
@@ -1678,6 +1703,7 @@ CIRCUS_EXTRA_ITEM_DATA = circus_extra_items_as_dict()
 TROUBLE_BREWING_EXTRA_ITEM_DATA = trouble_brewing_extra_items_as_dict()
 CASTLE_WARS_EXTRA_ITEM_DATA = castle_wars_extra_items_as_dict()
 PEST_CONTROL_EXTRA_ITEM_DATA = pest_control_extra_items_as_dict()
+BARBARIAN_ASSAULT_EXTRA_ITEM_DATA = barbarian_assault_extra_items_as_dict()
 VARROCK_MUSEUM_EXTRA_ITEM_DATA = varrock_museum_extra_items_as_dict()
 SORCERESS_GARDEN_EXTRA_ITEM_DATA = sorceress_garden_extra_items_as_dict()
 VINESWEEPER_EXTRA_ITEM_DATA = vinesweeper_extra_items_as_dict()
@@ -1754,6 +1780,19 @@ PEST_CONTROL_ITEM_IMAGES = {
 PEST_CONTROL_ITEM_IMAGES = {
     item_name: path
     for item_name, path in PEST_CONTROL_ITEM_IMAGES.items()
+    if os.path.exists(path)
+}
+BARBARIAN_ASSAULT_ITEM_IMAGES = {
+    item_name: os.path.join(
+        current_dir,
+        "activityitems",
+        f"barbarian_assault_{_asset_slug(item_name)}.png",
+    )
+    for item_name in BARBARIAN_ASSAULT_EXTRA_ITEM_DATA
+}
+BARBARIAN_ASSAULT_ITEM_IMAGES = {
+    item_name: path
+    for item_name, path in BARBARIAN_ASSAULT_ITEM_IMAGES.items()
     if os.path.exists(path)
 }
 VARROCK_MUSEUM_ITEM_IMAGES = {
@@ -2174,6 +2213,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **TROUBLE_BREWING_EXTRA_ITEM_DATA,
     **CASTLE_WARS_EXTRA_ITEM_DATA,
     **PEST_CONTROL_EXTRA_ITEM_DATA,
+    **BARBARIAN_ASSAULT_EXTRA_ITEM_DATA,
     **VARROCK_MUSEUM_EXTRA_ITEM_DATA,
     **SORCERESS_GARDEN_EXTRA_ITEM_DATA,
     **VINESWEEPER_EXTRA_ITEM_DATA,
@@ -2214,6 +2254,7 @@ EXTRA_ITEM_IMAGES = {
     **TROUBLE_BREWING_ITEM_IMAGES,
     **CASTLE_WARS_ITEM_IMAGES,
     **PEST_CONTROL_ITEM_IMAGES,
+    **BARBARIAN_ASSAULT_ITEM_IMAGES,
     **VARROCK_MUSEUM_ITEM_IMAGES,
     **SORCERESS_GARDEN_ITEM_IMAGES,
     **VINESWEEPER_ITEM_IMAGES,
