@@ -130,6 +130,8 @@ real offscreen-Qt interaction checks pass. The ordinary full discovery run
 passes all `2,470` methods with `311` skips. Root inspected the ready and active
 `1200 x 760` dark-palette renders: the period red-skull icon is normalized, the
 card is compact, and neither state clips or requires internal scrolling.
+The stable full real offscreen-Qt rerun also passes all `2,470` methods with
+one declared skip.
 
 A bounded read-only Sol-high Workflows pass exhausted its output budget before
 returning a final review, so it is not counted as an independent sign-off. Its
@@ -139,8 +141,10 @@ cash a pending purse, and the generic Combat auto-flee policy cannot create a
 silent no-progress arena loop. Regression tests cover each failure mechanism.
 
 Native Anki remains unclaimed because the native computer-use bridge failed to
-start. Fable is deliberately reserved, and no Kimi or Opus taste approval is
-claimed for this slice.
+start. Fable is deliberately reserved. Kimi's fresh gate reported only `4%`
+weekly allowance and no required five-hour window, while the Claude quota probe
+could return only stale auth data, so neither Kimi nor Opus was called and no
+external taste approval is claimed for this slice.
 
 Closure report:
 `memory-bank/status-updates/tzhaar-fight-pit-horizontal-results-2026-07-22.html`
