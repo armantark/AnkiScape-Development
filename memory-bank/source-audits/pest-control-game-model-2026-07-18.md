@@ -4,8 +4,54 @@ Date: `2026-07-18`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **owner-settled win/loss engine (shared assault); full loop contract and
-period corroboration remain harvest work.**
+Status: **owner-settled win/loss engine (shared assault); the cutoff game and
+reward tables are source-closed for a horizontal implementation.**
+
+## Cutoff period closure — 2026-07-21
+
+The literal wikitext of `Pest Control`, oldid `6571065`, timestamp
+`2012-11-18T04:51:21Z`, establishes:
+
+- the safe-activity boundary and prohibition on pets, cannons, and familiars;
+- Novice / Intermediate / Veteran landers at combat levels `40` / `70` / `100`;
+- four portals, `2,000` portal LP on Novice and `2,500` on the higher landers;
+- a `2,000`-LP Void Knight, `500` LP restored per destroyed portal, victory by
+  destroying all portals or keeping the knight alive for twenty minutes, and
+  loss when the knight dies;
+- the source participation gate of `500` damage, with a repaired gate or
+  barricade counting as `50` damage;
+- half ordinary combat XP while playing, with the page's separate portal-XP
+  note;
+- coins equal to `combat level × 10`, not Darkan's `× 100`; and
+- `2` / `3` / `4` commendations for the three landers, not Darkan's `3` / `5`
+  / `7`.
+
+Source:
+
+- <https://runescape.wiki/w/Pest_Control?oldid=6571065>
+
+The literal wikitext of `Void knight commendations`, oldid `6441647`,
+timestamp `2012-10-19T04:44:16Z`, establishes the `500`-point wallet cap, the
+exact combat-XP formula and bulk bonuses, the complete equipment table, the
+`10`-point eight-charge Void seal, `30`-point herb pack, `15`-point mineral and
+seed packs, and four `2`-point familiar charms. It also establishes the shared
+Void-equipment gate of Attack / Strength / Constitution / Ranged / Defence /
+Magic `42` and Prayer `22`.
+
+Source:
+
+- <https://runescape.wiki/w/Void_knight_commendations?oldid=6441647>
+
+2011Scape rev-667 `data/cfg/items.yml` corroborates the charged item family:
+Void seal `(8)` through `(1)` are IDs `11666` through `11673`, use the neck
+slot, are untradeable, and carry `+1` stab/slash/crush/magic/ranged defence and
+`+1` Summoning defence.
+
+For horizontal breadth, the Void seal is the smallest exact reward row that
+also exercises a distinct Pest Control mechanic: direct purchase, eight
+persisted charges, and an in-game area attack that does not satisfy the
+participation gate. The rest of the exact catalog is data depth, not another
+state transition.
 
 ## Pinned Darkan evidence
 
@@ -54,22 +100,16 @@ crowd sharing the assault:
   contribution. This is recorded as a labeled AnkiScape abstraction: the
   source penalty targeted loafing players, and AnkiScape has no loafing state.
 
-## Remaining harvest work
+## Remaining implementation work
 
-1. Pin the nearest pre-cutoff `Fishing Trawler`-grade wiki revision for Pest
-   Control and corroborate: lander combat-level tiers, commendation values,
-   the coin reward, the zeal/damage requirement, portal shield timing, and
-   the 20-minute cap.
-2. Reconcile pest-role behavior (Spinners healing portals, Shifters
+1. Reconcile pest-role behavior (Spinners healing portals, Shifters
    teleporting, Brawlers blocking, Splatters exploding, Defiler/Torcher
    ranged pressure on the knight) into the aggregate front and knight-pressure
    terms; record what each role contributes rather than simulating actors.
-3. Derive the event-scaled review budget from the source game shape and
+2. Derive the event-scaled review budget from the source game shape and
    record it as `provisional/<source>` if the period record cannot attest it.
-4. Harvest the complete commendation reward shop. Direct-XP purchase rows are
-   XP-multiplying rewards and stay hidden until the cadence invariant accounts
-   for them, per the settled packet decision 12-B.
-5. Void Knight equipment, herb/mineral/seed packs, and the Call to Arms
+3. Void Knight equipment beyond the representative Void seal,
+   herb/mineral/seed packs, and the Call to Arms
    familiar special (parked behind this activity in
    `summoning-familiar-teleports-2026-07-16.md`) attach to this activity once
    its runtime exists.
