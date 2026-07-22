@@ -134,6 +134,7 @@ from .stronghold_player_safety_logic import (
 )
 from .soul_wars_logic import apply_soul_wars_command_pure
 from .shades_of_mortton_logic import apply_shades_of_mortton_command_pure
+from .tzhaar_fight_pit_logic import apply_tzhaar_fight_pit_command_pure
 from .varrock_museum_logic import apply_varrock_museum_command_pure
 from .managing_miscellania_logic import (
     advance_managing_miscellania_world_clock_pure,
@@ -2646,6 +2647,40 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             pass
         return {"ok": True, **info}
 
+    def _apply_tzhaar_fight_pit_command(action_id, payload):
+        before = _capture_player_data_snapshot()
+        updated, ok, info = apply_tzhaar_fight_pit_command_pure(
+            player_data,
+            str(action_id),
+            payload if isinstance(payload, dict) else {},
+        )
+        if not ok:
+            return {
+                "ok": False,
+                "message": str(info.get("reason", "Fight Pit action failed.")),
+                **info,
+            }
+        try:
+            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+        except (AttributeError, RuntimeError):
+            return {"ok": False, "message": "Anki could not create an undo entry."}
+        _DIRECT_ACTION_UNDO_STACK.append(before)
+        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+        player_data.clear()
+        player_data.update(updated)
+        check_achievements(player_data)
+        save_player_data()
+        _refresh_skill_availability()
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            mw.update_undo_actions()
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_managing_miscellania_command(action_id, payload):
         before = _capture_player_data_snapshot()
         updated, ok, info = apply_managing_miscellania_command_pure(
@@ -2962,6 +2997,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         ),
         on_soul_wars_command=_apply_soul_wars_command,
         on_shades_of_mortton_command=_apply_shades_of_mortton_command,
+        on_tzhaar_fight_pit_command=_apply_tzhaar_fight_pit_command,
         on_varrock_museum_command=_apply_varrock_museum_command,
         on_managing_miscellania_command=_apply_managing_miscellania_command,
         on_livid_farm_command=_apply_livid_farm_command,

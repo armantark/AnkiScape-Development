@@ -735,6 +735,25 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "tzhaar_fight_pit":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "tzhaar_fight_pit",
+                    "mode": "activity_group",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "cadence_profile": "activity_default",
+                    "review_ticks": 6,
+                    "probability_mode": "embedded",
+                    "notes": (
+                        "One review advances one six-tick engaged-opponent Combat "
+                        "slice plus bounded off-screen attrition; late pressure is "
+                        "review-counted and never wall-clock based."
+                    ),
+                }
+            )
+            continue
         elif str(action_id) == "varrock_museum":
             rows.append(
                 {

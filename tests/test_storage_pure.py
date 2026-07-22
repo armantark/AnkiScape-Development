@@ -33,6 +33,38 @@ from constants import (
 
 
 class TestStoragePure(unittest.TestCase):
+    def test_v81_migrates_and_repairs_tzhaar_fight_pit_state(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 80,
+                "inventory": {},
+                "activity_session": {"active_id": "tzhaar_fight_pit"},
+                "tzhaar_fight_pit_policy": "invalid",
+                "tzhaar_fight_pit": {
+                    "match_number": 1,
+                    "review": -4,
+                    "policy": "invalid",
+                    "roster": [
+                        {
+                            "opponent_id": "rival",
+                            "combat_level": 999,
+                            "lifepoints": 99999,
+                        }
+                    ],
+                    "engaged_opponent_id": "rival",
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(migrated["activity_session"], {"active_id": "tzhaar_fight_pit"})
+        self.assertEqual(migrated["tzhaar_fight_pit_policy"], "casual")
+        self.assertEqual(migrated["tzhaar_fight_pit"]["review"], 0)
+        rival = migrated["tzhaar_fight_pit"]["roster"][0]
+        self.assertEqual(rival["combat_level"], 138)
+        self.assertLessEqual(rival["lifepoints"], rival["maximum_lifepoints"])
+
     def test_v80_migrates_and_repairs_shades_of_mortton_state(self):
         migrated = migrate_loaded_data(
             {

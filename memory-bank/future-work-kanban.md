@@ -14,6 +14,28 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+### TzHaar Fight Pit — horizontal mechanics shipped 2026-07-22
+
+Labels: `SOURCE AUDIT` only for hidden pressure timing, hybrid reward chance,
+and catalog depth.
+
+- The three-rival persistent safe match, saved policies, six-tick Combat,
+  bounded off-screen attrition, late review pressure, safe defeat, exact
+  personally credited TokKul, Fire-cape doubling, and leave forfeiture are
+  live without wall time.
+- Schema 81, repair, activity arbitration, cadence/telemetry, review/direct
+  undo, runtime and enemy registries, normalized period art, provenance, and
+  the compact Activities card are integrated.
+- Hybrid bodies, full opponent breadth, and exact historical pressure timing
+  remain data depth. No owner design gap surfaced.
+- Native Anki and Kimi K3/Fable taste approval remain deferred external gates.
+- Durable audit:
+  `memory-bank/source-audits/tzhaar-fight-pit-horizontal-readiness-2026-07-22.md`.
+- Fight Pit closes this shared-integration frontier. The breadth goal is paused
+  at the owner's Codex-quota boundary before recomputing the next source-ready
+  family from the disposition ledger.
+- Closure report: <https://hebbv2uq7why.postplan.dev>.
+
 ### Shades of Mort'ton — horizontal mechanics shipped 2026-07-22
 
 Labels: `SOURCE AUDIT` only for deferred rates and catalog depth.
@@ -29,8 +51,7 @@ Labels: `SOURCE AUDIT` only for deferred rates and catalog depth.
   catalog/data depth rather than missing mechanics.
 - Ordinary and full real offscreen-Qt discovery each pass all 2,453 methods.
   Native Anki and Kimi K3/Fable taste approval remain deferred external gates.
-- The next shared-integration frontier is TzHaar Fight Pit. The breadth goal is
-  paused before that slice at the owner's Codex-quota boundary.
+- TzHaar Fight Pit was the next shared-integration frontier and is now shipped.
 - Durable audit:
   `memory-bank/source-audits/shades-of-mortton-horizontal-readiness-2026-07-21.md`.
 - Closure report: <https://whux17tpdjx6.postplan.dev>.

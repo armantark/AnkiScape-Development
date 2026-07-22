@@ -4,6 +4,30 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## TzHaar Fight Pit horizontal mechanic closure — 2026-07-22
+
+- Added a persistent safe match against three bounded player-relative rivals,
+  with Casual weakest-first and Advanced aggressive/defensive plans.
+- One productive review advances one live six-tick Combat slice. Bounded rival
+  attrition and late review-counted pressure close stalled rounds without wall
+  time; safe defeat restores match resources and retains ordinary possessions.
+- Personally defeated rivals add their exact Combat level to pending TokKul.
+  Championship settles the purse, Fire cape doubles it, and explicit leave
+  forfeits it.
+- Added schema 81 migration/repair, activity arbitration, cadence/telemetry,
+  review/direct undo, runtime and enemy registries, normalized period icon,
+  provenance, and a compact Activities card.
+- Focused pure, storage, runtime, registry, integration, and real offscreen-Qt
+  checks pass. Native Anki and external taste review remain deferred external
+  gates under the locked-session and quota holds. No design question surfaced.
+- Durable audit:
+  `source-audits/tzhaar-fight-pit-horizontal-readiness-2026-07-22.md`.
+- The breadth goal is paused at the owner's Codex-quota boundary before
+  recomputing the next source-ready family from the disposition ledger.
+- Results:
+  `status-updates/tzhaar-fight-pit-horizontal-results-2026-07-22.html` and
+  <https://hebbv2uq7why.postplan.dev>.
+
 ## Shades of Mort'ton horizontal mechanic closure — 2026-07-22
 
 - Integrated the completed-quest open loop: communal repair, personal sanctity,

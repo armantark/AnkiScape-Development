@@ -276,6 +276,11 @@ try:
         apply_shades_of_mortton_review_pure,
         shades_of_mortton_view_pure,
     )
+    from .tzhaar_fight_pit_data import TZHAAR_FIGHT_PIT_ACTIVITY_ID
+    from .tzhaar_fight_pit_logic import (
+        apply_tzhaar_fight_pit_review_pure,
+        tzhaar_fight_pit_view_pure,
+    )
     from .varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
     from .varrock_museum_logic import (
         apply_varrock_museum_review_pure,
@@ -648,6 +653,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from shades_of_mortton_logic import (  # type: ignore
         apply_shades_of_mortton_review_pure,
         shades_of_mortton_view_pure,
+    )
+    from tzhaar_fight_pit_data import TZHAAR_FIGHT_PIT_ACTIVITY_ID  # type: ignore
+    from tzhaar_fight_pit_logic import (  # type: ignore
+        apply_tzhaar_fight_pit_review_pure,
+        tzhaar_fight_pit_view_pure,
     )
     from varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID  # type: ignore
     from varrock_museum_logic import (  # type: ignore
@@ -3978,6 +3988,42 @@ def handle_shades_of_mortton_answer(
     return True
 
 
+def handle_tzhaar_fight_pit_answer(ctx: RuntimeActionContext) -> bool:
+    updated, ok, result = apply_tzhaar_fight_pit_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+        equipment_data=EQUIPMENT_DATA,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "TzHaar Fight Pit unavailable",
+            str(result.get("reason", "Enter the Fight Pit before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    combat = dict(result.get("combat") or {})
+    xp_rewards = dict(combat.get("xp_rewards") or {})
+    _record_action(
+        ctx,
+        "utility",
+        TZHAAR_FIGHT_PIT_ACTIVITY_ID,
+        True,
+        expected_success_chance=1.0,
+        failure_kind="safe_death" if result.get("outcome") == "loss" else None,
+        primary_xp=sum(float(value or 0.0) for value in xp_rewards.values()),
+    )
+    _refresh_combat_levels(ctx, xp_rewards)
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_activity_gain(str(result.get("message") or "Fight Pit beat resolved"))
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
 def _handle_managing_miscellania_answer(ctx: RuntimeActionContext) -> bool:
     updated, result = apply_managing_miscellania_review_pure(ctx.player_data)
     if not result.get("allowed"):
@@ -4068,6 +4114,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return handle_soul_wars_answer(ctx)
     if activity_key == SHADES_OF_MORTTON_ACTIVITY_ID:
         return handle_shades_of_mortton_answer(ctx)
+    if activity_key == TZHAAR_FIGHT_PIT_ACTIVITY_ID:
+        return handle_tzhaar_fight_pit_answer(ctx)
     if activity_key == VARROCK_MUSEUM_ACTIVITY_ID:
         return handle_varrock_museum_answer(ctx)
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:
@@ -6428,6 +6476,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return bool(soul_wars_view_pure(ctx.player_data).get("active", False))
     if activity_key == SHADES_OF_MORTTON_ACTIVITY_ID:
         return bool(shades_of_mortton_view_pure(ctx.player_data).get("active", False))
+    if activity_key == TZHAAR_FIGHT_PIT_ACTIVITY_ID:
+        return bool(tzhaar_fight_pit_view_pure(ctx.player_data).get("active", False))
     if activity_key == VARROCK_MUSEUM_ACTIVITY_ID:
         return bool(varrock_museum_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:

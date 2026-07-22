@@ -614,6 +614,19 @@ except Exception:
     from shades_of_mortton_logic import shades_of_mortton_view_pure  # type: ignore
 
 try:
+    from .tzhaar_fight_pit_data import (
+        TZHAAR_FIGHT_PIT_ACTIVITY_ID,
+        TZHAAR_FIGHT_PIT_POLICIES,
+    )
+    from .tzhaar_fight_pit_logic import tzhaar_fight_pit_view_pure
+except Exception:
+    from tzhaar_fight_pit_data import (  # type: ignore
+        TZHAAR_FIGHT_PIT_ACTIVITY_ID,
+        TZHAAR_FIGHT_PIT_POLICIES,
+    )
+    from tzhaar_fight_pit_logic import tzhaar_fight_pit_view_pure  # type: ignore
+
+try:
     from .managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
     from .managing_miscellania_logic import managing_miscellania_view_pure
 except Exception:
@@ -3695,6 +3708,7 @@ def show_main_menu(
     on_stronghold_player_safety_command=None,
     on_soul_wars_command=None,
     on_shades_of_mortton_command=None,
+    on_tzhaar_fight_pit_command=None,
     on_varrock_museum_command=None,
     on_managing_miscellania_command=None,
     on_set_prayer_selection=None,
@@ -14359,6 +14373,174 @@ def show_main_menu(
             )
         _refresh_mortton_panel()
 
+        fight_pit_box = QtFrame()
+        fight_pit_box.setObjectName("fightPitPanel")
+        fight_pit_box.setStyleSheet(
+            "QFrame#fightPitPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        fight_pit_layout = QVBoxLayout(fight_pit_box)
+        fight_pit_layout.setContentsMargins(10, 8, 10, 8)
+        fight_pit_layout.setSpacing(8)
+
+        fight_pit_header = QWidget()
+        fight_pit_header_layout = QHBoxLayout(fight_pit_header)
+        fight_pit_header_layout.setContentsMargins(0, 0, 0, 0)
+        fight_pit_icon = QLabel()
+        fight_pit_icon.setObjectName("fightPitIcon")
+        fight_pit_icon.setFixedSize(28, 28)
+        fight_pit_icon_path = os.path.join(
+            current_dir, "activityicons", "tzhaar_fight_pit.png"
+        )
+        if os.path.exists(fight_pit_icon_path):
+            fight_pit_icon.setPixmap(
+                QPixmap(fight_pit_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        fight_pit_title = QLabel("TzHaar Fight Pit")
+        fight_pit_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        fight_pit_status = QLabel()
+        fight_pit_status.setObjectName("fightPitStatusChip")
+        fight_pit_status.setStyleSheet(
+            f"color: {dim_text_css(fight_pit_status)}; font-size: 11px; font-weight: 700;"
+        )
+        fight_pit_header_layout.addWidget(fight_pit_icon)
+        fight_pit_header_layout.addWidget(fight_pit_title)
+        fight_pit_header_layout.addStretch(1)
+        fight_pit_header_layout.addWidget(fight_pit_status)
+        fight_pit_layout.addWidget(fight_pit_header)
+
+        fight_pit_summary = QLabel()
+        fight_pit_summary.setObjectName("fightPitSummary")
+        fight_pit_summary.setWordWrap(True)
+        fight_pit_summary.setStyleSheet("color: palette(text);")
+        fight_pit_layout.addWidget(fight_pit_summary)
+
+        fight_pit_policy = QComboBox()
+        fight_pit_policy.setObjectName("fightPitPolicy")
+        for policy_id, label in TZHAAR_FIGHT_PIT_POLICIES:
+            fight_pit_policy.addItem(label, policy_id)
+        fight_pit_save = QPushButton("Save plan")
+        fight_pit_save.setObjectName("fightPitSavePlan")
+        fight_pit_plan_row = QHBoxLayout()
+        fight_pit_plan_row.addWidget(fight_pit_policy, 1)
+        fight_pit_plan_row.addWidget(fight_pit_save)
+        fight_pit_layout.addLayout(fight_pit_plan_row)
+
+        fight_pit_primary = QPushButton("Enter Fight Pit")
+        fight_pit_primary.setObjectName("fightPitPrimary")
+        fight_pit_leave = QPushButton("Leave · forfeit pending TokKul")
+        fight_pit_leave.setObjectName("fightPitLeave")
+        fight_pit_leave.setStyleSheet("color: #ef5350;")
+        fight_pit_actions = QHBoxLayout()
+        fight_pit_actions.addWidget(fight_pit_primary, 1)
+        fight_pit_actions.addWidget(fight_pit_leave)
+        fight_pit_layout.addLayout(fight_pit_actions)
+        cards_stack.addWidget(fight_pit_box)
+
+        syncing_fight_pit = {"active": False}
+
+        def _run_fight_pit_command(action_id: str, payload=None) -> dict[str, Any]:
+            if on_tzhaar_fight_pit_command is None:
+                return {"ok": False, "message": "Fight Pit actions are unavailable."}
+            result = on_tzhaar_fight_pit_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "TzHaar Fight Pit",
+                    str(result.get("message", "That action is unavailable.")),
+                )
+            _refresh_fight_pit_panel()
+            return result
+
+        def _refresh_fight_pit_panel() -> None:
+            syncing_fight_pit["active"] = True
+            view = tzhaar_fight_pit_view_pure(player_data)
+            active = bool(view["active"])
+            session = view["tzhaar_fight_pit"]
+            policy = str(session.get("policy") if active else view["tzhaar_fight_pit_policy"])
+            index = fight_pit_policy.findData(policy)
+            if index >= 0:
+                fight_pit_policy.setCurrentIndex(index)
+            fight_pit_status.setText("MATCH ACTIVE" if active else "SAFE MINIGAME")
+            if active:
+                roster = list(session.get("roster", ()))
+                engaged_id = str(session.get("engaged_opponent_id", ""))
+                engaged = next(
+                    (row for row in roster if row.get("opponent_id") == engaged_id),
+                    {},
+                )
+                fight_pit_summary.setText(
+                    f"{len(roster)} rivals remain · {int(session.get('pending_tokkul', 0)):,} "
+                    f"pending TokKul · review {int(session.get('review', 0))}\n"
+                    f"Engaged: {engaged.get('display_name', 'selecting next rival')} · "
+                    f"Fire cape reward ×{int(view['fire_cape_multiplier'])}"
+                )
+            else:
+                record = (
+                    f"{int(view['tzhaar_fight_pit_wins'])} wins · "
+                    f"{int(view['tzhaar_fight_pit_losses'])} safe defeats · "
+                    f"{int(view['tzhaar_fight_pit_forfeits'])} forfeits"
+                )
+                history = str(view["tzhaar_fight_pit_last_result"])
+                fight_pit_summary.setText(
+                    f"Three persistent simulated rivals · exact kill-level TokKul · "
+                    f"Fire cape reward ×{int(view['fire_cape_multiplier'])}\n"
+                    + (history if history else record)
+                )
+            selected = active and player_data.get("current_utility") == TZHAAR_FIGHT_PIT_ACTIVITY_ID
+            fight_pit_primary.setText(
+                "Selected for reviews" if selected else "Select for reviews" if active else "Enter Fight Pit"
+            )
+            fight_pit_primary.setEnabled(
+                on_tzhaar_fight_pit_command is not None
+                and not selected
+                and (active or bool(view["can_enter"]))
+            )
+            fight_pit_leave.setVisible(active)
+            fight_pit_leave.setEnabled(active and on_tzhaar_fight_pit_command is not None)
+            fight_pit_policy.setEnabled(not active and on_tzhaar_fight_pit_command is not None)
+            fight_pit_save.setEnabled(not active and on_tzhaar_fight_pit_command is not None)
+            syncing_fight_pit["active"] = False
+            _fit_current_activity_detail()
+
+        def _select_or_enter_fight_pit() -> None:
+            view = tzhaar_fight_pit_view_pure(player_data)
+            if not view["active"]:
+                payload = {"policy": str(fight_pit_policy.currentData() or "casual")}
+                if not _run_fight_pit_command("enter", payload).get("ok"):
+                    return
+            elif not _request_utility_selection(TZHAAR_FIGHT_PIT_ACTIVITY_ID):
+                return
+            _refresh_fight_pit_panel()
+
+        def _confirm_fight_pit_leave() -> None:
+            answer = QMessageBox.question(
+                dialog,
+                "Leave the Fight Pit?",
+                "Leave this safe match? All pending TokKul is forfeited.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_fight_pit_command("leave")
+
+        fight_pit_save.clicked.connect(
+            lambda _checked=False: _run_fight_pit_command(
+                "set_policy", {"policy": str(fight_pit_policy.currentData() or "casual")}
+            )
+        )
+        fight_pit_primary.clicked.connect(
+            lambda _checked=False: _select_or_enter_fight_pit()
+        )
+        fight_pit_leave.clicked.connect(
+            lambda _checked=False: _confirm_fight_pit_leave()
+        )
+        _refresh_fight_pit_panel()
+
         barbarian_box = QtFrame()
         barbarian_box.setObjectName("barbarianAssaultPanel")
         barbarian_box.setStyleSheet(
@@ -17277,6 +17459,30 @@ def show_main_menu(
                     )
                     return False
             if (
+                activity_id != TZHAAR_FIGHT_PIT_ACTIVITY_ID
+                and tzhaar_fight_pit_view_pure(player_data)["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave the TzHaar Fight Pit?",
+                    "Switch activities? The safe match ends and pending TokKul is forfeited.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_tzhaar_fight_pit_command("leave", {})
+                    if on_tzhaar_fight_pit_command is not None
+                    else {"ok": False, "message": "Fight Pit actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "TzHaar Fight Pit",
+                        str((result or {}).get("message", "Could not leave the match.")),
+                    )
+                    return False
+            if (
                 activity_id != BARBARIAN_ASSAULT_ACTIVITY_ID
                 and barbarian_assault_view_pure(player_data)["active"]
             ):
@@ -17587,6 +17793,7 @@ def show_main_menu(
                 "Shades of Mort'ton",
                 mortton_box,
             ),
+            TZHAAR_FIGHT_PIT_ACTIVITY_ID: ("TzHaar Fight Pit", fight_pit_box),
             BARBARIAN_ASSAULT_ACTIVITY_ID: ("Barbarian Assault", barbarian_box),
             STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID: (
                 "Stronghold of Player Safety",

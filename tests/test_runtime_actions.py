@@ -71,6 +71,39 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_tzhaar_fight_pit_routes_review_and_terminal_state_through_utility(self):
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "current_utility": "tzhaar_fight_pit",
+            "activity_session": {"active_id": "tzhaar_fight_pit"},
+            "tzhaar_fight_pit": {"roster": [{}]},
+            "completed_achievements": [],
+        }
+        updated = {
+            **player_data,
+            "tzhaar_fight_pit": {},
+            "activity_session": {"active_id": ""},
+            "tzhaar_fight_pit_wins": 1,
+        }
+        result = {
+            "terminal": True,
+            "outcome": "win",
+            "message": "Fight Pit champion · +100 TokKul",
+            "combat": {"xp_rewards": {"attack_exp": 4.0}},
+        }
+        with patch(
+            "runtime_actions.apply_tzhaar_fight_pit_review_pure",
+            return_value=(updated, True, result),
+        ):
+            self.assertTrue(handle_utility_answer(_context(player_data, calls)))
+        self.assertEqual(player_data["tzhaar_fight_pit_wins"], 1)
+        self.assertEqual(calls["saves"], 1)
+        self.assertTrue(calls["deactivated"])
+        self.assertIn(
+            "utility:tzhaar_fight_pit",
+            player_data["action_telemetry"]["actions"],
+        )
+
     def test_shades_of_mortton_routes_repair_xp_through_utility(self):
         from shades_of_mortton_logic import enter_shades_of_mortton_pure
 

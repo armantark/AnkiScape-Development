@@ -2,6 +2,28 @@
 
 ## Current Focus
 
+TzHaar Fight Pit now satisfies horizontal breadth level one as a safe,
+Activities-only last-standing match. Direct entry creates three persistent
+player-relative rivals. Each productive review advances one six-tick Combat
+slice plus bounded off-screen attrition; review-counted late pressure prevents
+stalling without wall-clock state. Only personally defeated rivals add their
+Combat level to pending TokKul, Fire cape doubles the settled purse, safe defeat
+retains items, and leaving forfeits the unfinished purse.
+
+Schema 81, migration and repair, activity arbitration, cadence/telemetry,
+review and direct-action undo, dynamic hidden enemy registration, normalized
+period red-skull art, provenance, and the compact plan/progress/action card are
+integrated. Hybrid armour probability, full opponent breadth, and exact period
+pressure timing remain honest data depth. No owner design gap surfaced. Focused
+pure, storage, runtime, registry, integration, and real offscreen-Qt interaction
+checks pass. Native Anki and Kimi K3/Fable taste approval remain unclaimed under
+the locked-session and quota holds. Durable record:
+`source-audits/tzhaar-fight-pit-horizontal-readiness-2026-07-22.md`. The breadth
+goal is paused at the owner's Codex-quota boundary before recomputing the next
+source-ready family. Results:
+`status-updates/tzhaar-fight-pit-horizontal-results-2026-07-22.html` and
+<https://hebbv2uq7why.postplan.dev>.
+
 Shades of Mort'ton now satisfies horizontal breadth level one as a persistent,
 Activities-only open loop. Completed-quest entry leads to communal temple
 repair, personal sanctity, altar lighting, oil and Serum 207 blessing, all ten
@@ -22,8 +44,7 @@ Root inspected ready and active 1200×760 dark-palette renders. Native Anki is
 unclaimed because the Mac session is locked, and Kimi K3/Fable taste approval
 remains deferred under the owner's quota hold. Durable record:
 `source-audits/shades-of-mortton-horizontal-readiness-2026-07-21.md`. TzHaar
-Fight Pit is the next source-ready shared-integration frontier, but the breadth
-goal is paused before that slice at the owner's Codex-quota boundary. Results:
+Fight Pit was the next source-ready shared-integration frontier. Results:
 `status-updates/shades-of-mortton-horizontal-results-2026-07-22.html` and
 <https://whux17tpdjx6.postplan.dev>.
 

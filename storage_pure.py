@@ -171,6 +171,10 @@ try:
         default_shades_of_mortton_state_pure,
         sanitize_shades_of_mortton_state_pure,
     )
+    from .tzhaar_fight_pit_logic import (
+        default_tzhaar_fight_pit_state_pure,
+        sanitize_tzhaar_fight_pit_state_pure,
+    )
     from .varrock_museum_logic import (
         default_varrock_museum_state_pure,
         sanitize_varrock_museum_state_pure,
@@ -386,6 +390,10 @@ except ImportError:
         default_shades_of_mortton_state_pure,
         sanitize_shades_of_mortton_state_pure,
     )
+    from tzhaar_fight_pit_logic import (  # type: ignore
+        default_tzhaar_fight_pit_state_pure,
+        sanitize_tzhaar_fight_pit_state_pure,
+    )
     from varrock_museum_logic import (  # type: ignore
         default_varrock_museum_state_pure,
         sanitize_varrock_museum_state_pure,
@@ -431,7 +439,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 80
+CURRENT_CONFIG_VERSION = 81
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -681,6 +689,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     )
     data.update(default_soul_wars_state_pure())
     data.update(default_shades_of_mortton_state_pure())
+    data.update(default_tzhaar_fight_pit_state_pure())
     data["varrock_museum"] = default_varrock_museum_state_pure()
     data.update(default_managing_miscellania_state_pure())
     data["activity_session"] = {"active_id": ""}
@@ -1318,6 +1327,7 @@ def migrate_loaded_data(
     )
     data.update(sanitize_soul_wars_state_pure(data))
     data.update(sanitize_shades_of_mortton_state_pure(data))
+    data.update(sanitize_tzhaar_fight_pit_state_pure(data))
     data["varrock_museum"] = sanitize_varrock_museum_state_pure(
         data.get("varrock_museum")
     )
@@ -1417,6 +1427,14 @@ def migrate_loaded_data(
             active_session_id = ""
     elif data["court_cases"]:
         active_session_id = COURT_CASES_ACTIVITY_ID
+    fight_pit_session = data["tzhaar_fight_pit"]
+    if active_session_id:
+        if active_session_id != "tzhaar_fight_pit":
+            data["tzhaar_fight_pit"] = {}
+        elif not fight_pit_session:
+            active_session_id = ""
+    elif fight_pit_session:
+        active_session_id = "tzhaar_fight_pit"
     data["activity_session"] = {"active_id": active_session_id}
     data["sorceress_garden"] = sanitize_sorceress_garden_state_pure(
         data.get("sorceress_garden")
@@ -1712,6 +1730,11 @@ def migrate_loaded_data(
     if loaded_config_version < 80:
         for key, value in default_shades_of_mortton_state_pure().items():
             data.setdefault(key, value)
+    # v81: TzHaar Fight Pit adds a persistent safe match, saved policy,
+    # opponent roster, exact pending TokKul, and outcome ledgers.
+    if loaded_config_version < 81:
+        for key, value in default_tzhaar_fight_pit_state_pure().items():
+            data.setdefault(key, value)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1764,6 +1787,7 @@ def migrate_loaded_data(
     )
     data.update(sanitize_soul_wars_state_pure(data))
     data.update(sanitize_shades_of_mortton_state_pure(data))
+    data.update(sanitize_tzhaar_fight_pit_state_pure(data))
     data.pop("agility_circus_last_week", None)
     agility_currencies = data.get("agility_activity_currencies")
     if isinstance(agility_currencies, dict):

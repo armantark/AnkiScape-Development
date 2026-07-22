@@ -152,6 +152,17 @@ except ImportError:
     )
 
 try:
+    from .tzhaar_fight_pit_data import (
+        TZHAAR_FIGHT_PIT_ACTIVITY_ID,
+        tzhaar_fight_pit_activity_as_dict,
+    )
+except ImportError:
+    from tzhaar_fight_pit_data import (  # type: ignore
+        TZHAAR_FIGHT_PIT_ACTIVITY_ID,
+        tzhaar_fight_pit_activity_as_dict,
+    )
+
+try:
     from .varrock_museum_data import (
         VARROCK_MUSEUM_ACTIVITY_ID,
         varrock_museum_activity_as_dict,
@@ -901,6 +912,7 @@ UTILITY_ACTIVITY_DATA.update(barbarian_assault_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(stronghold_player_safety_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(soul_wars_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(shades_of_mortton_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(tzhaar_fight_pit_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(varrock_museum_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(phoenix_lair_activity_as_dict())
@@ -1025,6 +1037,14 @@ _shades_of_mortton_icon = os.path.join(
 if os.path.exists(_shades_of_mortton_icon):
     UTILITY_ACTIVITY_DATA[SHADES_OF_MORTTON_ACTIVITY_ID]["icon_path"] = (
         _shades_of_mortton_icon
+    )
+_tzhaar_fight_pit_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "tzhaar_fight_pit.png",
+)
+if os.path.exists(_tzhaar_fight_pit_icon):
+    UTILITY_ACTIVITY_DATA[TZHAAR_FIGHT_PIT_ACTIVITY_ID]["icon_path"] = (
+        _tzhaar_fight_pit_icon
     )
 _varrock_museum_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,

@@ -76,23 +76,18 @@ but it does not control the frontier.
 
 ### Live frontier update — 2026-07-22
 
-Shades of Mort'ton now satisfies breadth level one. Its completed-quest open
-loop, communal repair, personal sanctity, simulated crowd pressure, altar,
-oils, Serum 208, ten pyre-log recipes, live Loar Shade Combat, cremation,
-bronze chest, policies, persistence, undo, cadence, registries, normalized art,
-and compact Activities card are live. Other shades, key/chest tiers, reward
-catalog rows, and unpinned GE limits remain explicit data depth.
+TzHaar Fight Pit now satisfies breadth level one. Its three persistent bounded
+rivals, six-tick safe Combat, personally credited additive TokKul, Fire-cape
+doubling, safe defeat, leave forfeiture, review-counted attrition and pressure,
+policies, persistence, undo, cadence, registry, normalized period icon, and
+compact Activities card are live. Hybrid-body probability, full opponent
+breadth, and exact historical pressure timing remain explicit source/data
+depth.
 
-TzHaar Fight Pit is the next source-ready shared-integration frontier. Its
-isolated pure model and period source record are prepared; integration must
-preserve the three-opponent safe arena, six-tick Combat, deterministic
-player-relative levels, exact additive TokKul, forfeit, and review-counted
-anti-stall pressure without introducing wall-clock state.
-
-The breadth program is paused before opening that frontier at the owner's
-Codex-quota boundary. Shades of Mort'ton's accepted closure remains the current
-checkpoint; the pause does not reopen its settled design or promote deferred
-catalog depth ahead of TzHaar Fight Pit.
+Fight Pit is the accepted checkpoint. The breadth goal is paused at the
+owner's Codex-quota boundary before recomputing the next family from the
+disposition ledger; the pause does not reopen settled designs or promote
+parity-depth rows ahead of the next breadth-one family.
 
 ### Earlier live frontier update — 2026-07-22
 
