@@ -533,6 +533,7 @@ def apply_soul_wars_review_pure(
     if not session or active_id != SOUL_WARS_ACTIVITY_ID:
         return data, False, {"reason": "Enter Soul Wars before training it."}
 
+    data.update(state)
     _apply_opponent_pressure(session)
     session["review"] += 1
     if not productive:
@@ -608,9 +609,11 @@ def leave_soul_wars_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     data = copy.deepcopy(dict(player_data))
-    session = sanitize_soul_wars_state_pure(data)["soul_wars"]
+    state = sanitize_soul_wars_state_pure(data)
+    session = state["soul_wars"]
     if not session:
         return data, False, {"reason": "No Soul Wars match is active."}
+    data.update(state)
     message = "Left Soul Wars; the unfinished match paid no Zeal."
     _end_match(data, session, message)
     return data, True, {"message": message}

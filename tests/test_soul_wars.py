@@ -342,6 +342,20 @@ class SoulWarsTerminalAndRewardTests(unittest.TestCase):
         self.assertEqual(left["soul_wars_zeal"], 12)
         self.assertEqual(left["current_combat_target"], "chicken")
 
+    def test_nonterminal_review_and_leave_commit_the_sanitized_zeal_cap(self):
+        data = _entered()
+        data["soul_wars_zeal"] = SOUL_WARS_ZEAL_CAP + 100
+        reviewed, ok, result = apply_soul_wars_review_pure(
+            data, lambda: 0.9, productive=False
+        )
+        self.assertTrue(ok, result)
+        self.assertEqual(reviewed["soul_wars_zeal"], SOUL_WARS_ZEAL_CAP)
+
+        reviewed["soul_wars_zeal"] = SOUL_WARS_ZEAL_CAP + 100
+        left, ok, result = leave_soul_wars_pure(reviewed)
+        self.assertTrue(ok, result)
+        self.assertEqual(left["soul_wars_zeal"], SOUL_WARS_ZEAL_CAP)
+
     def test_shop_buys_exact_combat_band_charm_quantity(self):
         self.assertEqual(SOUL_WARS_CHARM_REWARDS_BY_ITEM["Gold charm"].zeal_cost, 4)
         with patch("soul_wars_logic.player_combat_level_pure", return_value=83):
