@@ -4159,3 +4159,27 @@ Test counts are snapshots; current runs outrank this note.
   `source-audits/court-cases-horizontal-implementation-2026-07-21.md`.
 - Results: `status-updates/court-cases-horizontal-results-2026-07-21.html`;
   mobile copy: `https://nvblmw2z0ddz.postplan.dev`.
+
+## Soul Wars horizontal closure — 2026-07-22
+
+- Shipped the complete twelve-review objective loop with Casual bottleneck and
+  Advanced fixed duty/team policies, obelisk control, fragment offering,
+  avatar defence, live six-tick avatar Combat, safe death, participation
+  removal, leave forfeiture, and exact 3/2/1 Zeal settlement.
+- Added the exact four-charm Combat-band shop plus schema 79 persistence,
+  repair, cadence, telemetry, activity arbitration, direct/review undo,
+  activity and hidden-enemy registration, normalized cutoff assets, and a
+  compact Activities plan/progress/reward surface.
+- Added meaningful pure, migration, runtime, direct-undo, registry, combat,
+  asset, and real-Qt regressions. Root inspected ready and active 1200×760 dark
+  renders.
+- Ordinary and full real offscreen-Qt discovery each execute 2,448 methods;
+  ordinary has 309 declared skips and Qt has one intentional skip. Docs, hard
+  test quality, JSON/provenance, compilation, diff, and worktree safety pass.
+  The reachability audit reports only the pre-existing 166-orphan/187-blocked
+  dependency ledger.
+- Native Anki remains unclaimed because the Mac is locked. Kimi K3 and Fable
+  taste review remains deferred under the owner's quota hold. No design gap
+  surfaced. Shades of Mort'ton is next.
+- Results: `status-updates/soul-wars-horizontal-results-2026-07-22.html`;
+  mobile copy: `https://7xdhzerm80g9.postplan.dev`.

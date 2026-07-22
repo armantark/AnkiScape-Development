@@ -132,6 +132,7 @@ from .barbarian_assault_logic import apply_barbarian_assault_command_pure
 from .stronghold_player_safety_logic import (
     apply_stronghold_player_safety_command_pure,
 )
+from .soul_wars_logic import apply_soul_wars_command_pure
 from .varrock_museum_logic import apply_varrock_museum_command_pure
 from .managing_miscellania_logic import (
     advance_managing_miscellania_world_clock_pure,
@@ -2551,6 +2552,44 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             pass
         return {"ok": True, **info}
 
+    def _apply_soul_wars_command(action_id, payload):
+        payload = payload if isinstance(payload, dict) else {}
+        before = _capture_player_data_snapshot()
+        updated, ok, info = apply_soul_wars_command_pure(
+            player_data,
+            str(action_id),
+            payload,
+        )
+        if not ok:
+            return {
+                "ok": False,
+                "message": str(info.get("reason", "Soul Wars action failed.")),
+                **info,
+            }
+        try:
+            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+        except (AttributeError, RuntimeError):
+            return {
+                "ok": False,
+                "message": "Anki could not create an undo entry.",
+            }
+        _DIRECT_ACTION_UNDO_STACK.append(before)
+        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+        player_data.clear()
+        player_data.update(updated)
+        check_achievements(player_data)
+        save_player_data()
+        _refresh_skill_availability()
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            mw.update_undo_actions()
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_managing_miscellania_command(action_id, payload):
         before = _capture_player_data_snapshot()
         updated, ok, info = apply_managing_miscellania_command_pure(
@@ -2865,6 +2904,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_stronghold_player_safety_command=(
             _apply_stronghold_player_safety_command
         ),
+        on_soul_wars_command=_apply_soul_wars_command,
         on_varrock_museum_command=_apply_varrock_museum_command,
         on_managing_miscellania_command=_apply_managing_miscellania_command,
         on_livid_farm_command=_apply_livid_farm_command,
@@ -3752,6 +3792,16 @@ def on_answer_card(self, ease, _old):
             and runtime_actions.barbarian_assault_view_pure(player_data).get("active")
         ):
             runtime_actions.handle_barbarian_assault_answer(
+                _runtime_action_context(),
+                productive=False,
+            )
+        elif (
+            review_action_handler_key(current_skill) == "utility"
+            and player_data.get("current_utility")
+            == runtime_actions.SOUL_WARS_ACTIVITY_ID
+            and runtime_actions.soul_wars_view_pure(player_data).get("active")
+        ):
+            runtime_actions.handle_soul_wars_answer(
                 _runtime_action_context(),
                 productive=False,
             )

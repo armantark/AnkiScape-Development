@@ -51,7 +51,9 @@ def asset_manifest() -> tuple[tuple[AssetRequest, int], ...]:
             AssetRequest(
                 item_name="Enemy team avatar",
                 wiki_title="Avatar of Destruction.png",
-                output_path=ROOT / "combatenemies" / "soul_wars_avatar.png",
+                output_path=(
+                    ROOT / "combatenemies" / "soul_wars_enemy_avatar.png"
+                ),
                 provenance_path=provenance,
             ),
             48,

@@ -2,6 +2,32 @@
 
 ## Current Focus
 
+Soul Wars now satisfies horizontal breadth level one as an Activities-only
+competitive team match. Twelve answered-card beats advance obelisk control,
+soul-fragment gathering and offering, friendly-avatar defence, or a live
+six-tick enemy-avatar Combat slice. Casual follows the current bottleneck;
+Advanced fixes team and duty. Three idle beats remove the player for zero
+Zeal, safe death restores combat resources and loses temporary fragments, and
+the final score pays the exact 3/2/1 Zeal outcome without any wall clock.
+
+The exact four-charm shop is live with its period Combat bands and 4/5/12/30
+Zeal costs. Schema 79, repair, activity arbitration, cadence, telemetry,
+review/direct undo, registries, hidden avatar target, normalized cutoff art,
+and the compact plan/progress/reward card are integrated. XP redemption, pets,
+gambling, and hidden team-pressure/combat rates remain honest data depth.
+
+Ordinary and full real offscreen-Qt discovery each execute 2,448 methods. The
+ordinary suite has 309 declared skips and Qt has one intentional skip. Docs,
+hard test quality, JSON/provenance, compilation, diff, and worktree safety are
+green; reachability reports only the pre-existing dependency ledger. Root
+inspected ready and active 1200×760 dark renders. Native Anki is unclaimed
+because the Mac is locked, and Kimi/Fable taste remains deferred under the
+owner's quota hold. Durable record:
+`source-audits/soul-wars-horizontal-readiness-2026-07-21.md`. Shades of
+Mort'ton is the next shared-integration frontier. Results:
+`status-updates/soul-wars-horizontal-results-2026-07-22.html` and
+<https://7xdhzerm80g9.postplan.dev>.
+
 Stronghold of Player Safety now satisfies horizontal breadth level one as an
 Activities-only Landmark. Three reviews traverse the poster, lever/rope, and
 return-passage route without making Combat mandatory. The direct chest claim

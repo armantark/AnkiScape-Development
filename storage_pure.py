@@ -163,6 +163,10 @@ try:
         default_stronghold_player_safety_state_pure,
         sanitize_stronghold_player_safety_state_pure,
     )
+    from .soul_wars_logic import (
+        default_soul_wars_state_pure,
+        sanitize_soul_wars_state_pure,
+    )
     from .varrock_museum_logic import (
         default_varrock_museum_state_pure,
         sanitize_varrock_museum_state_pure,
@@ -370,6 +374,10 @@ except ImportError:
         default_stronghold_player_safety_state_pure,
         sanitize_stronghold_player_safety_state_pure,
     )
+    from soul_wars_logic import (  # type: ignore
+        default_soul_wars_state_pure,
+        sanitize_soul_wars_state_pure,
+    )
     from varrock_museum_logic import (  # type: ignore
         default_varrock_museum_state_pure,
         sanitize_varrock_museum_state_pure,
@@ -415,7 +423,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 78
+CURRENT_CONFIG_VERSION = 79
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -663,6 +671,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["stronghold_player_safety"] = (
         default_stronghold_player_safety_state_pure()
     )
+    data.update(default_soul_wars_state_pure())
     data["varrock_museum"] = default_varrock_museum_state_pure()
     data.update(default_managing_miscellania_state_pure())
     data["activity_session"] = {"active_id": ""}
@@ -1298,6 +1307,7 @@ def migrate_loaded_data(
     data["stronghold_player_safety"] = sanitize_stronghold_player_safety_state_pure(
         data.get("stronghold_player_safety")
     )
+    data.update(sanitize_soul_wars_state_pure(data))
     data["varrock_museum"] = sanitize_varrock_museum_state_pure(
         data.get("varrock_museum")
     )
@@ -1682,6 +1692,11 @@ def migrate_loaded_data(
             "stronghold_player_safety",
             default_stronghold_player_safety_state_pure(),
         )
+    # v79: Soul Wars adds a persistent safe-death match, saved policy, Zeal
+    # wallet, outcome ledger, and exact representative charm shop.
+    if loaded_config_version < 79:
+        for key, value in default_soul_wars_state_pure().items():
+            data.setdefault(key, value)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1732,6 +1747,7 @@ def migrate_loaded_data(
     data["stronghold_player_safety"] = sanitize_stronghold_player_safety_state_pure(
         data.get("stronghold_player_safety")
     )
+    data.update(sanitize_soul_wars_state_pure(data))
     data.pop("agility_circus_last_week", None)
     agility_currencies = data.get("agility_activity_currencies")
     if isinstance(agility_currencies, dict):

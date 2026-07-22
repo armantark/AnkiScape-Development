@@ -76,6 +76,19 @@ but it does not control the frontier.
 
 ### Live frontier update — 2026-07-22
 
+Soul Wars now satisfies breadth level one. Its twelve-beat objective match,
+safe-death Combat seam, participation removal, Casual bottleneck and Advanced
+duty policies, exact outcome Zeal, four-charm shop, persistence, undo, cadence,
+registries, normalized art, and compact Activities card are live. The hidden
+team-pressure rates, avatar combat values, full shop, pets, and XP redemption
+remain explicit data depth.
+
+The next shared-integration frontier is Shades of Mort'ton under
+`source-audits/shades-of-mortton-horizontal-readiness-2026-07-21.md`. It has a
+source-ready backend and requires no owner design decision before integration.
+
+### Earlier live frontier update — 2026-07-22
+
 Stronghold of Player Safety now satisfies breadth level one. Its three-landmark
 route, permanent crevice, exact direct chest package, two manually targeted
 lamps, duplication-safe glove reclaim, optional live Cockroach soldier Combat,
@@ -83,11 +96,8 @@ schema, cadence, undo, registry, normalized assets, and compact Activities card
 are live. Hidden enemy stats, animations, and drop probabilities remain
 explicit source depth.
 
-The next shared-integration frontier is Soul Wars under
-`source-audits/soul-wars-horizontal-readiness-2026-07-21.md`. The following
-shared integration is Shades of Mort'ton under
-`source-audits/shades-of-mortton-horizontal-readiness-2026-07-21.md`. Neither
-requires an owner design decision before implementation.
+Soul Wars and Shades of Mort'ton were the next two shared-integration frontiers
+at this checkpoint.
 
 ### Live frontier update — 2026-07-21
 

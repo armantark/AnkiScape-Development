@@ -33,6 +33,33 @@ from constants import (
 
 
 class TestStoragePure(unittest.TestCase):
+    def test_v79_migrates_and_repairs_soul_wars_state(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 78,
+                "inventory": {},
+                "activity_session": {"active_id": "soul_wars"},
+                "soul_wars_zeal": 99_999,
+                "soul_wars_policy": {
+                    "automation_mode": "invalid",
+                    "duty": "invalid",
+                    "team": "invalid",
+                },
+                "soul_wars": {"review": 999, "control_balance": 99},
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(migrated["soul_wars_zeal"], 50_000)
+        self.assertEqual(
+            migrated["soul_wars_policy"],
+            {"automation_mode": "casual", "duty": "fragments", "team": "balance"},
+        )
+        self.assertEqual(migrated["soul_wars"]["review"], 11)
+        self.assertEqual(migrated["soul_wars"]["control_balance"], 3)
+
     def test_default_player_data_has_expected_keys(self):
         data = default_player_data(ORE_DATA)
         # Core keys

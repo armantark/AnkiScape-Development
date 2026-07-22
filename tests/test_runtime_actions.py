@@ -239,6 +239,76 @@ class TestRuntimeActions(unittest.TestCase):
             player_data["action_telemetry"]["actions"],
         )
 
+    def test_soul_wars_match_routes_through_utility_and_settles_zeal(self):
+        from soul_wars_logic import enter_soul_wars_pure
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data, ok, info = enter_soul_wars_pure(
+            {
+                "current_utility": "soul_wars",
+                "activity_session": {"active_id": ""},
+                "combat_encounter": {},
+                "combat_supply_loadout": {"food": {}},
+                "current_combat_target": "chicken",
+                "inventory": {},
+                "equipment": {},
+                "attack_level": 40,
+                "strength_level": 40,
+                "defense_level": 40,
+                "constitution_level": 40,
+                "ranged_level": 40,
+                "magic_level": 40,
+                "prayer_level": 40,
+                "slayer_level": 40,
+                "summoning_level": 1,
+                "completed_achievements": [],
+            },
+            {"automation_mode": "advanced", "duty": "defend", "team": "creation"},
+        )
+        self.assertTrue(ok, info)
+
+        for _ in range(12):
+            self.assertTrue(
+                handle_utility_answer(
+                    _context(player_data, calls, random_values=(0.9,) * 32)
+                )
+            )
+
+        self.assertEqual(player_data["soul_wars"], {})
+        self.assertEqual(player_data["soul_wars_games_played"], 1)
+        self.assertIn(player_data["soul_wars_zeal"], {1, 2, 3})
+        self.assertEqual(calls["saves"], 12)
+        self.assertTrue(calls.get("deactivated"))
+        self.assertIn(
+            "utility:soul_wars",
+            player_data["action_telemetry"]["actions"],
+        )
+
+    def test_soul_wars_again_is_an_idle_match_beat(self):
+        from soul_wars_logic import enter_soul_wars_pure
+
+        player_data, ok, info = enter_soul_wars_pure(
+            {
+                "current_utility": "soul_wars",
+                "activity_session": {"active_id": ""},
+                "combat_encounter": {},
+                "combat_supply_loadout": {"food": {}},
+                "current_combat_target": "chicken",
+                "inventory": {},
+                "equipment": {},
+                "completed_achievements": [],
+            }
+        )
+        self.assertTrue(ok, info)
+        self.assertTrue(
+            runtime_actions.handle_soul_wars_answer(
+                _context(player_data, random_values=(0.9,) * 16),
+                productive=False,
+            )
+        )
+        self.assertEqual(player_data["soul_wars"]["review"], 1)
+        self.assertEqual(player_data["soul_wars"]["activity"], 2)
+
     def test_castle_wars_runtime_applies_combat_xp_and_again_can_idle(self):
         from castle_wars_logic import enter_castle_wars_pure
 

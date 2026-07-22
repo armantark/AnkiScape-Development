@@ -539,6 +539,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-10-06T02:04:16Z"
   },
+  "activityicons/soul_wars.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Soul_fragment.png",
+    "file_title": "Soul fragment.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502071157%21Soul_fragment.png?ba4d1",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "580f57df4f3ca59464d8c091a138b13e7ad728f3",
+    "size": 1325,
+    "source_wiki": "rs3",
+    "timestamp": "2009-02-11T06:45:43Z"
+  },
   "activityicons/stealing_creation.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Sacred_clay_%28class_5%29.png",
     "file_title": "Sacred clay (class 5).png",
@@ -1474,6 +1486,18 @@
     "size": 481,
     "source_wiki": "rs3",
     "timestamp": "2011-11-28T10:00:54Z"
+  },
+  "activityitems/soul_wars_soul_fragment.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Soul_fragment.png",
+    "file_title": "Soul fragment.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502071157%21Soul_fragment.png?ba4d1",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "580f57df4f3ca59464d8c091a138b13e7ad728f3",
+    "size": 1325,
+    "source_wiki": "rs3",
+    "timestamp": "2009-02-11T06:45:43Z"
   },
   "activityitems/spring_sq_irk.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Spring_sq%27irk.png",
@@ -3934,6 +3958,18 @@
     "size": 201101,
     "source_wiki": "rs3",
     "timestamp": "2015-10-27T20:04:46Z"
+  },
+  "combatenemies/soul_wars_enemy_avatar.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Avatar_of_Destruction.png",
+    "file_title": "Avatar of Destruction.png",
+    "image_url": "https://runescape.wiki/images/Avatar_of_Destruction.png?421d9",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "476d80ceffad9b26c53779d13b051136d894a03d",
+    "size": 478569,
+    "source_wiki": "rs3",
+    "timestamp": "2012-04-16T22:06:40Z"
   },
   "combatenemies/spider.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Spider.png",

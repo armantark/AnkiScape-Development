@@ -687,6 +687,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "soul_wars":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "soul_wars",
+                    "mode": "activity_group",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One answered card advances one of twelve bounded match beats; "
+                        "avatar duty embeds one live six-tick Combat slice, while entry, "
+                        "leave, policy, and charm purchases are direct actions."
+                    ),
+                    "includes": (
+                        "one objective duty and bounded opposing-team pressure",
+                        "one persistent match-state transaction",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains one "
+                        "match beat"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same one-beat activity handler",
+                    "profile": None,
+                    "condition": "disclosed twelve-beat no-wall-clock translation",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "varrock_museum":
             rows.append(
                 {

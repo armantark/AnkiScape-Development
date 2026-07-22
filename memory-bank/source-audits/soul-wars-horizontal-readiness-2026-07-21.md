@@ -4,9 +4,7 @@ Date: `2026-07-21`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **period game spine pinned; horizontal pure mechanics implemented; shared
-storage/runtime/UI integration remains pending behind the active Castle Wars
-writer.**
+Status: **horizontal mechanics and shared integration shipped 2026-07-22.**
 
 Owning design: `source-audits/competitive-tier-adaptations-2026-07-18.md`.
 That settled Soul Wars as soul-fragment gathering and obelisk-control duty beats
@@ -94,7 +92,7 @@ One review advances both teams:
 The provisional pressure values are named in `soul_wars_data.py`. They are
 mechanical abstractions, not historical rate claims.
 
-## Implemented pure boundary
+## Shipped horizontal boundary
 
 `soul_wars_data.py`, `soul_wars_logic.py`, and `tests/test_soul_wars.py` now cover:
 
@@ -108,9 +106,28 @@ mechanical abstractions, not historical rate claims.
   leave forfeiture; and
 - exact Combat-band charm bundle purchases using existing Summoning charm items.
 
-Shared registry/storage/runtime/cadence/undo/UI/assets integration is intentionally
-not included in this checkpoint because another writer currently owns those
-files for Castle Wars. The isolated files are safe to commit independently.
+The 2026-07-22 shared-integration pass adds schema 79 save repair, activity and
+hidden-avatar registration, the Utility runtime and Again route, cadence and
+telemetry declarations, direct-action undo, normalized cutoff assets with
+provenance, and the compact Activities card. The card exposes entry locks,
+Casual/Advanced plan controls, team and duty selection, the active objective
+state, match progress, explicit leave, Zeal history, and the exact four-charm
+shop without exposing the deferred XP catalog.
+
+Focused pure, persistence, runtime, registry, combat-roster, direct-undo, asset,
+and real-Qt interaction checks pass. Ordinary full discovery runs `2,448`
+methods with `309` declared skips. Full real offscreen-Qt discovery runs the
+same `2,448` methods with one intentional skip. The docs and test-quality
+audits, JSON/provenance validation, compilation, diff check, and worktree guard
+pass. The global reachability audit remains red only on its pre-existing
+`166`-orphan/`187`-blocked dependency ledger; Soul Wars adds no orphan.
+
+Root inspected ready and active `1200×760` dark-palette renders. Native Anki
+inspection is unclaimed because the Mac session is locked. Kimi K3 and Fable
+taste review remains deferred under the owner's quota hold.
+
+Results: `status-updates/soul-wars-horizontal-results-2026-07-22.html` and
+<https://7xdhzerm80g9.postplan.dev>.
 
 ## Source blocks and deferred depth
 

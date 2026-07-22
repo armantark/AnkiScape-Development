@@ -128,6 +128,17 @@ except ImportError:
     )
 
 try:
+    from .soul_wars_data import (
+        SOUL_WARS_ACTIVITY_ID,
+        soul_wars_activity_as_dict,
+    )
+except ImportError:
+    from soul_wars_data import (  # type: ignore
+        SOUL_WARS_ACTIVITY_ID,
+        soul_wars_activity_as_dict,
+    )
+
+try:
     from .varrock_museum_data import (
         VARROCK_MUSEUM_ACTIVITY_ID,
         varrock_museum_activity_as_dict,
@@ -875,6 +886,7 @@ UTILITY_ACTIVITY_DATA.update(castle_wars_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(pest_control_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(barbarian_assault_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(stronghold_player_safety_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(soul_wars_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(varrock_museum_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(phoenix_lair_activity_as_dict())
@@ -989,6 +1001,9 @@ if os.path.exists(_stronghold_player_safety_icon):
     UTILITY_ACTIVITY_DATA[STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID]["icon_path"] = (
         _stronghold_player_safety_icon
     )
+_soul_wars_icon = os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "soul_wars.png")
+if os.path.exists(_soul_wars_icon):
+    UTILITY_ACTIVITY_DATA[SOUL_WARS_ACTIVITY_ID]["icon_path"] = _soul_wars_icon
 _varrock_museum_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
     "varrock_museum.png",

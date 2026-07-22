@@ -579,6 +579,23 @@ except Exception:
     )
 
 try:
+    from .soul_wars_data import (
+        SOUL_WARS_ACTIVITY_ID,
+        SOUL_WARS_DUTIES,
+        SOUL_WARS_EVENT_REVIEWS,
+        SOUL_WARS_TEAMS,
+    )
+    from .soul_wars_logic import soul_wars_view_pure
+except Exception:
+    from soul_wars_data import (  # type: ignore
+        SOUL_WARS_ACTIVITY_ID,
+        SOUL_WARS_DUTIES,
+        SOUL_WARS_EVENT_REVIEWS,
+        SOUL_WARS_TEAMS,
+    )
+    from soul_wars_logic import soul_wars_view_pure  # type: ignore
+
+try:
     from .managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
     from .managing_miscellania_logic import managing_miscellania_view_pure
 except Exception:
@@ -3658,6 +3675,7 @@ def show_main_menu(
     on_pest_control_command=None,
     on_barbarian_assault_command=None,
     on_stronghold_player_safety_command=None,
+    on_soul_wars_command=None,
     on_varrock_museum_command=None,
     on_managing_miscellania_command=None,
     on_set_prayer_selection=None,
@@ -13686,6 +13704,298 @@ def show_main_menu(
         pest_leave.clicked.connect(lambda _checked=False: _confirm_pest_leave())
         _refresh_pest_panel()
 
+        soul_box = QtFrame()
+        soul_box.setObjectName("soulWarsPanel")
+        soul_box.setStyleSheet(
+            "QFrame#soulWarsPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        soul_layout = QVBoxLayout(soul_box)
+        soul_layout.setContentsMargins(10, 8, 10, 8)
+        soul_layout.setSpacing(7)
+
+        soul_header = QWidget()
+        soul_header_layout = QHBoxLayout(soul_header)
+        soul_header_layout.setContentsMargins(0, 0, 0, 0)
+        soul_header_layout.setSpacing(8)
+        soul_icon = QLabel()
+        soul_icon.setObjectName("soulWarsIcon")
+        soul_icon.setFixedSize(28, 28)
+        soul_icon_path = os.path.join(current_dir, "activityicons", "soul_wars.png")
+        if os.path.exists(soul_icon_path):
+            soul_icon.setPixmap(
+                QPixmap(soul_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+        soul_title = QLabel("Soul Wars")
+        soul_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        soul_status = QLabel()
+        soul_status.setObjectName("soulWarsStatusChip")
+        soul_status.setStyleSheet(
+            f"color: {dim_text_css(soul_status)}; font-size: 11px; font-weight: 700;"
+        )
+        soul_header_layout.addWidget(soul_icon)
+        soul_header_layout.addWidget(soul_title)
+        soul_header_layout.addStretch(1)
+        soul_header_layout.addWidget(soul_status)
+        soul_layout.addWidget(soul_header)
+
+        soul_summary = QLabel()
+        soul_summary.setObjectName("soulWarsSummary")
+        soul_summary.setWordWrap(True)
+        soul_summary.setStyleSheet("color: palette(text);")
+        soul_layout.addWidget(soul_summary)
+
+        soul_progress = QProgressBar()
+        soul_progress.setObjectName("soulWarsProgress")
+        soul_progress.setRange(0, SOUL_WARS_EVENT_REVIEWS)
+        soul_progress.setTextVisible(True)
+        soul_progress.setFormat("Match beat %v of 12")
+        soul_progress.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 4px; }"
+            "QProgressBar::chunk { background: #6884a8; }"
+        )
+        soul_layout.addWidget(soul_progress)
+
+        soul_plan = QWidget()
+        soul_plan_layout = QGridLayout(soul_plan)
+        soul_plan_layout.setContentsMargins(0, 0, 0, 0)
+        soul_plan_layout.setHorizontalSpacing(6)
+        soul_plan_layout.setVerticalSpacing(5)
+        soul_mode = QComboBox()
+        soul_mode.setObjectName("soulWarsModeCombo")
+        soul_mode.setAccessibleName("Soul Wars automation mode")
+        soul_mode.addItem("Casual · follow the bottleneck", "casual")
+        soul_mode.addItem("Advanced · fixed duty", "advanced")
+        soul_team = QComboBox()
+        soul_team.setObjectName("soulWarsTeamCombo")
+        soul_team.setAccessibleName("Soul Wars team")
+        for team_id, label in SOUL_WARS_TEAMS:
+            soul_team.addItem(label, team_id)
+        soul_duty = QComboBox()
+        soul_duty.setObjectName("soulWarsDutyCombo")
+        soul_duty.setAccessibleName("Soul Wars fixed duty")
+        for duty_id, label in SOUL_WARS_DUTIES:
+            soul_duty.addItem(label, duty_id)
+        soul_save = QPushButton("Save plan")
+        soul_save.setObjectName("soulWarsSavePlanButton")
+        soul_plan_layout.addWidget(soul_mode, 0, 0)
+        soul_plan_layout.addWidget(soul_team, 0, 1)
+        soul_plan_layout.addWidget(soul_duty, 1, 0, 1, 2)
+        soul_plan_layout.addWidget(soul_save, 0, 2, 2, 1)
+        soul_layout.addWidget(soul_plan)
+
+        soul_actions = QWidget()
+        soul_actions_layout = QGridLayout(soul_actions)
+        soul_actions_layout.setContentsMargins(0, 0, 0, 0)
+        soul_actions_layout.setHorizontalSpacing(6)
+        soul_actions_layout.setVerticalSpacing(5)
+        soul_primary = QPushButton()
+        soul_primary.setObjectName("soulWarsPrimaryButton")
+        soul_reward = QComboBox()
+        soul_reward.setObjectName("soulWarsRewardCombo")
+        soul_reward.setAccessibleName("Soul Wars charm reward")
+        soul_buy = QPushButton("Buy charms")
+        soul_buy.setObjectName("soulWarsBuyCharmsButton")
+        soul_leave = QPushButton("Leave match")
+        soul_leave.setObjectName("soulWarsLeaveButton")
+        soul_actions_layout.addWidget(soul_primary, 0, 0, 1, 2)
+        soul_actions_layout.addWidget(soul_leave, 0, 2)
+        soul_actions_layout.addWidget(soul_reward, 1, 0, 1, 2)
+        soul_actions_layout.addWidget(soul_buy, 1, 2)
+        soul_layout.addWidget(soul_actions)
+        cards_stack.addWidget(soul_box)
+
+        syncing_soul = {"active": False}
+
+        def _run_soul_command(action_id: str, payload=None) -> dict[str, Any]:
+            if on_soul_wars_command is None:
+                return {"ok": False, "message": "Soul Wars actions are unavailable."}
+            result = on_soul_wars_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Soul Wars",
+                    str(result.get("message", "That action is unavailable.")),
+                )
+            _refresh_soul_panel()
+            return result
+
+        def _soul_policy_payload() -> dict[str, str]:
+            return {
+                "automation_mode": str(soul_mode.currentData() or "casual"),
+                "duty": str(soul_duty.currentData() or "fragments"),
+                "team": str(soul_team.currentData() or "balance"),
+            }
+
+        def _refresh_soul_panel() -> None:
+            syncing_soul["active"] = True
+            view = soul_wars_view_pure(player_data)
+            session = view["soul_wars"]
+            active = bool(view["active"])
+            policy = session if active else view["soul_wars_policy"]
+            for combo, value in (
+                (soul_mode, policy["automation_mode"]),
+                (soul_team, policy["team"]),
+                (soul_duty, policy["duty"]),
+            ):
+                combo.blockSignals(True)
+                combo.setCurrentIndex(max(0, combo.findData(value)))
+                combo.blockSignals(False)
+            soul_status.setText("IN MATCH" if active else "READY")
+            if active:
+                duty_text = (
+                    "Casual bottleneck"
+                    if session["automation_mode"] == "casual"
+                    else str(session["duty"]).replace("_", " ").title()
+                )
+                soul_summary.setText(
+                    f"Avatar defeats {int(session['player_score'])}-{int(session['opponent_score'])} · "
+                    f"enemy avatar {int(session['enemy_avatar_lifepoints']):,} LP · "
+                    f"Slayer {int(session['enemy_avatar_slayer'])}\n"
+                    f"Obelisk {str(view['control']).title()} · {int(session['fragments'])} fragments · "
+                    f"activity {int(session['activity'])}/3 · {duty_text}"
+                )
+                soul_progress.setValue(int(session["review"]))
+            else:
+                entry_text = (
+                    " ".join(str(reason) for reason in view["entry_reasons"])
+                    or "Twelve answered-card objective beats · safe death · 3/2/1 Zeal"
+                )
+                if view["entry_reasons"]:
+                    soul_status.setText("ENTRY BLOCKED")
+                record = (
+                    f"{int(view['soul_wars_wins'])}W/"
+                    f"{int(view['soul_wars_draws'])}D/"
+                    f"{int(view['soul_wars_losses'])}L"
+                )
+                history = str(view["soul_wars_last_result"])
+                soul_summary.setText(
+                    f"{int(view['soul_wars_zeal']):,}/50,000 Zeal · {record}\n"
+                    + entry_text
+                    + (f"\n{history}" if history else "")
+                )
+                soul_progress.setValue(0)
+            soul_progress.setVisible(active)
+            selected = active and player_data.get("current_utility") == SOUL_WARS_ACTIVITY_ID
+            soul_primary.setText(
+                "Selected for reviews"
+                if selected
+                else "Select for reviews"
+                if active
+                else "Enter Soul Wars"
+            )
+            soul_primary.setEnabled(
+                on_soul_wars_command is not None
+                and not selected
+                and (active or bool(view["can_enter"]))
+            )
+            soul_leave.setVisible(active)
+            soul_leave.setEnabled(active and on_soul_wars_command is not None)
+            soul_plan.setVisible(not active)
+            soul_mode.setEnabled(not active and on_soul_wars_command is not None)
+            soul_team.setEnabled(
+                not active
+                and soul_mode.currentData() == "advanced"
+                and on_soul_wars_command is not None
+            )
+            soul_duty.setEnabled(
+                not active
+                and soul_mode.currentData() == "advanced"
+                and on_soul_wars_command is not None
+            )
+            soul_save.setEnabled(not active and on_soul_wars_command is not None)
+            selected_reward = soul_reward.currentData()
+            soul_reward.blockSignals(True)
+            soul_reward.clear()
+            for reward in view["rewards"]:
+                quantity = int(reward["quantity"])
+                label = (
+                    f"{reward['item']} · {int(reward['cost'])} Zeal · "
+                    + (f"{quantity} charms" if quantity else "Combat 13 required")
+                )
+                soul_reward.addItem(label, reward["item"])
+            if selected_reward:
+                soul_reward.setCurrentIndex(
+                    max(0, soul_reward.findData(selected_reward))
+                )
+            soul_reward.blockSignals(False)
+            current_reward = next(
+                (
+                    reward
+                    for reward in view["rewards"]
+                    if reward["item"] == soul_reward.currentData()
+                ),
+                None,
+            )
+            soul_reward.setVisible(not active)
+            soul_buy.setVisible(not active)
+            soul_buy.setEnabled(
+                not active
+                and on_soul_wars_command is not None
+                and bool(current_reward and current_reward["affordable"])
+            )
+            syncing_soul["active"] = False
+            _fit_current_activity_detail()
+
+        def _select_or_enter_soul() -> None:
+            view = soul_wars_view_pure(player_data)
+            if not view["active"]:
+                if not _run_soul_command("enter", _soul_policy_payload()).get("ok"):
+                    return
+            elif not _request_utility_selection(SOUL_WARS_ACTIVITY_ID):
+                return
+            _refresh_soul_panel()
+
+        def _confirm_soul_leave() -> None:
+            answer = QMessageBox.question(
+                dialog,
+                "Leave Soul Wars?",
+                "Leave the current match? Temporary fragments and all pending Zeal are forfeited.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_soul_command("leave")
+
+        def _buy_soul_reward() -> None:
+            item_name = str(soul_reward.currentData() or "")
+            if item_name:
+                _run_soul_command("buy_charms", {"item_name": item_name})
+
+        soul_mode.currentIndexChanged.connect(
+            lambda _index: (
+                None
+                if syncing_soul["active"]
+                else (
+                    soul_team.setEnabled(
+                        soul_mode.currentData() == "advanced"
+                        and on_soul_wars_command is not None
+                    ),
+                    soul_duty.setEnabled(
+                        soul_mode.currentData() == "advanced"
+                        and on_soul_wars_command is not None
+                    ),
+                )
+            )
+        )
+        soul_save.clicked.connect(
+            lambda _checked=False: _run_soul_command(
+                "set_policy", _soul_policy_payload()
+            )
+        )
+        soul_primary.clicked.connect(lambda _checked=False: _select_or_enter_soul())
+        soul_reward.currentIndexChanged.connect(
+            lambda _index: None if syncing_soul["active"] else _refresh_soul_panel()
+        )
+        soul_buy.clicked.connect(lambda _checked=False: _buy_soul_reward())
+        soul_leave.clicked.connect(lambda _checked=False: _confirm_soul_leave())
+        _refresh_soul_panel()
+
         barbarian_box = QtFrame()
         barbarian_box.setObjectName("barbarianAssaultPanel")
         barbarian_box.setStyleSheet(
@@ -16556,6 +16866,30 @@ def show_main_menu(
                     )
                     return False
             if (
+                activity_id != SOUL_WARS_ACTIVITY_ID
+                and soul_wars_view_pure(player_data)["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave Soul Wars?",
+                    "Switch activities? The unfinished match, fragments, and pending Zeal are forfeited.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_soul_wars_command("leave", {})
+                    if on_soul_wars_command is not None
+                    else {"ok": False, "message": "Soul Wars actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Soul Wars",
+                        str((result or {}).get("message", "Could not leave the match.")),
+                    )
+                    return False
+            if (
                 activity_id != BARBARIAN_ASSAULT_ACTIVITY_ID
                 and barbarian_assault_view_pure(player_data)["active"]
             ):
@@ -16786,6 +17120,10 @@ def show_main_menu(
                 _refresh_pest_panel()
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == SOUL_WARS_ACTIVITY_ID:
+                _refresh_soul_panel()
+                _show_activity_detail(activity_id)
+                return
             if activity_id == BARBARIAN_ASSAULT_ACTIVITY_ID:
                 _refresh_barbarian_panel()
                 _show_activity_detail(activity_id)
@@ -16853,6 +17191,7 @@ def show_main_menu(
             TROUBLE_BREWING_ACTIVITY_ID: ("Trouble Brewing", trouble_box),
             CASTLE_WARS_ACTIVITY_ID: ("Castle Wars", castle_box),
             PEST_CONTROL_ACTIVITY_ID: ("Pest Control", pest_box),
+            SOUL_WARS_ACTIVITY_ID: ("Soul Wars", soul_box),
             BARBARIAN_ASSAULT_ACTIVITY_ID: ("Barbarian Assault", barbarian_box),
             STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID: (
                 "Stronghold of Player Safety",

@@ -14,6 +14,24 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+### Soul Wars — horizontal mechanics shipped 2026-07-22
+
+Labels: `SOURCE AUDIT` only for deferred rates and catalog depth.
+
+- The complete twelve-beat objective loop, Casual bottleneck, Advanced fixed
+  duty/team plan, activity removal, safe death, live avatar Combat, exact
+  3/2/1 Zeal settlement, and leave forfeiture are live without wall time.
+- The exact four-charm shop exercises Combat-band rewards while XP redemption,
+  pets, gamble tables, and hidden team-pressure/avatar values remain data depth.
+- Schema 79, storage repair, cadence, telemetry, arbitration, undo, registries,
+  normalized assets, and the compact plan/progress/reward card are live.
+- Full ordinary and real offscreen-Qt discovery each execute 2,448 methods.
+  Native Anki and external taste review remain deferred external gates.
+- The next shared-integration frontier is Shades of Mort'ton.
+- Durable audit:
+  `memory-bank/source-audits/soul-wars-horizontal-readiness-2026-07-21.md`.
+- Closure report: <https://7xdhzerm80g9.postplan.dev>.
+
 ### Stronghold of Player Safety — horizontal mechanics shipped 2026-07-22
 
 Labels: `SOURCE AUDIT` only for hidden Cockroach soldier stats, animations, and
@@ -1285,15 +1303,18 @@ Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
   Stealing Creation, Barrows, Flash Powder Factory, Pyramid Plunder, and
   Werewolf Skullball, Gnome Ball, Fish Flingers, Fishing Trawler, Great Orb
   Project, Managing Miscellania, Big Top Bonanza, Trouble Brewing, Castle Wars,
-  Pest Control, Varrock Museum, and Barbarian Assault with
+  Pest Control, Varrock Museum, Barbarian Assault, and Soul Wars with
   complete mechanics, persistence, undo, UI, assets, and compact period-
   qualified data sets.
-- Barbarian Assault now owns the complete tutorial → ten-wave → persistent
+- Soul Wars now owns the complete twelve-beat objective match, participation,
+  safe-death Combat, exact Zeal, representative charm shop, persistence,
+  arbitration, cadence, undo, UI, and normalized assets. Continue with the
+  already-harvested Shades of Mort'ton shared integration.
+- Barbarian Assault owns the complete tutorial → ten-wave → persistent
   eight-egg Queen → four-wallet settlement loop, Runner-boots purchase,
   persistence, arbitration, cadence, undo, UI, and normalized assets. Its
   remaining armour/horn/gamble catalog and source-blocked Attacker XP multiplier
-  are data depth. Continue with the already-harvested Soul Wars horizontal
-  slice, then Shades of Mort'ton shared integration.
+  are data depth.
 - Flash Powder Factory and Pyramid Plunder are closed. Tears of Guthix and Shattered Heart remain explicit
   source-readiness skips, not design questions. Continue breadth-first with the
   next settled activity whose smallest honest entry/state/reward data set is

@@ -11,12 +11,20 @@ from typing import Dict, Tuple
 
 try:
     from .firemaking_data import LIT_LIGHT_SOURCE_ITEMS
+    from .soul_wars_data import (
+        SOUL_WARS_COMBAT_TARGET_ID,
+        soul_wars_avatar_enemy_pure,
+    )
     from .stronghold_player_safety_data import (
         COCKROACH_SOLDIER_TARGET_ID,
         cockroach_soldier_enemy_as_dict,
     )
 except ImportError:
     from firemaking_data import LIT_LIGHT_SOURCE_ITEMS
+    from soul_wars_data import (  # type: ignore
+        SOUL_WARS_COMBAT_TARGET_ID,
+        soul_wars_avatar_enemy_pure,
+    )
     from stronghold_player_safety_data import (  # type: ignore
         COCKROACH_SOLDIER_TARGET_ID,
         cockroach_soldier_enemy_as_dict,
@@ -13392,6 +13400,7 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
 }
 
 COMBAT_ENEMY_DATA[COCKROACH_SOLDIER_TARGET_ID] = cockroach_soldier_enemy_as_dict()
+COMBAT_ENEMY_DATA[SOUL_WARS_COMBAT_TARGET_ID] = soul_wars_avatar_enemy_pure()
 
 
 COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {

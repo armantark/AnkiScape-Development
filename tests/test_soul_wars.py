@@ -1,18 +1,25 @@
 from __future__ import annotations
 
 import copy
+import json
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
+from combat_data import COMBAT_ENEMY_DATA
+from constants import COMBAT_ENEMY_IMAGES, UTILITY_ACTIVITY_DATA
 from soul_wars_data import (
+    SOUL_WARS_ACTIVITY_ID,
     SOUL_WARS_AVATAR_LIFEPOINTS,
     SOUL_WARS_CHARM_REWARDS_BY_ITEM,
+    SOUL_WARS_COMBAT_TARGET_ID,
     SOUL_WARS_EVENT_REVIEWS,
     SOUL_WARS_ZEAL_CAP,
     soul_wars_avatar_enemy_pure,
     soul_wars_charm_quantity_pure,
 )
 from soul_wars_logic import (
+    apply_soul_wars_command_pure,
     apply_soul_wars_review_pure,
     buy_soul_wars_charms_pure,
     enter_soul_wars_pure,
@@ -21,6 +28,9 @@ from soul_wars_logic import (
     set_soul_wars_policy_pure,
     soul_wars_view_pure,
 )
+
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def _player(**overrides):
@@ -95,8 +105,42 @@ class SoulWarsDataTests(unittest.TestCase):
         )
         self.assertEqual(soul_wars_charm_quantity_pure("Blue charm", 83), 19)
 
+    def test_registry_assets_and_provenance_are_reachable(self):
+        activity = UTILITY_ACTIVITY_DATA[SOUL_WARS_ACTIVITY_ID]
+        self.assertEqual(activity["surface"], "activities")
+        self.assertEqual(activity["group"], "minigames")
+        self.assertTrue(Path(activity["icon_path"]).is_file())
+        self.assertIn(SOUL_WARS_COMBAT_TARGET_ID, COMBAT_ENEMY_DATA)
+        self.assertTrue(Path(COMBAT_ENEMY_IMAGES[SOUL_WARS_COMBAT_TARGET_ID]).is_file())
+
+        provenance = json.loads(
+            (ROOT / "assets_provenance.json").read_text(encoding="utf-8")
+        )
+        for relative_path in (
+            "activityicons/soul_wars.png",
+            "activityitems/soul_wars_soul_fragment.png",
+            "combatenemies/soul_wars_enemy_avatar.png",
+        ):
+            self.assertIn(relative_path, provenance)
+
 
 class SoulWarsEntryAndPolicyTests(unittest.TestCase):
+    def test_command_router_handles_public_actions_and_rejects_unknown_commands(self):
+        player, ok, info = apply_soul_wars_command_pure(
+            _player(),
+            "set_policy",
+            {"automation_mode": "advanced", "duty": "defend", "team": "creation"},
+        )
+        self.assertTrue(ok, info)
+        player, ok, info = apply_soul_wars_command_pure(player, "enter")
+        self.assertTrue(ok, info)
+        self.assertEqual(player["soul_wars"]["duty"], "defend")
+
+        unchanged, ok, info = apply_soul_wars_command_pure(player, "unknown")
+        self.assertFalse(ok)
+        self.assertEqual(unchanged, player)
+        self.assertIn("Unknown", info["reason"])
+
     def test_entry_has_no_level_or_quest_gate_and_allows_a_familiar(self):
         low = _player(
             attack_level=1,

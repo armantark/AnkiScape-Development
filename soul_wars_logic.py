@@ -654,6 +654,28 @@ def buy_soul_wars_charms_pure(
     }
 
 
+def apply_soul_wars_command_pure(
+    player_data: Mapping[str, Any],
+    action_id: str,
+    payload: Mapping[str, Any] | None = None,
+) -> tuple[dict[str, Any], bool, dict[str, Any]]:
+    body = payload if isinstance(payload, Mapping) else {}
+    if action_id == "enter":
+        return enter_soul_wars_pure(player_data, body)
+    if action_id == "leave":
+        return leave_soul_wars_pure(player_data)
+    if action_id == "set_policy":
+        return set_soul_wars_policy_pure(player_data, body)
+    if action_id == "buy_charms":
+        return buy_soul_wars_charms_pure(
+            player_data,
+            str(body.get("item_name", "")),
+        )
+    return copy.deepcopy(dict(player_data)), False, {
+        "reason": "Unknown Soul Wars command."
+    }
+
+
 def soul_wars_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     state = sanitize_soul_wars_state_pure(player_data)
     session = state["soul_wars"]
