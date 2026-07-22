@@ -113,3 +113,37 @@ crowd sharing the assault:
    familiar special (parked behind this activity in
    `summoning-familiar-teleports-2026-07-16.md`) attach to this activity once
    its runtime exists.
+
+## Horizontal pure substrate — 2026-07-21
+
+`pest_control_data.py` and `pest_control_logic.py` now close the isolated pure
+state machine while the shared runtime/UI files remain owned by the concurrent
+Circus batch. This is implementation progress, not a claim that Pest Control
+is live yet.
+
+- One game is a disclosed twelve-review event: three consequential shared-
+  assault beats per source portal. The source twenty-minute duration is not
+  converted through the wall clock.
+- Novice crowd portal damage is `900` per beat; Intermediate and Veteran use
+  `1,120`. The four aggregate fronts apply Brawler obstruction (`85%` crowd
+  damage), Spinner healing (`120` portal LP), Defiler/Torcher knight pressure,
+  and Shifter/Splatter breakthrough pressure. The corresponding knight-
+  pressure rows are `250/300/425/500` LP.
+- Defending relieves `400` pressure and receives the source repair-equivalent
+  `50` contribution. A Void-seal discharge relieves `300`, consumes exactly
+  one of its eight persisted charges, and adds no participation contribution.
+- These rate rows are `provisional/oldid-6571065`: they preserve the source
+  roles and real LP while producing the owner-settled attack/defence tradeoff.
+  They are deliberately not represented as historical server values.
+- Portal attacks use the live six-tick Combat kernel at the source half-XP
+  multiplier. Safe player death leaves the team game running; knight death,
+  explicit departure, or event expiry pays nothing.
+- Wins pay the source `combat level × 10` coins and `2/3/4` commendations,
+  capped at `500`. The representative ten-commendation reward is a period
+  Void seal `(8)` whose complete `11666–11673` charge/equipment family is
+  registered by the data module.
+
+Fourteen focused pure tests cover the period tables, state repair, lander and
+session gates, follower exclusion, automatic and explicit policies, crowd
+progress, defence loss avoidance, all-out-assault loss, Again, safe death,
+half-rate Combat integration, reward cap, charge preservation, and forfeit.
