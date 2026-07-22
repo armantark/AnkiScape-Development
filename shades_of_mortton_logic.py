@@ -368,9 +368,6 @@ def _fight_loar(
     if not ok:
         return {}, str(result.get("reason", "Combat could not advance")), {"combat_failed": True, **result}
     if result.get("killed"):
-        inventory = _inventory(data)
-        _add(inventory, "Loar remains")
-        data["inventory"] = inventory
         loop["encounter"] = {}
         loop["sanctity_tenths"] = min(
             SHADES_SANCTITY_MAX_TENTHS,

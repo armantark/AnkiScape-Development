@@ -60,6 +60,10 @@ def _combat_stub(*, killed=False, enemy_lifepoints=200):
                 "enemy_lifepoints": enemy_lifepoints,
             }
         )
+        if killed:
+            inventory = dict(updated.get("inventory", {}))
+            inventory["Loar remains"] = inventory.get("Loar remains", 0) + 1
+            updated["inventory"] = inventory
         return updated, True, {
             "reason": "combat_burst",
             "ticks": 6,
