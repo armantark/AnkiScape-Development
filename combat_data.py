@@ -11,8 +11,16 @@ from typing import Dict, Tuple
 
 try:
     from .firemaking_data import LIT_LIGHT_SOURCE_ITEMS
+    from .stronghold_player_safety_data import (
+        COCKROACH_SOLDIER_TARGET_ID,
+        cockroach_soldier_enemy_as_dict,
+    )
 except ImportError:
     from firemaking_data import LIT_LIGHT_SOURCE_ITEMS
+    from stronghold_player_safety_data import (  # type: ignore
+        COCKROACH_SOLDIER_TARGET_ID,
+        cockroach_soldier_enemy_as_dict,
+    )
 
 
 DEFAULT_COMBAT_TARGET = "chicken"
@@ -13383,6 +13391,8 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
     },
 }
 
+COMBAT_ENEMY_DATA[COCKROACH_SOLDIER_TARGET_ID] = cockroach_soldier_enemy_as_dict()
+
 
 COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Antipoison (1)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ANTIPOISON_1"},
@@ -13823,4 +13833,5 @@ COMBAT_TARGET_GROUP_ORDER: Tuple[str, ...] = (
     "Humanoids",
     "TzHaar",
     "Coastal",
+    "Stronghold of Player Safety",
 )
