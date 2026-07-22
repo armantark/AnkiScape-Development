@@ -135,6 +135,35 @@ class BarbarianAssaultStateTests(unittest.TestCase):
         self.assertEqual(state["barbarian_assault_points"]["attacker"], 999)
         self.assertEqual(state["barbarian_assault_points"]["collector"], 0)
 
+    def test_sanitizer_repairs_queen_phase_before_wave_ten(self):
+        session = sanitize_barbarian_assault_state_pure(
+            _player(
+                barbarian_assault={
+                    "wave": 1,
+                    "phase": "queen",
+                    "queen_lifepoints": 1,
+                    "omega_eggs": 7,
+                },
+                activity_session={"active_id": "barbarian_assault"},
+            )
+        )["barbarian_assault"]
+
+        self.assertEqual(session["wave"], 1)
+        self.assertEqual(session["phase"], "wave")
+        self.assertEqual(session["queen_lifepoints"], 2_500)
+        self.assertEqual(session["omega_eggs"], 0)
+
+    def test_entry_does_not_overwrite_an_active_combat_encounter(self):
+        original = _ready(
+            combat_encounter={"target_id": "chicken", "enemy_lifepoints": 17}
+        )
+
+        unchanged, ok, info = enter_barbarian_assault_pure(original)
+
+        self.assertFalse(ok)
+        self.assertIn("combat encounter", info["reason"].lower())
+        self.assertEqual(unchanged, original)
+
     def test_casual_rotates_to_the_lowest_wallet_and_advanced_keeps_role(self):
         data = _entered()
         with patch("barbarian_assault_logic.apply_combat_burst_pure", _combat_stub()):

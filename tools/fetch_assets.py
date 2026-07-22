@@ -425,9 +425,9 @@ def _build_parser() -> argparse.ArgumentParser:
         "--size",
         type=int,
         help=(
-            "Pad/resize to an NxN transparent PNG. The alpha bounding box is "
-            "trimmed before padding so the sprite fills the frame and renders at "
-            "the right size with a plain QIcon (no runtime cropping)."
+            "Trim to the visible alpha bounds and cap the PNG at NxN pixels. "
+            "The sprite remains tightly cropped so it fills a plain QIcon "
+            "without runtime cropping."
         ),
     )
     parser.add_argument(

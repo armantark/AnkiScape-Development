@@ -104,6 +104,11 @@ feet-slot, Defence-40, attack/defence/strength equipment block.
 - period Runner boots identity, equipment bonuses, material ownership, exact
   four-wallet purchase, and insufficient-points failure.
 
+A 2026-07-22 independent integration-readiness audit also reproduced and
+closed two persistence-boundary defects before shared wiring: entry now refuses
+to overwrite an existing Combat encounter, and malformed saved data cannot
+reach the Queen phase before wave 10. Both repairs have focused regressions.
+
 This is an atomic backend checkpoint, not a claim that the activity is live.
 Storage migration, runtime dispatch, direct/review undo, cadence, registry,
 assets, compact Activities UI, and integration/Qt coverage remain the next

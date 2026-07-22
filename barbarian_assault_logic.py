@@ -40,7 +40,6 @@ except ImportError:  # pragma: no cover - flat test imports
 
 BARBARIAN_ASSAULT_STATE_VERSION = 1
 _VALID_MODES = frozenset({"casual", "advanced"})
-_VALID_PHASES = frozenset({"wave", "queen"})
 
 
 def _int(value: Any, default: int = 0, *, maximum: int = 2_147_483_647) -> int:
@@ -110,25 +109,33 @@ def sanitize_barbarian_assault_session_pure(raw: Any) -> dict[str, Any]:
     if not isinstance(raw, Mapping) or not raw:
         return {}
     wave = max(1, min(_int(raw.get("wave"), 1), 10))
-    phase = str(raw.get("phase", "wave"))
+    phase = "queen" if wave == 10 and str(raw.get("phase")) == "queen" else "wave"
     role = str(raw.get("role", "attacker"))
     encounter = raw.get("encounter")
     return {
         "version": BARBARIAN_ASSAULT_STATE_VERSION,
         "wave": wave,
-        "phase": phase if phase in _VALID_PHASES else "wave",
+        "phase": phase,
         "role": role if role in BARBARIAN_ASSAULT_ROLE_IDS else "attacker",
         "automation_mode": (
             str(raw.get("automation_mode"))
             if str(raw.get("automation_mode")) in _VALID_MODES
             else "casual"
         ),
-        "queen_lifepoints": _int(
-            raw.get("queen_lifepoints", BARBARIAN_ASSAULT_QUEEN_LIFEPOINTS),
-            BARBARIAN_ASSAULT_QUEEN_LIFEPOINTS,
-            maximum=BARBARIAN_ASSAULT_QUEEN_LIFEPOINTS,
+        "queen_lifepoints": (
+            _int(
+                raw.get("queen_lifepoints", BARBARIAN_ASSAULT_QUEEN_LIFEPOINTS),
+                BARBARIAN_ASSAULT_QUEEN_LIFEPOINTS,
+                maximum=BARBARIAN_ASSAULT_QUEEN_LIFEPOINTS,
+            )
+            if phase == "queen"
+            else BARBARIAN_ASSAULT_QUEEN_LIFEPOINTS
         ),
-        "omega_eggs": _int(raw.get("omega_eggs"), maximum=BARBARIAN_ASSAULT_QUEEN_EGGS),
+        "omega_eggs": (
+            _int(raw.get("omega_eggs"), maximum=BARBARIAN_ASSAULT_QUEEN_EGGS)
+            if phase == "queen"
+            else 0
+        ),
         "previous_combat_target": str(raw.get("previous_combat_target", ""))[:120],
         "encounter": copy.deepcopy(encounter) if isinstance(encounter, Mapping) else _wave_encounter(wave),
     }
@@ -228,6 +235,11 @@ def enter_barbarian_assault_pure(
     active_id = str(active.get("active_id", "")) if isinstance(active, Mapping) else ""
     if active_id and active_id != BARBARIAN_ASSAULT_ACTIVITY_ID:
         return data, False, {"reason": "Finish the active persistent activity first."}
+    encounter = data.get("combat_encounter")
+    if isinstance(encounter, Mapping) and encounter:
+        return data, False, {
+            "reason": "Finish or leave the current Combat encounter first."
+        }
 
     policy = state["barbarian_assault_policy"]
     role = (
