@@ -139,6 +139,19 @@ except ImportError:
     )
 
 try:
+    from .shades_of_mortton_data import (
+        SHADES_OF_MORTTON_ACTIVITY_ID,
+        shades_of_mortton_activity_as_dict,
+        shades_of_mortton_extra_items_as_dict,
+    )
+except ImportError:
+    from shades_of_mortton_data import (  # type: ignore
+        SHADES_OF_MORTTON_ACTIVITY_ID,
+        shades_of_mortton_activity_as_dict,
+        shades_of_mortton_extra_items_as_dict,
+    )
+
+try:
     from .varrock_museum_data import (
         VARROCK_MUSEUM_ACTIVITY_ID,
         varrock_museum_activity_as_dict,
@@ -887,6 +900,7 @@ UTILITY_ACTIVITY_DATA.update(pest_control_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(barbarian_assault_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(stronghold_player_safety_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(soul_wars_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(shades_of_mortton_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(varrock_museum_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(phoenix_lair_activity_as_dict())
@@ -1004,6 +1018,14 @@ if os.path.exists(_stronghold_player_safety_icon):
 _soul_wars_icon = os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "soul_wars.png")
 if os.path.exists(_soul_wars_icon):
     UTILITY_ACTIVITY_DATA[SOUL_WARS_ACTIVITY_ID]["icon_path"] = _soul_wars_icon
+_shades_of_mortton_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "shades_of_mortton.png",
+)
+if os.path.exists(_shades_of_mortton_icon):
+    UTILITY_ACTIVITY_DATA[SHADES_OF_MORTTON_ACTIVITY_ID]["icon_path"] = (
+        _shades_of_mortton_icon
+    )
 _varrock_museum_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
     "varrock_museum.png",
@@ -1747,7 +1769,24 @@ BARBARIAN_ASSAULT_EXTRA_ITEM_DATA = barbarian_assault_extra_items_as_dict()
 STRONGHOLD_PLAYER_SAFETY_EXTRA_ITEM_DATA = (
     stronghold_player_safety_extra_items_as_dict()
 )
+SHADES_OF_MORTTON_EXTRA_ITEM_DATA = shades_of_mortton_extra_items_as_dict()
 VARROCK_MUSEUM_EXTRA_ITEM_DATA = varrock_museum_extra_items_as_dict()
+
+SHADES_OF_MORTTON_ITEM_IMAGES = {
+    item_name: os.path.join(
+        current_dir,
+        "activityitems",
+        "shades_of_mortton_"
+        + "_".join(re.findall(r"[a-z0-9]+", item_name.lower()))
+        + ".png",
+    )
+    for item_name in SHADES_OF_MORTTON_EXTRA_ITEM_DATA
+}
+SHADES_OF_MORTTON_ITEM_IMAGES = {
+    item_name: path
+    for item_name, path in SHADES_OF_MORTTON_ITEM_IMAGES.items()
+    if os.path.exists(path)
+}
 SORCERESS_GARDEN_EXTRA_ITEM_DATA = sorceress_garden_extra_items_as_dict()
 VINESWEEPER_EXTRA_ITEM_DATA = vinesweeper_extra_items_as_dict()
 FIGHT_CAVES_EXTRA_ITEM_DATA = fight_caves_extra_items_as_dict()
@@ -2125,6 +2164,7 @@ def _known_non_shop_item_names():
         FARMING_ITEM_DATA,
         THIEVING_EXTRA_ITEM_DATA,
         FISH_FLINGERS_EXTRA_ITEM_DATA,
+        SHADES_OF_MORTTON_EXTRA_ITEM_DATA,
     ):
         names.update(mapping)
     names.update(MINING_OUTPUT_ITEMS)
@@ -2271,6 +2311,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **PEST_CONTROL_EXTRA_ITEM_DATA,
     **BARBARIAN_ASSAULT_EXTRA_ITEM_DATA,
     **STRONGHOLD_PLAYER_SAFETY_EXTRA_ITEM_DATA,
+    **SHADES_OF_MORTTON_EXTRA_ITEM_DATA,
     **VARROCK_MUSEUM_EXTRA_ITEM_DATA,
     **SORCERESS_GARDEN_EXTRA_ITEM_DATA,
     **VINESWEEPER_EXTRA_ITEM_DATA,
@@ -2313,6 +2354,7 @@ EXTRA_ITEM_IMAGES = {
     **PEST_CONTROL_ITEM_IMAGES,
     **BARBARIAN_ASSAULT_ITEM_IMAGES,
     **STRONGHOLD_PLAYER_SAFETY_ITEM_IMAGES,
+    **SHADES_OF_MORTTON_ITEM_IMAGES,
     **VARROCK_MUSEUM_ITEM_IMAGES,
     **SORCERESS_GARDEN_ITEM_IMAGES,
     **VINESWEEPER_ITEM_IMAGES,

@@ -33,6 +33,38 @@ from constants import (
 
 
 class TestStoragePure(unittest.TestCase):
+    def test_v80_migrates_and_repairs_shades_of_mortton_state(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 79,
+                "inventory": {},
+                "activity_session": {"active_id": "shades_of_mortton"},
+                "shades_of_mortton_policy": {
+                    "automation_mode": "invalid",
+                    "duty": "invalid",
+                },
+                "shades_of_mortton": {
+                    "active": True,
+                    "temple_repair": 999,
+                    "sanctity_tenths": -8,
+                    "resources": 999,
+                    "sanctity_decay_progress": 99,
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(
+            migrated["shades_of_mortton_policy"],
+            {"automation_mode": "casual", "duty": "repair"},
+        )
+        self.assertEqual(migrated["shades_of_mortton"]["temple_repair"], 100)
+        self.assertEqual(migrated["shades_of_mortton"]["sanctity_tenths"], 0)
+        self.assertEqual(migrated["shades_of_mortton"]["resources"], 100)
+        self.assertEqual(migrated["shades_of_mortton"]["sanctity_decay_progress"], 9)
+
     def test_v79_migrates_and_repairs_soul_wars_state(self):
         migrated = migrate_loaded_data(
             {

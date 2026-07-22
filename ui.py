@@ -1,6 +1,7 @@
 # ui.py - UI components and dialogs for AnkiScape
 
 import os
+import re
 from collections.abc import Mapping
 from typing import Any, Optional
 import datetime
@@ -594,6 +595,23 @@ except Exception:
         SOUL_WARS_TEAMS,
     )
     from soul_wars_logic import soul_wars_view_pure  # type: ignore
+
+try:
+    from .shades_of_mortton_data import (
+        SHADES_BRONZE_KEYS,
+        SHADES_DUTIES,
+        SHADES_OF_MORTTON_ACTIVITY_ID,
+        SHADES_PYRE_LOGS,
+    )
+    from .shades_of_mortton_logic import shades_of_mortton_view_pure
+except Exception:
+    from shades_of_mortton_data import (  # type: ignore
+        SHADES_BRONZE_KEYS,
+        SHADES_DUTIES,
+        SHADES_OF_MORTTON_ACTIVITY_ID,
+        SHADES_PYRE_LOGS,
+    )
+    from shades_of_mortton_logic import shades_of_mortton_view_pure  # type: ignore
 
 try:
     from .managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
@@ -3676,6 +3694,7 @@ def show_main_menu(
     on_barbarian_assault_command=None,
     on_stronghold_player_safety_command=None,
     on_soul_wars_command=None,
+    on_shades_of_mortton_command=None,
     on_varrock_museum_command=None,
     on_managing_miscellania_command=None,
     on_set_prayer_selection=None,
@@ -13996,6 +14015,350 @@ def show_main_menu(
         soul_leave.clicked.connect(lambda _checked=False: _confirm_soul_leave())
         _refresh_soul_panel()
 
+        mortton_box = QtFrame()
+        mortton_box.setObjectName("shadesOfMorttonPanel")
+        mortton_box.setStyleSheet(
+            "QFrame#shadesOfMorttonPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        mortton_layout = QVBoxLayout(mortton_box)
+        mortton_layout.setContentsMargins(10, 8, 10, 8)
+        mortton_layout.setSpacing(7)
+
+        mortton_header = QWidget()
+        mortton_header_layout = QHBoxLayout(mortton_header)
+        mortton_header_layout.setContentsMargins(0, 0, 0, 0)
+        mortton_header_layout.setSpacing(8)
+        mortton_icon = QLabel()
+        mortton_icon.setObjectName("shadesOfMorttonIcon")
+        mortton_icon.setFixedSize(28, 28)
+        mortton_icon_path = os.path.join(
+            current_dir,
+            "activityicons",
+            "shades_of_mortton.png",
+        )
+        if os.path.exists(mortton_icon_path):
+            mortton_icon.setPixmap(
+                QPixmap(mortton_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+        mortton_title = QLabel("Shades of Mort'ton")
+        mortton_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        mortton_status = QLabel()
+        mortton_status.setObjectName("shadesOfMorttonStatusChip")
+        mortton_status.setStyleSheet(
+            f"color: {dim_text_css(mortton_status)}; font-size: 11px; font-weight: 700;"
+        )
+        mortton_header_layout.addWidget(mortton_icon)
+        mortton_header_layout.addWidget(mortton_title)
+        mortton_header_layout.addStretch(1)
+        mortton_header_layout.addWidget(mortton_status)
+        mortton_layout.addWidget(mortton_header)
+
+        mortton_summary = QLabel()
+        mortton_summary.setObjectName("shadesOfMorttonSummary")
+        mortton_summary.setWordWrap(True)
+        mortton_summary.setStyleSheet("color: palette(text);")
+        mortton_layout.addWidget(mortton_summary)
+
+        mortton_meters = QWidget()
+        mortton_meters_layout = QHBoxLayout(mortton_meters)
+        mortton_meters_layout.setContentsMargins(0, 0, 0, 0)
+        mortton_meters_layout.setSpacing(6)
+        mortton_repair = QProgressBar()
+        mortton_repair.setObjectName("shadesOfMorttonRepairProgress")
+        mortton_repair.setRange(0, 100)
+        mortton_repair.setFormat("Temple repair · %p%")
+        mortton_repair.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 4px; }"
+            "QProgressBar::chunk { background: #8a7460; }"
+        )
+        mortton_sanctity = QProgressBar()
+        mortton_sanctity.setObjectName("shadesOfMorttonSanctityProgress")
+        mortton_sanctity.setRange(0, 100)
+        mortton_sanctity.setFormat("Sanctity · %p%")
+        mortton_sanctity.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 4px; }"
+            "QProgressBar::chunk { background: #7c8756; }"
+        )
+        mortton_meters_layout.addWidget(mortton_repair)
+        mortton_meters_layout.addWidget(mortton_sanctity)
+        mortton_layout.addWidget(mortton_meters)
+
+        mortton_plan = QWidget()
+        mortton_plan_layout = QGridLayout(mortton_plan)
+        mortton_plan_layout.setContentsMargins(0, 0, 0, 0)
+        mortton_plan_layout.setHorizontalSpacing(6)
+        mortton_plan_layout.setVerticalSpacing(5)
+        mortton_mode = QComboBox()
+        mortton_mode.setObjectName("shadesOfMorttonModeCombo")
+        mortton_mode.setAccessibleName("Shades of Mort'ton automation mode")
+        mortton_mode.addItem("Casual · follow the bottleneck", "casual")
+        mortton_mode.addItem("Advanced · fixed duty", "advanced")
+        mortton_duty = QComboBox()
+        mortton_duty.setObjectName("shadesOfMorttonDutyCombo")
+        mortton_duty.setAccessibleName("Shades of Mort'ton fixed duty")
+        for duty_id, label in SHADES_DUTIES:
+            mortton_duty.addItem(label, duty_id)
+        mortton_save = QPushButton("Save plan")
+        mortton_save.setObjectName("shadesOfMorttonSavePlanButton")
+        mortton_plan_layout.addWidget(mortton_mode, 0, 0)
+        mortton_plan_layout.addWidget(mortton_duty, 0, 1)
+        mortton_plan_layout.addWidget(mortton_save, 0, 2)
+        mortton_layout.addWidget(mortton_plan)
+
+        mortton_actions = QWidget()
+        mortton_actions_layout = QGridLayout(mortton_actions)
+        mortton_actions_layout.setContentsMargins(0, 0, 0, 0)
+        mortton_actions_layout.setHorizontalSpacing(6)
+        mortton_actions_layout.setVerticalSpacing(5)
+        mortton_primary = QPushButton()
+        mortton_primary.setObjectName("shadesOfMorttonPrimaryButton")
+        mortton_leave = QPushButton("Leave Mort'ton")
+        mortton_leave.setObjectName("shadesOfMorttonLeaveButton")
+        mortton_light = QPushButton("Light altar")
+        mortton_light.setObjectName("shadesOfMorttonLightAltarButton")
+        mortton_bless_item = QComboBox()
+        mortton_bless_item.setObjectName("shadesOfMorttonBlessCombo")
+        mortton_bless_item.setAccessibleName("Item to bless at Mort'ton")
+        mortton_bless = QPushButton("Bless")
+        mortton_bless.setObjectName("shadesOfMorttonBlessButton")
+        mortton_pyre_logs = QComboBox()
+        mortton_pyre_logs.setObjectName("shadesOfMorttonPyreLogsCombo")
+        mortton_pyre_logs.setAccessibleName("Pyre logs to make")
+        mortton_make = QPushButton("Make")
+        mortton_make.setObjectName("shadesOfMorttonMakePyreLogsButton")
+        mortton_key = QComboBox()
+        mortton_key.setObjectName("shadesOfMorttonKeyCombo")
+        mortton_key.setAccessibleName("Bronze shade key")
+        mortton_open = QPushButton("Open chest")
+        mortton_open.setObjectName("shadesOfMorttonOpenChestButton")
+
+        def _mortton_item_icon(item_name: str) -> QIcon:
+            slug = "_".join(re.findall(r"[a-z0-9]+", item_name.lower()))
+            path = os.path.join(
+                current_dir,
+                "activityitems",
+                f"shades_of_mortton_{slug}.png",
+            )
+            return QIcon(path) if os.path.exists(path) else QIcon()
+
+        for item_name in (
+            *(f"Olive oil ({dose})" for dose in range(1, 5)),
+            *(f"Serum 207 ({dose})" for dose in range(1, 5)),
+        ):
+            mortton_bless_item.addItem(
+                _mortton_item_icon(item_name),
+                item_name,
+                item_name,
+            )
+        for item_name in SHADES_PYRE_LOGS:
+            mortton_pyre_logs.addItem(
+                _mortton_item_icon(item_name),
+                item_name,
+                item_name,
+            )
+        for item_name in SHADES_BRONZE_KEYS:
+            mortton_key.addItem(
+                _mortton_item_icon(item_name),
+                item_name,
+                item_name,
+            )
+
+        mortton_actions_layout.addWidget(mortton_primary, 0, 0, 1, 2)
+        mortton_actions_layout.addWidget(mortton_leave, 0, 2)
+        mortton_actions_layout.addWidget(mortton_light, 1, 0, 1, 3)
+        mortton_actions_layout.addWidget(mortton_bless_item, 2, 0, 1, 2)
+        mortton_actions_layout.addWidget(mortton_bless, 2, 2)
+        mortton_actions_layout.addWidget(mortton_pyre_logs, 3, 0, 1, 2)
+        mortton_actions_layout.addWidget(mortton_make, 3, 2)
+        mortton_actions_layout.addWidget(mortton_key, 4, 0, 1, 2)
+        mortton_actions_layout.addWidget(mortton_open, 4, 2)
+        mortton_layout.addWidget(mortton_actions)
+        cards_stack.addWidget(mortton_box)
+
+        syncing_mortton = {"active": False}
+
+        def _run_mortton_command(action_id: str, payload=None) -> dict[str, Any]:
+            if on_shades_of_mortton_command is None:
+                return {"ok": False, "message": "Mort'ton actions are unavailable."}
+            result = on_shades_of_mortton_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Shades of Mort'ton",
+                    str(result.get("message", "That action is unavailable.")),
+                )
+            _refresh_mortton_panel()
+            return result
+
+        def _mortton_policy_payload() -> dict[str, str]:
+            return {
+                "automation_mode": str(mortton_mode.currentData() or "casual"),
+                "duty": str(mortton_duty.currentData() or "repair"),
+            }
+
+        def _refresh_mortton_panel() -> None:
+            syncing_mortton["active"] = True
+            view = shades_of_mortton_view_pure(player_data)
+            active = bool(view["active"])
+            policy = view["policy"]
+            mortton_mode.setCurrentIndex(
+                max(0, mortton_mode.findData(policy["automation_mode"]))
+            )
+            mortton_duty.setCurrentIndex(max(0, mortton_duty.findData(policy["duty"])))
+            mortton_status.setText(
+                "IN MORT'TON"
+                if active
+                else "ENTRY BLOCKED"
+                if view["entry_reason"]
+                else "READY"
+            )
+            history = str(view["last_result"])
+            entry = str(view["entry_reason"] or "Open temple repair, combat, and cremation loop")
+            mortton_summary.setText(
+                f"{int(view['resources'])} repair resources · "
+                + ("altar lit" if view["altar_lit"] else "altar unlit")
+                + f" · {int(view['repairs'])} repairs · {int(view['cremations'])} cremations · "
+                f"{int(view['chests_opened'])} chests\n"
+                + (history if history else entry)
+            )
+            mortton_repair.setValue(int(view["temple_repair"]))
+            mortton_sanctity.setValue(int(round(float(view["sanctity"]))))
+            selected = active and player_data.get("current_utility") == SHADES_OF_MORTTON_ACTIVITY_ID
+            mortton_primary.setText(
+                "Selected for reviews"
+                if selected
+                else "Select for reviews"
+                if active
+                else "Enter Mort'ton"
+            )
+            mortton_primary.setEnabled(
+                on_shades_of_mortton_command is not None
+                and not selected
+                and (active or bool(view["can_enter"]))
+            )
+            mortton_leave.setVisible(active)
+            mortton_leave.setEnabled(active and on_shades_of_mortton_command is not None)
+            mortton_duty.setEnabled(
+                mortton_mode.currentData() == "advanced"
+                and on_shades_of_mortton_command is not None
+            )
+            mortton_save.setEnabled(on_shades_of_mortton_command is not None)
+            inventory = player_data.get("inventory")
+            inventory = inventory if isinstance(inventory, Mapping) else {}
+            mortton_light.setEnabled(
+                active
+                and not view["altar_lit"]
+                and int(view["temple_repair"]) >= 99
+                and float(view["sanctity"]) > 10.0
+                and int(inventory.get("Tinderbox", 0) or 0) > 0
+                and on_shades_of_mortton_command is not None
+            )
+            bless_name = str(mortton_bless_item.currentData() or "")
+            bless_minimum = 20.0 if bless_name.startswith("Serum 207") else 10.1
+            mortton_bless.setEnabled(
+                active
+                and bool(view["altar_lit"])
+                and int(inventory.get(bless_name, 0) or 0) > 0
+                and float(view["sanctity"]) >= bless_minimum
+                and on_shades_of_mortton_command is not None
+            )
+            pyre_name = str(mortton_pyre_logs.currentData() or "")
+            recipe = SHADES_PYRE_LOGS.get(pyre_name, {})
+            oil_doses = sum(
+                int(inventory.get(f"Sacred oil ({dose})", 0) or 0) * dose
+                for dose in range(1, 5)
+            )
+            mortton_make.setEnabled(
+                bool(recipe)
+                and int(player_data.get("firemaking_level", 1) or 1)
+                >= int(recipe.get("level", 1))
+                and int(inventory.get(str(recipe.get("base_log", "")), 0) or 0) > 0
+                and oil_doses >= int(recipe.get("oil_doses", 0))
+                and on_shades_of_mortton_command is not None
+            )
+            key_name = str(mortton_key.currentData() or "")
+            mortton_open.setEnabled(
+                int(inventory.get(key_name, 0) or 0) > 0
+                and bool(view["quest_complete"])
+                and on_shades_of_mortton_command is not None
+            )
+            syncing_mortton["active"] = False
+            _fit_current_activity_detail()
+
+        def _select_or_enter_mortton() -> None:
+            view = shades_of_mortton_view_pure(player_data)
+            if not view["active"]:
+                if not _run_mortton_command("enter", _mortton_policy_payload()).get("ok"):
+                    return
+            elif not _request_utility_selection(SHADES_OF_MORTTON_ACTIVITY_ID):
+                return
+            _refresh_mortton_panel()
+
+        def _confirm_mortton_leave() -> None:
+            answer = QMessageBox.question(
+                dialog,
+                "Leave Shades of Mort'ton?",
+                "Leave the temple loop? Repair, sanctity, and reward ledgers are preserved.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_mortton_command("leave")
+
+        mortton_mode.currentIndexChanged.connect(
+            lambda _index: (
+                None
+                if syncing_mortton["active"]
+                else mortton_duty.setEnabled(
+                    mortton_mode.currentData() == "advanced"
+                    and on_shades_of_mortton_command is not None
+                )
+            )
+        )
+        mortton_save.clicked.connect(
+            lambda _checked=False: _run_mortton_command(
+                "set_policy", _mortton_policy_payload()
+            )
+        )
+        mortton_primary.clicked.connect(
+            lambda _checked=False: _select_or_enter_mortton()
+        )
+        mortton_leave.clicked.connect(lambda _checked=False: _confirm_mortton_leave())
+        mortton_light.clicked.connect(
+            lambda _checked=False: _run_mortton_command("light_altar")
+        )
+        mortton_bless.clicked.connect(
+            lambda _checked=False: _run_mortton_command(
+                "bless", {"item_name": str(mortton_bless_item.currentData() or "")}
+            )
+        )
+        mortton_make.clicked.connect(
+            lambda _checked=False: _run_mortton_command(
+                "make_pyre_logs",
+                {"output_name": str(mortton_pyre_logs.currentData() or "")},
+            )
+        )
+        mortton_open.clicked.connect(
+            lambda _checked=False: _run_mortton_command(
+                "open_bronze_chest",
+                {"key_name": str(mortton_key.currentData() or "")},
+            )
+        )
+        for mortton_combo in (mortton_bless_item, mortton_pyre_logs, mortton_key):
+            mortton_combo.currentIndexChanged.connect(
+                lambda _index: (
+                    None if syncing_mortton["active"] else _refresh_mortton_panel()
+                )
+            )
+        _refresh_mortton_panel()
+
         barbarian_box = QtFrame()
         barbarian_box.setObjectName("barbarianAssaultPanel")
         barbarian_box.setStyleSheet(
@@ -16890,6 +17253,30 @@ def show_main_menu(
                     )
                     return False
             if (
+                activity_id != SHADES_OF_MORTTON_ACTIVITY_ID
+                and shades_of_mortton_view_pure(player_data)["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave Shades of Mort'ton?",
+                    "Switch activities? Temple repair, sanctity, and reward ledgers are preserved.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_shades_of_mortton_command("leave", {})
+                    if on_shades_of_mortton_command is not None
+                    else {"ok": False, "message": "Mort'ton actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Shades of Mort'ton",
+                        str((result or {}).get("message", "Could not leave Mort'ton.")),
+                    )
+                    return False
+            if (
                 activity_id != BARBARIAN_ASSAULT_ACTIVITY_ID
                 and barbarian_assault_view_pure(player_data)["active"]
             ):
@@ -17124,6 +17511,10 @@ def show_main_menu(
                 _refresh_soul_panel()
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == SHADES_OF_MORTTON_ACTIVITY_ID:
+                _refresh_mortton_panel()
+                _show_activity_detail(activity_id)
+                return
             if activity_id == BARBARIAN_ASSAULT_ACTIVITY_ID:
                 _refresh_barbarian_panel()
                 _show_activity_detail(activity_id)
@@ -17192,6 +17583,10 @@ def show_main_menu(
             CASTLE_WARS_ACTIVITY_ID: ("Castle Wars", castle_box),
             PEST_CONTROL_ACTIVITY_ID: ("Pest Control", pest_box),
             SOUL_WARS_ACTIVITY_ID: ("Soul Wars", soul_box),
+            SHADES_OF_MORTTON_ACTIVITY_ID: (
+                "Shades of Mort'ton",
+                mortton_box,
+            ),
             BARBARIAN_ASSAULT_ACTIVITY_ID: ("Barbarian Assault", barbarian_box),
             STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID: (
                 "Stronghold of Player Safety",

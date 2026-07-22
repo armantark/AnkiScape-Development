@@ -9,6 +9,7 @@ from shades_of_mortton_data import (
     SHADES_PYRE_LOGS,
     SHADES_OF_MORTTON_COMBAT_TARGET_ID,
     shades_of_mortton_activity_as_dict,
+    shades_of_mortton_extra_items_as_dict,
     shades_of_mortton_loar_enemy_pure,
 )
 from shades_of_mortton_logic import (
@@ -78,12 +79,17 @@ def _combat_stub(*, killed=False, enemy_lifepoints=200):
 class ShadesOfMorttonSourceDataTests(unittest.TestCase):
     def test_horizontal_registry_and_loar_enemy_are_period_shaped(self):
         activity = shades_of_mortton_activity_as_dict()["shades_of_mortton"]
-        self.assertEqual(activity["requirements"], {"quest": "shades_of_mortton"})
+        self.assertEqual(activity["requirements"], {})
+        self.assertEqual(activity["quest_requirements"], ("shades_of_mortton",))
         self.assertIn("Fine cloth", activity["outputs"])
         enemy = shades_of_mortton_loar_enemy_pure()
         self.assertEqual(enemy["level"], 40)
         self.assertEqual(enemy["stats"]["hitpoints"], 380)
         self.assertEqual(enemy["max_hit"], 40)
+        items = shades_of_mortton_extra_items_as_dict()
+        self.assertEqual(items["Loar remains"]["source_item_id"], 3396)
+        self.assertEqual(items["Sacred oil (4)"]["source_item_id"], 3430)
+        self.assertIn("Magic pyre logs", items)
 
     def test_all_easy_to_harvest_pyre_rows_are_recorded(self):
         self.assertEqual(len(SHADES_PYRE_LOGS), 10)
@@ -97,6 +103,14 @@ class ShadesOfMorttonSourceDataTests(unittest.TestCase):
 
 
 class ShadesOfMorttonEntryAndPersistenceTests(unittest.TestCase):
+    def test_view_exposes_entry_gate_without_mutating_state(self):
+        blocked = shades_of_mortton_view_pure(_player(quests={}))
+        self.assertFalse(blocked["can_enter"])
+        self.assertIn("Complete Shades", blocked["entry_reason"])
+        ready = shades_of_mortton_view_pure(_player())
+        self.assertTrue(ready["can_enter"])
+        self.assertEqual(ready["entry_reason"], "")
+
     def test_entry_requires_the_quest_and_a_free_persistent_activity_slot(self):
         for player, expected in (
             (_player(quests={}), "Complete Shades"),

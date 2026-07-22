@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shades of Mort'ton — Horizontal Closure</title>
+  <style>
+    :root { --bg:#0b0d0c; --panel:#151a17; --panel2:#1b251f; --line:#34443a; --text:#f1f5f2; --dim:#9bac9f; --green:#78d294; --lime:#b8dc79; --amber:#e7bd64; --violet:#bc9bf0; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--text); background:radial-gradient(circle at 16% 0,#23372a 0,var(--bg) 40%); font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(1120px,calc(100% - 32px)); margin:44px auto 70px; }
+    .eyebrow { display:inline-block; padding:5px 10px; color:#cbefb7; border:1px solid #56744d; border-radius:999px; background:#17241a; font:700 11px/1.2 ui-monospace,monospace; letter-spacing:.12em; }
+    h1 { margin:14px 0 8px; font-size:clamp(34px,6vw,58px); line-height:1; letter-spacing:-.04em; }
+    .lede { max-width:860px; margin:0 0 28px; color:var(--dim); font-size:18px; }
+    .flow { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:26px 0 18px; }
+    .beat,.card { border:1px solid var(--line); border-radius:12px; background:linear-gradient(145deg,var(--panel2),var(--panel)); }
+    .beat { min-height:112px; padding:16px; }
+    .beat b { display:block; color:var(--lime); font:700 11px ui-monospace,monospace; letter-spacing:.09em; text-transform:uppercase; }
+    .beat span { display:block; margin-top:9px; font-weight:750; }
+    .grid { display:grid; grid-template-columns:1.15fr .85fr; gap:16px; }
+    .card { padding:22px; }
+    .card h2 { margin:0 0 14px; font-size:19px; }
+    ul { margin:0; padding-left:19px; }
+    li + li { margin-top:8px; }
+    .stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .stat { padding:14px; border-radius:9px; background:#101512; }
+    .stat strong { display:block; color:var(--green); font-size:25px; }
+    .stat span { color:var(--dim); font-size:12px; }
+    .boundary { margin-top:14px; padding:15px 17px; border-left:3px solid var(--amber); border-radius:0 10px 10px 0; background:#2a220f; color:#f1ddb2; }
+    .boundary strong { color:var(--amber); }
+    .truth { border-color:#4b3f5d; }
+    .truth h2 { color:var(--violet); }
+    .tags { display:flex; flex-wrap:wrap; gap:7px; margin-top:17px; }
+    .tag { padding:5px 8px; color:var(--dim); border-radius:6px; background:#101512; font:11px ui-monospace,monospace; }
+    footer { margin-top:22px; color:var(--dim); font-size:12px; }
+    @media (max-width:760px) { .flow,.grid { grid-template-columns:1fr 1fr; } }
+    @media (max-width:520px) { .flow,.grid,.stats { grid-template-columns:1fr; } main { width:calc(100% - 22px); margin-top:24px; } }
+  </style>
+</head>
+<body>
+<main>
+  <span class="eyebrow">HORIZONTAL CLOSURE · 2026-07-22</span>
+  <h1>Mort'ton is alive.</h1>
+  <p class="lede">Temple repair, personal sanctity, population pressure, altar work, oil and serum blessing, ten pyre-log recipes, live Loar combat, cremation, chest rewards, persistence, undo, assets, and player controls now work end to end.</p>
+
+  <section class="flow" aria-label="Activity flow">
+    <div class="beat"><b>Enter</b><span>Complete the quest, choose Casual or one fixed duty</span></div>
+    <div class="beat"><b>Restore</b><span>Bring the repair pack and rebuild the communal temple</span></div>
+    <div class="beat"><b>Consecrate</b><span>Build sanctity, light the altar, bless oils and serums</span></div>
+    <div class="beat"><b>Cremate</b><span>Fight Loar shades, prepare pyres, claim keys and chest loot</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h2>Mechanic graph closed</h2>
+      <ul>
+        <li>Casual follows the current material or sanctity bottleneck. Advanced preserves one selected duty.</li>
+        <li>Quiet, Normal, and Busy population profiles affect only communal repair pressure, never personal rewards.</li>
+        <li>Loar uses the shared six-tick Combat engine. Leaving restores the prior target and preserves the open-loop meters.</li>
+        <li>Direct altar, blessing, pyre-log, and chest actions are atomic and undoable. Review actions share the same save and telemetry boundaries.</li>
+        <li>Schema 80, migration repair, cadence, registries, normalized cutoff art, provenance, and the compact Activities card are integrated.</li>
+      </ul>
+      <div class="tags"><span class="tag">shades_of_mortton_logic.py</span><span class="tag">runtime_actions.py</span><span class="tag">storage_pure.py</span><span class="tag">ui.py</span></div>
+    </article>
+
+    <article class="card">
+      <h2>Verification snapshot</h2>
+      <div class="stats">
+        <div class="stat"><strong>2,453</strong><span>ordinary methods passed</span></div>
+        <div class="stat"><strong>2,453</strong><span>real offscreen Qt methods passed</span></div>
+        <div class="stat"><strong>0</strong><span>hard test-quality issues</span></div>
+        <div class="stat"><strong>873</strong><span>docs audited before this report</span></div>
+      </div>
+      <div class="boundary"><strong>External gates:</strong> The Mac session is locked, so native Anki inspection is unclaimed. Kimi K3 and Fable taste approval remains deferred under the explicit quota hold.</div>
+    </article>
+
+    <article class="card truth">
+      <h2>Truth boundary</h2>
+      <p>Quest entry, repair materials, sanctity effects, item identities, pyre-log recipes, Loar identity, and representative reward families are period-pinned. Crowd pressure, review-paced decay, unrecovered repair and altar odds, and reduced chest weights are disclosed horizontal abstractions. Higher shades, keys, chests, and complete reward catalogs remain data depth, not missing mechanics.</p>
+    </article>
+
+    <article class="card">
+      <h2>Paused next frontier</h2>
+      <p>TzHaar Fight Pit is the next source-ready shared-integration slice. It remains unopened because the owner asked the breadth goal to pause at the Codex-quota boundary.</p>
+    </article>
+  </section>
+  <footer>Cutoff: 2012-11-20 · No wall-clock gameplay · No owner design gap surfaced · Current frontier preserved without starting new work.</footer>
+</main>
+</body>
+</html>

@@ -4,8 +4,7 @@ Date: `2026-07-21`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **source-ready horizontal backend implemented; shared storage/runtime/UI
-integration waits for the concurrent Castle Wars writer to clear those files.**
+Status: **horizontal breadth level one implemented and integrated.**
 
 Owning design: `memory-bank/source-audits/shades-of-mortton-loop-2026-07-18.md`.
 The owner-settled shape is a persistent open loop with communal temple repair,
@@ -138,6 +137,12 @@ Darkan commit `621af59c629f3158ee7461c9b4cbf4b9f509bbb5`:
 
 ## Deliberately deferred breadth data
 
+- The registered tradeable Mort'ton materials retain their authentic cache
+  exchangeability. `Olive oil (3)` already has a literal cutoff GE row and is
+  fully market-enabled. The other registered oils, remains, Fine cloth, and
+  pyre-log variants remain explicitly buy-limit blocked until their own
+  period guide-price and buy-limit rows are pinned; the implementation does
+  not invent limits or falsely mark those items untradeable.
 - Phrin, Riyl, Asyn, Fiyr, vyre, higher-key, higher-chest, Salve/Gadderhammer,
   Morytania-leg, flame-glove/ring, and full chest-item catalogs remain a later
   depth pass. They do not block the horizontal loop because every distinct
@@ -145,6 +150,15 @@ Darkan commit `621af59c629f3158ee7461c9b4cbf4b9f509bbb5`:
 - Serum 207 brewing and afflicted-resident rewards stay in ordinary Herblore
   and production ownership. This slice implements only the altar conversion
   necessary to close the Mort'ton mechanic.
-- Shared persistence, runtime actions, cadence coverage, registry, item assets,
-  UI, undo, and offscreen Qt checks remain pending until the Castle Wars writer
-  releases those exact files. No concurrent change was overwritten.
+- Shared persistence, runtime actions, cadence coverage, registry, item and
+  enemy assets, review/direct undo, and the Activities UI are integrated under
+  schema 80. Focused mechanics, runtime, storage, integration, registry, asset,
+  and real offscreen-Qt interaction checks pass. Ordinary full discovery passes
+  all 2,453 methods with 310 declared skips; full real offscreen Qt passes the
+  same 2,453 methods with one intentional skip. Root inspected the deterministic
+  ready and active 1200×760 dark-palette renders. Native Anki remains unclaimed
+  because the Mac session is locked. Kimi K3 and Fable taste approval remains
+  deferred under the owner's explicit quota hold.
+- Closure report:
+  `memory-bank/status-updates/shades-of-mortton-horizontal-results-2026-07-22.html`
+  and <https://whux17tpdjx6.postplan.dev>.

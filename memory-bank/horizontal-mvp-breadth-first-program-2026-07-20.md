@@ -76,6 +76,26 @@ but it does not control the frontier.
 
 ### Live frontier update — 2026-07-22
 
+Shades of Mort'ton now satisfies breadth level one. Its completed-quest open
+loop, communal repair, personal sanctity, simulated crowd pressure, altar,
+oils, Serum 208, ten pyre-log recipes, live Loar Shade Combat, cremation,
+bronze chest, policies, persistence, undo, cadence, registries, normalized art,
+and compact Activities card are live. Other shades, key/chest tiers, reward
+catalog rows, and unpinned GE limits remain explicit data depth.
+
+TzHaar Fight Pit is the next source-ready shared-integration frontier. Its
+isolated pure model and period source record are prepared; integration must
+preserve the three-opponent safe arena, six-tick Combat, deterministic
+player-relative levels, exact additive TokKul, forfeit, and review-counted
+anti-stall pressure without introducing wall-clock state.
+
+The breadth program is paused before opening that frontier at the owner's
+Codex-quota boundary. Shades of Mort'ton's accepted closure remains the current
+checkpoint; the pause does not reopen its settled design or promote deferred
+catalog depth ahead of TzHaar Fight Pit.
+
+### Earlier live frontier update — 2026-07-22
+
 Soul Wars now satisfies breadth level one. Its twelve-beat objective match,
 safe-death Combat seam, participation removal, Casual bottleneck and Advanced
 duty policies, exact outcome Zeal, four-charm shop, persistence, undo, cadence,
@@ -83,7 +103,7 @@ registries, normalized art, and compact Activities card are live. The hidden
 team-pressure rates, avatar combat values, full shop, pets, and XP redemption
 remain explicit data depth.
 
-The next shared-integration frontier is Shades of Mort'ton under
+The next shared-integration frontier at that checkpoint was Shades of Mort'ton under
 `source-audits/shades-of-mortton-horizontal-readiness-2026-07-21.md`. It has a
 source-ready backend and requires no owner design decision before integration.
 

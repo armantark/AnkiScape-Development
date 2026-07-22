@@ -68,7 +68,11 @@ def asset_manifest() -> tuple[tuple[AssetRequest, int], ...]:
             AssetRequest(
                 item_name="Loar Shade",
                 wiki_title="Loar Shade.png",
-                output_path=ROOT / "combatenemies" / "loar_shade.png",
+                output_path=(
+                    ROOT
+                    / "combatenemies"
+                    / "shades_of_mortton_loar_shade.png"
+                ),
                 provenance_path=provenance,
             ),
             48,

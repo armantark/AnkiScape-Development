@@ -2,6 +2,31 @@
 
 ## Current Focus
 
+Shades of Mort'ton now satisfies horizontal breadth level one as a persistent,
+Activities-only open loop. Completed-quest entry leads to communal temple
+repair, personal sanctity, altar lighting, oil and Serum 207 blessing, all ten
+pyre-log recipes, live six-tick Loar Shade Combat, Loar cremation, and bronze-
+key chest opening. Casual follows the current material or sanctity bottleneck;
+Advanced saves one fixed duty. Leaving preserves the open-loop meters and
+restores the prior Combat target, and no mechanic uses the wall clock.
+
+Schema 80, migration and repair, activity arbitration, cadence/telemetry,
+review and direct-action undo, hidden Loar target, item and enemy registries,
+normalized period assets, provenance, and the compact plan/progress/action card
+are integrated. The other shades, chests, reward rows, and unresolved GE limits
+are honest data depth. No owner design gap surfaced. Ordinary full discovery
+passes all 2,453 methods with 310 declared skips; full real offscreen Qt passes
+the same 2,453 methods with one intentional skip. Documentation, hard test
+quality, compilation, provenance, diff, and worktree-safety gates are green.
+Root inspected ready and active 1200×760 dark-palette renders. Native Anki is
+unclaimed because the Mac session is locked, and Kimi K3/Fable taste approval
+remains deferred under the owner's quota hold. Durable record:
+`source-audits/shades-of-mortton-horizontal-readiness-2026-07-21.md`. TzHaar
+Fight Pit is the next source-ready shared-integration frontier, but the breadth
+goal is paused before that slice at the owner's Codex-quota boundary. Results:
+`status-updates/shades-of-mortton-horizontal-results-2026-07-22.html` and
+<https://whux17tpdjx6.postplan.dev>.
+
 Soul Wars now satisfies horizontal breadth level one as an Activities-only
 competitive team match. Twelve answered-card beats advance obelisk control,
 soul-fragment gathering and offering, friendly-avatar defence, or a live

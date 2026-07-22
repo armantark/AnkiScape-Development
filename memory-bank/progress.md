@@ -4,6 +4,36 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Shades of Mort'ton horizontal mechanic closure — 2026-07-22
+
+- Integrated the completed-quest open loop: communal repair, personal sanctity,
+  repair resources, altar lighting, sacred-oil and Serum 208 blessing, all ten
+  pyre-log recipes, live six-tick Loar Combat, cremation, and bronze-key chest
+  opening.
+- Casual follows the current bottleneck; Advanced persists one fixed duty.
+  Simulated population affects only communal repair, never personal rewards.
+  Leaving preserves meters and restores the prior Combat target.
+- Added schema 80 migration/repair, cadence and telemetry, activity ownership,
+  review/direct undo, registries, hidden Loar target, normalized cutoff assets,
+  provenance, reproducible fetch/render tools, and a compact Activities card.
+- Focused pure, runtime, storage, integration, registry, asset, and real-Qt
+  checks pass. Ordinary full discovery passes all 2,453 methods with 310
+  declared skips; full real offscreen Qt passes all 2,453 methods with one
+  intentional skip. Test-quality, documentation, compilation, provenance,
+  diff, and worktree gates pass. Root inspected ready and active 1200×760 dark
+  renders.
+- The remaining shades, key/chest tiers, reward catalog, and unpinned GE buy
+  limits are explicit data depth. No design question surfaced. Native Anki and
+  Kimi K3/Fable taste approval remain unclaimed under the owner's quota hold;
+  the Mac session remained locked for native inspection.
+- Durable audit:
+  `source-audits/shades-of-mortton-horizontal-readiness-2026-07-21.md`.
+- The next source-ready frontier is TzHaar Fight Pit. Work pauses before that
+  slice at the owner's Codex-quota boundary.
+- Results:
+  `status-updates/shades-of-mortton-horizontal-results-2026-07-22.html` and
+  <https://whux17tpdjx6.postplan.dev>.
+
 ## Stronghold of Player Safety horizontal mechanic closure — 2026-07-22
 
 - Added the three-review poster-to-crevice Landmark route, preserving the

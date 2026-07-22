@@ -583,8 +583,22 @@ def open_shades_bronze_chest_pure(
 def shades_of_mortton_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     state = sanitize_shades_of_mortton_state_pure(player_data)
     loop = state["shades_of_mortton"]
+    activity = player_data.get("activity_session")
+    active_id = str(activity.get("active_id", "")) if isinstance(activity, Mapping) else ""
+    encounter = player_data.get("combat_encounter")
+    entry_reason = ""
+    quest_complete = _quest_completed(player_data)
+    if not quest_complete:
+        entry_reason = "Complete Shades of Mort'ton first."
+    elif active_id and active_id != SHADES_OF_MORTTON_ACTIVITY_ID:
+        entry_reason = "Finish the active persistent activity first."
+    elif isinstance(encounter, Mapping) and encounter:
+        entry_reason = "Finish or leave the current Combat encounter first."
     return {
         "active": loop["active"],
+        "quest_complete": quest_complete,
+        "can_enter": not entry_reason,
+        "entry_reason": entry_reason,
         "temple_repair": loop["temple_repair"],
         "sanctity": loop["sanctity_tenths"] / 10.0,
         "resources": loop["resources"],

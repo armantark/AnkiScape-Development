@@ -271,6 +271,11 @@ try:
         apply_soul_wars_review_pure,
         soul_wars_view_pure,
     )
+    from .shades_of_mortton_data import SHADES_OF_MORTTON_ACTIVITY_ID
+    from .shades_of_mortton_logic import (
+        apply_shades_of_mortton_review_pure,
+        shades_of_mortton_view_pure,
+    )
     from .varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
     from .varrock_museum_logic import (
         apply_varrock_museum_review_pure,
@@ -636,6 +641,13 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from soul_wars_logic import (  # type: ignore
         apply_soul_wars_review_pure,
         soul_wars_view_pure,
+    )
+    from shades_of_mortton_data import (  # type: ignore
+        SHADES_OF_MORTTON_ACTIVITY_ID,
+    )
+    from shades_of_mortton_logic import (  # type: ignore
+        apply_shades_of_mortton_review_pure,
+        shades_of_mortton_view_pure,
     )
     from varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID  # type: ignore
     from varrock_museum_logic import (  # type: ignore
@@ -3907,6 +3919,65 @@ def handle_soul_wars_answer(
     return True
 
 
+def handle_shades_of_mortton_answer(
+    ctx: RuntimeActionContext,
+    *,
+    productive: bool = True,
+) -> bool:
+    updated, ok, result = apply_shades_of_mortton_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+        productive=productive,
+        population=str(ctx.player_data.get("world_population_profile", "normal")),
+        equipment_data=EQUIPMENT_DATA,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Shades of Mort'ton unavailable",
+            str(result.get("reason", "Enter Shades of Mort'ton before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    skill_rows = {
+        "crafting": ("crafting_exp", "Crafting"),
+        "firemaking": ("firemaking_exp", "Firemaking"),
+        "prayer": ("prayer_exp", "Prayer"),
+    }
+    total_gained = 0.0
+    skill_xp = dict(result.get("skill_xp") or {})
+    combat_xp = dict(result.get("xp_rewards") or {})
+    for skill_id, amount in skill_xp.items():
+        if skill_id not in skill_rows or float(amount or 0.0) <= 0:
+            continue
+        exp_key, display_name = skill_rows[skill_id]
+        total_gained += ctx.award_skill_exp(exp_key, float(amount))
+        ctx.level_up_check(display_name, ctx.player_data)
+    _record_action(
+        ctx,
+        "utility",
+        SHADES_OF_MORTTON_ACTIVITY_ID,
+        productive,
+        expected_success_chance=1.0,
+        failure_kind="dangerous_combat_death" if result.get("died") else None,
+        primary_xp=(
+            sum(float(value or 0.0) for value in skill_xp.values())
+            + sum(float(value or 0.0) for value in combat_xp.values())
+        ),
+    )
+    _refresh_combat_levels(ctx, combat_xp)
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if total_gained > 0:
+        ctx.show_exp(total_gained)
+    ctx.show_activity_gain(
+        str(result.get("status") or "Shades of Mort'ton beat resolved")
+    )
+    return True
+
+
 def _handle_managing_miscellania_answer(ctx: RuntimeActionContext) -> bool:
     updated, result = apply_managing_miscellania_review_pure(ctx.player_data)
     if not result.get("allowed"):
@@ -3995,6 +4066,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return handle_stronghold_player_safety_answer(ctx)
     if activity_key == SOUL_WARS_ACTIVITY_ID:
         return handle_soul_wars_answer(ctx)
+    if activity_key == SHADES_OF_MORTTON_ACTIVITY_ID:
+        return handle_shades_of_mortton_answer(ctx)
     if activity_key == VARROCK_MUSEUM_ACTIVITY_ID:
         return handle_varrock_museum_answer(ctx)
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:
@@ -6353,6 +6426,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         )
     if activity_key == SOUL_WARS_ACTIVITY_ID:
         return bool(soul_wars_view_pure(ctx.player_data).get("active", False))
+    if activity_key == SHADES_OF_MORTTON_ACTIVITY_ID:
+        return bool(shades_of_mortton_view_pure(ctx.player_data).get("active", False))
     if activity_key == VARROCK_MUSEUM_ACTIVITY_ID:
         return bool(varrock_museum_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:

@@ -716,6 +716,25 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "shades_of_mortton":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "shades_of_mortton",
+                    "mode": "activity_group",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "cadence_profile": "activity_default",
+                    "review_ticks": 6,
+                    "probability_mode": "embedded",
+                    "notes": (
+                        "One review advances one temple world beat and the selected "
+                        "repair, Loar-combat, or cremation duty; sanctity decay is "
+                        "review-count based and never wall-clock based."
+                    ),
+                }
+            )
+            continue
         elif str(action_id) == "varrock_museum":
             rows.append(
                 {

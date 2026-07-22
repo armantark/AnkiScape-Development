@@ -139,12 +139,30 @@ SHADES_BRONZE_KEYS = (
     "Bronze key crimson",
 )
 
+SHADES_ITEM_IDS = {
+    "Olive oil (4)": 3422,
+    "Olive oil (3)": 3424,
+    "Olive oil (2)": 3426,
+    "Olive oil (1)": 3428,
+    "Sacred oil (4)": 3430,
+    "Sacred oil (3)": 3432,
+    "Sacred oil (2)": 3434,
+    "Sacred oil (1)": 3436,
+    "Pyre logs": 3438,
+    "Loar remains": 3396,
+    "Bronze key red": 3450,
+    "Bronze key brown": 3451,
+    "Bronze key crimson": 3452,
+    "Fine cloth": 3470,
+}
+
 
 def shades_of_mortton_activity_as_dict() -> dict[str, dict[str, Any]]:
     return {
         SHADES_OF_MORTTON_ACTIVITY_ID: {
             "display_name": "Shades of Mort'ton",
-            "requirements": {"quest": "shades_of_mortton"},
+            "requirements": {},
+            "quest_requirements": ("shades_of_mortton",),
             "skill_requirements": {},
             "outputs": (
                 "Sacred oil (4)",
@@ -154,9 +172,36 @@ def shades_of_mortton_activity_as_dict() -> dict[str, dict[str, Any]]:
                 "Fine cloth",
             ),
             "batch_size": 1,
-            "group": "activities",
+            "group": "minigames",
             "source": SHADES_OF_MORTTON_SOURCE,
         }
+    }
+
+
+def shades_of_mortton_extra_items_as_dict() -> dict[str, dict[str, Any]]:
+    item_names = (
+        *(f"Olive oil ({dose})" for dose in range(1, 5)),
+        *(f"Sacred oil ({dose})" for dose in range(1, 5)),
+        *(f"Serum 207 ({dose})" for dose in range(1, 5)),
+        *(f"Serum 208 ({dose})" for dose in range(1, 5)),
+        "Loar remains",
+        *SHADES_BRONZE_KEYS,
+        "Fine cloth",
+        *SHADES_PYRE_LOGS,
+    )
+    return {
+        item_name: {
+            "category": "activity_material",
+            "stackable": False,
+            "tradeable": item_name not in SHADES_BRONZE_KEYS,
+            "source": SHADES_OF_MORTTON_SOURCE,
+            **(
+                {"source_item_id": SHADES_ITEM_IDS[item_name]}
+                if item_name in SHADES_ITEM_IDS
+                else {}
+            ),
+        }
+        for item_name in item_names
     }
 
 

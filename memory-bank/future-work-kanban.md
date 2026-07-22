@@ -14,6 +14,27 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+### Shades of Mort'ton — horizontal mechanics shipped 2026-07-22
+
+Labels: `SOURCE AUDIT` only for deferred rates and catalog depth.
+
+- The completed-quest persistent loop now includes communal temple repair,
+  personal sanctity, simulated crowd pressure, altar lighting, oil/serum
+  blessing, all ten pyre-log recipes, live Loar Shade Combat, cremation, and
+  bronze-chest opening.
+- Schema 80, storage repair, activity arbitration, cadence/telemetry,
+  review/direct undo, registries, normalized cutoff assets, and the compact
+  Activities card are integrated. No wall clock or owner design gap is involved.
+- Other shade tiers, key/chest tiers, reward rows, and unresolved GE limits are
+  catalog/data depth rather than missing mechanics.
+- Ordinary and full real offscreen-Qt discovery each pass all 2,453 methods.
+  Native Anki and Kimi K3/Fable taste approval remain deferred external gates.
+- The next shared-integration frontier is TzHaar Fight Pit. The breadth goal is
+  paused before that slice at the owner's Codex-quota boundary.
+- Durable audit:
+  `memory-bank/source-audits/shades-of-mortton-horizontal-readiness-2026-07-21.md`.
+- Closure report: <https://whux17tpdjx6.postplan.dev>.
+
 ### Soul Wars — horizontal mechanics shipped 2026-07-22
 
 Labels: `SOURCE AUDIT` only for deferred rates and catalog depth.

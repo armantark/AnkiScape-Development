@@ -71,6 +71,45 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_shades_of_mortton_routes_repair_xp_through_utility(self):
+        from shades_of_mortton_logic import enter_shades_of_mortton_pure
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data, ok, info = enter_shades_of_mortton_pure(
+            {
+                "current_utility": "shades_of_mortton",
+                "activity_session": {"active_id": ""},
+                "combat_encounter": {},
+                "current_combat_target": "chicken",
+                "quests": {"shades_of_mortton": {"completed": True}},
+                "inventory": {
+                    "Hammer": 1,
+                    "Timber beam": 1,
+                    "Limestone brick": 1,
+                    "Swamp paste": 5,
+                },
+                "equipment": {},
+                "crafting_exp": 0.0,
+                "completed_achievements": [],
+            },
+            {"automation_mode": "advanced", "duty": "repair"},
+        )
+        self.assertTrue(ok, info)
+
+        self.assertTrue(
+            handle_utility_answer(
+                _context(player_data, calls, random_values=(0.0, 0.0))
+            )
+        )
+
+        self.assertEqual(player_data["crafting_exp"], 20.0)
+        self.assertEqual(calls["xp"], [20.0])
+        self.assertEqual(calls["saves"], 1)
+        self.assertIn(
+            "utility:shades_of_mortton",
+            player_data["action_telemetry"]["actions"],
+        )
+
     def test_barbarian_assault_routes_full_run_through_utility(self):
         from barbarian_assault_logic import (
             complete_barbarian_assault_tutorial_pure,

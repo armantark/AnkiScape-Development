@@ -5984,6 +5984,56 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
+    def test_shades_pyre_logs_are_direct_undoable_and_award_firemaking_xp(self):
+        addon = _load_addon_as_package("ankiscape_shades_mortton_integration")
+        logic = sys.modules[f"{addon.__name__}.shades_of_mortton_logic"]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon.level_up_check = lambda *_args: None
+        addon._show_exp = lambda *_args: None
+        addon._show_activity_gain = lambda *_args: None
+        addon.current_skill = "Activities"
+        initial = {
+            "inventory": {"Logs": 1, "Sacred oil (4)": 1},
+            "equipment": {},
+            "combat_encounter": {},
+            "shop_market_clock": {"answered_cards": 0},
+            "current_combat_target": "chicken",
+            "current_utility": "make_soft_clay",
+            "activity_session": {"active_id": ""},
+            "quests": {"shades_of_mortton": {"completed": True}},
+            "firemaking_level": 80,
+            "firemaking_exp": 0.0,
+            "smithing_level": 1,
+        }
+        initial.update(logic.default_shades_of_mortton_state_pure())
+        addon.player_data = copy.deepcopy(initial)
+
+        addon._on_main_menu()
+        result = captured["on_shades_of_mortton_command"](
+            "make_pyre_logs",
+            {"output_name": "Pyre logs"},
+        )
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(addon.player_data["inventory"]["Pyre logs"], 1)
+        self.assertEqual(addon.player_data["inventory"]["Sacred oil (2)"], 1)
+        self.assertEqual(addon.player_data["firemaking_exp"], 12.0)
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
     def test_barbarian_assault_entry_is_a_direct_undoable_action(self):
         addon = _load_addon_as_package("ankiscape_barbarian_assault_integration")
         logic = sys.modules[f"{addon.__name__}.barbarian_assault_logic"]
