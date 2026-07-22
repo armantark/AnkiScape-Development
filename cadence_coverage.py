@@ -541,6 +541,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "trouble_brewing":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "trouble_brewing",
+                    "mode": "activity_group",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One review advances one of sixteen disclosed duty beats, "
+                        "plus one opposing-team pressure step. Source wall-clock "
+                        "duration is intentionally not a gameplay input."
+                    ),
+                    "includes": (
+                        "one productive duty or explicit Again idle beat",
+                        "one terminal rum score, multi-skill XP, and currency payout",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains "
+                        "one race beat and cannot begin a second match"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same sixteen-beat race handler",
+                    "profile": None,
+                    "condition": "owner-settled event-count translation",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "penguin_hide_and_seek":
             rows.append(
                 {

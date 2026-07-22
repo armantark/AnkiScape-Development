@@ -1194,7 +1194,7 @@ Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
   Sorceress's Garden, Penguin Hide and Seek, Vinesweeper, Fight Caves,
   Stealing Creation, Barrows, Flash Powder Factory, Pyramid Plunder, and
   Werewolf Skullball, Gnome Ball, Fish Flingers, Fishing Trawler, Great Orb
-  Project, Managing Miscellania, and Big Top Bonanza with
+  Project, Managing Miscellania, Big Top Bonanza, and Trouble Brewing with
   complete mechanics, persistence, undo, UI, assets, and compact period-
   qualified data sets.
 - Flash Powder Factory and Pyramid Plunder are closed. Tears of Guthix and Shattered Heart remain explicit

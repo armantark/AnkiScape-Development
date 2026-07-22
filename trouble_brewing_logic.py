@@ -302,6 +302,8 @@ def _apply_player_duty(session: dict[str, Any], duty: str) -> str:
         if session["pending_bottle"]:
             session["pending_bottle"] = False
             session["packed_rum"] += 1
+            for skill, amount in TROUBLE_BREWING_BOTTLE_XP.items():
+                session["xp"][skill] = float(session["xp"].get(skill, 0.0)) + amount
             return "Packed one bottle of rum"
         return "No finished rum was ready to pack"
     if duty == "sabotage":
@@ -354,9 +356,6 @@ def _finish_game(data: dict[str, Any], session: dict[str, Any]) -> dict[str, Any
         session["pending_bottle"] = False
     pieces = min(TROUBLE_BREWING_CONTRIBUTION_CAP, int(session["contribution"]))
     pieces += 2 * int(session["packed_rum"])
-    skill_xp = dict(session["xp"])
-    for skill, amount in TROUBLE_BREWING_BOTTLE_XP.items():
-        skill_xp[skill] = float(skill_xp.get(skill, 0.0)) + amount * int(session["packed_rum"])
     player_rum = int(session["packed_rum"])
     opponent_rum = int(session["opponent_rum"])
     outcome = "won" if player_rum > opponent_rum else "drew" if player_rum == opponent_rum else "lost"
@@ -382,7 +381,6 @@ def _finish_game(data: dict[str, Any], session: dict[str, Any]) -> dict[str, Any
         "player_rum": player_rum,
         "opponent_rum": opponent_rum,
         "pieces_of_eight": pieces,
-        "skill_xp": skill_xp,
         "message": data["trouble_brewing_last_result"],
     }
 
@@ -400,6 +398,7 @@ def apply_trouble_brewing_review_pure(
     session = state["trouble_brewing"]
     if not session:
         return data, {"terminal": False, "reason": "No Trouble Brewing game is active."}
+    xp_before = dict(session["xp"])
 
     chosen = "idle"
     status = "No duty completed"
@@ -424,10 +423,22 @@ def apply_trouble_brewing_review_pure(
         session["repair_required"] = True
     _decay_boilers(session)
     session["review"] += 1
+    skill_xp = {
+        skill: float(session["xp"].get(skill, 0.0)) - float(xp_before.get(skill, 0.0))
+        for skill in _XP_SKILLS
+        if float(session["xp"].get(skill, 0.0)) > float(xp_before.get(skill, 0.0))
+    }
 
     if session["review"] >= TROUBLE_BREWING_EVENT_REVIEWS:
         result = _finish_game(data, session)
-        result.update({"duty": chosen, "status": status, "brewed": brewed})
+        result.update(
+            {
+                "duty": chosen,
+                "status": status,
+                "brewed": brewed,
+                "skill_xp": skill_xp,
+            }
+        )
         return data, result
 
     data["trouble_brewing"] = session
@@ -441,7 +452,7 @@ def apply_trouble_brewing_review_pure(
         "brewed": brewed,
         "repair_required": session["repair_required"],
         "reviews_remaining": TROUBLE_BREWING_EVENT_REVIEWS - int(session["review"]),
-        "skill_xp": {},
+        "skill_xp": skill_xp,
         "message": data["trouble_brewing_last_result"],
     }
 

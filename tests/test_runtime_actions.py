@@ -71,6 +71,75 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_trouble_brewing_review_race_awards_terminal_multi_skill_xp(self):
+        from trouble_brewing_logic import enter_trouble_brewing_pure
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data, ok, info = enter_trouble_brewing_pure(
+            {
+                "current_utility": "trouble_brewing",
+                "cooking_level": 40,
+                "quests": {"cabin_fever": {"completed": True}},
+                "activity_session": {"active_id": ""},
+                "inventory": {},
+                "completed_achievements": [],
+            }
+        )
+        self.assertTrue(ok, info)
+
+        for _ in range(16):
+            self.assertTrue(
+                handle_utility_answer(
+                    _context(player_data, calls, random_values=(0.9, 0.9))
+                )
+            )
+
+        self.assertEqual(player_data["trouble_brewing"], {})
+        self.assertEqual(player_data["activity_session"], {"active_id": ""})
+        self.assertEqual(player_data["trouble_brewing_pieces_of_eight"], 69)
+        self.assertEqual(player_data["cooking_exp"], 810.0)
+        self.assertEqual(player_data["crafting_exp"], 100.0)
+        self.assertEqual(player_data["firemaking_exp"], 1950.0)
+        self.assertEqual(calls["saves"], 16)
+        self.assertTrue(calls.get("deactivated"))
+        self.assertIn(
+            "utility:trouble_brewing",
+            player_data["action_telemetry"]["actions"],
+        )
+
+    def test_trouble_brewing_again_advances_without_player_duty(self):
+        from trouble_brewing_logic import enter_trouble_brewing_pure
+
+        player_data, ok, info = enter_trouble_brewing_pure(
+            {
+                "current_utility": "trouble_brewing",
+                "cooking_level": 40,
+                "quests": {"cabin_fever": {"completed": True}},
+                "activity_session": {"active_id": ""},
+                "inventory": {},
+                "completed_achievements": [],
+            }
+        )
+        self.assertTrue(ok, info)
+        self.assertTrue(
+            runtime_actions.handle_trouble_brewing_answer(
+                _context(player_data, random_values=(0.0, 0.9)),
+                productive=False,
+            )
+        )
+        self.assertEqual(player_data["trouble_brewing"]["review"], 1)
+        self.assertEqual(
+            player_data["trouble_brewing"]["stores"],
+            {
+                "water": 0,
+                "coloured_water": 0,
+                "sweetgrubs": 0,
+                "scrapey_bark": 0,
+                "bitternut": 0,
+            },
+        )
+        self.assertEqual(player_data["trouble_brewing"]["opponent_progress"], 2)
+
     def test_circus_review_resolves_one_atomic_multi_skill_performance(self):
         from circus_logic import default_circus_state_pure
 

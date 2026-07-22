@@ -8094,6 +8094,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "gnome_ball",
                 "fishing_trawler",
                 "great_orb_project",
+                "trouble_brewing",
             },
         )
         self.assertEqual(
@@ -12041,6 +12042,81 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(len(routine_combos), 10)
         self.assertEqual(routine_combos[0].findData(""), -1)
         self.assertGreaterEqual(routine_combos[1].findData(""), 0)
+        dialog.close()
+
+    def test_trouble_brewing_detail_enters_selects_and_buys_reward(self) -> None:
+        from trouble_brewing_logic import apply_trouble_brewing_command_pure
+
+        pd = _make_player_data()
+        pd["cooking_level"] = 40
+        pd["quests"]["cabin_fever"]["completed"] = True
+        pd["trouble_brewing_pieces_of_eight"] = 50
+        command_calls = []
+
+        def trouble_command(action_id, payload):
+            command_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_trouble_brewing_command_pure(
+                pd, action_id, payload
+            )
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
+        dialog = self._open(
+            pd,
+            current_skill="Activities",
+            on_trouble_brewing_command=trouble_command,
+        )
+        dialog.show()
+        QApplication.processEvents()
+        tree = self._open_activities(dialog)
+        item = next(
+            row
+            for row in _tree_items(tree)
+            if row.data(0, Qt.ItemDataRole.UserRole) == "trouble_brewing"
+        )
+        tree.itemClicked.emit(item, 0)
+        QApplication.processEvents()
+        panel = next(
+            widget
+            for widget in dialog.findChildren(QWidget, "troubleBrewingPanel")
+            if widget.isVisible()
+        )
+        icon = panel.findChild(QLabel, "troubleBrewingIcon")
+        mode = panel.findChild(QComboBox, "troubleBrewingModeCombo")
+        duty = panel.findChild(QComboBox, "troubleBrewingDutyCombo")
+        primary = panel.findChild(QPushButton, "troubleBrewingPrimaryButton")
+        progress = panel.findChild(QProgressBar, "troubleBrewingProgress")
+
+        self.assertFalse(icon.pixmap().isNull())
+        self.assertFalse(progress.isVisible())
+        self.assertFalse(duty.isEnabled())
+        mode.setCurrentIndex(mode.findData("advanced"))
+        QApplication.processEvents()
+        self.assertTrue(duty.isEnabled())
+        duty.setCurrentIndex(duty.findData("sabotage"))
+        primary.click()
+        QApplication.processEvents()
+
+        self.assertEqual(command_calls[-1][0], "enter")
+        self.assertEqual(pd["current_utility"], "trouble_brewing")
+        self.assertEqual(pd["trouble_brewing"]["duty"], "sabotage")
+        self.assertTrue(progress.isVisible())
+        self.assertEqual(primary.text(), "Selected for reviews")
+        self.assertFalse(panel.findChild(QWidget, "troubleBrewingSavePlanButton").isEnabled())
+
+        pd["trouble_brewing"] = {}
+        pd["activity_session"] = {"active_id": ""}
+        tree.itemClicked.emit(item, 0)
+        QApplication.processEvents()
+        buy = panel.findChild(QPushButton, "troubleBrewingBuyButton")
+        self.assertTrue(buy.isEnabled())
+        buy.click()
+        QApplication.processEvents()
+        self.assertEqual(command_calls[-1][0], "buy_reward")
+        self.assertEqual(pd["inventory"]["Blue tricorn hat"], 1)
+        self.assertEqual(pd["trouble_brewing_pieces_of_eight"], 0)
         dialog.close()
 
 

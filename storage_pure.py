@@ -143,6 +143,10 @@ try:
         migrate_legacy_circus_state_pure,
         sanitize_circus_state_pure,
     )
+    from .trouble_brewing_logic import (
+        default_trouble_brewing_state_pure,
+        sanitize_trouble_brewing_state_pure,
+    )
     from .managing_miscellania_logic import (
         default_managing_miscellania_state_pure,
         sanitize_managing_miscellania_player_state_pure,
@@ -326,6 +330,10 @@ except ImportError:
         migrate_legacy_circus_state_pure,
         sanitize_circus_state_pure,
     )
+    from trouble_brewing_logic import (  # type: ignore
+        default_trouble_brewing_state_pure,
+        sanitize_trouble_brewing_state_pure,
+    )
     from managing_miscellania_logic import (  # type: ignore
         default_managing_miscellania_state_pure,
         sanitize_managing_miscellania_player_state_pure,
@@ -367,7 +375,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 72
+CURRENT_CONFIG_VERSION = 73
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -608,6 +616,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_great_orb_project_state_pure())
     data.update(default_court_cases_state_pure())
     data["circus"] = default_circus_state_pure()
+    data.update(default_trouble_brewing_state_pure())
     data.update(default_managing_miscellania_state_pure())
     data["activity_session"] = {"active_id": ""}
     data["sorceress_garden"] = default_sorceress_garden_state_pure()
@@ -1235,6 +1244,7 @@ def migrate_loaded_data(
     data.update(sanitize_great_orb_project_player_state_pure(data))
     data.update(sanitize_court_cases_state_pure(data))
     data["circus"] = migrate_legacy_circus_state_pure(data)
+    data.update(sanitize_trouble_brewing_state_pure(data))
     data.pop("agility_circus_last_week", None)
     agility_currencies = data.get("agility_activity_currencies")
     if isinstance(agility_currencies, dict):
@@ -1589,6 +1599,11 @@ def migrate_loaded_data(
     # into one atomic multi-skill Activities performance per answered-card week.
     if loaded_config_version < 72:
         data["circus"] = migrate_legacy_circus_state_pure(data)
+    # v73: Trouble Brewing adds a persistent review-driven match, policy,
+    # Pieces of Eight wallet, and representative reward-shop ownership.
+    if loaded_config_version < 73:
+        for key, value in default_trouble_brewing_state_pure().items():
+            data.setdefault(key, value)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1632,6 +1647,7 @@ def migrate_loaded_data(
     data.update(sanitize_great_orb_project_player_state_pure(data))
     data.update(sanitize_court_cases_state_pure(data))
     data["circus"] = sanitize_circus_state_pure(data.get("circus"))
+    data.update(sanitize_trouble_brewing_state_pure(data))
     data.pop("agility_circus_last_week", None)
     agility_currencies = data.get("agility_activity_currencies")
     if isinstance(agility_currencies, dict):

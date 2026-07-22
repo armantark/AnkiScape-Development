@@ -53,6 +53,26 @@ design question. See
 The breadth-first frontier must move to the next settled, source-ready family
 rather than parking on this harvest.
 
+Trouble Brewing now satisfies horizontal breadth level one as a persistent
+Activities-only brewing race. Cabin Fever and Cooking 40 gate a sixteen-review
+match with Casual bottleneck planning or an Advanced fixed duty, exact source
+ingredient and boiler state, two-way sabotage, forced repairs, packed-bottle
+loss, simulated opponent rum, immediate per-duty multi-skill XP, terminal
+Pieces of Eight, explicit forfeit, and a representative zero-stat Blue tricorn
+reward. Schema 73, activity arbitration, cadence/telemetry, review/direct undo,
+normalized period assets, item/equipment reachability, and the compact
+paginated card are live. `Again` advances the race without a player duty; no
+wall clock is used. Remaining shop catalog and hidden rolls are data depth, and
+no owner design gap surfaced. Durable record:
+`source-audits/trouble-brewing-horizontal-mvp-2026-07-21.md`. Results:
+`status-updates/trouble-brewing-horizontal-results-2026-07-21.html` and
+<https://r8gg5tai8i28.postplan.dev>.
+
+Kimi K3 remained behind its fail-closed quota gate and Opus was unavailable
+because the installed Claude CLI requires login. Root visual QA passed the
+ready and active dark-palette renders; the external taste signoffs remain an
+availability follow-up rather than a design blocker.
+
 Wicked hood now satisfies horizontal breadth level one as Runecrafting's
 manual daily resource and route tool. A carried or equipped hood exposes
 essence, rune, and altar-teleport actions. The actions use only fed access,

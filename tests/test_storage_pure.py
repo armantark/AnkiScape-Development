@@ -996,6 +996,28 @@ class TestStoragePure(unittest.TestCase):
         )
         self.assertEqual(migrated["circus"]["lifetime_score"], 654)
 
+    def test_migrate_adds_and_sanitizes_trouble_brewing_state(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 72,
+                "inventory": {},
+                "trouble_brewing": {"review": 999, "boilers": [99]},
+                "activity_session": {"active_id": "trouble_brewing"},
+                "trouble_brewing_pieces_of_eight": -4,
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(migrated["trouble_brewing"]["review"], 15)
+        self.assertEqual(migrated["trouble_brewing"]["boilers"], [10, 3, 3])
+        self.assertEqual(migrated["trouble_brewing_pieces_of_eight"], 0)
+        self.assertEqual(
+            migrated["trouble_brewing_policy"],
+            {"automation_mode": "casual", "duty": "water"},
+        )
+
     def test_migrate_idempotent(self):
         base = {"mining_exp": 10, "inventory": {}}
         first = migrate_loaded_data(base, ORE_DATA)

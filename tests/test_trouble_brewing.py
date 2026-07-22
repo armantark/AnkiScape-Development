@@ -97,6 +97,7 @@ class TroubleBrewingRaceTests(unittest.TestCase):
     def test_casual_completes_source_recipe_packs_rum_and_pays_exact_rewards(self):
         player = _entered()
         duties = []
+        total_xp = {}
         for _ in range(TROUBLE_BREWING_EVENT_REVIEWS):
             player, result = apply_trouble_brewing_review_pure(
                 player,
@@ -105,6 +106,8 @@ class TroubleBrewingRaceTests(unittest.TestCase):
                 sabotage_roll=0.9,
             )
             duties.append(result["duty"])
+            for skill, amount in result["skill_xp"].items():
+                total_xp[skill] = total_xp.get(skill, 0.0) + amount
 
         self.assertTrue(result["terminal"])
         self.assertEqual(result["player_rum"], 1)
@@ -112,7 +115,7 @@ class TroubleBrewingRaceTests(unittest.TestCase):
         self.assertEqual(result["outcome"], "drew")
         self.assertEqual(result["pieces_of_eight"], 69)
         self.assertEqual(
-            result["skill_xp"],
+            total_xp,
             {
                 "agility": 30.0,
                 "cooking": 810.0,
@@ -125,6 +128,22 @@ class TroubleBrewingRaceTests(unittest.TestCase):
         self.assertIn("tend_boilers", duties)
         self.assertEqual(player["trouble_brewing"], {})
         self.assertEqual(player["activity_session"], {"active_id": ""})
+
+    def test_duty_xp_is_immediate_and_survives_leaving_the_match(self):
+        player, ok, info = enter_trouble_brewing_pure(
+            _player(), {"automation_mode": "advanced", "duty": "coloured_water"}
+        )
+        self.assertTrue(ok, info)
+        player, result = apply_trouble_brewing_review_pure(
+            player,
+            productive=True,
+            opponent_roll=0.9,
+            sabotage_roll=0.9,
+        )
+        self.assertEqual(result["skill_xp"], {"cooking": 120.0})
+        player, ok, _info = leave_trouble_brewing_pure(player)
+        self.assertTrue(ok)
+        self.assertEqual(player["trouble_brewing"], {})
 
     def test_again_advances_the_race_without_doing_a_player_duty(self):
         player = _entered()

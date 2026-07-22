@@ -241,6 +241,11 @@ try:
     )
     from .circus_data import CIRCUS_ACTIVITY_ID
     from .circus_logic import apply_circus_review_pure, circus_view_pure
+    from .trouble_brewing_data import TROUBLE_BREWING_ACTIVITY_ID
+    from .trouble_brewing_logic import (
+        apply_trouble_brewing_review_pure,
+        trouble_brewing_view_pure,
+    )
     from .managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
     from .managing_miscellania_logic import (
         apply_managing_miscellania_review_pure,
@@ -569,6 +574,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from circus_logic import (  # type: ignore
         apply_circus_review_pure,
         circus_view_pure,
+    )
+    from trouble_brewing_data import TROUBLE_BREWING_ACTIVITY_ID  # type: ignore
+    from trouble_brewing_logic import (  # type: ignore
+        apply_trouble_brewing_review_pure,
+        trouble_brewing_view_pure,
     )
     from managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID  # type: ignore
     from managing_miscellania_logic import (  # type: ignore
@@ -3514,6 +3524,66 @@ def _handle_circus_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def handle_trouble_brewing_answer(
+    ctx: RuntimeActionContext,
+    *,
+    productive: bool = True,
+) -> bool:
+    view = trouble_brewing_view_pure(ctx.player_data)
+    duty = str(view.get("policy", {}).get("duty", "water"))
+    session = view.get("session")
+    if isinstance(session, dict):
+        duty = str(session.get("duty", duty))
+    updated, result = apply_trouble_brewing_review_pure(
+        ctx.player_data,
+        productive=productive,
+        duty=duty,
+        opponent_roll=ctx.random_random(),
+        sabotage_roll=ctx.random_random(),
+    )
+    if result.get("reason"):
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Trouble Brewing unavailable",
+            str(result["reason"]),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    skill_rows = {
+        "agility": ("agility_exp", "Agility"),
+        "cooking": ("cooking_exp", "Cooking"),
+        "crafting": ("crafting_exp", "Crafting"),
+        "firemaking": ("firemaking_exp", "Firemaking"),
+        "woodcutting": ("woodcutting_exp", "Woodcutting"),
+    }
+    total_gained = 0.0
+    skill_xp = dict(result.get("skill_xp") or {})
+    for skill_id, amount in skill_xp.items():
+        if skill_id not in skill_rows or float(amount or 0.0) <= 0:
+            continue
+        exp_key, display_name = skill_rows[skill_id]
+        total_gained += ctx.award_skill_exp(exp_key, float(amount))
+        ctx.level_up_check(display_name, ctx.player_data)
+    _record_action(
+        ctx,
+        "utility",
+        TROUBLE_BREWING_ACTIVITY_ID,
+        productive,
+        expected_success_chance=1.0,
+        primary_xp=sum(float(value or 0.0) for value in skill_xp.values()),
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if total_gained > 0:
+        ctx.show_exp(total_gained)
+    ctx.show_activity_gain(str(result.get("message", "Trouble Brewing beat resolved")))
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
 def _handle_managing_miscellania_answer(ctx: RuntimeActionContext) -> bool:
     updated, result = apply_managing_miscellania_review_pure(ctx.player_data)
     if not result.get("allowed"):
@@ -3590,6 +3660,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_court_cases_answer(ctx)
     if activity_key == CIRCUS_ACTIVITY_ID:
         return _handle_circus_answer(ctx)
+    if activity_key == TROUBLE_BREWING_ACTIVITY_ID:
+        return handle_trouble_brewing_answer(ctx)
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:
         return _handle_managing_miscellania_answer(ctx)
     if activity_key == STRONGHOLD_UTILITY_KEY:
@@ -5930,6 +6002,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return bool(court_cases_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == CIRCUS_ACTIVITY_ID:
         return bool(circus_view_pure(ctx.player_data).get("can_review", False))
+    if activity_key == TROUBLE_BREWING_ACTIVITY_ID:
+        return bool(trouble_brewing_view_pure(ctx.player_data).get("active", False))
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:
         return bool(managing_miscellania_view_pure(ctx.player_data).get("can_train", False))
     return not utility_activity_locked_reasons_pure(

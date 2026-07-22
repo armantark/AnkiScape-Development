@@ -53,6 +53,21 @@ except ImportError:
     )
 
 try:
+    from .trouble_brewing_data import (
+        TROUBLE_BREWING_ACTIVITY_ID,
+        trouble_brewing_activity_as_dict,
+        trouble_brewing_equipment_data_as_dict,
+        trouble_brewing_extra_items_as_dict,
+    )
+except ImportError:
+    from trouble_brewing_data import (  # type: ignore
+        TROUBLE_BREWING_ACTIVITY_ID,
+        trouble_brewing_activity_as_dict,
+        trouble_brewing_equipment_data_as_dict,
+        trouble_brewing_extra_items_as_dict,
+    )
+
+try:
     from .fight_caves_data import (
         FIGHT_CAVES_ACTIVITY_ID,
         fight_caves_activity_as_dict,
@@ -782,6 +797,7 @@ UTILITY_ACTIVITY_DATA.update(shooting_star_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fist_of_guthix_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(court_cases_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(circus_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(trouble_brewing_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(phoenix_lair_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(stealing_creation_activity_as_dict())
@@ -859,6 +875,14 @@ _circus_icon = os.path.join(
 )
 if os.path.exists(_circus_icon):
     UTILITY_ACTIVITY_DATA[CIRCUS_ACTIVITY_ID]["icon_path"] = _circus_icon
+_trouble_brewing_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "trouble_brewing.png",
+)
+if os.path.exists(_trouble_brewing_icon):
+    UTILITY_ACTIVITY_DATA[TROUBLE_BREWING_ACTIVITY_ID]["icon_path"] = (
+        _trouble_brewing_icon
+    )
 _fight_caves_icon = os.path.join(current_dir, "constructionitems", "fire_cape.png")
 if os.path.exists(_fight_caves_icon):
     UTILITY_ACTIVITY_DATA[FIGHT_CAVES_ACTIVITY_ID]["icon_path"] = _fight_caves_icon
@@ -1578,10 +1602,12 @@ for _target_id in COMBAT_ENEMY_DATA:
 EQUIPMENT_DATA = dict(EQUIPMENT_DATA)
 EQUIPMENT_DATA.update(barrows_equipment_data_as_dict())
 EQUIPMENT_DATA.update(fish_flingers_equipment_data_as_dict())
+EQUIPMENT_DATA.update(trouble_brewing_equipment_data_as_dict())
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict(EQUIPMENT_DATA)
 FIST_OF_GUTHIX_EXTRA_ITEM_DATA = fist_of_guthix_extra_items_as_dict()
 COURT_CASES_EXTRA_ITEM_DATA = court_cases_extra_items_as_dict()
 CIRCUS_EXTRA_ITEM_DATA = circus_extra_items_as_dict()
+TROUBLE_BREWING_EXTRA_ITEM_DATA = trouble_brewing_extra_items_as_dict()
 SORCERESS_GARDEN_EXTRA_ITEM_DATA = sorceress_garden_extra_items_as_dict()
 VINESWEEPER_EXTRA_ITEM_DATA = vinesweeper_extra_items_as_dict()
 FIGHT_CAVES_EXTRA_ITEM_DATA = fight_caves_extra_items_as_dict()
@@ -1619,6 +1645,18 @@ CIRCUS_ITEM_IMAGES = {
 CIRCUS_ITEM_IMAGES = {
     item_name: path
     for item_name, path in CIRCUS_ITEM_IMAGES.items()
+    if os.path.exists(path)
+}
+TROUBLE_BREWING_ITEM_IMAGES = {
+    "Blue tricorn hat": os.path.join(
+        current_dir,
+        "activityitems",
+        "blue_tricorn_hat.png",
+    ),
+}
+TROUBLE_BREWING_ITEM_IMAGES = {
+    item_name: path
+    for item_name, path in TROUBLE_BREWING_ITEM_IMAGES.items()
     if os.path.exists(path)
 }
 FISH_FLINGERS_ITEM_IMAGES = {}
@@ -2023,6 +2061,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **FIST_OF_GUTHIX_EXTRA_ITEM_DATA,
     **COURT_CASES_EXTRA_ITEM_DATA,
     **CIRCUS_EXTRA_ITEM_DATA,
+    **TROUBLE_BREWING_EXTRA_ITEM_DATA,
     **SORCERESS_GARDEN_EXTRA_ITEM_DATA,
     **VINESWEEPER_EXTRA_ITEM_DATA,
     **FIGHT_CAVES_EXTRA_ITEM_DATA,
@@ -2059,6 +2098,7 @@ EXTRA_ITEM_IMAGES = {
     **COMBAT_ITEM_IMAGES,
     **COURT_CASES_ITEM_IMAGES,
     **CIRCUS_ITEM_IMAGES,
+    **TROUBLE_BREWING_ITEM_IMAGES,
     **SORCERESS_GARDEN_ITEM_IMAGES,
     **VINESWEEPER_ITEM_IMAGES,
     **FIGHT_CAVES_ITEM_IMAGES,

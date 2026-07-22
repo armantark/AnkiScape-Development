@@ -487,6 +487,21 @@ except Exception:
     from circus_logic import circus_view_pure  # type: ignore
 
 try:
+    from .trouble_brewing_data import (
+        TROUBLE_BREWING_ACTIVITY_ID,
+        TROUBLE_BREWING_DUTIES,
+        TROUBLE_BREWING_EVENT_REVIEWS,
+    )
+    from .trouble_brewing_logic import trouble_brewing_view_pure
+except Exception:
+    from trouble_brewing_data import (  # type: ignore
+        TROUBLE_BREWING_ACTIVITY_ID,
+        TROUBLE_BREWING_DUTIES,
+        TROUBLE_BREWING_EVENT_REVIEWS,
+    )
+    from trouble_brewing_logic import trouble_brewing_view_pure  # type: ignore
+
+try:
     from .managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
     from .managing_miscellania_logic import managing_miscellania_view_pure
 except Exception:
@@ -3561,6 +3576,7 @@ def show_main_menu(
     on_great_orb_project_command=None,
     on_court_cases_command=None,
     on_circus_command=None,
+    on_trouble_brewing_command=None,
     on_managing_miscellania_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
@@ -12693,6 +12709,274 @@ def show_main_menu(
         )
         _refresh_circus_panel()
 
+        trouble_box = QtFrame()
+        trouble_box.setObjectName("troubleBrewingPanel")
+        trouble_box.setStyleSheet(
+            "QFrame#troubleBrewingPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        trouble_layout = QVBoxLayout(trouble_box)
+        trouble_layout.setContentsMargins(10, 8, 10, 8)
+        trouble_layout.setSpacing(7)
+
+        trouble_header = QWidget()
+        trouble_header_layout = QHBoxLayout(trouble_header)
+        trouble_header_layout.setContentsMargins(0, 0, 0, 0)
+        trouble_header_layout.setSpacing(8)
+        trouble_icon = QLabel()
+        trouble_icon.setObjectName("troubleBrewingIcon")
+        trouble_icon.setFixedSize(28, 28)
+        trouble_icon_path = os.path.join(
+            current_dir, "activityicons", "trouble_brewing.png"
+        )
+        if os.path.exists(trouble_icon_path):
+            trouble_icon.setPixmap(
+                QPixmap(trouble_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+        trouble_title = QLabel("Trouble Brewing")
+        trouble_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        trouble_status = QLabel()
+        trouble_status.setObjectName("troubleBrewingStatusChip")
+        trouble_status.setStyleSheet(
+            f"color: {dim_text_css(trouble_status)}; font-size: 11px; font-weight: 700;"
+        )
+        trouble_header_layout.addWidget(trouble_icon)
+        trouble_header_layout.addWidget(trouble_title)
+        trouble_header_layout.addStretch(1)
+        trouble_header_layout.addWidget(trouble_status)
+        trouble_layout.addWidget(trouble_header)
+
+        trouble_summary = QLabel()
+        trouble_summary.setObjectName("troubleBrewingSummary")
+        trouble_summary.setWordWrap(True)
+        trouble_summary.setStyleSheet("color: palette(text);")
+        trouble_layout.addWidget(trouble_summary)
+
+        trouble_progress = QProgressBar()
+        trouble_progress.setObjectName("troubleBrewingProgress")
+        trouble_progress.setRange(0, TROUBLE_BREWING_EVENT_REVIEWS)
+        trouble_progress.setTextVisible(True)
+        trouble_progress.setFormat("Duty beat %v of 16")
+        trouble_progress.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 4px; }"
+            "QProgressBar::chunk { background: #8c6239; }"
+        )
+        trouble_layout.addWidget(trouble_progress)
+
+        trouble_plan = QWidget()
+        trouble_plan_layout = QHBoxLayout(trouble_plan)
+        trouble_plan_layout.setContentsMargins(0, 0, 0, 0)
+        trouble_plan_layout.setSpacing(6)
+        trouble_mode = QComboBox()
+        trouble_mode.setObjectName("troubleBrewingModeCombo")
+        trouble_mode.setAccessibleName("Trouble Brewing automation mode")
+        trouble_mode.addItem("Casual · bottleneck planner", "casual")
+        trouble_mode.addItem("Advanced · fixed duty", "advanced")
+        trouble_duty = QComboBox()
+        trouble_duty.setObjectName("troubleBrewingDutyCombo")
+        trouble_duty.setAccessibleName("Trouble Brewing fixed duty")
+        for duty_id, label in TROUBLE_BREWING_DUTIES:
+            trouble_duty.addItem(label, duty_id)
+        trouble_save = QPushButton("Save plan")
+        trouble_save.setObjectName("troubleBrewingSavePlanButton")
+        trouble_plan_layout.addWidget(trouble_mode, 1)
+        trouble_plan_layout.addWidget(trouble_duty, 2)
+        trouble_plan_layout.addWidget(trouble_save)
+        trouble_layout.addWidget(trouble_plan)
+
+        trouble_shop = QWidget()
+        trouble_shop_layout = QHBoxLayout(trouble_shop)
+        trouble_shop_layout.setContentsMargins(0, 0, 0, 0)
+        trouble_shop_layout.setSpacing(6)
+        trouble_wallet = QLabel()
+        trouble_wallet.setObjectName("troubleBrewingWallet")
+        trouble_wallet.setStyleSheet("color: palette(text); font-weight: 600;")
+        trouble_reward = QComboBox()
+        trouble_reward.setObjectName("troubleBrewingRewardCombo")
+        trouble_reward.setAccessibleName("Trouble Brewing reward")
+        trouble_buy = QPushButton("Buy")
+        trouble_buy.setObjectName("troubleBrewingBuyButton")
+        trouble_shop_layout.addWidget(trouble_wallet)
+        trouble_shop_layout.addWidget(trouble_reward, 1)
+        trouble_shop_layout.addWidget(trouble_buy)
+        trouble_layout.addWidget(trouble_shop)
+
+        trouble_actions = QWidget()
+        trouble_actions_layout = QHBoxLayout(trouble_actions)
+        trouble_actions_layout.setContentsMargins(0, 0, 0, 0)
+        trouble_actions_layout.setSpacing(6)
+        trouble_primary = QPushButton()
+        trouble_primary.setObjectName("troubleBrewingPrimaryButton")
+        trouble_leave = QPushButton("Leave match")
+        trouble_leave.setObjectName("troubleBrewingLeaveButton")
+        trouble_actions_layout.addWidget(trouble_primary, 1)
+        trouble_actions_layout.addWidget(trouble_leave)
+        trouble_layout.addWidget(trouble_actions)
+        cards_stack.addWidget(trouble_box)
+
+        syncing_trouble = {"active": False}
+
+        def _run_trouble_command(action_id: str, payload=None) -> dict[str, Any]:
+            if on_trouble_brewing_command is None:
+                return {"ok": False, "message": "Trouble Brewing actions are unavailable."}
+            result = on_trouble_brewing_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Trouble Brewing",
+                    str(result.get("message", "That action is unavailable.")),
+                )
+            _refresh_trouble_panel()
+            return result
+
+        def _trouble_policy_payload() -> dict[str, str]:
+            return {
+                "automation_mode": str(trouble_mode.currentData() or "casual"),
+                "duty": str(trouble_duty.currentData() or "water"),
+            }
+
+        def _refresh_trouble_panel() -> None:
+            syncing_trouble["active"] = True
+            view = trouble_brewing_view_pure(player_data)
+            session = view["session"]
+            active = bool(view["active"])
+            policy = session if active else view["policy"]
+            trouble_mode.setCurrentIndex(
+                max(0, trouble_mode.findData(policy["automation_mode"]))
+            )
+            trouble_duty.setCurrentIndex(max(0, trouble_duty.findData(policy["duty"])))
+            trouble_status.setText("IN MATCH" if active else "READY")
+            if view["locked_reasons"]:
+                trouble_status.setText("LOCKED")
+            if active:
+                packed = int(session["packed_rum"])
+                opposing = int(session["opponent_rum"])
+                duty_label = "Repair brewing line" if session["repair_required"] else str(
+                    trouble_duty.currentText()
+                    if session["automation_mode"] == "advanced"
+                    else "Automatic bottleneck duty"
+                )
+                trouble_summary.setText(
+                    f"Blue rum {packed} · Red rum {opposing} · Contribution "
+                    f"{int(session['contribution'])}\nNext: {duty_label}"
+                )
+                trouble_progress.setValue(int(session["review"]))
+            else:
+                locked = (
+                    "Locked: " + ", ".join(view["locked_reasons"])
+                    if view["locked_reasons"]
+                    else "Sixteen answered-card duty beats · two-team rum race · "
+                    "multi-skill XP and Pieces of Eight at the finish"
+                )
+                history = str(view["last_result"])
+                trouble_summary.setText(locked + (f"\n{history}" if history else ""))
+                trouble_progress.setValue(0)
+            trouble_progress.setVisible(active)
+            selected = active and player_data.get("current_utility") == TROUBLE_BREWING_ACTIVITY_ID
+            trouble_primary.setText(
+                "Selected for reviews"
+                if selected
+                else "Select for reviews"
+                if active
+                else "Enter match"
+            )
+            trouble_primary.setEnabled(
+                on_trouble_brewing_command is not None
+                and not selected
+                and (active or not view["locked_reasons"])
+            )
+            trouble_leave.setVisible(active)
+            trouble_leave.setEnabled(on_trouble_brewing_command is not None)
+            trouble_plan.setVisible(not active)
+            trouble_mode.setEnabled(not active and on_trouble_brewing_command is not None)
+            advanced = trouble_mode.currentData() == "advanced"
+            trouble_duty.setEnabled(
+                not active and advanced and on_trouble_brewing_command is not None
+            )
+            trouble_save.setEnabled(not active and on_trouble_brewing_command is not None)
+            trouble_wallet.setText(f"{int(view['pieces_of_eight'])} Pieces of Eight")
+            selected_reward = trouble_reward.currentData()
+            trouble_reward.blockSignals(True)
+            trouble_reward.clear()
+            for reward in view["rewards"]:
+                trouble_reward.addItem(
+                    f"{reward['display_name']} · {int(reward['pieces_of_eight'])}",
+                    reward["reward_id"],
+                )
+            reward_index = trouble_reward.findData(selected_reward)
+            trouble_reward.setCurrentIndex(reward_index if reward_index >= 0 else 0)
+            trouble_reward.blockSignals(False)
+            reward = next(
+                (
+                    row
+                    for row in view["rewards"]
+                    if row["reward_id"] == trouble_reward.currentData()
+                ),
+                None,
+            )
+            trouble_buy.setEnabled(
+                on_trouble_brewing_command is not None
+                and not active
+                and reward is not None
+                and int(view["pieces_of_eight"]) >= int(reward["pieces_of_eight"])
+            )
+            syncing_trouble["active"] = False
+            _fit_current_activity_detail()
+
+        def _select_or_enter_trouble() -> None:
+            view = trouble_brewing_view_pure(player_data)
+            if not view["active"]:
+                result = _run_trouble_command("enter", _trouble_policy_payload())
+                if not result.get("ok", False):
+                    return
+            elif not _request_utility_selection(TROUBLE_BREWING_ACTIVITY_ID):
+                return
+            _refresh_trouble_panel()
+
+        def _confirm_trouble_leave() -> None:
+            answer = QMessageBox.question(
+                dialog,
+                "Leave Trouble Brewing?",
+                "Leave the current match? Unfinished rum, contribution, and match rewards are forfeited.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_trouble_command("leave")
+
+        trouble_mode.currentIndexChanged.connect(
+            lambda _index: (
+                None
+                if syncing_trouble["active"]
+                else trouble_duty.setEnabled(
+                    trouble_mode.currentData() == "advanced"
+                    and on_trouble_brewing_command is not None
+                )
+            )
+        )
+        trouble_save.clicked.connect(
+            lambda _checked=False: _run_trouble_command(
+                "set_policy", _trouble_policy_payload()
+            )
+        )
+        trouble_primary.clicked.connect(
+            lambda _checked=False: _select_or_enter_trouble()
+        )
+        trouble_leave.clicked.connect(
+            lambda _checked=False: _confirm_trouble_leave()
+        )
+        trouble_buy.clicked.connect(
+            lambda _checked=False: _run_trouble_command(
+                "buy_reward", {"reward_id": trouble_reward.currentData()}
+            )
+        )
+        _refresh_trouble_panel()
+
         miscellania_box = QtFrame()
         miscellania_box.setObjectName("managingMiscellaniaPanel")
         miscellania_box.setStyleSheet(
@@ -14792,6 +15076,30 @@ def show_main_menu(
                     )
                     return False
             if (
+                activity_id != TROUBLE_BREWING_ACTIVITY_ID
+                and trouble_brewing_view_pure(player_data)["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave Trouble Brewing?",
+                    "Switch activities? Unfinished rum, contribution, and match rewards are forfeited.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_trouble_brewing_command("leave", {})
+                    if on_trouble_brewing_command is not None
+                    else {"ok": False, "message": "Trouble Brewing actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Trouble Brewing",
+                        str((result or {}).get("message", "Could not leave the match.")),
+                    )
+                    return False
+            if (
                 activity_id != GREAT_ORB_PROJECT_ACTIVITY_ID
                 and great_orb_project_view_pure(player_data)["active"]
             ):
@@ -14888,6 +15196,7 @@ def show_main_menu(
             _refresh_great_orb_project_panel()
             _refresh_court_cases_panel()
             _refresh_circus_panel()
+            _refresh_trouble_panel()
             _refresh_miscellania_panel()
             _refresh_stealing_creation_panel()
             _show_activity_detail(activity_id)
@@ -14977,6 +15286,10 @@ def show_main_menu(
             if activity_id == COURT_CASES_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == TROUBLE_BREWING_ACTIVITY_ID:
+                _refresh_trouble_panel()
+                _show_activity_detail(activity_id)
+                return
             if activity_id == MANAGING_MISCELLANIA_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
@@ -15029,6 +15342,7 @@ def show_main_menu(
             ),
             COURT_CASES_ACTIVITY_ID: ("Court Cases", court_box),
             CIRCUS_ACTIVITY_ID: ("Big Top Bonanza", circus_box),
+            TROUBLE_BREWING_ACTIVITY_ID: ("Trouble Brewing", trouble_box),
             MANAGING_MISCELLANIA_ACTIVITY_ID: (
                 "Managing Miscellania",
                 miscellania_box,

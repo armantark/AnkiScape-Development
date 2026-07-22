@@ -5794,6 +5794,47 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
+    def test_trouble_brewing_entry_is_a_direct_undoable_action(self):
+        addon = _load_addon_as_package("ankiscape_trouble_brewing_integration")
+        logic = sys.modules[f"{addon.__name__}.trouble_brewing_logic"]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon.current_skill = "Activities"
+        initial = {
+            "inventory": {},
+            "quests": {"cabin_fever": {"completed": True}},
+            "cooking_level": 40,
+            "shop_market_clock": {"answered_cards": 0},
+            "current_utility": "make_soft_clay",
+            "activity_session": {"active_id": ""},
+            "smithing_level": 1,
+        }
+        initial.update(logic.default_trouble_brewing_state_pure())
+        addon.player_data = copy.deepcopy(initial)
+
+        addon._on_main_menu()
+        result = captured["on_trouble_brewing_command"](
+            "enter", {"automation_mode": "advanced", "duty": "sabotage"}
+        )
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(addon.player_data["current_utility"], "trouble_brewing")
+        self.assertEqual(addon.player_data["trouble_brewing"]["duty"], "sabotage")
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
     def test_phoenix_lair_entry_is_direct_and_undoable(self):
         addon = _load_addon_as_package("ankiscape_phoenix_entry_integration")
         storage = sys.modules[f"{addon.__name__}.storage_pure"]

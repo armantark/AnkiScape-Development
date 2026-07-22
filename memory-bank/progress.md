@@ -60,6 +60,27 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
 - Full record:
   `source-audits/mage-training-arena-source-readiness-2026-07-21.md`.
 
+## Trouble Brewing horizontal mechanic closure — 2026-07-21
+
+- Implemented the complete sixteen-beat team-race abstraction with authentic
+  Cabin Fever/Cooking gates, three boilers, exact recipe stores, Casual and
+  Advanced policy, two-way sabotage, forced repair, rum packing and spill,
+  opposing score, explicit leave, and terminal Pieces-of-Eight settlement.
+- Exact task and bottle XP is awarded immediately on each productive review,
+  so leaving preserves earned XP while forfeiting unfinished match state and
+  terminal currency. `Again` advances only the live race and opponent.
+- Added schema-73 persistence, activity-session arbitration, cadence,
+  telemetry, review/direct undo, normalized period activity/reward art, live
+  zero-stat Blue tricorn equipment, and the compact paginated Activities card.
+- Remaining reward rows and hidden source rolls are data depth. No owner design
+  question surfaced. Kimi was quota-gated and Opus could not authenticate, so
+  external taste signoff remains an availability follow-up; root dark-palette
+  render QA passed.
+- Durable evidence:
+  `source-audits/trouble-brewing-horizontal-mvp-2026-07-21.md`.
+- Results: `status-updates/trouble-brewing-horizontal-results-2026-07-21.html`
+  and <https://r8gg5tai8i28.postplan.dev>.
+
 ## Wicked hood horizontal mechanic closure — 2026-07-21
 
 - Added the complete manual Essence, Runes, Teleport, daily-reset, fed-access,

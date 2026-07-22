@@ -4,8 +4,8 @@ Date: `2026-07-21`
 
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
-Status: **period gameplay and reward economy source-closed; the owner-settled
-bounded race is ready for horizontal implementation.**
+Status: **period gameplay and reward economy source-closed; horizontal
+implementation verified on 2026-07-21.**
 
 ## Period evidence
 
@@ -78,6 +78,34 @@ currency, direct purchase, bank, item-registry, asset, and equipment seams with
 an authentic zero-stat wearable. The remaining colours, outfit pieces,
 flags, rum teleport, medium clue purchase, and The stuff's mature-ale effect are
 catalog or cross-feature depth, not omitted Trouble Brewing state transitions.
+
+## Live implementation
+
+- The complete sixteen-beat race is wired through the Activities registry,
+  persistent activity ownership, schema-73 migration, Casual bottleneck and
+  Advanced fixed-duty policies, two-way sabotage, forced repair, boilers,
+  brewing, bottle loss, opponent scoring, leave/forfeit, review undo, and
+  direct-action undo.
+- Exact duty and packed-bottle XP is awarded on the review that performs the
+  source action. Leaving therefore preserves already-earned skill XP while
+  forfeiting only unfinished match state and its terminal Pieces-of-Eight
+  settlement.
+- The representative Blue tricorn hat is a reachable zero-stat head item with
+  normalized period art, direct purchase, inventory/bank ownership, and live
+  equipment registration.
+- The compact paginated Activities card exposes the gates, policy, live score,
+  duty progress, reward wallet/shop, selection, and explicit leave action.
+- The runtime never reads wall-clock time. `Again` advances the shared brewing
+  race and opponent pressure without performing a player duty or awarding
+  player-duty XP.
+- Kimi K3 remained quota-gated and the installed Claude CLI was not
+  authenticated for Opus, so the required external taste passes could not be
+  obtained. Root visual QA used the real dark-palette Qt renders at
+  `/tmp/ankiscape-trouble-brewing-ui/`; this is an external-review availability
+  note, not a product-design gap.
+- Closure results are recorded at
+  `status-updates/trouble-brewing-horizontal-results-2026-07-21.html` and
+  <https://r8gg5tai8i28.postplan.dev>.
 
 ## Explicit omissions
 

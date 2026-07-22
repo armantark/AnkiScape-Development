@@ -515,6 +515,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-05-23T15:50:59Z"
   },
+  "activityicons/trouble_brewing.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Pieces_of_eight_3.png",
+    "file_title": "Pieces of eight 3.png",
+    "image_url": "https://runescape.wiki/images/archive/20150801140604%21Pieces_of_eight_3.png?41b28",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9dbd9336b4448eb76539eaf2195c17430796d930",
+    "size": 1519,
+    "source_wiki": "rs3",
+    "timestamp": "2010-07-13T19:07:41Z"
+  },
   "activityicons/vinesweeper.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Flag.png",
     "file_title": "Flag.png",
@@ -706,6 +718,18 @@
     "size": 1165,
     "source_wiki": "rs3",
     "timestamp": "2011-08-23T14:56:42Z"
+  },
+  "activityitems/blue_tricorn_hat.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Blue_tricorn_hat.png",
+    "file_title": "Blue tricorn hat.png",
+    "image_url": "https://runescape.wiki/images/archive/20140413033358%21Blue_tricorn_hat.png?6f7ff",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a37d6d31b9d6313098765bd003ec72b47e1c8104",
+    "size": 504,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-18T05:33:06Z"
   },
   "activityitems/champion_s_tackle_box.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Champion%27s_tackle_box.png",
