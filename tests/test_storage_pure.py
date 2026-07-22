@@ -1147,6 +1147,32 @@ class TestStoragePure(unittest.TestCase):
             {"attacker": 0, "collector": 7, "defender": 0, "healer": 0},
         )
 
+    def test_migrate_adds_and_repairs_stronghold_player_safety_state(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 77,
+                "inventory": {},
+                "stronghold_player_safety": {
+                    "stage": 99,
+                    "crevice_unlocked": False,
+                    "chest_claimed": True,
+                    "lamps_remaining": 99,
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(migrated["stronghold_player_safety"]["stage"], 3)
+        self.assertTrue(
+            migrated["stronghold_player_safety"]["crevice_unlocked"]
+        )
+        self.assertTrue(migrated["stronghold_player_safety"]["chest_claimed"])
+        self.assertEqual(
+            migrated["stronghold_player_safety"]["lamps_remaining"], 2
+        )
+
     def test_migrate_idempotent(self):
         base = {"mining_exp": 10, "inventory": {}}
         first = migrate_loaded_data(base, ORE_DATA)

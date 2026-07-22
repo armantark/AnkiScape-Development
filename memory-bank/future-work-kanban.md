@@ -14,6 +14,26 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+### Stronghold of Player Safety — horizontal mechanics shipped 2026-07-22
+
+Labels: `SOURCE AUDIT` only for hidden Cockroach soldier stats, animations, and
+drop probabilities.
+
+- The three-review poster, lever/rope, and return-passage route is live without
+  requiring Combat. The surface crevice remains unlocked after completion.
+- The direct one-time chest claim grants the exact coins, gloves, two lamps,
+  and emote. Lamp targets are manual and glove reclaim is duplication-safe
+  across every supported recovery location.
+- The optional Cockroach soldier encounter enters ordinary Combat after the
+  second landmark. Public combat facts are preserved; source-blocked hidden
+  values are disclosed or omitted rather than presented as period facts.
+- Schema 78, persistence, cadence, telemetry, undo, registries, normalized
+  assets, and the compact route/reward card are live. The next shared-integration
+  frontier is Soul Wars, then Shades of Mort'ton.
+- Durable audit:
+  `memory-bank/source-audits/stronghold-player-safety-horizontal-2026-07-22.md`.
+- Closure report: <https://396na7vqe2p8.postplan.dev>.
+
 ### Varrock Museum — horizontal mechanics shipped 2026-07-22
 
 Labels: `SOURCE AUDIT` only for deferred cleaning distribution and reward depth;

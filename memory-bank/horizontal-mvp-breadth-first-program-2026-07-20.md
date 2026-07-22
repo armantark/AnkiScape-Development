@@ -76,14 +76,14 @@ but it does not control the frontier.
 
 ### Live frontier update — 2026-07-22
 
-Barbarian Assault now satisfies breadth level one. Its mandatory tutorial,
-Casual/Advanced role policy, ten sourced wave duties, four Honour-point
-wallets, safe restart/leave, live Attacker Combat, persistent eight-beat Queen,
-exact wave-10 settlement, representative Runner-boots purchase, schema,
-cadence, undo, registry, assets, and compact Activities card are live. The
-remaining reward catalog and hidden performance values are data depth.
+Stronghold of Player Safety now satisfies breadth level one. Its three-landmark
+route, permanent crevice, exact direct chest package, two manually targeted
+lamps, duplication-safe glove reclaim, optional live Cockroach soldier Combat,
+schema, cadence, undo, registry, normalized assets, and compact Activities card
+are live. Hidden enemy stats, animations, and drop probabilities remain
+explicit source depth.
 
-The next source-ready unrepresented family is Soul Wars under
+The next shared-integration frontier is Soul Wars under
 `source-audits/soul-wars-horizontal-readiness-2026-07-21.md`. The following
 shared integration is Shades of Mort'ton under
 `source-audits/shades-of-mortton-horizontal-readiness-2026-07-21.md`. Neither

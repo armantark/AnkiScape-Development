@@ -658,6 +658,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "stronghold_player_safety":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "stronghold_player_safety",
+                    "mode": "activity_group",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One review completes one route landmark; the chest, both "
+                        "500-XP lamps, glove reclaim, and optional Combat entry are "
+                        "atomic direct actions with no wall-clock input."
+                    ),
+                    "includes": (
+                        "one poster, lever-and-rope, or reward-passage landmark",
+                        "one persistent route-state transaction",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains one "
+                        "landmark and cannot claim a direct reward"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same one-landmark activity handler",
+                    "profile": None,
+                    "condition": "disclosed three-landmark route translation",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "varrock_museum":
             rows.append(
                 {

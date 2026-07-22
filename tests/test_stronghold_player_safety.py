@@ -1,4 +1,5 @@
 import unittest
+import os
 
 from stronghold_player_safety_data import (
     COCKROACH_SOLDIER_TARGET_ID,
@@ -33,6 +34,31 @@ def _reach_chest(player):
 
 
 class StrongholdPlayerSafetyPureTest(unittest.TestCase):
+    def test_cadence_and_registry_expose_the_complete_landmark_boundary(self):
+        from cadence_coverage import cadence_coverage_rows_pure
+        from constants import (
+            COMBAT_ENEMY_IMAGES,
+            ITEM_DEFINITIONS,
+            UTILITY_ACTIVITY_DATA,
+        )
+
+        row = next(
+            row
+            for row in cadence_coverage_rows_pure()
+            if row["action_id"] == "stronghold_player_safety"
+        )
+        self.assertEqual(row["mode"], "activity_group")
+        self.assertEqual(row["source_status"], "sourced_with_disclosed_translation")
+        self.assertIn("no wall-clock input", row["source_reason"])
+
+        activity = UTILITY_ACTIVITY_DATA["stronghold_player_safety"]
+        self.assertEqual(activity["group"], "landmarks")
+        self.assertTrue(os.path.exists(activity["icon_path"]))
+        items = {item.storage_key: item for item in ITEM_DEFINITIONS}
+        self.assertEqual(items[SAFETY_GLOVES_ITEM].source_item_id, 12629)
+        self.assertTrue(os.path.exists(items[SAFETY_GLOVES_ITEM].asset_path))
+        self.assertTrue(os.path.exists(COMBAT_ENEMY_IMAGES[COCKROACH_SOLDIER_TARGET_ID]))
+
     def test_state_repair_clamps_route_and_derived_unlocks(self):
         state = sanitize_stronghold_player_safety_state_pure(
             {

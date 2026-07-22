@@ -2,6 +2,36 @@
 
 ## Current Focus
 
+Stronghold of Player Safety now satisfies horizontal breadth level one as an
+Activities-only Landmark. Three reviews traverse the poster, lever/rope, and
+return-passage route without making Combat mandatory. The direct chest claim
+atomically grants the exact one-time 10,000 coins, Safety gloves, two separate
+500-XP lamps, and the Safety First emote; lost gloves are reclaimable only when
+no recoverable copy exists. Each lamp can target any trainable skill.
+
+After the second landmark, the player may start the period Cockroach soldier
+encounter and continue it on the ordinary Combat surface. The level-83,
+960-life-point enemy preserves the sourced six-tick cadence, weaknesses, and
+110 all-style conservative maximum; hidden combat stats use the disclosed
+level-equals-stat fallback and its drop table remains empty rather than
+inventing probabilities. Schema 78, repair, cadence/telemetry, review/direct
+undo, activity and item registration, normalized cutoff assets, and the compact
+route/reward card are integrated. No wall clock or owner design gap is involved.
+
+Focused pure, runtime, persistence, registry, direct-undo, live-Combat, and real
+offscreen Qt interaction checks pass. Ordinary full discovery executes 2,440
+tests with 308 declared dependency skips; full real offscreen Qt discovery
+also executes 2,440 tests with one skip. Documentation, test-quality,
+provenance, compilation, diff, and worktree-safety checks pass; the global
+reachability audit reports only the pre-existing orphan/dependency ledger.
+Root inspected both 1200×760 dark-palette renders. Native Anki inspection is
+blocked because the Mac is locked, and Kimi/Fable taste review remains deferred
+under the owner's quota hold. Durable record:
+`source-audits/stronghold-player-safety-horizontal-2026-07-22.md`. Soul Wars is
+the next integration frontier, followed by Shades of Mort'ton. Results:
+`status-updates/stronghold-player-safety-horizontal-results-2026-07-22.html`
+and <https://396na7vqe2p8.postplan.dev>.
+
 Barbarian Assault now satisfies horizontal breadth level one as a persistent,
 Activities-only cooperative assault. Captain Cain's tutorial gates entry;
 Casual mode balances the four Honour-point wallets and Advanced mode fixes one

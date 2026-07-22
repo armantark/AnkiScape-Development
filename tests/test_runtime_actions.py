@@ -111,6 +111,33 @@ class TestRuntimeActions(unittest.TestCase):
             player_data["action_telemetry"]["actions"],
         )
 
+    def test_stronghold_player_safety_routes_three_landmarks_through_utility(self):
+        from stronghold_player_safety_logic import (
+            default_stronghold_player_safety_state_pure,
+        )
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "current_utility": "stronghold_player_safety",
+            "inventory": {},
+            "equipment": {},
+            "completed_achievements": [],
+            "stronghold_player_safety": (
+                default_stronghold_player_safety_state_pure()
+            ),
+        }
+
+        for _ in range(3):
+            self.assertTrue(handle_utility_answer(_context(player_data, calls)))
+
+        self.assertEqual(player_data["stronghold_player_safety"]["stage"], 3)
+        self.assertTrue(calls.get("deactivated"))
+        self.assertEqual(calls["saves"], 3)
+        self.assertIn(
+            "utility:stronghold_player_safety",
+            player_data["action_telemetry"]["actions"],
+        )
+
     def test_varrock_museum_routes_one_landmark_through_utility(self):
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         player_data = {

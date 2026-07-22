@@ -261,6 +261,11 @@ try:
         apply_barbarian_assault_review_pure,
         barbarian_assault_view_pure,
     )
+    from .stronghold_player_safety_data import STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID
+    from .stronghold_player_safety_logic import (
+        apply_stronghold_player_safety_review_pure,
+        stronghold_player_safety_view_pure,
+    )
     from .varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
     from .varrock_museum_logic import (
         apply_varrock_museum_review_pure,
@@ -614,6 +619,13 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from barbarian_assault_logic import (  # type: ignore
         apply_barbarian_assault_review_pure,
         barbarian_assault_view_pure,
+    )
+    from stronghold_player_safety_data import (  # type: ignore
+        STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID,
+    )
+    from stronghold_player_safety_logic import (  # type: ignore
+        apply_stronghold_player_safety_review_pure,
+        stronghold_player_safety_view_pure,
     )
     from varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID  # type: ignore
     from varrock_museum_logic import (  # type: ignore
@@ -3809,6 +3821,35 @@ def handle_varrock_museum_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def handle_stronghold_player_safety_answer(ctx: RuntimeActionContext) -> bool:
+    updated, ok, result = apply_stronghold_player_safety_review_pure(ctx.player_data)
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Stronghold of Player Safety unavailable",
+            str(result.get("reason", "Choose an unfinished Stronghold landmark.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    _record_action(
+        ctx,
+        "utility",
+        STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID,
+        True,
+        expected_success_chance=1.0,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_activity_gain(
+        str(result.get("status") or "Stronghold landmark completed")
+    )
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
 def _handle_managing_miscellania_answer(ctx: RuntimeActionContext) -> bool:
     updated, result = apply_managing_miscellania_review_pure(ctx.player_data)
     if not result.get("allowed"):
@@ -3893,6 +3934,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return handle_pest_control_answer(ctx)
     if activity_key == BARBARIAN_ASSAULT_ACTIVITY_ID:
         return handle_barbarian_assault_answer(ctx)
+    if activity_key == STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID:
+        return handle_stronghold_player_safety_answer(ctx)
     if activity_key == VARROCK_MUSEUM_ACTIVITY_ID:
         return handle_varrock_museum_answer(ctx)
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:
@@ -6243,6 +6286,12 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return bool(pest_control_view_pure(ctx.player_data).get("active", False))
     if activity_key == BARBARIAN_ASSAULT_ACTIVITY_ID:
         return bool(barbarian_assault_view_pure(ctx.player_data).get("active", False))
+    if activity_key == STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID:
+        return bool(
+            stronghold_player_safety_view_pure(ctx.player_data).get(
+                "can_review", False
+            )
+        )
     if activity_key == VARROCK_MUSEUM_ACTIVITY_ID:
         return bool(varrock_museum_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:

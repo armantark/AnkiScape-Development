@@ -4,6 +4,34 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Stronghold of Player Safety horizontal mechanic closure — 2026-07-22
+
+- Added the three-review poster-to-crevice Landmark route, preserving the
+  period no-combat-required path and permanent surface unlock.
+- Added the atomic one-time chest package of 10,000 coins, Safety gloves, two
+  independently targetable 500-XP lamps, and the Safety First emote. Glove
+  reclaim checks inventory, equipment, the active grave, and Death's Office.
+- Added optional Cockroach soldier entry after the lever landmark and a real
+  switch to the ordinary Combat surface. Public level, life points, cadence,
+  weaknesses, and maximum hit are preserved; hidden stats are disclosed
+  fallbacks and unclosed drop probabilities remain absent.
+- Integrated schema 78 migration/repair, Utility review dispatch,
+  cadence/telemetry, direct and review undo, registry/equipment reachability,
+  normalized cutoff assets/provenance, and a compact Activities card with
+  deterministic route and reward renders.
+- Focused mechanics, runtime, migration, registry, direct-undo, live-Combat,
+  and real-Qt interaction tests pass. Ordinary full discovery executes 2,440
+  tests with 308 declared dependency skips; full real offscreen Qt discovery
+  executes 2,440 tests with one skip. Documentation and test-quality audits,
+  provenance JSON, compilation, diff, and worktree safety pass. Native
+  Anki inspection is blocked by the locked Mac; Kimi/Fable taste review remains
+  deferred under the explicit quota hold. No design question surfaced.
+- Durable audit:
+  `source-audits/stronghold-player-safety-horizontal-2026-07-22.md`.
+- Results:
+  `status-updates/stronghold-player-safety-horizontal-results-2026-07-22.html`
+  and <https://396na7vqe2p8.postplan.dev>.
+
 ## Barbarian Assault horizontal mechanic closure — 2026-07-22
 
 - Integrated Captain Cain's tutorial, Casual wallet balancing, Advanced fixed

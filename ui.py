@@ -564,6 +564,21 @@ except Exception:
     from varrock_museum_logic import varrock_museum_view_pure  # type: ignore
 
 try:
+    from .stronghold_player_safety_data import (
+        STRONGHOLD_LANDMARKS,
+        STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID,
+    )
+    from .stronghold_player_safety_logic import stronghold_player_safety_view_pure
+except Exception:
+    from stronghold_player_safety_data import (  # type: ignore
+        STRONGHOLD_LANDMARKS,
+        STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID,
+    )
+    from stronghold_player_safety_logic import (  # type: ignore
+        stronghold_player_safety_view_pure,
+    )
+
+try:
     from .managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
     from .managing_miscellania_logic import managing_miscellania_view_pure
 except Exception:
@@ -691,9 +706,9 @@ except Exception:
     from skill_hub import CategoryView, SkillCardView, build_skill_hub, first_category_id  # type: ignore
 
 try:
-    from .skill_registry import implemented_skill_definitions, implemented_review_skill_names, get_skill
+    from .skill_registry import implemented_skill_definitions, implemented_review_skill_names, get_skill, trainable_skill_definitions
 except Exception:
-    from skill_registry import implemented_skill_definitions, implemented_review_skill_names, get_skill  # type: ignore
+    from skill_registry import implemented_skill_definitions, implemented_review_skill_names, get_skill, trainable_skill_definitions  # type: ignore
 
 try:
     from .help_system import (
@@ -3642,6 +3657,7 @@ def show_main_menu(
     on_castle_wars_command=None,
     on_pest_control_command=None,
     on_barbarian_assault_command=None,
+    on_stronghold_player_safety_command=None,
     on_varrock_museum_command=None,
     on_managing_miscellania_command=None,
     on_set_prayer_selection=None,
@@ -13940,6 +13956,224 @@ def show_main_menu(
         )
         _refresh_barbarian_panel()
 
+        stronghold_box = QtFrame()
+        stronghold_box.setObjectName("strongholdPlayerSafetyPanel")
+        stronghold_box.setStyleSheet(
+            "QFrame#strongholdPlayerSafetyPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        stronghold_layout = QVBoxLayout(stronghold_box)
+        stronghold_layout.setContentsMargins(10, 8, 10, 8)
+        stronghold_layout.setSpacing(7)
+
+        stronghold_header = QWidget()
+        stronghold_header_layout = QHBoxLayout(stronghold_header)
+        stronghold_header_layout.setContentsMargins(0, 0, 0, 0)
+        stronghold_header_layout.setSpacing(8)
+        stronghold_icon = QLabel()
+        stronghold_icon.setObjectName("strongholdPlayerSafetyIcon")
+        stronghold_icon.setFixedSize(28, 28)
+        stronghold_icon_path = os.path.join(
+            current_dir, "activityicons", "stronghold_player_safety.png"
+        )
+        if os.path.exists(stronghold_icon_path):
+            stronghold_icon.setPixmap(
+                QPixmap(stronghold_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        stronghold_title = QLabel("Stronghold of Player Safety")
+        stronghold_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        stronghold_status = QLabel()
+        stronghold_status.setObjectName("strongholdPlayerSafetyStatus")
+        stronghold_status.setStyleSheet(
+            f"color: {dim_text_css(stronghold_status)}; font-size: 10px; font-weight: 700;"
+        )
+        stronghold_header_layout.addWidget(stronghold_icon)
+        stronghold_header_layout.addWidget(stronghold_title)
+        stronghold_header_layout.addStretch(1)
+        stronghold_header_layout.addWidget(stronghold_status)
+        stronghold_layout.addWidget(stronghold_header)
+
+        stronghold_summary = QLabel()
+        stronghold_summary.setObjectName("strongholdPlayerSafetySummary")
+        stronghold_summary.setWordWrap(True)
+        stronghold_summary.setStyleSheet("color: palette(text);")
+        stronghold_layout.addWidget(stronghold_summary)
+
+        stronghold_progress = QProgressBar()
+        stronghold_progress.setObjectName("strongholdPlayerSafetyProgress")
+        stronghold_progress.setRange(0, len(STRONGHOLD_LANDMARKS))
+        stronghold_progress.setTextVisible(True)
+        stronghold_progress.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 4px; }"
+            "QProgressBar::chunk { background: #6f8150; }"
+        )
+        stronghold_layout.addWidget(stronghold_progress)
+
+        stronghold_actions = QWidget()
+        stronghold_actions_layout = QGridLayout(stronghold_actions)
+        stronghold_actions_layout.setContentsMargins(0, 0, 0, 0)
+        stronghold_actions_layout.setHorizontalSpacing(6)
+        stronghold_actions_layout.setVerticalSpacing(5)
+        stronghold_primary = QPushButton()
+        stronghold_primary.setObjectName("strongholdPlayerSafetyPrimaryButton")
+        stronghold_claim = QPushButton("Claim reward chest")
+        stronghold_claim.setObjectName("strongholdPlayerSafetyClaimButton")
+        stronghold_lamp = QPushButton()
+        stronghold_lamp.setObjectName("strongholdPlayerSafetyLampButton")
+        stronghold_reclaim = QPushButton("Reclaim Safety gloves")
+        stronghold_reclaim.setObjectName("strongholdPlayerSafetyReclaimButton")
+        stronghold_fight = QPushButton("Fight Cockroach soldier")
+        stronghold_fight.setObjectName("strongholdPlayerSafetyFightButton")
+        stronghold_actions_layout.addWidget(stronghold_primary, 0, 0, 1, 2)
+        stronghold_actions_layout.addWidget(stronghold_claim, 1, 0)
+        stronghold_actions_layout.addWidget(stronghold_lamp, 1, 1)
+        stronghold_actions_layout.addWidget(stronghold_reclaim, 2, 0)
+        stronghold_actions_layout.addWidget(stronghold_fight, 2, 1)
+        stronghold_layout.addWidget(stronghold_actions)
+        cards_stack.addWidget(stronghold_box)
+
+        def _run_stronghold_command(action_id: str, payload=None) -> dict[str, Any]:
+            if on_stronghold_player_safety_command is None:
+                return {
+                    "ok": False,
+                    "message": "Stronghold actions are unavailable.",
+                }
+            result = on_stronghold_player_safety_command(
+                action_id, payload or {}
+            ) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Stronghold of Player Safety",
+                    str(result.get("message", "That Stronghold action is unavailable.")),
+                )
+            _refresh_stronghold_panel()
+            return result
+
+        def _refresh_stronghold_panel() -> None:
+            view = stronghold_player_safety_view_pure(player_data)
+            stage = int(view["stage"])
+            total = int(view["stage_count"])
+            stronghold_progress.setRange(0, total)
+            stronghold_progress.setValue(stage)
+            stronghold_progress.setFormat("Route landmarks %v of %m")
+            if view["can_claim_chest"]:
+                stronghold_status.setText("CHEST READY")
+            elif view["chest_claimed"]:
+                stronghold_status.setText("COMPLETE")
+            else:
+                stronghold_status.setText(f"ROUTE {stage}/{total}")
+            next_landmark = view.get("next_landmark")
+            next_text = (
+                f"Next: {next_landmark['label']}."
+                if isinstance(next_landmark, Mapping)
+                else "The reward passage is open."
+            )
+            extras = []
+            if view["crevice_unlocked"]:
+                extras.append("surface crevice unlocked")
+            if int(view["lamps_remaining"]) > 0:
+                extras.append(f"{int(view['lamps_remaining'])} XP lamp(s) ready")
+            stronghold_summary.setText(
+                next_text
+                + (" · " + " · ".join(extras) if extras else "")
+                + f"\n{str(view['last_result'])}"
+            )
+            selected = (
+                player_data.get("current_utility")
+                == STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID
+            )
+            stronghold_primary.setText(
+                "Selected for reviews"
+                if selected and view["can_review"]
+                else "Select next landmark for reviews"
+                if view["can_review"]
+                else "Route complete"
+            )
+            stronghold_primary.setEnabled(
+                on_stronghold_player_safety_command is not None
+                and bool(view["can_review"])
+                and not selected
+            )
+            stronghold_claim.setText(
+                "Chest claimed" if view["chest_claimed"] else "Claim reward chest"
+            )
+            stronghold_claim.setEnabled(
+                on_stronghold_player_safety_command is not None
+                and bool(view["can_claim_chest"])
+            )
+            stronghold_lamp.setText(
+                f"Use 500-XP lamp ({int(view['lamps_remaining'])})"
+            )
+            stronghold_lamp.setEnabled(
+                on_stronghold_player_safety_command is not None
+                and int(view["lamps_remaining"]) > 0
+            )
+            stronghold_reclaim.setVisible(bool(view["can_reclaim_gloves"]))
+            stronghold_reclaim.setEnabled(
+                on_stronghold_player_safety_command is not None
+                and bool(view["can_reclaim_gloves"])
+            )
+            stronghold_fight.setVisible(stage >= 2)
+            stronghold_fight.setEnabled(
+                on_stronghold_player_safety_command is not None
+                and bool(view["can_fight_soldier"])
+            )
+            _fit_current_activity_detail()
+
+        def _select_stronghold_for_reviews() -> None:
+            if not stronghold_player_safety_view_pure(player_data)["can_review"]:
+                return
+            if _request_utility_selection(STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID):
+                _refresh_stronghold_panel()
+
+        def _claim_stronghold_lamp() -> None:
+            skills = trainable_skill_definitions()
+            labels = [skill.display_name for skill in skills]
+            choice, ok = QInputDialog.getItem(
+                stronghold_box,
+                "Use Stronghold XP lamp",
+                "Skill:",
+                labels,
+                0,
+                False,
+            )
+            if not ok:
+                return
+            try:
+                skill_id = skills[labels.index(choice)].id
+            except ValueError:
+                return
+            _run_stronghold_command("claim_lamp", {"skill_id": skill_id})
+
+        def _start_stronghold_soldier_fight() -> None:
+            result = _run_stronghold_command("start_soldier_fight")
+            if result.get("ok") and result.get("switch_skill") == "Combat":
+                on_save_skill("Combat")
+                dialog.accept()
+
+        stronghold_primary.clicked.connect(
+            lambda _checked=False: _select_stronghold_for_reviews()
+        )
+        stronghold_claim.clicked.connect(
+            lambda _checked=False: _run_stronghold_command("claim_chest")
+        )
+        stronghold_lamp.clicked.connect(
+            lambda _checked=False: _claim_stronghold_lamp()
+        )
+        stronghold_reclaim.clicked.connect(
+            lambda _checked=False: _run_stronghold_command("reclaim_gloves")
+        )
+        stronghold_fight.clicked.connect(
+            lambda _checked=False: _start_stronghold_soldier_fight()
+        )
+        _refresh_stronghold_panel()
+
         museum_box = QtFrame()
         museum_box.setObjectName("varrockMuseumPanel")
         museum_box.setStyleSheet(
@@ -16556,6 +16790,10 @@ def show_main_menu(
                 _refresh_barbarian_panel()
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID:
+                _refresh_stronghold_panel()
+                _show_activity_detail(activity_id)
+                return
             if activity_id == VARROCK_MUSEUM_ACTIVITY_ID:
                 _refresh_museum_panel()
                 _show_activity_detail(activity_id)
@@ -16616,6 +16854,10 @@ def show_main_menu(
             CASTLE_WARS_ACTIVITY_ID: ("Castle Wars", castle_box),
             PEST_CONTROL_ACTIVITY_ID: ("Pest Control", pest_box),
             BARBARIAN_ASSAULT_ACTIVITY_ID: ("Barbarian Assault", barbarian_box),
+            STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID: (
+                "Stronghold of Player Safety",
+                stronghold_box,
+            ),
             VARROCK_MUSEUM_ACTIVITY_ID: ("Varrock Museum", museum_box),
             MANAGING_MISCELLANIA_ACTIVITY_ID: (
                 "Managing Miscellania",

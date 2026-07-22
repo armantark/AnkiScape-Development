@@ -551,6 +551,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-05-23T15:50:59Z"
   },
+  "activityicons/stronghold_player_safety.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Safety_gloves.png",
+    "file_title": "Safety gloves.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511075948%21Safety_gloves.png?a05d8",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "44feb1aeeae141c2156cb35db6d271d7234ed74f",
+    "size": 497,
+    "source_wiki": "rs3",
+    "timestamp": "2010-09-18T04:51:10Z"
+  },
   "activityicons/trouble_brewing.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Pieces_of_eight_3.png",
     "file_title": "Pieces of eight 3.png",
@@ -1535,6 +1547,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-29T06:32:19Z"
   },
+  "activityitems/stronghold_player_safety_safety_gloves.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Safety_gloves.png",
+    "file_title": "Safety gloves.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511075948%21Safety_gloves.png?a05d8",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "44feb1aeeae141c2156cb35db6d271d7234ed74f",
+    "size": 497,
+    "source_wiki": "rs3",
+    "timestamp": "2010-09-18T04:51:10Z"
+  },
   "activityitems/summer_sq_irk.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Summer_sq%27irk.png",
     "file_title": "Summer sq'irk.png",
@@ -2518,6 +2542,18 @@
     "size": 16789,
     "source_wiki": "osrs",
     "timestamp": "2019-05-04T15:56:01Z"
+  },
+  "combatenemies/cockroach_soldier.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Cockroach_soldier.png",
+    "file_title": "Cockroach soldier.png",
+    "image_url": "https://runescape.wiki/images/archive/20130110122828%21Cockroach_soldier.png?19c57",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f5cf01750df27e9ebcc7d17a60a03c44bf57e623",
+    "size": 236449,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T08:50:30Z"
   },
   "combatenemies/cow.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Cow.png",

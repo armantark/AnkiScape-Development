@@ -1008,12 +1008,13 @@ class MainMenuWidgetTest(unittest.TestCase):
                 )
             )
 
+        save_skill_callback = extra.pop("on_save_skill", lambda *a: None)
         self._ui.show_main_menu(
             **extra,
             player_data=player_data,
             current_skill=current_skill,
             can_smelt_any_bar=True,
-            on_save_skill=lambda *a: None,
+            on_save_skill=save_skill_callback,
             on_set_ore=lambda *a: None,
             on_set_tree=lambda *a: None,
             on_set_bar=lambda *a: None,
@@ -12352,6 +12353,89 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["barbarian_assault"]["role"], "defender")
         self.assertTrue(progress.isVisible())
         dialog.close()
+
+    def test_stronghold_player_safety_chest_lamp_and_combat_entry_are_live(self) -> None:
+        from aqt.qt import QInputDialog
+        from stronghold_player_safety_logic import (
+            apply_stronghold_player_safety_command_pure,
+        )
+
+        pd = _make_player_data()
+        pd["stronghold_player_safety"] = {
+            "version": 1,
+            "stage": 3,
+            "crevice_unlocked": True,
+            "chest_claimed": False,
+            "lamps_remaining": 0,
+            "safety_first_emote_unlocked": False,
+            "last_result": "Reached the reward passage.",
+        }
+
+        def stronghold_command(action_id, payload):
+            updated, ok, info = apply_stronghold_player_safety_command_pure(
+                pd, action_id, payload
+            )
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
+        saved_skills = []
+        dialog = self._open(
+            pd,
+            current_skill="Activities",
+            on_stronghold_player_safety_command=stronghold_command,
+            on_save_skill=saved_skills.append,
+        )
+        dialog.show()
+        QApplication.processEvents()
+        tree = self._open_activities(dialog)
+        item = next(
+            row
+            for row in _tree_items(tree)
+            if row.data(0, Qt.ItemDataRole.UserRole)
+            == "stronghold_player_safety"
+        )
+        tree.itemClicked.emit(item, 0)
+        QApplication.processEvents()
+        panel = next(
+            widget
+            for widget in dialog.findChildren(
+                QWidget, "strongholdPlayerSafetyPanel"
+            )
+            if widget.isVisible()
+        )
+        self.assertFalse(
+            panel.findChild(QLabel, "strongholdPlayerSafetyIcon").pixmap().isNull()
+        )
+        self.assertEqual(
+            panel.findChild(QProgressBar, "strongholdPlayerSafetyProgress").value(),
+            3,
+        )
+        fight = panel.findChild(QPushButton, "strongholdPlayerSafetyFightButton")
+        self.assertTrue(fight.isVisible())
+        self.assertTrue(fight.isEnabled())
+
+        panel.findChild(QPushButton, "strongholdPlayerSafetyClaimButton").click()
+        QApplication.processEvents()
+        self.assertEqual(pd["inventory"]["Coins"], 10_000)
+        self.assertEqual(pd["inventory"]["Safety gloves"], 1)
+        lamp = panel.findChild(QPushButton, "strongholdPlayerSafetyLampButton")
+        self.assertEqual(lamp.text(), "Use 500-XP lamp (2)")
+        with patch.object(
+            QInputDialog,
+            "getItem",
+            return_value=("Agility", True),
+        ):
+            lamp.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["agility_exp"], 1500.0)
+        self.assertEqual(lamp.text(), "Use 500-XP lamp (1)")
+        fight.click()
+        QApplication.processEvents()
+        self.assertEqual(saved_skills, ["Combat"])
+        self.assertEqual(pd["current_combat_target"], "cockroach_soldier")
+        self.assertEqual(pd["combat_encounter"]["enemy_lifepoints"], 960)
 
     def test_varrock_museum_landmark_card_routes_claims_and_kit(self) -> None:
         from varrock_museum_logic import apply_varrock_museum_command_pure

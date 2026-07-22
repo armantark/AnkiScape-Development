@@ -502,6 +502,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "castle_wars",
                 "pest_control",
                 "barbarian_assault",
+                "stronghold_player_safety",
                 "varrock_museum",
                 "sorceress_garden",
                 "penguin_hide_and_seek",

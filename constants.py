@@ -113,6 +113,21 @@ except ImportError:
     )
 
 try:
+    from .stronghold_player_safety_data import (
+        STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID,
+        stronghold_player_safety_activity_as_dict,
+        stronghold_player_safety_equipment_data_as_dict,
+        stronghold_player_safety_extra_items_as_dict,
+    )
+except ImportError:
+    from stronghold_player_safety_data import (  # type: ignore
+        STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID,
+        stronghold_player_safety_activity_as_dict,
+        stronghold_player_safety_equipment_data_as_dict,
+        stronghold_player_safety_extra_items_as_dict,
+    )
+
+try:
     from .varrock_museum_data import (
         VARROCK_MUSEUM_ACTIVITY_ID,
         varrock_museum_activity_as_dict,
@@ -859,6 +874,7 @@ UTILITY_ACTIVITY_DATA.update(trouble_brewing_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(castle_wars_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(pest_control_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(barbarian_assault_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(stronghold_player_safety_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(varrock_museum_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(phoenix_lair_activity_as_dict())
@@ -964,6 +980,14 @@ _barbarian_assault_icon = os.path.join(
 if os.path.exists(_barbarian_assault_icon):
     UTILITY_ACTIVITY_DATA[BARBARIAN_ASSAULT_ACTIVITY_ID]["icon_path"] = (
         _barbarian_assault_icon
+    )
+_stronghold_player_safety_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "stronghold_player_safety.png",
+)
+if os.path.exists(_stronghold_player_safety_icon):
+    UTILITY_ACTIVITY_DATA[STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID]["icon_path"] = (
+        _stronghold_player_safety_icon
     )
 _varrock_museum_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
@@ -1696,6 +1720,7 @@ EQUIPMENT_DATA.update(trouble_brewing_equipment_data_as_dict())
 EQUIPMENT_DATA.update(castle_wars_equipment_data_as_dict())
 EQUIPMENT_DATA.update(pest_control_equipment_data_as_dict())
 EQUIPMENT_DATA.update(barbarian_assault_equipment_data_as_dict())
+EQUIPMENT_DATA.update(stronghold_player_safety_equipment_data_as_dict())
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict(EQUIPMENT_DATA)
 FIST_OF_GUTHIX_EXTRA_ITEM_DATA = fist_of_guthix_extra_items_as_dict()
 COURT_CASES_EXTRA_ITEM_DATA = court_cases_extra_items_as_dict()
@@ -1704,6 +1729,9 @@ TROUBLE_BREWING_EXTRA_ITEM_DATA = trouble_brewing_extra_items_as_dict()
 CASTLE_WARS_EXTRA_ITEM_DATA = castle_wars_extra_items_as_dict()
 PEST_CONTROL_EXTRA_ITEM_DATA = pest_control_extra_items_as_dict()
 BARBARIAN_ASSAULT_EXTRA_ITEM_DATA = barbarian_assault_extra_items_as_dict()
+STRONGHOLD_PLAYER_SAFETY_EXTRA_ITEM_DATA = (
+    stronghold_player_safety_extra_items_as_dict()
+)
 VARROCK_MUSEUM_EXTRA_ITEM_DATA = varrock_museum_extra_items_as_dict()
 SORCERESS_GARDEN_EXTRA_ITEM_DATA = sorceress_garden_extra_items_as_dict()
 VINESWEEPER_EXTRA_ITEM_DATA = vinesweeper_extra_items_as_dict()
@@ -1793,6 +1821,19 @@ BARBARIAN_ASSAULT_ITEM_IMAGES = {
 BARBARIAN_ASSAULT_ITEM_IMAGES = {
     item_name: path
     for item_name, path in BARBARIAN_ASSAULT_ITEM_IMAGES.items()
+    if os.path.exists(path)
+}
+STRONGHOLD_PLAYER_SAFETY_ITEM_IMAGES = {
+    item_name: os.path.join(
+        current_dir,
+        "activityitems",
+        f"stronghold_player_safety_{_asset_slug(item_name)}.png",
+    )
+    for item_name in STRONGHOLD_PLAYER_SAFETY_EXTRA_ITEM_DATA
+}
+STRONGHOLD_PLAYER_SAFETY_ITEM_IMAGES = {
+    item_name: path
+    for item_name, path in STRONGHOLD_PLAYER_SAFETY_ITEM_IMAGES.items()
     if os.path.exists(path)
 }
 VARROCK_MUSEUM_ITEM_IMAGES = {
@@ -2214,6 +2255,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **CASTLE_WARS_EXTRA_ITEM_DATA,
     **PEST_CONTROL_EXTRA_ITEM_DATA,
     **BARBARIAN_ASSAULT_EXTRA_ITEM_DATA,
+    **STRONGHOLD_PLAYER_SAFETY_EXTRA_ITEM_DATA,
     **VARROCK_MUSEUM_EXTRA_ITEM_DATA,
     **SORCERESS_GARDEN_EXTRA_ITEM_DATA,
     **VINESWEEPER_EXTRA_ITEM_DATA,
@@ -2255,6 +2297,7 @@ EXTRA_ITEM_IMAGES = {
     **CASTLE_WARS_ITEM_IMAGES,
     **PEST_CONTROL_ITEM_IMAGES,
     **BARBARIAN_ASSAULT_ITEM_IMAGES,
+    **STRONGHOLD_PLAYER_SAFETY_ITEM_IMAGES,
     **VARROCK_MUSEUM_ITEM_IMAGES,
     **SORCERESS_GARDEN_ITEM_IMAGES,
     **VINESWEEPER_ITEM_IMAGES,

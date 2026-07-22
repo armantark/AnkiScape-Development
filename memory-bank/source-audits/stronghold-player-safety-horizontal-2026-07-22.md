@@ -101,6 +101,25 @@ and Death's Office so it cannot duplicate a recoverable copy.
 landmarks, crevice timing, the atomic one-time chest, both independently
 targetable lamps, rejected skill targets, reclaim ownership across every
 recovery location, the optional Combat gate, and the period/disclosure fields
-for the enemy and gloves. Shared runtime, migration, registry, cadence, undo,
-Combat, and real offscreen Qt checks will be recorded here after integration
-closure.
+for the enemy and gloves. Shared runtime, migration, registry, cadence, direct
+undo, and live Combat bridge coverage also pass, including the actual
+Activities-to-Combat surface handoff.
+
+The accepted focused closure contains 11 Stronghold tests, 220 shared runtime,
+storage, and registry tests, the direct-undo integration test, the real
+offscreen Qt interaction test, and compilation. Ordinary full discovery passes
+all 2,440 tests with 308 declared dependency skips. Documentation scans 461
+Markdown and 410 HTML files; the test-quality audit reports zero hard issues
+across the same 2,440 tests. Provenance JSON, diff, and worktree-guard checks
+pass. Full real offscreen Qt discovery passes all 2,440 tests with one
+dependency skip. The global reachability audit retains its pre-existing
+orphan/dependency ledger and exposes no Stronghold-specific orphan.
+
+Root inspected both deterministic 1200×760 dark-palette route and reward
+renders. Native Anki control was attempted against the running application but
+the Mac is locked, so no native claim is made. Kimi and Fable taste review is
+deferred under the owner's active quota hold rather than silently substituted.
+
+Self-contained closure report:
+`memory-bank/status-updates/stronghold-player-safety-horizontal-results-2026-07-22.html`
+and <https://396na7vqe2p8.postplan.dev>.

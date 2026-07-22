@@ -5976,6 +5976,52 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
+    def test_stronghold_chest_is_a_direct_undoable_action(self):
+        addon = _load_addon_as_package("ankiscape_stronghold_safety_integration")
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon.current_skill = "Activities"
+        initial = {
+            "inventory": {},
+            "equipment": {},
+            "combat_grave": {},
+            "death_office": {},
+            "smithing_level": 1,
+            "stronghold_player_safety": {
+                "version": 1,
+                "stage": 3,
+                "crevice_unlocked": True,
+                "chest_claimed": False,
+                "lamps_remaining": 0,
+                "safety_first_emote_unlocked": False,
+                "last_result": "Reached the reward passage.",
+            },
+        }
+        addon.player_data = copy.deepcopy(initial)
+
+        addon._on_main_menu()
+        result = captured["on_stronghold_player_safety_command"](
+            "claim_chest", {}
+        )
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(addon.player_data["inventory"]["Coins"], 10_000)
+        self.assertEqual(addon.player_data["inventory"]["Safety gloves"], 1)
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
     def test_varrock_museum_kit_is_a_direct_undoable_action(self):
         addon = _load_addon_as_package("ankiscape_varrock_museum_integration")
         logic = sys.modules[f"{addon.__name__}.varrock_museum_logic"]
