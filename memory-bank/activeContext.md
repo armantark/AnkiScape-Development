@@ -2,6 +2,19 @@
 
 ## Current Focus
 
+Mage Training Arena's cutoff four-wallet economy, full reward catalog, caps,
+restrictions, death consequence, and three observational room-throughput rows
+are now harvested. Enchantment throughput remains `source_blocked`: the
+surviving period guide truncates before its rate, Darkan contains room
+teleports only, and game-main has no Arena runtime. Because the owner-settled
+goal router requires source-calibrated workloads for all four wallets, no
+arbitrary Enchantment review rate was shipped. This is a source gap, not a
+design question. See
+`source-audits/mage-training-arena-source-readiness-2026-07-21.md`.
+
+The breadth-first frontier must move to the next settled, source-ready family
+rather than parking on this harvest.
+
 Wicked hood now satisfies horizontal breadth level one as Runecrafting's
 manual daily resource and route tool. A carried or equipped hood exposes
 essence, rune, and altar-teleport actions. The actions use only fed access,

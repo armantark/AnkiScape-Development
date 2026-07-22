@@ -1201,6 +1201,13 @@ Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
   source-readiness skips, not design questions. Continue breadth-first with the
   next settled activity whose smallest honest entry/state/reward data set is
   already source-ready; do not stall the wave on exhaustive catalogs.
+- Mage Training Arena's full cutoff shop, four room economies, caps,
+  restrictions, death consequence, and three period observational throughput
+  rows are now harvested. It remains a source-readiness skip because no
+  period-qualified Enchantment throughput survived and neither emulator
+  implements the Arena. Do not invent the fourth workload rate; replace the
+  blocker through
+  `source-audits/mage-training-arena-source-readiness-2026-07-21.md`.
 - Harvest each remaining family for entry/run state, review cost, event
   variance, currency, rewards, reward shop, persistence, expiry, and undo.
 - Include the split activity cards from `gap-backlog.json`, bosses/instances, and wider pre-EOC reward activities. Never expose individual reward stubs before they work end to end.

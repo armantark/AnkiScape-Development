@@ -97,6 +97,16 @@ the first and replacement Omni-talisman claims, and Korvak's Omni-tiara
 conversion. Runespan outfit acquisition remains data depth; its cap effects
 are already live. Ourania remains source-blocked on its exact rune roll table.
 
+The next-frontier audit harvested Mage Training Arena's complete cutoff room
+economy and reward catalog plus period observational throughput for
+Telekinetic, Alchemist, and Graveyard. It remains a source-readiness skip:
+Enchantment throughput is absent from the surviving period record, Darkan has
+only room teleports, and game-main has no Arena runtime. The settled goal
+router requires source-calibrated workload across all four wallets, so the
+breadth pass will not substitute one arbitrary Enchantment action or point per
+review. See
+`source-audits/mage-training-arena-source-readiness-2026-07-21.md`.
+
 Court Cases now exercises the complete shared mechanic graph with three
 period-pinned cases: free starter and summons entry, both legal roles,
 preparation and trial choices, undecided retry, give-up loss, exact XP/items,

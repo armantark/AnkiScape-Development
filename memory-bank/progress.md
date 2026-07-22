@@ -4,6 +4,24 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Mage Training Arena source-readiness harvest — 2026-07-21
+
+- Pinned the complete four-wallet reward catalog, caps, room restrictions,
+  death consequence, action checkpoints, and wand chain from RuneScape Wiki
+  oldid `6491109`, independently corroborated where available by RuneHQ's
+  `2012-07-01` guide state.
+- Recovered period observational throughput for Telekinetic, Alchemist, and
+  Graveyard from a dated 2006 Tip.It player analysis.
+- Verified that Darkan implements only Arena teleports and game-main implements
+  no Arena rooms. Enchantment throughput and associated Arena server cadence
+  remain `source_blocked`; ordinary spell timers cannot substitute for the
+  missing collection/deposit loop.
+- Left product code unchanged. The settled four-wallet goal router cannot ship
+  honestly until all four workloads are source-calibrated or the owner later
+  authorizes a disclosed global cadence abstraction.
+- Full record:
+  `source-audits/mage-training-arena-source-readiness-2026-07-21.md`.
+
 ## Wicked hood horizontal mechanic closure — 2026-07-21
 
 - Added the complete manual Essence, Runes, Teleport, daily-reset, fed-access,
