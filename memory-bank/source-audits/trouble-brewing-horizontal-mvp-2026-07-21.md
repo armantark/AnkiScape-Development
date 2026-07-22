@@ -24,7 +24,7 @@ The literal wikitext of `Trouble Brewing`, oldid `6573931`, timestamp
   loop;
 - exact task XP, two Pieces of Eight and `100` Crafting / `250` Cooking / `150`
   Firemaking XP per packed bottle, plus one Piece of Eight per contributed
-  ingredient up to `100`; and
+  ingredient, including boiler logs, up to `100`; and
 - the complete reward-shop names and prices.
 
 Source:

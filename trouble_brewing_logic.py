@@ -284,12 +284,20 @@ def _apply_player_duty(session: dict[str, Any], duty: str) -> str:
         _add_xp(session, duty)
         return f"Added {quantity} {duty.replace('_', ' ')}"
     if duty == "tend_boilers":
+        previous = [int(fuel) for fuel in session["boilers"]]
         session["boilers"] = [
-            min(TROUBLE_BREWING_BOILER_MAX_FUEL, int(fuel) + TROUBLE_BREWING_BOILER_BATCH_FUEL)
-            for fuel in session["boilers"]
+            min(TROUBLE_BREWING_BOILER_MAX_FUEL, fuel + TROUBLE_BREWING_BOILER_BATCH_FUEL)
+            for fuel in previous
         ]
-        _add_xp(session, duty)
-        return "Fed and lit all three boilers"
+        logs_added = sum(
+            current - before
+            for before, current in zip(previous, session["boilers"])
+        )
+        session["contribution"] += logs_added
+        session["xp"]["firemaking"] = (
+            float(session["xp"].get("firemaking", 0.0)) + 40.0 * logs_added
+        )
+        return f"Fed all three boilers with {logs_added} logs"
     if duty == "pack_rum":
         if session["pending_bottle"]:
             session["pending_bottle"] = False
@@ -359,7 +367,12 @@ def _finish_game(data: dict[str, Any], session: dict[str, Any]) -> dict[str, Any
         data.get("trouble_brewing_games_completed")
     ) + 1
     data["trouble_brewing"] = {}
-    data["activity_session"] = {"active_id": ""}
+    active = data.get("activity_session")
+    if (
+        isinstance(active, Mapping)
+        and str(active.get("active_id", "")) == TROUBLE_BREWING_ACTIVITY_ID
+    ):
+        data["activity_session"] = {"active_id": ""}
     data["trouble_brewing_last_result"] = (
         f"Game {outcome} {player_rum}-{opponent_rum} · {pieces} Pieces of Eight"
     )
@@ -383,14 +396,15 @@ def apply_trouble_brewing_review_pure(
     sabotage_roll: float = 0.5,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     data = copy.deepcopy(dict(player_data))
-    session = sanitize_trouble_brewing_session_pure(data.get("trouble_brewing"))
+    state = sanitize_trouble_brewing_state_pure(data)
+    session = state["trouble_brewing"]
     if not session:
         return data, {"terminal": False, "reason": "No Trouble Brewing game is active."}
 
     chosen = "idle"
     status = "No duty completed"
     if productive:
-        chosen = (
+        chosen = "repair" if session["repair_required"] else (
             _casual_duty(session)
             if session["automation_mode"] == "casual"
             else str(duty or session["duty"])
@@ -436,10 +450,15 @@ def leave_trouble_brewing_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     data = copy.deepcopy(dict(player_data))
-    if not sanitize_trouble_brewing_session_pure(data.get("trouble_brewing")):
+    if not sanitize_trouble_brewing_state_pure(data)["trouble_brewing"]:
         return data, False, {"reason": "No Trouble Brewing game is active."}
     data["trouble_brewing"] = {}
-    data["activity_session"] = {"active_id": ""}
+    active = data.get("activity_session")
+    if (
+        isinstance(active, Mapping)
+        and str(active.get("active_id", "")) == TROUBLE_BREWING_ACTIVITY_ID
+    ):
+        data["activity_session"] = {"active_id": ""}
     data["trouble_brewing_last_result"] = "Left Trouble Brewing; match rewards were forfeited."
     return data, True, {"message": data["trouble_brewing_last_result"]}
 
@@ -448,7 +467,7 @@ def buy_trouble_brewing_reward_pure(
     player_data: Mapping[str, Any], reward_id: str
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     data = copy.deepcopy(dict(player_data))
-    if sanitize_trouble_brewing_session_pure(data.get("trouble_brewing")):
+    if sanitize_trouble_brewing_state_pure(data)["trouble_brewing"]:
         return data, False, {"reason": "Finish or leave the current game first."}
     reward = TROUBLE_BREWING_REWARDS_BY_ID.get(str(reward_id))
     if reward is None:

@@ -110,9 +110,17 @@ class TroubleBrewingRaceTests(unittest.TestCase):
         self.assertEqual(result["player_rum"], 1)
         self.assertEqual(result["opponent_rum"], 1)
         self.assertEqual(result["outcome"], "drew")
-        self.assertEqual(result["pieces_of_eight"], 24)
-        self.assertEqual(result["skill_xp"]["crafting"], 100.0)
-        self.assertEqual(result["skill_xp"]["cooking"], 810.0)
+        self.assertEqual(result["pieces_of_eight"], 69)
+        self.assertEqual(
+            result["skill_xp"],
+            {
+                "agility": 30.0,
+                "cooking": 810.0,
+                "crafting": 100.0,
+                "firemaking": 1950.0,
+                "woodcutting": 50.0,
+            },
+        )
         self.assertIn("pack_rum", duties)
         self.assertIn("tend_boilers", duties)
         self.assertEqual(player["trouble_brewing"], {})
@@ -153,6 +161,41 @@ class TroubleBrewingRaceTests(unittest.TestCase):
         self.assertIn("Repaired", result["status"])
         self.assertFalse(player["trouble_brewing"]["repair_required"])
         self.assertEqual(player["trouble_brewing"]["xp"]["crafting"], 25.0)
+
+    def test_advanced_forced_repair_cannot_be_replaced_or_immediately_retriggered(self):
+        player, ok, _info = enter_trouble_brewing_pure(
+            _player(), {"automation_mode": "advanced", "duty": "sabotage"}
+        )
+        self.assertTrue(ok)
+        player["trouble_brewing"]["review"] = 3
+        player["trouble_brewing"]["repair_required"] = True
+        player, result = apply_trouble_brewing_review_pure(
+            player,
+            productive=True,
+            duty="sabotage",
+            opponent_roll=0.9,
+            sabotage_roll=0.0,
+        )
+        self.assertEqual(result["duty"], "repair")
+        self.assertFalse(player["trouble_brewing"]["repair_required"])
+        self.assertEqual(player["trouble_brewing"]["opponent_slowed"], 0)
+
+    def test_conflicting_activity_owner_cannot_be_advanced_or_cleared(self):
+        player = _entered()
+        player["activity_session"] = {"active_id": "barrows"}
+        unchanged, result = apply_trouble_brewing_review_pure(
+            player,
+            productive=True,
+        )
+        self.assertIn("No Trouble Brewing", result["reason"])
+        self.assertEqual(unchanged["activity_session"], {"active_id": "barrows"})
+        self.assertEqual(unchanged["trouble_brewing"]["review"], 0)
+
+        unchanged, ok, info = leave_trouble_brewing_pure(player)
+        self.assertFalse(ok)
+        self.assertIn("No Trouble Brewing", info["reason"])
+        self.assertEqual(unchanged["activity_session"], {"active_id": "barrows"})
+        self.assertTrue(unchanged["trouble_brewing"])
 
     def test_advanced_sabotage_reduces_and_temporarily_stops_opponent_progress(self):
         player, ok, _info = enter_trouble_brewing_pure(

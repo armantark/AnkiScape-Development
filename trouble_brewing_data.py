@@ -59,7 +59,6 @@ TROUBLE_BREWING_DUTY_XP = {
     "sweetgrubs": {"cooking": 40.0},
     "scrapey_bark": {"woodcutting": 25.0, "cooking": 40.0},
     "bitternut": {"agility": 15.0, "cooking": 80.0},
-    "tend_boilers": {"firemaking": 360.0},
     "sabotage": {"firemaking": 50.0},
     "repair": {"crafting": 25.0},
 }
