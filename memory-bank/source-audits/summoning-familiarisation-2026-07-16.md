@@ -42,7 +42,8 @@ Standing project rules settle the outer shell without owner input:
   state or a transport system;
 - the reward choice is an immediate UI command after the run, not another review;
 - the triple-charm duration uses the settled short-duration answered-card conversion;
-- charm exclusions and ingredient-box contents remain catalog/source data; and
+- absent Bork, Ork-legion, and mystery-box consumers retain their explicit
+  triple-charm exclusions; and
 - the entire session and reward claim must remain undo-safe without duplicate claims.
 
 ## Settled AnkiScape translation
@@ -54,3 +55,34 @@ four segments, then exposes the period ingredient-box/triple-charm choice as a f
 direct command. These discrete magnitudes are labeled balance abstractions rather than
 period claims. Cooldown starts at entry, partial sessions persist without wall-clock
 resolution, and every review/reward mutation is undo-safe.
+
+## Horizontal reward and session correction — 2026-07-22
+
+The period `Box of summoning ingredients` revision, oldid `6469202`, timestamp
+`2012-10-25T06:01:45Z`, states that the non-bankable box immediately yields two
+noted pouch ingredients and that both item identity and quantity depend on raw
+shards plus Summoning level. Its table is observational rather than a complete
+server formula. Two literal rows supply the smallest honest horizontal ladder:
+
+- level `1`, `40` shards: `27` Raw rabbit and `42` Raw beef; and
+- level `48`, `60` shards: `19` Raw shark and `22` Goat horn dust.
+
+AnkiScape selects the highest of those two level bands and scales both observed
+quantities proportionally by `collected shards / source-row shards`, flooring
+each positive quantity and preserving both items. The anchor rows are exact;
+intermediate shard totals are a labeled `abstraction/oldid-6469202`, not a
+claimed historical formula. This replaces the old one-item-per-15-shards
+round-robin across every pouch tertiary, which had no period source and
+materially understated the reward.
+
+The same pass makes Familiarisation a real shared activity session. Start
+refuses another activity owner, claims `activity_session`, preserves ownership
+through all four reviews and the pending reward, and releases it only when the
+direct reward claim succeeds. Legacy active state repairs a missing empty
+session on its next review without overwriting another live activity.
+
+Oldid `6544727` also explicitly includes ordinary, Obsidian, and Abyssal charms
+in the triple reward while excluding Talon beast charms, Bork/Ork Legion drops,
+and mystery-box rewards. The ordinary-only combat multiplier is therefore a
+known implementation defect pending the shared `logic_pure.py` writer boundary;
+the consumer exclusions remain inert until those reward sources exist.

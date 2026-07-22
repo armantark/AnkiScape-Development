@@ -6,7 +6,9 @@ from summoning_logic import (
     BUNYIP_HEAL_LIFEPOINTS,
     BUNYIP_HEAL_TICKS,
     CARGO_RECLAIM_REVIEWS,
+    FAMILIARISATION_ACTIVITY_ID,
     FAMILIARISATION_COOLDOWN_REVIEWS,
+    FAMILIARISATION_INGREDIENT_REWARD_ROWS,
     SPECIAL_MOVE_RECHARGE_POINTS,
     SPECIAL_MOVE_RECHARGE_TICKS,
     SPECIAL_MOVE_POINTS_MAX,
@@ -37,6 +39,7 @@ def player(**overrides):
         "summoning_exp": 0,
         "inventory": {},
         "summoning_state": default_summoning_state_pure(),
+        "activity_session": {"active_id": ""},
     }
     data["summoning_state"]["summoning_points_current"] = 99
     data.update(overrides)
@@ -358,6 +361,10 @@ class SummoningLogicTests(unittest.TestCase):
     def test_familiarisation_is_four_answer_persistent_session(self):
         started, ok = start_familiarisation_pure(player())
         self.assertTrue(ok)
+        self.assertEqual(
+            started["activity_session"],
+            {"active_id": FAMILIARISATION_ACTIVITY_ID},
+        )
         activity = started["summoning_state"]["familiarisation"]
         self.assertEqual(
             activity["cooldown_reviews_remaining"],
@@ -377,6 +384,36 @@ class SummoningLogicTests(unittest.TestCase):
         self.assertEqual(result["raw_shards"], 45)
         self.assertTrue(
             current["summoning_state"]["familiarisation"]["awaiting_reward"]
+        )
+        self.assertEqual(
+            current["activity_session"],
+            {"active_id": FAMILIARISATION_ACTIVITY_ID},
+        )
+
+    def test_familiarisation_respects_shared_activity_ownership(self):
+        unchanged, ok = start_familiarisation_pure(
+            player(activity_session={"active_id": "pest_control"})
+        )
+
+        self.assertFalse(ok)
+        self.assertEqual(
+            unchanged["activity_session"], {"active_id": "pest_control"}
+        )
+
+        started, ok = start_familiarisation_pure(player())
+        self.assertTrue(ok)
+        started["activity_session"] = {"active_id": "pest_control"}
+        unchanged, result = advance_summoning_world_tick_pure(
+            started, successful_answer=True
+        )
+        self.assertEqual(
+            result["familiarisation"], {"reason": "activity_conflict"}
+        )
+        self.assertEqual(
+            unchanged["summoning_state"]["familiarisation"]["segments"], 0
+        )
+        self.assertEqual(
+            unchanged["activity_session"], {"active_id": "pest_control"}
         )
 
     def test_world_tick_advances_familiarisation_on_success_and_again(self):
@@ -417,12 +454,74 @@ class SummoningLogicTests(unittest.TestCase):
         self.assertEqual(
             charmed["summoning_state"]["triple_charm_reviews_remaining"], 20
         )
+        self.assertEqual(charmed["activity_session"], {"active_id": ""})
         unchanged, ok, result = claim_familiarisation_reward_pure(
             charmed, "triple_charms"
         )
         self.assertFalse(ok)
         self.assertEqual(result["reason"], "reward_unavailable")
         self.assertEqual(unchanged, charmed)
+
+    def test_familiarisation_ingredient_box_uses_period_observed_tiers(self):
+        self.assertEqual(
+            FAMILIARISATION_INGREDIENT_REWARD_ROWS,
+            (
+                {
+                    "minimum_level": 1,
+                    "source_shards": 40,
+                    "items": {"Raw rabbit": 27, "Raw beef": 42},
+                },
+                {
+                    "minimum_level": 48,
+                    "source_shards": 60,
+                    "items": {"Raw shark": 19, "Goat horn dust": 22},
+                },
+            ),
+        )
+        low = player(summoning_level=1)
+        low["summoning_state"]["familiarisation"].update(
+            {"awaiting_reward": True, "raw_shards": 40}
+        )
+        low["activity_session"] = {"active_id": FAMILIARISATION_ACTIVITY_ID}
+        low_reward, ok, result = claim_familiarisation_reward_pure(
+            low, "ingredients"
+        )
+        self.assertTrue(ok)
+        self.assertEqual(
+            result["ingredients"], {"Raw rabbit": 27, "Raw beef": 42}
+        )
+        self.assertEqual(low_reward["activity_session"], {"active_id": ""})
+
+        high = player(summoning_level=48)
+        high["summoning_state"]["familiarisation"].update(
+            {"awaiting_reward": True, "raw_shards": 60}
+        )
+        high_reward, ok, result = claim_familiarisation_reward_pure(
+            high, "ingredients"
+        )
+        self.assertTrue(ok)
+        self.assertEqual(
+            result["ingredients"], {"Raw shark": 19, "Goat horn dust": 22}
+        )
+        self.assertEqual(high_reward["inventory"]["Raw shark"], 19)
+
+    def test_familiarisation_ingredient_box_scales_anchor_by_shards(self):
+        partial = player(summoning_level=1)
+        partial["summoning_state"]["familiarisation"].update(
+            {"awaiting_reward": True, "raw_shards": 15}
+        )
+
+        updated, ok, result = claim_familiarisation_reward_pure(
+            partial, "ingredients"
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(
+            result["ingredients"], {"Raw rabbit": 10, "Raw beef": 15}
+        )
+        self.assertEqual(
+            updated["inventory"], {"Raw rabbit": 10, "Raw beef": 15}
+        )
 
     def test_bunyip_passive_healing_uses_exact_answer_tick_residual(self):
         data = player(
@@ -510,7 +609,7 @@ class SummoningLogicTests(unittest.TestCase):
         )
         self.assertNotIn("mining_level", data)
 
-    def test_ingredient_reward_uses_deterministic_source_ingredient_bundle(self):
+    def test_ingredient_reward_uses_period_observed_scaled_bundle(self):
         data = player()
         data["summoning_state"]["familiarisation"].update(
             {"awaiting_reward": True, "raw_shards": 30}
@@ -521,7 +620,10 @@ class SummoningLogicTests(unittest.TestCase):
         )
 
         self.assertTrue(ok)
-        self.assertEqual(sum(result["ingredients"].values()), 2)
+        self.assertEqual(
+            result["ingredients"],
+            {"Raw shark": 9, "Goat horn dust": 11},
+        )
         for item_name, amount in result["ingredients"].items():
             self.assertEqual(rewarded["inventory"][item_name], amount)
 
