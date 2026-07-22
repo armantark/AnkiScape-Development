@@ -116,10 +116,9 @@ crowd sharing the assault:
 
 ## Horizontal pure substrate — 2026-07-21
 
-`pest_control_data.py` and `pest_control_logic.py` now close the isolated pure
-state machine while the shared runtime/UI files remain owned by the concurrent
-Circus batch. This is implementation progress, not a claim that Pest Control
-is live yet.
+`pest_control_data.py` and `pest_control_logic.py` close the pure state
+machine. The shared runtime, storage, registry, cadence, undo, item/equipment,
+asset, and Activities UI integration is also live as of `2026-07-21`.
 
 - One game is a disclosed twelve-review event: three consequential shared-
   assault beats per source portal. The source twenty-minute duration is not
@@ -143,7 +142,33 @@ is live yet.
   Void seal `(8)` whose complete `11666–11673` charge/equipment family is
   registered by the data module.
 
-Fourteen focused pure tests cover the period tables, state repair, lander and
+Fifteen focused pure/data tests cover the period tables, state repair, lander and
 session gates, follower exclusion, automatic and explicit policies, crowd
 progress, defence loss avoidance, all-out-assault loss, Again, safe death,
-half-rate Combat integration, reward cap, charge preservation, and forfeit.
+half-rate Combat integration, reward cap, charge preservation, forfeit, and
+the complete asset-backed charged-item registry.
+
+## Live integration closure — 2026-07-21
+
+- Schema `75` installs and sanitizes the flat Pest Control state and wallet.
+- The Utility review router advances productive answers and explicit Again
+  idles through one atomic answered-card transaction. Direct enter, leave,
+  policy, and reward-shop actions use the independent direct-action undo stack.
+- Cadence coverage records the twelve-beat activity group and the live six-tick
+  portal slice without converting the source twenty minutes into wall time.
+- The compact Activities detail card exposes ready/locked/in-game state,
+  Casual/Advanced planning, eligible landers, three duties, progress, the
+  representative seal purchase, follower confirmation, selection, and
+  forfeiture confirmation.
+- All eight Void-seal charge states and the activity icon use normalized art
+  fetched from the pre-cutoff `Void knight seal detail.png` revision; the
+  reproducible fetcher records every output in `assets_provenance.json`.
+- Focused runtime, migration, direct-undo, registry, real offscreen Qt, and
+  global asset-normalization checks pass. Root inspected deterministic ready
+  and active dark-palette renders. Kimi review could not pass its fresh quota
+  telemetry gate and Opus is not authenticated; Fable was deliberately kept
+  in reserve, so no external taste signoff is claimed. Native Anki Computer
+  Use could not start its local bridge, so no native detail-card claim is made.
+- Results are recorded in
+  `memory-bank/status-updates/pest-control-horizontal-results-2026-07-21.html`
+  and at <https://pix53v8uzs1k.postplan.dev>.

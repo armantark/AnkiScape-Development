@@ -500,6 +500,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "big_top_bonanza",
                 "trouble_brewing",
                 "castle_wars",
+                "pest_control",
                 "sorceress_garden",
                 "penguin_hide_and_seek",
                 "vinesweeper",

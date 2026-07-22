@@ -519,6 +519,21 @@ except Exception:
     from castle_wars_logic import castle_wars_view_pure  # type: ignore
 
 try:
+    from .pest_control_data import (
+        PEST_CONTROL_ACTIVITY_ID,
+        PEST_CONTROL_DUTIES,
+        PEST_CONTROL_EVENT_REVIEWS,
+    )
+    from .pest_control_logic import pest_control_view_pure
+except Exception:
+    from pest_control_data import (  # type: ignore
+        PEST_CONTROL_ACTIVITY_ID,
+        PEST_CONTROL_DUTIES,
+        PEST_CONTROL_EVENT_REVIEWS,
+    )
+    from pest_control_logic import pest_control_view_pure  # type: ignore
+
+try:
     from .managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
     from .managing_miscellania_logic import managing_miscellania_view_pure
 except Exception:
@@ -3595,6 +3610,7 @@ def show_main_menu(
     on_circus_command=None,
     on_trouble_brewing_command=None,
     on_castle_wars_command=None,
+    on_pest_control_command=None,
     on_managing_miscellania_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
@@ -13346,6 +13362,282 @@ def show_main_menu(
         )
         _refresh_castle_panel()
 
+        pest_box = QtFrame()
+        pest_box.setObjectName("pestControlPanel")
+        pest_box.setStyleSheet(
+            "QFrame#pestControlPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        pest_layout = QVBoxLayout(pest_box)
+        pest_layout.setContentsMargins(10, 8, 10, 8)
+        pest_layout.setSpacing(7)
+
+        pest_header = QWidget()
+        pest_header_layout = QHBoxLayout(pest_header)
+        pest_header_layout.setContentsMargins(0, 0, 0, 0)
+        pest_header_layout.setSpacing(8)
+        pest_icon = QLabel()
+        pest_icon.setObjectName("pestControlIcon")
+        pest_icon.setFixedSize(28, 28)
+        pest_icon_path = os.path.join(current_dir, "activityicons", "pest_control.png")
+        if os.path.exists(pest_icon_path):
+            pest_icon.setPixmap(
+                QPixmap(pest_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+        pest_title = QLabel("Pest Control")
+        pest_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        pest_status = QLabel()
+        pest_status.setObjectName("pestControlStatusChip")
+        pest_status.setStyleSheet(
+            f"color: {dim_text_css(pest_status)}; font-size: 11px; font-weight: 700;"
+        )
+        pest_header_layout.addWidget(pest_icon)
+        pest_header_layout.addWidget(pest_title)
+        pest_header_layout.addStretch(1)
+        pest_header_layout.addWidget(pest_status)
+        pest_layout.addWidget(pest_header)
+
+        pest_summary = QLabel()
+        pest_summary.setObjectName("pestControlSummary")
+        pest_summary.setWordWrap(True)
+        pest_summary.setStyleSheet("color: palette(text);")
+        pest_layout.addWidget(pest_summary)
+
+        pest_progress = QProgressBar()
+        pest_progress.setObjectName("pestControlProgress")
+        pest_progress.setRange(0, PEST_CONTROL_EVENT_REVIEWS)
+        pest_progress.setTextVisible(True)
+        pest_progress.setFormat("Assault beat %v of 12")
+        pest_progress.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 4px; }"
+            "QProgressBar::chunk { background: #8e6d35; }"
+        )
+        pest_layout.addWidget(pest_progress)
+
+        pest_plan = QWidget()
+        pest_plan_layout = QGridLayout(pest_plan)
+        pest_plan_layout.setContentsMargins(0, 0, 0, 0)
+        pest_plan_layout.setHorizontalSpacing(6)
+        pest_plan_layout.setVerticalSpacing(5)
+        pest_mode = QComboBox()
+        pest_mode.setObjectName("pestControlModeCombo")
+        pest_mode.setAccessibleName("Pest Control automation mode")
+        pest_mode.addItem("Casual · protect the bottleneck", "casual")
+        pest_mode.addItem("Advanced · fixed duty", "advanced")
+        pest_lander = QComboBox()
+        pest_lander.setObjectName("pestControlLanderCombo")
+        pest_lander.setAccessibleName("Pest Control lander")
+        pest_duty = QComboBox()
+        pest_duty.setObjectName("pestControlDutyCombo")
+        pest_duty.setAccessibleName("Pest Control fixed duty")
+        for duty_id, label in PEST_CONTROL_DUTIES:
+            pest_duty.addItem(label, duty_id)
+        pest_save = QPushButton("Save plan")
+        pest_save.setObjectName("pestControlSavePlanButton")
+        pest_plan_layout.addWidget(pest_mode, 0, 0)
+        pest_plan_layout.addWidget(pest_lander, 0, 1)
+        pest_plan_layout.addWidget(pest_duty, 1, 0, 1, 2)
+        pest_plan_layout.addWidget(pest_save, 0, 2, 2, 1)
+        pest_layout.addWidget(pest_plan)
+
+        pest_actions = QWidget()
+        pest_actions_layout = QHBoxLayout(pest_actions)
+        pest_actions_layout.setContentsMargins(0, 0, 0, 0)
+        pest_actions_layout.setSpacing(6)
+        pest_primary = QPushButton()
+        pest_primary.setObjectName("pestControlPrimaryButton")
+        pest_buy = QPushButton("Buy Void seal · 10")
+        pest_buy.setObjectName("pestControlBuySealButton")
+        pest_leave = QPushButton("Leave game")
+        pest_leave.setObjectName("pestControlLeaveButton")
+        pest_actions_layout.addWidget(pest_primary, 1)
+        pest_actions_layout.addWidget(pest_buy)
+        pest_actions_layout.addWidget(pest_leave)
+        pest_layout.addWidget(pest_actions)
+        cards_stack.addWidget(pest_box)
+
+        syncing_pest = {"active": False}
+
+        def _run_pest_command(action_id: str, payload=None) -> dict[str, Any]:
+            if on_pest_control_command is None:
+                return {"ok": False, "message": "Pest Control actions are unavailable."}
+            result = on_pest_control_command(action_id, payload or {}) or {}
+            if not result.get("ok", False) and not result.get("requires_confirmation"):
+                show_error_message(
+                    "Pest Control",
+                    str(result.get("message", "That action is unavailable.")),
+                )
+            _refresh_pest_panel()
+            return result
+
+        def _pest_policy_payload() -> dict[str, str]:
+            return {
+                "automation_mode": str(pest_mode.currentData() or "casual"),
+                "lander_id": str(pest_lander.currentData() or "novice"),
+                "duty": str(pest_duty.currentData() or "assault"),
+            }
+
+        def _refresh_pest_panel() -> None:
+            syncing_pest["active"] = True
+            view = pest_control_view_pure(player_data)
+            session = view["pest_control"]
+            active = bool(view["active"])
+            policy = session if active else view["pest_control_policy"]
+            pest_mode.setCurrentIndex(max(0, pest_mode.findData(policy["automation_mode"])))
+            selected_lander = str(view["selected_lander_id"])
+            pest_lander.blockSignals(True)
+            pest_lander.clear()
+            for lander in view["available_landers"]:
+                label = str(lander["display_name"])
+                if not lander["eligible"]:
+                    label += f" · combat {int(lander['combat_level'])}"
+                pest_lander.addItem(label, lander["lander_id"])
+                model_item = getattr(pest_lander.model(), "item", lambda _index: None)(
+                    pest_lander.count() - 1
+                )
+                if model_item is not None:
+                    model_item.setEnabled(bool(lander["eligible"]))
+            pest_lander.setCurrentIndex(max(0, pest_lander.findData(selected_lander)))
+            pest_lander.blockSignals(False)
+            pest_duty.setCurrentIndex(max(0, pest_duty.findData(policy["duty"])))
+            pest_status.setText("IN GAME" if active else "READY")
+            if view["entry_locked_reason"] and not active:
+                pest_status.setText("COMBAT LOCKED")
+            if active:
+                front = int(session["portal_index"]) + 1
+                duty_text = (
+                    "Casual bottleneck"
+                    if session["automation_mode"] == "casual"
+                    else str(session["duty"]).replace("_", " ").title()
+                )
+                pest_summary.setText(
+                    f"Portal {front}/4 · {int(session['portal_lifepoints']):,} LP · "
+                    f"Void Knight {int(session['knight_lifepoints']):,} LP\n"
+                    f"{int(session['contribution']):,} contribution · "
+                    f"{duty_text} duty · "
+                    + ("Void seal ready" if view["seal_available"] else "No Void seal")
+                )
+                pest_progress.setValue(int(session["review"]))
+            else:
+                entry = view["entry_locked_reason"] or (
+                    "Twelve answered-card assault beats · safe death · "
+                    "2/3/4 commendations"
+                )
+                history = str(view["pest_control_last_result"])
+                pest_summary.setText(
+                    f"{int(view['pest_control_commendations'])}/500 commendations · "
+                    f"{int(view['pest_control_games_won'])} wins · "
+                    f"{int(view['pest_control_games_lost'])} losses\n"
+                    + entry
+                    + (f"\n{history}" if history else "")
+                )
+                pest_progress.setValue(0)
+            pest_progress.setVisible(active)
+            selected = active and player_data.get("current_utility") == PEST_CONTROL_ACTIVITY_ID
+            pest_primary.setText(
+                "Selected for reviews"
+                if selected
+                else "Select for reviews"
+                if active
+                else "Board lander"
+            )
+            pest_primary.setEnabled(
+                on_pest_control_command is not None
+                and not selected
+                and (active or not view["entry_locked_reason"])
+            )
+            pest_leave.setVisible(active)
+            pest_leave.setEnabled(on_pest_control_command is not None)
+            pest_plan.setVisible(not active)
+            pest_mode.setEnabled(not active and on_pest_control_command is not None)
+            pest_lander.setEnabled(
+                not active
+                and pest_mode.currentData() == "advanced"
+                and on_pest_control_command is not None
+            )
+            pest_duty.setEnabled(
+                not active
+                and pest_mode.currentData() == "advanced"
+                and on_pest_control_command is not None
+            )
+            pest_save.setEnabled(not active and on_pest_control_command is not None)
+            pest_buy.setVisible(not active)
+            pest_buy.setEnabled(
+                not active
+                and on_pest_control_command is not None
+                and int(view["pest_control_commendations"]) >= int(view["seal_cost"])
+            )
+            syncing_pest["active"] = False
+            _fit_current_activity_detail()
+
+        def _select_or_enter_pest() -> None:
+            view = pest_control_view_pure(player_data)
+            if not view["active"]:
+                payload = _pest_policy_payload()
+                result = _run_pest_command("enter", payload)
+                if result.get("requires_confirmation"):
+                    answer = QMessageBox.question(
+                        dialog,
+                        "Dismiss active follower?",
+                        "Pets and familiars cannot board the lander. Dismiss the active follower and continue?",
+                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                        QMessageBox.StandardButton.No,
+                    )
+                    if answer != QMessageBox.StandardButton.Yes:
+                        return
+                    payload["confirm_dismiss_follower"] = True
+                    result = _run_pest_command("enter", payload)
+                if not result.get("ok", False):
+                    return
+            elif not _request_utility_selection(PEST_CONTROL_ACTIVITY_ID):
+                return
+            _refresh_pest_panel()
+
+        def _confirm_pest_leave() -> None:
+            answer = QMessageBox.question(
+                dialog,
+                "Leave Pest Control?",
+                "Leave the current game? Portal progress, contribution, coins, and commendations are forfeited.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_pest_command("leave")
+
+        pest_mode.currentIndexChanged.connect(
+            lambda _index: (
+                None
+                if syncing_pest["active"]
+                else (
+                    pest_lander.setEnabled(
+                        pest_mode.currentData() == "advanced"
+                        and on_pest_control_command is not None
+                    ),
+                    pest_duty.setEnabled(
+                        pest_mode.currentData() == "advanced"
+                        and on_pest_control_command is not None
+                    ),
+                )
+            )
+        )
+        pest_save.clicked.connect(
+            lambda _checked=False: _run_pest_command(
+                "set_policy", _pest_policy_payload()
+            )
+        )
+        pest_primary.clicked.connect(lambda _checked=False: _select_or_enter_pest())
+        pest_buy.clicked.connect(
+            lambda _checked=False: _run_pest_command("buy_void_seal")
+        )
+        pest_leave.clicked.connect(lambda _checked=False: _confirm_pest_leave())
+        _refresh_pest_panel()
+
         miscellania_box = QtFrame()
         miscellania_box.setObjectName("managingMiscellaniaPanel")
         miscellania_box.setStyleSheet(
@@ -15493,6 +15785,30 @@ def show_main_menu(
                     )
                     return False
             if (
+                activity_id != PEST_CONTROL_ACTIVITY_ID
+                and pest_control_view_pure(player_data)["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave Pest Control?",
+                    "Switch activities? The unfinished assault and all pending rewards are forfeited.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_pest_control_command("leave", {})
+                    if on_pest_control_command is not None
+                    else {"ok": False, "message": "Pest Control actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Pest Control",
+                        str((result or {}).get("message", "Could not leave the game.")),
+                    )
+                    return False
+            if (
                 activity_id != GREAT_ORB_PROJECT_ACTIVITY_ID
                 and great_orb_project_view_pure(player_data)["active"]
             ):
@@ -15687,6 +16003,10 @@ def show_main_menu(
                 _refresh_castle_panel()
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == PEST_CONTROL_ACTIVITY_ID:
+                _refresh_pest_panel()
+                _show_activity_detail(activity_id)
+                return
             if activity_id == MANAGING_MISCELLANIA_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
@@ -15741,6 +16061,7 @@ def show_main_menu(
             CIRCUS_ACTIVITY_ID: ("Big Top Bonanza", circus_box),
             TROUBLE_BREWING_ACTIVITY_ID: ("Trouble Brewing", trouble_box),
             CASTLE_WARS_ACTIVITY_ID: ("Castle Wars", castle_box),
+            PEST_CONTROL_ACTIVITY_ID: ("Pest Control", pest_box),
             MANAGING_MISCELLANIA_ACTIVITY_ID: (
                 "Managing Miscellania",
                 miscellania_box,

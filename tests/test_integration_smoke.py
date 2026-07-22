@@ -5879,6 +5879,58 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
+    def test_pest_control_entry_is_a_direct_undoable_action(self):
+        addon = _load_addon_as_package("ankiscape_pest_control_integration")
+        logic = sys.modules[f"{addon.__name__}.pest_control_logic"]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon.current_skill = "Activities"
+        initial = {
+            "inventory": {},
+            "equipment": {},
+            "combat_encounter": {},
+            "combat_supply_loadout": {},
+            "shop_market_clock": {"answered_cards": 0},
+            "current_combat_target": "chicken",
+            "current_utility": "make_soft_clay",
+            "activity_session": {"active_id": ""},
+            "attack_level": 40,
+            "strength_level": 40,
+            "defense_level": 40,
+            "constitution_level": 40,
+            "ranged_level": 40,
+            "magic_level": 40,
+            "prayer_level": 40,
+            "summoning_level": 1,
+            "smithing_level": 1,
+        }
+        initial.update(logic.default_pest_control_state_pure())
+        addon.player_data = copy.deepcopy(initial)
+
+        addon._on_main_menu()
+        result = captured["on_pest_control_command"](
+            "enter",
+            {"automation_mode": "advanced", "lander_id": "novice", "duty": "defend"},
+        )
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(addon.player_data["current_utility"], "pest_control")
+        self.assertEqual(addon.player_data["pest_control"]["duty"], "defend")
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
     def test_phoenix_lair_entry_is_direct_and_undoable(self):
         addon = _load_addon_as_package("ankiscape_phoenix_entry_integration")
         storage = sys.modules[f"{addon.__name__}.storage_pure"]

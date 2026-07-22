@@ -4,6 +4,35 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Pest Control horizontal mechanic closure — 2026-07-21
+
+- Integrated the twelve-beat shared assault through schema 75, storage repair,
+  activity arbitration, cadence, telemetry, review dispatch, direct commands,
+  direct/review undo, and Again progression.
+- Combat 40 and 70/100 lander tiers, follower exclusion, four portal fronts,
+  a 2,000-LP Void Knight, crowd damage, Spinner healing, pressure relief,
+  safe death, terminal loss, and explicit forfeit are live.
+- Portal attacks reuse six-tick live Combat at the source half-XP rate. Casual
+  chooses the best lander and bottleneck duty; Advanced persists one eligible
+  lander and fixed assault, defend, or seal duty.
+- Wins grant cutoff `combat level × 10` coins and `2/3/4` commendations capped
+  at 500. The representative shop action buys a ten-point Void seal `(8)`;
+  all eight charge/equipment states persist and are registered.
+- Added normalized 2012 detailed-seal art for the activity and charged item
+  family, reproducible provenance-aware fetching, a compact ready/active card,
+  and a deterministic real-Qt renderer.
+- Focused pure, runtime, migration, direct-undo, registry, UI, and global asset
+  normalization checks pass. Root render QA found no clipping or hierarchy
+  defect. Kimi's fresh telemetry gate and Opus authentication both failed
+  closed, so no external taste approval is claimed; Fable was not used. Native
+  Anki Computer Use could not start its local bridge, so no native detail-card
+  claim is made.
+- Remaining reward equipment, supply packs, charms, and exact hidden crowd
+  rates are data depth. Durable audit:
+  `source-audits/pest-control-game-model-2026-07-18.md`. Results:
+  `status-updates/pest-control-horizontal-results-2026-07-21.html` and
+  <https://pix53v8uzs1k.postplan.dev>.
+
 ## Castle Wars horizontal mechanic closure — 2026-07-21
 
 - Implemented a persistent ten-review match with exact no-food/no-head/no-cape

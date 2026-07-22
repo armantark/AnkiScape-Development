@@ -479,6 +479,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-10-13T03:24:23Z"
   },
+  "activityicons/pest_control.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Void_knight_seal_detail.png",
+    "file_title": "Void knight seal detail.png",
+    "image_url": "https://runescape.wiki/images/Void_knight_seal_detail.png?a573a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5a7e1d269f2fdacd820e8f761346d1356513dab8",
+    "size": 136645,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-14T21:12:41Z"
+  },
   "activityicons/pyramid_plunder.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Pharaoh%27s_sceptre.png",
     "file_title": "Pharaoh's sceptre.png",
@@ -1114,6 +1126,102 @@
     "size": 658,
     "source_wiki": "rs3",
     "timestamp": "2011-03-15T20:00:25Z"
+  },
+  "activityitems/pest_control_void_seal_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Void_knight_seal_detail.png",
+    "file_title": "Void knight seal detail.png",
+    "image_url": "https://runescape.wiki/images/Void_knight_seal_detail.png?a573a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5a7e1d269f2fdacd820e8f761346d1356513dab8",
+    "size": 136645,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-14T21:12:41Z"
+  },
+  "activityitems/pest_control_void_seal_2.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Void_knight_seal_detail.png",
+    "file_title": "Void knight seal detail.png",
+    "image_url": "https://runescape.wiki/images/Void_knight_seal_detail.png?a573a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5a7e1d269f2fdacd820e8f761346d1356513dab8",
+    "size": 136645,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-14T21:12:41Z"
+  },
+  "activityitems/pest_control_void_seal_3.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Void_knight_seal_detail.png",
+    "file_title": "Void knight seal detail.png",
+    "image_url": "https://runescape.wiki/images/Void_knight_seal_detail.png?a573a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5a7e1d269f2fdacd820e8f761346d1356513dab8",
+    "size": 136645,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-14T21:12:41Z"
+  },
+  "activityitems/pest_control_void_seal_4.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Void_knight_seal_detail.png",
+    "file_title": "Void knight seal detail.png",
+    "image_url": "https://runescape.wiki/images/Void_knight_seal_detail.png?a573a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5a7e1d269f2fdacd820e8f761346d1356513dab8",
+    "size": 136645,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-14T21:12:41Z"
+  },
+  "activityitems/pest_control_void_seal_5.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Void_knight_seal_detail.png",
+    "file_title": "Void knight seal detail.png",
+    "image_url": "https://runescape.wiki/images/Void_knight_seal_detail.png?a573a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5a7e1d269f2fdacd820e8f761346d1356513dab8",
+    "size": 136645,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-14T21:12:41Z"
+  },
+  "activityitems/pest_control_void_seal_6.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Void_knight_seal_detail.png",
+    "file_title": "Void knight seal detail.png",
+    "image_url": "https://runescape.wiki/images/Void_knight_seal_detail.png?a573a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5a7e1d269f2fdacd820e8f761346d1356513dab8",
+    "size": 136645,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-14T21:12:41Z"
+  },
+  "activityitems/pest_control_void_seal_7.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Void_knight_seal_detail.png",
+    "file_title": "Void knight seal detail.png",
+    "image_url": "https://runescape.wiki/images/Void_knight_seal_detail.png?a573a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5a7e1d269f2fdacd820e8f761346d1356513dab8",
+    "size": 136645,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-14T21:12:41Z"
+  },
+  "activityitems/pest_control_void_seal_8.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Void_knight_seal_detail.png",
+    "file_title": "Void knight seal detail.png",
+    "image_url": "https://runescape.wiki/images/Void_knight_seal_detail.png?a573a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5a7e1d269f2fdacd820e8f761346d1356513dab8",
+    "size": 136645,
+    "source_wiki": "rs3",
+    "timestamp": "2012-10-14T21:12:41Z"
   },
   "activityitems/pharaoh_s_sceptre.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Pharaoh%27s_sceptre.png",

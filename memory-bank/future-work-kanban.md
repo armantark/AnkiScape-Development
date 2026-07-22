@@ -14,6 +14,27 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+### Pest Control — horizontal mechanics shipped 2026-07-21
+
+Labels: `SOURCE AUDIT` only for deferred catalog/rate depth.
+
+- The persistent twelve-beat shared assault, Combat 40 and lander gates,
+  follower exclusion, four portal fronts, Void Knight pressure, Casual
+  bottleneck and Advanced fixed-duty policies, live half-XP Combat, safe death,
+  loss/forfeit, persistence, undo, cadence, telemetry, and compact Activities
+  card are live.
+- Cutoff coins and `2/3/4` commendations are exact. The representative
+  ten-commendation Void seal exercises direct reward purchase, eight persisted
+  charges, discharge relief, and sourced neck-slot bonuses.
+- Full Void equipment, supply packs, charms, and exact hidden crowd/pressure
+  rates remain catalog/data depth; they do not block horizontal mechanics.
+- External taste review remains an availability follow-up: Kimi telemetry is
+  incomplete and Opus is logged out. Fable stays reserved.
+- Durable audit:
+  `memory-bank/source-audits/pest-control-game-model-2026-07-18.md`. Results:
+  `memory-bank/status-updates/pest-control-horizontal-results-2026-07-21.html`
+  and <https://pix53v8uzs1k.postplan.dev>.
+
 ### Castle Wars — horizontal mechanics shipped 2026-07-21
 
 Labels: `SOURCE AUDIT` only for deferred catalog depth and two adjacent

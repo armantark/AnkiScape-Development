@@ -1045,6 +1045,36 @@ class TestStoragePure(unittest.TestCase):
             {"automation_mode": "casual", "duty": "capture", "team": "balance"},
         )
 
+    def test_migrate_adds_and_sanitizes_pest_control_state(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 74,
+                "inventory": {},
+                "pest_control": {
+                    "review": 999,
+                    "portal_index": 999,
+                    "portal_lifepoints": -1,
+                    "knight_lifepoints": 999_999,
+                    "lander_id": "unknown",
+                },
+                "activity_session": {"active_id": "pest_control"},
+                "pest_control_commendations": 999,
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(migrated["pest_control"]["review"], 11)
+        self.assertEqual(migrated["pest_control"]["portal_index"], 3)
+        self.assertEqual(migrated["pest_control"]["portal_lifepoints"], 1)
+        self.assertEqual(migrated["pest_control"]["knight_lifepoints"], 2_000)
+        self.assertEqual(migrated["pest_control_commendations"], 500)
+        self.assertEqual(
+            migrated["pest_control_policy"],
+            {"automation_mode": "casual", "lander_id": "novice", "duty": "assault"},
+        )
+
     def test_migrate_idempotent(self):
         base = {"mining_exp": 10, "inventory": {}}
         first = migrate_loaded_data(base, ORE_DATA)

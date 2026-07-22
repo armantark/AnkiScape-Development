@@ -2,6 +2,36 @@
 
 ## Current Focus
 
+Pest Control now satisfies horizontal breadth level one as a persistent,
+Activities-only shared assault. Combat level 40 and lander tiers are enforced;
+active pets or familiars require explicit dismissal. Casual mode chooses the
+best eligible lander and protects the current bottleneck, while Advanced saves
+one lander and fixed assault, defence, or Void-seal duty. Each review advances
+one of twelve disclosed team beats, including a live six-tick half-XP portal
+Combat slice when attacking. Four authentic pest-role fronts alter crowd
+damage, portal healing, and Void Knight pressure. Safe player death preserves
+the game; knight death, expiry, and explicit departure pay nothing.
+
+Wins award the cutoff `combat level × 10` coins and `2/3/4` commendations with
+the 500-point cap. The representative reward graph buys an eight-charge Void
+seal for ten commendations, persists every charge state, consumes exactly one
+charge on discharge, and exposes the sourced neck-slot defence bonuses. Schema
+75, activity arbitration, review/direct undo, cadence/telemetry, registry and
+equipment reachability, normalized period art, and the compact ready/active
+detail card are live. The remaining equipment and supply catalog is data
+depth, not another mechanic.
+
+Focused pure, runtime, migration, direct-undo, registry, asset-normalization,
+and real offscreen Qt interaction tests pass. Root inspected ready and active
+1200×760 dark-palette renders. External taste signoff remains unavailable:
+Kimi's fresh quota probe fails closed with missing five-hour telemetry, and
+Opus reports no authenticated Claude session. Fable remains reserved exactly
+as requested. Native Anki Computer Use could not start its local bridge, so no
+native detail-card claim is made. Durable record:
+`source-audits/pest-control-game-model-2026-07-18.md`. Results:
+`status-updates/pest-control-horizontal-results-2026-07-21.html` and
+<https://pix53v8uzs1k.postplan.dev>.
+
 Castle Wars now satisfies horizontal breadth level one as a persistent,
 Activities-only ten-beat team minigame. Entry enforces the cutoff no-food,
 no-helmet, and no-cape rules. Casual mode resolves the current team

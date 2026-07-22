@@ -599,6 +599,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "pest_control":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "pest_control",
+                    "mode": "activity_group",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One review advances one of twelve disclosed shared-assault "
+                        "beats, including at most one live six-tick portal Combat slice. "
+                        "Source wall-clock duration is not a gameplay input."
+                    ),
+                    "includes": (
+                        "one productive duty or explicit Again idle beat",
+                        "one crowd-pressure step and terminal reward settlement",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains "
+                        "one assault beat and cannot start a second game"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same twelve-beat shared-assault handler",
+                    "profile": None,
+                    "condition": "owner-settled event-count and crowd abstractions",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "penguin_hide_and_seek":
             rows.append(
                 {

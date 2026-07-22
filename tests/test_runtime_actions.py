@@ -71,6 +71,51 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_pest_control_routes_through_utility_and_settles_period_rewards(self):
+        from pest_control_logic import enter_pest_control_pure
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data, ok, info = enter_pest_control_pure(
+            {
+                "current_utility": "pest_control",
+                "activity_session": {"active_id": ""},
+                "combat_encounter": {},
+                "combat_supply_loadout": {},
+                "current_combat_target": "chicken",
+                "inventory": {},
+                "equipment": {},
+                "attack_level": 40,
+                "strength_level": 40,
+                "defense_level": 40,
+                "constitution_level": 40,
+                "ranged_level": 40,
+                "magic_level": 40,
+                "prayer_level": 40,
+                "summoning_level": 1,
+                "completed_achievements": [],
+            },
+            {"automation_mode": "advanced", "lander_id": "novice", "duty": "defend"},
+        )
+        self.assertTrue(ok, info)
+
+        for _ in range(12):
+            self.assertTrue(
+                handle_utility_answer(
+                    _context(player_data, calls, random_values=(0.5,))
+                )
+            )
+            if not player_data["pest_control"]:
+                break
+
+        self.assertEqual(player_data["pest_control"], {})
+        self.assertEqual(player_data["pest_control_commendations"], 2)
+        self.assertEqual(player_data["coins"], 510)
+        self.assertTrue(calls.get("deactivated"))
+        self.assertIn(
+            "utility:pest_control",
+            player_data["action_telemetry"]["actions"],
+        )
+
     def test_castle_wars_match_routes_through_utility_and_settles_tickets(self):
         from castle_wars_logic import enter_castle_wars_pure
 

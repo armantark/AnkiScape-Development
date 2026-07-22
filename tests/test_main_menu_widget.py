@@ -8096,6 +8096,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "great_orb_project",
                 "trouble_brewing",
                 "castle_wars",
+                "pest_control",
             },
         )
         self.assertEqual(
@@ -12203,6 +12204,80 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertTrue(pd["castle_wars"]["ballista_deployed"])
         self.assertEqual(pd["inventory"]["Castlewars chinchompa"], 0)
+        dialog.close()
+
+    def test_pest_control_detail_plan_shop_and_active_state_are_live(self) -> None:
+        from pest_control_logic import apply_pest_control_command_pure
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "attack_level": 40,
+                "strength_level": 40,
+                "defense_level": 40,
+                "constitution_level": 40,
+                "ranged_level": 40,
+                "magic_level": 40,
+                "prayer_level": 40,
+                "summoning_level": 1,
+                "pest_control_commendations": 20,
+            }
+        )
+        command_calls = []
+
+        def pest_command(action_id, payload):
+            command_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_pest_control_command_pure(
+                pd, action_id, payload
+            )
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
+        dialog = self._open(
+            pd,
+            current_skill="Activities",
+            on_pest_control_command=pest_command,
+        )
+        dialog.show()
+        QApplication.processEvents()
+        tree = self._open_activities(dialog)
+        item = next(
+            row
+            for row in _tree_items(tree)
+            if row.data(0, Qt.ItemDataRole.UserRole) == "pest_control"
+        )
+        tree.itemClicked.emit(item, 0)
+        QApplication.processEvents()
+        panel = next(
+            widget
+            for widget in dialog.findChildren(QWidget, "pestControlPanel")
+            if widget.isVisible()
+        )
+        self.assertFalse(panel.findChild(QLabel, "pestControlIcon").pixmap().isNull())
+        self.assertFalse(panel.findChild(QProgressBar, "pestControlProgress").isVisible())
+
+        buy = panel.findChild(QPushButton, "pestControlBuySealButton")
+        self.assertTrue(buy.isEnabled())
+        buy.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["inventory"]["Void seal (8)"], 1)
+        self.assertEqual(pd["pest_control_commendations"], 10)
+
+        mode = panel.findChild(QComboBox, "pestControlModeCombo")
+        lander = panel.findChild(QComboBox, "pestControlLanderCombo")
+        duty = panel.findChild(QComboBox, "pestControlDutyCombo")
+        mode.setCurrentIndex(mode.findData("advanced"))
+        lander.setCurrentIndex(lander.findData("novice"))
+        duty.setCurrentIndex(duty.findData("defend"))
+        panel.findChild(QPushButton, "pestControlPrimaryButton").click()
+        QApplication.processEvents()
+
+        self.assertEqual(command_calls[-1][0], "enter")
+        self.assertEqual(pd["current_utility"], "pest_control")
+        self.assertEqual(pd["pest_control"]["duty"], "defend")
+        self.assertTrue(panel.findChild(QProgressBar, "pestControlProgress").isVisible())
         dialog.close()
 
 

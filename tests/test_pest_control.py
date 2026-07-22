@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import os
 import unittest
 from dataclasses import asdict
 from unittest.mock import patch
@@ -71,6 +72,18 @@ def _combat_stub(damage: int = 0, *, died: bool = False):
 
 
 class PestControlDataTests(unittest.TestCase):
+    def test_activity_and_all_charged_seals_are_registered_with_assets(self):
+        from constants import ITEM_DEFINITIONS, UTILITY_ACTIVITY_DATA
+
+        icon_path = UTILITY_ACTIVITY_DATA["pest_control"].get("icon_path")
+        self.assertTrue(icon_path)
+        self.assertTrue(os.path.exists(icon_path))
+        item_definitions = {item.storage_key: item for item in ITEM_DEFINITIONS}
+        for charge in range(8, 0, -1):
+            item = item_definitions[f"Void seal ({charge})"]
+            self.assertTrue(item.asset_path)
+            self.assertTrue(os.path.exists(item.asset_path))
+
     def test_period_landers_front_roles_and_half_xp_portal_are_explicit(self):
         self.assertEqual(
             [
