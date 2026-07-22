@@ -19,14 +19,19 @@ normalized cutoff assets, and the compact tutorial/plan/wallet/progress card
 are integrated. A bounded Workflows audit found and root fixed active-Combat
 overwrite and impossible early-Queen save states before shared wiring.
 
-Focused 710-test cross-family verification and the real offscreen Qt interaction
-test pass; root inspected ready and Queen 1200×760 dark-palette renders. Kimi's
+Focused 710-test cross-family verification passes. Ordinary full discovery
+executes 2,433 methods with 307 declared dependency skips; real offscreen Qt
+executes 2,435 methods with one skip. Both are failure-free, and root inspected
+ready and Queen 1200×760 dark-palette renders. Kimi's
 external-data review was denied by execution policy, Opus could not refresh
-Claude authentication, and Fable remained reserved. No owner design gap
+Claude authentication, Fable remained reserved, and native Anki control could
+not start its local bridge. No owner design gap
 surfaced. Durable record:
 `source-audits/barbarian-assault-role-model-2026-07-18.md`. The next source-ready
 unrepresented activity is Soul Wars, followed by the already-harvested shared
-integration for Shades of Mort'ton.
+integration for Shades of Mort'ton. Results:
+`status-updates/barbarian-assault-horizontal-results-2026-07-22.html` and
+<https://rqaw2ino01ze.postplan.dev>.
 
 Varrock Museum now satisfies horizontal breadth level one as an Activities-only
 Landmark with a derived persistent Kudos meter. The natural-history quiz uses

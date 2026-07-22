@@ -117,12 +117,15 @@ leave. Normalized cutoff Omega-egg and Runner-boots art, immutable provenance,
 and reproducible fetch/render tools are live.
 
 Focused pure, runtime, migration, cadence, registry, direct-undo, Combat/
-Familiarisation, and real offscreen Qt interaction checks pass. Root inspected
-the 1200×760 ready and Queen dark-palette renders. The requested external taste
+Familiarisation, and real offscreen Qt interaction checks pass. Ordinary full
+discovery executes 2,433 methods with 307 declared dependency skips and no
+failure; real offscreen Qt executes 2,435 methods with one skip and no failure.
+Root inspected the 1200×760 ready and Queen dark-palette renders. The requested external taste
 pair was unavailable without weakening provider boundaries: Kimi's external
 repository-data transfer was denied by the execution policy, Opus could not
 refresh local Claude authentication, and Fable remained reserved. This is a
-recorded QA availability gap, not a product-design gap.
+recorded QA availability gap, not a product-design gap. Native Anki control
+could not start its local bridge, so no native-card claim is made.
 
 ## Explicit source blocks and omissions
 

@@ -24,11 +24,17 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
 - A bounded Workflows audit found two concrete pure-boundary defects: entry
   could overwrite an active Combat encounter and malformed saves could enter
   the Queen before wave 10. Both have regressions and are fixed. Focused
-  cross-family verification passes 710 tests.
+  cross-family verification passes 710 tests. Ordinary full discovery executes
+  2,433 methods with 307 skips; real offscreen Qt executes 2,435 methods with
+  one skip. Both are failure-free. Documentation, test-quality, normalization,
+  compilation, diff, reachability, and worktree-safety gates pass.
 - Kimi review was denied at the external-data boundary, Opus authentication
-  could not refresh, and Fable stayed reserved. No design question emerged.
+  could not refresh, Fable stayed reserved, and the native Anki control bridge
+  could not start. No design question emerged.
   Remaining armour, horn, gamble, and hidden-rate rows are data depth. Durable
   audit: `source-audits/barbarian-assault-role-model-2026-07-18.md`.
+  Results: `status-updates/barbarian-assault-horizontal-results-2026-07-22.html`
+  and <https://rqaw2ino01ze.postplan.dev>.
 
 ## Varrock Museum horizontal mechanic closure — 2026-07-22
 
