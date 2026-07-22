@@ -6,6 +6,7 @@ from storage_pure import (
     CURRENT_CONFIG_VERSION,
 )
 from inventory_pure import DEFAULT_LOOT_VALUE_THRESHOLD
+from wicked_hood_logic import default_wicked_hood_state_pure
 from constants import (
     BAR_DATA,
     CRAFTING_DATA,
@@ -195,7 +196,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["pending_skill_exp_rewards"], {})
         self.assertEqual(data["claims"]["wicked_hood"], {"claimed": False})
         self.assertEqual(data["claims"]["tutorial_island_starter_kit"], {"claimed": False})
-        self.assertEqual(data["wicked_hood"], {"fed_altars": []})
+        self.assertEqual(data["wicked_hood"], default_wicked_hood_state_pure())
         self.assertEqual(data["runecrafting_pouches"], {})
         self.assertEqual(data["item_charges"], {})
         self.assertEqual(data["unlocked_abilities"], [])
@@ -424,7 +425,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertIn("swan_song", migrated["quests"])
         self.assertEqual(migrated["claims"]["wicked_hood"], {"claimed": False})
         self.assertEqual(migrated["claims"]["tutorial_island_starter_kit"], {"claimed": False})
-        self.assertEqual(migrated["wicked_hood"], {"fed_altars": []})
+        self.assertEqual(migrated["wicked_hood"], default_wicked_hood_state_pure())
         self.assertEqual(migrated["runecrafting_pouches"], {})
         self.assertEqual(migrated["item_charges"], {})
         self.assertEqual(migrated["current_utility"], "make_soft_clay")

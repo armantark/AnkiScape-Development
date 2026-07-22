@@ -333,6 +333,30 @@ def sanitize_bank_run_state(raw: Any, max_reviews: int) -> dict[str, Any]:
     route_label = raw.get("route_label")
     if isinstance(route_label, str) and route_label:
         state["route_label"] = route_label
+    raw_phases = raw.get("route_phases")
+    if isinstance(raw_phases, (list, tuple)):
+        phases = []
+        for raw_phase in raw_phases:
+            if not isinstance(raw_phase, Mapping):
+                continue
+            phase_id = raw_phase.get("id")
+            label = raw_phase.get("label")
+            reviews = _clean_int(raw_phase.get("reviews"), 0, minimum=0)
+            if not isinstance(phase_id, str) or not phase_id or reviews <= 0:
+                continue
+            phases.append(
+                {
+                    "id": phase_id,
+                    "label": label if isinstance(label, str) and label else phase_id,
+                    "reviews": reviews,
+                }
+            )
+        if phases and sum(phase["reviews"] for phase in phases) == state.get(
+            "reviews_total", remaining
+        ):
+            state["route_phases"] = phases
+    if raw.get("outbound_teleport_used") is True:
+        state["outbound_teleport_used"] = True
     return state
 
 
@@ -367,7 +391,12 @@ def bank_run_progress_pure(
     new_state: dict[str, Any] = {"reviews_remaining": remaining}
     if isinstance(target_id, str):
         new_state["target_id"] = target_id
-    for key in ("reviews_total", "route_label"):
+    for key in (
+        "reviews_total",
+        "route_label",
+        "route_phases",
+        "outbound_teleport_used",
+    ):
         if key in state:
             new_state[key] = state[key]
     return new_state, {"active": True, "started": started, "completed": False, "reviews_remaining": remaining}

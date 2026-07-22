@@ -202,6 +202,34 @@ HOOD_FEED_TARGETS: Tuple[HoodFeedTarget, ...] = tuple(
     for altar in ALTARS
     for kind, item in (("talisman", altar.talisman_item), ("tiara", altar.tiara_item))
     if item is not None
+) + (
+    HoodFeedTarget(
+        "feed_elemental_talisman_to_hood",
+        "Feed Elemental talisman to hood",
+        "elemental",
+        "Elemental talisman",
+        "talisman",
+        5516,
+        source="https://runescape.wiki/w/Wicked_hood?oldid=6564747",
+    ),
+    HoodFeedTarget(
+        "feed_omni_talisman_to_hood",
+        "Feed Omni-talisman to hood",
+        "omni",
+        "Omni-talisman",
+        "talisman",
+        13649,
+        source="https://runescape.wiki/w/Wicked_hood?oldid=6564747",
+    ),
+    HoodFeedTarget(
+        "feed_omni_tiara_to_hood",
+        "Feed Omni-tiara to hood",
+        "omni",
+        "Omni-tiara",
+        "tiara",
+        13655,
+        source="https://runescape.wiki/w/Wicked_hood?oldid=6564747",
+    ),
 )
 HOOD_FEED_TARGETS_BY_ID: Dict[str, HoodFeedTarget] = {target.id: target for target in HOOD_FEED_TARGETS}
 
@@ -268,7 +296,15 @@ def runecrafting_access_items() -> Tuple[str, ...]:
 def runecrafting_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
     data: Dict[str, Dict[str, object]] = {}
 
-    def add_item(name: str, item_id: int, source: str, *, category: str = "runecrafting", tradeable: bool = True) -> None:
+    def add_item(
+        name: str,
+        item_id: int,
+        source: str,
+        *,
+        category: str = "runecrafting",
+        tradeable: bool = True,
+        stackable: bool = False,
+    ) -> None:
         data[name] = {
             "display_name": name,
             "output_item": name,
@@ -278,6 +314,7 @@ def runecrafting_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "source_item_id": item_id,
             "category": category,
             "tradeable": tradeable,
+            "stackable": stackable,
         }
 
     item_ids = {
@@ -324,6 +361,9 @@ def runecrafting_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Law tiara": 5545,
         "Death tiara": 5547,
         "Blood tiara": 5549,
+        "Elemental talisman": 5516,
+        "Omni-talisman": 13649,
+        "Omni-tiara": 13655,
         "Small pouch": 5509,
         "Medium pouch": 5510,
         "Medium pouch (worn)": 5511,
@@ -334,9 +374,21 @@ def runecrafting_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
         BINDING_NECKLACE_ITEM: 5521,
         WICKED_HOOD_ITEM: 22332,
     }
+    rune_item_names = set(runecrafting_rune_output_items())
     for name, item_id in item_ids.items():
-        source = ITEMS_SOURCE_PATH if name != WICKED_HOOD_ITEM else "https://runescape.wiki/w/Wicked_hood"
-        add_item(name, item_id, source)
+        hood_items = {WICKED_HOOD_ITEM, "Elemental talisman", "Omni-talisman", "Omni-tiara"}
+        source = (
+            "https://runescape.wiki/w/Wicked_hood?oldid=6564747"
+            if name in hood_items
+            else ITEMS_SOURCE_PATH
+        )
+        add_item(
+            name,
+            item_id,
+            source,
+            tradeable=name not in {WICKED_HOOD_ITEM, "Omni-talisman", "Omni-tiara"},
+            stackable=name in rune_item_names,
+        )
     return data
 
 

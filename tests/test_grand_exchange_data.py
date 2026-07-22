@@ -163,6 +163,7 @@ class GrandExchangeDataTest(unittest.TestCase):
             {
                 "Black warlock",
                 "Cape",
+                "Elemental talisman",
                 "Feather headdress",
                 "Flowers",
                 "Fremennik cloak",

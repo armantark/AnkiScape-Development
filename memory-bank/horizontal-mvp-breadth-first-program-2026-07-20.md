@@ -89,6 +89,14 @@ availability, shared death/grave behavior, contextual Clap/Kick egg choice,
 and delayed Summoning-72 hatching. Complete guardian/drop depth and exact egg
 and dust rolls are explicitly deferred data, not missing mechanics.
 
+The Great Orb Project reward seam and Wicked hood now close Runecrafting's
+baseline hood graph. The hood supports manual essence, rune, and altar
+teleport allowances, the 240-answer day reset, fed access, loss and reclaim,
+and outbound-route skipping. Great Orb Project supplies the Elemental talisman,
+the first and replacement Omni-talisman claims, and Korvak's Omni-tiara
+conversion. Runespan outfit acquisition remains data depth; its cap effects
+are already live. Ourania remains source-blocked on its exact rune roll table.
+
 Court Cases now exercises the complete shared mechanic graph with three
 period-pinned cases: free starter and summons entry, both legal roles,
 preparation and trial choices, undecided retry, give-up loss, exact XP/items,

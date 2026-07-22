@@ -1815,7 +1815,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
 
     def test_runecrafting_items_targets_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
-        self.assertEqual(len(RUNECRAFTING_DATA), 61)
+        self.assertEqual(len(RUNECRAFTING_DATA), 64)
         self.assertEqual(RUNECRAFTING_DATA["craft_air_runes"]["output_item"], "Air rune")
         self.assertEqual(RUNECRAFTING_DATA["combo_lava_at_earth"]["consumed_talisman"], "Fire talisman")
         self.assertEqual(RUNECRAFTING_POUCH_DATA["small"]["capacity"], 3)
@@ -1830,11 +1830,28 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Medium pouch (worn)",
             "Binding necklace",
             "Wicked hood",
+            "Elemental talisman",
+            "Omni-talisman",
+            "Omni-tiara",
         ):
             self.assertIn(item_name, by_storage_key)
             self.assertIn(item_name, RUNECRAFTING_ITEM_IMAGES)
             self.assertTrue(os.path.exists(RUNECRAFTING_ITEM_IMAGES[item_name]), f"{item_name} Runecrafting icon is missing")
             self.assertEqual(by_storage_key[item_name].asset_path, RUNECRAFTING_ITEM_IMAGES[item_name])
+        self.assertTrue(by_storage_key["Air rune"].stackable)
+        for item_name in (
+            "Rune essence",
+            "Pure essence",
+            "Air talisman",
+            "Air tiara",
+            "Small pouch",
+            "Binding necklace",
+            "Wicked hood",
+            "Elemental talisman",
+            "Omni-talisman",
+            "Omni-tiara",
+        ):
+            self.assertFalse(by_storage_key[item_name].stackable, item_name)
 
         self.assertEqual(by_storage_key["Air rune"].category, "runecrafting")
         self.assertEqual(by_storage_key["Binding necklace"].equipment_slot, "neck")

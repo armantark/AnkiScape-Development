@@ -5624,6 +5624,52 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         self.assertEqual(addon.player_data, initial)
 
+    def test_wicked_hood_daily_refill_and_review_undo_share_one_transaction(self):
+        addon = _load_addon_as_package("ankiscape_wicked_hood_clock_integration")
+        hood_logic = sys.modules[f"{addon.__name__}.wicked_hood_logic"]
+        addon.mw = _DummyMW(_DummyCol())
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_context_action_strip = lambda *_args: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda _text: None
+        initial = {
+            "inventory": {},
+            "shop_market_clock": {"answered_cards": 239, "market_tick": 239},
+            "wicked_hood": hood_logic.default_wicked_hood_state_pure(0),
+        }
+        initial["wicked_hood"].update(
+            {
+                "essence_remaining": 7,
+                "rune_withdrawals_remaining": 0,
+                "teleports_remaining": 1,
+            }
+        )
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "None"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        hood = addon.player_data["wicked_hood"]
+        self.assertEqual(addon.player_data["shop_market_clock"]["answered_cards"], 240)
+        self.assertEqual(hood["allowance_day"], 1)
+        self.assertEqual(hood["essence_remaining"], 100)
+        self.assertEqual(hood["rune_withdrawals_remaining"], 1)
+        self.assertEqual(hood["teleports_remaining"], 2)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(study_queues=True, card=True),
+            )
+        )
+        self.assertEqual(addon.player_data, initial)
+
     def test_miscellania_direct_command_is_atomic_and_undoable(self):
         addon = _load_addon_as_package("ankiscape_miscellania_command_integration")
         logic = sys.modules[f"{addon.__name__}.managing_miscellania_logic"]
@@ -5746,6 +5792,46 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(
             addon.player_data["activity_session"], {"active_id": "phoenix_lair"}
         )
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_wicked_hood_withdrawal_is_direct_and_undoable(self):
+        addon = _load_addon_as_package("ankiscape_wicked_hood_direct_integration")
+        storage = sys.modules[f"{addon.__name__}.storage_pure"]
+        constants = sys.modules[f"{addon.__name__}.constants"]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon._show_activity_gain = lambda *_args: None
+        addon.current_skill = "Runecrafting"
+        initial = storage.default_player_data(
+            constants.ORE_DATA, constants.ITEM_DEFINITIONS
+        )
+        initial["claims"]["wicked_hood"] = {"claimed": True}
+        initial["equipment"]["head"] = "Wicked hood"
+        initial["current_runecrafting"] = "craft_air_runes"
+        addon.player_data = copy.deepcopy(initial)
+
+        addon._on_main_menu()
+        result = captured["on_wicked_hood_command"]("essence", {})
+
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(addon.player_data["inventory"]["Rune essence"], 28)
+        self.assertEqual(
+            addon.player_data["carried_inventory"]["craft_air_runes"]["Rune essence"],
+            28,
+        )
+        self.assertEqual(addon.player_data["wicked_hood"]["essence_remaining"], 72)
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
 
         addon._on_state_did_undo(

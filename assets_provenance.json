@@ -31007,6 +31007,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:55:49Z"
   },
+  "runecraftingitems/elemental_talisman.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Elemental_talisman.png",
+    "file_title": "Elemental talisman.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502032053%21Elemental_talisman.png?6b226",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a14bccebc79a2795a58d3aaabb48bf9cd67e1dad",
+    "size": 523,
+    "source_wiki": "rs3",
+    "timestamp": "2011-07-22T22:49:18Z"
+  },
   "runecraftingitems/fire_rune.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Fire_rune.png",
     "file_title": "Fire rune.png",
@@ -31258,6 +31270,30 @@
     "size": 652,
     "source_wiki": "osrs",
     "timestamp": "2016-02-04T08:44:43Z"
+  },
+  "runecraftingitems/omni_talisman.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Omni-talisman.png",
+    "file_title": "Omni-talisman.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511082026%21Omni-talisman.png?6d079",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7ec4a9eb20c3fc806608984f01ff53ecfdc119f7",
+    "size": 548,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-08T03:54:55Z"
+  },
+  "runecraftingitems/omni_tiara.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Omni-tiara.png",
+    "file_title": "Omni-tiara.png",
+    "image_url": "https://runescape.wiki/images/archive/20130917113542%21Omni-tiara.png?0a8c4",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1247c895533f0ff7ff7bdc62c74d555b1140ae80",
+    "size": 802,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-26T18:37:07Z"
   },
   "runecraftingitems/small_pouch.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Small_pouch.png",

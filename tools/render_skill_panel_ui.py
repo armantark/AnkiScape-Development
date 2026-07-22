@@ -25,6 +25,7 @@ from aqt.qt import (  # type: ignore
 )
 
 from tests.test_main_menu_widget import MainMenuWidgetTest, _make_player_data
+from wicked_hood_logic import apply_wicked_hood_command_pure
 
 
 def _dark_palette() -> QPalette:
@@ -99,8 +100,33 @@ def render(args: argparse.Namespace) -> Path:
         ] = True
     if args.target_key and args.target_id:
         player_data[args.target_key] = args.target_id
+    if args.claim_wicked_hood:
+        player_data.setdefault("claims", {})["wicked_hood"] = {"claimed": True}
+        player_data.setdefault("inventory", {})["Wicked hood"] = 1
+    if args.equip_wicked_hood:
+        player_data.setdefault("equipment", {})["head"] = "Wicked hood"
+    if args.feed_altar:
+        player_data.setdefault("wicked_hood", {})["fed_altars"] = sorted(
+            set(args.feed_altar)
+        )
 
-    dialog = case._open(player_data)
+    def _wicked_hood_command(action_id: str, payload: dict) -> dict:
+        updated, ok, info = apply_wicked_hood_command_pure(
+            player_data, action_id, payload
+        )
+        if ok:
+            player_data.clear()
+            player_data.update(updated)
+        return {
+            "ok": ok,
+            "message": str(info.get("message", info.get("reason", ""))),
+            **info,
+        }
+
+    dialog = case._open(
+        player_data,
+        on_wicked_hood_command=_wicked_hood_command,
+    )
     category = next(
         (
             button
@@ -119,7 +145,8 @@ def render(args: argparse.Namespace) -> Path:
             (
                 widget
                 for widget in dialog.findChildren(QListWidget)
-                if any(
+                if widget.isVisibleTo(dialog)
+                and any(
                     widget.item(index).text() == args.skill
                     for index in range(widget.count())
                 )
@@ -134,6 +161,7 @@ def render(args: argparse.Namespace) -> Path:
             if skill_list.item(index).text() == args.skill
         )
         skill_list.setCurrentRow(skill_row)
+        skill_list.itemClicked.emit(skill_list.item(skill_row))
         app.processEvents()
 
     if args.target_id:
@@ -212,6 +240,9 @@ def main() -> int:
     parser.add_argument("--target-id")
     parser.add_argument("--inventory", action="append", default=[])
     parser.add_argument("--complete-quest", action="append", default=[])
+    parser.add_argument("--claim-wicked-hood", action="store_true")
+    parser.add_argument("--equip-wicked-hood", action="store_true")
+    parser.add_argument("--feed-altar", action="append", default=[])
     parser.add_argument("--width", type=int, default=900)
     parser.add_argument("--height", type=int, default=560)
     parser.add_argument("--theme", choices=("dark", "light"), default="dark")

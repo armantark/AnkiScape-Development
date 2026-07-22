@@ -1012,9 +1012,20 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   orb/barrier participation, round essence, ordinary rune multipliers, double
   XP, pending and majority token settlement, early-leave forfeiture,
   Casual/Advanced policy, persistence, undo, cadence, period art, and a manual
-  Wizard Elriss shop with Pure essence Buy X. Exact hidden score/essence rolls
-  and the full reward catalog remain labeled data depth. See
+  Wizard Elriss shop with Pure essence Buy X. The representative reward graph
+  also provides the Elemental talisman, first and replacement Omni-talisman
+  claims, the exact one-time 13,605 Runecrafting XP, and Korvak's Omni-tiara
+  conversion. Exact hidden score/essence rolls and the full reward catalog
+  remain labeled data depth. See
   `memory-bank/source-audits/great-orb-project-horizontal-implementation-2026-07-21.md`.
+- Wicked hood is mechanic-complete for its baseline horizontal graph. Manual
+  essence, rune, and matching altar-teleport actions use a carried or equipped
+  hood, fed access, real pack space, one non-stacking 240-answer allowance
+  pool, persistent loss/reclaim state, and direct/review undo. Elemental and
+  Omni feeds are reachable through Great Orb Project. Runespan outfit
+  acquisition remains data depth; its allowance-cap effects are ready for that
+  shop. Ourania remains source-blocked on its exact rune distribution. See
+  `memory-bank/source-audits/gap-grill-11-runecrafting-provenance-2026-07-10.md`.
 - Managing Miscellania is mechanic-complete as an Activities-only persistent
   kingdom surface. It ships the Throne/Royal Trouble gates and upgrades,
   review-day approval/salary/production clock, explicit coffer funding,

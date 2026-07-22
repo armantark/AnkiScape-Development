@@ -30,6 +30,19 @@ except ImportError:
     from inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure, carried_slots_used, clamp_carried_view_to_bank
 
 try:
+    from .wicked_hood_logic import (
+        apply_wicked_hood_upgrade_pure,
+        wicked_hood_fed_altars_pure,
+        wicked_hood_operable_pure,
+    )
+except ImportError:
+    from wicked_hood_logic import (  # type: ignore
+        apply_wicked_hood_upgrade_pure,
+        wicked_hood_fed_altars_pure,
+        wicked_hood_operable_pure,
+    )
+
+try:
     from .court_cases_logic import filter_court_summons_outputs_pure
 except ImportError:
     from court_cases_logic import filter_court_summons_outputs_pure
@@ -10808,13 +10821,7 @@ def runecrafting_unlocked_pure(player_data):
 
 
 def _fed_altars(player_data):
-    hood = player_data.get("wicked_hood", {}) or {}
-    raw = hood.get("fed_altars", ()) if isinstance(hood, Mapping) else ()
-    if isinstance(raw, str):
-        return {raw}
-    if isinstance(raw, Iterable):
-        return {altar for altar in raw if isinstance(altar, str)}
-    return set()
+    return set(wicked_hood_fed_altars_pure(player_data))
 
 
 def _altar_access_item_names(altar_id, runecrafting_data):
@@ -10840,7 +10847,7 @@ def runecrafting_altar_access_source_pure(player_data, altar_id, runecrafting_da
     talisman_item, tiara_item = _altar_access_item_names(altar_id, runecrafting_data)
     if tiara_item and equipment.get("head") == tiara_item:
         return "tiara"
-    if altar_id in _fed_altars(player_data):
+    if altar_id in _fed_altars(player_data) and wicked_hood_operable_pure(player_data):
         return "hood"
     if talisman_item and inventory.get(talisman_item, 0) > 0:
         return "talisman"
@@ -11043,7 +11050,16 @@ def runecrafting_locked_reasons_pure(player_data, target_id, runecrafting_data, 
         has_hood = inventory.get("Wicked hood", 0) > 0 or equipment.get("head") == "Wicked hood"
         if not has_hood:
             reasons.append("Wicked hood")
-        if target.get("altar_id") in _fed_altars(player_data):
+        hood = player_data.get("wicked_hood", {}) or {}
+        altar_id = target.get("altar_id")
+        already_fed = (
+            bool(hood.get("elemental_fed"))
+            if altar_id == "elemental"
+            else bool(hood.get("omni_fed"))
+            if altar_id == "omni"
+            else altar_id in _fed_altars(player_data)
+        )
+        if already_fed:
             reasons.append("already fed")
         input_item = target.get("input_item")
         if input_item and inventory.get(input_item, 0) <= 0:
@@ -11161,10 +11177,16 @@ def apply_runecrafting_action_pure(player_data, target_id, runecrafting_data, po
         input_item = str(target.get("input_item"))
         altar_id = str(target.get("altar_id"))
         inventory[input_item] = inventory.get(input_item, 0) - 1
-        hood = data.setdefault("wicked_hood", {})
-        fed = set(_fed_altars(data))
-        fed.add(altar_id)
-        hood["fed_altars"] = sorted(fed)
+        if altar_id == "elemental":
+            data = apply_wicked_hood_upgrade_pure(
+                data, elemental_fed=True
+            )
+        elif altar_id == "omni":
+            data = apply_wicked_hood_upgrade_pure(data, omni_fed=True)
+        else:
+            data = apply_wicked_hood_upgrade_pure(
+                data, fed_altars=(altar_id,)
+            )
         return data, 0, True, f"{input_item} fed"
 
     return player_data, 0, False, "Unsupported Runecrafting target"

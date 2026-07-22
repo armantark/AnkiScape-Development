@@ -4,6 +4,39 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Wicked hood horizontal mechanic closure — 2026-07-21
+
+- Added the complete manual Essence, Runes, Teleport, daily-reset, fed-access,
+  one-hood, loss, and reclaim graph for a carried or equipped Wicked hood.
+- Split each sourced altar route into a disclosed return, bank, and outbound
+  abstraction. A charged matching teleport removes only the unspent outbound
+  tail and preserves ordinary repack and action boundaries.
+- Added exact baseline and Runespan-upgrade caps, Elemental and Omni feed
+  effects, non-stacking 240-answer day resets, persistence, migration, direct
+  undo, review undo, and durable bank-run phase metadata.
+- Expanded Great Orb Project with the 125-token Elemental talisman, Elriss's
+  first and replacement Omni-talisman claims, the exact one-time 13,605 XP,
+  and Korvak's Omni-tiara conversion. The twelve-item first-claim gate does not
+  consume the shown items.
+- Registered normalized period sprites for Elemental talisman, Omni-talisman,
+  and Omni-tiara. Corrected Rune and Pure essence to player-facing
+  nonstackable metadata and kept the new feeds reachable through quests, the
+  Grand Exchange, and the representative Great Orb shop.
+- Opus's taste pass drove the hidden pre-claim state, compact grid, clearer
+  hierarchy, truthful lock copy, accessible tooltips, and narrow-width fixes.
+  Kimi's quota gate failed closed, and Fable stayed reserved.
+- Verification: all 2,266 non-Qt tests pass with 300 expected skips and all
+  2,266 real offscreen-Qt tests pass with one intentional skip. Test quality,
+  docs, compilation, JSON, diff, asset normalization, reachability, native
+  Anki, and worktree safety pass. Native Anki showed one menu and the expected
+  Runecrafting and Great Orb locked states without changing the owner save.
+- Runespan outfit acquisition remains data depth; its cap effects are live.
+  Ourania remains source-blocked on its exact output distribution. No owner
+  design gap emerged. See
+  `source-audits/gap-grill-11-runecrafting-provenance-2026-07-10.md`.
+- Results: `status-updates/wicked-hood-horizontal-results-2026-07-21.html`;
+  mobile copy: `https://8c7s96iiatk5.postplan.dev`.
+
 ## Phoenix Lair horizontal mechanic closure — 2026-07-21
 
 - Implemented the complete owner-settled ritual: exact quest, Slayer, tool,

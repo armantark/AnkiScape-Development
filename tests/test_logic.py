@@ -7047,6 +7047,7 @@ class TestLogic(unittest.TestCase):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["rune_mysteries"] = {"started": True, "progress": 6, "completed": True}
         player_data["inventory"]["Wicked hood"] = 1
+        player_data["equipment"]["head"] = "Wicked hood"
         player_data["inventory"]["Air talisman"] = 1
         player_data["inventory"]["Rune essence"] = 28
 
@@ -7073,6 +7074,28 @@ class TestLogic(unittest.TestCase):
         self.assertAlmostEqual(exp, 140.0)
         self.assertEqual(crafted_data["inventory"]["Rune essence"], 0)
         self.assertEqual(crafted_data["inventory"]["Air rune"], 28)
+
+    def test_fed_altar_access_requires_an_operable_wicked_hood(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["rune_mysteries"] = {
+            "started": True,
+            "progress": 6,
+            "completed": True,
+        }
+        player_data["wicked_hood"]["fed_altars"] = ["air"]
+        player_data["inventory"]["Rune essence"] = 28
+
+        unchanged, exp, ok, message = apply_runecrafting_action_pure(
+            player_data,
+            "craft_air_runes",
+            RUNECRAFTING_DATA,
+            RUNECRAFTING_POUCH_DATA,
+        )
+
+        self.assertFalse(ok)
+        self.assertEqual(exp, 0)
+        self.assertEqual(message, "Runecrafting target is locked: altar access")
+        self.assertEqual(unchanged["inventory"]["Rune essence"], 28)
 
     def test_firemaking_achievements_unlock_from_durable_action_progress(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

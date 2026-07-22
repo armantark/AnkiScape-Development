@@ -37,6 +37,12 @@ except ImportError:
         EXCHANGEABLE_ITEM_NAMES_GENERATED = frozenset()
 
 
+# Multiple cache identities collapse to this display name, including a
+# stackable technical variant. The player-facing essence item occupies one
+# inventory slot per unit in the period game.
+_FORCED_UNSTACKABLE_ITEM_NAMES = frozenset({"Rune essence", "Pure essence"})
+
+
 def _plural_alias(name: str) -> str:
     """AnkiScape names some stacks in the plural where the cache is singular
     ('Arrow shafts' vs 'Arrow shaft', 'Bronze arrows' vs 'Bronze arrow')."""
@@ -94,6 +100,7 @@ def _build_item_tables() -> "tuple[Dict[str, int], FrozenSet[str], FrozenSet[str
             values.setdefault(f"{name.removesuffix(' (deg)')} 100", value)
     stackable |= set(STACKABLE_ITEM_NAMES_GENERATED)
     _add_plural_aliases(values, stackable, exchangeable)
+    stackable.difference_update(_FORCED_UNSTACKABLE_ITEM_NAMES)
     return values, frozenset(stackable), frozenset(exchangeable)
 
 

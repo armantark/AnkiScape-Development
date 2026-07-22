@@ -148,6 +148,8 @@ MINING_TARGETS: Tuple[MiningTarget, ...] = (
         None,
         alternate_output_item="Pure essence",
         alternate_output_level=30,
+        output_stackable=False,
+        alternate_output_stackable=False,
         allows_random_gems=False,
         notes="2011Scape uses one essence rock; level 30+ receives pure essence.",
     ),

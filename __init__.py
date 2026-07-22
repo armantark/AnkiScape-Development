@@ -48,6 +48,7 @@ from .logic_pure import (
     cooking_target_locked_reasons_pure,
     hunter_target_locked_reasons_pure,
     can_runecraft_any_pure,
+    quest_unlock_locked_reasons_pure,
     start_quest_pure,
     apply_quest_route_choice_pure,
     apply_claim_pure,
@@ -146,6 +147,10 @@ from .action_registry import (
 )
 from .skill_registry import get_skill, trainable_skill_definitions
 from .shop_logic import advance_shop_market_clock_pure
+from .wicked_hood_logic import (
+    advance_wicked_hood_review_day_pure,
+    apply_wicked_hood_command_pure,
+)
 from .grand_exchange_data import GE_ITEM_CATALOG
 from .grand_exchange_logic import (
     advance_ge_market_tick_pure,
@@ -2176,6 +2181,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
 
     def _apply_great_orb_project_command(action_id, payload):
         before = _capture_player_data_snapshot()
+        exp_before = _implemented_exp_keys_snapshot()
         updated, ok, info = apply_great_orb_project_command_pure(
             player_data,
             str(action_id),
@@ -2198,6 +2204,9 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
         player_data.clear()
         player_data.update(updated)
+        if float(info.get("xp", 0.0) or 0.0) > 0:
+            level_up_check("Runecrafting", player_data)
+            _show_quest_exp_delta(exp_before)
         check_achievements(player_data)
         save_player_data()
         _refresh_skill_availability()
@@ -2407,6 +2416,58 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             pass
         return {"ok": True, **info}
 
+    def _apply_wicked_hood_command(action_id, payload):
+        payload = dict(payload) if isinstance(payload, dict) else {}
+        if action_id == "teleport":
+            altar_id = str(payload.get("altar_id", "") or "")
+            target_id = next(
+                (
+                    candidate
+                    for candidate, spec in RUNECRAFTING_DATA.items()
+                    if spec.get("kind") == "standard"
+                    and spec.get("altar_id") == altar_id
+                ),
+                "",
+            )
+            quest_reasons = quest_unlock_locked_reasons_pure(
+                player_data,
+                "runecrafting",
+                target_id,
+                QUEST_UNLOCK_RULES,
+            )
+            if quest_reasons:
+                payload["locked_reason"] = str(quest_reasons[0])
+        before = _capture_player_data_snapshot()
+        updated, ok, info = apply_wicked_hood_command_pure(
+            player_data, str(action_id), payload
+        )
+        if not ok:
+            return {
+                "ok": False,
+                "message": str(info.get("reason", "That Wicked hood action is unavailable.")),
+            }
+        try:
+            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+        except (AttributeError, RuntimeError):
+            random.setstate(before["random_state"])
+            return {"ok": False, "message": "Anki could not create an undo entry."}
+        _DIRECT_ACTION_UNDO_STACK.append(before)
+        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+        player_data.clear()
+        player_data.update(updated)
+        check_achievements(player_data)
+        save_player_data()
+        _refresh_skill_availability()
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            mw.update_undo_actions()
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_slayer_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         if action_id == "set_combat_filter":
@@ -2483,6 +2544,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             "current_summoning", target
         ),
         on_summoning_command=_apply_summoning_command,
+        on_wicked_hood_command=_apply_wicked_hood_command,
         on_slayer_command=_apply_slayer_command,
         on_agility_command=_apply_agility_command,
         on_warriors_guild_command=_apply_warriors_guild_command,
@@ -3260,6 +3322,7 @@ def on_answer_card(self, ease, _old):
         )
         try:
             player_data.update(advance_shop_market_clock_pure(player_data))
+            player_data.update(advance_wicked_hood_review_day_pure(player_data))
         except Exception:
             pass
         try:

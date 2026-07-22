@@ -48,6 +48,11 @@ try:
     )
     from .quest_data import DEFAULT_QUEST_TARGET, default_claim_states, default_quest_states
     from .runecrafting_data import DEFAULT_RUNECRAFTING_TARGET, RUNECRAFTING_TARGETS_BY_ID
+    from .wicked_hood_logic import (
+        default_wicked_hood_state_pure,
+        sanitize_wicked_hood_state_pure,
+        wicked_hood_review_day_pure,
+    )
     from .firemaking_data import DEFAULT_FIREMAKING_TARGET, FIREMAKING_TARGETS_BY_ID
     from .fishing_data import DEFAULT_FISHING_TARGET, FISHING_METHODS_BY_ID
     from .hunter_data import DEFAULT_HUNTER_TARGET, HUNTER_TARGETS_BY_ID
@@ -219,6 +224,11 @@ except ImportError:
     )
     from quest_data import DEFAULT_QUEST_TARGET, default_claim_states, default_quest_states
     from runecrafting_data import DEFAULT_RUNECRAFTING_TARGET, RUNECRAFTING_TARGETS_BY_ID
+    from wicked_hood_logic import (  # type: ignore
+        default_wicked_hood_state_pure,
+        sanitize_wicked_hood_state_pure,
+        wicked_hood_review_day_pure,
+    )
     from firemaking_data import DEFAULT_FIREMAKING_TARGET, FIREMAKING_TARGETS_BY_ID
     from fishing_data import DEFAULT_FISHING_TARGET, FISHING_METHODS_BY_ID
     from hunter_data import DEFAULT_HUNTER_TARGET, HUNTER_TARGETS_BY_ID
@@ -347,7 +357,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 70
+CURRENT_CONFIG_VERSION = 71
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -561,7 +571,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["quest_route_states"] = {}
     data["pending_skill_exp_rewards"] = {}
     data["claims"] = default_claim_states()
-    data["wicked_hood"] = {"fed_altars": []}
+    data["wicked_hood"] = default_wicked_hood_state_pure(0)
     data["stronghold_of_security"] = default_stronghold_state_pure()
     data["runecrafting_pouches"] = {}
     data["item_charges"] = {}
@@ -856,15 +866,11 @@ def _migrate_claim_state(data: Dict[str, Any]) -> None:
 
 
 def _migrate_runecrafting_side_state(data: Dict[str, Any]) -> None:
-    hood = data.get("wicked_hood")
-    fed_altars = []
-    if isinstance(hood, dict):
-        raw_fed = hood.get("fed_altars", [])
-        if isinstance(raw_fed, str):
-            fed_altars = [raw_fed]
-        elif isinstance(raw_fed, (list, tuple, set)):
-            fed_altars = [altar for altar in raw_fed if isinstance(altar, str)]
-    data["wicked_hood"] = {"fed_altars": sorted(set(fed_altars))}
+    data["wicked_hood"] = sanitize_wicked_hood_state_pure(
+        data.get("wicked_hood"),
+        review_day=wicked_hood_review_day_pure(data),
+        initialize_allowances=True,
+    )
 
     pouches = data.get("runecrafting_pouches")
     clean_pouches: Dict[str, Dict[str, int]] = {}
@@ -1644,6 +1650,11 @@ def migrate_loaded_data(
             # A disabled optional observer must never make an existing save unloadable.
             pass
     data.update(sanitize_combat_state_pure(data))
+    data["wicked_hood"] = sanitize_wicked_hood_state_pure(
+        data.get("wicked_hood"),
+        review_day=wicked_hood_review_day_pure(data),
+        initialize_allowances=True,
+    )
     data.update(
         sanitize_equipment_instance_state_pure(
             data, EQUIPMENT_CONDITION_DATA

@@ -2,6 +2,41 @@
 
 ## Current Focus
 
+Wicked hood now satisfies horizontal breadth level one as Runecrafting's
+manual daily resource and route tool. A carried or equipped hood exposes
+essence, rune, and altar-teleport actions. The actions use only fed access,
+respect the shared carried-pack capacity, preserve partial withdrawals, and
+skip only the outbound phase of a matching altar route. The 240-answer world
+day refills one non-stacking allowance pool. Loss and reclaim preserve fed
+access and current allowances.
+
+Great Orb Project now supplies the representative acquisition graph for every
+baseline hood feed. Wizard Elriss sells the Elemental talisman for 125 tokens,
+checks the twelve regular talisman-or-tiara access items for the first
+Omni-talisman, awards 13,605 Runecrafting XP once, and permits later replacement
+claims. Wizard Korvak converts an Omni-talisman plus a Tiara into an
+Omni-tiara. Rune and Pure essence now use explicit nonstackable carried-pack
+metadata despite a collapsed technical cache identity.
+
+Opus's read-only taste pass found the pre-claim card leak, stale duplicate
+feedback, weak hierarchy, and narrow-width control problems. The final card is
+hidden before claim, uses one compact three-row control grid, gives every
+control an accessible name and tooltip, and displays level locks in altar
+choices. Kimi was not called because its live quota gate failed closed. Fable
+remained fully reserved.
+
+The exact final state passes all 2,266 non-Qt tests with 300 expected
+environment skips and all 2,266 real offscreen-Qt tests with one intentional
+skip. Test quality, documentation, compilation, JSON, diff, normalized assets,
+reachability, and worktree safety pass. A fully restarted native Anki check
+showed one launcher and one menu, separate Utilities and Activities, the hidden
+unclaimed hood card, and the compact Great Orb reward card. Runespan outfit
+acquisition remains later data depth; its cap effects are ready. Ourania remains
+source-blocked on the exact rune roll table. Durable record:
+`source-audits/gap-grill-11-runecrafting-provenance-2026-07-10.md`.
+Results: `status-updates/wicked-hood-horizontal-results-2026-07-21.html`;
+mobile copy: `https://8c7s96iiatk5.postplan.dev`.
+
 Phoenix Lair now satisfies horizontal breadth level one as a non-resumable,
 dangerous Activities-only ritual. Its In Pyre Need, Slayer 51, tool, Combat,
 and once-per-answered-card-day gates lead into one persistent five-blocker

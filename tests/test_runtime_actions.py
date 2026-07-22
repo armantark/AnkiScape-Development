@@ -19,6 +19,7 @@ from runtime_actions import (
     handle_herblore_answer,
     handle_mining_answer,
     handle_quest_answer,
+    handle_runecrafting_answer,
     handle_smithing_answer,
     handle_summoning_answer,
     handle_utility_answer,
@@ -1064,6 +1065,98 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertNotIn("leather_leather_gloves", player_data["carried_inventory"])
         self.assertAlmostEqual(player_data["crafting_exp"], 13.8)
         self.assertEqual(calls["errors"], [])
+
+    def test_wicked_hood_teleport_skips_only_the_outbound_runecrafting_phase(self):
+        from wicked_hood_logic import default_wicked_hood_state_pure
+
+        calls = {"xp": [], "saves": 0, "errors": []}
+        hood = default_wicked_hood_state_pure()
+        hood["fed_altars"] = ["air"]
+        hood["pending_altar_teleport"] = "air"
+        player_data = {
+            "inventory": {"Rune essence": 56},
+            "equipment": {"head": "Wicked hood"},
+            "current_runecrafting": "craft_air_runes",
+            "runecrafting_level": 1,
+            "agility_level": 1,
+            "carried_inventory": {"craft_air_runes": {"Rune essence": 28}},
+            "carried_churn": {"craft_air_runes": 28},
+            "carried_primed_targets": {"craft_air_runes": True},
+            "skilling_bank_run": {},
+            "wicked_hood": hood,
+            "shop_market_clock": {"answered_cards": 0},
+        }
+        acted = []
+
+        self.assertTrue(
+            run_answer_with_carried_overlay(
+                _context(player_data, calls),
+                "runecrafting",
+                lambda _ctx: acted.append(True) or True,
+            )
+        )
+
+        self.assertEqual(acted, [])
+        self.assertEqual(player_data["wicked_hood"]["pending_altar_teleport"], "")
+        run = player_data["skilling_bank_run"]
+        self.assertEqual(run["reviews_total"], 10)
+        self.assertEqual(run["reviews_remaining"], 9)
+        self.assertEqual(
+            [phase["id"] for phase in run["route_phases"]],
+            ["return", "bank"],
+        )
+        self.assertTrue(run["outbound_teleport_used"])
+        travel = player_data["agility_last_travel"]
+        self.assertEqual(travel["scheduled_reviews"], 20)
+        self.assertEqual(travel["charged_reviews"], 10)
+        self.assertTrue(travel["outbound_teleport_used"])
+
+    def test_wicked_hood_teleport_finishes_an_already_outbound_route(self):
+        from wicked_hood_logic import (
+            default_wicked_hood_state_pure,
+            runecrafting_route_phases_pure,
+        )
+
+        calls = {"xp": [], "saves": 0, "errors": []}
+        hood = default_wicked_hood_state_pure()
+        hood["fed_altars"] = ["air"]
+        hood["pending_altar_teleport"] = "air"
+        player_data = {
+            "inventory": {"Rune essence": 56},
+            "equipment": {"head": "Wicked hood"},
+            "current_runecrafting": "craft_air_runes",
+            "runecrafting_level": 1,
+            "agility_level": 1,
+            "carried_inventory": {"craft_air_runes": {}},
+            "carried_churn": {"craft_air_runes": 28},
+            "carried_primed_targets": {"craft_air_runes": True},
+            "skilling_bank_run": {
+                "target_id": "craft_air_runes",
+                "reviews_total": 20,
+                "reviews_remaining": 5,
+                "route_label": "Running to the Air altar",
+                "route_phases": list(runecrafting_route_phases_pure(20)),
+            },
+            "wicked_hood": hood,
+            "shop_market_clock": {"answered_cards": 0},
+        }
+        acted = []
+
+        self.assertTrue(
+            run_answer_with_carried_overlay(
+                _context(player_data, calls),
+                "runecrafting",
+                lambda _ctx: acted.append(True) or True,
+            )
+        )
+
+        self.assertEqual(acted, [True])
+        self.assertEqual(player_data["wicked_hood"]["pending_altar_teleport"], "")
+        self.assertEqual(player_data["skilling_bank_run"], {})
+        self.assertEqual(
+            player_data["carried_inventory"]["craft_air_runes"]["Rune essence"],
+            28,
+        )
 
     def test_crafting_carried_overlay_requires_and_retains_mould(self):
         calls = {"xp": [], "saves": 0, "errors": []}
@@ -3108,6 +3201,42 @@ class TestProcessingPackOverlay(unittest.TestCase):
             "current_firemaking": "logs",
             "completed_achievements": [],
         }
+
+    def test_runecrafting_consumes_hood_withdrawn_essence_from_the_carried_pack(self):
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "inventory": {"Rune essence": 28},
+            "equipment": {"head": "Wicked hood"},
+            "quests": {
+                "rune_mysteries": {
+                    "started": True,
+                    "progress": 6,
+                    "completed": True,
+                }
+            },
+            "wicked_hood": {"fed_altars": ["air"]},
+            "current_runecrafting": "craft_air_runes",
+            "runecrafting_level": 1,
+            "runecrafting_exp": 0.0,
+            "completed_achievements": [],
+            "carried_inventory": {"craft_air_runes": {"Rune essence": 28}},
+            "carried_primed_targets": {"craft_air_runes": True},
+            "carried_churn": {"craft_air_runes": 0},
+            "skilling_bank_run": {},
+        }
+
+        result = run_answer_with_carried_overlay(
+            _context(player_data, calls, random_values=[0.0] * 64),
+            "runecrafting",
+            handle_runecrafting_answer,
+        )
+
+        self.assertTrue(result)
+        self.assertEqual(player_data["inventory"]["Rune essence"], 0)
+        self.assertEqual(player_data["inventory"]["Air rune"], 56)
+        self.assertEqual(player_data["runecrafting_exp"], 140.0)
+        self.assertNotIn("craft_air_runes", player_data["carried_inventory"])
+        self.assertEqual(calls["errors"], [])
 
     def test_first_engagement_primes_the_pack_for_free_and_acts(self):
         player_data = self._base_player_data(5)

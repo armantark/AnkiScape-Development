@@ -13,6 +13,29 @@ GREAT_ORB_PROJECT_SOURCE = (
 )
 GREAT_ORB_PROJECT_ROUNDS = 8
 GREAT_ORB_PROJECT_TEMP_CAPACITY = 28
+OMNI_TALISMAN_XP = 13_605.0
+OMNI_TALISMAN_SOURCE = (
+    "RuneScape Wiki Omni-talisman oldid=6359046 "
+    "(2012-10-06T21:05:58Z)"
+)
+OMNI_TIARA_SOURCE = (
+    "RuneScape Wiki Omni-tiara oldid=6130195 "
+    "(2012-08-23T01:01:50Z)"
+)
+OMNI_TALISMAN_ACCESS_PAIRS = (
+    ("Air talisman", "Air tiara"),
+    ("Blood talisman", "Blood tiara"),
+    ("Body talisman", "Body tiara"),
+    ("Chaos talisman", "Chaos tiara"),
+    ("Cosmic talisman", "Cosmic tiara"),
+    ("Death talisman", "Death tiara"),
+    ("Earth talisman", "Earth tiara"),
+    ("Fire talisman", "Fire tiara"),
+    ("Law talisman", "Law tiara"),
+    ("Mind talisman", "Mind tiara"),
+    ("Nature talisman", "Nature tiara"),
+    ("Water talisman", "Water tiara"),
+)
 
 
 @dataclass(frozen=True)
@@ -72,6 +95,39 @@ GREAT_ORB_PROJECT_REWARDS: dict[str, dict[str, Any]] = {
         "stackable": False,
         "category": "tool",
     },
+    "elemental_talisman": {
+        "item": "Elemental talisman",
+        "tokens": 125,
+        "quantity": 1,
+        "source_item_id": 5516,
+        "tradeable": True,
+        "stackable": False,
+        "category": "tool",
+    },
+    "omni_talisman": {
+        "item": "Omni-talisman",
+        "tokens": 0,
+        "quantity": 1,
+        "source_item_id": 13649,
+        "tradeable": False,
+        "stackable": False,
+        "category": "claim",
+        "shop_label": "Omni-talisman · Elriss",
+        "button_label": "Claim",
+        "source": OMNI_TALISMAN_SOURCE,
+    },
+    "omni_tiara": {
+        "item": "Omni-tiara",
+        "tokens": 0,
+        "quantity": 1,
+        "source_item_id": 13655,
+        "tradeable": False,
+        "stackable": False,
+        "category": "conversion",
+        "shop_label": "Omni-tiara · Korvak",
+        "button_label": "Make",
+        "source": OMNI_TIARA_SOURCE,
+    },
 }
 
 
@@ -93,4 +149,3 @@ def great_orb_project_activity_as_dict() -> dict[str, dict[str, Any]]:
             "source": GREAT_ORB_PROJECT_SOURCE,
         }
     }
-

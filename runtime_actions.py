@@ -249,6 +249,12 @@ try:
         apply_run_energy_credit_pure,
         scheduled_travel_reviews_pure,
     )
+    from .wicked_hood_logic import (
+        bank_run_phase_label_pure,
+        consume_wicked_hood_route_teleport_pure,
+        runecrafting_route_phases_pure,
+        wicked_hood_skip_active_outbound_pure,
+    )
     from .cadence_kernel import EMBEDDED_PROBABILITY, RATE_LIMITED, advance_cadence_pure, default_cadence_profile_state_pure
     from .cadence_live import (
         LIVE_COMBAT_TICKS_PER_REVIEW,
@@ -566,6 +572,12 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         agility_travel_profile_pure,
         apply_run_energy_credit_pure,
         scheduled_travel_reviews_pure,
+    )
+    from wicked_hood_logic import (  # type: ignore
+        bank_run_phase_label_pure,
+        consume_wicked_hood_route_teleport_pure,
+        runecrafting_route_phases_pure,
+        wicked_hood_skip_active_outbound_pure,
     )
     from cadence_kernel import EMBEDDED_PROBABILITY, RATE_LIMITED, advance_cadence_pure, default_cadence_profile_state_pure  # type: ignore
     from cadence_live import (  # type: ignore
@@ -1208,6 +1220,46 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             for item_name in desired_agility_view
         )
 
+    target_altar = (
+        str((RUNECRAFTING_DATA.get(target_id) or {}).get("altar_id", ""))
+        if handler_key == "runecrafting"
+        else ""
+    )
+    active_target_matches = (
+        isinstance(bank_run, dict)
+        and bank_run.get("target_id") in (None, target_id)
+        and int(bank_run.get("reviews_remaining", 0) or 0) > 0
+    )
+    if target_altar and active_target_matches:
+        teleported_data, pending_teleport_used = consume_wicked_hood_route_teleport_pure(
+            player_data, target_altar
+        )
+        if pending_teleport_used:
+            player_data.clear()
+            player_data.update(teleported_data)
+            bank_run, _outbound_removed = wicked_hood_skip_active_outbound_pure(
+                bank_run
+            )
+            player_data["skilling_bank_run"] = bank_run
+            if not bank_run:
+                view = _repack_view_for_target(
+                    is_processing,
+                    advanced,
+                    layout,
+                    bank,
+                    requirements,
+                    capacity,
+                    casual_layout,
+                )
+                churn = 0
+                force = False
+                _set_carried_target_map(
+                    player_data, "carried_inventory", target_id, view
+                )
+                _set_carried_target_map(
+                    player_data, "carried_churn", target_id, churn
+                )
+
     active_run = isinstance(bank_run, dict) and int(bank_run.get("reviews_remaining", 0) or 0) > 0
     action_ctx = ctx
     cadence_admitted = False
@@ -1273,6 +1325,8 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     travel_profile = None
     run_energy_credit_used = 0
     reviews_cost = inventory_pure.SKILLING_BANK_RUN_REVIEWS
+    route_phases = ()
+    outbound_teleport_used = False
     if active_run:
         reviews_cost = max(1, int(bank_run.get("reviews_total", bank_run.get("reviews_remaining", 1)) or 1))
     elif trip_due:
@@ -1290,16 +1344,31 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         if run_energy_credit_used:
             player_data["agility_run_energy_credit_pct"] = 0
         # The only new RNG draw happens at the moment a trip is actually due.
-        reviews_cost = (
+        scheduled_reviews = (
             scheduled_travel_reviews_pure(travel_profile, ctx.random_random())
             if travel_profile.adjusted_reviews > 0
             else 0
         )
+        if target_altar:
+            teleported_data, outbound_teleport_used = consume_wicked_hood_route_teleport_pure(
+                player_data, target_altar
+            )
+            if outbound_teleport_used:
+                player_data.clear()
+                player_data.update(teleported_data)
+            route_phases = runecrafting_route_phases_pure(
+                scheduled_reviews, skip_outbound=outbound_teleport_used
+            )
+            reviews_cost = sum(int(phase["reviews"]) for phase in route_phases)
+        else:
+            reviews_cost = scheduled_reviews
         player_data["agility_last_travel"] = {
             "handler_key": handler_key,
             "target_id": target_id,
             "base_reviews": travel_profile.base_reviews,
             "adjusted_reviews": travel_profile.adjusted_reviews,
+            "scheduled_reviews": scheduled_reviews,
+            "charged_reviews": reviews_cost,
             "level_gain": travel_profile.level_gain,
             "weight_gain": travel_profile.weight_gain,
             "carried_weight_kg": travel_profile.carried_weight_kg,
@@ -1307,6 +1376,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             "route_label": travel_profile.route_label,
             "source_status": travel_profile.source_status,
             "run_energy_credit_used_pct": run_energy_credit_used,
+            "outbound_teleport_used": outbound_teleport_used,
         }
 
     if trip_due and reviews_cost <= 0:
@@ -1327,6 +1397,10 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         if event.get("started") and new_state:
             new_state["reviews_total"] = max(1, reviews_cost)
             new_state["route_label"] = travel_profile.route_label if travel_profile else "Running to the bank"
+            if route_phases:
+                new_state["route_phases"] = list(route_phases)
+            if outbound_teleport_used:
+                new_state["outbound_teleport_used"] = True
 
     if event.get("completed"):
         player_data.update(restore_summoning_points_pure(player_data))
@@ -1342,7 +1416,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         _set_carried_target_map(player_data, "carried_churn", target_id, new_churn)
         total = int((new_state or bank_run or {}).get("reviews_total", reviews_cost) or reviews_cost)
         remaining = int(event.get("reviews_remaining", 0) or 0)
-        route_label = str((new_state or bank_run or {}).get("route_label", "Running to the bank"))
+        route_label = bank_run_phase_label_pure(new_state or bank_run)
         progress = max(1, total - remaining)
         ctx.show_activity_gain(
             f"Bank run — {route_label} · {min(progress, total)}/{total} travel reviews"

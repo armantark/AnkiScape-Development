@@ -551,9 +551,11 @@ except Exception:
 try:
     from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, combat_finisher_state_pure, player_combat_level_pure
     from .skill_registry import get_skill
+    from .wicked_hood_logic import wicked_hood_view_pure
 except Exception:
     from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, combat_finisher_state_pure, player_combat_level_pure  # type: ignore
     from skill_registry import get_skill  # type: ignore
+    from wicked_hood_logic import wicked_hood_view_pure  # type: ignore
 try:
     from .logic_pure import combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure
 except Exception:
@@ -3522,6 +3524,7 @@ def show_main_menu(
     on_set_agility=None,
     on_set_summoning=None,
     on_summoning_command=None,
+    on_wicked_hood_command=None,
     on_slayer_command=None,
     on_agility_command=None,
     on_warriors_guild_command=None,
@@ -5543,8 +5546,250 @@ def show_main_menu(
             on_set_cooking,
         )
 
-    def _build_runecrafting_list() -> QTreeWidget:
-        return _build_grouped_target_tree(
+    wicked_hood_feedback = {"message": ""}
+
+    def _build_runecrafting_list() -> QWidget:
+        panel = QWidget()
+        panel.setObjectName("runecraftingSkillPanel")
+        layout = QVBoxLayout(panel)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+
+        hood = wicked_hood_view_pure(player_data)
+        hood_card = QtFrame()
+        hood_card.setObjectName("wickedHoodCard")
+        hood_card.setVisible(bool(hood["owned"] or hood["claimed"]))
+        hood_card.setStyleSheet(
+            "QFrame#wickedHoodCard { border: 1px solid palette(mid); border-radius: 8px;"
+            " background: palette(base); }"
+        )
+        hood_layout = QVBoxLayout(hood_card)
+        hood_layout.setContentsMargins(10, 8, 10, 8)
+        hood_layout.setSpacing(6)
+
+        header = QHBoxLayout()
+        hood_icon_path = RUNECRAFTING_ITEM_IMAGES.get("Wicked hood")
+        if hood_icon_path:
+            hood_icon = QLabel()
+            hood_icon.setObjectName("wickedHoodIcon")
+            hood_icon.setFixedSize(28, 28)
+            pixmap = QPixmap(hood_icon_path)
+            if not pixmap.isNull():
+                hood_icon.setPixmap(
+                    pixmap.scaled(
+                        28,
+                        28,
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.FastTransformation,
+                    )
+                )
+            header.addWidget(hood_icon)
+        title = QLabel("Wicked hood")
+        title.setObjectName("wickedHoodTitle")
+        title.setStyleSheet("color: palette(text); font-weight: 700;")
+        header.addWidget(title)
+        header.addStretch(1)
+        hood_layout.addLayout(header)
+
+        remaining = QLabel(
+            f"{hood['essence_remaining']}/{hood['caps']['essence']} essence · "
+            f"{hood['rune_withdrawals_remaining']}/{hood['caps']['runes']} rune withdrawals · "
+            f"{hood['teleports_remaining']}/{hood['caps']['teleports']} teleports"
+        )
+        remaining.setObjectName("wickedHoodRemainingLabel")
+        remaining.setWordWrap(True)
+        remaining.setStyleSheet(
+            f"color: {dim_text_css(remaining)}; font-size: 11px; font-weight: 700;"
+        )
+        hood_layout.addWidget(remaining)
+
+        pending_altar = str(hood.get("pending_altar_teleport", "") or "")
+        pending_option = next(
+            (
+                option
+                for option in hood["altar_options"]
+                if option["altar_id"] == pending_altar
+            ),
+            None,
+        )
+        allowances_exhausted = not any(
+            int(hood[key]) > 0
+            for key in (
+                "essence_remaining",
+                "rune_withdrawals_remaining",
+                "teleports_remaining",
+            )
+        )
+        if hood["claimed"] and not hood["owned"]:
+            guidance_text = "Reclaim the hood to restore its saved upgrades and allowances."
+        elif not hood["operable"]:
+            guidance_text = "Equip the hood or place it in this target's carried pack."
+        elif pending_option:
+            guidance_text = (
+                f"Queued for {pending_option['display_name']} · "
+                "the next matching outbound route is skipped"
+            )
+        elif allowances_exhausted:
+            guidance_text = "Allowances exhausted · refills every 240 answered cards"
+        else:
+            guidance_text = (
+                f"Ready · dispenses {hood['essence_item']} · "
+                "refills every 240 answered cards"
+            )
+        guidance = QLabel(guidance_text)
+        guidance.setObjectName("wickedHoodGuidanceLabel")
+        guidance.setWordWrap(True)
+        guidance.setStyleSheet(
+            f"color: {dim_text_css(guidance)}; font-size: 11px;"
+        )
+        hood_layout.addWidget(guidance)
+
+        feedback = QLabel(wicked_hood_feedback["message"])
+        feedback.setObjectName("wickedHoodFeedbackLabel")
+        feedback.setWordWrap(True)
+        feedback.setStyleSheet("color: palette(text);")
+        feedback.setVisible(bool(wicked_hood_feedback["message"]))
+        hood_layout.addWidget(feedback)
+
+        controls = QGridLayout()
+        controls.setSpacing(6)
+        essence_button = QPushButton("Withdraw essence")
+        essence_button.setObjectName("wickedHoodEssenceButton")
+        essence_button.setAccessibleName("Withdraw Wicked hood essence")
+        essence_button.setToolTip(
+            "Fill free carried-pack slots from the remaining essence allowance."
+        )
+        essence_button.setEnabled(
+            on_wicked_hood_command is not None
+            and bool(hood["operable"])
+            and int(hood["essence_remaining"]) > 0
+        )
+        controls.addWidget(essence_button, 0, 0, 1, 2)
+
+        altar_options = tuple(hood["altar_options"])
+        rune_choice = QComboBox()
+        rune_choice.setObjectName("wickedHoodRuneCombo")
+        rune_choice.setAccessibleName("Wicked hood rune choice")
+        rune_choice.setSizeAdjustPolicy(
+            QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
+        )
+        rune_choice.setMinimumContentsLength(14)
+        rune_choice.setToolTip("Choose a fed altar's rune for the next withdrawal.")
+        teleport_choice = QComboBox()
+        teleport_choice.setObjectName("wickedHoodTeleportCombo")
+        teleport_choice.setAccessibleName("Wicked hood altar teleport choice")
+        teleport_choice.setSizeAdjustPolicy(
+            QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
+        )
+        teleport_choice.setMinimumContentsLength(14)
+        for option in altar_options:
+            rune_choice.addItem(
+                f"{option['rune_item']} ×{option['rune_quantity']}", option["altar_id"]
+            )
+            teleport_choice.addItem(
+                option["display_name"]
+                if option["level_met"]
+                else f"{option['display_name']} (Lv {option['level']})",
+                option["altar_id"],
+            )
+        if not altar_options:
+            rune_choice.addItem("No altars fed", "")
+            teleport_choice.addItem("No altars fed", "")
+        elif pending_altar:
+            pending_index = teleport_choice.findData(pending_altar)
+            if pending_index >= 0:
+                teleport_choice.setCurrentIndex(pending_index)
+        rune_choice.setEnabled(bool(altar_options) and bool(hood["operable"]))
+        teleport_choice.setEnabled(
+            bool(altar_options) and bool(hood["operable"]) and not pending_altar
+        )
+        controls.addWidget(rune_choice, 1, 0)
+        rune_button = QPushButton("Withdraw")
+        rune_button.setObjectName("wickedHoodRunesButton")
+        rune_button.setAccessibleName("Withdraw Wicked hood runes")
+        rune_button.setToolTip(
+            "Spend one withdrawal: 100 free-to-play runes or 5 members' runes."
+        )
+        rune_button.setEnabled(
+            on_wicked_hood_command is not None
+            and bool(hood["operable"])
+            and bool(altar_options)
+            and int(hood["rune_withdrawals_remaining"]) > 0
+        )
+        controls.addWidget(rune_button, 1, 1)
+        controls.addWidget(teleport_choice, 2, 0)
+        teleport_button = QPushButton("Teleport")
+        teleport_button.setObjectName("wickedHoodTeleportButton")
+        teleport_button.setAccessibleName("Use Wicked hood altar teleport")
+
+        def _refresh_teleport_gate() -> None:
+            altar_id = str(teleport_choice.currentData() or "")
+            selected = next(
+                (option for option in altar_options if option["altar_id"] == altar_id),
+                None,
+            )
+            level_met = bool(selected and selected["level_met"])
+            teleport_button.setEnabled(
+                on_wicked_hood_command is not None
+                and bool(hood["operable"])
+                and level_met
+                and int(hood["teleports_remaining"]) > 0
+                and not pending_altar
+            )
+            if selected and not level_met:
+                teleport_button.setToolTip(
+                    f"Requires level {selected['level']} Runecrafting."
+                )
+            elif not altar_options:
+                teleport_button.setToolTip("Feed a talisman or tiara to unlock an altar.")
+            else:
+                teleport_button.setToolTip(
+                    "Spend one teleport to skip the selected altar route's outbound leg."
+                )
+
+        _refresh_teleport_gate()
+        teleport_choice.currentIndexChanged.connect(
+            lambda _index: _refresh_teleport_gate()
+        )
+        controls.addWidget(teleport_button, 2, 1)
+
+        claimed = bool(hood["claimed"])
+        owns_hood = bool(hood["owned"])
+        reclaim_button = QPushButton("Reclaim")
+        reclaim_button.setObjectName("wickedHoodReclaimButton")
+        reclaim_button.setAccessibleName("Reclaim Wicked hood")
+        reclaim_button.setToolTip(
+            "Restore the one Wicked hood without resetting its saved progress."
+        )
+        reclaim_button.setVisible(claimed and not owns_hood)
+        reclaim_button.setEnabled(on_wicked_hood_command is not None and claimed and not owns_hood)
+        controls.addWidget(reclaim_button, 3, 0, 1, 2)
+        hood_layout.addLayout(controls)
+
+        def _run_hood_action(action_id: str, payload: dict | None = None) -> None:
+            if on_wicked_hood_command is None:
+                return
+            result = on_wicked_hood_command(action_id, payload or {}) or {}
+            wicked_hood_feedback["message"] = str(
+                result.get("message", "" if result.get("ok") else "That action is unavailable.")
+            )
+            _render_panel()
+
+        essence_button.clicked.connect(lambda _checked=False: _run_hood_action("essence"))
+        rune_button.clicked.connect(
+            lambda _checked=False: _run_hood_action(
+                "runes", {"altar_id": str(rune_choice.currentData() or "")}
+            )
+        )
+        teleport_button.clicked.connect(
+            lambda _checked=False: _run_hood_action(
+                "teleport", {"altar_id": str(teleport_choice.currentData() or "")}
+            )
+        )
+        reclaim_button.clicked.connect(lambda _checked=False: _run_hood_action("reclaim"))
+        layout.addWidget(hood_card)
+
+        tree = _build_grouped_target_tree(
             runecrafting_target_rows(
                 player_data,
                 RUNECRAFTING_DATA,
@@ -5558,6 +5803,9 @@ def show_main_menu(
             on_set_runecrafting,
             group_order=list(RUNECRAFTING_GROUP_LABELS),
         )
+        tree.setObjectName("runecraftingTargetTree")
+        layout.addWidget(tree, 1)
+        return panel
 
     def _build_thieving_list() -> QWidget:
         panel = QWidget()
@@ -11514,7 +11762,10 @@ def show_main_menu(
         great_orb_reward.setAccessibleName("Great Orb Project reward")
         for reward in great_orb_project_view_pure(player_data)["rewards"]:
             great_orb_reward.addItem(
-                f"{reward['item']} · {int(reward['tokens'])} tokens",
+                str(
+                    reward.get("shop_label")
+                    or f"{reward['item']} · {int(reward['tokens'])} tokens"
+                ),
                 reward["id"],
             )
         great_orb_quantity = QSpinBox()
@@ -11650,12 +11901,29 @@ def show_main_menu(
                 great_orb_quantity.blockSignals(signals_blocked)
             quantity = great_orb_quantity.value()
             cost = int(selected_reward["tokens"]) * quantity if selected_reward else 0
-            affordable = selected_reward is not None and int(view["tokens"]) >= cost
+            locked_reason = (
+                str(selected_reward.get("locked_reason", ""))
+                if selected_reward
+                else "That reward is unavailable."
+            )
+            affordable = (
+                selected_reward is not None
+                and not locked_reason
+                and int(view["tokens"]) >= cost
+            )
+            great_orb_buy.setText(
+                str(selected_reward.get("button_label", "Buy"))
+                if selected_reward
+                else "Buy"
+            )
             great_orb_buy.setEnabled(
                 on_great_orb_project_command is not None and affordable and not active
             )
             great_orb_buy.setToolTip(
-                "" if affordable else f"Requires {cost} Runecrafting Guild tokens."
+                ""
+                if affordable
+                else locked_reason
+                or f"Requires {cost} Runecrafting Guild tokens."
             )
             selected = active and player_data.get("current_utility") == GREAT_ORB_PROJECT_ACTIVITY_ID
             great_orb_primary.setText(

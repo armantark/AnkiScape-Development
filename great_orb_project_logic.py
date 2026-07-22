@@ -15,6 +15,8 @@ try:
         GREAT_ORB_PROJECT_REWARDS,
         GREAT_ORB_PROJECT_ROUNDS,
         GREAT_ORB_PROJECT_TEMP_CAPACITY,
+        OMNI_TALISMAN_ACCESS_PAIRS,
+        OMNI_TALISMAN_XP,
     )
 except ImportError:  # pragma: no cover - flat test imports
     from great_orb_project_data import (  # type: ignore
@@ -25,10 +27,12 @@ except ImportError:  # pragma: no cover - flat test imports
         GREAT_ORB_PROJECT_REWARDS,
         GREAT_ORB_PROJECT_ROUNDS,
         GREAT_ORB_PROJECT_TEMP_CAPACITY,
+        OMNI_TALISMAN_ACCESS_PAIRS,
+        OMNI_TALISMAN_XP,
     )
 
 
-GREAT_ORB_PROJECT_STATE_VERSION = 1
+GREAT_ORB_PROJECT_STATE_VERSION = 2
 _VALID_MODES = frozenset({"casual", "advanced"})
 _VALID_DOCTRINES = frozenset(key for key, _label in GREAT_ORB_PROJECT_DOCTRINES)
 _VALID_CRAFTING_POLICIES = frozenset(
@@ -69,6 +73,7 @@ def default_great_orb_project_state_pure() -> dict[str, Any]:
             "automation_mode": "casual",
             "doctrine": "balanced",
             "crafting_policy": "craft_each_round",
+            "omni_talisman_xp_claimed": False,
             "active": {},
         },
         "great_orb_project_last_result": "",
@@ -112,6 +117,9 @@ def sanitize_great_orb_project_state_pure(raw: Any) -> dict[str, Any]:
             if crafting in _VALID_CRAFTING_POLICIES
             else "craft_each_round"
         ),
+        "omni_talisman_xp_claimed": bool(
+            source.get("omni_talisman_xp_claimed")
+        ),
         "active": _sanitize_active(source.get("active")),
     }
 
@@ -129,6 +137,18 @@ def sanitize_great_orb_project_player_state_pure(
     )
     if state["active"] and active_id not in {"", GREAT_ORB_PROJECT_ACTIVITY_ID}:
         state["active"] = {}
+    inventory = data.get("inventory")
+    hood = data.get("wicked_hood")
+    if not state["omni_talisman_xp_claimed"] and (
+        isinstance(inventory, Mapping)
+        and (
+            _int(inventory.get("Omni-talisman")) > 0
+            or _int(inventory.get("Omni-tiara")) > 0
+        )
+        or isinstance(hood, Mapping)
+        and bool(hood.get("omni_fed"))
+    ):
+        state["omni_talisman_xp_claimed"] = True
     return {
         "great_orb_project": state,
         "great_orb_project_last_result": str(
@@ -385,6 +405,48 @@ def leave_great_orb_project_pure(
     return data, True, {"message": data["great_orb_project_last_result"]}
 
 
+def _missing_omni_access_pure(inventory: Mapping[str, Any]) -> tuple[str, ...]:
+    return tuple(
+        talisman.removesuffix(" talisman")
+        for talisman, tiara in OMNI_TALISMAN_ACCESS_PAIRS
+        if _int(inventory.get(talisman)) <= 0 and _int(inventory.get(tiara)) <= 0
+    )
+
+
+def _great_orb_reward_locked_reason_pure(
+    player_data: Mapping[str, Any],
+    state: Mapping[str, Any],
+    reward_id: str,
+    reward: Mapping[str, Any],
+) -> str:
+    if _int(player_data.get("runecrafting_level"), 1, maximum=99) < 50:
+        return "Requires level 50 Runecrafting."
+    if state.get("active"):
+        return "Finish or leave the current match first."
+    inventory = player_data.get("inventory")
+    inventory = inventory if isinstance(inventory, Mapping) else {}
+    if reward_id == "omni_talisman":
+        if _int(inventory.get("Omni-talisman")) > 0:
+            return "You already have an Omni-talisman."
+        if not state.get("omni_talisman_xp_claimed"):
+            missing = _missing_omni_access_pure(inventory)
+            if missing:
+                return "Show Elriss one talisman or tiara for: " + ", ".join(missing) + "."
+        return ""
+    if reward_id == "omni_tiara":
+        if _int(inventory.get("Omni-talisman")) <= 0:
+            return "Requires an Omni-talisman."
+        if _int(inventory.get("Tiara")) <= 0:
+            return "Requires a Tiara."
+        return ""
+    cost = int(reward.get("tokens", 0) or 0)
+    return (
+        ""
+        if int(state.get("tokens", 0) or 0) >= cost
+        else f"Requires {cost} Runecrafting Guild tokens."
+    )
+
+
 def buy_great_orb_project_reward_pure(
     player_data: Mapping[str, Any], reward_id: Any, quantity: Any = 1
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
@@ -393,9 +455,62 @@ def buy_great_orb_project_reward_pure(
     state = sanitized["great_orb_project"]
     if state["active"]:
         return data, False, {"reason": "Finish or leave the current match first."}
+    if _int(data.get("runecrafting_level"), 1, maximum=99) < 50:
+        return data, False, {"reason": "Requires level 50 Runecrafting."}
     reward = GREAT_ORB_PROJECT_REWARDS.get(str(reward_id))
     if reward is None:
         return data, False, {"reason": "Unknown Great Orb Project reward."}
+    inventory = dict(data.get("inventory") or {})
+    if str(reward_id) == "omni_talisman":
+        if _int(inventory.get("Omni-talisman")) > 0:
+            return data, False, {"reason": "You already have an Omni-talisman."}
+        first_claim = not state["omni_talisman_xp_claimed"]
+        missing = _missing_omni_access_pure(inventory) if first_claim else ()
+        if missing:
+            return data, False, {
+                "reason": "Show Elriss one talisman or tiara for: " + ", ".join(missing) + "."
+            }
+        inventory["Omni-talisman"] = 1
+        xp = OMNI_TALISMAN_XP if first_claim else 0.0
+        if xp:
+            data["runecrafting_exp"] = _non_negative_float(
+                data.get("runecrafting_exp")
+            ) + xp
+            state["omni_talisman_xp_claimed"] = True
+        data.update(sanitized)
+        data["great_orb_project"] = state
+        data["inventory"] = inventory
+        data["great_orb_project_last_result"] = (
+            "Wizard Elriss · Omni-talisman claimed"
+            + (" · 13,605 Runecrafting XP" if xp else "")
+        )
+        return data, True, {
+            "message": data["great_orb_project_last_result"],
+            "item": "Omni-talisman",
+            "quantity": 1,
+            "tokens_spent": 0,
+            "xp": xp,
+        }
+    if str(reward_id) == "omni_tiara":
+        if _int(inventory.get("Omni-talisman")) <= 0:
+            return data, False, {"reason": "Requires an Omni-talisman."}
+        if _int(inventory.get("Tiara")) <= 0:
+            return data, False, {"reason": "Requires a Tiara."}
+        inventory["Omni-talisman"] -= 1
+        inventory["Tiara"] -= 1
+        inventory["Omni-tiara"] = _int(inventory.get("Omni-tiara")) + 1
+        data.update(sanitized)
+        data["great_orb_project"] = state
+        data["inventory"] = inventory
+        data["great_orb_project_last_result"] = (
+            "Wizard Korvak · Omni-talisman and Tiara combined into an Omni-tiara"
+        )
+        return data, True, {
+            "message": data["great_orb_project_last_result"],
+            "item": "Omni-tiara",
+            "quantity": 1,
+            "tokens_spent": 0,
+        }
     purchases = (
         max(1, min(_int(quantity, 1), 10_000))
         if str(reward_id) == "pure_essence"
@@ -406,7 +521,6 @@ def buy_great_orb_project_reward_pure(
         return data, False, {"reason": f"Requires {cost} Runecrafting Guild tokens."}
     item = str(reward["item"])
     item_quantity = int(reward.get("quantity", 1)) * purchases
-    inventory = dict(data.get("inventory") or {})
     inventory[item] = _int(inventory.get(item)) + item_quantity
     state["tokens"] -= cost
     data.update(sanitized)
@@ -451,6 +565,19 @@ def great_orb_project_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any
     active = state["active"]
     round_index = int(active.get("round", 0))
     eligible = _int(player_data.get("runecrafting_level"), 1, maximum=99) >= 50
+    rewards = []
+    for reward_id, row in GREAT_ORB_PROJECT_REWARDS.items():
+        locked_reason = _great_orb_reward_locked_reason_pure(
+            player_data, state, reward_id, row
+        )
+        rewards.append(
+            {
+                "id": reward_id,
+                **row,
+                "affordable": not locked_reason,
+                "locked_reason": locked_reason,
+            }
+        )
     return {
         "activity_id": GREAT_ORB_PROJECT_ACTIVITY_ID,
         "eligible": eligible,
@@ -473,12 +600,6 @@ def great_orb_project_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any
         "crafted_essence": int(active.get("crafted_essence", 0)),
         "xp_earned": float(active.get("xp_earned", 0.0)),
         "last_result": sanitized["great_orb_project_last_result"],
-        "rewards": tuple(
-            {
-                "id": reward_id,
-                **row,
-                "affordable": state["tokens"] >= int(row["tokens"]),
-            }
-            for reward_id, row in GREAT_ORB_PROJECT_REWARDS.items()
-        ),
+        "omni_talisman_xp_claimed": bool(state["omni_talisman_xp_claimed"]),
+        "rewards": tuple(rewards),
     }
