@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Varrock Museum horizontal closure</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #11130f;
+      --panel: #1c2119;
+      --panel-2: #262d21;
+      --text: #f3f0df;
+      --muted: #b7baa9;
+      --green: #9cc46b;
+      --gold: #e8c76b;
+      --blue: #8bc5d5;
+      --line: #3d4835;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 15% 0%, #29301f 0, transparent 32rem),
+        linear-gradient(145deg, var(--bg), #171b14 55%, #0d100c);
+      color: var(--text);
+      font: 15px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1080px, calc(100% - 32px)); margin: 0 auto; padding: 44px 0 64px; }
+    header { display: grid; gap: 14px; margin-bottom: 26px; }
+    .eyebrow { color: var(--green); font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { margin: 0; max-width: 820px; font-family: Georgia, serif; font-size: clamp(34px, 6vw, 64px); line-height: .98; letter-spacing: -.035em; }
+    .lede { margin: 0; max-width: 760px; color: var(--muted); font-size: 18px; }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
+    .card {
+      grid-column: span 4;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(155deg, rgba(38,45,33,.96), rgba(25,30,23,.96));
+      box-shadow: 0 16px 50px rgba(0,0,0,.18);
+    }
+    .wide { grid-column: span 8; }
+    .full { grid-column: 1 / -1; }
+    .metric { color: var(--gold); font-family: Georgia, serif; font-size: 42px; line-height: 1; }
+    .label { margin-top: 7px; color: var(--muted); }
+    h2 { margin: 0 0 14px; font-size: 18px; }
+    .flow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .step { min-height: 128px; padding: 15px; border: 1px solid var(--line); border-radius: 12px; background: rgba(17,19,15,.55); }
+    .step b { display: block; margin-bottom: 7px; color: var(--blue); }
+    .bar { height: 12px; overflow: hidden; border-radius: 999px; background: #0d100c; border: 1px solid var(--line); }
+    .bar span { display: block; width: 89.1%; height: 100%; background: linear-gradient(90deg, var(--green), var(--gold)); }
+    .split { display: flex; justify-content: space-between; gap: 16px; margin-top: 9px; color: var(--muted); font-size: 13px; }
+    ul { margin: 0; padding-left: 20px; }
+    li + li { margin-top: 7px; }
+    .pass { color: var(--green); font-weight: 800; }
+    .deferred { color: var(--gold); font-weight: 800; }
+    footer { margin-top: 20px; color: var(--muted); font-size: 13px; }
+    code { color: var(--blue); }
+    @media (max-width: 760px) {
+      main { width: min(100% - 22px, 1080px); padding-top: 28px; }
+      .card, .wide { grid-column: 1 / -1; }
+      .flow { grid-template-columns: 1fr; }
+      .split { flex-direction: column; gap: 2px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">AnkiScape · horizontal breadth closure · 2026-07-22</div>
+    <h1>Varrock Museum is a complete review-driven landmark.</h1>
+    <p class="lede">The Museum now joins quiz work, specimen cleaning, quest stories, direct rewards, persistent Kudos, and the Digsite-pendant Magic unlock without inventing the missing historical cleaning probability.</p>
+  </header>
+
+  <section class="grid" aria-label="Closure summary">
+    <article class="card">
+      <div class="metric">183</div>
+      <div class="label">Period source maximum Kudos</div>
+    </article>
+    <article class="card">
+      <div class="metric">163</div>
+      <div class="label">Kudos reachable in the live horizontal slice</div>
+    </article>
+    <article class="card">
+      <div class="metric">0</div>
+      <div class="label">New owner design gaps</div>
+    </article>
+
+    <article class="card wide">
+      <h2>One persistent Museum, three entry paths</h2>
+      <div class="flow">
+        <div class="step"><b>Natural history</b>Fourteen successful reviews complete fourteen displays for 28 Kudos. Orlando then grants the one-time Hunter and Slayer XP package.</div>
+        <div class="step"><b>Specimen cleaning</b>Five reviews complete the five 10-Kudos exhibits. A sixth finds the Clean necklace and unlocks Digsite-pendant enchanting.</div>
+        <div class="step"><b>Historian Minas</b>Sixteen represented quest stories award 85 Kudos. Physical story items must be in the Museum carried pack.</div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Period breadth</h2>
+      <div class="bar" aria-label="163 of 183 Kudos implemented"><span></span></div>
+      <div class="split"><span>89.1% live</span><span>20 dependency-owned</span></div>
+      <p>The omitted ten Ghostly Robes Kudos and ten Shattered Heart Kudos remain with their owning systems. They are not Museum mechanic gaps.</p>
+    </article>
+
+    <article class="card full">
+      <h2>Verification ledger</h2>
+      <ul>
+        <li><span class="pass">PASS</span> Current-HEAD ordinary discovery: 2,419 tests, 306 declared environment skips.</li>
+        <li><span class="pass">PASS</span> Full real offscreen Qt snapshot: 2,417 tests, one expected skip; the concurrent Familiarisation addition also passes its complete 28-test module under Qt.</li>
+        <li><span class="pass">PASS</span> Focused pure, runtime, migration, registry, Magic, direct-undo, asset, and real-Qt interaction coverage.</li>
+        <li><span class="pass">PASS</span> Documentation, test-quality, provenance, asset normalization, compilation, diff, and worktree safety checks.</li>
+        <li><span class="deferred">HONESTLY DEFERRED</span> Native Anki inspection because the Mac was locked; external Kimi/Fable taste review because the owner quota hold remains active.</li>
+      </ul>
+    </article>
+  </section>
+
+  <footer>Durable technical record: <code>memory-bank/source-audits/varrock-museum-horizontal-readiness-2026-07-22.md</code></footer>
+</main>
+</body>
+</html>

@@ -5931,6 +5931,44 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
+    def test_varrock_museum_kit_is_a_direct_undoable_action(self):
+        addon = _load_addon_as_package("ankiscape_varrock_museum_integration")
+        logic = sys.modules[f"{addon.__name__}.varrock_museum_logic"]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon.current_skill = "Activities"
+        initial = {
+            "inventory": {},
+            "equipment": {},
+            "quests": {},
+            "smithing_level": 1,
+            "varrock_museum": logic.default_varrock_museum_state_pure(),
+        }
+        addon.player_data = copy.deepcopy(initial)
+
+        addon._on_main_menu()
+        result = captured["on_varrock_museum_command"]("take_cleaning_kit", {})
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(
+            set(addon.player_data["inventory"]),
+            {"Trowel", "Rock pick", "Specimen brush", "Leather gloves", "Leather boots"},
+        )
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
     def test_phoenix_lair_entry_is_direct_and_undoable(self):
         addon = _load_addon_as_package("ankiscape_phoenix_entry_integration")
         storage = sys.modules[f"{addon.__name__}.storage_pure"]

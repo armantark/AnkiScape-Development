@@ -1075,6 +1075,38 @@ class TestStoragePure(unittest.TestCase):
             {"automation_mode": "casual", "lander_id": "novice", "duty": "assault"},
         )
 
+    def test_migrate_adds_and_sanitizes_varrock_museum_state(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 75,
+                "inventory": {},
+                "varrock_museum": {
+                    "route": "broken",
+                    "quiz_completed": ["Lizard", "Lizard", "Fake"],
+                    "specimens_displayed": ["pottery", "fake"],
+                    "digsite_pendant_unlocked": 1,
+                    "quest_stories_claimed": ["demon_slayer", "fake"],
+                    "threshold_rewards_claimed": ["kudos_51", "fake"],
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(migrated["varrock_museum"]["route"], "quiz")
+        self.assertEqual(migrated["varrock_museum"]["quiz_completed"], ["Lizard"])
+        self.assertEqual(migrated["varrock_museum"]["specimens_displayed"], ["pottery"])
+        self.assertTrue(migrated["varrock_museum"]["digsite_pendant_unlocked"])
+        self.assertEqual(
+            migrated["varrock_museum"]["quest_stories_claimed"],
+            ["demon_slayer"],
+        )
+        self.assertEqual(
+            migrated["varrock_museum"]["threshold_rewards_claimed"],
+            ["kudos_51"],
+        )
+
     def test_migrate_idempotent(self):
         base = {"mining_exp": 10, "inventory": {}}
         first = migrate_loaded_data(base, ORE_DATA)

@@ -256,6 +256,11 @@ try:
         apply_pest_control_review_pure,
         pest_control_view_pure,
     )
+    from .varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
+    from .varrock_museum_logic import (
+        apply_varrock_museum_review_pure,
+        varrock_museum_view_pure,
+    )
     from .managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
     from .managing_miscellania_logic import (
         apply_managing_miscellania_review_pure,
@@ -599,6 +604,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from pest_control_logic import (  # type: ignore
         apply_pest_control_review_pure,
         pest_control_view_pure,
+    )
+    from varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID  # type: ignore
+    from varrock_museum_logic import (  # type: ignore
+        apply_varrock_museum_review_pure,
+        varrock_museum_view_pure,
     )
     from managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID  # type: ignore
     from managing_miscellania_logic import (  # type: ignore
@@ -3709,6 +3719,35 @@ def handle_pest_control_answer(
     return True
 
 
+def handle_varrock_museum_answer(ctx: RuntimeActionContext) -> bool:
+    updated, ok, result = apply_varrock_museum_review_pure(ctx.player_data)
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Varrock Museum unavailable",
+            str(result.get("reason", "Choose an unfinished museum route.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    _record_action(
+        ctx,
+        "utility",
+        VARROCK_MUSEUM_ACTIVITY_ID,
+        True,
+        expected_success_chance=1.0,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_activity_gain(
+        str(result.get("status") or "Varrock Museum landmark completed")
+    )
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
 def _handle_managing_miscellania_answer(ctx: RuntimeActionContext) -> bool:
     updated, result = apply_managing_miscellania_review_pure(ctx.player_data)
     if not result.get("allowed"):
@@ -3791,6 +3830,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return handle_castle_wars_answer(ctx)
     if activity_key == PEST_CONTROL_ACTIVITY_ID:
         return handle_pest_control_answer(ctx)
+    if activity_key == VARROCK_MUSEUM_ACTIVITY_ID:
+        return handle_varrock_museum_answer(ctx)
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:
         return _handle_managing_miscellania_answer(ctx)
     if activity_key == STRONGHOLD_UTILITY_KEY:
@@ -4406,7 +4447,7 @@ def handle_magic_answer(ctx: RuntimeActionContext) -> bool:
                     spec.get("consumer_unavailable")
                     and text == str(spec["consumer_unavailable"])
                 )
-                or text.startswith(("Attune ", "Choose "))
+                or text.startswith(("Attune ", "Choose ", "Learn "))
                 or (
                     target in {"cure_plant", "fertile_soil"}
                     and " x" not in text
@@ -6137,6 +6178,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return bool(castle_wars_view_pure(ctx.player_data).get("active", False))
     if activity_key == PEST_CONTROL_ACTIVITY_ID:
         return bool(pest_control_view_pure(ctx.player_data).get("active", False))
+    if activity_key == VARROCK_MUSEUM_ACTIVITY_ID:
+        return bool(varrock_museum_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:
         return bool(managing_miscellania_view_pure(ctx.player_data).get("can_train", False))
     return not utility_activity_locked_reasons_pure(

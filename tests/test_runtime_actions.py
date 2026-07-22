@@ -71,6 +71,26 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_varrock_museum_routes_one_landmark_through_utility(self):
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "current_utility": "varrock_museum",
+            "inventory": {},
+            "equipment": {},
+            "quests": {},
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(handle_utility_answer(_context(player_data, calls)))
+
+        self.assertEqual(player_data["varrock_museum"]["quiz_completed"], ["Lizard"])
+        self.assertEqual(calls["saves"], 1)
+        self.assertIn("+2 Kudos", calls["activity"][-1])
+        self.assertIn(
+            "utility:varrock_museum",
+            player_data["action_telemetry"]["actions"],
+        )
+
     def test_pest_control_routes_through_utility_and_settles_period_rewards(self):
         from pest_control_logic import enter_pest_control_pure
 

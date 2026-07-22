@@ -628,6 +628,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "varrock_museum":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "varrock_museum",
+                    "mode": "activity_group",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One review completes one natural-history display or "
+                        "represents cleaning enough finds for the next missing "
+                        "specimen exhibit; no unrecovered probability is invented."
+                    ),
+                    "includes": (
+                        "one persistent quiz or specimen-cleaning landmark",
+                        "one direct one-time reward or story claim outside reviews",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains "
+                        "one museum landmark beat"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same single-landmark review handler",
+                    "profile": None,
+                    "condition": "selected incomplete route and satisfied cleaning gates",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "penguin_hide_and_seek":
             rows.append(
                 {

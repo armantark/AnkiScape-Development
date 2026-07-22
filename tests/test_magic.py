@@ -139,6 +139,27 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
             with self.subTest(target_id=target_id):
                 self.assertEqual(MAGIC_DATA[target_id]["requirements"], {item_name: 1})
 
+    def test_digsite_pendant_enchant_requires_the_museum_discovery(self):
+        runes = {"Cosmic rune": 1, "Fire rune": 5}
+        player = {
+            "magic_level": 99,
+            "inventory": {**runes, "Ruby necklace": 1},
+        }
+        reason = "Learn Digsite-pendant enchanting at Varrock Museum"
+        self.assertIn(
+            reason,
+            magic_target_locked_reasons_pure(
+                player, "enchant_ruby_necklace", MAGIC_DATA, {}
+            ),
+        )
+        player["varrock_museum"] = {"digsite_pendant_unlocked": True}
+        self.assertEqual(
+            magic_target_locked_reasons_pure(
+                player, "enchant_ruby_necklace", MAGIC_DATA, {}
+            ),
+            (),
+        )
+
     def test_enchant_amulet_requires_the_strung_item_identity(self):
         runes = {"Cosmic rune": 1, "Water rune": 1}
         unstrung = {

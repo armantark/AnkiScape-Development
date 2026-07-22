@@ -4,6 +4,37 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Varrock Museum horizontal mechanic closure — 2026-07-22
+
+- Added a persistent derived Kudos ledger with fourteen quiz displays, five
+  specimen exhibits, the Clean-necklace Digsite-pendant unlock, sixteen
+  representable quest-story claims, Orlando's one-time XP, and all three exact
+  Kudos milestone packages.
+- Cleaning requires The Dig Site, worn Leather gloves and boots, and Trowel,
+  Rock pick, and Specimen brush in the Museum carried pack. Dagon'hai history
+  and the Prophecy tablet must likewise be brought in that pack for Minas.
+- The missing period cleaning probability is not fabricated. One review
+  represents enough cleaning for the next exhibit, followed by one final
+  Clean-necklace discovery; this translation is disclosed in cadence coverage.
+- Added schema 76 persistence, review telemetry, direct/review undo, the Magic
+  target gate, period item identities, normalized assets and provenance,
+  reproducible fetch/render tools, and a compact Landmark card.
+- The source maximum remains 183 Kudos. Ghostly Robes and Shattered Heart own
+  the currently unavailable 20 points; the live 163-point subtotal still
+  reaches every threshold. Remaining cleaning distributions and ordinary
+  rewards are data depth, and no design question surfaced.
+- Focused unit, integration, migration, registry, Magic, asset-normalization,
+  and real-Qt interaction checks pass. Current-HEAD ordinary discovery passes
+  all 2,419 methods with 306 declared environment skips. The offscreen Qt
+  discovery snapshot passes all 2,417 methods with one skip, and the concurrent
+  Familiarisation addition separately passes its full 28-test module under
+  ordinary Python and real offscreen Qt. Documentation, test-quality,
+  provenance, compilation, diff, and worktree-guard checks also pass. Native
+  Anki remains unclaimed while the Mac is locked, and the Kimi/Fable taste pass
+  is deferred under the owner's quota hold.
+- Published the self-contained closure report at
+  <https://fe2ohwaibdw3.postplan.dev>.
+
 ## Pest Control horizontal mechanic closure — 2026-07-21
 
 - Integrated the twelve-beat shared assault through schema 75, storage repair,

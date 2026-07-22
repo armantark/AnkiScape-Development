@@ -534,6 +534,21 @@ except Exception:
     from pest_control_logic import pest_control_view_pure  # type: ignore
 
 try:
+    from .varrock_museum_data import (
+        QUIZ_DISPLAYS,
+        SPECIMEN_DISPLAYS,
+        VARROCK_MUSEUM_ACTIVITY_ID,
+    )
+    from .varrock_museum_logic import varrock_museum_view_pure
+except Exception:
+    from varrock_museum_data import (  # type: ignore
+        QUIZ_DISPLAYS,
+        SPECIMEN_DISPLAYS,
+        VARROCK_MUSEUM_ACTIVITY_ID,
+    )
+    from varrock_museum_logic import varrock_museum_view_pure  # type: ignore
+
+try:
     from .managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
     from .managing_miscellania_logic import managing_miscellania_view_pure
 except Exception:
@@ -3611,6 +3626,7 @@ def show_main_menu(
     on_trouble_brewing_command=None,
     on_castle_wars_command=None,
     on_pest_control_command=None,
+    on_varrock_museum_command=None,
     on_managing_miscellania_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
@@ -13638,6 +13654,217 @@ def show_main_menu(
         pest_leave.clicked.connect(lambda _checked=False: _confirm_pest_leave())
         _refresh_pest_panel()
 
+        museum_box = QtFrame()
+        museum_box.setObjectName("varrockMuseumPanel")
+        museum_box.setStyleSheet(
+            "QFrame#varrockMuseumPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        museum_layout = QVBoxLayout(museum_box)
+        museum_layout.setContentsMargins(10, 8, 10, 8)
+        museum_layout.setSpacing(7)
+
+        museum_header = QWidget()
+        museum_header_layout = QHBoxLayout(museum_header)
+        museum_header_layout.setContentsMargins(0, 0, 0, 0)
+        museum_header_layout.setSpacing(8)
+        museum_icon = QLabel()
+        museum_icon.setObjectName("varrockMuseumIcon")
+        museum_icon.setFixedSize(28, 28)
+        museum_icon_path = os.path.join(
+            current_dir, "activityicons", "varrock_museum.png"
+        )
+        if os.path.exists(museum_icon_path):
+            museum_icon.setPixmap(
+                QPixmap(museum_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+        museum_title = QLabel("Varrock Museum")
+        museum_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        museum_status = QLabel()
+        museum_status.setObjectName("varrockMuseumStatusChip")
+        museum_status.setStyleSheet(
+            f"color: {dim_text_css(museum_status)}; font-size: 11px; font-weight: 700;"
+        )
+        museum_header_layout.addWidget(museum_icon)
+        museum_header_layout.addWidget(museum_title)
+        museum_header_layout.addStretch(1)
+        museum_header_layout.addWidget(museum_status)
+        museum_layout.addWidget(museum_header)
+
+        museum_summary = QLabel()
+        museum_summary.setObjectName("varrockMuseumSummary")
+        museum_summary.setWordWrap(True)
+        museum_summary.setStyleSheet("color: palette(text);")
+        museum_layout.addWidget(museum_summary)
+
+        museum_progress = QProgressBar()
+        museum_progress.setObjectName("varrockMuseumProgress")
+        museum_progress.setTextVisible(True)
+        museum_progress.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 4px; }"
+            "QProgressBar::chunk { background: #6f8150; }"
+        )
+        museum_layout.addWidget(museum_progress)
+
+        museum_route_row = QWidget()
+        museum_route_layout = QHBoxLayout(museum_route_row)
+        museum_route_layout.setContentsMargins(0, 0, 0, 0)
+        museum_route_layout.setSpacing(6)
+        museum_route = QComboBox()
+        museum_route.setObjectName("varrockMuseumRouteCombo")
+        museum_route.setAccessibleName("Varrock Museum route")
+        museum_route.addItem("Natural history quiz", "quiz")
+        museum_route.addItem("Specimen cleaning", "cleaning")
+        museum_primary = QPushButton()
+        museum_primary.setObjectName("varrockMuseumPrimaryButton")
+        museum_route_layout.addWidget(museum_route, 1)
+        museum_route_layout.addWidget(museum_primary, 1)
+        museum_layout.addWidget(museum_route_row)
+
+        museum_note = QLabel()
+        museum_note.setObjectName("varrockMuseumNote")
+        museum_note.setWordWrap(True)
+        museum_note.setStyleSheet(f"color: {dim_text_css(museum_note)};")
+        museum_layout.addWidget(museum_note)
+
+        museum_services = QWidget()
+        museum_services_layout = QGridLayout(museum_services)
+        museum_services_layout.setContentsMargins(0, 0, 0, 0)
+        museum_services_layout.setHorizontalSpacing(6)
+        museum_services_layout.setVerticalSpacing(5)
+        museum_kit = QPushButton("Take cleaning kit")
+        museum_kit.setObjectName("varrockMuseumKitButton")
+        museum_stories = QPushButton("Tell quest stories")
+        museum_stories.setObjectName("varrockMuseumStoriesButton")
+        museum_orlando = QPushButton("Claim Orlando XP")
+        museum_orlando.setObjectName("varrockMuseumOrlandoButton")
+        museum_thresholds = QPushButton("Claim Kudos rewards")
+        museum_thresholds.setObjectName("varrockMuseumThresholdsButton")
+        museum_services_layout.addWidget(museum_kit, 0, 0)
+        museum_services_layout.addWidget(museum_stories, 0, 1)
+        museum_services_layout.addWidget(museum_orlando, 1, 0)
+        museum_services_layout.addWidget(museum_thresholds, 1, 1)
+        museum_layout.addWidget(museum_services)
+        cards_stack.addWidget(museum_box)
+
+        syncing_museum = {"active": False}
+
+        def _run_museum_command(action_id: str, payload=None) -> dict[str, Any]:
+            if on_varrock_museum_command is None:
+                return {"ok": False, "message": "Museum actions are unavailable."}
+            result = on_varrock_museum_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Varrock Museum",
+                    str(result.get("message", "That museum action is unavailable.")),
+                )
+            _refresh_museum_panel()
+            return result
+
+        def _refresh_museum_panel() -> None:
+            syncing_museum["active"] = True
+            view = varrock_museum_view_pure(player_data)
+            route = str(view["route"])
+            museum_route.setCurrentIndex(max(0, museum_route.findData(route)))
+            quiz_done = len(QUIZ_DISPLAYS) - int(view["quiz_remaining"])
+            specimens_done = len(SPECIMEN_DISPLAYS) - int(view["specimens_remaining"])
+            museum_status.setText("QUIZ" if route == "quiz" else "CLEANING")
+            museum_summary.setText(
+                f"{int(view['kudos'])}/{int(view['source_max_kudos'])} Kudos · "
+                f"{int(view['implemented_max_kudos'])} currently reachable\n"
+                f"Quiz {quiz_done}/{len(QUIZ_DISPLAYS)} · "
+                f"exhibits {specimens_done}/{len(SPECIMEN_DISPLAYS)} · "
+                f"stories ready {len(view['claimable_quest_stories'])}"
+            )
+            if route == "quiz":
+                museum_progress.setRange(0, len(QUIZ_DISPLAYS))
+                museum_progress.setValue(quiz_done)
+                museum_progress.setFormat("Natural history displays %v of 14")
+                route_note = "One successful review completes the next display."
+            else:
+                cleaning_done = specimens_done + int(bool(view["digsite_pendant_unlocked"]))
+                museum_progress.setRange(0, len(SPECIMEN_DISPLAYS) + 1)
+                museum_progress.setValue(cleaning_done)
+                museum_progress.setFormat("Museum discoveries %v of 6")
+                locks = tuple(view["cleaning_locked_reasons"])
+                route_note = (
+                    "Before cleaning: " + ", ".join(locks) + "."
+                    if locks
+                    else "One successful review fills the next exhibit or finds the Clean necklace."
+                )
+            last_result = str(view.get("last_result", ""))
+            museum_note.setText(
+                route_note + (f"\n{last_result}" if last_result else "")
+            )
+            selected = (
+                player_data.get("current_utility") == VARROCK_MUSEUM_ACTIVITY_ID
+            )
+            museum_primary.setText(
+                "Selected for reviews"
+                if selected and view["can_review"]
+                else "Select for reviews"
+                if view["can_review"]
+                else "Route complete or locked"
+            )
+            museum_primary.setEnabled(
+                on_varrock_museum_command is not None
+                and bool(view["can_review"])
+                and not selected
+            )
+            museum_route.setEnabled(on_varrock_museum_command is not None)
+            museum_kit.setEnabled(on_varrock_museum_command is not None)
+            museum_stories.setEnabled(
+                on_varrock_museum_command is not None
+                and bool(view["claimable_quest_stories"])
+            )
+            museum_orlando.setEnabled(
+                on_varrock_museum_command is not None and bool(view["can_claim_orlando"])
+            )
+            museum_thresholds.setEnabled(
+                on_varrock_museum_command is not None
+                and bool(view["claimable_thresholds"])
+            )
+            syncing_museum["active"] = False
+            _fit_current_activity_detail()
+
+        def _select_museum_for_reviews() -> None:
+            if not varrock_museum_view_pure(player_data)["can_review"]:
+                return
+            if _request_utility_selection(VARROCK_MUSEUM_ACTIVITY_ID):
+                _refresh_museum_panel()
+
+        museum_route.currentIndexChanged.connect(
+            lambda _index: (
+                None
+                if syncing_museum["active"]
+                else _run_museum_command(
+                    "set_route", {"route": str(museum_route.currentData())}
+                )
+            )
+        )
+        museum_primary.clicked.connect(
+            lambda _checked=False: _select_museum_for_reviews()
+        )
+        museum_kit.clicked.connect(
+            lambda _checked=False: _run_museum_command("take_cleaning_kit")
+        )
+        museum_stories.clicked.connect(
+            lambda _checked=False: _run_museum_command("claim_quest_stories")
+        )
+        museum_orlando.clicked.connect(
+            lambda _checked=False: _run_museum_command("claim_orlando_reward")
+        )
+        museum_thresholds.clicked.connect(
+            lambda _checked=False: _run_museum_command("claim_threshold_rewards")
+        )
+        _refresh_museum_panel()
+
         miscellania_box = QtFrame()
         miscellania_box.setObjectName("managingMiscellaniaPanel")
         miscellania_box.setStyleSheet(
@@ -16007,6 +16234,10 @@ def show_main_menu(
                 _refresh_pest_panel()
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == VARROCK_MUSEUM_ACTIVITY_ID:
+                _refresh_museum_panel()
+                _show_activity_detail(activity_id)
+                return
             if activity_id == MANAGING_MISCELLANIA_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
@@ -16062,6 +16293,7 @@ def show_main_menu(
             TROUBLE_BREWING_ACTIVITY_ID: ("Trouble Brewing", trouble_box),
             CASTLE_WARS_ACTIVITY_ID: ("Castle Wars", castle_box),
             PEST_CONTROL_ACTIVITY_ID: ("Pest Control", pest_box),
+            VARROCK_MUSEUM_ACTIVITY_ID: ("Varrock Museum", museum_box),
             MANAGING_MISCELLANIA_ACTIVITY_ID: (
                 "Managing Miscellania",
                 miscellania_box,

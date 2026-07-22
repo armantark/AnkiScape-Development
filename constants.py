@@ -98,6 +98,19 @@ except ImportError:
     )
 
 try:
+    from .varrock_museum_data import (
+        VARROCK_MUSEUM_ACTIVITY_ID,
+        varrock_museum_activity_as_dict,
+        varrock_museum_extra_items_as_dict,
+    )
+except ImportError:
+    from varrock_museum_data import (  # type: ignore
+        VARROCK_MUSEUM_ACTIVITY_ID,
+        varrock_museum_activity_as_dict,
+        varrock_museum_extra_items_as_dict,
+    )
+
+try:
     from .fight_caves_data import (
         FIGHT_CAVES_ACTIVITY_ID,
         fight_caves_activity_as_dict,
@@ -830,6 +843,7 @@ UTILITY_ACTIVITY_DATA.update(circus_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(trouble_brewing_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(castle_wars_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(pest_control_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(varrock_museum_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(phoenix_lair_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(stealing_creation_activity_as_dict())
@@ -927,6 +941,14 @@ _pest_control_icon = os.path.join(
 )
 if os.path.exists(_pest_control_icon):
     UTILITY_ACTIVITY_DATA[PEST_CONTROL_ACTIVITY_ID]["icon_path"] = _pest_control_icon
+_varrock_museum_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "varrock_museum.png",
+)
+if os.path.exists(_varrock_museum_icon):
+    UTILITY_ACTIVITY_DATA[VARROCK_MUSEUM_ACTIVITY_ID]["icon_path"] = (
+        _varrock_museum_icon
+    )
 _fight_caves_icon = os.path.join(current_dir, "constructionitems", "fire_cape.png")
 if os.path.exists(_fight_caves_icon):
     UTILITY_ACTIVITY_DATA[FIGHT_CAVES_ACTIVITY_ID]["icon_path"] = _fight_caves_icon
@@ -1656,6 +1678,7 @@ CIRCUS_EXTRA_ITEM_DATA = circus_extra_items_as_dict()
 TROUBLE_BREWING_EXTRA_ITEM_DATA = trouble_brewing_extra_items_as_dict()
 CASTLE_WARS_EXTRA_ITEM_DATA = castle_wars_extra_items_as_dict()
 PEST_CONTROL_EXTRA_ITEM_DATA = pest_control_extra_items_as_dict()
+VARROCK_MUSEUM_EXTRA_ITEM_DATA = varrock_museum_extra_items_as_dict()
 SORCERESS_GARDEN_EXTRA_ITEM_DATA = sorceress_garden_extra_items_as_dict()
 VINESWEEPER_EXTRA_ITEM_DATA = vinesweeper_extra_items_as_dict()
 FIGHT_CAVES_EXTRA_ITEM_DATA = fight_caves_extra_items_as_dict()
@@ -1731,6 +1754,19 @@ PEST_CONTROL_ITEM_IMAGES = {
 PEST_CONTROL_ITEM_IMAGES = {
     item_name: path
     for item_name, path in PEST_CONTROL_ITEM_IMAGES.items()
+    if os.path.exists(path)
+}
+VARROCK_MUSEUM_ITEM_IMAGES = {
+    item_name: os.path.join(
+        current_dir,
+        "activityitems",
+        f"varrock_museum_{_asset_slug(item_name)}.png",
+    )
+    for item_name in VARROCK_MUSEUM_EXTRA_ITEM_DATA
+}
+VARROCK_MUSEUM_ITEM_IMAGES = {
+    item_name: path
+    for item_name, path in VARROCK_MUSEUM_ITEM_IMAGES.items()
     if os.path.exists(path)
 }
 FISH_FLINGERS_ITEM_IMAGES = {}
@@ -2138,6 +2174,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **TROUBLE_BREWING_EXTRA_ITEM_DATA,
     **CASTLE_WARS_EXTRA_ITEM_DATA,
     **PEST_CONTROL_EXTRA_ITEM_DATA,
+    **VARROCK_MUSEUM_EXTRA_ITEM_DATA,
     **SORCERESS_GARDEN_EXTRA_ITEM_DATA,
     **VINESWEEPER_EXTRA_ITEM_DATA,
     **FIGHT_CAVES_EXTRA_ITEM_DATA,
@@ -2177,6 +2214,7 @@ EXTRA_ITEM_IMAGES = {
     **TROUBLE_BREWING_ITEM_IMAGES,
     **CASTLE_WARS_ITEM_IMAGES,
     **PEST_CONTROL_ITEM_IMAGES,
+    **VARROCK_MUSEUM_ITEM_IMAGES,
     **SORCERESS_GARDEN_ITEM_IMAGES,
     **VINESWEEPER_ITEM_IMAGES,
     **FIGHT_CAVES_ITEM_IMAGES,

@@ -155,6 +155,10 @@ try:
         default_pest_control_state_pure,
         sanitize_pest_control_state_pure,
     )
+    from .varrock_museum_logic import (
+        default_varrock_museum_state_pure,
+        sanitize_varrock_museum_state_pure,
+    )
     from .managing_miscellania_logic import (
         default_managing_miscellania_state_pure,
         sanitize_managing_miscellania_player_state_pure,
@@ -350,6 +354,10 @@ except ImportError:
         default_pest_control_state_pure,
         sanitize_pest_control_state_pure,
     )
+    from varrock_museum_logic import (  # type: ignore
+        default_varrock_museum_state_pure,
+        sanitize_varrock_museum_state_pure,
+    )
     from managing_miscellania_logic import (  # type: ignore
         default_managing_miscellania_state_pure,
         sanitize_managing_miscellania_player_state_pure,
@@ -391,7 +399,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 75
+CURRENT_CONFIG_VERSION = 76
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -635,6 +643,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_trouble_brewing_state_pure())
     data.update(default_castle_wars_state_pure())
     data.update(default_pest_control_state_pure())
+    data["varrock_museum"] = default_varrock_museum_state_pure()
     data.update(default_managing_miscellania_state_pure())
     data["activity_session"] = {"active_id": ""}
     data["sorceress_garden"] = default_sorceress_garden_state_pure()
@@ -1265,6 +1274,9 @@ def migrate_loaded_data(
     data.update(sanitize_trouble_brewing_state_pure(data))
     data.update(sanitize_castle_wars_state_pure(data))
     data.update(sanitize_pest_control_state_pure(data))
+    data["varrock_museum"] = sanitize_varrock_museum_state_pure(
+        data.get("varrock_museum")
+    )
     data.pop("agility_circus_last_week", None)
     agility_currencies = data.get("agility_activity_currencies")
     if isinstance(agility_currencies, dict):

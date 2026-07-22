@@ -2,6 +2,40 @@
 
 ## Current Focus
 
+Varrock Museum now satisfies horizontal breadth level one as an Activities-only
+Landmark with a derived persistent Kudos meter. The natural-history quiz uses
+fourteen one-review display landmarks for the sourced 28 Kudos and unlocks
+Orlando's one-time 1,000 Hunter plus 1,000 Slayer XP. Specimen cleaning enforces
+The Dig Site, worn Leather gloves and boots, and a manually configured carried
+pack containing the three museum tools. Because no qualifying period lineage
+preserves the cleaning roll, one review truthfully represents enough cleaning
+for the next missing 10-Kudos exhibit; a sixth discovery teaches the Ruby-
+necklace-to-Digsite-pendant enchantment without inventing a probability.
+
+Historian Minas claims sixteen representable quest stories once, including the
+carried Dagon'hai history and Prophecy tablet gates. The resulting live 85-point
+quest subtotal plus quiz and exhibits gives 163 currently reachable Kudos and
+exercises all exact 51/101/151 direct XP packages. Ghostly Robes and Shattered
+Heart own the omitted 20 points of the 183 source maximum. Schema 76, storage
+repair, cadence/telemetry, review/direct undo, item and activity registration,
+the Magic unlock, normalized cutoff art, and the compact paginated Landmark
+card are live. The hidden cleaning distribution and remaining ordinary reward
+catalog are explicit data depth; no owner design gap emerged.
+
+Focused pure, Magic, runtime, persistence, registry, direct-undo, asset, and
+real offscreen Qt interaction checks pass. Root inspected both 1200×760 dark-
+palette route renders. Current-HEAD ordinary discovery passes all 2,419
+methods with 306 declared environment skips. The real offscreen Qt discovery
+snapshot passes all 2,417 methods with one skip; the concurrent two-test
+Familiarisation addition separately passes its full 28-test module under both
+ordinary Python and real offscreen Qt. Documentation, test-quality,
+asset-normalization, provenance, compilation, diff, and worktree-guard checks
+also pass. Native Anki inspection is blocked only because the Mac is locked,
+and the owner-requested Kimi/Fable taste pass remains deferred under the active
+quota hold. Durable record:
+`source-audits/varrock-museum-horizontal-readiness-2026-07-22.md`; mobile
+closure report: <https://fe2ohwaibdw3.postplan.dev>.
+
 Pest Control now satisfies horizontal breadth level one as a persistent,
 Activities-only shared assault. Combat level 40 and lander tiers are enforced;
 active pets or familiars require explicit dismissal. Casual mode chooses the

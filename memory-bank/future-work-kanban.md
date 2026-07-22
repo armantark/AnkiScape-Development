@@ -14,6 +14,33 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+### Varrock Museum — horizontal mechanics shipped 2026-07-22
+
+Labels: `SOURCE AUDIT` only for deferred cleaning distribution and reward depth;
+`DEPENDENCY` for Ghostly Robes and Shattered Heart.
+
+- The derived persistent Kudos meter, fourteen-display quiz, five specimen
+  exhibits, final Clean-necklace discovery, sixteen representable quest-story
+  claims, Orlando reward, and exact 51/101/151 reward packages are live.
+- Cleaning enforces The Dig Site, worn leather gear, and the manually configured
+  Museum carried pack. The two physical Minas story items must also be brought
+  in that pack.
+- The rate-free one-review landmark translation is disclosed rather than
+  pretending the unrecovered cleaning probability is known. The resulting 163
+  live Kudos reach every reward threshold; the missing 20 remain with their
+  owning dependencies.
+- Schema 76, persistence, cadence, telemetry, Magic unlock, undo, normalized
+  period art, and the compact paginated Landmark card are live. No owner design
+  gap emerged.
+- Current-HEAD ordinary discovery passes all 2,419 methods. The full real
+  offscreen Qt snapshot passes 2,417, and the concurrent Familiarisation
+  addition separately passes its complete 28-test module under Qt;
+  documentation, test-quality, provenance, asset-normalization, compilation,
+  diff, and worktree-guard closure checks pass.
+- Durable audit:
+  `memory-bank/source-audits/varrock-museum-horizontal-readiness-2026-07-22.md`.
+- Closure report: <https://fe2ohwaibdw3.postplan.dev>.
+
 ### Pest Control — horizontal mechanics shipped 2026-07-21
 
 Labels: `SOURCE AUDIT` only for deferred catalog/rate depth.

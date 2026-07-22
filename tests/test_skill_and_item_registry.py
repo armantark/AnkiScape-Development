@@ -501,6 +501,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "trouble_brewing",
                 "castle_wars",
                 "pest_control",
+                "varrock_museum",
                 "sorceress_garden",
                 "penguin_hide_and_seek",
                 "vinesweeper",

@@ -352,6 +352,14 @@ for tier, gem, level, xp, runes, products in _JEWEL_TIERS:
         }.get((gem, form), f"{gem} {form}")
         _add(_spell(f"enchant_{gem.lower()}_{form}", f"Enchant {raw}", "standard", "Enchant jewellery", level, xp, runes, "transform", requirements={raw: 1}, outputs={product: 1}, source=f"{ENCHANT_SOURCE}; {STANDARD_WIKI}"))
 
+# The clean-necklace discovery at Varrock Museum teaches this specific ruby
+# necklace enchantment. The target remains visible before then so the lock is
+# legible alongside its ordinary Magic and material requirements.
+MAGIC_TARGETS["enchant_ruby_necklace"]["museum_unlock"] = "digsite_pendant"
+MAGIC_TARGETS["enchant_ruby_necklace"]["source"] += (
+    "; RuneScape Wiki Varrock Museum oldid=6550044 (2012-11-12)"
+)
+
 
 for gem, level, xp, runes in (
     ("Opal", 4, 9, {"Cosmic rune": 1, "Air rune": 2}),

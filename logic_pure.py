@@ -1470,6 +1470,13 @@ def magic_target_locked_reasons_pure(
     consumer_unavailable = spec.get("consumer_unavailable")
     if consumer_unavailable:
         reasons.append(str(consumer_unavailable))
+    if spec.get("museum_unlock") == "digsite_pendant":
+        museum_state = player_data.get("varrock_museum")
+        if not (
+            isinstance(museum_state, Mapping)
+            and bool(museum_state.get("digsite_pendant_unlocked"))
+        ):
+            reasons.append("Learn Digsite-pendant enchanting at Varrock Museum")
     borrowed_spell_id = spec.get("borrowed_spell_id")
     if borrowed_spell_id:
         try:
