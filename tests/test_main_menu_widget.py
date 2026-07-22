@@ -8095,6 +8095,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "fishing_trawler",
                 "great_orb_project",
                 "trouble_brewing",
+                "castle_wars",
             },
         )
         self.assertEqual(
@@ -12117,6 +12118,91 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(command_calls[-1][0], "buy_reward")
         self.assertEqual(pd["inventory"]["Blue tricorn hat"], 1)
         self.assertEqual(pd["trouble_brewing_pieces_of_eight"], 0)
+        dialog.close()
+
+    def test_castle_wars_detail_shop_plan_and_siege_actions_are_live(self) -> None:
+        from castle_wars_data import CASTLE_WARS_BALLISTA_PARTS
+        from castle_wars_logic import apply_castle_wars_command_pure
+
+        pd = _make_player_data()
+        pd["castle_wars_tickets"] = 20
+        pd["castle_wars_games_played"] = 500
+        for item_name in CASTLE_WARS_BALLISTA_PARTS:
+            pd["inventory"][item_name] = 1
+        pd["inventory"]["Ballista ammo"] = 2
+        pd["inventory"]["Castlewars chinchompa"] = 1
+        command_calls = []
+
+        def castle_command(action_id, payload):
+            command_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_castle_wars_command_pure(
+                pd, action_id, payload
+            )
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
+        dialog = self._open(
+            pd,
+            current_skill="Activities",
+            on_castle_wars_command=castle_command,
+        )
+        dialog.show()
+        QApplication.processEvents()
+        tree = self._open_activities(dialog)
+        item = next(
+            row
+            for row in _tree_items(tree)
+            if row.data(0, Qt.ItemDataRole.UserRole) == "castle_wars"
+        )
+        tree.itemClicked.emit(item, 0)
+        QApplication.processEvents()
+        panel = next(
+            widget
+            for widget in dialog.findChildren(QWidget, "castleWarsPanel")
+            if widget.isVisible()
+        )
+        self.assertFalse(panel.findChild(QLabel, "castleWarsIcon").pixmap().isNull())
+        self.assertFalse(panel.findChild(QProgressBar, "castleWarsProgress").isVisible())
+
+        before_dialogs = len(self._captured)
+        panel.findChild(QPushButton, "castleWarsShopButton").click()
+        QApplication.processEvents()
+        self.assertEqual(len(self._captured), before_dialogs + 1)
+        shop = self._captured[-1]
+        reward = shop.findChild(QComboBox, "castleWarsRewardCombo")
+        buy = shop.findChild(QPushButton, "castleWarsBuyButton")
+        self.assertEqual(reward.currentData(), "basic_body")
+        self.assertTrue(buy.isEnabled())
+        buy.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["inventory"]["Basic decorative platebody"], 1)
+        self.assertEqual(pd["castle_wars_tickets"], 12)
+
+        mode = panel.findChild(QComboBox, "castleWarsModeCombo")
+        duty = panel.findChild(QComboBox, "castleWarsDutyCombo")
+        team = panel.findChild(QComboBox, "castleWarsTeamCombo")
+        mode.setCurrentIndex(mode.findData("advanced"))
+        duty.setCurrentIndex(duty.findData("defend"))
+        team.setCurrentIndex(team.findData("zamorak"))
+        panel.findChild(QPushButton, "castleWarsPrimaryButton").click()
+        QApplication.processEvents()
+
+        self.assertEqual(command_calls[-1][0], "enter")
+        self.assertEqual(pd["current_utility"], "castle_wars")
+        self.assertEqual(pd["castle_wars"]["duty"], "defend")
+        self.assertEqual(pd["castle_wars"]["team"], "zamorak")
+        self.assertTrue(panel.findChild(QProgressBar, "castleWarsProgress").isVisible())
+        ballista = panel.findChild(QPushButton, "castleWarsBallistaButton")
+        chinchompa = panel.findChild(QPushButton, "castleWarsChinchompaButton")
+        self.assertTrue(ballista.isEnabled())
+        self.assertTrue(chinchompa.isEnabled())
+        ballista.click()
+        chinchompa.click()
+        QApplication.processEvents()
+        self.assertTrue(pd["castle_wars"]["ballista_deployed"])
+        self.assertEqual(pd["inventory"]["Castlewars chinchompa"], 0)
         dialog.close()
 
 

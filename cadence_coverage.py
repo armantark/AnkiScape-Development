@@ -570,6 +570,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "castle_wars":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "castle_wars",
+                    "mode": "activity_group",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One review advances one of ten disclosed team-match beats, "
+                        "including at most one six-tick defensive Combat slice. "
+                        "Source wall-clock duration is not a gameplay input."
+                    ),
+                    "includes": (
+                        "one productive duty or explicit Again idle beat",
+                        "one crowd-pressure step and terminal 2/1/0 ticket settlement",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains "
+                        "one match beat and cannot start a second match"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same ten-beat match handler",
+                    "profile": None,
+                    "condition": "disclosed event-count and opponent abstractions",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "penguin_hide_and_seek":
             rows.append(
                 {

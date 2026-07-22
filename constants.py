@@ -68,6 +68,21 @@ except ImportError:
     )
 
 try:
+    from .castle_wars_data import (
+        CASTLE_WARS_ACTIVITY_ID,
+        castle_wars_activity_as_dict,
+        castle_wars_equipment_data_as_dict,
+        castle_wars_extra_items_as_dict,
+    )
+except ImportError:
+    from castle_wars_data import (  # type: ignore
+        CASTLE_WARS_ACTIVITY_ID,
+        castle_wars_activity_as_dict,
+        castle_wars_equipment_data_as_dict,
+        castle_wars_extra_items_as_dict,
+    )
+
+try:
     from .fight_caves_data import (
         FIGHT_CAVES_ACTIVITY_ID,
         fight_caves_activity_as_dict,
@@ -798,6 +813,7 @@ UTILITY_ACTIVITY_DATA.update(fist_of_guthix_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(court_cases_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(circus_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(trouble_brewing_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(castle_wars_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(phoenix_lair_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(stealing_creation_activity_as_dict())
@@ -883,6 +899,12 @@ if os.path.exists(_trouble_brewing_icon):
     UTILITY_ACTIVITY_DATA[TROUBLE_BREWING_ACTIVITY_ID]["icon_path"] = (
         _trouble_brewing_icon
     )
+_castle_wars_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "castle_wars.png",
+)
+if os.path.exists(_castle_wars_icon):
+    UTILITY_ACTIVITY_DATA[CASTLE_WARS_ACTIVITY_ID]["icon_path"] = _castle_wars_icon
 _fight_caves_icon = os.path.join(current_dir, "constructionitems", "fire_cape.png")
 if os.path.exists(_fight_caves_icon):
     UTILITY_ACTIVITY_DATA[FIGHT_CAVES_ACTIVITY_ID]["icon_path"] = _fight_caves_icon
@@ -1603,11 +1625,13 @@ EQUIPMENT_DATA = dict(EQUIPMENT_DATA)
 EQUIPMENT_DATA.update(barrows_equipment_data_as_dict())
 EQUIPMENT_DATA.update(fish_flingers_equipment_data_as_dict())
 EQUIPMENT_DATA.update(trouble_brewing_equipment_data_as_dict())
+EQUIPMENT_DATA.update(castle_wars_equipment_data_as_dict())
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict(EQUIPMENT_DATA)
 FIST_OF_GUTHIX_EXTRA_ITEM_DATA = fist_of_guthix_extra_items_as_dict()
 COURT_CASES_EXTRA_ITEM_DATA = court_cases_extra_items_as_dict()
 CIRCUS_EXTRA_ITEM_DATA = circus_extra_items_as_dict()
 TROUBLE_BREWING_EXTRA_ITEM_DATA = trouble_brewing_extra_items_as_dict()
+CASTLE_WARS_EXTRA_ITEM_DATA = castle_wars_extra_items_as_dict()
 SORCERESS_GARDEN_EXTRA_ITEM_DATA = sorceress_garden_extra_items_as_dict()
 VINESWEEPER_EXTRA_ITEM_DATA = vinesweeper_extra_items_as_dict()
 FIGHT_CAVES_EXTRA_ITEM_DATA = fight_caves_extra_items_as_dict()
@@ -1657,6 +1681,19 @@ TROUBLE_BREWING_ITEM_IMAGES = {
 TROUBLE_BREWING_ITEM_IMAGES = {
     item_name: path
     for item_name, path in TROUBLE_BREWING_ITEM_IMAGES.items()
+    if os.path.exists(path)
+}
+CASTLE_WARS_ITEM_IMAGES = {
+    item_name: os.path.join(
+        current_dir,
+        "activityitems",
+        f"castle_wars_{_asset_slug(item_name)}.png",
+    )
+    for item_name in CASTLE_WARS_EXTRA_ITEM_DATA
+}
+CASTLE_WARS_ITEM_IMAGES = {
+    item_name: path
+    for item_name, path in CASTLE_WARS_ITEM_IMAGES.items()
     if os.path.exists(path)
 }
 FISH_FLINGERS_ITEM_IMAGES = {}
@@ -2062,6 +2099,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **COURT_CASES_EXTRA_ITEM_DATA,
     **CIRCUS_EXTRA_ITEM_DATA,
     **TROUBLE_BREWING_EXTRA_ITEM_DATA,
+    **CASTLE_WARS_EXTRA_ITEM_DATA,
     **SORCERESS_GARDEN_EXTRA_ITEM_DATA,
     **VINESWEEPER_EXTRA_ITEM_DATA,
     **FIGHT_CAVES_EXTRA_ITEM_DATA,
@@ -2099,6 +2137,7 @@ EXTRA_ITEM_IMAGES = {
     **COURT_CASES_ITEM_IMAGES,
     **CIRCUS_ITEM_IMAGES,
     **TROUBLE_BREWING_ITEM_IMAGES,
+    **CASTLE_WARS_ITEM_IMAGES,
     **SORCERESS_GARDEN_ITEM_IMAGES,
     **VINESWEEPER_ITEM_IMAGES,
     **FIGHT_CAVES_ITEM_IMAGES,

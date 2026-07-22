@@ -502,6 +502,23 @@ except Exception:
     from trouble_brewing_logic import trouble_brewing_view_pure  # type: ignore
 
 try:
+    from .castle_wars_data import (
+        CASTLE_WARS_ACTIVITY_ID,
+        CASTLE_WARS_DUTIES,
+        CASTLE_WARS_MATCH_REVIEWS,
+        CASTLE_WARS_TEAMS,
+    )
+    from .castle_wars_logic import castle_wars_view_pure
+except Exception:
+    from castle_wars_data import (  # type: ignore
+        CASTLE_WARS_ACTIVITY_ID,
+        CASTLE_WARS_DUTIES,
+        CASTLE_WARS_MATCH_REVIEWS,
+        CASTLE_WARS_TEAMS,
+    )
+    from castle_wars_logic import castle_wars_view_pure  # type: ignore
+
+try:
     from .managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
     from .managing_miscellania_logic import managing_miscellania_view_pure
 except Exception:
@@ -3577,6 +3594,7 @@ def show_main_menu(
     on_court_cases_command=None,
     on_circus_command=None,
     on_trouble_brewing_command=None,
+    on_castle_wars_command=None,
     on_managing_miscellania_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
@@ -12977,6 +12995,357 @@ def show_main_menu(
         )
         _refresh_trouble_panel()
 
+        castle_box = QtFrame()
+        castle_box.setObjectName("castleWarsPanel")
+        castle_box.setStyleSheet(
+            "QFrame#castleWarsPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        castle_layout = QVBoxLayout(castle_box)
+        castle_layout.setContentsMargins(10, 8, 10, 8)
+        castle_layout.setSpacing(7)
+
+        castle_header = QWidget()
+        castle_header_layout = QHBoxLayout(castle_header)
+        castle_header_layout.setContentsMargins(0, 0, 0, 0)
+        castle_header_layout.setSpacing(8)
+        castle_icon = QLabel()
+        castle_icon.setObjectName("castleWarsIcon")
+        castle_icon.setFixedSize(28, 28)
+        castle_icon_path = os.path.join(current_dir, "activityicons", "castle_wars.png")
+        if os.path.exists(castle_icon_path):
+            castle_icon.setPixmap(
+                QPixmap(castle_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+        castle_title = QLabel("Castle Wars")
+        castle_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        castle_status = QLabel()
+        castle_status.setObjectName("castleWarsStatusChip")
+        castle_status.setStyleSheet(
+            f"color: {dim_text_css(castle_status)}; font-size: 11px; font-weight: 700;"
+        )
+        castle_header_layout.addWidget(castle_icon)
+        castle_header_layout.addWidget(castle_title)
+        castle_header_layout.addStretch(1)
+        castle_header_layout.addWidget(castle_status)
+        castle_layout.addWidget(castle_header)
+
+        castle_summary = QLabel()
+        castle_summary.setObjectName("castleWarsSummary")
+        castle_summary.setWordWrap(True)
+        castle_summary.setStyleSheet("color: palette(text);")
+        castle_layout.addWidget(castle_summary)
+
+        castle_progress = QProgressBar()
+        castle_progress.setObjectName("castleWarsProgress")
+        castle_progress.setRange(0, CASTLE_WARS_MATCH_REVIEWS)
+        castle_progress.setTextVisible(True)
+        castle_progress.setFormat("Match beat %v of 10")
+        castle_progress.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 4px; }"
+            "QProgressBar::chunk { background: #9d352f; }"
+        )
+        castle_layout.addWidget(castle_progress)
+
+        castle_plan = QWidget()
+        castle_plan_layout = QGridLayout(castle_plan)
+        castle_plan_layout.setContentsMargins(0, 0, 0, 0)
+        castle_plan_layout.setHorizontalSpacing(6)
+        castle_plan_layout.setVerticalSpacing(5)
+        castle_mode = QComboBox()
+        castle_mode.setObjectName("castleWarsModeCombo")
+        castle_mode.setAccessibleName("Castle Wars automation mode")
+        castle_mode.addItem("Casual · team bottleneck", "casual")
+        castle_mode.addItem("Advanced · fixed duty", "advanced")
+        castle_team = QComboBox()
+        castle_team.setObjectName("castleWarsTeamCombo")
+        castle_team.setAccessibleName("Castle Wars team preference")
+        for team_id, label in CASTLE_WARS_TEAMS:
+            castle_team.addItem(label, team_id)
+        castle_duty = QComboBox()
+        castle_duty.setObjectName("castleWarsDutyCombo")
+        castle_duty.setAccessibleName("Castle Wars fixed duty")
+        for duty_id, label in CASTLE_WARS_DUTIES:
+            castle_duty.addItem(label, duty_id)
+        castle_save = QPushButton("Save plan")
+        castle_save.setObjectName("castleWarsSavePlanButton")
+        castle_plan_layout.addWidget(castle_mode, 0, 0)
+        castle_plan_layout.addWidget(castle_team, 0, 1)
+        castle_plan_layout.addWidget(castle_duty, 1, 0, 1, 2)
+        castle_plan_layout.addWidget(castle_save, 0, 2, 2, 1)
+        castle_layout.addWidget(castle_plan)
+
+        castle_actions = QWidget()
+        castle_actions_layout = QHBoxLayout(castle_actions)
+        castle_actions_layout.setContentsMargins(0, 0, 0, 0)
+        castle_actions_layout.setSpacing(6)
+        castle_primary = QPushButton()
+        castle_primary.setObjectName("castleWarsPrimaryButton")
+        castle_shop = QPushButton("Ticket shop")
+        castle_shop.setObjectName("castleWarsShopButton")
+        castle_leave = QPushButton("Leave match")
+        castle_leave.setObjectName("castleWarsLeaveButton")
+        castle_actions_layout.addWidget(castle_primary, 1)
+        castle_actions_layout.addWidget(castle_shop)
+        castle_actions_layout.addWidget(castle_leave)
+        castle_layout.addWidget(castle_actions)
+
+        castle_siege = QWidget()
+        castle_siege_layout = QHBoxLayout(castle_siege)
+        castle_siege_layout.setContentsMargins(0, 0, 0, 0)
+        castle_siege_layout.setSpacing(6)
+        castle_ballista = QPushButton("Deploy ballista")
+        castle_ballista.setObjectName("castleWarsBallistaButton")
+        castle_chinchompa = QPushButton("Deploy chinchompa")
+        castle_chinchompa.setObjectName("castleWarsChinchompaButton")
+        castle_siege_layout.addWidget(castle_ballista, 1)
+        castle_siege_layout.addWidget(castle_chinchompa, 1)
+        castle_layout.addWidget(castle_siege)
+        cards_stack.addWidget(castle_box)
+
+        syncing_castle = {"active": False}
+
+        def _run_castle_command(action_id: str, payload=None) -> dict[str, Any]:
+            if on_castle_wars_command is None:
+                return {"ok": False, "message": "Castle Wars actions are unavailable."}
+            result = on_castle_wars_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Castle Wars",
+                    str(result.get("message", "That action is unavailable.")),
+                )
+            _refresh_castle_panel()
+            return result
+
+        def _castle_policy_payload() -> dict[str, str]:
+            return {
+                "automation_mode": str(castle_mode.currentData() or "casual"),
+                "duty": str(castle_duty.currentData() or "capture"),
+                "team": str(castle_team.currentData() or "balance"),
+            }
+
+        def _refresh_castle_panel() -> None:
+            syncing_castle["active"] = True
+            view = castle_wars_view_pure(player_data)
+            session = view["castle_wars"]
+            active = bool(view["active"])
+            policy = session if active else view["castle_wars_policy"]
+            castle_mode.setCurrentIndex(max(0, castle_mode.findData(policy["automation_mode"])))
+            castle_team.setCurrentIndex(max(0, castle_team.findData(policy["team"])))
+            castle_duty.setCurrentIndex(max(0, castle_duty.findData(policy["duty"])))
+            castle_status.setText("IN MATCH" if active else "READY")
+            if view["entry_locked_reasons"] and not active:
+                castle_status.setText("PACK BLOCKED")
+            if active:
+                castle_summary.setText(
+                    f"Score {int(session['player_score'])}–{int(session['opponent_score'])} · "
+                    f"gate {int(session['gate_integrity'])}% · "
+                    f"{int(session['barricades'])}/10 barricades\n"
+                    f"{int(session['contribution'])} contribution · "
+                    f"{int(session['kills'])} kills · {int(session['captures'])} captures · "
+                    f"{int(session['deaths'])} safe deaths"
+                )
+                castle_progress.setValue(int(session["review"]))
+            else:
+                gate_text = (
+                    "Entry: " + " ".join(view["entry_locked_reasons"])
+                    if view["entry_locked_reasons"]
+                    else "Ten answered-card match beats · safe death · 2/1/0 tickets"
+                )
+                history = str(view["castle_wars_last_result"])
+                castle_summary.setText(
+                    f"{int(view['castle_wars_tickets'])} tickets · "
+                    f"{int(view['castle_wars_games_played'])} credited games\n"
+                    + gate_text
+                    + (f"\n{history}" if history else "")
+                )
+                castle_progress.setValue(0)
+            castle_progress.setVisible(active)
+            selected = active and player_data.get("current_utility") == CASTLE_WARS_ACTIVITY_ID
+            castle_primary.setText(
+                "Selected for reviews"
+                if selected
+                else "Select for reviews"
+                if active
+                else "Enter match"
+            )
+            castle_primary.setEnabled(
+                on_castle_wars_command is not None
+                and not selected
+                and (active or not view["entry_locked_reasons"])
+            )
+            castle_leave.setVisible(active)
+            castle_leave.setEnabled(on_castle_wars_command is not None)
+            castle_plan.setVisible(not active)
+            castle_mode.setEnabled(not active and on_castle_wars_command is not None)
+            castle_team.setEnabled(not active and on_castle_wars_command is not None)
+            castle_duty.setEnabled(
+                not active
+                and castle_mode.currentData() == "advanced"
+                and on_castle_wars_command is not None
+            )
+            castle_save.setEnabled(not active and on_castle_wars_command is not None)
+            castle_shop.setEnabled(not active and on_castle_wars_command is not None)
+            castle_siege.setVisible(active)
+            castle_ballista.setEnabled(
+                active
+                and bool(view["ballista_ready"])
+                and not bool(session.get("ballista_deployed"))
+                and on_castle_wars_command is not None
+            )
+            inventory = player_data.get("inventory") or {}
+            castle_chinchompa.setEnabled(
+                active
+                and int(inventory.get("Castlewars chinchompa", 0) or 0) > 0
+                and on_castle_wars_command is not None
+            )
+            syncing_castle["active"] = False
+            _fit_current_activity_detail()
+
+        def _select_or_enter_castle() -> None:
+            view = castle_wars_view_pure(player_data)
+            if not view["active"]:
+                result = _run_castle_command("enter", _castle_policy_payload())
+                if not result.get("ok", False):
+                    return
+            elif not _request_utility_selection(CASTLE_WARS_ACTIVITY_ID):
+                return
+            _refresh_castle_panel()
+
+        def _confirm_castle_leave() -> None:
+            answer = QMessageBox.question(
+                dialog,
+                "Leave Castle Wars?",
+                "Leave the current match? Its score, contribution, and tickets are forfeited.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_castle_command("leave")
+
+        def _show_castle_shop() -> None:
+            shop_dialog = QDialog(dialog)
+            shop_dialog.setObjectName("castleWarsShopDialog")
+            shop_dialog.setWindowTitle("Castle Wars ticket shop")
+            shop_dialog.setMinimumWidth(440)
+            shop_layout = QVBoxLayout(shop_dialog)
+            shop_wallet = QLabel()
+            shop_wallet.setObjectName("castleWarsShopWallet")
+            shop_wallet.setStyleSheet("color: palette(text); font-weight: 700;")
+            shop_layout.addWidget(shop_wallet)
+            reward_combo = QComboBox()
+            reward_combo.setObjectName("castleWarsRewardCombo")
+            reward_combo.setAccessibleName("Castle Wars reward")
+            shop_layout.addWidget(reward_combo)
+            reward_detail = QLabel()
+            reward_detail.setObjectName("castleWarsRewardDetail")
+            reward_detail.setWordWrap(True)
+            reward_detail.setStyleSheet(f"color: {dim_text_css(reward_detail)};")
+            shop_layout.addWidget(reward_detail)
+            shop_actions = QHBoxLayout()
+            buy_button = QPushButton("Buy")
+            buy_button.setObjectName("castleWarsBuyButton")
+            sell_button = QPushButton("Sell back")
+            sell_button.setObjectName("castleWarsSellButton")
+            close_button = QPushButton("Close")
+            shop_actions.addWidget(buy_button)
+            shop_actions.addWidget(sell_button)
+            shop_actions.addStretch(1)
+            shop_actions.addWidget(close_button)
+            shop_layout.addLayout(shop_actions)
+
+            def _refresh_shop() -> None:
+                view = castle_wars_view_pure(player_data)
+                selected_reward = reward_combo.currentData()
+                reward_combo.blockSignals(True)
+                reward_combo.clear()
+                for row in view["rewards"]:
+                    icon_path = os.path.join(
+                        current_dir,
+                        "activityitems",
+                        "castle_wars_" + str(row["item_name"]).lower().replace(" ", "_") + ".png",
+                    )
+                    label = f"{row['item_name']} · {int(row['ticket_cost'])} tickets"
+                    if os.path.exists(icon_path):
+                        reward_combo.addItem(QIcon(icon_path), label, row["reward_id"])
+                    else:
+                        reward_combo.addItem(label, row["reward_id"])
+                index = reward_combo.findData(selected_reward)
+                reward_combo.setCurrentIndex(index if index >= 0 else 0)
+                reward_combo.blockSignals(False)
+                row = next(
+                    (
+                        candidate
+                        for candidate in view["rewards"]
+                        if candidate["reward_id"] == reward_combo.currentData()
+                    ),
+                    None,
+                )
+                shop_wallet.setText(
+                    f"{int(view['castle_wars_tickets'])} tickets · "
+                    f"{int(view['castle_wars_games_played'])} credited games"
+                )
+                if row is None:
+                    reward_detail.setText("No representative rewards are available.")
+                    buy_button.setEnabled(False)
+                    sell_button.setEnabled(False)
+                    return
+                milestone = (
+                    f" · unlocks after {int(row['minimum_games'])} games"
+                    if int(row["minimum_games"]) > 0
+                    else ""
+                )
+                reward_detail.setText(
+                    f"Bundle: {int(row['quantity'])} · owned: {int(row['owned'])}{milestone}\n"
+                    "Every representative reward sells back for its full ticket cost."
+                )
+                buy_button.setEnabled(bool(row["can_buy"]))
+                sell_button.setEnabled(bool(row["can_sell"]))
+
+            def _trade(action_id: str) -> None:
+                result = _run_castle_command(
+                    action_id, {"reward_id": str(reward_combo.currentData() or "")}
+                )
+                if result.get("ok", False):
+                    _refresh_shop()
+
+            reward_combo.currentIndexChanged.connect(lambda _index: _refresh_shop())
+            buy_button.clicked.connect(lambda _checked=False: _trade("buy"))
+            sell_button.clicked.connect(lambda _checked=False: _trade("sell"))
+            close_button.clicked.connect(shop_dialog.accept)
+            _refresh_shop()
+            shop_dialog.exec()
+
+        castle_mode.currentIndexChanged.connect(
+            lambda _index: (
+                None
+                if syncing_castle["active"]
+                else castle_duty.setEnabled(
+                    castle_mode.currentData() == "advanced"
+                    and on_castle_wars_command is not None
+                )
+            )
+        )
+        castle_save.clicked.connect(
+            lambda _checked=False: _run_castle_command("set_policy", _castle_policy_payload())
+        )
+        castle_primary.clicked.connect(lambda _checked=False: _select_or_enter_castle())
+        castle_leave.clicked.connect(lambda _checked=False: _confirm_castle_leave())
+        castle_shop.clicked.connect(lambda _checked=False: _show_castle_shop())
+        castle_ballista.clicked.connect(
+            lambda _checked=False: _run_castle_command("deploy_ballista")
+        )
+        castle_chinchompa.clicked.connect(
+            lambda _checked=False: _run_castle_command("deploy_chinchompa")
+        )
+        _refresh_castle_panel()
+
         miscellania_box = QtFrame()
         miscellania_box.setObjectName("managingMiscellaniaPanel")
         miscellania_box.setStyleSheet(
@@ -15100,6 +15469,30 @@ def show_main_menu(
                     )
                     return False
             if (
+                activity_id != CASTLE_WARS_ACTIVITY_ID
+                and castle_wars_view_pure(player_data)["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave Castle Wars?",
+                    "Switch activities? The unfinished score, contribution, and tickets are forfeited.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_castle_wars_command("leave", {})
+                    if on_castle_wars_command is not None
+                    else {"ok": False, "message": "Castle Wars actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Castle Wars",
+                        str((result or {}).get("message", "Could not leave the match.")),
+                    )
+                    return False
+            if (
                 activity_id != GREAT_ORB_PROJECT_ACTIVITY_ID
                 and great_orb_project_view_pure(player_data)["active"]
             ):
@@ -15290,6 +15683,10 @@ def show_main_menu(
                 _refresh_trouble_panel()
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == CASTLE_WARS_ACTIVITY_ID:
+                _refresh_castle_panel()
+                _show_activity_detail(activity_id)
+                return
             if activity_id == MANAGING_MISCELLANIA_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
@@ -15343,6 +15740,7 @@ def show_main_menu(
             COURT_CASES_ACTIVITY_ID: ("Court Cases", court_box),
             CIRCUS_ACTIVITY_ID: ("Big Top Bonanza", circus_box),
             TROUBLE_BREWING_ACTIVITY_ID: ("Trouble Brewing", trouble_box),
+            CASTLE_WARS_ACTIVITY_ID: ("Castle Wars", castle_box),
             MANAGING_MISCELLANIA_ACTIVITY_ID: (
                 "Managing Miscellania",
                 miscellania_box,

@@ -2,6 +2,42 @@
 
 ## Current Focus
 
+Castle Wars now satisfies horizontal breadth level one as a persistent,
+Activities-only ten-beat team minigame. Entry enforces the cutoff no-food,
+no-helmet, and no-cape rules. Casual mode resolves the current team
+bottleneck; Advanced mode saves one fixed duty and team. Capture, defend,
+barricade, repair, catapult, and support are live, including safe-death Combat,
+whole-review undo, explicit forfeit, exact 2/1/0 ticket settlement, and the
+five-beat participation threshold. Support uses a free bandage only when it
+can heal, cure poison, or restore run credit and otherwise reinforces the
+current bottleneck.
+
+The representative reward graph exercises decorative-set damage bonuses,
+Saradomin halo Prayer drain, the 500-game Hobbyist-cape gate, full-price ticket
+resale, four-part ballista deployment/ammunition, and match-only
+chinchompas. Schema 74, activity arbitration, telemetry, cadence coverage,
+direct-action undo, normalized cutoff art, and the compact paginated card and
+shop are live. Remaining reward variants, match potions, random hybrid armour,
+and hidden crowd/score rolls are explicit data depth. The dangerous Clan Wars
+red portal and the cutoff removal of Duel Tournaments remain recorded
+source/contract conflicts; neither was silently resolved here.
+
+The bounded Sol-high Workflows checker found two real defects: runtime Casual
+mode bypassed the bottleneck selector, and no-effect Support consumed a beat.
+Both have regressions and are fixed. Its proposed halo/cape entry exception was
+rejected because the cutoff entry rule forbids all helmets and capes; those
+rewards remain useful outside the arena. Full offscreen discovery passes all
+2,373 tests with one intentional skip. Docs, test quality, reachability,
+registry, asset normalization, diff, and worktree audits pass. Native Anki
+shows one launcher, one AnkiScape dialog, separate Utilities and Activities,
+page 2/4, and one Castle Wars row with its period icon. The macOS accessibility
+bridge could not activate that Qt tree row, so no native detail-card claim is
+made; real-Qt detail/shop construction and rendered screenshots cover that
+path. Durable record:
+`source-audits/castle-wars-horizontal-readiness-2026-07-21.md`. Results:
+`status-updates/castle-wars-horizontal-results-2026-07-21.html` and
+<https://6xzb9r97ffac.postplan.dev>.
+
 Big Top Bonanza now satisfies horizontal breadth level one as an Activities-
 only weekly multi-skill performance. Magic, Ranged, Agility, Fire-breathing,
 Flaming poi, and Thieving use their complete cutoff trick tables. One review

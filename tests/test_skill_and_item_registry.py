@@ -499,6 +499,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "court_cases",
                 "big_top_bonanza",
                 "trouble_brewing",
+                "castle_wars",
                 "sorceress_garden",
                 "penguin_hide_and_seek",
                 "vinesweeper",

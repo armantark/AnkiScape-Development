@@ -71,6 +71,120 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_castle_wars_match_routes_through_utility_and_settles_tickets(self):
+        from castle_wars_logic import enter_castle_wars_pure
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data, ok, info = enter_castle_wars_pure(
+            {
+                "current_utility": "castle_wars",
+                "activity_session": {"active_id": ""},
+                "combat_encounter": {},
+                "combat_supply_loadout": {},
+                "current_combat_target": "chicken",
+                "inventory": {},
+                "equipment": {},
+                "completed_achievements": [],
+            },
+            {"automation_mode": "advanced", "duty": "capture"},
+        )
+        self.assertTrue(ok, info)
+
+        for _ in range(10):
+            self.assertTrue(
+                handle_utility_answer(
+                    _context(player_data, calls, random_values=(0.9,))
+                )
+            )
+
+        self.assertEqual(player_data["castle_wars"], {})
+        self.assertEqual(player_data["castle_wars_tickets"], 2)
+        self.assertEqual(player_data["castle_wars_games_played"], 1)
+        self.assertEqual(calls["saves"], 10)
+        self.assertTrue(calls.get("deactivated"))
+        self.assertIn(
+            "utility:castle_wars",
+            player_data["action_telemetry"]["actions"],
+        )
+
+    def test_castle_wars_runtime_applies_combat_xp_and_again_can_idle(self):
+        from castle_wars_logic import enter_castle_wars_pure
+
+        player_data, ok, info = enter_castle_wars_pure(
+            {
+                "current_utility": "castle_wars",
+                "activity_session": {"active_id": ""},
+                "combat_encounter": {},
+                "combat_supply_loadout": {},
+                "current_combat_target": "chicken",
+                "inventory": {},
+                "equipment": {},
+                "attack_level": 1,
+                "attack_exp": 0.0,
+                "completed_achievements": [],
+            },
+            {"automation_mode": "advanced", "duty": "defend"},
+        )
+        self.assertTrue(ok, info)
+        advanced = dict(player_data["castle_wars"])
+        advanced["review"] = 1
+        expected = dict(player_data)
+        expected["castle_wars"] = advanced
+        with patch(
+            "runtime_actions.apply_castle_wars_review_pure",
+            return_value=(
+                expected,
+                True,
+                {
+                    "terminal": False,
+                    "status": "Defended the standard",
+                    "xp_rewards": {"attack_exp": 12.0},
+                },
+            ),
+        ):
+            self.assertTrue(
+                runtime_actions.handle_castle_wars_answer(_context(player_data))
+            )
+        self.assertEqual(player_data["attack_exp"], 12.0)
+
+        self.assertTrue(
+            runtime_actions.handle_castle_wars_answer(
+                _context(player_data, random_values=(0.9,)),
+                productive=False,
+            )
+        )
+        self.assertEqual(player_data["castle_wars"]["review"], 2)
+
+    def test_castle_wars_casual_runtime_leaves_duty_to_the_bottleneck_selector(self):
+        from castle_wars_logic import enter_castle_wars_pure
+
+        player_data, ok, info = enter_castle_wars_pure(
+            {
+                "current_utility": "castle_wars",
+                "activity_session": {"active_id": ""},
+                "combat_encounter": {},
+                "combat_supply_loadout": {},
+                "current_combat_target": "chicken",
+                "inventory": {},
+                "equipment": {},
+                "completed_achievements": [],
+            },
+            {"automation_mode": "casual", "duty": "capture"},
+        )
+        self.assertTrue(ok, info)
+        expected = dict(player_data)
+        expected["castle_wars"] = dict(player_data["castle_wars"], review=1)
+        with patch(
+            "runtime_actions.apply_castle_wars_review_pure",
+            return_value=(
+                expected,
+                True,
+                {"terminal": False, "status": "Resolved", "xp_rewards": {}},
+            ),
+        ) as apply_review:
+            self.assertTrue(runtime_actions.handle_castle_wars_answer(_context(player_data)))
+        self.assertIsNone(apply_review.call_args.kwargs["duty"])
+
     def test_trouble_brewing_review_race_awards_terminal_multi_skill_xp(self):
         from trouble_brewing_logic import enter_trouble_brewing_pure
 

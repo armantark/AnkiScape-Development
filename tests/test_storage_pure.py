@@ -1018,6 +1018,33 @@ class TestStoragePure(unittest.TestCase):
             {"automation_mode": "casual", "duty": "water"},
         )
 
+    def test_migrate_adds_and_sanitizes_castle_wars_state(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 73,
+                "inventory": {},
+                "castle_wars": {
+                    "review": 999,
+                    "barricades": 999,
+                    "gate_integrity": -1,
+                },
+                "activity_session": {"active_id": "castle_wars"},
+                "castle_wars_tickets": -4,
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(migrated["castle_wars"]["review"], 9)
+        self.assertEqual(migrated["castle_wars"]["barricades"], 10)
+        self.assertEqual(migrated["castle_wars"]["gate_integrity"], 0)
+        self.assertEqual(migrated["castle_wars_tickets"], 0)
+        self.assertEqual(
+            migrated["castle_wars_policy"],
+            {"automation_mode": "casual", "duty": "capture", "team": "balance"},
+        )
+
     def test_migrate_idempotent(self):
         base = {"mining_exp": 10, "inventory": {}}
         first = migrate_loaded_data(base, ORE_DATA)

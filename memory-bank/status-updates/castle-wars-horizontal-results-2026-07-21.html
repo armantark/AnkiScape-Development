@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Castle Wars horizontal closure</title>
+  <style>
+    :root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px;--sar:#4d8cff;--zam:#ef4444}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 82% 2%,rgba(79,140,255,.13),transparent 30%),var(--bg);color:var(--text);font-family:Outfit,Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.45}main{max-width:1120px;margin:auto;padding:54px 22px 72px}.badge,.mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}.badge{display:inline-block;padding:7px 11px;border:1px solid rgba(74,222,128,.4);border-radius:999px;color:var(--green);background:rgba(74,222,128,.08);font-size:.72rem;letter-spacing:.08em}h1{font-size:clamp(2.35rem,7vw,5.25rem);line-height:.94;letter-spacing:-.055em;margin:22px 0 17px;max-width:850px}.lede{max-width:770px;color:var(--text-dim);font-size:1.08rem}.score{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center;margin:38px 0;padding:24px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(135deg,rgba(77,140,255,.12),rgba(239,68,68,.08)),var(--surface)}.team{text-transform:uppercase;font-weight:800;letter-spacing:.08em}.team:last-child{text-align:right}.numbers{font:800 2.1rem "JetBrains Mono",monospace}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:0 18px 38px rgba(0,0,0,.17)}.card h2{font-size:1.03rem;margin:5px 0 10px}.eyebrow{font:.7rem "JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}.muted{color:var(--text-dim)}.duties{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px}.duty{background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:10px;text-align:center;font-size:.82rem}.reward{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid var(--border)}.reward:last-child{border:0}.ticket{color:var(--amber);font-family:"JetBrains Mono",monospace;white-space:nowrap}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0 38px}.metric{padding:17px;border-radius:var(--radius);background:var(--surface-2);border:1px solid var(--border)}.metric strong{display:block;font-size:1.55rem;color:var(--green)}.metric span{font-size:.77rem;color:var(--text-dim)}.flow{display:flex;align-items:stretch;gap:8px;margin-top:15px}.step{flex:1;padding:13px;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;font-size:.8rem}.arrow{align-self:center;color:var(--text-dim)}.flag{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}.sar{background:var(--sar)}.zam{background:var(--zam)}.note{margin-top:16px;padding:14px 16px;border-left:3px solid var(--amber);background:rgba(251,191,36,.07);color:#d8c998;font-size:.86rem}.checks{margin:0;padding:0;list-style:none}.checks li{padding:8px 0 8px 26px;position:relative;border-bottom:1px solid var(--border)}.checks li:last-child{border:0}.checks li:before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:800}.files{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}.file{font:.67rem "JetBrains Mono",monospace;background:var(--surface-2);border:1px solid var(--border);padding:5px 8px;border-radius:7px;color:#bdc6d6}@media(max-width:760px){main{padding:34px 16px}.grid,.metrics{grid-template-columns:1fr}.score{grid-template-columns:1fr auto 1fr;padding:17px}.duties{grid-template-columns:repeat(2,1fr)}.flow{flex-direction:column}.arrow{transform:rotate(90deg)}}
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">COMPLETED · 2026-07-21</span>
+  <h1>Castle Wars is a real match now.</h1>
+  <p class="lede">The breadth-first slice closes the whole player loop: authentic entry restrictions, six useful duties, live Combat, safe death, scoring, tickets, rewards, persistence, undo, and a compact Activities surface.</p>
+
+  <section class="score" aria-label="Example Castle Wars result">
+    <div class="team"><span class="flag sar"></span>Saradomin</div>
+    <div class="numbers">3 : 2</div>
+    <div class="team">Zamorak<span class="flag zam"></span></div>
+  </section>
+
+  <section class="metrics" aria-label="Closure metrics">
+    <div class="metric"><strong>10</strong><span>review beats per match</span></div>
+    <div class="metric"><strong>6</strong><span>mechanically distinct duties</span></div>
+    <div class="metric"><strong>2,373</strong><span>full offscreen tests passed</span></div>
+    <div class="metric"><strong>1</strong><span>native Anki dialog and row</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <div class="eyebrow">Match loop</div>
+      <h2>Every answered card moves one consequential beat</h2>
+      <p class="muted">Casual chooses the current bottleneck. Advanced holds the saved duty and team. Again advances only the simulated match crowd.</p>
+      <div class="duties">
+        <div class="duty">Capture</div><div class="duty">Defend</div><div class="duty">Barricade</div>
+        <div class="duty">Repair</div><div class="duty">Catapult</div><div class="duty">Support</div>
+      </div>
+      <div class="flow"><div class="step">Enter without food, head, or cape</div><div class="arrow">→</div><div class="step">Resolve ten atomic beats</div><div class="arrow">→</div><div class="step">Award 2 / 1 / 0 tickets</div></div>
+    </article>
+
+    <article class="card">
+      <div class="eyebrow">Representative shop</div>
+      <h2>Every reward mechanic has a live item</h2>
+      <div class="reward"><span>Basic decorative set</span><span class="ticket">4 / 6 / 10%</span></div>
+      <div class="reward"><span>Saradomin halo</span><span class="ticket">300 tickets</span></div>
+      <div class="reward"><span>Hobbyist cape</span><span class="ticket">500 games</span></div>
+      <div class="reward"><span>Four-part ballista</span><span class="ticket">reusable</span></div>
+      <div class="reward"><span>Ammo + chinchompas</span><span class="ticket">consumed</span></div>
+      <p class="muted">Every reward sells back for its full ticket cost. Variant cosmetics and match potions remain catalog depth.</p>
+    </article>
+
+    <article class="card">
+      <div class="eyebrow">Fresh-eyes check</div>
+      <h2>Two confirmed integration bugs were removed</h2>
+      <ul class="checks">
+        <li>Casual runtime no longer overwrites the bottleneck selector with the saved default duty.</li>
+        <li>Support uses a bandage only when it heals, cures poison, or restores run credit.</li>
+        <li>No-effect Support now reinforces the weakest useful duty.</li>
+        <li>The proposed halo/cape entry exception was rejected because the cutoff ban is universal.</li>
+      </ul>
+      <div class="files"><span class="file">castle_wars_logic.py</span><span class="file">runtime_actions.py</span><span class="file">tests/test_castle_wars.py</span></div>
+    </article>
+
+    <article class="card">
+      <div class="eyebrow">Closure proof</div>
+      <h2>Repository gates and the installed app agree</h2>
+      <ul class="checks">
+        <li>Full offscreen suite: 2,373 passed, one intentional skip.</li>
+        <li>Docs and test-quality audits: zero hard issues.</li>
+        <li>Reachability, registry, asset normalization, diff, and worktree checks passed.</li>
+        <li>Native Anki showed one launcher, one dialog, separate Utilities/Activities, page 2/4, and one Castle Wars row.</li>
+      </ul>
+      <div class="note">The macOS accessibility bridge could not activate the Qt tree row, so this report does not claim a native detail-card click. Real-Qt construction tests and rendered ready, active, and shop states cover that path.</div>
+    </article>
+  </section>
+
+  <div class="note"><strong>Open source/contract conflicts:</strong> Clan Wars' dangerous red portal contradicts the older safe-only flattening, and Duel Tournaments were removed before the cutoff. Both remain recorded for the design thread; neither was invented away during this slice.</div>
+</main>
+</body>
+</html>

@@ -3062,13 +3062,58 @@ def prayer_effect_state_pure(data, uptime_override=None):
     return effects
 
 
-def prayer_drain_for_ticks_pure(points, counter, selected, prayer_bonus, ticks, uptime):
+CASTLE_WARS_HALO_DRAIN_PRAYERS = frozenset(
+    {
+        "burst_of_strength",
+        "superhuman_strength",
+        "ultimate_strength",
+        "sharp_eye",
+        "hawk_eye",
+        "eagle_eye",
+        "mystic_will",
+        "mystic_lore",
+        "mystic_might",
+        "chivalry",
+        "piety",
+        "augury",
+        "rigour",
+        "sap_warrior",
+        "sap_ranger",
+        "sap_mage",
+        "sap_spirit",
+        "leech_attack",
+        "leech_ranged",
+        "leech_magic",
+        "leech_defence",
+        "leech_strength",
+        "leech_energy",
+        "leech_special_attack",
+        "turmoil",
+    }
+)
+
+
+def prayer_drain_for_ticks_pure(
+    points,
+    counter,
+    selected,
+    prayer_bonus,
+    ticks,
+    uptime,
+    drain_multipliers=None,
+):
     """2011Scape Prayers.kt counter: sum drainEffect against 60+2*bonus."""
     current = max(0, int(points))
     progress = max(0.0, float(counter))
     resistance = max(1, 60 + 2 * int(prayer_bonus))
     # The emulator drain timer runs every two 0.6-second game ticks.
-    rate = sum(float(COMBAT_PRAYERS_BY_ID[pid].drain) for pid in selected if pid in COMBAT_PRAYERS_BY_ID) / 2.0
+    multipliers = drain_multipliers if isinstance(drain_multipliers, Mapping) else {}
+    rate = sum(
+        float(COMBAT_PRAYERS_BY_ID[pid].drain)
+        * max(0.0, float(multipliers.get(pid, 1.0)))
+        for pid in selected
+        if pid in COMBAT_PRAYERS_BY_ID
+    ) / 2.0
     for _ in range(max(0, int(ticks))):
         progress += rate * max(0.0, min(1.0, float(uptime)))
         while current > 0 and progress >= resistance:
@@ -3079,7 +3124,15 @@ def prayer_drain_for_ticks_pure(points, counter, selected, prayer_bonus, ticks, 
     return current, progress
 
 
-def prayer_drain_and_effective_uptime_pure(points, counter, selected, prayer_bonus, ticks, uptime):
+def prayer_drain_and_effective_uptime_pure(
+    points,
+    counter,
+    selected,
+    prayer_bonus,
+    ticks,
+    uptime,
+    drain_multipliers=None,
+):
     """Drain tick-by-tick and report the burst fraction for which Prayer remained active."""
     current = max(0, int(points))
     progress = max(0.0, float(counter))
@@ -3091,7 +3144,13 @@ def prayer_drain_and_effective_uptime_pure(points, counter, selected, prayer_bon
             break
         active_weight += requested
         current, progress = prayer_drain_for_ticks_pure(
-            current, progress, selected, prayer_bonus, 1, requested
+            current,
+            progress,
+            selected,
+            prayer_bonus,
+            1,
+            requested,
+            drain_multipliers,
         )
     return current, progress, (active_weight / total_ticks if total_ticks else 0.0)
 
@@ -7573,6 +7632,7 @@ def apply_combat_burst_pure(
     stop_after_first_kill=False,
     safe_death=False,
     allow_bank_run=True,
+    player_damage_multiplier=1.0,
 ):
     enemy_data = enemy_data or COMBAT_ENEMY_DATA
     equipment_data = equipment_data or {}
@@ -7766,6 +7826,17 @@ def apply_combat_burst_pure(
         player_attack_speed = max(1, _positive_int(spell_spec.get("attack_speed", 5), 5))
     enemy_attack_speed = max(1, _positive_int(enemy.get("attack_speed", 4), 4))
     selected_prayers = tuple(active_prayer_selection_pure(data))
+    equipped_items = data.get("equipment")
+    halo_drain_multipliers = (
+        {
+            prayer_id: 2.0 / 3.0
+            for prayer_id in selected_prayers
+            if prayer_id in CASTLE_WARS_HALO_DRAIN_PRAYERS
+        }
+        if isinstance(equipped_items, Mapping)
+        and str(equipped_items.get("head", "")) == "Saradomin halo"
+        else {}
+    )
     requested_prayer_uptime = (
         float(PRAYER_UPTIME_POLICIES.get(str(data.get("combat_prayer_uptime", "off")), 0.0))
         if live_cadence and selected_prayers
@@ -7800,6 +7871,7 @@ def apply_combat_burst_pure(
             _equipment_bonus_value(player_totals, "prayer"),
             total_ticks,
             requested_prayer_uptime,
+            halo_drain_multipliers,
         )
     )
     data["combat_prayer_points"] = prayer_points_after
@@ -8110,6 +8182,7 @@ def apply_combat_burst_pure(
                 _equipment_bonus_value(player_totals, "prayer"),
                 1,
                 requested_prayer_uptime,
+                halo_drain_multipliers,
             )
             data["combat_prayer_points"] = prayer_points_after
             data["combat_prayer_drain_counter"] = prayer_counter
@@ -8243,6 +8316,10 @@ def apply_combat_burst_pure(
             if enemy.get("protect_from_player_class") == combat_class:
                 landed = False
             damage = _combat_roll_damage_lifepoints(live_player_max_hit, rng) if landed else 0
+            try:
+                damage = int(damage * max(0.0, float(player_damage_multiplier)))
+            except (TypeError, ValueError, OverflowError):
+                pass
             if live_cadence:
                 curse_attack_count += 1
             damage, automatic_finisher = _combat_cap_damage_for_finisher(

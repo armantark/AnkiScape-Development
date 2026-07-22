@@ -14,6 +14,28 @@ Status: reconciled 2026-07-16. This is the canonical forward-work board. The 202
 
 ## Now — audit-backed implementation and source work
 
+### Castle Wars — horizontal mechanics shipped 2026-07-21
+
+Labels: `SOURCE AUDIT` only for deferred catalog depth and two adjacent
+source/contract conflicts.
+
+- The ten-beat persistent match, safe death, six duties, Casual bottleneck and
+  Advanced fixed-duty policies, five-beat participation gate, 2/1/0 ticket
+  settlement, explicit leave, persistence, undo, cadence, telemetry, compact
+  Activities card, ticket shop, and normalized cutoff assets are live.
+- The representative reward graph covers Basic decorative set bonuses,
+  Saradomin halo Prayer drain, the 500-game Hobbyist cape, ballista assembly
+  and ammunition, Castlewars chinchompas, and full-ticket resale.
+- Complete decorative/cosmetic variants, match potions, hybrid-armour chance,
+  and hidden crowd/score rolls are catalog/data depth, not missing mechanics.
+- Clan Wars' dangerous red portal conflicts with the settled safe flattening,
+  and Duel Tournaments were removed before the cutoff despite the older
+  contract. Both remain recorded in
+  `memory-bank/design-gaps-implementation-2026-07-19.md`; do not silently
+  resolve either during breadth work.
+- Durable audit:
+  `memory-bank/source-audits/castle-wars-horizontal-readiness-2026-07-21.md`.
+
 ### Owner-approved post-closure amendments
 
 Labels: none. All approved amendments and their two follow-up design questions

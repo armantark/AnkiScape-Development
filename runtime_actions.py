@@ -246,6 +246,11 @@ try:
         apply_trouble_brewing_review_pure,
         trouble_brewing_view_pure,
     )
+    from .castle_wars_data import CASTLE_WARS_ACTIVITY_ID
+    from .castle_wars_logic import (
+        apply_castle_wars_review_pure,
+        castle_wars_view_pure,
+    )
     from .managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
     from .managing_miscellania_logic import (
         apply_managing_miscellania_review_pure,
@@ -579,6 +584,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from trouble_brewing_logic import (  # type: ignore
         apply_trouble_brewing_review_pure,
         trouble_brewing_view_pure,
+    )
+    from castle_wars_data import CASTLE_WARS_ACTIVITY_ID  # type: ignore
+    from castle_wars_logic import (  # type: ignore
+        apply_castle_wars_review_pure,
+        castle_wars_view_pure,
     )
     from managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID  # type: ignore
     from managing_miscellania_logic import (  # type: ignore
@@ -3584,6 +3594,58 @@ def handle_trouble_brewing_answer(
     return True
 
 
+def handle_castle_wars_answer(
+    ctx: RuntimeActionContext,
+    *,
+    productive: bool = True,
+) -> bool:
+    view = castle_wars_view_pure(ctx.player_data)
+    duty: str | None = None
+    session = view.get("castle_wars")
+    if isinstance(session, dict) and session.get("automation_mode") == "advanced":
+        duty = str(session.get("duty", duty))
+    updated, ok, result = apply_castle_wars_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+        productive=productive,
+        duty=duty,
+        opponent_roll=ctx.random_random(),
+        equipment_data=EQUIPMENT_DATA,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Castle Wars unavailable",
+            str(result.get("reason", "Enter Castle Wars before training.")),
+        )
+        return False
+    xp_rewards = dict(result.get("xp_rewards") or {})
+    for exp_key, amount in xp_rewards.items():
+        updated[exp_key] = float(updated.get(exp_key, 0.0) or 0.0) + float(amount)
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    _record_action(
+        ctx,
+        "utility",
+        CASTLE_WARS_ACTIVITY_ID,
+        productive,
+        expected_success_chance=1.0,
+        failure_kind="safe_death" if result.get("died") else None,
+        primary_xp=sum(float(amount or 0.0) for amount in xp_rewards.values()),
+    )
+    _refresh_combat_levels(ctx, xp_rewards)
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    xp_total = sum(float(amount or 0.0) for amount in xp_rewards.values())
+    if xp_total > 0:
+        ctx.show_exp(xp_total)
+    ctx.show_activity_gain(str(result.get("message") or result.get("status") or "Castle Wars beat resolved"))
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
 def _handle_managing_miscellania_answer(ctx: RuntimeActionContext) -> bool:
     updated, result = apply_managing_miscellania_review_pure(ctx.player_data)
     if not result.get("allowed"):
@@ -3662,6 +3724,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_circus_answer(ctx)
     if activity_key == TROUBLE_BREWING_ACTIVITY_ID:
         return handle_trouble_brewing_answer(ctx)
+    if activity_key == CASTLE_WARS_ACTIVITY_ID:
+        return handle_castle_wars_answer(ctx)
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:
         return _handle_managing_miscellania_answer(ctx)
     if activity_key == STRONGHOLD_UTILITY_KEY:
@@ -6004,6 +6068,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return bool(circus_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == TROUBLE_BREWING_ACTIVITY_ID:
         return bool(trouble_brewing_view_pure(ctx.player_data).get("active", False))
+    if activity_key == CASTLE_WARS_ACTIVITY_ID:
+        return bool(castle_wars_view_pure(ctx.player_data).get("active", False))
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:
         return bool(managing_miscellania_view_pure(ctx.player_data).get("can_train", False))
     return not utility_activity_locked_reasons_pure(

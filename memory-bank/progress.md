@@ -4,6 +4,42 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Castle Wars horizontal mechanic closure — 2026-07-21
+
+- Implemented a persistent ten-review match with exact no-food/no-head/no-cape
+  entry boundaries, safe death, five-review participation credit, exact 2/1/0
+  tickets, explicit forfeit, Casual bottleneck selection, and Advanced fixed
+  duty/team policy.
+- Capture, defend, barricade, repair, catapult, and support all resolve real
+  state. Defend reuses live Combat and preserves ordinary Combat XP. Support
+  consumes its free bandage only when it has an effect, then falls back to the
+  current bottleneck.
+- Added the representative ticket shop: Basic decorative body/legs/shield set
+  bonuses, exact Saradomin-halo prayer-drain list, 500-game Hobbyist cape,
+  reusable four-part ballista, consumable ammunition, and Castlewars
+  chinchompas, with full-ticket resale.
+- Added schema 74, persistence sanitization, activity arbitration, cadence,
+  telemetry, direct/review undo, item/equipment registration, reproducible
+  cutoff assets and provenance, and a compact paginated Activities card and
+  ticket-shop dialog.
+- A bounded Sol-high Workflows review found and root reproduced two integration
+  defects: Casual runtime forced the saved duty, and no-effect Support wasted a
+  beat. Both are fixed with regressions. The suggested halo/cape entry
+  exception was rejected as contrary to the cutoff universal entry ban.
+- Full offscreen discovery passes all 2,373 tests with one intentional skip.
+  Documentation, test-quality, item-reachability, registry, asset-normalization,
+  diff, and worktree audits pass. Native Anki shows one launcher, one dialog,
+  separate Utilities/Activities, the four-page picker, and the Castle Wars row
+  with its normalized icon; native row activation was blocked by the macOS Qt
+  accessibility bridge, so only real-Qt detail/shop coverage is claimed.
+- Remaining reward variants, match potions, hybrid-armour chance, and hidden
+  crowd/score rolls are data depth. Clan Wars dangerous-red-portal parity and
+  the cutoff removal of Duel Tournaments remain source/contract conflicts in
+  `design-gaps-implementation-2026-07-19.md`. Durable audit:
+  `source-audits/castle-wars-horizontal-readiness-2026-07-21.md`. Results:
+  `status-updates/castle-wars-horizontal-results-2026-07-21.html` and
+  <https://6xzb9r97ffac.postplan.dev>.
+
 ## Big Top Bonanza horizontal mechanic closure — 2026-07-21
 
 - Replaced the retired Agility-only Circus target with one Activities-only
