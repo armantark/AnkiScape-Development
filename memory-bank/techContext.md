@@ -47,6 +47,18 @@
   native compositor result. A modal-blocked quit can leave the old Python
   process and stale assets looking deceptively current.
 
+### Optional cloud test lane
+- When ChatGPT Work or Codex cloud is included in the existing ChatGPT plan at
+  no extra cost and is easy to initialize, use it as a preferred optional test
+  lane for pure Python logic, quest and data work, migrations, audits, no-Qt
+  integration tests, and offscreen Qt tests whose packages install reliably.
+- Cloud results supplement local closure. Keep final loading in the real Anki
+  profile, interactive GUI and visual checks, packaging and installation
+  checks, and macOS-specific checks local.
+- Existing dirty-tree, worktree-safety, and closure gates apply unchanged in
+  both environments. Do not add paid cloud infrastructure or invent a
+  cloud-only substitute for an unavailable check.
+
 ## Testing Coverage
 Existing tests cover:
 - core game logic and level/XP math
