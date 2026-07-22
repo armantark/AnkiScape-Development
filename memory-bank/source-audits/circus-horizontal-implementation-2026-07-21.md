@@ -95,15 +95,31 @@ audience counters, then removes their legacy fields.
 
 Fable was deliberately held in reserve under the owner's quota instruction.
 Kimi's live quota gate failed closed at four percent weekly remaining. Opus had
-quota available, but the Claude CLI required a new login, so no external model
-review ran and no such signoff is claimed. Codex inspected the four normalized
-dark-mode renders directly. That audit found one material legibility gap: the
-available-state card did not say that its remaining count was weekly. The status
-now reads `N left this answered-card week`; locked rows still name their quest
-gate and completed rows say `done this week`. The mutually exclusive
-`501–1000` reward bands, fixed-count editor copy, named score strip, icon
-tooltips, result line, setup-mode labels, and accessible names were verified in
-the rendered and offscreen-Qt surfaces.
+quota available and completed the bounded read-only taste pass. Root reproduced
+and fixed all seven concrete findings: mutually exclusive `501–1000` reward
+bands, visible locked and completed rows, duplicate result copy, shorter valid
+Advanced routines, a named score strip, clearer setup-mode labels, and the
+primary button's live accessible name. The final status reads `N left this
+answered-card week`; locked rows name their quest gate, and completed rows say
+`done this week`. Codex inspected the four normalized dark-mode renders and the
+real native card after the fixes.
+
+## Native Anki persistence finding
+
+The real Anki 25.09.4 pass found a legacy `ankiscape_player_data` config row
+stored as SQLite TEXT. Anki could read that row but failed when it tried to
+update or remove it through the current BLOB-only config API. The offscreen
+test doubles did not reproduce this database type boundary.
+
+`storage.py` now detects only Anki's `DBError` plus `InvalidColumnType`
+signature. It first writes a recovery BLOB, deletes the malformed canonical row
+through Anki's collection connection, recreates the canonical BLOB, and removes
+the recovery key only after success. Load also accepts the recovery key if an
+interrupted repair left no canonical row. `tests/test_storage_runtime.py`
+proves the behavior with both a fault-injecting facade and a real temporary Anki
+collection. The owner profile retained its prior `barrows` selection. The exact
+pre-repair database copy is
+`/tmp/ankiscape-player-config-before-type-repair-2026-07-21.anki2`.
 
 ## Verification scope
 
@@ -111,6 +127,17 @@ Focused coverage proves the six tables and gates, atomic success and failure,
 once-per-level XP, Entertain variety, above-level translation, weekly rollover,
 single-performance abandon, reclaim, legacy migration, runtime dispatch,
 direct-action undo, review/world-clock undo, equipment generation, paginated UI,
-reward-row switching, locked-row annotations, and normalized assets. Final
-full-suite, native Anki, reachability, documentation, and closure results are
-recorded in the matching status artifact and core Memory Bank files.
+reward-row switching, locked-row annotations, and normalized assets.
+
+The complete non-Qt discovery ran 2,322 tests successfully with 303 declared
+dependency skips. The complete offscreen Qt discovery ran the same 2,322 tests:
+2,320 passed, one skipped, and one older exact-set Activities assertion failed
+because concurrent uncommitted Trouble Brewing work had already added its
+registry ID. That failure is outside the Circus/storage slice and its writer's
+files were left untouched. Focused Circus and real Anki-storage coverage passes,
+native Anki restarts cleanly, documentation and test-quality audits pass,
+`git diff --check` and the worktree guard pass, and normalized asset checks
+report no remaining transparent padding. Reachability retains its known
+baseline backlog but reports no new Circus costume orphan. The results artifact
+is `memory-bank/status-updates/big-top-bonanza-horizontal-results-2026-07-21.html`
+and its mobile copy is <https://zka07zkf8ey8.postplan.dev>.

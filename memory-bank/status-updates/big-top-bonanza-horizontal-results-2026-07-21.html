@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Big Top Bonanza horizontal closure</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #f4c542;
+      --accent-glow: rgba(244, 197, 66, .16);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 16% 2%, rgba(255, 92, 92, .11), transparent 28rem),
+        radial-gradient(circle at 85% 8%, var(--accent-glow), transparent 30rem),
+        repeating-linear-gradient(90deg, transparent 0 44px, rgba(255,255,255,.018) 45px 46px),
+        var(--bg);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      line-height: 1.5;
+    }
+    main { width: min(1120px, calc(100% - 28px)); margin: 28px auto 56px; }
+    .hero, .card { border: 1px solid var(--border); background: rgba(22, 26, 33, .96); border-radius: var(--radius); }
+    .hero { position: relative; overflow: hidden; padding: clamp(26px, 5vw, 54px); box-shadow: 0 30px 90px rgba(0,0,0,.34); }
+    .lights { position: absolute; inset: 0 0 auto; height: 8px; background: repeating-linear-gradient(90deg, var(--accent) 0 14px, var(--red) 14px 28px, var(--purple) 28px 42px, var(--green) 42px 56px); }
+    .badge, .metric span, .act-label, .tag { font-family: "JetBrains Mono", SFMono-Regular, Menlo, monospace; text-transform: uppercase; letter-spacing: .08em; }
+    .badge { display: inline-block; padding: 5px 9px; color: var(--accent); border: 1px solid rgba(244,197,66,.38); border-radius: 999px; font-size: 11px; }
+    h1 { margin: 18px 0 10px; max-width: 850px; font-size: clamp(42px, 8vw, 86px); line-height: .94; letter-spacing: -.055em; }
+    .lede { max-width: 780px; margin: 0; color: var(--text-dim); font-size: clamp(17px, 2.1vw, 22px); }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 30px; }
+    .metric { min-height: 96px; padding: 14px; background: var(--surface-2); border-top: 3px solid var(--accent); border-radius: 4px; }
+    .metric strong { display: block; font-size: 30px; line-height: 1.1; }
+    .metric span { color: var(--text-dim); font-size: 10px; }
+    .grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 18px; margin-top: 18px; }
+    .card { padding: 22px; }
+    .card h2 { margin: 0 0 14px; font-size: 25px; }
+    .card p { color: var(--text-dim); }
+    .acts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .act { padding: 14px; border: 1px solid var(--border); background: var(--surface-2); border-radius: 8px; }
+    .act::before { content: ""; display: block; width: 26px; height: 4px; margin-bottom: 9px; border-radius: 99px; background: var(--accent); }
+    .act:nth-child(2n)::before { background: var(--red); }
+    .act:nth-child(3n)::before { background: var(--purple); }
+    .act-label { color: var(--text-dim); font-size: 9px; }
+    .act strong { display: block; margin-top: 3px; }
+    .flow { display: grid; gap: 10px; }
+    .step { display: grid; grid-template-columns: 34px 1fr; gap: 11px; padding: 12px; border-left: 3px solid var(--accent); background: var(--surface-2); }
+    .step b { display: grid; place-items: center; width: 28px; height: 28px; color: #17140a; background: var(--accent); border-radius: 50%; }
+    .step strong { display: block; }
+    .step small { color: var(--text-dim); }
+    .proof { margin-top: 18px; border-color: rgba(74, 222, 128, .35); }
+    .checks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .check { padding: 13px 14px; background: rgba(74, 222, 128, .055); border-left: 3px solid var(--green); }
+    .check strong { display: block; margin-bottom: 3px; }
+    .check span { color: var(--text-dim); font-size: 14px; }
+    .native { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; margin-top: 18px; padding: 18px; border: 1px solid rgba(255,92,92,.34); background: rgba(255,92,92,.055); border-radius: var(--radius); }
+    .native h2 { margin: 0 0 5px; font-size: 21px; }
+    .native p { margin: 0; color: var(--text-dim); }
+    .stamp { padding: 10px 13px; border: 2px solid var(--green); color: var(--green); font-family: "JetBrains Mono", monospace; font-weight: 800; text-transform: uppercase; transform: rotate(-2deg); }
+    details { margin-top: 18px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .tags { margin-top: 14px; }
+    .tag { display: inline-block; margin: 4px 4px 0 0; padding: 4px 8px; border: 1px solid var(--border); color: var(--text-dim); font-size: 9px; }
+    footer { margin-top: 18px; color: var(--text-dim); text-align: center; font-size: 13px; }
+    @media (max-width: 780px) { .grid, .metrics, .checks { grid-template-columns: 1fr 1fr; } .native { grid-template-columns: 1fr; } .stamp { justify-self: start; } }
+    @media (max-width: 540px) { main { width: min(100% - 18px, 1120px); margin-top: 9px; } .grid, .metrics, .checks, .acts { grid-template-columns: 1fr; } .hero, .card { padding: 19px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="lights" aria-hidden="true"></div>
+      <div class="badge">Completed · horizontal breadth · 2026-07-21</div>
+      <h1>The full Circus is open.</h1>
+      <p class="lede">Big Top Bonanza now turns one answered review into one complete weekly performance. The slice covers every cutoff skill family, the complete trick tables, the score bands, and the reward loop.</p>
+      <div class="metrics">
+        <div class="metric"><strong>6</strong><span>performance families</span></div>
+        <div class="metric"><strong>77</strong><span>period trick rows</span></div>
+        <div class="metric"><strong>2,322</strong><span>non-Qt tests green</span></div>
+        <div class="metric"><strong>2,320</strong><span>Qt passes; 1 external failure</span></div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Six acts, one shared system</h2>
+        <div class="acts">
+          <div class="act"><span class="act-label">10 attempts</span><strong>Magic</strong></div>
+          <div class="act"><span class="act-label">10 attempts</span><strong>Ranged</strong></div>
+          <div class="act"><span class="act-label">10 attempts</span><strong>Agility</strong></div>
+          <div class="act"><span class="act-label">6 attempts</span><strong>Fire-breathing</strong></div>
+          <div class="act"><span class="act-label">6 attempts</span><strong>Flaming poi</strong></div>
+          <div class="act"><span class="act-label">10 attempts</span><strong>Thieving</strong></div>
+        </div>
+        <details>
+          <summary>What remains as data depth?</summary>
+          <p>The hidden success curve, the hidden audience-score curve, and the remaining costume variants stay explicit data depth. All player mechanics already exist.</p>
+        </details>
+      </section>
+
+      <section class="card">
+        <h2>The review boundary</h2>
+        <div class="flow">
+          <div class="step"><b>1</b><div><strong>Choose the act</strong><small>Use Casual strategy or save a shorter Advanced routine.</small></div></div>
+          <div class="step"><b>2</b><div><strong>Answer one card</strong><small>The complete routine resolves with zero XP for each failed trick.</small></div></div>
+          <div class="step"><b>3</b><div><strong>Close one weekly slot</strong><small>Only the selected act closes for the answered-card week.</small></div></div>
+          <div class="step"><b>4</b><div><strong>Keep or reclaim rewards</strong><small>One representative costume covers each exact score band.</small></div></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card proof">
+      <h2>Closure proof</h2>
+      <div class="checks">
+        <div class="check"><strong>Atomic and undoable</strong><span>XP, score, reward, weekly state, and the answered-card clock share one undo snapshot.</span></div>
+        <div class="check"><strong>Period-shaped</strong><span>The cutoff oldid supplies the trick tables, limits, gates, failure rule, and reward bands.</span></div>
+        <div class="check"><strong>Compact Activities UI</strong><span>The card uses the four-page picker and adds no nested scroll area.</span></div>
+        <div class="check"><strong>Normalized assets</strong><span>The activity icon and five representative reward sprites have tight alpha bounds.</span></div>
+        <div class="check"><strong>Independent taste pass</strong><span>Opus found seven concrete UI defects. Root reproduced and fixed all seven.</span></div>
+        <div class="check"><strong>Attributable Qt result</strong><span>The full offscreen run found one concurrent Trouble Brewing exact-set oracle failure; Circus and storage coverage stayed green.</span></div>
+        <div class="check"><strong>No design gap</strong><span>The remaining work is slow catalog and formula harvest, not owner direction.</span></div>
+      </div>
+    </section>
+
+    <section class="native">
+      <div>
+        <h2>The native pass found what headless Qt missed.</h2>
+        <p>Anki 25.09.4 exposed one legacy TEXT-backed player-data row. The runtime now keeps a recovery copy and recreates the row as a BLOB. A real temporary Anki collection proves the repair.</p>
+      </div>
+      <div class="stamp">Native verified</div>
+    </section>
+
+    <section class="card" style="margin-top:18px">
+      <h2>The taste fixes that shipped</h2>
+      <p>The final card shows only the valid Acrobat or Firemaker reward band. Locked acts are visible, result copy appears once, Advanced routines can end early, the score strip has a clear name, setup modes read clearly, and the primary action keeps its correct accessible name.</p>
+      <div class="tags"><span class="tag">Fable reserved</span><span class="tag">Kimi quota gate closed</span><span class="tag">Opus reviewed</span><span class="tag">no wall clock</span><span class="tag">Barrows state restored</span></div>
+    </section>
+
+    <footer>The Circus is mechanic-complete. The breadth-first frontier can move to the next source-ready settled activity.</footer>
+  </main>
+</body>
+</html>

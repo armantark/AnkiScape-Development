@@ -2,6 +2,44 @@
 
 ## Current Focus
 
+Big Top Bonanza now satisfies horizontal breadth level one as an Activities-
+only weekly multi-skill performance. Magic, Ranged, Agility, Fire-breathing,
+Flaming poi, and Thieving use their complete cutoff trick tables. One review
+resolves the complete six- or ten-attempt performance, grants XP once per
+level band, closes only that performance for the answered-card week, and can
+award one representative costume from the exact score bands.
+
+Casual strategy, Advanced routines, quest gates, zero-XP failures, direct
+abandon, free costume reclaim, schema-72 legacy migration, cadence stopping,
+whole-answer undo, direct-action undo, equipment registration, normalized
+period sprites, and the compact paginated Activities card are live. Hidden
+success and audience-score curves remain labeled data depth. No owner design
+gap emerged.
+
+Opus found and root fixed seven concrete UI issues, including mutually
+exclusive reward bands, weak locked-row states, duplicate result copy, and an
+inflexible routine editor. Fable remains reserved. Kimi's live quota gate
+failed closed. A fully restarted native Anki pass found a legacy TEXT-backed
+player-data row that offscreen tests could not reproduce. Runtime persistence
+now repairs that row through a guarded backup path, and a real Anki-collection
+test proves the repair. The owner profile is restored to Barrows, and the
+pre-repair database copy is
+`/tmp/ankiscape-player-config-before-type-repair-2026-07-21.anki2`.
+
+Durable record:
+`source-audits/circus-horizontal-implementation-2026-07-21.md`.
+
+Closure verification ran all 2,322 non-Qt tests successfully with 303 declared
+dependency skips. The same 2,322-test real offscreen Qt run reached one
+attributable failure: concurrent uncommitted Trouble Brewing work added its
+activity ID before that writer updated the older exact-set Activities oracle;
+the other 2,320 Qt tests passed and one was skipped. Focused Circus and real
+Anki-storage tests pass, native Anki reopens cleanly, the documentation,
+test-quality, asset-normalization, diff, and worktree audits pass, and the known
+reachability backlog contains no new Circus costume orphan. Results:
+`status-updates/big-top-bonanza-horizontal-results-2026-07-21.html` and
+<https://zka07zkf8ey8.postplan.dev>.
+
 Mage Training Arena's cutoff four-wallet economy, full reward catalog, caps,
 restrictions, death consequence, and three observational room-throughput rows
 are now harvested. Enchantment throughput remains `source_blocked`: the

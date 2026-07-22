@@ -1194,7 +1194,7 @@ Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
   Sorceress's Garden, Penguin Hide and Seek, Vinesweeper, Fight Caves,
   Stealing Creation, Barrows, Flash Powder Factory, Pyramid Plunder, and
   Werewolf Skullball, Gnome Ball, Fish Flingers, Fishing Trawler, Great Orb
-  Project, and Managing Miscellania with
+  Project, Managing Miscellania, and Big Top Bonanza with
   complete mechanics, persistence, undo, UI, assets, and compact period-
   qualified data sets.
 - Flash Powder Factory and Pyramid Plunder are closed. Tears of Guthix and Shattered Heart remain explicit
@@ -1211,6 +1211,27 @@ Labels: `DESIGN CLOSED`, `BREADTH IN PROGRESS`, `SOURCE AUDIT`.
 - Harvest each remaining family for entry/run state, review cost, event
   variance, currency, rewards, reward shop, persistence, expiry, and undo.
 - Include the split activity cards from `gap-backlog.json`, bosses/instances, and wider pre-EOC reward activities. Never expose individual reward stubs before they work end to end.
+
+## Big Top Bonanza horizontal closure — 2026-07-21
+
+- Added all six cutoff performance families with complete trick tables, exact
+  attempt limits, quest gates, zero-XP failures, and once-per-level-band XP.
+- One review owns the complete performance. The answered-card week closes only
+  the resolved performance and never uses wall-clock time.
+- Casual and Advanced setup, shorter custom routines, direct abandon, costume
+  reclaim, representative score-band rewards, equipment, cadence, telemetry,
+  persistence, migration, and whole-boundary undo are live.
+- The compact Activities card and all representative sprites pass native Anki
+  and normalization checks. Opus's bounded taste pass is closed. Fable remains
+  reserved, and Kimi's quota gate failed closed.
+- The native pass also found an old Anki TEXT config row. The guarded runtime
+  repair and a real Anki-collection regression test are now part of the slice.
+- All 2,322 non-Qt tests pass. The full offscreen Qt run has one attributable
+  concurrent Trouble Brewing exact-set-oracle failure, with 2,320 passes and
+  one skip; focused Circus/storage and native Anki checks pass.
+- Remaining costume variants and hidden success/score curves are data depth,
+  not missing mechanics. See
+  `source-audits/circus-horizontal-implementation-2026-07-21.md`.
 
 ### Bosses and instanced Combat
 

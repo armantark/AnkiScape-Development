@@ -4,6 +4,44 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Big Top Bonanza horizontal mechanic closure — 2026-07-21
+
+- Replaced the retired Agility-only Circus target with one Activities-only
+  multi-skill performance system for Magic, Ranged, Agility, Fire-breathing,
+  Flaming poi, and Thieving.
+- Added the complete cutoff trick and XP tables, six- and ten-attempt limits,
+  quest gates, zero-XP failures, once-per-level-band XP, answered-card weekly
+  gates, Casual strategies, and Advanced routines.
+- Added atomic review resolution, one-skill XP dispatch, representative costume
+  rewards, equipment use, free reclaim, direct abandon, persistence,
+  schema-72 migration, cadence coverage, telemetry, and direct/review undo.
+- Added five normalized period reward sprites, one activity icon, complete
+  provenance, reproducible equipment generation, and a compact card on the
+  paginated Distractions and Diversions page.
+- Opus found seven concrete interaction and hierarchy defects. Root fixed the
+  reward-band leak, lock-state ambiguity, duplicate result copy, fixed-length
+  routine editor, missing score label, weak mode names, and stale accessible
+  action name. Fable stayed reserved, and Kimi's quota gate failed closed.
+- Native Anki found one additional persistence defect that headless tests
+  missed: an old TEXT-backed player-data row failed on save in Anki 25.09.4.
+  The runtime now keeps a recovery copy, recreates the canonical BLOB row, and
+  removes the recovery key only after success. A real Anki-collection test
+  reproduces the exact failure and proves the repair.
+- The owner profile keeps its prior Barrows selection. A byte-for-byte safety
+  copy exists at
+  `/tmp/ankiscape-player-config-before-type-repair-2026-07-21.anki2`.
+- Hidden success and audience-score formulas and the remaining costume
+  variants stay explicit data depth. No owner design gap emerged. See
+  `source-audits/circus-horizontal-implementation-2026-07-21.md`.
+- Verification ran all 2,322 non-Qt tests successfully with 303 declared skips.
+  The 2,322-test offscreen Qt run passed 2,320, skipped one, and found one
+  attributable concurrent-work oracle failure: Trouble Brewing had entered the
+  activity registry before its writer updated the old exact-set UI assertion.
+  Focused Circus and real Anki-storage coverage, native Anki, docs,
+  test-quality, assets, diff, and worktree checks pass. Results:
+  `status-updates/big-top-bonanza-horizontal-results-2026-07-21.html` and
+  <https://zka07zkf8ey8.postplan.dev>.
+
 ## Mage Training Arena source-readiness harvest — 2026-07-21
 
 - Pinned the complete four-wallet reward catalog, caps, room restrictions,
