@@ -165,7 +165,8 @@ the complete asset-backed charged-item registry.
   reproducible fetcher records every output in `assets_provenance.json`.
 - Focused runtime, migration, direct-undo, registry, real offscreen Qt, and
   global asset-normalization checks pass. Root inspected deterministic ready
-  and active dark-palette renders. Kimi review could not pass its fresh quota
+  and active dark-palette renders; full real-Qt discovery passes all 2,407
+  tests with one intentional skip. Kimi review could not pass its fresh quota
   telemetry gate and Opus is not authenticated; Fable was deliberately kept
   in reserve, so no external taste signoff is claimed. Native Anki Computer
   Use could not start its local bridge, so no native detail-card claim is made.

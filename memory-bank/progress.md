@@ -23,10 +23,11 @@ AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills
   and a deterministic real-Qt renderer.
 - Focused pure, runtime, migration, direct-undo, registry, UI, and global asset
   normalization checks pass. Root render QA found no clipping or hierarchy
-  defect. Kimi's fresh telemetry gate and Opus authentication both failed
-  closed, so no external taste approval is claimed; Fable was not used. Native
-  Anki Computer Use could not start its local bridge, so no native detail-card
-  claim is made.
+  defect, and full real-Qt discovery passes all 2,407 tests with one
+  intentional skip. Kimi's fresh telemetry gate and Opus authentication both
+  failed closed, so no external taste approval is claimed; Fable was not used.
+  Native Anki Computer Use could not start its local bridge, so no native
+  detail-card claim is made.
 - Remaining reward equipment, supply packs, charms, and exact hidden crowd
   rates are data depth. Durable audit:
   `source-audits/pest-control-game-model-2026-07-18.md`. Results:

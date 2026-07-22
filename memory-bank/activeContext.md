@@ -23,7 +23,8 @@ depth, not another mechanic.
 
 Focused pure, runtime, migration, direct-undo, registry, asset-normalization,
 and real offscreen Qt interaction tests pass. Root inspected ready and active
-1200×760 dark-palette renders. External taste signoff remains unavailable:
+1200×760 dark-palette renders; full real-Qt discovery passes all 2,407 tests
+with one intentional skip. External taste signoff remains unavailable:
 Kimi's fresh quota probe fails closed with missing five-hour telemetry, and
 Opus reports no authenticated Claude session. Fable remains reserved exactly
 as requested. Native Anki Computer Use could not start its local bridge, so no
