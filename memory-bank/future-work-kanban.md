@@ -1116,6 +1116,16 @@ Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is n
   and a compact dark-safe card. The exact post-July-2012 XP equation and hidden
   event distributions remain data-depth source gaps. See
   `memory-bank/source-audits/fish-flingers-loop-2026-07-17.md`.
+- Phoenix Lair is mechanic-complete as a non-resumable Activities-only
+  dangerous ritual. It ships exact quest/Slayer/tool/daily gates, one
+  persistent aggregate five-guardian front, one pyre-preparation review, one
+  persistent Phoenix fight, guardian Ashes, fixed completion rewards,
+  dangerous death/grave handling, contextual Clap/Kick egg choice, both
+  egglings and delayed level-72 hatching, persistence, undo, cadence,
+  normalized period art, and a compact D&D card. Exact hidden egg odds,
+  complete guardian stats/drop weights, Lesser-warrior max hit, and dust timing
+  remain data-depth source gaps. See
+  `memory-bank/source-audits/phoenix-lair-implementation-data-2026-07-21.md`.
 - Darkan should supply hidden state machines, rolls, currencies, and reward logic; period wiki/cache evidence still establishes cutoff and client identity.
 
 ### Missing skill server behavior

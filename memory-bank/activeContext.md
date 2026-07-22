@@ -2,6 +2,35 @@
 
 ## Current Focus
 
+Phoenix Lair now satisfies horizontal breadth level one as a non-resumable,
+dangerous Activities-only ritual. Its In Pyre Need, Slayer 51, tool, Combat,
+and once-per-answered-card-day gates lead into one persistent five-blocker
+Reborn guardian front, one pyre-preparation review, and one persistent Phoenix
+fight. Guardian Ashes, exact fixed completion XP and quills, first/repeat
+Slayer XP, dangerous death/grave behavior, explicit abandonment, and prior
+Combat-target restoration are live.
+
+The rare Phoenix egg uses a disclosed `1/1000` bounded completion roll. Clap
+and Kick resolve through the contextual choice system to Cute and Mean
+egglings at Summoning 72, or bank the matching unhatched egg below 72 for an
+instant later hatch on the Pets surface. Schema 70 migration, persistent
+activity arbitration, cadence coverage, direct/review undo, provenance-tracked
+period reward sprites, and a compact paginated D&D card are closed. Hidden egg
+probability, complete guardian stats/drop tables, Lesser-warrior max hit, and
+dust-attack timing remain explicit data depth; no owner design gap emerged.
+
+Opus's read-only taste pass replaced a dark modern landscape screenshot with
+the normalized period Phoenix-quill sprite, removed source-audit jargon from
+primary copy, and aligned the card's icon, progress bar, state labels, locks,
+and hatch gates with sibling surfaces. Fable remained fully reserved. The
+exact final state passes all 2,242 non-Qt tests with 295 expected environment
+skips and all 2,242 real offscreen-Qt tests with one intentional skip. Test
+quality, documentation, compilation, JSON, diff, normalized assets, focused
+visual states, reachability, and worktree safety pass. Durable record:
+`source-audits/phoenix-lair-implementation-data-2026-07-21.md`. Results:
+`status-updates/phoenix-lair-horizontal-results-2026-07-21.html`; mobile copy:
+`https://wpe44dlne5mx.postplan.dev`.
+
 Fish Flingers now satisfies horizontal breadth level one as an Activities-only
 Fishing D&D. Two tickets accrue per answered-card day to a ten-ticket cap; one
 is consumed atomically at entry. Each six-review event automatically discovers

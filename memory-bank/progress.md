@@ -4,6 +4,38 @@
 
 AnkiScape now has 18 complete skill surfaces, five partial Combat-trained skills, and two planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is archived baseline evidence.
 
+## Phoenix Lair horizontal mechanic closure — 2026-07-21
+
+- Implemented the complete owner-settled ritual: exact quest, Slayer, tool,
+  Combat, and daily gates; one persistent aggregate five-guardian front; one
+  pyre-preparation review; and one persistent Phoenix fight.
+- Added guaranteed guardian Ashes, exact first/repeat XP and quill rewards,
+  dangerous shared death/grave handling, non-resumable abandonment, activity
+  arbitration, prior Combat-target restoration, schema 70 migration, cadence,
+  telemetry, and whole-boundary undo.
+- Added the contextual Clap/Kick egg choice, distinct Cute/Mean pet acquisition,
+  below-72 egg banking, and instantaneous level-72 hatch actions on the Pets
+  surface. The source-blocked egg chance uses a labeled `1/1000` breadth
+  abstraction.
+- Added three normalized period item sprites with provenance and a reproducible
+  fetch helper. The Phoenix quill doubles as the activity icon, replacing the
+  unsuitable modern location screenshot found by Opus.
+- Opus's read-only taste pass also removed source-audit jargon, normalized the
+  28 px pixel-art header, styled enemy-health progress, clarified active and
+  locked states, and made the Summoning 72 hatch gate visible without hover.
+  Fable stayed fully reserved.
+- Exact guardian stat/drop depth, Lesser-warrior max hit, historical egg odds,
+  and dust timing remain explicit source debt. No owner design gap emerged.
+  See `source-audits/phoenix-lair-implementation-data-2026-07-21.md`.
+- Verification: all 2,242 non-Qt tests pass with 295 expected skips and all
+  2,242 real offscreen-Qt tests pass with one intentional skip. Test quality,
+  docs, compilation, JSON, diff, asset normalization, dark-mode visual states,
+  reachability, a fully restarted native Anki pass, and worktree safety pass.
+  Native Anki showed one launcher and one menu, separate Utilities/Activities,
+  and Phoenix Lair with its normalized quill icon on the paginated D&D page.
+- Results: `status-updates/phoenix-lair-horizontal-results-2026-07-21.html`;
+  mobile copy: `https://wpe44dlne5mx.postplan.dev`.
+
 ## Fish Flingers horizontal mechanic closure — 2026-07-21
 
 - Implemented the complete six-review Fishing event with automatic

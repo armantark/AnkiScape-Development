@@ -5465,6 +5465,48 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.random.getstate(), before_rng)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
+    def test_explicit_phoenix_egg_choice_is_directly_undoable(self):
+        addon = _load_addon_as_package("ankiscape_phoenix_context_direct_integration")
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_context_action_strip = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        initial = {
+            "inventory": {},
+            "summoning_level": 71,
+            "summoning_state": {
+                "pet_instances": {},
+                "pet_next_instance_id": 1,
+            },
+            "phoenix_lair": {
+                "pending_egg": True,
+                "runs_completed": 1,
+            },
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.current_skill = "Activities"
+
+        self.assertTrue(
+            addon.resolve_review_context_action("phoenix_egg", "kick")
+        )
+
+        self.assertEqual(addon.player_data["inventory"]["Cracked phoenix egg"], 1)
+        self.assertEqual(
+            addon.player_data["review_context_preferences"]["phoenix_egg"],
+            "kick",
+        )
+        self.assertFalse(addon.player_data["phoenix_lair"]["pending_egg"])
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
     def test_ignored_pit_reward_resolves_on_next_answer_and_review_undo_restores_it(self):
         addon = _load_addon_as_package("ankiscape_pit_context_review_integration")
         addon.mw = _DummyMW(_DummyCol())
@@ -5654,6 +5696,57 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["court_cases"]["case_id"], "mugger")
         self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
         self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_phoenix_lair_entry_is_direct_and_undoable(self):
+        addon = _load_addon_as_package("ankiscape_phoenix_entry_integration")
+        storage = sys.modules[f"{addon.__name__}.storage_pure"]
+        constants = sys.modules[f"{addon.__name__}.constants"]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon.current_skill = "Activities"
+        initial = storage.default_player_data(
+            constants.ORE_DATA, constants.ITEM_DEFINITIONS
+        )
+        initial["quests"]["in_pyre_need"] = {
+            "started": True,
+            "progress": 1,
+            "completed": True,
+        }
+        initial.update(
+            {
+                "slayer_level": 99,
+                "attack_level": 99,
+                "strength_level": 99,
+                "defense_level": 99,
+                "constitution_level": 99,
+            }
+        )
+        initial["inventory"].update(
+            {"Knife": 1, "Secateurs": 1, "Tinderbox": 1}
+        )
+        addon.player_data = copy.deepcopy(initial)
+
+        addon._on_main_menu()
+        result = captured["on_phoenix_lair_command"]("enter", {})
+
+        self.assertTrue(result["ok"], result)
+        self.assertTrue(addon.player_data["phoenix_lair"]["active"])
+        self.assertEqual(
+            addon.player_data["activity_session"], {"active_id": "phoenix_lair"}
+        )
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
 
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="AnkiScape direct action")

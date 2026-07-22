@@ -165,6 +165,36 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "phoenix_lair":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "phoenix_lair",
+                    "mode": "activity_group",
+                    "source_status": "bounded_abstraction",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One review advances six live Combat ticks in either the "
+                        "aggregate guardian front or Phoenix encounter; preparation "
+                        "is one finite grouped review."
+                    ),
+                    "includes": (
+                        "one six-tick Combat slice or one pyre-preparation beat",
+                        "one persistent activity-state transaction",
+                        "one atomic completion and daily-charge boundary",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; one answered card remains "
+                        "one Phoenix Lair interval"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same six-tick activity handler",
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "shooting_stars":
             rows.append(
                 {

@@ -110,6 +110,10 @@ from .equipment_condition_data import EQUIPMENT_CONDITION_DATA
 from .barrows_logic import apply_barrows_command_pure
 from .fist_of_guthix_logic import apply_fist_of_guthix_command_pure
 from .fight_caves_logic import apply_fight_caves_command_pure
+from .phoenix_lair_logic import (
+    apply_phoenix_lair_command_pure,
+    resolve_phoenix_egg_choice_pure,
+)
 from .stealing_creation_logic import (
     apply_stealing_creation_command_pure,
     apply_stealing_creation_xp_bonus_pure,
@@ -155,6 +159,7 @@ from .review_context import (
     PIT_REWARD_CONTEXT_ID,
     ignored_review_context_choice_pure,
 )
+from .phoenix_lair_data import PHOENIX_EGG_CONTEXT_ID
 from .agility_travel import agility_carried_weight_pure
 from .summoning_logic import (
     advance_summoning_world_tick_pure,
@@ -201,6 +206,7 @@ from .livid_farm_logic import (
     set_livid_farm_routine_pure,
 )
 from .pet_logic import (
+    hatch_phoenix_egg_pure,
     let_out_pet_pure,
     release_pet_pure,
     store_active_pet_pure,
@@ -550,26 +556,38 @@ def _update_review_context_surface() -> None:
 def resolve_review_context_action(family_id: str, option_id: str) -> bool:
     """Resolve one explicit reviewer-context choice as a direct undoable action."""
 
-    if family_id != PIT_REWARD_CONTEXT_ID or option_id not in {
-        "take_xp",
-        "gamble",
-    }:
+    valid = (
+        family_id == PIT_REWARD_CONTEXT_ID
+        and option_id in {"take_xp", "gamble"}
+    ) or (
+        family_id == PHOENIX_EGG_CONTEXT_ID
+        and option_id in {"clap", "kick"}
+    )
+    if not valid:
         return False
     before = {
         "player_data": copy.deepcopy(player_data),
         "random_state": random.getstate(),
     }
-    action_id = (
-        "gamble_pit_reward" if option_id == "gamble" else "claim_pit_reward"
-    )
-    roll = random.random() if option_id == "gamble" else 0.5
-    updated, result = apply_agility_command_pure(
-        player_data,
-        action_id,
-        {"remember_choice": True},
-        roll=roll,
-    )
-    if not result.get("allowed"):
+    if family_id == PHOENIX_EGG_CONTEXT_ID:
+        updated, allowed, result = resolve_phoenix_egg_choice_pure(
+            player_data,
+            option_id,
+            remember_choice=True,
+        )
+    else:
+        action_id = (
+            "gamble_pit_reward" if option_id == "gamble" else "claim_pit_reward"
+        )
+        roll = random.random() if option_id == "gamble" else 0.5
+        updated, result = apply_agility_command_pure(
+            player_data,
+            action_id,
+            {"remember_choice": True},
+            roll=roll,
+        )
+        allowed = bool(result.get("allowed"))
+    if not allowed:
         random.setstate(before["random_state"])
         _update_review_context_surface()
         return False
@@ -605,6 +623,17 @@ def _resolve_ignored_review_context_for_answer() -> float:
     if pending is None:
         return 0.0
     family_id, option_id = pending
+    if family_id == PHOENIX_EGG_CONTEXT_ID:
+        updated, ok, _result = resolve_phoenix_egg_choice_pure(
+            player_data,
+            option_id,
+        )
+        if not ok:
+            return 0.0
+        player_data.clear()
+        player_data.update(updated)
+        check_achievements(player_data)
+        return 0.0
     if family_id != PIT_REWARD_CONTEXT_ID:
         return 0.0
     action_id = (
@@ -1950,6 +1979,46 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             pass
         return {"ok": True, **info}
 
+    def _apply_phoenix_lair_command(action_id, payload):
+        payload = payload if isinstance(payload, dict) else {}
+        before = _capture_player_data_snapshot()
+        updated, ok, info = apply_phoenix_lair_command_pure(
+            player_data,
+            str(action_id),
+            payload,
+            rng=random.random,
+            equipment_data=EQUIPMENT_DATA,
+        )
+        if not ok:
+            return {
+                "ok": False,
+                "message": str(info.get("reason", "Phoenix Lair action failed.")),
+            }
+        try:
+            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+        except (AttributeError, RuntimeError):
+            random.setstate(before["random_state"])
+            return {
+                "ok": False,
+                "message": "Anki could not create an undo entry.",
+            }
+        _DIRECT_ACTION_UNDO_STACK.append(before)
+        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+        player_data.clear()
+        player_data.update(updated)
+        check_achievements(player_data)
+        save_player_data()
+        _refresh_skill_availability()
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            mw.update_undo_actions()
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_barrows_command(action_id, payload):
         payload = payload if isinstance(payload, dict) else {}
         before = _capture_player_data_snapshot()
@@ -2301,6 +2370,11 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
                 player_data, str(payload.get("instance_id", ""))
             )
             info = {"reason": reason}
+        elif action_id == "hatch_phoenix_egg":
+            updated, ok, reason = hatch_phoenix_egg_pure(
+                player_data, str(payload.get("item_name", ""))
+            )
+            info = {"reason": reason, "instance_id": reason if ok else ""}
         else:
             return {"ok": False, "message": "Unknown Summoning command."}
         if not ok:
@@ -2419,6 +2493,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_penguin_command=_apply_penguin_command,
         on_vinesweeper_command=_apply_vinesweeper_command,
         on_fight_caves_command=_apply_fight_caves_command,
+        on_phoenix_lair_command=_apply_phoenix_lair_command,
         on_barrows_command=_apply_barrows_command,
         on_stealing_creation_command=_apply_stealing_creation_command,
         on_fish_flingers_command=_apply_fish_flingers_command,

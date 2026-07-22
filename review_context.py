@@ -5,17 +5,28 @@ from __future__ import annotations
 import copy
 from typing import Any, Mapping, Optional
 
+try:
+    from .phoenix_lair_data import PHOENIX_EGG_CONTEXT_ID
+except ImportError:  # pragma: no cover - flat test imports
+    from phoenix_lair_data import PHOENIX_EGG_CONTEXT_ID  # type: ignore
+
 
 PIT_REWARD_CONTEXT_ID = "pit_reward"
 PIT_REWARD_OPTIONS = (
     {"id": "take_xp", "label": "Take XP"},
     {"id": "gamble", "label": "Gamble"},
 )
+PHOENIX_EGG_OPTIONS = (
+    {"id": "clap", "label": "Clap"},
+    {"id": "kick", "label": "Kick"},
+)
 _CONTEXT_OPTIONS = {
     PIT_REWARD_CONTEXT_ID: tuple(option["id"] for option in PIT_REWARD_OPTIONS),
+    PHOENIX_EGG_CONTEXT_ID: tuple(option["id"] for option in PHOENIX_EGG_OPTIONS),
 }
 _CONTEXT_DEFAULTS = {
     PIT_REWARD_CONTEXT_ID: "take_xp",
+    PHOENIX_EGG_CONTEXT_ID: "clap",
 }
 
 
@@ -87,6 +98,21 @@ def review_context_projection_pure(player_data: Mapping[str, Any]) -> dict[str, 
                     ),
                 }
             )
+    phoenix = player_data.get("phoenix_lair")
+    if isinstance(phoenix, Mapping) and bool(phoenix.get("pending_egg", False)):
+        rows.append(
+            {
+                "family_id": PHOENIX_EGG_CONTEXT_ID,
+                "label": "Phoenix egg",
+                "detail": "Clap for Cute · Kick for Mean",
+                "options": PHOENIX_EGG_OPTIONS,
+                "default_option": _CONTEXT_DEFAULTS[PHOENIX_EGG_CONTEXT_ID],
+                "remembered_option": remembered_review_context_choice_pure(
+                    player_data,
+                    PHOENIX_EGG_CONTEXT_ID,
+                ),
+            }
+        )
     return {
         "active": rows[0] if rows else None,
         "queued_count": max(0, len(rows) - 1),

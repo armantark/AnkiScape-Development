@@ -211,6 +211,34 @@ def release_pet_pure(
     return updated, True, "released"
 
 
+def hatch_phoenix_egg_pure(
+    player_data: Mapping[str, Any],
+    item_name: str,
+) -> tuple[dict[str, Any], bool, str]:
+    """Hatch a banked Phoenix egg once the source Summoning gate is met."""
+
+    egg_to_pet = {
+        "Phoenix egg": "cute_phoenix_eggling",
+        "Cracked phoenix egg": "mean_phoenix_eggling",
+    }
+    pet_id = egg_to_pet.get(item_name)
+    if pet_id is None:
+        return copy.deepcopy(dict(player_data)), False, "unknown_phoenix_egg"
+    if _clean_int(player_data.get("summoning_level"), 1, minimum=1) < 72:
+        return copy.deepcopy(dict(player_data)), False, "summoning_level"
+    inventory = player_data.get("inventory")
+    if not isinstance(inventory, Mapping) or _clean_int(inventory.get(item_name)) <= 0:
+        return copy.deepcopy(dict(player_data)), False, "missing_phoenix_egg"
+    updated = copy.deepcopy(dict(player_data))
+    bank = dict(updated.get("inventory", {}) or {})
+    bank[item_name] = _clean_int(bank.get(item_name)) - 1
+    updated["inventory"] = bank
+    acquired, ok, instance_id = acquire_pet_pure(updated, pet_id)
+    if not ok:
+        return copy.deepcopy(dict(player_data)), False, instance_id
+    return acquired, True, instance_id
+
+
 def pet_compatible_carried_foods_pure(
     pet_id: str, carried: Mapping[str, Any]
 ) -> tuple[str, ...]:

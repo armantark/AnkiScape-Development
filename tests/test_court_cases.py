@@ -327,7 +327,7 @@ class CourtCasesPureTest(unittest.TestCase):
         ):
             old.pop(key, None)
         migrated = migrate_loaded_data(old, ORE_DATA, ITEM_DEFINITIONS)
-        self.assertEqual(CURRENT_CONFIG_VERSION, 69)
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(migrated["court_cases"], {})
         self.assertEqual(migrated["court_cases_completed_ids"], [])
         self.assertEqual(migrated["court_cases_attempts"], 0)

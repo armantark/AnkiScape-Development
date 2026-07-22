@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phoenix Lair horizontal closure</title>
+  <style>
+    :root {
+      --ink: #211a17;
+      --muted: #75645d;
+      --paper: #f5eadc;
+      --panel: #fff9ed;
+      --line: #d8c2a7;
+      --ember: #ad3d24;
+      --gold: #ca8c2d;
+      --green: #3f6b50;
+      --shadow: rgba(73, 39, 25, .14);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 84% 10%, rgba(202, 140, 45, .18), transparent 25%),
+        linear-gradient(rgba(112, 67, 43, .045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(112, 67, 43, .045) 1px, transparent 1px),
+        var(--paper);
+      background-size: auto, 24px 24px, 24px 24px, auto;
+      font-family: ui-serif, Georgia, serif;
+      line-height: 1.5;
+    }
+    main { width: min(1080px, calc(100% - 32px)); margin: 34px auto 64px; }
+    .hero, .card { background: color-mix(in srgb, var(--panel) 95%, transparent); border: 1px solid var(--line); box-shadow: 0 18px 50px var(--shadow); }
+    .hero { padding: clamp(28px, 6vw, 62px); position: relative; overflow: hidden; }
+    .hero::after { content: "PHOENIX COMPLETE"; position: absolute; right: -45px; top: 34px; padding: 10px 22px; color: rgba(173, 61, 36, .14); border: 7px double rgba(173, 61, 36, .14); font: 800 24px/1 ui-monospace, monospace; letter-spacing: .11em; transform: rotate(10deg); }
+    .eyebrow, .metric span, .tag { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; letter-spacing: .09em; }
+    .eyebrow { color: var(--ember); font-size: 12px; font-weight: 800; }
+    h1 { margin: 14px 0 12px; max-width: 760px; font-size: clamp(42px, 8vw, 84px); line-height: .92; letter-spacing: -.05em; }
+    .lede { margin: 0; max-width: 790px; color: var(--muted); font-size: clamp(17px, 2.2vw, 22px); }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 32px; }
+    .metric { border-top: 3px solid var(--gold); padding-top: 11px; }
+    .metric strong { display: block; font-size: 30px; }
+    .metric span { color: var(--muted); font-size: 10px; }
+    .grid { display: grid; grid-template-columns: 1.12fr .88fr; gap: 18px; margin-top: 18px; }
+    .card { padding: 24px; }
+    .card h2 { margin: 0 0 14px; font-size: 26px; }
+    .card p { color: var(--muted); }
+    .flow { display: grid; gap: 10px; }
+    .step { display: grid; grid-template-columns: 38px 1fr; gap: 12px; align-items: start; padding: 13px; background: rgba(202, 140, 45, .075); border-left: 3px solid var(--gold); }
+    .step b { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; color: var(--panel); background: var(--ember); }
+    .step strong { display: block; }
+    .step small { color: var(--muted); }
+    .complete { border-left: 5px solid var(--green); }
+    .checks { display: grid; gap: 9px; }
+    .check { display: flex; gap: 10px; align-items: baseline; }
+    .check::before { content: "✓"; color: var(--green); font-weight: 900; }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+    .mini { padding: 16px; border: 1px solid var(--line); background: rgba(173, 61, 36, .035); }
+    .mini h3 { margin: 0 0 8px; font-size: 17px; }
+    .mini p { margin: 0; font-size: 14px; }
+    .tag { display: inline-block; margin: 3px 3px 0 0; padding: 4px 8px; border: 1px solid var(--line); color: var(--ember); font-size: 10px; }
+    footer { margin-top: 18px; color: var(--muted); font-size: 13px; text-align: center; }
+    @media (max-width: 760px) { .grid, .metrics { grid-template-columns: 1fr 1fr; } .hero::after { display: none; } }
+    @media (max-width: 520px) { main { width: min(100% - 20px, 1080px); margin-top: 10px; } .grid, .metrics, .split { grid-template-columns: 1fr; } .hero, .card { padding: 20px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="eyebrow">AnkiScape · horizontal breadth program · 2026-07-21</div>
+      <h1>Phoenix Lair is playable.</h1>
+      <p class="lede">The full ritual now lives on answered reviews: break through the guardian front, prepare the pyre, defeat the Phoenix, claim the authentic reward bundle, and pursue both hatchable pet personalities.</p>
+      <div class="metrics">
+        <div class="metric"><strong>3</strong><span>complete encounter stages</span></div>
+        <div class="metric"><strong>2,242</strong><span>non-Qt tests passed</span></div>
+        <div class="metric"><strong>2,242</strong><span>real Qt tests passed</span></div>
+        <div class="metric"><strong>0</strong><span>hard test-quality issues</span></div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card complete">
+        <h2>The complete mechanic path</h2>
+        <div class="flow">
+          <div class="step"><b>1</b><div><strong>Guardian front</strong><small>Five sampled warriors, rangers, and mages form one persistent Combat encounter. Winning banks five Ashes.</small></div></div>
+          <div class="step"><b>2</b><div><strong>Pyre preparation</strong><small>One answered review performs the ritual tool-and-skill check and advances the run without wall time.</small></div></div>
+          <div class="step"><b>3</b><div><strong>Phoenix fight</strong><small>The boss persists across six-tick Combat reviews, drains combat stats through the dust cadence, and supports dangerous death, grave, abandonment, and undo.</small></div></div>
+          <div class="step"><b>4</b><div><strong>Rewards and pets</strong><small>Exact XP and Phoenix quills land after victory. A 1-in-1,000 egg roll feeds the contextual Clap/Kick hatch path at Summoning 72.</small></div></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Closure proof</h2>
+        <div class="checks">
+          <div class="check">Exact quest, Slayer, skill, tool, Combat, and daily gates.</div>
+          <div class="check">Persistent state, Again semantics, cadence, telemetry, migration, and direct/review undo.</div>
+          <div class="check">Three period sprites normalized and registered with no Phoenix item orphan.</div>
+          <div class="check">Dark-mode-ready Activities and Pets surfaces inspected across locked, ready, combat, and hatch states.</div>
+          <div class="check">One launcher and one menu hook confirmed before native restart; fresh-process verification completed separately from headless Qt.</div>
+        </div>
+        <div class="split">
+          <div class="mini"><h3>Period-pinned</h3><p>Entry requirements, encounter roster, combat styles, hitpoints, guaranteed Ashes, XP, quills, and egg identities.</p></div>
+          <div class="mini"><h3>Explicit breadth abstractions</h3><p>Aggregate guardian front, hidden level-shaped stats, conservative missing max hit, five-review dust cadence, and the egg chance.</p></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top:18px">
+      <h2>Taste pass changes that survived</h2>
+      <p>The period quill sprite now carries the activity identity at the established 28-pixel fast-scaled size. Audit language moved out of player copy, encounter phases read like game states, enemy health has an intentional red meter, tool requirements are grouped, and the Summoning 72 hatch gate is visible before a click.</p>
+      <span class="tag">no nested scroll</span><span class="tag">existing pagination</span><span class="tag">period sprites</span><span class="tag">no design gap</span><span class="tag">Fable reserved</span>
+    </section>
+
+    <footer>Mechanic-complete breadth now; remaining uncertainty is documented data depth, not missing player flow.</footer>
+  </main>
+</body>
+</html>

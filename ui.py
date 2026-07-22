@@ -356,6 +356,13 @@ except Exception:
     from fight_caves_logic import fight_caves_view_pure  # type: ignore
 
 try:
+    from .phoenix_lair_data import PHOENIX_LAIR_ACTIVITY_ID
+    from .phoenix_lair_logic import phoenix_lair_view_pure
+except Exception:
+    from phoenix_lair_data import PHOENIX_LAIR_ACTIVITY_ID  # type: ignore
+    from phoenix_lair_logic import phoenix_lair_view_pure  # type: ignore
+
+try:
     from .barrows_data import BARROWS_ACTIVITY_ID, BARROWS_BROTHER_DATA
     from .barrows_logic import barrows_view_pure
 except Exception:
@@ -3526,6 +3533,7 @@ def show_main_menu(
     on_penguin_command=None,
     on_vinesweeper_command=None,
     on_fight_caves_command=None,
+    on_phoenix_lair_command=None,
     on_barrows_command=None,
     on_stealing_creation_command=None,
     on_fish_flingers_command=None,
@@ -9381,6 +9389,212 @@ def show_main_menu(
         _refresh_fight_caves_panel()
         cards_stack.addWidget(fight_caves_box)
 
+        phoenix_box = QtFrame()
+        phoenix_box.setObjectName("phoenixLairPanel")
+        phoenix_box.setStyleSheet(
+            "QFrame#phoenixLairPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        phoenix_layout = QVBoxLayout(phoenix_box)
+        phoenix_layout.setContentsMargins(10, 8, 10, 8)
+        phoenix_layout.setSpacing(6)
+
+        phoenix_header = QWidget()
+        phoenix_header_layout = QHBoxLayout(phoenix_header)
+        phoenix_header_layout.setContentsMargins(0, 0, 0, 0)
+        phoenix_header_layout.setSpacing(8)
+        phoenix_icon = QLabel()
+        phoenix_icon.setObjectName("phoenixLairIcon")
+        phoenix_icon.setFixedSize(28, 28)
+        phoenix_icon_path = os.path.join(
+            current_dir, "activityitems", "phoenix_quill.png"
+        )
+        if os.path.exists(phoenix_icon_path):
+            phoenix_icon.setPixmap(
+                QPixmap(phoenix_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
+                )
+            )
+        phoenix_title = QLabel("Phoenix Lair")
+        phoenix_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        phoenix_status = QLabel()
+        phoenix_status.setObjectName("phoenixLairStatusChip")
+        phoenix_status.setStyleSheet(
+            f"color: {dim_text_css(phoenix_status)}; font-size: 11px; font-weight: 700;"
+        )
+        phoenix_header_layout.addWidget(phoenix_icon)
+        phoenix_header_layout.addWidget(phoenix_title)
+        phoenix_header_layout.addStretch(1)
+        phoenix_header_layout.addWidget(phoenix_status)
+        phoenix_layout.addWidget(phoenix_header)
+
+        phoenix_summary = QLabel()
+        phoenix_summary.setObjectName("phoenixLairSummary")
+        phoenix_summary.setWordWrap(True)
+        phoenix_summary.setStyleSheet("color: palette(text);")
+        phoenix_layout.addWidget(phoenix_summary)
+
+        phoenix_progress = QProgressBar()
+        phoenix_progress.setObjectName("phoenixLairProgress")
+        phoenix_progress.setTextVisible(True)
+        phoenix_progress.setFormat("%v / %m LP")
+        phoenix_progress.setFixedHeight(17)
+        phoenix_progress.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 3px; }"
+            " QProgressBar::chunk { background: #E53935; }"
+        )
+        phoenix_layout.addWidget(phoenix_progress)
+
+        phoenix_mechanics = QLabel(
+            "Five cavern blockages are compressed into one persistent Reborn front. "
+            "One review prepares the pyre; the killing Phoenix review lights it and claims rewards."
+        )
+        phoenix_mechanics.setObjectName("phoenixLairMechanics")
+        phoenix_mechanics.setWordWrap(True)
+        phoenix_mechanics.setStyleSheet(f"color: {dim_text_css(phoenix_mechanics)};")
+        phoenix_layout.addWidget(phoenix_mechanics)
+
+        phoenix_rewards = QLabel(
+            "Reward: 7,500 Firemaking · 3,000 Fletching · 1,000 Crafting · "
+            "5,000 first / 500 repeat Slayer XP · 5 Phoenix quills"
+        )
+        phoenix_rewards.setObjectName("phoenixLairRewards")
+        phoenix_rewards.setWordWrap(True)
+        phoenix_rewards.setStyleSheet(f"color: {dim_text_css(phoenix_rewards)};")
+        phoenix_layout.addWidget(phoenix_rewards)
+
+        phoenix_actions = QWidget()
+        phoenix_actions_layout = QHBoxLayout(phoenix_actions)
+        phoenix_actions_layout.setContentsMargins(0, 0, 0, 0)
+        phoenix_actions_layout.setSpacing(6)
+        phoenix_primary = QPushButton()
+        phoenix_primary.setObjectName("phoenixLairPrimaryButton")
+        phoenix_leave = QPushButton("Abandon run…")
+        phoenix_leave.setObjectName("phoenixLairLeaveButton")
+        phoenix_actions_layout.addWidget(phoenix_primary, 1)
+        phoenix_actions_layout.addWidget(phoenix_leave, 1)
+        phoenix_layout.addWidget(phoenix_actions)
+
+        def _refresh_phoenix_lair_panel() -> None:
+            view = phoenix_lair_view_pure(player_data)
+            active = bool(view["active"])
+            phase = str(view["phase"])
+            current_utility = str(player_data.get("current_utility", ""))
+            selected = active and current_utility == PHOENIX_LAIR_ACTIVITY_ID
+            if active:
+                phoenix_status.setText(
+                    {
+                        "guardians": "GUARDIAN FRONT",
+                        "prepare": "PYRE PREPARATION",
+                        "phoenix": "PHOENIX FIGHT",
+                    }.get(phase, "ACTIVE")
+                )
+                if phase == "guardians":
+                    phoenix_summary.setText(
+                        f"Guardian front · {int(view['guardian_lifepoints']):,}/"
+                        f"{int(view['guardian_max_lifepoints']):,} LP · "
+                        f"next attack: {view['current_attack_style']}"
+                    )
+                    phoenix_progress.setRange(
+                        0, max(1, int(view["guardian_max_lifepoints"]))
+                    )
+                    phoenix_progress.setValue(int(view["guardian_lifepoints"]))
+                    phoenix_progress.setVisible(True)
+                elif phase == "phoenix":
+                    phoenix_summary.setText(
+                        f"Phoenix boss · {int(view['phoenix_lifepoints']):,}/2,550 LP · "
+                        "dust attacks dissipate through ordinary review-driven stat recovery"
+                    )
+                    phoenix_progress.setRange(0, 2550)
+                    phoenix_progress.setValue(int(view["phoenix_lifepoints"]))
+                    phoenix_progress.setVisible(True)
+                else:
+                    phoenix_summary.setText(
+                        "Guardian front cleared · next successful review cuts the twigs into ribbons and builds the pyre."
+                    )
+                    phoenix_progress.setVisible(False)
+            else:
+                phoenix_progress.setVisible(False)
+                if not view["requirements_met"]:
+                    phoenix_status.setText("LOCKED")
+                    phoenix_summary.setText(
+                        "Requires: " + " · ".join(view["missing_requirements"])
+                    )
+                elif not view["daily_ready"]:
+                    phoenix_status.setText("DAILY COMPLETE")
+                    phoenix_summary.setText(
+                        f"The Phoenix can reward you again in {int(view['reviews_to_reset'])} answered review(s)."
+                    )
+                else:
+                    phoenix_status.setText("READY")
+                    phoenix_summary.setText(
+                        f"{int(view['runs_completed'])} clears · non-resumable dangerous PvM · "
+                        f"Phoenix egg: {view['egg_chance_label']}"
+                    )
+            phoenix_summary.setToolTip(
+                "The Phoenix egg chance is a bounded hidden-roll abstraction."
+                + (f"\n{view['last_result']}" if view["last_result"] else "")
+            )
+            phoenix_primary.setText(
+                "Selected for reviews"
+                if selected
+                else "Select for reviews"
+                if active
+                else "Enter Phoenix Lair"
+            )
+            phoenix_primary.setEnabled(
+                on_phoenix_lair_command is not None
+                and not selected
+                and (active or (view["requirements_met"] and view["daily_ready"]))
+            )
+            phoenix_leave.setVisible(active)
+            phoenix_leave.setEnabled(on_phoenix_lair_command is not None)
+            _fit_current_activity_detail()
+
+        def _run_phoenix_lair_command(action_id: str) -> dict[str, Any]:
+            if on_phoenix_lair_command is None:
+                return {"ok": False}
+            result = on_phoenix_lair_command(action_id, {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Phoenix Lair",
+                    str(result.get("message", "That Phoenix Lair action is unavailable.")),
+                )
+            _refresh_phoenix_lair_panel()
+            return result
+
+        def _select_or_enter_phoenix_lair(_checked=False) -> None:
+            view = phoenix_lair_view_pure(player_data)
+            if not view["active"]:
+                if not _run_phoenix_lair_command("enter").get("ok", False):
+                    return
+            _set_utility_selection(PHOENIX_LAIR_ACTIVITY_ID)
+            _refresh_phoenix_lair_panel()
+
+        def _confirm_phoenix_lair_leave(_checked=False) -> None:
+            view = phoenix_lair_view_pure(player_data)
+            if not view["active"]:
+                return
+            answer = QMessageBox.question(
+                phoenix_box,
+                "Abandon Phoenix Lair run?",
+                "Abandon the run? Unfinished guardian, twig, and pyre progress is lost. "
+                "Earned Combat XP and guardian drops remain, and today's allowance is not consumed.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_phoenix_lair_command("leave")
+
+        phoenix_primary.clicked.connect(_select_or_enter_phoenix_lair)
+        phoenix_leave.clicked.connect(_confirm_phoenix_lair_leave)
+        _refresh_phoenix_lair_panel()
+        cards_stack.addWidget(phoenix_box)
+
         barrows_box = QtFrame()
         barrows_box.setObjectName("barrowsPanel")
         barrows_box.setStyleSheet(
@@ -13929,6 +14143,31 @@ def show_main_menu(
                         str((result or {}).get("message", "Could not leave the case.")),
                     )
                     return False
+            if (
+                activity_id != PHOENIX_LAIR_ACTIVITY_ID
+                and phoenix_lair_view_pure(player_data)["active"]
+            ):
+                answer = QMessageBox.question(
+                    dialog,
+                    "Abandon Phoenix Lair run?",
+                    "Switch activities? Unfinished guardian, twig, and pyre progress is lost. "
+                    "Earned drops and Combat XP remain, and today's allowance is not consumed.",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_phoenix_lair_command("leave", {})
+                    if on_phoenix_lair_command is not None
+                    else {"ok": False, "message": "Phoenix Lair actions are unavailable."}
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Phoenix Lair",
+                        str((result or {}).get("message", "Could not abandon the run.")),
+                    )
+                    return False
             on_set_utility(activity_id)
             player_data["current_utility"] = activity_id
             if state["active"] in _UTILITY_SKILL_NAMES and state["active"] != surface_name:
@@ -13943,6 +14182,7 @@ def show_main_menu(
             _refresh_penguin_panel()
             _refresh_vinesweeper_panel()
             _refresh_fight_caves_panel()
+            _refresh_phoenix_lair_panel()
             _refresh_flash_factory_panel()
             _refresh_pyramid_plunder_panel()
             _refresh_skullball_panel()
@@ -14010,6 +14250,9 @@ def show_main_menu(
             if activity_id == FIGHT_CAVES_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == PHOENIX_LAIR_ACTIVITY_ID:
+                _show_activity_detail(activity_id)
+                return
             if activity_id == BARROWS_ACTIVITY_ID:
                 _show_activity_detail(activity_id)
                 return
@@ -14060,6 +14303,7 @@ def show_main_menu(
             ),
             VINESWEEPER_ACTIVITY_ID: ("Vinesweeper", vinesweeper_box),
             FIGHT_CAVES_ACTIVITY_ID: ("TzHaar Fight Cave", fight_caves_box),
+            PHOENIX_LAIR_ACTIVITY_ID: ("Phoenix Lair", phoenix_box),
             BARROWS_ACTIVITY_ID: ("Barrows", barrows_box),
             FLASH_POWDER_FACTORY_ACTIVITY_ID: (
                 "Flash Powder Factory",
@@ -18558,6 +18802,23 @@ def show_main_menu(
     pets_list.setAlternatingRowColors(True)
     pets_list.setFixedHeight(210)
     pets_layout.addWidget(pets_list)
+    phoenix_egg_row = QWidget()
+    phoenix_egg_row.setObjectName("summoningPhoenixEggRow")
+    phoenix_egg_layout = QHBoxLayout(phoenix_egg_row)
+    phoenix_egg_layout.setContentsMargins(0, 0, 0, 0)
+    phoenix_egg_layout.setSpacing(6)
+    phoenix_egg_label = QLabel("Phoenix eggs")
+    phoenix_egg_label.setObjectName("summoningPhoenixEggLabel")
+    phoenix_egg_label.setStyleSheet("font-weight: 600; color: palette(text);")
+    hatch_cute_button = QPushButton("Hatch Cute")
+    hatch_cute_button.setObjectName("summoningHatchCutePhoenixButton")
+    hatch_mean_button = QPushButton("Hatch Mean")
+    hatch_mean_button.setObjectName("summoningHatchMeanPhoenixButton")
+    phoenix_egg_layout.addWidget(phoenix_egg_label)
+    phoenix_egg_layout.addWidget(hatch_cute_button)
+    phoenix_egg_layout.addWidget(hatch_mean_button)
+    phoenix_egg_layout.addStretch(1)
+    pets_layout.addWidget(phoenix_egg_row)
     pet_actions = QWidget()
     pet_actions_layout = QHBoxLayout(pet_actions)
     pet_actions_layout.setContentsMargins(0, 0, 0, 0)
@@ -18709,6 +18970,27 @@ def show_main_menu(
         familiar_picker.blockSignals(True)
         familiar_picker.clear()
         inventory = player_data.get("inventory", {}) or {}
+        phoenix_egg_count = max(0, int(inventory.get("Phoenix egg", 0) or 0))
+        cracked_egg_count = max(
+            0, int(inventory.get("Cracked phoenix egg", 0) or 0)
+        )
+        phoenix_egg_row.setVisible(phoenix_egg_count > 0 or cracked_egg_count > 0)
+        hatch_cute_button.setText(f"Hatch Cute · {phoenix_egg_count}")
+        hatch_mean_button.setText(f"Hatch Mean · {cracked_egg_count}")
+        phoenix_egg_label.setText(
+            "Phoenix eggs" if level >= 72 else "Phoenix eggs · needs Summoning 72"
+        )
+        hatch_cute_button.setEnabled(
+            on_summoning_command is not None and level >= 72 and phoenix_egg_count > 0
+        )
+        hatch_mean_button.setEnabled(
+            on_summoning_command is not None and level >= 72 and cracked_egg_count > 0
+        )
+        phoenix_egg_row.setToolTip(
+            "Requires Summoning level 72. Phoenix Lair eggs preserve their Clap/Kick temperament."
+        )
+        hatch_cute_button.setToolTip("Consumes one Phoenix egg.")
+        hatch_mean_button.setToolTip("Consumes one Cracked phoenix egg.")
         for pouch in SUMMONING_POUCHES:
             owned = max(0, int(inventory.get(pouch.pouch_name, 0) or 0))
             if owned > 0 or pouch.level <= level:
@@ -18855,6 +19137,16 @@ def show_main_menu(
             _run_summoning_command("release_pet", {"instance_id": instance_id})
 
     release_button.clicked.connect(_release_selected_pet)
+    hatch_cute_button.clicked.connect(
+        lambda _checked=False: _run_summoning_command(
+            "hatch_phoenix_egg", {"item_name": "Phoenix egg"}
+        )
+    )
+    hatch_mean_button.clicked.connect(
+        lambda _checked=False: _run_summoning_command(
+            "hatch_phoenix_egg", {"item_name": "Cracked phoenix egg"}
+        )
+    )
     pets_list.currentItemChanged.connect(
         lambda _current, _previous: _refresh_pet_action_buttons()
     )

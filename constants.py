@@ -53,6 +53,19 @@ except ImportError:
     )
 
 try:
+    from .phoenix_lair_data import (
+        PHOENIX_LAIR_ACTIVITY_ID,
+        phoenix_lair_activity_as_dict,
+        phoenix_lair_extra_items_as_dict,
+    )
+except ImportError:
+    from phoenix_lair_data import (  # type: ignore
+        PHOENIX_LAIR_ACTIVITY_ID,
+        phoenix_lair_activity_as_dict,
+        phoenix_lair_extra_items_as_dict,
+    )
+
+try:
     from .stealing_creation_data import (
         STEALING_CREATION_ACTIVITY_ID,
         stealing_creation_activity_as_dict,
@@ -756,6 +769,7 @@ UTILITY_ACTIVITY_DATA.update(shooting_star_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fist_of_guthix_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(court_cases_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(phoenix_lair_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(stealing_creation_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(barrows_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(flash_powder_factory_activity_as_dict())
@@ -828,6 +842,9 @@ if os.path.exists(_court_cases_icon):
 _fight_caves_icon = os.path.join(current_dir, "constructionitems", "fire_cape.png")
 if os.path.exists(_fight_caves_icon):
     UTILITY_ACTIVITY_DATA[FIGHT_CAVES_ACTIVITY_ID]["icon_path"] = _fight_caves_icon
+_phoenix_lair_icon = os.path.join(current_dir, "activityitems", "phoenix_quill.png")
+if os.path.exists(_phoenix_lair_icon):
+    UTILITY_ACTIVITY_DATA[PHOENIX_LAIR_ACTIVITY_ID]["icon_path"] = _phoenix_lair_icon
 _stealing_creation_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
     "stealing_creation.png",
@@ -1547,6 +1564,7 @@ COURT_CASES_EXTRA_ITEM_DATA = court_cases_extra_items_as_dict()
 SORCERESS_GARDEN_EXTRA_ITEM_DATA = sorceress_garden_extra_items_as_dict()
 VINESWEEPER_EXTRA_ITEM_DATA = vinesweeper_extra_items_as_dict()
 FIGHT_CAVES_EXTRA_ITEM_DATA = fight_caves_extra_items_as_dict()
+PHOENIX_LAIR_EXTRA_ITEM_DATA = phoenix_lair_extra_items_as_dict()
 STEALING_CREATION_EXTRA_ITEM_DATA = stealing_creation_extra_items_as_dict()
 BARROWS_EXTRA_ITEM_DATA = barrows_extra_items_as_dict()
 FLASH_POWDER_FACTORY_EXTRA_ITEM_DATA = flash_powder_factory_extra_items_as_dict()
@@ -1591,6 +1609,24 @@ for _item_name in VINESWEEPER_EXTRA_ITEM_DATA:
 FIGHT_CAVES_ITEM_IMAGES = {
     "Fire cape": os.path.join(current_dir, "constructionitems", "fire_cape.png"),
     "Tokkul": os.path.join(current_dir, "combatitems", "tokkul.png"),
+}
+PHOENIX_LAIR_ITEM_IMAGES = {
+    item_name: os.path.join(
+        current_dir,
+        "activityitems",
+        f"{_asset_slug(item_name)}.png",
+    )
+    for item_name in PHOENIX_LAIR_EXTRA_ITEM_DATA
+}
+_phoenix_quill_activity_path = os.path.join(
+    current_dir, "activityitems", "phoenix_quill.png"
+)
+if os.path.exists(_phoenix_quill_activity_path):
+    PHOENIX_LAIR_ITEM_IMAGES["Phoenix quill"] = _phoenix_quill_activity_path
+PHOENIX_LAIR_ITEM_IMAGES = {
+    item_name: path
+    for item_name, path in PHOENIX_LAIR_ITEM_IMAGES.items()
+    if os.path.exists(path)
 }
 STEALING_CREATION_ITEM_IMAGES = {}
 for _item_name in STEALING_CREATION_EXTRA_ITEM_DATA:
@@ -1956,6 +1992,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **SORCERESS_GARDEN_EXTRA_ITEM_DATA,
     **VINESWEEPER_EXTRA_ITEM_DATA,
     **FIGHT_CAVES_EXTRA_ITEM_DATA,
+    **PHOENIX_LAIR_EXTRA_ITEM_DATA,
     **STEALING_CREATION_EXTRA_ITEM_DATA,
     **BARROWS_EXTRA_ITEM_DATA,
     **FLASH_POWDER_FACTORY_EXTRA_ITEM_DATA,
@@ -1990,6 +2027,7 @@ EXTRA_ITEM_IMAGES = {
     **SORCERESS_GARDEN_ITEM_IMAGES,
     **VINESWEEPER_ITEM_IMAGES,
     **FIGHT_CAVES_ITEM_IMAGES,
+    **PHOENIX_LAIR_ITEM_IMAGES,
     **STEALING_CREATION_ITEM_IMAGES,
     **BARROWS_ITEM_IMAGES,
     **PYRAMID_PLUNDER_ITEM_IMAGES,

@@ -743,6 +743,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-03-21T15:12:42Z"
   },
+  "activityitems/cracked_phoenix_egg.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Cracked_phoenix_egg.png",
+    "file_title": "Cracked phoenix egg.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502023819%21Cracked_phoenix_egg.png?0d27c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5aca8a27ad451e27e1392376f59937f5be34abaf",
+    "size": 1558,
+    "source_wiki": "rs3",
+    "timestamp": "2011-04-23T18:03:53Z"
+  },
   "activityitems/fishing_boots.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Fishing_boots.png",
     "file_title": "Fishing boots.png",
@@ -910,6 +922,30 @@
     "size": 548,
     "source_wiki": "rs3",
     "timestamp": "2012-03-04T05:41:20Z"
+  },
+  "activityitems/phoenix_egg.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Phoenix_egg.png",
+    "file_title": "Phoenix egg.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502062807%21Phoenix_egg.png?b9e52",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "eb16d57a95990e476222d665bee3a534a957b11c",
+    "size": 1480,
+    "source_wiki": "rs3",
+    "timestamp": "2011-04-23T00:38:03Z"
+  },
+  "activityitems/phoenix_quill.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Phoenix_quill.png",
+    "file_title": "Phoenix quill.png",
+    "image_url": "https://runescape.wiki/images/archive/20130917113704%21Phoenix_quill.png?7473a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "169343b41933b9750cf3438bc5a3d12d9a27dfb2",
+    "size": 247,
+    "source_wiki": "rs3",
+    "timestamp": "2010-02-12T17:57:57Z"
   },
   "activityitems/pottery_scarab.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Pottery_scarab.png",

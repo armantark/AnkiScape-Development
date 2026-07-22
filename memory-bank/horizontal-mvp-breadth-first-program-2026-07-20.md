@@ -80,7 +80,14 @@ The traversal narrative below is retained as history; it no longer names the
 live frontier. Since that checkpoint, Barrows, Flash Powder Factory, Pyramid
 Plunder, Werewolf Skullball, Gnome Ball, Fish Flingers, Fishing Trawler, Great
 Orb Project, Managing Miscellania, Jade Vine, and Court Cases reached breadth
-level one.
+level one. Phoenix Lair now does as well.
+
+Phoenix Lair exercises the complete non-resumable dangerous-ritual graph with
+one persistent aggregate guardian front, one preparation review, one
+persistent Phoenix fight, exact fixed rewards, once-per-answered-card-day
+availability, shared death/grave behavior, contextual Clap/Kick egg choice,
+and delayed Summoning-72 hatching. Complete guardian/drop depth and exact egg
+and dust rolls are explicitly deferred data, not missing mechanics.
 
 Court Cases now exercises the complete shared mechanic graph with three
 period-pinned cases: free starter and summons entry, both legal roles,
@@ -93,7 +100,10 @@ period queue versus single-challenge/skip contract conflict in
 `design-gaps-implementation-2026-07-19.md` is resolved. Troll Invasion remains
 source-blocked on aggregate wave combat values. The next source-ready family
 must therefore be selected from the remaining settled, unrepresented families
-without re-harvesting quest work owned by the Darkan restoration lane.
+without re-harvesting quest work owned by the Darkan restoration lane. After
+Phoenix Lair, the frontier must be recomputed from the remaining settled,
+unrepresented families; Tears of Guthix, Shattered Heart, Daily Challenges,
+and Troll Invasion retain their documented source/design blockers.
 
 ### Traversal history
 

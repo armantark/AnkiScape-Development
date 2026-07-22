@@ -294,6 +294,11 @@ try:
         apply_fight_caves_review_pure,
         fight_caves_view_pure,
     )
+    from .phoenix_lair_data import PHOENIX_LAIR_ACTIVITY_ID
+    from .phoenix_lair_logic import (
+        apply_phoenix_lair_review_pure,
+        phoenix_lair_view_pure,
+    )
     from .barrows_data import BARROWS_ACTIVITY_ID
     from .barrows_logic import apply_barrows_review_pure, barrows_view_pure
     from .stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
@@ -606,6 +611,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from fight_caves_logic import (  # type: ignore
         apply_fight_caves_review_pure,
         fight_caves_view_pure,
+    )
+    from phoenix_lair_data import PHOENIX_LAIR_ACTIVITY_ID  # type: ignore
+    from phoenix_lair_logic import (  # type: ignore
+        apply_phoenix_lair_review_pure,
+        phoenix_lair_view_pure,
     )
     from barrows_data import BARROWS_ACTIVITY_ID  # type: ignore
     from barrows_logic import apply_barrows_review_pure, barrows_view_pure  # type: ignore
@@ -2783,6 +2793,51 @@ def _handle_fight_caves_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _handle_phoenix_lair_answer(ctx: RuntimeActionContext) -> bool:
+    updated, ok, result = apply_phoenix_lair_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+        equipment_data=EQUIPMENT_DATA,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Phoenix Lair unavailable",
+            str(result.get("reason", "Enter the Phoenix Lair before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    xp_rewards = dict(result.get("xp_rewards", {}) or {})
+    total_xp = sum(float(amount or 0.0) for amount in xp_rewards.values())
+    _record_action(
+        ctx,
+        "utility",
+        PHOENIX_LAIR_ACTIVITY_ID,
+        True,
+        expected_success_chance=1.0,
+        primary_xp=total_xp,
+    )
+    _refresh_combat_levels(ctx, xp_rewards)
+    for exp_key, skill_name in {
+        "firemaking_exp": "Firemaking",
+        "fletching_exp": "Fletching",
+        "crafting_exp": "Crafting",
+        "slayer_exp": "Slayer",
+    }.items():
+        if float(xp_rewards.get(exp_key, 0.0) or 0.0) > 0:
+            ctx.level_up_check(skill_name, ctx.player_data)
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if total_xp > 0:
+        ctx.show_exp(total_xp)
+    if result.get("outcome"):
+        ctx.deactivate_current_skill()
+    ctx.show_activity_gain(str(result.get("status", "Phoenix Lair review complete")))
+    return True
+
+
 def _handle_barrows_answer(ctx: RuntimeActionContext) -> bool:
     updated, ok, result = apply_barrows_review_pure(
         ctx.player_data,
@@ -3356,6 +3411,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_fist_of_guthix_answer(ctx)
     if activity_key == FIGHT_CAVES_ACTIVITY_ID:
         return _handle_fight_caves_answer(ctx)
+    if activity_key == PHOENIX_LAIR_ACTIVITY_ID:
+        return _handle_phoenix_lair_answer(ctx)
     if activity_key == BARROWS_ACTIVITY_ID:
         return _handle_barrows_answer(ctx)
     if activity_key == STEALING_CREATION_ACTIVITY_ID:
@@ -5674,6 +5731,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return fist_of_guthix_can_review_pure(ctx.player_data)
     if activity_key == FIGHT_CAVES_ACTIVITY_ID:
         return bool(fight_caves_view_pure(ctx.player_data).get("active", False))
+    if activity_key == PHOENIX_LAIR_ACTIVITY_ID:
+        return bool(phoenix_lair_view_pure(ctx.player_data).get("active", False))
     if activity_key == BARROWS_ACTIVITY_ID:
         return bool(barrows_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == STEALING_CREATION_ACTIVITY_ID:

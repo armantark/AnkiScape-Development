@@ -554,6 +554,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._penguin_calls: list = []
         self._vinesweeper_calls: list = []
         self._fight_caves_calls: list = []
+        self._phoenix_lair_calls: list = []
         self._barrows_calls: list = []
         self._stealing_creation_calls: list = []
         self._fish_flingers_calls: list = []
@@ -895,6 +896,18 @@ class MainMenuWidgetTest(unittest.TestCase):
                 player_data.update(updated)
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
+        def _phoenix_lair_command(action_id, payload):
+            from phoenix_lair_logic import apply_phoenix_lair_command_pure
+
+            self._phoenix_lair_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_phoenix_lair_command_pure(
+                player_data, action_id, payload, rng=lambda: 0.5
+            )
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
         def _barrows_command(action_id, payload):
             from barrows_logic import apply_barrows_command_pure
 
@@ -1032,6 +1045,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_penguin_command=_penguin_command,
             on_vinesweeper_command=_vinesweeper_command,
             on_fight_caves_command=_fight_caves_command,
+            on_phoenix_lair_command=_phoenix_lair_command,
             on_barrows_command=_barrows_command,
             on_stealing_creation_command=_stealing_creation_command,
             on_fish_flingers_command=_fish_flingers_command,
@@ -5342,6 +5356,87 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         dialog.deleteLater()
 
+    def test_pets_surface_hatches_banked_phoenix_eggs_at_level_72(self) -> None:
+        from pet_logic import hatch_phoenix_egg_pure
+        from summoning_logic import default_summoning_state_pure
+
+        pd = _make_player_data()
+        pd["summoning_level"] = 72
+        pd["inventory"] = {"Phoenix egg": 1, "Cracked phoenix egg": 1}
+        pd["summoning_state"] = default_summoning_state_pure()
+        calls = []
+
+        def command(action_id, payload):
+            calls.append((action_id, dict(payload)))
+            if action_id != "hatch_phoenix_egg":
+                return {"ok": False}
+            updated, ok, info = hatch_phoenix_egg_pure(
+                pd, str(payload.get("item_name", ""))
+            )
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok, "instance_id": info if ok else "", "reason": info}
+
+        dialog = self._open(
+            pd,
+            current_skill="Summoning",
+            on_summoning_command=command,
+        )
+        dialog.show()
+        _open_equipment_tab(dialog)
+        QApplication.processEvents()
+
+        toggle = dialog.findChild(QPushButton, "summoningPetsToggle")
+        row = dialog.findChild(QWidget, "summoningPhoenixEggRow")
+        label = dialog.findChild(QLabel, "summoningPhoenixEggLabel")
+        cute = dialog.findChild(QPushButton, "summoningHatchCutePhoenixButton")
+        mean = dialog.findChild(QPushButton, "summoningHatchMeanPhoenixButton")
+        toggle.click()
+        QApplication.processEvents()
+        self.assertFalse(row.isHidden())
+        self.assertEqual(label.text(), "Phoenix eggs")
+        self.assertEqual(cute.text(), "Hatch Cute · 1")
+        self.assertEqual(mean.text(), "Hatch Mean · 1")
+        self.assertIn("Phoenix egg", cute.toolTip())
+        self.assertIn("Cracked phoenix egg", mean.toolTip())
+
+        cute.click()
+        QApplication.processEvents()
+        self.assertEqual(
+            calls[-1],
+            ("hatch_phoenix_egg", {"item_name": "Phoenix egg"}),
+        )
+        self.assertEqual(pd["inventory"]["Phoenix egg"], 0)
+        self.assertEqual(cute.text(), "Hatch Cute · 0")
+        self.assertTrue(
+            any(
+                instance["pet_id"] == "cute_phoenix_eggling"
+                for instance in pd["summoning_state"]["pet_instances"].values()
+            )
+        )
+        dialog.deleteLater()
+
+    def test_pets_surface_explains_phoenix_egg_level_gate_inline(self) -> None:
+        from summoning_logic import default_summoning_state_pure
+
+        pd = _make_player_data()
+        pd["summoning_level"] = 71
+        pd["inventory"] = {"Phoenix egg": 1}
+        pd["summoning_state"] = default_summoning_state_pure()
+        dialog = self._open(pd, current_skill="Summoning")
+        dialog.show()
+        _open_equipment_tab(dialog)
+        toggle = dialog.findChild(QPushButton, "summoningPetsToggle")
+        toggle.click()
+        QApplication.processEvents()
+
+        label = dialog.findChild(QLabel, "summoningPhoenixEggLabel")
+        cute = dialog.findChild(QPushButton, "summoningHatchCutePhoenixButton")
+        self.assertEqual(label.text(), "Phoenix eggs · needs Summoning 72")
+        self.assertFalse(cute.isEnabled())
+        dialog.deleteLater()
+
     def test_familiarisation_lives_in_activities_and_runs_its_session(self) -> None:
         from summoning_logic import (
             default_summoning_state_pure,
@@ -7859,6 +7954,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "shooting_stars",
                 "court_cases",
                 "fish_flingers",
+                "phoenix_lair",
             },
         )
         self.assertTrue(
@@ -8922,6 +9018,77 @@ class MainMenuWidgetTest(unittest.TestCase):
             dialog, activity_tree.rect().bottomRight()
         ).y()
         self.assertLessEqual(tree_bottom, dialog.contentsRect().bottom())
+
+    def test_phoenix_lair_card_is_compact_period_art_and_abandonment_is_confirmed(self) -> None:
+        from phoenix_lair_logic import default_phoenix_lair_state_pure
+
+        pd = _make_player_data()
+        pd["phoenix_lair"] = default_phoenix_lair_state_pure()
+        pd["activity_session"] = {"active_id": ""}
+        pd["combat_encounter"] = {}
+        pd["quests"]["in_pyre_need"] = {
+            "started": True,
+            "progress": 1,
+            "completed": True,
+        }
+        pd["slayer_level"] = 99
+        pd["inventory"].update({"Knife": 1, "Secateurs": 1, "Tinderbox": 1})
+        dialog = self._open(pd)
+        activity_tree = self._open_activities(dialog)
+        row = _utility_row(activity_tree, "phoenix_lair")
+        self.assertFalse(row.icon(0).isNull())
+        activity_tree.setCurrentItem(row)
+        activity_tree.itemActivated.emit(row, 0)
+        QApplication.processEvents()
+
+        panel = _find_named_widget(dialog, "phoenixLairPanel")
+        icon = panel.findChild(QLabel, "phoenixLairIcon")
+        status = _find_named_label(dialog, "phoenixLairStatusChip")
+        summary = _find_named_label(dialog, "phoenixLairSummary")
+        mechanics = _find_named_label(dialog, "phoenixLairMechanics")
+        primary = _find_named_button(dialog, "phoenixLairPrimaryButton")
+        leave = _find_named_button(dialog, "phoenixLairLeaveButton")
+        progress = panel.findChild(QProgressBar, "phoenixLairProgress")
+        self.assertIsNone(panel.findChild(QScrollArea))
+        self.assertIsNotNone(icon.pixmap())
+        self.assertFalse(icon.pixmap().isNull())
+        self.assertEqual(icon.width(), 28)
+        self.assertEqual(status.text(), "READY")
+        self.assertIn("non-resumable dangerous PvM", summary.text())
+        self.assertIn("Phoenix egg: 1 in 1,000 per completion", summary.text())
+        self.assertNotIn("abstraction", summary.text())
+        self.assertIn("compressed", mechanics.text())
+        self.assertTrue(leave.isHidden())
+
+        primary.click()
+        QApplication.processEvents()
+        self.assertEqual(self._phoenix_lair_calls[-1], ("enter", {}))
+        self.assertTrue(pd["phoenix_lair"]["active"])
+        self.assertEqual(pd["current_utility"], "phoenix_lair")
+        self.assertEqual(status.text(), "GUARDIAN FRONT")
+        self.assertTrue(progress.isVisible() or not dialog.isVisible())
+        self.assertIn("next attack:", summary.text())
+        self.assertFalse(leave.isHidden())
+
+        with patch.object(
+            QMessageBox,
+            "question",
+            return_value=QMessageBox.StandardButton.No,
+        ):
+            leave.click()
+        QApplication.processEvents()
+        self.assertTrue(pd["phoenix_lair"]["active"])
+        with patch.object(
+            QMessageBox,
+            "question",
+            return_value=QMessageBox.StandardButton.Yes,
+        ):
+            leave.click()
+        QApplication.processEvents()
+        self.assertEqual(self._phoenix_lair_calls[-1], ("leave", {}))
+        self.assertFalse(pd["phoenix_lair"]["active"])
+        self.assertEqual(status.text(), "READY")
+        self.assertTrue(leave.isHidden())
 
     def test_barrows_card_enters_selects_repairs_and_suspends_without_nested_scroll(self) -> None:
         from barrows_logic import default_barrows_state_pure

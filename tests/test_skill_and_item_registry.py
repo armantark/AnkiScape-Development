@@ -511,6 +511,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "gnome_ball",
                 "stealing_creation",
                 "barrows",
+                "phoenix_lair",
             },
         )
 

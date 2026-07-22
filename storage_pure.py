@@ -27,6 +27,10 @@ try:
         default_fight_caves_state_pure,
         sanitize_fight_caves_state_pure,
     )
+    from .phoenix_lair_logic import (
+        default_phoenix_lair_state_pure,
+        sanitize_phoenix_lair_state_pure,
+    )
     from .stealing_creation_logic import (
         default_stealing_creation_state_pure,
         sanitize_stealing_creation_state_pure,
@@ -194,6 +198,10 @@ except ImportError:
         default_fight_caves_state_pure,
         sanitize_fight_caves_state_pure,
     )
+    from phoenix_lair_logic import (  # type: ignore
+        default_phoenix_lair_state_pure,
+        sanitize_phoenix_lair_state_pure,
+    )
     from stealing_creation_logic import (  # type: ignore
         default_stealing_creation_state_pure,
         sanitize_stealing_creation_state_pure,
@@ -339,7 +347,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 69
+CURRENT_CONFIG_VERSION = 70
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -569,6 +577,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["shooting_star"] = default_shooting_star_state_pure()
     data["fist_of_guthix"] = default_fist_of_guthix_state_pure()
     data["fight_caves"] = default_fight_caves_state_pure()
+    data["phoenix_lair"] = default_phoenix_lair_state_pure()
     data["stealing_creation"] = default_stealing_creation_state_pure()
     data["barrows"] = default_barrows_state_pure()
     data.update(default_pyramid_plunder_state_pure())
@@ -1194,6 +1203,9 @@ def migrate_loaded_data(
     data["fight_caves"] = sanitize_fight_caves_state_pure(
         data.get("fight_caves")
     )
+    data["phoenix_lair"] = sanitize_phoenix_lair_state_pure(
+        data.get("phoenix_lair")
+    )
     data["stealing_creation"] = sanitize_stealing_creation_state_pure(
         data.get("stealing_creation")
     )
@@ -1214,6 +1226,26 @@ def migrate_loaded_data(
     )
     if data["fight_caves"]["active"]:
         active_session_id = "fight_caves"
+        data["phoenix_lair"].update(
+            {
+                "active": False,
+                "phase": "idle",
+                "guardian_roster": [],
+                "guardian_lifepoints": 0,
+                "guardian_max_lifepoints": 0,
+                "phoenix_lifepoints": 0,
+                "encounter": {},
+            }
+        )
+        data["stealing_creation"]["active_session"] = {}
+        data["barrows"]["active"] = False
+        data["barrows"]["suspended"] = True
+        data["pyramid_plunder"] = {}
+        data["werewolf_skullball"] = {}
+        data["gnome_ball"] = {}
+        data["fish_flingers"] = {}
+    elif data["phoenix_lair"]["active"]:
+        active_session_id = "phoenix_lair"
         data["stealing_creation"]["active_session"] = {}
         data["barrows"]["active"] = False
         data["barrows"]["suspended"] = True
