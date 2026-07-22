@@ -12,8 +12,6 @@ try:
         BRIMHAVEN_ITEM_EXCHANGES,
         BRIMHAVEN_OBSTACLES,
         BRIMHAVEN_XP_EXCHANGES,
-        CIRCUS_ACROBAT_REWARDS,
-        CIRCUS_TRICKS,
         DEFAULT_AGILITY_TARGET,
         PIT_CHALLENGES,
         AgilityStage,
@@ -25,8 +23,6 @@ except ImportError:  # pragma: no cover - flat test imports
         BRIMHAVEN_ITEM_EXCHANGES,
         BRIMHAVEN_OBSTACLES,
         BRIMHAVEN_XP_EXCHANGES,
-        CIRCUS_ACROBAT_REWARDS,
-        CIRCUS_TRICKS,
         DEFAULT_AGILITY_TARGET,
         PIT_CHALLENGES,
         AgilityStage,
@@ -177,7 +173,6 @@ def default_agility_state_pure() -> dict[str, Any]:
         "agility_activity_state": {},
         "agility_activity_currencies": {
             "brianpoints": 0,
-            "circus_audience": 0,
         },
         "agility_flash_powder_factory_policy": {
             "version": 1,
@@ -196,7 +191,6 @@ def default_agility_state_pure() -> dict[str, Any]:
         "agility_pit_auto_accept": True,
         "agility_pit_successes": 0,
         "agility_activity_completions": {},
-        "agility_circus_last_week": -1,
         "agility_toy_mouse_pending": False,
         "agility_status": "Ready to start",
     }
@@ -257,6 +251,7 @@ def sanitize_agility_state_pure(player_data: Optional[Mapping[str, Any]]) -> dic
         }
     else:
         activities.pop("pit", None)
+    activities.pop("circus", None)
     flash_powder_session = sanitize_flash_powder_factory_session_pure(
         activities.get(FLASH_POWDER_FACTORY_ACTIVITY_ID)
     )
@@ -279,7 +274,6 @@ def sanitize_agility_state_pure(player_data: Optional[Mapping[str, Any]]) -> dic
     raw_currencies = raw_currencies if isinstance(raw_currencies, Mapping) else {}
     source["agility_activity_currencies"] = {
         "brianpoints": _int(raw_currencies.get("brianpoints")),
-        "circus_audience": _int(raw_currencies.get("circus_audience")),
     }
     source["agility_flash_powder_factory_policy"] = (
         sanitize_flash_powder_factory_policy_pure(
@@ -312,9 +306,6 @@ def sanitize_agility_state_pure(player_data: Optional[Mapping[str, Any]]) -> dic
         source.get("agility_pit_auto_accept", True)
     )
     source["agility_pit_successes"] = _int(source.get("agility_pit_successes"))
-    source["agility_circus_last_week"] = _int(
-        source.get("agility_circus_last_week"), -1, minimum=-1
-    )
     source["agility_toy_mouse_pending"] = bool(source.get("agility_toy_mouse_pending", False))
     raw_completions = source.get("agility_activity_completions")
     source["agility_activity_completions"] = {
@@ -382,12 +373,6 @@ def agility_target_locked_reasons_pure(player_data: Mapping[str, Any], target_id
         and not bool(pit_session)
     ):
         reasons.append("Talent Scout invitation")
-    if (
-        target.id == "circus_agility"
-        and _int(player_data.get("agility_circus_last_week"), -1, minimum=-1)
-        == _answered_card_week(player_data)
-    ):
-        reasons.append("next answered-card week")
     if target.id == "brimhaven_arena" and not _quest_complete(player_data, "rocking_out"):
         inventory = player_data.get("inventory")
         coins = _int(inventory.get("Coins")) if isinstance(inventory, Mapping) else 0
@@ -691,42 +676,6 @@ def _pit_review(data: dict[str, Any], roll: float, reward_roll: float) -> dict[s
     return {"target_id": "the_pit", "action_id": f"challenge_{review}", "success": success, "expected_success_chance": .75, "xp": 0.0 if done else xp, "damage": 0, "outputs": outputs, "cross_skill_rewards": [], "completed_activity": done, "failure_kind": None if success else "challenge_step", "status": status, "pending_pit_xp": xp if done else 0.0}
 
 
-def _circus_review(data: dict[str, Any], roll: float) -> dict[str, Any]:
-    session = _activity_session(data, "circus")
-    attempted = list(session.get("attempted", [])) if isinstance(session.get("attempted"), list) else []
-    session_score = _int(session.get("audience_score"))
-    level = _int(data.get("agility_level"), 1, minimum=1, maximum=99)
-    eligible = [trick for trick in CIRCUS_TRICKS if trick[2] <= level and trick[0] not in attempted]
-    if not eligible:
-        session.clear()
-        data["agility_circus_last_week"] = _answered_card_week(data)
-        data["agility_status"] = "Circus · visit complete"
-        return {"target_id": "circus_agility", "action_id": "visit_complete", "success": True, "expected_success_chance": 1.0, "xp": 0.0, "damage": 0, "outputs": {}, "cross_skill_rewards": [], "completed_activity": True, "failure_kind": None, "status": data["agility_status"]}
-    trick_id, label, required, xp_value = eligible[0]
-    success_chance = _clamp(.55 + .01 * (level - required), .55, .95)
-    success = roll < success_chance
-    attempted.append(trick_id)
-    session["attempted"] = attempted
-    audience = dict(data["agility_activity_currencies"])
-    if success:
-        audience["circus_audience"] += required
-        session_score += required
-    data["agility_activity_currencies"] = audience
-    session["audience_score"] = session_score
-    done = len(attempted) >= len([trick for trick in CIRCUS_TRICKS if trick[2] <= level])
-    outputs: dict[str, int] = {}
-    if done:
-        data["agility_circus_last_week"] = _answered_card_week(data)
-        if session_score >= 501:
-            reward = _next_missing_reward(data, CIRCUS_ACROBAT_REWARDS)
-            if reward:
-                outputs[reward] = 1
-        session.clear()
-    status = f"Circus · {label} · {'success' if success else 'failed'} · {len(attempted)} actions · {session_score} audience"
-    data["agility_status"] = status
-    return {"target_id": "circus_agility", "action_id": trick_id, "success": success, "expected_success_chance": success_chance, "xp": xp_value if success else 0.0, "damage": 0, "outputs": outputs, "cross_skill_rewards": [], "completed_activity": done, "failure_kind": None if success else "trick", "status": status}
-
-
 def _new_brimhaven_chase(session: dict[str, Any], agility_level: int, route_roll: float, obstacle_roll: float) -> None:
     distance = 1 + min(7, int(max(0.0, min(route_roll, .999999)) * 8))
     eligible = [row for row in BRIMHAVEN_OBSTACLES if row[2] <= agility_level]
@@ -826,8 +775,6 @@ def apply_agility_review_pure(player_data: Mapping[str, Any], rolls: tuple[float
             return data, result
     elif target.activity_kind == "pit":
         result = _pit_review(data, normalized[0], normalized[1])
-    elif target.activity_kind == "circus":
-        result = _circus_review(data, normalized[0])
     elif target.activity_kind == "brimhaven":
         result = _brimhaven_review(data, normalized)
     else:
@@ -1073,9 +1020,7 @@ def apply_agility_command_pure(
         activities = dict(data.get("agility_activity_state") or {})
         session = activities.get(target.activity_kind)
         message_suffix = ""
-        if target.activity_kind == "circus":
-            data["agility_circus_last_week"] = _answered_card_week(data)
-        elif target.activity_kind == "pit":
+        if target.activity_kind == "pit":
             origin_course = (
                 str(session.get("origin_course", ""))
                 if isinstance(session, Mapping)

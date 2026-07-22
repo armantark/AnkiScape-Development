@@ -314,7 +314,6 @@ ACTIVITY_TARGETS: Tuple[AgilityTarget, ...] = (
     AgilityTarget("gnome_ball", "Gnome Ball", "activities", 1, (), source_status="period_candidate", activity_kind="gnome_ball"),
     AgilityTarget("flash_powder_factory", "Flash Powder Factory", "activities", 75, (), source_status="period_candidate", activity_kind="flash_powder_factory"),
     AgilityTarget("the_pit", "The Pit", "activities", 1, (), source_status="period_candidate", activity_kind="pit"),
-    AgilityTarget("circus_agility", "Circus Agility Performance", "activities", 1, (), source_status="period_candidate", activity_kind="circus"),
 )
 
 AGILITY_TARGETS: Tuple[AgilityTarget, ...] = COURSE_TARGETS + tuple(
@@ -356,19 +355,6 @@ BRIMHAVEN_ITEM_EXCHANGES = {3: "Grimy toadflax", 5: "Grimy wergali", 10: "Grimy 
 
 FPF_OBJECTIVES = ("Collect reagent A", "Collect reagent B", "Obtain catalyst", "Mix the powder", "Deposit the mixture")
 PIT_CHALLENGES = ("Crate Expectations", "Floor Is Lava", "High-low", "Karaoke", "Hungry Sheep", "Block matching")
-CIRCUS_TRICKS = (
-    ("small_hop", "Small hop", 10, 310.0),
-    ("one_leg_balance", "One-leg balance", 20, 419.0),
-    ("twirl", "Twirl", 30, 830.0),
-    ("handstand", "Handstand", 40, 833.0),
-    ("cartwheel", "Cartwheel", 50, 1042.0),
-    ("small_leap", "Small leap", 60, 1354.0),
-    ("no_hand_cartwheel", "No-hand cartwheel", 70, 1354.0),
-    ("forward_roll", "Forward roll", 80, 1354.0),
-    ("large_leap", "Large leap", 90, 1354.0),
-    ("backflip", "Backflip", 99, 1354.0),
-)
-
 # Keep all three period route identities. Only the fully sourced pure-Agility
 # route is executable; the grapple reward split is not guessed.
 DORGESH_ROUTE_OPTIONS = (
@@ -386,14 +372,6 @@ DORGESH_ROUTE_OPTIONS = (
         notes="Reserved for an atomic Agility/Ranged route when the period payout is resolved.",
     ),
 )
-
-CIRCUS_ACROBAT_REWARDS = (
-    "Acrobat hood",
-    "Acrobat shirt",
-    "Acrobat pants",
-    "Acrobat shoes",
-)
-
 
 def _shortcut(stable_id: str, name: str, level: int, xp: Optional[float], *, consumer: str = "milestone", xp_on_fail: Optional[float] = None, source_status: str = "period", notes: str = "") -> AgilityShortcut:
     return AgilityShortcut(stable_id, name, level, xp, consumer=consumer, xp_on_fail=xp_on_fail, source_status=source_status, notes=notes)
@@ -483,7 +461,6 @@ AGILITY_REWARD_ITEMS = (
     "Gorilla mask", "Factory mask", "Factory top", "Factory trousers", "Factory gloves",
     "Factory boots", "Rogue mask", "Rogue top", "Rogue trousers", "Rogue gloves",
     "Rogue boots", "Rogue kit", "Pirate's hook", "Werewolf stick", "Generator part",
-    *CIRCUS_ACROBAT_REWARDS,
 )
 
 AGILITY_ITEM_FILENAMES = {
@@ -595,7 +572,6 @@ AGILITY_TARGET_IMAGES.update({
     "gnome_ball": str(_ROOT / "agilityitems" / "gnomeball.png"),
     "flash_powder_factory": str(_ROOT / "agilityitems" / "factory_mask.png"),
     "the_pit": str(_ROOT / "agilityitems" / "gorilla_mask.png"),
-    "circus_agility": str(_ROOT / "agilityitems" / "acrobat_shirt.png"),
 })
 
 AGILITY_GROUP_LABELS = {"courses": "Courses", "activities": "Activities"}

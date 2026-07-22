@@ -85,14 +85,14 @@ class AchievementMetadataTest(unittest.TestCase):
             )
         )
 
-        five_families = {
+        four_families = {
             family: 1
-            for family in ("brimhaven", "skullball", "gnome_ball", "pit", "circus")
+            for family in ("brimhaven", "skullball", "gnome_ball", "pit")
         }
         condition = ACHIEVEMENTS["Activity Circuit"]["condition"]
-        self.assertFalse(condition({"agility_activity_completions": five_families}))
-        five_families["flash_powder_factory"] = 1
-        self.assertTrue(condition({"agility_activity_completions": five_families}))
+        self.assertFalse(condition({"agility_activity_completions": four_families}))
+        four_families["flash_powder_factory"] = 1
+        self.assertTrue(condition({"agility_activity_completions": four_families}))
 
     def test_smithing_conditions_use_durable_canonical_bar_names(self):
         progress = {

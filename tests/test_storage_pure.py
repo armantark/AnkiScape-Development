@@ -968,6 +968,34 @@ class TestStoragePure(unittest.TestCase):
             self.assertEqual(migrated[state_key]["loadout"], {"head": "Mining helmet (unlit)"})
         self.assertEqual(migrated["magic_alchemy_item"], "Mining helmet (unlit)")
 
+    def test_migrate_moves_legacy_agility_circus_state_to_atomic_activity(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": 71,
+                "inventory": {},
+                "agility_circus_last_week": 4,
+                "agility_activity_state": {
+                    "circus": {"attempted": ["small_hop"]},
+                },
+                "agility_activity_currencies": {
+                    "brianpoints": 2,
+                    "circus_audience": 654,
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertNotIn("agility_circus_last_week", migrated)
+        self.assertNotIn("circus", migrated["agility_activity_state"])
+        self.assertEqual(migrated["agility_activity_currencies"], {"brianpoints": 2})
+        self.assertEqual(
+            migrated["circus"]["used_week_by_performance"],
+            {"agility": 4},
+        )
+        self.assertEqual(migrated["circus"]["lifetime_score"], 654)
+
     def test_migrate_idempotent(self):
         base = {"mining_exp": 10, "inventory": {}}
         first = migrate_loaded_data(base, ORE_DATA)

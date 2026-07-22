@@ -138,6 +138,11 @@ try:
         default_court_cases_state_pure,
         sanitize_court_cases_state_pure,
     )
+    from .circus_logic import (
+        default_circus_state_pure,
+        migrate_legacy_circus_state_pure,
+        sanitize_circus_state_pure,
+    )
     from .managing_miscellania_logic import (
         default_managing_miscellania_state_pure,
         sanitize_managing_miscellania_player_state_pure,
@@ -316,6 +321,11 @@ except ImportError:
         default_court_cases_state_pure,
         sanitize_court_cases_state_pure,
     )
+    from circus_logic import (  # type: ignore
+        default_circus_state_pure,
+        migrate_legacy_circus_state_pure,
+        sanitize_circus_state_pure,
+    )
     from managing_miscellania_logic import (  # type: ignore
         default_managing_miscellania_state_pure,
         sanitize_managing_miscellania_player_state_pure,
@@ -357,7 +367,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 71
+CURRENT_CONFIG_VERSION = 72
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -597,6 +607,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_fishing_trawler_state_pure())
     data.update(default_great_orb_project_state_pure())
     data.update(default_court_cases_state_pure())
+    data["circus"] = default_circus_state_pure()
     data.update(default_managing_miscellania_state_pure())
     data["activity_session"] = {"active_id": ""}
     data["sorceress_garden"] = default_sorceress_garden_state_pure()
@@ -1223,6 +1234,11 @@ def migrate_loaded_data(
     data.update(sanitize_fishing_trawler_state_pure(data))
     data.update(sanitize_great_orb_project_player_state_pure(data))
     data.update(sanitize_court_cases_state_pure(data))
+    data["circus"] = migrate_legacy_circus_state_pure(data)
+    data.pop("agility_circus_last_week", None)
+    agility_currencies = data.get("agility_activity_currencies")
+    if isinstance(agility_currencies, dict):
+        agility_currencies.pop("circus_audience", None)
     data.update(sanitize_managing_miscellania_player_state_pure(data))
     raw_activity_session = data.get("activity_session")
     active_session_id = (
@@ -1569,6 +1585,10 @@ def migrate_loaded_data(
     if loaded_config_version < 69:
         for key, value in default_court_cases_state_pure().items():
             data.setdefault(key, value)
+    # v72: Big Top Bonanza moves from the retired Agility-only ten-review loop
+    # into one atomic multi-skill Activities performance per answered-card week.
+    if loaded_config_version < 72:
+        data["circus"] = migrate_legacy_circus_state_pure(data)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1611,6 +1631,11 @@ def migrate_loaded_data(
     data.update(sanitize_fishing_trawler_state_pure(data))
     data.update(sanitize_great_orb_project_player_state_pure(data))
     data.update(sanitize_court_cases_state_pure(data))
+    data["circus"] = sanitize_circus_state_pure(data.get("circus"))
+    data.pop("agility_circus_last_week", None)
+    agility_currencies = data.get("agility_activity_currencies")
+    if isinstance(agility_currencies, dict):
+        agility_currencies.pop("circus_audience", None)
     data.update(sanitize_managing_miscellania_player_state_pure(data))
     data["livid_farm"] = sanitize_livid_farm_state_pure(
         data.get("livid_farm")

@@ -497,6 +497,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "shooting_stars",
                 "fist_of_guthix",
                 "court_cases",
+                "big_top_bonanza",
                 "sorceress_garden",
                 "penguin_hide_and_seek",
                 "vinesweeper",

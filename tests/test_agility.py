@@ -652,22 +652,6 @@ class TestAgilityPureEngine(unittest.TestCase):
         self.assertEqual(player["agility_effect_charges"]["surefooted_reviews"], 332)
         self.assertEqual(player["agility_effect_charges"]["surefooted_cooldown_reviews"], 1999)
 
-    def test_circus_closes_for_the_answered_card_week_and_reopens_next_week(self):
-        player = {
-            **default_agility_state_pure(),
-            "current_agility": "circus_agility",
-            "agility_level": 99,
-            "inventory": {},
-            "shop_market_clock": {"answered_cards": 7, "market_tick": 7, "version": 1},
-        }
-        for _ in range(10):
-            player, result = apply_agility_review_pure(player, (0.0, 0.9, 0.9, 0.9))
-        self.assertTrue(result["completed_activity"])
-        self.assertEqual(result["outputs"], {"Acrobat hood": 1})
-        self.assertIn("next answered-card week", agility_target_locked_reasons_pure(player, "circus_agility"))
-        player["shop_market_clock"]["answered_cards"] = 1680
-        self.assertEqual(agility_target_locked_reasons_pure(player, "circus_agility"), ())
-
     def test_skillcape_purchase_and_action_boost_are_explicit_commands(self):
         player = {
             **default_agility_state_pure(),

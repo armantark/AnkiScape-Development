@@ -8107,6 +8107,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "penguin_hide_and_seek",
                 "shooting_stars",
                 "court_cases",
+                "big_top_bonanza",
                 "fish_flingers",
                 "phoenix_lair",
             },
@@ -11939,6 +11940,108 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(
             advanced_choice.accessibleName(), "Next courtroom action"
         )
+
+    def test_circus_detail_arms_a_performance_and_exposes_advanced_routine(self) -> None:
+        from circus_logic import apply_circus_command_pure
+
+        pd = _make_player_data()
+        pd["current_utility"] = "big_top_bonanza"
+        command_calls = []
+
+        def circus_command(action_id, payload):
+            command_calls.append((action_id, dict(payload)))
+            updated, ok, info = apply_circus_command_pure(pd, action_id, payload)
+            if ok:
+                pd.clear()
+                pd.update(updated)
+            return {"ok": ok, "message": info.get("reason", ""), **info}
+
+        dialog = self._open(
+            pd,
+            current_skill="Activities",
+            on_circus_command=circus_command,
+        )
+        dialog.show()
+        QApplication.processEvents()
+        tree = self._open_activities(dialog)
+        item = next(
+            row
+            for row in _tree_items(tree)
+            if row.data(0, Qt.ItemDataRole.UserRole) == "big_top_bonanza"
+        )
+        tree.itemClicked.emit(item, 0)
+        QApplication.processEvents()
+        panel = next(
+            widget
+            for widget in dialog.findChildren(QWidget, "circusPanel")
+            if widget.isVisible()
+        )
+        icon = panel.findChild(QLabel, "circusIcon")
+        performance = panel.findChild(QComboBox, "circusPerformanceCombo")
+        strategy = panel.findChild(QComboBox, "circusStrategyCombo")
+        mode = panel.findChild(QComboBox, "circusAutomationMode")
+        primary = panel.findChild(QPushButton, "circusPrimaryButton")
+        edit = panel.findChild(QPushButton, "circusEditRoutineButton")
+        status = panel.findChild(QLabel, "circusStatusChip")
+        reward_icons = [
+            widget
+            for widget in panel.findChildren(QLabel)
+            if widget.objectName().startswith("circusRewardIcon::")
+        ]
+
+        self.assertEqual(icon.size().width(), 28)
+        self.assertFalse(icon.pixmap().isNull())
+        self.assertEqual(performance.count(), 6)
+        self.assertIn(
+            "locked",
+            performance.itemText(performance.findData("fire_breathing")),
+        )
+        self.assertEqual(len(reward_icons), 5)
+        self.assertTrue(all(not widget.pixmap().isNull() for widget in reward_icons))
+        self.assertTrue(panel.findChild(QWidget, "circusReward::acrobat").isVisible())
+        self.assertFalse(panel.findChild(QWidget, "circusReward::firemaker").isVisible())
+        self.assertFalse(edit.isVisible())
+        self.assertEqual(status.text(), "3 left this answered-card week")
+
+        performance.setCurrentIndex(performance.findData("fire_breathing"))
+        QApplication.processEvents()
+        self.assertFalse(panel.findChild(QWidget, "circusReward::acrobat").isVisible())
+        self.assertTrue(panel.findChild(QWidget, "circusReward::firemaker").isVisible())
+
+        performance.setCurrentIndex(performance.findData("magic"))
+        strategy.setCurrentIndex(strategy.findData("max_xp"))
+        primary.click()
+        QApplication.processEvents()
+        self.assertEqual(command_calls[-1][0], "set_policy")
+        self.assertEqual(pd["circus"]["selected_performance"], "magic")
+        self.assertEqual(pd["circus"]["strategies"]["magic"], "max_xp")
+
+        pd["circus"]["used_week_by_performance"]["magic"] = 0
+        performance.setCurrentIndex(performance.findData("agility"))
+        performance.setCurrentIndex(performance.findData("magic"))
+        QApplication.processEvents()
+        self.assertIn("done this week", performance.currentText())
+        self.assertFalse(primary.isEnabled())
+        self.assertFalse(panel.findChild(QPushButton, "circusAbandonButton").isEnabled())
+
+        performance.setCurrentIndex(performance.findData("agility"))
+        mode.setCurrentIndex(mode.findData("advanced"))
+        QApplication.processEvents()
+        self.assertTrue(edit.isVisible())
+        before_dialog_count = len(self._captured)
+        edit.click()
+        QApplication.processEvents()
+        self.assertEqual(len(self._captured), before_dialog_count + 1)
+        routine_dialog = self._captured[-1]
+        routine_combos = [
+            combo
+            for combo in routine_dialog.findChildren(QComboBox)
+            if combo.objectName().startswith("circusRoutineTrick::")
+        ]
+        self.assertEqual(len(routine_combos), 10)
+        self.assertEqual(routine_combos[0].findData(""), -1)
+        self.assertGreaterEqual(routine_combos[1].findData(""), 0)
+        dialog.close()
 
 
 if __name__ == "__main__":

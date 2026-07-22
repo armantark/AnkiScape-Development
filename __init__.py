@@ -124,6 +124,7 @@ from .fish_flingers_logic import apply_fish_flingers_command_pure
 from .fishing_trawler_logic import apply_fishing_trawler_command_pure
 from .great_orb_project_logic import apply_great_orb_project_command_pure
 from .court_cases_logic import apply_court_cases_command_pure
+from .circus_logic import apply_circus_command_pure
 from .managing_miscellania_logic import (
     advance_managing_miscellania_world_clock_pure,
     apply_managing_miscellania_command_pure,
@@ -2256,6 +2257,43 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
             pass
         return {"ok": True, **info}
 
+    def _apply_circus_command(action_id, payload):
+        payload = payload if isinstance(payload, dict) else {}
+        before = _capture_player_data_snapshot()
+        updated, ok, info = apply_circus_command_pure(
+            player_data,
+            str(action_id),
+            payload,
+        )
+        if not ok:
+            return {
+                "ok": False,
+                "message": str(info.get("reason", "Big Top Bonanza action failed.")),
+            }
+        try:
+            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+        except (AttributeError, RuntimeError):
+            return {
+                "ok": False,
+                "message": "Anki could not create an undo entry.",
+            }
+        _DIRECT_ACTION_UNDO_STACK.append(before)
+        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+        player_data.clear()
+        player_data.update(updated)
+        check_achievements(player_data)
+        save_player_data()
+        _refresh_skill_availability()
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            mw.update_undo_actions()
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_managing_miscellania_command(action_id, payload):
         before = _capture_player_data_snapshot()
         updated, ok, info = apply_managing_miscellania_command_pure(
@@ -2562,6 +2600,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_fishing_trawler_command=_apply_fishing_trawler_command,
         on_great_orb_project_command=_apply_great_orb_project_command,
         on_court_cases_command=_apply_court_cases_command,
+        on_circus_command=_apply_circus_command,
         on_managing_miscellania_command=_apply_managing_miscellania_command,
         on_livid_farm_command=_apply_livid_farm_command,
         on_set_prayer_selection=set_prayer_selection,

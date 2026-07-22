@@ -470,6 +470,23 @@ except Exception:
     from court_cases_logic import court_cases_view_pure  # type: ignore
 
 try:
+    from .circus_data import (
+        CIRCUS_ACTIVITY_ID,
+        CIRCUS_PERFORMANCES,
+        CIRCUS_REWARDS,
+        CIRCUS_STRATEGIES,
+    )
+    from .circus_logic import circus_view_pure
+except Exception:
+    from circus_data import (  # type: ignore
+        CIRCUS_ACTIVITY_ID,
+        CIRCUS_PERFORMANCES,
+        CIRCUS_REWARDS,
+        CIRCUS_STRATEGIES,
+    )
+    from circus_logic import circus_view_pure  # type: ignore
+
+try:
     from .managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
     from .managing_miscellania_logic import managing_miscellania_view_pure
 except Exception:
@@ -3543,6 +3560,7 @@ def show_main_menu(
     on_fishing_trawler_command=None,
     on_great_orb_project_command=None,
     on_court_cases_command=None,
+    on_circus_command=None,
     on_managing_miscellania_command=None,
     on_set_prayer_selection=None,
     on_set_magic=None,
@@ -12265,6 +12283,416 @@ def show_main_menu(
         _refresh_court_cases_panel()
         cards_stack.addWidget(court_box)
 
+        circus_box = QtFrame()
+        circus_box.setObjectName("circusPanel")
+        circus_box.setStyleSheet(
+            "QFrame#circusPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        circus_layout = QVBoxLayout(circus_box)
+        circus_layout.setContentsMargins(10, 8, 10, 8)
+        circus_layout.setSpacing(7)
+
+        circus_header = QWidget()
+        circus_header_layout = QHBoxLayout(circus_header)
+        circus_header_layout.setContentsMargins(0, 0, 0, 0)
+        circus_header_layout.setSpacing(8)
+        circus_icon = QLabel()
+        circus_icon.setObjectName("circusIcon")
+        circus_icon.setFixedSize(28, 28)
+        circus_icon_path = os.path.join(
+            current_dir, "activityicons", "big_top_bonanza.png"
+        )
+        if os.path.exists(circus_icon_path):
+            circus_icon.setPixmap(
+                QPixmap(circus_icon_path).scaled(
+                    28,
+                    28,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+        circus_title = QLabel("Big Top Bonanza")
+        circus_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        circus_status = QLabel()
+        circus_status.setObjectName("circusStatusChip")
+        circus_status.setStyleSheet(
+            f"color: {dim_text_css(circus_status)}; font-size: 11px; font-weight: 700;"
+        )
+        circus_header_layout.addWidget(circus_icon)
+        circus_header_layout.addWidget(circus_title)
+        circus_header_layout.addStretch(1)
+        circus_header_layout.addWidget(circus_status)
+        circus_layout.addWidget(circus_header)
+
+        circus_summary = QLabel()
+        circus_summary.setObjectName("circusSummary")
+        circus_summary.setWordWrap(True)
+        circus_summary.setStyleSheet("color: palette(text);")
+        circus_layout.addWidget(circus_summary)
+
+        circus_controls = QWidget()
+        circus_controls_layout = QHBoxLayout(circus_controls)
+        circus_controls_layout.setContentsMargins(0, 0, 0, 0)
+        circus_controls_layout.setSpacing(6)
+        circus_performance = QComboBox()
+        circus_performance.setObjectName("circusPerformanceCombo")
+        circus_performance.setAccessibleName("Circus performance")
+        for performance_id, performance in CIRCUS_PERFORMANCES.items():
+            circus_performance.addItem(performance.display_name, performance_id)
+        circus_mode = QComboBox()
+        circus_mode.setObjectName("circusAutomationMode")
+        circus_mode.setAccessibleName("Circus automation mode")
+        circus_mode.addItem("Casual setup", "casual")
+        circus_mode.addItem("Advanced setup", "advanced")
+        circus_strategy = QComboBox()
+        circus_strategy.setObjectName("circusStrategyCombo")
+        circus_strategy.setAccessibleName("Circus strategy")
+        for strategy_id, label in CIRCUS_STRATEGIES.items():
+            circus_strategy.addItem(label, strategy_id)
+        circus_controls_layout.addWidget(circus_performance, 2)
+        circus_controls_layout.addWidget(circus_strategy, 2)
+        circus_controls_layout.addWidget(circus_mode, 1)
+        circus_layout.addWidget(circus_controls)
+
+        circus_detail = QLabel()
+        circus_detail.setObjectName("circusDetail")
+        circus_detail.setWordWrap(True)
+        circus_detail.setStyleSheet(
+            f"color: {dim_text_css(circus_detail)}; font-size: 11px;"
+        )
+        circus_layout.addWidget(circus_detail)
+
+        circus_result = QLabel()
+        circus_result.setObjectName("circusLastResult")
+        circus_result.setWordWrap(True)
+        circus_result.setStyleSheet("color: palette(text); font-size: 11px;")
+        circus_layout.addWidget(circus_result)
+
+        circus_rewards = QWidget()
+        circus_rewards.setObjectName("circusRewardStrip")
+        circus_rewards_layout = QHBoxLayout(circus_rewards)
+        circus_rewards_layout.setContentsMargins(0, 0, 0, 0)
+        circus_rewards_layout.setSpacing(8)
+        circus_reward_caption = QLabel("Costume by score")
+        circus_reward_caption.setStyleSheet(
+            f"color: {dim_text_css(circus_reward_caption)}; font-size: 10px;"
+        )
+        circus_rewards_layout.addWidget(circus_reward_caption)
+        circus_reward_widgets = {}
+        for reward_id, reward in CIRCUS_REWARDS.items():
+            reward_widget = QWidget()
+            reward_widget.setObjectName(f"circusReward::{reward_id}")
+            reward_layout = QHBoxLayout(reward_widget)
+            reward_layout.setContentsMargins(0, 0, 0, 0)
+            reward_layout.setSpacing(3)
+            reward_icon = QLabel()
+            reward_icon.setObjectName(f"circusRewardIcon::{reward_id}")
+            reward_icon.setFixedSize(24, 24)
+            reward_icon.setToolTip(str(reward["display_name"]))
+            reward_path = os.path.join(
+                current_dir,
+                "activityitems",
+                str(reward["display_name"]).lower().replace("'", "").replace(" ", "_")
+                + ".png",
+            )
+            if os.path.exists(reward_path):
+                reward_icon.setPixmap(
+                    QPixmap(reward_path).scaled(
+                        24,
+                        24,
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.SmoothTransformation,
+                    )
+                )
+            maximum = reward["maximum_score"]
+            score_text = (
+                f"{int(reward['minimum_score'])}+"
+                if maximum is None
+                else f"{int(reward['minimum_score'])}–{int(maximum)}"
+            )
+            reward_label = QLabel(score_text)
+            reward_label.setToolTip(str(reward["display_name"]))
+            reward_label.setStyleSheet(
+                f"color: {dim_text_css(reward_label)}; font-size: 10px;"
+            )
+            reward_layout.addWidget(reward_icon)
+            reward_layout.addWidget(reward_label)
+            circus_rewards_layout.addWidget(reward_widget)
+            circus_reward_widgets[reward_id] = reward_widget
+        circus_rewards_layout.addStretch(1)
+        circus_layout.addWidget(circus_rewards)
+
+        circus_actions = QWidget()
+        circus_actions_layout = QHBoxLayout(circus_actions)
+        circus_actions_layout.setContentsMargins(0, 0, 0, 0)
+        circus_actions_layout.setSpacing(6)
+        circus_primary = QPushButton("Arm for next review")
+        circus_primary.setObjectName("circusPrimaryButton")
+        circus_edit = QPushButton("Edit routine…")
+        circus_edit.setObjectName("circusEditRoutineButton")
+        circus_abandon = QPushButton("Abandon this performance")
+        circus_abandon.setObjectName("circusAbandonButton")
+        circus_reclaim = QPushButton("Reclaim costumes")
+        circus_reclaim.setObjectName("circusReclaimButton")
+        circus_actions_layout.addWidget(circus_primary, 2)
+        circus_actions_layout.addWidget(circus_edit, 1)
+        circus_actions_layout.addWidget(circus_abandon, 1)
+        circus_actions_layout.addWidget(circus_reclaim, 1)
+        circus_layout.addWidget(circus_actions)
+        cards_stack.addWidget(circus_box)
+
+        syncing_circus = {"active": False}
+
+        def _circus_selected_id() -> str:
+            selected = str(circus_performance.currentData() or "agility")
+            return selected if selected in CIRCUS_PERFORMANCES else "agility"
+
+        def _run_circus_command(action_id: str, payload=None) -> dict[str, Any]:
+            if on_circus_command is None:
+                return {"ok": False, "message": "Big Top Bonanza actions are unavailable."}
+            result = on_circus_command(action_id, payload or {}) or {}
+            if not result.get("ok", False):
+                QMessageBox.warning(
+                    dialog,
+                    "Big Top Bonanza",
+                    str(result.get("message", "The Circus action failed.")),
+                )
+            _refresh_circus_panel()
+            return result
+
+        def _refresh_circus_panel(sync_selection: bool = True) -> None:
+            syncing_circus["active"] = True
+            view = circus_view_pure(player_data)
+            if sync_selection:
+                circus_performance.setCurrentIndex(
+                    max(0, circus_performance.findData(view["selected_performance"]))
+                )
+                circus_mode.setCurrentIndex(
+                    max(0, circus_mode.findData(view["automation_mode"]))
+                )
+            performance_id = _circus_selected_id()
+            row = next(
+                item for item in view["performances"] if item["id"] == performance_id
+            )
+            for index, performance_row in enumerate(view["performances"]):
+                combo_item = circus_performance.model().item(index)
+                if combo_item is None:
+                    continue
+                suffix = (
+                    " · done this week"
+                    if performance_row["used_this_week"]
+                    else " · locked"
+                    if performance_row["locked_reasons"]
+                    else ""
+                )
+                combo_item.setText(
+                    str(performance_row["display_name"]) + suffix
+                )
+                combo_item.setToolTip(
+                    ", ".join(performance_row["locked_reasons"])
+                    if performance_row["locked_reasons"]
+                    else "Available this answered-card week"
+                )
+                combo_item.setForeground(
+                    QBrush(
+                        dim_text_color(circus_performance)
+                        if performance_row["locked_reasons"]
+                        else circus_performance.palette().color(QPalette.ColorRole.Text)
+                    )
+                )
+            if sync_selection:
+                circus_strategy.setCurrentIndex(
+                    max(0, circus_strategy.findData(row["strategy"]))
+                )
+            mode = str(circus_mode.currentData() or "casual")
+            strategy = str(circus_strategy.currentData() or "balanced")
+            locked = tuple(row["locked_reasons"])
+            selected_here = player_data.get("current_utility") == CIRCUS_ACTIVITY_ID
+            armed = (
+                selected_here
+                and view["selected_performance"] == performance_id
+                and view["automation_mode"] == mode
+                and row["strategy"] == strategy
+            )
+            circus_status.setText(
+                "Closed this week"
+                if row["used_this_week"]
+                else f"{int(view['remaining_count'])} left this answered-card week"
+            )
+            circus_summary.setText(
+                f"{row['max_attempts']} tricks resolve in one review · "
+                f"{CIRCUS_PERFORMANCES[performance_id].skill_id.title()} XP · "
+                "failures award 0 XP"
+            )
+            routine = tuple(row["routine"])
+            detail_bits = []
+            if locked:
+                detail_bits.append("Locked: " + ", ".join(locked))
+            elif mode == "advanced":
+                detail_bits.append(
+                    f"Custom routine: {len(routine)} trick{'s' if len(routine) != 1 else ''}"
+                    if routine
+                    else "No custom routine yet; Casual strategy will be used"
+                )
+            else:
+                detail_bits.append("The selected strategy builds the complete routine automatically")
+            circus_detail.setText(" · ".join(detail_bits))
+            circus_result.setText(str(view["last_result"]))
+            circus_result.setVisible(bool(view["last_result"]))
+            firemaking_act = performance_id in {"fire_breathing", "flaming_poi"}
+            circus_reward_widgets["acrobat"].setVisible(not firemaking_act)
+            circus_reward_widgets["firemaker"].setVisible(firemaking_act)
+            circus_primary.setText("Armed for next review" if armed else "Arm for next review")
+            circus_primary.setAccessibleName(circus_primary.text())
+            circus_primary.setEnabled(on_circus_command is not None and not locked and not armed)
+            circus_edit.setVisible(mode == "advanced")
+            circus_edit.setEnabled(on_circus_command is not None and not locked)
+            circus_abandon.setEnabled(on_circus_command is not None and not locked)
+            inventory = player_data.get("inventory", {}) or {}
+            equipment = player_data.get("equipment", {}) or {}
+            equipped = set(equipment.values()) if isinstance(equipment, Mapping) else set()
+            can_reclaim = any(
+                reward["unlocked"]
+                and int(inventory.get(reward["display_name"], 0) or 0) <= 0
+                and reward["display_name"] not in equipped
+                for reward in view["reward_rows"]
+            )
+            circus_reclaim.setEnabled(on_circus_command is not None and can_reclaim)
+            circus_performance.setEnabled(on_circus_command is not None)
+            circus_strategy.setEnabled(on_circus_command is not None)
+            circus_mode.setEnabled(on_circus_command is not None)
+            syncing_circus["active"] = False
+            _fit_current_activity_detail()
+
+        def _refresh_circus_selection() -> None:
+            if syncing_circus["active"]:
+                return
+            syncing_circus["active"] = True
+            view = circus_view_pure(player_data)
+            performance_id = _circus_selected_id()
+            row = next(
+                item for item in view["performances"] if item["id"] == performance_id
+            )
+            circus_strategy.setCurrentIndex(
+                max(0, circus_strategy.findData(row["strategy"]))
+            )
+            syncing_circus["active"] = False
+            _refresh_circus_panel(False)
+
+        def _arm_circus_performance() -> None:
+            _run_circus_command(
+                "set_policy",
+                {
+                    "performance_id": _circus_selected_id(),
+                    "automation_mode": str(circus_mode.currentData() or "casual"),
+                    "strategy": str(circus_strategy.currentData() or "balanced"),
+                },
+            )
+
+        def _edit_circus_routine() -> None:
+            performance_id = _circus_selected_id()
+            performance = CIRCUS_PERFORMANCES[performance_id]
+            view = circus_view_pure(player_data)
+            row = next(item for item in view["performances"] if item["id"] == performance_id)
+            saved = list(row["routine"])
+            default_ids = []
+            for trick in sorted(performance.tricks, key=lambda item: item.level, reverse=True):
+                if trick.level not in {
+                    next(candidate.level for candidate in performance.tricks if candidate.id == trick_id)
+                    for trick_id in default_ids
+                }:
+                    default_ids.append(trick.id)
+                if len(default_ids) >= performance.max_attempts:
+                    break
+            routine_ids = saved or default_ids
+            editor = QDialog(dialog)
+            editor.setWindowTitle(f"{performance.display_name} routine")
+            editor.setModal(True)
+            editor_layout = QVBoxLayout(editor)
+            explanation = QLabel(
+                f"Choose up to {performance.max_attempts} tricks, in order. The whole routine resolves in one review."
+            )
+            explanation.setWordWrap(True)
+            editor_layout.addWidget(explanation)
+            combos = []
+            for index in range(performance.max_attempts):
+                row_widget = QWidget()
+                row_layout = QHBoxLayout(row_widget)
+                row_layout.setContentsMargins(0, 0, 0, 0)
+                number = QLabel(f"{index + 1}.")
+                combo = QComboBox()
+                combo.setObjectName(f"circusRoutineTrick::{index}")
+                combo.setAccessibleName(f"Circus trick {index + 1}")
+                if index > 0:
+                    combo.addItem("End routine here", "")
+                for trick in performance.tricks:
+                    combo.addItem(
+                        f"{trick.display_name} · level {trick.level} · {trick.xp:,.1f} XP",
+                        trick.id,
+                    )
+                selected_id = routine_ids[index % len(routine_ids)]
+                combo.setCurrentIndex(max(0, combo.findData(selected_id)))
+                row_layout.addWidget(number)
+                row_layout.addWidget(combo, 1)
+                editor_layout.addWidget(row_widget)
+                combos.append(combo)
+            buttons = QDialogButtonBox(
+                QDialogButtonBox.StandardButton.Save
+                | QDialogButtonBox.StandardButton.Cancel
+            )
+            buttons.accepted.connect(editor.accept)
+            buttons.rejected.connect(editor.reject)
+            editor_layout.addWidget(buttons)
+            if editor.exec() != QDialog.DialogCode.Accepted:
+                return
+            routine = []
+            for combo in combos:
+                trick_id = str(combo.currentData() or "")
+                if not trick_id:
+                    break
+                routine.append(trick_id)
+            _run_circus_command(
+                "set_routine",
+                {
+                    "performance_id": performance_id,
+                    "routine": routine,
+                },
+            )
+
+        def _abandon_circus_performance() -> None:
+            performance_id = _circus_selected_id()
+            answer = QMessageBox.question(
+                dialog,
+                "Abandon Circus performance?",
+                "This closes only the selected performance for the current answered-card week.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes:
+                _run_circus_command("abandon", {"performance_id": performance_id})
+
+        circus_performance.currentIndexChanged.connect(
+            lambda _index: _refresh_circus_selection()
+        )
+        circus_strategy.currentIndexChanged.connect(
+            lambda _index: (
+                None if syncing_circus["active"] else _refresh_circus_panel(False)
+            )
+        )
+        circus_mode.currentIndexChanged.connect(
+            lambda _index: (
+                None if syncing_circus["active"] else _refresh_circus_panel(False)
+            )
+        )
+        circus_primary.clicked.connect(lambda _checked=False: _arm_circus_performance())
+        circus_edit.clicked.connect(lambda _checked=False: _edit_circus_routine())
+        circus_abandon.clicked.connect(lambda _checked=False: _abandon_circus_performance())
+        circus_reclaim.clicked.connect(
+            lambda _checked=False: _run_circus_command("reclaim_costumes")
+        )
+        _refresh_circus_panel()
+
         miscellania_box = QtFrame()
         miscellania_box.setObjectName("managingMiscellaniaPanel")
         miscellania_box.setStyleSheet(
@@ -14459,6 +14887,7 @@ def show_main_menu(
             _refresh_fishing_trawler_panel()
             _refresh_great_orb_project_panel()
             _refresh_court_cases_panel()
+            _refresh_circus_panel()
             _refresh_miscellania_panel()
             _refresh_stealing_creation_panel()
             _show_activity_detail(activity_id)
@@ -14599,6 +15028,7 @@ def show_main_menu(
                 great_orb_box,
             ),
             COURT_CASES_ACTIVITY_ID: ("Court Cases", court_box),
+            CIRCUS_ACTIVITY_ID: ("Big Top Bonanza", circus_box),
             MANAGING_MISCELLANIA_ACTIVITY_ID: (
                 "Managing Miscellania",
                 miscellania_box,

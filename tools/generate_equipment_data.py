@@ -1082,6 +1082,45 @@ def _agility_equipment_items(
     return tuple(generated)
 
 
+def _circus_equipment_items(
+    items: Mapping[int, SourceItem],
+) -> Tuple[GeneratedEquipmentItem, ...]:
+    definitions = (
+        ("Giant's hand", "weapon", 13666),
+        ("Clown hat", "head", 13667),
+        ("Ringmaster hat", "head", 13672),
+        ("Firemaker's tabard", "body", 23003),
+    )
+    generated = []
+    for name, fallback_slot, item_id in definitions:
+        source_item = items.get(item_id)
+        block = source_item.equipment if source_item is not None else None
+        generated.append(
+            GeneratedEquipmentItem(
+                item_name=name,
+                slot=_slot_from_source(block, fallback_slot),
+                combat_skill=None,
+                required_level=1,
+                two_handed=False,
+                equipment_type="circus_costume",
+                bonuses=_bonuses_from_block(block),
+                attack_speed=_int_from_block(block, "attack_speed", 4),
+                source_item_id=item_id,
+                source=(
+                    f"{ITEMS_YML_RELATIVE.as_posix()} item {item_id}; Circus costume"
+                    if source_item is not None
+                    else "RuneScape Wiki Big Top Bonanza oldid 6554790; OpenRS2 rev-742 item 23003"
+                ),
+                source_status=(
+                    "items.yml equipment block"
+                    if block is not None
+                    else "period manual slot; bonuses zeroed"
+                ),
+            )
+        )
+    return tuple(generated)
+
+
 def _stronghold_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedEquipmentItem, ...]:
     """Fancy boots (9005) and Fighting boots (9006), the Stronghold of Security
     completion reward. The player picks one; both are stat-identical, so the
@@ -1312,6 +1351,7 @@ def generate(game_root: Path, output_path: Path) -> None:
     items_by_name = _source_items_by_name(items)
     equipment_items = _dedupe_equipment_items(
         tuple(_agility_equipment_items(items, items_by_name))
+        + tuple(_circus_equipment_items(items))
         + tuple(_smithing_equipment_items(items))
         + tuple(_mining_bonus_equipment_items(items))
         + tuple(_legacy_equipment_items(items))

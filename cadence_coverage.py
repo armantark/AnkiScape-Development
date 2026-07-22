@@ -510,6 +510,37 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "big_top_bonanza":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "big_top_bonanza",
+                    "mode": "activity_group",
+                    "source_status": "sourced_with_disclosed_translation",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One successful review resolves one complete skill "
+                        "performance: ten Magic, Ranged, Agility, or Thieving "
+                        "attempts, or six Firemaking attempts. The hidden trick "
+                        "success and audience-score curves are isolated bounded "
+                        "translations over period-pinned tables."
+                    ),
+                    "includes": (
+                        "one complete per-skill Circus performance and weekly lock",
+                        "one atomic XP, audience-score, and costume-reward boundary",
+                    ),
+                    "multiplier_behavior": (
+                        "Never foreground-multiplied; the same answer cannot begin "
+                        "a second performance"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same atomic whole-performance handler",
+                    "profile": None,
+                    "condition": "disclosed hidden-roll and score abstractions",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "penguin_hide_and_seek":
             rows.append(
                 {

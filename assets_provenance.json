@@ -299,6 +299,18 @@
     "source_wiki": "rs3-period",
     "timestamp": "2012-08-28T18:20:27Z"
   },
+  "activityicons/big_top_bonanza.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Circus_ticket.png",
+    "file_title": "Circus ticket.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502022100%21Circus_ticket.png?b09ca",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a9aa66ebf81dfd04f12f82ed9a164450273a627e",
+    "size": 563,
+    "source_wiki": "rs3",
+    "timestamp": "2012-01-08T21:56:33Z"
+  },
   "activityicons/court_cases.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Court_summons.png",
     "file_title": "Court summons.png",
@@ -587,6 +599,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-02-16T14:19:09Z"
   },
+  "activityitems/acrobat_hood.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Acrobat_hood_%28male%29.png",
+    "file_title": "Acrobat hood (male).png",
+    "image_url": "https://runescape.wiki/images/archive/20140708073813%21Acrobat_hood_%28male%29.png?c1871",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8d89471e41fe84e17fdd52085e2389c47abb6a3f",
+    "size": 260,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-17T04:06:27Z"
+  },
   "activityitems/autumn_sq_irk.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Autumn_sq%27irk.png",
     "file_title": "Autumn sq'irk.png",
@@ -695,6 +719,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-10-06T01:48:58Z"
   },
+  "activityitems/clown_hat.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Clown_hat.png",
+    "file_title": "Clown hat.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502174240%21Clown_hat.png?d7b6d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b687738a36fb6c96050f4043fd7f6a007b5bd4b1",
+    "size": 592,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-19T08:13:19Z"
+  },
   "activityitems/compost_potion_1.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Compost_potion_%281%29.png",
     "file_title": "Compost potion (1).png",
@@ -755,6 +791,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-04-23T18:03:53Z"
   },
+  "activityitems/firemakers_tabard.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Firemaker%27s_tabard.png",
+    "file_title": "Firemaker's tabard.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502033927%21Firemaker%27s_tabard.png?ed2a0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "323bd6a9409e5f1f5a644e7650fa20516bc86fae",
+    "size": 805,
+    "source_wiki": "rs3",
+    "timestamp": "2012-01-11T15:16:11Z"
+  },
   "activityitems/fishing_boots.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Fishing_boots.png",
     "file_title": "Fishing boots.png",
@@ -802,6 +850,18 @@
     "size": 973,
     "source_wiki": "rs3",
     "timestamp": "2012-06-06T13:54:16Z"
+  },
+  "activityitems/giants_hand.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Giant%27s_hand.png",
+    "file_title": "Giant's hand.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502072039%21Giant%27s_hand.png?fd29e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f286059a469c640e2fe0498ce6abd855619c3a2c",
+    "size": 475,
+    "source_wiki": "rs3",
+    "timestamp": "2010-01-07T20:54:28Z"
   },
   "activityitems/gold_seal.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Gold_seal.png",
@@ -1054,6 +1114,18 @@
     "size": 1022,
     "source_wiki": "rs3",
     "timestamp": "2011-11-27T18:12:20Z"
+  },
+  "activityitems/ringmaster_hat.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ringmaster_hat.png",
+    "file_title": "Ringmaster hat.png",
+    "image_url": "https://runescape.wiki/images/archive/20140511082043%21Ringmaster_hat.png?4fe2a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "30a1dbc0112278f781b1fa0dfd76c7bc0df92f3a",
+    "size": 490,
+    "source_wiki": "rs3",
+    "timestamp": "2010-10-08T04:49:50Z"
   },
   "activityitems/sceptre_of_the_gods.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Sceptre_of_the_gods.png",

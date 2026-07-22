@@ -2103,6 +2103,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.update_farming_hud_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda _text: None
+        addon.check_achievements = lambda *_args: None
         initial = {
             "inventory": {},
             "shop_market_clock": {
@@ -5749,6 +5750,50 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
+    def test_circus_policy_is_a_direct_undoable_action(self):
+        addon = _load_addon_as_package("ankiscape_circus_policy_integration")
+        logic = sys.modules[f"{addon.__name__}.circus_logic"]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon.current_skill = "Activities"
+        initial = {
+            "circus": logic.default_circus_state_pure(),
+            "inventory": {},
+            "quests": {},
+            "shop_market_clock": {"answered_cards": 0},
+            "current_utility": "make_soft_clay",
+            "smithing_level": 1,
+        }
+        addon.player_data = copy.deepcopy(initial)
+
+        addon._on_main_menu()
+        result = captured["on_circus_command"](
+            "set_policy",
+            {
+                "performance_id": "magic",
+                "automation_mode": "casual",
+                "strategy": "max_xp",
+            },
+        )
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(addon.player_data["current_utility"], "big_top_bonanza")
+        self.assertEqual(addon.player_data["circus"]["selected_performance"], "magic")
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
     def test_phoenix_lair_entry_is_direct_and_undoable(self):
         addon = _load_addon_as_package("ankiscape_phoenix_entry_integration")
         storage = sys.modules[f"{addon.__name__}.storage_pure"]
@@ -5874,6 +5919,57 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertEqual(addon.player_data["shop_market_clock"]["answered_cards"], 42)
         self.assertEqual(addon.player_data["court_cases"]["prep_index"], 1)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(study_queues=True, card=True),
+            )
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
+    def test_circus_review_and_world_clock_undo_together(self):
+        addon = _load_addon_as_package("ankiscape_circus_review_integration")
+        logic = sys.modules[f"{addon.__name__}.circus_logic"]
+        addon.mw = _DummyMW(_DummyCol())
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_context_action_strip = lambda *_args: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda _text: None
+        addon.check_achievements = lambda *_args: None
+        addon.player_data = {
+            "circus": logic.default_circus_state_pure(),
+            "inventory": {},
+            "quests": {},
+            "agility_level": 99,
+            "agility_exp": 0.0,
+            "shop_market_clock": {"answered_cards": 41, "market_tick": 41},
+            "current_utility": "big_top_bonanza",
+            "activity_session": {"active_id": ""},
+            "completed_achievements": [],
+        }
+        initial = copy.deepcopy(addon.player_data)
+        addon.current_skill = "Activities"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.0
+        try:
+            addon.on_answer_card(_FakeReviewer(), 3, lambda _self, _ease: "answered")
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(addon.player_data["shop_market_clock"]["answered_cards"], 42)
+        self.assertEqual(
+            addon.player_data["circus"]["used_week_by_performance"],
+            {"agility": 0},
+        )
+        self.assertGreater(addon.player_data["agility_exp"], 0.0)
         self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
 
         addon._on_state_did_undo(

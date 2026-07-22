@@ -71,6 +71,95 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_circus_review_resolves_one_atomic_multi_skill_performance(self):
+        from circus_logic import default_circus_state_pure
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        player_data = {
+            "current_utility": "big_top_bonanza",
+            "circus": default_circus_state_pure(),
+            "inventory": {},
+            "quests": {},
+            "shop_market_clock": {"answered_cards": 0},
+            "agility_level": 99,
+            "agility_exp": 0.0,
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(
+            handle_utility_answer(
+                _context(player_data, calls, random_values=(0.0,) * 10)
+            )
+        )
+
+        self.assertGreater(player_data["agility_exp"], 0.0)
+        self.assertEqual(
+            player_data["circus"]["used_week_by_performance"],
+            {"agility": 0},
+        )
+        self.assertEqual(player_data["inventory"], {"Clown hat": 1})
+        self.assertEqual(calls["saves"], 1)
+        self.assertTrue(calls.get("deactivated"))
+        self.assertIn("utility:big_top_bonanza", player_data["action_telemetry"]["actions"])
+
+    def test_circus_firemaking_performance_consumes_exactly_six_rolls(self):
+        from circus_logic import default_circus_state_pure
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        state = default_circus_state_pure()
+        state["selected_performance"] = "fire_breathing"
+        player_data = {
+            "current_utility": "big_top_bonanza",
+            "circus": state,
+            "inventory": {},
+            "quests": {"the_firemakers_curse": {"completed": True}},
+            "shop_market_clock": {"answered_cards": 0},
+            "firemaking_level": 99,
+            "firemaking_exp": 0.0,
+            "completed_achievements": [],
+        }
+        rolls = []
+        ctx = _context(player_data, calls)
+        ctx = dataclasses.replace(
+            ctx,
+            random_random=lambda: rolls.append(0.0) or 0.0,
+        )
+
+        self.assertTrue(handle_utility_answer(ctx))
+
+        self.assertEqual(len(rolls), 6)
+        self.assertGreater(player_data["firemaking_exp"], 0.0)
+
+    def test_circus_advanced_routine_consumes_only_its_saved_rolls(self):
+        from circus_logic import default_circus_state_pure
+
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        state = default_circus_state_pure()
+        state["automation_mode"] = "advanced"
+        state["advanced_routines"] = {
+            "agility": ["tightrope_99", "juggle_90"]
+        }
+        player_data = {
+            "current_utility": "big_top_bonanza",
+            "circus": state,
+            "inventory": {},
+            "quests": {},
+            "shop_market_clock": {"answered_cards": 0},
+            "agility_level": 99,
+            "agility_exp": 0.0,
+            "completed_achievements": [],
+        }
+        rolls = []
+        ctx = dataclasses.replace(
+            _context(player_data, calls),
+            random_random=lambda: rolls.append(0.0) or 0.0,
+        )
+
+        self.assertTrue(handle_utility_answer(ctx))
+
+        self.assertEqual(len(rolls), 2)
+        self.assertGreater(player_data["agility_exp"], 0.0)
+
     def test_managing_miscellania_review_raises_approval_and_woodcutting_xp(self):
         from managing_miscellania_logic import default_managing_miscellania_state_pure
 

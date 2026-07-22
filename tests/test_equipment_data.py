@@ -20,7 +20,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 687)
+        self.assertEqual(len(EQUIPMENT_DATA), 691)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -49,6 +49,11 @@ class TestEquipmentData(unittest.TestCase):
         self.assertEqual(brine_sabre.bonuses.melee_strength, 46)
         self.assertEqual(EQUIPMENT_DATA["Agile top"].slot, "body")
         self.assertEqual(EQUIPMENT_DATA["Acrobat hood"].slot, "head")
+        self.assertEqual(EQUIPMENT_DATA["Giant's hand"].slot, "weapon")
+        self.assertEqual(EQUIPMENT_DATA["Giant's hand"].weapon_type, 7)
+        self.assertEqual(EQUIPMENT_DATA["Clown hat"].slot, "head")
+        self.assertEqual(EQUIPMENT_DATA["Ringmaster hat"].slot, "head")
+        self.assertEqual(EQUIPMENT_DATA["Firemaker's tabard"].slot, "body")
         self.assertEqual(EQUIPMENT_DATA["Mining helmet (unlit)"].source_item_id, 5014)
         self.assertEqual(EQUIPMENT_DATA["Mining helmet (lit)"].source_item_id, 5013)
         self.assertEqual(EQUIPMENT_DATA["Mining helmet (unlit)"].combat_skill, "defense")

@@ -239,6 +239,8 @@ try:
         court_cases_view_pure,
         filter_court_summons_outputs_pure,
     )
+    from .circus_data import CIRCUS_ACTIVITY_ID
+    from .circus_logic import apply_circus_review_pure, circus_view_pure
     from .managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
     from .managing_miscellania_logic import (
         apply_managing_miscellania_review_pure,
@@ -562,6 +564,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         apply_court_case_review_pure,
         court_cases_view_pure,
         filter_court_summons_outputs_pure,
+    )
+    from circus_data import CIRCUS_ACTIVITY_ID  # type: ignore
+    from circus_logic import (  # type: ignore
+        apply_circus_review_pure,
+        circus_view_pure,
     )
     from managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID  # type: ignore
     from managing_miscellania_logic import (  # type: ignore
@@ -3439,6 +3446,74 @@ def _handle_court_cases_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _handle_circus_answer(ctx: RuntimeActionContext) -> bool:
+    view = circus_view_pure(ctx.player_data)
+    selected_id = str(view.get("selected_performance", "agility"))
+    selected_row = next(
+        (
+            row
+            for row in view.get("performances", ())
+            if str(row.get("id", "")) == selected_id
+        ),
+        {},
+    )
+    routine = tuple(selected_row.get("routine", ()))
+    attempts = (
+        len(routine)
+        if view.get("automation_mode") == "advanced" and routine
+        else int(selected_row.get("max_attempts", 10) or 10)
+    )
+    updated, result = apply_circus_review_pure(
+        ctx.player_data,
+        tuple(ctx.random_random() for _ in range(attempts)),
+    )
+    if not result.get("allowed"):
+        ctx.show_error_message(
+            "Big Top Bonanza unavailable",
+            str(result.get("reason", "Choose an available Circus performance.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    skill_id = str(result.get("skill_id", ""))
+    skill_rows = {
+        "magic": ("magic_exp", "Magic"),
+        "ranged": ("ranged_exp", "Ranged"),
+        "agility": ("agility_exp", "Agility"),
+        "firemaking": ("firemaking_exp", "Firemaking"),
+        "thieving": ("thieving_exp", "Thieving"),
+    }
+    base_xp = float(result.get("xp", 0.0) or 0.0)
+    gained = 0.0
+    if base_xp > 0 and skill_id in skill_rows:
+        exp_key, display_name = skill_rows[skill_id]
+        gained = ctx.award_skill_exp(exp_key, base_xp)
+        ctx.level_up_check(display_name, ctx.player_data)
+    _record_action(
+        ctx,
+        "utility",
+        CIRCUS_ACTIVITY_ID,
+        bool(result.get("success")),
+        expected_success_chance=float(
+            result.get("expected_success_chance", 0.0) or 0.0
+        ),
+        output_items={
+            str(item): int(amount)
+            for item, amount in dict(result.get("outputs") or {}).items()
+        },
+        primary_xp=base_xp,
+    )
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if gained > 0:
+        ctx.show_exp(gained)
+    ctx.show_activity_gain(str(result.get("status", "Circus performance resolved")))
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
 def _handle_managing_miscellania_answer(ctx: RuntimeActionContext) -> bool:
     updated, result = apply_managing_miscellania_review_pure(ctx.player_data)
     if not result.get("allowed"):
@@ -3513,6 +3588,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_great_orb_project_answer(ctx)
     if activity_key == COURT_CASES_ACTIVITY_ID:
         return _handle_court_cases_answer(ctx)
+    if activity_key == CIRCUS_ACTIVITY_ID:
+        return _handle_circus_answer(ctx)
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:
         return _handle_managing_miscellania_answer(ctx)
     if activity_key == STRONGHOLD_UTILITY_KEY:
@@ -5851,6 +5928,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return bool(great_orb_project_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == COURT_CASES_ACTIVITY_ID:
         return bool(court_cases_view_pure(ctx.player_data).get("can_review", False))
+    if activity_key == CIRCUS_ACTIVITY_ID:
+        return bool(circus_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:
         return bool(managing_miscellania_view_pure(ctx.player_data).get("can_train", False))
     return not utility_activity_locked_reasons_pure(
