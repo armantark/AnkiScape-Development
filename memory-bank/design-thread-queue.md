@@ -61,6 +61,16 @@ The period had a white portal and a red portal.
 - Red reuses the dangerous-death path that The Crucible already uses. Do not
   build a second one, and do not add a gravestone or partial-loss rule. The owner
   rejected the softened version explicitly.
+- **Implementation note, checked in the code on 2026-07-25.**
+  `logic_pure/logic_pure_combat_model.py:730` `_combat_apply_pvm_death` already
+  does the hard half correctly: it removes worn equipment and protects the single
+  highest-value slot when Protect Item is active. But it **always** writes the
+  lost items into `combat_grave`, and pushes an older grave into `death_office`.
+  There is no variant that destroys the items.
+  The red portal must destroy them. Reusing this function unchanged makes a red
+  death recoverable and silently reverses the decision above. Add a no-grave mode
+  rather than accepting the default, and make a test assert that a red-portal
+  death leaves both `combat_grave` and `death_office` empty.
 - The purple team mode stays the settled bounded team-score race.
 - Source: RuneScape Wiki `Clan Wars`, oldid `6288405`, 2012-09-24.
 - Unblocks: the Clan Wars family, which had no module at all.
