@@ -147,17 +147,38 @@ five families advance at once — with every later family getting undo for free.
 Do this before shipping more families. Each family built on the current seam adds
 another handler that must be retrofitted.
 
-### 5.2 Post-cutoff art is shipping as period art (breadth criterion 7)
+### 5.2 Post-cutoff art — measured, and mostly deliberate
 
-Several live surfaces use images that `assets_provenance.json` itself identifies
-as post-cutoff: Evil Tree uses an RS3 kindling sprite, Wicked hood an RS3 image,
-Livid Farm a 2016 Patch protection scroll, and Warriors' Guild several
-post-cutoff activity and enemy assets.
+**This entry replaces an earlier version that called the art a defect needing a
+provenance check. That was wrong, and the numbers say so.**
 
-The provenance file already records the truth, so nothing was hidden. What is
-missing is a check that fails when a live image's provenance is post-cutoff. Add
-that check, then harvest replacements. Without the check the same drift returns
-with the next asset fetch.
+`assets_provenance.json` holds 3,665 entries. 3,026 of them (83%) carry a
+post-cutoff timestamp. A check that failed on "timestamp after 2012-11-20" would
+therefore fail most of the asset library, which makes it useless as a gate.
+
+The breakdown is what matters:
+
+| source_wiki | count | what it means |
+| --- | --- | --- |
+| `osrs` | 1,518 | Old School launched in 2013, so every OSRS image is post-cutoff by construction. Using it is a deliberate visual choice, not drift. |
+| `rs3` | 1,499 | Modern RS3 art. This is the bucket worth caring about, because RS3 reworked graphics heavily after EOC. |
+| `*-visual-fallback` | 9 | Already labelled as fallbacks. |
+| pre-cutoff (`rs3`, `rs3-period`, `rs3-fandom-period`) | 639 | Period art. |
+
+The two images the frontier audit named are in the modern-RS3 bucket:
+`woodcuttingitems/evil_tree_kindling.png` (2020-11-24) and
+`runecraftingitems/wicked_hood.png` (2019-12-01).
+
+**Recommendation: defer this, and do not treat it as a breadth blocker.**
+Replacing 1,499 modern-RS3 images is exactly the "slow data harvesting" the
+programme says to defer until every family is mechanically complete. Blocking
+Evil Tree and Wicked hood on criterion 7 while thirty families have no mechanics
+at all inverts the programme's own priority.
+
+When it is taken up, the useful gate is narrow rather than global: assert that
+the small set of **visible family and activity icons** uses period or OSRS art
+rather than modern RS3, since those are the images a player actually looks at.
+A blanket provenance check is not the tool.
 
 ## 5. What this round showed about our records
 
