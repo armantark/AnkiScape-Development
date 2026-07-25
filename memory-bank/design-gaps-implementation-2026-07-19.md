@@ -2,7 +2,11 @@
 
 Date: 2026-07-19
 
-Status: **four open source/contract conflicts.**
+Status: **superseded as a queue, kept as evidence.** The four conflicts that were
+still open on 2026-07-25 moved to `memory-bank/design-thread-queue.md`, which is
+undated and is now the single address for decisions that block implementation.
+Read that file to answer them. This record keeps the full reasoning and the
+source citations behind each one.
 
 ## 1. Grand Exchange offer-slot count
 
