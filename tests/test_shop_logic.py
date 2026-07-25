@@ -21,6 +21,7 @@ from shop_logic import (
     search_shop_catalog_pure,
     shop_history_rows_pure,
     shop_view_model_pure,
+    shop_view_models_pure,
 )
 
 
@@ -55,6 +56,18 @@ def _specialist_without_beer():
 
 
 class TestShopLogic(unittest.TestCase):
+    def test_batched_view_models_match_one_call_per_shop(self):
+        """The batch shares one sanitized snapshot instead of deep-copying the
+        save per shop; the rendered view models must stay identical."""
+        player = build_shop_fixture_player_data()
+        shop_ids = [shop["id"] for shop in SHOP_DATA.values()]
+
+        batched = shop_view_models_pure(player, shop_ids)
+
+        self.assertEqual(set(batched), set(shop_ids))
+        for shop_id in shop_ids:
+            self.assertEqual(batched[shop_id], shop_view_model_pure(player, shop_id))
+
     def test_general_store_rejects_registry_untradeable_items(self):
         shop = _general_store()
         player = build_shop_fixture_player_data()

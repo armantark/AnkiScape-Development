@@ -446,6 +446,38 @@ def _open_shop_tab(dialog: "QDialog") -> None:
     QApplication.processEvents()
 
 
+def _open_quests_tab(dialog: "QDialog") -> None:
+    """Mandatory before touching quest widgets: the Quests tab is built on first
+    show, so without this its widgets simply do not exist yet."""
+    tabs = _find_main_tabs(dialog)
+    index = next(i for i in range(tabs.count()) if tabs.tabText(i) == "Quests")
+    tabs.setCurrentIndex(index)
+    QApplication.processEvents()
+
+
+def _expand_quest_card(dialog: "QDialog", quest_id: str) -> None:
+    """Expand one quest card's journal.
+
+    Journal bodies are filled on first expand, so a collapsed card holds no
+    journal labels until its toggle is clicked.
+    """
+    toggle = dialog.findChild(QPushButton, f"questToggle_{quest_id}")
+    body = dialog.findChild(QWidget, f"questBody_{quest_id}")
+    if toggle is None or body is None:
+        raise AssertionError(f"quest card {quest_id!r} not found")
+    if body.isHidden():
+        toggle.click()
+        QApplication.processEvents()
+
+
+def _open_achievements_tab(dialog: "QDialog") -> None:
+    """Mandatory before touching achievement widgets (built on first show)."""
+    tabs = _find_main_tabs(dialog)
+    index = next(i for i in range(tabs.count()) if tabs.tabText(i) == "Achievements")
+    tabs.setCurrentIndex(index)
+    QApplication.processEvents()
+
+
 def _open_ge_tab(dialog: "QDialog") -> None:
     tabs = _find_main_tabs(dialog)
     index = next(
@@ -3662,6 +3694,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["completed_achievements"] = ["First Steps", "Rune Mysteries"]
         dialog = self._open(pd)
+        _open_achievements_tab(dialog)
         labels = [label.text() for label in dialog.findChildren(QLabel)]
 
         self.assertTrue(
@@ -3671,6 +3704,52 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("First Steps", labels)
         self.assertIn("Rune Mysteries", labels)
         self.assertIn("Completed: 2/168 (1.2%)", labels)
+
+    def test_expensive_tabs_are_unbuilt_until_shown(self) -> None:
+        """Regression guard for the deferred build: opening the menu must not
+        construct the Shop, Quests or Achievements pages, while the tab that is
+        actually visible (Skills) is fully rendered."""
+        dialog = self._open(_make_player_data())
+        tabs = _find_main_tabs(dialog)
+        for label in ("Shop", "Quests", "Achievements"):
+            index = next(i for i in range(tabs.count()) if tabs.tabText(i) == label)
+            page = tabs.widget(index)
+            self.assertEqual(
+                len(page.findChildren(QLabel)),
+                0,
+                f"{label} tab was built before it was shown",
+            )
+        self.assertTrue(_panel_title(dialog).startswith("Mining"))
+
+    def test_refresh_of_unbuilt_tab_is_a_noop_and_later_build_shows_live_state(self) -> None:
+        """A cross-tab refresh aimed at a tab nobody opened must not raise, and
+        the state written in the meantime must appear once the tab is built."""
+        pd = _make_player_data()
+        pd["quest_points"] = 0
+        dialog = self._open(pd)
+        ctx = dialog._ankiscape_menu_ctx
+
+        pd["quest_points"] = 7
+        ctx.refresh("quests")
+        ctx.refresh("shop")
+        ctx.refresh("no_such_surface")
+
+        _open_quests_tab(dialog)
+        labels = [label.text() for label in dialog.findChildren(QLabel)]
+        self.assertIn("Quest points: 7", labels)
+        self.assertIsNotNone(dialog.findChild(QWidget, "questCard_cooks_assistant"))
+
+        _open_shop_tab(dialog)
+        self.assertTrue(_list_texts(_find_named_list(dialog, "shopSelectionList")))
+
+        # Both surfaces register their refresher once built, so a later refresh
+        # reaches them instead of being dropped.
+        self.assertIn("quests", ctx.refreshers)
+        self.assertIn("shop", ctx.refreshers)
+        ctx.refresh("quests")
+        ctx.refresh("shop")
+        QApplication.processEvents()
+        self.assertIsNotNone(dialog.findChild(QWidget, "questCard_cooks_assistant"))
 
     def test_selecting_woodcutting_updates_panel(self) -> None:
         skill_list = _find_skill_list(self.dialog)
@@ -6078,6 +6157,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["quests"]["rune_mysteries"] = {"started": False, "progress": 0, "completed": False}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         self.assertIn("Rune Mysteries", labels)
         self.assertIn("Quest points: 0", labels)
@@ -6094,6 +6174,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["quests"]["rune_mysteries"] = {"started": True, "progress": 6, "completed": True}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         sort_combo = dialog.findChild(QComboBox, "questSortCombo")
         self.assertIsNotNone(sort_combo)
@@ -6119,6 +6200,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["quests"]["rune_mysteries"] = {"started": True, "progress": 6, "completed": True}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         hide_completed = dialog.findChild(QCheckBox, "questHideCompletedCheck")
         hide_locked = dialog.findChild(QCheckBox, "questHideLockedCheck")
@@ -6146,6 +6228,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "the_knights_sword"
         pd["quests"]["the_knights_sword"] = {"started": True, "progress": 2, "completed": False}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         self.assertIn("Blocked: Needs Redberry pie x1", labels)
@@ -6165,6 +6248,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "shield_of_arrav"
         pd["quests"]["shield_of_arrav"] = {"started": True, "progress": 4, "completed": False}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = "Blocked: Choose path: Phoenix Gang or Black Arm Gang"
@@ -6189,6 +6273,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["quests"]["shield_of_arrav"] = {"started": True, "progress": 5, "completed": False}
         pd["quest_route_states"] = {"shield_of_arrav": ["Join the Black Arm Gang"]}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         self.assertTrue(all("Needs Weapon store key" not in label for label in labels))
@@ -6204,6 +6289,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_quest"] = "hazeel_cult"
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         self.assertIn("Choose path: Ceril Carnillean or Hazeel's cult", labels)
@@ -6223,6 +6309,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "demon_slayer"
         pd["quests"]["demon_slayer"] = {"started": True, "progress": 3, "completed": False}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = "Blocked: Needs Bucket of water x1"
@@ -6237,6 +6324,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "ernest_the_chicken"
         pd["quests"]["ernest_the_chicken"] = {"started": True, "progress": 3, "completed": False}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = "Blocked: Needs Fish food x1, Needs Poison x1"
@@ -6256,6 +6344,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "dragon_slayer"
         pd["quests"]["dragon_slayer"] = {"started": True, "progress": 8, "completed": False}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = "Blocked: Needs Crayfish cage x1 or Lobster pot x1"
@@ -6271,6 +6360,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "fishing_contest"
         pd["quests"]["fishing_contest"] = {"started": True, "progress": 4, "completed": False}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
@@ -6289,6 +6379,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "sheep_herder"
         pd["quests"]["sheep_herder"] = {"started": True, "progress": 4, "completed": False}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
@@ -6309,6 +6400,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "plague_city"
         pd["quests"]["plague_city"] = {"started": True, "progress": 14, "completed": False}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
@@ -6349,6 +6441,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             ]
         }
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         self.assertIn("Blocked: Needs Priest gown x2", labels)
@@ -6368,6 +6461,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             "heroes_quest": ["Show the Id papers to Garv", "Search Scarface Pete's candlestick chest"]
         }
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         self.assertIn("Blocked: Needs Black platelegs", labels)
@@ -6390,6 +6484,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             "family_crest": ["Craft the perfect ruby ring and perfect ruby necklace"]
         }
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         self.assertIn("Blocked: Needs Ruby x2", labels)
@@ -6404,6 +6499,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "temple_of_ikov"
         pd["quests"]["temple_of_ikov"] = {"started": True, "progress": 7, "completed": False}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected_prefix = "Blocked: Needs Yew shortbow x1 or Yew longbow x1"
@@ -6424,6 +6520,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["quest_route_states"] = {"holy_grail": ["Reach the Fisher Realm crossing at the six stone heads"]}
         pd["quest_stage_actions"] = {"holy_grail": ["Blow the Magic whistle at the six stone heads"]}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         self.assertTrue(
@@ -6447,6 +6544,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["constitution_level"] = 40
         pd["prayer_level"] = 20
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = "Blocked: Battle required: Count Draynor level 37"
@@ -6464,6 +6562,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "cooks_assistant"
         pd["quests"]["cooks_assistant"] = {"started": True, "progress": 1, "completed": False}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         self.assertNotIn(
@@ -6479,6 +6578,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "cooks_assistant"
         pd["quests"]["cooks_assistant"] = {"started": True, "progress": 2, "completed": False}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         self.assertIn(
@@ -6496,6 +6596,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "witchs_house"
         pd["quests"]["witchs_house"] = {"started": True, "progress": 4, "completed": False}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
@@ -6518,6 +6619,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             "merlins_crystal": ["Question Morgan Le Faye about Excalibur and the binding words"]
         }
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = "Blocked: Needs Insect repellent x1"
@@ -6537,6 +6639,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["defense_level"] = 50
         pd["constitution_level"] = 50
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = "Blocked: Battle required: Sir Mordred level 39"
@@ -6560,6 +6663,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["defense_level"] = 40
         pd["constitution_level"] = 40
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
@@ -6585,6 +6689,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["defense_level"] = 50
         pd["constitution_level"] = 50
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
@@ -6612,6 +6717,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["constitution_level"] = 80
         pd["prayer_level"] = 80
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = "Blocked: Battle required: Chaos dwarf hand cannoneer level 100"
@@ -6635,6 +6741,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["defense_level"] = 50
         pd["constitution_level"] = 50
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
@@ -6655,6 +6762,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["constitution_level"] = 150
         pd["prayer_level"] = 150
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = "Blocked: Combat stats required before battle support can resolve: Khazard ogre level 63"
@@ -6677,6 +6785,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["constitution_level"] = 150
         pd["prayer_level"] = 150
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = "Blocked: Battle required: Bouncer level 137"
@@ -6695,6 +6804,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["defense_level"] = 60
         pd["constitution_level"] = 60
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
@@ -6722,6 +6832,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["defense_level"] = 40
         pd["constitution_level"] = 40
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
@@ -6748,6 +6859,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["defense_level"] = 90
         pd["constitution_level"] = 90
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
@@ -6775,6 +6887,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["defense_level"] = 100
         pd["constitution_level"] = 100
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
@@ -6808,6 +6921,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["magic_level"] = 99
         pd["prayer_level"] = 99
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [label.text() for label in dialog.findChildren(QLabel)]
         self.assertIn(
@@ -6846,6 +6960,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["defense_level"] = 99
         pd["constitution_level"] = 99
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [label.text() for label in dialog.findChildren(QLabel)]
         self.assertIn(
@@ -6879,6 +6994,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["defense_level"] = 99
         pd["constitution_level"] = 99
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [label.text() for label in dialog.findChildren(QLabel)]
         self.assertIn("Blocked: Battle required: Canopic guardian level 81", labels)
@@ -6910,6 +7026,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["prayer_level"] = 1
         pd["summoning_level"] = 1
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
+        _expand_quest_card(dialog, "smoking_kills")
 
         labels = [label.text() for label in dialog.findChildren(QLabel)]
         self.assertIn("Blocked: Battle required: Banshee Mistress level 111", labels)
@@ -6947,6 +7065,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         ):
             pd[level_key] = 200
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
+        _expand_quest_card(dialog, "shilo_village")
 
         labels = [label.text() for label in dialog.findChildren(QLabel)]
         combat_status = next(label for label in labels if label.startswith("Blocked: Battle required: Nazastarool"))
@@ -6983,6 +7103,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["defense_level"] = 100
         pd["constitution_level"] = 100
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
@@ -7010,6 +7131,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["defense_level"] = 20
         pd["constitution_level"] = 20
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = "Blocked: Battle required: Skeleton warlock level 11"
@@ -7027,6 +7149,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "the_restless_ghost"
         pd["quests"]["the_restless_ghost"] = {"started": True, "progress": 1, "completed": False}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = "Blocked: Action required: Receive the ghostspeak amulet from Father Urhney"
@@ -7041,6 +7164,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_quest"] = "vampyre_slayer"
         pd["quests"]["vampyre_slayer"] = {"started": True, "progress": 1, "completed": False}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         card = dialog.findChild(QWidget, "questCard_vampyre_slayer")
         self.assertIsNotNone(card)
@@ -7054,6 +7178,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["quests"]["priest_in_peril"] = {"started": True, "progress": 8, "completed": False}
         pd["inventory"] = {"Pure essence": 24}
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = "Blocked: Needs Rune essence x50 or Pure essence x25"
@@ -7067,6 +7192,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["mining_level"] = 10
         dialog = self._open(pd)
+        _open_quests_tab(dialog)
+        _expand_quest_card(dialog, "the_knights_sword")
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         self.assertIn(
@@ -7076,6 +7203,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_quests_tab_filters_by_catalog_metadata(self) -> None:
         dialog = self._open(_make_player_data())
+        _open_quests_tab(dialog)
 
         access_filter = dialog.findChild(QComboBox, "questAccessFilterCombo")
         difficulty_filter = dialog.findChild(QComboBox, "questDifficultyFilterCombo")
@@ -7103,6 +7231,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_quest_search_composes_with_filters_and_has_shared_empty_state(self) -> None:
         dialog = self._open(_make_player_data())
+        _open_quests_tab(dialog)
         search = _find_named_line_edit(dialog, "questSearchInput")
         summary = dialog.findChild(QLabel, "questFilterSummaryLabel")
 

@@ -243,7 +243,23 @@ def resolve_shop_id(shop_id: str) -> str:
 
 
 def shop_view_model_pure(player_data: Mapping[str, Any], shop_id: str) -> Dict[str, Any]:
+    return _shop_view_model_from_state(ensure_shop_state_pure(player_data), shop_id)
+
+
+def shop_view_models_pure(player_data: Mapping[str, Any], shop_ids) -> Dict[str, Dict[str, Any]]:
+    """View models for many shops built from a single sanitized snapshot.
+
+    ``ensure_shop_state_pure`` deep-copies the whole save, so asking for every
+    shop one at a time copied it once per shop (~270 times) and dominated the
+    main-menu open. The read path never mutates the snapshot, so one copy is
+    enough for the whole batch.
+    """
     data = ensure_shop_state_pure(player_data)
+    return {shop_id: _shop_view_model_from_state(data, shop_id) for shop_id in shop_ids}
+
+
+def _shop_view_model_from_state(data: Mapping[str, Any], shop_id: str) -> Dict[str, Any]:
+    """Read-only view model over an already sanitized save snapshot."""
     shop = _shop_or_none(shop_id)
     if shop is None:
         return {"exists": False, "shop_id": shop_id, "rows": []}
@@ -296,7 +312,7 @@ def search_shop_catalog_pure(
             continue
         if shop["visibility"] == "visible_locked" and not include_locked:
             continue
-        view = shop_view_model_pure(data, shop["id"])
+        view = _shop_view_model_from_state(data, shop["id"])
         for row in view["rows"]:
             haystack = f"{row['item_name']} {shop['display_name']}".lower()
             if normalized and normalized not in haystack:
