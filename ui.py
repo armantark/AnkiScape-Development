@@ -1508,6 +1508,14 @@ def _utility_surface_name_for_target(activity_key: object) -> str:
     ):
         return _ACTIVITIES_HUB_NAME
     return _UTILITIES_HUB_NAME
+
+# Grand Exchange offer-price clamps, taken from the period client script rather
+# than invented: the up-button saturates past this price, and the constant is
+# exactly the +5% overflow boundary, which is how we know 105 is the only
+# percentage that button ever passes.
+_GE_PRICE_OVERFLOW_LIMIT = 2_045_222_520
+_GE_PRICE_CEILING = 2_147_483_647
+
 _COMBAT_HUB_NAME = "Combat"
 # The individual skills a combat burst can train, with their player_data level
 # and exp keys. Constitution defaults to level 10 (RS classic); everything else
@@ -18991,12 +18999,14 @@ def show_main_menu(
     ge_quick_layout.setContentsMargins(0, 0, 0, 0)
     ge_quick_layout.setSpacing(4)
     ge_price_buttons = {}
-    # A None factor means "absolute reset to the guide price"; the percentage
-    # buttons carry a relative factor applied to whatever price is showing.
+    # A None percent means "absolute reset to the guide price". The percentage
+    # buttons carry the integer percent the period client script passes, so the
+    # arithmetic below can reproduce it exactly rather than approximate it with
+    # a float factor.
     for label, factor, object_name in (
-        ("-5%", 0.95, "gePriceMinus5Button"),
+        ("-5%", 95, "gePriceMinus5Button"),
         ("Guide", None, "geGuidePriceButton"),
-        ("+5%", 1.05, "gePricePlus5Button"),
+        ("+5%", 105, "gePricePlus5Button"),
     ):
         button = QPushButton(label)
         button.setObjectName(object_name)
@@ -19470,22 +19480,30 @@ def show_main_menu(
             available += int(editing_order.get("escrow_items", 0) or 0)
         ge_quantity.setValue(max(1, available))
 
-    def _set_ge_quick_price(factor) -> None:
+    def _set_ge_quick_price(percent) -> None:
         row = _ge_current_item()
         if row is None:
             return
-        if factor is None:
+        if percent is None:
             ge_price.setValue(max(int(row.get("guide_price", 1) or 1), 1))
             return
-        # Nudges compound off the live price; the one-gp floor keeps the button
-        # from being a no-op on the few-gp items a low-level player trades.
-        current = max(int(ge_price.value()), 1)
-        stepped = int(round(current * float(factor)))
-        ge_price.setValue(
-            max(current + 1, stepped)
-            if factor > 1.0
-            else max(1, min(current - 1, stepped))
-        )
+        # Exactly the period client script (interface 105 -> script 4112),
+        # recovered by disassembling rev 727 and byte-identical across all six
+        # pre-EOC builds. See source-audits/ge-offer-price-controls-2026-07-24.md.
+        # It compounds off the displayed price, truncates toward zero, and only
+        # forces a one-coin step when truncation would have moved nothing —
+        # which is why "-5%" on 20 gp gives 19 rather than sticking.
+        price = max(int(ge_price.value()), 1)
+        percent = int(percent)
+        if percent > 100 and price > _GE_PRICE_OVERFLOW_LIMIT:
+            stepped = _GE_PRICE_CEILING
+        elif percent < 100 and price <= 1:
+            stepped = 1
+        else:
+            stepped = (price * percent) // 100
+            if stepped == price:
+                stepped += 1 if percent >= 100 else -1
+        ge_price.setValue(max(1, stepped))
 
     def _submit_ge_offer() -> None:
         row = _ge_current_item()

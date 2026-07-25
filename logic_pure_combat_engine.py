@@ -2876,10 +2876,12 @@ def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, _bonus_item_data):
     uses this read-only summary until the dedicated Equipment tab lands.
 
     The flip side of auto-resolution is that a freshly bought upgrade looks
-    ignored: the real game equally refuses a mithril hatchet below Woodcutting
-    21, but nothing here said so. "toolbelt_blocked" names owned tools whose
-    level gate is not met yet, so the bank explains the gate instead of the
-    player assuming the purchase was lost.
+    ignored. A mithril hatchet cannot be *used* to chop below Woodcutting 21, so
+    best_*_pure keeps returning the bronze one and the purchase reads as lost.
+    "toolbelt_blocked" names owned tools whose level gate is not met yet, so the
+    bank explains the gate instead. No claim is made here about whether the
+    period game refused to *bind* an over-level tool; the gate we model is on
+    use, which is the part that matters for what this row displays.
 
     Returns {"toolbelt": [(label, display_name), ...],
              "toolbelt_blocked": [(label, display_name, skill_label, level), ...],

@@ -3096,11 +3096,14 @@ class MainMenuWidgetTest(unittest.TestCase):
             player["ge_player_orders"][0]["remaining_quantity"],
             2,
         )
-        # -5% now compounds off the price showing in the spin box (105 from the
-        # edit), not off the guide price, so this lands on 100 rather than 95.
+        # -5% compounds off the price showing in the spin box (105 from the
+        # earlier +5%), not off the guide price. 105 * 95 / 100 truncates to 99,
+        # so a round trip does NOT return to the guide price of 100 — that is
+        # the period client's behaviour, and the Guide button is the exact reset
+        # it provides for precisely this reason.
         self.assertEqual(
             player["ge_player_orders"][0]["submitted_unit_price"],
-            100,
+            99,
         )
         self.assertIn("0/2 filled", slots[0].text())
 
@@ -3244,8 +3247,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.findChild(QPushButton, "geGuidePriceButton").click()
         self.assertEqual(price.value(), 100)
 
-        # At a few gp the percentage rounds to zero, so the one-gp floor is what
-        # keeps the button from being a visible no-op.
+        # At a few gp the percentage truncates to no movement, so the period
+        # script's forced one-coin step is what keeps the button live.
         price.setValue(1)
         plus.click()
         self.assertEqual(price.value(), 2)
@@ -3254,6 +3257,23 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(price.value(), 1)
         minus.click()
         self.assertEqual(price.value(), 1)
+
+        # Truncation toward zero, not round-to-nearest. These two prices are
+        # where the distinction shows: round-half-up gives 35 and 20. The
+        # arithmetic is client script 4112, recovered by disassembly — see
+        # memory-bank/source-audits/ge-offer-price-controls-2026-07-24.md.
+        price.setValue(33)
+        plus.click()
+        self.assertEqual(price.value(), 34)
+        price.setValue(21)
+        minus.click()
+        self.assertEqual(price.value(), 19)
+
+        # The up-button saturates past the period overflow boundary rather than
+        # wrapping. The spin box ceiling is the same 32-bit maximum.
+        price.setValue(2_045_222_521)
+        plus.click()
+        self.assertEqual(price.value(), 2_147_483_647)
         dialog.deleteLater()
 
     def test_grand_exchange_fill_log_colours_partial_and_completed_rows(self) -> None:
@@ -11653,19 +11673,25 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_hud_names_the_landmark_it_is_bound_to(self) -> None:
         # Landmarks live outside UTILITY_ACTIVITY_DATA, so the spec lookup is
-        # empty and the subtitle used to read the literal "Material prep".
+        # empty and the subtitle used to read the literal "Material prep" — the
+        # owner screenshotted exactly that while running Stronghold of Security.
+        # Step-counter landmarks also carry their progress, which is the other
+        # half of the same report ("no indication as to what I'm actually
+        # doing"); the attunement has no counter, so it carries none.
         hud = self._ui.ReviewHUD(None)
         pd = _make_player_data()
-        for activity_key, expected in (
-            ("stronghold_of_security", "Stronghold of Security"),
-            ("knight_waves", "Knight Waves Training Ground"),
-            ("mage_arena", "Mage Arena"),
-            ("mage_arena_attune:saradomin", "Mage Arena attunement"),
+        for activity_key, expected, wants_bar in (
+            ("stronghold_of_security", "Stronghold of Security • 0/4", True),
+            ("knight_waves", "Knight Waves Training Ground • 0/8", True),
+            ("mage_arena", "Mage Arena • 0/5", True),
+            ("mage_arena_attune:saradomin", "Mage Arena attunement", False),
         ):
-            pd["current_utility"] = activity_key
-            hud.set_data(pd, "Utility / Activities")
-            self.assertEqual(hud.sub_lbl.text(), expected)
-            self.assertNotIn("Material prep", hud.sub_lbl.text())
+            with self.subTest(activity=activity_key):
+                pd["current_utility"] = activity_key
+                hud.set_data(pd, "Utility / Activities")
+                self.assertEqual(hud.sub_lbl.text(), expected)
+                self.assertNotIn("Material prep", hud.sub_lbl.text())
+                self.assertEqual(hud.progress.isVisible(), wants_bar)
 
     def test_hud_carries_no_grand_exchange_notice(self) -> None:
         # The collect reminder now lives on the Grand Exchange tab as a
