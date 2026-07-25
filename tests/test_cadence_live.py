@@ -4,6 +4,11 @@ import unittest
 from unittest.mock import patch
 
 import runtime_actions
+
+# Patch targets live on the module that defines the name: a caller resolves it
+# from its own globals, not from runtime_actions' re-export.
+import runtime_actions_production
+
 from cadence_coverage import (
     cadence_coverage_rows_pure,
     validate_cadence_coverage_pure,
@@ -878,12 +883,12 @@ class TestQuestCombatCadenceBoundary(unittest.TestCase):
         }
         with (
             patch.object(
-                runtime_actions,
+                runtime_actions_production,
                 "quest_current_stage_resolvable_combat_blockers_pure",
                 return_value=[{"encounter_id": "proof"}],
             ),
             patch.object(
-                runtime_actions,
+                runtime_actions_production,
                 "apply_quest_combat_encounter_pure",
                 side_effect=fake_combat,
             ),

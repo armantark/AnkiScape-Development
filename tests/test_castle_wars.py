@@ -180,7 +180,12 @@ class CastleWarsMatchTests(unittest.TestCase):
                 "drops": {"guaranteed": (), "tables": ()},
             }
         }
-        with patch("logic_pure._combat_roll_damage_lifepoints", return_value=100):
+        # The damage roller must be patched on the module that defines it: the
+        # caller resolves the name from its own globals, not from logic_pure's
+        # re-export.
+        with patch(
+            "logic_pure_combat_engine._combat_roll_damage_lifepoints", return_value=100
+        ):
             updated, ok, result = apply_combat_burst_pure(
                 player,
                 enemy,
