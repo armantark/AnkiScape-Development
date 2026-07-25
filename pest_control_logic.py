@@ -78,15 +78,17 @@ def _dismiss_follower(
 ) -> tuple[dict[str, Any], bool, str]:
     follower = _active_follower(player_data)
     kind = str(follower.get("kind", ""))
+    # Shallow on purpose: both exits dismiss nothing, and the two dismissal
+    # helpers below build their own copies rather than writing to this save.
     if not kind:
-        return copy.deepcopy(dict(player_data)), True, ""
+        return dict(player_data), True, ""
     if kind == "familiar":
         updated, ok, _info = dismiss_familiar_pure(player_data)
         return updated, ok, kind
     if kind == "pet":
         updated, ok = store_active_pet_pure(player_data, location="bank")
         return updated, ok, kind
-    return copy.deepcopy(dict(player_data)), False, kind
+    return dict(player_data), False, kind
 
 
 def default_pest_control_state_pure() -> dict[str, Any]:
@@ -286,7 +288,9 @@ def enter_pest_control_pure(
     if follower:
         data, ok, dismissed = _dismiss_follower(data)
         if not ok:
-            return copy.deepcopy(dict(player_data)), False, {
+            # Shallow rollback: the dismissal helpers return new saves instead
+            # of writing to this one, so nothing nested here was touched.
+            return dict(player_data), False, {
                 "reason": "The active follower could not be dismissed safely."
             }
         state = sanitize_pest_control_state_pure(data)
@@ -446,7 +450,9 @@ def apply_pest_control_review_pure(
                 allow_bank_run=False,
             )
             if not ok:
-                return copy.deepcopy(dict(player_data)), False, combat_result
+                # Shallow rollback: the combat engine copies its own input, so
+                # no nested value of the caller's save was written through.
+                return dict(player_data), False, combat_result
             player_damage = _int(combat_result.get("player_damage"))
             session["portal_lifepoints"] = _int(
                 combat_result.get("enemy_lifepoints", session["portal_lifepoints"]),
@@ -637,4 +643,6 @@ def apply_pest_control_command_pure(
         return set_pest_control_policy_pure(player_data, payload)
     if action_id == "buy_void_seal":
         return buy_void_seal_pure(player_data)
-    return copy.deepcopy(dict(player_data)), False, {"reason": "Unknown Pest Control command."}
+    # Shallow on purpose: nothing ran, and callers discard the save they get
+    # back on a failed command.
+    return dict(player_data), False, {"reason": "Unknown Pest Control command."}

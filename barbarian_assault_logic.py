@@ -479,7 +479,11 @@ def apply_barbarian_assault_review_pure(
             allow_bank_run=False,
         )
         if not ok:
-            return copy.deepcopy(dict(player_data)), False, combat_result
+            # Shallow on purpose: this is a rejection, and every caller
+            # (runtime_actions_activities.handle_barbarian_assault_answer,
+            # __init__._apply_barbarian_assault_command) discards the save it
+            # gets back when ok is False, so nothing writes into it.
+            return dict(player_data), False, combat_result
         if combat_result.get("died"):
             return data, True, {
                 **combat_result,
@@ -611,6 +615,8 @@ def apply_barbarian_assault_command_pure(
         return leave_barbarian_assault_pure(player_data)
     if action_id == "buy_runner_boots":
         return buy_runner_boots_pure(player_data)
-    return copy.deepcopy(dict(player_data)), False, {
+    # Shallow on purpose: nothing is written to this save, and the only caller
+    # (__init__._apply_barbarian_assault_command) discards it when ok is False.
+    return dict(player_data), False, {
         "reason": "Unknown Barbarian Assault action."
     }

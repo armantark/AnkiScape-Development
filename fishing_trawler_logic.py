@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from collections.abc import Mapping
 from typing import Any
 
@@ -460,7 +459,10 @@ def apply_fishing_trawler_command_pure(
         return leave_fishing_trawler_pure(player_data)
     if action == "set_fishing_trawler_policy":
         return set_fishing_trawler_policy_pure(player_data, payload)
-    return copy.deepcopy(dict(player_data)), False, {"reason": "Unknown Fishing Trawler action."}
+    # Shallow on purpose: nothing is written here, and every other failure
+    # branch already hands back the same shallow copy, which the only caller
+    # (_apply_fishing_trawler_command) discards whenever ok is False.
+    return dict(player_data), False, {"reason": "Unknown Fishing Trawler action."}
 
 
 def fishing_trawler_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:

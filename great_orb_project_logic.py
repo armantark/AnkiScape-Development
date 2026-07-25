@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from collections.abc import Mapping
 from typing import Any
 
@@ -565,7 +564,9 @@ def apply_great_orb_project_command_pure(
         return buy_great_orb_project_reward_pure(
             player_data, body.get("reward_id"), body.get("quantity", 1)
         )
-    return copy.deepcopy(dict(player_data)), False, {
+    # Shallow on purpose: nothing is written to this save, and the only caller
+    # (__init__._apply_great_orb_project_command) discards it when ok is False.
+    return dict(player_data), False, {
         "reason": "Unknown Great Orb Project action."
     }
 

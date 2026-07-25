@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from collections.abc import Mapping
 from typing import Any
 
@@ -523,7 +522,9 @@ def apply_trouble_brewing_command_pure(
             player_data,
             str(body.get("reward_id", "")),
         )
-    return copy.deepcopy(dict(player_data)), False, {
+    # Shallow on purpose: this branch changes nothing, and every caller of the
+    # dispatcher discards the returned save when ok is False.
+    return dict(player_data), False, {
         "reason": "Unknown Trouble Brewing action."
     }
 

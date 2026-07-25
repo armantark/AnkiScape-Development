@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from collections.abc import Mapping
 from typing import Any, Optional
 
@@ -234,13 +233,15 @@ def hatch_phoenix_egg_pure(
         "Cracked phoenix egg": "mean_phoenix_eggling",
     }
     pet_id = egg_to_pet.get(item_name)
+    # Shallow on the refusal paths: nothing was written, and the only caller
+    # (the Summoning command handler) discards the returned save when not ok.
     if pet_id is None:
-        return copy.deepcopy(dict(player_data)), False, "unknown_phoenix_egg"
+        return dict(player_data), False, "unknown_phoenix_egg"
     if _clean_int(player_data.get("summoning_level"), 1, minimum=1) < 72:
-        return copy.deepcopy(dict(player_data)), False, "summoning_level"
+        return dict(player_data), False, "summoning_level"
     inventory = player_data.get("inventory")
     if not isinstance(inventory, Mapping) or _clean_int(inventory.get(item_name)) <= 0:
-        return copy.deepcopy(dict(player_data)), False, "missing_phoenix_egg"
+        return dict(player_data), False, "missing_phoenix_egg"
     # Shallow on purpose: the summoning state and its pet records are rebuilt
     # below, and the carried and main inventories are rebuilt with dict()
     # before any write.
@@ -250,7 +251,12 @@ def hatch_phoenix_egg_pure(
     updated["inventory"] = bank
     acquired, ok, instance_id = acquire_pet_pure(updated, pet_id)
     if not ok:
-        return copy.deepcopy(dict(player_data)), False, instance_id
+        # Unreachable as the data stands: this function gates on Summoning 72 and
+        # both egglings require exactly 72, so clearing the gate above also clears
+        # acquire's, and acquire has no other refusal. Kept because a future pet
+        # with a higher requirement would arm it, and because the egg must not be
+        # consumed if it ever does. Deliberately untested for that reason.
+        return dict(player_data), False, instance_id
     return acquired, True, instance_id
 
 

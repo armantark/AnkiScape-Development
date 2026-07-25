@@ -385,7 +385,9 @@ def apply_tzhaar_fight_pit_review_pure(
     )
     data["combat_auto_flee"] = auto_flee
     if not ok:
-        return copy.deepcopy(dict(player_data)), False, {"reason": "Fight Pit combat setup is not runnable.", "combat": combat}
+        # Shallow like the other refusals above: every caller drops this save
+        # unread when ok is False, and nothing here was rebuilt yet.
+        return dict(player_data), False, {"reason": "Fight Pit combat setup is not runnable.", "combat": combat}
     session["review"] += 1
     if combat.get("died"):
         data["tzhaar_fight_pit"] = session
@@ -461,7 +463,9 @@ def apply_tzhaar_fight_pit_command_pure(player_data: Mapping[str, Any], action_i
         return leave_tzhaar_fight_pit_pure(player_data)
     if action_id == "set_policy":
         return set_tzhaar_fight_pit_policy_pure(player_data, str(body.get("policy", "")))
-    return copy.deepcopy(dict(player_data)), False, {"reason": "Unknown Fight Pit command."}
+    # Shallow: an unrecognised action changes nothing, and the caller discards
+    # this save because ok is False.
+    return dict(player_data), False, {"reason": "Unknown Fight Pit command."}
 
 
 def tzhaar_fight_pit_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:

@@ -659,4 +659,6 @@ def apply_shades_of_mortton_command_pure(
         return open_shades_bronze_chest_pure(
             player_data, str(body.get("key_name", "")), rng
         )
-    return copy.deepcopy(dict(player_data)), False, {"reason": "Unknown Shades of Mort'ton action."}
+    # Shallow on purpose: an unknown action changes nothing, and the failure
+    # branch in every caller drops the returned save without touching it.
+    return dict(player_data), False, {"reason": "Unknown Shades of Mort'ton action."}

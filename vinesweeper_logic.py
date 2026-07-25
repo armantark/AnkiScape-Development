@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from typing import Any, Mapping, Sequence
 
 try:
@@ -333,14 +332,18 @@ def _dismiss_follower_for_entry(
     follower = _active_follower(player_data)
     kind = str(follower.get("kind", ""))
     if not kind:
-        return copy.deepcopy(dict(player_data)), True, ""
+        # Shallow on purpose: nothing was dismissed, and the entry path that
+        # continues from here only writes top-level keys.
+        return dict(player_data), True, ""
     if kind == "familiar":
         updated, ok, _info = dismiss_familiar_pure(player_data)
         return updated, ok, "familiar"
     if kind == "pet":
         updated, ok = store_active_pet_pure(player_data, location="bank")
         return updated, ok, "pet"
-    return copy.deepcopy(dict(player_data)), False, kind
+    # Shallow on purpose: this is the failure return, and its only caller
+    # discards the save it gets back.
+    return dict(player_data), False, kind
 
 
 def apply_vinesweeper_command_pure(
@@ -369,7 +372,9 @@ def apply_vinesweeper_command_pure(
         if follower:
             data, ok, dismissed_kind = _dismiss_follower_for_entry(data)
             if not ok:
-                return copy.deepcopy(dict(player_data)), False, {
+                # Shallow on purpose: the un-dismissed original is returned
+                # unchanged, and every caller discards it when ok is False.
+                return dict(player_data), False, {
                     "reason": "The active follower could not be dismissed safely."
                 }
             state = sanitize_vinesweeper_state_pure(data.get("vinesweeper"))

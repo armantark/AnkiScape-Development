@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from typing import Any, Mapping, Sequence
 
 try:
@@ -456,7 +455,9 @@ def set_world_population_profile_pure(
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     value = str(profile).lower()
     if value not in WORLD_POPULATION_PROFILES:
-        return copy.deepcopy(dict(player_data)), False, {
+        # Shallow on the refusal path: nothing was written, and the Big
+        # Chinchompa command handler discards the returned save when not ok.
+        return dict(player_data), False, {
             "reason": "Unknown world-population profile."
         }
     data = ensure_big_chinchompa_state_pure(player_data)

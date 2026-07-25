@@ -465,7 +465,9 @@ def apply_castle_wars_review_pure(
                 player_damage_multiplier=castle_wars_damage_multiplier_pure(data),
             )
             if not ok:
-                return copy.deepcopy(dict(player_data)), False, combat_result
+                # Shallow like the other refusals above: every caller drops
+                # this save unread when ok is False.
+                return dict(player_data), False, combat_result
             damage = _int(combat_result.get("player_damage"))
             session["contribution"] += damage
             if combat_result.get("killed"):
@@ -696,4 +698,6 @@ def apply_castle_wars_command_pure(
         return deploy_castle_wars_ballista_pure(player_data)
     if action_id == "deploy_chinchompa":
         return deploy_castle_wars_chinchompa_pure(player_data)
-    return copy.deepcopy(dict(player_data)), False, {"reason": "Unknown Castle Wars command."}
+    # Shallow: an unrecognised action changes nothing, and the caller discards
+    # this save because ok is False.
+    return dict(player_data), False, {"reason": "Unknown Castle Wars command."}

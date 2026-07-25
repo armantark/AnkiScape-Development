@@ -286,14 +286,18 @@ def _dismiss_follower(
     follower = _active_follower(player_data)
     kind = str(follower.get("kind", ""))
     if not kind:
-        return copy.deepcopy(dict(player_data)), True, ""
+        # Shallow on purpose: nothing was dismissed, and the only caller writes
+        # top-level keys on the result and rebuilds every nested value it stores.
+        return dict(player_data), True, ""
     if kind == "familiar":
         updated, ok, _info = dismiss_familiar_pure(player_data)
         return updated, ok, kind
     if kind == "pet":
         updated, ok = store_active_pet_pure(player_data, location="bank")
         return updated, ok, kind
-    return copy.deepcopy(dict(player_data)), False, kind
+    # Shallow on purpose: the failure is passed straight to the caller's
+    # rollback, which discards this save without writing into it.
+    return dict(player_data), False, kind
 
 
 def _award_inventory(data: dict[str, Any], item_name: str, amount: int) -> None:
@@ -366,7 +370,10 @@ def apply_fight_caves_command_pure(
         if follower:
             data, ok, kind = _dismiss_follower(data)
             if not ok:
-                return copy.deepcopy(dict(player_data)), False, {
+                # Shallow rollback: no nested value of the input was written,
+                # and _apply_fight_caves_command reads only the reason when the
+                # command fails, so the returned save is never stored.
+                return dict(player_data), False, {
                     "reason": "The active follower could not be dismissed safely."
                 }
             state = sanitize_fight_caves_state_pure(data.get("fight_caves"))
@@ -531,7 +538,10 @@ def apply_fight_caves_review_pure(
     )
     data["combat_auto_flee_percent"] = auto_flee
     if not ok:
-        return copy.deepcopy(dict(player_data)), False, combat_result
+        # Shallow rollback: apply_combat_burst_pure copies nested values before
+        # touching them, so nothing of the input was written, and
+        # _handle_fight_caves_answer reads only the result when ok is False.
+        return dict(player_data), False, combat_result
 
     engaged_died = bool(combat_result.get("killed"))
     player_died = bool(combat_result.get("died"))

@@ -360,7 +360,10 @@ def apply_phoenix_lair_command_pure(
             equipment_data=equipment_data or {},
         )
         if locked:
-            return copy.deepcopy(dict(player_data)), False, {
+            # Shallow rollback: only top-level keys of the local copy were
+            # written, and _apply_phoenix_lair_command reads just the reason
+            # when the command fails, so this save is never stored.
+            return dict(player_data), False, {
                 "reason": "Combat loadout is not ready: " + "; ".join(locked)
             }
         data["phoenix_lair"] = state
@@ -456,7 +459,10 @@ def apply_phoenix_lair_review_pure(
     )
     data["combat_auto_flee_percent"] = auto_flee
     if not ok:
-        return copy.deepcopy(dict(player_data)), False, combat_result
+        # Shallow rollback: apply_combat_burst_pure copies nested values before
+        # touching them, so nothing of the input was written, and
+        # _handle_phoenix_lair_answer reads only the result when ok is False.
+        return dict(player_data), False, combat_result
 
     if combat_result.get("died"):
         _end_run(data, state, "Defeated in the Phoenix Lair; the unfinished ritual was reset.")
@@ -560,7 +566,9 @@ def resolve_phoenix_egg_choice_pure(
     remember_choice: bool = False,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     if option_id not in PHOENIX_EGG_CHOICES:
-        return copy.deepcopy(dict(player_data)), False, {"reason": "Unknown Phoenix egg choice."}
+        # Shallow on purpose: nothing has been read or written yet, and the
+        # review-context callers discard this save when the choice is rejected.
+        return dict(player_data), False, {"reason": "Unknown Phoenix egg choice."}
     # Shallow on purpose: the run state and its encounter are rebuilt as deep
     # copies, and every cross-module receiver rebuilds before writing.
     data = dict(player_data)
@@ -575,7 +583,9 @@ def resolve_phoenix_egg_choice_pure(
     if _int(data.get("summoning_level"), 1, minimum=1) >= 72:
         data, ok, instance_id = acquire_pet_pure(data, pet_id)
         if not ok:
-            return copy.deepcopy(dict(player_data)), False, {"reason": instance_id}
+            # Shallow rollback: acquire_pet_pure rebuilds the summoning state it
+            # writes, and the review-context callers discard this save on failure.
+            return dict(player_data), False, {"reason": instance_id}
         result = {"pet_id": pet_id, "instance_id": instance_id, "item_name": ""}
     else:
         inventory = dict(data.get("inventory", {}) or {})

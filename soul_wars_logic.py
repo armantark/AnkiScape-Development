@@ -575,7 +575,9 @@ def apply_soul_wars_review_pure(
             data, session, rng, equipment_data or {}
         )
         if duty_result.get("combat_failed"):
-            return copy.deepcopy(dict(player_data)), False, duty_result
+            # Shallow rollback: the combat engine copies its own input, so no
+            # nested value of the caller's save was ever written through.
+            return dict(player_data), False, duty_result
 
     participated = not bool(duty_result.get("blocked"))
     if participated:
@@ -681,7 +683,9 @@ def apply_soul_wars_command_pure(
             player_data,
             str(body.get("item_name", "")),
         )
-    return copy.deepcopy(dict(player_data)), False, {
+    # Shallow on purpose: nothing ran, and callers discard the save they get
+    # back on a failed command.
+    return dict(player_data), False, {
         "reason": "Unknown Soul Wars command."
     }
 

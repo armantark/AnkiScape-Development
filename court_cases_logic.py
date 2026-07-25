@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from collections.abc import Mapping
 from typing import Any
 
@@ -392,7 +391,10 @@ def apply_court_cases_command_pure(
         )
     if action_id == "leave":
         return leave_court_case_pure(player_data)
-    return copy.deepcopy(dict(player_data)), False, {"reason": "Unknown Court Cases action."}
+    # Shallow on purpose: nothing is written here, and every other failure
+    # branch already hands back the same shallow copy, which the only caller
+    # (_apply_court_cases_command) discards whenever ok is False.
+    return dict(player_data), False, {"reason": "Unknown Court Cases action."}
 
 
 def apply_court_case_review_pure(
