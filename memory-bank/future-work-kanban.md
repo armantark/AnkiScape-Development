@@ -1300,6 +1300,50 @@ Labels: `WAIT: DARKAN`, after each `DEEP GRILL`.
 
 ## Cross-system program queue
 
+### Read the caches properly: CS2 disassembler plus enum/struct/interface search
+
+Labels: `IMPLEMENT`, queued 2026-07-25 after the GE price-button sourcing failed.
+
+We hold seven OpenRS2 builds at `~/Library/Caches/codex/2012scape-openrs2/`,
+including rev 741 (2012-11-04), sixteen days before cutoff. We read almost none
+of it: `tools/query_openrs2_cache.sh` and its definition sibling cover item and
+object definitions only. Enums, structs and their params, interface definitions,
+and every client script are unread, which is why the +/-5% arithmetic ended as
+`provisional/darkan` with three wikis silent. See
+`source-audits/ge-offer-price-controls-2026-07-24.md`.
+
+**Why this is cheap.** The deobfuscated client at
+`~/Documents/2012scape with bots/darkan-client/src/main/java/com/rs/jagex/`
+already contains the decoder: `CS2Instruction.java` is a complete named opcode
+enum for this revision (1,042 lines), and `CS2Script.java`, `CS2Interpreter`,
+`CS2Executor` and `ScriptRunner` load and run the scripts. A **disassembler** —
+linear named-opcode listing per script id — reuses that decoder and needs only a
+printer. Full control-flow decompilation into `if`/`while` is a bigger job and is
+usually unnecessary: reading arithmetic off a linear listing is enough.
+
+**Why it will answer real questions.** `STORE_VARP` is opcode 929, so client
+scripts write varps directly. Any interface behaviour the client computes locally
+is therefore recoverable as genuine Jagex data rather than reconstruction: offer
+price arithmetic, display formatting and rounding, requirement text, tooltip
+thresholds, client-side gating.
+
+**Be honest about the ceiling.** This unblocks *client-side* facts only. XP
+rates, drop tables, success chances, timers, loot weights and every hidden roll
+lived on a server that was never released, and that is most of what sits
+`source_blocked` in the parity ledger. Do not sell this as a general parity
+oracle, and do not let it reopen items that are blocked for server-side reasons.
+
+Suggested order, highest aggregate value first:
+
+1. Extend cache search to **enums, structs and params**. Broad mechanical data
+   hides there, and it decodes with the tooling shape we already have.
+2. **Interface definitions**: component ids, text, hidden flags. Cheap, and it
+   makes every future UI-parity question answerable.
+3. The **CS2 disassembler**, then harvest the GE offer interface out of rev 741
+   and settle the price-button arithmetic as the first real test.
+4. Re-walk the parity ledger for items marked blocked on *client-side* grounds
+   and clear the ones this now reaches. Leave server-side blocks alone.
+
 ### Whole-save deep-copy convention — per-review cost sweep
 
 Labels: `IMPLEMENT`, queued 2026-07-24 out of the UI/performance pass.
