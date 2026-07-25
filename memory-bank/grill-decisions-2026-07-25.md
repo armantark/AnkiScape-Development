@@ -2,9 +2,21 @@
 
 Date: `2026-07-25`
 
-Status: **owner-settled, five forks.** Everything here came out of the grill that
-followed the overnight code-health and playtest-feedback passes
+Status: **owner-settled, five forks — ALL THREE STEPS SHIPPED 2026-07-25.**
+Everything here came out of the grill that followed the overnight code-health and
+playtest-feedback passes
 (`memory-bank/status-updates/code-health-and-feedback-2026-07-25.html`).
+
+Delivery, in the order decision 5 set:
+
+1. `5e75b55b` — boot sprites fetched, world-event outcomes hold for ten reviews.
+2. `d55e2abc` — 36 of 38 deepcopy sites converted; the one on a live path was
+   reverted for want of a proof, exactly as decision 4 required.
+3. `05704ec3` — the tier restructure merged, after an independent review by
+   Kimi K3 and the fixes it named (`90f9d6c4`).
+
+Both lanes stand at 2,716 tests. The add-on imports as `ankiscape_fork`, the name
+Anki actually loads it under, which is the gate no unit test covers.
 
 ## 1. World-event resolutions get a short post-resolution state
 
