@@ -398,6 +398,12 @@ class TestCadenceLiveCoverage(unittest.TestCase):
         self.assertFalse(
             any("Bank run" in message for message in calls.get("activity", ()))
         )
+        # A rate-limited route withholding an opportunity is the kernel's
+        # normal tick, so the review is silent: no XP and no activity line.
+        # It fired on the majority of reviews for every capped route before.
+        self.assertEqual(calls.get("activity", []), [])
+        self.assertEqual(calls["xp"], [])
+        self.assertEqual(calls["errors"], [])
 
     def test_rejected_first_action_restores_live_cadence_residual(self):
         initial = default_cadence_profile_state_pure(opening_ready=True)

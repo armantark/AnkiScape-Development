@@ -97,6 +97,7 @@ from .ui import (
     update_review_context_action_strip,
     ensure_farming_hud_badge,
     update_farming_hud_badge,
+    update_distraction_hud_badge,
     hide_farming_hud_badge,
     migrate_legacy_settings,
 )
@@ -872,6 +873,7 @@ def _restore_review_award_snapshot(snapshot) -> None:
     try:
         update_review_hud(player_data, current_skill)
         update_farming_hud_badge(player_data, _open_farming_sheet)
+        update_distraction_hud_badge(player_data, _open_activities_sheet)
         _update_review_context_surface()
     except Exception:
         pass
@@ -888,6 +890,7 @@ def _restore_urn_teleport_snapshot(snapshot) -> None:
     try:
         update_review_hud(player_data, current_skill)
         update_farming_hud_badge(player_data, _open_farming_sheet)
+        update_distraction_hud_badge(player_data, _open_activities_sheet)
         _update_review_context_surface()
     except Exception:
         pass
@@ -903,6 +906,7 @@ def _restore_direct_action_snapshot(snapshot) -> None:
     try:
         update_review_hud(player_data, current_skill)
         update_farming_hud_badge(player_data, _open_farming_sheet)
+        update_distraction_hud_badge(player_data, _open_activities_sheet)
         _update_review_context_surface()
         _refresh_skill_availability()
     except Exception:
@@ -1158,7 +1162,23 @@ def _open_farming_sheet(patch_id=None):
     _on_main_menu(initial_skill="Farming", initial_farming_patch_id=patch_id)
 
 
-def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
+def _open_activities_sheet(activity_id=None):
+    try:
+        if ui.focus_main_menu_if_open():
+            navigate = ui._MAIN_MENU_CTX.get("open_activity")
+            if navigate is not None:
+                navigate(activity_id)
+            return
+    except Exception:
+        pass
+    _on_main_menu(initial_skill="Activities", initial_activity_id=activity_id)
+
+
+def _on_main_menu(
+    initial_skill=None,
+    initial_farming_patch_id=None,
+    initial_activity_id=None,
+):
     def _set_floating_enabled(val: bool):
         try:
             mw.col.set_config("ankiscape_floating_enabled", bool(val))
@@ -1506,6 +1526,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
                 pass
         try:
             update_farming_hud_badge(player_data, _open_farming_sheet)
+            update_distraction_hud_badge(player_data, _open_activities_sheet)
         except Exception:
             pass
         return {"ok": ok, "message": message, "projection": farming_frontend_projection_pure(player_data)}
@@ -3060,6 +3081,7 @@ def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
         on_farming_action=_apply_farming_action,
         initial_skill=initial_skill,
         initial_farming_patch_id=initial_farming_patch_id,
+        initial_activity_id=initial_activity_id,
         on_check_achievements=check_achievements,
         on_save_player_data=save_player_data,
     )
@@ -3574,83 +3596,32 @@ def _apply_safe_combat_recovery_after_review(save_callback=save_player_data) -> 
 
 
 def _advance_world_events_after_review() -> None:
-    """Advance all review-clock world events inside the answer transaction."""
+    """Advance all review-clock world events inside the answer transaction.
+
+    The clocks advance silently, following the Managing Miscellania precedent:
+    these events cannot be acted on from the reviewer, and because this runs
+    after _finish_review_feedback_context() every message here escaped the
+    per-review coalescing and became its own popup. The live state now lives on
+    the reviewer D&D badge and the Activities "Live world events" strip.
+    """
 
     spawn_due = evil_tree_spawn_due_pure(player_data)
-    updated, events = advance_evil_tree_world_clock_pure(
+    updated, _events = advance_evil_tree_world_clock_pure(
         player_data,
         tier_roll=random.random() if spawn_due else 0.0,
         location_roll=random.random() if spawn_due else 0.0,
     )
     player_data.update(updated)
-    spawned = next(
-        (
-            event
-            for event in events
-            if event.get("kind") == "spawned"
-        ),
-        None,
-    )
-    if spawned:
-        tier_id = str(spawned.get("tier_id", "")).replace("_", " ")
-        _show_activity_gain(
-            f"Evil Tree discovered: {tier_id.title()} near "
-            f"{spawned.get('location', 'an unrestricted location')}"
-        )
-    elif any(event.get("kind") == "expired" for event in events):
-        _show_activity_gain("The active Evil Tree withered.")
 
-    big_updated, big_events = advance_big_chinchompa_world_clock_pure(
+    big_updated, _big_events = advance_big_chinchompa_world_clock_pure(
         player_data
     )
     player_data.update(big_updated)
-    big_spawned = next(
-        (
-            event
-            for event in big_events
-            if event.get("kind") == "spawned"
-        ),
-        None,
-    )
-    if big_spawned:
-        _show_activity_gain(
-            "Big Chinchompa discovered: "
-            f"{big_spawned.get('location', 'a Hunter area')}"
-        )
-    elif any(event.get("kind") == "resolved" for event in big_events):
-        result = str(
-            (player_data.get("big_chinchompa") or {}).get(
-                "last_result",
-                "The Big Chinchompa event ended.",
-            )
-        )
-        _show_activity_gain(result)
 
-    star_updated, star_events = advance_shooting_star_world_clock_pure(
+    star_updated, _star_events = advance_shooting_star_world_clock_pure(
         player_data
     )
     player_data.update(star_updated)
-    star_spawned = next(
-        (
-            event
-            for event in star_events
-            if event.get("kind") == "spawned"
-        ),
-        None,
-    )
-    if star_spawned:
-        _show_activity_gain(
-            f"Size {int(star_spawned.get('starting_size', 1))} "
-            "Shooting Star discovered at "
-            f"{star_spawned.get('location', 'an unrestricted mine')}"
-        )
-    elif any(
-        event.get("kind") == "sprite_released"
-        for event in star_events
-    ):
-        _show_activity_gain(
-            "A Star sprite has been released; exchange stardust in Activities."
-        )
 
 
 def on_good_answer(before_state=None):
@@ -3917,6 +3888,7 @@ def on_answer_card(self, ease, _old):
     answer_shown = False  # Reset for the next card
     try:
         update_farming_hud_badge(player_data, _open_farming_sheet)
+        update_distraction_hud_badge(player_data, _open_activities_sheet)
     except Exception:
         pass
     _update_review_context_surface()
@@ -3979,6 +3951,7 @@ def _refresh_review_surfaces() -> None:
         _update_review_context_surface()
         ensure_farming_hud_badge()
         update_farming_hud_badge(player_data, _open_farming_sheet)
+        update_distraction_hud_badge(player_data, _open_activities_sheet)
     except Exception:
         pass
 

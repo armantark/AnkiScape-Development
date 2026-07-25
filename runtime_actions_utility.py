@@ -1314,9 +1314,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     ctx.refresh_skill_availability()
 
     if spec.get("no_op"):
-        ctx.show_activity_gain(
-            str(spec.get("status_message", display_name))
-        )
+        # A no-op activity produces nothing by definition and the HUD already
+        # reads "idle at the Bank", so restating it every review is pure noise.
         return True
     outputs = spec.get("outputs", {})
     if isinstance(outputs, dict) and outputs:

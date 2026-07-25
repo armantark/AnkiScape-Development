@@ -719,7 +719,6 @@ UTILITY_ACTIVITY_DATA = {
         "requirements": {},
         "batch_size": 1,
         "no_op": True,
-        "status_message": "Bankstanding — no XP gained.",
         "icon_path": os.path.join(current_dir, "combatitems", "coins.png"),
         "group": "economy",
         "source": "memory-bank/fake-grand-exchange-design.md:61-67",

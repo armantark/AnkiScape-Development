@@ -898,8 +898,10 @@ def _record_action(
 
 
 def _record_cadence_wait(ctx: RuntimeActionContext, skill_id: str, action_id: str) -> None:
+    # A rate-limited route withholding an opportunity is the kernel's normal
+    # tick, not something the player can act on, so it stays silent. The state
+    # is still visible in cadence telemetry and on the hub cards.
     record_cadence_wait_telemetry_pure(ctx.player_data, skill_id, action_id)
-    ctx.show_activity_gain("Cadence — no action opportunity this review")
     ctx.save_player_data()
 
 

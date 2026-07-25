@@ -105,6 +105,23 @@ class TestIntegrationSmoke(unittest.TestCase):
         sys.modules.clear()
         sys.modules.update(self._orig_modules)
 
+    def test_hud_badges_have_no_qt_placeholders_with_matching_signatures(self):
+        # This suite loads the add-on without aqt.qt, so ui.py takes its
+        # HAS_QT-false branch. A new Qt widget class without a placeholder
+        # breaks the import outright rather than failing an assertion.
+        addon = _load_addon_as_package("ankiscape_no_qt_placeholders")
+        ui = addon.ui
+
+        self.assertFalse(ui.HAS_QT)
+        for name in ("FarmingHUDBadge", "DistractionHUDBadge"):
+            placeholder = getattr(ui, name)
+            self.assertTrue(hasattr(placeholder(None), "set_data"), name)
+
+        # The update helpers must stay callable and inert without Qt.
+        self.assertIsNone(ui.update_distraction_hud_badge({}, lambda _id=None: None))
+        self.assertIsNone(ui.hide_distraction_hud_badge())
+        self.assertIsNone(ui._DISTRACTION_BADGE)
+
     def test_hook_flow_and_settings_gating(self):
         addon = _load_addon_as_package()
 
@@ -2086,9 +2103,9 @@ class TestIntegrationSmoke(unittest.TestCase):
             addon.player_data["ge_market_state"]["last_processed_tick"],
             1,
         )
-        self.assertEqual(calls["gains"], [
-            "Bankstanding — no XP gained."
-        ])
+        # Bankstanding produces nothing by definition, so a review of it is
+        # silent; the HUD already reads "idle at the Bank".
+        self.assertEqual(calls["gains"], [])
 
     def test_evil_tree_spawns_on_shared_review_clock_and_undo_restores_world(self):
         addon = _load_addon_as_package("ankiscape_evil_tree_clock_integration")
@@ -2101,8 +2118,10 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.update_review_hud = lambda *_args: None
         addon.update_review_context_action_strip = lambda *_args: None
         addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_distraction_hud_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
-        addon._show_activity_gain = lambda _text: None
+        world_event_gains = []
+        addon._show_activity_gain = world_event_gains.append
         addon.check_achievements = lambda *_args: None
         initial = {
             "inventory": {},
@@ -2134,6 +2153,9 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(
             addon.player_data["shop_market_clock"]["answered_cards"], 20
         )
+        # The spawn is silent. These messages ran after the per-review feedback
+        # context had closed, so each one became its own floating popup.
+        self.assertEqual(world_event_gains, [])
         self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
 
         addon._on_state_did_undo(
@@ -2160,8 +2182,10 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.update_review_hud = lambda *_args: None
         addon.update_review_context_action_strip = lambda *_args: None
         addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_distraction_hud_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
-        addon._show_activity_gain = lambda _text: None
+        world_event_gains = []
+        addon._show_activity_gain = world_event_gains.append
         initial = {
             "inventory": {},
             "shop_market_clock": {
@@ -2190,6 +2214,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             addon.player_data["shop_market_clock"]["answered_cards"],
             60,
         )
+        self.assertEqual(world_event_gains, [])
         self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
 
         addon._on_state_did_undo(
@@ -2216,8 +2241,10 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.update_review_hud = lambda *_args: None
         addon.update_review_context_action_strip = lambda *_args: None
         addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_distraction_hud_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
-        addon._show_activity_gain = lambda _text: None
+        world_event_gains = []
+        addon._show_activity_gain = world_event_gains.append
         initial = {
             "inventory": {},
             "shop_market_clock": {
@@ -2246,6 +2273,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             addon.player_data["shop_market_clock"]["answered_cards"],
             20,
         )
+        self.assertEqual(world_event_gains, [])
         self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
 
         addon._on_state_did_undo(
@@ -2299,10 +2327,9 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["current_utility"], "bankstanding")
         self.assertEqual(len(calls["errors"]), 1)
         self.assertIn("Bankstanding", calls["errors"][0][1])
-        self.assertEqual(
-            calls["gains"],
-            ["Bankstanding — no XP gained."],
-        )
+        # The switch to Bankstanding is still a visible error dialog (asserted
+        # above); only the routine per-review no-op line went silent.
+        self.assertEqual(calls["gains"], [])
         self.assertEqual(
             addon.player_data["shop_market_clock"]["market_tick"],
             2,
@@ -3681,6 +3708,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.update_review_hud = lambda _data, _skill: None
         addon.update_review_context_action_strip = lambda *_args: None
         addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_distraction_hud_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda _text: None
         addon.show_error_message = lambda _title, message: self.fail(message)
@@ -5593,6 +5621,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.update_review_hud = lambda *_args: None
         addon.update_review_context_action_strip = lambda *_args: None
         addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_distraction_hud_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda _text: None
         initial = {
@@ -5633,6 +5662,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.update_review_hud = lambda *_args: None
         addon.update_review_context_action_strip = lambda *_args: None
         addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_distraction_hud_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda _text: None
         initial = {
@@ -6310,6 +6340,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.update_review_hud = lambda *_args: None
         addon.update_review_context_action_strip = lambda *_args: None
         addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_distraction_hud_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda _text: None
         base = {
@@ -6355,6 +6386,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.update_review_hud = lambda *_args: None
         addon.update_review_context_action_strip = lambda *_args: None
         addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_distraction_hud_badge = lambda *_args: None
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda _text: None
         addon.check_achievements = lambda *_args: None

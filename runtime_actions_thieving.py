@@ -960,7 +960,9 @@ def handle_thieving_answer(ctx: RuntimeActionContext) -> bool:
                 "thieving",
                 target,
             )
-            ctx.show_activity_gain("Stall restocking — cadence advanced")
+            # Restock is a routine cadence tick with nothing to act on; the
+            # stun-recovery and failure lines below stay visible because those
+            # are state changes the player would otherwise misread.
             ctx.save_player_data()
             return True
 

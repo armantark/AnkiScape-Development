@@ -7415,7 +7415,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Bank Claims", labels)
         self.assertIn("Wicked hood x1", labels)
         self.assertIn("Ready to claim", labels)
-        self.assertTrue(any("locked reward" in label for label in labels), labels)
+        # Locked claims are not rendered at all: a reward the player cannot
+        # claim is not actionable information on the Bank tab.
+        self.assertFalse(any("locked reward" in label for label in labels), labels)
+        self.assertEqual(
+            [lbl for lbl in dialog.findChildren(QLabel)
+             if lbl.objectName() == "bankClaimsLockedSummary"],
+            [],
+        )
         self.assertIsNotNone(_find_named_widget(dialog, "bankClaimsScrollArea"))
         metadata = _find_named_label(dialog, "bankClaimMetadata")
         self.assertNotIn("palette(mid)", metadata.styleSheet())
@@ -7468,7 +7475,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._claim_calls[-1], ("tutorial_island_starter_kit", None))
 
-    def test_bank_claims_collapse_locked_rows_into_summary(self) -> None:
+    def test_bank_claims_hide_locked_rows_entirely(self) -> None:
         pd = _make_player_data()
         dialog = self._open(pd)
 
@@ -7476,15 +7483,33 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Bank Claims", labels)
         self.assertIn("Tutorial Island starter kit", labels)
         self.assertNotIn("Wicked hood x1", labels)
-        self.assertTrue(any("locked reward" in label for label in labels), labels)
-        summary = _find_named_label(dialog, "bankClaimsLockedSummary")
-        self.assertIn("Wicked hood requires: Rune Mysteries.", summary.text())
-        self.assertNotIn("palette(mid)", summary.styleSheet())
-        self.assertIn("Wicked hood: Rune Mysteries", summary.toolTip())
+        # The old summary named one arbitrary locked reward and counted the
+        # rest as "N more hidden", which the player could not act on.
+        self.assertFalse(any("locked reward" in label for label in labels), labels)
+        self.assertEqual(
+            [lbl for lbl in dialog.findChildren(QLabel)
+             if lbl.objectName() == "bankClaimsLockedSummary"],
+            [],
+        )
         self.assertEqual(
             len([w for w in dialog.findChildren(QWidget) if w.objectName() == "bankClaimRow"]),
             1,
             "only actionable claims should render as individual action rows",
+        )
+
+    def test_bank_claims_locked_only_save_reads_as_caught_up(self) -> None:
+        # Removing the locked summary left this save rendering a bare "Bank
+        # Claims" header with nothing under it.
+        pd = _make_player_data()
+        pd.setdefault("claims", {})["tutorial_island_starter_kit"] = {"claimed": True}
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        self.assertIn("Bank Claims", labels)
+        self.assertIn("All Bank Claims caught up.", labels)
+        self.assertEqual(
+            [w for w in dialog.findChildren(QWidget) if w.objectName() == "bankClaimRow"],
+            [],
         )
 
     def test_bank_claims_inbox_is_capped_above_inventory(self) -> None:
@@ -11076,7 +11101,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             "A configured target must remain possible to uncheck after tickets run out.",
         )
 
-    def test_review_hud_surfaces_active_big_chinchompa(self) -> None:
+    def test_review_hud_omits_big_chinchompa_world_notice(self) -> None:
         from big_chinchompa_logic import (
             advance_big_chinchompa_world_clock_pure,
             default_big_chinchompa_state_pure,
@@ -11095,10 +11120,73 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         hud.set_data(active, "Utility / Activities")
 
+        # The reviewer overlay keeps in-progress session counters only; the
+        # world event now reads on the D&D badge and the Activities strip.
         notice = hud.findChild(QLabel, "reviewWorldNotice")
-        self.assertIn("Big Chinchompa", notice.text())
-        self.assertIn("source min", notice.text())
+        self.assertFalse(notice.isVisible())
+        self.assertNotIn("Big Chinchompa", notice.text())
+        # The projection itself must survive: the subtitle branch reads it.
         self.assertIn("soporith moth", hud.sub_lbl.text())
+        rows = self._ui._world_event_rows(active)
+        self.assertTrue(
+            any(
+                activity_id == "big_chinchompa" and "source min left" in text
+                for activity_id, text in rows
+            ),
+            rows,
+        )
+
+    def test_distraction_badge_route_opens_the_named_activity_card(self) -> None:
+        # The reviewer D&D badge calls this ctx entry; without it the badge
+        # click would land the player on the Skills tab with no card open.
+        from big_chinchompa_logic import (
+            advance_big_chinchompa_world_clock_pure,
+            default_big_chinchompa_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "shop_market_clock": {"answered_cards": 60},
+                "big_chinchompa": default_big_chinchompa_state_pure(),
+            }
+        )
+        active, _ = advance_big_chinchompa_world_clock_pure(pd)
+        pd.update(active)
+        dialog = self._open(pd)
+
+        navigate = self._ui._MAIN_MENU_CTX.get("open_activity")
+        self.assertTrue(callable(navigate))
+        navigate("big_chinchompa")
+        QApplication.processEvents()
+
+        panel = _find_named_widget(dialog, "bigChinchompaPanel")
+        stack = _find_named_widget(dialog, "utilityActivityDetailsStack")
+        self.assertFalse(stack.isHidden())
+        self.assertIs(stack.currentWidget(), panel)
+        strip = _find_named_widget(dialog, "activityWorldEventsStrip")
+        # The open card already shows this event in full, so the strip drops it.
+        self.assertTrue(strip.isHidden())
+
+        # No id means "show me the list", where the strip is at the top. The
+        # panel is rebuilt, so every live detail stack must be hidden.
+        navigate(None)
+        QApplication.processEvents()
+        self.assertEqual(
+            [
+                w for w in dialog.findChildren(QStackedWidget)
+                if w.objectName() == "utilityActivityDetailsStack" and not w.isHidden()
+            ],
+            [],
+        )
+        self.assertTrue(
+            any(
+                "Big Chinchompa" in lbl.text()
+                for lbl in dialog.findChildren(QLabel)
+                if lbl.objectName() == "activityWorldEventsBody"
+            ),
+            "the hub list must keep the event on its world-events strip",
+        )
 
     def test_utility_rows_use_activity_icon_contract(self) -> None:
         utility_tree = self._open_utility(self.dialog)
@@ -11549,12 +11637,35 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd = _make_player_data()
         pd["current_utility"] = "gather_flax"
         hud.set_data(pd, "Utility / Activities")
+        # The title carries the surface, so a "(no XP)" tail only restated it.
         self.assertEqual(hud.title_lbl.text(), "Utilities")
-        self.assertIn("no XP", hud.sub_lbl.text())
+        self.assertEqual(hud.sub_lbl.text(), "Gather flax")
 
         pd["current_utility"] = "livid_farm"
         hud.set_data(pd, "Utility / Activities")
         self.assertEqual(hud.title_lbl.text(), "Activities")
+
+        # Bankstanding keeps its qualifier: "deliberately not training" is not
+        # implied by the title.
+        pd["current_utility"] = "bankstanding"
+        hud.set_data(pd, "Utility / Activities")
+        self.assertEqual(hud.sub_lbl.text(), "Bankstanding • idle at the Bank")
+
+    def test_hud_names_the_landmark_it_is_bound_to(self) -> None:
+        # Landmarks live outside UTILITY_ACTIVITY_DATA, so the spec lookup is
+        # empty and the subtitle used to read the literal "Material prep".
+        hud = self._ui.ReviewHUD(None)
+        pd = _make_player_data()
+        for activity_key, expected in (
+            ("stronghold_of_security", "Stronghold of Security"),
+            ("knight_waves", "Knight Waves Training Ground"),
+            ("mage_arena", "Mage Arena"),
+            ("mage_arena_attune:saradomin", "Mage Arena attunement"),
+        ):
+            pd["current_utility"] = activity_key
+            hud.set_data(pd, "Utility / Activities")
+            self.assertEqual(hud.sub_lbl.text(), expected)
+            self.assertNotIn("Material prep", hud.sub_lbl.text())
 
     def test_hud_carries_no_grand_exchange_notice(self) -> None:
         # The collect reminder now lives on the Grand Exchange tab as a
