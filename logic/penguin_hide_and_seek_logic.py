@@ -6,6 +6,7 @@ from typing import Any, Mapping
 
 from ..data.penguin_hide_and_seek_data import (
     PENGUIN_COINS_PER_POINT,
+    PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID,
     PENGUIN_ONE_POINT_SPAWNS,
     PENGUIN_POINT_CAP,
     PENGUIN_POLAR_BEAR_LOCATIONS,
@@ -54,13 +55,21 @@ def _quest_started(player_data: Mapping[str, Any], quest_id: str) -> bool:
 
 def _has_ring_of_visibility(player_data: Mapping[str, Any]) -> bool:
     inventory = player_data.get("inventory")
+    carried_by_target = player_data.get("carried_inventory")
+    carried = (
+        carried_by_target.get(PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID)
+        if isinstance(carried_by_target, Mapping)
+        else None
+    )
     equipment = player_data.get("equipment")
     return bool(
-        (isinstance(inventory, Mapping) and _int(inventory.get("Ring of visibility")) > 0)
-        or (
-            isinstance(equipment, Mapping)
-            and "Ring of visibility" in {str(item) for item in equipment.values()}
-        )
+        isinstance(inventory, Mapping)
+        and isinstance(carried, Mapping)
+        and _int(inventory.get("Ring of visibility")) > 0
+        and _int(carried.get("Ring of visibility")) > 0
+    ) or bool(
+        isinstance(equipment, Mapping)
+        and "Ring of visibility" in {str(item) for item in equipment.values()}
     )
 
 

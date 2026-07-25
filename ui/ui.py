@@ -9142,12 +9142,12 @@ def show_main_menu(
             spawn_id = str(penguin_roster.currentData() or "")
             if not spawn_id:
                 return
-            if not _run_penguin_command("select_spy", {"spawn_id": spawn_id}):
-                return
             if on_set_utility is not None:
                 if not _request_utility_selection(PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID):
                     return
                 tree.clearSelection()
+            if not _run_penguin_command("select_spy", {"spawn_id": spawn_id}):
+                return
             _refresh_penguin_panel()
 
         penguin_roster.currentIndexChanged.connect(

@@ -5131,6 +5131,81 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
+    def test_penguin_selection_is_a_direct_undoable_action(self):
+        addon = _load_addon_as_package(
+            "ankiscape_penguin_selection_integration"
+        )
+        penguin_logic = sys.modules[
+            f"{addon.__name__}.logic.penguin_hide_and_seek_logic"
+        ]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.current_skill = "Activities"
+        initial = {
+            "inventory": {},
+            "equipment": {},
+            "quests": {},
+            "shop_market_clock": {"answered_cards": 0},
+            "current_utility": "penguin_hide_and_seek",
+            "penguin_hide_and_seek": penguin_logic.default_penguin_state_pure(),
+            "completed_achievements": [],
+            "smithing_level": 1,
+        }
+        addon.player_data = copy.deepcopy(initial)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_context_action_strip = lambda *_args: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_distraction_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda _message: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.check_achievements = lambda *_args: None
+
+        spawn_id = penguin_logic.penguin_roster_pure(initial)[0]["id"]
+        addon._on_main_menu()
+        result = captured["on_penguin_command"](
+            "select_spy",
+            {"spawn_id": spawn_id},
+        )
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(
+            addon.player_data["penguin_hide_and_seek"]["selected_id"],
+            spawn_id,
+        )
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+        selected = copy.deepcopy(addon.player_data)
+
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        addon.on_answer_card(
+            _FakeReviewer(),
+            4,
+            lambda _self, _ease: "answered",
+        )
+        self.assertIn(
+            spawn_id,
+            addon.player_data["penguin_hide_and_seek"]["spotted_ids"],
+        )
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="Answer Card")
+        )
+        self.assertEqual(addon.player_data, selected)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
     def test_penguin_point_redemption_is_a_direct_undoable_action(self):
         addon = _load_addon_as_package(
             "ankiscape_penguin_redemption_integration"

@@ -63,7 +63,7 @@ class PenguinHideAndSeekPureTest(unittest.TestCase):
         self.assertNotEqual([row["id"] for row in first], [row["id"] for row in second])
         self.assertEqual(sum(row["points"] for row in second), 10)
 
-    def test_quest_upgrades_add_source_agents_and_two_point_values(self):
+    def test_quest_upgrades_require_the_visibility_ring_carried_or_equipped(self):
         player = _player()
         player["quests"] = {
             "cold_war": {"completed": True},
@@ -72,12 +72,35 @@ class PenguinHideAndSeekPureTest(unittest.TestCase):
             "desert_treasure": {"started": True},
         }
         player["inventory"]["Ring of visibility"] = 1
-        roster = penguin_roster_pure(player)
-        self.assertEqual(len(roster), 12)
-        self.assertEqual(sum(row["points"] for row in roster), 19)
-        self.assertEqual(sum(row["points"] == 2 for row in roster), 5)
-        self.assertTrue(any(row["kind"] == "polar_bear" for row in roster))
-        self.assertTrue(any(row["kind"] == "invisible" for row in roster))
+
+        bank_only = penguin_roster_pure(player)
+        self.assertEqual(len(bank_only), 11)
+        self.assertFalse(any(row["kind"] == "invisible" for row in bank_only))
+
+        player["carried_inventory"] = {
+            "another_target": {"Ring of visibility": 1}
+        }
+        wrong_pack = penguin_roster_pure(player)
+        self.assertFalse(any(row["kind"] == "invisible" for row in wrong_pack))
+
+        player["carried_inventory"] = {
+            "penguin_hide_and_seek": {"Ring of visibility": 1}
+        }
+        carried = penguin_roster_pure(player)
+        self.assertEqual(len(carried), 12)
+        self.assertEqual(sum(row["points"] for row in carried), 19)
+        self.assertEqual(sum(row["points"] == 2 for row in carried), 5)
+        self.assertTrue(any(row["kind"] == "polar_bear" for row in carried))
+        self.assertTrue(any(row["kind"] == "invisible" for row in carried))
+
+        player["inventory"].pop("Ring of visibility")
+        stale_pack = penguin_roster_pure(player)
+        self.assertFalse(any(row["kind"] == "invisible" for row in stale_pack))
+
+        player["carried_inventory"] = {}
+        player["equipment"]["ring"] = "Ring of visibility"
+        equipped = penguin_roster_pure(player)
+        self.assertTrue(any(row["kind"] == "invisible" for row in equipped))
 
     def test_spy_is_selected_then_resolves_once_and_week_reset_clears_progress(self):
         player = _player()

@@ -1899,17 +1899,16 @@ def _on_main_menu(
                 "ok": False,
                 "message": str(info.get("reason", "Penguin action failed.")),
             }
-        if action_id != "select_spy":
-            try:
-                mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-            except (AttributeError, RuntimeError):
-                return {
-                    "ok": False,
-                    "message": "Anki could not create an undo entry.",
-                }
-            _DIRECT_ACTION_UNDO_STACK.append(before)
-            if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-                del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+        try:
+            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+        except (AttributeError, RuntimeError):
+            return {
+                "ok": False,
+                "message": "Anki could not create an undo entry.",
+            }
+        _DIRECT_ACTION_UNDO_STACK.append(before)
+        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
         player_data.clear()
         player_data.update(updated)
         if action_id == "redeem_xp":

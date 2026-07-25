@@ -9342,6 +9342,110 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(self._utility_calls[-1], "sorceress_garden")
         self.assertEqual(primary.text(), "Selected for reviews")
 
+    def test_penguin_card_keeps_bank_only_visibility_ring_locked(self) -> None:
+        from ankiscape.logic.penguin_hide_and_seek_logic import default_penguin_state_pure
+
+        pd = _make_player_data()
+        pd["shop_market_clock"] = {"answered_cards": 0}
+        pd["penguin_hide_and_seek"] = default_penguin_state_pure()
+        pd["quests"] = {
+            "some_like_it_cold": {"completed": True},
+            "desert_treasure": {"started": True},
+        }
+        pd["inventory"]["Ring of visibility"] = 1
+
+        bank_dialog = self._open(pd)
+        bank_tree = self._open_activities(bank_dialog)
+        bank_tree.setCurrentItem(
+            _utility_row(bank_tree, "penguin_hide_and_seek")
+        )
+        QApplication.processEvents()
+        bank_panel = _find_named_widget(bank_dialog, "penguinHideAndSeekPanel")
+        bank_roster = bank_panel.findChild(QComboBox, "penguinHideAndSeekRoster")
+        bank_detail = _find_named_label(bank_dialog, "penguinHideAndSeekDetail")
+        self.assertEqual(bank_roster.count(), 10)
+        self.assertIn("Invisible penguin locked", bank_detail.text())
+
+        pd["carried_inventory"] = {
+            "penguin_hide_and_seek": {"Ring of visibility": 1}
+        }
+        carried_dialog = self._open(pd)
+        carried_tree = self._open_activities(carried_dialog)
+        carried_tree.setCurrentItem(
+            _utility_row(carried_tree, "penguin_hide_and_seek")
+        )
+        QApplication.processEvents()
+        carried_panel = _find_named_widget(
+            carried_dialog,
+            "penguinHideAndSeekPanel",
+        )
+        carried_roster = carried_panel.findChild(
+            QComboBox,
+            "penguinHideAndSeekRoster",
+        )
+        carried_detail = _find_named_label(
+            carried_dialog,
+            "penguinHideAndSeekDetail",
+        )
+        self.assertEqual(carried_roster.count(), 11)
+        self.assertIn("Invisible penguin active", carried_detail.text())
+
+        pd["carried_inventory"] = {}
+        pd["equipment"]["ring"] = "Ring of visibility"
+        equipped_dialog = self._open(pd)
+        equipped_tree = self._open_activities(equipped_dialog)
+        equipped_tree.setCurrentItem(
+            _utility_row(equipped_tree, "penguin_hide_and_seek")
+        )
+        QApplication.processEvents()
+        equipped_panel = _find_named_widget(
+            equipped_dialog,
+            "penguinHideAndSeekPanel",
+        )
+        equipped_roster = equipped_panel.findChild(
+            QComboBox,
+            "penguinHideAndSeekRoster",
+        )
+        equipped_detail = _find_named_label(
+            equipped_dialog,
+            "penguinHideAndSeekDetail",
+        )
+        self.assertEqual(equipped_roster.count(), 11)
+        self.assertIn("Invisible penguin active", equipped_detail.text())
+
+    def test_penguin_selection_cancelled_by_activity_conflict_is_not_saved(self) -> None:
+        from ankiscape.logic.gnome_ball_logic import enter_gnome_ball_pure
+
+        pd = _make_player_data()
+        pd.update({"equipment": {}, "activity_session": {"active_id": ""}})
+        pd, ok, _info = enter_gnome_ball_pure(pd)
+        self.assertTrue(ok)
+        dialog = self._open(pd)
+        activity_tree = self._open_activities(dialog)
+        activity_tree.setCurrentItem(
+            _utility_row(activity_tree, "penguin_hide_and_seek")
+        )
+        QApplication.processEvents()
+
+        panel = _find_named_widget(dialog, "penguinHideAndSeekPanel")
+        primary = _find_named_button(dialog, "penguinHideAndSeekPrimaryButton")
+        calls_before = len(self._penguin_calls)
+        with patch.object(
+            QMessageBox,
+            "question",
+            return_value=QMessageBox.StandardButton.No,
+        ):
+            primary.click()
+        QApplication.processEvents()
+
+        self.assertEqual(len(self._penguin_calls), calls_before)
+        self.assertEqual(pd["current_utility"], "gnome_ball")
+        self.assertTrue(pd["gnome_ball"])
+        self.assertEqual(
+            pd.get("penguin_hide_and_seek", {}).get("selected_id", ""),
+            "",
+        )
+
     def test_penguin_card_selects_spy_and_redeems_points_without_scroll(self) -> None:
         from ankiscape.logic.penguin_hide_and_seek_logic import default_penguin_state_pure
 
