@@ -113,6 +113,7 @@ from ..data.sorceress_garden_data import (
 from ..data.penguin_hide_and_seek_data import (
     PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID,
     penguin_hide_and_seek_activity_as_dict,
+    penguin_hide_and_seek_equipment_data_as_dict,
 )
 
 from ..data.vinesweeper_data import (
@@ -1438,6 +1439,7 @@ EQUIPMENT_DATA.update(castle_wars_equipment_data_as_dict())
 EQUIPMENT_DATA.update(pest_control_equipment_data_as_dict())
 EQUIPMENT_DATA.update(barbarian_assault_equipment_data_as_dict())
 EQUIPMENT_DATA.update(stronghold_player_safety_equipment_data_as_dict())
+EQUIPMENT_DATA.update(penguin_hide_and_seek_equipment_data_as_dict())
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict(EQUIPMENT_DATA)
 FIST_OF_GUTHIX_EXTRA_ITEM_DATA = fist_of_guthix_extra_items_as_dict()
 COURT_CASES_EXTRA_ITEM_DATA = court_cases_extra_items_as_dict()

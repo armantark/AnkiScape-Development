@@ -3,6 +3,8 @@ import unittest
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.logic.cadence_coverage import cadence_coverage_rows_pure
 from ankiscape.core.constants import UTILITY_ACTIVITY_DATA
+from ankiscape.core.constants import EQUIPMENT_DATA
+from ankiscape.logic_pure.logic_pure_equipment import equip_item_pure
 from ankiscape.logic.penguin_hide_and_seek_logic import (
     apply_penguin_command_pure,
     apply_penguin_review_pure,
@@ -97,8 +99,24 @@ class PenguinHideAndSeekPureTest(unittest.TestCase):
         stale_pack = penguin_roster_pure(player)
         self.assertFalse(any(row["kind"] == "invisible" for row in stale_pack))
 
+        # Drive the equipped branch through the REAL equip path rather than
+        # assigning the slot by hand. Hand-writing it is what let the invisible
+        # penguin ship as an inert row: the ring had no equipment row at all, so
+        # no player could ever reach the state this test was asserting.
         player["carried_inventory"] = {}
-        player["equipment"]["ring"] = "Ring of visibility"
+        player["inventory"]["Ring of visibility"] = 1
+        inventory, equipment, equipped_ok = equip_item_pure(
+            "Ring of visibility",
+            player["inventory"],
+            player.get("equipment", {}) or {},
+            EQUIPMENT_DATA,
+        )
+        self.assertTrue(
+            equipped_ok,
+            "the ring must be equippable, or the gate's equipped branch is dead",
+        )
+        self.assertEqual(equipment.get("ring"), "Ring of visibility")
+        player["inventory"], player["equipment"] = inventory, equipment
         equipped = penguin_roster_pure(player)
         self.assertTrue(any(row["kind"] == "invisible" for row in equipped))
 

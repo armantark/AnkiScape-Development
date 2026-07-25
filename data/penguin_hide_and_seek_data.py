@@ -69,3 +69,44 @@ def penguin_hide_and_seek_activity_as_dict() -> dict[str, dict[str, Any]]:
             "source": PENGUIN_HIDE_AND_SEEK_SOURCE,
         }
     }
+
+
+def penguin_hide_and_seek_equipment_data_as_dict() -> "dict[str, Any]":
+    """Register the Ring of visibility as wearable equipment.
+
+    Desert Treasure already grants the ring (`quest_catalog_generated.py`, item
+    reward of `desert_treasure`), and the settled loop gates the three-point
+    invisible penguin on a "carried or equipped" ring. But the generated
+    equipment table has no row for it, so the equipped half of that gate could
+    never be satisfied and the three-point penguin was an inert row.
+
+    The generated table comes from the 2011Scape items.yml equipment blocks and
+    must not be hand-edited, so the ring joins through the same per-feature seam
+    that Barrows, Fish Flingers, Trouble Brewing and Castle Wars already use.
+
+    The ring carries no combat bonuses. Its whole function in the period is to
+    reveal what is otherwise invisible, which is exactly what the penguin gate
+    asks of it.
+    """
+    from .equipment_data import EquipmentBonuses, EquipmentItem
+
+    return {
+        "Ring of visibility": EquipmentItem(
+            item_name="Ring of visibility",
+            slot="ring",
+            combat_skill=None,
+            required_level=1,
+            two_handed=False,
+            equipment_type="ring",
+            bonuses=EquipmentBonuses(),
+            attack_speed=4,
+            source_item_id=4657,
+            source=(
+                "https://runescape.wiki/w/Desert_Treasure?oldid=6563639"
+                "; Desert Treasure item reward, worn in the ring slot"
+            ),
+            source_status="quest reward equipment row",
+            skill_requirements=(),
+            weapon_type=-1,
+        ),
+    }

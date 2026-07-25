@@ -2028,6 +2028,11 @@ def _on_main_menu(
             equipment_data=EQUIPMENT_DATA,
         )
         if not ok:
+            # Put the random state back. The rejected call already drew from the
+            # generator, so returning without this leaves the sequence advanced
+            # by a refusal the player never saw — the same restore the sibling
+            # handlers do on their failure paths.
+            random.setstate(before["random_state"])
             return {
                 "ok": False,
                 "message": str(info.get("reason", "Phoenix Lair action failed.")),
