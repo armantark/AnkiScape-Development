@@ -1300,7 +1300,42 @@ Labels: `WAIT: DARKAN`, after each `DEEP GRILL`.
 
 ## Cross-system program queue
 
-### Read the caches properly: CS2 disassembler plus enum/struct/interface search
+### Fancy and fighter boots have no art — needs owner approval
+
+Labels: `IMPLEMENT`, blocked on the owner, 2026-07-25.
+
+Reported in the playtest as "no icon for fancy boots (maybe not fighters boots
+either)". Both boots are now registered and equippable, so they leave the bank's
+"Other" group, but that is a different fix: **no sprite exists on disk.**
+`STRONGHOLD_OF_SECURITY_ITEM_IMAGES` is empty and `EXTRA_ITEM_IMAGES["Fancy boots"]`
+resolves to `None`, so the reported symptom is unchanged in the running add-on.
+
+Art is not invented here. The fetch pipeline under `tools/` obtains period sprites,
+and the result needs the owner's eye before it ships, so this stays blocked rather
+than guessed.
+
+The coverage test that should have caught the gap was itself fixed in the same
+pass — an asset-existence test that misses a missing icon is the more important
+defect, and worth a look for other families it may still be blind to.
+
+### CS2 disassembler shipped 2026-07-25; enums, structs and interfaces still unread
+
+Labels: `IMPLEMENT` for the remaining tiers.
+
+The disassembler exists at `tools/OpenRs2Cs2Disassembler.java` and paid for itself
+immediately by recovering the GE price arithmetic (see
+`source-audits/ge-offer-price-controls-2026-07-24.md`). Modes: `count`,
+`dump <ids>`, `scan <opNameSubstr|*> [operand|lo-hi]`, `grepstr <needle>`.
+
+**Caveat that will bite the next user:** Jagex renumbered the CS2 opcode table in
+every build after 727, so 727 is the only build on disk that decodes symbolically.
+Cross-revision confirmation has to be structural — byte length plus constant
+offsets — which is how script 4112 was shown stable across all six pre-EOC builds.
+
+Still unread, and probably higher aggregate ledger value than the disassembler
+was: **enums, structs and their params**, then **interface definitions**. The
+original card below has the reasoning and the honest ceiling — none of this reaches
+server-side mechanics, which is most of what sits `source_blocked`.
 
 Labels: `IMPLEMENT`, queued 2026-07-25 after the GE price-button sourcing failed.
 
@@ -1344,7 +1379,32 @@ Suggested order, highest aggregate value first:
 4. Re-walk the parity ledger for items marked blocked on *client-side* grounds
    and clear the ones this now reaches. Leave server-side blocks alone.
 
-### Whole-save deep-copy convention — per-review cost sweep
+### Whole-save deep-copy convention — SWEPT 2026-07-25, 44 sites deliberately left
+
+Labels: `IMPLEMENT` closed for the provable sites; the remainder is not backlog,
+it is a deliberate stop.
+
+Shipped in `c041005e`. 111 of the 155 sites converted to a shallow top-level copy,
+each gated by a per-module immutability test that also passes against the
+deep-copying code, so the gate is a check rather than a restatement. Measured on
+the owner's real save: a converted helper goes from ~1.11 ms to ~0.004 ms, and the
+four HUD world projections together went 14.5 ms to 0.055 ms per refresh.
+
+**`shop_logic.ensure_shop_state_pure` stays deep and its comment says so.** Its
+vendor and buy paths mutate `data["inventory"]` and nested stock rows in place, so
+the shallow copy aliased them to the live save; `tests/test_shop_logic.py` caught
+it within seconds of the edit. That is the model for the remaining 44: anything
+whose consumers cannot be proven safe by reading keeps its deep copy.
+
+Two known limits of the gate, both recorded rather than papered over: it snapshots
+only mapping arguments it is handed (keyword mappings now included), and it detects
+leaks by inequality, so a write storing an already-equal value is invisible.
+`tests/test_write_through_probe.py` closes the second hole for the
+highest-consequence helpers by lending them containers that refuse mutation
+outright. Extend that probe rather than trusting the equality gate when converting
+anything further.
+
+The original card follows, kept for the reasoning.
 
 Labels: `IMPLEMENT`, queued 2026-07-24 out of the UI/performance pass.
 
@@ -1382,7 +1442,28 @@ keeps its deep copy.
 - Do not treat a passing suite as proof of aliasing safety; the existing tests
   mostly assert returned values, not input immutability.
 
-### Equipment-condition scan inside the Fist of Guthix view
+### Equipment-condition scan — FIXED 2026-07-25, and it hid a data-loss bug
+
+Labels: closed. Shipped in `c041005e`.
+
+Indexing the equipment-condition holders took `fist_of_guthix_view_pure` from
+3.24 ms to 0.02 ms, matching its three sibling projections. The same index took
+`sanitize_equipment_instance_state_pure` 9.67 → 0.077 ms,
+`advance_equipped_condition_pure` 9.63 → 0.086 ms, and
+`sync_equipment_instances_pure` 19.41 → 0.150 ms.
+
+**The scan was also losing data.** A real defect, reproduced on the pre-change
+code and confirmed fixed after — found incidentally while making it fast, which is
+the argument for treating "inexplicably slow" as a correctness smell rather than
+only a performance one.
+
+One consequence to remember: `sanitize_equipment_instance_state_pure` used to deep
+copy the whole save, which incidentally re-isolated every nested value for the
+combat paths that call it via `data.update(sanitize(...))`. That safety net is
+gone, replaced by a targeted copy helper covering the combat hot set. If a
+combat-state aliasing bug ever surfaces, start there.
+
+The original card follows, kept for the reasoning.
 
 Labels: `IMPLEMENT`, queued 2026-07-24 out of the UI/performance pass.
 

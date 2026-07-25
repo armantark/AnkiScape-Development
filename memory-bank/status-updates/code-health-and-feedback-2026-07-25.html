@@ -1,0 +1,278 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overnight: speed, playtest fixes, and a cache dig — 2026-07-25</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<style>
+  :root{
+    --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040;
+    --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --accent-glow:rgba(79,140,255,.15);
+    --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px;
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+    font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:40px 22px 80px}
+  .badge{display:inline-block;font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--accent);background:var(--accent-glow);
+    border:1px solid rgba(79,140,255,.3);padding:5px 11px;border-radius:99px}
+  h1{font-size:2.05rem;font-weight:700;margin:16px 0 8px;letter-spacing:-.02em;line-height:1.15}
+  .sub{color:var(--text-dim);font-size:.95rem;max-width:70ch;margin:0}
+  h2{font-size:1.12rem;font-weight:600;margin:44px 0 14px;display:flex;align-items:center;gap:10px}
+  h2::after{content:"";flex:1;height:1px;background:var(--border)}
+  .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;margin-top:22px}
+  .metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+  .metric .k{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim)}
+  .metric .v{font-family:var(--mono);font-size:1.42rem;font-weight:600;margin-top:6px;color:var(--green)}
+  .metric .v.neutral{color:var(--text)}
+  .metric .was{font-family:var(--mono);font-size:.68rem;color:var(--text-dim);margin-top:2px}
+  .bars{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px}
+  .bar-row{display:grid;grid-template-columns:minmax(120px,180px) 1fr auto;gap:12px;align-items:center;
+    padding:7px 0;font-size:.85rem}
+  .bar-row+.bar-row{border-top:1px solid var(--border)}
+  .track{background:var(--surface-2);border-radius:6px;height:20px;position:relative;overflow:hidden}
+  .fill{position:absolute;inset:0 auto 0 0;border-radius:6px;
+    background:linear-gradient(90deg,rgba(255,92,92,.85),rgba(255,92,92,.55))}
+  .fill.after{background:linear-gradient(90deg,rgba(74,222,128,.9),rgba(74,222,128,.5))}
+  .num{font-family:var(--mono);font-size:.78rem;color:var(--text-dim);white-space:nowrap}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:16px 18px;transition:transform .16s,box-shadow .16s,border-color .16s}
+  .card:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.4);border-color:#39415a}
+  .card h3{margin:0 0 4px;font-size:.96rem;font-weight:600;display:flex;gap:8px;align-items:baseline}
+  .tag{font-family:var(--mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:2px 7px;border-radius:5px;background:var(--surface-2);white-space:nowrap}
+  .t-done{color:var(--green)}.t-partial{color:var(--amber)}.t-open{color:var(--red)}.t-note{color:var(--purple)}
+  .card p{margin:8px 0 0;font-size:.86rem;color:var(--text-dim)}
+  .files{margin-top:10px;display:flex;flex-wrap:wrap;gap:5px}
+  .file{font-family:var(--mono);font-size:.63rem;background:var(--surface-2);color:var(--text-dim);
+    padding:3px 7px;border-radius:5px}
+  .ba{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .pane{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px}
+  .pane .lbl{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--text-dim);margin-bottom:7px}
+  .hud{background:rgba(20,20,20,.92);border:1px solid rgba(255,255,255,.13);border-radius:8px;padding:8px 9px}
+  .hud .ttl{font-size:.7rem;font-weight:600}
+  .hud .prog{height:7px;background:rgba(255,255,255,.14);border-radius:4px;margin:5px 0;overflow:hidden}
+  .hud .prog i{display:block;height:100%;width:36%;background:var(--accent);border-radius:4px}
+  .hud .line{font-size:.6rem;color:#b9c2d4;margin-top:2px}
+  .hud .line.ev{color:var(--amber)}
+  .hud .line.ge{color:var(--green)}
+  pre{font-family:var(--mono);font-size:.72rem;background:var(--bg);border:1px solid var(--border);
+    border-radius:8px;padding:12px;overflow-x:auto;margin:12px 0 0;line-height:1.55}
+  .cmt{color:var(--text-dim)}.kw{color:var(--purple)}.lit{color:var(--amber)}
+  table{width:100%;border-collapse:collapse;font-size:.83rem;margin-top:12px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border)}
+  th{font-family:var(--mono);font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim)}
+  td.m{font-family:var(--mono);font-size:.78rem}
+  .scroll{overflow-x:auto}
+  details{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:13px 16px;margin-top:12px}
+  details+details{margin-top:8px}
+  summary{cursor:pointer;font-weight:600;font-size:.9rem;list-style:none;display:flex;gap:9px;align-items:center}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"▸";color:var(--accent);font-size:.8rem;transition:transform .15s}
+  details[open] summary::before{transform:rotate(90deg)}
+  details .body{margin-top:11px;font-size:.86rem;color:var(--text-dim)}
+  .callout{border-left:3px solid var(--amber);background:var(--surface);border-radius:0 var(--radius) var(--radius) 0;
+    padding:14px 18px;margin-top:16px}
+  .callout.q{border-left-color:var(--purple)}
+  .callout h4{margin:0 0 6px;font-size:.9rem;font-weight:600}
+  .callout p{margin:0;font-size:.86rem;color:var(--text-dim)}
+  code{font-family:var(--mono);font-size:.83em;background:var(--surface-2);padding:1.5px 5px;border-radius:4px}
+  .steps{counter-reset:s;list-style:none;padding:0;margin:14px 0 0}
+  .steps li{counter-increment:s;display:grid;grid-template-columns:26px 1fr;gap:11px;
+    padding:9px 0;font-size:.87rem;border-bottom:1px solid var(--border)}
+  .steps li:last-child{border-bottom:0}
+  .steps li::before{content:counter(s);font-family:var(--mono);font-size:.7rem;font-weight:600;
+    background:var(--accent-glow);color:var(--accent);border:1px solid rgba(79,140,255,.3);
+    border-radius:6px;height:23px;display:grid;place-items:center}
+  footer{margin-top:50px;padding-top:18px;border-top:1px solid var(--border);
+    color:var(--text-dim);font-size:.78rem;font-family:var(--mono)}
+  @media(max-width:640px){.ba{grid-template-columns:1fr}h1{font-size:1.6rem}}
+</style>
+
+<div class="wrap">
+
+  <span class="badge">Overnight · merged to main</span>
+  <h1>It's fast now, your playtest notes are in, and the Grand&nbsp;Exchange got its arithmetic from Jagex</h1>
+  <p class="sub">Two stacked passes plus one cache dig, all built in an isolated worktree so the copy you were studying on never moved. Eleven commits, both test lanes green, merged to <code>main</code> as <code>c041005e</code>. Restart Anki to pick it all up.</p>
+
+  <div class="metrics">
+    <div class="metric"><div class="k">Menu open</div><div class="v">~40 ms</div><div class="was">was 1183–1227 ms</div></div>
+    <div class="metric"><div class="k">Widgets on open</div><div class="v">581</div><div class="was">was 3,746</div></div>
+    <div class="metric"><div class="k">HUD refresh</div><div class="v">0.055 ms</div><div class="was">was 14.5 ms</div></div>
+    <div class="metric"><div class="k">Per card flip</div><div class="v">8.3 ms</div><div class="was">was ~94 ms</div></div>
+    <div class="metric"><div class="k">Tests</div><div class="v neutral">2,548</div><div class="was">was 2,477 · both lanes green</div></div>
+    <div class="metric"><div class="k">Deepcopy sites cut</div><div class="v neutral">111 / 155</div><div class="was">1 reverted by a test</div></div>
+  </div>
+
+  <h2>Where the time actually went</h2>
+  <div class="bars">
+    <div class="bar-row"><span>Shop tab populate</span><span class="track"><i class="fill" style="width:100%"></i></span><span class="num">641 ms → 8.8 ms</span></div>
+    <div class="bar-row"><span>Quests tab populate</span><span class="track"><i class="fill" style="width:52%"></i></span><span class="num">333 ms → deferred</span></div>
+    <div class="bar-row"><span>Achievements tab</span><span class="track"><i class="fill" style="width:33%"></i></span><span class="num">213 ms → deferred</span></div>
+    <div class="bar-row"><span>Skills tab (the visible one)</span><span class="track"><i class="fill after" style="width:5%"></i></span><span class="num">28 ms</span></div>
+    <div class="bar-row"><span>equipment condition sync</span><span class="track"><i class="fill" style="width:100%"></i></span><span class="num">19.4 ms → 0.15 ms</span></div>
+    <div class="bar-row"><span>Fist of Guthix projection</span><span class="track"><i class="fill" style="width:17%"></i></span><span class="num">3.24 ms → 0.02 ms</span></div>
+  </div>
+  <p class="sub" style="margin-top:12px">The 19,600-line <code>show_main_menu</code> was a red herring — 17,326 of those lines were nested <code>def</code>s that only got bound. The cost was <em>data volume</em>: Shop called <code>shop_view_model_pure</code> once per each of 273 shops just to render an "N live · N locked" row suffix, which meant <strong>460,594 <code>copy.deepcopy</code> calls</strong> for one tab you can't even see on open.</p>
+
+  <h2>Your ten notes</h2>
+  <div class="grid">
+
+    <div class="card">
+      <h3><span class="tag t-done">done</span> Menu load + lazy loading</h3>
+      <p>The three expensive tabs build on first show. Cross-tab refreshes aimed at an unbuilt tab are safe no-ops that still leave the tab correct when opened later — tested explicitly, since that was the one way this could silently lose state.</p>
+      <div class="files"><span class="file">ui_tab_shop.py</span><span class="file">ui_tab_quests.py</span><span class="file">ui_tab_achievements.py</span><span class="file">ui_menu_ctx.py</span></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="tag t-done">done</span> Activities pagination was never pagination</h3>
+      <p>It was a four-way category switcher that hid the other three and force-expanded the visible one, with both scrollbars off and a fixed height swinging 264→894 px. At your window size <strong>13 of 20 minigames sat off-screen with no way to scroll to them</strong>. Now it scrolls, categories collapse, and expand state persists.</p>
+      <div class="files"><span class="file">ui.py</span></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="tag t-done">done</span> World events off the XP bar</h3>
+      <p>Evil Tree, Shooting Star <em>and</em> Big Chinchompa left the reviewer for a strip at the top of the Activities page. The floating popups for them are gone too. A small badge under the Farming one signals when something is live — your "D&amp;D favourites" idea, since you still wanted to know.</p>
+      <div class="ba">
+        <div class="pane"><div class="lbl">before</div>
+          <div class="hud"><div class="ttl">Fishing — Lv 19</div><div class="prog"><i></i></div>
+            <div class="line">Catch mackerel/cod/bass</div>
+            <div class="line ev">Evil Tree · 34 reviews left</div>
+            <div class="line ev">Star sprite · 12 reviews left</div>
+            <div class="line ge">Grand Exchange proceeds ready</div></div></div>
+        <div class="pane"><div class="lbl">after</div>
+          <div class="hud"><div class="ttl">Fishing — Lv 19</div><div class="prog"><i></i></div>
+            <div class="line">Catch mackerel/cod/bass</div></div>
+          <p style="font-size:.7rem;margin-top:8px;color:var(--text-dim)">All four lines moved to where you can act on them.</p></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="tag t-done">done</span> Laggy animations, even outside AnkiScape</h3>
+      <p>Not the config write (1.64 ms, 1.7% of the cost). It was ~94 ms of blocking Python per card flip stalling the one Qt event loop that drives <em>every</em> animation in the process. Two causes: whole-save deep copies, and the overlay refreshing five times per card instead of twice.</p>
+      <div class="files"><span class="file">39 × *_logic.py</span><span class="file">__init__.py</span></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="tag t-done">done</span> Floating bubbles: too fast, behind a black box</h3>
+      <p>Two bugs. The position math treated the HUD anchor as the bubble's <em>top</em>, so a 29 px bubble started with 15 px buried inside the strip — at t=0, when it's fully opaque. And the popup was child index 0 while the HUD called <code>raise_()</code> every card. Now it holds at full opacity, then fades.</p>
+      <div class="files"><span class="file">ui.py</span></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="tag t-done">done</span> Stronghold showed nothing</h3>
+      <p>Worse than "no progress bar" — your screenshot showed the HUD reading <code>Material prep · activity (no XP)</code> <em>while you were in the Stronghold</em>. Landmarks live outside <code>UTILITY_ACTIVITY_DATA</code>, so the lookup came back empty and fell through to the default. Now: <code>Stronghold of Security • 0/4</code> with a real bar. Fixed for the whole landmark pattern, so Knight Waves and Mage Arena too.</p>
+    </div>
+
+    <div class="card">
+      <h3><span class="tag t-done">done</span> Toolbelt wouldn't take the mithril hatchet</h3>
+      <p>Reproduced with a failing test first, then fixed. The bank now also names the gate instead of leaving a purchase looking lost.</p>
+      <div class="files"><span class="file">logic_pure_combat_engine.py</span></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="tag t-done">done</span> Quiet the no-op chatter</h3>
+      <p>Routine cadence ticks are silent. Real refusals — missing tool, unmet requirement — stay visible, with a test pinning each category, because silencing those makes the game read as broken rather than quiet.</p>
+    </div>
+
+    <div class="card">
+      <h3><span class="tag t-done">done</span> GE: sell all, bank counts, fill log</h3>
+      <p>Sell all fills the whole stack (no buy-limit clamp applies to sells, and there's no bank/carried split to disambiguate — carried packs are views over one flat store). Quantities show in the item list. The HUD's "proceeds ready" line became a collapsible log keyed by answered cards: <code>Now:</code> / <code>1 card ago:</code>, green at 100%, amber for partial fills — contrast-checked in both themes, 5.5:1 to 7.3:1.</p>
+    </div>
+
+    <div class="card">
+      <h3><span class="tag t-open">not done</span> Fancy / fighter boot icons</h3>
+      <p>Both boots are now registered and equippable, so they leave the bank's "Other" group — a real fix, but <strong>not the one you asked for</strong>. No sprite exists on disk. Fetching art needs your approval rather than me inventing it, so the icon is still missing.</p>
+      <div class="files"><span class="file">needs owner-approved asset fetch</span></div>
+    </div>
+
+  </div>
+
+  <h2>The ±5% stepper: three answers, in order</h2>
+  <p class="sub">You said "additive, not fixed", then "whatever it is in the real game". Getting to the real game took four sources and I was confidently wrong twice on the way.</p>
+
+  <details open>
+    <summary>What actually happens, recovered from the cache</summary>
+    <div class="body">
+      <p>Interface 105's <code>+5%</code> and <code>−5%</code> buttons both call <strong>client script 4112</strong>, passing the percentage as an argument. It edits <strong>varc 85</strong> — a <em>client</em> variable — and sends nothing to the server. Varp 1111, which Darkan treats as the price, is the server-owned <em>committed</em> price, not what the buttons touch.</p>
+<pre><span class="cmt"># client script 4112, rev 727, 62 ops</span>
+price = varc <span class="lit">85</span>
+<span class="kw">if</span> percent &gt; <span class="lit">100</span> <span class="kw">and</span> price &gt; <span class="lit">2045222520</span>: new = <span class="lit">2147483647</span>
+<span class="kw">elif</span> percent &lt; <span class="lit">100</span> <span class="kw">and</span> price &lt;= <span class="lit">1</span>:          new = <span class="lit">1</span>
+<span class="kw">else</span>:
+    new = (int)((long) price * percent / <span class="lit">100</span>)   <span class="cmt"># truncates toward zero</span>
+    <span class="kw">if</span> new == price: new += <span class="lit">+1</span> <span class="kw">if</span> percent &gt;= <span class="lit">100</span> <span class="kw">else</span> <span class="lit">-1</span></pre>
+      <p style="margin-top:11px">So it <strong>compounds</strong>, it <strong>truncates</strong>, and there's a <strong>forced one-coin step</strong> when truncation would move nothing. Byte-identical at 371 bytes with every constant at the same offset across all six pre-EOC builds we hold, so it isn't a rev-727 artifact.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Where I was wrong, twice</summary>
+    <div class="body">
+      <p><strong>First</strong> I called Darkan's <code>(int)(price * 1.05)</code> sourced. It's one fan-made server reverse-engineering behaviour it could only observe from outside — it fails the corroboration gate, and you were right to push.</p>
+      <p style="margin-top:8px"><strong>Then</strong> I concluded it was unknowable and fell back to your preference. Also wrong: 2011Scape doesn't implement the offer screen at all, and three wiki revisions are silent, but the answer was in the cache the whole time. It's a <em>client</em> behaviour, which is exactly why no server source and no wiki records it.</p>
+      <p style="margin-top:8px">And I was about to delete the one-coin minimum step as an invention. <strong>It's authentic.</strong> I had it backwards — only the round-to-nearest was wrong, and round vs truncate diverged on roughly half of all reachable prices (33→35 instead of 34).</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>What the wiki did settle, and what it couldn't</summary>
+    <div class="body">
+      <div class="scroll"><table>
+        <tr><th>Source</th><th>On the arithmetic</th></tr>
+        <tr><td>Darkan (fan server)</td><td class="m">compounds + truncates; misses the forced step</td></tr>
+        <tr><td>2011Scape / game-main</td><td class="m">doesn't implement the offer screen</td></tr>
+        <tr><td>RS3 wiki (current)</td><td class="m">silent — and its ±20% step is post-cutoff</td></tr>
+        <tr><td>OSRS wiki (current)</td><td class="m">silent</td></tr>
+        <tr><td>RS3 wiki, oldid 6367453 (2012-10-08)</td><td class="m">silent, but confirms 5% only, pre-cutoff</td></tr>
+        <tr><td><strong>Cache rev 727, script 4112</strong></td><td class="m" style="color:var(--green)">the actual arithmetic</td></tr>
+      </table></div>
+    </div>
+  </details>
+
+  <div class="callout">
+    <h4>This contradicts your remembered "additive"</h4>
+    <p>Two clicks up give 110 either way, but a click down after a click up lands on <strong>99, not back on 100</strong> — the Guide button is the exact reset, which is presumably why the source provides one. I shipped the sourced behaviour because you asked for whatever the real game does and we now have it from Jagex's bytecode. If you'd rather have additive anyway, it's a preference and it's yours; the record is written so it flips without re-arguing.</p>
+  </div>
+
+  <h2>Two things I'd want a second opinion on</h2>
+  <div class="callout q">
+    <h4>Big Chinchompa's award is now silent</h4>
+    <p>Deleting the popups left it the one world event with no reviewer-side signal — its competence-point award arrives with nothing shown, where Shooting Star's post-active state is still carried by the badge. Nothing is lost (the result renders on the activity page), but it's an asymmetry you may or may not care about.</p>
+  </div>
+  <div class="callout q">
+    <h4>The immutability gate can't see equal-value writes</h4>
+    <p>It detects leaks by comparing the save for inequality, so a write storing a value already equal to what was there is invisible — real write-through that happens to be harmless on that data. I stopped claiming otherwise and added a probe that lends the riskiest helpers containers which <em>refuse</em> mutation, so it raises regardless of value. The remaining 44 unconverted deepcopy sites stay deep on purpose.</p>
+  </div>
+
+  <h2>Also worth knowing</h2>
+  <ol class="steps">
+    <li><strong>A real data-loss bug existed on main</strong> in the equipment-condition path. Reproduced before, confirmed fixed after — found incidentally while indexing that code for speed.</li>
+    <li><strong>Shop keeps its deep copy deliberately.</strong> Its buy path mutates nested values in place; a shallow copy aliased them to your live save and <code>test_shop_logic.py</code> caught it within seconds. That comment now says "do not optimize this one".</li>
+    <li><strong>Nothing was lost from the Codex runs.</strong> No stashes, no stray branches, no untracked work — only two soak-run logs in the Darkan repo, worth gitignoring.</li>
+    <li><strong>A CS2 disassembler now exists</strong> at <code>tools/OpenRs2Cs2Disassembler.java</code>. Caveat: Jagex renumbered the opcode table after rev 727, so 727 is the only build on disk that decodes symbolically.</li>
+    <li><strong>Darkan has a fidelity fault, not just a wrong number.</strong> Those five server-side handlers shouldn't exist — setting varp 1111 can't change what the offer box displays. Written up in that project's memory bank as a failure class its audit plan lacks: <em>implemented in the wrong tier</em>.</li>
+  </ol>
+
+  <h2>Queued, not done</h2>
+  <div class="grid">
+    <div class="card"><h3><span class="tag t-note">queued</span> Read the caches properly</h3>
+      <p>We read item and object definitions and nothing else. Enums, structs and params probably hold more ledger value per hour than the disassembler did — and unlike server mechanics, they're recoverable.</p></div>
+    <div class="card"><h3><span class="tag t-note">queued</span> Package restructure</h3>
+      <p>Step two of what you approved. The god-files are split; moving 142 modules into subpackages plus reworking the dual-import dance is the sweeping-change case, earmarked for Fable.</p></div>
+    <div class="card"><h3><span class="tag t-partial">open</span> 44 deepcopy sites</h3>
+      <p>Left deep because they're load-bearing or unproven. Each needs its consumers traced; anything not provable by reading keeps its copy.</p></div>
+    <div class="card"><h3><span class="tag t-open">needs you</span> Boot sprites</h3>
+      <p>Fancy and fighter boots need art fetched and approved. The coverage test that should have caught the gap was also fixed.</p></div>
+  </div>
+
+  <footer>
+    11 commits · 99 files · 42 new modules · d116a0e2 → c041005e<br>
+    ui.py 24,007 → 22,806 · logic_pure.py 12,710 → 2,435 · runtime_actions.py 6,588 → 1,409<br>
+    Default lane 2,548 OK · Qt release lane 2,548 OK (1 skip) · measured against your real 155 KB save
+  </footer>
+</div>
