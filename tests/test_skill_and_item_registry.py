@@ -1144,6 +1144,51 @@ class TestSkillAndItemRegistry(unittest.TestCase):
     def test_registered_asset_paths_exist_for_current_manifest(self):
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 
+    # Every wearable a landmark hands the player, with the reward path that
+    # grants it. Playtest bug: Fancy/Fighting boots existed only in the
+    # generated EQUIPMENT_DATA table, and _apply_equipment_metadata enriches
+    # names that already have an item row rather than creating one, so the
+    # completion reward arrived with no ItemDefinition at all — iconless and
+    # filed under the bank's "Other" group. missing_required_asset_paths could
+    # never see it, because an item with no definition has no asset_path to
+    # check.
+    _LANDMARK_REWARD_EQUIPMENT = (
+        "Fancy boots",
+        "Fighting boots",
+        "Safety gloves",
+        "Saradomin cape",
+        "Guthix cape",
+        "Zamorak cape",
+    )
+    # Art not fetched yet; the owner approves each sprite fetch. Shrink this,
+    # never grow it: an entry here means the item ships iconless.
+    _LANDMARK_REWARD_ART_PENDING = frozenset({"Fancy boots", "Fighting boots"})
+
+    def test_landmark_reward_equipment_is_registered_as_equipment(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for item_name in self._LANDMARK_REWARD_EQUIPMENT:
+            self.assertIn(item_name, by_storage_key, item_name)
+            definition = by_storage_key[item_name]
+            self.assertEqual(definition.category, "equipment", item_name)
+            self.assertEqual(
+                definition.equipment_slot,
+                EQUIPMENT_DATA[item_name].slot,
+                item_name,
+            )
+
+    def test_landmark_reward_equipment_resolves_an_icon(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        iconless = {
+            item_name
+            for item_name in self._LANDMARK_REWARD_EQUIPMENT
+            if not (
+                by_storage_key[item_name].asset_path
+                and os.path.exists(by_storage_key[item_name].asset_path)
+            )
+        }
+
+        self.assertEqual(iconless, set(self._LANDMARK_REWARD_ART_PENDING))
+
     def test_npc_shop_actionable_item_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         expected = (

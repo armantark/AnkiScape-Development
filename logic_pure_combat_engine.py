@@ -2846,6 +2846,23 @@ def apply_combat_burst_pure(
     return data, True, result
 
 
+def _blocked_toolbelt_rows(label, skill_label, skill_level, inventory, bound_ids, tool_data):
+    """Owned tools of one family the player cannot use yet, weakest gate first."""
+    rows: list = []
+    for tool_id, spec in tool_data.items():
+        if spec.get("status", "implemented") != "implemented":
+            continue
+        required = _non_negative_int(spec.get("level", 1), 1)
+        if required <= skill_level:
+            continue
+        display_name = str(spec.get("display_name", tool_id))
+        if tool_id not in bound_ids and _non_negative_int(inventory.get(display_name, 0), 0) <= 0:
+            continue
+        rows.append((label, display_name, skill_label, required))
+    rows.sort(key=lambda row: (row[3], row[1]))
+    return rows
+
+
 def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, _bonus_item_data):
     """Read-only gear summary the Bank tab renders below the inventory.
 
@@ -2858,7 +2875,14 @@ def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, _bonus_item_data):
     Worn equipment now lives in player_data["equipment"]. The Bank frontend still
     uses this read-only summary until the dedicated Equipment tab lands.
 
+    The flip side of auto-resolution is that a freshly bought upgrade looks
+    ignored: the real game equally refuses a mithril hatchet below Woodcutting
+    21, but nothing here said so. "toolbelt_blocked" names owned tools whose
+    level gate is not met yet, so the bank explains the gate instead of the
+    player assuming the purchase was lost.
+
     Returns {"toolbelt": [(label, display_name), ...],
+             "toolbelt_blocked": [(label, display_name, skill_label, level), ...],
              "equipped": [(slot, display_name), ...]}.
     """
     inventory = player_data.get("inventory", {}) or {}
@@ -2875,13 +2899,33 @@ def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, _bonus_item_data):
     if axe is not None:
         toolbelt_rows.append(("Hatchet", str(axe.get("display_name", ""))))
 
+    blocked_rows: list = []
+    for label, skill_label, level_key, tool_data in (
+        ("Pickaxe", "Mining", "mining_level", pickaxe_data),
+        ("Hatchet", "Woodcutting", "woodcutting_level", axe_data),
+    ):
+        blocked_rows.extend(
+            _blocked_toolbelt_rows(
+                label,
+                skill_label,
+                _non_negative_int(player_data.get(level_key, 1), 1),
+                inventory,
+                _toolbelt_ids(toolbelt, skill_label.lower()),
+                tool_data,
+            )
+        )
+
     equipped_rows: list = []
     equipment = player_data.get("equipment", {}) or {}
     if isinstance(equipment, Mapping):
         for slot, item_name in equipment.items():
             if isinstance(slot, str) and isinstance(item_name, str):
                 equipped_rows.append((slot, item_name))
-    return {"toolbelt": toolbelt_rows, "equipped": equipped_rows}
+    return {
+        "toolbelt": toolbelt_rows,
+        "toolbelt_blocked": blocked_rows,
+        "equipped": equipped_rows,
+    }
 
 
 def combat_supply_loadout_summary_pure(player_data):

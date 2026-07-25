@@ -741,9 +741,9 @@ except Exception:
     )
 
 try:
-    from .logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_GOD_DATA, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure, sanitize_mage_arena_state_pure
+    from .logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_GOD_DATA, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure, sanitize_mage_arena_state_pure, landmark_hud_progress_pure
 except Exception:
-    from logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_GOD_DATA, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure, sanitize_mage_arena_state_pure  # type: ignore
+    from logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_GOD_DATA, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure, sanitize_mage_arena_state_pure, landmark_hud_progress_pure  # type: ignore
 
 try:
     from .equipment_data import EQUIPMENT_BONUS_FIELDS
@@ -2639,7 +2639,16 @@ if HAS_QT:
                     else _utility_surface_name_for_target(activity_key)
                 )
                 spec = UTILITY_ACTIVITY_DATA.get(activity_key, {})
-                if activity_key == EVIL_TREE_UTILITY_ID:
+                # Step-counter landmarks (the two Strongholds, Knight Waves, the
+                # Mage Arena) do advance per review, so they get a real bar; the
+                # rest of the utility branch genuinely has nothing to fill one.
+                landmark_progress = landmark_hud_progress_pure(player_data, activity_key)
+                if landmark_progress is not None:
+                    activity_name = str(landmark_progress["display_name"])
+                    activity_kind = (
+                        f"{landmark_progress['step']}/{landmark_progress['total']}"
+                    )
+                elif activity_key == EVIL_TREE_UTILITY_ID:
                     activity_name = str(
                         evil_tree_view.get("tier_name", "Evil Tree")
                     )
@@ -2716,11 +2725,22 @@ if HAS_QT:
                     )
                 )
                 try:
-                    self.progress.setVisible(False)
                     self.sub_lbl.setVisible(True)
-                    # The target name already appears in sub_lbl.
-                    self.target_lbl.setText("")
-                    self.target_lbl.setVisible(False)
+                    if landmark_progress is not None:
+                        self.progress.setVisible(True)
+                        self.progress.setValue(int(landmark_progress["percent"]))
+                        # Name the step being walked into, matching the
+                        # Activities tree; the toast already named the last one.
+                        next_step = str(landmark_progress["next_step_name"])
+                        self.target_lbl.setText(
+                            f"next: {next_step}" if next_step else "Complete"
+                        )
+                        self.target_lbl.setVisible(True)
+                    else:
+                        self.progress.setVisible(False)
+                        # The target name already appears in sub_lbl.
+                        self.target_lbl.setText("")
+                        self.target_lbl.setVisible(False)
                 except Exception:
                     pass
                 self.adjustSize()
@@ -18597,6 +18617,26 @@ def show_main_menu(
                 prompt_lbl = QLabel(_TARGET_PROMPTS.get(name, "Select a target"))
                 prompt_lbl.setStyleSheet("color: palette(text);")
                 panel_layout.addWidget(prompt_lbl)
+            # A bought hatchet/pickaxe joins the auto-resolved toolbelt on its
+            # own, so an unusable upgrade otherwise looks ignored. Name the gate
+            # on the skill that owns the tool, not only in the Bank.
+            gate_label = {"Woodcutting": "Hatchet", "Mining": "Pickaxe"}.get(name)
+            if gate_label is not None:
+                blocked = [
+                    f"{display_name} (needs {skill_label} {level})"
+                    for slot_label, display_name, skill_label, level in bank_gear_rows_pure(
+                        player_data,
+                        MINING_PICKAXE_DATA,
+                        WOODCUTTING_AXE_DATA,
+                        MINING_BONUS_ITEM_DATA,
+                    )["toolbelt_blocked"]
+                    if slot_label == gate_label
+                ]
+                if blocked:
+                    gate_note = QLabel("Owned but not usable yet: " + ", ".join(blocked))
+                    gate_note.setWordWrap(True)
+                    gate_note.setStyleSheet(f"color: {dim_text_css(gate_note)}; font-size: 11px;")
+                    panel_layout.addWidget(gate_note)
             built_panel = builder()
             panel_layout.addWidget(built_panel, 1)
             if name == "Farming":
@@ -21011,6 +21051,18 @@ def show_main_menu(
         empty_tb.setFlags(Qt.ItemFlag.NoItemFlags)
         empty_tb.setData(Qt.ItemDataRole.UserRole, "__gear_empty__")
         gear_list.addItem(empty_tb)
+    # Owned upgrades the level gate still blocks. Without this the auto-resolved
+    # toolbelt looks like it ignored the purchase.
+    for slot_label, display_name, skill_label, required_level in gear["toolbelt_blocked"]:
+        blocked = QListWidgetItem(f"{display_name} — needs {skill_label} {required_level}")
+        blocked.setToolTip(
+            f"You own this {slot_label.lower()}, but it needs {skill_label} level "
+            f"{required_level}. It joins your toolbelt automatically at that level."
+        )
+        blocked.setForeground(dim_text_color(gear_list))
+        blocked.setFlags(Qt.ItemFlag.ItemIsEnabled)
+        blocked.setData(Qt.ItemDataRole.UserRole, "__gear_blocked__")
+        gear_list.addItem(blocked)
 
     # Hug contents so the panel is a fixed strip, never its own scroller.
     _gear_h = 2 * gear_list.frameWidth() + 6

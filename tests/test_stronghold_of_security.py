@@ -13,6 +13,7 @@ from logic_pure import (
     apply_stronghold_step_pure,
     default_stronghold_state_pure,
     grant_stronghold_reward_pure,
+    landmark_hud_progress_pure,
     sanitize_stronghold_state_pure,
 )
 from runtime_actions import RuntimeActionContext, handle_utility_answer
@@ -123,6 +124,61 @@ class TestStrongholdReviewIntegration(unittest.TestCase):
         # re-prompted.
         self.assertFalse(handle_utility_answer(_context(player_data, calls)))
         self.assertEqual(calls.get("prompted"), 1)
+
+
+class TestLandmarkHudProgress(unittest.TestCase):
+    """The reviewer HUD read its step count from UTILITY_ACTIVITY_DATA, which the
+    step-counter landmarks are deliberately absent from, so a Stronghold walk
+    showed no progress at all. These pin the numbers and labels the HUD renders."""
+
+    def test_stronghold_progress_names_the_next_level(self):
+        row = landmark_hud_progress_pure(
+            {"stronghold_of_security": {"step": 1}}, "stronghold_of_security"
+        )
+
+        self.assertEqual(row["display_name"], "Stronghold of Security")
+        self.assertEqual((row["step"], row["total"]), (1, STRONGHOLD_TOTAL_STEPS))
+        self.assertEqual(row["percent"], 25)
+        self.assertEqual(row["next_step_name"], "Catacomb of Famine")
+        self.assertFalse(row["completed"])
+
+    def test_fresh_save_starts_at_zero_of_four(self):
+        row = landmark_hud_progress_pure({}, "stronghold_of_security")
+
+        self.assertEqual((row["step"], row["percent"]), (0, 0))
+        self.assertEqual(row["next_step_name"], "Vault of War")
+
+    def test_completed_landmark_has_no_next_step(self):
+        row = landmark_hud_progress_pure(
+            {"stronghold_of_security": {"step": STRONGHOLD_TOTAL_STEPS, "completed": True}},
+            "stronghold_of_security",
+        )
+
+        self.assertEqual(row["percent"], 100)
+        self.assertEqual(row["next_step_name"], "")
+        self.assertTrue(row["completed"])
+
+    def test_every_step_counter_landmark_is_covered(self):
+        for target_id, expected_total in (
+            ("stronghold_of_security", 4),
+            ("knight_waves", 8),
+            ("mage_arena", 5),
+            ("stronghold_player_safety", 3),
+        ):
+            row = landmark_hud_progress_pure({}, target_id)
+            self.assertIsNotNone(row, target_id)
+            self.assertEqual(row["total"], expected_total, target_id)
+            self.assertTrue(row["next_step_name"], target_id)
+
+    def test_non_landmark_activity_gets_no_progress_row(self):
+        self.assertIsNone(landmark_hud_progress_pure({}, "bankstanding"))
+
+    def test_progress_lookup_does_not_mutate_the_save(self):
+        player_data = {"stronghold_of_security": {"step": 2}}
+
+        landmark_hud_progress_pure(player_data, "stronghold_of_security")
+
+        self.assertEqual(player_data, {"stronghold_of_security": {"step": 2}})
 
 
 if __name__ == "__main__":

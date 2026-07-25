@@ -418,3 +418,81 @@ def apply_mage_arena_step_pure(player_data):
         "completed": completed,
         **rewards,
     }
+
+
+# --- Landmark HUD progress ------------------------------------------------
+# Step-counter landmarks are deliberately absent from UTILITY_ACTIVITY_DATA, so
+# the reviewer HUD had no step count to show and hid its progress bar for the
+# whole utility branch: a Stronghold walk looked identical to bankstanding.
+# The rows below are derived from each landmark's own step list so the HUD can
+# never drift from the Activities tree. Each entry is
+# (display_name, step_names, state_key, step_field, sanitizer).
+try:
+    from .stronghold_player_safety_data import STRONGHOLD_LANDMARKS
+    from .stronghold_player_safety_logic import (
+        sanitize_stronghold_player_safety_state_pure,
+    )
+except ImportError:  # pragma: no cover - flat test imports
+    from stronghold_player_safety_data import STRONGHOLD_LANDMARKS  # type: ignore
+    from stronghold_player_safety_logic import (  # type: ignore
+        sanitize_stronghold_player_safety_state_pure,
+    )
+
+
+LANDMARK_HUD_ROWS = {
+    "stronghold_of_security": (
+        "Stronghold of Security",
+        STRONGHOLD_STEP_NAMES,
+        "stronghold_of_security",
+        "step",
+        sanitize_stronghold_state_pure,
+    ),
+    # The eight knights are fought in sequence and the source does not fix an
+    # order, so the waves are numbered rather than named.
+    "knight_waves": (
+        "Knight Waves Training Ground",
+        tuple(f"Wave {index}" for index in range(1, KNIGHT_WAVES_TOTAL_STEPS + 1)),
+        "knight_waves",
+        "step",
+        sanitize_knight_waves_state_pure,
+    ),
+    "mage_arena": (
+        "Mage Arena",
+        MAGE_ARENA_STEP_NAMES,
+        "mage_arena",
+        "step",
+        sanitize_mage_arena_state_pure,
+    ),
+    "stronghold_player_safety": (
+        "Stronghold of Player Safety",
+        tuple(str(row["label"]) for row in STRONGHOLD_LANDMARKS),
+        "stronghold_player_safety",
+        "stage",
+        sanitize_stronghold_player_safety_state_pure,
+    ),
+}
+
+
+def landmark_hud_progress_pure(player_data, target_id):
+    """Progress row for a step-counter landmark, or None when not one.
+
+    Returns {"display_name", "step", "total", "percent", "next_step_name",
+    "completed"}. ``next_step_name`` names the step the player is walking into
+    (empty once finished), matching the Activities tree's "next:" label; the
+    step just cleared is already named by the review toast.
+    """
+    row = LANDMARK_HUD_ROWS.get(str(target_id or ""))
+    if row is None:
+        return None
+    display_name, step_names, state_key, step_field, sanitize = row
+    total = len(step_names)
+    state = sanitize(player_data.get(state_key))
+    step = min(total, _non_negative_int(state.get(step_field, 0), 0))
+    return {
+        "display_name": display_name,
+        "step": step,
+        "total": total,
+        "percent": int(round(100 * step / total)) if total else 0,
+        "next_step_name": step_names[step] if step < total else "",
+        "completed": step >= total,
+    }
