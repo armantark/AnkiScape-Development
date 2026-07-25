@@ -128,6 +128,15 @@ except ImportError:
     )
 
 try:
+    from .stronghold_of_security_data import (
+        stronghold_of_security_extra_items_as_dict,
+    )
+except ImportError:
+    from stronghold_of_security_data import (  # type: ignore
+        stronghold_of_security_extra_items_as_dict,
+    )
+
+try:
     from .soul_wars_data import (
         SOUL_WARS_ACTIVITY_ID,
         soul_wars_activity_as_dict,
@@ -719,7 +728,6 @@ UTILITY_ACTIVITY_DATA = {
         "requirements": {},
         "batch_size": 1,
         "no_op": True,
-        "status_message": "Bankstanding — no XP gained.",
         "icon_path": os.path.join(current_dir, "combatitems", "coins.png"),
         "group": "economy",
         "source": "memory-bank/fake-grand-exchange-design.md:61-67",
@@ -1789,6 +1797,9 @@ BARBARIAN_ASSAULT_EXTRA_ITEM_DATA = barbarian_assault_extra_items_as_dict()
 STRONGHOLD_PLAYER_SAFETY_EXTRA_ITEM_DATA = (
     stronghold_player_safety_extra_items_as_dict()
 )
+STRONGHOLD_OF_SECURITY_EXTRA_ITEM_DATA = (
+    stronghold_of_security_extra_items_as_dict()
+)
 SHADES_OF_MORTTON_EXTRA_ITEM_DATA = shades_of_mortton_extra_items_as_dict()
 VARROCK_MUSEUM_EXTRA_ITEM_DATA = varrock_museum_extra_items_as_dict()
 
@@ -1908,6 +1919,21 @@ STRONGHOLD_PLAYER_SAFETY_ITEM_IMAGES = {
 STRONGHOLD_PLAYER_SAFETY_ITEM_IMAGES = {
     item_name: path
     for item_name, path in STRONGHOLD_PLAYER_SAFETY_ITEM_IMAGES.items()
+    if os.path.exists(path)
+}
+# The two Stronghold of Security boots have no art on disk yet, so this map is
+# empty and the items stay iconless-but-registered until the sprites are fetched.
+STRONGHOLD_OF_SECURITY_ITEM_IMAGES = {
+    item_name: os.path.join(
+        current_dir,
+        "activityitems",
+        f"stronghold_of_security_{_asset_slug(item_name)}.png",
+    )
+    for item_name in STRONGHOLD_OF_SECURITY_EXTRA_ITEM_DATA
+}
+STRONGHOLD_OF_SECURITY_ITEM_IMAGES = {
+    item_name: path
+    for item_name, path in STRONGHOLD_OF_SECURITY_ITEM_IMAGES.items()
     if os.path.exists(path)
 }
 VARROCK_MUSEUM_ITEM_IMAGES = {
@@ -2331,6 +2357,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **PEST_CONTROL_EXTRA_ITEM_DATA,
     **BARBARIAN_ASSAULT_EXTRA_ITEM_DATA,
     **STRONGHOLD_PLAYER_SAFETY_EXTRA_ITEM_DATA,
+    **STRONGHOLD_OF_SECURITY_EXTRA_ITEM_DATA,
     **SHADES_OF_MORTTON_EXTRA_ITEM_DATA,
     **VARROCK_MUSEUM_EXTRA_ITEM_DATA,
     **SORCERESS_GARDEN_EXTRA_ITEM_DATA,
@@ -2374,6 +2401,7 @@ EXTRA_ITEM_IMAGES = {
     **PEST_CONTROL_ITEM_IMAGES,
     **BARBARIAN_ASSAULT_ITEM_IMAGES,
     **STRONGHOLD_PLAYER_SAFETY_ITEM_IMAGES,
+    **STRONGHOLD_OF_SECURITY_ITEM_IMAGES,
     **SHADES_OF_MORTTON_ITEM_IMAGES,
     **VARROCK_MUSEUM_ITEM_IMAGES,
     **SORCERESS_GARDEN_ITEM_IMAGES,

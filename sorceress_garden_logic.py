@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from typing import Any, Mapping, Sequence
 
 try:
@@ -149,7 +148,9 @@ def apply_sorceress_garden_review_pure(
     player_data: Mapping[str, Any],
     herb_rolls: Sequence[float] = (0.0, 0.5),
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: this only assigns top-level keys on the working copy;
+    # the locked-reason helpers are read-only.
+    data = dict(player_data)
     state = sanitize_sorceress_garden_state_pure(data.get("sorceress_garden"))
     data["sorceress_garden"] = state
     season = SORCERESS_GARDEN_SEASONS_BY_ID[state["season_id"]]
@@ -231,7 +232,9 @@ def apply_sorceress_garden_command_pure(
     action_id: str,
     payload: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: this only assigns top-level keys on the working copy;
+    # the locked-reason helpers are read-only.
+    data = dict(player_data)
     state = sanitize_sorceress_garden_state_pure(data.get("sorceress_garden"))
     payload = payload if isinstance(payload, Mapping) else {}
 

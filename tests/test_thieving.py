@@ -511,3 +511,85 @@ class TestThievingStorage(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestNoOpMessageBoundary(unittest.TestCase):
+    """Pins which per-review messages are silent and which stay visible.
+
+    A message is silent when its whole content is "nothing happened" and the
+    state behind it is already on a persistent surface. It stays visible when it
+    reports a refusal or a state change the player must act on or would
+    otherwise misread.
+    """
+
+    def _stall_player(self, *, stunned=False):
+        return {
+            "current_thieving": "stall_crafting",
+            "thieving_level": 99,
+            "thieving_exp": 0.0,
+            "thieving_attempt_count": 0,
+            "thieving_success_count": 0,
+            "thieving_failure_count": 0,
+            "thieving_stunned": stunned,
+            "inventory": {},
+            "completed_achievements": [],
+            "cadence_profiles": {},
+        }
+
+    def test_a_stall_restock_tick_says_nothing(self):
+        player_data = self._stall_player()
+        ctx, calls = _context(player_data)
+
+        # A crafting stall restocks every other review, so the second half of
+        # the period withholds the opportunity.
+        emitted = [handle_thieving_answer(ctx) for _review in range(4)]
+
+        self.assertEqual(emitted, [True, True, True, True])
+        self.assertEqual(calls["errors"], [])
+        self.assertFalse(
+            any("restocking" in message for message in calls["activity"]),
+            calls["activity"],
+        )
+        self.assertGreater(
+            player_data["action_telemetry"]["actions"]["thieving:stall_crafting"][
+                "cadence_waits"
+            ],
+            0,
+            "the silenced tick must still be recorded in telemetry",
+        )
+
+    def test_recovering_from_a_stun_still_reports_itself(self):
+        # Unlike a restock tick this is a state change: the player was blocked
+        # last review and is not any more, which no other surface says.
+        player_data = self._stall_player(stunned=True)
+        ctx, calls = _context(player_data)
+
+        self.assertFalse(handle_thieving_answer(ctx))
+        self.assertFalse(player_data["thieving_stunned"])
+        self.assertTrue(
+            any("Recovered from the stun" in message for message in calls["activity"]),
+            calls["activity"],
+        )
+
+    def test_a_locked_thieving_target_still_raises_an_error_dialog(self):
+        player_data = self._stall_player()
+        player_data["current_thieving"] = "blackjack_menaphite_thug"
+        player_data["thieving_level"] = 1
+
+        ctx, calls = _context(player_data)
+
+        self.assertFalse(handle_thieving_answer(ctx))
+        self.assertEqual(len(calls["errors"]), 1)
+        self.assertIn("Thieving target locked", calls["errors"][0][0])
+
+    def test_bankstanding_produces_no_per_review_line(self):
+        player_data = {
+            "current_utility": "bankstanding",
+            "inventory": {},
+            "completed_achievements": [],
+        }
+        ctx, calls = _context(player_data)
+
+        self.assertTrue(handle_utility_answer(ctx))
+        self.assertEqual(calls["activity"], [])
+        self.assertEqual(calls["xp"], [])

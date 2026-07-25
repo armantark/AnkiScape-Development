@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from collections.abc import Mapping
 from typing import Any
 
@@ -188,7 +187,9 @@ def _prepare_pack(player_data: Mapping[str, Any]) -> dict[str, int]:
 def enter_gnome_ball_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_gnome_ball_state_pure rebuilds all its keys,
+    # and the session state is the only thing written back.
+    data = dict(player_data)
     state = sanitize_gnome_ball_state_pure(data)
     if state["gnome_ball"]:
         return data, False, {"reason": "A Gnome Ball match is already active."}
@@ -227,7 +228,9 @@ def apply_gnome_ball_review_pure(
     player_data: Mapping[str, Any],
     tackle_roll: Any,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_gnome_ball_state_pure rebuilds all its keys,
+    # and the session state is the only thing written back.
+    data = dict(player_data)
     session = sanitize_gnome_ball_session_pure(data.get("gnome_ball"))
     if not session:
         return data, {"allowed": False, "reason": "Enter Gnome Ball before training."}
@@ -333,7 +336,9 @@ def apply_gnome_ball_review_pure(
 def leave_gnome_ball_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_gnome_ball_state_pure rebuilds all its keys,
+    # and the session state is the only thing written back.
+    data = dict(player_data)
     session = sanitize_gnome_ball_session_pure(data.get("gnome_ball"))
     if not session:
         return data, False, {"reason": "No Gnome Ball match is active."}

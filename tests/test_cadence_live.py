@@ -4,6 +4,11 @@ import unittest
 from unittest.mock import patch
 
 import runtime_actions
+
+# Patch targets live on the module that defines the name: a caller resolves it
+# from its own globals, not from runtime_actions' re-export.
+import runtime_actions_production
+
 from cadence_coverage import (
     cadence_coverage_rows_pure,
     validate_cadence_coverage_pure,
@@ -393,6 +398,12 @@ class TestCadenceLiveCoverage(unittest.TestCase):
         self.assertFalse(
             any("Bank run" in message for message in calls.get("activity", ()))
         )
+        # A rate-limited route withholding an opportunity is the kernel's
+        # normal tick, so the review is silent: no XP and no activity line.
+        # It fired on the majority of reviews for every capped route before.
+        self.assertEqual(calls.get("activity", []), [])
+        self.assertEqual(calls["xp"], [])
+        self.assertEqual(calls["errors"], [])
 
     def test_rejected_first_action_restores_live_cadence_residual(self):
         initial = default_cadence_profile_state_pure(opening_ready=True)
@@ -878,12 +889,12 @@ class TestQuestCombatCadenceBoundary(unittest.TestCase):
         }
         with (
             patch.object(
-                runtime_actions,
+                runtime_actions_production,
                 "quest_current_stage_resolvable_combat_blockers_pure",
                 return_value=[{"encounter_id": "proof"}],
             ),
             patch.object(
-                runtime_actions,
+                runtime_actions_production,
                 "apply_quest_combat_encounter_pure",
                 side_effect=fake_combat,
             ),

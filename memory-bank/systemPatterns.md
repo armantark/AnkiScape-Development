@@ -784,6 +784,35 @@ verification gate remains open.
 ## UI Gotcha: nested-closure name collisions in `show_main_menu`
 `show_main_menu` is a very large function that defines many nested helpers (one per tab/section). All of these are locals of the *same* scope, so two sections defining a helper with the same name (e.g. `_select_skill`) silently rebind it — the later definition wins, and earlier callers route into the wrong function with no error. This caused the Skills-hub panel to ignore clicks (the Stats tab's `_select_skill` shadowed the hub's). Mitigation: prefix section-scoped helpers with their section (`_select_hub_skill`, etc.), and prefer the offscreen Qt behavior test to catch misrouted handlers. Longer term, splitting these sections into their own builder functions/classes would remove the shared scope entirely.
 
+## Main-menu deferred tabs (`ui_menu_ctx.py`, `ui_tab_*.py`)
+
+Opening the menu used to cost ~1.2 s on a real save because every tab was built
+up front. The three expensive surfaces now build on first show: `ui_tab_shop.py`,
+`ui_tab_quests.py` and `ui_tab_achievements.py` export a
+`build_<name>_tab(ctx) -> QWidget`, and `show_main_menu` inserts an empty
+placeholder page per tab and fills it from a `QTabWidget.currentChanged` hook.
+Rules that keep this correct:
+
+- Connect the `currentChanged` hook only after every placeholder is inserted.
+  The first `addTab` already emitted `currentChanged(0)`.
+- Cross-tab refreshes go through `ctx.refreshers` (keys: `active_label`, `gear`,
+  `shop`, `quests`). A missing key is a deliberate no-op: every builder derives
+  its whole rendered state from `player_data` and `ctx.selection` at build time,
+  so a skipped refresh is deferred work, not lost information. Refreshers must
+  take no data arguments, and a callback must write state into `player_data` (or
+  `ctx.selection`) before firing one.
+- Tests must open a deferred tab before touching its widgets
+  (`_open_shop_tab` / `_open_quests_tab` / `_open_achievements_tab`), and quest
+  journal bodies fill on first expand, so reading journal text needs
+  `_expand_quest_card`.
+- Skills, Bank and Equipment stay inline. They are ~3% of the open cost and are
+  mutually recursive through `_refresh_equipment_views`, so splitting them buys
+  nothing and pays the whole coupling bill.
+
+Related: `shop_logic.shop_view_models_pure` exists because
+`ensure_shop_state_pure` deep-copies the entire save, and the browse list needs
+a view model per shop — one snapshot for the batch instead of ~270 copies.
+
 ## UI Gotcha: nested hook callbacks are not removable by a fresh closure
 
 `injectors.register_deck_browser_button()` may run more than once during profile/setup flows. Its callbacks are nested functions, so recreating them and calling `hook.remove(new_callback)` does not remove the prior function object. Register these callbacks through the stable AnkiScape hook-key replacement helper; otherwise one browser message is dispatched once per surviving registration before the menu-open guard can observe the first scheduled dialog.

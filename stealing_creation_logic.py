@@ -251,7 +251,9 @@ def sanitize_stealing_creation_state_pure(raw: Any) -> dict[str, Any]:
 def ensure_stealing_creation_state_pure(
     player_data: Mapping[str, Any],
 ) -> dict[str, Any]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the whole stealing_creation subtree is replaced below
+    # with sanitize output, and that is the only key consumers write.
+    data = dict(player_data)
     state = sanitize_stealing_creation_state_pure(data.get("stealing_creation"))
     inventory = data.get("inventory", {})
     inventory = inventory if isinstance(inventory, Mapping) else {}

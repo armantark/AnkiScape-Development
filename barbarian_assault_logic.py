@@ -179,7 +179,9 @@ def sanitize_barbarian_assault_state_pure(
 def complete_barbarian_assault_tutorial_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the assault state and session are rebuilt fresh, so
+    # the wave and queen writes land in new objects.
+    data = dict(player_data)
     state = sanitize_barbarian_assault_state_pure(data)
     if state["barbarian_assault_tutorial_complete"]:
         return data, False, {"reason": "Captain Cain's tutorial is already complete."}
@@ -192,7 +194,9 @@ def complete_barbarian_assault_tutorial_pure(
 def set_barbarian_assault_policy_pure(
     player_data: Mapping[str, Any], payload: Mapping[str, Any] | None
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the assault state and session are rebuilt fresh, so
+    # the wave and queen writes land in new objects.
+    data = dict(player_data)
     state = sanitize_barbarian_assault_state_pure(data)
     candidate = dict(state["barbarian_assault_policy"])
     candidate.update(dict(payload or {}))
@@ -222,7 +226,9 @@ def enter_barbarian_assault_pure(
         if not ok:
             return data, False, info
     else:
-        data = copy.deepcopy(dict(player_data))
+        # Shallow on purpose: the assault state and session are rebuilt fresh,
+        # so the wave and queen writes land in new objects.
+        data = dict(player_data)
     state = sanitize_barbarian_assault_state_pure(data)
     if state["barbarian_assault"]:
         return data, False, {"reason": "A Barbarian Assault run is already active."}
@@ -388,7 +394,9 @@ def apply_barbarian_assault_review_pure(
     productive: bool,
     equipment_data: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the assault state and session are rebuilt fresh, so
+    # the wave and queen writes land in new objects.
+    data = dict(player_data)
     state = sanitize_barbarian_assault_state_pure(data)
     session = state["barbarian_assault"]
     active = data.get("activity_session")
@@ -507,7 +515,9 @@ def apply_barbarian_assault_review_pure(
 def leave_barbarian_assault_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the assault state and session are rebuilt fresh, so
+    # the wave and queen writes land in new objects.
+    data = dict(player_data)
     session = sanitize_barbarian_assault_state_pure(data)["barbarian_assault"]
     if not session:
         return data, False, {"reason": "No Barbarian Assault run is active."}
@@ -525,7 +535,9 @@ def leave_barbarian_assault_pure(
 def buy_runner_boots_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the assault state and session are rebuilt fresh, so
+    # the wave and queen writes land in new objects.
+    data = dict(player_data)
     state = sanitize_barbarian_assault_state_pure(data)
     if state["barbarian_assault"]:
         return data, False, {"reason": "Finish or leave the current run first."}

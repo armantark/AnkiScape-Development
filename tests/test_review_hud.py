@@ -1,6 +1,6 @@
 import unittest
 
-from ui import compute_level_progress, current_target_display_name
+from ui import compute_level_progress, current_target_display_name, grouped_inventory
 from constants import EXP_TABLE
 from logic_pure import (
     combat_attack_style_trained_skills_pure,
@@ -160,6 +160,20 @@ class TestCombatHudStatePure(unittest.TestCase):
     def test_kill_count_surfaces_from_player_data(self):
         pd = {"current_combat_target": "chicken", "combat_kill_counts": {"chicken": 7}}
         self.assertEqual(combat_hud_state_pure(pd)["kills_total"], 7)
+
+
+class TestBankGrouping(unittest.TestCase):
+    """The Stronghold of Security boots reached the bank with no ItemDefinition,
+    so they were filed under the catch-all "Other" group instead of Equipment."""
+
+    def test_stronghold_reward_boots_group_as_equipment(self):
+        groups = dict(grouped_inventory({"Fancy boots": 1, "Fighting boots": 1}))
+
+        self.assertNotIn("Other", groups)
+        self.assertEqual(
+            [name for name, _amount, _asset in groups["Equipment"]],
+            ["Fancy boots", "Fighting boots"],
+        )
 
 
 if __name__ == "__main__":

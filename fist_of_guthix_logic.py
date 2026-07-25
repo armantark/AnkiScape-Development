@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from collections.abc import Callable, Mapping
 from typing import Any
 
@@ -396,7 +395,10 @@ def _condition_inventory(player_data: Mapping[str, Any]) -> dict[str, int]:
 
 
 def _build_combat_player(player_data: Mapping[str, Any], active: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
-    local = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: this synthetic combat player overrides every key the
+    # fight writes, and the combat engine rebuilds rather than writes through
+    # the rest.
+    local = dict(player_data)
     supplies = dict(active["temporary_supplies"])
     local["inventory"] = _condition_inventory(player_data)
     local["current_combat_target"] = "fog_opponent"

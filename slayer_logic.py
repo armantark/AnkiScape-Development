@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from typing import Any, Callable, Mapping, Tuple
 
 try:
@@ -118,7 +117,11 @@ def eligible_slayer_families_pure(
 
 
 def sanitize_slayer_state_pure(player_data: Mapping[str, Any]) -> dict:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: this returns the whole save and rebuilds only the
+    # slayer_* keys, so every OTHER nested value stays aliased to the caller's
+    # mapping. Callers may assign top-level keys freely, but must never write
+    # through a nested value they did not rebuild here.
+    data = dict(player_data)
     assignment_raw = data.get("slayer_assignment")
     assignment = dict(assignment_raw) if isinstance(assignment_raw, Mapping) else {}
     family_id = str(assignment.get("family_id", "") or "")

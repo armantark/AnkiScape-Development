@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
-import copy
 from collections import Counter
 from collections.abc import Mapping
 from typing import Any
+
+try:
+    from .equipment_condition_data import EQUIPMENT_CONDITION_DATA
+except ImportError:  # pragma: no cover - flat test imports
+    from equipment_condition_data import EQUIPMENT_CONDITION_DATA  # type: ignore
 
 
 VALID_INSTANCE_LOCATIONS = {"bank", "grave", "death_office"}
@@ -24,14 +28,30 @@ def _clean_int(value: Any, default: int = 0, *, minimum: int = 0) -> int:
         return default
 
 
-def _family_for_item(item_name: str, condition_data: Mapping[str, Mapping[str, Any]]) -> str | None:
+def _condition_family_index(
+    condition_data: Mapping[str, Mapping[str, Any]]
+) -> dict[str, str]:
+    """Reverse every condition name in the table to its family.
+
+    Built per call rather than cached: the whole table is ~50 names, so the
+    build is cheaper than a single linear scan of a player's Bank, and a
+    per-call build cannot go stale when a caller hands over a different table.
+    """
+    index: dict[str, str] = {}
     for family_id, spec in condition_data.items():
-        if item_name == spec.get("full_name"):
-            return family_id
+        full_name = spec.get("full_name")
+        if isinstance(full_name, str):
+            index.setdefault(full_name, family_id)
         names = spec.get("names_by_percent", {})
-        if isinstance(names, Mapping) and item_name in names.values():
-            return family_id
-    return None
+        if isinstance(names, Mapping):
+            for name in names.values():
+                if isinstance(name, str):
+                    index.setdefault(name, family_id)
+    return index
+
+
+def _family_for_item(item_name: str, condition_data: Mapping[str, Mapping[str, Any]]) -> str | None:
+    return _condition_family_index(condition_data).get(item_name)
 
 
 def is_condition_item_pure(
@@ -80,25 +100,27 @@ def _clean_location(value: Any) -> str | None:
 
 
 def _expected_condition_holders(
-    data: Mapping[str, Any], condition_data: Mapping[str, Mapping[str, Any]]
+    data: Mapping[str, Any], index: Mapping[str, str]
 ) -> Counter[tuple[str, str]]:
     expected: Counter[tuple[str, str]] = Counter()
     inventory = data.get("inventory", {})
     if isinstance(inventory, Mapping):
-        for item_name, count in inventory.items():
-            if isinstance(item_name, str) and _family_for_item(item_name, condition_data):
-                expected[("bank", item_name)] += _clean_int(count, 0)
+        # Probe the ~50 condition names instead of walking a Bank that can hold
+        # thousands of unrelated stacks.
+        for item_name in index:
+            if item_name in inventory:
+                expected[("bank", item_name)] += _clean_int(inventory[item_name], 0)
     equipment = data.get("equipment", {})
     if isinstance(equipment, Mapping):
         for slot, item_name in equipment.items():
-            if isinstance(slot, str) and isinstance(item_name, str) and _family_for_item(item_name, condition_data):
+            if isinstance(slot, str) and isinstance(item_name, str) and item_name in index:
                 expected[(f"equipped:{slot}", item_name)] += 1
     for state_key, location in (("combat_grave", "grave"), ("death_office", "death_office")):
         state = data.get(state_key, {})
         items = state.get("items", ()) if isinstance(state, Mapping) else ()
         if isinstance(items, (list, tuple)):
             for item_name in items:
-                if isinstance(item_name, str) and _family_for_item(item_name, condition_data):
+                if isinstance(item_name, str) and item_name in index:
                     expected[(location, item_name)] += 1
     return expected
 
@@ -107,9 +129,12 @@ def sanitize_equipment_instance_state_pure(
     player_data: Mapping[str, Any], condition_data: Mapping[str, Mapping[str, Any]]
 ) -> dict[str, Any]:
     """Reconcile the per-copy ledger with Bank/equipment/grave name holders."""
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the ledger below is rebuilt as fresh records, and
+    # every caller rebuilds inventory before writing to it.
+    data = dict(player_data)
     raw_instances = data.get("equipment_instances", {})
     cleaned: dict[str, dict[str, Any]] = {}
+    foreign: dict[str, dict[str, Any]] = {}
     max_seen_id = 0
     if isinstance(raw_instances, Mapping):
         for raw_id, raw_record in raw_instances.items():
@@ -117,7 +142,17 @@ def sanitize_equipment_instance_state_pure(
                 continue
             family_id = raw_record.get("family_id")
             location = _clean_location(raw_record.get("location"))
-            if not isinstance(family_id, str) or family_id not in condition_data or location is None:
+            if not isinstance(family_id, str) or location is None:
+                continue
+            if raw_id.startswith("equipment-"):
+                max_seen_id = max(max_seen_id, _clean_int(raw_id.removeprefix("equipment-"), 0))
+            if family_id not in condition_data:
+                # Reconciliation is scoped to the families it was handed, so a
+                # narrow table (Fist of Guthix passes two of the nine) must pass
+                # another feature's rows through rather than discard them. Rows
+                # naming a family no registry knows are still garbage.
+                if family_id in EQUIPMENT_CONDITION_DATA:
+                    foreign[raw_id] = dict(raw_record)
                 continue
             spec = condition_data[family_id]
             maximum = max(1, _clean_int(spec.get("max_condition"), 1, minimum=1))
@@ -132,14 +167,13 @@ def sanitize_equipment_instance_state_pure(
             if isinstance(last_slot, str) and last_slot:
                 record["last_slot"] = last_slot
             cleaned[raw_id] = record
-            if raw_id.startswith("equipment-"):
-                max_seen_id = max(max_seen_id, _clean_int(raw_id.removeprefix("equipment-"), 0))
 
     next_id = max(
         max_seen_id + 1,
         _clean_int(data.get("equipment_instance_next_id"), 1, minimum=1),
     )
-    expected = _expected_condition_holders(data, condition_data)
+    index = _condition_family_index(condition_data)
+    expected = _expected_condition_holders(data, index)
     assigned: dict[str, dict[str, Any]] = {}
     unused = set(cleaned)
 
@@ -195,7 +229,7 @@ def sanitize_equipment_instance_state_pure(
             assigned[instance_id] = record
             unused.discard(instance_id)
         missing = count - min(count, len(candidates))
-        family_id = _family_for_item(item_name, condition_data)
+        family_id = index.get(item_name)
         for _ in range(missing):
             instance_id = f"equipment-{next_id}"
             next_id += 1
@@ -209,7 +243,7 @@ def sanitize_equipment_instance_state_pure(
                 record["last_slot"] = location.partition(":")[2]
             assigned[instance_id] = record
 
-    data["equipment_instances"] = assigned
+    data["equipment_instances"] = {**assigned, **foreign}
     data["equipment_instance_next_id"] = next_id
     return data
 

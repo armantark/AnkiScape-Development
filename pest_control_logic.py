@@ -187,7 +187,9 @@ def _best_lander_id(combat_level: int) -> str:
 def set_pest_control_policy_pure(
     player_data: Mapping[str, Any], payload: Mapping[str, Any] | None
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the pest control state and session are rebuilt fresh,
+    # and the follower alias this module reads is never written.
+    data = dict(player_data)
     state = sanitize_pest_control_state_pure(data)
     if state["pest_control"]:
         return data, False, {"reason": "Finish or leave the current game first."}
@@ -341,7 +343,9 @@ def _end_game(data: dict[str, Any], session: Mapping[str, Any], message: str) ->
 def leave_pest_control_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the pest control state and session are rebuilt fresh,
+    # and the follower alias this module reads is never written.
+    data = dict(player_data)
     state = sanitize_pest_control_state_pure(data)
     session = state["pest_control"]
     active = data.get("activity_session")
@@ -406,7 +410,9 @@ def apply_pest_control_review_pure(
     duty: str | None = None,
     equipment_data: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the pest control state and session are rebuilt fresh,
+    # and the follower alias this module reads is never written.
+    data = dict(player_data)
     state = sanitize_pest_control_state_pure(data)
     session = state["pest_control"]
     active = data.get("activity_session")
@@ -562,7 +568,9 @@ def apply_pest_control_review_pure(
 def buy_void_seal_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the pest control state and session are rebuilt fresh,
+    # and the follower alias this module reads is never written.
+    data = dict(player_data)
     state = sanitize_pest_control_state_pure(data)
     if state["pest_control"]:
         return data, False, {"reason": "Finish the current Pest Control game first."}

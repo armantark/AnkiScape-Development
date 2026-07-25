@@ -142,7 +142,9 @@ def sanitize_fishing_trawler_state_pure(
 def set_fishing_trawler_policy_pure(
     player_data: Mapping[str, Any], payload: Mapping[str, Any] | None
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_fishing_trawler_state_pure rebuilds all its
+    # keys, and inventory is rebuilt with dict() before the haul is added.
+    data = dict(player_data)
     state = sanitize_fishing_trawler_state_pure(data)
     if state["fishing_trawler"]:
         return data, False, {"reason": "Finish or leave the current trip first."}
@@ -209,7 +211,10 @@ def enter_fishing_trawler_pure(
         if not ok:
             return data, False, info
     else:
-        data = copy.deepcopy(dict(player_data))
+        # Shallow on purpose: sanitize_fishing_trawler_state_pure rebuilds all
+        # its keys, and inventory is rebuilt with dict() before the haul is
+        # added.
+        data = dict(player_data)
     state = sanitize_fishing_trawler_state_pure(data)
     if state["fishing_trawler"]:
         return data, False, {"reason": "A Fishing Trawler trip is already active."}
@@ -347,7 +352,9 @@ def _award_haul(
 def apply_fishing_trawler_review_pure(
     player_data: Mapping[str, Any], reward_roll: Any
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_fishing_trawler_state_pure rebuilds all its
+    # keys, and inventory is rebuilt with dict() before the haul is added.
+    data = dict(player_data)
     state = sanitize_fishing_trawler_state_pure(data)
     session = state["fishing_trawler"]
     if not session:
@@ -428,7 +435,9 @@ def apply_fishing_trawler_review_pure(
 def leave_fishing_trawler_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_fishing_trawler_state_pure rebuilds all its
+    # keys, and inventory is rebuilt with dict() before the haul is added.
+    data = dict(player_data)
     state = sanitize_fishing_trawler_state_pure(data)
     session = state["fishing_trawler"]
     if not session:

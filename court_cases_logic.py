@@ -241,7 +241,9 @@ def _answered_cards(player_data: Mapping[str, Any]) -> int:
 def set_court_cases_policy_pure(
     player_data: Mapping[str, Any], payload: Mapping[str, Any] | None
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_court_cases_state_pure rebuilds all its
+    # keys, and the case state is the only thing written back.
+    data = dict(player_data)
     state = sanitize_court_cases_state_pure(data)
     if state["court_cases"]:
         return data, False, {"reason": "Finish or leave the active case first."}
@@ -264,7 +266,9 @@ def set_court_cases_policy_pure(
 def enter_court_case_pure(
     player_data: Mapping[str, Any], payload: Mapping[str, Any] | None = None
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_court_cases_state_pure rebuilds all its
+    # keys, and the case state is the only thing written back.
+    data = dict(player_data)
     state = sanitize_court_cases_state_pure(data)
     if state["court_cases"]:
         data.update(state)
@@ -330,7 +334,9 @@ def enter_court_case_pure(
 def select_court_trial_choice_pure(
     player_data: Mapping[str, Any], choice: Any
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_court_cases_state_pure rebuilds all its
+    # keys, and the case state is the only thing written back.
+    data = dict(player_data)
     state = sanitize_court_cases_state_pure(data)
     session = state["court_cases"]
     if not session or session["phase"] != "trial":
@@ -358,7 +364,9 @@ def _finish_session(data: dict[str, Any]) -> None:
 def leave_court_case_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_court_cases_state_pure rebuilds all its
+    # keys, and the case state is the only thing written back.
+    data = dict(player_data)
     state = sanitize_court_cases_state_pure(data)
     if not state["court_cases"]:
         return data, False, {"reason": "No court case is active."}
@@ -390,7 +398,9 @@ def apply_court_cases_command_pure(
 def apply_court_case_review_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_court_cases_state_pure rebuilds all its
+    # keys, and the case state is the only thing written back.
+    data = dict(player_data)
     state = sanitize_court_cases_state_pure(data)
     session = state["court_cases"]
     if not session:

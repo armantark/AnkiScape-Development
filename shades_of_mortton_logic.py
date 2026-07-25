@@ -215,7 +215,10 @@ def sanitize_shades_of_mortton_state_pure(
 def set_shades_of_mortton_policy_pure(
     player_data: Mapping[str, Any], payload: Mapping[str, Any] | None
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_shades_of_mortton_state_pure rebuilds all
+    # its keys and deep-copies the nested encounter, so nothing writes through
+    # the input.
+    data = dict(player_data)
     state = sanitize_shades_of_mortton_state_pure(data)
     candidate = dict(state["shades_of_mortton_policy"])
     candidate.update(dict(payload or {}))
@@ -228,7 +231,10 @@ def set_shades_of_mortton_policy_pure(
 def enter_shades_of_mortton_pure(
     player_data: Mapping[str, Any], payload: Mapping[str, Any] | None = None
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_shades_of_mortton_state_pure rebuilds all
+    # its keys and deep-copies the nested encounter, so nothing writes through
+    # the input.
+    data = dict(player_data)
     state = sanitize_shades_of_mortton_state_pure(data)
     loop = state["shades_of_mortton"]
     if loop["active"]:
@@ -261,7 +267,10 @@ def enter_shades_of_mortton_pure(
 def leave_shades_of_mortton_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_shades_of_mortton_state_pure rebuilds all
+    # its keys and deep-copies the nested encounter, so nothing writes through
+    # the input.
+    data = dict(player_data)
     state = sanitize_shades_of_mortton_state_pure(data)
     loop = state["shades_of_mortton"]
     active = data.get("activity_session")
@@ -418,7 +427,10 @@ def apply_shades_of_mortton_review_pure(
     population: str = "normal",
     equipment_data: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_shades_of_mortton_state_pure rebuilds all
+    # its keys and deep-copies the nested encounter, so nothing writes through
+    # the input.
+    data = dict(player_data)
     state = sanitize_shades_of_mortton_state_pure(data)
     loop = state["shades_of_mortton"]
     active = data.get("activity_session")
@@ -454,7 +466,10 @@ def apply_shades_of_mortton_review_pure(
 def light_shades_altar_pure(
     player_data: Mapping[str, Any], rng=lambda: 0.5
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_shades_of_mortton_state_pure rebuilds all
+    # its keys and deep-copies the nested encounter, so nothing writes through
+    # the input.
+    data = dict(player_data)
     state = sanitize_shades_of_mortton_state_pure(data)
     loop = state["shades_of_mortton"]
     inventory = _inventory(data)
@@ -480,7 +495,10 @@ def light_shades_altar_pure(
 def bless_shades_item_pure(
     player_data: Mapping[str, Any], item_name: str
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_shades_of_mortton_state_pure rebuilds all
+    # its keys and deep-copies the nested encounter, so nothing writes through
+    # the input.
+    data = dict(player_data)
     state = sanitize_shades_of_mortton_state_pure(data)
     loop = state["shades_of_mortton"]
     inventory = _inventory(data)
@@ -516,7 +534,10 @@ def bless_shades_item_pure(
 def make_shades_pyre_logs_pure(
     player_data: Mapping[str, Any], output_name: str
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_shades_of_mortton_state_pure rebuilds all
+    # its keys and deep-copies the nested encounter, so nothing writes through
+    # the input.
+    data = dict(player_data)
     recipe = SHADES_PYRE_LOGS.get(str(output_name))
     if recipe is None:
         return data, False, {"reason": "Unknown pyre-log recipe."}
@@ -541,7 +562,10 @@ def make_shades_pyre_logs_pure(
 def open_shades_bronze_chest_pure(
     player_data: Mapping[str, Any], key_name: str, rng=lambda: 0.5
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_shades_of_mortton_state_pure rebuilds all
+    # its keys and deep-copies the nested encounter, so nothing writes through
+    # the input.
+    data = dict(player_data)
     if not _quest_completed(data):
         return data, False, {"reason": "Complete Shades of Mort'ton first."}
     if str(key_name) not in SHADES_BRONZE_KEYS:

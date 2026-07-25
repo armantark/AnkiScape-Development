@@ -7140,5 +7140,49 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(slot, "neck")
         self.assertEqual(name, MINING_BONUS_ITEM_DATA[bonus_id]["display_name"])
 
+    def test_bank_gear_rows_discloses_owned_tool_blocked_by_level(self):
+        # Playtest report: a bought Mithril hatchet "can't go on the toolbelt".
+        # It is owned and auto-resolved, but gated at Woodcutting 21, and nothing
+        # in the UI said so. The bank must name the gate instead of staying silent.
+        pd = {
+            "mining_level": 1,
+            "woodcutting_level": 1,
+            "inventory": {"Mithril hatchet": 1},
+            "toolbelt": {"mining": ["bronze_pickaxe"], "woodcutting": ["bronze_hatchet"]},
+            "equipment": {},
+        }
+        gear = bank_gear_rows_pure(pd, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA, MINING_BONUS_ITEM_DATA)
+
+        self.assertEqual(dict(gear["toolbelt"])["Hatchet"], "Bronze hatchet")
+        self.assertIn(("Hatchet", "Mithril hatchet", "Woodcutting", 21), gear["toolbelt_blocked"])
+
+    def test_bank_gear_rows_blocked_tool_clears_once_level_is_met(self):
+        pd = {
+            "mining_level": 1,
+            "woodcutting_level": 21,
+            "inventory": {"Mithril hatchet": 1},
+            "toolbelt": {"mining": ["bronze_pickaxe"], "woodcutting": ["bronze_hatchet"]},
+            "equipment": {},
+        }
+        gear = bank_gear_rows_pure(pd, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA, MINING_BONUS_ITEM_DATA)
+
+        self.assertEqual(dict(gear["toolbelt"])["Hatchet"], "Mithril hatchet")
+        self.assertEqual(gear["toolbelt_blocked"], [])
+
+    def test_bank_gear_rows_discloses_blocked_pickaxe(self):
+        pd = {
+            "mining_level": 1,
+            "woodcutting_level": 1,
+            "inventory": {"Rune pickaxe": 1},
+            "toolbelt": {"mining": ["bronze_pickaxe"], "woodcutting": ["bronze_hatchet"]},
+            "equipment": {},
+        }
+        gear = bank_gear_rows_pure(pd, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA, MINING_BONUS_ITEM_DATA)
+
+        self.assertEqual(
+            gear["toolbelt_blocked"],
+            [("Pickaxe", "Rune pickaxe", "Mining", MINING_PICKAXE_DATA["rune_pickaxe"]["level"])],
+        )
+
 if __name__ == "__main__":
     unittest.main()

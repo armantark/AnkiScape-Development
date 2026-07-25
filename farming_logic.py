@@ -523,6 +523,10 @@ def sanitize_farming_state_pure(player_data: Mapping[str, Any]) -> dict[str, Any
     ):
         farming_spell_patch = None
 
+    # Unlike its peers, this sanitizer passes some values straight through from
+    # the input instead of rebuilding them, so it is not a rebuild boundary: a
+    # shallow working copy that relies on it would still alias the caller's
+    # save. Anything added here that is not a scalar needs its own copy.
     return {
         "farming_exp": _number(player_data.get("farming_exp", 0.0)),
         "farming_level": _int(player_data.get("farming_level", 1), default=1, minimum=1),

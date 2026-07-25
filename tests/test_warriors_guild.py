@@ -496,7 +496,7 @@ class WarriorsGuildRuntimeTests(unittest.TestCase):
         burst_state["constitution_exp"] += 99.75
 
         with patch(
-            "runtime_actions.apply_combat_burst_pure",
+            "runtime_actions_combat.apply_combat_burst_pure",
             return_value=(burst_state, True, result),
         ):
             self.assertTrue(handle_combat_answer(ctx))
@@ -538,7 +538,7 @@ class WarriorsGuildRuntimeTests(unittest.TestCase):
             "xp_rewards": {},
         }
         with patch(
-            "runtime_actions.apply_combat_burst_pure",
+            "runtime_actions_combat.apply_combat_burst_pure",
             return_value=(copy.deepcopy(player), True, result),
         ):
             self.assertTrue(handle_combat_answer(ctx))

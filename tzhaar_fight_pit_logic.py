@@ -228,7 +228,10 @@ def _finish(data: dict[str, Any], session: Mapping[str, Any], message: str) -> N
 
 
 def set_tzhaar_fight_pit_policy_pure(player_data: Mapping[str, Any], policy: str) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the pit state is rebuilt fresh, the opponent
+    # encounter is deep-copied, and inventory is copied before Tokkul is paid
+    # out.
+    data = dict(player_data)
     state = sanitize_tzhaar_fight_pit_state_pure(data)
     if state["tzhaar_fight_pit"]:
         return data, False, {"reason": "Finish or leave the current Fight Pit match first."}
@@ -240,7 +243,10 @@ def set_tzhaar_fight_pit_policy_pure(player_data: Mapping[str, Any], policy: str
 
 
 def enter_tzhaar_fight_pit_pure(player_data: Mapping[str, Any], policy: str | None = None) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the pit state is rebuilt fresh, the opponent
+    # encounter is deep-copied, and inventory is copied before Tokkul is paid
+    # out.
+    data = dict(player_data)
     state = sanitize_tzhaar_fight_pit_state_pure(data)
     if state["tzhaar_fight_pit"]:
         return data, False, {"reason": "A Fight Pit match is already active."}
@@ -342,7 +348,10 @@ def apply_tzhaar_fight_pit_review_pure(
     *,
     equipment_data: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the pit state is rebuilt fresh, the opponent
+    # encounter is deep-copied, and inventory is copied before Tokkul is paid
+    # out.
+    data = dict(player_data)
     state = sanitize_tzhaar_fight_pit_state_pure(data)
     session = state["tzhaar_fight_pit"]
     active = data.get("activity_session")
@@ -429,7 +438,10 @@ def apply_tzhaar_fight_pit_review_pure(
 
 
 def leave_tzhaar_fight_pit_pure(player_data: Mapping[str, Any]) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the pit state is rebuilt fresh, the opponent
+    # encounter is deep-copied, and inventory is copied before Tokkul is paid
+    # out.
+    data = dict(player_data)
     state = sanitize_tzhaar_fight_pit_state_pure(data)
     session = state["tzhaar_fight_pit"]
     if not session:

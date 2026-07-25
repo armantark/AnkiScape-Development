@@ -4,6 +4,12 @@ from unittest.mock import patch
 
 import runtime_actions
 
+# Patch targets live on the module that defines the name: a caller resolves it
+# from its own globals, not from runtime_actions' re-export.
+import runtime_actions_activities
+import runtime_actions_carried
+import runtime_actions_combat
+
 from runtime_actions import (
     RuntimeActionContext,
     answer_handler_for_key,
@@ -92,7 +98,7 @@ class TestRuntimeActions(unittest.TestCase):
             "combat": {"xp_rewards": {"attack_exp": 4.0}},
         }
         with patch(
-            "runtime_actions.apply_tzhaar_fight_pit_review_pure",
+            "runtime_actions_activities.apply_tzhaar_fight_pit_review_pure",
             return_value=(updated, True, result),
         ):
             self.assertTrue(handle_utility_answer(_context(player_data, calls)))
@@ -405,7 +411,7 @@ class TestRuntimeActions(unittest.TestCase):
         expected = dict(player_data)
         expected["castle_wars"] = advanced
         with patch(
-            "runtime_actions.apply_castle_wars_review_pure",
+            "runtime_actions_activities.apply_castle_wars_review_pure",
             return_value=(
                 expected,
                 True,
@@ -449,7 +455,7 @@ class TestRuntimeActions(unittest.TestCase):
         expected = dict(player_data)
         expected["castle_wars"] = dict(player_data["castle_wars"], review=1)
         with patch(
-            "runtime_actions.apply_castle_wars_review_pure",
+            "runtime_actions_activities.apply_castle_wars_review_pure",
             return_value=(
                 expected,
                 True,
@@ -663,7 +669,7 @@ class TestRuntimeActions(unittest.TestCase):
             "xp_rewards": {"attack_exp": 5.0},
         }
         with patch.object(
-            runtime_actions,
+            runtime_actions_activities,
             "apply_fist_of_guthix_review_pure",
             return_value=(updated, True, result),
         ) as apply_review:
@@ -896,7 +902,7 @@ class TestRuntimeActions(unittest.TestCase):
             return True
 
         with patch.object(
-            runtime_actions,
+            runtime_actions_carried,
             "_admit_live_cadence",
             side_effect=lambda ctx, _handler_key, _target_id: (ctx, True),
         ):
@@ -1064,7 +1070,7 @@ class TestRuntimeActions(unittest.TestCase):
         calls = {"xp": [], "saves": 0, "errors": []}
 
         with patch.object(
-            runtime_actions,
+            runtime_actions_combat,
             "apply_combat_burst_pure",
             return_value=(dict(player_data), True, result),
         ):
@@ -2174,7 +2180,7 @@ class TestRuntimeActions(unittest.TestCase):
         }
 
         with patch.object(
-            runtime_actions,
+            runtime_actions_combat,
             "apply_combat_burst_pure",
             return_value=(dict(player_data), True, result),
         ):

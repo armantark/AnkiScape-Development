@@ -741,9 +741,9 @@ except Exception:
     )
 
 try:
-    from .logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_GOD_DATA, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure, sanitize_mage_arena_state_pure
+    from .logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_GOD_DATA, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure, sanitize_mage_arena_state_pure, landmark_hud_progress_pure
 except Exception:
-    from logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_GOD_DATA, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure, sanitize_mage_arena_state_pure  # type: ignore
+    from logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_GOD_DATA, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure, sanitize_mage_arena_state_pure, landmark_hud_progress_pure  # type: ignore
 
 try:
     from .equipment_data import EQUIPMENT_BONUS_FIELDS
@@ -1021,6 +1021,8 @@ _MAIN_MENU_CTX = {
     "warn_label": None,
     "open_farming": None,
     "refresh_farming": None,
+    "open_activity": None,
+    "show_activity": None,
 }
 
 
@@ -1167,6 +1169,18 @@ def dim_text_css(widget=None) -> str:
     """
     c = dim_text_color(widget)
     return f"rgba({c.red()}, {c.green()}, {c.blue()}, {c.alphaF():.2f})"
+
+
+def _clear_layout(target_layout) -> None:
+    """Remove and delete every widget in a layout (Skills, Shop and Bank all rebuild in place)."""
+    child = target_layout.takeAt(0)
+    while child:
+        w = child.widget()
+        if w is not None:
+            w.hide()
+            w.setParent(None)
+            w.deleteLater()
+        child = target_layout.takeAt(0)
 
 
 # ---- equipment surface helpers -------------------------------------------
@@ -1393,6 +1407,95 @@ _SPECIAL_ACTIVITY_TARGETS = {
     EVIL_TREE_UTILITY_ID,
     BIG_CHINCHOMPA_UTILITY_ID,
 }
+# The landmarks live outside UTILITY_ACTIVITY_DATA, so a spec lookup returns an
+# empty dict and the HUD would otherwise fall back to a literal placeholder name.
+_LANDMARK_ACTIVITY_NAMES = {
+    _STRONGHOLD_UTILITY_KEY: "Stronghold of Security",
+    _KNIGHT_WAVES_UTILITY_KEY: "Knight Waves Training Ground",
+    _MAGE_ARENA_UTILITY_KEY: "Mage Arena",
+}
+
+
+def _landmark_activity_name(activity_key: object) -> str:
+    target_id = str(activity_key or "")
+    if target_id.startswith("mage_arena_attune:"):
+        return "Mage Arena attunement"
+    return _LANDMARK_ACTIVITY_NAMES.get(target_id, "")
+
+
+def _world_event_rows(player_data: dict, *, suppress_id: str = "") -> tuple:
+    """(activity_id, one-line summary) for every live review-clock world event.
+
+    Shared by the Activities hub's "Live world events" strip and the reviewer
+    D&D badge so the two can never drift. Only the three events that spawn on
+    the review clock without the player asking belong here; player-started
+    sessions such as Fist of Guthix already have their own counters. The
+    activity id rides along so a badge click can open that event's card.
+    """
+    rows = []
+    if suppress_id != EVIL_TREE_UTILITY_ID:
+        evil_view = evil_tree_view_pure(
+            player_data,
+            has_usable_hatchet=(
+                best_woodcutting_axe_pure(
+                    int(player_data.get("woodcutting_level", 1) or 1),
+                    player_data.get("inventory", {}) or {},
+                    player_data.get("toolbelt", {}) or {},
+                    WOODCUTTING_AXE_DATA,
+                )
+                is not None
+            ),
+        )
+        if evil_view["active"]:
+            rows.append((
+                EVIL_TREE_UTILITY_ID,
+                f"{evil_view['tier_name']} · "
+                f"{evil_view['location']} · "
+                f"{int(evil_view['reviews_remaining'])} reviews left",
+            ))
+        blessing = int(evil_view.get("blessing_reviews_remaining", 0) or 0)
+        if blessing > 0:
+            rows.append((
+                EVIL_TREE_UTILITY_ID,
+                f"Evil Tree blessing · {blessing} reviews left",
+            ))
+    if suppress_id != SHOOTING_STAR_ACTIVITY_ID:
+        star = shooting_star_view_pure(
+            player_data,
+            has_usable_pickaxe=(
+                best_mining_pickaxe_pure(
+                    int(player_data.get("mining_level", 1) or 1),
+                    player_data.get("inventory", {}) or {},
+                    player_data.get("toolbelt", {}) or {},
+                    MINING_PICKAXE_DATA,
+                )
+                is not None
+            ),
+        )
+        if star["active"]:
+            rows.append((
+                SHOOTING_STAR_ACTIVITY_ID,
+                f"Shooting Star size {int(star['current_size'])} · "
+                f"{int(star['layer_remaining']):,} layer dust left · "
+                f"{int(star['dust'])}/{int(star['dust_cap'])} stardust",
+            ))
+        elif star["sprite_available"]:
+            rows.append((
+                SHOOTING_STAR_ACTIVITY_ID,
+                "Star sprite ready to exchange · "
+                f"{int(star['sprite_reviews_remaining'])} reviews left · "
+                f"{int(star['dust'])} stardust",
+            ))
+    if suppress_id != BIG_CHINCHOMPA_UTILITY_ID:
+        big = big_chinchompa_view_pure(player_data)
+        if big["active"]:
+            rows.append((
+                BIG_CHINCHOMPA_UTILITY_ID,
+                f"Big Chinchompa · "
+                f"{int(big['minutes_remaining'])} source min left · "
+                f"{int(big['fullness_percent'])}% full",
+            ))
+    return tuple(rows)
 
 
 def _utility_surface_name_for_target(activity_key: object) -> str:
@@ -1405,6 +1508,14 @@ def _utility_surface_name_for_target(activity_key: object) -> str:
     ):
         return _ACTIVITIES_HUB_NAME
     return _UTILITIES_HUB_NAME
+
+# Grand Exchange offer-price clamps, taken from the period client script rather
+# than invented: the up-button saturates past this price, and the constant is
+# exactly the +5% overflow boundary, which is how we know 105 is the only
+# percentage that button ever passes.
+_GE_PRICE_OVERFLOW_LIMIT = 2_045_222_520
+_GE_PRICE_CEILING = 2_147_483_647
+
 _COMBAT_HUB_NAME = "Combat"
 # The individual skills a combat burst can train, with their player_data level
 # and exp keys. Constitution defaults to level 10 (RS classic); everything else
@@ -2399,14 +2510,6 @@ if HAS_QT:
             self.target_lbl.setStyleSheet("color: rgba(255,255,255,0.6); font-size: 10px;")
             info.addWidget(self.target_lbl)
 
-            self.ge_notice_lbl = QLabel("")
-            self.ge_notice_lbl.setObjectName("geOfferNotice")
-            self.ge_notice_lbl.setStyleSheet(
-                "color: #6fdb78; font-size: 10px; font-weight: 600;"
-            )
-            self.ge_notice_lbl.setVisible(False)
-            info.addWidget(self.ge_notice_lbl)
-
             self.world_notice_lbl = QLabel("")
             self.world_notice_lbl.setObjectName("reviewWorldNotice")
             self.world_notice_lbl.setStyleSheet(
@@ -2488,19 +2591,6 @@ if HAS_QT:
             """Update HUD content from player data and currently active skill."""
             skill = skill or "None"
             combat_status = combat_status_summary_pure(player_data)
-            ge_orders = player_data.get("ge_player_orders", ()) or ()
-            ge_ready = any(
-                isinstance(order, dict)
-                and (
-                    int(order.get("collectible_coins", 0) or 0) > 0
-                    or int(order.get("collectible_items", 0) or 0) > 0
-                )
-                for order in ge_orders
-            )
-            self.ge_notice_lbl.setText(
-                "Grand Exchange proceeds ready to collect" if ge_ready else ""
-            )
-            self.ge_notice_lbl.setVisible(ge_ready)
             has_hatchet = (
                 best_woodcutting_axe_pure(
                     int(player_data.get("woodcutting_level", 1) or 1),
@@ -2514,17 +2604,12 @@ if HAS_QT:
                 player_data,
                 has_usable_hatchet=has_hatchet,
             )
-            # Evil Tree and Shooting Star availability moved to the Activities
-            # hub's "Live world events" strip: neither can be acted on from the
-            # reviewer, so the overlay keeps only in-progress session counters.
+            # All three review-clock world events (Evil Tree, Shooting Star,
+            # Big Chinchompa) moved to the Activities hub's "Live world events"
+            # strip and the D&D badge: none can be acted on from the reviewer,
+            # so the overlay keeps only in-progress session counters.
             world_notices = []
             big_chinchompa_view = big_chinchompa_view_pure(player_data)
-            if big_chinchompa_view["active"]:
-                world_notices.append(
-                    "Big Chinchompa · "
-                    f"{int(big_chinchompa_view['minutes_remaining'])} source min · "
-                    f"{int(big_chinchompa_view['fullness_percent'])}% full"
-                )
             star_view = shooting_star_view_pure(
                 player_data,
                 has_usable_pickaxe=(
@@ -2562,7 +2647,16 @@ if HAS_QT:
                     else _utility_surface_name_for_target(activity_key)
                 )
                 spec = UTILITY_ACTIVITY_DATA.get(activity_key, {})
-                if activity_key == EVIL_TREE_UTILITY_ID:
+                # Step-counter landmarks (the two Strongholds, Knight Waves, the
+                # Mage Arena) do advance per review, so they get a real bar; the
+                # rest of the utility branch genuinely has nothing to fill one.
+                landmark_progress = landmark_hud_progress_pure(player_data, activity_key)
+                if landmark_progress is not None:
+                    activity_name = str(landmark_progress["display_name"])
+                    activity_kind = (
+                        f"{landmark_progress['step']}/{landmark_progress['total']}"
+                    )
+                elif activity_key == EVIL_TREE_UTILITY_ID:
                     activity_name = str(
                         evil_tree_view.get("tier_name", "Evil Tree")
                     )
@@ -2612,15 +2706,17 @@ if HAS_QT:
                     else:
                         activity_kind = "talk to Fiara"
                 else:
-                    activity_name = str(spec.get("display_name", "Material prep"))
+                    activity_name = (
+                        str(spec.get("display_name", ""))
+                        or _landmark_activity_name(activity_key)
+                        or str(activity_key)
+                    )
+                    # "Utilities"/"Activities" already sit in title_lbl and
+                    # neither surface grants XP, so a "(no XP)" tail only
+                    # restates the title. Bankstanding keeps its line because
+                    # "deliberately not training" is not implied by the title.
                     activity_kind = (
-                        "idle at the Bank (no XP)"
-                        if spec.get("no_op")
-                        else (
-                            "activity (no XP)"
-                            if surface_name == _ACTIVITIES_HUB_NAME
-                            else "utility (no XP)"
-                        )
+                        "idle at the Bank" if spec.get("no_op") else ""
                     )
                 ip = skill_icon_path_for(surface_name) or self._placeholder_icon_path()
                 if ip:
@@ -2629,16 +2725,30 @@ if HAS_QT:
                 else:
                     self.icon_lbl.clear()
                 self.title_lbl.setText(surface_name)
-                status_suffix = f" • {combat_status}" if combat_status else ""
                 self.sub_lbl.setText(
-                    f"{activity_name} • {activity_kind}{status_suffix}"
+                    " • ".join(
+                        part
+                        for part in (activity_name, activity_kind, combat_status)
+                        if part
+                    )
                 )
                 try:
-                    self.progress.setVisible(False)
                     self.sub_lbl.setVisible(True)
-                    # The target name already appears in sub_lbl.
-                    self.target_lbl.setText("")
-                    self.target_lbl.setVisible(False)
+                    if landmark_progress is not None:
+                        self.progress.setVisible(True)
+                        self.progress.setValue(int(landmark_progress["percent"]))
+                        # Name the step being walked into, matching the
+                        # Activities tree; the toast already named the last one.
+                        next_step = str(landmark_progress["next_step_name"])
+                        self.target_lbl.setText(
+                            f"next: {next_step}" if next_step else "Complete"
+                        )
+                        self.target_lbl.setVisible(True)
+                    else:
+                        self.progress.setVisible(False)
+                        # The target name already appears in sub_lbl.
+                        self.target_lbl.setText("")
+                        self.target_lbl.setVisible(False)
                 except Exception:
                     pass
                 self.adjustSize()
@@ -3059,34 +3169,98 @@ if HAS_QT:
             self.button.setToolTip(tooltip)
             self.button.setAccessibleName(tooltip)
             self.adjustSize()
-            self._reposition()
+            # show() precedes the layout pass because the shared column
+            # measures visible badges only.
             self.show()
+            self._reposition()
             self.raise_()
 
         def _open_status(self) -> None:
             show_farming_status_dialog(self._projection, self._open_callback)
 
         def _reposition(self) -> None:
+            _reposition_hud_side_badges()
+
+        def eventFilter(self, obj, event):  # type: ignore[override]
             try:
-                parent = self.parent() or mw
-                if parent is None:
-                    return
-                self.adjustSize()
-                hud = _REVIEW_HUD
-                if hud is not None and hud.isVisible():
-                    x = hud.x() - self.width() - 8
-                    y = hud.y() + max(0, (hud.height() - self.height()) // 2)
-                    if x < 8:
-                        x = hud.x()
-                        y = max(8, hud.y() - self.height() - 6)
-                else:
-                    x = max(8, (parent.width() - self.width()) // 2 - 210)
-                    y = max(8, parent.height() - self.height() - 72)
-                self.move(x, y)
-                if _FARM_STATUS_DIALOG is not None and _FARM_STATUS_DIALOG.isVisible():
-                    _position_farming_status_dialog()
+                if event.type() in (QEvent.Type.Resize, QEvent.Type.Move, QEvent.Type.Show):
+                    self._reposition()
             except Exception:
                 pass
+            return False
+
+    class DistractionHUDBadge(QWidget):
+        """Interactive Distractions and Diversions sibling of the Farming badge.
+
+        Renders nothing at all unless a review-clock world event is live, which
+        is why it replaced three HUD notice lines and five floating popups
+        without adding a permanent surface.
+        """
+
+        def __init__(self, parent=None):
+            super().__init__(parent)
+            self.setObjectName("AnkiScapeDistractionBadge")
+            self.setWindowFlags(Qt.WindowType.Widget)
+            self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
+            self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+            self._rows = ()
+            self._open_callback = None
+            root = QHBoxLayout(self)
+            root.setContentsMargins(5, 5, 5, 5)
+            root.setSpacing(3)
+            self.button = QToolButton(self)
+            self.button.setObjectName("distractionStatusButton")
+            self.button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+            self.button.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.button.setMinimumSize(42, 34)
+            self.badge = QLabel(self)
+            self.badge.setObjectName("distractionStatusBadge")
+            self.badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            root.addWidget(self.button)
+            root.addWidget(self.badge)
+            self.setStyleSheet(
+                f"QWidget#AnkiScapeDistractionBadge {{ background: {_HUD_BG}; border: 1px solid {_HUD_BORDER}; border-radius: 10px; }}"
+                " QToolButton { color: white; background: transparent; border: none; padding: 3px; font-weight: 700; }"
+                " QLabel { color: white; background: rgba(76,175,80,0.35); border-radius: 8px; padding: 2px 5px; font-weight: 700; }"
+            )
+            self.button.clicked.connect(self._open_activity)
+            if parent is not None:
+                parent.installEventFilter(self)
+            self.hide()
+
+        def set_data(self, rows, open_callback=None) -> None:
+            self._rows = tuple(rows or ())
+            self._open_callback = open_callback
+            if not self._rows:
+                self.hide()
+                _reposition_hud_side_badges()
+                return
+            icon_path = _ACTIVITY_GROUP_ICONS.get("distractions_and_diversions")
+            if icon_path and os.path.exists(icon_path):
+                self.button.setIcon(QIcon(icon_path))
+                self.button.setIconSize(QSize(24, 24))
+            self.button.setText("D&&D")
+            self.badge.setText(str(len(self._rows)))
+            tooltip = "\n".join(text for _activity_id, text in self._rows)
+            self.setToolTip(tooltip)
+            self.button.setToolTip(tooltip)
+            self.button.setAccessibleName(tooltip)
+            self.adjustSize()
+            self.show()
+            self._reposition()
+            self.raise_()
+
+        def _open_activity(self) -> None:
+            if self._open_callback is None:
+                return
+            # One live event opens its own card; several open the hub list,
+            # where the "Live world events" strip is already at the top.
+            activity_ids = {activity_id for activity_id, _text in self._rows}
+            target = next(iter(activity_ids)) if len(activity_ids) == 1 else None
+            self._open_callback(target)
+
+        def _reposition(self) -> None:
+            _reposition_hud_side_badges()
 
         def eventFilter(self, obj, event):  # type: ignore[override]
             try:
@@ -3195,6 +3369,24 @@ if HAS_QT:
                 self._anim.start()
 else:
     # Minimal placeholder to keep references safe during tests
+    class CatalogFilterBar:
+        # The tab modules import this at module scope, so it must exist without
+        # Qt or `import ui_tab_shop` fails outright instead of degrading.
+        def __init__(self, *, placeholder: str = "", search_object_name: str = "", parent=None):
+            pass
+
+        def add_filter(self, widget, label: str = "") -> None:
+            pass
+
+        def query(self) -> str:
+            return ""
+
+        def matches_text(self, *values: object) -> bool:
+            return True
+
+        def set_count(self, visible: int, total: int) -> None:
+            pass
+
     class ExpPopup:
         def __init__(self, parent):
             pass
@@ -3223,6 +3415,12 @@ else:
         def set_data(self, projection: dict, open_callback=None) -> None:
             pass
 
+    class DistractionHUDBadge:
+        def __init__(self, parent=None):
+            pass
+        def set_data(self, rows, open_callback=None) -> None:
+            pass
+
 # UI Functions
 # ...existing code...
 # Move all dialog, popup, and menu functions here from __init__.py
@@ -3231,6 +3429,7 @@ else:
 _REVIEW_HUD = None  # type: ignore
 _REVIEW_CONTEXT_STRIP = None  # type: ignore
 _FARMING_BADGE = None  # type: ignore
+_DISTRACTION_BADGE = None  # type: ignore
 _FARM_STATUS_DIALOG = None  # type: ignore
 
 
@@ -3246,6 +3445,48 @@ def _raise_exp_popup() -> None:
         popup = getattr(mw, "exp_popup", None)
         if popup is not None and popup.isVisible():
             popup.raise_()
+    except Exception:
+        pass
+
+
+def _reposition_hud_side_badges() -> None:
+    """Lay the interactive HUD siblings out as one left-hand column.
+
+    Farming and D&D appear and disappear independently, so the cluster geometry
+    lives in one place: Farming on top, D&D under it, the whole column centred
+    on the HUD and falling back to above the HUD near the left screen edge.
+    """
+    try:
+        badges = [
+            badge
+            for badge in (_FARMING_BADGE, _DISTRACTION_BADGE)
+            if badge is not None and badge.isVisible()
+        ]
+        if not badges:
+            return
+        parent = badges[0].parent() or mw
+        if parent is None:
+            return
+        for badge in badges:
+            badge.adjustSize()
+        spacing = 6
+        width = max(badge.width() for badge in badges)
+        total = sum(badge.height() for badge in badges) + spacing * (len(badges) - 1)
+        hud = _REVIEW_HUD
+        if hud is not None and hud.isVisible():
+            x = hud.x() - width - 8
+            y = hud.y() + max(0, (hud.height() - total) // 2)
+            if x < 8:
+                x = hud.x()
+                y = max(8, hud.y() - total - 6)
+        else:
+            x = max(8, (parent.width() - width) // 2 - 210)
+            y = max(8, parent.height() - total - 72)
+        for badge in badges:
+            badge.move(x, y)
+            y += badge.height() + spacing
+        if _FARM_STATUS_DIALOG is not None and _FARM_STATUS_DIALOG.isVisible():
+            _position_farming_status_dialog()
     except Exception:
         pass
 
@@ -3266,11 +3507,12 @@ def _cleanup_extra_huds() -> None:
             for w in QApplication.topLevelWidgets():
                 try:
                     name = getattr(w, "objectName", lambda: "")()
-                    if name in {"AnkiScapeReviewHUD", "AnkiScapeReviewContextStrip", "AnkiScapeFarmingBadge", "farmingStatusDialog"}:
+                    if name in {"AnkiScapeReviewHUD", "AnkiScapeReviewContextStrip", "AnkiScapeFarmingBadge", "AnkiScapeDistractionBadge", "farmingStatusDialog"}:
                         current = {
                             "AnkiScapeReviewHUD": _REVIEW_HUD,
                             "AnkiScapeReviewContextStrip": _REVIEW_CONTEXT_STRIP,
                             "AnkiScapeFarmingBadge": _FARMING_BADGE,
+                            "AnkiScapeDistractionBadge": _DISTRACTION_BADGE,
                         }.get(name)
                         if current is None or w is not current:
                             try:
@@ -3299,6 +3541,13 @@ def _cleanup_extra_huds() -> None:
                         pass
             for child in par.findChildren(_QW, "AnkiScapeReviewContextStrip"):
                 if _REVIEW_CONTEXT_STRIP is None or child is not _REVIEW_CONTEXT_STRIP:
+                    try:
+                        child.hide()
+                        child.deleteLater()
+                    except Exception:
+                        pass
+            for child in par.findChildren(_QW, "AnkiScapeDistractionBadge"):
+                if _DISTRACTION_BADGE is None or child is not _DISTRACTION_BADGE:
                     try:
                         child.hide()
                         child.deleteLater()
@@ -3420,6 +3669,27 @@ def update_farming_hud_badge(player_data: dict, open_callback=None) -> None:
         _FARMING_BADGE.set_data(farming_frontend_projection_pure(player_data), open_callback)
 
 
+def ensure_distraction_hud_badge() -> None:
+    global _DISTRACTION_BADGE
+    if not HAS_QT:
+        return
+    if _DISTRACTION_BADGE is None and mw is not None:
+        _DISTRACTION_BADGE = DistractionHUDBadge(mw)
+        _DISTRACTION_BADGE.setParent(mw)
+    if _DISTRACTION_BADGE is not None:
+        _DISTRACTION_BADGE.raise_()
+        _raise_exp_popup()
+
+
+def update_distraction_hud_badge(player_data: dict, open_callback=None) -> None:
+    if not HAS_QT or not get_config_bool("ankiscape_review_hud_enabled", True):
+        hide_distraction_hud_badge()
+        return
+    ensure_distraction_hud_badge()
+    if _DISTRACTION_BADGE is not None:
+        _DISTRACTION_BADGE.set_data(_world_event_rows(player_data), open_callback)
+
+
 def _position_farming_status_dialog() -> None:
     try:
         if _FARM_STATUS_DIALOG is None or _FARMING_BADGE is None or mw is None:
@@ -3532,8 +3802,16 @@ def hide_farming_hud_badge() -> None:
         pass
 
 
+def hide_distraction_hud_badge() -> None:
+    try:
+        if _DISTRACTION_BADGE is not None:
+            _DISTRACTION_BADGE.hide()
+    except Exception:
+        pass
+
+
 def hide_review_hud() -> None:
-    """Hide the HUD and Farming sibling outside review screens."""
+    """Hide the HUD and its interactive siblings outside review screens."""
     try:
         if _REVIEW_HUD is not None and hasattr(_REVIEW_HUD, "hide"):
             _REVIEW_HUD.hide()
@@ -3541,6 +3819,7 @@ def hide_review_hud() -> None:
         pass
     hide_review_context_action_strip()
     hide_farming_hud_badge()
+    hide_distraction_hud_badge()
 
 def show_error_message(title: str, message: str):
     """Centralized error dialog helper."""
@@ -3833,6 +4112,7 @@ def show_main_menu(
     on_farming_action=None,
     initial_skill=None,
     initial_farming_patch_id=None,
+    initial_activity_id=None,
     on_check_achievements=None,
     on_save_player_data=None,
 ):
@@ -3975,6 +4255,56 @@ def show_main_menu(
     }
     target_details_context = {"display_row": None}
 
+    # ---- deferred tabs ----------------------------------------------------
+    # Shop, Quests and Achievements each build hundreds to thousands of widgets
+    # that nobody sees until their tab is clicked, so they are constructed on
+    # first show instead of on open. Their builders live in ui_tab_*.py and get
+    # everything they need through this context object. The modules are imported
+    # here rather than at module scope because they import ui.
+    try:
+        from .ui_menu_ctx import MainMenuCtx
+        from .ui_tab_achievements import build_achievements_tab
+        from .ui_tab_quests import build_quests_tab
+        from .ui_tab_shop import build_shop_tab
+    except Exception:
+        from ui_menu_ctx import MainMenuCtx  # type: ignore
+        from ui_tab_achievements import build_achievements_tab  # type: ignore
+        from ui_tab_quests import build_quests_tab  # type: ignore
+        from ui_tab_shop import build_shop_tab  # type: ignore
+
+    ctx = MainMenuCtx(
+        player_data=player_data,
+        dialog=dialog,
+        selection=state,
+        warn_label=warn,
+        on_save_skill=on_save_skill,
+        on_check_achievements=on_check_achievements,
+        on_save_player_data=on_save_player_data,
+        on_set_quest=on_set_quest,
+        on_set_quest_route_choice=on_set_quest_route_choice,
+    )
+    # Test seam: lets offscreen tests fire a cross-tab refresh at a tab that has
+    # not been built yet. Harmless in production.
+    dialog._ankiscape_menu_ctx = ctx  # type: ignore[attr-defined]
+
+    _deferred_builders: dict = {}
+
+    def _add_deferred_tab(label: str, icon_filename: str, tooltip: str, builder) -> None:
+        page = QWidget()
+        page_layout = QVBoxLayout(page)
+        page_layout.setContentsMargins(0, 0, 0, 0)
+        index = tabs.addTab(page, label)
+        _set_global_tab_icon(page, icon_filename)
+        tabs.setTabToolTip(index, tooltip)
+        _deferred_builders[index] = builder
+
+    def _ensure_tab_built(index: int) -> None:
+        builder = _deferred_builders.pop(index, None)
+        if builder is None:
+            return
+        page = tabs.widget(index)
+        page.layout().addWidget(builder(ctx))
+
     # ---- availability + active-skill helpers ----
     def _craft_available() -> bool:
         try:
@@ -4115,6 +4445,8 @@ def show_main_menu(
         else:
             active_label.setText("Training: nothing selected")
             stop_btn.setEnabled(False)
+
+    ctx.refreshers["active_label"] = _refresh_active_label
 
     def _set_active(display_name: str) -> None:
         # Mirror the original gating: never let users train a skill they cannot
@@ -17871,48 +18203,19 @@ def show_main_menu(
             def _refresh_world_events_strip() -> None:
                 # Rows for the card currently on screen are suppressed: that card
                 # already shows the same state in more detail.
-                rows = []
-                shown = visible_detail_id["id"]
-                if shown != EVIL_TREE_UTILITY_ID:
-                    evil_view = evil_tree_view_pure(
-                        player_data,
-                        has_usable_hatchet=_evil_tree_has_hatchet(),
-                    )
-                    if evil_view["active"]:
-                        rows.append(
-                            f"{evil_view['tier_name']} · "
-                            f"{evil_view['location']} · "
-                            f"{int(evil_view['reviews_remaining'])} reviews left"
-                        )
-                    blessing = int(
-                        evil_view.get("blessing_reviews_remaining", 0) or 0
-                    )
-                    if blessing > 0:
-                        rows.append(
-                            f"Evil Tree blessing · {blessing} reviews left"
-                        )
-                if shown != SHOOTING_STAR_ACTIVITY_ID:
-                    star = shooting_star_view_pure(
-                        player_data,
-                        has_usable_pickaxe=_shooting_star_has_pickaxe(),
-                    )
-                    if star["active"]:
-                        rows.append(
-                            f"Shooting Star size {int(star['current_size'])} · "
-                            f"{int(star['layer_remaining']):,} layer dust left · "
-                            f"{int(star['dust'])}/{int(star['dust_cap'])} stardust"
-                        )
-                    elif star["sprite_available"]:
-                        rows.append(
-                            "Star sprite ready to exchange · "
-                            f"{int(star['sprite_reviews_remaining'])} reviews left · "
-                            f"{int(star['dust'])} stardust"
-                        )
-                world_events_body.setText("\n".join(rows))
+                rows = _world_event_rows(
+                    player_data,
+                    suppress_id=str(visible_detail_id["id"] or ""),
+                )
+                world_events_body.setText("\n".join(text for _id, text in rows))
                 world_events_box.setVisible(bool(rows))
 
             world_events_refresher["call"] = _refresh_world_events_strip
             container_layout.addWidget(world_events_box)
+
+        # The reviewer D&D badge opens a card in this panel; expose the closure
+        # the same way the Farming panel exposes its refresher.
+        container._ankiscape_show_activity = _show_activity_detail
 
         container_layout.addWidget(cards_stack)
         container_layout.addWidget(activity_change_button)
@@ -18058,16 +18361,6 @@ def show_main_menu(
             if cat.category_id == category_id:
                 return cat.skills
         return ()
-
-    def _clear_layout(target_layout) -> None:
-        child = target_layout.takeAt(0)
-        while child:
-            w = child.widget()
-            if w is not None:
-                w.hide()
-                w.setParent(None)
-                w.deleteLater()
-            child = target_layout.takeAt(0)
 
     def _render_skill_list() -> None:
         _skill_guard["on"] = True
@@ -18332,10 +18625,32 @@ def show_main_menu(
                 prompt_lbl = QLabel(_TARGET_PROMPTS.get(name, "Select a target"))
                 prompt_lbl.setStyleSheet("color: palette(text);")
                 panel_layout.addWidget(prompt_lbl)
+            # A bought hatchet/pickaxe joins the auto-resolved toolbelt on its
+            # own, so an unusable upgrade otherwise looks ignored. Name the gate
+            # on the skill that owns the tool, not only in the Bank.
+            gate_label = {"Woodcutting": "Hatchet", "Mining": "Pickaxe"}.get(name)
+            if gate_label is not None:
+                blocked = [
+                    f"{display_name} (needs {skill_label} {level})"
+                    for slot_label, display_name, skill_label, level in bank_gear_rows_pure(
+                        player_data,
+                        MINING_PICKAXE_DATA,
+                        WOODCUTTING_AXE_DATA,
+                        MINING_BONUS_ITEM_DATA,
+                    )["toolbelt_blocked"]
+                    if slot_label == gate_label
+                ]
+                if blocked:
+                    gate_note = QLabel("Owned but not usable yet: " + ", ".join(blocked))
+                    gate_note.setWordWrap(True)
+                    gate_note.setStyleSheet(f"color: {dim_text_css(gate_note)}; font-size: 11px;")
+                    panel_layout.addWidget(gate_note)
             built_panel = builder()
             panel_layout.addWidget(built_panel, 1)
             if name == "Farming":
                 _MAIN_MENU_CTX["refresh_farming"] = getattr(built_panel, "_ankiscape_refresh_farming", None)
+            if name == _ACTIVITIES_HUB_NAME:
+                _MAIN_MENU_CTX["show_activity"] = getattr(built_panel, "_ankiscape_show_activity", None)
         else:
             panel_layout.addWidget(QLabel("No targets available yet."))
             panel_layout.addStretch(1)
@@ -18408,7 +18723,27 @@ def show_main_menu(
     # reviews (auto-enables Smithing/Crafting once materials are gathered).
     _MAIN_MENU_CTX["dialog"] = dialog
     _MAIN_MENU_CTX["warn_label"] = warn
+    def _open_activity_in_dialog(activity_id=None) -> None:
+        state["details_open"] = False
+        state["category"] = "activities"
+        _update_cat_btn_styles()
+        state["skill"] = _ACTIVITIES_HUB_NAME
+        _render_skill_list()
+        for index in range(skill_list_widget.count()):
+            item = skill_list_widget.item(index)
+            if item.data(Qt.ItemDataRole.UserRole) == _ACTIVITIES_HUB_NAME:
+                skill_list_widget.setCurrentItem(item)
+                break
+        _render_panel()
+        show_activity = _MAIN_MENU_CTX.get("show_activity")
+        if callable(show_activity) and activity_id:
+            show_activity(str(activity_id))
+        tabs.setCurrentWidget(skills_tab)
+        dialog.raise_()
+        dialog.activateWindow()
+
     _MAIN_MENU_CTX["open_farming"] = _open_farming_in_dialog
+    _MAIN_MENU_CTX["open_activity"] = _open_activity_in_dialog
     try:
         dialog.finished.connect(
             lambda _=None: _MAIN_MENU_CTX.update(
@@ -18424,6 +18759,8 @@ def show_main_menu(
                     "warn_label": None,
                     "open_farming": None,
                     "refresh_farming": None,
+                    "open_activity": None,
+                    "show_activity": None,
                 }
             )
         )
@@ -18436,6 +18773,8 @@ def show_main_menu(
         _select_category(init_cat)
         if initial_skill == "Farming":
             _open_farming_in_dialog(initial_farming_patch_id)
+        elif initial_skill == _ACTIVITIES_HUB_NAME:
+            _open_activity_in_dialog(initial_activity_id)
     else:
         panel_layout.addWidget(QLabel("No skills available."))
 
@@ -18443,1166 +18782,12 @@ def show_main_menu(
     _set_global_tab_icon(skills_tab, "skills_icon.png")
     tabs.setTabToolTip(tabs.indexOf(skills_tab), "Pick a category, choose a skill, then select what to train on")
 
-    # ---- Shop tab ---------------------------------------------------------
-    # Frontend boundary: the tab is deliberately thin. It renders backend view
-    # models and calls preview/apply APIs; it does not calculate prices, sell
-    # policy, stock behavior, service eligibility, or hidden reward-shop state.
-    shop_tab = QWidget()
-    shop_tab.setObjectName("shopTab")
-    shop_layout = QVBoxLayout(shop_tab)
-    shop_layout.setContentsMargins(12, 12, 12, 12)
-    shop_layout.setSpacing(8)
-
-    shop_filter_bar = CatalogFilterBar(
-        placeholder="Search shops or items",
-        search_object_name="shopSearchInput",
+    _add_deferred_tab(
+        "Shop",
+        "shop_icon.png",
+        "Browse source-backed NPC shops and vendor services",
+        build_shop_tab,
     )
-    shop_filter_bar.summary_label.setVisible(False)
-    shop_search = shop_filter_bar.search_input
-    shop_layout.addWidget(shop_filter_bar)
-
-    shop_selector = QListWidget()
-    shop_selector.setObjectName("shopSelectionList")
-    # Max height is managed by _sync_shop_detail_visibility: full height while
-    # browsing, compact while a shop's detail panel is open.
-    shop_selector.setMinimumHeight(116)
-    shop_selector.setIconSize(QSize(24, 24))
-    shop_selector.setAlternatingRowColors(True)
-    shop_selector.setStyleSheet(
-        "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
-        " background: palette(base); color: palette(text); padding: 3px; }"
-        " QListWidget::item { padding: 5px 7px; border-radius: 6px; }"
-        " QListWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
-    )
-    shop_layout.addWidget(shop_selector, 1)
-
-    shop_placeholder = QLabel("Click a shop to browse its stock, prices, and services.")
-    shop_placeholder.setObjectName("shopDetailPlaceholder")
-    shop_placeholder.setStyleSheet(f"color: {dim_text_css(shop_placeholder)}; padding: 2px;")
-    shop_layout.addWidget(shop_placeholder)
-
-    shop_shell = QWidget()
-    shop_shell.setObjectName("shopDetailShell")
-    shop_shell.setStyleSheet(
-        "QWidget#shopDetailShell { border: 1px solid palette(mid); border-radius: 8px;"
-        " background: palette(base); }"
-    )
-    shop_shell_layout = QVBoxLayout(shop_shell)
-    shop_shell_layout.setContentsMargins(10, 8, 10, 10)
-    shop_shell_layout.setSpacing(8)
-
-    shop_header = QWidget()
-    shop_header_layout = QHBoxLayout(shop_header)
-    shop_header_layout.setContentsMargins(0, 0, 0, 0)
-    shop_header_layout.setSpacing(8)
-    shop_title = QLabel("Select a shop")
-    shop_title.setObjectName("shopDetailTitle")
-    shop_title.setStyleSheet("font-size: 14px; font-weight: 700; color: palette(text);")
-    shop_meta = QLabel("")
-    shop_meta.setObjectName("shopDetailMeta")
-    shop_meta.setStyleSheet(f"color: {dim_text_css(shop_meta)};")
-    shop_collapse_btn = QToolButton()
-    shop_collapse_btn.setObjectName("shopDetailCollapseButton")
-    shop_collapse_btn.setText("Close ✕")
-    shop_collapse_btn.setToolTip("Collapse this shop panel and return to the shop list")
-    shop_collapse_btn.setStyleSheet(
-        "QToolButton { border: 1px solid palette(mid); border-radius: 6px;"
-        " padding: 2px 8px; color: palette(text); background: transparent; }"
-        " QToolButton:hover { border-color: #4CAF50; }"
-    )
-    shop_header_layout.addWidget(shop_title, 1)
-    shop_header_layout.addWidget(shop_meta)
-    shop_header_layout.addWidget(shop_collapse_btn)
-    shop_shell_layout.addWidget(shop_header)
-
-    shop_mode_tabs = QTabWidget()
-    shop_mode_tabs.setObjectName("shopModeTabs")
-    shop_mode_tabs.setDocumentMode(True)
-
-    buy_page = QWidget()
-    buy_layout = QVBoxLayout(buy_page)
-    buy_layout.setContentsMargins(0, 0, 0, 0)
-    buy_layout.setSpacing(6)
-    stock_scroll = QScrollArea()
-    stock_scroll.setObjectName("shopStockScroll")
-    stock_scroll.setWidgetResizable(True)
-    # One full tile row is the hard floor (short Anki windows must compress
-    # gracefully, never overlap); taller dialogs stretch to show more rows.
-    stock_scroll.setMinimumHeight(86)
-    stock_scroll.setStyleSheet("QScrollArea#shopStockScroll { border: 1px solid palette(mid); border-radius: 8px; }")
-    stock_content = QWidget()
-    stock_grid = QGridLayout(stock_content)
-    stock_grid.setContentsMargins(6, 6, 6, 6)
-    stock_grid.setSpacing(6)
-    # Pack tiles top-left instead of letting the grid center/stretch them
-    # across leftover space (which produced floating tiles and huge gaps).
-    # Column 6 and row 199 are virtual stretch-only cells past any real tile.
-    stock_grid.setColumnStretch(6, 1)
-    stock_grid.setRowStretch(199, 1)
-    stock_scroll.setWidget(stock_content)
-    buy_layout.addWidget(stock_scroll, 1)
-    shop_mode_tabs.addTab(buy_page, "Buy Items")
-
-    sell_page = QWidget()
-    sell_layout = QVBoxLayout(sell_page)
-    sell_layout.setContentsMargins(0, 0, 0, 0)
-    sell_layout.setSpacing(6)
-    sell_hint = QLabel("Select an item from your bank to sell to this shop.")
-    sell_hint.setObjectName("shopSellHint")
-    sell_hint.setStyleSheet(f"color: {dim_text_css(sell_hint)};")
-    sell_layout.addWidget(sell_hint)
-    sell_inventory = QListWidget()
-    sell_inventory.setObjectName("shopSellInventoryList")
-    sell_inventory.setIconSize(QSize(24, 24))
-    sell_inventory.setAlternatingRowColors(True)
-    sell_inventory.setStyleSheet(
-        "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
-        " background: palette(base); color: palette(text); padding: 3px; }"
-        " QListWidget::item { padding: 5px 7px; border-radius: 6px; }"
-        " QListWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
-    )
-    sell_layout.addWidget(sell_inventory, 1)
-    shop_mode_tabs.addTab(sell_page, "Sell Items")
-    shop_shell_layout.addWidget(shop_mode_tabs, 4)
-
-    transaction_panel = QWidget()
-    transaction_panel.setObjectName("shopTransactionPanel")
-    transaction_panel.setStyleSheet(
-        "QWidget#shopTransactionPanel { border: 1px solid palette(mid); border-radius: 8px;"
-        " background: rgba(255,255,255,0.03); }"
-    )
-    transaction_layout = QVBoxLayout(transaction_panel)
-    transaction_layout.setContentsMargins(8, 6, 8, 8)
-    transaction_layout.setSpacing(5)
-    shop_selected_label = QLabel("Select an item")
-    shop_selected_label.setObjectName("shopSelectedItemLabel")
-    shop_selected_label.setStyleSheet("font-weight: 600; color: palette(text);")
-    transaction_layout.addWidget(shop_selected_label)
-    quantity_row = QWidget()
-    quantity_layout = QHBoxLayout(quantity_row)
-    quantity_layout.setContentsMargins(0, 0, 0, 0)
-    quantity_layout.setSpacing(5)
-    quantity_layout.addWidget(QLabel("Qty:"))
-    shop_quantity_buttons = {}
-    for amount in (1, 5, 10, 50):
-        btn = QPushButton(str(amount))
-        btn.setObjectName(f"shopQty{amount}Button")
-        btn.setMaximumWidth(44)
-        shop_quantity_buttons[amount] = btn
-        quantity_layout.addWidget(btn)
-    shop_custom_qty = QSpinBox()
-    shop_custom_qty.setObjectName("shopCustomQuantitySpin")
-    shop_custom_qty.setRange(1, 999999)
-    shop_custom_qty.setValue(1)
-    shop_custom_qty.setMaximumWidth(92)
-    quantity_layout.addWidget(shop_custom_qty)
-    shop_all_qty = QPushButton("All")
-    shop_all_qty.setObjectName("shopQtyAllButton")
-    shop_all_qty.setMaximumWidth(50)
-    quantity_layout.addWidget(shop_all_qty)
-    quantity_layout.addStretch(1)
-    shop_action_btn = QPushButton("Buy")
-    shop_action_btn.setObjectName("shopTransactionButton")
-    quantity_layout.addWidget(shop_action_btn)
-    transaction_layout.addWidget(quantity_row)
-    shop_preview_label = QLabel("Preview unavailable")
-    shop_preview_label.setObjectName("shopPreviewLabel")
-    shop_preview_label.setWordWrap(True)
-    shop_preview_label.setStyleSheet(f"color: {dim_text_css(shop_preview_label)};")
-    transaction_layout.addWidget(shop_preview_label)
-    shop_shell_layout.addWidget(transaction_panel)
-
-    # Services and vendor actions are not ordinary stock rows; frame them as
-    # their own panel so they read as a separate section, not trailing widgets.
-    services_panel = QWidget()
-    services_panel.setObjectName("shopServicesPanel")
-    services_panel.setStyleSheet(
-        "QWidget#shopServicesPanel { border: 1px solid palette(mid); border-radius: 8px;"
-        " background: rgba(255,255,255,0.03); }"
-    )
-    services_panel_layout = QVBoxLayout(services_panel)
-    services_panel_layout.setContentsMargins(8, 6, 8, 8)
-    services_panel_layout.setSpacing(5)
-    # Hug the content: in provider mode this panel is the only section, and
-    # without a cap it stretches and floats its rows mid-air.
-    services_panel.setMaximumHeight(190)
-    services_header = QLabel("Services")
-    services_header.setObjectName("shopServicesHeader")
-    services_header.setStyleSheet("font-weight: 600; color: palette(text);")
-    services_panel_layout.addWidget(services_header)
-    service_row = QWidget()
-    service_row_layout = QHBoxLayout(service_row)
-    service_row_layout.setContentsMargins(0, 0, 0, 0)
-    service_row_layout.setSpacing(8)
-    service_list = QListWidget()
-    service_list.setObjectName("shopServiceList")
-    service_list.setMaximumHeight(96)
-    service_list.setIconSize(QSize(24, 24))
-    service_list.setAlternatingRowColors(True)
-    service_list.setStyleSheet(
-        "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
-        " background: palette(base); color: palette(text); padding: 3px; }"
-        " QListWidget::item { padding: 5px 7px; border-radius: 6px; }"
-        " QListWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
-    )
-    service_row_layout.addWidget(service_list, 1)
-    service_controls = QWidget()
-    service_controls_layout = QVBoxLayout(service_controls)
-    service_controls_layout.setContentsMargins(0, 0, 0, 0)
-    service_controls_layout.setSpacing(5)
-    service_qty = QSpinBox()
-    service_qty.setObjectName("shopServiceQuantitySpin")
-    service_qty.setRange(1, 999999)
-    service_qty.setValue(1)
-    # Vendor actions are one interaction per use (dialogue parity, owner
-    # decision 2026-07-07); the backend clamps quantity to 1, so the spinner
-    # is hidden until a genuinely batchable instant service exists.
-    service_qty.setVisible(False)
-    service_controls_layout.addWidget(service_qty)
-    service_use_btn = QPushButton("Use")
-    service_use_btn.setObjectName("shopServiceUseButton")
-    service_controls_layout.addWidget(service_use_btn)
-    service_controls_layout.addStretch(1)
-    service_row_layout.addWidget(service_controls)
-    services_panel_layout.addWidget(service_row)
-    service_preview = QLabel("")
-    service_preview.setObjectName("shopServicePreviewLabel")
-    service_preview.setWordWrap(True)
-    service_preview.setStyleSheet(f"color: {dim_text_css(service_preview)};")
-    services_panel_layout.addWidget(service_preview)
-    shop_shell_layout.addWidget(services_panel)
-
-    history_header = QWidget()
-    history_header_layout = QHBoxLayout(history_header)
-    history_header_layout.setContentsMargins(0, 0, 0, 0)
-    history_header_layout.setSpacing(8)
-    history_label = QLabel("Recent Shop Activity")
-    history_label.setStyleSheet("font-weight: 600; color: palette(text);")
-    global_history_btn = QPushButton("Global recent")
-    global_history_btn.setObjectName("shopGlobalHistoryButton")
-    global_history_btn.setCheckable(True)
-    history_header_layout.addWidget(history_label)
-    history_header_layout.addStretch(1)
-    history_header_layout.addWidget(global_history_btn)
-    shop_shell_layout.addWidget(history_header)
-    local_history = QListWidget()
-    local_history.setObjectName("shopLocalHistoryList")
-    local_history.setMaximumHeight(44)
-    local_history.setStyleSheet(
-        "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
-        " background: palette(base); color: palette(text); padding: 3px; }"
-        " QListWidget::item { padding: 4px 6px; }"
-    )
-    global_history = QListWidget()
-    global_history.setObjectName("shopGlobalHistoryList")
-    global_history.setMaximumHeight(44)
-    global_history.setVisible(False)
-    global_history.setStyleSheet(local_history.styleSheet())
-    shop_shell_layout.addWidget(local_history)
-    shop_shell_layout.addWidget(global_history)
-
-    shop_toast = QLabel("")
-    shop_toast.setObjectName("shopToastLabel")
-    shop_toast.setWordWrap(True)
-    shop_toast.setStyleSheet("color: #4CAF50; font-weight: 600;")
-    shop_toast.setVisible(False)
-    shop_shell_layout.addWidget(shop_toast)
-    # Absorbs leftover height so sections stay top-aligned (dominant in
-    # provider mode, where every stretchy section is hidden).
-    shop_shell_layout.addStretch(1)
-    shop_layout.addWidget(shop_shell, 3)
-
-    shop_state = {
-        "shop_id": "",
-        "row_id": "",
-        "sell_item": "",
-        # Selected service/vendor provider (Ellis, Bartender, ...). Providers
-        # are their own selector entries because the backend attaches services
-        # to NPC providers, not to any shop.
-        "provider": "",
-        "service_kind": "",
-        "service_id": "",
-    }
-
-    def _safe_object_suffix(value: str) -> str:
-        return "".join(ch if ch.isalnum() else "_" for ch in value)[:80]
-
-    def _visible_shop_defs() -> list:
-        return [
-            shop for shop in SHOP_DATA.values()
-            if shop.get("visibility") != "hidden"
-        ]
-
-    def _shop_live_row_count(shop: dict) -> int:
-        return sum(
-            1 for row in shop.get("stock", [])
-            if shop.get("visibility") == "visible" and row.get("disposition") == "live"
-        )
-
-    def _shop_selector_sort_key(shop: dict) -> tuple:
-        return (
-            _shop_live_row_count(shop) == 0,
-            shop.get("visibility") != "visible",
-            str(shop.get("display_name", "")),
-        )
-
-    def _sync_shop_detail_visibility(detail_open: bool) -> None:
-        # Browse-first: the shop list owns the tab until a shop is opened, and
-        # gets its height back when the detail panel is collapsed.
-        shop_shell.setVisible(detail_open)
-        shop_placeholder.setVisible(not detail_open)
-        shop_selector.setMaximumHeight(104 if detail_open else 16777215)
-
-    def _visible_service_defs() -> list:
-        rows = []
-        for service in SHOP_SERVICES.values():
-            if service.get("visibility") == "visible":
-                rows.append(("service", service))
-        for action in SHOP_VENDOR_ACTIONS.values():
-            if action.get("visibility") == "visible":
-                rows.append(("vendor_action", action))
-        return rows
-
-    def _format_shop_price(value, currency_name: str) -> str:
-        if value is None:
-            return "N/A"
-        try:
-            amount = int(value)
-        except (TypeError, ValueError):
-            return "N/A"
-        return f"{amount:,} {currency_name}"
-
-    def _inventory_count_for_ui(item_name: str) -> int:
-        inventory = player_data.get("inventory", {}) or {}
-        try:
-            return max(0, int(inventory.get(item_name, 0) or 0))
-        except (TypeError, ValueError):
-            return 0
-
-    def _format_requirement_rows(rows: list) -> str:
-        parts = []
-        for row in rows[:3]:
-            if not isinstance(row, dict):
-                continue
-            item_name = str(row.get("item_name", "Item"))
-            owned = int(row.get("owned_quantity", 0) or 0)
-            required = int(row.get("required_quantity", 0) or 0)
-            parts.append(
-                f"{item_name}: {owned:,} owned, {required:,} needed"
-            )
-        return "; ".join(parts)
-
-    def _preview_denial_text(preview: dict, fallback: str = "") -> str:
-        reason = str(preview.get("reason") or fallback or "unavailable")
-        if reason == "insufficient_currency":
-            currency = str(preview.get("currency_item_name", "Coins"))
-            required = int(preview.get("required_currency", 0) or 0)
-            owned = int(preview.get("currency_owned", 0) or 0)
-            return f"Need {required:,} {currency}, you have {owned:,}."
-        if reason == "missing_item":
-            item_name = str(preview.get("item_name", "item"))
-            owned = int(preview.get("owned_quantity", 0) or 0)
-            return f"You have {owned:,} x {item_name}."
-        if reason == "missing_requirements":
-            missing = preview.get("missing_requirements", [])
-            detail = _format_requirement_rows(missing if isinstance(missing, list) else [])
-            return f"Missing requirements: {detail}." if detail else "Missing requirements."
-        if reason == "skill_level":
-            skill_id = str(preview.get("skill_id", "skill")).title()
-            required = int(preview.get("required_level", 1) or 1)
-            current = int(preview.get("current_level", 1) or 1)
-            return f"Requires {required} {skill_id}; you have {current}."
-        if reason == "no_potions_to_decant":
-            return "You have no vial potions that Bob can consolidate."
-        if reason == "missing_decant_vials":
-            required = int(preview.get("required_vials", 0) or 0)
-            owned = int(preview.get("owned_vials", 0) or 0)
-            dose = int(preview.get("target_dose", 0) or 0)
-            return f"Decanting to {dose} doses needs {required:,} empty vial(s); you have {owned:,}."
-        if reason == "unsupported_decant_dose":
-            return "Bob can decant vial potions to 2, 3, or 4 doses."
-        if reason == "missing_empty_potion_flask":
-            return "Teplin needs at least one empty Potion flask."
-        if reason == "insufficient_flask_doses":
-            return (
-                "You do not have six doses in 1–4 dose vials or partial "
-                "flasks for Teplin to fill a flask."
-            )
-        if reason == "no_partial_flasks_to_decant":
-            return "You have no 1–4 dose potion flasks for Teplin to decant."
-        return fallback or reason
-
-    def _service_icon_item_name(row: dict) -> str:
-        icon_item_name = row.get("icon_item_name")
-        if isinstance(icon_item_name, str) and _item_icon_path(icon_item_name):
-            return icon_item_name
-        for key in ("outputs", "inputs"):
-            for item in row.get(key, []):
-                item_name = item.get("item_name")
-                if isinstance(item_name, str) and _item_icon_path(item_name):
-                    return item_name
-        return ""
-
-    def _set_list_item_icon(item: QListWidgetItem, item_name: str) -> None:
-        icon = _pixel_item_icon(item_name, 24)
-        if icon is not None:
-            item.setIcon(icon)
-
-    def _replace_player_data(new_data: dict) -> None:
-        player_data.clear()
-        player_data.update(new_data)
-
-    def _persist_shop_state() -> None:
-        if on_check_achievements is not None:
-            on_check_achievements(player_data)
-        if on_save_player_data is None:
-            return
-        try:
-            on_save_player_data()
-        except Exception:
-            pass
-
-    def _refresh_after_shop_mutation(message: str) -> None:
-        shop_toast.setText(message)
-        shop_toast.setVisible(bool(message))
-        _populate_shop_selector()
-        _render_shop_detail()
-        _populate_sell_inventory()
-        _populate_shop_history()
-        try:
-            _refresh_equipment_views()
-        except Exception:
-            pass
-
-    def _shop_view() -> dict:
-        # No default shop: until the user clicks a shop, there is no detail
-        # view. An invalid/stale id degrades to the browse state rather than
-        # silently swapping in a different shop.
-        shop_id = shop_state["shop_id"]
-        if not shop_id or all(shop.get("id") != shop_id for shop in _visible_shop_defs()):
-            shop_state["shop_id"] = ""
-            return {"exists": False, "rows": []}
-        return shop_view_model_pure(player_data, shop_id)
-
-    def _selected_buy_row(view: dict | None = None) -> Optional[dict]:
-        view = view if view is not None else _shop_view()
-        rows = view.get("rows", []) if isinstance(view, dict) else []
-        if not rows:
-            return None
-        row = next((candidate for candidate in rows if candidate.get("id") == shop_state["row_id"]), None)
-        if row is None:
-            row = rows[0]
-            shop_state["row_id"] = row.get("id", "")
-        return row
-
-    def _stock_tile_text(row: dict, currency_name: str) -> str:
-        return str(row.get("item_name", "Item"))
-
-    def _shop_row_tooltip(row: dict, currency_name: str) -> str:
-        parts = [str(row.get("item_name", "Item"))]
-        stock = f"{int(row.get('current_quantity', 0) or 0):,}/{int(row.get('default_quantity', 0) or 0):,}"
-        parts.append(f"Stock: {stock}")
-        parts.append(f"Buy: {_format_shop_price(row.get('buy_price'), currency_name)}")
-        parts.append(f"Sell: {_format_shop_price(row.get('sell_price'), currency_name)}")
-        if row.get("lock_reason"):
-            parts.append(f"Locked: {row.get('lock_reason')}")
-        if row.get("price_source"):
-            parts.append(str(row.get("price_source")))
-        if row.get("source"):
-            parts.append(str(row.get("source")))
-        return "\n".join(parts)
-
-    def _render_stock_grid() -> None:
-        _clear_layout(stock_grid)
-        view = _shop_view()
-        rows = view.get("rows", []) if view.get("exists") else []
-        if not rows:
-            empty = QLabel("No stock rows available.")
-            empty.setStyleSheet(f"color: {dim_text_css(empty)};")
-            stock_grid.addWidget(empty, 0, 0)
-            return
-        currency_name = str(view.get("currency_item_name", "Coins"))
-        selected_row_id = shop_state["row_id"]
-        for index, row in enumerate(rows):
-            row_id = str(row.get("id", ""))
-            btn = QToolButton()
-            btn.setText(_stock_tile_text(row, currency_name))
-            btn.setObjectName(f"shopStockTile_{_safe_object_suffix(row_id)}")
-            btn.setProperty("shopRowId", row_id)
-            btn.setMinimumSize(104, 66)
-            icon = _pixel_item_icon(str(row.get("item_name", "")), 32)
-            if icon is not None:
-                btn.setIcon(icon)
-                btn.setIconSize(QSize(32, 32))
-            if hasattr(btn, "setToolButtonStyle"):
-                try:
-                    btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)  # type: ignore[attr-defined]
-                except Exception:
-                    pass
-            btn.setCheckable(True)
-            btn.setChecked(row_id == selected_row_id)
-            btn.setToolTip(_shop_row_tooltip(row, currency_name))
-            border = "#4CAF50" if row_id == selected_row_id else "palette(mid)"
-            foreground = dim_text_css(btn) if row.get("lock_reason") else "palette(text)"
-            btn.setStyleSheet(
-                f"QToolButton {{ text-align: center; padding: 5px; border: 1px solid {border};"
-                f" border-radius: 6px; color: {foreground}; background: rgba(255,255,255,0.03); }}"
-                " QToolButton:hover { border-color: #4CAF50; }"
-            )
-            btn.clicked.connect(lambda _=False, rid=row_id: _select_stock_row(rid))
-            stock_grid.addWidget(btn, index // 6, index % 6)
-
-    def _select_stock_row(row_id: str) -> None:
-        shop_state["row_id"] = row_id
-        _render_stock_grid()
-        _refresh_transaction_panel()
-
-    def _populate_sell_inventory() -> None:
-        current = shop_state.get("sell_item", "")
-        sell_inventory.clear()
-        inventory = player_data.get("inventory", {}) or {}
-        items = [
-            (name, int(amount or 0))
-            for name, amount in sorted(inventory.items())
-            if isinstance(name, str) and int(amount or 0) > 0
-        ]
-        if not items:
-            empty = QListWidgetItem("Your bank has no sellable items.")
-            empty.setFlags(Qt.ItemFlag.NoItemFlags)
-            sell_inventory.addItem(empty)
-            shop_state["sell_item"] = ""
-            return
-        selected_item = current if any(name == current for name, _amount in items) else items[0][0]
-        shop_state["sell_item"] = selected_item
-        for name, amount in items:
-            item = QListWidgetItem(f"{name} x{amount:,}")
-            item.setData(Qt.ItemDataRole.UserRole, name)
-            _set_list_item_icon(item, name)
-            sell_inventory.addItem(item)
-            if name == selected_item:
-                sell_inventory.setCurrentItem(item)
-
-    def _set_quantity(value: int) -> None:
-        shop_custom_qty.blockSignals(True)
-        shop_custom_qty.setValue(max(1, min(999999, int(value))))
-        shop_custom_qty.blockSignals(False)
-        _refresh_transaction_panel()
-
-    def _set_all_quantity() -> None:
-        if shop_mode_tabs.currentIndex() == 0:
-            row = _selected_buy_row()
-            if row is not None:
-                _set_quantity(max(1, int(row.get("current_quantity", 1) or 1)))
-                return
-        else:
-            item_name = shop_state.get("sell_item", "")
-            if item_name:
-                _set_quantity(max(1, _inventory_count_for_ui(item_name)))
-
-    def _refresh_transaction_panel() -> None:
-        view = _shop_view()
-        shop_id = str(view.get("shop_id", ""))
-        qty = int(shop_custom_qty.value())
-        if shop_mode_tabs.currentIndex() == 0:
-            row = _selected_buy_row(view)
-            if row is None:
-                shop_selected_label.setText("Select an item")
-                shop_preview_label.setText("No stock row selected.")
-                shop_action_btn.setText("Buy")
-                shop_action_btn.setEnabled(False)
-                return
-            item_name = str(row.get("item_name", "Item"))
-            price = _format_shop_price(row.get("buy_price"), str(view.get("currency_item_name", "Coins")))
-            stock = f"{int(row.get('current_quantity', 0) or 0):,}/{int(row.get('default_quantity', 0) or 0):,}"
-            shop_selected_label.setText(f"{item_name} · Stock {stock} · Buy {price}")
-            preview = preview_shop_buy_pure(player_data, shop_id, str(row.get("id", "")), qty)
-            if preview.get("allowed"):
-                amount = int(preview.get("quantity", qty) or qty)
-                total = int(preview.get("total_price", 0) or 0)
-                currency = str(preview.get("currency_item_name", view.get("currency_item_name", "Coins")))
-                owned_currency = int(preview.get("currency_owned", _inventory_count_for_ui(currency)) or 0)
-                suffix = " (clamped)" if preview.get("clamped") else ""
-                shop_preview_label.setText(f"Buy {amount:,} x {item_name} for {total:,} {currency}. You have {owned_currency:,} {currency}.{suffix}")
-                shop_action_btn.setText(f"Buy {amount:,}")
-                shop_action_btn.setEnabled(True)
-            else:
-                shop_preview_label.setText(_preview_denial_text(preview, str(row.get("lock_reason", ""))))
-                shop_action_btn.setText("Buy")
-                shop_action_btn.setEnabled(False)
-        else:
-            item_name = shop_state.get("sell_item", "")
-            shop_action_btn.setText("Sell")
-            if not item_name:
-                shop_selected_label.setText("Select an item")
-                shop_preview_label.setText("No bank item selected.")
-                shop_action_btn.setEnabled(False)
-                return
-            owned = _inventory_count_for_ui(item_name)
-            shop_selected_label.setText(f"{item_name} · You have {owned:,}")
-            preview = preview_shop_sell_pure(player_data, shop_id, item_name, qty)
-            if preview.get("allowed"):
-                amount = int(preview.get("quantity", qty) or qty)
-                total = int(preview.get("total_price", 0) or 0)
-                currency = str(preview.get("currency_item_name", view.get("currency_item_name", "Coins")))
-                owned = int(preview.get("owned_quantity", _inventory_count_for_ui(item_name)) or 0)
-                suffix = " (clamped)" if preview.get("clamped") else ""
-                shop_preview_label.setText(f"Sell {amount:,} x {item_name} for {total:,} {currency}. You have {owned:,} x {item_name}.{suffix}")
-                shop_action_btn.setText(f"Sell {amount:,}")
-                shop_action_btn.setEnabled(True)
-            else:
-                shop_preview_label.setText(_preview_denial_text(preview))
-                shop_action_btn.setEnabled(False)
-
-    def _confirm_wilderness_purchase(view: dict) -> bool:
-        # Owner-declared ambush risk: confirm once per session before buying
-        # in the Wilderness (same precedent as dangerous combat targets).
-        if not view.get("wilderness") or shop_state.get("wilderness_confirmed"):
-            return True
-        answer = QMessageBox.question(
-            dialog,
-            "Wilderness purchase",
-            "This shop is in the Wilderness: every 28 items bought risks an"
-            " ambush that can kill you. Buy here anyway?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No,
-        )
-        if answer != QMessageBox.StandardButton.Yes:
-            return False
-        shop_state["wilderness_confirmed"] = True
-        return True
-
-    def _ambush_toast_suffix(result: dict) -> str:
-        ambush = result.get("wilderness_ambush") or {}
-        if not ambush.get("triggered"):
-            return ""
-        if ambush.get("died"):
-            return " You were ambushed and killed — your gear is in a grave!"
-        return f" You were ambushed for {int(ambush.get('damage', 0) or 0)} damage!"
-
-    def _apply_shop_transaction() -> None:
-        view = _shop_view()
-        shop_id = str(view.get("shop_id", ""))
-        qty = int(shop_custom_qty.value())
-        if shop_mode_tabs.currentIndex() == 0:
-            row = _selected_buy_row(view)
-            if row is None:
-                return
-            if not _confirm_wilderness_purchase(view):
-                return
-            new_data, result = apply_shop_buy_pure(player_data, shop_id, str(row.get("id", "")), qty)
-            if not result.get("allowed"):
-                _refresh_transaction_panel()
-                return
-            _replace_player_data(new_data)
-            _persist_shop_state()
-            _refresh_after_shop_mutation(
-                f"Bought {int(result.get('quantity', 0) or 0):,} x {result.get('item_name', row.get('item_name', 'item'))}."
-                + _ambush_toast_suffix(result)
-            )
-        else:
-            item_name = shop_state.get("sell_item", "")
-            if not item_name:
-                return
-            new_data, result = apply_shop_sell_pure(player_data, shop_id, item_name, qty)
-            if not result.get("allowed"):
-                _refresh_transaction_panel()
-                return
-            _replace_player_data(new_data)
-            _persist_shop_state()
-            _refresh_after_shop_mutation(f"Sold {int(result.get('quantity', 0) or 0):,} x {item_name}.")
-
-    def _service_text(kind: str, row: dict) -> str:
-        label = "Service" if kind == "service" else "Vendor"
-        provider = str(row.get("provider", ""))
-        price = (
-            "Free"
-            if int(row.get("price", 0) or 0) == 0
-            else _format_shop_price(
-                row.get("price", 0),
-                str(row.get("currency_item_name", "Coins")),
-            )
-        )
-        inputs = ", ".join(
-            f"{item.get('quantity', 1)} × {item.get('item_name')}"
-            for item in row.get("inputs", [])[:2]
-        )
-        outputs = ", ".join(
-            f"{item.get('quantity', 1)} × {item.get('item_name')}"
-            for item in row.get("outputs", [])[:2]
-        )
-        right = f" → {outputs}" if outputs else ""
-        cost_parts = [
-            part for part in (inputs, price) if part and part != "Free"
-        ]
-        cost = " + ".join(cost_parts) if cost_parts else "Free"
-        provider_selected = bool(shop_state.get("provider"))
-        prefix = "" if provider_selected else f"{label}: "
-        provider_suffix = "" if provider_selected else f" · {provider}"
-        return (
-            f"{prefix}{row.get('display_name', row.get('id'))}"
-            f"{provider_suffix} · {cost}{right}"
-        )
-
-    def _populate_services() -> None:
-        current_id = shop_state.get("service_id", "")
-        service_list.clear()
-        rows = _visible_service_defs()
-        provider = shop_state.get("provider", "")
-        if provider:
-            rows = [(kind, row) for kind, row in rows if str(row.get("provider", "")) == provider]
-        if not rows:
-            empty = QListWidgetItem("No live services or vendor actions.")
-            empty.setFlags(Qt.ItemFlag.NoItemFlags)
-            service_list.addItem(empty)
-            return
-        selected = current_id if any(row.get("id") == current_id for _kind, row in rows) else rows[0][1].get("id", "")
-        shop_state["service_id"] = str(selected)
-        for kind, row in rows:
-            item = QListWidgetItem(_service_text(kind, row))
-            item.setData(Qt.ItemDataRole.UserRole, {"kind": kind, "id": row.get("id", "")})
-            _set_list_item_icon(item, _service_icon_item_name(row))
-            service_list.addItem(item)
-            if row.get("id") == selected:
-                shop_state["service_kind"] = kind
-                service_list.setCurrentItem(item)
-        _refresh_service_preview()
-
-    def _selected_service_def() -> tuple[str, Optional[dict]]:
-        kind = shop_state.get("service_kind", "")
-        service_id = shop_state.get("service_id", "")
-        if kind == "service":
-            return kind, SHOP_SERVICES.get(service_id)
-        if kind == "vendor_action":
-            return kind, SHOP_VENDOR_ACTIONS.get(service_id)
-        return "", None
-
-    def _refresh_service_preview() -> None:
-        kind, row = _selected_service_def()
-        if row is None:
-            service_qty.setProperty("serviceRowId", "")
-            service_preview.setText("Select a service or vendor action.")
-            service_use_btn.setEnabled(False)
-            return
-        row_id = str(row.get("id", ""))
-        row_changed = service_qty.property("serviceRowId") != row_id
-        action_type = row.get("action_type")
-        is_decant = action_type == "decant_potions_to_dose"
-        has_quantity = bool(row.get("batchable", False))
-        service_qty.blockSignals(True)
-        if is_decant:
-            if service_qty.minimum() != 2 or service_qty.maximum() != 4:
-                service_qty.setRange(2, 4)
-            if row_changed:
-                service_qty.setValue(int(row.get("default_target_dose", 4) or 4))
-            service_qty.setPrefix("Dose ")
-            service_qty.setVisible(True)
-        else:
-            service_qty.setPrefix("")
-            service_qty.setRange(1, 999999)
-            if row_changed:
-                service_qty.setValue(1)
-            service_qty.setVisible(has_quantity)
-        service_qty.setProperty("serviceRowId", row_id)
-        service_qty.blockSignals(False)
-        qty = int(service_qty.value())
-        if kind == "service":
-            preview = preview_shop_service_pure(player_data, str(row.get("id", "")), qty)
-        else:
-            preview = preview_shop_vendor_action_pure(player_data, str(row.get("id", "")), qty)
-        if preview.get("allowed"):
-            if preview.get("family_count") is not None:
-                family_count = int(preview.get("family_count", 0) or 0)
-                total_doses = int(preview.get("total_doses", 0) or 0)
-                if action_type == "fill_potion_flasks":
-                    flasks_created = int(preview.get("flasks_created", 0) or 0)
-                    returned_vials = int(preview.get("returned_vials", 0) or 0)
-                    destroyed_flasks = int(preview.get("destroyed_flasks", 0) or 0)
-                    detail_parts = []
-                    if returned_vials:
-                        detail_parts.append(
-                            f"{returned_vials:,} empty "
-                            f"vial{'s' if returned_vials != 1 else ''} returned"
-                        )
-                    if destroyed_flasks:
-                        detail_parts.append(
-                            f"{destroyed_flasks:,} emptied partial "
-                            f"flask{'s' if destroyed_flasks != 1 else ''} destroyed"
-                        )
-                    detail = (
-                        f" {'; '.join(detail_parts)}."
-                        if detail_parts
-                        else ""
-                    )
-                    service_preview.setText(
-                        f"Teplin will fill {flasks_created:,} empty Potion "
-                        f"flask{'s' if flasks_created != 1 else ''} with "
-                        f"{total_doses:,} doses from {family_count:,} potion "
-                        f"type{'s' if family_count != 1 else ''} for free.{detail}"
-                    )
-                    service_use_btn.setEnabled(True)
-                    return
-                if action_type == "decant_flasks_to_vials":
-                    destroyed_flasks = int(preview.get("destroyed_flasks", 0) or 0)
-                    created_vials = int(preview.get("created_vials", 0) or 0)
-                    service_preview.setText(
-                        f"Teplin will transfer {total_doses:,} doses across "
-                        f"{family_count:,} potion "
-                        f"type{'s' if family_count != 1 else ''} into "
-                        f"{created_vials:,} vial"
-                        f"{'s' if created_vials != 1 else ''} for free, "
-                        f"destroying {destroyed_flasks:,} emptied "
-                        f"flask{'s' if destroyed_flasks != 1 else ''}."
-                    )
-                    service_use_btn.setEnabled(True)
-                    return
-                target_dose = int(preview.get("target_dose", 4) or 4)
-                returned_vials = int(preview.get("returned_vials", 0) or 0)
-                required_vials = int(preview.get("required_vials", 0) or 0)
-                vial_suffix = f" Bob returns {returned_vials:,} empty vial(s)." if returned_vials else ""
-                if required_vials:
-                    vial_suffix = f" This uses {required_vials:,} empty vial(s)."
-                service_preview.setText(
-                    f"Bob will consolidate {total_doses:,} doses across "
-                    f"{family_count:,} potion type(s) into {target_dose}-dose vials "
-                    f"for free.{vial_suffix}"
-                )
-                service_use_btn.setEnabled(True)
-                return
-            amount = int(preview.get("quantity", qty) or qty)
-            total = int(preview.get("total_price", 0) or 0)
-            currency = str(preview.get("currency_item_name", row.get("currency_item_name", "Coins")))
-            suffix = " (clamped)" if preview.get("clamped") else ""
-            requirements = (
-                preview.get("requirements", [])
-                if isinstance(preview.get("requirements"), list)
-                else []
-            )
-            requirement_text = _format_requirement_rows(
-                [
-                    requirement
-                    for requirement in requirements
-                    if requirement.get("kind") != "currency"
-                ]
-            )
-            requirement_suffix = f" {requirement_text}." if requirement_text else ""
-            repetitions = "once" if amount == 1 else f"{amount:,} times"
-            cost = "free" if total == 0 else f"{total:,} {currency}"
-            service_preview.setText(
-                f"{row.get('display_name', row.get('id'))} {repetitions} "
-                f"for {cost}.{requirement_suffix}{suffix}"
-            )
-            service_use_btn.setEnabled(True)
-        else:
-            service_preview.setText(_preview_denial_text(preview, str(row.get("lock_reason", ""))))
-            service_use_btn.setEnabled(False)
-
-    def _apply_service_transaction() -> None:
-        kind, row = _selected_service_def()
-        if row is None:
-            return
-        qty = int(service_qty.value())
-        if kind == "service":
-            new_data, result = apply_shop_service_pure(player_data, str(row.get("id", "")), qty)
-        else:
-            new_data, result = apply_shop_vendor_action_pure(player_data, str(row.get("id", "")), qty)
-        if not result.get("allowed"):
-            _refresh_service_preview()
-            return
-        _replace_player_data(new_data)
-        _persist_shop_state()
-        display_name = row.get("display_name", "vendor action")
-        amount = int(result.get("quantity", 0) or 0)
-        suffix = (
-            f" {amount:,} times."
-            if row.get("batchable") and amount != 1
-            else "."
-        )
-        _refresh_after_shop_mutation(f"Used {display_name}{suffix}")
-        _refresh_service_preview()
-
-    def _populate_shop_history() -> None:
-        local_history.clear()
-        global_history.clear()
-        view = _shop_view()
-        shop_id = str(view.get("shop_id", ""))
-        local_rows = shop_history_rows_pure(player_data, shop_id=shop_id, limit=4)
-        global_rows = shop_history_rows_pure(player_data, limit=8)
-        if not local_rows:
-            empty = QListWidgetItem("No recent activity for this shop.")
-            empty.setFlags(Qt.ItemFlag.NoItemFlags)
-            local_history.addItem(empty)
-        else:
-            for event in local_rows:
-                local_history.addItem(QListWidgetItem(str(event.get("display", event.get("event_id", "Shop event")))))
-        if not global_rows:
-            empty = QListWidgetItem("No global shop activity yet.")
-            empty.setFlags(Qt.ItemFlag.NoItemFlags)
-            global_history.addItem(empty)
-        else:
-            for event in global_rows:
-                global_history.addItem(QListWidgetItem(str(event.get("display", event.get("event_id", "Shop event")))))
-
-    def _set_shop_detail_mode(mode: str) -> None:
-        # "shop": stock/sell/transaction/history. "provider": services only —
-        # the backend attaches services to provider NPCs, never to shops, so a
-        # shop detail must not advertise unrelated global services.
-        is_shop = mode == "shop"
-        shop_mode_tabs.setVisible(is_shop)
-        transaction_panel.setVisible(is_shop)
-        history_header.setVisible(is_shop)
-        local_history.setVisible(is_shop)
-        if not is_shop:
-            global_history.setVisible(False)
-            global_history_btn.setChecked(False)
-        services_panel.setVisible(not is_shop)
-
-    def _render_shop_detail() -> None:
-        provider = shop_state.get("provider", "")
-        if provider:
-            provider_rows = [
-                (kind, row)
-                for kind, row in _visible_service_defs()
-                if str(row.get("provider", "")) == provider
-            ]
-            if not provider_rows:
-                shop_state["provider"] = ""
-                _sync_shop_detail_visibility(False)
-                return
-            _sync_shop_detail_visibility(True)
-            _set_shop_detail_mode("provider")
-            shop_title.setText(provider)
-            location = next(
-                (str(row.get("location", "")) for _kind, row in provider_rows if row.get("location")),
-                "",
-            )
-            shop_meta.setText(location)
-            _populate_services()
-            return
-        view = _shop_view()
-        if not view.get("exists"):
-            shop_state["row_id"] = ""
-            _sync_shop_detail_visibility(False)
-            return
-        _sync_shop_detail_visibility(True)
-        _set_shop_detail_mode("shop")
-        shop_title.setText(str(view.get("display_name", "NPC shop")))
-        currency_name = str(view.get("currency_item_name", "Coins"))
-        meta_parts = [f"{currency_name}: {_inventory_count_for_ui(currency_name):,} owned"]
-        if view.get("wilderness"):
-            meta_parts.append("Wilderness — you can be attacked")
-        if view.get("general_store"):
-            meta_parts.append("General store")
-        if view.get("lock_reason"):
-            meta_parts.append(str(view.get("lock_reason")))
-        shop_meta.setText(" · ".join(meta_parts))
-        if not shop_state["row_id"] and view.get("rows"):
-            shop_state["row_id"] = str(view["rows"][0].get("id", ""))
-        _render_stock_grid()
-        _populate_sell_inventory()
-        _refresh_transaction_panel()
-        _populate_shop_history()
-
-    def _shop_selector_label_from_result(result: dict) -> str:
-        kind = result.get("kind")
-        if kind == "stock":
-            price = _format_shop_price(result.get("buy_price"), "Coins")
-            stock = f"{int(result.get('current_quantity', 0) or 0):,}/{int(result.get('default_quantity', 0) or 0):,}"
-            lock = f" · {result.get('lock_reason')}" if result.get("lock_reason") else ""
-            return f"{result.get('item_name')} · {result.get('shop_name')} · Stock {stock} · {price}{lock}"
-        label = "Service" if kind == "service" else "Vendor"
-        lock = f" · {result.get('lock_reason')}" if result.get("lock_reason") else ""
-        price = int(result.get("price", 0) or 0)
-        cost = (
-            "Free"
-            if price == 0
-            else f"{price:,} {result.get('currency_item_name', 'Coins')}"
-        )
-        return (
-            f"{label}: {result.get('display_name')} · "
-            f"{result.get('provider')} · {cost}{lock}"
-        )
-
-    def _populate_shop_selector() -> None:
-        current_shop_id = shop_state.get("shop_id", "")
-        query = shop_search.text().strip()
-        shop_selector.clear()
-        if query:
-            results = search_shop_catalog_pure(player_data, query, include_locked=True, include_hidden=False, limit=80).get("results", [])
-            if results:
-                selected_item = None
-                for result in results:
-                    item = QListWidgetItem(_shop_selector_label_from_result(result))
-                    item.setData(Qt.ItemDataRole.UserRole, dict(result))
-                    if result.get("kind") == "stock":
-                        _set_list_item_icon(item, str(result.get("item_name", "")))
-                    elif result.get("kind") in {"service", "vendor_action"}:
-                        source = SHOP_SERVICES if result.get("kind") == "service" else SHOP_VENDOR_ACTIONS
-                        service_row = source.get(str(result.get("id", "")), {})
-                        _set_list_item_icon(item, _service_icon_item_name(service_row))
-                    if result.get("visibility") == "visible_locked" or result.get("lock_reason"):
-                        item.setForeground(dim_text_color(shop_selector))
-                    shop_selector.addItem(item)
-                    if result.get("kind") == "stock" and result.get("shop_id") == current_shop_id and selected_item is None:
-                        selected_item = item
-                if selected_item is not None:
-                    shop_selector.blockSignals(True)
-                    shop_selector.setCurrentItem(selected_item)
-                    shop_selector.blockSignals(False)
-                return
-            empty = QListWidgetItem("No visible shop stock, service, or vendor action matches this search.")
-            empty.setFlags(Qt.ItemFlag.NoItemFlags)
-            shop_selector.addItem(empty)
-            return
-        visible = sorted(_visible_shop_defs(), key=_shop_selector_sort_key)
-        for shop in visible:
-            view = shop_view_model_pure(player_data, str(shop.get("id", "")))
-            rows = view.get("rows", [])
-            live_count = sum(1 for row in rows if row.get("can_buy"))
-            locked_count = sum(1 for row in rows if row.get("lock_reason"))
-            suffix = []
-            if live_count:
-                suffix.append(f"{live_count} live")
-            if locked_count:
-                suffix.append(f"{locked_count} locked")
-            if shop.get("general_store"):
-                suffix.append("general store")
-            if shop.get("lock_reason"):
-                suffix.append(str(shop.get("lock_reason")))
-            label = f"{shop.get('display_name', shop.get('id'))} · " + (" · ".join(suffix) if suffix else "read-only")
-            item = QListWidgetItem(label)
-            item.setData(Qt.ItemDataRole.UserRole, {"kind": "shop", "shop_id": shop.get("id", "")})
-            icon_name = next(
-                (
-                    str(row.get("item_name", ""))
-                    for row in rows
-                    if _item_icon_path(str(row.get("item_name", "")))
-                ),
-                "",
-            )
-            _set_list_item_icon(item, icon_name)
-            if shop.get("visibility") != "visible":
-                item.setForeground(dim_text_color(shop_selector))
-            shop_selector.addItem(item)
-            if shop.get("id") == current_shop_id:
-                shop_selector.blockSignals(True)
-                shop_selector.setCurrentItem(item)
-                shop_selector.blockSignals(False)
-        # Service/vendor providers browse as their own entries after the shops;
-        # the backend ties services to NPC providers, not shops.
-        providers: dict = {}
-        for kind, row in _visible_service_defs():
-            providers.setdefault(str(row.get("provider", "")), []).append((kind, row))
-        current_provider = shop_state.get("provider", "")
-        for provider in sorted(name for name in providers if name):
-            provider_rows = providers[provider]
-            location = next(
-                (str(row.get("location", "")) for _kind, row in provider_rows if row.get("location")),
-                "",
-            )
-            count = len(provider_rows)
-            parts = [provider]
-            if location:
-                parts.append(location)
-            parts.append(f"{count} service{'s' if count != 1 else ''}")
-            item = QListWidgetItem(" · ".join(parts))
-            item.setData(Qt.ItemDataRole.UserRole, {"kind": "provider", "provider": provider})
-            icon_name = next(
-                (
-                    _service_icon_item_name(row)
-                    for _kind, row in provider_rows
-                    if _service_icon_item_name(row)
-                ),
-                "",
-            )
-            _set_list_item_icon(item, icon_name)
-            shop_selector.addItem(item)
-            if provider == current_provider:
-                shop_selector.blockSignals(True)
-                shop_selector.setCurrentItem(item)
-                shop_selector.blockSignals(False)
-
-    def _collapse_shop_detail() -> None:
-        shop_state["shop_id"] = ""
-        shop_state["row_id"] = ""
-        shop_state["provider"] = ""
-        shop_selector.blockSignals(True)
-        shop_selector.clearSelection()
-        shop_selector.setCurrentItem(None)
-        shop_selector.blockSignals(False)
-        _render_shop_detail()
-
-    def _on_shop_selector_clicked(item: QListWidgetItem) -> None:
-        payload = item.data(Qt.ItemDataRole.UserRole) if item is not None else None
-        if not isinstance(payload, dict):
-            return
-        kind = payload.get("kind")
-        if kind == "shop":
-            shop_state["shop_id"] = str(payload.get("shop_id", ""))
-            shop_state["row_id"] = ""
-            shop_state["provider"] = ""
-            _render_shop_detail()
-            return
-        if kind == "stock":
-            shop_state["shop_id"] = str(payload.get("shop_id", ""))
-            shop_state["row_id"] = str(payload.get("row_id", ""))
-            shop_state["provider"] = ""
-            _render_shop_detail()
-            return
-        if kind == "provider":
-            shop_state["provider"] = str(payload.get("provider", ""))
-            shop_state["shop_id"] = ""
-            shop_state["row_id"] = ""
-            _render_shop_detail()
-            return
-        if kind in {"service", "vendor_action"}:
-            source = SHOP_SERVICES if kind == "service" else SHOP_VENDOR_ACTIONS
-            service_row = source.get(str(payload.get("id", "")), {})
-            shop_state["provider"] = str(service_row.get("provider", ""))
-            shop_state["shop_id"] = ""
-            shop_state["row_id"] = ""
-            shop_state["service_kind"] = str(kind)
-            shop_state["service_id"] = str(payload.get("id", ""))
-            _render_shop_detail()
-            _refresh_service_preview()
-
-    def _on_sell_item_clicked(item: QListWidgetItem) -> None:
-        item_name = item.data(Qt.ItemDataRole.UserRole) if item is not None else None
-        if isinstance(item_name, str):
-            shop_state["sell_item"] = item_name
-            _refresh_transaction_panel()
-
-    def _on_service_clicked(item: QListWidgetItem) -> None:
-        payload = item.data(Qt.ItemDataRole.UserRole) if item is not None else None
-        if isinstance(payload, dict):
-            shop_state["service_kind"] = str(payload.get("kind", ""))
-            shop_state["service_id"] = str(payload.get("id", ""))
-            _refresh_service_preview()
-
-    shop_search.textChanged.connect(lambda _text="": (_populate_shop_selector(), _render_shop_detail()))
-    shop_selector.itemClicked.connect(_on_shop_selector_clicked)
-    shop_selector.currentItemChanged.connect(lambda current, _previous: _on_shop_selector_clicked(current) if current is not None else None)
-    sell_inventory.itemClicked.connect(_on_sell_item_clicked)
-    sell_inventory.currentItemChanged.connect(lambda current, _previous: _on_sell_item_clicked(current) if current is not None else None)
-    shop_mode_tabs.currentChanged.connect(lambda _index=0: _refresh_transaction_panel())
-    for amount, btn in shop_quantity_buttons.items():
-        btn.clicked.connect(lambda _=False, qty=amount: _set_quantity(qty))
-    shop_custom_qty.valueChanged.connect(lambda _value=1: _refresh_transaction_panel())
-    shop_all_qty.clicked.connect(lambda _=False: _set_all_quantity())
-    shop_action_btn.clicked.connect(lambda _=False: _apply_shop_transaction())
-    service_list.itemClicked.connect(_on_service_clicked)
-    service_list.currentItemChanged.connect(lambda current, _previous: _on_service_clicked(current) if current is not None else None)
-    service_qty.valueChanged.connect(lambda _value=1: _refresh_service_preview())
-    service_use_btn.clicked.connect(lambda _=False: _apply_service_transaction())
-    global_history_btn.toggled.connect(lambda checked=False: global_history.setVisible(bool(checked)))
-    shop_collapse_btn.clicked.connect(lambda _=False: _collapse_shop_detail())
-
-    _populate_shop_selector()
-    _populate_services()
-    _render_shop_detail()
-
-    tabs.addTab(shop_tab, "Shop")
-    _set_global_tab_icon(shop_tab, "shop_icon.png")
-    tabs.setTabToolTip(tabs.indexOf(shop_tab), "Browse source-backed NPC shops and vendor services")
 
     # ---- Grand Exchange tab ----------------------------------------------
     # The backend owns prices, limits, escrow, fills, and Ironman access. This
@@ -19792,6 +18977,11 @@ def show_main_menu(
     ge_quantity.setObjectName("geOfferQuantitySpin")
     ge_quantity.setRange(1, 2_147_483_647)
     ge_quantity_layout.addWidget(ge_quantity, 1)
+    ge_sell_all = QPushButton("Sell all")
+    ge_sell_all.setObjectName("geSellAllButton")
+    ge_sell_all.setToolTip("Fill the quantity with everything you hold of this item.")
+    ge_sell_all.setVisible(False)
+    ge_quantity_layout.addWidget(ge_sell_all)
     ge_editor_layout.addWidget(ge_quantity_row)
 
     ge_price_row = QWidget()
@@ -19809,10 +18999,14 @@ def show_main_menu(
     ge_quick_layout.setContentsMargins(0, 0, 0, 0)
     ge_quick_layout.setSpacing(4)
     ge_price_buttons = {}
+    # A None percent means "absolute reset to the guide price". The percentage
+    # buttons carry the integer percent the period client script passes, so the
+    # arithmetic below can reproduce it exactly rather than approximate it with
+    # a float factor.
     for label, factor, object_name in (
-        ("-5%", 0.95, "gePriceMinus5Button"),
-        ("Guide", 1.00, "geGuidePriceButton"),
-        ("+5%", 1.05, "gePricePlus5Button"),
+        ("-5%", 95, "gePriceMinus5Button"),
+        ("Guide", None, "geGuidePriceButton"),
+        ("+5%", 105, "gePricePlus5Button"),
     ):
         button = QPushButton(label)
         button.setObjectName(object_name)
@@ -19856,6 +19050,26 @@ def show_main_menu(
     ge_order_layout.addWidget(ge_edit)
     ge_order_layout.addWidget(ge_cancel)
     ge_layout.addWidget(ge_order_panel)
+
+    ge_log_toggle = QToolButton()
+    ge_log_toggle.setObjectName("geFillLogToggle")
+    ge_log_toggle.setText("Recent fills")
+    ge_log_toggle.setCheckable(True)
+    ge_log_toggle.setChecked(False)
+    ge_log_toggle.setArrowType(Qt.ArrowType.RightArrow)
+    ge_log_toggle.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+    ge_log_toggle.setStyleSheet(f"color: {dim_text_css(ge_log_toggle)};")
+    ge_layout.addWidget(ge_log_toggle, 0, Qt.AlignmentFlag.AlignLeft)
+
+    ge_log_list = QListWidget()
+    ge_log_list.setObjectName("geFillLogList")
+    ge_log_list.setVisible(False)
+    # About four rows: the tab must still fit the ~560pt Anki dialog height.
+    ge_log_list.setMaximumHeight(110)
+    ge_log_list.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+    ge_log_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+    ge_log_list.setAlternatingRowColors(False)
+    ge_layout.addWidget(ge_log_list)
 
     ge_state = {
         "projection": {
@@ -19924,6 +19138,10 @@ def show_main_menu(
         for button in ge_price_buttons.values():
             button.setEnabled(enabled)
         side = str(ge_side.currentData() or "buy")
+        # Sell-only: the buy side would need a live buy-limit-remaining figure,
+        # which the projection does not expose.
+        ge_sell_all.setVisible(side == "sell")
+        ge_sell_all.setEnabled(enabled)
         ge_side.setEnabled(not editing)
         ge_quantity_caption.setText("Remaining quantity" if editing else "Quantity")
         ge_submit.setText(
@@ -19970,9 +19188,13 @@ def show_main_menu(
             haystack = f"{row.get('item_name', '')} {row.get('category', '')}".casefold()
             if query and query not in haystack:
                 continue
+            owned = int(row.get("owned", 0) or 0)
             item = QListWidgetItem(
                 f"{row['item_name']}  ·  "
                 f"{int(row.get('guide_price', 0) or 0):,} Coins"
+                # Bare x{n} matches how the Bank tab renders quantities. Hidden
+                # at zero so the buy catalog is not a wall of "x0".
+                + (f"  ·  x{owned}" if owned else "")
             )
             item.setData(Qt.ItemDataRole.UserRole, dict(row))
             icon_path = str(row.get("asset_path") or "")
@@ -19994,6 +19216,40 @@ def show_main_menu(
         elif selected_widget_item is not None:
             ge_item_list.setCurrentItem(selected_widget_item)
         ge_item_list.blockSignals(False)
+
+    def _populate_ge_fill_log() -> None:
+        entries = tuple(ge_state["projection"].get("fill_log", ()) or ())
+        answered_cards = int(ge_state["projection"].get("answered_cards", 0) or 0)
+        ge_log_toggle.setText(f"Recent fills ({len(entries)})")
+        ge_log_list.clear()
+        if not entries:
+            empty = QListWidgetItem("No fills yet — place an offer and answer cards.")
+            empty.setFlags(Qt.ItemFlag.NoItemFlags)
+            empty.setForeground(dim_text_color(ge_log_list))
+            ge_log_list.addItem(empty)
+            return
+        base = ge_log_list.palette().color(QPalette.ColorRole.Base)
+        light = base.lightness() > 128
+        done_color = QColor("#3f6e1e" if light else "#85c54b")
+        partial_color = QColor("#8a6100" if light else "#e0b341")
+        for entry in entries:
+            delta = answered_cards - int(entry.get("card", 0) or 0)
+            when = (
+                "Now"
+                if delta <= 0
+                else f"{delta} card ago"
+                if delta == 1
+                else f"{delta} cards ago"
+            )
+            done = int(entry.get("completed_quantity", 0) or 0)
+            total = int(entry.get("original_quantity", 0) or 0)
+            verb = "sold" if str(entry.get("side")) == "sell" else "bought"
+            row = QListWidgetItem(
+                f"{when}: {entry.get('item_name')} - {done}/{total} {verb}"
+            )
+            row.setFlags(Qt.ItemFlag.NoItemFlags)
+            row.setForeground(done_color if done >= total else partial_color)
+            ge_log_list.addItem(row)
 
     def _selected_ge_order():
         selected_id = ge_state.get("selected_order_id")
@@ -20124,6 +19380,7 @@ def show_main_menu(
                 ge_state["editing_order_id"] = None
         ge_collect_all.setEnabled(has_collectible and callable(on_ge_action))
         _populate_ge_items()
+        _populate_ge_fill_log()
         _refresh_ge_preview()
         if message:
             ge_status.setStyleSheet(f"color: {dim_text_css(ge_status)};")
@@ -20207,12 +19464,46 @@ def show_main_menu(
         if not isinstance(order, dict):
             ge_filter.search_input.setFocus()
 
-    def _set_ge_quick_price(factor) -> None:
+    def _fill_ge_quantity_with_all() -> None:
         row = _ge_current_item()
         if row is None:
             return
-        guide = max(int(row.get("guide_price", 1) or 1), 1)
-        ge_price.setValue(max(1, int(round(guide * float(factor)))))
+        available = max(int(row.get("owned", 0) or 0), 0)
+        editing_order = _selected_ge_order()
+        if (
+            editing_order is not None
+            and editing_order.get("id") == ge_state.get("editing_order_id")
+            and str(editing_order.get("side")) == "sell"
+        ):
+            # Escrowed items are already out of the bank, so the editable
+            # ceiling is what is still held plus what this offer holds.
+            available += int(editing_order.get("escrow_items", 0) or 0)
+        ge_quantity.setValue(max(1, available))
+
+    def _set_ge_quick_price(percent) -> None:
+        row = _ge_current_item()
+        if row is None:
+            return
+        if percent is None:
+            ge_price.setValue(max(int(row.get("guide_price", 1) or 1), 1))
+            return
+        # Exactly the period client script (interface 105 -> script 4112),
+        # recovered by disassembling rev 727 and byte-identical across all six
+        # pre-EOC builds. See source-audits/ge-offer-price-controls-2026-07-24.md.
+        # It compounds off the displayed price, truncates toward zero, and only
+        # forces a one-coin step when truncation would have moved nothing —
+        # which is why "-5%" on 20 gp gives 19 rather than sticking.
+        price = max(int(ge_price.value()), 1)
+        percent = int(percent)
+        if percent > 100 and price > _GE_PRICE_OVERFLOW_LIMIT:
+            stepped = _GE_PRICE_CEILING
+        elif percent < 100 and price <= 1:
+            stepped = 1
+        else:
+            stepped = (price * percent) // 100
+            if stepped == price:
+                stepped += 1 if percent >= 100 else -1
+        ge_price.setValue(max(1, stepped))
 
     def _submit_ge_offer() -> None:
         row = _ge_current_item()
@@ -20338,6 +19629,7 @@ def show_main_menu(
         button.clicked.connect(
             lambda _checked=False, slot_index=index: _on_ge_slot_clicked(slot_index)
         )
+    ge_sell_all.clicked.connect(lambda _checked=False: _fill_ge_quantity_with_all())
     ge_submit.clicked.connect(lambda _checked=False: _submit_ge_offer())
     ge_collect.clicked.connect(lambda _checked=False: _collect_selected_ge_offer())
     ge_edit.clicked.connect(lambda _checked=False: _begin_edit_selected_ge_offer())
@@ -20359,6 +19651,16 @@ def show_main_menu(
             ge_safety_panel.setVisible(bool(expanded)),
         )
     )
+    ge_log_toggle.toggled.connect(
+        lambda expanded=False: (
+            ge_log_toggle.setArrowType(
+                Qt.ArrowType.DownArrow
+                if expanded
+                else Qt.ArrowType.RightArrow
+            ),
+            ge_log_list.setVisible(bool(expanded)),
+        )
+    )
 
     _refresh_ge()
     tabs.addTab(ge_tab, "Grand Exchange")
@@ -20368,418 +19670,12 @@ def show_main_menu(
         "Place and manage review-paced Grand Exchange offers",
     )
 
-    # ---- Quests tab --------------------------------------------------------
-    quests_tab = QWidget()
-    q_layout = QVBoxLayout(quests_tab)
-    q_layout.setContentsMargins(12, 12, 12, 12)
-    q_layout.setSpacing(8)
-
-    quest_top = QWidget()
-    quest_top_layout = QHBoxLayout(quest_top)
-    quest_top_layout.setContentsMargins(0, 0, 0, 0)
-    quest_points_label = QLabel(f"Quest points: {int(player_data.get('quest_points', 0) or 0)}")
-    quest_points_label.setStyleSheet("font-weight: 600; color: palette(text);")
-    sort_label = QLabel("Sort")
-    sort_label.setStyleSheet(f"color: {dim_text_css(sort_label)};")
-    quest_sort_combo = QComboBox()
-    quest_sort_combo.setObjectName("questSortCombo")
-    quest_sort_modes = (
-        "Release Order",
-        "Progress",
-        "Difficulty",
-        "Free/Members",
-        "Timeline",
-        "Length",
+    _add_deferred_tab(
+        "Quests",
+        "quest_icon.png",
+        "View quest journals and active quest progress",
+        build_quests_tab,
     )
-    quest_sort_combo.addItems(list(quest_sort_modes))
-    quest_top_layout.addWidget(quest_points_label)
-    quest_top_layout.addStretch(1)
-    quest_top_layout.addWidget(sort_label)
-    quest_top_layout.addWidget(quest_sort_combo)
-    q_layout.addWidget(quest_top)
-
-    difficulty_order = {"Novice": 0, "Intermediate": 1, "Experienced": 2, "Master": 3, "Grandmaster": 4, "Special": 5}
-    length_order = {
-        "Short": 0,
-        "Short to Medium": 1,
-        "Medium": 2,
-        "Medium to Long": 3,
-        "Long": 4,
-        "Long to Very Long": 5,
-        "Very Long": 6,
-        "Very, Very Long": 7,
-    }
-    timeline_order = {"Fifth Age": 0, "Ambiguous": 1, "Sixth Age": 2}
-
-    quest_filter_bar = CatalogFilterBar(
-        placeholder="Search quests",
-        search_object_name="questSearchInput",
-    )
-    quest_search = quest_filter_bar.search_input
-
-    hide_completed_cb = QCheckBox("Hide completed")
-    hide_completed_cb.setObjectName("questHideCompletedCheck")
-    hide_locked_cb = QCheckBox("Hide unable to start")
-    hide_locked_cb.setObjectName("questHideLockedCheck")
-
-    access_filter_combo = QComboBox()
-    access_filter_combo.setObjectName("questAccessFilterCombo")
-    access_filter_combo.addItems(("All access", "Free quests", "Members quests"))
-
-    difficulty_filter_combo = QComboBox()
-    difficulty_filter_combo.setObjectName("questDifficultyFilterCombo")
-    difficulty_filter_combo.addItems(("All difficulties", *difficulty_order.keys()))
-
-    length_filter_combo = QComboBox()
-    length_filter_combo.setObjectName("questLengthFilterCombo")
-    length_filter_combo.addItems(("All lengths", *length_order.keys()))
-
-    timeline_filter_combo = QComboBox()
-    timeline_filter_combo.setObjectName("questTimelineFilterCombo")
-    timeline_filter_combo.addItems(("All timelines", *timeline_order.keys()))
-
-    quest_filter_bar.summary_label.setObjectName("questFilterSummaryLabel")
-    quest_filter_bar.add_filter(hide_completed_cb)
-    quest_filter_bar.add_filter(hide_locked_cb)
-    for label_text, combo in (
-        ("Access", access_filter_combo),
-        ("Difficulty", difficulty_filter_combo),
-        ("Length", length_filter_combo),
-        ("Timeline", timeline_filter_combo),
-    ):
-        quest_filter_bar.add_filter(combo, label_text)
-    q_layout.addWidget(quest_filter_bar)
-
-    quest_scroll = QScrollArea()
-    quest_scroll.setWidgetResizable(True)
-    quest_scroll.setStyleSheet("border: none;")
-    quest_content = QWidget()
-    quest_content_layout = QVBoxLayout(quest_content)
-    quest_content_layout.setContentsMargins(0, 0, 0, 0)
-    quest_content_layout.setSpacing(10)
-
-    def _short_stage_blocker_text(reasons: tuple) -> str:
-        if not reasons:
-            return ""
-        shown = [str(reason) for reason in reasons[:3]]
-        extra = len(reasons) - len(shown)
-        if extra > 0:
-            shown.append(f"+{extra} more")
-        return "Blocked: " + ", ".join(shown)
-
-    def _quest_choice_button_name(quest_id: str, route_id: str) -> str:
-        safe_route = "".join(ch if ch.isalnum() else "_" for ch in str(route_id).lower()).strip("_")
-        return f"questChoice_{quest_id}_{safe_route}"
-
-    def _short_choice_text(choice_rows: tuple) -> str:
-        if not choice_rows:
-            return ""
-        labels = tuple(
-            str(option.get("label") or option.get("route_id") or "")
-            for option in tuple(choice_rows[0].get("options", ()) or ())
-            if option
-        )
-        if not labels:
-            return "Choose path"
-        return "Choose path: " + " or ".join(labels)
-
-    def _quest_status_text(quest_id: str, state: dict, quest: dict) -> str:
-        if state.get("completed"):
-            return "Completed"
-        if state.get("started"):
-            blocker_text = _short_stage_blocker_text(
-                quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA)
-            )
-            if blocker_text:
-                return blocker_text
-            return f"Stage {int(state.get('progress', 0) or 0)}/{int(quest.get('stages', 1) or 1)}"
-        choice_text = _short_choice_text(quest_current_stage_choices_pure(player_data, quest_id, QUEST_DATA))
-        if choice_text:
-            return choice_text
-        return "Not started"
-
-    def _quest_button_text(state: dict) -> str:
-        if state.get("completed"):
-            return "Completed"
-        if state["started"] and state["progress"] > 0:
-            return "Continue quest"
-        return "Start quest"
-
-    expanded_quests = {}
-
-    def _quest_progress_rank(q_state: dict) -> int:
-        if q_state.get("started") and not q_state.get("completed"):
-            return 0
-        if not q_state.get("completed"):
-            return 1
-        return 2
-
-    def _quest_sort_key(item: tuple[str, dict], mode: str) -> tuple:
-        quest_id, quest = item
-        q_state = quest_state_pure(player_data, quest_id)
-        release_key = str(quest.get("release_date", "9999-99-99"))
-        release_order = int(quest.get("release_order", 9999) or 9999)
-        name = str(quest.get("display_name", quest_id))
-        if mode == "Progress":
-            return (_quest_progress_rank(q_state), release_order, release_key, name)
-        if mode == "Difficulty":
-            return (difficulty_order.get(str(quest.get("difficulty", "")), 99), release_order, release_key, name)
-        if mode == "Free/Members":
-            return (1 if quest.get("members") else 0, release_order, release_key, name)
-        if mode == "Timeline":
-            return (timeline_order.get(str(quest.get("timeline", "")), 99), release_order, release_key, name)
-        if mode == "Length":
-            return (length_order.get(str(quest.get("length", "")), 99), release_order, release_key, name)
-        return (release_order, release_key, name)
-
-    def _short_lock_text(reasons: tuple) -> str:
-        if not reasons:
-            return ""
-        shown = [str(reason) for reason in reasons[:5]]
-        extra = len(reasons) - len(shown)
-        if extra > 0:
-            shown.append(f"+{extra} more")
-        return "Requires: " + ", ".join(shown)
-
-    def _quest_matches_filters(quest_id: str, quest: dict) -> bool:
-        if not quest_filter_bar.matches_text(
-            quest_id,
-            quest.get("display_name", ""),
-            quest.get("start_point", ""),
-            quest.get("requirements", ()),
-            quest.get("unlocks", ()),
-        ):
-            return False
-        availability = quest_availability_state_pure(player_data, quest_id, QUEST_DATA)
-        if hide_completed_cb.isChecked() and availability == "completed":
-            return False
-        if hide_locked_cb.isChecked() and availability == "locked":
-            return False
-
-        access_filter = access_filter_combo.currentText()
-        if access_filter == "Free quests" and quest.get("members"):
-            return False
-        if access_filter == "Members quests" and not quest.get("members"):
-            return False
-
-        difficulty_filter = difficulty_filter_combo.currentText()
-        if difficulty_filter != "All difficulties" and str(quest.get("difficulty", "")) != difficulty_filter:
-            return False
-
-        length_filter = length_filter_combo.currentText()
-        if length_filter != "All lengths" and str(quest.get("length", "")) != length_filter:
-            return False
-
-        timeline_filter = timeline_filter_combo.currentText()
-        if timeline_filter != "All timelines" and str(quest.get("timeline", "")) != timeline_filter:
-            return False
-        return True
-
-    def _clear_quest_cards() -> None:
-        while quest_content_layout.count():
-            item = quest_content_layout.takeAt(0)
-            widget = item.widget()
-            if widget is not None:
-                widget.setParent(None)
-
-    def _set_quest_route_choice(quest_id: str, route_id: str) -> None:
-        if on_set_quest_route_choice is not None:
-            if on_set_quest_route_choice(quest_id, route_id) is False:
-                return
-        else:
-            new_data, ok = apply_quest_route_choice_pure(player_data, quest_id, QUEST_DATA, route_id)
-            if not ok:
-                return
-            player_data.update(new_data)
-        warn.setText("")
-        _rebuild_quest_cards()
-
-    def _set_quest_active(quest_id: str, button: QPushButton, status_label: QLabel) -> None:
-        if quest_locked_reasons_pure(player_data, quest_id, QUEST_DATA):
-            return
-        choice_text = _short_choice_text(quest_current_stage_choices_pure(player_data, quest_id, QUEST_DATA))
-        if choice_text:
-            warn.setText(choice_text)
-            return
-        if quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA) and not can_attempt_quest_review_pure(player_data, quest_id, QUEST_DATA):
-            return
-        if on_set_quest is not None and on_set_quest(quest_id) is False:
-            return
-        state["active"] = "Quests"
-        on_save_skill("Quests")
-        _refresh_active_label()
-        q_state = quest_state_pure(player_data, quest_id)
-        quest = QUEST_DATA.get(quest_id, {})
-        button.setText("Currently active")
-        button.setEnabled(False)
-        status_label.setText(_quest_status_text(quest_id, q_state, quest))
-
-    def _add_quest_card(quest_id: str, quest: dict) -> None:
-        q_state = quest_state_pure(player_data, quest_id)
-        lock_reasons = () if q_state.get("completed") else quest_locked_reasons_pure(player_data, quest_id, QUEST_DATA)
-        lock_text = _short_lock_text(lock_reasons)
-        stage_blocker_reasons = () if q_state.get("completed") else quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA)
-        stage_blocker_text = _short_stage_blocker_text(stage_blocker_reasons)
-        choice_rows = () if q_state.get("completed") else quest_current_stage_choices_pure(player_data, quest_id, QUEST_DATA)
-        choice_text = _short_choice_text(choice_rows)
-        if choice_text and not stage_blocker_text:
-            stage_blocker_text = choice_text
-        active_this_quest = state["active"] == "Quests" and player_data.get("current_quest") == quest_id
-        default_expanded = bool(choice_rows or (q_state.get("started") and not q_state.get("completed") and active_this_quest))
-        expanded = expanded_quests.get(quest_id, default_expanded)
-
-        card = QWidget()
-        card.setObjectName(f"questCard_{quest_id}")
-        card.setStyleSheet("border: 1px solid palette(mid); border-radius: 6px; background: palette(base);")
-        card_layout = QVBoxLayout(card)
-        card_layout.setContentsMargins(10, 8, 10, 8)
-        card_layout.setSpacing(6)
-
-        header = QWidget()
-        header_layout = QHBoxLayout(header)
-        header_layout.setContentsMargins(0, 0, 0, 0)
-        toggle_btn = QPushButton("v" if expanded else ">")
-        toggle_btn.setObjectName(f"questToggle_{quest_id}")
-        toggle_btn.setFixedWidth(28)
-        toggle_btn.setToolTip("Show or hide quest journal")
-        title = QLabel(str(quest.get("display_name", quest_id)))
-        title.setStyleSheet("font-weight: 700; color: palette(text);")
-        title.setToolTip(stage_blocker_text or lock_text or str(quest.get("source", "")))
-        status = QLabel(_quest_status_text(quest_id, q_state, quest))
-        status.setStyleSheet(f"color: {dim_text_css(status)};")
-        quest_btn = QPushButton(_quest_button_text(q_state))
-        quest_btn.setObjectName(f"questAction_{quest_id}")
-        quest_review_ready = can_attempt_quest_review_pure(player_data, quest_id, QUEST_DATA)
-        quest_btn.setEnabled(
-            not q_state.get("completed")
-            and state["active"] != "Quests"
-            and not lock_reasons
-            and not choice_rows
-            and (not stage_blocker_reasons or quest_review_ready)
-        )
-        if lock_text:
-            quest_btn.setToolTip(lock_text)
-            header.setToolTip(lock_text)
-        if stage_blocker_text:
-            quest_btn.setToolTip(stage_blocker_text)
-            header.setToolTip(stage_blocker_text)
-        if active_this_quest:
-            quest_btn.setText("Currently active")
-            quest_btn.setEnabled(False)
-        quest_btn.clicked.connect(lambda _=False, qid=quest_id, btn=quest_btn, lbl=status: _set_quest_active(qid, btn, lbl))
-        header_layout.addWidget(toggle_btn)
-        header_layout.addWidget(title)
-        header_layout.addWidget(status)
-        header_layout.addStretch(1)
-        header_layout.addWidget(quest_btn)
-        card_layout.addWidget(header)
-
-        body = QWidget()
-        body.setObjectName(f"questBody_{quest_id}")
-        body_layout = QVBoxLayout(body)
-        body_layout.setContentsMargins(0, 4, 0, 0)
-        body_layout.setSpacing(5)
-
-        if not q_state.get("started"):
-            start = QLabel(str(quest.get("start_point", "")))
-            start.setWordWrap(True)
-            start.setStyleSheet("color: palette(text);")
-            body_layout.addWidget(start)
-        requirements = tuple(quest.get("requirements", ()) or ())
-        if requirements:
-            req_label = QLabel("Requires: " + ", ".join(str(req) for req in requirements))
-            req_label.setWordWrap(True)
-            req_label.setStyleSheet(f"color: {dim_text_css(req_label)};")
-            body_layout.addWidget(req_label)
-        unlocks = tuple(quest.get("unlocks", ()) or ())
-        if unlocks:
-            unlock_label = QLabel("Unlocks: " + ", ".join(str(unlock) for unlock in unlocks))
-            unlock_label.setWordWrap(True)
-            unlock_label.setStyleSheet(f"color: {dim_text_css(unlock_label)};")
-            body_layout.addWidget(unlock_label)
-        for choice in choice_rows:
-            prompt_label = QLabel(str(choice.get("prompt") or "Choose path"))
-            prompt_label.setWordWrap(True)
-            prompt_label.setStyleSheet("font-weight: 600; color: palette(text);")
-            body_layout.addWidget(prompt_label)
-            choice_row = QWidget()
-            choice_row_layout = QHBoxLayout(choice_row)
-            choice_row_layout.setContentsMargins(0, 0, 0, 0)
-            choice_row_layout.setSpacing(6)
-            for option in tuple(choice.get("options", ()) or ()):
-                route_id = str(option.get("route_id") or "")
-                label = str(option.get("label") or route_id or "Choose")
-                choice_btn = QPushButton(label)
-                choice_btn.setObjectName(_quest_choice_button_name(quest_id, route_id))
-                choice_btn.setToolTip(str(option.get("description") or label))
-                choice_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-                choice_btn.setStyleSheet(
-                    "QPushButton { padding: 4px 10px; border: 1px solid palette(mid);"
-                    " border-radius: 6px; color: palette(text); background: palette(base); }"
-                    " QPushButton:hover { border-color: #4CAF50; }"
-                )
-                choice_btn.clicked.connect(
-                    lambda _=False, qid=quest_id, rid=route_id: _set_quest_route_choice(qid, rid)
-                )
-                choice_row_layout.addWidget(choice_btn)
-            choice_row_layout.addStretch(1)
-            body_layout.addWidget(choice_row)
-        for row in quest_journal_rows_pure(player_data, quest_id, QUEST_DATA):
-            stage_label = QLabel(f"Stage {row['stage']}")
-            stage_label.setStyleSheet("font-weight: 600; color: palette(text);")
-            body_layout.addWidget(stage_label)
-            for line in row.get("lines", ()):
-                text = str(line)
-                if row.get("completed"):
-                    text = f"<s>{text}</s>"
-                line_label = QLabel(text)
-                line_label.setWordWrap(True)
-                line_label.setTextFormat(Qt.TextFormat.RichText)
-                line_label.setStyleSheet("color: palette(text);")
-                body_layout.addWidget(line_label)
-
-        body.setVisible(expanded)
-        card_layout.addWidget(body)
-
-        def _toggle_quest() -> None:
-            new_expanded = not body.isVisible()
-            expanded_quests[quest_id] = new_expanded
-            body.setVisible(new_expanded)
-            toggle_btn.setText("v" if new_expanded else ">")
-
-        toggle_btn.clicked.connect(_toggle_quest)
-        quest_content_layout.addWidget(card)
-
-    def _rebuild_quest_cards() -> None:
-        _clear_quest_cards()
-        mode = quest_sort_combo.currentText() or "Release Order"
-        visible_count = 0
-        for quest_id, quest in sorted(QUEST_DATA.items(), key=lambda item: _quest_sort_key(item, mode)):
-            if not _quest_matches_filters(quest_id, quest):
-                continue
-            _add_quest_card(quest_id, quest)
-            visible_count += 1
-        if visible_count == 0:
-            empty_label = QLabel("No quests match the current filters.")
-            empty_label.setObjectName("questEmptyFilterLabel")
-            empty_label.setWordWrap(True)
-            empty_label.setStyleSheet(f"color: {dim_text_css(empty_label)};")
-            quest_content_layout.addWidget(empty_label)
-        quest_filter_bar.set_count(visible_count, len(QUEST_DATA))
-        quest_content_layout.addStretch(1)
-
-    quest_sort_combo.currentTextChanged.connect(lambda _text: _rebuild_quest_cards())
-    quest_search.textChanged.connect(lambda _text: _rebuild_quest_cards())
-    hide_completed_cb.toggled.connect(lambda _checked: _rebuild_quest_cards())
-    hide_locked_cb.toggled.connect(lambda _checked: _rebuild_quest_cards())
-    for combo in (access_filter_combo, difficulty_filter_combo, length_filter_combo, timeline_filter_combo):
-        combo.currentTextChanged.connect(lambda _text: _rebuild_quest_cards())
-    _rebuild_quest_cards()
-    quest_scroll.setWidget(quest_content)
-    q_layout.addWidget(quest_scroll, 1)
-    tabs.addTab(quests_tab, "Quests")
-    _set_global_tab_icon(quests_tab, "quest_icon.png")
-    tabs.setTabToolTip(tabs.indexOf(quests_tab), "View quest journals and active quest progress")
 
     # Stats tab (period-style three-column skill grid + selected detail)
     stats_tab = QWidget()
@@ -21624,6 +20520,9 @@ def show_main_menu(
         if refresh_visible_skill or state.get("skill") == _COMBAT_HUB_NAME:
             _render_panel()
 
+    # The Shop tab reaches the Bank/Equipment/Skills gear views through this key.
+    ctx.refreshers["gear"] = _refresh_equipment_views
+
     def _full_urn_tooltip(info: dict) -> str:
         skill = get_skill(str(info.get("skill_id", "")))
         skill_name = skill.display_name if skill is not None else str(info.get("skill_id", "")).title()
@@ -21761,35 +20660,6 @@ def show_main_menu(
         asset_path = definition.asset_path if definition is not None else None
         return _bank_icon_path(item_name, asset_path)
 
-    def _claim_requirement_text(row: dict) -> str:
-        claim_id = str(row.get("claim_id", ""))
-        claim = CLAIM_DATA.get(claim_id, {}) if isinstance(CLAIM_DATA, dict) else {}
-        parts = []
-        for reason in tuple(row.get("locked_reasons", ())):
-            if str(reason) == "quest":
-                quest_id = claim.get("required_quest") if isinstance(claim, dict) else None
-                quest = QUEST_DATA.get(str(quest_id), {}) if quest_id else {}
-                parts.append(str(quest.get("display_name") or "source quest"))
-            else:
-                parts.append(str(reason))
-        return ", ".join(parts) if parts else "requirements"
-
-    def _claim_locked_summary(locked_rows: list) -> tuple[str, str]:
-        primary = next((row for row in locked_rows if row.get("claim_id") == "wicked_hood"), locked_rows[0])
-        name = str(primary.get("display_name", primary.get("claim_id", "Reward")))
-        requirements = _claim_requirement_text(primary)
-        count = len(locked_rows)
-        text = f"{count} locked reward{'s' if count != 1 else ''}. {name} requires: {requirements}."
-        if count > 1:
-            text += f" {count - 1} more hidden."
-        detail_lines = [
-            f"{row.get('display_name', row.get('claim_id', 'Reward'))}: {_claim_requirement_text(row)}"
-            for row in locked_rows[:8]
-        ]
-        if count > len(detail_lines):
-            detail_lines.append(f"...and {count - len(detail_lines)} more")
-        return text, "\n".join(detail_lines)
-
     def _choose_claim_skill(row: dict) -> Optional[str]:
         options = tuple(str(skill_id) for skill_id in row.get("skill_options", ()) or ())
         minimum_level = int(row.get("minimum_level", 1) or 1)
@@ -21811,7 +20681,6 @@ def show_main_menu(
         rows = claim_rows_pure(player_data, CLAIM_DATA)
         unclaimed = [row for row in rows if not row.get("claimed")]
         actionable = [row for row in unclaimed if row.get("eligible")]
-        locked = [row for row in unclaimed if not row.get("eligible")]
         if not rows:
             claims_box.setVisible(False)
             return
@@ -21822,7 +20691,9 @@ def show_main_menu(
         claims_layout.addWidget(header)
         max_claim_height = header.sizeHint().height()
 
-        if not actionable and not locked:
+        # Locked claims render nothing at all: a reward the player cannot claim
+        # is not actionable, so a locked-only save is "caught up" here.
+        if not actionable:
             empty = QLabel("All Bank Claims caught up.")
             empty.setObjectName("bankClaimsCaughtUp")
             empty.setStyleSheet(f"color: {dim_text_css(empty)};")
@@ -21919,17 +20790,6 @@ def show_main_menu(
             max_claim_height += claims_layout.spacing() + scroll_height
         else:
             rows_host.deleteLater()
-
-        if locked:
-            summary_text, summary_tooltip = _claim_locked_summary(locked)
-            summary = QLabel(summary_text)
-            summary.setObjectName("bankClaimsLockedSummary")
-            summary.setWordWrap(True)
-            summary.setStyleSheet(f"color: {dim_text_css(summary)};")
-            if summary_tooltip:
-                summary.setToolTip(summary_tooltip)
-            claims_layout.addWidget(summary)
-            max_claim_height += claims_layout.spacing() + summary.sizeHint().height()
 
         claims_box.setMaximumHeight(max_claim_height + 4)
 
@@ -22209,6 +21069,18 @@ def show_main_menu(
         empty_tb.setFlags(Qt.ItemFlag.NoItemFlags)
         empty_tb.setData(Qt.ItemDataRole.UserRole, "__gear_empty__")
         gear_list.addItem(empty_tb)
+    # Owned upgrades the level gate still blocks. Without this the auto-resolved
+    # toolbelt looks like it ignored the purchase.
+    for slot_label, display_name, skill_label, required_level in gear["toolbelt_blocked"]:
+        blocked = QListWidgetItem(f"{display_name} — needs {skill_label} {required_level}")
+        blocked.setToolTip(
+            f"You own this {slot_label.lower()}, but it needs {skill_label} level "
+            f"{required_level}. It joins your toolbelt automatically at that level."
+        )
+        blocked.setForeground(dim_text_color(gear_list))
+        blocked.setFlags(Qt.ItemFlag.ItemIsEnabled)
+        blocked.setData(Qt.ItemDataRole.UserRole, "__gear_blocked__")
+        gear_list.addItem(blocked)
 
     # Hug contents so the panel is a fixed strip, never its own scroller.
     _gear_h = 2 * gear_list.frameWidth() + 6
@@ -22849,91 +21721,12 @@ def show_main_menu(
     _set_global_tab_icon(stats_tab, "stats_icon.png")
     tabs.setTabToolTip(tabs.indexOf(stats_tab), "View your skill stats")
 
-    # Achievements tab (inline, themed)
-    ach_tab = QWidget()
-    a_layout = QVBoxLayout(ach_tab)
-    a_layout.setContentsMargins(12, 12, 12, 12)
-    a_layout.setSpacing(8)
-    a_tabs = QTabWidget()
-    a_tabs.setDocumentMode(True)
-
-    def _make_achievement_card(title: str, desc: str, completed: bool) -> QWidget:
-        card = QWidget()
-        card_layout = QHBoxLayout(card)
-        card_layout.setContentsMargins(10, 8, 10, 8)
-        card_layout.setSpacing(10)
-        # Icon
-        icon_label = QLabel()
-        icon_path = os.path.join(current_dir, "icon", f"{title.lower().replace(' ', '_')}.png")
-        pixmap = QPixmap(icon_path) if os.path.exists(icon_path) else QPixmap(os.path.join(current_dir, "icon", "achievement_icon.png"))
-        icon_label.setPixmap(pixmap.scaled(28, 28, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-        card_layout.addWidget(icon_label)
-        # Info
-        info = QWidget()
-        il = QVBoxLayout(info)
-        il.setContentsMargins(0, 0, 0, 0)
-        il.setSpacing(2)
-        name = QLabel(title)
-        name.setStyleSheet("font-weight: 600;")
-        desc_label = QLabel(desc)
-        desc_label.setWordWrap(True)
-        il.addWidget(name)
-        il.addWidget(desc_label)
-        card_layout.addWidget(info, 1)
-        # Status
-        status = QLabel("✓" if completed else "")
-        status.setStyleSheet("color: #4CAF50; font-size: 16px; font-weight: 700;")
-        card_layout.addWidget(status, 0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-        # Themed card style (palette-aware)
-        card.setStyleSheet(
-            "border: 1px solid palette(mid); border-radius: 6px; background-color: palette(base);"
-        )
-        return card
-
-    for difficulty in ACHIEVEMENT_DIFFICULTIES:
-        tab = QWidget()
-        tab_layout = QVBoxLayout(tab)
-        tab_layout.setContentsMargins(0, 0, 0, 0)
-        tab_layout.setSpacing(0)
-        rows = achievement_rows_for_difficulty(ACHIEVEMENTS, player_data, difficulty)
-        done, total = achievement_difficulty_progress(ACHIEVEMENTS, player_data, difficulty)
-        header = QLabel(f"{difficulty} • {done}/{total} completed")
-        header.setStyleSheet("font-weight: 600; margin: 0 0 6px 0;")
-        tab_layout.addWidget(header)
-
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setStyleSheet("border: none;")
-        content = QWidget()
-        cl = QVBoxLayout(content)
-        cl.setContentsMargins(0, 0, 0, 0)
-        cl.setSpacing(8)
-        for row in rows:
-            card = _make_achievement_card(row.name, row.description, row.completed)
-            cl.addWidget(card)
-        cl.addStretch(1)
-        scroll.setWidget(content)
-        tab_layout.addWidget(scroll)
-        a_tabs.addTab(tab, difficulty)
-
-    a_layout.addWidget(a_tabs)
-
-    completed_count, total_count, progress_percentage = achievement_progress(ACHIEVEMENTS, player_data)
-    progress_row = QWidget()
-    prl = QHBoxLayout(progress_row)
-    prl.setContentsMargins(0, 0, 0, 0)
-    prl.setSpacing(8)
-    progress_label = QLabel(f"Completed: {completed_count}/{total_count} ({progress_percentage:.1f}%)")
-    prl.addWidget(progress_label)
-    progress_bar = QProgressBar()
-    progress_bar.setValue(int(progress_percentage))
-    progress_bar.setTextVisible(False)
-    prl.addWidget(progress_bar, 1)
-    a_layout.addWidget(progress_row)
-
-    tabs.addTab(ach_tab, "Achievements")
-    _set_global_tab_icon(ach_tab, "achievement_icon.png")
-    tabs.setTabToolTip(tabs.indexOf(ach_tab), "Review your achievements")
+    _add_deferred_tab(
+        "Achievements",
+        "achievement_icon.png",
+        "Review your achievements",
+        build_achievements_tab,
+    )
 
     # Settings tab (controls)
     settings_tab = QWidget()
@@ -23254,6 +22047,12 @@ def show_main_menu(
     tabs.addTab(settings_tab, "Settings")
     _set_global_tab_icon(settings_tab, "settings_icon.png")
     tabs.setTabToolTip(tabs.indexOf(settings_tab), "Configure widget, experience HUD, notifications, and developer tools")
+
+    # Connect only now that every placeholder exists: the very first addTab
+    # already emitted currentChanged(0), and the open tab must be built even if
+    # a future change makes it something other than Skills.
+    tabs.currentChanged.connect(_ensure_tab_built)
+    _ensure_tab_built(tabs.currentIndex())
 
     help_topics = load_help_topics()
     help_width_state: dict[str, int | None] = {"before_open": None}

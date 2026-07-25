@@ -185,6 +185,73 @@ class EquipmentInstanceLogicTest(unittest.TestCase):
         self.assertIn("equipment-1", updated["equipment_instances"])
         self.assertNotIn("equipment-2", updated["equipment_instances"])
 
+    def test_narrow_condition_table_keeps_other_features_instance_rows(self):
+        player = {
+            "inventory": {"Ahrim's staff": 1, "Combat hood 100": 1},
+            "equipment": {},
+            "equipment_instances": {
+                "equipment-1": {
+                    "family_id": "barrows_ahrim",
+                    "item_name": "Ahrim's staff",
+                    "condition": 90_000,
+                    "location": "bank",
+                },
+            },
+            "equipment_instance_next_id": 1,
+        }
+        reconciled = sanitize_equipment_instance_state_pure(
+            player, FIST_OF_GUTHIX_CONDITION_DATA
+        )
+        self.assertEqual(
+            reconciled["equipment_instances"]["equipment-1"],
+            player["equipment_instances"]["equipment-1"],
+        )
+        # The pass-through row still reserves its id, so a new Fist of Guthix
+        # copy cannot be handed the same one.
+        grown, new_id = add_equipment_instance_pure(
+            reconciled, "combat_hood", FIST_OF_GUTHIX_CONDITION_DATA
+        )
+        self.assertNotEqual(new_id, "equipment-1")
+        self.assertEqual(
+            grown["equipment_instances"]["equipment-1"]["family_id"], "barrows_ahrim"
+        )
+
+    def test_zero_count_bank_entry_reconciles_without_creating_a_copy(self):
+        player = {
+            "inventory": {"Combat hood 100": 0},
+            "equipment": {},
+            "equipment_instances": {},
+            "equipment_instance_next_id": 1,
+        }
+        reconciled = sanitize_equipment_instance_state_pure(
+            player, FIST_OF_GUTHIX_CONDITION_DATA
+        )
+        self.assertEqual(reconciled["equipment_instances"], {})
+
+    def test_sanitize_does_not_write_back_into_its_input(self):
+        instances = {
+            "equipment-1": {
+                "family_id": "combat_hood",
+                "item_name": "Combat hood 100",
+                "condition": 90_000,
+                "location": "bank",
+            },
+        }
+        player = {
+            "inventory": {"Combat hood 100": 1},
+            "equipment": {},
+            "equipment_instances": instances,
+            "equipment_instance_next_id": 2,
+        }
+        reconciled = sanitize_equipment_instance_state_pure(
+            player, FIST_OF_GUTHIX_CONDITION_DATA
+        )
+        reconciled["equipment_instances"]["equipment-1"]["condition"] = 0
+        reconciled["equipment_instances"]["equipment-1"]["location"] = "grave"
+        self.assertEqual(instances["equipment-1"]["condition"], 90_000)
+        self.assertEqual(instances["equipment-1"]["location"], "bank")
+        self.assertIs(player["equipment_instances"], instances)
+
 
 if __name__ == "__main__":
     unittest.main()

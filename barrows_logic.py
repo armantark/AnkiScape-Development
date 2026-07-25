@@ -416,7 +416,10 @@ def apply_barrows_command_pure(
     payload: Mapping[str, Any] | None = None,
     rng: Callable[[], float] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the encounter is rebuilt as a deep copy, and the
+    # repair path rebinds to sanitize_equipment_instance_state_pure output
+    # before editing a record.
+    data = dict(player_data)
     state = sanitize_barrows_state_pure(data.get("barrows"))
     data["barrows"] = state
     payload = payload if isinstance(payload, Mapping) else {}
@@ -732,7 +735,10 @@ def apply_barrows_review_pure(
     *,
     equipment_data: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the encounter is rebuilt as a deep copy, and the
+    # repair path rebinds to sanitize_equipment_instance_state_pure output
+    # before editing a record.
+    data = dict(player_data)
     state = sanitize_barrows_state_pure(data.get("barrows"))
     if not state["active"]:
         return data, False, {"reason": "Enter or resume Barrows before training it."}

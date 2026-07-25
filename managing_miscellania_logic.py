@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from collections.abc import Mapping
 from typing import Any
 
@@ -269,7 +268,9 @@ def miscellania_collection_outputs_pure(
 def apply_managing_miscellania_review_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the sanitized kingdom state is a fresh object and is
+    # the only key written back.
+    data = dict(player_data)
     locked = managing_miscellania_locked_reasons_pure(data)
     if locked:
         return data, {"allowed": False, "reason": f"Requires {locked[0]}."}
@@ -315,7 +316,9 @@ def apply_managing_miscellania_command_pure(
     action_id: str,
     payload: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the sanitized kingdom state is a fresh object and is
+    # the only key written back.
+    data = dict(player_data)
     locked = managing_miscellania_locked_reasons_pure(data)
     if locked:
         return data, False, {"reason": f"Requires {locked[0]}."}

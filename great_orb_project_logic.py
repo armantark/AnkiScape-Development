@@ -160,7 +160,9 @@ def sanitize_great_orb_project_player_state_pure(
 def set_great_orb_project_policy_pure(
     player_data: Mapping[str, Any], payload: Mapping[str, Any] | None
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_great_orb_project_player_state_pure rebuilds
+    # all its keys, and inventory is rebuilt with dict() before every write.
+    data = dict(player_data)
     sanitized = sanitize_great_orb_project_player_state_pure(data)
     state = sanitized["great_orb_project"]
     if state["active"]:
@@ -196,7 +198,10 @@ def enter_great_orb_project_pure(
         if not ok:
             return data, False, info
     else:
-        data = copy.deepcopy(dict(player_data))
+        # Shallow on purpose: sanitize_great_orb_project_player_state_pure
+        # rebuilds all its keys, and inventory is rebuilt with dict() before
+        # every write.
+        data = dict(player_data)
     sanitized = sanitize_great_orb_project_player_state_pure(data)
     state = sanitized["great_orb_project"]
     if state["active"]:
@@ -277,7 +282,9 @@ def _finish_match(data: dict[str, Any]) -> None:
 def apply_great_orb_project_review_pure(
     player_data: Mapping[str, Any], player_roll: Any, opponent_roll: Any
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_great_orb_project_player_state_pure rebuilds
+    # all its keys, and inventory is rebuilt with dict() before every write.
+    data = dict(player_data)
     sanitized = sanitize_great_orb_project_player_state_pure(data)
     state = sanitized["great_orb_project"]
     active = state["active"]
@@ -386,7 +393,9 @@ def apply_great_orb_project_review_pure(
 def leave_great_orb_project_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_great_orb_project_player_state_pure rebuilds
+    # all its keys, and inventory is rebuilt with dict() before every write.
+    data = dict(player_data)
     sanitized = sanitize_great_orb_project_player_state_pure(data)
     state = sanitized["great_orb_project"]
     active = state["active"]
@@ -450,7 +459,9 @@ def _great_orb_reward_locked_reason_pure(
 def buy_great_orb_project_reward_pure(
     player_data: Mapping[str, Any], reward_id: Any, quantity: Any = 1
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_great_orb_project_player_state_pure rebuilds
+    # all its keys, and inventory is rebuilt with dict() before every write.
+    data = dict(player_data)
     sanitized = sanitize_great_orb_project_player_state_pure(data)
     state = sanitized["great_orb_project"]
     if state["active"]:

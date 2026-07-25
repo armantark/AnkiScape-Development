@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from collections.abc import Mapping, Sequence
 from typing import Any
 
@@ -372,7 +371,9 @@ def apply_circus_command_pure(
     action_id: str,
     payload: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: this only assigns top-level keys on the working copy;
+    # the locked-reason helpers are read-only.
+    data = dict(player_data)
     state = sanitize_circus_state_pure(data.get("circus"))
     body = payload if isinstance(payload, Mapping) else {}
     if action_id == "set_policy":
@@ -467,7 +468,9 @@ def apply_circus_review_pure(
     player_data: Mapping[str, Any],
     rolls: Sequence[float],
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: this only assigns top-level keys on the working copy;
+    # the locked-reason helpers are read-only.
+    data = dict(player_data)
     state = sanitize_circus_state_pure(data.get("circus"))
     performance = CIRCUS_PERFORMANCES[state["selected_performance"]]
     locked = _performance_locked_reasons(data, performance, state)

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 import math
 from collections.abc import Callable, Mapping
 from typing import Any
@@ -263,7 +262,9 @@ def _prepare_pack(player_data: Mapping[str, Any]) -> dict[str, int]:
 
 
 def enter_pyramid_plunder_pure(player_data: Mapping[str, Any]) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the plunder state and session are rebuilt fresh, and
+    # the carried pack layout is rebuilt before it is edited.
+    data = dict(player_data)
     state = sanitize_pyramid_plunder_state_pure(data)
     if state["pyramid_plunder"]:
         return data, False, {"reason": "A Pyramid Plunder run is already active."}
@@ -303,7 +304,9 @@ def enter_pyramid_plunder_pure(player_data: Mapping[str, Any]) -> tuple[dict[str
 def set_pyramid_plunder_priority_pure(
     player_data: Mapping[str, Any], priority: Any
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the plunder state and session are rebuilt fresh, and
+    # the carried pack layout is rebuilt before it is edited.
+    data = dict(player_data)
     if sanitize_pyramid_plunder_session_pure(data.get("pyramid_plunder")):
         return data, False, {"reason": "Finish the active run before changing priority."}
     selected = str(priority)
@@ -543,7 +546,9 @@ def apply_pyramid_plunder_review_pure(
     *,
     rooms: int = 1,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the plunder state and session are rebuilt fresh, and
+    # the carried pack layout is rebuilt before it is edited.
+    data = dict(player_data)
     session = sanitize_pyramid_plunder_session_pure(data.get("pyramid_plunder"))
     if not session:
         return data, {"allowed": False, "reason": "Enter Pyramid Plunder before training."}
@@ -687,7 +692,9 @@ def apply_pyramid_plunder_review_pure(
 
 
 def leave_pyramid_plunder_pure(player_data: Mapping[str, Any]) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the plunder state and session are rebuilt fresh, and
+    # the carried pack layout is rebuilt before it is edited.
+    data = dict(player_data)
     session = sanitize_pyramid_plunder_session_pure(data.get("pyramid_plunder"))
     if not session:
         return data, False, {"reason": "No Pyramid Plunder run is active."}

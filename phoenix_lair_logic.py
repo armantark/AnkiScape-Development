@@ -297,7 +297,9 @@ def apply_phoenix_lair_command_pure(
     rng=None,
     equipment_data: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the run state and its encounter are rebuilt as deep
+    # copies, and every cross-module receiver rebuilds before writing.
+    data = dict(player_data)
     state = sanitize_phoenix_lair_state_pure(data.get("phoenix_lair"))
     data["phoenix_lair"] = state
     rng = rng or (lambda: 0.0)
@@ -398,7 +400,9 @@ def apply_phoenix_lair_review_pure(
     *,
     equipment_data: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the run state and its encounter are rebuilt as deep
+    # copies, and every cross-module receiver rebuilds before writing.
+    data = dict(player_data)
     state = sanitize_phoenix_lair_state_pure(data.get("phoenix_lair"))
     if not state["active"]:
         return data, False, {"reason": "Enter the Phoenix Lair before training it."}
@@ -557,7 +561,9 @@ def resolve_phoenix_egg_choice_pure(
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     if option_id not in PHOENIX_EGG_CHOICES:
         return copy.deepcopy(dict(player_data)), False, {"reason": "Unknown Phoenix egg choice."}
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the run state and its encounter are rebuilt as deep
+    # copies, and every cross-module receiver rebuilds before writing.
+    data = dict(player_data)
     state = sanitize_phoenix_lair_state_pure(data.get("phoenix_lair"))
     if not state["pending_egg"]:
         return data, False, {"reason": "No Phoenix egg choice is pending."}

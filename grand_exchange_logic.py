@@ -26,6 +26,7 @@ GE_MAX_OFFER_QUANTITY = 2_147_483_647
 GE_SHOCK_ROLL_ONE_IN = 240
 GE_SHOCK_MIN_BPS = 500
 GE_SHOCK_MAX_BPS = 4_000
+GE_FILL_LOG_LIMIT = 40
 GE_SHOCK_MIN_TICKS = 5
 GE_SHOCK_MAX_TICKS = 40
 GE_MAX_ALCHEMY_PRESSURE_BPS = 1_500
@@ -86,6 +87,21 @@ def default_ge_state_pure() -> Dict[str, Any]:
         "ge_next_order_id": 1,
         "ge_buy_limit_usage": {},
         "ge_trade_history": {},
+        "ge_fill_log": [],
+    }
+
+
+def _sanitize_fill_log_entry(raw: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
+    side = str(raw.get("side", ""))
+    item_name = str(raw.get("item_name", "")).strip()
+    if side not in _ORDER_SIDES or not item_name:
+        return None
+    return {
+        "card": _clean_int(raw.get("card"), 0),
+        "side": side,
+        "item_name": item_name,
+        "completed_quantity": _clean_int(raw.get("completed_quantity"), 0),
+        "original_quantity": _clean_int(raw.get("original_quantity"), 0),
     }
 
 
@@ -284,6 +300,15 @@ def sanitize_ge_state_pure(raw: Mapping[str, Any] | None) -> Dict[str, Any]:
         if isinstance(raw_history, Mapping)
         else {}
     )
+    raw_fill_log = data.get("ge_fill_log")
+    fill_log = []
+    if isinstance(raw_fill_log, (list, tuple)):
+        for raw_entry in raw_fill_log:
+            if not isinstance(raw_entry, Mapping):
+                continue
+            entry = _sanitize_fill_log_entry(raw_entry)
+            if entry is not None:
+                fill_log.append(entry)
 
     return {
         "ge_state_version": GE_STATE_VERSION,
@@ -294,6 +319,7 @@ def sanitize_ge_state_pure(raw: Mapping[str, Any] | None) -> Dict[str, Any]:
         "ge_next_order_id": next_order_id,
         "ge_buy_limit_usage": buy_usage,
         "ge_trade_history": trade_history,
+        "ge_fill_log": fill_log[-GE_FILL_LOG_LIMIT:],
     }
 
 
@@ -1193,6 +1219,8 @@ def _fill_order_for_tick_pure(
         "unit_price": execution_price,
         "price_improvement": abs(submitted - execution_price),
         "impact_bps": signed_impact,
+        "completed_quantity": int(order["completed_quantity"]),
+        "original_quantity": int(order["original_quantity"]),
     }
 
 
@@ -1261,6 +1289,12 @@ def advance_ge_market_tick_pure(
     clock = data.get("shop_market_clock")
     market_tick = _clean_int(
         clock.get("market_tick") if isinstance(clock, Mapping) else 0,
+        0,
+    )
+    # The fill log is keyed by answered cards, not by market_tick: market_tick
+    # is also the buy-limit window clock and the two are clamped separately.
+    answered_cards = _clean_int(
+        clock.get("answered_cards") if isinstance(clock, Mapping) else 0,
         0,
     )
     market = copy.deepcopy(dict(data["ge_market_state"]))
@@ -1335,6 +1369,21 @@ def advance_ge_market_tick_pure(
         0,
     )
     data["ge_market_state"] = market
+    if fills:
+        # Rebuild the list rather than appending in place: ensure_ge_state_pure
+        # is shallow, so mutating the saved list would write through.
+        log = list(data.get("ge_fill_log") or [])
+        log.extend(
+            {
+                "card": answered_cards,
+                "side": fill["side"],
+                "item_name": fill["item_name"],
+                "completed_quantity": fill["completed_quantity"],
+                "original_quantity": fill["original_quantity"],
+            }
+            for fill in fills
+        )
+        data["ge_fill_log"] = log[-GE_FILL_LOG_LIMIT:]
     return data, {
         "ok": True,
         "reason": "market_advanced",
@@ -1379,6 +1428,7 @@ def ge_frontend_projection_pure(
         orders[index] if index < len(orders) else None
         for index in range(GE_SLOT_COUNT)
     )
+    clock = data.get("shop_market_clock")
     return {
         "ironman_mode": bool(data["ironman_mode"]),
         "lock_reason": ge_access_lock_reason_pure(data),
@@ -1387,6 +1437,13 @@ def ge_frontend_projection_pure(
         "has_collectible": has_collectible,
         "slots": slots,
         "items": tuple(item_rows),
+        # Newest first: reverse-chronological order is decided here so every
+        # frontend renders the same way.
+        "fill_log": tuple(reversed(copy.deepcopy(data["ge_fill_log"]))),
+        "answered_cards": _clean_int(
+            clock.get("answered_cards") if isinstance(clock, Mapping) else 0,
+            0,
+        ),
     }
 
 
