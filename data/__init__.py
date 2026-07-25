@@ -1,0 +1,1 @@
+"""AnkiScape tier package: data."""
