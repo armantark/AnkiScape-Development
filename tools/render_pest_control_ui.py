@@ -13,7 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from aqt.qt import QApplication  # type: ignore
 
-from pest_control_logic import apply_pest_control_command_pure, apply_pest_control_review_pure
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.pest_control_logic import apply_pest_control_command_pure, apply_pest_control_review_pure
 from tests.test_main_menu_widget import MainMenuWidgetTest, _make_player_data, _utility_row
 from tools.render_fishing_trawler_ui import _dark_palette
 

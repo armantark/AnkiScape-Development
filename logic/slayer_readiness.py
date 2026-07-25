@@ -4,10 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping, Tuple
 
-try:
-    from .slayer_data import SLAYER_MASTERS_BY_ID, SlayerAssignmentFamily
-except ImportError:  # pragma: no cover - flat test imports
-    from slayer_data import SLAYER_MASTERS_BY_ID, SlayerAssignmentFamily  # type: ignore
+from ..data.slayer_data import SLAYER_MASTERS_BY_ID, SlayerAssignmentFamily
 
 
 def slayer_family_readiness_blockers_pure(

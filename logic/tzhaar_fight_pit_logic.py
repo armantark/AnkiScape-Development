@@ -6,46 +6,25 @@ import copy
 from collections.abc import Callable, Mapping
 from typing import Any
 
-try:
-    from .logic_pure import (
-        apply_combat_burst_pure,
-        apply_thieving_damage_pure,
-        combat_max_lifepoints_pure,
-        player_combat_level_pure,
-    )
-    from .tzhaar_fight_pit_data import (
-        TZHAAR_FIGHT_PIT_ACTIVITY_ID,
-        TZHAAR_FIGHT_PIT_ATTRITION_DIVISOR,
-        TZHAAR_FIGHT_PIT_COMBAT_TARGET_ID,
-        TZHAAR_FIGHT_PIT_COMBAT_TICKS_PER_REVIEW,
-        TZHAAR_FIGHT_PIT_FIRE_CAPE_ITEM,
-        TZHAAR_FIGHT_PIT_POLICIES,
-        TZHAAR_FIGHT_PIT_PRESSURE_DAMAGE_DIVISOR,
-        TZHAAR_FIGHT_PIT_PRESSURE_START_REVIEW,
-        TZHAAR_FIGHT_PIT_ROSTER_SIZE,
-        TZHAAR_FIGHT_PIT_SOURCE,
-        TZHAAR_FIGHT_PIT_TOKKUL_ITEM,
-    )
-except ImportError:  # pragma: no cover - flat imports used by tests
-    from logic_pure import (  # type: ignore
-        apply_combat_burst_pure,
-        apply_thieving_damage_pure,
-        combat_max_lifepoints_pure,
-        player_combat_level_pure,
-    )
-    from tzhaar_fight_pit_data import (  # type: ignore
-        TZHAAR_FIGHT_PIT_ACTIVITY_ID,
-        TZHAAR_FIGHT_PIT_ATTRITION_DIVISOR,
-        TZHAAR_FIGHT_PIT_COMBAT_TARGET_ID,
-        TZHAAR_FIGHT_PIT_COMBAT_TICKS_PER_REVIEW,
-        TZHAAR_FIGHT_PIT_FIRE_CAPE_ITEM,
-        TZHAAR_FIGHT_PIT_POLICIES,
-        TZHAAR_FIGHT_PIT_PRESSURE_DAMAGE_DIVISOR,
-        TZHAAR_FIGHT_PIT_PRESSURE_START_REVIEW,
-        TZHAAR_FIGHT_PIT_ROSTER_SIZE,
-        TZHAAR_FIGHT_PIT_SOURCE,
-        TZHAAR_FIGHT_PIT_TOKKUL_ITEM,
-    )
+from ..logic_pure.logic_pure import (
+    apply_combat_burst_pure,
+    apply_thieving_damage_pure,
+    combat_max_lifepoints_pure,
+    player_combat_level_pure,
+)
+from ..data.tzhaar_fight_pit_data import (
+    TZHAAR_FIGHT_PIT_ACTIVITY_ID,
+    TZHAAR_FIGHT_PIT_ATTRITION_DIVISOR,
+    TZHAAR_FIGHT_PIT_COMBAT_TARGET_ID,
+    TZHAAR_FIGHT_PIT_COMBAT_TICKS_PER_REVIEW,
+    TZHAAR_FIGHT_PIT_FIRE_CAPE_ITEM,
+    TZHAAR_FIGHT_PIT_POLICIES,
+    TZHAAR_FIGHT_PIT_PRESSURE_DAMAGE_DIVISOR,
+    TZHAAR_FIGHT_PIT_PRESSURE_START_REVIEW,
+    TZHAAR_FIGHT_PIT_ROSTER_SIZE,
+    TZHAAR_FIGHT_PIT_SOURCE,
+    TZHAAR_FIGHT_PIT_TOKKUL_ITEM,
+)
 
 
 TZHAAR_FIGHT_PIT_STATE_VERSION = 1

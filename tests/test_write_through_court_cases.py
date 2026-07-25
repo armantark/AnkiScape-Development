@@ -16,8 +16,9 @@ truthiness checks on these values, so a failure here is a real defect.
 import copy
 import unittest
 
-from court_cases_data import COURT_CASES_ACTIVITY_ID
-from court_cases_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.court_cases_data import COURT_CASES_ACTIVITY_ID
+from ankiscape.logic.court_cases_logic import (
     apply_court_case_review_pure,
     apply_court_cases_command_pure,
     court_cases_view_pure,

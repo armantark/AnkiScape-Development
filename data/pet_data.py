@@ -7,10 +7,7 @@ from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Mapping
 
-try:
-    from .pet_data_generated import PET_CATALOG, PET_OLDID
-except ImportError:
-    from pet_data_generated import PET_CATALOG, PET_OLDID
+from ..generated.pet_data_generated import PET_CATALOG, PET_OLDID
 
 
 PET_GROWTH_REVIEWS_PER_STAGE = 25

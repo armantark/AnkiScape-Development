@@ -10,35 +10,22 @@ from __future__ import annotations
 from types import MappingProxyType
 from typing import Iterable, Mapping
 
-try:
-    from .constants import ITEM_DEFINITIONS
-    from .item_registry import ItemDefinition
-    from .item_values import EXCHANGEABLE_ITEM_NAMES, ITEM_VALUES
-except ImportError:
-    from constants import ITEM_DEFINITIONS
-    from item_registry import ItemDefinition
-    from item_values import EXCHANGEABLE_ITEM_NAMES, ITEM_VALUES
+from ..core.constants import ITEM_DEFINITIONS
+from ..core.item_registry import ItemDefinition
+from ..data.item_values import EXCHANGEABLE_ITEM_NAMES, ITEM_VALUES
 
 try:
-    from .grand_exchange_period_generated import (
+    from ..generated.grand_exchange_period_generated import (
         PERIOD_GE_BUY_LIMIT_SOURCE,
         PERIOD_GE_BUY_LIMITS,
         PERIOD_GE_GUIDE_PRICES,
         PERIOD_GE_PRICE_PROVENANCE,
     )
 except ImportError:
-    try:
-        from grand_exchange_period_generated import (
-            PERIOD_GE_BUY_LIMIT_SOURCE,
-            PERIOD_GE_BUY_LIMITS,
-            PERIOD_GE_GUIDE_PRICES,
-            PERIOD_GE_PRICE_PROVENANCE,
-        )
-    except ImportError:
-        PERIOD_GE_BUY_LIMIT_SOURCE = {}
-        PERIOD_GE_BUY_LIMITS = {}
-        PERIOD_GE_GUIDE_PRICES = {}
-        PERIOD_GE_PRICE_PROVENANCE = {}
+    PERIOD_GE_BUY_LIMIT_SOURCE = {}
+    PERIOD_GE_BUY_LIMITS = {}
+    PERIOD_GE_GUIDE_PRICES = {}
+    PERIOD_GE_PRICE_PROVENANCE = {}
 
 
 def _market_source_role(category: str) -> str:

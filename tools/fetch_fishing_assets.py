@@ -25,7 +25,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from fishing_data import (  # noqa: E402
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.fishing_data import (  # noqa: E402
     FISHING_MATERIAL_ITEM_IDS,
     FISHING_METHODS,
     FISH_BY_ID,

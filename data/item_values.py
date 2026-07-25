@@ -13,28 +13,18 @@ possibly-valuable drop just because we lack a price).
 
 from typing import Dict, FrozenSet, Optional
 
-try:
-    from .shop_data import SHOP_DATA
-except ImportError:  # flat imports in tests
-    from shop_data import SHOP_DATA
+from ..data.shop_data import SHOP_DATA
 
 try:  # the generated full-cache table is authoritative when present
-    from .item_values_generated import (
+    from ..generated.item_values_generated import (
         EXCHANGEABLE_ITEM_NAMES_GENERATED,
         ITEM_VALUES_GENERATED,
         STACKABLE_ITEM_NAMES_GENERATED,
     )
-except ImportError:
-    try:
-        from item_values_generated import (
-            EXCHANGEABLE_ITEM_NAMES_GENERATED,
-            ITEM_VALUES_GENERATED,
-            STACKABLE_ITEM_NAMES_GENERATED,
-        )
-    except ImportError:  # dump not generated in this checkout
-        ITEM_VALUES_GENERATED = {}
-        STACKABLE_ITEM_NAMES_GENERATED = frozenset()
-        EXCHANGEABLE_ITEM_NAMES_GENERATED = frozenset()
+except ImportError:  # dump not generated in this checkout
+    ITEM_VALUES_GENERATED = {}
+    STACKABLE_ITEM_NAMES_GENERATED = frozenset()
+    EXCHANGEABLE_ITEM_NAMES_GENERATED = frozenset()
 
 
 # Multiple cache identities collapse to this display name, including a

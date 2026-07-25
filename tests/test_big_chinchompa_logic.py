@@ -1,10 +1,11 @@
 import unittest
 
-from big_chinchompa_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.big_chinchompa_data import (
     BIG_CHINCHOMPA_COMPETENCE_CAP,
     BIG_CHINCHOMPA_MOTH_TIERS,
 )
-from big_chinchompa_logic import (
+from ankiscape.logic.big_chinchompa_logic import (
     advance_big_chinchompa_world_clock_pure,
     apply_big_chinchompa_review_pure,
     apply_big_chinchompa_reward_purchase_pure,
@@ -16,7 +17,7 @@ from big_chinchompa_logic import (
     set_hunter_private_ground_pure,
     set_world_population_profile_pure,
 )
-from constants import EXP_TABLE
+from ankiscape.core.constants import EXP_TABLE
 
 
 def _player(answered_cards=0, hunter_level=1):

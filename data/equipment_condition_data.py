@@ -1,11 +1,7 @@
 """Shared condition families for every degradable equipment subsystem."""
 
-try:
-    from .barrows_data import BARROWS_CONDITION_DATA
-    from .fist_of_guthix_data import FIST_OF_GUTHIX_CONDITION_DATA
-except ImportError:  # pragma: no cover - flat test imports
-    from barrows_data import BARROWS_CONDITION_DATA  # type: ignore
-    from fist_of_guthix_data import FIST_OF_GUTHIX_CONDITION_DATA  # type: ignore
+from ..data.barrows_data import BARROWS_CONDITION_DATA
+from ..data.fist_of_guthix_data import FIST_OF_GUTHIX_CONDITION_DATA
 
 
 EQUIPMENT_CONDITION_DATA = {

@@ -14,8 +14,9 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from prayer_data import prayer_extra_items_as_dict
-from prayer_passive_data import prayer_passive_items_as_dict
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.prayer_data import prayer_extra_items_as_dict
+from ankiscape.data.prayer_passive_data import prayer_passive_items_as_dict
 from tools.fetch_assets import AssetFetchError, AssetRequest, HttpWikiClient, RS3_WIKI, fetch_asset
 
 

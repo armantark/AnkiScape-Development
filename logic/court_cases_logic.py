@@ -5,22 +5,13 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-try:
-    from .court_cases_data import (
-        COURT_CASES_BATCH2_COOLDOWN_REVIEWS,
-        COURT_CASE_ORDER,
-        COURT_CASES,
-        COURT_CASES_ACTIVITY_ID,
-        COURT_ROLE_LABELS,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from court_cases_data import (  # type: ignore
-        COURT_CASES_BATCH2_COOLDOWN_REVIEWS,
-        COURT_CASE_ORDER,
-        COURT_CASES,
-        COURT_CASES_ACTIVITY_ID,
-        COURT_ROLE_LABELS,
-    )
+from ..data.court_cases_data import (
+    COURT_CASES_BATCH2_COOLDOWN_REVIEWS,
+    COURT_CASE_ORDER,
+    COURT_CASES,
+    COURT_CASES_ACTIVITY_ID,
+    COURT_ROLE_LABELS,
+)
 
 
 COURT_CASES_STATE_VERSION = 1

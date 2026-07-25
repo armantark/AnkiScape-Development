@@ -25,13 +25,14 @@ import copy
 import unittest
 from unittest.mock import patch
 
-import barbarian_assault_logic
-from barbarian_assault_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic import barbarian_assault_logic
+from ankiscape.data.barbarian_assault_data import (
     BARBARIAN_ASSAULT_QUEEN_LIFEPOINTS,
     RUNNER_BOOTS_COST_PER_ROLE,
     BARBARIAN_ASSAULT_ROLE_IDS,
 )
-from barbarian_assault_logic import (
+from ankiscape.logic.barbarian_assault_logic import (
     BARBARIAN_ASSAULT_ACTIVITY_ID,
     apply_barbarian_assault_command_pure,
     apply_barbarian_assault_review_pure,

@@ -1,7 +1,8 @@
 import unittest
 
-from equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
-from shop_data import SHOP_DATA
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
+from ankiscape.data.shop_data import SHOP_DATA
 
 
 class TestEquipmentData(unittest.TestCase):

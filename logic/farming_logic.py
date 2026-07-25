@@ -6,46 +6,25 @@ import copy
 import math
 from typing import Any, Callable, Iterable, Mapping, Optional
 
-try:
-    from .constants import EQUIPMENT_DATA, EXP_TABLE, TREE_DATA, WOODCUTTING_AXE_DATA
-    from .farming_data import (
-        COMPOST_BIN_CAPACITY,
-        COMPOST_TIERS,
-        FARM_MINUTES_PER_ANSWER,
-        FARMING_COMPOST_BINS,
-        FARMING_COMPOST_BINS_BY_ID,
-        FARMING_CROPS_BY_ID,
-        FARMING_PATCHES,
-        FARMING_PATCHES_BY_ID,
-        FLOWER_PROTECTION,
-        LIVID_FARM_ALLOTMENT_PATCH_ID,
-        LIVID_FARM_PROTECTION_SCROLL,
-        REGULAR_COMPOST_INPUTS,
-        SAPLING_RECIPES,
-        SUPERCOMPOST_INPUTS,
-    )
-    from .logic_pure import apply_combat_burst_pure, apply_consumable_pure, best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure
-    from .quest_data import QUEST_DISPLAY_NAMES
-except ImportError:  # pragma: no cover - flat imports used by tests
-    from constants import EQUIPMENT_DATA, EXP_TABLE, TREE_DATA, WOODCUTTING_AXE_DATA  # type: ignore
-    from farming_data import (  # type: ignore
-        COMPOST_BIN_CAPACITY,
-        COMPOST_TIERS,
-        FARM_MINUTES_PER_ANSWER,
-        FARMING_COMPOST_BINS,
-        FARMING_COMPOST_BINS_BY_ID,
-        FARMING_CROPS_BY_ID,
-        FARMING_PATCHES,
-        FARMING_PATCHES_BY_ID,
-        FLOWER_PROTECTION,
-        LIVID_FARM_ALLOTMENT_PATCH_ID,
-        LIVID_FARM_PROTECTION_SCROLL,
-        REGULAR_COMPOST_INPUTS,
-        SAPLING_RECIPES,
-        SUPERCOMPOST_INPUTS,
-    )
-    from logic_pure import apply_combat_burst_pure, apply_consumable_pure, best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure  # type: ignore
-    from quest_data import QUEST_DISPLAY_NAMES  # type: ignore
+from ..core.constants import EQUIPMENT_DATA, EXP_TABLE, TREE_DATA, WOODCUTTING_AXE_DATA
+from ..data.farming_data import (
+    COMPOST_BIN_CAPACITY,
+    COMPOST_TIERS,
+    FARM_MINUTES_PER_ANSWER,
+    FARMING_COMPOST_BINS,
+    FARMING_COMPOST_BINS_BY_ID,
+    FARMING_CROPS_BY_ID,
+    FARMING_PATCHES,
+    FARMING_PATCHES_BY_ID,
+    FLOWER_PROTECTION,
+    LIVID_FARM_ALLOTMENT_PATCH_ID,
+    LIVID_FARM_PROTECTION_SCROLL,
+    REGULAR_COMPOST_INPUTS,
+    SAPLING_RECIPES,
+    SUPERCOMPOST_INPUTS,
+)
+from ..logic_pure.logic_pure import apply_combat_burst_pure, apply_consumable_pure, best_woodcutting_axe_pure, calculate_new_level, quest_completed_pure
+from ..data.quest_data import QUEST_DISPLAY_NAMES
 
 
 FIELD_STEP_KINDS = frozenset({
@@ -1248,12 +1227,8 @@ def _cure_spell_locked_reasons(
     updated: Mapping[str, Any],
     patch_id: str,
 ) -> tuple[str, ...]:
-    try:
-        from .constants import MAGIC_DATA
-        from .logic_pure import magic_target_locked_reasons_pure
-    except ImportError:  # pragma: no cover - flat imports used by tests
-        from constants import MAGIC_DATA  # type: ignore
-        from logic_pure import magic_target_locked_reasons_pure  # type: ignore
+    from ..core.constants import MAGIC_DATA
+    from ..logic_pure.logic_pure import magic_target_locked_reasons_pure
     return magic_target_locked_reasons_pure(
         updated,
         "cure_plant",
@@ -1301,12 +1276,8 @@ def _cure(
         if spell_reasons:
             failures.append("Cure Plant: " + ", ".join(spell_reasons))
             continue
-        try:
-            from .constants import MAGIC_DATA
-            from .logic_pure import apply_magic_action_pure
-        except ImportError:  # pragma: no cover - flat imports used by tests
-            from constants import MAGIC_DATA  # type: ignore
-            from logic_pure import apply_magic_action_pure  # type: ignore
+        from ..core.constants import MAGIC_DATA
+        from ..logic_pure.logic_pure import apply_magic_action_pure
         cast, magic_xp, _secondary, _outputs, ok, message = apply_magic_action_pure(
             updated,
             "cure_plant",

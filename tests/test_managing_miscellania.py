@@ -1,6 +1,7 @@
 import unittest
 
-from managing_miscellania_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.managing_miscellania_logic import (
     advance_managing_miscellania_world_clock_pure,
     apply_managing_miscellania_command_pure,
     apply_managing_miscellania_review_pure,
@@ -8,8 +9,8 @@ from managing_miscellania_logic import (
     managing_miscellania_view_pure,
     sanitize_managing_miscellania_player_state_pure,
 )
-from constants import ORE_DATA
-from storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
+from ankiscape.core.constants import ORE_DATA
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
 
 
 def _player(*, royal: bool = False, answered_cards: int = 0):

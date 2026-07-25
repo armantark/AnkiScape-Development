@@ -12,34 +12,19 @@ from dataclasses import asdict, dataclass
 from fractions import Fraction
 from typing import Any, Mapping
 
-try:
-    from .cadence_kernel import (
-        CAP_ONE_ACTION,
-        COMBAT_TICKS,
-        EMBEDDED_PROBABILITY,
-        PASSTHROUGH,
-        RATE_LIMITED,
-        CadenceProfile,
-        advance_cadence_pure,
-        default_cadence_profile_state_pure,
-        rate_limited_profile_pure,
-    )
-    from .cadence_shadow import SOURCE_BLOCKED, SOURCE_READY, resolve_cadence_shadow_rate_pure
-    from .tools.sourced_xp_rates import DETERMINISTIC
-except ImportError:  # pragma: no cover - flat imports used by tests
-    from cadence_kernel import (  # type: ignore
-        CAP_ONE_ACTION,
-        COMBAT_TICKS,
-        EMBEDDED_PROBABILITY,
-        PASSTHROUGH,
-        RATE_LIMITED,
-        CadenceProfile,
-        advance_cadence_pure,
-        default_cadence_profile_state_pure,
-        rate_limited_profile_pure,
-    )
-    from cadence_shadow import SOURCE_BLOCKED, SOURCE_READY, resolve_cadence_shadow_rate_pure  # type: ignore
-    from tools.sourced_xp_rates import DETERMINISTIC  # type: ignore
+from ..logic.cadence_kernel import (
+    CAP_ONE_ACTION,
+    COMBAT_TICKS,
+    EMBEDDED_PROBABILITY,
+    PASSTHROUGH,
+    RATE_LIMITED,
+    CadenceProfile,
+    advance_cadence_pure,
+    default_cadence_profile_state_pure,
+    rate_limited_profile_pure,
+)
+from ..logic.cadence_shadow import SOURCE_BLOCKED, SOURCE_READY, resolve_cadence_shadow_rate_pure
+from ..tools.sourced_xp_rates import DETERMINISTIC
 
 
 LIVE_CADENCE_VERSION = 1

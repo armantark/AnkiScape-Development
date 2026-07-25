@@ -1,6 +1,7 @@
 import unittest
 
-from inventory_pure import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.inventory_pure import (
     CARRIED_CAPACITY,
     DEFAULT_LOOT_VALUE_THRESHOLD,
     carried_capacity_remaining,

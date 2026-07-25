@@ -6,36 +6,20 @@ import copy
 from collections.abc import Mapping
 from typing import Any
 
-try:
-    from .logic_pure import apply_combat_burst_pure, combat_max_lifepoints_pure
-    from .barbarian_assault_data import (
-        BARBARIAN_ASSAULT_ACTIVITY_ID,
-        BARBARIAN_ASSAULT_COMBAT_TARGET_ID,
-        BARBARIAN_ASSAULT_OMEGA_DAMAGE,
-        BARBARIAN_ASSAULT_POINT_STORAGE_MAX,
-        BARBARIAN_ASSAULT_QUEEN_EGGS,
-        BARBARIAN_ASSAULT_QUEEN_LIFEPOINTS,
-        BARBARIAN_ASSAULT_QUEEN_PRESSURE_DAMAGE,
-        BARBARIAN_ASSAULT_ROLE_IDS,
-        RUNNER_BOOTS_COST_PER_ROLE,
-        barbarian_assault_front_enemy_pure,
-        barbarian_assault_wave_points_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure import apply_combat_burst_pure, combat_max_lifepoints_pure  # type: ignore
-    from barbarian_assault_data import (  # type: ignore
-        BARBARIAN_ASSAULT_ACTIVITY_ID,
-        BARBARIAN_ASSAULT_COMBAT_TARGET_ID,
-        BARBARIAN_ASSAULT_OMEGA_DAMAGE,
-        BARBARIAN_ASSAULT_POINT_STORAGE_MAX,
-        BARBARIAN_ASSAULT_QUEEN_EGGS,
-        BARBARIAN_ASSAULT_QUEEN_LIFEPOINTS,
-        BARBARIAN_ASSAULT_QUEEN_PRESSURE_DAMAGE,
-        BARBARIAN_ASSAULT_ROLE_IDS,
-        RUNNER_BOOTS_COST_PER_ROLE,
-        barbarian_assault_front_enemy_pure,
-        barbarian_assault_wave_points_pure,
-    )
+from ..logic_pure.logic_pure import apply_combat_burst_pure, combat_max_lifepoints_pure
+from ..data.barbarian_assault_data import (
+    BARBARIAN_ASSAULT_ACTIVITY_ID,
+    BARBARIAN_ASSAULT_COMBAT_TARGET_ID,
+    BARBARIAN_ASSAULT_OMEGA_DAMAGE,
+    BARBARIAN_ASSAULT_POINT_STORAGE_MAX,
+    BARBARIAN_ASSAULT_QUEEN_EGGS,
+    BARBARIAN_ASSAULT_QUEEN_LIFEPOINTS,
+    BARBARIAN_ASSAULT_QUEEN_PRESSURE_DAMAGE,
+    BARBARIAN_ASSAULT_ROLE_IDS,
+    RUNNER_BOOTS_COST_PER_ROLE,
+    barbarian_assault_front_enemy_pure,
+    barbarian_assault_wave_points_pure,
+)
 
 
 BARBARIAN_ASSAULT_STATE_VERSION = 1

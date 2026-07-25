@@ -2,254 +2,126 @@
 
 from typing import Iterable, Mapping, Optional
 
-try:
-    from .combat_data import (
-        COMBAT_ATTACK_STYLE_DATA,
-        COMBAT_ANTIPOISON_POTION_DATA,
-        COMBAT_BURST_TICKS,
-        COMBAT_ENEMY_DATA,
-        COMBAT_FOOD_DATA,
-        CONSUMABLE_DATA,
-        KEBAB_DRAINABLE_SKILLS,
-        COMBAT_MAGIC_STAFF_DATA,
-        COMBAT_MAGIC_SPELL_DATA,
-        COMBAT_RANGED_AMMO_DATA,
-        COMBAT_RANGED_WEAPON_DATA,
-        DEFAULT_COMBAT_ATTACK_STYLE,
-        DEFAULT_COMBAT_SPELL,
-        DEFAULT_COMBAT_TARGET,
-        MAGIC_FORMULA_SOURCE_PATH,
-        MAGIC_STRATEGY_SOURCE_PATH,
-        MELEE_FORMULA_SOURCE_PATH,
-        MELEE_STRATEGY_SOURCE_PATH,
-        POTION_TYPE_SOURCE_PATH,
-        RANGED_FORMULA_SOURCE_PATH,
-        RANGED_STRATEGY_SOURCE_PATH,
-        WEAPON_TYPE_ATTACK_STYLES,
-        WEAPON_TYPE_UNARMED_STYLES,
-    )
-except ImportError:
-    from combat_data import (  # type: ignore
-        COMBAT_ATTACK_STYLE_DATA,
-        COMBAT_ANTIPOISON_POTION_DATA,
-        COMBAT_BURST_TICKS,
-        COMBAT_ENEMY_DATA,
-        COMBAT_FOOD_DATA,
-        CONSUMABLE_DATA,
-        KEBAB_DRAINABLE_SKILLS,
-        COMBAT_MAGIC_STAFF_DATA,
-        COMBAT_MAGIC_SPELL_DATA,
-        COMBAT_RANGED_AMMO_DATA,
-        COMBAT_RANGED_WEAPON_DATA,
-        DEFAULT_COMBAT_ATTACK_STYLE,
-        DEFAULT_COMBAT_SPELL,
-        DEFAULT_COMBAT_TARGET,
-        MAGIC_FORMULA_SOURCE_PATH,
-        MAGIC_STRATEGY_SOURCE_PATH,
-        MELEE_FORMULA_SOURCE_PATH,
-        MELEE_STRATEGY_SOURCE_PATH,
-        POTION_TYPE_SOURCE_PATH,
-        RANGED_FORMULA_SOURCE_PATH,
-        RANGED_STRATEGY_SOURCE_PATH,
-        WEAPON_TYPE_ATTACK_STYLES,
-        WEAPON_TYPE_UNARMED_STYLES,
-    )
+from ..data.combat_data import (
+    COMBAT_ATTACK_STYLE_DATA,
+    COMBAT_ANTIPOISON_POTION_DATA,
+    COMBAT_BURST_TICKS,
+    COMBAT_ENEMY_DATA,
+    COMBAT_FOOD_DATA,
+    CONSUMABLE_DATA,
+    KEBAB_DRAINABLE_SKILLS,
+    COMBAT_MAGIC_STAFF_DATA,
+    COMBAT_MAGIC_SPELL_DATA,
+    COMBAT_RANGED_AMMO_DATA,
+    COMBAT_RANGED_WEAPON_DATA,
+    DEFAULT_COMBAT_ATTACK_STYLE,
+    DEFAULT_COMBAT_SPELL,
+    DEFAULT_COMBAT_TARGET,
+    MAGIC_FORMULA_SOURCE_PATH,
+    MAGIC_STRATEGY_SOURCE_PATH,
+    MELEE_FORMULA_SOURCE_PATH,
+    MELEE_STRATEGY_SOURCE_PATH,
+    POTION_TYPE_SOURCE_PATH,
+    RANGED_FORMULA_SOURCE_PATH,
+    RANGED_STRATEGY_SOURCE_PATH,
+    WEAPON_TYPE_ATTACK_STYLES,
+    WEAPON_TYPE_UNARMED_STYLES,
+)
 
-try:
-    from .logic_pure_progression import (  # noqa: F401  (re-export)
-        REVIEW_SUCCESS_CAP,
-        REVIEW_SUCCESS_MINIMUM,
-        REVIEW_SUCCESS_SCALE,
-        calculate_new_level,
-        calculate_probability_with_level,
-        default_red_sandstone_daily_state_pure,
-        get_exp_to_next_level,
-        get_newly_completed_achievements,
-        normalize_review_success_probability_pure,
-        pick_gem,
-        pick_weighted_item_pure,
-        red_sandstone_daily_remaining_pure,
-        red_sandstone_daily_state_pure,
-        red_sandstone_review_day_pure,
-        sanitize_red_sandstone_daily_state_pure,
-        sanitize_review_action_multiplier,
-        sanitize_xp_multiplier,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_progression import (  # type: ignore  # noqa: F401
-        REVIEW_SUCCESS_CAP,
-        REVIEW_SUCCESS_MINIMUM,
-        REVIEW_SUCCESS_SCALE,
-        calculate_new_level,
-        calculate_probability_with_level,
-        default_red_sandstone_daily_state_pure,
-        get_exp_to_next_level,
-        get_newly_completed_achievements,
-        normalize_review_success_probability_pure,
-        pick_gem,
-        pick_weighted_item_pure,
-        red_sandstone_daily_remaining_pure,
-        red_sandstone_daily_state_pure,
-        red_sandstone_review_day_pure,
-        sanitize_red_sandstone_daily_state_pure,
-        sanitize_review_action_multiplier,
-        sanitize_xp_multiplier,
-    )
+from ..logic_pure.logic_pure_progression import (  # noqa: F401  (re-export)
+    REVIEW_SUCCESS_CAP,
+    REVIEW_SUCCESS_MINIMUM,
+    REVIEW_SUCCESS_SCALE,
+    calculate_new_level,
+    calculate_probability_with_level,
+    default_red_sandstone_daily_state_pure,
+    get_exp_to_next_level,
+    get_newly_completed_achievements,
+    normalize_review_success_probability_pure,
+    pick_gem,
+    pick_weighted_item_pure,
+    red_sandstone_daily_remaining_pure,
+    red_sandstone_daily_state_pure,
+    red_sandstone_review_day_pure,
+    sanitize_red_sandstone_daily_state_pure,
+    sanitize_review_action_multiplier,
+    sanitize_xp_multiplier,
+)
 
-try:
-    from .logic_pure_landmarks import (  # noqa: F401  (re-export)
-        KNIGHT_WAVES_TOTAL_STEPS,
-        KNIGHT_WAVES_XP_REWARD,
-        MAGE_ARENA_GOD_CAPES,
-        MAGE_ARENA_GOD_DATA,
-        MAGE_ARENA_GOD_STAVES,
-        MAGE_ARENA_SPELL_TO_GOD,
-        MAGE_ARENA_STEP_NAMES,
-        MAGE_ARENA_TOTAL_STEPS,
-        STRONGHOLD_BOOT_CHOICES,
-        STRONGHOLD_REWARD_COINS,
-        STRONGHOLD_STEP_NAMES,
-        STRONGHOLD_TOTAL_STEPS,
-        _owns_or_equips_pure,
-        apply_knight_waves_step_pure,
-        apply_mage_arena_cape_action_pure,
-        apply_mage_arena_step_pure,
-        apply_stronghold_step_pure,
-        attune_mage_arena_spell_pure,
-        default_knight_waves_state_pure,
-        default_mage_arena_state_pure,
-        default_stronghold_state_pure,
-        grant_stronghold_reward_pure,
-        knight_waves_locked_reasons_pure,
-        mage_arena_locked_reasons_pure,
-        sanitize_knight_waves_state_pure,
-        sanitize_mage_arena_state_pure,
-        sanitize_stronghold_state_pure,
-        set_mage_arena_alignment_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_landmarks import (  # type: ignore  # noqa: F401
-        KNIGHT_WAVES_TOTAL_STEPS,
-        KNIGHT_WAVES_XP_REWARD,
-        MAGE_ARENA_GOD_CAPES,
-        MAGE_ARENA_GOD_DATA,
-        MAGE_ARENA_GOD_STAVES,
-        MAGE_ARENA_SPELL_TO_GOD,
-        MAGE_ARENA_STEP_NAMES,
-        MAGE_ARENA_TOTAL_STEPS,
-        STRONGHOLD_BOOT_CHOICES,
-        STRONGHOLD_REWARD_COINS,
-        STRONGHOLD_STEP_NAMES,
-        STRONGHOLD_TOTAL_STEPS,
-        _owns_or_equips_pure,
-        apply_knight_waves_step_pure,
-        apply_mage_arena_cape_action_pure,
-        apply_mage_arena_step_pure,
-        apply_stronghold_step_pure,
-        attune_mage_arena_spell_pure,
-        default_knight_waves_state_pure,
-        default_mage_arena_state_pure,
-        default_stronghold_state_pure,
-        grant_stronghold_reward_pure,
-        knight_waves_locked_reasons_pure,
-        mage_arena_locked_reasons_pure,
-        sanitize_knight_waves_state_pure,
-        sanitize_mage_arena_state_pure,
-        sanitize_stronghold_state_pure,
-        set_mage_arena_alignment_pure,
-    )
+from ..logic_pure.logic_pure_landmarks import (  # noqa: F401  (re-export)
+    KNIGHT_WAVES_TOTAL_STEPS,
+    KNIGHT_WAVES_XP_REWARD,
+    MAGE_ARENA_GOD_CAPES,
+    MAGE_ARENA_GOD_DATA,
+    MAGE_ARENA_GOD_STAVES,
+    MAGE_ARENA_SPELL_TO_GOD,
+    MAGE_ARENA_STEP_NAMES,
+    MAGE_ARENA_TOTAL_STEPS,
+    STRONGHOLD_BOOT_CHOICES,
+    STRONGHOLD_REWARD_COINS,
+    STRONGHOLD_STEP_NAMES,
+    STRONGHOLD_TOTAL_STEPS,
+    _owns_or_equips_pure,
+    apply_knight_waves_step_pure,
+    apply_mage_arena_cape_action_pure,
+    apply_mage_arena_step_pure,
+    apply_stronghold_step_pure,
+    attune_mage_arena_spell_pure,
+    default_knight_waves_state_pure,
+    default_mage_arena_state_pure,
+    default_stronghold_state_pure,
+    grant_stronghold_reward_pure,
+    knight_waves_locked_reasons_pure,
+    mage_arena_locked_reasons_pure,
+    sanitize_knight_waves_state_pure,
+    sanitize_mage_arena_state_pure,
+    sanitize_stronghold_state_pure,
+    set_mage_arena_alignment_pure,
+)
 
-try:
-    from .logic_pure_state import (  # noqa: F401  (re-export)
-        COMBAT_BANK_RUN_REVIEWS,
-        COMBAT_GRAVE_RECOVERY_REVIEWS,
-        _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
-        _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
-        _COMBAT_STAT_POTION_BY_DOSE,
-        _COMBAT_STAT_POTION_ITEM_NAMES,
-        _build_combat_potion_dose_lookup,
-        _combat_grave_items,
-        _combat_stored_loadout,
-        _copy_player_data_with_nested,
-        _non_negative_float,
-        _non_negative_int,
-        _positive_int,
-        _requirements_from_spec,
-        _sanitize_combat_bank_run,
-        _sanitize_combat_grave_state,
-        _sanitize_combat_supply_loadout,
-        _sanitize_death_office_state,
-        _signed_int,
-        default_combat_supply_loadout_pure,
-        quest_completed_pure,
-        quest_state_pure,
-        sanitize_quest_combat_active_encounters_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_state import (  # type: ignore  # noqa: F401
-        COMBAT_BANK_RUN_REVIEWS,
-        COMBAT_GRAVE_RECOVERY_REVIEWS,
-        _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
-        _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
-        _COMBAT_STAT_POTION_BY_DOSE,
-        _COMBAT_STAT_POTION_ITEM_NAMES,
-        _build_combat_potion_dose_lookup,
-        _combat_grave_items,
-        _combat_stored_loadout,
-        _copy_player_data_with_nested,
-        _non_negative_float,
-        _non_negative_int,
-        _positive_int,
-        _requirements_from_spec,
-        _sanitize_combat_bank_run,
-        _sanitize_combat_grave_state,
-        _sanitize_combat_supply_loadout,
-        _sanitize_death_office_state,
-        _signed_int,
-        default_combat_supply_loadout_pure,
-        quest_completed_pure,
-        quest_state_pure,
-        sanitize_quest_combat_active_encounters_pure,
-    )
+from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
+    COMBAT_BANK_RUN_REVIEWS,
+    COMBAT_GRAVE_RECOVERY_REVIEWS,
+    _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
+    _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
+    _COMBAT_STAT_POTION_BY_DOSE,
+    _COMBAT_STAT_POTION_ITEM_NAMES,
+    _build_combat_potion_dose_lookup,
+    _combat_grave_items,
+    _combat_stored_loadout,
+    _copy_player_data_with_nested,
+    _non_negative_float,
+    _non_negative_int,
+    _positive_int,
+    _requirements_from_spec,
+    _sanitize_combat_bank_run,
+    _sanitize_combat_grave_state,
+    _sanitize_combat_supply_loadout,
+    _sanitize_death_office_state,
+    _signed_int,
+    default_combat_supply_loadout_pure,
+    quest_completed_pure,
+    quest_state_pure,
+    sanitize_quest_combat_active_encounters_pure,
+)
 
-try:
-    from .logic_pure_progression import (
-        sanitize_review_action_multiplier,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_progression import (  # type: ignore
-        sanitize_review_action_multiplier,
-    )
+from ..logic_pure.logic_pure_progression import (
+    sanitize_review_action_multiplier,
+)
 
-try:
-    from .logic_pure_landmarks import (
-        MAGE_ARENA_GOD_DATA,
-        MAGE_ARENA_SPELL_TO_GOD,
-        sanitize_mage_arena_state_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_landmarks import (  # type: ignore
-        MAGE_ARENA_GOD_DATA,
-        MAGE_ARENA_SPELL_TO_GOD,
-        sanitize_mage_arena_state_pure,
-    )
+from ..logic_pure.logic_pure_landmarks import (
+    MAGE_ARENA_GOD_DATA,
+    MAGE_ARENA_SPELL_TO_GOD,
+    sanitize_mage_arena_state_pure,
+)
 
-try:
-    from .logic_pure_state import (
-        _copy_player_data_with_nested,
-        _non_negative_int,
-        _positive_int,
-        _requirements_from_spec,
-        quest_completed_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_state import (  # type: ignore
-        _copy_player_data_with_nested,
-        _non_negative_int,
-        _positive_int,
-        _requirements_from_spec,
-        quest_completed_pure,
-    )
+from ..logic_pure.logic_pure_state import (
+    _copy_player_data_with_nested,
+    _non_negative_int,
+    _positive_int,
+    _requirements_from_spec,
+    quest_completed_pure,
+)
 
 
 def _magic_quest_gate_complete_pure(player_data, gate):
@@ -261,34 +133,22 @@ def _magic_quest_gate_complete_pure(player_data, gate):
 
 
 def _farming_spell_locked_reasons_pure(player_data, target_id, patch_id=None):
-    try:
-        from .farming_logic import farming_spell_target_locked_reasons_pure
-    except ImportError:  # pragma: no cover - flat imports used by tests
-        from farming_logic import farming_spell_target_locked_reasons_pure  # type: ignore
+    from ..logic.farming_logic import farming_spell_target_locked_reasons_pure
     return farming_spell_target_locked_reasons_pure(player_data, target_id, patch_id)
 
 
 def _apply_farming_spell_pure(player_data, target_id, patch_id=None):
-    try:
-        from .farming_logic import apply_farming_spell_pure
-    except ImportError:  # pragma: no cover - flat imports used by tests
-        from farming_logic import apply_farming_spell_pure  # type: ignore
+    from ..logic.farming_logic import apply_farming_spell_pure
     return apply_farming_spell_pure(player_data, target_id, patch_id)
 
 
 def _apply_remote_farm_pure(player_data):
-    try:
-        from .farming_logic import apply_remote_farm_pure
-    except ImportError:  # pragma: no cover - flat imports used by tests
-        from farming_logic import apply_remote_farm_pure  # type: ignore
+    from ..logic.farming_logic import apply_remote_farm_pure
     return apply_remote_farm_pure(player_data)
 
 
 def _livid_spell_locked_reasons_pure(player_data, unlock_id):
-    try:
-        from .livid_farm_logic import sanitize_livid_farm_state_pure
-    except ImportError:  # pragma: no cover - flat imports used by tests
-        from livid_farm_logic import sanitize_livid_farm_state_pure  # type: ignore
+    from ..logic.livid_farm_logic import sanitize_livid_farm_state_pure
     state = sanitize_livid_farm_state_pure(player_data.get("livid_farm"))
     if str(unlock_id) in set(map(str, state["unlocked_spells"])):
         return ()
@@ -455,10 +315,7 @@ def magic_target_locked_reasons_pure(
             reasons.append("Learn Digsite-pendant enchanting at Varrock Museum")
     borrowed_spell_id = spec.get("borrowed_spell_id")
     if borrowed_spell_id:
-        try:
-            from .livid_farm_logic import borrowed_power_locked_reasons_pure
-        except ImportError:  # pragma: no cover - flat imports used by tests
-            from livid_farm_logic import borrowed_power_locked_reasons_pure  # type: ignore
+        from ..logic.livid_farm_logic import borrowed_power_locked_reasons_pure
         reasons.extend(
             borrowed_power_locked_reasons_pure(
                 player_data,
@@ -666,10 +523,7 @@ def apply_magic_action_pure(
         data["magic_last_examine"] = {"target_id": target, "display_name": enemy.get("display_name", target), "stats": dict(stats or {})}
 
     if spec.get("borrowed_spell_id"):
-        try:
-            from .livid_farm_logic import consume_arcane_capacitor_charge_pure
-        except ImportError:  # pragma: no cover - flat imports used by tests
-            from livid_farm_logic import consume_arcane_capacitor_charge_pure  # type: ignore
+        from ..logic.livid_farm_logic import consume_arcane_capacitor_charge_pure
         data, consumed, _charge_info = consume_arcane_capacitor_charge_pure(
             data,
             effect_target_id,

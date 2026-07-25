@@ -5,42 +5,23 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping
 from typing import Any
 
-try:
-    from .livid_farm_data import (
-        ARCANE_CAPACITOR_CHARGED,
-        ARCANE_CAPACITOR_MAX_CHARGES,
-        ARCANE_CAPACITOR_UNCHARGED,
-        BORROWED_POWER_COMBAT_SPELLS,
-        BORROWED_POWER_NONCOMBAT_SPELLS,
-        BORROWED_POWER_SPELLS,
-        LIVID_FARM_BORROWED_POWER_COST,
-        LIVID_FARM_DISTRACTION_INTERVAL,
-        LIVID_FARM_DISTRACTIONS,
-        LIVID_FARM_DUTIES,
-        LIVID_FARM_ENTRY_LEVELS,
-        LIVID_FARM_MORE_PLANKS_REVIEWS,
-        LIVID_FARM_UNLOCKS,
-        LIVID_FARM_WALLET_CAP,
-        LIVID_FARM_WISHES,
-    )
-except ImportError:  # pragma: no cover - flat imports used by tests
-    from livid_farm_data import (  # type: ignore
-        ARCANE_CAPACITOR_CHARGED,
-        ARCANE_CAPACITOR_MAX_CHARGES,
-        ARCANE_CAPACITOR_UNCHARGED,
-        BORROWED_POWER_COMBAT_SPELLS,
-        BORROWED_POWER_NONCOMBAT_SPELLS,
-        BORROWED_POWER_SPELLS,
-        LIVID_FARM_BORROWED_POWER_COST,
-        LIVID_FARM_DISTRACTION_INTERVAL,
-        LIVID_FARM_DISTRACTIONS,
-        LIVID_FARM_DUTIES,
-        LIVID_FARM_ENTRY_LEVELS,
-        LIVID_FARM_MORE_PLANKS_REVIEWS,
-        LIVID_FARM_UNLOCKS,
-        LIVID_FARM_WALLET_CAP,
-        LIVID_FARM_WISHES,
-    )
+from ..data.livid_farm_data import (
+    ARCANE_CAPACITOR_CHARGED,
+    ARCANE_CAPACITOR_MAX_CHARGES,
+    ARCANE_CAPACITOR_UNCHARGED,
+    BORROWED_POWER_COMBAT_SPELLS,
+    BORROWED_POWER_NONCOMBAT_SPELLS,
+    BORROWED_POWER_SPELLS,
+    LIVID_FARM_BORROWED_POWER_COST,
+    LIVID_FARM_DISTRACTION_INTERVAL,
+    LIVID_FARM_DISTRACTIONS,
+    LIVID_FARM_DUTIES,
+    LIVID_FARM_ENTRY_LEVELS,
+    LIVID_FARM_MORE_PLANKS_REVIEWS,
+    LIVID_FARM_UNLOCKS,
+    LIVID_FARM_WALLET_CAP,
+    LIVID_FARM_WISHES,
+)
 
 
 def _non_negative_int(value: Any, default: int = 0) -> int:
@@ -178,10 +159,7 @@ def _effective_rune_cost(
     player_data: Mapping[str, Any],
     rune_cost: Mapping[str, int],
 ) -> dict[str, int]:
-    try:
-        from .logic_pure import effective_magic_rune_cost_pure
-    except ImportError:  # pragma: no cover - flat imports used by tests
-        from logic_pure import effective_magic_rune_cost_pure  # type: ignore
+    from ..logic_pure.logic_pure import effective_magic_rune_cost_pure
     return effective_magic_rune_cost_pure(player_data, rune_cost)
 
 
@@ -497,10 +475,7 @@ def _livid_carried_inventory(
 
 
 def _unfinished_herb_outputs() -> dict[str, str]:
-    try:
-        from .herblore_data import HERBLORE_TARGETS
-    except ImportError:  # pragma: no cover - flat imports used by tests
-        from herblore_data import HERBLORE_TARGETS  # type: ignore
+    from ..data.herblore_data import HERBLORE_TARGETS
     outputs: dict[str, str] = {}
     for target in HERBLORE_TARGETS:
         if target.group != "unf" or target.subgroup == "dungeoneering":
@@ -613,12 +588,8 @@ def arcane_capacitor_owned_pure(
 
 
 def _borrowed_spell_specs() -> dict[str, Mapping[str, Any]]:
-    try:
-        from .combat_data import COMBAT_MAGIC_SPELL_DATA
-        from .magic_data import MAGIC_TARGETS
-    except ImportError:  # pragma: no cover - flat imports used by tests
-        from combat_data import COMBAT_MAGIC_SPELL_DATA  # type: ignore
-        from magic_data import MAGIC_TARGETS  # type: ignore
+    from ..data.combat_data import COMBAT_MAGIC_SPELL_DATA
+    from ..data.magic_data import MAGIC_TARGETS
     specs: dict[str, Mapping[str, Any]] = {}
     for spell_id in BORROWED_POWER_COMBAT_SPELLS:
         spec = COMBAT_MAGIC_SPELL_DATA.get(spell_id)
@@ -984,10 +955,7 @@ def apply_livid_farm_wish_pure(
         state["arcane_capacitor_spell"] = ""
         state["arcane_capacitor_charges"] = 0
     elif selected == "new_patch":
-        try:
-            from .farming_logic import activate_livid_farm_allotment_pure
-        except ImportError:  # pragma: no cover - flat imports used by tests
-            from farming_logic import activate_livid_farm_allotment_pure  # type: ignore
+        from ..logic.farming_logic import activate_livid_farm_allotment_pure
         data, activated, message = activate_livid_farm_allotment_pure(data)
         if not activated:
             return dict(player_data), False, {
@@ -997,10 +965,7 @@ def apply_livid_farm_wish_pure(
         inventory = dict(data.get("inventory", {}) or {})
         state = sanitize_livid_farm_state_pure(data.get("livid_farm"))
     elif selected == "protect_patch":
-        try:
-            from .farming_data import LIVID_FARM_PROTECTION_SCROLL
-        except ImportError:  # pragma: no cover - flat imports used by tests
-            from farming_data import LIVID_FARM_PROTECTION_SCROLL  # type: ignore
+        from ..data.farming_data import LIVID_FARM_PROTECTION_SCROLL
         inventory[LIVID_FARM_PROTECTION_SCROLL] = (
             _non_negative_int(inventory.get(LIVID_FARM_PROTECTION_SCROLL, 0))
             + 1

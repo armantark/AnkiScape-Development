@@ -1,6 +1,7 @@
 import unittest
 
-from injectors import build_reviewer_js, build_overview_js, build_deck_browser_js
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.injectors import build_reviewer_js, build_overview_js, build_deck_browser_js
 
 
 class TestJsBridgeContract(unittest.TestCase):

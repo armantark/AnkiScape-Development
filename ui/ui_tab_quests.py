@@ -19,32 +19,18 @@ try:
 except Exception:  # pragma: no cover - non-Qt environment keeps the module importable
     pass
 
-try:
-    from .constants import QUEST_DATA
-    from .logic_pure import (
-        apply_quest_route_choice_pure,
-        can_attempt_quest_review_pure,
-        quest_availability_state_pure,
-        quest_current_stage_blocker_reasons_pure,
-        quest_current_stage_choices_pure,
-        quest_journal_rows_pure,
-        quest_locked_reasons_pure,
-        quest_state_pure,
-    )
-    from .ui import CatalogFilterBar, dim_text_css
-except Exception:
-    from constants import QUEST_DATA  # type: ignore
-    from logic_pure import (  # type: ignore
-        apply_quest_route_choice_pure,
-        can_attempt_quest_review_pure,
-        quest_availability_state_pure,
-        quest_current_stage_blocker_reasons_pure,
-        quest_current_stage_choices_pure,
-        quest_journal_rows_pure,
-        quest_locked_reasons_pure,
-        quest_state_pure,
-    )
-    from ui import CatalogFilterBar, dim_text_css  # type: ignore
+from ..core.constants import QUEST_DATA
+from ..logic_pure.logic_pure import (
+    apply_quest_route_choice_pure,
+    can_attempt_quest_review_pure,
+    quest_availability_state_pure,
+    quest_current_stage_blocker_reasons_pure,
+    quest_current_stage_choices_pure,
+    quest_journal_rows_pure,
+    quest_locked_reasons_pure,
+    quest_state_pure,
+)
+from ..ui.ui import CatalogFilterBar, dim_text_css
 
 
 def build_quests_tab(ctx) -> "QWidget":

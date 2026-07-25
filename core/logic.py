@@ -1,17 +1,14 @@
 """Anki-aware game logic orchestrators (no direct persistence here)."""
 
-from .constants import (
+from ..core.constants import (
     EXP_TABLE,
     ACHIEVEMENTS,
     BASE_WOODCUTTING_PROBABILITY,
     BASE_MINING_PROBABILITY,
     LEVEL_BONUS_FACTOR,
 )
-from .ui import show_level_up_dialog, show_achievement_dialog
-try:
-    from .skill_registry import skill_level_exp_keys
-except ImportError:
-    from skill_registry import skill_level_exp_keys
+from ..ui.ui import show_level_up_dialog, show_achievement_dialog
+from ..core.skill_registry import skill_level_exp_keys
 
 
 def get_exp_to_next_level(player_data, exp_table):
@@ -20,7 +17,7 @@ def get_exp_to_next_level(player_data, exp_table):
         return 0
     return exp_table[current_level] - player_data["total_exp"]
 
-from .logic_pure import calculate_new_level, calculate_probability_with_level
+from ..logic_pure.logic_pure import calculate_new_level, calculate_probability_with_level
 
 def level_up_check(skill, player_data):
     skill_keys = skill_level_exp_keys(skill)
@@ -40,7 +37,7 @@ def level_up_check(skill, player_data):
                 if enabled:
                     show_level_up_dialog(skill)
 
-from .logic_pure import get_newly_completed_achievements
+from ..logic_pure.logic_pure import get_newly_completed_achievements
 
 def check_achievements(player_data):
     newly_completed = get_newly_completed_achievements(player_data, ACHIEVEMENTS)

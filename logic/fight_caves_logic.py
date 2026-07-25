@@ -5,46 +5,25 @@ from __future__ import annotations
 import copy
 from typing import Any, Mapping
 
-try:
-    from .fight_caves_data import (
-        FIGHT_CAVES_ACTIVITY_ID,
-        FIGHT_CAVES_CAPE_ITEM,
-        FIGHT_CAVES_COMBAT_TARGET_ID,
-        FIGHT_CAVES_COMPLETION_TOKKUL,
-        FIGHT_CAVES_ENEMY_DATA,
-        FIGHT_CAVES_PARTIAL_TOKKUL_BASE,
-        FIGHT_CAVES_TOKKUL_ITEM,
-        FIGHT_CAVES_WAVE_COUNT,
-        FIGHT_CAVES_WAVES,
-    )
-    from .logic_pure import (
-        apply_combat_burst_pure,
-        apply_thieving_damage_pure,
-        combat_enemy_pressure_attack_pure,
-        combat_max_lifepoints_pure,
-    )
-    from .pet_logic import store_active_pet_pure
-    from .summoning_logic import dismiss_familiar_pure
-except ImportError:  # pragma: no cover - flat test imports
-    from fight_caves_data import (  # type: ignore
-        FIGHT_CAVES_ACTIVITY_ID,
-        FIGHT_CAVES_CAPE_ITEM,
-        FIGHT_CAVES_COMBAT_TARGET_ID,
-        FIGHT_CAVES_COMPLETION_TOKKUL,
-        FIGHT_CAVES_ENEMY_DATA,
-        FIGHT_CAVES_PARTIAL_TOKKUL_BASE,
-        FIGHT_CAVES_TOKKUL_ITEM,
-        FIGHT_CAVES_WAVE_COUNT,
-        FIGHT_CAVES_WAVES,
-    )
-    from logic_pure import (  # type: ignore
-        apply_combat_burst_pure,
-        apply_thieving_damage_pure,
-        combat_enemy_pressure_attack_pure,
-        combat_max_lifepoints_pure,
-    )
-    from pet_logic import store_active_pet_pure  # type: ignore
-    from summoning_logic import dismiss_familiar_pure  # type: ignore
+from ..data.fight_caves_data import (
+    FIGHT_CAVES_ACTIVITY_ID,
+    FIGHT_CAVES_CAPE_ITEM,
+    FIGHT_CAVES_COMBAT_TARGET_ID,
+    FIGHT_CAVES_COMPLETION_TOKKUL,
+    FIGHT_CAVES_ENEMY_DATA,
+    FIGHT_CAVES_PARTIAL_TOKKUL_BASE,
+    FIGHT_CAVES_TOKKUL_ITEM,
+    FIGHT_CAVES_WAVE_COUNT,
+    FIGHT_CAVES_WAVES,
+)
+from ..logic_pure.logic_pure import (
+    apply_combat_burst_pure,
+    apply_thieving_damage_pure,
+    combat_enemy_pressure_attack_pure,
+    combat_max_lifepoints_pure,
+)
+from ..logic.pet_logic import store_active_pet_pure
+from ..logic.summoning_logic import dismiss_familiar_pure
 
 
 FIGHT_CAVES_STATE_VERSION = 1

@@ -13,7 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from aqt.qt import QApplication, QColor, QPalette  # type: ignore
 
-from evil_tree_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.evil_tree_logic import (
     advance_evil_tree_world_clock_pure,
     default_evil_tree_state_pure,
 )

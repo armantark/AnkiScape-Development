@@ -5,48 +5,26 @@ from __future__ import annotations
 import copy
 from typing import Any, Mapping, Sequence
 
-try:
-    from .big_chinchompa_data import (
-        WORLD_POPULATION_BASE_CEILINGS,
-        WORLD_POPULATION_PROFILES,
-    )
-    from .shooting_star_data import (
-        SHOOTING_STAR_FIRST_FINDER_CHANCE,
-        SHOOTING_STAR_INTERVAL_REVIEWS,
-        SHOOTING_STAR_LAYERS_BY_SIZE,
-        SHOOTING_STAR_LOCATIONS,
-        SHOOTING_STAR_ORE_BONUS_TICKS,
-        SHOOTING_STAR_REWARD_DAY_REVIEWS,
-        SHOOTING_STAR_REWARD_MAXIMA,
-        SHOOTING_STAR_SPRITE_REVIEWS,
-        SHOOTING_STAR_STARDUST,
-        SHOOTING_STAR_STARDUST_CAP,
-    )
-    from .world_population_logic import (
-        naturalized_population_target_bps_pure,
-        seeded_unit_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from big_chinchompa_data import (  # type: ignore
-        WORLD_POPULATION_BASE_CEILINGS,
-        WORLD_POPULATION_PROFILES,
-    )
-    from shooting_star_data import (  # type: ignore
-        SHOOTING_STAR_FIRST_FINDER_CHANCE,
-        SHOOTING_STAR_INTERVAL_REVIEWS,
-        SHOOTING_STAR_LAYERS_BY_SIZE,
-        SHOOTING_STAR_LOCATIONS,
-        SHOOTING_STAR_ORE_BONUS_TICKS,
-        SHOOTING_STAR_REWARD_DAY_REVIEWS,
-        SHOOTING_STAR_REWARD_MAXIMA,
-        SHOOTING_STAR_SPRITE_REVIEWS,
-        SHOOTING_STAR_STARDUST,
-        SHOOTING_STAR_STARDUST_CAP,
-    )
-    from world_population_logic import (  # type: ignore
-        naturalized_population_target_bps_pure,
-        seeded_unit_pure,
-    )
+from ..data.big_chinchompa_data import (
+    WORLD_POPULATION_BASE_CEILINGS,
+    WORLD_POPULATION_PROFILES,
+)
+from ..data.shooting_star_data import (
+    SHOOTING_STAR_FIRST_FINDER_CHANCE,
+    SHOOTING_STAR_INTERVAL_REVIEWS,
+    SHOOTING_STAR_LAYERS_BY_SIZE,
+    SHOOTING_STAR_LOCATIONS,
+    SHOOTING_STAR_ORE_BONUS_TICKS,
+    SHOOTING_STAR_REWARD_DAY_REVIEWS,
+    SHOOTING_STAR_REWARD_MAXIMA,
+    SHOOTING_STAR_SPRITE_REVIEWS,
+    SHOOTING_STAR_STARDUST,
+    SHOOTING_STAR_STARDUST_CAP,
+)
+from ..logic.world_population_logic import (
+    naturalized_population_target_bps_pure,
+    seeded_unit_pure,
+)
 
 
 SHOOTING_STAR_STATE_VERSION = 1

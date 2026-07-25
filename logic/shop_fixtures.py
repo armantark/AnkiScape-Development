@@ -4,30 +4,17 @@ from __future__ import annotations
 
 from typing import Any, Dict, Mapping
 
-try:
-    from .shop_data import SHOP_DATA, SHOP_VENDOR_ACTIONS
-    from .shop_logic import (
-        apply_shop_buy_pure,
-        apply_shop_sell_pure,
-        apply_shop_vendor_action_pure,
-        default_shop_state_pure,
-        preview_shop_buy_pure,
-        search_shop_catalog_pure,
-        shop_history_rows_pure,
-        shop_view_model_pure,
-    )
-except ImportError:
-    from shop_data import SHOP_DATA, SHOP_VENDOR_ACTIONS
-    from shop_logic import (
-        apply_shop_buy_pure,
-        apply_shop_sell_pure,
-        apply_shop_vendor_action_pure,
-        default_shop_state_pure,
-        preview_shop_buy_pure,
-        search_shop_catalog_pure,
-        shop_history_rows_pure,
-        shop_view_model_pure,
-    )
+from ..data.shop_data import SHOP_DATA, SHOP_VENDOR_ACTIONS
+from ..logic.shop_logic import (
+    apply_shop_buy_pure,
+    apply_shop_sell_pure,
+    apply_shop_vendor_action_pure,
+    default_shop_state_pure,
+    preview_shop_buy_pure,
+    search_shop_catalog_pure,
+    shop_history_rows_pure,
+    shop_view_model_pure,
+)
 
 
 def build_shop_fixture_player_data() -> Dict[str, Any]:

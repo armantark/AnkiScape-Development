@@ -16,8 +16,9 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from quest_data import quests_as_dict
-from logic_pure import quest_combat_encounter_has_stats_pure
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.quest_data import quests_as_dict
+from ankiscape.logic_pure.logic_pure import quest_combat_encounter_has_stats_pure
 
 
 def main() -> None:

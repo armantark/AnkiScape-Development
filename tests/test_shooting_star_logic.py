@@ -1,11 +1,12 @@
 import unittest
 
-from logic_pure import advance_temporary_effects_pure
-from shooting_star_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic_pure.logic_pure import advance_temporary_effects_pure
+from ankiscape.data.shooting_star_data import (
     SHOOTING_STAR_ORE_BONUS_TICKS,
     SHOOTING_STAR_STARDUST_CAP,
 )
-from shooting_star_logic import (
+from ankiscape.logic.shooting_star_logic import (
     advance_shooting_star_world_clock_pure,
     apply_shooting_star_exchange_pure,
     apply_shooting_star_review_pure,

@@ -1,7 +1,8 @@
 import unittest
 
-from firemaking_data import LIT_LIGHT_SOURCE_ITEMS, PERIOD_LIT_LIGHT_SOURCE_ITEMS
-from logic_pure import quest_combat_encounter_has_stats_pure
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.firemaking_data import LIT_LIGHT_SOURCE_ITEMS, PERIOD_LIT_LIGHT_SOURCE_ITEMS
+from ankiscape.logic_pure.logic_pure import quest_combat_encounter_has_stats_pure
 from tools import build_pre_eoc_quest_catalog as builder
 
 

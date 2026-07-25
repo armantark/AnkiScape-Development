@@ -6,19 +6,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Tuple
 
-try:
-    from .firemaking_data import LIT_LIGHT_SOURCE_ITEMS
-    from .flash_powder_factory_data import (
-        FLASH_POWDER_FACTORY_ACTIVITY_ID,
-    )
-except ImportError:  # pragma: no cover
-    from firemaking_data import LIT_LIGHT_SOURCE_ITEMS  # type: ignore
-    from flash_powder_factory_data import (  # type: ignore
-        FLASH_POWDER_FACTORY_ACTIVITY_ID,
-    )
+from ..data.firemaking_data import LIT_LIGHT_SOURCE_ITEMS
+from ..data.flash_powder_factory_data import (
+    FLASH_POWDER_FACTORY_ACTIVITY_ID,
+)
 
 
-_ROOT = Path(__file__).resolve().parent
+_ROOT = Path(__file__).resolve().parents[1]
 
 
 @dataclass(frozen=True)

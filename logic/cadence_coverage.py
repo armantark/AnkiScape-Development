@@ -5,54 +5,29 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any, Iterable, Mapping
 
-try:
-    from .agility_data import AGILITY_TARGETS_BY_ID
-    from .cadence_live import cadence_declaration_dict_pure, resolve_live_cadence_route_pure
-    from .constants import (
-        COMBAT_ENEMY_DATA,
-        COOKING_DATA,
-        CRAFTING_DATA,
-        FIREMAKING_DATA,
-        FISHING_DATA,
-        FLETCHING_DATA,
-        HERBLORE_DATA,
-        HUNTER_DATA,
-        MAGIC_DATA,
-        ORE_DATA,
-        PRAYER_DATA,
-        QUEST_DATA,
-        RUNECRAFTING_DATA,
-        SMITHING_DATA,
-        TREE_DATA,
-        UTILITY_ACTIVITY_DATA,
-    )
-    from .construction_data import CONSTRUCTION_DATA
-    from .summoning_data import SUMMONING_ACTIONS_BY_ID
-    from .thieving_data import THIEVING_TARGETS
-except ImportError:  # pragma: no cover - flat imports used by tests/tools
-    from agility_data import AGILITY_TARGETS_BY_ID  # type: ignore
-    from cadence_live import cadence_declaration_dict_pure, resolve_live_cadence_route_pure  # type: ignore
-    from constants import (  # type: ignore
-        COMBAT_ENEMY_DATA,
-        COOKING_DATA,
-        CRAFTING_DATA,
-        FIREMAKING_DATA,
-        FISHING_DATA,
-        FLETCHING_DATA,
-        HERBLORE_DATA,
-        HUNTER_DATA,
-        MAGIC_DATA,
-        ORE_DATA,
-        PRAYER_DATA,
-        QUEST_DATA,
-        RUNECRAFTING_DATA,
-        SMITHING_DATA,
-        TREE_DATA,
-        UTILITY_ACTIVITY_DATA,
-    )
-    from construction_data import CONSTRUCTION_DATA  # type: ignore
-    from summoning_data import SUMMONING_ACTIONS_BY_ID  # type: ignore
-    from thieving_data import THIEVING_TARGETS  # type: ignore
+from ..data.agility_data import AGILITY_TARGETS_BY_ID
+from ..logic.cadence_live import cadence_declaration_dict_pure, resolve_live_cadence_route_pure
+from ..core.constants import (
+    COMBAT_ENEMY_DATA,
+    COOKING_DATA,
+    CRAFTING_DATA,
+    FIREMAKING_DATA,
+    FISHING_DATA,
+    FLETCHING_DATA,
+    HERBLORE_DATA,
+    HUNTER_DATA,
+    MAGIC_DATA,
+    ORE_DATA,
+    PRAYER_DATA,
+    QUEST_DATA,
+    RUNECRAFTING_DATA,
+    SMITHING_DATA,
+    TREE_DATA,
+    UTILITY_ACTIVITY_DATA,
+)
+from ..data.construction_data import CONSTRUCTION_DATA
+from ..data.summoning_data import SUMMONING_ACTIONS_BY_ID
+from ..data.thieving_data import THIEVING_TARGETS
 
 
 FOREGROUND_ROUTE_TABLES: dict[str, Mapping[str, Any]] = {

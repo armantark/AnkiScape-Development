@@ -6,10 +6,7 @@ from collections import Counter
 from collections.abc import Mapping
 from typing import Any
 
-try:
-    from .equipment_condition_data import EQUIPMENT_CONDITION_DATA
-except ImportError:  # pragma: no cover - flat test imports
-    from equipment_condition_data import EQUIPMENT_CONDITION_DATA  # type: ignore
+from ..data.equipment_condition_data import EQUIPMENT_CONDITION_DATA
 
 
 VALID_INSTANCE_LOCATIONS = {"bank", "grave", "death_office"}

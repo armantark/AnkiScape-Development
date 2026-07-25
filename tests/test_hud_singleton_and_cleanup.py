@@ -76,10 +76,11 @@ class FakeQApplication:
         return list(cls.top_level)
 
 
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 class TestHUDSingletonAndCleanup(unittest.TestCase):
     def setUp(self):
         # Import target module
-        import ui as _ui
+        from ankiscape.ui import ui as _ui
         self.ui = _ui
         # Backup
         self._bak_HAS_QT = _ui.HAS_QT

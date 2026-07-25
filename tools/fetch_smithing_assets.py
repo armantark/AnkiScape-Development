@@ -52,7 +52,8 @@ from tools.fetch_assets import (  # noqa: E402
     fetch_asset,
     wiki_title_for_item,
 )
-from constants import (  # noqa: E402
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import (  # noqa: E402
     MINING_EXTRA_ITEM_IMAGES,
     SMITHING_DATA,
     SMITHING_ITEMS_FOLDER,

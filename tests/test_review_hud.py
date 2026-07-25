@@ -1,8 +1,9 @@
 import unittest
 
-from ui import compute_level_progress, current_target_display_name, grouped_inventory
-from constants import EXP_TABLE
-from logic_pure import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.ui.ui import compute_level_progress, current_target_display_name, grouped_inventory
+from ankiscape.core.constants import EXP_TABLE
+from ankiscape.logic_pure.logic_pure import (
     combat_attack_style_trained_skills_pure,
     combat_hud_state_pure,
 )

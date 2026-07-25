@@ -5,28 +5,16 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-try:
-    from .managing_miscellania_data import (
-        MANAGING_MISCELLANIA_ACTIVITY_ID,
-        MANAGING_MISCELLANIA_QUEST_ID,
-        MISCELLANIA_APPROVAL_CHORES,
-        MISCELLANIA_CREDIT_SCALE,
-        MISCELLANIA_RESOURCE_BY_ID,
-        MISCELLANIA_RESOURCE_FAMILIES,
-        MISCELLANIA_REVIEWS_PER_DAY,
-        ROYAL_TROUBLE_QUEST_ID,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from managing_miscellania_data import (  # type: ignore
-        MANAGING_MISCELLANIA_ACTIVITY_ID,
-        MANAGING_MISCELLANIA_QUEST_ID,
-        MISCELLANIA_APPROVAL_CHORES,
-        MISCELLANIA_CREDIT_SCALE,
-        MISCELLANIA_RESOURCE_BY_ID,
-        MISCELLANIA_RESOURCE_FAMILIES,
-        MISCELLANIA_REVIEWS_PER_DAY,
-        ROYAL_TROUBLE_QUEST_ID,
-    )
+from ..data.managing_miscellania_data import (
+    MANAGING_MISCELLANIA_ACTIVITY_ID,
+    MANAGING_MISCELLANIA_QUEST_ID,
+    MISCELLANIA_APPROVAL_CHORES,
+    MISCELLANIA_CREDIT_SCALE,
+    MISCELLANIA_RESOURCE_BY_ID,
+    MISCELLANIA_RESOURCE_FAMILIES,
+    MISCELLANIA_REVIEWS_PER_DAY,
+    ROYAL_TROUBLE_QUEST_ID,
+)
 
 
 MISCELLANIA_STATE_VERSION = 1

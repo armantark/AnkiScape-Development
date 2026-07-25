@@ -1,7 +1,8 @@
 import unittest
 
-from item_values import ITEM_VALUES, STACKABLE_ITEM_NAMES
-from item_values_generated import ITEM_VALUES_GENERATED
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.item_values import ITEM_VALUES, STACKABLE_ITEM_NAMES
+from ankiscape.generated.item_values_generated import ITEM_VALUES_GENERATED
 
 
 class ItemValuePluralAliasTest(unittest.TestCase):

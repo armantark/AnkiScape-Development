@@ -15,7 +15,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from magic_data import MAGIC_TARGETS  # noqa: E402
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.magic_data import MAGIC_TARGETS  # noqa: E402
 from tools.fetch_assets import (  # noqa: E402
     AssetFetchError,
     AssetRequest,

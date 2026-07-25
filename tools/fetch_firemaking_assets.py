@@ -25,7 +25,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from firemaking_data import FIREMAKING_TARGETS  # noqa: E402
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.firemaking_data import FIREMAKING_TARGETS  # noqa: E402
 from tools.fetch_assets import (  # noqa: E402
     AssetFetchError,
     AssetRequest,

@@ -9,17 +9,18 @@ import types
 import unittest
 from unittest.mock import patch
 
-import cadence_coverage
-import constants
-from fishing_trawler_data import FISHING_TRAWLER_ACTIVITY_ID
-from fishing_trawler_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic import cadence_coverage
+from ankiscape.core import constants
+from ankiscape.data.fishing_trawler_data import FISHING_TRAWLER_ACTIVITY_ID
+from ankiscape.logic.fishing_trawler_logic import (
     apply_fishing_trawler_review_pure,
     enter_fishing_trawler_pure,
     fishing_trawler_view_pure,
     leave_fishing_trawler_pure,
     set_fishing_trawler_policy_pure,
 )
-from storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
 from tests.test_integration_smoke import _install_runtime_fakes, _load_addon_as_package
 
 
@@ -236,9 +237,9 @@ class FishingTrawlerHookTests(unittest.TestCase):
 
     def test_multiplier_finishes_one_trip_and_undo_restores_bank_and_session(self):
         addon = _load_addon_as_package("ankiscape_fishing_trawler_hook")
-        logic = sys.modules[f"{addon.__name__}.fishing_trawler_logic"]
-        storage = sys.modules[f"{addon.__name__}.storage_pure"]
-        package_constants = sys.modules[f"{addon.__name__}.constants"]
+        logic = sys.modules[f"{addon.__name__}.logic.fishing_trawler_logic"]
+        storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
+        package_constants = sys.modules[f"{addon.__name__}.core.constants"]
         player = storage.default_player_data(
             package_constants.ORE_DATA,
             package_constants.ITEM_DEFINITIONS,

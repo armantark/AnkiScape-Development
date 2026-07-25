@@ -4,14 +4,15 @@ import copy
 import unittest
 from unittest.mock import patch
 
-from constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
-from pet_logic import hatch_phoenix_egg_pure
-from phoenix_lair_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.logic.pet_logic import hatch_phoenix_egg_pure
+from ankiscape.data.phoenix_lair_data import (
     PHOENIX_LAIR_ACTIVITY_ID,
     PHOENIX_LAIR_GUARDIAN_COUNT,
     PHOENIX_LAIR_GUARDIANS,
 )
-from phoenix_lair_logic import (
+from ankiscape.logic.phoenix_lair_logic import (
     apply_phoenix_lair_command_pure,
     apply_phoenix_lair_review_pure,
     default_phoenix_lair_state_pure,
@@ -19,12 +20,12 @@ from phoenix_lair_logic import (
     resolve_phoenix_egg_choice_pure,
     sanitize_phoenix_lair_state_pure,
 )
-from review_context import (
+from ankiscape.core.review_context import (
     ignored_review_context_choice_pure,
     review_context_projection_pure,
 )
-from runtime_actions import RuntimeActionContext, handle_utility_answer
-from storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
+from ankiscape.runtime.runtime_actions import RuntimeActionContext, handle_utility_answer
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
 
 
 def _player(**overrides):
@@ -136,7 +137,7 @@ class PhoenixLairMechanicsTests(unittest.TestCase):
     def test_guardian_front_prepare_and_phoenix_completion_are_atomic(self):
         data = _entered()
         with patch(
-            "phoenix_lair_logic.apply_combat_burst_pure",
+            "ankiscape.logic.phoenix_lair_logic.apply_combat_burst_pure",
             side_effect=_combat_result(killed=True),
         ):
             cleared, ok, result = apply_phoenix_lair_review_pure(
@@ -158,7 +159,7 @@ class PhoenixLairMechanicsTests(unittest.TestCase):
             for key in ("firemaking_exp", "fletching_exp", "crafting_exp", "slayer_exp")
         }
         with patch(
-            "phoenix_lair_logic.apply_combat_burst_pure",
+            "ankiscape.logic.phoenix_lair_logic.apply_combat_burst_pure",
             side_effect=_combat_result(killed=True),
         ):
             won, ok, result = apply_phoenix_lair_review_pure(
@@ -189,7 +190,7 @@ class PhoenixLairMechanicsTests(unittest.TestCase):
         }
         prior_slayer = repeat["slayer_exp"]
         with patch(
-            "phoenix_lair_logic.apply_combat_burst_pure",
+            "ankiscape.logic.phoenix_lair_logic.apply_combat_burst_pure",
             side_effect=_combat_result(killed=True),
         ):
             repeated, ok, result = apply_phoenix_lair_review_pure(
@@ -202,7 +203,7 @@ class PhoenixLairMechanicsTests(unittest.TestCase):
         data = _entered()
         data["inventory"]["Ashes"] = 7
         with patch(
-            "phoenix_lair_logic.apply_combat_burst_pure",
+            "ankiscape.logic.phoenix_lair_logic.apply_combat_burst_pure",
             side_effect=_combat_result(died=True, grave=True),
         ):
             defeated, ok, result = apply_phoenix_lair_review_pure(
@@ -234,7 +235,7 @@ class PhoenixLairMechanicsTests(unittest.TestCase):
             "enemy_lifepoints": 2000,
         }
         with patch(
-            "phoenix_lair_logic.apply_combat_burst_pure",
+            "ankiscape.logic.phoenix_lair_logic.apply_combat_burst_pure",
             side_effect=_combat_result(lifepoints=1900),
         ):
             drained, ok, result = apply_phoenix_lair_review_pure(
@@ -250,7 +251,7 @@ class PhoenixLairMechanicsTests(unittest.TestCase):
         data["combat_current_levels"] = {"attack": 60, "magic": 40, "ranged": 20}
         data["phoenix_lair"]["phoenix_review_count"] = 4
         with patch(
-            "phoenix_lair_logic.apply_combat_burst_pure",
+            "ankiscape.logic.phoenix_lair_logic.apply_combat_burst_pure",
             side_effect=_combat_result(lifepoints=1800),
         ):
             drained, ok, result = apply_phoenix_lair_review_pure(
@@ -348,7 +349,7 @@ class PhoenixLairPersistenceAndRuntimeTests(unittest.TestCase):
             show_quest_exp_delta=lambda *_args: None,
         )
         with patch(
-            "phoenix_lair_logic.apply_combat_burst_pure",
+            "ankiscape.logic.phoenix_lair_logic.apply_combat_burst_pure",
             side_effect=_combat_result(lifepoints=4000),
         ):
             self.assertTrue(handle_utility_answer(ctx))

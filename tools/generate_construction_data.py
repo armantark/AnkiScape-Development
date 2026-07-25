@@ -299,7 +299,7 @@ def construction_asset_items_as_dict():
     items.update(construction_extra_items_as_dict())
     return items
 '''
-    (ROOT / "construction_data.py").write_text(payload, encoding="utf-8")
+    (ROOT / "data" / "construction_data.py").write_text(payload, encoding="utf-8")
     print(f"wrote {len(rows)} builds, {len(flatpacks)} flatpacks, {len(tablets)} tablets")
 
 

@@ -5,10 +5,7 @@ from __future__ import annotations
 import copy
 from typing import Any, Mapping, Optional
 
-try:
-    from .phoenix_lair_data import PHOENIX_EGG_CONTEXT_ID
-except ImportError:  # pragma: no cover - flat test imports
-    from phoenix_lair_data import PHOENIX_EGG_CONTEXT_ID  # type: ignore
+from ..data.phoenix_lair_data import PHOENIX_EGG_CONTEXT_ID
 
 
 PIT_REWARD_CONTEXT_ID = "pit_reward"

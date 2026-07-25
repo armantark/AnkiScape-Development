@@ -35,8 +35,9 @@ except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
 
 
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 def _make_player_data() -> dict:
-    from quest_data import default_quest_states
+    from ankiscape.data.quest_data import default_quest_states
 
     data: dict = {"inventory": {}}
     for skill in ("mining", "woodcutting", "farming", "fishing", "hunter", "smithing", "crafting", "fletching", "firemaking", "cooking", "runecrafting", "prayer", "magic", "thieving", "agility", "summoning", "slayer"):
@@ -537,8 +538,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         cls.app = QApplication.instance() or QApplication([])
 
     def setUp(self) -> None:
-        import ui
-        from combat_session import reset_wilderness_combat_confirmations
+        from ankiscape.ui import ui
+        from ankiscape.logic.combat_session import reset_wilderness_combat_confirmations
 
         reset_wilderness_combat_confirmations()
         self._captured: list = []
@@ -625,9 +626,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.dialog = self._open(_make_player_data(), current_skill="Mining")
 
     def _open(self, player_data: dict, current_skill: str = "Mining", **extra) -> "QDialog":
-        from construction_data import HOUSE_STYLE_DATA, ROOM_DATA, SERVANT_DATA
-        from constants import PRAYER_DATA
-        from logic_pure import (
+        from ankiscape.data.construction_data import HOUSE_STYLE_DATA, ROOM_DATA, SERVANT_DATA
+        from ankiscape.core.constants import PRAYER_DATA
+        from ankiscape.logic_pure.logic_pure import (
             apply_prayer_selection_pure,
             purchase_house_option_pure,
             purchase_house_pure,
@@ -658,11 +659,11 @@ class MainMenuWidgetTest(unittest.TestCase):
             return ok
 
         def _farming_projection():
-            from farming_logic import farming_frontend_projection_pure
+            from ankiscape.logic.farming_logic import farming_frontend_projection_pure
             return farming_frontend_projection_pure(player_data)
 
         def _farming_action(action_id, payload):
-            from farming_logic import apply_farming_frontend_action_pure
+            from ankiscape.logic.farming_logic import apply_farming_frontend_action_pure
             self._farming_calls.append((action_id, dict(payload)))
             updated, ok, message = apply_farming_frontend_action_pure(player_data, action_id, payload)
             if ok:
@@ -697,7 +698,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             return ok
 
         def _agility_command(action_id, payload):
-            from agility_logic import apply_agility_command_pure
+            from ankiscape.logic.agility_logic import apply_agility_command_pure
 
             self._agility_command_calls.append((action_id, dict(payload)))
             updated, result = apply_agility_command_pure(player_data, action_id, payload, roll=0.5)
@@ -707,7 +708,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             return {"ok": bool(result.get("allowed")), **result}
 
         def _slayer_command(action_id, payload):
-            from slayer_logic import get_slayer_assignment_pure
+            from ankiscape.logic.slayer_logic import get_slayer_assignment_pure
 
             self._slayer_command_calls.append((action_id, dict(payload)))
             if action_id == "set_combat_filter":
@@ -730,7 +731,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             return {"ok": ok, **info}
 
         def _warriors_guild_command(action_id, payload):
-            from warriors_guild_logic import (
+            from ankiscape.logic.warriors_guild_logic import (
                 enter_warriors_guild_cyclops_room_pure,
                 leave_warriors_guild_cyclops_room_pure,
                 set_warriors_guild_policy_pure,
@@ -758,7 +759,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             return {"ok": ok, "message": info.get("message", info.get("reason", ""))}
 
         def _livid_farm_command(action_id, payload):
-            from livid_farm_logic import (
+            from ankiscape.logic.livid_farm_logic import (
                 apply_arcane_capacitor_charge_pure,
                 apply_arcane_capacitor_remove_charge_pure,
                 apply_livid_farm_wish_pure,
@@ -799,7 +800,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             }
 
         def _big_chinchompa_command(action_id, payload):
-            from big_chinchompa_logic import (
+            from ankiscape.logic.big_chinchompa_logic import (
                 apply_big_chinchompa_reward_purchase_pure,
                 set_hunter_private_ground_pure,
                 set_world_population_profile_pure,
@@ -834,7 +835,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             }
 
         def _shooting_star_command(action_id, payload):
-            from shooting_star_logic import (
+            from ankiscape.logic.shooting_star_logic import (
                 apply_shooting_star_exchange_pure,
                 set_shooting_star_preferences_pure,
             )
@@ -869,7 +870,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             }
 
         def _fist_of_guthix_command(action_id, payload):
-            from fist_of_guthix_logic import apply_fist_of_guthix_command_pure
+            from ankiscape.logic.fist_of_guthix_logic import apply_fist_of_guthix_command_pure
 
             self._fist_of_guthix_calls.append((action_id, dict(payload)))
             updated, ok, info = apply_fist_of_guthix_command_pure(
@@ -881,7 +882,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
         def _sorceress_garden_command(action_id, payload):
-            from sorceress_garden_logic import apply_sorceress_garden_command_pure
+            from ankiscape.logic.sorceress_garden_logic import apply_sorceress_garden_command_pure
 
             self._sorceress_garden_calls.append((action_id, dict(payload)))
             updated, ok, info = apply_sorceress_garden_command_pure(
@@ -893,7 +894,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
         def _penguin_command(action_id, payload):
-            from penguin_hide_and_seek_logic import apply_penguin_command_pure
+            from ankiscape.logic.penguin_hide_and_seek_logic import apply_penguin_command_pure
 
             self._penguin_calls.append((action_id, dict(payload)))
             updated, ok, info = apply_penguin_command_pure(
@@ -905,7 +906,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
         def _vinesweeper_command(action_id, payload):
-            from vinesweeper_logic import apply_vinesweeper_command_pure
+            from ankiscape.logic.vinesweeper_logic import apply_vinesweeper_command_pure
 
             self._vinesweeper_calls.append((action_id, dict(payload)))
             updated, ok, info = apply_vinesweeper_command_pure(
@@ -917,7 +918,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
         def _fight_caves_command(action_id, payload):
-            from fight_caves_logic import apply_fight_caves_command_pure
+            from ankiscape.logic.fight_caves_logic import apply_fight_caves_command_pure
 
             self._fight_caves_calls.append((action_id, dict(payload)))
             updated, ok, info = apply_fight_caves_command_pure(
@@ -929,7 +930,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
         def _phoenix_lair_command(action_id, payload):
-            from phoenix_lair_logic import apply_phoenix_lair_command_pure
+            from ankiscape.logic.phoenix_lair_logic import apply_phoenix_lair_command_pure
 
             self._phoenix_lair_calls.append((action_id, dict(payload)))
             updated, ok, info = apply_phoenix_lair_command_pure(
@@ -941,7 +942,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
         def _barrows_command(action_id, payload):
-            from barrows_logic import apply_barrows_command_pure
+            from ankiscape.logic.barrows_logic import apply_barrows_command_pure
 
             self._barrows_calls.append((action_id, dict(payload)))
             updated, ok, info = apply_barrows_command_pure(
@@ -953,7 +954,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
         def _stealing_creation_command(action_id, payload):
-            from stealing_creation_logic import apply_stealing_creation_command_pure
+            from ankiscape.logic.stealing_creation_logic import apply_stealing_creation_command_pure
 
             self._stealing_creation_calls.append((action_id, dict(payload)))
             updated, ok, info = apply_stealing_creation_command_pure(
@@ -965,7 +966,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
         def _fish_flingers_command(action_id, payload):
-            from fish_flingers_logic import apply_fish_flingers_command_pure
+            from ankiscape.logic.fish_flingers_logic import apply_fish_flingers_command_pure
 
             self._fish_flingers_calls.append((action_id, dict(payload)))
             updated, ok, info = apply_fish_flingers_command_pure(
@@ -977,7 +978,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
         def _fishing_trawler_command(action_id, payload):
-            from fishing_trawler_logic import apply_fishing_trawler_command_pure
+            from ankiscape.logic.fishing_trawler_logic import apply_fishing_trawler_command_pure
 
             self._fishing_trawler_calls.append((action_id, dict(payload)))
             updated, ok, info = apply_fishing_trawler_command_pure(
@@ -989,7 +990,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
         def _great_orb_project_command(action_id, payload):
-            from great_orb_project_logic import apply_great_orb_project_command_pure
+            from ankiscape.logic.great_orb_project_logic import apply_great_orb_project_command_pure
 
             self._great_orb_project_calls.append((action_id, dict(payload)))
             updated, ok, info = apply_great_orb_project_command_pure(
@@ -1001,7 +1002,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
         def _managing_miscellania_command(action_id, payload):
-            from managing_miscellania_logic import apply_managing_miscellania_command_pure
+            from ankiscape.logic.managing_miscellania_logic import apply_managing_miscellania_command_pure
 
             self._managing_miscellania_calls.append((action_id, dict(payload)))
             updated, ok, info = apply_managing_miscellania_command_pure(
@@ -1013,7 +1014,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             return {"ok": ok, "message": info.get("reason", ""), **info}
 
         def _mage_arena_action(action_id, god_id):
-            from logic_pure import (
+            from ankiscape.logic_pure.logic_pure import (
                 apply_mage_arena_cape_action_pure,
                 set_mage_arena_alignment_pure,
             )
@@ -1445,7 +1446,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertIsNotNone(giant_bat.parent())
         self.assertTrue(giant_bat.parent().isExpanded())
-        from constants import COMBAT_ENEMY_IMAGES
+        from ankiscape.core.constants import COMBAT_ENEMY_IMAGES
 
         self.assertEqual(
             _icon_pixels(giant_bat.icon(0)),
@@ -1502,7 +1503,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             window.deleteLater()
 
     def test_thieving_support_panel_metadata_selection_lock_and_casual_toggle(self) -> None:
-        from target_metadata import thieving_target_rows
+        from ankiscape.core.target_metadata import thieving_target_rows
 
         targets = {
             "pickpocket_man": {
@@ -1632,7 +1633,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 dialog.deleteLater()
 
     def test_thieving_live_npc_rows_render_portraits_instead_of_loot_icons(self) -> None:
-        from thieving_data import THIEVING_NPC_TARGET_IDS
+        from ankiscape.data.thieving_data import THIEVING_NPC_TARGET_IDS
 
         player_data = _make_player_data()
         player_data["thieving_level"] = 99
@@ -1968,7 +1969,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.deleteLater()
 
     def test_farming_jade_vine_horacio_payment_is_disclosed_and_confirmed(self) -> None:
-        from farming_logic import default_farming_state_pure
+        from ankiscape.logic.farming_logic import default_farming_state_pure
 
         player_data = _make_player_data()
         player_data.update(default_farming_state_pure())
@@ -2045,7 +2046,7 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_farming_willow_branch_action_is_visible_enabled_and_queueable(
         self,
     ) -> None:
-        from farming_logic import (
+        from ankiscape.logic.farming_logic import (
             advance_farm_clock_pure,
             default_farming_state_pure,
             execute_farm_field_step_pure,
@@ -2381,7 +2382,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.deleteLater()
 
     def test_farming_cure_preference_is_a_compact_saved_toggle(self) -> None:
-        from farming_logic import CURE_PLANT_SPELL_FIRST, set_farm_plan_pure
+        from ankiscape.logic.farming_logic import CURE_PLANT_SPELL_FIRST, set_farm_plan_pure
 
         player_data = _make_player_data()
         player_data["farming_level"] = 99
@@ -2433,7 +2434,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.deleteLater()
 
     def test_farming_preset_row_applies_plans_without_queuing(self) -> None:
-        from farming_logic import save_farm_preset_pure, set_farm_plan_pure
+        from ankiscape.logic.farming_logic import save_farm_preset_pure, set_farm_plan_pure
 
         player_data = _make_player_data()
         player_data["farming_level"] = 99
@@ -2516,8 +2517,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.deleteLater()
 
     def test_farming_livid_scroll_button_activates_and_reports_remaining_uses(self) -> None:
-        from farming_data import LIVID_FARM_PROTECTION_SCROLL
-        from farming_logic import execute_farm_field_step_pure
+        from ankiscape.data.farming_data import LIVID_FARM_PROTECTION_SCROLL
+        from ankiscape.logic.farming_logic import execute_farm_field_step_pure
 
         player_data = _make_player_data()
         player_data["farming_level"] = 99
@@ -2599,7 +2600,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.deleteLater()
 
     def test_farming_patch_actions_keep_readable_widths_at_supported_dialog_sizes(self) -> None:
-        from farming_logic import set_farm_plan_pure
+        from ankiscape.logic.farming_logic import set_farm_plan_pure
 
         player_data = _make_player_data()
         player_data["farming_level"] = 1
@@ -2640,7 +2641,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.deleteLater()
 
     def test_farming_queue_selection_reorder_remove_clear_and_full_run(self) -> None:
-        from farming_logic import set_farm_plan_pure
+        from ankiscape.logic.farming_logic import set_farm_plan_pure
 
         player_data = _make_player_data()
         player_data["farming_level"] = 1
@@ -2921,7 +2922,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.deleteLater()
 
     def test_shop_tab_renders_and_keeps_hidden_reward_shops_out_of_browse_and_search(self) -> None:
-        from shop_fixtures import build_shop_frontend_fixtures
+        from ankiscape.logic.shop_fixtures import build_shop_frontend_fixtures
 
         fixtures = build_shop_frontend_fixtures()
         hidden_name = fixtures["hidden_reward_shop"]["display_name"]
@@ -2942,7 +2943,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Services", labels)
 
     def test_grand_exchange_tab_renders_period_six_slots_and_routes_an_offer(self) -> None:
-        from grand_exchange_logic import (
+        from ankiscape.logic.grand_exchange_logic import (
             GE_SLOT_COUNT,
             apply_ge_frontend_action_pure,
             ge_frontend_projection_pure,
@@ -3135,7 +3136,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.deleteLater()
 
     def test_grand_exchange_empty_sell_side_names_the_owned_item_state(self) -> None:
-        from grand_exchange_logic import ge_frontend_projection_pure
+        from ankiscape.logic.grand_exchange_logic import ge_frontend_projection_pure
 
         player = _make_player_data()
         player["inventory"] = {"Coins": 1_000}
@@ -3173,7 +3174,7 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_grand_exchange_sell_all_and_bank_quantities_and_compounding_nudges(
         self,
     ) -> None:
-        from grand_exchange_logic import ge_frontend_projection_pure
+        from ankiscape.logic.grand_exchange_logic import ge_frontend_projection_pure
 
         player = _make_player_data()
         player["inventory"] = {"Coins": 10_000, "Logs": 137}
@@ -3278,7 +3279,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_grand_exchange_fill_log_colours_partial_and_completed_rows(self) -> None:
         from aqt.qt import QColor
-        from grand_exchange_logic import ge_frontend_projection_pure
+        from ankiscape.logic.grand_exchange_logic import ge_frontend_projection_pure
 
         player = _make_player_data()
         player["inventory"] = {"Coins": 10_000}
@@ -3339,7 +3340,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.deleteLater()
 
     def test_grand_exchange_ironman_toggle_locks_only_offer_creation(self) -> None:
-        from grand_exchange_logic import (
+        from ankiscape.logic.grand_exchange_logic import (
             apply_ge_frontend_action_pure,
             ge_frontend_projection_pure,
         )
@@ -3396,8 +3397,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.deleteLater()
 
     def test_shop_opens_browse_first_and_detail_is_collapsible(self) -> None:
-        from shop_fixtures import build_shop_frontend_fixtures
-        from shop_logic import shop_view_model_pure
+        from ankiscape.logic.shop_fixtures import build_shop_frontend_fixtures
+        from ankiscape.logic.shop_logic import shop_view_model_pure
 
         fixtures = build_shop_frontend_fixtures()
         player_data = fixtures["fixture_player_data"]
@@ -3438,7 +3439,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIsNone(selector.currentItem())
 
     def test_shop_icons_render_for_stock_search_sell_and_services(self) -> None:
-        from shop_fixtures import build_shop_frontend_fixtures
+        from ankiscape.logic.shop_fixtures import build_shop_frontend_fixtures
 
         fixtures = build_shop_frontend_fixtures()
         dialog = self._open(fixtures["fixture_player_data"])
@@ -3483,7 +3484,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(kebab_item.icon().isNull(), "vendor rows should use output item icons")
 
     def test_shop_preview_uses_current_player_currency_state(self) -> None:
-        from shop_fixtures import build_shop_frontend_fixtures
+        from ankiscape.logic.shop_fixtures import build_shop_frontend_fixtures
 
         fixtures = build_shop_frontend_fixtures()
         pd = fixtures["fixture_player_data"]
@@ -3502,7 +3503,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(buy_button.isEnabled())
 
     def test_shop_locked_currency_search_shows_backend_reason_and_disables_buy(self) -> None:
-        from shop_fixtures import build_shop_frontend_fixtures
+        from ankiscape.logic.shop_fixtures import build_shop_frontend_fixtures
 
         fixtures = build_shop_frontend_fixtures()
         locked_view = fixtures["locked_read_only_shop"]
@@ -3536,7 +3537,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(button.isEnabled())
 
     def test_shop_live_stock_buy_updates_inventory_and_history(self) -> None:
-        from shop_fixtures import build_shop_frontend_fixtures
+        from ankiscape.logic.shop_fixtures import build_shop_frontend_fixtures
 
         fixtures = build_shop_frontend_fixtures()
         pd = fixtures["fixture_player_data"]
@@ -3583,7 +3584,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(saved[0]["shop_events"], pd["shop_events"])
 
     def test_shop_general_store_sell_creates_temporary_stock(self) -> None:
-        from shop_fixtures import build_shop_frontend_fixtures
+        from ankiscape.logic.shop_fixtures import build_shop_frontend_fixtures
 
         fixtures = build_shop_frontend_fixtures()
         pd = fixtures["fixture_player_data"]
@@ -3633,8 +3634,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(stock_buttons, "player-sold Beer did not appear as temporary shop stock")
 
     def test_shop_service_providers_browse_as_their_own_selector_entries(self) -> None:
-        from shop_fixtures import build_shop_frontend_fixtures
-        from shop_data import SHOP_VENDOR_ACTIONS
+        from ankiscape.logic.shop_fixtures import build_shop_frontend_fixtures
+        from ankiscape.data.shop_data import SHOP_VENDOR_ACTIONS
 
         fixtures = build_shop_frontend_fixtures()
         action_id = fixtures["vendor_action_transaction"]["action_id"]
@@ -3671,8 +3672,8 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertEqual(str(SHOP_VENDOR_ACTIONS[row_id]["provider"]), provider)
 
     def test_shop_service_and_vendor_actions_apply_and_feed_global_history(self) -> None:
-        from shop_fixtures import build_shop_frontend_fixtures
-        from shop_data import SHOP_SERVICES, SHOP_VENDOR_ACTIONS
+        from ankiscape.logic.shop_fixtures import build_shop_frontend_fixtures
+        from ankiscape.data.shop_data import SHOP_SERVICES, SHOP_VENDOR_ACTIONS
 
         fixtures = build_shop_frontend_fixtures()
         pd = fixtures["fixture_player_data"]
@@ -4514,7 +4515,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         charged_dialog.deleteLater()
 
     def test_combat_sidebar_hides_combat_only_stat_skills(self) -> None:
-        import ui
+        from ankiscape.ui import ui
 
         combat_button = next(b for b in self.dialog.findChildren(QPushButton) if b.text() == "Combat")
         combat_button.click()
@@ -4687,7 +4688,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(self._combat_spell_calls[-1], "fire_wave")
 
     def test_combat_exposes_bound_borrowed_power_as_one_manual_cast(self) -> None:
-        from livid_farm_data import ARCANE_CAPACITOR_CHARGED
+        from ankiscape.data.livid_farm_data import ARCANE_CAPACITOR_CHARGED
 
         pd = _make_player_data()
         pd.update(
@@ -5557,7 +5558,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(all(not item.icon(0).isNull() for item in rows))
 
     def test_equipment_follower_panel_projects_familiars_and_complete_pet_log(self) -> None:
-        from summoning_logic import default_summoning_state_pure, summon_familiar_pure
+        from ankiscape.logic.summoning_logic import default_summoning_state_pure, summon_familiar_pure
 
         pd = _make_player_data()
         pd["summoning_level"] = 99
@@ -5610,8 +5611,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.deleteLater()
 
     def test_pets_surface_hatches_banked_phoenix_eggs_at_level_72(self) -> None:
-        from pet_logic import hatch_phoenix_egg_pure
-        from summoning_logic import default_summoning_state_pure
+        from ankiscape.logic.pet_logic import hatch_phoenix_egg_pure
+        from ankiscape.logic.summoning_logic import default_summoning_state_pure
 
         pd = _make_player_data()
         pd["summoning_level"] = 72
@@ -5671,7 +5672,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.deleteLater()
 
     def test_pets_surface_explains_phoenix_egg_level_gate_inline(self) -> None:
-        from summoning_logic import default_summoning_state_pure
+        from ankiscape.logic.summoning_logic import default_summoning_state_pure
 
         pd = _make_player_data()
         pd["summoning_level"] = 71
@@ -5691,7 +5692,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.deleteLater()
 
     def test_familiarisation_lives_in_activities_and_runs_its_session(self) -> None:
-        from summoning_logic import (
+        from ankiscape.logic.summoning_logic import (
             default_summoning_state_pure,
             start_familiarisation_pure,
         )
@@ -5902,7 +5903,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(self._runecrafting_calls[-1], "craft_air_runes")
 
     def test_wicked_hood_card_exposes_live_allowances_and_manual_actions(self) -> None:
-        from wicked_hood_logic import apply_wicked_hood_command_pure
+        from ankiscape.logic.wicked_hood_logic import apply_wicked_hood_command_pure
 
         pd = _make_player_data()
         pd["runecrafting_level"] = 1
@@ -6203,7 +6204,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         # Collapse state is a UI pref persisted in Anki config. mw is None in the
         # headless harness, so inject a tiny dict-backed config to prove the
         # expand -> persist -> reopen-expanded loop actually round-trips.
-        import ui
+        from ankiscape.ui import ui
 
         class _FakeCol:
             def __init__(self) -> None:
@@ -7702,7 +7703,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         consumed: list[str] = []
 
         def _consume(item_name: str):
-            from logic_pure import apply_consumable_pure
+            from ankiscape.logic_pure.logic_pure import apply_consumable_pure
             new_data, result = apply_consumable_pure(pd, item_name)
             if result.get("allowed"):
                 pd.clear()
@@ -7785,7 +7786,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(opened, [("Vial pack", True)])
 
     def test_bank_converts_a_rogue_kit_to_any_period_tool(self) -> None:
-        from flash_powder_factory_logic import convert_rogue_kit_pure
+        from ankiscape.logic.flash_powder_factory_logic import convert_rogue_kit_pure
 
         pd = _make_player_data()
         pd["inventory"] = {"Rogue kit": 2}
@@ -7820,8 +7821,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["inventory"]["Rope"], 1)
 
     def test_full_urn_bank_action_uses_stable_id_order_and_refreshes_immediately(self) -> None:
-        from logic_pure import teleport_full_urn_pure
-        from urn_data import URN_TIERS_BY_ID
+        from ankiscape.logic_pure.logic_pure import teleport_full_urn_pure
+        from ankiscape.data.urn_data import URN_TIERS_BY_ID
 
         tier = URN_TIERS_BY_ID["mining_cracked_urn"]
         pd = _make_player_data()
@@ -7893,7 +7894,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.deleteLater()
 
     def test_urn_teleport_eligibility_and_passives_stay_non_equipment(self) -> None:
-        from urn_data import URN_TIERS_BY_ID
+        from ankiscape.data.urn_data import URN_TIERS_BY_ID
 
         tier = URN_TIERS_BY_ID["mining_cracked_urn"]
         pd = _make_player_data()
@@ -8024,8 +8025,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         the menu -> handler -> refresh contract is exercised end to end without
         Anki's global state.
         """
-        from logic_pure import equip_item_pure, unequip_item_pure
-        from constants import EQUIPMENT_ITEM_DATA
+        from ankiscape.logic_pure.logic_pure import equip_item_pure, unequip_item_pure
+        from ankiscape.core.constants import EQUIPMENT_ITEM_DATA
 
         def _equip(item_name: str) -> bool:
             inv, equipment, ok = equip_item_pure(
@@ -8071,7 +8072,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         return self._captured[-1]
 
     def test_equipment_tab_renders_all_eleven_slots(self) -> None:
-        from constants import EQUIPMENT_SLOTS
+        from ankiscape.core.constants import EQUIPMENT_SLOTS
 
         equip_list = _find_equipment_list(self.dialog)
         rendered_slots = {
@@ -8090,7 +8091,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(all("(empty)" in t for t in empties))
         # Slot placeholder art is fetched into equipment_slots/, so empty rows
         # should carry the greyed OSRS slot icon (graceful text-only if absent).
-        import ui as _ui
+        from ankiscape.ui import ui as _ui
         if _ui.equipment_slot_icon_path("head"):
             head_row = _equip_slot_row(equip_list, "head")
             self.assertFalse(head_row.icon().isNull(), "head slot has no placeholder icon")
@@ -8100,7 +8101,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         # bug: empty-slot labels must use the dim-text helper (derived from the
         # readable Text role with reduced alpha), never QPalette.Mid (a border
         # role that renders near-black on a dark base).
-        import ui as _ui
+        from ankiscape.ui import ui as _ui
         from aqt.qt import QPalette
 
         equip_list = _find_equipment_list(self.dialog)
@@ -8174,7 +8175,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Ranged Accurate", mode_label.text())
 
     def test_equipping_and_removing_capacitor_refreshes_borrowed_power_row(self) -> None:
-        from livid_farm_data import ARCANE_CAPACITOR_CHARGED
+        from ankiscape.data.livid_farm_data import ARCANE_CAPACITOR_CHARGED
 
         pd = _make_player_data()
         pd.update(
@@ -8251,7 +8252,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Bronze 2h sword", _equip_slot_row(equip_list, "weapon").text())
 
     def test_stat_totals_reflect_worn_set(self) -> None:
-        from constants import EQUIPMENT_ITEM_DATA
+        from ankiscape.core.constants import EQUIPMENT_ITEM_DATA
 
         pd = _make_player_data()
         pd["equipment"] = {"body": "Bronze platebody", "head": "Bronze full helm"}
@@ -8668,7 +8669,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertNotIn("material prep", hud.sub_lbl.text())
 
     def test_evil_tree_panel_reports_countdown_and_selects_active_event(self) -> None:
-        from evil_tree_logic import (
+        from ankiscape.logic.evil_tree_logic import (
             advance_evil_tree_world_clock_pure,
             default_evil_tree_state_pure,
         )
@@ -8727,7 +8728,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(button.isEnabled())
 
     def test_evil_tree_panel_makes_nurture_only_gate_explicit(self) -> None:
-        from evil_tree_logic import (
+        from ankiscape.logic.evil_tree_logic import (
             advance_evil_tree_world_clock_pure,
             default_evil_tree_state_pure,
         )
@@ -8759,7 +8760,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("75 Firemaking", detail)
 
     def test_evil_tree_panel_disables_daily_limit_with_reason(self) -> None:
-        from evil_tree_logic import (
+        from ankiscape.logic.evil_tree_logic import (
             advance_evil_tree_world_clock_pure,
             default_evil_tree_state_pure,
         )
@@ -8787,11 +8788,11 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_activities_world_events_strip_summarizes_evil_tree_and_star(
         self,
     ) -> None:
-        from evil_tree_logic import (
+        from ankiscape.logic.evil_tree_logic import (
             advance_evil_tree_world_clock_pure,
             default_evil_tree_state_pure,
         )
-        from shooting_star_logic import (
+        from ankiscape.logic.shooting_star_logic import (
             advance_shooting_star_world_clock_pure,
             default_shooting_star_state_pure,
         )
@@ -8836,7 +8837,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(strip.isVisibleTo(dialog))
 
     def test_review_hud_omits_evil_tree_world_notices(self) -> None:
-        from evil_tree_logic import (
+        from ankiscape.logic.evil_tree_logic import (
             advance_evil_tree_world_clock_pure,
             default_evil_tree_state_pure,
         )
@@ -8869,11 +8870,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("awaiting an active tree", hud.sub_lbl.text())
 
     def test_big_chinchompa_panel_selects_event_and_runs_reward_shop(self) -> None:
-        from big_chinchompa_logic import (
+        from ankiscape.logic.big_chinchompa_logic import (
             advance_big_chinchompa_world_clock_pure,
             default_big_chinchompa_state_pure,
         )
-        from evil_tree_logic import (
+        from ankiscape.logic.evil_tree_logic import (
             advance_evil_tree_world_clock_pure,
             default_evil_tree_state_pure,
         )
@@ -8949,7 +8950,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(button.text(), "Select active event")
 
     def test_activity_details_replace_the_activity_tree(self) -> None:
-        from big_chinchompa_logic import (
+        from ankiscape.logic.big_chinchompa_logic import (
             advance_big_chinchompa_world_clock_pure,
             default_big_chinchompa_state_pure,
         )
@@ -9024,7 +9025,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         # The picker used to page one category at a time with a fixed height,
         # which pushed long categories off-window. It now scrolls like every
         # other grouped tree in the hub and persists per-category collapses.
-        import ui
+        from ankiscape.ui import ui
 
         class _FakeCol:
             def __init__(self) -> None:
@@ -9127,7 +9128,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             ui.mw = orig_mw
 
     def test_shooting_star_panel_selects_configures_and_exchanges(self) -> None:
-        from shooting_star_logic import (
+        from ankiscape.logic.shooting_star_logic import (
             advance_shooting_star_world_clock_pure,
             default_shooting_star_state_pure,
         )
@@ -9212,7 +9213,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
 
     def test_fist_of_guthix_card_tutorial_policy_live_state_and_shop(self) -> None:
-        from fist_of_guthix_logic import (
+        from ankiscape.logic.fist_of_guthix_logic import (
             default_fist_of_guthix_state_pure,
             start_fist_of_guthix_match_pure,
         )
@@ -9293,7 +9294,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIsNone(panel.findChild(QScrollArea))
 
     def test_sorceress_garden_card_introduction_gates_and_compact_policies(self) -> None:
-        from sorceress_garden_logic import default_sorceress_garden_state_pure
+        from ankiscape.logic.sorceress_garden_logic import default_sorceress_garden_state_pure
 
         pd = _make_player_data()
         pd["thieving_level"] = 65
@@ -9342,7 +9343,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(primary.text(), "Selected for reviews")
 
     def test_penguin_card_selects_spy_and_redeems_points_without_scroll(self) -> None:
-        from penguin_hide_and_seek_logic import default_penguin_state_pure
+        from ankiscape.logic.penguin_hide_and_seek_logic import default_penguin_state_pure
 
         pd = _make_player_data()
         pd["shop_market_clock"] = {"answered_cards": 0}
@@ -9405,7 +9406,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertLessEqual(panel_bottom, dialog.contentsRect().bottom())
 
     def test_vinesweeper_card_enters_buys_real_rewards_and_redeems_xp(self) -> None:
-        from vinesweeper_logic import default_vinesweeper_state_pure
+        from ankiscape.logic.vinesweeper_logic import default_vinesweeper_state_pure
 
         pd = _make_player_data()
         pd["inventory"]["Spade"] = 1
@@ -9470,7 +9471,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(redeem.isEnabled())
 
     def test_fight_caves_card_enters_targets_and_leaves_without_nested_scroll(self) -> None:
-        from fight_caves_logic import default_fight_caves_state_pure
+        from ankiscape.logic.fight_caves_logic import default_fight_caves_state_pure
 
         pd = _make_player_data()
         pd["fight_caves"] = default_fight_caves_state_pure()
@@ -9604,7 +9605,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertLessEqual(tree_bottom, dialog.contentsRect().bottom())
 
     def test_phoenix_lair_card_is_compact_period_art_and_abandonment_is_confirmed(self) -> None:
-        from phoenix_lair_logic import default_phoenix_lair_state_pure
+        from ankiscape.logic.phoenix_lair_logic import default_phoenix_lair_state_pure
 
         pd = _make_player_data()
         pd["phoenix_lair"] = default_phoenix_lair_state_pure()
@@ -9675,7 +9676,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(leave.isHidden())
 
     def test_barrows_card_enters_selects_repairs_and_suspends_without_nested_scroll(self) -> None:
-        from barrows_logic import default_barrows_state_pure
+        from ankiscape.logic.barrows_logic import default_barrows_state_pure
 
         pd = _make_player_data()
         pd["barrows"] = default_barrows_state_pure()
@@ -9774,7 +9775,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(pd["barrows"]["suspended"])
 
     def test_flash_powder_factory_card_enters_configures_rewards_and_cashes_out_without_nested_scroll(self) -> None:
-        from agility_logic import default_agility_state_pure
+        from ankiscape.logic.agility_logic import default_agility_state_pure
 
         pd = _make_player_data()
         pd.update(default_agility_state_pure())
@@ -10101,7 +10102,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["current_utility"], "bankstanding")
 
     def test_switching_from_werewolf_skullball_requires_and_honours_leave_confirmation(self) -> None:
-        from werewolf_skullball_logic import enter_werewolf_skullball_pure
+        from ankiscape.logic.werewolf_skullball_logic import enter_werewolf_skullball_pure
 
         pd = _make_player_data()
         pd.update(
@@ -10569,7 +10570,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(primary.isEnabled())
 
     def test_managing_miscellania_card_funds_allocates_collects_and_selects(self) -> None:
-        from managing_miscellania_logic import default_managing_miscellania_state_pure
+        from ankiscape.logic.managing_miscellania_logic import default_managing_miscellania_state_pure
 
         pd = _make_player_data()
         pd.update(default_managing_miscellania_state_pure())
@@ -10677,7 +10678,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
 
     def test_managing_miscellania_quest_gate_is_visible_without_hover(self) -> None:
-        from managing_miscellania_logic import default_managing_miscellania_state_pure
+        from ankiscape.logic.managing_miscellania_logic import default_managing_miscellania_state_pure
 
         pd = _make_player_data()
         pd.update(default_managing_miscellania_state_pure())
@@ -10731,7 +10732,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
 
     def test_switching_from_gnome_ball_requires_and_honours_leave_confirmation(self) -> None:
-        from gnome_ball_logic import enter_gnome_ball_pure
+        from ankiscape.logic.gnome_ball_logic import enter_gnome_ball_pure
 
         pd = _make_player_data()
         pd.update({"equipment": {}, "activity_session": {"active_id": ""}})
@@ -10766,8 +10767,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["gnome_ball"], {})
 
     def test_switching_from_flash_powder_factory_requires_and_honours_cashout_confirmation(self) -> None:
-        from agility_logic import default_agility_state_pure
-        from flash_powder_factory_logic import enter_flash_powder_factory_pure
+        from ankiscape.logic.agility_logic import default_agility_state_pure
+        from ankiscape.logic.flash_powder_factory_logic import enter_flash_powder_factory_pure
 
         pd = _make_player_data()
         pd.update(default_agility_state_pure())
@@ -10817,7 +10818,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
 
     def test_switching_from_pyramid_plunder_requires_and_honours_bank_confirmation(self) -> None:
-        from pyramid_plunder_logic import enter_pyramid_plunder_pure
+        from ankiscape.logic.pyramid_plunder_logic import enter_pyramid_plunder_pure
 
         pd = _make_player_data()
         pd.update(
@@ -10864,7 +10865,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["pyramid_plunder"], {})
 
     def test_stealing_creation_card_exposes_session_policy_and_reward_tools(self) -> None:
-        from stealing_creation_logic import default_stealing_creation_state_pure
+        from ankiscape.logic.stealing_creation_logic import default_stealing_creation_state_pure
 
         pd = _make_player_data()
         pd.update(
@@ -10972,7 +10973,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
 
     def test_activities_show_only_the_selected_rich_detail_card(self) -> None:
-        from shooting_star_logic import (
+        from ankiscape.logic.shooting_star_logic import (
             advance_shooting_star_world_clock_pure,
             default_shooting_star_state_pure,
         )
@@ -11008,7 +11009,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(evil_panel.isVisible())
 
     def test_review_hud_omits_shooting_star_world_notices(self) -> None:
-        from shooting_star_logic import (
+        from ankiscape.logic.shooting_star_logic import (
             advance_shooting_star_world_clock_pure,
             default_shooting_star_state_pure,
         )
@@ -11045,7 +11046,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("ready for exchange", hud.sub_lbl.text())
 
     def test_review_hud_surfaces_active_fist_of_guthix_match(self) -> None:
-        from fist_of_guthix_logic import (
+        from ankiscape.logic.fist_of_guthix_logic import (
             default_fist_of_guthix_state_pure,
             start_fist_of_guthix_match_pure,
         )
@@ -11122,7 +11123,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
 
     def test_review_hud_omits_big_chinchompa_world_notice(self) -> None:
-        from big_chinchompa_logic import (
+        from ankiscape.logic.big_chinchompa_logic import (
             advance_big_chinchompa_world_clock_pure,
             default_big_chinchompa_state_pure,
         )
@@ -11159,7 +11160,7 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_distraction_badge_route_opens_the_named_activity_card(self) -> None:
         # The reviewer D&D badge calls this ctx entry; without it the badge
         # click would land the player on the Skills tab with no card open.
-        from big_chinchompa_logic import (
+        from ankiscape.logic.big_chinchompa_logic import (
             advance_big_chinchompa_world_clock_pure,
             default_big_chinchompa_state_pure,
         )
@@ -11408,7 +11409,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["livid_farm"]["produce_points"], 55_000)
 
     def test_livid_farm_capacitor_surface_charges_and_removes_atomically(self) -> None:
-        from livid_farm_data import (
+        from ankiscape.data.livid_farm_data import (
             ARCANE_CAPACITOR_CHARGED,
             ARCANE_CAPACITOR_UNCHARGED,
         )
@@ -12019,7 +12020,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.deleteLater()
 
     def test_magic_surface_has_bank_alchemy_picker_and_locked_click_guard(self) -> None:
-        from constants import MAGIC_SPELL_IMAGES
+        from ankiscape.core.constants import MAGIC_SPELL_IMAGES
 
         pd = _make_player_data()
         pd["magic_level"] = 99
@@ -12343,7 +12344,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(checked, {"combatPrayerCheck::eagle_eye"})
 
     def test_court_cases_detail_is_compact_and_advanced_discloses_one_choice(self) -> None:
-        from court_cases_logic import (
+        from ankiscape.logic.court_cases_logic import (
             apply_court_case_review_pure,
             apply_court_cases_command_pure,
         )
@@ -12457,7 +12458,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
 
     def test_circus_detail_arms_a_performance_and_exposes_advanced_routine(self) -> None:
-        from circus_logic import apply_circus_command_pure
+        from ankiscape.logic.circus_logic import apply_circus_command_pure
 
         pd = _make_player_data()
         pd["current_utility"] = "big_top_bonanza"
@@ -12559,7 +12560,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.close()
 
     def test_trouble_brewing_detail_enters_selects_and_buys_reward(self) -> None:
-        from trouble_brewing_logic import apply_trouble_brewing_command_pure
+        from ankiscape.logic.trouble_brewing_logic import apply_trouble_brewing_command_pure
 
         pd = _make_player_data()
         pd["cooking_level"] = 40
@@ -12634,8 +12635,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.close()
 
     def test_castle_wars_detail_shop_plan_and_siege_actions_are_live(self) -> None:
-        from castle_wars_data import CASTLE_WARS_BALLISTA_PARTS
-        from castle_wars_logic import apply_castle_wars_command_pure
+        from ankiscape.data.castle_wars_data import CASTLE_WARS_BALLISTA_PARTS
+        from ankiscape.logic.castle_wars_logic import apply_castle_wars_command_pure
 
         pd = _make_player_data()
         pd["castle_wars_tickets"] = 20
@@ -12719,7 +12720,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.close()
 
     def test_pest_control_detail_plan_shop_and_active_state_are_live(self) -> None:
-        from pest_control_logic import apply_pest_control_command_pure
+        from ankiscape.logic.pest_control_logic import apply_pest_control_command_pure
 
         pd = _make_player_data()
         pd.update(
@@ -12793,7 +12794,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.close()
 
     def test_soul_wars_detail_plan_shop_and_active_state_are_live(self) -> None:
-        from soul_wars_logic import apply_soul_wars_command_pure
+        from ankiscape.logic.soul_wars_logic import apply_soul_wars_command_pure
 
         pd = _make_player_data()
         pd.update(
@@ -12874,7 +12875,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.close()
 
     def test_shades_of_mortton_detail_routes_plan_and_direct_actions(self) -> None:
-        from shades_of_mortton_logic import (
+        from ankiscape.logic.shades_of_mortton_logic import (
             apply_shades_of_mortton_command_pure,
             default_shades_of_mortton_state_pure,
         )
@@ -12969,7 +12970,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.close()
 
     def test_tzhaar_fight_pit_detail_routes_policy_entry_and_active_state(self) -> None:
-        from tzhaar_fight_pit_logic import (
+        from ankiscape.logic.tzhaar_fight_pit_logic import (
             apply_tzhaar_fight_pit_command_pure,
             default_tzhaar_fight_pit_state_pure,
         )
@@ -13034,7 +13035,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.close()
 
     def test_barbarian_assault_tutorial_shop_plan_and_active_state_are_live(self) -> None:
-        from barbarian_assault_logic import apply_barbarian_assault_command_pure
+        from ankiscape.logic.barbarian_assault_logic import apply_barbarian_assault_command_pure
 
         pd = _make_player_data()
         pd["barbarian_assault_points"] = {
@@ -13107,7 +13108,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_stronghold_player_safety_chest_lamp_and_combat_entry_are_live(self) -> None:
         from aqt.qt import QInputDialog
-        from stronghold_player_safety_logic import (
+        from ankiscape.logic.stronghold_player_safety_logic import (
             apply_stronghold_player_safety_command_pure,
         )
 
@@ -13189,7 +13190,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["combat_encounter"]["enemy_lifepoints"], 960)
 
     def test_varrock_museum_landmark_card_routes_claims_and_kit(self) -> None:
-        from varrock_museum_logic import apply_varrock_museum_command_pure
+        from ankiscape.logic.varrock_museum_logic import apply_varrock_museum_command_pure
 
         pd = _make_player_data()
 

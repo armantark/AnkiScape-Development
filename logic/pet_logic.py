@@ -5,28 +5,16 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any, Optional
 
-try:
-    from .pet_data import (
-        PETS_BY_ID,
-        PET_ADULT_HUNGER_PER_REVIEW,
-        PET_BABY_HUNGER_PER_REVIEW,
-        PET_FEED_HUNGER_REDUCTION,
-        PET_GROWTH_REVIEWS_PER_STAGE,
-        pet_display_foods,
-    )
-    from .cooking_data import COOKING_TARGETS
-    from .fishing_data import fishing_output_items
-except ImportError:
-    from pet_data import (
-        PETS_BY_ID,
-        PET_ADULT_HUNGER_PER_REVIEW,
-        PET_BABY_HUNGER_PER_REVIEW,
-        PET_FEED_HUNGER_REDUCTION,
-        PET_GROWTH_REVIEWS_PER_STAGE,
-        pet_display_foods,
-    )
-    from cooking_data import COOKING_TARGETS
-    from fishing_data import fishing_output_items
+from ..data.pet_data import (
+    PETS_BY_ID,
+    PET_ADULT_HUNGER_PER_REVIEW,
+    PET_BABY_HUNGER_PER_REVIEW,
+    PET_FEED_HUNGER_REDUCTION,
+    PET_GROWTH_REVIEWS_PER_STAGE,
+    pet_display_foods,
+)
+from ..data.cooking_data import COOKING_TARGETS
+from ..data.fishing_data import fishing_output_items
 
 
 _RAW_FISH = frozenset(fishing_output_items())

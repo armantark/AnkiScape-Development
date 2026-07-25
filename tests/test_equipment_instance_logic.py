@@ -1,6 +1,7 @@
 import unittest
 
-from equipment_instance_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.equipment_instance_logic import (
     add_equipment_instance_pure,
     advance_equipped_condition_pure,
     condition_name_pure,
@@ -9,7 +10,7 @@ from equipment_instance_logic import (
     sanitize_equipment_instance_state_pure,
     sync_equipment_instances_pure,
 )
-from fist_of_guthix_data import FIST_OF_GUTHIX_CONDITION_DATA
+from ankiscape.data.fist_of_guthix_data import FIST_OF_GUTHIX_CONDITION_DATA
 
 
 class EquipmentInstanceLogicTest(unittest.TestCase):

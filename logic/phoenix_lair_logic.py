@@ -6,54 +6,29 @@ import copy
 from collections.abc import Mapping
 from typing import Any
 
-try:
-    from .logic_pure import (
-        apply_combat_burst_pure,
-        combat_target_locked_reasons_pure,
-    )
-    from .pet_logic import acquire_pet_pure
-    from .pet_data import PETS_BY_ID
-    from .phoenix_lair_data import (
-        CRACKED_PHOENIX_EGG_ITEM,
-        PHOENIX_EGG_ITEM,
-        PHOENIX_EGG_CONTEXT_ID,
-        PHOENIX_LAIR_ACTIVITY_ID,
-        PHOENIX_LAIR_EGG_CHANCE,
-        PHOENIX_LAIR_FIXED_REWARDS,
-        PHOENIX_LAIR_GUARDIAN_COUNT,
-        PHOENIX_LAIR_GUARDIAN_IDS,
-        PHOENIX_LAIR_GUARDIAN_TARGET_ID,
-        PHOENIX_LAIR_GUARDIANS,
-        PHOENIX_LAIR_PHOENIX,
-        PHOENIX_LAIR_PHOENIX_TARGET_ID,
-        PHOENIX_LAIR_WORLD_DAY_REVIEWS,
-        PHOENIX_QUILL_ITEM,
-    )
-    from .review_context import remember_review_context_choice_pure
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure import (  # type: ignore
-        apply_combat_burst_pure,
-        combat_target_locked_reasons_pure,
-    )
-    from pet_logic import acquire_pet_pure  # type: ignore
-    from pet_data import PETS_BY_ID  # type: ignore
-    from phoenix_lair_data import (  # type: ignore
-        CRACKED_PHOENIX_EGG_ITEM,
-        PHOENIX_EGG_ITEM,
-        PHOENIX_EGG_CONTEXT_ID,
-        PHOENIX_LAIR_ACTIVITY_ID,
-        PHOENIX_LAIR_EGG_CHANCE,
-        PHOENIX_LAIR_FIXED_REWARDS,
-        PHOENIX_LAIR_GUARDIAN_COUNT,
-        PHOENIX_LAIR_GUARDIAN_IDS,
-        PHOENIX_LAIR_GUARDIAN_TARGET_ID,
-        PHOENIX_LAIR_GUARDIANS,
-        PHOENIX_LAIR_PHOENIX,
-        PHOENIX_LAIR_PHOENIX_TARGET_ID,
-        PHOENIX_LAIR_WORLD_DAY_REVIEWS,
-        PHOENIX_QUILL_ITEM,
-    )
-    from review_context import remember_review_context_choice_pure  # type: ignore
+from ..logic_pure.logic_pure import (
+    apply_combat_burst_pure,
+    combat_target_locked_reasons_pure,
+)
+from ..logic.pet_logic import acquire_pet_pure
+from ..data.pet_data import PETS_BY_ID
+from ..data.phoenix_lair_data import (
+    CRACKED_PHOENIX_EGG_ITEM,
+    PHOENIX_EGG_ITEM,
+    PHOENIX_EGG_CONTEXT_ID,
+    PHOENIX_LAIR_ACTIVITY_ID,
+    PHOENIX_LAIR_EGG_CHANCE,
+    PHOENIX_LAIR_FIXED_REWARDS,
+    PHOENIX_LAIR_GUARDIAN_COUNT,
+    PHOENIX_LAIR_GUARDIAN_IDS,
+    PHOENIX_LAIR_GUARDIAN_TARGET_ID,
+    PHOENIX_LAIR_GUARDIANS,
+    PHOENIX_LAIR_PHOENIX,
+    PHOENIX_LAIR_PHOENIX_TARGET_ID,
+    PHOENIX_LAIR_WORLD_DAY_REVIEWS,
+    PHOENIX_QUILL_ITEM,
+)
+from ..core.review_context import remember_review_context_choice_pure
 
 
 PHOENIX_LAIR_STATE_VERSION = 1

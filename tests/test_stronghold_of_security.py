@@ -6,7 +6,8 @@ callback the moment the fourth level is cleared.
 """
 import unittest
 
-from logic_pure import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic_pure.logic_pure import (
     STRONGHOLD_BOOT_CHOICES,
     STRONGHOLD_REWARD_COINS,
     STRONGHOLD_TOTAL_STEPS,
@@ -16,8 +17,8 @@ from logic_pure import (
     landmark_hud_progress_pure,
     sanitize_stronghold_state_pure,
 )
-from runtime_actions import RuntimeActionContext, handle_utility_answer
-from storage_pure import default_player_data, migrate_loaded_data
+from ankiscape.runtime.runtime_actions import RuntimeActionContext, handle_utility_answer
+from ankiscape.core.storage_pure import default_player_data, migrate_loaded_data
 
 
 def _context(player_data, calls):

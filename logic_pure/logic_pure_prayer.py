@@ -2,128 +2,68 @@
 
 from typing import Iterable, Mapping, Optional
 
-try:
-    from .prayer_data import (
-        COMBAT_PRAYERS_BY_ID,
-        AUTO_PRAYER_TICKS_PER_ITEM,
-        PRAYER_MATERIALS,
-        PRAYER_UPTIME_POLICIES,
-        SAP_SOURCE,
-        LEECH_SOURCE,
-        resolve_prayer_selection_pure,
-    )
-except ImportError:
-    from prayer_data import AUTO_PRAYER_TICKS_PER_ITEM, COMBAT_PRAYERS_BY_ID, PRAYER_MATERIALS, PRAYER_UPTIME_POLICIES, SAP_SOURCE, LEECH_SOURCE, resolve_prayer_selection_pure
+from ..data.prayer_data import (
+    COMBAT_PRAYERS_BY_ID,
+    AUTO_PRAYER_TICKS_PER_ITEM,
+    PRAYER_MATERIALS,
+    PRAYER_UPTIME_POLICIES,
+    SAP_SOURCE,
+    LEECH_SOURCE,
+    resolve_prayer_selection_pure,
+)
 
-try:
-    from .logic_pure_construction import (  # noqa: F401  (re-export)
-        _LECTERN_SLOTS,
-        _construction_has_workbench,
-        _construction_nail_stock,
-        _consume_construction_nails,
-        apply_construction_action_pure,
-        construction_target_locked_reasons_pure,
-        effective_gilded_altar_multiplier_pure,
-        owned_gilded_altar_access_reasons_pure,
-        owned_gilded_altar_burner_count_pure,
-        owned_gilded_altar_effective_burners_pure,
-        owned_gilded_altar_marrentill_required_pure,
-        purchase_house_option_pure,
-        purchase_house_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_construction import (  # type: ignore  # noqa: F401
-        _LECTERN_SLOTS,
-        _construction_has_workbench,
-        _construction_nail_stock,
-        _consume_construction_nails,
-        apply_construction_action_pure,
-        construction_target_locked_reasons_pure,
-        effective_gilded_altar_multiplier_pure,
-        owned_gilded_altar_access_reasons_pure,
-        owned_gilded_altar_burner_count_pure,
-        owned_gilded_altar_effective_burners_pure,
-        owned_gilded_altar_marrentill_required_pure,
-        purchase_house_option_pure,
-        purchase_house_pure,
-    )
+from ..logic_pure.logic_pure_construction import (  # noqa: F401  (re-export)
+    _LECTERN_SLOTS,
+    _construction_has_workbench,
+    _construction_nail_stock,
+    _consume_construction_nails,
+    apply_construction_action_pure,
+    construction_target_locked_reasons_pure,
+    effective_gilded_altar_multiplier_pure,
+    owned_gilded_altar_access_reasons_pure,
+    owned_gilded_altar_burner_count_pure,
+    owned_gilded_altar_effective_burners_pure,
+    owned_gilded_altar_marrentill_required_pure,
+    purchase_house_option_pure,
+    purchase_house_pure,
+)
 
-try:
-    from .logic_pure_state import (  # noqa: F401  (re-export)
-        COMBAT_BANK_RUN_REVIEWS,
-        COMBAT_GRAVE_RECOVERY_REVIEWS,
-        _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
-        _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
-        _COMBAT_STAT_POTION_BY_DOSE,
-        _COMBAT_STAT_POTION_ITEM_NAMES,
-        _build_combat_potion_dose_lookup,
-        _combat_grave_items,
-        _combat_stored_loadout,
-        _copy_player_data_with_nested,
-        _non_negative_float,
-        _non_negative_int,
-        _positive_int,
-        _requirements_from_spec,
-        _sanitize_combat_bank_run,
-        _sanitize_combat_grave_state,
-        _sanitize_combat_supply_loadout,
-        _sanitize_death_office_state,
-        _signed_int,
-        default_combat_supply_loadout_pure,
-        quest_completed_pure,
-        quest_state_pure,
-        sanitize_quest_combat_active_encounters_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_state import (  # type: ignore  # noqa: F401
-        COMBAT_BANK_RUN_REVIEWS,
-        COMBAT_GRAVE_RECOVERY_REVIEWS,
-        _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
-        _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
-        _COMBAT_STAT_POTION_BY_DOSE,
-        _COMBAT_STAT_POTION_ITEM_NAMES,
-        _build_combat_potion_dose_lookup,
-        _combat_grave_items,
-        _combat_stored_loadout,
-        _copy_player_data_with_nested,
-        _non_negative_float,
-        _non_negative_int,
-        _positive_int,
-        _requirements_from_spec,
-        _sanitize_combat_bank_run,
-        _sanitize_combat_grave_state,
-        _sanitize_combat_supply_loadout,
-        _sanitize_death_office_state,
-        _signed_int,
-        default_combat_supply_loadout_pure,
-        quest_completed_pure,
-        quest_state_pure,
-        sanitize_quest_combat_active_encounters_pure,
-    )
+from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
+    COMBAT_BANK_RUN_REVIEWS,
+    COMBAT_GRAVE_RECOVERY_REVIEWS,
+    _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
+    _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
+    _COMBAT_STAT_POTION_BY_DOSE,
+    _COMBAT_STAT_POTION_ITEM_NAMES,
+    _build_combat_potion_dose_lookup,
+    _combat_grave_items,
+    _combat_stored_loadout,
+    _copy_player_data_with_nested,
+    _non_negative_float,
+    _non_negative_int,
+    _positive_int,
+    _requirements_from_spec,
+    _sanitize_combat_bank_run,
+    _sanitize_combat_grave_state,
+    _sanitize_combat_supply_loadout,
+    _sanitize_death_office_state,
+    _signed_int,
+    default_combat_supply_loadout_pure,
+    quest_completed_pure,
+    quest_state_pure,
+    sanitize_quest_combat_active_encounters_pure,
+)
 
-try:
-    from .logic_pure_construction import (
-        owned_gilded_altar_access_reasons_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_construction import (  # type: ignore
-        owned_gilded_altar_access_reasons_pure,
-    )
+from ..logic_pure.logic_pure_construction import (
+    owned_gilded_altar_access_reasons_pure,
+)
 
-try:
-    from .logic_pure_state import (
-        _copy_player_data_with_nested,
-        _non_negative_int,
-        _positive_int,
-        _requirements_from_spec,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_state import (  # type: ignore
-        _copy_player_data_with_nested,
-        _non_negative_int,
-        _positive_int,
-        _requirements_from_spec,
-    )
+from ..logic_pure.logic_pure_state import (
+    _copy_player_data_with_nested,
+    _non_negative_int,
+    _positive_int,
+    _requirements_from_spec,
+)
 
 
 def prayer_target_locked_reasons_pure(player_data, target_id, prayer_data):

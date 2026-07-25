@@ -6,70 +6,37 @@ import copy
 from collections.abc import Mapping
 from typing import Any
 
-try:
-    from .logic_pure import (
-        apply_combat_burst_pure,
-        combat_max_lifepoints_pure,
-        player_combat_level_pure,
-    )
-    from .soul_wars_data import (
-        SOUL_WARS_ACTIVITY_ID,
-        SOUL_WARS_ACTIVITY_MAX,
-        SOUL_WARS_AVATAR_LIFEPOINTS,
-        SOUL_WARS_AVATAR_STARTING_SLAYER,
-        SOUL_WARS_BONE_PRAYER_RESTORE,
-        SOUL_WARS_CHARM_REWARDS,
-        SOUL_WARS_CHARM_REWARDS_BY_ITEM,
-        SOUL_WARS_COMBAT_TARGET_ID,
-        SOUL_WARS_CONTROL_DUTY_PROGRESS,
-        SOUL_WARS_CONTROL_HOLD_PROGRESS,
-        SOUL_WARS_CONTROL_LIMIT,
-        SOUL_WARS_DUTY_IDS,
-        SOUL_WARS_EVENT_REVIEWS,
-        SOUL_WARS_OPPONENT_AVATAR_DAMAGE,
-        SOUL_WARS_OPPONENT_CONTROL_PROGRESS,
-        SOUL_WARS_OPPONENT_FRAGMENT_PRESSURE,
-        SOUL_WARS_TEAM_ATTACK_SLAYER,
-        SOUL_WARS_TEAM_AVATAR_DAMAGE,
-        SOUL_WARS_TEAM_FRAGMENT_PRESSURE,
-        SOUL_WARS_TEAM_IDS,
-        SOUL_WARS_ZEAL_BY_OUTCOME,
-        SOUL_WARS_ZEAL_CAP,
-        soul_wars_avatar_enemy_pure,
-        soul_wars_charm_quantity_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure import (  # type: ignore
-        apply_combat_burst_pure,
-        combat_max_lifepoints_pure,
-        player_combat_level_pure,
-    )
-    from soul_wars_data import (  # type: ignore
-        SOUL_WARS_ACTIVITY_ID,
-        SOUL_WARS_ACTIVITY_MAX,
-        SOUL_WARS_AVATAR_LIFEPOINTS,
-        SOUL_WARS_AVATAR_STARTING_SLAYER,
-        SOUL_WARS_BONE_PRAYER_RESTORE,
-        SOUL_WARS_CHARM_REWARDS,
-        SOUL_WARS_CHARM_REWARDS_BY_ITEM,
-        SOUL_WARS_COMBAT_TARGET_ID,
-        SOUL_WARS_CONTROL_DUTY_PROGRESS,
-        SOUL_WARS_CONTROL_HOLD_PROGRESS,
-        SOUL_WARS_CONTROL_LIMIT,
-        SOUL_WARS_DUTY_IDS,
-        SOUL_WARS_EVENT_REVIEWS,
-        SOUL_WARS_OPPONENT_AVATAR_DAMAGE,
-        SOUL_WARS_OPPONENT_CONTROL_PROGRESS,
-        SOUL_WARS_OPPONENT_FRAGMENT_PRESSURE,
-        SOUL_WARS_TEAM_ATTACK_SLAYER,
-        SOUL_WARS_TEAM_AVATAR_DAMAGE,
-        SOUL_WARS_TEAM_FRAGMENT_PRESSURE,
-        SOUL_WARS_TEAM_IDS,
-        SOUL_WARS_ZEAL_BY_OUTCOME,
-        SOUL_WARS_ZEAL_CAP,
-        soul_wars_avatar_enemy_pure,
-        soul_wars_charm_quantity_pure,
-    )
+from ..logic_pure.logic_pure import (
+    apply_combat_burst_pure,
+    combat_max_lifepoints_pure,
+    player_combat_level_pure,
+)
+from ..data.soul_wars_data import (
+    SOUL_WARS_ACTIVITY_ID,
+    SOUL_WARS_ACTIVITY_MAX,
+    SOUL_WARS_AVATAR_LIFEPOINTS,
+    SOUL_WARS_AVATAR_STARTING_SLAYER,
+    SOUL_WARS_BONE_PRAYER_RESTORE,
+    SOUL_WARS_CHARM_REWARDS,
+    SOUL_WARS_CHARM_REWARDS_BY_ITEM,
+    SOUL_WARS_COMBAT_TARGET_ID,
+    SOUL_WARS_CONTROL_DUTY_PROGRESS,
+    SOUL_WARS_CONTROL_HOLD_PROGRESS,
+    SOUL_WARS_CONTROL_LIMIT,
+    SOUL_WARS_DUTY_IDS,
+    SOUL_WARS_EVENT_REVIEWS,
+    SOUL_WARS_OPPONENT_AVATAR_DAMAGE,
+    SOUL_WARS_OPPONENT_CONTROL_PROGRESS,
+    SOUL_WARS_OPPONENT_FRAGMENT_PRESSURE,
+    SOUL_WARS_TEAM_ATTACK_SLAYER,
+    SOUL_WARS_TEAM_AVATAR_DAMAGE,
+    SOUL_WARS_TEAM_FRAGMENT_PRESSURE,
+    SOUL_WARS_TEAM_IDS,
+    SOUL_WARS_ZEAL_BY_OUTCOME,
+    SOUL_WARS_ZEAL_CAP,
+    soul_wars_avatar_enemy_pure,
+    soul_wars_charm_quantity_pure,
+)
 
 
 SOUL_WARS_STATE_VERSION = 1

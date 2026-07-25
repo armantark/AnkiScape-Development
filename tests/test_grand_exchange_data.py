@@ -1,13 +1,14 @@
 import unittest
 
-from grand_exchange_data import GE_ITEM_CATALOG, build_ge_item_catalog_pure
-from grand_exchange_period_generated import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.grand_exchange_data import GE_ITEM_CATALOG, build_ge_item_catalog_pure
+from ankiscape.generated.grand_exchange_period_generated import (
     PERIOD_GE_BUY_LIMIT_SOURCE,
     PERIOD_GE_BUY_LIMITS,
     PERIOD_GE_GUIDE_PRICES,
     PERIOD_GE_PRICE_PROVENANCE,
 )
-from item_registry import ItemDefinition
+from ankiscape.core.item_registry import ItemDefinition
 from tools.generate_ge_period_data import (
     _normalized_name,
     _parse_fields,

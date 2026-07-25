@@ -19,36 +19,37 @@ after the shallow-copy change, the assertions are wrong.
 import copy
 import unittest
 
-from constants import ITEM_DEFINITIONS, ORE_DATA
-from storage_pure import default_player_data
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.core.storage_pure import default_player_data
 
-from big_chinchompa_logic import (
+from ankiscape.logic.big_chinchompa_logic import (
     advance_big_chinchompa_world_clock_pure,
     big_chinchompa_view_pure,
     ensure_big_chinchompa_state_pure,
 )
-from evil_tree_logic import (
+from ankiscape.logic.evil_tree_logic import (
     advance_evil_tree_world_clock_pure,
     ensure_evil_tree_state_pure,
     evil_tree_spawn_due_pure,
     evil_tree_view_pure,
 )
-from fist_of_guthix_logic import (
+from ankiscape.logic.fist_of_guthix_logic import (
     ensure_fist_of_guthix_state_pure,
     fist_of_guthix_view_pure,
 )
-from grand_exchange_logic import ensure_ge_state_pure
-from managing_miscellania_logic import (
+from ankiscape.logic.grand_exchange_logic import ensure_ge_state_pure
+from ankiscape.logic.managing_miscellania_logic import (
     advance_managing_miscellania_world_clock_pure,
 )
-from shooting_star_logic import (
+from ankiscape.logic.shooting_star_logic import (
     advance_shooting_star_world_clock_pure,
     ensure_shooting_star_state_pure,
     shooting_star_view_pure,
 )
-from shop_logic import advance_shop_market_clock_pure, ensure_shop_state_pure
-from summoning_logic import advance_summoning_world_tick_pure
-from wicked_hood_logic import (
+from ankiscape.logic.shop_logic import advance_shop_market_clock_pure, ensure_shop_state_pure
+from ankiscape.logic.summoning_logic import advance_summoning_world_tick_pure
+from ankiscape.logic.wicked_hood_logic import (
     advance_wicked_hood_review_day_pure,
     ensure_wicked_hood_state_pure,
 )

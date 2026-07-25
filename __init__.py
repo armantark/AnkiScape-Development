@@ -1,6 +1,6 @@
 # __init__.py
 
-from .constants import (
+from .core.constants import (
     COMBAT_ENEMY_DATA,
     CONSUMABLE_DATA,
     ORE_DATA,
@@ -28,7 +28,7 @@ from .constants import (
     CRAFTED_ITEM_IMAGES,
     EQUIPMENT_DATA,
 )
-from .smithing_data import DEFAULT_SMITHING_TARGET
+from .data.smithing_data import DEFAULT_SMITHING_TARGET
 from aqt import mw, gui_hooks
 from anki.hooks import addHook, wrap
 from aqt.reviewer import Reviewer
@@ -37,7 +37,7 @@ import inspect
 import random
 import os
 import datetime
-from .logic_pure import (
+from .logic_pure.logic_pure import (
     apply_consumable_pure,
     apply_item_pack_open_pure,
     combat_enemy_drop_item_names_pure,
@@ -79,10 +79,10 @@ from .logic_pure import (
     teleport_full_urn_pure,
     set_mage_arena_alignment_pure,
 )
-from .construction_data import ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA
-from .cadence_kernel import sanitize_cadence_kernel_enabled_pure
-from .logic import level_up_check, check_achievements
-from .ui import (
+from .data.construction_data import ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA
+from .logic.cadence_kernel import sanitize_cadence_kernel_enabled_pure
+from .core.logic import level_up_check, check_achievements
+from .ui.ui import (
     ExpPopup,
     show_error_message,
     show_tree_selection_dialog,
@@ -101,85 +101,85 @@ from .ui import (
     hide_farming_hud_badge,
     migrate_legacy_settings,
 )
-from . import ui
-from . import inventory_pure
-from .equipment_instance_logic import (
+from .ui import ui
+from .logic import inventory_pure
+from .logic.equipment_instance_logic import (
     is_condition_item_pure,
     remove_bank_equipment_instances_pure,
     sync_equipment_instances_pure,
 )
-from .equipment_condition_data import EQUIPMENT_CONDITION_DATA
-from .barrows_logic import apply_barrows_command_pure
-from .fist_of_guthix_logic import apply_fist_of_guthix_command_pure
-from .fight_caves_logic import apply_fight_caves_command_pure
-from .phoenix_lair_logic import (
+from .data.equipment_condition_data import EQUIPMENT_CONDITION_DATA
+from .logic.barrows_logic import apply_barrows_command_pure
+from .logic.fist_of_guthix_logic import apply_fist_of_guthix_command_pure
+from .logic.fight_caves_logic import apply_fight_caves_command_pure
+from .logic.phoenix_lair_logic import (
     apply_phoenix_lair_command_pure,
     resolve_phoenix_egg_choice_pure,
 )
-from .stealing_creation_logic import (
+from .logic.stealing_creation_logic import (
     apply_stealing_creation_command_pure,
     apply_stealing_creation_xp_bonus_pure,
     stealing_creation_tool_can_apply_pure,
 )
-from .fish_flingers_logic import apply_fish_flingers_command_pure
-from .fishing_trawler_logic import apply_fishing_trawler_command_pure
-from .great_orb_project_logic import apply_great_orb_project_command_pure
-from .court_cases_logic import apply_court_cases_command_pure
-from .circus_logic import apply_circus_command_pure
-from .trouble_brewing_logic import apply_trouble_brewing_command_pure
-from .castle_wars_logic import apply_castle_wars_command_pure
-from .pest_control_logic import apply_pest_control_command_pure
-from .barbarian_assault_logic import apply_barbarian_assault_command_pure
-from .stronghold_player_safety_logic import (
+from .logic.fish_flingers_logic import apply_fish_flingers_command_pure
+from .logic.fishing_trawler_logic import apply_fishing_trawler_command_pure
+from .logic.great_orb_project_logic import apply_great_orb_project_command_pure
+from .logic.court_cases_logic import apply_court_cases_command_pure
+from .logic.circus_logic import apply_circus_command_pure
+from .logic.trouble_brewing_logic import apply_trouble_brewing_command_pure
+from .logic.castle_wars_logic import apply_castle_wars_command_pure
+from .logic.pest_control_logic import apply_pest_control_command_pure
+from .logic.barbarian_assault_logic import apply_barbarian_assault_command_pure
+from .logic.stronghold_player_safety_logic import (
     apply_stronghold_player_safety_command_pure,
 )
-from .soul_wars_logic import apply_soul_wars_command_pure
-from .shades_of_mortton_logic import apply_shades_of_mortton_command_pure
-from .tzhaar_fight_pit_logic import apply_tzhaar_fight_pit_command_pure
-from .varrock_museum_logic import apply_varrock_museum_command_pure
-from .managing_miscellania_logic import (
+from .logic.soul_wars_logic import apply_soul_wars_command_pure
+from .logic.shades_of_mortton_logic import apply_shades_of_mortton_command_pure
+from .logic.tzhaar_fight_pit_logic import apply_tzhaar_fight_pit_command_pure
+from .logic.varrock_museum_logic import apply_varrock_museum_command_pure
+from .logic.managing_miscellania_logic import (
     advance_managing_miscellania_world_clock_pure,
     apply_managing_miscellania_command_pure,
 )
-from .sorceress_garden_data import SORCERESS_GARDEN_ACTIVITY_ID
-from .sorceress_garden_logic import apply_sorceress_garden_command_pure
-from .penguin_hide_and_seek_data import PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID
-from .penguin_hide_and_seek_logic import apply_penguin_command_pure
-from .vinesweeper_data import VINESWEEPER_ACTIVITY_ID
-from .vinesweeper_logic import apply_vinesweeper_command_pure
-from .injectors import inject_reviewer_floating_button as _inject_reviewer_floating_button
-from .injectors import inject_overview_floating_button as _inject_overview_floating_button
-from .injectors import register_deck_browser_button as _register_deck_browser_button
-from .injectors import force_deck_browser_refresh as _force_deck_browser_refresh
-from .storage import load_player_data as storage_load_player_data, save_player_data as storage_save_player_data
-from .action_registry import (
+from .data.sorceress_garden_data import SORCERESS_GARDEN_ACTIVITY_ID
+from .logic.sorceress_garden_logic import apply_sorceress_garden_command_pure
+from .data.penguin_hide_and_seek_data import PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID
+from .logic.penguin_hide_and_seek_logic import apply_penguin_command_pure
+from .data.vinesweeper_data import VINESWEEPER_ACTIVITY_ID
+from .logic.vinesweeper_logic import apply_vinesweeper_command_pure
+from .core.injectors import inject_reviewer_floating_button as _inject_reviewer_floating_button
+from .core.injectors import inject_overview_floating_button as _inject_overview_floating_button
+from .core.injectors import register_deck_browser_button as _register_deck_browser_button
+from .core.injectors import force_deck_browser_refresh as _force_deck_browser_refresh
+from .core.storage import load_player_data as storage_load_player_data, save_player_data as storage_save_player_data
+from .core.action_registry import (
     ACTIVITY_REVIEW_ACTION_DISPLAY_NAME,
     UTILITY_REVIEW_ACTION_DISPLAY_NAME,
     is_review_action,
     review_action_handler_key,
 )
-from .skill_registry import get_skill, trainable_skill_definitions
-from .shop_logic import advance_shop_market_clock_pure
-from .wicked_hood_logic import (
+from .core.skill_registry import get_skill, trainable_skill_definitions
+from .logic.shop_logic import advance_shop_market_clock_pure
+from .logic.wicked_hood_logic import (
     advance_wicked_hood_review_day_pure,
     apply_wicked_hood_command_pure,
 )
-from .grand_exchange_data import GE_ITEM_CATALOG
-from .grand_exchange_logic import (
+from .data.grand_exchange_data import GE_ITEM_CATALOG
+from .logic.grand_exchange_logic import (
     advance_ge_market_tick_pure,
     apply_ge_frontend_action_pure,
     ge_frontend_projection_pure,
 )
-from .farming_logic import apply_farming_frontend_action_pure, farming_frontend_projection_pure
-from .agility_logic import apply_agility_command_pure
-from .flash_powder_factory_logic import convert_rogue_kit_pure
-from .review_context import (
+from .logic.farming_logic import apply_farming_frontend_action_pure, farming_frontend_projection_pure
+from .logic.agility_logic import apply_agility_command_pure
+from .logic.flash_powder_factory_logic import convert_rogue_kit_pure
+from .core.review_context import (
     PIT_REWARD_CONTEXT_ID,
     ignored_review_context_choice_pure,
 )
-from .phoenix_lair_data import PHOENIX_EGG_CONTEXT_ID
-from .agility_travel import agility_carried_weight_pure
-from .summoning_logic import (
+from .data.phoenix_lair_data import PHOENIX_EGG_CONTEXT_ID
+from .logic.agility_travel import agility_carried_weight_pure
+from .logic.summoning_logic import (
     advance_summoning_world_tick_pure,
     claim_familiarisation_reward_pure,
     dismiss_familiar_pure,
@@ -190,47 +190,47 @@ from .summoning_logic import (
     set_winter_storage_priority_pure,
     summon_familiar_pure,
 )
-from .slayer_logic import get_slayer_assignment_pure
-from .big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID
-from .big_chinchompa_logic import (
+from .logic.slayer_logic import get_slayer_assignment_pure
+from .data.big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID
+from .logic.big_chinchompa_logic import (
     advance_big_chinchompa_world_clock_pure,
     apply_big_chinchompa_reward_purchase_pure,
     set_hunter_private_ground_pure,
     set_world_population_profile_pure,
 )
-from .evil_tree_data import EVIL_TREE_UTILITY_ID
-from .evil_tree_logic import (
+from .data.evil_tree_data import EVIL_TREE_UTILITY_ID
+from .logic.evil_tree_logic import (
     advance_evil_tree_world_clock_pure,
     evil_tree_spawn_due_pure,
 )
-from .shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
-from .shooting_star_logic import (
+from .data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
+from .logic.shooting_star_logic import (
     advance_shooting_star_world_clock_pure,
     apply_shooting_star_exchange_pure,
     set_shooting_star_preferences_pure,
 )
-from .warriors_guild_logic import (
+from .logic.warriors_guild_logic import (
     enter_warriors_guild_cyclops_room_pure,
     leave_warriors_guild_cyclops_room_pure,
     sanitize_warriors_guild_state_pure,
     set_warriors_guild_policy_pure,
     show_warriors_guild_defender_pure,
 )
-from .livid_farm_logic import (
+from .logic.livid_farm_logic import (
     advance_livid_farm_wish_effects_pure,
     apply_arcane_capacitor_charge_pure,
     apply_arcane_capacitor_remove_charge_pure,
     apply_livid_farm_wish_pure,
     set_livid_farm_routine_pure,
 )
-from .pet_logic import (
+from .logic.pet_logic import (
     hatch_phoenix_egg_pure,
     let_out_pet_pure,
     release_pet_pure,
     store_active_pet_pure,
 )
-from . import runtime_actions
-from .runtime_actions import RuntimeActionContext
+from .runtime import runtime_actions
+from .runtime.runtime_actions import RuntimeActionContext
 
 global card_turned, exp_awarded, answer_shown
 
@@ -270,9 +270,9 @@ def _normalize_legacy_utility_skill(skill) -> str:
     return name
 
 # --- Debug logging (centralized) ---
-from .debug import debug_log  # size-rotated, disabled by default unless ANKISCAPE_DEBUG=1
+from .core.debug import debug_log  # size-rotated, disabled by default unless ANKISCAPE_DEBUG=1
 try:
-    from .debug import set_debug_enabled as _set_debug_enabled, is_debug_enabled as _is_debug_enabled
+    from .core.debug import set_debug_enabled as _set_debug_enabled, is_debug_enabled as _is_debug_enabled
 except Exception:
     def _set_debug_enabled(_enabled: bool) -> None:
         pass
@@ -3943,7 +3943,7 @@ def initialize_exp_popup():
 def _refresh_review_surfaces() -> None:
     """The one refresh of every reviewer overlay, per surface event."""
     try:
-        from .ui import get_config_bool  # type: ignore
+        from .ui.ui import get_config_bool  # type: ignore
         if get_config_bool("ankiscape_review_hud_enabled", True):
             ensure_review_hud()
             update_review_hud(player_data, current_skill)
@@ -3978,7 +3978,7 @@ def _on_overview_did_refresh(overview):
 
 # Centralized hook registration
 try:
-    from . import hooks as _hooks
+    from .core import hooks as _hooks
     _hooks.register_hooks(
         {
             "profile_loaded": [

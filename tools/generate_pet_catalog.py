@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "pet_data_generated.py"
+OUTPUT = ROOT / "generated" / "pet_data_generated.py"
 PET_OLDID = 6579897
 LEGACY_EVENT_PETS = frozenset({"Sparkles", "Eek", "Mackers"})
 RELEASE_SOURCE_BLOCKED = frozenset({"Ex-ex-parrot", "Broav"})

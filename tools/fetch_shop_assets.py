@@ -29,9 +29,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from constants import ITEM_DEFINITIONS  # noqa: E402
-from item_registry import item_definitions_by_storage_key  # noqa: E402
-from shop_data import SHOP_DATA  # noqa: E402
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import ITEM_DEFINITIONS  # noqa: E402
+from ankiscape.core.item_registry import item_definitions_by_storage_key  # noqa: E402
+from ankiscape.data.shop_data import SHOP_DATA  # noqa: E402
 from tools.fetch_assets import (  # noqa: E402
     AssetFetchError,
     AssetRequest,

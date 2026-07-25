@@ -1,8 +1,9 @@
 import unittest
 
-from firemaking_data import LIT_LIGHT_SOURCE_ITEMS
-from quest_catalog_generated import PRE_EOC_QUEST_CATALOG, PRE_EOC_QUEST_CATALOG_SOURCE
-from quest_data import QUESTS, QUESTS_BY_ID, quest_reward_items_as_dict, quests_as_dict
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.firemaking_data import LIT_LIGHT_SOURCE_ITEMS
+from ankiscape.generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG, PRE_EOC_QUEST_CATALOG_SOURCE
+from ankiscape.data.quest_data import QUESTS, QUESTS_BY_ID, quest_reward_items_as_dict, quests_as_dict
 from tools.audit_quest_local_item_gates import quest_local_gate_candidates
 
 

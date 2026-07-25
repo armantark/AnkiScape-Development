@@ -1,6 +1,7 @@
 import unittest
 
-from woodcutting_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.woodcutting_data import (
     BIRD_NEST_DROP_CHANCE,
     BIRD_NEST_DROP_TABLE,
     BIRD_NEST_OPEN_TABLES_BY_INPUT,

@@ -5,32 +5,18 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-try:
-    from .combat_data import COMBAT_FOOD_DATA
-    from .gnome_ball_data import (
-        GNOME_BALL_ACTIVITY_ID,
-        GNOME_BALL_BEATS,
-        GNOME_BALL_COMPLETION_BONUS_XP,
-        GNOME_BALL_GOAL_XP,
-        GNOME_BALL_TACKLE_ENTRY_CHANCE,
-        GNOME_BALL_TACKLE_RESIDUAL_CHANCE,
-    )
-    from .inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure
-    from .item_values import STACKABLE_ITEM_NAMES
-    from .logic_pure import apply_thieving_damage_pure
-except ImportError:  # pragma: no cover - flat test imports
-    from combat_data import COMBAT_FOOD_DATA  # type: ignore
-    from gnome_ball_data import (  # type: ignore
-        GNOME_BALL_ACTIVITY_ID,
-        GNOME_BALL_BEATS,
-        GNOME_BALL_COMPLETION_BONUS_XP,
-        GNOME_BALL_GOAL_XP,
-        GNOME_BALL_TACKLE_ENTRY_CHANCE,
-        GNOME_BALL_TACKLE_RESIDUAL_CHANCE,
-    )
-    from inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure  # type: ignore
-    from item_values import STACKABLE_ITEM_NAMES  # type: ignore
-    from logic_pure import apply_thieving_damage_pure  # type: ignore
+from ..data.combat_data import COMBAT_FOOD_DATA
+from ..data.gnome_ball_data import (
+    GNOME_BALL_ACTIVITY_ID,
+    GNOME_BALL_BEATS,
+    GNOME_BALL_COMPLETION_BONUS_XP,
+    GNOME_BALL_GOAL_XP,
+    GNOME_BALL_TACKLE_ENTRY_CHANCE,
+    GNOME_BALL_TACKLE_RESIDUAL_CHANCE,
+)
+from ..logic.inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure
+from ..data.item_values import STACKABLE_ITEM_NAMES
+from ..logic_pure.logic_pure import apply_thieving_damage_pure
 
 
 GNOME_BALL_STATE_VERSION = 1

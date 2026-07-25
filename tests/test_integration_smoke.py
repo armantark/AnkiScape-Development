@@ -94,6 +94,7 @@ def _install_quest_combat_mid_rolls(testcase, addon, repeats=2000):
     testcase.addCleanup(setattr, addon, "_review_action_multiplier", original_review_multiplier)
 
 
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 class TestIntegrationSmoke(unittest.TestCase):
     def setUp(self):
         # Isolate sys.modules pollution between tests
@@ -2109,7 +2110,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_evil_tree_spawns_on_shared_review_clock_and_undo_restores_world(self):
         addon = _load_addon_as_package("ankiscape_evil_tree_clock_integration")
-        from ankiscape_evil_tree_clock_integration.evil_tree_logic import (
+        from ankiscape_evil_tree_clock_integration.logic.evil_tree_logic import (
             default_evil_tree_state_pure,
         )
 
@@ -2173,7 +2174,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon = _load_addon_as_package(
             "ankiscape_big_chinchompa_clock_integration"
         )
-        from ankiscape_big_chinchompa_clock_integration.big_chinchompa_logic import (
+        from ankiscape_big_chinchompa_clock_integration.logic.big_chinchompa_logic import (
             default_big_chinchompa_state_pure,
         )
 
@@ -2232,7 +2233,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon = _load_addon_as_package(
             "ankiscape_shooting_star_clock_integration"
         )
-        from ankiscape_shooting_star_clock_integration.shooting_star_logic import (
+        from ankiscape_shooting_star_clock_integration.logic.shooting_star_logic import (
             default_shooting_star_state_pure,
         )
 
@@ -3137,7 +3138,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         calls = {"save": 0, "xp": []}
         addon.level_up_check = lambda _skill, _data: None
-        achievements = sys.modules[f"{addon.__name__}.constants"].ACHIEVEMENTS
+        achievements = sys.modules[f"{addon.__name__}.core.constants"].ACHIEVEMENTS
         def complete_first_fire(data):
             if achievements["First Fire"]["condition"](data):
                 data["completed_achievements"].append("First Fire")
@@ -3626,7 +3627,7 @@ class TestIntegrationSmoke(unittest.TestCase):
     def test_sorceress_garden_trip_and_cross_skill_reward_roll_back_together(self):
         addon = _load_addon_as_package("ankiscape_garden_undo_integration")
         garden_logic = sys.modules[
-            "ankiscape_garden_undo_integration.sorceress_garden_logic"
+            "ankiscape_garden_undo_integration.logic.sorceress_garden_logic"
         ]
 
         calls = {"save": 0}
@@ -3697,7 +3698,7 @@ class TestIntegrationSmoke(unittest.TestCase):
     def test_penguin_spy_and_points_roll_back_as_one_review(self):
         addon = _load_addon_as_package("ankiscape_penguin_undo_integration")
         penguin_logic = sys.modules[
-            "ankiscape_penguin_undo_integration.penguin_hide_and_seek_logic"
+            "ankiscape_penguin_undo_integration.logic.penguin_hide_and_seek_logic"
         ]
 
         calls = {"save": 0}
@@ -3910,8 +3911,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon = _load_addon_as_package(
             "ankiscape_livid_protection_farming_integration"
         )
-        farming_data = sys.modules[f"{addon.__name__}.farming_data"]
-        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
+        farming_data = sys.modules[f"{addon.__name__}.data.farming_data"]
+        farming_logic = sys.modules[f"{addon.__name__}.logic.farming_logic"]
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         addon.mw = _DummyMW(_DummyCol())
@@ -3978,7 +3979,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
 
     def test_arcane_capacitor_charge_uses_direct_action_undo(self):
-        from livid_farm_data import (
+        from ankiscape.data.livid_farm_data import (
             ARCANE_CAPACITOR_CHARGED,
             ARCANE_CAPACITOR_UNCHARGED,
         )
@@ -4280,7 +4281,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_cure_plant_runtime_cast_and_answer_undo_are_atomic(self):
         addon = _load_addon_as_package("ankiscape_cure_plant_undo_integration")
-        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
+        farming_logic = sys.modules[f"{addon.__name__}.logic.farming_logic"]
         calls = {"save": 0, "xp": []}
         addon.level_up_check = lambda _skill, _data: None
         addon.check_achievements = lambda _data: None
@@ -4333,7 +4334,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_livid_remote_farm_cast_cures_all_patches_and_undoes_atomically(self):
         addon = _load_addon_as_package("ankiscape_livid_remote_farm_integration")
-        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
+        farming_logic = sys.modules[f"{addon.__name__}.logic.farming_logic"]
         calls = {"save": 0, "gains": []}
         addon.level_up_check = lambda _skill, _data: None
         addon.check_achievements = lambda _data: None
@@ -4440,7 +4441,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_queued_farming_dig_up_preempts_one_review_and_undoes_atomically(self):
         addon = _load_addon_as_package("ankiscape_farming_dig_up_undo_integration")
-        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
+        farming_logic = sys.modules[f"{addon.__name__}.logic.farming_logic"]
         addon.level_up_check = lambda _skill, _data: None
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
@@ -4497,7 +4498,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_queued_white_tree_harvest_preempts_one_review_and_undoes_atomically(self):
         addon = _load_addon_as_package("ankiscape_white_tree_undo_integration")
-        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
+        farming_logic = sys.modules[f"{addon.__name__}.logic.farming_logic"]
         addon.level_up_check = lambda _skill, _data: None
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
@@ -4543,7 +4544,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_jade_branch_from_again_waits_for_a_successful_review_and_undoes(self):
         addon = _load_addon_as_package("ankiscape_jade_vine_queue_integration")
-        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
+        farming_logic = sys.modules[f"{addon.__name__}.logic.farming_logic"]
         addon.level_up_check = lambda _skill, _data: None
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
@@ -4630,7 +4631,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             "smithing_level": 1,
             "quests": {"back_to_my_roots": {"completed": True}},
         }
-        state.update(addon.farming_logic.default_farming_state_pure())
+        state.update(addon.logic.farming_logic.default_farming_state_pure())
         addon.player_data = copy.deepcopy(state)
 
         addon._on_main_menu(initial_skill="Farming")
@@ -4652,7 +4653,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_willow_full_run_health_checks_then_prunes_on_successive_reviews(self):
         addon = _load_addon_as_package("ankiscape_willow_full_run_integration")
-        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
+        farming_logic = sys.modules[f"{addon.__name__}.logic.farming_logic"]
         addon.level_up_check = lambda _skill, _data: None
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: None
@@ -4763,7 +4764,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_direct_urn_teleports_use_separate_custom_lifo_undo(self):
         addon = _load_addon_as_package("ankiscape_direct_urn_undo_integration")
-        from urn_data import URN_TIERS_BY_ID
+        from ankiscape.data.urn_data import URN_TIERS_BY_ID
 
         tier = URN_TIERS_BY_ID["mining_cracked_urn"]
         col = _DummyCol()
@@ -5040,7 +5041,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             "ankiscape_shooting_star_exchange_integration"
         )
         star_logic = sys.modules[
-            f"{addon.__name__}.shooting_star_logic"
+            f"{addon.__name__}.logic.shooting_star_logic"
         ]
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(
@@ -5092,7 +5093,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon = _load_addon_as_package(
             "ankiscape_fist_of_guthix_reward_integration"
         )
-        fog_logic = sys.modules[f"{addon.__name__}.fist_of_guthix_logic"]
+        fog_logic = sys.modules[f"{addon.__name__}.logic.fist_of_guthix_logic"]
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         col = _DummyCol()
@@ -5135,7 +5136,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             "ankiscape_penguin_redemption_integration"
         )
         penguin_logic = sys.modules[
-            f"{addon.__name__}.penguin_hide_and_seek_logic"
+            f"{addon.__name__}.logic.penguin_hide_and_seek_logic"
         ]
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
@@ -5615,7 +5616,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_miscellania_day_tick_and_review_undo_share_one_transaction(self):
         addon = _load_addon_as_package("ankiscape_miscellania_clock_integration")
-        logic = sys.modules[f"{addon.__name__}.managing_miscellania_logic"]
+        logic = sys.modules[f"{addon.__name__}.logic.managing_miscellania_logic"]
         addon.mw = _DummyMW(_DummyCol())
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
@@ -5656,7 +5657,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_wicked_hood_daily_refill_and_review_undo_share_one_transaction(self):
         addon = _load_addon_as_package("ankiscape_wicked_hood_clock_integration")
-        hood_logic = sys.modules[f"{addon.__name__}.wicked_hood_logic"]
+        hood_logic = sys.modules[f"{addon.__name__}.logic.wicked_hood_logic"]
         addon.mw = _DummyMW(_DummyCol())
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
@@ -5703,7 +5704,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_miscellania_direct_command_is_atomic_and_undoable(self):
         addon = _load_addon_as_package("ankiscape_miscellania_command_integration")
-        logic = sys.modules[f"{addon.__name__}.managing_miscellania_logic"]
+        logic = sys.modules[f"{addon.__name__}.logic.managing_miscellania_logic"]
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         col = _DummyCol()
@@ -5741,7 +5742,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_court_case_entry_is_a_direct_undoable_action(self):
         addon = _load_addon_as_package("ankiscape_court_entry_integration")
-        logic = sys.modules[f"{addon.__name__}.court_cases_logic"]
+        logic = sys.modules[f"{addon.__name__}.logic.court_cases_logic"]
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         col = _DummyCol()
@@ -5782,7 +5783,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_circus_policy_is_a_direct_undoable_action(self):
         addon = _load_addon_as_package("ankiscape_circus_policy_integration")
-        logic = sys.modules[f"{addon.__name__}.circus_logic"]
+        logic = sys.modules[f"{addon.__name__}.logic.circus_logic"]
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         col = _DummyCol()
@@ -5826,7 +5827,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_trouble_brewing_entry_is_a_direct_undoable_action(self):
         addon = _load_addon_as_package("ankiscape_trouble_brewing_integration")
-        logic = sys.modules[f"{addon.__name__}.trouble_brewing_logic"]
+        logic = sys.modules[f"{addon.__name__}.logic.trouble_brewing_logic"]
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         col = _DummyCol()
@@ -5867,7 +5868,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_castle_wars_entry_is_a_direct_undoable_action(self):
         addon = _load_addon_as_package("ankiscape_castle_wars_integration")
-        logic = sys.modules[f"{addon.__name__}.castle_wars_logic"]
+        logic = sys.modules[f"{addon.__name__}.logic.castle_wars_logic"]
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         col = _DummyCol()
@@ -5911,7 +5912,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_pest_control_entry_is_a_direct_undoable_action(self):
         addon = _load_addon_as_package("ankiscape_pest_control_integration")
-        logic = sys.modules[f"{addon.__name__}.pest_control_logic"]
+        logic = sys.modules[f"{addon.__name__}.logic.pest_control_logic"]
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         col = _DummyCol()
@@ -5963,7 +5964,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_soul_wars_entry_is_a_direct_undoable_action(self):
         addon = _load_addon_as_package("ankiscape_soul_wars_integration")
-        logic = sys.modules[f"{addon.__name__}.soul_wars_logic"]
+        logic = sys.modules[f"{addon.__name__}.logic.soul_wars_logic"]
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         col = _DummyCol()
@@ -6016,7 +6017,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_shades_pyre_logs_are_direct_undoable_and_award_firemaking_xp(self):
         addon = _load_addon_as_package("ankiscape_shades_mortton_integration")
-        logic = sys.modules[f"{addon.__name__}.shades_of_mortton_logic"]
+        logic = sys.modules[f"{addon.__name__}.logic.shades_of_mortton_logic"]
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         col = _DummyCol()
@@ -6066,7 +6067,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_tzhaar_fight_pit_entry_is_direct_and_undoable(self):
         addon = _load_addon_as_package("ankiscape_fight_pit_integration")
-        logic = sys.modules[f"{addon.__name__}.tzhaar_fight_pit_logic"]
+        logic = sys.modules[f"{addon.__name__}.logic.tzhaar_fight_pit_logic"]
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         col = _DummyCol()
@@ -6114,7 +6115,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_barbarian_assault_entry_is_a_direct_undoable_action(self):
         addon = _load_addon_as_package("ankiscape_barbarian_assault_integration")
-        logic = sys.modules[f"{addon.__name__}.barbarian_assault_logic"]
+        logic = sys.modules[f"{addon.__name__}.logic.barbarian_assault_logic"]
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         col = _DummyCol()
@@ -6205,7 +6206,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_varrock_museum_kit_is_a_direct_undoable_action(self):
         addon = _load_addon_as_package("ankiscape_varrock_museum_integration")
-        logic = sys.modules[f"{addon.__name__}.varrock_museum_logic"]
+        logic = sys.modules[f"{addon.__name__}.logic.varrock_museum_logic"]
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         col = _DummyCol()
@@ -6243,8 +6244,8 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_phoenix_lair_entry_is_direct_and_undoable(self):
         addon = _load_addon_as_package("ankiscape_phoenix_entry_integration")
-        storage = sys.modules[f"{addon.__name__}.storage_pure"]
-        constants = sys.modules[f"{addon.__name__}.constants"]
+        storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
+        constants = sys.modules[f"{addon.__name__}.core.constants"]
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         col = _DummyCol()
@@ -6294,8 +6295,8 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_wicked_hood_withdrawal_is_direct_and_undoable(self):
         addon = _load_addon_as_package("ankiscape_wicked_hood_direct_integration")
-        storage = sys.modules[f"{addon.__name__}.storage_pure"]
-        constants = sys.modules[f"{addon.__name__}.constants"]
+        storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
+        constants = sys.modules[f"{addon.__name__}.core.constants"]
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         col = _DummyCol()
@@ -6334,7 +6335,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_court_case_review_and_world_clock_undo_together(self):
         addon = _load_addon_as_package("ankiscape_court_review_integration")
-        logic = sys.modules[f"{addon.__name__}.court_cases_logic"]
+        logic = sys.modules[f"{addon.__name__}.logic.court_cases_logic"]
         addon.mw = _DummyMW(_DummyCol())
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None
@@ -6380,7 +6381,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_circus_review_and_world_clock_undo_together(self):
         addon = _load_addon_as_package("ankiscape_circus_review_integration")
-        logic = sys.modules[f"{addon.__name__}.circus_logic"]
+        logic = sys.modules[f"{addon.__name__}.logic.circus_logic"]
         addon.mw = _DummyMW(_DummyCol())
         addon.save_player_data = lambda: None
         addon.update_review_hud = lambda *_args: None

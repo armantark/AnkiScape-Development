@@ -66,10 +66,11 @@ SLOT_WIKI_TITLES: Dict[str, str] = {
 }
 
 
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 def _build_manifest() -> List[Tuple[str, str, str]]:
     """Return (slot_id, wiki_title, output_rel) cross-checked vs EQUIPMENT_SLOTS."""
     try:
-        from equipment_data import EQUIPMENT_SLOTS
+        from ankiscape.data.equipment_data import EQUIPMENT_SLOTS
     except ImportError as exc:  # pragma: no cover - dev tool only
         raise AssetFetchError("Could not import EQUIPMENT_SLOTS from equipment_data.py.") from exc
 

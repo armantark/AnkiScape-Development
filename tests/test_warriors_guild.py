@@ -2,26 +2,27 @@ import copy
 import unittest
 from unittest.mock import patch
 
-from combat_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.combat_data import (
     COMBAT_ENEMY_DATA,
     CYCLOPS_WARRIORS_GUILD_DROPS,
     CYCLOSSUS_WARRIORS_GUILD_DROPS,
 )
-from constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
-from logic_pure import (
+from ankiscape.core.constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.logic_pure.logic_pure import (
     combat_target_locked_reasons_pure,
     combat_target_preview_pure,
 )
-from runtime_actions import RuntimeActionContext, handle_combat_answer, handle_utility_answer
-from storage_pure import default_player_data, migrate_loaded_data
-from target_metadata import combat_target_rows
-from warriors_guild_data import (
+from ankiscape.runtime.runtime_actions import RuntimeActionContext, handle_combat_answer, handle_utility_answer
+from ankiscape.core.storage_pure import default_player_data, migrate_loaded_data
+from ankiscape.core.target_metadata import combat_target_rows
+from ankiscape.data.warriors_guild_data import (
     ANIMATED_ARMOUR_TIERS,
     DEFENDER_TIERS,
     WARRIORS_GUILD_ACTIVITY_IDS,
     WARRIORS_GUILD_TOKEN_KEYS,
 )
-from warriors_guild_logic import (
+from ankiscape.logic.warriors_guild_logic import (
     apply_warriors_guild_activity_pure,
     apply_warriors_guild_cyclops_kills_pure,
     apply_warriors_guild_cyclossus_kills_pure,
@@ -496,7 +497,7 @@ class WarriorsGuildRuntimeTests(unittest.TestCase):
         burst_state["constitution_exp"] += 99.75
 
         with patch(
-            "runtime_actions_combat.apply_combat_burst_pure",
+            "ankiscape.runtime.runtime_actions_combat.apply_combat_burst_pure",
             return_value=(burst_state, True, result),
         ):
             self.assertTrue(handle_combat_answer(ctx))
@@ -538,7 +539,7 @@ class WarriorsGuildRuntimeTests(unittest.TestCase):
             "xp_rewards": {},
         }
         with patch(
-            "runtime_actions_combat.apply_combat_burst_pure",
+            "ankiscape.runtime.runtime_actions_combat.apply_combat_burst_pure",
             return_value=(copy.deepcopy(player), True, result),
         ):
             self.assertTrue(handle_combat_answer(ctx))

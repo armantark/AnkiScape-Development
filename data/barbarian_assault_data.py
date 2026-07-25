@@ -5,10 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-try:
-    from .equipment_data import EquipmentBonuses, EquipmentItem
-except ImportError:  # pragma: no cover - flat test imports
-    from equipment_data import EquipmentBonuses, EquipmentItem  # type: ignore
+from ..data.equipment_data import EquipmentBonuses, EquipmentItem
 
 
 BARBARIAN_ASSAULT_ACTIVITY_ID = "barbarian_assault"

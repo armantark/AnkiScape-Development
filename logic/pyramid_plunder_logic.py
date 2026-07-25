@@ -6,62 +6,33 @@ import math
 from collections.abc import Callable, Mapping
 from typing import Any
 
-try:
-    from .combat_data import COMBAT_ANTIPOISON_POTION_DATA, COMBAT_FOOD_DATA
-    from .inventory_pure import (
-        CARRIED_CAPACITY,
-        apply_carried_layout_pure,
-        carried_has_room_for,
-        carried_slots_used,
-        clamp_carried_view_to_bank,
-    )
-    from .logic_pure import (
-        apply_combat_poison_effect_pure,
-        apply_thieving_damage_pure,
-        combat_poison_immunity_ticks_pure,
-    )
-    from .pyramid_plunder_data import (
-        PYRAMID_PLUNDER_ACTIVITY_ID,
-        PYRAMID_PLUNDER_ARTIFACT_TIERS,
-        PYRAMID_PLUNDER_ARTIFACT_VALUES,
-        PYRAMID_PLUNDER_AUTO_FOOD_SLOTS,
-        PYRAMID_PLUNDER_BLACK_IBIS,
-        PYRAMID_PLUNDER_ENGRAVED_TIER_WEIGHTS,
-        PYRAMID_PLUNDER_FALLBACKS,
-        PYRAMID_PLUNDER_PHARAOH_SCEPTRES,
-        PYRAMID_PLUNDER_PRIORITIES,
-        PYRAMID_PLUNDER_ROOM_DATA,
-        PYRAMID_PLUNDER_SARC_TIER_WEIGHTS,
-        PYRAMID_PLUNDER_URN_TIER_WEIGHTS,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from combat_data import COMBAT_ANTIPOISON_POTION_DATA, COMBAT_FOOD_DATA  # type: ignore
-    from inventory_pure import (  # type: ignore
-        CARRIED_CAPACITY,
-        apply_carried_layout_pure,
-        carried_has_room_for,
-        carried_slots_used,
-        clamp_carried_view_to_bank,
-    )
-    from logic_pure import (  # type: ignore
-        apply_combat_poison_effect_pure,
-        apply_thieving_damage_pure,
-        combat_poison_immunity_ticks_pure,
-    )
-    from pyramid_plunder_data import (  # type: ignore
-        PYRAMID_PLUNDER_ACTIVITY_ID,
-        PYRAMID_PLUNDER_ARTIFACT_TIERS,
-        PYRAMID_PLUNDER_ARTIFACT_VALUES,
-        PYRAMID_PLUNDER_AUTO_FOOD_SLOTS,
-        PYRAMID_PLUNDER_BLACK_IBIS,
-        PYRAMID_PLUNDER_ENGRAVED_TIER_WEIGHTS,
-        PYRAMID_PLUNDER_FALLBACKS,
-        PYRAMID_PLUNDER_PHARAOH_SCEPTRES,
-        PYRAMID_PLUNDER_PRIORITIES,
-        PYRAMID_PLUNDER_ROOM_DATA,
-        PYRAMID_PLUNDER_SARC_TIER_WEIGHTS,
-        PYRAMID_PLUNDER_URN_TIER_WEIGHTS,
-    )
+from ..data.combat_data import COMBAT_ANTIPOISON_POTION_DATA, COMBAT_FOOD_DATA
+from ..logic.inventory_pure import (
+    CARRIED_CAPACITY,
+    apply_carried_layout_pure,
+    carried_has_room_for,
+    carried_slots_used,
+    clamp_carried_view_to_bank,
+)
+from ..logic_pure.logic_pure import (
+    apply_combat_poison_effect_pure,
+    apply_thieving_damage_pure,
+    combat_poison_immunity_ticks_pure,
+)
+from ..data.pyramid_plunder_data import (
+    PYRAMID_PLUNDER_ACTIVITY_ID,
+    PYRAMID_PLUNDER_ARTIFACT_TIERS,
+    PYRAMID_PLUNDER_ARTIFACT_VALUES,
+    PYRAMID_PLUNDER_AUTO_FOOD_SLOTS,
+    PYRAMID_PLUNDER_BLACK_IBIS,
+    PYRAMID_PLUNDER_ENGRAVED_TIER_WEIGHTS,
+    PYRAMID_PLUNDER_FALLBACKS,
+    PYRAMID_PLUNDER_PHARAOH_SCEPTRES,
+    PYRAMID_PLUNDER_PRIORITIES,
+    PYRAMID_PLUNDER_ROOM_DATA,
+    PYRAMID_PLUNDER_SARC_TIER_WEIGHTS,
+    PYRAMID_PLUNDER_URN_TIER_WEIGHTS,
+)
 
 
 PYRAMID_PLUNDER_STATE_VERSION = 1
@@ -96,10 +67,7 @@ def _roll(rng: Callable[[], float]) -> float:
 
 
 def _stackable_names() -> frozenset[str]:
-    try:
-        from .constants import ITEM_DEFINITIONS
-    except ImportError:  # pragma: no cover - flat test imports
-        from constants import ITEM_DEFINITIONS  # type: ignore
+    from ..core.constants import ITEM_DEFINITIONS
     # Food, potion doses, and Pyramid Plunder rewards always consume one slot
     # per item even when an older generic registry row omitted stackability.
     forced_unstackable = {

@@ -6,14 +6,9 @@ import copy
 from collections.abc import Mapping
 from typing import Any
 
-try:
-    from .inventory_pure import CARRIED_CAPACITY, carried_slots_used
-    from .item_values import STACKABLE_ITEM_NAMES
-    from .runecrafting_data import ALTARS_BY_ID, STANDARD_RUNE_TARGETS_BY_ID
-except ImportError:  # pragma: no cover - flat imports used by tests
-    from inventory_pure import CARRIED_CAPACITY, carried_slots_used  # type: ignore
-    from item_values import STACKABLE_ITEM_NAMES  # type: ignore
-    from runecrafting_data import ALTARS_BY_ID, STANDARD_RUNE_TARGETS_BY_ID  # type: ignore
+from ..logic.inventory_pure import CARRIED_CAPACITY, carried_slots_used
+from ..data.item_values import STACKABLE_ITEM_NAMES
+from ..data.runecrafting_data import ALTARS_BY_ID, STANDARD_RUNE_TARGETS_BY_ID
 
 
 WICKED_HOOD_ITEM = "Wicked hood"

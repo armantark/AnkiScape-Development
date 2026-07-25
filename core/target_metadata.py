@@ -6,128 +6,65 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Optional
 
-try:
-    from .logic_pure import (
-        best_mining_pickaxe_pure,
-        best_woodcutting_axe_pure,
-        calculate_cooking_success_probability_pure,
-        calculate_firemaking_success_probability_pure,
-        calculate_fishing_success_probability_pure,
-        calculate_hunter_success_probability_pure,
-        can_chop_woodcutting_target_pure,
-        combat_staff_covered_runes_pure,
-        combat_target_locked_reasons_pure,
-        combat_target_preview_pure,
-        firemaking_target_locked_reasons_pure,
-        can_open_bird_nests_pure,
-        cooking_target_locked_reasons_pure,
-        crafting_target_locked_reasons_pure,
-        eligible_fishing_fish_pure,
-        fishing_method_locked_reasons_pure,
-        fletching_material_requirements_pure,
-        fletching_target_locked_reasons_pure,
-        herblore_target_locked_reasons_pure,
-        hunter_target_locked_reasons_pure,
-        mining_target_locked_reasons_pure,
-        red_sandstone_daily_remaining_pure,
-        magic_target_locked_reasons_pure,
-        prayer_target_locked_reasons_pure,
-        owned_gilded_altar_access_reasons_pure,
-        owned_gilded_altar_effective_burners_pure,
-        owned_gilded_altar_marrentill_required_pure,
-        effective_gilded_altar_multiplier_pure,
-        construction_target_locked_reasons_pure,
-        runecrafting_locked_reasons_pure,
-        smithing_target_locked_reasons_pure,
-        utility_activity_locked_reasons_pure,
-        woodcutting_target_locked_reasons_pure,
-    )
-except Exception:
-    from logic_pure import (  # type: ignore
-        best_mining_pickaxe_pure,
-        best_woodcutting_axe_pure,
-        calculate_cooking_success_probability_pure,
-        calculate_firemaking_success_probability_pure,
-        calculate_fishing_success_probability_pure,
-        calculate_hunter_success_probability_pure,
-        can_chop_woodcutting_target_pure,
-        combat_staff_covered_runes_pure,
-        combat_target_locked_reasons_pure,
-        combat_target_preview_pure,
-        firemaking_target_locked_reasons_pure,
-        can_open_bird_nests_pure,
-        cooking_target_locked_reasons_pure,
-        crafting_target_locked_reasons_pure,
-        eligible_fishing_fish_pure,
-        fishing_method_locked_reasons_pure,
-        fletching_material_requirements_pure,
-        fletching_target_locked_reasons_pure,
-        herblore_target_locked_reasons_pure,
-        hunter_target_locked_reasons_pure,
-        mining_target_locked_reasons_pure,
-        red_sandstone_daily_remaining_pure,
-        magic_target_locked_reasons_pure,
-        prayer_target_locked_reasons_pure,
-        owned_gilded_altar_access_reasons_pure,
-        owned_gilded_altar_effective_burners_pure,
-        owned_gilded_altar_marrentill_required_pure,
-        effective_gilded_altar_multiplier_pure,
-        construction_target_locked_reasons_pure,
-        runecrafting_locked_reasons_pure,
-        smithing_target_locked_reasons_pure,
-        utility_activity_locked_reasons_pure,
-        woodcutting_target_locked_reasons_pure,
-    )
+from ..logic_pure.logic_pure import (
+    best_mining_pickaxe_pure,
+    best_woodcutting_axe_pure,
+    calculate_cooking_success_probability_pure,
+    calculate_firemaking_success_probability_pure,
+    calculate_fishing_success_probability_pure,
+    calculate_hunter_success_probability_pure,
+    can_chop_woodcutting_target_pure,
+    combat_staff_covered_runes_pure,
+    combat_target_locked_reasons_pure,
+    combat_target_preview_pure,
+    firemaking_target_locked_reasons_pure,
+    can_open_bird_nests_pure,
+    cooking_target_locked_reasons_pure,
+    crafting_target_locked_reasons_pure,
+    eligible_fishing_fish_pure,
+    fishing_method_locked_reasons_pure,
+    fletching_material_requirements_pure,
+    fletching_target_locked_reasons_pure,
+    herblore_target_locked_reasons_pure,
+    hunter_target_locked_reasons_pure,
+    mining_target_locked_reasons_pure,
+    red_sandstone_daily_remaining_pure,
+    magic_target_locked_reasons_pure,
+    prayer_target_locked_reasons_pure,
+    owned_gilded_altar_access_reasons_pure,
+    owned_gilded_altar_effective_burners_pure,
+    owned_gilded_altar_marrentill_required_pure,
+    effective_gilded_altar_multiplier_pure,
+    construction_target_locked_reasons_pure,
+    runecrafting_locked_reasons_pure,
+    smithing_target_locked_reasons_pure,
+    utility_activity_locked_reasons_pure,
+    woodcutting_target_locked_reasons_pure,
+)
 
 try:
-    from .logic_pure import thieving_target_locked_reasons_pure as _thieving_target_locked_reasons_pure
-except ImportError:
-    try:
-        from logic_pure import thieving_target_locked_reasons_pure as _thieving_target_locked_reasons_pure  # type: ignore
-    except ImportError:  # The Thieving logic module may land after this UI slice.
-        _thieving_target_locked_reasons_pure = None
+    from ..logic_pure.logic_pure import thieving_target_locked_reasons_pure as _thieving_target_locked_reasons_pure
+except ImportError:  # The Thieving logic module may land after this UI slice.
+    _thieving_target_locked_reasons_pure = None
 
-try:
-    from .agility_logic import agility_target_locked_reasons_pure
-except ImportError:
-    from agility_logic import agility_target_locked_reasons_pure  # type: ignore
+from ..logic.agility_logic import agility_target_locked_reasons_pure
 
-try:
-    from .warriors_guild_logic import (
-        sanitize_warriors_guild_state_pure,
-        warriors_guild_activity_locked_reasons_pure,
-    )
-except ImportError:
-    from warriors_guild_logic import (  # type: ignore
-        sanitize_warriors_guild_state_pure,
-        warriors_guild_activity_locked_reasons_pure,
-    )
+from ..logic.warriors_guild_logic import (
+    sanitize_warriors_guild_state_pure,
+    warriors_guild_activity_locked_reasons_pure,
+)
 
-try:
-    from .summoning_logic import (
-        summoning_action_locked_reasons_pure,
-        summoning_action_requirements_pure,
-    )
-except ImportError:
-    from summoning_logic import (  # type: ignore
-        summoning_action_locked_reasons_pure,
-        summoning_action_requirements_pure,
-    )
+from ..logic.summoning_logic import (
+    summoning_action_locked_reasons_pure,
+    summoning_action_requirements_pure,
+)
 
-try:
-    from .livid_farm_data import LIVID_FARM_UNLOCKS
-    from .livid_farm_logic import (
-        livid_farm_cycle_projection_pure,
-        livid_farm_locked_reasons_pure,
-        sanitize_livid_farm_state_pure,
-    )
-except ImportError:
-    from livid_farm_data import LIVID_FARM_UNLOCKS  # type: ignore
-    from livid_farm_logic import (  # type: ignore
-        livid_farm_cycle_projection_pure,
-        livid_farm_locked_reasons_pure,
-        sanitize_livid_farm_state_pure,
-    )
+from ..data.livid_farm_data import LIVID_FARM_UNLOCKS
+from ..logic.livid_farm_logic import (
+    livid_farm_cycle_projection_pure,
+    livid_farm_locked_reasons_pure,
+    sanitize_livid_farm_state_pure,
+)
 
 
 @dataclass(frozen=True)

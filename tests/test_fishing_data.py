@@ -1,6 +1,7 @@
 import unittest
 
-from fishing_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.fishing_data import (
     DEFERRED_FISHING_CONTENT,
     FISHING_BAIT_SHOP_SOURCE_PATH,
     FISHING_METHODS,

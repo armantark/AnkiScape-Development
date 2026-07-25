@@ -11,26 +11,15 @@ from __future__ import annotations
 from fractions import Fraction
 from typing import Any, Mapping
 
-try:
-    from .cadence_kernel import (
-        CAP_ONE_ACTION,
-        R,
-        advance_cadence_pure,
-        default_cadence_profile_state_pure,
-        rate_limited_profile_pure,
-        sanitize_cadence_profile_state_pure,
-    )
-    from .tools.sourced_xp_rates import BY_SKILL
-except ImportError:  # pragma: no cover - flat imports used by tests and tools
-    from cadence_kernel import (  # type: ignore
-        CAP_ONE_ACTION,
-        R,
-        advance_cadence_pure,
-        default_cadence_profile_state_pure,
-        rate_limited_profile_pure,
-        sanitize_cadence_profile_state_pure,
-    )
-    from tools.sourced_xp_rates import BY_SKILL  # type: ignore
+from ..logic.cadence_kernel import (
+    CAP_ONE_ACTION,
+    R,
+    advance_cadence_pure,
+    default_cadence_profile_state_pure,
+    rate_limited_profile_pure,
+    sanitize_cadence_profile_state_pure,
+)
+from ..tools.sourced_xp_rates import BY_SKILL
 
 
 SHADOW_VERSION = 1

@@ -249,9 +249,10 @@ def _key_slug(value: str) -> str:
     return "_".join(re.findall(r"[a-z0-9]+", value.lower()))
 
 
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 def _load_registry_items() -> Tuple[object, ...]:
     try:
-        from constants import ITEM_DEFINITIONS
+        from ankiscape.core.constants import ITEM_DEFINITIONS
     except ImportError as exc:
         raise AssetFetchError("Could not import ITEM_DEFINITIONS from constants.py.") from exc
     return tuple(ITEM_DEFINITIONS)

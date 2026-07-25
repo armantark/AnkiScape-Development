@@ -6,57 +6,29 @@ import copy
 from collections.abc import Mapping
 from typing import Any
 
-try:
-    from .castle_wars_data import (
-        CASTLE_WARS_ACTIVITY_ID,
-        CASTLE_WARS_BALLISTA_PARTS,
-        CASTLE_WARS_BASIC_SET,
-        CASTLE_WARS_CAPTURE_PROGRESS,
-        CASTLE_WARS_CATAPULT_MAX,
-        CASTLE_WARS_COMBAT_TARGET_ID,
-        CASTLE_WARS_COMBAT_TICKS_PER_REVIEW,
-        CASTLE_WARS_DUTIES,
-        CASTLE_WARS_GATE_MAX,
-        CASTLE_WARS_MATCH_REVIEWS,
-        CASTLE_WARS_MAX_BARRICADES,
-        CASTLE_WARS_OPPONENT_BURST_CHANCE,
-        CASTLE_WARS_OPPONENT_CROWD_PROGRESS,
-        CASTLE_WARS_PLAYER_CROWD_PROGRESS,
-        CASTLE_WARS_PRESSURE_DAMAGE,
-        CASTLE_WARS_REWARD_MINIMUM_REVIEWS,
-        CASTLE_WARS_REWARDS,
-        CASTLE_WARS_REWARDS_BY_ID,
-        CASTLE_WARS_TEAMS,
-        castle_wars_raider_enemy_pure,
-    )
-    from .logic_pure import apply_combat_burst_pure, combat_max_lifepoints_pure
-except ImportError:  # pragma: no cover - flat test imports
-    from castle_wars_data import (  # type: ignore
-        CASTLE_WARS_ACTIVITY_ID,
-        CASTLE_WARS_BALLISTA_PARTS,
-        CASTLE_WARS_BASIC_SET,
-        CASTLE_WARS_CAPTURE_PROGRESS,
-        CASTLE_WARS_CATAPULT_MAX,
-        CASTLE_WARS_COMBAT_TARGET_ID,
-        CASTLE_WARS_COMBAT_TICKS_PER_REVIEW,
-        CASTLE_WARS_DUTIES,
-        CASTLE_WARS_GATE_MAX,
-        CASTLE_WARS_MATCH_REVIEWS,
-        CASTLE_WARS_MAX_BARRICADES,
-        CASTLE_WARS_OPPONENT_BURST_CHANCE,
-        CASTLE_WARS_OPPONENT_CROWD_PROGRESS,
-        CASTLE_WARS_PLAYER_CROWD_PROGRESS,
-        CASTLE_WARS_PRESSURE_DAMAGE,
-        CASTLE_WARS_REWARD_MINIMUM_REVIEWS,
-        CASTLE_WARS_REWARDS,
-        CASTLE_WARS_REWARDS_BY_ID,
-        CASTLE_WARS_TEAMS,
-        castle_wars_raider_enemy_pure,
-    )
-    from logic_pure import (  # type: ignore
-        apply_combat_burst_pure,
-        combat_max_lifepoints_pure,
-    )
+from ..data.castle_wars_data import (
+    CASTLE_WARS_ACTIVITY_ID,
+    CASTLE_WARS_BALLISTA_PARTS,
+    CASTLE_WARS_BASIC_SET,
+    CASTLE_WARS_CAPTURE_PROGRESS,
+    CASTLE_WARS_CATAPULT_MAX,
+    CASTLE_WARS_COMBAT_TARGET_ID,
+    CASTLE_WARS_COMBAT_TICKS_PER_REVIEW,
+    CASTLE_WARS_DUTIES,
+    CASTLE_WARS_GATE_MAX,
+    CASTLE_WARS_MATCH_REVIEWS,
+    CASTLE_WARS_MAX_BARRICADES,
+    CASTLE_WARS_OPPONENT_BURST_CHANCE,
+    CASTLE_WARS_OPPONENT_CROWD_PROGRESS,
+    CASTLE_WARS_PLAYER_CROWD_PROGRESS,
+    CASTLE_WARS_PRESSURE_DAMAGE,
+    CASTLE_WARS_REWARD_MINIMUM_REVIEWS,
+    CASTLE_WARS_REWARDS,
+    CASTLE_WARS_REWARDS_BY_ID,
+    CASTLE_WARS_TEAMS,
+    castle_wars_raider_enemy_pure,
+)
+from ..logic_pure.logic_pure import apply_combat_burst_pure, combat_max_lifepoints_pure
 
 
 CASTLE_WARS_STATE_VERSION = 1

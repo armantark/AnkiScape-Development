@@ -13,16 +13,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from aqt.qt import QApplication, QColor, QPalette, QWidget  # type: ignore
 
-from livid_farm_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.livid_farm_data import (
     ARCANE_CAPACITOR_CHARGED,
     ARCANE_CAPACITOR_UNCHARGED,
     LIVID_FARM_UNLOCKS,
 )
-from farming_data import (
+from ankiscape.data.farming_data import (
     LIVID_FARM_ALLOTMENT_PATCH_ID,
     LIVID_FARM_PROTECTION_SCROLL,
 )
-from farming_logic import (
+from ankiscape.logic.farming_logic import (
     activate_livid_farm_allotment_pure,
     execute_farm_field_step_pure,
 )

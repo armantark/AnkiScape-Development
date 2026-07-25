@@ -1,6 +1,7 @@
 import unittest
 
-from mining_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.mining_data import (
     DEFERRED_MINING_CONTENT,
     DEFERRED_MINING_PICKAXES,
     GLORY_GEM_DROP_CHANCE,

@@ -16,7 +16,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from pet_data import pet_asset_manifest
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.pet_data import pet_asset_manifest
 from tools.fetch_assets import (
     OSRS_WIKI,
     RS3_WIKI,

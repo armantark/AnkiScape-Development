@@ -1,7 +1,8 @@
 import unittest
 from copy import deepcopy
 
-from grand_exchange_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.grand_exchange_logic import (
     GE_BUY_LIMIT_WINDOW_CARDS,
     GE_SLOT_COUNT,
     advance_ge_market_tick_pure,

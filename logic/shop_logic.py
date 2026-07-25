@@ -11,63 +11,31 @@ import copy
 import random
 from typing import Any, Dict, Iterable, Mapping, Optional
 
-try:
-    from .shop_data import (
-        SHOP_DATA,
-        SHOP_DATA_VERSION,
-        SHOP_ID_ALIASES,
-        SHOP_PLAYER_BUY_PRICES,
-        SHOP_PLAYER_SELL_PRICES,
-        SHOP_SERVICES,
-        SHOP_VENDOR_ACTIONS,
-    )
-except ImportError:
-    from shop_data import (
-        SHOP_DATA,
-        SHOP_DATA_VERSION,
-        SHOP_ID_ALIASES,
-        SHOP_PLAYER_BUY_PRICES,
-        SHOP_PLAYER_SELL_PRICES,
-        SHOP_SERVICES,
-        SHOP_VENDOR_ACTIONS,
-    )
+from ..data.shop_data import (
+    SHOP_DATA,
+    SHOP_DATA_VERSION,
+    SHOP_ID_ALIASES,
+    SHOP_PLAYER_BUY_PRICES,
+    SHOP_PLAYER_SELL_PRICES,
+    SHOP_SERVICES,
+    SHOP_VENDOR_ACTIONS,
+)
 
-try:
-    from .inventory_pure import CARRIED_CAPACITY
-except ImportError:
-    from inventory_pure import CARRIED_CAPACITY
+from ..logic.inventory_pure import CARRIED_CAPACITY
 
-try:
-    from .herblore_data import HERBLORE_TARGETS
-except ImportError:
-    from herblore_data import HERBLORE_TARGETS
+from ..data.herblore_data import HERBLORE_TARGETS
 
-try:
-    from .crafting_data import LEGACY_CRAFTING_ITEM_MIGRATIONS
-except ImportError:
-    from crafting_data import LEGACY_CRAFTING_ITEM_MIGRATIONS
+from ..data.crafting_data import LEGACY_CRAFTING_ITEM_MIGRATIONS
 
-try:
-    from .constants import EXTRA_ITEM_DATA
-except ImportError:
-    from constants import EXTRA_ITEM_DATA
+from ..core.constants import EXTRA_ITEM_DATA
 
-try:
-    from .potion_data import (
-        EMPTY_FLASK_ITEM,
-        POTION_FAMILIES,
-        VIAL_ITEM,
-        potion_dose_name,
-        potion_flask_name,
-    )
-except ImportError:
-    from potion_data import (
-        EMPTY_FLASK_ITEM,
-        POTION_FAMILIES,
-        VIAL_ITEM,
-        potion_dose_name,
-        potion_flask_name,
-    )
+from ..data.potion_data import (
+    EMPTY_FLASK_ITEM,
+    POTION_FAMILIES,
+    VIAL_ITEM,
+    potion_dose_name,
+    potion_flask_name,
+)
 
 
 MAX_SHOP_EVENT_HISTORY = 200
@@ -395,7 +363,7 @@ _WILDERNESS_RESTORE_KEYS = (
 def _apply_wilderness_ambush(data: Dict[str, Any], shop: Mapping[str, Any], row: Mapping[str, Any], amount: int, rng) -> Optional[Dict[str, Any]]:
     if (shop.get("access") or {}).get("kind") != "wilderness":
         return None
-    from logic_pure import _combat_apply_pvm_death, combat_max_lifepoints_pure
+    from ..logic_pure.logic_pure import _combat_apply_pvm_death, combat_max_lifepoints_pure
 
     slots = 1 if bool(row.get("stackable")) else max(1, int(amount))
     before_slots = _clean_int(data.get("wilderness_shop_slots"), 0, minimum=0)

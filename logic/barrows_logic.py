@@ -8,46 +8,25 @@ from collections import deque
 from collections.abc import Callable, Mapping
 from typing import Any
 
-try:
-    from .barrows_data import (
-        BARROWS_ACTIVITY_ID,
-        BARROWS_BROTHER_DATA,
-        BARROWS_BROTHER_ORDER,
-        BARROWS_COMBAT_TARGET_ID,
-        BARROWS_COMBAT_TICKS_PER_REVIEW,
-        BARROWS_ENEMY_DATA,
-        BARROWS_MAX_REWARD_POTENTIAL,
-        BARROWS_ORDINARY_REWARDS,
-        BARROWS_STATE_VERSION,
-        BARROWS_TUNNEL_ENEMY_DATA,
-    )
-    from .equipment_condition_data import EQUIPMENT_CONDITION_DATA
-    from .equipment_instance_logic import (
-        add_equipment_instance_pure,
-        condition_name_pure,
-        sanitize_equipment_instance_state_pure,
-    )
-    from .logic_pure import apply_combat_burst_pure
-except ImportError:  # pragma: no cover - flat test imports
-    from barrows_data import (  # type: ignore
-        BARROWS_ACTIVITY_ID,
-        BARROWS_BROTHER_DATA,
-        BARROWS_BROTHER_ORDER,
-        BARROWS_COMBAT_TARGET_ID,
-        BARROWS_COMBAT_TICKS_PER_REVIEW,
-        BARROWS_ENEMY_DATA,
-        BARROWS_MAX_REWARD_POTENTIAL,
-        BARROWS_ORDINARY_REWARDS,
-        BARROWS_STATE_VERSION,
-        BARROWS_TUNNEL_ENEMY_DATA,
-    )
-    from equipment_condition_data import EQUIPMENT_CONDITION_DATA  # type: ignore
-    from equipment_instance_logic import (  # type: ignore
-        add_equipment_instance_pure,
-        condition_name_pure,
-        sanitize_equipment_instance_state_pure,
-    )
-    from logic_pure import apply_combat_burst_pure  # type: ignore
+from ..data.barrows_data import (
+    BARROWS_ACTIVITY_ID,
+    BARROWS_BROTHER_DATA,
+    BARROWS_BROTHER_ORDER,
+    BARROWS_COMBAT_TARGET_ID,
+    BARROWS_COMBAT_TICKS_PER_REVIEW,
+    BARROWS_ENEMY_DATA,
+    BARROWS_MAX_REWARD_POTENTIAL,
+    BARROWS_ORDINARY_REWARDS,
+    BARROWS_STATE_VERSION,
+    BARROWS_TUNNEL_ENEMY_DATA,
+)
+from ..data.equipment_condition_data import EQUIPMENT_CONDITION_DATA
+from ..logic.equipment_instance_logic import (
+    add_equipment_instance_pure,
+    condition_name_pure,
+    sanitize_equipment_instance_state_pure,
+)
+from ..logic_pure.logic_pure import apply_combat_burst_pure
 
 
 _VALID_MODES = frozenset({"casual", "advanced"})

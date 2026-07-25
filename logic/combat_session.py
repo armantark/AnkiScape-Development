@@ -4,10 +4,7 @@ from __future__ import annotations
 
 from typing import Mapping
 
-try:
-    from .logic_pure import combat_wilderness_equipment_risk_pure
-except ImportError:
-    from logic_pure import combat_wilderness_equipment_risk_pure
+from ..logic_pure.logic_pure import combat_wilderness_equipment_risk_pure
 
 
 _CONFIRMED_WILDERNESS_RISKS: set[str] = set()

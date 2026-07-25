@@ -9,42 +9,23 @@ from __future__ import annotations
 
 from typing import Dict, Tuple
 
-try:
-    from .firemaking_data import LIT_LIGHT_SOURCE_ITEMS
-    from .soul_wars_data import (
-        SOUL_WARS_COMBAT_TARGET_ID,
-        soul_wars_avatar_enemy_pure,
-    )
-    from .shades_of_mortton_data import (
-        SHADES_OF_MORTTON_COMBAT_TARGET_ID,
-        shades_of_mortton_loar_enemy_pure,
-    )
-    from .tzhaar_fight_pit_data import (
-        TZHAAR_FIGHT_PIT_COMBAT_TARGET_ID,
-        tzhaar_fight_pit_enemy_pure,
-    )
-    from .stronghold_player_safety_data import (
-        COCKROACH_SOLDIER_TARGET_ID,
-        cockroach_soldier_enemy_as_dict,
-    )
-except ImportError:
-    from firemaking_data import LIT_LIGHT_SOURCE_ITEMS
-    from soul_wars_data import (  # type: ignore
-        SOUL_WARS_COMBAT_TARGET_ID,
-        soul_wars_avatar_enemy_pure,
-    )
-    from shades_of_mortton_data import (  # type: ignore
-        SHADES_OF_MORTTON_COMBAT_TARGET_ID,
-        shades_of_mortton_loar_enemy_pure,
-    )
-    from tzhaar_fight_pit_data import (  # type: ignore
-        TZHAAR_FIGHT_PIT_COMBAT_TARGET_ID,
-        tzhaar_fight_pit_enemy_pure,
-    )
-    from stronghold_player_safety_data import (  # type: ignore
-        COCKROACH_SOLDIER_TARGET_ID,
-        cockroach_soldier_enemy_as_dict,
-    )
+from ..data.firemaking_data import LIT_LIGHT_SOURCE_ITEMS
+from ..data.soul_wars_data import (
+    SOUL_WARS_COMBAT_TARGET_ID,
+    soul_wars_avatar_enemy_pure,
+)
+from ..data.shades_of_mortton_data import (
+    SHADES_OF_MORTTON_COMBAT_TARGET_ID,
+    shades_of_mortton_loar_enemy_pure,
+)
+from ..data.tzhaar_fight_pit_data import (
+    TZHAAR_FIGHT_PIT_COMBAT_TARGET_ID,
+    tzhaar_fight_pit_enemy_pure,
+)
+from ..data.stronghold_player_safety_data import (
+    COCKROACH_SOLDIER_TARGET_ID,
+    cockroach_soldier_enemy_as_dict,
+)
 
 
 DEFAULT_COMBAT_TARGET = "chicken"
@@ -778,10 +759,7 @@ COMBAT_MAGIC_SPELL_DATA: Dict[str, dict] = {
 # The standalone Magic continuation owns pre-EOC gap spells while Combat keeps
 # the original rev-667 ladder.  Import late to avoid making magic_data depend on
 # Combat internals and preserve the existing stable spell IDs.
-try:
-    from .magic_data import combat_magic_additions_as_dict
-except ImportError:
-    from magic_data import combat_magic_additions_as_dict
+from ..data.magic_data import combat_magic_additions_as_dict
 
 COMBAT_MAGIC_SPELL_DATA.update(combat_magic_additions_as_dict())
 
@@ -4454,15 +4432,9 @@ CONSUMABLE_DATA: Dict[str, dict] = {
     },
 }
 
-try:
-    from .potion_data import potion_consumables_as_dict
-except ImportError:
-    from potion_data import potion_consumables_as_dict
+from ..data.potion_data import potion_consumables_as_dict
 CONSUMABLE_DATA.update(potion_consumables_as_dict())
-try:
-    from .sorceress_garden_data import sorceress_garden_consumables_as_dict
-except ImportError:
-    from sorceress_garden_data import sorceress_garden_consumables_as_dict
+from ..data.sorceress_garden_data import sorceress_garden_consumables_as_dict
 CONSUMABLE_DATA.update(sorceress_garden_consumables_as_dict())
 
 # Agility boosts are deliberately action-budgeted. RuneScape's minute-based

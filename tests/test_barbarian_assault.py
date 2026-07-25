@@ -5,7 +5,8 @@ import unittest
 from dataclasses import asdict
 from unittest.mock import patch
 
-from barbarian_assault_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.barbarian_assault_data import (
     BARBARIAN_ASSAULT_QUEEN_EGGS,
     BARBARIAN_ASSAULT_WAVES,
     RUNNER_BOOTS_ITEM_ID,
@@ -13,7 +14,7 @@ from barbarian_assault_data import (
     barbarian_assault_role_scores_pure,
     barbarian_assault_wave_points_pure,
 )
-from barbarian_assault_logic import (
+from ankiscape.logic.barbarian_assault_logic import (
     apply_barbarian_assault_review_pure,
     barbarian_assault_view_pure,
     buy_runner_boots_pure,
@@ -184,7 +185,7 @@ class BarbarianAssaultStateTests(unittest.TestCase):
 
     def test_casual_rotates_to_the_lowest_wallet_and_advanced_keeps_role(self):
         data = _entered()
-        with patch("barbarian_assault_logic.apply_combat_burst_pure", _combat_stub()):
+        with patch("ankiscape.logic.barbarian_assault_logic.apply_combat_burst_pure", _combat_stub()):
             data, ok, result = apply_barbarian_assault_review_pure(
                 data, lambda: 0.5, productive=True
             )
@@ -215,7 +216,7 @@ class BarbarianAssaultStateTests(unittest.TestCase):
 class BarbarianAssaultWaveTests(unittest.TestCase):
     def test_attacker_uses_one_live_six_tick_combat_slice(self):
         data = _entered()
-        with patch("barbarian_assault_logic.apply_combat_burst_pure", _combat_stub()):
+        with patch("ankiscape.logic.barbarian_assault_logic.apply_combat_burst_pure", _combat_stub()):
             updated, ok, result = apply_barbarian_assault_review_pure(
                 data, lambda: 0.5, productive=True
             )
@@ -243,7 +244,7 @@ class BarbarianAssaultWaveTests(unittest.TestCase):
     def test_safe_attacker_death_restarts_the_wave_for_zero_points(self):
         data = _entered()
         with patch(
-            "barbarian_assault_logic.apply_combat_burst_pure", _combat_stub(died=True)
+            "ankiscape.logic.barbarian_assault_logic.apply_combat_burst_pure", _combat_stub(died=True)
         ):
             updated, ok, result = apply_barbarian_assault_review_pure(
                 data, lambda: 0.5, productive=True

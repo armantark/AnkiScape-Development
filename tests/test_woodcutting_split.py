@@ -2,26 +2,27 @@ import os
 import unittest
 from unittest.mock import patch
 
-import runtime_actions
-from constants import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.runtime import runtime_actions
+from ankiscape.core.constants import (
     ITEM_DEFINITIONS,
     QUEST_UNLOCK_RULES,
     TREE_DATA,
     TREE_IMAGES,
     WOODCUTTING_AXE_DATA,
 )
-from item_registry import item_definitions_by_storage_key
-from logic_pure import (
+from ankiscape.core.item_registry import item_definitions_by_storage_key
+from ankiscape.logic_pure.logic_pure import (
     apply_woodcutting_processing_action_pure,
     target_unlock_locked_reasons_pure,
     woodcutting_target_locked_reasons_pure,
 )
-from runtime_actions import (
+from ankiscape.runtime.runtime_actions import (
     RuntimeActionContext,
     handle_woodcutting_answer,
     run_answer_with_carried_overlay,
 )
-from target_metadata import woodcutting_target_rows
+from ankiscape.core.target_metadata import woodcutting_target_rows
 
 
 TARGET_ID = "split_arctic_pine_logs"

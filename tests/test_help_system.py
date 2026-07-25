@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import unittest
 
-from help_system import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.help_system import (
     HELP_HOME_ID,
     KNOWN_REGISTRY_BLOCK_IDS,
     PRIMARY_HELP_TOPIC_BY_TAB_LABEL,

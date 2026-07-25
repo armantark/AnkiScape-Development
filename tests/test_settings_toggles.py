@@ -1,7 +1,8 @@
 import unittest
 
 # We avoid importing aqt; test pure helpers and gating logic entry-points
-from ui import get_config_bool
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.ui.ui import get_config_bool
 
 class DummyCol:
     def __init__(self, store):
@@ -18,7 +19,7 @@ class DummyMW:
 class TestSettingsToggles(unittest.TestCase):
     def test_get_config_bool_defaults_true(self):
         # No mw present; should return default
-        import ui
+        from ankiscape.ui import ui
         prev_mw = getattr(ui, 'mw', None)
         try:
             ui.mw = None
@@ -28,7 +29,7 @@ class TestSettingsToggles(unittest.TestCase):
             ui.mw = prev_mw
 
     def test_get_config_bool_reads_profile(self):
-        import ui
+        from ankiscape.ui import ui
         prev_mw = getattr(ui, 'mw', None)
         try:
             col = DummyCol({'ankiscape_review_hud_enabled': False, 'ankiscape_popups_enabled': True})
@@ -39,7 +40,7 @@ class TestSettingsToggles(unittest.TestCase):
             ui.mw = prev_mw
 
     def test_experience_toggle_default_true_and_persist(self):
-        import ui
+        from ankiscape.ui import ui
         prev_mw = getattr(ui, 'mw', None)
         try:
             ui.mw = None

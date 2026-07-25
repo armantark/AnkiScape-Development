@@ -13,10 +13,7 @@ from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Literal, Mapping, Optional
 
-try:
-    from .summoning_data_generated import SUMMONING_CATALOG, SUMMONING_SCROLLS
-except ImportError:
-    from summoning_data_generated import SUMMONING_CATALOG, SUMMONING_SCROLLS
+from ..generated.summoning_data_generated import SUMMONING_CATALOG, SUMMONING_SCROLLS
 
 
 ActionFamily = Literal["infuse", "scroll"]

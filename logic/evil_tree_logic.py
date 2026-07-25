@@ -6,30 +6,17 @@ import copy
 import math
 from typing import Any, Mapping, Sequence
 
-try:
-    from .evil_tree_data import (
-        EVIL_TREE_ACTIVE_REVIEWS,
-        EVIL_TREE_DAILY_INTERACTIONS,
-        EVIL_TREE_KINDLING,
-        EVIL_TREE_LOCATIONS,
-        EVIL_TREE_REVIEW_DAY,
-        EVIL_TREE_REWARD_MINIMUM_SHARE,
-        EVIL_TREE_SPAWN_REVIEWS,
-        EVIL_TREE_TIERS,
-        EVIL_TREE_TIERS_BY_ID,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from evil_tree_data import (  # type: ignore
-        EVIL_TREE_ACTIVE_REVIEWS,
-        EVIL_TREE_DAILY_INTERACTIONS,
-        EVIL_TREE_KINDLING,
-        EVIL_TREE_LOCATIONS,
-        EVIL_TREE_REVIEW_DAY,
-        EVIL_TREE_REWARD_MINIMUM_SHARE,
-        EVIL_TREE_SPAWN_REVIEWS,
-        EVIL_TREE_TIERS,
-        EVIL_TREE_TIERS_BY_ID,
-    )
+from ..data.evil_tree_data import (
+    EVIL_TREE_ACTIVE_REVIEWS,
+    EVIL_TREE_DAILY_INTERACTIONS,
+    EVIL_TREE_KINDLING,
+    EVIL_TREE_LOCATIONS,
+    EVIL_TREE_REVIEW_DAY,
+    EVIL_TREE_REWARD_MINIMUM_SHARE,
+    EVIL_TREE_SPAWN_REVIEWS,
+    EVIL_TREE_TIERS,
+    EVIL_TREE_TIERS_BY_ID,
+)
 
 
 EVIL_TREE_STATE_VERSION = 1

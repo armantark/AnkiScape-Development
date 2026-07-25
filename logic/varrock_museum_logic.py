@@ -5,28 +5,16 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-try:
-    from .varrock_museum_data import (
-        KUDOS_THRESHOLD_REWARDS,
-        MUSEUM_TOOL_RACK_ITEMS,
-        QUEST_KUDOS,
-        QUIZ_DISPLAYS,
-        SPECIMEN_DISPLAYS,
-        VARROCK_MUSEUM_ACTIVITY_ID,
-        VARROCK_MUSEUM_IMPLEMENTED_MAX_KUDOS,
-        VARROCK_MUSEUM_SOURCE_MAX_KUDOS,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from varrock_museum_data import (  # type: ignore
-        KUDOS_THRESHOLD_REWARDS,
-        MUSEUM_TOOL_RACK_ITEMS,
-        QUEST_KUDOS,
-        QUIZ_DISPLAYS,
-        SPECIMEN_DISPLAYS,
-        VARROCK_MUSEUM_ACTIVITY_ID,
-        VARROCK_MUSEUM_IMPLEMENTED_MAX_KUDOS,
-        VARROCK_MUSEUM_SOURCE_MAX_KUDOS,
-    )
+from ..data.varrock_museum_data import (
+    KUDOS_THRESHOLD_REWARDS,
+    MUSEUM_TOOL_RACK_ITEMS,
+    QUEST_KUDOS,
+    QUIZ_DISPLAYS,
+    SPECIMEN_DISPLAYS,
+    VARROCK_MUSEUM_ACTIVITY_ID,
+    VARROCK_MUSEUM_IMPLEMENTED_MAX_KUDOS,
+    VARROCK_MUSEUM_SOURCE_MAX_KUDOS,
+)
 
 
 VARROCK_MUSEUM_STATE_VERSION = 1

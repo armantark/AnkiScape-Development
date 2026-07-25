@@ -6,109 +6,52 @@ import copy
 import math
 from typing import Any, Mapping, Optional
 
-try:
-    from .agility_data import (
-        AGILITY_TARGETS_BY_ID,
-        BRIMHAVEN_ITEM_EXCHANGES,
-        BRIMHAVEN_OBSTACLES,
-        BRIMHAVEN_XP_EXCHANGES,
-        DEFAULT_AGILITY_TARGET,
-        PIT_CHALLENGES,
-        AgilityStage,
-        AgilityTarget,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from agility_data import (  # type: ignore
-        AGILITY_TARGETS_BY_ID,
-        BRIMHAVEN_ITEM_EXCHANGES,
-        BRIMHAVEN_OBSTACLES,
-        BRIMHAVEN_XP_EXCHANGES,
-        DEFAULT_AGILITY_TARGET,
-        PIT_CHALLENGES,
-        AgilityStage,
-        AgilityTarget,
-    )
+from ..data.agility_data import (
+    AGILITY_TARGETS_BY_ID,
+    BRIMHAVEN_ITEM_EXCHANGES,
+    BRIMHAVEN_OBSTACLES,
+    BRIMHAVEN_XP_EXCHANGES,
+    DEFAULT_AGILITY_TARGET,
+    PIT_CHALLENGES,
+    AgilityStage,
+    AgilityTarget,
+)
 
-try:
-    from .pyramid_plunder_logic import (
-        enter_pyramid_plunder_pure,
-        leave_pyramid_plunder_pure,
-        set_pyramid_plunder_priority_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from pyramid_plunder_logic import (  # type: ignore
-        enter_pyramid_plunder_pure,
-        leave_pyramid_plunder_pure,
-        set_pyramid_plunder_priority_pure,
-    )
+from ..logic.pyramid_plunder_logic import (
+    enter_pyramid_plunder_pure,
+    leave_pyramid_plunder_pure,
+    set_pyramid_plunder_priority_pure,
+)
 
-try:
-    from .gnome_ball_logic import enter_gnome_ball_pure, leave_gnome_ball_pure
-except ImportError:  # pragma: no cover - flat test imports
-    from gnome_ball_logic import enter_gnome_ball_pure, leave_gnome_ball_pure  # type: ignore
+from ..logic.gnome_ball_logic import enter_gnome_ball_pure, leave_gnome_ball_pure
 
-try:
-    from .werewolf_skullball_logic import (
-        enter_werewolf_skullball_pure,
-        leave_werewolf_skullball_pure,
-        set_werewolf_skullball_policy_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from werewolf_skullball_logic import (  # type: ignore
-        enter_werewolf_skullball_pure,
-        leave_werewolf_skullball_pure,
-        set_werewolf_skullball_policy_pure,
-    )
+from ..logic.werewolf_skullball_logic import (
+    enter_werewolf_skullball_pure,
+    leave_werewolf_skullball_pure,
+    set_werewolf_skullball_policy_pure,
+)
 
-try:
-    from .agility_travel import agility_carried_weight_pure
-except ImportError:  # pragma: no cover - flat test imports
-    from agility_travel import agility_carried_weight_pure  # type: ignore
+from ..logic.agility_travel import agility_carried_weight_pure
 
-try:
-    from .inventory_pure import clamp_carried_view_to_bank
-except ImportError:  # pragma: no cover - flat test imports
-    from inventory_pure import clamp_carried_view_to_bank  # type: ignore
+from ..logic.inventory_pure import clamp_carried_view_to_bank
 
-try:
-    from .flash_powder_factory_data import FLASH_POWDER_FACTORY_ACTIVITY_ID
-    from .flash_powder_factory_logic import (
-        apply_flash_powder_factory_review_pure,
-        enter_flash_powder_factory_pure,
-        flash_powder_factory_locked_reasons_pure,
-        leave_flash_powder_factory_pure,
-        redeem_flash_powder_factory_item_pure,
-        redeem_flash_powder_factory_xp_pure,
-        sanitize_flash_powder_factory_policy_pure,
-        sanitize_flash_powder_factory_session_pure,
-        set_flash_powder_factory_policy_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from flash_powder_factory_data import (  # type: ignore
-        FLASH_POWDER_FACTORY_ACTIVITY_ID,
-    )
-    from flash_powder_factory_logic import (  # type: ignore
-        apply_flash_powder_factory_review_pure,
-        enter_flash_powder_factory_pure,
-        flash_powder_factory_locked_reasons_pure,
-        leave_flash_powder_factory_pure,
-        redeem_flash_powder_factory_item_pure,
-        redeem_flash_powder_factory_xp_pure,
-        sanitize_flash_powder_factory_policy_pure,
-        sanitize_flash_powder_factory_session_pure,
-        set_flash_powder_factory_policy_pure,
-    )
+from ..data.flash_powder_factory_data import FLASH_POWDER_FACTORY_ACTIVITY_ID
+from ..logic.flash_powder_factory_logic import (
+    apply_flash_powder_factory_review_pure,
+    enter_flash_powder_factory_pure,
+    flash_powder_factory_locked_reasons_pure,
+    leave_flash_powder_factory_pure,
+    redeem_flash_powder_factory_item_pure,
+    redeem_flash_powder_factory_xp_pure,
+    sanitize_flash_powder_factory_policy_pure,
+    sanitize_flash_powder_factory_session_pure,
+    set_flash_powder_factory_policy_pure,
+)
 
-try:
-    from .review_context import (
-        PIT_REWARD_CONTEXT_ID,
-        remember_review_context_choice_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from review_context import (  # type: ignore
-        PIT_REWARD_CONTEXT_ID,
-        remember_review_context_choice_pure,
-    )
+from ..core.review_context import (
+    PIT_REWARD_CONTEXT_ID,
+    remember_review_context_choice_pure,
+)
 
 
 WILDERNESS_PKER_AMBUSH_CHANCE = 0.01
@@ -998,10 +941,7 @@ def apply_agility_command_pure(
                     "requires_familiar_dismissal": True,
                     "message": "Dismiss the active familiar before entering The Pit",
                 }
-            try:
-                from .summoning_logic import dismiss_familiar_pure
-            except ImportError:  # pragma: no cover - flat test imports
-                from summoning_logic import dismiss_familiar_pure  # type: ignore
+            from ..logic.summoning_logic import dismiss_familiar_pure
             dismissed, ok, _info = dismiss_familiar_pure(data)
             if not ok:
                 return data, {"allowed": False, "message": "The familiar could not be dismissed"}

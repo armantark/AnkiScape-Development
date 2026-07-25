@@ -4,11 +4,12 @@ import copy
 import unittest
 from unittest.mock import patch
 
-from barrows_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.barrows_data import (
     BARROWS_BROTHER_DATA,
     BARROWS_MAX_REWARD_POTENTIAL,
 )
-from barrows_logic import (
+from ankiscape.logic.barrows_logic import (
     apply_barrows_command_pure,
     apply_barrows_review_pure,
     barrows_reward_potential_pure,
@@ -16,12 +17,12 @@ from barrows_logic import (
     default_barrows_state_pure,
     sanitize_barrows_state_pure,
 )
-from constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA, UTILITY_ACTIVITY_DATA
-from equipment_condition_data import EQUIPMENT_CONDITION_DATA
-from equipment_instance_logic import advance_equipped_condition_pure
-from item_values import ITEM_VALUES
-from runtime_actions import RuntimeActionContext, handle_utility_answer
-from storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
+from ankiscape.core.constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA, UTILITY_ACTIVITY_DATA
+from ankiscape.data.equipment_condition_data import EQUIPMENT_CONDITION_DATA
+from ankiscape.logic.equipment_instance_logic import advance_equipped_condition_pure
+from ankiscape.data.item_values import ITEM_VALUES
+from ankiscape.runtime.runtime_actions import RuntimeActionContext, handle_utility_answer
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
 
 
 def _player(**overrides):
@@ -290,7 +291,7 @@ class BarrowsReviewAndRewardTests(unittest.TestCase):
     def test_combat_review_uses_six_ticks_and_drains_prayer_with_residual(self):
         entered, ok, _ = apply_barrows_command_pure(_player(), "enter", rng=lambda: 0.0)
         self.assertTrue(ok)
-        with patch("barrows_logic.apply_combat_burst_pure") as combat:
+        with patch("ankiscape.logic.barrows_logic.apply_combat_burst_pure") as combat:
             combat.side_effect = _combat_result(lifepoints=500)
             advanced, ok, result = apply_barrows_review_pure(entered, lambda: 0.5, equipment_data=EQUIPMENT_DATA)
         self.assertTrue(ok, result)
@@ -305,7 +306,7 @@ class BarrowsReviewAndRewardTests(unittest.TestCase):
         self.assertTrue(ok)
         entered["barrows"]["slain_brothers"] = ["ahrim", "guthan", "karil"]
         with patch(
-            "barrows_logic.apply_combat_burst_pure",
+            "ankiscape.logic.barrows_logic.apply_combat_burst_pure",
             _combat_result(killed=True, ticks_elapsed=1),
         ):
             advanced, ok, result = apply_barrows_review_pure(
@@ -317,7 +318,7 @@ class BarrowsReviewAndRewardTests(unittest.TestCase):
 
     def test_dharok_missing_lifepoints_raise_the_enemy_max_hit(self):
         player = _active_brother(_player(), "dharok", lifepoints=100)
-        with patch("barrows_logic.apply_combat_burst_pure") as combat:
+        with patch("ankiscape.logic.barrows_logic.apply_combat_burst_pure") as combat:
             combat.side_effect = _combat_result(lifepoints=100, player_damage=0)
             _advanced, ok, result = apply_barrows_review_pure(
                 player, lambda: 0.5, equipment_data=EQUIPMENT_DATA
@@ -328,7 +329,7 @@ class BarrowsReviewAndRewardTests(unittest.TestCase):
     def test_guthan_heals_from_damage_dealt(self):
         player = _active_brother(_player(), "guthan", lifepoints=500)
         with patch(
-            "barrows_logic.apply_combat_burst_pure",
+            "ankiscape.logic.barrows_logic.apply_combat_burst_pure",
             _combat_result(lifepoints=400, enemy_damage=100),
         ):
             advanced, ok, result = apply_barrows_review_pure(
@@ -348,7 +349,7 @@ class BarrowsReviewAndRewardTests(unittest.TestCase):
             with self.subTest(brother_id=brother_id):
                 player = _active_brother(_player(**overrides), brother_id)
                 with patch(
-                    "barrows_logic.apply_combat_burst_pure",
+                    "ankiscape.logic.barrows_logic.apply_combat_burst_pure",
                     _combat_result(lifepoints=450, enemy_damage=10),
                 ):
                     advanced, ok, result = apply_barrows_review_pure(
@@ -364,7 +365,7 @@ class BarrowsReviewAndRewardTests(unittest.TestCase):
 
         empty_credit = _active_brother(_player(agility_run_energy_credit_pct=0), "torag")
         with patch(
-            "barrows_logic.apply_combat_burst_pure",
+            "ankiscape.logic.barrows_logic.apply_combat_burst_pure",
             _combat_result(lifepoints=450, enemy_damage=10),
         ):
             unchanged, ok, result = apply_barrows_review_pure(
@@ -378,7 +379,7 @@ class BarrowsReviewAndRewardTests(unittest.TestCase):
         player = _active_brother(
             _player(combat_selected_prayers=["protect_from_melee"]), "verac"
         )
-        with patch("barrows_logic.apply_combat_burst_pure") as combat:
+        with patch("ankiscape.logic.barrows_logic.apply_combat_burst_pure") as combat:
             combat.side_effect = _combat_result(lifepoints=450)
             advanced, ok, result = apply_barrows_review_pure(
                 player, lambda: 0.0, equipment_data=EQUIPMENT_DATA
@@ -393,7 +394,7 @@ class BarrowsReviewAndRewardTests(unittest.TestCase):
 
     def test_akrisae_protection_is_passed_to_combat_and_rotates_at_150_damage(self):
         player = _active_brother(_player(), "akrisae", protected_class="melee")
-        with patch("barrows_logic.apply_combat_burst_pure") as combat:
+        with patch("ankiscape.logic.barrows_logic.apply_combat_burst_pure") as combat:
             combat.side_effect = _combat_result(lifepoints=340, player_damage=160)
             advanced, ok, result = apply_barrows_review_pure(
                 player, lambda: 0.5, equipment_data=EQUIPMENT_DATA
@@ -411,7 +412,7 @@ class BarrowsReviewAndRewardTests(unittest.TestCase):
     def test_surface_kills_transition_to_tunnels_then_move_and_attach_creature(self):
         entered, ok, _ = apply_barrows_command_pure(_player(), "enter", rng=lambda: 0.0)
         self.assertTrue(ok)
-        with patch("barrows_logic.apply_combat_burst_pure", _combat_result(killed=True)):
+        with patch("ankiscape.logic.barrows_logic.apply_combat_burst_pure", _combat_result(killed=True)):
             for _ in range(len(entered["barrows"]["surface_queue"])):
                 entered, ok, result = apply_barrows_review_pure(entered, lambda: 0.5, equipment_data=EQUIPMENT_DATA)
                 self.assertTrue(ok, result)
@@ -440,7 +441,7 @@ class BarrowsReviewAndRewardTests(unittest.TestCase):
         player["barrows"] = state
         player["activity_session"] = {"active_id": "barrows"}
         with patch(
-            "barrows_logic.apply_combat_burst_pure",
+            "ankiscape.logic.barrows_logic.apply_combat_burst_pure",
             _combat_result(lifepoints=500),
         ):
             advanced, ok, result = apply_barrows_review_pure(
@@ -500,7 +501,7 @@ class BarrowsReviewAndRewardTests(unittest.TestCase):
         player = _player(current_combat_target="")
         entered, ok, _ = apply_barrows_command_pure(player, "enter", rng=lambda: 0.0)
         self.assertTrue(ok)
-        with patch("barrows_logic.apply_combat_burst_pure", _combat_result(lifepoints=500)):
+        with patch("ankiscape.logic.barrows_logic.apply_combat_burst_pure", _combat_result(lifepoints=500)):
             advanced, ok, _ = apply_barrows_review_pure(
                 entered, lambda: 0.5, equipment_data=EQUIPMENT_DATA
             )
@@ -515,7 +516,7 @@ class BarrowsReviewAndRewardTests(unittest.TestCase):
             _player(current_combat_target=""), "enter", rng=lambda: 0.0
         )
         self.assertTrue(ok)
-        with patch("barrows_logic.apply_combat_burst_pure", _combat_result(died=True)):
+        with patch("ankiscape.logic.barrows_logic.apply_combat_burst_pure", _combat_result(died=True)):
             defeated, ok, result = apply_barrows_review_pure(entered, lambda: 0.5, equipment_data=EQUIPMENT_DATA)
         self.assertTrue(ok, result)
         self.assertEqual(result["outcome"], "death")

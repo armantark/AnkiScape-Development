@@ -2,15 +2,16 @@ import sys
 import unittest
 from unittest.mock import patch
 
-from agility_data import AGILITY_TARGETS, AGILITY_TARGETS_BY_ID
-from agility_logic import default_agility_state_pure, sanitize_agility_state_pure
-from cadence_coverage import cadence_coverage_rows_pure
-from constants import HERBLORE_DATA, UTILITY_ACTIVITY_DATA
-from flash_powder_factory_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.agility_data import AGILITY_TARGETS, AGILITY_TARGETS_BY_ID
+from ankiscape.logic.agility_logic import default_agility_state_pure, sanitize_agility_state_pure
+from ankiscape.logic.cadence_coverage import cadence_coverage_rows_pure
+from ankiscape.core.constants import HERBLORE_DATA, UTILITY_ACTIVITY_DATA
+from ankiscape.data.flash_powder_factory_data import (
     FLASH_POWDER_FACTORY_ACTIVITY_ID,
     FLASH_POWDER_FACTORY_OUTFIT,
 )
-from flash_powder_factory_logic import (
+from ankiscape.logic.flash_powder_factory_logic import (
     apply_factory_outfit_herblore_bonus_pure,
     apply_flash_powder_factory_review_pure,
     convert_rogue_kit_pure,
@@ -23,7 +24,7 @@ from flash_powder_factory_logic import (
     sanitize_flash_powder_factory_policy_pure,
     sanitize_flash_powder_factory_session_pure,
 )
-from logic_pure import utility_activity_locked_reasons_pure
+from ankiscape.logic_pure.logic_pure import utility_activity_locked_reasons_pure
 from tests.test_integration_smoke import (
     _FakeReviewer,
     _install_runtime_fakes,
@@ -459,8 +460,8 @@ class FlashPowderFactoryHookTests(unittest.TestCase):
 
     def test_again_dispatches_one_idle_slot_without_hidden_rng(self):
         addon = _load_addon_as_package("ankiscape_flash_powder_factory_again")
-        agility_logic = sys.modules[f"{addon.__name__}.agility_logic"]
-        factory_logic = sys.modules[f"{addon.__name__}.flash_powder_factory_logic"]
+        agility_logic = sys.modules[f"{addon.__name__}.logic.agility_logic"]
+        factory_logic = sys.modules[f"{addon.__name__}.logic.flash_powder_factory_logic"]
         player = agility_logic.default_agility_state_pure()
         player.update(
             {
@@ -514,7 +515,7 @@ class FlashPowderFactoryHookTests(unittest.TestCase):
 
     def test_good_answer_is_one_slot_under_a_large_review_multiplier(self):
         addon = _load_addon_as_package("ankiscape_flash_powder_factory_multiplier")
-        factory_logic = sys.modules[f"{addon.__name__}.flash_powder_factory_logic"]
+        factory_logic = sys.modules[f"{addon.__name__}.logic.flash_powder_factory_logic"]
         player = _player()
         player, ok, _info = factory_logic.enter_flash_powder_factory_pure(player)
         self.assertTrue(ok)
@@ -537,7 +538,7 @@ class FlashPowderFactoryHookTests(unittest.TestCase):
 
     def test_legacy_agility_dispatch_uses_the_factory_handler_without_double_loot(self):
         addon = _load_addon_as_package("ankiscape_flash_powder_factory_agility_route")
-        factory_logic = sys.modules[f"{addon.__name__}.flash_powder_factory_logic"]
+        factory_logic = sys.modules[f"{addon.__name__}.logic.flash_powder_factory_logic"]
         player = _player(
             agility_flash_powder_factory_policy={
                 "automation_mode": "casual",

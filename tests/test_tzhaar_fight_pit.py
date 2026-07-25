@@ -1,8 +1,9 @@
 import unittest
 from unittest.mock import patch
 
-from equipment_data import EQUIPMENT_DATA
-from tzhaar_fight_pit_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.equipment_data import EQUIPMENT_DATA
+from ankiscape.logic.tzhaar_fight_pit_logic import (
     apply_tzhaar_fight_pit_review_pure,
     enter_tzhaar_fight_pit_pure,
     leave_tzhaar_fight_pit_pure,
@@ -47,7 +48,7 @@ class FightPitPureTest(unittest.TestCase):
         engaged = entered["tzhaar_fight_pit"]["engaged_opponent_id"]
         victim = next(row for row in entered["tzhaar_fight_pit"]["roster"] if row["opponent_id"] == engaged)
         combat_result = ({**entered, "combat_encounter": {}}, True, {"killed": True, "died": False, "ticks_elapsed": 1})
-        with patch("tzhaar_fight_pit_logic.apply_combat_burst_pure", return_value=combat_result):
+        with patch("ankiscape.logic.tzhaar_fight_pit_logic.apply_combat_burst_pure", return_value=combat_result):
             updated, ok, result = apply_tzhaar_fight_pit_review_pure(entered)
         self.assertTrue(ok)
         self.assertEqual(updated["tzhaar_fight_pit"]["pending_tokkul"], victim["combat_level"])
@@ -79,7 +80,7 @@ class FightPitPureTest(unittest.TestCase):
             True,
             {"killed": False, "died": False, "ticks_elapsed": 6},
         )
-        with patch("tzhaar_fight_pit_logic.apply_combat_burst_pure", return_value=combat_result):
+        with patch("ankiscape.logic.tzhaar_fight_pit_logic.apply_combat_burst_pure", return_value=combat_result):
             updated, ok, result = apply_tzhaar_fight_pit_review_pure(entered)
         self.assertTrue(ok)
         self.assertEqual(updated["tzhaar_fight_pit"]["pending_tokkul"], 0)
@@ -93,7 +94,7 @@ class FightPitPureTest(unittest.TestCase):
         session["engaged_opponent_id"] = victim["opponent_id"]
         session["pending_tokkul"] = 100
         combat_result = ({**entered, "combat_encounter": {}}, True, {"killed": True, "died": False, "ticks_elapsed": 1})
-        with patch("tzhaar_fight_pit_logic.apply_combat_burst_pure", return_value=combat_result):
+        with patch("ankiscape.logic.tzhaar_fight_pit_logic.apply_combat_burst_pure", return_value=combat_result):
             updated, ok, result = apply_tzhaar_fight_pit_review_pure(entered)
         expected = (100 + victim["combat_level"]) * 2
         self.assertTrue(ok)
@@ -106,7 +107,7 @@ class FightPitPureTest(unittest.TestCase):
         entered, _, _ = enter_tzhaar_fight_pit_pure(player(inventory={"Coins": 10}))
         defeated = {**entered, "combat_lifepoints": 600, "combat_encounter": {}}
         combat_result = (defeated, True, {"killed": False, "died": True, "ticks_elapsed": 1})
-        with patch("tzhaar_fight_pit_logic.apply_combat_burst_pure", return_value=combat_result):
+        with patch("ankiscape.logic.tzhaar_fight_pit_logic.apply_combat_burst_pure", return_value=combat_result):
             updated, ok, result = apply_tzhaar_fight_pit_review_pure(entered)
         self.assertTrue(ok)
         self.assertEqual(result["outcome"], "loss")
@@ -163,7 +164,7 @@ class FightPitPureTest(unittest.TestCase):
             True,
             {"killed": False, "died": False, "fled": False, "ticks_elapsed": 6},
         )
-        with patch("tzhaar_fight_pit_logic.apply_combat_burst_pure", return_value=combat_result) as burst:
+        with patch("ankiscape.logic.tzhaar_fight_pit_logic.apply_combat_burst_pure", return_value=combat_result) as burst:
             updated, ok, _result = apply_tzhaar_fight_pit_review_pure(entered)
         self.assertTrue(ok)
         self.assertFalse(burst.call_args.args[0]["combat_auto_flee"])

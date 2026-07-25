@@ -6,58 +6,31 @@ import copy
 from collections.abc import Mapping
 from typing import Any
 
-try:
-    from .logic_pure import apply_combat_burst_pure
-    from .shades_of_mortton_data import (
-        SHADES_ALTAR_LIGHT_CHANCE,
-        SHADES_BRONZE_KEYS,
-        SHADES_CROWD_REPAIR,
-        SHADES_DUTY_IDS,
-        SHADES_LOAR_PRAYER_XP,
-        SHADES_OIL_SANCTITY_PER_DOSE_TENTHS,
-        SHADES_PYRE_LOGS,
-        SHADES_REPAIR_CHANCE_BY_HAMMER,
-        SHADES_REPAIR_MAX,
-        SHADES_REPAIR_PROGRESS,
-        SHADES_REPAIR_SANCTITY_TENTHS,
-        SHADES_REPAIR_UNLOCK,
-        SHADES_RESOURCE_PACK,
-        SHADES_RESOURCE_PACK_POINTS,
-        SHADES_SANCTITY_DECAY_REVIEWS,
-        SHADES_SANCTITY_MAX_TENTHS,
-        SHADES_SERUM_SANCTITY_TENTHS,
-        SHADES_SHADE_DAMAGE,
-        SHADES_SHADE_KILL_SANCTITY_TENTHS,
-        SHADES_OF_MORTTON_ACTIVITY_ID,
-        SHADES_OF_MORTTON_COMBAT_TARGET_ID,
-        shades_of_mortton_loar_enemy_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure import apply_combat_burst_pure  # type: ignore
-    from shades_of_mortton_data import (  # type: ignore
-        SHADES_ALTAR_LIGHT_CHANCE,
-        SHADES_BRONZE_KEYS,
-        SHADES_CROWD_REPAIR,
-        SHADES_DUTY_IDS,
-        SHADES_LOAR_PRAYER_XP,
-        SHADES_OIL_SANCTITY_PER_DOSE_TENTHS,
-        SHADES_PYRE_LOGS,
-        SHADES_REPAIR_CHANCE_BY_HAMMER,
-        SHADES_REPAIR_MAX,
-        SHADES_REPAIR_PROGRESS,
-        SHADES_REPAIR_SANCTITY_TENTHS,
-        SHADES_REPAIR_UNLOCK,
-        SHADES_RESOURCE_PACK,
-        SHADES_RESOURCE_PACK_POINTS,
-        SHADES_SANCTITY_DECAY_REVIEWS,
-        SHADES_SANCTITY_MAX_TENTHS,
-        SHADES_SERUM_SANCTITY_TENTHS,
-        SHADES_SHADE_DAMAGE,
-        SHADES_SHADE_KILL_SANCTITY_TENTHS,
-        SHADES_OF_MORTTON_ACTIVITY_ID,
-        SHADES_OF_MORTTON_COMBAT_TARGET_ID,
-        shades_of_mortton_loar_enemy_pure,
-    )
+from ..logic_pure.logic_pure import apply_combat_burst_pure
+from ..data.shades_of_mortton_data import (
+    SHADES_ALTAR_LIGHT_CHANCE,
+    SHADES_BRONZE_KEYS,
+    SHADES_CROWD_REPAIR,
+    SHADES_DUTY_IDS,
+    SHADES_LOAR_PRAYER_XP,
+    SHADES_OIL_SANCTITY_PER_DOSE_TENTHS,
+    SHADES_PYRE_LOGS,
+    SHADES_REPAIR_CHANCE_BY_HAMMER,
+    SHADES_REPAIR_MAX,
+    SHADES_REPAIR_PROGRESS,
+    SHADES_REPAIR_SANCTITY_TENTHS,
+    SHADES_REPAIR_UNLOCK,
+    SHADES_RESOURCE_PACK,
+    SHADES_RESOURCE_PACK_POINTS,
+    SHADES_SANCTITY_DECAY_REVIEWS,
+    SHADES_SANCTITY_MAX_TENTHS,
+    SHADES_SERUM_SANCTITY_TENTHS,
+    SHADES_SHADE_DAMAGE,
+    SHADES_SHADE_KILL_SANCTITY_TENTHS,
+    SHADES_OF_MORTTON_ACTIVITY_ID,
+    SHADES_OF_MORTTON_COMBAT_TARGET_ID,
+    shades_of_mortton_loar_enemy_pure,
+)
 
 
 SHADES_OF_MORTTON_STATE_VERSION = 1

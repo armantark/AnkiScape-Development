@@ -1,6 +1,7 @@
 import unittest
 
-from dungeoneering_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.dungeoneering_data import (
     AMMO_BIND_CAPACITY,
     BIND_LOADOUT_COUNT,
     BIND_SLOTS_BY_LEVEL,
@@ -19,8 +20,8 @@ from dungeoneering_data import (
     STARTER_HERBLORE_CHAIN,
     STARTER_RESOURCE_CHAIN,
 )
-from herblore_data import DUNGEONEERING_HERBLORE_TARGETS
-from skill_registry import get_skill
+from ankiscape.data.herblore_data import DUNGEONEERING_HERBLORE_TARGETS
+from ankiscape.core.skill_registry import get_skill
 
 
 class DungeoneeringDataTests(unittest.TestCase):

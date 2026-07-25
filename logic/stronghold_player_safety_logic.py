@@ -5,20 +5,12 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-try:
-    from .skill_registry import get_skill
-    from .stronghold_player_safety_data import (
-        COCKROACH_SOLDIER_TARGET_ID,
-        SAFETY_GLOVES_ITEM,
-        STRONGHOLD_LANDMARKS,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from skill_registry import get_skill  # type: ignore
-    from stronghold_player_safety_data import (  # type: ignore
-        COCKROACH_SOLDIER_TARGET_ID,
-        SAFETY_GLOVES_ITEM,
-        STRONGHOLD_LANDMARKS,
-    )
+from ..core.skill_registry import get_skill
+from ..data.stronghold_player_safety_data import (
+    COCKROACH_SOLDIER_TARGET_ID,
+    SAFETY_GLOVES_ITEM,
+    STRONGHOLD_LANDMARKS,
+)
 
 
 STRONGHOLD_PLAYER_SAFETY_STATE_VERSION = 1

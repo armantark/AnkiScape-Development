@@ -7,20 +7,21 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-import constants
-from agility_data import AGILITY_TARGETS
-from agility_logic import apply_agility_command_pure
-from cadence_coverage import cadence_coverage_rows_pure
-from gnome_ball_data import GNOME_BALL_ACTIVITY_ID
-from gnome_ball_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core import constants
+from ankiscape.data.agility_data import AGILITY_TARGETS
+from ankiscape.logic.agility_logic import apply_agility_command_pure
+from ankiscape.logic.cadence_coverage import cadence_coverage_rows_pure
+from ankiscape.data.gnome_ball_data import GNOME_BALL_ACTIVITY_ID
+from ankiscape.logic.gnome_ball_logic import (
     apply_gnome_ball_review_pure,
     enter_gnome_ball_pure,
     gnome_ball_locked_reasons_pure,
     gnome_ball_tackle_chance_pure,
     leave_gnome_ball_pure,
 )
-from logic_pure import equip_item_pure
-from storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
+from ankiscape.logic_pure.logic_pure import equip_item_pure
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
 from tests.test_integration_smoke import _install_runtime_fakes, _load_addon_as_package
 
 
@@ -237,7 +238,7 @@ class GnomeBallHookTests(unittest.TestCase):
 
     def test_multiplier_finishes_one_match_in_three_draws_and_undo_restores_it(self):
         addon = _load_addon_as_package("ankiscape_gnome_ball_hook")
-        logic = sys.modules[f"{addon.__name__}.gnome_ball_logic"]
+        logic = sys.modules[f"{addon.__name__}.logic.gnome_ball_logic"]
         player, ok, _info = logic.enter_gnome_ball_pure(_player())
         self.assertTrue(ok)
         addon.player_data = player

@@ -1,8 +1,9 @@
 import unittest
 
-from shop_data import SHOP_DATA
-from shop_fixtures import build_shop_fixture_player_data, build_shop_frontend_fixtures
-from shop_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.shop_data import SHOP_DATA
+from ankiscape.logic.shop_fixtures import build_shop_fixture_player_data, build_shop_frontend_fixtures
+from ankiscape.logic.shop_logic import (
     DECANTABLE_FLASK_POTION_BASES,
     DECANTABLE_FOUR_DOSE_POTION_BASES,
     advance_shop_market_clock_pure,
@@ -710,9 +711,9 @@ class TestShopLogic(unittest.TestCase):
         # Owner-grilled hybrid gating: quest walls lock buys/sells with a
         # human-readable reason and open when the save satisfies the rule;
         # every gated quest id must exist in the catalog.
-        from shop_data import SHOP_DATA
-        from quest_data import QUESTS_BY_ID
-        from shop_logic import shop_access_lock_reason_pure
+        from ankiscape.data.shop_data import SHOP_DATA
+        from ankiscape.data.quest_data import QUESTS_BY_ID
+        from ankiscape.logic.shop_logic import shop_access_lock_reason_pure
 
         for shop in SHOP_DATA.values():
             rule = shop.get("access")
@@ -754,7 +755,7 @@ class TestShopLogic(unittest.TestCase):
         # a Wilderness shop rolls 1% for a PKer-style hit (1..249 lifepoints,
         # can kill via the normal grave path). Stackables occupy one slot per
         # purchase; unstackables one per item. Rollback restores everything.
-        from shop_data import SHOP_DATA
+        from ankiscape.data.shop_data import SHOP_DATA
 
         shop = SHOP_DATA["william_team_cape_shop"]
         rows = [r for r in shop["stock"] if r["disposition"] == "live"]
@@ -785,7 +786,7 @@ class TestShopLogic(unittest.TestCase):
         self.assertEqual(back["equipment"], {"weapon": "Bronze sword"})
 
     def test_wilderness_stackables_occupy_one_slot_per_purchase(self):
-        from shop_data import SHOP_DATA
+        from ankiscape.data.shop_data import SHOP_DATA
 
         shop = SHOP_DATA["lundails_arena_rune_shop"]
         row = next(r for r in shop["stock"] if r["disposition"] == "live" and r["stackable"])
@@ -860,7 +861,7 @@ class TestShopLogic(unittest.TestCase):
     def test_sell_price_is_uniform_across_shop_types(self):
         # Darkan getSellPrice depends only on the item: the same Swordfish
         # pays the same at a shop that stocks it and at a general store.
-        from shop_data import SHOP_PLAYER_SELL_PRICES
+        from ankiscape.data.shop_data import SHOP_PLAYER_SELL_PRICES
 
         stocking_shop = next(
             shop for shop in SHOP_DATA.values()
@@ -934,7 +935,7 @@ class TestShopLogic(unittest.TestCase):
         self.assertEqual(decayed["current_quantity"], row["default_quantity"] + 4)
 
     def test_player_sold_stock_buys_back_at_darkan_buy_price(self):
-        from shop_data import SHOP_PLAYER_BUY_PRICES
+        from ankiscape.data.shop_data import SHOP_PLAYER_BUY_PRICES
 
         general = _general_store()
         data = build_shop_fixture_player_data()

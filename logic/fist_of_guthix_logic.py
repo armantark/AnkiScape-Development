@@ -5,48 +5,26 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping
 from typing import Any
 
-try:
-    from .combat_data import COMBAT_MAGIC_SPELL_DATA
-    from .equipment_data import EQUIPMENT_DATA
-    from .equipment_instance_logic import (
-        add_equipment_instance_pure,
-        advance_equipped_condition_pure,
-        condition_name_pure,
-        sanitize_equipment_instance_state_pure,
-    )
-    from .fist_of_guthix_data import (
-        FIST_OF_GUTHIX_ACTIVITY_ID,
-        FIST_OF_GUTHIX_CHARGE_CAP,
-        FIST_OF_GUTHIX_COMBAT_TICKS_PER_REVIEW,
-        FIST_OF_GUTHIX_CONDITION_DATA,
-        FIST_OF_GUTHIX_INITIAL_RATING,
-        FIST_OF_GUTHIX_INITIAL_SUPPLIES,
-        FIST_OF_GUTHIX_REWARDS,
-        FIST_OF_GUTHIX_ROUND_TICKS,
-        FIST_OF_GUTHIX_STANCES,
-    )
-    from .logic_pure import apply_combat_burst_pure, combat_max_lifepoints_pure
-except ImportError:  # pragma: no cover - flat imports used by tests
-    from combat_data import COMBAT_MAGIC_SPELL_DATA  # type: ignore
-    from equipment_data import EQUIPMENT_DATA  # type: ignore
-    from equipment_instance_logic import (  # type: ignore
-        add_equipment_instance_pure,
-        advance_equipped_condition_pure,
-        condition_name_pure,
-        sanitize_equipment_instance_state_pure,
-    )
-    from fist_of_guthix_data import (  # type: ignore
-        FIST_OF_GUTHIX_ACTIVITY_ID,
-        FIST_OF_GUTHIX_CHARGE_CAP,
-        FIST_OF_GUTHIX_COMBAT_TICKS_PER_REVIEW,
-        FIST_OF_GUTHIX_CONDITION_DATA,
-        FIST_OF_GUTHIX_INITIAL_RATING,
-        FIST_OF_GUTHIX_INITIAL_SUPPLIES,
-        FIST_OF_GUTHIX_REWARDS,
-        FIST_OF_GUTHIX_ROUND_TICKS,
-        FIST_OF_GUTHIX_STANCES,
-    )
-    from logic_pure import apply_combat_burst_pure, combat_max_lifepoints_pure  # type: ignore
+from ..data.combat_data import COMBAT_MAGIC_SPELL_DATA
+from ..data.equipment_data import EQUIPMENT_DATA
+from ..logic.equipment_instance_logic import (
+    add_equipment_instance_pure,
+    advance_equipped_condition_pure,
+    condition_name_pure,
+    sanitize_equipment_instance_state_pure,
+)
+from ..data.fist_of_guthix_data import (
+    FIST_OF_GUTHIX_ACTIVITY_ID,
+    FIST_OF_GUTHIX_CHARGE_CAP,
+    FIST_OF_GUTHIX_COMBAT_TICKS_PER_REVIEW,
+    FIST_OF_GUTHIX_CONDITION_DATA,
+    FIST_OF_GUTHIX_INITIAL_RATING,
+    FIST_OF_GUTHIX_INITIAL_SUPPLIES,
+    FIST_OF_GUTHIX_REWARDS,
+    FIST_OF_GUTHIX_ROUND_TICKS,
+    FIST_OF_GUTHIX_STANCES,
+)
+from ..logic_pure.logic_pure import apply_combat_burst_pure, combat_max_lifepoints_pure
 
 
 FIST_OF_GUTHIX_STATE_VERSION = 1

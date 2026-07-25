@@ -1,8 +1,9 @@
 import unittest
 
-from cadence_coverage import cadence_coverage_rows_pure
-from constants import UTILITY_ACTIVITY_DATA
-from penguin_hide_and_seek_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.cadence_coverage import cadence_coverage_rows_pure
+from ankiscape.core.constants import UTILITY_ACTIVITY_DATA
+from ankiscape.logic.penguin_hide_and_seek_logic import (
     apply_penguin_command_pure,
     apply_penguin_review_pure,
     default_penguin_state_pure,
@@ -10,8 +11,8 @@ from penguin_hide_and_seek_logic import (
     penguin_view_pure,
     sanitize_penguin_state_pure,
 )
-from runtime_actions import RuntimeActionContext, handle_utility_answer
-from storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
+from ankiscape.runtime.runtime_actions import RuntimeActionContext, handle_utility_answer
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
 
 
 def _player(*, answered_cards=0):

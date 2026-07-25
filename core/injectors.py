@@ -19,13 +19,10 @@ _ICON_DATA_URI: Optional[str] = None
 
 # Central debug logger (no cycle; support both package and flat import in tests)
 try:
-    from .debug import debug_log as _debug_log  # type: ignore
+    from ..core.debug import debug_log as _debug_log  # type: ignore
 except Exception:
-    try:
-        from debug import debug_log as _debug_log  # type: ignore
-    except Exception:
-        def _debug_log(msg: str) -> None:  # fallback no-op
-            pass
+    def _debug_log(msg: str) -> None:  # fallback no-op
+        pass
 
 
 def _replace_hook_callback(hook, callback, key: str) -> None:
@@ -50,7 +47,7 @@ def _get_icon_data_uri() -> Optional[str]:
     if _ICON_DATA_URI is not None:
         return _ICON_DATA_URI
     try:
-        icon_path = os.path.join(os.path.dirname(__file__), "icon", "stats_icon.png")
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "icon", "stats_icon.png")
         with open(icon_path, "rb") as source:
             encoded = base64.b64encode(source.read()).decode("ascii")
         _ICON_DATA_URI = f"data:image/png;base64,{encoded}"
@@ -532,7 +529,7 @@ def register_deck_browser_button() -> None:
                 if message == "ankiscape_open_menu":
                     # Handle directly here to avoid relying on separate registration order.
                     try:
-                        from .ui import is_main_menu_open, focus_main_menu_if_open  # type: ignore
+                        from ..ui.ui import is_main_menu_open, focus_main_menu_if_open  # type: ignore
                         if is_main_menu_open():
                             _debug_log("injectors.bridge: menu open; focusing")
                             try:
@@ -551,7 +548,7 @@ def register_deck_browser_button() -> None:
 
                             pkg = None
                             try:
-                                pkg = sys.modules.get(__package__)
+                                pkg = sys.modules.get(__package__.rpartition(".")[0])
                             except Exception:
                                 pkg = None
                             if pkg is None:
@@ -600,7 +597,7 @@ def register_deck_browser_button() -> None:
     def _did_render(deck_browser):  # type: ignore[no-redef]
         try:
             try:
-                from .ui import hide_review_hud  # lazy import to avoid cycles
+                from ..ui.ui import hide_review_hud  # lazy import to avoid cycles
                 hide_review_hud()
             except Exception:
                 pass

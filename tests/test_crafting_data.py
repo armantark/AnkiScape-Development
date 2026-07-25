@@ -1,6 +1,7 @@
 import unittest
 
-from crafting_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.crafting_data import (
     CRAFTING_REQUIRED_ITEM_SOURCE_IDS,
     CRAFTING_RECIPES,
     CRAFTING_RECIPES_BY_ID,

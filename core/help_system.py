@@ -16,7 +16,7 @@ from typing import Iterable, Mapping, Sequence
 
 
 HELP_HOME_ID = "home"
-HELP_TOPICS_DIR = Path(__file__).with_name("help_topics")
+HELP_TOPICS_DIR = Path(__file__).resolve().parents[1] / "help_topics"
 KNOWN_REGISTRY_BLOCK_IDS = frozenset({"implemented_skills"})
 
 PRIMARY_HELP_TOPIC_BY_TAB_LABEL: Mapping[str, str] = {

@@ -11,22 +11,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, Mapping, Optional, Tuple
 
-try:
-    from .livid_farm_data import (
-        ARCANE_CAPACITOR_CHARGED,
-        ARCANE_CAPACITOR_SOURCE,
-        ARCANE_CAPACITOR_UNCHARGED,
-        BORROWED_POWER_NONCOMBAT_SPELLS,
-        BORROWED_POWER_SOURCE,
-    )
-except ImportError:  # pragma: no cover - flat imports used by tests
-    from livid_farm_data import (  # type: ignore
-        ARCANE_CAPACITOR_CHARGED,
-        ARCANE_CAPACITOR_SOURCE,
-        ARCANE_CAPACITOR_UNCHARGED,
-        BORROWED_POWER_NONCOMBAT_SPELLS,
-        BORROWED_POWER_SOURCE,
-    )
+from ..data.livid_farm_data import (
+    ARCANE_CAPACITOR_CHARGED,
+    ARCANE_CAPACITOR_SOURCE,
+    ARCANE_CAPACITOR_UNCHARGED,
+    BORROWED_POWER_NONCOMBAT_SPELLS,
+    BORROWED_POWER_SOURCE,
+)
 
 
 GAME_MAGIC = "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/magic"

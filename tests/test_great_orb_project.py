@@ -9,14 +9,15 @@ import types
 import unittest
 from unittest.mock import patch
 
-import cadence_coverage
-import constants
-from great_orb_project_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic import cadence_coverage
+from ankiscape.core import constants
+from ankiscape.data.great_orb_project_data import (
     GREAT_ORB_PROJECT_ACTIVITY_ID,
     OMNI_TALISMAN_ACCESS_PAIRS,
     OMNI_TALISMAN_XP,
 )
-from great_orb_project_logic import (
+from ankiscape.logic.great_orb_project_logic import (
     apply_great_orb_project_review_pure,
     buy_great_orb_project_reward_pure,
     enter_great_orb_project_pure,
@@ -24,7 +25,7 @@ from great_orb_project_logic import (
     leave_great_orb_project_pure,
     set_great_orb_project_policy_pure,
 )
-from storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
 from tests.test_integration_smoke import (
     _DummyCol,
     _DummyMW,
@@ -277,9 +278,9 @@ class GreatOrbProjectHookTests(unittest.TestCase):
 
     def test_multiplier_finishes_one_match_and_undo_restores_state(self):
         addon = _load_addon_as_package("ankiscape_great_orb_project_hook")
-        logic = sys.modules[f"{addon.__name__}.great_orb_project_logic"]
-        storage = sys.modules[f"{addon.__name__}.storage_pure"]
-        package_constants = sys.modules[f"{addon.__name__}.constants"]
+        logic = sys.modules[f"{addon.__name__}.logic.great_orb_project_logic"]
+        storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
+        package_constants = sys.modules[f"{addon.__name__}.core.constants"]
         player = storage.default_player_data(
             package_constants.ORE_DATA,
             package_constants.ITEM_DEFINITIONS,
@@ -310,8 +311,8 @@ class GreatOrbProjectHookTests(unittest.TestCase):
 
     def test_omni_talisman_claim_xp_is_direct_and_undoable(self):
         addon = _load_addon_as_package("ankiscape_great_orb_omni_direct")
-        storage = sys.modules[f"{addon.__name__}.storage_pure"]
-        package_constants = sys.modules[f"{addon.__name__}.constants"]
+        storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
+        package_constants = sys.modules[f"{addon.__name__}.core.constants"]
         captured = {}
         addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
         col = _DummyCol()

@@ -539,9 +539,10 @@ def _recipe_equipment_item(
     )
 
 
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 def _smithing_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedEquipmentItem, ...]:
     try:
-        from smithing_data import SMITHING_RECIPES
+        from ankiscape.data.smithing_data import SMITHING_RECIPES
     except ImportError as exc:
         raise RuntimeError("Run this script from the add-on root so smithing_data.py is importable.") from exc
 
@@ -582,7 +583,7 @@ def _crafting_equipment_items(
     items: Mapping[int, SourceItem], items_by_name: Mapping[str, SourceItem]
 ) -> Tuple[GeneratedEquipmentItem, ...]:
     try:
-        from constants import CRAFTING_DATA
+        from ankiscape.core.constants import CRAFTING_DATA
     except ImportError as exc:
         raise RuntimeError("Run this script from the add-on root so constants.py is importable.") from exc
 
@@ -598,7 +599,7 @@ def _fletching_equipment_items(
     items: Mapping[int, SourceItem], items_by_name: Mapping[str, SourceItem]
 ) -> Tuple[GeneratedEquipmentItem, ...]:
     try:
-        from constants import FLETCHING_DATA
+        from ankiscape.core.constants import FLETCHING_DATA
     except ImportError as exc:
         raise RuntimeError("Run this script from the add-on root so constants.py is importable.") from exc
 
@@ -621,7 +622,7 @@ def _smithing_recipe_equipment_items(
     net-new names that source-obtainable smithing recipes would otherwise miss.
     """
     try:
-        from constants import SMITHING_DATA
+        from ankiscape.core.constants import SMITHING_DATA
     except ImportError as exc:
         raise RuntimeError("Run this script from the add-on root so constants.py is importable.") from exc
 
@@ -661,7 +662,7 @@ def _shop_equipment_items(
     items: Mapping[int, SourceItem], items_by_name: Mapping[str, SourceItem]
 ) -> Tuple[GeneratedEquipmentItem, ...]:
     try:
-        from shop_data import SHOP_DATA
+        from ankiscape.data.shop_data import SHOP_DATA
     except ImportError as exc:
         raise RuntimeError("Run this script from the add-on root so shop_data.py is importable.") from exc
 
@@ -687,7 +688,7 @@ def _drop_equipment_items(
     items: Mapping[int, SourceItem], items_by_name: Mapping[str, SourceItem]
 ) -> Tuple[GeneratedEquipmentItem, ...]:
     try:
-        from combat_data import COMBAT_ENEMY_DATA
+        from ankiscape.data.combat_data import COMBAT_ENEMY_DATA
     except ImportError as exc:
         raise RuntimeError("Run this script from the add-on root so combat_data.py is importable.") from exc
 
@@ -736,7 +737,7 @@ def _drop_equipment_items(
 
 def _mining_bonus_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedEquipmentItem, ...]:
     try:
-        from mining_data import MINING_BONUS_ITEMS
+        from ankiscape.data.mining_data import MINING_BONUS_ITEMS
     except ImportError as exc:
         raise RuntimeError("Run this script from the add-on root so mining_data.py is importable.") from exc
 
@@ -1373,7 +1374,7 @@ def generate(game_root: Path, output_path: Path) -> None:
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--game-root", type=Path, default=DEFAULT_GAME_ROOT)
-    parser.add_argument("--output", type=Path, default=Path(__file__).resolve().parents[1] / "equipment_data.py")
+    parser.add_argument("--output", type=Path, default=Path(__file__).resolve().parents[1] / "data" / "equipment_data.py")
     args = parser.parse_args(argv)
     generate(args.game_root, args.output)
     print(f"Wrote {args.output}")

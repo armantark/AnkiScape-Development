@@ -16,10 +16,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, List, Tuple
 
-try:
-    from .skill_registry import ALL_SKILLS, SkillDefinition
-except ImportError:  # pragma: no cover - flat import path used by the test runner
-    from skill_registry import ALL_SKILLS, SkillDefinition  # type: ignore
+from ..core.skill_registry import ALL_SKILLS, SkillDefinition
 
 
 # Display order is fixed so the hub layout stays stable across renders.

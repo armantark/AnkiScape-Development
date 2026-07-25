@@ -13,8 +13,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from aqt.qt import QApplication, QPushButton  # type: ignore
 
-from castle_wars_data import CASTLE_WARS_BALLISTA_PARTS
-from castle_wars_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.castle_wars_data import CASTLE_WARS_BALLISTA_PARTS
+from ankiscape.logic.castle_wars_logic import (
     apply_castle_wars_command_pure,
     apply_castle_wars_review_pure,
 )

@@ -3,8 +3,9 @@ import os
 import unittest
 from pathlib import Path
 
-from constants import ITEM_DEFINITIONS
-from potion_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import ITEM_DEFINITIONS
+from ankiscape.data.potion_data import (
     EMPTY_FLASK_ITEM,
     POTION_FAMILIES,
     VIAL_ITEM,

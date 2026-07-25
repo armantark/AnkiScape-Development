@@ -7,38 +7,21 @@ import random
 from dataclasses import dataclass, replace
 from typing import Iterable, Optional
 
-try:
-    from .dungeoneering_data import (
-        AMMO_BIND_CAPACITY,
-        BIND_SLOTS_BY_LEVEL,
-        COMPLEXITIES_BY_LEVEL,
-        DUNGEONEERING_MAX_FLOOR,
-        DUNGEONEERING_MAX_LEVEL,
-        FLOOR_SIZES_BY_ID,
-        FLOOR_THEMES,
-        FROZEN_BOSSES,
-        SALT_IN_THE_WOUND_AMMO_BIND_CAPACITY,
-        STARTER_SMALL_ROOM_BUDGET,
-        FloorTheme,
-        FrozenBoss,
-        RoomFamily,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from dungeoneering_data import (  # type: ignore
-        AMMO_BIND_CAPACITY,
-        BIND_SLOTS_BY_LEVEL,
-        COMPLEXITIES_BY_LEVEL,
-        DUNGEONEERING_MAX_FLOOR,
-        DUNGEONEERING_MAX_LEVEL,
-        FLOOR_SIZES_BY_ID,
-        FLOOR_THEMES,
-        FROZEN_BOSSES,
-        SALT_IN_THE_WOUND_AMMO_BIND_CAPACITY,
-        STARTER_SMALL_ROOM_BUDGET,
-        FloorTheme,
-        FrozenBoss,
-        RoomFamily,
-    )
+from ..data.dungeoneering_data import (
+    AMMO_BIND_CAPACITY,
+    BIND_SLOTS_BY_LEVEL,
+    COMPLEXITIES_BY_LEVEL,
+    DUNGEONEERING_MAX_FLOOR,
+    DUNGEONEERING_MAX_LEVEL,
+    FLOOR_SIZES_BY_ID,
+    FLOOR_THEMES,
+    FROZEN_BOSSES,
+    SALT_IN_THE_WOUND_AMMO_BIND_CAPACITY,
+    STARTER_SMALL_ROOM_BUDGET,
+    FloorTheme,
+    FrozenBoss,
+    RoomFamily,
+)
 
 
 @dataclass(frozen=True)

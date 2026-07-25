@@ -1,6 +1,7 @@
 import unittest
 
-from smithing_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.smithing_data import (
     DEFAULT_SMITHING_TARGET,
     SMITHING_RECIPES,
     SMITHING_RECIPES_BY_ID,

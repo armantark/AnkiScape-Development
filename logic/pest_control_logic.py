@@ -6,50 +6,27 @@ import copy
 from collections.abc import Mapping
 from typing import Any
 
-try:
-    from .logic_pure import apply_combat_burst_pure, player_combat_level_pure
-    from .pet_logic import store_active_pet_pure
-    from .summoning_logic import dismiss_familiar_pure
-    from .pest_control_data import (
-        PEST_CONTROL_ACTIVITY_ID,
-        PEST_CONTROL_COMBAT_TARGET_ID,
-        PEST_CONTROL_COMMENDATION_CAP,
-        PEST_CONTROL_DEFENCE_RELIEF,
-        PEST_CONTROL_DUTIES,
-        PEST_CONTROL_EVENT_REVIEWS,
-        PEST_CONTROL_FRONTS,
-        PEST_CONTROL_LANDERS,
-        PEST_CONTROL_LANDERS_BY_ID,
-        PEST_CONTROL_PORTAL_COUNT,
-        PEST_CONTROL_PORTAL_HEAL,
-        PEST_CONTROL_SEAL_RELIEF,
-        PEST_CONTROL_VOID_KNIGHT_LIFEPOINTS,
-        VOID_SEAL_COST,
-        VOID_SEAL_ITEMS,
-        pest_control_portal_enemy_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure import apply_combat_burst_pure, player_combat_level_pure  # type: ignore
-    from pet_logic import store_active_pet_pure  # type: ignore
-    from summoning_logic import dismiss_familiar_pure  # type: ignore
-    from pest_control_data import (  # type: ignore
-        PEST_CONTROL_ACTIVITY_ID,
-        PEST_CONTROL_COMBAT_TARGET_ID,
-        PEST_CONTROL_COMMENDATION_CAP,
-        PEST_CONTROL_DEFENCE_RELIEF,
-        PEST_CONTROL_DUTIES,
-        PEST_CONTROL_EVENT_REVIEWS,
-        PEST_CONTROL_FRONTS,
-        PEST_CONTROL_LANDERS,
-        PEST_CONTROL_LANDERS_BY_ID,
-        PEST_CONTROL_PORTAL_COUNT,
-        PEST_CONTROL_PORTAL_HEAL,
-        PEST_CONTROL_SEAL_RELIEF,
-        PEST_CONTROL_VOID_KNIGHT_LIFEPOINTS,
-        VOID_SEAL_COST,
-        VOID_SEAL_ITEMS,
-        pest_control_portal_enemy_pure,
-    )
+from ..logic_pure.logic_pure import apply_combat_burst_pure, player_combat_level_pure
+from ..logic.pet_logic import store_active_pet_pure
+from ..logic.summoning_logic import dismiss_familiar_pure
+from ..data.pest_control_data import (
+    PEST_CONTROL_ACTIVITY_ID,
+    PEST_CONTROL_COMBAT_TARGET_ID,
+    PEST_CONTROL_COMMENDATION_CAP,
+    PEST_CONTROL_DEFENCE_RELIEF,
+    PEST_CONTROL_DUTIES,
+    PEST_CONTROL_EVENT_REVIEWS,
+    PEST_CONTROL_FRONTS,
+    PEST_CONTROL_LANDERS,
+    PEST_CONTROL_LANDERS_BY_ID,
+    PEST_CONTROL_PORTAL_COUNT,
+    PEST_CONTROL_PORTAL_HEAL,
+    PEST_CONTROL_SEAL_RELIEF,
+    PEST_CONTROL_VOID_KNIGHT_LIFEPOINTS,
+    VOID_SEAL_COST,
+    VOID_SEAL_ITEMS,
+    pest_control_portal_enemy_pure,
+)
 
 
 PEST_CONTROL_STATE_VERSION = 1

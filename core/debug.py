@@ -18,7 +18,7 @@ from logging.handlers import RotatingFileHandler
 from typing import Optional
 
 # Log file path next to the package (created on demand)
-DEBUG_LOG_FILE = os.path.join(os.path.dirname(__file__), "ankiscape_debug.log")
+DEBUG_LOG_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ankiscape_debug.log")
 
 # Default enablement: off unless explicitly enabled
 _enabled: bool = os.getenv("ANKISCAPE_DEBUG", "").strip() not in ("", "0", "false", "False")

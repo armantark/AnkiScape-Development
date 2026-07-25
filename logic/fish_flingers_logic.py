@@ -5,30 +5,17 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-try:
-    from .fish_flingers_data import (
-        FISH_FLINGERS_ACTIVITY_ID,
-        FISH_FLINGERS_DISCOVERY_LABELS,
-        FISH_FLINGERS_EFFICIENCY,
-        FISH_FLINGERS_EVENT_REVIEWS,
-        FISH_FLINGERS_REWARDS,
-        FISH_FLINGERS_TICKET_CAP,
-        FISH_FLINGERS_TICKETS_PER_DAY,
-        FISH_FLINGERS_TOKEN_CAP,
-        FISH_FLINGERS_WORLD_DAY_REVIEWS,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from fish_flingers_data import (  # type: ignore
-        FISH_FLINGERS_ACTIVITY_ID,
-        FISH_FLINGERS_DISCOVERY_LABELS,
-        FISH_FLINGERS_EFFICIENCY,
-        FISH_FLINGERS_EVENT_REVIEWS,
-        FISH_FLINGERS_REWARDS,
-        FISH_FLINGERS_TICKET_CAP,
-        FISH_FLINGERS_TICKETS_PER_DAY,
-        FISH_FLINGERS_TOKEN_CAP,
-        FISH_FLINGERS_WORLD_DAY_REVIEWS,
-    )
+from ..data.fish_flingers_data import (
+    FISH_FLINGERS_ACTIVITY_ID,
+    FISH_FLINGERS_DISCOVERY_LABELS,
+    FISH_FLINGERS_EFFICIENCY,
+    FISH_FLINGERS_EVENT_REVIEWS,
+    FISH_FLINGERS_REWARDS,
+    FISH_FLINGERS_TICKET_CAP,
+    FISH_FLINGERS_TICKETS_PER_DAY,
+    FISH_FLINGERS_TOKEN_CAP,
+    FISH_FLINGERS_WORLD_DAY_REVIEWS,
+)
 
 
 FISH_FLINGERS_STATE_VERSION = 1

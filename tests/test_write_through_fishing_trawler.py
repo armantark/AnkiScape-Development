@@ -17,8 +17,9 @@ truthiness checks on these values, so a failure here is a real defect.
 import copy
 import unittest
 
-from fishing_trawler_data import FISHING_TRAWLER_ACTIVITY_ID
-from fishing_trawler_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.fishing_trawler_data import FISHING_TRAWLER_ACTIVITY_ID
+from ankiscape.logic.fishing_trawler_logic import (
     apply_fishing_trawler_command_pure,
     apply_fishing_trawler_review_pure,
     enter_fishing_trawler_pure,

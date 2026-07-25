@@ -33,7 +33,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
         addon.show_error_message = lambda _title, message: self.fail(message)
 
     def _queued_plant_state(self, addon):
-        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
+        farming_logic = sys.modules[f"{addon.__name__}.logic.farming_logic"]
         state = {
             "inventory": {"Rake": 1, "Seed dibber": 1, "Potato seed": 3, "Logs": 1},
             "farming_level": 1,
@@ -74,7 +74,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
     def test_summoning_world_tick_runs_on_again_before_farming_clock(self):
         addon = _load_addon_as_package("ankiscape_summoning_world_dispatch")
         self._configure(addon)
-        summoning_logic = sys.modules[f"{addon.__name__}.summoning_logic"]
+        summoning_logic = sys.modules[f"{addon.__name__}.logic.summoning_logic"]
         state = summoning_logic.default_summoning_state_pure()
         state["summoning_points_current"] = 10
         state["active_follower"] = {
@@ -124,7 +124,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
     def test_ge_fill_undo_and_reanswer_replay_the_same_market_transaction(self):
         addon = _load_addon_as_package("ankiscape_ge_review_dispatch")
         self._configure(addon)
-        ge_logic = sys.modules[f"{addon.__name__}.grand_exchange_logic"]
+        ge_logic = sys.modules[f"{addon.__name__}.logic.grand_exchange_logic"]
         logs = {
             "tradeable": True,
             "exchangeable": True,
@@ -226,9 +226,9 @@ class TestFarmingReviewDispatch(unittest.TestCase):
     def test_queue_full_run_action_evaluates_achievement_before_saving(self):
         addon = _load_addon_as_package("ankiscape_farming_full_run_achievement")
         self._configure(addon)
-        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
-        storage_pure = sys.modules[f"{addon.__name__}.storage_pure"]
-        constants = sys.modules[f"{addon.__name__}.constants"]
+        farming_logic = sys.modules[f"{addon.__name__}.logic.farming_logic"]
+        storage_pure = sys.modules[f"{addon.__name__}.core.storage_pure"]
+        constants = sys.modules[f"{addon.__name__}.core.constants"]
         state = storage_pure.default_player_data(constants.ORE_DATA, constants.ITEM_DEFINITIONS)
         state["farming_level"] = 99
         state, ok, _ = farming_logic.set_farm_plan_pure(
@@ -287,7 +287,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
     def test_queued_cure_runs_before_death_boundary_then_settles_growth_eagerly(self):
         addon = _load_addon_as_package("ankiscape_farming_cure_boundary")
         self._configure(addon)
-        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
+        farming_logic = sys.modules[f"{addon.__name__}.logic.farming_logic"]
         state = self._queued_plant_state(addon)
         state["farm_queue"] = []
         state["inventory"]["Plant cure"] = 1
@@ -329,7 +329,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
             "current_fletch": "arrow_shafts",
             "completed_achievements": [],
         }
-        addon.player_data.update(sys.modules[f"{addon.__name__}.farming_logic"].default_farming_state_pure())
+        addon.player_data.update(sys.modules[f"{addon.__name__}.logic.farming_logic"].default_farming_state_pure())
         addon.current_skill = "Fletching"
         addon.card_turned = True
         addon.answer_shown = True
@@ -345,8 +345,8 @@ class TestFarmingReviewDispatch(unittest.TestCase):
     def test_farming_and_woodcutting_level_callbacks_see_pre_award_levels(self):
         addon = _load_addon_as_package("ankiscape_farming_level_notifications")
         self._configure(addon)
-        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
-        constants = sys.modules[f"{addon.__name__}.constants"]
+        farming_logic = sys.modules[f"{addon.__name__}.logic.farming_logic"]
+        constants = sys.modules[f"{addon.__name__}.core.constants"]
         seen = []
 
         def level_check(skill, data):
@@ -421,7 +421,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
     def test_answer_undo_restores_current_skill_and_rng_for_deterministic_replay(self):
         addon = _load_addon_as_package("ankiscape_farming_full_transaction_undo")
         self._configure(addon)
-        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
+        farming_logic = sys.modules[f"{addon.__name__}.logic.farming_logic"]
         state = self._queued_plant_state(addon)
         state["farm_queue"] = []
         state, ok, _ = farming_logic.execute_farm_field_step_pure(
@@ -467,7 +467,7 @@ class TestFarmingReviewDispatch(unittest.TestCase):
     def test_undo_restores_a_boundary_rng_disease_outcome(self):
         addon = _load_addon_as_package("ankiscape_farming_boundary_undo")
         self._configure(addon)
-        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
+        farming_logic = sys.modules[f"{addon.__name__}.logic.farming_logic"]
         state = self._queued_plant_state(addon)
         state["farm_queue"] = []
         state, ok, _ = farming_logic.execute_farm_field_step_pure(

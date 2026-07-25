@@ -2,206 +2,102 @@
 
 from typing import Iterable, Mapping, Optional
 
-try:
-    from .equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
-except ImportError:
-    from equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
+from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 
-try:
-    from .skill_registry import get_skill, trainable_skill_definitions
-except ImportError:
-    from skill_registry import get_skill, trainable_skill_definitions
+from ..core.skill_registry import get_skill, trainable_skill_definitions
 
-try:
-    from .combat_data import (
-        COMBAT_ATTACK_STYLE_DATA,
-        COMBAT_ANTIPOISON_POTION_DATA,
-        COMBAT_BURST_TICKS,
-        COMBAT_ENEMY_DATA,
-        COMBAT_FOOD_DATA,
-        CONSUMABLE_DATA,
-        KEBAB_DRAINABLE_SKILLS,
-        COMBAT_MAGIC_STAFF_DATA,
-        COMBAT_MAGIC_SPELL_DATA,
-        COMBAT_RANGED_AMMO_DATA,
-        COMBAT_RANGED_WEAPON_DATA,
-        DEFAULT_COMBAT_ATTACK_STYLE,
-        DEFAULT_COMBAT_SPELL,
-        DEFAULT_COMBAT_TARGET,
-        MAGIC_FORMULA_SOURCE_PATH,
-        MAGIC_STRATEGY_SOURCE_PATH,
-        MELEE_FORMULA_SOURCE_PATH,
-        MELEE_STRATEGY_SOURCE_PATH,
-        POTION_TYPE_SOURCE_PATH,
-        RANGED_FORMULA_SOURCE_PATH,
-        RANGED_STRATEGY_SOURCE_PATH,
-        WEAPON_TYPE_ATTACK_STYLES,
-        WEAPON_TYPE_UNARMED_STYLES,
-    )
-except ImportError:
-    from combat_data import (  # type: ignore
-        COMBAT_ATTACK_STYLE_DATA,
-        COMBAT_ANTIPOISON_POTION_DATA,
-        COMBAT_BURST_TICKS,
-        COMBAT_ENEMY_DATA,
-        COMBAT_FOOD_DATA,
-        CONSUMABLE_DATA,
-        KEBAB_DRAINABLE_SKILLS,
-        COMBAT_MAGIC_STAFF_DATA,
-        COMBAT_MAGIC_SPELL_DATA,
-        COMBAT_RANGED_AMMO_DATA,
-        COMBAT_RANGED_WEAPON_DATA,
-        DEFAULT_COMBAT_ATTACK_STYLE,
-        DEFAULT_COMBAT_SPELL,
-        DEFAULT_COMBAT_TARGET,
-        MAGIC_FORMULA_SOURCE_PATH,
-        MAGIC_STRATEGY_SOURCE_PATH,
-        MELEE_FORMULA_SOURCE_PATH,
-        MELEE_STRATEGY_SOURCE_PATH,
-        POTION_TYPE_SOURCE_PATH,
-        RANGED_FORMULA_SOURCE_PATH,
-        RANGED_STRATEGY_SOURCE_PATH,
-        WEAPON_TYPE_ATTACK_STYLES,
-        WEAPON_TYPE_UNARMED_STYLES,
-    )
+from ..data.combat_data import (
+    COMBAT_ATTACK_STYLE_DATA,
+    COMBAT_ANTIPOISON_POTION_DATA,
+    COMBAT_BURST_TICKS,
+    COMBAT_ENEMY_DATA,
+    COMBAT_FOOD_DATA,
+    CONSUMABLE_DATA,
+    KEBAB_DRAINABLE_SKILLS,
+    COMBAT_MAGIC_STAFF_DATA,
+    COMBAT_MAGIC_SPELL_DATA,
+    COMBAT_RANGED_AMMO_DATA,
+    COMBAT_RANGED_WEAPON_DATA,
+    DEFAULT_COMBAT_ATTACK_STYLE,
+    DEFAULT_COMBAT_SPELL,
+    DEFAULT_COMBAT_TARGET,
+    MAGIC_FORMULA_SOURCE_PATH,
+    MAGIC_STRATEGY_SOURCE_PATH,
+    MELEE_FORMULA_SOURCE_PATH,
+    MELEE_STRATEGY_SOURCE_PATH,
+    POTION_TYPE_SOURCE_PATH,
+    RANGED_FORMULA_SOURCE_PATH,
+    RANGED_STRATEGY_SOURCE_PATH,
+    WEAPON_TYPE_ATTACK_STYLES,
+    WEAPON_TYPE_UNARMED_STYLES,
+)
 
-try:
-    from .logic_pure_combat_engine import (  # noqa: F401  (re-export)
-        _COMBAT_EXP_KEY_DISPLAY,
-        _COMBAT_STYLE_XP_KEYS,
-        _combat_roll_damage_lifepoints,
-        apply_combat_burst_pure,
-        apply_safe_combat_recovery_pure,
-        bank_gear_rows_pure,
-        combat_attack_style_trained_skills_pure,
-        combat_death_office_items_pure,
-        combat_death_office_reclaim_cost_pure,
-        combat_death_office_summary_pure,
-        combat_enemy_pressure_attack_pure,
-        combat_has_active_encounter_pure,
-        combat_hud_state_pure,
-        combat_supply_loadout_summary_pure,
-        combat_target_preview_pure,
-        combat_weapon_style_options_pure,
-        player_combat_level_pure,
-        reclaim_death_office_items_pure,
-        refill_combat_supply_loadout_pure,
-        set_combat_auto_eat_food_pure,
-        set_combat_auto_eat_threshold_pure,
-        set_combat_pack_mode_pure,
-        unload_combat_supply_loadout_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_combat_engine import (  # type: ignore  # noqa: F401
-        _COMBAT_EXP_KEY_DISPLAY,
-        _COMBAT_STYLE_XP_KEYS,
-        _combat_roll_damage_lifepoints,
-        apply_combat_burst_pure,
-        apply_safe_combat_recovery_pure,
-        bank_gear_rows_pure,
-        combat_attack_style_trained_skills_pure,
-        combat_death_office_items_pure,
-        combat_death_office_reclaim_cost_pure,
-        combat_death_office_summary_pure,
-        combat_enemy_pressure_attack_pure,
-        combat_has_active_encounter_pure,
-        combat_hud_state_pure,
-        combat_supply_loadout_summary_pure,
-        combat_target_preview_pure,
-        combat_weapon_style_options_pure,
-        player_combat_level_pure,
-        reclaim_death_office_items_pure,
-        refill_combat_supply_loadout_pure,
-        set_combat_auto_eat_food_pure,
-        set_combat_auto_eat_threshold_pure,
-        set_combat_pack_mode_pure,
-        unload_combat_supply_loadout_pure,
-    )
+from ..logic_pure.logic_pure_combat_engine import (  # noqa: F401  (re-export)
+    _COMBAT_EXP_KEY_DISPLAY,
+    _COMBAT_STYLE_XP_KEYS,
+    _combat_roll_damage_lifepoints,
+    apply_combat_burst_pure,
+    apply_safe_combat_recovery_pure,
+    bank_gear_rows_pure,
+    combat_attack_style_trained_skills_pure,
+    combat_death_office_items_pure,
+    combat_death_office_reclaim_cost_pure,
+    combat_death_office_summary_pure,
+    combat_enemy_pressure_attack_pure,
+    combat_has_active_encounter_pure,
+    combat_hud_state_pure,
+    combat_supply_loadout_summary_pure,
+    combat_target_preview_pure,
+    combat_weapon_style_options_pure,
+    player_combat_level_pure,
+    reclaim_death_office_items_pure,
+    refill_combat_supply_loadout_pure,
+    set_combat_auto_eat_food_pure,
+    set_combat_auto_eat_threshold_pure,
+    set_combat_pack_mode_pure,
+    unload_combat_supply_loadout_pure,
+)
 
-try:
-    from .logic_pure_state import (  # noqa: F401  (re-export)
-        COMBAT_BANK_RUN_REVIEWS,
-        COMBAT_GRAVE_RECOVERY_REVIEWS,
-        _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
-        _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
-        _COMBAT_STAT_POTION_BY_DOSE,
-        _COMBAT_STAT_POTION_ITEM_NAMES,
-        _build_combat_potion_dose_lookup,
-        _combat_grave_items,
-        _combat_stored_loadout,
-        _copy_player_data_with_nested,
-        _non_negative_float,
-        _non_negative_int,
-        _positive_int,
-        _requirements_from_spec,
-        _sanitize_combat_bank_run,
-        _sanitize_combat_grave_state,
-        _sanitize_combat_supply_loadout,
-        _sanitize_death_office_state,
-        _signed_int,
-        default_combat_supply_loadout_pure,
-        quest_completed_pure,
-        quest_state_pure,
-        sanitize_quest_combat_active_encounters_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_state import (  # type: ignore  # noqa: F401
-        COMBAT_BANK_RUN_REVIEWS,
-        COMBAT_GRAVE_RECOVERY_REVIEWS,
-        _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
-        _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
-        _COMBAT_STAT_POTION_BY_DOSE,
-        _COMBAT_STAT_POTION_ITEM_NAMES,
-        _build_combat_potion_dose_lookup,
-        _combat_grave_items,
-        _combat_stored_loadout,
-        _copy_player_data_with_nested,
-        _non_negative_float,
-        _non_negative_int,
-        _positive_int,
-        _requirements_from_spec,
-        _sanitize_combat_bank_run,
-        _sanitize_combat_grave_state,
-        _sanitize_combat_supply_loadout,
-        _sanitize_death_office_state,
-        _signed_int,
-        default_combat_supply_loadout_pure,
-        quest_completed_pure,
-        quest_state_pure,
-        sanitize_quest_combat_active_encounters_pure,
-    )
+from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
+    COMBAT_BANK_RUN_REVIEWS,
+    COMBAT_GRAVE_RECOVERY_REVIEWS,
+    _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
+    _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
+    _COMBAT_STAT_POTION_BY_DOSE,
+    _COMBAT_STAT_POTION_ITEM_NAMES,
+    _build_combat_potion_dose_lookup,
+    _combat_grave_items,
+    _combat_stored_loadout,
+    _copy_player_data_with_nested,
+    _non_negative_float,
+    _non_negative_int,
+    _positive_int,
+    _requirements_from_spec,
+    _sanitize_combat_bank_run,
+    _sanitize_combat_grave_state,
+    _sanitize_combat_supply_loadout,
+    _sanitize_death_office_state,
+    _signed_int,
+    default_combat_supply_loadout_pure,
+    quest_completed_pure,
+    quest_state_pure,
+    sanitize_quest_combat_active_encounters_pure,
+)
 
-try:
-    from .logic_pure_combat_engine import (
-        apply_combat_burst_pure,
-        player_combat_level_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_combat_engine import (  # type: ignore
-        apply_combat_burst_pure,
-        player_combat_level_pure,
-    )
+from ..logic_pure.logic_pure_combat_engine import (
+    apply_combat_burst_pure,
+    player_combat_level_pure,
+)
 
-try:
-    from .logic_pure_state import (
-        _copy_player_data_with_nested,
-        _non_negative_int,
-        _positive_int,
-        _signed_int,
-        quest_completed_pure,
-        quest_state_pure,
-        sanitize_quest_combat_active_encounters_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_state import (  # type: ignore
-        _copy_player_data_with_nested,
-        _non_negative_int,
-        _positive_int,
-        _signed_int,
-        quest_completed_pure,
-        quest_state_pure,
-        sanitize_quest_combat_active_encounters_pure,
-    )
+from ..logic_pure.logic_pure_state import (
+    _copy_player_data_with_nested,
+    _non_negative_int,
+    _positive_int,
+    _signed_int,
+    quest_completed_pure,
+    quest_state_pure,
+    sanitize_quest_combat_active_encounters_pure,
+)
 
 
 QUEST_COMBAT_CONFIG_VERSION = 1

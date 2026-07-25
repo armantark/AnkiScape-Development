@@ -21,22 +21,13 @@ try:
 except Exception:  # pragma: no cover - non-Qt environment keeps the module importable
     pass
 
-try:
-    from .constants import ACHIEVEMENTS, current_dir
-    from .achievement_metadata import (
-        ACHIEVEMENT_DIFFICULTIES,
-        achievement_difficulty_progress,
-        achievement_progress,
-        achievement_rows_for_difficulty,
-    )
-except Exception:
-    from constants import ACHIEVEMENTS, current_dir  # type: ignore
-    from achievement_metadata import (  # type: ignore
-        ACHIEVEMENT_DIFFICULTIES,
-        achievement_difficulty_progress,
-        achievement_progress,
-        achievement_rows_for_difficulty,
-    )
+from ..core.constants import ACHIEVEMENTS, current_dir
+from ..core.achievement_metadata import (
+    ACHIEVEMENT_DIFFICULTIES,
+    achievement_difficulty_progress,
+    achievement_progress,
+    achievement_rows_for_difficulty,
+)
 
 
 def build_achievements_tab(ctx) -> "QWidget":

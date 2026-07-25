@@ -4,34 +4,19 @@ from __future__ import annotations
 
 from typing import Any, Mapping, Sequence
 
-try:
-    from .pet_logic import store_active_pet_pure
-    from .summoning_logic import dismiss_familiar_pure
-    from .vinesweeper_data import (
-        COMPOST_POTION_DOSES,
-        VINESWEEPER_FLAG_CAP,
-        VINESWEEPER_FLAG_COIN_PRICE,
-        VINESWEEPER_FLAG_POINT_PRICE,
-        VINESWEEPER_FREE_FLAGS,
-        VINESWEEPER_OGLEROOT_COIN_PRICE,
-        VINESWEEPER_RABBIT_HUNTER_XP,
-        VINESWEEPER_REWARDS,
-        VINESWEEPER_REWARDS_BY_ID,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from pet_logic import store_active_pet_pure  # type: ignore
-    from summoning_logic import dismiss_familiar_pure  # type: ignore
-    from vinesweeper_data import (  # type: ignore
-        COMPOST_POTION_DOSES,
-        VINESWEEPER_FLAG_CAP,
-        VINESWEEPER_FLAG_COIN_PRICE,
-        VINESWEEPER_FLAG_POINT_PRICE,
-        VINESWEEPER_FREE_FLAGS,
-        VINESWEEPER_OGLEROOT_COIN_PRICE,
-        VINESWEEPER_RABBIT_HUNTER_XP,
-        VINESWEEPER_REWARDS,
-        VINESWEEPER_REWARDS_BY_ID,
-    )
+from ..logic.pet_logic import store_active_pet_pure
+from ..logic.summoning_logic import dismiss_familiar_pure
+from ..data.vinesweeper_data import (
+    COMPOST_POTION_DOSES,
+    VINESWEEPER_FLAG_CAP,
+    VINESWEEPER_FLAG_COIN_PRICE,
+    VINESWEEPER_FLAG_POINT_PRICE,
+    VINESWEEPER_FREE_FLAGS,
+    VINESWEEPER_OGLEROOT_COIN_PRICE,
+    VINESWEEPER_RABBIT_HUNTER_XP,
+    VINESWEEPER_REWARDS,
+    VINESWEEPER_REWARDS_BY_ID,
+)
 
 
 VINESWEEPER_STATE_VERSION = 1

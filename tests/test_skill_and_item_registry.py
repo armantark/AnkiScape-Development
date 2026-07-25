@@ -2,14 +2,15 @@ import json
 import os
 import unittest
 
-from action_registry import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.action_registry import (
     is_combat_review_action,
     is_review_action,
     is_utility_review_action,
     review_action_display_names,
     review_action_handler_key,
 )
-from constants import (
+from ankiscape.core.constants import (
     BAR_DATA,
     COMBAT_ITEM_IMAGES,
     COOKING_BURNT_ITEMS,
@@ -58,14 +59,14 @@ from constants import (
     WOODCUTTING_AXE_DATA,
     WOODCUTTING_LOG_ITEMS,
 )
-from crafting_data import CRAFTING_REQUIRED_ITEM_SOURCE_IDS
-from item_registry import (
+from ankiscape.data.crafting_data import CRAFTING_REQUIRED_ITEM_SOURCE_IDS
+from ankiscape.core.item_registry import (
     item_definitions_by_id,
     item_definitions_by_storage_key,
     item_storage_keys_by_category,
     missing_required_asset_paths,
 )
-from skill_registry import (
+from ankiscape.core.skill_registry import (
     ALL_SKILLS,
     CURRENT_SKILLS,
     default_skill_state,
@@ -1231,7 +1232,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         fetch."""
         import os
 
-        from shop_data import SHOP_DATA
+        from ankiscape.data.shop_data import SHOP_DATA
 
         known_gaps = {
             "Boots", "Damaged book", "Fremennik cloak", "Fremennik shirt",
@@ -1475,9 +1476,9 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         # output for the variable rocks (Sandstone/Granite/Gem rocks). These were
         # fetched by tools/fetch_mining_assets.py; a missing one means a blank row.
         try:
-            from ui import ORE_IMAGES, GEM_IMAGES  # type: ignore
+            from ankiscape.ui.ui import ORE_IMAGES, GEM_IMAGES  # type: ignore
         except Exception:
-            from constants import ORE_IMAGES, GEM_IMAGES  # type: ignore
+            from ankiscape.core.constants import ORE_IMAGES, GEM_IMAGES  # type: ignore
         for target_id, spec in ORE_DATA.items():
             weighted = spec.get("weighted_outputs") or ()
             if weighted:
@@ -1507,7 +1508,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         # resolve an asset_path -- no blank rows in the ~166-row panel. Forged
         # pickaxes/hatchets resolve via the gathering art they share a name with;
         # the rest resolve from smithingitems/ (forged) or bars/ (Blurite bar).
-        from constants import SMITHING_DATA  # local import: large module
+        from ankiscape.core.constants import SMITHING_DATA  # local import: large module
 
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         iconless = sorted(

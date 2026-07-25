@@ -2,71 +2,37 @@
 
 from typing import Iterable, Mapping, Optional
 
-try:
-    from .logic_pure_state import (  # noqa: F401  (re-export)
-        COMBAT_BANK_RUN_REVIEWS,
-        COMBAT_GRAVE_RECOVERY_REVIEWS,
-        _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
-        _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
-        _COMBAT_STAT_POTION_BY_DOSE,
-        _COMBAT_STAT_POTION_ITEM_NAMES,
-        _build_combat_potion_dose_lookup,
-        _combat_grave_items,
-        _combat_stored_loadout,
-        _copy_player_data_with_nested,
-        _non_negative_float,
-        _non_negative_int,
-        _positive_int,
-        _requirements_from_spec,
-        _sanitize_combat_bank_run,
-        _sanitize_combat_grave_state,
-        _sanitize_combat_supply_loadout,
-        _sanitize_death_office_state,
-        _signed_int,
-        default_combat_supply_loadout_pure,
-        quest_completed_pure,
-        quest_state_pure,
-        sanitize_quest_combat_active_encounters_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_state import (  # type: ignore  # noqa: F401
-        COMBAT_BANK_RUN_REVIEWS,
-        COMBAT_GRAVE_RECOVERY_REVIEWS,
-        _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
-        _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
-        _COMBAT_STAT_POTION_BY_DOSE,
-        _COMBAT_STAT_POTION_ITEM_NAMES,
-        _build_combat_potion_dose_lookup,
-        _combat_grave_items,
-        _combat_stored_loadout,
-        _copy_player_data_with_nested,
-        _non_negative_float,
-        _non_negative_int,
-        _positive_int,
-        _requirements_from_spec,
-        _sanitize_combat_bank_run,
-        _sanitize_combat_grave_state,
-        _sanitize_combat_supply_loadout,
-        _sanitize_death_office_state,
-        _signed_int,
-        default_combat_supply_loadout_pure,
-        quest_completed_pure,
-        quest_state_pure,
-        sanitize_quest_combat_active_encounters_pure,
-    )
+from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
+    COMBAT_BANK_RUN_REVIEWS,
+    COMBAT_GRAVE_RECOVERY_REVIEWS,
+    _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
+    _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
+    _COMBAT_STAT_POTION_BY_DOSE,
+    _COMBAT_STAT_POTION_ITEM_NAMES,
+    _build_combat_potion_dose_lookup,
+    _combat_grave_items,
+    _combat_stored_loadout,
+    _copy_player_data_with_nested,
+    _non_negative_float,
+    _non_negative_int,
+    _positive_int,
+    _requirements_from_spec,
+    _sanitize_combat_bank_run,
+    _sanitize_combat_grave_state,
+    _sanitize_combat_supply_loadout,
+    _sanitize_death_office_state,
+    _signed_int,
+    default_combat_supply_loadout_pure,
+    quest_completed_pure,
+    quest_state_pure,
+    sanitize_quest_combat_active_encounters_pure,
+)
 
-try:
-    from .logic_pure_state import (
-        _copy_player_data_with_nested,
-        _non_negative_int,
-        _positive_int,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_state import (  # type: ignore
-        _copy_player_data_with_nested,
-        _non_negative_int,
-        _positive_int,
-    )
+from ..logic_pure.logic_pure_state import (
+    _copy_player_data_with_nested,
+    _non_negative_int,
+    _positive_int,
+)
 
 
 # --- Stronghold of Security (one-time landmark) ---------------------------
@@ -427,16 +393,10 @@ def apply_mage_arena_step_pure(player_data):
 # The rows below are derived from each landmark's own step list so the HUD can
 # never drift from the Activities tree. Each entry is
 # (display_name, step_names, state_key, step_field, sanitizer).
-try:
-    from .stronghold_player_safety_data import STRONGHOLD_LANDMARKS
-    from .stronghold_player_safety_logic import (
-        sanitize_stronghold_player_safety_state_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from stronghold_player_safety_data import STRONGHOLD_LANDMARKS  # type: ignore
-    from stronghold_player_safety_logic import (  # type: ignore
-        sanitize_stronghold_player_safety_state_pure,
-    )
+from ..data.stronghold_player_safety_data import STRONGHOLD_LANDMARKS
+from ..logic.stronghold_player_safety_logic import (
+    sanitize_stronghold_player_safety_state_pure,
+)
 
 
 LANDMARK_HUD_ROWS = {

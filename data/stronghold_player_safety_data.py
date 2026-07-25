@@ -4,10 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-try:
-    from .equipment_data import EquipmentBonuses, EquipmentItem
-except ImportError:  # pragma: no cover - flat test imports
-    from equipment_data import EquipmentBonuses, EquipmentItem  # type: ignore
+from ..data.equipment_data import EquipmentBonuses, EquipmentItem
 
 
 STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID = "stronghold_player_safety"

@@ -15,7 +15,8 @@ from aqt.qt import QApplication  # type: ignore
 
 from tests.test_main_menu_widget import MainMenuWidgetTest, _make_player_data, _utility_row
 from tools.render_fishing_trawler_ui import _dark_palette
-from trouble_brewing_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.trouble_brewing_logic import (
     apply_trouble_brewing_command_pure,
     apply_trouble_brewing_review_pure,
 )

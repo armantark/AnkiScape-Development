@@ -65,831 +65,388 @@ except Exception:
     mw = None  # type: ignore
     HAS_QT = False
 
-try:
-    from .constants import (
-        EXP_TABLE,
-        ORE_DATA,
-        MINING_OUTPUT_ITEMS,
-        MINING_PICKAXE_DATA,
-        MINING_BONUS_ITEM_DATA,
-        DEFAULT_MINING_TARGET,
-        TREE_DATA,
-        WOODCUTTING_AXE_DATA,
-        WOODCUTTING_LOG_ITEMS,
-        DEFAULT_WOODCUTTING_TARGET,
-        BIRD_NEST_OPEN_TABLES,
-        BAR_DATA,
-        SMITHING_DATA,
-        DEFAULT_SMITHING_TARGET,
-        GEM_DATA,
-        CRAFTING_DATA,
-        COOKING_DATA,
-        FLETCHING_DATA,
-        FLETCHING_GROUP_LABELS,
-        FLETCHING_GROUP_ORDER,
-        HERBLORE_DATA,
-        PRAYER_DATA,
-        DEFAULT_PRAYER_TARGET,
-        PRAYER_GROUP_ORDER,
-        PRAYER_ITEM_IMAGES,
-        MAGIC_DATA,
-        DEFAULT_MAGIC_TARGET,
-        MAGIC_GROUP_ORDER,
-        MAGIC_ITEM_IMAGES,
-        MAGIC_SPELL_IMAGES,
-        CONSTRUCTION_DATA,
-        DEFAULT_CONSTRUCTION_TARGET,
-        CONSTRUCTION_ITEM_IMAGES,
-        FARMING_COMPOST_STATE_IMAGES,
-        FARMING_HUD_SPROUT_ICON,
-        FARMING_PATCH_STATE_IMAGES,
-        HERBLORE_GROUP_LABELS,
-        FIREMAKING_DATA,
-        FISHING_DATA,
-        HUNTER_DATA,
-        HUNTER_GROUP_LABELS,
-        HUNTER_GROUP_ORDER,
-        RUNECRAFTING_DATA,
-        RUNECRAFTING_POUCH_DATA,
-        QUEST_DATA,
-        QUEST_UNLOCK_RULES,
-        CLAIM_DATA,
-        COMBAT_FOOD_DATA,
-        COMBAT_ATTACK_STYLE_DATA,
-        COMBAT_ENEMY_DATA,
-        COMBAT_ENEMY_IMAGES,
-        COMBAT_MAGIC_SPELL_DATA,
-        COMBAT_TARGET_GROUP_ORDER,
-        BINDING_NECKLACE_ITEM,
-        DEFAULT_COMBAT_ATTACK_STYLE,
-        DEFAULT_COMBAT_SPELL,
-        DEFAULT_COMBAT_TARGET,
-        FIREMAKING_LOG_ITEMS,
-        FISHING_OUTPUT_ITEMS,
-        RUNECRAFTING_GROUP_LABELS,
-        UTILITY_ACTIVITY_DATA,
-        UTILITY_SURFACE_ID,
-        ACTIVITY_SURFACE_ID,
-        FAMILIARISATION_ACTIVITY_ID,
-        DEFAULT_FIREMAKING_TARGET,
-        DEFAULT_FISHING_TARGET,
-        DEFAULT_HUNTER_TARGET,
-        DEFAULT_COOKING_TARGET,
-        DEFAULT_RUNECRAFTING_TARGET,
-        DEFAULT_HERBLORE_TARGET,
-        DEFAULT_UTILITY_ACTIVITY,
-        ORE_IMAGES,
-        TREE_IMAGES,
-        BAR_IMAGES,
-        GEM_IMAGES,
-        CRAFTED_ITEM_IMAGES,
-        FLETCHED_ITEM_IMAGES,
-        FIREMAKING_ITEM_IMAGES,
-        FISHING_ITEM_IMAGES,
-        HUNTER_ITEM_IMAGES,
-        COOKING_ITEM_IMAGES,
-        RUNECRAFTING_ITEM_IMAGES,
-        HERBLORE_ITEM_IMAGES,
-        HERBLORE_OUTPUT_ITEMS,
-        SUMMONING_ITEM_IMAGES,
-        UTILITY_ITEM_IMAGES,
-        ACHIEVEMENTS,
-        EQUIPMENT_SLOTS,
-        EQUIPMENT_ITEM_DATA,
-        current_dir,
-    )
-except Exception:
-    # Fallback for direct module import in tests
-    from constants import (  # type: ignore
-        EXP_TABLE,
-        ORE_DATA,
-        MINING_OUTPUT_ITEMS,
-        MINING_PICKAXE_DATA,
-        MINING_BONUS_ITEM_DATA,
-        DEFAULT_MINING_TARGET,
-        TREE_DATA,
-        WOODCUTTING_AXE_DATA,
-        WOODCUTTING_LOG_ITEMS,
-        DEFAULT_WOODCUTTING_TARGET,
-        BIRD_NEST_OPEN_TABLES,
-        BAR_DATA,
-        SMITHING_DATA,
-        DEFAULT_SMITHING_TARGET,
-        GEM_DATA,
-        CRAFTING_DATA,
-        COOKING_DATA,
-        FLETCHING_DATA,
-        FLETCHING_GROUP_LABELS,
-        FLETCHING_GROUP_ORDER,
-        HERBLORE_DATA,
-        PRAYER_DATA,
-        DEFAULT_PRAYER_TARGET,
-        PRAYER_GROUP_ORDER,
-        PRAYER_ITEM_IMAGES,
-        MAGIC_DATA,
-        DEFAULT_MAGIC_TARGET,
-        MAGIC_GROUP_ORDER,
-        MAGIC_ITEM_IMAGES,
-        MAGIC_SPELL_IMAGES,
-        CONSTRUCTION_DATA,
-        DEFAULT_CONSTRUCTION_TARGET,
-        CONSTRUCTION_ITEM_IMAGES,
-        FARMING_COMPOST_STATE_IMAGES,
-        FARMING_HUD_SPROUT_ICON,
-        FARMING_PATCH_STATE_IMAGES,
-        HERBLORE_GROUP_LABELS,
-        FIREMAKING_DATA,
-        FISHING_DATA,
-        HUNTER_DATA,
-        HUNTER_GROUP_LABELS,
-        HUNTER_GROUP_ORDER,
-        RUNECRAFTING_DATA,
-        RUNECRAFTING_POUCH_DATA,
-        QUEST_DATA,
-        QUEST_UNLOCK_RULES,
-        CLAIM_DATA,
-        COMBAT_FOOD_DATA,
-        COMBAT_ATTACK_STYLE_DATA,
-        COMBAT_ENEMY_DATA,
-        COMBAT_ENEMY_IMAGES,
-        COMBAT_MAGIC_SPELL_DATA,
-        COMBAT_TARGET_GROUP_ORDER,
-        BINDING_NECKLACE_ITEM,
-        DEFAULT_COMBAT_ATTACK_STYLE,
-        DEFAULT_COMBAT_SPELL,
-        DEFAULT_COMBAT_TARGET,
-        FIREMAKING_LOG_ITEMS,
-        FISHING_OUTPUT_ITEMS,
-        RUNECRAFTING_GROUP_LABELS,
-        UTILITY_ACTIVITY_DATA,
-        UTILITY_SURFACE_ID,
-        ACTIVITY_SURFACE_ID,
-        FAMILIARISATION_ACTIVITY_ID,
-        DEFAULT_FIREMAKING_TARGET,
-        DEFAULT_FISHING_TARGET,
-        DEFAULT_HUNTER_TARGET,
-        DEFAULT_COOKING_TARGET,
-        DEFAULT_RUNECRAFTING_TARGET,
-        DEFAULT_HERBLORE_TARGET,
-        DEFAULT_UTILITY_ACTIVITY,
-        ORE_IMAGES,
-        TREE_IMAGES,
-        BAR_IMAGES,
-        GEM_IMAGES,
-        CRAFTED_ITEM_IMAGES,
-        FLETCHED_ITEM_IMAGES,
-        FIREMAKING_ITEM_IMAGES,
-        FISHING_ITEM_IMAGES,
-        HUNTER_ITEM_IMAGES,
-        COOKING_ITEM_IMAGES,
-        RUNECRAFTING_ITEM_IMAGES,
-        HERBLORE_ITEM_IMAGES,
-        HERBLORE_OUTPUT_ITEMS,
-        SUMMONING_ITEM_IMAGES,
-        UTILITY_ITEM_IMAGES,
-        ACHIEVEMENTS,
-        EQUIPMENT_SLOTS,
-        EQUIPMENT_ITEM_DATA,
-        current_dir,
-    )
+from ..core.constants import (
+    EXP_TABLE,
+    ORE_DATA,
+    MINING_OUTPUT_ITEMS,
+    MINING_PICKAXE_DATA,
+    MINING_BONUS_ITEM_DATA,
+    DEFAULT_MINING_TARGET,
+    TREE_DATA,
+    WOODCUTTING_AXE_DATA,
+    WOODCUTTING_LOG_ITEMS,
+    DEFAULT_WOODCUTTING_TARGET,
+    BIRD_NEST_OPEN_TABLES,
+    BAR_DATA,
+    SMITHING_DATA,
+    DEFAULT_SMITHING_TARGET,
+    GEM_DATA,
+    CRAFTING_DATA,
+    COOKING_DATA,
+    FLETCHING_DATA,
+    FLETCHING_GROUP_LABELS,
+    FLETCHING_GROUP_ORDER,
+    HERBLORE_DATA,
+    PRAYER_DATA,
+    DEFAULT_PRAYER_TARGET,
+    PRAYER_GROUP_ORDER,
+    PRAYER_ITEM_IMAGES,
+    MAGIC_DATA,
+    DEFAULT_MAGIC_TARGET,
+    MAGIC_GROUP_ORDER,
+    MAGIC_ITEM_IMAGES,
+    MAGIC_SPELL_IMAGES,
+    CONSTRUCTION_DATA,
+    DEFAULT_CONSTRUCTION_TARGET,
+    CONSTRUCTION_ITEM_IMAGES,
+    FARMING_COMPOST_STATE_IMAGES,
+    FARMING_HUD_SPROUT_ICON,
+    FARMING_PATCH_STATE_IMAGES,
+    HERBLORE_GROUP_LABELS,
+    FIREMAKING_DATA,
+    FISHING_DATA,
+    HUNTER_DATA,
+    HUNTER_GROUP_LABELS,
+    HUNTER_GROUP_ORDER,
+    RUNECRAFTING_DATA,
+    RUNECRAFTING_POUCH_DATA,
+    QUEST_DATA,
+    QUEST_UNLOCK_RULES,
+    CLAIM_DATA,
+    COMBAT_FOOD_DATA,
+    COMBAT_ATTACK_STYLE_DATA,
+    COMBAT_ENEMY_DATA,
+    COMBAT_ENEMY_IMAGES,
+    COMBAT_MAGIC_SPELL_DATA,
+    COMBAT_TARGET_GROUP_ORDER,
+    BINDING_NECKLACE_ITEM,
+    DEFAULT_COMBAT_ATTACK_STYLE,
+    DEFAULT_COMBAT_SPELL,
+    DEFAULT_COMBAT_TARGET,
+    FIREMAKING_LOG_ITEMS,
+    FISHING_OUTPUT_ITEMS,
+    RUNECRAFTING_GROUP_LABELS,
+    UTILITY_ACTIVITY_DATA,
+    UTILITY_SURFACE_ID,
+    ACTIVITY_SURFACE_ID,
+    FAMILIARISATION_ACTIVITY_ID,
+    DEFAULT_FIREMAKING_TARGET,
+    DEFAULT_FISHING_TARGET,
+    DEFAULT_HUNTER_TARGET,
+    DEFAULT_COOKING_TARGET,
+    DEFAULT_RUNECRAFTING_TARGET,
+    DEFAULT_HERBLORE_TARGET,
+    DEFAULT_UTILITY_ACTIVITY,
+    ORE_IMAGES,
+    TREE_IMAGES,
+    BAR_IMAGES,
+    GEM_IMAGES,
+    CRAFTED_ITEM_IMAGES,
+    FLETCHED_ITEM_IMAGES,
+    FIREMAKING_ITEM_IMAGES,
+    FISHING_ITEM_IMAGES,
+    HUNTER_ITEM_IMAGES,
+    COOKING_ITEM_IMAGES,
+    RUNECRAFTING_ITEM_IMAGES,
+    HERBLORE_ITEM_IMAGES,
+    HERBLORE_OUTPUT_ITEMS,
+    SUMMONING_ITEM_IMAGES,
+    UTILITY_ITEM_IMAGES,
+    ACHIEVEMENTS,
+    EQUIPMENT_SLOTS,
+    EQUIPMENT_ITEM_DATA,
+    current_dir,
+)
+
+from ..logic.grand_exchange_logic import GE_SLOT_COUNT
+
+from ..data.pack_data import ITEM_PACK_DATA
+
+from ..data.evil_tree_data import EVIL_TREE_KINDLING, EVIL_TREE_UTILITY_ID
+from ..logic.evil_tree_logic import evil_tree_view_pure
+
+from ..data.big_chinchompa_data import (
+    BIG_CHINCHOMPA_REWARDS,
+    BIG_CHINCHOMPA_TICKET_BY_TARGET,
+    BIG_CHINCHOMPA_UTILITY_ID,
+    WORLD_POPULATION_PROFILE_LABELS,
+)
+from ..logic.big_chinchompa_logic import (
+    big_chinchompa_view_pure,
+    hunter_private_ground_status_pure,
+)
+
+from ..data.shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
+from ..logic.shooting_star_logic import shooting_star_view_pure
+
+from ..data.fist_of_guthix_data import (
+    FIST_OF_GUTHIX_ACTIVITY_ID,
+    FIST_OF_GUTHIX_CHARGE_CAP,
+)
+from ..logic.fist_of_guthix_logic import fist_of_guthix_view_pure
+
+from ..data.sorceress_garden_data import SORCERESS_GARDEN_ACTIVITY_ID
+from ..logic.sorceress_garden_logic import sorceress_garden_view_pure
+
+from ..data.penguin_hide_and_seek_data import (
+    PENGUIN_COINS_PER_POINT,
+    PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID,
+    PENGUIN_XP_PER_LEVEL_POINT,
+)
+from ..logic.penguin_hide_and_seek_logic import (
+    penguin_reward_skills_pure,
+    penguin_view_pure,
+)
+
+from ..data.vinesweeper_data import VINESWEEPER_ACTIVITY_ID
+from ..logic.vinesweeper_logic import vinesweeper_view_pure
+
+from ..data.fight_caves_data import FIGHT_CAVES_ACTIVITY_ID
+from ..logic.fight_caves_logic import fight_caves_view_pure
+
+from ..data.phoenix_lair_data import PHOENIX_LAIR_ACTIVITY_ID
+from ..logic.phoenix_lair_logic import phoenix_lair_view_pure
+
+from ..data.barrows_data import BARROWS_ACTIVITY_ID, BARROWS_BROTHER_DATA
+from ..logic.barrows_logic import barrows_view_pure
+
+from ..data.flash_powder_factory_data import (
+    FLASH_POWDER_FACTORY_ACTIVITY_ID,
+    FLASH_POWDER_FACTORY_APPARATUS_POLICIES,
+    FLASH_POWDER_FACTORY_STRATEGIES,
+    FLASH_POWDER_FACTORY_XP_LOTS,
+    ROGUE_KIT_OUTPUTS,
+)
+from ..logic.flash_powder_factory_logic import flash_powder_factory_view_pure
+
+from ..data.pyramid_plunder_data import (
+    PYRAMID_PLUNDER_ACTIVITY_ID,
+    PYRAMID_PLUNDER_PRIORITIES,
+)
+from ..logic.pyramid_plunder_logic import pyramid_plunder_view_pure
+
+from ..data.werewolf_skullball_data import (
+    WEREWOLF_SKULLBALL_ACTIVITY_ID,
+    WEREWOLF_SKULLBALL_ROUTE_PRESETS,
+)
+from ..logic.werewolf_skullball_logic import werewolf_skullball_view_pure
+
+from ..data.gnome_ball_data import GNOME_BALL_ACTIVITY_ID
+from ..logic.gnome_ball_logic import gnome_ball_view_pure
+
+from ..data.fish_flingers_data import FISH_FLINGERS_ACTIVITY_ID
+from ..logic.fish_flingers_logic import fish_flingers_view_pure
+
+from ..data.fishing_trawler_data import (
+    FISHING_TRAWLER_ACTIVITY_ID,
+    FISHING_TRAWLER_DUTIES,
+    FISHING_TRAWLER_SINK_WATER,
+)
+from ..logic.fishing_trawler_logic import fishing_trawler_view_pure
+
+from ..data.great_orb_project_data import (
+    GREAT_ORB_PROJECT_ACTIVITY_ID,
+    GREAT_ORB_PROJECT_CRAFTING_POLICIES,
+    GREAT_ORB_PROJECT_DOCTRINES,
+    GREAT_ORB_PROJECT_ROUNDS,
+)
+from ..logic.great_orb_project_logic import great_orb_project_view_pure
+
+from ..data.court_cases_data import COURT_CASES_ACTIVITY_ID, COURT_ROLE_LABELS
+from ..logic.court_cases_logic import court_cases_view_pure
+
+from ..data.circus_data import (
+    CIRCUS_ACTIVITY_ID,
+    CIRCUS_PERFORMANCES,
+    CIRCUS_REWARDS,
+    CIRCUS_STRATEGIES,
+)
+from ..logic.circus_logic import circus_view_pure
+
+from ..data.trouble_brewing_data import (
+    TROUBLE_BREWING_ACTIVITY_ID,
+    TROUBLE_BREWING_DUTIES,
+    TROUBLE_BREWING_EVENT_REVIEWS,
+)
+from ..logic.trouble_brewing_logic import trouble_brewing_view_pure
+
+from ..data.castle_wars_data import (
+    CASTLE_WARS_ACTIVITY_ID,
+    CASTLE_WARS_DUTIES,
+    CASTLE_WARS_MATCH_REVIEWS,
+    CASTLE_WARS_TEAMS,
+)
+from ..logic.castle_wars_logic import castle_wars_view_pure
+
+from ..data.pest_control_data import (
+    PEST_CONTROL_ACTIVITY_ID,
+    PEST_CONTROL_DUTIES,
+    PEST_CONTROL_EVENT_REVIEWS,
+)
+from ..logic.pest_control_logic import pest_control_view_pure
+
+from ..data.barbarian_assault_data import (
+    BARBARIAN_ASSAULT_ACTIVITY_ID,
+    BARBARIAN_ASSAULT_QUEEN_EGGS,
+    BARBARIAN_ASSAULT_ROLES,
+)
+from ..logic.barbarian_assault_logic import barbarian_assault_view_pure
+
+from ..data.varrock_museum_data import (
+    QUIZ_DISPLAYS,
+    SPECIMEN_DISPLAYS,
+    VARROCK_MUSEUM_ACTIVITY_ID,
+)
+from ..logic.varrock_museum_logic import varrock_museum_view_pure
+
+from ..data.stronghold_player_safety_data import (
+    STRONGHOLD_LANDMARKS,
+    STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID,
+)
+from ..logic.stronghold_player_safety_logic import stronghold_player_safety_view_pure
+
+from ..data.soul_wars_data import (
+    SOUL_WARS_ACTIVITY_ID,
+    SOUL_WARS_DUTIES,
+    SOUL_WARS_EVENT_REVIEWS,
+    SOUL_WARS_TEAMS,
+)
+from ..logic.soul_wars_logic import soul_wars_view_pure
+
+from ..data.shades_of_mortton_data import (
+    SHADES_BRONZE_KEYS,
+    SHADES_DUTIES,
+    SHADES_OF_MORTTON_ACTIVITY_ID,
+    SHADES_PYRE_LOGS,
+)
+from ..logic.shades_of_mortton_logic import shades_of_mortton_view_pure
+
+from ..data.tzhaar_fight_pit_data import (
+    TZHAAR_FIGHT_PIT_ACTIVITY_ID,
+    TZHAAR_FIGHT_PIT_POLICIES,
+)
+from ..logic.tzhaar_fight_pit_logic import tzhaar_fight_pit_view_pure
+
+from ..data.managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
+from ..logic.managing_miscellania_logic import managing_miscellania_view_pure
+
+from ..data.stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
+from ..logic.stealing_creation_logic import stealing_creation_view_pure
+
+from ..logic.combat_session import (
+    confirm_wilderness_combat_risk,
+    wilderness_combat_risk_confirmed,
+    wilderness_combat_risk_fingerprint,
+)
+
+from ..data.warriors_guild_data import (
+    WARRIORS_GUILD_ACTIVITY_IDS,
+    WARRIORS_GUILD_TOKEN_KEYS,
+)
+from ..logic.warriors_guild_logic import warriors_guild_view_pure
+from ..data.summoning_data import (
+    DEFAULT_SUMMONING_TARGET,
+    SUMMONING_ACTIONS,
+    SUMMONING_ACTIONS_BY_ID,
+    SUMMONING_POUCHES,
+    SUMMONING_POUCHES_BY_ID,
+)
+from ..data.pet_data import OBTAINABLE_PETS, PETS_BY_ID
+from ..data.slayer_data import (
+    DEFAULT_SLAYER_MASTER_ID,
+    SLAYER_FAMILIES_BY_ID,
+    TURAEL_MASTER,
+)
+from ..logic.slayer_logic import (
+    sanitize_slayer_state_pure,
+    slayer_master_display_name_pure,
+    slayer_target_ids_for_assignment_pure,
+)
+from ..logic_pure.logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, combat_finisher_state_pure, player_combat_level_pure
+from ..core.skill_registry import get_skill
+from ..logic.wicked_hood_logic import wicked_hood_view_pure
+from ..logic_pure.logic_pure import combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure
+
+from ..data.prayer_data import COMBAT_PRAYERS, prayer_selection_from_target_pure
+
+from ..logic_pure.logic_pure import (
+    effective_gilded_altar_multiplier_pure,
+    full_urn_teleport_info_pure,
+    owned_gilded_altar_effective_burners_pure,
+    prayer_selection_locked_reasons_pure,
+)
+
+from ..logic_pure.logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_GOD_DATA, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure, sanitize_mage_arena_state_pure, landmark_hud_progress_pure
+
+from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS
+
+from ..core.skill_hub import CategoryView, SkillCardView, build_skill_hub, first_category_id
+
+from ..core.skill_registry import implemented_skill_definitions, implemented_review_skill_names, get_skill, trainable_skill_definitions
+
+from ..core.help_system import (
+    HELP_HOME_ID,
+    PRIMARY_HELP_TOPIC_BY_TAB_LABEL,
+    HelpRegistryTable,
+    HelpTopic,
+    load_help_topics,
+    render_help_topic_html,
+    resolve_help_topic,
+    search_help_topics,
+    topics_by_id,
+)
+
+from ..core.achievement_metadata import (
+    ACHIEVEMENT_DIFFICULTIES,
+    achievement_difficulty_progress,
+    achievement_progress,
+    achievement_rows_for_difficulty,
+)
+
+from ..core.target_metadata import (
+    TargetRowMetadata,
+    target_details_from_row_pure,
+    combat_target_rows,
+    cooking_target_rows,
+    crafting_target_rows,
+    firemaking_target_rows,
+    fishing_target_rows,
+    fletching_target_rows,
+    herblore_target_rows,
+    hunter_target_rows,
+    mining_target_rows,
+    magic_target_rows,
+    prayer_target_rows,
+    construction_target_rows,
+    runecrafting_target_rows,
+    smithing_target_rows,
+    thieving_target_rows,
+    agility_target_rows,
+    summoning_target_rows,
+    utility_activity_rows,
+    woodcutting_target_rows,
+)
+
+from ..data.livid_farm_data import (
+    BORROWED_POWER_COMBAT_SPELLS,
+    LIVID_FARM_ACTIVITY_ID,
+    LIVID_FARM_UNLOCKS,
+)
+from ..logic.livid_farm_logic import (
+    arcane_capacitor_spell_rows_pure,
+    arcane_capacitor_status_pure,
+    livid_farm_cycle_projection_pure,
+    livid_farm_locked_reasons_pure,
+    livid_farm_wish_rows_pure,
+    sanitize_livid_farm_state_pure,
+)
+
+from ..data.construction_data import NAIL_DATA, ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA, WORKBENCH_TIERS
 
 try:
-    from .grand_exchange_logic import GE_SLOT_COUNT
-except Exception:
-    from grand_exchange_logic import GE_SLOT_COUNT  # type: ignore
-
-try:
-    from .pack_data import ITEM_PACK_DATA
-except Exception:
-    from pack_data import ITEM_PACK_DATA  # type: ignore
-
-try:
-    from .evil_tree_data import EVIL_TREE_KINDLING, EVIL_TREE_UTILITY_ID
-    from .evil_tree_logic import evil_tree_view_pure
-except Exception:
-    from evil_tree_data import (  # type: ignore
-        EVIL_TREE_KINDLING,
-        EVIL_TREE_UTILITY_ID,
-    )
-    from evil_tree_logic import evil_tree_view_pure  # type: ignore
-
-try:
-    from .big_chinchompa_data import (
-        BIG_CHINCHOMPA_REWARDS,
-        BIG_CHINCHOMPA_TICKET_BY_TARGET,
-        BIG_CHINCHOMPA_UTILITY_ID,
-        WORLD_POPULATION_PROFILE_LABELS,
-    )
-    from .big_chinchompa_logic import (
-        big_chinchompa_view_pure,
-        hunter_private_ground_status_pure,
-    )
-except Exception:
-    from big_chinchompa_data import (  # type: ignore
-        BIG_CHINCHOMPA_REWARDS,
-        BIG_CHINCHOMPA_TICKET_BY_TARGET,
-        BIG_CHINCHOMPA_UTILITY_ID,
-        WORLD_POPULATION_PROFILE_LABELS,
-    )
-    from big_chinchompa_logic import (  # type: ignore
-        big_chinchompa_view_pure,
-        hunter_private_ground_status_pure,
-    )
-
-try:
-    from .shooting_star_data import SHOOTING_STAR_ACTIVITY_ID
-    from .shooting_star_logic import shooting_star_view_pure
-except Exception:
-    from shooting_star_data import SHOOTING_STAR_ACTIVITY_ID  # type: ignore
-    from shooting_star_logic import shooting_star_view_pure  # type: ignore
-
-try:
-    from .fist_of_guthix_data import (
-        FIST_OF_GUTHIX_ACTIVITY_ID,
-        FIST_OF_GUTHIX_CHARGE_CAP,
-    )
-    from .fist_of_guthix_logic import fist_of_guthix_view_pure
-except Exception:
-    from fist_of_guthix_data import (  # type: ignore
-        FIST_OF_GUTHIX_ACTIVITY_ID,
-        FIST_OF_GUTHIX_CHARGE_CAP,
-    )
-    from fist_of_guthix_logic import fist_of_guthix_view_pure  # type: ignore
-
-try:
-    from .sorceress_garden_data import SORCERESS_GARDEN_ACTIVITY_ID
-    from .sorceress_garden_logic import sorceress_garden_view_pure
-except Exception:
-    from sorceress_garden_data import SORCERESS_GARDEN_ACTIVITY_ID  # type: ignore
-    from sorceress_garden_logic import sorceress_garden_view_pure  # type: ignore
-
-try:
-    from .penguin_hide_and_seek_data import (
-        PENGUIN_COINS_PER_POINT,
-        PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID,
-        PENGUIN_XP_PER_LEVEL_POINT,
-    )
-    from .penguin_hide_and_seek_logic import (
-        penguin_reward_skills_pure,
-        penguin_view_pure,
-    )
-except Exception:
-    from penguin_hide_and_seek_data import (  # type: ignore
-        PENGUIN_COINS_PER_POINT,
-        PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID,
-        PENGUIN_XP_PER_LEVEL_POINT,
-    )
-    from penguin_hide_and_seek_logic import (  # type: ignore
-        penguin_reward_skills_pure,
-        penguin_view_pure,
-    )
-
-try:
-    from .vinesweeper_data import VINESWEEPER_ACTIVITY_ID
-    from .vinesweeper_logic import vinesweeper_view_pure
-except Exception:
-    from vinesweeper_data import VINESWEEPER_ACTIVITY_ID  # type: ignore
-    from vinesweeper_logic import vinesweeper_view_pure  # type: ignore
-
-try:
-    from .fight_caves_data import FIGHT_CAVES_ACTIVITY_ID
-    from .fight_caves_logic import fight_caves_view_pure
-except Exception:
-    from fight_caves_data import FIGHT_CAVES_ACTIVITY_ID  # type: ignore
-    from fight_caves_logic import fight_caves_view_pure  # type: ignore
-
-try:
-    from .phoenix_lair_data import PHOENIX_LAIR_ACTIVITY_ID
-    from .phoenix_lair_logic import phoenix_lair_view_pure
-except Exception:
-    from phoenix_lair_data import PHOENIX_LAIR_ACTIVITY_ID  # type: ignore
-    from phoenix_lair_logic import phoenix_lair_view_pure  # type: ignore
-
-try:
-    from .barrows_data import BARROWS_ACTIVITY_ID, BARROWS_BROTHER_DATA
-    from .barrows_logic import barrows_view_pure
-except Exception:
-    from barrows_data import BARROWS_ACTIVITY_ID, BARROWS_BROTHER_DATA  # type: ignore
-    from barrows_logic import barrows_view_pure  # type: ignore
-
-try:
-    from .flash_powder_factory_data import (
-        FLASH_POWDER_FACTORY_ACTIVITY_ID,
-        FLASH_POWDER_FACTORY_APPARATUS_POLICIES,
-        FLASH_POWDER_FACTORY_STRATEGIES,
-        FLASH_POWDER_FACTORY_XP_LOTS,
-        ROGUE_KIT_OUTPUTS,
-    )
-    from .flash_powder_factory_logic import flash_powder_factory_view_pure
-except Exception:
-    from flash_powder_factory_data import (  # type: ignore
-        FLASH_POWDER_FACTORY_ACTIVITY_ID,
-        FLASH_POWDER_FACTORY_APPARATUS_POLICIES,
-        FLASH_POWDER_FACTORY_STRATEGIES,
-        FLASH_POWDER_FACTORY_XP_LOTS,
-        ROGUE_KIT_OUTPUTS,
-    )
-    from flash_powder_factory_logic import (  # type: ignore
-        flash_powder_factory_view_pure,
-    )
-
-try:
-    from .pyramid_plunder_data import (
-        PYRAMID_PLUNDER_ACTIVITY_ID,
-        PYRAMID_PLUNDER_PRIORITIES,
-    )
-    from .pyramid_plunder_logic import pyramid_plunder_view_pure
-except Exception:
-    from pyramid_plunder_data import (  # type: ignore
-        PYRAMID_PLUNDER_ACTIVITY_ID,
-        PYRAMID_PLUNDER_PRIORITIES,
-    )
-    from pyramid_plunder_logic import pyramid_plunder_view_pure  # type: ignore
-
-try:
-    from .werewolf_skullball_data import (
-        WEREWOLF_SKULLBALL_ACTIVITY_ID,
-        WEREWOLF_SKULLBALL_ROUTE_PRESETS,
-    )
-    from .werewolf_skullball_logic import werewolf_skullball_view_pure
-except Exception:
-    from werewolf_skullball_data import (  # type: ignore
-        WEREWOLF_SKULLBALL_ACTIVITY_ID,
-        WEREWOLF_SKULLBALL_ROUTE_PRESETS,
-    )
-    from werewolf_skullball_logic import werewolf_skullball_view_pure  # type: ignore
-
-try:
-    from .gnome_ball_data import GNOME_BALL_ACTIVITY_ID
-    from .gnome_ball_logic import gnome_ball_view_pure
-except Exception:
-    from gnome_ball_data import GNOME_BALL_ACTIVITY_ID  # type: ignore
-    from gnome_ball_logic import gnome_ball_view_pure  # type: ignore
-
-try:
-    from .fish_flingers_data import FISH_FLINGERS_ACTIVITY_ID
-    from .fish_flingers_logic import fish_flingers_view_pure
-except Exception:
-    from fish_flingers_data import FISH_FLINGERS_ACTIVITY_ID  # type: ignore
-    from fish_flingers_logic import fish_flingers_view_pure  # type: ignore
-
-try:
-    from .fishing_trawler_data import (
-        FISHING_TRAWLER_ACTIVITY_ID,
-        FISHING_TRAWLER_DUTIES,
-        FISHING_TRAWLER_SINK_WATER,
-    )
-    from .fishing_trawler_logic import fishing_trawler_view_pure
-except Exception:
-    from fishing_trawler_data import (  # type: ignore
-        FISHING_TRAWLER_ACTIVITY_ID,
-        FISHING_TRAWLER_DUTIES,
-        FISHING_TRAWLER_SINK_WATER,
-    )
-    from fishing_trawler_logic import fishing_trawler_view_pure  # type: ignore
-
-try:
-    from .great_orb_project_data import (
-        GREAT_ORB_PROJECT_ACTIVITY_ID,
-        GREAT_ORB_PROJECT_CRAFTING_POLICIES,
-        GREAT_ORB_PROJECT_DOCTRINES,
-        GREAT_ORB_PROJECT_ROUNDS,
-    )
-    from .great_orb_project_logic import great_orb_project_view_pure
-except Exception:
-    from great_orb_project_data import (  # type: ignore
-        GREAT_ORB_PROJECT_ACTIVITY_ID,
-        GREAT_ORB_PROJECT_CRAFTING_POLICIES,
-        GREAT_ORB_PROJECT_DOCTRINES,
-        GREAT_ORB_PROJECT_ROUNDS,
-    )
-    from great_orb_project_logic import great_orb_project_view_pure  # type: ignore
-
-try:
-    from .court_cases_data import COURT_CASES_ACTIVITY_ID, COURT_ROLE_LABELS
-    from .court_cases_logic import court_cases_view_pure
-except Exception:
-    from court_cases_data import COURT_CASES_ACTIVITY_ID, COURT_ROLE_LABELS  # type: ignore
-    from court_cases_logic import court_cases_view_pure  # type: ignore
-
-try:
-    from .circus_data import (
-        CIRCUS_ACTIVITY_ID,
-        CIRCUS_PERFORMANCES,
-        CIRCUS_REWARDS,
-        CIRCUS_STRATEGIES,
-    )
-    from .circus_logic import circus_view_pure
-except Exception:
-    from circus_data import (  # type: ignore
-        CIRCUS_ACTIVITY_ID,
-        CIRCUS_PERFORMANCES,
-        CIRCUS_REWARDS,
-        CIRCUS_STRATEGIES,
-    )
-    from circus_logic import circus_view_pure  # type: ignore
-
-try:
-    from .trouble_brewing_data import (
-        TROUBLE_BREWING_ACTIVITY_ID,
-        TROUBLE_BREWING_DUTIES,
-        TROUBLE_BREWING_EVENT_REVIEWS,
-    )
-    from .trouble_brewing_logic import trouble_brewing_view_pure
-except Exception:
-    from trouble_brewing_data import (  # type: ignore
-        TROUBLE_BREWING_ACTIVITY_ID,
-        TROUBLE_BREWING_DUTIES,
-        TROUBLE_BREWING_EVENT_REVIEWS,
-    )
-    from trouble_brewing_logic import trouble_brewing_view_pure  # type: ignore
-
-try:
-    from .castle_wars_data import (
-        CASTLE_WARS_ACTIVITY_ID,
-        CASTLE_WARS_DUTIES,
-        CASTLE_WARS_MATCH_REVIEWS,
-        CASTLE_WARS_TEAMS,
-    )
-    from .castle_wars_logic import castle_wars_view_pure
-except Exception:
-    from castle_wars_data import (  # type: ignore
-        CASTLE_WARS_ACTIVITY_ID,
-        CASTLE_WARS_DUTIES,
-        CASTLE_WARS_MATCH_REVIEWS,
-        CASTLE_WARS_TEAMS,
-    )
-    from castle_wars_logic import castle_wars_view_pure  # type: ignore
-
-try:
-    from .pest_control_data import (
-        PEST_CONTROL_ACTIVITY_ID,
-        PEST_CONTROL_DUTIES,
-        PEST_CONTROL_EVENT_REVIEWS,
-    )
-    from .pest_control_logic import pest_control_view_pure
-except Exception:
-    from pest_control_data import (  # type: ignore
-        PEST_CONTROL_ACTIVITY_ID,
-        PEST_CONTROL_DUTIES,
-        PEST_CONTROL_EVENT_REVIEWS,
-    )
-    from pest_control_logic import pest_control_view_pure  # type: ignore
-
-try:
-    from .barbarian_assault_data import (
-        BARBARIAN_ASSAULT_ACTIVITY_ID,
-        BARBARIAN_ASSAULT_QUEEN_EGGS,
-        BARBARIAN_ASSAULT_ROLES,
-    )
-    from .barbarian_assault_logic import barbarian_assault_view_pure
-except Exception:
-    from barbarian_assault_data import (  # type: ignore
-        BARBARIAN_ASSAULT_ACTIVITY_ID,
-        BARBARIAN_ASSAULT_QUEEN_EGGS,
-        BARBARIAN_ASSAULT_ROLES,
-    )
-    from barbarian_assault_logic import barbarian_assault_view_pure  # type: ignore
-
-try:
-    from .varrock_museum_data import (
-        QUIZ_DISPLAYS,
-        SPECIMEN_DISPLAYS,
-        VARROCK_MUSEUM_ACTIVITY_ID,
-    )
-    from .varrock_museum_logic import varrock_museum_view_pure
-except Exception:
-    from varrock_museum_data import (  # type: ignore
-        QUIZ_DISPLAYS,
-        SPECIMEN_DISPLAYS,
-        VARROCK_MUSEUM_ACTIVITY_ID,
-    )
-    from varrock_museum_logic import varrock_museum_view_pure  # type: ignore
-
-try:
-    from .stronghold_player_safety_data import (
-        STRONGHOLD_LANDMARKS,
-        STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID,
-    )
-    from .stronghold_player_safety_logic import stronghold_player_safety_view_pure
-except Exception:
-    from stronghold_player_safety_data import (  # type: ignore
-        STRONGHOLD_LANDMARKS,
-        STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID,
-    )
-    from stronghold_player_safety_logic import (  # type: ignore
-        stronghold_player_safety_view_pure,
-    )
-
-try:
-    from .soul_wars_data import (
-        SOUL_WARS_ACTIVITY_ID,
-        SOUL_WARS_DUTIES,
-        SOUL_WARS_EVENT_REVIEWS,
-        SOUL_WARS_TEAMS,
-    )
-    from .soul_wars_logic import soul_wars_view_pure
-except Exception:
-    from soul_wars_data import (  # type: ignore
-        SOUL_WARS_ACTIVITY_ID,
-        SOUL_WARS_DUTIES,
-        SOUL_WARS_EVENT_REVIEWS,
-        SOUL_WARS_TEAMS,
-    )
-    from soul_wars_logic import soul_wars_view_pure  # type: ignore
-
-try:
-    from .shades_of_mortton_data import (
-        SHADES_BRONZE_KEYS,
-        SHADES_DUTIES,
-        SHADES_OF_MORTTON_ACTIVITY_ID,
-        SHADES_PYRE_LOGS,
-    )
-    from .shades_of_mortton_logic import shades_of_mortton_view_pure
-except Exception:
-    from shades_of_mortton_data import (  # type: ignore
-        SHADES_BRONZE_KEYS,
-        SHADES_DUTIES,
-        SHADES_OF_MORTTON_ACTIVITY_ID,
-        SHADES_PYRE_LOGS,
-    )
-    from shades_of_mortton_logic import shades_of_mortton_view_pure  # type: ignore
-
-try:
-    from .tzhaar_fight_pit_data import (
-        TZHAAR_FIGHT_PIT_ACTIVITY_ID,
-        TZHAAR_FIGHT_PIT_POLICIES,
-    )
-    from .tzhaar_fight_pit_logic import tzhaar_fight_pit_view_pure
-except Exception:
-    from tzhaar_fight_pit_data import (  # type: ignore
-        TZHAAR_FIGHT_PIT_ACTIVITY_ID,
-        TZHAAR_FIGHT_PIT_POLICIES,
-    )
-    from tzhaar_fight_pit_logic import tzhaar_fight_pit_view_pure  # type: ignore
-
-try:
-    from .managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
-    from .managing_miscellania_logic import managing_miscellania_view_pure
-except Exception:
-    from managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID  # type: ignore
-    from managing_miscellania_logic import managing_miscellania_view_pure  # type: ignore
-
-try:
-    from .stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
-    from .stealing_creation_logic import stealing_creation_view_pure
-except Exception:
-    from stealing_creation_data import STEALING_CREATION_ACTIVITY_ID  # type: ignore
-    from stealing_creation_logic import stealing_creation_view_pure  # type: ignore
-
-try:
-    from .combat_session import (
-        confirm_wilderness_combat_risk,
-        wilderness_combat_risk_confirmed,
-        wilderness_combat_risk_fingerprint,
-    )
-except ImportError:
-    from combat_session import (
-        confirm_wilderness_combat_risk,
-        wilderness_combat_risk_confirmed,
-        wilderness_combat_risk_fingerprint,
-    )
-
-try:
-    from .warriors_guild_data import (
-        WARRIORS_GUILD_ACTIVITY_IDS,
-        WARRIORS_GUILD_TOKEN_KEYS,
-    )
-    from .warriors_guild_logic import warriors_guild_view_pure
-except ImportError:
-    from warriors_guild_data import (  # type: ignore
-        WARRIORS_GUILD_ACTIVITY_IDS,
-        WARRIORS_GUILD_TOKEN_KEYS,
-    )
-    from warriors_guild_logic import warriors_guild_view_pure  # type: ignore
-try:
-    from .summoning_data import (
-        DEFAULT_SUMMONING_TARGET,
-        SUMMONING_ACTIONS,
-        SUMMONING_ACTIONS_BY_ID,
-        SUMMONING_POUCHES,
-        SUMMONING_POUCHES_BY_ID,
-    )
-    from .pet_data import OBTAINABLE_PETS, PETS_BY_ID
-except Exception:
-    from summoning_data import (  # type: ignore
-        DEFAULT_SUMMONING_TARGET,
-        SUMMONING_ACTIONS,
-        SUMMONING_ACTIONS_BY_ID,
-        SUMMONING_POUCHES,
-        SUMMONING_POUCHES_BY_ID,
-    )
-    from pet_data import OBTAINABLE_PETS, PETS_BY_ID  # type: ignore
-try:
-    from .slayer_data import (
-        DEFAULT_SLAYER_MASTER_ID,
-        SLAYER_FAMILIES_BY_ID,
-        TURAEL_MASTER,
-    )
-    from .slayer_logic import (
-        sanitize_slayer_state_pure,
-        slayer_master_display_name_pure,
-        slayer_target_ids_for_assignment_pure,
-    )
-except Exception:
-    from slayer_data import (  # type: ignore
-        DEFAULT_SLAYER_MASTER_ID,
-        SLAYER_FAMILIES_BY_ID,
-        TURAEL_MASTER,
-    )
-    from slayer_logic import (  # type: ignore
-        sanitize_slayer_state_pure,
-        slayer_master_display_name_pure,
-        slayer_target_ids_for_assignment_pure,
-    )
-try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, combat_finisher_state_pure, player_combat_level_pure
-    from .skill_registry import get_skill
-    from .wicked_hood_logic import wicked_hood_view_pure
-except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, combat_finisher_state_pure, player_combat_level_pure  # type: ignore
-    from skill_registry import get_skill  # type: ignore
-    from wicked_hood_logic import wicked_hood_view_pure  # type: ignore
-try:
-    from .logic_pure import combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure
-except Exception:
-    from logic_pure import combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure  # type: ignore
-
-try:
-    from .prayer_data import COMBAT_PRAYERS, prayer_selection_from_target_pure
-except Exception:
-    from prayer_data import COMBAT_PRAYERS, prayer_selection_from_target_pure  # type: ignore
-
-try:
-    from .logic_pure import (
-        effective_gilded_altar_multiplier_pure,
-        full_urn_teleport_info_pure,
-        owned_gilded_altar_effective_burners_pure,
-        prayer_selection_locked_reasons_pure,
-    )
-except Exception:
-    from logic_pure import (  # type: ignore
-        effective_gilded_altar_multiplier_pure,
-        full_urn_teleport_info_pure,
-        owned_gilded_altar_effective_burners_pure,
-        prayer_selection_locked_reasons_pure,
-    )
-
-try:
-    from .logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_GOD_DATA, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure, sanitize_mage_arena_state_pure, landmark_hud_progress_pure
-except Exception:
-    from logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_GOD_DATA, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure, sanitize_mage_arena_state_pure, landmark_hud_progress_pure  # type: ignore
-
-try:
-    from .equipment_data import EQUIPMENT_BONUS_FIELDS
-except Exception:
-    from equipment_data import EQUIPMENT_BONUS_FIELDS  # type: ignore
-
-try:
-    from .skill_hub import CategoryView, SkillCardView, build_skill_hub, first_category_id
-except Exception:
-    from skill_hub import CategoryView, SkillCardView, build_skill_hub, first_category_id  # type: ignore
-
-try:
-    from .skill_registry import implemented_skill_definitions, implemented_review_skill_names, get_skill, trainable_skill_definitions
-except Exception:
-    from skill_registry import implemented_skill_definitions, implemented_review_skill_names, get_skill, trainable_skill_definitions  # type: ignore
-
-try:
-    from .help_system import (
-        HELP_HOME_ID,
-        PRIMARY_HELP_TOPIC_BY_TAB_LABEL,
-        HelpRegistryTable,
-        HelpTopic,
-        load_help_topics,
-        render_help_topic_html,
-        resolve_help_topic,
-        search_help_topics,
-        topics_by_id,
-    )
-except Exception:
-    from help_system import (  # type: ignore
-        HELP_HOME_ID,
-        PRIMARY_HELP_TOPIC_BY_TAB_LABEL,
-        HelpRegistryTable,
-        HelpTopic,
-        load_help_topics,
-        render_help_topic_html,
-        resolve_help_topic,
-        search_help_topics,
-        topics_by_id,
-    )
-
-try:
-    from .achievement_metadata import (
-        ACHIEVEMENT_DIFFICULTIES,
-        achievement_difficulty_progress,
-        achievement_progress,
-        achievement_rows_for_difficulty,
-    )
-except Exception:
-    from achievement_metadata import (  # type: ignore
-        ACHIEVEMENT_DIFFICULTIES,
-        achievement_difficulty_progress,
-        achievement_progress,
-        achievement_rows_for_difficulty,
-    )
-
-try:
-    from .target_metadata import (
-        TargetRowMetadata,
-        target_details_from_row_pure,
-        combat_target_rows,
-        cooking_target_rows,
-        crafting_target_rows,
-        firemaking_target_rows,
-        fishing_target_rows,
-        fletching_target_rows,
-        herblore_target_rows,
-        hunter_target_rows,
-        mining_target_rows,
-        magic_target_rows,
-        prayer_target_rows,
-        construction_target_rows,
-        runecrafting_target_rows,
-        smithing_target_rows,
-        thieving_target_rows,
-        agility_target_rows,
-        summoning_target_rows,
-        utility_activity_rows,
-        woodcutting_target_rows,
-    )
-except Exception:
-    from target_metadata import (  # type: ignore
-        TargetRowMetadata,
-        target_details_from_row_pure,
-        combat_target_rows,
-        cooking_target_rows,
-        crafting_target_rows,
-        firemaking_target_rows,
-        fishing_target_rows,
-        fletching_target_rows,
-        herblore_target_rows,
-        hunter_target_rows,
-        mining_target_rows,
-        magic_target_rows,
-        prayer_target_rows,
-        construction_target_rows,
-        runecrafting_target_rows,
-        smithing_target_rows,
-        thieving_target_rows,
-        agility_target_rows,
-        summoning_target_rows,
-        utility_activity_rows,
-        woodcutting_target_rows,
-    )
-
-try:
-    from .livid_farm_data import (
-        BORROWED_POWER_COMBAT_SPELLS,
-        LIVID_FARM_ACTIVITY_ID,
-        LIVID_FARM_UNLOCKS,
-    )
-    from .livid_farm_logic import (
-        arcane_capacitor_spell_rows_pure,
-        arcane_capacitor_status_pure,
-        livid_farm_cycle_projection_pure,
-        livid_farm_locked_reasons_pure,
-        livid_farm_wish_rows_pure,
-        sanitize_livid_farm_state_pure,
-    )
-except ImportError:
-    from livid_farm_data import (  # type: ignore
-        BORROWED_POWER_COMBAT_SPELLS,
-        LIVID_FARM_ACTIVITY_ID,
-        LIVID_FARM_UNLOCKS,
-    )
-    from livid_farm_logic import (  # type: ignore
-        arcane_capacitor_spell_rows_pure,
-        arcane_capacitor_status_pure,
-        livid_farm_cycle_projection_pure,
-        livid_farm_locked_reasons_pure,
-        livid_farm_wish_rows_pure,
-        sanitize_livid_farm_state_pure,
-    )
-
-try:
-    from .construction_data import NAIL_DATA, ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA, WORKBENCH_TIERS
-except Exception:
-    from construction_data import NAIL_DATA, ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA, WORKBENCH_TIERS  # type: ignore
-
-try:
-    from . import thieving_data as _thieving_data
-except ImportError:
-    try:
-        import thieving_data as _thieving_data  # type: ignore
-    except ImportError:  # The data table may land after this isolated UI slice.
-        _thieving_data = None
+    from ..data import thieving_data as _thieving_data
+except ImportError:  # The data table may land after this isolated UI slice.
+    _thieving_data = None
 
 THIEVING_TARGETS = getattr(_thieving_data, "THIEVING_TARGETS", {})
 THIEVING_GROUP_LABELS = getattr(
@@ -915,98 +472,51 @@ DEFAULT_THIEVING_TARGET = str(
 THIEVING_ITEM_IMAGES = getattr(_thieving_data, "THIEVING_ITEM_IMAGES", {})
 THIEVING_NPC_IMAGES = getattr(_thieving_data, "THIEVING_NPC_IMAGES", {})
 
-try:
-    from .agility_data import (
-        AGILITY_GROUP_LABELS,
-        AGILITY_GROUP_ORDER,
-        AGILITY_TARGET_IMAGES,
-        AGILITY_TARGETS,
-        AGILITY_TARGETS_BY_ID,
-        ALL_AGILITY_SHORTCUTS,
-        DEFAULT_AGILITY_TARGET,
-    )
-    from .agility_logic import agility_status_line_pure, agility_target_locked_reasons_pure
-    from .review_context import review_context_projection_pure
-except ImportError:
-    from agility_data import (  # type: ignore
-        AGILITY_GROUP_LABELS,
-        AGILITY_GROUP_ORDER,
-        AGILITY_TARGET_IMAGES,
-        AGILITY_TARGETS,
-        AGILITY_TARGETS_BY_ID,
-        ALL_AGILITY_SHORTCUTS,
-        DEFAULT_AGILITY_TARGET,
-    )
-    from agility_logic import agility_status_line_pure, agility_target_locked_reasons_pure  # type: ignore
-    from review_context import review_context_projection_pure  # type: ignore
+from ..data.agility_data import (
+    AGILITY_GROUP_LABELS,
+    AGILITY_GROUP_ORDER,
+    AGILITY_TARGET_IMAGES,
+    AGILITY_TARGETS,
+    AGILITY_TARGETS_BY_ID,
+    ALL_AGILITY_SHORTCUTS,
+    DEFAULT_AGILITY_TARGET,
+)
+from ..logic.agility_logic import agility_status_line_pure, agility_target_locked_reasons_pure
+from ..core.review_context import review_context_projection_pure
 
-try:
-    from .shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS, SHOP_PLAYER_BUY_PRICES
-    from .shop_logic import (
-        apply_shop_buy_pure,
-        apply_shop_sell_pure,
-        apply_shop_service_pure,
-        apply_shop_vendor_action_pure,
-        preview_shop_buy_pure,
-        preview_shop_sell_pure,
-        preview_shop_service_pure,
-        preview_shop_vendor_action_pure,
-        search_shop_catalog_pure,
-        shop_history_rows_pure,
-        shop_view_model_pure,
-    )
-except Exception:
-    from shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS, SHOP_PLAYER_BUY_PRICES  # type: ignore
-    from shop_logic import (  # type: ignore
-        apply_shop_buy_pure,
-        apply_shop_sell_pure,
-        apply_shop_service_pure,
-        apply_shop_vendor_action_pure,
-        preview_shop_buy_pure,
-        preview_shop_sell_pure,
-        preview_shop_service_pure,
-        preview_shop_vendor_action_pure,
-        search_shop_catalog_pure,
-        shop_history_rows_pure,
-        shop_view_model_pure,
-    )
+from ..data.shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS, SHOP_PLAYER_BUY_PRICES
+from ..logic.shop_logic import (
+    apply_shop_buy_pure,
+    apply_shop_sell_pure,
+    apply_shop_service_pure,
+    apply_shop_vendor_action_pure,
+    preview_shop_buy_pure,
+    preview_shop_sell_pure,
+    preview_shop_service_pure,
+    preview_shop_vendor_action_pure,
+    search_shop_catalog_pure,
+    shop_history_rows_pure,
+    shop_view_model_pure,
+)
 
-try:
-    from .constants import ITEM_DEFINITIONS
-    from .item_registry import ItemDefinition, item_definitions_by_storage_key
-except Exception:
-    from constants import ITEM_DEFINITIONS  # type: ignore
-    from item_registry import ItemDefinition, item_definitions_by_storage_key  # type: ignore
+from ..core.constants import ITEM_DEFINITIONS
+from ..core.item_registry import ItemDefinition, item_definitions_by_storage_key
 
-try:
-    from . import inventory_pure
-except Exception:
-    import inventory_pure  # type: ignore
+from ..logic import inventory_pure
 
-try:
-    from .farming_data import LIVID_FARM_ALLOTMENT_PATCH_ID
-    from .farming_logic import (
-        CURE_PLANT_SPELL_FIRST,
-        PLANT_CURE_ITEM_FIRST,
-        farming_frontend_projection_pure,
-    )
-except Exception:
-    from farming_data import LIVID_FARM_ALLOTMENT_PATCH_ID  # type: ignore
-    from farming_logic import (  # type: ignore
-        CURE_PLANT_SPELL_FIRST,
-        PLANT_CURE_ITEM_FIRST,
-        farming_frontend_projection_pure,
-    )
+from ..data.farming_data import LIVID_FARM_ALLOTMENT_PATCH_ID
+from ..logic.farming_logic import (
+    CURE_PLANT_SPELL_FIRST,
+    PLANT_CURE_ITEM_FIRST,
+    farming_frontend_projection_pure,
+)
 
 # Central debug logger (support both package and flat import in tests)
 try:
-    from .debug import debug_log as _debug_log  # type: ignore
+    from ..core.debug import debug_log as _debug_log  # type: ignore
 except Exception:
-    try:
-        from debug import debug_log as _debug_log  # type: ignore
-    except Exception:
-        def _debug_log(msg: str) -> None:
-            pass
+    def _debug_log(msg: str) -> None:
+        pass
 
 # Lightweight context for the open Main Menu to allow dynamic UI refreshes
 _MAIN_MENU_CTX = {
@@ -4279,16 +3789,10 @@ def show_main_menu(
     # first show instead of on open. Their builders live in ui_tab_*.py and get
     # everything they need through this context object. The modules are imported
     # here rather than at module scope because they import ui.
-    try:
-        from .ui_menu_ctx import MainMenuCtx
-        from .ui_tab_achievements import build_achievements_tab
-        from .ui_tab_quests import build_quests_tab
-        from .ui_tab_shop import build_shop_tab
-    except Exception:
-        from ui_menu_ctx import MainMenuCtx  # type: ignore
-        from ui_tab_achievements import build_achievements_tab  # type: ignore
-        from ui_tab_quests import build_quests_tab  # type: ignore
-        from ui_tab_shop import build_shop_tab  # type: ignore
+    from ..ui.ui_menu_ctx import MainMenuCtx
+    from ..ui.ui_tab_achievements import build_achievements_tab
+    from ..ui.ui_tab_quests import build_quests_tab
+    from ..ui.ui_tab_shop import build_shop_tab
 
     ctx = MainMenuCtx(
         player_data=player_data,
@@ -20921,12 +20425,9 @@ def show_main_menu(
         amount = int((player_data.get("inventory", {}) or {}).get(item_name, 0) or 0)
 
         try:
-            from .constants import CONSUMABLE_DATA  # type: ignore
+            from ..core.constants import CONSUMABLE_DATA  # type: ignore
         except Exception:
-            try:
-                from constants import CONSUMABLE_DATA  # type: ignore
-            except Exception:
-                CONSUMABLE_DATA = {}
+            CONSUMABLE_DATA = {}
         if item_name in CONSUMABLE_DATA:
             verb = str(CONSUMABLE_DATA[item_name].get("verb", "Drink"))
             consume_action = menu.addAction(f"{verb} {item_name}")
@@ -21982,10 +21483,7 @@ def show_main_menu(
             pass
         # Tie developer mode to debug enablement
         try:
-            try:
-                from .debug import set_debug_enabled  # type: ignore
-            except Exception:
-                from debug import set_debug_enabled  # type: ignore
+            from ..core.debug import set_debug_enabled  # type: ignore
             set_debug_enabled(bool(flag))
         except Exception:
             pass
@@ -22001,7 +21499,7 @@ def show_main_menu(
     def _clear_logs():
         try:
             # Remove base and rotated files
-            base = os.path.join(os.path.dirname(__file__), "ankiscape_debug.log")
+            base = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ankiscape_debug.log")
             paths = [base] + [f"{base}.{i}" for i in range(1, 6)]
             removed_any = False
             for p in paths:
@@ -22030,7 +21528,7 @@ def show_main_menu(
         try:
             _debug_log("developer_mode: running unit tests via UI (in-process)")
             import sys, io, unittest, traceback
-            root = os.path.dirname(os.path.abspath(__file__))
+            root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             if root not in sys.path:
                 sys.path.insert(0, root)
             loader = unittest.TestLoader()

@@ -20,7 +20,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from construction_data import ALL_CONSTRUCTION_TARGETS, construction_asset_items_as_dict
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.construction_data import ALL_CONSTRUCTION_TARGETS, construction_asset_items_as_dict
 from tools.fetch_assets import AssetFetchError, AssetRequest, HttpWikiClient, OSRS_WIKI, RS3_WIKI, fetch_asset, wiki_title_for_item
 
 

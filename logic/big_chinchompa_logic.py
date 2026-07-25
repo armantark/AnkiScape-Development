@@ -4,48 +4,26 @@ from __future__ import annotations
 
 from typing import Any, Mapping, Sequence
 
-try:
-    from .big_chinchompa_data import (
-        BIG_CHINCHOMPA_COMPETENCE_CAP,
-        BIG_CHINCHOMPA_EVENT_FIRST_SLOT_REVIEW,
-        BIG_CHINCHOMPA_EVENT_INTERVAL_REVIEWS,
-        BIG_CHINCHOMPA_EVENT_MINUTES,
-        BIG_CHINCHOMPA_JAR_CAPACITY,
-        BIG_CHINCHOMPA_LOCATIONS,
-        BIG_CHINCHOMPA_MOTH_TIERS,
-        BIG_CHINCHOMPA_PERSONAL_POINT_CAP,
-        BIG_CHINCHOMPA_PLAYER_FULLNESS_BPS_PER_CIRCUIT,
-        BIG_CHINCHOMPA_REWARDS_BY_ID,
-        BIG_CHINCHOMPA_TICKET_BY_TARGET,
-        BIG_CHINCHOMPA_WORLD_MINUTES_PER_REVIEW,
-        WORLD_POPULATION_BASE_CEILINGS,
-        WORLD_POPULATION_PROFILES,
-    )
-    from .world_population_logic import (
-        naturalized_population_target_bps_pure,
-        seeded_unit_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from big_chinchompa_data import (  # type: ignore
-        BIG_CHINCHOMPA_COMPETENCE_CAP,
-        BIG_CHINCHOMPA_EVENT_FIRST_SLOT_REVIEW,
-        BIG_CHINCHOMPA_EVENT_INTERVAL_REVIEWS,
-        BIG_CHINCHOMPA_EVENT_MINUTES,
-        BIG_CHINCHOMPA_JAR_CAPACITY,
-        BIG_CHINCHOMPA_LOCATIONS,
-        BIG_CHINCHOMPA_MOTH_TIERS,
-        BIG_CHINCHOMPA_PERSONAL_POINT_CAP,
-        BIG_CHINCHOMPA_PLAYER_FULLNESS_BPS_PER_CIRCUIT,
-        BIG_CHINCHOMPA_REWARDS_BY_ID,
-        BIG_CHINCHOMPA_TICKET_BY_TARGET,
-        BIG_CHINCHOMPA_WORLD_MINUTES_PER_REVIEW,
-        WORLD_POPULATION_BASE_CEILINGS,
-        WORLD_POPULATION_PROFILES,
-    )
-    from world_population_logic import (  # type: ignore
-        naturalized_population_target_bps_pure,
-        seeded_unit_pure,
-    )
+from ..data.big_chinchompa_data import (
+    BIG_CHINCHOMPA_COMPETENCE_CAP,
+    BIG_CHINCHOMPA_EVENT_FIRST_SLOT_REVIEW,
+    BIG_CHINCHOMPA_EVENT_INTERVAL_REVIEWS,
+    BIG_CHINCHOMPA_EVENT_MINUTES,
+    BIG_CHINCHOMPA_JAR_CAPACITY,
+    BIG_CHINCHOMPA_LOCATIONS,
+    BIG_CHINCHOMPA_MOTH_TIERS,
+    BIG_CHINCHOMPA_PERSONAL_POINT_CAP,
+    BIG_CHINCHOMPA_PLAYER_FULLNESS_BPS_PER_CIRCUIT,
+    BIG_CHINCHOMPA_REWARDS_BY_ID,
+    BIG_CHINCHOMPA_TICKET_BY_TARGET,
+    BIG_CHINCHOMPA_WORLD_MINUTES_PER_REVIEW,
+    WORLD_POPULATION_BASE_CEILINGS,
+    WORLD_POPULATION_PROFILES,
+)
+from ..logic.world_population_logic import (
+    naturalized_population_target_bps_pure,
+    seeded_unit_pure,
+)
 
 
 BIG_CHINCHOMPA_STATE_VERSION = 1

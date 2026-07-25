@@ -13,7 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from aqt.qt import QApplication, QColor, QPalette  # type: ignore
 
-from big_chinchompa_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.big_chinchompa_logic import (
     advance_big_chinchompa_world_clock_pure,
     default_big_chinchompa_state_pure,
 )

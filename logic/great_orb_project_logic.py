@@ -5,30 +5,17 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-try:
-    from .great_orb_project_data import (
-        GREAT_ORB_PROJECT_ACTIVITY_ID,
-        GREAT_ORB_PROJECT_ALTARS,
-        GREAT_ORB_PROJECT_CRAFTING_POLICIES,
-        GREAT_ORB_PROJECT_DOCTRINES,
-        GREAT_ORB_PROJECT_REWARDS,
-        GREAT_ORB_PROJECT_ROUNDS,
-        GREAT_ORB_PROJECT_TEMP_CAPACITY,
-        OMNI_TALISMAN_ACCESS_PAIRS,
-        OMNI_TALISMAN_XP,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from great_orb_project_data import (  # type: ignore
-        GREAT_ORB_PROJECT_ACTIVITY_ID,
-        GREAT_ORB_PROJECT_ALTARS,
-        GREAT_ORB_PROJECT_CRAFTING_POLICIES,
-        GREAT_ORB_PROJECT_DOCTRINES,
-        GREAT_ORB_PROJECT_REWARDS,
-        GREAT_ORB_PROJECT_ROUNDS,
-        GREAT_ORB_PROJECT_TEMP_CAPACITY,
-        OMNI_TALISMAN_ACCESS_PAIRS,
-        OMNI_TALISMAN_XP,
-    )
+from ..data.great_orb_project_data import (
+    GREAT_ORB_PROJECT_ACTIVITY_ID,
+    GREAT_ORB_PROJECT_ALTARS,
+    GREAT_ORB_PROJECT_CRAFTING_POLICIES,
+    GREAT_ORB_PROJECT_DOCTRINES,
+    GREAT_ORB_PROJECT_REWARDS,
+    GREAT_ORB_PROJECT_ROUNDS,
+    GREAT_ORB_PROJECT_TEMP_CAPACITY,
+    OMNI_TALISMAN_ACCESS_PAIRS,
+    OMNI_TALISMAN_XP,
+)
 
 
 GREAT_ORB_PROJECT_STATE_VERSION = 2

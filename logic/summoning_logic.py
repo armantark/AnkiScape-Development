@@ -7,26 +7,15 @@ import math
 from collections.abc import Mapping
 from typing import Any, Callable, Optional
 
-try:
-    from .item_values import STACKABLE_ITEM_NAMES
-    from .pet_logic import advance_active_pet_pure, sanitize_pet_instances_pure
-    from .summoning_data import (
-        DEFAULT_SUMMONING_TARGET,
-        SOURCE_DURATION_UNITS_PER_REVIEW,
-        SUMMONING_ACTIONS_BY_ID,
-        SUMMONING_POUCHES_BY_ID,
-        SUMMONING_POUCHES_BY_NAME,
-    )
-except ImportError:
-    from item_values import STACKABLE_ITEM_NAMES
-    from pet_logic import advance_active_pet_pure, sanitize_pet_instances_pure
-    from summoning_data import (
-        DEFAULT_SUMMONING_TARGET,
-        SOURCE_DURATION_UNITS_PER_REVIEW,
-        SUMMONING_ACTIONS_BY_ID,
-        SUMMONING_POUCHES_BY_ID,
-        SUMMONING_POUCHES_BY_NAME,
-    )
+from ..data.item_values import STACKABLE_ITEM_NAMES
+from ..logic.pet_logic import advance_active_pet_pure, sanitize_pet_instances_pure
+from ..data.summoning_data import (
+    DEFAULT_SUMMONING_TARGET,
+    SOURCE_DURATION_UNITS_PER_REVIEW,
+    SUMMONING_ACTIONS_BY_ID,
+    SUMMONING_POUCHES_BY_ID,
+    SUMMONING_POUCHES_BY_NAME,
+)
 
 
 SPECIAL_MOVE_POINTS_MAX = 60

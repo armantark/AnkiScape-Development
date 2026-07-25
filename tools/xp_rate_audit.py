@@ -29,14 +29,15 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-import logic_pure  # noqa: E402
-from combat_data import COMBAT_BURST_TICKS  # noqa: E402
-import cooking_data  # noqa: E402
-import firemaking_data  # noqa: E402
-import fishing_data  # noqa: E402
-import hunter_data  # noqa: E402
-import mining_data  # noqa: E402
-import woodcutting_data  # noqa: E402
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic_pure import logic_pure  # noqa: E402
+from ankiscape.data.combat_data import COMBAT_BURST_TICKS  # noqa: E402
+from ankiscape.data import cooking_data  # noqa: E402
+from ankiscape.data import firemaking_data  # noqa: E402
+from ankiscape.data import fishing_data  # noqa: E402
+from ankiscape.data import hunter_data  # noqa: E402
+from ankiscape.data import mining_data  # noqa: E402
+from ankiscape.data import woodcutting_data  # noqa: E402
 from sourced_xp_rates import BY_SKILL, DETERMINISTIC  # noqa: E402
 
 

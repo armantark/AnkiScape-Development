@@ -11,7 +11,7 @@ from __future__ import annotations
 from pathlib import Path
 
 
-_ROOT = Path(__file__).resolve().parent
+_ROOT = Path(__file__).resolve().parents[1]
 
 PICKPOCKET_SOURCE = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/"

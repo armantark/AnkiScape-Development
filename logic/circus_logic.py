@@ -5,28 +5,16 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-try:
-    from .circus_data import (
-        CIRCUS_ACTIVITY_ID,
-        CIRCUS_PERFORMANCE_ORDER,
-        CIRCUS_PERFORMANCES,
-        CIRCUS_REWARDS,
-        CIRCUS_STRATEGIES,
-        CIRCUS_WEEK_REVIEWS,
-        CircusPerformance,
-        CircusTrick,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from circus_data import (  # type: ignore
-        CIRCUS_ACTIVITY_ID,
-        CIRCUS_PERFORMANCE_ORDER,
-        CIRCUS_PERFORMANCES,
-        CIRCUS_REWARDS,
-        CIRCUS_STRATEGIES,
-        CIRCUS_WEEK_REVIEWS,
-        CircusPerformance,
-        CircusTrick,
-    )
+from ..data.circus_data import (
+    CIRCUS_ACTIVITY_ID,
+    CIRCUS_PERFORMANCE_ORDER,
+    CIRCUS_PERFORMANCES,
+    CIRCUS_REWARDS,
+    CIRCUS_STRATEGIES,
+    CIRCUS_WEEK_REVIEWS,
+    CircusPerformance,
+    CircusTrick,
+)
 
 
 CIRCUS_STATE_VERSION = 1

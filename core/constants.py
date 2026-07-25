@@ -3,677 +3,329 @@
 import os
 import re
 
-try:
-    from .agility_data import (
-        AGILITY_EXTRA_ITEM_DATA,
-        AGILITY_ITEM_IMAGES,
-        AGILITY_TARGETS_BY_ID,
-    )
-except ImportError:
-    from agility_data import (  # type: ignore
-        AGILITY_EXTRA_ITEM_DATA,
-        AGILITY_ITEM_IMAGES,
-        AGILITY_TARGETS_BY_ID,
-    )
-try:
-    from .fist_of_guthix_data import (
-        fist_of_guthix_activity_as_dict,
-        fist_of_guthix_extra_items_as_dict,
-    )
-except ImportError:
-    from fist_of_guthix_data import (  # type: ignore
-        fist_of_guthix_activity_as_dict,
-        fist_of_guthix_extra_items_as_dict,
-    )
+from ..data.agility_data import (
+    AGILITY_EXTRA_ITEM_DATA,
+    AGILITY_ITEM_IMAGES,
+    AGILITY_TARGETS_BY_ID,
+)
+from ..data.fist_of_guthix_data import (
+    fist_of_guthix_activity_as_dict,
+    fist_of_guthix_extra_items_as_dict,
+)
 
-try:
-    from .court_cases_data import (
-        COURT_CASES_ACTIVITY_ID,
-        court_cases_activity_as_dict,
-        court_cases_extra_items_as_dict,
-    )
-except ImportError:
-    from court_cases_data import (  # type: ignore
-        COURT_CASES_ACTIVITY_ID,
-        court_cases_activity_as_dict,
-        court_cases_extra_items_as_dict,
-    )
+from ..data.court_cases_data import (
+    COURT_CASES_ACTIVITY_ID,
+    court_cases_activity_as_dict,
+    court_cases_extra_items_as_dict,
+)
 
-try:
-    from .circus_data import (
-        CIRCUS_ACTIVITY_ID,
-        circus_activity_as_dict,
-        circus_extra_items_as_dict,
-    )
-except ImportError:
-    from circus_data import (  # type: ignore
-        CIRCUS_ACTIVITY_ID,
-        circus_activity_as_dict,
-        circus_extra_items_as_dict,
-    )
+from ..data.circus_data import (
+    CIRCUS_ACTIVITY_ID,
+    circus_activity_as_dict,
+    circus_extra_items_as_dict,
+)
 
-try:
-    from .trouble_brewing_data import (
-        TROUBLE_BREWING_ACTIVITY_ID,
-        trouble_brewing_activity_as_dict,
-        trouble_brewing_equipment_data_as_dict,
-        trouble_brewing_extra_items_as_dict,
-    )
-except ImportError:
-    from trouble_brewing_data import (  # type: ignore
-        TROUBLE_BREWING_ACTIVITY_ID,
-        trouble_brewing_activity_as_dict,
-        trouble_brewing_equipment_data_as_dict,
-        trouble_brewing_extra_items_as_dict,
-    )
+from ..data.trouble_brewing_data import (
+    TROUBLE_BREWING_ACTIVITY_ID,
+    trouble_brewing_activity_as_dict,
+    trouble_brewing_equipment_data_as_dict,
+    trouble_brewing_extra_items_as_dict,
+)
 
-try:
-    from .castle_wars_data import (
-        CASTLE_WARS_ACTIVITY_ID,
-        castle_wars_activity_as_dict,
-        castle_wars_equipment_data_as_dict,
-        castle_wars_extra_items_as_dict,
-    )
-except ImportError:
-    from castle_wars_data import (  # type: ignore
-        CASTLE_WARS_ACTIVITY_ID,
-        castle_wars_activity_as_dict,
-        castle_wars_equipment_data_as_dict,
-        castle_wars_extra_items_as_dict,
-    )
+from ..data.castle_wars_data import (
+    CASTLE_WARS_ACTIVITY_ID,
+    castle_wars_activity_as_dict,
+    castle_wars_equipment_data_as_dict,
+    castle_wars_extra_items_as_dict,
+)
 
-try:
-    from .pest_control_data import (
-        PEST_CONTROL_ACTIVITY_ID,
-        pest_control_activity_as_dict,
-        pest_control_equipment_data_as_dict,
-        pest_control_extra_items_as_dict,
-    )
-except ImportError:
-    from pest_control_data import (  # type: ignore
-        PEST_CONTROL_ACTIVITY_ID,
-        pest_control_activity_as_dict,
-        pest_control_equipment_data_as_dict,
-        pest_control_extra_items_as_dict,
-    )
+from ..data.pest_control_data import (
+    PEST_CONTROL_ACTIVITY_ID,
+    pest_control_activity_as_dict,
+    pest_control_equipment_data_as_dict,
+    pest_control_extra_items_as_dict,
+)
 
-try:
-    from .barbarian_assault_data import (
-        BARBARIAN_ASSAULT_ACTIVITY_ID,
-        barbarian_assault_activity_as_dict,
-        barbarian_assault_equipment_data_as_dict,
-        barbarian_assault_extra_items_as_dict,
-    )
-except ImportError:
-    from barbarian_assault_data import (  # type: ignore
-        BARBARIAN_ASSAULT_ACTIVITY_ID,
-        barbarian_assault_activity_as_dict,
-        barbarian_assault_equipment_data_as_dict,
-        barbarian_assault_extra_items_as_dict,
-    )
+from ..data.barbarian_assault_data import (
+    BARBARIAN_ASSAULT_ACTIVITY_ID,
+    barbarian_assault_activity_as_dict,
+    barbarian_assault_equipment_data_as_dict,
+    barbarian_assault_extra_items_as_dict,
+)
 
-try:
-    from .stronghold_player_safety_data import (
-        STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID,
-        stronghold_player_safety_activity_as_dict,
-        stronghold_player_safety_equipment_data_as_dict,
-        stronghold_player_safety_extra_items_as_dict,
-    )
-except ImportError:
-    from stronghold_player_safety_data import (  # type: ignore
-        STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID,
-        stronghold_player_safety_activity_as_dict,
-        stronghold_player_safety_equipment_data_as_dict,
-        stronghold_player_safety_extra_items_as_dict,
-    )
+from ..data.stronghold_player_safety_data import (
+    STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID,
+    stronghold_player_safety_activity_as_dict,
+    stronghold_player_safety_equipment_data_as_dict,
+    stronghold_player_safety_extra_items_as_dict,
+)
 
-try:
-    from .stronghold_of_security_data import (
-        stronghold_of_security_extra_items_as_dict,
-    )
-except ImportError:
-    from stronghold_of_security_data import (  # type: ignore
-        stronghold_of_security_extra_items_as_dict,
-    )
+from ..data.stronghold_of_security_data import (
+    stronghold_of_security_extra_items_as_dict,
+)
 
-try:
-    from .soul_wars_data import (
-        SOUL_WARS_ACTIVITY_ID,
-        soul_wars_activity_as_dict,
-    )
-except ImportError:
-    from soul_wars_data import (  # type: ignore
-        SOUL_WARS_ACTIVITY_ID,
-        soul_wars_activity_as_dict,
-    )
+from ..data.soul_wars_data import (
+    SOUL_WARS_ACTIVITY_ID,
+    soul_wars_activity_as_dict,
+)
 
-try:
-    from .shades_of_mortton_data import (
-        SHADES_OF_MORTTON_ACTIVITY_ID,
-        shades_of_mortton_activity_as_dict,
-        shades_of_mortton_extra_items_as_dict,
-    )
-except ImportError:
-    from shades_of_mortton_data import (  # type: ignore
-        SHADES_OF_MORTTON_ACTIVITY_ID,
-        shades_of_mortton_activity_as_dict,
-        shades_of_mortton_extra_items_as_dict,
-    )
+from ..data.shades_of_mortton_data import (
+    SHADES_OF_MORTTON_ACTIVITY_ID,
+    shades_of_mortton_activity_as_dict,
+    shades_of_mortton_extra_items_as_dict,
+)
 
-try:
-    from .tzhaar_fight_pit_data import (
-        TZHAAR_FIGHT_PIT_ACTIVITY_ID,
-        tzhaar_fight_pit_activity_as_dict,
-    )
-except ImportError:
-    from tzhaar_fight_pit_data import (  # type: ignore
-        TZHAAR_FIGHT_PIT_ACTIVITY_ID,
-        tzhaar_fight_pit_activity_as_dict,
-    )
+from ..data.tzhaar_fight_pit_data import (
+    TZHAAR_FIGHT_PIT_ACTIVITY_ID,
+    tzhaar_fight_pit_activity_as_dict,
+)
 
-try:
-    from .varrock_museum_data import (
-        VARROCK_MUSEUM_ACTIVITY_ID,
-        varrock_museum_activity_as_dict,
-        varrock_museum_extra_items_as_dict,
-    )
-except ImportError:
-    from varrock_museum_data import (  # type: ignore
-        VARROCK_MUSEUM_ACTIVITY_ID,
-        varrock_museum_activity_as_dict,
-        varrock_museum_extra_items_as_dict,
-    )
+from ..data.varrock_museum_data import (
+    VARROCK_MUSEUM_ACTIVITY_ID,
+    varrock_museum_activity_as_dict,
+    varrock_museum_extra_items_as_dict,
+)
 
-try:
-    from .fight_caves_data import (
-        FIGHT_CAVES_ACTIVITY_ID,
-        fight_caves_activity_as_dict,
-        fight_caves_extra_items_as_dict,
-    )
-except ImportError:
-    from fight_caves_data import (  # type: ignore
-        FIGHT_CAVES_ACTIVITY_ID,
-        fight_caves_activity_as_dict,
-        fight_caves_extra_items_as_dict,
-    )
+from ..data.fight_caves_data import (
+    FIGHT_CAVES_ACTIVITY_ID,
+    fight_caves_activity_as_dict,
+    fight_caves_extra_items_as_dict,
+)
 
-try:
-    from .phoenix_lair_data import (
-        PHOENIX_LAIR_ACTIVITY_ID,
-        phoenix_lair_activity_as_dict,
-        phoenix_lair_extra_items_as_dict,
-    )
-except ImportError:
-    from phoenix_lair_data import (  # type: ignore
-        PHOENIX_LAIR_ACTIVITY_ID,
-        phoenix_lair_activity_as_dict,
-        phoenix_lair_extra_items_as_dict,
-    )
+from ..data.phoenix_lair_data import (
+    PHOENIX_LAIR_ACTIVITY_ID,
+    phoenix_lair_activity_as_dict,
+    phoenix_lair_extra_items_as_dict,
+)
 
-try:
-    from .stealing_creation_data import (
-        STEALING_CREATION_ACTIVITY_ID,
-        stealing_creation_activity_as_dict,
-        stealing_creation_extra_items_as_dict,
-    )
-except ImportError:
-    from stealing_creation_data import (  # type: ignore
-        STEALING_CREATION_ACTIVITY_ID,
-        stealing_creation_activity_as_dict,
-        stealing_creation_extra_items_as_dict,
-    )
+from ..data.stealing_creation_data import (
+    STEALING_CREATION_ACTIVITY_ID,
+    stealing_creation_activity_as_dict,
+    stealing_creation_extra_items_as_dict,
+)
 
-try:
-    from .sorceress_garden_data import (
-        SORCERESS_GARDEN_ACTIVITY_ID,
-        sorceress_garden_activity_as_dict,
-        sorceress_garden_extra_items_as_dict,
-    )
-except ImportError:
-    from sorceress_garden_data import (  # type: ignore
-        SORCERESS_GARDEN_ACTIVITY_ID,
-        sorceress_garden_activity_as_dict,
-        sorceress_garden_extra_items_as_dict,
-    )
+from ..data.sorceress_garden_data import (
+    SORCERESS_GARDEN_ACTIVITY_ID,
+    sorceress_garden_activity_as_dict,
+    sorceress_garden_extra_items_as_dict,
+)
 
-try:
-    from .penguin_hide_and_seek_data import (
-        PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID,
-        penguin_hide_and_seek_activity_as_dict,
-    )
-except ImportError:
-    from penguin_hide_and_seek_data import (  # type: ignore
-        PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID,
-        penguin_hide_and_seek_activity_as_dict,
-    )
+from ..data.penguin_hide_and_seek_data import (
+    PENGUIN_HIDE_AND_SEEK_ACTIVITY_ID,
+    penguin_hide_and_seek_activity_as_dict,
+)
 
-try:
-    from .vinesweeper_data import (
-        COMPOST_POTION_ACTIVITY_ID,
-        VINESWEEPER_ACTIVITY_ID,
-        compost_potion_activities_as_dict,
-        vinesweeper_activity_as_dict,
-        vinesweeper_extra_items_as_dict,
-    )
-except ImportError:
-    from vinesweeper_data import (  # type: ignore
-        COMPOST_POTION_ACTIVITY_ID,
-        VINESWEEPER_ACTIVITY_ID,
-        compost_potion_activities_as_dict,
-        vinesweeper_activity_as_dict,
-        vinesweeper_extra_items_as_dict,
-    )
+from ..data.vinesweeper_data import (
+    COMPOST_POTION_ACTIVITY_ID,
+    VINESWEEPER_ACTIVITY_ID,
+    compost_potion_activities_as_dict,
+    vinesweeper_activity_as_dict,
+    vinesweeper_extra_items_as_dict,
+)
 
-try:
-    from .construction_data import (
-        CONSTRUCTION_DATA,
-        DEFAULT_CONSTRUCTION_TARGET,
-        construction_asset_items_as_dict,
-        construction_extra_items_as_dict,
-    )
-except ImportError:
-    from construction_data import (  # type: ignore
-        CONSTRUCTION_DATA,
-        DEFAULT_CONSTRUCTION_TARGET,
-        construction_asset_items_as_dict,
-        construction_extra_items_as_dict,
-    )
+from ..data.construction_data import (
+    CONSTRUCTION_DATA,
+    DEFAULT_CONSTRUCTION_TARGET,
+    construction_asset_items_as_dict,
+    construction_extra_items_as_dict,
+)
 
-try:
-    from .achievement_metadata import achievements_as_dict, build_achievement_definitions
-except ImportError:
-    from achievement_metadata import achievements_as_dict, build_achievement_definitions
+from ..core.achievement_metadata import achievements_as_dict, build_achievement_definitions
 
-try:
-    from .cooking_data import (
-        DEFAULT_COOKING_TARGET,
-        cooking_burnt_items,
-        cooking_extra_items_as_dict,
-        cooking_output_items,
-        cooking_prep_activities_as_dict,
-        cooking_raw_items,
-        cooking_targets_as_dict,
-    )
-    from .combat_data import (
-        COMBAT_ATTACK_STYLE_DATA,
-        COMBAT_BURST_TICKS,
-        COMBAT_ENEMY_DATA,
-        COMBAT_EXTRA_ITEM_DATA,
-        COMBAT_FOOD_DATA,
-        CONSUMABLE_DATA,
-        COMBAT_MAGIC_SPELL_DATA,
-        COMBAT_TARGET_GROUP_ORDER,
-        DEFAULT_COMBAT_ATTACK_STYLE,
-        DEFAULT_COMBAT_SPELL,
-        DEFAULT_COMBAT_TARGET,
-    )
-    from .crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, crafting_special_items_as_dict, tanning_activities_as_dict
-    from .equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
-    from .flash_powder_factory_data import (
-        FLASH_POWDER_FACTORY_ACTIVITY_ID,
-        flash_powder_factory_activity_as_dict,
-        flash_powder_factory_extra_items_as_dict,
-    )
-    from .pyramid_plunder_data import (
-        PYRAMID_PLUNDER_ACTIVITY_ID,
-        pyramid_plunder_activity_as_dict,
-        pyramid_plunder_extra_items_as_dict,
-    )
-    from .werewolf_skullball_data import (
-        WEREWOLF_SKULLBALL_ACTIVITY_ID,
-        werewolf_skullball_activity_as_dict,
-        werewolf_skullball_extra_items_as_dict,
-    )
-    from .gnome_ball_data import (
-        GNOME_BALL_ACTIVITY_ID,
-        gnome_ball_activity_as_dict,
-        gnome_ball_extra_items_as_dict,
-    )
-    from .fish_flingers_data import (
-        FISH_FLINGERS_ACTIVITY_ID,
-        fish_flingers_activity_as_dict,
-        fish_flingers_equipment_data_as_dict,
-        fish_flingers_extra_items_as_dict,
-    )
-    from .fishing_trawler_data import (
-        FISHING_TRAWLER_ACTIVITY_ID,
-        fishing_trawler_activity_as_dict,
-    )
-    from .great_orb_project_data import (
-        GREAT_ORB_PROJECT_ACTIVITY_ID,
-        great_orb_project_activity_as_dict,
-    )
-    from .managing_miscellania_data import (
-        MANAGING_MISCELLANIA_ACTIVITY_ID,
-        managing_miscellania_activity_as_dict,
-    )
-    from .barrows_data import (
-        BARROWS_ACTIVITY_ID,
-        barrows_activity_as_dict,
-        barrows_equipment_data_as_dict,
-        barrows_extra_items_as_dict,
-    )
-    from .big_chinchompa_data import (
-        BIG_CHINCHOMPA_UTILITY_ID,
-        big_chinchompa_activity_as_dict,
-        big_chinchompa_extra_items_as_dict,
-    )
-    from .evil_tree_data import evil_tree_extra_items_as_dict
-    from .shooting_star_data import (
-        SHOOTING_STAR_ACTIVITY_ID,
-        shooting_star_activity_as_dict,
-        shooting_star_extra_items_as_dict,
-    )
-    from .firemaking_data import (
-        DEFAULT_FIREMAKING_TARGET,
-        firemaking_extra_items_as_dict,
-        firemaking_input_items,
-        firemaking_output_items,
-        firemaking_targets_as_dict,
-        light_source_activities_as_dict,
-    )
-    from .fletching_data import (
-        DEFAULT_FLETCHING_TARGET,
-        FLETCHING_GROUP_LABELS,
-        FLETCHING_GROUP_ORDER,
-        fletching_item_names,
-        fletching_output_items,
-        fletching_targets_as_dict,
-    )
-    from .fishing_data import (
-        DEFAULT_FISHING_TARGET,
-        fishing_extra_items_as_dict,
-        fishing_methods_as_dict,
-        fishing_output_items,
-    )
-    from .farming_data import FARMING_COMPOST_VISUAL_ITEMS, FARMING_ITEM_DATA, FARMING_PATCH_VISUAL_ITEMS
-    from .hunter_data import (
-        DEFAULT_HUNTER_TARGET,
-        HUNTER_GROUP_LABELS,
-        HUNTER_GROUP_ORDER,
-        hunter_extra_items_as_dict,
-        hunter_item_names,
-        hunter_output_items,
-        hunter_supply_item_names,
-        hunter_targets_as_dict,
-    )
-    from .item_registry import apply_item_asset_overrides, build_item_definitions, slugify_item_id
-    from .quest_data import (
-        CLAIMS_BY_ID,
-        QUESTS_BY_ID,
-        claims_as_dict,
-        quest_reward_items_as_dict,
-        quest_references_as_dict,
-        quest_unlock_rules_as_dict,
-        quests_as_dict,
-    )
-    from .runecrafting_data import (
-        DEFAULT_RUNECRAFTING_TARGET,
-        BINDING_NECKLACE_ITEM,
-        RUNECRAFTING_GROUP_LABELS,
-        WICKED_HOOD_ITEM,
-        runecrafting_access_items,
-        runecrafting_extra_items_as_dict,
-        runecrafting_output_items,
-        runecrafting_rune_output_items,
-        runecrafting_pouches_as_dict,
-        runecrafting_targets_as_dict,
-    )
-    from .herblore_data import (
-        DEFAULT_HERBLORE_TARGET,
-        HERBLORE_GROUP_LABELS,
-        herblore_extra_items_as_dict,
-        herblore_finished_output_items,
-        herblore_item_names,
-        herblore_output_items,
-        herblore_targets_as_dict,
-        input_preparation_activities_as_dict,
-        pestle_and_mortar_activities_as_dict,
-    )
-    from .shop_data import shop_extra_items_as_dict
-    from .summoning_data import summoning_extra_items_as_dict
-    from .potion_data import potion_items_as_dict, potion_item_names
-    from .prayer_data import (
-        DEFAULT_PRAYER_TARGET,
-        PRAYER_GROUP_ORDER,
-        prayer_extra_items_as_dict,
-        prayer_targets_as_dict,
-        prayer_utility_activities_as_dict,
-    )
-    from .prayer_passive_data import prayer_passive_items_as_dict
-    from .thieving_data import thieving_extra_items_as_dict
-    from .urn_data import URN_TIERS, urn_extra_items_as_dict
-    from .warriors_guild_data import WARRIORS_GUILD_ACTIVITIES
-    from .livid_farm_data import livid_farm_activity_as_dict
-    from .magic_data import (
-        DEFAULT_MAGIC_TARGET,
-        MAGIC_GROUP_ORDER,
-        magic_extra_items_as_dict,
-        magic_targets_as_dict,
-    )
-    from .mining_data import (
-        DEFAULT_MINING_TARGET,
-        GLORY_GEM_DROP_CHANCE,
-        INCIDENTAL_GEM_DROP_CHANCE,
-        INCIDENTAL_GEM_DROP_TABLE as SOURCE_INCIDENTAL_GEM_DROP_TABLE,
-        mining_bonus_items_as_dict,
-        mining_extra_items_as_dict,
-        mining_output_items,
-        mining_pickaxes_as_dict,
-        mining_targets_as_dict,
-    )
-    from .smithing_data import (
-        DEFAULT_SMITHING_TARGET,
-        smithing_bars_as_dict,
-        smithing_extra_items_as_dict,
-        smithing_output_items,
-        smithing_recipes_as_dict,
-    )
-    from .woodcutting_data import (
-        BIRD_NEST_DROP_CHANCE,
-        BIRD_NEST_DROP_TABLE as SOURCE_BIRD_NEST_DROP_TABLE,
-        BIRD_NEST_OPEN_TABLES_BY_INPUT as SOURCE_BIRD_NEST_OPEN_TABLES_BY_INPUT,
-        BIRD_NEST_OPEN_TABLES_BY_INPUT,
-        DEFAULT_WOODCUTTING_TARGET,
-        woodcutting_axes_as_dict,
-        woodcutting_extra_items_as_dict,
-        woodcutting_targets_as_dict,
-    )
-except ImportError:
-    from cooking_data import (
-        DEFAULT_COOKING_TARGET,
-        cooking_burnt_items,
-        cooking_extra_items_as_dict,
-        cooking_output_items,
-        cooking_prep_activities_as_dict,
-        cooking_raw_items,
-        cooking_targets_as_dict,
-    )
-    from combat_data import (
-        COMBAT_ATTACK_STYLE_DATA,
-        COMBAT_BURST_TICKS,
-        COMBAT_ENEMY_DATA,
-        COMBAT_EXTRA_ITEM_DATA,
-        COMBAT_FOOD_DATA,
-        CONSUMABLE_DATA,
-        COMBAT_MAGIC_SPELL_DATA,
-        COMBAT_TARGET_GROUP_ORDER,
-        DEFAULT_COMBAT_ATTACK_STYLE,
-        DEFAULT_COMBAT_SPELL,
-        DEFAULT_COMBAT_TARGET,
-    )
-    from crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, crafting_special_items_as_dict, tanning_activities_as_dict
-    from equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
-    from flash_powder_factory_data import (  # type: ignore
-        FLASH_POWDER_FACTORY_ACTIVITY_ID,
-        flash_powder_factory_activity_as_dict,
-        flash_powder_factory_extra_items_as_dict,
-    )
-    from pyramid_plunder_data import (  # type: ignore
-        PYRAMID_PLUNDER_ACTIVITY_ID,
-        pyramid_plunder_activity_as_dict,
-        pyramid_plunder_extra_items_as_dict,
-    )
-    from werewolf_skullball_data import (  # type: ignore
-        WEREWOLF_SKULLBALL_ACTIVITY_ID,
-        werewolf_skullball_activity_as_dict,
-        werewolf_skullball_extra_items_as_dict,
-    )
-    from gnome_ball_data import (  # type: ignore
-        GNOME_BALL_ACTIVITY_ID,
-        gnome_ball_activity_as_dict,
-        gnome_ball_extra_items_as_dict,
-    )
-    from fish_flingers_data import (  # type: ignore
-        FISH_FLINGERS_ACTIVITY_ID,
-        fish_flingers_activity_as_dict,
-        fish_flingers_equipment_data_as_dict,
-        fish_flingers_extra_items_as_dict,
-    )
-    from fishing_trawler_data import (  # type: ignore
-        FISHING_TRAWLER_ACTIVITY_ID,
-        fishing_trawler_activity_as_dict,
-    )
-    from great_orb_project_data import (  # type: ignore
-        GREAT_ORB_PROJECT_ACTIVITY_ID,
-        great_orb_project_activity_as_dict,
-    )
-    from managing_miscellania_data import (  # type: ignore
-        MANAGING_MISCELLANIA_ACTIVITY_ID,
-        managing_miscellania_activity_as_dict,
-    )
-    from barrows_data import (  # type: ignore
-        BARROWS_ACTIVITY_ID,
-        barrows_activity_as_dict,
-        barrows_equipment_data_as_dict,
-        barrows_extra_items_as_dict,
-    )
-    from big_chinchompa_data import (  # type: ignore
-        BIG_CHINCHOMPA_UTILITY_ID,
-        big_chinchompa_activity_as_dict,
-        big_chinchompa_extra_items_as_dict,
-    )
-    from evil_tree_data import evil_tree_extra_items_as_dict
-    from shooting_star_data import (  # type: ignore
-        SHOOTING_STAR_ACTIVITY_ID,
-        shooting_star_activity_as_dict,
-        shooting_star_extra_items_as_dict,
-    )
-    from firemaking_data import (
-        DEFAULT_FIREMAKING_TARGET,
-        firemaking_extra_items_as_dict,
-        firemaking_input_items,
-        firemaking_output_items,
-        firemaking_targets_as_dict,
-        light_source_activities_as_dict,
-    )
-    from fletching_data import (
-        DEFAULT_FLETCHING_TARGET,
-        FLETCHING_GROUP_LABELS,
-        FLETCHING_GROUP_ORDER,
-        fletching_item_names,
-        fletching_output_items,
-        fletching_targets_as_dict,
-    )
-    from fishing_data import (
-        DEFAULT_FISHING_TARGET,
-        fishing_extra_items_as_dict,
-        fishing_methods_as_dict,
-        fishing_output_items,
-    )
-    from farming_data import FARMING_COMPOST_VISUAL_ITEMS, FARMING_ITEM_DATA, FARMING_PATCH_VISUAL_ITEMS
-    from hunter_data import (
-        DEFAULT_HUNTER_TARGET,
-        HUNTER_GROUP_LABELS,
-        HUNTER_GROUP_ORDER,
-        hunter_extra_items_as_dict,
-        hunter_item_names,
-        hunter_output_items,
-        hunter_supply_item_names,
-        hunter_targets_as_dict,
-    )
-    from item_registry import apply_item_asset_overrides, build_item_definitions, slugify_item_id
-    from quest_data import (
-        CLAIMS_BY_ID,
-        QUESTS_BY_ID,
-        claims_as_dict,
-        quest_reward_items_as_dict,
-        quest_references_as_dict,
-        quest_unlock_rules_as_dict,
-        quests_as_dict,
-    )
-    from runecrafting_data import (
-        DEFAULT_RUNECRAFTING_TARGET,
-        BINDING_NECKLACE_ITEM,
-        RUNECRAFTING_GROUP_LABELS,
-        WICKED_HOOD_ITEM,
-        runecrafting_access_items,
-        runecrafting_extra_items_as_dict,
-        runecrafting_output_items,
-        runecrafting_rune_output_items,
-        runecrafting_pouches_as_dict,
-        runecrafting_targets_as_dict,
-    )
-    from herblore_data import (
-        DEFAULT_HERBLORE_TARGET,
-        HERBLORE_GROUP_LABELS,
-        herblore_extra_items_as_dict,
-        herblore_finished_output_items,
-        herblore_item_names,
-        herblore_output_items,
-        herblore_targets_as_dict,
-        input_preparation_activities_as_dict,
-        pestle_and_mortar_activities_as_dict,
-    )
-    from shop_data import shop_extra_items_as_dict
-    from summoning_data import summoning_extra_items_as_dict
-    from potion_data import potion_items_as_dict, potion_item_names
-    from prayer_data import (
-        DEFAULT_PRAYER_TARGET,
-        PRAYER_GROUP_ORDER,
-        prayer_extra_items_as_dict,
-        prayer_targets_as_dict,
-        prayer_utility_activities_as_dict,
-    )
-    from prayer_passive_data import prayer_passive_items_as_dict
-    from thieving_data import thieving_extra_items_as_dict
-    from urn_data import URN_TIERS, urn_extra_items_as_dict
-    from warriors_guild_data import WARRIORS_GUILD_ACTIVITIES
-    from livid_farm_data import livid_farm_activity_as_dict
-    from magic_data import (
-        DEFAULT_MAGIC_TARGET,
-        MAGIC_GROUP_ORDER,
-        magic_extra_items_as_dict,
-        magic_targets_as_dict,
-    )
-    from mining_data import (
-        DEFAULT_MINING_TARGET,
-        GLORY_GEM_DROP_CHANCE,
-        INCIDENTAL_GEM_DROP_CHANCE,
-        INCIDENTAL_GEM_DROP_TABLE as SOURCE_INCIDENTAL_GEM_DROP_TABLE,
-        mining_bonus_items_as_dict,
-        mining_extra_items_as_dict,
-        mining_output_items,
-        mining_pickaxes_as_dict,
-        mining_targets_as_dict,
-    )
-    from smithing_data import (
-        DEFAULT_SMITHING_TARGET,
-        smithing_bars_as_dict,
-        smithing_extra_items_as_dict,
-        smithing_output_items,
-        smithing_recipes_as_dict,
-    )
-    from woodcutting_data import (
-        BIRD_NEST_DROP_CHANCE,
-        BIRD_NEST_DROP_TABLE as SOURCE_BIRD_NEST_DROP_TABLE,
-        BIRD_NEST_OPEN_TABLES_BY_INPUT as SOURCE_BIRD_NEST_OPEN_TABLES_BY_INPUT,
-        BIRD_NEST_OPEN_TABLES_BY_INPUT,
-        DEFAULT_WOODCUTTING_TARGET,
-        woodcutting_axes_as_dict,
-        woodcutting_extra_items_as_dict,
-        woodcutting_targets_as_dict,
-    )
+from ..data.cooking_data import (
+    DEFAULT_COOKING_TARGET,
+    cooking_burnt_items,
+    cooking_extra_items_as_dict,
+    cooking_output_items,
+    cooking_prep_activities_as_dict,
+    cooking_raw_items,
+    cooking_targets_as_dict,
+)
+from ..data.combat_data import (
+    COMBAT_ATTACK_STYLE_DATA,
+    COMBAT_BURST_TICKS,
+    COMBAT_ENEMY_DATA,
+    COMBAT_EXTRA_ITEM_DATA,
+    COMBAT_FOOD_DATA,
+    CONSUMABLE_DATA,
+    COMBAT_MAGIC_SPELL_DATA,
+    COMBAT_TARGET_GROUP_ORDER,
+    DEFAULT_COMBAT_ATTACK_STYLE,
+    DEFAULT_COMBAT_SPELL,
+    DEFAULT_COMBAT_TARGET,
+)
+from ..data.crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, crafting_special_items_as_dict, tanning_activities_as_dict
+from ..data.equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
+from ..data.flash_powder_factory_data import (
+    FLASH_POWDER_FACTORY_ACTIVITY_ID,
+    flash_powder_factory_activity_as_dict,
+    flash_powder_factory_extra_items_as_dict,
+)
+from ..data.pyramid_plunder_data import (
+    PYRAMID_PLUNDER_ACTIVITY_ID,
+    pyramid_plunder_activity_as_dict,
+    pyramid_plunder_extra_items_as_dict,
+)
+from ..data.werewolf_skullball_data import (
+    WEREWOLF_SKULLBALL_ACTIVITY_ID,
+    werewolf_skullball_activity_as_dict,
+    werewolf_skullball_extra_items_as_dict,
+)
+from ..data.gnome_ball_data import (
+    GNOME_BALL_ACTIVITY_ID,
+    gnome_ball_activity_as_dict,
+    gnome_ball_extra_items_as_dict,
+)
+from ..data.fish_flingers_data import (
+    FISH_FLINGERS_ACTIVITY_ID,
+    fish_flingers_activity_as_dict,
+    fish_flingers_equipment_data_as_dict,
+    fish_flingers_extra_items_as_dict,
+)
+from ..data.fishing_trawler_data import (
+    FISHING_TRAWLER_ACTIVITY_ID,
+    fishing_trawler_activity_as_dict,
+)
+from ..data.great_orb_project_data import (
+    GREAT_ORB_PROJECT_ACTIVITY_ID,
+    great_orb_project_activity_as_dict,
+)
+from ..data.managing_miscellania_data import (
+    MANAGING_MISCELLANIA_ACTIVITY_ID,
+    managing_miscellania_activity_as_dict,
+)
+from ..data.barrows_data import (
+    BARROWS_ACTIVITY_ID,
+    barrows_activity_as_dict,
+    barrows_equipment_data_as_dict,
+    barrows_extra_items_as_dict,
+)
+from ..data.big_chinchompa_data import (
+    BIG_CHINCHOMPA_UTILITY_ID,
+    big_chinchompa_activity_as_dict,
+    big_chinchompa_extra_items_as_dict,
+)
+from ..data.evil_tree_data import evil_tree_extra_items_as_dict
+from ..data.shooting_star_data import (
+    SHOOTING_STAR_ACTIVITY_ID,
+    shooting_star_activity_as_dict,
+    shooting_star_extra_items_as_dict,
+)
+from ..data.firemaking_data import (
+    DEFAULT_FIREMAKING_TARGET,
+    firemaking_extra_items_as_dict,
+    firemaking_input_items,
+    firemaking_output_items,
+    firemaking_targets_as_dict,
+    light_source_activities_as_dict,
+)
+from ..data.fletching_data import (
+    DEFAULT_FLETCHING_TARGET,
+    FLETCHING_GROUP_LABELS,
+    FLETCHING_GROUP_ORDER,
+    fletching_item_names,
+    fletching_output_items,
+    fletching_targets_as_dict,
+)
+from ..data.fishing_data import (
+    DEFAULT_FISHING_TARGET,
+    fishing_extra_items_as_dict,
+    fishing_methods_as_dict,
+    fishing_output_items,
+)
+from ..data.farming_data import FARMING_COMPOST_VISUAL_ITEMS, FARMING_ITEM_DATA, FARMING_PATCH_VISUAL_ITEMS
+from ..data.hunter_data import (
+    DEFAULT_HUNTER_TARGET,
+    HUNTER_GROUP_LABELS,
+    HUNTER_GROUP_ORDER,
+    hunter_extra_items_as_dict,
+    hunter_item_names,
+    hunter_output_items,
+    hunter_supply_item_names,
+    hunter_targets_as_dict,
+)
+from ..core.item_registry import apply_item_asset_overrides, build_item_definitions, slugify_item_id
+from ..data.quest_data import (
+    CLAIMS_BY_ID,
+    QUESTS_BY_ID,
+    claims_as_dict,
+    quest_reward_items_as_dict,
+    quest_references_as_dict,
+    quest_unlock_rules_as_dict,
+    quests_as_dict,
+)
+from ..data.runecrafting_data import (
+    DEFAULT_RUNECRAFTING_TARGET,
+    BINDING_NECKLACE_ITEM,
+    RUNECRAFTING_GROUP_LABELS,
+    WICKED_HOOD_ITEM,
+    runecrafting_access_items,
+    runecrafting_extra_items_as_dict,
+    runecrafting_output_items,
+    runecrafting_rune_output_items,
+    runecrafting_pouches_as_dict,
+    runecrafting_targets_as_dict,
+)
+from ..data.herblore_data import (
+    DEFAULT_HERBLORE_TARGET,
+    HERBLORE_GROUP_LABELS,
+    herblore_extra_items_as_dict,
+    herblore_finished_output_items,
+    herblore_item_names,
+    herblore_output_items,
+    herblore_targets_as_dict,
+    input_preparation_activities_as_dict,
+    pestle_and_mortar_activities_as_dict,
+)
+from ..data.shop_data import shop_extra_items_as_dict
+from ..data.summoning_data import summoning_extra_items_as_dict
+from ..data.potion_data import potion_items_as_dict, potion_item_names
+from ..data.prayer_data import (
+    DEFAULT_PRAYER_TARGET,
+    PRAYER_GROUP_ORDER,
+    prayer_extra_items_as_dict,
+    prayer_targets_as_dict,
+    prayer_utility_activities_as_dict,
+)
+from ..data.prayer_passive_data import prayer_passive_items_as_dict
+from ..data.thieving_data import thieving_extra_items_as_dict
+from ..data.urn_data import URN_TIERS, urn_extra_items_as_dict
+from ..data.warriors_guild_data import WARRIORS_GUILD_ACTIVITIES
+from ..data.livid_farm_data import livid_farm_activity_as_dict
+from ..data.magic_data import (
+    DEFAULT_MAGIC_TARGET,
+    MAGIC_GROUP_ORDER,
+    magic_extra_items_as_dict,
+    magic_targets_as_dict,
+)
+from ..data.mining_data import (
+    DEFAULT_MINING_TARGET,
+    GLORY_GEM_DROP_CHANCE,
+    INCIDENTAL_GEM_DROP_CHANCE,
+    INCIDENTAL_GEM_DROP_TABLE as SOURCE_INCIDENTAL_GEM_DROP_TABLE,
+    mining_bonus_items_as_dict,
+    mining_extra_items_as_dict,
+    mining_output_items,
+    mining_pickaxes_as_dict,
+    mining_targets_as_dict,
+)
+from ..data.smithing_data import (
+    DEFAULT_SMITHING_TARGET,
+    smithing_bars_as_dict,
+    smithing_extra_items_as_dict,
+    smithing_output_items,
+    smithing_recipes_as_dict,
+)
+from ..data.woodcutting_data import (
+    BIRD_NEST_DROP_CHANCE,
+    BIRD_NEST_DROP_TABLE as SOURCE_BIRD_NEST_DROP_TABLE,
+    BIRD_NEST_OPEN_TABLES_BY_INPUT as SOURCE_BIRD_NEST_OPEN_TABLES_BY_INPUT,
+    BIRD_NEST_OPEN_TABLES_BY_INPUT,
+    DEFAULT_WOODCUTTING_TARGET,
+    woodcutting_axes_as_dict,
+    woodcutting_extra_items_as_dict,
+    woodcutting_targets_as_dict,
+)
 
 # Base probabilities and factors
 BASE_WOODCUTTING_PROBABILITY = 0.8
@@ -681,7 +333,7 @@ BASE_MINING_PROBABILITY = 0.8
 LEVEL_BONUS_FACTOR = 0.02
 
 # File paths
-current_dir = os.path.dirname(os.path.abspath(__file__))
+current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ores_folder = os.path.join(current_dir, "ores")
 trees_folder = os.path.join(current_dir, "trees")
 GEMS_FOLDER = os.path.join(current_dir, "gems")

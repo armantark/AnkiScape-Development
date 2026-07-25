@@ -4,20 +4,12 @@ from __future__ import annotations
 
 from typing import Any, Callable, Mapping, Tuple
 
-try:
-    from .slayer_data import (
-        DEFAULT_SLAYER_MASTER_ID,
-        SLAYER_FAMILIES_BY_ID,
-        SLAYER_MASTERS_BY_ID,
-        SlayerAssignmentFamily,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from slayer_data import (  # type: ignore
-        DEFAULT_SLAYER_MASTER_ID,
-        SLAYER_FAMILIES_BY_ID,
-        SLAYER_MASTERS_BY_ID,
-        SlayerAssignmentFamily,
-    )
+from ..data.slayer_data import (
+    DEFAULT_SLAYER_MASTER_ID,
+    SLAYER_FAMILIES_BY_ID,
+    SLAYER_MASTERS_BY_ID,
+    SlayerAssignmentFamily,
+)
 
 
 def _non_negative_int(value: Any, default: int = 0) -> int:

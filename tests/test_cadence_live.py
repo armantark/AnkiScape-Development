@@ -3,28 +3,29 @@ import random
 import unittest
 from unittest.mock import patch
 
-import runtime_actions
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.runtime import runtime_actions
 
 # Patch targets live on the module that defines the name: a caller resolves it
 # from its own globals, not from runtime_actions' re-export.
-import runtime_actions_production
+from ankiscape.runtime import runtime_actions_production
 
-from cadence_coverage import (
+from ankiscape.logic.cadence_coverage import (
     cadence_coverage_rows_pure,
     validate_cadence_coverage_pure,
 )
-from cadence_kernel import (
+from ankiscape.logic.cadence_kernel import (
     CADENCE_WAIT,
     EMBEDDED_PROBABILITY,
     RATE_LIMITED,
     default_cadence_profile_state_pure,
 )
-from cadence_live import (
+from ankiscape.logic.cadence_live import (
     LIVE_COMBAT_TICKS_PER_REVIEW,
     advance_live_cadence_route_pure,
     resolve_live_cadence_route_pure,
 )
-from constants import (
+from ankiscape.core.constants import (
     COOKING_DATA,
     EQUIPMENT_DATA,
     ITEM_DEFINITIONS,
@@ -32,14 +33,14 @@ from constants import (
     QUEST_DATA,
     TREE_DATA,
 )
-from logic_pure import (
+from ankiscape.logic_pure.logic_pure import (
     apply_combat_burst_pure,
     apply_cooking_action_pure,
     apply_quest_combat_encounter_pure,
     cooking_source_roll_chance_pure,
     record_cadence_wait_telemetry_pure,
 )
-from runtime_actions import (
+from ankiscape.runtime.runtime_actions import (
     ANSWER_HANDLERS,
     handle_magic_answer,
     handle_quest_answer,
@@ -47,8 +48,8 @@ from runtime_actions import (
     handle_woodcutting_answer,
     run_answer_with_carried_overlay,
 )
-from summoning_logic import advance_summoning_world_tick_pure
-from storage_pure import default_player_data
+from ankiscape.logic.summoning_logic import advance_summoning_world_tick_pure
+from ankiscape.core.storage_pure import default_player_data
 from tests.test_combat_logic import _player
 from tests.test_runtime_actions import _context
 

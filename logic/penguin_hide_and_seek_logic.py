@@ -4,30 +4,17 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-try:
-    from .penguin_hide_and_seek_data import (
-        PENGUIN_COINS_PER_POINT,
-        PENGUIN_ONE_POINT_SPAWNS,
-        PENGUIN_POINT_CAP,
-        PENGUIN_POLAR_BEAR_LOCATIONS,
-        PENGUIN_TWO_POINT_SPAWNS,
-        PENGUIN_WEEK_REVIEWS,
-        PENGUIN_XP_PER_LEVEL_POINT,
-        PenguinSpawn,
-    )
-    from .skill_registry import get_skill, trainable_skill_definitions
-except ImportError:  # pragma: no cover - flat test imports
-    from penguin_hide_and_seek_data import (  # type: ignore
-        PENGUIN_COINS_PER_POINT,
-        PENGUIN_ONE_POINT_SPAWNS,
-        PENGUIN_POINT_CAP,
-        PENGUIN_POLAR_BEAR_LOCATIONS,
-        PENGUIN_TWO_POINT_SPAWNS,
-        PENGUIN_WEEK_REVIEWS,
-        PENGUIN_XP_PER_LEVEL_POINT,
-        PenguinSpawn,
-    )
-    from skill_registry import get_skill, trainable_skill_definitions  # type: ignore
+from ..data.penguin_hide_and_seek_data import (
+    PENGUIN_COINS_PER_POINT,
+    PENGUIN_ONE_POINT_SPAWNS,
+    PENGUIN_POINT_CAP,
+    PENGUIN_POLAR_BEAR_LOCATIONS,
+    PENGUIN_TWO_POINT_SPAWNS,
+    PENGUIN_WEEK_REVIEWS,
+    PENGUIN_XP_PER_LEVEL_POINT,
+    PenguinSpawn,
+)
+from ..core.skill_registry import get_skill, trainable_skill_definitions
 
 
 PENGUIN_STATE_VERSION = 1

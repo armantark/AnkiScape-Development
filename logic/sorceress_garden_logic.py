@@ -4,18 +4,11 @@ from __future__ import annotations
 
 from typing import Any, Mapping, Sequence
 
-try:
-    from .sorceress_garden_data import (
-        SORCERESS_GARDEN_HERB_POOL,
-        SORCERESS_GARDEN_SEASONS,
-        SORCERESS_GARDEN_SEASONS_BY_ID,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from sorceress_garden_data import (  # type: ignore
-        SORCERESS_GARDEN_HERB_POOL,
-        SORCERESS_GARDEN_SEASONS,
-        SORCERESS_GARDEN_SEASONS_BY_ID,
-    )
+from ..data.sorceress_garden_data import (
+    SORCERESS_GARDEN_HERB_POOL,
+    SORCERESS_GARDEN_SEASONS,
+    SORCERESS_GARDEN_SEASONS_BY_ID,
+)
 
 
 SORCERESS_GARDEN_STATE_VERSION = 1

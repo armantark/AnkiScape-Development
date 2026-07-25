@@ -4,10 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-try:
-    from .equipment_data import EquipmentBonuses, EquipmentItem
-except ImportError:  # pragma: no cover - flat test imports
-    from equipment_data import EquipmentBonuses, EquipmentItem  # type: ignore
+from ..data.equipment_data import EquipmentBonuses, EquipmentItem
 
 
 FISH_FLINGERS_ACTIVITY_ID = "fish_flingers"

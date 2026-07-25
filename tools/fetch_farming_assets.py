@@ -21,9 +21,10 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from constants import ITEM_DEFINITIONS
-from farming_data import FARMING_ASSET_MANIFEST, FARMING_INTERFACE_ASSET_MANIFEST
-from item_registry import item_definitions_by_id, item_definitions_by_storage_key
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import ITEM_DEFINITIONS
+from ankiscape.data.farming_data import FARMING_ASSET_MANIFEST, FARMING_INTERFACE_ASSET_MANIFEST
+from ankiscape.core.item_registry import item_definitions_by_id, item_definitions_by_storage_key
 from tools.fetch_assets import (
     AssetFetchError,
     AssetRequest,

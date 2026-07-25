@@ -1,6 +1,7 @@
 import unittest
 
-from utils import safe_deduct_from_inventory
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.utils import safe_deduct_from_inventory
 
 
 class TestInventoryUtilsEdgeCases(unittest.TestCase):

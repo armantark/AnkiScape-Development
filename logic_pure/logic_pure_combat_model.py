@@ -4,483 +4,239 @@ from math import comb, floor, sqrt
 
 from typing import Iterable, Mapping, Optional
 
-try:
-    from .equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
-except ImportError:
-    from equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
+from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
+
+from ..logic.equipment_instance_logic import (
+    advance_equipped_condition_pure,
+    discharge_equipped_on_unsafe_death_pure,
+    sanitize_equipment_instance_state_pure,
+)
+from ..data.equipment_condition_data import EQUIPMENT_CONDITION_DATA
+
+from ..logic.inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure, carried_slots_used, clamp_carried_view_to_bank
+
+from ..logic.court_cases_logic import filter_court_summons_outputs_pure
 
 try:
-    from .equipment_instance_logic import (
-        advance_equipped_condition_pure,
-        discharge_equipped_on_unsafe_death_pure,
-        sanitize_equipment_instance_state_pure,
-    )
-    from .equipment_condition_data import EQUIPMENT_CONDITION_DATA
-except ImportError:
-    from equipment_instance_logic import (
-        advance_equipped_condition_pure,
-        discharge_equipped_on_unsafe_death_pure,
-        sanitize_equipment_instance_state_pure,
-    )
-    from equipment_condition_data import EQUIPMENT_CONDITION_DATA
+    from ..data.item_values import ITEM_VALUES, STACKABLE_ITEM_NAMES
+except ImportError:  # values not generated in this checkout
+    ITEM_VALUES = {}
+    STACKABLE_ITEM_NAMES = frozenset()
 
-try:
-    from .inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure, carried_slots_used, clamp_carried_view_to_bank
-except ImportError:
-    from inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure, carried_slots_used, clamp_carried_view_to_bank
+from ..logic.warriors_guild_logic import (
+    warriors_guild_cyclops_damage_multiplier_pure,
+    warriors_guild_cyclops_locked_reasons_pure,
+)
 
-try:
-    from .court_cases_logic import filter_court_summons_outputs_pure
-except ImportError:
-    from court_cases_logic import filter_court_summons_outputs_pure
+from ..data.prayer_data import (
+    COMBAT_PRAYERS_BY_ID,
+    AUTO_PRAYER_TICKS_PER_ITEM,
+    PRAYER_MATERIALS,
+    PRAYER_UPTIME_POLICIES,
+    SAP_SOURCE,
+    LEECH_SOURCE,
+    resolve_prayer_selection_pure,
+)
 
-try:
-    from .item_values import ITEM_VALUES, STACKABLE_ITEM_NAMES
-except ImportError:
-    try:
-        from item_values import ITEM_VALUES, STACKABLE_ITEM_NAMES
-    except ImportError:  # values not generated in this checkout
-        ITEM_VALUES = {}
-        STACKABLE_ITEM_NAMES = frozenset()
+from ..data.magic_data import CASUAL_MAGIC_DIAL, DREAM_COST, SPELLBOOK_SWAP_COST, VENGEANCE_COST
 
-try:
-    from .warriors_guild_logic import (
-        warriors_guild_cyclops_damage_multiplier_pure,
-        warriors_guild_cyclops_locked_reasons_pure,
-    )
-except ImportError:
-    from warriors_guild_logic import (  # type: ignore
-        warriors_guild_cyclops_damage_multiplier_pure,
-        warriors_guild_cyclops_locked_reasons_pure,
-    )
+from ..data.livid_farm_data import BORROWED_POWER_COMBAT_SPELLS
 
-try:
-    from .prayer_data import (
-        COMBAT_PRAYERS_BY_ID,
-        AUTO_PRAYER_TICKS_PER_ITEM,
-        PRAYER_MATERIALS,
-        PRAYER_UPTIME_POLICIES,
-        SAP_SOURCE,
-        LEECH_SOURCE,
-        resolve_prayer_selection_pure,
-    )
-except ImportError:
-    from prayer_data import AUTO_PRAYER_TICKS_PER_ITEM, COMBAT_PRAYERS_BY_ID, PRAYER_MATERIALS, PRAYER_UPTIME_POLICIES, SAP_SOURCE, LEECH_SOURCE, resolve_prayer_selection_pure
+from ..data.combat_data import (
+    COMBAT_ATTACK_STYLE_DATA,
+    COMBAT_ANTIPOISON_POTION_DATA,
+    COMBAT_BURST_TICKS,
+    COMBAT_ENEMY_DATA,
+    COMBAT_FOOD_DATA,
+    CONSUMABLE_DATA,
+    KEBAB_DRAINABLE_SKILLS,
+    COMBAT_MAGIC_STAFF_DATA,
+    COMBAT_MAGIC_SPELL_DATA,
+    COMBAT_RANGED_AMMO_DATA,
+    COMBAT_RANGED_WEAPON_DATA,
+    DEFAULT_COMBAT_ATTACK_STYLE,
+    DEFAULT_COMBAT_SPELL,
+    DEFAULT_COMBAT_TARGET,
+    MAGIC_FORMULA_SOURCE_PATH,
+    MAGIC_STRATEGY_SOURCE_PATH,
+    MELEE_FORMULA_SOURCE_PATH,
+    MELEE_STRATEGY_SOURCE_PATH,
+    POTION_TYPE_SOURCE_PATH,
+    RANGED_FORMULA_SOURCE_PATH,
+    RANGED_STRATEGY_SOURCE_PATH,
+    WEAPON_TYPE_ATTACK_STYLES,
+    WEAPON_TYPE_UNARMED_STYLES,
+)
 
-try:
-    from .magic_data import CASUAL_MAGIC_DIAL, DREAM_COST, SPELLBOOK_SWAP_COST, VENGEANCE_COST
-except ImportError:
-    from magic_data import CASUAL_MAGIC_DIAL, DREAM_COST, SPELLBOOK_SWAP_COST, VENGEANCE_COST
+from ..logic_pure.logic_pure_urns import (  # noqa: F401  (re-export)
+    active_urn_state_pure,
+    carried_target_item_count_pure,
+    charge_training_urn_for_action_pure,
+    charge_training_urn_pure,
+    full_urn_teleport_info_pure,
+    intercept_bonecrusher_outputs_pure,
+    nonempty_urn_count_pure,
+    resolve_prayer_kill_effects_pure,
+    teleport_full_urn_pure,
+)
 
-try:
-    from .livid_farm_data import BORROWED_POWER_COMBAT_SPELLS
-except ImportError:
-    from livid_farm_data import BORROWED_POWER_COMBAT_SPELLS
+from ..logic_pure.logic_pure_prayer import (  # noqa: F401  (re-export)
+    CASTLE_WARS_HALO_DRAIN_PRAYERS,
+    _highest_legal_prayer_candidate_pure,
+    active_prayer_selection_pure,
+    apply_prayer_action_pure,
+    apply_prayer_selection_pure,
+    clear_prayer_gilded_stint_pure,
+    curse_expected_ramp_pure,
+    prayer_drain_and_effective_uptime_pure,
+    prayer_drain_for_ticks_pure,
+    prayer_effect_state_pure,
+    prayer_gilded_search_step_pure,
+    prayer_selection_locked_reasons_pure,
+    prayer_target_locked_reasons_pure,
+    prayer_uptime_fraction_pure,
+    sanitize_prayer_selection_pure,
+)
 
-try:
-    from .combat_data import (
-        COMBAT_ATTACK_STYLE_DATA,
-        COMBAT_ANTIPOISON_POTION_DATA,
-        COMBAT_BURST_TICKS,
-        COMBAT_ENEMY_DATA,
-        COMBAT_FOOD_DATA,
-        CONSUMABLE_DATA,
-        KEBAB_DRAINABLE_SKILLS,
-        COMBAT_MAGIC_STAFF_DATA,
-        COMBAT_MAGIC_SPELL_DATA,
-        COMBAT_RANGED_AMMO_DATA,
-        COMBAT_RANGED_WEAPON_DATA,
-        DEFAULT_COMBAT_ATTACK_STYLE,
-        DEFAULT_COMBAT_SPELL,
-        DEFAULT_COMBAT_TARGET,
-        MAGIC_FORMULA_SOURCE_PATH,
-        MAGIC_STRATEGY_SOURCE_PATH,
-        MELEE_FORMULA_SOURCE_PATH,
-        MELEE_STRATEGY_SOURCE_PATH,
-        POTION_TYPE_SOURCE_PATH,
-        RANGED_FORMULA_SOURCE_PATH,
-        RANGED_STRATEGY_SOURCE_PATH,
-        WEAPON_TYPE_ATTACK_STYLES,
-        WEAPON_TYPE_UNARMED_STYLES,
-    )
-except ImportError:
-    from combat_data import (  # type: ignore
-        COMBAT_ATTACK_STYLE_DATA,
-        COMBAT_ANTIPOISON_POTION_DATA,
-        COMBAT_BURST_TICKS,
-        COMBAT_ENEMY_DATA,
-        COMBAT_FOOD_DATA,
-        CONSUMABLE_DATA,
-        KEBAB_DRAINABLE_SKILLS,
-        COMBAT_MAGIC_STAFF_DATA,
-        COMBAT_MAGIC_SPELL_DATA,
-        COMBAT_RANGED_AMMO_DATA,
-        COMBAT_RANGED_WEAPON_DATA,
-        DEFAULT_COMBAT_ATTACK_STYLE,
-        DEFAULT_COMBAT_SPELL,
-        DEFAULT_COMBAT_TARGET,
-        MAGIC_FORMULA_SOURCE_PATH,
-        MAGIC_STRATEGY_SOURCE_PATH,
-        MELEE_FORMULA_SOURCE_PATH,
-        MELEE_STRATEGY_SOURCE_PATH,
-        POTION_TYPE_SOURCE_PATH,
-        RANGED_FORMULA_SOURCE_PATH,
-        RANGED_STRATEGY_SOURCE_PATH,
-        WEAPON_TYPE_ATTACK_STYLES,
-        WEAPON_TYPE_UNARMED_STYLES,
-    )
+from ..logic_pure.logic_pure_magic import (  # noqa: F401  (re-export)
+    MAGIC_CHARGE_DURATION_TICKS,
+    TEMPORARY_EFFECT_TICKS_PER_ACTION,
+    _HUMIDIFY_OUTPUTS,
+    _LEATHER_OUTPUTS,
+    _PIE_OUTPUTS,
+    _STRINGABLE_AMULETS,
+    _apply_farming_spell_pure,
+    _apply_remote_farm_pure,
+    _farming_spell_locked_reasons_pure,
+    _livid_spell_locked_reasons_pure,
+    _magic_dynamic_requirements_pure,
+    _magic_quest_gate_complete_pure,
+    advance_temporary_effects_pure,
+    apply_magic_action_pure,
+    effective_magic_rune_cost_pure,
+    magic_target_locked_reasons_pure,
+)
 
-try:
-    from .logic_pure_urns import (  # noqa: F401  (re-export)
-        active_urn_state_pure,
-        carried_target_item_count_pure,
-        charge_training_urn_for_action_pure,
-        charge_training_urn_pure,
-        full_urn_teleport_info_pure,
-        intercept_bonecrusher_outputs_pure,
-        nonempty_urn_count_pure,
-        resolve_prayer_kill_effects_pure,
-        teleport_full_urn_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_urns import (  # type: ignore  # noqa: F401
-        active_urn_state_pure,
-        carried_target_item_count_pure,
-        charge_training_urn_for_action_pure,
-        charge_training_urn_pure,
-        full_urn_teleport_info_pure,
-        intercept_bonecrusher_outputs_pure,
-        nonempty_urn_count_pure,
-        resolve_prayer_kill_effects_pure,
-        teleport_full_urn_pure,
-    )
+from ..logic_pure.logic_pure_equipment import (  # noqa: F401  (re-export)
+    _combat_level_key,
+    _combat_skill_label,
+    _equipment_bonus_value,
+    _equipment_bonuses,
+    _equipment_skill_requirements,
+    _equipment_value,
+    _mage_arena_god_for_item,
+    _normalized_equipment_slot,
+    _toolbelt_ids,
+    best_mining_pickaxe_pure,
+    best_woodcutting_axe_pure,
+    can_equip_item_pure,
+    equip_item_pure,
+    equipment_bonus_state_pure,
+    equipment_stat_totals_pure,
+    unequip_item_pure,
+)
 
-try:
-    from .logic_pure_prayer import (  # noqa: F401  (re-export)
-        CASTLE_WARS_HALO_DRAIN_PRAYERS,
-        _highest_legal_prayer_candidate_pure,
-        active_prayer_selection_pure,
-        apply_prayer_action_pure,
-        apply_prayer_selection_pure,
-        clear_prayer_gilded_stint_pure,
-        curse_expected_ramp_pure,
-        prayer_drain_and_effective_uptime_pure,
-        prayer_drain_for_ticks_pure,
-        prayer_effect_state_pure,
-        prayer_gilded_search_step_pure,
-        prayer_selection_locked_reasons_pure,
-        prayer_target_locked_reasons_pure,
-        prayer_uptime_fraction_pure,
-        sanitize_prayer_selection_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_prayer import (  # type: ignore  # noqa: F401
-        CASTLE_WARS_HALO_DRAIN_PRAYERS,
-        _highest_legal_prayer_candidate_pure,
-        active_prayer_selection_pure,
-        apply_prayer_action_pure,
-        apply_prayer_selection_pure,
-        clear_prayer_gilded_stint_pure,
-        curse_expected_ramp_pure,
-        prayer_drain_and_effective_uptime_pure,
-        prayer_drain_for_ticks_pure,
-        prayer_effect_state_pure,
-        prayer_gilded_search_step_pure,
-        prayer_selection_locked_reasons_pure,
-        prayer_target_locked_reasons_pure,
-        prayer_uptime_fraction_pure,
-        sanitize_prayer_selection_pure,
-    )
+from ..logic_pure.logic_pure_landmarks import (  # noqa: F401  (re-export)
+    KNIGHT_WAVES_TOTAL_STEPS,
+    KNIGHT_WAVES_XP_REWARD,
+    MAGE_ARENA_GOD_CAPES,
+    MAGE_ARENA_GOD_DATA,
+    MAGE_ARENA_GOD_STAVES,
+    MAGE_ARENA_SPELL_TO_GOD,
+    MAGE_ARENA_STEP_NAMES,
+    MAGE_ARENA_TOTAL_STEPS,
+    STRONGHOLD_BOOT_CHOICES,
+    STRONGHOLD_REWARD_COINS,
+    STRONGHOLD_STEP_NAMES,
+    STRONGHOLD_TOTAL_STEPS,
+    _owns_or_equips_pure,
+    apply_knight_waves_step_pure,
+    apply_mage_arena_cape_action_pure,
+    apply_mage_arena_step_pure,
+    apply_stronghold_step_pure,
+    attune_mage_arena_spell_pure,
+    default_knight_waves_state_pure,
+    default_mage_arena_state_pure,
+    default_stronghold_state_pure,
+    grant_stronghold_reward_pure,
+    knight_waves_locked_reasons_pure,
+    mage_arena_locked_reasons_pure,
+    sanitize_knight_waves_state_pure,
+    sanitize_mage_arena_state_pure,
+    sanitize_stronghold_state_pure,
+    set_mage_arena_alignment_pure,
+)
 
-try:
-    from .logic_pure_magic import (  # noqa: F401  (re-export)
-        MAGIC_CHARGE_DURATION_TICKS,
-        TEMPORARY_EFFECT_TICKS_PER_ACTION,
-        _HUMIDIFY_OUTPUTS,
-        _LEATHER_OUTPUTS,
-        _PIE_OUTPUTS,
-        _STRINGABLE_AMULETS,
-        _apply_farming_spell_pure,
-        _apply_remote_farm_pure,
-        _farming_spell_locked_reasons_pure,
-        _livid_spell_locked_reasons_pure,
-        _magic_dynamic_requirements_pure,
-        _magic_quest_gate_complete_pure,
-        advance_temporary_effects_pure,
-        apply_magic_action_pure,
-        effective_magic_rune_cost_pure,
-        magic_target_locked_reasons_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_magic import (  # type: ignore  # noqa: F401
-        MAGIC_CHARGE_DURATION_TICKS,
-        TEMPORARY_EFFECT_TICKS_PER_ACTION,
-        _HUMIDIFY_OUTPUTS,
-        _LEATHER_OUTPUTS,
-        _PIE_OUTPUTS,
-        _STRINGABLE_AMULETS,
-        _apply_farming_spell_pure,
-        _apply_remote_farm_pure,
-        _farming_spell_locked_reasons_pure,
-        _livid_spell_locked_reasons_pure,
-        _magic_dynamic_requirements_pure,
-        _magic_quest_gate_complete_pure,
-        advance_temporary_effects_pure,
-        apply_magic_action_pure,
-        effective_magic_rune_cost_pure,
-        magic_target_locked_reasons_pure,
-    )
+from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
+    COMBAT_BANK_RUN_REVIEWS,
+    COMBAT_GRAVE_RECOVERY_REVIEWS,
+    _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
+    _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
+    _COMBAT_STAT_POTION_BY_DOSE,
+    _COMBAT_STAT_POTION_ITEM_NAMES,
+    _build_combat_potion_dose_lookup,
+    _combat_grave_items,
+    _combat_stored_loadout,
+    _copy_player_data_with_nested,
+    _non_negative_float,
+    _non_negative_int,
+    _positive_int,
+    _requirements_from_spec,
+    _sanitize_combat_bank_run,
+    _sanitize_combat_grave_state,
+    _sanitize_combat_supply_loadout,
+    _sanitize_death_office_state,
+    _signed_int,
+    default_combat_supply_loadout_pure,
+    quest_completed_pure,
+    quest_state_pure,
+    sanitize_quest_combat_active_encounters_pure,
+)
 
-try:
-    from .logic_pure_equipment import (  # noqa: F401  (re-export)
-        _combat_level_key,
-        _combat_skill_label,
-        _equipment_bonus_value,
-        _equipment_bonuses,
-        _equipment_skill_requirements,
-        _equipment_value,
-        _mage_arena_god_for_item,
-        _normalized_equipment_slot,
-        _toolbelt_ids,
-        best_mining_pickaxe_pure,
-        best_woodcutting_axe_pure,
-        can_equip_item_pure,
-        equip_item_pure,
-        equipment_bonus_state_pure,
-        equipment_stat_totals_pure,
-        unequip_item_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_equipment import (  # type: ignore  # noqa: F401
-        _combat_level_key,
-        _combat_skill_label,
-        _equipment_bonus_value,
-        _equipment_bonuses,
-        _equipment_skill_requirements,
-        _equipment_value,
-        _mage_arena_god_for_item,
-        _normalized_equipment_slot,
-        _toolbelt_ids,
-        best_mining_pickaxe_pure,
-        best_woodcutting_axe_pure,
-        can_equip_item_pure,
-        equip_item_pure,
-        equipment_bonus_state_pure,
-        equipment_stat_totals_pure,
-        unequip_item_pure,
-    )
+from ..logic_pure.logic_pure_urns import (
+    resolve_prayer_kill_effects_pure,
+)
 
-try:
-    from .logic_pure_landmarks import (  # noqa: F401  (re-export)
-        KNIGHT_WAVES_TOTAL_STEPS,
-        KNIGHT_WAVES_XP_REWARD,
-        MAGE_ARENA_GOD_CAPES,
-        MAGE_ARENA_GOD_DATA,
-        MAGE_ARENA_GOD_STAVES,
-        MAGE_ARENA_SPELL_TO_GOD,
-        MAGE_ARENA_STEP_NAMES,
-        MAGE_ARENA_TOTAL_STEPS,
-        STRONGHOLD_BOOT_CHOICES,
-        STRONGHOLD_REWARD_COINS,
-        STRONGHOLD_STEP_NAMES,
-        STRONGHOLD_TOTAL_STEPS,
-        _owns_or_equips_pure,
-        apply_knight_waves_step_pure,
-        apply_mage_arena_cape_action_pure,
-        apply_mage_arena_step_pure,
-        apply_stronghold_step_pure,
-        attune_mage_arena_spell_pure,
-        default_knight_waves_state_pure,
-        default_mage_arena_state_pure,
-        default_stronghold_state_pure,
-        grant_stronghold_reward_pure,
-        knight_waves_locked_reasons_pure,
-        mage_arena_locked_reasons_pure,
-        sanitize_knight_waves_state_pure,
-        sanitize_mage_arena_state_pure,
-        sanitize_stronghold_state_pure,
-        set_mage_arena_alignment_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_landmarks import (  # type: ignore  # noqa: F401
-        KNIGHT_WAVES_TOTAL_STEPS,
-        KNIGHT_WAVES_XP_REWARD,
-        MAGE_ARENA_GOD_CAPES,
-        MAGE_ARENA_GOD_DATA,
-        MAGE_ARENA_GOD_STAVES,
-        MAGE_ARENA_SPELL_TO_GOD,
-        MAGE_ARENA_STEP_NAMES,
-        MAGE_ARENA_TOTAL_STEPS,
-        STRONGHOLD_BOOT_CHOICES,
-        STRONGHOLD_REWARD_COINS,
-        STRONGHOLD_STEP_NAMES,
-        STRONGHOLD_TOTAL_STEPS,
-        _owns_or_equips_pure,
-        apply_knight_waves_step_pure,
-        apply_mage_arena_cape_action_pure,
-        apply_mage_arena_step_pure,
-        apply_stronghold_step_pure,
-        attune_mage_arena_spell_pure,
-        default_knight_waves_state_pure,
-        default_mage_arena_state_pure,
-        default_stronghold_state_pure,
-        grant_stronghold_reward_pure,
-        knight_waves_locked_reasons_pure,
-        mage_arena_locked_reasons_pure,
-        sanitize_knight_waves_state_pure,
-        sanitize_mage_arena_state_pure,
-        sanitize_stronghold_state_pure,
-        set_mage_arena_alignment_pure,
-    )
+from ..logic_pure.logic_pure_prayer import (
+    _highest_legal_prayer_candidate_pure,
+    prayer_effect_state_pure,
+    sanitize_prayer_selection_pure,
+)
 
-try:
-    from .logic_pure_state import (  # noqa: F401  (re-export)
-        COMBAT_BANK_RUN_REVIEWS,
-        COMBAT_GRAVE_RECOVERY_REVIEWS,
-        _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
-        _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
-        _COMBAT_STAT_POTION_BY_DOSE,
-        _COMBAT_STAT_POTION_ITEM_NAMES,
-        _build_combat_potion_dose_lookup,
-        _combat_grave_items,
-        _combat_stored_loadout,
-        _copy_player_data_with_nested,
-        _non_negative_float,
-        _non_negative_int,
-        _positive_int,
-        _requirements_from_spec,
-        _sanitize_combat_bank_run,
-        _sanitize_combat_grave_state,
-        _sanitize_combat_supply_loadout,
-        _sanitize_death_office_state,
-        _signed_int,
-        default_combat_supply_loadout_pure,
-        quest_completed_pure,
-        quest_state_pure,
-        sanitize_quest_combat_active_encounters_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_state import (  # type: ignore  # noqa: F401
-        COMBAT_BANK_RUN_REVIEWS,
-        COMBAT_GRAVE_RECOVERY_REVIEWS,
-        _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
-        _COMBAT_DRAGONFIRE_POTION_ITEM_NAMES,
-        _COMBAT_STAT_POTION_BY_DOSE,
-        _COMBAT_STAT_POTION_ITEM_NAMES,
-        _build_combat_potion_dose_lookup,
-        _combat_grave_items,
-        _combat_stored_loadout,
-        _copy_player_data_with_nested,
-        _non_negative_float,
-        _non_negative_int,
-        _positive_int,
-        _requirements_from_spec,
-        _sanitize_combat_bank_run,
-        _sanitize_combat_grave_state,
-        _sanitize_combat_supply_loadout,
-        _sanitize_death_office_state,
-        _signed_int,
-        default_combat_supply_loadout_pure,
-        quest_completed_pure,
-        quest_state_pure,
-        sanitize_quest_combat_active_encounters_pure,
-    )
+from ..logic_pure.logic_pure_magic import (
+    _magic_quest_gate_complete_pure,
+)
 
-try:
-    from .logic_pure_urns import (
-        resolve_prayer_kill_effects_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_urns import (  # type: ignore
-        resolve_prayer_kill_effects_pure,
-    )
+from ..logic_pure.logic_pure_equipment import (
+    _combat_skill_label,
+    _equipment_bonus_value,
+    _equipment_skill_requirements,
+    _equipment_value,
+)
 
-try:
-    from .logic_pure_prayer import (
-        _highest_legal_prayer_candidate_pure,
-        prayer_effect_state_pure,
-        sanitize_prayer_selection_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_prayer import (  # type: ignore
-        _highest_legal_prayer_candidate_pure,
-        prayer_effect_state_pure,
-        sanitize_prayer_selection_pure,
-    )
+from ..logic_pure.logic_pure_landmarks import (
+    MAGE_ARENA_GOD_DATA,
+    MAGE_ARENA_SPELL_TO_GOD,
+    sanitize_knight_waves_state_pure,
+    sanitize_mage_arena_state_pure,
+)
 
-try:
-    from .logic_pure_magic import (
-        _magic_quest_gate_complete_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_magic import (  # type: ignore
-        _magic_quest_gate_complete_pure,
-    )
-
-try:
-    from .logic_pure_equipment import (
-        _combat_skill_label,
-        _equipment_bonus_value,
-        _equipment_skill_requirements,
-        _equipment_value,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_equipment import (  # type: ignore
-        _combat_skill_label,
-        _equipment_bonus_value,
-        _equipment_skill_requirements,
-        _equipment_value,
-    )
-
-try:
-    from .logic_pure_landmarks import (
-        MAGE_ARENA_GOD_DATA,
-        MAGE_ARENA_SPELL_TO_GOD,
-        sanitize_knight_waves_state_pure,
-        sanitize_mage_arena_state_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_landmarks import (  # type: ignore
-        MAGE_ARENA_GOD_DATA,
-        MAGE_ARENA_SPELL_TO_GOD,
-        sanitize_knight_waves_state_pure,
-        sanitize_mage_arena_state_pure,
-    )
-
-try:
-    from .logic_pure_state import (
-        COMBAT_GRAVE_RECOVERY_REVIEWS,
-        _combat_grave_items,
-        _combat_stored_loadout,
-        _copy_player_data_with_nested,
-        _non_negative_float,
-        _non_negative_int,
-        _positive_int,
-        _sanitize_combat_bank_run,
-        _sanitize_combat_grave_state,
-        _sanitize_combat_supply_loadout,
-        _sanitize_death_office_state,
-        _signed_int,
-        default_combat_supply_loadout_pure,
-        quest_completed_pure,
-    )
-except ImportError:  # pragma: no cover - flat test imports
-    from logic_pure_state import (  # type: ignore
-        COMBAT_GRAVE_RECOVERY_REVIEWS,
-        _combat_grave_items,
-        _combat_stored_loadout,
-        _copy_player_data_with_nested,
-        _non_negative_float,
-        _non_negative_int,
-        _positive_int,
-        _sanitize_combat_bank_run,
-        _sanitize_combat_grave_state,
-        _sanitize_combat_supply_loadout,
-        _sanitize_death_office_state,
-        _signed_int,
-        default_combat_supply_loadout_pure,
-        quest_completed_pure,
-    )
+from ..logic_pure.logic_pure_state import (
+    COMBAT_GRAVE_RECOVERY_REVIEWS,
+    _combat_grave_items,
+    _combat_stored_loadout,
+    _copy_player_data_with_nested,
+    _non_negative_float,
+    _non_negative_int,
+    _positive_int,
+    _sanitize_combat_bank_run,
+    _sanitize_combat_grave_state,
+    _sanitize_combat_supply_loadout,
+    _sanitize_death_office_state,
+    _signed_int,
+    default_combat_supply_loadout_pure,
+    quest_completed_pure,
+)
 
 
 _DEFAULT_COMBAT_AUTO_EAT_FOOD = (
@@ -963,10 +719,7 @@ def _carried_inventory_grave_counts(data, target_id=None):
 
 
 def _combat_apply_follower_death(data):
-    try:
-        from .summoning_logic import apply_follower_player_death_pure
-    except ImportError:
-        from summoning_logic import apply_follower_player_death_pure
+    from ..logic.summoning_logic import apply_follower_player_death_pure
 
     follower_updated, _follower_death = apply_follower_player_death_pure(
         data,
@@ -2536,10 +2289,7 @@ def _combat_magic_locked_reasons(player_data, target_id, equipment_data=None):
             return ("Undead target",)
     borrowed_spell_id = spell_spec.get("borrowed_spell_id")
     if borrowed_spell_id:
-        try:
-            from .livid_farm_logic import borrowed_power_locked_reasons_pure
-        except ImportError:  # pragma: no cover - flat imports used by tests
-            from livid_farm_logic import borrowed_power_locked_reasons_pure  # type: ignore
+        from ..logic.livid_farm_logic import borrowed_power_locked_reasons_pure
         borrowed_reasons = borrowed_power_locked_reasons_pure(
             player_data,
             borrowed_spell_id,

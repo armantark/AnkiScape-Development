@@ -6,58 +6,31 @@ import copy
 from collections.abc import Callable, Mapping
 from typing import Any
 
-try:
-    from .fist_of_guthix_logic import generate_fist_of_guthix_opponent_pure
-    from .logic_pure import (
-        apply_combat_burst_pure,
-        combat_max_lifepoints_pure,
-        prayer_effect_state_pure,
-    )
-    from .pet_logic import store_active_pet_pure
-    from .stealing_creation_data import (
-        STEALING_CREATION_ACTIVITY_ID,
-        STEALING_CREATION_CLASS_REQUIREMENTS,
-        STEALING_CREATION_CLAY_PER_GATHER_REVIEW,
-        STEALING_CREATION_COMBAT_TARGET_ID,
-        STEALING_CREATION_COMBAT_TICKS_PER_REVIEW,
-        STEALING_CREATION_GATHER_METHODS,
-        STEALING_CREATION_OPPONENT_CLAY_PER_REVIEW,
-        STEALING_CREATION_RAID_INTERVAL_REVIEWS,
-        STEALING_CREATION_RECIPES,
-        STEALING_CREATION_REWARD_COST,
-        STEALING_CREATION_REWARD_FORM_BY_ID,
-        STEALING_CREATION_REWARD_FORMS,
-        STEALING_CREATION_SCORE_PER_CLASS,
-        STEALING_CREATION_SESSION_EQUIPMENT,
-        STEALING_CREATION_SESSION_REVIEWS,
-    )
-    from .summoning_logic import dismiss_familiar_pure
-except ImportError:  # pragma: no cover - flat imports used by tests
-    from fist_of_guthix_logic import generate_fist_of_guthix_opponent_pure  # type: ignore
-    from logic_pure import (  # type: ignore
-        apply_combat_burst_pure,
-        combat_max_lifepoints_pure,
-        prayer_effect_state_pure,
-    )
-    from pet_logic import store_active_pet_pure  # type: ignore
-    from stealing_creation_data import (  # type: ignore
-        STEALING_CREATION_ACTIVITY_ID,
-        STEALING_CREATION_CLASS_REQUIREMENTS,
-        STEALING_CREATION_CLAY_PER_GATHER_REVIEW,
-        STEALING_CREATION_COMBAT_TARGET_ID,
-        STEALING_CREATION_COMBAT_TICKS_PER_REVIEW,
-        STEALING_CREATION_GATHER_METHODS,
-        STEALING_CREATION_OPPONENT_CLAY_PER_REVIEW,
-        STEALING_CREATION_RAID_INTERVAL_REVIEWS,
-        STEALING_CREATION_RECIPES,
-        STEALING_CREATION_REWARD_COST,
-        STEALING_CREATION_REWARD_FORM_BY_ID,
-        STEALING_CREATION_REWARD_FORMS,
-        STEALING_CREATION_SCORE_PER_CLASS,
-        STEALING_CREATION_SESSION_EQUIPMENT,
-        STEALING_CREATION_SESSION_REVIEWS,
-    )
-    from summoning_logic import dismiss_familiar_pure  # type: ignore
+from ..logic.fist_of_guthix_logic import generate_fist_of_guthix_opponent_pure
+from ..logic_pure.logic_pure import (
+    apply_combat_burst_pure,
+    combat_max_lifepoints_pure,
+    prayer_effect_state_pure,
+)
+from ..logic.pet_logic import store_active_pet_pure
+from ..data.stealing_creation_data import (
+    STEALING_CREATION_ACTIVITY_ID,
+    STEALING_CREATION_CLASS_REQUIREMENTS,
+    STEALING_CREATION_CLAY_PER_GATHER_REVIEW,
+    STEALING_CREATION_COMBAT_TARGET_ID,
+    STEALING_CREATION_COMBAT_TICKS_PER_REVIEW,
+    STEALING_CREATION_GATHER_METHODS,
+    STEALING_CREATION_OPPONENT_CLAY_PER_REVIEW,
+    STEALING_CREATION_RAID_INTERVAL_REVIEWS,
+    STEALING_CREATION_RECIPES,
+    STEALING_CREATION_REWARD_COST,
+    STEALING_CREATION_REWARD_FORM_BY_ID,
+    STEALING_CREATION_REWARD_FORMS,
+    STEALING_CREATION_SCORE_PER_CLASS,
+    STEALING_CREATION_SESSION_EQUIPMENT,
+    STEALING_CREATION_SESSION_REVIEWS,
+)
+from ..logic.summoning_logic import dismiss_familiar_pure
 
 
 STEALING_CREATION_STATE_VERSION = 1

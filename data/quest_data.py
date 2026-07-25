@@ -6,20 +6,11 @@ import re
 from dataclasses import dataclass, replace
 from typing import Dict, Mapping, Tuple, Union
 
-try:
-    from .quest_catalog_generated import PRE_EOC_QUEST_CATALOG
-except ImportError:  # pragma: no cover
-    from quest_catalog_generated import PRE_EOC_QUEST_CATALOG  # type: ignore
+from ..generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
 
-try:
-    from .runecrafting_data import RUNEMYSTERIES_SOURCE_PATH, WICKED_HOOD_ITEM
-except ImportError:  # pragma: no cover
-    from runecrafting_data import RUNEMYSTERIES_SOURCE_PATH, WICKED_HOOD_ITEM  # type: ignore
+from ..data.runecrafting_data import RUNEMYSTERIES_SOURCE_PATH, WICKED_HOOD_ITEM
 
-try:
-    from .firemaking_data import LIT_LIGHT_SOURCE_ITEMS
-except ImportError:  # pragma: no cover
-    from firemaking_data import LIT_LIGHT_SOURCE_ITEMS  # type: ignore
+from ..data.firemaking_data import LIT_LIGHT_SOURCE_ITEMS
 
 
 RUNE_MYSTERIES_ID = "rune_mysteries"

@@ -1,13 +1,14 @@
 import unittest
 from pathlib import Path
 
-from cadence_kernel import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.cadence_kernel import (
     CAP_ONE_ACTION,
     advance_cadence_pure,
     default_cadence_profile_state_pure,
 )
-from constants import ORE_DATA
-from logic_pure import (
+from ankiscape.core.constants import ORE_DATA
+from ankiscape.logic_pure.logic_pure import (
     apply_thieving_damage_pure,
     thieving_blackjack_threshold_pure,
     thieving_loot_roll_pure,
@@ -20,14 +21,14 @@ from logic_pure import (
     thieving_wall_safe_roll_succeeds_pure,
     thieving_wall_safe_success_count_pure,
 )
-from runtime_actions import (
+from ankiscape.runtime.runtime_actions import (
     RuntimeActionContext,
     can_start_action,
     handle_thieving_answer,
     handle_utility_answer,
 )
-from storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
-from thieving_data import (
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
+from ankiscape.data.thieving_data import (
     PICKPOCKET_TARGETS,
     STALL_TARGETS,
     THIEVING_NPC_IMAGES,

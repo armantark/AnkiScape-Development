@@ -50,7 +50,8 @@ from tools.fetch_assets import (  # noqa: E402
     fetch_asset,
     wiki_title_for_item,
 )
-from constants import (  # noqa: E402
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import (  # noqa: E402
     BAR_IMAGES,
     CRAFTED_ITEMS_FOLDER,
     CRAFTING_DATA,
@@ -61,7 +62,7 @@ from constants import (  # noqa: E402
     UTILITY_ITEM_IMAGES,
     _asset_slug,
 )
-from crafting_data import crafting_output_items  # noqa: E402
+from ankiscape.data.crafting_data import crafting_output_items  # noqa: E402
 
 PROVENANCE = Path("assets_provenance.json")
 _CRAFTED_ITEMS_REL = Path(CRAFTED_ITEMS_FOLDER).relative_to(REPO_ROOT)

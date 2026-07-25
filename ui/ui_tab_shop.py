@@ -27,54 +27,29 @@ try:
 except Exception:  # pragma: no cover - non-Qt environment keeps the module importable
     pass
 
-try:
-    from .shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS
-    from .shop_logic import (
-        apply_shop_buy_pure,
-        apply_shop_sell_pure,
-        apply_shop_service_pure,
-        apply_shop_vendor_action_pure,
-        preview_shop_buy_pure,
-        preview_shop_sell_pure,
-        preview_shop_service_pure,
-        preview_shop_vendor_action_pure,
-        search_shop_catalog_pure,
-        shop_history_rows_pure,
-        shop_view_model_pure,
-        shop_view_models_pure,
-    )
-    from .ui import (
-        CatalogFilterBar,
-        _clear_layout,
-        _item_icon_path,
-        _pixel_item_icon,
-        dim_text_color,
-        dim_text_css,
-    )
-except Exception:
-    from shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS  # type: ignore
-    from shop_logic import (  # type: ignore
-        apply_shop_buy_pure,
-        apply_shop_sell_pure,
-        apply_shop_service_pure,
-        apply_shop_vendor_action_pure,
-        preview_shop_buy_pure,
-        preview_shop_sell_pure,
-        preview_shop_service_pure,
-        preview_shop_vendor_action_pure,
-        search_shop_catalog_pure,
-        shop_history_rows_pure,
-        shop_view_model_pure,
-        shop_view_models_pure,
-    )
-    from ui import (  # type: ignore
-        CatalogFilterBar,
-        _clear_layout,
-        _item_icon_path,
-        _pixel_item_icon,
-        dim_text_color,
-        dim_text_css,
-    )
+from ..data.shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS
+from ..logic.shop_logic import (
+    apply_shop_buy_pure,
+    apply_shop_sell_pure,
+    apply_shop_service_pure,
+    apply_shop_vendor_action_pure,
+    preview_shop_buy_pure,
+    preview_shop_sell_pure,
+    preview_shop_service_pure,
+    preview_shop_vendor_action_pure,
+    search_shop_catalog_pure,
+    shop_history_rows_pure,
+    shop_view_model_pure,
+    shop_view_models_pure,
+)
+from ..ui.ui import (
+    CatalogFilterBar,
+    _clear_layout,
+    _item_icon_path,
+    _pixel_item_icon,
+    dim_text_color,
+    dim_text_css,
+)
 
 
 def build_shop_tab(ctx) -> "QWidget":

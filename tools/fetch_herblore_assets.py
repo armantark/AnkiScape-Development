@@ -14,7 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from herblore_data import CLEAN_TARGETS, FINISHED_TARGETS, UNF_TARGETS
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.herblore_data import CLEAN_TARGETS, FINISHED_TARGETS, UNF_TARGETS
 from tools.fetch_assets import (
     RS3_WIKI,
     AssetFetchError,
