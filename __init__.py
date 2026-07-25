@@ -571,6 +571,50 @@ def _update_review_context_surface() -> None:
         pass
 
 
+def commit_direct_action(apply_change):
+    """Run one mutating menu action as a single undoable Anki operation.
+
+    `apply_change` receives the live save and returns `(updated, ok)`. Returning
+    `ok=False` refuses the action: nothing is written and the random state is put
+    back, so a refusal the player never saw cannot advance the sequence.
+
+    This is the seam. Before it existed the snapshot, custom-undo-entry, bounded
+    stack and commit lived inline in `resolve_review_context_action`, which meant
+    the reviewer context strip was the only surface in the add-on whose actions
+    could be undone. Thirty-one command handlers mutated and saved without one.
+
+    The snapshot deep-copies the save deliberately. Undo must restore nested
+    state that the shallow-copy convention elsewhere leaves shared, so this is one
+    of the few places a whole-save copy is load-bearing rather than waste.
+
+    Returns True when the change was committed.
+    """
+    before = {
+        "player_data": copy.deepcopy(player_data),
+        "random_state": random.getstate(),
+    }
+    updated, ok = apply_change(player_data)
+    if not ok:
+        random.setstate(before["random_state"])
+        return False
+    try:
+        mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+    except (AttributeError, RuntimeError):
+        random.setstate(before["random_state"])
+        return False
+    _DIRECT_ACTION_UNDO_STACK.append(before)
+    if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+        del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+    player_data.clear()
+    player_data.update(updated)
+    save_player_data()
+    try:
+        mw.update_undo_actions()
+    except (AttributeError, RuntimeError):
+        pass
+    return True
+
+
 def resolve_review_context_action(family_id: str, option_id: str) -> bool:
     """Resolve one explicit reviewer-context choice as a direct undoable action."""
 
@@ -1628,9 +1672,8 @@ def _on_main_menu(
                     "ok": False,
                     "message": str(info.get("reason", "That policy is unavailable.")),
                 }
-            player_data.clear()
-            player_data.update(updated)
-            save_player_data()
+            if not commit_direct_action(lambda _current: (updated, True)):
+                return {"ok": False, "message": "Could not save the policy."}
             return {"ok": True, **info}
 
         before = {
@@ -1686,9 +1729,8 @@ def _on_main_menu(
                     "ok": False,
                     "message": str(info.get("reason", "Unknown profile.")),
                 }
-            player_data.clear()
-            player_data.update(updated)
-            save_player_data()
+            if not commit_direct_action(lambda _current: (updated, True)):
+                return {"ok": False, "message": "Could not save the profile."}
             return {"ok": True, **info}
         if action_id == "set_private_ground":
             updated, ok, info = set_hunter_private_ground_pure(
@@ -1703,9 +1745,11 @@ def _on_main_menu(
                         info.get("reason", "That private ground is unavailable.")
                     ),
                 }
-            player_data.clear()
-            player_data.update(updated)
-            save_player_data()
+            if not commit_direct_action(lambda _current: (updated, True)):
+                return {
+                    "ok": False,
+                    "message": "Could not save the private ground.",
+                }
             return {"ok": True, **info}
         if action_id != "buy_reward":
             return {
@@ -1774,9 +1818,11 @@ def _on_main_menu(
                         info.get("reason", "Could not save star preferences.")
                     ),
                 }
-            player_data.clear()
-            player_data.update(updated)
-            save_player_data()
+            if not commit_direct_action(lambda _current: (updated, True)):
+                return {
+                    "ok": False,
+                    "message": "Could not save star preferences.",
+                }
             return {"ok": True, **info}
         if action_id != "exchange":
             return {
@@ -1864,17 +1910,19 @@ def _on_main_menu(
                 "ok": False,
                 "message": str(info.get("reason", "Garden action failed.")),
             }
-        if action_id != "set_preferences":
-            try:
-                mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
-            except (AttributeError, RuntimeError):
-                return {
-                    "ok": False,
-                    "message": "Anki could not create an undo entry.",
-                }
-            _DIRECT_ACTION_UNDO_STACK.append(before)
-            if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
-                del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
+        # Preferences used to skip undo registration while still saving, which
+        # made the Garden's policy boundary the one mutation here you could not
+        # take back. Every action now registers.
+        try:
+            mw.col.add_custom_undo_entry(_DIRECT_ACTION_UNDO_OPERATION)
+        except (AttributeError, RuntimeError):
+            return {
+                "ok": False,
+                "message": "Anki could not create an undo entry.",
+            }
+        _DIRECT_ACTION_UNDO_STACK.append(before)
+        if len(_DIRECT_ACTION_UNDO_STACK) > _MAX_DIRECT_ACTION_UNDO_SNAPSHOTS:
+            del _DIRECT_ACTION_UNDO_STACK[:-_MAX_DIRECT_ACTION_UNDO_SNAPSHOTS]
         player_data.clear()
         player_data.update(updated)
         save_player_data()
@@ -2759,9 +2807,8 @@ def _on_main_menu(
                     .replace("_", " ")
                     .capitalize(),
                 }
-            player_data.clear()
-            player_data.update(updated)
-            save_player_data()
+            if not commit_direct_action(lambda _current: (updated, True)):
+                return {"ok": False, "message": "Could not save the routine."}
             return {"ok": True, **info}
         if action_id == "buy_wish":
             return on_livid_farm_wish(payload.get("wish_id", ""))
