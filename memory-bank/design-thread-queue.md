@@ -125,6 +125,40 @@ updates on 1 February 2011, the tournaments were removed from the game."
 - Source: RuneScape Wiki `Duel Arena`, oldid `6398696`, 2012-10-14.
 - Unblocks: the Duel Arena family.
 
+## 5. Cross-cutting defects found on 2026-07-25
+
+These are not design decisions. They are one defect each, showing up in many
+families, and each is cheaper to fix once than family by family. The frontier
+recomputation reported them as separate per-family failures; they are not.
+
+### 5.1 Direct actions have no undo (breadth criterion 5)
+
+`__init__.py` holds 31 `_apply_*_command` handlers that mutate or persist the
+save. **None of them registers a direct-action undo snapshot.** The only code
+that creates one is inline inside `resolve_review_context_action`
+(`__init__.py:574-625`), which serves the reviewer context strip alone.
+
+The frontier audit reported this as a criterion-5 failure in Shooting Stars,
+Sorceress's Garden, Big Chinchompa, Livid Farm and Warriors' Guild. Those are
+five symptoms of one missing seam. Extract the snapshot, custom-undo-entry and
+restore logic into a shared wrapper, route the mutating handlers through it, and
+five families advance at once — with every later family getting undo for free.
+
+Do this before shipping more families. Each family built on the current seam adds
+another handler that must be retrofitted.
+
+### 5.2 Post-cutoff art is shipping as period art (breadth criterion 7)
+
+Several live surfaces use images that `assets_provenance.json` itself identifies
+as post-cutoff: Evil Tree uses an RS3 kindling sprite, Wicked hood an RS3 image,
+Livid Farm a 2016 Patch protection scroll, and Warriors' Guild several
+post-cutoff activity and enemy assets.
+
+The provenance file already records the truth, so nothing was hidden. What is
+missing is a check that fails when a live image's provenance is post-cutoff. Add
+that check, then harvest replacements. Without the check the same drift returns
+with the next asset fetch.
+
 ## 5. What this round showed about our records
 
 Two of the four answers came from re-reading the period source during the
