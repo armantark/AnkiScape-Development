@@ -10,7 +10,14 @@ from ..logic_pure.logic_pure import (
     apply_combat_burst_pure,
     combat_target_locked_reasons_pure,
 )
+from .inventory_pure import (
+    CARRIED_CAPACITY,
+    apply_carried_layout_pure,
+    carried_advanced_for,
+    clamp_carried_view_to_bank,
+)
 from .pet_logic import acquire_pet_pure
+from ..data.item_values import STACKABLE_ITEM_NAMES
 from ..data.pet_data import PETS_BY_ID
 from ..data.phoenix_lair_data import (
     CRACKED_PHOENIX_EGG_ITEM,
@@ -155,21 +162,54 @@ def sanitize_phoenix_lair_state_pure(raw: Any) -> dict[str, Any]:
     }
 
 
-def _tool_available(player_data: Mapping[str, Any], item_name: str) -> bool:
+def _advanced_carried_pack(player_data: Mapping[str, Any]) -> dict[str, int]:
     inventory = player_data.get("inventory")
-    if isinstance(inventory, Mapping) and _int(inventory.get(item_name)) > 0:
-        return True
+    layouts = player_data.get("carried_layout")
+    layout = (
+        layouts.get(PHOENIX_LAIR_ACTIVITY_ID)
+        if isinstance(layouts, Mapping)
+        else None
+    )
+    if isinstance(layout, Mapping) and layout:
+        return apply_carried_layout_pure(
+            inventory if isinstance(inventory, Mapping) else {},
+            layout,
+            CARRIED_CAPACITY,
+            STACKABLE_ITEM_NAMES,
+        )
+    carried_root = player_data.get("carried_inventory")
+    carried = (
+        carried_root.get(PHOENIX_LAIR_ACTIVITY_ID)
+        if isinstance(carried_root, Mapping)
+        else None
+    )
+    return clamp_carried_view_to_bank(carried, inventory)
+
+
+def _tool_available(player_data: Mapping[str, Any], item_name: str) -> bool:
     wanted = item_name.replace("_", " ").casefold()
     toolbelt = player_data.get("toolbelt")
-    if not isinstance(toolbelt, Mapping):
-        return False
-    for raw_items in toolbelt.values():
-        items = (raw_items,) if isinstance(raw_items, str) else raw_items
-        if isinstance(items, (tuple, list, set)) and any(
-            str(item).replace("_", " ").casefold() == wanted for item in items
-        ):
-            return True
-    return False
+    if isinstance(toolbelt, Mapping):
+        for raw_items in toolbelt.values():
+            items = (raw_items,) if isinstance(raw_items, str) else raw_items
+            if isinstance(items, (tuple, list, set)) and any(
+                str(item).replace("_", " ").casefold() == wanted for item in items
+            ):
+                return True
+
+    inventory = player_data.get("inventory")
+    if not carried_advanced_for(player_data, PHOENIX_LAIR_ACTIVITY_ID):
+        return isinstance(inventory, Mapping) and _int(inventory.get(item_name)) > 0
+
+    return _int(_advanced_carried_pack(player_data).get(item_name)) > 0
+
+
+def _tool_location_label(player_data: Mapping[str, Any]) -> str:
+    return (
+        "carried pack or toolbelt"
+        if carried_advanced_for(player_data, PHOENIX_LAIR_ACTIVITY_ID)
+        else "Bank or toolbelt"
+    )
 
 
 def _quest_complete(player_data: Mapping[str, Any]) -> bool:
@@ -222,7 +262,9 @@ def phoenix_lair_view_pure(
         if not _tool_available(player_data, tool)
     ]
     if missing_tools:
-        missing.append(f"{', '.join(missing_tools)} in Bank or toolbelt")
+        missing.append(
+            f"{', '.join(missing_tools)} in {_tool_location_label(player_data)}"
+        )
     current_day = _world_day(player_data)
     daily_ready = current_day > state["last_completed_world_day"]
     current_guardian = ""
@@ -298,10 +340,22 @@ def apply_phoenix_lair_command_pure(
         ]
         if missing_tools:
             return data, False, {
-                "reason": "Missing Bank/toolbelt tools: " + ", ".join(missing_tools) + "."
+                "reason": (
+                    f"Missing tools from {_tool_location_label(data)}: "
+                    + ", ".join(missing_tools)
+                    + "."
+                )
             }
         if _world_day(data) <= state["last_completed_world_day"]:
             return data, False, {"reason": "The Phoenix has already rewarded you this world day."}
+        if carried_advanced_for(data, PHOENIX_LAIR_ACTIVITY_ID):
+            carried_root = dict(data.get("carried_inventory") or {})
+            carried_pack = _advanced_carried_pack(data)
+            if carried_pack:
+                carried_root[PHOENIX_LAIR_ACTIVITY_ID] = carried_pack
+            else:
+                carried_root.pop(PHOENIX_LAIR_ACTIVITY_ID, None)
+            data["carried_inventory"] = carried_root
         roster = [_roll_guardian(rng) for _ in range(PHOENIX_LAIR_GUARDIAN_COUNT)]
         maximum = sum(
             _int(PHOENIX_LAIR_GUARDIANS[guardian_id]["stats"]["hitpoints"], 1, minimum=1)

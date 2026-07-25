@@ -9779,6 +9779,42 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(status.text(), "READY")
         self.assertTrue(leave.isHidden())
 
+    def test_phoenix_lair_advanced_mode_names_the_carried_pack_gate(self) -> None:
+        from ankiscape.logic.phoenix_lair_logic import default_phoenix_lair_state_pure
+
+        pd = _make_player_data()
+        pd["phoenix_lair"] = default_phoenix_lair_state_pure()
+        pd["activity_session"] = {"active_id": ""}
+        pd["combat_encounter"] = {}
+        pd["quests"]["in_pyre_need"] = {
+            "started": True,
+            "progress": 1,
+            "completed": True,
+        }
+        pd["slayer_level"] = 99
+        pd["inventory"].update({"Knife": 1, "Secateurs": 1, "Tinderbox": 1})
+        pd["carried_advanced_targets"] = {"phoenix_lair": True}
+        pd["carried_layout"] = {
+            "phoenix_lair": {
+                "Knife": 1,
+                "Secateurs": 1,
+            }
+        }
+        dialog = self._open(pd)
+        activity_tree = self._open_activities(dialog)
+        row = _utility_row(activity_tree, "phoenix_lair")
+        activity_tree.setCurrentItem(row)
+        activity_tree.itemActivated.emit(row, 0)
+        QApplication.processEvents()
+
+        status = _find_named_label(dialog, "phoenixLairStatusChip")
+        summary = _find_named_label(dialog, "phoenixLairSummary")
+        primary = _find_named_button(dialog, "phoenixLairPrimaryButton")
+        self.assertEqual(status.text(), "LOCKED")
+        self.assertIn("Tinderbox in carried pack or toolbelt", summary.text())
+        self.assertNotIn("Bank or toolbelt", summary.text())
+        self.assertFalse(primary.isEnabled())
+
     def test_barrows_card_enters_selects_repairs_and_suspends_without_nested_scroll(self) -> None:
         from ankiscape.logic.barrows_logic import default_barrows_state_pure
 

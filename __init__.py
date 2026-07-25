@@ -1281,6 +1281,7 @@ def _on_main_menu(
             in {
                 runtime_actions.PYRAMID_PLUNDER_ACTIVITY_ID,
                 runtime_actions.GNOME_BALL_ACTIVITY_ID,
+                runtime_actions.PHOENIX_LAIR_ACTIVITY_ID,
             }
         ):
             target_id = player_data.get("current_utility")
