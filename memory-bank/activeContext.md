@@ -413,11 +413,17 @@ level-scaled fallback, survived tackles preserve the score, and lethal tackles
 use shared food, LP, grave, terminal-stop, and whole-answer undo behavior.
 
 The referee reward checks only the activity's carried pack or equipped weapon,
-so a banked Gnomeball does not block the next reward. Item `751` is registered
-as a nonstackable, tradeable, zero-bonus weapon without shifting existing
-synthetic equipment IDs. Schema 63 migration, cadence coverage, telemetry,
-completion counters, compact paginated Activities UI, dark-safe status copy,
-normalized period art, and Bank/Equipment pack reachability are live. Exact
+so a banked Gnomeball does not block the next reward. The fifth-goal transition
+now adds a newly awarded ball to the carried pack as well as canonical
+ownership; a second win withholds it until the undoable Activities-card Bank
+action removes the carried projection, after which a later win can award
+another. Entry reserves the final carried slot when a reward is eligible, and
+banking also clears a Custom-pack Gnomeball request so it cannot silently
+reappear. Item `751` is registered as a nonstackable, tradeable, zero-bonus
+weapon without shifting existing synthetic equipment IDs. Schema 63 migration,
+cadence coverage, telemetry, completion counters, compact paginated Activities
+UI, dark-safe status copy, normalized period art, and Bank/Equipment pack
+reachability are live. Exact
 historical score, pass, throw-XP, tackle-rate, and tackle-damage rolls remain
 explicit data depth under `source_blocked`; no owner design gap emerged.
 
@@ -432,7 +438,10 @@ the Gnome Ball row on Minigames. Reachability remains 1,438 actions, 2,128
 reachable items, 168 known orphan inputs, and 189 unresolved actions. Durable
 record: `source-audits/gnome-ball-loop-2026-07-17.md`.
 Results: `status-updates/gnome-ball-horizontal-results-2026-07-21.html`;
-mobile copy: `https://d1b1zg22hfo7.postplan.dev`.
+mobile copy: `https://d1b1zg22hfo7.postplan.dev`. The 2026-07-25 carried-reward
+correction passes both current `2,718`-test lanes and is recorded in the same
+source audit; no new status artifact was needed because no owner decision or
+blocker emerged.
 
 Pyramid Plunder now satisfies horizontal breadth level one as an Activities-
 only dangerous Thieving minigame. Its exact entry alternatives, eight room

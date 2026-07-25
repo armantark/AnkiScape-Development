@@ -11089,7 +11089,10 @@ def show_main_menu(
         gnome_ball_primary.setObjectName("gnomeBallPrimaryButton")
         gnome_ball_leave = QPushButton("Leave match")
         gnome_ball_leave.setObjectName("gnomeBallLeaveButton")
+        gnome_ball_bank = QPushButton("Bank Gnomeball")
+        gnome_ball_bank.setObjectName("gnomeBallBankRewardButton")
         gnome_ball_actions_layout.addWidget(gnome_ball_primary, 1)
+        gnome_ball_actions_layout.addWidget(gnome_ball_bank)
         gnome_ball_actions_layout.addWidget(gnome_ball_leave)
         gnome_ball_layout.addWidget(gnome_ball_actions)
 
@@ -11131,6 +11134,12 @@ def show_main_menu(
             visible_result = (
                 last_result if last_result and last_result != "Ready to enter" else ""
             )
+            carried_reward = bool(view.get("referee_reward_carried"))
+            reward_notice = (
+                "\nReferee Gnomeball carried — bank it before the next match to earn another."
+                if carried_reward and not active
+                else ""
+            )
             if active:
                 gnome_ball_summary.setText(
                     f"Beat {int(view['beat_number'])}/3 · {int(view['score'])}/5 goals · "
@@ -11142,6 +11151,7 @@ def show_main_menu(
                     "Three successful reviews · five goals · 52 Agility + 52 Ranged XP · "
                     f"{int(view['runs_completed'])} completed matches\nEntry: "
                     + ", ".join(str(reason) for reason in locked)
+                    + reward_notice
                     + (f"\n{visible_result}" if visible_result else "")
                 )
             else:
@@ -11149,6 +11159,7 @@ def show_main_menu(
                     "Three successful reviews · five goals · 52 Agility + 52 Ranged XP · "
                     f"{float(view['tackle_chance']) * 100:.1f}% tackle risk · "
                     f"{int(view['runs_completed'])} completed matches"
+                    + reward_notice
                     + (f"\n{visible_result}" if visible_result else "")
                 )
             gnome_ball_summary.setToolTip(last_result)
@@ -11168,6 +11179,8 @@ def show_main_menu(
                 and not selected
                 and (active or not locked)
             )
+            gnome_ball_bank.setVisible(bool(view.get("can_bank_referee_reward")))
+            gnome_ball_bank.setEnabled(on_agility_command is not None)
             gnome_ball_leave.setVisible(active)
             gnome_ball_leave.setEnabled(on_agility_command is not None)
             _fit_current_activity_detail()
@@ -11197,6 +11210,9 @@ def show_main_menu(
 
         gnome_ball_primary.clicked.connect(
             lambda _checked=False: _select_or_enter_gnome_ball()
+        )
+        gnome_ball_bank.clicked.connect(
+            lambda _checked=False: _run_gnome_ball_command("bank_gnomeball_reward")
         )
         gnome_ball_leave.clicked.connect(
             lambda _checked=False: _confirm_gnome_ball_leave()

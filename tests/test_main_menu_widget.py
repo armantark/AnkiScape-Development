@@ -10166,12 +10166,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         status = _find_named_label(dialog, "gnomeBallStatusChip")
         summary = _find_named_label(dialog, "gnomeBallSummary")
         primary = _find_named_button(dialog, "gnomeBallPrimaryButton")
+        bank_reward = _find_named_button(dialog, "gnomeBallBankRewardButton")
         leave = _find_named_button(dialog, "gnomeBallLeaveButton")
         self.assertIsNone(panel.findChild(QScrollArea))
         self.assertEqual(status.text(), "READY")
         self.assertIn("52 Agility + 52 Ranged XP", summary.text())
         self.assertIn("tackle risk", summary.text())
         ready_status_style = status.styleSheet()
+        self.assertTrue(bank_reward.isHidden())
         self.assertTrue(leave.isHidden())
 
         primary.click()
@@ -10201,6 +10203,44 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(status.text(), "READY")
         self.assertIn("Left Gnome Ball", summary.text())
         self.assertTrue(leave.isHidden())
+
+    def test_gnome_ball_card_banks_the_carried_referee_reward(self) -> None:
+        pd = _make_player_data()
+        pd.update(
+            {
+                "current_utility": "gnome_ball",
+                "activity_session": {"active_id": ""},
+                "gnome_ball": {},
+                "gnome_ball_runs_completed": 1,
+                "inventory": {"Gnomeball": 2},
+                "carried_inventory": {"gnome_ball": {"Gnomeball": 1}},
+            }
+        )
+        dialog = self._open(pd)
+        activity_tree = self._open_activities(dialog)
+        row = _utility_row(activity_tree, "gnome_ball")
+        activity_tree.setCurrentItem(row)
+        activity_tree.itemActivated.emit(row, 0)
+        QApplication.processEvents()
+
+        summary = _find_named_label(dialog, "gnomeBallSummary")
+        bank_reward = _find_named_button(dialog, "gnomeBallBankRewardButton")
+        self.assertIn("Gnomeball carried", summary.text())
+        self.assertFalse(bank_reward.isHidden())
+
+        bank_reward.click()
+        QApplication.processEvents()
+        self.assertEqual(
+            self._agility_command_calls[-1],
+            ("bank_gnomeball_reward", {}),
+        )
+        self.assertEqual(pd["inventory"]["Gnomeball"], 2)
+        self.assertNotIn(
+            "Gnomeball",
+            pd.get("carried_inventory", {}).get("gnome_ball", {}),
+        )
+        self.assertIn("another can be awarded", summary.text())
+        self.assertTrue(bank_reward.isHidden())
 
     def test_locked_gnome_ball_row_opens_weapon_requirement_card(self) -> None:
         pd = _make_player_data()

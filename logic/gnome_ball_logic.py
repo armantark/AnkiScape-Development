@@ -130,19 +130,33 @@ def _finish_session(data: dict[str, Any]) -> None:
         data["activity_session"] = {"active_id": ""}
 
 
-def _carried_gnomeball(player_data: Mapping[str, Any]) -> bool:
+def _carried_pack_gnomeball(player_data: Mapping[str, Any]) -> bool:
     carried_by_target = player_data.get("carried_inventory")
     carried = (
         carried_by_target.get(GNOME_BALL_ACTIVITY_ID)
         if isinstance(carried_by_target, Mapping)
         else None
     )
-    if isinstance(carried, Mapping) and _int(carried.get("Gnomeball")) > 0:
-        return True
-    return _equipped_weapon(player_data).casefold() == "gnomeball"
+    inventory = player_data.get("inventory")
+    return bool(
+        isinstance(carried, Mapping)
+        and _int(carried.get("Gnomeball")) > 0
+        and isinstance(inventory, Mapping)
+        and _int(inventory.get("Gnomeball")) > 0
+    )
 
 
-def _prepare_pack(player_data: Mapping[str, Any]) -> dict[str, int]:
+def _carried_gnomeball(player_data: Mapping[str, Any]) -> bool:
+    return (
+        _carried_pack_gnomeball(player_data)
+        or _equipped_weapon(player_data).casefold() == "gnomeball"
+    )
+
+
+def _prepare_pack(
+    player_data: Mapping[str, Any],
+    capacity: int,
+) -> dict[str, int]:
     advanced = player_data.get("carried_advanced_targets")
     custom = isinstance(advanced, Mapping) and bool(
         advanced.get(GNOME_BALL_ACTIVITY_ID)
@@ -165,7 +179,7 @@ def _prepare_pack(player_data: Mapping[str, Any]) -> dict[str, int]:
     return apply_carried_layout_pure(
         inventory if isinstance(inventory, Mapping) else {},
         layout,
-        CARRIED_CAPACITY,
+        capacity,
         STACKABLE_ITEM_NAMES,
     )
 
@@ -193,8 +207,21 @@ def enter_gnome_ball_pure(
     data.update(state)
     carried = dict(data.get("carried_inventory") or {})
     existing_pack = carried.get(GNOME_BALL_ACTIVITY_ID)
-    if not isinstance(existing_pack, Mapping) or not existing_pack:
-        carried[GNOME_BALL_ACTIVITY_ID] = _prepare_pack(data)
+    reward_capacity = (
+        CARRIED_CAPACITY
+        if _carried_gnomeball(data)
+        else CARRIED_CAPACITY - 1
+    )
+    if isinstance(existing_pack, Mapping) and existing_pack:
+        inventory = data.get("inventory")
+        carried[GNOME_BALL_ACTIVITY_ID] = apply_carried_layout_pure(
+            inventory if isinstance(inventory, Mapping) else {},
+            existing_pack,
+            reward_capacity,
+            STACKABLE_ITEM_NAMES,
+        )
+    else:
+        carried[GNOME_BALL_ACTIVITY_ID] = _prepare_pack(data, reward_capacity)
     data["carried_inventory"] = carried
     data["gnome_ball"] = {
         "version": GNOME_BALL_STATE_VERSION,
@@ -271,6 +298,11 @@ def apply_gnome_ball_review_pure(
             inventory = dict(data.get("inventory") or {})
             inventory["Gnomeball"] = _int(inventory.get("Gnomeball")) + 1
             data["inventory"] = inventory
+            carried_by_target = dict(data.get("carried_inventory") or {})
+            carried_pack = dict(carried_by_target.get(GNOME_BALL_ACTIVITY_ID) or {})
+            carried_pack["Gnomeball"] = _int(carried_pack.get("Gnomeball")) + 1
+            carried_by_target[GNOME_BALL_ACTIVITY_ID] = carried_pack
+            data["carried_inventory"] = carried_by_target
             outputs["Gnomeball"] = 1
         completions = dict(data.get("agility_activity_completions") or {})
         completions["gnome_ball"] = _int(completions.get("gnome_ball")) + 1
@@ -319,6 +351,38 @@ def apply_gnome_ball_review_pure(
     }
 
 
+def bank_gnomeball_reward_pure(
+    player_data: Mapping[str, Any],
+) -> tuple[dict[str, Any], bool, dict[str, Any]]:
+    data = dict(player_data)
+    if sanitize_gnome_ball_session_pure(data.get("gnome_ball")):
+        return data, False, {"reason": "Finish or leave the current Gnome Ball match first."}
+    if not _carried_pack_gnomeball(data):
+        return data, False, {"reason": "No referee Gnomeball is currently carried."}
+    if _equipped_weapon(data).casefold() == "gnomeball":
+        return data, False, {"reason": "Unequip the wielded Gnomeball before banking the referee reward."}
+    carried_by_target = dict(data.get("carried_inventory") or {})
+    carried_pack = dict(carried_by_target.get(GNOME_BALL_ACTIVITY_ID) or {})
+    carried_pack.pop("Gnomeball", None)
+    if carried_pack:
+        carried_by_target[GNOME_BALL_ACTIVITY_ID] = carried_pack
+    else:
+        carried_by_target.pop(GNOME_BALL_ACTIVITY_ID, None)
+    data["carried_inventory"] = carried_by_target
+    layouts = dict(data.get("carried_layout") or {})
+    target_layout = dict(layouts.get(GNOME_BALL_ACTIVITY_ID) or {})
+    target_layout.pop("Gnomeball", None)
+    if target_layout:
+        layouts[GNOME_BALL_ACTIVITY_ID] = target_layout
+    else:
+        layouts.pop(GNOME_BALL_ACTIVITY_ID, None)
+    data["carried_layout"] = layouts
+    data["gnome_ball_last_result"] = (
+        "Banked the referee Gnomeball · another can be awarded after the next win"
+    )
+    return data, True, {"message": data["gnome_ball_last_result"]}
+
+
 def leave_gnome_ball_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
@@ -352,5 +416,9 @@ def gnome_ball_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         ),
         "lifepoints": _int(player_data.get("combat_lifepoints"), 100),
         "runs_completed": state["gnome_ball_runs_completed"],
+        "referee_reward_carried": _carried_pack_gnomeball(player_data),
+        "can_bank_referee_reward": bool(
+            not session and _carried_pack_gnomeball(player_data)
+        ),
         "last_result": state["gnome_ball_last_result"],
     }

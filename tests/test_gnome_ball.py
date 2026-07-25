@@ -15,6 +15,7 @@ from ankiscape.logic.cadence_coverage import cadence_coverage_rows_pure
 from ankiscape.data.gnome_ball_data import GNOME_BALL_ACTIVITY_ID
 from ankiscape.logic.gnome_ball_logic import (
     apply_gnome_ball_review_pure,
+    bank_gnomeball_reward_pure,
     enter_gnome_ball_pure,
     gnome_ball_locked_reasons_pure,
     gnome_ball_tackle_chance_pure,
@@ -22,7 +23,12 @@ from ankiscape.logic.gnome_ball_logic import (
 )
 from ankiscape.logic_pure.logic_pure import equip_item_pure
 from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
-from tests.test_integration_smoke import _install_runtime_fakes, _load_addon_as_package
+from tests.test_integration_smoke import (
+    _DummyCol,
+    _DummyMW,
+    _install_runtime_fakes,
+    _load_addon_as_package,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -105,6 +111,33 @@ class GnomeBallPureTests(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(info["pack"], {"Lobster": 2})
 
+        full = _player(
+            inventory={"Shark": 28},
+            combat_auto_eat_food=["Shark"],
+        )
+        entered, ok, info = enter_gnome_ball_pure(full)
+        self.assertTrue(ok)
+        self.assertEqual(info["pack"], {"Shark": 27})
+
+        full_custom = _player(
+            inventory={"Shark": 28},
+            carried_advanced_targets={GNOME_BALL_ACTIVITY_ID: True},
+            carried_layout={GNOME_BALL_ACTIVITY_ID: {"Shark": 28}},
+        )
+        entered, ok, info = enter_gnome_ball_pure(full_custom)
+        self.assertTrue(ok)
+        self.assertEqual(info["pack"], {"Shark": 27})
+
+        stale = _player(
+            inventory={"Shark": 28},
+            carried_inventory={
+                GNOME_BALL_ACTIVITY_ID: {"Gnomeball": 1, "Shark": 28}
+            },
+        )
+        entered, ok, info = enter_gnome_ball_pure(stale)
+        self.assertTrue(ok)
+        self.assertEqual(info["pack"], {"Shark": 27})
+
     def test_three_beats_pay_period_goal_xp_to_both_skills(self):
         completed, results = _complete(_player())
         self.assertEqual(
@@ -145,25 +178,70 @@ class GnomeBallPureTests(unittest.TestCase):
         self.assertEqual(updated["activity_session"], {"active_id": ""})
         self.assertIn("Gnomeball", updated["combat_grave"]["items"])
 
-    def test_referee_checks_carried_not_banked_gnomeballs(self):
+    def test_referee_reward_is_carried_until_banked_then_can_be_earned_again(self):
         banked = _player()
         banked["inventory"]["Gnomeball"] = 1
+        original = copy.deepcopy(banked)
         completed, results = _complete(banked)
+        self.assertEqual(banked, original)
         self.assertEqual(results[-1]["outputs"], {"Gnomeball": 1})
         self.assertEqual(completed["inventory"]["Gnomeball"], 2)
-
-        carried = _player(
-            carried_inventory={GNOME_BALL_ACTIVITY_ID: {"Gnomeball": 1}}
+        self.assertEqual(
+            completed["carried_inventory"][GNOME_BALL_ACTIVITY_ID]["Gnomeball"],
+            1,
         )
-        completed, results = _complete(carried)
+
+        withheld, results = _complete(completed)
         self.assertEqual(results[-1]["outputs"], {})
-        self.assertEqual(completed["inventory"]["Gnomeball"], 0)
+        self.assertEqual(withheld["inventory"]["Gnomeball"], 2)
+        withheld["inventory"]["Shark"] = 1
+        withheld["carried_advanced_targets"] = {GNOME_BALL_ACTIVITY_ID: True}
+        withheld["carried_layout"] = {
+            GNOME_BALL_ACTIVITY_ID: {"Gnomeball": 1, "Shark": 1}
+        }
+
+        banked_again, ok, info = bank_gnomeball_reward_pure(withheld)
+        self.assertTrue(ok)
+        self.assertIn("another can be awarded", info["message"])
+        self.assertNotIn(
+            "Gnomeball",
+            banked_again.get("carried_inventory", {}).get(
+                GNOME_BALL_ACTIVITY_ID, {}
+            ),
+        )
+        self.assertEqual(banked_again["inventory"]["Gnomeball"], 2)
+        self.assertEqual(
+            banked_again["carried_layout"][GNOME_BALL_ACTIVITY_ID],
+            {"Shark": 1},
+        )
+
+        rewarded_again, results = _complete(banked_again)
+        self.assertEqual(results[-1]["outputs"], {"Gnomeball": 1})
+        self.assertEqual(rewarded_again["inventory"]["Gnomeball"], 3)
+        self.assertEqual(
+            rewarded_again["carried_inventory"][GNOME_BALL_ACTIVITY_ID]["Gnomeball"],
+            1,
+        )
 
         equipped, results = _complete(
             _player(equipment={"weapon": "Gnomeball"})
         )
         self.assertEqual(results[-1]["outputs"], {})
         self.assertEqual(equipped["inventory"]["Gnomeball"], 0)
+
+        unchanged, ok, info = bank_gnomeball_reward_pure(
+            _player(
+                inventory={"Gnomeball": 2},
+                equipment={"weapon": "Gnomeball"},
+                carried_inventory={GNOME_BALL_ACTIVITY_ID: {"Gnomeball": 1}},
+            )
+        )
+        self.assertFalse(ok)
+        self.assertIn("Unequip", info["reason"])
+        self.assertEqual(
+            unchanged["carried_inventory"][GNOME_BALL_ACTIVITY_ID]["Gnomeball"],
+            1,
+        )
 
     def test_direct_commands_enter_and_leave_without_awarding_progress(self):
         player, result = apply_agility_command_pure(
@@ -178,6 +256,17 @@ class GnomeBallPureTests(unittest.TestCase):
         self.assertEqual(left["gnome_ball"], {})
         self.assertEqual(left["gnome_ball_runs_completed"], 0)
         self.assertFalse(leave_gnome_ball_pure(left)[1])
+
+        rewarded, _results = _complete(_player())
+        banked, result = apply_agility_command_pure(
+            rewarded, "bank_gnomeball_reward", {}
+        )
+        self.assertTrue(result["allowed"])
+        self.assertNotIn(
+            "Gnomeball",
+            banked.get("carried_inventory", {}).get(GNOME_BALL_ACTIVITY_ID, {}),
+        )
+        self.assertEqual(banked["inventory"]["Gnomeball"], 1)
 
     def test_v63_migration_resets_partial_match_and_preserves_completions(self):
         migrated = migrate_loaded_data(
@@ -262,9 +351,52 @@ class GnomeBallHookTests(unittest.TestCase):
         self.assertEqual(addon.player_data["ranged_exp"] - before_ranged, 52.0)
         self.assertEqual(addon.player_data["gnome_ball_runs_completed"], 1)
         self.assertEqual(addon.player_data["gnome_ball"], {})
+        self.assertEqual(
+            addon.player_data["carried_inventory"][GNOME_BALL_ACTIVITY_ID]["Gnomeball"],
+            1,
+        )
 
         addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
         self.assertEqual(addon.player_data, before)
+
+    def test_banking_the_referee_reward_is_a_direct_undoable_action(self):
+        addon = _load_addon_as_package("ankiscape_gnome_ball_bank_undo")
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon.current_skill = "Activities"
+        state = _player(
+            inventory={"Gnomeball": 1},
+            carried_inventory={GNOME_BALL_ACTIVITY_ID: {"Gnomeball": 1}},
+            carried_advanced_targets={GNOME_BALL_ACTIVITY_ID: True},
+            carried_layout={GNOME_BALL_ACTIVITY_ID: {"Gnomeball": 1}},
+        )
+        addon.player_data = copy.deepcopy(state)
+
+        addon._on_main_menu(initial_skill="Activities")
+        result = captured["on_agility_command"]("bank_gnomeball_reward", {})
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(addon.player_data["inventory"]["Gnomeball"], 1)
+        self.assertNotIn(
+            "Gnomeball",
+            addon.player_data.get("carried_inventory", {}).get(
+                GNOME_BALL_ACTIVITY_ID, {}
+            ),
+        )
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(operation="AnkiScape direct action")
+        )
+        self.assertEqual(addon.player_data, state)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
 
 if __name__ == "__main__":

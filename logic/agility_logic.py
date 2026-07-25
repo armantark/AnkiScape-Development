@@ -23,7 +23,11 @@ from .pyramid_plunder_logic import (
     set_pyramid_plunder_priority_pure,
 )
 
-from .gnome_ball_logic import enter_gnome_ball_pure, leave_gnome_ball_pure
+from .gnome_ball_logic import (
+    bank_gnomeball_reward_pure,
+    enter_gnome_ball_pure,
+    leave_gnome_ball_pure,
+)
 
 from .werewolf_skullball_logic import (
     enter_werewolf_skullball_pure,
@@ -833,6 +837,9 @@ def apply_agility_command_pure(
         return updated, {"allowed": ok, **info}
     if action_id == "leave_gnome_ball":
         updated, ok, info = leave_gnome_ball_pure(player_data)
+        return updated, {"allowed": ok, **info}
+    if action_id == "bank_gnomeball_reward":
+        updated, ok, info = bank_gnomeball_reward_pure(player_data)
         return updated, {"allowed": ok, **info}
     if action_id == "enter_werewolf_skullball":
         updated, ok, info = enter_werewolf_skullball_pure(player_data)

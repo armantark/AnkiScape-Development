@@ -2,9 +2,9 @@
 
 Date: 2026-07-17
 
-Status: **superseded by the 2026-07-21 horizontal closure below; the
-three-beat match is mechanic-complete and every unrecovered hidden roll remains
-explicitly source-blocked.**
+Status: **horizontal breadth level one restored and verified on 2026-07-25;
+the referee reward now follows the settled carry-then-bank loop, and every
+unrecovered hidden roll remains explicitly source-blocked.**
 
 ## Pinned evidence
 
@@ -148,3 +148,70 @@ player's saved auto-eat order; Custom materializes the saved ordered Gnome Ball
 layout. The same target is exposed through Bank/Equipment pack controls and to
 review-driven follower policies. This is shared dangerous-activity plumbing,
 not a new Gnome Ball-specific inventory screen.
+
+## 2026-07-25 carried-reward breadth correction
+
+The earlier horizontal implementation checked the carried pack correctly but
+credited a newly awarded Gnomeball only to the flat Bank inventory. That made
+the next win eligible immediately and contradicted the settled source rule.
+The correction closes both the acquisition consequence and its end-to-end test
+coverage.
+
+### Exact period evidence
+
+- `Gnome Ball`, oldid `6404371`, says the referee gives the player a
+  Gnomeball after the fifth goal and does not give another while the previous
+  reward remains in the player's inventory; banking the reward permits another.
+- `Gnomeball`, oldid `6151390`, and OpenRS2 revision `742` item `751` establish
+  the nonstackable, equipable item identity used by the reward.
+- The exact five-goal XP ladder, fifth-goal completion bonus, dangerous tackle
+  shape, and weapon-slot entry restriction remain the pinned evidence recorded
+  above. This correction changes none of them.
+
+### Labelled AnkiScape translation
+
+- `abstraction/shared-carried-substrate`: the flat `inventory` mapping is the
+  add-on's canonical ownership store, while `carried_inventory` records which
+  owned items are physically in a target's pack. A referee award therefore
+  increments canonical ownership and the Gnome Ball carried projection in the
+  same pure transition. It is not Bank-first merely because canonical ownership
+  remains represented in the flat store.
+- `abstraction/direct-bank-action`: the Activities card exposes **Bank
+  Gnomeball** after a completed match. The undoable direct action removes the
+  reward from the carried projection without changing canonical ownership, and
+  clears a saved Custom-pack Gnomeball entry so the next entry cannot silently
+  carry it again. Banking is rejected during a match or while another
+  Gnomeball is wielded.
+- `abstraction/reward-slot-reservation`: when no Gnomeball is already carried or
+  wielded, entry caps the food/custom pack at `27` of the shared `28` slots so
+  the sourced referee reward can always become the final carried item. If a ball
+  already blocks the reward, the full `28` slots remain available.
+
+### `source_blocked` values
+
+- The historical full-inventory referee dialogue and exact no-space behavior
+  were not recovered. Reserving one slot is the bounded horizontal translation;
+  it does not claim a historical server rule.
+- Scoring chance, pass effects, throw XP, tackle chance, and tackle damage remain
+  source-blocked exactly as recorded above. The disclosed level-scaled tackle
+  fallback is unchanged.
+
+### Deferred data depth
+
+Exhaustive arena narration, exact hidden rolls, and independent reconstruction
+of the historical full-inventory dialogue remain parity-depth harvest. No
+settled Gnome Ball mechanic and no owner design fork remains open at breadth
+level one.
+
+### Implemented and verified closure
+
+The final reward is now acquired in the Gnome Ball carried pack, a second win
+withholds the duplicate, the direct Bank action preserves Bank ownership while
+restoring reward eligibility, and a later win awards a new carried ball. The
+same transition rebuilds every nested mapping it owns, remains inside the
+existing whole-answer/direct-action undo boundaries, and is surfaced on the
+compact Activities card. Focused pure, dispatch, runtime undo, and real
+offscreen-Qt interaction tests cover the complete carry, withhold, bank, and
+re-award loop, including Auto and Custom packs that begin with 28 food slots.
+The canonical non-Qt lane passes all `2,718` tests with `329` expected skips;
+the real offscreen-Qt lane passes all `2,718` tests with one intentional skip.
