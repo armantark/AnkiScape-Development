@@ -18,8 +18,14 @@ landed; a gate that only passes afterwards is asserting the wrong thing.
 
 import unittest
 
-try:  # pragma: no cover - import shim matches the rest of the suite
-    from ..immutability_gate import assert_direct_calls, replay_module_suite
+# immutability_gate.py is a sibling test helper inside tests/, not part of the
+# add-on package, so it needs both forms and this is NOT the dual-import dance
+# the restructure deleted: `unittest discover` imports test modules as top-level
+# names (the flat branch), while `python -m unittest tests.test_...` imports them
+# through the tests package (the relative branch). The migration wrote `..` here,
+# which pointed above tests/ and left the flat branch silently carrying the file.
+try:  # pragma: no cover
+    from .immutability_gate import assert_direct_calls, replay_module_suite
 except ImportError:  # pragma: no cover
     from immutability_gate import (  # type: ignore
         assert_direct_calls,
