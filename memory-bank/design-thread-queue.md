@@ -27,47 +27,8 @@ with one path.
 
 ## 3. Open decisions
 
-Four decisions carried forward from
-`memory-bank/design-gaps-implementation-2026-07-19.md`. Each one has a
-recommendation and no answer.
-
-### 3.1 Treasure Trails clue ownership
-
-The settled contract gives the player one clue per tier. The period sources give
-one clue in total across every tier.
-
-- Recommendation: use one clue in total, which matches the period rule.
-- Records: `memory-bank/treasure-trails-design-contract-2026-07-19.md`
-- Blocks: the Treasure Trails family.
-
-### 3.2 Daily Challenges queue and reroll policy
-
-The settled recon record gives one assigned challenge for each 240-card day. The
-period game used a five-slot queue with an oldest-expiry rule.
-
-- Recommendation: use the period five-slot queue and the oldest-expiry rule.
-- Records: `memory-bank/source-audits/recon-coverage-closure-2026-07-18.md`
-- Blocks: the Daily Challenges family.
-
-### 3.3 Clan Wars free-for-all portal
-
-The settled competitive record converts the two free-for-all portals into one
-bounded team-score race. The period game had a safe portal and a dangerous
-portal.
-
-- Recommendation: keep both period portals as explicit modes.
-- Records: `memory-bank/source-audits/competitive-tier-adaptations-2026-07-18.md`
-- Blocks: Clan Wars. Implementation stopped rather than choose.
-
-### 3.4 Duel Arena tournament mode
-
-The settled competitive record requires free challenge duels and period
-tournaments. Jagex removed tournament mode before the cutoff.
-
-- Recommendation: remove Duel Tournaments from the live activity. Challenge duels
-  stay. Staking stays excluded by the settled contract.
-- Records: `memory-bank/source-audits/competitive-tier-adaptations-2026-07-18.md`
-- Blocks: the Duel Arena family.
+None. The four decisions that blocked implementation were answered on
+2026-07-25. See section 4.
 
 ## 4. Answered decisions
 
@@ -87,3 +48,85 @@ off the shown price.
 - Answer: use the recovered client behaviour. The owner asked for whatever the
   real game does, and the cache gives it.
 - Authority: `memory-bank/source-audits/ge-offer-price-controls-2026-07-24.md`
+
+### 4.3 Clan Wars free-for-all portals — answered 2026-07-25
+
+The settled competitive record collapsed both portals into one safe skirmish.
+The period had a white portal and a red portal.
+
+- Answer: **ship both portals as explicit modes.** White uses safe death. Red is
+  genuinely dangerous: it loses every carried and worn item except the one that
+  Protect Item saves, creates no gravestone, forbids teleport escape, and clamps
+  extreme and Overload boosts on entry.
+- Red reuses the dangerous-death path that The Crucible already uses. Do not
+  build a second one, and do not add a gravestone or partial-loss rule. The owner
+  rejected the softened version explicitly.
+- The purple team mode stays the settled bounded team-score race.
+- Source: RuneScape Wiki `Clan Wars`, oldid `6288405`, 2012-09-24.
+- Unblocks: the Clan Wars family, which had no module at all.
+
+### 4.4 Daily Challenges queue and reroll — answered 2026-07-25
+
+Our record asked for one challenge per 240-card day plus a skip or reroll. The
+cutoff revision was re-read live during this decision and contradicts it.
+
+- Answer: **use the period system.** Up to five challenges are active at once,
+  one new challenge arrives each 240-card day, and the oldest is removed when a
+  sixth would be added. One challenge can be pinned at a time.
+- **There is no skip and no reroll.** The revision does not mention either. Our
+  record invented that action; it does not ship.
+- Maxed-skill blocking is an opt-in the player requests per skill from the
+  Quartermaster, not automatic and not a blanket switch.
+- Source: RuneScape Wiki `Challenge System (historical)`, oldid `6579729`,
+  2012-11-19, one day before the cutoff. Quoted: "if the list exceeds 5
+  challenges, the oldest challenge is removed from the list"; "Only one task can
+  be pinned at a time"; "players may choose not to receive new challenges in
+  their max level skills. This is not a blanket turn off".
+- Unblocks: the Daily Challenges family.
+
+### 4.5 Treasure Trails clue ownership — answered 2026-07-25
+
+The settled contract allowed one clue per tier. The period allowed one clue in
+total.
+
+- Answer: **one clue across every tier.** A new clue can arrive only when the
+  player holds none in inventory, bank, or Kingdom Management resources.
+- Caskets stay outside the ownership check, so a finished trail opens normally.
+- The one-per-tier rule is a 2015 mechanic. It reached our contract by
+  anachronism, not by a decision, and it does not ship.
+- Source: RuneScape Wiki `Treasure Trails`, oldid `6473708`, 2012-10-26.
+- Unblocks: the first complete Easy Treasure Trails slice. The easy-clue
+  selection and casket reward rolls stay `source_blocked` separately.
+
+### 4.6 Duel Arena tournament mode — answered 2026-07-25
+
+The settled competitive record required period Duel Tournaments. The cutoff
+revision was re-read live during this decision: "With the Wilderness & Free trade
+updates on 1 February 2011, the tournaments were removed from the game."
+
+- Answer: **remove Duel Tournaments.** They did not exist for the last 21 months
+  of the period, so they fail the same cutoff test that removed
+  fletch-javelin-construction and the Chaos Temple altar.
+- Ship free challenge duels against bounded simulated opponents, the eleven
+  configurable rule presets, safe death, stat restoration, and the win-count
+  Duellist's cap progression.
+- Staking stays excluded by the settled contract, so the activity creates no
+  invented coin faucet. The owner declined to reopen it.
+- Source: RuneScape Wiki `Duel Arena`, oldid `6398696`, 2012-10-14.
+- Unblocks: the Duel Arena family.
+
+## 5. What this round showed about our records
+
+Two of the four answers came from re-reading the period source during the
+decision, and both times the source contradicted a settled record of ours:
+
+- Daily Challenges: our skip and reroll action does not appear in the source at
+  all. We invented it.
+- Duel Arena: our record required a feature Jagex had removed 21 months before
+  the cutoff.
+
+A third, Treasure Trails, carried a 2015 mechanic into a 2012 product.
+
+Three of four conflicts were our error, not a source ambiguity. When a settled
+record and a pinned revision disagree, re-read the revision before assuming the
+record won an argument.
