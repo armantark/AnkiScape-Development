@@ -3207,6 +3207,24 @@ if HAS_QT:
                 self._anim.start()
 else:
     # Minimal placeholder to keep references safe during tests
+    class CatalogFilterBar:
+        # The tab modules import this at module scope, so it must exist without
+        # Qt or `import ui_tab_shop` fails outright instead of degrading.
+        def __init__(self, *, placeholder: str = "", search_object_name: str = "", parent=None):
+            pass
+
+        def add_filter(self, widget, label: str = "") -> None:
+            pass
+
+        def query(self) -> str:
+            return ""
+
+        def matches_text(self, *values: object) -> bool:
+            return True
+
+        def set_count(self, visible: int, total: int) -> None:
+            pass
+
     class ExpPopup:
         def __init__(self, parent):
             pass

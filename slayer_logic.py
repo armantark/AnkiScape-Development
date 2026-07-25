@@ -117,8 +117,10 @@ def eligible_slayer_families_pure(
 
 
 def sanitize_slayer_state_pure(player_data: Mapping[str, Any]) -> dict:
-    # Shallow on purpose: this rebuilds every key it returns, so no nested
-    # value of the input is ever written through.
+    # Shallow on purpose: this returns the whole save and rebuilds only the
+    # slayer_* keys, so every OTHER nested value stays aliased to the caller's
+    # mapping. Callers may assign top-level keys freely, but must never write
+    # through a nested value they did not rebuild here.
     data = dict(player_data)
     assignment_raw = data.get("slayer_assignment")
     assignment = dict(assignment_raw) if isinstance(assignment_raw, Mapping) else {}
