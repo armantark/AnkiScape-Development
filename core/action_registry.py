@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Optional, Tuple
 
-from ..core.skill_registry import implemented_review_skill_names, review_handler_key
+from .skill_registry import implemented_review_skill_names, review_handler_key
 
 
 UTILITY_REVIEW_ACTION_ID = "utility"

@@ -5,8 +5,8 @@
 - current_skill is stored separately under the 'ankiscape_current_skill' key.
 """
 from aqt import mw
-from ..core.constants import ITEM_DEFINITIONS, ORE_DATA
-from ..core.storage_pure import default_player_data, migrate_loaded_data
+from .constants import ITEM_DEFINITIONS, ORE_DATA
+from .storage_pure import default_player_data, migrate_loaded_data
 
 
 _PLAYER_DATA_KEY = "ankiscape_player_data"

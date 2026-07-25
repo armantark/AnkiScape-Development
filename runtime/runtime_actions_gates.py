@@ -371,12 +371,12 @@ from ..logic.livid_farm_logic import (
     livid_farm_locked_reasons_pure,
 )
 
-from ..runtime.runtime_actions_magic import (  # noqa: F401  (re-export)
+from .runtime_actions_magic import (  # noqa: F401  (re-export)
     _magic_alch_values,
     handle_magic_answer,
 )
 
-from ..runtime.runtime_actions_activities import (  # noqa: F401  (re-export)
+from .runtime_actions_activities import (  # noqa: F401  (re-export)
     KNIGHT_WAVES_UTILITY_KEY,
     MAGE_ARENA_ATTUNE_PREFIX,
     MAGE_ARENA_UTILITY_KEY,
@@ -419,22 +419,22 @@ from ..runtime.runtime_actions_activities import (  # noqa: F401  (re-export)
     handle_varrock_museum_answer,
 )
 
-from ..runtime.runtime_actions_context import (  # noqa: F401  (re-export)
+from .runtime_actions_context import (  # noqa: F401  (re-export)
     RuntimeActionContext,
 )
 
-from ..runtime.runtime_actions_magic import (
+from .runtime_actions_magic import (
     _magic_alch_values,
 )
 
-from ..runtime.runtime_actions_activities import (
+from .runtime_actions_activities import (
     KNIGHT_WAVES_UTILITY_KEY,
     MAGE_ARENA_ATTUNE_PREFIX,
     MAGE_ARENA_UTILITY_KEY,
     STRONGHOLD_UTILITY_KEY,
 )
 
-from ..runtime.runtime_actions_context import (
+from .runtime_actions_context import (
     RuntimeActionContext,
 )
 

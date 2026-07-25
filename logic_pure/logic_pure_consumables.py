@@ -30,7 +30,7 @@ from ..data.combat_data import (
     WEAPON_TYPE_UNARMED_STYLES,
 )
 
-from ..logic_pure.logic_pure_combat_supplies import (  # noqa: F401  (re-export)
+from .logic_pure_combat_supplies import (  # noqa: F401  (re-export)
     _combat_advance_dragonfire_effects,
     _combat_advance_status_effects,
     _combat_apply_poison_effect_to_data,
@@ -90,7 +90,7 @@ from ..logic_pure.logic_pure_combat_supplies import (  # noqa: F401  (re-export)
     prayer_potion_restore_amount_pure,
 )
 
-from ..logic_pure.logic_pure_combat_model import (  # noqa: F401  (re-export)
+from .logic_pure_combat_model import (  # noqa: F401  (re-export)
     COMBAT_DEATH_OFFICE_RECLAIM_COINS_PER_ITEM,
     COMBAT_ENEMY_ATTACK_STYLES,
     COMBAT_FOOD_LOADOUT_CAPACITY,
@@ -222,7 +222,7 @@ from ..logic_pure.logic_pure_combat_model import (  # noqa: F401  (re-export)
     save_combat_preset_pure,
 )
 
-from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
+from .logic_pure_state import (  # noqa: F401  (re-export)
     COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
@@ -248,20 +248,20 @@ from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
     sanitize_quest_combat_active_encounters_pure,
 )
 
-from ..logic_pure.logic_pure_combat_supplies import (
+from .logic_pure_combat_supplies import (
     _potion_boost_amount,
     apply_combat_stat_boost_to_pure,
     prayer_potion_restore_amount_pure,
 )
 
-from ..logic_pure.logic_pure_combat_model import (
+from .logic_pure_combat_model import (
     _combat_base_skill_level,
     _combat_effective_skill_level,
     apply_combat_stat_delta_pure,
     combat_max_lifepoints_pure,
 )
 
-from ..logic_pure.logic_pure_state import (
+from .logic_pure_state import (
     _copy_player_data_with_nested,
     _non_negative_int,
     _positive_int,

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from ..data.equipment_data import EquipmentBonuses, EquipmentItem
+from .equipment_data import EquipmentBonuses, EquipmentItem
 
 
 FISH_FLINGERS_ACTIVITY_ID = "fish_flingers"

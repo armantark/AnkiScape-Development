@@ -11,7 +11,7 @@ from __future__ import annotations
 from fractions import Fraction
 from typing import Any, Mapping
 
-from ..logic.cadence_kernel import (
+from .cadence_kernel import (
     CAP_ONE_ACTION,
     R,
     advance_cadence_pure,

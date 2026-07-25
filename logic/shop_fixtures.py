@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any, Dict, Mapping
 
 from ..data.shop_data import SHOP_DATA, SHOP_VENDOR_ACTIONS
-from ..logic.shop_logic import (
+from .shop_logic import (
     apply_shop_buy_pure,
     apply_shop_sell_pure,
     apply_shop_vendor_action_pure,

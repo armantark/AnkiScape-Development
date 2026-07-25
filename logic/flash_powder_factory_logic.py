@@ -28,8 +28,8 @@ from ..data.flash_powder_factory_data import (
     FLASH_POWDER_FACTORY_XP_PER_POINT,
     ROGUE_KIT_OUTPUTS,
 )
-from ..logic.pet_logic import store_active_pet_pure
-from ..logic.summoning_logic import dismiss_familiar_pure
+from .pet_logic import store_active_pet_pure
+from .summoning_logic import dismiss_familiar_pure
 
 
 FLASH_POWDER_FACTORY_STATE_VERSION = 1

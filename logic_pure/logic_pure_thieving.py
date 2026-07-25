@@ -32,7 +32,7 @@ from ..data.combat_data import (
     WEAPON_TYPE_UNARMED_STYLES,
 )
 
-from ..logic_pure.logic_pure_combat_model import (  # noqa: F401  (re-export)
+from .logic_pure_combat_model import (  # noqa: F401  (re-export)
     COMBAT_DEATH_OFFICE_RECLAIM_COINS_PER_ITEM,
     COMBAT_ENEMY_ATTACK_STYLES,
     COMBAT_FOOD_LOADOUT_CAPACITY,
@@ -164,7 +164,7 @@ from ..logic_pure.logic_pure_combat_model import (  # noqa: F401  (re-export)
     save_combat_preset_pure,
 )
 
-from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
+from .logic_pure_state import (  # noqa: F401  (re-export)
     COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
@@ -190,14 +190,14 @@ from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
     sanitize_quest_combat_active_encounters_pure,
 )
 
-from ..logic_pure.logic_pure_combat_model import (
+from .logic_pure_combat_model import (
     COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS,
     _combat_apply_pvm_death,
     _combat_consume_auto_food,
     combat_max_lifepoints_pure,
 )
 
-from ..logic_pure.logic_pure_state import (
+from .logic_pure_state import (
     _copy_player_data_with_nested,
     _non_negative_int,
     _positive_int,

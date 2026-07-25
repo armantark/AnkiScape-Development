@@ -6,7 +6,7 @@ from math import comb, floor, sqrt
 
 from typing import Iterable, Mapping, Optional
 
-from ..logic_pure.logic_pure_gathering import (  # noqa: F401  (re-export)
+from .logic_pure_gathering import (  # noqa: F401  (re-export)
     _AGILITY_DOUBLE_CATCH_LEVELS,
     _hunter_outputs_from_spec,
     _scape2011_interpolate_255,
@@ -46,7 +46,7 @@ from ..logic_pure.logic_pure_gathering import (  # noqa: F401  (re-export)
     woodcutting_target_locked_reasons_pure,
 )
 
-from ..logic_pure.logic_pure_quest import (  # noqa: F401  (re-export)
+from .logic_pure_quest import (  # noqa: F401  (re-export)
     QUEST_COMBAT_CONFIG_VERSION,
     QUEST_COMBAT_DEFAULT_BURST_TICKS,
     QUEST_COMBAT_RESOLVER_ENABLED_KEY,
@@ -124,7 +124,7 @@ from ..logic_pure.logic_pure_quest import (  # noqa: F401  (re-export)
     target_unlock_locked_reasons_pure,
 )
 
-from ..logic_pure.logic_pure_progression import (  # noqa: F401  (re-export)
+from .logic_pure_progression import (  # noqa: F401  (re-export)
     REVIEW_SUCCESS_CAP,
     REVIEW_SUCCESS_MINIMUM,
     REVIEW_SUCCESS_SCALE,
@@ -144,7 +144,7 @@ from ..logic_pure.logic_pure_progression import (  # noqa: F401  (re-export)
     sanitize_xp_multiplier,
 )
 
-from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
+from .logic_pure_state import (  # noqa: F401  (re-export)
     COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
@@ -170,23 +170,23 @@ from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
     sanitize_quest_combat_active_encounters_pure,
 )
 
-from ..logic_pure.logic_pure_gathering import (
+from .logic_pure_gathering import (
     _scape2011_interpolate_255,
 )
 
-from ..logic_pure.logic_pure_quest import (
+from .logic_pure_quest import (
     quest_unlock_locked_reasons_pure,
     target_unlock_locked_reasons_pure,
 )
 
-from ..logic_pure.logic_pure_progression import (
+from .logic_pure_progression import (
     REVIEW_SUCCESS_CAP,
     REVIEW_SUCCESS_MINIMUM,
     REVIEW_SUCCESS_SCALE,
     normalize_review_success_probability_pure,
 )
 
-from ..logic_pure.logic_pure_state import (
+from .logic_pure_state import (
     _positive_int,
 )
 

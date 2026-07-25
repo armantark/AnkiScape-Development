@@ -4,7 +4,7 @@ from typing import Iterable, Mapping, Optional
 
 from ..core.skill_registry import get_skill, trainable_skill_definitions
 
-from ..logic_pure.logic_pure_quest import (  # noqa: F401  (re-export)
+from .logic_pure_quest import (  # noqa: F401  (re-export)
     QUEST_COMBAT_CONFIG_VERSION,
     QUEST_COMBAT_DEFAULT_BURST_TICKS,
     QUEST_COMBAT_RESOLVER_ENABLED_KEY,
@@ -82,7 +82,7 @@ from ..logic_pure.logic_pure_quest import (  # noqa: F401  (re-export)
     target_unlock_locked_reasons_pure,
 )
 
-from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
+from .logic_pure_state import (  # noqa: F401  (re-export)
     COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
@@ -108,11 +108,11 @@ from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
     sanitize_quest_combat_active_encounters_pure,
 )
 
-from ..logic_pure.logic_pure_quest import (
+from .logic_pure_quest import (
     _apply_skill_xp_reward,
 )
 
-from ..logic_pure.logic_pure_state import (
+from .logic_pure_state import (
     _copy_player_data_with_nested,
     _positive_int,
     quest_completed_pure,

@@ -955,7 +955,7 @@ def apply_livid_farm_wish_pure(
         state["arcane_capacitor_spell"] = ""
         state["arcane_capacitor_charges"] = 0
     elif selected == "new_patch":
-        from ..logic.farming_logic import activate_livid_farm_allotment_pure
+        from .farming_logic import activate_livid_farm_allotment_pure
         data, activated, message = activate_livid_farm_allotment_pure(data)
         if not activated:
             return dict(player_data), False, {

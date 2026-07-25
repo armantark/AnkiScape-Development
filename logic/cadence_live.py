@@ -12,7 +12,7 @@ from dataclasses import asdict, dataclass
 from fractions import Fraction
 from typing import Any, Mapping
 
-from ..logic.cadence_kernel import (
+from .cadence_kernel import (
     CAP_ONE_ACTION,
     COMBAT_TICKS,
     EMBEDDED_PROBABILITY,
@@ -23,7 +23,7 @@ from ..logic.cadence_kernel import (
     default_cadence_profile_state_pure,
     rate_limited_profile_pure,
 )
-from ..logic.cadence_shadow import SOURCE_BLOCKED, SOURCE_READY, resolve_cadence_shadow_rate_pure
+from .cadence_shadow import SOURCE_BLOCKED, SOURCE_READY, resolve_cadence_shadow_rate_pure
 from ..tools.sourced_xp_rates import DETERMINISTIC
 
 

@@ -21,7 +21,7 @@ from ..data.barrows_data import (
     BARROWS_TUNNEL_ENEMY_DATA,
 )
 from ..data.equipment_condition_data import EQUIPMENT_CONDITION_DATA
-from ..logic.equipment_instance_logic import (
+from .equipment_instance_logic import (
     add_equipment_instance_pure,
     condition_name_pure,
     sanitize_equipment_instance_state_pure,

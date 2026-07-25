@@ -52,7 +52,7 @@ from ..data.combat_data import (
     WEAPON_TYPE_UNARMED_STYLES,
 )
 
-from ..logic_pure.logic_pure_combat_supplies import (  # noqa: F401  (re-export)
+from .logic_pure_combat_supplies import (  # noqa: F401  (re-export)
     _combat_advance_dragonfire_effects,
     _combat_advance_status_effects,
     _combat_apply_poison_effect_to_data,
@@ -112,7 +112,7 @@ from ..logic_pure.logic_pure_combat_supplies import (  # noqa: F401  (re-export)
     prayer_potion_restore_amount_pure,
 )
 
-from ..logic_pure.logic_pure_combat_model import (  # noqa: F401  (re-export)
+from .logic_pure_combat_model import (  # noqa: F401  (re-export)
     COMBAT_DEATH_OFFICE_RECLAIM_COINS_PER_ITEM,
     COMBAT_ENEMY_ATTACK_STYLES,
     COMBAT_FOOD_LOADOUT_CAPACITY,
@@ -244,7 +244,7 @@ from ..logic_pure.logic_pure_combat_model import (  # noqa: F401  (re-export)
     save_combat_preset_pure,
 )
 
-from ..logic_pure.logic_pure_urns import (  # noqa: F401  (re-export)
+from .logic_pure_urns import (  # noqa: F401  (re-export)
     active_urn_state_pure,
     carried_target_item_count_pure,
     charge_training_urn_for_action_pure,
@@ -256,7 +256,7 @@ from ..logic_pure.logic_pure_urns import (  # noqa: F401  (re-export)
     teleport_full_urn_pure,
 )
 
-from ..logic_pure.logic_pure_prayer import (  # noqa: F401  (re-export)
+from .logic_pure_prayer import (  # noqa: F401  (re-export)
     CASTLE_WARS_HALO_DRAIN_PRAYERS,
     _highest_legal_prayer_candidate_pure,
     active_prayer_selection_pure,
@@ -274,7 +274,7 @@ from ..logic_pure.logic_pure_prayer import (  # noqa: F401  (re-export)
     sanitize_prayer_selection_pure,
 )
 
-from ..logic_pure.logic_pure_magic import (  # noqa: F401  (re-export)
+from .logic_pure_magic import (  # noqa: F401  (re-export)
     MAGIC_CHARGE_DURATION_TICKS,
     TEMPORARY_EFFECT_TICKS_PER_ACTION,
     _HUMIDIFY_OUTPUTS,
@@ -293,7 +293,7 @@ from ..logic_pure.logic_pure_magic import (  # noqa: F401  (re-export)
     magic_target_locked_reasons_pure,
 )
 
-from ..logic_pure.logic_pure_equipment import (  # noqa: F401  (re-export)
+from .logic_pure_equipment import (  # noqa: F401  (re-export)
     _combat_level_key,
     _combat_skill_label,
     _equipment_bonus_value,
@@ -312,7 +312,7 @@ from ..logic_pure.logic_pure_equipment import (  # noqa: F401  (re-export)
     unequip_item_pure,
 )
 
-from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
+from .logic_pure_state import (  # noqa: F401  (re-export)
     COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
@@ -338,7 +338,7 @@ from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
     sanitize_quest_combat_active_encounters_pure,
 )
 
-from ..logic_pure.logic_pure_combat_supplies import (
+from .logic_pure_combat_supplies import (
     _combat_advance_dragonfire_effects,
     _combat_advance_status_effects,
     _combat_apply_poison_effect_to_data,
@@ -372,7 +372,7 @@ from ..logic_pure.logic_pure_combat_supplies import (
     combat_status_summary_pure,
 )
 
-from ..logic_pure.logic_pure_combat_model import (
+from .logic_pure_combat_model import (
     COMBAT_DEATH_OFFICE_RECLAIM_COINS_PER_ITEM,
     COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS,
     COMBAT_POISON_NPC_ATTACK_CHANCE,
@@ -444,11 +444,11 @@ from ..logic_pure.logic_pure_combat_model import (
     sanitize_combat_state_pure,
 )
 
-from ..logic_pure.logic_pure_urns import (
+from .logic_pure_urns import (
     resolve_prayer_kill_effects_pure,
 )
 
-from ..logic_pure.logic_pure_prayer import (
+from .logic_pure_prayer import (
     CASTLE_WARS_HALO_DRAIN_PRAYERS,
     active_prayer_selection_pure,
     curse_expected_ramp_pure,
@@ -457,12 +457,12 @@ from ..logic_pure.logic_pure_prayer import (
     prayer_uptime_fraction_pure,
 )
 
-from ..logic_pure.logic_pure_magic import (
+from .logic_pure_magic import (
     advance_temporary_effects_pure,
     effective_magic_rune_cost_pure,
 )
 
-from ..logic_pure.logic_pure_equipment import (
+from .logic_pure_equipment import (
     _equipment_bonus_value,
     _equipment_value,
     best_mining_pickaxe_pure,
@@ -470,7 +470,7 @@ from ..logic_pure.logic_pure_equipment import (
     equipment_stat_totals_pure,
 )
 
-from ..logic_pure.logic_pure_state import (
+from .logic_pure_state import (
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _combat_stored_loadout,
     _copy_player_data_with_nested,

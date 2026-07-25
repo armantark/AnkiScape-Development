@@ -6,7 +6,7 @@ import copy
 from collections.abc import Mapping
 from typing import Any
 
-from ..logic.inventory_pure import CARRIED_CAPACITY, carried_slots_used
+from .inventory_pure import CARRIED_CAPACITY, carried_slots_used
 from ..data.item_values import STACKABLE_ITEM_NAMES
 from ..data.runecrafting_data import ALTARS_BY_ID, STANDARD_RUNE_TARGETS_BY_ID
 

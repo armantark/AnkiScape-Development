@@ -276,7 +276,19 @@ _ROOT = os.path.dirname(os.path.abspath(__file__))
 
 
 def install_package_alias() -> None:
-    if PACKAGE_ALIAS in sys.modules:
+    existing = sys.modules.get(PACKAGE_ALIAS)
+    if existing is not None:
+        # Already installed. Verify it points HERE before trusting it: two
+        # checkouts of this repo in one interpreter (a second worktree's suite,
+        # a coverage run spanning both) would otherwise bind the alias to
+        # whichever imported first and silently test the wrong tree.
+        bound = list(getattr(existing, "__path__", []) or [])
+        if bound != [_ROOT]:
+            raise RuntimeError(
+                f"the {PACKAGE_ALIAS!r} alias is already bound to {bound or '<no path>'}, "
+                f"not to this checkout at {_ROOT}. Two copies of the add-on are live "
+                "in one interpreter; run the suites in separate processes."
+            )
         return
     package = types.ModuleType(PACKAGE_ALIAS)
     package.__path__ = [_ROOT]  # type: ignore[attr-defined]
@@ -490,6 +502,14 @@ class FileRewriter:
         target_module = node.module or ""
         parts = target_module.split(".")
         first = parts[0]
+        if self.kind == "external":
+            # tests/ and tools/ reach the add-on through the ``ankiscape`` alias,
+            # never relatively, so a single dot here can only mean a sibling in
+            # their own directory (tests/immutability_gate.py). Deepening it to
+            # ".." points above that directory at nothing, and the flat fallback
+            # underneath then carries the import silently — which is exactly the
+            # failure this phase is meant to eliminate, not create.
+            return None
         up = "." if self.kind == "top" else ".."
         if len(parts) > 1 and first in BUCKETS:
             return None  # already package-qualified (idempotent re-run)
@@ -504,7 +524,14 @@ class FileRewriter:
                 and all(alias.name in BUCKETS[first] for alias in node.names)
             ):
                 return None
-            return f"{up}{BUCKET_OF[first]}.{target_module}"
+            destination = BUCKET_OF[first]
+            if self.kind == "bucket" and destination == self.path.parent.name:
+                # A sibling in this module's own bucket: emit the single-dot
+                # form directly rather than climbing to the add-on root and
+                # back down. Without this the rewrite and normalize phases
+                # disagree, each undoing the other on every run.
+                return f".{target_module}"
+            return f"{up}{destination}.{target_module}"
         if self.kind == "top":
             return None  # e.g. from .tools.x import y in __init__: unchanged
         return f"{up}{target_module}"  # e.g. from ..tools.x import y
@@ -919,6 +946,35 @@ def phase_rewrite(dry_run: bool) -> None:
                 path.write_text(text, encoding="utf-8")
 
 
+def phase_normalize_intra_bucket(dry_run: bool) -> None:
+    """Collapse ``from ..<own bucket>.x`` to ``from .x`` inside that bucket.
+
+    The move rewrote every import to the fully-qualified two-dot form, which is
+    correct but reads oddly for a sibling: ``data/combat_data.py`` climbing to
+    the add-on root and back down into ``data`` to reach ``firemaking_data``. It
+    also makes ``from ..`` useless as a grep for genuine cross-bucket coupling,
+    which is the dependency picture this restructure was supposed to clarify.
+    """
+    changed = 0
+    for bucket in BUCKETS:
+        directory = ROOT / bucket
+        if not directory.is_dir():
+            continue
+        # `from ..bucket.x import` -> `from .x import`, and the bare
+        # `from ..bucket import x` -> `from . import x`.
+        qualified = re.compile(rf"^(\s*from )\.\.{re.escape(bucket)}\.", re.MULTILINE)
+        bare = re.compile(rf"^(\s*from )\.\.{re.escape(bucket)}( import )", re.MULTILINE)
+        for path in sorted(directory.glob("*.py")):
+            text = path.read_text(encoding="utf-8")
+            updated = bare.sub(r"\1.\2", qualified.sub(r"\1.", text))
+            if updated == text:
+                continue
+            changed += 1
+            if not dry_run:
+                path.write_text(updated, encoding="utf-8")
+    print(f"normalize: {changed} file(s) with intra-bucket imports collapsed")
+
+
 def phase_audit() -> int:
     errors: list[str] = []
     for path, kind in iter_rewrite_targets():
@@ -931,7 +987,20 @@ def phase_audit() -> int:
                 if node.level == 0 and first in BUCKET_OF:
                     errors.append(f"{rel}:{node.lineno}: flat import of moved module {first}")
                 if node.level == 1 and kind == "bucket":
-                    errors.append(f"{rel}:{node.lineno}: stale single-dot import in bucket module")
+                    # A single dot inside a bucket is correct when it names a
+                    # real sibling of that bucket, and stale only when it names
+                    # a module that moved elsewhere. Distinguishing the two is
+                    # what lets phase_normalize_intra_bucket collapse the
+                    # round-trips without disarming this check.
+                    own_bucket = rel.parts[0]
+                    siblings = BUCKETS.get(own_bucket, ())
+                    named = [first] if node.module else [a.name for a in node.names]
+                    strays = [n for n in named if n and n not in siblings]
+                    if strays:
+                        errors.append(
+                            f"{rel}:{node.lineno}: stale single-dot import in bucket "
+                            f"module ({', '.join(strays)} is not in {own_bucket}/)"
+                        )
                 if node.level == 1 and kind == "top":
                     already_new = (len(parts) > 1 and first in BUCKETS) or (
                         node.module is not None
@@ -972,6 +1041,7 @@ def main() -> int:
     phase_move(args.dry_run)
     phase_fixups(args.dry_run)
     phase_rewrite(args.dry_run)
+    phase_normalize_intra_bucket(args.dry_run)
     if args.dry_run:
         print("dry run: audit skipped (tree not modified)")
         return 0

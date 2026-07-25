@@ -17,26 +17,26 @@ from ..data.agility_data import (
     AgilityTarget,
 )
 
-from ..logic.pyramid_plunder_logic import (
+from .pyramid_plunder_logic import (
     enter_pyramid_plunder_pure,
     leave_pyramid_plunder_pure,
     set_pyramid_plunder_priority_pure,
 )
 
-from ..logic.gnome_ball_logic import enter_gnome_ball_pure, leave_gnome_ball_pure
+from .gnome_ball_logic import enter_gnome_ball_pure, leave_gnome_ball_pure
 
-from ..logic.werewolf_skullball_logic import (
+from .werewolf_skullball_logic import (
     enter_werewolf_skullball_pure,
     leave_werewolf_skullball_pure,
     set_werewolf_skullball_policy_pure,
 )
 
-from ..logic.agility_travel import agility_carried_weight_pure
+from .agility_travel import agility_carried_weight_pure
 
-from ..logic.inventory_pure import clamp_carried_view_to_bank
+from .inventory_pure import clamp_carried_view_to_bank
 
 from ..data.flash_powder_factory_data import FLASH_POWDER_FACTORY_ACTIVITY_ID
-from ..logic.flash_powder_factory_logic import (
+from .flash_powder_factory_logic import (
     apply_flash_powder_factory_review_pure,
     enter_flash_powder_factory_pure,
     flash_powder_factory_locked_reasons_pure,
@@ -941,7 +941,7 @@ def apply_agility_command_pure(
                     "requires_familiar_dismissal": True,
                     "message": "Dismiss the active familiar before entering The Pit",
                 }
-            from ..logic.summoning_logic import dismiss_familiar_pure
+            from .summoning_logic import dismiss_familiar_pure
             dismissed, ok, _info = dismiss_familiar_pure(data)
             if not ok:
                 return data, {"allowed": False, "message": "The familiar could not be dismissed"}

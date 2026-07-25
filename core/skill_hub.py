@@ -16,7 +16,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, List, Tuple
 
-from ..core.skill_registry import ALL_SKILLS, SkillDefinition
+from .skill_registry import ALL_SKILLS, SkillDefinition
 
 
 # Display order is fixed so the hub layout stays stable across renders.

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from ..data.equipment_data import EquipmentBonuses, EquipmentItem
+from .equipment_data import EquipmentBonuses, EquipmentItem
 
 
 STEALING_CREATION_ACTIVITY_ID = "stealing_creation"

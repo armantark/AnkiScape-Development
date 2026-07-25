@@ -130,7 +130,7 @@ from ..data.construction_data import (
     construction_extra_items_as_dict,
 )
 
-from ..core.achievement_metadata import achievements_as_dict, build_achievement_definitions
+from .achievement_metadata import achievements_as_dict, build_achievement_definitions
 
 from ..data.cooking_data import (
     DEFAULT_COOKING_TARGET,
@@ -244,7 +244,7 @@ from ..data.hunter_data import (
     hunter_supply_item_names,
     hunter_targets_as_dict,
 )
-from ..core.item_registry import apply_item_asset_overrides, build_item_definitions, slugify_item_id
+from .item_registry import apply_item_asset_overrides, build_item_definitions, slugify_item_id
 from ..data.quest_data import (
     CLAIMS_BY_ID,
     QUESTS_BY_ID,

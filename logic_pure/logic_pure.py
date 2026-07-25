@@ -113,7 +113,7 @@ from ..data.combat_data import (
 )
 
 # --- split re-exports (additive; see the module docstrings) ---
-from ..logic_pure.logic_pure_thieving import (  # noqa: F401  (re-export)
+from .logic_pure_thieving import (  # noqa: F401  (re-export)
     _consume_carried_auto_food_pure,
     apply_thieving_damage_pure,
     thieving_blackjack_threshold_pure,
@@ -128,7 +128,7 @@ from ..logic_pure.logic_pure_thieving import (  # noqa: F401  (re-export)
     thieving_wall_safe_success_count_pure,
 )
 
-from ..logic_pure.logic_pure_smithing import (  # noqa: F401  (re-export)
+from .logic_pure_smithing import (  # noqa: F401  (re-export)
     RING_OF_FORGING_ITEM,
     RING_OF_FORGING_MAX_CHARGES,
     _equipment_has_ring_of_forging_pure,
@@ -148,7 +148,7 @@ from ..logic_pure.logic_pure_smithing import (  # noqa: F401  (re-export)
     smithing_target_locked_reasons_pure,
 )
 
-from ..logic_pure.logic_pure_runecrafting import (  # noqa: F401  (re-export)
+from .logic_pure_runecrafting import (  # noqa: F401  (re-export)
     _altar_access_item_names,
     _altar_for_target,
     _available_essence_count,
@@ -170,7 +170,7 @@ from ..logic_pure.logic_pure_runecrafting import (  # noqa: F401  (re-export)
     runecrafting_unlocked_pure,
 )
 
-from ..logic_pure.logic_pure_production import (  # noqa: F401  (re-export)
+from .logic_pure_production import (  # noqa: F401  (re-export)
     _max_batches_for_requirements,
     _utility_outputs_from_spec,
     apply_cooking_action_pure,
@@ -207,7 +207,7 @@ from ..logic_pure.logic_pure_production import (  # noqa: F401  (re-export)
     utility_activity_locked_reasons_pure,
 )
 
-from ..logic_pure.logic_pure_gathering import (  # noqa: F401  (re-export)
+from .logic_pure_gathering import (  # noqa: F401  (re-export)
     _AGILITY_DOUBLE_CATCH_LEVELS,
     _hunter_outputs_from_spec,
     _scape2011_interpolate_255,
@@ -247,13 +247,13 @@ from ..logic_pure.logic_pure_gathering import (  # noqa: F401  (re-export)
     woodcutting_target_locked_reasons_pure,
 )
 
-from ..logic_pure.logic_pure_consumables import (  # noqa: F401  (re-export)
+from .logic_pure_consumables import (  # noqa: F401  (re-export)
     _consumable_heal,
     apply_consumable_pure,
     apply_item_pack_open_pure,
 )
 
-from ..logic_pure.logic_pure_claims import (  # noqa: F401  (re-export)
+from .logic_pure_claims import (  # noqa: F401  (re-export)
     _claim_bundle_items,
     _skill_level_for_reward,
     apply_claim_pure,
@@ -261,7 +261,7 @@ from ..logic_pure.logic_pure_claims import (  # noqa: F401  (re-export)
     claim_rows_pure,
 )
 
-from ..logic_pure.logic_pure_quest import (  # noqa: F401  (re-export)
+from .logic_pure_quest import (  # noqa: F401  (re-export)
     QUEST_COMBAT_CONFIG_VERSION,
     QUEST_COMBAT_DEFAULT_BURST_TICKS,
     QUEST_COMBAT_RESOLVER_ENABLED_KEY,
@@ -339,7 +339,7 @@ from ..logic_pure.logic_pure_quest import (  # noqa: F401  (re-export)
     target_unlock_locked_reasons_pure,
 )
 
-from ..logic_pure.logic_pure_combat_engine import (  # noqa: F401  (re-export)
+from .logic_pure_combat_engine import (  # noqa: F401  (re-export)
     _COMBAT_EXP_KEY_DISPLAY,
     _COMBAT_STYLE_XP_KEYS,
     _combat_roll_damage_lifepoints,
@@ -365,7 +365,7 @@ from ..logic_pure.logic_pure_combat_engine import (  # noqa: F401  (re-export)
     unload_combat_supply_loadout_pure,
 )
 
-from ..logic_pure.logic_pure_combat_supplies import (  # noqa: F401  (re-export)
+from .logic_pure_combat_supplies import (  # noqa: F401  (re-export)
     _combat_advance_dragonfire_effects,
     _combat_advance_status_effects,
     _combat_apply_poison_effect_to_data,
@@ -425,7 +425,7 @@ from ..logic_pure.logic_pure_combat_supplies import (  # noqa: F401  (re-export)
     prayer_potion_restore_amount_pure,
 )
 
-from ..logic_pure.logic_pure_combat_model import (  # noqa: F401  (re-export)
+from .logic_pure_combat_model import (  # noqa: F401  (re-export)
     COMBAT_DEATH_OFFICE_RECLAIM_COINS_PER_ITEM,
     COMBAT_ENEMY_ATTACK_STYLES,
     COMBAT_FOOD_LOADOUT_CAPACITY,
@@ -557,7 +557,7 @@ from ..logic_pure.logic_pure_combat_model import (  # noqa: F401  (re-export)
     save_combat_preset_pure,
 )
 
-from ..logic_pure.logic_pure_urns import (  # noqa: F401  (re-export)
+from .logic_pure_urns import (  # noqa: F401  (re-export)
     active_urn_state_pure,
     carried_target_item_count_pure,
     charge_training_urn_for_action_pure,
@@ -569,7 +569,7 @@ from ..logic_pure.logic_pure_urns import (  # noqa: F401  (re-export)
     teleport_full_urn_pure,
 )
 
-from ..logic_pure.logic_pure_telemetry import (  # noqa: F401  (re-export)
+from .logic_pure_telemetry import (  # noqa: F401  (re-export)
     action_telemetry_key_pure,
     default_achievement_progress_pure,
     default_action_telemetry_pure,
@@ -581,7 +581,7 @@ from ..logic_pure.logic_pure_telemetry import (  # noqa: F401  (re-export)
     summarize_action_telemetry_pure,
 )
 
-from ..logic_pure.logic_pure_prayer import (  # noqa: F401  (re-export)
+from .logic_pure_prayer import (  # noqa: F401  (re-export)
     CASTLE_WARS_HALO_DRAIN_PRAYERS,
     _highest_legal_prayer_candidate_pure,
     active_prayer_selection_pure,
@@ -599,7 +599,7 @@ from ..logic_pure.logic_pure_prayer import (  # noqa: F401  (re-export)
     sanitize_prayer_selection_pure,
 )
 
-from ..logic_pure.logic_pure_construction import (  # noqa: F401  (re-export)
+from .logic_pure_construction import (  # noqa: F401  (re-export)
     _LECTERN_SLOTS,
     _construction_has_workbench,
     _construction_nail_stock,
@@ -615,7 +615,7 @@ from ..logic_pure.logic_pure_construction import (  # noqa: F401  (re-export)
     purchase_house_pure,
 )
 
-from ..logic_pure.logic_pure_magic import (  # noqa: F401  (re-export)
+from .logic_pure_magic import (  # noqa: F401  (re-export)
     MAGIC_CHARGE_DURATION_TICKS,
     TEMPORARY_EFFECT_TICKS_PER_ACTION,
     _HUMIDIFY_OUTPUTS,
@@ -634,7 +634,7 @@ from ..logic_pure.logic_pure_magic import (  # noqa: F401  (re-export)
     magic_target_locked_reasons_pure,
 )
 
-from ..logic_pure.logic_pure_progression import (  # noqa: F401  (re-export)
+from .logic_pure_progression import (  # noqa: F401  (re-export)
     REVIEW_SUCCESS_CAP,
     REVIEW_SUCCESS_MINIMUM,
     REVIEW_SUCCESS_SCALE,
@@ -654,7 +654,7 @@ from ..logic_pure.logic_pure_progression import (  # noqa: F401  (re-export)
     sanitize_xp_multiplier,
 )
 
-from ..logic_pure.logic_pure_equipment import (  # noqa: F401  (re-export)
+from .logic_pure_equipment import (  # noqa: F401  (re-export)
     _combat_level_key,
     _combat_skill_label,
     _equipment_bonus_value,
@@ -673,7 +673,7 @@ from ..logic_pure.logic_pure_equipment import (  # noqa: F401  (re-export)
     unequip_item_pure,
 )
 
-from ..logic_pure.logic_pure_landmarks import (  # noqa: F401  (re-export)
+from .logic_pure_landmarks import (  # noqa: F401  (re-export)
     KNIGHT_WAVES_TOTAL_STEPS,
     KNIGHT_WAVES_XP_REWARD,
     MAGE_ARENA_GOD_CAPES,
@@ -705,7 +705,7 @@ from ..logic_pure.logic_pure_landmarks import (  # noqa: F401  (re-export)
     set_mage_arena_alignment_pure,
 )
 
-from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
+from .logic_pure_state import (  # noqa: F401  (re-export)
     COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,

@@ -19,7 +19,19 @@ _ROOT = os.path.dirname(os.path.abspath(__file__))
 
 
 def install_package_alias() -> None:
-    if PACKAGE_ALIAS in sys.modules:
+    existing = sys.modules.get(PACKAGE_ALIAS)
+    if existing is not None:
+        # Already installed. Verify it points HERE before trusting it: two
+        # checkouts of this repo in one interpreter (a second worktree's suite,
+        # a coverage run spanning both) would otherwise bind the alias to
+        # whichever imported first and silently test the wrong tree.
+        bound = list(getattr(existing, "__path__", []) or [])
+        if bound != [_ROOT]:
+            raise RuntimeError(
+                f"the {PACKAGE_ALIAS!r} alias is already bound to {bound or '<no path>'}, "
+                f"not to this checkout at {_ROOT}. Two copies of the add-on are live "
+                "in one interpreter; run the suites in separate processes."
+            )
         return
     package = types.ModuleType(PACKAGE_ALIAS)
     package.__path__ = [_ROOT]  # type: ignore[attr-defined]

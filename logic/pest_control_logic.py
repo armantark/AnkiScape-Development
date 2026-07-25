@@ -7,8 +7,8 @@ from collections.abc import Mapping
 from typing import Any
 
 from ..logic_pure.logic_pure import apply_combat_burst_pure, player_combat_level_pure
-from ..logic.pet_logic import store_active_pet_pure
-from ..logic.summoning_logic import dismiss_familiar_pure
+from .pet_logic import store_active_pet_pure
+from .summoning_logic import dismiss_familiar_pure
 from ..data.pest_control_data import (
     PEST_CONTROL_ACTIVITY_ID,
     PEST_CONTROL_COMBAT_TARGET_ID,

@@ -68,7 +68,7 @@ from ..data.combat_data import (
     WEAPON_TYPE_UNARMED_STYLES,
 )
 
-from ..logic_pure.logic_pure_urns import (  # noqa: F401  (re-export)
+from .logic_pure_urns import (  # noqa: F401  (re-export)
     active_urn_state_pure,
     carried_target_item_count_pure,
     charge_training_urn_for_action_pure,
@@ -80,7 +80,7 @@ from ..logic_pure.logic_pure_urns import (  # noqa: F401  (re-export)
     teleport_full_urn_pure,
 )
 
-from ..logic_pure.logic_pure_prayer import (  # noqa: F401  (re-export)
+from .logic_pure_prayer import (  # noqa: F401  (re-export)
     CASTLE_WARS_HALO_DRAIN_PRAYERS,
     _highest_legal_prayer_candidate_pure,
     active_prayer_selection_pure,
@@ -98,7 +98,7 @@ from ..logic_pure.logic_pure_prayer import (  # noqa: F401  (re-export)
     sanitize_prayer_selection_pure,
 )
 
-from ..logic_pure.logic_pure_magic import (  # noqa: F401  (re-export)
+from .logic_pure_magic import (  # noqa: F401  (re-export)
     MAGIC_CHARGE_DURATION_TICKS,
     TEMPORARY_EFFECT_TICKS_PER_ACTION,
     _HUMIDIFY_OUTPUTS,
@@ -117,7 +117,7 @@ from ..logic_pure.logic_pure_magic import (  # noqa: F401  (re-export)
     magic_target_locked_reasons_pure,
 )
 
-from ..logic_pure.logic_pure_equipment import (  # noqa: F401  (re-export)
+from .logic_pure_equipment import (  # noqa: F401  (re-export)
     _combat_level_key,
     _combat_skill_label,
     _equipment_bonus_value,
@@ -136,7 +136,7 @@ from ..logic_pure.logic_pure_equipment import (  # noqa: F401  (re-export)
     unequip_item_pure,
 )
 
-from ..logic_pure.logic_pure_landmarks import (  # noqa: F401  (re-export)
+from .logic_pure_landmarks import (  # noqa: F401  (re-export)
     KNIGHT_WAVES_TOTAL_STEPS,
     KNIGHT_WAVES_XP_REWARD,
     MAGE_ARENA_GOD_CAPES,
@@ -167,7 +167,7 @@ from ..logic_pure.logic_pure_landmarks import (  # noqa: F401  (re-export)
     set_mage_arena_alignment_pure,
 )
 
-from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
+from .logic_pure_state import (  # noqa: F401  (re-export)
     COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
@@ -193,35 +193,35 @@ from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
     sanitize_quest_combat_active_encounters_pure,
 )
 
-from ..logic_pure.logic_pure_urns import (
+from .logic_pure_urns import (
     resolve_prayer_kill_effects_pure,
 )
 
-from ..logic_pure.logic_pure_prayer import (
+from .logic_pure_prayer import (
     _highest_legal_prayer_candidate_pure,
     prayer_effect_state_pure,
     sanitize_prayer_selection_pure,
 )
 
-from ..logic_pure.logic_pure_magic import (
+from .logic_pure_magic import (
     _magic_quest_gate_complete_pure,
 )
 
-from ..logic_pure.logic_pure_equipment import (
+from .logic_pure_equipment import (
     _combat_skill_label,
     _equipment_bonus_value,
     _equipment_skill_requirements,
     _equipment_value,
 )
 
-from ..logic_pure.logic_pure_landmarks import (
+from .logic_pure_landmarks import (
     MAGE_ARENA_GOD_DATA,
     MAGE_ARENA_SPELL_TO_GOD,
     sanitize_knight_waves_state_pure,
     sanitize_mage_arena_state_pure,
 )
 
-from ..logic_pure.logic_pure_state import (
+from .logic_pure_state import (
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _combat_grave_items,
     _combat_stored_loadout,

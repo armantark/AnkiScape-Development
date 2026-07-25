@@ -20,7 +20,7 @@ from ..data.big_chinchompa_data import (
     WORLD_POPULATION_BASE_CEILINGS,
     WORLD_POPULATION_PROFILES,
 )
-from ..logic.world_population_logic import (
+from .world_population_logic import (
     naturalized_population_target_bps_pure,
     seeded_unit_pure,
 )

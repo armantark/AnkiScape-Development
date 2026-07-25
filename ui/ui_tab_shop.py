@@ -42,7 +42,7 @@ from ..logic.shop_logic import (
     shop_view_model_pure,
     shop_view_models_pure,
 )
-from ..ui.ui import (
+from .ui import (
     CatalogFilterBar,
     _clear_layout,
     _item_icon_path,

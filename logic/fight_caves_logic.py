@@ -22,8 +22,8 @@ from ..logic_pure.logic_pure import (
     combat_enemy_pressure_attack_pure,
     combat_max_lifepoints_pure,
 )
-from ..logic.pet_logic import store_active_pet_pure
-from ..logic.summoning_logic import dismiss_familiar_pure
+from .pet_logic import store_active_pet_pure
+from .summoning_logic import dismiss_familiar_pure
 
 
 FIGHT_CAVES_STATE_VERSION = 1

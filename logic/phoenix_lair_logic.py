@@ -10,7 +10,7 @@ from ..logic_pure.logic_pure import (
     apply_combat_burst_pure,
     combat_target_locked_reasons_pure,
 )
-from ..logic.pet_logic import acquire_pet_pure
+from .pet_logic import acquire_pet_pure
 from ..data.pet_data import PETS_BY_ID
 from ..data.phoenix_lair_data import (
     CRACKED_PHOENIX_EGG_ITEM,

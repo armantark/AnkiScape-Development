@@ -4,7 +4,7 @@ from typing import Iterable, Mapping, Optional
 
 from ..data.equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 
-from ..logic_pure.logic_pure_landmarks import (  # noqa: F401  (re-export)
+from .logic_pure_landmarks import (  # noqa: F401  (re-export)
     KNIGHT_WAVES_TOTAL_STEPS,
     KNIGHT_WAVES_XP_REWARD,
     MAGE_ARENA_GOD_CAPES,
@@ -35,7 +35,7 @@ from ..logic_pure.logic_pure_landmarks import (  # noqa: F401  (re-export)
     set_mage_arena_alignment_pure,
 )
 
-from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
+from .logic_pure_state import (  # noqa: F401  (re-export)
     COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
@@ -61,13 +61,13 @@ from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
     sanitize_quest_combat_active_encounters_pure,
 )
 
-from ..logic_pure.logic_pure_landmarks import (
+from .logic_pure_landmarks import (
     MAGE_ARENA_GOD_CAPES,
     MAGE_ARENA_GOD_DATA,
     MAGE_ARENA_GOD_STAVES,
 )
 
-from ..logic_pure.logic_pure_state import (
+from .logic_pure_state import (
     _positive_int,
 )
 

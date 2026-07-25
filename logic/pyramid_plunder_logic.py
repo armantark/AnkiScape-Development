@@ -7,7 +7,7 @@ from collections.abc import Callable, Mapping
 from typing import Any
 
 from ..data.combat_data import COMBAT_ANTIPOISON_POTION_DATA, COMBAT_FOOD_DATA
-from ..logic.inventory_pure import (
+from .inventory_pure import (
     CARRIED_CAPACITY,
     apply_carried_layout_pure,
     carried_has_room_for,

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from ..data.equipment_data import EquipmentBonuses, EquipmentItem
+from .equipment_data import EquipmentBonuses, EquipmentItem
 
 
 BARROWS_ACTIVITY_ID = "barrows"

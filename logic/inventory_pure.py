@@ -2,6 +2,13 @@
 
 The flat inventory remains the bank. This module models the 28-slot carried
 overlay and the pouch-only coin balance without importing Anki or UI code.
+
+Why this sits in ``logic/`` and not ``logic_pure/`` despite the name: the
+``logic_pure/`` package is not "the pure code", it is the pieces of the former
+12,710-line ``logic_pure.py`` monolith, kept together so that split stays
+reviewable. Everything else that is pure domain logic lives in ``logic/``,
+whether or not its filename says ``pure``. Both packages are Qt-free; the
+distinction is provenance, not purity.
 """
 
 from __future__ import annotations

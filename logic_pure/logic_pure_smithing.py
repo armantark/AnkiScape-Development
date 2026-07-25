@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from ..logic_pure.logic_pure_quest import (  # noqa: F401  (re-export)
+from .logic_pure_quest import (  # noqa: F401  (re-export)
     QUEST_COMBAT_CONFIG_VERSION,
     QUEST_COMBAT_DEFAULT_BURST_TICKS,
     QUEST_COMBAT_RESOLVER_ENABLED_KEY,
@@ -80,7 +80,7 @@ from ..logic_pure.logic_pure_quest import (  # noqa: F401  (re-export)
     target_unlock_locked_reasons_pure,
 )
 
-from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
+from .logic_pure_state import (  # noqa: F401  (re-export)
     COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
@@ -106,11 +106,11 @@ from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
     sanitize_quest_combat_active_encounters_pure,
 )
 
-from ..logic_pure.logic_pure_quest import (
+from .logic_pure_quest import (
     quest_unlock_locked_reasons_pure,
 )
 
-from ..logic_pure.logic_pure_state import (
+from .logic_pure_state import (
     _copy_player_data_with_nested,
     _positive_int,
     _requirements_from_spec,

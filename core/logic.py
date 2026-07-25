@@ -1,6 +1,6 @@
 """Anki-aware game logic orchestrators (no direct persistence here)."""
 
-from ..core.constants import (
+from .constants import (
     EXP_TABLE,
     ACHIEVEMENTS,
     BASE_WOODCUTTING_PROBABILITY,
@@ -8,7 +8,7 @@ from ..core.constants import (
     LEVEL_BONUS_FACTOR,
 )
 from ..ui.ui import show_level_up_dialog, show_achievement_dialog
-from ..core.skill_registry import skill_level_exp_keys
+from .skill_registry import skill_level_exp_keys
 
 
 def get_exp_to_next_level(player_data, exp_table):

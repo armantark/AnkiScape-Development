@@ -6,7 +6,7 @@ from collections import Counter
 from typing import Any, Iterable, Mapping
 
 from ..data.agility_data import AGILITY_TARGETS_BY_ID
-from ..logic.cadence_live import cadence_declaration_dict_pure, resolve_live_cadence_route_pure
+from .cadence_live import cadence_declaration_dict_pure, resolve_live_cadence_route_pure
 from ..core.constants import (
     COMBAT_ENEMY_DATA,
     COOKING_DATA,

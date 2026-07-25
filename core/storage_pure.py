@@ -11,7 +11,7 @@ from ..data.crafting_data import (
     LEGACY_CRAFTING_ITEM_MIGRATIONS,
     LEGACY_CRAFTING_TARGETS,
 )
-from ..core.item_registry import ItemDefinition
+from .item_registry import ItemDefinition
 from ..logic.equipment_instance_logic import (
     default_equipment_instance_state_pure,
     sanitize_equipment_instance_state_pure,
@@ -35,7 +35,7 @@ from ..logic.stealing_creation_logic import (
     sanitize_stealing_creation_state_pure,
 )
 from ..data.urn_data import URN_PLAIN_TO_RUNED_ITEM, default_urn_state_pure, sanitize_urn_state_pure
-from ..core.constants import (
+from .constants import (
     BAR_DATA,
     EXP_TABLE,
     FISHING_OUTPUT_ITEMS,
@@ -194,7 +194,7 @@ from ..data.smithing_data import (
     LEGACY_SMITHING_TARGETS,
     SMITHING_RECIPES_BY_ID,
 )
-from ..core.skill_registry import default_skill_state, default_target_state, planned_skill_definitions, trainable_skill_definitions
+from .skill_registry import default_skill_state, default_target_state, planned_skill_definitions, trainable_skill_definitions
 from ..data.summoning_data import DEFAULT_SUMMONING_TARGET, SUMMONING_ACTIONS_BY_ID
 from ..logic.summoning_logic import default_summoning_state_pure, sanitize_summoning_state_pure
 from ..logic.slayer_logic import sanitize_slayer_state_pure
@@ -205,7 +205,7 @@ from ..logic.livid_farm_logic import (
     default_livid_farm_state_pure,
     sanitize_livid_farm_state_pure,
 )
-from ..core.review_context import (
+from .review_context import (
     default_review_context_state_pure,
     sanitize_review_context_state_pure,
 )

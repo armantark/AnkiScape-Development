@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Any, Mapping, Sequence
 
-from ..logic.pet_logic import store_active_pet_pure
-from ..logic.summoning_logic import dismiss_familiar_pure
+from .pet_logic import store_active_pet_pure
+from .summoning_logic import dismiss_familiar_pure
 from ..data.vinesweeper_data import (
     COMPOST_POTION_DOSES,
     VINESWEEPER_FLAG_CAP,

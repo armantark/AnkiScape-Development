@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Tuple
 
-from ..data.firemaking_data import LIT_LIGHT_SOURCE_ITEMS
-from ..data.flash_powder_factory_data import (
+from .firemaking_data import LIT_LIGHT_SOURCE_ITEMS
+from .flash_powder_factory_data import (
     FLASH_POWDER_FACTORY_ACTIVITY_ID,
 )
 

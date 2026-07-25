@@ -14,7 +14,7 @@ from ..data.gnome_ball_data import (
     GNOME_BALL_TACKLE_ENTRY_CHANCE,
     GNOME_BALL_TACKLE_RESIDUAL_CHANCE,
 )
-from ..logic.inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure
+from .inventory_pure import CARRIED_CAPACITY, apply_carried_layout_pure
 from ..data.item_values import STACKABLE_ITEM_NAMES
 from ..logic_pure.logic_pure import apply_thieving_damage_pure
 

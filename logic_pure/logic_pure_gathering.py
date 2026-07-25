@@ -8,7 +8,7 @@ from typing import Iterable, Mapping, Optional
 
 from ..data.mining_data import MINING_REVIEW_DAY_CARDS, RED_SANDSTONE_DAILY_CAP
 
-from ..logic_pure.logic_pure_quest import (  # noqa: F401  (re-export)
+from .logic_pure_quest import (  # noqa: F401  (re-export)
     QUEST_COMBAT_CONFIG_VERSION,
     QUEST_COMBAT_DEFAULT_BURST_TICKS,
     QUEST_COMBAT_RESOLVER_ENABLED_KEY,
@@ -86,7 +86,7 @@ from ..logic_pure.logic_pure_quest import (  # noqa: F401  (re-export)
     target_unlock_locked_reasons_pure,
 )
 
-from ..logic_pure.logic_pure_progression import (  # noqa: F401  (re-export)
+from .logic_pure_progression import (  # noqa: F401  (re-export)
     REVIEW_SUCCESS_CAP,
     REVIEW_SUCCESS_MINIMUM,
     REVIEW_SUCCESS_SCALE,
@@ -106,7 +106,7 @@ from ..logic_pure.logic_pure_progression import (  # noqa: F401  (re-export)
     sanitize_xp_multiplier,
 )
 
-from ..logic_pure.logic_pure_equipment import (  # noqa: F401  (re-export)
+from .logic_pure_equipment import (  # noqa: F401  (re-export)
     _combat_level_key,
     _combat_skill_label,
     _equipment_bonus_value,
@@ -125,7 +125,7 @@ from ..logic_pure.logic_pure_equipment import (  # noqa: F401  (re-export)
     unequip_item_pure,
 )
 
-from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
+from .logic_pure_state import (  # noqa: F401  (re-export)
     COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
@@ -151,14 +151,14 @@ from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
     sanitize_quest_combat_active_encounters_pure,
 )
 
-from ..logic_pure.logic_pure_quest import (
+from .logic_pure_quest import (
     normalize_xp_rewards_pure,
     primary_xp_reward_amount_pure,
     quest_unlock_locked_reasons_pure,
     target_unlock_locked_reasons_pure,
 )
 
-from ..logic_pure.logic_pure_progression import (
+from .logic_pure_progression import (
     REVIEW_SUCCESS_CAP,
     REVIEW_SUCCESS_MINIMUM,
     REVIEW_SUCCESS_SCALE,
@@ -168,12 +168,12 @@ from ..logic_pure.logic_pure_progression import (
     red_sandstone_daily_remaining_pure,
 )
 
-from ..logic_pure.logic_pure_equipment import (
+from .logic_pure_equipment import (
     best_mining_pickaxe_pure,
     best_woodcutting_axe_pure,
 )
 
-from ..logic_pure.logic_pure_state import (
+from .logic_pure_state import (
     _non_negative_float,
     _non_negative_int,
     _positive_int,

@@ -28,7 +28,7 @@ from ..data.combat_data import (
     WEAPON_TYPE_UNARMED_STYLES,
 )
 
-from ..logic_pure.logic_pure_progression import (  # noqa: F401  (re-export)
+from .logic_pure_progression import (  # noqa: F401  (re-export)
     REVIEW_SUCCESS_CAP,
     REVIEW_SUCCESS_MINIMUM,
     REVIEW_SUCCESS_SCALE,
@@ -48,7 +48,7 @@ from ..logic_pure.logic_pure_progression import (  # noqa: F401  (re-export)
     sanitize_xp_multiplier,
 )
 
-from ..logic_pure.logic_pure_landmarks import (  # noqa: F401  (re-export)
+from .logic_pure_landmarks import (  # noqa: F401  (re-export)
     KNIGHT_WAVES_TOTAL_STEPS,
     KNIGHT_WAVES_XP_REWARD,
     MAGE_ARENA_GOD_CAPES,
@@ -79,7 +79,7 @@ from ..logic_pure.logic_pure_landmarks import (  # noqa: F401  (re-export)
     set_mage_arena_alignment_pure,
 )
 
-from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
+from .logic_pure_state import (  # noqa: F401  (re-export)
     COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
@@ -105,17 +105,17 @@ from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
     sanitize_quest_combat_active_encounters_pure,
 )
 
-from ..logic_pure.logic_pure_progression import (
+from .logic_pure_progression import (
     sanitize_review_action_multiplier,
 )
 
-from ..logic_pure.logic_pure_landmarks import (
+from .logic_pure_landmarks import (
     MAGE_ARENA_GOD_DATA,
     MAGE_ARENA_SPELL_TO_GOD,
     sanitize_mage_arena_state_pure,
 )
 
-from ..logic_pure.logic_pure_state import (
+from .logic_pure_state import (
     _copy_player_data_with_nested,
     _non_negative_int,
     _positive_int,

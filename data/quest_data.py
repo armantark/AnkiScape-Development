@@ -8,9 +8,9 @@ from typing import Dict, Mapping, Tuple, Union
 
 from ..generated.quest_catalog_generated import PRE_EOC_QUEST_CATALOG
 
-from ..data.runecrafting_data import RUNEMYSTERIES_SOURCE_PATH, WICKED_HOOD_ITEM
+from .runecrafting_data import RUNEMYSTERIES_SOURCE_PATH, WICKED_HOOD_ITEM
 
-from ..data.firemaking_data import LIT_LIGHT_SOURCE_ITEMS
+from .firemaking_data import LIT_LIGHT_SOURCE_ITEMS
 
 
 RUNE_MYSTERIES_ID = "rune_mysteries"

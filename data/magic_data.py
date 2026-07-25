@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, Mapping, Optional, Tuple
 
-from ..data.livid_farm_data import (
+from .livid_farm_data import (
     ARCANE_CAPACITOR_CHARGED,
     ARCANE_CAPACITOR_SOURCE,
     ARCANE_CAPACITOR_UNCHARGED,

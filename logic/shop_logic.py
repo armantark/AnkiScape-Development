@@ -21,7 +21,7 @@ from ..data.shop_data import (
     SHOP_VENDOR_ACTIONS,
 )
 
-from ..logic.inventory_pure import CARRIED_CAPACITY
+from .inventory_pure import CARRIED_CAPACITY
 
 from ..data.herblore_data import HERBLORE_TARGETS
 

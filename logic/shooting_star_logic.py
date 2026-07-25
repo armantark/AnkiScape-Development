@@ -21,7 +21,7 @@ from ..data.shooting_star_data import (
     SHOOTING_STAR_STARDUST,
     SHOOTING_STAR_STARDUST_CAP,
 )
-from ..logic.world_population_logic import (
+from .world_population_logic import (
     naturalized_population_target_bps_pure,
     seeded_unit_pure,
 )

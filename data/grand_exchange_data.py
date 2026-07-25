@@ -12,7 +12,7 @@ from typing import Iterable, Mapping
 
 from ..core.constants import ITEM_DEFINITIONS
 from ..core.item_registry import ItemDefinition
-from ..data.item_values import EXCHANGEABLE_ITEM_NAMES, ITEM_VALUES
+from .item_values import EXCHANGEABLE_ITEM_NAMES, ITEM_VALUES
 
 try:
     from ..generated.grand_exchange_period_generated import (

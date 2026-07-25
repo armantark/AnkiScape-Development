@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, Optional, Tuple
 
-from ..data.urn_data import URN_POTTERY_SOURCE, URN_RUNE_SOURCE, URN_TIERS
+from .urn_data import URN_POTTERY_SOURCE, URN_RUNE_SOURCE, URN_TIERS
 
 CRAFTING_SOURCE_ROOT = "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/crafting"
 COMBINATION_SOURCE_PATH = "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/items/combine/CombinationData.kt"

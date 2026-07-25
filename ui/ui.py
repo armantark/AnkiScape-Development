@@ -3789,10 +3789,10 @@ def show_main_menu(
     # first show instead of on open. Their builders live in ui_tab_*.py and get
     # everything they need through this context object. The modules are imported
     # here rather than at module scope because they import ui.
-    from ..ui.ui_menu_ctx import MainMenuCtx
-    from ..ui.ui_tab_achievements import build_achievements_tab
-    from ..ui.ui_tab_quests import build_quests_tab
-    from ..ui.ui_tab_shop import build_shop_tab
+    from .ui_menu_ctx import MainMenuCtx
+    from .ui_tab_achievements import build_achievements_tab
+    from .ui_tab_quests import build_quests_tab
+    from .ui_tab_shop import build_shop_tab
 
     ctx = MainMenuCtx(
         player_data=player_data,

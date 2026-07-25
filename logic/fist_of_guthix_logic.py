@@ -7,7 +7,7 @@ from typing import Any
 
 from ..data.combat_data import COMBAT_MAGIC_SPELL_DATA
 from ..data.equipment_data import EQUIPMENT_DATA
-from ..logic.equipment_instance_logic import (
+from .equipment_instance_logic import (
     add_equipment_instance_pure,
     advance_equipped_condition_pure,
     condition_name_pure,

@@ -6,13 +6,13 @@ import copy
 from collections.abc import Callable, Mapping
 from typing import Any
 
-from ..logic.fist_of_guthix_logic import generate_fist_of_guthix_opponent_pure
+from .fist_of_guthix_logic import generate_fist_of_guthix_opponent_pure
 from ..logic_pure.logic_pure import (
     apply_combat_burst_pure,
     combat_max_lifepoints_pure,
     prayer_effect_state_pure,
 )
-from ..logic.pet_logic import store_active_pet_pure
+from .pet_logic import store_active_pet_pure
 from ..data.stealing_creation_data import (
     STEALING_CREATION_ACTIVITY_ID,
     STEALING_CREATION_CLASS_REQUIREMENTS,
@@ -30,7 +30,7 @@ from ..data.stealing_creation_data import (
     STEALING_CREATION_SESSION_EQUIPMENT,
     STEALING_CREATION_SESSION_REVIEWS,
 )
-from ..logic.summoning_logic import dismiss_familiar_pure
+from .summoning_logic import dismiss_familiar_pure
 
 
 STEALING_CREATION_STATE_VERSION = 1

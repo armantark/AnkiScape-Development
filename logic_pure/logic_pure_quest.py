@@ -32,7 +32,7 @@ from ..data.combat_data import (
     WEAPON_TYPE_UNARMED_STYLES,
 )
 
-from ..logic_pure.logic_pure_combat_engine import (  # noqa: F401  (re-export)
+from .logic_pure_combat_engine import (  # noqa: F401  (re-export)
     _COMBAT_EXP_KEY_DISPLAY,
     _COMBAT_STYLE_XP_KEYS,
     _combat_roll_damage_lifepoints,
@@ -58,7 +58,7 @@ from ..logic_pure.logic_pure_combat_engine import (  # noqa: F401  (re-export)
     unload_combat_supply_loadout_pure,
 )
 
-from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
+from .logic_pure_state import (  # noqa: F401  (re-export)
     COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
@@ -84,12 +84,12 @@ from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
     sanitize_quest_combat_active_encounters_pure,
 )
 
-from ..logic_pure.logic_pure_combat_engine import (
+from .logic_pure_combat_engine import (
     apply_combat_burst_pure,
     player_combat_level_pure,
 )
 
-from ..logic_pure.logic_pure_state import (
+from .logic_pure_state import (
     _copy_player_data_with_nested,
     _non_negative_int,
     _positive_int,

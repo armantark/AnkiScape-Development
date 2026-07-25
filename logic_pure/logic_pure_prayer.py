@@ -12,7 +12,7 @@ from ..data.prayer_data import (
     resolve_prayer_selection_pure,
 )
 
-from ..logic_pure.logic_pure_construction import (  # noqa: F401  (re-export)
+from .logic_pure_construction import (  # noqa: F401  (re-export)
     _LECTERN_SLOTS,
     _construction_has_workbench,
     _construction_nail_stock,
@@ -28,7 +28,7 @@ from ..logic_pure.logic_pure_construction import (  # noqa: F401  (re-export)
     purchase_house_pure,
 )
 
-from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
+from .logic_pure_state import (  # noqa: F401  (re-export)
     COMBAT_BANK_RUN_REVIEWS,
     COMBAT_GRAVE_RECOVERY_REVIEWS,
     _COMBAT_DRAGONFIRE_POTION_BY_DOSE,
@@ -54,11 +54,11 @@ from ..logic_pure.logic_pure_state import (  # noqa: F401  (re-export)
     sanitize_quest_combat_active_encounters_pure,
 )
 
-from ..logic_pure.logic_pure_construction import (
+from .logic_pure_construction import (
     owned_gilded_altar_access_reasons_pure,
 )
 
-from ..logic_pure.logic_pure_state import (
+from .logic_pure_state import (
     _copy_player_data_with_nested,
     _non_negative_int,
     _positive_int,

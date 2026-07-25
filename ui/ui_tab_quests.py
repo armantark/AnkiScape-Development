@@ -30,7 +30,7 @@ from ..logic_pure.logic_pure import (
     quest_locked_reasons_pure,
     quest_state_pure,
 )
-from ..ui.ui import CatalogFilterBar, dim_text_css
+from .ui import CatalogFilterBar, dim_text_css
 
 
 def build_quests_tab(ctx) -> "QWidget":

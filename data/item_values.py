@@ -13,7 +13,7 @@ possibly-valuable drop just because we lack a price).
 
 from typing import Dict, FrozenSet, Optional
 
-from ..data.shop_data import SHOP_DATA
+from .shop_data import SHOP_DATA
 
 try:  # the generated full-cache table is authoritative when present
     from ..generated.item_values_generated import (

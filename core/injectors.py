@@ -19,7 +19,7 @@ _ICON_DATA_URI: Optional[str] = None
 
 # Central debug logger (no cycle; support both package and flat import in tests)
 try:
-    from ..core.debug import debug_log as _debug_log  # type: ignore
+    from .debug import debug_log as _debug_log  # type: ignore
 except Exception:
     def _debug_log(msg: str) -> None:  # fallback no-op
         pass
