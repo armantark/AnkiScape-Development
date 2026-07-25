@@ -298,7 +298,9 @@ def sanitize_ge_state_pure(raw: Mapping[str, Any] | None) -> Dict[str, Any]:
 
 
 def ensure_ge_state_pure(player_data: Mapping[str, Any] | None) -> Dict[str, Any]:
-    data = copy.deepcopy(dict(player_data or {}))
+    # Shallow on purpose: sanitize_ge_state_pure rebuilds every key it returns.
+    # The inventory copy below stays deep — GE mutates inventory in place.
+    data = dict(player_data or {})
     data.update(sanitize_ge_state_pure(data))
     inventory = data.get("inventory")
     data["inventory"] = copy.deepcopy(dict(inventory)) if isinstance(inventory, Mapping) else {}

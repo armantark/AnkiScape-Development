@@ -24,6 +24,8 @@ try:
         QListWidgetItem,
         QGraphicsOpacityEffect,
         QPropertyAnimation,
+        QSequentialAnimationGroup,
+        QParallelAnimationGroup,
         QEasingCurve,
         QPoint,
         QMessageBox,
@@ -1603,6 +1605,41 @@ def set_craft_family_expanded(family: str, expanded: bool) -> None:
         pass
 
 
+_ACTIVITY_COLLAPSED_CONFIG_KEY = "ankiscape_activity_collapsed_groups"
+
+
+def activity_collapsed_groups() -> set:
+    """Return the Activities category groups the user has collapsed.
+
+    Stores the *collapsed* set, unlike the Smithing/Crafting keys, because the
+    Activities tree defaults to fully expanded: an empty config then means
+    "nothing hidden" instead of "everything hidden".
+    """
+    try:
+        if mw and getattr(mw, 'col', None):
+            value = mw.col.get_config(_ACTIVITY_COLLAPSED_CONFIG_KEY, [])
+            if isinstance(value, (list, tuple)):
+                return {str(group) for group in value}
+    except Exception:
+        pass
+    return set()
+
+
+def set_activity_group_collapsed(group: str, collapsed: bool) -> None:
+    """Persist a single Activities category group's collapse state."""
+    try:
+        if not (mw and getattr(mw, 'col', None)):
+            return
+        current = activity_collapsed_groups()
+        if collapsed:
+            current.add(group)
+        else:
+            current.discard(group)
+        mw.col.set_config(_ACTIVITY_COLLAPSED_CONFIG_KEY, sorted(current))
+    except Exception:
+        pass
+
+
 def is_floating_xp_enabled() -> bool:
     """Return True if floating XP popups are enabled (default True)."""
     return get_config_bool("ankiscape_floating_xp_enabled", True)
@@ -2477,19 +2514,10 @@ if HAS_QT:
                 player_data,
                 has_usable_hatchet=has_hatchet,
             )
+            # Evil Tree and Shooting Star availability moved to the Activities
+            # hub's "Live world events" strip: neither can be acted on from the
+            # reviewer, so the overlay keeps only in-progress session counters.
             world_notices = []
-            if evil_tree_view["active"]:
-                world_notices.append(
-                    f"{evil_tree_view['tier_name']} · "
-                    f"{evil_tree_view['reviews_remaining']} reviews left"
-                )
-            blessing_reviews = int(
-                evil_tree_view.get("blessing_reviews_remaining", 0) or 0
-            )
-            if blessing_reviews > 0:
-                world_notices.append(
-                    f"Evil Tree blessing · {blessing_reviews} reviews left"
-                )
             big_chinchompa_view = big_chinchompa_view_pure(player_data)
             if big_chinchompa_view["active"]:
                 world_notices.append(
@@ -2509,16 +2537,6 @@ if HAS_QT:
                     is not None
                 ),
             )
-            if star_view["active"]:
-                world_notices.append(
-                    f"Shooting Star size {int(star_view['current_size'])} · "
-                    f"{int(star_view['layer_remaining']):,} layer dust left"
-                )
-            elif star_view["sprite_available"]:
-                world_notices.append(
-                    "Star sprite · "
-                    f"{int(star_view['sprite_reviews_remaining'])} reviews left"
-                )
             fog_view = fist_of_guthix_view_pure(player_data)
             if fog_view["active"]:
                 fog_match = fog_view["match"]
@@ -3078,6 +3096,16 @@ if HAS_QT:
                 pass
             return False
 
+    # The bubble holds full opacity first and only then fades, so the text is
+    # readable; the old curve started fading immediately and was under 0.6
+    # opacity within 300 ms.
+    _POPUP_HOLD_MS = 900
+    _POPUP_FADE_MS = 500
+    _POPUP_FLOAT_PX = 36
+    # The HUD/strip drop shadow bleeds 16 px above its own top edge, so the
+    # bubble needs more than that much clearance or it sits in the dark blur.
+    _POPUP_CLEARANCE_PX = 20
+
     class ExpPopup(QLabel):
         """Floating XP indicator that fades and floats above the HUD (lower center)."""
         def __init__(self, parent):
@@ -3097,6 +3125,30 @@ if HAS_QT:
             self.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
             self.hide()
+            # Built once and reused: rebuilding the effect and animations per
+            # call dropped the last reference to still-running animations whose
+            # target effect setGraphicsEffect had just deleted.
+            self._anim = None
+            try:
+                self._opacity = QGraphicsOpacityEffect(self)
+                self.setGraphicsEffect(self._opacity)
+                self._fade = QPropertyAnimation(self._opacity, b"opacity", self)
+                self._fade.setDuration(_POPUP_FADE_MS)
+                self._fade.setStartValue(1.0)
+                self._fade.setEndValue(0.0)
+                self._fade.setEasingCurve(QEasingCurve.Type.InCubic)
+                self._hold = QSequentialAnimationGroup(self)
+                self._hold.addPause(_POPUP_HOLD_MS)
+                self._hold.addAnimation(self._fade)
+                self._float = QPropertyAnimation(self, b"pos", self)
+                self._float.setDuration(_POPUP_HOLD_MS + _POPUP_FADE_MS)
+                self._float.setEasingCurve(QEasingCurve.Type.OutCubic)
+                self._anim = QParallelAnimationGroup(self)
+                self._anim.addAnimation(self._hold)
+                self._anim.addAnimation(self._float)
+                self._anim.finished.connect(self.hide)
+            except Exception:
+                pass
 
         def show_exp(self, exp):
             # Format like +25 XP, color accent via left border
@@ -3106,48 +3158,41 @@ if HAS_QT:
             # Generic floating "ghost" indicator. Used for XP gains and, for no-XP
             # Utilities/Activities, for item gains like "+28 Flax" so the player gets
             # the same confirmation that a review action actually happened.
+            if self._anim is not None:
+                self._anim.stop()
             self.setText(str(text))
             self.adjustSize()
-            self.show()
 
-            # Position: centered horizontally, just above the HUD
+            # Position: centered horizontally, fully above the HUD/strip. The
+            # anchor is the panel's top edge, so subtract our own height too.
+            par = self.parent() if self.parent() is not None else mw
             try:
-                par = self.parent() if self.parent() is not None else mw
                 context_strip = _REVIEW_CONTEXT_STRIP
                 hud = _REVIEW_HUD
-                base_y = (
-                    context_strip.y() - 14
+                anchor_top = (
+                    context_strip.y()
                     if context_strip and context_strip.isVisible()
-                    else hud.y() - 14
+                    else hud.y()
                     if hud and hud.isVisible()
-                    else par.height() - 140
+                    else par.height() - 96
                 )
                 x = int((par.width() - self.width()) / 2)
-                y = int(base_y)
-                self.move(x, y)
+                y = max(
+                    8,
+                    int(anchor_top) - self.height() - _POPUP_CLEARANCE_PX,
+                )
             except Exception:
-                # Fallback to lower center
-                self.move(max(10, int((self.parent().width() - self.width()) / 2)), self.parent().height() - 140)
+                x = max(10, int((par.width() - self.width()) / 2))
+                y = max(8, par.height() - 96 - self.height() - _POPUP_CLEARANCE_PX)
+            self.move(x, y)
 
-            # Animations
-            self.opacity_effect = QGraphicsOpacityEffect(self)
-            self.setGraphicsEffect(self.opacity_effect)
-            self.fade_animation = QPropertyAnimation(self.opacity_effect, b"opacity")
-            self.fade_animation.setDuration(1800)
-            self.fade_animation.setStartValue(1.0)
-            self.fade_animation.setEndValue(0.0)
-            self.fade_animation.setEasingCurve(QEasingCurve.Type.OutCubic)
-            self.fade_animation.finished.connect(self.hide)
-
-            self.float_animation = QPropertyAnimation(self, b"pos")
-            self.float_animation.setDuration(1800)
-            start_pos = self.pos()
-            end_pos = start_pos - QPoint(0, 36)
-            self.float_animation.setStartValue(start_pos)
-            self.float_animation.setEndValue(end_pos)
-            self.float_animation.setEasingCurve(QEasingCurve.Type.OutCubic)
-            self.fade_animation.start()
-            self.float_animation.start()
+            self.show()
+            self.raise_()
+            if self._anim is not None:
+                self._opacity.setOpacity(1.0)
+                self._float.setStartValue(QPoint(x, y))
+                self._float.setEndValue(QPoint(x, y - _POPUP_FLOAT_PX))
+                self._anim.start()
 else:
     # Minimal placeholder to keep references safe during tests
     class ExpPopup:
@@ -3187,6 +3232,23 @@ _REVIEW_HUD = None  # type: ignore
 _REVIEW_CONTEXT_STRIP = None  # type: ignore
 _FARMING_BADGE = None  # type: ignore
 _FARM_STATUS_DIALOG = None  # type: ignore
+
+
+def _raise_exp_popup() -> None:
+    """Keep an in-flight XP bubble above the HUD cluster.
+
+    Sibling paint order is creation order and the popup is created first, at
+    profile load; the HUD, context strip, and farming badge each re-raise
+    themselves on every reviewer_question and reviewer_answer, so a one-shot
+    raise_() inside show_text() does not survive the next answered card.
+    """
+    try:
+        popup = getattr(mw, "exp_popup", None)
+        if popup is not None and popup.isVisible():
+            popup.raise_()
+    except Exception:
+        pass
+
 
 def _cleanup_extra_huds() -> None:
     """Hide and delete any stray HUD widgets from prior versions or reloads.
@@ -3275,6 +3337,7 @@ def ensure_review_hud() -> None:
             _REVIEW_HUD.raise_()
         except Exception:
             pass
+        _raise_exp_popup()
     except Exception:
         pass
 
@@ -3308,6 +3371,7 @@ def ensure_review_context_action_strip() -> None:
         _REVIEW_CONTEXT_STRIP.setParent(mw)
     if _REVIEW_CONTEXT_STRIP is not None:
         _REVIEW_CONTEXT_STRIP.raise_()
+        _raise_exp_popup()
 
 
 def update_review_context_action_strip(
@@ -3344,6 +3408,7 @@ def ensure_farming_hud_badge() -> None:
         _FARMING_BADGE.setParent(mw)
     if _FARMING_BADGE is not None:
         _FARMING_BADGE.raise_()
+        _raise_exp_popup()
 
 
 def update_farming_hud_badge(player_data: dict, open_callback=None) -> None:
@@ -7362,6 +7427,11 @@ def show_main_menu(
 
         star_panel_refresher = {"call": lambda: None}
         fog_panel_refresher = {"call": lambda: None}
+        world_events_refresher = {"call": lambda: None}
+        # Tracked explicitly rather than read off cards_stack.isVisible(): under
+        # offscreen Qt a never-shown dialog reports False right after
+        # setVisible(True), which would silently break duplicate suppression.
+        visible_detail_id = {"id": ""}
 
         familiarisation_box = QtFrame()
         familiarisation_box.setObjectName("familiarisationPanel")
@@ -7692,6 +7762,7 @@ def show_main_menu(
                 evil_action.setText("No active tree")
                 evil_action.setEnabled(False)
                 _fit_current_activity_detail()
+                world_events_refresher["call"]()
                 return
 
             evil_box.setStyleSheet(
@@ -7758,6 +7829,7 @@ def show_main_menu(
                 evil_action.setText("Unavailable")
                 evil_action.setEnabled(False)
             _fit_current_activity_detail()
+            world_events_refresher["call"]()
 
         def _select_evil_tree() -> None:
             if on_set_utility is None:
@@ -8290,6 +8362,7 @@ def show_main_menu(
             )
             syncing_star["active"] = False
             _fit_current_activity_detail()
+            world_events_refresher["call"]()
 
         star_panel_refresher["call"] = _refresh_shooting_star_panel
 
@@ -16800,7 +16873,7 @@ def show_main_menu(
         tree.setObjectName("utilityActivityTree")
         tree.setHeaderHidden(True)
         tree.setIconSize(QSize(28, 28))
-        tree.setRootIsDecorated(not is_activities)
+        tree.setRootIsDecorated(True)
         tree.setIndentation(14)
         tree.setUniformRowHeights(True)
         tree_base = tree.palette().color(QPalette.ColorRole.Base)
@@ -16845,15 +16918,16 @@ def show_main_menu(
                 ordered_groups.append(group)
             groups[group].append(row)
 
+        collapsed_activity_groups = (
+            activity_collapsed_groups() if is_activities else set()
+        )
         selected_child = None
-        activity_page_items = []
-        activity_page_labels = []
         for group in ordered_groups:
             group_rows = groups.get(group, [])
             if not group_rows or (is_activities and group == "landmarks"):
                 continue
             label = _UTILITY_GROUP_LABELS.get(group, group.replace("_", " ").title())
-            parent_text = label if is_activities else f"{label}  ({len(group_rows)})"
+            parent_text = f"{label}  ({len(group_rows)})"
             parent = QTreeWidgetItem([parent_text])
             parent.setData(0, Qt.ItemDataRole.UserRole, f"__utility_group__:{group}")
             parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
@@ -16866,9 +16940,6 @@ def show_main_menu(
             font.setBold(True)
             parent.setFont(0, font)
             tree.addTopLevelItem(parent)
-            if is_activities:
-                activity_page_items.append(parent)
-                activity_page_labels.append(label)
             group_has_current = False
             for row in group_rows:
                 child = QTreeWidgetItem([row.label])
@@ -16894,7 +16965,10 @@ def show_main_menu(
                 if row.target_id == current:
                     selected_child = child
                     group_has_current = True
-            parent.setExpanded(group_has_current)
+            if is_activities:
+                parent.setExpanded(group not in collapsed_activity_groups)
+            else:
+                parent.setExpanded(group_has_current)
 
         # Landmarks: the one-time Stronghold of Security. Injected by hand because
         # it is a step counter, not a repeatable UTILITY_ACTIVITY_DATA activity.
@@ -16919,9 +16993,7 @@ def show_main_menu(
             )
         landmark_rows = groups.get("landmarks", []) if is_activities else []
         landmark_count = 3 + len(landmark_rows)
-        landmark_parent = QTreeWidgetItem(
-            ["Landmarks" if is_activities else f"Landmarks  ({landmark_count})"]
-        )
+        landmark_parent = QTreeWidgetItem([f"Landmarks  ({landmark_count})"])
         landmark_parent.setData(0, Qt.ItemDataRole.UserRole, "__utility_group__:landmarks")
         landmark_parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
         lm_font = landmark_parent.font(0)
@@ -16929,8 +17001,6 @@ def show_main_menu(
         landmark_parent.setFont(0, lm_font)
         if is_activities:
             tree.addTopLevelItem(landmark_parent)
-            activity_page_items.append(landmark_parent)
-            activity_page_labels.append("Landmarks")
         sh_child = QTreeWidgetItem([sh_label])
         sh_child.setData(0, Qt.ItemDataRole.UserRole, _STRONGHOLD_UTILITY_KEY)
         sh_child.setToolTip(0, sh_tooltip)
@@ -17080,115 +17150,44 @@ def show_main_menu(
         if current == _STRONGHOLD_UTILITY_KEY and not sh_completed:
             selected_child = sh_child
             landmark_active = True
-        landmark_parent.setExpanded(landmark_active or (sh_completed and not sh_claimed))
+        if is_activities:
+            landmark_parent.setExpanded("landmarks" not in collapsed_activity_groups)
+        else:
+            landmark_parent.setExpanded(
+                landmark_active or (sh_completed and not sh_claimed)
+            )
 
         if selected_child is not None:
+            ancestor = selected_child.parent()
+            while ancestor is not None:
+                ancestor.setExpanded(True)
+                ancestor = ancestor.parent()
             tree.setCurrentItem(selected_child)
-
-        activity_pager = QWidget()
-        activity_pager.setObjectName("activityPickerPager")
-        activity_pager_layout = QHBoxLayout(activity_pager)
-        activity_pager_layout.setContentsMargins(0, 0, 0, 0)
-        activity_pager_layout.setSpacing(8)
-        activity_previous = QPushButton("‹ Previous")
-        activity_previous.setObjectName("activityPickerPreviousButton")
-        activity_previous.setAccessibleName("Previous activity category")
-        activity_page_label = QLabel()
-        activity_page_label.setObjectName("activityPickerPageLabel")
-        activity_page_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        activity_page_label.setStyleSheet(
-            "font-weight: 600; color: palette(text);"
-        )
-        activity_next = QPushButton("Next ›")
-        activity_next.setObjectName("activityPickerNextButton")
-        activity_next.setAccessibleName("Next activity category")
-        activity_pager_layout.addWidget(activity_previous)
-        activity_pager_layout.addWidget(activity_page_label, 1)
-        activity_pager_layout.addWidget(activity_next)
-        activity_pager.setVisible(is_activities)
-
-        def _top_level_item(item):
-            current_item = item
-            while current_item is not None and current_item.parent() is not None:
-                current_item = current_item.parent()
-            return current_item
-
-        initial_activity_page = 0
-        selected_parent = _top_level_item(selected_child)
-        if selected_parent in activity_page_items:
-            initial_activity_page = activity_page_items.index(selected_parent)
-        activity_page = {"index": initial_activity_page}
-
-        def _visible_activity_rows(item) -> int:
-            total = 1
-            if item.isExpanded():
-                for child_index in range(item.childCount()):
-                    total += _visible_activity_rows(item.child(child_index))
-            return total
-
-        def _show_activity_page(index: int, *, focus_header: bool = False) -> None:
-            if not activity_page_items:
-                activity_pager.setVisible(False)
-                return
-            bounded = max(0, min(int(index), len(activity_page_items) - 1))
-            activity_page["index"] = bounded
-            for page_index, item in enumerate(activity_page_items):
-                item.setHidden(page_index != bounded)
-                if page_index == bounded:
-                    item.setExpanded(True)
-            page_item = activity_page_items[bounded]
-            activity_page_label.setText(
-                f"{activity_page_labels[bounded]} · {bounded + 1} of {len(activity_page_items)}"
+            tree.scrollToItem(
+                selected_child,
+                QAbstractItemView.ScrollHint.PositionAtCenter,
             )
-            activity_previous.setEnabled(bounded > 0)
-            activity_next.setEnabled(bounded + 1 < len(activity_page_items))
-            activity_previous.setToolTip(
-                "Previous: " + activity_page_labels[bounded - 1]
-                if bounded > 0
-                else "This is the first activity category."
-            )
-            activity_next.setToolTip(
-                "Next: " + activity_page_labels[bounded + 1]
-                if bounded + 1 < len(activity_page_items)
-                else "This is the last activity category."
-            )
-            tree.doItemsLayout()
-            row_height = max(1, tree.sizeHintForRow(0))
-            row_count = _visible_activity_rows(page_item)
-            tree.setFixedHeight(max(140, (row_count * row_height) + 12))
-            if focus_header:
-                page_selection = (
-                    selected_child
-                    if _top_level_item(selected_child) is page_item
-                    else page_item
-                )
-                tree.setCurrentItem(page_selection)
-                tree.scrollToItem(page_selection)
+
+        def _activity_group_id(item) -> Optional[str]:
+            role = item.data(0, Qt.ItemDataRole.UserRole)
+            prefix = "__utility_group__:"
+            if isinstance(role, str) and role.startswith(prefix):
+                return role[len(prefix):]
+            return None
 
         if is_activities:
-            tree.setVerticalScrollBarPolicy(
-                Qt.ScrollBarPolicy.ScrollBarAlwaysOff
-            )
-            tree.setHorizontalScrollBarPolicy(
-                Qt.ScrollBarPolicy.ScrollBarAlwaysOff
-            )
-            activity_previous.clicked.connect(
-                lambda _checked=False: _show_activity_page(
-                    activity_page["index"] - 1, focus_header=True
-                )
-            )
-            activity_next.clicked.connect(
-                lambda _checked=False: _show_activity_page(
-                    activity_page["index"] + 1, focus_header=True
-                )
-            )
             tree.itemExpanded.connect(
-                lambda _item: _show_activity_page(activity_page["index"])
+                lambda item: (
+                    _activity_group_id(item)
+                    and set_activity_group_collapsed(_activity_group_id(item), False)
+                )
             )
             tree.itemCollapsed.connect(
-                lambda _item: _show_activity_page(activity_page["index"])
+                lambda item: (
+                    _activity_group_id(item)
+                    and set_activity_group_collapsed(_activity_group_id(item), True)
+                )
             )
-            _show_activity_page(initial_activity_page)
 
         def _set_utility_selection(activity_id: str) -> bool:
             if on_set_utility is None:
@@ -17829,11 +17828,91 @@ def show_main_menu(
             show_detail = is_activities and selected_widget is not None
             cards_stack.setVisible(show_detail)
             activity_change_button.setVisible(show_detail)
-            activity_pager.setVisible(is_activities and not show_detail)
             tree.setVisible(not show_detail)
+            if not show_detail and tree.currentItem() is not None:
+                tree.scrollToItem(
+                    tree.currentItem(),
+                    QAbstractItemView.ScrollHint.PositionAtCenter,
+                )
             if selected is not None:
                 cards_stack.setCurrentWidget(selected_widget)
                 _fit_current_activity_detail()
+            visible_detail_id["id"] = (
+                str(activity_id or "") if show_detail else ""
+            )
+            world_events_refresher["call"]()
+
+        if is_activities:
+            world_events_box = QtFrame()
+            world_events_box.setObjectName("activityWorldEventsStrip")
+            world_events_box.setStyleSheet(
+                "QFrame#activityWorldEventsStrip { border: 1px solid palette(mid);"
+                " border-radius: 8px; background: palette(base); }"
+            )
+            world_events_layout = QVBoxLayout(world_events_box)
+            world_events_layout.setContentsMargins(10, 6, 10, 6)
+            world_events_layout.setSpacing(2)
+            world_events_title = QLabel("Live world events")
+            world_events_title.setObjectName("activityWorldEventsTitle")
+            world_events_title.setStyleSheet(
+                f"color: {dim_text_css(world_events_title)};"
+                " font-size: 11px; font-weight: 700;"
+            )
+            world_events_body = QLabel("")
+            world_events_body.setObjectName("activityWorldEventsBody")
+            world_events_body.setWordWrap(True)
+            world_events_body.setStyleSheet(
+                "color: palette(text); font-size: 11px;"
+            )
+            world_events_layout.addWidget(world_events_title)
+            world_events_layout.addWidget(world_events_body)
+            world_events_box.setVisible(False)
+
+            def _refresh_world_events_strip() -> None:
+                # Rows for the card currently on screen are suppressed: that card
+                # already shows the same state in more detail.
+                rows = []
+                shown = visible_detail_id["id"]
+                if shown != EVIL_TREE_UTILITY_ID:
+                    evil_view = evil_tree_view_pure(
+                        player_data,
+                        has_usable_hatchet=_evil_tree_has_hatchet(),
+                    )
+                    if evil_view["active"]:
+                        rows.append(
+                            f"{evil_view['tier_name']} · "
+                            f"{evil_view['location']} · "
+                            f"{int(evil_view['reviews_remaining'])} reviews left"
+                        )
+                    blessing = int(
+                        evil_view.get("blessing_reviews_remaining", 0) or 0
+                    )
+                    if blessing > 0:
+                        rows.append(
+                            f"Evil Tree blessing · {blessing} reviews left"
+                        )
+                if shown != SHOOTING_STAR_ACTIVITY_ID:
+                    star = shooting_star_view_pure(
+                        player_data,
+                        has_usable_pickaxe=_shooting_star_has_pickaxe(),
+                    )
+                    if star["active"]:
+                        rows.append(
+                            f"Shooting Star size {int(star['current_size'])} · "
+                            f"{int(star['layer_remaining']):,} layer dust left · "
+                            f"{int(star['dust'])}/{int(star['dust_cap'])} stardust"
+                        )
+                    elif star["sprite_available"]:
+                        rows.append(
+                            "Star sprite ready to exchange · "
+                            f"{int(star['sprite_reviews_remaining'])} reviews left · "
+                            f"{int(star['dust'])} stardust"
+                        )
+                world_events_body.setText("\n".join(rows))
+                world_events_box.setVisible(bool(rows))
+
+            world_events_refresher["call"] = _refresh_world_events_strip
+            container_layout.addWidget(world_events_box)
 
         container_layout.addWidget(cards_stack)
         container_layout.addWidget(activity_change_button)
@@ -17844,9 +17923,7 @@ def show_main_menu(
         tree.itemClicked.connect(_on_utility_clicked)
         tree.itemActivated.connect(_on_utility_clicked)
         _show_activity_detail(current if selected_child is not None else "")
-        if not is_activities:
-            tree.setMinimumHeight(140)
-        container_layout.addWidget(activity_pager)
+        tree.setMinimumHeight(140)
         container_layout.addWidget(tree, 1)
         return container
 

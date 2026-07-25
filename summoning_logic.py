@@ -315,7 +315,9 @@ def sanitize_summoning_state_pure(
 
 
 def _copy_player_data(player_data: Mapping[str, Any]) -> dict[str, Any]:
-    return copy.deepcopy(dict(player_data))
+    # Shallow on purpose: callers replace whole keys rather than writing through
+    # nested values, and a whole-save deep copy cost 2.07 ms on every review.
+    return dict(player_data)
 
 
 def _selected_tertiary(

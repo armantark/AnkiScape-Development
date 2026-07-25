@@ -181,6 +181,9 @@ def sanitize_shop_state_pure(raw: Mapping[str, Any] | None) -> Dict[str, Any]:
 
 
 def ensure_shop_state_pure(player_data: Mapping[str, Any] | None) -> Dict[str, Any]:
+    # Deep copy is load-bearing: the vendor/buy paths mutate data["inventory"]
+    # and nested stock rows in place, so a shallow copy would write through to
+    # the caller's live save. Do not "optimize" this one.
     data = copy.deepcopy(dict(player_data or {}))
     data.update(sanitize_shop_state_pure(data))
     return data

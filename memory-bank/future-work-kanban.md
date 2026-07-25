@@ -1300,6 +1300,68 @@ Labels: `WAIT: DARKAN`, after each `DEEP GRILL`.
 
 ## Cross-system program queue
 
+### Whole-save deep-copy convention — per-review cost sweep
+
+Labels: `IMPLEMENT`, queued 2026-07-24 out of the UI/performance pass.
+
+The pure-logic layer copies the entire save to touch one key. `grep` counts 155
+occurrences of the exact idiom `copy.deepcopy(dict(player_data))` across 39
+`*_logic.py` modules, 110 of them as the first statement of an `ensure_*_pure`
+or `sanitize_*_pure` helper that then overwrites a single sub-dict.
+
+Measured against the owner's real save (147,415 bytes of JSON, 354 top-level
+keys): one whole-save deep copy costs 2.07 ms because it duplicates roughly
+13,600 nodes. `ensure_evil_tree_state_pure` measures 2145 us; the identical body
+with a shallow `dict(player_data)` measures 6.25 us. One `ReviewHUD.set_data()`
+call reaches 14.9 ms, and 14.5 ms of that is four world-view projections paying
+this tax. Total blocking GUI-thread work was about 100 ms per card flip, which is
+why animation lag was visible outside AnkiScape surfaces — one Qt event loop
+drives every animation timer in the process.
+
+The 2026-07-24 pass shipped only the safe subset: it removed redundant per-flip
+HUD work, cheapened the Qt graphics effects, and left persistence semantics
+alone. The convention itself is untouched and still costs on every call.
+
+This is not a mechanical find-and-replace. Deep copy is load-bearing wherever a
+helper mutates a nested structure in place, and the undo snapshots in
+`runtime_actions.py` and `review_context.py` genuinely need full copies. The
+sweep must therefore classify each site: shallow `dict()` is correct only when
+the helper replaces whole sub-dicts by assignment and never mutates a nested
+value reached through the copy. Any site that cannot be proven safe by reading
+keeps its deep copy.
+
+- Backend: classify all 155 sites, convert the provably safe ones, and add a
+  focused test per converted module asserting the input mapping is not mutated.
+- Verification: before/after per-card timing from the same harness the pass used,
+  full `python3 run_tests.py`, plus review-undo and direct-command-undo
+  integration coverage on at least the converted world-clock helpers.
+- Do not treat a passing suite as proof of aliasing safety; the existing tests
+  mostly assert returned values, not input immutability.
+
+### Equipment-condition scan inside the Fist of Guthix view
+
+Labels: `IMPLEMENT`, queued 2026-07-24 out of the UI/performance pass.
+
+After the hot-path deep-copy conversions landed, `fist_of_guthix_view_pure`
+measures 3.33 ms against the owner's real save while the other three HUD world
+projections measure 0.011-0.016 ms. It is now the entire remaining per-refresh
+cost, and the review HUD calls it on every question and answer.
+
+The cost is not Fist of Guthix logic. A profile over 30 calls shows
+`equipment_instance_logic._family_for_item` running 3,219 times per call out of
+`_expected_condition_holders`, plus roughly 622 dict deep copies per call. The
+view is walking the whole inventory through the equipment-condition system to
+answer a question about a minigame match.
+
+- Find why the FoG view reaches the equipment-condition holders at all, and
+  whether the answer it needs can come from the match state alone.
+- If the scan is genuinely required, memoize `_family_for_item` (item name to
+  family is static data) and stop deep-copying inside the holder walk.
+- Check which other surfaces call `_expected_condition_holders` on a hot path;
+  the fix likely benefits more than this one view.
+- Verification: re-run the hot-path harness and require the FoG projection under
+  0.1 ms, matching its three siblings, with the equipment-condition suites green.
+
 ### Shared modular list search and filters
 
 Labels: `SHIPPED: SEARCH SEAM`, `DEPENDENCY: SLAYER RUNTIME`.

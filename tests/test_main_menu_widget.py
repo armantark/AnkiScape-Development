@@ -8058,8 +8058,18 @@ class MainMenuWidgetTest(unittest.TestCase):
         activity_texts = [it.text(0) for it in _tree_items(activities_tree)]
         self.assertNotIn("Make soft clay", activity_texts)
         self.assertIn("Livid Farm", activity_texts)
-        self.assertIn("Minigames", activity_texts)
-        self.assertIn("Distractions and Diversions", activity_texts)
+        # Group headers carry their activity count, like every other hub tree.
+        self.assertTrue(
+            any(t.startswith("Minigames  (") for t in activity_texts),
+            activity_texts,
+        )
+        self.assertTrue(
+            any(
+                t.startswith("Distractions and Diversions  (")
+                for t in activity_texts
+            ),
+            activity_texts,
+        )
         self.assertNotIn("Activities / minigames  (2)", activity_texts)
         minigames = _utility_row(
             activities_tree, "__utility_group__:minigames"
@@ -8447,7 +8457,58 @@ class MainMenuWidgetTest(unittest.TestCase):
             _find_named_label(dialog, "evilTreeDetail").text(),
         )
 
-    def test_review_hud_surfaces_active_evil_tree_and_blessing(self) -> None:
+    def test_activities_world_events_strip_summarizes_evil_tree_and_star(
+        self,
+    ) -> None:
+        from evil_tree_logic import (
+            advance_evil_tree_world_clock_pure,
+            default_evil_tree_state_pure,
+        )
+        from shooting_star_logic import (
+            advance_shooting_star_world_clock_pure,
+            default_shooting_star_state_pure,
+        )
+
+        pd = _make_player_data()
+        pd.update(
+            {
+                "mining_level": 99,
+                "shop_market_clock": {"answered_cards": 20},
+                "evil_tree": default_evil_tree_state_pure(),
+                "shooting_star": default_shooting_star_state_pure(),
+            }
+        )
+        active, _ = advance_evil_tree_world_clock_pure(pd)
+        active["evil_tree"]["blessing_reviews_remaining"] = 2
+        active["evil_tree"]["blessing_tier"] = "normal"
+        active, _ = advance_shooting_star_world_clock_pure(active)
+        dialog = self._open(active)
+        activity_tree = self._open_activities(dialog)
+
+        strip = _find_named_widget(dialog, "activityWorldEventsStrip")
+        body = _find_named_label(dialog, "activityWorldEventsBody")
+        self.assertTrue(strip.isVisibleTo(dialog))
+        self.assertIn("evil tree", body.text().lower())
+        self.assertIn("Evil Tree blessing · 2 reviews left", body.text())
+        self.assertIn("Shooting Star size", body.text())
+
+        # Opening a card suppresses that card's own row, so the strip never
+        # duplicates the detail already on screen.
+        star_row = _utility_row(activity_tree, "shooting_stars")
+        activity_tree.itemActivated.emit(star_row, 0)
+        QApplication.processEvents()
+        self.assertNotIn("Shooting Star size", body.text())
+        self.assertIn("evil tree", body.text().lower())
+        self.assertIn("Evil Tree blessing · 2 reviews left", body.text())
+
+    def test_activities_world_events_strip_hidden_when_no_event(self) -> None:
+        dialog = self._open(_make_player_data())
+        self._open_activities(dialog)
+
+        strip = _find_named_widget(dialog, "activityWorldEventsStrip")
+        self.assertFalse(strip.isVisibleTo(dialog))
+
+    def test_review_hud_omits_evil_tree_world_notices(self) -> None:
         from evil_tree_logic import (
             advance_evil_tree_world_clock_pure,
             default_evil_tree_state_pure,
@@ -8469,9 +8530,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         hud.set_data(active, "Utility / Activities")
 
         notice = hud.findChild(QLabel, "reviewWorldNotice")
-        self.assertTrue(notice.isVisible())
-        self.assertIn("Normal evil tree · 5 reviews left", notice.text())
-        self.assertIn("Evil Tree blessing · 2 reviews left", notice.text())
+        self.assertFalse(notice.isVisible())
+        self.assertNotIn("evil tree", notice.text())
+        self.assertNotIn("Evil Tree blessing", notice.text())
+        # The projection itself must survive: the subtitle branch reads it.
         self.assertIn("Nurture phase", hud.sub_lbl.text())
 
         active["evil_tree"]["active_event"] = {}
@@ -8559,7 +8621,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         button = _find_named_button(dialog, "bigChinchompaSelectButton")
         self.assertEqual(button.text(), "Select active event")
 
-    def test_activity_details_are_paginated_instead_of_scrolled(self) -> None:
+    def test_activity_details_replace_the_activity_tree(self) -> None:
         from big_chinchompa_logic import (
             advance_big_chinchompa_world_clock_pure,
             default_big_chinchompa_state_pure,
@@ -8586,7 +8648,6 @@ class MainMenuWidgetTest(unittest.TestCase):
             dialog, "utilityActivityDetailsStack"
         )
         activity_tree = _find_named_widget(dialog, "utilityActivityTree")
-        pager = _find_named_widget(dialog, "activityPickerPager")
         choose_another = _find_named_button(
             dialog, "activityChooseAnotherButton"
         )
@@ -8596,15 +8657,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(details_stack.isVisible())
         self.assertTrue(choose_another.isVisible())
         self.assertFalse(activity_tree.isVisible())
-        self.assertFalse(pager.isVisible())
         self.assertGreaterEqual(activity_tree.minimumHeight(), 140)
-        self.assertEqual(
-            activity_tree.minimumHeight(), activity_tree.maximumHeight()
-        )
-        surface_layout = pager.parentWidget().layout()
+        surface_layout = activity_tree.parentWidget().layout()
         self.assertLess(
             surface_layout.indexOf(details_stack),
-            surface_layout.indexOf(pager),
+            surface_layout.indexOf(activity_tree),
         )
         visible_rows = [
             child
@@ -8635,72 +8692,112 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(details_stack.isVisible())
         self.assertFalse(choose_another.isVisible())
         self.assertTrue(activity_tree.isVisible())
-        self.assertTrue(pager.isVisible())
 
-    def test_activity_picker_pages_one_category_without_a_scroll_window(self) -> None:
-        pd = _make_player_data()
-        pd["current_utility"] = "fist_of_guthix"
-        dialog = self._open(pd)
-        activity_tree = self._open_activities(dialog)
-        dialog.show()
-        QApplication.processEvents()
+    def test_activity_picker_scrolls_and_remembers_collapsed_groups(self) -> None:
+        # The picker used to page one category at a time with a fixed height,
+        # which pushed long categories off-window. It now scrolls like every
+        # other grouped tree in the hub and persists per-category collapses.
+        import ui
 
-        _find_named_button(dialog, "activityChooseAnotherButton").click()
-        QApplication.processEvents()
+        class _FakeCol:
+            def __init__(self) -> None:
+                self._cfg: dict = {}
 
-        pager = _find_named_widget(dialog, "activityPickerPager")
-        page_label = _find_named_label(dialog, "activityPickerPageLabel")
-        previous = _find_named_button(dialog, "activityPickerPreviousButton")
-        next_button = _find_named_button(dialog, "activityPickerNextButton")
-        top_levels = [
-            activity_tree.topLevelItem(index)
-            for index in range(activity_tree.topLevelItemCount())
-        ]
-        visible = [item for item in top_levels if not item.isHidden()]
+            def get_config(self, key, default=None):
+                return self._cfg.get(key, default)
 
-        self.assertFalse(pager.isHidden())
-        self.assertEqual(len(visible), 1)
-        self.assertEqual(
-            visible[0].data(0, Qt.ItemDataRole.UserRole),
-            "__utility_group__:minigames",
-        )
-        self.assertEqual(page_label.text(), "Minigames · 2 of 4")
-        self.assertEqual(
-            activity_tree.verticalScrollBarPolicy(),
-            Qt.ScrollBarPolicy.ScrollBarAlwaysOff,
-        )
-        self.assertEqual(
-            activity_tree.horizontalScrollBarPolicy(),
-            Qt.ScrollBarPolicy.ScrollBarAlwaysOff,
-        )
-        last_minigame = visible[0].child(visible[0].childCount() - 1)
-        self.assertLessEqual(
-            activity_tree.visualItemRect(last_minigame).bottom(),
-            activity_tree.viewport().rect().bottom(),
-        )
+            def set_config(self, key, value):
+                self._cfg[key] = value
 
-        next_button.click()
-        QApplication.processEvents()
-        visible = [item for item in top_levels if not item.isHidden()]
-        self.assertEqual(len(visible), 1)
-        self.assertEqual(
-            visible[0].data(0, Qt.ItemDataRole.UserRole),
-            "__utility_group__:distractions_and_diversions",
-        )
-        self.assertEqual(
-            page_label.text(), "Distractions and Diversions · 3 of 4"
-        )
-        self.assertTrue(previous.isEnabled())
-        self.assertTrue(next_button.isEnabled())
+        class _FakeMw(QWidget):
+            def __init__(self) -> None:
+                super().__init__()
+                self.col = _FakeCol()
 
-        previous.click()
-        QApplication.processEvents()
-        self.assertEqual(
-            activity_tree.currentItem().data(0, Qt.ItemDataRole.UserRole),
-            "fist_of_guthix",
-        )
-        self.assertTrue(activity_tree.isVisible())
-        self.assertTrue(pager.isVisible())
+        orig_mw = ui.mw
+        ui.mw = _FakeMw()
+        try:
+            pd = _make_player_data()
+            pd["current_utility"] = "fist_of_guthix"
+            dialog = self._open(pd)
+            activity_tree = self._open_activities(dialog)
+            dialog.show()
+            dialog.resize(900, 560)
+            for _ in range(8):
+                QApplication.processEvents()
+
+            _find_named_button(dialog, "activityChooseAnotherButton").click()
+            for _ in range(8):
+                QApplication.processEvents()
+
+            top_levels = [
+                activity_tree.topLevelItem(index)
+                for index in range(activity_tree.topLevelItemCount())
+            ]
+            self.assertEqual(len(top_levels), 4)
+            self.assertFalse([item for item in top_levels if item.isHidden()])
+
+            # Scrolling, not a fixed height: the tree keeps Qt's default max
+            # height and grows a scrollbar instead of the dialog.
+            self.assertEqual(
+                activity_tree.verticalScrollBarPolicy(),
+                Qt.ScrollBarPolicy.ScrollBarAsNeeded,
+            )
+            self.assertGreater(
+                activity_tree.maximumHeight(), activity_tree.minimumHeight()
+            )
+            self.assertGreater(
+                activity_tree.verticalScrollBar().maximum(), 0
+            )
+            tree_bottom = activity_tree.mapTo(
+                dialog, activity_tree.rect().bottomRight()
+            ).y()
+            self.assertLessEqual(tree_bottom, dialog.contentsRect().bottom())
+
+            current = activity_tree.currentItem()
+            self.assertEqual(
+                current.data(0, Qt.ItemDataRole.UserRole), "fist_of_guthix"
+            )
+            self.assertTrue(
+                activity_tree.viewport().rect().contains(
+                    activity_tree.visualItemRect(current).center()
+                )
+            )
+
+            by_group = {
+                item.data(0, Qt.ItemDataRole.UserRole): item
+                for item in top_levels
+            }
+            for group in ("minigames", "distractions_and_diversions"):
+                header = by_group[f"__utility_group__:{group}"]
+                header.setExpanded(False)
+                QApplication.processEvents()
+                # The old pager re-expanded the visible category on collapse.
+                self.assertFalse(header.isExpanded())
+            self.assertEqual(
+                ui.mw.col.get_config("ankiscape_activity_collapsed_groups"),
+                ["distractions_and_diversions", "minigames"],
+            )
+
+            dialog2 = self._open(pd)
+            tree2 = self._open_activities(dialog2)
+            expanded = {
+                item.data(0, Qt.ItemDataRole.UserRole): item.isExpanded()
+                for item in (
+                    tree2.topLevelItem(index)
+                    for index in range(tree2.topLevelItemCount())
+                )
+            }
+            self.assertFalse(
+                expanded["__utility_group__:distractions_and_diversions"]
+            )
+            self.assertTrue(expanded["__utility_group__:warriors_guild"])
+            self.assertTrue(expanded["__utility_group__:landmarks"])
+            # Minigames holds the current activity, so the selection wins over
+            # the remembered collapse and the active row stays reachable.
+            self.assertTrue(expanded["__utility_group__:minigames"])
+        finally:
+            ui.mw = orig_mw
 
     def test_shooting_star_panel_selects_configures_and_exchanges(self) -> None:
         from shooting_star_logic import (
@@ -9163,19 +9260,16 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.resize(900, 560)
         for _ in range(8):
             QApplication.processEvents()
-        pager = _find_named_widget(dialog, "activityPickerPager")
         choose_another = _find_named_button(
             dialog, "activityChooseAnotherButton"
         )
         self.assertTrue(panel.isVisible())
         self.assertTrue(choose_another.isVisible())
-        self.assertFalse(pager.isVisible())
         self.assertFalse(activity_tree.isVisible())
         choose_another.click()
         QApplication.processEvents()
         self.assertFalse(panel.isVisible())
         self.assertFalse(choose_another.isVisible())
-        self.assertTrue(pager.isVisible())
         self.assertTrue(activity_tree.isVisible())
         tree_bottom = activity_tree.mapTo(
             dialog, activity_tree.rect().bottomRight()
@@ -10586,7 +10680,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(big_panel.isVisible())
         self.assertFalse(evil_panel.isVisible())
 
-    def test_review_hud_surfaces_active_shooting_star_and_sprite(self) -> None:
+    def test_review_hud_omits_shooting_star_world_notices(self) -> None:
         from shooting_star_logic import (
             advance_shooting_star_world_clock_pure,
             default_shooting_star_state_pure,
@@ -10605,7 +10699,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         hud = self._ui.ReviewHUD(None)
         hud.set_data(active, "Activities")
         notice = hud.findChild(QLabel, "reviewWorldNotice")
-        self.assertIn("Shooting Star size", notice.text())
+        self.assertFalse(notice.isVisible())
+        self.assertNotIn("Shooting Star size", notice.text())
+        # The projection itself must survive: the subtitle branch reads it.
         self.assertIn("stardust", hud.sub_lbl.text())
 
         event = active["shooting_star"]["active_event"]
@@ -10618,7 +10714,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             }
         )
         hud.set_data(active, "Activities")
-        self.assertIn("Star sprite", notice.text())
+        self.assertNotIn("Star sprite", notice.text())
         self.assertIn("ready for exchange", hud.sub_lbl.text())
 
     def test_review_hud_surfaces_active_fist_of_guthix_match(self) -> None:

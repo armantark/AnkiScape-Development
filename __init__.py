@@ -3924,31 +3924,18 @@ def on_answer_card(self, ease, _old):
 
 
 def on_card_did_show(card):
+    # Flags only. This runs on BOTH the question and answer hooks, so any
+    # surface refresh here is duplicate work — _on_rev_show_question and
+    # _on_rev_show_answer own the refresh and run after this in each list.
     global card_turned, exp_awarded, answer_shown
     card_turned = True
     exp_awarded = False
     answer_shown = False
-    # Ensure/update HUD when a review card is shown
-    try:
-        ensure_review_hud()
-        update_review_hud(player_data, current_skill)
-        ensure_review_context_action_strip()
-        _update_review_context_surface()
-        ensure_farming_hud_badge()
-        update_farming_hud_badge(player_data, _open_farming_sheet)
-    except Exception:
-        pass
 
 
 def on_show_answer(reviewer):
     global answer_shown
     answer_shown = True
-    # Keep HUD in sync when flipping
-    try:
-        update_review_hud(player_data, current_skill)
-        _update_review_context_surface()
-    except Exception:
-        pass
 
 
 ## show_error_message now provided by ui.show_error_message
@@ -3981,8 +3968,8 @@ def initialize_exp_popup():
 
 
 # Flexible wrappers to handle version differences in hook signatures
-def _on_rev_show_question(*_args, **_kwargs):
-    _inject_reviewer_floating_button()
+def _refresh_review_surfaces() -> None:
+    """The one refresh of every reviewer overlay, per surface event."""
     try:
         from .ui import get_config_bool  # type: ignore
         if get_config_bool("ankiscape_review_hud_enabled", True):
@@ -3990,20 +3977,19 @@ def _on_rev_show_question(*_args, **_kwargs):
             update_review_hud(player_data, current_skill)
         ensure_review_context_action_strip()
         _update_review_context_surface()
+        ensure_farming_hud_badge()
+        update_farming_hud_badge(player_data, _open_farming_sheet)
     except Exception:
         pass
 
-def _on_rev_show_answer(*_args, **_kwargs):
+def _on_rev_show_question(*_args, **_kwargs):
     _inject_reviewer_floating_button()
-    try:
-        from .ui import get_config_bool  # type: ignore
-        if get_config_bool("ankiscape_review_hud_enabled", True):
-            ensure_review_hud()
-            update_review_hud(player_data, current_skill)
-        ensure_review_context_action_strip()
-        _update_review_context_surface()
-    except Exception:
-        pass
+    _refresh_review_surfaces()
+
+def _on_rev_show_answer(*_args, **_kwargs):
+    # The injected #ankiscape-float node lives on document.body and survives
+    # Anki's per-card innerHTML swap, so injecting once per card is enough.
+    _refresh_review_surfaces()
 
 # Ensure the floating button is injected on the deck Overview as it refreshes
 def _on_overview_did_refresh(overview):
@@ -4031,6 +4017,8 @@ try:
                 initialize_menu,
                 (lambda: _register_deck_browser_button()),
             ],
+            # Order matters: on_card_did_show clears answer_shown, so it must
+            # stay ahead of on_show_answer, which sets it.
             "reviewer_question": [on_card_did_show, _on_rev_show_question],
             "reviewer_answer": [on_card_did_show, on_show_answer, _on_rev_show_answer],
             "answer_wrapper": on_answer_card,
