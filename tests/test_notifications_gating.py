@@ -1,6 +1,7 @@
 import unittest
 
-import ui
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.ui import ui
 
 
 class DummyCol:

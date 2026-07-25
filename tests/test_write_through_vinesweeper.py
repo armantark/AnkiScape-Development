@@ -20,8 +20,9 @@ real defect rather than an artifact of the probe.
 import copy
 import unittest
 
-from summoning_logic import default_summoning_state_pure
-from vinesweeper_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.summoning_logic import default_summoning_state_pure
+from ankiscape.logic.vinesweeper_logic import (
     apply_vinesweeper_command_pure,
     apply_vinesweeper_review_pure,
     default_vinesweeper_state_pure,

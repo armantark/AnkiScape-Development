@@ -1,8 +1,9 @@
 import os
 import unittest
 
-from constants import ITEM_DEFINITIONS, ORE_DATA, PRAYER_DATA, PRAYER_ITEM_IMAGES, UTILITY_ACTIVITY_DATA
-from logic_pure import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA, PRAYER_DATA, PRAYER_ITEM_IMAGES, UTILITY_ACTIVITY_DATA
+from ankiscape.logic_pure.logic_pure import (
     apply_combat_burst_pure,
     apply_combat_preset_pure,
     apply_combat_target_overrides_pure,
@@ -18,9 +19,9 @@ from logic_pure import (
     sanitize_prayer_selection_pure,
     save_combat_preset_pure,
 )
-from prayer_data import COMBAT_PRAYERS_BY_ID, PRAYER_MATERIALS, PRAYER_TARGETS
-from storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
-from target_metadata import prayer_target_rows
+from ankiscape.data.prayer_data import COMBAT_PRAYERS_BY_ID, PRAYER_MATERIALS, PRAYER_TARGETS
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
+from ankiscape.core.target_metadata import prayer_target_rows
 
 
 class PrayerDataAndMechanicsTest(unittest.TestCase):

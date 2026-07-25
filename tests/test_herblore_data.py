@@ -1,6 +1,7 @@
 import unittest
 
-from herblore_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.herblore_data import (
     CLEAN_TARGETS,
     DUNGEONEERING_CLEAN_TARGETS,
     DUNGEONEERING_FINISHED_TARGETS,
@@ -12,7 +13,7 @@ from herblore_data import (
     herblore_extra_items_as_dict,
     herblore_targets_as_dict,
 )
-from logic_pure import apply_herblore_action_pure, can_herblore_target_pure
+from ankiscape.logic_pure.logic_pure import apply_herblore_action_pure, can_herblore_target_pure
 
 
 class HerbloreDataTests(unittest.TestCase):

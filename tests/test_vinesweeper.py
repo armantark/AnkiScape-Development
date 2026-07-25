@@ -4,13 +4,14 @@ import unittest
 import json
 from pathlib import Path
 
-from constants import ITEM_DEFINITIONS, UTILITY_ACTIVITY_DATA
-from runtime_actions import RuntimeActionContext, handle_utility_answer
-from storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
-from summoning_logic import default_summoning_state_pure
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import ITEM_DEFINITIONS, UTILITY_ACTIVITY_DATA
+from ankiscape.runtime.runtime_actions import RuntimeActionContext, handle_utility_answer
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
+from ankiscape.logic.summoning_logic import default_summoning_state_pure
 from tools.trim_icons import _select_backend
-from vinesweeper_data import VINESWEEPER_REWARDS, VINESWEEPER_REWARDS_BY_ID
-from vinesweeper_logic import (
+from ankiscape.data.vinesweeper_data import VINESWEEPER_REWARDS, VINESWEEPER_REWARDS_BY_ID
+from ankiscape.logic.vinesweeper_logic import (
     apply_compost_potion_pure,
     apply_vinesweeper_command_pure,
     apply_vinesweeper_review_pure,

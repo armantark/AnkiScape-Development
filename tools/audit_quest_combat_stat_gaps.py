@@ -14,8 +14,9 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from logic_pure import quest_combat_encounter_has_stats_pure
-from quest_data import QUESTS, QuestCombatEncounter, QuestDefinition, QuestStageRequirement
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic_pure.logic_pure import quest_combat_encounter_has_stats_pure
+from ankiscape.data.quest_data import QUESTS, QuestCombatEncounter, QuestDefinition, QuestStageRequirement
 from tools import build_pre_eoc_quest_catalog as catalog_builder
 
 

@@ -1,6 +1,7 @@
 import unittest
 
-from skill_hub import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.skill_hub import (
     CATEGORY_DISPLAY_NAMES,
     CATEGORY_ORDER,
     build_skill_hub,

@@ -1,13 +1,14 @@
 import unittest
 
-from achievement_metadata import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.achievement_metadata import (
     ACHIEVEMENT_DIFFICULTIES,
     achievement_difficulty_progress,
     achievement_progress,
     achievement_rows_for_difficulty,
 )
-from constants import ACHIEVEMENTS, ACHIEVEMENT_DEFINITIONS
-from logic_pure import get_newly_completed_achievements, record_achievement_progress_pure
+from ankiscape.core.constants import ACHIEVEMENTS, ACHIEVEMENT_DEFINITIONS
+from ankiscape.logic_pure.logic_pure import get_newly_completed_achievements, record_achievement_progress_pure
 
 
 class AchievementMetadataTest(unittest.TestCase):

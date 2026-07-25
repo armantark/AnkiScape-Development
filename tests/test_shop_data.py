@@ -4,7 +4,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from shop_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.shop_data import (
     SHOP_COVERAGE_SUMMARY,
     SHOP_DATA,
     SHOP_DATA_VERSION,
@@ -12,7 +13,7 @@ from shop_data import (
     SHOP_VENDOR_ACTIONS,
     shop_extra_items_as_dict,
 )
-from summoning_data import SUMMONING_POUCHES
+from ankiscape.data.summoning_data import SUMMONING_POUCHES
 from tools.generate_npc_shop_data import build_catalog, rewrite_stock_exclusions_from_generated
 
 
@@ -43,7 +44,7 @@ class TestShopData(unittest.TestCase):
         self.assertEqual({row["buy_price"] for row in rows}, {6})
 
     def test_miltog_lantern_states_keep_exact_names_and_prices(self):
-        from shop_data import SHOP_EXTRA_ITEM_DATA, SHOP_PLAYER_BUY_PRICES, SHOP_PLAYER_SELL_PRICES
+        from ankiscape.data.shop_data import SHOP_EXTRA_ITEM_DATA, SHOP_PLAYER_BUY_PRICES, SHOP_PLAYER_SELL_PRICES
 
         rows = {
             row["item_id"]: row
@@ -222,7 +223,7 @@ class TestShopData(unittest.TestCase):
         """Absolute Darkan sell parity (owner decision 2026-07-06): the
         tables are Shop.java getSellPrice/getBuyPrice for each name's
         canonical id — floored to 1, never clamped or name-minimized."""
-        from shop_data import SHOP_PLAYER_BUY_PRICES, SHOP_PLAYER_SELL_PRICES
+        from ankiscape.data.shop_data import SHOP_PLAYER_BUY_PRICES, SHOP_PLAYER_SELL_PRICES
 
         self.assertGreater(len(SHOP_PLAYER_SELL_PRICES), 6000)
         self.assertTrue(all(price >= 1 for price in SHOP_PLAYER_SELL_PRICES.values()))
@@ -318,7 +319,7 @@ class TestShopData(unittest.TestCase):
             ledger_out = temp / "shop_ledger.json"
             summary_out = temp / "shop_summary.md"
             summary = rewrite_stock_exclusions_from_generated(
-                repo_root / "shop_data.py",
+                repo_root / "data" / "shop_data.py",
                 runtime_out,
                 existing_ledger_path=repo_root / "memory-bank/source-audits/npc-shop-coverage-ledger-2026-07-06.json",
                 ledger_output_path=ledger_out,

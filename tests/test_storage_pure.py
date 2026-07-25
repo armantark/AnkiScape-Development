@@ -1,13 +1,14 @@
 import unittest
 
-from storage_pure import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.storage_pure import (
     default_player_data,
     migrate_loaded_data,
     CURRENT_CONFIG_VERSION,
 )
-from inventory_pure import DEFAULT_LOOT_VALUE_THRESHOLD
-from wicked_hood_logic import default_wicked_hood_state_pure
-from constants import (
+from ankiscape.logic.inventory_pure import DEFAULT_LOOT_VALUE_THRESHOLD
+from ankiscape.logic.wicked_hood_logic import default_wicked_hood_state_pure
+from ankiscape.core.constants import (
     BAR_DATA,
     CRAFTING_DATA,
     FIREMAKING_DATA,

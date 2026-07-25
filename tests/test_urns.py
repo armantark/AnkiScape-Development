@@ -3,7 +3,8 @@ import json
 import unittest
 from pathlib import Path
 
-from constants import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import (
     COMBAT_ENEMY_DATA,
     CRAFTING_DATA,
     EQUIPMENT_DATA,
@@ -11,7 +12,7 @@ from constants import (
     MINING_PICKAXE_DATA,
     ORE_DATA,
 )
-from logic_pure import (
+from ankiscape.logic_pure.logic_pure import (
     apply_combat_burst_pure,
     best_mining_pickaxe_pure,
     calculate_mining_success_probability_pure,
@@ -19,7 +20,7 @@ from logic_pure import (
     full_urn_teleport_info_pure,
     teleport_full_urn_pure,
 )
-from runtime_actions import (
+from ankiscape.runtime.runtime_actions import (
     RuntimeActionContext,
     handle_cooking_answer,
     handle_hunter_answer,
@@ -28,9 +29,9 @@ from runtime_actions import (
     run_answer_with_carried_overlay,
     _try_pack_yak_winter_storage_overlay,
 )
-from storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
 from tools.fetch_prayer_assets import asset_manifest
-from urn_data import (
+from ankiscape.data.urn_data import (
     URN_PHYSICAL_ITEM_NAMES,
     URN_STATE_ITEM_NAMES,
     URN_TIERS,

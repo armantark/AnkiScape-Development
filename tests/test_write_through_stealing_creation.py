@@ -18,11 +18,12 @@ from __future__ import annotations
 import random
 import unittest
 
-from constants import ITEM_DEFINITIONS, ORE_DATA
-from pet_data import PETS_BY_ID
-from storage_pure import default_player_data
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.data.pet_data import PETS_BY_ID
+from ankiscape.core.storage_pure import default_player_data
 
-import stealing_creation_logic as sc
+from ankiscape.logic import stealing_creation_logic as sc
 
 
 class WriteThroughError(AssertionError):

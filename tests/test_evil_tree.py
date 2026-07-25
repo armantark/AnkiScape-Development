@@ -1,12 +1,13 @@
 import unittest
 
-from evil_tree_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.evil_tree_data import (
     EVIL_TREE_ACTIVE_REVIEWS,
     EVIL_TREE_KINDLING,
     EVIL_TREE_SPAWN_REVIEWS,
     EVIL_TREE_TIERS_BY_ID,
 )
-from evil_tree_logic import (
+from ankiscape.logic.evil_tree_logic import (
     advance_evil_tree_world_clock_pure,
     apply_evil_tree_review_pure,
     default_evil_tree_state_pure,

@@ -141,10 +141,11 @@ def _parse_positive_int(value: object) -> int | None:
     return parsed if parsed > 0 else None
 
 
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 def _registered_item_names() -> tuple[str, ...]:
     sys.path.insert(0, str(ROOT))
     try:
-        from grand_exchange_data import GE_ITEM_CATALOG
+        from ankiscape.data.grand_exchange_data import GE_ITEM_CATALOG
     finally:
         sys.path.pop(0)
     return tuple(sorted(GE_ITEM_CATALOG))

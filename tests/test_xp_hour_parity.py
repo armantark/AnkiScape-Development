@@ -9,18 +9,19 @@ not the retired adapter measurements.
 from fractions import Fraction
 import unittest
 
-from cadence_kernel import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.cadence_kernel import (
     EMBEDDED_PROBABILITY,
     R,
     RATE_LIMITED,
     advance_cadence_pure,
     default_cadence_profile_state_pure,
 )
-from cadence_live import (
+from ankiscape.logic.cadence_live import (
     advance_live_cadence_route_pure,
     resolve_live_cadence_route_pure,
 )
-from constants import (
+from ankiscape.core.constants import (
     COOKING_DATA,
     FIREMAKING_DATA,
     FISHING_DATA,

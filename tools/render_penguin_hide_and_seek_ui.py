@@ -13,7 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from aqt.qt import QApplication, QWidget  # type: ignore
 
-from penguin_hide_and_seek_logic import default_penguin_state_pure
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.penguin_hide_and_seek_logic import default_penguin_state_pure
 from tests.test_main_menu_widget import (
     MainMenuWidgetTest,
     _make_player_data,

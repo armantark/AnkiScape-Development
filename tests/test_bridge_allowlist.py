@@ -1,6 +1,7 @@
 import unittest
 
-from injectors import should_force_pass_through
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.injectors import should_force_pass_through
 
 class TestBridgeAllowlist(unittest.TestCase):
     def test_allows_nav_and_study_messages(self):

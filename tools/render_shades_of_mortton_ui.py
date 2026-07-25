@@ -13,7 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from aqt.qt import QApplication  # type: ignore
 
-from shades_of_mortton_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.shades_of_mortton_logic import (
     apply_shades_of_mortton_command_pure,
     default_shades_of_mortton_state_pure,
 )

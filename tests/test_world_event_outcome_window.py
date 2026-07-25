@@ -22,10 +22,11 @@ _ADDON_DIR = os.path.dirname(_THIS_DIR)
 if _ADDON_DIR not in sys.path:
     sys.path.insert(0, _ADDON_DIR)
 
-import ui
-from big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID
-from constants import ITEM_DEFINITIONS, ORE_DATA
-from storage_pure import default_player_data
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.ui import ui
+from ankiscape.data.big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID
+from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.core.storage_pure import default_player_data
 
 
 _RESULT = (

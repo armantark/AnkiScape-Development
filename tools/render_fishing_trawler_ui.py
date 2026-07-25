@@ -13,7 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from aqt.qt import QApplication, QColor, QPalette  # type: ignore
 
-from fishing_trawler_logic import enter_fishing_trawler_pure
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.fishing_trawler_logic import enter_fishing_trawler_pure
 from tests.test_main_menu_widget import (
     MainMenuWidgetTest,
     _make_player_data,

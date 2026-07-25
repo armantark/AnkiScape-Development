@@ -1,8 +1,9 @@
 import os
 import unittest
 
-from constants import FLETCHED_ITEM_IMAGES, FLETCHING_DATA, HUNTER_ITEM_IMAGES
-from fletching_data import BROAD_FLETCHING_ABILITY, FEATHER_ALTERNATIVES, fletching_item_names
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import FLETCHED_ITEM_IMAGES, FLETCHING_DATA, HUNTER_ITEM_IMAGES
+from ankiscape.data.fletching_data import BROAD_FLETCHING_ABILITY, FEATHER_ALTERNATIVES, fletching_item_names
 
 
 class TestFletchingData(unittest.TestCase):

@@ -2,15 +2,16 @@ import dataclasses
 import unittest
 from unittest.mock import patch
 
-import runtime_actions
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.runtime import runtime_actions
 
 # Patch targets live on the module that defines the name: a caller resolves it
 # from its own globals, not from runtime_actions' re-export.
-import runtime_actions_activities
-import runtime_actions_carried
-import runtime_actions_combat
+from ankiscape.runtime import runtime_actions_activities
+from ankiscape.runtime import runtime_actions_carried
+from ankiscape.runtime import runtime_actions_combat
 
-from runtime_actions import (
+from ankiscape.runtime.runtime_actions import (
     RuntimeActionContext,
     answer_handler_for_key,
     can_start_action,
@@ -98,7 +99,7 @@ class TestRuntimeActions(unittest.TestCase):
             "combat": {"xp_rewards": {"attack_exp": 4.0}},
         }
         with patch(
-            "runtime_actions_activities.apply_tzhaar_fight_pit_review_pure",
+            "ankiscape.runtime.runtime_actions_activities.apply_tzhaar_fight_pit_review_pure",
             return_value=(updated, True, result),
         ):
             self.assertTrue(handle_utility_answer(_context(player_data, calls)))
@@ -111,7 +112,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
 
     def test_shades_of_mortton_routes_repair_xp_through_utility(self):
-        from shades_of_mortton_logic import enter_shades_of_mortton_pure
+        from ankiscape.logic.shades_of_mortton_logic import enter_shades_of_mortton_pure
 
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         player_data, ok, info = enter_shades_of_mortton_pure(
@@ -150,7 +151,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
 
     def test_barbarian_assault_routes_full_run_through_utility(self):
-        from barbarian_assault_logic import (
+        from ankiscape.logic.barbarian_assault_logic import (
             complete_barbarian_assault_tutorial_pure,
             enter_barbarian_assault_pure,
         )
@@ -190,7 +191,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
 
     def test_stronghold_player_safety_routes_three_landmarks_through_utility(self):
-        from stronghold_player_safety_logic import (
+        from ankiscape.logic.stronghold_player_safety_logic import (
             default_stronghold_player_safety_state_pure,
         )
 
@@ -237,7 +238,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
 
     def test_pest_control_routes_through_utility_and_settles_period_rewards(self):
-        from pest_control_logic import enter_pest_control_pure
+        from ankiscape.logic.pest_control_logic import enter_pest_control_pure
 
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         player_data, ok, info = enter_pest_control_pure(
@@ -282,7 +283,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
 
     def test_castle_wars_match_routes_through_utility_and_settles_tickets(self):
-        from castle_wars_logic import enter_castle_wars_pure
+        from ankiscape.logic.castle_wars_logic import enter_castle_wars_pure
 
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         player_data, ok, info = enter_castle_wars_pure(
@@ -318,7 +319,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
 
     def test_soul_wars_match_routes_through_utility_and_settles_zeal(self):
-        from soul_wars_logic import enter_soul_wars_pure
+        from ankiscape.logic.soul_wars_logic import enter_soul_wars_pure
 
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         player_data, ok, info = enter_soul_wars_pure(
@@ -363,7 +364,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
 
     def test_soul_wars_again_is_an_idle_match_beat(self):
-        from soul_wars_logic import enter_soul_wars_pure
+        from ankiscape.logic.soul_wars_logic import enter_soul_wars_pure
 
         player_data, ok, info = enter_soul_wars_pure(
             {
@@ -388,7 +389,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["soul_wars"]["activity"], 2)
 
     def test_castle_wars_runtime_applies_combat_xp_and_again_can_idle(self):
-        from castle_wars_logic import enter_castle_wars_pure
+        from ankiscape.logic.castle_wars_logic import enter_castle_wars_pure
 
         player_data, ok, info = enter_castle_wars_pure(
             {
@@ -411,7 +412,7 @@ class TestRuntimeActions(unittest.TestCase):
         expected = dict(player_data)
         expected["castle_wars"] = advanced
         with patch(
-            "runtime_actions_activities.apply_castle_wars_review_pure",
+            "ankiscape.runtime.runtime_actions_activities.apply_castle_wars_review_pure",
             return_value=(
                 expected,
                 True,
@@ -436,7 +437,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["castle_wars"]["review"], 2)
 
     def test_castle_wars_casual_runtime_leaves_duty_to_the_bottleneck_selector(self):
-        from castle_wars_logic import enter_castle_wars_pure
+        from ankiscape.logic.castle_wars_logic import enter_castle_wars_pure
 
         player_data, ok, info = enter_castle_wars_pure(
             {
@@ -455,7 +456,7 @@ class TestRuntimeActions(unittest.TestCase):
         expected = dict(player_data)
         expected["castle_wars"] = dict(player_data["castle_wars"], review=1)
         with patch(
-            "runtime_actions_activities.apply_castle_wars_review_pure",
+            "ankiscape.runtime.runtime_actions_activities.apply_castle_wars_review_pure",
             return_value=(
                 expected,
                 True,
@@ -466,7 +467,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertIsNone(apply_review.call_args.kwargs["duty"])
 
     def test_trouble_brewing_review_race_awards_terminal_multi_skill_xp(self):
-        from trouble_brewing_logic import enter_trouble_brewing_pure
+        from ankiscape.logic.trouble_brewing_logic import enter_trouble_brewing_pure
 
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         player_data, ok, info = enter_trouble_brewing_pure(
@@ -502,7 +503,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
 
     def test_trouble_brewing_again_advances_without_player_duty(self):
-        from trouble_brewing_logic import enter_trouble_brewing_pure
+        from ankiscape.logic.trouble_brewing_logic import enter_trouble_brewing_pure
 
         player_data, ok, info = enter_trouble_brewing_pure(
             {
@@ -535,7 +536,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["trouble_brewing"]["opponent_progress"], 2)
 
     def test_circus_review_resolves_one_atomic_multi_skill_performance(self):
-        from circus_logic import default_circus_state_pure
+        from ankiscape.logic.circus_logic import default_circus_state_pure
 
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         player_data = {
@@ -566,7 +567,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertIn("utility:big_top_bonanza", player_data["action_telemetry"]["actions"])
 
     def test_circus_firemaking_performance_consumes_exactly_six_rolls(self):
-        from circus_logic import default_circus_state_pure
+        from ankiscape.logic.circus_logic import default_circus_state_pure
 
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         state = default_circus_state_pure()
@@ -594,7 +595,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertGreater(player_data["firemaking_exp"], 0.0)
 
     def test_circus_advanced_routine_consumes_only_its_saved_rolls(self):
-        from circus_logic import default_circus_state_pure
+        from ankiscape.logic.circus_logic import default_circus_state_pure
 
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         state = default_circus_state_pure()
@@ -624,7 +625,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertGreater(player_data["agility_exp"], 0.0)
 
     def test_managing_miscellania_review_raises_approval_and_woodcutting_xp(self):
-        from managing_miscellania_logic import default_managing_miscellania_state_pure
+        from ankiscape.logic.managing_miscellania_logic import default_managing_miscellania_state_pure
 
         calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
         player_data = {
@@ -686,7 +687,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
 
     def test_shooting_star_runtime_mines_one_dust_and_awards_layer_xp(self):
-        from shooting_star_logic import (
+        from ankiscape.logic.shooting_star_logic import (
             advance_shooting_star_world_clock_pure,
             default_shooting_star_state_pure,
         )
@@ -756,7 +757,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
 
     def test_big_chinchompa_runtime_groups_multiplier_into_whole_jars(self):
-        from big_chinchompa_logic import (
+        from ankiscape.logic.big_chinchompa_logic import (
             advance_big_chinchompa_world_clock_pure,
             default_big_chinchompa_state_pure,
         )
@@ -796,7 +797,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(telemetry["successes"], 1)
 
     def test_evil_tree_runtime_completes_three_review_phases(self):
-        from evil_tree_logic import (
+        from ankiscape.logic.evil_tree_logic import (
             advance_evil_tree_world_clock_pure,
             default_evil_tree_state_pure,
         )
@@ -846,7 +847,7 @@ class TestRuntimeActions(unittest.TestCase):
         )
 
     def test_evil_tree_blessing_doubles_nest_roll_and_adds_one_continuation(self):
-        from constants import BIRD_NEST_DROP_CHANCE
+        from ankiscape.core.constants import BIRD_NEST_DROP_CHANCE
 
         player_data = {
             "inventory": {},
@@ -987,8 +988,8 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["saves"], 0)
 
     def test_wilderness_combat_requires_current_session_risk_confirmation(self):
-        from combat_data import COMBAT_ENEMY_DATA
-        from combat_session import (
+        from ankiscape.data.combat_data import COMBAT_ENEMY_DATA
+        from ankiscape.logic.combat_session import (
             confirm_wilderness_combat_risk,
             reset_wilderness_combat_confirmations,
             wilderness_combat_risk_fingerprint,
@@ -1030,8 +1031,8 @@ class TestRuntimeActions(unittest.TestCase):
         )
 
     def test_green_dragon_runtime_feedback_reports_breath_damage(self):
-        from combat_data import COMBAT_ENEMY_DATA
-        from combat_session import (
+        from ankiscape.data.combat_data import COMBAT_ENEMY_DATA
+        from ankiscape.logic.combat_session import (
             confirm_wilderness_combat_risk,
             reset_wilderness_combat_confirmations,
             wilderness_combat_risk_fingerprint,
@@ -1619,7 +1620,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
 
     def test_wicked_hood_teleport_skips_only_the_outbound_runecrafting_phase(self):
-        from wicked_hood_logic import default_wicked_hood_state_pure
+        from ankiscape.logic.wicked_hood_logic import default_wicked_hood_state_pure
 
         calls = {"xp": [], "saves": 0, "errors": []}
         hood = default_wicked_hood_state_pure()
@@ -1664,7 +1665,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertTrue(travel["outbound_teleport_used"])
 
     def test_wicked_hood_teleport_finishes_an_already_outbound_route(self):
-        from wicked_hood_logic import (
+        from ankiscape.logic.wicked_hood_logic import (
             default_wicked_hood_state_pure,
             runecrafting_route_phases_pure,
         )
@@ -3874,7 +3875,7 @@ class TestProcessingPackOverlay(unittest.TestCase):
     def test_skill_availability_is_computed_from_the_bank_not_the_capped_pack(self):
         # Same leak class: the availability UI must reflect the real bank, or a
         # skill/recipe can look unavailable while the bank is full of materials.
-        from runtime_actions import handle_crafting_answer
+        from ankiscape.runtime.runtime_actions import handle_crafting_answer
 
         observed = {"refresh": [], "partial": []}
         player_data = {
@@ -3907,7 +3908,7 @@ class TestProcessingPackOverlay(unittest.TestCase):
         # 28 logs into *stacking* arrow shafts is 28 actions per trip. Regression here
         # means slot accounting has drifted (e.g. a stackable read as unstackable,
         # which once made Fletching bank every other action).
-        import runtime_actions as RA
+        from ankiscape.runtime import runtime_actions as RA
 
         cases = [
             ("fletching", "current_fletch", "arrow_shafts", {"Logs": 500}, "fletching_level", 1),

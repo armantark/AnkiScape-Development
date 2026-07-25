@@ -20,6 +20,7 @@ except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
 
 
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 @unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
 class DistractionHUDBadgeTest(unittest.TestCase):
     """The reviewer surface for the three review-clock Distractions.
@@ -33,7 +34,7 @@ class DistractionHUDBadgeTest(unittest.TestCase):
         cls.app = QApplication.instance() or QApplication([])
 
     def setUp(self) -> None:
-        import ui
+        from ankiscape.ui import ui
 
         self.ui = ui
         self.parent = QWidget()
@@ -72,9 +73,9 @@ class DistractionHUDBadgeTest(unittest.TestCase):
             QApplication.processEvents()
 
     def _quiet_state(self) -> dict:
-        from big_chinchompa_logic import default_big_chinchompa_state_pure
-        from evil_tree_logic import default_evil_tree_state_pure
-        from shooting_star_logic import default_shooting_star_state_pure
+        from ankiscape.logic.big_chinchompa_logic import default_big_chinchompa_state_pure
+        from ankiscape.logic.evil_tree_logic import default_evil_tree_state_pure
+        from ankiscape.logic.shooting_star_logic import default_shooting_star_state_pure
 
         state = {
             "inventory": {},
@@ -92,7 +93,7 @@ class DistractionHUDBadgeTest(unittest.TestCase):
         return state
 
     def _with_live_evil_tree(self, state: dict) -> dict:
-        from evil_tree_logic import advance_evil_tree_world_clock_pure
+        from ankiscape.logic.evil_tree_logic import advance_evil_tree_world_clock_pure
 
         state = dict(state)
         state["shop_market_clock"] = {"answered_cards": 20, "market_tick": 20}
@@ -105,7 +106,7 @@ class DistractionHUDBadgeTest(unittest.TestCase):
         return state
 
     def _with_live_big_chinchompa(self, state: dict) -> dict:
-        from big_chinchompa_logic import advance_big_chinchompa_world_clock_pure
+        from ankiscape.logic.big_chinchompa_logic import advance_big_chinchompa_world_clock_pure
 
         state = dict(state)
         state["shop_market_clock"] = {"answered_cards": 60, "market_tick": 60}
@@ -165,7 +166,7 @@ class DistractionHUDBadgeTest(unittest.TestCase):
         self.assertNotIn(first, QApplication.topLevelWidgets())
 
     def test_badge_stacks_under_the_farming_badge_beside_the_hud(self) -> None:
-        from farming_logic import default_farming_state_pure
+        from ankiscape.logic.farming_logic import default_farming_state_pure
 
         review_hud = self.ui.ReviewHUD(self.parent)
         self.ui._REVIEW_HUD = review_hud
@@ -194,7 +195,7 @@ class DistractionHUDBadgeTest(unittest.TestCase):
         )
 
     def test_one_live_event_opens_its_card_and_several_open_the_hub(self) -> None:
-        from big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID
+        from ankiscape.data.big_chinchompa_data import BIG_CHINCHOMPA_UTILITY_ID
 
         opened = []
         state = self._with_live_big_chinchompa(self._quiet_state())

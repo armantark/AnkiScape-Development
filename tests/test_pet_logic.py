@@ -1,7 +1,8 @@
 import unittest
 
-from pet_data import OBTAINABLE_PETS, PETS, PETS_BY_ID
-from pet_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.pet_data import OBTAINABLE_PETS, PETS, PETS_BY_ID
+from ankiscape.logic.pet_logic import (
     acquire_pet_pure,
     advance_active_pet_pure,
     let_out_pet_pure,
@@ -9,8 +10,8 @@ from pet_logic import (
     pet_compatible_carried_foods_pure,
     store_active_pet_pure,
 )
-from summoning_logic import default_summoning_state_pure
-from summoning_logic import apply_follower_player_death_pure, summon_familiar_pure
+from ankiscape.logic.summoning_logic import default_summoning_state_pure
+from ankiscape.logic.summoning_logic import apply_follower_player_death_pure, summon_familiar_pure
 
 
 def player(**overrides):

@@ -23,11 +23,12 @@ _ADDON_DIR = os.path.dirname(_THIS_DIR)
 if _ADDON_DIR not in sys.path:
     sys.path.insert(0, _ADDON_DIR)
 
-import pest_control_logic
-import pet_logic
-import stealing_creation_logic
-from constants import ITEM_DEFINITIONS, ORE_DATA
-from storage_pure import default_player_data
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic import pest_control_logic
+from ankiscape.logic import pet_logic
+from ankiscape.logic import stealing_creation_logic
+from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.core.storage_pure import default_player_data
 from tests.test_write_through_probe import WriteThroughError, _frozen_save
 
 

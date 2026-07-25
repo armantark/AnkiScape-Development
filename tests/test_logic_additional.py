@@ -1,6 +1,7 @@
 import unittest
 
-from logic_pure import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic_pure.logic_pure import (
     calculate_new_level,
     apply_woodcutting_pure,
     apply_mining_pure,
@@ -14,7 +15,7 @@ from logic_pure import (
     can_craft_item_pure,
     can_fletch_item_pure,
 )
-from constants import EXP_TABLE as EXP_TABLE_LIST
+from ankiscape.core.constants import EXP_TABLE as EXP_TABLE_LIST
 
 
 class TestLogicAdditional(unittest.TestCase):

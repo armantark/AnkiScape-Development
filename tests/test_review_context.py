@@ -1,6 +1,7 @@
 import unittest
 
-from review_context import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.review_context import (
     PIT_REWARD_CONTEXT_ID,
     ignored_review_context_choice_pure,
     remember_review_context_choice_pure,

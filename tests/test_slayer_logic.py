@@ -1,7 +1,8 @@
 import unittest
 
-from combat_data import COMBAT_ENEMY_DATA
-from slayer_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.combat_data import COMBAT_ENEMY_DATA
+from ankiscape.data.slayer_data import (
     CHAELDAR_FAMILIES,
     CHAELDAR_FAMILIES_BY_ID,
     CHAELDAR_MASTER,
@@ -20,7 +21,7 @@ from slayer_data import (
     VANNAKA_FAMILIES_BY_ID,
     VANNAKA_MASTER,
 )
-from slayer_logic import (
+from ankiscape.logic.slayer_logic import (
     apply_slayer_kills_pure,
     eligible_slayer_families_pure,
     get_slayer_assignment_pure,
@@ -28,7 +29,7 @@ from slayer_logic import (
     slayer_master_display_name_pure,
     slayer_target_ids_for_assignment_pure,
 )
-from slayer_readiness import (
+from ankiscape.logic.slayer_readiness import (
     slayer_catalog_integrity_issues_pure,
     slayer_master_readiness_pure,
 )

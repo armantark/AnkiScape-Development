@@ -15,10 +15,11 @@ whole-save copy the caller is expected to be able to treat as untouched.
 import copy
 import unittest
 
-from constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
-from storage_pure import default_player_data
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.core.storage_pure import default_player_data
 
-import fight_caves_logic
+from ankiscape.logic import fight_caves_logic
 
 
 class WriteThroughError(AssertionError):

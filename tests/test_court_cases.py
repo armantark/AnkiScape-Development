@@ -3,15 +3,16 @@ import struct
 import unittest
 from pathlib import Path
 
-from constants import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import (
     EQUIPMENT_DATA,
     ITEM_DEFINITIONS,
     ORE_DATA,
     UTILITY_ACTIVITY_DATA,
 )
-from equipment_data import EquipmentBonuses
-from court_cases_data import COURT_CASES, COURT_CASES_ACTIVITY_ID
-from court_cases_logic import (
+from ankiscape.data.equipment_data import EquipmentBonuses
+from ankiscape.data.court_cases_data import COURT_CASES, COURT_CASES_ACTIVITY_ID
+from ankiscape.logic.court_cases_logic import (
     apply_court_case_review_pure,
     apply_court_cases_command_pure,
     court_cases_view_pure,
@@ -19,9 +20,9 @@ from court_cases_logic import (
     filter_court_summons_outputs_pure,
     sanitize_court_cases_state_pure,
 )
-from logic_pure import _combat_roll_drops
-from runtime_actions import RuntimeActionContext, handle_utility_answer
-from storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
+from ankiscape.logic_pure.logic_pure import _combat_roll_drops
+from ankiscape.runtime.runtime_actions import RuntimeActionContext, handle_utility_answer
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
 
 
 ROOT = Path(__file__).resolve().parents[1]

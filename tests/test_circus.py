@@ -1,11 +1,12 @@
 import unittest
 
-from circus_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.circus_data import (
     CIRCUS_PERFORMANCES,
     CIRCUS_REWARDS,
     CIRCUS_WEEK_REVIEWS,
 )
-from circus_logic import (
+from ankiscape.logic.circus_logic import (
     apply_circus_command_pure,
     apply_circus_review_pure,
     circus_view_pure,

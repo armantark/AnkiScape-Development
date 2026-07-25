@@ -1,6 +1,7 @@
 import unittest
 
-from livid_farm_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.livid_farm_logic import (
     advance_livid_farm_wish_effects_pure,
     apply_arcane_capacitor_charge_pure,
     apply_arcane_capacitor_remove_charge_pure,
@@ -16,12 +17,12 @@ from livid_farm_logic import (
     sanitize_livid_farm_state_pure,
     set_livid_farm_routine_pure,
 )
-from livid_farm_data import (
+from ankiscape.data.livid_farm_data import (
     ARCANE_CAPACITOR_CHARGED,
     ARCANE_CAPACITOR_UNCHARGED,
     LIVID_FARM_UNLOCKS,
 )
-from farming_data import LIVID_FARM_PROTECTION_SCROLL
+from ankiscape.data.farming_data import LIVID_FARM_PROTECTION_SCROLL
 
 
 def _player(magic_level=99, rune_quantity=100_000):
@@ -523,8 +524,8 @@ class TestLividFarmLogic(unittest.TestCase):
         self.assertEqual(unchanged, seeds)
 
     def test_new_patch_wish_lasts_for_exactly_one_allotment_clearing(self):
-        from farming_data import LIVID_FARM_ALLOTMENT_PATCH_ID
-        from farming_logic import (
+        from ankiscape.data.farming_data import LIVID_FARM_ALLOTMENT_PATCH_ID
+        from ankiscape.logic.farming_logic import (
             advance_farm_clock_pure,
             consume_next_farm_queue_step_pure,
             execute_farm_field_step_pure,

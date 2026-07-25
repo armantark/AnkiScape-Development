@@ -7,19 +7,20 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-import constants
-from agility_data import AGILITY_TARGETS
-from agility_logic import apply_agility_command_pure
-from cadence_coverage import cadence_coverage_rows_pure
-from logic_pure import equip_item_pure
-from storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core import constants
+from ankiscape.data.agility_data import AGILITY_TARGETS
+from ankiscape.logic.agility_logic import apply_agility_command_pure
+from ankiscape.logic.cadence_coverage import cadence_coverage_rows_pure
+from ankiscape.logic_pure.logic_pure import equip_item_pure
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
 from tests.test_integration_smoke import _install_runtime_fakes, _load_addon_as_package
-from werewolf_skullball_data import (
+from ankiscape.data.werewolf_skullball_data import (
     WEREWOLF_SKULLBALL_ACTIVITY_ID,
     WEREWOLF_SKULLBALL_RING_ITEMS,
     werewolf_skullball_extra_items_as_dict,
 )
-from werewolf_skullball_logic import (
+from ankiscape.logic.werewolf_skullball_logic import (
     apply_werewolf_skullball_review_pure,
     enter_werewolf_skullball_pure,
     set_werewolf_skullball_policy_pure,
@@ -224,7 +225,7 @@ class WerewolfSkullballHookTests(unittest.TestCase):
 
     def test_one_answer_completes_one_run_once_and_undo_restores_it(self):
         addon = _load_addon_as_package("ankiscape_skullball_hook")
-        logic = sys.modules[f"{addon.__name__}.werewolf_skullball_logic"]
+        logic = sys.modules[f"{addon.__name__}.logic.werewolf_skullball_logic"]
         player, ok, _info = logic.enter_werewolf_skullball_pure(_player())
         self.assertTrue(ok)
         addon.player_data = player

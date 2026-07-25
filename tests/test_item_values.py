@@ -4,8 +4,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from item_values import EXCHANGEABLE_ITEM_NAMES, ITEM_VALUES, item_store_value
-from inventory_pure import loot_should_pick_up
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.item_values import EXCHANGEABLE_ITEM_NAMES, ITEM_VALUES, item_store_value
+from ankiscape.logic.inventory_pure import loot_should_pick_up
 from tools.gen_item_values import build
 
 

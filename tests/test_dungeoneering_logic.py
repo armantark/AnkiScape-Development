@@ -1,6 +1,7 @@
 import unittest
 
-from dungeoneering_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.dungeoneering_logic import (
     active_bind_slots_for_level_pure,
     ammo_bind_capacity_pure,
     begin_starter_session_pure,

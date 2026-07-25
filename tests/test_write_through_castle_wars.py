@@ -17,9 +17,10 @@ import copy
 import unittest
 from unittest.mock import patch
 
-from castle_wars_data import CASTLE_WARS_BALLISTA_PARTS, CASTLE_WARS_MATCH_REVIEWS
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.castle_wars_data import CASTLE_WARS_BALLISTA_PARTS, CASTLE_WARS_MATCH_REVIEWS
 
-import castle_wars_logic
+from ankiscape.logic import castle_wars_logic
 
 
 class WriteThroughError(AssertionError):

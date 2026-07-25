@@ -31,6 +31,7 @@ def _equipment_item_block(data: str, item_name: str) -> str:
     return data[start:end]
 
 
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 class TestGeneratedSkillData(unittest.TestCase):
     def test_smithing_generator_reproduces_checked_in_dragon_sq_shield_recipe(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -38,7 +39,7 @@ class TestGeneratedSkillData(unittest.TestCase):
             generate_smithing_data.generate(GAME_ROOT, output_path)
             generated = output_path.read_text(encoding="utf-8")
 
-        self.assertEqual(generated, (ROOT / "smithing_data.py").read_text(encoding="utf-8"))
+        self.assertEqual(generated, (ROOT / "data" / "smithing_data.py").read_text(encoding="utf-8"))
 
     def test_equipment_generator_reproduces_checked_in_dragon_sq_shield_item_1187_block(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -46,7 +47,7 @@ class TestGeneratedSkillData(unittest.TestCase):
             generate_equipment_data.generate(GAME_ROOT, output_path)
             generated = output_path.read_text(encoding="utf-8")
 
-        checked_in = (ROOT / "equipment_data.py").read_text(encoding="utf-8")
+        checked_in = (ROOT / "data" / "equipment_data.py").read_text(encoding="utf-8")
         self.assertEqual(
             _equipment_item_block(generated, "Dragon sq shield"),
             _equipment_item_block(checked_in, "Dragon sq shield"),
@@ -76,7 +77,7 @@ class TestGeneratedSkillData(unittest.TestCase):
         self.assertIn("slot='body'", dragon_chainbody)
         self.assertIn("source_item_id=3140", dragon_chainbody)
 
-        from constants import CRAFTING_DATA, FLETCHING_DATA
+        from ankiscape.core.constants import CRAFTING_DATA, FLETCHING_DATA
 
         live_recipe_outputs = {
             recipe.get("output_item")

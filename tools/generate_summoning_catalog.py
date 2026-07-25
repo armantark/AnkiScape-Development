@@ -17,7 +17,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "summoning_data_generated.py"
+OUTPUT = ROOT / "generated" / "summoning_data_generated.py"
 GAME_MAIN = Path("/Users/ArmanTarkhanian1/Downloads/game-main")
 SUMMONING_SOURCE = (
     GAME_MAIN

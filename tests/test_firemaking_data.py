@@ -1,6 +1,7 @@
 import unittest
 
-from firemaking_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.firemaking_data import (
     DEFERRED_FIREMAKING_CONTENT,
     FIREMAKING_OUTPUT_ITEM_ID,
     FIREMAKING_RUNTIME_SOURCE_PATH,

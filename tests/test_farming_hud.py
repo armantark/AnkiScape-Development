@@ -20,6 +20,7 @@ except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
 
 
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 @unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
 class FarmingHUDTest(unittest.TestCase):
     @classmethod
@@ -27,7 +28,7 @@ class FarmingHUDTest(unittest.TestCase):
         cls.app = QApplication.instance() or QApplication([])
 
     def setUp(self) -> None:
-        import ui
+        from ankiscape.ui import ui
 
         self.ui = ui
         self.parent = QWidget()
@@ -60,7 +61,7 @@ class FarmingHUDTest(unittest.TestCase):
             QApplication.processEvents()
 
     def _state(self):
-        from farming_logic import default_farming_state_pure
+        from ankiscape.logic.farming_logic import default_farming_state_pure
 
         state = {
             "inventory": {},
@@ -94,7 +95,7 @@ class FarmingHUDTest(unittest.TestCase):
         self.assertNotIn(first, QApplication.topLevelWidgets())
 
     def test_badge_renders_backend_priority_and_retains_queue_count(self) -> None:
-        from farming_logic import (
+        from ankiscape.logic.farming_logic import (
             add_farm_queue_step_pure,
             advance_farm_clock_pure,
             execute_farm_field_step_pure,
@@ -132,7 +133,7 @@ class FarmingHUDTest(unittest.TestCase):
         self.assertIn("attention", badge.toolTip().lower())
 
     def test_click_toggles_compact_status_and_deep_links_to_selected_patch(self) -> None:
-        from farming_logic import advance_farm_clock_pure, execute_farm_field_step_pure
+        from ankiscape.logic.farming_logic import advance_farm_clock_pure, execute_farm_field_step_pure
 
         state = self._state()
         state["inventory"].update({"Rake": 1, "Seed dibber": 1, "Spade": 1, "Potato seed": 3})

@@ -4,13 +4,14 @@ import copy
 import unittest
 from unittest.mock import patch
 
-from castle_wars_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.castle_wars_data import (
     CASTLE_WARS_BALLISTA_PARTS,
     CASTLE_WARS_MATCH_REVIEWS,
     castle_wars_equipment_data_as_dict,
     castle_wars_extra_items_as_dict,
 )
-from castle_wars_logic import (
+from ankiscape.logic.castle_wars_logic import (
     apply_castle_wars_review_pure,
     buy_castle_wars_reward_pure,
     castle_wars_damage_multiplier_pure,
@@ -23,7 +24,7 @@ from castle_wars_logic import (
     sell_castle_wars_reward_pure,
     set_castle_wars_policy_pure,
 )
-from logic_pure import apply_combat_burst_pure
+from ankiscape.logic_pure.logic_pure import apply_combat_burst_pure
 
 
 def _player(**overrides):
@@ -184,7 +185,7 @@ class CastleWarsMatchTests(unittest.TestCase):
         # caller resolves the name from its own globals, not from logic_pure's
         # re-export.
         with patch(
-            "logic_pure_combat_engine._combat_roll_damage_lifepoints", return_value=100
+            "ankiscape.logic_pure.logic_pure_combat_engine._combat_roll_damage_lifepoints", return_value=100
         ):
             updated, ok, result = apply_combat_burst_pure(
                 player,
@@ -260,7 +261,7 @@ class CastleWarsMatchTests(unittest.TestCase):
             self.assertIn("castle_wars_raider", enemies)
             return _combat_stub(100, killed=True)(data, enemies, equipment, **kwargs)
 
-        with patch("castle_wars_logic.apply_combat_burst_pure", fake):
+        with patch("ankiscape.logic.castle_wars_logic.apply_combat_burst_pure", fake):
             updated, ok, result = apply_castle_wars_review_pure(
                 data,
                 lambda: 0.5,
@@ -280,7 +281,7 @@ class CastleWarsMatchTests(unittest.TestCase):
         data = _entered(inventory={"Coins": 50})
         data["combat_lifepoints"] = 1
         with patch(
-            "castle_wars_logic.apply_combat_burst_pure",
+            "ankiscape.logic.castle_wars_logic.apply_combat_burst_pure",
             _combat_stub(0, died=True),
         ):
             updated, ok, result = apply_castle_wars_review_pure(

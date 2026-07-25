@@ -1,7 +1,8 @@
 import os
 import unittest
 
-from varrock_museum_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.varrock_museum_data import (
     KUDOS_THRESHOLD_REWARDS,
     QUEST_KUDOS,
     QUIZ_DISPLAYS,
@@ -9,7 +10,7 @@ from varrock_museum_data import (
     VARROCK_MUSEUM_IMPLEMENTED_MAX_KUDOS,
     VARROCK_MUSEUM_SOURCE_MAX_KUDOS,
 )
-from varrock_museum_logic import (
+from ankiscape.logic.varrock_museum_logic import (
     apply_varrock_museum_command_pure,
     apply_varrock_museum_review_pure,
     sanitize_varrock_museum_state_pure,
@@ -35,7 +36,7 @@ def _player():
 
 class VarrockMuseumPureTest(unittest.TestCase):
     def test_cadence_ledger_discloses_the_rate_free_landmark_translation(self):
-        from cadence_coverage import cadence_coverage_rows_pure
+        from ankiscape.logic.cadence_coverage import cadence_coverage_rows_pure
 
         row = next(
             row
@@ -47,7 +48,7 @@ class VarrockMuseumPureTest(unittest.TestCase):
         self.assertIn("no unrecovered probability", row["source_reason"])
 
     def test_activity_and_period_item_identities_have_normalized_assets(self):
-        from constants import ITEM_DEFINITIONS, UTILITY_ACTIVITY_DATA
+        from ankiscape.core.constants import ITEM_DEFINITIONS, UTILITY_ACTIVITY_DATA
 
         icon_path = UTILITY_ACTIVITY_DATA["varrock_museum"].get("icon_path")
         self.assertTrue(icon_path)

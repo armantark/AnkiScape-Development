@@ -7,7 +7,8 @@ import unittest
 from fractions import Fraction
 from pathlib import Path
 
-from cadence_shadow import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.cadence_shadow import (
     RANGE_SPLIT,
     SHADOW_STATE_KEY,
     SOURCE_BLOCKED,
@@ -16,9 +17,9 @@ from cadence_shadow import (
     resolve_cadence_shadow_rate_pure,
     sanitize_cadence_shadow_state_pure,
 )
-from runtime_actions import RuntimeActionContext, _record_action
-from storage_pure import migrate_loaded_data
-from constants import COOKING_DATA, FIREMAKING_DATA, FISHING_DATA, HUNTER_DATA, ORE_DATA, TREE_DATA
+from ankiscape.runtime.runtime_actions import RuntimeActionContext, _record_action
+from ankiscape.core.storage_pure import migrate_loaded_data
+from ankiscape.core.constants import COOKING_DATA, FIREMAKING_DATA, FISHING_DATA, HUNTER_DATA, ORE_DATA, TREE_DATA
 from tools.cadence_shadow_report import catalog_rows, render_text
 
 

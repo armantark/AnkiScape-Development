@@ -1,15 +1,16 @@
 import unittest
 
-from cadence_coverage import cadence_coverage_rows_pure
-from constants import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.cadence_coverage import cadence_coverage_rows_pure
+from ankiscape.core.constants import (
     ITEM_DEFINITIONS,
     SORCERESS_GARDEN_ITEM_IMAGES,
     UTILITY_ACTIVITY_DATA,
 )
-from logic_pure import apply_consumable_pure
-from runtime_actions import RuntimeActionContext, handle_utility_answer
-from sorceress_garden_data import SORCERESS_GARDEN_HERB_POOL
-from sorceress_garden_logic import (
+from ankiscape.logic_pure.logic_pure import apply_consumable_pure
+from ankiscape.runtime.runtime_actions import RuntimeActionContext, handle_utility_answer
+from ankiscape.data.sorceress_garden_data import SORCERESS_GARDEN_HERB_POOL
+from ankiscape.logic.sorceress_garden_logic import (
     apply_sorceress_garden_command_pure,
     apply_sorceress_garden_review_pure,
     default_sorceress_garden_state_pure,
@@ -17,7 +18,7 @@ from sorceress_garden_logic import (
     sorceress_garden_locked_reasons_pure,
     sorceress_garden_view_pure,
 )
-from storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
 
 
 def _player(*, level=99, introduced=True):

@@ -6,7 +6,8 @@ import types
 import unittest
 from collections import Counter
 
-from cadence_kernel import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.cadence_kernel import (
     CAP_ONE_ACTION,
     COMBAT_TICKS,
     EMBEDDED_PROBABILITY,
@@ -22,8 +23,8 @@ from cadence_kernel import (
     sanitize_cadence_kernel_state_pure,
     validate_overflow_policy_pure,
 )
-from constants import ORE_DATA
-from storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
+from ankiscape.core.constants import ORE_DATA
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
 from tests.test_integration_smoke import (
     _DummyCol,
     _DummyMW,
@@ -290,7 +291,7 @@ class TestCadenceKernelIntegration(unittest.TestCase):
 
     def test_successful_live_combat_answer_does_not_fake_disengagement(self):
         addon = _load_addon_as_package("ankiscape_cadence_combat_success")
-        runtime = sys.modules["ankiscape_cadence_combat_success.runtime_actions"]
+        runtime = sys.modules["ankiscape_cadence_combat_success.runtime.runtime_actions"]
         phase = {
             "target_id": "chicken",
             "enemy_lifepoints": 17,
@@ -352,7 +353,7 @@ class TestCadenceKernelIntegration(unittest.TestCase):
     def test_quest_multiplier_is_legacy_only_when_live_cadence_is_disabled(self):
         def run(module_name, enabled):
             addon = _load_addon_as_package(module_name)
-            runtime = sys.modules[f"{module_name}.runtime_actions"]
+            runtime = sys.modules[f"{module_name}.runtime.runtime_actions"]
             calls = []
 
             def handler(_ctx):
@@ -388,7 +389,7 @@ class TestCadenceKernelIntegration(unittest.TestCase):
 
     def _run_legacy_review(self, module_name, config):
         addon = _load_addon_as_package(module_name)
-        runtime = sys.modules[f"{module_name}.runtime_actions"]
+        runtime = sys.modules[f"{module_name}.runtime.runtime_actions"]
         runtime.advance_live_cadence_route_pure = lambda *_args, **_kwargs: self.fail(
             "explicit flag-off review dispatch must bypass the live cadence kernel"
         )

@@ -16,10 +16,11 @@ from __future__ import annotations
 
 import unittest
 
-from constants import ITEM_DEFINITIONS, ORE_DATA
-from storage_pure import default_player_data
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.core.storage_pure import default_player_data
 
-import shades_of_mortton_logic as shades
+from ankiscape.logic import shades_of_mortton_logic as shades
 
 
 class WriteThroughError(AssertionError):

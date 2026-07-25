@@ -13,7 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from aqt.qt import QApplication  # type: ignore
 
-from circus_logic import apply_circus_command_pure, default_circus_state_pure
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.circus_logic import apply_circus_command_pure, default_circus_state_pure
 from tests.test_main_menu_widget import MainMenuWidgetTest, _make_player_data, _utility_row
 from tools.render_fishing_trawler_ui import _dark_palette
 

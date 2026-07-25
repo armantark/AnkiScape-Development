@@ -13,9 +13,10 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from combat_data import COMBAT_ENEMY_DATA  # noqa: E402
-from slayer_data import SLAYER_MASTERS_BY_ID  # noqa: E402
-from slayer_readiness import (  # noqa: E402
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.combat_data import COMBAT_ENEMY_DATA  # noqa: E402
+from ankiscape.data.slayer_data import SLAYER_MASTERS_BY_ID  # noqa: E402
+from ankiscape.logic.slayer_readiness import (  # noqa: E402
     slayer_catalog_integrity_issues_pure,
     slayer_master_readiness_pure,
 )

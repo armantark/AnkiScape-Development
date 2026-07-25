@@ -21,12 +21,13 @@ failure here is a real defect rather than an artifact of the probe.
 import copy
 import unittest
 
-from constants import ITEM_DEFINITIONS, ORE_DATA
-from storage_pure import default_player_data
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.core.storage_pure import default_player_data
 
-import logic_pure
-import pet_logic
-from pet_data import PETS_BY_ID
+from ankiscape.logic_pure import logic_pure
+from ankiscape.logic import pet_logic
+from ankiscape.data.pet_data import PETS_BY_ID
 
 
 class WriteThroughError(AssertionError):

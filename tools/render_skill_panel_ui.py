@@ -25,7 +25,8 @@ from aqt.qt import (  # type: ignore
 )
 
 from tests.test_main_menu_widget import MainMenuWidgetTest, _make_player_data
-from wicked_hood_logic import apply_wicked_hood_command_pure
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.wicked_hood_logic import apply_wicked_hood_command_pure
 
 
 def _dark_palette() -> QPalette:

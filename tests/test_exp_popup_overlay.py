@@ -34,6 +34,7 @@ _PROJECTION = {
 }
 
 
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 @unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
 class ExpPopupOverlayTest(unittest.TestCase):
     @classmethod
@@ -41,7 +42,7 @@ class ExpPopupOverlayTest(unittest.TestCase):
         cls.app = QApplication.instance() or QApplication([])
 
     def setUp(self) -> None:
-        import ui
+        from ankiscape.ui import ui
 
         self.ui = ui
         self.parent = QWidget()

@@ -18,7 +18,13 @@ landed; a gate that only passes afterwards is asserting the wrong thing.
 
 import unittest
 
-try:  # pragma: no cover - import shim matches the rest of the suite
+# immutability_gate.py is a sibling test helper inside tests/, not part of the
+# add-on package, so it needs both forms and this is NOT the dual-import dance
+# the restructure deleted: `unittest discover` imports test modules as top-level
+# names (the flat branch), while `python -m unittest tests.test_...` imports them
+# through the tests package (the relative branch). The migration wrote `..` here,
+# which pointed above tests/ and left the flat branch silently carrying the file.
+try:  # pragma: no cover
     from .immutability_gate import assert_direct_calls, replay_module_suite
 except ImportError:  # pragma: no cover
     from immutability_gate import (  # type: ignore
@@ -26,40 +32,41 @@ except ImportError:  # pragma: no cover
         replay_module_suite,
     )
 
-from constants import ITEM_DEFINITIONS, ORE_DATA
-from storage_pure import default_player_data
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.core.storage_pure import default_player_data
 
-import barbarian_assault_logic
-import barrows_logic
-import castle_wars_logic
-import circus_logic
-import court_cases_logic
-import equipment_instance_logic
-import fight_caves_logic
-import fish_flingers_logic
-import fishing_trawler_logic
-import fist_of_guthix_logic
-import flash_powder_factory_logic
-import gnome_ball_logic
-import great_orb_project_logic
-import managing_miscellania_logic
-import penguin_hide_and_seek_logic
-import pest_control_logic
-import pet_logic
-import phoenix_lair_logic
-import pyramid_plunder_logic
-import shades_of_mortton_logic
-import slayer_logic
-import sorceress_garden_logic
-import soul_wars_logic
-import stealing_creation_logic
-import stronghold_player_safety_logic
-import trouble_brewing_logic
-import tzhaar_fight_pit_logic
-import varrock_museum_logic
-import vinesweeper_logic
-import warriors_guild_logic
-import werewolf_skullball_logic
+from ankiscape.logic import barbarian_assault_logic
+from ankiscape.logic import barrows_logic
+from ankiscape.logic import castle_wars_logic
+from ankiscape.logic import circus_logic
+from ankiscape.logic import court_cases_logic
+from ankiscape.logic import equipment_instance_logic
+from ankiscape.logic import fight_caves_logic
+from ankiscape.logic import fish_flingers_logic
+from ankiscape.logic import fishing_trawler_logic
+from ankiscape.logic import fist_of_guthix_logic
+from ankiscape.logic import flash_powder_factory_logic
+from ankiscape.logic import gnome_ball_logic
+from ankiscape.logic import great_orb_project_logic
+from ankiscape.logic import managing_miscellania_logic
+from ankiscape.logic import penguin_hide_and_seek_logic
+from ankiscape.logic import pest_control_logic
+from ankiscape.logic import pet_logic
+from ankiscape.logic import phoenix_lair_logic
+from ankiscape.logic import pyramid_plunder_logic
+from ankiscape.logic import shades_of_mortton_logic
+from ankiscape.logic import slayer_logic
+from ankiscape.logic import sorceress_garden_logic
+from ankiscape.logic import soul_wars_logic
+from ankiscape.logic import stealing_creation_logic
+from ankiscape.logic import stronghold_player_safety_logic
+from ankiscape.logic import trouble_brewing_logic
+from ankiscape.logic import tzhaar_fight_pit_logic
+from ankiscape.logic import varrock_museum_logic
+from ankiscape.logic import vinesweeper_logic
+from ankiscape.logic import warriors_guild_logic
+from ankiscape.logic import werewolf_skullball_logic
 
 
 def _player() -> dict:
@@ -381,7 +388,7 @@ class TestLogicHelpersDoNotMutateTheirInput(unittest.TestCase):
 
 
 def _make_gate(module, functions, suites):
-    direct = _DIRECT_CALLS.get(module.__name__, ())
+    direct = _DIRECT_CALLS.get(module.__name__.rpartition(".")[2], ())
 
     def gate(self):
         assert_direct_calls(self, direct)
@@ -402,7 +409,7 @@ def _make_gate(module, functions, suites):
 for _module, _functions, _suites in _MODULE_GATES:
     setattr(
         TestLogicHelpersDoNotMutateTheirInput,
-        f"test_{_module.__name__}_does_not_mutate_input",
+        f"test_{_module.__name__.rpartition('.')[2]}_does_not_mutate_input",
         _make_gate(_module, _functions, _suites),
     )
 

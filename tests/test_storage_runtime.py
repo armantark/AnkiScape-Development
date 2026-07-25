@@ -55,8 +55,8 @@ def _load_storage_module(collection):
     aqt = types.ModuleType("aqt")
     aqt.mw = types.SimpleNamespace(col=collection)
     spec = importlib.util.spec_from_file_location(
-        f"{package_name}.storage",
-        root / "storage.py",
+        f"{package_name}.core.storage",
+        root / "core" / "storage.py",
     )
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module

@@ -4,8 +4,9 @@ import struct
 import unittest
 from pathlib import Path
 
-from constants import HERBLORE_DATA, HERBLORE_ITEM_IMAGES
-from herblore_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import HERBLORE_DATA, HERBLORE_ITEM_IMAGES
+from ankiscape.data.herblore_data import (
     CLEAN_TARGETS,
     DUNGEONEERING_CLEAN_TARGETS,
     DUNGEONEERING_FINISHED_TARGETS,
@@ -13,7 +14,7 @@ from herblore_data import (
     FINISHED_TARGETS,
     UNF_TARGETS,
 )
-from target_metadata import herblore_target_rows
+from ankiscape.core.target_metadata import herblore_target_rows
 from tools.fetch_herblore_assets import asset_manifest
 
 

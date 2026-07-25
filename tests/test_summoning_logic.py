@@ -1,7 +1,8 @@
 import unittest
 
-from summoning_data import SUMMONING_POUCHES_BY_ID
-from summoning_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.summoning_data import SUMMONING_POUCHES_BY_ID
+from ankiscape.logic.summoning_logic import (
     ANSWER_EFFECT_TICKS,
     BUNYIP_HEAL_LIFEPOINTS,
     BUNYIP_HEAL_TICKS,
@@ -29,8 +30,8 @@ from summoning_logic import (
     summoning_action_locked_reasons_pure,
     use_familiar_special_pure,
 )
-from constants import ORE_DATA
-from storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
+from ankiscape.core.constants import ORE_DATA
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
 
 
 def player(**overrides):

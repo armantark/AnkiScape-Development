@@ -20,8 +20,9 @@ real defect rather than an artifact of the probe.
 import copy
 import unittest
 
-from big_chinchompa_data import BIG_CHINCHOMPA_REWARDS_BY_ID
-from big_chinchompa_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.big_chinchompa_data import BIG_CHINCHOMPA_REWARDS_BY_ID
+from ankiscape.logic.big_chinchompa_logic import (
     advance_big_chinchompa_world_clock_pure,
     apply_big_chinchompa_review_pure,
     apply_big_chinchompa_reward_purchase_pure,
@@ -33,7 +34,7 @@ from big_chinchompa_logic import (
     set_hunter_private_ground_pure,
     set_world_population_profile_pure,
 )
-from constants import EXP_TABLE
+from ankiscape.core.constants import EXP_TABLE
 
 
 class WriteThroughError(AssertionError):

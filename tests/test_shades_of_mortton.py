@@ -4,7 +4,8 @@ import copy
 import unittest
 from unittest.mock import patch
 
-from shades_of_mortton_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.shades_of_mortton_data import (
     SHADES_LOAR_PRAYER_XP,
     SHADES_PYRE_LOGS,
     SHADES_OF_MORTTON_COMBAT_TARGET_ID,
@@ -12,7 +13,7 @@ from shades_of_mortton_data import (
     shades_of_mortton_extra_items_as_dict,
     shades_of_mortton_loar_enemy_pure,
 )
-from shades_of_mortton_logic import (
+from ankiscape.logic.shades_of_mortton_logic import (
     apply_shades_of_mortton_command_pure,
     apply_shades_of_mortton_review_pure,
     bless_shades_item_pure,
@@ -240,7 +241,7 @@ class ShadesOfMorttonCombatTests(unittest.TestCase):
         self.assertTrue(ok, info)
         player, ok, info = enter_shades_of_mortton_pure(player)
         self.assertTrue(ok, info)
-        with patch("shades_of_mortton_logic.apply_combat_burst_pure", _combat_stub(killed=True)):
+        with patch("ankiscape.logic.shades_of_mortton_logic.apply_combat_burst_pure", _combat_stub(killed=True)):
             player, ok, result = apply_shades_of_mortton_review_pure(player)
         self.assertTrue(ok, result)
         self.assertTrue(result["killed"])
@@ -250,7 +251,7 @@ class ShadesOfMorttonCombatTests(unittest.TestCase):
 
     def test_unfinished_loar_encounter_persists_between_reviews(self):
         player = _entered()
-        with patch("shades_of_mortton_logic.apply_combat_burst_pure", _combat_stub(enemy_lifepoints=177)):
+        with patch("ankiscape.logic.shades_of_mortton_logic.apply_combat_burst_pure", _combat_stub(enemy_lifepoints=177)):
             player, ok, result = apply_shades_of_mortton_review_pure(player)
         self.assertTrue(ok, result)
         self.assertEqual(player["shades_of_mortton"]["encounter"]["enemy_lifepoints"], 177)

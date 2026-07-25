@@ -6,9 +6,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from combat_data import COMBAT_ENEMY_DATA
-from constants import COMBAT_ENEMY_IMAGES, UTILITY_ACTIVITY_DATA
-from soul_wars_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.combat_data import COMBAT_ENEMY_DATA
+from ankiscape.core.constants import COMBAT_ENEMY_IMAGES, UTILITY_ACTIVITY_DATA
+from ankiscape.data.soul_wars_data import (
     SOUL_WARS_ACTIVITY_ID,
     SOUL_WARS_AVATAR_LIFEPOINTS,
     SOUL_WARS_CHARM_REWARDS_BY_ITEM,
@@ -18,7 +19,7 @@ from soul_wars_data import (
     soul_wars_avatar_enemy_pure,
     soul_wars_charm_quantity_pure,
 )
-from soul_wars_logic import (
+from ankiscape.logic.soul_wars_logic import (
     apply_soul_wars_command_pure,
     apply_soul_wars_review_pure,
     buy_soul_wars_charms_pure,
@@ -290,7 +291,7 @@ class SoulWarsAvatarTests(unittest.TestCase):
 
     def test_avatar_duty_uses_one_live_six_tick_engaged_target_slice(self):
         data = self._avatar_ready()
-        with patch("soul_wars_logic.apply_combat_burst_pure", _combat_stub()):
+        with patch("ankiscape.logic.soul_wars_logic.apply_combat_burst_pure", _combat_stub()):
             updated, ok, result = apply_soul_wars_review_pure(
                 data, lambda: 0.9, productive=True
             )
@@ -329,7 +330,7 @@ class SoulWarsAvatarTests(unittest.TestCase):
         )
         data["soul_wars"]["fragments"] = 7
         with patch(
-            "soul_wars_logic.apply_combat_burst_pure", _combat_stub(died=True)
+            "ankiscape.logic.soul_wars_logic.apply_combat_burst_pure", _combat_stub(died=True)
         ):
             updated, ok, result = apply_soul_wars_review_pure(
                 data, lambda: 0.9, productive=True
@@ -402,7 +403,7 @@ class SoulWarsTerminalAndRewardTests(unittest.TestCase):
 
     def test_shop_buys_exact_combat_band_charm_quantity(self):
         self.assertEqual(SOUL_WARS_CHARM_REWARDS_BY_ITEM["Gold charm"].zeal_cost, 4)
-        with patch("soul_wars_logic.player_combat_level_pure", return_value=83):
+        with patch("ankiscape.logic.soul_wars_logic.player_combat_level_pure", return_value=83):
             bought, ok, info = buy_soul_wars_charms_pure(
                 _player(soul_wars_zeal=10), "Gold charm"
             )
@@ -410,7 +411,7 @@ class SoulWarsTerminalAndRewardTests(unittest.TestCase):
         self.assertEqual(bought["soul_wars_zeal"], 6)
         self.assertEqual(bought["inventory"]["Gold charm"], 24)
 
-        with patch("soul_wars_logic.player_combat_level_pure", return_value=12):
+        with patch("ankiscape.logic.soul_wars_logic.player_combat_level_pure", return_value=12):
             _same, ok, info = buy_soul_wars_charms_pure(
                 _player(soul_wars_zeal=10), "Gold charm"
             )

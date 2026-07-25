@@ -26,7 +26,7 @@ from typing import Dict, Iterable, Iterator, List, Mapping, Optional, Sequence, 
 
 ROOT = Path(__file__).resolve().parents[1]
 CACHE_DIR = ROOT / "tools" / ".cache" / "pre_eoc_quest_catalog"
-OUTPUT_PATH = ROOT / "quest_catalog_generated.py"
+OUTPUT_PATH = ROOT / "generated" / "quest_catalog_generated.py"
 WIKI_API = "https://runescape.wiki/api.php"
 RELEASE_LIST_TITLE = "List of quests by release date"
 RELEASE_LIST_SOURCE = "https://runescape.wiki/w/List_of_quests_by_release_date"

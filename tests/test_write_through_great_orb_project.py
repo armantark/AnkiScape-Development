@@ -26,12 +26,13 @@ from __future__ import annotations
 import copy
 import unittest
 
-from great_orb_project_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.great_orb_project_data import (
     GREAT_ORB_PROJECT_ACTIVITY_ID,
     GREAT_ORB_PROJECT_ROUNDS,
     OMNI_TALISMAN_ACCESS_PAIRS,
 )
-from great_orb_project_logic import (
+from ankiscape.logic.great_orb_project_logic import (
     GREAT_ORB_PROJECT_STATE_VERSION,
     apply_great_orb_project_command_pure,
     apply_great_orb_project_review_pure,

@@ -93,19 +93,20 @@ def _drop_names(value: Any) -> set[str]:
     return names
 
 
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 def build_reachability_report() -> dict[str, Any]:
-    import combat_data
-    import constants
-    import farming_data
-    import fist_of_guthix_data
-    import pack_data
-    import pyramid_plunder_data
-    import shooting_star_data
-    import shop_data
-    import shop_logic
-    import sorceress_garden_data
-    import thieving_data
-    import woodcutting_data
+    from ankiscape.data import combat_data
+    from ankiscape.core import constants
+    from ankiscape.data import farming_data
+    from ankiscape.data import fist_of_guthix_data
+    from ankiscape.data import pack_data
+    from ankiscape.data import pyramid_plunder_data
+    from ankiscape.data import shooting_star_data
+    from ankiscape.data import shop_data
+    from ankiscape.logic import shop_logic
+    from ankiscape.data import sorceress_garden_data
+    from ankiscape.data import thieving_data
+    from ankiscape.data import woodcutting_data
 
     registered_items = {definition.storage_key for definition in constants.ITEM_DEFINITIONS}
 

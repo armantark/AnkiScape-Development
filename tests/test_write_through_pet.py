@@ -21,8 +21,9 @@ real defect rather than an artifact of the probe.
 import copy
 import unittest
 
-import pet_logic
-from pet_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic import pet_logic
+from ankiscape.logic.pet_logic import (
     acquire_pet_pure,
     advance_active_pet_pure,
     hatch_phoenix_egg_pure,
@@ -30,7 +31,7 @@ from pet_logic import (
     release_pet_pure,
     store_active_pet_pure,
 )
-from summoning_logic import default_summoning_state_pure
+from ankiscape.logic.summoning_logic import default_summoning_state_pure
 
 
 class WriteThroughError(AssertionError):

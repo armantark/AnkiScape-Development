@@ -19,7 +19,8 @@ from tests.test_main_menu_widget import (
     _utility_row,
 )
 from tools.render_big_chinchompa_ui import _dark_palette
-from vinesweeper_logic import default_vinesweeper_state_pure
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.vinesweeper_logic import default_vinesweeper_state_pure
 
 
 def _active_player_data() -> dict:

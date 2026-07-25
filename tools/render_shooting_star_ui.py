@@ -13,7 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from aqt.qt import QApplication, QWidget  # type: ignore
 
-from shooting_star_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.shooting_star_logic import (
     advance_shooting_star_world_clock_pure,
     default_shooting_star_state_pure,
 )

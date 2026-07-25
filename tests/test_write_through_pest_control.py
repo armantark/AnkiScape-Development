@@ -23,13 +23,14 @@ import copy
 import unittest
 from unittest.mock import patch
 
-from pest_control_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.pest_control_data import (
     PEST_CONTROL_ACTIVITY_ID,
     PEST_CONTROL_EVENT_REVIEWS,
     PEST_CONTROL_PORTAL_COUNT,
     VOID_SEAL_COST,
 )
-from pest_control_logic import (
+from ankiscape.logic.pest_control_logic import (
     apply_pest_control_command_pure,
     apply_pest_control_review_pure,
     buy_void_seal_pure,
@@ -37,7 +38,7 @@ from pest_control_logic import (
     leave_pest_control_pure,
     set_pest_control_policy_pure,
 )
-from pet_data import PETS_BY_ID
+from ankiscape.data.pet_data import PETS_BY_ID
 
 
 class WriteThroughError(AssertionError):
@@ -338,7 +339,7 @@ class PestControlWriteThroughProbeTest(unittest.TestCase):
             with self.subTest(outcome=label):
                 plain = _entered()
                 frozen = _frozen_save(plain)
-                with patch("pest_control_logic.apply_combat_burst_pure", stub):
+                with patch("ankiscape.logic.pest_control_logic.apply_combat_burst_pure", stub):
                     _data, ok, result = apply_pest_control_review_pure(
                         frozen, lambda: 0.9, productive=True, duty="assault"
                     )
@@ -365,7 +366,7 @@ class PestControlWriteThroughProbeTest(unittest.TestCase):
         plain = _entered()
         frozen = _frozen_save(plain)
         with patch(
-            "pest_control_logic.apply_combat_burst_pure", _combat_stub(ok=False)
+            "ankiscape.logic.pest_control_logic.apply_combat_burst_pure", _combat_stub(ok=False)
         ):
             data, ok, result = apply_pest_control_review_pure(
                 frozen, lambda: 0.9, productive=True, duty="assault"
@@ -420,7 +421,7 @@ class PestControlWriteThroughProbeTest(unittest.TestCase):
             portal_lifepoints=1,
         )
         frozen = _frozen_save(plain)
-        with patch("pest_control_logic.apply_combat_burst_pure", _combat_stub(99_999)):
+        with patch("ankiscape.logic.pest_control_logic.apply_combat_burst_pure", _combat_stub(99_999)):
             data, ok, result = apply_pest_control_review_pure(
                 frozen, lambda: 0.9, productive=True, duty="assault"
             )

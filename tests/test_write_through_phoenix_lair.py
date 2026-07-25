@@ -17,10 +17,11 @@ import copy
 import unittest
 from unittest.mock import patch
 
-from constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
-from storage_pure import default_player_data
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.core.storage_pure import default_player_data
 
-import phoenix_lair_logic
+from ankiscape.logic import phoenix_lair_logic
 
 
 class WriteThroughError(AssertionError):

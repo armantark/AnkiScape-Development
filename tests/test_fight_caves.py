@@ -5,18 +5,19 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from constants import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import (
     EQUIPMENT_DATA,
     ITEM_DEFINITIONS,
     ORE_DATA,
     UTILITY_ACTIVITY_DATA,
 )
-from fight_caves_data import (
+from ankiscape.data.fight_caves_data import (
     FIGHT_CAVES_COMPLETION_TOKKUL,
     FIGHT_CAVES_ENEMY_DATA,
     FIGHT_CAVES_WAVES,
 )
-from fight_caves_logic import (
+from ankiscape.logic.fight_caves_logic import (
     apply_fight_caves_command_pure,
     apply_fight_caves_review_pure,
     default_fight_caves_state_pure,
@@ -24,8 +25,8 @@ from fight_caves_logic import (
     fight_caves_view_pure,
     sanitize_fight_caves_state_pure,
 )
-from runtime_actions import RuntimeActionContext, handle_utility_answer
-from storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
+from ankiscape.runtime.runtime_actions import RuntimeActionContext, handle_utility_answer
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
 
 
 def _player(**overrides):
@@ -220,7 +221,7 @@ class FightCavesMechanicsTests(unittest.TestCase):
     def test_wave_completion_and_tz_kek_split_use_stable_roster_instances(self):
         data = _entered()
         with patch(
-            "fight_caves_logic.apply_combat_burst_pure",
+            "ankiscape.logic.fight_caves_logic.apply_combat_burst_pure",
             side_effect=_combat_result(killed=True),
         ):
             advanced, ok, result = apply_fight_caves_review_pure(data, lambda: 0.5)
@@ -231,7 +232,7 @@ class FightCavesMechanicsTests(unittest.TestCase):
         advanced["fight_caves"]["wave"] = 3
         advanced["fight_caves"]["roster"] = []
         with patch(
-            "fight_caves_logic.apply_combat_burst_pure",
+            "ankiscape.logic.fight_caves_logic.apply_combat_burst_pure",
             side_effect=_combat_result(killed=True),
         ):
             split, ok, result = apply_fight_caves_review_pure(advanced, lambda: 0.5)
@@ -291,7 +292,7 @@ class FightCavesMechanicsTests(unittest.TestCase):
             return data
 
         with patch(
-            "fight_caves_logic.apply_combat_burst_pure",
+            "ankiscape.logic.fight_caves_logic.apply_combat_burst_pure",
             side_effect=_combat_result(lifepoints=100),
         ):
             _unprotected, ok, unprotected = apply_fight_caves_review_pure(
@@ -322,7 +323,7 @@ class FightCavesMechanicsTests(unittest.TestCase):
         kih["encounter"]["enemy_lifepoints"] = 20
         data["fight_caves"]["engaged_instance_id"] = kih["instance_id"]
         with patch(
-            "fight_caves_logic.apply_combat_burst_pure",
+            "ankiscape.logic.fight_caves_logic.apply_combat_burst_pure",
             side_effect=_combat_result(),
         ):
             first, ok, first_result = apply_fight_caves_review_pure(
@@ -347,7 +348,7 @@ class FightCavesMechanicsTests(unittest.TestCase):
         data["fight_caves"]["wave"] = 63
         data["fight_caves"]["roster"] = []
         with patch(
-            "fight_caves_logic.apply_combat_burst_pure",
+            "ankiscape.logic.fight_caves_logic.apply_combat_burst_pure",
             side_effect=_combat_result(lifepoints=1200),
         ):
             fighting, ok, result = apply_fight_caves_review_pure(data, lambda: 0.0)
@@ -374,7 +375,7 @@ class FightCavesMechanicsTests(unittest.TestCase):
         )
         fighting["fight_caves"]["engaged_instance_id"] = jad["instance_id"]
         with patch(
-            "fight_caves_logic.apply_combat_burst_pure",
+            "ankiscape.logic.fight_caves_logic.apply_combat_burst_pure",
             side_effect=_combat_result(killed=True),
         ):
             won, ok, result = apply_fight_caves_review_pure(fighting, lambda: 0.5)
@@ -397,7 +398,7 @@ class FightCavesMechanicsTests(unittest.TestCase):
         before_equipment = copy.deepcopy(data["equipment"])
         before_carried = copy.deepcopy(data["carried_inventory"])
         with patch(
-            "fight_caves_logic.apply_combat_burst_pure",
+            "ankiscape.logic.fight_caves_logic.apply_combat_burst_pure",
             side_effect=_combat_result(died=True),
         ):
             defeated, ok, result = apply_fight_caves_review_pure(data, lambda: 0.5)

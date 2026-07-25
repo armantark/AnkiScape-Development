@@ -1,11 +1,12 @@
 import unittest
 
-from constants import ITEM_DEFINITIONS, ORE_DATA
-from inventory_pure import sanitize_bank_run_state
-from logic_pure import apply_runecrafting_action_pure
-from constants import RUNECRAFTING_DATA, RUNECRAFTING_POUCH_DATA
-from storage_pure import default_player_data, migrate_loaded_data
-from wicked_hood_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.logic.inventory_pure import sanitize_bank_run_state
+from ankiscape.logic_pure.logic_pure import apply_runecrafting_action_pure
+from ankiscape.core.constants import RUNECRAFTING_DATA, RUNECRAFTING_POUCH_DATA
+from ankiscape.core.storage_pure import default_player_data, migrate_loaded_data
+from ankiscape.logic.wicked_hood_logic import (
     advance_wicked_hood_review_day_pure,
     apply_wicked_hood_command_pure,
     bank_run_phase_label_pure,

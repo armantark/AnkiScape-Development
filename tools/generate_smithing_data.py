@@ -547,7 +547,7 @@ def generate(game_root: Path, output_path: Path) -> None:
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--game-root", type=Path, default=DEFAULT_GAME_ROOT)
-    parser.add_argument("--output", type=Path, default=Path(__file__).resolve().parents[1] / "smithing_data.py")
+    parser.add_argument("--output", type=Path, default=Path(__file__).resolve().parents[1] / "data" / "smithing_data.py")
     args = parser.parse_args(argv)
     generate(args.game_root, args.output)
     print(f"Wrote {args.output}")

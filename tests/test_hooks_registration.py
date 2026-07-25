@@ -1,6 +1,7 @@
 import unittest
 
-from hooks import build_registration_plan, register_hooks
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.hooks import build_registration_plan, register_hooks
 
 
 class TestHooksRegistration(unittest.TestCase):

@@ -15,7 +15,8 @@ from aqt.qt import QApplication  # type: ignore
 
 from tests.test_main_menu_widget import MainMenuWidgetTest, _make_player_data, _utility_row
 from tools.render_fishing_trawler_ui import _dark_palette
-from varrock_museum_logic import apply_varrock_museum_command_pure
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.varrock_museum_logic import apply_varrock_museum_command_pure
 
 
 def _show_card(case: MainMenuWidgetTest, player: dict, width: int, height: int):

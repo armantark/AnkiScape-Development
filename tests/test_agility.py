@@ -2,14 +2,15 @@ import ast
 import unittest
 from pathlib import Path
 
-from agility_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.agility_data import (
     AGILITY_ITEM_IMAGES,
     AGILITY_SHORTCUTS,
     AGILITY_TARGETS_BY_ID,
     ALL_AGILITY_SHORTCUTS,
     DORGESH_ROUTE_OPTIONS,
 )
-from agility_logic import (
+from ankiscape.logic.agility_logic import (
     PIT_INVITATION_COURSE_IDS,
     agility_failure_probability_pure,
     agility_target_locked_reasons_pure,
@@ -18,20 +19,20 @@ from agility_logic import (
     default_agility_state_pure,
     sanitize_agility_state_pure,
 )
-from agility_travel import (
+from ankiscape.logic.agility_travel import (
     agility_carried_weight_pure,
     agility_travel_profile_pure,
     apply_run_energy_credit_pure,
     scheduled_travel_reviews_pure,
 )
-from logic_pure import fishing_agility_double_catch_chance_pure
+from ankiscape.logic_pure.logic_pure import fishing_agility_double_catch_chance_pure
 
 
 class TestAgilityCourseData(unittest.TestCase):
     def test_agility_gameplay_modules_do_not_read_wall_clock_time(self):
         repo_root = Path(__file__).resolve().parents[1]
         forbidden_modules = {"time", "datetime"}
-        for filename in ("agility_data.py", "agility_logic.py", "agility_travel.py"):
+        for filename in ("data/agility_data.py", "logic/agility_logic.py", "logic/agility_travel.py"):
             with self.subTest(filename=filename):
                 tree = ast.parse((repo_root / filename).read_text(encoding="utf-8"))
                 imported = {

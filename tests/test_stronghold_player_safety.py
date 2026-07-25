@@ -1,13 +1,14 @@
 import unittest
 import os
 
-from stronghold_player_safety_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.stronghold_player_safety_data import (
     COCKROACH_SOLDIER_TARGET_ID,
     SAFETY_GLOVES_ITEM,
     cockroach_soldier_enemy_as_dict,
     stronghold_player_safety_equipment_data_as_dict,
 )
-from stronghold_player_safety_logic import (
+from ankiscape.logic.stronghold_player_safety_logic import (
     apply_stronghold_player_safety_command_pure,
     apply_stronghold_player_safety_review_pure,
     sanitize_stronghold_player_safety_state_pure,
@@ -35,8 +36,8 @@ def _reach_chest(player):
 
 class StrongholdPlayerSafetyPureTest(unittest.TestCase):
     def test_cadence_and_registry_expose_the_complete_landmark_boundary(self):
-        from cadence_coverage import cadence_coverage_rows_pure
-        from constants import (
+        from ankiscape.logic.cadence_coverage import cadence_coverage_rows_pure
+        from ankiscape.core.constants import (
             COMBAT_ENEMY_IMAGES,
             ITEM_DEFINITIONS,
             UTILITY_ACTIVITY_DATA,
@@ -241,9 +242,9 @@ class StrongholdPlayerSafetyPureTest(unittest.TestCase):
         self.assertIn("Summoning defence", gloves.source_status)
 
     def test_started_soldier_encounter_enters_live_combat_without_catalog_access(self):
-        from constants import COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
-        from logic_pure import apply_combat_burst_pure, combat_target_locked_reasons_pure
-        from storage_pure import default_player_data
+        from ankiscape.core.constants import COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
+        from ankiscape.logic_pure.logic_pure import apply_combat_burst_pure, combat_target_locked_reasons_pure
+        from ankiscape.core.storage_pure import default_player_data
 
         player = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         for _ in range(2):

@@ -6,7 +6,8 @@ import unittest
 from dataclasses import asdict
 from unittest.mock import patch
 
-from pest_control_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.pest_control_data import (
     PEST_CONTROL_COMMENDATION_CAP,
     PEST_CONTROL_EVENT_REVIEWS,
     PEST_CONTROL_FRONTS,
@@ -15,7 +16,7 @@ from pest_control_data import (
     pest_control_equipment_data_as_dict,
     pest_control_portal_enemy_pure,
 )
-from pest_control_logic import (
+from ankiscape.logic.pest_control_logic import (
     apply_pest_control_review_pure,
     buy_void_seal_pure,
     enter_pest_control_pure,
@@ -73,7 +74,7 @@ def _combat_stub(damage: int = 0, *, died: bool = False):
 
 class PestControlDataTests(unittest.TestCase):
     def test_activity_and_all_charged_seals_are_registered_with_assets(self):
-        from constants import ITEM_DEFINITIONS, UTILITY_ACTIVITY_DATA
+        from ankiscape.core.constants import ITEM_DEFINITIONS, UTILITY_ACTIVITY_DATA
 
         icon_path = UTILITY_ACTIVITY_DATA["pest_control"].get("icon_path")
         self.assertTrue(icon_path)
@@ -205,7 +206,7 @@ class PestControlEntryAndStateTests(unittest.TestCase):
 class PestControlAssaultTests(unittest.TestCase):
     def test_casual_shared_assault_wins_and_pays_period_rewards(self):
         data = _entered()
-        with patch("pest_control_logic.apply_combat_burst_pure", _combat_stub(0)):
+        with patch("ankiscape.logic.pest_control_logic.apply_combat_burst_pure", _combat_stub(0)):
             for _ in range(PEST_CONTROL_EVENT_REVIEWS):
                 data, ok, result = apply_pest_control_review_pure(
                     data,
@@ -236,7 +237,7 @@ class PestControlAssaultTests(unittest.TestCase):
         self.assertTrue(ok, info)
         data, ok, info = enter_pest_control_pure(player)
         self.assertTrue(ok, info)
-        with patch("pest_control_logic.apply_combat_burst_pure", _combat_stub(0)):
+        with patch("ankiscape.logic.pest_control_logic.apply_combat_burst_pure", _combat_stub(0)):
             for _ in range(PEST_CONTROL_EVENT_REVIEWS):
                 data, ok, result = apply_pest_control_review_pure(
                     data,
@@ -274,7 +275,7 @@ class PestControlAssaultTests(unittest.TestCase):
             self.assertEqual(enemies["pest_control_portal_front"]["xp_multiplier"], 0.5)
             return _combat_stub(100)(data, enemies, equipment, **kwargs)
 
-        with patch("pest_control_logic.apply_combat_burst_pure", fake):
+        with patch("ankiscape.logic.pest_control_logic.apply_combat_burst_pure", fake):
             updated, ok, result = apply_pest_control_review_pure(
                 data,
                 lambda: 0.5,
@@ -289,7 +290,7 @@ class PestControlAssaultTests(unittest.TestCase):
     def test_safe_player_death_does_not_end_the_team_game(self):
         data = _entered()
         with patch(
-            "pest_control_logic.apply_combat_burst_pure",
+            "ankiscape.logic.pest_control_logic.apply_combat_burst_pure",
             _combat_stub(0, died=True),
         ):
             updated, ok, result = apply_pest_control_review_pure(

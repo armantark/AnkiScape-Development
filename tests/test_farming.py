@@ -4,8 +4,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-import farming_logic
-from constants import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic import farming_logic
+from ankiscape.core.constants import (
     FARMING_COMPOST_STATE_IMAGES,
     FARMING_HUD_SPROUT_ICON,
     FARMING_ITEM_IMAGES,
@@ -13,7 +14,7 @@ from constants import (
     ITEM_DEFINITIONS,
     ORE_DATA,
 )
-from farming_data import (
+from ankiscape.data.farming_data import (
     COMPOST_BIN_CAPACITY,
     COMPOST_TIERS,
     FARMING_ASSET_MANIFEST,
@@ -26,7 +27,7 @@ from farming_data import (
     LIVID_FARM_ALLOTMENT_PATCH_ID,
     LIVID_FARM_PROTECTION_SCROLL,
 )
-from farming_logic import (
+from ankiscape.logic.farming_logic import (
     CURE_PLANT_SPELL_FIRST,
     JADE_POLICY_KEEP_TAME,
     JADE_POLICY_TRAIN_FARMING,
@@ -61,10 +62,10 @@ from farming_logic import (
     set_farm_plan_pure,
     apply_farm_preset_pure,
 )
-from item_registry import item_definitions_by_id, item_definitions_by_storage_key
-from shop_data import SHOP_DATA
-from skill_registry import get_skill, review_handler_key
-from storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
+from ankiscape.core.item_registry import item_definitions_by_id, item_definitions_by_storage_key
+from ankiscape.data.shop_data import SHOP_DATA
+from ankiscape.core.skill_registry import get_skill, review_handler_key
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
 from tools.fetch_farming_assets import asset_manifest, interface_asset_manifest, item_asset_manifest
 from tools.generate_npc_shop_data import SHOP_STOCK_EXCLUDED_ITEM_IDS
 
@@ -1799,7 +1800,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
                 "xp_rewards": {"attack_exp": 40.0},
             }
 
-        with patch("farming_logic.apply_combat_burst_pure", side_effect=partial) as burst:
+        with patch("ankiscape.logic.farming_logic.apply_combat_burst_pure", side_effect=partial) as burst:
             fighting, consumed, info = apply_farming_review_with_queue_pure(
                 queued, lambda: 1.0, 3
             )
@@ -1815,7 +1816,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
         self.assertEqual(burst.call_args.kwargs["ticks"], 18)
         self.assertTrue(burst.call_args.kwargs["stop_after_first_kill"])
 
-        with patch("farming_logic.apply_combat_burst_pure", side_effect=partial) as burst:
+        with patch("ankiscape.logic.farming_logic.apply_combat_burst_pure", side_effect=partial) as burst:
             _, consumed, info = consume_next_farm_queue_step_pure(
                 queued, lambda: 1.0, 4
             )
@@ -1837,7 +1838,7 @@ class TestFarmingVerifiedRegressions(unittest.TestCase):
                 "xp_rewards": {"strength_exp": 80.0},
             }
 
-        with patch("farming_logic.apply_combat_burst_pure", side_effect=killed):
+        with patch("ankiscape.logic.farming_logic.apply_combat_burst_pure", side_effect=killed):
             finished, consumed, info = consume_next_farm_queue_step_pure(
                 fighting, lambda: 1.0
             )

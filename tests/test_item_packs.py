@@ -1,8 +1,9 @@
 import unittest
 
-from logic_pure import apply_item_pack_open_pure
-from pack_data import ITEM_PACK_DATA
-from shop_data import SHOP_DATA
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic_pure.logic_pure import apply_item_pack_open_pure
+from ankiscape.data.pack_data import ITEM_PACK_DATA
+from ankiscape.data.shop_data import SHOP_DATA
 
 
 class ItemPackTests(unittest.TestCase):

@@ -13,7 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from aqt.qt import QApplication  # type: ignore
 
-from stronghold_player_safety_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.stronghold_player_safety_logic import (
     apply_stronghold_player_safety_command_pure,
 )
 from tests.test_main_menu_widget import (

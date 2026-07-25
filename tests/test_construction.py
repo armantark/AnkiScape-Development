@@ -2,21 +2,22 @@ import os
 import json
 import unittest
 
-from constants import ITEM_DEFINITIONS, ORE_DATA, UTILITY_ACTIVITY_DATA
-from construction_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA, UTILITY_ACTIVITY_DATA
+from ankiscape.data.construction_data import (
     CONSTRUCTION_BUILD_TARGETS, CONSTRUCTION_DATA, DEFAULT_CONSTRUCTION_TARGET,
     FLATPACK_TARGETS, HOUSE_STYLE_DATA, NAIL_DATA, ROOM_DATA, SERVANT_DATA,
     TABLET_TARGETS, WORKBENCH_TIERS,
 )
-from logic_pure import (
+from ankiscape.logic_pure.logic_pure import (
     apply_construction_action_pure, construction_target_locked_reasons_pure,
     owned_gilded_altar_burner_count_pure, purchase_house_option_pure,
     purchase_house_pure,
 )
-from runtime_actions import RuntimeActionContext, answer_handler_for_key, handle_construction_answer, handle_prayer_answer
-from shop_data import SHOP_PLAYER_BUY_PRICES
-from storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
-from target_metadata import construction_target_rows
+from ankiscape.runtime.runtime_actions import RuntimeActionContext, answer_handler_for_key, handle_construction_answer, handle_prayer_answer
+from ankiscape.data.shop_data import SHOP_PLAYER_BUY_PRICES
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
+from ankiscape.core.target_metadata import construction_target_rows
 from tools.fetch_construction_assets import asset_manifest
 
 

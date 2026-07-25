@@ -1,6 +1,7 @@
 import unittest
 
-from cooking_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.cooking_data import (
     COOKING_PREP_ACTIVITIES,
     COOKING_SOURCE_PATH,
     COOKING_TARGETS,

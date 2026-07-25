@@ -1,7 +1,8 @@
 import os
 import unittest
 
-from constants import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import (
     CRAFTED_ITEM_IMAGES,
     CRAFTING_DATA,
     DEFAULT_MINING_TARGET,
@@ -15,24 +16,24 @@ from constants import (
     UTILITY_ACTIVITY_DATA,
     UTILITY_ITEM_IMAGES,
 )
-from item_registry import item_definitions_by_storage_key
-from logic_pure import (
+from ankiscape.core.item_registry import item_definitions_by_storage_key
+from ankiscape.logic_pure.logic_pure import (
     apply_crafting_pure,
     apply_utility_activity_pure,
     mining_target_locked_reasons_pure,
     red_sandstone_daily_remaining_pure,
 )
-from mining_data import (
+from ankiscape.data.mining_data import (
     MINING_REVIEW_DAY_CARDS,
     RED_SANDSTONE_DAILY_CAP,
 )
-from runtime_actions import (
+from ankiscape.runtime.runtime_actions import (
     handle_crafting_answer,
     handle_mining_answer,
     handle_utility_answer,
 )
-from storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
-from target_metadata import (
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
+from ankiscape.core.target_metadata import (
     crafting_target_rows,
     mining_target_rows,
     utility_activity_rows,

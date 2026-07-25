@@ -34,7 +34,7 @@ DEFAULT_DARKAN_DEPENDENCY_JARS = (
 )
 DEFAULT_2011_ITEMS = Path("/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml")
 
-SHOP_DATA_PATH = REPO_ROOT / "shop_data.py"
+SHOP_DATA_PATH = REPO_ROOT / "data" / "shop_data.py"
 LEDGER_PATH = REPO_ROOT / "memory-bank/source-audits/npc-shop-coverage-ledger-2026-07-06.json"
 SUMMARY_PATH = REPO_ROOT / "memory-bank/source-audits/npc-shop-backend-audit-2026-07-06.md"
 DARKAN_PRICE_HELPER = REPO_ROOT / "tools/DumpDarkanShopPriceInputs.java"
@@ -176,7 +176,7 @@ SERVICE_ROWS: list[dict[str, Any]] = [
 
 
 def _bogrog_exchange_service_rows() -> list[dict[str, Any]]:
-    generated = runpy.run_path(str(REPO_ROOT / "summoning_data_generated.py"))
+    generated = runpy.run_path(str(REPO_ROOT / "generated" / "summoning_data_generated.py"))
     rows: list[dict[str, Any]] = []
     for pouch in generated["SUMMONING_CATALOG"]:
         required_level = pouch.get("bogrog_level")

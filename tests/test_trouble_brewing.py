@@ -3,11 +3,12 @@ from __future__ import annotations
 import unittest
 from dataclasses import asdict
 
-from trouble_brewing_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.trouble_brewing_data import (
     TROUBLE_BREWING_EVENT_REVIEWS,
     trouble_brewing_equipment_data_as_dict,
 )
-from trouble_brewing_logic import (
+from ankiscape.logic.trouble_brewing_logic import (
     apply_trouble_brewing_command_pure,
     apply_trouble_brewing_review_pure,
     buy_trouble_brewing_reward_pure,

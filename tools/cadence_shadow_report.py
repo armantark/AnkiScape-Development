@@ -16,8 +16,9 @@ if str(ROOT) not in sys.path:
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
-from cadence_kernel import R  # noqa: E402
-from constants import (  # noqa: E402
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.cadence_kernel import R  # noqa: E402
+from ankiscape.core.constants import (  # noqa: E402
     COOKING_DATA,
     FIREMAKING_DATA,
     FISHING_DATA,
@@ -25,14 +26,14 @@ from constants import (  # noqa: E402
     ORE_DATA,
     TREE_DATA,
 )
-from cadence_shadow import (  # noqa: E402
+from ankiscape.logic.cadence_shadow import (  # noqa: E402
     SOURCE_BLOCKED,
     SOURCE_READY,
     cadence_shadow_report_rows_pure,
     fraction_pair_pure,
     resolve_cadence_shadow_rate_pure,
 )
-from logic_pure import (  # noqa: E402
+from ankiscape.logic_pure.logic_pure import (  # noqa: E402
     calculate_fishing_success_probability_pure,
     eligible_fishing_fish_pure,
 )

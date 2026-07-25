@@ -5,13 +5,14 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from constants import ITEM_DEFINITIONS, ORE_DATA, UTILITY_ACTIVITY_DATA
-from runtime_actions import RuntimeActionContext, handle_utility_answer
-from stealing_creation_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import ITEM_DEFINITIONS, ORE_DATA, UTILITY_ACTIVITY_DATA
+from ankiscape.runtime.runtime_actions import RuntimeActionContext, handle_utility_answer
+from ankiscape.data.stealing_creation_data import (
     STEALING_CREATION_REWARD_FORM_BY_ID,
     STEALING_CREATION_SESSION_EQUIPMENT,
 )
-from stealing_creation_logic import (
+from ankiscape.logic.stealing_creation_logic import (
     apply_stealing_creation_command_pure,
     apply_stealing_creation_review_pure,
     apply_stealing_creation_xp_bonus_pure,
@@ -21,7 +22,7 @@ from stealing_creation_logic import (
     stealing_creation_tool_can_apply_pure,
     stealing_creation_view_pure,
 )
-from storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
 
 
 def _player(**overrides):
@@ -236,7 +237,7 @@ class StealingCreationSessionTests(unittest.TestCase):
             self.assertIn("Sacred clay scimitar (class 4)", equipment)
             return _combat_result(killed=True)(temp, _enemies, equipment, **kwargs)
 
-        with patch("stealing_creation_logic.apply_combat_burst_pure", side_effect=_apply):
+        with patch("ankiscape.logic.stealing_creation_logic.apply_combat_burst_pure", side_effect=_apply):
             updated, ok, result = apply_stealing_creation_review_pure(data, lambda: 0.5)
         self.assertTrue(ok)
         self.assertTrue(result["killed"])
@@ -267,7 +268,7 @@ class StealingCreationSessionTests(unittest.TestCase):
             self.assertEqual(temp["combat_supply_loadout"]["food"], {})
             return copy.deepcopy(temp), True, {"fled": True}
 
-        with patch("stealing_creation_logic.apply_combat_burst_pure", side_effect=_flee):
+        with patch("ankiscape.logic.stealing_creation_logic.apply_combat_burst_pure", side_effect=_flee):
             fled, ok, result = apply_stealing_creation_review_pure(data, lambda: 0.0)
         self.assertTrue(ok)
         self.assertTrue(result["fled"])
@@ -278,7 +279,7 @@ class StealingCreationSessionTests(unittest.TestCase):
 
         session["next_raid_review"] = session["review"] + 1
         with patch(
-            "stealing_creation_logic.apply_combat_burst_pure",
+            "ankiscape.logic.stealing_creation_logic.apply_combat_burst_pure",
             return_value=(copy.deepcopy(fled), False, {"reason": "combat_locked"}),
         ):
             failed, ok, result = apply_stealing_creation_review_pure(fled, lambda: 0.0)
@@ -297,7 +298,7 @@ class StealingCreationSessionTests(unittest.TestCase):
         session["equipment"].update({"weapon": 3, "armour": 2})
         session["next_raid_review"] = 1
         with patch(
-            "stealing_creation_logic.apply_combat_burst_pure",
+            "ankiscape.logic.stealing_creation_logic.apply_combat_burst_pure",
             side_effect=_combat_result(died=True),
         ):
             updated, ok, result = apply_stealing_creation_review_pure(data, lambda: 0.5)
@@ -322,7 +323,7 @@ class StealingCreationSessionTests(unittest.TestCase):
             }
         )
         with patch(
-            "stealing_creation_logic.apply_combat_burst_pure",
+            "ankiscape.logic.stealing_creation_logic.apply_combat_burst_pure",
             side_effect=_combat_result(killed=True),
         ):
             updated, ok, result = apply_stealing_creation_review_pure(data, lambda: 0.0)

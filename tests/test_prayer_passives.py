@@ -1,8 +1,9 @@
 import unittest
 
-from constants import ITEM_DEFINITIONS
-from logic_pure import resolve_prayer_kill_effects_pure
-from prayer_passive_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import ITEM_DEFINITIONS
+from ankiscape.logic_pure.logic_pure import resolve_prayer_kill_effects_pure
+from ankiscape.data.prayer_passive_data import (
     BONECRUSHER_ITEM_ID,
     BONECRUSHER_ITEM_NAME,
     ECTOPLASMATOR_ITEM_ID,

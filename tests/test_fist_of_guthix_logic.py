@@ -1,8 +1,9 @@
 import unittest
 from unittest.mock import patch
 
-from fist_of_guthix_data import FIST_OF_GUTHIX_INITIAL_SUPPLIES
-from fist_of_guthix_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.fist_of_guthix_data import FIST_OF_GUTHIX_INITIAL_SUPPLIES
+from ankiscape.logic.fist_of_guthix_logic import (
     apply_fist_of_guthix_command_pure,
     apply_fist_of_guthix_review_pure,
     default_fist_of_guthix_state_pure,
@@ -76,7 +77,7 @@ class FistOfGuthixLogicTest(unittest.TestCase):
         player = self._started(role="hunted", stance="centre")
         original_inventory = dict(player["inventory"])
         with patch(
-            "fist_of_guthix_logic.apply_combat_burst_pure",
+            "ankiscape.logic.fist_of_guthix_logic.apply_combat_burst_pure",
             return_value=({"combat_encounter": {}}, True, _combat_result()),
         ):
             first, ok, result = apply_fist_of_guthix_review_pure(player)
@@ -108,7 +109,7 @@ class FistOfGuthixLogicTest(unittest.TestCase):
     def test_all_combat_xp_is_halved_including_fixed_magic_xp(self):
         player = self._started(role="hunted")
         with patch(
-            "fist_of_guthix_logic.apply_combat_burst_pure",
+            "ankiscape.logic.fist_of_guthix_logic.apply_combat_burst_pure",
             return_value=(
                 {"combat_encounter": {}},
                 True,
@@ -135,7 +136,7 @@ class FistOfGuthixLogicTest(unittest.TestCase):
         }
         player["equipment_instance_next_id"] = 2
         with patch(
-            "fist_of_guthix_logic.apply_combat_burst_pure",
+            "ankiscape.logic.fist_of_guthix_logic.apply_combat_burst_pure",
             return_value=({"combat_encounter": {}}, True, _combat_result(died=True)),
         ):
             updated, ok, result = apply_fist_of_guthix_review_pure(player)
@@ -147,7 +148,7 @@ class FistOfGuthixLogicTest(unittest.TestCase):
     def test_round_boundary_reports_completed_role_then_swaps_roles(self):
         player = self._started(role="hunter")
         with patch(
-            "fist_of_guthix_logic.apply_combat_burst_pure",
+            "ankiscape.logic.fist_of_guthix_logic.apply_combat_burst_pure",
             return_value=({"combat_encounter": {}}, True, _combat_result(killed=True)),
         ):
             updated, ok, result = apply_fist_of_guthix_review_pure(player)
@@ -173,7 +174,7 @@ class FistOfGuthixLogicTest(unittest.TestCase):
         active["opponent_charges"] = 1
         active["round_ticks"] = 999
         with patch(
-            "fist_of_guthix_logic.apply_combat_burst_pure",
+            "ankiscape.logic.fist_of_guthix_logic.apply_combat_burst_pure",
             return_value=({"combat_encounter": {}}, True, _combat_result(ticks=1)),
         ):
             won, ok, result = apply_fist_of_guthix_review_pure(player)

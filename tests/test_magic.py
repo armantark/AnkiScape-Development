@@ -3,8 +3,9 @@ import os
 import unittest
 from pathlib import Path
 
-from combat_data import COMBAT_ENEMY_DATA
-from constants import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.combat_data import COMBAT_ENEMY_DATA
+from ankiscape.core.constants import (
     EQUIPMENT_DATA,
     ITEM_DEFINITIONS,
     MAGIC_DATA,
@@ -12,7 +13,7 @@ from constants import (
     MAGIC_SPELL_IMAGES,
     ORE_DATA,
 )
-from logic_pure import (
+from ankiscape.logic_pure.logic_pure import (
     MAGIC_CHARGE_DURATION_TICKS,
     MAGE_ARENA_GOD_DATA,
     apply_mage_arena_cape_action_pure,
@@ -32,20 +33,20 @@ from logic_pure import (
     set_mage_arena_alignment_pure,
     set_combat_pack_mode_pure,
 )
-from farming_logic import default_farming_state_pure, execute_farm_field_step_pure, set_farm_plan_pure
-from magic_data import CHARGE_WIKI, COMBAT_MAGIC_ADDITIONS, MAGIC_TARGETS
-from livid_farm_data import (
+from ankiscape.logic.farming_logic import default_farming_state_pure, execute_farm_field_step_pure, set_farm_plan_pure
+from ankiscape.data.magic_data import CHARGE_WIKI, COMBAT_MAGIC_ADDITIONS, MAGIC_TARGETS
+from ankiscape.data.livid_farm_data import (
     ARCANE_CAPACITOR_CHARGED,
     ARCANE_CAPACITOR_UNCHARGED,
 )
-from runtime_actions import (
+from ankiscape.runtime.runtime_actions import (
     RuntimeActionContext,
     answer_handler_for_key,
     handle_magic_answer,
     handle_utility_answer,
 )
-from storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
-from target_metadata import magic_target_rows
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
+from ankiscape.core.target_metadata import magic_target_rows
 
 
 def _quest_state(*completed):

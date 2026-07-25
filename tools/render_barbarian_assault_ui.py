@@ -13,7 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from aqt.qt import QApplication  # type: ignore
 
-from barbarian_assault_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic.barbarian_assault_logic import (
     apply_barbarian_assault_command_pure,
     apply_barbarian_assault_review_pure,
 )

@@ -14,7 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from potion_data import EMPTY_FLASK_ITEM, POTION_FAMILIES, potion_dose_name, potion_flask_name
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.potion_data import EMPTY_FLASK_ITEM, POTION_FAMILIES, potion_dose_name, potion_flask_name
 from tools.fetch_assets import RS3_WIKI, AssetFetchError, AssetRequest, HttpWikiClient, fetch_asset
 
 

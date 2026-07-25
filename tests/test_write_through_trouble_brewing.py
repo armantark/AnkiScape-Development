@@ -21,8 +21,9 @@ real defect rather than an artifact of the probe.
 import copy
 import unittest
 
-from trouble_brewing_data import TROUBLE_BREWING_EVENT_REVIEWS
-from trouble_brewing_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.trouble_brewing_data import TROUBLE_BREWING_EVENT_REVIEWS
+from ankiscape.logic.trouble_brewing_logic import (
     apply_trouble_brewing_command_pure,
     apply_trouble_brewing_review_pure,
     buy_trouble_brewing_reward_pure,

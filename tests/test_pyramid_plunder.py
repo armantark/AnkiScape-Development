@@ -6,15 +6,16 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-import constants
-from agility_logic import apply_agility_command_pure
-from cadence_coverage import cadence_coverage_rows_pure
-from pyramid_plunder_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core import constants
+from ankiscape.logic.agility_logic import apply_agility_command_pure
+from ankiscape.logic.cadence_coverage import cadence_coverage_rows_pure
+from ankiscape.data.pyramid_plunder_data import (
     PYRAMID_PLUNDER_ACTIVITY_ID,
     PYRAMID_PLUNDER_ROOM_DATA,
     pyramid_plunder_extra_items_as_dict,
 )
-from pyramid_plunder_logic import (
+from ankiscape.logic.pyramid_plunder_logic import (
     _room_bundle,
     apply_pyramid_plunder_review_pure,
     enter_pyramid_plunder_pure,
@@ -24,7 +25,7 @@ from pyramid_plunder_logic import (
     sanitize_pyramid_plunder_state_pure,
     set_pyramid_plunder_priority_pure,
 )
-from storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
 from tests.test_integration_smoke import (
     _install_runtime_fakes,
     _load_addon_as_package,
@@ -306,7 +307,7 @@ class PyramidPlunderHookTests(unittest.TestCase):
 
     def test_good_answer_awards_three_room_bundle_once(self):
         addon = _load_addon_as_package("ankiscape_pyramid_plunder_hook")
-        logic = sys.modules[f"{addon.__name__}.pyramid_plunder_logic"]
+        logic = sys.modules[f"{addon.__name__}.logic.pyramid_plunder_logic"]
         player = _player()
         player, ok, _info = logic.enter_pyramid_plunder_pure(player)
         self.assertTrue(ok)

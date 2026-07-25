@@ -1,6 +1,7 @@
 import copy
 import unittest
-from logic_pure import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic_pure.logic_pure import (
     apply_consumable_pure,
     apply_combat_stat_delta_pure,
     apply_combat_stat_boost_to_pure,
@@ -107,8 +108,8 @@ from logic_pure import (
     player_combat_level_pure,
     normalize_xp_rewards_pure,
 )
-from storage_pure import default_player_data
-from constants import (
+from ankiscape.core.storage_pure import default_player_data
+from ankiscape.core.constants import (
     CRAFTING_DATA,
     ACHIEVEMENTS,
     CLAIM_DATA,
@@ -374,7 +375,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(inventory, {"Shield left half": 0, "Shield right half": 0, "Dragon sq shield": 1})
 
     def test_apply_smithing_action_pure_casts_four_cannonballs_and_keeps_mould(self):
-        from constants import SMITHING_DATA
+        from ankiscape.core.constants import SMITHING_DATA
 
         self.assertFalse(can_smith_item_pure(35, {"Steel bar": 1}, "forge_cannonballs", SMITHING_DATA))
         inputs = {"Steel bar": 1, "Ammo mould": 1}
@@ -652,7 +653,7 @@ class TestLogic(unittest.TestCase):
         # CombatFormula.kt rolls Utils.random(1, maxHit) on landed hits, and
         # Utils.random(min, max) = min + nextInt(|max-min|): uniform
         # 1..maxHit-1 lifepoints, never 0 and never the displayed max.
-        from logic_pure import _combat_roll_damage_lifepoints
+        from ankiscape.logic_pure.logic_pure import _combat_roll_damage_lifepoints
 
         # max hit 5.0 old-HP = 50 lifepoints: rolls span 1..49.
         self.assertEqual(_combat_roll_damage_lifepoints(5.0, lambda: 0.0), 1)
@@ -668,8 +669,8 @@ class TestLogic(unittest.TestCase):
         # AnkiScape folds that source constant into every roll, keyed on the
         # cache item id (15261), never a display-name string. This pins the
         # bonus so a spec-shape change can't silently disable it again.
-        from constants import MINING_PICKAXE_DATA, ORE_DATA
-        from logic_pure import mining_source_roll_chance_pure
+        from ankiscape.core.constants import MINING_PICKAXE_DATA, ORE_DATA
+        from ankiscape.logic_pure.logic_pure import mining_source_roll_chance_pure
 
         dragon = MINING_PICKAXE_DATA["dragon_pickaxe"]
         self.assertEqual(dragon["item_id"], 15261)
@@ -1791,7 +1792,7 @@ class TestLogic(unittest.TestCase):
         )
 
     def test_apply_herblore_action_pure_three_stage_pipeline(self):
-        from constants import HERBLORE_DATA
+        from ankiscape.core.constants import HERBLORE_DATA
 
         # Clean stage: grimy -> clean herb, herb XP awarded, gated on herb level.
         clean = HERBLORE_DATA["clean_guam"]

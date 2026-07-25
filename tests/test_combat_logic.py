@@ -1,6 +1,7 @@
 import unittest
 
-from combat_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.combat_data import (
     COMBAT_ANTIPOISON_POTION_DATA,
     COMBAT_ALLOTMENT_SEED_DROP_TABLE,
     COMBAT_ENEMY_DATA,
@@ -39,9 +40,9 @@ from combat_data import (
     ZOMBIE_DROPS,
     ZOMBIE_LEVEL_25_DROPS,
 )
-from constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
-from livid_farm_data import ARCANE_CAPACITOR_CHARGED
-from logic_pure import (
+from ankiscape.core.constants import EQUIPMENT_DATA, ITEM_DEFINITIONS, ORE_DATA
+from ankiscape.data.livid_farm_data import ARCANE_CAPACITOR_CHARGED
+from ankiscape.logic_pure.logic_pure import (
     _combat_apply_pvm_death,
     _combat_apply_wilderness_ambush,
     _combat_auto_drink_potions,
@@ -81,7 +82,7 @@ from logic_pure import (
     set_combat_auto_eat_threshold_pure,
     unload_combat_supply_loadout_pure,
 )
-from storage_pure import migrate_loaded_data
+from ankiscape.core.storage_pure import migrate_loaded_data
 
 
 def _rng(values):
@@ -286,7 +287,7 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
         self.assertEqual(refilled["inventory"]["Super strength (4)"], 0)
 
     def test_six_dose_flask_is_registered_drinkable_and_auto_drunk(self):
-        from potion_data import potion_items_as_dict, potion_consumables_as_dict
+        from ankiscape.data.potion_data import potion_items_as_dict, potion_consumables_as_dict
 
         items = potion_items_as_dict()
         consumables = potion_consumables_as_dict()
@@ -304,7 +305,7 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
         self.assertEqual(out["combat_supply_loadout"]["stat_potions"], {"Super strength flask (5)": 1})
 
     def test_antifire_potions_are_registered_and_manually_drinkable(self):
-        from potion_data import potion_items_as_dict, potion_consumables_as_dict
+        from ankiscape.data.potion_data import potion_items_as_dict, potion_consumables_as_dict
 
         items = potion_items_as_dict()
         consumables = potion_consumables_as_dict()
@@ -383,7 +384,7 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
         # unstackable dose costs a slot, so 50 potions pushed supplies to 70 slots,
         # making `supply + loot >= 28` permanently true — every answer became a bank
         # run and the player could never fight a poisonous enemy.
-        from logic_pure import _combat_supply_slots_used, CARRIED_CAPACITY
+        from ankiscape.logic_pure.logic_pure import _combat_supply_slots_used, CARRIED_CAPACITY
 
         player = {
             "inventory": {"Shark": 100, "Antipoison (4)": 50}, "equipment": {},
@@ -420,8 +421,8 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
         self.assertEqual(player["inventory"]["Bones"], 0)
 
     def test_pvm_death_applies_pet_loss_without_putting_pet_in_grave(self):
-        from pet_logic import acquire_pet_pure, let_out_pet_pure
-        from summoning_logic import default_summoning_state_pure
+        from ankiscape.logic.pet_logic import acquire_pet_pure, let_out_pet_pure
+        from ankiscape.logic.summoning_logic import default_summoning_state_pure
 
         player = {
             "inventory": {},
@@ -557,7 +558,7 @@ class CombatEnemyAttackStyleTest(unittest.TestCase):
 
     @staticmethod
     def _magic_robe_setup():
-        from equipment_data import EquipmentItem, EquipmentBonuses
+        from ankiscape.data.equipment_data import EquipmentItem, EquipmentBonuses
 
         robe = EquipmentItem(
             item_name="Robe", slot="body", combat_skill="defense", required_level=1,
@@ -5352,7 +5353,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(refilled["inventory"]["Ice cooler"], 0)
 
     def test_desert_hazard_pack_never_overfills_the_shared_inventory(self):
-        from logic_pure import CARRIED_CAPACITY, _combat_supply_slots_used
+        from ankiscape.logic_pure.logic_pure import CARRIED_CAPACITY, _combat_supply_slots_used
 
         player = _player(
             current_combat_target="desert_lizard",
@@ -5864,7 +5865,7 @@ class CombatLogicTest(unittest.TestCase):
         )
 
     def test_mutated_zygomite_refill_uses_best_spray_and_respects_pack_capacity(self):
-        from logic_pure import CARRIED_CAPACITY, _combat_supply_slots_used
+        from ankiscape.logic_pure.logic_pure import CARRIED_CAPACITY, _combat_supply_slots_used
 
         player = _player(
             current_combat_target="mutated_zygomite_level_74",

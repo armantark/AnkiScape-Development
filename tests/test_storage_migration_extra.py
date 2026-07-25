@@ -1,7 +1,8 @@
 import unittest
 
-from storage_pure import migrate_loaded_data, default_player_data, CURRENT_CONFIG_VERSION
-from constants import MINING_OUTPUT_ITEMS, ORE_DATA
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.storage_pure import migrate_loaded_data, default_player_data, CURRENT_CONFIG_VERSION
+from ankiscape.core.constants import MINING_OUTPUT_ITEMS, ORE_DATA
 
 
 class TestStorageMigrationExtra(unittest.TestCase):

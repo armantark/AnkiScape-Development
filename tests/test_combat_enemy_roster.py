@@ -2,8 +2,9 @@ import json
 import unittest
 from pathlib import Path
 
-from combat_data import COMBAT_ENEMY_DATA
-from logic_pure import combat_target_locked_reasons_pure
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.combat_data import COMBAT_ENEMY_DATA
+from ankiscape.logic_pure.logic_pure import combat_target_locked_reasons_pure
 
 
 NEW_COMBAT_ENEMIES = (
@@ -158,7 +159,7 @@ class CombatEnemyRosterDataTest(unittest.TestCase):
         # targets share that one namespace. A collision would make a combat bank run
         # wipe a skilling pack's view, and a combat death drop that skill's carried
         # materials. There is no collision today; this keeps it that way loudly.
-        from constants import (
+        from ankiscape.core.constants import (
             ORE_DATA, TREE_DATA, FISHING_DATA, HUNTER_DATA, COOKING_DATA, CRAFTING_DATA,
             FLETCHING_DATA, FIREMAKING_DATA, SMITHING_DATA, RUNECRAFTING_DATA,
         )

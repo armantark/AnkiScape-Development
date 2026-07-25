@@ -1,6 +1,7 @@
 import unittest
 
-from summoning_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.summoning_data import (
     SOURCE_DURATION_UNITS_PER_REVIEW,
     SUMMONING_ACTIONS,
     SUMMONING_ACTIONS_BY_ID,
@@ -8,7 +9,7 @@ from summoning_data import (
     SUMMONING_POUCHES_BY_ID,
     summoning_extra_items_as_dict,
 )
-from summoning_data_generated import (
+from ankiscape.generated.summoning_data_generated import (
     SUMMONING_FAMILIAR_OLDID,
     SUMMONING_POUCH_OLDID,
     SUMMONING_SCROLL_OLDID,

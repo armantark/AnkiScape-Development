@@ -1,7 +1,8 @@
 import os
 import unittest
 
-from constants import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.core.constants import (
     BIRD_NEST_OPEN_TABLES,
     BAR_IMAGES,
     COMBAT_ENEMY_DATA,
@@ -47,7 +48,7 @@ from constants import (
     SUMMONING_ITEM_IMAGES,
     WOODCUTTING_AXE_DATA,
 )
-from target_metadata import (
+from ankiscape.core.target_metadata import (
     TargetRowMetadata,
     target_details_from_row_pure,
     agility_target_rows,
@@ -67,9 +68,9 @@ from target_metadata import (
     utility_activity_rows,
     woodcutting_target_rows,
 )
-from agility_data import AGILITY_ITEM_IMAGES, AGILITY_TARGETS, DEFAULT_AGILITY_TARGET
-from thieving_data import DEFAULT_THIEVING_TARGET, THIEVING_ITEM_IMAGES, THIEVING_TARGETS
-from summoning_data import (
+from ankiscape.data.agility_data import AGILITY_ITEM_IMAGES, AGILITY_TARGETS, DEFAULT_AGILITY_TARGET
+from ankiscape.data.thieving_data import DEFAULT_THIEVING_TARGET, THIEVING_ITEM_IMAGES, THIEVING_TARGETS
+from ankiscape.data.summoning_data import (
     DEFAULT_SUMMONING_TARGET,
     SUMMONING_ACTIONS,
     SUMMONING_POUCHES_BY_ID,
@@ -222,7 +223,7 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("20–60 LP damage", _row(rows, "wall_safe").tooltip)
 
     def test_cannonball_row_shows_quest_tool_output_and_rs_wiki_icon(self):
-        from constants import SMITHING_EXTRA_ITEM_IMAGES
+        from ankiscape.core.constants import SMITHING_EXTRA_ITEM_IMAGES
 
         inventory = {"Steel bar": 1, "Ammo mould": 1}
         smithing_images = dict(BAR_IMAGES)

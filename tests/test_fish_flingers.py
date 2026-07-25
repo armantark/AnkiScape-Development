@@ -9,10 +9,11 @@ import types
 import unittest
 from unittest.mock import patch
 
-import cadence_coverage
-import constants
-from fish_flingers_data import FISH_FLINGERS_ACTIVITY_ID
-from fish_flingers_logic import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic import cadence_coverage
+from ankiscape.core import constants
+from ankiscape.data.fish_flingers_data import FISH_FLINGERS_ACTIVITY_ID
+from ankiscape.logic.fish_flingers_logic import (
     apply_fish_flingers_review_pure,
     buy_fish_flingers_reward_pure,
     enter_fish_flingers_pure,
@@ -21,8 +22,8 @@ from fish_flingers_logic import (
     leave_fish_flingers_pure,
     sync_fish_flingers_tickets_pure,
 )
-from logic_pure import equip_item_pure
-from storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
+from ankiscape.logic_pure.logic_pure import equip_item_pure
+from ankiscape.core.storage_pure import CURRENT_CONFIG_VERSION, default_player_data, migrate_loaded_data
 from tests.test_integration_smoke import _install_runtime_fakes, _load_addon_as_package
 
 
@@ -237,9 +238,9 @@ class FishFlingersHookTests(unittest.TestCase):
 
     def test_multiplier_finishes_one_event_in_six_reviews_and_undo_restores_it(self):
         addon = _load_addon_as_package("ankiscape_fish_flingers_hook")
-        logic = sys.modules[f"{addon.__name__}.fish_flingers_logic"]
-        storage = sys.modules[f"{addon.__name__}.storage_pure"]
-        package_constants = sys.modules[f"{addon.__name__}.constants"]
+        logic = sys.modules[f"{addon.__name__}.logic.fish_flingers_logic"]
+        storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
+        package_constants = sys.modules[f"{addon.__name__}.core.constants"]
         player = storage.default_player_data(
             package_constants.ORE_DATA,
             package_constants.ITEM_DEFINITIONS,

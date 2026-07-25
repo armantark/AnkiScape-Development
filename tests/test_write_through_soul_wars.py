@@ -23,13 +23,14 @@ import copy
 import unittest
 from unittest.mock import patch
 
-from soul_wars_data import (
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.data.soul_wars_data import (
     SOUL_WARS_ACTIVITY_ID,
     SOUL_WARS_ACTIVITY_MAX,
     SOUL_WARS_CHARM_REWARDS_BY_ITEM,
     SOUL_WARS_EVENT_REVIEWS,
 )
-from soul_wars_logic import (
+from ankiscape.logic.soul_wars_logic import (
     apply_soul_wars_command_pure,
     apply_soul_wars_review_pure,
     buy_soul_wars_charms_pure,
@@ -313,7 +314,7 @@ class SoulWarsWriteThroughProbeTest(unittest.TestCase):
                 )
                 plain["soul_wars"] = dict(plain["soul_wars"], control_balance=5)
                 frozen = _frozen_save(plain)
-                with patch("soul_wars_logic.apply_combat_burst_pure", stub):
+                with patch("ankiscape.logic.soul_wars_logic.apply_combat_burst_pure", stub):
                     _data, ok, result = apply_soul_wars_review_pure(
                         frozen, lambda: 0.9, productive=True
                     )
@@ -339,7 +340,7 @@ class SoulWarsWriteThroughProbeTest(unittest.TestCase):
         plain = _entered(payload={"automation_mode": "advanced", "duty": "avatar"})
         plain["soul_wars"] = dict(plain["soul_wars"], control_balance=5)
         frozen = _frozen_save(plain)
-        with patch("soul_wars_logic.apply_combat_burst_pure", _combat_stub(ok=False)):
+        with patch("ankiscape.logic.soul_wars_logic.apply_combat_burst_pure", _combat_stub(ok=False)):
             data, ok, result = apply_soul_wars_review_pure(
                 frozen, lambda: 0.9, productive=True
             )

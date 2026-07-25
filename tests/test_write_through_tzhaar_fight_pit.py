@@ -17,7 +17,8 @@ import copy
 import unittest
 from unittest.mock import patch
 
-import tzhaar_fight_pit_logic
+import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
+from ankiscape.logic import tzhaar_fight_pit_logic
 
 
 class WriteThroughError(AssertionError):
