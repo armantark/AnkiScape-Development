@@ -18,6 +18,15 @@ Two properties make this a check rather than a restatement of the change:
 * it must pass against the deep-copying code as well, and
 * it asserts each wrapped function was actually called, so a gate cannot pass
   by never reaching the code it guards.
+
+What this gate does and does not guarantee.  It proves **no observable mutation
+during the call**, for the paths the replayed suite actually drives.  It cannot
+see a write that stores a value equal to the one already there, because it
+detects leaks by comparing the mapping for inequality — such a write is real
+write-through that happens to be invisible on this data, and would corrupt the
+save on different data.  `test_write_through_probe.py` closes that hole for the
+highest-consequence helpers by passing in containers that refuse mutation
+outright, so any write-through raises regardless of the value written.
 """
 
 from __future__ import annotations
@@ -38,18 +47,24 @@ class _Recorder:
 
 def _wrap(name: str, func: Callable[..., Any], recorder: _Recorder) -> Callable[..., Any]:
     def guarded(*args: Any, **kwargs: Any) -> Any:
+        # Keyword mappings are snapshotted too. Several helpers take the save as
+        # `player_data=`, and watching positional arguments alone let those calls
+        # satisfy the non-vacuity assert while going completely unchecked.
         snapshots = [
-            (index, arg, copy.deepcopy(arg))
+            (f"argument {index}", arg, copy.deepcopy(arg))
             for index, arg in enumerate(args)
             if isinstance(arg, Mapping)
         ]
+        snapshots += [
+            (f"keyword {key!r}", value, copy.deepcopy(value))
+            for key, value in kwargs.items()
+            if isinstance(value, Mapping)
+        ]
         recorder.calls[name] = recorder.calls.get(name, 0) + 1
         result = func(*args, **kwargs)
-        for index, arg, before in snapshots:
+        for label, arg, before in snapshots:
             if arg != before:
-                recorder.violations.append(
-                    f"{name} mutated the mapping passed as argument {index}"
-                )
+                recorder.violations.append(f"{name} mutated the mapping passed as {label}")
         return result
 
     guarded.__name__ = getattr(func, "__name__", name)
