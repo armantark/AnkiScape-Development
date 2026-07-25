@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from collections.abc import Mapping
 from typing import Any
 
@@ -131,7 +130,9 @@ def stronghold_player_safety_view_pure(
 def apply_stronghold_player_safety_review_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_stronghold_player_safety_state_pure returns
+    # a fresh state, and inventory is rebuilt with dict() before any write.
+    data = dict(player_data)
     state = sanitize_stronghold_player_safety_state_pure(
         data.get("stronghold_player_safety")
     )
@@ -156,7 +157,9 @@ def apply_stronghold_player_safety_command_pure(
     action_id: str,
     payload: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_stronghold_player_safety_state_pure returns
+    # a fresh state, and inventory is rebuilt with dict() before any write.
+    data = dict(player_data)
     state = sanitize_stronghold_player_safety_state_pure(
         data.get("stronghold_player_safety")
     )

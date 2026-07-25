@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from collections.abc import Mapping
 from typing import Any
 
@@ -193,7 +192,9 @@ def varrock_museum_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
 def apply_varrock_museum_review_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the inventory alias is rebuilt with dict() before any
+    # write, and everything else is top-level assignment.
+    data = dict(player_data)
     state = sanitize_varrock_museum_state_pure(data.get("varrock_museum"))
     data["varrock_museum"] = state
     route = state["route"]
@@ -255,7 +256,9 @@ def apply_varrock_museum_command_pure(
     action_id: str,
     payload: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the inventory alias is rebuilt with dict() before any
+    # write, and everything else is top-level assignment.
+    data = dict(player_data)
     state = sanitize_varrock_museum_state_pure(data.get("varrock_museum"))
     data["varrock_museum"] = state
     payload = payload if isinstance(payload, Mapping) else {}

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 import math
 from collections.abc import Mapping
 from typing import Any, Callable
@@ -241,7 +240,10 @@ def apply_warriors_guild_activity_pure(
     requested_activity_id: str,
     rolls: tuple[float, ...] = (),
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_warriors_guild_state_pure returns a fresh
+    # state including its tokens map, and inventory is rebuilt with dict()
+    # before any write.
+    data = dict(player_data)
     state = sanitize_warriors_guild_state_pure(data.get("warriors_guild"))
     activity_id = warriors_guild_selected_activity_pure(data, requested_activity_id)
     if activity_id is None:
@@ -326,7 +328,10 @@ def _derived_casual_payment(player_data: Mapping[str, Any], state: Mapping[str, 
 def enter_warriors_guild_cyclops_room_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_warriors_guild_state_pure returns a fresh
+    # state including its tokens map, and inventory is rebuilt with dict()
+    # before any write.
+    data = dict(player_data)
     entry_locked = warriors_guild_entry_locked_reasons_pure(data)
     if entry_locked:
         return data, False, {"reason": entry_locked[0]}
@@ -371,7 +376,10 @@ def enter_warriors_guild_cyclops_room_pure(
 def leave_warriors_guild_cyclops_room_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_warriors_guild_state_pure returns a fresh
+    # state including its tokens map, and inventory is rebuilt with dict()
+    # before any write.
+    data = dict(player_data)
     state = sanitize_warriors_guild_state_pure(data.get("warriors_guild"))
     if not state["in_cyclops_room"]:
         return data, False, {"reason": "Not in the Cyclops room"}
@@ -389,7 +397,10 @@ def set_warriors_guild_policy_pure(
     payment_mode: str | None = None,
     single_token: str | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_warriors_guild_state_pure returns a fresh
+    # state including its tokens map, and inventory is rebuilt with dict()
+    # before any write.
+    data = dict(player_data)
     state = sanitize_warriors_guild_state_pure(data.get("warriors_guild"))
     if automation_mode is not None:
         if automation_mode not in {"casual", "advanced"}:
@@ -449,7 +460,10 @@ def consume_warriors_guild_cyclops_tokens_pure(
     player_data: Mapping[str, Any],
     ticks_elapsed: int,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_warriors_guild_state_pure returns a fresh
+    # state including its tokens map, and inventory is rebuilt with dict()
+    # before any write.
+    data = dict(player_data)
     state = sanitize_warriors_guild_state_pure(data.get("warriors_guild"))
     ticks = _int(ticks_elapsed)
     if not state["in_cyclops_room"] or ticks <= 0:
@@ -508,7 +522,10 @@ def apply_warriors_guild_cyclops_kills_pure(
     kills: int,
     rng: Callable[[], float],
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_warriors_guild_state_pure returns a fresh
+    # state including its tokens map, and inventory is rebuilt with dict()
+    # before any write.
+    data = dict(player_data)
     state = sanitize_warriors_guild_state_pure(data.get("warriors_guild"))
     count = _int(kills)
     state["cyclops_kills"] += count
@@ -554,7 +571,10 @@ def apply_warriors_guild_cyclossus_kills_pure(
     player_data: Mapping[str, Any],
     kills: int,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_warriors_guild_state_pure returns a fresh
+    # state including its tokens map, and inventory is rebuilt with dict()
+    # before any write.
+    data = dict(player_data)
     state = sanitize_warriors_guild_state_pure(data.get("warriors_guild"))
     count = _int(kills)
     if count > 0:
@@ -567,7 +587,10 @@ def apply_warriors_guild_cyclossus_kills_pure(
 def show_warriors_guild_defender_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_warriors_guild_state_pure returns a fresh
+    # state including its tokens map, and inventory is rebuilt with dict()
+    # before any write.
+    data = dict(player_data)
     state = sanitize_warriors_guild_state_pure(data.get("warriors_guild"))
     next_index = state["shown_defender_index"] + 1
     if next_index >= len(DEFENDER_TIERS) - 1:

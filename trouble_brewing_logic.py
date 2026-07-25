@@ -188,7 +188,9 @@ def sanitize_trouble_brewing_state_pure(
 def set_trouble_brewing_policy_pure(
     player_data: Mapping[str, Any], payload: Mapping[str, Any] | None
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_trouble_brewing_state_pure rebuilds all its
+    # keys, and the game state is the only thing written back.
+    data = dict(player_data)
     state = sanitize_trouble_brewing_state_pure(data)
     if state["trouble_brewing"]:
         return data, False, {"reason": "Finish or leave the current game first."}
@@ -209,7 +211,9 @@ def enter_trouble_brewing_pure(
         if not ok:
             return data, False, info
     else:
-        data = copy.deepcopy(dict(player_data))
+        # Shallow on purpose: sanitize_trouble_brewing_state_pure rebuilds all
+        # its keys, and the game state is the only thing written back.
+        data = dict(player_data)
     state = sanitize_trouble_brewing_state_pure(data)
     if state["trouble_brewing"]:
         return data, False, {"reason": "A Trouble Brewing game is already active."}
@@ -393,7 +397,9 @@ def apply_trouble_brewing_review_pure(
     opponent_roll: float = 0.5,
     sabotage_roll: float = 0.5,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_trouble_brewing_state_pure rebuilds all its
+    # keys, and the game state is the only thing written back.
+    data = dict(player_data)
     state = sanitize_trouble_brewing_state_pure(data)
     session = state["trouble_brewing"]
     if not session:
@@ -460,7 +466,9 @@ def apply_trouble_brewing_review_pure(
 def leave_trouble_brewing_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_trouble_brewing_state_pure rebuilds all its
+    # keys, and the game state is the only thing written back.
+    data = dict(player_data)
     if not sanitize_trouble_brewing_state_pure(data)["trouble_brewing"]:
         return data, False, {"reason": "No Trouble Brewing game is active."}
     data["trouble_brewing"] = {}
@@ -477,7 +485,9 @@ def leave_trouble_brewing_pure(
 def buy_trouble_brewing_reward_pure(
     player_data: Mapping[str, Any], reward_id: str
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_trouble_brewing_state_pure rebuilds all its
+    # keys, and the game state is the only thing written back.
+    data = dict(player_data)
     if sanitize_trouble_brewing_state_pure(data)["trouble_brewing"]:
         return data, False, {"reason": "Finish or leave the current game first."}
     reward = TROUBLE_BREWING_REWARDS_BY_ID.get(str(reward_id))

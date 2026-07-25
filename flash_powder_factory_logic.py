@@ -256,7 +256,9 @@ def enter_flash_powder_factory_pure(
     *,
     confirm_dismiss_follower: bool = False,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the factory state and its activity map are rebuilt
+    # fresh, and inventory is rebuilt with dict() before any write.
+    data = dict(player_data)
     activities = _activities(data)
     active = sanitize_flash_powder_factory_session_pure(
         activities.get(FLASH_POWDER_FACTORY_ACTIVITY_ID)
@@ -334,7 +336,9 @@ def set_flash_powder_factory_policy_pure(
     strategy: Any = None,
     apparatus_policy: Any = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the factory state and its activity map are rebuilt
+    # fresh, and inventory is rebuilt with dict() before any write.
+    data = dict(player_data)
     current = sanitize_flash_powder_factory_policy_pure(
         data.get("agility_flash_powder_factory_policy")
     )
@@ -407,7 +411,9 @@ def apply_flash_powder_factory_review_pure(
     *,
     productive: bool = True,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the factory state and its activity map are rebuilt
+    # fresh, and inventory is rebuilt with dict() before any write.
+    data = dict(player_data)
     activities = _activities(data)
     session = sanitize_flash_powder_factory_session_pure(
         activities.get(FLASH_POWDER_FACTORY_ACTIVITY_ID)
@@ -608,7 +614,9 @@ def apply_flash_powder_factory_review_pure(
 def leave_flash_powder_factory_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the factory state and its activity map are rebuilt
+    # fresh, and inventory is rebuilt with dict() before any write.
+    data = dict(player_data)
     activities = _activities(data)
     session = sanitize_flash_powder_factory_session_pure(
         activities.get(FLASH_POWDER_FACTORY_ACTIVITY_ID)
@@ -644,7 +652,9 @@ def redeem_flash_powder_factory_xp_pure(
     skill_id: str,
     points: Any,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the factory state and its activity map are rebuilt
+    # fresh, and inventory is rebuilt with dict() before any write.
+    data = dict(player_data)
     skill = str(skill_id).lower()
     amount = _int(points)
     if skill not in FLASH_POWDER_FACTORY_XP_PER_POINT or amount not in FLASH_POWDER_FACTORY_XP_LOTS:
@@ -667,7 +677,9 @@ def redeem_flash_powder_factory_item_pure(
     player_data: Mapping[str, Any],
     item_name: str,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the factory state and its activity map are rebuilt
+    # fresh, and inventory is rebuilt with dict() before any write.
+    data = dict(player_data)
     item = str(item_name)
     cost = FLASH_POWDER_FACTORY_REWARD_COSTS.get(item)
     if cost is None:
@@ -695,7 +707,9 @@ def convert_rogue_kit_pure(
     player_data: Mapping[str, Any],
     output_item: str,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the factory state and its activity map are rebuilt
+    # fresh, and inventory is rebuilt with dict() before any write.
+    data = dict(player_data)
     output = str(output_item)
     inventory = dict(data.get("inventory") or {})
     if output not in ROGUE_KIT_OUTPUTS:

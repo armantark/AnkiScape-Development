@@ -197,6 +197,13 @@ def default_agility_state_pure() -> dict[str, Any]:
 
 
 def sanitize_agility_state_pure(player_data: Optional[Mapping[str, Any]]) -> dict[str, Any]:
+    # This sanitizer's own copy is shallow, so the module's mutators hand it
+    # `copy.deepcopy(player_data)` rather than the save itself. Those deep
+    # copies stay: unlike the activity modules, the working copy here comes out
+    # of the sanitizer instead of being built beside it, and the review and
+    # command paths pass it on to Flash Powder Factory, familiar dismissal and
+    # the review-context helpers. Nothing has proved that chain never writes
+    # through a nested value, so do not shallow them without a gate that does.
     source = dict(player_data or {})
     defaults = default_agility_state_pure()
     target_id = str(source.get("current_agility", DEFAULT_AGILITY_TARGET) or DEFAULT_AGILITY_TARGET)

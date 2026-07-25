@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from collections import Counter
 from collections.abc import Mapping
 from typing import Any
@@ -107,7 +106,9 @@ def sanitize_equipment_instance_state_pure(
     player_data: Mapping[str, Any], condition_data: Mapping[str, Mapping[str, Any]]
 ) -> dict[str, Any]:
     """Reconcile the per-copy ledger with Bank/equipment/grave name holders."""
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the ledger below is rebuilt as fresh records, and
+    # every caller rebuilds inventory before writing to it.
+    data = dict(player_data)
     raw_instances = data.get("equipment_instances", {})
     cleaned: dict[str, dict[str, Any]] = {}
     max_seen_id = 0

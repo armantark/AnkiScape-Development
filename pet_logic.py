@@ -104,7 +104,10 @@ def acquire_pet_pure(
         return dict(player_data), False, "unavailable_pet"
     if _clean_int(player_data.get("summoning_level"), 1, minimum=1) < pet.summoning_level:
         return dict(player_data), False, "summoning_level"
-    updated = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the summoning state and its pet records are rebuilt
+    # below, and the carried and main inventories are rebuilt with dict()
+    # before any write.
+    updated = dict(player_data)
     state = dict(updated.get("summoning_state", {}) or {})
     instances = sanitize_pet_instances_pure(state.get("pet_instances"))
     sequence = _clean_int(state.get("pet_next_instance_id"), 1, minimum=1)
@@ -132,7 +135,10 @@ def let_out_pet_pure(
     player_data: Mapping[str, Any],
     instance_id: str,
 ) -> tuple[dict[str, Any], bool, str]:
-    updated = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the summoning state and its pet records are rebuilt
+    # below, and the carried and main inventories are rebuilt with dict()
+    # before any write.
+    updated = dict(player_data)
     state = dict(updated.get("summoning_state", {}) or {})
     follower = state.get("active_follower", {}) or {}
     if follower:
@@ -168,7 +174,10 @@ def store_active_pet_pure(
 ) -> tuple[dict[str, Any], bool]:
     if location not in {"bank", "carried", "menagerie"}:
         return dict(player_data), False
-    updated = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the summoning state and its pet records are rebuilt
+    # below, and the carried and main inventories are rebuilt with dict()
+    # before any write.
+    updated = dict(player_data)
     state = dict(updated.get("summoning_state", {}) or {})
     follower = state.get("active_follower", {}) or {}
     if follower.get("kind") != "pet":
@@ -190,7 +199,10 @@ def release_pet_pure(
     player_data: Mapping[str, Any],
     instance_id: str,
 ) -> tuple[dict[str, Any], bool, str]:
-    updated = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the summoning state and its pet records are rebuilt
+    # below, and the carried and main inventories are rebuilt with dict()
+    # before any write.
+    updated = dict(player_data)
     state = dict(updated.get("summoning_state", {}) or {})
     instances = sanitize_pet_instances_pure(state.get("pet_instances"))
     instance = instances.get(instance_id)
@@ -229,7 +241,10 @@ def hatch_phoenix_egg_pure(
     inventory = player_data.get("inventory")
     if not isinstance(inventory, Mapping) or _clean_int(inventory.get(item_name)) <= 0:
         return copy.deepcopy(dict(player_data)), False, "missing_phoenix_egg"
-    updated = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the summoning state and its pet records are rebuilt
+    # below, and the carried and main inventories are rebuilt with dict()
+    # before any write.
+    updated = dict(player_data)
     bank = dict(updated.get("inventory", {}) or {})
     bank[item_name] = _clean_int(bank.get(item_name)) - 1
     updated["inventory"] = bank
@@ -275,7 +290,10 @@ def advance_active_pet_pure(
     *,
     active_carried_target: Optional[str] = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    updated = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the summoning state and its pet records are rebuilt
+    # below, and the carried and main inventories are rebuilt with dict()
+    # before any write.
+    updated = dict(player_data)
     state = dict(updated.get("summoning_state", {}) or {})
     follower = state.get("active_follower", {}) or {}
     result = {

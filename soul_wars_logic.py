@@ -212,7 +212,9 @@ def sanitize_soul_wars_state_pure(
 def set_soul_wars_policy_pure(
     player_data: Mapping[str, Any], payload: Mapping[str, Any] | None
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the soul wars state and session are rebuilt fresh,
+    # and inventory and summoning state are copied before they are spent.
+    data = dict(player_data)
     state = sanitize_soul_wars_state_pure(data)
     if state["soul_wars"]:
         return data, False, {"reason": "Finish or leave the current match first."}
@@ -233,7 +235,9 @@ def _loaded_food_count(data: Mapping[str, Any]) -> int:
 def enter_soul_wars_pure(
     player_data: Mapping[str, Any], payload: Mapping[str, Any] | None = None
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the soul wars state and session are rebuilt fresh,
+    # and inventory and summoning state are copied before they are spent.
+    data = dict(player_data)
     state = sanitize_soul_wars_state_pure(data)
     if state["soul_wars"]:
         return data, False, {"reason": "A Soul Wars match is already active."}
@@ -525,7 +529,9 @@ def apply_soul_wars_review_pure(
     productive: bool,
     equipment_data: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the soul wars state and session are rebuilt fresh,
+    # and inventory and summoning state are copied before they are spent.
+    data = dict(player_data)
     state = sanitize_soul_wars_state_pure(data)
     session = state["soul_wars"]
     active = data.get("activity_session")
@@ -608,7 +614,9 @@ def apply_soul_wars_review_pure(
 def leave_soul_wars_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the soul wars state and session are rebuilt fresh,
+    # and inventory and summoning state are copied before they are spent.
+    data = dict(player_data)
     state = sanitize_soul_wars_state_pure(data)
     session = state["soul_wars"]
     if not session:
@@ -622,7 +630,9 @@ def leave_soul_wars_pure(
 def buy_soul_wars_charms_pure(
     player_data: Mapping[str, Any], item_name: str
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the soul wars state and session are rebuilt fresh,
+    # and inventory and summoning state are copied before they are spent.
+    data = dict(player_data)
     state = sanitize_soul_wars_state_pure(data)
     if state["soul_wars"]:
         return data, False, {"reason": "Finish or leave the current match first."}

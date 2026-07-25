@@ -176,7 +176,10 @@ def sanitize_castle_wars_state_pure(
 def set_castle_wars_policy_pure(
     player_data: Mapping[str, Any], payload: Mapping[str, Any] | None
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the roster state and session are rebuilt fresh, and
+    # the combat encounter is assigned as a new object rather than edited in
+    # place.
+    data = dict(player_data)
     state = sanitize_castle_wars_state_pure(data)
     if state["castle_wars"]:
         return data, False, {"reason": "Finish or leave the current match first."}
@@ -269,7 +272,10 @@ def _end_match(data: dict[str, Any], session: Mapping[str, Any], message: str) -
 def leave_castle_wars_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the roster state and session are rebuilt fresh, and
+    # the combat encounter is assigned as a new object rather than edited in
+    # place.
+    data = dict(player_data)
     state = sanitize_castle_wars_state_pure(data)
     session = state["castle_wars"]
     if not session:
@@ -425,7 +431,10 @@ def apply_castle_wars_review_pure(
     opponent_roll: float = 0.5,
     equipment_data: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the roster state and session are rebuilt fresh, and
+    # the combat encounter is assigned as a new object rather than edited in
+    # place.
+    data = dict(player_data)
     state = sanitize_castle_wars_state_pure(data)
     session = state["castle_wars"]
     active = data.get("activity_session")
@@ -522,7 +531,10 @@ def apply_castle_wars_review_pure(
 def deploy_castle_wars_ballista_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the roster state and session are rebuilt fresh, and
+    # the combat encounter is assigned as a new object rather than edited in
+    # place.
+    data = dict(player_data)
     state = sanitize_castle_wars_state_pure(data)
     session = state["castle_wars"]
     if not session:
@@ -543,7 +555,10 @@ def deploy_castle_wars_ballista_pure(
 def deploy_castle_wars_chinchompa_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the roster state and session are rebuilt fresh, and
+    # the combat encounter is assigned as a new object rather than edited in
+    # place.
+    data = dict(player_data)
     state = sanitize_castle_wars_state_pure(data)
     session = state["castle_wars"]
     if not session:
@@ -565,7 +580,10 @@ def deploy_castle_wars_chinchompa_pure(
 def buy_castle_wars_reward_pure(
     player_data: Mapping[str, Any], reward_id: str
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the roster state and session are rebuilt fresh, and
+    # the combat encounter is assigned as a new object rather than edited in
+    # place.
+    data = dict(player_data)
     state = sanitize_castle_wars_state_pure(data)
     if state["castle_wars"]:
         return data, False, {"reason": "Finish the current Castle Wars match first."}
@@ -592,7 +610,10 @@ def buy_castle_wars_reward_pure(
 def sell_castle_wars_reward_pure(
     player_data: Mapping[str, Any], reward_id: str
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the roster state and session are rebuilt fresh, and
+    # the combat encounter is assigned as a new object rather than edited in
+    # place.
+    data = dict(player_data)
     state = sanitize_castle_wars_state_pure(data)
     if state["castle_wars"]:
         return data, False, {"reason": "Finish the current Castle Wars match first."}

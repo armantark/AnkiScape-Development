@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from typing import Any, Callable, Mapping, Tuple
 
 try:
@@ -118,7 +117,9 @@ def eligible_slayer_families_pure(
 
 
 def sanitize_slayer_state_pure(player_data: Mapping[str, Any]) -> dict:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: this rebuilds every key it returns, so no nested
+    # value of the input is ever written through.
+    data = dict(player_data)
     assignment_raw = data.get("slayer_assignment")
     assignment = dict(assignment_raw) if isinstance(assignment_raw, Mapping) else {}
     family_id = str(assignment.get("family_id", "") or "")

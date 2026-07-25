@@ -339,7 +339,9 @@ def apply_fight_caves_command_pure(
     action_id: str,
     payload: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the run state and its encounter are rebuilt as deep
+    # copies, and the follower alias this module reads is never written.
+    data = dict(player_data)
     state = sanitize_fight_caves_state_pure(data.get("fight_caves"))
     data["fight_caves"] = state
     payload = payload if isinstance(payload, Mapping) else {}
@@ -490,7 +492,9 @@ def apply_fight_caves_review_pure(
     *,
     equipment_data=None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the run state and its encounter are rebuilt as deep
+    # copies, and the follower alias this module reads is never written.
+    data = dict(player_data)
     state = sanitize_fight_caves_state_pure(data.get("fight_caves"))
     if not state["active"]:
         return data, False, {"reason": "Enter the Fight Cave before training it."}

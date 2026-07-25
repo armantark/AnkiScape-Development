@@ -218,7 +218,9 @@ def apply_vinesweeper_review_pure(
     *,
     operations: int = 1,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the board state is rebuilt by the module sanitizer
+    # before any flag is replaced, and the follower alias is only read.
+    data = dict(player_data)
     state = sanitize_vinesweeper_state_pure(data.get("vinesweeper"))
     data["vinesweeper"] = state
     if not state["active"]:
@@ -346,7 +348,9 @@ def apply_vinesweeper_command_pure(
     action_id: str,
     payload: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the board state is rebuilt by the module sanitizer
+    # before any flag is replaced, and the follower alias is only read.
+    data = dict(player_data)
     state = sanitize_vinesweeper_state_pure(data.get("vinesweeper"))
     data["vinesweeper"] = state
     payload = payload if isinstance(payload, Mapping) else {}

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 import re
 from collections import Counter
 from collections.abc import Mapping
@@ -191,7 +190,9 @@ def werewolf_skullball_locked_reasons_pure(
 def set_werewolf_skullball_policy_pure(
     player_data: Mapping[str, Any], payload: Mapping[str, Any] | None
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_werewolf_skullball_state_pure rebuilds all
+    # its keys, and the session state is the only thing written back.
+    data = dict(player_data)
     state = sanitize_werewolf_skullball_state_pure(data)
     if state["werewolf_skullball"]:
         return data, False, {"reason": "Finish the active run before changing its route."}
@@ -225,7 +226,9 @@ def set_werewolf_skullball_policy_pure(
 def enter_werewolf_skullball_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_werewolf_skullball_state_pure rebuilds all
+    # its keys, and the session state is the only thing written back.
+    data = dict(player_data)
     state = sanitize_werewolf_skullball_state_pure(data)
     if state["werewolf_skullball"]:
         return data, False, {"reason": "A Werewolf Skullball run is already active."}
@@ -269,7 +272,9 @@ def _finish_session(data: dict[str, Any]) -> None:
 def apply_werewolf_skullball_review_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_werewolf_skullball_state_pure rebuilds all
+    # its keys, and the session state is the only thing written back.
+    data = dict(player_data)
     session = sanitize_werewolf_skullball_session_pure(
         data.get("werewolf_skullball")
     )
@@ -319,7 +324,9 @@ def apply_werewolf_skullball_review_pure(
 def leave_werewolf_skullball_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_werewolf_skullball_state_pure rebuilds all
+    # its keys, and the session state is the only thing written back.
+    data = dict(player_data)
     session = sanitize_werewolf_skullball_session_pure(
         data.get("werewolf_skullball")
     )

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from typing import Any, Mapping
 
 try:
@@ -241,7 +240,9 @@ def penguin_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
 def apply_penguin_review_pure(
     player_data: Mapping[str, Any],
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the week state is rebuilt rather than written
+    # through, and the quest state alias is only read.
+    data = dict(player_data)
     state = _sync_week(data, sanitize_penguin_state_pure(data.get("penguin_hide_and_seek")))
     data["penguin_hide_and_seek"] = state
     view = penguin_view_pure(data)
@@ -279,7 +280,9 @@ def apply_penguin_command_pure(
     action_id: str,
     payload: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], bool, dict[str, Any]]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: the week state is rebuilt rather than written
+    # through, and the quest state alias is only read.
+    data = dict(player_data)
     state = _sync_week(data, sanitize_penguin_state_pure(data.get("penguin_hide_and_seek")))
     data["penguin_hide_and_seek"] = state
     payload = payload if isinstance(payload, Mapping) else {}

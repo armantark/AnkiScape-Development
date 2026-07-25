@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 from collections.abc import Mapping
 from typing import Any
 
@@ -135,7 +134,9 @@ def sanitize_fish_flingers_state_pure(
 def sync_fish_flingers_tickets_pure(
     player_data: Mapping[str, Any],
 ) -> dict[str, Any]:
-    data = copy.deepcopy(dict(player_data))
+    # Shallow on purpose: sanitize_fish_flingers_state_pure rebuilds every key
+    # this writes, and the ticket counters are plain ints.
+    data = dict(player_data)
     data.update(sanitize_fish_flingers_state_pure(data))
     current_day = _answered_cards(data) // FISH_FLINGERS_WORLD_DAY_REVIEWS
     previous_day = _signed_int(data.get("fish_flingers_last_ticket_day"), -1)
