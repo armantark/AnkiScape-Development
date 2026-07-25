@@ -575,18 +575,6 @@
     "source_wiki": "rs3",
     "timestamp": "2010-05-23T15:50:59Z"
   },
-  "activityicons/tzhaar_fight_pit.png": {
-    "file_page_url": "https://runescape.wiki/wiki/File:Redskull.png",
-    "file_title": "Redskull.png",
-    "image_url": "https://runescape.wiki/images/archive/20120414020632%21Redskull.png",
-    "license_string": "unknown",
-    "mediatype": "BITMAP",
-    "mime": "image/png",
-    "sha1": "ebc4d2f4c63e9e37bf8a7141ed075105ec4ea84d",
-    "size": 318,
-    "source_wiki": "rs3",
-    "timestamp": "2012-04-14T02:06:32Z"
-  },
   "activityicons/stronghold_player_safety.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Safety_gloves.png",
     "file_title": "Safety gloves.png",
@@ -610,6 +598,18 @@
     "size": 1519,
     "source_wiki": "rs3",
     "timestamp": "2010-07-13T19:07:41Z"
+  },
+  "activityicons/tzhaar_fight_pit.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Redskull.png",
+    "file_title": "Redskull.png",
+    "image_url": "https://runescape.wiki/images/archive/20120414020632%21Redskull.png",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ebc4d2f4c63e9e37bf8a7141ed075105ec4ea84d",
+    "size": 318,
+    "source_wiki": "rs3",
+    "timestamp": "2012-04-14T02:06:32Z"
   },
   "activityicons/varrock_museum.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Specimen_brush.png",
@@ -1966,6 +1966,30 @@
     "size": 689,
     "source_wiki": "rs3",
     "timestamp": "2011-11-29T06:32:19Z"
+  },
+  "activityitems/stronghold_of_security_fancy_boots.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fancy_boots.png",
+    "file_title": "Fancy boots.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502033415%21Fancy_boots.png?fbb8c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "74baaf3a8cc64ab53b6c363e7d50cd7a163972b1",
+    "size": 1070,
+    "source_wiki": "rs3",
+    "timestamp": "2011-03-30T12:15:14Z"
+  },
+  "activityitems/stronghold_of_security_fighting_boots.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Fighting_boots.png",
+    "file_title": "Fighting boots.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502033800%21Fighting_boots.png?dcecb",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "780e3d08ffe88ffd03aa492077ee84b59128d04d",
+    "size": 1607,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-24T20:40:25Z"
   },
   "activityitems/stronghold_player_safety_safety_gloves.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Safety_gloves.png",
@@ -3707,18 +3731,6 @@
     "source_wiki": "osrs",
     "timestamp": "2016-11-29T23:01:45Z"
   },
-  "combatenemies/shades_of_mortton_loar_shade.png": {
-    "file_page_url": "https://runescape.wiki/wiki/File:Loar_Shade.png",
-    "file_title": "Loar Shade.png",
-    "image_url": "https://runescape.wiki/images/archive/20140822045547%21Loar_Shade.png?06857",
-    "license_string": "unknown",
-    "mediatype": "BITMAP",
-    "mime": "image/png",
-    "sha1": "09c807dfba87c22c9d790ac5822c15c42fdfa086",
-    "size": 76396,
-    "source_wiki": "rs3",
-    "timestamp": "2012-01-29T23:19:04Z"
-  },
   "combatenemies/market_guard.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Market_Guard_%28Draynor%29.png",
     "file_title": "Market Guard (Draynor).png",
@@ -4270,6 +4282,18 @@
     "size": 24024,
     "source_wiki": "osrs",
     "timestamp": "2019-05-14T01:57:26Z"
+  },
+  "combatenemies/shades_of_mortton_loar_shade.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Loar_Shade.png",
+    "file_title": "Loar Shade.png",
+    "image_url": "https://runescape.wiki/images/archive/20140822045547%21Loar_Shade.png?06857",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "09c807dfba87c22c9d790ac5822c15c42fdfa086",
+    "size": 76396,
+    "source_wiki": "rs3",
+    "timestamp": "2012-01-29T23:19:04Z"
   },
   "combatenemies/shadow_warrior.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Shadow_warrior.png",

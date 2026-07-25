@@ -674,4 +674,13 @@ def big_chinchompa_view_pure(
         "tier_points_per_jar": tier.points * BIG_CHINCHOMPA_JAR_CAPACITY,
         "population_profile": _profile(data),
         "last_result": str(state.get("last_result", "")),
+        # Reviews since the event resolved, so the Activities strip can hold the
+        # outcome briefly instead of the award landing silently. -1 when nothing
+        # has resolved yet. Derived, not stored: last_resolved_slot_card was
+        # already persisted for the resolution itself.
+        "resolved_reviews_ago": (
+            answered - _int(state.get("last_resolved_slot_card"))
+            if _int(state.get("last_resolved_slot_card")) > 0
+            else -1
+        ),
     }

@@ -1162,7 +1162,9 @@ class TestSkillAndItemRegistry(unittest.TestCase):
     )
     # Art not fetched yet; the owner approves each sprite fetch. Shrink this,
     # never grow it: an entry here means the item ships iconless.
-    _LANDMARK_REWARD_ART_PENDING = frozenset({"Fancy boots", "Fighting boots"})
+    # Emptied 2026-07-25 — the boots were the last two, fetched with
+    # tools/fetch_stronghold_of_security_assets.py after the playtest report.
+    _LANDMARK_REWARD_ART_PENDING = frozenset()
 
     def test_landmark_reward_equipment_is_registered_as_equipment(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)

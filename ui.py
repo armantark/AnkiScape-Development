@@ -1423,6 +1423,13 @@ def _landmark_activity_name(activity_key: object) -> str:
     return _LANDMARK_ACTIVITY_NAMES.get(target_id, "")
 
 
+# How long a resolved world event keeps its outcome in the Activities strip.
+# Not sourced — the source game had no such surface. Long enough to be seen
+# during an ordinary run, short enough that the strip does not become the
+# permanent clutter the popups were removed for.
+_WORLD_EVENT_OUTCOME_REVIEWS = 10
+
+
 def _world_event_rows(player_data: dict, *, suppress_id: str = "") -> tuple:
     """(activity_id, one-line summary) for every live review-clock world event.
 
@@ -1495,6 +1502,17 @@ def _world_event_rows(player_data: dict, *, suppress_id: str = "") -> tuple:
                 f"{int(big['minutes_remaining'])} source min left · "
                 f"{int(big['fullness_percent'])}% full",
             ))
+        else:
+            # No `or -1` fallback here: the resolution card itself reports 0,
+            # which is falsy, so that idiom silently swallowed the one review
+            # where the outcome matters most.
+            try:
+                resolved_ago = int(big.get("resolved_reviews_ago", -1))
+            except (TypeError, ValueError):
+                resolved_ago = -1
+            result = str(big.get("last_result", "") or "")
+            if result and 0 <= resolved_ago < _WORLD_EVENT_OUTCOME_REVIEWS:
+                rows.append((BIG_CHINCHOMPA_UTILITY_ID, result))
     return tuple(rows)
 
 
