@@ -2411,14 +2411,6 @@ if HAS_QT:
             self.target_lbl.setStyleSheet("color: rgba(255,255,255,0.6); font-size: 10px;")
             info.addWidget(self.target_lbl)
 
-            self.ge_notice_lbl = QLabel("")
-            self.ge_notice_lbl.setObjectName("geOfferNotice")
-            self.ge_notice_lbl.setStyleSheet(
-                "color: #6fdb78; font-size: 10px; font-weight: 600;"
-            )
-            self.ge_notice_lbl.setVisible(False)
-            info.addWidget(self.ge_notice_lbl)
-
             self.world_notice_lbl = QLabel("")
             self.world_notice_lbl.setObjectName("reviewWorldNotice")
             self.world_notice_lbl.setStyleSheet(
@@ -2500,19 +2492,6 @@ if HAS_QT:
             """Update HUD content from player data and currently active skill."""
             skill = skill or "None"
             combat_status = combat_status_summary_pure(player_data)
-            ge_orders = player_data.get("ge_player_orders", ()) or ()
-            ge_ready = any(
-                isinstance(order, dict)
-                and (
-                    int(order.get("collectible_coins", 0) or 0) > 0
-                    or int(order.get("collectible_items", 0) or 0) > 0
-                )
-                for order in ge_orders
-            )
-            self.ge_notice_lbl.setText(
-                "Grand Exchange proceeds ready to collect" if ge_ready else ""
-            )
-            self.ge_notice_lbl.setVisible(ge_ready)
             has_hatchet = (
                 best_woodcutting_axe_pure(
                     int(player_data.get("woodcutting_level", 1) or 1),
@@ -18710,6 +18689,11 @@ def show_main_menu(
     ge_quantity.setObjectName("geOfferQuantitySpin")
     ge_quantity.setRange(1, 2_147_483_647)
     ge_quantity_layout.addWidget(ge_quantity, 1)
+    ge_sell_all = QPushButton("Sell all")
+    ge_sell_all.setObjectName("geSellAllButton")
+    ge_sell_all.setToolTip("Fill the quantity with everything you hold of this item.")
+    ge_sell_all.setVisible(False)
+    ge_quantity_layout.addWidget(ge_sell_all)
     ge_editor_layout.addWidget(ge_quantity_row)
 
     ge_price_row = QWidget()
@@ -18727,9 +18711,11 @@ def show_main_menu(
     ge_quick_layout.setContentsMargins(0, 0, 0, 0)
     ge_quick_layout.setSpacing(4)
     ge_price_buttons = {}
+    # A None factor means "absolute reset to the guide price"; the percentage
+    # buttons carry a relative factor applied to whatever price is showing.
     for label, factor, object_name in (
         ("-5%", 0.95, "gePriceMinus5Button"),
-        ("Guide", 1.00, "geGuidePriceButton"),
+        ("Guide", None, "geGuidePriceButton"),
         ("+5%", 1.05, "gePricePlus5Button"),
     ):
         button = QPushButton(label)
@@ -18774,6 +18760,26 @@ def show_main_menu(
     ge_order_layout.addWidget(ge_edit)
     ge_order_layout.addWidget(ge_cancel)
     ge_layout.addWidget(ge_order_panel)
+
+    ge_log_toggle = QToolButton()
+    ge_log_toggle.setObjectName("geFillLogToggle")
+    ge_log_toggle.setText("Recent fills")
+    ge_log_toggle.setCheckable(True)
+    ge_log_toggle.setChecked(False)
+    ge_log_toggle.setArrowType(Qt.ArrowType.RightArrow)
+    ge_log_toggle.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+    ge_log_toggle.setStyleSheet(f"color: {dim_text_css(ge_log_toggle)};")
+    ge_layout.addWidget(ge_log_toggle, 0, Qt.AlignmentFlag.AlignLeft)
+
+    ge_log_list = QListWidget()
+    ge_log_list.setObjectName("geFillLogList")
+    ge_log_list.setVisible(False)
+    # About four rows: the tab must still fit the ~560pt Anki dialog height.
+    ge_log_list.setMaximumHeight(110)
+    ge_log_list.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+    ge_log_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+    ge_log_list.setAlternatingRowColors(False)
+    ge_layout.addWidget(ge_log_list)
 
     ge_state = {
         "projection": {
@@ -18842,6 +18848,10 @@ def show_main_menu(
         for button in ge_price_buttons.values():
             button.setEnabled(enabled)
         side = str(ge_side.currentData() or "buy")
+        # Sell-only: the buy side would need a live buy-limit-remaining figure,
+        # which the projection does not expose.
+        ge_sell_all.setVisible(side == "sell")
+        ge_sell_all.setEnabled(enabled)
         ge_side.setEnabled(not editing)
         ge_quantity_caption.setText("Remaining quantity" if editing else "Quantity")
         ge_submit.setText(
@@ -18888,9 +18898,13 @@ def show_main_menu(
             haystack = f"{row.get('item_name', '')} {row.get('category', '')}".casefold()
             if query and query not in haystack:
                 continue
+            owned = int(row.get("owned", 0) or 0)
             item = QListWidgetItem(
                 f"{row['item_name']}  ·  "
                 f"{int(row.get('guide_price', 0) or 0):,} Coins"
+                # Bare x{n} matches how the Bank tab renders quantities. Hidden
+                # at zero so the buy catalog is not a wall of "x0".
+                + (f"  ·  x{owned}" if owned else "")
             )
             item.setData(Qt.ItemDataRole.UserRole, dict(row))
             icon_path = str(row.get("asset_path") or "")
@@ -18912,6 +18926,40 @@ def show_main_menu(
         elif selected_widget_item is not None:
             ge_item_list.setCurrentItem(selected_widget_item)
         ge_item_list.blockSignals(False)
+
+    def _populate_ge_fill_log() -> None:
+        entries = tuple(ge_state["projection"].get("fill_log", ()) or ())
+        answered_cards = int(ge_state["projection"].get("answered_cards", 0) or 0)
+        ge_log_toggle.setText(f"Recent fills ({len(entries)})")
+        ge_log_list.clear()
+        if not entries:
+            empty = QListWidgetItem("No fills yet — place an offer and answer cards.")
+            empty.setFlags(Qt.ItemFlag.NoItemFlags)
+            empty.setForeground(dim_text_color(ge_log_list))
+            ge_log_list.addItem(empty)
+            return
+        base = ge_log_list.palette().color(QPalette.ColorRole.Base)
+        light = base.lightness() > 128
+        done_color = QColor("#3f6e1e" if light else "#85c54b")
+        partial_color = QColor("#8a6100" if light else "#e0b341")
+        for entry in entries:
+            delta = answered_cards - int(entry.get("card", 0) or 0)
+            when = (
+                "Now"
+                if delta <= 0
+                else f"{delta} card ago"
+                if delta == 1
+                else f"{delta} cards ago"
+            )
+            done = int(entry.get("completed_quantity", 0) or 0)
+            total = int(entry.get("original_quantity", 0) or 0)
+            verb = "sold" if str(entry.get("side")) == "sell" else "bought"
+            row = QListWidgetItem(
+                f"{when}: {entry.get('item_name')} - {done}/{total} {verb}"
+            )
+            row.setFlags(Qt.ItemFlag.NoItemFlags)
+            row.setForeground(done_color if done >= total else partial_color)
+            ge_log_list.addItem(row)
 
     def _selected_ge_order():
         selected_id = ge_state.get("selected_order_id")
@@ -19042,6 +19090,7 @@ def show_main_menu(
                 ge_state["editing_order_id"] = None
         ge_collect_all.setEnabled(has_collectible and callable(on_ge_action))
         _populate_ge_items()
+        _populate_ge_fill_log()
         _refresh_ge_preview()
         if message:
             ge_status.setStyleSheet(f"color: {dim_text_css(ge_status)};")
@@ -19125,12 +19174,38 @@ def show_main_menu(
         if not isinstance(order, dict):
             ge_filter.search_input.setFocus()
 
+    def _fill_ge_quantity_with_all() -> None:
+        row = _ge_current_item()
+        if row is None:
+            return
+        available = max(int(row.get("owned", 0) or 0), 0)
+        editing_order = _selected_ge_order()
+        if (
+            editing_order is not None
+            and editing_order.get("id") == ge_state.get("editing_order_id")
+            and str(editing_order.get("side")) == "sell"
+        ):
+            # Escrowed items are already out of the bank, so the editable
+            # ceiling is what is still held plus what this offer holds.
+            available += int(editing_order.get("escrow_items", 0) or 0)
+        ge_quantity.setValue(max(1, available))
+
     def _set_ge_quick_price(factor) -> None:
         row = _ge_current_item()
         if row is None:
             return
-        guide = max(int(row.get("guide_price", 1) or 1), 1)
-        ge_price.setValue(max(1, int(round(guide * float(factor)))))
+        if factor is None:
+            ge_price.setValue(max(int(row.get("guide_price", 1) or 1), 1))
+            return
+        # Nudges compound off the live price; the one-gp floor keeps the button
+        # from being a no-op on the few-gp items a low-level player trades.
+        current = max(int(ge_price.value()), 1)
+        stepped = int(round(current * float(factor)))
+        ge_price.setValue(
+            max(current + 1, stepped)
+            if factor > 1.0
+            else max(1, min(current - 1, stepped))
+        )
 
     def _submit_ge_offer() -> None:
         row = _ge_current_item()
@@ -19256,6 +19331,7 @@ def show_main_menu(
         button.clicked.connect(
             lambda _checked=False, slot_index=index: _on_ge_slot_clicked(slot_index)
         )
+    ge_sell_all.clicked.connect(lambda _checked=False: _fill_ge_quantity_with_all())
     ge_submit.clicked.connect(lambda _checked=False: _submit_ge_offer())
     ge_collect.clicked.connect(lambda _checked=False: _collect_selected_ge_offer())
     ge_edit.clicked.connect(lambda _checked=False: _begin_edit_selected_ge_offer())
@@ -19275,6 +19351,16 @@ def show_main_menu(
                 else Qt.ArrowType.RightArrow
             ),
             ge_safety_panel.setVisible(bool(expanded)),
+        )
+    )
+    ge_log_toggle.toggled.connect(
+        lambda expanded=False: (
+            ge_log_toggle.setArrowType(
+                Qt.ArrowType.DownArrow
+                if expanded
+                else Qt.ArrowType.RightArrow
+            ),
+            ge_log_list.setVisible(bool(expanded)),
         )
     )
 

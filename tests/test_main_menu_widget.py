@@ -3096,9 +3096,11 @@ class MainMenuWidgetTest(unittest.TestCase):
             player["ge_player_orders"][0]["remaining_quantity"],
             2,
         )
+        # -5% now compounds off the price showing in the spin box (105 from the
+        # edit), not off the guide price, so this lands on 100 rather than 95.
         self.assertEqual(
             player["ge_player_orders"][0]["submitted_unit_price"],
-            95,
+            100,
         )
         self.assertIn("0/2 filled", slots[0].text())
 
@@ -3163,6 +3165,157 @@ class MainMenuWidgetTest(unittest.TestCase):
             item_list.item(0).text(),
             "You own nothing exchangeable to sell.",
         )
+        dialog.deleteLater()
+
+    def test_grand_exchange_sell_all_and_bank_quantities_and_compounding_nudges(
+        self,
+    ) -> None:
+        from grand_exchange_logic import ge_frontend_projection_pure
+
+        player = _make_player_data()
+        player["inventory"] = {"Coins": 10_000, "Logs": 137}
+        catalog = {
+            "Logs": {
+                "guide_price": 100,
+                "buy_limit": 25_000,
+                "tradeable": True,
+                "exchangeable": True,
+                "category": "logs",
+            },
+            "Coal": {
+                "guide_price": 200,
+                "buy_limit": 25_000,
+                "tradeable": True,
+                "exchangeable": True,
+                "category": "ore",
+            },
+        }
+        dialog = self._open(
+            player,
+            get_ge_projection=lambda: ge_frontend_projection_pure(
+                player,
+                item_catalog=catalog,
+            ),
+            on_ge_action=lambda _action_id, _payload: {"ok": True},
+        )
+        _open_ge_tab(dialog)
+
+        item_list = dialog.findChild(QListWidget, "geItemList")
+        texts = _list_texts(item_list)
+        # The Bank tab's bare x{n} token, and nothing at all for unowned rows.
+        self.assertTrue(any(text.endswith("·  x137") for text in texts))
+        self.assertFalse(any("x0" in text for text in texts))
+
+        sell_all = dialog.findChild(QPushButton, "geSellAllButton")
+        quantity = dialog.findChild(QSpinBox, "geOfferQuantitySpin")
+        price = dialog.findChild(QSpinBox, "geOfferPriceSpin")
+        # isHidden rather than isVisible: the test dialog is never shown.
+        self.assertTrue(sell_all.isHidden())
+
+        side = dialog.findChild(QComboBox, "geOfferSideCombo")
+        side.setCurrentIndex(side.findData("sell"))
+        QApplication.processEvents()
+        self.assertFalse(sell_all.isHidden())
+
+        logs_row = next(
+            index
+            for index in range(item_list.count())
+            if item_list.item(index).data(Qt.ItemDataRole.UserRole)["item_name"]
+            == "Logs"
+        )
+        item_list.setCurrentRow(logs_row)
+        QApplication.processEvents()
+        self.assertEqual(quantity.value(), 1)
+        sell_all.click()
+        self.assertEqual(quantity.value(), 137)
+        self.assertIn(
+            "Bank: 137",
+            dialog.findChild(QLabel, "geSelectedItemMeta").text(),
+        )
+
+        # Regression: the nudges used to recompute from the guide price, so a
+        # second click never moved the price.
+        plus = dialog.findChild(QPushButton, "gePricePlus5Button")
+        self.assertEqual(price.value(), 100)
+        plus.click()
+        self.assertEqual(price.value(), 105)
+        plus.click()
+        self.assertEqual(price.value(), 110)
+        dialog.findChild(QPushButton, "geGuidePriceButton").click()
+        self.assertEqual(price.value(), 100)
+
+        # At a few gp the percentage rounds to zero, so the one-gp floor is what
+        # keeps the button from being a visible no-op.
+        price.setValue(1)
+        plus.click()
+        self.assertEqual(price.value(), 2)
+        minus = dialog.findChild(QPushButton, "gePriceMinus5Button")
+        minus.click()
+        self.assertEqual(price.value(), 1)
+        minus.click()
+        self.assertEqual(price.value(), 1)
+        dialog.deleteLater()
+
+    def test_grand_exchange_fill_log_colours_partial_and_completed_rows(self) -> None:
+        from aqt.qt import QColor
+        from grand_exchange_logic import ge_frontend_projection_pure
+
+        player = _make_player_data()
+        player["inventory"] = {"Coins": 10_000}
+        player["shop_market_clock"] = {"answered_cards": 12, "market_tick": 12}
+        player["ge_fill_log"] = [
+            {
+                "card": 10,
+                "side": "sell",
+                "item_name": "Logs",
+                "completed_quantity": 3,
+                "original_quantity": 10,
+            },
+            {
+                "card": 12,
+                "side": "buy",
+                "item_name": "Coal",
+                "completed_quantity": 5,
+                "original_quantity": 5,
+            },
+        ]
+        catalog = {
+            "Logs": {
+                "guide_price": 100,
+                "buy_limit": 25_000,
+                "tradeable": True,
+                "exchangeable": True,
+                "category": "logs",
+            }
+        }
+        dialog = self._open(
+            player,
+            get_ge_projection=lambda: ge_frontend_projection_pure(
+                player,
+                item_catalog=catalog,
+            ),
+            on_ge_action=lambda _action_id, _payload: {"ok": True},
+        )
+        _open_ge_tab(dialog)
+
+        toggle = dialog.findChild(QToolButton, "geFillLogToggle")
+        log_list = dialog.findChild(QListWidget, "geFillLogList")
+        self.assertEqual(toggle.text(), "Recent fills (2)")
+        self.assertTrue(log_list.isHidden())
+        toggle.click()
+        QApplication.processEvents()
+        self.assertFalse(log_list.isHidden())
+
+        # Newest first, and "cards ago" rather than wall time.
+        self.assertEqual(
+            _list_texts(log_list),
+            ["Now: Coal - 5/5 bought", "2 cards ago: Logs - 3/10 sold"],
+        )
+        completed = log_list.item(0).foreground().color()
+        partial = log_list.item(1).foreground().color()
+        self.assertIn(completed, (QColor("#3f6e1e"), QColor("#85c54b")))
+        self.assertIn(partial, (QColor("#8a6100"), QColor("#e0b341")))
+        self.assertNotEqual(completed, partial)
         dialog.deleteLater()
 
     def test_grand_exchange_ironman_toggle_locks_only_offer_creation(self) -> None:
@@ -11403,24 +11556,16 @@ class MainMenuWidgetTest(unittest.TestCase):
         hud.set_data(pd, "Utility / Activities")
         self.assertEqual(hud.title_lbl.text(), "Activities")
 
-    def test_hud_persistently_marks_collectible_ge_offers(self) -> None:
+    def test_hud_carries_no_grand_exchange_notice(self) -> None:
+        # The collect reminder now lives on the Grand Exchange tab as a
+        # collapsible fill log; the HUD line was removed with it.
         hud = self._ui.ReviewHUD(None)
         pd = _make_player_data()
-        pd["ge_player_orders"] = [
-            {
-                "collectible_coins": 0,
-                "collectible_items": 1,
-            }
-        ]
+        pd["ge_player_orders"] = [{"collectible_coins": 0, "collectible_items": 1}]
 
         hud.set_data(pd, "Mining")
 
-        notice = hud.findChild(QLabel, "geOfferNotice")
-        self.assertTrue(notice.isVisible())
-        self.assertEqual(
-            notice.text(),
-            "Grand Exchange proceeds ready to collect",
-        )
+        self.assertIsNone(hud.findChild(QLabel, "geOfferNotice"))
 
     def test_scraped_sprites_are_pretrimmed_on_disk(self) -> None:
         # Sprites are trimmed to their opaque box at build time (tools/trim_icons.py)

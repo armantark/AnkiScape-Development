@@ -222,6 +222,7 @@ class TestStoragePure(unittest.TestCase):
             "ge_next_order_id",
             "ge_buy_limit_usage",
             "ge_trade_history",
+            "ge_fill_log",
             "world_population_profile",
             "hunter_private_ground_targets",
             "big_chinchompa",

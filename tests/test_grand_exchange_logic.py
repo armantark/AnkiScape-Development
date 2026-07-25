@@ -724,6 +724,55 @@ class GrandExchangeLogicTest(unittest.TestCase):
             -25,
         )
 
+    def test_fill_log_records_answered_cards_and_survives_collection(self):
+        player = _player()
+        player["ge_market_state"]["last_processed_tick"] = 7
+        player, _result = place_ge_offer_pure(
+            player,
+            side="sell",
+            item_name="Logs",
+            quantity=5,
+            unit_price=90,
+            item_spec=LOGS,
+        )
+        # answered_cards is deliberately offset from market_tick: the log keys on
+        # cards answered, and the two are sanitized independently.
+        player["shop_market_clock"] = {"answered_cards": 31, "market_tick": 8}
+        before = deepcopy(player)
+
+        advanced, result = advance_ge_market_tick_pure(
+            player,
+            item_catalog={"Logs": LOGS},
+            random_draw=iter((0.5, 0.0, 0.5, 1.0)).__next__,
+        )
+
+        self.assertEqual(player, before, "advance mutated the caller's save")
+        self.assertEqual(len(advanced["ge_fill_log"]), 1)
+        entry = advanced["ge_fill_log"][0]
+        filled = result["fills"][0]["quantity"]
+        self.assertEqual(
+            entry,
+            {
+                "card": 31,
+                "side": "sell",
+                "item_name": "Logs",
+                "completed_quantity": filled,
+                "original_quantity": 5,
+            },
+        )
+
+        # Collecting deletes finished orders outright, which is exactly why the
+        # history has to live outside them.
+        collected, _info = collect_all_ge_offers_pure(advanced)
+        self.assertEqual(collected["ge_fill_log"], advanced["ge_fill_log"])
+
+        projection = ge_frontend_projection_pure(
+            collected,
+            item_catalog={"Logs": LOGS},
+        )
+        self.assertEqual(projection["answered_cards"], 31)
+        self.assertEqual(projection["fill_log"], (entry,))
+
     def test_buy_limit_clamps_fills_and_resets_after_four_market_hours(self):
         limited_logs = {**LOGS, "buy_limit": 2}
         player = _player()
