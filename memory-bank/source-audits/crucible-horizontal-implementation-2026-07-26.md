@@ -181,7 +181,7 @@ it has the better name but its only upload is from 2022.
 
 ## Test coverage
 
-`tests/test_crucible.py`, 33 tests in six classes: data and registration, the
+`tests/test_crucible.py`, 34 tests in six classes: data and registration, the
 entry gate, the arena, rewards, the view, persistence, the command router, and
 runtime integration. Plus one case in `tests/test_direct_action_undo_seam.py`.
 

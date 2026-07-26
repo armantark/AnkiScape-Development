@@ -748,6 +748,7 @@ def apply_crucible_review_pure(
 
     bones = 0
     points_gained = 0
+    events: list[str] = []
     if combat.get("died"):
         data["crucible_deaths"] = state["crucible_deaths"] + 1
         if in_event:
@@ -778,10 +779,21 @@ def apply_crucible_review_pure(
                 "destroyed_items": destroyed,
                 "fee_forfeited": forfeited,
                 "fee_refunded": refund,
+                "events": (),
                 "message": message,
             }
     elif combat.get("killed"):
         data["crucible_kills"] = state["crucible_kills"] + 1
+        defeated = str(target["display_name"])
+        # The taunts and titles the shop sells are death labels applied to the
+        # target you just beat. A cosmetic nobody ever sees is a purchase that
+        # does nothing, so both are rendered here.
+        title = CRUCIBLE_UNLOCKS_BY_ID.get(state["crucible_title"])
+        if title is not None:
+            events.append(title.display_name.replace("[name]", defeated))
+        taunt = CRUCIBLE_UNLOCKS_BY_ID.get(state["crucible_taunt"])
+        if taunt is not None:
+            events.append(f"You play {taunt.display_name}.")
         bones = CRUCIBLE_BONES_PER_KILL
         points_gained = CRUCIBLE_POINTS_PER_KILL
         _adjust_stack(data, CRUCIBLE_CURRENCY, bones)
@@ -828,6 +840,7 @@ def apply_crucible_review_pure(
             if session["is_champion"]
             else "A Supreme Champion event has started; the arena is safe."
         )
+    parts.extend(events)
     data["crucible_last_result"] = " · ".join(parts)
     return data, True, {
         "advanced": True,
@@ -839,6 +852,7 @@ def apply_crucible_review_pure(
         "rank": rank,
         "event_active": in_event,
         "is_champion": bool(session["is_champion"]),
+        "events": tuple(events),
         "message": data["crucible_last_result"],
     }
 

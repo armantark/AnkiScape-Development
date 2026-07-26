@@ -529,6 +529,33 @@ class CrucibleRewardTest(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("already own", info["reason"])
 
+    def test_an_active_taunt_and_title_actually_appear_when_a_target_falls(self):
+        """A cosmetic nobody ever sees would be a purchase that does nothing."""
+        player = copy.deepcopy(self.earned)
+        for unlock in (CRUCIBLE_TAUNTS[0], CRUCIBLE_TITLES[0]):
+            player, ok, info = buy_crucible_unlock_pure(player, unlock.id)
+            self.assertTrue(ok, info)
+            player, ok, info = set_crucible_cosmetic_pure(
+                player, unlock.kind, unlock.id
+            )
+            self.assertTrue(ok, info)
+        player, ok, info = enter_crucible_pure(player, GE_ITEM_CATALOG)
+        self.assertTrue(ok, info)
+        played, results = _play(
+            player,
+            7,
+            limit=400,
+            reenter=True,
+            until=lambda _p, r: bool(r.get("bones")),
+        )
+        events = " ".join(results[-1]["events"])
+        self.assertIn(CRUCIBLE_TAUNTS[0].display_name, events)
+        # The title is a label on the defeated target, so its [name] token is
+        # replaced by whoever just fell rather than shown literally.
+        self.assertIn("Cowardly Crucible target", events)
+        self.assertNotIn("[name]", events)
+        self.assertIn(CRUCIBLE_TAUNTS[0].display_name, played["crucible_last_result"])
+
     def test_a_cosmetic_cannot_be_worn_before_it_is_bought(self):
         _data, ok, info = set_crucible_cosmetic_pure(
             copy.deepcopy(self.earned), "taunt", CRUCIBLE_TAUNTS[0].id
