@@ -4307,6 +4307,18 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-12T19:44:44Z"
   },
+  "combatenemies/skeletal_horror.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Skeletal_Horror.png",
+    "file_title": "Skeletal Horror.png",
+    "image_url": "https://runescape.wiki/images/archive/20160419194706%21Skeletal_Horror.png?0c0a6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "250f9bb2cb74414711bea6b7b57afc95fff90366",
+    "size": 695261,
+    "source_wiki": "rs3",
+    "timestamp": "2012-04-29T19:52:22Z"
+  },
   "combatenemies/skeleton_level_21.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Skeleton.png",
     "file_title": "Skeleton.png",
@@ -4944,6 +4956,18 @@
     "size": 477,
     "source_wiki": "osrs",
     "timestamp": "2019-04-11T12:15:25Z"
+  },
+  "combatitems/clue_scroll_elite.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Clue_scroll_%28elite%29_%28scan%29.png",
+    "file_title": "Clue scroll (elite) (scan).png",
+    "image_url": "https://runescape.wiki/images/archive/20140511082552%21Clue_scroll_%28elite%29_%28scan%29.png?11dbd",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "87da470d7f1f150bde09b7fb725b233e9a70cfc2",
+    "size": 587,
+    "source_wiki": "rs3",
+    "timestamp": "2010-11-03T03:16:45Z"
   },
   "combatitems/clue_scroll_medium.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Clue_scroll_%28medium%29.png",

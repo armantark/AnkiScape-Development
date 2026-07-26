@@ -5,9 +5,9 @@ Date: `2026-07-19`
 Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 
 Status: **phase identity, LP thresholds, attack-style changes, rewards, cadence,
-and limb interactions are source-closed; implementation remains
-`source_blocked` on authentic phase accuracy/defence stats and
-dependency-blocked on post-quest wish-list state.**
+and limb interactions are source-closed. The family shipped on 2026-07-26 under
+registered placeholders for the phase accuracy/defence stats and a stand-in for
+post-quest wish-list state; see "Integration disposition" below.**
 
 This is the implementation follow-up to
 `skeletal-horror-loop-2026-07-18.md`. It does not change that owner-settled
@@ -132,12 +132,21 @@ replacement flag, or duplicate quest work.
 
 ## Integration disposition
 
-No runtime, storage, UI, asset, or test change is admitted yet. Shipping only
-the proven threshold state while filling combat accuracy with guessed stats
-would violate the source standard and would create a visible boss that cannot
-be unlocked faithfully.
+Superseded on 2026-07-26. The re-issued breadth goal admits a **registered
+placeholder** where this audit had recorded a hard blocker, so the family
+shipped rather than waiting:
 
-Once the two blockers close, the existing implementation path is:
+- the four phase stat blocks and the shared bonus array are placeholders in
+  `memory-bank/placeholder-values.md`, marked at the value in
+  `data/skeletal_horror_data.py`; the two-style selector weight is a third;
+- the wish-list dependency is stood in by two explicit commands, recorded as an
+  open design decision in `memory-bank/design-thread-queue.md` section 3.1.
+
+Nothing in the *sourced* set — thresholds, maximum hits, styles, rewards,
+cadence — is a placeholder. The original reasoning below still holds for why
+those may not be guessed.
+
+The implementation path this audit predicted was followed exactly:
 
 1. register the four phase rows as encounter-only Combat identities;
 2. persist the continuous enemy LP and current phase through live six-tick

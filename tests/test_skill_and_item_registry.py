@@ -523,6 +523,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "stealing_creation",
                 "barrows",
                 "phoenix_lair",
+                "skeletal_horror",
             },
         )
 

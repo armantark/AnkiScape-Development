@@ -97,6 +97,11 @@ from ..data.phoenix_lair_data import (
     phoenix_lair_activity_as_dict,
     phoenix_lair_extra_items_as_dict,
 )
+from ..data.skeletal_horror_data import (
+    SKELETAL_HORROR_ACTIVITY_ID,
+    skeletal_horror_activity_as_dict,
+    skeletal_horror_extra_items_as_dict,
+)
 
 from ..data.stealing_creation_data import (
     STEALING_CREATION_ACTIVITY_ID,
@@ -577,6 +582,7 @@ UTILITY_ACTIVITY_DATA.update(tzhaar_fight_pit_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(varrock_museum_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(phoenix_lair_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(skeletal_horror_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(stealing_creation_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(barrows_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(flash_powder_factory_activity_as_dict())
@@ -721,6 +727,13 @@ if os.path.exists(_fight_caves_icon):
 _phoenix_lair_icon = os.path.join(current_dir, "activityitems", "phoenix_quill.png")
 if os.path.exists(_phoenix_lair_icon):
     UTILITY_ACTIVITY_DATA[PHOENIX_LAIR_ACTIVITY_ID]["icon_path"] = _phoenix_lair_icon
+_skeletal_horror_icon = os.path.join(
+    current_dir, "combatenemies", "skeletal_horror.png"
+)
+if os.path.exists(_skeletal_horror_icon):
+    UTILITY_ACTIVITY_DATA[SKELETAL_HORROR_ACTIVITY_ID]["icon_path"] = (
+        _skeletal_horror_icon
+    )
 _stealing_creation_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
     "stealing_creation.png",
@@ -1476,6 +1489,7 @@ SORCERESS_GARDEN_EXTRA_ITEM_DATA = sorceress_garden_extra_items_as_dict()
 VINESWEEPER_EXTRA_ITEM_DATA = vinesweeper_extra_items_as_dict()
 FIGHT_CAVES_EXTRA_ITEM_DATA = fight_caves_extra_items_as_dict()
 PHOENIX_LAIR_EXTRA_ITEM_DATA = phoenix_lair_extra_items_as_dict()
+SKELETAL_HORROR_EXTRA_ITEM_DATA = skeletal_horror_extra_items_as_dict()
 STEALING_CREATION_EXTRA_ITEM_DATA = stealing_creation_extra_items_as_dict()
 BARROWS_EXTRA_ITEM_DATA = barrows_extra_items_as_dict()
 FLASH_POWDER_FACTORY_EXTRA_ITEM_DATA = flash_powder_factory_extra_items_as_dict()
@@ -1641,6 +1655,16 @@ if os.path.exists(_phoenix_quill_activity_path):
 PHOENIX_LAIR_ITEM_IMAGES = {
     item_name: path
     for item_name, path in PHOENIX_LAIR_ITEM_IMAGES.items()
+    if os.path.exists(path)
+}
+SKELETAL_HORROR_ITEM_IMAGES = {
+    "Clue scroll (elite)": os.path.join(
+        current_dir, "combatitems", "clue_scroll_elite.png"
+    ),
+}
+SKELETAL_HORROR_ITEM_IMAGES = {
+    item_name: path
+    for item_name, path in SKELETAL_HORROR_ITEM_IMAGES.items()
     if os.path.exists(path)
 }
 STEALING_CREATION_ITEM_IMAGES = {}
@@ -2018,6 +2042,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **VINESWEEPER_EXTRA_ITEM_DATA,
     **FIGHT_CAVES_EXTRA_ITEM_DATA,
     **PHOENIX_LAIR_EXTRA_ITEM_DATA,
+    **SKELETAL_HORROR_EXTRA_ITEM_DATA,
     **STEALING_CREATION_EXTRA_ITEM_DATA,
     **BARROWS_EXTRA_ITEM_DATA,
     **FLASH_POWDER_FACTORY_EXTRA_ITEM_DATA,
@@ -2062,6 +2087,7 @@ EXTRA_ITEM_IMAGES = {
     **VINESWEEPER_ITEM_IMAGES,
     **FIGHT_CAVES_ITEM_IMAGES,
     **PHOENIX_LAIR_ITEM_IMAGES,
+    **SKELETAL_HORROR_ITEM_IMAGES,
     **STEALING_CREATION_ITEM_IMAGES,
     **BARROWS_ITEM_IMAGES,
     **PYRAMID_PLUNDER_ITEM_IMAGES,

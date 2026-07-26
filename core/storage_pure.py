@@ -30,6 +30,10 @@ from ..logic.phoenix_lair_logic import (
     default_phoenix_lair_state_pure,
     sanitize_phoenix_lair_state_pure,
 )
+from ..logic.skeletal_horror_logic import (
+    default_skeletal_horror_state_pure,
+    sanitize_skeletal_horror_state_pure,
+)
 from ..logic.stealing_creation_logic import (
     default_stealing_creation_state_pure,
     sanitize_stealing_creation_state_pure,
@@ -450,6 +454,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["fist_of_guthix"] = default_fist_of_guthix_state_pure()
     data["fight_caves"] = default_fight_caves_state_pure()
     data["phoenix_lair"] = default_phoenix_lair_state_pure()
+    data["skeletal_horror"] = default_skeletal_horror_state_pure()
     data["stealing_creation"] = default_stealing_creation_state_pure()
     data["barrows"] = default_barrows_state_pure()
     data.update(default_pyramid_plunder_state_pure())
@@ -1086,6 +1091,9 @@ def migrate_loaded_data(
     data["phoenix_lair"] = sanitize_phoenix_lair_state_pure(
         data.get("phoenix_lair")
     )
+    data["skeletal_horror"] = sanitize_skeletal_horror_state_pure(
+        data.get("skeletal_horror")
+    )
     data["stealing_creation"] = sanitize_stealing_creation_state_pure(
         data.get("stealing_creation")
     )
@@ -1124,6 +1132,14 @@ def migrate_loaded_data(
     )
     if data["fight_caves"]["active"]:
         active_session_id = "fight_caves"
+        data["skeletal_horror"].update(
+            {
+                "active": False,
+                "lifepoints": 0,
+                "phase_index": 0,
+                "encounter": {},
+            }
+        )
         data["phoenix_lair"].update(
             {
                 "active": False,
@@ -1144,6 +1160,23 @@ def migrate_loaded_data(
         data["fish_flingers"] = {}
     elif data["phoenix_lair"]["active"]:
         active_session_id = "phoenix_lair"
+        data["skeletal_horror"].update(
+            {
+                "active": False,
+                "lifepoints": 0,
+                "phase_index": 0,
+                "encounter": {},
+            }
+        )
+        data["stealing_creation"]["active_session"] = {}
+        data["barrows"]["active"] = False
+        data["barrows"]["suspended"] = True
+        data["pyramid_plunder"] = {}
+        data["werewolf_skullball"] = {}
+        data["gnome_ball"] = {}
+        data["fish_flingers"] = {}
+    elif data["skeletal_horror"]["active"]:
+        active_session_id = "skeletal_horror"
         data["stealing_creation"]["active_session"] = {}
         data["barrows"]["active"] = False
         data["barrows"]["suspended"] = True
@@ -1180,6 +1213,7 @@ def migrate_loaded_data(
     elif data["fish_flingers"]:
         active_session_id = FISH_FLINGERS_ACTIVITY_ID
     elif active_session_id in {
+        "skeletal_horror",
         WEREWOLF_SKULLBALL_ACTIVITY_ID,
         GNOME_BALL_ACTIVITY_ID,
         FISH_FLINGERS_ACTIVITY_ID,
