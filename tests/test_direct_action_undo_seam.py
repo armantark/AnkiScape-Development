@@ -193,6 +193,33 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
         self.assertEqual(addon.player_data["skeletal_horror"], before)
 
+    def test_tears_of_guthix_entry_restores_through_the_seam(self):
+        from ankiscape.logic.tears_of_guthix_logic import (
+            apply_tears_of_guthix_command_pure,
+        )
+
+        addon = self.addon
+        addon.player_data["quests"]["tears_of_guthix"] = {
+            "started": True,
+            "progress": 3,
+            "completed": True,
+        }
+        addon.player_data["quest_points"] = 44
+        before = copy.deepcopy(addon.player_data["tears_of_guthix"])
+
+        committed = self.commit(
+            lambda current: (
+                apply_tears_of_guthix_command_pure(current, "enter")[0],
+                True,
+            )
+        )
+
+        self.assertTrue(committed)
+        self.assertTrue(addon.player_data["tears_of_guthix"]["active"])
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data["tears_of_guthix"], before)
+        self.assertFalse(addon.player_data["tears_of_guthix"]["active"])
+
 
 if __name__ == "__main__":
     unittest.main()

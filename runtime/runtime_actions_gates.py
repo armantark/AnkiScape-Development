@@ -331,6 +331,8 @@ from ..logic.phoenix_lair_logic import (
 )
 from ..data.skeletal_horror_data import SKELETAL_HORROR_ACTIVITY_ID
 from ..logic.skeletal_horror_logic import skeletal_horror_view_pure
+from ..data.tears_of_guthix_data import TEARS_OF_GUTHIX_ACTIVITY_ID
+from ..logic.tears_of_guthix_logic import tears_of_guthix_view_pure
 from ..data.barrows_data import BARROWS_ACTIVITY_ID
 from ..logic.barrows_logic import apply_barrows_review_pure, barrows_view_pure
 from ..data.stealing_creation_data import STEALING_CREATION_ACTIVITY_ID
@@ -402,6 +404,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     _handle_penguin_answer,
     _handle_phoenix_lair_answer,
     _handle_skeletal_horror_answer,
+    _handle_tears_of_guthix_answer,
     _handle_pyramid_plunder_answer,
     _handle_shooting_star_answer,
     _handle_sorceress_garden_answer,
@@ -587,6 +590,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return bool(phoenix_lair_view_pure(ctx.player_data).get("active", False))
     if activity_key == SKELETAL_HORROR_ACTIVITY_ID:
         return bool(skeletal_horror_view_pure(ctx.player_data).get("active", False))
+    if activity_key == TEARS_OF_GUTHIX_ACTIVITY_ID:
+        return bool(tears_of_guthix_view_pure(ctx.player_data).get("active", False))
     if activity_key == BARROWS_ACTIVITY_ID:
         return bool(barrows_view_pure(ctx.player_data).get("can_review", False))
     if activity_key == STEALING_CREATION_ACTIVITY_ID:

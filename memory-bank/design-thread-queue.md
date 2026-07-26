@@ -57,6 +57,34 @@ Options:
 Records that disagree: the harvest audit calls this dependency-blocked; the
 shipped code treats it as satisfiable. Blocks: nothing today under option A.
 
+### 3.2 Tears of Guthix — how many review beats one cavern visit is worth
+
+Raised 2026-07-26 while building the Tears of Guthix family.
+
+The period timer is exact: `Tears of Guthix` oldid `6579712` says "the time a
+player has is the player's Quest Points in Ticks", capped at three minutes, so a
+visit is `min(quest_points, 300)` game ticks. What no source states is how many
+*answered cards* that is worth, because the period game had no such unit.
+`source-audits/activity-cadence-reconciliation-2026-07-18.md` settled the shape —
+one Tears handler action advances one automatic collection beat — and left the
+beat count open.
+
+Options:
+
+- **A. One review is six game ticks** (recommended, and what is implemented).
+  It reuses the cadence the live Combat activities already run at, so nothing new
+  is invented. A 44-point player gets 8 beats and a capped 300-point player gets
+  50, which scales with quest progress exactly as the period timer does.
+- **B. A fixed beat count per visit**, the same for everyone. Simpler to read in
+  the UI, but it throws away the one part of the mechanic the source states
+  precisely — that Quest Points buy cavern time.
+- **C. One review is one tick.** Faithful to the unit, but a capped visit becomes
+  300 answered cards, which is a fifth of a simulated week for one D&D.
+
+Blocks: nothing. Changing the answer later is a one-constant edit to
+`TEARS_OF_GUTHIX_TICKS_PER_REVIEW`, and the tests read the constant rather than
+restating the beat counts.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19

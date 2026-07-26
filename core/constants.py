@@ -97,6 +97,10 @@ from ..data.phoenix_lair_data import (
     phoenix_lair_activity_as_dict,
     phoenix_lair_extra_items_as_dict,
 )
+from ..data.tears_of_guthix_data import (
+    TEARS_OF_GUTHIX_ACTIVITY_ID,
+    tears_of_guthix_activity_as_dict,
+)
 from ..data.skeletal_horror_data import (
     SKELETAL_HORROR_ACTIVITY_ID,
     skeletal_horror_activity_as_dict,
@@ -583,6 +587,7 @@ UTILITY_ACTIVITY_DATA.update(varrock_museum_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(phoenix_lair_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(skeletal_horror_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(tears_of_guthix_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(stealing_creation_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(barrows_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(flash_powder_factory_activity_as_dict())
@@ -733,6 +738,14 @@ _skeletal_horror_icon = os.path.join(
 if os.path.exists(_skeletal_horror_icon):
     UTILITY_ACTIVITY_DATA[SKELETAL_HORROR_ACTIVITY_ID]["icon_path"] = (
         _skeletal_horror_icon
+    )
+_tears_of_guthix_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "tears_of_guthix.png",
+)
+if os.path.exists(_tears_of_guthix_icon):
+    UTILITY_ACTIVITY_DATA[TEARS_OF_GUTHIX_ACTIVITY_ID]["icon_path"] = (
+        _tears_of_guthix_icon
     )
 _stealing_creation_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,

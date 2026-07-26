@@ -26,3 +26,5 @@ Placeholders".
 | `skeletal_horror.phase_180_stats` | Attack 180, Strength 180, Defence 180, Magic 180 | Skeletal Horror | An authentic combat definition or period server script for NPC 9178 |
 | `skeletal_horror.phase_100_stats` | Attack 100, Strength 100, Defence 100, Magic 100 | Skeletal Horror | An authentic combat definition or period server script for NPC 9179 |
 | `skeletal_horror.magic_style_chance` | 0.5 | Skeletal Horror | The authentic Skeletal Horror combat script or selector weights for Melee versus Magic |
+| `tears_of_guthix.tears_per_tick` | 1 tear per tick | Tears of Guthix | The authentic cavern collection rate. The period article reports 267 tears at 316 quest points, which caps at 300 ticks, so the true rate is at most about one per tick — but it states no rate |
+| `tears_of_guthix.green_tear_chance` | 0.055 | Tears of Guthix | The authentic stream-switch timing and the roll for catching a green tear. Derived only as the share that turns 300 ticks into the reported 267 net tears |

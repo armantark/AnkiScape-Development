@@ -217,6 +217,17 @@ from ..data.skeletal_horror_data import (
 )
 from ..logic.skeletal_horror_logic import skeletal_horror_view_pure
 
+from ..data.tears_of_guthix_data import (
+    ORNATE_BOWL_CRAFTING_LEVEL,
+    ORNATE_BOWL_MINING_LEVEL,
+    TEARS_OF_GUTHIX_ACTIVITY_ID,
+    TEARS_OF_GUTHIX_ENTRY_CAP,
+    TEARS_OF_GUTHIX_ORNATE_BOWL_XP_CAP,
+    TEARS_OF_GUTHIX_PROGRESS_EXP,
+    TEARS_OF_GUTHIX_STONE_BOWL_XP_CAP,
+)
+from ..logic.tears_of_guthix_logic import tears_of_guthix_view_pure
+
 from ..data.barrows_data import BARROWS_ACTIVITY_ID, BARROWS_BROTHER_DATA
 from ..logic.barrows_logic import barrows_view_pure
 
@@ -3577,6 +3588,7 @@ def show_main_menu(
     on_fight_caves_command=None,
     on_phoenix_lair_command=None,
     on_skeletal_horror_command=None,
+    on_tears_of_guthix_command=None,
     on_barrows_command=None,
     on_stealing_creation_command=None,
     on_fish_flingers_command=None,
@@ -10192,6 +10204,230 @@ def show_main_menu(
         skeletal_leave.clicked.connect(_confirm_skeletal_horror_leave)
         _refresh_skeletal_horror_panel()
         cards_stack.addWidget(skeletal_box)
+
+        tears_box = QtFrame()
+        tears_box.setObjectName("tearsOfGuthixPanel")
+        tears_box.setStyleSheet(
+            "QFrame#tearsOfGuthixPanel { border: 1px solid palette(mid);"
+            " border-radius: 8px; background: palette(base); }"
+        )
+        tears_layout = QVBoxLayout(tears_box)
+        tears_layout.setContentsMargins(10, 8, 10, 8)
+        tears_layout.setSpacing(6)
+
+        tears_header = QWidget()
+        tears_header_layout = QHBoxLayout(tears_header)
+        tears_header_layout.setContentsMargins(0, 0, 0, 0)
+        tears_header_layout.setSpacing(8)
+        tears_icon = QLabel()
+        tears_icon.setObjectName("tearsOfGuthixIcon")
+        tears_icon.setFixedSize(28, 28)
+        _tears_bowl_icons = {
+            bowl: os.path.join(current_dir, "activityitems", f"{bowl}_bowl.png")
+            for bowl in ("stone", "ornate")
+        }
+        tears_title = QLabel("Tears of Guthix")
+        tears_title.setStyleSheet("font-weight: 700; color: palette(text);")
+        tears_status = QLabel()
+        tears_status.setObjectName("tearsOfGuthixStatusChip")
+        tears_status.setStyleSheet(
+            f"color: {dim_text_css(tears_status)}; font-size: 11px; font-weight: 700;"
+        )
+        tears_header_layout.addWidget(tears_icon)
+        tears_header_layout.addWidget(tears_title)
+        tears_header_layout.addStretch(1)
+        tears_header_layout.addWidget(tears_status)
+        tears_layout.addWidget(tears_header)
+
+        tears_summary = QLabel()
+        tears_summary.setObjectName("tearsOfGuthixSummary")
+        tears_summary.setWordWrap(True)
+        tears_summary.setStyleSheet("color: palette(text);")
+        tears_layout.addWidget(tears_summary)
+
+        tears_progress = QProgressBar()
+        tears_progress.setObjectName("tearsOfGuthixProgress")
+        tears_progress.setTextVisible(True)
+        tears_progress.setFormat("%v / %m collection beats")
+        tears_progress.setFixedHeight(17)
+        tears_progress.setStyleSheet(
+            "QProgressBar { color: palette(text); text-align: center;"
+            " border: 1px solid palette(mid); border-radius: 3px; }"
+            " QProgressBar::chunk { background: #2E86C1; }"
+        )
+        tears_layout.addWidget(tears_progress)
+
+        tears_mechanics = QLabel(
+            "Blue tears add to the count and green tears subtract. Quest Points "
+            "buy the cavern timer, and Juna's tears pay the skill with the least "
+            "experience."
+        )
+        tears_mechanics.setObjectName("tearsOfGuthixMechanics")
+        tears_mechanics.setWordWrap(True)
+        tears_mechanics.setStyleSheet(f"color: {dim_text_css(tears_mechanics)};")
+        tears_layout.addWidget(tears_mechanics)
+
+        tears_rewards = QLabel()
+        tears_rewards.setObjectName("tearsOfGuthixRewards")
+        tears_rewards.setWordWrap(True)
+        tears_rewards.setStyleSheet(f"color: {dim_text_css(tears_rewards)};")
+        tears_layout.addWidget(tears_rewards)
+
+        tears_ornate = QPushButton(
+            f"Craft the ornate bowl ({ORNATE_BOWL_MINING_LEVEL} Mining, "
+            f"{ORNATE_BOWL_CRAFTING_LEVEL} Crafting)"
+        )
+        tears_ornate.setObjectName("tearsOfGuthixOrnateButton")
+        tears_layout.addWidget(tears_ornate)
+
+        tears_actions = QWidget()
+        tears_actions_layout = QHBoxLayout(tears_actions)
+        tears_actions_layout.setContentsMargins(0, 0, 0, 0)
+        tears_actions_layout.setSpacing(6)
+        tears_primary = QPushButton()
+        tears_primary.setObjectName("tearsOfGuthixPrimaryButton")
+        tears_leave = QPushButton("Leave the cavern")
+        tears_leave.setObjectName("tearsOfGuthixLeaveButton")
+        tears_actions_layout.addWidget(tears_primary, 1)
+        tears_actions_layout.addWidget(tears_leave, 1)
+        tears_layout.addWidget(tears_actions)
+
+        def _refresh_tears_of_guthix_panel() -> None:
+            view = tears_of_guthix_view_pure(player_data)
+            active = bool(view["active"])
+            selected = (
+                active
+                and str(player_data.get("current_utility", ""))
+                == TEARS_OF_GUTHIX_ACTIVITY_ID
+            )
+            icon_path = _tears_bowl_icons[
+                "ornate" if view["ornate_bowl"] else "stone"
+            ]
+            if os.path.exists(icon_path):
+                tears_icon.setPixmap(
+                    QPixmap(icon_path).scaled(
+                        28,
+                        28,
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.FastTransformation,
+                    )
+                )
+            reward_skill = view["reward_skill"]
+            if active:
+                tears_status.setText(f"{int(view['tears'])} TEARS")
+                tears_summary.setText(
+                    f"{int(view['remaining_beats'])} of "
+                    f"{int(view['session_beats'])} collection beats remain · "
+                    f"{int(view['xp_per_tear'])} XP per tear into "
+                    f"{reward_skill['display_name']}"
+                )
+                tears_progress.setRange(0, max(1, int(view["session_beats"])))
+                tears_progress.setValue(
+                    int(view["session_beats"]) - int(view["remaining_beats"])
+                )
+                tears_progress.setVisible(True)
+            else:
+                tears_progress.setVisible(False)
+                if not view["requirements_met"]:
+                    tears_status.setText("LOCKED")
+                    tears_summary.setText(
+                        "Requires: " + " · ".join(view["missing_requirements"])
+                    )
+                elif not view["progress_met"]:
+                    tears_status.setText("NO NEW STORY")
+                    tears_summary.setText(
+                        f"{int(view['exp_since_visit']):,} of "
+                        f"{int(TEARS_OF_GUTHIX_PROGRESS_EXP):,} experience, or one "
+                        "Quest Point, since your last visit."
+                    )
+                elif not view["week_ready"]:
+                    tears_status.setText("VISITED THIS WEEK")
+                    tears_summary.setText(
+                        f"Next visit in {int(view['reviews_to_entry']):,} "
+                        "answered reviews."
+                    )
+                else:
+                    tears_status.setText(
+                        "FIRST VISIT READY"
+                        if view["first_visit"]
+                        else f"{int(view['available_entries'])} "
+                        + (
+                            "VISIT"
+                            if int(view["available_entries"]) == 1
+                            else "VISITS"
+                        )
+                    )
+                    tears_summary.setText(
+                        f"{int(view['collection_ticks'])} ticks of tears · "
+                        f"{int(view['entry_beats'])} collection beats · "
+                        f"{int(view['xp_per_tear'])} XP per tear into "
+                        f"{reward_skill['display_name']}"
+                    )
+            tears_summary.setToolTip(str(view["last_result"]))
+            tears_rewards.setText(
+                f"Up to {TEARS_OF_GUTHIX_STONE_BOWL_XP_CAP} XP per tear with the "
+                f"stone bowl, {TEARS_OF_GUTHIX_ORNATE_BOWL_XP_CAP} with the "
+                "ornate bowl. AnkiScape banks up to "
+                f"{TEARS_OF_GUTHIX_ENTRY_CAP} weekly visits."
+            )
+            tears_ornate.setVisible(bool(view["craft_ornate_visible"]))
+            tears_ornate.setEnabled(
+                on_tears_of_guthix_command is not None
+                and bool(view["craft_ornate_enabled"])
+            )
+            tears_ornate.setToolTip(
+                "Requires: " + " · ".join(view["ornate_bowl_missing"])
+                if view["ornate_bowl_missing"]
+                else ""
+            )
+            tears_primary.setText(
+                "Selected for reviews"
+                if selected
+                else "Select for reviews"
+                if active
+                else "Enter Juna's cavern"
+            )
+            tears_primary.setEnabled(
+                on_tears_of_guthix_command is not None
+                and not selected
+                and bool(view["enter_enabled"])
+            )
+            tears_leave.setVisible(bool(view["leave_enabled"]))
+            tears_leave.setEnabled(on_tears_of_guthix_command is not None)
+            _fit_current_activity_detail()
+
+        def _run_tears_of_guthix_command(action_id: str) -> dict[str, Any]:
+            if on_tears_of_guthix_command is None:
+                return {"ok": False}
+            result = on_tears_of_guthix_command(action_id, {}) or {}
+            if not result.get("ok", False):
+                show_error_message(
+                    "Tears of Guthix",
+                    str(
+                        result.get(
+                            "message", "That Tears of Guthix action is unavailable."
+                        )
+                    ),
+                )
+            _refresh_tears_of_guthix_panel()
+            return result
+
+        def _select_or_enter_tears_of_guthix(_checked=False) -> None:
+            if not tears_of_guthix_view_pure(player_data)["active"]:
+                if not _run_tears_of_guthix_command("enter").get("ok", False):
+                    return
+            _set_utility_selection(TEARS_OF_GUTHIX_ACTIVITY_ID)
+            _refresh_tears_of_guthix_panel()
+
+        tears_ornate.clicked.connect(
+            lambda _checked=False: _run_tears_of_guthix_command("craft_ornate_bowl")
+        )
+        tears_primary.clicked.connect(_select_or_enter_tears_of_guthix)
+        tears_leave.clicked.connect(
+            lambda _checked=False: _run_tears_of_guthix_command("leave")
+        )
+        _refresh_tears_of_guthix_panel()
+        cards_stack.addWidget(tears_box)
 
         barrows_box = QtFrame()
         barrows_box.setObjectName("barrowsPanel")
@@ -17772,6 +18008,7 @@ def show_main_menu(
             _refresh_fight_caves_panel()
             _refresh_phoenix_lair_panel()
             _refresh_skeletal_horror_panel()
+            _refresh_tears_of_guthix_panel()
             _refresh_flash_factory_panel()
             _refresh_pyramid_plunder_panel()
             _refresh_skullball_panel()
@@ -17932,6 +18169,7 @@ def show_main_menu(
             FIGHT_CAVES_ACTIVITY_ID: ("TzHaar Fight Cave", fight_caves_box),
             PHOENIX_LAIR_ACTIVITY_ID: ("Phoenix Lair", phoenix_box),
             SKELETAL_HORROR_ACTIVITY_ID: ("Skeletal Horror", skeletal_box),
+            TEARS_OF_GUTHIX_ACTIVITY_ID: ("Tears of Guthix", tears_box),
             BARROWS_ACTIVITY_ID: ("Barrows", barrows_box),
             FLASH_POWDER_FACTORY_ACTIVITY_ID: (
                 "Flash Powder Factory",

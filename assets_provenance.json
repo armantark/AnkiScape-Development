@@ -359,6 +359,18 @@
     "source_wiki": "rs3",
     "timestamp": "2024-03-14T12:48:08Z"
   },
+  "activityicons/enchanted_key.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Enchanted_key.png",
+    "file_title": "Enchanted key.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Enchanted_key.png?ef54e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "16e793e4aa6c15bc31d79938ea6f1e495ff2b8ca",
+    "size": 988,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:52Z"
+  },
   "activityicons/fish_flingers.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Fishing_hat.png",
     "file_title": "Fishing hat.png",
@@ -586,6 +598,18 @@
     "size": 497,
     "source_wiki": "rs3",
     "timestamp": "2010-09-18T04:51:10Z"
+  },
+  "activityicons/tears_of_guthix.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Stone_bowl.png",
+    "file_title": "Stone bowl.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502081152%21Stone_bowl.png?ff195",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a6432027cb3e7dcc3f0edcd514447712f407e1a4",
+    "size": 460,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-29T06:10:19Z"
   },
   "activityicons/trouble_brewing.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Pieces_of_eight_3.png",
@@ -1175,6 +1199,18 @@
     "source_wiki": "rs3",
     "timestamp": "2011-11-22T04:33:42Z"
   },
+  "activityitems/guthix_mjolnir.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Guthix_mjolnir.png",
+    "file_title": "Guthix mjolnir.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502071148%21Guthix_mjolnir.png?84570",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5ac7863c15136abb0d579ee6485916c30fe88f8f",
+    "size": 270,
+    "source_wiki": "rs3",
+    "timestamp": "2009-01-28T03:36:01Z"
+  },
   "activityitems/ivory_comb.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Ivory_comb.png",
     "file_title": "Ivory comb.png",
@@ -1210,6 +1246,18 @@
     "size": 658,
     "source_wiki": "rs3",
     "timestamp": "2011-03-15T20:00:25Z"
+  },
+  "activityitems/ornate_bowl.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Ornate_bowl.png",
+    "file_title": "Ornate bowl.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502061637%21Ornate_bowl.png?19744",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "163bab1d574193d28b022778489a44215a51457d",
+    "size": 480,
+    "source_wiki": "rs3",
+    "timestamp": "2012-11-06T16:11:36Z"
   },
   "activityitems/pest_control_void_seal_1.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Void_knight_seal_detail.png",
@@ -1498,6 +1546,18 @@
     "size": 490,
     "source_wiki": "rs3",
     "timestamp": "2010-10-08T04:49:50Z"
+  },
+  "activityitems/saradomin_mjolnir.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Saradomin_mjolnir.png",
+    "file_title": "Saradomin mjolnir.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502071149%21Saradomin_mjolnir.png?fe453",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "255c033be2ba88e76afd67d6257d5f5d49901ca6",
+    "size": 277,
+    "source_wiki": "rs3",
+    "timestamp": "2009-01-28T03:36:12Z"
   },
   "activityitems/sceptre_of_the_gods.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Sceptre_of_the_gods.png",
@@ -1931,6 +1991,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-10-06T01:50:07Z"
   },
+  "activityitems/stone_bowl.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Stone_bowl.png",
+    "file_title": "Stone bowl.png",
+    "image_url": "https://runescape.wiki/images/archive/20160502081152%21Stone_bowl.png?ff195",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a6432027cb3e7dcc3f0edcd514447712f407e1a4",
+    "size": 460,
+    "source_wiki": "rs3",
+    "timestamp": "2011-11-29T06:10:19Z"
+  },
   "activityitems/stone_scarab.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Stone_scarab.png",
     "file_title": "Stone scarab.png",
@@ -2182,6 +2254,18 @@
     "size": 884,
     "source_wiki": "rs3",
     "timestamp": "2010-10-06T02:03:49Z"
+  },
+  "activityitems/zamorak_mjolnir.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Zamorak_mjolnir.png",
+    "file_title": "Zamorak mjolnir.png",
+    "image_url": "https://runescape.wiki/images/archive/20140502070932%21Zamorak_mjolnir.png?5ff24",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a8c194e2ddb2e399524ec12f8a91a92464db7f66",
+    "size": 330,
+    "source_wiki": "rs3",
+    "timestamp": "2008-07-13T21:32:29Z"
   },
   "agilityitems/acrobat_hood.png": {
     "file_page_url": "https://runescape.wiki/w/File:Acrobat_hood_(male).png",
@@ -30344,6 +30428,18 @@
     "size": 691,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:55:42Z"
+  },
+  "questitems/enchanted_key.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Enchanted_key.png",
+    "file_title": "Enchanted key.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Enchanted_key.png?ef54e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "16e793e4aa6c15bc31d79938ea6f1e495ff2b8ca",
+    "size": 988,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:52Z"
   },
   "questitems/ethenea.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Ethenea.png",

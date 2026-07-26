@@ -170,6 +170,35 @@ def cadence_coverage_rows_pure() -> list[dict[str, Any]]:
                 }
             )
             continue
+        elif str(action_id) == "tears_of_guthix":
+            rows.append(
+                {
+                    "handler_key": "utility",
+                    "action_id": "tears_of_guthix",
+                    "mode": "activity_group",
+                    "source_status": "sourced",
+                    "source_row": str(spec.get("source", "")),
+                    "source_reason": (
+                        "One review advances one automatic collection beat of "
+                        "the Quest-Point-bought cavern timer."
+                    ),
+                    "includes": (
+                        "one six-tick slice of the cavern timer",
+                        "one blue/green tear-count transaction",
+                        "one atomic payout and weekly-visit boundary",
+                    ),
+                    "multiplier_behavior": (
+                        "Repeats complete collection beats; leaving preserves "
+                        "the exact remaining beat count"
+                    ),
+                    "undo_boundary": "one answered-card transaction",
+                    "flag_off_behavior": "same collection-beat activity handler",
+                    "profile": None,
+                    "condition": "",
+                    "route_kind": "activity",
+                }
+            )
+            continue
         elif str(action_id) == "skeletal_horror":
             rows.append(
                 {
