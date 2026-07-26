@@ -359,6 +359,12 @@ from ..logic.duel_arena_logic import duel_arena_view_pure
 from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
 from ..logic.clan_wars_logic import clan_wars_view_pure
 from .clan_wars_panel import ClanWarsPanel
+from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
+from ..logic.crucible_logic import crucible_view_pure
+from .crucible_panel import CruciblePanel
+from ..data.goblin_raids_data import GOBLIN_RAIDS_ACTIVITY_ID
+from ..logic.goblin_raids_logic import goblin_raids_view_pure
+from .goblin_raids_panel import GoblinRaidsPanel
 
 from ..data.managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
 from ..logic.managing_miscellania_logic import managing_miscellania_view_pure
@@ -3622,6 +3628,8 @@ def show_main_menu(
     on_tzhaar_fight_pit_command=None,
     on_duel_arena_command=None,
     on_clan_wars_command=None,
+    on_crucible_command=None,
+    on_goblin_raids_command=None,
     on_daily_challenges_command=None,
     on_treasure_trails_command=None,
     on_varrock_museum_command=None,
@@ -15474,6 +15482,24 @@ def show_main_menu(
             parent=cards_stack,
         )
         cards_stack.addWidget(clan_wars_box)
+
+        crucible_box = CruciblePanel(
+            player_data,
+            on_command=on_crucible_command,
+            on_select=lambda activity_id: _request_utility_selection(activity_id),
+            on_changed=lambda: _fit_current_activity_detail(),
+            parent=cards_stack,
+        )
+        cards_stack.addWidget(crucible_box)
+
+        goblin_raids_box = GoblinRaidsPanel(
+            player_data,
+            on_command=on_goblin_raids_command,
+            on_select=lambda activity_id: _request_utility_selection(activity_id),
+            on_changed=lambda: _fit_current_activity_detail(),
+            parent=cards_stack,
+        )
+        cards_stack.addWidget(goblin_raids_box)
         # Treasure Trails. Ownership, tier support and step blocking are all
         # decided in treasure_trails_logic; this card renders its flags.
         trail_box = QtFrame()
@@ -18509,6 +18535,73 @@ def show_main_menu(
                         ),
                     )
                     return False
+            goblin_view = goblin_raids_view_pure(player_data)
+            if activity_id != GOBLIN_RAIDS_ACTIVITY_ID and goblin_view["active"]:
+                question = "Switch activities and walk away from the goblins?"
+                if goblin_view["pending_spoils"]:
+                    question += " The spoils you have not claimed will be lost."
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave Goblin Raids?",
+                    question,
+                    QMessageBox.StandardButton.Yes
+                    | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_goblin_raids_command("leave", {})
+                    if on_goblin_raids_command is not None
+                    else {
+                        "ok": False,
+                        "message": "Goblin Raids actions are unavailable.",
+                    }
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Goblin Raids",
+                        str(
+                            (result or {}).get(
+                                "message",
+                                "Could not leave the goblins.",
+                            )
+                        ),
+                    )
+                    return False
+            crucible_view = crucible_view_pure(player_data)
+            if activity_id != CRUCIBLE_ACTIVITY_ID and crucible_view["active"]:
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave the Crucible?",
+                    "Switch activities? You abandon your bounty target, so the "
+                    f"{crucible_view['fee']['abandon_component']} coin "
+                    "abandonment part of your fee goes to the opponent.",
+                    QMessageBox.StandardButton.Yes
+                    | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_crucible_command("leave", {})
+                    if on_crucible_command is not None
+                    else {
+                        "ok": False,
+                        "message": "Crucible actions are unavailable.",
+                    }
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "The Crucible",
+                        str(
+                            (result or {}).get(
+                                "message",
+                                "Could not leave the arena.",
+                            )
+                        ),
+                    )
+                    return False
             if (
                 activity_id != BARBARIAN_ASSAULT_ACTIVITY_ID
                 and barbarian_assault_view_pure(player_data)["active"]
@@ -18798,6 +18891,14 @@ def show_main_menu(
                 clan_wars_box.refresh()
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == CRUCIBLE_ACTIVITY_ID:
+                crucible_box.refresh()
+                _show_activity_detail(activity_id)
+                return
+            if activity_id == GOBLIN_RAIDS_ACTIVITY_ID:
+                goblin_raids_box.refresh()
+                _show_activity_detail(activity_id)
+                return
             if activity_id == BARBARIAN_ASSAULT_ACTIVITY_ID:
                 _refresh_barbarian_panel()
                 _show_activity_detail(activity_id)
@@ -18876,6 +18977,8 @@ def show_main_menu(
             TZHAAR_FIGHT_PIT_ACTIVITY_ID: ("TzHaar Fight Pit", fight_pit_box),
             DUEL_ARENA_ACTIVITY_ID: ("Duel Arena", duel_arena_box),
             CLAN_WARS_ACTIVITY_ID: ("Clan Wars", clan_wars_box),
+            CRUCIBLE_ACTIVITY_ID: ("The Crucible", crucible_box),
+            GOBLIN_RAIDS_ACTIVITY_ID: ("Goblin Raids", goblin_raids_box),
             TREASURE_TRAILS_ACTIVITY_ID: ("Treasure Trails", trail_box),
             BARBARIAN_ASSAULT_ACTIVITY_ID: ("Barbarian Assault", barbarian_box),
             STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID: (

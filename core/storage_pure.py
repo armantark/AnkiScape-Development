@@ -192,6 +192,16 @@ from ..logic.duel_arena_logic import (
     default_duel_arena_state_pure,
     sanitize_duel_arena_state_pure,
 )
+from ..data.goblin_raids_data import GOBLIN_RAIDS_ACTIVITY_ID
+from ..logic.goblin_raids_logic import (
+    default_goblin_raids_state_pure,
+    sanitize_goblin_raids_state_pure,
+)
+from ..data.crucible_data import CRUCIBLE_ACTIVITY_ID
+from ..logic.crucible_logic import (
+    default_crucible_state_pure,
+    sanitize_crucible_state_pure,
+)
 from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
 from ..logic.clan_wars_logic import (
     default_clan_wars_state_pure,
@@ -250,7 +260,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 85
+CURRENT_CONFIG_VERSION = 87
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -506,6 +516,8 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_tzhaar_fight_pit_state_pure())
     data.update(default_duel_arena_state_pure())
     data.update(default_clan_wars_state_pure())
+    data.update(default_crucible_state_pure())
+    data["goblin_raids"] = default_goblin_raids_state_pure()
     data.update(default_daily_challenges_state_pure())
     data.update(default_treasure_trails_state_pure())
     data["varrock_museum"] = default_varrock_museum_state_pure()
@@ -1157,6 +1169,10 @@ def migrate_loaded_data(
     data.update(sanitize_tzhaar_fight_pit_state_pure(data))
     data.update(sanitize_duel_arena_state_pure(data))
     data.update(sanitize_clan_wars_state_pure(data))
+    data.update(sanitize_crucible_state_pure(data))
+    data["goblin_raids"] = sanitize_goblin_raids_state_pure(
+        data.get("goblin_raids")
+    )
     data.update(sanitize_daily_challenges_state_pure(data))
     data.update(sanitize_treasure_trails_state_pure(data))
     data["varrock_museum"] = sanitize_varrock_museum_state_pure(
@@ -1308,6 +1324,22 @@ def migrate_loaded_data(
             active_session_id = ""
     elif clan_wars_session:
         active_session_id = CLAN_WARS_ACTIVITY_ID
+    crucible_session = data["crucible"]
+    if active_session_id:
+        if active_session_id != CRUCIBLE_ACTIVITY_ID:
+            data["crucible"] = {}
+        elif not crucible_session:
+            active_session_id = ""
+    elif crucible_session:
+        active_session_id = CRUCIBLE_ACTIVITY_ID
+    goblin_raids_session = data["goblin_raids"]["session"]
+    if active_session_id:
+        if active_session_id != GOBLIN_RAIDS_ACTIVITY_ID:
+            data["goblin_raids"]["session"] = {}
+        elif not goblin_raids_session:
+            active_session_id = ""
+    elif goblin_raids_session:
+        active_session_id = GOBLIN_RAIDS_ACTIVITY_ID
     # Tears of Guthix is deliberately outside the exclusive ladder above. Its
     # cavern session survives leaving with its remaining beats intact, so
     # another activity holding the session must not clear it, and a suspended
@@ -1640,6 +1672,15 @@ def migrate_loaded_data(
     if loaded_config_version < 85:
         for key, value in default_treasure_trails_state_pure().items():
             data.setdefault(key, value)
+    # v86: The Crucible adds the persistent arena visit, the bounty-fee escrow,
+    # the rank ladder, the Trophy bone ledgers and the reward unlocks.
+    if loaded_config_version < 86:
+        for key, value in default_crucible_state_pure().items():
+            data.setdefault(key, value)
+    # v87: Goblin Raids adds the half-hourly announcement clock, the standing
+    # raid, the raid and village sessions, and the cower shield's bonus budget.
+    if loaded_config_version < 87:
+        data.setdefault("goblin_raids", default_goblin_raids_state_pure())
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1695,6 +1736,10 @@ def migrate_loaded_data(
     data.update(sanitize_tzhaar_fight_pit_state_pure(data))
     data.update(sanitize_duel_arena_state_pure(data))
     data.update(sanitize_clan_wars_state_pure(data))
+    data.update(sanitize_crucible_state_pure(data))
+    data["goblin_raids"] = sanitize_goblin_raids_state_pure(
+        data.get("goblin_raids")
+    )
     data.update(sanitize_daily_challenges_state_pure(data))
     data.update(sanitize_treasure_trails_state_pure(data))
     data.pop("agility_circus_last_week", None)

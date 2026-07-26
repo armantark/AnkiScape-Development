@@ -90,6 +90,19 @@ from ..data.clan_wars_data import (
     CLAN_WARS_ACTIVITY_ID,
     clan_wars_activity_as_dict,
 )
+from ..data.goblin_raids_data import (
+    GOBLIN_RAID_ENEMIES,
+    GOBLIN_RAIDS_ACTIVITY_ID,
+    goblin_raids_activity_as_dict,
+    goblin_raids_equipment_data_as_dict,
+    goblin_raids_extra_items_as_dict,
+)
+from ..data.crucible_data import (
+    CRUCIBLE_ACTIVITY_ID,
+    crucible_activity_as_dict,
+    crucible_equipment_data_as_dict,
+    crucible_extra_items_as_dict,
+)
 
 from ..data.daily_challenges_data import (
     daily_challenge_extra_items_as_dict,
@@ -613,6 +626,8 @@ UTILITY_ACTIVITY_DATA.update(shades_of_mortton_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(tzhaar_fight_pit_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(duel_arena_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(clan_wars_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(crucible_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(goblin_raids_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(treasure_trails_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(varrock_museum_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
@@ -771,6 +786,20 @@ _clan_wars_icon = os.path.join(
 )
 if os.path.exists(_clan_wars_icon):
     UTILITY_ACTIVITY_DATA[CLAN_WARS_ACTIVITY_ID]["icon_path"] = _clan_wars_icon
+_crucible_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "crucible.png",
+)
+if os.path.exists(_crucible_icon):
+    UTILITY_ACTIVITY_DATA[CRUCIBLE_ACTIVITY_ID]["icon_path"] = _crucible_icon
+_goblin_raids_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "goblin_raids.png",
+)
+if os.path.exists(_goblin_raids_icon):
+    UTILITY_ACTIVITY_DATA[GOBLIN_RAIDS_ACTIVITY_ID]["icon_path"] = (
+        _goblin_raids_icon
+    )
 _varrock_museum_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
     "varrock_museum.png",
@@ -1518,6 +1547,11 @@ for _target_id in COMBAT_ENEMY_DATA:
     _path = os.path.join(COMBAT_ENEMIES_FOLDER, f"{_asset_slug(_target_id)}.png")
     if os.path.exists(_path):
         COMBAT_ENEMY_IMAGES[_target_id] = _path
+# Goblin Raids' unnamed village goblin has no wiki image of its own, so it shows
+# the art of the registered goblin row it inherits its stats from.
+for _row in GOBLIN_RAID_ENEMIES:
+    if _row.id not in COMBAT_ENEMY_IMAGES and _row.base in COMBAT_ENEMY_IMAGES:
+        COMBAT_ENEMY_IMAGES[_row.id] = COMBAT_ENEMY_IMAGES[_row.base]
 EQUIPMENT_DATA = dict(EQUIPMENT_DATA)
 EQUIPMENT_DATA.update(barrows_equipment_data_as_dict())
 EQUIPMENT_DATA.update(fish_flingers_equipment_data_as_dict())
@@ -1528,6 +1562,8 @@ EQUIPMENT_DATA.update(barbarian_assault_equipment_data_as_dict())
 EQUIPMENT_DATA.update(stronghold_player_safety_equipment_data_as_dict())
 EQUIPMENT_DATA.update(penguin_hide_and_seek_equipment_data_as_dict())
 EQUIPMENT_DATA.update(duel_arena_equipment_data_as_dict())
+EQUIPMENT_DATA.update(crucible_equipment_data_as_dict())
+EQUIPMENT_DATA.update(goblin_raids_equipment_data_as_dict())
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict(EQUIPMENT_DATA)
 FIST_OF_GUTHIX_EXTRA_ITEM_DATA = fist_of_guthix_extra_items_as_dict()
 COURT_CASES_EXTRA_ITEM_DATA = court_cases_extra_items_as_dict()
@@ -1587,6 +1623,8 @@ WEREWOLF_SKULLBALL_EXTRA_ITEM_DATA = werewolf_skullball_extra_items_as_dict()
 GNOME_BALL_EXTRA_ITEM_DATA = gnome_ball_extra_items_as_dict()
 FISH_FLINGERS_EXTRA_ITEM_DATA = fish_flingers_extra_items_as_dict()
 DUEL_ARENA_EXTRA_ITEM_DATA = duel_arena_extra_items_as_dict()
+CRUCIBLE_EXTRA_ITEM_DATA = crucible_extra_items_as_dict()
+GOBLIN_RAIDS_EXTRA_ITEM_DATA = goblin_raids_extra_items_as_dict()
 DAILY_CHALLENGE_EXTRA_ITEM_DATA = daily_challenge_extra_items_as_dict()
 TREASURE_TRAILS_EXTRA_ITEM_DATA = treasure_trails_extra_items_as_dict()
 COURT_CASES_ITEM_IMAGES = {
@@ -2009,6 +2047,8 @@ def _known_non_shop_item_names():
         THIEVING_EXTRA_ITEM_DATA,
         FISH_FLINGERS_EXTRA_ITEM_DATA,
         DUEL_ARENA_EXTRA_ITEM_DATA,
+        CRUCIBLE_EXTRA_ITEM_DATA,
+        GOBLIN_RAIDS_EXTRA_ITEM_DATA,
         SHADES_OF_MORTTON_EXTRA_ITEM_DATA,
     ):
         names.update(mapping)
@@ -2173,6 +2213,8 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **GNOME_BALL_EXTRA_ITEM_DATA,
     **FISH_FLINGERS_EXTRA_ITEM_DATA,
     **DUEL_ARENA_EXTRA_ITEM_DATA,
+    **CRUCIBLE_EXTRA_ITEM_DATA,
+    **GOBLIN_RAIDS_EXTRA_ITEM_DATA,
     **DAILY_CHALLENGE_EXTRA_ITEM_DATA,
     **TREASURE_TRAILS_EXTRA_ITEM_DATA,
     **potion_items_as_dict(),

@@ -509,6 +509,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "tzhaar_fight_pit",
                 "duel_arena",
                 "clan_wars",
+                "crucible",
                 "stronghold_player_safety",
                 "varrock_museum",
                 "sorceress_garden",
@@ -529,6 +530,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "skeletal_horror",
                 "tears_of_guthix",
                 "enchanted_key",
+                "goblin_raids",
             },
         )
 

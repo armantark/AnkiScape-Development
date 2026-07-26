@@ -143,6 +143,16 @@ from .data.duel_arena_data import DUEL_ARENA_ACTIVITY_ID
 from .logic.duel_arena_logic import apply_duel_arena_command_pure
 from .data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
 from .logic.clan_wars_logic import apply_clan_wars_command_pure
+from .data.crucible_data import CRUCIBLE_ACTIVITY_ID
+from .logic.crucible_logic import apply_crucible_command_pure
+from .data.goblin_raids_data import GOBLIN_RAIDS_ACTIVITY_ID
+from .logic.goblin_raids_logic import (
+    advance_goblin_raids_world_clock_pure,
+    apply_goblin_cower_shield_bonus_pure,
+    apply_goblin_raids_command_pure,
+    goblin_cower_shield_can_apply_pure,
+    goblin_raids_spawn_due_pure,
+)
 from .logic.treasure_trails_logic import (
     apply_treasure_trails_command_pure,
     treasure_trails_view_pure,
@@ -557,6 +567,16 @@ def _cadence_kernel_enabled() -> bool:
 
 def _award_skill_exp(exp_key: str, base_exp: float) -> float:
     action_skill_id = str(current_skill).lower()
+    # The Goblin cower shield pays 25% bonus Attack, Defence and Constitution
+    # experience out of a 1,000-experience budget, then turns cosmetic. It rides
+    # the same seam the Stealing Creation tools use rather than a second one.
+    if goblin_cower_shield_can_apply_pure(player_data, exp_key):
+        shield_updated, shield_bonus, _shield_info = (
+            apply_goblin_cower_shield_bonus_pure(player_data, exp_key, base_exp)
+        )
+        player_data.clear()
+        player_data.update(shield_updated)
+        base_exp = float(base_exp) + float(shield_bonus)
     if not stealing_creation_tool_can_apply_pure(
         player_data,
         exp_key,
@@ -2916,6 +2936,75 @@ def _on_main_menu(
             pass
         return {"ok": True, **info}
 
+    def _apply_goblin_raids_command(action_id, payload):
+        info = {}
+
+        def _change(current):
+            nonlocal info
+            updated, ok, info = apply_goblin_raids_command_pure(
+                current,
+                str(action_id),
+                payload if isinstance(payload, dict) else {},
+            )
+            return updated, ok
+
+        if not commit_direct_action(_change):
+            if info.get("reason"):
+                return {
+                    "ok": False,
+                    "message": str(info["reason"]),
+                    **info,
+                }
+            return {
+                "ok": False,
+                "message": "Anki could not create an undo entry.",
+            }
+        _refresh_skill_availability()
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
+    def _apply_crucible_command(action_id, payload):
+        info = {}
+        body = dict(payload) if isinstance(payload, dict) else {}
+        # The bounty fee is quoted against live guide prices, so the catalog
+        # travels with the command rather than being re-derived in the panel.
+        if action_id == "enter":
+            body.setdefault("price_catalog", GE_ITEM_CATALOG)
+
+        def _change(current):
+            nonlocal info
+            updated, ok, info = apply_crucible_command_pure(
+                current,
+                str(action_id),
+                body,
+            )
+            return updated, ok
+
+        if not commit_direct_action(_change):
+            if info.get("reason"):
+                return {
+                    "ok": False,
+                    "message": str(info["reason"]),
+                    **info,
+                }
+            return {
+                "ok": False,
+                "message": "Anki could not create an undo entry.",
+            }
+        _refresh_skill_availability()
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_clan_wars_command(action_id, payload):
         info = {}
 
@@ -3269,6 +3358,8 @@ def _on_main_menu(
         on_tzhaar_fight_pit_command=_apply_tzhaar_fight_pit_command,
         on_duel_arena_command=_apply_duel_arena_command,
         on_clan_wars_command=_apply_clan_wars_command,
+        on_crucible_command=_apply_crucible_command,
+        on_goblin_raids_command=_apply_goblin_raids_command,
         on_daily_challenges_command=_apply_daily_challenges_command,
         on_treasure_trails_command=_apply_treasure_trails_command,
         on_varrock_museum_command=_apply_varrock_museum_command,
@@ -3875,6 +3966,13 @@ def _advance_world_events_after_review() -> None:
     )
     player_data.update(star_updated)
 
+    goblin_due = goblin_raids_spawn_due_pure(player_data)
+    goblin_updated, _goblin_events = advance_goblin_raids_world_clock_pure(
+        player_data,
+        site_roll=random.random() if goblin_due else 0.0,
+    )
+    player_data.update(goblin_updated)
+
 
 def on_good_answer(before_state=None):
     global current_skill, exp_awarded
@@ -4147,6 +4245,26 @@ def on_answer_card(self, ease, _old):
             and runtime_actions.clan_wars_view_pure(player_data).get("active")
         ):
             runtime_actions.handle_clan_wars_answer(
+                _runtime_action_context(),
+                productive=False,
+            )
+        elif (
+            review_action_handler_key(current_skill) == "utility"
+            and player_data.get("current_utility")
+            == runtime_actions.CRUCIBLE_ACTIVITY_ID
+            and runtime_actions.crucible_view_pure(player_data).get("active")
+        ):
+            runtime_actions.handle_crucible_answer(
+                _runtime_action_context(),
+                productive=False,
+            )
+        elif (
+            review_action_handler_key(current_skill) == "utility"
+            and player_data.get("current_utility")
+            == runtime_actions.GOBLIN_RAIDS_ACTIVITY_ID
+            and runtime_actions.goblin_raids_view_pure(player_data).get("active")
+        ):
+            runtime_actions.handle_goblin_raids_answer(
                 _runtime_action_context(),
                 productive=False,
             )

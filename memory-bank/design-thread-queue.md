@@ -132,6 +132,33 @@ therefore end a quest holding two clues.
 
 Blocks: nothing. Worth answering before medium, hard or elite trails ship.
 
+### 3.5 Two Crucible reward rows have nothing to act on
+
+Raised 2026-07-26 while building The Crucible. Not a blocker: the family shipped
+with the other twenty-eight rows of its shop.
+
+Marv's reward interface has thirty-three rows. Thirty ship as death taunts and
+death titles, and the Supreme champion's helm ships gated on having been named
+Supreme Champion. The remaining three are the fissure energy boosts (24, 36 and
+48 Trophy bones), which increase the run energy the arena's fissures restore, and
+a fourth is the 15-bone Rogue glove repair. Both prices are exactly sourced —
+rev-727 enum 5901 and the pinned article agree — but AnkiScape has no fissure
+travel and no Rogue glove, so buying either would take the bones and change
+nothing.
+
+- Option A: leave the four rows out, as shipped. The shop tells the truth about
+  what it sells, and nothing is advertised that does not work.
+- Option B: build the surfaces they need. Fissure travel would have to become a
+  real in-arena action with a run-energy cost for a boost to it to mean anything,
+  and the Rogue gloves need a five-tier degradable equipment family with a
+  maximum-lifepoints bonus and a charge count that no source states.
+- Recommendation: **A** for now. Option B is a second family's worth of work
+  hanging off four shop rows, and the glove bonus and charge count are both
+  unsourced, so it would be built mostly out of placeholders.
+
+Blocks: nothing. Worth answering if the Rogue gloves are ever wanted in their own
+right, since they are period equipment rather than only a shop row.
+
 ## 4. Answered decisions
 
 ### 4.1 Grand Exchange offer-slot count — answered 2026-07-19

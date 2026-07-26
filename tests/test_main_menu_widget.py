@@ -8499,6 +8499,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "tzhaar_fight_pit",
                 "duel_arena",
                 "clan_wars",
+                "crucible",
             },
         )
         self.assertEqual(
@@ -8518,6 +8519,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "skeletal_horror",
                 "tears_of_guthix",
                 "enchanted_key",
+                "goblin_raids",
                 "treasure_trail",
             },
         )
