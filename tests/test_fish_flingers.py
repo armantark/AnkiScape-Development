@@ -352,22 +352,44 @@ class FishFlingersLogicTests(unittest.TestCase):
         self.assertIn("forfeited", left["fish_flingers_last_result"])
 
     def test_reward_shop_spends_tokens_but_retains_cumulative_medals(self):
-        player = _player(
-            fish_flingers_tokens=500,
-            fish_flingers_medals=50,
-            fish_flingers_last_ticket_day=0,
-        )
+        # Tokens and medals are EARNED here rather than assigned. The earlier
+        # version opened by writing 500 tokens and 50 medals into the fixture,
+        # which certified the shop's arithmetic but would have passed unchanged
+        # if reward accrual had broken entirely.
+        # Sixty events: the three purchases below need 480 tokens, and the basic
+        # tackle box additionally requires 50 cumulative medals, so a shorter run
+        # would fail on the requirement rather than on the behaviour under test.
+        player = _player(fishing_level=1)
+        for event_index in range(60):
+            player["shop_market_clock"] = {
+                "answered_cards": event_index * 240,
+                "market_tick": 0,
+            }
+            player, entered, info = enter_fish_flingers_pure(player)
+            self.assertTrue(entered, info)
+            for _ in range(6):
+                player, _result = apply_fish_flingers_review_pure(
+                    player, 0.999, 0.999, 0.999
+                )
+        earned_tokens = int(player["fish_flingers_tokens"])
+        earned_medals = int(player["fish_flingers_medals"])
+        self.assertGreater(earned_tokens, 0, "playing must yield tokens")
+        self.assertGreater(earned_medals, 0, "playing must yield medals")
+
         player, ok, info = buy_fish_flingers_reward_pure(player, "fishing_hat")
         self.assertTrue(ok, info)
         self.assertEqual(player["inventory"]["Fishing hat"], 1)
-        self.assertEqual(player["fish_flingers_tokens"], 360)
+        self.assertEqual(player["fish_flingers_tokens"], earned_tokens - 140)
         player, ok, info = buy_fish_flingers_reward_pure(
             player, "beginner_tackle_box"
         )
         self.assertTrue(ok, info)
-        self.assertEqual(player["fish_flingers_medals"], 50)
+        self.assertEqual(
+            player["fish_flingers_medals"],
+            earned_medals,
+            "medals are cumulative currency and must survive a token purchase",
+        )
         self.assertEqual(player["inventory"]["Beginner's tackle box"], 1)
-        player["fish_flingers_tokens"] = 230
         upgraded, ok, info = buy_fish_flingers_reward_pure(
             player, "basic_tackle_box"
         )
