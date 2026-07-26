@@ -47,9 +47,13 @@ def _install_runtime_fakes():
     aqt.mw = None
     aqt.gui_hooks = _FakeHooks()
 
-    # aqt.reviewer submodule
+    # Give each package load a pristine reviewer class. Add-on wrapping mutates
+    # the class method, so reusing _FakeReviewer would nest stale wrappers.
+    class _RuntimeReviewer(_FakeReviewer):
+        pass
+
     aqt_reviewer = types.ModuleType("aqt.reviewer")
-    aqt_reviewer.Reviewer = _FakeReviewer
+    aqt_reviewer.Reviewer = _RuntimeReviewer
 
     # DO NOT provide aqt.qt so ui.py falls back to HAS_QT = False
     sys.modules["aqt"] = aqt
@@ -5242,6 +5246,118 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._on_state_did_undo(
             types.SimpleNamespace(operation="AnkiScape direct action")
         )
+        self.assertEqual(addon.player_data, initial)
+        self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
+
+    def test_vinesweeper_loaded_addon_review_and_direct_actions_are_undoable(self):
+        addon = _load_addon_as_package("ankiscape_vinesweeper_e2e")
+        storage = sys.modules[f"{addon.__name__}.core.storage_pure"]
+        constants = sys.modules[f"{addon.__name__}.core.constants"]
+        hooks = sys.modules["aqt"].gui_hooks
+        self.assertEqual(len(hooks.state_did_undo), 1)
+        undo = hooks.state_did_undo[0]
+        captured = {}
+        addon.ui.show_main_menu = lambda *args, **kwargs: captured.update(kwargs)
+        col = _DummyCol()
+        addon.mw = _DummyMW(col)
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda *_args: None
+        addon.update_review_context_action_strip = lambda *_args: None
+        addon.update_farming_hud_badge = lambda *_args: None
+        addon.update_distraction_hud_badge = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon.check_achievements = lambda *_args: None
+        addon.level_up_check = lambda *_args: None
+        addon._show_activity_gain = lambda *_args: None
+        addon._show_exp = lambda *_args: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon._review_action_multiplier = lambda: 1
+        addon.current_skill = "Activities"
+
+        initial = storage.default_player_data(
+            constants.ORE_DATA,
+            constants.ITEM_DEFINITIONS,
+        )
+        initial["inventory"].update({"Spade": 1, "Coins": 10})
+        initial["farming_level"] = 40
+        addon.player_data = copy.deepcopy(initial)
+        addon._on_main_menu()
+
+        entered_result = captured["on_vinesweeper_command"]("enter", {})
+        self.assertTrue(entered_result["ok"], entered_result)
+        captured["on_set_utility"]("vinesweeper")
+        entered = copy.deepcopy(addon.player_data)
+        self.assertTrue(entered["vinesweeper"]["active"])
+        self.assertEqual(entered["vinesweeper"]["flags"], 10)
+        self.assertEqual(entered["current_utility"], "vinesweeper")
+        self.assertEqual(col.custom_undo_entries, ["AnkiScape direct action"])
+        self.assertEqual(addon.mw.undo_updates, 1)
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.99
+        self.addCleanup(setattr, addon.random, "random", original_random)
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        reviewer = sys.modules["aqt.reviewer"].Reviewer()
+        self.assertIsNone(reviewer._answerCard(4))
+
+        earned = copy.deepcopy(addon.player_data)
+        self.assertEqual(earned["vinesweeper"]["operations"], 1)
+        self.assertEqual(earned["vinesweeper"]["rabbits_repulsed"], 1)
+        self.assertEqual(earned["vinesweeper"]["points"], 280)
+        self.assertEqual(earned["inventory"]["Coins"], 0)
+        self.assertEqual(earned["hunter_exp"], 30.0)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        bought = captured["on_vinesweeper_command"](
+            "buy_reward",
+            {"reward_id": "cabbage_seed", "quantity": 2},
+        )
+        self.assertTrue(bought["ok"], bought)
+        self.assertEqual(addon.player_data["inventory"]["Cabbage seed"], 2)
+        self.assertEqual(addon.player_data["vinesweeper"]["points"], 260)
+        self.assertEqual(
+            col.custom_undo_entries,
+            ["AnkiScape direct action"] * 2,
+        )
+        self.assertEqual(addon.mw.undo_updates, 2)
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 2)
+        undo(types.SimpleNamespace(operation="AnkiScape direct action"))
+        self.assertEqual(addon.player_data, earned)
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        redeemed = captured["on_vinesweeper_command"](
+            "redeem_farming_xp",
+            {"points": 280},
+        )
+        self.assertTrue(redeemed["ok"], redeemed)
+        self.assertEqual(addon.player_data["vinesweeper"]["points"], 0)
+        self.assertEqual(
+            addon.player_data["farming_exp"],
+            earned["farming_exp"] + 280.0,
+        )
+        self.assertEqual(
+            col.custom_undo_entries,
+            ["AnkiScape direct action"] * 3,
+        )
+        self.assertEqual(addon.mw.undo_updates, 3)
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 2)
+        undo(types.SimpleNamespace(operation="AnkiScape direct action"))
+        self.assertEqual(addon.player_data, earned)
+        self.assertEqual(len(addon._DIRECT_ACTION_UNDO_STACK), 1)
+
+        undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(study_queues=True, card=True),
+            )
+        )
+        self.assertEqual(addon.player_data, entered)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
+        undo(types.SimpleNamespace(operation="AnkiScape direct action"))
         self.assertEqual(addon.player_data, initial)
         self.assertEqual(addon._DIRECT_ACTION_UNDO_STACK, [])
 
