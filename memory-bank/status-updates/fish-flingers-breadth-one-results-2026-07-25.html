@@ -1,0 +1,145 @@
+<title>Fish Flingers — Breadth Level One Complete</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root {
+    --bg: #0c0e12;
+    --surface: #161a21;
+    --surface-2: #1e232c;
+    --border: #2a3040;
+    --text: #e8ecf4;
+    --text-dim: #8b95a8;
+    --accent: #4f8cff;
+    --accent-glow: rgba(79, 140, 255, 0.15);
+    --red: #ff5c5c;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --purple: #a78bfa;
+    --radius: 12px;
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    background:
+        radial-gradient(circle at 82% 8%, rgba(79,140,255,.16), transparent 30rem),
+        radial-gradient(circle at 8% 84%, rgba(74,222,128,.08), transparent 26rem),
+        var(--bg);
+    color: var(--text);
+    font-family: Outfit, Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    line-height: 1.55;
+}
+main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 42px 0 64px; }
+header { display: grid; gap: 12px; margin-bottom: 24px; }
+.badge {
+    width: fit-content; padding: 5px 10px; border: 1px solid rgba(74,222,128,.35);
+    border-radius: 999px; color: var(--green); background: rgba(74,222,128,.08);
+    font: 700 .7rem/1.2 "JetBrains Mono", ui-monospace, monospace; letter-spacing: .1em;
+}
+h1 { margin: 0; max-width: 780px; font-size: clamp(2rem, 6vw, 3.7rem); line-height: 1.02; letter-spacing: -.04em; }
+.subtitle { margin: 0; max-width: 760px; color: var(--text-dim); font-size: 1rem; }
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 26px 0; }
+.metric { min-height: 128px; padding: 18px; background: linear-gradient(145deg, var(--surface), var(--surface-2)); border: 1px solid var(--border); border-radius: var(--radius); }
+.metric .value { display: block; margin-bottom: 8px; color: var(--text); font-size: clamp(1.7rem, 4vw, 2.55rem); font-weight: 800; line-height: 1; }
+.metric .label { color: var(--text-dim); font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; }
+.metric.good { box-shadow: inset 0 2px 0 rgba(74,222,128,.65); }
+.metric.accent { box-shadow: inset 0 2px 0 rgba(79,140,255,.8); }
+.grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 16px; }
+.card { padding: 20px; background: rgba(22,26,33,.94); border: 1px solid var(--border); border-radius: var(--radius); }
+.card h2 { margin: 0 0 6px; font-size: 1.1rem; }
+.card > p { margin: 0 0 16px; color: var(--text-dim); font-size: .9rem; }
+.flow { display: grid; gap: 9px; }
+.flow-step { position: relative; display: grid; grid-template-columns: 38px 1fr; gap: 12px; align-items: center; padding: 11px 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; }
+.flow-step:not(:last-child)::after { content: ""; position: absolute; left: 30px; bottom: -10px; width: 2px; height: 10px; background: var(--accent); }
+.flow-num { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; background: var(--accent-glow); color: #8bb3ff; font: 800 .78rem "JetBrains Mono", ui-monospace, monospace; }
+.flow-copy strong { display: block; font-size: .88rem; }
+.flow-copy span { color: var(--text-dim); font-size: .78rem; }
+.before-after { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pane { padding: 14px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border); }
+.pane.after { border-color: rgba(74,222,128,.35); background: linear-gradient(145deg, rgba(74,222,128,.07), var(--surface-2)); }
+.pane-label { margin-bottom: 10px; color: var(--text-dim); font: 700 .68rem "JetBrains Mono", ui-monospace, monospace; letter-spacing: .1em; }
+.mini-row { padding: 8px 0; border-bottom: 1px solid var(--border); color: var(--text-dim); font-size: .78rem; }
+.mini-row:last-child { border-bottom: 0; }
+.mini-row.live { color: var(--text); }
+.dot { display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: var(--text-dim); }
+.live .dot { background: var(--green); box-shadow: 0 0 0 4px rgba(74,222,128,.08); }
+.section { margin-top: 16px; }
+.verification { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.check { padding: 14px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; }
+.check strong { display: block; margin-bottom: 4px; color: var(--green); font-size: .82rem; }
+.check span { color: var(--text-dim); font-size: .78rem; }
+.files { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+.file { padding: 5px 8px; border-radius: 7px; background: var(--surface-2); color: #b7c2d7; font: 600 .68rem "JetBrains Mono", ui-monospace, monospace; }
+footer { margin-top: 18px; padding: 14px 16px; border-left: 3px solid var(--green); background: rgba(74,222,128,.06); color: var(--text-dim); font-size: .82rem; }
+footer strong { color: var(--text); }
+@media (max-width: 900px) { .metrics { grid-template-columns: repeat(2, 1fr); } .grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { main { width: min(100% - 20px, 1120px); padding-top: 24px; } .metrics, .before-after, .verification { grid-template-columns: 1fr; } }
+@media print { body { background: #fff; color: #111; } .card, .metric, .pane, .check { background: #fff; color: #111; border-color: #bbb; } }
+</style>
+<main>
+  <header>
+    <div class="badge">COMPLETED · BREADTH LEVEL ONE</div>
+    <h1>Fish Flingers now has a complete mechanic loop.</h1>
+    <p class="subtitle">The event now uses stock, species, location, rotation, and fixed communal pressure. The player can see each state.</p>
+  </header>
+
+  <section class="metrics" aria-label="Completion metrics">
+    <article class="metric good"><span class="value">5</span><span class="label">Live outcome inputs</span></article>
+    <article class="metric accent"><span class="value">6</span><span class="label">Sourced fish species</span></article>
+    <article class="metric accent"><span class="value">4</span><span class="label">Sourced locations</span></article>
+    <article class="metric good"><span class="value">2,732</span><span class="label">Tests in each green lane</span></article>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h2>The answered-card loop</h2>
+      <p>Each successful review now changes bounded event state and a later result.</p>
+      <div class="flow" role="list">
+        <div class="flow-step" role="listitem"><div class="flow-num">01</div><div class="flow-copy"><strong>Read the active fishing spot.</strong><span>The logic reads the species, location, stock, route, and pressure.</span></div></div>
+        <div class="flow-step" role="listitem"><div class="flow-num">02</div><div class="flow-copy"><strong>Resolve the catch and its weight.</strong><span>The species, location, stock band, tackle efficiency, and roll change the result.</span></div></div>
+        <div class="flow-step" role="listitem"><div class="flow-num">03</div><div class="flow-copy"><strong>Reduce the shared stock.</strong><span>The player catch and three-stock communal pressure reduce the stock.</span></div></div>
+        <div class="flow-step" role="listitem"><div class="flow-num">04</div><div class="flow-copy"><strong>Rotate an empty spot.</strong><span>The next route entry changes the species or location for a later review.</span></div></div>
+        <div class="flow-step" role="listitem"><div class="flow-num">05</div><div class="flow-copy"><strong>Close the sixth catch.</strong><span>The event gives Fishing XP, tokens, and medals through the existing undo path.</span></div></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>From inert state to player state</h2>
+      <p>The card now explains why catch output changes during the event.</p>
+      <div class="before-after">
+        <div class="pane">
+          <div class="pane-label">BEFORE</div>
+          <div class="mini-row"><span class="dot"></span>Location index changed.</div>
+          <div class="mini-row"><span class="dot"></span>Catch logic did not read it.</div>
+          <div class="mini-row"><span class="dot"></span>The card hid stock and rotation.</div>
+          <div class="mini-row"><span class="dot"></span>Communal pressure had no effect.</div>
+        </div>
+        <div class="pane after">
+          <div class="pane-label">AFTER</div>
+          <div class="mini-row live"><span class="dot"></span>Bass at Lake is visible.</div>
+          <div class="mini-row live"><span class="dot"></span>Stock amount and band are visible.</div>
+          <div class="mini-row live"><span class="dot"></span>Route 1/6 is visible.</div>
+          <div class="mini-row live"><span class="dot"></span>Communal pressure changes later catches.</div>
+          <div class="mini-row live"><span class="dot"></span>Total event weight is visible.</div>
+        </div>
+      </div>
+      <div class="files" aria-label="Changed files">
+        <span class="file">data/fish_flingers_data.py</span>
+        <span class="file">logic/fish_flingers_logic.py</span>
+        <span class="file">ui/ui.py</span>
+        <span class="file">tests/test_fish_flingers.py</span>
+        <span class="file">tests/test_main_menu_widget.py</span>
+      </div>
+    </article>
+  </section>
+
+  <section class="card section">
+    <h2>Verification</h2>
+    <p>The final worktree passed all automated checks and the level-one UI smoke check.</p>
+    <div class="verification">
+      <div class="check"><strong>PASS · Standard lane</strong><span><code>python3 run_tests.py</code><br>2,732 tests passed. 332 tests were skipped by the lane design.</span></div>
+      <div class="check"><strong>PASS · Qt lane</strong><span><code>QT_QPA_PLATFORM=offscreen … unittest discover tests</code><br>2,732 tests passed. One test was skipped.</span></div>
+      <div class="check"><strong>PASS · Level-one smoke</strong><span>A level-one player entered with no items. The 720 × 560 card showed all mechanic state without clipped text.</span></div>
+    </div>
+  </section>
+
+  <footer><strong>Reachability:</strong> A new level-one player gets two tickets from the answered-card calendar. One ticket starts the full six-review event. No source item or level gate blocks entry. No owner decision or source blocker remains.</footer>
+</main>

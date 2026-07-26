@@ -19,6 +19,36 @@ FISH_FLINGERS_TICKET_CAP = 10
 FISH_FLINGERS_TOKEN_CAP = 2000
 FISH_FLINGERS_WORLD_DAY_REVIEWS = 240
 
+# Oldid 6529096 establishes these six species, four locations, and the
+# one/one/two/two location distribution. The integer modifiers, stock maximum,
+# rotation route, and communal depletion amount below are disclosed AnkiScape
+# balance values because the period source does not preserve exact catch rates,
+# individual weight ranges, or a quantified multiplayer pressure multiplier.
+FISH_FLINGERS_SPECIES = (
+    {"name": "Bass", "catch_modifier": 0, "weight_modifier": 0},
+    {"name": "Cod", "catch_modifier": 1, "weight_modifier": -4},
+    {"name": "Herring", "catch_modifier": -1, "weight_modifier": -8},
+    {"name": "Pike", "catch_modifier": 2, "weight_modifier": 8},
+    {"name": "Salmon", "catch_modifier": 1, "weight_modifier": 4},
+    {"name": "Trout", "catch_modifier": -1, "weight_modifier": -2},
+)
+FISH_FLINGERS_LOCATIONS = (
+    {"name": "Lake", "catch_modifier": 0, "weight_modifier": 0},
+    {"name": "River", "catch_modifier": -1, "weight_modifier": 4},
+    {"name": "Beach", "catch_modifier": 0, "weight_modifier": -4},
+    {"name": "Docks", "catch_modifier": 1, "weight_modifier": 6},
+)
+FISH_FLINGERS_ROTATION_ROUTE = (
+    (0, 0),  # Bass at Lake
+    (1, 1),  # Cod at River
+    (2, 2),  # Herring at Beach
+    (3, 2),  # Pike at Beach
+    (4, 3),  # Salmon at Docks
+    (5, 3),  # Trout at Docks
+)
+FISH_FLINGERS_STOCK_MAX = 24
+FISH_FLINGERS_COMMUNAL_DEPLETION = 3
+
 # These are disclosed AnkiScape pacing values. The source proves that each
 # correct tackle component contributes one third of the rating, while the
 # owner-settled contract compresses automatic discovery into three reviews.

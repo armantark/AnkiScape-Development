@@ -7,10 +7,15 @@ from typing import Any
 
 from ..data.fish_flingers_data import (
     FISH_FLINGERS_ACTIVITY_ID,
+    FISH_FLINGERS_COMMUNAL_DEPLETION,
     FISH_FLINGERS_DISCOVERY_LABELS,
     FISH_FLINGERS_EFFICIENCY,
     FISH_FLINGERS_EVENT_REVIEWS,
+    FISH_FLINGERS_LOCATIONS,
     FISH_FLINGERS_REWARDS,
+    FISH_FLINGERS_ROTATION_ROUTE,
+    FISH_FLINGERS_SPECIES,
+    FISH_FLINGERS_STOCK_MAX,
     FISH_FLINGERS_TICKET_CAP,
     FISH_FLINGERS_TICKETS_PER_DAY,
     FISH_FLINGERS_TOKEN_CAP,
@@ -18,7 +23,7 @@ from ..data.fish_flingers_data import (
 )
 
 
-FISH_FLINGERS_STATE_VERSION = 1
+FISH_FLINGERS_STATE_VERSION = 2
 
 
 def _int(value: Any, default: int = 0, *, maximum: int = 2_147_483_647) -> int:
@@ -67,6 +72,27 @@ def sanitize_fish_flingers_session_pure(raw: Any) -> dict[str, Any]:
     if not isinstance(raw, Mapping) or not raw:
         return {}
     review = _int(raw.get("review"), maximum=FISH_FLINGERS_EVENT_REVIEWS - 1)
+    if "rotation_index" in raw:
+        rotation_index = _int(
+            raw.get("rotation_index"),
+            maximum=len(FISH_FLINGERS_ROTATION_ROUTE) - 1,
+        )
+    else:
+        legacy_location = _int(
+            raw.get("location_index"),
+            maximum=len(FISH_FLINGERS_LOCATIONS) - 1,
+        )
+        rotation_index = next(
+            (
+                index
+                for index, (_species_index, location_index) in enumerate(
+                    FISH_FLINGERS_ROTATION_ROUTE
+                )
+                if location_index == legacy_location
+            ),
+            0,
+        )
+    default_species, default_location = FISH_FLINGERS_ROTATION_ROUTE[rotation_index]
     return {
         "version": FISH_FLINGERS_STATE_VERSION,
         "review": review,
@@ -75,7 +101,25 @@ def sanitize_fish_flingers_session_pure(raw: Any) -> dict[str, Any]:
         "big_fish": _int(raw.get("big_fish"), maximum=3),
         "assists": _int(raw.get("assists"), maximum=6),
         "perfect_tackles": max(0, review - 2),
-        "location_index": _int(raw.get("location_index"), maximum=3),
+        "rotation_index": rotation_index,
+        "species_index": _int(
+            raw.get("species_index"),
+            default_species,
+            maximum=len(FISH_FLINGERS_SPECIES) - 1,
+        ),
+        "location_index": _int(
+            raw.get("location_index"),
+            default_location,
+            maximum=len(FISH_FLINGERS_LOCATIONS) - 1,
+        ),
+        "stock": max(
+            1,
+            _int(
+                raw.get("stock"),
+                FISH_FLINGERS_STOCK_MAX,
+                maximum=FISH_FLINGERS_STOCK_MAX,
+            ),
+        ),
     }
 
 
@@ -171,6 +215,10 @@ def enter_fish_flingers_pure(
     if tickets < 1:
         return data, False, {"reason": "No Fish Flingers entry tickets are available."}
     data["fish_flingers_tickets"] = tickets - 1
+    rotation_index = (
+        _int(data.get("fish_flingers_events_completed")) * 2
+    ) % len(FISH_FLINGERS_ROTATION_ROUTE)
+    species_index, location_index = FISH_FLINGERS_ROTATION_ROUTE[rotation_index]
     data["fish_flingers"] = {
         "version": FISH_FLINGERS_STATE_VERSION,
         "review": 0,
@@ -179,7 +227,10 @@ def enter_fish_flingers_pure(
         "big_fish": 0,
         "assists": 0,
         "perfect_tackles": 0,
-        "location_index": 0,
+        "rotation_index": rotation_index,
+        "species_index": species_index,
+        "location_index": location_index,
+        "stock": FISH_FLINGERS_STOCK_MAX,
     }
     data["activity_session"] = {"active_id": FISH_FLINGERS_ACTIVITY_ID}
     data["current_utility"] = FISH_FLINGERS_ACTIVITY_ID
@@ -197,6 +248,15 @@ def _event_xp(fishing_level: Any, fish_caught: int) -> float:
     return float(round(level * 200 * min(1.0, fish_caught / 48.0)))
 
 
+def _stock_label(stock: int) -> str:
+    percent = stock * 100 / FISH_FLINGERS_STOCK_MAX
+    if percent >= 67:
+        return "Rich"
+    if percent >= 34:
+        return "Fading"
+    return "Low"
+
+
 def apply_fish_flingers_review_pure(
     player_data: Mapping[str, Any],
     catch_roll: Any,
@@ -210,9 +270,34 @@ def apply_fish_flingers_review_pure(
 
     review = int(session["review"])
     efficiency = float(FISH_FLINGERS_EFFICIENCY[review])
+    species_index = int(session["species_index"])
+    location_index = int(session["location_index"])
+    rotation_index = int(session["rotation_index"])
+    stock_before = int(session["stock"])
+    species = FISH_FLINGERS_SPECIES[species_index]
+    location = FISH_FLINGERS_LOCATIONS[location_index]
+    # The source establishes the direction of stock pressure, not its hidden
+    # rates. These stock bands and the weight span are disclosed AnkiScape
+    # balance math backed by the data-module constants.
+    stock_percent = stock_before * 100 / FISH_FLINGERS_STOCK_MAX
+    stock_penalty = 0 if stock_percent >= 67 else 1 if stock_percent >= 34 else 2
+    communal_pressure = FISH_FLINGERS_COMMUNAL_DEPLETION
     raw_catch = 4 + int(_roll(catch_roll) * 5)
-    caught = max(1, round(raw_catch * efficiency))
-    weight = caught * (70 + int(_roll(catch_roll) * 61))
+    adjusted_catch = (
+        raw_catch
+        + int(species["catch_modifier"])
+        + int(location["catch_modifier"])
+        - stock_penalty
+    )
+    caught = max(1, min(stock_before, round(adjusted_catch * efficiency)))
+    weight_each = max(
+        1,
+        70
+        + int(_roll(catch_roll) * 61)
+        + int(species["weight_modifier"])
+        + int(location["weight_modifier"]),
+    )
+    weight = caught * weight_each
     big_fish = int(session["big_fish"])
     caught_big = big_fish < 3 and _roll(big_fish_roll) < 0.25
     if caught_big:
@@ -228,8 +313,13 @@ def apply_fish_flingers_review_pure(
     # The third catch completes the automatic discovery ramp, so only that
     # catch and the three that follow count as source-shaped perfect tackles.
     perfect_tackles = max(0, next_review - 2)
-    location_index = (int(session["location_index"]) + (1 if next_review % 2 == 0 else 0)) % 4
+    remaining_stock = max(0, stock_before - caught - communal_pressure)
     terminal = next_review >= FISH_FLINGERS_EVENT_REVIEWS
+    rotated = remaining_stock == 0 and not terminal
+    if rotated:
+        rotation_index = (rotation_index + 1) % len(FISH_FLINGERS_ROTATION_ROUTE)
+        species_index, location_index = FISH_FLINGERS_ROTATION_ROUTE[rotation_index]
+        remaining_stock = FISH_FLINGERS_STOCK_MAX
     xp = 0.0
     tokens = 0
     medals = 0
@@ -274,7 +364,10 @@ def apply_fish_flingers_review_pure(
             "big_fish": big_fish,
             "assists": assists,
             "perfect_tackles": perfect_tackles,
+            "rotation_index": rotation_index,
+            "species_index": species_index,
             "location_index": location_index,
+            "stock": remaining_stock,
         }
 
     extras = []
@@ -282,12 +375,19 @@ def apply_fish_flingers_review_pure(
         extras.append("big fish landed")
     if assisted:
         extras.append("public catch assisted")
+    if rotated:
+        next_species = FISH_FLINGERS_SPECIES[species_index]["name"]
+        next_location = FISH_FLINGERS_LOCATIONS[location_index]["name"]
+        extras.append(f"stock rotated to {next_species} at {next_location}")
     if terminal:
         extras.extend((f"{tokens} tokens", f"{medals} medals", f"{xp:g} Fishing XP"))
     suffix = " · " + " · ".join(extras) if extras else ""
     data["fish_flingers_last_result"] = (
-        f"Fish Flingers · {FISH_FLINGERS_DISCOVERY_LABELS[review]} · "
+        f"Fish Flingers · {species['name']} at {location['name']} · "
+        f"{FISH_FLINGERS_DISCOVERY_LABELS[review]} · "
         f"{caught} fish at {efficiency * 100:g}% efficiency · "
+        f"{weight_total} total weight · "
+        f"stock {remaining_stock}/{FISH_FLINGERS_STOCK_MAX} · "
         f"{next_review}/6 catches{suffix}"
     )
     return data, {
@@ -297,7 +397,16 @@ def apply_fish_flingers_review_pure(
         "expected_success_chance": 1.0,
         "fish_caught": caught,
         "fish_total": fish_total,
+        "catch_weight": weight,
         "total_weight": weight_total,
+        "species": str(species["name"]),
+        "location": str(location["name"]),
+        "stock_before": stock_before,
+        "stock_after": remaining_stock,
+        "stock_label": _stock_label(remaining_stock),
+        "rotation_index": rotation_index,
+        "rotated": rotated,
+        "communal_pressure": communal_pressure,
         "big_fish": big_fish,
         "assists": assists,
         "perfect_tackles": perfect_tackles,
@@ -403,6 +512,10 @@ def fish_flingers_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
     state = sanitize_fish_flingers_state_pure(data)
     session = state["fish_flingers"]
     review = int(session.get("review", 0))
+    stock = int(session.get("stock", 0))
+    rotation_index = int(session.get("rotation_index", 0))
+    species_index = int(session.get("species_index", 0))
+    location_index = int(session.get("location_index", 0))
     inventory = data.get("inventory")
     bank = inventory if isinstance(inventory, Mapping) else {}
     return {
@@ -411,9 +524,32 @@ def fish_flingers_view_pure(player_data: Mapping[str, Any]) -> dict[str, Any]:
         "review": review,
         "review_number": review + 1 if session else 0,
         "fish_caught": int(session.get("fish_caught", 0)),
+        "total_weight": int(session.get("total_weight", 0)),
         "big_fish": int(session.get("big_fish", 0)),
         "assists": int(session.get("assists", 0)),
         "perfect_tackles": int(session.get("perfect_tackles", 0)),
+        "species": (
+            str(FISH_FLINGERS_SPECIES[species_index]["name"]) if session else ""
+        ),
+        "location": (
+            str(FISH_FLINGERS_LOCATIONS[location_index]["name"]) if session else ""
+        ),
+        "stock": stock,
+        "stock_max": FISH_FLINGERS_STOCK_MAX,
+        "stock_percent": (
+            stock * 100 // FISH_FLINGERS_STOCK_MAX if session else 0
+        ),
+        "stock_label": _stock_label(stock) if session else "No event",
+        "rotation_index": rotation_index,
+        "rotation": (
+            f"{rotation_index + 1}/{len(FISH_FLINGERS_ROTATION_ROUTE)}"
+            if session
+            else "—"
+        ),
+        "communal_pressure": FISH_FLINGERS_COMMUNAL_DEPLETION,
+        "communal_pressure_label": (
+            f"{FISH_FLINGERS_COMMUNAL_DEPLETION} stock per review"
+        ),
         "efficiency": float(FISH_FLINGERS_EFFICIENCY[review]) if session else 0.5,
         "next_discovery": str(FISH_FLINGERS_DISCOVERY_LABELS[review]) if session else "Best bait",
         "tickets": state["fish_flingers_tickets"],

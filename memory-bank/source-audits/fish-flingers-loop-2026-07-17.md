@@ -119,3 +119,22 @@ Distractions and Diversions page, and the updated dark-mode detail card. The
 disabled purchase control exposed `Requires 140 Fishing tokens` through the
 native accessibility tree. The check did not enter an event or mutate the real
 player save.
+
+## Bounded stock-mechanic closure (`2026-07-25`)
+
+The six sourced species and four sourced locations are now a live deterministic
+six-entry route with the sourced one/one/two/two location distribution. Session
+state version 2 persists only bounded current route, species, location, stock,
+and existing score/reward inputs. Old and malformed sessions repair into that
+shape.
+
+The stock maximum, species/location catch and weight modifiers, stock bands,
+rotation order, and fixed three-stock communal depletion are explicitly
+AnkiScape balance values, not historical rate claims. Every review uses the
+current species, location, and stock in its catch or weight result, then removes
+both the player catch and fixed communal pressure from stock so that pressure
+changes later stock-band catches. Exhaustion rotates immediately without a
+worker. The pure view and dark-mode-safe Qt card show species, location, total
+weight, stock amount/percent/label, route index, and communal pressure. The
+six-review tackle ramp, entry/leave behavior, terminal formulas,
+shop, XP, runtime dispatch, and undo seam remain unchanged.

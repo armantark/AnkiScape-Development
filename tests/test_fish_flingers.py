@@ -11,15 +11,25 @@ from unittest.mock import patch
 
 import pkg_alias  # noqa: F401  (installs the ankiscape package alias)
 from ankiscape.logic import cadence_coverage
+from ankiscape.logic import fish_flingers_logic
 from ankiscape.core import constants
-from ankiscape.data.fish_flingers_data import FISH_FLINGERS_ACTIVITY_ID
+from ankiscape.data.fish_flingers_data import (
+    FISH_FLINGERS_ACTIVITY_ID,
+    FISH_FLINGERS_COMMUNAL_DEPLETION,
+    FISH_FLINGERS_LOCATIONS,
+    FISH_FLINGERS_ROTATION_ROUTE,
+    FISH_FLINGERS_SPECIES,
+    FISH_FLINGERS_STOCK_MAX,
+)
 from ankiscape.logic.fish_flingers_logic import (
+    FISH_FLINGERS_STATE_VERSION,
     apply_fish_flingers_review_pure,
     buy_fish_flingers_reward_pure,
     enter_fish_flingers_pure,
     fish_flingers_view_pure,
     fishing_outfit_multiplier_pure,
     leave_fish_flingers_pure,
+    sanitize_fish_flingers_session_pure,
     sync_fish_flingers_tickets_pure,
 )
 from ankiscape.logic_pure.logic_pure import equip_item_pure
@@ -43,6 +53,29 @@ def _player(**updates):
 
 
 class FishFlingersDataTests(unittest.TestCase):
+    def test_sourced_species_locations_and_distribution_are_complete(self):
+        self.assertEqual(
+            {row["name"] for row in FISH_FLINGERS_SPECIES},
+            {"Bass", "Cod", "Herring", "Pike", "Salmon", "Trout"},
+        )
+        self.assertEqual(
+            {row["name"] for row in FISH_FLINGERS_LOCATIONS},
+            {"Lake", "River", "Beach", "Docks"},
+        )
+        location_counts = [
+            sum(
+                1
+                for _species, route_location in FISH_FLINGERS_ROTATION_ROUTE
+                if route_location == index
+            )
+            for index in range(len(FISH_FLINGERS_LOCATIONS))
+        ]
+        self.assertEqual(sorted(location_counts), [1, 1, 2, 2])
+        self.assertEqual(
+            {species for species, _location in FISH_FLINGERS_ROTATION_ROUTE},
+            set(range(6)),
+        )
+
     def test_activity_and_reward_items_are_registered(self):
         spec = constants.UTILITY_ACTIVITY_DATA[FISH_FLINGERS_ACTIVITY_ID]
         self.assertEqual(spec["group"], "distractions_and_diversions")
@@ -128,6 +161,12 @@ class FishFlingersLogicTests(unittest.TestCase):
             entered["activity_session"]["active_id"], FISH_FLINGERS_ACTIVITY_ID
         )
         self.assertEqual(entered["current_utility"], FISH_FLINGERS_ACTIVITY_ID)
+        session = entered["fish_flingers"]
+        self.assertEqual(session["version"], FISH_FLINGERS_STATE_VERSION)
+        self.assertEqual(session["species_index"], 0)
+        self.assertEqual(session["location_index"], 0)
+        self.assertEqual(session["stock"], FISH_FLINGERS_STOCK_MAX)
+        self.assertEqual(session["rotation_index"], 0)
         _same, second_ok, _second_info = enter_fish_flingers_pure(entered)
         self.assertFalse(second_ok)
 
@@ -146,12 +185,137 @@ class FishFlingersLogicTests(unittest.TestCase):
         self.assertEqual(player["fish_flingers"], {})
         self.assertEqual(player["activity_session"]["active_id"], "")
         self.assertEqual(player["fish_flingers_events_completed"], 1)
-        self.assertEqual(result["fish_total"], 42)
         self.assertEqual(result["perfect_tackles"], 4)
-        self.assertEqual(result["tokens"], 18)
+        self.assertEqual(
+            result["tokens"],
+            result["fish_total"] // 4
+            + min(3, result["big_fish"])
+            + min(3, result["assists"] // 2)
+            + min(3, result["perfect_tackles"] // 2),
+        )
         self.assertEqual(result["medals"], 3)
         self.assertNotIn("Master Angler", result["medal_labels"])
         self.assertGreater(result["xp"], 0)
+
+    def test_species_location_stock_and_communal_pressure_change_outcomes(self):
+        entered, ok, info = enter_fish_flingers_pure(_player())
+        self.assertTrue(ok, info)
+        entered["fish_flingers"]["review"] = 2
+
+        def outcome_with(*, catch_roll=0.999, **session_updates):
+            player = copy.deepcopy(entered)
+            player["fish_flingers"].update(session_updates)
+            _updated, result = apply_fish_flingers_review_pure(
+                player, catch_roll, 0.999, 0.999
+            )
+            return result
+
+        baseline = outcome_with(species_index=0, location_index=0)
+        self.assertNotEqual(
+            outcome_with(species_index=3)["fish_caught"],
+            baseline["fish_caught"],
+        )
+        self.assertNotEqual(
+            outcome_with(location_index=3)["fish_caught"],
+            baseline["fish_caught"],
+        )
+        self.assertNotEqual(
+            outcome_with(stock=17)["fish_caught"],
+            outcome_with(stock=9)["fish_caught"],
+        )
+
+        herring = outcome_with(species_index=2, location_index=0)
+        trout = outcome_with(species_index=5, location_index=0)
+        self.assertEqual(herring["fish_caught"], trout["fish_caught"])
+        self.assertNotEqual(herring["catch_weight"], trout["catch_weight"])
+        lake = outcome_with(species_index=0, location_index=0)
+        beach = outcome_with(species_index=0, location_index=2)
+        self.assertEqual(lake["fish_caught"], beach["fish_caught"])
+        self.assertNotEqual(lake["catch_weight"], beach["catch_weight"])
+
+        def second_catch_with_pressure(pressure):
+            player = copy.deepcopy(entered)
+            with patch.object(
+                fish_flingers_logic,
+                "FISH_FLINGERS_COMMUNAL_DEPLETION",
+                pressure,
+            ):
+                player, first = apply_fish_flingers_review_pure(
+                    player, 0.0, 0.999, 0.999
+                )
+                _player_after, second = apply_fish_flingers_review_pure(
+                    player, 0.0, 0.999, 0.999
+                )
+            return first["stock_after"], second["fish_caught"]
+
+        normal_stock, normal_catch = second_catch_with_pressure(
+            FISH_FLINGERS_COMMUNAL_DEPLETION
+        )
+        pressured_stock, pressured_catch = second_catch_with_pressure(
+            FISH_FLINGERS_COMMUNAL_DEPLETION * 2
+        )
+        self.assertLess(pressured_stock, normal_stock)
+        self.assertLess(pressured_catch, normal_catch)
+
+    def test_player_and_communal_depletion_reduce_stock_and_exhaustion_rotates(self):
+        player, ok, info = enter_fish_flingers_pure(_player())
+        self.assertTrue(ok, info)
+        player, result = apply_fish_flingers_review_pure(player, 0.0, 0.999, 0.999)
+        self.assertEqual(
+            player["fish_flingers"]["stock"],
+            FISH_FLINGERS_STOCK_MAX
+            - result["fish_caught"]
+            - FISH_FLINGERS_COMMUNAL_DEPLETION,
+        )
+        self.assertFalse(result["rotated"])
+
+        player["fish_flingers"].update(
+            {
+                "stock": 4,
+                "rotation_index": 0,
+                "species_index": 0,
+                "location_index": 0,
+            }
+        )
+        player, result = apply_fish_flingers_review_pure(player, 0.0, 0.999, 0.999)
+        view = fish_flingers_view_pure(player)
+        self.assertTrue(result["rotated"])
+        self.assertEqual(view["species"], "Cod")
+        self.assertEqual(view["location"], "River")
+        self.assertEqual(view["stock"], FISH_FLINGERS_STOCK_MAX)
+        self.assertEqual(view["rotation"], "2/6")
+
+        route_player, ok, info = enter_fish_flingers_pure(_player())
+        self.assertTrue(ok, info)
+        route_seen = []
+        for _review in range(6):
+            route_player["fish_flingers"]["stock"] = 1
+            route_player, result = apply_fish_flingers_review_pure(
+                route_player, 0.0, 0.999, 0.999
+            )
+            route_seen.append((result["species"], result["location"]))
+        self.assertEqual(
+            route_seen,
+            [
+                ("Bass", "Lake"),
+                ("Cod", "River"),
+                ("Herring", "Beach"),
+                ("Pike", "Beach"),
+                ("Salmon", "Docks"),
+                ("Trout", "Docks"),
+            ],
+        )
+
+        terminal_player, ok, info = enter_fish_flingers_pure(_player())
+        self.assertTrue(ok, info)
+        terminal_player["fish_flingers"].update({"review": 5, "stock": 1})
+        terminal_player, terminal_result = apply_fish_flingers_review_pure(
+            terminal_player, 0.0, 0.999, 0.999
+        )
+        self.assertTrue(terminal_result["terminal"])
+        self.assertFalse(terminal_result["rotated"])
+        self.assertNotIn("stock rotated", terminal_result["status"])
+        self.assertEqual(terminal_player["fish_flingers"], {})
 
     def test_leave_forfeits_progress_without_refunding_ticket(self):
         player, ok, _info = enter_fish_flingers_pure(_player())
@@ -208,6 +372,33 @@ class FishFlingersLogicTests(unittest.TestCase):
         self.assertEqual(view["tickets"], 2)
         self.assertNotIn("fish_flingers_tickets", source)
 
+    def test_active_view_exposes_all_outcome_affecting_stock_context(self):
+        player, ok, info = enter_fish_flingers_pure(_player())
+        self.assertTrue(ok, info)
+        view = fish_flingers_view_pure(player)
+        self.assertEqual(view["species"], "Bass")
+        self.assertEqual(view["location"], "Lake")
+        self.assertEqual(view["total_weight"], 0)
+        self.assertEqual(view["stock"], FISH_FLINGERS_STOCK_MAX)
+        self.assertEqual(view["stock_percent"], 100)
+        self.assertEqual(view["stock_label"], "Rich")
+        self.assertEqual(view["rotation"], "1/6")
+        self.assertEqual(view["communal_pressure"], FISH_FLINGERS_COMMUNAL_DEPLETION)
+        self.assertIn("per review", view["communal_pressure_label"])
+
+        player["fish_flingers"]["stock"] = 16
+        boundary_view = fish_flingers_view_pure(player)
+        self.assertEqual(boundary_view["stock_percent"], 66)
+        self.assertEqual(boundary_view["stock_label"], "Fading")
+
+        player, result = apply_fish_flingers_review_pure(
+            player, 0.5, 0.999, 0.999
+        )
+        weighted_view = fish_flingers_view_pure(player)
+        self.assertEqual(weighted_view["total_weight"], result["total_weight"])
+        self.assertGreater(weighted_view["total_weight"], 0)
+        self.assertIn("total weight", result["status"])
+
 
 class FishFlingersStorageTests(unittest.TestCase):
     def test_default_and_migration_include_sanitized_fish_flingers_state(self):
@@ -225,6 +416,26 @@ class FishFlingersStorageTests(unittest.TestCase):
         self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(migrated["fish_flingers"]["review"], 5)
         self.assertEqual(migrated["fish_flingers"]["fish_caught"], 0)
+        self.assertEqual(
+            migrated["fish_flingers"]["version"], FISH_FLINGERS_STATE_VERSION
+        )
+        self.assertEqual(migrated["fish_flingers"]["stock"], FISH_FLINGERS_STOCK_MAX)
+
+        repaired = sanitize_fish_flingers_session_pure(
+            {
+                "version": 999,
+                "review": "bad",
+                "rotation_index": 999,
+                "species_index": -2,
+                "location_index": 999,
+                "stock": -50,
+            }
+        )
+        self.assertEqual(repaired["version"], FISH_FLINGERS_STATE_VERSION)
+        self.assertEqual(repaired["rotation_index"], 5)
+        self.assertEqual(repaired["species_index"], 0)
+        self.assertEqual(repaired["location_index"], 3)
+        self.assertEqual(repaired["stock"], 1)
 
 
 class FishFlingersHookTests(unittest.TestCase):
@@ -267,6 +478,8 @@ class FishFlingersHookTests(unittest.TestCase):
         self.assertEqual(addon.player_data["fish_flingers_events_completed"], 1)
         self.assertEqual(addon.player_data["fish_flingers"], {})
         self.assertGreater(addon.player_data["fishing_exp"], before_xp)
+        self.assertIn(" at ", addon.player_data["fish_flingers_last_result"])
+        self.assertIn("stock", addon.player_data["fish_flingers_last_result"])
 
         addon._on_state_did_undo(types.SimpleNamespace(operation="Answer Card"))
         self.assertEqual(addon.player_data, before)

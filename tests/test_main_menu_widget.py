@@ -10419,6 +10419,10 @@ class MainMenuWidgetTest(unittest.TestCase):
             }
         )
         dialog = self._open(pd)
+        dialog.show()
+        dialog.resize(720, 560)
+        for _ in range(3):
+            QApplication.processEvents()
         activity_tree = self._open_activities(dialog)
         row = _utility_row(activity_tree, "fish_flingers")
         activity_tree.setCurrentItem(row)
@@ -10439,6 +10443,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertNotIn("claim", summary.text())
         self.assertTrue(progress.isHidden())
         self.assertEqual(reward.currentData(), "fishing_hat")
+        self.assertEqual(
+            reward.sizeAdjustPolicy(),
+            QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon,
+        )
         self.assertTrue(buy.isEnabled())
         basic_index = reward.findData("basic_tackle_box")
         self.assertIn("upgrade Beginner's tackle box", reward.itemText(basic_index))
@@ -10454,7 +10462,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Requires 140 Fishing tokens", buy.toolTip())
 
         primary.click()
-        QApplication.processEvents()
+        for _ in range(3):
+            QApplication.processEvents()
         self.assertEqual(
             self._fish_flingers_calls[-1],
             ("enter_fish_flingers", {}),
@@ -10462,6 +10471,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(pd["current_utility"], "fish_flingers")
         self.assertEqual(primary.text(), "Selected for reviews")
         self.assertIn("ACTIVE", currency.text())
+        self.assertIn("Bass at Lake", summary.text())
+        self.assertIn("stock 24/24 (100%, Rich)", summary.text())
+        self.assertIn("0 total weight", summary.text())
+        self.assertIn("rotation 1/6", summary.text())
+        self.assertIn("communal pressure 3 stock per review", summary.text())
+        self.assertIn("palette(text)", summary.styleSheet())
+        self.assertGreaterEqual(summary.height(), summary.sizeHint().height())
+        self.assertLessEqual(panel.width(), dialog.width())
         self.assertEqual(progress.format(), "%v of 6 landed")
         self.assertFalse(progress.isHidden())
         self.assertFalse(leave.isHidden())

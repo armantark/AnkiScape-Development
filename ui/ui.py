@@ -11295,6 +11295,10 @@ def show_main_menu(
         fish_flingers_reward = QComboBox()
         fish_flingers_reward.setObjectName("fishFlingersRewardCombo")
         fish_flingers_reward.setAccessibleName("Fish Flingers reward")
+        fish_flingers_reward.setSizeAdjustPolicy(
+            QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
+        )
+        fish_flingers_reward.setMinimumContentsLength(22)
         fish_flingers_buy = QPushButton("Buy")
         fish_flingers_buy.setObjectName("fishFlingersBuyButton")
         fish_flingers_buy.setAccessibleName("Buy Fish Flingers reward")
@@ -11343,9 +11347,16 @@ def show_main_menu(
             if active:
                 fish_flingers_summary.setText(
                     f"Catch {int(view['review']) + 1}/6 · "
+                    f"{view['species']} at {view['location']} · "
+                    f"stock {int(view['stock'])}/{int(view['stock_max'])} "
+                    f"({int(view['stock_percent'])}%, {view['stock_label']}) · "
+                    f"rotation {view['rotation']}\n"
                     f"{float(view['efficiency']) * 100:g}% efficiency · "
-                    f"{int(view['fish_caught'])} fish · {int(view['big_fish'])} big · "
-                    f"{int(view['assists'])} assists\nNext: {view['next_discovery']}"
+                    f"{int(view['fish_caught'])} fish · "
+                    f"{int(view['total_weight'])} total weight · "
+                    f"{int(view['big_fish'])} big · {int(view['assists'])} assists · "
+                    f"communal pressure {view['communal_pressure_label']} · "
+                    f"next: {view['next_discovery']}"
                 )
             else:
                 summary_lines = [
@@ -11368,6 +11379,9 @@ def show_main_menu(
                         )
                     )
                 fish_flingers_summary.setText("\n".join(summary_lines))
+            fish_flingers_summary.setMinimumHeight(
+                fish_flingers_summary.sizeHint().height()
+            )
             fish_flingers_summary.setToolTip(str(view["last_result"]))
             fish_flingers_progress.setValue(int(view["review"]) if active else 0)
             fish_flingers_progress.setVisible(active)
