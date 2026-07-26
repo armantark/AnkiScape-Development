@@ -16,7 +16,7 @@ reaching breadth level one, so deferring them costs nothing today.
 
 | item | why GPT | blocked family, if any |
 | --- | --- | --- |
-| Independent verification pass over every family that reached breadth one this week | Sol is the right verifier for did-this-actually-run questions | none; a quality gate, not a blocker |
+| ~~Independent verification pass over every family that reached breadth one this week~~ **running 2026-07-26** on `verify/sol-pass` | Sol is the right verifier for did-this-actually-run questions, and a different lineage from the Claude models that wrote all nine families | none; a quality gate, not a blocker |
 | Exhaustive drop-table and rare-roll harvest for the boss families | high-volume, bounded extraction from Darkan and the rev-727 cache | none; the breadth rule defers exhaustive catalogs |
 | Period-art provenance sweep across the asset library | mechanical, ~83% of the library, tedious rather than hard | Evil Tree, Wicked hood |
 | Placeholder retirement pass | each row in `placeholder-values.md` is a bounded dig | none by construction |
