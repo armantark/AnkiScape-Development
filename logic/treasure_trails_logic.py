@@ -47,6 +47,9 @@ def _int(value: Any, default: int = 0, *, minimum: int = 0, maximum: int = 2_147
 def default_treasure_trails_state_pure() -> dict[str, Any]:
     return {
         "treasure_trail": {},
+        # An abandoned trail is only put away, not torn up: the retained trail
+        # waits here so re-reading the same scroll picks it back up mid-trail.
+        "treasure_trail_retained": {},
         "treasure_trails_started": 0,
         "treasure_trails_completed": 0,
         "treasure_trails_caskets_opened": 0,
@@ -86,6 +89,9 @@ def sanitize_treasure_trails_state_pure(player_data: Mapping[str, Any] | None) -
     return {
         **default_treasure_trails_state_pure(),
         "treasure_trail": trail,
+        "treasure_trail_retained": sanitize_treasure_trail_pure(
+            source.get("treasure_trail_retained")
+        ),
         "treasure_trails_started": _int(source.get("treasure_trails_started")),
         "treasure_trails_completed": _int(source.get("treasure_trails_completed")),
         "treasure_trails_caskets_opened": _int(source.get("treasure_trails_caskets_opened")),
@@ -229,30 +235,47 @@ def read_clue_scroll_pure(
     active_id = str(active.get("active_id", "")) if isinstance(active, Mapping) else ""
     if active_id and active_id != TREASURE_TRAILS_ACTIVITY_ID:
         return data, False, {"reason": "Finish the active persistent activity first."}
-    draw = rng or (lambda: 0.0)
-    # PLACEHOLDER(treasure_trails.easy_step_count_distribution): the period page
-    # states the 1-to-5 range but not the shape inside it, and Darkan's
-    # 1 + random(3) cannot reach five, so it cannot settle this either.
-    length = _roll(draw, TREASURE_TRAILS_EASY_MIN_STEPS, TREASURE_TRAILS_EASY_MAX_STEPS)
-    pool = list(TREASURE_TRAILS_EASY_STEPS)
-    steps = []
-    for _index in range(length):
-        # Darkan draws each clue detail uniformly from the rows at or below the
-        # trail's difficulty, so a uniform draw over the easy pool is sourced.
-        steps.append(str(_pick(draw, pool)))
-    trail = {
-        "version": TREASURE_TRAILS_STATE_VERSION,
-        "tier": tier,
-        "steps": steps,
-        "index": 0,
-    }
+    retained = state["treasure_trail_retained"]
+    resumed = bool(retained) and str(retained["tier"]) == tier
+    if resumed:
+        trail = dict(retained)
+    else:
+        draw = rng or (lambda: 0.0)
+        # PLACEHOLDER(treasure_trails.easy_step_count_distribution): the period
+        # page states the 1-to-5 range but not the shape inside it, and Darkan's
+        # 1 + random(3) cannot reach five, so it cannot settle this either.
+        length = _roll(
+            draw, TREASURE_TRAILS_EASY_MIN_STEPS, TREASURE_TRAILS_EASY_MAX_STEPS
+        )
+        pool = list(TREASURE_TRAILS_EASY_STEPS)
+        steps = []
+        for _index in range(length):
+            # Darkan draws each clue detail uniformly from the rows at or below
+            # the trail's difficulty, so a uniform draw over the easy pool is
+            # sourced.
+            steps.append(str(_pick(draw, pool)))
+        trail = {
+            "version": TREASURE_TRAILS_STATE_VERSION,
+            "tier": tier,
+            "steps": steps,
+            "index": 0,
+        }
+    steps = list(trail["steps"])
     data["treasure_trail"] = trail
+    # A retained trail of another tier belongs to a scroll the player no longer
+    # holds, so either way nothing is left waiting once a trail is under way.
+    data["treasure_trail_retained"] = {}
     data["activity_session"] = {"active_id": TREASURE_TRAILS_ACTIVITY_ID}
     data["current_utility"] = TREASURE_TRAILS_ACTIVITY_ID
-    data["treasure_trails_started"] = int(state["treasure_trails_started"]) + 1
+    if not resumed:
+        data["treasure_trails_started"] = int(state["treasure_trails_started"]) + 1
     message = (
-        f"Treasure Trail started · {len(steps)} clue"
-        f"{'s' if len(steps) != 1 else ''} to follow"
+        f"Treasure Trail resumed · {trail['index']}/{len(steps)} solved"
+        if resumed
+        else (
+            f"Treasure Trail started · {len(steps)} clue"
+            f"{'s' if len(steps) != 1 else ''} to follow"
+        )
     )
     data["treasure_trails_last_result"] = message
     return data, True, {"message": message, "steps": tuple(steps)}
@@ -334,6 +357,7 @@ def abandon_treasure_trail_pure(
     if not state["treasure_trail"]:
         return data, False, {"reason": "You are not following a Treasure Trail."}
     data.update(state)
+    data["treasure_trail_retained"] = dict(state["treasure_trail"])
     data["treasure_trail"] = {}
     data["activity_session"] = {"active_id": ""}
     message = "You put the clue scroll away. Read it again to pick the trail back up."
