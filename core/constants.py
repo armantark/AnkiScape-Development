@@ -86,6 +86,11 @@ from ..data.duel_arena_data import (
     duel_arena_equipment_data_as_dict,
     duel_arena_extra_items_as_dict,
 )
+from ..data.clan_wars_data import (
+    CLAN_WARS_ACTIVITY_ID,
+    clan_wars_activity_as_dict,
+    clan_wars_enemy_as_dict,
+)
 
 from ..data.varrock_museum_data import (
     VARROCK_MUSEUM_ACTIVITY_ID,
@@ -582,6 +587,7 @@ UTILITY_ACTIVITY_DATA.update(soul_wars_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(shades_of_mortton_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(tzhaar_fight_pit_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(duel_arena_activity_as_dict())
+UTILITY_ACTIVITY_DATA.update(clan_wars_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(varrock_museum_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(fight_caves_activity_as_dict())
 UTILITY_ACTIVITY_DATA.update(phoenix_lair_activity_as_dict())
@@ -721,6 +727,12 @@ _duel_arena_icon = os.path.join(
 )
 if os.path.exists(_duel_arena_icon):
     UTILITY_ACTIVITY_DATA[DUEL_ARENA_ACTIVITY_ID]["icon_path"] = _duel_arena_icon
+_clan_wars_icon = os.path.join(
+    UTILITY_ACTIVITY_ICONS_FOLDER,
+    "clan_wars.png",
+)
+if os.path.exists(_clan_wars_icon):
+    UTILITY_ACTIVITY_DATA[CLAN_WARS_ACTIVITY_ID]["icon_path"] = _clan_wars_icon
 _varrock_museum_icon = os.path.join(
     UTILITY_ACTIVITY_ICONS_FOLDER,
     "varrock_museum.png",
@@ -1441,6 +1453,7 @@ _fungicide_path = os.path.join(SHOP_ITEMS_FOLDER, "fungicide.png")
 if os.path.exists(_fungicide_path):
     COMBAT_ITEM_IMAGES["Fungicide"] = _fungicide_path
 COMBAT_ENEMY_IMAGES = {}
+COMBAT_ENEMY_DATA.update(clan_wars_enemy_as_dict())
 for _target_id in COMBAT_ENEMY_DATA:
     _path = os.path.join(COMBAT_ENEMIES_FOLDER, f"{_asset_slug(_target_id)}.png")
     if os.path.exists(_path):

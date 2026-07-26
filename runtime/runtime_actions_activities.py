@@ -260,6 +260,8 @@ from ..logic.tzhaar_fight_pit_logic import (
 )
 from ..data.duel_arena_data import DUEL_ARENA_ACTIVITY_ID
 from ..logic.duel_arena_logic import apply_duel_arena_review_pure
+from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
+from ..logic.clan_wars_logic import apply_clan_wars_review_pure
 from ..data.varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
 from ..logic.varrock_museum_logic import (
     apply_varrock_museum_review_pure,
@@ -2038,6 +2040,56 @@ def handle_duel_arena_answer(ctx: RuntimeActionContext) -> bool:
     ctx.save_player_data()
     ctx.refresh_skill_availability()
     ctx.show_activity_gain(str(result.get("message") or "Duel exchange resolved"))
+    if result.get("terminal"):
+        ctx.deactivate_current_skill()
+    return True
+
+
+def handle_clan_wars_answer(
+    ctx: RuntimeActionContext,
+    *,
+    productive: bool = True,
+) -> bool:
+    updated, ok, result = apply_clan_wars_review_pure(
+        ctx.player_data,
+        ctx.random_random,
+        equipment_data=EQUIPMENT_DATA,
+        productive=productive,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Clan Wars unavailable",
+            str(result.get("reason", "Enter a Clan Wars portal before training.")),
+        )
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    combat = dict(result.get("combat") or {})
+    xp_rewards = dict(combat.get("xp_rewards") or {})
+    _record_action(
+        ctx,
+        "utility",
+        CLAN_WARS_ACTIVITY_ID,
+        productive,
+        expected_success_chance=1.0,
+        failure_kind=(
+            "dangerous_death"
+            if combat.get("died")
+            and not combat.get("safe_death")
+            else "safe_death"
+            if combat.get("died")
+            else None
+        ),
+        primary_xp=sum(float(value or 0.0) for value in xp_rewards.values()),
+    )
+    _refresh_combat_levels(ctx, xp_rewards)
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_activity_gain(
+        str(result.get("message") or "Clan Wars combat beat resolved")
+    )
     if result.get("terminal"):
         ctx.deactivate_current_skill()
     return True

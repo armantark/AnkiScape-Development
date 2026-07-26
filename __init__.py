@@ -138,6 +138,8 @@ from .logic.shades_of_mortton_logic import apply_shades_of_mortton_command_pure
 from .logic.tzhaar_fight_pit_logic import apply_tzhaar_fight_pit_command_pure
 from .data.duel_arena_data import DUEL_ARENA_ACTIVITY_ID
 from .logic.duel_arena_logic import apply_duel_arena_command_pure
+from .data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
+from .logic.clan_wars_logic import apply_clan_wars_command_pure
 from .logic.varrock_museum_logic import apply_varrock_museum_command_pure
 from .logic.managing_miscellania_logic import (
     advance_managing_miscellania_world_clock_pure,
@@ -2771,6 +2773,38 @@ def _on_main_menu(
             pass
         return {"ok": True, **info}
 
+    def _apply_clan_wars_command(action_id, payload):
+        info = {}
+
+        def _change(current):
+            nonlocal info
+            updated, ok, info = apply_clan_wars_command_pure(
+                current,
+                str(action_id),
+                payload if isinstance(payload, dict) else {},
+            )
+            return updated, ok
+
+        if not commit_direct_action(_change):
+            if info.get("reason"):
+                return {
+                    "ok": False,
+                    "message": str(info["reason"]),
+                    **info,
+                }
+            return {
+                "ok": False,
+                "message": "Anki could not create an undo entry.",
+            }
+        _refresh_skill_availability()
+        if info.get("message"):
+            _show_activity_gain(str(info["message"]))
+        try:
+            update_review_hud(player_data, current_skill)
+        except AttributeError:
+            pass
+        return {"ok": True, **info}
+
     def _apply_managing_miscellania_command(action_id, payload):
         before = _capture_player_data_snapshot()
         updated, ok, info = apply_managing_miscellania_command_pure(
@@ -3088,6 +3122,7 @@ def _on_main_menu(
         on_shades_of_mortton_command=_apply_shades_of_mortton_command,
         on_tzhaar_fight_pit_command=_apply_tzhaar_fight_pit_command,
         on_duel_arena_command=_apply_duel_arena_command,
+        on_clan_wars_command=_apply_clan_wars_command,
         on_varrock_museum_command=_apply_varrock_museum_command,
         on_managing_miscellania_command=_apply_managing_miscellania_command,
         on_livid_farm_command=_apply_livid_farm_command,
@@ -3946,6 +3981,16 @@ def on_answer_card(self, ease, _old):
             and runtime_actions.shades_of_mortton_view_pure(player_data).get("active")
         ):
             runtime_actions.handle_shades_of_mortton_answer(
+                _runtime_action_context(),
+                productive=False,
+            )
+        elif (
+            review_action_handler_key(current_skill) == "utility"
+            and player_data.get("current_utility")
+            == runtime_actions.CLAN_WARS_ACTIVITY_ID
+            and runtime_actions.clan_wars_view_pure(player_data).get("active")
+        ):
+            runtime_actions.handle_clan_wars_answer(
                 _runtime_action_context(),
                 productive=False,
             )

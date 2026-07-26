@@ -259,6 +259,7 @@ from ..logic.tzhaar_fight_pit_logic import (
     tzhaar_fight_pit_view_pure,
 )
 from ..data.duel_arena_data import DUEL_ARENA_ACTIVITY_ID
+from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
 from ..data.varrock_museum_data import VARROCK_MUSEUM_ACTIVITY_ID
 from ..logic.varrock_museum_logic import (
     apply_varrock_museum_review_pure,
@@ -429,6 +430,7 @@ from .runtime_actions_activities import (  # noqa: F401  (re-export)
     handle_trouble_brewing_answer,
     handle_tzhaar_fight_pit_answer,
     handle_duel_arena_answer,
+    handle_clan_wars_answer,
     handle_varrock_museum_answer,
 )
 
@@ -500,6 +502,7 @@ from .runtime_actions_activities import (
     handle_trouble_brewing_answer,
     handle_tzhaar_fight_pit_answer,
     handle_duel_arena_answer,
+    handle_clan_wars_answer,
     handle_varrock_museum_answer,
 )
 
@@ -576,6 +579,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return handle_tzhaar_fight_pit_answer(ctx)
     if activity_key == DUEL_ARENA_ACTIVITY_ID:
         return handle_duel_arena_answer(ctx)
+    if activity_key == CLAN_WARS_ACTIVITY_ID:
+        return handle_clan_wars_answer(ctx)
     if activity_key == VARROCK_MUSEUM_ACTIVITY_ID:
         return handle_varrock_museum_answer(ctx)
     if activity_key == MANAGING_MISCELLANIA_ACTIVITY_ID:

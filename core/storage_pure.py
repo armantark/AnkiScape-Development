@@ -179,6 +179,11 @@ from ..logic.duel_arena_logic import (
     default_duel_arena_state_pure,
     sanitize_duel_arena_state_pure,
 )
+from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
+from ..logic.clan_wars_logic import (
+    default_clan_wars_state_pure,
+    sanitize_clan_wars_state_pure,
+)
 from ..logic.varrock_museum_logic import (
     default_varrock_museum_state_pure,
     sanitize_varrock_museum_state_pure,
@@ -224,7 +229,7 @@ from ..data.woodcutting_data import (
     LEGACY_TREE_TARGETS,
 )
 
-CURRENT_CONFIG_VERSION = 82
+CURRENT_CONFIG_VERSION = 83
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -476,6 +481,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_shades_of_mortton_state_pure())
     data.update(default_tzhaar_fight_pit_state_pure())
     data.update(default_duel_arena_state_pure())
+    data.update(default_clan_wars_state_pure())
     data["varrock_museum"] = default_varrock_museum_state_pure()
     data.update(default_managing_miscellania_state_pure())
     data["activity_session"] = {"active_id": ""}
@@ -1115,6 +1121,7 @@ def migrate_loaded_data(
     data.update(sanitize_shades_of_mortton_state_pure(data))
     data.update(sanitize_tzhaar_fight_pit_state_pure(data))
     data.update(sanitize_duel_arena_state_pure(data))
+    data.update(sanitize_clan_wars_state_pure(data))
     data["varrock_museum"] = sanitize_varrock_museum_state_pure(
         data.get("varrock_museum")
     )
@@ -1230,6 +1237,14 @@ def migrate_loaded_data(
             active_session_id = ""
     elif duel_arena_session:
         active_session_id = DUEL_ARENA_ACTIVITY_ID
+    clan_wars_session = data["clan_wars"]
+    if active_session_id:
+        if active_session_id != CLAN_WARS_ACTIVITY_ID:
+            data["clan_wars"] = {}
+        elif not clan_wars_session:
+            active_session_id = ""
+    elif clan_wars_session:
+        active_session_id = CLAN_WARS_ACTIVITY_ID
     data["activity_session"] = {"active_id": active_session_id}
     data["sorceress_garden"] = sanitize_sorceress_garden_state_pure(
         data.get("sorceress_garden")
@@ -1535,6 +1550,11 @@ def migrate_loaded_data(
     if loaded_config_version < 82:
         for key, value in default_duel_arena_state_pure().items():
             data.setdefault(key, value)
+    # v83: Clan Wars adds three explicit portal modes, persistent bounded
+    # matches, and dangerous-death outcome ledgers.
+    if loaded_config_version < 83:
+        for key, value in default_clan_wars_state_pure().items():
+            data.setdefault(key, value)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -1589,6 +1609,7 @@ def migrate_loaded_data(
     data.update(sanitize_shades_of_mortton_state_pure(data))
     data.update(sanitize_tzhaar_fight_pit_state_pure(data))
     data.update(sanitize_duel_arena_state_pure(data))
+    data.update(sanitize_clan_wars_state_pure(data))
     data.pop("agility_circus_last_week", None)
     agility_currencies = data.get("agility_activity_currencies")
     if isinstance(agility_currencies, dict):

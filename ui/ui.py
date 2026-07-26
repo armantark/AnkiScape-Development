@@ -332,6 +332,9 @@ from ..data.duel_arena_data import (
     DUEL_ARENA_RULE_PRESETS,
 )
 from ..logic.duel_arena_logic import duel_arena_view_pure
+from ..data.clan_wars_data import CLAN_WARS_ACTIVITY_ID
+from ..logic.clan_wars_logic import clan_wars_view_pure
+from .clan_wars_panel import ClanWarsPanel
 
 from ..data.managing_miscellania_data import MANAGING_MISCELLANIA_ACTIVITY_ID
 from ..logic.managing_miscellania_logic import managing_miscellania_view_pure
@@ -3588,6 +3591,7 @@ def show_main_menu(
     on_shades_of_mortton_command=None,
     on_tzhaar_fight_pit_command=None,
     on_duel_arena_command=None,
+    on_clan_wars_command=None,
     on_varrock_museum_command=None,
     on_managing_miscellania_command=None,
     on_set_prayer_selection=None,
@@ -14758,6 +14762,15 @@ def show_main_menu(
         )
         _refresh_duel_arena_panel()
 
+        clan_wars_box = ClanWarsPanel(
+            player_data,
+            on_command=on_clan_wars_command,
+            on_select=lambda activity_id: _request_utility_selection(activity_id),
+            on_changed=lambda: _fit_current_activity_detail(),
+            parent=cards_stack,
+        )
+        cards_stack.addWidget(clan_wars_box)
+
         barbarian_box = QtFrame()
         barbarian_box.setObjectName("barbarianAssaultPanel")
         barbarian_box.setStyleSheet(
@@ -17661,6 +17674,38 @@ def show_main_menu(
                         ),
                     )
                     return False
+            clan_view = clan_wars_view_pure(player_data)
+            if activity_id != CLAN_WARS_ACTIVITY_ID and clan_view["active"]:
+                answer = QMessageBox.question(
+                    dialog,
+                    "Leave Clan Wars?",
+                    "Switch activities? You will leave through the portal and "
+                    "end the bounded match.",
+                    QMessageBox.StandardButton.Yes
+                    | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return False
+                result = (
+                    on_clan_wars_command("leave", {})
+                    if on_clan_wars_command is not None
+                    else {
+                        "ok": False,
+                        "message": "Clan Wars actions are unavailable.",
+                    }
+                )
+                if not (result or {}).get("ok", False):
+                    show_error_message(
+                        "Clan Wars",
+                        str(
+                            (result or {}).get(
+                                "message",
+                                "Could not leave the match.",
+                            )
+                        ),
+                    )
+                    return False
             if (
                 activity_id != BARBARIAN_ASSAULT_ACTIVITY_ID
                 and barbarian_assault_view_pure(player_data)["active"]
@@ -17908,6 +17953,10 @@ def show_main_menu(
                 _refresh_duel_arena_panel()
                 _show_activity_detail(activity_id)
                 return
+            if activity_id == CLAN_WARS_ACTIVITY_ID:
+                clan_wars_box.refresh()
+                _show_activity_detail(activity_id)
+                return
             if activity_id == BARBARIAN_ASSAULT_ACTIVITY_ID:
                 _refresh_barbarian_panel()
                 _show_activity_detail(activity_id)
@@ -17982,6 +18031,7 @@ def show_main_menu(
             ),
             TZHAAR_FIGHT_PIT_ACTIVITY_ID: ("TzHaar Fight Pit", fight_pit_box),
             DUEL_ARENA_ACTIVITY_ID: ("Duel Arena", duel_arena_box),
+            CLAN_WARS_ACTIVITY_ID: ("Clan Wars", clan_wars_box),
             BARBARIAN_ASSAULT_ACTIVITY_ID: ("Barbarian Assault", barbarian_box),
             STRONGHOLD_PLAYER_SAFETY_ACTIVITY_ID: (
                 "Stronghold of Player Safety",
