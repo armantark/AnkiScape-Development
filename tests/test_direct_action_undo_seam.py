@@ -220,6 +220,47 @@ class DirectActionUndoSeamTest(unittest.TestCase):
         self.assertEqual(addon.player_data["tears_of_guthix"], before)
         self.assertFalse(addon.player_data["tears_of_guthix"]["active"])
 
+    def test_crucible_lesson_and_purchase_restore_through_the_seam(self):
+        """The Crucible spends a currency, so both mutations must be undoable."""
+        from ankiscape.data.crucible_data import (
+            CRUCIBLE_CURRENCY,
+            CRUCIBLE_LESSONS,
+            CRUCIBLE_TAUNTS,
+        )
+        from ankiscape.logic.crucible_logic import apply_crucible_command_pure
+
+        addon = self.addon
+        addon.player_data["inventory"] = {CRUCIBLE_CURRENCY: 12}
+        before = copy.deepcopy(addon.player_data["inventory"])
+
+        self.assertTrue(
+            self.commit(
+                lambda current: apply_crucible_command_pure(
+                    current, "take_lesson", {"lesson": CRUCIBLE_LESSONS[0]}
+                )[:2]
+            )
+        )
+        self.assertEqual(addon.player_data["inventory"][CRUCIBLE_CURRENCY], 13)
+
+        self.assertTrue(
+            self.commit(
+                lambda current: apply_crucible_command_pure(
+                    current, "buy_unlock", {"unlock_id": CRUCIBLE_TAUNTS[0].id}
+                )[:2]
+            )
+        )
+        self.assertEqual(
+            addon.player_data["crucible_unlocks"], (CRUCIBLE_TAUNTS[0].id,)
+        )
+        self.assertEqual(addon.player_data["inventory"][CRUCIBLE_CURRENCY], 1)
+
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data["crucible_unlocks"], ())
+        self.assertEqual(addon.player_data["inventory"][CRUCIBLE_CURRENCY], 13)
+        addon._restore_direct_action_snapshot(addon._DIRECT_ACTION_UNDO_STACK.pop())
+        self.assertEqual(addon.player_data["inventory"], before)
+        self.assertEqual(addon.player_data["crucible_lessons_taken"], ())
+
     def test_enchanted_key_site_choice_restores_through_the_seam(self):
         from ankiscape.data.enchanted_key_data import ENCHANTED_KEY_SITE_IDS
         from ankiscape.logic.enchanted_key_logic import (

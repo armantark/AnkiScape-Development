@@ -359,6 +359,18 @@
     "source_wiki": "rs3",
     "timestamp": "2010-11-02T04:04:25Z"
   },
+  "activityicons/crucible.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Crucible_symbol.png",
+    "file_title": "Crucible symbol.png",
+    "image_url": "https://runescape.wiki/images/Crucible_symbol.png?d92ca",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5fde2cb546557da1a6448709ed12d5e1527868e9",
+    "size": 9672,
+    "source_wiki": "rs3",
+    "timestamp": "2012-07-18T15:55:12Z"
+  },
   "activityicons/desert_phoenix.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Desert_Phoenix.png",
     "file_title": "Desert Phoenix.png",

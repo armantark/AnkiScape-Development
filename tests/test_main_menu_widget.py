@@ -8499,6 +8499,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "tzhaar_fight_pit",
                 "duel_arena",
                 "clan_wars",
+                "crucible",
             },
         )
         self.assertEqual(

@@ -509,6 +509,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "tzhaar_fight_pit",
                 "duel_arena",
                 "clan_wars",
+                "crucible",
                 "stronghold_player_safety",
                 "varrock_museum",
                 "sorceress_garden",
